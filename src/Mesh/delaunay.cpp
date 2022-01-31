@@ -1399,7 +1399,7 @@ int triunsuitable();
 #else /* not EXTERNAL_TEST */
 
 #ifdef ANSI_DECLARATORS
-int triunsuitable(vertex triorg, vertex tridest, vertex triapex, DREAL area)
+int triunsuitable(vertex triorg, vertex tridest, vertex triapex, DREAL /*area*/)
 #else /* not ANSI_DECLARATORS */
 int triunsuitable(triorg, tridest, triapex, area)
 vertex triorg;                              /* The triangle's origin vertex. */
@@ -1451,7 +1451,7 @@ DREAL area;                                      /* The area of the triangle. */
 /**                                                                         **/
 
 #ifdef ANSI_DECLARATORS
-void triexit(int status)
+void triexit(int /*status*/)
 #else /* not ANSI_DECLARATORS */
 void triexit(status)
 int status;
@@ -3856,7 +3856,7 @@ struct otri *t;
 /*****************************************************************************/
 
 #ifdef ANSI_DECLARATORS
-void printsubseg(struct mesh *m, struct behavior *b, struct osub *s)
+void printsubseg(struct mesh *m, struct behavior* /*b*/, struct osub *s)
 #else /* not ANSI_DECLARATORS */
 void printsubseg(m, b, s)
 struct mesh *m;

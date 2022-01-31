@@ -11,10 +11,16 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighBench.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Basic/OptDbg.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -67,10 +73,11 @@ int main(int argc, char *argv[])
 
 {
   char       filename[BUFFER_LENGTH];
-  Db        *dbin,*dbout;
+  Db        *dbin;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model,*new_model;
-  Neigh     *neigh;
+  ANeighParam *neighparam;
   Option_AutoFit mauto;
   int        nbsimu,seed,nbtuba;
   static int    nboot   = 10;
@@ -83,7 +90,7 @@ int main(int argc, char *argv[])
   dbout = nullptr;
   vario = nullptr;
   model = new_model = nullptr;
-  neigh = nullptr;
+  neighparam = nullptr;
 
   /* Standard output redirection to file */
 
@@ -97,8 +104,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
 
   /* Getting the Study name */
 
@@ -113,7 +119,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = Db::createFromNF(filename,false,verbose);
+  dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   db_print(dbin,1,0,1,1,1);
 
@@ -124,7 +130,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Db::createFromNF(filename,true,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Define the variogram */
 
@@ -158,7 +164,13 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neigh = Neigh::createFromNF(filename,verbose);
+  neighparam = NeighUnique::createFromNF(filename,verbose);
+  if (neighparam == nullptr)
+    neighparam = NeighImage::createFromNF(filename, verbose);
+  if (neighparam == nullptr)
+    neighparam = NeighBench::createFromNF(filename, verbose);
+  if (neighparam == nullptr)
+    neighparam = NeighMoving::createFromNF(filename, verbose);
 
   /* Look for simulations */
 
@@ -180,25 +192,25 @@ int main(int argc, char *argv[])
 
   /* Perform the estimation */
 
-  if (neigh != nullptr)
+  if (neighparam != nullptr)
   {
     if (nbsimu > 0)
     {
     
       /* Simulation case */
 
-      if (simtub(dbin,dbout,new_model,neigh,nbsimu,seed,nbtuba,0))
+      if (simtub(dbin,dbout,new_model,neighparam,nbsimu,seed,nbtuba,0))
         messageAbort("Simulations");
       db_print(dbout,1,0,1,1,1);
     }
     else
     {
-      if (neigh->getFlagXvalid())
+      if (neighparam->getFlagXvalid())
       {
         
         /* Cross-validation */
 
-        if (kriging(dbin,dbin,new_model,neigh,EKrigOpt::PONCTUAL,
+        if (kriging(dbin,dbin,new_model,neighparam,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbin,1,0,1,1,1);
       }
@@ -208,7 +220,7 @@ int main(int argc, char *argv[])
         /* Estimation case */
 
         if (dbout == nullptr) goto label_end;
-        if (kriging(dbin,dbout,new_model,neigh,EKrigOpt::PONCTUAL,
+        if (kriging(dbin,dbout,new_model,neighparam,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
         db_print(dbout,1,0,1,1,1);
         dbout = db_delete(dbout);
@@ -225,6 +237,6 @@ label_end:
   vario = variogram_delete(vario);
   model = model_free(model);
   new_model = model_free(new_model);
-  delete neigh;
+  delete neighparam;
   return(0);
 }

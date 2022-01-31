@@ -20,6 +20,8 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
 
+class DbGrid;
+
 class GSTLEARN_EXPORT RuleShift: public Rule
 {
 public:

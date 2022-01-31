@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 
@@ -154,7 +155,7 @@ static int st_get_optimal_even_number(int number)
  ** \param[out] simu  Initialized structure
  **
  *****************************************************************************/
-static void st_simfft_init(Db *db, ST_FFT *simu)
+static void st_simfft_init(DbGrid *db, ST_FFT *simu)
 {
   int i;
 
@@ -195,7 +196,7 @@ static void st_simfft_init(Db *db, ST_FFT *simu)
  ** \param[in]  flag_amplitude  1 to convert into amplitude
  **
  *****************************************************************************/
-static void st_simfft_prepar(Db *db,
+static void st_simfft_prepar(DbGrid *db,
                              Model *model,
                              ST_FFT *simu,
                              int flag_amplitude)
@@ -351,7 +352,7 @@ static void st_simfft_prepar(Db *db,
 
     /* Printout statistics */
 
-    if (debug_query("simulate"))
+    if (OptDbg::query(EDbg::SIMULATE))
     {
       message("Statistics on the Discrete Periodic Covariance\n");
       if (FLAG_ALIASING)
@@ -564,7 +565,7 @@ static int st_total_count(int ndim, int *nxyz)
  **                      covariance is considered as small enough for dilation
  **
  *****************************************************************************/
-static void st_grid_dilate(Db *db, Model *model, ST_FFT *simu, double percent)
+static void st_grid_dilate(DbGrid *db, Model *model, ST_FFT *simu, double percent)
 {
   double xyz0[3], xyz[3][3];
   int i, j, idx, idy, idz, ndx, ndy, ndz, correct, not_ok, not_ok_dir, ndim,
@@ -686,7 +687,7 @@ static void st_grid_dilate(Db *db, Model *model, ST_FFT *simu, double percent)
 
   /* Optional printout */
 
-  if (debug_query("simulate"))
+  if (OptDbg::query(EDbg::SIMULATE))
   {
     message("Grid Dilation parameters :\n");
     if (ndim >= 1) message("- Number of Nodes along X = %d\n", ndx);
@@ -728,7 +729,7 @@ static void st_simfft_free(ST_FFT *simu)
  ** \param[out]  simu   ST_FFT structure
  **
  *****************************************************************************/
-static int st_simfft_alloc(Db *db, Model *model, double percent, ST_FFT *simu)
+static int st_simfft_alloc(DbGrid *db, Model *model, double percent, ST_FFT *simu)
 {
   int i, error, ndim, nval;
 
@@ -758,7 +759,7 @@ static int st_simfft_alloc(Db *db, Model *model, double percent, ST_FFT *simu)
     }
   }
   simu->sizes_alloc = st_total_count(ndim, simu->dims);
-  if (debug_query("simulate"))
+  if (OptDbg::query(EDbg::SIMULATE))
   {
     message("Grid parameters after Optimal Dilation :\n");
     if (ndim >= 1) message("- Number of Nodes along X = %d\n", simu->dims[0]);
@@ -1144,7 +1145,7 @@ static void st_simfft_symmetry(ST_FFT *simu)
  ** \param[in]  iad   address for writing the simulation
  **
  *****************************************************************************/
-static void st_simfft_final(Db *db, ST_FFT *simu, int iad)
+static void st_simfft_final(DbGrid *db, ST_FFT *simu, int iad)
 {
   int ix, iy, iz, jx, jy, jz, ecr;
 
@@ -1182,12 +1183,12 @@ static void st_simfft_final(Db *db, ST_FFT *simu, int iad)
  ** \param[in]  flag_aliasing  1 for anti-aliasing procedure; 0 otherwise
  **
  *****************************************************************************/
-int simfft_f(Db *db,
-                             Model *model,
-                             int seed,
-                             int nbsimu,
-                             double percent,
-                             int flag_aliasing)
+int simfft_f(DbGrid *db,
+             Model *model,
+             int seed,
+             int nbsimu,
+             double percent,
+             int flag_aliasing)
 {
   ST_FFT simu;
   int isimu, iptr, error;
@@ -1414,14 +1415,14 @@ static double st_support(ST_FFT *simu, double sigma)
  ** \param[out] coeffs  r^2 coefficients for given logarithmic variances
  **
  *****************************************************************************/
-int simfft_support(Db *db,
-                                   Model *model,
-                                   double percent,
-                                   int flag_aliasing,
-                                   int nval,
-                                   double *sigma,
-                                   double *r2val,
-                                   double *coeffs)
+int simfft_support(DbGrid *db,
+                   Model *model,
+                   double percent,
+                   int flag_aliasing,
+                   int nval,
+                   double *sigma,
+                   double *r2val,
+                   double *coeffs)
 {
   ST_FFT simu;
   int error, ival;

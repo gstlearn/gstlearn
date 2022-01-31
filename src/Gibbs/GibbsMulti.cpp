@@ -8,16 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+
 #include "Gibbs/GibbsMulti.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
-
-#include "geoslib_f.h"
 
 #include <math.h>
 
@@ -76,7 +77,7 @@ int GibbsMulti::calculInitialize(VectorVectorDouble& y,
 
   /* Print the title */
 
-  if (debug_query("converge"))
+  if (OptDbg::query(EDbg::CONVERGE))
     mestitle(1,"Initial Values for Gibbs Sampler (Simu:%d - GS:%d)",
              isimu+1,ipgs+1);
 

@@ -8,41 +8,25 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Anamorphosis/Anam.hpp"
-#include "Basic/AException.hpp"
-#include "geoslib_f.h"
+#pragma once
 
-Anam::Anam(const EAnam& type)
-    : AStringable(),
-      _type(type)
+#include "gstlearn_export.hpp"
+
+#include <map>
+#include "ECst.hpp"
+
+/**
+ * Operate the list of Constant options
+ */
+class GSTLEARN_EXPORT OptCst
 {
-}
+public:
+  static double query(const ECst& option);
+  static double queryByKey(const String& name);
+  static void define(const ECst& option, double value);
+  static void defineByKey(const String& name, double value);
+  static void display(void);
 
-Anam::Anam(const Anam &m)
-    : AStringable(m),
-      _type(m._type)
-{
-
-}
-
-Anam& Anam::operator=(const Anam &m)
-{
-  if (this != &m)
-  {
-    AStringable::operator=(m);
-    _type = m._type;
-  }
-  return *this;
-}
-
-Anam::~Anam()
-{
-
-}
-
-String Anam::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  sstr << toTitle(1, "Anamorphosis characteristics");
-  return sstr.str();
-}
+private:
+  static std::map<const ECst, double> _cst;
+};

@@ -212,7 +212,7 @@ void* HDF5format::allocArray(H5::DataType type, int ndim, hsize_t *dims)
 {
   hsize_t size = type.getSize();
   int ntot = 1;
-  for (int idim=0; idim<ndim; idim++) ntot *= dims[idim];
+  for (int idim=0; idim<ndim; idim++) ntot *= (int) dims[idim];
   void* data = (void *) calloc(ntot,(size_t) size);
   return data;
 }
@@ -230,7 +230,7 @@ int HDF5format::getSize() const
   {
     H5::Exception::dontPrint();
     H5::DataSpace dataspace = _dataset.getSpace();
-    return dataspace.getSimpleExtentNpoints();
+    return ((int) dataspace.getSimpleExtentNpoints());
   }
   catch (H5::Exception& error)
   {
@@ -312,7 +312,7 @@ VectorInt HDF5format::getDataVInt() const
     H5::Exception::dontPrint();
     if (_checkClass(0)) return VectorInt{1,-1};
 
-    const int npts = _dataset.getSpace().getSimpleExtentNpoints();
+    const int npts = (int) _dataset.getSpace().getSimpleExtentNpoints();
     int *data = new int[npts];
     _readInt(data);
     VectorInt v(data, data + npts);
@@ -335,7 +335,7 @@ VectorFloat HDF5format::getDataVFloat() const
     H5::Exception::dontPrint();
     if (_checkClass(1)) return VectorFloat{1,-1.};
 
-    const int npts = _dataset.getSpace().getSimpleExtentNpoints();
+    const int npts = (int) _dataset.getSpace().getSimpleExtentNpoints();
     float *data = new float[npts];
     _readFloat(data);
     VectorFloat v(data, data + npts);
@@ -358,7 +358,7 @@ VectorDouble HDF5format::getDataVDouble() const
     H5::Exception::dontPrint();
     if (_checkClass(1)) return VectorDouble{1, -1.};
 
-    const int npts = _dataset.getSpace().getSimpleExtentNpoints();
+    const int npts = (int) _dataset.getSpace().getSimpleExtentNpoints();
     double *data = new double[npts];
     _readDouble(data);
     VectorDouble v(data, data + npts);
@@ -583,7 +583,7 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 }
 
 herr_t
-file_info(hid_t loc_id, const char *name, const H5L_info_t *linfo, void *opdata)
+file_info(hid_t loc_id, const char *name, const H5L_info_t* /*linfo*/, void* /*opdata*/)
 {
     hid_t group;
     group = H5Gopen(loc_id, name, H5P_DEFAULT);

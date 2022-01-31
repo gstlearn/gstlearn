@@ -10,18 +10,17 @@
 /******************************************************************************/
 #include "Db/DbStringFormat.hpp"
 
-DbStringFormat::DbStringFormat(int level)
-    : AStringFormat(level),
-      _params(0),
-      _cols(),
-      _names(),
-      _flagSel(true),
+DbStringFormat::DbStringFormat(unsigned char params,
+                               const VectorString& names,
+                               const VectorInt& cols,
+                               bool flagSel)
+    : AStringFormat(1),
+      _params(params),
+      _cols(cols),
+      _names(names),
+      _flagSel(flagSel),
       _mode(1)
 {
-  if (level == 0)
-    _params = FLAG_RESUME;
-  else
-    _params = FLAG_RESUME | FLAG_VARS;
 }
 
 DbStringFormat::DbStringFormat(const DbStringFormat& r)
@@ -59,4 +58,12 @@ bool DbStringFormat::_matchFlag(int flag) const
     return true;
   else
     return false;
+}
+
+DbStringFormat* DbStringFormat::create(unsigned char params,
+                                       const VectorString& names,
+                                       const VectorInt& cols,
+                                       bool flagSel)
+{
+  return new DbStringFormat(params, names, cols, flagSel);
 }

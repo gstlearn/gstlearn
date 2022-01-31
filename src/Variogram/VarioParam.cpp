@@ -111,7 +111,7 @@ String VarioParam::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-String VarioParam::toStringMain(const AStringFormat* strfmt) const
+String VarioParam::toStringMain(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   int ndir = getDirectionNumber();
@@ -185,7 +185,7 @@ VectorDouble VarioParam::_getDirectionInterval(int idir) const
   return bounds;
 }
 
-void VarioParam::setDPas(int idir,const Db* db)
+void VarioParam::setDPas(int idir,const DbGrid* db)
 {
   if (! _isDirectionValid(idir)) return;
   _dirparams[idir].setDPas(db);

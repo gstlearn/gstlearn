@@ -16,6 +16,7 @@
 #include "LithoRule/Node.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -28,7 +29,7 @@ RuleShift::RuleShift()
       _shDsup(0.),
       _shDown(0.),
       _slope(0.),
-      _shift(0.),
+      _shift(),
       _incr(TEST),
       _xyz(),
       _ind1(),
@@ -205,7 +206,8 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
   _xyz.resize(ndim);
   _ind1.resize(ndim);
 
-  if (db == nullptr || ! is_grid(db))
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+  if (dbgrid == nullptr)
   {
     if (! flag_grid_check) return(0);
     messerr("The shift Rule requires a Grid Db");
@@ -213,9 +215,9 @@ int RuleShift::_st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const
   }
 
   for (int idim=0; idim<ndim; idim++)
-    _xyz[idim] = _shift[idim] + db->getX0(idim);
+    _xyz[idim] = _shift[idim] + dbgrid->getX0(idim);
 
-  (void) point_to_grid(db,_xyz.data(),-1,_ind1.data());
+  (void) point_to_grid(dbgrid,_xyz.data(),-1,_ind1.data());
 
   /* Check that the translation is significant */
 
@@ -278,38 +280,40 @@ int RuleShift::gaus2facResult(PropDef* propdef,
 
   check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::FACIES);
   check_mandatory_attribute("rule_gaus2fac_result",dbout,ELoc::SIMU);
-  ndim   = dbout->getNDim();
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  if (dbgrid == nullptr) return 1;
+  ndim   = dbgrid->getNDim();
   _xyz.resize(ndim);
   _ind1.resize(ndim);
   _ind2.resize(ndim);
 
   /* Processing the translation */
 
-  for (iech=0; iech<dbout->getSampleNumber(); iech++)
+  for (iech=0; iech<dbgrid->getSampleNumber(); iech++)
   {
-    if (! dbout->isActive(iech)) continue;
+    if (! dbgrid->isActive(iech)) continue;
 
     facies = TEST;
     for (igrf=0; igrf<2; igrf++) y[igrf] = TEST;
     icase = get_rank_from_propdef(propdef, ipgs, 0);
-    y[0] = dbout->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
+    y[0] = dbgrid->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1);
     if (FFFF(y[0])) break;
 
-    if (rule_thresh_define(propdef, dbout, this, ITEST, iech, isimu, nbsimu, 1,
+    if (rule_thresh_define(propdef, dbgrid, this, ITEST, iech, isimu, nbsimu, 1,
                            &t1min, &t1max, &t2min, &t2max)) return 1;
-    db_index_sample_to_grid(dbout, iech, _ind2.data());
+    db_index_sample_to_grid(dbgrid, iech, _ind2.data());
     for (idim = 0; idim < ndim; idim++)
       _ind2[idim] -= _ind1[idim];
-    jech = db_index_grid_to_sample(dbout, _ind2.data());
+    jech = db_index_grid_to_sample(dbgrid, _ind2.data());
     if (jech >= 0)
-      y[1] = dbout->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
+      y[1] = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, icase, nbsimu, 1);
     else
       y[1] = TEST;
     facies = getFaciesFromGaussian(y[0], y[1]);
 
     /* Combine the underlying GRFs to derive Facies */
 
-    dbout->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
+    dbgrid->setSimvar(ELoc::FACIES,iech,isimu,0,ipgs,nbsimu,1,facies);
   }
   return 0;
 }

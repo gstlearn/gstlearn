@@ -335,8 +335,8 @@ bool matchKeyword(const String &string1,
  * @remark Example:  expandList(["x", "y", "xcol"], "x.*") -> ("x", "xcol")
  */
 VectorString expandList(const VectorString &list,
-                                        const String &match,
-                                        bool onlyOne)
+                        const String &match,
+                        bool onlyOne)
 {
   std::regex regexpr = _protectRegexp(match);
 
@@ -367,22 +367,32 @@ VectorString expandList(const VectorString &list,
   return sublist;
 }
 
-VectorString expandList(const VectorString &list,
-                                        const VectorString &matches)
+VectorString expandList(const VectorString &list, const VectorString &matches)
 {
   VectorString sublist;
 
-  // Loop on the eligible names
-  for (int i = 0; i < (int) list.size(); i++)
+  // Loop on the patterns to be matched
+  for (int i = 0; i < (int) matches.size(); i++)
   {
-    // Loop on the target names
-    bool found = false;
-    for (int j = 0; j < (int) matches.size() && !found; j++)
+    // Loop for eligible names
+    for (int j = 0; j < (int) list.size(); j++)
     {
-      std::regex regexpr = _protectRegexp(matches[j]);
-      if (std::regex_match(list[i], regexpr)) found = true;
+      std::regex regexpr = _protectRegexp(matches[i]);
+      if (std::regex_match(list[j], regexpr))
+      {
+        // A match is found
+
+        // Check that the name has not been recorded yet in sublist
+        bool already = false;
+        if (std::find(sublist.begin(), sublist.end(), list[j]) != sublist.end())
+        {
+          already = true;
+        }
+
+        // If the name is not already registered: add it
+        if (! already) sublist.push_back(list[j]);
+      }
     }
-    if (found) sublist.push_back(list[i]);
   }
   return sublist;
 }

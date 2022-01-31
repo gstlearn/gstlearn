@@ -12,10 +12,13 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
 
 #include <string.h>
 #include <stdarg.h>
@@ -25,94 +28,8 @@
 #define OLD 0
 #define NEW 1
 
-#define CASE_DOUBLE 0
-#define CASE_REAL   1
-#define CASE_INT    2
-#define CASE_COL    3
-#define CASE_ROW    4
-
 /*! \endcond */
 
-typedef struct
-{
-  int mode;                  // 1 for integer; 2 for real
-  int ival;
-  double rval;
-  char keyword[20];
-  char comment[STRING_LENGTH];
-} Constant;
-
-static Constant CST[CST_NUMBER] = { { 1,
-                                      10,
-                                      0.,
-                                      "NTCAR",
-                                      "Number of characters in printout" },
-                                    { 1,
-                                      3,
-                                      0.,
-                                      "NTDEC",
-                                      "Number of decimal digits in printout" },
-                                    { 1,
-                                      7,
-                                      0.,
-                                      "NTROW",
-                                      "Maximum number of rows in table printout" },
-                                    { 1,
-                                      7,
-                                      0.,
-                                      "NTCOL",
-                                      "Maximum number of columns in table printout" },
-                                    { 1,
-                                      0,
-                                      0.,
-                                      "NPROC",
-                                      "Display the Progress Bar" },
-                                    { 1,
-                                      0,
-                                      0.,
-                                      "LOCMOD",
-                                      "Option for updating locator of new variable" },
-                                    { 1,
-                                      1,
-                                      0.,
-                                      "LOCNEW",
-                                      "When defining new locator, option for old ones" },
-                                    { 2,
-                                      0,
-                                      0.,
-                                      "RGL",
-                                      "Use 'rgl' for graphic rendition" },
-                                    { 2,
-                                      0,
-                                      0.,
-                                      "ASP",
-                                      "Defaulted y/x aspect ratio for graphics" },
-                                    { 2,
-                                      0,
-                                      1.0e-20,
-                                      "TOLINV",
-                                      "Tolerance for matrix inversion" },
-                                    { 2,
-                                      0,
-                                      1.0e-20,
-                                      "TOLGEN",
-                                      "Tolerance for matrix generalized inversion" },
-                                    { 2,
-                                      0,
-                                      2.3e-16,
-                                      "EPSMAT",
-                                      "Tolerance value for Matrix calculations" },
-                                    { 2,
-                                      0,
-                                      1.0e-15,
-                                      "EPSSVD",
-                                      "Tolerance value for SVD Matrix calculations" } };
-
-static double DBL_THRESH = 0.0005; // Because default NTDEC is 3
-
-static char TABSTR[BUFFER_LENGTH];
-static char FORMAT[STRING_LENGTH];
-static char DECODE[STRING_LENGTH];
 static char BUFFER[STRING_LENGTH];
 static char DEL_COM = '#';
 static char DEL_SEP = ' ';
@@ -125,13 +42,19 @@ static void (*WRITE_FUNC)(const char*) =
 (void (*)(const char*)) st_print;
 static void (*WARN_FUNC)(const char*) =
 (void (*)(const char*)) st_print;
-static void (*READ_FUNC)(const char*, char*) =
-st_read;
-static void (*EXIT_FUNC)(void) =
-st_exit;
+static void (*READ_FUNC)(const char*, char*) = st_read;
+static void (*EXIT_FUNC)(void) = st_exit;
 
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
 static char *cur = NULL;
+
+static double _getThresh()
+{
+  int ndec = (int) OptCst::query(ECst::NTDEC);
+  // Recalculate threshold under which any small value must be displayed has 0.0
+  double thresh = (0.5 * pow(10, - ndec));
+  return thresh;
+}
 
 /****************************************************************************/
 /*!
@@ -140,7 +63,6 @@ static char *cur = NULL;
  **
  *****************************************************************************/
 static void st_exit(void)
-
 {
   exit(1);
 }
@@ -171,51 +93,10 @@ static void st_read(const char *prompt, char *buffer)
 {
   message("%s :", prompt);
 
-  while (fgets(LINE, LONG_SIZE, stdin) == NULL)
-    ;
+  while (fgets(LINE, LONG_SIZE, stdin) == NULL);
 
   (void) gslStrcpy(buffer, LINE);
   buffer[strlen(buffer) - 1] = '\0';
-}
-
-/****************************************************************************/
-/*!
- **  Construct the FORMAT string
- **
- ** \param[in]  mode  CASE_DOUBLE or CASE_REAL or CASE_INT
- **
- *****************************************************************************/
-static void st_format(int mode)
-{
-
-  /* Dispatch */
-
-  switch (mode)
-  {
-    case CASE_INT:
-      (void) gslSPrintf(FORMAT, "%%%dd", CST[CST_NTCAR].ival);
-      break;
-
-    case CASE_REAL:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlf", CST[CST_NTCAR].ival,
-                        CST[CST_NTDEC].ival);
-      break;
-
-    case CASE_DOUBLE:
-      (void) gslSPrintf(FORMAT, "%%%d.%dlg", CST[CST_NTCAR].ival,
-                        CST[CST_NTDEC].ival);
-      break;
-
-    case CASE_COL:
-      (void) gslSPrintf(FORMAT, "[,%%%dd]", CST[CST_NTCAR].ival - 3);
-      break;
-
-    case CASE_ROW:
-      (void) gslSPrintf(FORMAT, "[%%%dd,]", CST[CST_NTCAR].ival - 3);
-      break;
-  }
-
-  return;
 }
 
 /****************************************************************************/
@@ -526,7 +407,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
       LINE[strlen(LINE) - 1] = '\0';
       (void) gslStrcpy(LINE_MEM, LINE);
-      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
       /* Eliminate the comments */
 
@@ -551,7 +432,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (debug_query("interface"))
+    if (OptDbg::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -564,7 +445,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
         if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       }
       ideb += 2;
-      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -572,7 +453,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -580,7 +461,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -588,7 +469,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -596,7 +477,7 @@ int _file_read(FILE *file, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -632,7 +513,7 @@ int _file_get_ncol(FILE *file)
 
   if (fgets(LINE, LONG_SIZE, file) == NULL) return (ncol);
   LINE[strlen(LINE) - 1] = '\0';
-  if (debug_query("interface")) message("Lecture ASCII = %s\n", LINE);
+  if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINE);
 
   /* Eliminate the comments */
 
@@ -659,7 +540,7 @@ int _file_get_ncol(FILE *file)
       ncol++;
   }
 
-  if (debug_query("interface")) message("Number of columns = %d\n", ncol);
+  if (OptDbg::query(EDbg::INTERFACE)) message("Number of columns = %d\n", ncol);
   return (ncol);
 }
 
@@ -725,7 +606,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       LINEB = strsep(buffer, "\n");
       if (LINEB == NULL) return (-1);
       (void) gslStrcpy(LINE_MEM, LINEB);
-      if (debug_query("interface")) message("Lecture ASCII = %s\n", LINEB);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Lecture ASCII = %s\n", LINEB);
 
       /* Eliminate the comments */
 
@@ -750,7 +631,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
     LCUR = gslStrtok(cur, &DEL_SEP);
     cur = NULL;
     if (LCUR == NULL) goto label_start;
-    if (debug_query("interface"))
+    if (OptDbg::query(EDbg::INTERFACE))
       message("String to be decoded = '%s'\n", LCUR);
 
     /* Reading */
@@ -760,7 +641,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       ret_s = va_arg(ap, char*);
       if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
       ideb += 2;
-      if (debug_query("interface")) message("Decoded String = %s\n", ret_s);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded String = %s\n", ret_s);
     }
     else if (!strcmp(fmt, "%d"))
     {
@@ -768,7 +649,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
       ideb += 2;
       if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-      if (debug_query("interface")) message("Decoded Integer = %i\n", *ret_i);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Integer = %i\n", *ret_i);
     }
     else if (!strcmp(fmt, "%f"))
     {
@@ -776,7 +657,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
       ideb += 2;
       if (*ret_f == ASCII_TEST) *ret_f = (float) TEST;
-      if (debug_query("interface")) message("Decoded Float = %s\n", *ret_f);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Float = %s\n", *ret_f);
     }
     else if (!strcmp(fmt, "%lf"))
     {
@@ -784,7 +665,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lf\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lf\n", *ret_d);
     }
     else if (!strcmp(fmt, "%lg"))
     {
@@ -792,7 +673,7 @@ int _buffer_read(char **buffer, const char *format, va_list ap)
       if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
       ideb += 3;
       if (*ret_d == ASCII_TEST) *ret_d = TEST;
-      if (debug_query("interface")) message("Decoded Double = %lg\n", *ret_d);
+      if (OptDbg::query(EDbg::INTERFACE)) message("Decoded Double = %lg\n", *ret_d);
     }
     else
     {
@@ -831,7 +712,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     fprintf(file, "%s", ret_s);
-    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -840,7 +721,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%d", ret_i);
-    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -849,7 +730,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%f", ret_d);
-    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -858,7 +739,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lf", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -867,7 +748,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
       fprintf(file, "%5.1lf", ASCII_TEST);
     else
       fprintf(file, "%lg", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -879,7 +760,7 @@ void _file_write(FILE *file, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     fprintf(file, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
@@ -917,7 +798,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
   {
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "%s", ret_s);
-    if (debug_query("interface")) message("Encoded String = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded String = %s\n", ret_s);
   }
   else if (!strcmp(format, "%d"))
   {
@@ -926,7 +807,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%d", ret_i);
-    if (debug_query("interface")) message("Encoded Integer = %i\n", ret_i);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Integer = %i\n", ret_i);
   }
   else if (!strcmp(format, "%f"))
   {
@@ -935,7 +816,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%f", ret_d);
-    if (debug_query("interface")) message("Encoded Float = %s\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Float = %s\n", ret_d);
   }
   else if (!strcmp(format, "%lf"))
   {
@@ -944,7 +825,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lf", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lf\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lf\n", ret_d);
   }
   else if (!strcmp(format, "%lg"))
   {
@@ -953,7 +834,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
       (void) gslSPrintf(buffer, "%5.1lf", ASCII_TEST);
     else
       (void) gslSPrintf(buffer, "%lg", ret_d);
-    if (debug_query("interface")) message("Encoded Double = %lg\n", ret_d);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Double = %lg\n", ret_d);
   }
   else if (!strcmp(format, "\n"))
   {
@@ -965,7 +846,7 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
     ret_s = va_arg(ap, char*);
     (void) gslSPrintf(buffer, "# %s\n", ret_s);
     no_blank = 1;
-    if (debug_query("interface")) message("Encoded Comment = %s\n", ret_s);
+    if (OptDbg::query(EDbg::INTERFACE)) message("Encoded Comment = %s\n", ret_s);
   }
   else
   {
@@ -976,836 +857,6 @@ void _buffer_write(char *buffer, const char *format, va_list ap)
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Reset the IO parameters
- **
- *****************************************************************************/
-void constant_reset(void)
-
-{
-  CST[CST_NTCAR].ival = 10;
-  CST[CST_NTDEC].ival = 3;
-  CST[CST_NTROW].ival = 7;
-  CST[CST_NTCOL].ival = 7;
-  CST[CST_NPROC].ival = 0;
-  CST[CST_LOCMOD].ival = 1;
-  CST[CST_LOCNEW].ival = 0;
-  CST[CST_RGL].ival = 0;
-  CST[CST_ASP].ival = 0;
-  CST[CST_TOLINV].rval = matrix_constant_query(CST_TOLINV);
-  CST[CST_TOLGEN].rval = matrix_constant_query(CST_TOLGEN);
-  CST[CST_EPSMAT].rval = matrix_constant_query(CST_EPSMAT);
-  CST[CST_EPSSVD].rval = matrix_constant_query(CST_EPSSVD);
-
-  DBL_THRESH = 0.0005; // because default NTDEC is 3;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Print the authorized keywords
- **
- *****************************************************************************/
-static void st_constant_list(void)
-{
-  int i;
-
-  message("The keywords for IO parameter definition are:\n");
-  for (i = 0; i < CST_NUMBER; i++)
-    message("%6s : %s\n", CST[i].keyword, CST[i].comment);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Define one IO parameter
- **
- ** \param[in]  name   Name of the parameter to be defined
- ** \li                NTCAR  : Number of characters in printout
- ** \li                NTDEC  : Number of decimal digits in printout
- ** \li                NTROW  : Maximum number of rows in table printout
- ** \li                NTCOL  : Maximum number of columns in table printout
- ** \li                NPROC  : Display the Progress Bar
- ** \li                LOCMOD : Option for updating locator of new variable
- ** \li                LOCNEW : When defining new locator, option for old ones
- ** \li                RGL    : Using 'rgl' for graphic rendition
- ** \li                ASP    : Default y/x aspcet ratio for graphics
- ** \li                TOLINV : Tolerance for matrix inversion
- ** \li                TOLGEN : Tolerance for matrix generalized inversion
- ** \li                EPSMAT : Tolerance value for Matrix calculations
- ** \li                EPSSVD : Tolerance value for SVD Matrix calculations
- ** \param[in]  value  New value for the IO parameter
- **
- *****************************************************************************/
-void constant_define(const char *name, double value)
-{
-  int i, found, flag_defined;
-
-  /* Look for an authorized keyword */
-
-  for (i = 0, found = -1; i < CST_NUMBER; i++)
-    if (!strcasecmp(name, CST[i].keyword)) found = i;
-
-  if (found < 0)
-  {
-    st_constant_list();
-    message("The keyword '%s' is unknown\n", name);
-  }
-  else
-  {
-    flag_defined = !FFFF(value);
-
-    if (CST[found].mode == 1)
-    {
-      CST[found].ival = (flag_defined) ? (int) value :
-                                         -1;
-      if (found == CST_NTCAR) setFormatColumnSize(static_cast<int>(value));
-      if (found == CST_NTDEC) setFormatDecimalNumber(static_cast<int>(value));
-      if (found == CST_NTCOL) setFormatMaxNCols(static_cast<int>(value));
-      if (found == CST_NTROW) setFormatMaxNRows(static_cast<int>(value));
-
-      // Recalculate the threshold
-      if (found == CST_NTDEC)
-        DBL_THRESH = (0.5 * pow(10, -CST[CST_NTDEC].ival));
-
-    }
-    else
-    {
-      CST[found].rval = (flag_defined) ? value :
-                                         -1;
-    }
-
-    if (found == CST_TOLINV || found == CST_TOLGEN || found == CST_EPSMAT
-        || found == CST_EPSSVD) matrix_constant_define(found, value);
-  }
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Query one IO parameter
- **
- ** \return  Value of the IO parameter
- **
- ** \param[in]  name  Name of the IO parameter to be asked
- **
- *****************************************************************************/
-double constant_query(const char *name)
-
-{
-  int i, found;
-  double value;
-
-  /* Look for an authorized keyword */
-
-  for (i = 0, found = -1; i < CST_NUMBER; i++)
-    if (!strcasecmp(name, CST[i].keyword)) found = i;
-
-  if (found < 0)
-  {
-    st_constant_list();
-    message("The keyword '%s' is unknown\n", name);
-    value = 0;
-  }
-  else
-  {
-    if (CST[found].mode == 1)
-      value = (double) CST[found].ival;
-    else
-      value = CST[found].rval;
-  }
-
-  return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Print the constants for IO
- **
- *****************************************************************************/
-void constant_print(void)
-
-{
-  int i, ival;
-  double rval;
-
-  mestitle(1, "Parameters for printout");
-  for (i = 0; i < CST_NUMBER; i++)
-  {
-    message(". %-50s [%6s] = ", CST[i].comment, CST[i].keyword);
-    if (CST[i].mode == 1)
-    {
-      ival = CST[i].ival;
-      if (ival > 0)
-        message("%d\n", ival);
-      else
-        message("NA\n");
-    }
-    else
-    {
-      rval = CST[i].rval;
-      if (rval > 0)
-        message("%lg\n", rval);
-      else
-        message("NA\n");
-    }
-  }
-  message("Use 'constant.define' to modify previous values\n");
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a string
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justify  justification flag
- **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
- ** \param[in]  string   String to be written
- **
- *****************************************************************************/
-void tab_prints(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                const char *string)
-{
-  int i, size, neff, nrst, n1, n2, taille;
-
-  taille = CST[CST_NTCAR].ival * ncol;
-  size = static_cast<int>(strlen(string));
-  neff = MIN(taille, size);
-  nrst = taille - neff;
-  n1 = nrst / 2;
-  n2 = taille - size - n1;
-
-  /* Encode the title (if defined) */
-
-  if (title != NULL) message("%s", title);
-
-  /* Blank the string out */
-
-  (void) gslStrcpy(TABSTR, "");
-
-  /* Switch according to the justification */
-
-  switch (justify.toEnum())
-  {
-    case EJustify::E_LEFT:
-      (void) gslStrncpy(TABSTR, string, neff);
-      TABSTR[neff] = '\0';
-      for (i = 0; i < nrst; i++)
-        (void) gslStrcat(TABSTR, " ");
-      break;
-
-    case EJustify::E_CENTER:
-      for (i = 0; i < n1; i++)
-        (void) gslStrcat(TABSTR, " ");
-      (void) gslStrncpy(&TABSTR[n1], string, neff);
-      TABSTR[n1 + neff] = '\0';
-      for (i = 0; i < n2; i++)
-        (void) gslStrcat(TABSTR, " ");
-      break;
-
-    case EJustify::E_RIGHT:
-      for (i = 0; i < nrst; i++)
-        (void) gslStrcat(TABSTR, " ");
-      (void) gslStrncpy(&TABSTR[nrst], string, neff);
-      TABSTR[nrst + neff] = '\0';
-      break;
-  }
-  message(TABSTR);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a string (character size provided)
- **
- ** \param[in]  string   String to be written
- ** \param[in]  taille   Number of characters
- **
- ** \remarks The string is printed (left-adjusted) on 'taille' characters
- **
- *****************************************************************************/
-void tab_print_rowname(const char *string, int taille)
-{
-  int i, size, neff, nrst;
-
-  size = static_cast<int>(strlen(string));
-  neff = MIN(taille, size);
-  nrst = taille - neff;
-
-  /* Blank the string out */
-
-  (void) gslStrcpy(TABSTR, "");
-  (void) gslStrncpy(TABSTR, string, neff);
-  TABSTR[neff] = '\0';
-  for (i = 0; i < nrst; i++)
-    (void) gslStrcat(TABSTR, " ");
-  message(TABSTR);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a real value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justify  justification flag
- **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
- ** \param[in]  value    Value to be written
- **
- *****************************************************************************/
-void tab_printg(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value)
-{
-  st_format(CASE_REAL);
-
-  if (FFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
-  else
-  {
-    // Prevent -0.00 : https://stackoverflow.com/a/12536500/3952924
-    value = (ABS(value) < DBL_THRESH) ? 0. :
-                                        value;
-    (void) gslSPrintf(DECODE, FORMAT, value);
-  }
-
-  tab_prints(title, ncol, justify, DECODE);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a double value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justify  justification flag
- **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
- ** \param[in]  value    Value to be written
- **
- *****************************************************************************/
-void tab_printd(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                double value)
-{
-  st_format(CASE_DOUBLE);
-
-  if (FFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
-  else
-    (void) gslSPrintf(DECODE, FORMAT, value);
-
-  tab_prints(title, ncol, justify, DECODE);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of an integer value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justify  justification flag
- **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
- ** \param[in]  value    Value to be written
- **
- *****************************************************************************/
-void tab_printi(const char *title,
-                                int ncol,
-                                const EJustify &justify,
-                                int value)
-{
-  st_format(CASE_INT);
-
-  if (IFFFF(value))
-    (void) gslStrcpy(DECODE, "N/A");
-  else
-    (void) gslSPrintf(DECODE, FORMAT, value);
-
-  tab_prints(title, ncol, justify, DECODE);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a row or column value
- **
- ** \param[in]  title    optional title (NULL if not defined)
- ** \param[in]  ncol     number of columns for the printout
- ** \param[in]  justify  justification flag
- **                      (EJustify::LEFT, EJustify::CENTER or EJustify::RIGHT)
- ** \param[in]  mode     CASE_ROW or CASE_COL
- ** \param[in]  value    Value to be written
- **
- *****************************************************************************/
-void tab_print_rc(const char *title,
-                                  int ncol,
-                                  const EJustify &justify,
-                                  int mode,
-                                  int value)
-{
-  st_format(mode);
-
-  (void) gslSPrintf(DECODE, FORMAT, value);
-  string_strip_blanks(DECODE, 0);
-
-  tab_prints(title, ncol, justify, DECODE);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a matrix
- **
- ** \param[in]  title  Title (Optional)
- ** \param[in]  flag_limit  option for the limits
- ** \li                      1 if limits must be applied
- ** \li                      0 if the whole matrix is printed
- ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
- ** \param[in]  nx     number of columns in the matrix
- ** \param[in]  ny     number of rows in the matrix
- ** \param[in]  sel    array of selection or NULL
- ** \param[in]  tab    array containing the matrix
- **
- ** \remarks The order of the dimension (nx,ny) is opposite
- ** \remarks of the one used in R-packages where dim[1]=nrow and dim[2]=ncol
- **
- *****************************************************************************/
-void print_matrix(const char *title,
-                  int flag_limit,
-                  int bycol,
-                  int nx,
-                  int ny,
-                  const double *sel,
-                  const double *tab)
-{
-  int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
-
-  /* Initializations */
-
-  if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util =
-      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
-                                                nx;
-  ny_util =
-      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
-                                                ny;
-  multi_row = (ny > 1 || title == NULL);
-
-  /* Print the title (optional) */
-
-  if (title != NULL)
-  {
-    if (multi_row)
-      message("%s\n", title);
-    else
-      message("%s ", title);
-  }
-
-  /* Print the header */
-
-  if (multi_row)
-  {
-    tab_prints(NULL, 1, EJustify::RIGHT, " ");
-    for (ix = 0; ix < nx_util; ix++)
-      tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
-    message("\n");
-  }
-
-  /* Print the contents of the array */
-
-  ny_done = 0;
-  for (iy = 0; iy < ny; iy++)
-  {
-    if (sel != nullptr && !sel[iy]) continue;
-    ny_done++;
-    if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
-    for (ix = 0; ix < nx_util; ix++)
-    {
-      iad = (bycol) ? iy + ny * ix :
-                      ix + nx * iy;
-      tab_printg(NULL, 1, EJustify::RIGHT, tab[iad]);
-    }
-    message("\n");
-  }
-
-  /* Print the trailor */
-
-  if (nx != nx_util || ny != ny_util)
-  {
-    if (nx == nx_util)
-      message("(Ncol=%d", nx);
-    else
-      message("(Ncol=%d[from %d]", nx_util, nx);
-
-    if (ny == ny_util)
-      message(",Nrow=%d)", ny);
-    else
-      message(",Nrow=%d[from %d])", ny_util, ny);
-    message("\n");
-  }
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a upper triangular matrix
- **
- ** \param[in]  title  Title (Optional)
- ** \param[in]  mode   1 if the matrix is stored linewise
- **                    2 if the matrix is stored columnwise
- ** \param[in]  neq    size of the matrix
- ** \param[in]  tl     array containing the upper triangular matrix
- **
- ** \remarks The ordering (compatible with matrix_solve is mode==2)
- **
- *****************************************************************************/
-void print_trimat(const char *title,
-                                  int mode,
-                                  int neq,
-                                  const double *tl)
-{
-#define TRI(i)        (((i) * ((i) + 1)) / 2)
-#define TL1(i,j)      (tl[(j)*neq+(i)-TRI(j)])  /* only for i >= j */
-#define TL2(i,j)      (tl[TRI(i)+(j)])          /* only for i >= j */
-  int ix, iy;
-
-  /* Initializations */
-
-  if (tl == nullptr || neq <= 0) return;
-
-  /* Print the title (optional) */
-
-  if (title != NULL) message("%s\n", title);
-
-  /* Print the header */
-
-  tab_prints(NULL, 1, EJustify::RIGHT, " ");
-  for (ix = 0; ix < neq; ix++)
-    tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
-  message("\n");
-
-  /* Print the contents of the array */
-
-  for (iy = 0; iy < neq; iy++)
-  {
-    tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
-    for (ix = 0; ix < neq; ix++)
-    {
-      if (ix >= iy)
-      {
-        if (mode == 1)
-          tab_printg(NULL, 1, EJustify::RIGHT, TL1(ix, iy));
-        else
-          tab_printg(NULL, 1, EJustify::RIGHT, TL2(ix, iy));
-      }
-      else
-        tab_prints(NULL, 1, EJustify::RIGHT, " ");
-    }
-    message("\n");
-  }
-
-  return;
-#undef TRI
-#undef TL1
-#undef TL2
-}
-
-/****************************************************************************/
-/*!
- **  Tabulated printout of a matrix (integer version)
- **
- ** \param[in]  title  Title (Optional)
- ** \param[in]  flag_limit  option for the limits
- ** \li                      1 if limits must be applied
- ** \li                      0 if the whole matrix is printed
- ** \param[in]  bycol  1 if values in 'tab' are sorted by column, 0 otherwise
- ** \param[in]  nx     number of columns in the matrix
- ** \param[in]  ny     number of rows in the matrix
- ** \param[in]  sel    array of selection or NULL
- ** \param[in]  tab    array containing the matrix
- **
- *****************************************************************************/
-void print_imatrix(const char *title,
-                                   int flag_limit,
-                                   int bycol,
-                                   int nx,
-                                   int ny,
-                                   const double *sel,
-                                   const int *tab)
-{
-  int ix, iy, nx_util, ny_util, ny_done, multi_row, iad;
-
-  /* Initializations */
-
-  if (tab == nullptr || nx <= 0 || ny <= 0) return;
-  nx_util =
-      (flag_limit && CST[CST_NTCOL].ival > 0) ? MIN(CST[CST_NTCOL].ival, nx) :
-                                                nx;
-  ny_util =
-      (flag_limit && CST[CST_NTROW].ival > 0) ? MIN(CST[CST_NTROW].ival, ny) :
-                                                ny;
-  multi_row = (ny > 1 || title == NULL);
-
-  /* Print the title (optional) */
-
-  if (title != NULL)
-  {
-    if (multi_row)
-      message("%s\n", title);
-    else
-      message("%s ", title);
-  }
-
-  /* Print the header */
-
-  if (multi_row)
-  {
-    tab_prints(NULL, 1, EJustify::RIGHT, " ");
-    for (ix = 0; ix < nx_util; ix++)
-      tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_COL, ix + 1);
-    message("\n");
-  }
-
-  /* Print the contents of the array */
-
-  ny_done = 0;
-  for (iy = 0; iy < ny; iy++)
-  {
-    if (sel != nullptr && !sel[iy]) continue;
-    ny_done++;
-    if (ny_done > ny_util) break;
-    if (multi_row) tab_print_rc(NULL, 1, EJustify::RIGHT, CASE_ROW, iy + 1);
-    for (ix = 0; ix < nx_util; ix++)
-    {
-      iad = (bycol) ? iy + ny * ix :
-                      ix + nx * iy;
-      tab_printi(NULL, 1, EJustify::RIGHT, tab[iad]);
-    }
-    message("\n");
-  }
-
-  /* Print the trailor */
-
-  if (nx != nx_util || ny != ny_util)
-  {
-    if (nx == nx_util)
-      message("(Ncol=%d", nx);
-    else
-      message("(Ncol=%d[from %d]", nx_util, nx);
-
-    if (ny == ny_util)
-      message(",Nrow=%d)", ny);
-    else
-      message(",Nrow=%d[from %d])", ny_util, ny);
-    message("\n");
-  }
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Print a vector of real values in a matrix form
- **
- ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
- ** \param[in]  ntab       Number of elements in the array
- ** \param[in]  tab        Array to be printed
- **
- *****************************************************************************/
-void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const double *tab)
-{
-  int i, j, lec, nby, flag_many;
-  static int nby_def = 5;
-
-  /* Initializations */
-
-  if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
-                                                   nby_def;
-  flag_many = (ntab > nby);
-
-  if (title != NULL)
-  {
-    message("%s", title);
-    if (flag_many) message("\n");
-  }
-  for (i = lec = 0; i < ntab; i += nby)
-  {
-    if (flag_many) message(" %2d+  ", i);
-    for (j = 0; j < nby; j++)
-    {
-      if (lec >= ntab) continue;
-      message(" %10f", tab[lec]);
-      lec++;
-    }
-    message("\n");
-  }
-  return;
-}
-
-void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const VectorDouble &tab)
-{
-  print_vector(title, flag_limit, ntab, tab.data());
-}
-
-/****************************************************************************/
-/*!
- **  Print a vector of integer values in a matrix form
- **
- ** \param[in]  title      Title (Optional)
- ** \param[in]  flag_limit 1 if CST[CST_NTCOL] is used; 0 otherwise
- ** \param[in]  ntab       Number of elements in the array
- ** \param[in]  itab       Array to be printed
- **
- *****************************************************************************/
-void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const int *itab)
-{
-  int i, j, lec, nby, flag_many;
-  static int nby_def = 5;
-
-  /* Initializations */
-
-  if (ntab <= 0) return;
-  nby = (flag_limit && CST[CST_NTCOL].ival >= 0) ? CST[CST_NTCOL].ival :
-                                                   nby_def;
-  flag_many = (ntab > nby);
-
-  if (title != NULL)
-  {
-    message("%s", title);
-    if (flag_many) message("\n");
-  }
-  for (i = lec = 0; i < ntab; i += nby)
-  {
-    if (flag_many) message(" %2d+  ", i);
-    for (j = 0; j < nby; j++)
-    {
-      if (lec >= ntab) continue;
-      message(" %10d", itab[lec]);
-      lec++;
-    }
-    message("\n");
-  }
-  return;
-}
-
-void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const VectorInt &itab)
-{
-  print_ivector(title, flag_limit, ntab, itab.data());
-}
-
-/****************************************************************************/
-/*!
- **  Print the names of the columns
- **
- ** \param[in]  nx     number of columns in the matrix
- ** \param[in]  ranks  Indirection array (optional)
- ** \param[in]  names  Array of locator names
- **
- *****************************************************************************/
-void print_names(int nx, int *ranks, VectorString names)
-{
-  int ix, iix, nx_util;
-
-  /* Initializations */
-
-  nx_util = (CST[CST_NTCOL].ival < 0) ? nx :
-                                        MIN(CST[CST_NTCOL].ival, nx);
-
-  /* Loop on the columns */
-
-  tab_prints(NULL, 1, EJustify::RIGHT, " ");
-  for (iix = 0; iix < nx_util; iix++)
-  {
-    ix = (ranks == nullptr) ? iix :
-                              ranks[iix];
-    tab_prints(NULL, 1, EJustify::RIGHT, names[ix].c_str());
-  }
-  message("\n");
-  return;
-}
-
-/****************************************************************************/
-/*! 
- **  Read a keyword
- **
- ** \return  Rank of the keyword (starting from 0) or -1 if not recognized
- **
- ** \param[in]  question Question to be asked
- ** \param[in]  nkeys    Number of authorized keys
- ** \param[in]  keys     List of the keywords
- **
- ** This method is not documented on purpose. It should remain private
- **
- *****************************************************************************/
-int _lire_key(const char *question, int nkeys, const char **keys)
-{
-  int i;
-
-  label_ques:
-
-  /* Compose the question */
-
-  (void) gslSPrintf(LINE, "%s ", question);
-  (void) gslStrcat(LINE, "[");
-  for (i = 0; i < nkeys; i++)
-  {
-    if (i > 0) gslStrcat(LINE, ",");
-    (void) gslSPrintf(&LINE[strlen(LINE)], "%s", keys[i]);
-  }
-  (void) gslStrcat(LINE, "] : ");
-
-  /* Read the answer */
-
-  READ_FUNC(LINE, BUFFER);
-
-  /* Interruption */
-
-  if (!strcasecmp(BUFFER, "STOP")) return (-1);
-
-  /* Check that the answer if authorized */
-
-  string_strip_blanks(BUFFER, 0);
-  for (i = 0; i < nkeys; i++)
-    if (!strcasecmp(BUFFER, keys[i])) return (i);
-  message("Error: the keyword '%s' is unknown\n", BUFFER);
-  message("The only keywords authorized are : ");
-  for (i = 0; i < nkeys; i++)
-    message(" %s", keys[i]);
-  message("\n");
-  goto label_ques;
-  return -1; // Just to prevent from an eclispe warning
-}
 
 /****************************************************************************/
 /*! 
@@ -2075,45 +1126,13 @@ int _lire_logical(const char *question, int flag_def, int valdef)
   else
   {
 
-    /* Check the aurhotized values */
+    /* Check the authorized values */
 
     if (!strcasecmp(BUFFER, "Y")) return (1);
     if (!strcasecmp(BUFFER, "N")) return (0);
     message("The only authorized answers are 'y' or 'n'\n");
     goto loop;
   }
-}
-
-/****************************************************************************/
-/*!
- **  Conditionally print the progress of a procedure
- **
- ** \param[in]  string   String to be printed
- ** \param[in]  ntot     Total number of samples
- ** \param[in]  iech     Rank of the current sample
- **
- *****************************************************************************/
-void mes_process(const char *string, int ntot, int iech)
-{
-  static int memo = 0;
-  double ratio;
-  int nproc, jech, percent;
-
-  nproc = CST[CST_NPROC].ival;
-  if (nproc <= 0) return;
-  jech = iech + 1;
-
-  /* Calculate the current percentage */
-
-  ratio = 100. * (double) jech / (double) ntot;
-  percent = (int) (ratio / (double) nproc) * nproc;
-
-  /* Conditional printout */
-
-  if (percent != memo) message("%s : %d (percent)\n", string, percent);
-  memo = percent;
-
-  return;
 }
 
 /****************************************************************************/
@@ -2166,10 +1185,7 @@ int _record_read(FILE *file, const char *format, ...)
  ** \param[in]  sel      (optional) selection
  **
  *****************************************************************************/
-void print_range(const char *title,
-                                 int ntab,
-                                 double *tab,
-                                 double *sel)
+void print_range(const char *title, int ntab, double *tab, double *sel)
 {
   double mini, maxi;
   int nvalid;
@@ -2197,32 +1213,6 @@ void print_range(const char *title,
   else
     message("%lf", maxi);
   message(" (%d/%d)\n", nvalid, ntab);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Encode a real value
- **
- ** \param[in]  string   Char array where the value is encoded
- ** \param[in]  ntcar    Number of characters (for real values)
- ** \param[in]  ntdec    Number of decimals (for real values)
- ** \param[in]  value    Value to be written
- **
- *****************************************************************************/
-void encode_printg(char *string,
-                                   int ntcar,
-                                   int ntdec,
-                                   double value)
-{
-  (void) gslSPrintf(FORMAT, "%%%d.%dlg", ntcar, ntdec);
-
-  if (FFFF(value))
-    (void) gslStrcpy(string, "N/A");
-  else
-    (void) gslSPrintf(string, FORMAT, value);
-  string_strip_blanks(string, 0);
-
   return;
 }
 

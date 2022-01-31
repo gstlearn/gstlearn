@@ -85,7 +85,7 @@ int main(int /*argc*/, char */*argv*/[])
   //MatrixRectangular M;
   //M.prodMatrix(*MRt, MR);
 
-  printf("Matrix M\n");
+  message("Matrix M\n");
   M->display();
 
   // Creating two vectors for future use
@@ -98,22 +98,22 @@ int main(int /*argc*/, char */*argv*/[])
   // To a rectangular matrix
   MatrixRectangular MRR(nrow,ncol);
   MRR.setValues(M->getValues());
-  printf("Matrix MRR\n");
+  message("Matrix MRR\n");
   MRR.display();
 
   // To a square general matrix
   MatrixSquareGeneral MSG(*M);
-  printf("Matrix MSG\n");
+  message("Matrix MSG\n");
   MSG.display();
 
   // To a square symmetric matrix
   MatrixSquareSymmetric MSS(*M);
-  printf("Matrix MSS\n");
+  message("Matrix MSS\n");
   MSS.display();
 
   // To a sparse matrix
   AMatrix* MSP = M->toSparse();
-  printf("Matrix MSP\n");
+  message("Matrix MSP\n");
   MSP->display();
 
   // Creating a Diagonal matrix (from M)
@@ -122,7 +122,7 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixSquareDiagonal MSD(nrow);
   for (int irow=0; irow<nrow; irow++)
     MSD(irow,irow) = cst;
-  printf("Matrix MSD\n");
+  message("Matrix MSD\n");
   MSD.display();
 
   // Creating a Constant Diagonal Matrix
@@ -130,7 +130,7 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixSquareDiagonalCst MSC, D;
   D.reset(nrow,ncol,cst);
   MSC.reset(nrow,ncol,cst);
-  printf("Matrix MSC\n");
+  message("Matrix MSC\n");
   MSC.display();
 
   /**
@@ -143,15 +143,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   MRR.addScalarDiag(addendum);
   MSG.addScalarDiag(addendum);
-  printf("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.addScalarDiag(addendum);
-  printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->addScalarDiag(addendum);
-//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.addScalarDiag(addendum);
   MSC.addScalarDiag(addendum);
-  printf("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
+  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
 
   /**
    * Multiplying the matrix by a constant
@@ -163,15 +163,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   MRR.prodScalar(multiply);
   MSG.prodScalar(multiply);
-  printf("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.prodScalar(multiply);
-  printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->prodScalar(multiply);
-//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.prodScalar(multiply);
   MSC.prodScalar(multiply);
-  printf("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
+  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
 
   /**
    * Adding a constant to a matrix
@@ -183,9 +183,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   MRR.addScalar(addendum);
   MSG.addScalar(addendum);
-  printf("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.addScalar(addendum);
-  printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
 
   /**
     * Linear combination
@@ -198,15 +198,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   MRR.linearCombination(cx,cy,MRR);
   MSG.linearCombination(cx,cy,MSG);
-  printf("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
+  message("Are results for MRR and MSG similar: %d\n",MRR.isSame(MSG));
   MSS.linearCombination(cx,cy,MSS);
-  printf("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
+  message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->linearCombination(cx,cy,*MSP);
-//  printf("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.linearCombination(cx,cy,MSD);
   MSC.linearCombination(cx,cy,MSC);
-  printf("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
+  message("Are results for MSD and MSC similar: %d\n",MSD.isSame(MSC));
 
   /**
    * Extraction of a Vector
@@ -215,28 +215,28 @@ int main(int /*argc*/, char */*argv*/[])
   mestitle(0,"Extracting Vectors from Matrix");
   reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
 
-  printf("MRR and MSP matrices are used as Reference\n");
+  message("MRR and MSP matrices are used as Reference\n");
   MRR.display();
   Vref = MRR.getDiagonal();
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,Vref.size(),Vref.data());
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below",0,Vref.size(),Vref.data());
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above",0,Vref.size(),Vref.data());
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
   print_vector("Third Row",0,Vref.size(),Vref.data());
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
   print_vector("Fourth Column",0,Vref.size(),Vref.data());
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
 
   /**
    * Product of the matrix by a vector
@@ -248,15 +248,15 @@ int main(int /*argc*/, char */*argv*/[])
   Vref.resize(nrow,0.);
   MRR.prodVector(V1, Vref);
   MSG.prodVector(V1, V2);
-  printf("Are results for MRR and MSG similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSG similar: %d\n",ut_vector_same(Vref,V2));
   MSS.prodVector(V1, V2);
-  printf("Are results for MRR and MSS similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSS similar: %d\n",ut_vector_same(Vref,V2));
   MSP->prodVector(V1, V2);
-  printf("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V2));
 
   MSD.prodVector(V1, Vref);
   MSC.prodVector(V1, V2);
-  printf("Are results for MSD and MSC similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MSD and MSC similar: %d\n",ut_vector_same(Vref,V2));
 
   /**
    * Linear solver
@@ -265,21 +265,21 @@ int main(int /*argc*/, char */*argv*/[])
   mestitle(0,"Matrix Linear Solver");
   reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
   V3.resize(nrow,0.);
-  printf("Solve X from A*X=B. Compute A*X and compare with B\n");
+  message("Solve X from A*X=B. Compute A*X and compare with B\n");
 
   MSS.solve(V1, V2);
   MSS.prodVector(V2, V3);
-  printf("Are results correct for MSS: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSS: %d\n",ut_vector_same(V1,V3));
   MSP->solve(V1, V2);
   MSP->prodVector(V2, V3);
-  printf("Are results correct for MSP: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSP: %d\n",ut_vector_same(V1,V3));
 
   MSD.solve(V1, V2);
   MSD.prodVector(V2, V3);
-  printf("Are results correct for MSD: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSD: %d\n",ut_vector_same(V1,V3));
   MSC.solve(V1, V2);
   MSC.prodVector(V2, V3);
-  printf("Are results correct for MSC: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSC: %d\n",ut_vector_same(V1,V3));
 
   /**
    * Inversion
@@ -287,36 +287,36 @@ int main(int /*argc*/, char */*argv*/[])
 
   mestitle(0,"Matrix Inversion");
   reset_to_initial_contents(M, D, MRR, MSG, MSS, MSP, MSD, MSC);
-  printf("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
+  message("Calculate B=A^{-1}. Compute A*B and compare to Identity\n");
 
   AMatrix* Res;
   MatrixSquareGeneral MSGref = MSG; // Used to perform A*A-1 and check Identity
 
   MSG.invert();
   Res = prodMatrix(&MSG, &MSGref);
-  printf("Are results correct for MSG: %d\n",Res->isIdentity());
+  message("Are results correct for MSG: %d\n",Res->isIdentity());
   delete Res;
 
   MSS.invert();
   Res = prodMatrix(&MSS, &MSGref);
-  printf("Are results correct for MSS: %d\n",Res->isIdentity());
+  message("Are results correct for MSS: %d\n",Res->isIdentity());
   delete Res;
 
   MSP->invert();
   Res = prodMatrix(MSP, &MSGref);
-  printf("Are results correct for MSP: %d\n",Res->isIdentity());
+  message("Are results correct for MSP: %d\n",Res->isIdentity());
   delete Res;
 
   MatrixSquareDiagonal MSDref = MSD; // Used to perform A*A-1 and check Identity
 
   MSD.invert();
   Res = prodMatrix(&MSD, &MSDref);
-  printf("Are results correct for MSD: %d\n",Res->isIdentity());
+  message("Are results correct for MSD: %d\n",Res->isIdentity());
   delete Res;
 
   MSC.invert();
   Res = prodMatrix(&MSC, &MSDref);
-  printf("Are results correct for MSC: %d\n",Res->isIdentity());
+  message("Are results correct for MSC: %d\n",Res->isIdentity());
   delete Res;
 
   // Free the pointers

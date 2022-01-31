@@ -24,3 +24,4 @@ GSTLEARN_EXPORT double getTEST();
 GSTLEARN_EXPORT int    getITEST();
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
+

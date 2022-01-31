@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Basic/Limits.hpp"
@@ -1237,7 +1238,7 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize(FILE* file, bool verbose)
+int Vario::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
@@ -1323,7 +1324,7 @@ int Vario::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Vario::_serialize(FILE* file, bool verbose) const
+int Vario::_serialize(FILE* file, bool /*verbose*/) const
 {
   double value;
   static int flag_calcul = 1;
@@ -1558,9 +1559,10 @@ void Vario::_setDPasFromGrid(bool flag_grid)
 {
   if (_db->isGrid() && flag_grid)
   {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_db);
     for (int idir = 0; idir < getDirectionNumber(); idir++)
     {
-      _varioparam.setDPas(idir, _db);
+      _varioparam.setDPas(idir, dbgrid);
     }
   }
   else

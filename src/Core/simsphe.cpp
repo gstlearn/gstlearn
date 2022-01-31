@@ -418,17 +418,17 @@ static double* st_spectrum_any(Model *model,
  ** \remarks: Simsph_Fixed_Degree: to define the Maximum Degree
  **
  *****************************************************************************/
-int simsph_f(Db *db,
-                             Model *model,
-                             int seed,
-                             int special,
-                             int nbf,
-                             int nfmax,
-                             int verbose,
-                             int flag_test,
-                             int test_degree,
-                             int test_order,
-                             double test_phase)
+int simsph_f(DbGrid *db,
+             Model *model,
+             int seed,
+             int special,
+             int nbf,
+             int nfmax,
+             int verbose,
+             int flag_test,
+             int test_degree,
+             int test_order,
+             double test_phase)
 {
   int *degree, *order, flag_sphere;
   int iptr, error, ndisc, nfreq, degmax, shunt, nech, nx, ny, ecr, ntot;

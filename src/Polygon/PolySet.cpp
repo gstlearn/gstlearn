@@ -156,7 +156,7 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-int PolySet::_serialize(FILE* file, bool verbose) const
+int PolySet::_serialize(FILE* file, bool /*verbose*/) const
 {
   // Store information
   _recordWrite(file, "%d", getNVertices());
@@ -171,9 +171,9 @@ int PolySet::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
-int PolySet::_deserialize(FILE* file, bool verbose)
+int PolySet::_deserialize(FILE* file, bool /*verbose*/)
 {
-  int npol, nvert;
+  int nvert;
   double zmin = TEST;
   double zmax = TEST;
 

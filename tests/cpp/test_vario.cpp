@@ -13,7 +13,6 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Variogram/Vario.hpp"
-#include "Neigh/Neigh.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
@@ -42,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a grid covering the same space
   VectorInt nx = { 100, 100 };
   VectorDouble dx = { 0.01, 0.01 };
-  Db* grid = Db::createFromGrid(nx, dx);
+  DbGrid* grid = DbGrid::create(nx, dx);
   grid->display();
 
   // Creating the Model(s) of the Underlying GRF(s)

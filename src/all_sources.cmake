@@ -126,7 +126,6 @@ set(SOURCES
   Core/segy.cpp
   Core/mlayers.cpp
   Core/thresh.cpp
-  Core/neigh.cpp
   Core/fft.cpp
   Core/convert.cpp
   Core/memory.cpp
@@ -140,7 +139,7 @@ set(SOURCES
   Anamorphosis/AnamDiscrete.cpp
   Anamorphosis/AnamDiscreteDD.cpp
   Anamorphosis/AnamUser.cpp
-  Anamorphosis/Anam.cpp
+  Anamorphosis/AAnam.cpp
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
@@ -157,6 +156,7 @@ set(SOURCES
   Interfaces/AVariable.cpp
   Interfaces/VariableDouble.cpp
   Db/Db.cpp
+  Db/DbGrid.cpp
   Db/DbStringFormat.cpp
   Db/PtrGeos.cpp
   LinearOp/PrecisionOp.cpp
@@ -206,6 +206,9 @@ set(SOURCES
   Basic/CSVformat.cpp
   Basic/NamingConvention.cpp
   Basic/Utilities.cpp
+  Basic/OptDbg.cpp
+  Basic/OptCst.cpp
+  Basic/OptCustom.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
@@ -244,6 +247,10 @@ set(SOURCES
   Drifts/ADriftElem.cpp
   Drifts/DriftYZ.cpp
   Drifts/DriftList.cpp
-  Neigh/Neigh.cpp
+  Neigh/ANeighParam.cpp
+  Neigh/NeighUnique.cpp
+  Neigh/NeighImage.cpp
+  Neigh/NeighMoving.cpp
+  Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
 )

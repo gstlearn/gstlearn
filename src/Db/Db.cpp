@@ -36,12 +36,10 @@ Db::Db()
       ASerializable(),
       _ncol(0),
       _nech(0),
-      _isGrid(0),
       _array(),
       _attcol(),
       _colNames(),
-      _p(),
-      _grid(0)
+      _p()
 {
   _clear();
 }
@@ -51,12 +49,10 @@ Db::Db(const Db& r)
       ASerializable(r),
       _ncol(r._ncol),
       _nech(r._nech),
-      _isGrid(r._isGrid),
       _array(r._array),
       _attcol(r._attcol),
       _colNames(r._colNames),
-      _p(r._p),
-      _grid(r._grid)
+      _p(r._p)
 {
 }
 
@@ -68,12 +64,10 @@ Db& Db::operator=(const Db& r)
     ASerializable::operator=(r);
     _ncol = r._ncol;
     _nech = r._nech;
-    _isGrid = r._isGrid;
     _array = r._array;
     _attcol = r._attcol;
     _colNames = r._colNames;
     _p = r._p;
-    _grid = r._grid;
   }
   return *this;
 }
@@ -93,76 +87,12 @@ int Db::resetFromSamples(int nech,
   int natt = (tab.empty()) ? 0 : (int) (tab.size() / nech);
   _ncol = natt + flag_add_rank;
   _nech = nech;
-  reset(_ncol, _nech);
+  resetDims(_ncol, _nech);
 
   // Load data (if defined)
 
   if (flag_add_rank) _createRank(0);
   _loadData(tab, names, locatorNames, order, flag_add_rank);
-
-  return 0;
-}
-
-/**
- * Creating a Db regular grid of any dimension
- *
- * @param nx            A vector of the number of grid meshes.
- *                      The number of items in this argument gives the dimension of the space.
- *                      (size = ndim)
- * @param dx            Vector cell meshes size in each direction (size = ndim) (by default, use 1)
- * @param x0            Vector of origin coordinates (size = ndim) (by default, use 0)
- * @param angles        Array giving the rotation angles (only for dimension 2 or 3).
- *                      The first angle corresponds to the rotation around OZ axis,
- *                      the second to a rotation around OY'and the third one around Ox.
- *                      The dimension of this array cannot exceed the space dimension.
- * @param order         Flag for values order in 'tab' (defined ELoadBy.hpp)
- * @param tab           Variable values array (size = nvar * nsamples)
- * @param names         Variable names (size = nvar)
- * @param locatorNames  Locators for each variable (size = nvar)
- * @param flag_add_rank If 1, add an automatic rank variable
- */
-int Db::resetFromGrid(const VectorInt& nx,
-                      const VectorDouble& dx,
-                      const VectorDouble& x0,
-                      const VectorDouble& angles,
-                      const ELoadBy& order,
-                      const VectorDouble& tab,
-                      const VectorString& names,
-                      const VectorString& locatorNames,
-                      int flag_add_rank)
-{
-  _clear();
-
-  int ndim = static_cast<int> (nx.size());
-  int nech = 1;
-  for (int idim = 0; idim < ndim; idim++)
-    nech *= nx[idim];
-  int natt = (tab.empty()) ? 0 : (int) (tab.size() / _nech);
-
-  _nech = nech;
-  _ncol = ndim + natt + flag_add_rank;
-  reset(_ncol, _nech);
-
-  // Create the grid
-
-  if (gridDefine(nx, dx, x0, angles)) return 1;
-
-  // Load the data
-
-  if (flag_add_rank) _createRank(0);
-  _createCoordinatesGrid(flag_add_rank);
-  _loadData(tab, names, locatorNames, order, flag_add_rank);
-
-  // Create the coordinate names (for the remaining variables)
-
-  _defineDefaultNames(flag_add_rank + ndim, names);
-
-  // Create the locators
-
-  int jcol = 0;
-  if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
-  _defineDefaultLocators(flag_add_rank + ndim, locatorNames);
 
   return 0;
 }
@@ -203,7 +133,7 @@ int Db::resetFromCSV(const String& filename,
   int natt = (tab.empty()) ? 0 : (int) (tab.size() / nrow);
   _ncol = natt + flag_add_rank;
   _nech = nrow;
-  reset(_ncol, _nech);
+  resetDims(_ncol, _nech);
 
   // Load data (if defined)
 
@@ -216,77 +146,6 @@ int Db::resetFromCSV(const String& filename,
 
   // Locators: Try to guess them from the Names
   _defineDefaultLocatorsByNames(flag_add_rank, names);
-
-  return 0;
-}
-
-/**
- * Creating a regular grid Db which covers the input Polygon
- *
- * @param polygon    Pointer to the input Polygon
- * @param nodes      Vector of the expected number of nodes
- * @param dcell      Vector of the expected dimensions for the grid cells
- * @param flag_add_rank 1 if the sample rank must be generated
- */
-int Db::resetFromPolygon(Polygons* polygon,
-                         const VectorInt& nodes,
-                         const VectorDouble& dcell,
-                         int flag_add_rank)
-{
-  _clear();
-  double xmin, xmax, ymin, ymax;
-  int ndim = 2;
-
-  polygon->getExtension(&xmin, &xmax, &ymin, &ymax);
-
-  // Derive the Grid parameters
-
-  VectorInt    nx_tab;
-  VectorDouble x0_tab;
-  VectorDouble dx_tab;
-  int nech = 1;
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    double x0  = (idim == 0) ? xmin : ymin;
-    double ext = (idim == 0) ? xmax - xmin : ymax - ymin;
-
-    int nx = 10;
-    double dx = ext / (double) nx;
-    if (ndim == (int) nodes.size())
-    {
-      nx = nodes[idim];
-      dx = ext / (double) nx;
-    }
-    if (ndim == (int) dcell.size())
-    {
-      dx = dcell[idim];
-      nx = static_cast<int> (ext / dx);
-    }
-
-    nx_tab.push_back(nx);
-    x0_tab.push_back(x0);
-    dx_tab.push_back(dx);
-    nech *= nx;
-  }
-
-  _nech = nech;
-  _ncol = ndim + flag_add_rank;
-  reset(_ncol, _nech);
-
-  // Create the grid
-
-  if (gridDefine(nx_tab, dx_tab, x0_tab)) return 1;
-
-  /// Load the data
-
-  if (flag_add_rank) _createRank(0);
-  _createCoordinatesGrid(flag_add_rank);
-
-  // Create the locators
-
-  int jcol = 0;
-  if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -313,7 +172,7 @@ int Db::resetFromBox(int nech,
   if (! coormax.empty()) ndim = MIN(ndim, (int) coormax.size());
   _ncol = ndim + flag_add_rank;
   _nech = nech;
-  reset(_ncol, _nech);
+  resetDims(_ncol, _nech);
 
   // Generate the sample number
   if (flag_add_rank) _createRank(0);
@@ -353,7 +212,7 @@ int Db::resetFromOnePoint(const VectorDouble& tab, int flag_add_rank)
   int ndim = static_cast<int> (tab.size());
   _ncol = ndim + flag_add_rank;
   _nech = 1;
-  reset(_ncol, _nech);
+  resetDims(_ncol, _nech);
 
   // Generate the sample number
   if (flag_add_rank) _createRank(0);
@@ -615,11 +474,10 @@ VectorInt Db::_ids(const VectorInt& iatts, bool flagOne, bool verbose) const
   return iatts;
 }
 
-void Db::reset(int ncol, int nech)
+void Db::resetDims(int ncol, int nech)
 {
   _ncol = ncol;
   _nech = nech;
-  _isGrid = 0;
 
   /* The attribute pointers */
 
@@ -765,14 +623,7 @@ void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
 double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
 {
   if (idim >= getNDim()) return TEST;
-  if (isGrid())
-  {
-    return _grid.getCoordinate(iech, idim, flag_rotate);
-  }
-  else
-  {
-    return getFromLocator(ELoc::X, iech, idim);
-  }
+  return getFromLocator(ELoc::X, iech, idim);
 }
 
 void Db::getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate) const
@@ -1492,6 +1343,19 @@ double Db::getExtension(int idim, bool useSel) const
   return maxi - mini;
 }
 
+/**
+ * Return a Unit calculated for a Db (in a given Space dimension)
+ * @param idim Rank of the Space dimension
+ * @return
+ *
+ * @remarks This unit is defined as 1/1000 of the extension in the given space dimension
+ */
+double Db::getUnit(int idim) const
+{
+  double delta = getExtension(idim);
+  return delta / 1000.;
+}
+
 double Db::getFieldSize(bool useSel) const
 {
   double diag = 0.;
@@ -1544,88 +1408,9 @@ double Db::getStdv(const String& name, bool useSel) const
   return ut_vector_stdv(tab);
 }
 
-int Db::gridDefine(const VectorInt& nx,
-                   const VectorDouble& dx,
-                   const VectorDouble& x0,
-                   const VectorDouble& angles)
-{
-  _isGrid = 1;
-  return (_grid.resetFromVector(nx, dx, x0, angles));
-}
-
-void Db::gridCopyParams(int mode, const Grid& gridaux)
-{
-  _grid.copyParams(mode, gridaux);
-}
-
-bool Db::isSameGrid(const Grid& grid) const
-{
-  if (! isGrid() || grid.empty())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  return _grid.isSame(grid);
-}
-
-bool Db::isSameGridMesh(const Db& dbaux) const
-{
-  if (! isGrid() || ! dbaux.isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  return _grid.isSameMesh(dbaux.getGrid());
-}
-
-bool Db::isSameGridMeshOldStyle(const Db* dbaux) const
-{
-  if (! isGrid() || ! dbaux->isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  return _grid.isSameMesh(dbaux->getGrid());
-}
-
-
-bool Db::isSameGridRotation(const Db& dbaux) const
-{
-  if (! isGrid() || ! dbaux.isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  if (! isGridRotated() && ! dbaux.isGridRotated()) return true;
-  return _grid.isSameRotation(dbaux.getGrid());
-}
-
-bool Db::isSameGridRotationOldStyle(const Db* dbaux) const
-{
-  if (! isGrid() || ! dbaux->isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  if (! isGridRotated() && ! dbaux->isGridRotated()) return true;
-  return _grid.isSameRotation(dbaux->getGrid());
-}
-
-bool Db::isGridRotated() const
-{
-  return (_isGrid && _grid.isRotated());
-}
-
 int Db::getNDim() const
 {
-  if (isGrid())
-  {
-    return (_grid.getNDim());
-  }
-  else
-  {
-    return (_p.at(ELoc::X).getLocatorNumber());
-  }
+  return (_p.at(ELoc::X).getLocatorNumber());
 }
 
 bool Db::hasSameDimension(const Db* dbaux) const
@@ -1655,38 +1440,6 @@ bool Db::hasLargerDimension(const Db* dbaux) const
   return retOK;
 }
 
-int Db::getNX(int idim) const
-{
-  if (!isGrid()) return (-1);
-  if (!isDimensionIndexValid(idim)) return (1);
-  return (_grid.getNX(idim));
-}
-
-double Db::getDX(int idim) const
-{
-  if (!isGrid()) return (-1);
-  if (!isDimensionIndexValid(idim)) return (TEST);
-  return (_grid.getDX(idim));
-}
-
-double Db::getX0(int idim) const
-{
-  if (!isGrid()) return (-1);
-  if (!isDimensionIndexValid(idim)) return (0.);
-  return (_grid.getX0(idim));
-}
-
-/**
- * Return the rotation angle along a given Direction
- * @param idim Rank of the Direction
- * @return Value for the Rotation Angle
- */
-double Db::getAngle(int idim) const
-{
-  if (!isGrid()) return (-1);
-  if (!isDimensionIndexValid(idim)) return (0.);
-  return _grid.getRotAngle(idim);
-}
 
 void Db::_columnInit(int ncol, int icol0, double valinit)
 {
@@ -2734,9 +2487,6 @@ String Db::_summaryString(void) const
   if (hasSelection())
     sstr << "Number of active samples     = " << getActiveSampleNumber()
          << std::endl;
-
-  if (isGrid()) sstr << _grid.toString();
-
   return sstr.str();
 }
 
@@ -2887,7 +2637,7 @@ String Db::_summaryArrayString(VectorInt cols, bool flagSel) const
   return sstr.str();
 }
 
-String Db::toString(const AStringFormat* strfmt) const
+String Db::_toStringCommon(const AStringFormat *strfmt) const
 {
   std::stringstream sstr;
   static int MAX_NCLASS = 50;
@@ -2895,8 +2645,6 @@ String Db::toString(const AStringFormat* strfmt) const
   const DbStringFormat* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
-
-  sstr << toTitle(0, "Data Base Characteristics");
 
   // Possibly convert 'names' into 'cols'
 
@@ -2906,11 +2654,6 @@ String Db::toString(const AStringFormat* strfmt) const
     VectorInt iatts = _ids(dsf.getNames(), false);
     if (! iatts.empty()) cols = getColumnByAttribute(iatts);
   }
-
-  /* Print the Summary of the Db */
-
-  if (dsf.matchResume())
-    sstr << _summaryString();
 
   /* Print the Extension */
 
@@ -2939,6 +2682,23 @@ String Db::toString(const AStringFormat* strfmt) const
     sstr << _summaryAttributes() << std::endl;
     sstr << _summaryLocators() << std::endl;
   }
+  return sstr.str();
+}
+
+String Db::toString(const AStringFormat* strfmt) const
+{
+  std::stringstream sstr;
+
+  const DbStringFormat* dbfmt = dynamic_cast<const DbStringFormat*>(strfmt);
+  DbStringFormat dsf;
+  if (dbfmt != nullptr) dsf = *dbfmt;
+
+  sstr << toTitle(0, "Data Base Characteristics");
+
+  if (dsf.matchResume())
+    sstr << _summaryString();
+
+  sstr << _toStringCommon(strfmt);
 
   return sstr.str();
 }
@@ -3025,8 +2785,8 @@ VectorDouble Db::getFieldsByLocator(const ELoc& locatorType, bool useSel) const
 
 VectorDouble Db::getFieldsByAttribute(const VectorInt& iatts, bool useSel) const
 {
-  int nech = (useSel) ? getActiveSampleNumber() :
-                        getSampleNumber();
+  if (iatts.empty()) return VectorDouble();
+  int nech = (useSel) ? getActiveSampleNumber() : getSampleNumber();
   int nvar = static_cast<int> (iatts.size());
   VectorDouble retval(nvar * nech);
 
@@ -3078,13 +2838,16 @@ VectorDouble Db::getFieldsByAttribute(int iatt_beg,
   return getFieldsByAttribute(iatts, useSel);
 }
 
+VectorDouble Db::getAllFields(bool useSel) const
+{
+  VectorInt iatts = getAllAttributes();
+  return getFieldsByAttribute(iatts, useSel);
+}
+
 VectorDouble Db::getFields(const VectorString& names, bool useSel) const
 {
-  VectorInt iatts;
-  if (names.empty())
-    iatts = getAllAttributes();
-  else
-    iatts = _ids(names, false);
+  if (names.empty()) return VectorDouble();
+  VectorInt iatts =  _ids(names, false);
   return getFieldsByAttribute(iatts, useSel);
 }
 
@@ -3279,52 +3042,6 @@ void Db::_createRank(int icol)
   // Set the locators (No particular action for the Rank)
 }
 
-void Db::generateCoordinates(const String& radix)
-{
-  if (! isGrid())
-  {
-    messerr("This method is only available in the case of Grid. Nothing done");
-    return;
-  }
-  int ndim = getNDim();
-  VectorDouble coors(ndim);
-  (void) addFieldsByConstant(ndim, 0., radix, ELoc::X);
-  display();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
-  {
-    _grid.rankToCoordinatesInPlace(iech, coors);
-    for (int idim = 0; idim < ndim; idim++)
-      setCoordinate(iech, idim, coors[idim]);
-  }
-}
-
-/**
- * Paint the ndim columns starting from 'icol0' with grid coordinates
- * @param icol0 Starting column
- */
-void Db::_createCoordinatesGrid(int icol0)
-{
-  // Set the Names
-
-  for (int idim = 0; idim < getNDim(); idim++)
-    _setNameByColumn(icol0 + idim, getLocatorName(ELoc::X, idim));
-
-  // Set the locators
-
-  setLocatorsByAttribute(getNDim(), icol0, ELoc::X);
-
-  // Generate the vector of coordinates
-
-  _grid.iteratorInit();
-  for (int iech = 0; iech < getSampleNumber(); iech++)
-  {
-    VectorInt indices = _grid.iteratorNext();
-    VectorDouble coors = _grid.indicesToCoordinate(indices);
-    for (int idim = 0; idim < getNDim(); idim++)
-      setArray(iech, icol0 + idim, coors[idim]);
-  }
-}
-
 void Db::_defineDefaultNames(int shift, const VectorString& names)
 {
   int ncol = getFieldNumber() - shift;
@@ -3488,54 +3205,18 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
-int Db::_deserialize(FILE* file, bool verbose)
+int Db::_deserialize(FILE* file, bool /*verbose*/)
 {
-  int ndim, ndim2, ntot, natt, nech, i, flag_grid;
+  int ndim2, ntot, natt, nech, i;
   VectorInt tabnum;
   std::vector<ELoc> tabatt;
-  VectorInt nx;
   VectorString tabnam;
-  VectorDouble x0;
-  VectorDouble dx;
-  VectorDouble angles;
   VectorDouble tab;
   static int flag_add_rank = 1;
 
   /* Initializations */
 
-  natt = ndim = nech = ntot = 0;
-
-  /* Check the grid organization */
-
-  if (_recordRead(file, "Grid Flag", "%d", &flag_grid)) goto label_end;
-
-  /* Grid case; read the grid header */
-
-  if (flag_grid)
-  {
-
-    /* Decoding the header */
-
-    if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
-
-    /* Core allocation */
-
-    nx.resize(ndim);
-    dx.resize(ndim);
-    x0.resize(ndim);
-    angles.resize(ndim);
-
-    /* Read the grid characteristics */
-
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (_recordRead(file, "Grid Number of Nodes", "%d", &nx[idim])) goto label_end;
-      if (_recordRead(file, "Grid Origin", "%lf", &x0[idim])) goto label_end;
-      if (_recordRead(file, "Grid Mesh", "%lf", &dx[idim])) goto label_end;
-      if (_recordRead(file, "Grid Angles", "%lf", &angles[idim])) goto label_end;
-    }
-    ntot = ut_ivector_prod(nx);
-  }
+  natt = nech = ntot = 0;
 
   /* Reading the tail of the file */
 
@@ -3543,24 +3224,8 @@ int Db::_deserialize(FILE* file, bool verbose)
 
   /* Creating the Db */
 
-  if (flag_grid)
-  {
-    if (natt > 0 && nech != ntot)
-    {
-      messerr("The number of lines read from the Grid file (%d)", nech);
-      messerr("is not a multiple of the number of samples (%d)", ntot);
-      messerr("The Grid Db is created with no sample attached");
-      natt = 0;
-    }
-    reset(natt + flag_add_rank, ut_ivector_prod(nx));
-    (void) gridDefine(nx, dx, x0, angles);
-    _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
-  }
-  else
-  {
-    reset(natt + flag_add_rank, nech);
-    _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
-  }
+  resetDims(natt + flag_add_rank, nech);
+  _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
 
   /* Loading the names */
 
@@ -3580,37 +3245,11 @@ int Db::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Db::_serialize(FILE* file, bool verbose) const
+int Db::_serialize(FILE* file, bool /*verbose*/) const
 {
   bool onlyLocator = false;
   bool writeCoorForGrid = true;
   bool flag_grid = isGrid();
-
-  /* Writing the file organization */
-
-  _recordWrite(file, "%d", flag_grid);
-  _recordWrite(file, "#", "File organization (0:Points; 1:Grid)");
-
-  if (flag_grid)
-  {
-
-    /* Writing the header */
-
-    _recordWrite(file, "%d", getNDim());
-    _recordWrite(file, "#", "Space Dimension");
-
-    /* Writing the grid characteristics */
-
-    _recordWrite(file, "#", "Grid characteristics (NX,X0,DX,ANGLE)");
-    for (int idim = 0; idim < getNDim(); idim++)
-    {
-      _recordWrite(file, "%d",  getNX(idim));
-      _recordWrite(file, "%lf", getX0(idim));
-      _recordWrite(file, "%lf", getDX(idim));
-      _recordWrite(file, "%lf", getAngle(idim));
-      _recordWrite(file, "\n");
-    }
-  }
 
   /* Writing the tail of the file */
 
@@ -3922,89 +3561,6 @@ double Db::getCosineToDirection(int iech1,
 }
 
 /**
- * Creating a Grid Db which covers the extension of the input 'Db'
- *
- * @param db       Input Db from which the newly created Db is constructed
- * @param nodes    Vector of the expected number of grid nodes (default = 10)
- * @param dcell    Vector of the expected sizes for the grid meshes
- * @param origin   Vector of the expected origin of the grid
- * @param margin   Vector of the expected margins of the grid
- *
- * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
- */
-int Db::resetCoveringDb(Db* db,
-                         const VectorInt& nodes,
-                         const VectorDouble& dcell,
-                         const VectorDouble& origin,
-                         const VectorDouble& margin)
-{
-  _clear();
-  int ndim = db->getNDim();
-
-  // Derive the Grid parameters
-
-  VectorInt    nx(ndim);
-  VectorDouble x0(ndim);
-  VectorDouble dx(ndim);
-  int nech = 1;
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    VectorDouble coor = db->getExtrema(idim);
-
-    double marge = 0.;
-    if (ndim == (int) margin.size()) marge = margin[idim];
-
-    double x0loc = coor[0];
-    if (ndim == (int) origin.size()) x0loc = origin[idim];
-    x0loc -= marge;
-
-    double ext = coor[1] - x0loc + 2. * marge;
-
-    int nxloc = 10;
-    double dxloc = ext / (double) nxloc;
-
-    // Constraints specified by the number of nodes
-    if (ndim == (int) nodes.size())
-    {
-      nxloc = nodes[idim];
-      dxloc = ext / (double) nxloc;
-    }
-
-    // Constraints specified by the cell sizes
-    if (ndim == (int) dcell.size())
-    {
-      dxloc = dcell[idim];
-      nxloc = static_cast<int> (ext / dxloc) + 1;
-      ++nxloc; // one more node than intervals
-    }
-
-    nx[idim] = nxloc;
-    dx[idim] = dxloc;
-    x0[idim] = x0loc;
-    nech *= nxloc;
-  }
-
-  _nech = nech;
-  _ncol = ndim;
-  reset(_ncol, _nech);
-
-  // Create the grid
-
-  if (gridDefine(nx, dx, x0)) return 1;
-
-  /// Load the data
-
-  _createCoordinatesGrid(0);
-
-  // Create the locators
-
-  int jcol = 0;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
-
-  return 0;
-}
-
-/**
  * Sampling an input Db to create the output Db by selecting a subset of samples
  *
  * @param dbin       Pointer to the input Db
@@ -4037,7 +3593,7 @@ int Db::resetSamplingDb(const Db* dbin,
   if (namloc.empty())
     namloc = dbin->getAllNames();
   _ncol = static_cast<int> (namloc.size());
-  reset(_ncol, _nech);
+  resetDims(_ncol, _nech);
 
   // Create Variables and Locators
 
@@ -4144,29 +3700,9 @@ Db* Db::createFromSamples(int nech,
   }
   return db;
 }
-Db* Db::createFromGrid(const VectorInt& nx,
-                       const VectorDouble& dx,
-                       const VectorDouble& x0,
-                       const VectorDouble& angles,
-                       const ELoadBy& order,
-                       const VectorDouble& tab,
-                       const VectorString& names,
-                       const VectorString& locatorNames,
-                       int flag_add_rank)
-{
-  Db* db = new Db;
-  if (db->resetFromGrid(nx, dx, x0, angles, order, tab, names, locatorNames,
-                        flag_add_rank))
-  {
-    messerr("Error when creating Db from Grid");
-    delete db;
-    return nullptr;
-  }
-  return db;
-}
 Db* Db::createFromCSV(const String& filename,
-                      bool verbose,
                       const CSVformat& csv,
+                      bool verbose,
                       int ncol_max,
                       int nrow_max,
                       int flag_add_rank)
@@ -4176,20 +3712,6 @@ Db* Db::createFromCSV(const String& filename,
                        flag_add_rank))
   {
     messerr("Error when creating Db from Grid");
-    delete db;
-    return nullptr;
-  }
-  return db;
-}
-Db* Db::createFromPolygon(Polygons* polygon,
-                          const VectorInt& nodes,
-                          const VectorDouble& dcell,
-                          int flag_add_rank)
-{
-  Db* db = new Db;
-  if (db->resetFromPolygon(polygon, nodes, dcell, flag_add_rank))
-  {
-    messerr("Error when creating Db from Polygon");
     delete db;
     return nullptr;
   }
@@ -4217,21 +3739,6 @@ Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
   if (db->resetFromOnePoint(tab, flag_add_rank))
   {
     messerr("Error when creating Db from One Point");
-    delete db;
-    return nullptr;
-  }
-  return db;
-}
-Db* Db::createCoveringDb(Db* dbin,
-                         const VectorInt& nodes,
-                         const VectorDouble& dcell,
-                         const VectorDouble& origin,
-                         const VectorDouble& margin)
-{
-  Db* db = new Db;
-  if (db->resetCoveringDb(dbin, nodes, dcell, origin, margin))
-  {
-    messerr("Error when creating Db from Covering another Db");
     delete db;
     return nullptr;
   }
@@ -4268,18 +3775,16 @@ int Db::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
-
 /**
  * Create a Db by loading the contents of a Neutral File
  *
  * @param neutralFilename Name of the Neutral File (Db format)
- * @param mustGrid        True if the Db MUST be organized as a Grid
  * @param verbose         Verbose
  *
  * @remarks The name does not need to be completed in particular when defined by absolute path
  * @remarks or read from the Data Directory (in the gstlearn distribution)
  */
-Db* Db::createFromNF(const String& neutralFilename, bool mustGrid, bool verbose)
+Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "Db", "r", verbose);
   if (file == nullptr) return nullptr;
@@ -4290,12 +3795,6 @@ Db* Db::createFromNF(const String& neutralFilename, bool mustGrid, bool verbose)
     if (verbose) messerr("Problem reading the Neutral File.");
     delete db;
     db = nullptr;
-  }
-  if (mustGrid && ! db->isGrid())
-  {
-    if (verbose) messerr("The Db is not a Grid as required");
-    delete db;
-    return nullptr;
   }
   _fileClose(file, verbose);
   return db;

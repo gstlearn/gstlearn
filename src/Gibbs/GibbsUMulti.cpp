@@ -12,6 +12,7 @@
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Morpho/Morpho.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -122,7 +123,7 @@ void GibbsUMulti::update(VectorVectorDouble& y,
 
   /* Print the title */
 
-  if (debug_query("converge"))
+  if (OptDbg::query(EDbg::CONVERGE))
     mestitle(1,"Iterative Conditional Expectation (GS:%d - Simu:%d)",
              ipgs+1,isimu+1);
 

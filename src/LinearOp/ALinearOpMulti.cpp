@@ -15,6 +15,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Timer.hpp"
+#include "Basic/OptDbg.hpp"
 
 #include <iostream>
 
@@ -180,7 +181,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
   }
 
-  if (debug_query("converge"))
+  if (OptDbg::query(EDbg::CONVERGE))
   {
     message("-- Conjugate Gradient (precond=%d) : %d iterations (max=%d) (eps=%lg)\n",
             _precondStatus,niter,_nIterMax,_eps);

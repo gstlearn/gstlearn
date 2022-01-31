@@ -151,7 +151,6 @@ bool Interval::isDisjoint(const Interval& m) const
 
     if (m._maxIncluded && ! _minIncluded) return true;
     if (! m._maxIncluded && _minIncluded) return true;
-    return false;
   }
   else
   {
@@ -159,7 +158,6 @@ bool Interval::isDisjoint(const Interval& m) const
 
     if (m._minIncluded && ! _maxIncluded) return true;
     if (! m._minIncluded && _maxIncluded) return true;
-    return false;
   }
   return false;
 }

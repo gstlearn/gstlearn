@@ -654,7 +654,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  int ndim = ranges.size();
+  int ndim = (int) ranges.size();
   if ((int) ctxt.getNDim() != ndim)
   {
     messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",
@@ -704,7 +704,7 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
         nvar, ctxt.getNVar());
     return nullptr;
   }
-  int ndim = ranges.size();
+  int ndim = (int) ranges.size();
   if ((int) ctxt.getNDim() != ndim)
   {
     messerr("Mismatch in Space Dimension between 'ranges'(%d) and 'ctxt'(%d)",

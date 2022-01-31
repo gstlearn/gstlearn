@@ -583,7 +583,7 @@ static unsigned char st_in(FILE *file)
 {
   unsigned char c;
 
-  c = fgetc(file);
+  c = (unsigned char) fgetc(file);
   if (! feof(file)) return c;
 
   if (feof(file)) message(" End-of-file reached\n");
@@ -901,7 +901,7 @@ int db_grid_read_bmp2(const char *filename,
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-int db_grid_write_zycor(const char *filename, Db *db, int icol)
+int db_grid_write_zycor(const char *filename, DbGrid *db, int icol)
 {
   FILE *file;
   int i, nx[2], jj, ii, kk, yy, ind, loop;
@@ -913,7 +913,7 @@ int db_grid_write_zycor(const char *filename, Db *db, int icol)
 
   /* Preliminary checks */
 
-  if (!is_grid(db) || db->getNDim() != 2)
+  if (db->getNDim() != 2)
   {
     messerr("The Db structure should correspond to a 2-D Grid");
     return (1);
@@ -1087,7 +1087,7 @@ static void st_out(FILE *file, int mode, unsigned int ival)
  **
  *****************************************************************************/
 int db_grid_write_bmp(const char *filename,
-                                      Db *db,
+                                      DbGrid *db,
                                       int icol,
                                       int nsamplex,
                                       int nsampley,
@@ -1126,11 +1126,6 @@ int db_grid_write_bmp(const char *filename,
   flag_color_scale = (ncolor > 0 && red != nullptr && green != nullptr
                       && blue != nullptr);
   if (!flag_color_scale) ncolor = 256;
-  if (!is_grid(db))
-  {
-    messerr("The Db structure should correspond to a Grid");
-    return (1);
-  }
   if (db->getNDim() > 2)
   {
     number = 1;
@@ -1268,7 +1263,7 @@ int db_grid_write_bmp(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_irap(const char *filename,
-                                       Db *db,
+                                       DbGrid *db,
                                        int icol,
                                        int nsamplex,
                                        int nsampley)
@@ -1284,11 +1279,6 @@ int db_grid_write_irap(const char *filename,
 
   /* Check that the file is a grid */
   if (db == NULL) return (1);
-  if (!is_grid(db))
-  {
-    messerr("The IRAP dump is only designed for a Grid DB");
-    goto label_end;
-  }
   if (db->getNDim() != 2)
   {
     messerr("The IRAP dump is only designed for 2-D Grid");
@@ -1364,7 +1354,7 @@ int db_grid_write_irap(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_prop(const char *filename,
-                                       Db *db,
+                                       DbGrid *db,
                                        int ncol,
                                        int *icols)
 {
@@ -1376,11 +1366,6 @@ int db_grid_write_prop(const char *filename,
 
   /* Preliminary checks */
 
-  if (!is_grid(db))
-  {
-    messerr("The Db structure should correspond to a Grid");
-    return (1);
-  }
   ndim = db->getNDim();
   ntot = 1;
   for (idim = 0; idim < 3; idim++)
@@ -1463,7 +1448,7 @@ int db_grid_write_prop(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_eclipse(const char *filename,
-                                          Db *db,
+                                          DbGrid *db,
                                           int icol)
 {
   FILE *file;
@@ -1474,11 +1459,6 @@ int db_grid_write_eclipse(const char *filename,
 
   /* Preliminary checks */
 
-  if (!is_grid(db))
-  {
-    messerr("The Db structure should correspond to a Grid");
-    return (1);
-  }
   nxyz = 1;
   for (idim = 0; idim < db->getNDim(); idim++)
     nxyz *= db->getNX(idim);
@@ -1770,15 +1750,15 @@ int db_grid_read_prop2(const char *filename,
  ** \return  Error return code
  **
  ** \param[in]  filename  Name of the VTK file
- ** \param[in]  db        Db structure to be written
+ ** \param[in]  db        Db grid structure to be written
  ** \param[in]  cols      Rank(s) of the attribute
  ** \param[in]  names     Array of "selected" variable names
  **
  *****************************************************************************/
 int db_write_vtk(const char *filename,
-                                 Db *db,
-                                 const VectorInt &cols,
-                                 const VectorString &names)
+                 DbGrid *db,
+                 const VectorInt &cols,
+                 const VectorString &names)
 {
   int *vardim, *center;
   int dims[3], error, nech, ndim, flag_grid, useBinary, ecr, iad, nactive, ncol;
@@ -1810,7 +1790,7 @@ int db_write_vtk(const char *filename,
   points = xcoor = ycoor = zcoor = nullptr;
   nech = db->getSampleNumber();
   nactive = db->getActiveSampleNumber();
-  flag_grid = is_grid(db);
+  flag_grid = db->isGrid();
   useBinary = (int) get_keypone("VTK_Use_Binary", 1.);
   factx = (float) get_keypone("VTK_Fact_X", 1.);
   facty = (float) get_keypone("VTK_Fact_Y", 1.);
@@ -1820,8 +1800,7 @@ int db_write_vtk(const char *filename,
   /* Define the reading parameters */
 
   for (int idim = 0; idim < 3; idim++)
-    dims[idim] = (idim < ndim) ? db->getNX(idim) :
-                                 1;
+    dims[idim] = (idim < ndim) ? db->getNX(idim) : 1;
 
   /* Core allocation */
 
@@ -1880,8 +1859,7 @@ int db_write_vtk(const char *filename,
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
         points[ecr++] =
-            (idim < ndim) ? fact * (float) db->getCoordinate(iech, idim) :
-                            0.;
+            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) : 0.;
       }
     }
   }
@@ -2580,18 +2558,13 @@ int csv_table_read(const String &filename,
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-int db_grid_write_XYZ(const char *filename, Db *db, int icol)
+int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol)
 {
   FILE *file;
   int lec;
 
   /* Preliminary checks */
 
-  if (!is_grid(db))
-  {
-    messerr("The Db structure should correspond to a Grid");
-    return (1);
-  }
   if (db->getNDim() != 2)
   {
     messerr("This FORMAT is limited to the 2-D case");

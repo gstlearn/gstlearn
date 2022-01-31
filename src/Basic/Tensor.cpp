@@ -60,6 +60,7 @@ Tensor::~Tensor()
 
 void Tensor::init(int ndim)
 {
+  _nDim = ndim;
   _radius.resize(_nDim, 1.);
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setIdentity();

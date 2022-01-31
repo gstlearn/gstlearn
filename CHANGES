@@ -1,6 +1,10 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.1
+==============
+- New Neighborhood classes (NeighUnique, NeighBench, NeighImage, NeighMoving replacing Neigh)
+
 Release 0.1.0
 ==============
 - Use CMake 3.19+

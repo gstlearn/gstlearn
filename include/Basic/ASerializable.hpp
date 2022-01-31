@@ -54,6 +54,8 @@ protected:
                          const char* title,
                          const char* format, ...);
   static void _recordWrite(FILE* file, const char* format, ...);
+  static void _tableWrite(FILE *file, const String& string, int ntab, const double *tab);
+  static int  _tableRead(FILE* file, int ntab, double *tab);
   static int _fileRead(FILE* file, const String& format, va_list ap);
   static void _fileWrite(FILE* file, const String& format, va_list ap);
   static bool _onlyBlanks(char *string);

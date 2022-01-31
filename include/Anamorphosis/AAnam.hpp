@@ -11,27 +11,20 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 
-//Enums
 #include "Anamorphosis/EAnam.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ASerializable.hpp"
 
-class GSTLEARN_EXPORT Anam : public AStringable, public IClonable
+class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable
 {
 public:
-  Anam(const EAnam& type = EAnam::UNDEFINED);
-  Anam(const Anam &m);
-  Anam& operator= (const Anam &m);
-  virtual ~Anam();
+  AAnam();
+  AAnam(const AAnam &m);
+  AAnam& operator= (const AAnam &m);
+  virtual ~AAnam();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual IClonable* clone() const override { return new Anam(*this); }
-
-  const EAnam&  getType() const { return _type; }
-
-private:
-  EAnam _type;
+  /// Interface for AAnam
+  virtual const EAnam&  getType() const = 0;
 };

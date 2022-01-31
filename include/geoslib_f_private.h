@@ -16,7 +16,7 @@
 
 class Model;
 class Vario;
-class Neigh;
+class ANeighParam;
 class MeshEStandard;
 class RuleProp;
 class cs;
@@ -35,7 +35,6 @@ int _record_read(FILE *file, const char *format, ...);
 int _buffer_read(char **buffer, const char *format, va_list ap);
 void _file_write(FILE *file, const char *format, va_list ap);
 void _buffer_write(char *buffer, const char *format, va_list ap);
-int _lire_key(const char *question, int nkeys, const char **keys);
 void _lire_string(const char *question,
                   int flag_def,
                   const char *valdef,
@@ -75,7 +74,7 @@ int _krigsim(const char *string,
              Db *dbin,
              Db *dbout,
              Model *model,
-             Neigh *neigh,
+             ANeighParam *neighparam,
              double *dmean,
              double *dcov,
              int icase,

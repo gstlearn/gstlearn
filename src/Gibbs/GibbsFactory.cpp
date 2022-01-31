@@ -14,7 +14,7 @@
 #include "Gibbs/GibbsUPropMono.hpp"
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"

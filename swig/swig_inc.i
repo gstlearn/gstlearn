@@ -33,6 +33,11 @@
 #include "Basic/Table.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/OptCustom.hpp"
+#include "Basic/EDbg.hpp"
+#include "Basic/ECst.hpp"
 
 #include "Enum/EKrigOpt.hpp"
 
@@ -85,7 +90,11 @@
 #include "LinearOp/OptimCostColored.hpp"
 #include "LinearOp/EPowerPT.hpp"
 
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighBench.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
 
@@ -187,11 +196,12 @@
 #include "API/ESPDECalcMode.hpp"
 
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
 
-#include "Anamorphosis/Anam.hpp"
+#include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamUser.hpp"

@@ -16,19 +16,20 @@
 
 // Enums
 #include "Db/ELoadBy.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/EConsElem.hpp"
-
 #include "Model/Constraints.hpp"
-#include "Basic/NamingConvention.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
+
+#include "Basic/NamingConvention.hpp"
 
 class Db;
 class Vario;
 class VarioParam;
 class Model;
-class Anam;
-class Neigh;
+class AAnam;
+class ANeighParam;
 class Polygons;
 class RuleProp;
 class ECalcVario;
@@ -44,18 +45,6 @@ GSTLEARN_EXPORT int setup_license(const char *target_name);
 /* Functions for Basic */
 /***********************/
 
-GSTLEARN_EXPORT void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const int *itab);
-GSTLEARN_EXPORT void print_ivector(const char *title,
-                                   int flag_limit,
-                                   int ntab,
-                                   const VectorInt &itab);
-GSTLEARN_EXPORT void print_vector(const char *title,
-                                  int flag_limit,
-                                  int ntab,
-                                  const VectorDouble &tab);
 GSTLEARN_EXPORT VectorInt util_string_search(const VectorString &list_strings,
                                              const String &string,
                                              int verbose);
@@ -90,52 +79,52 @@ GSTLEARN_EXPORT Db* db_create_point(int nech,
                                     const ELoadBy &order = ELoadBy::COLUMN,
                                     int flag_add_rank = 0,
                                     const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT Db* db_create_grid_generic(int ndim,
-                                           int ncol,
-                                           const ELoadBy &order,
-                                           int flag_add_rank,
-                                           const VectorInt &nx,
-                                           const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT Db* db_create_grid(int flag_g_rot,
-                                   int ndim,
-                                   int nvar,
-                                   const ELoadBy &order,
-                                   int flag_add_rank,
-                                   const VectorInt &nx,
-                                   const VectorDouble &x0,
-                                   const VectorDouble &dx,
-                                   const VectorDouble &angles = VectorDouble(),
-                                   const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT Db* db_create_grid_2D(int flag_rot,
-                                      int ncol,
-                                      const ELoadBy &order,
-                                      int flag_add_rank,
-                                      int nx,
-                                      int ny,
-                                      double x0 = 0.,
-                                      double y0 = 0.,
-                                      double dx = 1.,
-                                      double dy = 1.,
-                                      double angle = 0.,
-                                      const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT Db* db_create_grid_3D(int flag_rot,
-                                      int ncol,
-                                      const ELoadBy &order,
-                                      int flag_add_rank,
-                                      int nx,
-                                      int ny,
-                                      int nz,
-                                      double x0 = 0.,
-                                      double y0 = 0.,
-                                      double z0 = 0.,
-                                      double dx = 1.,
-                                      double dy = 1.,
-                                      double dz = 1.,
-                                      double angle_z = 0.,
-                                      double angle_y = 0.,
-                                      double angle_x = 0.,
-                                      const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT VectorDouble db_get_grid_axis(Db *dbgrid, int idim);
+GSTLEARN_EXPORT DbGrid* db_create_grid_generic(int ndim,
+                                               int ncol,
+                                               const ELoadBy &order,
+                                               int flag_add_rank,
+                                               const VectorInt &nx,
+                                               const VectorDouble &tab = VectorDouble());
+GSTLEARN_EXPORT DbGrid* db_create_grid(int flag_g_rot,
+                                       int ndim,
+                                       int nvar,
+                                       const ELoadBy &order,
+                                       int flag_add_rank,
+                                       const VectorInt &nx,
+                                       const VectorDouble &x0,
+                                       const VectorDouble &dx,
+                                       const VectorDouble &angles = VectorDouble(),
+                                       const VectorDouble &tab = VectorDouble());
+GSTLEARN_EXPORT DbGrid* db_create_grid_2D(int flag_rot,
+                                          int ncol,
+                                          const ELoadBy &order,
+                                          int flag_add_rank,
+                                          int nx,
+                                          int ny,
+                                          double x0 = 0.,
+                                          double y0 = 0.,
+                                          double dx = 1.,
+                                          double dy = 1.,
+                                          double angle = 0.,
+                                          const VectorDouble &tab = VectorDouble());
+GSTLEARN_EXPORT DbGrid* db_create_grid_3D(int flag_rot,
+                                          int ncol,
+                                          const ELoadBy &order,
+                                          int flag_add_rank,
+                                          int nx,
+                                          int ny,
+                                          int nz,
+                                          double x0 = 0.,
+                                          double y0 = 0.,
+                                          double z0 = 0.,
+                                          double dx = 1.,
+                                          double dy = 1.,
+                                          double dz = 1.,
+                                          double angle_z = 0.,
+                                          double angle_y = 0.,
+                                          double angle_x = 0.,
+                                          const VectorDouble &tab = VectorDouble());
+GSTLEARN_EXPORT VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim);
 GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
                                               int iatt,
                                               bool verbose = false);
@@ -183,9 +172,9 @@ GSTLEARN_EXPORT int variogram_direction_add(VarioParam *varioparam,
                                             const VectorInt &grincr);
 GSTLEARN_EXPORT int variogram_cloud(const Db *db,
                                     const VarioParam *varioparam,
-                                    Db *dbgrid,
+                                    DbGrid *dbgrid,
                                     const NamingConvention& namconv = NamingConvention("Cloud"));
-GSTLEARN_EXPORT Db* db_variogram_cloud(Db *db,
+GSTLEARN_EXPORT DbGrid* db_variogram_cloud(Db *db,
                                        const VarioParam *varioparam,
                                        double lagmax = TEST,
                                        double varmax = TEST,
@@ -199,19 +188,19 @@ GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      int flag_rho = false,
                                      int opt_correl = 2);
 GSTLEARN_EXPORT int vmap_compute(Db *db,
-                                 Db *dbmap,
+                                 DbGrid *dbmap,
                                  const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
                                  int radius = 0,
                                  bool flag_FFT = true,
                                  const NamingConvention& namconv = NamingConvention("VMAP"));
-GSTLEARN_EXPORT Db* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
-                                    int nxx = 20,
-                                    int nyy = 20,
-                                    double dx = TEST,
-                                    double dy = TEST,
-                                    int radius = 0.,
-                                    bool flag_FFT = true,
-                                    const NamingConvention& namconv = NamingConvention("VMAP"));
+GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
+                                        int nxx = 20,
+                                        int nyy = 20,
+                                        double dx = TEST,
+                                        double dy = TEST,
+                                        int radius = 0.,
+                                        bool flag_FFT = true,
+                                        const NamingConvention& namconv = NamingConvention("VMAP"));
 GSTLEARN_EXPORT int pca_z2f(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
                             const NamingConvention& namconv = NamingConvention("Z2F"));
 GSTLEARN_EXPORT int pca_f2z(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
@@ -227,7 +216,7 @@ GSTLEARN_EXPORT int model_auto_fit(const Vario *vario,
                                    const Option_AutoFit &mauto_arg = Option_AutoFit(),
                                    const Constraints &cons_arg = Constraints(),
                                    const Option_VarioFit &optvar_arg = Option_VarioFit());
-GSTLEARN_EXPORT int vmap_auto_fit(const Db *dbvmap,
+GSTLEARN_EXPORT int vmap_auto_fit(const DbGrid *dbvmap,
                                   Model *model,
                                   bool verbose = false,
                                   const Option_AutoFit &mauto_arg = Option_AutoFit(),
@@ -249,7 +238,7 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
+GSTLEARN_EXPORT VectorDouble anam_selectivity(AAnam *anam,
                                               int nclass,
                                               VectorDouble zcut,
                                               int flag_correct = 0,
@@ -262,7 +251,7 @@ GSTLEARN_EXPORT VectorDouble anam_selectivity(Anam *anam,
 GSTLEARN_EXPORT int test_neigh(Db *dbin,
                                Db *dbout,
                                Model *model,
-                               Neigh *neigh,
+                               ANeighParam *neighparam,
                                const NamingConvention& namconv = NamingConvention("Neigh"));
 
 /**********************/
@@ -319,13 +308,13 @@ GSTLEARN_EXPORT void db_polygon(Db *db,
                                 int flag_period = 0,
                                 int flag_nested = 0,
                                 const NamingConvention& namconv = NamingConvention("Polygon", ELoc::SEL));
-GSTLEARN_EXPORT int db_grid_fill(Db *dbgrid,
+GSTLEARN_EXPORT int db_grid_fill(DbGrid *dbgrid,
                                  int mode = 0,
                                  int seed = 34243,
                                  int radius = 1,
                                  bool verbose = false,
                                  const NamingConvention& namconv = NamingConvention("Fill"));
-GSTLEARN_EXPORT int db_grid1D_fill(Db *dbgrid,
+GSTLEARN_EXPORT int db_grid1D_fill(DbGrid *dbgrid,
                                    int mode = 0,
                                    int seed = 34243,
                                    const NamingConvention& namconv = NamingConvention("Fill"));
@@ -338,7 +327,7 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
-                            Neigh *neigh,
+                            ANeighParam *neighparam,
                             const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
                             int flag_est = 1,
                             int flag_std = 1,
@@ -349,18 +338,20 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
-                           Neigh *neigh,
+                           ANeighParam *neighparam,
                            int flag_code = 0,
                            int flag_est = 1,
                            int flag_std = 1,
                            int flag_varz = 0,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
-GSTLEARN_EXPORT int krimage_func(Db *dbgrid, Model *model, Neigh *neigh); // TODO : NamingConvention?
+GSTLEARN_EXPORT int krimage_func(DbGrid *dbgrid,
+                                 Model *model,
+                                 ANeighParam *neighparam); // TODO : NamingConvention?
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
-                           Neigh *neigh = nullptr,
+                           ANeighParam *neighparam = nullptr,
                            int nbsimu = 1,
                            int seed = 43431,
                            int nbtuba = 100,
@@ -371,7 +362,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            RuleProp *ruleprop,
                            Model *model1,
                            Model *model2,
-                           Neigh *neigh,
+                           ANeighParam *neighparam = nullptr,
                            int nbsimu = 1,
                            int seed = 1321421,
                            int flag_gaus = false,
@@ -390,7 +381,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Model *model12,
                              Model *model21,
                              Model *model22,
-                             Neigh *neigh,
+                             ANeighParam *neighparam = nullptr,
                              int nbsimu = 1,
                              int seed = 43243,
                              int flag_gaus = false,
@@ -440,14 +431,14 @@ GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *char_sep = ",",
                                  const char *na_string = "NA");
 GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
-                                           Db *dbout,
+                                           DbGrid *dbout,
                                            Model *model,
                                            int niter = 100,
                                            bool verbose = false,
                                            const NamingConvention& namconv = NamingConvention("Prop", ELoc::P));
 GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   Model *model,
-                                  Neigh *neigh,
+                                  ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
                                   int nboot,
@@ -485,15 +476,4 @@ GSTLEARN_EXPORT int polygon_inside(double xx,
                                    double zz,
                                    int flag_nested,
                                    Polygons *polygon);
-
-
-GSTLEARN_EXPORT void debug_reset(void);
-GSTLEARN_EXPORT void debug_print(void);
-GSTLEARN_EXPORT void debug_index(int rank);
-GSTLEARN_EXPORT void debug_reference(int rank);
-GSTLEARN_EXPORT int is_debug_reference_defined(void);
-GSTLEARN_EXPORT void debug_define(const char *name, int status);
-GSTLEARN_EXPORT int debug_query(const char *name);
-GSTLEARN_EXPORT int debug_force(void);
-
 

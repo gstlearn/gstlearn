@@ -163,7 +163,7 @@ struct SegYArg
 /***************************************/
 
 GSTLEARN_EXPORT Grid segy_summary(const char *filesegy,
-                                   Db *surf2D = nullptr,
+                                   DbGrid *surf2D = nullptr,
                                    const String &name_top = String(),
                                    const String &name_bot = String(),
                                    double thickmin = TEST,
@@ -178,7 +178,7 @@ GSTLEARN_EXPORT Grid segy_summary(const char *filesegy,
                                    double modif_low = TEST,
                                    double modif_scale = TEST);
 GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
-                                   Db *surf2D = nullptr,
+                                   DbGrid *surf2D = nullptr,
                                    const String& name_top = String(),
                                    const String& name_bot = String(),
                                    const String& top_aux  = String(),
@@ -195,8 +195,8 @@ GSTLEARN_EXPORT SegYArg segy_array(const char *filesegy,
                                    double modif_low = TEST,
                                    double modif_scale = TEST);
 GSTLEARN_EXPORT int db_segy(const char *filesegy,
-                            Db *grid3D,
-                            Db *surf2D = nullptr,
+                            DbGrid *grid3D,
+                            DbGrid *surf2D = nullptr,
                             const String &name_top = String(),
                             const String &name_bot = String(),
                             double thickmin = TEST,

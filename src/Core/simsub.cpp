@@ -298,21 +298,21 @@ static void st_calcul_value(SubPlan &plan, double factor, double *vector)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int substitution(Db *dbgrid,
-                                 int seed,
-                                 int nfacies,
-                                 int nstates,
-                                 int flag_direct,
-                                 int flag_coding,
-                                 int flag_orient,
-                                 int flag_auto,
-                                 double intensity,
-                                 double factor,
-                                 double vector[3],
-                                 double *trans,
-                                 int colfac,
-                                 int colang[3],
-                                 int verbose)
+int substitution(DbGrid *dbgrid,
+                 int seed,
+                 int nfacies,
+                 int nstates,
+                 int flag_direct,
+                 int flag_coding,
+                 int flag_orient,
+                 int flag_auto,
+                 double intensity,
+                 double factor,
+                 double vector[3],
+                 double *trans,
+                 int colfac,
+                 int colang[3],
+                 int verbose)
 {
   SubPlanes *splanes;
   double cen[3], *props, w0, p0, u, prod, valloc, valtot, vmin, vmax, value,

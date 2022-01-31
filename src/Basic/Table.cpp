@@ -189,7 +189,7 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-int Table::_serialize(FILE* file, bool verbose) const
+int Table::_serialize(FILE* file, bool /*verbose*/) const
 {
   /* Writing the header */
 
@@ -211,7 +211,7 @@ int Table::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
-int Table::_deserialize(FILE* file, bool verbose)
+int Table::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ncols, nrows;
   double value;

@@ -11,13 +11,14 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+#include "LithoRule/Rule.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "LithoRule/Rule.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Neigh/ANeighParam.hpp"
 
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -31,7 +32,6 @@
 #define COORD(i,ip)  (coord[3 * (ip) + (i)])
 #define RCOORD(i,ip) (R_coor->coor[3 * (ip) + (i)])
 #define MATTAB(ip,i) (mattab[(ip) * ncolor + (i)])
-#define DBG_NUMBER  15
 #define MINI        10
 #define LSTACK    1000
 /*! \endcond */
@@ -47,46 +47,8 @@ typedef struct
 
 typedef struct
 {
-  int status;
-  char keyword[20];
-  char comment[STRING_LENGTH];
-} Debug;
-
-static Debug DBG[DBG_NUMBER] = { { 0,
-                                   "interface",
-                                   "Communication with interface" },
-                                 { 0, "db", "Data Base Management" }, { 0,
-                                                                        "nbgh",
-                                                                        "Neighborhood Management" },
-                                 { 0, "model", "Model Management" }, { 0,
-                                                                       "kriging",
-                                                                       "Kriging Operations" },
-                                 { 0, "simulate", "Simulations" }, { 0,
-                                                                     "results",
-                                                                     "Kriging Results" },
-                                 { 0, "variogram", "Variogram calculations" }, { 0,
-                                                                                 "converge",
-                                                                                 "Convergence test" },
-                                 { 0, "condexp", "Conditional Expectation" }, { 0,
-                                                                                "bayes",
-                                                                                "Bayesian Estimation" },
-                                 { 0, "morpho", "Morphological Operations" }, { 0,
-                                                                                "props",
-                                                                                "Proportions or Intensities" },
-                                 { 0, "upscale", "Upscaling" }, { 0,
-                                                                  "spde",
-                                                                  "S.P.D.E" } };
-
-typedef struct
-{
   int actif;
 } Projec_Environ;
-
-typedef struct
-{
-  int index;
-  int reference;
-} Debug_Environ;
 
 typedef struct
 {
@@ -114,7 +76,6 @@ static double (*LEGENDRE_SPHPLM)(int, int, double) = NULL;
 static double (*LEGENDRE_PL)(int, double) = NULL;
 
 static Projec_Environ PROJEC = { 0 };
-static Debug_Environ DBGENV = { 0, 0 };
 static Variety_Environ VARIETY = { 0, 0. };
 static int KEYPAIR_NTAB = 0;
 static Keypair *KEYPAIR_TABS = NULL;
@@ -1168,173 +1129,6 @@ double ut_merge_extension(int ndim,
 
 /****************************************************************************/
 /*!
- **  Reset the DEBUG status to Idle value
- **
- *****************************************************************************/
-void debug_reset(void)
-
-{
-  int i;
-
-  for (i = 0; i < DBG_NUMBER; i++)
-    DBG[i].status = 0;
-  DBGENV.reference = 0;
-  DBGENV.index = 0;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Print the status of the debug options
- **
- *****************************************************************************/
-void debug_print(void)
-
-{
-  int i;
-  const char *STATUS[] = { "OFF", "ON" };
-
-  mestitle(1, "Parameters for DEBUG option");
-  for (i = 0; i < DBG_NUMBER; i++)
-    message(". %-30s [%-10s] = %s\n", DBG[i].comment, DBG[i].keyword,
-            STATUS[DBG[i].status]);
-  if (DBGENV.reference > 0)
-    message("Index of the reference target under DEBUG = %d\n",
-            DBGENV.reference);
-  message(
-      "Use 'debug.define' or 'debug.reference' to modify previous values\n");
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Set the rank of the current target for checking the DEBUG status
- **
- ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
- **
- *****************************************************************************/
-void debug_index(int rank)
-{
-
-  DBGENV.index = rank;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Check if a DEBUG reference index has been defined
- **
- ** \return 0 if DEBUG reference is not defined; rank of this index otherwise
- **
- *****************************************************************************/
-int is_debug_reference_defined(void)
-
-{
-  return (DBGENV.reference);
-}
-
-/****************************************************************************/
-/*!
- **  Set the rank of the DEBUG target for an environment variable
- **
- ** \param[in]  rank    rank of the DEBUG target or 0 for undefine
- **
- *****************************************************************************/
-void debug_reference(int rank)
-
-{
-  DBGENV.reference = rank;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Force the action according to the Target Debugging option
- **
- *****************************************************************************/
-int debug_force(void)
-
-{
-  if (DBGENV.reference <= 0) return (0);
-  if (DBGENV.index != DBGENV.reference) return (0);
-  return (1);
-}
-
-/****************************************************************************/
-/*!
- **  Set the DEBUG status for an environment variable
- **
- ** \param[in]  name    name of the environment where DEBUG status is set
- ** \param[in]  status  value of the DEBUG status
- **
- *****************************************************************************/
-void debug_define(const char *name, int status)
-{
-  int i, found;
-
-  /* Look for the "all" keyword */
-
-  if (!strcmp(name, "all"))
-  {
-    /* Set all the flags to 1 (except the one for Memory) */
-    for (i = 0; i < DBG_NUMBER; i++)
-      DBG[i].status = status;
-    return;
-  }
-
-  /* Look for the environment variable */
-
-  for (i = 0, found = -1; i < DBG_NUMBER; i++)
-    if (!strcmp(name, DBG[i].keyword)) found = i;
-
-  if (found < 0)
-  {
-    message("The keywords for DEBUG definition are:\n");
-    for (i = 0; i < DBG_NUMBER; i++)
-      message("%-10s : %-30s\n", DBG[i].keyword, DBG[i].comment);
-    message("The Keyword '%s' is unknown\n", name);
-  }
-  else
-    DBG[found].status = status;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the DEBUG status for an environment variable
- **
- ** \return  Debug status
- **
- ** \param[in]  name  name of the environment where DEBUG status is set
- **
- *****************************************************************************/
-int debug_query(const char *name)
-
-{
-  int i;
-
-  /* The current index coincides with the reference */
-
-  if (debug_force()) return (1);
-
-  /* Look for the environment variable */
-
-  for (i = 0; i < DBG_NUMBER; i++)
-    if (!strcmp(name, DBG[i].keyword)) return (DBG[i].status);
-
-  message("The keywords for DEBUG definition are:\n");
-  for (i = 0; i < DBG_NUMBER; i++)
-    message("%-10s : %-30s\n", DBG[i].keyword, DBG[i].comment);
-  message("The Keyword '%s' is unknown\n", name);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Toggle the status of the Projection flag
  **
  ** \param[in]  mode Toggle of the projection flag
@@ -1572,10 +1366,7 @@ void get_matrix(const char *title,
  ** \param[in,out] rot    Input/Output rotation matrix (if flag_def=1)
  **
  *****************************************************************************/
-void get_rotation(const char *title,
-                                  int flag_def,
-                                  int ndim,
-                                  double *rot)
+void get_rotation(const char *title, int flag_def, int ndim, double *rot)
 {
   double dir[2], angles2D[2], angles3D[3], alpha, beta, gamma;
   int mode;
@@ -4585,7 +4376,7 @@ int is_in_spherical_triangle(double *coor,
  *****************************************************************************/
 VectorDouble util_set_array_double(int ntab, const double *rtab)
 {
-  if (debug_query("interface")) message("util_set_array_double\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_double\n");
   if (ntab <= 0 || rtab == nullptr) return VectorDouble();
   VectorDouble rettab(ntab);
   if (rettab.empty()) return rettab;
@@ -4608,7 +4399,7 @@ VectorDouble util_set_array_double(int ntab, const double *rtab)
  *****************************************************************************/
 VectorInt util_set_array_integer(int ntab, const int *itab)
 {
-  if (debug_query("interface")) message("util_set_array_integer\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_integer\n");
   VectorInt rettab(ntab);
   if (ntab <= 0 || itab == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
@@ -4628,7 +4419,7 @@ VectorInt util_set_array_integer(int ntab, const int *itab)
  *****************************************************************************/
 VectorString util_set_array_char(int ntab, char **names)
 {
-  if (debug_query("interface")) message("util_set_array_char\n");
+  if (OptDbg::query(EDbg::INTERFACE)) message("util_set_array_char\n");
   VectorString rettab(ntab);
   if (names == nullptr) return rettab;
   for (int i = 0; i < ntab; i++)
@@ -5256,9 +5047,9 @@ std::vector<char*> util_vs_to_vs(VectorString vs)
  **
  *****************************************************************************/
 void ut_angles_to_codir(int ndim,
-                                        int ndir,
-                                        const VectorDouble &angles,
-                                        VectorDouble &codir)
+                        int ndir,
+                        const VectorDouble &angles,
+                        VectorDouble &codir)
 {
   if (ndim <= 1) return;
 

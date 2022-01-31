@@ -10,7 +10,8 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -38,7 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
   auto nx = { 101, 101 };
-  Db* workingDbc = Db::createFromGrid(nx);
+  DbGrid* workingDbc = DbGrid::create(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
 
@@ -61,16 +62,16 @@ int main(int /*argc*/, char */*argv*/[])
   dat->addFields(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  Neigh* neigh = Neigh::createUnique(2);
+  NeighUnique* neighU = NeighUnique::create(2,false);
 
   // Testing Kriging
-  kriging(dat,workingDbc,&model,neigh);
+  kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 
   delete dat;
   delete workingDbc;
-  delete neigh;
+  delete neighU;
   return 0;
 }

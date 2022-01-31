@@ -42,8 +42,21 @@ public:
   virtual ~Db();
 
 public:
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// IClonable Interface
   virtual IClonable* clone() const override { return new Db(*this); };
+
+  /// Interface for Db
+  virtual bool isGrid() const { return false; }
+  virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
+  virtual double getUnit(int idim = 0) const;
+  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  virtual int getNDim() const;
+
+  static Db* createFromNF(const String& neutralFilename,
+                          bool verbose = false);
 
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::SAMPLE,
@@ -51,25 +64,12 @@ public:
                        const VectorString& names = VectorString(),
                        const VectorString& locatorNames = VectorString(),
                        int flag_add_rank = 1);
-  int resetFromGrid(const VectorInt& nx,
-                    const VectorDouble& dx = VectorDouble(),
-                    const VectorDouble& x0 = VectorDouble(),
-                    const VectorDouble& angles = VectorDouble(),
-                    const ELoadBy& order = ELoadBy::SAMPLE,
-                    const VectorDouble& tab = VectorDouble(),
-                    const VectorString& names = VectorString(),
-                    const VectorString& locatorNames = VectorString(),
-                    int flag_add_rank = 1);
   int resetFromCSV(const String& filename,
                    bool verbose,
                    const CSVformat& csv,
                    int ncol_max = -1,
                    int nrow_max = -1,
                    int flag_add_rank = 1);
-  int resetFromPolygon(Polygons* polygon,
-                       const VectorInt& nodes,
-                       const VectorDouble& dcell,
-                       int flag_add_rank = 1);
   int resetFromBox(int nech,
                    const VectorDouble& coormin,
                    const VectorDouble& coormax,
@@ -77,18 +77,12 @@ public:
                    int seed = 321415,
                    int flag_add_rank = 1);
   int resetFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
-  int resetCoveringDb(Db* db,
-                      const VectorInt& nodes = VectorInt(),
-                      const VectorDouble& dcell = VectorDouble(),
-                      const VectorDouble& origin = VectorDouble(),
-                      const VectorDouble& margin = VectorDouble());
   int resetSamplingDb(const Db* dbin,
                       double proportion,
                       const VectorString& names = VectorString(),
                       int seed = 23241,
                       bool verbose = false);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Db* create();
   static Db* createFromSamples(int nech,
                                const ELoadBy& order = ELoadBy::SAMPLE,
@@ -96,25 +90,12 @@ public:
                                const VectorString& names = VectorString(),
                                const VectorString& locatorNames = VectorString(),
                                int flag_add_rank = 1);
-  static Db* createFromGrid(const VectorInt& nx,
-                            const VectorDouble& dx = VectorDouble(),
-                            const VectorDouble& x0 = VectorDouble(),
-                            const VectorDouble& angles = VectorDouble(),
-                            const ELoadBy& order = ELoadBy::SAMPLE,
-                            const VectorDouble& tab = VectorDouble(),
-                            const VectorString& names = VectorString(),
-                            const VectorString& locatorNames = VectorString(),
-                            int flag_add_rank = 1);
   static Db* createFromCSV(const String& filename,
-                           bool verbose,
                            const CSVformat& csv,
+                           bool verbose = false,
                            int ncol_max = -1,
                            int nrow_max = -1,
                            int flag_add_rank = 1);
-  static Db* createFromPolygon(Polygons* polygon,
-                               const VectorInt& nodes,
-                               const VectorDouble& dcell,
-                               int flag_add_rank = 1);
   static Db* createFromBox(int nech,
                            const VectorDouble& coormin,
                            const VectorDouble& coormax,
@@ -122,19 +103,12 @@ public:
                            int seed = 321415,
                            int flag_add_rank = 1);
   static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
-  static Db* createCoveringDb(Db* dbin,
-                              const VectorInt& nodes = VectorInt(),
-                              const VectorDouble& dcell = VectorDouble(),
-                              const VectorDouble& origin = VectorDouble(),
-                              const VectorDouble& margin = VectorDouble());
   static Db* createSamplingDb(const Db* dbin,
                               double proportion,
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false);
-  static Db* createFromNF(const String& neutralFilename,
-                          bool mustGrid = false,
-                          bool verbose = false);
+
 
   const VectorDouble& getArrays() const { return _array; }
 
@@ -153,7 +127,6 @@ public:
   void setNameByAttribute(int iatt, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
 
-  inline const Grid& getGrid() const { return _grid; }
   inline int getAttributeMaxNumber() const { return static_cast<int>(_attcol.size()); }
   inline int getFieldNumber() const { return _ncol; }
   double getFieldSize(bool useSel = false) const;
@@ -163,12 +136,11 @@ public:
    */
   inline int getSampleNumber() const { return _nech; }
   int getActiveSampleNumber() const;
-  inline int isGrid() const { return _isGrid; }
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
 
-  void reset(int ncol, int nech);
+  void resetDims(int ncol, int nech);
 
   // Locator and Attribute methods
 
@@ -259,7 +231,6 @@ public:
   void getSampleCoordinates(int iech, VectorDouble& coor) const;
   VectorDouble getSampleAttributes(const ELoc& locatorType, int iech) const;
 
-  double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   void   getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const;
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
   VectorVectorDouble getAllCoordinates(bool useSel = false) const;
@@ -444,6 +415,7 @@ public:
   void setFieldByAttributeOldStyle(const double* tab, int iatt, bool useSel = false);
   void setFieldByAttribute(const VectorDouble& tab, int iatt, bool useSel = false);
 
+  VectorDouble getAllFields(bool useSel = false) const;
   VectorDouble getFields(const VectorString& names = VectorString(),
                          bool useSel = false) const;
   VectorDouble getFieldsByLocator(const ELoc& locatorType,
@@ -464,6 +436,7 @@ public:
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
+
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;
   double getMean(const String& name, bool useSel = false) const;
@@ -488,59 +461,9 @@ public:
                                bool flagPrint = false,
                                const String& title = "");
 
-  // Pipe to the Grid class
 
-  /**
-   * Definition of the grid. Function to access the class Grid
-   * @param nx     Array giving the number of nodes
-   * @param dx     Array giving the mesh dimensions along each space dimension
-   * @param x0     Array giving the origin of the Grid (lower left corner)
-   * @param angles Array of rotation angles
-   */
-  int gridDefine(const VectorInt& nx,
-                 const VectorDouble& dx = VectorDouble(),
-                 const VectorDouble& x0 = VectorDouble(),
-                 const VectorDouble& angles = VectorDouble());
-  void gridCopyParams(int mode, const Grid& gridaux);
-  bool isSameGrid(const Grid& grid) const;
-  bool isSameGridMesh(const Db& dbaux) const;
-  bool isSameGridMeshOldStyle(const Db* dbaux) const;
-  bool isSameGridRotation(const Db& dbaux) const;
-  bool isSameGridRotationOldStyle(const Db* dbaux) const;
-  bool isGridRotated() const;
-  int  getNDim() const; /// TODO : rename to getDimensionNumber etc...
-  int  getNTotal() const { return _grid.getNTotal(); }
-  double getCellSize() const { return _grid.getCellSize(); }
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
-
-  int  getNX(int idim) const;
-  VectorInt getNXs() const { return _grid.getNXs(); }
-  double getDX(int idim) const;
-  VectorDouble getDXs() const { return _grid.getDXs(); }
-  double getX0(int idim) const;
-  VectorDouble getX0s() const { return _grid.getX0s(); }
-  double getAngle(int idim) const;
-  VectorDouble getAngles() const { return _grid.getRotAngles(); }
-  VectorDouble getRotMat() const { return _grid.getRotMat(); }
-  void setNX(int idim, int value) { _grid.setNX(idim, value); }
-  void setX0(int idim, double value) { _grid.setX0(idim, value); }
-  void setDX(int idim, double value) { _grid.setDX(idim, value); }
-  VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
-  VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
-  {
-    return _grid.getCoordinatesByCorner(icorner);
-  }
-  int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
-  {
-    return _grid.coordinateToRank(coor,eps);
-  }
-  void rankToCoordinate(int rank,
-                        VectorDouble& coor,
-                        const VectorDouble& percent = VectorDouble()) const
-  {
-    _grid.rankToCoordinatesInPlace(rank, coor, percent);
-  }
 
   // Functions for checking validity of parameters
 
@@ -554,21 +477,42 @@ public:
                         const String& combine = "set") const;
 
   void generateRank(const String& radix = "rank");
-  void generateCoordinates(const String& radix = "x");
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false) override;
   virtual int _serialize(FILE* file, bool verbose = false) const override;
 
+  void _clear();
+  void _createRank(int icol = 0);
+  void _loadData(const VectorDouble& tab,
+                 const VectorString& names,
+                 const VectorString& locatorNames,
+                 const ELoadBy& order,
+                 int shift);
+  void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
+  void _variableRead(FILE* file,
+                     int *natt_r,
+                     int *ndim_r,
+                     int *nech_r,
+                     std::vector<ELoc>& tabatt,
+                     VectorInt& tabnum,
+                     VectorString& tabnam,
+                     VectorDouble& tab);
+  int  _variableWrite(FILE* file, bool flag_grid, bool onlyLocator=false,
+                      bool writeCoorForGrid=false) const;
+  void _defineDefaultNames(int shift, const VectorString& names);
+  void _defineDefaultLocators(int shift, const VectorString& locatorNames);
+  void _setNameByColumn(int icol, const String& name);
+  String _toStringCommon(const AStringFormat *strfmt) const;
+  String _summaryString(void) const;
+
 private:
-  void  _clear();
   const VectorInt& _getAttcol() const { return _attcol; }
   const VectorString _getNames() const { return _colNames; }
   double _getAttcol(int icol) const { return _attcol[icol]; }
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, double valinit);
   double _updateValue(int oper, double oldval, double value);
-  String _summaryString(void) const;
   String _summaryVariableString(void) const;
   String _summaryExtensionString(void) const;
   String _summaryVariableStat(VectorInt cols,
@@ -577,21 +521,13 @@ private:
   String _summaryLocators(void) const;
   String _summaryAttributes(void) const;
   String _summaryArrayString(VectorInt cols, bool flagSel = true) const;
-  void _loadData(const VectorDouble& tab,
-                 const VectorString& names,
-                 const VectorString& locatorNames,
-                 const ELoadBy& order,
-                 int shift);
-  void _createRank(int icol = 0);
-  void _createCoordinatesGrid(int icol0 = 0);
-  void _defineDefaultNames(int shift, const VectorString& names);
-  void _defineDefaultLocators(int shift, const VectorString& locatorNames);
+
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
   int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
   VectorInt _getAttributesBasic(const VectorString& names) const;
 
   // Column dependent indexing
-  void _setNameByColumn(int icol, const String& name);
+
   int _getLastColumn(int number = 0) const;
   int _getAttributeByColumn(int icol) const;
   int _findColumnInLocator(const ELoc& locatorType, int icol) const;
@@ -617,26 +553,13 @@ private:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  int  _variableWrite(FILE* file, bool flag_grid, bool onlyLocator=false,
-                      bool writeCoorForGrid=false) const;
-  void _variableRead(FILE* file,
-                     int *natt_r,
-                     int *ndim_r,
-                     int *nech_r,
-                     std::vector<ELoc>& tabatt,
-                     VectorInt& tabnum,
-                     VectorString& tabnam,
-                     VectorDouble& tab);
-  void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
   bool _isCountValid(const VectorInt iatts, bool flagOne, bool verbose = true) const;
 
 private:
   int _ncol;                 //!< Number of Columns of data
   int _nech;                 //!< Number of samples
-  int _isGrid;               //!< Is the Data Base organized as a Grid
   VectorDouble _array;       //!< Array of values
   VectorInt _attcol;         //!< Attribute to Column
   VectorString _colNames;    //!< Names of the variables
   std::map<ELoc,PtrGeos> _p; //!< Locator characteristics
-  Grid _grid;                //!< Grid characteristics
 };

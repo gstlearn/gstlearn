@@ -510,8 +510,6 @@ static int st_surface_identify(int verbOption,
  ** \param[in]  rank      Rank of the trace within 'surfaces'
  ** \param[in]  iatt_top  Rank of attribute containing the Top Surface (or 0)
  ** \param[in]  iatt_bot  Arnk of the attribute containing the Bottom Surface (or 0)
- ** \param[in]  xtrace    Coordinate of the trace along X
- ** \param[in]  ytrace    Coordinate of the trace along Y
  ** \param[in]  thickmin  Minimum thickness (if defined)
  **
  ** \param[out] cztop     Coordinate for the Top along Z (or TEST)
@@ -522,8 +520,8 @@ static int st_get_cuts(Db *surfaces,
                        int rank,
                        int iatt_top,
                        int iatt_bot,
-                       double xtrace,
-                       double ytrace,
+                       double /*xtrace*/,
+                       double /*ytrace*/,
                        double thickmin,
                        double *cztop,
                        double *czbot)
@@ -998,7 +996,7 @@ static double st_get_average(int nz, const VectorDouble &writes)
  *
  * @remarks The rank is returned as -1 if not defined
  */
-static int st_identify_trace_rank(Db* surfaces,
+static int st_identify_trace_rank(DbGrid* surfaces,
                                   double xtrace,
                                   double ytrace)
 {
@@ -1363,7 +1361,7 @@ static void st_refstats_init(RefStats &refstats,
  **
  *****************************************************************************/
 SegYArg segy_array(const char *filesegy,
-                   Db *surf2D,
+                   DbGrid *surf2D,
                    const String& top_name,
                    const String& bot_name,
                    const String& top_aux,
@@ -1558,7 +1556,7 @@ SegYArg segy_array(const char *filesegy,
  **
  *****************************************************************************/
 Grid segy_summary(const char *filesegy,
-                  Db *surf2D,
+                  DbGrid *surf2D,
                   const String &name_top,
                   const String &name_bot,
                   double thickmin,
@@ -1719,7 +1717,6 @@ Grid segy_summary(const char *filesegy,
  ** \param[in]  iline_max   Maximum Inline number included (if defined)
  ** \param[in]  xline_min   Minimum Xline number included (if defined)
  ** \param[in]  xline_max   Maximum Xline number included (if defined)
- ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
@@ -1735,22 +1732,22 @@ Grid segy_summary(const char *filesegy,
  **
  *****************************************************************************/
 int db_segy(const char *filesegy,
-                            Db *grid3D,
-                            Db *surf2D,
-                            const String &name_top,
-                            const String &name_bot,
-                            double thickmin,
-                            int option,
-                            int verbOption,
-                            int iline_min,
-                            int iline_max,
-                            int xline_min,
-                            int xline_max,
-                            int nz_ss,
-                            double modif_high,
-                            double modif_low,
-                            double modif_scale,
-                            const NamingConvention& namconv)
+            DbGrid *grid3D,
+            DbGrid *surf2D,
+            const String &name_top,
+            const String &name_bot,
+            double thickmin,
+            int option,
+            int verbOption,
+            int iline_min,
+            int iline_max,
+            int xline_min,
+            int xline_max,
+            int /*nz_ss*/,
+            double modif_high,
+            double modif_low,
+            double modif_scale,
+            const NamingConvention& namconv)
 {
   traceHead traceHead_;
   double xtrace, ytrace, coor[3];
@@ -1848,7 +1845,7 @@ int db_segy(const char *filesegy,
     if (point_to_grid(grid3D, coor, 0, indg) != 0) continue;
 
     // Locate the trace
-    int rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
+    rank = st_identify_trace_rank(surf2D, xtrace, ytrace);
 
     // Compare to the 2-D Surface information
     // If 'surfaces' is not provided, bounds are set to TEST.

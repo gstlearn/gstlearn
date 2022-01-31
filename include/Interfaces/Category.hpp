@@ -9,7 +9,7 @@
 class GSTLEARN_EXPORT Category
 {
 public:
-  Category(int value = UNDEF_CAT_VAL, const std::string& label = UNDEF_CAT_LABEL);
+  Category(int value = UNDEF_CAT_VAL, const String& label = UNDEF_CAT_LABEL);
   virtual ~Category();
 
   const std::string& getLabel() const;

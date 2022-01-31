@@ -11,6 +11,8 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "csparse_f.h"
+
 #include "Model/Model.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -21,9 +23,9 @@
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovContext.hpp"
-#include "csparse_f.h"
 
 #include <math.h>
 
@@ -129,8 +131,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Setup constants */
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
 
   /* Instantiate the Meshing */
 

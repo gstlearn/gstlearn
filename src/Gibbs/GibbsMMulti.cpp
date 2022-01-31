@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/HDF5format.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -230,7 +231,7 @@ void GibbsMMulti::update(VectorVectorDouble& y,
 
   /* Print the title */
 
-  if (debug_query("converge"))
+  if (OptDbg::query(EDbg::CONVERGE))
     mestitle(1, "Gibbs Sampler (Simu:%d - GS:%d)", isimu + 1, ipgs + 1);
 
   /* Loop on the target */
@@ -277,8 +278,8 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
   // Getting maximum distance for covariance calculation
 
   double distmax = 1.5 * model->getCova(0)->getRange();
-  double dx = db->getDX(0);
-  int npas = ceil(distmax / dx);
+  double dx = db->getUnit();
+  int npas = (int) ceil(distmax / dx);
   Table tabmod(npas,3);
 
   // Retrieve the elements from the sparse matrix
@@ -308,7 +309,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
       ecr++;
 
       // Store the contribution to the covariance model
-      int ipas = floor(dist / dx + 0.5);
+      int ipas = (int) floor(dist / dx + 0.5);
       if (ipas >= 0 && ipas < npas)
       {
         tabmod.increment(ipas, 0, 1.);

@@ -11,6 +11,9 @@
 #include <cmath>
 #include "geoslib_d.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/EDbg.hpp"
+
+static EDbg _debugOptions = EDbg::DB;
 
 bool isInteger(double value, double eps)
 {

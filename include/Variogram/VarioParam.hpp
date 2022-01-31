@@ -60,7 +60,7 @@ public:
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
 
-  void setDPas(int idir,const Db* db);
+  void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 
   int getDimensionNumber() const { return _dirparams[0].getDimensionNumber(); }

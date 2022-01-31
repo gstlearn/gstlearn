@@ -55,6 +55,13 @@ ASpaceObject::~ASpaceObject()
 {
   delete _space;
 }
+
+/// AStringable interface
+String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
+{
+  messerr("ASpaceObject: 'toString' not yet implemented");
+}
+
 /**
  * Factory for defining the unique default global space
  * (optional parameter can be used for sphere radius for example)

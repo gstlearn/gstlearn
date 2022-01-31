@@ -14,6 +14,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
 #include "csparse_d.h"
 #include "csparse_f.h"
 
@@ -157,7 +158,7 @@ int* cs_amd(const cs *A, int order)
   if (!AT) return (NULL);
   m = A->m;
   n = A->n;
-  dense = CS_MAX(16, 10 * sqrt((double) n)); /* find dense threshold */
+  dense = CS_MAX(16, (int) (10 * sqrt((double) n))); /* find dense threshold */
   dense = CS_MIN(n - 2, dense);
   if (order == 0 && n == m)
   {
@@ -854,7 +855,7 @@ static void cs_unmatched(int m, const int *wi, int *P, int *rr, int set)
 }
 
 /* return 1 if row i is in R2 */
-static int cs_rprune(int i, int j, double aij, void *other)
+static int cs_rprune(int i, int /*j*/, double /*aij*/, void *other)
 {
   int *rr = (int*) other;
   return (i >= rr[1] && i < rr[2]);
@@ -955,7 +956,7 @@ csd* cs_dmperm(const cs *A)
   return (cs_ddone(D, C, NULL, 1));
 }
 
-static int cs_tol(int i, int j, double aij, void *tol)
+static int cs_tol(int /*i*/, int /*j*/, double aij, void *tol)
 {
   return (fabs(aij) > *((double*) tol));
 }
@@ -964,7 +965,7 @@ int cs_droptol(cs *A, double tol)
   return (cs_fkeep(A, &cs_tol, &tol)); /* keep all large entries */
 }
 
-static int cs_nonzero(int i, int j, double aij, void *other)
+static int cs_nonzero(int /*i*/, int /*j*/, double aij, void* /*other*/)
 {
   return (aij != 0);
 }
@@ -4008,12 +4009,12 @@ static int st_coarse_type0(cs *Q,
   return (error);
 }
 
-static int st_coarse_typen(cs *L,
-                           cs *Lt,
+static int st_coarse_typen(cs* /*L*/,
+                           cs* Lt,
                            int type,
-                           int *indUd,
-                           int *indFi,
-                           int *indCo)
+                           int* indUd,
+                           int* indFi,
+                           int* indCo)
 {
   cs *Lout, *Loutt, *Ltriplet;
   double *Lx;
@@ -4687,7 +4688,7 @@ int qchol_cholesky(int verbose, QChol *QC)
 
   /* Optional printout */
 
-  if (debug_query("kriging") || debug_force())
+  if (OptDbg::query(EDbg::KRIGING) || OptDbg::force())
   {
     message("Q Sparse Matrix\n");
     cs_print(QC->Q, 1);
@@ -5246,7 +5247,7 @@ static int st_multigrid_kriging_prec(cs_MGS *mgs,
   ncur = mgs->ncur;
   nlevels = mgs->nlevels;
   norm = matrix_norm(b, ncur);
-  flag_sym = get_keypone("MG_Flag_Symmetric", 1.);
+  flag_sym = (int) get_keypone("MG_Flag_Symmetric", 1.);
   if (verbose)
     message("Pre-conditioning phase (Niter=%d Tol=%15.10lf)\n", mgs->nmg,
             mgs->tolnmg);
@@ -5576,7 +5577,7 @@ int cs_multigrid_setup(cs_MGS *mgs,
   // Initializations
 
   error = 1;
-  flag_print = get_keypone("MG_Flag_Print", 0.);
+  flag_print = (int) get_keypone("MG_Flag_Print", 0.);
   indCo = nullptr;
   L = nullptr;
   sel = nullptr;

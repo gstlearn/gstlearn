@@ -91,7 +91,7 @@ double Timer::getIntervalMilliseconds(bool flag_reset)
   sec fs = newTime - _refTime;
   ms inter = std::chrono::duration_cast<ms>(fs);
   if (flag_reset) _refTime = newTime;
-  return inter.count();
+  return ((double) inter.count());
 }
 
 void Timer::displayMilliseconds(const String& title, double msec)

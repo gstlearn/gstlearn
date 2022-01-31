@@ -1194,14 +1194,14 @@ void bitmap_set_value(const VectorInt &nx,
  **
  *****************************************************************************/
 VectorInt gridcell_neigh(int ndim,
-                                         int option,
-                                         int radius,
-                                         int flag_center,
-                                         int verbose,
-                                         int *nvois)
+                         int option,
+                         int radius,
+                         int flag_center,
+                         int verbose,
+                         int *nvois)
 {
   int *indg0, *indg1, ecr, flag_count, nech;
-  Db *grid;
+  DbGrid *grid;
   VectorInt nx, indret;
   VectorDouble x0;
   VectorDouble dx;

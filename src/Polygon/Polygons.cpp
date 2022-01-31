@@ -200,9 +200,7 @@ PolySet Polygons::_extractFromTab(int ideb,
 
 int Polygons::_deserialize(FILE* file, bool verbose)
 {
-  int npol, nvert;
-  double zmin = TEST;
-  double zmax = TEST;
+  int npol;
 
   // Clear previous contents
 

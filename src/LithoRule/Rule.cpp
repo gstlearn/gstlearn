@@ -8,17 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include "geoslib_enum.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
 #include "LithoRule/Node.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include <sstream>
 
@@ -653,7 +655,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
   /* Debug printout (optional) */
 
-  if (debug_query("props"))
+  if (OptDbg::query(EDbg::PROPS))
   {
     RuleStringFormat rulefmt(1);
     display(&rulefmt);
@@ -662,7 +664,7 @@ int Rule::setProportions(const VectorDouble& proportions) const
   return(0);
 }
 
-int Rule::_deserialize(FILE* file, bool verbose)
+int Rule::_deserialize(FILE* file, bool /*verbose*/)
 {
   int nb_node;
 
@@ -698,7 +700,7 @@ int Rule::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Rule::_serialize(FILE* file, bool verbose) const
+int Rule::_serialize(FILE* file, bool /*verbose*/) const
 {
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;
@@ -947,7 +949,7 @@ int Rule::replicateInvalid(Db *dbin, Db *dbout, int jech) const
     {
       double delta = ABS(dbin->getCoordinate(iech, idim) -
                          dbin->getCoordinate(jech, idim));
-      if (delta >= dbout->getDX(idim)) similar = true;
+      if (delta >= dbout->getUnit(idim)) similar = true;
     }
     if (similar)
     {

@@ -3,14 +3,13 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "API/ESPDECalcMode.hpp"
-
 #include "Basic/NamingConvention.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 
 class ShiftOpCs;
 class Db;
+class DbGrid;
 class PrecisionOpCs;
 class Model;
 class MeshETurbo;
@@ -20,7 +19,7 @@ class GSTLEARN_EXPORT SPDE
 public:
   SPDE();
   SPDE(Model *model,
-       const Db* field,
+       const DbGrid* field,
        const Db* dat = nullptr,
        const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   SPDE(const SPDE& r) = delete;
@@ -28,7 +27,7 @@ public:
   virtual ~SPDE();
 
   void init(Model* model,
-            const Db* field,
+            const DbGrid* field,
             const Db* dat = nullptr,
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
   void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
@@ -43,7 +42,7 @@ private:
   void _computeCoeffs();
   void _purge();
   MeshETurbo* _createMeshing(const CovAniso &cova,
-                             const Db &field,
+                             const DbGrid &field,
                              double discr,
                              double ext = 0.);
   bool _calculSimu() const
@@ -63,18 +62,18 @@ private:
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional _precisionsKriging;
   PrecisionOpMultiConditional _precisionsSimu;
-  std::vector<ShiftOpCs*> _pileShiftOp;
+  std::vector<ShiftOpCs*>     _pileShiftOp;
   std::vector<PrecisionOpCs*> _pilePrecisions;
-  std::vector<ProjMatrix*> _pileProjMatrix;
-  std::vector<MeshETurbo*> _simuMeshing;
-  std::vector<MeshETurbo*> _krigingMeshing;
-  mutable VectorDouble     _driftCoeffs;
-  Model *_model;
-  mutable VectorVectorDouble _workKriging;
-  mutable VectorVectorDouble _workingSimu;
-  mutable VectorDouble       _workingData;
-  std::vector<ProjMatrix*> _projOnDbOut;
-  std::vector<int>           _adressesICov;
+  std::vector<ProjMatrix*>    _pileProjMatrix;
+  std::vector<MeshETurbo*>    _simuMeshing;
+  std::vector<MeshETurbo*>    _krigingMeshing;
+  mutable VectorDouble        _driftCoeffs;
+  Model*                      _model;
+  mutable VectorVectorDouble  _workKriging;
+  mutable VectorVectorDouble  _workingSimu;
+  mutable VectorDouble        _workingData;
+  std::vector<ProjMatrix*>    _projOnDbOut;
+  std::vector<int>            _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
   bool _requireCoeffs;

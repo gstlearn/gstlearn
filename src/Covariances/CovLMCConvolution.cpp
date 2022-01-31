@@ -128,7 +128,8 @@ int CovLMCConvolution::init(const EConvType& conv_type,
       break;
 
     default:
-      messerr("This CovLMCConvolution direction (%d) does not exist", _convDir);
+      messerr("This CovLMCConvolution direction (%d) does not exist",
+              _convDir.getValue());
       return 1;
   }
 

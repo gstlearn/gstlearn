@@ -37,6 +37,8 @@ public:
   ASpaceObject& operator= (const ASpaceObject& r);
   virtual ~ASpaceObject();
 
+  /// AStringable interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// (Re)Defining the unique default global space
   static void defineDefaultSpace(SpaceType type,

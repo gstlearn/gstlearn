@@ -11,7 +11,11 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/ECst.hpp"
 
 #include <math.h>
 
@@ -165,10 +169,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.c - Setup constants */
 
-  debug_reset();
-  constant_reset();
-  constant_define("NTCAR",8);
-  constant_define("NTDEC",5);
+  OptDbg::reset();
+  OptCst::define(ECst::NTCAR,8.);
+  OptCst::define(ECst::NTDEC,5.);
   
   if (flag_1) st_test_1();
 

@@ -14,22 +14,40 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/AnamDiscrete.hpp"
+#include "Anamorphosis/EAnam.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
 public:
-  AnamDiscreteIR();
+  AnamDiscreteIR(double rcoef = 0.);
   AnamDiscreteIR(const AnamDiscreteIR &m);
   AnamDiscreteIR& operator= (const AnamDiscreteIR &m);
   virtual ~AnamDiscreteIR();
 
-  int fit(const VectorDouble& tab, int verbose=0);
-  void calculateMeanAndVariance() override;
-  VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
+  /// Interface AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASerializable Interface
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = false);
+
+  /// AAnam Interface
+  const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
+
+  /// AnamDiscrete Interface
+  void calculateMeanAndVariance() override;
+  VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
+
+  AnamDiscreteIR* create(double rcoef = 0.);
+  int fit(const VectorDouble& tab, int verbose=0);
   double getRCoef() const { return _rCoef; }
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
 
 private:
   int _stats_residuals(int verbose,

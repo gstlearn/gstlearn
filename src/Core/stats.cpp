@@ -17,7 +17,9 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -571,11 +573,11 @@ static void st_get_neighboring_cell(int ndim,
  **
  *****************************************************************************/
 int db_stats_grid(Db *db,
-                                  Db *dbgrid,
-                                  const char *oper,
-                                  int ncol,
-                                  int *cols,
-                                  int radius)
+                  DbGrid *dbgrid,
+                  const char *oper,
+                  int ncol,
+                  int *cols,
+                  int radius)
 {
   int icol, jcol, iptr, iptn, iptm, ndim, count;
   int *indg, *indg0, nxyz, error, i, iad, iech, nmed;
@@ -590,14 +592,6 @@ int db_stats_grid(Db *db,
   nxyz = dbgrid->getSampleNumber();
   ndim = dbgrid->getNDim();
   count = (int) pow(2. * radius + 1., (double) ndim);
-
-  /* Preliminary check */
-
-  if (!is_grid(dbgrid))
-  {
-    messerr("The Output Db must be a Grid");
-    return (1);
-  }
 
   /* Check that all variables are defined */
 
@@ -835,14 +829,14 @@ int db_stats_grid(Db *db,
  ** \param[out]  tab       Output array (Dimension: 1 or ncut)
  **
  *****************************************************************************/
-int stats_point_to_grid(Db *dbgrid,
-                                        Db *db,
-                                        const char *oper,
-                                        int iatt,
-                                        int jatt,
-                                        int ncut,
-                                        double *cuts,
-                                        double *tab)
+int stats_point_to_grid(DbGrid *dbgrid,
+                        Db *db,
+                        const char *oper,
+                        int iatt,
+                        int jatt,
+                        int ncut,
+                        double *cuts,
+                        double *tab)
 {
   int flag_s1, flag_v1, flag_s2, flag_v2, flag_v12, flag_mini, flag_maxi;
   int *indg, nxyz, error, iad, flag1, flag2, flag_denorm, flag_q, flag_t;
@@ -1137,7 +1131,7 @@ int stats_point_to_grid(Db *dbgrid,
  ** \param[out] prop       Array of proportions
  **
  *****************************************************************************/
-static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
+static void st_update_prop(DbGrid *dbin, int *indg, int nfacies, double *prop)
 {
   int ifac;
 
@@ -1150,7 +1144,7 @@ static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
 /*!
  **  Update the transitions
  **
- ** \param[in]  dbin       Db for the input grid
+ ** \param[in]  dbin       DbGrid for the input grid
  ** \param[in]  pos        Rank of the montee axis
  ** \param[in]  indg       Array of grid indices
  ** \param[in]  nfacies    Number of facies
@@ -1159,7 +1153,7 @@ static void st_update_prop(Db *dbin, int *indg, int nfacies, double *prop)
  ** \param[out] trans      Array of transitions
  **
  *****************************************************************************/
-static void st_update_trans(Db *dbin,
+static void st_update_trans(DbGrid *dbin,
                             int pos,
                             int *indg,
                             int nfacies,
@@ -1227,11 +1221,11 @@ static void st_scale_and_affect(Db *dbout,
  ** \param[in]  radius     Radius of the neighborhood
  **
  *****************************************************************************/
-int stats_proportion(Db *dbin,
-                                     Db *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius)
+int stats_proportion(DbGrid *dbin,
+                     DbGrid *dbout,
+                     int pos,
+                     int nfacies,
+                     int radius)
 {
   double *prop;
   int *indg, ndim, ngrid, error, iptr, iech, ifac, aux1, aux2, bux1, bux2,
@@ -1343,12 +1337,12 @@ int stats_proportion(Db *dbin,
  ** \param[in]  orient     Orientation (+1 or -1)
  **
  *****************************************************************************/
-int stats_transition(Db *dbin,
-                                     Db *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius,
-                                     int orient)
+int stats_transition(DbGrid *dbin,
+                     DbGrid *dbout,
+                     int pos,
+                     int nfacies,
+                     int radius,
+                     int orient)
 {
   double *trans;
   int *indg;
@@ -1477,7 +1471,7 @@ static double st_extract_subgrid(int verbose,
                                  int iech0,
                                  int nech0,
                                  int ntot,
-                                 Db *dbgrid,
+                                 DbGrid *dbgrid,
                                  int *ind0,
                                  int *ixyz,
                                  int *nxyz,
@@ -1892,7 +1886,7 @@ static void st_upscale(int orient,
 
   /* Initializations */
 
-  flag_debug = debug_query("upscale");
+  flag_debug = OptDbg::query(EDbg::UPSCALE);
 
   /**************************************/
   /* Getting the minimum upscaled value */
@@ -2001,8 +1995,8 @@ static void st_upscale(int orient,
  *****************************************************************************/
 static int st_is_subgrid(int verbose,
                          const char *title,
-                         Db *dbgrid1,
-                         Db *dbgrid2,
+                         DbGrid *dbgrid1,
+                         DbGrid *dbgrid2,
                          int *ind0,
                          int *nxyz,
                          int *ntot)
@@ -2073,10 +2067,7 @@ static int st_is_subgrid(int verbose,
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
-int db_upscale(Db *dbgrid1,
-                               Db *dbgrid2,
-                               int orient,
-                               int verbose)
+int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
 {
   double *valtab0, *valtab1, *valtab2, *numtab0, *numtab1, *numtab2;
   double result1, result2, result, probtot;
@@ -2139,7 +2130,7 @@ int db_upscale(Db *dbgrid1,
   for (iech = 0; iech < dbgrid2->getSampleNumber(); iech++)
   {
     result1 = result2 = result = TEST;
-    debug_index(iech + 1);
+    OptDbg::setIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -2177,7 +2168,7 @@ int db_upscale(Db *dbgrid1,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: OptDbg::setIndex(0);
   numtab0 = (double*) mem_free((char* ) numtab0);
   numtab1 = (double*) mem_free((char* ) numtab1);
   numtab2 = (double*) mem_free((char* ) numtab2);
@@ -2663,13 +2654,13 @@ static double st_get_diff_coeff(int niter,
  ** \remarks      set.keypair("Diffusion.Trajectory.XX")
  **
  *****************************************************************************/
-int db_diffusion(Db *dbgrid1,
-                                 Db *dbgrid2,
-                                 int orient,
-                                 int niter,
-                                 int nseed,
-                                 int seed,
-                                 int verbose)
+int db_diffusion(DbGrid *dbgrid1,
+                 DbGrid *dbgrid2,
+                 int orient,
+                 int niter,
+                 int nseed,
+                 int seed,
+                 int verbose)
 {
   double *valtab0, *numtab0, *valwrk, *cvdist2, *cvsave, *trsave;
   double diff_coeff, pmid, probtot;
@@ -2759,7 +2750,7 @@ int db_diffusion(Db *dbgrid1,
   for (iech = 0; iech < nech; iech++)
   {
     diff_coeff = TEST;
-    debug_index(iech + 1);
+    OptDbg::setIndex(iech + 1);
     flag_save = (iech == iech_save - 1);
     if (dbgrid2->isActive(iech))
     {
@@ -2810,7 +2801,7 @@ int db_diffusion(Db *dbgrid1,
 
   error = 0;
 
-  label_end: debug_index(0);
+  label_end: OptDbg::setIndex(0);
   tabini = (int*) mem_free((char* ) tabini);
   tabcur = (int*) mem_free((char* ) tabcur);
   tabwrk = (int*) mem_free((char* ) tabwrk);
@@ -2865,12 +2856,12 @@ static void st_get_rowname(const String &radix,
  **
  *****************************************************************************/
 void db_stats_print(const Db *db,
-                                    const VectorInt &iatts_arg,
-                                    const VectorString &opers,
-                                    int flag_iso,
-                                    int flag_correl,
-                                    const String &title,
-                                    const String &radix)
+                    const VectorInt &iatts_arg,
+                    const VectorString &opers,
+                    int flag_iso,
+                    int flag_correl,
+                    const String &title,
+                    const String &radix)
 {
   double *data, *mean, *var, *mini, *maxi, *cov, *num;
   int iech, icol, jcol, numiso, ijcol, nundef, taille, noper, ncol;
@@ -3002,17 +2993,17 @@ void db_stats_print(const Db *db,
 
   tab_print_rowname(" ", taille);
   if (st_oper_exists(opers, "num"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Number");
+    tab_prints(NULL, "Number");
   if (st_oper_exists(opers, "mini"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Minimum");
+    tab_prints(NULL, "Minimum");
   if (st_oper_exists(opers, "maxi"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Maximum");
+    tab_prints(NULL, "Maximum");
   if (st_oper_exists(opers, "mean"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Mean");
+    tab_prints(NULL, "Mean");
   if (st_oper_exists(opers, "stdv"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "St. Dev.");
+    tab_prints(NULL, "St. Dev.");
   if (st_oper_exists(opers, "var"))
-    tab_prints(NULL, 1, EJustify::RIGHT, "Variance");
+    tab_prints(NULL, "Variance");
   message("\n");
 
   /* Print the monovariate statistics */
@@ -3024,32 +3015,32 @@ void db_stats_print(const Db *db,
     tab_print_rowname(string, taille);
 
     if (st_oper_exists(opers, "num"))
-      tab_printi(NULL, 1, EJustify::RIGHT, (int) num[icol]);
+      tab_printi(NULL, (int) num[icol]);
     if (num[icol] > 0)
     {
       if (st_oper_exists(opers, "mini"))
-        tab_printg(NULL, 1, EJustify::RIGHT, mini[icol]);
+        tab_printg(NULL, mini[icol]);
       if (st_oper_exists(opers, "maxi"))
-        tab_printg(NULL, 1, EJustify::RIGHT, maxi[icol]);
+        tab_printg(NULL, maxi[icol]);
       if (st_oper_exists(opers, "mean"))
-        tab_printg(NULL, 1, EJustify::RIGHT, mean[icol]);
+        tab_printg(NULL, mean[icol]);
       if (st_oper_exists(opers, "stdv"))
-        tab_printg(NULL, 1, EJustify::RIGHT, sqrt(var[icol]));
+        tab_printg(NULL, sqrt(var[icol]));
       if (st_oper_exists(opers, "var"))
-        tab_printg(NULL, 1, EJustify::RIGHT, var[icol]);
+        tab_printg(NULL, var[icol]);
     }
     else
     {
       if (st_oper_exists(opers, "mini"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "maxi"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "mean"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "stdv"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
       if (st_oper_exists(opers, "var"))
-        tab_prints(NULL, 1, EJustify::RIGHT, "NA");
+        tab_prints(NULL, "NA");
     }
     message("\n");
   }

@@ -13,10 +13,10 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 
 #include <math.h>
-
 
 /*! \cond */
 
@@ -46,7 +46,7 @@ typedef struct
  ** \remarks  The valuation of each line is assigned a uniform value [0,1]
  **
  *****************************************************************************/
-int poisson_generate_planes(Db *dbgrid, SubPlanes *splanes)
+int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes)
 {
   double ap[3], mini[3], maxi[3], diagonal, d0, u;
   int ip, idim;
@@ -222,12 +222,12 @@ static int st_stack_search(Stack *stack, double valref, double *valsim)
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int tessellation_poisson(Db *dbgrid,
-                                         Model *model,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose)
+int tessellation_poisson(DbGrid *dbgrid,
+                         Model *model,
+                         int seed,
+                         double intensity,
+                         int nbtuba,
+                         int verbose)
 {
   SubPlanes *splanes;
   Stack stack;
@@ -389,13 +389,13 @@ int tessellation_poisson(Db *dbgrid,
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int tessellation_voronoi(Db *dbgrid,
-                                         Model *model,
-                                         double *dilate,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose)
+int tessellation_voronoi(DbGrid *dbgrid,
+                         Model *model,
+                         double *dilate,
+                         int seed,
+                         double intensity,
+                         int nbtuba,
+                         int verbose)
 {
   int i, ip, nbpoints, error, iatts, iattp, ndim;
   double volume, origin[2], field[3], dil, oriloc, dimloc;
@@ -412,12 +412,7 @@ int tessellation_voronoi(Db *dbgrid,
   /* Preliminary checks */
 
   ndim = dbgrid->getNDim();
-  if (!is_grid(dbgrid))
-  {
-    messerr("The output Db file must be a grid");
-    goto label_end;
-  }
-  if (!is_grid(dbgrid) || ndim > 3)
+  if (ndim > 3)
   {
     messerr(
         "The Poisson Tesselation is available for Grid File with dimension <= 3");

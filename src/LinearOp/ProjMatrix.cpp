@@ -168,7 +168,7 @@ int ProjMatrix::point2mesh(const VectorDouble& in, VectorDouble& out) const
     return 1;
   }
 
-  cs_tmulvec(_Aproj,out.size(),in.data(),out.data());
+  cs_tmulvec(_Aproj,(int) out.size(),in.data(),out.data());
   return 0;
 }
 

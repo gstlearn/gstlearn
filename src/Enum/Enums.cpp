@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/ECst.hpp"
+#include "Basic/EDbg.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
-
 #include "Drifts/EDrift.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Model/EConsElem.hpp"
@@ -44,9 +45,12 @@ ENUM_DEFINE(ENUM_ANAM)
 ENUM_DEFINE(ENUM_CONS_ELEM)
 ENUM_DEFINE(ENUM_CONS_TYPE)
 ENUM_DEFINE(ENUM_JUSTIFY)
+ENUM_DEFINE(ENUM_DEBUG)
+ENUM_DEFINE(ENUM_CST)
 ENUM_DEFINE(ENUM_PROCESS_OPER)
 ENUM_DEFINE(ENUM_POWER_PT)
 ENUM_DEFINE(ENUM_SPDE_CALC_MODE)
 ENUM_DEFINE(ENUM_TAPE)
 ENUM_DEFINE(ENUM_CONVTYPE)
 ENUM_DEFINE(ENUM_CONVDIR)
+

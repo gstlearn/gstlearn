@@ -11,10 +11,14 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
+
 #include "Variogram/Vario.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -26,7 +30,7 @@
 int main(int argc, char *argv[])
 {
   char      *filename = new char[BUFFER_LENGTH];
-  Db        *dbout;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model;
   Option_AutoFit mauto;
@@ -38,7 +42,7 @@ int main(int argc, char *argv[])
 
   /* Initializations */
 
-  dbout = (Db    *) NULL;
+  dbout = (DbGrid *) NULL;
   vario = (Vario *) NULL;
   model = (Model *) NULL;
   flag_norm_sill = 0;
@@ -57,8 +61,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
 
   /* Getting the Study name */
 
@@ -79,7 +82,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Db::createFromNF(filename,false,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Look for simulations */
 
@@ -100,7 +103,7 @@ int main(int argc, char *argv[])
   
   if (dbout != (Db *) NULL)
   {
-    if (simtub((Db *) NULL,dbout,model,(Neigh *) NULL,nbsimu,seed,nbtuba,0))
+    if (simtub(nullptr,dbout,model,nullptr,nbsimu,seed,nbtuba,0))
       messageAbort("Simulations");
     /* Set the current variable to the conditional expectation */
     dbout->setLocatorByAttribute(dbout->getFieldNumber()-1,ELoc::Z);

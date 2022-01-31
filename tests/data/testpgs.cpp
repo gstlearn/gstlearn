@@ -11,15 +11,19 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Basic/Law.hpp"
 #include "Basic/Limits.hpp"
+#include "Basic/OptDbg.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -32,10 +36,11 @@ int main(int argc, char *argv[])
 
 {
   char   filename[BUFFER_LENGTH];
-  Db        *dbin,*dbout;
+  Db        *dbin;
+  DbGrid    *dbout;
   Vario     *vario;
   Model     *model[2][2];
-  Neigh     *neigh;
+  NeighUnique *neighU;
   Rule      *rule[2];
   Option_VarioFit options;
   RuleStringFormat rulefmt;
@@ -54,7 +59,7 @@ int main(int argc, char *argv[])
   dbin     = nullptr;
   dbout    = nullptr;
   vario    = nullptr;
-  neigh    = nullptr;
+  neighU   = nullptr;
   ruleprop = nullptr;
   for (i=0; i<2; i++)
   {
@@ -75,8 +80,7 @@ int main(int argc, char *argv[])
 
   /* Setup constants */
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
 
   /* Getting the Study name */
 
@@ -91,7 +95,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = Db::createFromNF(filename,false,verbose);
+  dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   db_print(dbin,1,0,1,1,1);
@@ -109,7 +113,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = Db::createFromNF(filename,true,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */
@@ -187,7 +191,7 @@ int main(int argc, char *argv[])
 
   /* Define the neighborhood */
 
-  neigh = Neigh::createUnique(dbout->getNDim());
+  neighU = NeighUnique::create(dbout->getNDim(),false);
 
   /* Perform the Pluri-Gaussian Simulations */
 
@@ -197,14 +201,14 @@ int main(int argc, char *argv[])
     {
       ruleprop = RuleProp::createFromRule(rule[0],props);
       if (simpgs(dbin,dbout,ruleprop,model[0][0],model[0][1],
-                 neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
+                 neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     else
     {
       ruleprop = RuleProp::createFromRules(rule[0],rule[1],props);
       if (simbipgs(dbin,dbout,ruleprop,
                    model[0][0],model[0][1],model[1][0],model[1][1],
-                   neigh,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
+                   neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
     db_print(dbout,1,0,1,1,1);
   }
@@ -228,6 +232,6 @@ label_end:
       model[i][j] = model_free(model[i][j]);
   }
   delete ruleprop;
-  delete neigh;
+  delete neighU;
   return(0);
 }

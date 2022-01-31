@@ -74,8 +74,7 @@ void ACovAnisoList::addCov(const CovAniso* cov)
 
     if (! cov->getContext().isEqual(_covs[0]->getContext()))
     {
-      messerr("Error: Covariances in the same ACovAnisoList");
-      messerr("should share the same Context");
+      messerr("Error: Covariances in the same ACovAnisoList should share the same Context");
       messerr("Operation is cancelled");
       return;
     }

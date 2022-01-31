@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
@@ -214,7 +215,7 @@ static int st_proportion_changed(PropDef *propdef)
 
   /* Print the proportions (optional) */
 
-  if (debug_query("props")) proportion_print(propdef);
+  if (OptDbg::query(EDbg::PROPS)) proportion_print(propdef);
 
   for (int ifac = 0; ifac < propdef->nfaccur; ifac++)
     propdef->propmem[ifac] = propdef->proploc[ifac];
@@ -344,7 +345,8 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Set the debugging information */
 
-  debug_index(iech + 1);
+  OptDbg::setIndex(iech + 1);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
 
   /* Processing an "unknown" facies */
 
@@ -357,7 +359,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Define the proportions */
 
-  if (st_proportion_define(propdef, db, iech, isimu, nbsimu, &jech))
+  if (st_proportion_define(propdef, dbgrid, iech, isimu, nbsimu, &jech))
   {
     *t1min = *t2min = get_rule_extreme(-1);
     *t1max = *t2max = get_rule_extreme(+1);
@@ -389,8 +391,7 @@ int rule_thresh_define_shadow(PropDef *propdef,
 
   /* Convert the proportions into thresholds */
 
-  facloc = (IFFFF(facies)) ? 1 :
-                             facies;
+  facloc = (IFFFF(facies)) ? 1 : facies;
   VectorDouble bounds = rule->getThresh(facloc);
   *t1min = bounds[0];
   *t1max = bounds[1];
@@ -439,7 +440,7 @@ int rule_thresh_define(PropDef *propdef,
 
   /* Set the debugging information */
 
-  debug_index(iech + 1);
+  OptDbg::setIndex(iech + 1);
 
   /* Processing an "unknown" facies */
 
@@ -995,14 +996,19 @@ PropDef* proportion_manage(int mode,
       {
         // Non-stationary case
 
-        db_loc = (propdef->case_prop_interp) ? dbprop :
-                                               db;
+        db_loc = (propdef->case_prop_interp) ? dbprop : db;
         if (db_loc == nullptr)
         {
           messerr("You have requested Non-stationary proportions");
           messerr("No file is provided containing Proportion variables");
           messerr("Please provide variables with 'proportion' locators");
           messerr("either in the input 'Db' or in 'dbprop'");
+          goto label_end;
+        }
+        const DbGrid* db_loc_grid = dynamic_cast<const DbGrid*>(db_loc);
+        if (db_loc_grid == nullptr)
+        {
+          messerr("The 'Db' used for Proportions must be a Grid");
           goto label_end;
         }
         if (db_loc->getProportionNumber() != nfacprod)
@@ -1015,7 +1021,7 @@ PropDef* proportion_manage(int mode,
               nfacprod);
           goto label_end;
         }
-        propdef->dbprop = db_loc;
+        propdef->dbprop = db_loc_grid;
         propdef->coor.resize(db_loc->getNDim());
       }
       else

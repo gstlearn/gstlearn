@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
 
 #include <math.h>
@@ -110,7 +111,7 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
  ** \remarks The returned array 'ext' must be freed by the calling function
  **
  *****************************************************************************/
-static double* st_extend_grid(Db *db, const double *gext, int *nout)
+static double* st_extend_grid(DbGrid *db, const double *gext, int *nout)
 {
   int *indg, ndim, number, ndiv, ndiv0, rank, ival, error, delta;
   double *coor, *ext;
@@ -260,11 +261,11 @@ static double* st_extend_point(Db *db, const double *gext, int *nout)
  **
  *****************************************************************************/
 Vercoloc* vercoloc_manage(int verbose,
-                                          int mode,
-                                          Db *dbin,
-                                          Db *dbout,
-                                          int mesh_dbin,
-                                          Vercoloc *vercoloc)
+                          int mode,
+                          Db *dbin,
+                          Db *dbout,
+                          int mesh_dbin,
+                          Vercoloc *vercoloc)
 {
   int *indg, iclose, jclose, error, ndim, iiech, jjech, jech;
   double *coor_in, *coor_out, *extend, part, d2, d2min;
@@ -323,18 +324,18 @@ Vercoloc* vercoloc_manage(int verbose,
 
         /* Case where the output file is a Grid File */
 
-        if (point_to_grid(dbout, coor_in, 0, indg) < 0) continue;
-        iclose = jclose = db_index_grid_to_sample(dbout, indg);
+        DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+        if (point_to_grid(dbgrid, coor_in, 0, indg) < 0) continue;
+        iclose = jclose = db_index_grid_to_sample(dbgrid, indg);
         if (iclose < 0) continue;
-        if (!dbout->isActive(iclose)) continue;
+        if (!dbgrid->isActive(iclose)) continue;
 
         /* Calculate the smallest relative distance */
 
         d2 = 0.;
         for (int idim = 0; idim < ndim; idim++)
         {
-          part = (coor_in[idim] - dbout->getCoordinate(jclose, idim))
-              / extend[idim];
+          part = (coor_in[idim] - dbgrid->getCoordinate(jclose, idim)) / extend[idim];
           d2 += part * part;
         }
         d2min = d2;
@@ -1208,7 +1209,7 @@ void meshes_2D_load_vertices(triangulateio *t,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_segment(Db *dbgrid,
+static int st_load_segment(DbGrid *dbgrid,
                            int *mesh,
                            int *order,
                            int *indg,
@@ -1262,7 +1263,7 @@ static int st_load_segment(Db *dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_triangle(Db *dbgrid,
+static int st_load_triangle(DbGrid *dbgrid,
                             int *mesh,
                             int *order,
                             int *indg,
@@ -1336,7 +1337,7 @@ static int st_load_triangle(Db *dbgrid,
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
-static int st_load_tetra(Db *dbgrid,
+static int st_load_tetra(DbGrid *dbgrid,
                          int *mesh,
                          int *order,
                          int *indg,
@@ -1573,9 +1574,7 @@ static int st_ultimate_regular_grid(Db *dbgrid,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-int meshes_turbo_2D_grid_build(int verbose,
-                                               Db *dbgrid,
-                                               SPDE_Mesh *s_mesh)
+int meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
 {
   int nx, ny, ndim, ncorner, nmesh, error, number, ipol;
   int *meshes, *order, *indg, *ranks;
@@ -1789,8 +1788,8 @@ void meshes_2D_create(int verbose,
  **
  *****************************************************************************/
 void meshes_2D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               triangulateio *t)
+                               const double *gext,
+                               triangulateio *t)
 {
   int number, flag_extend;
   double *ext;
@@ -1811,7 +1810,10 @@ void meshes_2D_extended_domain(Db *dbout,
   /* Dilate the grid */
 
   if (is_grid(dbout))
-    ext = st_extend_grid(dbout, gext, &number);
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    ext = st_extend_grid(dbgrid, gext, &number);
+  }
   else
     ext = st_extend_point(dbout, gext, &number);
   if (meshes_2D_from_points(number, &EXT(0, 0), &EXT(1, 0), t)) goto label_end;
@@ -2899,10 +2901,7 @@ void meshes_3D_create(int verbose,
  ** \remarks Only the first three coordinates are considered
  **
  *****************************************************************************/
-int meshes_3D_from_db(Db *db,
-                                      int nb_mask,
-                                      int *is_mask,
-                                      tetgenio *t)
+int meshes_3D_from_db(Db *db, int nb_mask, int *is_mask, tetgenio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nold;
 
@@ -3049,9 +3048,7 @@ int meshes_3D_from_points(int nech,
  ** \param[in]  t          Tetrahedrization environment
  **
  *****************************************************************************/
-void meshes_3D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               tetgenio *t)
+void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
 {
   int number, flag_extend;
   double *ext;
@@ -3070,7 +3067,10 @@ void meshes_3D_extended_domain(Db *dbout,
   /* Dilate the grid */
 
   if (is_grid(dbout))
-    ext = st_extend_grid(dbout, gext, &number);
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    ext = st_extend_grid(dbgrid, gext, &number);
+  }
   else
     ext = st_extend_point(dbout, gext, &number);
   if (meshes_3D_from_points(number, &EXT(0, 0), &EXT(1, 0), &EXT(2, 0), t))
@@ -3168,9 +3168,7 @@ void meshes_3D_load_vertices(tetgenio *t,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-int meshes_turbo_3D_grid_build(int verbose,
-                                               Db *dbgrid,
-                                               SPDE_Mesh *s_mesh)
+int meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
 {
   int nx, ny, nz, ndim, ncorner, nmesh, error, number;
   int *meshes, *order, *indg, *ranks;
@@ -3572,9 +3570,7 @@ void meshes_1D_load_vertices(segmentio *t,
  ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-int meshes_turbo_1D_grid_build(int verbose,
-                                               Db *dbgrid,
-                                               SPDE_Mesh *s_mesh)
+int meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
 {
   int nx, ndim, ncorner, nmesh, error, number;
   int *meshes, *order, *indg, *ranks;
@@ -3711,9 +3707,7 @@ void meshes_1D_create(int verbose,
  ** \param[in]  t          segmentio structure
  **
  *****************************************************************************/
-void meshes_1D_extended_domain(Db *dbout,
-                                               const double *gext,
-                                               segmentio *t)
+void meshes_1D_extended_domain(Db *dbout, const double *gext, segmentio *t)
 {
   int number, flag_extend;
   double *ext;
@@ -3734,7 +3728,10 @@ void meshes_1D_extended_domain(Db *dbout,
   /* Dilate the grid */
 
   if (is_grid(dbout))
-    ext = st_extend_grid(dbout, gext, &number);
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    ext = st_extend_grid(dbgrid, gext, &number);
+  }
   else
     ext = st_extend_point(dbout, gext, &number);
   if (meshes_1D_from_points(number, ext, t)) goto label_end;

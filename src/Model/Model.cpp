@@ -719,7 +719,7 @@ int Model::fit(Vario *vario,
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
 
-int Model::_deserialize(FILE* file, bool verbose)
+int Model::_deserialize(FILE* file, bool /*verbose*/)
 {
   double field, range, value, param;
   int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
@@ -836,7 +836,7 @@ int Model::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
-int Model::_serialize(FILE* file, bool verbose) const
+int Model::_serialize(FILE* file, bool /*verbose*/) const
 {
   /* Write the Model structure */
 
@@ -1038,7 +1038,7 @@ double Model::gofToVario(const Vario* vario)
 
         // Evaluate the Model
 
-        int npas = gexp.size();
+        int npas = (int) gexp.size();
         VectorDouble gmod(npas);
         model_evaluate(this, ivar, jvar, -1, 0, 0, 0, 0, 0, ECalcMember::LHS,
                        npas, codir, hh.data(), gmod.data());

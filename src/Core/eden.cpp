@@ -906,20 +906,20 @@ static int st_fluid_check(void)
  ** \remark  it is always <= number of cells invaded.
  **
  *****************************************************************************/
-int fluid_propagation(Db *dbgrid,
-                                      int verbose,
-                                      int seed,
-                                      int niter,
-                                      int ind_facies,
-                                      int ind_fluid,
-                                      int ind_perm,
-                                      int ind_poro,
-                                      int nfacies,
-                                      int nfluids,
-                                      int *speeds,
-                                      int show_fluid,
-                                      double number_max,
-                                      double volume_max)
+int fluid_propagation(DbGrid *dbgrid,
+                      int verbose,
+                      int seed,
+                      int niter,
+                      int ind_facies,
+                      int ind_fluid,
+                      int ind_perm,
+                      int ind_poro,
+                      int nfacies,
+                      int nfluids,
+                      int *speeds,
+                      int show_fluid,
+                      double number_max,
+                      double volume_max)
 {
   Eden_Stats *stats;
   Skin *skin;
@@ -1144,20 +1144,20 @@ static int st_get_time_interval(double date,
  ** \param[in]  tab           Array of extracted statistics
  **
  *****************************************************************************/
-int fluid_extract(Db *dbgrid,
-                                  int verbose,
-                                  int ind_date,
-                                  int ind_facies,
-                                  int ind_fluid,
-                                  int ind_poro,
-                                  int nfacies,
-                                  int nfluids,
-                                  int facies0,
-                                  int fluid0,
-                                  int ntime,
-                                  double time0,
-                                  double dtime,
-                                  double *tab)
+int fluid_extract(DbGrid *dbgrid,
+                  int verbose,
+                  int ind_date,
+                  int ind_facies,
+                  int ind_fluid,
+                  int ind_poro,
+                  int nfacies,
+                  int nfluids,
+                  int facies0,
+                  int fluid0,
+                  int ntime,
+                  double time0,
+                  double dtime,
+                  double *tab)
 {
   int itime, iech;
   double totnum, totvol, locnum, locvol, volume, datmax, date;

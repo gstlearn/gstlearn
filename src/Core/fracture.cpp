@@ -14,9 +14,9 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
-
 
 /*! \cond */
 // get_keypone default values
@@ -1963,7 +1963,7 @@ double* fracture_extract_dist(Frac_List *frac_list,
  ** \param[in]  y2        Second coordinate of the second point
  **
  *****************************************************************************/
-static void st_plunge_segment(Db *dbgrid,
+static void st_plunge_segment(DbGrid *dbgrid,
                               int iptr,
                               int *indg,
                               double delta,
@@ -2009,7 +2009,7 @@ static void st_plunge_segment(Db *dbgrid,
  ** \param[in]  range     Range of the permeability change
  **
  *****************************************************************************/
-static void st_plunge_segment_gradual(Db *dbgrid,
+static void st_plunge_segment_gradual(DbGrid *dbgrid,
                                       int iptr,
                                       int *indg,
                                       double delta,
@@ -2084,16 +2084,16 @@ static void st_plunge_segment_gradual(Db *dbgrid,
  ** \param[in]  ndisc        Number of discretization steps
  **
  *****************************************************************************/
-int fracture_to_block(Db *dbgrid,
-                                      Frac_List *frac_list,
-                                      double *locinfo,
-                                      int n_layers,
-                                      int nfamilies,
-                                      double xmax,
-                                      double *permtab,
-                                      double perm_mat,
-                                      double perm_bench,
-                                      int ndisc)
+int fracture_to_block(DbGrid *dbgrid,
+                      Frac_List *frac_list,
+                      double *locinfo,
+                      int n_layers,
+                      int nfamilies,
+                      double xmax,
+                      double *permtab,
+                      double perm_mat,
+                      double perm_bench,
+                      int ndisc)
 {
   int *indg, iptr, error, idim, ilayer, ninfos;
   double dmin, delta, cote;
@@ -2106,11 +2106,6 @@ int fracture_to_block(Db *dbgrid,
 
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
-  {
-    messerr("The Db file must be organized as a regular Grid");
-    goto label_end;
-  }
   if (dbgrid->getNDim() != 2)
   {
     messerr("This application is limited to 2-D grid");
@@ -2349,20 +2344,19 @@ static void st_traj_add(double *traj, double x, double y, int *ntraj)
  ** \param[in]  verbose      Verbose flag
  **
  *****************************************************************************/
-int fracture_well_to_block(Db *dbgrid,
-                                           Frac_List *frac_list,
-                                           int col_perm,
-                                           int col_fluid,
-                                           int flag_fluid,
-                                           double val_fluid,
-                                           double *wellout,
-                                           int nval,
-                                           int ndisc,
-                                           int verbose)
+int fracture_well_to_block(DbGrid *dbgrid,
+                           Frac_List *frac_list,
+                           int col_perm,
+                           int col_fluid,
+                           int flag_fluid,
+                           double val_fluid,
+                           double *wellout,
+                           int nval,
+                           int ndisc,
+                           int verbose)
 {
   int *indg;
-  int iptr_perm, iptr_fluid, nbyout, ifrac, ip, error, idim, npoint, ntraj,
-      nw_xy;
+  int iptr_perm, iptr_fluid, nbyout, ifrac, ip, error, idim, npoint, ntraj, nw_xy;
   double *traj, dmin, delta, xx, yy, x1, y1, x2, y2, perm1, perm2, range;
 
   /* Initializations */

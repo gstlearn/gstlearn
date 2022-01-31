@@ -1,0 +1,160 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "gstlearn_export.hpp"
+#include "geoslib_d.h"
+
+#include "Db/ELoadBy.hpp"
+#include "Db/PtrGeos.hpp"
+#include "Db/Db.hpp"
+
+#include "Basic/Grid.hpp"
+#include "Basic/Limits.hpp"
+#include "Basic/NamingConvention.hpp"
+#include "Basic/CSVformat.hpp"
+
+#include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
+#include "Basic/IClonable.hpp"
+
+class Polygons;
+
+/**
+ * Class containing the Data Set.
+ * It can be organized as a set of Isolated Points or as a regular Grid
+ */
+class GSTLEARN_EXPORT DbGrid: public Db
+{
+public:
+  DbGrid();
+  DbGrid(const DbGrid& r);
+  DbGrid& operator=(const DbGrid& r);
+  virtual ~DbGrid();
+
+public:
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new DbGrid(*this); };
+
+  /// Db Interface
+  inline bool isGrid() const override { return true; }
+  double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
+  double getUnit(int idim = 0) const override;
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
+  int getNDim() const override;
+
+  static DbGrid* createFromNF(const String& neutralFilename,
+                              bool verbose = false);
+
+  int reset(const VectorInt& nx,
+            const VectorDouble& dx = VectorDouble(),
+            const VectorDouble& x0 = VectorDouble(),
+            const VectorDouble& angles = VectorDouble(),
+            const ELoadBy& order = ELoadBy::SAMPLE,
+            const VectorDouble& tab = VectorDouble(),
+            const VectorString& names = VectorString(),
+            const VectorString& locatorNames = VectorString(),
+            int flag_add_rank = 1);
+  int resetCoveringDb(Db* db,
+                      const VectorInt& nodes,
+                      const VectorDouble& dcell = VectorDouble(),
+                      const VectorDouble& origin = VectorDouble(),
+                      const VectorDouble& margin = VectorDouble());
+  int resetFromPolygon(Polygons* polygon,
+                       const VectorInt& nodes,
+                       const VectorDouble& dcell,
+                       int flag_add_rank);
+
+  static DbGrid* create(const VectorInt& nx,
+                        const VectorDouble& dx = VectorDouble(),
+                        const VectorDouble& x0 = VectorDouble(),
+                        const VectorDouble& angles = VectorDouble(),
+                        const ELoadBy& order = ELoadBy::SAMPLE,
+                        const VectorDouble& tab = VectorDouble(),
+                        const VectorString& names = VectorString(),
+                        const VectorString& locatorNames = VectorString(),
+                        int flag_add_rank = 1);
+  static DbGrid* createCoveringDb(Db* dbin,
+                                  const VectorInt& nodes = VectorInt(),
+                                  const VectorDouble& dcell = VectorDouble(),
+                                  const VectorDouble& origin = VectorDouble(),
+                                  const VectorDouble& margin = VectorDouble());
+  static DbGrid* createFromPolygon(Polygons* polygon,
+                                   const VectorInt& nodes,
+                                   const VectorDouble& dcell,
+                                   int flag_add_rank = 1);
+
+  inline const Grid& getGrid() const { return _grid; }
+  void generateCoordinates(const String& radix = "x");
+
+  VectorDouble getFieldSubGrid(const String& name,
+                               int idim0,
+                               int rank,
+                               bool useSel = false);
+
+  int gridDefine(const VectorInt& nx,
+                 const VectorDouble& dx = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
+                 const VectorDouble& angles = VectorDouble());
+  void gridCopyParams(int mode, const Grid& gridaux);
+  bool isSameGrid(const Grid& grid) const;
+  bool isSameGridMesh(const DbGrid& dbaux) const;
+  bool isSameGridMeshOldStyle(const DbGrid* dbaux) const;
+  bool isSameGridRotation(const DbGrid& dbaux) const;
+  bool isSameGridRotationOldStyle(const DbGrid* dbaux) const;
+  bool isGridRotated() const;
+
+  int  getNTotal() const { return _grid.getNTotal(); }
+  double getCellSize() const { return _grid.getCellSize(); }
+
+  int  getNX(int idim) const { return _grid.getNX(idim); }
+  VectorInt getNXs() const { return _grid.getNXs(); }
+  double getDX(int idim) const { return _grid.getDX(idim); }
+  VectorDouble getDXs() const { return _grid.getDXs(); }
+  double getX0(int idim) const { return _grid.getX0(idim); }
+  VectorDouble getX0s() const { return _grid.getX0s(); }
+  double getAngle(int idim) const { return _grid.getRotAngle(idim); }
+  VectorDouble getAngles() const { return _grid.getRotAngles(); }
+  VectorDouble getRotMat() const { return _grid.getRotMat(); }
+  void setNX(int idim, int value) { _grid.setNX(idim, value); }
+  void setX0(int idim, double value) { _grid.setX0(idim, value); }
+  void setDX(int idim, double value) { _grid.setDX(idim, value); }
+  VectorDouble getGridAxis(int idim) const { return _grid.getAxis(idim); }
+  VectorDouble getCoordinateFromCorner(const VectorInt& icorner) const
+  {
+    return _grid.getCoordinatesByCorner(icorner);
+  }
+  int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
+  {
+    return _grid.coordinateToRank(coor,eps);
+  }
+  void rankToCoordinate(int rank,
+                        VectorDouble& coor,
+                        const VectorDouble& percent = VectorDouble()) const
+  {
+    _grid.rankToCoordinatesInPlace(rank, coor, percent);
+  }
+
+
+protected:
+  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+private:
+  void _createCoordinatesGrid(int icol0);
+
+private:
+  Grid _grid;                //!< Grid characteristics
+};

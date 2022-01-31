@@ -11,6 +11,9 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Basic/OptDbg.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
@@ -26,7 +29,7 @@
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  Db          *dbgrid;
+  DbGrid      *dbgrid;
   Model       *model = nullptr;
   SPDE_Option  s_option;
   CovContext   ctxt;
@@ -59,8 +62,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.c - Setup constants */
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
   
   // Create the 2-D grid output file
 

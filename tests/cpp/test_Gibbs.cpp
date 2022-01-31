@@ -11,16 +11,21 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "csparse_f.h"
+
 #include "Basic/Law.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/ECst.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Model/Model.hpp"
-#include "csparse_f.h"
 
 /*****************************************************************************/
 /*!
@@ -247,7 +252,7 @@ static int st_gibbs(int  niter,
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  Db       *dbgrid;
+  DbGrid   *dbgrid;
   Model    *model1,*model2;
   SPDE_Option    s_option;
   cs            *Q,**Qcols;
@@ -275,7 +280,7 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1 - Initializations */
   /***********************/
 
-  dbgrid   = (Db          *) NULL;
+  dbgrid   = (DbGrid      *) NULL;
   model1   = (Model       *) NULL;
   model2   = (Model       *) NULL;
   colors   = (int         *) NULL;
@@ -299,11 +304,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Setup constants
 
-  debug_reset();
-  constant_reset();
+  OptDbg::reset();
   law_set_random_seed(seed);
-  constant_define("NTCAR",10);
-  constant_define("NTDEC",6);
+  OptCst::define(ECst::NTCAR,10.);
+  OptCst::define(ECst::NTDEC,6.);
   
   // 2-D grid output file
 

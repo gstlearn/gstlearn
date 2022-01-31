@@ -152,6 +152,7 @@ typedef struct
   PropDef *propdef;
 } Modif_Categorical;
 
+class DbGrid;
 typedef struct
 {
   int nxyz;
@@ -166,7 +167,7 @@ typedef struct
   double  total_max;
   int    *address;
   double *energy;
-  Db *db;
+  DbGrid *db;
 } Skin;
 
 typedef struct

@@ -3,6 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
@@ -43,7 +44,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating the Db Grid
   auto nx={ 101,101 };
-  Db* workingDbc = Db::createFromGrid(nx);
+  DbGrid* workingDbc = DbGrid::create(nx);
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(workingDbc);
@@ -67,7 +68,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Precision Operator for simulation
   NoStatArray NoStat({"A"},workingDbc);
   model->addNoStat(&NoStat);
-  SPDE spde(model,workingDbc);
 
   ShiftOpCs S(&mesh, model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF);

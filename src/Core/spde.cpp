@@ -6344,6 +6344,7 @@ static int st_load_all_meshes(Db *dbin,
 {
   int *is_dupl, ndim_loc, flag_sphere, nb_dupl, flag_force;
   Db *dbloc;
+  DbGrid* dbgrid;
 
   flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
   if (VERBOSE)
@@ -6399,6 +6400,7 @@ static int st_load_all_meshes(Db *dbin,
       if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && is_grid(dbin)))
         dbloc = dbin;
     }
+    dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
     if (dbloc != NULL)
     {
@@ -6408,15 +6410,15 @@ static int st_load_all_meshes(Db *dbin,
 
       if (ndim_loc == 1)
       {
-        if (meshes_turbo_1D_grid_build(VERBOSE, dbloc, s_mesh)) return (1);
+        if (meshes_turbo_1D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
       }
       else if (ndim_loc == 2)
       {
-        if (meshes_turbo_2D_grid_build(VERBOSE, dbloc, s_mesh)) return (1);
+        if (meshes_turbo_2D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
       }
       else if (ndim_loc == 3)
       {
-        if (meshes_turbo_3D_grid_build(VERBOSE, dbloc, s_mesh)) return (1);
+        if (meshes_turbo_3D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
       }
 
     }
@@ -9314,8 +9316,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
       mean /= numb;
       ffmean /= numb;
       stdv = stdv / numb - mean * mean;
-      stdv = (stdv > 0) ? sqrt(stdv) :
-                          0.;
+      stdv = (stdv > 0) ? sqrt(stdv) : 0.;
     }
 
     /* Print statistics (optional) */

@@ -59,12 +59,12 @@
  **
  ** \return Value of the block variance (as a function of support coefficient)
  **
- ** \param[in]  anam     Anam structure
+ ** \param[in]  anam     AAnam structure
  ** \param[in]  sval     Tentative Coefficient of change of support
  ** \param[in]  power    Power of the change of support coefficient
  **
  *****************************************************************************/
-static double st_anam_hermitian_block_variance(Anam *anam,
+static double st_anam_hermitian_block_variance(AAnam *anam,
                                                double sval,
                                                double power)
 {
@@ -86,9 +86,9 @@ static double st_anam_hermitian_block_variance(Anam *anam,
 
 /****************************************************************************/
 /*!
- **  Update the Anam structure for Hermitian Anamorphosis
+ **  Update the AAnam structure for Hermitian Anamorphosis
  **
- ** \param[in,out] anam_hermite  Anam structure to be updated
+ ** \param[in,out] anam_hermite  AAnam structure to be updated
  ** \param[in]  pymin    Minimum practical value for Y
  ** \param[in]  pzmin    Minimum practical value for Z
  ** \param[in]  pymax    Maximum practical value for Y
@@ -122,9 +122,9 @@ void anam_update_hermitian(AnamHermite *anam_hermite,
 
 /****************************************************************************/
 /*!
- **  Update the Anam structure for Empirical Anamorphosis
+ **  Update the AAnam structure for Empirical Anamorphosis
  **
- ** \param[in,out] anam_empirical  Anam structure to be updated
+ ** \param[in,out] anam_empirical  AAnam structure to be updated
  ** \param[in]  ndisc    Number of discretization lags
  ** \param[in]  pymin    Minimum practical value for Y
  ** \param[in]  pzmin    Minimum practical value for Z
@@ -161,9 +161,9 @@ void anam_update_empirical(AnamEmpirical *anam_empirical,
 
 /****************************************************************************/
 /*!
- **  Update the Anam structure for Discrete Diffusion Anamorphosis
+ **  Update the AAnam structure for Discrete Diffusion Anamorphosis
  **
- ** \param[in,out] anam_discrete_DD  Anam structure to be updated
+ ** \param[in,out] anam_discrete_DD  AAnam structure to be updated
  ** \param[in]  ncut     Number of cutoffs
  ** \param[in]  scoef   Change of support coefficient
  ** \param[in]  mu       Additional coefficient
@@ -198,11 +198,11 @@ void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
  **
  ** \return  Value for the block variance (as a function of support coefficient)
  **
- ** \param[in]  anam     Anam structure
+ ** \param[in]  anam     AAnam structure
  ** \param[in]  sval     Tentative Coefficient of change of support
  **
  *****************************************************************************/
-static double st_anam_discrete_IR_block_variance(Anam *anam,
+static double st_anam_discrete_IR_block_variance(AAnam *anam,
                                                  double sval,
                                                  double /*power*/)
 {
@@ -228,9 +228,9 @@ static double st_anam_discrete_IR_block_variance(Anam *anam,
 
 /****************************************************************************/
 /*!
- **  Update the Anam structure for Discrete Indicator Residuals Anamorphosis
+ **  Update the AAnam structure for Discrete Indicator Residuals Anamorphosis
  **
- ** \param[in,out] anam_discrete_IR  Anam structure to be updated
+ ** \param[in,out] anam_discrete_IR  AAnam structure to be updated
  ** \param[in]  ncut     Number of cutoffs
  ** \param[in]  r_coef   Change of support coefficient
  ** \param[in]  zcut     Array of cutoffs
@@ -258,11 +258,11 @@ void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
  **
  ** \return  Value for the block variance (as a function of support coefficient)
  **
- ** \param[in]  anam     Anam structure
+ ** \param[in]  anam     AAnam structure
  ** \param[in]  sval     Tentative Coefficient of change of support
  **
  *****************************************************************************/
-static double st_anam_discrete_DD_block_variance(Anam *anam,
+static double st_anam_discrete_DD_block_variance(AAnam *anam,
                                                  double sval,
                                                  double /*power*/)
 {
@@ -292,16 +292,16 @@ static double st_anam_discrete_DD_block_variance(Anam *anam,
  **
  ** \return  Value for the change of support coefficient
  **
- ** \param[in]  anam     Anam structure
+ ** \param[in]  anam     AAnam structure
  ** \param[in]  cvv      Mean covariance value over a block
  ** \param[in]  power    Power of the change of support coefficient
  ** \param[in]  st_block_variance Variance calculation function
  **
  *****************************************************************************/
-static double st_anam_get_r(Anam *anam,
+static double st_anam_get_r(AAnam *anam,
                             double cvv,
                             double power,
-                            double (*st_block_variance)(Anam *anam,
+                            double (*st_block_variance)(AAnam *anam,
                                                         double r,
                                                         double power))
 {
@@ -340,10 +340,10 @@ static double st_anam_get_r(Anam *anam,
 /*!
  **  Derive the MUL coefficients from the LAMBDA and the change of support
  **
- ** \param[in,out]  anam     Anam structure
+ ** \param[in,out]  anam     AAnam structure
  **
  *****************************************************************************/
-static void st_anam_discrete_DD_lambda_to_mul(Anam *anam)
+static void st_anam_discrete_DD_lambda_to_mul(AAnam *anam)
 {
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   int nclass = anam_discrete_DD->getNClass();
@@ -364,11 +364,11 @@ static void st_anam_discrete_DD_lambda_to_mul(Anam *anam)
 /*!
  **  Calculate the block anamorphosis (from point anamorphosis)
  **
- ** \param[in]  anam     Anam structure
+ ** \param[in]  anam     AAnam structure
  ** \param[in]  chi      Array containing the Chi factors
  **
  *****************************************************************************/
-static void st_anam_discrete_DD_block_anamorphosis(Anam *anam, VectorDouble chi)
+static void st_anam_discrete_DD_block_anamorphosis(AAnam *anam, VectorDouble chi)
 
 {
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
@@ -398,10 +398,10 @@ static void st_anam_discrete_DD_block_anamorphosis(Anam *anam, VectorDouble chi)
  **
  ** \return Error return code
  **
- ** \param[in,out] anam  Anam structure to be updated
+ ** \param[in,out] anam  AAnam structure to be updated
  **
  *****************************************************************************/
-static int st_anam_point_to_block_discrete_DD(Anam *anam)
+static int st_anam_point_to_block_discrete_DD(AAnam *anam)
 
 {
   double sum;
@@ -465,10 +465,10 @@ static int st_anam_point_to_block_discrete_DD(Anam *anam)
  **  Update a point anamorphosis into a block anamorphosis
  **  Discrete Indicators Residuals case
  **
- ** \param[in,out] anam  Anam structure to be updated
+ ** \param[in,out] anam  AAnam structure to be updated
  **
  *****************************************************************************/
-static void st_anam_point_to_block_discrete_IR(Anam *anam)
+static void st_anam_point_to_block_discrete_IR(AAnam *anam)
 {
   double r_coef, tcur, tprev, zie, zje, zik, zjk;
   int nclass, iclass;
@@ -529,13 +529,13 @@ static void st_anam_point_to_block_discrete_IR(Anam *anam)
  ** \param[in]  y           gaussian value
  ** \param[in]  flag_bound  1 if the bounds must be applied; 0 otherwise
  **
- ** \remark  The procedure checks the argument mode of Anam structure
+ ** \remark  The procedure checks the argument mode of AAnam structure
  ** \remark  - does nothing and simply returns y (EAnam::UNDEFINED)
  ** \remark  - calls the external function y2z_function (EAnam::EXTERNAL)
  ** \remark  - performs the internal transform (EAnam::HERMITIAN)
  **
  *****************************************************************************/
-double anam_y2z(Anam *anam, double y, int flag_bound)
+double anam_y2z(AAnam *anam, double y, int flag_bound)
 {
   if (anam == nullptr) return (y);
   if (anam->getType() == EAnam::HERMITIAN)
@@ -562,10 +562,10 @@ double anam_y2z(Anam *anam, double y, int flag_bound)
 /*!
  **  Update a point anamorphosis into a block anamorphosis for Hermitian case
  **
- ** \param[in,out] anam  Anam structure to be updated
+ ** \param[in,out] anam  AAnam structure to be updated
  **
  *****************************************************************************/
-static void st_anam_point_to_block_hermitian(Anam *anam)
+static void st_anam_point_to_block_hermitian(AAnam *anam)
 
 {
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
@@ -962,7 +962,7 @@ static void st_correct_tonnage_order(int nclass, double *tval)
 /*!
  **  Calculate the theoretical grade tonnage value (Discrete Diffusion case)
  **
- ** \param[in] anam         Anam structure to be updated
+ ** \param[in] anam         AAnam structure to be updated
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  ** \param[in] verbose      Verbosity flag
  **
@@ -972,7 +972,7 @@ static void st_correct_tonnage_order(int nclass, double *tval)
  ** \remark cutoffs.
  **
  *****************************************************************************/
-static void st_anam_selectivity_discrete_DD(Anam *anam,
+static void st_anam_selectivity_discrete_DD(AAnam *anam,
                                             int flag_correct,
                                             int verbose,
                                             VectorDouble &calest)
@@ -1020,7 +1020,7 @@ static void st_anam_selectivity_discrete_DD(Anam *anam,
 /*!
  **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
  **
- ** \param[in] anam         Anam structure to be updated
+ ** \param[in] anam         AAnam structure to be updated
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  ** \param[in] verbose      Verbosity flag
  **
@@ -1030,7 +1030,7 @@ static void st_anam_selectivity_discrete_DD(Anam *anam,
  ** \remark cutoffs.
  **
  *****************************************************************************/
-static void st_anam_selectivity_discrete_IR(Anam *anam,
+static void st_anam_selectivity_discrete_IR(AAnam *anam,
                                             int flag_correct,
                                             int verbose,
                                             VectorDouble &calest)
@@ -1068,7 +1068,7 @@ static void st_anam_selectivity_discrete_IR(Anam *anam,
 /*!
  **  Calculate the theoretical grade tonnage value (Gaussian case)
  **
- ** \param[in] anam    Anam structure to be updated
+ ** \param[in] anam    AAnam structure to be updated
  ** \param[in] verbose Verbosity flag
  ** \param[in] ntab    Number of cutoff values
  ** \param[in] tab     Array of cutoffs
@@ -1076,7 +1076,7 @@ static void st_anam_selectivity_discrete_IR(Anam *anam,
  ** \param[out] calest Array of results
  **
  *****************************************************************************/
-static void st_anam_selectivity_hermitian(Anam *anam,
+static void st_anam_selectivity_hermitian(AAnam *anam,
                                           int verbose,
                                           int ntab,
                                           VectorDouble &tab,
@@ -1124,7 +1124,7 @@ static void st_anam_selectivity_hermitian(Anam *anam,
  **
  ** \return  Array f results (Dimension: 7 * nclass)
  **
- ** \param[in] anam         Anam structure to be updated
+ ** \param[in] anam         AAnam structure to be updated
  ** \param[in] nclass       Number of classes
  ** \param[in] zcut         Array of cutoffs
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
@@ -1134,7 +1134,7 @@ static void st_anam_selectivity_hermitian(Anam *anam,
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-VectorDouble anam_selectivity(Anam *anam,
+VectorDouble anam_selectivity(AAnam *anam,
                                               int nclass,
                                               VectorDouble zcut,
                                               int flag_correct,
@@ -1196,7 +1196,7 @@ VectorDouble anam_selectivity(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-int anam_discrete_DD_z2factor(Anam *anam,
+int anam_discrete_DD_z2factor(AAnam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
@@ -1254,7 +1254,7 @@ int anam_discrete_DD_z2factor(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-int anam_discrete_IR_z2factor(Anam *anam,
+int anam_discrete_IR_z2factor(AAnam *anam,
                                               Db *db,
                                               int iptr,
                                               int nfact,
@@ -1287,7 +1287,7 @@ int anam_discrete_IR_z2factor(Anam *anam,
  ** \param[in]  ifacs       Array of factor ranks (starting at 1)
  **
  *****************************************************************************/
-int anam_discrete_z2factor(Anam *anam,
+int anam_discrete_z2factor(AAnam *anam,
                                            Db *db,
                                            int nfact,
                                            const VectorInt &ifacs)
@@ -1384,7 +1384,7 @@ int anam_discrete_z2factor(Anam *anam,
  ** \remark Otherwise, it is derived from 'cvv'
  **
  *****************************************************************************/
-int anam_point_to_block(Anam *anam,
+int anam_point_to_block(AAnam *anam,
                                         int verbose,
                                         double cvv,
                                         double coeff,
@@ -1516,7 +1516,7 @@ int anam_point_to_block(Anam *anam,
  ** \param[out] r_coef      Change of support coefficient
  **
  *****************************************************************************/
-int anam_get_r(Anam *anam,
+int anam_get_r(AAnam *anam,
                                double cvv,
                                double mu,
                                double *r_coef)
@@ -1841,7 +1841,7 @@ static int st_code_analyze(int verbose,
  **
  *****************************************************************************/
 static int st_anam_factor2qt_hermitian(Db *db,
-                                       Anam *anam,
+                                       AAnam *anam,
                                        int ncutmine,
                                        double *cutmine,
                                        int nb_est,
@@ -2017,7 +2017,7 @@ static int st_anam_factor2qt_hermitian(Db *db,
  **
  *****************************************************************************/
 static int st_anam_factor2qt_discrete_DD(Db *db,
-                                         Anam *anam,
+                                         AAnam *anam,
                                          int ncutmine,
                                          double *cutmine,
                                          double z_max,
@@ -2207,7 +2207,7 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
  **
  *****************************************************************************/
 static int st_anam_factor2qt_discrete_IR(Db *db,
-                                         Anam *anam,
+                                         AAnam *anam,
                                          int ncutmine,
                                          double *cutmine,
                                          double z_max,
@@ -2380,7 +2380,7 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
  **
  *****************************************************************************/
 int anam_factor2qt(Db *db,
-                                   Anam *anam,
+                                   AAnam *anam,
                                    int ncutmine,
                                    double *cutmine,
                                    double z_max,
@@ -2568,7 +2568,7 @@ void selectivity_interpolate(int verbose,
  ** \param[in]  vario       Experimental variogram of Z -> Y [out]
  **
  *****************************************************************************/
-int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
+int anam_vario_z2y(AAnam *anam, double cvv, Vario *vario)
 {
   int error, idir, i;
 
@@ -2631,7 +2631,7 @@ int anam_vario_z2y(Anam *anam, double cvv, Vario *vario)
  **
  *****************************************************************************/
 int uc_f(Db *db,
-                         Anam *anam,
+                         AAnam *anam,
                          int att_est,
                          int att_var,
                          int ncutmine,
@@ -3134,7 +3134,7 @@ static int st_ce_compute_T(int mode,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Anam structure
+ ** \param[in]  anam         AAnam structure
  ** \param[in]  proba        Probability threshold
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
@@ -3143,7 +3143,7 @@ static int st_ce_compute_T(int mode,
  **
  *****************************************************************************/
 static int st_ce_compute_quant(Db *db,
-                               Anam *anam,
+                               AAnam *anam,
                                double proba,
                                int att_est,
                                int att_std,
@@ -3393,7 +3393,7 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
  **
  *****************************************************************************/
 int ce_f(Db *db,
-                         Anam *anam,
+                         AAnam *anam,
                          int att_est,
                          int att_std,
                          int flag_est,
@@ -3570,3 +3570,4 @@ int ce_f(Db *db,
     (void) db_attribute_del_mult(db, iptr_Q, count * ncutmine);
   return (error);
 }
+

@@ -11,10 +11,12 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamContinuous.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
@@ -24,7 +26,7 @@
 #define YPAS       0.1
 
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
-    : AnamContinuous(EAnam::HERMITIAN),
+    : AnamContinuous(),
       _nbPoly(nbpoly),
       _flagBound(flagBound),
       _rCoef(rCoef),
@@ -63,15 +65,53 @@ AnamHermite::~AnamHermite()
 String AnamHermite::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+
+  sstr << toTitle(1,"Hermitian Anamorphosis");
+
   sstr << AnamContinuous::toString(strfmt);
 
-  sstr << std::endl;
-  sstr << "Hermitian anamorphosis" << std::endl;
   sstr << "Number of Hermite polynomials = " << _nbPoly << std::endl;
   if (_rCoef > 0. && _rCoef < 1.)
     sstr << "Change of Support Coefficient = " << _rCoef << std::endl;
   sstr << toVector("Normalized coefficients for Hermite polynomials",_psiHn);
+
   return sstr.str();
+}
+
+int AnamHermite::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  FILE* file = _fileOpen(neutralFilename, "AnamHermite", "w", verbose);
+  if (file == nullptr) return 1;
+
+  if (_serialize(file, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    _fileClose(file, verbose);
+    return 1;
+  }
+  _fileClose(file, verbose);
+  return 0;
+}
+
+AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbose)
+{
+  FILE* file = _fileOpen(neutralFilename, "AnamHermite", "r", verbose);
+  if (file == nullptr) return nullptr;
+
+  AnamHermite* anam = new AnamHermite();
+  if (anam->_deserialize(file, verbose))
+  {
+    if (verbose) messerr("Problem reading the Neutral File");
+    delete anam;
+    anam = nullptr;
+  }
+  _fileClose(file, verbose);
+  return anam;
+}
+
+AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
+{
+  return new AnamHermite(nbpoly, flagBound, rCoef);
 }
 
 double AnamHermite::RawToGaussianValue(double z) const
@@ -305,7 +345,7 @@ int AnamHermite::fit(Db *db, const ELoc& locatorType)
   if (number != 1)
   {
     messerr("The number of items for locator(%d) is %d. It should be 1",
-            locatorType,number);
+            locatorType.getValue(),number);
     return 1;
   }
   VectorDouble tab = db->getFieldByLocator(locatorType,0,true);
@@ -564,4 +604,40 @@ label_end:
   tmp = (double *) mem_free((char *) tmp);
   ind = (int    *) mem_free((char *) ind);
   return(ncl);
+}
+
+int AnamHermite::_serialize(FILE* file, bool verbose) const
+{
+  AnamContinuous::_serialize(file, verbose);
+
+  _recordWrite(file,"%d", getNbPoly());
+  _recordWrite(file,"#", "Number of Hermite Polynomials");
+  _recordWrite(file,"%lf", getRCoef());
+  _recordWrite(file,"#", "Change of support coefficient");
+  _tableWrite(file, "Hermite Polynomial", getNbPoly(), getPsiHn().data());
+
+  return 0;
+}
+
+int AnamHermite::_deserialize(FILE* file, bool verbose)
+{
+  VectorDouble hermite;
+  double r = TEST;
+  int nbpoly = 0;
+
+  if (AnamContinuous::_deserialize(file, verbose)) goto label_end;
+
+  if (_recordRead(file, "Number of Hermite Polynomials", "%d", &nbpoly))
+    goto label_end;
+  if (_recordRead(file, "Change of Support Coefficient", "%lf", &r))
+    goto label_end;
+  hermite.resize(nbpoly);
+  if (_tableRead(file, nbpoly, hermite.data())) goto label_end;
+
+  setNbPoly(nbpoly);
+  setRCoef(r);
+  setPsiHn(hermite);
+
+  label_end:
+  return 0;
 }

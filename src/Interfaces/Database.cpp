@@ -701,7 +701,7 @@ Db* Database::toGeoslib() const
 }
 
 //:TODO : case grid
-void Database::fromGeoslib(Db* db)
+void Database::fromGeoslib(DbGrid* db)
 {
   int i = 0;
 

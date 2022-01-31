@@ -12,9 +12,11 @@
 #include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
-#include "Neigh/Neigh.hpp"
+#include "Neigh/ANeighParam.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
 
@@ -226,7 +228,7 @@ static void lmlayers_print(LMlayers *lmlayers)
  *****************************************************************************/
 static int st_locate_sample_in_output(LMlayers *lmlayers,
                                       Db *dbin,
-                                      Db *dbout,
+                                      DbGrid *dbout,
                                       int iech,
                                       int *igrid)
 {
@@ -353,7 +355,7 @@ static int st_get_props_result(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_get_props_data(LMlayers *lmlayers,
                              Db *dbin,
-                             Db *dbout,
+                             DbGrid *dbout,
                              int iech,
                              int ilayer0,
                              double *props)
@@ -419,7 +421,7 @@ static double st_get_drift_result(LMlayers *lmlayers,
  *****************************************************************************/
 static double st_get_drift_data(LMlayers *lmlayers,
                                 Db *dbin,
-                                Db *dbout,
+                                DbGrid *dbout,
                                 int iech,
                                 int ilayer0)
 {
@@ -689,7 +691,7 @@ static int st_drift(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_lhs_one(LMlayers *lmlayers,
                       Db *dbin,
-                      Db *dbout,
+                      DbGrid *dbout,
                       Model *model,
                       int *seltab,
                       int iech0,
@@ -768,7 +770,7 @@ static int st_lhs_one(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_rhs(LMlayers *lmlayers,
                   Db *dbin,
-                  Db *dbout,
+                  DbGrid *dbout,
                   Model *model,
                   double *coor,
                   int *seltab,
@@ -860,7 +862,7 @@ static int st_rhs(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_lhs(LMlayers *lmlayers,
                   Db *dbin,
-                  Db *dbout,
+                  DbGrid *dbout,
                   Model *model,
                   int *seltab,
                   double *prop1,
@@ -936,7 +938,7 @@ static int st_lhs(LMlayers *lmlayers,
  *****************************************************************************/
 static void st_data_vector(LMlayers *lmlayers,
                            Db *dbin,
-                           Db *dbout,
+                           DbGrid *dbout,
                            int *seltab,
                            double *zval)
 {
@@ -1025,7 +1027,7 @@ static void st_data_vector(LMlayers *lmlayers,
 static int st_subtract_optimal_drift(LMlayers *lmlayers,
                                      int verbose,
                                      Db *dbin,
-                                     Db *dbout,
+                                     DbGrid *dbout,
                                      int *seltab,
                                      double *zval)
 {
@@ -1152,7 +1154,7 @@ static int st_subtract_optimal_drift(LMlayers *lmlayers,
 
       /* Print the residuals (optional) */
 
-      if (debug_query("variogram"))
+      if (OptDbg::query(EDbg::VARIOGRAM))
         message("Sample %d (Layer %d) - Coor = %lf %lf - Residual = %lf\n",
                 iech + 1, ilayer, coor[0], coor[1], zval[iiech]);
     }
@@ -1247,7 +1249,7 @@ static int st_collocated_prepare(LMlayers *lmlayers,
                                  int iechout,
                                  double *coor,
                                  Db *dbin,
-                                 Db *dbout,
+                                 DbGrid *dbout,
                                  Model *model,
                                  int *seltab,
                                  double *a,
@@ -1466,7 +1468,7 @@ static void st_estimate_bayes(LMlayers *lmlayers,
 *****************************************************************************/
 static void st_estimate(LMlayers *lmlayers,
                         Db *dbin,
-                        Db *dbout,
+                        DbGrid *dbout,
                         Model *model,
                         int *seltab,
                         int flag_bayes,
@@ -1503,11 +1505,11 @@ static void st_estimate(LMlayers *lmlayers,
 
   for (iechout = 0; iechout < dbout->getSampleNumber(); iechout++)
   {
-    debug_index(iechout + 1);
+    OptDbg::setIndex(iechout + 1);
     if (!dbout->isActive(iechout)) continue;
     coor[0] = dbout->getCoordinate(iechout, 0);
     coor[1] = dbout->getCoordinate(iechout, 1);
-    if (debug_query("kriging") || debug_query("nbgh") || debug_query("results"))
+    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
       db_sample_print(dbout, iechout, 1, 0, 0);
@@ -1531,7 +1533,7 @@ static void st_estimate(LMlayers *lmlayers,
 
     for (ilayer = 0; ilayer < nlayers; ilayer++)
     {
-      if (debug_query("kriging") || debug_query("nbgh"))
+      if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH))
         mestitle(2, "Layer #%d", ilayer + 1);
 
       /* Find the proportions for the target if flag_cumul=TRUE */
@@ -1551,7 +1553,7 @@ static void st_estimate(LMlayers *lmlayers,
 
       if (st_rhs(lmlayers, dbin, dbout, model, coor, seltab, iechout,
                  ilayer + 1, prop1, prop2, covtab, b)) continue;
-      if (debug_query("kriging"))
+      if (OptDbg::query(EDbg::KRIGING))
         krige_rhs_print(1, lmlayers->nech, neq, neq, NULL, b);
 
       /* Perform estimation */
@@ -1577,7 +1579,7 @@ static void st_estimate(LMlayers *lmlayers,
 
       dbout->setVariable(iechout, ilayer, estim);
       if (flag_std) dbout->setVariable(iechout, nlayers + ilayer, stdv);
-      if (debug_query("results"))
+      if (OptDbg::query(EDbg::RESULTS))
       {
         message("Estimate = %lf", ilayer + 1, estim);
         if (flag_std) message(" - Variance = %lf", stdv * stdv);
@@ -1585,7 +1587,7 @@ static void st_estimate(LMlayers *lmlayers,
       }
     }
   }
-  debug_index(0);
+  OptDbg::setIndex(0);
 }
 
 /****************************************************************************/
@@ -1603,7 +1605,7 @@ static void st_estimate(LMlayers *lmlayers,
  *****************************************************************************/
 static int st_check_auxiliary_variables(LMlayers *lmlayers,
                                         Db *dbin,
-                                        Db *dbout,
+                                        DbGrid *dbout,
                                         int *seltab)
 {
   int iech, ilayer, igrid, newval, nechtot;
@@ -1785,7 +1787,7 @@ static void st_convert_results(LMlayers *lmlayers, Db *dbout, int flag_std)
  *****************************************************************************/
 static int st_drift_data(LMlayers *lmlayers,
                          Db *dbin,
-                         Db *dbout,
+                         DbGrid *dbout,
                          int *seltab,
                          double *prop1,
                          double *fftab)
@@ -2007,7 +2009,7 @@ static int st_drift_bayes(LMlayers *lmlayers,
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  neigh      Neigh structrue
+ ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  flag_same  1 if input and output files coincide
  ** \param[in]  flag_z     1 if the output must be converted back into depth
  ** \param[in]  flag_vel   1 if work is performed in Velocity, 0 for Depth
@@ -2027,28 +2029,27 @@ static int st_drift_bayes(LMlayers *lmlayers,
  **
  *****************************************************************************/
 int multilayers_kriging(Db *dbin,
-                                        Db *dbout,
-                                        Model *model,
-                                        Neigh *neigh,
-                                        int flag_same,
-                                        int flag_z,
-                                        int flag_vel,
-                                        int flag_cumul,
-                                        int flag_ext,
-                                        int flag_std,
-                                        int flag_bayes,
-                                        int irf_rank,
-                                        int match_time,
-                                        int dim_prior,
-                                        double *prior_mean,
-                                        double *prior_vars,
-                                        int colrefd,
-                                        int colreft,
-                                        int colrefb,
-                                        int verbose)
+                        DbGrid *dbout,
+                        Model *model,
+                        ANeighParam *neighparam,
+                        int flag_same,
+                        int flag_z,
+                        int flag_vel,
+                        int flag_cumul,
+                        int flag_ext,
+                        int flag_std,
+                        int flag_bayes,
+                        int irf_rank,
+                        int match_time,
+                        int dim_prior,
+                        double *prior_mean,
+                        double *prior_vars,
+                        int colrefd,
+                        int colreft,
+                        int colrefb,
+                        int verbose)
 {
-  int *seltab, iptr, nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar,
-      error;
+  int *seltab, iptr, nlayers, ilayer, nechmax, nech, iech, neq, nvar, npar, error;
   double *a, *b, *b2, *baux, *zval, *dual, *covtab, *prop1, *prop2, *c00, *wgt;
   double *acov, *atot;
   double *fftab, *a0, *cc, *ss, *gs, *post_mean, *post_S;
@@ -2058,7 +2059,6 @@ int multilayers_kriging(Db *dbin,
   /* Preliminary checks */
 
   error = 1;
-
   iptr = -1;
   seltab = nullptr;
   covtab = nullptr;
@@ -2069,8 +2069,7 @@ int multilayers_kriging(Db *dbin,
   lmlayers = nullptr;
   nlayers = model->getVariableNumber();
   nechmax = dbin->getSampleNumber();
-  ptime = (match_time) ? ELoc::F :
-                         ELoc::TIME;
+  ptime = (match_time) ? ELoc::F : ELoc::TIME;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
   if (dbin->getNDim() != 2)
@@ -2110,7 +2109,7 @@ int multilayers_kriging(Db *dbin,
             get_LOCATOR_NITEM(dbout, ptime));
     goto label_end;
   }
-  if (neigh->getType() != ENeigh::UNIQUE)
+  if (neighparam->getType() != ENeigh::UNIQUE)
   {
     messerr("This procedure is only available in Unique Neighborhood");
     goto label_end;
@@ -2209,13 +2208,13 @@ int multilayers_kriging(Db *dbin,
 
   st_lhs(lmlayers, dbin, dbout, model, seltab, prop1, prop2, covtab, atot,
          acov);
-  if (is_debug_reference_defined() || debug_query("kriging"))
+  if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     krige_lhs_print(nech, neq, neq, NULL, atot);
 
   /* Establish the data vector */
 
   st_data_vector(lmlayers, dbin, dbout, seltab, zval);
-  if (is_debug_reference_defined() || debug_query("kriging"))
+  if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
   {
     mestitle(0, "Data Vector");
     message("Number of active samples  = %d\n", nech);
@@ -2311,7 +2310,7 @@ int multilayers_kriging(Db *dbin,
  *****************************************************************************/
 static int st_evaluate_lag(LMlayers *lmlayers,
                            Db *dbin,
-                           Db *dbout,
+                           DbGrid *dbout,
                            Vario_Order *vorder,
                            int nlayers,
                            int ifirst,
@@ -2404,7 +2403,7 @@ static int st_evaluate_lag(LMlayers *lmlayers,
 static int st_varioexp_chh(LMlayers *lmlayers,
                            int verbose,
                            Db *dbin,
-                           Db *dbout,
+                           DbGrid *dbout,
                            Vario_Order *vorder,
                            double *zval,
                            int idir,
@@ -2452,7 +2451,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
                         zval, &nval, &distsum, stat, phia, phib, atab, btab))
       goto label_end;
 
-    if (debug_query("variogram"))
+    if (OptDbg::query(EDbg::VARIOGRAM))
     {
       message("Lag %d\n", ipas + 1);
       print_matrix("L.H.S.", 0, 1, nhalf, nhalf, NULL, atab);
@@ -2482,7 +2481,7 @@ static int st_varioexp_chh(LMlayers *lmlayers,
 
     /* Optional printout */
 
-    if (debug_query("variogram")) print_trimat("C(h)", 2, nlayers, sill);
+    if (OptDbg::query(EDbg::VARIOGRAM)) print_trimat("C(h)", 2, nlayers, sill);
 
     /* Store the covariance values */
 
@@ -2534,16 +2533,16 @@ static int st_varioexp_chh(LMlayers *lmlayers,
  **
  *****************************************************************************/
 int multilayers_vario(Db *dbin,
-                                      Db *dbout,
-                                      Vario *vario,
-                                      int nlayers,
-                                      int flag_vel,
-                                      int flag_ext,
-                                      int irf_rank,
-                                      int match_time,
-                                      int colrefd,
-                                      int colreft,
-                                      int verbose)
+                      DbGrid *dbout,
+                      Vario *vario,
+                      int nlayers,
+                      int flag_vel,
+                      int flag_ext,
+                      int irf_rank,
+                      int match_time,
+                      int colrefd,
+                      int colreft,
+                      int verbose)
 {
   int *seltab, error, ilayer, nechmax, nech, iech, idir, iptr;
   double *prop1, *zval;
@@ -2808,20 +2807,20 @@ static int st_get_prior(int nech,
  **
  *****************************************************************************/
 int multilayers_get_prior(Db *dbin,
-                                          Db *dbout,
-                                          Model *model,
-                                          int flag_same,
-                                          int flag_vel,
-                                          int flag_ext,
-                                          int irf_rank,
-                                          int match_time,
-                                          int colrefd,
-                                          int colreft,
-                                          int colrefb,
-                                          int verbose,
-                                          int *npar_arg,
-                                          double **mean,
-                                          double **vars)
+                          DbGrid *dbout,
+                          Model *model,
+                          int flag_same,
+                          int flag_vel,
+                          int flag_ext,
+                          int irf_rank,
+                          int match_time,
+                          int colrefd,
+                          int colreft,
+                          int colrefb,
+                          int verbose,
+                          int *npar_arg,
+                          double **mean,
+                          double **vars)
 {
   int nlayers, ilayer, nechmax, nech, iech, npar, error, iptr, neq;
   int *seltab;

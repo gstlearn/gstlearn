@@ -10,7 +10,6 @@
 #include <string>
 
 // -Class definition ----------------------------------
-
 class GSTLEARN_EXPORT TimeUtility {
 public :
   static bool is_expired(const std::string& expiration_date);

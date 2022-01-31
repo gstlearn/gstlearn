@@ -19,6 +19,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Model/ANoStat.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "geoslib_old_f.h"
 
 #include <math.h>
@@ -392,7 +393,8 @@ int NoStatArray::_informField(int ipar,
 
   if (is_grid(_dbnostat))
   {
-    if (migrate_grid_to_coor(_dbnostat, iatt, nech, coor[0], coor[1], coor[2],
+    const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbnostat);
+    if (migrate_grid_to_coor(dbgrid, iatt, nech, coor[0], coor[1], coor[2],
                              tab.data())) return 1;
   }
   else
