@@ -34,7 +34,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration (-j 16 option seems having no effect on Gitub Action)
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_test -- -j 8
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
 
     - name: Test
       working-directory: ${{github.workspace}}/build
