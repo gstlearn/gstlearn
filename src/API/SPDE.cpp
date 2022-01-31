@@ -304,6 +304,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
       proj.mesh2point(_workingSimu[i],temp);
       ut_vector_add_inplace(result,temp);
     }
+    //TODO check variance
     for(int iech = 0 ; iech< (int)result.size(); iech++)
     {
       result[iech]+= law_gaussian(0.,sqrt(_nugget));
