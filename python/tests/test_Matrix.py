@@ -56,7 +56,7 @@ nx = [5,7]
 dx = [2., 2.]
 x0 = [10., 20.]
 angles = [-30, 0.]
-grid = gl.Db.createFromGrid(nx,dx,x0,angles)
+grid = gl.DbGrid.create(nx,dx,x0,angles)
 pgrid = grid.getGrid()    # Pointer to the grid information of the Db
 
 # Prepare a vector of integer for retrieving integer information

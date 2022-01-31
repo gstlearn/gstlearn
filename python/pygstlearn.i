@@ -1,13 +1,14 @@
 // https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
-%module(directors="1") pygstlearn
+// No need of %module keyword when building using cmake UseSWIG
+// TODO: restore directors feature
+//%module(directors="1") gstlearn
 
 // https://stackoverflow.com/a/26035360/3952924
+%import "doc/documentation.i"
 
-%import "documentation.i"
-
-// gstlearn C++ library must be installed (Keep Order !!!!)
-%include swig_inc.i
-%include swig_exp.i
+// Include C++ library SWIG interface (Keep Order !!!!)
+%include ../swig/swig_inc.i
+%include ../swig/swig_exp.i
 
 // For suppressing SWIG warning due to -keyword option
 #pragma SWIG nowarn=511
@@ -92,7 +93,16 @@ void exit_f(void)
 %extend Model {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend Neigh {
+%extend NeighUnique {
+  std::string __repr__() {  return $self->toString();  }
+}
+%extend NeighBench {
+  std::string __repr__() {  return $self->toString();  }
+}
+%extend NeighMoving {
+  std::string __repr__() {  return $self->toString();  }
+}
+%extend NeighImage {
   std::string __repr__() {  return $self->toString();  }
 }
 %extend AnamHermite {
@@ -130,10 +140,6 @@ void exit_f(void)
 # Thanks to Nicolas Desassis:
 import gstlearn as gl
 import numpy as np
-
-
-# In[2]:
-
 
 def is_tuple_str(mytuple):
     """Check is a tuple (or iterable) contains only strings"""
@@ -257,7 +263,4 @@ setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
 
-		   
-
-		   
 %}

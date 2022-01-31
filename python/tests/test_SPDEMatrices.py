@@ -18,11 +18,11 @@ flagDraw = False
 
 # Create representation grid
 
-workingDbc = gl.Db.createFromGrid([10,10],[10,10])
+workingDbc = gl.DbGrid.create([10,10],[10,10])
 
 # Create working grid
 
-resultDb = gl.Db.createFromGrid([200,200],[0.5,0.5]) 
+resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
 
 # Create input database
 
@@ -46,7 +46,7 @@ model.addNoStat(nostat)
 
 # Create turbo meshing
 
-workingDb = gl.Db.createFromGrid([101,101],[1,1]) 
+workingDb = gl.DbGrid.create([101,101],[1,1]) 
 mesh = gl.MeshETurbo(workingDb)
 
 # Create shift operator

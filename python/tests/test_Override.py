@@ -9,7 +9,17 @@ import numpy as np
 
 
 # In[2]:
-
+def is_tuple_str(mytuple):
+    """Check is a tuple (or iterable) contains only strings"""
+    all_str = True
+    if not(isinstance(mytuple,(tuple, list, np.ndarray))):
+        all_str = False
+    i = 0
+    while all_str and i<len(mytuple):
+        if not(isinstance(mytuple[i], (str, np.str_))):
+               all_str = False
+        i += 1
+    return all_str
 
 def getitem(self,name):
     """
@@ -28,35 +38,45 @@ def getitem(self,name):
         Array of shape (nsamples, nvar) of the extracted data.
 
     """
+    
     if self.useSel:
         nrows = self.getActiveSampleNumber()
     else:
         nrows = self.getSampleNumber()
+    
+    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
+        rows = name[0]
+        columns = name[1]
+    else:
+        rows = slice(None,None,None) # extract all rows
+        columns = name
+    
+    # extract columns
+    if isinstance(columns, str) or is_tuple_str(columns): #get variable(s) by name
+        names = np.atleast_1d(columns)
+        nbvar = len(self.getNames(columns))
+        temp = np.array(self.getFields(names, self.useSel))
+    
+    elif isinstance(columns, gl.ELoc): #get variable(s) by locator
+        temp = np.array(self.getFieldsByLocator(columns, self.useSel))
+        nbvar = self.getLocatorNumber(columns)
         
-    if isinstance(name, gl.ELoc):
-        temp = np.array(self.getFieldsByLocator(name, self.useSel))
-        nbvar = self.getLocatorNumber(name)
-        if nbvar == 0:
-            temp = np.array([])
-
-    elif isinstance(np.atleast_1d(name)[0], (str,np.str_)):
-        name = np.atleast_1d(name)
-        nbvar = len(self.getNames(name))
-        temp = np.array(self.getFields(name, self.useSel))
-        
-    else: # indices of arrays
-        array = np.array(self.getFields(useSel=self.useSel))
-        nbvar = self.getFieldNumber()
-        array = np.reshape(array, (nbvar,nrows))
-        temp = array[name]
-        return temp.T
+    else: #indices or slice (column indices)
+        array = np.array(self.getAllFields(useSel=self.useSel))
+        nbvar_tot = self.getFieldNumber()
+        array = np.reshape(array, (nbvar_tot,nrows))
+        temp = np.atleast_2d(array[columns])
+        nbvar = temp.shape[0]
         
     temp = temp.reshape([nbvar,nrows]).T
+            
+    # extract rows
+    temp = temp[rows]
+        
     temp[temp == gl.TEST] = None
     return temp
 
-# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
-# corresponding variables will be replaced and not added.
+
 
 def setitem(self,name,tab):
     
@@ -104,18 +124,18 @@ def setitem(self,name,tab):
             
         self.setField(vectD,names[j],useSel)
         
-#setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)    
     
-#setattr(gl.Db,"__getitem__",getitem)
+setattr(gl.Db,"__getitem__",getitem)
 
-#setattr(gl.Db,"__setitem__",setitem)
+setattr(gl.Db,"__setitem__",setitem)
 
 
 # # Example
 
 # In[3]:
 
-a = gl.Db.createFromGrid([2,2],[1.,1.])
+a = gl.DbGrid.create([2,2],[1.,1.])
 a
 
 # ## Create  a new variable
