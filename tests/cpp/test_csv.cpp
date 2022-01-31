@@ -21,13 +21,12 @@
 int main()
 {
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");
-  Db* mydb = Db::createFromCSV(filename,true,CSVformat());
+  Db* mydb = Db::createFromCSV(filename,CSVformat(),true);
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);
   mydb->setLocator("Zn",ELoc::Z);
-  DbStringFormat dbfmt;
-  dbfmt.setParams(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
+  DbStringFormat dbfmt(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS);
   mydb->display(&dbfmt);
 
   // Looking for duplicates

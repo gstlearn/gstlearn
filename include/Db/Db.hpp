@@ -91,8 +91,8 @@ public:
                                const VectorString& locatorNames = VectorString(),
                                int flag_add_rank = 1);
   static Db* createFromCSV(const String& filename,
-                           bool verbose,
                            const CSVformat& csv,
+                           bool verbose = false,
                            int ncol_max = -1,
                            int nrow_max = -1,
                            int flag_add_rank = 1);

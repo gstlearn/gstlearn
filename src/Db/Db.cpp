@@ -3701,8 +3701,8 @@ Db* Db::createFromSamples(int nech,
   return db;
 }
 Db* Db::createFromCSV(const String& filename,
-                      bool verbose,
                       const CSVformat& csv,
+                      bool verbose,
                       int ncol_max,
                       int nrow_max,
                       int flag_add_rank)
