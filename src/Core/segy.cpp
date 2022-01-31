@@ -1307,13 +1307,12 @@ static void st_refstats_init(RefStats &refstats,
   refstats.modif_high = modif_high;
   refstats.modif_scale = modif_scale;
 }
-;
 
 /****************************************************************************/
 /*!
  ** Read the contents of a SEGY file
  **
- ** \returns A RetArg structure which contains:
+ ** \returns A SegYArg structure which contains:
  ** \returns - a vector of trace vectors
  ** \returns - a vector of trace descriptors
  ** \returns
@@ -1482,6 +1481,7 @@ SegYArg segy_array(const char *filesegy,
     if (option == -2)
     {
       if (st_complete_squeeze_and_stretch(nz, writes)) continue;
+      if (st_complete_squeeze_and_stretch(nz, cotes)) continue;
     }
 
     // Store the results
@@ -1509,6 +1509,9 @@ SegYArg segy_array(const char *filesegy,
     for (int iz = 0; iz < nz; iz++)
       local[iz] = writes[iz];
     segyarg.tab.push_back(local);
+    for (int iz = 0; iz < nz; iz++)
+      local[iz] = cotes[iz];
+    segyarg.cotes.push_back(local);
   }
 
   // Optional printout
@@ -1867,6 +1870,7 @@ int db_segy(const char *filesegy,
     if (option == -2)
     {
       if (st_complete_squeeze_and_stretch(nz, writes)) continue;
+      if (st_complete_squeeze_and_stretch(nz, cotes)) continue;
     }
 
     // Storing

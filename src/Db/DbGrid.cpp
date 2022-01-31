@@ -67,7 +67,7 @@ String DbGrid::toString(const AStringFormat* strfmt) const
   DbStringFormat dsf;
   if (dbfmt != nullptr) dsf = *dbfmt;
 
-  sstr << toTitle(0, "Data Base Characteristics");
+  sstr << toTitle(0, "Data Base Grid Characteristics");
 
   if (dsf.matchResume())
   {
