@@ -60,6 +60,7 @@ ASpaceObject::~ASpaceObject()
 String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
 {
   messerr("ASpaceObject: 'toString' not yet implemented");
+  return "";
 }
 
 /**

@@ -9,7 +9,7 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in different forms:
   * A C++ Library (this repository): [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
-  * A Python Package: [https://github.com/gstlearn/gstlearn/python](https://github.com/gstlearn/gstlearn/python)
+  * A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
   * A R Package: TODO: coming soon (meanwhile, you may use [RGeostats R package](http://cg.ensmp.fr/rgeostats))
 
 ## References
@@ -35,7 +35,7 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
   * [HDF5](https://www.hdfgroup.org/solutions/hdf5/) C & C++ library and header files 1.8 or higher
   
 ## Get the sources
-For getting the sources files, just clone the github repository and create the build directory (out of the sources):
+For getting the sources files, just clone the github repository:
 
 ```sh
 git clone https://github.com/gstlearn/gstlearn.git
@@ -76,7 +76,7 @@ Notes:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-  * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/python)
+  * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/tree/main/python)
   * Only the *shared* library (built by default) is installed.
   * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
     * `-DBoost_ROOT=<path/to/boost>`
