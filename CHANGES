@@ -1,8 +1,14 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.2
+==============
+- Add python package generation
+
 Release 0.1.1
 ==============
+- New OptCustom class
+- New DbGrid class
 - New Neighborhood classes (NeighUnique, NeighBench, NeighImage, NeighMoving replacing Neigh)
 
 Release 0.1.0

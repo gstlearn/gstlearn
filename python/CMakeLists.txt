@@ -2,9 +2,6 @@
 set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Beware : the real package name is the PROJECT_NAME (for better import)
 
-# Create the global target for building python package
-add_custom_target(python_build_package)
-
 ###################################
 # DEPENDENCIES
 
@@ -34,8 +31,13 @@ endif()
 ######################################  
 # DOCUMENTATION
 
-# Generate python documentation (before wrapper)
+# Ensure documentation.i is existing
 # TODO : put documentation.i out of the source
+add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
+  COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
+  COMMENT "Ensure that documentation.i exists")
+
+# Generate python documentation (before wrapper)
 # TODO : Do not regenerate python documentation if doxygen output is up to date
 add_custom_target(python_doc
   COMMAND ${PYTHON_EXECUTABLE}
@@ -48,9 +50,6 @@ add_custom_target(python_doc
 # Tell that we need to generate doxymentation before building python package
 add_dependencies(python_doc doxygen)
 
-# Add python documentation generation target to python build package dependency
-#add_dependencies(python_build_package python_doc)
-
 ######################################
 # WRAPPER GENERATION & BUILD
 
@@ -58,7 +57,7 @@ add_dependencies(python_doc doxygen)
 set(PYTGT python_build)
 
 # Python package interface file
-set(SRC py${PROJECT_NAME}.i)
+set(SRC pygstlearn.i)
 
 # Generation folders
 if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG
@@ -91,6 +90,7 @@ set_property(SOURCE ${SRC} PROPERTY
   DEPENDS
     ${PROJECT_SOURCE_DIR}/swig/swig_exp.i
     ${PROJECT_SOURCE_DIR}/swig/swig_inc.i
+    ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
 )
 
 # SWIG flags
@@ -137,9 +137,6 @@ endif()
 # Link to pybind11 
 target_link_libraries(${PYTGT} PRIVATE pybind11::module) # TODO: use swig_link_library
 
-# Add SWIG target to global python build package dependency
-add_dependencies(python_build_package ${PYTGT})
-
 ########################################
 # PACKAGING (target independent)
 
@@ -184,5 +181,5 @@ add_custom_target(python_install
   VERBATIM
 )
 
-# Tell cmake that python package must be built before installation
-add_dependencies(python_install python_build_package)
+# Tell cmake that python package must be built before installation [python_doc is optional]
+add_dependencies(python_install python_build)

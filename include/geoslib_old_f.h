@@ -47,7 +47,6 @@ class Db;
 class Model;
 class Vario;
 class VarioParam;
-class Neightobedeleted;
 class NeighImage;
 class NeighUnique;
 class Polygons;
