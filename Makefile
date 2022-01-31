@@ -1,16 +1,25 @@
 # This Makefile is just a shortcut to cmake commands for Linux users only
 #
 # Call 'make' with one of this target:
-#  - shared     Build shared library
-#  - static     Build static library
-#  - doxygen    Build doxygen documentation
-#  - build_test Build non-regression tests executables
-#  - test       Execute non-regression tests
-#  - clean      Clean generated files
-#  - clean_all  Clean the build directory
-#  - install    Install gstlearn library
-#  - uninstall  Uninstall gstlearn library
+# 
+# C++ Library:
+#  - shared         Build gstlearn shared library
+#  - static         Build gstlearn static library
+#  - build_tests    Build non-regression tests executables
+#  - check          Execute non-regression tests
+#  - doxygen        Build doxygen documentation [optional]
+#  - install        Install gstlearn shared library [and html doxymentation]
+#  - uninstall      Uninstall gstlearn shared library [and html doxymentation]
 #
+# Python wrapper:
+#  - python_doc     Build python package documentation [optional]
+#  - python_build   Build python package [and its documentation]
+#  - python_install Install python package [and its documentation]
+#
+# Clean:
+#  - clean          Clean generated files
+#  - clean_all      Clean the build directory
+
 # You can use the following variables:
 #
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
@@ -18,7 +27,7 @@
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build)
 #
 
-.PHONY: all cmake static shared build_test test doxygen clean clean_all
+.PHONY: all cmake static shared build_tests check doxygen install uninstall
 
 ifeq ($(DEBUG), 1)
   FLAVOR = Debug
@@ -34,7 +43,7 @@ ifdef N_PROC
   N_PROC_OPT = -j$(N_PROC)
 endif
 
-all: install
+all: shared install
 
 cmake:
 	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -B$(BUILD_DIR) -H.
@@ -45,22 +54,37 @@ static: cmake
 shared: cmake
 	@cmake --build $(BUILD_DIR) --target shared -- --no-print-directory $(N_PROC_OPT)
 
-build_test: shared
+build_tests: cmake
 	@cmake --build $(BUILD_DIR) --target build_test -- --no-print-directory $(N_PROC_OPT)
 
-test: build_test
-	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target test -- --no-print-directory $(N_PROC_OPT)
+check: cmake
+	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- --no-print-directory $(N_PROC_OPT)
 
 doxygen: cmake
 	@cmake --build $(BUILD_DIR) --target doxygen -- --no-print-directory $(N_PROC_OPT)
 
-# TODO : I would like to install only static (but find_package(gstlearn) requires both!
-# TODO : doxygen is always executed even if up-to-date
-install: static shared doxygen
+install: cmake
 	@cmake --build $(BUILD_DIR) --target install -- --no-print-directory $(N_PROC_OPT)
 
 uninstall: 
 	@cmake --build $(BUILD_DIR) --target uninstall -- --no-print-directory $(N_PROC_OPT)
+
+
+
+.PHONY: python_doc python_build python_install
+
+python_doc: cmake
+	@cmake --build $(BUILD_DIR) --target python_doc -- --no-print-directory $(N_PROC_OPT)
+
+python_build: cmake
+	@cmake --build $(BUILD_DIR) --target python_build -- --no-print-directory $(N_PROC_OPT)
+
+python_install: cmake
+	@cmake --build $(BUILD_DIR) --target python_install -- --no-print-directory $(N_PROC_OPT)
+
+
+
+.PHONY: clean clean_all
 
 clean: 
 	@cmake --build $(BUILD_DIR) --target clean -- --no-print-directory $(N_PROC_OPT)

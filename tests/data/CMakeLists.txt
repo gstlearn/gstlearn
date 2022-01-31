@@ -4,10 +4,12 @@ set(TEST_SOURCES
   testpgs.cpp
   testvar.cpp)
 
-# Prepare executable targets list
-set(TARGETS_EXE "")
+# Generation folders
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-# For each test executable
+# Compile each test executable
+set(TARGETS_EXE "")
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Retrieve source file name without extension (will become executable name)
     get_filename_component(TEST_NAME ${TEST_SOURCE_FILE} NAME_WE)
@@ -15,10 +17,10 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${TEST_SOURCE_FILE})
-    # Link gstlearn to each test
-    target_link_libraries(${TEST_NAME} PRIVATE shared)
-    # Trigger the build of the test with the target build_test
-    add_dependencies(build_test ${TEST_NAME})
+    # Link each test to shared library
+    target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
+    # Trigger the build of the test with the target build_tests
+    add_dependencies(build_tests ${TEST_NAME})
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
 # Display test output in case of failure
@@ -53,4 +55,14 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     endforeach(TEST_DIR ${TEST_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
-
+if (WIN32)
+  # Need DLL location before running the test
+  add_custom_target(check_data
+    COMMAND set PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}::shared>\;%PATH%  # Do not forget \; !!
+    COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
+  )
+else()
+  add_custom_target(check_data
+    COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
+  )
+endif()

@@ -29,8 +29,7 @@
 class Polygons;
 
 /**
- * Class containing the Data Set.
- * It can be organized as a set of Isolated Points or as a regular Grid
+ * Class containing a Data Set organized as a regular Grid
  */
 class GSTLEARN_EXPORT DbGrid: public Db
 {

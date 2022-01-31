@@ -1,6 +1,8 @@
+# TODO : Do not regenerate doxymentation if nothing has changed in the source code
 find_package(Doxygen REQUIRED)
 
 # Configure doxyfile
+set(DOXYGEN_OUTPUT_DIRECTORY doxygen)
 set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox")
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
@@ -26,14 +28,4 @@ set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or
 # Add target for generating the doxymentation
 doxygen_add_docs(doxygen
                  ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/src
-                 COMMENT "Generate man pages")
-
-# Install html and xml directories (optional)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/html/                    # HTML files from build folder
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/html # in DESTINATION/share/gstlearn/doxygen
-        OPTIONAL
-)
-install(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/xml/                     # XML files from build folder
-        DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/gstlearn/doxygen/xml  # in DESTINATION/share/gstlearn/doxygen
-        OPTIONAL
-)
+                 COMMENT "Generate doxygen documentation")

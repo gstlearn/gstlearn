@@ -14,7 +14,6 @@
 #include "Neigh/ANeighParam.hpp"
 #include "geoslib_define.h"
 
-class Neightobedeleted;
 class Db;
 
 class GSTLEARN_EXPORT NeighWork

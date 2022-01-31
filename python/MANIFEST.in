@@ -1,0 +1,14 @@
+include CMakeLists.txt
+include requirements.txt
+include README.md
+include LICENSE
+include setup.py
+include swig/doxy2swig.py
+include swig/LICENSE.doxy2swig
+include swig/pygstlearn.i
+graft tests
+graft data
+graft demo
+graft gstlearn
+
+

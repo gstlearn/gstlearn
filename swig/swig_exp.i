@@ -5,8 +5,10 @@ class IClonable{};
 //%ignore *::clone;
 
 %include stl.i
-%include std_vector.i
+// Cast strings into native type of the target language
 %include std_string.i
+// Cast vectors of integers into native type of the target language
+%include std_vector.i
 
 // Keep order in the file
 %template(VectorDouble)         std::vector< double >;

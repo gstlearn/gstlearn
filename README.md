@@ -9,7 +9,7 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in different forms:
   * A C++ Library (this repository): [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
-  * A Python Package: [https://github.com/gstlearn/pygstlearn](https://github.com/gstlearn/pygstlearn)
+  * A Python Package: [https://github.com/gstlearn/gstlearn/python](https://github.com/gstlearn/gstlearn/python)
   * A R Package: TODO: coming soon (meanwhile, you may use [RGeostats R package](http://cg.ensmp.fr/rgeostats))
 
 ## References
@@ -20,7 +20,7 @@ The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www
 When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
 
 ## Requirements
-This package has been successfully tested with Ubuntu 16.04 LTS, Ubuntu 18.04 LTS and Windows 10 (MacOS: not tested).
+This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
   * [Git](https://git-scm.com/downloads) client
   * [CMake](https://cmake.org/download) tool 3.19 or higher
@@ -45,44 +45,45 @@ Notes:
   * In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn`)
 
 ## Library compilation & installation
-For compiling and installing the *gstlearn* C++ Library, execute the following instructions (example given with release version and doxygen documentation generation):
-#### GCC, Clang, MinGW, ...
+For compiling and installing the *gstlearn* C++ shared Library, execute the following instructions. Please note that you can choose another destination folder (currently named *build*). 
+### GCC, Clang, MinGW, ...
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
-cmake --build build --target static
 cmake --build build --target shared
-cmake --build build --target doxygen
 cmake --build build --target install
 ```
 or for those who prefer a single command line
 ```
-mkdir -p build & cd build & cmake .. & make all install
+mkdir -p build & cd build & cmake .. & make shared & make install
 ```
 or even faster
 ```
 make
 ```
+Note:
+  * Using MingGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
 
-#### Microsoft Visual Studio, XCode, ...
+### Microsoft Visual Studio, XCode, ...
 ```sh
 cmake -Bbuild -H.
-cmake --build build --target static --config Release
 cmake --build build --target shared --config Release
-cmake --build build --target doxygen
 cmake --build build --target install --config Release
 ```
+
+### Important Notes
 Notes:
   * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
   * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-  * The *static* version of the library is mandatory for creating [pygstlearn package](https://github.com/gstlearn/pygstlearn)
+  * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/python)
+  * Only the *shared* library (built by default) is installed.
   * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
     * `-DBoost_ROOT=<path/to/boost>`
     * `-DHDF5_ROOT=<path/to/hdf5>`
 
 ## Usage
-TODO: Instructions will come soon
+Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
 
 ## Required tools installation
 ### Linux (Ubuntu):
@@ -122,6 +123,7 @@ Download and install the following tools:
 Notes:
   * You must restart your computer after installing these requirements
   * The *Path* environment variable must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
+  * Standard HDF5 library is provided for Microsoft Visual Studio only. If you want to use another compiler (i.e. MingGW, please contact us)
 
 ## Development
 ### Non-regression tests
@@ -129,19 +131,24 @@ Notes:
 To launch non-regression tests, execute the following command:
 
 ```
-cmake --build build --target build_test
-cmake --build build --target test
+cmake --build build --target build_tests -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target check
 ```
+or for those who prefer a single command line
+```
+make check
+```
+
 #### Microsoft Visual Studio, XCode, ...
 To build and launch non-regression tests, execute the following commands:
 
 ```
-cmake --build build --target build_test
+cmake --build build --target build_tests --config Release
 cd build
 ctest -C Release
 ```
 Notes:
-  * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above (provided that *Debug* configuration has been built - see above)
+  * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above
   
 ### Clean
 To clean (partially) the build, execute the following command:
@@ -159,7 +166,7 @@ cmake --build build --target uninstall
 ```
 
 ### Generate the documentation
-To (re)generate the documentation using doxygen, execute the command:
+The doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
 ```
 cmake --build build --target doxygen
@@ -174,4 +181,4 @@ firefox build/doxygen/html/index.html
 
 ## License
 MIT
-2021 Team gstlearn
+2022 Team gstlearn

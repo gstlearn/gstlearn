@@ -1,15 +1,3 @@
-#!/bin/csh -f
-#
-# Copy from mimas to uranus
-#
-set MACHINE = "callisto.fontainebleau.ensmp.fr"
-set CURPWD  = `pwd`
-set CURFROM = "/home/drenard"
-set CURTO   = "/geo/donnees/drenard/BACKUP"
-set OWNER   = "drenard"
-echo "Updating $CURFROM to $CURTO"
-
-rsync -az --exclude '.*' --exclude '*~' --exclude 'bibli' --exclude 'Bookmarks' --exclude 'Bureau' --exclude 'Documents' --exclude 'Images' --exclude 'Musique' --exclude 'MyRSpace' --exclude 'Projects' --exclude 'Photo' --exclude 'Public' --exclude 'RGeostats' --exclude 'Mod*les' --exclude 'T*chargements' --exclude 'Vid*os' --exclude 'VirtualBox*' ${CURFROM}/ ${OWNER}@${MACHINE}:${CURTO}
 gaussian
 poisson
 voronoi

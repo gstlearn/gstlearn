@@ -30,8 +30,7 @@
 class Polygons;
 
 /**
- * Class containing the Data Set.
- * It can be organized as a set of Isolated Points or as a regular Grid
+ * Class containing a Data Set organized as a set of Isolated Points.
  */
 class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public IClonable
 {

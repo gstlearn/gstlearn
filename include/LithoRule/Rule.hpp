@@ -117,8 +117,8 @@ protected:
   int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
-  virtual int _deserializeSpecific(FILE* file) { return 0; }
-  virtual void _serializeSpecific(FILE* file) const { return; }
+  virtual int _deserializeSpecific(FILE* /*file*/) { return 0; }
+  virtual void _serializeSpecific(FILE* /*file*/) const { return; }
   virtual int _deserialize(FILE* file, bool verbose = false) override;
   virtual int _serialize(FILE* file, bool verbose = false) const override;
 

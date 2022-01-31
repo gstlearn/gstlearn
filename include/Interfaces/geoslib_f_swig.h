@@ -7,7 +7,6 @@
 #include "Basic/Vector.hpp"
 #include "geoslib_enum.h"
 
-class Neightobedeleted;
 class Db;
 class Model;
 

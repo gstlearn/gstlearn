@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "math.h"
 #include "geoslib_f.h"
+#include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -17,6 +17,7 @@
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
+#include "math.h"
 
 VectorInt ut_vector_int(int nval, int value)
 {
@@ -381,7 +382,7 @@ void ut_vector_sum(const VectorDouble &vec1,
   }
 }
 
-VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
+GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);
   for (int i = 0; i < n; i++)
