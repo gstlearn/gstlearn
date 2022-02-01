@@ -36,8 +36,9 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     add_test(NAME ${TARGET_EXE} COMMAND ${TARGET_EXE})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
-if (WIN32)
-  # Need DLL location before running the test
+# Look parent CMakeLists for MY_CTEST_COMMAND definition
+if (MSVC)
+  # Need C++ shared library location in the PATH before running the test
   add_custom_target(check_cpp
     COMMAND set PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}::shared>\;%PATH%  # Do not forget \; !!
     COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}

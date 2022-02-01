@@ -131,7 +131,7 @@ Notes:
 To launch non-regression tests, execute the following command:
 
 ```
-cmake --build build --target build_tests -DCMAKE_BUILD_TYPE=Release
+cmake --build build --target build_tests
 cmake --build build --target check
 ```
 or for those who prefer a single command line
@@ -144,11 +144,11 @@ To build and launch non-regression tests, execute the following commands:
 
 ```
 cmake --build build --target build_tests --config Release
-cd build
-ctest -C Release
+cmake --build build --target check --config Release
 ```
 Notes:
   * If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above
+  * The *check* target brings some required runtime customization, so do not use the standard *ctest* command
   
 ### Clean
 To clean (partially) the build, execute the following command:

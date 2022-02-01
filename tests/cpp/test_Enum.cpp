@@ -19,6 +19,12 @@
 #define PRINT2_THAT(X,Y) std::cout << #X << "|" << #Y << std::endl; 
 #define PRINT2_ALL_THAT(...) REPEAT2(PRINT2_THAT, __VA_ARGS__)
 
+// Under Windows, prevent from declspec(import) next enums
+#ifdef GSTLEARN_EXPORT
+  #undef GSTLEARN_EXPORT
+  #define GSTLEARN_EXPORT
+#endif
+
 // This must be put in header files (hpp)
 #define ENUM_FRUIT Fruit, APPLE,\
                    APPLE,  1, "Apple is the best",\
@@ -41,6 +47,7 @@ ENUM_DECLARE(ENUM_DAY)
 ENUM_DEFINE(ENUM_FRUIT)
 
 ENUM_DEFINE(ENUM_DAY)
+
 
 
 int main()

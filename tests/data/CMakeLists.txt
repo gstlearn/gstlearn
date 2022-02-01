@@ -50,13 +50,14 @@ foreach(TARGET_EXE ${TARGETS_EXE})
                  WORKING_DIRECTORY ${TEST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND diff ${TEST_DIR}/Result.ref ${TEST_DIR}/Result.out
+                 COMMAND git diff --ignore-cr-at-eol ${TEST_DIR}/Result.ref ${TEST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DIR})
     endforeach(TEST_DIR ${TEST_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
-if (WIN32)
-  # Need DLL location before running the test
+ # Look parent CMakeLists for MY_CTEST_COMMAND definition
+if (MSVC)
+  # Need C++ shared library location in the PATH before running the test
   add_custom_target(check_data
     COMMAND set PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}::shared>\;%PATH%  # Do not forget \; !!
     COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}

@@ -22,9 +22,9 @@
 #include <vector>
 #include <random>
 
-
-#define __USE_MATH_DEFINES
-#include <cmath>
+#ifndef M_PI // Under Visual, this is not defined
+  const double M_PI = 3.14159265358979323846;
+#endif
 
 double fa(double x,double y,double a,double b)
 {
