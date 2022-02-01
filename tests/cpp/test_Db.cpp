@@ -70,9 +70,7 @@ int main(int /*argc*/, char */*argv*/[])
   ut_vector_display("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
-  DbStringFormat dbfmt;
-  dbfmt.setParams(FLAG_STATS);
-  dbfmt.setNames({"Sel*"});
+  DbStringFormat dbfmt(FLAG_STATS,{"Sel*"});
   grid->display(&dbfmt);
 
   delete grid;

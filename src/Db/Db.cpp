@@ -2698,7 +2698,7 @@ String Db::toString(const AStringFormat* strfmt) const
   if (dsf.matchResume())
     sstr << _summaryString();
 
-  sstr << _toStringCommon(strfmt);
+  sstr << _toStringCommon(&dsf);
 
   return sstr.str();
 }

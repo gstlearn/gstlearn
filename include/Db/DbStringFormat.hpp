@@ -30,7 +30,7 @@ typedef enum
 class GSTLEARN_EXPORT DbStringFormat: public AStringFormat
 {
 public:
-  DbStringFormat(unsigned char params = FLAG_RESUME,
+  DbStringFormat(unsigned char params = FLAG_RESUME | FLAG_VARS,
                  const VectorString& names = VectorString(),
                  const VectorInt& cols = VectorInt(),
                  bool flagSel = true);
