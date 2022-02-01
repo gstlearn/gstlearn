@@ -55,7 +55,7 @@ shared: cmake
 	@cmake --build $(BUILD_DIR) --target shared -- --no-print-directory $(N_PROC_OPT)
 
 build_tests: cmake
-	@cmake --build $(BUILD_DIR) --target build_test -- --no-print-directory $(N_PROC_OPT)
+	@cmake --build $(BUILD_DIR) --target build_tests -- --no-print-directory $(N_PROC_OPT)
 
 check: cmake
 	@CTEST_OUTPUT_ON_FAILURE=1 cmake --build $(BUILD_DIR) --target check -- --no-print-directory $(N_PROC_OPT)
