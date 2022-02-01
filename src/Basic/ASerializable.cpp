@@ -501,6 +501,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 
 /**
  * This method returns the absolute path to a Test Data
+ * This can only be used in non-regression test (NOT in any Python or R stand-alone script)
  * @return
  */
 String ASerializable::getTestData(const String& subdir, const String& filename)
@@ -604,9 +605,22 @@ void ASerializable::setContainerName(bool useDefault,
   }
 }
 
+/**
+ * This enables un-defining the Container Name. Then files will be saved on current Directory
+ */
+void ASerializable::unsetContainerName()
+{
+  myContainerName.erase();
+}
+
 void ASerializable::setPrefixName(const String& prefixName)
 {
   myPrefixName = prefixName;
+}
+
+void ASerializable::unsetPrefixName(void)
+{
+  myPrefixName.erase();
 }
 
 const String& ASerializable::getContainerName()

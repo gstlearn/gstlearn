@@ -32,7 +32,9 @@ public:
   static void setContainerName(bool useDefault,
                                const String& containerName = String(),
                                bool verbose = false);
+  static void unsetContainerName();
   static void setPrefixName(const String& prefixName);
+  static void unsetPrefixName();
   static const String& getContainerName();
   static const String& getPrefixName();
 

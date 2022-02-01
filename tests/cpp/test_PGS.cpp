@@ -46,8 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
   Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
-  DbStringFormat dbfmt;
-  dbfmt.setParams(FLAG_STATS);
+  DbStringFormat dbfmt(FLAG_STATS);
   db->display(&dbfmt);
 
   DbGrid* dbprop = DbGrid::create({100,100},{0.01,0.01});

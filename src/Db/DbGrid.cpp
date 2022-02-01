@@ -75,7 +75,7 @@ String DbGrid::toString(const AStringFormat* strfmt) const
     sstr << _grid.toString();
   }
 
-  sstr << _toStringCommon(strfmt);
+  sstr << _toStringCommon(&dsf);
 
   return sstr.str();
 }

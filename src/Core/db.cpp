@@ -1051,8 +1051,7 @@ void db_print(Db *db,
   if (flag_extend) params |= FLAG_EXTEND;
   if (flag_stats)  params |= FLAG_STATS;
   if (flag_array)  params |= FLAG_ARRAY;
-  DbStringFormat dbfmt;
-  dbfmt.setParams(params);
+  DbStringFormat dbfmt(params);
   dbfmt.setCols(ut_ivector_set(ranks, nrank));
   db->display(&dbfmt);
 
