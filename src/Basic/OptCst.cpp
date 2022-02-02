@@ -18,29 +18,44 @@
 #include <sstream>
 #include <iomanip>
 #include <map>
-
-std::map<const ECst, double> OptCst::_cst = std::map<const ECst, double>({
-                                       { ECst::NTCAR,  10. },
-                                       { ECst::NTDEC,   3. },
-                                       { ECst::NTROW,   7. },
-                                       { ECst::NTCOL,   7. },
-                                       { ECst::NTBATCH, 7. },
-                                       { ECst::NTNAME, 12. },
-                                       { ECst::NTRANK,  3. },
-                                       { ECst::NPROC,   0. },
-                                       { ECst::LOCMOD,  1. },
-                                       { ECst::LOCNEW,  0. },
-                                       { ECst::TOLINV,  1.e-20 },
-                                       { ECst::TOLGEN,  1.e-20 },
-                                       { ECst::EPSMAT,  2.3e-16 },
-                                       { ECst::EPSSVD,  1.e-5 }
-});
+/* This doesn't work with MinGw / G++ 8.3
+std::map<const ECst, double> OptCst::_cst =
+ {{ ECst::NTCAR,  10. },
+  { ECst::NTDEC,   3. },
+  { ECst::NTROW,   7. },
+  { ECst::NTCOL,   7. },
+  { ECst::NTBATCH, 7. },
+  { ECst::NTNAME, 12. },
+  { ECst::NTRANK,  3. },
+  { ECst::NPROC,   0. },
+  { ECst::LOCMOD,  1. },
+  { ECst::LOCNEW,  0. },
+  { ECst::TOLINV,  1.e-20 },
+  { ECst::TOLGEN,  1.e-20 },
+  { ECst::EPSMAT,  2.3e-16 },
+  { ECst::EPSSVD,  1.e-5 }};
+*/
+std::map<int, double> OptCst::_cst =
+ {{ ECst::E_NTCAR,  10. },
+  { ECst::E_NTDEC,   3. },
+  { ECst::E_NTROW,   7. },
+  { ECst::E_NTCOL,   7. },
+  { ECst::E_NTBATCH, 7. },
+  { ECst::E_NTNAME, 12. },
+  { ECst::E_NTRANK,  3. },
+  { ECst::E_NPROC,   0. },
+  { ECst::E_LOCMOD,  1. },
+  { ECst::E_LOCNEW,  0. },
+  { ECst::E_TOLINV,  1.e-20 },
+  { ECst::E_TOLGEN,  1.e-20 },
+  { ECst::E_EPSMAT,  2.3e-16 },
+  { ECst::E_EPSSVD,  1.e-5 }};
 
 double OptCst::query(const ECst& option)
 {
   for (auto e: _cst)
   {
-    if (e.first == option) return e.second;
+    if (e.first == option.getValue()) return e.second;
   }
   return TEST;
 }
@@ -49,7 +64,7 @@ double OptCst::queryByKey(const String& name)
 {
   for (auto e: _cst)
   {
-    if (e.first.getKey() == toUpper(name))
+    if (ECst::fromValue(e.first).getKey() == toUpper(name))
       return e.second;
   }
   return TEST;
@@ -60,7 +75,7 @@ void OptCst::define(const ECst& option, double value)
 {
   for (auto &e: _cst)
   {
-    if (e.first == option)
+    if (e.first == option.getValue())
     {
       e.second = value;
       return;
@@ -72,7 +87,7 @@ void OptCst::defineByKey(const String& name, double value)
 {
   for (auto &e: _cst)
   {
-    if (e.first.getKey() == toUpper(name))
+    if (ECst::fromValue(e.first).getKey() == toUpper(name))
     {
       e.second = value;
       return;
@@ -88,12 +103,13 @@ void OptCst::display()
 
   for (auto e: _cst)
   {
-    sstr << std::setw(50) << e.first.getDescr() <<
-        " [" << std::setw(7) << e.first.getKey() << "]" << " : " <<
+    ECst ec = ECst::fromValue(e.first);
+    sstr << std::setw(50) << ec.getDescr() <<
+        " [" << std::setw(7) << ec.getKey() << "]" << " : " <<
         e.second << std::endl;
   }
 
-  sstr << "Use 'define' to modify previous values" << std::endl;
+  sstr << "Use 'OptCst::define' to modify previous values" << std::endl;
 
   messageFlush(sstr.str());
 }

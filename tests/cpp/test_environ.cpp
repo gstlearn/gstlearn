@@ -20,7 +20,7 @@ int main(int argc,char **argv)
   // Management of OptCst
   mestitle(0,"Checking 'OptCst' functionalities");
   VectorDouble vect = ut_vector_simulate_gaussian(20);
-
+  message("Vector size is: %d\n", vect.size());
   OptCst::display();
   message("\n");
   ut_vector_display("Vector Display (initial)", vect);

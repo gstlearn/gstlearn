@@ -483,17 +483,18 @@ String ASerializable::getHomeDirectory(const String& sub)
 {
   // https://stackoverflow.com/a/2552458
 #if defined(_WIN32) || defined(_WIN64)
-  char* HomeDirectory = gslGetEnv("HOMEDIR");
-  const char* Homepath = gslGetEnv("HOMEPATH");
-  size_t size = strlen(HomeDirectory) + strlen(Homepath) + 1;
-  HomeDirectory = static_cast<char *>(malloc(size));
-  gslStrcat(HomeDirectory, Homepath);
+  const char* home_drive = gslGetEnv("HOMEDRIVE");
+  const char* home_path = gslGetEnv("HOMEPATH");
+  size_t size = strlen(home_drive) + strlen(home_path) + 1;
+  char* home_dir = static_cast<char *>(malloc(size));
+  gslStrcpy(home_dir, home_drive);
+  gslStrcat(home_dir, home_path);
 #else
-  const char* HomeDirectory = gslGetEnv("HOME");
+  char* home_dir = gslGetEnv("HOME");
 #endif
   std::stringstream sstr;
   // TODO : Cross-platform way to build file path (use boost ?)
-  sstr << String(HomeDirectory);
+  sstr << String(home_dir);
   if (!sub.empty())
     sstr << "/" << sub;
   return sstr.str();
