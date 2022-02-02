@@ -9,127 +9,191 @@ import numpy as np
 
 
 # In[2]:
-def is_tuple_str(mytuple):
-    """Check is a tuple (or iterable) contains only strings"""
-    all_str = True
-    if not(isinstance(mytuple,(tuple, list, np.ndarray))):
-        all_str = False
+    
+def is_list_type(mylist, types):
+    """Check if an input is an iterable (tuple, list or numpy array) containing
+       elements of only a given type"""
+    all_type = True
+    if not(isinstance(mylist,(tuple, list, np.ndarray))):
+        all_type = False
     i = 0
-    while all_str and i<len(mytuple):
-        if not(isinstance(mytuple[i], (str, np.str_))):
-               all_str = False
+    while all_type and i<len(mylist):
+        if not(isinstance(mylist[i], types)):
+               all_type = False
         i += 1
-    return all_str
+    return all_type
 
-def getitem(self,name):
+def check_nrows(db, nrows):
+    """Check if a number of rows matches with the number of samples of a Db, and returns the flag
+    for useSel (whether it matches the number of active samples or the total number of samples)"""
+    if nrows == db.getActiveSampleNumber() :
+        useSel = True
+    elif nrows == db.getSampleNumber() or db.getSampleNumber()==0:
+        useSel = False
+    else:
+        if db.getActiveSampleNumber() != db.getSampleNumber():
+            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+                str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
+        else :
+            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+                  str(db.getActiveSampleNumber()))
+    return useSel
+
+def findColumnNames(self, columns):
+    """Extract names of columns from Db, given different possible types of arguments"""
+    if isinstance(columns, str) or is_list_type(columns, (str, np.str_)): #get variable(s) by name
+        names = self.getNames(np.atleast_1d(columns))
+    
+    elif isinstance(columns, gl.ELoc): #get variable(s) by locator
+        names = self.getNamesByLocator(columns)
+    
+    elif is_list_type(columns, gl.ELoc):
+        if not(len(columns)) == 1:
+            raise ValueError("The input for columns should not be a list of several Locators")
+        names = self.getNamesByLocator(columns[0])
+     
+    elif isinstance(columns, (int, np.int_)):
+        names = self.getNameByColumn(columns)
+    
+    elif isinstance(columns, slice):
+        Nmax = self.getFieldNumber()
+        names = []
+        for i in range(Nmax)[columns]:
+            names.append(self.getNameByColumn(i))
+
+    elif is_list_type(columns, (int, np.int_)):
+        names = []
+        Nfields = self.getFieldNumber()
+        for i in columns:
+            if i >= Nfields:
+                print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")
+            else:
+                names.append(self.getNameByColumn(int(i)))
+        
+    else:
+        raise ValueError(f"Argument for columns of wrong type: {type(columns)}")
+        
+    return np.atleast_1d(names)
+
+def getitem(self,arg):
     """
-    Use Db[name]. Returns the arrays of the fields corresponding to input 'name'.
+    Extract data from a Db. Use Db[arg]
 
     Parameters
     ----------
-    name : (str or list of str) Name or list of names to be extracted;
-           (locator: instance of gstlearn.Eloc) Locator to be extracted;
-           (indices) Used as for a numpy array: indices of fields to be extracted,
-                     it also works with 2D indices to extract specific samples
-
+    arg is (rows, columns) or columns
+    rows : (optional) int, list of int, or slice. Which rows (samples) to extract.
+    columns: str or list of str. Names of the variables to extract.
+             int, list of int, or slice. Indices of the variables to extract.
+             gstlearn.ELoc. Locator of the variables to extract.
+             
     Returns
     -------
     numpy.ndarray
-        Array of shape (nsamples, nvar) of the extracted data.
-
-    """
-    
+        2D array of shape (nrows, nvars) of the extracted data.
+        
+    Examples
+    --------
+    db["var"] or db[:,"var"] extracts the variable named "var"
+    db[5:10,(2,3)] extracts the rows 5 to 9 of the variables of index 2 and 3 (array of shape (5,2))
+    db[gl.ELoc.Z] extracts all the variables located with Z.
+    """    
     if self.useSel:
         nrows = self.getActiveSampleNumber()
     else:
         nrows = self.getSampleNumber()
     
-    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
-        rows = name[0]
-        columns = name[1]
+    if isinstance(arg, tuple) and isinstance(arg[0], (int,slice)): # 2D (rows, columns)
+        rows = arg[0]
+        columns = arg[1]
     else:
         rows = slice(None,None,None) # extract all rows
-        columns = name
+        columns = arg
     
     # extract columns
-    if isinstance(columns, str) or is_tuple_str(columns): #get variable(s) by name
-        names = np.atleast_1d(columns)
-        nbvar = len(self.getNames(columns))
-        temp = np.array(self.getFields(names, self.useSel))
-    
-    elif isinstance(columns, gl.ELoc): #get variable(s) by locator
-        temp = np.array(self.getFieldsByLocator(columns, self.useSel))
-        nbvar = self.getLocatorNumber(columns)
-        
-    else: #indices or slice (column indices)
-        array = np.array(self.getAllFields(useSel=self.useSel))
-        nbvar_tot = self.getFieldNumber()
-        array = np.reshape(array, (nbvar_tot,nrows))
-        temp = np.atleast_2d(array[columns])
-        nbvar = temp.shape[0]
-        
+    ColNames = findColumnNames(self, columns)
+    nbvar = len(ColNames)
+    temp = np.array(self.getFields(ColNames, self.useSel))        
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
     temp = temp[rows]
         
-    temp[temp == gl.TEST] = None
+    temp[temp == gl.TEST] = np.nan
     return temp
 
 
+# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
+# corresponding variables will be replaced and not added.
 
 def setitem(self,name,tab):
     
     if len(tab.shape) == 1 :
-        temptab = np.atleast_2d(tab).T
-    else :
-        temptab = tab
+        tab = np.atleast_2d(tab).T
+    nrows, nvars = tab.shape
+    tab[np.isnan(tab)] = gl.TEST
     
-    nrows = tab.shape[0]
-    
-    if nrows == self.getActiveSampleNumber() :
-        useSel = True
-    elif nrows == self.getSampleNumber() or self.getSampleNumber()==0:
-        useSel = False
-    else :
-        if self.getActiveSampleNumber() != self.getSampleNumber():
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
-                str(self.getActiveSampleNumber()) + " or " + str(self.getSampleNumber()))
-        else :
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
-                  str(self.getActiveSampleNumber()))
+    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
+        selec_rows = True
+        rows = name[0]
+        columns = name[1]
+    else:
+        selec_rows = False
+        columns = name
             
-    if isinstance(name, (str, np.str_)) :
-     	names = self.getNames([name])
-    
-     	if len(names) == 0 :
-         	names = [name]
+    arr_columns = np.atleast_1d(columns)
+    ColNames = findColumnNames(self, columns) #existing names
         
-     	if len(names) == 1 and temptab.shape[1] > 1:
-         	names = gl.generateMultipleNames(name,temptab.shape[1])
-    elif isinstance(name, (list,tuple,np.ndarray)) :
-     	names = name
-    else :
-        raise TypeError("Type of name should be in: 'str', 'numpy.str_', 'list', 'tuple', 'numpy.ndarray'")
+    if len(ColNames) == nvars: # modify existing variables only
+        new_names = ColNames
+     
+    elif len(arr_columns) == nvars and is_list_type(arr_columns, (str,np.str_)):
+        new_names = arr_columns
+        
+    elif isinstance(columns, (str,np.str_)) and nvars > 1 and len(ColNames)==0: # create new variables from a unique name
+        new_names = gl.generateMultipleNames(columns, nvars)
+        
+    else:
+        raise ValueError(f"Wrong type or length of input ({columns}): the input should correspond"
+                         f" either to a number of existing variables ({len(ColNames)}) equal to the"
+                         f" number of columns of the table (nvar={nvars}), or should be a name or "
+                         f"list of names of length nvar={nvars} in order to create new variables.")
     
-    vectD = gl.VectorDouble()
+    for i,name in enumerate(new_names):
+        
+        ExistingNames = findColumnNames(self, name)
+        if len(ExistingNames) > 1:
+            raise ValueError(f"There is more than one variable name corresponding to '{name}' "
+                             f"in the Db: {ExistingNames}")
+            
+        if selec_rows:
+            useSel = self.useSel
+            if len(ExistingNames) == 0: # create new variable
+                if useSel:
+                    nrows_tot = self.getActiveSampleNumber()
+                else:
+                    nrows_tot = self.getSampleNumber()
+                tab_i = np.ones(nrows_tot)*gl.TEST # NaNs outside of target rows
+            elif len(ExistingNames) == 1: # modify existing variable
+                tab_i = self[name]
+                
+            tab_i = np.squeeze(tab_i)
+            tab_i[rows] = tab[:,i]
+            
+        else:
+            tab_i = tab[:,i]
+            useSel = check_nrows(self,nrows)
+            
+        VectD = np.double(tab_i)
+        self.setField(VectD, name, useSel)
+        
+    return
 
-    for j in range(temptab.shape[1]):
-        vectD.resize(0)
-        for i in range(nrows):       
-            u = np.double(temptab[i,j])
-            if u is None : 
-                u = gl.TEST
-            vectD.push_back(u)
-            
-        self.setField(vectD,names[j],useSel)
-        
 setattr(gl.Db,"useSel",False)    
     
 setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
-
 
 # # Example
 
@@ -280,6 +344,65 @@ if u>1e-7:
     raise Exception("Problem with creation of several new variables from several names")
 
 # In[18]:
+    
+a = gl.Db()
+a["var"] = np.random.normal(size=(12,5))
+a.setLocator(("var-1","var-2"), gl.ELoc.Z)
+
+u = a[::2,gl.ELoc.Z] - np.array([[-0.80536652, -1.72766949],
+       [-1.29408532, -1.03878821],
+       [-0.77270871,  0.79486267],
+       [ 0.46843912, -0.83115498],
+       [ 1.25523737, -0.68886898],
+       [ 1.15020554, -1.26735205]])
+if np.any(u>1e-7):
+    raise Exception("Problem with get from Locator and specific rows")
+
+u = a[2:4] - a[[2,3]]
+if np.any(u>1e-7):
+    raise Exception("Problem with get indices or slice which give different results")
+
+try:
+    a["var-1"] = np.zeros((12,3))
+except ValueError:
+    None
+else:
+    raise Exception("This should raise an error (number of existing variables"
+                    " does not match the number of columns in the table)")
+        
+a[::2,"var-1"] = np.ones(12)[::2]
+a[::2,"var-6"] = np.ones(12)[::2]
+a[1::2,gl.ELoc.Z] = np.zeros((6,2))
+
+try:
+    a[gl.ELoc.Z] = np.random.rand(12,3)
+except ValueError as ve:
+    if ve.__str__()[:29] != "Wrong type or length of input":
+        raise Exception("Wrong error is returned")
+else:
+    raise Exception("This should raise an error (number of existing variables"
+                    " does not match the number of columns in the table)")
+
+
+try:
+    a[gl.ELoc.X] = np.random.rand(12)
+except ValueError as ve:
+    if ve.__str__()[:29] != "Wrong type or length of input":
+        raise Exception("Wrong error is returned")
+else:
+    raise Exception("This should raise an error (setting an array to a non-existing locator)")
+
+a[1] = np.random.rand(12)
+a[0:3,(1,2)] = np.random.rand(3,2)
+
+a[(1,2)] # row 1 variable 2
+a[[1,2]] # variables 1 and 2, all rows
+#a[[1,1]] # que faire ?
+
+a[:10,2:4] = np.ones((10,2))
+
+
+# In[19]
 
 print("Everything is ok")
 
