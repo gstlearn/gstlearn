@@ -16,4 +16,6 @@ add_subdirectory(data)
 add_subdirectory(cpp)
 add_subdirectory(inter)
 
+# TODO : tests are executed for each directory but mixed
+# TODO : there is two reports separated
 add_dependencies(check check_cpp check_data)
