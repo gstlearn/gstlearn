@@ -3012,8 +3012,8 @@ static DbGrid *st_image_build(ANeighParam *neighparam, int nvar)
 
   /* Set the locators */
 
-  dbaux->setLocatorsByAttribute(nvar, 0, ELoc::Z);
-  dbaux->setLocatorsByAttribute(ndim, nvar, ELoc::X);
+  dbaux->setLocatorsByUID(nvar, 0, ELoc::Z);
+  dbaux->setLocatorsByUID(ndim, nvar, ELoc::X);
   if (db_grid_define_coordinates(dbaux)) goto label_end;
 
   /* Shift the origin */
@@ -3155,13 +3155,13 @@ static int st_check_colcok(Db *dbin, Db *dbout, int *rank_colcok)
   {
     jvar = rank_colcok[ivar];
     if (IFFFF(jvar)) jvar = 0;
-    if (jvar > dbout->getFieldNumber())
+    if (jvar > dbout->getColumnNumber())
     {
       messerr("Error in the Colocation array:");
       messerr("Input variable (#%d): rank of the colocated variable is %d",
               ivar + 1, jvar);
       messerr("But the Output file only contains %d attributes(s)",
-              dbout->getFieldNumber());
+              dbout->getColumnNumber());
       return (1);
     }
     rank_colcok[ivar] = jvar - 1;
@@ -3308,17 +3308,17 @@ int kriging(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
   if (FLAG_VARZ != 0)
   {
-    IPTR_VARZ = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_VARZ = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_VARZ < 0) goto label_end;
   }
 
@@ -3495,17 +3495,17 @@ static int st_xvalid_unique(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbin->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbin->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbin->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbin->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
   if (FLAG_VARZ != 0)
   {
-    IPTR_VARZ = dbin->addFieldsByConstant(nvar, 0.);
+    IPTR_VARZ = dbin->addColumnsByConstant(nvar, 0.);
     if (IPTR_VARZ < 0) goto label_end;
   }
 
@@ -3719,17 +3719,17 @@ int krigdgm_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
   if (FLAG_VARZ != 0)
   {
-    IPTR_VARZ = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_VARZ = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_VARZ < 0) goto label_end;
   }
 
@@ -3877,18 +3877,18 @@ int krigprof_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(ncode, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(ncode, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(ncode, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(ncode, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
   /* Preliminary transforms */
 
-  iptr_dat = DBIN->addFieldsByConstant(ncode, TEST);
+  iptr_dat = DBIN->addColumnsByConstant(ncode, TEST);
   if (iptr_dat < 0) goto label_end;
   nfeq = model->getDriftEquationNumber();
 
@@ -3967,7 +3967,7 @@ int krigprof_f(Db *dbin,
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
   if (iptr_dat >= 0) for (icode = 0; icode < ncode; icode++)
-    dbin->deleteFieldByAttribute(iptr_dat + icode);
+    dbin->deleteColumnByUID(iptr_dat + icode);
   return (error);
 }
 
@@ -4297,12 +4297,12 @@ int kribayes_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
@@ -4448,7 +4448,7 @@ int test_neigh(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  IPTR_NBGH = dbout->addFieldsByConstant(ntab, 0.);
+  IPTR_NBGH = dbout->addColumnsByConstant(ntab, 0.);
   if (IPTR_NBGH < 0) goto label_end;
 
   /* Pre-calculations */
@@ -4564,7 +4564,7 @@ int _krigsim(const char *strloc,
   FLAG_SIMU = 1;
   FLAG_DGM = flag_dgm;
   R_COEFF = rval;
-  IPTR_EST = dbout->getColumnByLocator(ELoc::SIMU, 0);
+  IPTR_EST = dbout->getColumnIndexByLocator(ELoc::SIMU, 0);
   if (st_check_environment(1, 1, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
   if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
@@ -4728,7 +4728,7 @@ int krimage_func(DbGrid *dbgrid, Model *model, ANeighParam *neighparam)
 
   /* Add the attributes for storing the results */
 
-  IPTR_EST = dbgrid->addFieldsByConstant(nvar, 0.);
+  IPTR_EST = dbgrid->addColumnsByConstant(nvar, 0.);
   if (IPTR_EST < 0) goto label_end;
 
   /* Core allocation */
@@ -5634,7 +5634,7 @@ int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
 
   /* Add the attribute for storing the result */
 
-  IPTR_EST = dbout->addFieldsByConstant(1, 0.);
+  IPTR_EST = dbout->addColumnsByConstant(1, 0.);
   if (IPTR_EST < 0) goto label_end;
   coor = db_sample_alloc(dbout, ELoc::X);
   if (coor == nullptr) goto label_end;
@@ -5969,7 +5969,7 @@ int anakexp_f(DbGrid *db,
 
   /* Add the attribute for storing the result */
 
-  IPTR_EST = db->addFieldsByConstant(nvarin, 0.);
+  IPTR_EST = db->addColumnsByConstant(nvarin, 0.);
   if (IPTR_EST < 0) goto label_end;
   DBOUT = db;
 
@@ -6663,7 +6663,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Add the attribute for storing the result */
 
-  IPTR_EST = db->addFieldsByConstant(nvarin, 0.);
+  IPTR_EST = db->addColumnsByConstant(nvarin, 0.);
   if (IPTR_EST < 0) goto label_end;
   DBOUT = db;
 
@@ -6952,7 +6952,7 @@ int image_smoother(DbGrid *dbgrid, NeighImage *neighI, int type, double range)
 
   /* Add the attributes for storing the results */
 
-  IPTR_EST = dbgrid->addFieldsByConstant(nvarin, 0.);
+  IPTR_EST = dbgrid->addColumnsByConstant(nvarin, 0.);
   if (IPTR_EST < 0) goto label_end;
 
   /* Core allocation */
@@ -7101,12 +7101,12 @@ int krigsum_f(Db *dbin,
   for (ivar = 0; ivar < nvarin; ivar++)
     icols[ivar] = db_attribute_identify(dbin, ELoc::Z, ivar);
   dbin->clearLocators(ELoc::Z);
-  dbin->setLocatorByAttribute(icols[0], ELoc::Z);
+  dbin->setLocatorByUID(icols[0], ELoc::Z);
   if (st_check_environment(1, 1, model, neighU)) goto label_end;
 
   /* Add the attributes for storing the results */
 
-  iptr_mem = dbout->addFieldsByConstant(nvarin, 0);
+  iptr_mem = dbout->addColumnsByConstant(nvarin, 0);
   if (iptr_mem < 0) goto label_end;
 
   /* Pre-calculations */
@@ -7123,7 +7123,7 @@ int krigsum_f(Db *dbin,
   for (ivar = 0; ivar < nvarin; ivar++)
   {
     dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByAttribute(icols[ivar], ELoc::Z);
+    dbin->setLocatorByUID(icols[ivar], ELoc::Z);
     IPTR_EST = iptr_mem + ivar;
     (void) gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
 
@@ -7453,12 +7453,12 @@ int krigmvp_f(Db *dbin,
   for (ivar = 0; ivar < nvarin; ivar++)
     icols[ivar] = db_attribute_identify(dbin, ELoc::Z, ivar);
   dbin->clearLocators(ELoc::Z);
-  dbin->setLocatorByAttribute(icols[0], ELoc::Z);
+  dbin->setLocatorByUID(icols[0], ELoc::Z);
   if (st_check_environment(1, 1, model, neighparam)) goto label_end;
 
   /* Add the attributes for storing the results */
 
-  iptr_prop = db3grid->addFieldsByConstant(nvarin, 0);
+  iptr_prop = db3grid->addColumnsByConstant(nvarin, 0);
   if (iptr_prop < 0) goto label_end;
 
   /* Pre-calculations */
@@ -7475,7 +7475,7 @@ int krigmvp_f(Db *dbin,
   for (ivar = 0; ivar < nvarin; ivar++)
   {
     dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByAttribute(icols[ivar], ELoc::Z);
+    dbin->setLocatorByUID(icols[ivar], ELoc::Z);
     IPTR_EST = iptr_prop + ivar;
     (void) gslSPrintf(string, "Kriging of proportion #%d at sample", ivar + 1);
 
@@ -7852,12 +7852,12 @@ int krigtest_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
@@ -8031,12 +8031,12 @@ int kriggam_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
@@ -8181,12 +8181,12 @@ int krigcell_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
@@ -8293,7 +8293,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
 
   /* Create the new variables */
 
-  iptr = db->addFieldsByConstant(nfactor, 0.);
+  iptr = db->addColumnsByConstant(nfactor, 0.);
   if (iptr < 0) goto label_end;
 
   /* Loop on the samples */
@@ -8314,7 +8314,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
 
   /* Set the newly created variables to Z locator */
 
-  db->setLocatorsByAttribute(nfactor, iptr, ELoc::Z);
+  db->setLocatorsByUID(nfactor, iptr, ELoc::Z);
 
   /* Set the error return code */
 
@@ -8457,12 +8457,12 @@ int dk_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    iptr_est_bck = DBOUT->addFieldsByConstant(nfactor - 1, TEST);
+    iptr_est_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
     if (iptr_est_bck < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    iptr_std_bck = DBOUT->addFieldsByConstant(nfactor - 1, TEST);
+    iptr_std_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
     if (iptr_std_bck < 0) goto label_end;
   }
 
@@ -8520,7 +8520,7 @@ int dk_f(Db *dbin,
   }
   varloc = (int*) mem_alloc(sizeof(int) * nvarz, 1);
   for (ivar = 0; ivar < nvarz; ivar++)
-    varloc[ivar] = DBIN->getColumnByLocator(ELoc::Z, ivar);
+    varloc[ivar] = DBIN->getColumnIndexByLocator(ELoc::Z, ivar);
 
   /* Loop on the targets to be processed */
 
@@ -8540,7 +8540,7 @@ int dk_f(Db *dbin,
     /* Select the Neighborhood */
 
     DBIN->clearLocators(ELoc::Z);
-    DBIN->setLocatorByAttribute(varloc[0], ELoc::Z);
+    DBIN->setLocatorByUID(varloc[0], ELoc::Z);
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
     nech = (int) nbgh_ranks.size();
     status = nbgh_ranks.empty();
@@ -8554,7 +8554,7 @@ int dk_f(Db *dbin,
       if (FLAG_EST != 0) IPTR_EST = iptr_est_bck + iclass - 1;
       if (FLAG_STD != 0) IPTR_STD = iptr_std_bck + iclass - 1;
       DBIN->clearLocators(ELoc::Z);
-      DBIN->setLocatorByAttribute(varloc[iclass - 1], ELoc::Z);
+      DBIN->setLocatorByUID(varloc[iclass - 1], ELoc::Z);
 
       /* Set the rank of the current factor in the model */
 
@@ -8687,9 +8687,9 @@ int* neigh_calc(Db *dbin,
   if (dbin != nullptr && dbin->getVariableNumber() != model->getVariableNumber()
       && model->getVariableNumber() == 1)
   {
-    zloc = dbin->getColumnByLocator(ELoc::Z);
+    zloc = dbin->getColumnIndexByLocator(ELoc::Z);
     dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByAttribute(zloc, ELoc::Z);
+    dbin->setLocatorByUID(zloc, ELoc::Z);
   }
   if (st_check_environment(1, 1, model, neighparam)) goto label_end;
 
@@ -9476,12 +9476,12 @@ int krigsampling_f(Db *dbin,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
 
@@ -10034,7 +10034,7 @@ int declustering_f(Db *dbin,
 
   /* Add the kriging weight as a new variable */
 
-  iptr = dbin->addFieldsByConstant(1, 0.);
+  iptr = dbin->addColumnsByConstant(1, 0.);
   if (iptr < 0) goto label_end;
 
   /* Produce statistics on the target variable before declustering */
@@ -10067,7 +10067,7 @@ int declustering_f(Db *dbin,
 
   if (flag_sel)
   {
-    iptr_sel = dbin->addFieldsByConstant(1, 0.);
+    iptr_sel = dbin->addColumnsByConstant(1, 0.);
     if (iptr_sel < 0) goto label_end;
     for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
     {
@@ -10729,12 +10729,12 @@ int inhomogeneous_kriging(Db *dbdat,
 
   if (FLAG_EST != 0)
   {
-    IPTR_EST = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
   if (FLAG_STD != 0)
   {
-    IPTR_STD = dbout->addFieldsByConstant(nvar, 0.);
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
   }
   nred = neq = np = dbdat->getActiveAndDefinedNumber(0);

@@ -80,13 +80,13 @@ int main(int /*argc*/, char */*argv*/[])
   DbGrid* db = DbGrid::create({nx,nx},{1.,1.});
   if (! FFFF(bound))
   {
-    db->addFieldsByConstant(1, -bound, "Lower", ELoc::L);
-    db->addFieldsByConstant(1, +bound, "Upper", ELoc::U);
+    db->addColumnsByConstant(1, -bound, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, +bound, "Upper", ELoc::U);
   }
   else
   {
-    db->addFieldsByConstant(1, TEST, "Lower", ELoc::L);
-    db->addFieldsByConstant(1, TEST, "Upper", ELoc::U);
+    db->addColumnsByConstant(1, TEST, "Lower", ELoc::L);
+    db->addColumnsByConstant(1, TEST, "Upper", ELoc::U);
   }
   if (db_locator_attribute_add(db, ELoc::GAUSFAC, nbsimu * nvar, 0, 0.,
                                &iptr)) return 1;

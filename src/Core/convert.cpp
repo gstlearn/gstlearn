@@ -2805,7 +2805,7 @@ int db_write_csv(Db *db,
                  const char *na_string)
 {
   if (db == nullptr) return 1;
-  int ncol = db->getFieldNumber();
+  int ncol = db->getColumnNumber();
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
   int nvar = db->getVariableNumber();

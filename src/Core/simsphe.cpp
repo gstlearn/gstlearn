@@ -475,7 +475,7 @@ int simsph_f(DbGrid *db,
 
   /* Create the new variable in the Data base */
 
-  iptr = db->addFieldsByConstant(1, 0., String(), ELoc::SIMU);
+  iptr = db->addColumnsByConstant(1, 0., String(), ELoc::SIMU);
 
   /* Core allocation */
 
@@ -586,7 +586,7 @@ int simsph_f(DbGrid *db,
 
   label_short: error = 0;
 
-  label_end: if (error) db->deleteFieldsByLocator(ELoc::SIMU);
+  label_end: if (error) db->deleteColumnsByLocator(ELoc::SIMU);
   degree = (int*) mem_free((char* ) degree);
   order = (int*) mem_free((char* ) order);
   freqs = (double*) mem_free((char* ) freqs);

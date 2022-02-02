@@ -746,7 +746,7 @@ static int st_vario_pgs_variable(int mode,
       is_prop_defined = false;
       if (flag_prop && db->getProportionNumber() != nfacies)
       {
-        iptr = db->addFieldsByConstant(nfacies, 0., String(), ELoc::P);
+        iptr = db->addColumnsByConstant(nfacies, 0., String(), ELoc::P);
         if (iptr < 0) return (1);
         is_prop_defined = true;
       }
@@ -755,18 +755,18 @@ static int st_vario_pgs_variable(int mode,
 
       if (!TEST_DISCRET)
       {
-        iptr = db->addFieldsByConstant(number, 0., "Lower", ELoc::L);
+        iptr = db->addColumnsByConstant(number, 0., "Lower", ELoc::L);
         if (iptr < 0) return (1);
 
-        iptr = db->addFieldsByConstant(number, 0., "Upper", ELoc::U);
+        iptr = db->addColumnsByConstant(number, 0., "Upper", ELoc::U);
         if (iptr < 0) return (1);
       }
       else
       {
-        iptr = db->addFieldsByConstant(number, 0., "Lower Rank", ELoc::RKLOW);
+        iptr = db->addColumnsByConstant(number, 0., "Lower Rank", ELoc::RKLOW);
         if (iptr < 0) return (1);
 
-        iptr = db->addFieldsByConstant(number, 0., "Upper Rank", ELoc::RKUP);
+        iptr = db->addColumnsByConstant(number, 0., "Upper Rank", ELoc::RKUP);
         if (iptr < 0) return (1);
       }
       break;
@@ -809,17 +809,17 @@ static int st_vario_pgs_variable(int mode,
 
       if (flag_prop && is_prop_defined)
       {
-        db->deleteFieldsByLocator(ELoc::P);
+        db->deleteColumnsByLocator(ELoc::P);
       }
       if (!TEST_DISCRET)
       {
-        db->deleteFieldsByLocator(ELoc::L);
-        db->deleteFieldsByLocator(ELoc::U);
+        db->deleteColumnsByLocator(ELoc::L);
+        db->deleteColumnsByLocator(ELoc::U);
       }
       else
       {
-        db->deleteFieldsByLocator(ELoc::RKLOW);
-        db->deleteFieldsByLocator(ELoc::RKUP);
+        db->deleteColumnsByLocator(ELoc::RKLOW);
+        db->deleteColumnsByLocator(ELoc::RKUP);
       }
       break;
   }

@@ -561,9 +561,9 @@ int db_rule_shadow(Db *db,
   /**********************/
 
   /* Storage of the simulations in the output file */
-  iptr = db->addFieldsByConstant(nbsimu, 0.);
+  iptr = db->addColumnsByConstant(nbsimu, 0.);
   if (iptr < 0) goto label_end;
-  db->setLocatorsByAttribute(nbsimu, iptr, ELoc::FACIES);
+  db->setLocatorsByUID(nbsimu, iptr, ELoc::FACIES);
 
   /* Identify the Non conditional simulations at target points */
   for (igrf = 0; igrf < 2; igrf++)
@@ -580,7 +580,7 @@ int db_rule_shadow(Db *db,
             igrf + 1);
         goto label_end;
       }
-      db->setLocatorByAttribute(iptr, ELoc::SIMU, igrf);
+      db->setLocatorByUID(iptr, ELoc::SIMU, igrf);
     }
   }
 
@@ -666,7 +666,7 @@ int _db_rule(Db *db,
   /**********************/
 
   /* Storage of the simulations in the output file */
-  iptr = db->addFieldsByConstant(1, 0., "Facies", ELoc::FACIES);
+  iptr = db->addColumnsByConstant(1, 0., "Facies", ELoc::FACIES);
   if (iptr < 0) goto label_end;
 
   /* Identify the Non conditional simulations at target points */
@@ -1152,7 +1152,7 @@ int _db_threshold(Db *db,
   /* Add the attributes */
   /**********************/
 
-  iptr = db->addFieldsByConstant(2 * ngrf * nfacies, 0.);
+  iptr = db->addColumnsByConstant(2 * ngrf * nfacies, 0.);
   if (iptr < 0) goto label_end;
 
   /* Calculate the thresholds and store them in the Db file */

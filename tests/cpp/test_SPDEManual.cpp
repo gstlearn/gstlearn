@@ -48,7 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   FunctionalSpirale spirale(0., -1.4, 1., 1., 50., 50.);
   VectorDouble angle = spirale.getFunctionValues(workingDbc);
-  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
+  workingDbc->addColumns(angle,"angle",ELoc::NOSTAT);
 
   //////////////////////
   //Creating the Mesh
@@ -79,7 +79,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   resultSimu.resize(tab.size());
   Qsimu.eval(tab,resultSimu);
-  workingDbc->addFields(resultSimu,"Simu",ELoc::Z);
+  workingDbc->addColumns(resultSimu,"Simu",ELoc::Z);
 
   ///////////////////////////
   // Creating Data
@@ -91,13 +91,13 @@ int main(int /*argc*/, char */*argv*/[])
   ProjMatrix B(dat, &mesh);
   VectorDouble datval(ndata);
   B.mesh2point(resultSimu, datval);
-  dat->addFields(datval, "Simu", ELoc::Z);
+  dat->addColumns(datval, "Simu", ELoc::Z);
 
   ///////////////////////////
   // Kriging
   double nug = 0.1;
   VectorDouble rhs(S.getSize());
-  B.point2mesh(dat->getField("Simu"), rhs);
+  B.point2mesh(dat->getColumn("Simu"), rhs);
   for (auto &e : rhs)
   {
     e /= nug;
@@ -115,7 +115,7 @@ int main(int /*argc*/, char */*argv*/[])
   Rhs.push_back(VectorDouble(rhs));
 
   A.evalInverse(Rhs, resultvc);
-  workingDbc->addFields(resultvc[0], "Kriging");
+  workingDbc->addColumns(resultvc[0], "Kriging");
   (void) workingDbc->dumpToNF("spde.ascii");
 
   delete dat;

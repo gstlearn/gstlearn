@@ -1339,7 +1339,7 @@ int anam_discrete_z2factor(AAnam *anam,
 
   /* Create the factors */
 
-  iptr = db->addFieldsByConstant(nfact, TEST);
+  iptr = db->addColumnsByConstant(nfact, TEST);
   if (iptr <= 0) goto label_end;
 
   /* Dispatch */
@@ -2479,7 +2479,7 @@ int anam_factor2qt(Db *db,
   /* Variable allocation */
 
   (*ncut) = ncutmine;
-  iptr = db->addFieldsByConstant(nvarout, TEST);
+  iptr = db->addColumnsByConstant(nvarout, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -2698,9 +2698,9 @@ int uc_f(Db *db,
 
   /* Add variables for storage */
 
-  iptr_sV = db->addFieldsByConstant(1, TEST);
+  iptr_sV = db->addColumnsByConstant(1, TEST);
   if (iptr_sV < 0) goto label_end;
-  iptr_yV = db->addFieldsByConstant(1, TEST);
+  iptr_yV = db->addColumnsByConstant(1, TEST);
   if (iptr_yV < 0) goto label_end;
 
   /* Analyzing the codes */
@@ -2713,7 +2713,7 @@ int uc_f(Db *db,
     messerr("The recovery option 'Z' is not available in this function");
     goto label_end;
   }
-  iptr = db->addFieldsByConstant(nvarout, TEST);
+  iptr = db->addColumnsByConstant(nvarout, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -2819,8 +2819,8 @@ int uc_f(Db *db,
 
   error = 0;
 
-  label_end: if (iptr_sV >= 0) db->deleteFieldByAttribute(iptr_sV);
-  if (iptr_yV >= 0) db->deleteFieldByAttribute(iptr_yV);
+  label_end: if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
+  if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
   calest = (double*) mem_free((char* ) calest);
   return (error);
 }
@@ -3449,37 +3449,37 @@ int ce_f(Db *db,
 
   if (QT_FLAG(ANAM_QT_Z))
   {
-    iptr_Z = db->addFieldsByConstant(count, TEST);
+    iptr_Z = db->addColumnsByConstant(count, TEST);
     if (iptr_Z < 0) goto label_end;
   }
   if (need_T)
   {
-    iptr_T = db->addFieldsByConstant(count * ncutmine, TEST);
+    iptr_T = db->addColumnsByConstant(count * ncutmine, TEST);
     if (iptr_T < 0) goto label_end;
   }
   if (need_Q)
   {
-    iptr_Q = db->addFieldsByConstant(count * ncutmine, TEST);
+    iptr_Q = db->addColumnsByConstant(count * ncutmine, TEST);
     if (iptr_Q < 0) goto label_end;
   }
   if (QT_FLAG(ANAM_QT_B) && need_T && need_Q)
   {
-    iptr_B = db->addFieldsByConstant(ncutmine, TEST);
+    iptr_B = db->addColumnsByConstant(ncutmine, TEST);
     if (iptr_B < 0) goto label_end;
   }
   if (QT_FLAG(ANAM_QT_M) && need_T && need_Q)
   {
-    iptr_M = db->addFieldsByConstant(ncutmine, TEST);
+    iptr_M = db->addColumnsByConstant(ncutmine, TEST);
     if (iptr_M < 0) goto label_end;
   }
   if (QT_FLAG(ANAM_QT_PROBA) && need_T)
   {
-    iptr_PROBA = db->addFieldsByConstant(count * ncutmine, TEST);
+    iptr_PROBA = db->addColumnsByConstant(count * ncutmine, TEST);
     if (iptr_PROBA < 0) goto label_end;
   }
   if (QT_FLAG(ANAM_QT_QUANT))
   {
-    iptr_QUANT = db->addFieldsByConstant(1, TEST);
+    iptr_QUANT = db->addColumnsByConstant(1, TEST);
     if (iptr_QUANT < 0) goto label_end;
   }
 

@@ -2115,12 +2115,12 @@ int simbool_f(Db *dbin,
 
   if (flag_simu)
   {
-    iptr_simu = dbout->addFieldsByConstant(1, background);
+    iptr_simu = dbout->addColumnsByConstant(1, background);
     if (iptr_simu < 0) goto label_end;
   }
   if (flag_rank)
   {
-    iptr_rank = dbout->addFieldsByConstant(1, TEST);
+    iptr_rank = dbout->addColumnsByConstant(1, TEST);
     if (iptr_rank < 0) goto label_end;
   }
 

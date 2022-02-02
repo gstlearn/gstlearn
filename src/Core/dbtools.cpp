@@ -861,7 +861,7 @@ int db_duplicate(Db *db,
                         sel.data())) return 1;
 
   // Add the variable to the Db
-  int iatt = db->addFields(sel);
+  int iatt = db->addColumns(sel);
 
   // Setting the output variable
   namconv.setNamesAndLocators(db, iatt);
@@ -991,7 +991,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
 
   (void) gslStrcpy(string, "NA");
   nech = db->getSampleNumber();
-  nvar = db->getFieldNumber();
+  nvar = db->getColumnNumber();
 
   ivar_deb = ivar - nrdv;
   ivar_fin = ivar + nrdv;
@@ -1274,7 +1274,7 @@ int db_edit(Db *db, int *flag_valid)
   /* Initializations */
 
   nech = db->getSampleNumber();
-  nvar = db->getFieldNumber();
+  nvar = db->getColumnNumber();
   ivar = iech = 0;
   ok = nrds = nrdv = incr = 1;
   vmin = vmax = TEST;
@@ -1434,7 +1434,7 @@ int db_normalize(Db *db,
 
   /* Creation of the new attributes */
 
-  iptr = db->addFieldsByConstant(ncol, TEST);
+  iptr = db->addColumnsByConstant(ncol, TEST);
   if (iptr < 0) return (1);
 
   /* Loop on the samples */
@@ -1796,10 +1796,10 @@ int db_grid_fill(DbGrid *dbgrid,
 
   // Create the new variable and duplicate the Z-locator variable
 
-  int iatt_in = dbgrid->getAttributeByLocator(ELoc::Z, 0);
-  int iatt_out = dbgrid->addFieldsByConstant(1);
-  dbgrid->duplicateColumnByAttribute(iatt_in, iatt_out);
-  dbgrid->setLocatorByAttribute(iatt_out, ELoc::Z);
+  int iatt_in = dbgrid->getUIDByLocator(ELoc::Z, 0);
+  int iatt_out = dbgrid->addColumnsByConstant(1);
+  dbgrid->duplicateColumnByUID(iatt_in, iatt_out);
+  dbgrid->setLocatorByUID(iatt_out, ELoc::Z);
 
   /* Global variables */
 
@@ -1970,7 +1970,7 @@ int _db_category(Db *db,
 
   /* Create the variable */
 
-  int iptr = db->addFieldsByConstant(1, TEST);
+  int iptr = db->addColumnsByConstant(1, TEST);
   if (iptr < 0) return (1);
 
   /* Loop on the samples */
@@ -2099,12 +2099,12 @@ int _db_indicator(Db *db,
 
   if (flag_indic)
   {
-    iptr = db->addFieldsByConstant(nclass, 0.);
+    iptr = db->addColumnsByConstant(nclass, 0.);
     if (iptr < 0) return 1;
   }
   else
   {
-    iptr = db->addFieldsByConstant(1, TEST);
+    iptr = db->addColumnsByConstant(1, TEST);
     if (iptr < 0) return 1;
   }
 
@@ -2238,7 +2238,7 @@ int db_selhull(Db *db1, Db *db2, bool verbose, const NamingConvention &namconv)
 
   // Create the variable in the output Db
 
-  int isel = db2->addFieldsByConstant(1, 1.);
+  int isel = db2->addColumnsByConstant(1, 1.);
 
   /* Create the polygon as the convex hull of first Db */
 
@@ -2868,7 +2868,7 @@ int manage_external_info(int mode,
 
       /* Add the Drift vector in the Input file */
 
-      jatt = dbin->addFieldsByConstant(1, 0.);
+      jatt = dbin->addColumnsByConstant(1, 0.);
       if (jatt < 0) return (1);
       if (*istart < 0) *istart = jatt;
 
@@ -2876,7 +2876,7 @@ int manage_external_info(int mode,
 
       iatt = db_attribute_identify(dbgrid, locatorType, info);
       if (iatt < 0) return (1);
-      dbin->setLocatorByAttribute(jatt, locatorType, info);
+      dbin->setLocatorByUID(jatt, locatorType, info);
 
       /* Perform the migration */
 
@@ -2885,7 +2885,7 @@ int manage_external_info(int mode,
 
       /* Save the migrated array */
 
-      dbin->setFieldByAttribute(tab, jatt);
+      dbin->setColumnByUID(tab, jatt);
     }
   }
   else
@@ -2895,7 +2895,7 @@ int manage_external_info(int mode,
     for (info = 0; info < ninfo; info++)
     {
       jatt = db_attribute_identify(dbin, locatorType, info);
-      if (jatt >= *istart) dbin->deleteFieldByAttribute(jatt);
+      if (jatt >= *istart) dbin->deleteColumnByUID(jatt);
     }
   }
   return (0);
@@ -3045,7 +3045,7 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
   /* Initializations */
 
   dbout = nullptr;
-  ncol = dbin->getFieldNumber();
+  ncol = dbin->getColumnNumber();
   ndim = dbin->getNDim();
 
   /* Core allocation */
@@ -3056,12 +3056,12 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
 
   dbout = db_create_grid_multiple(dbin, nmult, 1);
   if (dbout == nullptr) goto label_end;
-  rank = dbout->addFieldsByConstant(ncol, TEST);
+  rank = dbout->addColumnsByConstant(ncol, TEST);
   if (rank < 0) goto label_end;
   for (icol = 0; icol < ncol; icol++)
   {
     (void) dbin->getLocatorByColumn(icol, &locatorType, &item);
-    dbout->setLocatorByAttribute(icol, locatorType, item);
+    dbout->setLocatorByUID(icol, locatorType, item);
   }
 
   /* Loop on the samples of the output grid */
@@ -3783,7 +3783,7 @@ int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
 
   /* Add the variables */
 
-  iptr = db->addFieldsByConstant(2, 0.);
+  iptr = db->addColumnsByConstant(2, 0.);
   if (iptr < 0) goto label_end;
 
   /* Define the internal structures */
@@ -3871,7 +3871,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   /* Add the variables */
 
-  iptr = dbout->addFieldsByConstant(ncol, TEST);
+  iptr = dbout->addColumnsByConstant(ncol, TEST);
   if (iptr < 0) goto label_end;
 
   /* Define the internal structures */
@@ -4035,15 +4035,15 @@ int points_to_block(Db *dbpoint,
 
   /* Variable allocation */
 
-  iatt_edge = dbgrid->addFieldsByConstant(1, 0.);
+  iatt_edge = dbgrid->addColumnsByConstant(1, 0.);
   if (iatt_edge < 0) goto label_end;
-  iatt_rank = dbpoint->addFieldsByConstant(1, 0.);
+  iatt_rank = dbpoint->addColumnsByConstant(1, 0.);
   if (iatt_rank < 0) goto label_end;
-  iatt_surf = dbpoint->addFieldsByConstant(1, 0.);
+  iatt_surf = dbpoint->addColumnsByConstant(1, 0.);
   if (iatt_surf < 0) goto label_end;
-  iatt_vol = dbpoint->addFieldsByConstant(1, 0.);
+  iatt_vol = dbpoint->addColumnsByConstant(1, 0.);
   if (iatt_vol < 0) goto label_end;
-  iatt_code = dbpoint->addFieldsByConstant(1, 1.);
+  iatt_code = dbpoint->addColumnsByConstant(1, 1.);
   if (iatt_code < 0) goto label_end;
 
   /* Create the sample rank attribute and expand it over the grid */
@@ -4138,7 +4138,7 @@ int points_to_block(Db *dbpoint,
 
   /* Save the array 'tab' in the Grid Db file */
 
-  label_suite: dbgrid->setFieldByAttribute(tab2, iatt_edge);
+  label_suite: dbgrid->setColumnByUID(tab2, iatt_edge);
 
   /* Set the error return code */
 
@@ -4146,7 +4146,7 @@ int points_to_block(Db *dbpoint,
 
   /* Core deallocation */
 
-  label_end: if (iatt_rank >= 0) dbpoint->deleteFieldByAttribute(iatt_rank);
+  label_end: if (iatt_rank >= 0) dbpoint->deleteColumnByUID(iatt_rank);
   indg = db_indg_free(indg);
   indg0 = db_indg_free(indg0);
   return (error);
@@ -4544,7 +4544,7 @@ int db_resind(Db *db, int ivar, int ncut, double *zcut)
 
   /* Create the variables */
 
-  iptr = db->addFieldsByConstant(ncut, TEST);
+  iptr = db->addColumnsByConstant(ncut, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the samples */
@@ -4659,9 +4659,9 @@ int db_gradient_components(DbGrid *dbgrid)
 
   /* Create the new variable */
 
-  iptrz = dbgrid->getColumnByLocator(ELoc::Z, 0);
+  iptrz = dbgrid->getColumnIndexByLocator(ELoc::Z, 0);
   if (iptrz < 0) goto label_end;
-  iptr = dbgrid->addFieldsByConstant(ndim, TEST, String(), ELoc::G);
+  iptr = dbgrid->addColumnsByConstant(ndim, TEST, String(), ELoc::G);
 
   /* Calculate the Gradient components */
 
@@ -4883,9 +4883,9 @@ int db_streamline(DbGrid *dbgrid,
   coor.resize(ndim);
   coor0 = db_sample_alloc(dbgrid, ELoc::X);
   if (coor0 == nullptr) goto label_end;
-  iptr_time = dbgrid->addFieldsByConstant(1, TEST);
+  iptr_time = dbgrid->addColumnsByConstant(1, TEST);
   if (iptr_time < 0) goto label_end;
-  iptr_accu = dbgrid->addFieldsByConstant(1, 0.);
+  iptr_accu = dbgrid->addColumnsByConstant(1, 0.);
   if (iptr_accu < 0) goto label_end;
 
   /* Calculate the gradient */
@@ -4899,7 +4899,7 @@ int db_streamline(DbGrid *dbgrid,
               dbgrid->getGradientNumber());
       goto label_end;
     }
-    iptr_grad = dbgrid->getColumnByLocator(ELoc::G, 0);
+    iptr_grad = dbgrid->getColumnIndexByLocator(ELoc::G, 0);
   }
   else
   {
@@ -5032,7 +5032,7 @@ int db_model_nostat(Db *db,
 
   int ndim = model->getDimensionNumber();
   CovInternal covint(1, -1, 1, -1, ndim, db, db);
-  int iptr = db->addFieldsByConstant(2 * ndim + 1, 0.);
+  int iptr = db->addColumnsByConstant(2 * ndim + 1, 0.);
   if (iptr < 0) return 1;
 
   /* Loop on the samples */
@@ -5212,7 +5212,7 @@ Db* db_extract(Db *db, int *ranks)
   iatts = nullptr;
   if (db == nullptr) return (dbnew);
   nech_all = db->getSampleNumber();
-  natt = db->getFieldNumber();
+  natt = db->getColumnNumber();
 
   // Count the number of samples in 'ranks'
   nech = 0;
@@ -5260,7 +5260,7 @@ Db* db_extract(Db *db, int *ranks)
   for (int iatt = natt - 1; iatt >= 0; iatt--)
   {
     if (iatts[iatt] != 0) continue;
-    dbnew->deleteFieldByAttribute(iatt + 1);
+    dbnew->deleteColumnByUID(iatt + 1);
   }
 
   // Set the error return code
@@ -5452,11 +5452,11 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
-  dbnew->setLocatorsByAttribute(ndim, ecr, ELoc::X);
+  dbnew->setLocatorsByUID(ndim, ecr, ELoc::X);
   ecr += ndim;
-  dbnew->setLocatorByAttribute(ecr, ELoc::C);
+  dbnew->setLocatorByUID(ecr, ELoc::C);
   ecr += 1;
-  dbnew->setLocatorsByAttribute(nvar, ecr, ELoc::Z);
+  dbnew->setLocatorsByUID(nvar, ecr, ELoc::Z);
   ecr += nvar;
 
   label_end: coor = (double*) mem_free((char* ) coor);
@@ -5506,7 +5506,7 @@ double* db_grid_sampling(DbGrid *dbgrid,
   *nval_ret = 0;
   res = xi1 = xi2 = nullptr;
   ndim = dbgrid->getNDim();
-  iatt = dbgrid->getColumnByLocator(ELoc::Z, 0);
+  iatt = dbgrid->getColumnIndexByLocator(ELoc::Z, 0);
 
   /* Preliminary checks */
 
@@ -5813,7 +5813,7 @@ int db_polygon_distance(Db *db,
 
   // Create a new attribute
 
-  iptr = db->addFieldsByConstant(1, TEST);
+  iptr = db->addColumnsByConstant(1, TEST);
   if (iptr < 0) return (1);
 
   // Loop on the polysets 
@@ -5992,7 +5992,7 @@ Db* db_point_init(int mode,
   {
     string = getLocatorName(ELoc::X, idim);
     db_name_set(db, idim + flag_add_rank, string);
-    db->setLocatorByAttribute(idim + flag_add_rank, ELoc::X, idim);
+    db->setLocatorByUID(idim + flag_add_rank, ELoc::X, idim);
   }
 
   return (db);
@@ -6188,11 +6188,11 @@ int db_grid1D_fill(DbGrid *dbgrid,
 
   // Add the variables (they must be defined as ELoc::Z) for following functions
 
-  int iatt_out = dbgrid->addFieldsByConstant(nvar);
+  int iatt_out = dbgrid->addColumnsByConstant(nvar);
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    int iatt_in = dbgrid->getAttributeByLocator(ELoc::Z, ivar);
-    dbgrid->duplicateColumnByAttribute(iatt_in, iatt_out + ivar);
+    int iatt_in = dbgrid->getUIDByLocator(ELoc::Z, ivar);
+    dbgrid->duplicateColumnByUID(iatt_in, iatt_out + ivar);
   }
 
   int nech = dbgrid->getSampleNumber();
@@ -6335,7 +6335,7 @@ static int st_migrate(Db *db1,
 
   // Store the resulting array in the output Db
 
-  db2->setFieldByAttribute(tab, iatt2);
+  db2->setColumnByUID(tab, iatt2);
   return 0;
 }
 
@@ -6371,13 +6371,13 @@ int migrateByAttribute(Db *db1,
   int ncol = static_cast<int>(atts.size());
   if (atts.empty())
   {
-    atts = db1->getAllAttributes();
+    atts = db1->getAllUIDs();
     ncol = static_cast<int>(atts.size());
   }
 
   // Create the output variables
 
-  int iatt0 = db2->addFieldsByConstant(ncol, TEST);
+  int iatt0 = db2->addColumnsByConstant(ncol, TEST);
 
   // Loop on the different variables obtained by various migrations
 
@@ -6420,12 +6420,12 @@ int migrate(Db *db1,
             int flag_inter,
             const NamingConvention &namconv)
 {
-  int iatt = db1->getAttribute(name);
+  int iatt = db1->getUID(name);
   if (iatt < 0) return 1;
 
   // Create the output variables
 
-  int iatt0 = db2->addFieldsByConstant(1, TEST);
+  int iatt0 = db2->addColumnsByConstant(1, TEST);
 
   // Perform the migration
 
@@ -6470,13 +6470,13 @@ int migrateByLocator(Db *db1,
 
   // Create the output variables
 
-  int iatt0 = db2->addFieldsByConstant(natt, TEST);
+  int iatt0 = db2->addColumnsByConstant(natt, TEST);
 
   // Loop on the different variables obtained by various migrations
 
   for (int i = 0; i < natt; i++)
   {
-    int iatt1 = db1->getAttribute(names[i]);
+    int iatt1 = db1->getUID(names[i]);
     int iatt2 = iatt0 + i;
     if (st_migrate(db1, db2, iatt1, iatt2, ldmax, dmax, flag_fill, flag_inter))
       return 1;
@@ -6550,7 +6550,7 @@ int db_proportion_estimate(Db *dbin,
   OptimCostColored Oc = OptimCostColored(ncat, &Qprop, &Aproj);
   Oc.setCGParams(200, 1.e-10);
 
-  VectorDouble facies = dbin->getFieldByLocator(ELoc::Z);
+  VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
   VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,
                                          niter);
 
@@ -6559,7 +6559,7 @@ int db_proportion_estimate(Db *dbin,
   int iptr0 = -1;
   for (int i = 0; i < ncat; i++)
   {
-    int iptr = dbout->addFields(props[i]);
+    int iptr = dbout->addColumns(props[i]);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
                                 concatenateStrings("-", toString(i + 1)));

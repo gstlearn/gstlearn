@@ -2847,7 +2847,7 @@ static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Add the selection */
 
-  pot_ext->db->addFieldsByConstant(1, 0., String(), ELoc::SEL);
+  pot_ext->db->addColumnsByConstant(1, 0., String(), ELoc::SEL);
 
   /* Complementary core allocation */
 
@@ -3121,9 +3121,9 @@ int potential_kriging(Db *dbiso,
   // Allocating the output variables
 
   nvar = 1;
-  (void) dbout->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
+  (void) dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
   if (flag_grad)
-    (void) dbout->addFieldsByConstant(pot_env.ndim, TEST, String(), ELoc::G);
+    (void) dbout->addColumnsByConstant(pot_env.ndim, TEST, String(), ELoc::G);
 
   // Core allocation
 
@@ -3369,15 +3369,15 @@ int potential_simulate(Db *dbiso,
 
   /* Add the attributes for storing the results */
 
-  dbiso->addFieldsByConstant(nbsimu, 0., String(), ELoc::SIMU);
+  dbiso->addColumnsByConstant(nbsimu, 0., String(), ELoc::SIMU);
   if (dbgrd != nullptr)
-    (void) dbgrd->addFieldsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
+    (void) dbgrd->addColumnsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
                             ELoc::SIMU);
   if (dbtgt != nullptr)
-    (void) dbtgt->addFieldsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
+    (void) dbtgt->addColumnsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
                             ELoc::SIMU);
-  (void) dbout->addFieldsByConstant(nbsimu, 0., String(), ELoc::SIMU);
-  if (flag_tempere) (void) dbout->addFieldsByConstant(1, TEST, String(), ELoc::Z);
+  (void) dbout->addColumnsByConstant(nbsimu, 0., String(), ELoc::SIMU);
+  if (flag_tempere) (void) dbout->addColumnsByConstant(1, TEST, String(), ELoc::Z);
 
   /* Processing the non-conditional simulation over the iso-values */
 
@@ -3485,7 +3485,7 @@ int potential_simulate(Db *dbiso,
 
   error = 0;
 
-  label_end: if (flag_tempere) dbout->deleteFieldsByLocator(ELoc::Z);
+  label_end: if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
   st_pot_env_manage(-1, verbose, &pot_env);
   st_pot_ext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
@@ -3602,7 +3602,7 @@ int potential_xvalid(Db *dbiso,
 
   nvar = 2;
   if (flag_dist_conv) nvar = 4;
-  (void) dbiso->addFieldsByConstant(nvar, TEST, String(), ELoc::Z);
+  (void) dbiso->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
 
   // Core allocation
 

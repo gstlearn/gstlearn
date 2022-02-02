@@ -54,8 +54,8 @@ int main(int /*argc*/, char */*argv*/[])
   int nfac = props.size();
   VectorString names = generateMultipleNames("Props",nfac);
   for (int ifac = 0; ifac < nfac; ifac++)
-    dbprop->addFieldsByConstant(1,props[ifac],names[ifac]);
-  dbprop->setLocator(names,ELoc::P);
+    dbprop->addColumnsByConstant(1,props[ifac],names[ifac]);
+  dbprop->setLocators(names,ELoc::P);
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model model1(ctxt);
@@ -87,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
-  dat->addFields(z,"variable",ELoc::Z);
+  dat->addColumns(z,"variable",ELoc::Z);
 
   PGSSPDE sCond(models,workingDbc,ruleprop,dat);
   PGSSPDE sNonCond(models,workingDbc,ruleprop);

@@ -173,7 +173,7 @@ void SPDE::init(Model* model,
   {
     if(dat->getVarianceErrorNumber() > 0)
     {
-      varianceData = dat->getFieldByLocator(ELoc::V,0,useSel);
+      varianceData = dat->getColumnByLocator(ELoc::V,0,useSel);
       for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
       {
         double *temp = &varianceData[iech];
@@ -229,7 +229,7 @@ void SPDE::compute(int nbsimus, int seed)
 
   if (_data != nullptr)
   {
-    dataVect = _data->getFieldByLocator(ELoc::Z,ivar,useSel);
+    dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
 
     _computeCoeffs();
 
@@ -336,7 +336,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 
   temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
   ut_vector_add_inplace(result,temp);
-  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,useSel,TEST);
+  int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }
@@ -349,7 +349,7 @@ void SPDE::_computeCoeffs()
     _isCoeffsComputed = true;
     if(_requireCoeffs)
     {
-      _driftCoeffs = _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),_driftTab);
+      _driftCoeffs = _precisionsKriging.computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),_driftTab);
     }
   }
 }

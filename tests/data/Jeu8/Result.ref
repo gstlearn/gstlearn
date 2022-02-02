@@ -7,7 +7,7 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 2
 Number of fields             = 6
-Maximum Number of attributes = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 5
 
 Data Base Extension
@@ -1485,7 +1485,7 @@ Data Base Summary
 File is organized as a regular grid
 Space dimension              = 2
 Number of fields             = 7
-Maximum Number of attributes = 7
+Maximum Number of UIDs       = 7
 Total number of samples      = 16
 
 Grid characteristics:

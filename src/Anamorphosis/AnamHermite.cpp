@@ -348,20 +348,20 @@ int AnamHermite::fit(Db *db, const ELoc& locatorType)
             locatorType.getValue(),number);
     return 1;
   }
-  VectorDouble tab = db->getFieldByLocator(locatorType,0,true);
+  VectorDouble tab = db->getColumnByLocator(locatorType,0,true);
   VectorDouble wt;
   if (db->hasWeight())
-    wt = db->getFieldByLocator(ELoc::W,0,true);
+    wt = db->getColumnByLocator(ELoc::W,0,true);
 
   return fit(tab, wt);
 }
 
 int AnamHermite::fit(Db *db, const String& name)
 {
-  VectorDouble tab = db->getField(name,true);
+  VectorDouble tab = db->getColumn(name,true);
   VectorDouble wt;
   if (db->hasWeight())
-    wt = db->getFieldByLocator(ELoc::W,0,true);
+    wt = db->getColumnByLocator(ELoc::W,0,true);
 
   return fit(tab, wt);
 }

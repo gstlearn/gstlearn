@@ -114,8 +114,8 @@ int DbGrid::reset(const VectorInt& nx,
   int nech = 1;
   for (int idim = 0; idim < ndim; idim++)
     nech *= nx[idim];
-  int natt = (tab.empty()) ? 0 : (int) (tab.size() / nech);
-  int ncol = ndim + natt + flag_add_rank;
+  int ntab = (tab.empty()) ? 0 : (int) (tab.size() / nech);
+  int ncol = ndim + ntab + flag_add_rank;
   resetDims(ncol, nech);
 
   // Create the grid
@@ -136,7 +136,7 @@ int DbGrid::reset(const VectorInt& nx,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
   _defineDefaultLocators(flag_add_rank + ndim, locatorNames);
 
   return 0;
@@ -218,7 +218,7 @@ int DbGrid::resetCoveringDb(Db* db,
   // Create the locators
 
   int jcol = 0;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -288,7 +288,7 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
-  setLocatorsByAttribute(ndim, jcol, ELoc::X);
+  setLocatorsByUID(ndim, jcol, ELoc::X);
 
   return 0;
 }
@@ -358,7 +358,7 @@ void DbGrid::_createCoordinatesGrid(int icol0)
 
   // Set the locators
 
-  setLocatorsByAttribute(getNDim(), icol0, ELoc::X);
+  setLocatorsByUID(getNDim(), icol0, ELoc::X);
 
   // Generate the vector of coordinates
 
@@ -455,9 +455,9 @@ int DbGrid::getNDim() const
 
 int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
 {
-  int ndim, ndim2, ntot, natt, nech, i, flag_grid;
+  int ndim, ndim2, ntot, nloc, nech, i, flag_grid;
   VectorInt tabnum;
-  std::vector<ELoc> tabatt;
+  std::vector<ELoc> tabloc;
   VectorInt nx;
   VectorString tabnam;
   VectorDouble x0;
@@ -468,7 +468,7 @@ int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
 
   /* Initializations */
 
-  natt = ndim = nech = ntot = 0;
+  nloc = ndim = nech = ntot = 0;
 
   /* Decoding the header */
 
@@ -495,30 +495,30 @@ int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
 
   /* Reading the tail of the file */
 
-  _variableRead(file, &natt, &ndim2, &nech, tabatt, tabnum, tabnam, tab);
+  _variableRead(file, &nloc, &ndim2, &nech, tabloc, tabnum, tabnam, tab);
 
   /* Creating the Db */
 
-  if (natt > 0 && nech != ntot)
+  if (nloc > 0 && nech != ntot)
   {
     messerr("The number of lines read from the Grid file (%d)", nech);
     messerr("is not a multiple of the number of samples (%d)", ntot);
     messerr("The Grid Db is created with no sample attached");
-    natt = 0;
+    nloc = 0;
   }
-  resetDims(natt + flag_add_rank, ut_ivector_prod(nx));
+  resetDims(nloc + flag_add_rank, ut_ivector_prod(nx));
   (void) gridDefine(nx, dx, x0, angles);
   _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
 
   /* Loading the names */
 
-  if (natt > 0) for (i = 0; i < natt; i++)
-    setNameByAttribute(i + flag_add_rank, tabnam[i]);
+  if (nloc > 0) for (i = 0; i < nloc; i++)
+    setNameByUID(i + flag_add_rank, tabnam[i]);
 
   /* Create the locators */
 
-  if (natt > 0) for (i = 0; i < natt; i++)
-    setLocatorByAttribute(i + flag_add_rank, tabatt[i], tabnum[i]);
+  if (nloc > 0) for (i = 0; i < nloc; i++)
+    setLocatorByUID(i + flag_add_rank, tabloc[i], tabnum[i]);
 
   /* Core deallocation */
 
@@ -649,7 +649,7 @@ void DbGrid::generateCoordinates(const String& radix)
   }
   int ndim = getNDim();
   VectorDouble coors(ndim);
-  (void) addFieldsByConstant(ndim, 0., radix, ELoc::X);
+  (void) addColumnsByConstant(ndim, 0., radix, ELoc::X);
   display();
   for (int iech = 0; iech < getSampleNumber(); iech++)
   {

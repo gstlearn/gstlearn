@@ -183,7 +183,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
 
   VectorString names;
   for (int ivar = 0; ivar < nvar; ivar++)
-    names.push_back(dbin->getNameByAttribute(iatts[ivar]));
+    names.push_back(dbin->getNameByUID(iatts[ivar]));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
  }
@@ -210,7 +210,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   if (dbin == nullptr) return;
 
   VectorString names;
-  names.push_back(dbin->getNameByAttribute(iatt));
+  names.push_back(dbin->getNameByUID(iatt));
   _setNames(dbout, iattout_start, names, suffix, nitems);
   setLocators(dbout, iattout_start, 1, nitems, flagLocate);
  }
@@ -230,7 +230,7 @@ void NamingConvention::setLocators(Db *dbout,
 
   // Set the locator for all variables
   for (int ecr = 0; ecr < nvar * nitems; ecr++)
-    dbout->setLocatorByAttribute(iattout_start + ecr, _locatorOutType, ecr);
+    dbout->setLocatorByUID(iattout_start + ecr, _locatorOutType, ecr);
 }
 
 /**
@@ -262,7 +262,7 @@ void NamingConvention::_setNames(Db *dbout,
     {
       String locnum = (nitems <= 1) ? String() : std::to_string(item+1);
       String name = concatenateStrings(_delim,_radix, local, suffix, locnum);
-      dbout->setNameByAttribute(iattout_start + ecr, name);
+      dbout->setNameByUID(iattout_start + ecr, name);
       ecr++;
     }
   }

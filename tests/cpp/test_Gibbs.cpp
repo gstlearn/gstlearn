@@ -371,7 +371,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   if (spde_f(NULL, dbgrid, model2, VectorDouble(), s_option, 1, 1, seed, 2, 0,
              0, 0, 0, 0, 0, 0, 0)) goto label_end;
-  rank  = dbgrid->getFieldNumber();
+  rank  = dbgrid->getColumnNumber();
   for (int i=0; i<nvertex; i++)
   {
     consmin[i] = MIN(dbgrid->getArray(i,rank-1), dbgrid->getArray(i,rank-2));

@@ -7,7 +7,7 @@ Data Base Summary
 File is organized as a set of isolated points
 Space dimension              = 4
 Number of fields             = 10
-Maximum Number of attributes = 10
+Maximum Number of UIDs       = 10
 Total number of samples      = 4
 
 Data Base Extension
