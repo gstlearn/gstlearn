@@ -28,8 +28,8 @@ np.random.seed(124)
 ndat=10000
 coords=np.random.uniform(1,99,size=(ndat,2))
 dat = gl.Db()
-dat.addFields(coords[:,0],"X",gl.ELoc.X,0)
-dat.addFields(coords[:,1],"Y",gl.ELoc.X,1)
+dat.addColumns(coords[:,0],"X",gl.ELoc.X,0)
+dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 
 # Create the model
 # Beware : the first big axis must be provided first: it corresponds to the direction of 'theta' angle.

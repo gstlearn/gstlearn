@@ -142,9 +142,6 @@ public:
   // Locator and UID methods
 
   void clearLocators(const ELoc& locatorType);
-  void setLocators(const VectorString& names,
-                   const ELoc& locatorType = ELoc::UNKNOWN,
-                   int locatorIndex = 0);
   void setLocatorByUID(int iuid,
                        const ELoc& locatorType = ELoc::UNKNOWN,
                        int locatorIndex = 0);
@@ -154,6 +151,9 @@ public:
   void setLocator(const String& names,
                   const ELoc& locatorType = ELoc::UNKNOWN,
                   int locatorIndex = 0);
+  void setLocators(const VectorString& names,
+                    const ELoc& locatorType = ELoc::UNKNOWN,
+                    int locatorIndex = 0);
   void setLocatorsByUID(int number,
                         int iuid,
                         const ELoc& locatorType = ELoc::UNKNOWN,

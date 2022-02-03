@@ -53,22 +53,22 @@ def findColumnNames(self, columns):
         names = self.getNamesByLocator(columns[0])
      
     elif isinstance(columns, (int, np.int_)):
-        names = self.getNameByColumn(columns)
+        names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getFieldNumber()
+        Nmax = self.getColumnNumber()
         names = []
         for i in range(Nmax)[columns]:
-            names.append(self.getNameByColumn(i))
+            names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getFieldNumber()
+        Nfields = self.getColumnNumber()
         for i in columns:
             if i >= Nfields:
                 print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")
             else:
-                names.append(self.getNameByColumn(int(i)))
+                names.append(self.getNameByColIdx(int(i)))
         
     else:
         raise ValueError(f"Argument for columns of wrong type: {type(columns)}")
@@ -113,7 +113,7 @@ def getitem(self,arg):
     # extract columns
     ColNames = findColumnNames(self, columns)
     nbvar = len(ColNames)
-    temp = np.array(self.getFields(ColNames, self.useSel))        
+    temp = np.array(self.getColumns(ColNames, self.useSel))        
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
@@ -185,15 +185,15 @@ def setitem(self,name,tab):
             useSel = check_nrows(self,nrows)
             
         VectD = np.double(tab_i)
-        self.setField(VectD, name, useSel)
+        self.setColumn(VectD, name, useSel)
         
     return
 
-setattr(gl.Db,"useSel",False)    
+#setattr(gl.Db,"useSel",False)    
     
-setattr(gl.Db,"__getitem__",getitem)
+#setattr(gl.Db,"__getitem__",getitem)
 
-setattr(gl.Db,"__setitem__",setitem)
+#setattr(gl.Db,"__setitem__",setitem)
 
 # # Example
 
@@ -347,7 +347,7 @@ if u>1e-7:
     
 a = gl.Db()
 a["var"] = np.random.normal(size=(12,5))
-a.setLocator(("var-1","var-2"), gl.ELoc.Z)
+a.setLocators(("var-1","var-2"), gl.ELoc.Z)
 
 u = a[::2,gl.ELoc.Z] - np.array([[-0.80536652, -1.72766949],
        [-1.29408532, -1.03878821],

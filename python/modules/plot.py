@@ -91,7 +91,7 @@ def addColorbar(im, ax):
     return cbar
 
 def getDefinedValues(db, name, usesel=True, compress=False):
-    tabx = db.getField(name, usesel)
+    tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
     tabx[tabx == gl.getTEST()] = np.nan
     
@@ -101,11 +101,11 @@ def getDefinedValues(db, name, usesel=True, compress=False):
     return tabx
 
 def getBiDefinedValues(db, name1, name2, usesel=True):
-    tabx = db.getField(name1, usesel)
+    tabx = db.getColumn(name1, usesel)
     tabx = np.array(tabx).transpose()
     tabx[tabx == gl.getTEST()] = np.nan
     
-    taby = db.getField(name2, usesel)
+    taby = db.getColumn(name2, usesel)
     taby = np.array(taby).transpose()
     taby[taby == gl.getTEST()] = np.nan
     
@@ -619,7 +619,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True,
     
     if name is None:
         if dbgrid.getVariableNumber() > 0:
-            name = dbgrid.getName(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
+            name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
     
@@ -787,7 +787,7 @@ def hist(db, name, nbins=30, xlab=None, ylab=None,
          title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the histogram of a variable contained in a Db'''
     
-    val = db.getField(name)
+    val = db.getColumn(name)
     if len(val) == 0:
         return None
     
@@ -962,3 +962,75 @@ def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, as
         
     return ax
 
+def plot(object, name1=None, name2=None, ranks=None):
+    filetype = type(object).__name__
+
+    if filetype == "Db":
+        if name1 is None:
+            name1 = object.getLastName()
+        flagDb = True
+        if name2 is not None:
+            flagDb = False
+        if flagDb:
+            point(object, name1, end_plot=True)
+        else:
+            correlation(object, name1, name2, end_plot=True)
+            
+    elif filetype == "DbGrid":
+        if name1 is None:
+            name1 = object.getLastName()
+        grid(object, name1, end_plot=True)
+    
+    elif filetype == "Vario":
+        vario(object,end_plot=True)
+    
+    elif filetype == "Model":
+        modelElem(object,end_plot=True)
+    
+    elif filetype == "Rule":
+        rule(object,end_plot=True)
+    
+    elif filetype == "Table":
+        table(object,ranks,end_plot=True,title=filename)
+
+    elif filetype == "Polygon":
+        polygon(object,colorPerSet=True,flagFace=True,end_plot=True)
+        
+    else:
+        print("Unknown type")
+
+def plotFromNF(filename, name1=None, name2=None, ranks=None):
+    filetype = gl.ASerializable.getFileIdentity(filename)
+    if filetype == "":
+        exit()
+
+    if filetype == "Db":
+        db = gl.Db.createFromNF(filename,False)
+        plot(db, name1, name2)
+            
+    elif filetype == "DbGrid":
+        dbgrid = gl.DbGrid.createFromNF(filename,False)
+        plot(dbgrid, name1)
+    
+    elif filetype == "Vario":
+        vario_item = gl.Vario.createFromNF(filename,False)
+        plot(vario_item)
+    
+    elif filetype == "Model":
+        model_item = gl.Model.createFromNF(filename,False)
+        plot(model_item)
+    
+    elif filetype == "Rule":
+        rule_item = gl.Rule.createFromNF(filename,False)
+        plot(rule_item)
+    
+    elif filetype == "Table":
+        table_item = gl.Table.createFromNF(filename,False)
+        plot(table_item,ranks)
+
+    elif filetype == "Polygon":
+        polygon_item = gl.Polygons.createFromNF(filename,False)
+        plot(polygon_item)
+        
+    else:
+        print("Unknown type")

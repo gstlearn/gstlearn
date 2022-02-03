@@ -291,7 +291,7 @@ std::pair<ERoles, int> Database::getRoleAndIRole(const String& name) const
  *  @param[in] role: role of variable
  *  @param[in] i_role: Rank of the role
  */
-String Database::getName(ERoles role, int i_role) const
+String Database::getNameByLocator(ERoles role, int i_role) const
 {
   std::multimap<ERoles, String>::const_iterator res;
   res = _roles.find(role);

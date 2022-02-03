@@ -29,76 +29,61 @@ filename = args[1]
 ranks = args[2:nargs]
 
 # Get the Type of the File and stop if returned empty (file not found)
-filetype = gl.ASerializable.getFileIdentify(filename)
+filetype = gl.ASerializable.getFileIdentity(filename)
 if filetype == "":
     exit()
 
 if filetype == "Db":
-    
-    # Case of Db file
     db = gl.Db.createFromNF(filename,False)
-    if invalid(ranks, db.getFieldNumber()): exit()
+    if invalid(ranks, db.getColumnNumber()): exit()
     if len(ranks) == 0:
         name = db.getLastName()
         flagDb = True
     elif len(ranks) == 1:
-        name = db.getNameByColumn(int(ranks[0]))
+        name = db.getNameByColIdx(int(ranks[0]))
         flagDb = True
     elif len(ranks) == 2:
-        nameX = db.getNameByColumn(int(ranks[0]))
-        nameY = db.getNameByColumn(int(ranks[1]))
+        nameX = db.getNameByColIdx(int(ranks[0]))
+        nameY = db.getNameByColIdx(int(ranks[1]))
         flagDb = False
     else:
         print("Number of Variable ranks should be 0, 1 or 2")
         exit()
-        
     if flagDb:
         gp.point(db, name, end_plot=True)
     else:
         gp.correlation(db, nameX, nameY, end_plot=True)
             
 elif filetype == "DbGrid":
-        
     dbgrid = gl.DbGrid.createFromNF(filename,False)
-    if invalid(ranks, db.getFieldNumber()): exit()
+    if invalid(ranks, dbgrid.getColumnNumber()): exit()
     if len(ranks) == 0:
-        name = db.getLastName()
+        name = dbgrid.getLastName()
     elif len(ranks) == 1:
-        name = db.getNameByColumn(int(ranks[0]))
+        name = dbgrid.getNameByColIdx(int(ranks[0]))
     else:
         print("Number of Variable rank should be 0 or 1")
         exit()
-        
-    gp.grid(db, name, end_plot=True)
+    gp.grid(dbgrid, name, end_plot=True)
     
 elif filetype == "Vario":
-    
-    # Case of Vario file
     vario = gl.Vario.createFromNF(filename,False)
     gp.vario(vario,end_plot=True)
     
 elif filetype == "Model":
-    
-    # Case of Model fileused as ordinate
     model = gl.Model.createFromNF(filename,False)
     gp.modelElem(model,end_plot=True)
     
 elif filetype == "Rule":
-    
-    # Case of Rule file
-    rule = gl.Rule(filename,False)
+    rule = gl.Rule.createFromNF(filename,False)
     gp.rule(rule,end_plot=True)
     
 elif filetype == "Table":
-
-    # Case of a Table
-    table = gl.Table(filename,False)
+    table = gl.Table.createFromNF(filename,False)
     if invalid(ranks, table.getColNumber()): exit()
     gp.table(table,ranks,end_plot=True,title=filename)
 
 elif filetype == "Polygon":
-    
-    # Case of a polygon
     poly = gl.Polygons.createFromNF(filename,False)
     gp.polygon(poly,colorPerSet=True,flagFace=True,end_plot=True)
         

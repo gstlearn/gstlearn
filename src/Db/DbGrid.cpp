@@ -607,7 +607,7 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
   return db;
 }
 
-VectorDouble DbGrid::getFieldSubGrid(const String& name,
+VectorDouble DbGrid::getColumnSubGrid(const String& name,
                                      int idim0,
                                      int rank,
                                      bool useSel)
