@@ -74,10 +74,10 @@ void Timer::displaySeconds(const String& title, double sec)
 }
 
 /**
- * Displays the time elapsed (in s) since the reference Timer
+ * Displays the time elapsed (in ms) since the reference Timer
  * @param title Title used for the internal display
  * @param flag_reset True if the Reference must be set to current Time
- * @return Print the Timer elapsed (s)
+ * @return Print the Timer elapsed (ms)
  */
 void Timer::displayIntervalMilliseconds(const String& title, bool flag_reset)
 {
