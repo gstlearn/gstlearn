@@ -585,7 +585,7 @@ VectorDouble Model::evalDrifts(const Db* db,
   VectorDouble vec;
   if (_driftList == nullptr && db != nullptr)
   {
-    int nech = (useSel) ? db->getActiveSampleNumber() : db->getSampleNumber();
+    int nech = db->getSampleNumber(useSel);
     double mean = getMean(ivar);
     vec = VectorDouble(nech,mean);
   }

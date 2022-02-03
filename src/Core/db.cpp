@@ -71,8 +71,8 @@ void db_grid_print(Db *db)
  *****************************************************************************/
 static int st_vector_get_col(Db *db, int icol, double *tab)
 {
-  if (!db->isColumnIndexValid(icol)) return (1);
-  VectorDouble local = db->getColumnByIndex(icol);
+  if (!db->isColIdxValid(icol)) return (1);
+  VectorDouble local = db->getColumnByColIdx(icol);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -93,7 +93,7 @@ static int st_vector_get_col(Db *db, int icol, double *tab)
  *****************************************************************************/
 static int st_vector_get_att(const Db *db, int iatt, double *tab)
 {
-  if (!db->isUIDIndexValid(iatt)) return (1);
+  if (!db->isUIDValid(iatt)) return (1);
   VectorDouble local = db->getColumnByUID(iatt);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
@@ -181,8 +181,8 @@ int db_vector_get_att_sel(Db *db, int iatt, double *tab)
  *****************************************************************************/
 static int st_vector_put_col(Db *db, int icol, const double *tab)
 {
-  if (!db->isColumnIndexValid(icol)) return (1);
-  db->setColumnByIndexOldStyle(tab, icol);
+  if (!db->isColIdxValid(icol)) return (1);
+  db->setColumnByColIdxOldStyle(tab, icol);
   return (0);
 }
 
@@ -240,8 +240,8 @@ int db_vector_put(Db *db,
                   int locatorIndex,
                   double *tab)
 {
-  int icol = db->getColumnIndexByLocator(locatorType, locatorIndex);
-  if (!db->isColumnIndexValid(icol)) return (1);
+  int icol = db->getColIdxByLocator(locatorType, locatorIndex);
+  if (!db->isColIdxValid(icol)) return (1);
   if (st_vector_put_col(db, icol, tab)) return (1);
   return (0);
 }
@@ -271,7 +271,7 @@ static void st_load_data(Db *db,
   if (flag_add_rank)
   {
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
-      db->setByColumn(iech, jcol, iech + 1);
+      db->setByColIdx(iech, jcol, iech + 1);
 
     db_name_set(db, jcol, "rank");
     jcol++;
@@ -287,9 +287,9 @@ static void st_load_data(Db *db,
     for (int iech = 0; iech < db->getSampleNumber(); iech++, ecr++)
     {
       if (order == ELoadBy::SAMPLE)
-        db->setByColumn(iech, jcol, tab[icol + ntab * iech]);
+        db->setByColIdx(iech, jcol, tab[icol + ntab * iech]);
       else
-        db->setByColumn(iech, jcol, tab[ecr]);
+        db->setByColIdx(iech, jcol, tab[ecr]);
     }
     jcol++;
   }
@@ -506,8 +506,8 @@ int db_coorvec_get(const Db *db, int idim, double *tab)
       tab[iech] = db->getCoordinate(iech, idim);
     else
     {
-      int icol = db->getColumnIndexByLocator(ELoc::X, idim);
-      if (!db->isColumnIndexValid(icol)) return (1);
+      int icol = db->getColIdxByLocator(ELoc::X, idim);
+      if (!db->isColIdxValid(icol)) return (1);
       tab[iech] = db->getArray(iech, icol);
     }
   }
@@ -539,9 +539,9 @@ int db_coorvec_put(Db *db, int idim, double *tab)
     }
     else
     {
-      int icol = db->getColumnIndexByLocator(ELoc::X, idim);
-      if (!db->isColumnIndexValid(icol)) return (1);
-      db->setByColumn(iech, icol, tab[iech]);
+      int icol = db->getColIdxByLocator(ELoc::X, idim);
+      if (!db->isColIdxValid(icol)) return (1);
+      db->setByColIdx(iech, icol, tab[iech]);
     }
   }
   return (0);
@@ -636,8 +636,8 @@ int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
       tab[item] = db->getCoordinate(iech, item);
     else
     {
-      int icol = db->getColumnIndexByLocator(locatorType, item);
-      if (!db->isColumnIndexValid(icol)) return (1);
+      int icol = db->getColIdxByLocator(locatorType, item);
+      if (!db->isColIdxValid(icol)) return (1);
       tab[item] = db->getArray(iech, icol);
     }
   }
@@ -1752,9 +1752,9 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
-  int icol = db->getColumnIndexByUID(iatt);
-  if (!db->isColumnIndexValid(icol)) return (na_string);
-  return (db->getNameByColumn(icol));
+  int icol = db->getColIdxByUID(iatt);
+  if (!db->isColIdxValid(icol)) return (na_string);
+  return (db->getNameByColIdx(icol));
 }
 
 /****************************************************************************/
@@ -1770,8 +1770,8 @@ String db_name_get_by_att(const Db *db, int iatt)
 String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
-  if (!db->isColumnIndexValid(icol)) return (na_string);
-  return (db->getNameByColumn(icol));
+  if (!db->isColIdxValid(icol)) return (na_string);
+  return (db->getNameByColIdx(icol));
 }
 
 /****************************************************************************/
@@ -1787,7 +1787,7 @@ String db_name_get_by_col(Db *db, int icol)
  *****************************************************************************/
 int db_name_set(Db *db, int iatt, const String &name)
 {
-  if (!db->isUIDIndexValid(iatt)) return 1;
+  if (!db->isUIDValid(iatt)) return 1;
   db->setNameByUID(iatt, name);
   return (0);
 }
@@ -1827,7 +1827,7 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
   for (jcol = 0; jcol < ncol; jcol++)
   {
     jatt = iatt + jcol;
-    icol = db->getColumnIndexByUID(jatt);
+    icol = db->getColIdxByUID(jatt);
 
     if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
       for (iech = 0; iech < db->getSampleNumber(); iech++)
@@ -3223,8 +3223,8 @@ double* db_distances_general(Db *db1,
 
   *n1 = 0;
   *n2 = 0;
-  nech1 = db1->getActiveSampleNumber();
-  nech2 = db2->getActiveSampleNumber();
+  nech1 = db1->getSampleNumber(true);
+  nech2 = db2->getSampleNumber(true);
   dist = nullptr;
   max_all = nech1 * nech2;
 
@@ -4204,8 +4204,8 @@ int db_name_identify(Db *db, const String &string)
 {
   for (int iatt = 0; iatt < db->getUIDMaxNumber(); iatt++)
   {
-    int icol = db->getColumnIndexByUID(iatt);
-    if (!string.compare(db->getNameByColumn(icol))) return (iatt);
+    int icol = db->getColIdxByUID(iatt);
+    if (!string.compare(db->getNameByColIdx(icol))) return (iatt);
   }
   return (-1);
 }

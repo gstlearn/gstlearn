@@ -4564,7 +4564,7 @@ int _krigsim(const char *strloc,
   FLAG_SIMU = 1;
   FLAG_DGM = flag_dgm;
   R_COEFF = rval;
-  IPTR_EST = dbout->getColumnIndexByLocator(ELoc::SIMU, 0);
+  IPTR_EST = dbout->getColIdxByLocator(ELoc::SIMU, 0);
   if (st_check_environment(1, 1, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
   if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
@@ -4876,8 +4876,8 @@ int global_arithmetic(Db *dbin,
 
   /* Preliminary assignments */
 
-  np = dbin->getActiveSampleNumber();
-  ng = dbgrid->getActiveSampleNumber();
+  np = dbin->getSampleNumber(true);
+  ng = dbgrid->getSampleNumber(true);
   if (FFFF(surface)) surface = ng * db_grid_maille(dbgrid);
   if (seed != 0) law_set_random_seed(seed);
 
@@ -5009,8 +5009,8 @@ int global_kriging(Db *dbin,
 
   /* Preliminary checks */
 
-  np = dbin->getActiveSampleNumber();
-  ng = dbout->getActiveSampleNumber();
+  np = dbin->getSampleNumber(true);
+  ng = dbout->getSampleNumber(true);
   nbfl = model->getDriftNumber();
   nfeq = model->getDriftEquationNumber();
   nvar = model->getVariableNumber();
@@ -8520,7 +8520,7 @@ int dk_f(Db *dbin,
   }
   varloc = (int*) mem_alloc(sizeof(int) * nvarz, 1);
   for (ivar = 0; ivar < nvarz; ivar++)
-    varloc[ivar] = DBIN->getColumnIndexByLocator(ELoc::Z, ivar);
+    varloc[ivar] = DBIN->getColIdxByLocator(ELoc::Z, ivar);
 
   /* Loop on the targets to be processed */
 
@@ -8687,7 +8687,7 @@ int* neigh_calc(Db *dbin,
   if (dbin != nullptr && dbin->getVariableNumber() != model->getVariableNumber()
       && model->getVariableNumber() == 1)
   {
-    zloc = dbin->getColumnIndexByLocator(ELoc::Z);
+    zloc = dbin->getColIdxByLocator(ELoc::Z);
     dbin->clearLocators(ELoc::Z);
     dbin->setLocatorByUID(zloc, ELoc::Z);
   }
@@ -8818,7 +8818,7 @@ static int st_sampling_krige_data(Db *db,
   utab = s = tl = xl = c = v = tn1 = tn2 = sq = nullptr;
   eigval = eigvec = spart = vsort = tutil = invsig = nullptr;
   isort = ralls = rutil = nullptr;
-  ndat = db->getActiveSampleNumber();
+  ndat = db->getSampleNumber(true);
   ntot = nsize1 + nsize2;
   ntri = nsize2 * (nsize2 + 1) / 2;
   nother = ndat - ntot;
@@ -9160,7 +9160,7 @@ int st_crit_global(Db *db,
   /* Initializations */
 
   error = 1;
-  ndat = db->getActiveSampleNumber();
+  ndat = db->getSampleNumber(true);
   nutil = ndat - nsize1;
   c00 = invc = data = datm = cs = temp = olderr = olddiv = nullptr;
   aux1 = cs1 = nullptr;
@@ -10119,9 +10119,9 @@ static double* st_calcul_covmat(const char *title,
   /* Initializations */
 
   n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
-                     db1->getActiveSampleNumber();
+                     db1->getSampleNumber(true);
   n2 = (test_def2) ? db2->getActiveAndDefinedNumber(0) :
-                     db2->getActiveSampleNumber();
+                     db2->getSampleNumber(true);
 
   /* Core allocation */
 
@@ -10192,7 +10192,7 @@ static double* st_calcul_drfmat(const char *title,
   /* Initializations */
 
   n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
-                     db1->getActiveSampleNumber();
+                     db1->getSampleNumber(true);
   nbfl = model->getDriftNumber();
 
   /* Core allocation */
@@ -10255,9 +10255,9 @@ static double* st_calcul_distmat(const char *title,
   /* Initializations */
 
   n1 = (test_def1) ? db1->getActiveAndDefinedNumber(0) :
-                     db1->getActiveSampleNumber();
+                     db1->getSampleNumber(true);
   ns = (test_def2) ? db2->getActiveAndDefinedNumber(0) :
-                     db2->getActiveSampleNumber();
+                     db2->getSampleNumber(true);
   ndim = db1->getNDim();
 
   /* Core allocation */
@@ -10378,7 +10378,7 @@ static double* st_inhomogeneous_covpp(Db *dbdat,
   covpp = nullptr;
 
   np = dbdat->getActiveAndDefinedNumber(0);
-  ns = dbsrc->getActiveSampleNumber();
+  ns = dbsrc->getSampleNumber(true);
 
   /* Covariance matrix between Mesures */
 
@@ -10439,8 +10439,8 @@ static double* st_inhomogeneous_covgp(Db *dbdat,
   covgp = nullptr;
 
   np = dbdat->getActiveAndDefinedNumber(0);
-  ns = dbsrc->getActiveSampleNumber();
-  ng = dbout->getActiveSampleNumber();
+  ns = dbsrc->getSampleNumber(true);
+  ng = dbout->getSampleNumber(true);
 
   /* Covariance matrix between Mesures and Target */
 
@@ -10503,8 +10503,8 @@ static double* st_inhomogeneous_covgg(Db *dbsrc,
   error = 1;
   covgg = nullptr;
 
-  ns = dbsrc->getActiveSampleNumber();
-  ng = dbout->getActiveSampleNumber();
+  ns = dbsrc->getSampleNumber(true);
+  ng = dbout->getSampleNumber(true);
 
   /* Core allocation */
 
@@ -10739,8 +10739,8 @@ int inhomogeneous_kriging(Db *dbdat,
   }
   nred = neq = np = dbdat->getActiveAndDefinedNumber(0);
   nfeq = 0;
-  ns = dbsrc->getActiveSampleNumber();
-  ng = dbout->getActiveSampleNumber();
+  ns = dbsrc->getSampleNumber(true);
+  ng = dbout->getSampleNumber(true);
   nbfl = model_dat->getDriftNumber();
 
   /* Core allocation */

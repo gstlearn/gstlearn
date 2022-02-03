@@ -136,5 +136,5 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
  */
 int NeighUnique::getMaxSampleNumber(const Db* db) const
 {
-  return db->getActiveSampleNumber();
+  return db->getSampleNumber(true);
 }

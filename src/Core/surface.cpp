@@ -725,7 +725,7 @@ int db_trisurf(Db *db,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    iptr_init[idim] = db->getColumnIndexByLocator(ELoc::X, idim);
+    iptr_init[idim] = db->getColIdxByLocator(ELoc::X, idim);
     iptr_proj[idim] = db->addColumnsByConstant(1, TEST);
     if (iptr_proj[idim] < 0) goto label_end;
   }

@@ -53,13 +53,24 @@ if filetype == "Db":
         exit()
         
     if flagDb:
-        if db.isGrid():
-            gp.grid(db, name, end_plot=True)
-        else:
-            gp.point(db, name, end_plot=True)
+        gp.point(db, name, end_plot=True)
     else:
         gp.correlation(db, nameX, nameY, end_plot=True)
             
+elif filetype == "DbGrid":
+        
+    dbgrid = gl.DbGrid.createFromNF(filename,False)
+    if invalid(ranks, db.getFieldNumber()): exit()
+    if len(ranks) == 0:
+        name = db.getLastName()
+    elif len(ranks) == 1:
+        name = db.getNameByColumn(int(ranks[0]))
+    else:
+        print("Number of Variable rank should be 0 or 1")
+        exit()
+        
+    gp.grid(db, name, end_plot=True)
+    
 elif filetype == "Vario":
     
     # Case of Vario file

@@ -3076,7 +3076,7 @@ static int st_fill_Bnugget(Db *dbin)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getActiveSampleNumber();
+  ndata = dbin->getSampleNumber(true);
   nvar = model->getVariableNumber();
   nvar2 = nvar * nvar;
   nvs2 = nvar * (nvar + 1) / 2;
@@ -3300,7 +3300,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getActiveSampleNumber();
+  ndata = dbin->getSampleNumber(true);
   nvar = model->getVariableNumber();
   BheteroD = BheteroT = nullptr;
   Btriplet = nullptr;
@@ -5797,7 +5797,7 @@ int spde_process(Db *dbin,
   }
   if (S_DECIDE.flag_dbin)
   {
-    ndata = dbin->getActiveSampleNumber();
+    ndata = dbin->getSampleNumber(true);
     zkrig = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zkrig == nullptr) goto label_end;
     zdat = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
@@ -7572,7 +7572,7 @@ cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int /*verbose*/)
 
   if (ip_max < nvertex - 1)
   {
-    if (!cs_entry(Atriplet, db->getActiveSampleNumber() - 1, nvertex - 1, 0.))
+    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1, nvertex - 1, 0.))
       goto label_end;
   }
 
@@ -7914,7 +7914,7 @@ int kriging2D_spde(Db *dbin,
 
     nvar = st_get_nvar();
     ncova = st_get_ncova_max();
-    ndata = dbin->getActiveSampleNumber();
+    ndata = dbin->getSampleNumber(true);
     ncur = s_mesh->nvertex;
     zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zcur == nullptr) goto label_end;
@@ -9111,7 +9111,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
     if (m2denv->flag_ed)
     {
-      cols[0] = dbout->getColumnIndexByLocator(ELoc::F, ilayer);
+      cols[0] = dbout->getColIdxByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
@@ -9607,8 +9607,8 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   db = nullptr;
   nechin = nechout = 0;
 
-  nechin = dbin->getActiveSampleNumber();
-  nechout = dbout->getActiveSampleNumber();
+  nechin = dbin->getSampleNumber(true);
+  nechout = dbout->getSampleNumber(true);
   nech = nechin + nechout;
   natt = 1;                  // Rank
   natt += ndim;               // Coordinates
@@ -10755,7 +10755,7 @@ int m2d_gibbs_spde(Db *dbin,
   dbc = st_m2d_create_constraints(m2denv, dbin, dbout, ndim, nlayer,
                                   &number_hard);
   if (dbc == nullptr) goto label_end;
-  nech = dbc->getActiveSampleNumber();
+  nech = dbc->getSampleNumber(true);
 
   /* Check SPDE environment */
   // At the first call, only one variable is Z_locatorized in order to

@@ -716,7 +716,7 @@ void Database::fromGeoslib(DbGrid* db)
     VectorDouble val;
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
       val[iech] = db->getArray(iech,i);
-    VariableDouble* new_var = new VariableDouble(db->getNameByColumn(i));
+    VariableDouble* new_var = new VariableDouble(db->getNameByColIdx(i));
     new_var->setValues(val);
     addVar(new_var);
     i++;

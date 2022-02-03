@@ -853,7 +853,7 @@ int db_duplicate(Db *db,
 
   // Adding a new variable
 
-  VectorDouble sel(db->getActiveSampleNumber());
+  VectorDouble sel(db->getSampleNumber(true));
 
   // Check for duplicates
 
@@ -1024,7 +1024,7 @@ static void st_edit_display(Db *db, int nrdv, int nrds, int ivar, int iech)
   tab_prints(NULL, " ");
   for (jvar = ivar_deb; jvar <= ivar_fin; jvar++)
   {
-    if (db->getLocatorByColumn(jvar, &locatorType, &item))
+    if (db->getLocatorByColIdx(jvar, &locatorType, &item))
     {
       String strloc = getLocatorName(locatorType, item);
       (void) gslStrcpy(string, strloc.c_str());
@@ -1381,7 +1381,7 @@ int db_normalize(Db *db,
   for (icol = 0; icol < ncol; icol++)
   {
     jcol = cols[icol];
-    if (!db->isColumnIndexValid(jcol))
+    if (!db->isColIdxValid(jcol))
     {
       messerr("Column %d is not defined", cols[icol]);
       return (1);
@@ -1975,7 +1975,7 @@ int _db_category(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getActiveSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(true); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -2110,7 +2110,7 @@ int _db_indicator(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getActiveSampleNumber(); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(true); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -2194,7 +2194,7 @@ int _db_indicator(Db *db,
 
   if (!flag_indic)
   {
-    for (int iech = 0; iech < db->getActiveSampleNumber(); iech++)
+    for (int iech = 0; iech < db->getSampleNumber(true); iech++)
     {
       double value = db->getArray(iech, iptr);
       if (FFFF(value)) continue;
@@ -3060,7 +3060,7 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
   if (rank < 0) goto label_end;
   for (icol = 0; icol < ncol; icol++)
   {
-    (void) dbin->getLocatorByColumn(icol, &locatorType, &item);
+    (void) dbin->getLocatorByColIdx(icol, &locatorType, &item);
     dbout->setLocatorByUID(icol, locatorType, item);
   }
 
@@ -3076,7 +3076,7 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
     /* Loop on the variables of the input grid */
 
     for (icol = 0; icol < ncol; icol++)
-      dbout->setByColumn(iech, icol, dbin->getByColumn(iad, icol));
+      dbout->setByColIdx(iech, icol, dbin->getByColIdx(iad, icol));
   }
 
   label_end: return (dbout);
@@ -4659,7 +4659,7 @@ int db_gradient_components(DbGrid *dbgrid)
 
   /* Create the new variable */
 
-  iptrz = dbgrid->getColumnIndexByLocator(ELoc::Z, 0);
+  iptrz = dbgrid->getColIdxByLocator(ELoc::Z, 0);
   if (iptrz < 0) goto label_end;
   iptr = dbgrid->addColumnsByConstant(ndim, TEST, String(), ELoc::G);
 
@@ -4899,7 +4899,7 @@ int db_streamline(DbGrid *dbgrid,
               dbgrid->getGradientNumber());
       goto label_end;
     }
-    iptr_grad = dbgrid->getColumnIndexByLocator(ELoc::G, 0);
+    iptr_grad = dbgrid->getColIdxByLocator(ELoc::G, 0);
   }
   else
   {
@@ -5506,7 +5506,7 @@ double* db_grid_sampling(DbGrid *dbgrid,
   *nval_ret = 0;
   res = xi1 = xi2 = nullptr;
   ndim = dbgrid->getNDim();
-  iatt = dbgrid->getColumnIndexByLocator(ELoc::Z, 0);
+  iatt = dbgrid->getColIdxByLocator(ELoc::Z, 0);
 
   /* Preliminary checks */
 

@@ -2803,7 +2803,7 @@ int uc_f(Db *db,
   if (verbose)
   {
     message("Uniform Conditioning on %d panels and %d cutoffs\n",
-            db->getActiveSampleNumber(), ncutmine);
+            db->getSampleNumber(true), ncutmine);
     message("- Number of Polynomials = %d\n", nbpoly);
     message("- Mean                  = %lf\n", mean);
     message("- Punctual Variance     = %lf\n", variance);
@@ -3494,7 +3494,7 @@ int ce_f(Db *db,
       message("Conditional expectation under the gaussian model (Hermite)\n");
     message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
     message(" Number of values                   : %6d\n",
-            db->getActiveSampleNumber());
+            db->getSampleNumber(true));
     message(" Number of cutoffs                  : %6d\n", ncutmine);
     if (nbsimu > 0)
       message(" Number of Monte-Carlo simulations  : %6d\n", nbsimu);

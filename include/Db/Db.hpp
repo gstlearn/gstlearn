@@ -112,26 +112,26 @@ public:
   const VectorDouble& getArrays() const { return _array; }
 
   String getNameByLocator(const ELoc& locatorType, int locatorIndex=0) const;
-  String getNameByColumn(int icol) const { return _colNames[icol]; }
+  String getNameByColIdx(int icol) const { return _colNames[icol]; }
   String getNameByUID(int iuid) const;
 
   VectorString getNames(const String& name) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNamesByLocator(const ELoc& locatorType) const;
-  VectorString getNamesByColumns(const VectorInt& icols) const;
+  VectorString getNamesByColIdx(const VectorInt& icols) const;
   VectorString getNamesByUID(const VectorInt& iuids) const;
   VectorString getAllNames() const;
 
   void setName(const String& old_name, const String& name);
   void setName(const VectorString list, const String& name);
   void setNameByUID(int iuid, const String& name);
-  void setNameByColumn(int icol, const String& name);
+  void setNameByColIdx(int icol, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
 
   inline int getUIDMaxNumber() const { return static_cast<int>(_uidcol.size()); }
   inline int getColumnNumber() const { return _ncol; }
   double getColumnSize(bool useSel = false) const;
-  inline int getSampleNumber() const { return _nech; }
+  int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
 
   VectorString expandNameList(const VectorString& names) const;
@@ -148,6 +148,9 @@ public:
   void setLocatorByUID(int iuid,
                        const ELoc& locatorType = ELoc::UNKNOWN,
                        int locatorIndex = 0);
+  void setLocatorByColIdx(int icol,
+                          const ELoc& locatorType = ELoc::UNKNOWN,
+                          int locatorIndex = 0);
   void setLocator(const String& names,
                   const ELoc& locatorType = ELoc::UNKNOWN,
                   int locatorIndex = 0);
@@ -155,6 +158,9 @@ public:
                         int iuid,
                         const ELoc& locatorType = ELoc::UNKNOWN,
                         int locatorIndex = 0);
+  void setLocatorsByColIdx(const VectorInt& icols,
+                           const ELoc& locatorType = ELoc::UNKNOWN,
+                           int locatorIndex = 0);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
                  const ELoc& locatorType = ELoc::UNKNOWN,
@@ -168,7 +174,7 @@ public:
                            const ELoc& locatorType = ELoc::UNKNOWN,
                            int locatorIndex = 0,
                            int nechInit = 0);
-  int addSelection(const VectorDouble& tab,
+  int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
                    const String& combine = "set");
   int addSelectionByLimit(const String& testvar,
@@ -181,28 +187,30 @@ public:
   int  getLastUID(int number = 0) const;
   String getLastName(int number = 0) const;
 
-  int getColumnIndex(const String& name) const;
-  int getColumnIndexByUID(int iuid) const;
-  int getColumnIndexByLocator(const ELoc& locatorType, int locatorIndex=0) const;
-  VectorInt getColumnIndicesByUID(const VectorInt iuids) const;
+  int getColIdx(const String& name) const;
+  int getColIdxByUID(int iuid) const;
+  int getColIdxByLocator(const ELoc& locatorType, int locatorIndex=0) const;
+  VectorInt getColIdxs(const VectorString& names) const;
+  VectorInt getColIdxsByUID(const VectorInt iuids) const;
+  VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
 
-  VectorDouble getColumnByIndex(int icol, bool useSel = false) const;
-  void setColumnByIndex(const VectorDouble& tab, int icol, bool useSel = false);
-  void setColumnByIndexOldStyle(const double* tab, int icol, bool useSel = false);
+  void setColumn(const VectorDouble& tab, const String& name, bool useSel = false);
+  void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
+  void setColumnByUID(const VectorDouble& tab, int iuid, bool useSel = false);
+  void setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel = false);
+  void setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByUID(int iuid_in, int iuid_out);
 
-  VectorInt getColumns(const VectorString& names) const;
-  VectorInt getColumnsByUID(const ELoc& locatorType) const;
-  VectorDouble getColumnsByIndices(const VectorInt& icols = VectorInt(),
-                                   bool useSel = false) const;
-  VectorDouble getColumnsByIndexInterval(int icol_beg,
-                                         int icol_end,
-                                         bool useSel = false) const;
+  VectorDouble getColumnsByColIdx(const VectorInt& icols = VectorInt(),
+                                  bool useSel = false) const;
+  VectorDouble getColumnsByColIdxInterval(int icol_beg,
+                                          int icol_end,
+                                          bool useSel = false) const;
 
   int getLocator(const String& name,
                  ELoc* ret_locatorType,
                  int* ret_locatorIndex) const;
-  int getLocatorByColumn(int icol,
+  int getLocatorByColIdx(int icol,
                          ELoc* ret_locatorType,
                          int* ret_locatorIndex) const;
   int getLocatorByUID(int iuid,
@@ -226,7 +234,7 @@ public:
 
   VectorDouble getSampleCoordinates(int iech) const;
   void getSampleCoordinates(int iech, VectorDouble& coor) const;
-  VectorDouble getSampleUIDs(const ELoc& locatorType, int iech) const;
+  VectorDouble getSampleLocators(const ELoc& locatorType, int iech) const;
 
   void   getCoordinatesInPlace(int iech, VectorDouble& coor, bool flag_rotate=true) const;
   VectorDouble getCoordinates(int idim, bool useSel = false, bool flag_rotate = true) const;
@@ -251,8 +259,8 @@ public:
                         int locatorIndex,
                         double value);
 
-  double getByColumn(int iech, int icol) const;
-  void   setByColumn(int iech, int icol, double value);
+  double getByColIdx(int iech, int icol) const;
+  void   setByColIdx(int iech, int icol, double value);
 
   int    getVariableNumber() const;
   bool   hasVariable() const;
@@ -406,11 +414,7 @@ public:
   VectorDouble getColumnByLocator(const ELoc& locatorType,
                                   int locatorIndex = 0,
                                   bool useSel = false) const;
-  VectorDouble getColumnByColumn(int icol, bool useSel = false) const;
-
-  void setColumn(const VectorDouble& tab, const String& name, bool useSel = false);
-  void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
-  void setColumnByUID(const VectorDouble& tab, int iuid, bool useSel = false);
+  VectorDouble getColumnByColIdx(int icol, bool useSel = false) const;
 
   VectorDouble getAllColumns(bool useSel = false) const;
   VectorDouble getColumns(const VectorString& names = VectorString(),
@@ -425,11 +429,11 @@ public:
 
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);
-  void deleteColumnByColumn(int icol_del);
+  void deleteColumnByColIdx(int icol_del);
 
   void deleteColumns(const VectorString& names);
   void deleteColumnsByLocator(const ELoc& locatorType);
-  void deleteColumnsByColumn(const VectorInt& icols);
+  void deleteColumnsByColIdx(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
@@ -446,8 +450,8 @@ public:
 
   // Functions for checking validity of parameters
 
-  bool isColumnIndexValid(int icol) const;
-  bool isUIDIndexValid(int iuid) const;
+  bool isColIdxValid(int icol) const;
+  bool isUIDValid(int iuid) const;
   bool isSampleIndexValid(int iech) const;
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
@@ -456,6 +460,36 @@ public:
                         const String& combine = "set") const;
 
   void generateRank(const String& radix = "rank");
+
+  // Statistics
+  VectorDouble statistics(const VectorString& names,
+                          const VectorString& opers = { "Mean" },
+                          bool flagIso = true,
+                          bool flagVariableWise = true,
+                          bool flagPrint = true,
+                          double vmin = TEST,
+                          double vmax = TEST,
+                          double proba = TEST,
+                          const String& title = "",
+                          const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsMulti(const VectorString& names,
+                               bool flagIso = true,
+                               bool flagPrint = false,
+                               const String& title = "");
+  VectorDouble statistics(const VectorInt& iuids,
+                          const VectorString& opers = { "Mean" },
+                          bool flagIso = true,
+                          bool flagVariableWise = true,
+                          bool flagPrint = true,
+                          double proba = TEST,
+                          double vmin = TEST,
+                          double vmax = TEST,
+                          const String& title = "",
+                          const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsMulti(const VectorInt& iuids,
+                               bool flagIso = true,
+                               bool flagPrint = false,
+                               const String& title = "");
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false) override;
@@ -481,7 +515,7 @@ protected:
                       bool writeCoorForGrid=false) const;
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
-  void _setNameByColumn(int icol, const String& name);
+  void _setNameByColIdx(int icol, const String& name);
   String _toStringCommon(const AStringFormat *strfmt) const;
   String _summaryString(void) const;
 
@@ -492,62 +526,28 @@ private:
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, double valinit);
   double _updateValue(int oper, double oldval, double value);
-  String _summaryVariableString(void) const;
-  String _summaryExtensionString(void) const;
-  String _summaryVariableStat(VectorInt cols,
-                              int mode = 1,
-                              int maxNClass = 50) const;
+  String _summaryVariables(void) const;
+  String _summaryExtensions(void) const;
+  String _summaryStats(VectorInt cols, int mode = 1, int maxNClass = 50) const;
   String _summaryLocators(void) const;
   String _summaryUIDs(void) const;
-  String _summaryArrayString(VectorInt cols, bool flagSel = true) const;
+  String _summaryArrays(VectorInt cols, bool useSel = true) const;
 
   void _defineDefaultLocatorsByNames(int shift, const VectorString& names);
   int  _getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const;
   VectorInt _getUIDsBasic(const VectorString& names) const;
 
-  // Column dependent indexing
-
   int _getLastColumn(int number = 0) const;
-  int _getUIDByColumn(int icol) const;
+  int _getUIDByColIdx(int icol) const;
   int _findColumnInLocator(const ELoc& locatorType, int icol) const;
   int _findUIDInLocator(const ELoc& locatorType, int iuid) const;
-  String _getLocatorNameByColumn(int icol) const;
+  String _getLocatorNameByColIdx(int icol) const;
   VectorInt _ids(const String& name, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const VectorString& names, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const ELoc& locatorType, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const VectorInt& iuids, bool flagOne, bool verbose = true) const;
 
   // Higher level methods
-  // Statistics
-
-  VectorDouble statistics(const VectorString& names,
-                          const VectorString& opers = { "Mean" },
-                          bool flagIso = true,
-                          bool flagVariableWise = true,
-                          bool flagPrint = true,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          double proba = TEST,
-                          const String& title = "",
-                          const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsMulti(const VectorString& names,
-                               bool flagIso = true,
-                               bool flagPrint = false,
-                               const String& title = "");
-  VectorDouble _statistics(const VectorInt& iuids,
-                          const VectorString& opers = { "Mean" },
-                          bool flagIso = true,
-                          bool flagVariableWise = true,
-                          bool flagPrint = true,
-                          double proba = TEST,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          const String& title = "",
-                          const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble _statisticsMulti(const VectorInt& iuids,
-                               bool flagIso = true,
-                               bool flagPrint = false,
-                               const String& title = "");
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
 
 private:

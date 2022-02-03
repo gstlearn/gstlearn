@@ -392,9 +392,9 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
 
   /* Add the extreme value to force dimension */
 
-  if (ip_max < getNApices() - 1 || iech < db->getActiveSampleNumber() - 1)
+  if (ip_max < getNApices() - 1 || iech < db->getSampleNumber(true) - 1)
   {
-    if (!cs_entry(Atriplet, db->getActiveSampleNumber() - 1,
+    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1,
                   getNApices() - 1, 0.)) goto label_end;
   }
   
@@ -440,7 +440,7 @@ double* MeshETurbo::interpolateMeshToDb(Db *db,
   rhs      = lambda = dtab = nullptr;
   ndim     = getNDim();
   ncorner  = getNApexPerMesh();
-  nech     = db->getActiveSampleNumber();
+  nech     = db->getSampleNumber(true);
   VectorInt indg0(ndim);
   VectorInt indgg(ndim);
   VectorInt indices(ncorner);

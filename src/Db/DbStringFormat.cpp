@@ -13,12 +13,12 @@
 DbStringFormat::DbStringFormat(unsigned char params,
                                const VectorString& names,
                                const VectorInt& cols,
-                               bool flagSel)
+                               bool useSel)
     : AStringFormat(1),
       _params(params),
       _cols(cols),
       _names(names),
-      _flagSel(flagSel),
+      _useSel(useSel),
       _mode(1)
 {
 }
@@ -28,7 +28,7 @@ DbStringFormat::DbStringFormat(const DbStringFormat& r)
       _params(r._params),
       _cols(r._cols),
       _names(r._names),
-      _flagSel(r._flagSel),
+      _useSel(r._useSel),
       _mode(r._mode)
 {
 }
@@ -41,7 +41,7 @@ DbStringFormat& DbStringFormat::operator=(const DbStringFormat& r)
     _params = r._params;
     _cols = r._cols;
     _names = r._names;
-    _flagSel = r._flagSel;
+    _useSel = r._useSel;
     _mode = r._mode;
   }
   return *this;
@@ -63,7 +63,7 @@ bool DbStringFormat::_matchFlag(int flag) const
 DbStringFormat* DbStringFormat::create(unsigned char params,
                                        const VectorString& names,
                                        const VectorInt& cols,
-                                       bool flagSel)
+                                       bool useSel)
 {
-  return new DbStringFormat(params, names, cols, flagSel);
+  return new DbStringFormat(params, names, cols, useSel);
 }

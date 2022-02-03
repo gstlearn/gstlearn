@@ -174,7 +174,7 @@ void SPDE::init(Model* model,
     if(dat->getVarianceErrorNumber() > 0)
     {
       varianceData = dat->getColumnByLocator(ELoc::V,0,useSel);
-      for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+      for (int iech = 0; iech < dat->getSampleNumber(true); iech++)
       {
         double *temp = &varianceData[iech];
         *temp = MAX(*temp+_nugget,0.01 * totalSill);
@@ -183,7 +183,7 @@ void SPDE::init(Model* model,
     else
     {
       ut_vector_fill(varianceData, MAX(_nugget, 0.01 * totalSill),
-                     dat->getActiveSampleNumber());
+                     dat->getSampleNumber(true));
     }
   }
   _precisionsKriging.setVarianceDataVector(varianceData);
@@ -214,7 +214,7 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
 void SPDE::computeSimuCond(int nbsimus, int seed) const
 {
   computeSimuNonCond(nbsimus,seed);
-  VectorDouble temp(_data->getActiveSampleNumber());
+  VectorDouble temp(_data->getSampleNumber(true));
   _precisionsSimu.simulateOnDataPointFromMeshings(_workingSimu,temp);
   ut_vector_multiply_inplace(temp,-1.);
   ut_vector_add_inplace(_workingData,temp);
@@ -291,8 +291,8 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
   int ivar = 0;
   bool useSel = true;
-  VectorDouble temp(db->getActiveSampleNumber());
-  VectorDouble result(db->getActiveSampleNumber(),0.);
+  VectorDouble temp(db->getSampleNumber(true));
+  VectorDouble result(db->getSampleNumber(true),0.);
   String suffix;
   if(_calcul == ESPDECalcMode::KRIGING)
   {

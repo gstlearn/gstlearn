@@ -114,6 +114,11 @@ def getBiDefinedValues(db, name1, name2, usesel=True):
     taby = taby[sel]
     return tabx, taby
 
+def getFileIdentity(filename):
+    type = gl.Aserializable.getFileIdentity(filename)
+    print(type)
+    return type
+
 def varioElem(vario, ivar=0, jvar=0, idir=0,
           color='black', linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None,
           flagLabelDir=False, flagLegend=False, title=None, ax=None, figsize=None, end_plot = False):

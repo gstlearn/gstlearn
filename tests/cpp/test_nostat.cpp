@@ -87,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Inquiry the value of the Non-stationary parameters at a given sample
   int target = 1000;
-  VectorDouble vect = workingDbc->getSampleUIDs(ELoc::NOSTAT,target);
+  VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT,target);
   ut_vector_display("Non-stationary parameters at sample", vect);
 
   NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);

@@ -1789,7 +1789,7 @@ int db_write_vtk(const char *filename,
   tab = nullptr;
   points = xcoor = ycoor = zcoor = nullptr;
   nech = db->getSampleNumber();
-  nactive = db->getActiveSampleNumber();
+  nactive = db->getSampleNumber(true);
   flag_grid = db->isGrid();
   useBinary = (int) get_keypone("VTK_Use_Binary", 1.);
   factx = (float) get_keypone("VTK_Fact_X", 1.);
@@ -1892,7 +1892,7 @@ int db_write_vtk(const char *filename,
             iad = ix + dims[0] * (iy + dims[1] * iz);
             if (db->isActive(iad))
             {
-              value = (float) (db->getByColumn(iad, cols[icol]));
+              value = (float) (db->getByColIdx(iad, cols[icol]));
               if (FFFF(value))
                 tab[icol][ecr] = (float) (TEST);
               else
@@ -2866,7 +2866,7 @@ int db_write_csv(Db *db,
     if (flag_allcol)
     {
       for (int rank = 0; rank < ncol; rank++)
-        csv_print_double(db->getByColumn(iech, rank));
+        csv_print_double(db->getByColIdx(iech, rank));
     }
     else
     {

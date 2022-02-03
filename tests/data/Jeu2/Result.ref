@@ -6,7 +6,7 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of fields             = 4
+Number of Columns            = 4
 Maximum Number of UIDs       = 4
 Total number of samples      = 52
 
@@ -53,13 +53,13 @@ Data Base Statistics
 Data Base Contents
 ------------------
                  rank        x1        x2        z1
-     [  1,]     1.000   -44.130    78.440    -0.880
-     [  2,]     2.000   -14.270    28.710    -2.000
-     [  3,]     3.000   -19.400    39.610     2.550
-     [  4,]     4.000     1.560    11.290    -1.420
-     [  5,]     5.000    -2.940    19.090     0.180
-     [  6,]     6.000   -25.380    71.950    -0.120
-     [  7,]     7.000     8.990    14.430     0.260
+     [  0,]     1.000   -44.130    78.440    -0.880
+     [  1,]     2.000   -14.270    28.710    -2.000
+     [  2,]     3.000   -19.400    39.610     2.550
+     [  3,]     4.000     1.560    11.290    -1.420
+     [  4,]     5.000    -2.940    19.090     0.180
+     [  5,]     6.000   -25.380    71.950    -0.120
+     [  6,]     7.000     8.990    14.430     0.260
 (Ncols=4,Nrows=7[from 52])
 
 Variogram characteristics

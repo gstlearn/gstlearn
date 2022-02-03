@@ -284,7 +284,7 @@ int db_stats(Db *db,
   for (icol = 0; icol < ncol; icol++)
   {
     jcol = cols[icol];
-    if (!db->isColumnIndexValid(jcol))
+    if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
       goto label_end;
@@ -598,7 +598,7 @@ int db_stats_grid(Db *db,
   for (icol = 0; icol < ncol; icol++)
   {
     jcol = cols[icol];
-    if (!db->isColumnIndexValid(jcol))
+    if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
       goto label_end;

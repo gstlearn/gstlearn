@@ -911,8 +911,7 @@ static void st_variogram_patch_C00(Local_Pgs *local_pgs,
                                    double rho)
 {
   Db *db = local_pgs->db;
-  int nech = (db == nullptr) ? 0 :
-                               db->getActiveSampleNumber();
+  int nech = (db == nullptr) ? 0 : db->getSampleNumber(true);
   vario->patchCenter(idir, nech, rho);
 }
 

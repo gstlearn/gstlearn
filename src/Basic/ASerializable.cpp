@@ -537,7 +537,7 @@ String ASerializable::getTestData(const String& subdir, const String& filename)
   return sstr.str();
 }
 
-String ASerializable::getFileIdentify(const String& filename)
+String ASerializable::getFileIdentity(const String& filename)
 {
   // Preliminary check
   if (filename.empty())

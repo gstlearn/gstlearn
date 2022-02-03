@@ -165,7 +165,7 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   // Create the array of coordinates
 
   int ndim = _dbnostat->getNDim();
-  int nech = db->getActiveSampleNumber();
+  int nech = db->getSampleNumber(true);
 
   VectorDouble tab(nech,0);
   double* coor = (double *) mem_alloc(sizeof(double) * ndim * nech, 1);

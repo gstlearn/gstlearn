@@ -354,7 +354,7 @@ void DbGrid::_createCoordinatesGrid(int icol0)
   // Set the Names
 
   for (int idim = 0; idim < getNDim(); idim++)
-    _setNameByColumn(icol0 + idim, getLocatorName(ELoc::X, idim));
+    _setNameByColIdx(icol0 + idim, getLocatorName(ELoc::X, idim));
 
   // Set the locators
 
