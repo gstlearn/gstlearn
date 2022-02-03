@@ -59,7 +59,7 @@ int main(int /*argc*/, char */*argv*/[])
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
   VectorDouble Z = ut_vector_simulate_gaussian(ndata);
-  dat->addFields(Z, "Z",ELoc::Z);
+  dat->addColumns(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
   NeighUnique* neighU = NeighUnique::create(2,false);

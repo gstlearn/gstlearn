@@ -28,7 +28,7 @@ public:
 
   static String getHomeDirectory(const std::string& sub = "");
   static String getTestData(const String& subdir, const String& filename);
-  static String getFileIdentify(const String& filename);
+  static String getFileIdentity(const String& filename);
   static void setContainerName(bool useDefault,
                                const String& containerName = String(),
                                bool verbose = false);

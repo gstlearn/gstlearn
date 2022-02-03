@@ -291,7 +291,7 @@ std::pair<ERoles, int> Database::getRoleAndIRole(const String& name) const
  *  @param[in] role: role of variable
  *  @param[in] i_role: Rank of the role
  */
-String Database::getName(ERoles role, int i_role) const
+String Database::getNameByLocator(ERoles role, int i_role) const
 {
   std::multimap<ERoles, String>::const_iterator res;
   res = _roles.find(role);
@@ -662,8 +662,8 @@ Db* Database::toGeoslib() const
     if (_isGrid)
     {
       int new_att;
-      new_att = res->addFieldsByConstant(1, 0);
-      res->setFieldByAttribute(_vars[ivar]->getValues(),new_att);
+      new_att = res->addColumnsByConstant(1, 0);
+      res->setColumnByUID(_vars[ivar]->getValues(),new_att);
     }
     db_name_set(res, iatt, _vars[ivar]->getName().c_str());
     iatt++;
@@ -691,7 +691,7 @@ Db* Database::toGeoslib() const
       jrole = 0;
       while (jrole < (int) vec_role[irole].size())
       {
-        res->setLocatorByAttribute(vec_role[irole][jrole], ELoc::fromValue(irole), jrole+1);
+        res->setLocatorByUID(vec_role[irole][jrole], ELoc::fromValue(irole), jrole+1);
         jrole++;
       }
     }
@@ -710,13 +710,13 @@ void Database::fromGeoslib(DbGrid* db)
     _isGrid = true;
     _pgrid.fromGeoslib(db->getGrid());
   }
-  int nvar = db->getFieldNumber();
+  int nvar = db->getColumnNumber();
   while (i < nvar)
   {
     VectorDouble val;
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
       val[iech] = db->getArray(iech,i);
-    VariableDouble* new_var = new VariableDouble(db->getNameByColumn(i));
+    VariableDouble* new_var = new VariableDouble(db->getNameByColIdx(i));
     new_var->setValues(val);
     addVar(new_var);
     i++;
@@ -733,7 +733,7 @@ void Database::fromGeoslib(DbGrid* db)
       int k = 0;
       while (k < db->getFromLocatorNumber(*it))
       {
-        String name = lst_names[db->getAttributeByLocator(*it,k)];
+        String name = lst_names[db->getUIDByLocator(*it,k)];
         names_role.push_back(name);
         k++;
       }

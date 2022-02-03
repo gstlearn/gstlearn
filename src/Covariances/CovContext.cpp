@@ -79,7 +79,7 @@ CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
   _nVar = db->getVariableNumber();
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
-  _field = db->getFieldSize();
+  _field = db->getColumnSize();
   _update();
 }
 

@@ -165,7 +165,7 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
   // Create the array of coordinates
 
   int ndim = _dbnostat->getNDim();
-  int nech = db->getActiveSampleNumber();
+  int nech = db->getSampleNumber(true);
 
   VectorDouble tab(nech,0);
   double* coor = (double *) mem_alloc(sizeof(double) * ndim * nech, 1);
@@ -189,11 +189,11 @@ int NoStatArray::attachToDb(Db* db, int icas, bool verbose) const
     if (_informField(ipar, nech, coorloc, tab, verbose)) return 1;
 
     // Store the local vector within the Db as a new field
-    db->addFields(tab,names[ipar],ELoc::UNKNOWN,0,true);
+    db->addColumns(tab,names[ipar],ELoc::UNKNOWN,0,true);
   }
 
   // Set locators to the newly created variables
-  db->setLocator(names,ELoc::NOSTAT);
+  db->setLocators(names,ELoc::NOSTAT);
 
   coor = (double *) mem_free((char *) coor);
   return 0;
@@ -204,7 +204,7 @@ void NoStatArray::detachFromDb(Db* db, int icas) const
   if (db == nullptr) return;
   if (db == _dbnostat) return;
   ANoStat::detachFromDb(db,icas);
-  db->deleteFieldsByLocator(ELoc::NOSTAT);
+  db->deleteColumnsByLocator(ELoc::NOSTAT);
 }
 
 /**
@@ -336,12 +336,12 @@ String NoStatArray::_displayStats(int ipar, int icas) const
   else if (icas == 1)
   {
     if (_dbin == nullptr) return sstr.str();
-    vec = _dbin->getFieldByLocator(ELoc::NOSTAT,ipar,true);
+    vec = _dbin->getColumnByLocator(ELoc::NOSTAT,ipar,true);
   }
   else
   {
     if (_dbout == nullptr) return sstr.str();
-    vec = _dbout->getFieldByLocator(ELoc::NOSTAT,ipar,true);
+    vec = _dbout->getColumnByLocator(ELoc::NOSTAT,ipar,true);
   }
 
   // Produce the statistics

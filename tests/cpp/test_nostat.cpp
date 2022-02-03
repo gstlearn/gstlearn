@@ -80,14 +80,14 @@ int main(int /*argc*/, char */*argv*/[])
     h12[i] = hh.getValue(0,1);
     h22[i] = hh.getValue(1,1);
   }
-  workingDbc->addFields(h11,"H1-1",ELoc::NOSTAT,0);
-  workingDbc->addFields(h12,"H1-2",ELoc::NOSTAT,1);
-  workingDbc->addFields(h22,"H2-2",ELoc::NOSTAT,2);
+  workingDbc->addColumns(h11,"H1-1",ELoc::NOSTAT,0);
+  workingDbc->addColumns(h12,"H1-2",ELoc::NOSTAT,1);
+  workingDbc->addColumns(h22,"H2-2",ELoc::NOSTAT,2);
   workingDbc->display();
 
   // Inquiry the value of the Non-stationary parameters at a given sample
   int target = 1000;
-  VectorDouble vect = workingDbc->getSampleAttributes(ELoc::NOSTAT,target);
+  VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT,target);
   ut_vector_display("Non-stationary parameters at sample", vect);
 
   NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);
@@ -105,7 +105,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   VectorDouble result(Qsimu.getSize());
   Qsimu.eval(vectnew,result);
-  workingDbc->addFields(result,"Simu",ELoc::Z);
+  workingDbc->addColumns(result,"Simu",ELoc::Z);
 
   (void) workingDbc->dumpToNF("spirale.ascii");
 

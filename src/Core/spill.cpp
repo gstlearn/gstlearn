@@ -731,8 +731,8 @@ int spill_point(DbGrid *dbgrid,
     messerr("Spill point is limited to 2-D space");
     return (1);
   }
-  if (ind_depth < 0 || ind_depth > dbgrid->getFieldNumber() || ind_data < 0
-      || ind_data > dbgrid->getFieldNumber())
+  if (ind_depth < 0 || ind_depth > dbgrid->getColumnNumber() || ind_data < 0
+      || ind_data > dbgrid->getColumnNumber())
   {
     messerr("Error in the ranks of the height (%d) and data (%d) variables",
             ind_depth, ind_data);
@@ -757,7 +757,7 @@ int spill_point(DbGrid *dbgrid,
 
   /* Add the attribute */
 
-  iptr_spill = dbgrid->addFieldsByConstant(1, 0.);
+  iptr_spill = dbgrid->addColumnsByConstant(1, 0.);
   if (iptr_spill < 0) goto label_end;
 
   /* Core allocation */

@@ -366,7 +366,7 @@ int substitution(DbGrid *dbgrid,
 
   /* Add the attributes for storing the results */
 
-  iptr = dbgrid->addFieldsByConstant(1, 0.);
+  iptr = dbgrid->addColumnsByConstant(1, 0.);
   if (iptr < 0) goto label_end;
 
   /***********************/

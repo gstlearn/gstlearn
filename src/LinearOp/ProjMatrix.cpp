@@ -85,7 +85,7 @@ int ProjMatrix::resetFromDb(const Db* db, AMesh *a_mesh, int verbose)
   {
     _Aproj = a_mesh->getMeshToDb(db,verbose);
     if (_Aproj == nullptr) return 1;
-    _nPoint = db->getActiveSampleNumber();
+    _nPoint = db->getSampleNumber(true);
     _nApices = a_mesh->getNApices();
   }
   else
@@ -112,7 +112,7 @@ int ProjMatrix::resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose)
   amesh.convertFromOldMesh(s_mesh, 0);
   _Aproj = db_mesh_sparse(db, &amesh, verbose);
   if (_Aproj == nullptr) return 1;
-  _nPoint = db->getActiveSampleNumber();
+  _nPoint = db->getSampleNumber(true);
   _nApices = s_mesh->nmesh;
   return 0;
 }

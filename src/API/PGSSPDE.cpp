@@ -57,16 +57,16 @@ void PGSSPDE::query(Db* db,bool keepGauss) const
   for(int i = 0; i < ngrf;i++)
   {
    int iptr = _spdeTab[i]->query(db,NamingConvention("simGauss"));
-   db->setNameByAttribute(iptr,names[i]);
+   db->setNameByUID(iptr,names[i]);
   }
 
-  db->setLocator(names,ELoc::Z);
+  db->setLocators(names,ELoc::Z);
   db->display();
   _ruleProp->gaussToCategory(db,NamingConvention("categories"));
 
   if(!keepGauss)
   {
-    db->deleteFields(names);
+    db->deleteColumns(names);
   }
 }
 

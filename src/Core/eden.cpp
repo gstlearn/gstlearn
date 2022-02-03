@@ -942,8 +942,8 @@ int fluid_propagation(DbGrid *dbgrid,
     messerr("Fluid propagation is limited to 3-D space (maximum)");
     return (1);
   }
-  if (ind_facies < 0 || ind_facies > dbgrid->getFieldNumber() || ind_fluid < 0
-      || ind_fluid > dbgrid->getFieldNumber())
+  if (ind_facies < 0 || ind_facies > dbgrid->getColumnNumber() || ind_fluid < 0
+      || ind_fluid > dbgrid->getColumnNumber())
   {
     messerr("Error in the ranks of the facies (%d) and fluid (%d) variables",
             ind_facies, ind_fluid);
@@ -983,17 +983,17 @@ int fluid_propagation(DbGrid *dbgrid,
 
   if (niter > 1)
   {
-    IPTR_STAT_FLUID = DB->addFieldsByConstant(NFLUIDS, 0.);
+    IPTR_STAT_FLUID = DB->addColumnsByConstant(NFLUIDS, 0.);
     if (IPTR_STAT_FLUID < 0) goto label_end;
-    IPTR_STAT_CORK = DB->addFieldsByConstant(1, 0.);
+    IPTR_STAT_CORK = DB->addColumnsByConstant(1, 0.);
     if (IPTR_STAT_CORK < 0) goto label_end;
   }
 
   /* Add the attributes for storing the Fluid and Data informations */
 
-  IPTR_FLUID = DB->addFieldsByConstant(1, 0.);
+  IPTR_FLUID = DB->addColumnsByConstant(1, 0.);
   if (IPTR_FLUID < 0) goto label_end;
-  IPTR_DATE = DB->addFieldsByConstant(1, TEST);
+  IPTR_DATE = DB->addColumnsByConstant(1, TEST);
   if (IPTR_DATE < 0) goto label_end;
 
   /* Loop on the iterations */
@@ -1085,8 +1085,8 @@ int fluid_propagation(DbGrid *dbgrid,
   skin = skin_undefine(skin);
   if (niter > 1)
   {
-    if (IPTR_FLUID > 0) DB->deleteFieldByAttribute(IPTR_FLUID);
-    if (IPTR_DATE > 0) DB->deleteFieldByAttribute(IPTR_DATE);
+    if (IPTR_FLUID > 0) DB->deleteColumnByUID(IPTR_FLUID);
+    if (IPTR_DATE > 0) DB->deleteColumnByUID(IPTR_DATE);
   }
   return (error);
 }
@@ -1174,9 +1174,9 @@ int fluid_extract(DbGrid *dbgrid,
     messerr("Fluid propagation is limited to 3-D space (maximum)");
     return (1);
   }
-  if (ind_facies < 0 || ind_facies > dbgrid->getFieldNumber() || ind_fluid < 0
-      || ind_fluid > dbgrid->getFieldNumber() || ind_date < 0
-      || ind_fluid > dbgrid->getFieldNumber())
+  if (ind_facies < 0 || ind_facies > dbgrid->getColumnNumber() || ind_fluid < 0
+      || ind_fluid > dbgrid->getColumnNumber() || ind_date < 0
+      || ind_fluid > dbgrid->getColumnNumber())
   {
     messerr("Error in ranks of facies (%d), fluid (%d) or date (%d) variables",
             ind_facies, ind_fluid, ind_date);

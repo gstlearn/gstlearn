@@ -232,7 +232,7 @@ VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
 {
   if (! _isDriftIndexValid(ib)) return VectorDouble();
 
-  int nech = db->getActiveSampleNumber();
+  int nech = db->getSampleNumber(true);
   VectorDouble vec(nech);
 
   int ecr = 0;

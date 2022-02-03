@@ -2997,9 +2997,9 @@ static int st_vmap_general(Db *db,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
+  IPTV = dbmap->addColumnsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
+  IPTW = dbmap->addColumnsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Calculate a neighborhood (if radius > 0) */
@@ -3173,9 +3173,9 @@ static int st_vmap_grid(DbGrid *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFieldsByConstant(nv2, 0.);
+  IPTV = dbmap->addColumnsByConstant(nv2, 0.);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFieldsByConstant(nv2, 0.);
+  IPTW = dbmap->addColumnsByConstant(nv2, 0.);
   if (IPTW < 0) goto label_end;
 
   /* Loop on the first data */
@@ -3413,9 +3413,9 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
     iatt_old = db_attribute_identify(db, ELoc::W, 0);
-    iadd_new = db->addFieldsByConstant(1, 0.);
+    iadd_new = db->addColumnsByConstant(1, 0.);
     if (iadd_new < 0) goto label_end;
-    db->setLocatorByAttribute(iadd_new, ELoc::W);
+    db->setLocatorByUID(iadd_new, ELoc::W);
     maille = db_grid_maille(db);
     for (iech = 0; iech < db->getSampleNumber(); iech++)
       db->setWeight(iech, maille);
@@ -3437,8 +3437,8 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
 
   if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
   {
-    if (iadd_new > 0) db->deleteFieldByAttribute(iadd_new);
-    if (iatt_old > 0) db->setLocatorByAttribute(iatt_old, ELoc::W);
+    if (iadd_new > 0) db->deleteColumnByUID(iadd_new);
+    if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W);
   }
 
   /* Set the error return code */
@@ -3637,7 +3637,7 @@ int correlation_f(Db *db1,
   *correl = 0.;
   *nindice = 0;
   *indices = ind = nullptr;
-  iptr = dbgrid->addFieldsByConstant(1, 0.);
+  iptr = dbgrid->addColumnsByConstant(1, 0.);
   if (iptr < 0) return (1);
   m1 = m2 = v1 = v2 = v12 = nb = 0.;
 
@@ -4174,7 +4174,7 @@ int variogram_cloud(const Db *db,
   /* Allocate new variables */
 
   int ndir = varioparam->getDirectionNumber();
-  iptr = dbgrid->addFieldsByConstant(ndir, 0.);
+  iptr = dbgrid->addColumnsByConstant(ndir, 0.);
   if (iptr < 0) return (1);
 
   /* Loop on the directions to evaluate */
@@ -4334,14 +4334,14 @@ int regression_f(Db *db1,
   switch (flag_mode)
   {
     case 0:
-      if (icol < 0 || icol >= db1->getFieldNumber())
+      if (icol < 0 || icol >= db1->getColumnNumber())
       {
         messerr("The regression requires a valid target variable");
         goto label_end;
       }
       for (i = 0; i < ncol; i++)
       {
-        if (icols[i] < 0 || icols[i] >= db2->getFieldNumber())
+        if (icols[i] < 0 || icols[i] >= db2->getColumnNumber())
         {
           messerr("The regression requires a valid auxiliary variable (#%d)",
                   i + 1);
@@ -4367,7 +4367,7 @@ int regression_f(Db *db1,
 
   /* Pointer allocation */
 
-  iptr = db1->addFieldsByConstant(1, TEST);
+  iptr = db1->addColumnsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -5219,9 +5219,9 @@ static int st_vmap_grid_fft(DbGrid *dbgrid,
 
   /* Create the variables in the Variogram Map file */
 
-  IPTV = dbmap->addFieldsByConstant(nvs2, TEST);
+  IPTV = dbmap->addColumnsByConstant(nvs2, TEST);
   if (IPTV < 0) goto label_end;
-  IPTW = dbmap->addFieldsByConstant(nvs2, TEST);
+  IPTW = dbmap->addColumnsByConstant(nvs2, TEST);
   if (IPTW < 0) goto label_end;
 
   /* Core allocation */
@@ -5948,7 +5948,7 @@ int maf_compute(Db *db,
 
   /* Allocate new variables */
 
-  iptr = db->addFieldsByConstant(nvar, TEST);
+  iptr = db->addColumnsByConstant(nvar, TEST);
   if (iptr < 0) goto label_end;
 
   /* Core allocation */
@@ -5969,7 +5969,7 @@ int maf_compute(Db *db,
   /* Rotate the initial data in the PCA system */
 
   st_pca_z2f(1, iptr, db, pca, data1, pca->getMean(), pca->getSigma());
-  db->setLocatorsByAttribute(nvar, iptr, ELoc::Z);
+  db->setLocatorsByUID(nvar, iptr, ELoc::Z);
 
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
 
@@ -6104,7 +6104,7 @@ int pca_z2f(Db *db,
 
   /* Allocate new variables */
 
-  int iptr = db->addFieldsByConstant(nvar, TEST);
+  int iptr = db->addColumnsByConstant(nvar, TEST);
   if (iptr < 0) return 1;
 
   /* Core allocation */
@@ -6170,7 +6170,7 @@ int pca_f2z(Db *db,
 
   /* Allocate new variables */
 
-  int iptr = db->addFieldsByConstant(nvar, TEST);
+  int iptr = db->addColumnsByConstant(nvar, TEST);
   if (iptr < 0) return 1;
 
   /* Core allocation */
@@ -6815,7 +6815,7 @@ DbGrid* db_variogram_cloud(Db *db,
                        int varnb,
                        const NamingConvention& namconv)
 {
-  if (FFFF(lagmax)) lagmax = db->getFieldSize();
+  if (FFFF(lagmax)) lagmax = db->getColumnSize();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);
 
   // Create a grid as a support for the variogram cloud calculations

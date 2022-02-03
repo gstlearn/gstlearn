@@ -262,7 +262,7 @@ int tessellation_poisson(DbGrid *dbgrid,
 
   /* Add the attributes for storing the results */
 
-  iatts = dbgrid->addFieldsByConstant(1, TEST);
+  iatts = dbgrid->addColumnsByConstant(1, TEST);
   if (iatts < 0) goto label_end;
   indg = db_indg_alloc(dbgrid);
 
@@ -271,7 +271,7 @@ int tessellation_poisson(DbGrid *dbgrid,
   /************************************/
 
   if (simtub(NULL, dbgrid, model, NULL, 1, seed, nbtuba)) goto label_end;
-  iattg = dbgrid->getFieldNumber() - 1;
+  iattg = dbgrid->getColumnNumber() - 1;
 
   /***********************/
   /* Information process */
@@ -366,7 +366,7 @@ int tessellation_poisson(DbGrid *dbgrid,
 
   /* Core deallocation */
 
-  label_end: if (iatts >= 0) dbgrid->deleteFieldByAttribute(iatts);
+  label_end: if (iatts >= 0) dbgrid->deleteColumnByUID(iatts);
   splanes = poisson_manage_planes(-1, np, splanes);
   st_manage_stack(&stack, -1, 0., 0.);
   indg = db_indg_free(indg);
@@ -421,7 +421,7 @@ int tessellation_voronoi(DbGrid *dbgrid,
 
   /* Add the attributes for storing the results */
 
-  iatts = dbgrid->addFieldsByConstant(1, TEST);
+  iatts = dbgrid->addColumnsByConstant(1, TEST);
   if (iatts < 0) goto label_end;
   simgrid.resize(dbgrid->getSampleNumber());
 
@@ -464,7 +464,7 @@ int tessellation_voronoi(DbGrid *dbgrid,
   /* Create the Point Data Base */
 
   dbpoint = db_create_point(nbpoints, ndim, ELoadBy::SAMPLE, 1, coor);
-  dbpoint->setLocatorsByAttribute(ndim, 0, ELoc::X);
+  dbpoint->setLocatorsByUID(ndim, 0, ELoc::X);
   simpoint.resize(dbpoint->getSampleNumber());
 
   /* Perform the simulation at the seed points */
@@ -473,13 +473,13 @@ int tessellation_voronoi(DbGrid *dbgrid,
 
   /* Expand the data values over the grid nodes */
 
-  iattp = dbpoint->getFieldNumber() - 1;
+  iattp = dbpoint->getColumnNumber() - 1;
   if (expand_point_to_grid(dbpoint, dbgrid, iattp, -1, 0, -1, -1, -1, -1, 0,
                            VectorDouble(), simgrid)) goto label_end;
 
   /* Save the grid in dbgrid */
 
-  dbgrid->setFieldByAttribute(simgrid, iatts);
+  dbgrid->setColumnByUID(simgrid, iatts);
 
   /* Set the error return code */
 

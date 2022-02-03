@@ -57,7 +57,7 @@ ny = 30
 mygrid = gl.DbGrid.create([nx,ny],[1,1])
 # Add a gaussian random field
 var = np.random.randn(nx * ny)
-mygrid.addFields(var, "var1")
+mygrid.addColumns(var, "var1")
 # Display the field
 gp.grid(mygrid, title="Gaussian random field", end_plot = True)
 ```

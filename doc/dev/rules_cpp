@@ -1,0 +1,77 @@
+Ce document fixe la discipline d'ecriture des classes
+
+REGLE GENERALE
+==============
+
+Une classe contient un constructeur (si possible unique afin de permettre de
+nommer les arguments). Il peut alors contenir des arguments ... mais dont les
+valeurs par defaut sont toutes fournies.
+
+CONSTRUCTEURS MULTIPLES
+=======================
+
+Afin de permettre de disposer des (anciens) constructeurs multiples, on les
+remplace par des methodes de type "reset", c'est a dire des methodes qui
+remplissent un objet (deja instancie)... d'ou le nom.
+
+Ces methodes "reset" necessitent une ecriture en deux lignes du type 
+(on prend la classe Polygons comme illustration):
+
+Polygons poly;
+poly.resetFromNeutralFile(...)
+
+ALIAS STATIC
+============
+
+Pour eviter cette ecriture en deux lignes, on propose de developper des
+methodes globales du type, nommees "alias" pour simplifier:
+
+static Polygons* createFromNeutralFile(...)
+
+Il faut remarquer que ces methodes retournent un pointeur... ce qui evite de
+dupliquer la memoire.
+
+L'utilisation dans le code (en C++) est realise de la maniere suivante:
+
+Polygons* poly = Polygons::createFromNeutralFile(...)
+
+Il faut rappeler que l'utilisateur ne doit pas oublier de "rembourser" la 
+memoire apres utilisation.
+
+CAS PARTICULIER
+===============
+
+Il est parfois souhaitable de gagner en flexibilite en retournant un objet
+plutot que son pointeur. C'est le cas pour les objets de petite taille
+(pour lesquels une recopie n'est pas prejudiciable).
+Je propose qu'on utilise un radical different comme "define", d'ou 
+l'ecriture:
+
+Polygons poly = Polygons::defineFromNeutralFile(...)
+
+(l'exemple de la classe Polygons n'est pas tout a fait adapte).
+
+NOMS
+====
+
+On retient donc le principe suivant:
+
+- le nom du constructeur est celui de la classe
+- le nom des (ex-) constructeurs multiples: on propose le radical "reset"
+- le nom des methodes static: on propose le radical "create"
+- le nom pour les methodes retournant des objets: le radical "define"
+
+Ces regles ne concernent que les objets evolues (pour lesquels des constructeurs
+multiples sont imaginables). Il ne faut pas verser dans le dogmatisme:
+les objets usuels peuvent se satisfaire d'un constructeur unique (pour garder
+la possibilite de nommer les arguments).
+
+SUGGESTIONS
+===========
+
+Lorsque la terminologie resetFrom "ne colle pas" pour remplacer un constructeur existant, c'est que la classe concernée fait sûrement trop de choses et devrait être "splittée" en plusieurs classes.
+
+Exemple avec les 3 constructeurs de la classe Neigh qui permettent de construire un voisinage unique / glissant ou image.
+Clairement, le resetFrom n'a pas de sens pour remplacer ces constructeurs...
+Par contre, créer une classe ANeigh et des classes filles NeighUnique, NeighMoving et NeighImage est la bonne manière de procéder.
+

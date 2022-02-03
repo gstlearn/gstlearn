@@ -284,7 +284,7 @@ int db_stats(Db *db,
   for (icol = 0; icol < ncol; icol++)
   {
     jcol = cols[icol];
-    if (!db->isColumnIndexValid(jcol))
+    if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
       goto label_end;
@@ -598,7 +598,7 @@ int db_stats_grid(Db *db,
   for (icol = 0; icol < ncol; icol++)
   {
     jcol = cols[icol];
-    if (!db->isColumnIndexValid(jcol))
+    if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
       goto label_end;
@@ -618,9 +618,9 @@ int db_stats_grid(Db *db,
   /* Create the attributes */
 
   if (!strcmp(oper, "mean") || !strcmp(oper, "var") || !strcmp(oper, "stdv"))
-    iptn = dbgrid->addFieldsByConstant(1, 0.);
+    iptn = dbgrid->addColumnsByConstant(1, 0.);
   if (!strcmp(oper, "var") || !strcmp(oper, "stdv"))
-    iptm = dbgrid->addFieldsByConstant(1, 0.);
+    iptm = dbgrid->addColumnsByConstant(1, 0.);
 
   /* Core allocation */
 
@@ -644,7 +644,7 @@ int db_stats_grid(Db *db,
     /* Create the output attribute */
 
     jcol = cols[icol];
-    iptr = dbgrid->addFieldsByConstant(1, valdef);
+    iptr = dbgrid->addColumnsByConstant(1, valdef);
     if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
     if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
 
@@ -786,9 +786,9 @@ int db_stats_grid(Db *db,
   /* Delete auxiliary attributes for local calculations */
 
   if ((!strcmp(oper, "mean") || !strcmp(oper, "var") || !strcmp(oper, "stdv")) && iptn
-      > 0) dbgrid->deleteFieldByAttribute(iptn);
+      > 0) dbgrid->deleteColumnByUID(iptn);
   if ((!strcmp(oper, "var") || !strcmp(oper, "stdv")) && iptm > 0)
-    dbgrid->deleteFieldByAttribute(iptm);
+    dbgrid->deleteColumnByUID(iptm);
 
   indg = db_indg_free(indg);
   indg0 = db_indg_free(indg0);
@@ -1267,7 +1267,7 @@ int stats_proportion(DbGrid *dbin,
 
   /* Create the new variables in the output file */
 
-  iptr = dbout->addFieldsByConstant(nfacies, TEST);
+  iptr = dbout->addColumnsByConstant(nfacies, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the elements of the output grid */
@@ -1386,7 +1386,7 @@ int stats_transition(DbGrid *dbin,
 
   /* Create the new variables in the output file */
 
-  iptr = dbout->addFieldsByConstant(nfacies * nfacies, TEST);
+  iptr = dbout->addColumnsByConstant(nfacies * nfacies, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the elements of the output grid */
@@ -2106,9 +2106,9 @@ int db_upscale(DbGrid *dbgrid1, DbGrid *dbgrid2, int orient, int verbose)
   /* Create the new variable in the output file */
 
   ncol = 3;
-  iptr = dbgrid2->addFieldsByConstant(ncol, TEST);
+  iptr = dbgrid2->addColumnsByConstant(ncol, TEST);
   if (iptr < 0) goto label_end;
-  dbgrid2->setLocatorsByAttribute(ncol, iptr, ELoc::Z);
+  dbgrid2->setLocatorsByUID(ncol, iptr, ELoc::Z);
 
   /* Core allocation */
 
@@ -2742,7 +2742,7 @@ int db_diffusion(DbGrid *dbgrid1,
 
   /* Create the new variable in the output file */
 
-  iptr = dbgrid2->addFieldsByConstant(1, TEST);
+  iptr = dbgrid2->addColumnsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   /* Loop on the cells of the Output Grid */
@@ -2872,7 +2872,7 @@ void db_stats_print(const Db *db,
   data = mean = mini = maxi = var = cov = num = nullptr;
   noper = static_cast<int>(opers.size());
   VectorInt iatts = iatts_arg;
-  if (iatts.empty()) iatts = db->getAllAttributes();
+  if (iatts.empty()) iatts = db->getAllUIDs();
   ncol = static_cast<int>(iatts.size());
 
   /* Preliminary checks */
@@ -3073,7 +3073,7 @@ void db_stats_print(const Db *db,
                                     const String &title,
                                     const String &radix)
 {
-  VectorInt iatts = db->getAttributes(names);
+  VectorInt iatts = db->getUIDs(names);
   if (iatts.size() <= 0) return;
   db_stats_print(db, iatts, opers, flag_iso, flag_correl, title, radix);
 }

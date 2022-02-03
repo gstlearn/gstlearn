@@ -232,7 +232,7 @@ String _printColumnHeader(const VectorString& colnames,
     // By Numbers
     sstr << _tabPrintString(" ", EJustify::RIGHT) << " ";
     for (int ix = colfrom; ix < colto; ix++)
-      sstr << _tabPrintRowColumn(CASE_COL, ix + 1, false);
+      sstr << _tabPrintRowColumn(CASE_COL, ix, false);
     sstr << std::endl;
   }
   return sstr.str();
@@ -244,7 +244,7 @@ String _printRowHeader(const VectorString& rownames, int iy, int rowSize = _getC
   if (!rownames.empty())
     sstr << _tabPrintString(rownames[iy], EJustify::LEFT, rowSize);
   else
-    sstr << _tabPrintRowColumn(CASE_ROW, iy + 1, false);
+    sstr << _tabPrintRowColumn(CASE_ROW, iy, false);
   return sstr.str();
 }
 
