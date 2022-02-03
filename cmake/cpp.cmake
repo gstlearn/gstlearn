@@ -36,7 +36,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYP
 if (WIN32)
   # Change the name of the output file (to distinguish lib files under windows)
   set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
-  # Use static library for HDF5
+  # Use static library for HDF5 under Windows (no more issue with DLL location)
   set(HDF5_USE_STATIC_LIBRARIES ON)
 endif()
 

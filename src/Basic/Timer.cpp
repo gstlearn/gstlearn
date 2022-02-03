@@ -67,9 +67,9 @@ double Timer::getIntervalSeconds(bool flag_reset)
 void Timer::displaySeconds(const String& title, double sec)
 {
   if (! title.empty())
-    message("%s: %6.2lf s\n",title.c_str(),sec);
+    message("%s: %6.2lf s.\n",title.c_str(),sec);
   else
-    message("Timer: %6.2lf s\n",sec);
+    message("Timer: %6.2lf s.\n",sec);
 
 }
 
@@ -97,8 +97,8 @@ double Timer::getIntervalMilliseconds(bool flag_reset)
 void Timer::displayMilliseconds(const String& title, double msec)
 {
   if (! title.empty())
-    message("%s: %6.2lf s.\n",title.c_str(),msec);
+    message("%s: %6.2lf ms.\n",title.c_str(),msec);
   else
-    message("Timer: %6.2lf s.\n",msec);
+    message("Timer: %6.2lf ms.\n",msec);
 
 }
