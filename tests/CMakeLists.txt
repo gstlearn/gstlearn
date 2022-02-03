@@ -10,15 +10,14 @@ if (MSVC) # TODO use IS_MULTI_CONFIG
 #   set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose -C $<CONFIG>)
   set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG>)
 else()
-  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND})
+#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND})
 endif()
 
-#add_subdirectory(data)
+add_subdirectory(data)
 add_subdirectory(cpp)
-#add_subdirectory(inter)
+add_subdirectory(inter)
 
 # TODO : tests are executed for each directory but mixed
 # TODO : there are two reports separated (data and cpp)
-#add_dependencies(check build_tests check_cpp check_data)
-add_dependencies(check build_tests check_cpp)
+add_dependencies(check build_tests check_cpp check_data)

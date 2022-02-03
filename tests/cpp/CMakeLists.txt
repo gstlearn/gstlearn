@@ -2,11 +2,11 @@
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
 # With GLOB:
-#file(GLOB TEST_SOURCES test*.cpp)
+file(GLOB TEST_SOURCES test*.cpp)
 # Without GLOB:
-set(TEST_SOURCES 
+#set(TEST_SOURCES 
 #  test_AllGibbs.cpp
-  test_SPDEDrift.cpp)
+#  test_HDF5.cpp)
 
 # Generation folders
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
