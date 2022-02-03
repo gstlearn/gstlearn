@@ -1,4 +1,4 @@
-# Add build_tests target for building all tests executable
+# Add 'build_tests' target for building all tests executable
 add_custom_target(build_tests)
 
 # Add 'check' target for building then running the tests executable
@@ -19,6 +19,5 @@ add_subdirectory(cpp)
 add_subdirectory(inter)
 
 # TODO : tests are executed for each directory but mixed
-# TODO : there is two reports separated
-#add_dependencies(check check_cpp check_data)
-add_dependencies(check check_data)
+# TODO : there are two reports separated (data and cpp)
+add_dependencies(check build_tests check_cpp check_data)

@@ -37,7 +37,7 @@ Timer::~Timer()
 }
 
 /**
- * Defines the reference Timer (begining of a Timer chunk)
+ * Defines the reference Timer (beginning of a Timer chunk)
  */
 void Timer::reset()
 {
