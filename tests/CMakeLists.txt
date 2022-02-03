@@ -20,4 +20,5 @@ add_subdirectory(cpp)
 
 # TODO : tests are executed for each directory but mixed
 # TODO : there are two reports separated (data and cpp)
-add_dependencies(check build_tests check_cpp check_data)
+#add_dependencies(check build_tests check_cpp check_data)
+add_dependencies(check build_tests check_cpp)
