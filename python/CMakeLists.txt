@@ -112,7 +112,7 @@ target_link_libraries(${PYTGT} PUBLIC ${PROJECT_NAME}::static)
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 if (MSVC)
   # Wrapper source is too big for MSVC !
-  set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE") # 
+  set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE")
 else()
   set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 endif()
