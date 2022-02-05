@@ -782,7 +782,8 @@ def hist(db, name, nbins=30, xlab=None, ylab=None,
          title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the histogram of a variable contained in a Db'''
     
-    val = db.getField(name)
+    #val = db.getField(name)
+    val = db[name]
     if len(val) == 0:
         return None
     
