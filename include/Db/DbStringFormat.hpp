@@ -33,7 +33,7 @@ public:
   DbStringFormat(unsigned char params = FLAG_RESUME | FLAG_VARS,
                  const VectorString& names = VectorString(),
                  const VectorInt& cols = VectorInt(),
-                 bool flagSel = true);
+                 bool useSel = true);
   DbStringFormat(const DbStringFormat& r);
   DbStringFormat& operator=(const DbStringFormat& r);
   virtual ~DbStringFormat();
@@ -41,10 +41,10 @@ public:
   DbStringFormat* create(unsigned char params,
                          const VectorString& names,
                          const VectorInt& cols,
-                         bool flagSel);
+                         bool useSel);
 
   const VectorInt& getCols() const { return _cols; }
-  bool getFlagSel() const { return _flagSel; }
+  bool getUseSel() const { return _useSel; }
   int getMode() const { return _mode; }
   unsigned char getParams() const { return _params; }
   const VectorString& getNames() const { return _names; }
@@ -57,9 +57,9 @@ public:
   void setCols(const VectorInt& cols) { _names.clear(); _cols = cols; }
   /**
    * Using the current Selection or Not
-   * @param flagSel Take the selection into account when true
+   * @param useSel Take the selection into account when true
    */
-  void setFlagSel(bool flagSel) { _flagSel = flagSel; }
+  void setUseSel(bool useSel) { _useSel = useSel; }
   /**
    * @param mode Way to consider the variable for Stats (1: Real; 2: Categorical)
    */
@@ -97,6 +97,6 @@ private:
   unsigned char _params;
   VectorInt _cols;
   VectorString _names;
-  bool _flagSel;
+  bool _useSel;
   int _mode;
 };

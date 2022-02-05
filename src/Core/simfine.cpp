@@ -523,7 +523,7 @@ int simfine_f(DbGrid *dbin,
     st_dim_1_to_2(db1);
     db2 = db_create_grid(0, NDIM, 1, ELoadBy::SAMPLE, 1, NX2, X02, DX2,
                          dbin->getGrid().getRotAngles());
-    iatt2 = db2->addFieldsByConstant(1, TEST);
+    iatt2 = db2->addColumnsByConstant(1, TEST);
     if (iatt2 <= 0) goto label_end;
 
     /* Establish the kriging system */
@@ -545,7 +545,7 @@ int simfine_f(DbGrid *dbin,
     st_dim_2_to_1(db2);
     db1 = db_create_grid(0, NDIM, 1, ELoadBy::SAMPLE, 1, NX1, X01, DX1,
                          dbin->getGrid().getRotAngles());
-    iatt1 = db1->addFieldsByConstant(1, TEST);
+    iatt1 = db1->addColumnsByConstant(1, TEST);
     if (iatt1 <= 0) goto label_end;
 
     /* Truncate the output grid for next step */

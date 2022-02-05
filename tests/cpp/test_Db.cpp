@@ -1,5 +1,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/OptCst.hpp"
+#include "Basic/ECst.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -70,8 +72,16 @@ int main(int /*argc*/, char */*argv*/[])
   ut_vector_display("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
-  DbStringFormat dbfmt(FLAG_STATS,{"Sel*"});
+  DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS,{"Sel*"});
   grid->display(&dbfmt);
+
+  // Creating a Selection by setting individual values
+  OptCst::define(ECst::NTROW,-1);
+  DbStringFormat dbfmt2(FLAG_VARS | FLAG_ARRAY);
+  grid->addSelection(VectorDouble(), "mySel");
+  grid->setValue("mySel", 12, 0.);
+  grid->setValue("mySel", 19, 0.);
+  grid->display(&dbfmt2);
 
   delete grid;
   delete model;

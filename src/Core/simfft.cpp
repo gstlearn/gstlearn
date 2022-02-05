@@ -1203,7 +1203,7 @@ int simfft_f(DbGrid *db,
 
   /* Add the attributes for storing the results in the data base */
 
-  iptr = db->addFieldsByConstant(nbsimu, 0.);
+  iptr = db->addColumnsByConstant(nbsimu, 0.);
 
   /* Construction of the Simu_FFT structure and core allocation */
 

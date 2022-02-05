@@ -51,7 +51,7 @@ public:
   ERoles                getRole(int ivar) const;
   int                  getIVar(const String& name) const;
   std::pair<ERoles,int> getRoleAndIRole(const String& name) const;
-  String               getName(ERoles role, int i_role) const;
+  String               getNameByLocator(ERoles role, int i_role) const;
   VectorDouble         getValuesByName(const String& name);
   AVariable*           getVariable(int ivar);
 

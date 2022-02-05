@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of fields             = 6
-Maximum Number of attributes = 6
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 5
 
 Data Base Extension
@@ -69,11 +69,11 @@ Data Base Statistics
 Data Base Contents
 ------------------
                  rank        x1        x2        z1        g1        g2
-     [  1,]     1.000     0.000     0.000     0.000     1.000     1.000
-     [  2,]     2.000     1.000     3.000     0.000    -1.000    -1.000
-     [  3,]     3.000     1.000     0.000     1.000     0.000     0.000
-     [  4,]     4.000     2.000     0.000     2.000     1.000     2.000
-     [  5,]     5.000     3.000     0.000     3.000     2.000     1.000
+     [  0,]     1.000     0.000     0.000     0.000     1.000     1.000
+     [  1,]     2.000     1.000     3.000     0.000    -1.000    -1.000
+     [  2,]     3.000     1.000     0.000     1.000     0.000     0.000
+     [  3,]     4.000     2.000     0.000     2.000     1.000     2.000
+     [  4,]     5.000     3.000     0.000     3.000     2.000     1.000
 
 Target location
 ---------------
@@ -1484,8 +1484,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of fields             = 7
-Maximum Number of attributes = 7
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
 Total number of samples      = 16
 
 Grid characteristics:
@@ -1561,11 +1561,11 @@ Data Base Statistics
 Data Base Contents
 ------------------
                    rank *g.z1.estim *g.g1.estim *g.g2.estim *g.z1.stdev *g.g1.stdev *g.g2.stdev
-     [  1,]       1.000       0.000       1.000       1.000       0.000       0.000       0.000
-     [  2,]       2.000       1.000       0.000       0.000       0.000       0.000       0.000
-     [  3,]       3.000       2.000       1.000       2.000       0.000       0.000       0.000
-     [  4,]       4.000       3.000       2.000       1.000       0.000       0.000       0.000
-     [  5,]       5.000       0.096       0.732      -0.375       0.876       1.499       1.599
-     [  6,]       6.000       0.822       0.592      -0.166       0.823       1.474       1.498
-     [  7,]       7.000       2.233       1.260      -0.825       0.846       1.478       1.578
+     [  0,]       1.000       0.000       1.000       1.000       0.000       0.000       0.000
+     [  1,]       2.000       1.000       0.000       0.000       0.000       0.000       0.000
+     [  2,]       3.000       2.000       1.000       2.000       0.000       0.000       0.000
+     [  3,]       4.000       3.000       2.000       1.000       0.000       0.000       0.000
+     [  4,]       5.000       0.096       0.732      -0.375       0.876       1.499       1.599
+     [  5,]       6.000       0.822       0.592      -0.166       0.823       1.474       1.498
+     [  6,]       7.000       2.233       1.260      -0.825       0.846       1.478       1.578
 (Ncols=7,Nrows=7[from 16])

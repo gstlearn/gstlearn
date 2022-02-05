@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of fields             = 4
-Maximum Number of attributes = 4
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 5
 
 Data Base Extension
@@ -53,11 +53,11 @@ Data Base Statistics
 Data Base Contents
 ------------------
                  rank        x1        x2        z1
-     [  1,]     1.000    10.000    20.000     0.000
-     [  2,]     2.000    21.000    30.000     0.000
-     [  3,]     3.000    40.000    20.000     1.000
-     [  4,]     4.000    50.000    30.000     2.000
-     [  5,]     5.000    50.000    50.000     1.000
+     [  0,]     1.000    10.000    20.000     0.000
+     [  1,]     2.000    21.000    30.000     0.000
+     [  2,]     3.000    40.000    20.000     1.000
+     [  3,]     4.000    50.000    30.000     2.000
+     [  4,]     5.000    50.000    50.000     1.000
 
 Lithotype Rule
 ==============
@@ -77,8 +77,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of fields             = 6
-Maximum Number of attributes = 16
+Number of Columns            = 6
+Maximum Number of UIDs       = 16
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -146,11 +146,11 @@ Data Base Statistics
 Data Base Contents
 ------------------
                  rank  Facies.1  Facies.2  Facies.3  Facies.4  Facies.5
-     [  1,]     1.000     3.000     2.000     3.000     1.000     2.000
-     [  2,]     2.000     3.000     2.000     3.000     1.000     2.000
-     [  3,]     3.000     3.000     2.000     3.000     1.000     2.000
-     [  4,]     4.000     3.000     2.000     3.000     1.000     2.000
-     [  5,]     5.000     3.000     2.000     3.000     3.000     2.000
-     [  6,]     6.000     3.000     2.000     3.000     3.000     3.000
-     [  7,]     7.000     3.000     2.000     3.000     1.000     2.000
+     [  0,]     1.000     3.000     2.000     3.000     1.000     2.000
+     [  1,]     2.000     3.000     2.000     3.000     1.000     2.000
+     [  2,]     3.000     3.000     2.000     3.000     1.000     2.000
+     [  3,]     4.000     3.000     2.000     3.000     1.000     2.000
+     [  4,]     5.000     3.000     2.000     3.000     3.000     2.000
+     [  5,]     6.000     3.000     2.000     3.000     3.000     3.000
+     [  6,]     7.000     3.000     2.000     3.000     1.000     2.000
 (Ncols=6,Nrows=7[from 10000])

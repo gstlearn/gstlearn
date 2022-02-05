@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 4
-Number of fields             = 10
-Maximum Number of attributes = 10
+Number of Columns            = 10
+Maximum Number of UIDs       = 10
 Total number of samples      = 4
 
 Data Base Extension
@@ -103,8 +103,8 @@ Data Base Statistics
 Data Base Contents
 ------------------
                  rank        x1        x2        z1        z2        z3        x3
-     [  1,]     1.000     1.000    11.000    21.000    31.000    41.000    51.000
-     [  2,]     2.000     2.000    12.000    22.000    32.000    42.000    52.000
-     [  3,]     3.000     3.000    13.000    23.000    33.000    43.000    53.000
-     [  4,]     4.000     4.000    14.000    24.000    34.000    44.000    54.000
+     [  0,]     1.000     1.000    11.000    21.000    31.000    41.000    51.000
+     [  1,]     2.000     2.000    12.000    22.000    32.000    42.000    52.000
+     [  2,]     3.000     3.000    13.000    23.000    33.000    43.000    53.000
+     [  3,]     4.000     4.000    14.000    24.000    34.000    44.000    54.000
 (Ncols=7[from 10],Nrows=4)

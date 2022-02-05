@@ -32,9 +32,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYP
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-# Change the name of the output file (to distinguish lib files under windows) 
+# Specific stuff for windows 
 if (WIN32)
+  # Change the name of the output file (to distinguish lib files under windows)
   set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
+  # Use static library for HDF5 under Windows (no more issue with DLL location)
+  set(HDF5_USE_STATIC_LIBRARIES ON)
 endif()
 
 # Impose 'd' suffix in debug (global property)
@@ -118,8 +121,14 @@ set(DISABLE_EXPORT_IF_SWIG "
  #ifdef SWIG
   #undef ${PROJECT_NAME_UP}_EXPORT
   #undef ${PROJECT_NAME_UP}_NO_EXPORT
+  #undef ${PROJECT_NAME_UP}_DEPRECATED
+  #undef ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
+  #undef ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
   #define ${PROJECT_NAME_UP}_EXPORT
   #define ${PROJECT_NAME_UP}_NO_EXPORT
+  #define ${PROJECT_NAME_UP}_DEPRECATED
+  #define ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
+  #define ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
   #endif
 ")
 generate_export_header(shared

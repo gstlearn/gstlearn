@@ -129,15 +129,15 @@ int AnamContinuous::RawToGaussian(Db *db,
   if (exp_names.empty()) return 1;
 
   int nadd = static_cast<int>(exp_names.size());
-  int iatt = db->addFieldsByConstant(nadd);
+  int iatt = db->addColumnsByConstant(nadd);
   if (iatt < 0) return 1;
 
   for (int i = 0; i < nadd; i++)
   {
-    VectorDouble z = db->getField(exp_names[i], true);
+    VectorDouble z = db->getColumn(exp_names[i], true);
     if (z.size() <= 0) return 1;
     VectorDouble y = RawToGaussianVector(z);
-    db->setFieldByAttribute(y, iatt + i, true);
+    db->setColumnByUID(y, iatt + i, true);
     namconv.setNamesAndLocators(exp_names[i], db, iatt + i, String(), 1, false);
   }
 
@@ -153,14 +153,14 @@ int AnamContinuous::RawToGaussian(Db *db,
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 
-  int iatt = db->addFieldsByConstant(number);
+  int iatt = db->addColumnsByConstant(number);
 
   for (int item = 0; item < number; item++)
   {
-    VectorDouble z = db->getFieldByLocator(locatorType, item, true);
+    VectorDouble z = db->getColumnByLocator(locatorType, item, true);
     if (z.size() <= 0) continue;
     VectorDouble y = RawToGaussianVector(z);
-    db->setFieldByAttribute(y, iatt + item, true);
+    db->setColumnByUID(y, iatt + item, true);
   }
   namconv.setNamesAndLocators(db, locatorType, -1, db, iatt, String(), 1, true);
   return 0;
@@ -175,15 +175,15 @@ int AnamContinuous::GaussianToRaw(Db *db,
   if (exp_names.empty()) return 1;
 
   int nadd = static_cast<int>(exp_names.size());
-  int iatt = db->addFieldsByConstant(nadd);
+  int iatt = db->addColumnsByConstant(nadd);
   if (iatt < 0) return 1;
 
   for (int i = 0; i < nadd; i++)
   {
-    VectorDouble y = db->getField(exp_names[i], true);
+    VectorDouble y = db->getColumn(exp_names[i], true);
     if (y.size() <= 0) return 1;
     VectorDouble z = GaussianToRawVector(y);
-    db->setFieldByAttribute(z, iatt + i, true);
+    db->setColumnByUID(z, iatt + i, true);
     namconv.setNamesAndLocators(exp_names[i], db, iatt + i, String(), 1, false);
   }
 
@@ -199,14 +199,14 @@ int AnamContinuous::GaussianToRaw(Db *db,
   int number = db->getLocatorNumber(locatorType);
   if (number <= 0) return 1;
 
-  int iatt = db->addFieldsByConstant(number);
+  int iatt = db->addColumnsByConstant(number);
 
   for (int item = 0; item < number; item++)
   {
-    VectorDouble y = db->getFieldByLocator(locatorType, item, true);
+    VectorDouble y = db->getColumnByLocator(locatorType, item, true);
     if (y.size() <= 0) continue;
     VectorDouble z = GaussianToRawVector(y);
-    db->setFieldByAttribute(z, iatt + item, true);
+    db->setColumnByUID(z, iatt + item, true);
   }
 
   namconv.setNamesAndLocators(db, locatorType, -1, db, iatt, String(), 1, true);

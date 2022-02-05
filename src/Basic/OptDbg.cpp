@@ -141,7 +141,7 @@ void OptDbg::display()
   if (_reference > 0)
      sstr << "Index of the reference target under DEBUG = " << _reference << std::endl;
 
-  sstr << "Use 'define' or 'setReference' to modify previous values" << std::endl;
+  sstr << "Use 'OptCst::define' or 'OptCst::setReference' to modify previous values" << std::endl;
 
   messageFlush(sstr.str());
 }

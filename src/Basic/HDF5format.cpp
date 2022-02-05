@@ -203,13 +203,14 @@ int HDF5format::writeRegular(hsize_t *start,
 **
 ** \return Pointer to the allocated array or NULL
 **
-** \param[in]  type      Diension of element
+** \param[in]  type      Dimension of element
 ** \param[in]  ndim      Space dimension
 ** \param[in]  dims      Array giving grid dimension in all space directions
 **
 *****************************************************************************/
 void* HDF5format::allocArray(H5::DataType type, int ndim, hsize_t *dims)
 {
+  // TODO : Currently a crash here under Windows (MinGW) while running test_HDF5
   hsize_t size = type.getSize();
   int ntot = 1;
   for (int idim=0; idim<ndim; idim++) ntot *= (int) dims[idim];

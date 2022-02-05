@@ -3076,7 +3076,7 @@ static int st_fill_Bnugget(Db *dbin)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getActiveSampleNumber();
+  ndata = dbin->getSampleNumber(true);
   nvar = model->getVariableNumber();
   nvar2 = nvar * nvar;
   nvs2 = nvar * (nvar + 1) / 2;
@@ -3300,7 +3300,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   error = 1;
   model = st_get_model();
-  ndata = dbin->getActiveSampleNumber();
+  ndata = dbin->getSampleNumber(true);
   nvar = model->getVariableNumber();
   BheteroD = BheteroT = nullptr;
   Btriplet = nullptr;
@@ -5797,7 +5797,7 @@ int spde_process(Db *dbin,
   }
   if (S_DECIDE.flag_dbin)
   {
-    ndata = dbin->getActiveSampleNumber();
+    ndata = dbin->getSampleNumber(true);
     zkrig = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zkrig == nullptr) goto label_end;
     zdat = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
@@ -7572,7 +7572,7 @@ cs *db_mesh_sparse(Db *db, MeshEStandard *amesh, int /*verbose*/)
 
   if (ip_max < nvertex - 1)
   {
-    if (!cs_entry(Atriplet, db->getActiveSampleNumber() - 1, nvertex - 1, 0.))
+    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1, nvertex - 1, 0.))
       goto label_end;
   }
 
@@ -7914,7 +7914,7 @@ int kriging2D_spde(Db *dbin,
 
     nvar = st_get_nvar();
     ncova = st_get_ncova_max();
-    ndata = dbin->getActiveSampleNumber();
+    ndata = dbin->getSampleNumber(true);
     ncur = s_mesh->nvertex;
     zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zcur == nullptr) goto label_end;
@@ -8077,7 +8077,7 @@ int spde_f(Db *dbin,
 
   error = 0;
 
-  label_end: if (S_DECIDE.flag_modif) dbout->deleteFieldsByLocator(ELoc::SIMU);
+  label_end: if (S_DECIDE.flag_modif) dbout->deleteColumnsByLocator(ELoc::SIMU);
   return (error);
 }
 
@@ -8609,7 +8609,7 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Add an attribute
 
-  iptr = dbc->addFieldsByConstant(1, TEST);
+  iptr = dbc->addColumnsByConstant(1, TEST);
   if (iptr < 0) goto label_end;
 
   // Core allocation
@@ -8624,13 +8624,13 @@ static int st_m2d_migrate_pinch_to_point(Db *dbout, Db *dbc, int icol_pinch)
 
   // Store the resulting array in the file
 
-  dbc->setFieldByAttributeOldStyle(tab, iptr);
+  dbc->setColumnByUIDOldStyle(tab, iptr);
 
   // Set the error returned code
 
   error = 0;
 
-  label_end: if (error && iptr >= 0) dbc->deleteFieldByAttribute(iptr);
+  label_end: if (error && iptr >= 0) dbc->deleteColumnByUID(iptr);
   tab = (double*) mem_free((char* ) tab);
   return (iptr);
 }
@@ -8672,14 +8672,14 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Identify the drift at the constraining samples */
 
-    m2denv->iatt_fd = dbc->addFieldsByConstant(nlayer, TEST);
+    m2denv->iatt_fd = dbc->addColumnsByConstant(nlayer, TEST);
     if (m2denv->iatt_fd < 0) return (1);
 
     /* If pinch-out is defined, interpolate it at well data */
 
     iptr = st_m2d_migrate_pinch_to_point(dbout, dbc, icol_pinch);
     st_m2d_set_M(m2denv, nlayer, iptr, dbc, m2denv->iatt_fd);
-    if (iptr >= 0) dbc->deleteFieldByAttribute(iptr);
+    if (iptr >= 0) dbc->deleteColumnByUID(iptr);
 
     /* Check validity of drift at data points */
 
@@ -8696,7 +8696,7 @@ static int st_m2d_drift_inc_manage(M2D_Environ *m2denv,
 
     /* Identify the drift at the target grid nodes */
 
-    m2denv->iatt_fg = dbout->addFieldsByConstant(nlayer, TEST);
+    m2denv->iatt_fg = dbout->addColumnsByConstant(nlayer, TEST);
     if (m2denv->iatt_fg < 0) return (1);
     st_m2d_set_M(m2denv, nlayer, icol_pinch, dbout, m2denv->iatt_fg);
   }
@@ -9111,7 +9111,7 @@ static int st_m2d_drift_manage(M2D_Environ *m2denv,
 
     if (m2denv->flag_ed)
     {
-      cols[0] = dbout->getColumnByLocator(ELoc::F, ilayer);
+      cols[0] = dbout->getColIdxByLocator(ELoc::F, ilayer);
 
       // Migrate the information from Grid to Wells
 
@@ -9536,16 +9536,16 @@ static void st_define_locators(M2D_Environ *m2denv,
   int ivar;
 
   ivar = 1;
-  db->setLocatorsByAttribute(ndim, ivar, ELoc::X);
+  db->setLocatorsByUID(ndim, ivar, ELoc::X);
   ivar += ndim;
   for (int ilayer = 0; ilayer < nlayer; ilayer++)
   {
-    db->setLocatorByAttribute(ivar++, ELoc::L, ilayer);
-    db->setLocatorByAttribute(ivar++, ELoc::U, ilayer);
-    if (ilayer < nvar) db->setLocatorByAttribute(ivar, ELoc::Z, ilayer);
+    db->setLocatorByUID(ivar++, ELoc::L, ilayer);
+    db->setLocatorByUID(ivar++, ELoc::U, ilayer);
+    if (ilayer < nvar) db->setLocatorByUID(ivar, ELoc::Z, ilayer);
     ivar++;
   }
-  if (m2denv->flag_ed) db->setLocatorsByAttribute(nlayer, ivar, ELoc::F);
+  if (m2denv->flag_ed) db->setLocatorsByUID(nlayer, ivar, ELoc::F);
 }
 
 /****************************************************************************/
@@ -9607,8 +9607,8 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
   db = nullptr;
   nechin = nechout = 0;
 
-  nechin = dbin->getActiveSampleNumber();
-  nechout = dbout->getActiveSampleNumber();
+  nechin = dbin->getSampleNumber(true);
+  nechout = dbout->getSampleNumber(true);
   nech = nechin + nechout;
   natt = 1;                  // Rank
   natt += ndim;               // Coordinates
@@ -10726,7 +10726,7 @@ int m2d_gibbs_spde(Db *dbin,
 
   nfois = (flag_drift) ? 1 :
                          nbsimu;
-  iatt_out = dbout->addFieldsByConstant(nlayer * nfois, TEST);
+  iatt_out = dbout->addColumnsByConstant(nlayer * nfois, TEST);
   if (iatt_out < 0) goto label_end;
 
   /* Core allocation */
@@ -10755,7 +10755,7 @@ int m2d_gibbs_spde(Db *dbin,
   dbc = st_m2d_create_constraints(m2denv, dbin, dbout, ndim, nlayer,
                                   &number_hard);
   if (dbc == nullptr) goto label_end;
-  nech = dbc->getActiveSampleNumber();
+  nech = dbc->getSampleNumber(true);
 
   /* Check SPDE environment */
   // At the first call, only one variable is Z_locatorized in order to
@@ -10792,7 +10792,7 @@ int m2d_gibbs_spde(Db *dbin,
     st_m2d_drift_save(m2denv, dbout, nlayer, gwork);
     for (int ilayer = 0; ilayer < nlayer; ilayer++)
     {
-      dbout->setFieldByAttributeOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
+      dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0), iatt_out + ilayer);
       (void) gslSPrintf(string_encode, "Drift%d", ilayer + 1);
       db_name_set(dbout, iatt_out + ilayer, string_encode);
     }
@@ -10951,7 +10951,7 @@ int m2d_gibbs_spde(Db *dbin,
       st_m2d_stats_gaus("Depth on grid", nlayer, ngrid, gwork);
       for (int ilayer = 0; ilayer < nlayer; ilayer++)
       {
-        dbout->setFieldByAttributeOldStyle(&GWORK(ilayer, 0),
+        dbout->setColumnByUIDOldStyle(&GWORK(ilayer, 0),
                                    iatt_out + isimu * nlayer + ilayer);
       }
     }
@@ -10976,7 +10976,7 @@ int m2d_gibbs_spde(Db *dbin,
     {
       // Modify the locator to ELoc::GAUSFAC before grouping to CE estimation
 
-      dbout->setLocatorsByAttribute(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC);
+      dbout->setLocatorsByUID(nbsimu * nlayer, iatt_out, ELoc::GAUSFAC);
 
       if (db_simulations_to_ce(dbout, ELoc::GAUSFAC, nbsimu, nlayer, &iptr_ce,
                                &iptr_cstd)) goto label_end;
@@ -10993,7 +10993,7 @@ int m2d_gibbs_spde(Db *dbin,
         (void) db_attribute_del_mult(dbout, iptr_cstd, nlayer);
         iptr_cstd = -1;
       }
-      dbout->deleteFieldsByLocator(ELoc::GAUSFAC);
+      dbout->deleteColumnsByLocator(ELoc::GAUSFAC);
 
       // Renaming the resulting variables
 

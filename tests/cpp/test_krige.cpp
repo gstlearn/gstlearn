@@ -55,12 +55,12 @@ int main(int /*argc*/, char */*argv*/[])
     }
 
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
-  data->setNameByAttribute(1,"xcoor1");
-  data->setNameByAttribute(2,"xcoor2");
-  data->setNameByAttribute(3,"var");
-  data->setLocatorByAttribute(1,ELoc::X,0);
-  data->setLocatorByAttribute(2,ELoc::X,1);
-  data->setLocatorByAttribute(3,ELoc::Z);
+  data->setNameByUID(1,"xcoor1");
+  data->setNameByUID(2,"xcoor2");
+  data->setNameByUID(3,"var");
+  data->setLocatorByUID(1,ELoc::X,0);
+  data->setLocatorByUID(2,ELoc::X,1);
+  data->setLocatorByUID(3,ELoc::Z);
   data->display();
 
   // Create the Model

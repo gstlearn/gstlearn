@@ -98,10 +98,10 @@ public:
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
 
-  VectorDouble getFieldSubGrid(const String& name,
-                               int idim0,
-                               int rank,
-                               bool useSel = false);
+  VectorDouble getColumnSubGrid(const String& name,
+                                int idim0,
+                                int rank,
+                                bool useSel = false);
 
   int gridDefine(const VectorInt& nx,
                  const VectorDouble& dx = VectorDouble(),

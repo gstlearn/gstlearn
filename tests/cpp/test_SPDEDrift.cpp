@@ -44,15 +44,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   auto structs = {ECov::NUGGET,ECov::BESSEL_K};
   ConsItem consNug = ConsItem::define(EConsElem::SILL,0,0,0, EConsType::UPPER,0.1);
+  ConsItem consParam = ConsItem::define(EConsElem::PARAM,1, 0, 0, EConsType::EQUAL,1.);
   Constraints constraints;
   constraints.addItem(&consNug);
+  constraints.addItem(&consParam);
 
   Option_AutoFit opt;
   OptDbg::define(EDbg::CONVERGE);
-  int err = model->fit(vario,structs,true,opt,constraints);
-
-  filename = ASerializable::getTestData("Scotland","model.ascii");
-  model = Model::createFromNF(filename,verbose);
+  int err = model->fit(vario,structs,false,opt,constraints);
+  model->display();
 
   NeighUnique* neighU = NeighUnique::create(ndim, false);
   neighU->display();

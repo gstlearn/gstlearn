@@ -292,7 +292,9 @@ int main (void)
     int nfois = 1;
     int niter = (icas == 1) ? 3 : 1000;
     double mult = 2.;
-    H5::DataType type = H5::PredType::NATIVE_INT;
+
+    // Do not use assignment operator here !
+    H5::DataType type(H5::PredType::NATIVE_INT);
     bool verbose = icas == 1;
 
     // Define the dimensions

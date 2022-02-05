@@ -163,7 +163,7 @@ int Limits::toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namc
 int Limits::toCategory(Db* db, const String& name,
                        const NamingConvention& namconv)
 {
-  int iatt = db->getAttribute(name);
+  int iatt = db->getUID(name);
   if (iatt < 0) return 1;
   return toCategoryByAttribute(db, iatt, namconv);
 }
@@ -173,7 +173,7 @@ int Limits::toIndicator(Db* db,
                         int OptionIndicator,
                         const NamingConvention& namconv)
 {
-  int iatt = db->getAttribute(name);
+  int iatt = db->getUID(name);
   if (iatt < 0) return 1;
   return toIndicatorByAttribute(db, iatt, OptionIndicator, namconv);
 }

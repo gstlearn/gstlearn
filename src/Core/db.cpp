@@ -71,8 +71,8 @@ void db_grid_print(Db *db)
  *****************************************************************************/
 static int st_vector_get_col(Db *db, int icol, double *tab)
 {
-  if (!db->isColumnIndexValid(icol)) return (1);
-  VectorDouble local = db->getColumnByIndex(icol);
+  if (!db->isColIdxValid(icol)) return (1);
+  VectorDouble local = db->getColumnByColIdx(icol);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -93,8 +93,8 @@ static int st_vector_get_col(Db *db, int icol, double *tab)
  *****************************************************************************/
 static int st_vector_get_att(const Db *db, int iatt, double *tab)
 {
-  if (!db->isAttributeIndexValid(iatt)) return (1);
-  VectorDouble local = db->getFieldByAttribute(iatt);
+  if (!db->isUIDValid(iatt)) return (1);
+  VectorDouble local = db->getColumnByUID(iatt);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -116,7 +116,7 @@ static int st_vector_get_att(const Db *db, int iatt, double *tab)
  *****************************************************************************/
 int db_vector_get_att_sel_compress(Db *db, int iatt, int *number, double *tab)
 {
-  VectorDouble local = db->getFieldByAttribute(iatt, true);
+  VectorDouble local = db->getColumnByUID(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   *number = static_cast<int>(local.size());
@@ -138,7 +138,7 @@ int db_vector_get_att_sel_compress(Db *db, int iatt, int *number, double *tab)
  *****************************************************************************/
 int db_vector_get_att(const Db *db, int iatt, double *tab)
 {
-  VectorDouble local = db->getFieldByAttribute(iatt, false);
+  VectorDouble local = db->getColumnByUID(iatt, false);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -161,7 +161,7 @@ int db_vector_get_att(const Db *db, int iatt, double *tab)
  *****************************************************************************/
 int db_vector_get_att_sel(Db *db, int iatt, double *tab)
 {
-  VectorDouble local = db->getFieldByAttribute(iatt, true);
+  VectorDouble local = db->getColumnByUID(iatt, true);
   for (int iech = 0; iech < (int) local.size(); iech++)
     tab[iech] = local[iech];
   return (0);
@@ -181,8 +181,8 @@ int db_vector_get_att_sel(Db *db, int iatt, double *tab)
  *****************************************************************************/
 static int st_vector_put_col(Db *db, int icol, const double *tab)
 {
-  if (!db->isColumnIndexValid(icol)) return (1);
-  db->setColumnByIndexOldStyle(tab, icol);
+  if (!db->isColIdxValid(icol)) return (1);
+  db->setColumnByColIdxOldStyle(tab, icol);
   return (0);
 }
 
@@ -201,7 +201,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  *****************************************************************************/
 int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
 {
-  int iatt = db->getAttributeByLocator(locatorType, item);
+  int iatt = db->getUIDByLocator(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
@@ -220,7 +220,7 @@ int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
  *****************************************************************************/
 int db_selection_get(const Db *db, int item, double *tab)
 {
-  int iatt = db->getAttributeByLocator(ELoc::SEL, item);
+  int iatt = db->getUIDByLocator(ELoc::SEL, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
   return (0);
 }
@@ -240,8 +240,8 @@ int db_vector_put(Db *db,
                   int locatorIndex,
                   double *tab)
 {
-  int icol = db->getColumnByLocator(locatorType, locatorIndex);
-  if (!db->isColumnIndexValid(icol)) return (1);
+  int icol = db->getColIdxByLocator(locatorType, locatorIndex);
+  if (!db->isColIdxValid(icol)) return (1);
   if (st_vector_put_col(db, icol, tab)) return (1);
   return (0);
 }
@@ -263,7 +263,7 @@ static void st_load_data(Db *db,
 {
   // Preliminary check
 
-  if (db->getFieldNumber() <= 0) return;
+  if (db->getColumnNumber() <= 0) return;
   int jcol = 0;
 
   // Add the rank (optional)
@@ -271,7 +271,7 @@ static void st_load_data(Db *db,
   if (flag_add_rank)
   {
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
-      db->setByColumn(iech, jcol, iech + 1);
+      db->setByColIdx(iech, jcol, iech + 1);
 
     db_name_set(db, jcol, "rank");
     jcol++;
@@ -280,16 +280,16 @@ static void st_load_data(Db *db,
   // Add the input array 'tab' (if provided)
 
   if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? db->getFieldNumber() - 1 : db->getFieldNumber();
+  int ntab = (flag_add_rank) ? db->getColumnNumber() - 1 : db->getColumnNumber();
   int ecr = 0;
   for (int icol = 0; icol < ntab; icol++)
   {
     for (int iech = 0; iech < db->getSampleNumber(); iech++, ecr++)
     {
       if (order == ELoadBy::SAMPLE)
-        db->setByColumn(iech, jcol, tab[icol + ntab * iech]);
+        db->setByColIdx(iech, jcol, tab[icol + ntab * iech]);
       else
-        db->setByColumn(iech, jcol, tab[ecr]);
+        db->setByColIdx(iech, jcol, tab[ecr]);
     }
     jcol++;
   }
@@ -506,8 +506,8 @@ int db_coorvec_get(const Db *db, int idim, double *tab)
       tab[iech] = db->getCoordinate(iech, idim);
     else
     {
-      int icol = db->getColumnByLocator(ELoc::X, idim);
-      if (!db->isColumnIndexValid(icol)) return (1);
+      int icol = db->getColIdxByLocator(ELoc::X, idim);
+      if (!db->isColIdxValid(icol)) return (1);
       tab[iech] = db->getArray(iech, icol);
     }
   }
@@ -539,9 +539,9 @@ int db_coorvec_put(Db *db, int idim, double *tab)
     }
     else
     {
-      int icol = db->getColumnByLocator(ELoc::X, idim);
-      if (!db->isColumnIndexValid(icol)) return (1);
-      db->setByColumn(iech, icol, tab[iech]);
+      int icol = db->getColIdxByLocator(ELoc::X, idim);
+      if (!db->isColIdxValid(icol)) return (1);
+      db->setByColIdx(iech, icol, tab[iech]);
     }
   }
   return (0);
@@ -560,7 +560,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  *****************************************************************************/
 int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
 {
-  int iatt = db->getAttributeByLocator(locatorType, item);
+  int iatt = db->getUIDByLocator(locatorType, item);
   return (iatt);
 }
 
@@ -636,8 +636,8 @@ int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
       tab[item] = db->getCoordinate(iech, item);
     else
     {
-      int icol = db->getColumnByLocator(locatorType, item);
-      if (!db->isColumnIndexValid(icol)) return (1);
+      int icol = db->getColIdxByLocator(locatorType, item);
+      if (!db->isColIdxValid(icol)) return (1);
       tab[item] = db->getArray(iech, icol);
     }
   }
@@ -1725,11 +1725,11 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 
   /* Add the coordinates */
 
-  (void) db->addFieldsByConstant(2, 0.);
+  (void) db->addColumnsByConstant(2, 0.);
 
   /* Create the locators */
 
-  db->setLocatorsByAttribute(ndim, flag_add_rank, ELoc::X);
+  db->setLocatorsByUID(ndim, flag_add_rank, ELoc::X);
 
   /* Copy the target locations */
 
@@ -1752,9 +1752,9 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 String db_name_get_by_att(const Db *db, int iatt)
 {
   static char na_string[3] = "NA";
-  int icol = db->getColumnByAttribute(iatt);
-  if (!db->isColumnIndexValid(icol)) return (na_string);
-  return (db->getNameByColumn(icol));
+  int icol = db->getColIdxByUID(iatt);
+  if (!db->isColIdxValid(icol)) return (na_string);
+  return (db->getNameByColIdx(icol));
 }
 
 /****************************************************************************/
@@ -1770,8 +1770,8 @@ String db_name_get_by_att(const Db *db, int iatt)
 String db_name_get_by_col(Db *db, int icol)
 {
   static char na_string[3] = "NA";
-  if (!db->isColumnIndexValid(icol)) return (na_string);
-  return (db->getNameByColumn(icol));
+  if (!db->isColIdxValid(icol)) return (na_string);
+  return (db->getNameByColIdx(icol));
 }
 
 /****************************************************************************/
@@ -1787,8 +1787,8 @@ String db_name_get_by_col(Db *db, int icol)
  *****************************************************************************/
 int db_name_set(Db *db, int iatt, const String &name)
 {
-  if (!db->isAttributeIndexValid(iatt)) return 1;
-  db->setNameByAttribute(iatt, name);
+  if (!db->isUIDValid(iatt)) return 1;
+  db->setNameByUID(iatt, name);
   return (0);
 }
 
@@ -1827,7 +1827,7 @@ void db_attribute_init(Db *db, int ncol, int iatt, double valinit)
   for (jcol = 0; jcol < ncol; jcol++)
   {
     jatt = iatt + jcol;
-    icol = db->getColumnByAttribute(jatt);
+    icol = db->getColIdxByUID(jatt);
 
     if (!GlobalEnvironment::getEnv()->isDomainReference() || !db->hasDomain())
       for (iech = 0; iech < db->getSampleNumber(); iech++)
@@ -1855,7 +1855,7 @@ void db_attribute_del_mult(Db *db, int i_del, int n_del)
 {
   if (i_del <= 0) return;
   for (int i = n_del - 1; i >= 0; i--)
-    db->deleteFieldByAttribute(i_del + i);
+    db->deleteColumnByUID(i_del + i);
 }
 
 /****************************************************************************/
@@ -2107,9 +2107,9 @@ int db_locator_attribute_add(Db *db,
                              double valinit,
                              int *iptr)
 {
-  (*iptr) = db->addFieldsByConstant(number, valinit);
+  (*iptr) = db->addColumnsByConstant(number, valinit);
   if ((*iptr) < 0) return (1);
-  db->setLocatorsByAttribute(number, (*iptr), locatorType, r_tem);
+  db->setLocatorsByUID(number, (*iptr), locatorType, r_tem);
 
   /* Set the default names to the newly created variables */
 
@@ -2166,7 +2166,7 @@ int db_grid_copy(DbGrid *db1,
 
   /* Add the variables */
 
-  int iptr = db2->addFieldsByConstant(ncol, TEST);
+  int iptr = db2->addColumnsByConstant(ncol, TEST);
 
   /* Loop on the output grid Db */
 
@@ -2677,7 +2677,7 @@ void db_polygon(Db *db,
 {
   // Adding a new variable
 
-  int iatt = db->addFieldsByConstant(1);
+  int iatt = db->addColumnsByConstant(1);
 
   /* Loop on the samples */
 
@@ -2786,9 +2786,9 @@ int db_proportion(Db *db, DbGrid *dbgrid, int nfac1max, int nfac2max, int *nclou
   nclass = 1;
   for (ivar = 0; ivar < nvar; ivar++)
     nclass *= nmax[ivar];
-  iptr = dbgrid->addFieldsByConstant(nclass, 0.);
+  iptr = dbgrid->addColumnsByConstant(nclass, 0.);
   if (iptr < 0) goto label_end;
-  dbgrid->setLocatorsByAttribute(nclass, iptr, ELoc::P);
+  dbgrid->setLocatorsByUID(nclass, iptr, ELoc::P);
 
   /* Loop on the samples of the input data Db */
 
@@ -2881,7 +2881,7 @@ int db_merge(Db *db, int ncol, int *cols)
 
   /* Add the new variable */
 
-  iptr = db->addFieldsByConstant(1, TEST);
+  iptr = db->addColumnsByConstant(1, TEST);
 
   /* Loop on the samples */
 
@@ -3223,8 +3223,8 @@ double* db_distances_general(Db *db1,
 
   *n1 = 0;
   *n2 = 0;
-  nech1 = db1->getActiveSampleNumber();
-  nech2 = db2->getActiveSampleNumber();
+  nech1 = db1->getSampleNumber(true);
+  nech2 = db2->getSampleNumber(true);
   dist = nullptr;
   max_all = nech1 * nech2;
 
@@ -3943,7 +3943,7 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
 
   if (flag_sel)
   {
-    isel = ss_grid->addFieldsByConstant(1, 0., String(), ELoc::SEL);
+    isel = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -3960,7 +3960,7 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
 
   if (flag_copy)
   {
-    icopy = ss_grid->addFieldsByConstant(1, 0., String(), ELoc::SEL);
+    icopy = ss_grid->addColumnsByConstant(1, 0., String(), ELoc::SEL);
     for (int i = 0; i < ss_grid->getSampleNumber(); i++)
     {
       db_index_sample_to_grid(ss_grid, i, indcur);
@@ -4202,10 +4202,10 @@ int db_grid_patch(DbGrid *ss_grid,
  *****************************************************************************/
 int db_name_identify(Db *db, const String &string)
 {
-  for (int iatt = 0; iatt < db->getAttributeMaxNumber(); iatt++)
+  for (int iatt = 0; iatt < db->getUIDMaxNumber(); iatt++)
   {
-    int icol = db->getColumnByAttribute(iatt);
-    if (!string.compare(db->getNameByColumn(icol))) return (iatt);
+    int icol = db->getColIdxByUID(iatt);
+    if (!string.compare(db->getNameByColIdx(icol))) return (iatt);
   }
   return (-1);
 }
@@ -4431,7 +4431,7 @@ VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
 VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
 {
   VectorString names = db->getNames(pattern);
-  VectorInt ranks = db->getAttributes(names);
+  VectorInt ranks = db->getUIDs(names);
   return ranks;
 }
 

@@ -30,8 +30,8 @@ np.random.seed(124)
 ndat=10000
 coords=np.random.uniform(1,99,size=(ndat,2))
 dat = gl.Db()
-dat.addFields(coords[:,0],"X",gl.ELoc.X,0)
-dat.addFields(coords[:,1],"Y",gl.ELoc.X,1)
+dat.addColumns(coords[:,0],"X",gl.ELoc.X,0)
+dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 
 # Create the model
 # Beware : the first big axis must be provided first: it corresponds to the direction of 'theta' angle.
@@ -62,7 +62,7 @@ Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, verbose)
 vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
 result = gl.VectorDouble(np.empty_like(vect))
 Qsimu.eval(vect,result)
-workingDb.addFields(result,"Simu",gl.ELoc.X)
+workingDb.addColumns(result,"Simu",gl.ELoc.X)
 
 if flagDraw:
     gp.grid(workingDb,"Simu",end_plot=True)
@@ -110,10 +110,10 @@ Bmat=sc.sparse.csc_matrix((np.array(Btr.values), (np.array(Btr.rows), np.array(B
 size = dat.getSampleNumber()
 u=gl.VectorDouble(np.zeros(size))
 B.mesh2point(result,u)
-dat.addFields(u,"Z",gl.ELoc.Z)
+dat.addColumns(u,"Z",gl.ELoc.Z)
 
 if flagDraw:
-    plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getField("Z"),marker="s")
+    plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")
     plt.show()
     
 datVal =[i for i in u]
@@ -125,7 +125,7 @@ rhsvd = gl.VectorDouble(rhs)
 
 kriging = sc.sparse.linalg.cg(WorkingMat,rhs)[0] # TODO : plug here conjugate gradient
 
-iatt = workingDb.addFields(kriging,"Kriging")
+iatt = workingDb.addColumns(kriging,"Kriging")
 
 if flagDraw:
     gp.grid(workingDb,"Kriging",title="Kriging on Working Grid",end_plot=True)
@@ -138,7 +138,7 @@ Bresulttr=gl.csToTriplet(Bresult.getAproj())
 Bresultmat=sc.sparse.csc_matrix((np.array(Bresulttr.values), (np.array(Bresulttr.rows), np.array(Bresulttr.cols))),
                           shape=(Bresulttr.nrows,Bresulttr.ncols))
 
-iatt = resultDb.addFields(Bresultmat@kriging,"Kriging")
+iatt = resultDb.addColumns(Bresultmat@kriging,"Kriging")
 
 if flagDraw:
     gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid",end_plot=True)
@@ -174,7 +174,7 @@ if flagDraw:
     plt.scatter(kriging,resultvc[0],s=1)
     plt.show()
 
-workingDb.addFields(resultvc[0],"Kriging")
+workingDb.addColumns(resultvc[0],"Kriging")
 
 if flagDraw:
     gp.grid(workingDb,"Kriging",end_plot=True)

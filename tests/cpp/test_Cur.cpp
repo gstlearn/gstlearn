@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
   {
     angle.push_back(spirale(e));
   }
-  workingDbc->addFields(angle,"angle",ELoc::NOSTAT);
+  workingDbc->addColumns(angle,"angle",ELoc::NOSTAT);
 
   ///////////////////////
   // Creating the Model
@@ -148,7 +148,7 @@ int main(int argc, char *argv[])
     tab.push_back(law_gaussian());
   }
 
-  dat->addFields(tab, "Simu", ELoc::Z);
+  dat->addColumns(tab, "Simu", ELoc::Z);
 
   SPDE spde(model,workingDbc,dat,ESPDECalcMode::KRIGING);
   spde.compute();

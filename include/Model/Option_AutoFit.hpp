@@ -18,7 +18,7 @@
 class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 {
 private:
-  int _verbose;                    /* Verbose option */
+  bool _verbose;                   /* Verbose option */
   int _wmode;                      /* Weighting option (used in Goulard) */
   int _maxiter;                    /* Maximum number of iterations */
   int _flag_intrinsic;             /* Ask for an intrinsic model */
@@ -46,7 +46,7 @@ private:
   double getTolred() const { return _tolred; }
   double getTolsigma() const { return _tolsigma; }
   double getTolstop() const { return _tolstop; }
-  int getVerbose() const { return _verbose; }
+  bool getVerbose() const { return _verbose; }
   int getWmode() const { return _wmode; }
   const VectorDouble& getConstantSills() const { return _constantSills; }
   double getConstantSills(int ivar) const { return _constantSills[ivar]; }
@@ -59,7 +59,7 @@ private:
   void setTolred(double tolred) { _tolred = tolred; }
   void setTolsigma(double tolsigma) { _tolsigma = tolsigma; }
   void setTolstop(double tolstop) { _tolstop = tolstop; }
-  void setVerbose(int verbose) { _verbose = verbose; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
   void setWmode(int wmode) { _wmode = wmode; }
   void setConstantSills(int nvar);
 };

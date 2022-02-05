@@ -33,7 +33,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Db
   auto nx={ 3,3 };
   DbGrid* workingDbc = DbGrid::create(nx);
-  int nech = workingDbc->getActiveSampleNumber();
+  int nech = workingDbc->getSampleNumber(true);
 
   ///////////////////////
   // Creating the Model

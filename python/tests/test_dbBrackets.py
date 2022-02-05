@@ -5,7 +5,6 @@ np.random.seed(124)
 
 a = gl.DbGrid.create([2,2],[1.,1.])
 a.display()
-
 a["var1"] = np.random.normal(size=4)
 a.display()
 

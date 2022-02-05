@@ -444,7 +444,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db,
 
   if (ip_max < getNApices() - 1)
   {
-    if (!cs_entry(Atriplet, db->getActiveSampleNumber() - 1,
+    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1,
                   getNApices() - 1, 0.)) goto label_end;
   }
   
@@ -495,7 +495,7 @@ double* MeshEStandard::interpolateMeshToDb(Db *db,
   nmeshes   = getNMeshes();
   ncorner   = getNApexPerMesh();
   ndim      = getNDim();
-  nech      = db->getActiveSampleNumber();
+  nech      = db->getSampleNumber(true);
 
   // Preliminary checks
 

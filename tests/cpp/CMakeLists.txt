@@ -6,7 +6,7 @@ file(GLOB TEST_SOURCES test*.cpp)
 # Without GLOB:
 #set(TEST_SOURCES 
 #  test_AllGibbs.cpp
-#  test_krige.cpp)
+#  test_HDF5.cpp)
 
 # Generation folders
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -37,10 +37,10 @@ foreach(TARGET_EXE ${TARGETS_EXE})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
-if (MSVC)
-  # Need C++ shared library location in the PATH before running the test
+if (WIN32)
+  # Need to copy C++ shared library to tests directory
   add_custom_target(check_cpp
-    COMMAND set PATH=$<TARGET_FILE_DIR:${PROJECT_NAME}::shared>\;%PATH%  # Do not forget \; !!
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
   )
 else()

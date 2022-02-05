@@ -725,20 +725,20 @@ int db_trisurf(Db *db,
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    iptr_init[idim] = db->getColumnByLocator(ELoc::X, idim);
-    iptr_proj[idim] = db->addFieldsByConstant(1, TEST);
+    iptr_init[idim] = db->getColIdxByLocator(ELoc::X, idim);
+    iptr_proj[idim] = db->addColumnsByConstant(1, TEST);
     if (iptr_proj[idim] < 0) goto label_end;
   }
-  iptr_sel = db->addFieldsByConstant(1, 1.);
+  iptr_sel = db->addColumnsByConstant(1, 1.);
   if (iptr_sel < 0) goto label_end;
-  db->setLocatorByAttribute(iptr_sel, ELoc::SEL);
+  db->setLocatorByUID(iptr_sel, ELoc::SEL);
 
   /* Set the new 2-D coordinates and turn the third coordinate into variable */
 
   db->clearLocators(ELoc::X);
   for (int idim = 0; idim < 2; idim++)
-    db->setLocatorByAttribute(iptr_proj[idim], ELoc::X, idim);
-  db->setLocatorByAttribute(iptr_proj[ndim - 1], ELoc::Z);
+    db->setLocatorByUID(iptr_proj[idim], ELoc::X, idim);
+  db->setLocatorByUID(iptr_proj[ndim - 1], ELoc::Z);
 
   /* Loop on the set of points per Fault */
 
@@ -824,9 +824,9 @@ int db_trisurf(Db *db,
 
   /* Delete new temporary variables */
 
-  db->deleteFieldByAttribute(iptr_sel);
+  db->deleteColumnByUID(iptr_sel);
   for (int idim = 0; idim < ndim; idim++)
-    db->deleteFieldByAttribute(iptr_proj[ndim - idim - 1]);
+    db->deleteColumnByUID(iptr_proj[ndim - idim - 1]);
 
   return (error);
 }

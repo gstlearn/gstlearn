@@ -28,5 +28,6 @@ public:
   static void display(void);
 
 private:
-  static std::map<const ECst, double> _cst;
+//  static std::map<const ECst, double> _cst;
+  static std::map<int, double> _cst;
 };

@@ -187,22 +187,22 @@ def findColumnNames(self, columns):
         names = self.getNamesByLocator(columns[0])
      
     elif isinstance(columns, (int, np.int_)):
-        names = self.getNameByColumn(columns)
+        names = self.getNameByColIdx(columns)
     
     elif isinstance(columns, slice):
-        Nmax = self.getFieldNumber()
+        Nmax = self.getColumnNumber()
         names = []
         for i in range(Nmax)[columns]:
-            names.append(self.getNameByColumn(i))
+            names.append(self.getNameByColIdx(i))
 
     elif is_list_type(columns, (int, np.int_)):
         names = []
-        Nfields = self.getFieldNumber()
+        Nfields = self.getColumnNumber()
         for i in columns:
             if i >= Nfields:
                 print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")
             else:
-                names.append(self.getNameByColumn(int(i)))
+                names.append(self.getNameByColIdx(int(i)))
         
     else:
         raise ValueError(f"Argument for columns of wrong type: {type(columns)}")
@@ -247,7 +247,7 @@ def getitem(self,arg):
     # extract columns
     ColNames = findColumnNames(self, columns)
     nbvar = len(ColNames)
-    temp = np.array(self.getFields(ColNames, self.useSel))        
+    temp = np.array(self.getColumns(ColNames, self.useSel))        
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
@@ -257,11 +257,12 @@ def getitem(self,arg):
     return temp
 
 
-# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
-# corresponding variables will be replaced and not added.
+# This function will add a set of vectors (as a numpy array) to a db. 
+# If some of the names exist, the corresponding variables will be replaced 
+# and not added.
 
 def setitem(self,name,tab):
-    
+    tab = tab.astype(np.float64)
     if len(tab.shape) == 1 :
         tab = np.atleast_2d(tab).T
     nrows, nvars = tab.shape
@@ -320,7 +321,7 @@ def setitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = gl.TEST    
         VectD = np.double(tab_i)
-        self.setField(VectD, name, useSel)
+        self.setColumn(VectD, name, useSel)
         
     return
 

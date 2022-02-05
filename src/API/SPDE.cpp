@@ -173,8 +173,8 @@ void SPDE::init(Model* model,
   {
     if(dat->getVarianceErrorNumber() > 0)
     {
-      varianceData = dat->getFieldByLocator(ELoc::V,0,useSel);
-      for (int iech = 0; iech < dat->getActiveSampleNumber(); iech++)
+      varianceData = dat->getColumnByLocator(ELoc::V,0,useSel);
+      for (int iech = 0; iech < dat->getSampleNumber(true); iech++)
       {
         double *temp = &varianceData[iech];
         *temp = MAX(*temp+_nugget,0.01 * totalSill);
@@ -183,7 +183,7 @@ void SPDE::init(Model* model,
     else
     {
       ut_vector_fill(varianceData, MAX(_nugget, 0.01 * totalSill),
-                     dat->getActiveSampleNumber());
+                     dat->getSampleNumber(true));
     }
   }
   _precisionsKriging.setVarianceDataVector(varianceData);
@@ -214,7 +214,7 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
 void SPDE::computeSimuCond(int nbsimus, int seed) const
 {
   computeSimuNonCond(nbsimus,seed);
-  VectorDouble temp(_data->getActiveSampleNumber());
+  VectorDouble temp(_data->getSampleNumber(true));
   _precisionsSimu.simulateOnDataPointFromMeshings(_workingSimu,temp);
   ut_vector_multiply_inplace(temp,-1.);
   ut_vector_add_inplace(_workingData,temp);
@@ -229,7 +229,7 @@ void SPDE::compute(int nbsimus, int seed)
 
   if (_data != nullptr)
   {
-    dataVect = _data->getFieldByLocator(ELoc::Z,ivar,useSel);
+    dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
 
     _computeCoeffs();
 
@@ -291,8 +291,8 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 {
   int ivar = 0;
   bool useSel = true;
-  VectorDouble temp(db->getActiveSampleNumber());
-  VectorDouble result(db->getActiveSampleNumber(),0.);
+  VectorDouble temp(db->getSampleNumber(true));
+  VectorDouble result(db->getSampleNumber(true),0.);
   String suffix;
   if(_calcul == ESPDECalcMode::KRIGING)
   {
@@ -336,7 +336,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 
   temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
   ut_vector_add_inplace(result,temp);
-  int iptr = db->addFields(result,"SPDE",ELoc::Z,0,useSel,TEST);
+  int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }
@@ -349,7 +349,7 @@ void SPDE::_computeCoeffs()
     _isCoeffsComputed = true;
     if(_requireCoeffs)
     {
-      _driftCoeffs = _precisionsKriging.computeCoeffs(_data->getFieldByLocator(ELoc::Z,0,true),_driftTab);
+      _driftCoeffs = _precisionsKriging.computeCoeffs(_data->getColumnByLocator(ELoc::Z,0,true),_driftTab);
     }
   }
 }

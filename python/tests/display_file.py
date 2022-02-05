@@ -17,45 +17,39 @@ if len(args) < 2:
 filename = args[1]
 
 # Get the Type of the File and stop if returned empty (file not found)
-filetype = gl.ASerializable.getFileIdentify(filename)
+filetype = gl.ASerializable.getFileIdentity(filename)
 if filetype == "":
     exit()
 
 if filetype == "Db":
-    
-    # Case of Db file
     db = gl.Db.createFromNF(filename,False)
     dbfmt = gl.DbStringFormat()
     dbfmt.setParams(gl.FLAG_VARS)
     db.display(dbfmt)
+           
+elif filetype == "DbGrid":
+    dbgrid = gl.DbGrid.createFromNF(filename,False)
+    dbfmt = gl.DbStringFormat()
+    dbfmt.setParams(gl.FLAG_VARS)
+    dbgrid.display(dbfmt)
             
 elif filetype == "Vario":
-    
-    # Case of Vario file
     vario = gl.Vario.createFromNF(filename,False)
     vario.display()
     
 elif filetype == "Model":
-    
-    # Case of Model file
     model = gl.Model.createFromNF(filename,False)
     model.display()
     
 elif filetype == "Rule":
-    
-    # Case of Rule file
-    rule = gl.Rule(filename,False)
+    rule = gl.Rule.createFromNF(filename,False)
     rule.display()
     
 elif filetype == "Table":
-
-    # Case of a Table
-    table = gl.Table(filename,False)
+    table = gl.Table.createFromNF(filename,False)
     table.display()
 
 elif filetype == "Polygon":
-    
-    # Case of a polygon
     poly = gl.Polygons.createFromNF(filename,False)
     poly.display()
         

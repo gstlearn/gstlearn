@@ -126,7 +126,7 @@ int cgi(Db *db,
   nech = db->getSampleNumber();
   ndim = db->getNDim();
   coor = mm = nullptr;
-  flag_z = db->isAttributeDefined(iatt);
+  flag_z = db->isUIDDefined(iatt);
   flag_w = db->hasWeight();
 
   /* Core allocation */

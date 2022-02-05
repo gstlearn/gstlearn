@@ -2122,7 +2122,7 @@ int fracture_to_block(DbGrid *dbgrid,
 
   indg = db_indg_alloc(dbgrid);
   if (indg == nullptr) goto label_end;
-  iptr = dbgrid->addFieldsByConstant(1, perm_mat);
+  iptr = dbgrid->addColumnsByConstant(1, perm_mat);
 
   // Plunge the environment
 
@@ -2399,12 +2399,12 @@ int fracture_well_to_block(DbGrid *dbgrid,
   indg = db_indg_alloc(dbgrid);
   if (indg == nullptr) goto label_end;
 
-  iptr_perm = dbgrid->addFieldsByConstant(1, 0);
+  iptr_perm = dbgrid->addColumnsByConstant(1, 0);
   if (!IFFFF(col_perm)) db_attribute_copy(dbgrid, col_perm, iptr_perm);
 
   if (flag_fluid)
   {
-    iptr_fluid = dbgrid->addFieldsByConstant(1, 0.);
+    iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
     if (!IFFFF(col_fluid)) db_attribute_copy(dbgrid, col_fluid, iptr_fluid);
   }
 

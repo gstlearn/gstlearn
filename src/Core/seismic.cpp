@@ -1584,7 +1584,7 @@ int seismic_z2t_convert(DbGrid *db_z, int iatt_v, DbGrid *db_t)
 
   /* Create the output variables */
 
-  iatt_t = db_t->addFieldsByConstant(natt, 0.);
+  iatt_t = db_t->addColumnsByConstant(natt, 0.);
   if (iatt_t < 0) goto label_end;
   iatt_z = db_attribute_identify(db_z, ELoc::Z, 0);
 
@@ -1655,7 +1655,7 @@ int seismic_t2z_convert(DbGrid *db_t, int iatt_v, DbGrid *db_z)
 
   /* Create the output variables */
 
-  iatt_z = db_z->addFieldsByConstant(natt, 0.);
+  iatt_z = db_z->addColumnsByConstant(natt, 0.);
   if (iatt_z < 0) goto label_end;
   iatt_t = db_attribute_identify(db_t, ELoc::Z, 0);
 
@@ -1716,7 +1716,7 @@ int seismic_operate(DbGrid *db, int oper)
 
   iatt_in = db_attribute_identify(db, ELoc::Z, 0);
   if (iatt_in < 0) return (1);
-  iatt_out = db->addFieldsByConstant(natt, 0.);
+  iatt_out = db->addColumnsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
 
   if (st_seismic_operate(db, oper, natt, nt, iatt_in, iatt_out, dt)) return (1);
@@ -1889,7 +1889,7 @@ int seismic_convolve(DbGrid *db,
   error = 1;
   iatt_in = db_attribute_identify(db, ELoc::Z, 0);
   if (iatt_in < 0) return (1);
-  iatt_out = db->addFieldsByConstant(natt, 0.);
+  iatt_out = db->addColumnsByConstant(natt, 0.);
   if (iatt_out < 0) return (1);
 
   /* Core allocation */
@@ -3168,12 +3168,12 @@ int seismic_estimate_XZ(DbGrid *db,
 
   for (i = 0; i < 2; i++)
   {
-    iatt_est[i] = db->addFieldsByConstant(1, TEST);
+    iatt_est[i] = db->addColumnsByConstant(1, TEST);
     if (iatt_est[i] < 0) goto label_end;
   }
   if (flag_std) for (i = 0; i < 2; i++)
   {
-    iatt_std[i] = db->addFieldsByConstant(1, TEST);
+    iatt_std[i] = db->addColumnsByConstant(1, TEST);
     if (iatt_std[i] < 0) goto label_end;
   }
 
@@ -3254,8 +3254,8 @@ int seismic_estimate_XZ(DbGrid *db,
   for (i = 0; i < 2; i++)
   {
     presence[i] = (int*) mem_free((char* ) presence[i]);
-    if (error && iatt_est[i] >= 0) db->deleteFieldByAttribute(iatt_est[i]);
-    if (error && iatt_std[i] >= 0) db->deleteFieldByAttribute(iatt_std[i]);
+    if (error && iatt_est[i] >= 0) db->deleteColumnByUID(iatt_est[i]);
+    if (error && iatt_std[i] >= 0) db->deleteColumnByUID(iatt_std[i]);
   }
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   flag = (int*) mem_free((char* ) flag);
@@ -3429,7 +3429,7 @@ int seismic_simulate_XZ(DbGrid *db,
 
   for (i = 0; i < NVAR; i++)
   {
-    iatt_sim[i] = db->addFieldsByConstant(nbsimu, TEST);
+    iatt_sim[i] = db->addColumnsByConstant(nbsimu, TEST);
     if (iatt_sim[i] < 0) goto label_end;
   }
 
@@ -3517,7 +3517,7 @@ int seismic_simulate_XZ(DbGrid *db,
   {
     presence[i] = (int*) mem_free((char* ) presence[i]);
     if (error) for (isimu = 0; isimu < nbsimu; isimu++)
-      db->deleteFieldByAttribute(iatt_sim[i] + isimu);
+      db->deleteColumnByUID(iatt_sim[i] + isimu);
   }
   flag = (int*) mem_free((char* ) flag);
   rank = (int*) mem_free((char* ) rank);

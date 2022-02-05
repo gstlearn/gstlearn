@@ -459,7 +459,7 @@ static int st_surface_identify(int verbOption,
       messerr("you must provide a Surface file and a valid Bottom variable");
       return 1;
     }
-    *iatt_bot = surfaces->getAttribute(name_bot);
+    *iatt_bot = surfaces->getUID(name_bot);
     if (*iatt_bot < 0) return 1;
   }
 
@@ -472,21 +472,21 @@ static int st_surface_identify(int verbOption,
       messerr("you must provide a Surface file and a valid Top variable");
       return 1;
     }
-    *iatt_top = surfaces->getAttribute(name_top);
+    *iatt_top = surfaces->getUID(name_top);
     if (*iatt_top < 0) return 1;
   }
 
   *iaux_top = -1;
   if (! aux_top.empty())
   {
-    *iaux_top = surfaces->getAttribute(aux_top);
+    *iaux_top = surfaces->getUID(aux_top);
     if (*iaux_top < 0) return 1;
   }
 
   *iaux_bot = -1;
   if (! aux_bot.empty())
   {
-    *iaux_bot = surfaces->getAttribute(aux_bot);
+    *iaux_bot = surfaces->getUID(aux_bot);
     if (*iaux_bot < 0) return 1;
   }
 
@@ -1804,7 +1804,7 @@ int db_segy(const char *filesegy,
 
   // Allocate the new vector in the output file
 
-  iatt = grid3D->addFieldsByConstant(1, TEST);
+  iatt = grid3D->addColumnsByConstant(1, TEST);
   if (iatt < 0) return 1;
 
   // Working arrays

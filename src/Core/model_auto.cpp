@@ -713,22 +713,23 @@ static void st_mauto_rescale(int nvar,
  *****************************************************************************/
 static void st_goulard_verbose(int mode, Option_AutoFit &mauto)
 {
-  static int verbose;
-  static int flag_converge;
+  static bool local_verbose;
+  static int local_converge;
 
   /* Dispatch */
 
   if (mode == 0)
   {
-    verbose = mauto.getVerbose();
-    mauto.setVerbose(0);
-    flag_converge = OptDbg::query(EDbg::CONVERGE);
+    local_verbose = mauto.getVerbose();
+    local_converge = OptDbg::query(EDbg::CONVERGE);
+    // Locally undefine both options to avoid too many printout
+    mauto.setVerbose(false);
     OptDbg::undefine(EDbg::CONVERGE);
   }
   else
   {
-    mauto.setVerbose(verbose);
-    if (flag_converge)
+    mauto.setVerbose(local_verbose);
+    if (local_converge)
       OptDbg::define(EDbg::CONVERGE);
     else
       OptDbg::undefine(EDbg::CONVERGE);
@@ -1283,7 +1284,7 @@ static void st_goulard_score(const Option_AutoFit &mauto,
                              int niter,
                              double crit)
 {
-  if (mauto.getVerbose() > 0)
+  if (mauto.getVerbose())
   {
     if (mode == 0)
       mestitle(1, "Statistics for Goulard algorithm");
@@ -1816,7 +1817,11 @@ static void st_model_auto_strmod_print(int flag_title,
 
   /* Initializations */
 
-  if (!(mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))) return;
+  bool skip = true;
+  if (! mauto.getVerbose()) skip = true;
+  if (! OptDbg::query(EDbg::CONVERGE)) skip = true;
+  if (skip) return;
+
   optvar = strmod->optvar;
   ndim = strmod->models[0]->getDimensionNumber();
   nvar = strmod->models[0]->getVariableNumber();
@@ -3725,7 +3730,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
       {
 
         flag_modified++;
-        if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
+        if (mauto.getVerbose() || OptDbg::query(EDbg::CONVERGE))
         {
           if (flag_modified == 1)
             mestitle(0, "Suppressing the unnecessary basic structures");
@@ -3745,7 +3750,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
             lost_rank = rank;
             st_parid_decode(strmod->parid[lost_rank], &lost_imod, &lost_icov,
                             &icons, &ivar, &jvar);
-            if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
+            if (mauto.getVerbose() || OptDbg::query(EDbg::CONVERGE))
             {
               message("Note: This structure contains rotation parameters.\n");
               message("As the fitting method considers a shared rotation\n");
@@ -3798,7 +3803,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
 
         /* This non-masked component can be assigned the lost rotation */
 
-        if (mauto.getVerbose() > 0 || OptDbg::query(EDbg::CONVERGE))
+        if (mauto.getVerbose() || OptDbg::query(EDbg::CONVERGE))
         {
           message("The Rotation is swapped to Structure '%s' in model #%d\n",
                   model->getCovName(icov).c_str(), imod + 1);
@@ -4752,7 +4757,7 @@ int model_auto_fit(const Vario *vario,
 
   /* Set the returned error code */
 
-  if (mauto.getVerbose() >= 0 && status < 0)
+  if (mauto.getVerbose() && status < 0)
     messerr("\nConvergence not reached after %d iterations (%d parameters)",
             mauto.getMaxiter(), npar);
 
@@ -5062,7 +5067,7 @@ int vmap_auto_fit(const DbGrid *dbmap,
   StrMod *strmod;
   VectorDouble varchol, scale, param, lower, upper;
 
-  // Copy of const reference classes
+  // Copy of const referencse into local classes
 
   Option_AutoFit mauto = mauto_arg;
   Constraints constraints = cons_arg;
@@ -5200,7 +5205,7 @@ int vmap_auto_fit(const DbGrid *dbmap,
 
   /* Set the returned error code */
 
-  if (mauto.getVerbose() >= 0 && status < 0)
+  if (mauto.getVerbose() && status < 0)
     messerr("Convergence not reached after %d iterations (%d parameters)",
             mauto.getMaxiter(), npar);
 

@@ -37,7 +37,7 @@ Timer::~Timer()
 }
 
 /**
- * Defines the reference Timer (begining of a Timer chunk)
+ * Defines the reference Timer (beginning of a Timer chunk)
  */
 void Timer::reset()
 {
@@ -67,17 +67,17 @@ double Timer::getIntervalSeconds(bool flag_reset)
 void Timer::displaySeconds(const String& title, double sec)
 {
   if (! title.empty())
-    message("%s: %6.2lf s\n",title.c_str(),sec);
+    message("%s: %6.2lf s.\n",title.c_str(),sec);
   else
-    message("Timer: %6.2lf s\n",sec);
+    message("Timer: %6.2lf s.\n",sec);
 
 }
 
 /**
- * Displays the time elapsed (in s) since the reference Timer
+ * Displays the time elapsed (in ms) since the reference Timer
  * @param title Title used for the internal display
  * @param flag_reset True if the Reference must be set to current Time
- * @return Print the Timer elapsed (s)
+ * @return Print the Timer elapsed (ms)
  */
 void Timer::displayIntervalMilliseconds(const String& title, bool flag_reset)
 {
@@ -97,8 +97,8 @@ double Timer::getIntervalMilliseconds(bool flag_reset)
 void Timer::displayMilliseconds(const String& title, double msec)
 {
   if (! title.empty())
-    message("%s: %6.2lf s.\n",title.c_str(),msec);
+    message("%s: %6.2lf ms.\n",title.c_str(),msec);
   else
-    message("Timer: %6.2lf s.\n",msec);
+    message("Timer: %6.2lf ms.\n",msec);
 
 }

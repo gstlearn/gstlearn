@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/File.hpp"
+#include "Basic/AStringable.hpp"
 #include <stdio.h>
 #include <string.h>
 #include <malloc.h>

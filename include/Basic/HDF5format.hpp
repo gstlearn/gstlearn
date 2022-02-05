@@ -44,7 +44,12 @@ public:
                    hsize_t *block,
                    void *wdata);
   int deleteFile();
+  // These one doesn't work :
   void* allocArray(H5::DataType type, int ndim, hsize_t *dims);
+  // These one doesn't work either
+  //void* allocArray(const H5::DataType& type, int ndim, hsize_t *dims);
+  // These one works but further errors appear running test_HDF5
+  //void* allocArray(hsize_t size, int ndim, hsize_t *dims);
 
   void setFileName(const String& filename) { _filename = filename; }
   void setVarName(const String& varname) { _varname = varname; }

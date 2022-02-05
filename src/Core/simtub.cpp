@@ -3505,7 +3505,7 @@ int simtub(Db *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldsByLocator(ELoc::SIMU);
+  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
@@ -3592,7 +3592,7 @@ int simdgm(Db *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldsByLocator(ELoc::SIMU);
+  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
@@ -3675,7 +3675,7 @@ int simbayes(Db *dbin,
 
   /* Free the temporary variables */
 
-  if (flag_cond) dbin->deleteFieldsByLocator(ELoc::SIMU);
+  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
 
   /* Set the error return flag */
 
@@ -4113,19 +4113,19 @@ int simpgs(Db *dbin,
   if (dbout != nullptr)
   {
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
-      dbout->deleteFieldsByLocator(ELoc::P);
+      dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS))
-      dbout->deleteFieldsByLocator(ELoc::SIMU);
+      dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrf * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
-      dbout->deleteFieldsByLocator(ELoc::FACIES);
+      dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
                                   nbsimu);
@@ -4134,20 +4134,20 @@ int simpgs(Db *dbin,
   if (dbin != nullptr)
   {
     if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS))
-      dbin->deleteFieldsByLocator(ELoc::SIMU);
+      dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
-      dbin->deleteFieldsByLocator(ELoc::FACIES);
+      dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
                                   nbsimu, false);
 
-    dbin->deleteFieldsByLocator(ELoc::GAUSFAC);
-    dbin->deleteFieldsByLocator(ELoc::L);
-    dbin->deleteFieldsByLocator(ELoc::U);
+    dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
+    dbin->deleteColumnsByLocator(ELoc::L);
+    dbin->deleteColumnsByLocator(ELoc::U);
   }
 
   /* Set the error return flag */
@@ -4361,7 +4361,7 @@ int simbipgs(Db *dbin,
     if (flag_cond)
     {
       dbin->clearLocators(ELoc::Z);
-      dbin->setLocatorByAttribute(iatt_z[ipgs], ELoc::Z);
+      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z);
     }
     if (st_check_simtub_environment(dbin, dbout, models[ipgs][0], neighparam))
       goto label_end;
@@ -4440,7 +4440,7 @@ int simbipgs(Db *dbin,
     if (flag_cond)
     {
       dbin->clearLocators(ELoc::Z);
-      dbin->setLocatorByAttribute(iatt_z[ipgs], ELoc::Z);
+      dbin->setLocatorByUID(iatt_z[ipgs], ELoc::Z);
     }
 
     if (ipgs == 0)
@@ -4546,19 +4546,19 @@ int simbipgs(Db *dbin,
   if (dbout != nullptr)
   {
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
-      dbout->deleteFieldsByLocator(ELoc::P);
+      dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nfactot, false);
 
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS) && iptr_RN)
-      dbout->deleteFieldsByLocator(ELoc::SIMU);
+      dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrftot * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
-      dbout->deleteFieldsByLocator(ELoc::FACIES);
+      dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
                                   npgs * nbsimu);
@@ -4567,20 +4567,20 @@ int simbipgs(Db *dbin,
   if (dbin != nullptr)
   {
     if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS) && iptr_DN)
-      dbin->deleteFieldsByLocator(ELoc::SIMU);
+      dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrftot * nbsimu, false);
 
     if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
-      dbin->deleteFieldsByLocator(ELoc::FACIES);
+      dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
                                   npgs * nbsimu, false);
 
-    dbin->deleteFieldsByLocator(ELoc::GAUSFAC);
-    dbin->deleteFieldsByLocator(ELoc::L);
-    dbin->deleteFieldsByLocator(ELoc::U);
+    dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
+    dbin->deleteColumnsByLocator(ELoc::L);
+    dbin->deleteColumnsByLocator(ELoc::U);
   }
 
   /* Set the error return flag */
@@ -4632,11 +4632,11 @@ int db_simulations_to_ce(Db *db,
 
   // Allocate the new attributes:
 
-  iptr_ce = db->addFieldsByConstant(nvar, 0.);
+  iptr_ce = db->addColumnsByConstant(nvar, 0.);
   if (iptr_ce < 0) goto label_end;
-  iptr_cstd = db->addFieldsByConstant(nvar, 0.);
+  iptr_cstd = db->addColumnsByConstant(nvar, 0.);
   if (iptr_cstd < 0) goto label_end;
-  iptr_nb = db->addFieldsByConstant(nvar, 0.);
+  iptr_nb = db->addColumnsByConstant(nvar, 0.);
   if (iptr_nb < 0) goto label_end;
 
   // Loop on the simulations
@@ -4865,7 +4865,7 @@ int gibbs_sampler(Db *dbin,
       (void) db_attribute_del_mult(dbin, iptr_cstd, nvar);
       iptr_cstd = -1;
     }
-    dbin->deleteFieldsByLocator(ELoc::GAUSFAC);
+    dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
   }
 
   /* Set the error return flag */
@@ -5000,7 +5000,7 @@ int simtub_constraints(Db *dbin,
 
   /* Implicit loop on the simulations */
 
-  iatt = dbout->getFieldNumber();
+  iatt = dbout->getColumnNumber();
   nvalid = iter = nbtest = 0;
   nbsimu = nbsimu_min + nbsimu_quant;
   while (nvalid < nbsimu_min && iter < niter_max)
@@ -5030,7 +5030,7 @@ int simtub_constraints(Db *dbin,
 
         /* Delete the current simulation */
 
-        dbout->deleteFieldByAttribute(iatt);
+        dbout->deleteColumnByUID(iatt);
 
         /* Interrupt the loop (if requested) */
 
@@ -5050,7 +5050,7 @@ int simtub_constraints(Db *dbin,
 
           /* Update the vector (optional) */
 
-          dbout->setFieldByAttribute(tab, iatt);
+          dbout->setColumnByUID(tab, iatt);
         }
         cols.push_back(iatt);
         nvalid++;
@@ -5214,9 +5214,9 @@ int simmaxstable(Db *dbout,
 
   /* Add the attributes for storing the results */
 
-  iptrv = dbout->addFieldsByConstant(1, 0.);
+  iptrv = dbout->addColumnsByConstant(1, 0.);
   if (iptrv < 0) goto label_end;
-  iptrr = dbout->addFieldsByConstant(1, 0.);
+  iptrr = dbout->addColumnsByConstant(1, 0.);
   if (iptrr < 0) goto label_end;
   if (db_locator_attribute_add(dbout, ELoc::SEL, 1, 0, 0., &iptrs))
     goto label_end;
@@ -5275,10 +5275,10 @@ int simmaxstable(Db *dbout,
 
   error = 0;
 
-  label_end: if (iptrs >= 0) dbout->deleteFieldByAttribute(iptrs);
-  if (iptrg >= 0) dbout->deleteFieldByAttribute(iptrg);
-  if (!flag_rank && iptrr >= 0) dbout->deleteFieldByAttribute(iptrr);
-  if (!flag_simu && iptrv >= 0) dbout->deleteFieldByAttribute(iptrv);
+  label_end: if (iptrs >= 0) dbout->deleteColumnByUID(iptrs);
+  if (iptrg >= 0) dbout->deleteColumnByUID(iptrg);
+  if (!flag_rank && iptrr >= 0) dbout->deleteColumnByUID(iptrr);
+  if (!flag_simu && iptrv >= 0) dbout->deleteColumnByUID(iptrv);
   return (error);
 }
 
@@ -5475,7 +5475,7 @@ int simRI(Db *dbout,
   label_end: sort = (double*) mem_free((char* ) sort);
   pton = (double*) mem_free((char* ) pton);
   pres = (double*) mem_free((char* ) pres);
-  if (iptrs >= 0) dbout->deleteFieldByAttribute(iptrs);
+  if (iptrs >= 0) dbout->deleteColumnByUID(iptrs);
   return (error);
 }
 
@@ -5707,16 +5707,16 @@ int simpgs_spde(Db *dbin,
   /********************************/
 
   if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
-    dbout->deleteFieldsByLocator(ELoc::P);
+    dbout->deleteColumnsByLocator(ELoc::P);
 
   if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
-    dbout->deleteFieldsByLocator(ELoc::FACIES);
+    dbout->deleteColumnsByLocator(ELoc::FACIES);
 
   if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS))
-    dbout->deleteFieldsByLocator(ELoc::SIMU);
+    dbout->deleteColumnsByLocator(ELoc::SIMU);
 
-  dbin->deleteFieldsByLocator(ELoc::L);
-  dbin->deleteFieldsByLocator(ELoc::U);
+  dbin->deleteColumnsByLocator(ELoc::L);
+  dbin->deleteColumnsByLocator(ELoc::U);
 
   /* Set the error return flag */
 
@@ -5907,8 +5907,8 @@ int simcond(Db *dbin,
 
   /* Free the temporary variables not used anymore */
 
-  dbin->deleteFieldsByLocator(ELoc::GAUSFAC);
-  dbin->deleteFieldsByLocator(ELoc::SIMU);
+  dbin->deleteColumnsByLocator(ELoc::GAUSFAC);
+  dbin->deleteColumnsByLocator(ELoc::SIMU);
 
   /* Convert the simulations */
 
@@ -5919,7 +5919,7 @@ int simcond(Db *dbin,
 
     // We release the attributes dedicated to simulations on Dbout
 
-    dbout->deleteFieldsByLocator(ELoc::SIMU);
+    dbout->deleteColumnsByLocator(ELoc::SIMU);
     if (!flag_ce)
     {
       (void) db_attribute_del_mult(dbout, iptr_ce, nvar);
