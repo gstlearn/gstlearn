@@ -1,29 +1,28 @@
-######################################################################
-#
-#           Windows compilation of HDF5 using Rtools40
-#
-######################################################################
+## Windows compilation of gstlearn using Rtools40
 
+### Install & customize Rtools40
 
-# Get ccache for mingw (optional)
-======================
+#### Download and install
 
-# Upgrade msys, pacman & repos (not sure that all is necessary)
-------------------------------
-# Note => A fresh Rtools40 has been used for compiling HDF5
-pacman -Syu
-pacman -S mingw-w64-x86_64-toolchain mingw64/mingw-w64-x86_64-cmake
-pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-cmake
-pacman -S mingw-w64-x86_64-toolchain mingw64/mingw-w64-x86_64-ccache
-pacman -S mingw-w64-i686-toolchain mingw32/mingw-w64-i686-ccache
+* Download rtools40 for Windows 64 bits (rtools40-x86_64.exe) from here : https://cran.r-project.org/bin/windows/Rtools/rtools40.html
+* Install rtools40 by executing the downloaded program
+* Add the following directories to *Path* environment variable (see [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho):
+  + %RTOOLS40_HOME%\\usr\\bin
+  + %RTOOLS40_HOME%\\mingw64\\bin
+* Restart Windows
 
-# Configure ccache
-------------------
-# https://github.com/msys2/MINGW-packages/issues/1292
-Add C:\rtools40\mingw64\lib\ccache\bin to PATH (before C:\rtools40\mingw64\bin)
+#### Add/upgrade rtools
+* From a Windows command prompt, execute following instructions:
 
+```sh
+#pacman -Syu
+#pacman -S mingw-w64-x86_64-toolchain
+pacman -S mingw-w64-x86_64-cmake
+pacman -S mingw-w64-x86_64-hdf5
+pacman -S mingw-w64-x86_64-boost
+```
 
-# Then compile HDF5
+### Then compile HDF5
 ===================
 The idea is to:
 - use MSYS generator from RTools,
@@ -61,8 +60,8 @@ Notes:
   - We don't need tools, tests, fortran, java and szip/z_lib support (I bet !)  
 
 
-#Finally, compile gstlearn & RGeostats
-======================================
+### Finally, compile gstlearn & RGeostats
+
 cd gstearn
 cmake -Bbuild_msys -H. -G "MSYS Makefiles" -DHDF5_ROOT:PATH=C:\local -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API"
 cmake --build build_msys --target static
