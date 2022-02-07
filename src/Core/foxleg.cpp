@@ -1070,7 +1070,7 @@ static void st_foxleg_score(const Option_AutoFit &mauto,
                             double delta,
                             double arret)
 {
-  if (mauto.getVerbose() > 0)
+  if (mauto.getVerbose())
   {
     mestitle(1, "Statistics for the Minimization Foxleg procedure");
     message("- Number of experimental values = %d\n", NDAT);

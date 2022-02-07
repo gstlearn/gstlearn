@@ -15,7 +15,7 @@
 
 Option_AutoFit::Option_AutoFit()
     : AStringable(),
-      _verbose(0),
+      _verbose(false),
       _wmode(2),
       _maxiter(1000),
       _flag_intrinsic(0),
@@ -77,7 +77,7 @@ String Option_AutoFit::toString(const AStringFormat* /*strfmt*/) const
 
   sstr << toTitle(1,"Optimization parameters");
 
-  if (getVerbose() > 0) sstr << "Verbose option is switched ON"    << std::endl;
+  if (getVerbose()) sstr << "Verbose option is switched ON"    << std::endl;
   sstr << "- Optimization weighting mode       " << getWmode()     << std::endl;
   sstr << "- Maximum number of iterations      " << getMaxiter()   << std::endl;
   sstr << "- Stopping criterion                " << getTolstop()   << std::endl;
