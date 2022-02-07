@@ -351,11 +351,11 @@ int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
  * @param icol       Index of the target column
  * @param ret_locatorType Locator type
  * @param ret_locatorIndex Locator index (starting from 0)
- * @return
+ * @return true if the target variable has a ocator assigned and false otherwise
  */
-int Db::getLocatorByColIdx(int icol,
-                           ELoc* ret_locatorType,
-                           int* ret_locatorIndex) const
+bool Db::getLocatorByColIdx(int icol,
+                            ELoc* ret_locatorType,
+                            int* ret_locatorIndex) const
 {
   auto it = ELoc::getIterator();
   while (it.hasNext())
@@ -381,11 +381,11 @@ int Db::getLocatorByColIdx(int icol,
   return false;
 }
 
-int Db::getLocatorByUID(int iuid,
-                        ELoc* ret_locatorType,
-                        int* ret_locatorIndex) const
+bool Db::getLocatorByUID(int iuid,
+                         ELoc* ret_locatorType,
+                         int* ret_locatorIndex) const
 {
-  if (!isUIDValid(iuid)) return -1;
+  if (!isUIDValid(iuid)) return false;
   int icol = getColIdxByUID(iuid);
   return getLocatorByColIdx(icol, ret_locatorType, ret_locatorIndex);
 }
@@ -397,13 +397,36 @@ int Db::getLocatorByUID(int iuid,
  * @param ret_locatorIndex Locator Index (starting from 0)
  * @return
  */
-int Db::getLocator(const String& name,
-                   ELoc *ret_locatorType,
-                   int *ret_locatorIndex) const
+bool Db::getLocator(const String& name,
+                    ELoc *ret_locatorType,
+                    int *ret_locatorIndex) const
 {
   VectorInt iuids = _ids(name, true);
-  if (iuids.empty()) return -1;
+  if (iuids.empty()) return false;
   return getLocatorByUID(iuids[0], ret_locatorType, ret_locatorIndex);
+}
+
+/**
+ * Check if a variable (specified by its name) matches the required locator
+ * @param name         Name of the target Variable
+ * @param locatorType  Characteristics of the required Locator Type
+ * @param locatorIndex Index of the required Locator (or -1)
+ * @return
+ */
+bool Db::hasLocatorDefined(const String& name,
+                           const ELoc& locatorType,
+                           int locatorIndex) const
+{
+  VectorInt iuids = _ids(name, true);
+  if (iuids.empty()) return false;
+  if (!isUIDValid(iuids[0])) return false;
+  int icol = getColIdxByUID(iuids[0]);
+  ELoc ret_locatorType;
+  int ret_locatorIndex;
+  getLocatorByColIdx(icol, &ret_locatorType, &ret_locatorIndex);
+  if (ret_locatorType != locatorType) return false;
+  if (locatorIndex >= 0 && ret_locatorIndex != locatorIndex) return false;
+  return true;
 }
 
 VectorString Db::getLocators(bool anyLocator, const ELoc& locatorType) const
