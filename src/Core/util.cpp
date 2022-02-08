@@ -1453,9 +1453,7 @@ void get_rotation(const char *title, int flag_def, int ndim, double *rot)
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-int ut_angles_from_rotation_matrix(const double *rot,
-                                                   int ndim,
-                                                   double *angles)
+int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
 {
   double s0, c0, s1, c1, s2, c2;
   int i, nval;

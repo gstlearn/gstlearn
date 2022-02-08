@@ -2564,12 +2564,11 @@ void vardir_print(Vario *vario, int idir, int verbose)
  **  Print the experimental variograms
  **
  ** \param[in]  vario     Vario structure
- ** \param[in]  verbose 0 for brief output; 1 for a long output
  **
  *****************************************************************************/
-void variogram_print(const Vario *vario, int verbose)
+void variogram_print(const Vario *vario)
 {
-  if (vario != nullptr && verbose)
+  if (vario != nullptr)
     messageFlush(vario->toString());
 }
 

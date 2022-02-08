@@ -41,9 +41,9 @@ public:
 
   void setMean(double mean) { _mean = mean; }
   void setVariance(double variance) { _variance = variance; }
-  void setNCut(int ncut) { _nCut = ncut; }
-  void setZCut(const VectorDouble& zcut) { _zCut = zcut; };
-  void setNElem(int nelem) { _nElem = nelem; }
+  void setNCut(int ncut);
+  void setZCut(const VectorDouble& zcut);
+  void setNElem(int nelem);
   void setStats(const VectorDouble& stats);
 
   // Function for using Stats in DD anamorphosis
@@ -67,11 +67,11 @@ public:
   double getIRStatB   (int iclass) const;
   double getIRStatR   (int iclass) const;
   double getIRStatRV  (int iclass) const;
-  void setIRStatT(int iclass, double value);
-  void setIRStatQ(int iclass, double value);
-  void setIRStatZ(int iclass, double value);
-  void setIRStatB(int iclass, double value);
-  void setIRStatR(int iclass, double value);
+  void setIRStatT (int iclass, double value);
+  void setIRStatQ (int iclass, double value);
+  void setIRStatZ (int iclass, double value);
+  void setIRStatB (int iclass, double value);
+  void setIRStatR (int iclass, double value);
   void setIRStatRV(int iclass, double value);
 
   const MatrixRectangular& getStats() const { return _stats; }

@@ -91,12 +91,13 @@ int NeighMoving::reset(int ndim,
 
   if (! coeffs.empty())
   {
+//    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
     _flagAniso = 1;
     _anisoCoeffs = coeffs;
 
     if (! angles.empty())
     {
-      _flagRotation = 1;
+      _flagRotation = (ut_vector_constant(angles, 0.)) ? 0 : 1;
       _anisoRotMat.resize(ndim * ndim);
       ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
     }
