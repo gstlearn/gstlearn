@@ -55,6 +55,142 @@ HDF5format::~HDF5format()
 {
 }
 
+void HDF5format::openFile(const String& filename)
+{
+  // Define the File name
+  if (! filename.empty()) _filename = filename;
+
+  // Perform the Open operation
+  try
+  {
+    _datafile = H5::H5File(H5std_string (_filename.c_str()), H5F_ACC_RDONLY);
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openFile. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+void HDF5format::openNewFile(const String& filename)
+{
+  // Define the File name
+  if (! filename.empty()) _filename = filename;
+
+  // Perform the Open operation
+  try
+  {
+    _datafile = H5::H5File(_filename.c_str(), H5F_ACC_TRUNC);
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openNewFile. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+void HDF5format::openDataSet(const String& varname)
+{
+  // Define the Data Set Name
+  if (! varname.empty()) _varname = varname;
+
+  // Perform the Open operation
+  try
+  {
+    _dataset = _datafile.openDataSet(_varname.c_str());
+    _datatype = _dataset.getDataType();
+    _dataspace = _dataset.getSpace();
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openDataSet. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+void HDF5format::openNewDataSetInt(const String& varname,
+                                   int ndim,
+                                   hsize_t *dims)
+{
+  // Define the Data Set Name
+  if (! varname.empty()) _varname = varname;
+
+  // Perform the Open operation
+  try
+  {
+    _dataspace = H5::DataSpace(ndim, dims);
+    _datatype = H5::DataType(H5::PredType::NATIVE_INT);
+    _dataset = _datafile.createDataSet(H5std_string(_varname.c_str()), _datatype, _dataspace);
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openNewDataSetInt. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+
+void HDF5format::openNewDataSetFloat(const String& varname,
+                                   int ndim,
+                                   hsize_t *dims)
+{
+  // Define the Data Set Name
+  if (! varname.empty()) _varname = varname;
+
+  // Perform the Open operation
+  try
+  {
+    _dataspace = H5::DataSpace(ndim, dims);
+    _datatype = H5::DataType(H5::PredType::NATIVE_FLOAT);
+    _dataset = _datafile.createDataSet(H5std_string(_varname.c_str()), _datatype, _dataspace);
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openNewDataSetFloat. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+
+void HDF5format::openNewDataSetDouble(const String& varname,
+                                   int ndim,
+                                   hsize_t *dims)
+{
+  // Define the Data Set Name
+  if (! varname.empty()) _varname = varname;
+
+  // Perform the Open operation
+  try
+  {
+    _dataspace = H5::DataSpace(ndim, dims);
+    _datatype = H5::DataType(H5::PredType::NATIVE_DOUBLE);
+    _dataset = _datafile.createDataSet(H5std_string(_varname.c_str()), _datatype, _dataspace);
+  }
+  catch (H5::Exception& error)
+  {
+    messerr("---> Problem in openNewDataSetDouble. Operation aborted");
+    EXCEPTION_PRINT_ERROR(error);
+    return;
+  }
+}
+
+void HDF5format::closeFile()
+{
+  _datafile.close();
+}
+
+void HDF5format::closeDataSet()
+{
+  _dataspace.close();
+  _dataset.close();
+  _datatype.close();
+}
+
 /****************************************************************************/
 /*!
 **  Read an array from an HDF5 file
@@ -112,7 +248,7 @@ void* HDF5format::readRegular(int flag_compress,
       }
     }
 
-    void* rdata = allocArray(datatype, ndim, dimout);
+    void* rdata = _allocArray(datatype, ndim, dimout);
     if (rdata == NULL) return (rdata);
 
     H5::DataSpace memspace(ndim, dimout, NULL);
@@ -195,27 +331,6 @@ int HDF5format::writeRegular(hsize_t *start,
     EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
-}
-
-/****************************************************************************/
-/*!
-**  Allocate an array
-**
-** \return Pointer to the allocated array or NULL
-**
-** \param[in]  type      Dimension of element
-** \param[in]  ndim      Space dimension
-** \param[in]  dims      Array giving grid dimension in all space directions
-**
-*****************************************************************************/
-void* HDF5format::allocArray(H5::DataType type, int ndim, hsize_t *dims)
-{
-  // TODO : Currently a crash here under Windows (MinGW) while running test_HDF5
-  hsize_t size = type.getSize();
-  int ntot = 1;
-  for (int idim=0; idim<ndim; idim++) ntot *= (int) dims[idim];
-  void* data = (void *) calloc(ntot,(size_t) size);
-  return data;
 }
 
 int HDF5format::deleteFile()
@@ -653,96 +768,24 @@ void HDF5format::_getOrderSize(H5T_order_t* order,
   }
 }
 
-void HDF5format::openFile(const String& filename) const
+/****************************************************************************/
+/*!
+**  Allocate an array
+**
+** \return Pointer to the allocated array or NULL
+**
+** \param[in]  type      Dimension of element
+** \param[in]  ndim      Space dimension
+** \param[in]  dims      Array giving grid dimension in all space directions
+**
+*****************************************************************************/
+void* HDF5format::_allocArray(const H5::DataType& type, int ndim, hsize_t *dims)
 {
-  // Define the File name
-  if (! filename.empty()) _filename = filename;
-
-  // Perform the Open operation
-  try
-  {
-    _datafile = H5::H5File(H5std_string (_filename.c_str()), H5F_ACC_RDONLY);
-  }
-  catch (H5::Exception& error)
-  {
-    messerr("---> Problem in openFile. Operation aborted");
-    EXCEPTION_PRINT_ERROR(error);
-    return;
-  }
-}
-
-void HDF5format::openNewFile(const String& filename) const
-{
-  // Define the File name
-  if (! filename.empty()) _filename = filename;
-
-  // Perform the Open operation
-  try
-  {
-    _datafile = H5::H5File(_filename.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT);
-
-  }
-  catch (H5::Exception& error)
-  {
-    messerr("---> Problem in openNewFile. Operation aborted");
-    EXCEPTION_PRINT_ERROR(error);
-    return;
-  }
-}
-
-void HDF5format::openDataSet(const String& varname) const
-{
-  // Define the Data Set Name
-  if (! varname.empty()) _varname = varname;
-
-  // Perform the Open operation
-  try
-  {
-    _dataset = _datafile.openDataSet(_varname.c_str());
-    _datatype = _dataset.getDataType();
-    _dataspace = _dataset.getSpace();
-  }
-  catch (H5::Exception& error)
-  {
-    messerr("---> Problem in openDataSet. Operation aborted");
-    EXCEPTION_PRINT_ERROR(error);
-    return;
-  }
-}
-
-void HDF5format::openNewDataSet(const String& varname,
-                                int ndim,
-                                hsize_t *dims,
-                                H5::DataType type) const
-{
-  // Define the Data Set Name
-  if (! varname.empty()) _varname = varname;
-
-  // Perform the Open operation
-  try
-  {
-    _dataspace = H5::DataSpace(ndim, dims);
-    _datatype = type;
-    _dataset = _datafile.createDataSet(H5std_string(_varname.c_str()), _datatype, _dataspace);
-  }
-  catch (H5::Exception& error)
-  {
-    messerr("---> Problem in openNewDataSet. Operation aborted");
-    EXCEPTION_PRINT_ERROR(error);
-    return;
-  }
-}
-
-void HDF5format::closeFile() const
-{
-  _datafile.close();
-}
-
-void HDF5format::closeDataSet() const
-{
-  _dataspace.close();
-  _dataset.close();
-  _datatype.close();
+  hsize_t size = type.getSize();
+  int ntot = 1;
+  for (int idim=0; idim<ndim; idim++) ntot *= (int) dims[idim];
+  void* data = (void *) calloc(ntot,(size_t) size);
+  return data;
 }
 
 void HDF5format::_readInt(int *data,
@@ -821,7 +864,7 @@ int HDF5format::_checkClass(int value) const
   H5T_class_t classt = _datatype.getClass();
   if (classt != value)
   {
-    messerr("%s is not a float... you can't save this in current format.",_varname.c_str());
+    messerr("%s has not the requested class %d (expected %d).",_varname.c_str(), classt, value);
     return 1;
   }
   return 0;
@@ -845,22 +888,21 @@ void HDF5format::_writeDouble(double *data,
   else if (order == 1 && size == 8)
     _dataset.write((double*) data, H5::PredType::IEEE_F64BE, memspace, dataspace);
   else
-    messageAbort("Did not find data type\n");
+    messageAbort("Did not find data type");
 }
 
 void HDF5format::_writeAll(const char* type, void *a)
 {
   try
   {
-    if (type == (char*) typeid(int).name())
+    if (*type == *((char*)typeid(int).name()))
       _dataset.write(a, H5::PredType::STD_I32LE);
-    else if (type == (char*) typeid(float).name())
+    else if (*type == *((char*) typeid(float).name()))
       _dataset.write(a, H5::PredType::IEEE_F32LE);
-    else if (type == (char*) typeid(double).name())
+    else if (*type == *((char*) typeid(double).name()))
       _dataset.write(a, H5::PredType::IEEE_F64LE);
     else
       messerr("Unknown data type! EXITING");
-
     return;
   }
   catch (H5::Exception& error)
