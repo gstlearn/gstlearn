@@ -158,7 +158,7 @@ int main(int argc, char *argv[])
       
       vario->attachDb(dbin);
       vario->compute("vg");
-      variogram_print(vario,1);
+      variogram_print(vario);
       ascii_filename("Vario",0,1,filename);
       if (vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");

@@ -207,15 +207,15 @@ public:
                                           int icol_end,
                                           bool useSel = false) const;
 
-  int getLocator(const String& name,
-                 ELoc* ret_locatorType,
-                 int* ret_locatorIndex) const;
-  int getLocatorByColIdx(int icol,
-                         ELoc* ret_locatorType,
-                         int* ret_locatorIndex) const;
-  int getLocatorByUID(int iuid,
-                      ELoc* ret_locatorType,
-                      int* ret_locatorIndex) const;
+  bool getLocator(const String& name,
+                  ELoc* ret_locatorType,
+                  int* ret_locatorIndex) const;
+  bool getLocatorByColIdx(int icol,
+                          ELoc* ret_locatorType,
+                          int* ret_locatorIndex) const;
+  bool getLocatorByUID(int iuid,
+                       ELoc* ret_locatorType,
+                       int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
                            const ELoc& locatorType = ELoc::UNKNOWN) const;
   int getLocatorNumber(const ELoc& locatorType) const;
@@ -229,6 +229,7 @@ public:
   VectorInt getAllUIDs() const;
 
   int getFaciesNumber(void) const;
+  bool hasLocatorDefined(const String& name, const ELoc& locatorType, int locatorIndex=0) const;
 
   // Accessing elements of the contents
 
