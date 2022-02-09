@@ -22,14 +22,14 @@ pacman -S mingw-w64-x86_64-hdf5
 pacman -S mingw-w64-x86_64-boost
 ```
 
-### Then compile HDF5
-===================
+### Then compile HDF5 (obsolete)
+
 The idea is to:
 - use MSYS generator from RTools,
 - build C++ static library and prevent from building fortran/java libraries and tests
 
-Following these steps:
-----------------------
+#### Following these steps 
+
 1- Download HDF5 CMake version here : https://www.hdfgroup.org/downloads/hdf5/source-code/#
 
 2- Extract and enter directory CMake-hdf5-1.12.1 (adapt version number)
@@ -60,7 +60,7 @@ Notes:
   - We don't need tools, tests, fortran, java and szip/z_lib support (I bet !)  
 
 
-### Finally, compile gstlearn & RGeostats
+### Finally, compile gstlearn & RGeostats (obsolete)
 
 cd gstearn
 cmake -Bbuild_msys -H. -G "MSYS Makefiles" -DHDF5_ROOT:PATH=C:\local -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API"

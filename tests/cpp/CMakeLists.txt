@@ -5,7 +5,7 @@
 file(GLOB TEST_SOURCES test*.cpp)
 # Without GLOB:
 #set(TEST_SOURCES 
-#  test_AllGibbs.cpp
+#  test_SPDEDrift.cpp)
 #  test_HDF5.cpp)
 
 # Generation folders

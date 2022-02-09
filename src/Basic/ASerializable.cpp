@@ -508,6 +508,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
   String dirname = getExecDirectory();
+  //std::cout << "dirname=" << dirname << std::endl;
   // TODO : Find a proper way to register global folders (data, docs etc...)
 #if defined(_WIN32) || defined(_WIN64)
   dirname += "\\";
@@ -664,11 +665,11 @@ String ASerializable::getExecDirectory()
   // TODO boost::filesystem::path program_location
   String dir = getHomeDirectory();
 #if defined(_WIN32) || defined(_WIN64)
-  char buffer[MAX_PATH];
+  char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
     dir = String(buffer);
 #else
-  char buffer[LONG_SIZE];
+  char buffer[LONG_SIZE] = "";
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
     dir = String(buffer);
 #endif
