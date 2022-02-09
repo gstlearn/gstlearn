@@ -527,9 +527,16 @@ def point(db,
     # Size of symbol
     if size_name is not None:
         sizval = getDefinedValues(db, size_name, usesel, False)
-        m = min(np.absolute(sizval))
-        M = max(np.absolute(sizval))
+        m = np.nanmin(np.absolute(sizval))
+        M = np.nanmax(np.absolute(sizval))
         sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
+        mask = ~np.isnan(sizval)
+        sizval = sizval[mask]
+        tabx = np.array(tabx)[mask]
+        taby = np.array(taby)[mask]
+        if color_name is not None:
+            colval = colval[mask]
+            color = cmap
     else:
         sizval = size
 
@@ -541,7 +548,7 @@ def point(db,
     if flagSizeLegend and (size_name is not None):
         labels = lambda marker_size : (M - m)*(marker_size - sizmin)/(sizmax - sizmin) + m
         # labels is the inverse transformation from marker sizes to variable values
-        ax.legend(*im.legend_elements("sizes", num=5, color=color, func=labels))
+        ax.legend(*im.legend_elements("sizes", num=5, color=cmap, func=labels))
          
     if title is not None:
         ax.set_title(title)
