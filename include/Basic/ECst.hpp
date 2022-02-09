@@ -26,6 +26,7 @@
                      TOLINV, 11, "Tolerance for matrix inversion", \
                      TOLGEN, 12, "Tolerance for matrix generalized inversion", \
                      EPSMAT, 13, "Tolerance value for Matrix calculations", \
-                     EPSSVD, 14, "Tolerance value for SVD Matrix calculations"
+                     EPSSVD, 14, "Tolerance value for SVD Matrix calculations", \
+                     ASP,    15, "Graphic Aspect Ratio"
 
 ENUM_DECLARE(ENUM_CST)

@@ -111,7 +111,7 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
   }
 
   sstr << std::endl;
-  sstr << "In the following printout:" << std::endl;
+  sstr << "In the previous printout:" << std::endl;
   sstr << "[,1] : Class Probability 'w'" << std::endl;
   sstr << "[,2] : Class Mean Value 'zc'" << std::endl;
   sstr << "[,3] : Anamorphosis coefficient 'c_s'" << std::endl;

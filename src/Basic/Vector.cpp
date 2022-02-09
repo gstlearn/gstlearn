@@ -256,6 +256,35 @@ VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
   return res;
 }
 
+/**
+ * Check if the contents of a vector is constant (equal to 'refval' is defined)
+ * @param vect   Input vector
+ * @param refval Reference value (TEST if not defined)
+ * @return
+ */
+bool ut_vector_constant(const VectorDouble& vect, double refval)
+{
+  if (vect.empty()) return false;
+  if (FFFF(refval)) refval = vect[0];
+  for (int i = 1; i < (int) vect.size(); i++)
+    if (vect[i] != refval) return false;
+  return true;
+}
+
+/**
+ * Check if the contents of a vector is constant (equal to 'refval' is defined)
+ * @param vect   Input vector
+ * @param refval Reference value (ITEST if not defined)
+ * @return
+ */
+bool ut_ivector_constant(const VectorInt& vect, int refval)
+{
+  if (vect.empty()) return false;
+  for (int i = 1; i < (int) vect.size(); i++)
+    if (vect[i] != vect[0]) return false;
+  return true;
+}
+
 bool ut_vector_same(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;

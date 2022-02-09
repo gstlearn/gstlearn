@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "geoslib_f.h"
 
 #define ANAM_KD_NELEM 6
@@ -23,6 +24,7 @@ AnamDiscrete::AnamDiscrete()
       _zCut(),
       _stats()
 {
+  _resize();
 }
 
 AnamDiscrete::AnamDiscrete(const AnamDiscrete &m)
@@ -41,7 +43,7 @@ AnamDiscrete& AnamDiscrete::operator=(const AnamDiscrete &m)
   if (this != &m)
   {
     _nCut = m._nCut;
-    _nElem = m._nElem;;
+    _nElem = m._nElem;
     _zCut = m._zCut;
     _mean = m._mean;
     _variance = m._variance;
@@ -70,8 +72,10 @@ String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   sstr << "Number of cutoffs = " << _nCut << std::endl;
   sstr << "Number of classes = " << getNClass() << std::endl;
-  sstr << "Mean              = " << _mean << std::endl;
-  sstr << "Variance          = " << _variance << std::endl;
+  if (! FFFF(_mean))
+    sstr << "Mean              = " << _mean << std::endl;
+  if (! FFFF(_variance))
+    sstr << "Variance          = " << _variance << std::endl;
 
   sstr << std::endl;
   sstr << toMatrix("Cutoffs", VectorString(), VectorString(), true, 1, _nCut, _zCut);
@@ -80,19 +84,6 @@ String AnamDiscrete::toString(const AStringFormat* /*strfmt*/) const
                    getStats().getValues());
 
   return sstr.str();
-}
-
-void AnamDiscrete::setStats(const VectorDouble& stats)
-{
-  int nclass = getNClass();
-  int nelem = getNElem();
-  if ((int) stats.size() != nclass * nelem)
-  {
-    messerr("Argument 'stats' incorrect. Its dimension (%d) should be %d * %d",
-            stats.size(),nclass,nelem);
-    return;
-  }
-  _stats.setValues(stats);
 }
 
 void AnamDiscrete::calculateMeanAndVariance()
@@ -275,4 +266,36 @@ int AnamDiscrete::_deserialize(FILE* file, bool verbose)
 
   label_end:
   return 0;
+}
+
+void AnamDiscrete::setNCut(int ncut)
+{
+  _nCut = ncut;
+  _resize();
+}
+
+void AnamDiscrete::setZCut(const VectorDouble& zcut)
+{
+  _nCut = zcut.size();
+  _resize();
+  _zCut = zcut;
+};
+
+void AnamDiscrete::setNElem(int nelem)
+{
+  _nElem = nelem;
+  _resize();
+}
+
+void AnamDiscrete::setStats(const VectorDouble& stats)
+{
+  int nclass = getNClass();
+  int nelem = getNElem();
+  if ((int) stats.size() != nclass * nelem)
+  {
+    messerr("Argument 'stats' incorrect. Its dimension (%d) should be %d * %d",
+            stats.size(),nclass,nelem);
+    return;
+  }
+  _stats.setValues(stats);
 }

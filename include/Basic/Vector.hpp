@@ -44,6 +44,8 @@ GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble &vec1,
                                                const VectorDouble &vec2);
 GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
                                                      const VectorDouble &vec2);
+GSTLEARN_EXPORT bool ut_vector_constant(const VectorDouble& vect, double refval = TEST);
+GSTLEARN_EXPORT bool ut_ivector_constant(const VectorInt& vect, int refval = ITEST);
 GSTLEARN_EXPORT bool ut_vector_same(const VectorDouble &v1,
                                     const VectorDouble &v2,
                                     double eps = EPSILON10);
