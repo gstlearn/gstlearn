@@ -77,7 +77,7 @@ set_source_files_properties(${SRC} PROPERTIES
   CPLUSPLUS ON
   # Swig wrapper will be regenerated if C++ headers are changed
   # https://stackoverflow.com/a/70375654/3952924
-  #USE_SWIG_DEPENDENCIES TRUE   # Incompatible with CMAKE_SWIG_OUTDIR under cmake 3.22 (MSVC)
+  USE_SWIG_DEPENDENCIES TRUE   # Incompatible with CMAKE_SWIG_OUTDIR under cmake 3.22 (MSVC)
   # myfibo C++ headers will be found by %import directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
   # Python package name will be the name of the destination folder (see above)

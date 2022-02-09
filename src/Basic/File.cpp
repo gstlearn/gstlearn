@@ -16,6 +16,10 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
+#if defined(_WIN32) || defined(_WIN64)
+#include <windows.h>
+#endif
+
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
 void skipBOM(std::ifstream &in)
@@ -66,12 +70,19 @@ bool gslFileExist(const String& path, const String& mode)
   return exists;
 }
 
-char* gslGetEnv(const char* name)
+String gslGetEnv(const String& name)
 {
+  String text;
 #if defined(_WIN32) || defined(_WIN64)
-  return getenv(name);
-#else
-  return std::getenv(name);
+  const DWORD buffSize = 65535;
+  static char buffer[buffSize];
+  if (GetEnvironmentVariable(name.c_str(), buffer, buffSize))
+    text = String(buffer);
+#elif defined(__linux__) || defined(__APPLE__)
+  char* value = std::getenv(name.c_str());
+  if (value != NULL)
+    text = String(value);
 #endif
+  return text;
 }
 
