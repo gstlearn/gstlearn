@@ -724,9 +724,6 @@ GSTLEARN_EXPORT void matrix_range(int n1,
 
 GSTLEARN_EXPORT void ascii_study_define(const char *study);
 GSTLEARN_EXPORT void ascii_environ_read(char *file_name, int verbose);
-GSTLEARN_EXPORT void ascii_external_filename(const char *filein,
-                                             int mode,
-                                             char *filename);
 GSTLEARN_EXPORT void ascii_filename(const char *type,
                                     int rank,
                                     int mode,

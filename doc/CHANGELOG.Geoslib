@@ -591,8 +591,7 @@ Bug Fixes :
 - Correction in db_locator_set() to recognize the rank of the attribute when
 	the locator name has more than 1 character
 - Correction of the use of intensity during Substitution simulation
-- Correction when creating a Model or a Vario from a buffer string (discovered
-  by ENI)
+- Correction when creating a Model or a Vario from a buffer string
 	
 Release 10.0.0
 ==============
@@ -678,7 +677,7 @@ Release 9.4.0
 New functions :
 ---------------
 - Possibility to handle SITE License (do not pay attention to activation code)
-- Simulation under constraints (For ENI)
+- Simulation under constraints
 - Reading and Writing Fracture neutral files
 - ascii_vario_read_buffer and ascii_vario_write_buffer to read/write variogram
   via a buffer
@@ -724,7 +723,6 @@ Modification in functions :
 	and to Gaussian is param is close to 2
 - Adding the trace arguments to variogram_pgs.c
 - variogram_calcul: possibility to account for Variance of Measurement Error
-  (Due to ENI, under specific license)
 - the function correlation() returns the value of the correlation factor
 - function anam_init() contains the type of anamorphosis as argument
 - function anam_fit() is repaced by anam_fit_hermitian()
