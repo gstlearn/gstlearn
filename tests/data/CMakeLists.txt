@@ -41,16 +41,21 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     if(${TARGET_EXE} MATCHES "testvar*")
         set(BDIR "Var")
     endif()
+    # Calculate full path of target executable
+    cmake_path(APPEND GLOBAL_DST_DIR ${TARGET_EXE}
+               OUTPUT_VARIABLE TARGET_EXE)
     # Retrieve all test cases
     file(GLOB TEST_SRC_DIRS ${BDIR}*)
+#    set(TEST_SRC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Jeu1)
     foreach(TEST_SRC_DIR ${TEST_SRC_DIRS})
         # Drop absolute directory path
         get_filename_component(DIR_NAME "${TEST_SRC_DIR}" NAME)
         # Calculate output directory
         cmake_path(APPEND GLOBAL_DST_DIR ${DIR_NAME}
                    OUTPUT_VARIABLE TEST_DST_DIR)
+        #message(STATUS "TEST_DST_DIR = ${TEST_DST_DIR}")
         file(MAKE_DIRECTORY ${TEST_DST_DIR})
-        # Run the test (The executable will generate Result.out in ${TEST_DST_DIR})
+        # Run the test (and generate Result.out in ${TEST_DST_DIR})
         add_test(NAME ${DIR_NAME}
                  COMMAND ${TARGET_EXE} ${TEST_SRC_DIR}
                  WORKING_DIRECTORY ${TEST_DST_DIR})
