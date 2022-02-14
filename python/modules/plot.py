@@ -1,6 +1,7 @@
 import matplotlib.pyplot     as plt
 import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
+import matplotlib.colors     as mcolors
 import numpy                 as np
 import gstlearn              as gl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
@@ -600,7 +601,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True,
          xlim=None, ylim=None, cmap = None, norm=None, vmin = None, vmax = None, 
          shading="nearest", title = None, ax=None, figsize = None, end_plot=False):
     '''
-    Function for plotting a variable (referred by its name) informed in a grid Db
+    Function for plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: Db, organized as a Grid, containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
@@ -691,7 +692,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True,
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "red", transform=trans_data)
     
-    if flagColorBar and alpha > 0:
+    if flagColorBar:# and alpha > 0:
         addColorbar(im, ax)
     
     if title is not None:
@@ -794,7 +795,8 @@ def hist(db, name, nbins=30, xlab=None, ylab=None,
          title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the histogram of a variable contained in a Db'''
     
-    val = db.getColumn(name)
+    #val = db.getColumn(name)
+    val = db[name]
     if len(val) == 0:
         return None
     
@@ -969,7 +971,7 @@ def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, as
         
     return ax
 
-def plot(object, name1=None, name2=None, ranks=None):
+def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     filetype = type(object).__name__
 
     if filetype == "Db":
@@ -979,65 +981,274 @@ def plot(object, name1=None, name2=None, ranks=None):
         if name2 is not None:
             flagDb = False
         if flagDb:
-            point(object, name1, end_plot=True)
+            point(object, name1, end_plot=True, **kwargs)
         else:
-            correlation(object, name1, name2, end_plot=True)
+            correlation(object, name1, name2, end_plot=True, **kwargs)
             
     elif filetype == "DbGrid":
         if name1 is None:
             name1 = object.getLastName()
-        grid(object, name1, end_plot=True)
+        grid(object, name1, end_plot=True, **kwargs)
     
     elif filetype == "Vario":
-        vario(object,end_plot=True)
+        vario(object,end_plot=True, **kwargs)
     
     elif filetype == "Model":
-        modelElem(object,end_plot=True)
+        model(object,end_plot=True, **kwargs)
     
     elif filetype == "Rule":
-        rule(object,end_plot=True)
+        rule(object,end_plot=True, **kwargs)
     
     elif filetype == "Table":
-        table(object,ranks,end_plot=True,title=filename)
+        table(object,ranks,end_plot=True, **kwargs)
 
     elif filetype == "Polygon":
-        polygon(object,colorPerSet=True,flagFace=True,end_plot=True)
+        polygon(object,colorPerSet=True,flagFace=True,end_plot=True, **kwargs)
         
     else:
         print("Unknown type")
 
-def plotFromNF(filename, name1=None, name2=None, ranks=None):
+def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
     filetype = gl.ASerializable.getFileIdentity(filename)
     if filetype == "":
         exit()
 
     if filetype == "Db":
         db = gl.Db.createFromNF(filename,False)
-        plot(db, name1, name2)
+        plot(db, name1, name2, **kwargs)
             
     elif filetype == "DbGrid":
         dbgrid = gl.DbGrid.createFromNF(filename,False)
-        plot(dbgrid, name1)
+        plot(dbgrid, name1, **kwargs)
     
     elif filetype == "Vario":
         vario_item = gl.Vario.createFromNF(filename,False)
-        plot(vario_item)
+        plot(vario_item, **kwargs)
     
     elif filetype == "Model":
         model_item = gl.Model.createFromNF(filename,False)
-        plot(model_item)
+        plot(model_item, **kwargs)
     
     elif filetype == "Rule":
         rule_item = gl.Rule.createFromNF(filename,False)
-        plot(rule_item)
+        plot(rule_item, **kwargs)
     
     elif filetype == "Table":
         table_item = gl.Table.createFromNF(filename,False)
-        plot(table_item,ranks)
+        plot(table_item,ranks, **kwargs)
 
     elif filetype == "Polygon":
         polygon_item = gl.Polygons.createFromNF(filename,False)
-        plot(polygon_item)
+        plot(polygon_item, **kwargs)
         
     else:
         print("Unknown type")
+
+
+# Select data on interactive figures with matplotlib
+
+from matplotlib.widgets import PolygonSelector
+from matplotlib.path import Path
+
+class PointSelection:
+    """
+    Select indices from a matplotlib collection using point selector.
+    Left click on data points for selecting it, and right click to remove selection on the point.
+    Press 'escape' to remove the current selection and start a new one.
+
+    Selected indices are saved in the `ind` attribute, and the mask of the selection in the
+    'mask' attribute. If mydb is provided, a new variable "interactive_selection" is created. 
+    This tool changes color (to red by default) for the selected points.
+
+    Note that this tool selects collection objects based on their *origins*
+    (i.e., `offsets`).
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        Axes to interact with.
+    collection : `matplotlib.collections.Collection` subclass
+        Collection you want to select from.
+        At least one of 'ax' or 'collection' must be provided.
+    mydb : gstlearn.Db or DbGrid. If provided, a new variable "interactive_selection" is 
+        created (or modified if already existing)
+    pickradius : precision of the picker in points (default is 7)
+    color : new color for the selected points (default is red)
+    """
+    def __init__(self, ax=None, collection=None, mydb=None, pickradius=7, color='r'):
+        self.ax = ax
+        if ax is None and collection is None:
+            raise ValueError("ax and collection cannot be None at the same time,"
+                             " at least one must be given.")
+        elif collection is None:
+            self.collection = ax.collections[0]
+        else:
+            self.collection = collection
+            if ax is None:
+                self.ax = self.collection.axes
+            
+        self.fig = self.collection.get_figure()
+        self.collection.set_picker(True)
+        self.collection.set_pickradius(pickradius)
+        self.color = mcolors.to_rgba(color)
+            
+        self.cid = self.fig.canvas.mpl_connect('pick_event', self.on_pick)
+        self.cid_esc = self.fig.canvas.mpl_connect("key_press_event", self.onkeypress)
+        
+        self.data = self.collection.get_offsets()
+        self.Ndata = len(self.data)
+        
+        self.collection.update_scalarmappable()
+        colors = self.collection.get_facecolor()
+        if len(colors)==1:
+            colors = np.empty((self.Ndata,4))
+            colors[:,:] = self.collection.get_facecolors()[0]
+        self.initial_colors = np.copy(colors)
+        
+        self.list_clicks = []
+        self.ind = []
+        self.mask = np.zeros(self.Ndata)
+        self.mydb = mydb
+        if mydb is not None:
+            mydb["interactive_selection"] = self.mask
+        
+        print("Select points on the plot: left click for selecting, right click to remove selection, "
+              "'escape' for deleting current selection and starting a new one")
+        
+    def on_pick(self,event):
+        self.event=event
+        if event.mouseevent.button in (1,3):
+            xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
+            ind = event.ind
+            print( 'Artist picked:', event.artist)
+            print( '{} vertices picked'.format(len(ind)))
+            print( 'Vertices picked:',ind)
+            print( 'x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
+            print( 'Data point:', self.data[ind[0]])
+            for i in range(len(ind)):
+                self.list_clicks.append(ind[i])
+                if event.mouseevent.button == 1: #left click = select
+                    self.mask[ind[i]] = 1
+                else: #right click = unselect
+                    self.mask[ind[i]] = 0
+                self.ind = np.where(self.mask == 1)[0]
+                
+            if self.mydb is not None:
+                self.mydb["interactive_selection"] = self.mask
+            
+            self.collection.update_scalarmappable()
+            self.collection.set_array(None)
+            colors = np.copy(self.initial_colors)
+            colors[self.ind] = np.array(self.color)
+            self.collection.set_facecolors(colors)
+            self.fig.canvas.draw()
+
+    def onkeypress(self,event):
+        """Reinitialize when press ESC"""
+        if event.key == "escape":
+            self.list_clicks = []
+            self.ind = []
+            self.mask = np.zeros(self.Ndata)
+            if self.mydb is not None:
+                # self.mydb.deleteColumn("interactive_selection")
+                self.mydb["interactive_selection"] = self.mask
+            self.collection.set_facecolors(self.initial_colors)
+            self.fig.canvas.draw()
+             
+    def disconnect(self):
+        """Disconnect matplotlib events (ends interactive selection), 
+        and deletes variable "interactive_selection" in 'mydb' if provided."""
+        self.fig.canvas.mpl_disconnect(self.cid)
+        self.fig.canvas.mpl_disconnect(self.cid_esc)
+        self.mydb.deleteColumn("interactive_selection")
+
+
+class PolygonSelection:
+    """
+    Select indices from a matplotlib collection using `PolygonSelector`.
+    Draw polygon to select point inside a region. Press 'escape' to remove the polygon and start a new one.
+
+    Selected indices are saved in the `ind` attribute, and the mask of the selection in the
+    'mask' attribute. If mydb is provided, a new variable "interactive_selection" is created. 
+    This tool fades out the points that are not part of the selection (i.e., reduces their alpha
+    values). If your collection has alpha < 1, this tool will permanently alter the alpha values.
+
+    Note that this tool selects collection objects based on their *origins*
+    (i.e., `offsets`).
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+        Axes to interact with.
+    collection : `matplotlib.collections.Collection` subclass
+        Collection you want to select from.
+        At least one of 'ax' or 'collection' must be provided.
+    mydb : gstlearn.Db or DbGrid. If provided, a new variable "interactive_selection" is 
+        created (or modified if already existing)
+    alpha_other : 0 <= float <= 1
+        To highlight a selection, this tool sets all selected points to an
+        alpha value of 1 and non-selected points to *alpha_other*.
+    """
+
+    def __init__(self, ax=None, collection=None, mydb=None, alpha_other=0.3):
+        self.ax = ax
+        if ax is None and collection is None:
+            raise ValueError("ax and collection cannot be None at the same time,"
+                             " at least one must be given.")
+        elif collection is None:
+            self.collection = ax.collections[0]
+        else:
+            self.collection = collection
+            if ax is None:
+                self.ax = self.collection.axes
+        self.canvas = self.ax.figure.canvas
+        self.alpha_other = alpha_other
+
+        self.xys = self.collection.get_offsets()
+        self.Ndata = len(self.xys)
+
+        # Ensure that we have separate colors for each object
+        self.collection.update_scalarmappable()
+        self.fc = self.collection.get_facecolors()
+        if len(self.fc) == 0:
+            raise ValueError('Collection must have a facecolor')
+        elif len(self.fc) == 1:
+            self.fc = np.tile(self.fc, (self.Ndata, 1))
+        self.initial_xlim = self.ax.get_xlim()
+        
+        self.poly = PolygonSelector(self.ax, self.onselect)
+        self.ind = []
+        self.mask = np.zeros(self.Ndata)
+        self.mydb = mydb
+        if self.mydb is not None:
+            self.mydb["interactive_selection"] = self.mask
+        
+        print("Draw a polygon on the plot to select points inside the polygon."
+              "Press 'escape' for deleting current polygon and starting a new one.")
+
+    def onselect(self, verts):
+        path = Path(verts)
+        self.ind = np.nonzero(path.contains_points(self.xys))[0]
+        self.mask = np.zeros(self.Ndata)
+        self.mask[self.ind] = 1
+        if self.mydb is not None:
+            self.mydb["interactive_selection"] = self.mask
+        
+        self.collection.update_scalarmappable()
+        self.collection.set_array(None)
+        self.fc[:, -1] = self.alpha_other
+        self.fc[self.ind, -1] = 1
+        self.collection.set_facecolors(self.fc)
+        self.canvas.draw_idle()
+
+    def disconnect(self):
+        """Disconnect matplotlib events (ends interactive selection), 
+        and deletes variable "interactive_selection" in 'mydb' if provided."""
+        self.poly.disconnect_events()
+        self.fc[:, -1] = 1
+        self.collection.set_facecolors(self.fc)
+        self.canvas.draw_idle()
+        self.mydb.deleteColumn("interactive_selection")
+        
+
+
