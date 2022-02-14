@@ -25,7 +25,6 @@ Note:
   * In all commands below, users must use the correct `python` command (python command prompt) (can be `python3`, `python` or something else depending on your configuration)
   
 ## Installation
-The Python package documentation (python_doc target) is optional.
 ### GCC, Clang, MinGW, ...
 ```sh
 cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
@@ -36,13 +35,26 @@ or for those who prefer a single command line
 ```
 make python_doc & make python_install
 ```
-
+Note:
+  * The Python package documentation (python_doc target) is optional
+  * Using MingGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
+  
 ### Microsoft Visual Studio, XCode, ...
 ```sh
 cmake -Bbuild -H.
 cmake --build build --target python_doc --config Release
 cmake --build build --target python_install --config Release
 ```
+Note:
+  * The Python package documentation (python_doc target) is optional
+  * Using Visual Studio on a Windows where MingGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
+  
+### Important Notes
+Notes:
+  * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
+  * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
+    * `-DBoost_ROOT=<path/to/boost>`
+    * `-DHDF5_ROOT=<path/to/hdf5>`
 
 ## Usage
 Simply import the package and its plot module, then enjoy:

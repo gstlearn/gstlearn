@@ -11,17 +11,7 @@
 //
 std::string RegistryUtility::get_environ(const std::string& varname)
 {
-  std::string value;
-#if defined(_WIN32) || defined(_WIN64)
-  const DWORD buffSize = 65535;
-  static char buffer[buffSize];
-  if (GetEnvironmentVariable(varname.c_str(), buffer, buffSize))
-    value = std::string(buffer);
-#elif defined(__linux__) || defined(__APPLE__)
-  char const* temp = gslGetEnv(varname.c_str());
-  if (temp != NULL) value = std::string(temp);
-#endif
-  return value;
+  return gslGetEnv(varname);
 }
 
 //

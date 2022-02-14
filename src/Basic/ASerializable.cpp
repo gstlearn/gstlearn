@@ -481,20 +481,16 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
 
 String ASerializable::getHomeDirectory(const String& sub)
 {
-  // https://stackoverflow.com/a/2552458
-#if defined(_WIN32) || defined(_WIN64)
-  const char* home_drive = gslGetEnv("HOMEDRIVE");
-  const char* home_path = gslGetEnv("HOMEPATH");
-  size_t size = strlen(home_drive) + strlen(home_path) + 1;
-  char* home_dir = static_cast<char *>(malloc(size));
-  gslStrcpy(home_dir, home_drive);
-  gslStrcat(home_dir, home_path);
-#else
-  char* home_dir = gslGetEnv("HOME");
-#endif
   std::stringstream sstr;
+#if defined(_WIN32) || defined(_WIN64)
+  String home_drive = gslGetEnv("HOMEDRIVE");
+  String home_path = gslGetEnv("HOMEPATH");
+  sstr << home_drive << home_path;
+#else
+  String home_dir = gslGetEnv("HOME");
+  sstr << home_dir;
+#endif
   // TODO : Cross-platform way to build file path (use boost ?)
-  sstr << String(home_dir);
   if (!sub.empty())
     sstr << "/" << sub;
   return sstr.str();
@@ -508,6 +504,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
   String dirname = getExecDirectory();
+  //std::cout << "dirname=" << dirname << std::endl;
   // TODO : Find a proper way to register global folders (data, docs etc...)
 #if defined(_WIN32) || defined(_WIN64)
   dirname += "\\";
@@ -583,9 +580,8 @@ void ASerializable::setContainerName(bool useDefault,
   if (useDefault)
   {
     // Default is first set to PYGSTLEARN_DIR (if defined)
-    char* pydir(gslGetEnv("PYGSTLEARN_DIR"));
-    String pygst;
-    if (pydir == nullptr)
+    String pygst(gslGetEnv("PYGSTLEARN_DIR"));
+    if (pygst.empty())
     {
       // Otherwise, it is set to HOME/gstlearn_dir
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
@@ -594,7 +590,6 @@ void ASerializable::setContainerName(bool useDefault,
     }
     else
     {
-      pygst = pydir;
       if (verbose)
         std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
     }
@@ -664,11 +659,11 @@ String ASerializable::getExecDirectory()
   // TODO boost::filesystem::path program_location
   String dir = getHomeDirectory();
 #if defined(_WIN32) || defined(_WIN64)
-  char buffer[MAX_PATH];
+  char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
     dir = String(buffer);
 #else
-  char buffer[LONG_SIZE];
+  char buffer[LONG_SIZE] = "";
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
     dir = String(buffer);
 #endif

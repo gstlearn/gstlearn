@@ -419,7 +419,7 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
     dims[0] = nact;
     dims[1] = nvar * nact * nvar;
     _hdf5.openNewFile("h5data3.h5");
-    _hdf5.openNewDataSet("Set3", 2, dims.data(), H5::PredType::NATIVE_DOUBLE);
+    _hdf5.openNewDataSetDouble("Set3", 2, dims.data());
   }
 
   // Loop on the samples
