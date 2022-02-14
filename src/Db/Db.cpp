@@ -3437,15 +3437,22 @@ void Db::_variableRead(FILE* file,
 
   /* Read the number of variables */
 
-  if (_recordRead(file, "Number of Variables", "%d", &nloc)) goto label_end;
-
+  if (_recordRead(file, "Number of Variables", "%d", &nloc))
+  {
+    // This is not necessarily an error (i.e. no column)
+    goto label_end;
+  }
   /* Decoding the locators */
 
   ecr = 0;
   while (1)
   {
     if (ecr >= nloc) break;
-    if (_recordRead(file, "Locator Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Locator Name", "%s", line))
+    {
+      std::cout << "Failure while reading locators" << std::endl;
+      goto label_end;
+    }
     if (locatorIdentify(line, &iloc, &inum, &mult)) break;
     tabloc.push_back(iloc);
     tabnum.push_back(inum);
@@ -3459,7 +3466,11 @@ void Db::_variableRead(FILE* file,
   while (1)
   {
     if (ecr >= nloc) break;
-    if (_recordRead(file, "Variable Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Variable Name", "%s", line))
+    {
+      std::cout << "Failure while reading column names" << std::endl;
+      goto label_end;
+    }
     tabnam.push_back(line);
     ecr++;
   }
@@ -3468,7 +3479,11 @@ void Db::_variableRead(FILE* file,
 
   while (1)
   {
-    if (_recordRead(file, "Numerical value", "%lf", &value)) goto label_end;
+    if (_recordRead(file, "Numerical value", "%lf", &value))
+    {
+      // This is not a failure... just the end of file
+      goto label_end;
+    }
     tab.push_back(value);
     nval++;
   }
