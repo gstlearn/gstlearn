@@ -17,11 +17,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <regex>
+#include <fstream>
+
 //#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -58,6 +61,59 @@ ASerializable& ASerializable::operator=(const ASerializable& /*r*/)
 
 ASerializable::~ASerializable()
 {
+}
+
+bool ASerializable::_fileOpenWrite2(const String& filename,
+                                    const String& filetype,
+                                    std::ofstream& os,
+                                    bool verbose)
+{
+  // Close the stream if opened
+  if (os.is_open()) os.close();
+  // Build the multi-platform filename and open it
+  String filepath = buildFileName(filename, true);
+  // Open new stream
+  os.open(filepath, std::ios::out | std::ios::trunc);
+  if (!os.is_open() && verbose)
+    message("Error while opening %s", filepath.c_str());
+  // Write the file type (class name)
+  os << filetype << std::endl;
+  return os.good();
+}
+
+bool ASerializable::_fileOpenRead2(const String& filename,
+                                   const String& filetype,
+                                   std::ifstream& is,
+                                   bool verbose)
+{
+  // Close the stream if opened
+  if (is.is_open()) is.close();
+  // Build the multi-platform filename and open it
+  String filepath = buildFileName(filename, true);
+  // Open new stream
+  is.open(filepath, std::ios::in);
+  if (!is.is_open() && verbose)
+    message("Error while opening %s", filepath.c_str());
+  // Read and check the file type (class name)
+  String type;
+  is >> type;
+  if (type != filetype && verbose)
+  {
+    message("The file %s has the wrong type (read: %s, expected: %s)",
+            filepath.c_str(), type, filetype);
+    is.close();
+  }
+  return is.good(); // Cannot be "end of file" already
+}
+
+bool ASerializable::_commentWrite2(std::ostream& os,
+                                   const String& comment)
+{
+  if (os.good())
+  {
+    os << "# " << comment << std::endl;
+  }
+  return os.good();
 }
 
 /****************************************************************************/
