@@ -3285,6 +3285,120 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
+int Db::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "Db", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename);
+    os.close();
+  }
+  return ret;
+}
+
+Db* Db::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  Db* db = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Db", is, verbose))
+  {
+    db = new Db;
+    if (db->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename);
+      delete db;
+      db = nullptr;
+    }
+    is.close();
+  }
+  return db;
+}
+
+int Db::_serialize2(std::ostream& os,bool /*verbose*/) const
+{
+  int ncol = getColumnNumber();
+  VectorString locators = getLocators(1);
+  VectorString names = getNames("*");
+  bool ret = _recordWrite2<int>(os, "Number of variables", ncol);
+  ret = ret && _recordWriteVec2<VectorString>(os, "Locators", locators);
+  ret = ret && _recordWriteVec2<VectorString>(os, "Names", names);
+  ret = ret && _commentWrite2(os, "Array of values");
+  VectorInt uids = getAllUIDs();
+  for (int iech = 0; ret && iech < getSampleNumber(); iech++)
+  {
+    // TODO :Create a getValues(iech) function?
+    VectorDouble vals;
+    for (int icol = 0; icol < ncol; icol++)
+      vals.push_back(getArray(iech, uids[icol]));
+    ret = ret && _recordWriteVec2(os, "", vals);
+  }
+  return ret ? 0 : 1;
+}
+
+int Db::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int ncol = 0, nech = 0;
+  VectorString locators;
+  VectorString names;
+  VectorDouble values;
+  VectorDouble allvalues;
+  // Read the file
+  bool ret = _recordRead2<int>(is, "Number of variables", ncol);
+  ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
+  if (!ret || (int)locators.size() != ncol) return 1;
+  ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
+  if (!ret || (int)names.size() != ncol) return 1;
+  while (ret)
+  {
+    ret = _recordReadVec2<VectorDouble>(is, "", values);
+    if (ret)
+    {
+      if ((int)values.size() != ncol) return 1;
+      // Concatenate values by samples
+      allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
+                                        std::make_move_iterator(values.end()));
+      nech++;
+    } // else "end of file"
+  }
+  // Decode the locators
+  std::vector<ELoc> tabloc;
+  VectorInt tabnum;
+  int  inum = 0, mult = 0;
+  ELoc iloc;
+  for (auto loc : locators)
+  {
+    if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
+    tabloc.push_back(iloc);
+    tabnum.push_back(inum);
+  }
+  // Initialize the Db
+  resetDims(ncol, nech);
+  // Load the values
+  _loadData(ELoadBy::SAMPLE, 0, allvalues);
+  // Update the column names and locators
+  for (int i = 0; i < ncol; i++)
+  {
+    setNameByUID(i, names[i]);
+    setLocatorByUID(i, tabloc[i], tabnum[i]);
+  }
+  return 0;
+}
+
+int Db::_serialize(FILE* file, bool /*verbose*/) const
+{
+  bool onlyLocator = false;
+  bool writeCoorForGrid = true;
+  bool flag_grid = isGrid();
+
+  /* Writing the tail of the file */
+
+  if (_variableWrite(file, flag_grid, onlyLocator, writeCoorForGrid)) return 1;
+
+  return 0;
+}
+
 int Db::_deserialize(FILE* file, bool /*verbose*/)
 {
   int ndim2, ntot, nloc, nech, i;
@@ -3292,7 +3406,7 @@ int Db::_deserialize(FILE* file, bool /*verbose*/)
   std::vector<ELoc> tabloc;
   VectorString tabnam;
   VectorDouble tab;
-  static int flag_add_rank = 1;
+  static int flag_add_rank = 0;
 
   /* Initializations */
 
@@ -3322,19 +3436,6 @@ int Db::_deserialize(FILE* file, bool /*verbose*/)
   /* Core deallocation */
 
   label_end:
-  return 0;
-}
-
-int Db::_serialize(FILE* file, bool /*verbose*/) const
-{
-  bool onlyLocator = false;
-  bool writeCoorForGrid = true;
-  bool flag_grid = isGrid();
-
-  /* Writing the tail of the file */
-
-  if (_variableWrite(file, flag_grid, onlyLocator, writeCoorForGrid)) return 1;
-
   return 0;
 }
 
@@ -3437,7 +3538,11 @@ void Db::_variableRead(FILE* file,
 
   /* Read the number of variables */
 
-  if (_recordRead(file, "Number of Variables", "%d", &nloc)) goto label_end;
+  if (_recordRead(file, "Number of Variables", "%d", &nloc))
+  {
+    // This is not necessarily an error (i.e. no column)
+    goto label_end;
+  }
 
   /* Decoding the locators */
 
@@ -3445,7 +3550,11 @@ void Db::_variableRead(FILE* file,
   while (1)
   {
     if (ecr >= nloc) break;
-    if (_recordRead(file, "Locator Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Locator Name", "%s", line))
+    {
+      std::cout << "Failure while reading locators" << std::endl;
+      goto label_end;
+    }
     if (locatorIdentify(line, &iloc, &inum, &mult)) break;
     tabloc.push_back(iloc);
     tabnum.push_back(inum);
@@ -3459,7 +3568,11 @@ void Db::_variableRead(FILE* file,
   while (1)
   {
     if (ecr >= nloc) break;
-    if (_recordRead(file, "Variable Name", "%s", line)) goto label_end;
+    if (_recordRead(file, "Variable Name", "%s", line))
+    {
+      std::cout << "Failure while reading column names" << std::endl;
+      goto label_end;
+    }
     tabnam.push_back(line);
     ecr++;
   }
@@ -3468,7 +3581,11 @@ void Db::_variableRead(FILE* file,
 
   while (1)
   {
-    if (_recordRead(file, "Numerical value", "%lf", &value)) goto label_end;
+    if (_recordRead(file, "Numerical value", "%lf", &value))
+    {
+      // This is not a failure... just the end of file
+      goto label_end;
+    }
     tab.push_back(value);
     nval++;
   }

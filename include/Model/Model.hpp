@@ -136,6 +136,10 @@ public:
                            int iech,
                            const ECalcMember& member,
                            VectorDouble& drftab) const;
+  double _evalDriftCoef(const Db* db,
+                        int iech,
+                        int ivar,
+                        const double* coef) const;
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

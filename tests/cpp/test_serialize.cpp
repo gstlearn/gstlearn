@@ -51,10 +51,15 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Serialize db1
   (void) db1->dumpToNF("Neutral.Db.ascii",verbose);
+  (void) db1->dumpToNF2("Neutral2.Db.ascii",verbose);
 
   // Deserialize db2
   Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
   db2->display();
+  delete db2;
+  db2 = Db::createFromNF2("Neutral2.Db.ascii",verbose);
+  db2->display();
+  (void) db2->dumpToNF2("Neutral22.Db.ascii",verbose);
 
   // =======================
   // Checking Db (grid)

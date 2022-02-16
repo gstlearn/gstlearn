@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 102
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =        102
- Nb of active values =        102
- Minimum value       =      1.000
- Maximum value       =    102.000
- Mean value          =     51.500
- Standard Deviation  =     29.443
- Variance            =    866.917
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    109.850
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          =    119.802
  Standard Deviation  =      6.516
  Variance            =     42.461
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    483.660
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          =    498.778
  Standard Deviation  =      7.987
  Variance            =     63.791
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =      1.090
@@ -49,7 +41,7 @@ Data Base Statistics
  Mean value          =      3.642
  Standard Deviation  =      4.705
  Variance            =     22.137
-5 - Name z2 - Locator z2
+4 - Name z2 - Locator z2
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =      3.000
@@ -60,15 +52,15 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1        z2
-     [  0,]     1.000   119.500   509.330     2.150     4.600
-     [  1,]     2.000   120.450   510.000     2.480     4.500
-     [  2,]     3.000   120.600   511.480    33.200       N/A
-     [  3,]     4.000   121.600   510.940     2.210     4.700
-     [  4,]     5.000   121.850   511.930     2.080     5.400
-     [  5,]     6.000   122.130   510.680     2.250     4.200
-     [  6,]     7.000   121.980   509.990     2.130     5.100
-(Ncols=5,Nrows=7[from 102])
+                   x1        x2        z1        z2
+     [  0,]   119.500   509.330     2.150     4.600
+     [  1,]   120.450   510.000     2.480     4.500
+     [  2,]   120.600   511.480    33.200       N/A
+     [  3,]   121.600   510.940     2.210     4.700
+     [  4,]   121.850   511.930     2.080     5.400
+     [  5,]   122.130   510.680     2.250     4.200
+     [  6,]   121.980   509.990     2.130     5.100
+(Ncols=4,Nrows=7[from 102])
 
 Variogram characteristics
 =========================
@@ -135,8 +127,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 9
-Maximum Number of UIDs       = 9
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
 Total number of samples      = 102
 
 Data Base Extension
@@ -146,15 +138,7 @@ Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =        102
- Nb of active values =        102
- Minimum value       =      1.000
- Maximum value       =    102.000
- Mean value          =     51.500
- Standard Deviation  =     29.443
- Variance            =    866.917
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    109.850
@@ -162,7 +146,7 @@ Data Base Statistics
  Mean value          =    119.802
  Standard Deviation  =      6.516
  Variance            =     42.461
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    483.660
@@ -170,7 +154,7 @@ Data Base Statistics
  Mean value          =    498.778
  Standard Deviation  =      7.987
  Variance            =     63.791
-4 - Name z1 - Locator NA
+3 - Name z1 - Locator NA
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =      1.090
@@ -178,7 +162,7 @@ Data Base Statistics
  Mean value          =      3.642
  Standard Deviation  =      4.705
  Variance            =     22.137
-5 - Name z2 - Locator NA
+4 - Name z2 - Locator NA
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =      3.000
@@ -186,7 +170,7 @@ Data Base Statistics
  Mean value          =      6.104
  Standard Deviation  =      3.594
  Variance            =     12.916
-6 - Name Kriging.z1.esterr - Locator z1
+5 - Name Kriging.z1.esterr - Locator z1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    -30.990
@@ -194,7 +178,7 @@ Data Base Statistics
  Mean value          =      0.165
  Standard Deviation  =      4.841
  Variance            =     23.434
-7 - Name Kriging.z2.esterr - Locator z2
+6 - Name Kriging.z2.esterr - Locator z2
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =    -22.014
@@ -202,7 +186,7 @@ Data Base Statistics
  Mean value          =      0.333
  Standard Deviation  =      3.455
  Variance            =     11.940
-8 - Name Kriging.z1.stderr - Locator NA
+7 - Name Kriging.z1.stderr - Locator NA
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =     -6.892
@@ -210,7 +194,7 @@ Data Base Statistics
  Mean value          =      0.037
  Standard Deviation  =      1.082
  Variance            =      1.171
-9 - Name Kriging.z2.stderr - Locator NA
+8 - Name Kriging.z2.stderr - Locator NA
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =     -7.198
@@ -221,12 +205,12 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                   rank          x1          x2          z1          z2 *.z1.esterr *.z2.esterr
-     [  0,]       1.000     119.500     509.330       2.150       4.600       4.559       3.015
-     [  1,]       2.000     120.450     510.000       2.480       4.500       4.199       2.851
-     [  2,]       3.000     120.600     511.480      33.200         N/A     -30.990         N/A
-     [  3,]       4.000     121.600     510.940       2.210       4.700       3.880       1.607
-     [  4,]       5.000     121.850     511.930       2.080       5.400       6.256       1.604
-     [  5,]       6.000     122.130     510.680       2.250       4.200      -0.143       0.214
-     [  6,]       7.000     121.980     509.990       2.130       5.100       0.099      -0.787
-(Ncols=7[from 9],Nrows=7[from 102])
+                     x1          x2          z1          z2 *.z1.esterr *.z2.esterr *.z1.stderr
+     [  0,]     119.500     509.330       2.150       4.600       4.559       3.015       1.024
+     [  1,]     120.450     510.000       2.480       4.500       4.199       2.851       0.943
+     [  2,]     120.600     511.480      33.200         N/A     -30.990         N/A      -6.892
+     [  3,]     121.600     510.940       2.210       4.700       3.880       1.607       0.879
+     [  4,]     121.850     511.930       2.080       5.400       6.256       1.604       1.372
+     [  5,]     122.130     510.680       2.250       4.200      -0.143       0.214      -0.032
+     [  6,]     121.980     509.990       2.130       5.100       0.099      -0.787       0.022
+(Ncols=7[from 8],Nrows=7[from 102])

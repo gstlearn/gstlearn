@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 4
-Number of Columns            = 10
-Maximum Number of UIDs       = 10
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
 Total number of samples      = 4
 
 Data Base Extension
@@ -19,7 +19,7 @@ Coor #4 - Min =     61.000 - Max =     64.000 - Ext = 3
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+1 - Name x1 - Locator x1
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      1.000
@@ -27,15 +27,7 @@ Data Base Statistics
  Mean value          =      2.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-2 - Name x1 - Locator x1
- Nb of data          =          4
- Nb of active values =          4
- Minimum value       =      1.000
- Maximum value       =      4.000
- Mean value          =      2.500
- Standard Deviation  =      1.118
- Variance            =      1.250
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     11.000
@@ -43,7 +35,7 @@ Data Base Statistics
  Mean value          =     12.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     21.000
@@ -51,7 +43,7 @@ Data Base Statistics
  Mean value          =     22.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-5 - Name z2 - Locator z2
+4 - Name z2 - Locator z2
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     31.000
@@ -59,7 +51,7 @@ Data Base Statistics
  Mean value          =     32.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-6 - Name z3 - Locator z3
+5 - Name z3 - Locator z3
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     41.000
@@ -67,7 +59,7 @@ Data Base Statistics
  Mean value          =     42.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-7 - Name x3 - Locator x3
+6 - Name x3 - Locator x3
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     51.000
@@ -75,7 +67,7 @@ Data Base Statistics
  Mean value          =     52.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-8 - Name x4 - Locator x4
+7 - Name x4 - Locator x4
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     61.000
@@ -83,7 +75,7 @@ Data Base Statistics
  Mean value          =     62.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-9 - Name f1 - Locator f1
+8 - Name f1 - Locator f1
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     71.000
@@ -91,7 +83,7 @@ Data Base Statistics
  Mean value          =     72.500
  Standard Deviation  =      1.118
  Variance            =      1.250
-10 - Name f2 - Locator f2
+9 - Name f2 - Locator f2
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =     81.000
@@ -102,9 +94,9 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1        z2        z3        x3
-     [  0,]     1.000     1.000    11.000    21.000    31.000    41.000    51.000
-     [  1,]     2.000     2.000    12.000    22.000    32.000    42.000    52.000
-     [  2,]     3.000     3.000    13.000    23.000    33.000    43.000    53.000
-     [  3,]     4.000     4.000    14.000    24.000    34.000    44.000    54.000
-(Ncols=7[from 10],Nrows=4)
+                   x1        x2        z1        z2        z3        x3        x4
+     [  0,]     1.000    11.000    21.000    31.000    41.000    51.000    61.000
+     [  1,]     2.000    12.000    22.000    32.000    42.000    52.000    62.000
+     [  2,]     3.000    13.000    23.000    33.000    43.000    53.000    63.000
+     [  3,]     4.000    14.000    24.000    34.000    44.000    54.000    64.000
+(Ncols=7[from 9],Nrows=4)

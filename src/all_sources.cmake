@@ -253,4 +253,5 @@ set(SRC
   Neigh/NeighMoving.cpp
   Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
+  Estimation/KrigingSystem.cpp
 )

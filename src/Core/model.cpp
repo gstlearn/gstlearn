@@ -236,7 +236,7 @@ void model_calcul_cov(CovInternal *covint,
 
   int nvar = model->getVariableNumber();
   if (mat.getNTotal() != nvar * nvar)
-  my_throw("Error in loading Covariance calculation into COVTAB");
+    my_throw("Error in loading Covariance calculation into COVTAB");
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {

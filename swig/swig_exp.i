@@ -260,6 +260,9 @@ class IClonable{};
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
 %include LithoRule/ERule.hpp
+
+%include Estimation/KrigingSystem.hpp
+
 %include segy.h
 
 /*
