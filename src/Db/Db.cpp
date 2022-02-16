@@ -3292,7 +3292,7 @@ int Db::_deserialize(FILE* file, bool /*verbose*/)
   std::vector<ELoc> tabloc;
   VectorString tabnam;
   VectorDouble tab;
-  static int flag_add_rank = 1;
+  static int flag_add_rank = 0;
 
   /* Initializations */
 

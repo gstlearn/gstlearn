@@ -464,7 +464,7 @@ int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
   VectorDouble dx;
   VectorDouble angles;
   VectorDouble tab;
-  static int flag_add_rank = 1;
+  static int flag_add_rank = 0;
 
   /* Initializations */
 

@@ -16,6 +16,7 @@
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Utilities.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -1112,4 +1113,40 @@ bool Model::isFlagGradientFunctional() const
   CovGradientFunctional* cova = dynamic_cast<CovGradientFunctional*>(_covaList->getCova(0));
   if (cova != nullptr) return true;
   return false;
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the drift with a given set of coefficients
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  iech    Rank of the sample
+ ** \param[in]  ivar    Rank of the variable
+ ** \param[in]  coef    Array of coefficients
+ **
+ *****************************************************************************/
+double Model::_evalDriftCoef(const Db* db,
+                             int iech,
+                             int ivar,
+                             const double* coef) const
+{
+
+  VectorDouble drftab = evalDriftVec(db, iech, ECalcMember::LHS);
+
+  /* Check if all the drift terms are defined */
+
+  for (int il = 0; il < getDriftNumber(); il++)
+    if (FFFF(drftab[il])) return TEST;
+
+  /* Perform the correction */
+
+  double drift = 0.;
+  for (int ib = 0; ib < getDriftEquationNumber(); ib++)
+  {
+    double value = 0.;
+    for (int il = 0; il < getDriftNumber(); il++)
+      value += drftab[il] * getCoefDrift(ivar, il, ib);
+    drift += value * coef[ib];
+  }
+  return drift;
 }

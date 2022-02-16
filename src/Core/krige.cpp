@@ -32,9 +32,11 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
+#include "Covariances/CovContext.hpp"
 
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 #include <limits.h>
 
 /*! \cond */
@@ -1718,6 +1720,7 @@ static double st_continuous_variance(ANeighParam *neighparam,
   return (var);
 }
 
+/****************************************************************************/
 /*!
  **  Establish the kriging L.H.S.
  **
@@ -6553,8 +6556,7 @@ static void st_vario_dump(FILE *file,
     for (iy = -cov_nn[1]; iy <= cov_nn[1]; iy++)
       for (iz = -cov_nn[2]; iz <= cov_nn[2]; iz++)
       {
-        num = (num_tot == nullptr) ? 0 :
-                                     NUM_TOT(ix, iy, iz);
+        num = (num_tot == nullptr) ? 0 : NUM_TOT(ix, iy, iz);
         cov = COV_TOT(ix, iy, iz);
         fprintf(file, "%3d %3d %3d %3d %lf\n", ix, iy, iz, num, cov);
       }

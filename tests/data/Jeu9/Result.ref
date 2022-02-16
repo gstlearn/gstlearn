@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
 Total number of samples      = 10
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min =      1.354 - Max =     94.996 - Ext = 93.6414
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =         10
- Nb of active values =         10
- Minimum value       =      1.000
- Maximum value       =     10.000
- Mean value          =      5.500
- Standard Deviation  =      2.872
- Variance            =      8.250
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =         10
  Nb of active values =         10
  Minimum value       =      5.055
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          =     41.520
  Standard Deviation  =     23.518
  Variance            =    553.079
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =         10
  Nb of active values =         10
  Minimum value       =      1.354
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          =     35.921
  Standard Deviation  =     33.053
  Variance            =   1092.518
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =         10
  Nb of active values =         10
  Minimum value       =      0.616
@@ -52,15 +44,15 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1
-     [  0,]     1.000    57.057    22.931     6.790
-     [  1,]     2.000    46.235     6.756     5.749
-     [  2,]     3.000    26.752     1.354     7.369
-     [  3,]     4.000    60.937    88.942     6.211
-     [  4,]     5.000     5.055    62.643     8.390
-     [  5,]     6.000    18.088     4.048     1.335
-     [  6,]     7.000    90.004    21.970     8.359
-(Ncols=4,Nrows=7[from 10])
+                   x1        x2        z1
+     [  0,]    57.057    22.931     6.790
+     [  1,]    46.235     6.756     5.749
+     [  2,]    26.752     1.354     7.369
+     [  3,]    60.937    88.942     6.211
+     [  4,]     5.055    62.643     8.390
+     [  5,]    18.088     4.048     1.335
+     [  6,]    90.004    21.970     8.359
+(Ncols=3,Nrows=7[from 10])
 
 Data Base Grid Characteristics
 ==============================
@@ -69,8 +61,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
 Total number of samples      = 10000
 
 Grid characteristics:
@@ -86,15 +78,7 @@ Coor #2 - Min =      0.000 - Max =     99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
-2 - Name Simu.z1.1 - Locator z1
+1 - Name ncsimu1 - Locator ncsimu1
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.084
@@ -102,7 +86,7 @@ Data Base Statistics
  Mean value          =      4.988
  Standard Deviation  =      1.021
  Variance            =      1.043
-3 - Name Simu.z1.2 - Locator z2
+2 - Name ncsimu2 - Locator ncsimu2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.076
@@ -110,7 +94,7 @@ Data Base Statistics
  Mean value          =      5.067
  Standard Deviation  =      1.049
  Variance            =      1.101
-4 - Name Simu.z1.3 - Locator z3
+3 - Name ncsimu3 - Locator ncsimu3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.252
@@ -118,7 +102,7 @@ Data Base Statistics
  Mean value          =      4.892
  Standard Deviation  =      1.008
  Variance            =      1.016
-5 - Name Simu.z1.4 - Locator z4
+4 - Name ncsimu4 - Locator ncsimu4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.769
@@ -126,7 +110,7 @@ Data Base Statistics
  Mean value          =      5.381
  Standard Deviation  =      1.072
  Variance            =      1.150
-6 - Name Simu.z1.5 - Locator z5
+5 - Name ncsimu5 - Locator ncsimu5
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.808
@@ -137,12 +121,12 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank Simu.z1.1 Simu.z1.2 Simu.z1.3 Simu.z1.4 Simu.z1.5
-     [  0,]     1.000     5.534     5.373     4.855     5.063     4.980
-     [  1,]     2.000     5.077     5.723     5.448     5.098     5.161
-     [  2,]     3.000     4.892     4.703     5.066     4.696     5.198
-     [  3,]     4.000     5.287     4.497     5.650     5.122     5.716
-     [  4,]     5.000     5.037     4.313     6.441     5.312     5.138
-     [  5,]     6.000     4.642     3.917     6.248     5.260     5.410
-     [  6,]     7.000     3.606     4.437     6.393     5.068     5.795
-(Ncols=6,Nrows=7[from 10000])
+              ncsimu1   ncsimu2   ncsimu3   ncsimu4   ncsimu5
+     [  0,]     5.534     5.373     4.855     5.063     4.980
+     [  1,]     5.077     5.723     5.448     5.098     5.161
+     [  2,]     4.892     4.703     5.066     4.696     5.198
+     [  3,]     5.287     4.497     5.650     5.122     5.716
+     [  4,]     5.037     4.313     6.441     5.312     5.138
+     [  5,]     4.642     3.917     6.248     5.260     5.410
+     [  6,]     3.606     4.437     6.393     5.068     5.795
+(Ncols=5,Nrows=7[from 10000])

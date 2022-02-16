@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
 Total number of samples      = 52
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min =     10.730 - Max =    125.710 - Ext = 114.98
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =         52
- Nb of active values =         52
- Minimum value       =      1.000
- Maximum value       =     52.000
- Mean value          =     26.500
- Standard Deviation  =     15.008
- Variance            =    225.250
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =         52
  Nb of active values =         52
  Minimum value       =    -44.130
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          =     19.047
  Standard Deviation  =     27.515
  Variance            =    757.059
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =         52
  Nb of active values =         52
  Minimum value       =     10.730
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          =     68.509
  Standard Deviation  =     29.994
  Variance            =    899.642
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =         52
  Nb of active values =         52
  Minimum value       =     -2.190
@@ -52,15 +44,15 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1
-     [  0,]     1.000   -44.130    78.440    -0.880
-     [  1,]     2.000   -14.270    28.710    -2.000
-     [  2,]     3.000   -19.400    39.610     2.550
-     [  3,]     4.000     1.560    11.290    -1.420
-     [  4,]     5.000    -2.940    19.090     0.180
-     [  5,]     6.000   -25.380    71.950    -0.120
-     [  6,]     7.000     8.990    14.430     0.260
-(Ncols=4,Nrows=7[from 52])
+                   x1        x2        z1
+     [  0,]   -44.130    78.440    -0.880
+     [  1,]   -14.270    28.710    -2.000
+     [  2,]   -19.400    39.610     2.550
+     [  3,]     1.560    11.290    -1.420
+     [  4,]    -2.940    19.090     0.180
+     [  5,]   -25.380    71.950    -0.120
+     [  6,]     8.990    14.430     0.260
+(Ncols=3,Nrows=7[from 52])
 
 Variogram characteristics
 =========================

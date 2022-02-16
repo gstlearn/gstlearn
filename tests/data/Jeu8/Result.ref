@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 6
-Maximum Number of UIDs       = 6
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
 Total number of samples      = 5
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min =      0.000 - Max =      3.000 - Ext = 3
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =          5
- Nb of active values =          5
- Minimum value       =      1.000
- Maximum value       =      5.000
- Mean value          =      3.000
- Standard Deviation  =      1.414
- Variance            =      2.000
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =          5
  Nb of active values =          5
  Minimum value       =      0.000
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          =      1.400
  Standard Deviation  =      1.020
  Variance            =      1.040
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =          5
  Nb of active values =          5
  Minimum value       =      0.000
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          =      0.600
  Standard Deviation  =      1.200
  Variance            =      1.440
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =          5
  Nb of active values =          5
  Minimum value       =      0.000
@@ -49,7 +41,7 @@ Data Base Statistics
  Mean value          =      1.200
  Standard Deviation  =      1.166
  Variance            =      1.360
-5 - Name g1 - Locator g1
+4 - Name g1 - Locator g1
  Nb of data          =          5
  Nb of active values =          5
  Minimum value       =     -1.000
@@ -57,7 +49,7 @@ Data Base Statistics
  Mean value          =      0.600
  Standard Deviation  =      1.020
  Variance            =      1.040
-6 - Name g2 - Locator g2
+5 - Name g2 - Locator g2
  Nb of data          =          5
  Nb of active values =          5
  Minimum value       =     -1.000
@@ -68,12 +60,12 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1        g1        g2
-     [  0,]     1.000     0.000     0.000     0.000     1.000     1.000
-     [  1,]     2.000     1.000     3.000     0.000    -1.000    -1.000
-     [  2,]     3.000     1.000     0.000     1.000     0.000     0.000
-     [  3,]     4.000     2.000     0.000     2.000     1.000     2.000
-     [  4,]     5.000     3.000     0.000     3.000     2.000     1.000
+                   x1        x2        z1        g1        g2
+     [  0,]     0.000     0.000     0.000     1.000     1.000
+     [  1,]     1.000     3.000     0.000    -1.000    -1.000
+     [  2,]     1.000     0.000     1.000     0.000     0.000
+     [  3,]     2.000     0.000     2.000     1.000     2.000
+     [  4,]     3.000     0.000     3.000     2.000     1.000
 
 Target location
 ---------------
@@ -1484,8 +1476,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 7
-Maximum Number of UIDs       = 7
+Number of Columns            = 6
+Maximum Number of UIDs       = 6
 Total number of samples      = 16
 
 Grid characteristics:
@@ -1501,15 +1493,7 @@ Coor #2 - Min =      0.000 - Max =      3.000 - Ext = 3
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =         16
- Nb of active values =         16
- Minimum value       =      1.000
- Maximum value       =     16.000
- Mean value          =      8.500
- Standard Deviation  =      4.610
- Variance            =     21.250
-2 - Name Kriging.z1.estim - Locator z1
+1 - Name New-1 - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =     -0.357
@@ -1517,7 +1501,7 @@ Data Base Statistics
  Mean value          =      1.162
  Standard Deviation  =      1.105
  Variance            =      1.221
-3 - Name Kriging.g1.estim - Locator z2
+2 - Name New-2 - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =     -1.000
@@ -1525,7 +1509,7 @@ Data Base Statistics
  Mean value          =      0.895
  Standard Deviation  =      0.697
  Variance            =      0.486
-4 - Name Kriging.g2.estim - Locator z3
+3 - Name New-3 - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =     -1.138
@@ -1533,7 +1517,7 @@ Data Base Statistics
  Mean value          =     -0.178
  Standard Deviation  =      0.809
  Variance            =      0.654
-5 - Name Kriging.z1.stdev - Locator NA
+4 - Name Kriging.z1.stdev - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =      0.000
@@ -1541,7 +1525,7 @@ Data Base Statistics
  Mean value          =      0.713
  Standard Deviation  =      0.517
  Variance            =      0.267
-6 - Name Kriging.g1.stdev - Locator NA
+5 - Name Kriging.g1.stdev - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =      0.000
@@ -1549,7 +1533,7 @@ Data Base Statistics
  Mean value          =      1.124
  Standard Deviation  =      0.765
  Variance            =      0.585
-7 - Name Kriging.g2.stdev - Locator NA
+6 - Name Kriging.g2.stdev - Locator NA
  Nb of data          =         16
  Nb of active values =         16
  Minimum value       =      0.000
@@ -1560,12 +1544,12 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                   rank *g.z1.estim *g.g1.estim *g.g2.estim *g.z1.stdev *g.g1.stdev *g.g2.stdev
-     [  0,]       1.000       0.000       1.000       1.000       0.000       0.000       0.000
-     [  1,]       2.000       1.000       0.000       0.000       0.000       0.000       0.000
-     [  2,]       3.000       2.000       1.000       2.000       0.000       0.000       0.000
-     [  3,]       4.000       3.000       2.000       1.000       0.000       0.000       0.000
-     [  4,]       5.000       0.096       0.732      -0.375       0.876       1.499       1.599
-     [  5,]       6.000       0.822       0.592      -0.166       0.823       1.474       1.498
-     [  6,]       7.000       2.233       1.260      -0.825       0.846       1.478       1.578
-(Ncols=7,Nrows=7[from 16])
+                  New-1       New-2       New-3 *g.z1.stdev *g.g1.stdev *g.g2.stdev
+     [  0,]       0.000       1.000       1.000       0.000       0.000       0.000
+     [  1,]       1.000       0.000       0.000       0.000       0.000       0.000
+     [  2,]       2.000       1.000       2.000       0.000       0.000       0.000
+     [  3,]       3.000       2.000       1.000       0.000       0.000       0.000
+     [  4,]       0.096       0.732      -0.375       0.876       1.499       1.599
+     [  5,]       0.822       0.592      -0.166       0.823       1.474       1.498
+     [  6,]       2.233       1.260      -0.825       0.846       1.478       1.578
+(Ncols=6,Nrows=7[from 16])

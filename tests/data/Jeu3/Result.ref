@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 102
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =        102
- Nb of active values =        102
- Minimum value       =      1.000
- Maximum value       =    102.000
- Mean value          =     51.500
- Standard Deviation  =     29.443
- Variance            =    866.917
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    109.850
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          =    119.802
  Standard Deviation  =      6.516
  Variance            =     42.461
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    483.660
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          =    498.778
  Standard Deviation  =      7.987
  Variance            =     63.791
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =      1.090
@@ -49,7 +41,7 @@ Data Base Statistics
  Mean value          =      3.642
  Standard Deviation  =      4.705
  Variance            =     22.137
-5 - Name z2 - Locator z2
+4 - Name z2 - Locator z2
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =      3.000
@@ -60,15 +52,15 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1        z2
-     [  0,]     1.000   119.500   509.330     2.150     4.600
-     [  1,]     2.000   120.450   510.000     2.480     4.500
-     [  2,]     3.000   120.600   511.480    33.200       N/A
-     [  3,]     4.000   121.600   510.940     2.210     4.700
-     [  4,]     5.000   121.850   511.930     2.080     5.400
-     [  5,]     6.000   122.130   510.680     2.250     4.200
-     [  6,]     7.000   121.980   509.990     2.130     5.100
-(Ncols=5,Nrows=7[from 102])
+                   x1        x2        z1        z2
+     [  0,]   119.500   509.330     2.150     4.600
+     [  1,]   120.450   510.000     2.480     4.500
+     [  2,]   120.600   511.480    33.200       N/A
+     [  3,]   121.600   510.940     2.210     4.700
+     [  4,]   121.850   511.930     2.080     5.400
+     [  5,]   122.130   510.680     2.250     4.200
+     [  6,]   121.980   509.990     2.130     5.100
+(Ncols=4,Nrows=7[from 102])
 
 Variogram characteristics
 =========================
@@ -605,8 +597,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 4
 
 Grid characteristics:
@@ -622,15 +614,7 @@ Coor #2 - Min =    500.000 - Max =    501.000 - Ext = 1
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =          4
- Nb of active values =          4
- Minimum value       =      1.000
- Maximum value       =      4.000
- Mean value          =      2.500
- Standard Deviation  =      1.118
- Variance            =      1.250
-2 - Name Kriging.z1.estim - Locator z1
+1 - Name New-1 - Locator NA
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      3.748
@@ -638,7 +622,7 @@ Data Base Statistics
  Mean value          =      6.786
  Standard Deviation  =      1.805
  Variance            =      3.259
-3 - Name Kriging.z2.estim - Locator z2
+2 - Name New-2 - Locator NA
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      7.540
@@ -646,7 +630,7 @@ Data Base Statistics
  Mean value          =      9.742
  Standard Deviation  =      1.434
  Variance            =      2.057
-4 - Name Kriging.z1.stdev - Locator NA
+3 - Name Kriging.z1.stdev - Locator NA
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      4.496
@@ -654,7 +638,7 @@ Data Base Statistics
  Mean value          =      4.528
  Standard Deviation  =      0.032
  Variance            =      0.001
-5 - Name Kriging.z2.stdev - Locator NA
+4 - Name Kriging.z2.stdev - Locator NA
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      3.090
@@ -665,8 +649,8 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                   rank *g.z1.estim *g.z2.estim *g.z1.stdev *g.z2.stdev
-     [  0,]       1.000       8.496      11.560       4.560       3.134
-     [  1,]       2.000       7.450       9.933       4.496       3.090
-     [  2,]       3.000       3.748       7.540       4.560       3.134
-     [  3,]       4.000       7.450       9.933       4.496       3.090
+                  New-1       New-2 *g.z1.stdev *g.z2.stdev
+     [  0,]       8.496      11.560       4.560       3.134
+     [  1,]       7.450       9.933       4.496       3.090
+     [  2,]       3.748       7.540       4.560       3.134
+     [  3,]       7.450       9.933       4.496       3.090

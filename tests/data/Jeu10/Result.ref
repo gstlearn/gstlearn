@@ -6,8 +6,8 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
 Total number of samples      = 13
 
 Data Base Extension
@@ -17,15 +17,7 @@ Coor #2 - Min = 6622949.000 - Max = 6624963.000 - Ext = 2014
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =         13
- Nb of active values =         13
- Minimum value       =      1.000
- Maximum value       =     13.000
- Mean value          =      7.000
- Standard Deviation  =      3.742
- Variance            =     14.000
-2 - Name x1 - Locator x1
+1 - Name x1 - Locator x1
  Nb of data          =         13
  Nb of active values =         13
  Minimum value       = 422626.800
@@ -33,7 +25,7 @@ Data Base Statistics
  Mean value          = 423577.977
  Standard Deviation  =    605.441
  Variance            = 366559.373
-3 - Name x2 - Locator x2
+2 - Name x2 - Locator x2
  Nb of data          =         13
  Nb of active values =         13
  Minimum value       = 6622949.000
@@ -41,7 +33,7 @@ Data Base Statistics
  Mean value          = 6624113.385
  Standard Deviation  =    586.240
  Variance            = 343677.156
-4 - Name z1 - Locator z1
+3 - Name z1 - Locator z1
  Nb of data          =         13
  Nb of active values =         13
  Minimum value       =   3234.000
@@ -49,7 +41,7 @@ Data Base Statistics
  Mean value          =   3317.191
  Standard Deviation  =     41.126
  Variance            =   1691.381
-5 - Name f1 - Locator f1
+4 - Name f1 - Locator f1
  Nb of data          =         13
  Nb of active values =         13
  Minimum value       =   2690.737
@@ -60,15 +52,15 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        x1        x2        z1        f1
-     [  0,]     1.000424120.0006624515.000  3347.210  2760.045
-     [  1,]     2.000424583.9006623571.000  3234.000  2690.737
-     [  2,]     3.000423661.7006622949.000  3291.890  2714.950
-     [  3,]     4.000424424.3006624454.000  3276.660  2728.197
-     [  4,]     5.000424342.4006624525.000  3290.190  2736.451
-     [  5,]     6.000423413.6006624502.000  3328.010  2761.740
-     [  6,]     7.000422789.8006623453.000  3302.510  2726.999
-(Ncols=5,Nrows=7[from 13])
+                   x1        x2        z1        f1
+     [  0,]424120.0006624515.000  3347.210  2760.045
+     [  1,]424583.9006623571.000  3234.000  2690.737
+     [  2,]423661.7006622949.000  3291.890  2714.950
+     [  3,]424424.3006624454.000  3276.660  2728.197
+     [  4,]424342.4006624525.000  3290.190  2736.451
+     [  5,]423413.6006624502.000  3328.010  2761.740
+     [  6,]422789.8006623453.000  3302.510  2726.999
+(Ncols=4,Nrows=7[from 13])
 
 Data Base Grid Characteristics
 ==============================
@@ -77,8 +69,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 3
-Maximum Number of UIDs       = 3
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
 Total number of samples      = 30616
 
 Grid characteristics:
@@ -94,15 +86,7 @@ Coor #2 - Min = 6622920.000 - Max = 6625132.500 - Ext = 2212.5
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =      30616
- Nb of active values =      30616
- Minimum value       =      1.000
- Maximum value       =  30616.000
- Mean value          =  15308.500
- Standard Deviation  =   8838.078
- Variance            = 78111621.250
-2 - Name f1 - Locator f1
+1 - Name f1 - Locator f1
  Nb of data          =      30616
  Nb of active values =      30616
  Minimum value       =   2677.968
@@ -110,7 +94,7 @@ Data Base Statistics
  Mean value          =   2740.171
  Standard Deviation  =     23.619
  Variance            =    557.871
-3 - Name Simu.z1 - Locator z1
+2 - Name Simu.z1 - Locator z1
  Nb of data          =      30616
  Nb of active values =      30616
  Minimum value       =   3145.744
@@ -121,12 +105,12 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                 rank        f1   Simu.z1
-     [  0,]     1.000  2722.353  3214.172
-     [  1,]     2.000  2722.231  3215.140
-     [  2,]     3.000  2722.100  3228.656
-     [  3,]     4.000  2721.979  3225.128
-     [  4,]     5.000  2721.872  3238.652
-     [  5,]     6.000  2721.767  3239.370
-     [  6,]     7.000  2721.682  3244.392
-(Ncols=3,Nrows=7[from 30616])
+                   f1   Simu.z1
+     [  0,]  2722.353  3214.172
+     [  1,]  2722.231  3215.140
+     [  2,]  2722.100  3228.656
+     [  3,]  2721.979  3225.128
+     [  4,]  2721.872  3238.652
+     [  5,]  2721.767  3239.370
+     [  6,]  2721.682  3244.392
+(Ncols=2,Nrows=7[from 30616])
