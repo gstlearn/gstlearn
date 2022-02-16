@@ -75,6 +75,22 @@ def findColumnNames(self, columns):
         
     return np.atleast_1d(names)
 
+def has_row_selection(self, arg):
+    """Check if the argument given contains a rows selection [rows,columns], 
+    or only column selection [columns].
+    If the argument is a tuple of length 2 and its first element is a valid argument
+    for indexing rows, then the function returns True."""
+    valid_row_indexing = False
+    if isinstance(arg, tuple) and len(arg)==2:
+        array_test = np.zeros(self.getSampleNumber())
+        try: # test if first element of tuple is a valid argument for indexing rows. If yes, then we assume it is the argument for rows.
+            array_test[arg[0],]
+            valid_row_indexing = True
+        except IndexError:
+            valid_row_indexing = False
+    return valid_row_indexing
+
+
 def getitem(self,arg):
     """
     Extract data from a Db. Use Db[arg]
@@ -102,8 +118,9 @@ def getitem(self,arg):
         nrows = self.getActiveSampleNumber()
     else:
         nrows = self.getSampleNumber()
-    
-    if isinstance(arg, tuple) and isinstance(arg[0], (int,slice)): # 2D (rows, columns)
+        
+    selec_rows = has_row_selection(self, arg)   
+    if selec_rows:
         rows = arg[0]
         columns = arg[1]
     else:
@@ -117,27 +134,25 @@ def getitem(self,arg):
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
-    temp = temp[rows]
-        
+    temp = temp[rows,]
     temp[temp == gl.TEST] = np.nan
     return temp
-
-
-# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
-# corresponding variables will be replaced and not added.
+        
+# This function will add a set of vectors (as a numpy array) to a db. 
+# If some of the names exist, the corresponding variables will be replaced 
+# and not added.
 
 def setitem(self,name,tab):
-    
+    tab = tab.astype(np.float64)
     if len(tab.shape) == 1 :
         tab = np.atleast_2d(tab).T
     nrows, nvars = tab.shape
     
-    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
-        selec_rows = True
+    selec_rows = has_row_selection(self, name)   
+    if selec_rows:
         rows = name[0]
         columns = name[1]
     else:
-        selec_rows = False
         columns = name
             
     arr_columns = np.atleast_1d(columns)
@@ -177,7 +192,7 @@ def setitem(self,name,tab):
                 tab_i = self[name]
                 
             tab_i = np.squeeze(tab_i)
-            tab_i[rows] = tab[:,i]
+            tab_i[rows,] = tab[:,i]
             
         else:
             tab_i = np.empty(nrows)
@@ -190,11 +205,11 @@ def setitem(self,name,tab):
         
     return
 
-#setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)    
     
-#setattr(gl.Db,"__getitem__",getitem)
+setattr(gl.Db,"__getitem__",getitem)
 
-#setattr(gl.Db,"__setitem__",setitem)
+setattr(gl.Db,"__setitem__",setitem)
 
 # # Example
 
