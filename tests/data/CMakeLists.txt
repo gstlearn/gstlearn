@@ -4,9 +4,11 @@ set(TEST_SOURCES
   testpgs.cpp
   testvar.cpp)
 
-# Generation folders
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+# Generation folder (all tests in one folder)
+cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE}
+           OUTPUT_VARIABLE GLOBAL_DST_DIR)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 
 # Compile each test executable
 set(TARGETS_EXE "")
@@ -39,21 +41,29 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     if(${TARGET_EXE} MATCHES "testvar*")
         set(BDIR "Var")
     endif()
+    # Calculate full path of target executable
+    cmake_path(APPEND GLOBAL_DST_DIR ${TARGET_EXE}
+               OUTPUT_VARIABLE TARGET_EXE)
     # Retrieve all test cases
-    file(GLOB TEST_DIRS ${BDIR}*)
-    foreach(TEST_DIR ${TEST_DIRS})
+    file(GLOB TEST_SRC_DIRS ${BDIR}*)
+#    set(TEST_SRC_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/Jeu1)
+    foreach(TEST_SRC_DIR ${TEST_SRC_DIRS})
         # Drop absolute directory path
-        get_filename_component(DIR_NAME "${TEST_DIR}" NAME)
-        # Run the test (The executable will generate Result.out in ${DIR_NAME})
-        # TODO : Generate Result.out "out of the source"
+        get_filename_component(DIR_NAME "${TEST_SRC_DIR}" NAME)
+        # Calculate output directory
+        cmake_path(APPEND GLOBAL_DST_DIR ${DIR_NAME}
+                   OUTPUT_VARIABLE TEST_DST_DIR)
+        #message(STATUS "TEST_DST_DIR = ${TEST_DST_DIR}")
+        file(MAKE_DIRECTORY ${TEST_DST_DIR})
+        # Run the test (and generate Result.out in ${TEST_DST_DIR})
         add_test(NAME ${DIR_NAME}
-                 COMMAND ${TARGET_EXE} ${TEST_DIR}
-                 WORKING_DIRECTORY ${TEST_DIR})
+                 COMMAND ${TARGET_EXE} ${TEST_SRC_DIR}
+                 WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND diff --strip-trailing-cr ${TEST_DIR}/Result.ref ${TEST_DIR}/Result.out
-                 WORKING_DIRECTORY ${TEST_DIR})
-    endforeach(TEST_DIR ${TEST_DIRS})
+                 COMMAND diff --strip-trailing-cr ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
+                 WORKING_DIRECTORY ${TEST_DST_DIR})
+    endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
  # Look parent CMakeLists for MY_CTEST_COMMAND definition

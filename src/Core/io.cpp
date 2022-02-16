@@ -38,10 +38,8 @@ static char DEL_BLK = ' ';
 static void st_print(const char *string);
 static void st_read(const char*, char*);
 static void st_exit(void);
-static void (*WRITE_FUNC)(const char*) =
-(void (*)(const char*)) st_print;
-static void (*WARN_FUNC)(const char*) =
-(void (*)(const char*)) st_print;
+static void (*WRITE_FUNC)(const char*) = (void (*)(const char*)) st_print;
+static void (*WARN_FUNC)(const char*) = (void (*)(const char*)) st_print;
 static void (*READ_FUNC)(const char*, char*) = st_read;
 static void (*EXIT_FUNC)(void) = st_exit;
 
@@ -77,7 +75,7 @@ static void st_exit(void)
 static void st_print(const char *string)
 {
   //(void) printf("%s",string); // Default printf statement
-  std::cout << string;
+  std::cout << string << std::flush;
 }
 
 /****************************************************************************/
@@ -89,7 +87,6 @@ static void st_print(const char *string)
  **
  *****************************************************************************/
 static void st_read(const char *prompt, char *buffer)
-
 {
   message("%s :", prompt);
 

@@ -21,9 +21,7 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptDbg.hpp"
-
-#include <iostream>
-#include <fstream>
+#include "Basic/File.hpp"
 
 /****************************************************************************
 **
@@ -94,9 +92,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  std::ofstream out("Result.out");
-  std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-  std::cout.rdbuf(out.rdbuf()); //redirect std::cout to Result.out
+  StdoutRedirect sr("Result.out");
 
   /* Setup the license */
 
@@ -231,7 +227,6 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  std::cout.rdbuf(coutbuf);
   dbin  = db_delete(dbin);
   dbout = db_delete(dbout);
   vario = variogram_delete(vario);

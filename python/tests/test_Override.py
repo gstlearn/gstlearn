@@ -131,7 +131,6 @@ def setitem(self,name,tab):
     if len(tab.shape) == 1 :
         tab = np.atleast_2d(tab).T
     nrows, nvars = tab.shape
-    tab[np.isnan(tab)] = gl.TEST
     
     if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
         selec_rows = True
@@ -181,9 +180,11 @@ def setitem(self,name,tab):
             tab_i[rows] = tab[:,i]
             
         else:
-            tab_i = tab[:,i]
+            tab_i = np.empty(nrows)
+            tab_i[:] = tab[:,i]
             useSel = check_nrows(self,nrows)
-            
+        
+        tab_i[np.isnan(tab_i)] = gl.TEST    
         VectD = np.double(tab_i)
         self.setColumn(VectD, name, useSel)
         

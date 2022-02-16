@@ -17,11 +17,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
 #include <regex>
+#include <fstream>
+
 //#include <boost/filesystem.hpp>
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -58,6 +61,59 @@ ASerializable& ASerializable::operator=(const ASerializable& /*r*/)
 
 ASerializable::~ASerializable()
 {
+}
+
+bool ASerializable::_fileOpenWrite2(const String& filename,
+                                    const String& filetype,
+                                    std::ofstream& os,
+                                    bool verbose)
+{
+  // Close the stream if opened
+  if (os.is_open()) os.close();
+  // Build the multi-platform filename and open it
+  String filepath = buildFileName(filename, true);
+  // Open new stream
+  os.open(filepath, std::ios::out | std::ios::trunc);
+  if (!os.is_open() && verbose)
+    message("Error while opening %s", filepath.c_str());
+  // Write the file type (class name)
+  os << filetype << std::endl;
+  return os.good();
+}
+
+bool ASerializable::_fileOpenRead2(const String& filename,
+                                   const String& filetype,
+                                   std::ifstream& is,
+                                   bool verbose)
+{
+  // Close the stream if opened
+  if (is.is_open()) is.close();
+  // Build the multi-platform filename and open it
+  String filepath = buildFileName(filename, true);
+  // Open new stream
+  is.open(filepath, std::ios::in);
+  if (!is.is_open() && verbose)
+    message("Error while opening %s", filepath.c_str());
+  // Read and check the file type (class name)
+  String type;
+  is >> type;
+  if (type != filetype && verbose)
+  {
+    message("The file %s has the wrong type (read: %s, expected: %s)",
+            filepath.c_str(), type, filetype);
+    is.close();
+  }
+  return is.good(); // Cannot be "end of file" already
+}
+
+bool ASerializable::_commentWrite2(std::ostream& os,
+                                   const String& comment)
+{
+  if (os.good())
+  {
+    os << "# " << comment << std::endl;
+  }
+  return os.good();
 }
 
 /****************************************************************************/
@@ -481,20 +537,16 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
 
 String ASerializable::getHomeDirectory(const String& sub)
 {
-  // https://stackoverflow.com/a/2552458
-#if defined(_WIN32) || defined(_WIN64)
-  const char* home_drive = gslGetEnv("HOMEDRIVE");
-  const char* home_path = gslGetEnv("HOMEPATH");
-  size_t size = strlen(home_drive) + strlen(home_path) + 1;
-  char* home_dir = static_cast<char *>(malloc(size));
-  gslStrcpy(home_dir, home_drive);
-  gslStrcat(home_dir, home_path);
-#else
-  char* home_dir = gslGetEnv("HOME");
-#endif
   std::stringstream sstr;
+#if defined(_WIN32) || defined(_WIN64)
+  String home_drive = gslGetEnv("HOMEDRIVE");
+  String home_path = gslGetEnv("HOMEPATH");
+  sstr << home_drive << home_path;
+#else
+  String home_dir = gslGetEnv("HOME");
+  sstr << home_dir;
+#endif
   // TODO : Cross-platform way to build file path (use boost ?)
-  sstr << String(home_dir);
   if (!sub.empty())
     sstr << "/" << sub;
   return sstr.str();
@@ -508,6 +560,7 @@ String ASerializable::getHomeDirectory(const String& sub)
 String ASerializable::getTestData(const String& subdir, const String& filename)
 {
   String dirname = getExecDirectory();
+  //std::cout << "dirname=" << dirname << std::endl;
   // TODO : Find a proper way to register global folders (data, docs etc...)
 #if defined(_WIN32) || defined(_WIN64)
   dirname += "\\";
@@ -583,9 +636,8 @@ void ASerializable::setContainerName(bool useDefault,
   if (useDefault)
   {
     // Default is first set to PYGSTLEARN_DIR (if defined)
-    char* pydir(gslGetEnv("PYGSTLEARN_DIR"));
-    String pygst;
-    if (pydir == nullptr)
+    String pygst(gslGetEnv("PYGSTLEARN_DIR"));
+    if (pygst.empty())
     {
       // Otherwise, it is set to HOME/gstlearn_dir
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
@@ -594,7 +646,6 @@ void ASerializable::setContainerName(bool useDefault,
     }
     else
     {
-      pygst = pydir;
       if (verbose)
         std::cout << "Results are stored in PYGSTLEARN_DIR" << std::endl;
     }
@@ -664,11 +715,11 @@ String ASerializable::getExecDirectory()
   // TODO boost::filesystem::path program_location
   String dir = getHomeDirectory();
 #if defined(_WIN32) || defined(_WIN64)
-  char buffer[MAX_PATH];
+  char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
     dir = String(buffer);
 #else
-  char buffer[LONG_SIZE];
+  char buffer[LONG_SIZE] = "";
   if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
     dir = String(buffer);
 #endif

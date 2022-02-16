@@ -13,8 +13,13 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
+
+#include <iostream>
 #include <stdarg.h>
 #include <stdio.h>
+#include <fstream>
 
 class GSTLEARN_EXPORT ASerializable
 {
@@ -44,6 +49,39 @@ public:
   static String getDirectory(const String& path);
 
 protected:
+  //virtual int _deserialize2(std::istream& s, bool verbose = false);
+  //virtual int _serialize2(std::ostream& s,bool verbose = false) const;
+
+  static bool _fileOpenWrite2(const String& filename,
+                              const String& filetype,
+                              std::ofstream& os,
+                              bool verbose = false);
+  static bool _fileOpenRead2(const String& filename,
+                             const String& filetype,
+                             std::ifstream& is,
+                             bool verbose = false);
+
+  static bool _commentWrite2(std::ostream& os,
+                             const String& comment);
+  template <class T>
+  static bool _recordWrite2(std::ostream& os,
+                            const String& title,
+                            const T& val);
+  template <class T>
+  static bool _recordWriteVec2(std::ostream& os,
+                               const String& title,
+                               const T& vec);
+
+  template <class T>
+  static bool _recordRead2(std::istream& is,
+                           const String& title,
+                           T& val);
+  template <class T>
+  static bool _recordReadVec2(std::istream& is,
+                              const String& title,
+                              T& vec);
+
+
   virtual int _deserialize(FILE* file, bool verbose = false) = 0;
   virtual int _serialize(FILE* file, bool verbose = false) const = 0;
 
@@ -66,3 +104,106 @@ private:
   static String myContainerName;
   static String myPrefixName;
 };
+
+template <class T>
+bool ASerializable::_recordWrite2(std::ostream& os,
+                                  const String& title,
+                                  const T& val)
+{
+  if (os.good())
+  {
+    os << val << " # " << title << std::endl;
+  }
+  return os.good();
+}
+
+template <class T>
+bool ASerializable::_recordWriteVec2(std::ostream& os,
+                                     const String& title,
+                                     const T& vec)
+{
+  if (os.good())
+  {
+    if (!title.empty())
+      os << "# " << title << std::endl;
+    for (auto val: vec)
+      os << val << " ";
+    os << std::endl;
+  }
+  return os.good();
+}
+
+template <class T>
+bool ASerializable::_recordRead2(std::istream& is,
+                                 const String& title,
+                                 T& val)
+{
+  val = T();
+  if (is.good())
+  {
+    String line;
+    // Skip comment or empty lines
+    while (is.good())
+    {
+      std::getline(is, line);
+      if (!is.good() && !is.eof())
+      {
+        message("Error while reading %s", title);
+        return false;
+      }
+      line = trimLeft(line);
+      if (!line.empty() && line[0] != '#')
+        break;
+    }
+    // Decode the line
+    std::stringstream sstr(line);
+    sstr >> val;
+    if (!sstr.good() && !sstr.eof())
+    {
+      message("Error while reading %s", title);
+      val = T();
+      return false;
+    }
+  }
+  return is.good();
+}
+
+template <class T>
+bool ASerializable::_recordReadVec2(std::istream& is,
+                                    const String& title,
+                                    T& vec)
+{
+  vec.clear();
+  if (is.good())
+  {
+    String line;
+    // Skip comment or empty lines
+    while (is.good())
+    {
+      std::getline(is, line);
+      if (!is.good() && !is.eof())
+      {
+        message("Error while reading %s", title);
+        return false;
+      }
+      line = trimLeft(line);
+      if (!line.empty() && line[0] != '#')
+        break;
+    }
+    // Decode the line
+    std::stringstream sstr(line);
+    while (sstr.good())
+    {
+      typename T::value_type val;
+      sstr >> val;
+      if (!sstr.good() && !sstr.eof())
+      {
+        message("Error while reading %s", title);
+        vec.clear();
+        return false;
+      }
+      if (sstr.good()) vec.push_back(val);
+    }
+  }
+  return is.good();
+}

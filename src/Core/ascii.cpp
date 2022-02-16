@@ -202,23 +202,6 @@ static void st_filename_patch(const char *ref_name,
 
 /****************************************************************************/
 /*!
- **   Returns the name of the external file
- **
- ** \param[in]  filein    External filename
- ** \param[in]  mode      0 for read; 1 for write
- **
- ** \param[out] filename  Output filename
- **
- *****************************************************************************/
-void ascii_external_filename(const char *filein,
-                                             int mode,
-                                             char *filename)
-{
-  st_filename_patch(filein, 0, mode, filename);
-}
-
-/****************************************************************************/
-/*!
  **   Returns the name of the file
  **
  ** \param[in]  type      Type of the file to be named

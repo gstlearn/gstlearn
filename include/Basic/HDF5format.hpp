@@ -44,27 +44,27 @@ public:
                    hsize_t *block,
                    void *wdata);
   int deleteFile();
-  // These one doesn't work :
-  void* allocArray(H5::DataType type, int ndim, hsize_t *dims);
-  // These one doesn't work either
-  //void* allocArray(const H5::DataType& type, int ndim, hsize_t *dims);
-  // These one works but further errors appear running test_HDF5
-  //void* allocArray(hsize_t size, int ndim, hsize_t *dims);
 
   void setFileName(const String& filename) { _filename = filename; }
   void setVarName(const String& varname) { _varname = varname; }
 
   int displayNames() const;
 
-  void openFile(const String& filename = String()) const;
-  void openNewFile(const String& filename) const;
-  void openDataSet(const String& varname = String()) const;
-  void openNewDataSet(const String& varname,
-                      int ndim,
-                      hsize_t *dims,
-                      H5::DataType type) const;
-  void closeFile() const;
-  void closeDataSet() const;
+  void openFile(const String& filename = String());
+  void openNewFile(const String& filename);
+  void openDataSet(const String& varname = String());
+  void openNewDataSetInt(const String& varname,
+                         int ndim,
+                         hsize_t *dims);
+  void openNewDataSetFloat(const String& varname,
+                           int ndim,
+                           hsize_t *dims);
+  void openNewDataSetDouble(const String& varname,
+                            int ndim,
+                            hsize_t *dims);
+
+  void closeFile();
+  void closeDataSet();
 
   // Functions to be overloaded
 
@@ -102,6 +102,7 @@ public:
     Proxy(const HDF5format* owner)
         : myOwner(owner)
     {
+      myOwner->displayNames();
     }
     operator int() const
     {
@@ -150,6 +151,7 @@ private:
   int _getNDim() const;
   hsize_t* _getDims() const;
   void _getOrderSize(H5T_order_t* order, size_t* size, bool* big_endian) const;
+  void* _allocArray(const H5::DataType& myh5type, int ndim, hsize_t *dims);
   void _readInt(int *data,
                 const H5::DataSpace& memspace = H5::DataSpace::ALL,
                 const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
@@ -163,15 +165,15 @@ private:
                     const H5::DataSpace& memspace = H5::DataSpace::ALL,
                     const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
   int _checkClass(int value) const;
-  void _writeAll(const char* type, void* a);
+  void _writeAll(const char* myh5type, void* a);
 
 public:
-  mutable String        _filename;
-  mutable String        _varname;
-  mutable H5::H5File    _datafile;
-  mutable H5::DataSet   _dataset;
-  mutable H5::DataType  _datatype;
-  mutable H5::DataSpace _dataspace;
+  String        _filename;
+  String        _varname;
+  H5::H5File    _datafile;
+  H5::DataSet   _dataset;
+  H5::DataType  _datatype;
+  H5::DataSpace _dataspace;
 };
 
 
@@ -184,9 +186,9 @@ template<typename T>
 void HDF5format::writeData(const T &data)
 {
   H5::Exception::dontPrint();
-  char* type = (char*) (typeid(T).name());
+  char* myh5type = (char*) (typeid(T).name());
   auto *a = new T { data };
-  _writeAll(type, (void*) a);
+  _writeAll(myh5type, (void*) a);
   delete a;
 }
 
@@ -196,10 +198,10 @@ void HDF5format::writeData(const std::vector<T> &data)
   H5::Exception::dontPrint();
   size_t npts = data.size();
   auto *a = new T[npts];
-  char* type = (char*) (typeid(a[0]).name());
+  char* myh5type = (char*) (typeid(a[0]).name());
   for (size_t i = 0; i < npts; ++i)
     a[i] = data[i];
-  _writeAll(type, (void*) a);
+  _writeAll(myh5type, (void*) a);
   delete[] a;
  }
 
@@ -216,8 +218,8 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
   for (size_t i = 0; i < dim1; ++i)
     for (size_t j = 0; j < dim2; ++j)
       md[i][j] = data[i][j];
-  char* type = (char*) (typeid(a[0]).name());
-  _writeAll(type, (void* ) a);
+  char* myh5type = (char*) (typeid(a[0]).name());
+  _writeAll(myh5type, (void* ) a);
   delete[] md;
   delete a;
 }

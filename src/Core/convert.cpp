@@ -2549,7 +2549,7 @@ int csv_table_read(const String &filename,
 
 /****************************************************************************/
 /*!
- **   Write the Grid in a ENI_XYZ ASCII file
+ **   Write the Grid in a Eclipse XYZ ASCII file
  **
  ** \return  Error return code
  **

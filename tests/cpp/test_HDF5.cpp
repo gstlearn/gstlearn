@@ -17,6 +17,21 @@
 
 #include <malloc.h>
 
+bool st_is_integer(H5::DataType type)
+{
+  return (type.getClass() == H5T_INTEGER);
+}
+
+bool st_is_float(H5::DataType type)
+{
+  return (type.getClass() == H5T_FLOAT && type.getSize() == 4);
+}
+
+bool st_is_double(H5::DataType type)
+{
+  return (type.getClass() == H5T_FLOAT && type.getSize() == 8);
+}
+
 /**
  * This test is meant to check the HDF5 read/write facility
  */
@@ -31,9 +46,8 @@ static void st_init(H5::DataType type,
   double *ddata;
 
   int base = 1000;
-
   int ecr = 0;
-  if (type == H5::PredType::NATIVE_INT)
+  if (st_is_integer(type))
   {
     idata = (int    *) data;
     for (int ix=0; ix<(int) dims[0]; ix++)
@@ -47,7 +61,7 @@ static void st_init(H5::DataType type,
       }
     }
   }
-  else if (type == H5::PredType::NATIVE_FLOAT)
+  else if (st_is_float(type))
   {
     fdata = (float  *) data;
     for (int ix=0; ix<(int) dims[0]; ix++)
@@ -61,7 +75,7 @@ static void st_init(H5::DataType type,
       }
     }
   }
-  else if (type == H5::PredType::NATIVE_DOUBLE)
+  else if (st_is_double(type))
   {
     ddata = (double *) data;
     for (int ix=0; ix<(int) dims[0]; ix++)
@@ -79,8 +93,17 @@ static void st_init(H5::DataType type,
   {
     messerr("Initialization has not been coded for this type of object");
   }
-
 }
+
+void* st_allocArray(H5::DataType type, int ndim, hsize_t *dims)
+{
+  hsize_t size = type.getSize();
+  int ntot = 1;
+  for (int idim=0; idim<ndim; idim++) ntot *= (int) dims[idim];
+  void* data = (void *) calloc(ntot,(size_t) size);
+  return data;
+}
+
 
 static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
 {
@@ -90,7 +113,7 @@ static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
   static int incr = 1;
 
   int ecr = 0;
-  if (type == H5::PredType::NATIVE_INT)
+  if (st_is_integer(type))
   {
     idata = (int    *) data;
     for (int ix=0; ix< (int) dims[0]; ix++)
@@ -98,7 +121,7 @@ static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
         for (int iz=0; iz< (int) dims[2]; iz++)
           idata[ecr++] += incr;
   }
-  else if (type == H5::PredType::NATIVE_FLOAT)
+  else if (st_is_float(type))
   {
     fdata = (float  *) data;
     for (int ix=0; ix< (int) dims[0]; ix++)
@@ -106,7 +129,7 @@ static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
         for (int iz=0; iz< (int) dims[2]; iz++)
           fdata[ecr++] += incr;
   }
-  else if (type == H5::PredType::NATIVE_DOUBLE)
+  else if (st_is_double(type))
   {
     ddata = (double *) data;
     for (int ix=0; ix< (int) dims[0]; ix++)
@@ -132,7 +155,7 @@ static void st_print(int verbose,
 
   int lec = 0;
 
-  if (type == H5::PredType::NATIVE_INT)
+  if (st_is_integer(type))
   {
   int    *idata;
   idata = (int    *) data;
@@ -147,7 +170,7 @@ static void st_print(int verbose,
       message("\n");
     }
   }
-  else if (type == H5::PredType::NATIVE_FLOAT)
+  else if (st_is_float(type))
   {
     float  *fdata;
     fdata = (float  *) data;
@@ -162,7 +185,7 @@ static void st_print(int verbose,
       message("\n");
     }
   }
-  else if (type == H5::PredType::NATIVE_DOUBLE)
+  else if (st_is_double(type))
   {
     double *ddata;
     ddata = (double *) data;
@@ -295,7 +318,7 @@ int main (void)
 
     // Do not use assignment operator here !
     H5::DataType type(H5::PredType::NATIVE_INT);
-    bool verbose = icas == 1;
+    bool verbose = (icas == 1);
 
     // Define the dimensions
 
@@ -307,8 +330,7 @@ int main (void)
     HDF5format hdf5 = HDF5format();
 
     // Core allocation & filling the array
-
-    void* wdata = hdf5.allocArray(type, ndim, dims);
+    void* wdata = st_allocArray(type, ndim, dims);
     if (wdata == NULL) return 1;
     st_init(type, ndim, dims, wdata);
 
@@ -316,7 +338,7 @@ int main (void)
 
     if (verbose) message("Initial Array\n");
     hdf5.openNewFile("h5data1.h5");
-    hdf5.openNewDataSet("DS1", ndim, dims, type);
+    hdf5.openNewDataSetInt("DS1", ndim, dims);
 
     // Writing the Initial Information
 
@@ -425,30 +447,30 @@ int main (void)
     ndim = 0;
     dims[0] = 1;
 
-    hdf5b.openNewDataSet("ValueInt", ndim, dims, H5::PredType::NATIVE_INT);
+    hdf5b.openNewDataSetInt("ValueInt", ndim, dims);
     hdf5b.writeData(ival[0]);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("ValueFloat", ndim, dims, H5::PredType::NATIVE_FLOAT);
+    hdf5b.openNewDataSetFloat("ValueFloat", ndim, dims);
     hdf5b.writeData(fval[0]);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("ValueDouble", ndim, dims, H5::PredType::NATIVE_DOUBLE);
+    hdf5b.openNewDataSetDouble("ValueDouble", ndim, dims);
     hdf5b.writeData(dval[0]);
     hdf5b.closeDataSet();
 
     ndim = 1;
     dims[0] = dim0;
 
-    hdf5b.openNewDataSet("VectorInt", ndim, dims, H5::PredType::NATIVE_INT);
+    hdf5b.openNewDataSetInt("VectorInt", ndim, dims);
     hdf5b.writeData(ival);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("VectorFloat", ndim, dims, H5::PredType::NATIVE_FLOAT);
+    hdf5b.openNewDataSetFloat("VectorFloat", ndim, dims);
     hdf5b.writeData(fval);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("VectorDouble", ndim, dims, H5::PredType::NATIVE_DOUBLE);
+    hdf5b.openNewDataSetDouble("VectorDouble", ndim, dims);
     hdf5b.writeData(dval);
     hdf5b.closeDataSet();
 
@@ -456,15 +478,15 @@ int main (void)
     dims[0] = dim1;
     dims[1] = dim2;
 
-    hdf5b.openNewDataSet("VectorVectorInt", ndim, dims, H5::PredType::NATIVE_INT);
+    hdf5b.openNewDataSetInt("VectorVectorInt", ndim, dims);
     hdf5b.writeData(vival);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("VectorVectorFloat", ndim, dims, H5::PredType::NATIVE_FLOAT);
+    hdf5b.openNewDataSetFloat("VectorVectorFloat", ndim, dims);
     hdf5b.writeData(vfval);
     hdf5b.closeDataSet();
 
-    hdf5b.openNewDataSet("VectorVectorDouble", ndim, dims, H5::PredType::NATIVE_DOUBLE);
+    hdf5b.openNewDataSetDouble("VectorVectorDouble", ndim, dims);
     hdf5b.writeData(vdval);
     hdf5b.closeDataSet();
 
@@ -563,7 +585,7 @@ int main (void)
     dims[0] = dim1;
     dims[1] = dim2;
     hdf5c.openNewFile("h5data3.h5");
-    hdf5c.openNewDataSet("Set3", ndim, dims, H5::PredType::NATIVE_DOUBLE);
+    hdf5c.openNewDataSetDouble("Set3", ndim, dims);
 
     // Store VectorDouble incrementally
     VectorDouble rowval(dim2);
