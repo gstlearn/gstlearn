@@ -25,21 +25,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
   //std::cout << "filename=" << filename << std::endl;
-  Db* temperatures = Db::createFromNF(filename,verbose);
+  Db* temperatures = Db::createFromNF2(filename,verbose);
   temperatures->setLocator("January_temp", ELoc::Z);
   temperatures->display();
 
   filename = ASerializable::getTestData("Scotland","grid.ascii");
-  DbGrid* grid = DbGrid::createFromNF(filename,verbose);
+  DbGrid* grid = DbGrid::createFromNF2(filename,verbose);
   grid->display();
 
   filename = ASerializable::getTestData("Scotland","model.ascii");
-  Model* model = Model::createFromNF(filename,verbose);
+  Model* model = Model::createFromNF2(filename,verbose);
 
   model->display();
 
   filename = ASerializable::getTestData("Scotland","vario.ascii");
-  Vario* vario = Vario::createFromNF(filename,verbose);
+  Vario* vario = Vario::createFromNF2(filename,verbose);
 
   vario->display();
 

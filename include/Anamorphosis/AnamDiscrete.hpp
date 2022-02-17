@@ -77,8 +77,10 @@ public:
   const MatrixRectangular& getStats() const { return _stats; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose) override;
 
 private:
   bool _isClassValid(int iclass) const;

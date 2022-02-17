@@ -41,7 +41,7 @@ Vario::Vario(const VarioParam* varioparam,
       _varioparam(),
       _means(means),
       _vars(vars),
-      _calculName( ),
+      _calcul(),
       _flagSample( ),
       _db(nullptr),
       _sw(),
@@ -61,7 +61,7 @@ Vario::Vario(const Vario& r)
       _varioparam(r._varioparam),
       _means(r._means),
       _vars(r._vars),
-      _calculName(r._calculName),
+      _calcul(r._calcul),
       _flagSample(r._flagSample),
       _db(r._db),
       _sw(r._sw),
@@ -82,7 +82,7 @@ Vario& Vario::operator=(const Vario& r)
     _varioparam = r._varioparam;
     _means = r._means;
     _vars  = r._vars;
-    _calculName = r._calculName;
+    _calcul = r._calcul;
     _flagSample = r._flagSample;
     _db = r._db;
     _sw = r._sw;
@@ -138,7 +138,26 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   return vario;
 }
 
-int Vario::compute(const String& calcul_name,
+Vario* Vario::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  Vario* vario = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Vario", is, verbose))
+  {
+    VarioParam* varioparam = new VarioParam();
+    vario = new Vario(varioparam);
+    if (vario->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete vario;
+      vario = nullptr;
+    }
+    is.close();
+  }
+  return vario;
+}
+
+int Vario::compute(const ECalcVario &calcul,
                    bool flag_grid,
                    bool flag_gen,
                    bool flag_sample,
@@ -160,7 +179,7 @@ int Vario::compute(const String& calcul_name,
 
   // Preparation
 
-  setCalculName(calcul_name);
+  _calcul = calcul;
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -172,6 +191,19 @@ int Vario::compute(const String& calcul_name,
     return 1;
   }
   return 0;
+}
+
+int Vario::computeByKey(const String& calcul_name,
+                        bool flag_grid,
+                        bool flag_gen,
+                        bool flag_sample,
+                        bool verr_mode,
+                        Model *model,
+                        bool verbose)
+{
+  ECalcVario calcul = getCalculType(calcul_name);
+  if (calcul == ECalcVario::UNDEFINED) return 1;
+  return compute(calcul, flag_grid, flag_gen, flag_sample, verr_mode, model, verbose);
 }
 
 /**
@@ -318,7 +350,7 @@ void Vario::reduce(const VectorInt& varcols,
   }
 }
 
-int Vario::computeIndic(const String& calcul_name,
+int Vario::computeIndic(const ECalcVario& calcul,
                         bool flag_grid,
                         bool flag_gen,
                         bool flag_sample,
@@ -365,7 +397,7 @@ int Vario::computeIndic(const String& calcul_name,
 
   // Preparation
 
-  setCalculName(calcul_name);
+  _calcul = calcul;
   _nVar  = nclass;
   _means = props;
   _vars  = _varsFromProportions(props);
@@ -386,6 +418,21 @@ int Vario::computeIndic(const String& calcul_name,
   _db->setLocatorByUID(iatt, ELoc::Z);
 
   return 0;
+}
+
+int Vario::computeIndicByKey(const String& calcul_name,
+                             bool flag_grid,
+                             bool flag_gen,
+                             bool flag_sample,
+                             bool verr_mode,
+                             Model *model,
+                             bool verbose,
+                             int nfacmax)
+{
+  ECalcVario calcul = getCalculType(calcul_name);
+  if (calcul == ECalcVario::UNDEFINED) return 1;
+  return computeIndic(calcul, flag_grid, flag_gen, flag_sample, verr_mode,
+                      model, verbose, nfacmax);
 }
 
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
@@ -575,7 +622,7 @@ String Vario::toString(const AStringFormat* strfmt) const
 
   // Print the calculation type
 
-  switch (getCalculType().toEnum())
+  switch (getCalcul().toEnum())
   {
     case ECalcVario::E_UNDEFINED:
       sstr << toTitle(0,"Undefined");
@@ -640,7 +687,7 @@ String Vario::toString(const AStringFormat* strfmt) const
     default:
       break;
   }
-  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
+  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
   sstr << "Number of variable(s)       = " << _nVar << std::endl;
 
   // Print the environment
@@ -652,7 +699,7 @@ String Vario::toString(const AStringFormat* strfmt) const
   sstr << toMatrix("Variance-Covariance Matrix",VectorString(),VectorString(),
                     0,_nVar,_nVar,getVars());
 
-  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
+  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
 
   /* Loop on the directions (only if the resulting arrays have been defined) */
 
@@ -711,43 +758,43 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) co
  *
  * @return The corresponding ECalcVario enum
  */
-ECalcVario Vario::getCalculType() const
+ECalcVario Vario::getCalculType(const String& calcul_name) const
 {
   ECalcVario calcul_type;
 
-  if (_calculName == "undefined")
+  if (calcul_name == "undefined")
     calcul_type = ECalcVario::UNDEFINED;
-  else if (_calculName == "vg")
+  else if (calcul_name == "vg")
     calcul_type = ECalcVario::VARIOGRAM;
-  else if (_calculName == "cov")
+  else if (calcul_name == "cov")
     calcul_type = ECalcVario::COVARIANCE;
-  else if (_calculName == "covnc")
+  else if (calcul_name == "covnc")
     calcul_type = ECalcVario::COVARIANCE_NC;
-  else if (_calculName == "covg")
+  else if (calcul_name == "covg")
     calcul_type = ECalcVario::COVARIOGRAM;
-  else if (_calculName =="mado")
+  else if (calcul_name =="mado")
     calcul_type = ECalcVario::MADOGRAM;
-  else if (_calculName =="rodo")
+  else if (calcul_name =="rodo")
     calcul_type = ECalcVario::RODOGRAM;
-  else if (_calculName =="poisson")
+  else if (calcul_name =="poisson")
     calcul_type = ECalcVario::POISSON;
-  else if (_calculName =="general1")
+  else if (calcul_name =="general1")
     calcul_type = ECalcVario::GENERAL1;
-  else if (_calculName =="general2")
+  else if (calcul_name =="general2")
     calcul_type = ECalcVario::GENERAL2;
-  else if (_calculName =="general3")
+  else if (calcul_name =="general3")
     calcul_type = ECalcVario::GENERAL3;
-  else if (_calculName =="order4")
+  else if (calcul_name =="order4")
     calcul_type = ECalcVario::ORDER4;
-  else if (_calculName =="trans1")
+  else if (calcul_name =="trans1")
     calcul_type = ECalcVario::TRANS1;
-  else if (_calculName =="trans2")
+  else if (calcul_name =="trans2")
     calcul_type = ECalcVario::TRANS2;
-  else if (_calculName =="binormal")
+  else if (calcul_name =="binormal")
     calcul_type = ECalcVario::BINORMAL;
   else
   {
-    messerr("Invalid variogram calculation name : %s", _calculName.c_str());
+    messerr("Invalid variogram calculation name : %s", calcul_name.c_str());
     messerr("The only valid names are:");
     messerr("vg       : Variogram");
     messerr("cov      : Covariance");
@@ -1324,6 +1371,90 @@ int Vario::_deserialize(FILE* file, bool /*verbose*/)
   return 0;
 }
 
+int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
+  double dpas, tolang, scale, tolcode, toldis;
+  VectorDouble codir, grloc, vars;
+  VectorInt grincr;
+
+  /* Create the Vario structure */
+
+  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead2<int>(is, "Number of Variables", nvar);
+  ret = ret && _recordRead2<int>(is, "Number of Variogram Directions", ndir);
+  ret = ret && _recordRead2<double>(is, "Scale", scale);
+
+  /* Read the variances (optional) */
+
+  ret = ret && _recordRead2<int>(is, "Variogram calculation Option", flag_calcul);
+  vars.resize(nvar * nvar);
+  if (flag_calcul)
+  {
+    int ecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+        ret = ret && _recordRead2<double>(is, "Experimental Variance term", vars[ecr]);
+  }
+  if (! ret) return 1;
+
+  /* Initialize the variogram structure */
+
+  _nVar = nvar;
+  internalDirectionResize(ndir,false);
+  setVars(vars);
+  setCalculName("vg");
+  setScale(scale);
+
+  /* Reading the variogram calculation directions */
+
+  for (int idir = 0; idir < ndir; idir++)
+  {
+    ret = ret && _recordRead2<int>(is, "Regular Variogram Calculation", flag_regular);
+    ret = ret && _recordRead2<int>(is, "Number of Variogram Lags", npas);
+    ret = ret && _recordRead2<int>(is, "Variogram Code Option", opt_code);
+    ret = ret && _recordRead2<double>(is, "Tolerance on Code", tolcode);
+    ret = ret && _recordRead2<double>(is, "Lag Value", dpas);
+    ret = ret && _recordRead2<double>(is, "Tolerance on Distance", toldis);
+    ret = ret && _recordRead2<double>(is, "Tolerance on Direction", tolang);
+    codir.resize(ndim);
+    grincr.resize(ndim);
+    grloc.resize(ndim);
+    for (int idim = 0; idim < ndim; idim++)
+      ret = ret && _recordRead2<double>(is, "Direction vector", codir[idim]);
+    for (int idim = 0; idim < ndim; idim++)
+      ret = ret && _recordRead2<double>(is, "Grid Increment", grloc[idim]);
+    if (! ret) return 1;
+
+    DirParam dirparam = DirParam(ndim);
+    for (int idim = 0; idim < ndim; idim++)
+      grincr[idim] = (int) grloc[idim];
+    dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
+                  TEST, TEST, tolcode, VectorDouble(), codir, grincr);
+    _varioparam.addDirs(dirparam);
+
+    /* Read the arrays of results (optional) */
+
+    if (flag_calcul)
+    {
+      _directionResize(idir);
+      for (int i = 0; i < getDirSize(idir); i++)
+      {
+        double sw, hh, gg;
+        ret = ret && _recordRead2<double>(is, "Experimental Variogram Weight", sw);
+        setSwByIndex(idir, i, sw);
+        ret = ret && _recordRead2<double>(is, "Experimental Variogram Distance", hh);
+        setHhByIndex(idir, i, hh);
+        ret = ret && _recordRead2<double>(is, "Experimental Variogram Value", gg);
+        setGgByIndex(idir, i, gg);
+      }
+    }
+  }
+  if (! ret) return 1;
+
+  return 0;
+}
+
 int Vario::_serialize(FILE* file, bool /*verbose*/) const
 {
   double value;
@@ -1490,7 +1621,7 @@ int Vario::getDirSize(int idir) const
 
 void Vario::_setFlagAsym()
 {
-  switch (getCalculType().toEnum())
+  switch (getCalcul().toEnum())
   {
     case ECalcVario::E_VARIOGRAM:
     case ECalcVario::E_MADOGRAM:
@@ -1547,7 +1678,7 @@ int Vario::getLagTotalNumber(int idir) const
 
 void Vario::setCalculName(const String calcul_name)
 {
-  _calculName = calcul_name;
+  _calcul = getCalculType(calcul_name);
   _setFlagAsym();
 }
 

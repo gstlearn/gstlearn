@@ -69,7 +69,7 @@ int main(int /*argc*/, char */*argv*/[])
   std::vector<DirParam> dirparamP = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
   varioparamP.addMultiDirs(dirparamP);
   Vario variop = Vario(&varioparamP,db);
-  variop.compute("vg");
+  variop.computeByKey("vg");
   variop.display();
   message("Maximum Variogram Value = %lf\n",variop.getGmax());
 
@@ -88,7 +88,7 @@ int main(int /*argc*/, char */*argv*/[])
   std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
   varioparamG.addMultiDirs(dirparamG);
   Vario variog = Vario(&varioparamG, grid);
-  variog.compute("vg",true);
+  variog.computeByKey("vg",true);
   variog.display();
 
   // ==========================================

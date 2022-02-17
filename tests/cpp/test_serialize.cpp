@@ -54,7 +54,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) db1->dumpToNF2("Neutral2.Db.ascii",verbose);
 
   // Deserialize db2
-  Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
+  Db* db2 = Db::createFromNF2("Neutral.Db.ascii",verbose);
   db2->display();
   delete db2;
   db2 = Db::createFromNF2("Neutral2.Db.ascii",verbose);
@@ -79,7 +79,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) dbg1->dumpToNF("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
-  Db* dbg2 = DbGrid::createFromNF("Neutral.Dbg.ascii",verbose);
+  Db* dbg2 = DbGrid::createFromNF2("Neutral.Dbg.ascii",verbose);
   dbg2->display();
 
   // =======================
@@ -98,7 +98,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) poly1.dumpToNF("Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
-  Polygons* poly2 = Polygons::createFromNF("Neutral.Polygon.ascii",verbose);
+  Polygons* poly2 = Polygons::createFromNF2("Neutral.Polygon.ascii",verbose);
   poly2->display();
   delete poly2;
 
@@ -111,14 +111,14 @@ int main(int /*argc*/, char */*argv*/[])
   DirParam dirparam(2, 10, 0.02);
   varioparam1.addDirs(dirparam);
   Vario vario1 = Vario(&varioparam1,db1);
-  vario1.compute("vg");
+  vario1.computeByKey("vg");
   vario1.display();
 
   // Serialize vario1
   (void) vario1.dumpToNF("Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
-  Vario* vario2 = Vario::createFromNF("Neutral.Vario.ascii",verbose);
+  Vario* vario2 = Vario::createFromNF2("Neutral.Vario.ascii",verbose);
   vario2->display();
 
   // =======================
@@ -139,7 +139,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model1.dumpToNF("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
-  Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
+  Model* model2 = Model::createFromNF2("Neutral.Model.ascii",verbose);
   model2->display();
 
   // =======================
@@ -160,7 +160,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) table1->dumpToNF("Neutral.Table.ascii",verbose);
 
   // Deserialize table1
-  Table* table2 = Table::createFromNF("Neutral.Table.ascii",verbose);
+  Table* table2 = Table::createFromNF2("Neutral.Table.ascii",verbose);
   table2->display();
 
   // =======================
@@ -174,7 +174,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) rule->dumpToNF("Neutral.Rule.ascii",verbose);
 
   // Deserialize
-  Rule* rule2 = Rule::createFromNF("Neutral.Rule.ascii",verbose);
+  Rule* rule2 = Rule::createFromNF2("Neutral.Rule.ascii",verbose);
   rule2->display();
 
   delete db1;

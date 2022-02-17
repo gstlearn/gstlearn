@@ -35,6 +35,7 @@ public:
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = false);
+  static AnamHermite* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   /// AnamContinuous Interface
   double RawToGaussianValue(double z) const override;
@@ -63,8 +64,10 @@ public:
 
 protected:
   /// ASerializable Interface
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose) override;
 
 private:
   bool _isIndexValid(int i) const;

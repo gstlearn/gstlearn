@@ -109,6 +109,25 @@ AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbo
   return anam;
 }
 
+AnamHermite* AnamHermite::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  AnamHermite* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "AnamHermite", is, verbose))
+  {
+    anam = new AnamHermite();
+    if (anam->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
+  }
+  return anam;
+}
+
+
 AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
 {
   return new AnamHermite(nbpoly, flagBound, rCoef);
@@ -639,5 +658,27 @@ int AnamHermite::_deserialize(FILE* file, bool verbose)
   setPsiHn(hermite);
 
   label_end:
+  return 0;
+}
+
+int AnamHermite::_deserialize2(std::istream& is, bool verbose)
+{
+  VectorDouble hermite;
+  double r = TEST;
+  int nbpoly = 0;
+
+  if (! AnamContinuous::_deserialize2(is, verbose)) return 1;
+
+  bool ret = _recordRead2<int>(is, "Number of Hermite Polynomials", nbpoly);
+  ret = ret && _recordRead2<double>(is, "Change of Support Coefficient", r);
+  if (! ret) return 1;
+
+  hermite.resize(nbpoly);
+  if (_tableRead2(is, nbpoly, hermite.data())) return 1;
+
+  setNbPoly(nbpoly);
+  setRCoef(r);
+  setPsiHn(hermite);
+
   return 0;
 }

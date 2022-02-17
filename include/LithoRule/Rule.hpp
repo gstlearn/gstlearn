@@ -42,6 +42,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Rule* create(double rho = 0.);
   static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Rule* createFromNF2(const String& neutralFilename, bool verbose = false);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
   static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);
   static Rule* createFromNumericalCoding(const VectorInt& n_type,
@@ -119,8 +120,11 @@ protected:
   VectorString buildNodNames(int nfacies);
   virtual int _deserializeSpecific(FILE* /*file*/) { return 0; }
   virtual void _serializeSpecific(FILE* /*file*/) const { return; }
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false) ;
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserializeSpecific2(std::istream& /*is*/) { return 0; }
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   void _ruleDefine(FILE* file,

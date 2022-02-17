@@ -700,6 +700,45 @@ int Rule::_deserialize(FILE* file, bool /*verbose*/)
   return 0;
 }
 
+int Rule::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int nb_node;
+
+  /* Create the Rule structure */
+
+  int mrule = 0;
+  bool ret = _recordRead2<int>(is, "Rule definition", mrule);
+  ret = ret && _recordRead2<double>(is, "Correlation Coefficient of GRFs", _rho);
+  if (! ret) return 1;
+  _modeRule = ERule::fromValue(mrule);
+
+  // Specific case
+
+  if (_deserializeSpecific2(is)) return 1;
+
+  /* Read the number of nodes */
+
+  ret = ret && _recordRead2<int>(is, "Number of Rule Nodes", nb_node);
+  if (! ret) return 1;
+  VectorInt nodes(6 * nb_node);
+
+  /* Loop on the nodes for reading: */
+  /* - from_type: Type of the parent */
+  /* - from_rank: Rank of the parent */
+  /* - from_vers: Orientation of the parent */
+  /* - node_type: 0 (idle) - 1 (Thresh along Y1) - 2 (Thresh along Y2) */
+  /* - node_rank: Rank of the node (starting from 1) */
+  /* - facies   : Rank of the facies */
+  int lec = 0;
+  for (int inode =  0; inode < nb_node; inode++)
+    for (int i = 0; i < 6; i++)
+      ret = ret && _recordRead2<int>(is, "Rule Node Definition", nodes[lec++]);
+  setMainNodeFromNodNames(nodes);
+
+  return 0;
+}
+
+
 int Rule::_serialize(FILE* file, bool /*verbose*/) const
 {
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
@@ -1060,6 +1099,26 @@ Rule* Rule::createFromNF(const String& neutralFilename, bool verbose)
   _fileClose(file, verbose);
   return rule;
 }
+
+Rule* Rule::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  Rule* rule = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Rule", is, verbose))
+  {
+    rule = new Rule();
+    rule->setModeRule(ERule::STD);
+    if (rule->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete rule;
+      rule = nullptr;
+    }
+    is.close();
+  }
+  return rule;
+}
+
 Rule* Rule::createFromNames(const VectorString& nodnames,double rho)
 {
   Rule* rule = new Rule();

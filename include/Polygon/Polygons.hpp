@@ -39,6 +39,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Polygons* create();
   static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Polygons* createFromNF2(const String& neutralFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
                                  const CSVformat& csv,
                                  int verbose = false,
@@ -63,8 +64,10 @@ public:
   double getSurface() const;
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   PolySet _extractFromTab(int ideb,

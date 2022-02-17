@@ -39,6 +39,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Table* create(int nrows = 0, int ncols = 0);
   static Table* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Table* createFromNF2(const String& neutralFilename, bool verbose = false);
   static Table* createFromArray(const VectorVectorDouble& tabin);
 
   void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
@@ -58,8 +59,10 @@ public:
   void plot(int isimu) const;
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose) override;
 
 private:
   bool _isColValid(int icol) const;

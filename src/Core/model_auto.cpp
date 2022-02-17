@@ -986,9 +986,9 @@ static void st_load_ge(const Vario *vario,
   int nvar = vario->getVariableNumber();
   int nvs2 = nvar * (nvar + 1) / 2;
   int norder = 0;
-  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
-  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
-  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
+  if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
   VectorDouble d1(ndim);
   CovCalcMode mode;
   mode.setUnitary(true);
@@ -4610,20 +4610,20 @@ int model_auto_fit(const Vario *vario,
 
   error = 1;
   norder = 0;
-  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
-  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
-  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
+  if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
   if (model->getDimensionNumber() > 3)
   {
     messerr("Procedure cannot be used for space dimension (%d) larger than 3",
             model->getDimensionNumber());
     goto label_end;
   }
-  if (vario->getCalculType() == ECalcVario::MADOGRAM || vario->getCalculType()
-      == ECalcVario::RODOGRAM
-      || vario->getCalculType() == ECalcVario::GENERAL1
-      || vario->getCalculType() == ECalcVario::GENERAL2
-      || vario->getCalculType() == ECalcVario::GENERAL3)
+  if (vario->getCalcul() == ECalcVario::MADOGRAM ||
+      vario->getCalcul() == ECalcVario::RODOGRAM ||
+      vario->getCalcul() == ECalcVario::GENERAL1 ||
+      vario->getCalcul() == ECalcVario::GENERAL2 ||
+      vario->getCalcul() == ECalcVario::GENERAL3)
   {
     messerr("Procedure is designed only for symmetric covariance");
     return (1);

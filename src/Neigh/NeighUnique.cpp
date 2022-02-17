@@ -70,6 +70,17 @@ int NeighUnique::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int NeighUnique::_deserialize2(std::istream& is, bool verbose)
+{
+  if (ANeighParam::_deserialize2(is, verbose))
+  {
+    if (verbose)
+      messerr("Problem reading from the Neutral File.");
+    return 1;
+  }
+  return 0;
+}
+
 int NeighUnique::_serialize(FILE* file, bool verbose) const
 {
   if (ANeighParam::_serialize(file, verbose))
@@ -128,6 +139,25 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
   _fileClose(file, verbose);
   return neigh;
 }
+
+NeighUnique* NeighUnique::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  NeighUnique* neigh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "NeighUnique", is, verbose))
+  {
+    neigh = new NeighUnique;
+    if (neigh->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete neigh;
+      neigh = nullptr;
+    }
+    is.close();
+  }
+  return neigh;
+}
+
 
 /**
  * Given a Db, returns the maximum number of samples per NeighUniqueborhood

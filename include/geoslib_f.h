@@ -175,12 +175,12 @@ GSTLEARN_EXPORT int variogram_cloud(const Db *db,
                                     DbGrid *dbgrid,
                                     const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT DbGrid* db_variogram_cloud(Db *db,
-                                       const VarioParam *varioparam,
-                                       double lagmax = TEST,
-                                       double varmax = TEST,
-                                       int lagnb = 100,
-                                       int varnb = 100,
-                                       const NamingConvention& namconv = NamingConvention("Cloud"));
+                                           const VarioParam *varioparam,
+                                           double lagmax = TEST,
+                                           double varmax = TEST,
+                                           int lagnb = 100,
+                                           int varnb = 100,
+                                           const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT void variogram_print(const Vario *vario);
 GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,

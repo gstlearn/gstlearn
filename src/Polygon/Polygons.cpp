@@ -221,6 +221,31 @@ int Polygons::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int Polygons::_deserialize2(std::istream& is, bool verbose)
+{
+  int npol;
+
+  // Clear previous contents
+
+  _polysets.clear();
+
+  /* Create the Model structure */
+
+  bool ret = _recordRead2<int>(is, "Number of Polygons", npol);
+  if (! ret) return 1;
+
+  /* Loop on the PolySets */
+
+  for (int ipol = 0; ipol < npol; ipol++)
+  {
+    PolySet polyset;
+    if (polyset._deserialize2(is, verbose)) return 1;
+    addPolySet(polyset);
+  }
+  return 0;
+}
+
+
 int Polygons::_serialize(FILE* file, bool verbose) const
 {
 
@@ -264,6 +289,24 @@ Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
     polygons = nullptr;
   }
   _fileClose(file, verbose);
+  return polygons;
+}
+
+Polygons* Polygons::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  Polygons* polygons = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Polygon", is, verbose))
+  {
+    polygons = new Polygons();
+    if (polygons->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete polygons;
+      polygons = nullptr;
+    }
+    is.close();
+  }
   return polygons;
 }
 

@@ -525,6 +525,104 @@ int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
   label_end: return 0;
 }
 
+int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int ndim, ndim2, ntot, nloc, nech, i, flag_grid, ncol;
+  VectorInt nx;
+  VectorString locators;
+  VectorString names;
+  VectorDouble x0;
+  VectorDouble dx;
+  VectorDouble angles;
+  VectorDouble values;
+  VectorDouble allvalues;
+
+  /* Initializations */
+
+  nloc = ndim = nech = ntot = ncol = 0;
+
+  /* Decoding the header */
+
+  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
+
+  /* Core allocation */
+
+  nx.resize(ndim);
+  dx.resize(ndim);
+  x0.resize(ndim);
+  angles.resize(ndim);
+
+  /* Read the grid characteristics */
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    ret = ret && _recordRead2<int>(is, "Grid Number of Nodes", nx[idim]);
+    ret = ret && _recordRead2<double>(is, "Grid Origin", x0[idim]);
+    ret = ret && _recordRead2<double>(is, "Grid Mesh", dx[idim]);
+    ret = ret && _recordRead2<double>(is, "Grid Angles", angles[idim]);
+  }
+  ntot = ut_ivector_prod(nx);
+
+  ret = ret && _recordRead2<int>(is, "Number of variables", ncol);
+  ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
+  if (!ret || (int)locators.size() != ncol) return 1;
+  ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
+  if (!ret || (int)names.size() != ncol) return 1;
+
+  /* Reading the tail of the file */
+
+  while (ret)
+  {
+    ret = _recordReadVec2<VectorDouble>(is, "", values);
+    if (ret)
+    {
+      if ((int)values.size() != ncol) return 1;
+      // Concatenate values by samples
+      allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
+                                        std::make_move_iterator(values.end()));
+      nech++;
+    } // else "end of file"
+  }
+  if (! ret) return 1;
+
+  // Decode the locators
+  std::vector<ELoc> tabloc;
+  VectorInt tabnum;
+  int  inum = 0, mult = 0;
+  ELoc iloc;
+  for (auto loc : locators)
+  {
+    if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
+    tabloc.push_back(iloc);
+    tabnum.push_back(inum);
+  }
+
+  /* Creating the Db */
+
+  if (nloc > 0 && nech != ntot)
+  {
+    messerr("The number of lines read from the Grid file (%d)", nech);
+    messerr("is not a multiple of the number of samples (%d)", ntot);
+    messerr("The Grid Db is created with no sample attached");
+    nloc = 0;
+  }
+
+  resetDims(nloc, ut_ivector_prod(nx));
+  (void) gridDefine(nx, dx, x0, angles);
+
+  // Load the values
+  _loadData(ELoadBy::SAMPLE, 0, allvalues);
+  // Update the column names and locators
+  if (nloc > 0)
+    for (i = 0; i < nloc; i++)
+    {
+      setNameByUID(i, names[i]);
+      setLocatorByUID(i, tabloc[i], tabnum[i]);
+    }
+
+  return 0;
+}
+
 int DbGrid::_serialize(FILE* file, bool /*verbose*/) const
 {
   bool onlyLocator = false;
@@ -604,6 +702,24 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
     db = nullptr;
   }
   _fileClose(file, verbose);
+  return db;
+}
+
+DbGrid* DbGrid::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  DbGrid* db = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "DbGrid", is, verbose))
+  {
+    db = new DbGrid;
+    if (db->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete db;
+     db = nullptr;
+    }
+    is.close();
+  }
   return db;
 }
 

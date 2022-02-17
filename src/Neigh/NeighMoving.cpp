@@ -227,6 +227,73 @@ int NeighMoving::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int NeighMoving::_deserialize2(std::istream& is, bool verbose)
+{
+  if (ANeighParam::_deserialize2(is, verbose))
+  {
+    if (verbose)
+      messerr("Problem reading from the Neutral File.");
+    return 1;
+  }
+
+  int ndim = getNDim();
+  VectorDouble radius(ndim);
+  VectorDouble nbgh_coeffs(ndim);
+  VectorDouble nbgh_rotmat(ndim * ndim);
+
+  int flag_aniso = 0;
+  int flag_rotation = 0;
+  int flag_sector = 0;
+  double dmax = 0.;
+
+  bool ret = _recordRead2<int>(is, "NeighMovingborhood sector search", flag_sector);
+  ret = ret && _recordRead2<int>(is, "Minimum Number of samples", _nMini);
+  ret = ret && _recordRead2<int>(is, "Maximum Number of samples", _nMaxi);
+  ret = ret && _recordRead2<int>(is, "Optimum Number of samples per sector", _nSect);
+  ret = ret && _recordRead2<int>(is, "Maximum Number of samples per sector", _nSMax);
+  ret = ret && _recordRead2<double>(is, "Maximum Isotropic Radius", dmax);
+  ret = ret && _recordRead2<int>(is, "Flag for Anisotropy", flag_aniso);
+  if (flag_aniso)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      ret = ret && _recordRead2<double>(is, "Anisotropy Coefficient", nbgh_coeffs[idim]);
+    ret =ret && _recordRead2<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+    if (flag_rotation)
+    {
+      int lec = 0;
+      for (int idim = 0; idim < ndim; idim++)
+        for (int jdim = 0; jdim < ndim; jdim++, lec++)
+          ret = ret && _recordRead2<double>(is, "Anisotropy Rotation Matrix", nbgh_rotmat[lec]);
+    }
+  }
+  if (! ret) return 1;
+
+  if (!nbgh_coeffs.empty())
+    for (int idim = 0; idim < ndim; idim++)
+      nbgh_coeffs[idim] *= dmax;
+
+  setNSect((flag_sector) ? MAX(_nSect, 1) : 1);
+  setRadius(dmax);
+  setFlagSector(flag_sector && ndim >= 2);
+  setFlagAniso(flag_aniso && !nbgh_coeffs.empty());
+  setFlagRotation(flag_rotation && flag_aniso && !nbgh_rotmat.empty());
+
+  if (getFlagAniso() && !nbgh_coeffs.empty())
+  {
+    setRadius(0.);
+    for (int i = 0; i < getNDim(); i++)
+      setRadius(MAX(getRadius(), nbgh_coeffs[i]));
+    for (int i = 0; i < getNDim(); i++)
+      setAnisoCoeff(i, nbgh_coeffs[i] / getRadius());
+  }
+  if (getFlagRotation() && !nbgh_rotmat.empty())
+  {
+    setAnisoRotMat(nbgh_rotmat);
+  }
+
+  return 0;
+}
+
 int NeighMoving::_serialize(FILE* file, bool verbose) const
 {
   if (ANeighParam::_serialize(file, verbose))
@@ -334,6 +401,24 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
     neigh = nullptr;
   }
   _fileClose(file, verbose);
+  return neigh;
+}
+
+NeighMoving* NeighMoving::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  NeighMoving* neigh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "NeighMoving", is, verbose))
+  {
+    neigh = new NeighMoving();
+    if (neigh->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete neigh;
+      neigh = nullptr;
+    }
+    is.close();
+  }
   return neigh;
 }
 

@@ -119,7 +119,7 @@ int main(int /*argc*/, char * /*argv*/[])
   {
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu],ELoc::Z);
-    vario.compute("vg",true);
+    vario.computeByKey("vg",true);
     (void) vario.dumpToNF(incrementStringVersion("Vario",isimu+1));
   }
 

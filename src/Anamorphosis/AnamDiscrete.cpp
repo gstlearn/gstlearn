@@ -268,6 +268,33 @@ int AnamDiscrete::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int AnamDiscrete::_deserialize2(std::istream& is, bool verbose)
+{
+  VectorDouble zCut, stats;
+  int nCut = 0;
+  int nClass = 0;
+  int nElem = 0;
+
+  bool ret = _recordRead2<int>(is, "Number of Cutoffs", nCut);
+  ret = ret && _recordRead2<int>(is, "Number of Classes", nClass);
+  ret = ret && _recordRead2<int>(is, "Number of Statistic Columns", nElem);
+  if (! ret) return 1;
+
+  zCut.resize(nCut);
+  if (_tableRead2(is, nCut, zCut.data())) goto label_end;
+
+  stats.resize(nClass * nElem);
+  if (_tableRead2(is, nClass * nElem, stats.data())) goto label_end;
+
+  setNCut(nCut);
+  setNElem(nElem);
+  setZCut(zCut);
+  setStats(stats);
+
+  label_end:
+  return 0;
+}
+
 void AnamDiscrete::setNCut(int ncut)
 {
   _nCut = ncut;

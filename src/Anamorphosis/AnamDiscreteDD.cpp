@@ -90,6 +90,24 @@ AnamDiscreteDD* AnamDiscreteDD::createFromNF(const String& neutralFilename, bool
   return anam;
 }
 
+AnamDiscreteDD* AnamDiscreteDD::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  AnamDiscreteDD* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "AnamDiscreteDD", is, verbose))
+  {
+    anam = new AnamDiscreteDD();
+    if (anam->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
+  }
+  return anam;
+}
+
 AnamDiscreteDD* AnamDiscreteDD::create(double mu, double scoef)
 {
   return new AnamDiscreteDD(mu, scoef);
@@ -640,5 +658,30 @@ int AnamDiscreteDD::_deserialize(FILE* file, bool verbose)
   setPcaZ2F(pcaz2f);
 
   label_end:
+  return 0;
+}
+
+int AnamDiscreteDD::_deserialize2(std::istream& is, bool verbose)
+{
+  VectorDouble pcaf2z, pcaz2f;
+  double s = TEST;
+  double mu = TEST;
+
+  if (! AnamDiscrete::_deserialize2(is, verbose)) return 1;
+
+  bool ret = _recordRead2<double>(is, "Anamorphosis 's' coefficient", s);
+  ret = ret && _recordRead2<double>(is, "Anamorphosis 'mu' coefficient", mu);
+  if (! ret) return 1;
+  pcaz2f.resize(getNCut() * getNCut());
+  pcaf2z.resize(getNCut() * getNCut());
+
+  if (_tableRead2(is, getNCut() * getNCut(), pcaz2f.data())) return 1;
+  if (_tableRead2(is, getNCut() * getNCut(), pcaf2z.data())) return 1;
+
+  setSCoef(s);
+  setMu(mu);
+  setPcaF2Z(pcaf2z);
+  setPcaZ2F(pcaz2f);
+
   return 0;
 }

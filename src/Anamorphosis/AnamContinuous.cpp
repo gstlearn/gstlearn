@@ -280,6 +280,29 @@ int AnamContinuous::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int AnamContinuous::_serialize2(std::ostream& os, bool verbose) const
+{
+  bool ret = _recordWrite2<double>(os,"", getAzmin());
+  ret = ret && _recordWrite2<double>(os,"", getAzmax());
+  ret = ret && _commentWrite2(os, "Absolute Values for Z");
+  ret = ret && _recordWrite2<double>(os,"", getAymin());
+  ret = ret && _recordWrite2<double>(os, "", getAymax());
+  ret = ret && _commentWrite2(os, "Absolute Values for Y");
+  ret = ret && _recordWrite2<double>(os, "", getPzmin());
+  ret = ret && _recordWrite2<double>(os, "", getPzmax());
+  ret = ret && _commentWrite2(os, "Practical Values for Z");
+  ret = ret && _recordWrite2<double>(os, "", getPymin());
+  ret = ret && _recordWrite2<double>(os,"", getPymax());
+  ret = ret && _commentWrite2(os,"Practical Values for Y");
+
+  ret = ret && _recordWrite2<double>(os,"", getMean());
+  ret = ret && _commentWrite2(os, "Calculated mean");
+  ret = ret && _recordWrite2<double>(os,"", getVariance());
+  ret = ret && _commentWrite2(os, "Calculated variance");
+
+  return ret ? 0 : 1;
+}
+
 int AnamContinuous::_deserialize(FILE* file, bool verbose)
 {
   double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax, mean, variance;
@@ -305,6 +328,38 @@ int AnamContinuous::_deserialize(FILE* file, bool verbose)
     goto label_end;
   if (_recordRead(file, "Experimental Variance", "%lf", &variance))
     goto label_end;
+
+  setPymin(pymin);
+  setPzmin(pzmin);
+  setPymax(pymax);
+  setPzmax(pzmax);
+  setAymin(aymin);
+  setAzmin(azmin);
+  setAymax(aymax);
+  setAzmax(azmax);
+  setMean(mean);
+  setVariance(variance);
+
+  label_end:
+  return 0;
+}
+
+int AnamContinuous::_deserialize2(std::istream& is, bool verbose)
+{
+  double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax, mean, variance;
+  mean = variance = TEST;
+
+  bool ret = _recordRead2<double>(is, "Minimum absolute Z-value", azmin);
+  ret = ret && _recordRead2<double>(is, "Maximum absolute Z-value", azmax);
+  ret = ret && _recordRead2<double>(is, "Minimum absolute Y-value", aymin);
+  ret = ret && _recordRead2<double>(is, "Maximum absolute Y-value", aymax);
+  ret = ret && _recordRead2<double>(is, "Minimum Experimental Z-value", pzmin);
+  ret = ret && _recordRead2<double>(is, "Maximum Experimental Z-value", pzmax);
+  ret = ret && _recordRead2<double>(is, "Minimum Experimental Y-value", pymin);
+  ret = ret && _recordRead2<double>(is, "Maximum Experimental Y-value", pymax);
+  ret = ret && _recordRead2<double>(is, "Experimental Mean", mean);
+  ret = ret && _recordRead2<double>(is, "Experimental Variance", variance);
+  if (! ret) return 1;
 
   setPymin(pymin);
   setPzmin(pzmin);

@@ -115,7 +115,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = Db::createFromNF(filename,verbose);
+  dbin = Db::createFromNF2(filename,verbose);
   if (dbin == nullptr) goto label_end;
   db_print(dbin,1,0,1,1,1);
 
@@ -126,16 +126,16 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = DbGrid::createFromNF(filename,verbose);
+  dbout = DbGrid::createFromNF2(filename,verbose);
 
   /* Define the variogram */
 
   ascii_filename("Vario",0,0,filename);
-  vario = Vario::createFromNF(filename,verbose);
+  vario = Vario::createFromNF2(filename,verbose);
   if (vario != nullptr)
   {
     vario->attachDb(dbin);
-    vario->compute("vg");
+    vario->computeByKey("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
     if (vario->dumpToNF(filename,verbose))
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = Model::createFromNF(filename,verbose);
+  model = Model::createFromNF2(filename,verbose);
   if (model == nullptr) goto label_end;
   if (vario != nullptr) 
   {
@@ -160,13 +160,13 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neighparam = NeighUnique::createFromNF(filename,verbose);
+  neighparam = NeighUnique::createFromNF2(filename,verbose);
   if (neighparam == nullptr)
-    neighparam = NeighImage::createFromNF(filename, verbose);
+    neighparam = NeighImage::createFromNF2(filename, verbose);
   if (neighparam == nullptr)
-    neighparam = NeighBench::createFromNF(filename, verbose);
+    neighparam = NeighBench::createFromNF2(filename, verbose);
   if (neighparam == nullptr)
-    neighparam = NeighMoving::createFromNF(filename, verbose);
+    neighparam = NeighMoving::createFromNF2(filename, verbose);
 
   /* Look for simulations */
 

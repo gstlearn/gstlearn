@@ -75,6 +75,21 @@ int NeighBench::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int NeighBench::_deserialize2(std::istream& is, bool verbose)
+{
+  if (ANeighParam::_deserialize2(is, verbose))
+  {
+    if (verbose)
+      messerr("Problem reading from the Neutral File.");
+    return 1;
+  }
+
+  bool ret = _recordRead2<double>(is, "Bench Width", _width);
+
+  if (! ret) return 1;
+  return 0;
+}
+
 int NeighBench::_serialize(FILE* file, bool verbose) const
 {
   if (ANeighParam::_serialize(file, verbose))
@@ -135,6 +150,24 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
     neigh = nullptr;
   }
   _fileClose(file, verbose);
+  return neigh;
+}
+
+NeighBench* NeighBench::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  NeighBench* neigh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "NeighBench", is, verbose))
+  {
+    neigh = new NeighBench();
+    if (neigh->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete neigh;
+      neigh = nullptr;
+    }
+    is.close();
+  }
   return neigh;
 }
 

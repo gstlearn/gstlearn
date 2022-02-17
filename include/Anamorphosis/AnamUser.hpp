@@ -43,6 +43,8 @@ public:
   void setZ2yFunction(double (*z2y_function)(double)) { _z2y_function = z2y_function; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose) override;
 };

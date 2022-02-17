@@ -90,6 +90,25 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   return table;
 }
 
+Table* Table::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  Table* table = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Table", is, verbose))
+  {
+    table = new Table();
+    if (table->_deserialize2(is, verbose))
+    {
+      messerr("Problem reading the Neutral File");
+      delete table;
+      table = nullptr;
+    }
+    is.close();
+  }
+  return table;
+}
+
+
 Table* Table::createFromArray(const VectorVectorDouble& tabin)
 {
   Table* table = new Table();
@@ -240,6 +259,32 @@ int Table::_deserialize(FILE* file, bool /*verbose*/)
   if (error) _stats.clear();
   return error;
 }
+
+int Table::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int ncols, nrows;
+  double value;
+
+  bool ret = _recordRead2<int>(is, "Number of Columns", ncols);
+  ret = ret && _recordRead2<int>(is, "Number of Rows", nrows);
+  if (! ret) return 1;
+
+  _stats.clear();
+  _stats.resize(ncols);
+
+  /* Loop on the lines */
+
+  for (int irow = 0; irow < nrows; irow++)
+  {
+    for (int icol = 0; icol < ncols; icol++)
+    {
+      ret = ret && _recordRead2<double>(is, "Numerical value", value);
+      if (ret) _stats[icol].push_back(value);
+    }
+  }
+  return 0;
+}
+
 
 /**
  * Print the contents of the statistics

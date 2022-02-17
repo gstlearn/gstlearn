@@ -117,6 +117,21 @@ int RuleShadow::_deserializeSpecific(FILE* file)
   return 0;
 }
 
+int RuleShadow::_deserializeSpecific2(std::istream& is)
+{
+  _shift.resize(3);
+
+  bool ret = _recordRead2<double>(is, "Slope for Shadow Rule", _slope);
+  ret = ret && _recordRead2<double>(is, "Lower Threshold for Shadow Rule", _shDown);
+  ret = ret && _recordRead2<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
+  ret = ret && _recordRead2<double>(is, "Shift along first direction", _shift[0]);
+  ret = ret && _recordRead2<double>(is, "Shift along second direction", _shift[1]);
+  ret = ret && _recordRead2<double>(is, "Shift along third direction", _shift[2]);
+  if (! ret) return 1;
+  return 0;
+}
+
+
 void RuleShadow::_serializeSpecific(FILE *file) const
 {
   double slope = (FFFF(_slope)) ? 0. :

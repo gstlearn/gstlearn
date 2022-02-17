@@ -49,8 +49,8 @@ public:
   static String getDirectory(const String& path);
 
 protected:
-  //virtual int _deserialize2(std::istream& s, bool verbose = false);
-  //virtual int _serialize2(std::ostream& s,bool verbose = false) const;
+  virtual int _deserialize2(std::istream& s, bool verbose = false) = 0;
+  //virtual int _serialize2(std::ostream& s,bool verbose = false) const = 0;
 
   static bool _fileOpenWrite2(const String& filename,
                               const String& filetype,
@@ -82,7 +82,7 @@ protected:
                               T& vec);
 
 
-  virtual int _deserialize(FILE* file, bool verbose = false) = 0;
+  //virtual int _deserialize(FILE* file, bool verbose = false) = 0;
   virtual int _serialize(FILE* file, bool verbose = false) const = 0;
 
   static FILE* _fileOpen(const String& filename,
@@ -99,6 +99,8 @@ protected:
   static int _fileRead(FILE* file, const String& format, va_list ap);
   static void _fileWrite(FILE* file, const String& format, va_list ap);
   static bool _onlyBlanks(char *string);
+
+  static int  _tableRead2(std::istream& is, int ntab, double *tab);
 
 private:
   static String myContainerName;

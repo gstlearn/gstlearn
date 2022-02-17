@@ -83,6 +83,21 @@ int ANeighParam::_deserialize(FILE* file, bool /*verbose*/)
   return 0;
 }
 
+int ANeighParam::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  int ndim, flag_xvalid;
+
+  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead2<int>(is, "Cross-validation flag", flag_xvalid);
+  if (! ret) return 1;
+
+  setNDim(ndim);
+  setFlagXvalid(flag_xvalid);
+
+  return 0;
+}
+
+
 int ANeighParam::_serialize(FILE* file, bool /*verbose*/) const
 {
   _recordWrite(file, "%d", getNDim());

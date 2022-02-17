@@ -14,6 +14,7 @@
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
+#include "LithoRule/ERule.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -123,6 +124,20 @@ int RuleShift::_deserializeSpecific(FILE* file)
   if (_recordRead(file, "Shift along third direction", "%lf", &_shift[2]))  return 1;
   return 0;
 }
+
+int RuleShift::_deserializeSpecific2(std::istream& is)
+{
+  _shift.resize(3);
+  bool ret = _recordRead2<double>(is, "Slope for Shadow Rule", _slope);
+  ret = ret && _recordRead2<double>(is, "Lower Threshold for Shadow Rule", _shDown);
+  ret = ret && _recordRead2<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
+  ret = ret && _recordRead2<double>(is, "Shift along first direction", _shift[0]);
+  ret = ret && _recordRead2<double>(is, "Shift along second direction", _shift[1]);
+  ret = ret && _recordRead2<double>(is, "Shift along third direction", _shift[2]);
+  if (! ret) return 1;
+  return 0;
+}
+
 
 void RuleShift::_serializeSpecific(FILE* file) const
 {

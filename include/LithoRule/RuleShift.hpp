@@ -80,6 +80,9 @@ public:
 private:
   int _deserializeSpecific(FILE* file) override;
   void _serializeSpecific(FILE* file) const override;
+
+  virtual int _deserializeSpecific2(std::istream& /*is*/);
+
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const;
 
 private:

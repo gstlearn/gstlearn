@@ -32,6 +32,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static PolySet* create();
   static PolySet* createFromNF(const String& neutralFilename, bool verbose = false);
+  static PolySet* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   int getNVertices() const { return static_cast<int>(_x.size()); }
   const VectorDouble& getX() const { return _x; }
@@ -55,8 +56,10 @@ public:
   void setY(const VectorDouble& y) { _y = y; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   VectorDouble _x;
@@ -65,6 +68,4 @@ private:
   double _zmax;
 
   friend class Polygons; // TODO: to be improved (make serialize public)
-//  friend Polygons::_deserialize(FILE* file, bool verbose = false);
-//  friend Polygons::_serialize(FILE* file, bool verbose = false);
 };

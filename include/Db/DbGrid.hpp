@@ -56,6 +56,9 @@ public:
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = false);
+  static DbGrid* createFromNF2(const String& neutralFilename,
+                              bool verbose = false);
+
 
   int reset(const VectorInt& nx,
             const VectorDouble& dx = VectorDouble(),
@@ -148,8 +151,10 @@ public:
 
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   void _createCoordinatesGrid(int icol0);

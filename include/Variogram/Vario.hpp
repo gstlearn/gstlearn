@@ -47,13 +47,14 @@ public:
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Vario* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
               bool asSymmetric = false);
 
-  const String& getCalculName() const { return _calculName; }
-  ECalcVario    getCalculType() const;
+  const ECalcVario& getCalcul() const { return _calcul; }
+  ECalcVario    getCalculType(const String& calcul_name) const;
   bool          getFlagAsym() const { return _flagAsym; }
 
   int    getVariableNumber() const { return _nVar; }
@@ -150,14 +151,29 @@ public:
   int attachDb(Db* db,
                const VectorDouble& vars = VectorDouble(),
                const VectorDouble& means = VectorDouble());
-  int compute(const String& calcul_name = "vg", // TODO convert to ENUM
+  int computeByKey(const String& calcul_name = "vg",
+                   bool flag_grid = false,
+                   bool flag_gen = false,
+                   bool flag_sample = false,
+                   bool verr_mode = false,
+                   Model *model = nullptr,
+                   bool verbose = false);
+  int computeIndicByKey(const String& calcul_name = "vg",
+                        bool flag_grid = false,
+                        bool flag_gen = false,
+                        bool flag_sample = false,
+                        bool verr_mode = false,
+                        Model *model = nullptr,
+                        bool verbose = false,
+                        int nfacmax = -1);
+  int compute(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
               bool flag_grid = false,
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
-  int computeIndic(const String& calcul_name = "vg", // TODO convert to ENUM
+  int computeIndic(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
                    bool flag_grid = false,
                    bool flag_gen = false,
                    bool flag_sample = false,
@@ -194,8 +210,10 @@ public:
   const VarioParam& getVarioParam() const { return _varioparam; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   bool _isVariableValid(int ivar) const;
@@ -218,7 +236,7 @@ private:
   VarioParam         _varioparam;
   VectorDouble       _means;
   VectorDouble       _vars;
-  String             _calculName; // TODO : should become ENUM
+  ECalcVario         _calcul;
   bool               _flagSample;
   Db*                _db;
   VectorVectorDouble _sw;      /* Array for number of lags */

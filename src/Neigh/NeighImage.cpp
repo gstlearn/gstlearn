@@ -92,6 +92,28 @@ int NeighImage::_deserialize(FILE* file, bool verbose)
   return 0;
 }
 
+int NeighImage::_deserialize2(std::istream& is, bool verbose)
+{
+  if (ANeighParam::_deserialize2(is, verbose))
+  {
+    if (verbose)
+      messerr("Problem reading from the Neutral File.");
+    return 1;
+  }
+
+  bool ret = _recordRead2<int>(is, "Skipping factor", _skip);
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    double loc_radius;
+    ret = ret && _recordRead2<double>(is, "Image NeighImageborhood Radius", loc_radius);
+    _imageRadius[idim] = static_cast<int> (loc_radius);
+  }
+
+  if (! ret) return 1;
+  return 0;
+}
+
+
 int NeighImage::_serialize(FILE* file, bool verbose) const
 {
   if (ANeighParam::_serialize(file, verbose))
@@ -153,6 +175,24 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
     neigh = nullptr;
   }
   _fileClose(file, verbose);
+  return neigh;
+}
+
+NeighImage* NeighImage::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  NeighImage* neigh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "NeighImage", is, verbose))
+  {
+    neigh = new NeighImage();
+    if (neigh->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete neigh;
+      neigh = nullptr;
+    }
+    is.close();
+  }
   return neigh;
 }
 

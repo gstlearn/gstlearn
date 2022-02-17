@@ -105,6 +105,25 @@ AnamEmpirical* AnamEmpirical::createFromNF(const String& neutralFilename, bool v
   return anam;
 }
 
+AnamEmpirical* AnamEmpirical::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  AnamEmpirical* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "AnamEmpirical", is, verbose))
+  {
+    anam = new AnamEmpirical();
+    if (anam->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
+  }
+  return anam;
+}
+
+
 AnamEmpirical* AnamEmpirical::create(int ndisc, double sigma2e)
 {
   return new AnamEmpirical(ndisc, sigma2e);
@@ -344,5 +363,26 @@ int AnamEmpirical::_deserialize(FILE* file, bool verbose)
   setTDisc(tdisc);
 
   label_end:
+  return 0;
+}
+
+int AnamEmpirical::_deserialize2(std::istream& is, bool verbose)
+{
+  int ndisc = 0;
+  double sigma2e = TEST;
+  VectorDouble tdisc;
+
+  if (! AnamContinuous::_deserialize2(is, verbose)) return 1;
+
+  bool ret = _recordRead2<int>(is, "Number of Discretization classes", ndisc);
+  ret = ret && _recordRead2<double>(is, "Experimental Error Variance", sigma2e);
+  if (! ret) return 1;
+
+  tdisc.resize(2 * ndisc);
+  if (_tableRead2(is, 2 * ndisc, tdisc.data())) return 1;
+
+  setNDisc(ndisc);
+  setSigma2e(sigma2e);
+  setTDisc(tdisc);
   return 0;
 }

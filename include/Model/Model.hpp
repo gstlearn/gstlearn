@@ -61,6 +61,7 @@ public:
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Model* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCova(const CovAniso* cov);
@@ -215,8 +216,10 @@ public:
   double gofToVario(const Vario* vario);
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   void _clear();

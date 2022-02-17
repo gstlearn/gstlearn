@@ -66,6 +66,12 @@ int AnamUser::_deserialize(FILE* /*file*/, bool /*verbose*/)
   return 1;
 }
 
+int AnamUser::_deserialize2(std::istream& /*is*/, bool /*verbose*/)
+{
+  messerr("AnamUser: Cannot be deserialized");
+  return 1;
+}
+
 int AnamUser::_serialize(FILE* /*file*/, bool /*verbose*/) const
 {
   messerr("AnamUser: Cannot be serialized");

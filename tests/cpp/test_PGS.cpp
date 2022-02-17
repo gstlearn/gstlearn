@@ -153,7 +153,7 @@ int main(int /*argc*/, char */*argv*/[])
   varioDerived->display();
 
   Vario varioIndic = Vario(&varioparam1, db);
-  varioIndic.computeIndic("vg");
+  varioIndic.computeIndicByKey("vg");
   (void) varioIndic.dumpToNF("varioindic.ascii");
 
   modelPGS1.display();

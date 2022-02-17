@@ -131,6 +131,25 @@ Model* Model::createFromNF(const String &neutralFilename, bool verbose)
   return model;
 }
 
+Model* Model::createFromNF2(const String &neutralFilename, bool verbose)
+{
+  Model* model = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "Model", is, verbose))
+  {
+    model = new Model();
+    if (model->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem when reading the Neutral File");
+      delete model;
+      model = nullptr;
+    }
+    is.close();
+  }
+  return model;
+}
+
+
 String Model::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
@@ -834,6 +853,127 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
       setCovar0(ivar, jvar, value);
     }
 
+  return 0;
+}
+
+int Model::_deserialize2(std::istream& is, bool /*verbose*/)
+{
+  double field, range, value, param;
+  int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
+  VectorDouble aniso_ranges, aniso_rotmat;
+
+  // Delete previous Model contents (if any)
+  _clear();
+
+  /* Create the Model structure */
+
+  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead2<int>(is, "Number of Variables", nvar);
+  ret = ret && _recordRead2<double>(is, "Field dimension", field);
+  ret = ret && _recordRead2<int>(is, "Number of Basic Structures", ncova);
+  ret = ret && _recordRead2<int>(is, "Number of Basic Drift Functions", nbfl);
+  if (! ret) return 1;
+
+  /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
+  _ctxt = CovContext(nvar, ndim, 100, field);
+  _create();
+
+  /* Reading the covariance part */
+
+  CovLMC covs(_ctxt.getSpace());
+  for (int icova = 0; icova < ncova; icova++)
+  {
+    flag_aniso = flag_rotation = 0;
+
+    ret = ret && _recordRead2<int>(is, "Covariance Type", type);
+    ret = ret && _recordRead2<double>(is, "Isotropic Range", range);
+    ret = ret && _recordRead2<double>(is, "Model third Parameter", param);
+    ret = ret && _recordRead2(is, "Flag for Anisotropy", flag_aniso);
+    if (! ret) return 1;
+    if (flag_aniso)
+    {
+      aniso_ranges.resize(ndim);
+      // In fact, the file contains the anisotropy coefficients
+      // After reading, we must turn them into anisotropic ranges
+      for (int idim = 0; idim < ndim; idim++)
+        ret = ret && _recordRead2<double>(is, "Anisotropy coefficient", aniso_ranges[idim]);
+      if (! ret) return 1;
+      for (int idim = 0; idim < ndim; idim++)
+        aniso_ranges[idim] *= range;
+
+      ret = ret && _recordRead2<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+      if (! ret) return 1;
+      if (flag_rotation)
+      {
+        // Warning: the storage in the File is performed by column
+        // whereas the internal storage is by column (TODO : ???)
+        aniso_rotmat.resize(ndim * ndim);
+        int lec = 0;
+        for (int idim = 0; idim < ndim; idim++)
+          for (int jdim = 0; jdim < ndim; jdim++)
+            ret = ret && _recordRead2<double>(is, "Anisotropy Rotation Matrix", aniso_rotmat[lec++]);
+      }
+    }
+    if (! ret) return 1;
+
+    CovAniso cova(ECov::fromValue(type), _ctxt);
+    cova.setParam(param);
+    if (flag_aniso)
+    {
+      cova.setRanges(aniso_ranges);
+      if (flag_rotation) cova.setAnisoRotation(aniso_rotmat);
+    }
+    else
+      cova.setRange(range);
+    covs.addCov(&cova);
+  }
+  setCovList(&covs);
+
+  /* Reading the drift part */
+
+  DriftList drifts;
+  for (int ibfl = 0; ibfl < nbfl; ibfl++)
+  {
+    ret = ret && _recordRead2<int>(is, "Drift Function", type);
+    if (! ret) return 1;
+    EDrift dtype = EDrift::fromValue(type);
+    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
+    drift->setRankFex(0); // TODO : zero? really?
+    drifts.addDrift(drift);
+  }
+  setDriftList(&drifts);
+
+  /* Reading the matrix of means (only if nbfl <= 0) */
+
+  if (nbfl <= 0) for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double mean;
+    ret = ret && _recordRead2<double>(is, "Mean of Variable", mean);
+    setMean(ivar, mean);
+  }
+
+  /* Reading the matrices of sills (optional) */
+
+  for (int icova = 0; icova < ncova; icova++)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+      {
+        ret = ret && _recordRead2<double>(is, "Matrix of Sills", value);
+        setSill(icova, ivar, jvar, value);
+      }
+  }
+
+  /* Reading the variance-covariance at the origin (optional) */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+    {
+      ret = ret && _recordRead2<double>(is, "Variance-covariance at Origin", value);
+      setCovar0(ivar, jvar, value);
+    }
+
+  if (! ret) return 1;
   return 0;
 }
 

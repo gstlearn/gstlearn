@@ -38,6 +38,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighBench* create(int ndim = 2, bool flag_xvalid = false, double width = 0);
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighBench* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::BENCH; }
@@ -46,8 +47,10 @@ public:
   void setWidth(double width) { _width = width; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
+  virtual int _deserialize(FILE* file, bool verbose = false);
   virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
 
 private:
   double _width;                 /* Width of the slice - bench */

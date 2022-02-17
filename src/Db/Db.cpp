@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "Db/Db.hpp"
+#include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -3344,15 +3345,17 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
   VectorString names;
   VectorDouble values;
   VectorDouble allvalues;
+
   // Read the file
   bool ret = _recordRead2<int>(is, "Number of variables", ncol);
   ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
   if (!ret || (int)locators.size() != ncol) return 1;
   ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
   if (!ret || (int)names.size() != ncol) return 1;
+
   while (ret)
   {
-    ret = _recordReadVec2<VectorDouble>(is, "", values);
+    ret = _recordReadVec2<VectorDouble>(is, "Array of values", values);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;
@@ -3362,6 +3365,7 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
       nech++;
     } // else "end of file"
   }
+
   // Decode the locators
   std::vector<ELoc> tabloc;
   VectorInt tabnum;
@@ -3373,8 +3377,10 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
     tabloc.push_back(iloc);
     tabnum.push_back(inum);
   }
+
   // Initialize the Db
   resetDims(ncol, nech);
+
   // Load the values
   _loadData(ELoadBy::SAMPLE, 0, allvalues);
   // Update the column names and locators

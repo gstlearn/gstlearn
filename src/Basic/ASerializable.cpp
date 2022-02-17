@@ -284,6 +284,16 @@ int ASerializable::_tableRead(FILE* file, int ntab, double *tab)
   return (0);
 }
 
+int ASerializable::_tableRead2(std::istream& is, int ntab, double *tab)
+{
+  bool ret = true;
+  for (int i = 0; i < ntab; i++)
+    ret = ret && _recordRead2<double>(is, "Reading Table", tab[i]);
+  if (! ret) return 1;
+  return 0;
+}
+
+
 /****************************************************************************/
 /*!
  **  Read the next token from the file

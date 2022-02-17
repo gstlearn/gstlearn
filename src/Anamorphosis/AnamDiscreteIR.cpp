@@ -73,6 +73,25 @@ AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool
   return anam;
 }
 
+AnamDiscreteIR* AnamDiscreteIR::createFromNF2(const String& neutralFilename, bool verbose)
+{
+  AnamDiscreteIR* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead2(neutralFilename, "AnamDiscreteIR", is, verbose))
+  {
+    anam = new AnamDiscreteIR();
+    if (anam->_deserialize2(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
+  }
+  return anam;
+}
+
+
 AnamDiscreteIR* AnamDiscreteIR::create(double rcoef)
 {
   return new AnamDiscreteIR(rcoef);
@@ -351,5 +370,18 @@ int AnamDiscreteIR::_deserialize(FILE* file, bool verbose)
   setRCoef(r);
 
   label_end:
+  return 0;
+}
+
+int AnamDiscreteIR::_deserialize2(std::istream& is, bool verbose)
+{
+  double r = TEST;
+
+  if (! AnamDiscrete::_deserialize2(is, verbose)) return 1;
+
+  bool ret = _recordRead2<double>(is, "Anamorphosis 'r' coefficient", r);
+  if (! ret) return 1;
+
+  setRCoef(r);
   return 0;
 }

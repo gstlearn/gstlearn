@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = DbGrid::createFromNF(filename,verbose);
+  dbout = DbGrid::createFromNF2(filename,verbose);
 
   /* Look for simulations */
 
@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = Model::createFromNF(filename,verbose);
+  model = Model::createFromNF2(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
   
   // Define and store the Space
@@ -112,12 +112,12 @@ int main(int argc, char *argv[])
   /* Define the variogram */
   
   ascii_filename("Vario",0,0,filename);
-  vario = Vario::createFromNF(filename,verbose);
+  vario = Vario::createFromNF2(filename,verbose);
   if (vario == (Vario *) NULL) goto label_end;
   if (dbout != (Db *) NULL)
   {
     vario->attachDb(dbout);
-    vario->compute("vg");
+    vario->computeByKey("vg");
     ascii_filename("Vario",0,1,filename);
     if (vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
