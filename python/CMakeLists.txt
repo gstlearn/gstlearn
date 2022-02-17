@@ -40,7 +40,7 @@ add_custom_command(OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
 # Generate python documentation (before wrapper)
 # TODO : Do not regenerate python documentation if doxygen output is up to date
 add_custom_target(python_doc
-  COMMAND ${PYTHON_EXECUTABLE}
+  COMMAND ${Python3_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/doc/doxy2swig.py -q
     ${PROJECT_BINARY_DIR}/doxygen/xml/index.xml
     ${CMAKE_CURRENT_SOURCE_DIR}/doc/documentation.i
