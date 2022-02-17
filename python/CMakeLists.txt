@@ -187,20 +187,12 @@ add_dependencies(python_install python_build)
 ######################################
 # UPLOAD
 
-message(STATUS "${CMAKE_COMMAND} -E remove ${PYTHON_PACKAGE_ROOT_FOLDER}/dist/*.whl")
-add_custom_target(python_upload2
-  COMMAND ${CMAKE_COMMAND} -E remove dist/*.whl
-  WORKING_DIRECTORY ${PYTHON_PACKAGE_ROOT_FOLDER}
-  COMMENT "Removing previous wheels"
-  VERBATIM
-)
-
 # Add a custom target for python package distribution uploading to PyPi
 add_custom_target(python_upload
   COMMAND ${CMAKE_COMMAND} -E echo "${PYTHON_PACKAGE_ROOT_FOLDER}/dist/*.whl"
-  COMMAND ${CMAKE_COMMAND} -E remove ${PYTHON_PACKAGE_ROOT_FOLDER}/dist/*.whl
+  COMMAND ${CMAKE_COMMAND} -E rm -rf ${PYTHON_PACKAGE_ROOT_FOLDER}/dist
   COMMAND ${Python3_EXECUTABLE} setup.py bdist_wheel
-#  COMMAND ${Python3_EXECUTABLE} -m twine upload --repository testpypi dist/*.whl
+  COMMAND ${Python3_EXECUTABLE} -m twine upload dist/*.whl
   COMMENT "Building and uploading python package distribution"
   WORKING_DIRECTORY ${PYTHON_PACKAGE_ROOT_FOLDER}
   VERBATIM
