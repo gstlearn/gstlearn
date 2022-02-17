@@ -93,6 +93,19 @@ int AnamHermite::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int AnamHermite::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "AnamHermite", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "AnamHermite", "r", verbose);
@@ -636,6 +649,17 @@ int AnamHermite::_serialize(FILE* file, bool verbose) const
   _tableWrite(file, "Hermite Polynomial", getNbPoly(), getPsiHn().data());
 
   return 0;
+}
+
+int AnamHermite::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (AnamContinuous::_serialize2(os, verbose)) return 1;
+
+  bool ret = _recordWrite2<int>(os, "Number of Hermite Polynomials", getNbPoly());
+  ret = ret && _recordWrite2<double>(os,"Change of support coefficient", getRCoef());
+  ret = ret && _tableWrite2(os, "Hermite Polynomial", getNbPoly(), getPsiHn());
+
+  return ret ? 0 : 1;
 }
 
 int AnamHermite::_deserialize(FILE* file, bool verbose)

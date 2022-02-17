@@ -13,6 +13,27 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#define DOUBLE_NA TEST
+#define INT_NA    ITEST
+
+template<typename T> class ValueNA;
+
+// Define NA value for double
+template <> class ValueNA<double>
+{
+public:
+  static inline double getNA() { return DOUBLE_NA; }
+};
+
+// Define NA value for int
+template <> class ValueNA<int>
+{
+public:
+  static inline int getNA() { return INT_NA; }
+};
+
+template <typename T> inline T getNAValue()     { return ValueNA<T>::getNA(); }
+template <typename T> inline T isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);
 GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);

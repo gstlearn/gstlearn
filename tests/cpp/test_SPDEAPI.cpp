@@ -60,7 +60,7 @@ int main(int /*argc*/, char */*argv*/[])
   //  SPDE spde(model,workingDbc,&dat,ESPDECalcMode::SIMUCOND);
   spde.compute();
   spde.query(workingDbc);
-  (void) workingDbc->dumpToNF("spde_simunc.ascii");
+  (void) workingDbc->dumpToNF2("spde_simunc.ascii");
 
   SPDE spde2(model,workingDbc,dat,ESPDECalcMode::SIMUCOND);
   spde2.compute();

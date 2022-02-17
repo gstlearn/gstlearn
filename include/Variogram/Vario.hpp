@@ -45,6 +45,7 @@ public:
   virtual IClonable* clone() const override { return new Vario(*this); };
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,
                        const VectorDouble& means = VectorDouble(),
@@ -214,9 +215,10 @@ public:
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
+  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 
 private:
   bool _isVariableValid(int ivar) const;

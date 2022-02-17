@@ -15,6 +15,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
 
 #include <iostream>
 #include <stdarg.h>
@@ -50,7 +51,7 @@ public:
 
 protected:
   virtual int _deserialize2(std::istream& s, bool verbose = false) = 0;
-  //virtual int _serialize2(std::ostream& s,bool verbose = false) const = 0;
+  virtual int _serialize2(std::ostream& s,bool verbose = false) const = 0;
 
   static bool _fileOpenWrite2(const String& filename,
                               const String& filetype,
@@ -83,7 +84,7 @@ protected:
 
 
   //virtual int _deserialize(FILE* file, bool verbose = false) = 0;
-  virtual int _serialize(FILE* file, bool verbose = false) const = 0;
+  //virtual int _serialize(FILE* file, bool verbose = false) const = 0;
 
   static FILE* _fileOpen(const String& filename,
                          const String& filetype,
@@ -96,11 +97,15 @@ protected:
   static void _recordWrite(FILE* file, const char* format, ...);
   static void _tableWrite(FILE *file, const String& string, int ntab, const double *tab);
   static int  _tableRead(FILE* file, int ntab, double *tab);
-  static int _fileRead(FILE* file, const String& format, va_list ap);
+  static int  _fileRead(FILE* file, const String& format, va_list ap);
   static void _fileWrite(FILE* file, const String& format, va_list ap);
   static bool _onlyBlanks(char *string);
 
   static int  _tableRead2(std::istream& is, int ntab, double *tab);
+  static bool _tableWrite2(std::ostream& os,
+                           const String& string,
+                           int ntab,
+                           const VectorDouble& tab);
 
 private:
   static String myContainerName;
@@ -114,7 +119,20 @@ bool ASerializable::_recordWrite2(std::ostream& os,
 {
   if (os.good())
   {
-    os << val << " # " << title << std::endl;
+    if (isNA(val))
+    {
+      if (title.empty())
+         os << "NA" << " ";
+       else
+         os << "NA" << " # " << title << std::endl;
+    }
+    else
+    {
+      if (title.empty())
+        os << val << " ";
+      else
+        os << val << " # " << title << std::endl;
+    }
   }
   return os.good();
 }
@@ -128,8 +146,13 @@ bool ASerializable::_recordWriteVec2(std::ostream& os,
   {
     if (!title.empty())
       os << "# " << title << std::endl;
-    for (auto val: vec)
-      os << val << " ";
+    for (auto val : vec)
+    {
+//      if (isNA(&val))
+//        os << "NA" << " ";
+//      else
+        os << val << " ";
+    }
     os << std::endl;
   }
   return os.good();
@@ -147,17 +170,20 @@ bool ASerializable::_recordRead2(std::istream& is,
     // Skip comment or empty lines
     while (is.good())
     {
+      word.clear();
       is >> word;
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title.c_str());
+        messerr("Error while reading %s", title.c_str());
         return false;
       }
       word = trimLeft(word);
       if (!word.empty())
       {
-        if (word[0] != '#') break;   // We found something
-        else std::getline(is, word); // Eat all the comment
+        if (word[0] != '#')
+          break;   // We found something
+        else
+          std::getline(is, word); // Eat all the comment
       }
     }
 
@@ -166,7 +192,7 @@ bool ASerializable::_recordRead2(std::istream& is,
     sstr >> val;
     if (!sstr.good() && !sstr.eof())
     {
-      message("Error while reading %s", title.c_str());
+      messerr("Error while reading %s", title.c_str());
       val = T();
       return false;
     }
@@ -189,7 +215,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       std::getline(is, line);
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title.c_str());
+        messerr("Error while reading %s", title.c_str());
         return false;
       }
       line = trimLeft(line);
@@ -204,7 +230,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       sstr >> val;
       if (!sstr.good() && !sstr.eof())
       {
-        message("Error while reading %s", title.c_str());
+        messerr("Error while reading %s", title.c_str());
         vec.clear();
         return false;
       }

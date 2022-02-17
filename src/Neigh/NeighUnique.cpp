@@ -91,6 +91,16 @@ int NeighUnique::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int NeighUnique::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (ANeighParam::_serialize2(os, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    return 1;
+  }
+  return 0;
+}
+
 NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
 {
   NeighUnique* neighU = new NeighUnique;
@@ -116,6 +126,19 @@ int NeighUnique::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int NeighUnique::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "NeighUnique", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 /**

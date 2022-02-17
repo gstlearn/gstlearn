@@ -104,6 +104,19 @@ int NeighBench::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int NeighBench::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (ANeighParam::_serialize2(os, verbose))
+   {
+     if (verbose) messerr("Problem writing in the Neutral File.");
+     return 1;
+   }
+
+  bool ret = _recordWrite2<double>(os, "Bench Width", getWidth());
+
+  return ret ? 0 : 1;
+}
+
 NeighBench* NeighBench::create(int ndim, bool flag_xvalid, double width)
 {
   NeighBench* neighB = new NeighBench;
@@ -129,6 +142,19 @@ int NeighBench::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int NeighBench::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "NeighBench", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 /**

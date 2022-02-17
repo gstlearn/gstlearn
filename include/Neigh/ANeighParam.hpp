@@ -47,9 +47,10 @@ public:
 protected:
   // ASerializable Interface overriding
   virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
+  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 
   bool _isDimensionValid(int idim) const;
 

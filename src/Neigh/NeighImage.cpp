@@ -129,6 +129,21 @@ int NeighImage::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int NeighImage::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (ANeighParam::_serialize2(os, verbose))
+  {
+    if (verbose) messerr("Problem writing in the Neutral File.");
+    return 1;
+  }
+
+  bool ret = _recordWrite2<int>(os, "", getSkip());
+  for (int idim = 0; idim < getNDim(); idim++)
+    ret = ret && _recordWrite2<double>(os, "", (double) getImageRadius(idim));
+  ret = ret && _commentWrite2(os, "Image NeighImageborhood parameters");
+  return ret ? 0 : 1;
+}
+
 NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
 {
   NeighImage* neighI = new NeighImage;
@@ -154,6 +169,19 @@ int NeighImage::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int NeighImage::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "NeighImage", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 /**

@@ -116,7 +116,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   A.evalInverse(Rhs, resultvc);
   workingDbc->addColumns(resultvc[0], "Kriging");
-  (void) workingDbc->dumpToNF("spde.ascii");
+  (void) workingDbc->dumpToNF2("spde.ascii");
 
   delete dat;
   delete workingDbc;

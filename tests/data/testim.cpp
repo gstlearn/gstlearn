@@ -22,6 +22,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
+#include "Space/ASpaceObject.hpp"
 
 /****************************************************************************
 **
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
 
   /* Standard output redirection to file */
 
-  StdoutRedirect sr("Result.out");
+//  StdoutRedirect sr("Result.out");
 
   /* Setup the license */
 
@@ -138,7 +139,7 @@ int main(int argc, char *argv[])
     vario->computeByKey("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
-    if (vario->dumpToNF(filename,verbose))
+    if (vario->dumpToNF2(filename,verbose))
       messageAbort("ascii_vario_write");
   }
 
@@ -151,7 +152,7 @@ int main(int argc, char *argv[])
   {
     if (model_fitting_sills(vario,model,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
-    if (model->dumpToNF(filename,verbose))
+    if (model->dumpToNF2(filename,verbose))
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);

@@ -769,6 +769,33 @@ int Rule::_serialize(FILE* file, bool /*verbose*/) const
   return 0;
 }
 
+int Rule::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
+  double prop_tot;
+
+  /* Create the Rule structure */
+
+  bool ret = _recordWrite2<int>(os, "Type of Rule", getModeRule().getValue());
+  ret = ret && _recordWrite2<double>(os, "Correlation coefficient between GRFs", getRho());
+
+  // Specific parameters
+
+  _serializeSpecific2(os);
+
+  /* Count the number of nodes */
+
+  statistics(0,&nb_node,&nfacies,&nmax_tot,&ny1_tot,&ny2_tot,&prop_tot);
+  ret = ret && _recordWrite2<int>(os, "Number of nodes", nb_node);
+
+  /* Fill the nodes characteristics recursively */
+
+  rank = 0;
+  _ruleDefine2(os, getMainNode(), 0, 0, 0, &rank);
+
+  return ret ? 0 : 1;
+}
+
 void Rule::_ruleDefine(FILE* file,
                        const Node *node,
                        int from_type,
@@ -808,6 +835,47 @@ void Rule::_ruleDefine(FILE* file,
     _ruleDefine(file, node->getR1(), node->getOrient(), cur_rank, 1, rank);
   if (node->getR2() != nullptr)
     _ruleDefine(file, node->getR2(), node->getOrient(), cur_rank, 2, rank);
+}
+
+void Rule::_ruleDefine2(std::ostream& os,
+                       const Node *node,
+                       int from_type,
+                       int from_rank,
+                       int from_vers,
+                       int *rank) const
+{
+  int cur_rank;
+
+  /* Calling node */
+
+  bool ret = _recordWrite2<int>(os, "", from_type);
+  ret = ret && _recordWrite2<int>(os, "", from_rank);
+  ret = ret && _recordWrite2<int>(os, "", from_vers);
+
+  /* Current node */
+
+  ret = ret && _recordWrite2<int>(os, "", node->getOrient());
+  if (node->getFacies() <= 0)
+  {
+    cur_rank = *rank = (*rank) + 1;
+    ret = ret && _recordWrite2<int>(os, "", cur_rank);
+    ret = ret && _recordWrite2<int>(os, "", 0);
+  }
+  else
+  {
+    cur_rank = *rank;
+    ret = ret && _recordWrite2(os, "", cur_rank);
+    ret = ret && _recordWrite2(os, "", node->getFacies());
+  }
+
+  /* Comment */
+
+  _commentWrite2(os, "Node characteristics");
+
+  if (node->getR1() != nullptr)
+    _ruleDefine2(os, node->getR1(), node->getOrient(), cur_rank, 1, rank);
+  if (node->getR2() != nullptr)
+    _ruleDefine2(os, node->getR2(), node->getOrient(), cur_rank, 2, rank);
 }
 
 VectorString Rule::buildNodNames(int nfacies)
@@ -1076,6 +1144,20 @@ int Rule::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int Rule::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+
+  if (_fileOpenWrite2(neutralFilename, "Rule", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 Rule* Rule::create(double rho)

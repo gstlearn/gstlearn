@@ -68,12 +68,12 @@ int main(int /*argc*/, char */*argv*/[])
     VectorDouble coeffs = spde.getCoeffs();
     spde.compute();
     spde.query(grid);
-    grid->dumpToNF("SPDE-result.ascii",verbose);
+    grid->dumpToNF2("SPDE-result.ascii",verbose);
   }
   else
   {
     kriging(temperatures, grid, model, neighU);
-    grid->dumpToNF("Kriging-result.ascii",verbose);
+    grid->dumpToNF2("Kriging-result.ascii",verbose);
   }
 
   delete temperatures;

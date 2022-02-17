@@ -113,6 +113,19 @@ int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int Vario::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "Vario", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 Vario* Vario::create(const VarioParam* varioparam,
                      Db* db,
                      const VectorDouble& means,
@@ -1525,6 +1538,70 @@ int Vario::_serialize(FILE* file, bool /*verbose*/) const
       value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
       _recordWrite(file, "%lf", value);
       _recordWrite(file, "\n");
+    }
+  }
+  return 0;
+}
+
+int Vario::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  double value;
+  static int flag_calcul = 1;
+
+  /* Write the Vario structure */
+
+  bool ret = _recordWrite2<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
+  ret = ret && _recordWrite2<int>(os, "Number of variables", getVariableNumber());
+  ret = ret && _recordWrite2<int>(os, "Number of directions", getDirectionNumber());
+  ret = ret && _recordWrite2<double>(os, "Scale", _varioparam.getScale());
+  ret = ret && _recordWrite2<int>(os, "Calculation Flag", flag_calcul);
+
+  /* Dumping the Variances */
+
+  if (flag_calcul)
+  {
+    ret = ret && _commentWrite2(os, "Variance");
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    {
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+        ret = ret && _recordWrite2<double>(os, "", getVar(ivar,jvar));
+      ret = ret && _commentWrite2(os, "");
+    }
+  }
+
+  /* Loop on the directions */
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    const DirParam dirparam = _varioparam.getDirParam(idir);
+    ret = ret && _commentWrite2(os, "Direction characteristics");
+    ret = ret && _recordWrite2<int>(os, "Regular lags", dirparam.getFlagRegular());
+    ret = ret && _recordWrite2<int>(os, "Number of lags", dirparam.getLagNumber());
+    ret = ret && _recordWrite2<int>(os, "", dirparam.getOptionCode());
+    ret = ret && _recordWrite2<double>(os, "Code selection: Option - Tolerance", dirparam.getTolCode());
+    ret = ret && _recordWrite2<double>(os, "Lag value", dirparam.getDPas());
+    ret = ret && _recordWrite2<double>(os, "Tolerance on distance", dirparam.getTolDist());
+    ret = ret && _recordWrite2<double>(os, "Tolerance on angle", dirparam.getTolAngle());
+
+    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+      ret = ret && _recordWrite2<double>(os, "", dirparam.getCodir(idim));
+    ret = ret && _commentWrite2(os, "Direction coefficients");
+
+    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+      ret = ret && _recordWrite2(os, "", (double) dirparam.getGrincr(idim));
+    ret = ret && _commentWrite2(os, "Direction increments on grid");
+
+    if (!flag_calcul) continue;
+    ret = ret && _commentWrite2(os, "Variogram results (Weight, Distance, Variogram)");
+    for (int i = 0; i < getDirSize(idir); i++)
+    {
+      value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
+      ret = ret && _recordWrite2<double>(os, "", value);
+      value = FFFF(getHhByIndex(idir, i)) ? 0. : getHhByIndex(idir, i);
+      ret = ret && _recordWrite2<double>(os, "", value);
+      value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
+      ret = ret && _recordWrite2<double>(os, "", value);
+      ret = ret && _commentWrite2(os, "");
     }
   }
   return 0;

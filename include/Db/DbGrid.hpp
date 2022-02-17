@@ -52,6 +52,7 @@ public:
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
   int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
+  int dumpToNF2(const String& neutralFilename, bool verbose = false) const override;
   int getNDim() const override;
 
   static DbGrid* createFromNF(const String& neutralFilename,
@@ -152,9 +153,10 @@ public:
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
+  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 
 private:
   void _createCoordinatesGrid(int icol0);

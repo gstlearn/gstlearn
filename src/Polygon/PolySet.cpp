@@ -171,6 +171,19 @@ int PolySet::_serialize(FILE* file, bool /*verbose*/) const
   return 0;
 }
 
+int PolySet::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = _recordWrite2<int>(os, "Number of Vertices", getNVertices());
+
+  for (int i = 0; i < getNVertices(); i++)
+  {
+    ret = ret && _recordWrite2<double>(os, "", getX(i));
+    ret = ret && _recordWrite2<double>(os, "", getY(i));
+    ret = ret && _commentWrite2(os, "");
+  }
+  return ret ? 0 : 1;
+}
+
 int PolySet::_deserialize(FILE* file, bool /*verbose*/)
 {
   int nvert;
@@ -222,7 +235,6 @@ int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-
 int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   FILE* file = _fileOpen(neutralFilename, "PolySet", "w", verbose);
@@ -236,6 +248,19 @@ int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int PolySet::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "PolySet", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 PolySet* PolySet::create()

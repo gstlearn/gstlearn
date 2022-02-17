@@ -50,7 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
   db1->display();
   
   // Serialize db1
-  (void) db1->dumpToNF("Neutral.Db.ascii",verbose);
+  (void) db1->dumpToNF2("Neutral.Db.ascii",verbose);
   (void) db1->dumpToNF2("Neutral2.Db.ascii",verbose);
 
   // Deserialize db2
@@ -76,7 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbg1->display();
 
   // Serialize dbg1
-  (void) dbg1->dumpToNF("Neutral.Dbg.ascii",verbose);
+  (void) dbg1->dumpToNF2("Neutral.Dbg.ascii",verbose);
 
   // Deserialize dbg2
   Db* dbg2 = DbGrid::createFromNF2("Neutral.Dbg.ascii",verbose);
@@ -95,7 +95,7 @@ int main(int /*argc*/, char */*argv*/[])
   poly1.display();
 
   // Serialize poly1
-  (void) poly1.dumpToNF("Neutral.Polygon.ascii",verbose);
+  (void) poly1.dumpToNF2("Neutral.Polygon.ascii",verbose);
 
   // Deserialize poly2
   Polygons* poly2 = Polygons::createFromNF2("Neutral.Polygon.ascii",verbose);
@@ -115,7 +115,7 @@ int main(int /*argc*/, char */*argv*/[])
   vario1.display();
 
   // Serialize vario1
-  (void) vario1.dumpToNF("Neutral.Vario.ascii",verbose);
+  (void) vario1.dumpToNF2("Neutral.Vario.ascii",verbose);
 
   // Deserialize vario2
   Vario* vario2 = Vario::createFromNF2("Neutral.Vario.ascii",verbose);
@@ -136,7 +136,7 @@ int main(int /*argc*/, char */*argv*/[])
   model1.display();
 
   // Serialize model1
-  (void) model1.dumpToNF("Neutral.Model.ascii",verbose);
+  (void) model1.dumpToNF2("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
   Model* model2 = Model::createFromNF2("Neutral.Model.ascii",verbose);
@@ -157,7 +157,7 @@ int main(int /*argc*/, char */*argv*/[])
   table1->display();
 
   // Serialize table
-  (void) table1->dumpToNF("Neutral.Table.ascii",verbose);
+  (void) table1->dumpToNF2("Neutral.Table.ascii",verbose);
 
   // Deserialize table1
   Table* table2 = Table::createFromNF2("Neutral.Table.ascii",verbose);
@@ -171,7 +171,7 @@ int main(int /*argc*/, char */*argv*/[])
   rule->display();
 
   // Serialize
-  (void) rule->dumpToNF("Neutral.Rule.ascii",verbose);
+  (void) rule->dumpToNF2("Neutral.Rule.ascii",verbose);
 
   // Deserialize
   Rule* rule2 = Rule::createFromNF2("Neutral.Rule.ascii",verbose);

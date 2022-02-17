@@ -74,8 +74,12 @@ bool ASerializable::_fileOpenWrite2(const String& filename,
   String filepath = buildFileName(filename, true);
   // Open new stream
   os.open(filepath, std::ios::out | std::ios::trunc);
-  if (!os.is_open() && verbose)
-    message("Error while opening %s", filepath.c_str());
+  if (!os.is_open())
+  {
+    if (verbose)
+      message("Error while opening %s", filepath.c_str());
+    return false;
+  }
   // Write the file type (class name)
   os << filetype << std::endl;
   return os.good();
@@ -92,8 +96,12 @@ bool ASerializable::_fileOpenRead2(const String& filename,
   String filepath = buildFileName(filename, true);
   // Open new stream
   is.open(filepath, std::ios::in);
-  if (!is.is_open() && verbose)
-    message("Error while opening %s", filepath.c_str());
+  if (!is.is_open())
+  {
+    if (verbose)
+      message("Error while opening %s", filepath.c_str());
+    return false;
+  }
   // Read and check the file type (class name)
   String type;
   is >> type;
@@ -111,7 +119,10 @@ bool ASerializable::_commentWrite2(std::ostream& os,
 {
   if (os.good())
   {
-    os << "# " << comment << std::endl;
+    if (comment.empty())
+      os << std::endl;
+    else
+      os << "# " << comment << std::endl;
   }
   return os.good();
 }
@@ -276,6 +287,30 @@ void ASerializable::_tableWrite(FILE *file, const String& string, int ntab, cons
     }
   }
 }
+
+bool ASerializable::_tableWrite2(std::ostream& os,
+                                 const String& string,
+                                 int ntab,
+                                 const VectorDouble& tab)
+{
+  char local[10000];
+  bool ret = true;
+
+  for (int i = 0; i < ntab; i++)
+  {
+    if (! string.empty())
+    {
+      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
+      ret = ret && _recordWrite2<double>(os, local, tab[i]);
+    }
+    else
+    {
+      ret = ret && _recordWrite2<double>(os, "", tab[i]);
+    }
+  }
+  return ret;
+}
+
 
 int ASerializable::_tableRead(FILE* file, int ntab, double *tab)
 {

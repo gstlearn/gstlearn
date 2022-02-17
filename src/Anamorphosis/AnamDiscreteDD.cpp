@@ -74,6 +74,19 @@ int AnamDiscreteDD::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int AnamDiscreteDD::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "AnamDiscreteDD", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 AnamDiscreteDD* AnamDiscreteDD::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "AnamDiscreteDD", "r", verbose);
@@ -633,6 +646,19 @@ int AnamDiscreteDD::_serialize(FILE* file, bool verbose) const
   _tableWrite(file, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z().data());
 
   return 0;
+}
+
+int AnamDiscreteDD::_serialize2(std::ostream& os, bool verbose) const
+{
+
+  if (AnamDiscrete::_serialize2(os, verbose)) return 1;
+
+  bool ret = _recordWrite2<double>(os, "Change of support coefficient", getSCoef());
+  ret = ret && _recordWrite2<double>(os, "Additional Mu coefficient", getMu());
+  ret = ret && _tableWrite2(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2F());
+  ret = ret && _tableWrite2(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z());
+
+  return ret ? 0 : 1;
 }
 
 int AnamDiscreteDD::_deserialize(FILE* file, bool verbose)

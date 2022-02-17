@@ -65,7 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs1.addCov(&cova1);
   model1.setCovList(&covs1);
   model1.display();
-  (void) model1.dumpToNF("truemodel1.ascii");
+  (void) model1.dumpToNF2("truemodel1.ascii");
 
   Model model2(ctxt);
   CovLMC covs2(ctxt.getSpace());
@@ -74,7 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs2.addCov(&cova2);
   model2.setCovList(&covs2);
   model2.display();
-  (void) model2.dumpToNF("truemodel2.ascii");
+  (void) model2.dumpToNF2("truemodel2.ascii");
 
   std::vector<Model*> models;
   models.push_back(&model1);
@@ -96,7 +96,7 @@ int main(int /*argc*/, char */*argv*/[])
   spgs->simulate();
   spgs->query(workingDbc);
   workingDbc->display();
-  (void) workingDbc->dumpToNF("pgs.ascii");
+  (void) workingDbc->dumpToNF2("pgs.ascii");
 
   delete db;
   delete workingDbc;

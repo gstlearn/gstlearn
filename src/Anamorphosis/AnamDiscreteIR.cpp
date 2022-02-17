@@ -57,6 +57,19 @@ int AnamDiscreteIR::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int AnamDiscreteIR::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "AnamDiscreteIR", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "r", verbose);
@@ -348,14 +361,23 @@ double AnamDiscreteIR::_getResidual(int iclass, double z) const
   return (retval);
 }
 
+/**
+ * Function has been deleted in advance. This is a ghoost
+ * @param file
+ * @param verbose
+ * @return
+ */
 int AnamDiscreteIR::_serialize(FILE* file, bool verbose) const
 {
-  AnamDiscrete::_serialize(file, verbose);
-
-  _recordWrite(file, "%lf", getRCoef());
-  _recordWrite(file, "#", "Change of support coefficient");
-
   return 0;
+}
+int AnamDiscreteIR::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (AnamDiscrete::_serialize2(os, verbose)) return 1;
+
+  bool ret = _recordWrite2<double>(os, "Change of support coefficient", getRCoef());
+
+  return ret ? 0 : 1;
 }
 
 int AnamDiscreteIR::_deserialize(FILE* file, bool verbose)

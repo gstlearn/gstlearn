@@ -30,6 +30,7 @@ public:
 
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
   static AnamDiscreteDD* createFromNF2(const String& neutralFilename, bool verbose = false);
 
@@ -66,9 +67,10 @@ public:
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   virtual int _deserialize2(std::istream& is, bool verbose) override;
+  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _stats(int nech, const VectorDouble& tab);

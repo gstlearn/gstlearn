@@ -115,6 +115,19 @@ int Model::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int Model::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "Model", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 Model* Model::createFromNF(const String &neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "Model", "r", verbose);
@@ -935,7 +948,6 @@ int Model::_deserialize2(std::istream& is, bool /*verbose*/)
   for (int ibfl = 0; ibfl < nbfl; ibfl++)
   {
     ret = ret && _recordRead2<int>(is, "Drift Function", type);
-    if (! ret) return 1;
     EDrift dtype = EDrift::fromValue(type);
     ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
     drift->setRankFex(0); // TODO : zero? really?
@@ -969,12 +981,11 @@ int Model::_deserialize2(std::istream& is, bool /*verbose*/)
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      ret = ret && _recordRead2<double>(is, "Variance-covariance at Origin", value);
-      setCovar0(ivar, jvar, value);
+      if (_recordRead2<double>(is, "Variance-covariance at Origin", value))
+        setCovar0(ivar, jvar, value);
     }
 
-  if (! ret) return 1;
-  return 0;
+  return ret ? 0 : 1;
 }
 
 int Model::_serialize(FILE* file, bool /*verbose*/) const
@@ -1053,6 +1064,79 @@ int Model::_serialize(FILE* file, bool /*verbose*/) const
     for (int jvar = 0; jvar < getVariableNumber(); jvar++)
       _recordWrite(file, "%lf", getContext().getCovar0(ivar, jvar));
   _recordWrite(file, "#", "Var-Covar at origin");
+
+  return 0;
+}
+
+int Model::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  /* Write the Model structure */
+
+  bool ret = _recordWrite2<int>(os, "", getDimensionNumber());
+  ret = ret && _recordWrite2<int>(os, "", getVariableNumber());
+  ret = ret && _recordWrite2<double>(os, "General parameters", getField());
+  ret = ret && _recordWrite2<int>(os, "Number of basic covariance terms", getCovaNumber());
+  ret = ret && _recordWrite2<int>(os, "Number of drift terms", getDriftNumber());
+
+  /* Writing the covariance part */
+
+  for (int icova = 0; icova < getCovaNumber(); icova++)
+  {
+    const CovAniso *cova = getCova(icova);
+    ret = ret && _recordWrite2<int>(os, "", cova->getType().getValue());
+    ret = ret && _recordWrite2<double>(os, "", cova->getRange());
+    ret = ret && _recordWrite2<double>(os, "Covariance characteristics", cova->getParam());
+
+    // Writing the Anisotropy information
+
+    ret = ret && _recordWrite2<int>(os, "Anisotropy Flag", cova->getFlagAniso());
+
+    if (!cova->getFlagAniso()) continue;
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      ret = ret && _recordWrite2<double>(os, "", cova->getAnisoCoeffs(idim));
+    ret = ret && _commentWrite2(os, "Anisotropy Coefficients");
+    ret = ret && _recordWrite2<int>(os, "Anisotropy Rotation Flag", cova->getFlagRotation());
+
+    if (!cova->getFlagRotation()) continue;
+    // Storing the rotation matrix by Column (compatibility)
+    for (int idim = 0; idim < getDimensionNumber(); idim++)
+      for (int jdim = 0; jdim < getDimensionNumber(); jdim++)
+        ret = ret && _recordWrite2<double>(os, "", cova->getAnisoRotMat(jdim, idim));
+    _commentWrite2(os, "Anisotropy Rotation Matrix");
+  }
+
+  /* Writing the drift part */
+
+  for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
+  {
+    const ADriftElem *drift = getDrift(ibfl);
+    ret = ret && _recordWrite2<int>(os,"Drift characteristics", drift->getType().getValue());
+  }
+
+  /* Writing the matrix of means (if nbfl <= 0) */
+
+  if (getDriftNumber() <= 0)
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    {
+      ret = ret && _recordWrite2<double>(os, "Mean of Variables", getContext().getMean(ivar));
+    }
+
+  /* Writing the matrices of sills (optional) */
+
+  for (int icova = 0; icova < getCovaNumber(); icova++)
+  {
+    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+        ret = ret && _recordWrite2<double>(os, "", getSill(icova, ivar, jvar));
+    _commentWrite2(os, "Matrix of sills");
+  }
+
+  /* Writing the variance-covariance at the origin (optional) */
+
+  for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+      ret = ret && _recordWrite2<double>(os, "", getContext().getCovar0(ivar, jvar));
+  _commentWrite2(os, "Var-Covar at origin");
 
   return 0;
 }

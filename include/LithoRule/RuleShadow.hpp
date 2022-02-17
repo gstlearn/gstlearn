@@ -78,6 +78,7 @@ private:
   void _serializeSpecific(FILE* file) const override;
 
   virtual int _deserializeSpecific2(std::istream& /*is*/);
+  void _serializeSpecific2(std::ostream& os) const override;
 
   void _st_shadow_max(const Db *dbprop,
                       int flag_stat,

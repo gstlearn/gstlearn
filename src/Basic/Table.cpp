@@ -68,6 +68,19 @@ int Table::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int Table::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "Table", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 Table* Table::create(int nrows, int ncols)
 {
   return new Table(nrows, ncols);
@@ -226,6 +239,24 @@ int Table::_serialize(FILE* file, bool /*verbose*/) const
       _recordWrite(file, "%lf", _stats[icol][irow]);
     }
    _recordWrite(file, "\n");
+  }
+  return 0;
+}
+
+int Table::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = _recordWrite2<int>(os, "Number of Columns", getColNumber());
+  ret = ret && _recordWrite2<int>(os, "Number of Rows", getRowNumber());
+
+  /* Writing the tail of the file */
+
+  for (int irow = 0; irow < getRowNumber(); irow++)
+  {
+    for (int icol = 0; icol < getColNumber(); icol++)
+    {
+      ret = ret && _recordWrite2<double>(os, "", _stats[icol][irow]);
+    }
+   _commentWrite2(os, "");
   }
   return 0;
 }

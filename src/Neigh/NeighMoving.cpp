@@ -333,6 +333,41 @@ int NeighMoving::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int NeighMoving::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (ANeighParam::_serialize2(os, verbose))
+    {
+      if (verbose) messerr("Problem writing in the Neutral File.");
+      return 1;
+    }
+
+  bool ret = _recordWrite2<int>(os, "Use angular sectors", getFlagSector());
+  ret = ret && _recordWrite2<int>(os, "", getNMini());
+  ret = ret && _recordWrite2<int>(os, "", getNMaxi());
+  ret = ret && _recordWrite2<int>(os, "", getNSect());
+  ret = ret && _recordWrite2<int>(os, "", getNSMax());
+  ret = ret && _commentWrite2(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
+  ret = ret && _recordWrite2<double>(os, "Maximum distance radius", getRadius());
+  ret = ret && _recordWrite2<int>(os, "Anisotropy Flag", getFlagAniso());
+
+  if (getFlagAniso())
+  {
+    for (int idim = 0; idim < getNDim(); idim++)
+      ret = ret && _recordWrite2<double>(os, "", getAnisoCoeff(idim));
+    ret = ret && _commentWrite2(os, "Anisotropy Coefficients");
+    ret = ret && _recordWrite2<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
+    if (getFlagRotation())
+    {
+      int ecr = 0;
+      for (int idim = 0; idim < getNDim(); idim++)
+        for (int jdim = 0; jdim < getNDim(); jdim++)
+          ret = ret && _recordWrite2<double>(os, "", getAnisoRotMat(ecr++));
+      ret = ret && _commentWrite2(os, "Anisotropy Rotation Matrix");
+    }
+  }
+  return 0;
+}
+
 void NeighMoving::setAnisoCoeff(int idim, double value)
 {
   if ((int) _anisoCoeffs.size() != getNDim())
@@ -380,6 +415,19 @@ int NeighMoving::dumpToNF(const String& neutralFilename, bool verbose) const
   }
   _fileClose(file, verbose);
   return 0;
+}
+
+int NeighMoving::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "NeighMoving", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
 }
 
 /**

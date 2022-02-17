@@ -89,6 +89,19 @@ int AnamEmpirical::dumpToNF(const String& neutralFilename, bool verbose) const
   return 0;
 }
 
+int AnamEmpirical::dumpToNF2(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite2(neutralFilename, "AnamEmpirical", os, verbose))
+  {
+    ret = _serialize2(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
 AnamEmpirical* AnamEmpirical::createFromNF(const String& neutralFilename, bool verbose)
 {
   FILE* file = _fileOpen(neutralFilename, "AnamEmpirical", "r", verbose);
@@ -341,6 +354,17 @@ int AnamEmpirical::_serialize(FILE* file, bool verbose) const
   _tableWrite(file, "Coefficients", 2 * getNDisc(), getTDisc().data());
 
   return 0;
+}
+
+int AnamEmpirical::_serialize2(std::ostream& os, bool verbose) const
+{
+  if (AnamContinuous::_serialize2(os, verbose)) return 1;
+
+  bool ret = _recordWrite2<int>(os, "Number of Discretization lags", getNDisc());
+  ret = ret && _recordWrite2<double>(os, "additional variance", getSigma2e());
+  ret = ret && _tableWrite2(os, "Coefficients", 2 * getNDisc(), getTDisc());
+
+  return ret ? 0 : 1;
 }
 
 int AnamEmpirical::_deserialize(FILE* file, bool verbose)

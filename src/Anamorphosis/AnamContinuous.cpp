@@ -283,22 +283,15 @@ int AnamContinuous::_serialize(FILE* file, bool verbose) const
 int AnamContinuous::_serialize2(std::ostream& os, bool verbose) const
 {
   bool ret = _recordWrite2<double>(os,"", getAzmin());
-  ret = ret && _recordWrite2<double>(os,"", getAzmax());
-  ret = ret && _commentWrite2(os, "Absolute Values for Z");
-  ret = ret && _recordWrite2<double>(os,"", getAymin());
-  ret = ret && _recordWrite2<double>(os, "", getAymax());
-  ret = ret && _commentWrite2(os, "Absolute Values for Y");
+  ret = ret && _recordWrite2<double>(os, "Absolute Values for Z", getAzmax());
+  ret = ret && _recordWrite2<double>(os, "", getAymin());
+  ret = ret && _recordWrite2<double>(os, "Absolute Values for Y", getAymax());
   ret = ret && _recordWrite2<double>(os, "", getPzmin());
-  ret = ret && _recordWrite2<double>(os, "", getPzmax());
-  ret = ret && _commentWrite2(os, "Practical Values for Z");
+  ret = ret && _recordWrite2<double>(os, "Practical Values for Z", getPzmax());
   ret = ret && _recordWrite2<double>(os, "", getPymin());
-  ret = ret && _recordWrite2<double>(os,"", getPymax());
-  ret = ret && _commentWrite2(os,"Practical Values for Y");
-
-  ret = ret && _recordWrite2<double>(os,"", getMean());
-  ret = ret && _commentWrite2(os, "Calculated mean");
-  ret = ret && _recordWrite2<double>(os,"", getVariance());
-  ret = ret && _commentWrite2(os, "Calculated variance");
+  ret = ret && _recordWrite2<double>(os, "Practical Values for Y", getPymax());
+  ret = ret && _recordWrite2<double>(os, "Calculated mean", getMean());
+  ret = ret && _recordWrite2<double>(os, "Calculated variance", getVariance());
 
   return ret ? 0 : 1;
 }

@@ -106,7 +106,7 @@ int main(int /*argc*/, char * /*argv*/[])
                         flag_sym_neigh, 2,
                         5., false, false, verbose);
   if (error) return 1;
-  (void) db->dumpToNF("Result");
+  (void) db->dumpToNF2("Result");
 
   // Calculate a variogram on the samples
 
@@ -120,7 +120,7 @@ int main(int /*argc*/, char * /*argv*/[])
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu],ELoc::Z);
     vario.computeByKey("vg",true);
-    (void) vario.dumpToNF(incrementStringVersion("Vario",isimu+1));
+    (void) vario.dumpToNF2(incrementStringVersion("Vario",isimu+1));
   }
 
   // Cleaning structures

@@ -78,6 +78,12 @@ int AnamUser::_serialize(FILE* /*file*/, bool /*verbose*/) const
   return 1;
 }
 
+int AnamUser::_serialize2(std::ostream& /*os*/, bool /*verbose*/) const
+{
+  messerr("AnamUser: Cannot be serialized");
+  return 1;
+}
+
 double AnamUser::GaussianToRawValue(double h) const
 {
   if (_y2z_function == nullptr) return TEST;

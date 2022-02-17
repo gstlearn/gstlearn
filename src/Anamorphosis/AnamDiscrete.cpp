@@ -239,6 +239,18 @@ int AnamDiscrete::_serialize(FILE* file, bool verbose) const
   return 0;
 }
 
+int AnamDiscrete::_serialize2(std::ostream& os, bool verbose) const
+{
+  bool ret = _recordWrite2<int>(os, "Number of Cuttofs", getNCut());
+  ret = ret && _recordWrite2<int>(os, "Number of classes", getNClass());
+  ret = ret && _recordWrite2<int>(os, "Number of elements", getNElem());
+  ret = ret && _tableWrite2(os, "Cutoff value", getNCut(), getZCut());
+  ret = ret && _tableWrite2(os, "DD Stats", getNClass() * getNElem(), getStats().getValues());
+
+  return ret ? 0 : 1;
+}
+
+
 int AnamDiscrete::_deserialize(FILE* file, bool verbose)
 {
   VectorDouble zCut, stats;

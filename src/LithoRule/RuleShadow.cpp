@@ -131,6 +131,19 @@ int RuleShadow::_deserializeSpecific2(std::istream& is)
   return 0;
 }
 
+void RuleShadow::_serializeSpecific2(std::ostream& os) const
+{
+  double slope = (FFFF(_slope)) ? 0. : _slope;
+  double shdown = (FFFF(_shDown)) ? 0. : _shDown;
+  double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+
+  bool ret = _recordWrite2<double>(os, "", slope);
+  ret = ret && _recordWrite2<double>(os, "", shdown);
+  ret = ret && _recordWrite2<double>(os, "Parameters for Shadow option", shdsup);
+  ret = ret && _recordWrite2<double>(os, "", _shift[0]);
+  ret = ret && _recordWrite2<double>(os, "", _shift[1]);
+  ret = ret && _recordWrite2<double>(os, "Parameters for Shift option", _shift[2]);
+}
 
 void RuleShadow::_serializeSpecific(FILE *file) const
 {

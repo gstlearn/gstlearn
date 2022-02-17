@@ -108,6 +108,14 @@ int ANeighParam::_serialize(FILE* file, bool /*verbose*/) const
   return 0;
 }
 
+int ANeighParam::_serialize2(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = _recordWrite2<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite2<int>(os, "Cross-Validation flag", getFlagXvalid());
+
+  return ret ? 0 : 1;
+}
+
 bool ANeighParam::_isDimensionValid(int idim) const
 {
   if (idim < 0 || idim >= _nDim)

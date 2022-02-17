@@ -58,6 +58,7 @@ public:
   int resetFromDb(const Db* db);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
@@ -217,9 +218,10 @@ public:
 
 protected:
   virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
+  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 
 private:
   void _clear();
