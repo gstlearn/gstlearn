@@ -542,7 +542,7 @@ def point(db,
         sizval = size
 
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap)
-    ax.set_apect(aspect)
+    ax.set_aspect(aspect)
     
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
