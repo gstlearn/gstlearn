@@ -25,3 +25,32 @@ GSTLEARN_EXPORT int    getITEST();
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
 
+#define DOUBLE_NA TEST
+#define INT_NA    ITEST
+#define STRING_NA "NA"
+
+template<typename T> class ValueNA;
+
+// Define NA value for double
+template <> class ValueNA<double>
+{
+public:
+  static inline double getNA() { return DOUBLE_NA; }
+};
+
+// Define NA value for int
+template <> class ValueNA<int>
+{
+public:
+    static inline int getNA() { return INT_NA; }
+};
+
+// Define NA value for String
+template <> class ValueNA<String>
+{
+public:
+  static inline String getNA() { return STRING_NA; }
+};
+
+template <typename T> inline T    getNAValue()     { return ValueNA<T>::getNA(); }
+template <typename T> inline bool isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
