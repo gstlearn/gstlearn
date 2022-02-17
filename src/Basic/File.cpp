@@ -55,7 +55,7 @@ void StdoutRedirect::start(const String& file)
     HANDLE new_stdout = CreateFileA(file.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
     SetStdHandle(STD_OUTPUT_HANDLE, new_stdout);
     int fd = _open_osfhandle((intptr_t)new_stdout, _O_WRONLY|_O_TEXT);
-    dup2(fd, STDOUT_FILENO);
+    _dup2(fd, _fileno(stdout));
     _close(fd);
   #else
     _coutbuf = std::cout.rdbuf();
