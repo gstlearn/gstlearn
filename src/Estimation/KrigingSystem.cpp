@@ -1492,4 +1492,5 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 int KrigingSystem::setKrigOptBayes(bool flag_bayes)
 {
   _flagBayes = flag_bayes;
+  return 0;
 }
