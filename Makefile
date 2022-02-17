@@ -17,6 +17,7 @@
 #  - python_doc     Build python package documentation [optional]
 #  - python_build   Build python package [and its documentation]
 #  - python_install Install python package [and its documentation]
+#  - python_upload  Build python package distribution and upload to PyPi [and its documentation]
 #
 # Clean:
 #  - clean          Clean generated files
@@ -28,8 +29,6 @@
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build)
 #
-
-.PHONY: all cmake static shared build_tests check doxygen install uninstall
 
 ifeq ($(DEBUG), 1)
   FLAVOR = Debug
@@ -46,6 +45,9 @@ ifdef N_PROC
 endif
 
 all: shared install
+
+
+.PHONY: all cmake static shared build_tests check doxygen install uninstall
 
 cmake:
 	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -B$(BUILD_DIR) -H.
@@ -79,7 +81,7 @@ uninstall:
 
 
 
-.PHONY: python_doc python_build python_install
+.PHONY: python_doc python_build python_install python_upload
 
 python_doc: cmake
 	@cmake --build $(BUILD_DIR) --target python_doc -- --no-print-directory $(N_PROC_OPT)
@@ -89,6 +91,9 @@ python_build: cmake
 
 python_install: cmake
 	@cmake --build $(BUILD_DIR) --target python_install -- --no-print-directory $(N_PROC_OPT)
+
+python_upload: cmake
+	@cmake --build $(BUILD_DIR) --target python_upload -- --no-print-directory
 
 
 

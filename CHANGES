@@ -1,6 +1,11 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.3
+==============
+- Add python package upload generation
+- Fix python README and upload to PyPi
+
 Release 0.1.2
 ==============
 - Add python package generation
