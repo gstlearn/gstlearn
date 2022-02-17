@@ -19,13 +19,13 @@ def selectItems(nvalues, sitem=-1):
         nout = 1
     return outs, nout
 
-def newFigure(figsize = None, xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
+def newFigure(figsize = (8,8), xlim = None, ylim = None, nx=1, ny=1, ylimnodiag = None,
               sharex=False, sharey=False):
     ''' Creates a new figure (possibly containing multiple subplots)
     
         Parameters
         ----------
-        figsize:    Vector of dimensions along X and Y (per subplot)
+        figsize:    Vector of dimensions along X and Y (per subplot), default is (8,8).
         xlim, ylim: Limits along X and Y (this applies to all subplots of the figure)
         ylimnodiag: Same as ylim for non-diagonal subplot
         nx, ny:     Number of subplots along X and Y
@@ -478,7 +478,7 @@ def point(db,
           color_name=None, size_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
-          cmap=None, flagColorBar=True, flagSizeLegend=True,
+          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
           title=None, ax=None, figsize = None, end_plot =False):
     '''Function for plotting a point data base, with optional color and size variables
     
@@ -542,6 +542,7 @@ def point(db,
         sizval = size
 
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap)
+    ax.set_apect(aspect)
     
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
@@ -597,7 +598,7 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
         
     return ax
         
-def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, 
+def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect='equal',
          xlim=None, ylim=None, cmap = None, norm=None, vmin = None, vmax = None, 
          shading="nearest", title = None, ax=None, figsize = None, end_plot=False):
     '''
@@ -686,7 +687,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True,
     im = ax.pcolormesh(X, Y, data, shading=shading, cmap=cmap, norm=norm,
                        clip_on=True, alpha=alpha, vmin=vmin, vmax=vmax)
     
-    ax.set_aspect("equal")
+    ax.set_aspect(aspect)
     im.set_transform(trans_data)
     
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
@@ -705,7 +706,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True,
     
     return ax
 
-def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True, 
+def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True, aspect='equal',
          xlim=None, ylim=None, cmap = None, norm=None, vmin = None, vmax = None,
          shading="nearest", title = None, axs=None, figsize = None, end_plot=False):
     '''
@@ -768,7 +769,7 @@ def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True,
             else: # a unique norm for all subplots
                 norm_i = norm
             
-        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, alpha=alpha, flagColorBar=flagColorBar, 
+        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, alpha=alpha, flagColorBar=flagColorBar, aspect=aspect,
                  xlim=xlim, ylim=ylim, cmap=cmap, norm=norm_i, vmin=vmin, vmax=vmax, shading=shading)
     if end_plot:
         plt.show()

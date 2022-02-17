@@ -5,17 +5,23 @@ def get_long_description():
         long_description = fh.read()
     return long_description
 
+# TODO : addition python package description
+# - authors
+# - email
+# - license file
+# - project URLs
+
 setup(
     name="@PYTHON_PACKAGE_NAME@",
     version="@PROJECT_VERSION@",
-    author="Team gstlearn", # TODO author
-    author_email="gstlearn@groupes.mines-paristech.fr", # TODO email
+    author="Team gstlearn",
+    author_email="gstlearn@groupes.mines-paristech.fr",
     description="@PROJECT_DESCRIPTION@",
     long_description=get_long_description(),
-    # TODO license file
-    url="@PROJECT_HOMEPAGE_URL@",
+    long_description_content_type="text/markdown",
+    url="@PROJECT_HOMEPAGE_URL@", 
     project_urls={
-        "Bug Tracker": "https://github.com/gstlearn/gstlearn/issues", # TODO project URLs
+        "Bug Tracker": "https://github.com/gstlearn/gstlearn/issues",
     },
     packages={"@PYTHON_PACKAGE_NAME@"},
     package_data={"@PYTHON_PACKAGE_NAME@":["$<TARGET_FILE_NAME:@PYTGT@>"]},

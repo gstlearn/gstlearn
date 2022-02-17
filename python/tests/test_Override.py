@@ -40,7 +40,8 @@ def check_nrows(db, nrows):
     return useSel
 
 def findColumnNames(self, columns):
-    """Extract names of columns from Db, given different possible types of arguments"""
+    """Extract names of columns from Db, given different possible types of arguments: 
+        names, indices, or locator"""
     if isinstance(columns, str) or is_list_type(columns, (str, np.str_)): #get variable(s) by name
         names = self.getNames(np.atleast_1d(columns))
     
@@ -75,6 +76,31 @@ def findColumnNames(self, columns):
         
     return np.atleast_1d(names)
 
+def has_row_selection(self, arg):
+    """Check if the argument given contains a rows selection [rows,columns], 
+    or only column selection [columns].
+    If the argument is a tuple of length 2 and its first element is a valid argument
+    for indexing rows, then the function returns True."""
+    valid_row_indexing = False
+    if isinstance(arg, tuple) and len(arg)==2:
+        array_test = np.zeros(getNrows(self))
+        try: # test if first element of tuple is a valid argument for indexing rows. If yes, then we assume it is the argument for rows.
+            array_test[arg[0],]
+            valid_row_indexing = True
+        except IndexError:
+            valid_row_indexing = False
+    return valid_row_indexing
+
+def getNrows(self, useSel=None):
+    """ get number of rows of the Db when using or not a selection"""
+    if useSel is None:
+        useSel = self.useSel
+    if useSel:
+        nrows = self.getActiveSampleNumber()
+    else:
+        nrows = self.getSampleNumber()
+    return nrows
+
 def getitem(self,arg):
     """
     Extract data from a Db. Use Db[arg]
@@ -98,12 +124,10 @@ def getitem(self,arg):
     db[5:10,(2,3)] extracts the rows 5 to 9 of the variables of index 2 and 3 (array of shape (5,2))
     db[gl.ELoc.Z] extracts all the variables located with Z.
     """    
-    if self.useSel:
-        nrows = self.getActiveSampleNumber()
-    else:
-        nrows = self.getSampleNumber()
-    
-    if isinstance(arg, tuple) and isinstance(arg[0], (int,slice)): # 2D (rows, columns)
+    nrows = getNrows(self)
+        
+    selec_rows = has_row_selection(self, arg)   
+    if selec_rows:
         rows = arg[0]
         columns = arg[1]
     else:
@@ -117,32 +141,42 @@ def getitem(self,arg):
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
-    temp = temp[rows]
-        
+    temp = temp[rows,]
     temp[temp == gl.TEST] = np.nan
     return temp
-
-
-# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
-# corresponding variables will be replaced and not added.
+        
+# This function will add a set of vectors (as a numpy array) to a db. 
+# If some of the names exist, the corresponding variables will be replaced 
+# and not added.
 
 def setitem(self,name,tab):
     
-    if len(tab.shape) == 1 :
-        tab = np.atleast_2d(tab).T
-    nrows, nvars = tab.shape
-    
-    if isinstance(name, tuple) and isinstance(name[0], (int,slice)): # 2D (rows, columns)
-        selec_rows = True
+    # analyze input arguments
+    selec_rows = has_row_selection(self, name)   
+    if selec_rows:
         rows = name[0]
         columns = name[1]
     else:
-        selec_rows = False
         columns = name
-            
+    
+    # find existing column names
     arr_columns = np.atleast_1d(columns)
     ColNames = findColumnNames(self, columns) #existing names
-        
+    
+    # analyze input table
+    if isinstance(tab, (float, np.floating, int, np.integer, bool, np.bool_)):
+        nrows = getNrows(self)
+        nvars = len(ColNames) # this means we will only modify existing columns, not create ones
+        tab = np.ones((nrows, nvars))*tab
+        if selec_rows:
+            tab = np.atleast_2d(tab[rows,:])
+    else:
+        tab = np.copy(np.float64(tab))
+        if len(tab.shape) == 1 :
+            tab = np.atleast_2d(tab).T
+        nrows, nvars = tab.shape
+    
+    # create list of column names to modify and/or create
     if len(ColNames) == nvars: # modify existing variables only
         new_names = ColNames
      
@@ -157,9 +191,10 @@ def setitem(self,name,tab):
                          f" either to a number of existing variables ({len(ColNames)}) equal to the"
                          f" number of columns of the table (nvar={nvars}), or should be a name or "
                          f"list of names of length nvar={nvars} in order to create new variables.")
-    
+            
+    # loop on the column names to modify/create each column
     for i,name in enumerate(new_names):
-        
+        # check if existing name
         ExistingNames = findColumnNames(self, name)
         if len(ExistingNames) > 1:
             raise ValueError(f"There is more than one variable name corresponding to '{name}' "
@@ -168,21 +203,18 @@ def setitem(self,name,tab):
         if selec_rows:
             useSel = self.useSel
             if len(ExistingNames) == 0: # create new variable
-                if useSel:
-                    nrows_tot = self.getActiveSampleNumber()
-                else:
-                    nrows_tot = self.getSampleNumber()
+                nrows_tot = getNrows(self, useSel)
                 tab_i = np.ones(nrows_tot)*gl.TEST # NaNs outside of target rows
             elif len(ExistingNames) == 1: # modify existing variable
                 tab_i = self[name]
                 
             tab_i = np.squeeze(tab_i)
-            tab_i[rows] = tab[:,i]
+            tab_i[rows,] = tab[:,i]
             
         else:
+            useSel = check_nrows(self,nrows)
             tab_i = np.empty(nrows)
             tab_i[:] = tab[:,i]
-            useSel = check_nrows(self,nrows)
         
         tab_i[np.isnan(tab_i)] = gl.TEST    
         VectD = np.double(tab_i)
@@ -190,11 +222,11 @@ def setitem(self,name,tab):
         
     return
 
-#setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)    
     
-#setattr(gl.Db,"__getitem__",getitem)
+setattr(gl.Db,"__getitem__",getitem)
 
-#setattr(gl.Db,"__setitem__",setitem)
+setattr(gl.Db,"__setitem__",setitem)
 
 # # Example
 

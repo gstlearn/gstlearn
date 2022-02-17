@@ -26,6 +26,9 @@ class Db;
 class Model;
 class DirParam;
 
+/**
+ * Experimental Variogram (not only): TODO : to be improved
+ */
 class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public IClonable
 {
 public:

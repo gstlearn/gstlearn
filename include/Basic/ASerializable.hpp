@@ -143,26 +143,30 @@ bool ASerializable::_recordRead2(std::istream& is,
   val = T();
   if (is.good())
   {
-    String line;
+    String word;
     // Skip comment or empty lines
     while (is.good())
     {
-      std::getline(is, line);
+      is >> word;
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title);
+        message("Error while reading %s", title.c_str());
         return false;
       }
-      line = trimLeft(line);
-      if (!line.empty() && line[0] != '#')
-        break;
+      word = trimLeft(word);
+      if (!word.empty())
+      {
+        if (word[0] != '#') break;   // We found something
+        else std::getline(is, word); // Eat all the comment
+      }
     }
+
     // Decode the line
-    std::stringstream sstr(line);
+    std::stringstream sstr(word);
     sstr >> val;
     if (!sstr.good() && !sstr.eof())
     {
-      message("Error while reading %s", title);
+      message("Error while reading %s", title.c_str());
       val = T();
       return false;
     }
@@ -185,7 +189,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       std::getline(is, line);
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title);
+        message("Error while reading %s", title.c_str());
         return false;
       }
       line = trimLeft(line);
@@ -200,7 +204,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       sstr >> val;
       if (!sstr.good() && !sstr.eof())
       {
-        message("Error while reading %s", title);
+        message("Error while reading %s", title.c_str());
         vec.clear();
         return false;
       }
