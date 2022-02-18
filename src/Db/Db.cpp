@@ -3323,8 +3323,8 @@ int Db::_serialize2(std::ostream& os,bool /*verbose*/) const
   VectorString locators = getLocators(1);
   VectorString names = getNames("*");
   bool ret = _recordWrite2<int>(os, "Number of variables", ncol);
-  ret = ret && _recordWriteVec2<VectorString>(os, "Locators", locators);
-  ret = ret && _recordWriteVec2<VectorString>(os, "Names", names);
+  ret = ret && _recordWriteVec2<String>(os, "Locators", locators);
+  ret = ret && _recordWriteVec2<String>(os, "Names", names);
   ret = ret && _commentWrite2(os, "Array of values");
   VectorInt uids = getAllUIDs();
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
@@ -3348,14 +3348,14 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
 
   // Read the file
   bool ret = _recordRead2<int>(is, "Number of variables", ncol);
-  ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
+  ret = ret && _recordReadVec2<String>(is, "Locators", locators);
   if (!ret || (int)locators.size() != ncol) return 1;
-  ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
+  ret = ret && _recordReadVec2<String>(is, "Names", names);
   if (!ret || (int)names.size() != ncol) return 1;
 
   while (ret)
   {
-    ret = _recordReadVec2<VectorDouble>(is, "Array of values", values);
+    ret = _recordReadVec2<double>(is, "Array of values", values);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;

@@ -64,23 +64,23 @@ protected:
 
   static bool _commentWrite2(std::ostream& os,
                              const String& comment);
-  template <class T>
+  template <typename T>
   static bool _recordWrite2(std::ostream& os,
                             const String& title,
                             const T& val);
-  template <class T>
+  template <typename T>
   static bool _recordWriteVec2(std::ostream& os,
                                const String& title,
-                               const T& vec);
+                               const std::vector<T>& vec);
 
-  template <class T>
+  template <typename T>
   static bool _recordRead2(std::istream& is,
                            const String& title,
                            T& val);
-  template <class T>
+  template <typename T>
   static bool _recordReadVec2(std::istream& is,
                               const String& title,
-                              T& vec);
+                              std::vector<T>& vec);
 
 
   //virtual int _deserialize(FILE* file, bool verbose = false) = 0;
@@ -112,19 +112,19 @@ private:
   static String myPrefixName;
 };
 
-template <class T>
+template <typename T>
 bool ASerializable::_recordWrite2(std::ostream& os,
                                   const String& title,
                                   const T& val)
 {
   if (os.good())
   {
-    if (isNA(val))
+    if (isNA<T>(val))
     {
       if (title.empty())
-         os << "NA" << " ";
+         os << STRING_NA << " ";
        else
-         os << "NA" << " # " << title << std::endl;
+         os << STRING_NA << " # " << title << std::endl;
     }
     else
     {
@@ -137,20 +137,20 @@ bool ASerializable::_recordWrite2(std::ostream& os,
   return os.good();
 }
 
-template <class T>
+template <typename T>
 bool ASerializable::_recordWriteVec2(std::ostream& os,
                                      const String& title,
-                                     const T& vec)
+                                     const std::vector<T>& vec)
 {
   if (os.good())
   {
     if (!title.empty())
       os << "# " << title << std::endl;
-    for (auto val : vec)
+    for (auto val: vec)
     {
-//      if (isNA(&val))
-//        os << "NA" << " ";
-//      else
+      if (isNA<T>(val))
+        os << STRING_NA << " ";
+      else
         os << val << " ";
     }
     os << std::endl;
@@ -158,7 +158,7 @@ bool ASerializable::_recordWriteVec2(std::ostream& os,
   return os.good();
 }
 
-template <class T>
+template <typename T>
 bool ASerializable::_recordRead2(std::istream& is,
                                  const String& title,
                                  T& val)
@@ -180,30 +180,37 @@ bool ASerializable::_recordRead2(std::istream& is,
       word = trimLeft(word);
       if (!word.empty())
       {
-        if (word[0] != '#')
-          break;   // We found something
-        else
-          std::getline(is, word); // Eat all the comment
+        if (word == STRING_NA) break;   // We found NA
+        else if (word[0] != '#') break; // We found something
+        else std::getline(is, word);    // We found comment, eat all the line
       }
     }
 
-    // Decode the line
-    std::stringstream sstr(word);
-    sstr >> val;
-    if (!sstr.good() && !sstr.eof())
+    if (word == STRING_NA)
     {
-      messerr("Error while reading %s", title.c_str());
-      val = T();
-      return false;
+      // Get NA value
+      val = getNAValue<T>();
+    }
+    else
+		{
+      // Decode the line
+      std::stringstream sstr(word);
+      sstr >> val;
+      if (!sstr.good() && !sstr.eof())
+      {
+        messerr("Error while reading %s", title.c_str());
+        val = T();
+        return false;
+      }
     }
   }
   return is.good();
 }
 
-template <class T>
+template <typename T>
 bool ASerializable::_recordReadVec2(std::istream& is,
                                     const String& title,
-                                    T& vec)
+                                    std::vector<T>& vec)
 {
   vec.clear();
   if (is.good())
@@ -220,21 +227,34 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       }
       line = trimLeft(line);
       if (!line.empty() && line[0] != '#')
-        break;
+        break; // We found something
     }
     // Decode the line
     std::stringstream sstr(line);
     while (sstr.good())
     {
-      typename T::value_type val;
-      sstr >> val;
+      String word;
+      sstr >> word;
       if (!sstr.good() && !sstr.eof())
       {
         messerr("Error while reading %s", title.c_str());
         vec.clear();
         return false;
       }
-      if (sstr.good()) vec.push_back(val);
+      word = trim(word);
+      T val;
+      if (word == STRING_NA)
+      {
+        // Get NA value
+        val = getNAValue<T>();
+      }
+      else
+      {
+        // Decode the value
+        std::stringstream sword(word);
+        sword >> val;
+      }
+      vec.push_back(val);
     }
   }
   return is.good();
