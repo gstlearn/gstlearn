@@ -128,23 +128,25 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
          << std::endl;
   }
 
-  if (!_flagAniso)
+  if (!FFFF(_radius))
   {
-    if (!FFFF(_radius))
-      sstr << "Maximum horizontal distance         = " << _radius << std::endl;
-  }
-  else
-  {
-    VectorDouble ranges(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      ranges[idim] = _radius * _anisoCoeffs[idim];
-    sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
-                    true, ndim, 1, ranges);
-
-    if (_flagRotation)
+    if (!_flagAniso)
     {
-      sstr << toMatrix("Anisotropy Rotation :", VectorString(), VectorString(),
-                      true, ndim, ndim, _anisoRotMat);
+      sstr << "Maximum horizontal distance         = " << _radius << std::endl;
+    }
+    else
+    {
+      VectorDouble ranges(ndim);
+      for (int idim = 0; idim < ndim; idim++)
+        ranges[idim] = _radius * _anisoCoeffs[idim];
+      sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
+                       true, ndim, 1, ranges);
+
+      if (_flagRotation)
+      {
+        sstr << toMatrix("Anisotropy Rotation :", VectorString(), VectorString(),
+                         true, ndim, ndim, _anisoRotMat);
+      }
     }
   }
 
@@ -377,6 +379,7 @@ void NeighMoving::setAnisoCoeff(int idim, double value)
 
 void NeighMoving::anisoRescale()
 {
+  if (FFFF(_radius)) return;
   for (int idim = 0; idim < getNDim(); idim++)
     _anisoCoeffs[idim] /= _radius;
 }

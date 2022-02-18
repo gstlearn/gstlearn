@@ -3348,10 +3348,13 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
 
   // Read the file
   bool ret = _recordRead2<int>(is, "Number of variables", ncol);
-  ret = ret && _recordReadVec2<String>(is, "Locators", locators);
-  if (!ret || (int)locators.size() != ncol) return 1;
-  ret = ret && _recordReadVec2<String>(is, "Names", names);
-  if (!ret || (int)names.size() != ncol) return 1;
+  if (ncol > 0)
+  {
+    ret = ret && _recordReadVec2<String>(is, "Locators", locators);
+    if (!ret || (int) locators.size() != ncol) return 1;
+    ret = ret && _recordReadVec2<String>(is, "Names", names);
+    if (!ret || (int) names.size() != ncol) return 1;
+  }
 
   while (ret)
   {

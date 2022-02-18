@@ -170,11 +170,11 @@ static void st_filename_patch(const char *ref_name,
         break;
 
       case 1:
-        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
+        (void) gslSPrintf(file_name, "%s.%s", ref_name, EXT_OUT);
         break;
 
       case -1:
-        (void) gslSPrintf(file_name, "%s/%s", STUDY, ref_name);
+        (void) gslSPrintf(file_name, "%s", ref_name);
         break;
     }
   }
@@ -183,20 +183,57 @@ static void st_filename_patch(const char *ref_name,
     switch (mode)
     {
       case 0:
-        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s/%s%1d.%s",  STUDY, ref_name, rank,
                           EXT_DAT);
         break;
 
       case 1:
-        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+        (void) gslSPrintf(file_name, "%s%1d.%s",  ref_name, rank,
                           EXT_OUT);
         break;
 
       case -1:
-        (void) gslSPrintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
+        (void) gslSPrintf(file_name, "%s%1d",  ref_name, rank);
         break;
     }
   }
+//  if (rank == 0)
+//  {
+//    switch (mode)
+//    {
+//      case 0:
+//        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_DAT);
+//        break;
+//
+//      case 1:
+//        (void) gslSPrintf(file_name, "%s/%s.%s", STUDY, ref_name, EXT_OUT);
+//        break;
+//
+//      case -1:
+//        (void) gslSPrintf(file_name, "%s/%s", STUDY, ref_name);
+//        break;
+//    }
+//  }
+//  else
+//  {
+//    switch (mode)
+//    {
+//      case 0:
+//        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+//                          EXT_DAT);
+//        break;
+//
+//      case 1:
+//        (void) gslSPrintf(file_name, "%s/%s%1d.%s", STUDY, ref_name, rank,
+//                          EXT_OUT);
+//        break;
+//
+//      case -1:
+//        (void) gslSPrintf(file_name, "%s/%s%1d", STUDY, ref_name, rank);
+//        break;
+//    }
+//  }
+//
   return;
 }
 

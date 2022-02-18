@@ -971,8 +971,8 @@ int Model::_deserialize2(std::istream& is, bool /*verbose*/)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
       {
-        ret = ret && _recordRead2<double>(is, "Matrix of Sills", value);
-        setSill(icova, ivar, jvar, value);
+        if (_recordRead2<double>(is, "Matrix of Sills", value))
+          setSill(icova, ivar, jvar, value);
       }
   }
 

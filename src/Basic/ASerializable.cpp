@@ -105,11 +105,13 @@ bool ASerializable::_fileOpenRead2(const String& filename,
   // Read and check the file type (class name)
   String type;
   is >> type;
-  if (type != filetype && verbose)
+  if (type != filetype)
   {
-    message("The file %s has the wrong type (read: %s, expected: %s)",
-            filepath.c_str(), type, filetype);
+    if (verbose)
+      messerr("The file %s has the wrong type (read: %s, expected: %s)",
+              filepath.c_str(), type, filetype);
     is.close();
+    return false;
   }
   return is.good(); // Cannot be "end of file" already
 }
@@ -595,6 +597,21 @@ String ASerializable::getHomeDirectory(const String& sub)
   if (!sub.empty())
     sstr << "/" << sub;
   return sstr.str();
+}
+
+String ASerializable::getWorkingDirectory()
+{
+  String path = "";
+#if defined(_WIN32) || defined(_WIN64)
+  char buffer[LONG_SIZE];
+  if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)
+    path = String(buffer);
+#else
+  char buffer[LONG_SIZE];
+  if (getcwd(buffer, sizeof(buffer)) != NULL)
+    path = String(buffer);
+#endif
+  return path;
 }
 
 /**

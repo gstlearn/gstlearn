@@ -33,6 +33,7 @@ public:
   static String buildFileName(const String& filename, bool ensureDirExist = false);
 
   static String getHomeDirectory(const std::string& sub = "");
+  static String getWorkingDirectory();
   static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename);
   static void setContainerName(bool useDefault,
@@ -177,7 +178,7 @@ bool ASerializable::_recordRead2(std::istream& is,
         messerr("Error while reading %s", title.c_str());
         return false;
       }
-      word = trimLeft(word);
+      word = trim(word);
       if (!word.empty())
       {
         if (word == STRING_NA) break;   // We found NA
@@ -225,7 +226,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
         messerr("Error while reading %s", title.c_str());
         return false;
       }
-      line = trimLeft(line);
+      line = trim(line);
       if (!line.empty() && line[0] != '#')
         break; // We found something
     }
@@ -242,6 +243,7 @@ bool ASerializable::_recordReadVec2(std::istream& is,
         return false;
       }
       word = trim(word);
+      if (word.empty()) continue;
       T val;
       if (word == STRING_NA)
       {

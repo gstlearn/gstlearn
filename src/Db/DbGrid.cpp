@@ -564,16 +564,19 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
   ntot = ut_ivector_prod(nx);
 
   ret = ret && _recordRead2<int>(is, "Number of variables", ncol);
-  ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
-  if (!ret || (int)locators.size() != ncol) return 1;
-  ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
-  if (!ret || (int)names.size() != ncol) return 1;
+  if (ncol > 0)
+  {
+    ret = ret && _recordReadVec2<String>(is, "Locators", locators);
+    if (!ret || (int) locators.size() != ncol) return 1;
+    ret = ret && _recordReadVec2<String>(is, "Names", names);
+    if (!ret || (int) names.size() != ncol) return 1;
+  }
 
   /* Reading the tail of the file */
 
   while (ret)
   {
-    ret = _recordReadVec2<VectorDouble>(is, "", values);
+    ret = _recordReadVec2<double>(is, "", values);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;
