@@ -1,6 +1,10 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.7
+==============
+- testpypi requires a new version
+
 Release 0.1.6
 ==============
 - Upload Windows version to testpypi
