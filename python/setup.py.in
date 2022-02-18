@@ -1,5 +1,16 @@
 from setuptools import setup
 
+# Decorate wheel output file with platform name
+# https://stackoverflow.com/questions/45150304/how-to-force-a-python-wheel-to-be-platform-specific-when-building-it
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+except ImportError:
+    bdist_wheel = None
+    
 def get_long_description():
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
@@ -26,6 +37,7 @@ setup(
     packages={"@PYTHON_PACKAGE_NAME@"},
     package_data={"@PYTHON_PACKAGE_NAME@":["$<TARGET_FILE_NAME:@PYTGT@>"]},
     include_package_data=True,
+    cmdclass={'bdist_wheel': bdist_wheel},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
