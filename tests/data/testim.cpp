@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = Db::createFromNF2(filename,verbose);
+  dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   db_print(dbin,1,0,1,1,1);
 
@@ -127,32 +127,32 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = DbGrid::createFromNF2(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Define the variogram */
 
   ascii_filename("Vario",0,0,filename);
-  vario = Vario::createFromNF2(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   if (vario != nullptr)
   {
     vario->attachDb(dbin);
     vario->computeByKey("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
-    if (vario->dumpToNF2(filename,verbose))
+    if (vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
   }
 
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = Model::createFromNF2(filename,verbose);
+  model = Model::createFromNF(filename,verbose);
   if (model == nullptr) goto label_end;
   if (vario != nullptr) 
   {
     if (model_fitting_sills(vario,model,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
-    if (model->dumpToNF2(filename,verbose))
+    if (model->dumpToNF(filename,verbose))
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);
@@ -161,13 +161,13 @@ int main(int argc, char *argv[])
   /* Define the neighborhood */
 
   ascii_filename("Neigh",0,0,filename);
-  neighparam = NeighUnique::createFromNF2(filename,verbose);
+  neighparam = NeighUnique::createFromNF(filename,verbose);
   if (neighparam == nullptr)
-    neighparam = NeighImage::createFromNF2(filename, verbose);
+    neighparam = NeighImage::createFromNF(filename, verbose);
   if (neighparam == nullptr)
-    neighparam = NeighBench::createFromNF2(filename, verbose);
+    neighparam = NeighBench::createFromNF(filename, verbose);
   if (neighparam == nullptr)
-    neighparam = NeighMoving::createFromNF2(filename, verbose);
+    neighparam = NeighMoving::createFromNF(filename, verbose);
 
   /* Look for simulations */
 

@@ -52,10 +52,10 @@ public:
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
+  virtual bool mayChangeSampleNumber() const { return true; }
 
-  virtual int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
-
-  static Db* createFromNF2(const String& neutralFilename,
+  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Db* createFromNF(const String& neutralFilename,
                            bool verbose = false);
 
   int resetFromSamples(int nech,
@@ -183,7 +183,7 @@ public:
                           const String& name = "NewSel",
                           const String& combine = "set");
   int addSamples(int nadd, double valinit);
-  void deleteSample(int e_del);
+  int deleteSample(int e_del);
   void switchLocator(const ELoc& locatorTypein, const ELoc& locatorTypeout);
   int  getLastUID(int number = 0) const;
   String getLastName(int number = 0) const;
@@ -494,8 +494,8 @@ public:
                                const String& title = "");
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os,bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
 
   void _clear();
   void _createRank(int icol = 0);
@@ -505,16 +505,6 @@ protected:
                  const ELoadBy& order,
                  int shift);
   void _loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab);
-  void _variableRead(FILE* file,
-                     int *nloc_r,
-                     int *ndim_r,
-                     int *nech_r,
-                     std::vector<ELoc>& tabloc,
-                     VectorInt& tabnum,
-                     VectorString& tabnam,
-                     VectorDouble& tab);
-  int  _variableWrite(FILE* file, bool flag_grid, bool onlyLocator=false,
-                      bool writeCoorForGrid=false) const;
   void _defineDefaultNames(int shift, const VectorString& names);
   void _defineDefaultLocators(int shift, const VectorString& locatorNames);
   void _setNameByColIdx(int icol, const String& name);

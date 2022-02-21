@@ -320,9 +320,9 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
 
   // Serialize the table (as a Covariance Cloud)
   if (mode == 1)
-    (void) table.dumpToNF2("CovInit", false);
+    (void) table.dumpToNF("CovInit", false);
   else
-    (void) table.dumpToNF2("CovBuilt", false);
+    (void) table.dumpToNF("CovBuilt", false);
 
   // Serialize the table (as a Experimental Covariance)
   for (int ipas = 0; ipas < npas; ipas++)
@@ -336,9 +336,9 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
   }
 
   if (mode == 1)
-    (void) tabmod.dumpToNF2("CovModInit", false);
+    (void) tabmod.dumpToNF("CovModInit", false);
   else
-    (void) tabmod.dumpToNF2("CovModBuilt", false);
+    (void) tabmod.dumpToNF("CovModBuilt", false);
 }
 
 /**

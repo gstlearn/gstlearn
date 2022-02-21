@@ -158,9 +158,9 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighMoving::_deserialize2(std::istream& is, bool verbose)
+int NeighMoving::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize2(is, verbose))
+  if (ANeighParam::_deserialize(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
@@ -177,24 +177,24 @@ int NeighMoving::_deserialize2(std::istream& is, bool verbose)
   int flag_sector = 0;
   double dmax = 0.;
 
-  bool ret = _recordRead2<int>(is, "NeighMovingborhood sector search", flag_sector);
-  ret = ret && _recordRead2<int>(is, "Minimum Number of samples", _nMini);
-  ret = ret && _recordRead2<int>(is, "Maximum Number of samples", _nMaxi);
-  ret = ret && _recordRead2<int>(is, "Optimum Number of samples per sector", _nSect);
-  ret = ret && _recordRead2<int>(is, "Maximum Number of samples per sector", _nSMax);
-  ret = ret && _recordRead2<double>(is, "Maximum Isotropic Radius", dmax);
-  ret = ret && _recordRead2<int>(is, "Flag for Anisotropy", flag_aniso);
+  bool ret = _recordRead<int>(is, "NeighMovingborhood sector search", flag_sector);
+  ret = ret && _recordRead<int>(is, "Minimum Number of samples", _nMini);
+  ret = ret && _recordRead<int>(is, "Maximum Number of samples", _nMaxi);
+  ret = ret && _recordRead<int>(is, "Optimum Number of samples per sector", _nSect);
+  ret = ret && _recordRead<int>(is, "Maximum Number of samples per sector", _nSMax);
+  ret = ret && _recordRead<double>(is, "Maximum Isotropic Radius", dmax);
+  ret = ret && _recordRead<int>(is, "Flag for Anisotropy", flag_aniso);
   if (flag_aniso)
   {
     for (int idim = 0; idim < ndim; idim++)
-      ret = ret && _recordRead2<double>(is, "Anisotropy Coefficient", nbgh_coeffs[idim]);
-    ret =ret && _recordRead2<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+      ret = ret && _recordRead<double>(is, "Anisotropy Coefficient", nbgh_coeffs[idim]);
+    ret =ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
     if (flag_rotation)
     {
       int lec = 0;
       for (int idim = 0; idim < ndim; idim++)
         for (int jdim = 0; jdim < ndim; jdim++, lec++)
-          ret = ret && _recordRead2<double>(is, "Anisotropy Rotation Matrix", nbgh_rotmat[lec]);
+          ret = ret && _recordRead<double>(is, "Anisotropy Rotation Matrix", nbgh_rotmat[lec]);
     }
   }
   if (! ret) return 1;
@@ -225,36 +225,36 @@ int NeighMoving::_deserialize2(std::istream& is, bool verbose)
   return 0;
 }
 
-int NeighMoving::_serialize2(std::ostream& os, bool verbose) const
+int NeighMoving::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize2(os, verbose))
+  if (ANeighParam::_serialize(os, verbose))
     {
       if (verbose) messerr("Problem writing in the Neutral File.");
       return 1;
     }
 
-  bool ret = _recordWrite2<int>(os, "Use angular sectors", getFlagSector());
-  ret = ret && _recordWrite2<int>(os, "", getNMini());
-  ret = ret && _recordWrite2<int>(os, "", getNMaxi());
-  ret = ret && _recordWrite2<int>(os, "", getNSect());
-  ret = ret && _recordWrite2<int>(os, "", getNSMax());
-  ret = ret && _commentWrite2(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
-  ret = ret && _recordWrite2<double>(os, "Maximum distance radius", getRadius());
-  ret = ret && _recordWrite2<int>(os, "Anisotropy Flag", getFlagAniso());
+  bool ret = _recordWrite<int>(os, "Use angular sectors", getFlagSector());
+  ret = ret && _recordWrite<int>(os, "", getNMini());
+  ret = ret && _recordWrite<int>(os, "", getNMaxi());
+  ret = ret && _recordWrite<int>(os, "", getNSect());
+  ret = ret && _recordWrite<int>(os, "", getNSMax());
+  ret = ret && _commentWrite(os, "Parameters (nmini,nmaxi,nsect,nsmax)");
+  ret = ret && _recordWrite<double>(os, "Maximum distance radius", getRadius());
+  ret = ret && _recordWrite<int>(os, "Anisotropy Flag", getFlagAniso());
 
   if (getFlagAniso())
   {
     for (int idim = 0; idim < getNDim(); idim++)
-      ret = ret && _recordWrite2<double>(os, "", getAnisoCoeff(idim));
-    ret = ret && _commentWrite2(os, "Anisotropy Coefficients");
-    ret = ret && _recordWrite2<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
+      ret = ret && _recordWrite<double>(os, "", getAnisoCoeff(idim));
+    ret = ret && _commentWrite(os, "Anisotropy Coefficients");
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
     if (getFlagRotation())
     {
       int ecr = 0;
       for (int idim = 0; idim < getNDim(); idim++)
         for (int jdim = 0; jdim < getNDim(); jdim++)
-          ret = ret && _recordWrite2<double>(os, "", getAnisoRotMat(ecr++));
-      ret = ret && _commentWrite2(os, "Anisotropy Rotation Matrix");
+          ret = ret && _recordWrite<double>(os, "", getAnisoRotMat(ecr++));
+      ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
     }
   }
   return 0;
@@ -295,13 +295,13 @@ NeighMoving* NeighMoving::create(int ndim,
   return neighM;
 }
 
-int NeighMoving::dumpToNF2(const String& neutralFilename, bool verbose) const
+int NeighMoving::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "NeighMoving", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "NeighMoving", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -314,14 +314,14 @@ int NeighMoving::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighMoving* NeighMoving::createFromNF2(const String& neutralFilename, bool verbose)
+NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbose)
 {
   NeighMoving* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "NeighMoving", is, verbose))
+  if (_fileOpenRead(neutralFilename, "NeighMoving", is, verbose))
   {
     neigh = new NeighMoving();
-    if (neigh->_deserialize2(is, verbose))
+    if (neigh->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;

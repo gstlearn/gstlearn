@@ -51,56 +51,42 @@ public:
   static String getDirectory(const String& path);
 
 protected:
-  virtual int _deserialize2(std::istream& s, bool verbose = false) = 0;
-  virtual int _serialize2(std::ostream& s,bool verbose = false) const = 0;
+  virtual int _deserialize(std::istream& s, bool verbose = false) = 0;
+  virtual int _serialize(std::ostream& s,bool verbose = false) const = 0;
 
-  static bool _fileOpenWrite2(const String& filename,
+  static bool _fileOpenWrite(const String& filename,
                               const String& filetype,
                               std::ofstream& os,
                               bool verbose = false);
-  static bool _fileOpenRead2(const String& filename,
+  static bool _fileOpenRead(const String& filename,
                              const String& filetype,
                              std::ifstream& is,
                              bool verbose = false);
 
-  static bool _commentWrite2(std::ostream& os,
+  static bool _commentWrite(std::ostream& os,
                              const String& comment);
   template <typename T>
-  static bool _recordWrite2(std::ostream& os,
+  static bool _recordWrite(std::ostream& os,
                             const String& title,
                             const T& val);
   template <typename T>
-  static bool _recordWriteVec2(std::ostream& os,
+  static bool _recordWriteVec(std::ostream& os,
                                const String& title,
                                const std::vector<T>& vec);
 
   template <typename T>
-  static bool _recordRead2(std::istream& is,
+  static bool _recordRead(std::istream& is,
                            const String& title,
                            T& val);
   template <typename T>
-  static bool _recordReadVec2(std::istream& is,
+  static bool _recordReadVec(std::istream& is,
                               const String& title,
                               std::vector<T>& vec);
 
-
-  static FILE* _fileOpen(const String& filename,
-                         const String& filetype,
-                         const String& mode,
-                         bool verbose = false);
-  static int _fileClose(FILE* file, bool verbose = false);
-  static int _recordRead(FILE* file,
-                         const char* title,
-                         const char* format, ...);
-  static void _recordWrite(FILE* file, const char* format, ...);
-  static void _tableWrite(FILE *file, const String& string, int ntab, const double *tab);
-  static int  _tableRead(FILE* file, int ntab, double *tab);
-  static int  _fileRead(FILE* file, const String& format, va_list ap);
-  static void _fileWrite(FILE* file, const String& format, va_list ap);
   static bool _onlyBlanks(char *string);
 
-  static int  _tableRead2(std::istream& is, int ntab, double *tab);
-  static bool _tableWrite2(std::ostream& os,
+  static int  _tableRead(std::istream& is, int ntab, double *tab);
+  static bool _tableWrite(std::ostream& os,
                            const String& string,
                            int ntab,
                            const VectorDouble& tab);
@@ -111,7 +97,7 @@ private:
 };
 
 template <typename T>
-bool ASerializable::_recordWrite2(std::ostream& os,
+bool ASerializable::_recordWrite(std::ostream& os,
                                   const String& title,
                                   const T& val)
 {
@@ -136,7 +122,7 @@ bool ASerializable::_recordWrite2(std::ostream& os,
 }
 
 template <typename T>
-bool ASerializable::_recordWriteVec2(std::ostream& os,
+bool ASerializable::_recordWriteVec(std::ostream& os,
                                      const String& title,
                                      const std::vector<T>& vec)
 {
@@ -157,7 +143,7 @@ bool ASerializable::_recordWriteVec2(std::ostream& os,
 }
 
 template <typename T>
-bool ASerializable::_recordRead2(std::istream& is,
+bool ASerializable::_recordRead(std::istream& is,
                                  const String& title,
                                  T& val)
 {
@@ -206,7 +192,7 @@ bool ASerializable::_recordRead2(std::istream& is,
 }
 
 template <typename T>
-bool ASerializable::_recordReadVec2(std::istream& is,
+bool ASerializable::_recordReadVec(std::istream& is,
                                     const String& title,
                                     std::vector<T>& vec)
 {

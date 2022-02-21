@@ -39,9 +39,9 @@ public:
   int resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
   int resetFromFaciesCount(int nfacies, double rho = 0.);
 
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Rule* create(double rho = 0.);
-  static Rule* createFromNF2(const String& neutralFilename, bool verbose = false);
+  static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
   static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);
   static Rule* createFromNumericalCoding(const VectorInt& n_type,
@@ -117,22 +117,14 @@ protected:
   int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
-  virtual int _deserializeSpecific(FILE* /*file*/) { return 0; }
-  virtual void _serializeSpecific(FILE* /*file*/) const { return; }
 
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
-  virtual int _deserializeSpecific2(std::istream& /*is*/) { return 0; }
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual void _serializeSpecific2(std::ostream& /*file*/) const { return; }
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserializeSpecific(std::istream& /*is*/) { return 0; }
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual void _serializeSpecific(std::ostream& /*file*/) const { return; }
 
 private:
-  void _ruleDefine(FILE* file,
-                   const Node *node,
-                   int from_type,
-                   int from_rank,
-                   int from_vers,
-                   int *rank) const;
-  void _ruleDefine2(std::ostream& os,
+  void _ruleDefine(std::ostream& os,
                    const Node *node,
                    int from_type,
                    int from_rank,

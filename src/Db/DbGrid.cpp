@@ -453,7 +453,7 @@ int DbGrid::getNDim() const
   return (_grid.getNDim());
 }
 
-int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
+int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, ndim2, ntot, nech, i, flag_grid, ncol;
   VectorInt nx;
@@ -471,7 +471,7 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
 
   /* Decoding the header */
 
-  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
+  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
 
   /* Core allocation */
 
@@ -484,19 +484,19 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
 
   for (int idim = 0; idim < ndim; idim++)
   {
-    ret = ret && _recordRead2<int>(is, "Grid Number of Nodes", nx[idim]);
-    ret = ret && _recordRead2<double>(is, "Grid Origin", x0[idim]);
-    ret = ret && _recordRead2<double>(is, "Grid Mesh", dx[idim]);
-    ret = ret && _recordRead2<double>(is, "Grid Angles", angles[idim]);
+    ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
+    ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
   }
   ntot = ut_ivector_prod(nx);
 
-  ret = ret && _recordRead2<int>(is, "Number of variables", ncol);
+  ret = ret && _recordRead<int>(is, "Number of variables", ncol);
   if (ncol > 0)
   {
-    ret = ret && _recordReadVec2<String>(is, "Locators", locators);
+    ret = ret && _recordReadVec<String>(is, "Locators", locators);
     if (!ret || (int) locators.size() != ncol) return 1;
-    ret = ret && _recordReadVec2<String>(is, "Names", names);
+    ret = ret && _recordReadVec<String>(is, "Names", names);
     if (!ret || (int) names.size() != ncol) return 1;
   }
 
@@ -504,7 +504,7 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
 
   while (ret)
   {
-    ret = _recordReadVec2<double>(is, "", values);
+    ret = _recordReadVec<double>(is, "", values);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;
@@ -553,28 +553,28 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int DbGrid::_serialize2(std::ostream& os, bool verbose) const
+int DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
 
   /* Writing the header */
 
-  bool ret = _recordWrite2<int>(os, "Space Dimension", getNDim());
+  bool ret = _recordWrite<int>(os, "Space Dimension", getNDim());
 
   /* Writing the grid characteristics */
 
-  ret = ret && _commentWrite2(os, "Grid characteristics (NX,X0,DX,ANGLE)");
+  ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    ret = ret && _recordWrite2<int>(os, "",  getNX(idim));
-    ret = ret && _recordWrite2<double>(os, "", getX0(idim));
-    ret = ret && _recordWrite2<double>(os, "", getDX(idim));
-    ret = ret && _recordWrite2<double>(os, "", getAngle(idim));
-    ret = ret && _commentWrite2(os, "");
+    ret = ret && _recordWrite<int>(os, "",  getNX(idim));
+    ret = ret && _recordWrite<double>(os, "", getX0(idim));
+    ret = ret && _recordWrite<double>(os, "", getDX(idim));
+    ret = ret && _recordWrite<double>(os, "", getAngle(idim));
+    ret = ret && _commentWrite(os, "");
   }
 
   /* Writing the tail of the file */
 
-  if (Db::_serialize2(os, verbose)) return 1;
+  if (Db::_serialize(os, verbose)) return 1;
 
   return 0;
 }
@@ -592,13 +592,13 @@ int DbGrid::gridDefine(const VectorInt& nx,
   return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
-int DbGrid::dumpToNF2(const String& neutralFilename, bool verbose) const
+int DbGrid::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "DbGrid", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "DbGrid", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -614,14 +614,14 @@ int DbGrid::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @remarks The name does not need to be completed in particular when defined by absolute path
  * @remarks or read from the Data Directory (in the gstlearn distribution)
  */
-DbGrid* DbGrid::createFromNF2(const String& neutralFilename, bool verbose)
+DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
 {
   DbGrid* db = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "DbGrid", is, verbose))
+  if (_fileOpenRead(neutralFilename, "DbGrid", is, verbose))
   {
     db = new DbGrid;
-    if (db->_deserialize2(is, verbose))
+    if (db->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete db;

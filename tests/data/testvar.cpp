@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = DbGrid::createFromNF2(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
 
   /* Look for simulations */
 
@@ -92,7 +92,7 @@ int main(int argc, char *argv[])
   /* Define the model */
 
   ascii_filename("Model",0,0,filename);
-  model = Model::createFromNF2(filename,verbose);
+  model = Model::createFromNF(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
 
   // Define and store the Space
@@ -113,14 +113,14 @@ int main(int argc, char *argv[])
   /* Define the variogram */
   
   ascii_filename("Vario",0,0,filename);
-  vario = Vario::createFromNF2(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   if (vario == (Vario *) NULL) goto label_end;
   if (dbout != (Db *) NULL)
   {
     vario->attachDb(dbout);
     vario->computeByKey("vg");
     ascii_filename("Vario",0,1,filename);
-    if (vario->dumpToNF2(filename,verbose))
+    if (vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
   }
   
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   // Model is not printed any more to avoid differences among platforms
   //  model->display();
   ascii_filename("Model",0,1,filename);
-  if (model->dumpToNF2(filename,verbose))
+  if (model->dumpToNF(filename,verbose))
     messageAbort("ascii_model_write");
   
   // produce the Goodness-of-fit score

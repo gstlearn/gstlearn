@@ -33,8 +33,8 @@ public:
   const EAnam&  getType() const override { return EAnam:: HERMITIAN; }
 
   /// ASerializable Interface
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
-  static AnamHermite* createFromNF2(const String& neutralFilename, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AnamContinuous Interface
   double RawToGaussianValue(double z) const override;
@@ -63,8 +63,8 @@ public:
 
 protected:
   /// ASerializable Interface
-  virtual int _deserialize2(std::istream& is, bool verbose) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   bool _isIndexValid(int i) const;

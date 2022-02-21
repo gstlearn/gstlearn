@@ -94,7 +94,7 @@ int main(int argc, char *argv[])
   /* Define the data */
 
   ascii_filename("Data",0,0,filename);
-  dbin = Db::createFromNF2(filename,verbose);
+  dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
   db_print(dbin,1,0,1,1,1);
@@ -106,13 +106,13 @@ int main(int argc, char *argv[])
   /* Define the variogram (optional) */
   
   ascii_filename("Vario",0,0,filename);
-  vario = Vario::createFromNF2(filename,verbose);
+  vario = Vario::createFromNF(filename,verbose);
   flag_vario = (vario != nullptr);
 
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
-  dbout = DbGrid::createFromNF2(filename,verbose);
+  dbout = DbGrid::createFromNF(filename,verbose);
   flag_grid = (dbout != nullptr);
 
   /* Define the rules */
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
     /* Read the rule */
 
     ascii_filename("Rule",i,0,filename);
-    rule[i] = Rule::createFromNF2(filename,verbose);
+    rule[i] = Rule::createFromNF(filename,verbose);
     if (rule[i] == nullptr) continue;
 
     npgs++;
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
     {
       if (! rule[i]->isYUsed(j)) continue;
       ascii_filename("Model",lec,0,filename);
-      model[i][j] = Model::createFromNF2(filename,verbose);
+      model[i][j] = Model::createFromNF(filename,verbose);
       if (model[i][j] == nullptr) goto label_end;
     }
 
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
       vario->computeByKey("vg");
       variogram_print(vario);
       ascii_filename("Vario",0,1,filename);
-      if (vario->dumpToNF2(filename,verbose))
+      if (vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");
       
       /* Delete the indicator variables */
@@ -216,7 +216,7 @@ int main(int argc, char *argv[])
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("testPGS-");
-  (void) dbout->dumpToNF2("Result");
+  (void) dbout->dumpToNF("Result");
 
   /* Core deallocation */
 

@@ -78,27 +78,27 @@ String AnamHermite::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int AnamHermite::dumpToNF2(const String& neutralFilename, bool verbose) const
+int AnamHermite::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "AnamHermite", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "AnamHermite", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
   return ret;
 }
 
-AnamHermite* AnamHermite::createFromNF2(const String& neutralFilename, bool verbose)
+AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbose)
 {
   AnamHermite* anam = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "AnamHermite", is, verbose))
+  if (_fileOpenRead(neutralFilename, "AnamHermite", is, verbose))
   {
     anam = new AnamHermite();
-    if (anam->_deserialize2(is, verbose))
+    if (anam->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File");
       delete anam;
@@ -607,31 +607,31 @@ label_end:
   return(ncl);
 }
 
-int AnamHermite::_serialize2(std::ostream& os, bool verbose) const
+int AnamHermite::_serialize(std::ostream& os, bool verbose) const
 {
-  if (AnamContinuous::_serialize2(os, verbose)) return 1;
+  if (AnamContinuous::_serialize(os, verbose)) return 1;
 
-  bool ret = _recordWrite2<int>(os, "Number of Hermite Polynomials", getNbPoly());
-  ret = ret && _recordWrite2<double>(os,"Change of support coefficient", getRCoef());
-  ret = ret && _tableWrite2(os, "Hermite Polynomial", getNbPoly(), getPsiHn());
+  bool ret = _recordWrite<int>(os, "Number of Hermite Polynomials", getNbPoly());
+  ret = ret && _recordWrite<double>(os,"Change of support coefficient", getRCoef());
+  ret = ret && _tableWrite(os, "Hermite Polynomial", getNbPoly(), getPsiHn());
 
   return ret ? 0 : 1;
 }
 
-int AnamHermite::_deserialize2(std::istream& is, bool verbose)
+int AnamHermite::_deserialize(std::istream& is, bool verbose)
 {
   VectorDouble hermite;
   double r = TEST;
   int nbpoly = 0;
 
-  if (! AnamContinuous::_deserialize2(is, verbose)) return 1;
+  if (! AnamContinuous::_deserialize(is, verbose)) return 1;
 
-  bool ret = _recordRead2<int>(is, "Number of Hermite Polynomials", nbpoly);
-  ret = ret && _recordRead2<double>(is, "Change of Support Coefficient", r);
+  bool ret = _recordRead<int>(is, "Number of Hermite Polynomials", nbpoly);
+  ret = ret && _recordRead<double>(is, "Change of Support Coefficient", r);
   if (! ret) return 1;
 
   hermite.resize(nbpoly);
-  if (_tableRead2(is, nbpoly, hermite.data())) return 1;
+  if (_tableRead(is, nbpoly, hermite.data())) return 1;
 
   setNbPoly(nbpoly);
   setRCoef(r);

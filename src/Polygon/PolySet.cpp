@@ -156,26 +156,26 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-int PolySet::_serialize2(std::ostream& os, bool /*verbose*/) const
+int PolySet::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWrite2<int>(os, "Number of Vertices", getNVertices());
+  bool ret = _recordWrite<int>(os, "Number of Vertices", getNVertices());
 
   for (int i = 0; i < getNVertices(); i++)
   {
-    ret = ret && _recordWrite2<double>(os, "", getX(i));
-    ret = ret && _recordWrite2<double>(os, "", getY(i));
-    ret = ret && _commentWrite2(os, "");
+    ret = ret && _recordWrite<double>(os, "", getX(i));
+    ret = ret && _recordWrite<double>(os, "", getY(i));
+    ret = ret && _commentWrite(os, "");
   }
   return ret ? 0 : 1;
 }
 
-int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
+int PolySet::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int nvert;
   double zmin = TEST;
   double zmax = TEST;
 
-  bool ret = _recordRead2<int>(is, "Number of Vertices", nvert);
+  bool ret = _recordRead<int>(is, "Number of Vertices", nvert);
   VectorDouble x(nvert);
   VectorDouble y(nvert);
 
@@ -183,8 +183,8 @@ int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
 
   for (int i = 0; i < nvert; i++)
   {
-    ret = ret && _recordRead2<double>(is, "X-Coordinate of a Polyset", x[i]);
-    ret = ret && _recordRead2<double>(is, "Y-Coordinate of a Polyset", y[i]);
+    ret = ret && _recordRead<double>(is, "X-Coordinate of a Polyset", x[i]);
+    ret = ret && _recordRead<double>(is, "Y-Coordinate of a Polyset", y[i]);
   }
   if (! ret) return 1;
 
@@ -195,13 +195,13 @@ int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int PolySet::dumpToNF2(const String& neutralFilename, bool verbose) const
+int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "PolySet", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "PolySet", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -213,14 +213,14 @@ PolySet* PolySet::create()
   return new PolySet();
 }
 
-PolySet* PolySet::createFromNF2(const String& neutralFilename, bool verbose)
+PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
 {
   PolySet* polyset = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "PolySet", is, verbose))
+  if (_fileOpenRead(neutralFilename, "PolySet", is, verbose))
   {
     polyset = new PolySet();
-    if (polyset->_deserialize2(is, verbose))
+    if (polyset->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete polyset;

@@ -98,13 +98,13 @@ Vario::~Vario()
 {
 }
 
-int Vario::dumpToNF2(const String& neutralFilename, bool verbose) const
+int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "Vario", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "Vario", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -119,15 +119,15 @@ Vario* Vario::create(const VarioParam* varioparam,
   return new Vario(varioparam, db, means, vars);
 }
 
-Vario* Vario::createFromNF2(const String& neutralFilename, bool verbose)
+Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
   Vario* vario = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "Vario", is, verbose))
+  if (_fileOpenRead(neutralFilename, "Vario", is, verbose))
   {
     VarioParam* varioparam = new VarioParam();
     vario = new Vario(varioparam);
-    if (vario->_deserialize2(is, verbose))
+    if (vario->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File");
       delete vario;
@@ -1019,6 +1019,35 @@ double Vario::getUtilize(int idir, int ivar, int jvar, int ipas) const
 }
 
 /**
+ * Returns a triple array of values: 0-Weight; 1-Distance; 2-Variogram
+ * @param idir Target Direction
+ * @param ivar Target first variable
+ * @param jvar Target second variable
+ * @return
+ */
+VectorVectorDouble Vario::getVec(int idir, int ivar, int jvar) const
+{
+  VectorVectorDouble vec;
+  if (!_isVariableValid(ivar)) return vec;
+  if (!_isVariableValid(jvar)) return vec;
+  if (!_isDirectionValid(idir)) return vec;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  int npas = dirparam.getLagNumber();
+  vec.resize(3);
+  for (int i = 0; i < 3; i++) vec[i].resize(npas);
+
+  for (int ipas = 0 ; ipas < npas; ipas++)
+  {
+    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
+    vec[0][ipas] = _sw[idir][iad];
+    vec[1][ipas] = _hh[idir][iad];
+    vec[2][ipas] = _gg[idir][iad];
+  }
+  return vec;
+}
+
+/**
  * Returns the vector of variogram values for a given pair of variables in a given direction
  * @param idir Direction
  * @param ivar First variable
@@ -1266,7 +1295,7 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
+int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
@@ -1275,21 +1304,21 @@ int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
 
   /* Create the Vario structure */
 
-  bool ret = _recordRead2<int>(is, "Space Dimension", ndim);
-  ret = ret && _recordRead2<int>(is, "Number of Variables", nvar);
-  ret = ret && _recordRead2<int>(is, "Number of Variogram Directions", ndir);
-  ret = ret && _recordRead2<double>(is, "Scale", scale);
+  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Number of Variables", nvar);
+  ret = ret && _recordRead<int>(is, "Number of Variogram Directions", ndir);
+  ret = ret && _recordRead<double>(is, "Scale", scale);
 
   /* Read the variances (optional) */
 
-  ret = ret && _recordRead2<int>(is, "Variogram calculation Option", flag_calcul);
+  ret = ret && _recordRead<int>(is, "Variogram calculation Option", flag_calcul);
   vars.resize(nvar * nvar);
   if (flag_calcul)
   {
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++, ecr++)
-        ret = ret && _recordRead2<double>(is, "Experimental Variance term", vars[ecr]);
+        ret = ret && _recordRead<double>(is, "Experimental Variance term", vars[ecr]);
   }
   if (! ret) return 1;
 
@@ -1305,20 +1334,20 @@ int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
 
   for (int idir = 0; idir < ndir; idir++)
   {
-    ret = ret && _recordRead2<int>(is, "Regular Variogram Calculation", flag_regular);
-    ret = ret && _recordRead2<int>(is, "Number of Variogram Lags", npas);
-    ret = ret && _recordRead2<int>(is, "Variogram Code Option", opt_code);
-    ret = ret && _recordRead2<double>(is, "Tolerance on Code", tolcode);
-    ret = ret && _recordRead2<double>(is, "Lag Value", dpas);
-    ret = ret && _recordRead2<double>(is, "Tolerance on Distance", toldis);
-    ret = ret && _recordRead2<double>(is, "Tolerance on Direction", tolang);
+    ret = ret && _recordRead<int>(is, "Regular Variogram Calculation", flag_regular);
+    ret = ret && _recordRead<int>(is, "Number of Variogram Lags", npas);
+    ret = ret && _recordRead<int>(is, "Variogram Code Option", opt_code);
+    ret = ret && _recordRead<double>(is, "Tolerance on Code", tolcode);
+    ret = ret && _recordRead<double>(is, "Lag Value", dpas);
+    ret = ret && _recordRead<double>(is, "Tolerance on Distance", toldis);
+    ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
     codir.resize(ndim);
     grincr.resize(ndim);
     grloc.resize(ndim);
     for (int idim = 0; idim < ndim; idim++)
-      ret = ret && _recordRead2<double>(is, "Direction vector", codir[idim]);
+      ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
     for (int idim = 0; idim < ndim; idim++)
-      ret = ret && _recordRead2<double>(is, "Grid Increment", grloc[idim]);
+      ret = ret && _recordRead<double>(is, "Grid Increment", grloc[idim]);
     if (! ret) return 1;
 
     DirParam dirparam = DirParam(ndim);
@@ -1336,11 +1365,11 @@ int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
       for (int i = 0; i < getDirSize(idir); i++)
       {
         double sw, hh, gg;
-        ret = ret && _recordRead2<double>(is, "Experimental Variogram Weight", sw);
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Weight", sw);
         setSwByIndex(idir, i, sw);
-        ret = ret && _recordRead2<double>(is, "Experimental Variogram Distance", hh);
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Distance", hh);
         setHhByIndex(idir, i, hh);
-        ret = ret && _recordRead2<double>(is, "Experimental Variogram Value", gg);
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Value", gg);
         setGgByIndex(idir, i, gg);
       }
     }
@@ -1349,29 +1378,29 @@ int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int Vario::_serialize2(std::ostream& os, bool /*verbose*/) const
+int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   double value;
   static int flag_calcul = 1;
 
   /* Write the Vario structure */
 
-  bool ret = _recordWrite2<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
-  ret = ret && _recordWrite2<int>(os, "Number of variables", getVariableNumber());
-  ret = ret && _recordWrite2<int>(os, "Number of directions", getDirectionNumber());
-  ret = ret && _recordWrite2<double>(os, "Scale", _varioparam.getScale());
-  ret = ret && _recordWrite2<int>(os, "Calculation Flag", flag_calcul);
+  bool ret = _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
+  ret = ret && _recordWrite<int>(os, "Number of variables", getVariableNumber());
+  ret = ret && _recordWrite<int>(os, "Number of directions", getDirectionNumber());
+  ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
+  ret = ret && _recordWrite<int>(os, "Calculation Flag", flag_calcul);
 
   /* Dumping the Variances */
 
   if (flag_calcul)
   {
-    ret = ret && _commentWrite2(os, "Variance");
+    ret = ret && _commentWrite(os, "Variance");
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        ret = ret && _recordWrite2<double>(os, "", getVar(ivar,jvar));
-      ret = ret && _commentWrite2(os, "");
+        ret = ret && _recordWrite<double>(os, "", getVar(ivar,jvar));
+      ret = ret && _commentWrite(os, "");
     }
   }
 
@@ -1380,34 +1409,34 @@ int Vario::_serialize2(std::ostream& os, bool /*verbose*/) const
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     const DirParam dirparam = _varioparam.getDirParam(idir);
-    ret = ret && _commentWrite2(os, "Direction characteristics");
-    ret = ret && _recordWrite2<int>(os, "Regular lags", dirparam.getFlagRegular());
-    ret = ret && _recordWrite2<int>(os, "Number of lags", dirparam.getLagNumber());
-    ret = ret && _recordWrite2<int>(os, "", dirparam.getOptionCode());
-    ret = ret && _recordWrite2<double>(os, "Code selection: Option - Tolerance", dirparam.getTolCode());
-    ret = ret && _recordWrite2<double>(os, "Lag value", dirparam.getDPas());
-    ret = ret && _recordWrite2<double>(os, "Tolerance on distance", dirparam.getTolDist());
-    ret = ret && _recordWrite2<double>(os, "Tolerance on angle", dirparam.getTolAngle());
+    ret = ret && _commentWrite(os, "Direction characteristics");
+    ret = ret && _recordWrite<int>(os, "Regular lags", dirparam.getFlagRegular());
+    ret = ret && _recordWrite<int>(os, "Number of lags", dirparam.getLagNumber());
+    ret = ret && _recordWrite<int>(os, "", dirparam.getOptionCode());
+    ret = ret && _recordWrite<double>(os, "Code selection: Option - Tolerance", dirparam.getTolCode());
+    ret = ret && _recordWrite<double>(os, "Lag value", dirparam.getDPas());
+    ret = ret && _recordWrite<double>(os, "Tolerance on distance", dirparam.getTolDist());
+    ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      ret = ret && _recordWrite2<double>(os, "", dirparam.getCodir(idim));
-    ret = ret && _commentWrite2(os, "Direction coefficients");
+      ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
+    ret = ret && _commentWrite(os, "Direction coefficients");
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      ret = ret && _recordWrite2(os, "", (double) dirparam.getGrincr(idim));
-    ret = ret && _commentWrite2(os, "Direction increments on grid");
+      ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
+    ret = ret && _commentWrite(os, "Direction increments on grid");
 
     if (!flag_calcul) continue;
-    ret = ret && _commentWrite2(os, "Variogram results (Weight, Distance, Variogram)");
+    ret = ret && _commentWrite(os, "Variogram results (Weight, Distance, Variogram)");
     for (int i = 0; i < getDirSize(idir); i++)
     {
       value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
-      ret = ret && _recordWrite2<double>(os, "", value);
+      ret = ret && _recordWrite<double>(os, "", value);
       value = FFFF(getHhByIndex(idir, i)) ? 0. : getHhByIndex(idir, i);
-      ret = ret && _recordWrite2<double>(os, "", value);
+      ret = ret && _recordWrite<double>(os, "", value);
       value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
-      ret = ret && _recordWrite2<double>(os, "", value);
-      ret = ret && _commentWrite2(os, "");
+      ret = ret && _recordWrite<double>(os, "", value);
+      ret = ret && _commentWrite(os, "");
     }
   }
   return 0;

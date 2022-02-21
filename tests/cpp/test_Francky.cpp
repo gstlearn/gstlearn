@@ -66,7 +66,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);
-  (void) workingDbc->dumpToNF2("franckyFunctional.ascii");
+  (void) workingDbc->dumpToNF("franckyFunctional.ascii");
 
   message("Test performed successfully\n");
 

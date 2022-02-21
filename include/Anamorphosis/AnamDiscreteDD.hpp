@@ -29,8 +29,8 @@ public:
   virtual ~AnamDiscreteDD();
 
   /// ASerializable Interface
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
-  static AnamDiscreteDD* createFromNF2(const String& neutralFilename, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_DD; }
@@ -64,8 +64,8 @@ public:
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _stats(int nech, const VectorDouble& tab);

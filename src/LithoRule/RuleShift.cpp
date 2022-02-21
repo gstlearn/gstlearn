@@ -113,59 +113,31 @@ int RuleShift::resetFromNumericalCoding(const VectorInt& n_type,
   return 0;
 }
 
-int RuleShift::_deserializeSpecific(FILE* file)
+int RuleShift::_deserializeSpecific(std::istream& is)
 {
   _shift.resize(3);
-  if (_recordRead(file, "Slope for Shadow Rule", "%lf", &_slope)) return 1;
-  if (_recordRead(file, "Lower Threshold for Shadow Rule", "%lf", &_shDown)) return 1;
-  if (_recordRead(file, "Upper Threshold for Shadow Rule", "%lf", &_shDsup)) return 1;
-  if (_recordRead(file, "Shift along first direction", "%lf", &_shift[0]))  return 1;
-  if (_recordRead(file, "Shift along second direction", "%lf", &_shift[1])) return 1;
-  if (_recordRead(file, "Shift along third direction", "%lf", &_shift[2]))  return 1;
-  return 0;
-}
-
-int RuleShift::_deserializeSpecific2(std::istream& is)
-{
-  _shift.resize(3);
-  bool ret = _recordRead2<double>(is, "Slope for Shadow Rule", _slope);
-  ret = ret && _recordRead2<double>(is, "Lower Threshold for Shadow Rule", _shDown);
-  ret = ret && _recordRead2<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
-  ret = ret && _recordRead2<double>(is, "Shift along first direction", _shift[0]);
-  ret = ret && _recordRead2<double>(is, "Shift along second direction", _shift[1]);
-  ret = ret && _recordRead2<double>(is, "Shift along third direction", _shift[2]);
+  bool ret = _recordRead<double>(is, "Slope for Shadow Rule", _slope);
+  ret = ret && _recordRead<double>(is, "Lower Threshold for Shadow Rule", _shDown);
+  ret = ret && _recordRead<double>(is, "Upper Threshold for Shadow Rule", _shDsup);
+  ret = ret && _recordRead<double>(is, "Shift along first direction", _shift[0]);
+  ret = ret && _recordRead<double>(is, "Shift along second direction", _shift[1]);
+  ret = ret && _recordRead<double>(is, "Shift along third direction", _shift[2]);
   if (! ret) return 1;
   return 0;
 }
 
-
-void RuleShift::_serializeSpecific(FILE* file) const
-{
-  double slope = (FFFF(_slope)) ? 0. : _slope;
-  _recordWrite(file, "%lf", slope);
-  double shdown = (FFFF(_shDown)) ? 0. : _shDown;
-  _recordWrite(file, "%lf", shdown);
-  double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
-  _recordWrite(file, "%lf", shdsup);
-  _recordWrite(file, "#", "Parameters for Shadow option");
-  _recordWrite(file, "%lf", _shift[0]);
-  _recordWrite(file, "%lf", _shift[1]);
-  _recordWrite(file, "%lf", _shift[2]);
-  _recordWrite(file, "#", "Parameters for Shift option");
-}
-
-void RuleShift::_serializeSpecific2(std::ostream& os) const
+void RuleShift::_serializeSpecific(std::ostream& os) const
 {
   double slope = (FFFF(_slope)) ? 0. : _slope;
   double shdown = (FFFF(_shDown)) ? 0. : _shDown;
   double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
 
-  bool ret = _recordWrite2<double>(os, "", slope);
-  ret = ret && _recordWrite2<double>(os, "", shdown);
-  ret = ret && _recordWrite2<double>(os, "Parameters for Shadow option", shdsup);
-  ret = ret && _recordWrite2<double>(os, "", _shift[0]);
-  ret = ret && _recordWrite2<double>(os, "", _shift[1]);
-  ret = ret && _recordWrite2<double>(os, "Parameters for Shift option", _shift[2]);
+  bool ret = _recordWrite<double>(os, "", slope);
+  ret = ret && _recordWrite<double>(os, "", shdown);
+  ret = ret && _recordWrite<double>(os, "Parameters for Shadow option", shdsup);
+  ret = ret && _recordWrite<double>(os, "", _shift[0]);
+  ret = ret && _recordWrite<double>(os, "", _shift[1]);
+  ret = ret && _recordWrite<double>(os, "Parameters for Shift option", _shift[2]);
 }
 
 String RuleShift::displaySpecific() const
@@ -409,7 +381,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     /* Can the replicate be added */
     if (replicateInvalid(dbin, dbout, jech))
     {
-      dbin->deleteSample(jech);
+      (void) dbin->deleteSample(jech);
       return (1);
     }
 
@@ -417,7 +389,7 @@ int RuleShift::evaluateBounds(PropDef *propdef,
     if (rule_thresh_define(propdef, dbin, this, facies, jech, isimu, nbsimu, 1,
                            &s1min, &s1max, &s2min, &s2max))
     {
-      dbin->deleteSample(jech);
+      (void) dbin->deleteSample(jech);
       return (1);
     }
 

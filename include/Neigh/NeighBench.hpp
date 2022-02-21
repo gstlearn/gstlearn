@@ -35,9 +35,9 @@ public:
 
   int reset(int ndim = 2, bool flag_xvalid = false, double width = 0);
 
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighBench* create(int ndim = 2, bool flag_xvalid = false, double width = 0);
-  static NeighBench* createFromNF2(const String& neutralFilename, bool verbose = false);
+  static NeighBench* createFromNF(const String& neutralFilename, bool verbose = false);
 
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::BENCH; }
@@ -46,8 +46,8 @@ public:
   void setWidth(double width) { _width = width; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 
 private:

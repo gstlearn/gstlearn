@@ -61,30 +61,30 @@ String NeighBench::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighBench::_deserialize2(std::istream& is, bool verbose)
+int NeighBench::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize2(is, verbose))
+  if (ANeighParam::_deserialize(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
     return 1;
   }
 
-  bool ret = _recordRead2<double>(is, "Bench Width", _width);
+  bool ret = _recordRead<double>(is, "Bench Width", _width);
 
   if (! ret) return 1;
   return 0;
 }
 
-int NeighBench::_serialize2(std::ostream& os, bool verbose) const
+int NeighBench::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize2(os, verbose))
+  if (ANeighParam::_serialize(os, verbose))
    {
      if (verbose) messerr("Problem writing in the Neutral File.");
      return 1;
    }
 
-  bool ret = _recordWrite2<double>(os, "Bench Width", getWidth());
+  bool ret = _recordWrite<double>(os, "Bench Width", getWidth());
 
   return ret ? 0 : 1;
 }
@@ -101,13 +101,13 @@ NeighBench* NeighBench::create(int ndim, bool flag_xvalid, double width)
   return neighB;
 }
 
-int NeighBench::dumpToNF2(const String& neutralFilename, bool verbose) const
+int NeighBench::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "NeighBench", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "NeighBench", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -120,14 +120,14 @@ int NeighBench::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighBench* NeighBench::createFromNF2(const String& neutralFilename, bool verbose)
+NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose)
 {
   NeighBench* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "NeighBench", is, verbose))
+  if (_fileOpenRead(neutralFilename, "NeighBench", is, verbose))
   {
     neigh = new NeighBench();
-    if (neigh->_deserialize2(is, verbose))
+    if (neigh->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;

@@ -100,8 +100,8 @@ public:
 
 protected:
   /// ASerializable Interface
-  virtual int _deserialize2(std::istream& is, bool verbose) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 protected:
   Interval _az;

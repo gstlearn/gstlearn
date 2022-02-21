@@ -45,7 +45,7 @@ public:
             VectorDouble coeffs = VectorDouble(),
             VectorDouble angles = VectorDouble());
 
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighMoving* create(int ndim,
                              bool flag_xvalid,
                              int nmaxi,
@@ -55,7 +55,7 @@ public:
                              int nsmax = ITEST,
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble());
-  static NeighMoving* createFromNF2(const String& neutralFilename, bool verbose = false);
+  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
 
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
@@ -84,8 +84,8 @@ public:
   void setRadius(double radius) { _radius = radius; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _flagSector;               /* 1 if MOVING neigh. used sector search */

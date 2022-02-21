@@ -66,7 +66,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs1.addCov(&cova1);
   model1.setCovList(&covs1);
   model1.display();
-  (void) model1.dumpToNF2("truemodel1.ascii");
+  (void) model1.dumpToNF("truemodel1.ascii");
 
   Model model2(ctxt);
   CovLMC covs2(ctxt.getSpace());
@@ -75,7 +75,7 @@ int main(int /*argc*/, char */*argv*/[])
   covs2.addCov(&cova2);
   model2.setCovList(&covs2);
   model2.display();
-  (void) model2.dumpToNF2("truemodel2.ascii");
+  (void) model2.dumpToNF("truemodel2.ascii");
 
   // Creating the Neighborhood
   NeighUnique* neighU = NeighUnique::create(ndim, false);
@@ -84,7 +84,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
   rule->display();
-  rule->dumpToNF2("truerule.ascii");
+  rule->dumpToNF("truerule.ascii");
   RuleProp* ruleprop;
   if (flagStationary)
     ruleprop = RuleProp::createFromRule(rule, props);
@@ -94,7 +94,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform a non-conditional simulation on the Db
   error = simpgs(nullptr,db,ruleprop,&model1,&model2,neighU);
   db->setLocator(db->getLastName(),ELoc::Z);
-  (void) db->dumpToNF2("simupgs.ascii");
+  (void) db->dumpToNF("simupgs.ascii");
   db->display(&dbfmt);
 
   // Design of several VarioParams
@@ -128,14 +128,14 @@ int main(int /*argc*/, char */*argv*/[])
   modelPGS1.fit(&vario1,covs,true,option);
   modelPGS1.display();
 
-  (void) vario1.dumpToNF2("variopgs1.ascii");
-  (void) modelPGS1.dumpToNF2("modelfitpgs1.ascii");
+  (void) vario1.dumpToNF("variopgs1.ascii");
+  (void) modelPGS1.dumpToNF("modelfitpgs1.ascii");
 
   modelPGS2.fit(&vario2,covs,true,option);
   modelPGS2.display();
 
-  (void) vario2.dumpToNF2("variopgs2.ascii");
-  (void) modelPGS2.dumpToNF2("modelfitpgs2.ascii");
+  (void) vario2.dumpToNF("variopgs2.ascii");
+  (void) modelPGS2.dumpToNF("modelfitpgs2.ascii");
 
   RuleProp* ruleprop2;
   if (flagStationary)
@@ -144,17 +144,17 @@ int main(int /*argc*/, char */*argv*/[])
     ruleprop2 = RuleProp::createFromDb(dbprop, VectorDouble());
   error = ruleprop2->fit(db, &varioparam2, 2, true);
   ruleprop2->getRule()->display();
-  (void) ruleprop2->getRule()->dumpToNF2("ruleFit.ascii");
+  (void) ruleprop2->getRule()->dumpToNF("ruleFit.ascii");
 
   modelPGS1.display();
   Vario* varioDerived = model_pgs(db, &varioparam1, ruleprop2, &modelPGS1, &modelPGS2);
   modelPGS1.display();
-  varioDerived->dumpToNF2("modelpgs.ascii");
+  varioDerived->dumpToNF("modelpgs.ascii");
   varioDerived->display();
 
   Vario varioIndic = Vario(&varioparam1, db);
   varioIndic.computeIndicByKey("vg");
-  (void) varioIndic.dumpToNF2("varioindic.ascii");
+  (void) varioIndic.dumpToNF("varioindic.ascii");
 
   modelPGS1.display();
 

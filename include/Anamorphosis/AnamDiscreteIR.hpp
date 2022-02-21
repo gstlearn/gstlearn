@@ -30,8 +30,8 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
-  static AnamDiscreteIR* createFromNF2(const String& neutralFilename, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
@@ -46,8 +46,8 @@ public:
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _stats_residuals(int verbose,

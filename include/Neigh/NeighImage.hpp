@@ -37,9 +37,8 @@ public:
 
   int reset(int ndim = 2, int skip = 0, const VectorInt& image = VectorInt());
   static NeighImage* create(int ndim, int skip, const VectorInt& image);
-  static NeighImage* createFromNF2(const String& neutralFilename, bool verbose = false);
-
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  static NeighImage* createFromNF(const String& neutralFilename, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
 
   int getSkip() const { return _skip; }
   const VectorInt& getImageRadius() const { return _imageRadius; }
@@ -49,8 +48,8 @@ public:
   void setSkip(int skip) { _skip = skip; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _skip;                  /* Skipping factor */

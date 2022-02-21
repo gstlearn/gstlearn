@@ -59,9 +59,9 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighUnique::_deserialize2(std::istream& is, bool verbose)
+int NeighUnique::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize2(is, verbose))
+  if (ANeighParam::_deserialize(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
@@ -70,9 +70,9 @@ int NeighUnique::_deserialize2(std::istream& is, bool verbose)
   return 0;
 }
 
-int NeighUnique::_serialize2(std::ostream& os, bool verbose) const
+int NeighUnique::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize2(os, verbose))
+  if (ANeighParam::_serialize(os, verbose))
   {
     if (verbose) messerr("Problem writing in the Neutral File.");
     return 1;
@@ -92,13 +92,13 @@ NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
   return neighU;
 }
 
-int NeighUnique::dumpToNF2(const String& neutralFilename, bool verbose) const
+int NeighUnique::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "NeighUnique", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "NeighUnique", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -111,14 +111,14 @@ int NeighUnique::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighUnique* NeighUnique::createFromNF2(const String& neutralFilename, bool verbose)
+NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbose)
 {
   NeighUnique* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "NeighUnique", is, verbose))
+  if (_fileOpenRead(neutralFilename, "NeighUnique", is, verbose))
   {
     neigh = new NeighUnique;
-    if (neigh->_deserialize2(is, verbose))
+    if (neigh->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;

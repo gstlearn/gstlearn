@@ -25,21 +25,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
   //std::cout << "filename=" << filename << std::endl;
-  Db* temperatures = Db::createFromNF2(filename,verbose);
+  Db* temperatures = Db::createFromNF(filename,verbose);
   temperatures->setLocator("January_temp", ELoc::Z);
   temperatures->display();
 
   filename = ASerializable::getTestData("Scotland","grid.ascii");
-  DbGrid* grid = DbGrid::createFromNF2(filename,verbose);
+  DbGrid* grid = DbGrid::createFromNF(filename,verbose);
   grid->display();
 
   filename = ASerializable::getTestData("Scotland","model.ascii");
-  Model* model = Model::createFromNF2(filename,verbose);
+  Model* model = Model::createFromNF(filename,verbose);
 
   model->display();
 
   filename = ASerializable::getTestData("Scotland","vario.ascii");
-  Vario* vario = Vario::createFromNF2(filename,verbose);
+  Vario* vario = Vario::createFromNF(filename,verbose);
 
   vario->display();
 
@@ -68,12 +68,12 @@ int main(int /*argc*/, char */*argv*/[])
     VectorDouble coeffs = spde.getCoeffs();
     spde.compute();
     spde.query(grid);
-    grid->dumpToNF2("SPDE-result.ascii",verbose);
+    grid->dumpToNF("SPDE-result.ascii",verbose);
   }
   else
   {
     kriging(temperatures, grid, model, neighU);
-    grid->dumpToNF2("Kriging-result.ascii",verbose);
+    grid->dumpToNF("Kriging-result.ascii",verbose);
   }
 
   delete temperatures;

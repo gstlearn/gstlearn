@@ -42,27 +42,27 @@ AnamDiscreteIR::~AnamDiscreteIR()
 
 }
 
-int AnamDiscreteIR::dumpToNF2(const String& neutralFilename, bool verbose) const
+int AnamDiscreteIR::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "AnamDiscreteIR", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "AnamDiscreteIR", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
   return ret;
 }
 
-AnamDiscreteIR* AnamDiscreteIR::createFromNF2(const String& neutralFilename, bool verbose)
+AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool verbose)
 {
   AnamDiscreteIR* anam = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "AnamDiscreteIR", is, verbose))
+  if (_fileOpenRead(neutralFilename, "AnamDiscreteIR", is, verbose))
   {
     anam = new AnamDiscreteIR();
-    if (anam->_deserialize2(is, verbose))
+    if (anam->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File");
       delete anam;
@@ -330,28 +330,22 @@ double AnamDiscreteIR::_getResidual(int iclass, double z) const
   return (retval);
 }
 
-/**
- * Function has been deleted in advance. This is a ghoost
- * @param file
- * @param verbose
- * @return
- */
-int AnamDiscreteIR::_serialize2(std::ostream& os, bool verbose) const
+int AnamDiscreteIR::_serialize(std::ostream& os, bool verbose) const
 {
-  if (AnamDiscrete::_serialize2(os, verbose)) return 1;
+  if (AnamDiscrete::_serialize(os, verbose)) return 1;
 
-  bool ret = _recordWrite2<double>(os, "Change of support coefficient", getRCoef());
+  bool ret = _recordWrite<double>(os, "Change of support coefficient", getRCoef());
 
   return ret ? 0 : 1;
 }
 
-int AnamDiscreteIR::_deserialize2(std::istream& is, bool verbose)
+int AnamDiscreteIR::_deserialize(std::istream& is, bool verbose)
 {
   double r = TEST;
 
-  if (! AnamDiscrete::_deserialize2(is, verbose)) return 1;
+  if (! AnamDiscrete::_deserialize(is, verbose)) return 1;
 
-  bool ret = _recordRead2<double>(is, "Anamorphosis 'r' coefficient", r);
+  bool ret = _recordRead<double>(is, "Anamorphosis 'r' coefficient", r);
   if (! ret) return 1;
 
   setRCoef(r);

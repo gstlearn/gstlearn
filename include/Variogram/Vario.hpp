@@ -44,12 +44,12 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   virtual IClonable* clone() const override { return new Vario(*this); };
 
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
-  static Vario* createFromNF2(const String& neutralFilename, bool verbose = false);
+  static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
@@ -74,34 +74,35 @@ public:
 
   int getDirSize(int idir) const;
 
-  double getGgByIndex(int idir, int i) const;
-  double getHhByIndex(int idir, int i) const;
-  double getSwByIndex(int idir, int i) const;
-  double getUtilizeByIndex(int idir, int i) const;
+  double getGgByIndex(int idir = 0, int i = 0) const;
+  double getHhByIndex(int idir = 0, int i = 0) const;
+  double getSwByIndex(int idir = 0, int i = 0) const;
+  double getUtilizeByIndex(int idir = 0, int i = 0) const;
 
-  double getGg(int idir,
-               int ivar,
-               int jvar,
-               int ipas,
+  double getGg(int idir = 0,
+               int ivar = 0,
+               int jvar = 0,
+               int ipas = 0,
                bool asCov = false,
                bool flagNormalized = false) const;
-  double getHh(int idir, int ivar, int jvar, int ipas) const;
-  double getSw(int idir, int ivar, int jvar, int ipas) const;
-  double getUtilize(int idir, int ivar, int jvar, int ipas) const;
+  double getHh(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
+  double getSw(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
+  double getUtilize(int idir = 0, int ivar = 0, int jvar = 0, int ipas = 0) const;
 
-  VectorDouble getGgVec(int idir,
-                        int ivar,
-                        int jvar,
+  VectorVectorDouble getVec(int idir = 0, int ivar = 0, int jvar = 0) const;
+  VectorDouble getGgVec(int idir = 0,
+                        int ivar = 0,
+                        int jvar = 0,
                         bool asCov = false,
                         bool flagNormalized = false) const;
-  VectorDouble getHhVec(int idir, int ivar, int jvar) const;
-  VectorDouble getSwVec(int idir, int ivar, int jvar) const;
-  VectorDouble getUtilizeVec(int idir, int ivar, int jvar) const;
+  VectorDouble getHhVec(int idir = 0, int ivar = 0, int jvar = 0) const;
+  VectorDouble getSwVec(int idir = 0, int ivar = 0, int jvar = 0) const;
+  VectorDouble getUtilizeVec(int idir = 0, int ivar = 0, int jvar = 0) const;
 
-  const VectorDouble& getAllGg(int idir) const;
-  const VectorDouble& getAllHh(int idir) const;
-  const VectorDouble& getAllSw(int idir) const;
-  const VectorDouble& getAllUtilize(int idir) const;
+  const VectorDouble& getAllGg(int idir = 0) const;
+  const VectorDouble& getAllHh(int idir = 0) const;
+  const VectorDouble& getAllSw(int idir = 0) const;
+  const VectorDouble& getAllUtilize(int idir = 0) const;
 
   void setGgByIndex(int idir, int i, double gg);
   void setHhByIndex(int idir, int i, double hh);
@@ -212,8 +213,8 @@ public:
   const VarioParam& getVarioParam() const { return _varioparam; }
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   bool _isVariableValid(int ivar) const;

@@ -73,20 +73,20 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighImage::_deserialize2(std::istream& is, bool verbose)
+int NeighImage::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize2(is, verbose))
+  if (ANeighParam::_deserialize(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
     return 1;
   }
 
-  bool ret = _recordRead2<int>(is, "Skipping factor", _skip);
+  bool ret = _recordRead<int>(is, "Skipping factor", _skip);
   for (int idim = 0; idim < getNDim(); idim++)
   {
     double loc_radius;
-    ret = ret && _recordRead2<double>(is, "Image NeighImageborhood Radius", loc_radius);
+    ret = ret && _recordRead<double>(is, "Image NeighImageborhood Radius", loc_radius);
     _imageRadius[idim] = static_cast<int> (loc_radius);
   }
 
@@ -94,18 +94,18 @@ int NeighImage::_deserialize2(std::istream& is, bool verbose)
   return 0;
 }
 
-int NeighImage::_serialize2(std::ostream& os, bool verbose) const
+int NeighImage::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize2(os, verbose))
+  if (ANeighParam::_serialize(os, verbose))
   {
     if (verbose) messerr("Problem writing in the Neutral File.");
     return 1;
   }
 
-  bool ret = _recordWrite2<int>(os, "", getSkip());
+  bool ret = _recordWrite<int>(os, "", getSkip());
   for (int idim = 0; idim < getNDim(); idim++)
-    ret = ret && _recordWrite2<double>(os, "", (double) getImageRadius(idim));
-  ret = ret && _commentWrite2(os, "Image NeighImageborhood parameters");
+    ret = ret && _recordWrite<double>(os, "", (double) getImageRadius(idim));
+  ret = ret && _commentWrite(os, "Image NeighImageborhood parameters");
   return ret ? 0 : 1;
 }
 
@@ -121,13 +121,13 @@ NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
   return neighI;
 }
 
-int NeighImage::dumpToNF2(const String& neutralFilename, bool verbose) const
+int NeighImage::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "NeighImage", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "NeighImage", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (ret && verbose) messerr("Problem writing in the Neutral File.");
     os.close();
   }
@@ -140,14 +140,14 @@ int NeighImage::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighImage* NeighImage::createFromNF2(const String& neutralFilename, bool verbose)
+NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose)
 {
   NeighImage* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "NeighImage", is, verbose))
+  if (_fileOpenRead(neutralFilename, "NeighImage", is, verbose))
   {
     neigh = new NeighImage();
-    if (neigh->_deserialize2(is, verbose))
+    if (neigh->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;

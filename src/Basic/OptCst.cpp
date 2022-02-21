@@ -11,6 +11,7 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
 #include "Basic/ECst.hpp"
 
 #include <algorithm>
@@ -30,10 +31,6 @@ std::map<const ECst, double> OptCst::_cst =
   { ECst::NPROC,   0. },
   { ECst::LOCMOD,  1. },
   { ECst::LOCNEW,  0. },
-  { ECst::TOLINV,  1.e-20 },
-  { ECst::TOLGEN,  1.e-20 },
-  { ECst::EPSMAT,  2.3e-16 },
-  { ECst::EPSSVD,  1.e-5 },
   { ECst::ASP,     1.}};
 */
 std::map<int, double> OptCst::_cst =
@@ -47,10 +44,6 @@ std::map<int, double> OptCst::_cst =
   { ECst::E_NPROC,   0. },
   { ECst::E_LOCMOD,  1. },
   { ECst::E_LOCNEW,  0. },
-  { ECst::E_TOLINV,  1.e-20 },
-  { ECst::E_TOLGEN,  1.e-20 },
-  { ECst::E_EPSMAT,  2.3e-16 },
-  { ECst::E_EPSSVD,  1.e-5 },
   { ECst::E_ASP,     1. }};
 
 double OptCst::query(const ECst& option)
@@ -79,7 +72,7 @@ void OptCst::define(const ECst& option, double value)
   {
     if (e.first == option.getValue())
     {
-      if (value > 0.) e.second = value;
+      e.second = value;
       return;
     }
   }
@@ -91,7 +84,7 @@ void OptCst::defineByKey(const String& name, double value)
   {
     if (ECst::fromValue(e.first).getKey() == toUpper(name))
     {
-      if (value > 0.) e.second = value;
+      e.second = value;
       return;
     }
   }

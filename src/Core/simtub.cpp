@@ -3718,7 +3718,7 @@ static void st_suppress_added_samples(Db *db, int nech)
 
   if (nech <= 0) return;
   for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
-    db->deleteSample(iech);
+    (void) db->deleteSample(iech);
   return;
 }
 

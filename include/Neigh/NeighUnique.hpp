@@ -36,11 +36,10 @@ public:
 
   int reset(int ndim, bool flag_xvalid = false);
   static NeighUnique* create(int ndim, bool flag_xvalid = false);
-  static NeighUnique* createFromNF2(const String& neutralFilename, bool verbose = false);
-
-  int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
+  static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = false);
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
 
 protected:
-  virtual int _deserialize2(std::istream& is, bool verbose = false) override;
-  virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 };

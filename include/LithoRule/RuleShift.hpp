@@ -78,11 +78,8 @@ public:
   double getShift(int idim) const { return _shift[idim]; }
 
 private:
-  int _deserializeSpecific(FILE* file) override;
-  void _serializeSpecific(FILE* file) const override;
-
-  virtual int _deserializeSpecific2(std::istream& /*is*/);
-  void _serializeSpecific2(std::ostream& os) const override;
+  virtual int _deserializeSpecific(std::istream& /*is*/);
+  void _serializeSpecific(std::ostream& os) const override;
 
   int _st_shift_on_grid(Db *db, int ndim, int flag_grid_check) const;
 

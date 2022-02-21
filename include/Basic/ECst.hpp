@@ -23,10 +23,6 @@
                      NPROC,   8, "Percentage for Display the Progress Bar", \
                      LOCMOD,  9, "Option for updating locator of new variable", \
                      LOCNEW, 10, "When defining new locator, option for old ones", \
-                     TOLINV, 11, "Tolerance for matrix inversion", \
-                     TOLGEN, 12, "Tolerance for matrix generalized inversion", \
-                     EPSMAT, 13, "Tolerance value for Matrix calculations", \
-                     EPSSVD, 14, "Tolerance value for SVD Matrix calculations", \
-                     ASP,    15, "Graphic Aspect Ratio"
+                     ASP,    11, "Graphic Aspect Ratio"
 
 ENUM_DECLARE(ENUM_CST)
