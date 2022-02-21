@@ -3395,59 +3395,6 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int Db::_serialize(FILE* file, bool /*verbose*/) const
-{
-  bool onlyLocator = false;
-  bool writeCoorForGrid = true;
-  bool flag_grid = isGrid();
-
-  /* Writing the tail of the file */
-
-  if (_variableWrite(file, flag_grid, onlyLocator, writeCoorForGrid)) return 1;
-
-  return 0;
-}
-
-int Db::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ndim2, ntot, nloc, nech, i;
-  VectorInt tabnum;
-  std::vector<ELoc> tabloc;
-  VectorString tabnam;
-  VectorDouble tab;
-  static int flag_add_rank = 0;
-
-  /* Initializations */
-
-  nloc = nech = ntot = 0;
-
-  /* Reading the tail of the file */
-
-  _variableRead(file, &nloc, &ndim2, &nech, tabloc, tabnum, tabnam, tab);
-
-  /* Creating the Db */
-
-  resetDims(nloc + flag_add_rank, nech);
-  _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
-
-  /* Loading the names */
-
-  if (nloc > 0)
-    for (i = 0; i < nloc; i++)
-      setNameByUID(i + flag_add_rank, tabnam[i]);
-
-  /* Create the locators */
-
-  if (nloc > 0)
-    for (i = 0; i < nloc; i++)
-      setLocatorByUID(i + flag_add_rank, tabloc[i], tabnum[i]);
-
-  /* Core deallocation */
-
-  label_end:
-  return 0;
-}
-
 int Db::_variableWrite(FILE* file,bool flag_grid, bool onlyLocator, bool writeCoorForGrid) const
 {
   int ecr, item, rankZ;
@@ -3963,45 +3910,5 @@ Db* Db::createSamplingDb(const Db* dbin,
     delete db;
     return nullptr;
   }
-  return db;
-}
-
-int Db::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Db", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
-/**
- * Create a Db by loading the contents of a Neutral File
- *
- * @param neutralFilename Name of the Neutral File (Db format)
- * @param verbose         Verbose
- *
- * @remarks The name does not need to be completed in particular when defined by absolute path
- * @remarks or read from the Data Directory (in the gstlearn distribution)
- */
-Db* Db::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Db", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Db* db = new Db;
-  if (db->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete db;
-    db = nullptr;
-  }
-  _fileClose(file, verbose);
   return db;
 }

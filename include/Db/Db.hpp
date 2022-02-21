@@ -51,11 +51,7 @@ public:
   virtual bool isGrid() const { return false; }
   virtual double getCoordinate(int iech, int idim, bool flag_rotate=true) const;
   virtual double getUnit(int idim = 0) const;
-  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   virtual int getNDim() const;
-
-  static Db* createFromNF(const String& neutralFilename,
-                          bool verbose = false);
 
   virtual int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
 
@@ -500,9 +496,6 @@ public:
 protected:
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
   virtual int _serialize2(std::ostream& os,bool verbose = false) const override;
-
-  virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const;
 
   void _clear();
   void _createRank(int icol = 0);

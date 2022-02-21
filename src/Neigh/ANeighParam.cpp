@@ -70,19 +70,6 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int ANeighParam::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ndim, flag_xvalid;
-
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) return 1;
-  if (_recordRead(file, "Cross-validation flag", "%d", &flag_xvalid)) return 1;
-
-  setNDim(ndim);
-  setFlagXvalid(flag_xvalid);
-
-  return 0;
-}
-
 int ANeighParam::_deserialize2(std::istream& is, bool /*verbose*/)
 {
   int ndim, flag_xvalid;
@@ -93,17 +80,6 @@ int ANeighParam::_deserialize2(std::istream& is, bool /*verbose*/)
 
   setNDim(ndim);
   setFlagXvalid(flag_xvalid);
-
-  return 0;
-}
-
-
-int ANeighParam::_serialize(FILE* file, bool /*verbose*/) const
-{
-  _recordWrite(file, "%d", getNDim());
-  _recordWrite(file, "#", "Space Dimension");
-  _recordWrite(file, "%d", getFlagXvalid());
-  _recordWrite(file, "#", "Cross-Validation flag");
 
   return 0;
 }

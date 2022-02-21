@@ -84,9 +84,6 @@ protected:
                               std::vector<T>& vec);
 
 
-  //virtual int _deserialize(FILE* file, bool verbose = false) = 0;
-  //virtual int _serialize(FILE* file, bool verbose = false) const = 0;
-
   static FILE* _fileOpen(const String& filename,
                          const String& filetype,
                          const String& mode,

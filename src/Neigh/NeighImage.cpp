@@ -73,25 +73,6 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighImage::_deserialize(FILE* file, bool verbose)
-{
-  if (ANeighParam::_deserialize(file, verbose))
-  {
-    if (verbose)
-      messerr("Problem reading from the Neutral File.");
-    return 1;
-  }
-
-  if (_recordRead(file, "Skipping factor", "%d", &_skip)) return 1;
-  for (int idim = 0; idim < getNDim(); idim++)
-  {
-    double loc_radius;
-    if (_recordRead(file, "Image NeighImageborhood Radius", "%lf", &loc_radius)) return 1;
-    _imageRadius[idim] = static_cast<int> (loc_radius);
-  }
-  return 0;
-}
-
 int NeighImage::_deserialize2(std::istream& is, bool verbose)
 {
   if (ANeighParam::_deserialize2(is, verbose))
@@ -110,22 +91,6 @@ int NeighImage::_deserialize2(std::istream& is, bool verbose)
   }
 
   if (! ret) return 1;
-  return 0;
-}
-
-
-int NeighImage::_serialize(FILE* file, bool verbose) const
-{
-  if (ANeighParam::_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    return 1;
-  }
-
-  _recordWrite(file, "%d", getSkip());
-  for (int idim = 0; idim < getNDim(); idim++)
-    _recordWrite(file, "%lf", (double) getImageRadius(idim));
-  _recordWrite(file, "#", "Image NeighImageborhood parameters");
   return 0;
 }
 
@@ -156,21 +121,6 @@ NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
   return neighI;
 }
 
-int NeighImage::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "NeighImage", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int NeighImage::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -190,22 +140,6 @@ int NeighImage::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "NeighImage", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  NeighImage* neigh = new NeighImage();
-  if (neigh->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete neigh;
-    neigh = nullptr;
-  }
-  _fileClose(file, verbose);
-  return neigh;
-}
-
 NeighImage* NeighImage::createFromNF2(const String& neutralFilename, bool verbose)
 {
   NeighImage* neigh = nullptr;

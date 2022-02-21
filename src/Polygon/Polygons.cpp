@@ -198,29 +198,6 @@ PolySet Polygons::_extractFromTab(int ideb,
   return polyset;
 }
 
-int Polygons::_deserialize(FILE* file, bool verbose)
-{
-  int npol;
-
-  // Clear previous contents
-
-  _polysets.clear();
-
-  /* Create the Model structure */
-
-  if (_recordRead(file, "Number of Polygons", "%d", &npol)) return 1;
-
-  /* Loop on the PolySets */
-
-  for (int ipol = 0; ipol < npol; ipol++)
-  {
-    PolySet polyset;
-    polyset._deserialize(file, verbose);
-    addPolySet(polyset);
-  }
-  return 0;
-}
-
 int Polygons::_deserialize2(std::istream& is, bool verbose)
 {
   int npol;
@@ -242,26 +219,6 @@ int Polygons::_deserialize2(std::istream& is, bool verbose)
     if (polyset._deserialize2(is, verbose)) return 1;
     addPolySet(polyset);
   }
-  return 0;
-}
-
-
-int Polygons::_serialize(FILE* file, bool verbose) const
-{
-
-  /* Create the Model structure */
-
-  _recordWrite(file, "%d", getPolySetNumber());
-  _recordWrite(file, "#", "Number of Polygons");
-
-  /* Writing the covariance part */
-
-  for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
-  {
-    const PolySet& polyset = getPolySet(ipol);
-    polyset._serialize(file, verbose);
-  }
-
   return 0;
 }
 
@@ -293,22 +250,6 @@ Polygons* Polygons::create()
  * @param verbose         Verbose flag
  * @return
  */
-Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Polygon", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Polygons* polygons = new Polygons();
-  if (polygons->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete polygons;
-    polygons = nullptr;
-  }
-  _fileClose(file, verbose);
-  return polygons;
-}
-
 Polygons* Polygons::createFromNF2(const String& neutralFilename, bool verbose)
 {
   Polygons* polygons = nullptr;
@@ -325,21 +266,6 @@ Polygons* Polygons::createFromNF2(const String& neutralFilename, bool verbose)
     is.close();
   }
   return polygons;
-}
-
-int Polygons::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Polygon", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
 }
 
 int Polygons::dumpToNF2(const String& neutralFilename, bool verbose) const

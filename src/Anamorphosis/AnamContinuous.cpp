@@ -257,29 +257,6 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   return retfit;
 }
 
-int AnamContinuous::_serialize(FILE* file, bool verbose) const
-{
-  _recordWrite(file,"%lf", getAzmin());
-  _recordWrite(file,"%lf", getAzmax());
-  _recordWrite(file,"#", "Absolute Values for Z");
-  _recordWrite(file,"%lf", getAymin());
-  _recordWrite(file,"%lf", getAymax());
-  _recordWrite(file,"#", "Absolute Values for Y");
-  _recordWrite(file,"%lf", getPzmin());
-  _recordWrite(file,"%lf", getPzmax());
-  _recordWrite(file,"#", "Practical Values for Z");
-  _recordWrite(file,"%lf", getPymin());
-  _recordWrite(file,"%lf", getPymax());
-  _recordWrite(file,"#", "Practical Values for Y");
-
-  _recordWrite(file,"%lf", getMean());
-  _recordWrite(file,"#", "Calculated mean");
-  _recordWrite(file,"%lf", getVariance());
-  _recordWrite(file,"#", "Calculated variance");
-
-  return 0;
-}
-
 int AnamContinuous::_serialize2(std::ostream& os, bool verbose) const
 {
   bool ret = _recordWrite2<double>(os,"", getAzmin());
@@ -294,47 +271,6 @@ int AnamContinuous::_serialize2(std::ostream& os, bool verbose) const
   ret = ret && _recordWrite2<double>(os, "Calculated variance", getVariance());
 
   return ret ? 0 : 1;
-}
-
-int AnamContinuous::_deserialize(FILE* file, bool verbose)
-{
-  double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax, mean, variance;
-  mean = variance = TEST;
-
-  if (_recordRead(file, "Minimum absolute Z-value", "%lf", &azmin))
-    goto label_end;
-  if (_recordRead(file, "Maximum absolute Z-value", "%lf", &azmax))
-    goto label_end;
-  if (_recordRead(file, "Minimum absolute Y-value", "%lf", &aymin))
-    goto label_end;
-  if (_recordRead(file, "Maximum absolute Y-value", "%lf", &aymax))
-    goto label_end;
-  if (_recordRead(file, "Minimum Experimental Z-value", "%lf", &pzmin))
-    goto label_end;
-  if (_recordRead(file, "Maximum Experimental Z-value", "%lf", &pzmax))
-    goto label_end;
-  if (_recordRead(file, "Minimum Experimental Y-value", "%lf", &pymin))
-    goto label_end;
-  if (_recordRead(file, "Maximum Experimental Y-value", "%lf", &pymax))
-    goto label_end;
-  if (_recordRead(file, "Experimental Mean", "%lf", &mean))
-    goto label_end;
-  if (_recordRead(file, "Experimental Variance", "%lf", &variance))
-    goto label_end;
-
-  setPymin(pymin);
-  setPzmin(pzmin);
-  setPymax(pymax);
-  setPzmax(pzmax);
-  setAymin(aymin);
-  setAzmin(azmin);
-  setAymax(aymax);
-  setAzmax(azmax);
-  setMean(mean);
-  setVariance(variance);
-
-  label_end:
-  return 0;
 }
 
 int AnamContinuous::_deserialize2(std::istream& is, bool verbose)

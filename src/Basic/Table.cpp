@@ -53,21 +53,6 @@ int Table::resetFromArray(const VectorVectorDouble& table)
   return 0;
 }
 
-int Table::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Table", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int Table::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -84,23 +69,6 @@ int Table::dumpToNF2(const String& neutralFilename, bool verbose) const
 Table* Table::create(int nrows, int ncols)
 {
   return new Table(nrows, ncols);
-}
-
-Table* Table::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Table", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Table* table = new Table();
-  if (table->_deserialize(file, verbose))
-  {
-    messerr("Problem reading the Neutral File");
-    delete table;
-    _fileClose(file, verbose);
-    return nullptr;
-  }
-  _fileClose(file, verbose);
-  return table;
 }
 
 Table* Table::createFromNF2(const String& neutralFilename, bool verbose)
@@ -221,28 +189,6 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-int Table::_serialize(FILE* file, bool /*verbose*/) const
-{
-  /* Writing the header */
-
-  _recordWrite(file, "%d", getColNumber());
-  _recordWrite(file, "#", "Number of Columns");
-  _recordWrite(file, "%d", getRowNumber());
-  _recordWrite(file, "#", "Number of Rows");
-
-  /* Writing the tail of the file */
-
-  for (int irow = 0; irow < getRowNumber(); irow++)
-  {
-    for (int icol = 0; icol < getColNumber(); icol++)
-    {
-      _recordWrite(file, "%lf", _stats[icol][irow]);
-    }
-   _recordWrite(file, "\n");
-  }
-  return 0;
-}
-
 int Table::_serialize2(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = _recordWrite2<int>(os, "Number of Columns", getColNumber());
@@ -259,36 +205,6 @@ int Table::_serialize2(std::ostream& os, bool /*verbose*/) const
    _commentWrite2(os, "");
   }
   return 0;
-}
-
-int Table::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ncols, nrows;
-  double value;
-
-  int error = 1;
-  if (_recordRead(file, "Number of Columns", "%d", &ncols)) goto label_end;
-  if (_recordRead(file, "Number of Rows", "%d", &nrows)) goto label_end;
-
-  _stats.clear();
-  _stats.resize(ncols);
-
-  /* Loop on the lines */
-
-  for (int irow = 0; irow < nrows; irow++)
-  {
-    for (int icol = 0; icol < ncols; icol++)
-    {
-      if (_recordRead(file, "Numerical value", "%lf", &value)) goto label_end;
-      _stats[icol].push_back(value);
-    }
-  }
-
-  error = 0;
-
-  label_end:
-  if (error) _stats.clear();
-  return error;
 }
 
 int Table::_deserialize2(std::istream& is, bool /*verbose*/)
@@ -348,7 +264,7 @@ void Table::plot(int isimu) const
 {
   if (_stats.empty()) return;
   String filename = incrementStringVersion("TableStats",isimu+1);
-  (void) dumpToNF(filename,false);
+  (void) dumpToNF2(filename,false);
 }
 
 bool Table::_isColValid(int icol) const

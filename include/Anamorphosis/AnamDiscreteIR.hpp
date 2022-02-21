@@ -30,9 +30,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
-  static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = false);
   static AnamDiscreteIR* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
@@ -48,9 +46,6 @@ public:
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const;
-
   virtual int _deserialize2(std::istream& is, bool verbose) override;
   virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 

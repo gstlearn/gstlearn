@@ -98,21 +98,6 @@ Vario::~Vario()
 {
 }
 
-int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Vario", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int Vario::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -132,23 +117,6 @@ Vario* Vario::create(const VarioParam* varioparam,
                      const VectorDouble& vars)
 {
   return new Vario(varioparam, db, means, vars);
-}
-
-Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Vario", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  VarioParam* varioparam = new VarioParam();
-  Vario* vario = new Vario(varioparam);
-  if (vario->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete vario;
-    vario = nullptr;
-  }
-  _fileClose(file, verbose);
-  return vario;
 }
 
 Vario* Vario::createFromNF2(const String& neutralFilename, bool verbose)
@@ -1298,92 +1266,6 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
-  double dpas, tolang, scale, tolcode, toldis;
-  VectorDouble codir, grloc, vars;
-  VectorInt grincr;
-
-  /* Create the Vario structure */
-
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
-  if (_recordRead(file, "Number of Variables", "%d", &nvar)) goto label_end;
-  if (_recordRead(file, "Number of Variogram Directions", "%d", &ndir)) goto label_end;
-  if (_recordRead(file, "Scale", "%lf", &scale)) goto label_end;
-
-  /* Read the variances (optional) */
-
-  if (_recordRead(file, "Variogram calculation Option", "%d", &flag_calcul))  goto label_end;
-  vars.resize(nvar * nvar);
-  if (flag_calcul)
-  {
-    int ecr = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
-        if (_recordRead(file, "Experimental Variance term", "%lf", &vars[ecr]))
-          goto label_end;
-  }
-
-  /* Initialize the variogram structure */
-
-  _nVar = nvar;
-  internalDirectionResize(ndir,false);
-  setVars(vars);
-  setCalculName("vg");
-  setScale(scale);
-
-  /* Reading the variogram calculation directions */
-
-  for (int idir = 0; idir < ndir; idir++)
-  {
-    if (_recordRead(file, "Regular Variogram Calculation", "%d", &flag_regular)) goto label_end;
-    if (_recordRead(file, "Number of Variogram Lags", "%d", &npas)) goto label_end;
-    if (_recordRead(file, "Variogram Code Option", "%d", &opt_code)) goto label_end;
-    if (_recordRead(file, "Tolerance on Code", "%lf", &tolcode)) goto label_end;
-    if (_recordRead(file, "Lag Value", "%lf", &dpas)) goto label_end;
-    if (_recordRead(file, "Tolerance on Distance", "%lf", &toldis)) goto label_end;
-    if (_recordRead(file, "Tolerance on Direction", "%lf", &tolang)) goto label_end;
-    codir.resize(ndim);
-    grincr.resize(ndim);
-    grloc.resize(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead(file, "Direction vector", "%lf", &codir[idim]))
-        goto label_end;
-    for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead(file, "Grid Increment", "%lf", &grloc[idim]))
-        goto label_end;
-
-    DirParam dirparam = DirParam(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      grincr[idim] = (int) grloc[idim];
-    dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
-                  TEST, TEST, tolcode, VectorDouble(), codir, grincr);
-    _varioparam.addDirs(dirparam);
-
-    /* Read the arrays of results (optional) */
-
-    if (flag_calcul)
-    {
-      _directionResize(idir);
-      for (int i = 0; i < getDirSize(idir); i++)
-      {
-        double sw, hh, gg;
-        if (_recordRead(file, "Experimental Variogram Weight", "%lf", &sw)) goto label_end;
-        setSwByIndex(idir, i, sw);
-        if (_recordRead(file, "Experimental Variogram Distance", "%lf", &hh)) goto label_end;
-        setHhByIndex(idir, i, hh);
-        if (_recordRead(file, "Experimental Variogram Value", "%lf", &gg)) goto label_end;
-        setGgByIndex(idir, i, gg);
-      }
-    }
-  }
-
-  label_end:
-
-  return 0;
-}
-
 int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
@@ -1464,82 +1346,6 @@ int Vario::_deserialize2(std::istream& is, bool /*verbose*/)
     }
   }
   if (! ret) return 1;
-
-  return 0;
-}
-
-int Vario::_serialize(FILE* file, bool /*verbose*/) const
-{
-  double value;
-  static int flag_calcul = 1;
-
-  /* Write the Vario structure */
-
-  _recordWrite(file, "%d", _varioparam.getDimensionNumber());
-  _recordWrite(file, "#", "Space Dimension");
-  _recordWrite(file, "%d", getVariableNumber());
-  _recordWrite(file, "#", "Number of variables");
-  _recordWrite(file, "%d", getDirectionNumber());
-  _recordWrite(file, "#", "Number of directions");
-  _recordWrite(file, "%lf", _varioparam.getScale());
-  _recordWrite(file, "#", "Scale");
-  _recordWrite(file, "%d", flag_calcul);
-  _recordWrite(file, "#", "Calculation Flag");
-
-  /* Dumping the Variances */
-
-  if (flag_calcul)
-  {
-    _recordWrite(file, "#", "Variance");
-    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
-    {
-      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite(file, "%lf", getVar(ivar,jvar));
-      _recordWrite(file, "\n");
-    }
-  }
-
-  /* Loop on the directions */
-
-  for (int idir = 0; idir < getDirectionNumber(); idir++)
-  {
-    const DirParam dirparam = _varioparam.getDirParam(idir);
-    _recordWrite(file, "#", "Direction characteristics");
-    _recordWrite(file, "%d", dirparam.getFlagRegular());
-    _recordWrite(file, "#", "Regular lags");
-    _recordWrite(file, "%d", dirparam.getLagNumber());
-    _recordWrite(file, "#", "Number of lags");
-    _recordWrite(file, "%d", dirparam.getOptionCode());
-    _recordWrite(file, "%lf", dirparam.getTolCode());
-    _recordWrite(file, "#", "Code selection: Option - Tolerance");
-    _recordWrite(file, "%lf", dirparam.getDPas());
-    _recordWrite(file, "#", "Lag value");
-    _recordWrite(file, "%lf", dirparam.getTolDist());
-    _recordWrite(file, "#", "Tolerance on distance");
-    _recordWrite(file, "%lf", dirparam.getTolAngle());
-    _recordWrite(file, "#", "Tolerance on angle");
-
-    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite(file, "%lf", dirparam.getCodir(idim));
-    _recordWrite(file, "#", "Direction coefficients");
-
-    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite(file, "%lf", (double) dirparam.getGrincr(idim));
-    _recordWrite(file, "#", "Direction increments on grid");
-
-    if (!flag_calcul) continue;
-    _recordWrite(file, "#", "Variogram results (Weight, Distance, Variogram)");
-    for (int i = 0; i < getDirSize(idir); i++)
-    {
-      value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
-      value = FFFF(getHhByIndex(idir, i)) ? 0. : getHhByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
-      value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
-      _recordWrite(file, "\n");
-    }
-  }
   return 0;
 }
 

@@ -59,33 +59,12 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighUnique::_deserialize(FILE* file, bool verbose)
-{
-  if (ANeighParam::_deserialize(file, verbose))
-  {
-    if (verbose)
-      messerr("Problem reading from the Neutral File.");
-    return 1;
-  }
-  return 0;
-}
-
 int NeighUnique::_deserialize2(std::istream& is, bool verbose)
 {
   if (ANeighParam::_deserialize2(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
-    return 1;
-  }
-  return 0;
-}
-
-int NeighUnique::_serialize(FILE* file, bool verbose) const
-{
-  if (ANeighParam::_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
     return 1;
   }
   return 0;
@@ -113,21 +92,6 @@ NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
   return neighU;
 }
 
-int NeighUnique::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "NeighUnique", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int NeighUnique::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -147,22 +111,6 @@ int NeighUnique::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @param verbose         Verbose flag
  * @return
  */
-NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "NeighUnique", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  NeighUnique* neigh = new NeighUnique;
-  if (neigh->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete neigh;
-    neigh = nullptr;
-  }
-  _fileClose(file, verbose);
-  return neigh;
-}
-
 NeighUnique* NeighUnique::createFromNF2(const String& neutralFilename, bool verbose)
 {
   NeighUnique* neigh = nullptr;

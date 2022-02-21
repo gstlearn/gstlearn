@@ -29,10 +29,8 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   int dumpToNF2(const String& neutralFilename, bool verbose = false) const;
   static PolySet* create();
-  static PolySet* createFromNF(const String& neutralFilename, bool verbose = false);
   static PolySet* createFromNF2(const String& neutralFilename, bool verbose = false);
 
   int getNVertices() const { return static_cast<int>(_x.size()); }
@@ -57,9 +55,6 @@ public:
   void setY(const VectorDouble& y) { _y = y; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false);
-  virtual int _serialize(FILE* file, bool verbose = false) const;
-
   virtual int _deserialize2(std::istream& is, bool verbose = false) override;
   virtual int _serialize2(std::ostream& os, bool verbose = false) const override;
 

@@ -60,21 +60,9 @@ void AnamUser::calculateMeanAndVariance()
   messerr("AnamUser: This funtion does not make sense");
 }
 
-int AnamUser::_deserialize(FILE* /*file*/, bool /*verbose*/)
-{
-  messerr("AnamUser: Cannot be deserialized");
-  return 1;
-}
-
 int AnamUser::_deserialize2(std::istream& /*is*/, bool /*verbose*/)
 {
   messerr("AnamUser: Cannot be deserialized");
-  return 1;
-}
-
-int AnamUser::_serialize(FILE* /*file*/, bool /*verbose*/) const
-{
-  messerr("AnamUser: Cannot be serialized");
   return 1;
 }
 

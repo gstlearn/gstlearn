@@ -664,42 +664,6 @@ int Rule::setProportions(const VectorDouble& proportions) const
   return(0);
 }
 
-int Rule::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int nb_node;
-
-  /* Create the Rule structure */
-
-  int mrule = 0;
-  if (_recordRead(file, "Rule definition", "%d", &mrule)) return 1;
-  if (_recordRead(file, "Correlation Coefficient of GRFs", "%lf", &_rho)) return 1;
-  _modeRule = ERule::fromValue(mrule);
-
-  // Specific case
-
-  if (_deserializeSpecific(file)) return 1;
-
-  /* Read the number of nodes */
-
-  if (_recordRead(file, "Number of Rule Nodes", "%d", &nb_node)) return 1;
-  VectorInt nodes(6 * nb_node);
-
-  /* Loop on the nodes for reading: */
-  /* - from_type: Type of the parent */
-  /* - from_rank: Rank of the parent */
-  /* - from_vers: Orientation of the parent */
-  /* - node_type: 0 (idle) - 1 (Thresh along Y1) - 2 (Thresh along Y2) */
-  /* - node_rank: Rank of the node (starting from 1) */
-  /* - facies   : Rank of the facies */
-  int lec = 0;
-  for (int inode =  0; inode < nb_node; inode++)
-    for (int i = 0; i < 6; i++)
-      if (_recordRead(file, "Rule Node Definition", "%d", &nodes[lec++])) return 1;
-  setMainNodeFromNodNames(nodes);
-
-  return 0;
-}
-
 int Rule::_deserialize2(std::istream& is, bool /*verbose*/)
 {
   int nb_node;
@@ -734,37 +698,6 @@ int Rule::_deserialize2(std::istream& is, bool /*verbose*/)
     for (int i = 0; i < 6; i++)
       ret = ret && _recordRead2<int>(is, "Rule Node Definition", nodes[lec++]);
   setMainNodeFromNodNames(nodes);
-
-  return 0;
-}
-
-
-int Rule::_serialize(FILE* file, bool /*verbose*/) const
-{
-  int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
-  double prop_tot;
-
-  /* Create the Rule structure */
-
-  _recordWrite(file, "%d", getModeRule().getValue());
-  _recordWrite(file, "#", "Type of Rule");
-  _recordWrite(file, "%lf", getRho());
-  _recordWrite(file, "#", "Correlation coefficient between GRFs");
-
-  // Specific parameters
-
-  _serializeSpecific(file);
-
-  /* Count the number of nodes */
-
-  statistics(0,&nb_node,&nfacies,&nmax_tot,&ny1_tot,&ny2_tot,&prop_tot);
-  _recordWrite(file, "%d", nb_node);
-  _recordWrite(file, "#", "Number of nodes");
-
-  /* Fill the nodes characteristics recursively */
-
-  rank = 0;
-  _ruleDefine(file, getMainNode(), 0, 0, 0, &rank);
 
   return 0;
 }
@@ -1131,21 +1064,6 @@ int Rule::evaluateBounds(PropDef* propdef,
   return(0);
 }
 
-int Rule::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Rule", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int Rule::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -1163,23 +1081,6 @@ int Rule::dumpToNF2(const String& neutralFilename, bool verbose) const
 Rule* Rule::create(double rho)
 {
   return new Rule(rho);
-}
-
-Rule* Rule::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Rule", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Rule* rule = new Rule();
-  rule->setModeRule(ERule::STD);
-  if (rule->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete rule;
-    rule = nullptr;
-  }
-  _fileClose(file, verbose);
-  return rule;
 }
 
 Rule* Rule::createFromNF2(const String& neutralFilename, bool verbose)

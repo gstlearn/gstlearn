@@ -42,21 +42,6 @@ AnamDiscreteIR::~AnamDiscreteIR()
 
 }
 
-int AnamDiscreteIR::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int AnamDiscreteIR::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -68,22 +53,6 @@ int AnamDiscreteIR::dumpToNF2(const String& neutralFilename, bool verbose) const
     os.close();
   }
   return ret;
-}
-
-AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  AnamDiscreteIR* anam = new AnamDiscreteIR();
-  if (anam->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete anam;
-    anam = nullptr;
-  }
-  _fileClose(file, verbose);
-  return anam;
 }
 
 AnamDiscreteIR* AnamDiscreteIR::createFromNF2(const String& neutralFilename, bool verbose)
@@ -367,10 +336,6 @@ double AnamDiscreteIR::_getResidual(int iclass, double z) const
  * @param verbose
  * @return
  */
-int AnamDiscreteIR::_serialize(FILE* file, bool verbose) const
-{
-  return 0;
-}
 int AnamDiscreteIR::_serialize2(std::ostream& os, bool verbose) const
 {
   if (AnamDiscrete::_serialize2(os, verbose)) return 1;
@@ -378,21 +343,6 @@ int AnamDiscreteIR::_serialize2(std::ostream& os, bool verbose) const
   bool ret = _recordWrite2<double>(os, "Change of support coefficient", getRCoef());
 
   return ret ? 0 : 1;
-}
-
-int AnamDiscreteIR::_deserialize(FILE* file, bool verbose)
-{
-  double r = TEST;
-
-  if (AnamDiscrete::_deserialize(file, verbose)) goto label_end;
-
-  if (_recordRead(file, "Anamorphosis 'r' coefficient", "%lf", &r))
-    goto label_end;
-
-  setRCoef(r);
-
-  label_end:
-  return 0;
 }
 
 int AnamDiscreteIR::_deserialize2(std::istream& is, bool verbose)

@@ -156,21 +156,6 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-int PolySet::_serialize(FILE* file, bool /*verbose*/) const
-{
-  // Store information
-  _recordWrite(file, "%d", getNVertices());
-  _recordWrite(file, "#", "Number of Vertices");
-
-  for (int i = 0; i < getNVertices(); i++)
-  {
-    _recordWrite(file, "%lf", getX(i));
-    _recordWrite(file, "%lf", getY(i));
-    _recordWrite(file, "\n");
-  }
-  return 0;
-}
-
 int PolySet::_serialize2(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = _recordWrite2<int>(os, "Number of Vertices", getNVertices());
@@ -182,31 +167,6 @@ int PolySet::_serialize2(std::ostream& os, bool /*verbose*/) const
     ret = ret && _commentWrite2(os, "");
   }
   return ret ? 0 : 1;
-}
-
-int PolySet::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int nvert;
-  double zmin = TEST;
-  double zmax = TEST;
-
-  if (_recordRead(file, "Number of Vertices", "%d", &nvert)) return 1;
-  VectorDouble x(nvert);
-  VectorDouble y(nvert);
-
-  /* Loop on the Vertices */
-
-  for (int i = 0; i < nvert; i++)
-  {
-    if (_recordRead(file, "X-Coordinate of a Polyset", "%lf", &x[i])) return 1;
-    if (_recordRead(file, "Y-Coordinate of a Polyset", "%lf", &y[i])) return 1;
-  }
-
-  /* Add the polyset */
-
-  init(x,y,zmin,zmax);
-
-  return 0;
 }
 
 int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
@@ -235,21 +195,6 @@ int PolySet::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "PolySet", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int PolySet::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -266,22 +211,6 @@ int PolySet::dumpToNF2(const String& neutralFilename, bool verbose) const
 PolySet* PolySet::create()
 {
   return new PolySet();
-}
-
-PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "PolySet", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  PolySet* polyset = new PolySet();
-  if (polyset->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete polyset;
-    polyset = nullptr;
-  }
-  _fileClose(file, verbose);
-  return polyset;
 }
 
 PolySet* PolySet::createFromNF2(const String& neutralFilename, bool verbose)

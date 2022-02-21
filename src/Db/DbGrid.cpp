@@ -453,78 +453,6 @@ int DbGrid::getNDim() const
   return (_grid.getNDim());
 }
 
-int DbGrid::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ndim, ndim2, ntot, nloc, nech, i, flag_grid;
-  VectorInt tabnum;
-  std::vector<ELoc> tabloc;
-  VectorInt nx;
-  VectorString tabnam;
-  VectorDouble x0;
-  VectorDouble dx;
-  VectorDouble angles;
-  VectorDouble tab;
-  static int flag_add_rank = 0;
-
-  /* Initializations */
-
-  nloc = ndim = nech = ntot = 0;
-
-  /* Decoding the header */
-
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
-
-  /* Core allocation */
-
-  nx.resize(ndim);
-  dx.resize(ndim);
-  x0.resize(ndim);
-  angles.resize(ndim);
-
-  /* Read the grid characteristics */
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    if (_recordRead(file, "Grid Number of Nodes", "%d", &nx[idim]))
-      goto label_end;
-    if (_recordRead(file, "Grid Origin", "%lf", &x0[idim])) goto label_end;
-    if (_recordRead(file, "Grid Mesh", "%lf", &dx[idim])) goto label_end;
-    if (_recordRead(file, "Grid Angles", "%lf", &angles[idim])) goto label_end;
-  }
-  ntot = ut_ivector_prod(nx);
-
-  /* Reading the tail of the file */
-
-  _variableRead(file, &nloc, &ndim2, &nech, tabloc, tabnum, tabnam, tab);
-
-  /* Creating the Db */
-
-  if (nloc > 0 && nech != ntot)
-  {
-    messerr("The number of lines read from the Grid file (%d)", nech);
-    messerr("is not a multiple of the number of samples (%d)", ntot);
-    messerr("The Grid Db is created with no sample attached");
-    nloc = 0;
-  }
-  resetDims(nloc + flag_add_rank, ut_ivector_prod(nx));
-  (void) gridDefine(nx, dx, x0, angles);
-  _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
-
-  /* Loading the names */
-
-  if (nloc > 0) for (i = 0; i < nloc; i++)
-    setNameByUID(i + flag_add_rank, tabnam[i]);
-
-  /* Create the locators */
-
-  if (nloc > 0) for (i = 0; i < nloc; i++)
-    setLocatorByUID(i + flag_add_rank, tabloc[i], tabnum[i]);
-
-  /* Core deallocation */
-
-  label_end: return 0;
-}
-
 int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
 {
   int ndim, ndim2, ntot, nech, i, flag_grid, ncol;
@@ -625,35 +553,6 @@ int DbGrid::_deserialize2(std::istream& is, bool /*verbose*/)
   return 0;
 }
 
-int DbGrid::_serialize(FILE* file, bool /*verbose*/) const
-{
-  bool onlyLocator = false;
-  bool writeCoorForGrid = true;
-
-  /* Writing the header */
-
-  _recordWrite(file, "%d", getNDim());
-  _recordWrite(file, "#", "Space Dimension");
-
-  /* Writing the grid characteristics */
-
-  _recordWrite(file, "#", "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; idim < getNDim(); idim++)
-  {
-    _recordWrite(file, "%d",  getNX(idim));
-    _recordWrite(file, "%lf", getX0(idim));
-    _recordWrite(file, "%lf", getDX(idim));
-    _recordWrite(file, "%lf", getAngle(idim));
-    _recordWrite(file, "\n");
-  }
-
-  /* Writing the tail of the file */
-
-  if (_variableWrite(file, true, onlyLocator, writeCoorForGrid)) return 1;
-
-  return 0;
-}
-
 int DbGrid::_serialize2(std::ostream& os, bool verbose) const
 {
 
@@ -693,21 +592,6 @@ int DbGrid::gridDefine(const VectorInt& nx,
   return (_grid.resetFromVector(nx, dx, x0, angles));
 }
 
-int DbGrid::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "DbGrid", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
 int DbGrid::dumpToNF2(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
@@ -721,7 +605,6 @@ int DbGrid::dumpToNF2(const String& neutralFilename, bool verbose) const
   return ret;
 }
 
-
 /**
  * Create a Db by loading the contents of a Neutral File
  *
@@ -731,22 +614,6 @@ int DbGrid::dumpToNF2(const String& neutralFilename, bool verbose) const
  * @remarks The name does not need to be completed in particular when defined by absolute path
  * @remarks or read from the Data Directory (in the gstlearn distribution)
  */
-DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "DbGrid", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  DbGrid* db = new DbGrid;
-  if (db->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete db;
-    db = nullptr;
-  }
-  _fileClose(file, verbose);
-  return db;
-}
-
 DbGrid* DbGrid::createFromNF2(const String& neutralFilename, bool verbose)
 {
   DbGrid* db = nullptr;
