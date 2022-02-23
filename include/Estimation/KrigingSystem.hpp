@@ -58,7 +58,8 @@ private:
   double _getFext(int rank, int ibfl, int iech_out = 0) const;
   double _getIvar(int rank, int ivar, int iech_out = 0, bool flagSimu = false) const;
   double _getVerr(int rank, int ivar, int iech_out = 0) const;
-  void _reset();
+  void _resetMemoryPerNeigh();
+  void _resetMemoryGeneral();
   void _flagDefine();
   void _covtabInit(bool flag_init);
   void _covtabCalcul(bool flag_init,

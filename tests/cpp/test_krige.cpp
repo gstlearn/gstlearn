@@ -11,6 +11,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -32,6 +33,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   setup_license("Demonstration");
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid
   VectorInt nx = {100,100};
@@ -40,19 +42,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate the data base
   int nech = 100;
-  VectorDouble tab;
   // Coordinates
-  for (int idim=0; idim<ndim; idim++)
-    for (int iech=0; iech<nech; iech++)
-    {
-      tab.push_back(law_uniform(0,100));
-    }
+  VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 100.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
     for (int iech=0; iech<nech; iech++)
-    {
       tab.push_back(10 * law_gaussian());
-    }
 
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
   data->setNameByUID(1,"xcoor1");
@@ -61,7 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->setLocatorByUID(1,ELoc::X,0);
   data->setLocatorByUID(2,ELoc::X,1);
   data->setLocatorByUID(3,ELoc::Z);
-  data->display();
+  data->display(&dbfmt);
 
   // Create the Model
   CovContext ctxt(nvar); // use default space
@@ -70,6 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   CovAniso cova(ECov::SPHERICAL, 5., 0., 45, ctxt);
   covs.addCov(&cova);
   model.setCovList(&covs);
+  model.setMean(0,123.);
   model.display();
 
   // Creating a Neighborhood
@@ -77,7 +73,8 @@ int main(int /*argc*/, char */*argv*/[])
   neighU->display();
 
   // Launch kriging
-  kriging(data, grid, &model, neighU);
+  kriging2(data, grid, &model, neighU); // TODO: to be brought back to kriging()
+  grid->display(&dbfmt);
 
   delete data;
   delete grid;

@@ -254,4 +254,6 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
+  OutputFormat/AOF.cpp
+  OutputFormat/GridProp.cpp
 )

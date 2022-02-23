@@ -33,6 +33,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Estimation/KrigingSystem.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3417,6 +3418,102 @@ int kriging(Db *dbin,
   (void) krige_koption_manage(-1, 1, calcul, 1, ndisc);
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
+  return (error);
+}
+
+/**
+ * This is the newest tentative version of kriging. It is temporarily renamed
+ * in kriging2() to be compared with the original kriging().
+ * @param dbin
+ * @param dbout
+ * @param model
+ * @param neighparam
+ * @param calcul
+ * @param flag_est
+ * @param flag_std
+ * @param flag_varz
+ * @param ndisc
+ * @param rank_colcok
+ * @param matCL
+ * @param namconv
+ * @return
+ */
+int kriging2(Db *dbin,
+            Db *dbout,
+            Model *model,
+            ANeighParam *neighparam,
+            const EKrigOpt &calcul,
+            int flag_est,
+            int flag_std,
+            int flag_varz,
+            VectorInt ndisc,
+            VectorInt rank_colcok,
+            VectorDouble matCL,
+            const NamingConvention& namconv)
+{
+  int error = 1;
+  int nvar = model->getVariableNumber();
+  int save_keypair = (int) get_keypone("SaveKrigingWeights", 0.);
+  if (neighparam->getType() == ENeigh::IMAGE)
+  {
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  if (flag_est != 0)
+  {
+    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
+    if (IPTR_EST < 0) return 1;
+  }
+  if (flag_std != 0)
+  {
+    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
+    if (IPTR_STD < 0) return 1;
+  }
+  if (flag_varz != 0)
+  {
+    IPTR_VARZ = dbout->addColumnsByConstant(nvar, 0.);
+    if (IPTR_VARZ < 0) return 1;
+  }
+
+  /* Pre-calculations */
+
+  KrigingSystem ksys(dbin, dbout, model, neighparam, FLAG_SIMU);
+  ksys.setKrigOptEstim(IPTR_EST, IPTR_STD, IPTR_VARZ);
+  ksys.setKrigOptCalcul(calcul, VectorDouble());
+//  ksys.setKrigOptXValid(bool optionXValidEstim = false,
+//                       bool optionXValidStdev = false);
+//  int setKrigOptColCok(const VectorInt& rank_colcok);
+//  int setKrigOptBayes(bool flag_bayes);
+
+  /* Loop on the targets to be processed */
+
+  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
+  {
+    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
+    (void) ksys.estimate(iech_out, false);
+  }
+
+  /* Set the error return flag */
+
+  error = 0;
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, IPTR_VARZ, "varz", 1,
+                              false);
+  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_est > 0)
+    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stderr", 1,
+                                false);
+  else
+    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stdev", 1,
+                                false);
+  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_std > 0)
+    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "esterr");
+  else
+    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
+
+  label_end:
+  OptDbg::setIndex(0);
   return (error);
 }
 

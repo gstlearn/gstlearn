@@ -75,11 +75,7 @@ KrigingSystem::KrigingSystem(const Db* dbin,
       _zam(),
       _var0()
 {
-  int nvar   = _getNVar();
-  int ndrift = _getNDrift();
-  _covtab.resize(nvar * nvar);
-  _drftab.resize(ndrift);
-  _var0.resize(nvar * nvar);
+  _resetMemoryGeneral();
 }
 
 //KrigingSystem::KrigingSystem(const KrigingSystem &m)
@@ -220,14 +216,24 @@ int KrigingSystem::_getNDisc() const
   return ndisc;
 }
 
-void KrigingSystem::_reset()
+void KrigingSystem::_resetMemoryPerNeigh()
 {
   int nvar   = _getNVar();
   int neq    = _getNeq();
-  _lhs.resize(neq * neq);
-  _rhs.resize(neq * nvar);
-  _wgt.resize(neq * nvar);
-  _zam.resize(neq);
+  _flag.resize(neq);
+  _lhs.resize (neq * neq);
+  _rhs.resize (neq * nvar);
+  _wgt.resize (neq * nvar);
+  _zam.resize (neq);
+}
+
+void KrigingSystem::_resetMemoryGeneral()
+{
+  int nvar   = _getNVar();
+  int ndrift = _getNDrift();
+  _covtab.resize(nvar * nvar);
+  _drftab.resize(ndrift);
+  _var0.resize(nvar * nvar);
 }
 
 /****************************************************************************/
@@ -1212,7 +1218,7 @@ int KrigingSystem::_prepar()
 {
   // Resize the internal working arrays
 
-  _reset();
+  _resetMemoryPerNeigh();
 
   /* Define the array flag */
 

@@ -16,11 +16,14 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
+#include "OutputFormat/GridProp.hpp"
+#include "OutputFormat/GridEclipse.hpp"
 #include "vtk.h"
 
 #include <string.h>
 #include <sstream>
 #include <string>
+#include <stdio.h>
 #include <algorithm>
 
 /*! \cond */
@@ -444,10 +447,10 @@ static int st_grid_read_zycor_header(FILE *file,
  **
  *****************************************************************************/
 int db_grid_read_zycor1(const char *filename,
-                                        int verbose,
-                                        int *nx,
-                                        double *x0,
-                                        double *dx)
+                        int verbose,
+                        int *nx,
+                        double *x0,
+                        double *dx)
 {
   FILE *file;
   double test;
@@ -495,10 +498,10 @@ int db_grid_read_zycor1(const char *filename,
  **
  *****************************************************************************/
 int db_grid_read_zycor2(const char *filename,
-                                        int *nx_r,
-                                        double *x0_r,
-                                        double *dx_r,
-                                        double *tab)
+                        int *nx_r,
+                        double *x0_r,
+                        double *dx_r,
+                        double *tab)
 {
   FILE *file;
   int nx[2], nech, lec, error, ix, iy;
@@ -584,7 +587,7 @@ static unsigned char st_in(FILE *file)
   unsigned char c;
 
   c = (unsigned char) fgetc(file);
-  if (! feof(file)) return c;
+  if (!feof(file)) return c;
 
   if (feof(file)) message(" End-of-file reached\n");
   if (ferror(file)) message(" A READ error occured (%d)\n", ferror(file));
@@ -758,10 +761,10 @@ static int st_grid_read_bmp_header(FILE *file,
  **
  *****************************************************************************/
 int db_grid_read_bmp1(const char *filename,
-                                      int verbose,
-                                      int *nx,
-                                      double *x0,
-                                      double *dx)
+                      int verbose,
+                      int *nx,
+                      double *x0,
+                      double *dx)
 {
   FILE *file;
   int error, nbits, ir[256], ig[256], ib[256];
@@ -809,10 +812,10 @@ int db_grid_read_bmp1(const char *filename,
  **
  *****************************************************************************/
 int db_grid_read_bmp2(const char *filename,
-                                      int *nx_r,
-                                      double *x0_r,
-                                      double *dx_r,
-                                      double *tab)
+                      int *nx_r,
+                      double *x0_r,
+                      double *dx_r,
+                      double *tab)
 {
   FILE *file;
   int nx[2], error, ix, jy, nbits, npad, noct, ecr, ir[256], ig[256], ib[256],
@@ -1087,31 +1090,31 @@ static void st_out(FILE *file, int mode, unsigned int ival)
  **
  *****************************************************************************/
 int db_grid_write_bmp(const char *filename,
-                                      DbGrid *db,
-                                      int icol,
-                                      int nsamplex,
-                                      int nsampley,
-                                      int nmult,
-                                      int ncolor,
-                                      int flag_low,
-                                      int flag_high,
-                                      double valmin,
-                                      double valmax,
-                                      int *red,
-                                      int *green,
-                                      int *blue,
-                                      int mask_red,
-                                      int mask_green,
-                                      int mask_blue,
-                                      int ffff_red,
-                                      int ffff_green,
-                                      int ffff_blue,
-                                      int low_red,
-                                      int low_green,
-                                      int low_blue,
-                                      int high_red,
-                                      int high_green,
-                                      int high_blue)
+                      DbGrid *db,
+                      int icol,
+                      int nsamplex,
+                      int nsampley,
+                      int nmult,
+                      int ncolor,
+                      int flag_low,
+                      int flag_high,
+                      double valmin,
+                      double valmax,
+                      int *red,
+                      int *green,
+                      int *blue,
+                      int mask_red,
+                      int mask_green,
+                      int mask_blue,
+                      int ffff_red,
+                      int ffff_green,
+                      int ffff_blue,
+                      int low_red,
+                      int low_green,
+                      int low_blue,
+                      int high_red,
+                      int high_green,
+                      int high_blue)
 {
   FILE *file;
   int *indg, infosize, headersize, imagesize, ix, iy, i, nx, ny, iech, rank;
@@ -1263,10 +1266,10 @@ int db_grid_write_bmp(const char *filename,
  **
  *****************************************************************************/
 int db_grid_write_irap(const char *filename,
-                                       DbGrid *db,
-                                       int icol,
-                                       int nsamplex,
-                                       int nsampley)
+                       DbGrid *db,
+                       int icol,
+                       int nsamplex,
+                       int nsampley)
 {
   FILE *file;
   double xmin, xmax, ymin, ymax, value, dx, dy;
@@ -1353,87 +1356,13 @@ int db_grid_write_irap(const char *filename,
  ** \param[in]  icols     Rank(s) of the attribute
  **
  *****************************************************************************/
-int db_grid_write_prop(const char *filename,
-                                       DbGrid *db,
-                                       int ncol,
-                                       int *icols)
+int db_grid_write_prop(const char *filename, DbGrid *db, int ncol, int *icols)
 {
-  FILE *file;
-  int i, j, idim, ndim, flag_not_rotz, ntot, nx[3];
-  double value;
-  VectorDouble angles;
-  static double valnull = 3.0;
-
-  /* Preliminary checks */
-
-  ndim = db->getNDim();
-  ntot = 1;
-  for (idim = 0; idim < 3; idim++)
-  {
-    nx[idim] = (idim < ndim) ? db->getNX(idim) :
-                               1;
-    ntot *= nx[idim];
-  }
-
-  if (db->isGridRotated())
-  {
-    angles = db->getGrid().getRotAngles();
-    flag_not_rotz = 0;
-    for (idim = 1; idim < ndim; idim++)
-      if (angles[idim] != 0.) flag_not_rotz = 1;
-    if (flag_not_rotz)
-    {
-      messerr("The Grid rotation may not involve Oy nor Ox angles");
-      return (1);
-    }
-  }
-
-  /* Open the file */
-
-  file = gslFopen(filename, "w");
-  if (file == nullptr)
-  {
-    messerr("Error when opening the IFPEN .PROP file %s for writing", filename);
-    return (1);
-  }
-
-  /* Write the header */
-
-  st_ifpen_write(file, 0, "##########################", 0, 0., NULL);
-  st_ifpen_write(file, 0, "FILE_DESCRIPTION         # PROP", 0, 0., NULL);
-  st_ifpen_write(file, 0, "APPLICATION              #", 0, 0., "# CobraFlow");
-  st_ifpen_write(file, 0, "SURVEY_NAME              #", 0, 0., NULL);
-  st_ifpen_write(file, 0, "MATRIX_NAME              # VPCMatrix_test_export", 0,
-                 0., NULL);
-  st_ifpen_write(file, 0, "METHOD                   # BY_CPV", 0, 0., NULL);
-  st_ifpen_write(file, 2, "FLOAT_NULL_VALUE         #", 0, valnull, NULL);
-  st_ifpen_write(file, 0, "ROW_COLUMN_ORIENTATION   # ROW", 0, 0., NULL);
-  st_ifpen_write(file, 0, "REPRESENTATION_CODE      # ASCII", 0, 0., NULL);
-  st_ifpen_write(file, 0, "##########################", 0, 0., NULL);
-  st_ifpen_write(file, 2, "ANGLE                    #", 0, angles[0], "# DEG");
-  st_ifpen_write(file, 1, "ROW_COUNT                #", nx[1], 0., NULL);
-  st_ifpen_write(file, 1, "COLUMN_COUNT             #", nx[0], 0., NULL);
-  st_ifpen_write(file, 2, "ROW_DISTANCE             #", 0, db->getDX(1), "# m");
-  st_ifpen_write(file, 2, "COLUMN_DISTANCE          #", 0, db->getDX(0), "# m");
-  st_ifpen_write(file, 1, "LAYER_COUNT              #", nx[2], 0., NULL);
-  st_ifpen_write(file, 2, "X_ORIGIN                 #", 0, db->getX0(0), "# m");
-  st_ifpen_write(file, 2, "Y_ORIGIN                 #", 0, db->getX0(1), "# m");
-  st_ifpen_write(file, 1, "FACIES_COUNT             #", ncol, 0., NULL);
-  st_ifpen_write(file, 0, "DATA_PROP                # CHANNEL1", 0, 0.,
-                 "# Facies proportion");
-  st_ifpen_write(file, 0, "##########################", 0, 0., NULL);
-
-  /* Grid description */
-
-  for (j = 0; j < ncol; j++)
-    for (i = 0; i < ntot; i++)
-    {
-      value = db->getArray(i, icols[j]);
-      st_ifpen_write(file, 2, NULL, 0, value, NULL);
-    }
-
-  if (file != nullptr) fclose(file);
-  return (0);
+  GridProp aof(filename, db);
+  aof.setCols(ncol,icols);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -1447,58 +1376,13 @@ int db_grid_write_prop(const char *filename,
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
-int db_grid_write_eclipse(const char *filename,
-                                          DbGrid *db,
-                                          int icol)
+int db_grid_write_eclipse(const char *filename, DbGrid *db, int icol)
 {
-  FILE *file;
-  int i, idim, nxyz, ninline;
-  double value, valprt;
-  static int nbyline = 6;
-  static double valtest = -9999.;
-
-  /* Preliminary checks */
-
-  nxyz = 1;
-  for (idim = 0; idim < db->getNDim(); idim++)
-    nxyz *= db->getNX(idim);
-
-  /* Open the file */
-
-  file = gslFopen(filename, "w");
-  if (file == nullptr)
-  {
-    messerr("Error when opening the ECLIPSE file %s for writing", filename);
-    return (1);
-  }
-
-  /* Write a comment */
-
-  fprintf(file, "Facies\n");
-
-  /* Write the set of values */
-
-  ninline = 0;
-  for (i = 0; i < nxyz; i++)
-  {
-    valprt = valtest;
-    if (db->getSelection(i))
-    {
-      value = db->getArray(i, icol);
-      if (!FFFF(value)) valprt = value;
-    }
-    fprintf(file, "%lf ", valprt);
-    ninline++;
-    if (ninline == nbyline)
-    {
-      fprintf(file, "\n");
-      ninline = 0;
-    }
-  }
-  if (ninline > 0) fprintf(file, "\n");
-
-  if (file != nullptr) fclose(file);
-  return (0);
+  GridEclipse aof(filename, db);
+  aof.setCol(icol);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -1620,11 +1504,11 @@ static int st_grid_read_prop_header(FILE *file,
  **
  *****************************************************************************/
 int db_grid_read_prop1(const char *filename,
-                                       int verbose,
-                                       int *ncol,
-                                       int *nx,
-                                       double *x0,
-                                       double *dx)
+                       int verbose,
+                       int *ncol,
+                       int *nx,
+                       double *x0,
+                       double *dx)
 {
   FILE *file;
   double test;
@@ -1672,11 +1556,11 @@ int db_grid_read_prop1(const char *filename,
  **
  *****************************************************************************/
 int db_grid_read_prop2(const char *filename,
-                                       int ncol_r,
-                                       int *nx_r,
-                                       double *x0_r,
-                                       double *dx_r,
-                                       double *tab)
+                       int ncol_r,
+                       int *nx_r,
+                       double *x0_r,
+                       double *dx_r,
+                       double *tab)
 {
   FILE *file;
   int nx[3], nech, lec, error, ix, iy, iz, ncol, icol;
@@ -1762,8 +1646,7 @@ int db_write_vtk(const char *filename,
 {
   int *vardim, *center;
   int dims[3], error, nech, ndim, flag_grid, useBinary, ecr, iad, nactive, ncol;
-  float *points, *xcoor, *ycoor, *zcoor, factx, facty, factz, fact, factvar,
-      value;
+  float *points, *xcoor, *ycoor, *zcoor, factx, facty, factz, fact, factvar, value;
   float **tab;
   std::vector<char*> vc;
 
@@ -1800,7 +1683,8 @@ int db_write_vtk(const char *filename,
   /* Define the reading parameters */
 
   for (int idim = 0; idim < 3; idim++)
-    dims[idim] = (idim < ndim) ? db->getNX(idim) : 1;
+    dims[idim] = (idim < ndim) ? db->getNX(idim) :
+                                 1;
 
   /* Core allocation */
 
@@ -1859,7 +1743,8 @@ int db_write_vtk(const char *filename,
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
         points[ecr++] =
-            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) : 0.;
+            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) :
+                            0.;
       }
     }
   }
@@ -1989,8 +1874,8 @@ namespace
     std::string result;
     result.reserve(s.size());
     std::transform(s.begin(), s.end(), back_inserter(result),
-                   [](unsigned char c)
-                   { return std::tolower(c);});
+        [](unsigned char c)
+        { return std::tolower(c);});
     return result;
   }
   ;

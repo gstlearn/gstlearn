@@ -263,6 +263,10 @@ class IClonable{};
 
 %include Estimation/KrigingSystem.hpp
 
+%include OutputFormat/AOF.hpp
+%include OutputFormat/GridProp.hpp
+%include OutputFormat/GridEclipse.hpp
+
 %include segy.h
 
 /*
