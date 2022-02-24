@@ -86,7 +86,7 @@
 #define UTAB(i,j)         (utab[(i) + ndat * (j)])
 #define TUTIL(i,j)        (tutil[(i) + nutil * (j)])
 #define SPART(i,j)        (spart[(i) + npart * (j)])
-#define MATCL(i,j)        (matCL[(i) * nvar + (j)])
+#define MATCL(i,j)        (matCL[i][j])
 #define COVSS(is,js)      (covss  [(js) + ns * (is)])
 #define COVGEN(i1,i2)     (covgen [(i2) + n2 * (i1)])
 #define COVPP(ip,jp)      (covpp  [(jp) + np * (ip)])
@@ -1542,7 +1542,7 @@ static int st_authorize(Model *model, const VectorInt& nbgh_ranks)
  ** \remarks Otherwise nvar designates model->getNVar()
  **
  *****************************************************************************/
-static void st_variance0(Model *model, int nvar, VectorDouble matCL)
+static void st_variance0(Model *model, int nvar, VectorVectorDouble matCL)
 {
   double value;
   int nvar_m;
@@ -1569,7 +1569,7 @@ static void st_variance0(Model *model, int nvar, VectorDouble matCL)
     COVINT.setNdim(model->getDimensionNumber());
     model_variance0(model, KOPTION, covtab, var0);
 
-    // If 'mat' is provided, some extra-calculations are needed
+    // If 'matCL' is provided, some extra-calculations are needed
 
     if (!matCL.empty())
     {
@@ -2079,14 +2079,14 @@ static void st_prepar(Model *model,
  **
  ** \remarks When 'matCL' is provided, 'nvar' stands for the first dimension of
  ** \remarks the matrix 'matCL' (its second dimension is equal to model->getNVar()).
- ** \remarks Otherwise nvar designates model->getNVar()
+ ** \remarks Otherwise nvar designates nvar_m = model->getVariableNumber()
  **
  *****************************************************************************/
 static void st_rhs(Model *model,
                    const VectorInt& nbgh_ranks,
                    int neq,
                    int nvar,
-                   double *matCL,
+                   VectorVectorDouble matCL,
                    int *status)
 {
   int    i,iech,ib,nvar_m,nbfl,nfeq,idim,nscale,nech;
@@ -2152,7 +2152,7 @@ static void st_rhs(Model *model,
       for (int jvar_m = 0; jvar_m < nvar_m; jvar_m++)
         COVTAB(ivar_m,jvar_m) *= ratio;
 
-    if (matCL == nullptr)
+    if (matCL.empty())
     {
       for (int jvar = 0; jvar < nvar; jvar++)
         for (int ivar = 0; ivar < nvar; ivar++)
@@ -2183,7 +2183,7 @@ static void st_rhs(Model *model,
       return;
     }
 
-  if (matCL != nullptr)
+  if (! matCL.empty())
   {
     if (model->isFlagLinked())
       messageAbort(
@@ -2201,7 +2201,6 @@ static void st_rhs(Model *model,
   }
   else
   {
-
     for (int ivar = 0; ivar < nvar; ivar++)
       for (ib = 0; ib < nfeq; ib++)
       {
@@ -2428,10 +2427,6 @@ void krige_dual_print(int nech, int neq, int nred, int *flag, double *dual)
  ** \param[in]  status       Kriging error status
  ** \param[in]  nvar         Number of output variables
  ** \param[in]  nred         Reduced number of equations
- **
- ** \remarks When 'matCL' is provided, 'nvar' stands for the first dimension of
- ** \remarks the matrix 'matCL' (its second dimension is equal to model->getNVar()).
- ** \remarks Otherwise nvar designates model->getNVar()
  **
  *****************************************************************************/
 static void st_estimate(Model  *model,
@@ -3096,7 +3091,7 @@ static int st_image_kriging(Db* dbaux,
 
   /* Establish the kriging R.H.S. */
 
-  st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+  st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
   if (status) return (1);
   st_rhs_iso2hetero(neq, nvar);
   if (OptDbg::query(EDbg::KRIGING)) krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
@@ -3111,7 +3106,7 @@ static int st_image_kriging(Db* dbaux,
 
   if (FLAG_STD != 0)
   {
-    st_variance0(model, nvar, VectorDouble());
+    st_variance0(model, nvar, VectorVectorDouble());
     stdv = st_variance(model, 0, 0, nred);
     if (stdv < 0) stdv = 0.;
     stdv = sqrt(stdv);
@@ -3273,7 +3268,7 @@ int kriging(Db *dbin,
             int flag_varz,
             VectorInt ndisc,
             VectorInt rank_colcok,
-            VectorDouble matCL,
+            VectorVectorDouble matCL,
             const NamingConvention& namconv)
 {
   int iext, error, status, nech, neq, nred, nvar, nfeq, save_keypair;
@@ -3296,10 +3291,7 @@ int kriging(Db *dbin,
   if (st_check_environment(1, 1, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
   if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
-  if (matCL.empty())
-    nvar = model->getVariableNumber();
-  else
-    nvar = static_cast<int>(matCL.size()) / model->getVariableNumber();
+  nvar = matCL.empty() ? model->getVariableNumber() : matCL.size();
   nfeq = model->getDriftEquationNumber();
   nred = neq = 0;
   if (neighparam->getType() == ENeigh::IMAGE)
@@ -3365,7 +3357,7 @@ int kriging(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, matCL.data(), &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, matCL, &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
     if (OptDbg::query(EDbg::KRIGING))
@@ -3400,13 +3392,13 @@ int kriging(Db *dbin,
   error = 0;
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, IPTR_VARZ, "varz", 1,
                               false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_est > 0)
+  if (neighparam->getFlagXvalid() && flag_est > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stderr", 1,
                                 false);
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stdev", 1,
                                 false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_std > 0)
+  if (neighparam->getFlagXvalid() && flag_std > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
@@ -3448,12 +3440,11 @@ int kriging2(Db *dbin,
             int flag_varz,
             VectorInt ndisc,
             VectorInt rank_colcok,
-            VectorDouble matCL,
+            VectorVectorDouble matCL,
             const NamingConvention& namconv)
 {
   int error = 1;
-  int nvar = model->getVariableNumber();
-  int save_keypair = (int) get_keypone("SaveKrigingWeights", 0.);
+  int nvar = matCL.empty() ? model->getVariableNumber() : matCL.size();
   if (neighparam->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");
@@ -3482,18 +3473,22 @@ int kriging2(Db *dbin,
 
   KrigingSystem ksys(dbin, dbout, model, neighparam, FLAG_SIMU);
   ksys.setKrigOptEstim(IPTR_EST, IPTR_STD, IPTR_VARZ);
-  ksys.setKrigOptCalcul(calcul, VectorDouble());
-//  ksys.setKrigOptXValid(bool optionXValidEstim = false,
-//                       bool optionXValidStdev = false);
-//  int setKrigOptColCok(const VectorInt& rank_colcok);
-//  int setKrigOptBayes(bool flag_bayes);
+  ksys.setKrigOptCalcul(calcul, ndisc);
+  ksys.setKrigOptXValid(flag_est > 0, flag_std > 0);
+  ksys.setKrigOptColCok(rank_colcok);
+  ksys.setKrigOptBayes(false);
+  ksys.setKrigOptMatCL(matCL);
+
+  // Check that the Kriging System is ready
+
+  if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
 
   for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
   {
     mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    (void) ksys.estimate(iech_out, false);
+    if (ksys.estimate(iech_out)) return 1;
   }
 
   /* Set the error return flag */
@@ -3501,13 +3496,13 @@ int kriging2(Db *dbin,
   error = 0;
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, IPTR_VARZ, "varz", 1,
                               false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_est > 0)
+  if (neighparam->getFlagXvalid() && flag_est > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stderr", 1,
                                 false);
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stdev", 1,
                                 false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_std > 0)
+  if (neighparam->getFlagXvalid() && flag_std > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
@@ -3686,11 +3681,11 @@ static int st_xvalid_unique(Db *dbin,
   error = 0;
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbin, IPTR_VARZ, "varz", 1,
                               false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_est > 0)
+  if (neighparam->getFlagXvalid() && flag_est > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_STD, "stderr", 1,false);
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_STD, "stdev", 1,false);
-  if (ABS(neighparam->getFlagXvalid()) == 1 && flag_std > 0)
+  if (neighparam->getFlagXvalid() && flag_std > 0)
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_EST, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbin, IPTR_EST, "estim");
@@ -3739,14 +3734,14 @@ int xvalid(Db *db,
     if (!db->hasCode())
       messerr("The K-FOLD option is ignored (no Code defined)");
     else if (neighparam->getType() == ENeigh::UNIQUE)
+    {
       messerr("K-FOLD is not available in Unique Neighborhood");
+      return 1;
+    }
     else
-      neighparam->setFlagXvalid(-1);
+      neighparam->setFlagKFold(true);
   }
-  else
-  {
-    neighparam->setFlagXvalid(1);
-  }
+  neighparam->setFlagXvalid(true);
 
   if (neighparam->getType() == ENeigh::UNIQUE)
     ret_code = st_xvalid_unique(db, model, neighparam, flag_est, flag_std, flag_varz,
@@ -3754,7 +3749,44 @@ int xvalid(Db *db,
   else
     ret_code = kriging(db, db, model, neighparam, EKrigOpt::PONCTUAL,
                        flag_est, flag_std, flag_varz,
-                       VectorInt(), rank_colcok, VectorDouble(),
+                       VectorInt(), rank_colcok, VectorVectorDouble(),
+                       namconv);
+  neighparam->setFlagXvalid(0);
+  return ret_code;
+}
+
+int xvalid2(Db *db,
+           Model *model,
+           ANeighParam *neighparam,
+           int flag_code,
+           int flag_est,
+           int flag_std,
+           int flag_varz,
+           VectorInt rank_colcok,
+           const NamingConvention& namconv)
+{
+  int ret_code;
+  if (flag_code)
+  {
+    if (!db->hasCode())
+      messerr("The K-FOLD option is ignored (no Code defined)");
+    else if (neighparam->getType() == ENeigh::UNIQUE)
+    {
+      messerr("K-FOLD is not available in Unique Neighborhood");
+      return 1;
+    }
+    else
+      neighparam->setFlagKFold(true);
+  }
+  neighparam->setFlagXvalid(true);
+
+  if (neighparam->getType() == ENeigh::UNIQUE)
+    ret_code = st_xvalid_unique(db, model, neighparam, flag_est, flag_std, flag_varz,
+                                rank_colcok, namconv);
+  else
+    ret_code = kriging2(db, db, model, neighparam, EKrigOpt::PONCTUAL,
+                       flag_est, flag_std, flag_varz,
+                       VectorInt(), rank_colcok, VectorVectorDouble(),
                        namconv);
   neighparam->setFlagXvalid(0);
   return ret_code;
@@ -3840,7 +3872,7 @@ int krigdgm_f(Db *dbin,
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Loop on the targets to be processed */
 
@@ -3874,7 +3906,7 @@ int krigdgm_f(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
     if (OptDbg::query(EDbg::KRIGING))
@@ -3890,7 +3922,7 @@ int krigdgm_f(Db *dbin,
                         nred, -1, flag, wgt);
     }
 
-    /* Optional save of the Kriging/Cokriging weights */
+    /* Optional save of the Kriging / Cokriging weights */
 
     if (save_keypair)
       st_save_keypair_weights(status, IECH_OUT, model->getVariableNumber(),
@@ -3999,7 +4031,7 @@ int krigprof_f(Db *dbin,
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Loop on the targets to be processed */
 
@@ -4033,7 +4065,7 @@ int krigprof_f(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
     if (OptDbg::query(EDbg::KRIGING))
@@ -4417,7 +4449,7 @@ int kribayes_f(Db *dbin,
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Solve the Bayesian estimation of the Drift coefficients */
 
@@ -4461,7 +4493,7 @@ int kribayes_f(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model_sk, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model_sk, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
 
@@ -4685,7 +4717,7 @@ int _krigsim(const char *strloc,
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Solve the Bayesian estimation of the Drift coefficients */
 
@@ -4745,7 +4777,7 @@ int _krigsim(const char *strloc,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model_sk, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model_sk, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
 
@@ -5169,7 +5201,7 @@ int global_kriging(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
 
     /* Cumulate the R.H.S */
@@ -7258,7 +7290,7 @@ int krigsum_f(Db *dbin,
 
       /* Establish the kriging R.H.S. */
 
-      st_rhs(model, nbgh_ranks, neq, nvarmod, NULL, &status);
+      st_rhs(model, nbgh_ranks, neq, nvarmod, VectorVectorDouble(), &status);
       if (status) goto label_store;
       st_rhs_iso2hetero(neq, nvarmod);
       if (OptDbg::query(EDbg::KRIGING))
@@ -7613,7 +7645,7 @@ int krigmvp_f(Db *dbin,
 
           /* Establish the kriging R.H.S. */
 
-          st_rhs(model, nbgh_ranks, neq, nvarmod, NULL, &status);
+          st_rhs(model, nbgh_ranks, neq, nvarmod, VectorVectorDouble(), &status);
           if (status) goto label_store;
           st_rhs_iso2hetero(neq, nvarmod);
           if (OptDbg::query(EDbg::KRIGING))
@@ -7966,7 +7998,7 @@ int krigtest_f(Db *dbin,
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Initialize the target */
 
@@ -7989,7 +8021,7 @@ int krigtest_f(Db *dbin,
 
   /* Establish the kriging R.H.S. */
 
-  st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+  st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
   if (status) goto label_store;
   st_rhs_iso2hetero(neq, nvar);
 
@@ -8146,7 +8178,7 @@ int kriggam_f(Db *dbin,
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
   /* Loop on the targets to be processed */
 
@@ -8180,7 +8212,7 @@ int kriggam_f(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
     if (OptDbg::query(EDbg::KRIGING))
@@ -8312,7 +8344,7 @@ int krigcell_f(Db *dbin,
 
     /* Update the discretization characteristics (per sample) */
     st_block_discretize(1, 1, IECH_OUT);
-    if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+    if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
     /* Select the Neighborhood */
 
@@ -8332,7 +8364,7 @@ int krigcell_f(Db *dbin,
 
     /* Establish the kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) goto label_store;
     st_rhs_iso2hetero(neq, nvar);
     if (OptDbg::query(EDbg::KRIGING))
@@ -8569,8 +8601,7 @@ int dk_f(Db *dbin,
 
   nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, model->getVariableNumber(), model, neighparam))
-    goto label_end;
+  if (st_krige_manage(1, model->getVariableNumber(), model, neighparam)) goto label_end;
   nb_mult = 1;
   if (flag_block)
   {
@@ -8661,7 +8692,7 @@ int dk_f(Db *dbin,
 
       /* Constant Calculation for the variance */
 
-      if (FLAG_STD != 0) st_variance0(model, nvar, VectorDouble());
+      if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
 
       /* Establish the kriging L.H.S. (always performed) */
 
@@ -8686,7 +8717,7 @@ int dk_f(Db *dbin,
         /* Establish the kriging R.H.S. */
 
         if (flag_panel) RAND_INDEX = imult;
-        st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+        st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
         if (status) goto label_store;
         st_rhs_iso2hetero(neq, nvar);
 
@@ -9947,7 +9978,7 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
 
   status = 0;
   IECH_OUT = 0;
-  st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+  st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
   if (status) goto label_end;
   st_rhs_iso2hetero(neq, 1);
   if (OptDbg::query(EDbg::KRIGING)) krige_rhs_print(1, nech, neq, nred, flag, rhs);
@@ -10056,13 +10087,13 @@ static int st_declustering_3(Db *db,
       st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
     }
 
-    /* Establish the kriging R.H.S. */
+    /* Establish the Kriging R.H.S. */
 
-    st_rhs(model, nbgh_ranks, neq, nvar, NULL, &status);
+    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
     if (status) continue;
     st_rhs_iso2hetero(neq, 1);
 
-    /* Derive the kriging weights */
+    /* Derive the Kriging weights */
 
     matrix_product(nred, nred, 1, lhs, rhs, wgt);
 

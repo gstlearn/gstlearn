@@ -15,24 +15,17 @@
 
 class Db;
 
-class GSTLEARN_EXPORT GridProp: public AOF
+class GSTLEARN_EXPORT GridZycor: public AOF
 {
 public:
-  GridProp(const char* filename, const Db* db);
-  GridProp(const GridProp& r);
-  GridProp& operator=(const GridProp& r);
-  virtual ~GridProp();
+  GridZycor(const char* filename, const Db* db);
+  GridZycor(const GridZycor& r);
+  GridZycor& operator=(const GridZycor& r);
+  virtual ~GridZycor();
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return false; }
-  bool mustBeForNDim(int ndim) const override { return true; }
-  bool mustBeForRotation(int mode) const { return mode <= 1; }
+  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
+  bool mustBeForRotation(int mode) const { return mode == 0; }
   int  dumpFile() override;
-
-private:
-  void _writeLine(int mode,
-                  const char *comment,
-                  int valint,
-                  double valrel,
-                  const char *combis);
 };

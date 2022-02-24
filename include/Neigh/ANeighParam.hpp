@@ -36,13 +36,15 @@ public:
 
   int getNDim() const { return _nDim; }
   double getDistCont() const { return _distCont; }
-  int getFlagContinuous() const { return _flagContinuous; }
-  int getFlagXvalid() const { return _flagXvalid; }
+  bool getFlagContinuous() const { return _flagContinuous; }
+  bool getFlagXvalid() const { return _flagXvalid; }
+  bool getFlagKFold() const { return _flagKFold; }
 
   void setDistCont(double distCont) { _distCont = distCont; }
-  void setFlagXvalid(int flagXvalid) { _flagXvalid = flagXvalid; }
+  void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setNDim(int dim) { _nDim = dim; }
-  void setFlagContinuous(int flagContinuous) { _flagContinuous = flagContinuous; }
+  void setFlagContinuous(bool flagContinuous) { _flagContinuous = flagContinuous; }
+  void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
 
 protected:
   // ASerializable Interface overriding
@@ -53,7 +55,8 @@ protected:
 
 private:
   int _nDim;                     /* Space dimension */
-  int _flagXvalid;               /* 1 to suppress the target */
-  int _flagContinuous;           /* 1 for continuous moving neighborhood */
+  bool _flagXvalid;              /* 1 to suppress the target */
+  bool _flagContinuous;          /* 1 for continuous moving neighborhood */
+  bool _flagKFold;               /* 1 to perform a KFold Cross-validation */
   double _distCont;              /* Distance for continuous ANeighParamborhood */
 };

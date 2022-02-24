@@ -598,6 +598,19 @@ VectorDouble ut_vector_set(double* values, int number)
   return vec;
 }
 
+VectorVectorDouble ut_vector_vector_set(double* value, int n1, int n2)
+{
+  VectorVectorDouble vec;
+  vec.resize(n1);
+  for (int i1 = 0; i1 < n1; i1++) vec[i1].resize(n2);
+
+  int lec = 0;
+  for (int i1 = 0; i1 < n1; i1++)
+    for (int i2 = 0; i2 < n2; i2++)
+      vec[i1][i2] = value[lec++];
+  return vec;
+}
+
 VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending)
 {
   if (vecin.empty()) return VectorInt();

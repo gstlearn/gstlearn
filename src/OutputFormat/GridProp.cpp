@@ -40,27 +40,6 @@ GridProp::~GridProp()
 {
 }
 
-bool GridProp::isAuthorized() const
-{
-  if (! isValidForGrid()) return false;
-  if (! isValidForVariable()) return false;
-
-  int ndim = _dbgrid->getNDim();
-  if (_dbgrid->isGridRotated())
-  {
-    VectorDouble angles = _dbgrid->getGrid().getRotAngles();
-    bool flag_not_rotz = false;
-    for (int idim = 1; idim < ndim; idim++)
-      if (angles[idim] != 0.) flag_not_rotz = true;
-    if (flag_not_rotz)
-    {
-      messerr("The Grid rotation may not involve Oy nor Ox angles");
-      return false;
-    }
-  }
-  return true;
-}
-
 int GridProp::dumpFile()
 {
   static double valnull = 3.0;

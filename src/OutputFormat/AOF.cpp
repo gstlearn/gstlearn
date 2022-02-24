@@ -73,6 +73,37 @@ bool AOF::isValidForVariable() const
   return true;
 }
 
+bool AOF::isValidForNDim() const
+{
+  int ndim = _dbgrid->getNDim();
+  if (mustBeForNDim(ndim))
+  {
+    messerr("This function is not valid for the Space Dimension (%d)",ndim);
+    return false;
+  }
+  return true;
+}
+
+bool AOF::isValidForRotation() const
+{
+  int ndim = _dbgrid->getNDim();
+
+  int mode = 0;
+  if (_dbgrid->isGridRotated())
+  {
+    mode = 1;
+    VectorDouble angles = _dbgrid->getAngles();
+    for (int idim = 1; idim < ndim; idim++)
+      if (ABS(angles[idim]) > 1.e-6) mode = 2;
+  }
+  if (mustBeForRotation(mode))
+  {
+    messerr("This function is not compatible with Grid Rotation (mode=%d)",mode);
+    return false;
+  }
+  return true;
+}
+
 int AOF::_fileOpen()
 {
   _file = gslFopen(_filename, "w");
@@ -102,4 +133,13 @@ void AOF::setCol(int icol)
 {
   _cols = VectorInt(1);
   _cols[0] = icol;
+}
+
+bool AOF::isAuthorized() const
+{
+  if (! isValidForGrid()) return false;
+  if (! isValidForVariable()) return false;
+  if (! isValidForNDim()) return false;
+  if (! isValidForRotation()) return false;
+  return true;
 }

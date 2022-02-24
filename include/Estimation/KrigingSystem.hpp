@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
 #include "Neigh/NeighWork.hpp"
 #include "Basic/Vector.hpp"
 #include "Enum/EKrigOpt.hpp"
@@ -27,7 +26,7 @@ class GSTLEARN_EXPORT KrigingSystem
 public:
   KrigingSystem(const Db* dbin,
                 Db* dbout,
-                const Model* model,
+                Model* model,
                 const ANeighParam* neighParam,
                 bool flagSimu = false);
   KrigingSystem(const KrigingSystem &m) = delete;
@@ -35,16 +34,19 @@ public:
   virtual ~KrigingSystem();
 
   int setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int setKrigOptCalcul(const EKrigOpt& calcul, const VectorDouble& disc);
+  int setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
   int setKrigOptXValid(bool optionXValidEstim = false,
                        bool optionXValidStdev = false);
   int setKrigOptColCok(const VectorInt& rank_colcok);
   int setKrigOptBayes(bool flag_bayes);
+  int setKrigOptMatCL(const VectorVectorDouble& matCL);
 
-  int estimate(int iech_out, bool verbose);
+  bool isReady();
+  int  estimate(int iech_out);
 
 private:
   int  _getNVar() const;
+  int  _getNVarCL() const;
   int  _getNDrift() const;
   int  _getNBfl() const;
   int  _getNech() const;
@@ -64,8 +66,8 @@ private:
   void _covtabInit(bool flag_init);
   void _covtabCalcul(bool flag_init,
                      const CovCalcMode& mode,
-                     int rank1,
-                     int rank2,
+                     int iech1,
+                     int iech2,
                      VectorDouble d1);
   void _drftabCalcul(const ECalcMember &member, const Db* db, int iech);
   bool _isAuthorized();
@@ -73,9 +75,10 @@ private:
   void _lhsCalcul();
   void _lhsIsoToHetero();
   void _lhsDump(int nbypas = 5);
-  int  _rhsCalcul(int rankRandom = 0);
+  int  _rhsCalcul(int rankRandom = -1);
   void _rhsIsoToHetero();
   void _rhsDump();
+  void _wgtCalcul();
   void _wgtDump(int status);
   VectorInt _getRelativePosition();
   int  _lhsInvert();
@@ -84,14 +87,17 @@ private:
   void _estimateCalcul(int status);
   double _estimateVarZ(int ivar, int jvar);
   double _variance(int ivar, int jvar, const double* varb = nullptr);
+  void _variance0();
   void _krigingDump(int status);
+  void _blockDiscretize();
 
 private:
   // Aggregated classes
   const Db*            _dbin;
   Db*                  _dbout;
-  const Model*         _model;
+  Model*               _model;
   const ANeighParam*   _neighParam;
+  bool _isReady;
 
   // Options
 
@@ -110,7 +116,11 @@ private:
   bool _flagCode;
 
   /// Option for Block estimation
-  VectorDouble _disc;
+  int _discreteMode;  // 1 : constant; 2 : per Target cell
+  int _ndisc;
+  VectorInt    _ndiscs;
+  VectorDouble _disc1;
+  VectorDouble _disc2;
 
   /// Option for Cross_validation
   bool _xvalidEstim;
@@ -127,8 +137,8 @@ private:
   bool _flagDGM;
   double _supportCoeff;
 
-  /// Dump option
-  bool _flagWeights;
+  // Option for Estimating the Linear Combination of Variables
+  VectorVectorDouble _matCL;
 
   // Local variables
   int _iechOut;

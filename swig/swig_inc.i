@@ -230,6 +230,10 @@
 #include "OutputFormat/AOF.hpp"
 #include "OutputFormat/GridProp.hpp"
 #include "OutputFormat/GridEclipse.hpp"
+#include "OutputFormat/GridIrap.hpp"
+#include "OutputFormat/GridXYZ.hpp"
+#include "OutputFormat/GridZycor.hpp"
+#include "OutputFormat/GridBmp.hpp"
 
 #include "segy.h"
 

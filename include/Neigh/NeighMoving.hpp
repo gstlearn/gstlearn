@@ -49,7 +49,7 @@ public:
   static NeighMoving* create(int ndim,
                              bool flag_xvalid,
                              int nmaxi,
-                             double radius,
+                             double radius = TEST,
                              int nmini = 1,
                              int nsect = 1,
                              int nsmax = ITEST,

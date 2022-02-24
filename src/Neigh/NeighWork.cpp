@@ -263,7 +263,7 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -303,7 +303,7 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -355,7 +355,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -449,9 +449,9 @@ bool NeighWork::_discardUndefined(int iech)
  *****************************************************************************/
 int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
 {
-  if (_neighParam->getFlagXvalid() == 0)
+  if (! _neighParam->getFlagXvalid())
     return 0;
-  else if (_neighParam->getFlagXvalid() > 0)
+  else if (! _neighParam->getFlagKFold())
   {
     if (distance_inter(_dbin, dbout, iech_in, iech_out, NULL) < eps) return 1;
   }

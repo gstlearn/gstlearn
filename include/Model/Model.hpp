@@ -157,7 +157,7 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
-  int isNoStat() const;
+  int  isNoStat() const;
   const ANoStat* getNoStat() const { return _noStat; }
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);

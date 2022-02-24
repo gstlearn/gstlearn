@@ -27,11 +27,20 @@ public:
 
   virtual bool mustBeGrid() const { return false; }
   virtual bool mustBeOneVariable() const { return false; }
-  virtual bool isAuthorized() const {return true; }
+  virtual bool mustBeForNDim(int ndim) const { return true; }
+  /**
+   * Check if Grid Rotation is valid
+   * @param mode: 0 No Rotation; 1 Rotation around First Direction; 2 Rotation
+   * @return
+   */
+  virtual bool mustBeForRotation(int mode) const { return true; }
+  virtual bool isAuthorized() const;
   virtual int  dumpFile() = 0;
 
   bool isValidForGrid() const;
   bool isValidForVariable() const;
+  bool isValidForNDim() const;
+  bool isValidForRotation() const;
 
   void setCols(const VectorInt& cols) { _cols = cols; }
   void setCols(int ncol, int* icols);

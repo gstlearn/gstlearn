@@ -18,6 +18,7 @@
 #include "Basic/Law.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 
 /****************************************************************************/
 /*!
@@ -30,6 +31,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   int ndim = 2;
   int nvar = 1;
+  law_set_random_seed(32131);
 
   setup_license("Demonstration");
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
@@ -60,25 +62,34 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Create the Model
   CovContext ctxt(nvar); // use default space
-  Model model(ctxt);
+  Model* model = Model::create(ctxt);
   CovLMC covs(ctxt.getSpace());
-  CovAniso cova(ECov::SPHERICAL, 5., 0., 45, ctxt);
+  CovAniso cova(ECov::SPHERICAL, 80., 0., 45., ctxt);
   covs.addCov(&cova);
-  model.setCovList(&covs);
-  model.setMean(0,123.);
-  model.display();
+  model->setCovList(&covs);
+  model->setMean(0,123.);
+  model->display();
 
   // Creating a Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim,false);
-  neighU->display();
+  // NeighUnique* neigh = NeighUnique::create(ndim,false);
+  NeighMoving* neigh = NeighMoving::create(ndim, false, 100);
+  neigh->display();
 
-  // Launch kriging
-  kriging2(data, grid, &model, neighU); // TODO: to be brought back to kriging()
+  // Launch Kriging
+  kriging2(data, grid, model, neigh);
+  kriging(data, grid, model, neigh);
   grid->display(&dbfmt);
+
+  // Launch Cross-Validation
+  xvalid2(data, model, neigh, 0, -1, -1);
+  data->setLocatorByUID(3,ELoc::Z);
+  xvalid(data, model, neigh, 0, -1, -1);
+  data->display(&dbfmt);
 
   delete data;
   delete grid;
-  delete neighU;
+  delete neigh;
+  delete model;
 
   return (0);
 }

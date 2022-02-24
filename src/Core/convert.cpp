@@ -18,6 +18,10 @@
 #include "Db/Db.hpp"
 #include "OutputFormat/GridProp.hpp"
 #include "OutputFormat/GridEclipse.hpp"
+#include "OutputFormat/GridXYZ.hpp"
+#include "OutputFormat/GridZycor.hpp"
+#include "OutputFormat/GridIrap.hpp"
+#include "OutputFormat/GridBmp.hpp"
 #include "vtk.h"
 
 #include <string.h>
@@ -27,14 +31,7 @@
 #include <algorithm>
 
 /*! \cond */
-#define COLOR_MASK   -1
-#define COLOR_FFFF   -2
-#define COLOR_LOWER  -3
-#define COLOR_UPPER  -4
-#define N_SAMPLE(nx,nsample) ((int) ((nx-1) / nsample) + 1)
-#define ZYCOR_NULL_CH "  0.1000000E+31"
 #define F2G(ix,iy,iz)   (tab[(ix) + nx[0] * ((iy) + nx[1] * (iz))]) 
-#define BF_TYPE 0x4D42             /* "MB" */
 
 struct CSV_Encoding
 {
@@ -50,217 +47,6 @@ struct CSV_Encoding
 static CSV_Encoding *CSV_ENCODE = NULL;
 
 /*! \endcond */
-
-/****************************************************************************/
-/*!
- **   Color rank for the sample of the Db
- **
- ** \return  Color rank
- ** \return  COLOR_MASK  : The sample is masked off
- ** \return  COLOR_FFFF  : The value if FFFF
- ** \return  COLOR_LOWER : The value if below vmin and must be acknowledged
- ** \return  COLOR_UPPER : The value if above vmax and must be acknowledged
- **
- ** \param[in]  db         Db structure
- ** \param[in]  iech       Rank of the sample
- ** \param[in]  icol       Rank of the attribute
- ** \param[in]  ncolor     Number of colors
- ** \param[in]  flag_low   Returns the first color for value below vmin if 0
- **                        or returns -3 otherwise
- ** \param[in]  flag_high  Returns the last color for value above vmax if 0
- **                        or returns -4 otherwise
- ** \param[in]  vmin       Minimum value to be represented
- ** \param[in]  vmax       Maximum value to be represented
- **
- *****************************************************************************/
-static int st_color_rank(Db *db,
-                         int iech,
-                         int icol,
-                         int ncolor,
-                         int flag_low,
-                         int flag_high,
-                         double vmin,
-                         double vmax)
-{
-  double value;
-  int ival;
-
-  /* Check if the sample is masked off */
-  if (!db->getSelection(iech)) return (COLOR_MASK);
-
-  /* Read the value */
-  value = db->getArray(iech, icol);
-
-  /* Check if the value is defined */
-  if (FFFF(value)) return (COLOR_FFFF);
-
-  /* Find the color */
-  ival = (int) (ncolor * (value - vmin) / (vmax - vmin));
-
-  /* Value lower then vmin */
-  if (ival < 0)
-  {
-    if (flag_low)
-      return (COLOR_LOWER);
-    else
-      return (ival);
-  }
-
-  /* Value larger than vmax */
-  if (ival >= ncolor)
-  {
-    if (flag_high)
-      return (COLOR_UPPER);
-    else
-      return (ncolor - 1);
-  }
-
-  /* Return the rank of the color */
-  return (ival);
-}
-
-/****************************************************************************/
-/*!
- ** Convert a color rank into the Red, Green, Blue color decompoisition
- **
- ** \param[in]  rank        Rank of the color
- ** \param[in]  flag_color_scale 1 if the color scale must be used
- **                              0 use the grey scale instead
- ** \param[in]  red         Array of Red intensity for color scale
- ** \param[in]  green       Array of Green intensity for color scale
- ** \param[in]  blue        Array of Blue intensity for color scale
- ** \param[in]  mask_red    Red intensity for masked value
- ** \param[in]  mask_green  Green intensity for masked value
- ** \param[in]  mask_blue   Blue intensity for masked value
- ** \param[in]  ffff_red    Red intensity for FFFF value
- ** \param[in]  ffff_green  Green intensity for FFFF value
- ** \param[in]  ffff_blue   Blue intensity for FFFF value
- ** \param[in]  low_red     Red intensity for lower value
- ** \param[in]  low_green   Green intensity for lower value
- ** \param[in]  low_blue    Blue intensity for lower value
- ** \param[in]  high_red    Red intensity for higher value
- ** \param[in]  high_green  Green intensity for higher value
- ** \param[in]  high_blue   Blue intensity for higher value
- **
- ** \param[out] ired        Value for the red beam
- ** \param[out] igreen      Value for the green beam
- ** \param[out] iblue       Value for the blue beam
- **
- *****************************************************************************/
-static void st_color_in_rgb(int rank,
-                            int flag_color_scale,
-                            int *red,
-                            int *green,
-                            int *blue,
-                            int mask_red,
-                            int mask_green,
-                            int mask_blue,
-                            int ffff_red,
-                            int ffff_green,
-                            int ffff_blue,
-                            int low_red,
-                            int low_green,
-                            int low_blue,
-                            int high_red,
-                            int high_green,
-                            int high_blue,
-                            unsigned char *ired,
-                            unsigned char *igreen,
-                            unsigned char *iblue)
-{
-  switch (rank)
-  {
-    case COLOR_MASK:
-      *ired = (unsigned char) mask_red;
-      *igreen = (unsigned char) mask_green;
-      *iblue = (unsigned char) mask_blue;
-      break;
-
-    case COLOR_FFFF:
-      *ired = (unsigned char) ffff_red;
-      *igreen = (unsigned char) ffff_green;
-      *iblue = (unsigned char) ffff_blue;
-      break;
-
-    case COLOR_LOWER:
-      *ired = (unsigned char) low_red;
-      *igreen = (unsigned char) low_green;
-      *iblue = (unsigned char) low_blue;
-      break;
-
-    case COLOR_UPPER:
-      *ired = (unsigned char) high_red;
-      *igreen = (unsigned char) high_green;
-      *iblue = (unsigned char) high_blue;
-      break;
-
-    default:
-      if (flag_color_scale)
-      {
-        *ired = (unsigned char) red[rank];
-        *igreen = (unsigned char) green[rank];
-        *iblue = (unsigned char) blue[rank];
-      }
-      else
-      {
-        *ired = (unsigned char) rank;
-        *igreen = (unsigned char) rank;
-        *iblue = (unsigned char) rank;
-      }
-  }
-}
-
-/****************************************************************************/
-/*!
- **   Encode a line for IFPEN file
- **
- ** \param[in]  file       FILE descriptor
- ** \param[in]  mode       Type of encoding
- ** \li                     0 : Comment
- ** \li                     1 : Integer value
- ** \li                     2 : Real value
- ** \param[in]  comment    Comment string (or NULL)
- ** \param[in]  valint     Integer value
- ** \param[in]  valrel     Float value
- ** \param[in]  combis     Second comment (or NULL)
- **
- *****************************************************************************/
-static void st_ifpen_write(FILE *file,
-                           int mode,
-                           const char *comment,
-                           int valint,
-                           double valrel,
-                           const char *combis)
-{
-  char line[100];
-
-  /* Initialize the string */
-
-  (void) gslStrcpy(line, "");
-
-  /* Comment */
-
-  if (comment != NULL) (void) gslSPrintf(&line[strlen(line)], "%s", comment);
-
-  /* Encoding the value */
-
-  if (mode == 1)
-  {
-    (void) gslSPrintf(&line[strlen(line)], " %d", valint);
-  }
-  else if (mode == 2)
-  {
-    (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
-  }
-
-  /* Secondary comment */
-
-  if (combis != NULL) (void) gslSPrintf(&line[strlen(line)], " %s", combis);
-
-  /* Print the line */
-
-  fprintf(file, "%s\n", line);
-}
 
 /****************************************************************************/
 /*!
@@ -906,149 +692,11 @@ int db_grid_read_bmp2(const char *filename,
  *****************************************************************************/
 int db_grid_write_zycor(const char *filename, DbGrid *db, int icol)
 {
-  FILE *file;
-  int i, nx[2], jj, ii, kk, yy, ind, loop;
-  double rbid, x0[2], xf[2], dx[2];
-  double buff[5]; /* Size = nbyline */
-  char card[100]; /* Size = nbyline * 20 */
-  static int nbyline = 5;
-  static double testval = 1.e30;
-
-  /* Preliminary checks */
-
-  if (db->getNDim() != 2)
-  {
-    messerr("The Db structure should correspond to a 2-D Grid");
-    return (1);
-  }
-
-  /* Open the file */
-
-  file = gslFopen(filename, "w");
-  if (file == nullptr)
-  {
-    messerr("Error when opening the ZYCOR file %s for writing", filename);
-    return (1);
-  }
-
-  /* Write a comment */
-
-  fprintf(file, "!\n");
-  fprintf(file, "!  File created by RGeostats package\n");
-  fprintf(file, "!\n");
-
-  /* Title line */
-
-  fprintf(file, "@GRID ZYCOR FILE    ,   GRID,  %d\n", nbyline);
-  fprintf(file, "     15, %13lg,    ,    0,     1\n", testval);
-
-  /* Grid description */
-
-  for (i = 0; i < 2; i++)
-  {
-    nx[i] = db->getNX(i);
-    x0[i] = db->getX0(i);
-    dx[i] = db->getDX(i);
-    xf[i] = x0[i] + (nx[i] - 1) * dx[i];
-  }
-
-  rbid = 0.;
-  fprintf(file, "%6d, %6d, %13lf, %13lf, %13lf, %13lf\n", nx[1], nx[0], x0[0],
-          xf[0], x0[1], xf[1]);
-  fprintf(file, " %15lf, %15lf, %15lf\n", rbid, rbid, rbid);
-  fprintf(file, "@\n");
-
-  /* The set of values */
-
-  for (jj = nx[0] - 1; jj >= 0; jj--)
-  {
-    kk = 0;
-    ii = ((nx[1] * nx[0]) - (jj + 1));
-    for (loop = 1; loop <= nx[1]; loop++)
-    {
-      buff[kk++] = db->getArray(ii, icol);
-      ii -= nx[0];
-      if (kk == nbyline)
-      {
-        for (yy = 0; yy < nbyline; yy++)
-        {
-          ind = yy * 15;
-          if (!FFFF(buff[yy]))
-          {
-            gslSPrintf(&card[ind], "%15g", buff[yy]);
-          }
-          else
-          {
-            memcpy(&card[ind], (char*) ZYCOR_NULL_CH, 15);
-          }
-        }
-        gslSPrintf(&card[15 * nbyline], "\n");
-        fprintf(file, "%s", card);
-        kk = 0;
-      }
-    }
-
-    if (kk > 0)
-    {
-      for (yy = 0; yy < kk; yy++)
-      {
-        ind = yy * 15;
-        if (!FFFF(buff[yy]))
-        {
-          gslSPrintf(&card[ind], "%15g", buff[yy]);
-        }
-        else
-        {
-          memcpy(&card[ind], (char*) ZYCOR_NULL_CH, 15);
-        }
-      }
-      gslSPrintf(&card[15 * kk], "\n");
-      fprintf(file, "%s", card);
-    }
-  }
-
-  if (file != nullptr) fclose(file);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **   Print an integer
- **
- ** \param[in]  file  File pointer
- ** \param[in]  mode  Type of writing
- ** \li                0 : 16-bit unsigned integer
- ** \li                1 : 32-bit unsigned integer
- ** \li                2 : 32-bit signed integer
- ** \param[in]  ival  Integer value to be written
- **
- *****************************************************************************/
-static void st_out(FILE *file, int mode, unsigned int ival)
-{
-  int jval;
-
-  switch (mode)
-  {
-    case 0: /* Unsigned 16-bit */
-      putc(ival, file);
-      putc(ival >> 8, file);
-      break;
-
-    case 1: /* Unsigned 32-bit */
-      putc(ival, file);
-      putc(ival >> 8, file);
-      putc(ival >> 16, file);
-      putc(ival >> 24, file);
-      break;
-
-    case 2: /* Signed 32-bit */
-      jval = (int) ival;
-      putc(jval, file);
-      putc(jval >> 8, file);
-      putc(jval >> 16, file);
-      putc(jval >> 24, file);
-      break;
-  }
+  GridZycor aof(filename, db);
+  aof.setCol(icol);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -1116,138 +764,28 @@ int db_grid_write_bmp(const char *filename,
                       int high_green,
                       int high_blue)
 {
-  FILE *file;
-  int *indg, infosize, headersize, imagesize, ix, iy, i, nx, ny, iech, rank;
-  int imult, jmult, ipad, flag_color_scale, idim, number, color, width, height;
-  unsigned char ired, igreen, iblue;
-  double value, vmin, vmax;
+  VectorInt reds = ut_ivector_set(red, ncolor);
+  VectorInt greens = ut_ivector_set(green, ncolor);
+  VectorInt blues = ut_ivector_set(blue, ncolor);
 
-  /* Preliminary checks */
-
-  indg = nullptr;
-  file = nullptr;
-  flag_color_scale = (ncolor > 0 && red != nullptr && green != nullptr
-                      && blue != nullptr);
-  if (!flag_color_scale) ncolor = 256;
-  if (db->getNDim() > 2)
-  {
-    number = 1;
-    for (idim = 2; idim < db->getNDim(); idim++)
-      number *= db->getNX(idim);
-    if (number > 1)
-    {
-      messerr("The Db structure corresponds to a 3-D Grid");
-      messerr("Only the first XOY plane is written");
-      return (1);
-    }
-  }
-
-  /* Core allocation */
-
-  indg = db_indg_alloc(db);
-  if (indg == nullptr) goto label_end;
-
-  /* Initializations */
-
-  nx = db->getNX(0);
-  ny = db->getNX(1);
-
-  /* Calculate the statistics */
-
-  vmin = 1.e30;
-  vmax = -1.e30;
-  for (i = 0; i < nx * ny; i++)
-  {
-    if (!db->getSelection(i)) continue;
-    value = db->getArray(i, icol);
-    if (FFFF(value)) continue;
-    if (value < vmin) vmin = value;
-    if (value > vmax) vmax = value;
-  }
-  if (!FFFF(valmin)) vmin = valmin;
-  if (!FFFF(valmax)) vmax = valmax;
-
-  /* Open the file */
-
-  file = gslFopen(filename, "wb");
-  if (file == nullptr)
-  {
-    messerr("Error when opening the BMP file %s for writing", filename);
-    return (1);
-  }
-
-  /* Figure out the constants */
-  infosize = 40;
-  headersize = 14;
-  width = nmult * N_SAMPLE(nx, nsamplex);
-  height = nmult * N_SAMPLE(ny, nsampley);
-  imagesize = 3 * width * height;
-
-  /* Write the file header, bitmap information, and bitmap pixel data... */
-  st_out(file, 0, BF_TYPE);
-  st_out(file, 1, headersize); /* Size of File Header */
-  st_out(file, 0, 0); /* Reserved */
-  st_out(file, 0, 0); /* Reserved */
-  st_out(file, 1, headersize + infosize); /* Offset */
-
-  st_out(file, 1, infosize); /* Size of Information Block */
-  st_out(file, 2, width); /* Width */
-  st_out(file, 2, height); /* Height */
-  st_out(file, 0, 1); /* Number of planes */
-  st_out(file, 0, 24); /* 24-bits per pixel */
-  st_out(file, 1, 0); /* No compression */
-  st_out(file, 1, imagesize); /* Image size */
-  st_out(file, 2, 0);
-  st_out(file, 2, 0);
-  st_out(file, 1, 0);
-  st_out(file, 1, 0);
-
-  /* Writing the pixels */
-
-  indg[0] = 0;
-  indg[1] = 0;
-  indg[2] = 0;
-  ipad = nx * nmult;
-  ipad = ipad - 4 * ((int) (ipad / 4));
-  for (iy = 0; iy < ny; iy++)
-  {
-    if (iy % nsampley != 0) continue;
-    for (jmult = 0; jmult < nmult; jmult++)
-    {
-      for (ix = 0; ix < nx; ix++)
-      {
-        if (ix % nsamplex != 0) continue;
-        indg[0] = ix;
-        indg[1] = iy;
-        iech = db_index_grid_to_sample(db, indg);
-        rank = st_color_rank(db, iech, icol, ncolor, flag_low, flag_high, vmin,
-                             vmax);
-        st_color_in_rgb(rank, flag_color_scale, red, green, blue, mask_red,
-                        mask_green, mask_blue, ffff_red, ffff_green, ffff_blue,
-                        low_red, low_green, low_blue, high_red, high_green,
-                        high_blue, &ired, &igreen, &iblue);
-
-        for (imult = 0; imult < nmult; imult++)
-        {
-          (void) fwrite(&iblue, 1, 1, file);
-          (void) fwrite(&igreen, 1, 1, file);
-          (void) fwrite(&ired, 1, 1, file);
-        }
-      }
-
-      /* Write the padding */
-
-      for (i = 0; i < ipad; i++)
-      {
-        color = 0;
-        (void) fwrite(&color, 1, 1, file);
-      }
-    }
-  }
-
-  label_end: indg = db_indg_free(indg);
-  if (file != nullptr) fclose(file);
-  return (0);
+  GridBmp aof(filename, db);
+  aof.setCol(icol);
+  aof.setNsamplex(nsamplex);
+  aof.setNsampley(nsampley);
+  aof.setNmult(nmult);
+  aof.setNcolor(ncolor);
+  aof.setFlagLow(flag_low);
+  aof.setFlagHigh(flag_high);
+  aof.setValmin(valmin);
+  aof.setValmax(valmax);
+  aof.setMask(mask_red, mask_green, mask_blue);
+  aof.setFFFF(ffff_red, ffff_green, ffff_blue);
+  aof.setLow (low_red,  low_green,  low_blue);
+  aof.setHigh(high_red, high_green, high_blue);
+  aof.setColors(reds, greens, blues);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -1271,77 +809,13 @@ int db_grid_write_irap(const char *filename,
                        int nsamplex,
                        int nsampley)
 {
-  FILE *file;
-  double xmin, xmax, ymin, ymax, value, dx, dy;
-  int *indg, iech, ix, iy, nx, ny, necr, error;
-
-  /* Initializations */
-  error = 1;
-  file = nullptr;
-  indg = nullptr;
-
-  /* Check that the file is a grid */
-  if (db == NULL) return (1);
-  if (db->getNDim() != 2)
-  {
-    messerr("The IRAP dump is only designed for 2-D Grid");
-    goto label_end;
-  }
-
-  /* Core allocation */
-
-  indg = db_indg_alloc(db);
-  if (indg == nullptr) goto label_end;
-
-  /* Open the output file */
-
-  file = gslFopen(filename, "w");
-  if (file == nullptr) goto label_end;
-
-  /* Preliminary calculations */
-  nx = N_SAMPLE(db->getNX(0), nsamplex);
-  ny = N_SAMPLE(db->getNX(1), nsampley);
-  dx = db->getDX(0) * nsamplex;
-  dy = db->getDX(1) * nsampley;
-  xmin = db->getX0(0);
-  ymin = db->getX0(1);
-  xmax = xmin + dx * (nx - 1);
-  ymax = ymin + dy * (ny - 1);
-
-  /* Write the header */
-  fprintf(file, "%d %d %lf %lf\n", nx, ny, dx, dy);
-  fprintf(file, "%lf %lf %lf %lf\n", xmin, xmax, ymin, ymax);
-
-  necr = 0;
-  for (iy = 0; iy < ny; iy++)
-  {
-    if (iy % nsampley != 0) continue;
-    for (ix = 0; ix < nx; ix++)
-    {
-      if (ix % nsamplex != 0) continue;
-      indg[0] = ix;
-      indg[1] = iy;
-      iech = db_index_grid_to_sample(db, indg);
-      value = db->getArray(iech, icol);
-      if (FFFF(value)) value = 9999990.;
-      fprintf(file, "%10.3lf ", value);
-      necr++;
-      if (necr == 6)
-      {
-        fprintf(file, "\n");
-        necr = 0;
-      }
-    }
-  }
-  if (necr > 0) fprintf(file, "\n");
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: indg = db_indg_free(indg);
-  if (file != nullptr) fclose(file);
-  return (error);
+  GridIrap aof(filename, db);
+  aof.setCol(icol);
+  aof.setNsamplex(nsamplex);
+  aof.setNsampley(nsampley);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/
@@ -1743,8 +1217,7 @@ int db_write_vtk(const char *filename,
         if (idim == 1) fact = facty;
         if (idim == 2) fact = factz;
         points[ecr++] =
-            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) :
-                            0.;
+            (idim < ndim) ? (float) (fact * db->getCoordinate(iech, idim)) : 0.;
       }
     }
   }
@@ -2438,56 +1911,18 @@ int csv_table_read(const String &filename,
  **
  ** \return  Error return code
  **
- ** \param[in]  filename  Name of the ECLIPSE file
+ ** \param[in]  filename  Name of the file
  ** \param[in]  db        Db structure to be written
  ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
 int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol)
 {
-  FILE *file;
-  int lec;
-
-  /* Preliminary checks */
-
-  if (db->getNDim() != 2)
-  {
-    messerr("This FORMAT is limited to the 2-D case");
-    return (1);
-  }
-
-  /* Open the file */
-
-  file = gslFopen(filename, "w");
-  if (file == nullptr)
-  {
-    messerr("Error when opening the XYZ file %s for writing", filename);
-    return (1);
-  }
-
-  /* Write a comment */
-
-  fprintf(file, "FDASCII 0 0 0 0 1E30\n");
-  fprintf(file, "->\n");
-
-  /* Write the set of values */
-
-  lec = 0;
-  for (int ix = 0; ix < db->getNX(0); ix++)
-    for (int iy = 0; iy < db->getNX(1); iy++)
-    {
-      for (int i = 0; i < db->getNDim(); i++)
-        fprintf(file, "%lf,", db->getCoordinate(lec, i));
-      double value = db->getArray(lec, icol);
-      if (FFFF(value))
-        fprintf(file, "1E+30\n");
-      else
-        fprintf(file, "%lf\n", value);
-      lec++;
-    }
-
-  if (file != nullptr) fclose(file);
-  return (0);
+  GridXYZ aof(filename, db);
+  aof.setCol(icol);
+  if (! aof.isAuthorized()) return 1;
+  if (aof.dumpFile()) return 1;
+  return 0;
 }
 
 /****************************************************************************/

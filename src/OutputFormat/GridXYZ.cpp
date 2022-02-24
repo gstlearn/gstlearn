@@ -8,7 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "OutputFormat/GridEclipse.hpp"
+#include "OutputFormat/GridXYZ.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -17,17 +17,17 @@
 
 #include <string.h>
 
-GridEclipse::GridEclipse(const char* filename, const Db* db)
+GridXYZ::GridXYZ(const char* filename, const Db* db)
   : AOF(filename, db)
 {
 }
 
-GridEclipse::GridEclipse(const GridEclipse& r)
+GridXYZ::GridXYZ(const GridXYZ& r)
     : AOF(r)
 {
 }
 
-GridEclipse& GridEclipse::operator=(const GridEclipse& r)
+GridXYZ& GridXYZ::operator=(const GridXYZ& r)
 {
   if (this != &r)
   {
@@ -36,49 +36,38 @@ GridEclipse& GridEclipse::operator=(const GridEclipse& r)
   return *this;
 }
 
-GridEclipse::~GridEclipse()
+GridXYZ::~GridXYZ()
 {
 }
 
-int GridEclipse::dumpFile()
+int GridXYZ::dumpFile()
 {
-  static int nbyline = 6;
-  static double valtest = -9999.;
-
   /* Open the file */
 
   if (_fileOpen()) return 1;
 
-  // Preliminary calculations
-
-  int nxyz = 1;
-  for (int idim = 0; idim < _dbgrid->getNDim(); idim++)
-    nxyz *= _dbgrid->getNX(idim);
-
   /* Write a comment */
 
-  fprintf(_file, "Facies\n");
+  fprintf(_file, "FDASCII 0 0 0 0 1E30\n");
+  fprintf(_file, "->\n");
 
   /* Write the set of values */
 
-  int ninline = 0;
-  for (int i = 0; i < nxyz; i++)
-  {
-    double valprt = valtest;
-    if (_dbgrid->getSelection(i))
+  int lec = 0;
+  for (int ix = 0; ix < _dbgrid->getNX(0); ix++)
+    for (int iy = 0; iy < _dbgrid->getNX(1); iy++)
     {
-      double value = _dbgrid->getArray(i, _cols[0]);
-      if (!FFFF(value)) valprt = value;
+      for (int i = 0; i < _dbgrid->getNDim(); i++)
+        fprintf(_file, "%lf,", _dbgrid->getCoordinate(lec, i));
+      double value = _dbgrid->getArray(lec, _cols[0]);
+      if (FFFF(value))
+        fprintf(_file, "1E+30\n");
+      else
+        fprintf(_file, "%lf\n", value);
+      lec++;
     }
-    fprintf(_file, "%lf ", valprt);
-    ninline++;
-    if (ninline == nbyline)
-    {
-      fprintf(_file, "\n");
-      ninline = 0;
-    }
-  }
-  if (ninline > 0) fprintf(_file, "\n");
+
+  // Close the file
 
   _fileClose();
   return 0;

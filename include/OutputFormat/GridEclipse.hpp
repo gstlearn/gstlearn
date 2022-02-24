@@ -25,6 +25,7 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
-  bool isAuthorized() const override;
+  bool mustBeForNDim(int ndim) const override { return true; }
+  bool mustBeForRotation(int mode) const { return mode <= 1; }
   int  dumpFile() override;
 };

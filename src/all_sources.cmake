@@ -256,4 +256,9 @@ set(SRC
   Estimation/KrigingSystem.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridProp.cpp
+  OutputFormat/GridEclipse.cpp
+  OutputFormat/GridXYZ.cpp
+  OutputFormat/GridZycor.cpp
+  OutputFormat/GridIrap.cpp
+  OutputFormat/GridBmp.cpp
 )

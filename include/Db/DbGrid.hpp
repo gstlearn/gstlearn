@@ -140,6 +140,10 @@ public:
   {
     return _grid.coordinateToRank(coor,eps);
   }
+  int indiceToRank(const VectorInt& indice) const
+  {
+    return _grid.indiceToRank(indice);
+  }
   void rankToCoordinate(int rank,
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
