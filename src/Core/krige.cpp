@@ -3440,7 +3440,6 @@ int kriging(Db *dbin,
             VectorVectorDouble matCL,
             const NamingConvention& namconv)
 {
-  int error = 1;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -3495,7 +3494,6 @@ int kriging(Db *dbin,
 
   /* Set the error return flag */
 
-  error = 0;
   namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_varz, "varz", 1,
                               false);
   if (neighparam->getFlagXvalid() && flag_est > 0)
@@ -3509,9 +3507,8 @@ int kriging(Db *dbin,
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
-  label_end:
-  OptDbg::setIndex(0);
-  return (error);
+
+  return 0;
 }
 
 /****************************************************************************/

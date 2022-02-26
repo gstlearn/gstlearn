@@ -439,7 +439,6 @@ GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
 GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *filename,
                                  const CSVformat& csv,
-                                 int flag_header = 1,
                                  int flag_allcol = 1,
                                  int flag_coor = 1,
                                  bool flag_integer = false);

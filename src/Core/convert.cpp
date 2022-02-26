@@ -394,20 +394,17 @@ int csv_manage(const char *filename,
  **
  ** \param[in]  db           Name of the Db
  ** \param[in]  filename     Name of the CSV file
- ** \param[in]  flag_header  1 if the variable names must be dumed out
+ ** \param[in]  csvfmt       CSVformat structure
  ** \param[in]  flag_allcol  1 if all the columns available must be dumped out
  ** \param[in]  flag_coor    1 if the coordinates must be dumped out
  ** \param[in]  flag_integer true if the numerical values must be printed as integer
- ** \param[in]  char_sep     Character used as a column separator
- ** \param[in]  na_string    String used for absent information
  **
  ** \remarks: This procedure dumps the Z-variables and optionally the X-variables
  **
  *****************************************************************************/
 int db_write_csv(Db *db,
                  const char *filename,
-                 const CSVformat& csv,
-                 int flag_header,
+                 const CSVformat& csvfmt,
                  int flag_allcol,
                  int flag_coor,
                  bool flag_integer)
@@ -417,6 +414,7 @@ int db_write_csv(Db *db,
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
   int nvar = db->getVariableNumber();
+  int flag_header = csvfmt.getFlagHeader();
 
   // Count the number of items per line
 
@@ -431,7 +429,7 @@ int db_write_csv(Db *db,
 
   // Initiate the CSV_Encoding structure
 
-  if (csv_manage(filename, csv, 1, nitem, flag_integer)) return 1;
+  if (csv_manage(filename, csvfmt, 1, nitem, flag_integer)) return 1;
 
   /* Dump the header */
 
@@ -495,7 +493,7 @@ int db_write_csv(Db *db,
 
   // Close the file
 
-  (void) csv_manage(filename, csv, -1, nitem, flag_integer);
+  (void) csv_manage(filename, csvfmt, -1, nitem, flag_integer);
 
   return 0;
 }
@@ -507,6 +505,7 @@ int db_write_csv(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  filename    Name of the CSV file
+ ** \param[in]  csvfmt      CSVformat structure
  ** \param[in]  verbose     1 for a verbose output; 0 otherwise
  ** \param[in]  ncol_max    Maximum number of columns (or -1)
  ** \param[in]  nrow_max    Maximum number of rows (or -1)

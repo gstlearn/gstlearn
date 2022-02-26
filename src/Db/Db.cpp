@@ -103,7 +103,7 @@ int Db::resetFromSamples(int nech,
  *
  * @param filename   Name of the CSV file
  * @param verbose    Verbose flag
- * @param csv        Description of the CSV format
+ * @param csvfmt     Description of the CSV format
  * @param ncol_max   Maximum number of columns
  * @param nrow_max   Maximum number of rows
  * @param flag_add_rank 1 if the sample rank must be generated

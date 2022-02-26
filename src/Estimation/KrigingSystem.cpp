@@ -82,7 +82,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
 
 KrigingSystem::~KrigingSystem()
 {
-
+  OptDbg::setIndex(0); // Turn OFF this option for future task
 }
 
 int KrigingSystem::_getNVar() const
@@ -1381,8 +1381,7 @@ int KrigingSystem::estimate(int iech_out)
   OptDbg::setIndex(iech_out + 1);
   if (! _dbout->isActive(_iechOut)) return status;
 
-  if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH)
-      || OptDbg::query(EDbg::RESULTS))
+  if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     mestitle(1, "Target location");
     db_sample_print(_dbout, iech_out, 1, 0, 0);

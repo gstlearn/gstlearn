@@ -39,8 +39,14 @@ public:
   int setKrigOptColCok(const VectorInt& rank_colcok);
   int setKrigOptBayes(bool flag_bayes);
   int setKrigOptMatCL(const VectorVectorDouble& matCL);
-  void setKrigOptCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
   void setKrigOptFlagSimu(bool flagSimu);
+  /**
+   * This function enables testing all addresses before running
+   * @param flagCheckAddress True if addresses must be systematically checked
+   * @remark When turned ON, this option slows the process.
+   * @remark It should only be used for Debugging purposes.
+   */
+  void setKrigOptCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
 
   bool isReady();
   int  estimate(int iech_out);
