@@ -55,9 +55,9 @@ std::string LicenseUtility::to_alpha_num(const unsigned char* src,
 //
 // Return the activation code corresponding to the current computer
 //
-std::vector<std::string> LicenseUtility::get_activation_code() 
+VectorString LicenseUtility::get_activation_code()
 {
-  std::vector<std::string> activation_codes;
+  VectorString activation_codes;
   // Retrieving MAC address  
   std::vector<MacAddress> mac_addresses;
   if(MACAddressUtility::GetMACAddress(mac_addresses) == 0)

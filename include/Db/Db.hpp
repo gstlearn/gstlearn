@@ -66,7 +66,7 @@ public:
                        int flag_add_rank = 1);
   int resetFromCSV(const String& filename,
                    bool verbose,
-                   const CSVformat& csv,
+                   const CSVformat& csvfmt,
                    int ncol_max = -1,
                    int nrow_max = -1,
                    int flag_add_rank = 1);

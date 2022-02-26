@@ -4312,9 +4312,9 @@ int is_in_spherical_triangle(double *coor,
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<double> for storing an array of double
+ ** Create a VectorDouble for storing an array of double
  **
- ** \return The std::vector<double>
+ ** \return The VectorDouble
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  rtab      Array of double values to be loaded
@@ -4335,9 +4335,9 @@ VectorDouble util_set_array_double(int ntab, const double *rtab)
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<double> for storing an array of integer
+ ** Create a VectorInt for storing an array of integer
  **
- ** \return  The std::vector<int>
+ ** \return  The VectorInt
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  itab      Array of integer values to be loaded
@@ -4355,9 +4355,9 @@ VectorInt util_set_array_integer(int ntab, const int *itab)
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<std::string> for storing an array of chars
+ ** Create a VectorString for storing an array of chars
  **
- ** \return  The std::vector<std::string>
+ ** \return  The VectorString
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  names     Array of character values to be loaded

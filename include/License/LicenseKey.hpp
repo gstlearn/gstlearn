@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 
-typedef std::map<std::string, std::vector<std::string> > FeatureList;
+typedef std::map<String, VectorString > FeatureList;
  
 class GSTLEARN_EXPORT LicenseKey {
 

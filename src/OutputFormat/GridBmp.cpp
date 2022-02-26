@@ -554,11 +554,7 @@ int GridBmp::_compose(int nb)
 
 /****************************************************************************/
 /*!
- **   Read a byte from the binary file
- **
- ** \return  Returned integer value of the byte
- **
- ** \param[in]  file  File pointer
+ ** Read a byte from the binary file
  **
  *****************************************************************************/
 unsigned char GridBmp::_readIn()
@@ -567,7 +563,6 @@ unsigned char GridBmp::_readIn()
   unsigned char c;
   c = (unsigned char) fgetc(_file);
   if (!feof(_file)) return c;
-
   return (c);
 }
 

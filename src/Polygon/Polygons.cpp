@@ -93,9 +93,7 @@ int Polygons::resetFromCSV(const String& filename,
 
   /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
 
-  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(filename, csv, verbose, ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
     return 1;

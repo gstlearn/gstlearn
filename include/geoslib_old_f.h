@@ -18,6 +18,7 @@
 #include "Covariances/ECov.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Db/ELoc.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "Model/EConsElem.hpp"
@@ -1800,12 +1801,8 @@ GSTLEARN_EXPORT Db* db_well_read_las(const char *filename,
                                      double cwell,
                                      int verbose = 0);
 GSTLEARN_EXPORT int csv_table_read(const String &filename,
+                                   const CSVformat& csvfmt,
                                    int verbose,
-                                   int flag_header,
-                                   int nskip,
-                                   char char_sep,
-                                   char char_dec,
-                                   const String &na_string,
                                    int ncol_max,
                                    int nrow_max,
                                    int *ncol_arg,

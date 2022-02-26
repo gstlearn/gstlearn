@@ -110,7 +110,7 @@ int Db::resetFromSamples(int nech,
  */
 int Db::resetFromCSV(const String& filename,
                      bool verbose,
-                     const CSVformat& csv,
+                     const CSVformat& csvfmt,
                      int ncol_max,
                      int nrow_max,
                      int flag_add_rank)
@@ -122,10 +122,8 @@ int Db::resetFromCSV(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename, (int) verbose,
-                     csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(),csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(filename, csvfmt, (int) verbose, ncol_max, nrow_max,
+                     &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
     return 1;

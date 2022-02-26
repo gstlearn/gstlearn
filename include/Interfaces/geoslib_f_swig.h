@@ -12,19 +12,19 @@ class Model;
 
 GSTLEARN_EXPORT void migrate_grid_to_point2(const Database &Db_grid,
                                             Database &db_point,
-                                            const std::string &name,
+                                            const String &name,
                                             int ldmax = 2,
                                             VectorDouble dmax = VectorDouble());
 
 GSTLEARN_EXPORT void migrate_point_to_grid2(const Database &Db_point,
                                             Database &db_grid,
-                                            const std::string &name,
+                                            const String &name,
                                             int ldmax = 2,
                                             VectorDouble dmax = VectorDouble());
 
 GSTLEARN_EXPORT void migrate_grid_to_grid2(const Database &db_grid_in,
                                            Database &db_grid_out,
-                                           const std::string &name,
+                                           const String &name,
                                            int ldmax = 2,
                                            VectorDouble dmax = VectorDouble());
 

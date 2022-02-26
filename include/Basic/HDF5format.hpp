@@ -116,27 +116,27 @@ public:
     {
       return myOwner->getDataDouble();
     }
-    operator std::vector<int>() const
+    operator VectorInt() const
     {
       return myOwner->getDataVInt();
     }
-    operator std::vector<float>() const
+    operator VectorFloat() const
     {
       return myOwner->getDataVFloat();
     }
-    operator std::vector<double>() const
+    operator VectorDouble() const
     {
       return myOwner->getDataVDouble();
     }
-    operator std::vector<std::vector<int> >() const
+    operator VectorVectorInt() const
     {
       return myOwner->getDataVVInt();
     }
-    operator std::vector<std::vector<float> >() const
+    operator VectorVectorFloat() const
     {
       return myOwner->getDataVVFloat();
     }
-    operator std::vector<std::vector<double> >() const
+    operator VectorVectorDouble() const
     {
       return myOwner->getDataVVDouble();
     }

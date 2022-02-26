@@ -32,7 +32,7 @@ public:
 
   static String buildFileName(const String& filename, bool ensureDirExist = false);
 
-  static String getHomeDirectory(const std::string& sub = "");
+  static String getHomeDirectory(const String& sub = "");
   static String getWorkingDirectory();
   static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename);

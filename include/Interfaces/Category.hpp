@@ -12,7 +12,7 @@ public:
   Category(int value = UNDEF_CAT_VAL, const String& label = UNDEF_CAT_LABEL);
   virtual ~Category();
 
-  const std::string& getLabel() const;
+  const String& getLabel() const;
   int   getValue() const;
 
 #ifndef SWIG
@@ -31,5 +31,5 @@ public:
 
 private:
   int   _value;
-  std::string _label;
+  String _label;
 };

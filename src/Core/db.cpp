@@ -1054,7 +1054,6 @@ void db_print(Db *db,
   DbStringFormat dbfmt(params);
   dbfmt.setCols(ut_ivector_set(ranks, nrank));
   db->display(&dbfmt);
-
   return;
 }
 

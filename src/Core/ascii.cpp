@@ -748,27 +748,18 @@ Frac_Environ* ascii_frac_read(const char *file_name,
  **
  ** \param[in]  file_name     Name of the ASCII file
  ** \param[in]  verbose       Verbose option if the file cannot be opened
- ** \param[in]  flag_header   1 if the first line of the file contains the
- **                           variable names
- ** \param[in]  nskip         Number of lines to skip
- ** \param[in]  char_sep      Character used as a column separator
- ** \param[in]  char_dec      Character used as a decimal
- ** \param[in]  na_string     String used for absent information
+ ** \param[in]  csvfmt        CSVformat structure
  ** \param[in]  ncol_max      Maximum number of columns (or -1)
  ** \param[in]  nrow_max      Maximum number of rows (or -1)
  ** \param[in]  flag_add_rank 1 To add the rank number
  **
  *****************************************************************************/
 Db* db_read_csv(const char *file_name,
-                                int verbose,
-                                int flag_header,
-                                int nskip,
-                                char char_sep,
-                                char char_dec,
-                                const char *na_string,
-                                int ncol_max,
-                                int nrow_max,
-                                int flag_add_rank)
+                const CSVformat& csvfmt,
+                int verbose,
+                int ncol_max,
+                int nrow_max,
+                int flag_add_rank)
 {
   Db *db;
   int ncol, nrow;
@@ -781,8 +772,7 @@ Db* db_read_csv(const char *file_name,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(file_name, verbose, flag_header, nskip, char_sep, char_dec,
-                     na_string, ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(file_name, csvfmt, verbose, ncol_max, nrow_max, &ncol, &nrow, names, tab))
     goto label_end;
 
   /* Creating the Db */

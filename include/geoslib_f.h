@@ -60,15 +60,12 @@ GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 /*********************/
 
 GSTLEARN_EXPORT int csv_manage(const char *filename,
+                               const CSVformat& csv,
                                int mode,
                                int nitem,
                                bool flag_integer = 0,
-                               const char *char_sep = ",",
-                               const char *na_string = "NA",
                                bool verbose = false);
-GSTLEARN_EXPORT void csv_print_string(const char *string);
 GSTLEARN_EXPORT void csv_print_double(double value);
-GSTLEARN_EXPORT void csv_print_eol(void);
 
 /***************************/
 /* Functions for Data Base */
@@ -433,24 +430,19 @@ GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 int ngibbs_int,
                                 int verbose,
                                 double percent);
-GSTLEARN_EXPORT Db* db_read_csv(const char *file_name,
+GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
+                                const CSVformat& csvfmt,
                                 int verbose = 0,
-                                int flag_header = 1,
-                                int nskip = 0,
-                                char char_sep = ',',
-                                char char_dec = '.',
-                                const char *na_string = "NA",
                                 int ncol_max = -1,
                                 int nrow_max = -1,
                                 int flag_add_rank = 0);
 GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *filename,
+                                 const CSVformat& csv,
                                  int flag_header = 1,
                                  int flag_allcol = 1,
                                  int flag_coor = 1,
-                                 bool flag_integer = false,
-                                 const char *char_sep = ",",
-                                 const char *na_string = "NA");
+                                 bool flag_integer = false);
 GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            DbGrid *dbout,
                                            Model *model,

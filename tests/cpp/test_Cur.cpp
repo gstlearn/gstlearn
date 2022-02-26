@@ -31,7 +31,7 @@ double fa(double x,double y,double a,double b)
     return a*x + b*y;
 }
 
-double spirale(std::vector<double> pos)
+double spirale(VectorDouble pos)
 {
 
   auto  a=0.;

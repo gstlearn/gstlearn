@@ -23,7 +23,7 @@ class Model;
 
 typedef struct
 {
-  std::string convName;
+  String convName;
   double convScale;
   double (*convFunc)(double);
 } Def_Convolution;

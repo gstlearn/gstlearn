@@ -241,7 +241,6 @@ DbGrid* GridIfpEn::readGridFromFile()
 /*!
  **   Decode a line for IFPEN file
  **
- ** \param[in]  file       FILE descriptor
  ** \param[in]  mode       Type of encoding
  ** \li                     0 : Comment
  ** \li                     1 : Integer value

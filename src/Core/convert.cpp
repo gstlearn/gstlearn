@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+#include "geoslib_define.h"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
@@ -43,22 +44,19 @@ struct CSV_Encoding
   int current;               // Rank of the current item
   int nlines;                // Number of lines printed
   bool flag_integer;         // true for Integer encoding
-  const char *char_sep;      // Separator between consecutive fields
-  const char *na_string;     // Substitute for NA
+  char char_sep;             // Separator between consecutive fields
+  String na_string;          // Substitute for NA
 };
 
 static CSV_Encoding *CSV_ENCODE = NULL;
 
 /*! \endcond */
 
+/****************************************************************************/
 /*!
- **   Write a Grid according to XYZ ASCII format
+ **   Read / Write a File (Grid or Not) according to different format
  **
  ** \return  Error return code
- **
- ** \param[in]  filename  Name of the file
- ** \param[in]  db        Db structure to be written
- ** \param[in]  icol      Rank of the attribute
  **
  *****************************************************************************/
 int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol)
@@ -69,12 +67,6 @@ int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
-/****************************************************************************/
-/*!
- **   Read / Write a Grid according to ZYCOR format
- **
- *****************************************************************************/
 int db_grid_write_zycor(const char *filename, DbGrid *db, int icol)
 {
   GridZycor aof(filename, db);
@@ -83,25 +75,12 @@ int db_grid_write_zycor(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
 DbGrid* db_grid_read_zycor(const char* filename, int /* verbose*/)
 {
   GridZycor aof(filename);
   DbGrid* dbgrid = aof.readGridFromFile();
   return dbgrid;
 }
-
-/****************************************************************************/
-/*!
- **   Write a Grid according to ArcGis format
- **
- ** \return  Error return code
- **
- ** \param[in]  filename  Name of the AArcGis file
- ** \param[in]  db        Db structure to be written
- ** \param[in]  icol      Rank of the attribute
- **
- *****************************************************************************/
 int db_grid_write_arcgis(const char *filename, DbGrid *db, int icol)
 {
   GridArcGis aof(filename, db);
@@ -110,45 +89,6 @@ int db_grid_write_arcgis(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
-/****************************************************************************/
-/*!
- **  Read / Write a Grid according to BMP format
- **
- ** \return  Error return code
- **
- ** \param[in]  filename    Name of the BMP file
- ** \param[in]  db          Db structure to be written
- ** \param[in]  icol        Rank of the attribute
- ** \param[in]  nsamplex    Sampling ratio along X (1 = no sampling)
- ** \param[in]  nsampley    Sampling ratio along Y (1 = no sampling)
- ** \param[in]  nmult       Multiplication factor
- ** \param[in]  ncolor      Number of colors
- ** \param[in]  flag_low    Returns the first color for value below vmin if 0
- **                         or returns -3 otherwise
- ** \param[in]  flag_high   Returns the last color for value above vmax if 0
- **                         or returns -4 otherwise
- ** \param[in]  valmin      Minimum value represented (or FFFF)
- ** \param[in]  valmax      Maximum value represented (or FFFF)
- ** \param[in]  red         Array of Red intensity for color scale
- ** \param[in]  green       Array of Green intensity for color scale
- ** \param[in]  blue        Array of Blue intensity for color scale
- ** \param[in]  mask_red    Red intensity for masked value
- ** \param[in]  mask_green  Green intensity for masked value
- ** \param[in]  mask_blue   Blue intensity for masked value
- ** \param[in]  ffff_red    Red intensity for FFFF value
- ** \param[in]  ffff_green  Green intensity for FFFF value
- ** \param[in]  ffff_blue   Blue intensity for FFFF value
- ** \param[in]  low_red     Red intensity for lower value
- ** \param[in]  low_green   Green intensity for lower value
- ** \param[in]  low_blue    Blue intensity for lower value
- ** \param[in]  high_red    Red intensity for higher value
- ** \param[in]  high_green  Green intensity for higher value
- ** \param[in]  high_blue   Blue intensity for higher value
- **
- ** \remark  If ncolor=0, the colors scale is generated as the grey scale
- **
- *****************************************************************************/
 int db_grid_write_bmp(const char *filename,
                       DbGrid *db,
                       int icol,
@@ -207,11 +147,6 @@ DbGrid* db_grid_read_bmp(const char* filename, int /*verbose*/)
   return dbgrid;
 }
 
-/****************************************************************************/
-/*!
- **   Write a Grid accoring to IRAP format
- **
- *****************************************************************************/
 int db_grid_write_irap(const char *filename,
                        DbGrid *db,
                        int icol,
@@ -226,19 +161,6 @@ int db_grid_write_irap(const char *filename,
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
-/****************************************************************************/
-/*!
- **  Read / Write a Grid according to IFPEN format
- **
- ** \return  Error return code
- **
- ** \param[in]  filename  Name of the IFPEN .PROP file
- ** \param[in]  db        Db structure to be written
- ** \param[in]  ncol      Number of attributes
- ** \param[in]  icols     Rank(s) of the attribute
- **
- *****************************************************************************/
 int db_grid_write_ifpen(const char *filename, DbGrid *db, int ncol, int *icols)
 {
   GridIfpEn aof(filename, db);
@@ -247,25 +169,12 @@ int db_grid_write_ifpen(const char *filename, DbGrid *db, int ncol, int *icols)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
 DbGrid* db_grid_read_ifpen(const char* filename, int /*verbose*/)
 {
   GridIfpEn aof(filename);
   DbGrid* dbgrid = aof.readGridFromFile();
   return dbgrid;
 }
-
-/****************************************************************************/
-/*!
- **   Write a Grid according to ECLIPSE format
- **
- ** \return  Error return code
- **
- ** \param[in]  filename  Name of the ECLIPSE file
- ** \param[in]  db        Db structure to be written
- ** \param[in]  icol      Rank of the attribute
- **
- *****************************************************************************/
 int db_grid_write_eclipse(const char *filename, DbGrid *db, int icol)
 {
   GridEclipse aof(filename, db);
@@ -274,12 +183,6 @@ int db_grid_write_eclipse(const char *filename, DbGrid *db, int icol)
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
-/****************************************************************************/
-/*!
- **   Write a Db according to VTK format (Point or Grid)
- **
- *****************************************************************************/
 int db_write_vtk(const char *filename,
                  DbGrid *db,
                  const VectorInt &cols)
@@ -290,12 +193,6 @@ int db_write_vtk(const char *filename,
   if (aof.writeInFile()) return 1;
   return 0;
 }
-
-/****************************************************************************/
-/*!
- **   Read a Well File according to LAS format
- **
- *****************************************************************************/
 Db* db_well_read_las(const char *filename,
                      double xwell,
                      double ywell,
@@ -309,17 +206,298 @@ Db* db_well_read_las(const char *filename,
   aof.setCwell(cwell);
   return db;
 }
-
-/****************************************************************************/
-/*!
- **   Read a Grid according to F2G (FLUMY) format
- **
- *****************************************************************************/
 DbGrid* db_grid_read_f2g(const char* filename, int /* verbose*/)
 {
   GridF2G aof(filename);
   DbGrid* dbgrid = aof.readGridFromFile();
   return dbgrid;
+}
+
+/****************************************************************************/
+/*!
+ **   Write a STRING element into the (opened) CSV file
+ **
+ ** \param[in]  string       String to be written
+ **
+ ** \remark: This function uses CSV_ENCODING static structure
+ ** \remark: which must have been initiated beforehand
+ **
+ *****************************************************************************/
+static void st_csv_print_string(const char *string)
+{
+  if (CSV_ENCODE == NULL)
+  my_throw("You must initiate CSV_ENCODING first");
+
+  (void) fprintf(CSV_ENCODE->file, "%s", string);
+  if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
+  {
+    (void) fprintf(CSV_ENCODE->file, "%c", CSV_ENCODE->char_sep);
+    CSV_ENCODE->current++;
+  }
+  else
+  {
+    (void) fprintf(CSV_ENCODE->file, "\n");
+    CSV_ENCODE->nlines++;
+    CSV_ENCODE->current = 0;
+  }
+}
+
+/****************************************************************************/
+/*!
+ **   Force the printing of End-Of-Line into the (opened) CSV file
+ **
+ ** \remark: This function uses CSV_ENCODING static structure
+ ** \remark: which must have been initiated beforehand
+ **
+ *****************************************************************************/
+static void st_csv_print_eol(void)
+{
+  if (CSV_ENCODE->current <= 0) return;
+
+  (void) fprintf(CSV_ENCODE->file, "\n");
+  CSV_ENCODE->current = 0;
+  CSV_ENCODE->nlines++;
+}
+
+/****************************************************************************/
+/*!
+ **   Write a DOUBLE element into the (opened) CSV file
+ **
+ ** \param[in]  value        Real value to be written
+ **
+ ** \remark: This function uses CSV_ENCODING static structure
+ ** \remark: which must have been initiated beforehand
+ **
+ *****************************************************************************/
+void csv_print_double(double value)
+{
+  if (CSV_ENCODE == NULL)
+  my_throw("You must initiate CSV_ENCODING first");
+
+  if (FFFF(value))
+    (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->na_string.c_str());
+  else
+  {
+    if (CSV_ENCODE->flag_integer)
+      (void) fprintf(CSV_ENCODE->file, "%d", (int) value);
+    else
+      (void) fprintf(CSV_ENCODE->file, "%lf", value);
+  }
+  if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
+  {
+    (void) fprintf(CSV_ENCODE->file, "%c", CSV_ENCODE->char_sep);
+    CSV_ENCODE->current++;
+  }
+  else
+  {
+    (void) fprintf(CSV_ENCODE->file, "\n");
+    CSV_ENCODE->nlines++;
+    CSV_ENCODE->current = 0;
+  }
+}
+
+/****************************************************************************/
+/*!
+ **   Manage the Utility to write into a CSV file
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  filename     Name of the CSV file
+ ** \param[in]  csv          CSVFormat description
+ ** \param[in]  mode         1 for opening File; -1 for closing File
+ ** \param[in]  nitem        Number of items per line
+ ** \param[in]  flag_integer true if the numerical values must be printed as integer
+ ** \param[in]  verbose      Verbose flag
+ **
+ ** \remark: This procedure manages an internal structure (declared as static)
+ ** \remark: When opened, you can use csv_print_string() or csv_print_double()
+ ** \remark: in order to store items in the file
+ ** \remark: Do not forget to use csv_manage(-1,...) to close the file
+ **
+ *****************************************************************************/
+int csv_manage(const char *filename,
+               const CSVformat& csv,
+               int mode,
+               int nitem,
+               bool flag_integer,
+               bool verbose)
+{
+  char char_sep = csv.getCharSep();
+  String na_string = csv.getNaString();
+
+  // Dispatch
+
+  if (mode > 0)
+  {
+    // Initiate the CSV_ENCODE structure
+
+    if (CSV_ENCODE != NULL)
+      CSV_ENCODE = (CSV_Encoding*) mem_free((char* ) CSV_ENCODE);
+    CSV_ENCODE = (CSV_Encoding*) mem_alloc(sizeof(CSV_Encoding), 1);
+    CSV_ENCODE->file = gslFopen(filename, "w");
+    if (CSV_ENCODE->file == nullptr)
+    {
+      messerr("Error when opening the CSV file %s for writing", filename);
+      (void) csv_manage(filename, csv, -1, nitem, flag_integer);
+      return 1;
+    }
+    CSV_ENCODE->nitem = nitem;
+    CSV_ENCODE->current = 0;
+    CSV_ENCODE->nlines = 0;
+    CSV_ENCODE->flag_integer = flag_integer;
+    CSV_ENCODE->char_sep = char_sep;
+    CSV_ENCODE->na_string = na_string;
+
+    // Optional printout
+
+    if (verbose)
+    {
+      if (CSV_ENCODE->flag_integer)
+        mestitle(1, "CSV Integer Encoding");
+      else
+        mestitle(1, "CSV Float Encoding\n");
+      message("File Name                      = %s\n", filename);
+      message("Number of items per line       = %d\n", CSV_ENCODE->nitem);
+      message("Separator between items        = %s\n", CSV_ENCODE->char_sep);
+      message("String for missing information = %s\n", CSV_ENCODE->na_string);
+    }
+  }
+  else
+  {
+    // Write the last record (if necessary)
+    st_csv_print_eol();
+
+    if (CSV_ENCODE->file != NULL) fclose(CSV_ENCODE->file);
+
+    // Option printout
+    if (verbose)
+    {
+      if (CSV_ENCODE->flag_integer)
+        message("CSV Integer Encoding : Summary\n");
+      else
+        message("CSV Float Encoding : Summary\n");
+      message("Number of lines successfully written = %d\n",
+              CSV_ENCODE->nlines);
+    }
+
+    if (CSV_ENCODE != NULL)
+      CSV_ENCODE = (CSV_Encoding*) mem_free((char* ) CSV_ENCODE);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **   Write the Data frame into a CSV file. Reserved for numerical data frame.
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Name of the Db
+ ** \param[in]  filename     Name of the CSV file
+ ** \param[in]  flag_header  1 if the variable names must be dumed out
+ ** \param[in]  flag_allcol  1 if all the columns available must be dumped out
+ ** \param[in]  flag_coor    1 if the coordinates must be dumped out
+ ** \param[in]  flag_integer true if the numerical values must be printed as integer
+ ** \param[in]  char_sep     Character used as a column separator
+ ** \param[in]  na_string    String used for absent information
+ **
+ ** \remarks: This procedure dumps the Z-variables and optionally the X-variables
+ **
+ *****************************************************************************/
+int db_write_csv(Db *db,
+                 const char *filename,
+                 const CSVformat& csv,
+                 int flag_header,
+                 int flag_allcol,
+                 int flag_coor,
+                 bool flag_integer)
+{
+  if (db == nullptr) return 1;
+  int ncol = db->getColumnNumber();
+  int ndim = db->getNDim();
+  int nech = db->getSampleNumber();
+  int nvar = db->getVariableNumber();
+
+  // Count the number of items per line
+
+  int nitem = 0;
+  if (flag_allcol)
+    nitem = ncol;
+  else
+  {
+    nitem = nvar;
+    if (flag_coor) nitem += ndim;
+  }
+
+  // Initiate the CSV_Encoding structure
+
+  if (csv_manage(filename, csv, 1, nitem, flag_integer)) return 1;
+
+  /* Dump the header */
+
+  if (flag_header)
+  {
+    // Case where all columns are dumped out
+
+    if (flag_allcol)
+    {
+      for (int rank = 0; rank < ncol; rank++)
+      {
+        st_csv_print_string(db_name_get_by_att(db, rank).c_str());
+      }
+    }
+    else
+    {
+      int rank = 0;
+      if (flag_coor) for (int idim = 0; idim < ndim; idim++)
+      {
+        int iatt = db_attribute_identify(db, ELoc::X, idim);
+        st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
+        rank++;
+      }
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
+        st_csv_print_string(db_name_get_by_att(db, iatt).c_str());
+        rank++;
+      }
+    }
+  }
+
+  // Dump the samples (one sample per line)
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db->isActive(iech)) continue;
+
+    if (flag_allcol)
+    {
+      for (int rank = 0; rank < ncol; rank++)
+        csv_print_double(db->getByColIdx(iech, rank));
+    }
+    else
+    {
+      int rank = 0;
+      if (flag_coor) for (int idim = 0; idim < ndim; idim++)
+      {
+        int iatt = db_attribute_identify(db, ELoc::X, idim);
+        csv_print_double(db->getCoordinate(iech, iatt));
+        rank++;
+      }
+      for (int ivar = 0; ivar < nvar; ivar++)
+      {
+        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
+        csv_print_double(db->getVariable(iech, iatt));
+        rank++;
+      }
+    }
+  }
+
+  // Close the file
+
+  (void) csv_manage(filename, csv, -1, nitem, flag_integer);
+
+  return 0;
 }
 
 /****************************************************************************/
@@ -330,12 +508,6 @@ DbGrid* db_grid_read_f2g(const char* filename, int /* verbose*/)
  **
  ** \param[in]  filename    Name of the CSV file
  ** \param[in]  verbose     1 for a verbose output; 0 otherwise
- ** \param[in]  flag_header 1 if the first line of the file contains the
- **                         variable names
- ** \param[in]  nskip       Number of lines to skip
- ** \param[in]  char_sep    Character used as a column separator
- ** \param[in]  char_dec    Character used as a decimal
- ** \param[in]  na_string   String used for absent information
  ** \param[in]  ncol_max    Maximum number of columns (or -1)
  ** \param[in]  nrow_max    Maximum number of rows (or -1)
  **
@@ -348,12 +520,8 @@ DbGrid* db_grid_read_f2g(const char* filename, int /* verbose*/)
  **
  *****************************************************************************/
 int csv_table_read(const String &filename,
+                   const CSVformat& csvfmt,
                    int verbose,
-                   int flag_header,
-                   int nskip,
-                   char char_sep,
-                   char char_dec,
-                   const String &na_string,
                    int ncol_max,
                    int nrow_max,
                    int *ncol_arg,
@@ -361,7 +529,13 @@ int csv_table_read(const String &filename,
                    VectorString &names,
                    VectorDouble &tab)
 {
-  std::string line;
+  int flag_header = csvfmt.getFlagHeader();
+  int nskip = csvfmt.getNSkip();
+  char char_sep = csvfmt.getCharSep();
+  char char_dec = csvfmt.getCharDec();
+  String na_string = csvfmt.getNaString();
+
+  String line;
   std::ifstream file(filename.c_str());
   if (!file.is_open())
   {
@@ -453,289 +627,3 @@ int csv_table_read(const String &filename,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **   Write a STRING element into the (opened) CSV file
- **
- ** \param[in]  string       String to be written
- **
- ** \remark: This function uses CSV_ENCODING static structure
- ** \remark: which must have been initiated beforehand
- **
- *****************************************************************************/
-void csv_print_string(const char *string)
-{
-  if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
-
-  (void) fprintf(CSV_ENCODE->file, "%s", string);
-  if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
-  {
-    (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->char_sep);
-    CSV_ENCODE->current++;
-  }
-  else
-  {
-    (void) fprintf(CSV_ENCODE->file, "\n");
-    CSV_ENCODE->nlines++;
-    CSV_ENCODE->current = 0;
-  }
-}
-
-/****************************************************************************/
-/*!
- **   Write a DOUBLE element into the (opened) CSV file
- **
- ** \param[in]  value        Real value to be written
- **
- ** \remark: This function uses CSV_ENCODING static structure
- ** \remark: which must have been initiated beforehand
- **
- *****************************************************************************/
-void csv_print_double(double value)
-{
-  if (CSV_ENCODE == NULL)
-  my_throw("You must initiate CSV_ENCODING first");
-
-  if (FFFF(value))
-    (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->na_string);
-  else
-  {
-    if (CSV_ENCODE->flag_integer)
-      (void) fprintf(CSV_ENCODE->file, "%d", (int) value);
-    else
-      (void) fprintf(CSV_ENCODE->file, "%lf", value);
-  }
-  if (CSV_ENCODE->current < CSV_ENCODE->nitem - 1)
-  {
-    (void) fprintf(CSV_ENCODE->file, "%s", CSV_ENCODE->char_sep);
-    CSV_ENCODE->current++;
-  }
-  else
-  {
-    (void) fprintf(CSV_ENCODE->file, "\n");
-    CSV_ENCODE->nlines++;
-    CSV_ENCODE->current = 0;
-  }
-}
-
-/****************************************************************************/
-/*!
- **   Force the printing of End-Of-Line into the (opened) CSV file
- **
- ** \remark: This function uses CSV_ENCODING static structure
- ** \remark: which must have been initiated beforehand
- **
- *****************************************************************************/
-void csv_print_eol(void)
-{
-  if (CSV_ENCODE->current <= 0) return;
-
-  (void) fprintf(CSV_ENCODE->file, "\n");
-  CSV_ENCODE->current = 0;
-  CSV_ENCODE->nlines++;
-}
-
-/****************************************************************************/
-/*!
- **   Manage the Utility to write into a CSV file
- **
- ** \return  Error return code
- **
- ** \param[in]  filename     Name of the CSV file
- ** \param[in]  mode         1 for opening File; -1 for closing File
- ** \param[in]  nitem        Number of items per line
- ** \param[in]  flag_integer true if the numerical values must be printed as integer
- ** \param[in]  char_sep     Character used as a column separator
- ** \param[in]  na_string    String used for absent information
- ** \param[in]  verbose      Verbose flag
- **
- ** \remark: This procedure manages an internal structure (declared as static)
- ** \remark: When opened, you can use csv_print_string() or csv_print_double()
- ** \remark: in order to store items in the file
- ** \remark: Do not forget to use csv_manage(-1,...) to close the file
- **
- *****************************************************************************/
-int csv_manage(const char *filename,
-               int mode,
-               int nitem,
-               bool flag_integer,
-               const char *char_sep,
-               const char *na_string,
-               bool verbose)
-{
-  // Dispatch
-
-  if (mode > 0)
-  {
-    // Initiate the CSV_ENCODE structure
-
-    if (CSV_ENCODE != NULL)
-      CSV_ENCODE = (CSV_Encoding*) mem_free((char* ) CSV_ENCODE);
-    CSV_ENCODE = (CSV_Encoding*) mem_alloc(sizeof(CSV_Encoding), 1);
-    CSV_ENCODE->file = gslFopen(filename, "w");
-    if (CSV_ENCODE->file == nullptr)
-    {
-      messerr("Error when opening the CSV file %s for writing", filename);
-      (void) csv_manage(filename, -1, nitem, flag_integer, char_sep, na_string);
-      return 1;
-    }
-    CSV_ENCODE->nitem = nitem;
-    CSV_ENCODE->current = 0;
-    CSV_ENCODE->nlines = 0;
-    CSV_ENCODE->flag_integer = flag_integer;
-    CSV_ENCODE->char_sep = char_sep;
-    CSV_ENCODE->na_string = na_string;
-
-    // Optional printout
-
-    if (verbose)
-    {
-      if (CSV_ENCODE->flag_integer)
-        mestitle(1, "CSV Integer Encoding");
-      else
-        mestitle(1, "CSV Float Encoding\n");
-      message("File Name                      = %s\n", filename);
-      message("Number of items per line       = %d\n", CSV_ENCODE->nitem);
-      message("Separator between items        = %s\n", CSV_ENCODE->char_sep);
-      message("String for missing information = %s\n", CSV_ENCODE->na_string);
-    }
-  }
-  else
-  {
-    // Write the last record (if necessary)
-    csv_print_eol();
-
-    if (CSV_ENCODE->file != NULL) fclose(CSV_ENCODE->file);
-
-    // Option printout
-    if (verbose)
-    {
-      if (CSV_ENCODE->flag_integer)
-        message("CSV Integer Encoding : Summary\n");
-      else
-        message("CSV Float Encoding : Summary\n");
-      message("Number of lines successfully written = %d\n",
-              CSV_ENCODE->nlines);
-    }
-
-    if (CSV_ENCODE != NULL)
-      CSV_ENCODE = (CSV_Encoding*) mem_free((char* ) CSV_ENCODE);
-  }
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **   Write the Data frame into a CSV file. Reserved for numerical data frame.
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Name of the Db
- ** \param[in]  filename     Name of the CSV file
- ** \param[in]  flag_header  1 if the variable names must be dumed out
- ** \param[in]  flag_allcol  1 if all the columns available must be dumped out
- ** \param[in]  flag_coor    1 if the coordinates must be dumped out
- ** \param[in]  flag_integer true if the numerical values must be printed as integer
- ** \param[in]  char_sep     Character used as a column separator
- ** \param[in]  na_string    String used for absent information
- **
- ** \remarks: This procedure dumps the Z-variables and optionally the X-variables
- **
- *****************************************************************************/
-int db_write_csv(Db *db,
-                 const char *filename,
-                 int flag_header,
-                 int flag_allcol,
-                 int flag_coor,
-                 bool flag_integer,
-                 const char *char_sep,
-                 const char *na_string)
-{
-  if (db == nullptr) return 1;
-  int ncol = db->getColumnNumber();
-  int ndim = db->getNDim();
-  int nech = db->getSampleNumber();
-  int nvar = db->getVariableNumber();
-
-  // Count the number of items per line
-
-  int nitem = 0;
-  if (flag_allcol)
-    nitem = ncol;
-  else
-  {
-    nitem = nvar;
-    if (flag_coor) nitem += ndim;
-  }
-
-  // Initiate the CSV_Encoding structure
-
-  if (csv_manage(filename, 1, nitem, flag_integer, char_sep, na_string))
-    return 1;
-
-  /* Dump the header */
-
-  if (flag_header)
-  {
-    // Case where all columns are dumped out
-
-    if (flag_allcol)
-    {
-      for (int rank = 0; rank < ncol; rank++)
-      {
-        csv_print_string(db_name_get_by_att(db, rank).c_str());
-      }
-    }
-    else
-    {
-      int rank = 0;
-      if (flag_coor) for (int idim = 0; idim < ndim; idim++)
-      {
-        int iatt = db_attribute_identify(db, ELoc::X, idim);
-        csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
-      }
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
-        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        csv_print_string(db_name_get_by_att(db, iatt).c_str());
-        rank++;
-      }
-    }
-  }
-
-  // Dump the samples (one sample per line)
-
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    if (flag_allcol)
-    {
-      for (int rank = 0; rank < ncol; rank++)
-        csv_print_double(db->getByColIdx(iech, rank));
-    }
-    else
-    {
-      int rank = 0;
-      if (flag_coor) for (int idim = 0; idim < ndim; idim++)
-      {
-        int iatt = db_attribute_identify(db, ELoc::X, idim);
-        csv_print_double(db->getCoordinate(iech, iatt));
-        rank++;
-      }
-      for (int ivar = 0; ivar < nvar; ivar++)
-      {
-        int iatt = db_attribute_identify(db, ELoc::Z, ivar);
-        csv_print_double(db->getVariable(iech, iatt));
-        rank++;
-      }
-    }
-  }
-
-  // Close the file
-  (void) csv_manage(filename, -1, nitem, flag_integer, char_sep, na_string);
-
-  return 0;
-}

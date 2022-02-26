@@ -73,7 +73,7 @@ private:
   mutable VectorVectorDouble  _workingSimu;
   mutable VectorDouble        _workingData;
   std::vector<ProjMatrix*>    _projOnDbOut;
-  std::vector<int>            _adressesICov;
+  VectorInt                   _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
   bool _requireCoeffs;
