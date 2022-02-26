@@ -18,7 +18,7 @@ class Db;
 class GSTLEARN_EXPORT GridBmp: public AOF
 {
 public:
-  GridBmp(const char* filename, const Db* db);
+  GridBmp(const char* filename, const Db* db = nullptr);
   GridBmp(const GridBmp& r);
   GridBmp& operator=(const GridBmp& r);
   virtual ~GridBmp();
@@ -26,8 +26,9 @@ public:
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
   bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(int mode) const { return mode == 0; }
-  int  dumpFile() override;
+  bool mustBeForRotation(int mode) const override { return mode == 0; }
+  int  writeInFile() override;
+  DbGrid* readGridFromFile() override;
 
   void setColors(const VectorInt& reds, const VectorInt& greens, const VectorInt& blues);
   void setFFFF(int red, int green, int blue);
@@ -52,6 +53,10 @@ private:
                    unsigned char *ired,
                    unsigned char *igreen,
                    unsigned char *iblue);
+  int _compose(int nb);
+  unsigned char _readIn();
+  void _num2rgb(unsigned char value, int *r, int *g, int *b, int *a);
+  void _rgb2num(int red, int green, int blue, int /*a*/, unsigned char *c);
 
 private:
   int _nsamplex;

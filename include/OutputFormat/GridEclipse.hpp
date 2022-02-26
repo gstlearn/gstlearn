@@ -18,7 +18,7 @@ class Db;
 class GSTLEARN_EXPORT GridEclipse: public AOF
 {
 public:
-  GridEclipse(const char* filename, const Db* db);
+  GridEclipse(const char* filename, const Db* db = nullptr);
   GridEclipse(const GridEclipse& r);
   GridEclipse& operator=(const GridEclipse& r);
   virtual ~GridEclipse();
@@ -26,6 +26,6 @@ public:
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return true; }
   bool mustBeForNDim(int ndim) const override { return true; }
-  bool mustBeForRotation(int mode) const { return mode <= 1; }
-  int  dumpFile() override;
+  bool mustBeForRotation(int mode) const override { return mode <= 1; }
+  int  writeInFile() override;
 };

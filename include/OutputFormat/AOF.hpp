@@ -20,7 +20,7 @@ class DbGrid;
 class GSTLEARN_EXPORT AOF
 {
 public:
-  AOF(const char* filename, const Db* db);
+  AOF(const char* filename, const Db* db = nullptr);
   AOF(const AOF& r);
   AOF& operator=(const AOF& r);
   virtual ~AOF();
@@ -35,7 +35,9 @@ public:
    */
   virtual bool mustBeForRotation(int mode) const { return true; }
   virtual bool isAuthorized() const;
-  virtual int  dumpFile() = 0;
+  virtual int  writeInFile()  { return 1; }
+  virtual Db* readFromFile() { return nullptr; }
+  virtual DbGrid* readGridFromFile() { return nullptr; }
 
   bool isValidForGrid() const;
   bool isValidForVariable() const;
@@ -46,8 +48,11 @@ public:
   void setCols(int ncol, int* icols);
   void setCol(int icol);
 
+  const char* getFilename() const { return _filename; }
+
 protected:
-  int  _fileOpen();
+  int  _fileWriteOpen();
+  int  _fileReadOpen();
   void _fileClose();
 
 protected:

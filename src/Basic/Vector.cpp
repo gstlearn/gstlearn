@@ -586,6 +586,7 @@ int ut_vector_size(const VectorVectorDouble &vec)
 
 VectorInt ut_ivector_set(int* values, int number)
 {
+  if (values == nullptr) return VectorInt();
   VectorInt vec(number);
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
@@ -593,6 +594,7 @@ VectorInt ut_ivector_set(int* values, int number)
 
 VectorDouble ut_vector_set(double* values, int number)
 {
+  if (values == nullptr) return VectorDouble();
   VectorDouble vec;
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
@@ -600,6 +602,7 @@ VectorDouble ut_vector_set(double* values, int number)
 
 VectorVectorDouble ut_vector_vector_set(double* value, int n1, int n2)
 {
+  if (value == nullptr) return VectorVectorDouble();
   VectorVectorDouble vec;
   vec.resize(n1);
   for (int i1 = 0; i1 < n1; i1++) vec[i1].resize(n2);

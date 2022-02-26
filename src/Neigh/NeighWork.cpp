@@ -25,8 +25,7 @@
 #include <set>
 
 NeighWork::NeighWork(const Db* dbin,
-                     const ANeighParam* neighparam,
-                     bool flag_simu)
+                     const ANeighParam* neighparam)
     : _dbin(),
       _neighParam(),
       _flagInitialized(false),
@@ -43,7 +42,7 @@ NeighWork::NeighWork(const Db* dbin,
       _nbghMemo()
 
 {
-  initialize(dbin, neighparam, flag_simu);
+  initialize(dbin, neighparam);
 }
 
 NeighWork::NeighWork(const NeighWork& r)
@@ -96,7 +95,6 @@ NeighWork::~NeighWork()
  **
  ** \param[in]  dbin          input Db structure
  ** \param[in]  neighparam    Description of the ANeighParam parameters
- ** \param[in]  flag_simu     1 if used for Simulation
  **
  ** \remarks When the Neighborhood is performed in the case of Simulations
  ** \remarks checking for all variables being undefined is performed
@@ -104,13 +102,11 @@ NeighWork::~NeighWork()
  **
  *****************************************************************************/
 void NeighWork::initialize(const Db* dbin,
-                           const ANeighParam* neighparam,
-                           bool flag_simu)
+                           const ANeighParam* neighparam)
 {
   if (neighparam == nullptr || dbin == nullptr) return;
   _neighParam = neighparam;
   _dbin = dbin;
-  _flagSimu = flag_simu;
 
   int nech  = _dbin->getSampleNumber();
   int ndim  = _dbin->getNDim();

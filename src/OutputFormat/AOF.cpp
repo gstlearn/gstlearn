@@ -22,7 +22,7 @@ AOF::AOF(const char* filename, const Db* db)
   , _cols()
   , _file(nullptr)
 {
-  _dbgrid = dynamic_cast<const DbGrid*>(db);
+  if (db != nullptr) _dbgrid = dynamic_cast<const DbGrid*>(db);
 }
 
 AOF::AOF(const AOF& r)
@@ -76,7 +76,7 @@ bool AOF::isValidForVariable() const
 bool AOF::isValidForNDim() const
 {
   int ndim = _dbgrid->getNDim();
-  if (mustBeForNDim(ndim))
+  if (! mustBeForNDim(ndim))
   {
     messerr("This function is not valid for the Space Dimension (%d)",ndim);
     return false;
@@ -96,7 +96,7 @@ bool AOF::isValidForRotation() const
     for (int idim = 1; idim < ndim; idim++)
       if (ABS(angles[idim]) > 1.e-6) mode = 2;
   }
-  if (mustBeForRotation(mode))
+  if (! mustBeForRotation(mode))
   {
     messerr("This function is not compatible with Grid Rotation (mode=%d)",mode);
     return false;
@@ -104,12 +104,23 @@ bool AOF::isValidForRotation() const
   return true;
 }
 
-int AOF::_fileOpen()
+int AOF::_fileWriteOpen()
 {
   _file = gslFopen(_filename, "w");
   if (_file == nullptr)
   {
     messerr("Error when opening the file %s for writing", _filename);
+    return (1);
+  }
+  return 0;
+}
+
+int AOF::_fileReadOpen()
+{
+  _file = gslFopen(_filename, "r");
+  if (_file == nullptr)
+  {
+    messerr("Error when opening the file %s for reading", _filename);
     return (1);
   }
   return 0;
@@ -137,6 +148,11 @@ void AOF::setCol(int icol)
 
 bool AOF::isAuthorized() const
 {
+  if (_db == nullptr)
+  {
+    messerr("The argument 'db' must be provided");
+    return false;
+  }
   if (! isValidForGrid()) return false;
   if (! isValidForVariable()) return false;
   if (! isValidForNDim()) return false;

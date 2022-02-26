@@ -255,10 +255,14 @@ set(SRC
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   OutputFormat/AOF.cpp
-  OutputFormat/GridProp.cpp
+  OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp
   OutputFormat/GridXYZ.cpp
   OutputFormat/GridZycor.cpp
   OutputFormat/GridIrap.cpp
   OutputFormat/GridBmp.cpp
+  OutputFormat/GridArcGis.cpp
+  OutputFormat/FileVTK.cpp
+  OutputFormat/FileLAS.cpp
+  OutputFormat/GridF2G.cpp
 )

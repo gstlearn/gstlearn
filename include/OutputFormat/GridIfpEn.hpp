@@ -15,19 +15,20 @@
 
 class Db;
 
-class GSTLEARN_EXPORT GridProp: public AOF
+class GSTLEARN_EXPORT GridIfpEn: public AOF
 {
 public:
-  GridProp(const char* filename, const Db* db);
-  GridProp(const GridProp& r);
-  GridProp& operator=(const GridProp& r);
-  virtual ~GridProp();
+  GridIfpEn(const char* filename, const Db* db = nullptr);
+  GridIfpEn(const GridIfpEn& r);
+  GridIfpEn& operator=(const GridIfpEn& r);
+  virtual ~GridIfpEn();
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return false; }
   bool mustBeForNDim(int ndim) const override { return true; }
-  bool mustBeForRotation(int mode) const { return mode <= 1; }
-  int  dumpFile() override;
+  bool mustBeForRotation(int mode) const override { return mode <= 1; }
+  int  writeInFile() override;
+  DbGrid* readGridFromFile() override;
 
 private:
   void _writeLine(int mode,
@@ -35,4 +36,5 @@ private:
                   int valint,
                   double valrel,
                   const char *combis);
+  int _readLine(int mode, const char *comment, int *valint, double *valrel);
 };

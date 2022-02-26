@@ -52,9 +52,9 @@ int main(int /*argc*/, char */*argv*/[])
       tab.push_back(10 * law_gaussian());
 
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
-  data->setNameByUID(1,"xcoor1");
-  data->setNameByUID(2,"xcoor2");
-  data->setNameByUID(3,"var");
+  data->setNameByUID(1,"x1");
+  data->setNameByUID(2,"x2");
+  data->setNameByUID(3,"Var");
   data->setLocatorByUID(1,ELoc::X,0);
   data->setLocatorByUID(2,ELoc::X,1);
   data->setLocatorByUID(3,ELoc::Z);
@@ -76,12 +76,11 @@ int main(int /*argc*/, char */*argv*/[])
   neigh->display();
 
   // Launch Kriging
-  kriging2(data, grid, model, neigh);
+  data->setLocatorByUID(3,ELoc::Z);
   kriging(data, grid, model, neigh);
   grid->display(&dbfmt);
 
   // Launch Cross-Validation
-  xvalid2(data, model, neigh, 0, -1, -1);
   data->setLocatorByUID(3,ELoc::Z);
   xvalid(data, model, neigh, 0, -1, -1);
   data->display(&dbfmt);

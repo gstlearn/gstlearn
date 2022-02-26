@@ -1837,13 +1837,10 @@ static void st_lhs(Model *model,
 static void st_lhs_iso2hetero(int neq)
 
 {
-  int lec_lhs, ecr_lhs, i, j;
-
-  /* Loop on the elements */
-
-  lec_lhs = ecr_lhs = 0;
-  for (i = 0; i < neq; i++)
-    for (j = 0; j < neq; j++)
+  int lec_lhs = 0;
+  int ecr_lhs = 0;
+  for (int i = 0; i < neq; i++)
+    for (int j = 0; j < neq; j++)
     {
       if (flag[i] != 0 && flag[j] != 0) lhs[ecr_lhs++] = lhs[lec_lhs];
       lec_lhs++;
@@ -3076,7 +3073,8 @@ static int st_image_kriging(Db* dbaux,
   /* Prepare the neighborhood (mimick the Unique neighborhood) */
 
   NeighUnique* neighU = NeighUnique::create(dbaux->getNDim(), false);
-  nbghw.initialize(dbaux, neighparam, FLAG_SIMU);
+  nbghw.initialize(dbaux, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   nbgh_ranks = nbghw.select(DBOUT, 0);
   nech = (int) nbgh_ranks.size();
   status = nbgh_ranks.empty();
@@ -3258,7 +3256,7 @@ static void st_save_keypair_weights(int status,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int kriging(Db *dbin,
+int kriging_old(Db *dbin,
             Db *dbout,
             Model *model,
             ANeighParam *neighparam,
@@ -3320,7 +3318,8 @@ int kriging(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
@@ -3414,8 +3413,6 @@ int kriging(Db *dbin,
 }
 
 /**
- * This is the newest tentative version of kriging. It is temporarily renamed
- * in kriging2() to be compared with the original kriging().
  * @param dbin
  * @param dbout
  * @param model
@@ -3430,7 +3427,7 @@ int kriging(Db *dbin,
  * @param namconv
  * @return
  */
-int kriging2(Db *dbin,
+int kriging(Db *dbin,
             Db *dbout,
             Model *model,
             ANeighParam *neighparam,
@@ -3444,6 +3441,10 @@ int kriging2(Db *dbin,
             const NamingConvention& namconv)
 {
   int error = 1;
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+  int iptr_varz = -1;
+
   int nvar = matCL.empty() ? model->getVariableNumber() : matCL.size();
   if (neighparam->getType() == ENeigh::IMAGE)
   {
@@ -3455,24 +3456,25 @@ int kriging2(Db *dbin,
 
   if (flag_est != 0)
   {
-    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_EST < 0) return 1;
+    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_est < 0) return 1;
   }
   if (flag_std != 0)
   {
-    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_STD < 0) return 1;
+    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_std < 0) return 1;
   }
   if (flag_varz != 0)
   {
-    IPTR_VARZ = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_VARZ < 0) return 1;
+    iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_varz < 0) return 1;
   }
 
   /* Pre-calculations */
 
-  KrigingSystem ksys(dbin, dbout, model, neighparam, FLAG_SIMU);
-  ksys.setKrigOptEstim(IPTR_EST, IPTR_STD, IPTR_VARZ);
+  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  ksys.setKrigOptFlagSimu(FLAG_SIMU);
+  ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz);
   ksys.setKrigOptCalcul(calcul, ndisc);
   ksys.setKrigOptXValid(flag_est > 0, flag_std > 0);
   ksys.setKrigOptColCok(rank_colcok);
@@ -3494,18 +3496,18 @@ int kriging2(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, IPTR_VARZ, "varz", 1,
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_varz, "varz", 1,
                               false);
   if (neighparam->getFlagXvalid() && flag_est > 0)
-    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stderr", 1,
+    namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stderr", 1,
                                 false);
   else
-    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_STD, "stdev", 1,
+    namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
                                 false);
   if (neighparam->getFlagXvalid() && flag_std > 0)
-    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "esterr");
+    namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "esterr");
   else
-    namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbout, IPTR_EST, "estim");
+    namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
   label_end:
   OptDbg::setIndex(0);
@@ -3606,7 +3608,8 @@ static int st_xvalid_unique(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -3718,7 +3721,7 @@ static int st_xvalid_unique(Db *dbin,
  ** \param[in]  namconv     Naming Convention
  **
  *****************************************************************************/
-int xvalid(Db *db,
+int xvalid_old(Db *db,
            Model *model,
            ANeighParam *neighparam,
            int flag_code,
@@ -3755,7 +3758,7 @@ int xvalid(Db *db,
   return ret_code;
 }
 
-int xvalid2(Db *db,
+int xvalid(Db *db,
            Model *model,
            ANeighParam *neighparam,
            int flag_code,
@@ -3784,7 +3787,7 @@ int xvalid2(Db *db,
     ret_code = st_xvalid_unique(db, model, neighparam, flag_est, flag_std, flag_varz,
                                 rank_colcok, namconv);
   else
-    ret_code = kriging2(db, db, model, neighparam, EKrigOpt::PONCTUAL,
+    ret_code = kriging(db, db, model, neighparam, EKrigOpt::PONCTUAL,
                        flag_est, flag_std, flag_varz,
                        VectorInt(), rank_colcok, VectorVectorDouble(),
                        namconv);
@@ -3867,7 +3870,8 @@ int krigdgm_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -4026,7 +4030,8 @@ int krigprof_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -4444,7 +4449,8 @@ int kribayes_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -4585,7 +4591,8 @@ int test_neigh(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, model->getVariableNumber(), model, neighparam))
     goto label_end;
@@ -4712,7 +4719,8 @@ int _krigsim(const char *strloc,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -4880,7 +4888,8 @@ int krimage_func(DbGrid *dbgrid, Model *model, ANeighParam *neighparam)
 
   /* Pre-calculations */
 
-  nbghw.initialize(dbaux, neighparam, FLAG_SIMU);
+  nbghw.initialize(dbaux, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
 
@@ -5152,7 +5161,8 @@ int global_kriging(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(dbin, neighparam, FLAG_SIMU);
+  nbghw.initialize(dbin, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, calcul, 1, VectorInt())) goto label_end;
@@ -7102,7 +7112,8 @@ int image_smoother(DbGrid *dbgrid, NeighImage *neighI, int type, double range)
 
   /* Pre-calculations */
 
-  nbghw.initialize(dbaux, neighI, FLAG_SIMU);
+  nbghw.initialize(dbaux, neighI);
+  nbghw.setFlagSimu(FLAG_SIMU);
 
   /* Loop on the targets to be processed */
 
@@ -7242,7 +7253,8 @@ int krigsum_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighU, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighU);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvarin, model, neighU)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -7594,7 +7606,8 @@ int krigmvp_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvarmod, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -7872,7 +7885,8 @@ int krigtest_dimension(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
@@ -7994,7 +8008,8 @@ int krigtest_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
@@ -8173,7 +8188,8 @@ int kriggam_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
@@ -8323,7 +8339,8 @@ int krigcell_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 0, EKrigOpt::BLOCK, 1, ndisc)) goto label_end;
@@ -8599,7 +8616,8 @@ int dk_f(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, model->getVariableNumber(), model, neighparam)) goto label_end;
   nb_mult = 1;
@@ -8825,7 +8843,8 @@ int* neigh_calc(Db *dbin,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, model->getVariableNumber(), model, neighparam))
     goto label_end;
@@ -9956,7 +9975,8 @@ static int st_declustering_2(Db *db, int iptr, Model *model, int verbose)
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighU, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighU);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighU)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::DRIFT, 1, VectorInt()))
@@ -10059,7 +10079,8 @@ static int st_declustering_3(Db *db,
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam, FLAG_SIMU);
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
   if (st_model_manage(1, model)) goto label_end;
   if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
   if (krige_koption_manage(1, 1, EKrigOpt::BLOCK, 1, ndisc)) goto label_end;

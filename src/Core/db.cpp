@@ -1075,7 +1075,7 @@ void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
+int db_extension(const Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 {
   double vmin, vmax, diff, mean, stdv;
   int nval;
@@ -1101,12 +1101,15 @@ int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 
   /* Copy to the returned arguments */
 
-  if (mini_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    mini_arg[idim] = mini[idim];
-  if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    maxi_arg[idim] = maxi[idim];
-  if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    delta_arg[idim] = delta[idim];
+  if (mini_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      mini_arg[idim] = mini[idim];
+  if (maxi_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      maxi_arg[idim] = maxi[idim];
+  if (delta_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      delta_arg[idim] = delta[idim];
 
   return 0;
 }

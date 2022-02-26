@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "OutputFormat/GridBmp.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
@@ -16,6 +18,7 @@
 #include "Basic/String.hpp"
 
 #include <string.h>
+#include <stdio.h>
 
 #define BF_TYPE 0x4D42             /* "MB" */
 #define COLOR_MASK   -1
@@ -149,14 +152,14 @@ void GridBmp::setMask(int red, int green, int blue)
   _mask_blue = blue;
 }
 
-int GridBmp::dumpFile()
+int GridBmp::writeInFile()
 {
   VectorInt indg(2);
   unsigned char ired, igreen, iblue;
 
   /* Open the file */
 
-  if (_fileOpen()) return 1;
+  if (_fileWriteOpen()) return 1;
 
   /* Preliminary checks */
 
@@ -172,7 +175,7 @@ int GridBmp::dumpFile()
 
   /* Calculate the statistics */
 
-  double vmin = 1.e30;
+  double vmin =  1.e30;
   double vmax = -1.e30;
   for (int i = 0; i < nx * ny; i++)
   {
@@ -182,6 +185,9 @@ int GridBmp::dumpFile()
     if (value < vmin) vmin = value;
     if (value > vmax) vmax = value;
   }
+  double delta = (vmax - vmin);
+  vmin -= delta / 100.;
+  vmax += delta / 100.;
   if (! FFFF(_valmin)) vmin = _valmin;
   if (! FFFF(_valmax)) vmax = _valmax;
 
@@ -189,7 +195,7 @@ int GridBmp::dumpFile()
 
   int infosize = 40;
   int headersize = 14;
-  int width = _nmult * N_SAMPLE(nx, _nsamplex);
+  int width  = _nmult * N_SAMPLE(nx, _nsamplex);
   int height = _nmult * N_SAMPLE(ny, _nsampley);
   int imagesize = 3 * width * height;
 
@@ -256,7 +262,6 @@ int GridBmp::dumpFile()
 /*!
  **   Print an integer
  **
- ** \param[in]  file  File pointer
  ** \param[in]  mode  Type of writing
  ** \li                0 : 16-bit unsigned integer
  ** \li                1 : 32-bit unsigned integer
@@ -402,3 +407,211 @@ void GridBmp::_colorInRGB(int rank,
       }
   }
 }
+
+DbGrid*  GridBmp::readGridFromFile()
+{
+  DbGrid* dbgrid = nullptr;
+  int ir[256], ig[256], ib[256];
+  VectorDouble x0(2);
+  VectorDouble dx(2);
+  VectorInt nx(2);
+
+  /* Open the file */
+
+  if (_fileReadOpen()) return dbgrid;
+
+  /* Initializations */
+
+  x0[0] = 0.;
+  x0[1] = 0.;
+  dx[0] = 1.;
+  dx[1] = 1.;
+
+  /* Reading the file header */
+
+  (void) _compose( 2);
+  (void) _compose( 4);
+  (void) _compose( 4);
+  int offset = _compose( 4);
+
+  /* Reading the bitmap information header */
+
+  (void) _compose( 4);
+  nx[0] = _compose( 4);
+  nx[1] = _compose( 4);
+  (void) _compose( 2);
+  int nbits = _compose( 2);
+  int compress = _compose( 4);
+  (void) _compose( 4);
+  int ndx = _compose( 4);
+  int ndy = _compose( 4);
+  int ncol = _compose( 4);
+  (void) _compose( 4);
+  if (ncol > 256)
+  {
+    messerr("Your file seems to contain more than 256 colors");
+    messerr("It is probably not a valid BMP file");
+    return dbgrid;
+  }
+
+  /* Read the Color Scale (optional) */
+
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    ir[icol] = _readIn();
+    ig[icol] = _readIn();
+    ib[icol] = _readIn();
+    (void) _readIn();
+  }
+
+  /* Final checks */
+
+  if (compress != 0)
+  {
+    messerr("Error : only uncompressed images are treated here");
+    return dbgrid;
+  }
+
+  /* Final results */
+
+  if (ndx > 0) dx[0] = 100. / (double) ndx;
+  if (ndy > 0) dx[1] = 100. / (double) ndy;
+
+  /* Reading the image (from bottom to up) */
+
+  int noct = nx[0] * nbits / 8;
+  int npad = 4 - noct % 4;
+  if (npad == 4) npad = 0;
+  int size = nx[0] * nx[1];
+  VectorDouble tab(size);
+
+  int ecr = 0;
+  for (int jy = 0; jy < nx[1]; jy++)
+  {
+    for (int ix = 0; ix < nx[0]; ix++)
+    {
+      unsigned char ctab = 0;
+      if (nbits == 8)
+      {
+        unsigned char c = _readIn();
+        _rgb2num(ir[c], ig[c], ib[c], 0, &ctab);
+      }
+      else if (nbits == 24)
+        _rgb2num(_readIn(), _readIn(), _readIn(), 0, &ctab);
+      else if (nbits == 32)
+        _rgb2num(_readIn(), _readIn(), _readIn(), _readIn(), &ctab);
+      else
+      {
+        messerr("Error: Number of bits/pixel (%d) is not treated", nbits);
+        return dbgrid;
+      }
+      tab[ecr++] = ctab;
+    }
+
+    /* Reading the padding */
+
+    for (int ix = 0; ix < npad; ix++) (void) _readIn();
+  }
+
+   dbgrid = new DbGrid();
+   dbgrid->reset(nx,dx,x0,VectorDouble(),ELoadBy::SAMPLE,tab);
+
+  // Close the file
+
+  _fileClose();
+
+  return dbgrid;
+}
+
+/****************************************************************************/
+/*!
+ **   Compose several bytes into an integer
+ **
+ ** \return  Returned integer
+ **
+ ** \param[in]  nb    Number of bytes to be considered
+ **
+ *****************************************************************************/
+int GridBmp::_compose(int nb)
+
+{
+  int i, value, factor;
+  unsigned char c;
+
+  /* Initializations */
+
+  value = 0;
+  factor = 1;
+
+  for (i = 0; i < nb; i++)
+  {
+    c = _readIn();
+    value += c * factor;
+    factor *= 0x100;
+  }
+  return (value);
+}
+
+/****************************************************************************/
+/*!
+ **   Read a byte from the binary file
+ **
+ ** \return  Returned integer value of the byte
+ **
+ ** \param[in]  file  File pointer
+ **
+ *****************************************************************************/
+unsigned char GridBmp::_readIn()
+
+{
+  unsigned char c;
+  c = (unsigned char) fgetc(_file);
+  if (!feof(_file)) return c;
+
+  return (c);
+}
+
+/****************************************************************************/
+/*!
+ **  Convert numeric to RGB
+ **
+ ** \param[in]   value   Input value
+ **
+ ** \param[out]  r     Red index
+ ** \param[out]  g     Green index
+ ** \param[out]  b     Blue index
+ ** \param[out]  a     Transparency index
+ **
+ *****************************************************************************/
+void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
+{
+  *r = static_cast<int>((value >> 24) & 0xff);
+  *g = static_cast<int>((value >> 16) & 0xff);
+  *b = static_cast<int>((value >> 8) & 0xff);
+  *a = static_cast<int>((value) & 0xff);
+}
+
+/****************************************************************************/
+/*!
+ **   Convert RGB into numeric
+ **
+ ** \param[in]  red     Red index
+ ** \param[in]  green   Green index
+ ** \param[in]  blue    Blue index
+ **
+ ** \param[out] c       Numeric value
+ **
+ *****************************************************************************/
+void GridBmp::_rgb2num(int red, int green, int blue, int /*a*/, unsigned char *c)
+{
+  double value;
+
+  value = (double) (red + green + blue) / 3.;
+
+  if (value < 0.) value = 0.;
+  if (value > 255.) value = 255.;
+  *c = (unsigned char) value;
+
+  return;
+}
+

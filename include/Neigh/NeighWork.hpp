@@ -20,15 +20,13 @@ class GSTLEARN_EXPORT NeighWork
 {
 public:
   NeighWork(const Db* dbin = nullptr,
-            const ANeighParam* neighparam = nullptr,
-            bool flag_simu = false);
+            const ANeighParam* neighparam = nullptr);
   NeighWork(const NeighWork& r);
   NeighWork& operator=(const NeighWork& r);
   virtual ~NeighWork();
 
   void initialize(const Db* dbin,
-                  const ANeighParam* neighparam,
-                  bool flag_simu = false);
+                  const ANeighParam* neighparam);
   void clear();
   VectorInt select(Db *dbout,
                    int iech_out,
@@ -38,6 +36,7 @@ public:
   VectorDouble summary(Db *dbout,
                        int iech_out,
                        const VectorInt& rankColCok = VectorInt());
+  void setFlagSimu(bool flagSimu) { _flagSimu = flagSimu; }
 
 private:
   void _unique(Db *dbout, int iech_out, VectorInt& ranks);

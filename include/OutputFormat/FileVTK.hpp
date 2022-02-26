@@ -15,26 +15,30 @@
 
 class Db;
 
-class GSTLEARN_EXPORT GridIrap: public AOF
+class GSTLEARN_EXPORT FileVTK: public AOF
 {
 public:
-  GridIrap(const char* filename, const Db* db = nullptr);
-  GridIrap(const GridIrap& r);
-  GridIrap& operator=(const GridIrap& r);
-  virtual ~GridIrap();
+  FileVTK(const char* filename, const Db* db = nullptr);
+  FileVTK(const FileVTK& r);
+  FileVTK& operator=(const FileVTK& r);
+  virtual ~FileVTK();
 
-  bool mustBeGrid() const override { return true; }
+  bool mustBeGrid() const override { return false; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
+  bool mustBeForNDim(int ndim) const override { return ndim <= 3; }
   bool mustBeForRotation(int mode) const override { return mode == 0; }
   int  writeInFile() override;
 
-  int getNsamplex() const { return _nsamplex; }
-  void setNsamplex(int nsamplex) { _nsamplex = nsamplex; }
-  int getNsampley() const { return _nsampley; }
-  void setNsampley(int nsampley) { _nsampley = nsampley; }
+  void setFactvar(float factvar) { _factvar = factvar; }
+  void setFactx(int factx) { _factx = factx; }
+  void setFacty(int facty) { _facty = facty; }
+  void setFactz(int factz) { _factz = factz; }
+  void setFlagBinary(bool flagBinary) { _flagBinary = flagBinary; }
 
 private:
-  int _nsamplex;
-  int _nsampley;
+  bool _flagBinary;
+  int _factx;
+  int _facty;
+  int _factz;
+  float _factvar;
 };

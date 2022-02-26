@@ -124,11 +124,14 @@ int DbGrid::reset(const VectorInt& nx,
 
   // Load the data
 
+  _loadData(tab, names, locatorNames, order, ndim + flag_add_rank);
+
+  // Additional fields
+
   if (flag_add_rank) _createRank(0);
   _createCoordinatesGrid(flag_add_rank);
-  _loadData(tab, names, locatorNames, order, flag_add_rank);
 
-  // Create the coordinate names (for the remaining variables)
+  // Create the names (for the remaining variables)
 
   _defineDefaultNames(flag_add_rank + ndim, names);
 

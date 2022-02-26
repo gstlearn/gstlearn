@@ -86,7 +86,7 @@ Coor #2 - Min =      0.000 - Max =     99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name facies1 - Locator facies1
+1 - Name Facies.1 - Locator facies1
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -94,7 +94,7 @@ Data Base Statistics
  Mean value          =      2.210
  Standard Deviation  =      0.848
  Variance            =      0.719
-2 - Name facies2 - Locator facies2
+2 - Name Facies.2 - Locator facies2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -102,7 +102,7 @@ Data Base Statistics
  Mean value          =      1.979
  Standard Deviation  =      0.987
  Variance            =      0.975
-3 - Name facies3 - Locator facies3
+3 - Name Facies.3 - Locator facies3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -110,7 +110,7 @@ Data Base Statistics
  Mean value          =      2.473
  Standard Deviation  =      0.770
  Variance            =      0.593
-4 - Name facies4 - Locator facies4
+4 - Name Facies.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -118,7 +118,7 @@ Data Base Statistics
  Mean value          =      2.125
  Standard Deviation  =      0.989
  Variance            =      0.978
-5 - Name facies5 - Locator facies5
+5 - Name Facies.5 - Locator facies5
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
@@ -129,7 +129,7 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-              facies1   facies2   facies3   facies4   facies5
+             Facies.1  Facies.2  Facies.3  Facies.4  Facies.5
      [  0,]     3.000     2.000     3.000     1.000     2.000
      [  1,]     3.000     2.000     3.000     1.000     2.000
      [  2,]     3.000     2.000     3.000     1.000     2.000

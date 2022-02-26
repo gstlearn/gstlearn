@@ -156,12 +156,6 @@ GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
                                        int *nposs);
 GSTLEARN_EXPORT double* ut_pascal(int ndim);
 GSTLEARN_EXPORT double ut_median(double *tab, int ntab);
-GSTLEARN_EXPORT void rgb2num(int r, int g, int b, int a, unsigned char *value);
-GSTLEARN_EXPORT void num2rgb(unsigned char value,
-                             int *r,
-                             int *g,
-                             int *b,
-                             int *a);
 GSTLEARN_EXPORT void ut_stats_mima(int nech,
                                    double *tab,
                                    double *sel,
@@ -1371,7 +1365,7 @@ GSTLEARN_EXPORT void db_sample_print(Db *db,
                                      int flag_nvar,
                                      int flag_nerr);
 GSTLEARN_EXPORT int db_center(Db *db, double *center);
-GSTLEARN_EXPORT int db_extension(Db *db,
+GSTLEARN_EXPORT int db_extension(const Db *db,
                                  double *mini,
                                  double *maxi,
                                  double *delta);
@@ -1751,99 +1745,60 @@ GSTLEARN_EXPORT int spatial(Db *db,
 /* Prototyping the functions in convert.c */
 /******************************************/
 
-GSTLEARN_EXPORT int db_grid_read_zycor1(const char *filename,
-                                        int verbose,
-                                        int *nx,
-                                        double *x0,
-                                        double *dx);
-GSTLEARN_EXPORT int db_grid_read_zycor2(const char *filename,
-                                        int *nx,
-                                        double *x0,
-                                        double *dx,
-                                        double *tab);
-GSTLEARN_EXPORT int db_grid_read_bmp1(const char *filename,
-                                      int verbose,
-                                      int *nx,
-                                      double *x0,
-                                      double *dx);
-GSTLEARN_EXPORT int db_grid_read_bmp2(const char *filename,
-                                      int *nx,
-                                      double *x0,
-                                      double *dx,
-                                      double *tab);
-GSTLEARN_EXPORT int db_grid_read_prop1(const char *filename,
-                                       int verbose,
-                                       int *ncol,
-                                       int *nx,
-                                       double *x0,
-                                       double *dx);
-GSTLEARN_EXPORT int db_grid_read_prop2(const char *filename,
-                                       int ncol_r,
-                                       int *nx_r,
-                                       double *x0_r,
-                                       double *dx_r,
-                                       double *tab);
-GSTLEARN_EXPORT int db_grid_read_f2g(const char *filename,
-                                     int verbose,
-                                     int nx[2],
-                                     double x0[3],
-                                     double dx[3],
-                                     double *angle,
-                                     int *ncol,
-                                     double **tab_arg);
+GSTLEARN_EXPORT DbGrid* db_grid_read_f2g(const char *filename, int verbose = 0);
 GSTLEARN_EXPORT int db_grid_write_zycor(const char *filename, DbGrid *db, int icol);
+GSTLEARN_EXPORT DbGrid* db_grid_read_zycor(const char* filename, int verbose=0);
+GSTLEARN_EXPORT int db_grid_write_arcgis(const char *filename, DbGrid *db, int icol);
 GSTLEARN_EXPORT int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol);
 GSTLEARN_EXPORT int db_write_vtk(const char *filename,
                                  DbGrid *db,
-                                 const VectorInt &cols,
-                                 const VectorString &names);
+                                 const VectorInt &cols);
+
 GSTLEARN_EXPORT int db_grid_write_bmp(const char *filename,
                                       DbGrid *db,
                                       int icol,
-                                      int nsamplex,
-                                      int nsampley,
-                                      int nmult,
-                                      int ncolors,
-                                      int flag_low,
-                                      int flag_high,
-                                      double valmin,
-                                      double valmax,
-                                      int *red,
-                                      int *green,
-                                      int *blue,
-                                      int mask_red,
-                                      int mask_green,
-                                      int mask_blue,
-                                      int ffff_red,
-                                      int ffff_green,
-                                      int ffff_blue,
-                                      int low_red,
-                                      int low_green,
-                                      int low_blue,
-                                      int high_red,
-                                      int high_green,
-                                      int highblue);
+                                      int nsamplex = 1,
+                                      int nsampley = 1,
+                                      int nmult = 1,
+                                      int ncolors = 1,
+                                      int flag_low = 1,
+                                      int flag_high = 1,
+                                      double valmin = TEST,
+                                      double valmax = TEST,
+                                      int *red = nullptr,
+                                      int *green = nullptr,
+                                      int *blue = nullptr,
+                                      int mask_red = 0,
+                                      int mask_green = 0,
+                                      int mask_blue = 0,
+                                      int ffff_red = 232,
+                                      int ffff_green = 232,
+                                      int ffff_blue = 0,
+                                      int low_red = 255,
+                                      int low_green = 255,
+                                      int low_blue = 255,
+                                      int high_red = 255,
+                                      int high_green = 0,
+                                      int highblue = 0);
+GSTLEARN_EXPORT DbGrid* db_grid_read_bmp(const char* filename, int verbose=0);
 GSTLEARN_EXPORT int db_grid_write_irap(const char *filename,
                                        DbGrid *db,
                                        int icol,
-                                       int nsamplex,
-                                       int nsampley);
-GSTLEARN_EXPORT int db_grid_write_prop(const char *filename,
+                                       int nsamplex = 1,
+                                       int nsampley = 1);
+GSTLEARN_EXPORT int db_grid_write_ifpen(const char *filename,
                                        DbGrid *db,
                                        int ncol,
                                        int *icols);
+GSTLEARN_EXPORT DbGrid* db_grid_read_ifpen(const char* filename, int verbose=0);
 GSTLEARN_EXPORT int db_grid_write_eclipse(const char *filename,
                                           DbGrid *db,
                                           int icol);
-GSTLEARN_EXPORT int db_well_read_las(const char *filename,
-                                     int verbose,
+GSTLEARN_EXPORT Db* db_well_read_las(const char *filename,
                                      double xwell,
                                      double ywell,
                                      double cwell,
-                                     int *nvarout,
-                                     int *nechout,
-                                     char ***var_names,
-                                     double **tab);
+                                     int verbose = 0);
 GSTLEARN_EXPORT int csv_table_read(const String &filename,
                                    int verbose,
                                    int flag_header,

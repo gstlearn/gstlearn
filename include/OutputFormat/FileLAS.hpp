@@ -15,26 +15,30 @@
 
 class Db;
 
-class GSTLEARN_EXPORT GridIrap: public AOF
+class GSTLEARN_EXPORT FileLAS: public AOF
 {
 public:
-  GridIrap(const char* filename, const Db* db = nullptr);
-  GridIrap(const GridIrap& r);
-  GridIrap& operator=(const GridIrap& r);
-  virtual ~GridIrap();
+  FileLAS(const char* filename, const Db* db = nullptr);
+  FileLAS(const FileLAS& r);
+  FileLAS& operator=(const FileLAS& r);
+  virtual ~FileLAS();
 
-  bool mustBeGrid() const override { return true; }
+  bool mustBeGrid() const override { return false; }
   bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
+  bool mustBeForNDim(int ndim) const override { return ndim <= 3; }
   bool mustBeForRotation(int mode) const override { return mode == 0; }
-  int  writeInFile() override;
+  Db* readFromFile() override;
 
-  int getNsamplex() const { return _nsamplex; }
-  void setNsamplex(int nsamplex) { _nsamplex = nsamplex; }
-  int getNsampley() const { return _nsampley; }
-  void setNsampley(int nsampley) { _nsampley = nsampley; }
+  void setCwell(double cwell) { _cwell = cwell; }
+  void setXwell(double xwell) { _xwell = xwell; }
+  void setYwell(double ywell) { _ywell = ywell; }
 
 private:
-  int _nsamplex;
-  int _nsampley;
+  int _readFind(int s_length, const char *target, int *numline, char *string);
+  int _readNext(int s_length, int flag_up, int *numline, char *string);
+
+private:
+  double _xwell;
+  double _ywell;
+  double _cwell;
 };

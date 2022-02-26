@@ -142,7 +142,6 @@ int Db::resetFromCSV(const String& filename,
   _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   // Set the names
-
   _defineDefaultNames(flag_add_rank, names);
 
   // Locators: Try to guess them from the Names
@@ -2656,6 +2655,9 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 {
   std::stringstream sstr;
 
+  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  if (ncol <= 0) return sstr.str();
+
   sstr << toTitle(1, "Data Base Statistics");
 
   int nval, nmask, ntest, nout;
@@ -2665,7 +2667,6 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 
   // Loop on the columns
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
   for (int jcol = 0; jcol < ncol; jcol++)
   {
     int icol = (cols.empty()) ? jcol :
@@ -2729,9 +2730,11 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
 {
   std::stringstream sstr;
 
+  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  if (ncol <= 0) return sstr.str();
+
   sstr << toTitle(1, "Data Base Contents");
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
   int number = getSampleNumber(useSel);
 
   VectorDouble tab;
@@ -2995,6 +2998,12 @@ int Db::getColIdx(const String& name) const
   VectorString exp_name = expandNameList(name);
   if (exp_name.empty()) return -1;
   return getRankInList(_colNames, exp_name[0]);
+}
+
+VectorInt Db::getColIdxs(const String& name) const
+{
+  VectorString exp_names = expandNameList(name);
+  return getColIdxs(exp_names);
 }
 
 VectorInt Db::getColIdxs(const VectorString& names) const

@@ -191,6 +191,7 @@ public:
   int getColIdx(const String& name) const;
   int getColIdxByUID(int iuid) const;
   int getColIdxByLocator(const ELoc& locatorType, int locatorIndex=0) const;
+  VectorInt getColIdxs(const String& name) const;
   VectorInt getColIdxs(const VectorString& names) const;
   VectorInt getColIdxsByUID(const VectorInt iuids) const;
   VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
@@ -445,7 +446,6 @@ public:
   double getMean(const String& name, bool useSel = false) const;
   double getVariance(const String& name, bool useSel = false) const;
   double getStdv(const String& name, bool useSel = false) const;
-
 
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;

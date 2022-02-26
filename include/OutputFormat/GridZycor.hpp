@@ -18,7 +18,7 @@ class Db;
 class GSTLEARN_EXPORT GridZycor: public AOF
 {
 public:
-  GridZycor(const char* filename, const Db* db);
+  GridZycor(const char* filename, const Db* db = nullptr);
   GridZycor(const GridZycor& r);
   GridZycor& operator=(const GridZycor& r);
   virtual ~GridZycor();
@@ -26,6 +26,7 @@ public:
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return false; }
   bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(int mode) const { return mode == 0; }
-  int  dumpFile() override;
+  bool mustBeForRotation(int mode) const override { return mode == 0; }
+  int  writeInFile() override;
+  DbGrid* readGridFromFile() override;
 };

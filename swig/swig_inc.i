@@ -228,12 +228,16 @@
 #include "Estimation/KrigingSystem.hpp"
 
 #include "OutputFormat/AOF.hpp"
-#include "OutputFormat/GridProp.hpp"
+#include "OutputFormat/FileLAS.hpp"
+#include "OutputFormat/FileVTK.hpp"
+#include "OutputFormat/GridArcGis.hpp"
+#include "OutputFormat/GridBmp.hpp"
 #include "OutputFormat/GridEclipse.hpp"
+#include "OutputFormat/GridF2G.hpp"
+#include "OutputFormat/GridIfpEn.hpp"
 #include "OutputFormat/GridIrap.hpp"
 #include "OutputFormat/GridXYZ.hpp"
 #include "OutputFormat/GridZycor.hpp"
-#include "OutputFormat/GridBmp.hpp"
 
 #include "segy.h"
 

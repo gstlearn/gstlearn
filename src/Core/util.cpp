@@ -1099,10 +1099,10 @@ void ut_rotation_copy(int ndim,
  **
  *****************************************************************************/
 double ut_merge_extension(int ndim,
-                                          double *mini1,
-                                          double *maxi1,
-                                          double *mini2,
-                                          double *maxi2)
+                          double *mini1,
+                          double *maxi1,
+                          double *mini2,
+                          double *maxi2)
 {
   double delta, field, mini, maxi;
   int idim;
@@ -4046,58 +4046,6 @@ int ut_icosphere(int n,
   R_coor.coor = (double*) mem_free((char* ) R_coor.coor);
   law_set_random_seed(seed_memo);
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **   Convert RGB into numeric
- **
- ** \param[in]  red     Red index
- ** \param[in]  green   Green index
- ** \param[in]  blue    Blue index
- **
- ** \param[out] c       Numeric value
- **
- *****************************************************************************/
-void rgb2num(int red,
-                             int green,
-                             int blue,
-                             int /*a*/,
-                             unsigned char *c)
-{
-  double value;
-
-  value = (double) (red + green + blue) / 3.;
-
-  if (value < 0.) value = 0.;
-  if (value > 255.) value = 255.;
-  *c = (unsigned char) value;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Convert numeric to RGB
- **
- ** \param[in]   value   Input value
- **
- ** \param[out]  r     Red index
- ** \param[out]  g     Green index
- ** \param[out]  b     Blue index
- ** \param[out]  a     Transparency index
- **
- *****************************************************************************/
-void num2rgb(unsigned char value,
-                             int *r,
-                             int *g,
-                             int *b,
-                             int *a)
-{
-  *r = static_cast<int>((value >> 24) & 0xff);
-  *g = static_cast<int>((value >> 16) & 0xff);
-  *b = static_cast<int>((value >> 8) & 0xff);
-  *a = static_cast<int>((value) & 0xff);
 }
 
 /*****************************************************************************/

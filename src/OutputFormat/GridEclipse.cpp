@@ -40,14 +40,14 @@ GridEclipse::~GridEclipse()
 {
 }
 
-int GridEclipse::dumpFile()
+int GridEclipse::writeInFile()
 {
   static int nbyline = 6;
   static double valtest = -9999.;
 
   /* Open the file */
 
-  if (_fileOpen()) return 1;
+  if (_fileWriteOpen()) return 1;
 
   // Preliminary calculations
 

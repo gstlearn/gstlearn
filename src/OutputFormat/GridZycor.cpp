@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
 #include "OutputFormat/GridZycor.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
@@ -42,7 +44,7 @@ GridZycor::~GridZycor()
 {
 }
 
-int GridZycor::dumpFile()
+int GridZycor::writeInFile()
 {
   int nx[2];
   double rbid, x0[2], xf[2], dx[2];
@@ -53,7 +55,7 @@ int GridZycor::dumpFile()
 
   /* Open the file */
 
-  if (_fileOpen()) return 1;
+  if (_fileWriteOpen()) return 1;
 
   /* Write a comment */
 
@@ -133,4 +135,96 @@ int GridZycor::dumpFile()
 
   _fileClose();
   return 0;
+}
+
+DbGrid*  GridZycor::readGridFromFile()
+{
+  DbGrid* dbgrid = nullptr;
+  char string[100];
+  double xf[2], rbid1, rbid2, rbid3, test, value;
+  int nval, ibid1, ibid2, ibid3, error;
+  VectorInt nx(2);
+  VectorDouble dx(2);
+  VectorDouble x0(2);
+
+  /* Open the file */
+
+  if (_fileReadOpen()) return dbgrid;
+
+   /* Define the delimitors */
+
+   _file_delimitors('!', ',', '_');
+
+   /* Read the lines */
+
+   if (_record_read(_file, "%s", string)) return dbgrid;
+   if (string[0] != '@')
+   {
+     messerr("Missing string starting with (@). Instead: '%s'", string);
+     return dbgrid;
+   }
+   if (_record_read(_file, "%s", string)) return dbgrid;
+   if (strcmp(string, "GRID"))
+   {
+     messerr("Missing string (GRID). Instead: '%s'", string);
+     return dbgrid;
+   }
+   if (_record_read(_file, "%d", &nval)) return dbgrid;
+   if (_record_read(_file, "%d", &ibid1)) return dbgrid;
+   if (_record_read(_file, "%lg", &test)) return dbgrid;
+   if (_record_read(_file, "%s", string)) return dbgrid;
+   if (_record_read(_file, "%d", &ibid2)) return dbgrid;
+   if (_record_read(_file, "%d", &ibid3)) return dbgrid;
+   if (_record_read(_file, "%d", &nx[1])) return dbgrid;
+   if (_record_read(_file, "%d", &nx[0])) return dbgrid;
+   if (_record_read(_file, "%lf", &x0[0])) return dbgrid;
+   if (_record_read(_file, "%lf", &xf[0])) return dbgrid;
+   if (_record_read(_file, "%lf", &x0[1])) return dbgrid;
+   if (_record_read(_file, "%lf", &xf[1])) return dbgrid;
+   if (_record_read(_file, "%lf", &rbid1)) return dbgrid;
+   if (_record_read(_file, "%lf", &rbid2)) return dbgrid;
+   if (_record_read(_file, "%lf", &rbid3)) return dbgrid;
+
+   if (_record_read(_file, "%s", string)) return dbgrid;
+   if (strcmp(string, "@"))
+   {
+     messerr("Missing string (@). Instead: %s", string);
+     return dbgrid;
+   }
+
+   /* Final calculations */
+
+   dx[0] = (xf[0] - x0[0]) / (nx[0] - 1);
+   dx[1] = (xf[1] - x0[1]) / (nx[1] - 1);
+
+   /* Reset the delimitors */
+
+   _file_delimitors('#', ' ', ' ');
+
+   /* Core allocation */
+
+   int size = nx[0] * nx[1];
+   VectorDouble tab(size);
+
+   /* Read the array of real values */
+
+   int lec = 0;
+   int nech = nx[0] * nx[1];
+   for (int ix = 0; ix < nx[0]; ix++)
+     for (int iy = 0; iy < nx[1]; iy++)
+     {
+       if (_record_read(_file, "%lf", &value)) break;
+       if (value == test) value = TEST;
+       tab[(nx[1] - iy - 1) * nx[0] + ix] = value;
+       lec++;
+     }
+
+   dbgrid = new DbGrid();
+   dbgrid->reset(nx,dx,x0,VectorDouble(),ELoadBy::SAMPLE,tab);
+
+  // Close the file
+
+  _fileClose();
+
+  return dbgrid;
 }

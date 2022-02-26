@@ -48,13 +48,13 @@ GridIrap::~GridIrap()
 {
 }
 
-int GridIrap::dumpFile()
+int GridIrap::writeInFile()
 {
   VectorInt indg(2);
 
   /* Open the file */
 
-  if (_fileOpen()) return 1;
+  if (_fileWriteOpen()) return 1;
 
   /* Preliminary calculations */
 

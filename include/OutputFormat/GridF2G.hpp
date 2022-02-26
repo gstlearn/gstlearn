@@ -15,26 +15,17 @@
 
 class Db;
 
-class GSTLEARN_EXPORT GridIrap: public AOF
+class GSTLEARN_EXPORT GridF2G: public AOF
 {
 public:
-  GridIrap(const char* filename, const Db* db = nullptr);
-  GridIrap(const GridIrap& r);
-  GridIrap& operator=(const GridIrap& r);
-  virtual ~GridIrap();
+  GridF2G(const char* filename, const Db* db = nullptr);
+  GridF2G(const GridF2G& r);
+  GridF2G& operator=(const GridF2G& r);
+  virtual ~GridF2G();
 
   bool mustBeGrid() const override { return true; }
-  bool mustBeOneVariable() const override { return true; }
-  bool mustBeForNDim(int ndim) const override { return ndim == 2; }
-  bool mustBeForRotation(int mode) const override { return mode == 0; }
-  int  writeInFile() override;
-
-  int getNsamplex() const { return _nsamplex; }
-  void setNsamplex(int nsamplex) { _nsamplex = nsamplex; }
-  int getNsampley() const { return _nsampley; }
-  void setNsampley(int nsampley) { _nsampley = nsampley; }
-
-private:
-  int _nsamplex;
-  int _nsampley;
+  bool mustBeOneVariable() const override { return false; }
+  bool mustBeForNDim(int ndim) const override { return ndim <= 3; }
+  bool mustBeForRotation(int mode) const override { return mode <= 1; }
+  DbGrid* readGridFromFile() override;
 };

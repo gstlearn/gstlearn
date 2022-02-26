@@ -91,7 +91,7 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
                                            int nitems,
                                            bool flagLocate) const
 {
-  if (iattout_start <= 0) return;
+  if (iattout_start < 0) return;
   int nvar = static_cast<int> (names.size());
   if (nvar <= 0) return;
   _setNames(dbout, iattout_start, names, suffix, nitems);
@@ -114,7 +114,7 @@ void NamingConvention::setNamesAndLocators(const String& namin,
                                            int nitems,
                                            bool flagLocate) const
 {
-  if (iattout_start <= 0) return;
+  if (iattout_start < 0) return;
   VectorString names;
   names.push_back(namin);
   _setNames(dbout, iattout_start, names, suffix, nitems);
@@ -142,7 +142,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int nitems,
                                            bool flagLocate) const
 {
-  if (iattout_start <= 0) return;
+  if (iattout_start < 0) return;
   VectorString names;
   if (dbin != nullptr && locatorInType != ELoc::UNKNOWN)
   {
@@ -176,7 +176,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int nitems,
                                            bool flagLocate) const
 {
-  if (iattout_start <= 0) return;
+  if (iattout_start < 0) return;
   if (dbin == nullptr) return;
   int nvar = static_cast<int>(iatts.size());
   if (nvar <= 0) return;
@@ -206,7 +206,7 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int nitems,
                                            bool flagLocate) const
 {
-  if (iattout_start <= 0) return;
+  if (iattout_start < 0) return;
   if (dbin == nullptr) return;
 
   VectorString names;

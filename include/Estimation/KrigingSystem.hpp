@@ -24,11 +24,10 @@ class ECalcMember;
 class GSTLEARN_EXPORT KrigingSystem
 {
 public:
-  KrigingSystem(const Db* dbin,
+  KrigingSystem(Db* dbin,
                 Db* dbout,
                 Model* model,
-                const ANeighParam* neighParam,
-                bool flagSimu = false);
+                const ANeighParam* neighParam);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -40,6 +39,8 @@ public:
   int setKrigOptColCok(const VectorInt& rank_colcok);
   int setKrigOptBayes(bool flag_bayes);
   int setKrigOptMatCL(const VectorVectorDouble& matCL);
+  void setKrigOptCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
+  void setKrigOptFlagSimu(bool flagSimu);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -47,8 +48,8 @@ public:
 private:
   int  _getNVar() const;
   int  _getNVarCL() const;
-  int  _getNDrift() const;
-  int  _getNBfl() const;
+  int  _getNbfl() const;
+  int  _getNFeq() const;
   int  _getNech() const;
   int  _getNDim() const;
   int  _getNFex() const;
@@ -58,8 +59,9 @@ private:
   int  _getFlag(int iech, int ivar);
   double _getIdim(int loc_rank, int idim, int iech_out = 0) const;
   double _getFext(int rank, int ibfl, int iech_out = 0) const;
-  double _getIvar(int rank, int ivar, int iech_out = 0, bool flagSimu = false) const;
+  double _getIvar(int rank, int ivar, int iech_out = 0) const;
   double _getVerr(int rank, int ivar, int iech_out = 0) const;
+  double _getMean(int ivarCL);
   void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
   void _flagDefine();
@@ -85,15 +87,38 @@ private:
   void _dual(bool flagLterm, double *lterm);
   int  _prepar();
   void _estimateCalcul(int status);
-  double _estimateVarZ(int ivar, int jvar);
-  double _variance(int ivar, int jvar, const double* varb = nullptr);
+  double _estimateVarZ(int ivarCL, int jvarCL);
+  double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
   void _variance0();
   void _krigingDump(int status);
   void _blockDiscretize();
+  bool _isCorrect();
+
+  int    _IND(int iech, int ivar,int nech);
+  int    _getFLAG(int iech,int ivar);
+  double _getCOVTAB(int ivar,int jvar);
+  void   _setCOVTAB(int ivar,int jvar,double value);
+  void   _addCOVTAB(int ivar,int jvar,double value);
+  void   _prodCOVTAB(int ivar,int jvar,double value);
+  double _getRHS(int iech, int ivar, int jvCL);
+  void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
+  double _getRHSC(int i, int jvCL);
+  double _getWGTC(int i,int jvCL);
+  double _getLHS(int iech, int ivar, int jech, int jvar);
+  void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
+  void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
+  void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
+  double _getDISC1(int idisc, int idim);
+  void   _setDISC1(int idisc, int idim, double value);
+  double _getDISC2(int idisc,int idim);
+  void   _setDISC2(int idisc,int idim, double value);
+  double _getVAR0(int ivCL, int jvCL);
+  void   _setVAR0(int ivCL, int jvCL, double value);
+  void   _checkAddress(const String& title,const String& theme,int ival,int nval);
 
 private:
   // Aggregated classes
-  const Db*            _dbin;
+  Db*                  _dbin;
   Db*                  _dbout;
   Model*               _model;
   const ANeighParam*   _neighParam;
@@ -108,6 +133,7 @@ private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
+  bool _flagSimu;
 
   /// Option for Calculation
   EKrigOpt _calcul;
@@ -145,6 +171,7 @@ private:
   int _nred;
 
   // Local arrays
+  mutable bool _flagCheckAddress;
   mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;
   mutable VectorInt    _flag;
