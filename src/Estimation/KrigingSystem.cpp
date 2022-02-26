@@ -1406,7 +1406,7 @@ int KrigingSystem::estimate(int iech_out)
   /* Establish the Kriging R.H.S. */
 
   _rhsCalcul();
-  if (status) goto label_store;
+  if (status == 0) goto label_store;
   _rhsIsoToHetero();
 
   if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
@@ -1421,6 +1421,7 @@ int KrigingSystem::estimate(int iech_out)
   label_store:
   _estimateCalcul(status);
   if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1432,8 +1433,6 @@ int KrigingSystem::estimate(int iech_out)
  *****************************************************************************/
 void KrigingSystem::_krigingDump(int status)
 {
-  int nvar = _getNVar();
-
   if (_neighParam->getFlagXvalid())
     mestitle(0, "Cross-validation results");
   else
@@ -1442,62 +1441,75 @@ void KrigingSystem::_krigingDump(int status)
 
   /* Loop on the results */
 
+  int nvar = _getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     if (_neighParam->getFlagXvalid())
     {
+
+      // Printout of Cross-Validation test
+
       message("Variable Z%-2d\n", ivar + 1);
+      double estval = TEST;
+      double esterr = TEST;
+      double sterr  = TEST;
+      double sigma  = TEST;
+
       if (_iptrEst >= 0)
       {
         double trueval = (status == 0) ? _dbin->getVariable(_iechOut, ivar) : TEST;
-        double estim = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
+        double estim   = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ivar) : TEST;
 
-        double estval;
-        double esterr;
-        if (_xvalidEstim)
+        if (status == 0)
         {
-          estval = (status == 0) ? estim + trueval : TEST;
-          esterr = (status == 0) ? estim : TEST;
+          if (_xvalidEstim)
+          {
+            estval = estim + trueval;
+            esterr = estim;
+          }
+          else
+          {
+            estval = estim;
+            esterr = estim - trueval;
+          }
+
+          tab_printg(" - True value        = ", trueval);
+          message("\n");
+          tab_printg(" - Estimated value   = ", estval);
+          message("\n");
+          tab_printg(" - Estimation Error  = ", esterr);
+          message("\n");
         }
-        else
+      }
+      if (_iptrStd >= 0)
+      {
+        double stdev = (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
+
+        if (status == 0)
         {
-          estval = (status == 0) ? estim : TEST;
-          esterr = (status == 0) ? estim - trueval : TEST;
-        }
-
-        tab_printg(" - True value        = ", trueval);
-        message("\n");
-        tab_printg(" - Estimated value   = ", estval);
-        message("\n");
-        tab_printg(" - Estimation Error  = ", esterr);
-        message("\n");
-
-        if (_iptrStd >= 0)
-        {
-          double stdev = (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
-          double sterr;
-          double sigma;
-
           if (_xvalidStdev)
           {
             sterr = stdev;
-            sigma = (status == 0) ? esterr / stdev : TEST;
+            sigma = esterr / stdev;
           }
           else
           {
             sigma = stdev;
-            sterr = (status == 0) ? esterr / stdev : TEST;
+            sterr = esterr / stdev;
           }
 
           tab_printg(" - Std. deviation    = ", sigma);
           message("\n");
           tab_printg(" - Normalized Error  = ", sterr);
-          message("\n");
+         message("\n");
         }
       }
     }
     else
     {
+
+      // Printout of the Estimation
+
       message("Variable Z%-2d\n", ivar + 1);
       if (_iptrEst >= 0)
       {
