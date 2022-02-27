@@ -193,7 +193,7 @@ void Model::setCovList(const ACovAnisoList* covalist)
   _covaList = dynamic_cast<ACovAnisoList*>(covalist->clone());
 }
 
-void Model::addCova(const CovAniso *cov)
+void Model::addCov(const CovAniso *cov)
 {
   if (cov == nullptr) return;
   // TODO: the type of CovAnisoList is defaulted to CovLMC
@@ -678,7 +678,7 @@ int Model::fitFromCovIndices(Vario *vario,
   {
     ECov covtype = ECov::fromValue(types[is]);
     CovAniso cov = CovAniso(covtype, _ctxt);
-    addCova(&cov);
+    addCov(&cov);
   }
 
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
@@ -715,7 +715,7 @@ int Model::fit(Vario *vario,
   for (int is = 0; is < (int) types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
-    addCova(&cov);
+    addCov(&cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
@@ -803,6 +803,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
     ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
     drift->setRankFex(0); // TODO : zero? really?
     drifts.addDrift(drift);
+    delete drift;
   }
   setDriftList(&drifts);
 

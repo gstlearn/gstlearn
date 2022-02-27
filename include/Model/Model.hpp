@@ -63,7 +63,7 @@ public:
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
-  void   addCova(const CovAniso* cov);
+  void   addCov(const CovAniso* cov);
   void   delCova(int rank);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);

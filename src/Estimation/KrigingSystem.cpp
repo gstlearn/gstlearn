@@ -11,6 +11,7 @@
 #include "Estimation/KrigingSystem.hpp"
 
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
 
 #include "Enum/EKrigOpt.hpp"
 #include "Db/Db.hpp"
@@ -51,7 +52,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _calcul(EKrigOpt::PONCTUAL),
       _flagCode(false),
       _discreteMode(0),
-      _ndisc(0),
+      _ndiscNumber(0),
       _ndiscs(),
       _disc1(),
       _disc2(),
@@ -62,6 +63,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _rmean(),
       _flagDGM(false),
       _supportCoeff(1.),
+      _matCL(),
       _iechOut(-1),
       _nred(0),
       _flagCheckAddress(false),
@@ -83,6 +85,22 @@ KrigingSystem::KrigingSystem(Db* dbin,
 KrigingSystem::~KrigingSystem()
 {
   OptDbg::setIndex(0); // Turn OFF this option for future task
+
+  // Clean elements added to Model
+
+  if (_model != nullptr)
+  {
+    if (_model->isNoStat())
+    {
+      const ANoStat *nostat = _model->getNoStat();
+
+      // Detach the Input Db
+      if (_dbin != nullptr) nostat->detachFromDb(_dbin, 1);
+
+      // Detach the output Db
+      if (_dbout != nullptr) nostat->detachFromDb(_dbout, 2);
+    }
+  }
 }
 
 int KrigingSystem::_getNVar() const
@@ -141,7 +159,7 @@ int KrigingSystem::_getNeq() const
 
 int KrigingSystem::_getNDisc() const
 {
-  return _ndisc;
+  return _ndiscNumber;
 }
 
 void KrigingSystem::_resetMemoryPerNeigh()
@@ -1377,10 +1395,8 @@ int KrigingSystem::estimate(int iech_out)
   // Store the Rank of the Target sample
   _iechOut = iech_out;
 
-  int status = 0;
+  if (! _dbout->isActive(_iechOut)) return 0;
   OptDbg::setIndex(iech_out + 1);
-  if (! _dbout->isActive(_iechOut)) return status;
-
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     mestitle(1, "Target location");
@@ -1389,6 +1405,7 @@ int KrigingSystem::estimate(int iech_out)
 
   // Check the Neighborhood
 
+  int status = 0;
   _nbgh = _nbghWork.select(_dbout,iech_out,_rankColCok);
   int nech = _getNech();
   status = (nech <= 0);
@@ -1406,9 +1423,8 @@ int KrigingSystem::estimate(int iech_out)
   /* Establish the Kriging R.H.S. */
 
   _rhsCalcul();
-  if (status == 0) goto label_store;
+  if (status != 0) goto label_store;
   _rhsIsoToHetero();
-
   if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
 
   /* Derive the kriging weights */
@@ -1766,6 +1782,15 @@ bool KrigingSystem::_isCorrect()
   /******************************************/
 
   int nfex = 0;
+  if (_model != nullptr)
+  {
+    if (nfex > 0 && nfex != _model->getExternalDriftNumber())
+    {
+      messerr("Incompatible NUmber of External Drifts of '_model'");
+      return false;
+    }
+    nfex = _model->getExternalDriftNumber();
+  }
   if (_dbout != nullptr)
   {
     if (nfex > 0 && nfex != _dbout->getExternalDriftNumber())
@@ -1779,34 +1804,18 @@ bool KrigingSystem::_isCorrect()
   {
     if (nfex > 0)
     {
-      if (_dbin->getExternalDriftNumber() != 0)
+      if (_dbin->getExternalDriftNumber() == 0)
       {
-        if (nfex != _dbin->getExternalDriftNumber())
-        {
-          messerr("Incompatible Number of External Drifts of '_dbin'");
-          return false;
-        }
-        nfex = _dbin->getExternalDriftNumber();
+        if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
+        // TODO: Store the UID of the created variables for deletion at the destruction of object
       }
-      else
+      if (nfex != _dbin->getExternalDriftNumber())
       {
-        if (_dbout == nullptr || ! _dbout->isGrid())
-        {
-          messerr("External Drift is not defined on '_dbin'");
-          messerr("It cannot be interpolated from '_dbout' as it is not a Grid");
-          return false;
-        }
+        messerr("Incompatible Number of External Drifts of '_dbin'");
+        return false;
       }
+      nfex = _dbin->getExternalDriftNumber();
     }
-  }
-  if (_model != nullptr)
-  {
-    if (nfex > 0 && nfex != _model->getExternalDriftNumber())
-    {
-      messerr("Incompatible NUmber of External Drifts of '_model'");
-      return false;
-    }
-    nfex = _model->getExternalDriftNumber();
   }
 
   /*********************************/
@@ -2099,37 +2108,37 @@ double KrigingSystem::_getDISC1(int idisc, int idim)
 {
   if (_flagCheckAddress)
   {
-    _checkAddress("_getDISC1","idisc",idisc,_ndisc);
+    _checkAddress("_getDISC1","idisc",idisc,_ndiscNumber);
     _checkAddress("_getDISC1","idim",idim,_getNDim());
   }
-  return _disc1[(idim) * _ndisc + (idisc)];
+  return _disc1[(idim) * _ndiscNumber + (idisc)];
 }
 void KrigingSystem::_setDISC1(int idisc, int idim, double value)
 {
   if (_flagCheckAddress)
   {
-    _checkAddress("_setDISC1","idisc",idisc,_ndisc);
+    _checkAddress("_setDISC1","idisc",idisc,_ndiscNumber);
     _checkAddress("_setDISC1","idim",idim,_getNDim());
   }
-  _disc1[(idim) * _ndisc + (idisc)] = value;
+  _disc1[(idim) * _ndiscNumber + (idisc)] = value;
 }
 double KrigingSystem::_getDISC2(int idisc,int idim)
 {
   if (_flagCheckAddress)
   {
-    _checkAddress("_getDISC2","idisc",idisc,_ndisc);
+    _checkAddress("_getDISC2","idisc",idisc,_ndiscNumber);
     _checkAddress("_getDISC2","idim",idim,_getNDim());
   }
-  return _disc2[(idim) * _ndisc + (idisc)];
+  return _disc2[(idim) * _ndiscNumber + (idisc)];
 }
 void KrigingSystem::_setDISC2(int idisc,int idim, double value)
 {
   if (_flagCheckAddress)
   {
-    _checkAddress("_setDISC2","idisc",idisc,_ndisc);
+    _checkAddress("_setDISC2","idisc",idisc,_ndiscNumber);
     _checkAddress("_setDISC2","idim",idim,_getNDim());
   }
-  _disc2[(idim) * _ndisc + (idisc)] = value;
+  _disc2[(idim) * _ndiscNumber + (idisc)] = value;
 }
 double KrigingSystem::_getVAR0(int ivCL, int jvCL)
 {

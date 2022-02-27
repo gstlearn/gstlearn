@@ -1395,7 +1395,7 @@ static void st_keypair_sill(int mode, Model *model)
 
 /****************************************************************************/
 /*!
- **  Store the results using the keypair mechanism
+ ** Store the results using the keypair mechanism
  **
  ** \param[in]  mode      1 for setting; -1 for deleting
  ** \param[in]  icov      Rank of the covariance

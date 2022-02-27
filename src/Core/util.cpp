@@ -3327,9 +3327,7 @@ double ut_distance(int ndim, double *tab1, double *tab2)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-void ut_distance_allocated(int ndim,
-                                           double **tab1,
-                                           double **tab2)
+void ut_distance_allocated(int ndim, double **tab1, double **tab2)
 {
   if (DISTANCE_NDIM < ndim)
   {

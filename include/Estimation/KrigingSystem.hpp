@@ -149,7 +149,7 @@ private:
 
   /// Option for Block estimation
   int _discreteMode;  // 1 : constant; 2 : per Target cell
-  int _ndisc;
+  int _ndiscNumber;
   VectorInt    _ndiscs;
   VectorDouble _disc1;
   VectorDouble _disc2;

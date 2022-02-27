@@ -3504,7 +3504,6 @@ int variogram_direction_add(VarioParam *varioparam,
  **
  *****************************************************************************/
 Vario* variogram_delete(Vario *vario)
-
 {
   if (vario == nullptr) return (vario);
   delete vario;
