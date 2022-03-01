@@ -1158,6 +1158,14 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
     deleteColumnByColIdx(v[i]);
 }
 
+void Db::deleteColumnsByUID(const VectorInt& iuids)
+{
+  if (iuids.empty()) return;
+
+  for (unsigned int i = 0; i < iuids.size(); i++)
+    deleteColumnByUID(iuids[i]);
+}
+
 /**
  * Add the contents of the 'tab' as a Selection
  * @param tab Input array

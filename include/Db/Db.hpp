@@ -436,6 +436,7 @@ public:
 
   void deleteColumns(const VectorString& names);
   void deleteColumnsByLocator(const ELoc& locatorType);
+  void deleteColumnsByUID(const VectorInt& iuids);
   void deleteColumnsByColIdx(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;

@@ -244,7 +244,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Number of lags              = " << getLagNumber() << std::endl;
   int ndim = getDimensionNumber();
 
-  if (_grincr.empty())
+  if (! _codir.empty())
   {
 
     // Case of a Direction defined for a non-grid Db
@@ -281,7 +281,8 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
       }
     }
   }
-  else
+
+  if (! _grincr.empty())
   {
 
     // Case of a variogram defined on a Grid db

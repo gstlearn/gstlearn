@@ -3440,6 +3440,7 @@ int kriging(Db *dbin,
             VectorVectorDouble matCL,
             const NamingConvention& namconv)
 {
+  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -3469,10 +3470,11 @@ int kriging(Db *dbin,
     if (iptr_varz < 0) return 1;
   }
 
-  /* Pre-calculations */
+  /* Setting options */
+  // Here ALL options are set, even if most of them could keep their default values
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  ksys.setKrigOptFlagSimu(FLAG_SIMU);
+  ksys.setKrigOptFlagSimu(flag_simu);
   ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz);
   ksys.setKrigOptCalcul(calcul, ndisc);
   ksys.setKrigOptXValid(flag_est > 0, flag_std > 0);
@@ -3539,7 +3541,7 @@ static int st_xvalid_unique(Db *dbin,
 {
   int iext, error, status, nech, neq, nred, nvar, flag_xvalid_memo;
   int iech, iiech, jech, jjech;
-  double variance, value, stdv, valref;
+  double variance, value, stdv, valref, estim;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -3666,8 +3668,8 @@ static int st_xvalid_unique(Db *dbin,
         value -= LHS_C(iiech,jjech) * variance * dbin->getVariable(jech, 0);
       jjech++;
     }
-    if (FLAG_EST != 0) dbin->setArray(iech, IPTR_EST, value);
 
+    if (FLAG_EST != 0) dbin->setArray(iech, IPTR_EST, value);
     if (FLAG_STD > 0) stdv = value / stdv;
     if (FLAG_STD != 0) dbin->setArray(iech, IPTR_STD, stdv);
 
@@ -5041,13 +5043,10 @@ int global_arithmetic(Db *dbin,
 
   *zest = ave;
   *sse = cvv - 2. * cxv + cxx;
-  *sse = (*sse > 0) ? sqrt(*sse) :
-                      0.;
-  cvsam = (ave != 0.) ? sqrt(var) / ave :
-                        TEST;
+  *sse = (*sse > 0) ? sqrt(*sse) : 0.;
+  cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
   cviid = cvsam / sqrt(np);
-  *cvgeo = (ave != 0.) ? (*sse) / ave :
-                         TEST;
+  *cvgeo = (ave != 0.) ? (*sse) / ave : TEST;
 
   if (flag_verbose)
   {

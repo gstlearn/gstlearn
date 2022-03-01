@@ -77,16 +77,40 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _rhs(),
       _wgt(),
       _zam(),
-      _var0()
+      _var0(),
+      _dbinUidToBeDeleted(),
+      _dboutUidToBeDeleted()
 {
   _resetMemoryGeneral();
 }
 
 KrigingSystem::~KrigingSystem()
 {
-  OptDbg::setIndex(0); // Turn OFF this option for future task
+  // Turn OFF this option for future task
 
-  // Clean elements added to Model
+  OptDbg::setIndex(0);
+
+  // Clean elements from _dbin
+
+  if (_dbin != nullptr)
+  {
+    if (!_dbinUidToBeDeleted.empty())
+    {
+      (void) _dbin->deleteColumnsByUID(_dbinUidToBeDeleted);
+    }
+  }
+
+  // Clean elements from _dbout
+
+  if (_dbout != nullptr)
+  {
+    if (!_dboutUidToBeDeleted.empty())
+    {
+      (void) _dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
+    }
+  }
+
+  // Clean elements from _model
 
   if (_model != nullptr)
   {
@@ -1412,8 +1436,7 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Establish the Kriging L.H.S. */
 
-  if (! _nbghWork.isUnchanged() || _neighParam->getFlagContinuous()
-      || OptDbg::force())
+  if (! _nbghWork.isUnchanged() || _neighParam->getFlagContinuous() || OptDbg::force())
   {
     status = _prepar();
     if (status) goto label_store;
@@ -1807,7 +1830,8 @@ bool KrigingSystem::_isCorrect()
       if (_dbin->getExternalDriftNumber() == 0)
       {
         if (migrateByLocator(_dbout, _dbin, ELoc::F)) return false;
-        // TODO: Store the UID of the created variables for deletion at the destruction of object
+        // Store the UID of the newly created variables to be deleted at the end of the process
+        _dbinUidToBeDeleted = _dbin->getUIDsByLocator(ELoc::F);
       }
       if (nfex != _dbin->getExternalDriftNumber())
       {

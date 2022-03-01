@@ -189,4 +189,6 @@ private:
   mutable VectorDouble _wgt;
   mutable VectorDouble _zam;
   mutable VectorDouble _var0;
+  mutable VectorInt    _dbinUidToBeDeleted;
+  mutable VectorInt    _dboutUidToBeDeleted;
 };

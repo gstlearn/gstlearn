@@ -4576,16 +4576,12 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
             if (local_pgs->vario->getFlagAsym())
             {
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
-              vario->setGgByIndex(
-                  idir,
-                  i,
+              vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        iech, jech, ifac, jfac,
                                                        iconf, cov));
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
-              vario->setGgByIndex(
-                  idir,
-                  i,
+              vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        jech, iech, ifac, jfac,
                                                        iconf, cov));
@@ -4593,9 +4589,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
             else
             {
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
-              vario->setGgByIndex(
-                  idir,
-                  i,
+              vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
                                                        iech, jech, ifac, jfac,
                                                        iconf, cov));
@@ -4649,13 +4643,13 @@ static int st_copy_swhh(const Vario *vario1,
   {
     for (int ipas = 0; ipas < vario1->getLagTotalNumber(idir); ipas++)
     {
-      int iad1 = vario1->getDirAddress(idir, 0, 0, ipas, true, 0);
+      int iad1 = vario1->getDirAddress(idir, 0, 0, ipas, false, 1);
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          int iad2 = vario2->getDirAddress(idir, ivar, jvar, ipas, true, 0);
+          int iad2 = vario2->getDirAddress(idir, ivar, jvar, ipas, false, 1);
           if (flagSw) vario2->setSwByIndex(idir, iad2, vario1->getSwByIndex(idir, iad1));
-          if (flagHh) vario2->setHhByIndex(idir, iad2, vario1->getHhByIndex(idir, iad1));
+          if (flagHh) vario2->setHhByIndex(idir, iad2, ABS(vario1->getHhByIndex(idir, iad1)));
           if (flagGg) vario2->setGgByIndex(idir, iad2, vario1->getGgByIndex(idir, iad1));
         }
     }
@@ -4717,26 +4711,17 @@ static int st_vario_indic_model_stat(Local_Pgs *local_pgs)
           if (local_pgs->vario->getFlagAsym())
           {
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
-            vario->setGgByIndex(
-                idir,
-                ii,
-                st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf,
-                             cov));
+            vario->setGgByIndex(idir,ii,
+                st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
-            vario->setGgByIndex(
-                idir,
-                ii,
-                st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf,
-                             cov));
+            vario->setGgByIndex(idir,ii,
+                st_get_value(local_pgs, flag_ind, 0, 0, jfac, ifac, iconf, cov));
           }
           else
           {
             ii = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
-            vario->setGgByIndex(
-                idir,
-                ii,
-                st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf,
-                             cov));
+            vario->setGgByIndex(idir,ii,
+                st_get_value(local_pgs, flag_ind, 0, 0, ifac, jfac, iconf, cov));
           }
         }
     }
@@ -4793,8 +4778,7 @@ static void st_update_variance_stat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE_NC:
-            vario->setGgByIndex(idir, iad, (ivar == jvar) ? pivar :
-                                                     0.);
+            vario->setGgByIndex(idir, iad, (ivar == jvar) ? pivar : 0.);
             break;
           default:
             break;
@@ -4896,8 +4880,7 @@ static int st_update_variance_nostat(Local_Pgs *local_pgs)
             break;
 
           case ECalcVario::E_COVARIANCE_NC:
-            vario->setGgByIndex(idir, iad, (ivar == jvar) ? mean[ivar] :
-                                                     0.);
+            vario->setGgByIndex(idir, iad, (ivar == jvar) ? mean[ivar] : 0.);
             break;
           default:
             break;

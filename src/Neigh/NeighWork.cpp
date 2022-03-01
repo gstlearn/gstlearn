@@ -22,6 +22,7 @@
 #include "Basic/OptDbg.hpp"
 
 #include <math.h>
+#include <algorithm>
 #include <set>
 
 NeighWork::NeighWork(const Db* dbin,
@@ -191,17 +192,22 @@ VectorInt NeighWork::select(Db *dbout,
   if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
 
   // Select the neighborhood samples as the target sample has changed
+  bool doCompress = true;
   switch (_neighParam->getType().toEnum())
   {
     case ENeigh::E_IMAGE:
     case ENeigh::E_UNIQUE:
       if (! _isSameTargetUnique(dbout, iech_out, ranks, verbose))
         _unique(dbout, iech_out, ranks);
+      else
+        doCompress = false;
       break;
 
     case ENeigh::E_BENCH:
       if (! _isSameTargetBench(dbout, iech_out, ranks, verbose))
         _bench(dbout, iech_out, ranks);
+      else
+        doCompress = false;
       break;
 
     case ENeigh::E_MOVING:
@@ -209,16 +215,19 @@ VectorInt NeighWork::select(Db *dbout,
       break;
   }
 
-  // In case of debug option, dump out neighborhood characteristics
+  if (doCompress)
+  {
+    // In case of debug option, dump out neighborhood characteristics
 
-  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
-  /* Compress the vector of returned sample ranks */
+    /* Compress the vector of returned sample ranks */
 
-  int necr = 0;
-  for (int iech = 0; iech < nech; iech++)
-    if (ranks[iech] >= 0) ranks[necr++] = iech;
-  ranks.resize(necr);
+    int necr = 0;
+    for (int iech = 0; iech < nech; iech++)
+      if (ranks[iech] >= 0) ranks[necr++] = iech;
+    ranks.resize(necr);
+  }
 
   // Set the flag telling if neighborhood has changed or not
   // and memorize the new set of ranks
@@ -714,28 +723,30 @@ void NeighWork::_display(const VectorInt& ranks)
 
 void NeighWork::_checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks)
 {
+  VectorInt rsorted = ranks;
+  if (ranks.size() > 0)
+  {
+    std::sort(rsorted.begin(), rsorted.end());
+  }
+
   // Check if Neighborhood has changed
 
   if (_nbghMemo.size() != ranks.size())
+    // Two series do not share the same dimension
+
     _flagIsUnchanged = false;
   else
   {
-    // Two series have the same size: check if they are equal to different
-    // Order should not matter
+    // Two (sorted) series have the same size: check if they are equal
 
-    std::set<int> s1;
-    s1.insert(_nbghMemo.begin(), _nbghMemo.end());
-    std::set<int> s2;
-    s2.insert(ranks.begin(), ranks.end());
-
-    _flagIsUnchanged = (s1 == s2);
+    _flagIsUnchanged = (rsorted == _nbghMemo);
   }
 
   // Store the vector of sample ranks for the current neighborhood search
 
   _dbout = dbout;
   _iechOut = iech_out;
-  _nbghMemo = ranks;
+  _nbghMemo = rsorted;
 }
 
 void NeighWork::_clearMemory()
