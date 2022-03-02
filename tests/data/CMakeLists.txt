@@ -26,7 +26,6 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
 # Display test output in case of failure
-# TODO : Only work on Linux ?
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
 # Iterate over each target executables

@@ -4,6 +4,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Model/ConsItem.hpp"
@@ -18,6 +19,12 @@
 
 int main(int /*argc*/, char */*argv*/[])
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_SPDEDrift" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   bool verbose = false;
   bool flagSPDE = true;
   int ndim = 2;

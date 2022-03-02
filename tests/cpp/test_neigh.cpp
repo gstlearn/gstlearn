@@ -15,6 +15,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighWork.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/File.hpp"
 
 /****************************************************************************/
 /*!
@@ -24,12 +25,17 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
   // Global parameters
   int ndim = 2;
   int nvar = 1;
   bool verbose = true;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_neigh" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // Generate the data base
   int nech = 20;

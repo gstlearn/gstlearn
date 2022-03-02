@@ -16,6 +16,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
+#include "Basic/File.hpp"
 
 #include <math.h>
 
@@ -157,8 +158,13 @@ static void st_test_3(void)
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Sph" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   int flag_1 = 1;
   int flag_2 = 1;
   int flag_3 = 1;

@@ -20,6 +20,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleProp.hpp"
 
@@ -29,8 +30,13 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_PGSSPDE" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PGSSPDE-");
   int error = 0;

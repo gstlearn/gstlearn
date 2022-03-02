@@ -24,6 +24,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovContext.hpp"
 
@@ -34,8 +35,13 @@
 /*********************/
 
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_mesh" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   AMesh *mesh,*meshb;
   Db    *dbin,*dbgrid;
   Model *model;

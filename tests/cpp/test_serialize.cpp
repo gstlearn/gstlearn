@@ -16,6 +16,7 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
+#include "Basic/File.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -28,8 +29,13 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_serialize" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TS-");
 

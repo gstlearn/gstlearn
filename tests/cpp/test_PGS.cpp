@@ -20,6 +20,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -30,8 +31,13 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_PGS" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PGS-");
   int error = 0;

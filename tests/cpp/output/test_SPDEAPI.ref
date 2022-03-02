@@ -1,0 +1,45 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Ranges       =     10.000    45.000
+- Theo. Ranges =      2.887    12.990
+Total Sill     =      1.000
+
+Non-Stationary Parameters
+-------------------------
+Angle      : GRF=1 Str=1 V#1=1 V#2=1
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = variable - Locator = z1
+For Non-Stationary Parameter (1), there are some undefined values (1756)
+They have been replaced by its average value (23.422193)
+For Non-Stationary Parameter (1), there are some undefined values (1756)
+They have been replaced by its average value (23.422193)
+For Non-Stationary Parameter (1), there are some undefined values (1400)
+They have been replaced by its average value (26.988128)
+For Non-Stationary Parameter (1), there are some undefined values (1400)
+They have been replaced by its average value (26.988128)

@@ -1,0 +1,10 @@
+Buffer (char) = abcde
+Testing gslStrcpy:
+- Expected result: abcde
+- Result = abcde
+Testing gslStrcat:
+- Expected result: abcdefgh
+- Result = abcdefgh
+Testing gslSPrintf:
+- Expected result: A+fgh
+- Result(char) = A+fgh

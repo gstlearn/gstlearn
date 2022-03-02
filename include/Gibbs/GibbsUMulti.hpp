@@ -30,7 +30,7 @@ public:
               int isimu,
               int ipgs,
               int iter) override;
-  int covmatAlloc(bool verbose) override;
+  int covmatAlloc(bool verbose, bool verboseTimer = false) override;
 
 private:
   VectorDouble _covmat;

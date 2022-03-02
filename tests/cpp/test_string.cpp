@@ -19,6 +19,12 @@
  */
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_string" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Testing string conversion Old to New style functions
 
   char buf_char[] = "abcde";

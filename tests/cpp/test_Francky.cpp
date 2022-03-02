@@ -2,6 +2,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -34,6 +35,12 @@ int main(int /*argc*/, char */*argv*/[])
 {
   int seed = 10355;
   law_set_random_seed(seed);
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Francky" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Francky-");

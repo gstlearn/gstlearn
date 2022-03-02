@@ -4468,7 +4468,7 @@ int simbipgs(Db *dbin,
 
       /* Allocate the covariance matrix inverted */
 
-      if (gibbs->covmatAlloc(0)) goto label_end;
+      if (gibbs->covmatAlloc(verbose)) goto label_end;
 
       // Core allocation
 

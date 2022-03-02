@@ -6,6 +6,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -65,6 +66,11 @@ int main(int argc, char *argv[])
   if (setup_license("Demonstration"))
     my_throw("Problem with license check");
 
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Cur" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // R_model_characteristics
   int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso;
