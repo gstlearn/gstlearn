@@ -48,8 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   // Standard output redirection to file
   std::stringstream sfn;
-  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
-  sfn << "test_matrixC" << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
   VectorDouble V1,V2,V3,Vref;

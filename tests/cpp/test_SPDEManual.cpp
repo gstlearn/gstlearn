@@ -4,6 +4,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
@@ -38,8 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   // Standard output redirection to file
   std::stringstream sfn;
-  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
-  sfn << "test_SPDEManual" << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
@@ -122,6 +122,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   A.evalInverse(Rhs, resultvc);
   workingDbc->addColumns(resultvc[0], "Kriging");
+  DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
+  workingDbc->display(&dsf);
   (void) workingDbc->dumpToNF("spde.ascii");
 
   delete dat;

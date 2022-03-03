@@ -132,6 +132,20 @@ bool gslFileExist(const String& path, const String& mode)
   return exists;
 }
 
+String gslBaseName(const String& path, bool keepExtension)
+{
+  // TODO c++17 : use #include <filesystem> to retrieve base name
+  // https://stackoverflow.com/questions/8520560/get-a-file-name-from-a-path
+  String base_filename = path.substr(path.find_last_of("/\\") + 1);
+  if (!keepExtension)
+  {
+    String::size_type p(base_filename.find_last_of('.'));
+    base_filename = base_filename.substr(0, p);
+  }
+  return base_filename;
+}
+
+
 String gslGetEnv(const String& name)
 {
   String text;

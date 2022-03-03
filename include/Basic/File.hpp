@@ -62,5 +62,7 @@ GSTLEARN_EXPORT FILE* gslFopen(const String& path, const String& mode);
 GSTLEARN_EXPORT bool gslFileExist(const char *path, const char* mode);
 GSTLEARN_EXPORT bool gslFileExist(const String& path, const String& mode);
 
+GSTLEARN_EXPORT String gslBaseName(const String& path, bool keepExtension = false);
+
 GSTLEARN_EXPORT String gslGetEnv(const String& name);
 

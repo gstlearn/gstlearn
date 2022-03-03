@@ -302,8 +302,7 @@ int main (void)
 {
   // Standard output redirection to file
   std::stringstream sfn;
-  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
-  sfn << "test_HDF5" << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
   hsize_t     dims[3],start[3],start0[3],stride[3],count0[3],count[3],block[3],dimout[3];

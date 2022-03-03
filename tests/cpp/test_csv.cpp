@@ -23,8 +23,7 @@ int main()
 {
   // Standard output redirection to file
   std::stringstream sfn;
-  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
-  sfn << "test_csv" << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");

@@ -615,7 +615,7 @@ int csv_table_read(const String &filename,
   // Optional printout
   if (verbose)
   {
-    message("Data table read (%s) successfully\n", filename.c_str());
+    message("Data table read (%s) successfully\n", gslBaseName(filename, true).c_str());
     message("- Number of columns = %d\n", ncol);
     message("- Number of rows    = %d\n", nrow);
   }
