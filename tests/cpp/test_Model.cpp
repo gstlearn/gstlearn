@@ -58,7 +58,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Building the Model
   Model modellmc = Model(ctxt);
   modellmc.setCovList(&covlmc);
-  return(0);
   modellmc.display();
 
   ///////////////////////
