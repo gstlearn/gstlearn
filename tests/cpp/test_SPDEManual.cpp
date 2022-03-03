@@ -14,6 +14,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshFactory.hpp"
 
@@ -34,8 +35,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_SPDEManual" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEManual-");
   int seed = 10355;

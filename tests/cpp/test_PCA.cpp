@@ -14,6 +14,7 @@
 #include "geoslib_f.h"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -33,6 +34,12 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   int nvar = 1;
   int nbsimu = 5;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_PCA" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(nvar,ndim);

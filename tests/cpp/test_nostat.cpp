@@ -9,6 +9,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -31,8 +32,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_nostat" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   int seed = 10355;
   law_set_random_seed(seed);
 

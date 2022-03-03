@@ -15,6 +15,7 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -28,6 +29,12 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_vario" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   int error = 1; //TODO : temporary fail
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);

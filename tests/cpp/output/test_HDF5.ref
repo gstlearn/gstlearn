@@ -1,0 +1,341 @@
+
+Read/Write for Regular File
+---------------------------
+Initial Array
+Creating the HDF5 file
+
+NX(3) panels of NY(7) rows and NZ(8) columns
+
+  1001001  1001002  1001003  1001004  1001005  1001006  1001007  1001008
+  1002001  1002002  1002003  1002004  1002005  1002006  1002007  1002008
+  1003001  1003002  1003003  1003004  1003005  1003006  1003007  1003008
+  1004001  1004002  1004003  1004004  1004005  1004006  1004007  1004008
+  1005001  1005002  1005003  1005004  1005005  1005006  1005007  1005008
+  1006001  1006002  1006003  1006004  1006005  1006006  1006007  1006008
+  1007001  1007002  1007003  1007004  1007005  1007006  1007007  1007008
+
+  2001001  2001002  2001003  2001004  2001005  2001006  2001007  2001008
+  2002001  2002002  2002003  2002004  2002005  2002006  2002007  2002008
+  2003001  2003002  2003003  2003004  2003005  2003006  2003007  2003008
+  2004001  2004002  2004003  2004004  2004005  2004006  2004007  2004008
+  2005001  2005002  2005003  2005004  2005005  2005006  2005007  2005008
+  2006001  2006002  2006003  2006004  2006005  2006006  2006007  2006008
+  2007001  2007002  2007003  2007004  2007005  2007006  2007007  2007008
+
+  3001001  3001002  3001003  3001004  3001005  3001006  3001007  3001008
+  3002001  3002002  3002003  3002004  3002005  3002006  3002007  3002008
+  3003001  3003002  3003003  3003004  3003005  3003006  3003007  3003008
+  3004001  3004002  3004003  3004004  3004005  3004006  3004007  3004008
+  3005001  3005002  3005003  3005004  3005005  3005006  3005007  3005008
+  3006001  3006002  3006003  3006004  3006005  3006006  3006007  3006008
+  3007001  3007002  3007003  3007004  3007005  3007006  3007007  3007008
+
+Extraction without compression
+Number of dimensions = 3
+Dims   : 3 x 7 x 8
+Count  : 2 x 2 x 3
+Start  : 1 x 2 x 1
+Stride : 1 x 2 x 2
+Block  : 1 x 2 x 1
+
+NX(3) panels of NY(7) rows and NZ(8) columns
+
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0  2003002        0  2003004        0  2003006        0        0
+        0  2004002        0  2004004        0  2004006        0        0
+        0  2005002        0  2005004        0  2005006        0        0
+        0  2006002        0  2006004        0  2006006        0        0
+        0        0        0        0        0        0        0        0
+
+        0        0        0        0        0        0        0        0
+        0        0        0        0        0        0        0        0
+        0  3003002        0  3003004        0  3003006        0        0
+        0  3004002        0  3004004        0  3004006        0        0
+        0  3005002        0  3005004        0  3005006        0        0
+        0  3006002        0  3006004        0  3006006        0        0
+        0        0        0        0        0        0        0        0
+
+Extraction with compression
+Number of dimensions = 3
+Dims   : 3 x 7 x 8
+Count  : 2 x 2 x 3
+Start  : 1 x 2 x 1
+Stride : 1 x 2 x 2
+Block  : 1 x 2 x 1
+
+NX(2) panels of NY(4) rows and NZ(3) columns
+
+  2003002  2003004  2003006
+  2004002  2004004  2004006
+  2005002  2005004  2005006
+  2006002  2006004  2006006
+
+  3003002  3003004  3003006
+  3004002  3004004  3004006
+  3005002  3005004  3005006
+  3006002  3006004  3006006
+
+Modifying by adding a unit to all terms (1 times)
+
+NX(2) panels of NY(4) rows and NZ(3) columns
+
+  2003003  2003005  2003007
+  2004003  2004005  2004007
+  2005003  2005005  2005007
+  2006003  2006005  2006007
+
+  3003003  3003005  3003007
+  3004003  3004005  3004007
+  3005003  3005005  3005007
+  3006003  3006005  3006007
+
+Modifying by adding a unit to all terms (2 times)
+
+NX(2) panels of NY(4) rows and NZ(3) columns
+
+  2003004  2003006  2003008
+  2004004  2004006  2004008
+  2005004  2005006  2005008
+  2006004  2006006  2006008
+
+  3003004  3003006  3003008
+  3004004  3004006  3004008
+  3005004  3005006  3005008
+  3006004  3006006  3006008
+
+Modifying by adding a unit to all terms (3 times)
+
+NX(2) panels of NY(4) rows and NZ(3) columns
+
+  2003005  2003007  2003009
+  2004005  2004007  2004009
+  2005005  2005007  2005009
+  2006005  2006007  2006009
+
+  3003005  3003007  3003009
+  3004005  3004007  3004009
+  3005005  3005007  3005009
+  3006005  3006007  3006009
+
+Reading HDF5 modified array:   0.00 ms.
+Writing HDF5 modified array:   0.00 ms.
+
+Read/Write series of same type
+------------------------------
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+Ensemble of VectorDouble
+     0.504     0.900     0.459     0.183     0.230
+     0.123     0.957     0.435     0.680     0.380
+     0.884     0.847     0.891     0.576     0.494
+     0.922     0.833     0.459     0.154     0.216
+     0.689     0.357     0.519     0.497     0.206
+     0.655     0.751     0.904     0.887     0.138
+     0.466     0.934     0.085     0.970     0.890
+Extract Vector #3 (add 100) and replace
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : ValueDouble
+Data Set Name : ValueFloat
+Data Set Name : ValueInt
+Data Set Name : VectorDouble
+Data Set Name : VectorFloat
+Data Set Name : VectorInt
+Data Set Name : VectorVectorDouble
+Data Set Name : VectorVectorFloat
+Data Set Name : VectorVectorInt
+
+Modified VectorVectorDouble
+     0.504     0.900     0.459     0.183     0.230
+     0.123     0.957     0.435     0.680     0.380
+     0.884     0.847     0.891     0.576     0.494
+   100.922   100.833   100.459   100.154   100.216
+     0.689     0.357     0.519     0.497     0.206
+     0.655     0.751     0.904     0.887     0.138
+     0.466     0.934     0.085     0.970     0.890
+
+Read/Write VectorDouble in a file created incrementally
+-------------------------------------------------------
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : Set3
+
+Initial VectorDouble
+   101.000   102.000   103.000   104.000   105.000
+   201.000   202.000   203.000   204.000   205.000
+   301.000   302.000   303.000   304.000   305.000
+   401.000   402.000   403.000   404.000   405.000
+   501.000   502.000   503.000   504.000   505.000
+   601.000   602.000   603.000   604.000   605.000
+   701.000   702.000   703.000   704.000   705.000
+   801.000   802.000   803.000   804.000   805.000
+
+Extracting the rank #5 (then add 1000) and replace
+
+
+List of Data Sets contained in the File
+.......................................
+Data Set Name : Set3
+
+Modified VectorVectorDouble
+   101.000   102.000   103.000   104.000   105.000
+   201.000   202.000   203.000   204.000   205.000
+   301.000   302.000   303.000   304.000   305.000
+   401.000   402.000   403.000   404.000   405.000
+   501.000   502.000   503.000   504.000   505.000
+  1601.000  1602.000  1603.000  1604.000  1605.000
+   701.000   702.000   703.000   704.000   705.000
+   801.000   802.000   803.000   804.000   805.000

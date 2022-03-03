@@ -16,6 +16,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -26,8 +27,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_krige" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Global parameters
   int ndim = 2;
   int nvar = 1;

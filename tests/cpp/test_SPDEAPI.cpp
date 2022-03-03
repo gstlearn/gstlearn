@@ -9,6 +9,7 @@
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 
 /****************************************************************************/
 /*!
@@ -16,8 +17,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_SPDEAPI" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEAPI-");
   int seed = 10355;

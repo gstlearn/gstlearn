@@ -63,10 +63,11 @@ GibbsUPropMono::~GibbsUPropMono()
 **
 ** \return  Error returned code
 **
-** \param[in]  verbose     Verbose flag
+** \param[in]  verbose      Verbose flag
+** \param[in]  verboseTimer True to show elapse times
 **
 *****************************************************************************/
-int GibbsUPropMono::covmatAlloc(bool verbose)
+int GibbsUPropMono::covmatAlloc(bool verbose, bool verboseTimer)
 {
   if (verbose) mestitle(1,"Gibbs using Unique Neighborhood in Propagative case");
 

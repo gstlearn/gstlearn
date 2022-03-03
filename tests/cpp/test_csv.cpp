@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
 
@@ -20,6 +21,12 @@
  */
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_csv" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");
   Db* mydb = Db::createFromCSV(filename,CSVformat(),true);
 

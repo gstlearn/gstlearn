@@ -1,0 +1,247 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Total Sill     =      1.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.000
+- Range        =      0.300
+- Theo. Range  =      0.100
+Total Sill     =      1.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Total Sill     =      1.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      1.000
+- Range        =      0.100
+Total Sill     =      1.000
+
+Neighborhood characteristics
+============================
+Space dimension = 2
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 2
+- Number of thresholds along G2 = 0
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 7
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = Facies.Props.1 - Locator = NA
+Column = 1 - Name = Facies.Props.2 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = PGS-Facies.1 - Locator = facies1
+Column = 4 - Name = PGS-Facies.2 - Locator = facies2
+
+Lithotype Rule
+==============
+- Number of nodes               = 3
+- Number of facies              = 2
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 0
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 15
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = Facies.Props.1 - Locator = NA
+Column = 1 - Name = Facies.Props.2 - Locator = x1
+Column = 2 - Name = Facies.Props.3 - Locator = x2
+Column = 3 - Name = Facies.Props.4 - Locator = NA
+Column = 4 - Name = Facies.Props.5 - Locator = NA
+Column = 5 - Name = BiPGS-Facies.1 - Locator = facies1
+Column = 6 - Name = BiPGS-Facies.2 - Locator = facies2
+Column = 7 - Name = BiPGS-Facies.3 - Locator = facies3
+Column = 8 - Name = BiPGS-Facies.4 - Locator = facies4
+
+Lithotype Rule
+==============
+- Number of nodes               = 7
+- Number of facies              = 4
+- Number of thresholds along G1 = 3
+- Number of thresholds along G2 = 0
+
+Shift Option
+............
+Translation Vector     0.200     0.300
+(With the 'Shift' option, only the first GRF is used)
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
+Node F4 - Facies 4
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 11
+Maximum Number of UIDs       = 19
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = Facies.Props.1 - Locator = NA
+Column = 1 - Name = Facies.Props.2 - Locator = x1
+Column = 2 - Name = Facies.Props.3 - Locator = x2
+Column = 3 - Name = Facies.Props.4 - Locator = NA
+Column = 4 - Name = Facies.Props.5 - Locator = NA
+Column = 5 - Name = BiPGS-Facies.1 - Locator = NA
+Column = 6 - Name = BiPGS-Facies.2 - Locator = NA
+Column = 7 - Name = BiPGS-Facies.3 - Locator = NA
+Column = 8 - Name = BiPGS-Facies.4 - Locator = NA
+Column = 9 - Name = PGS-Shift-Facies.1 - Locator = facies1
+Column = 10 - Name = PGS-Shift-Facies.2 - Locator = facies2
+
+Lithotype Rule
+==============
+- Number of nodes               = 5
+- Number of facies              = 3
+- Number of thresholds along G1 = 1
+- Number of thresholds along G2 = 1
+
+Shadow Option
+.............
+Normalized Translation Vector =      0.200     0.300
+Slope for shadow                  = 0.5(degrees)
+Upwards shift for the threshold   = 0.5
+Downwards shift for the threshold = -0.2
+
+Note for non-stationary case:
+- P1 gives the proportion of Island
+- P2 gives the value of Upwards shift
+- P3 gives the value of Downwards shift
+(With the 'Shadow' option, only the first GRF is used)
+
+Node F1 - Facies 1
+Node F2 - Facies 2
+Node F3 - Facies 3
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 13
+Maximum Number of UIDs       = 23
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = Facies.Props.1 - Locator = NA
+Column = 1 - Name = Facies.Props.2 - Locator = x1
+Column = 2 - Name = Facies.Props.3 - Locator = x2
+Column = 3 - Name = Facies.Props.4 - Locator = NA
+Column = 4 - Name = Facies.Props.5 - Locator = NA
+Column = 5 - Name = BiPGS-Facies.1 - Locator = NA
+Column = 6 - Name = BiPGS-Facies.2 - Locator = NA
+Column = 7 - Name = BiPGS-Facies.3 - Locator = NA
+Column = 8 - Name = BiPGS-Facies.4 - Locator = NA
+Column = 9 - Name = PGS-Shift-Facies.1 - Locator = NA
+Column = 10 - Name = PGS-Shift-Facies.2 - Locator = NA
+Column = 11 - Name = PGS-Shadow-Facies.1 - Locator = facies1
+Column = 12 - Name = PGS-Shadow-Facies.2 - Locator = facies2

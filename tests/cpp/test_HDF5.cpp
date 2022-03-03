@@ -14,6 +14,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/File.hpp"
 
 #include <malloc.h>
 
@@ -299,6 +300,12 @@ static void st_dimension(int icas,
 
 int main (void)
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_HDF5" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   hsize_t     dims[3],start[3],start0[3],stride[3],count0[3],count[3],block[3],dimout[3];
   int         ndim,flag_print;
   Timer       timer;
@@ -342,9 +349,10 @@ int main (void)
 
     // Writing the Initial Information
 
+    if (verbose) message("Creating the HDF5 file\n");
     hdf5.writeRegular(start0, NULL, dims, NULL, wdata);
     st_print(flag_print, type, ndim, dims, wdata);
-    timer.displayIntervalMilliseconds("Creating the HDF5 file");
+    //timer.displayIntervalMilliseconds("Creating the HDF5 file");
 
     // Reading without compression
 
@@ -353,7 +361,7 @@ int main (void)
     void* rdata1 = hdf5.readRegular(0, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata1);
     rdata1 = (void *) mem_free((char * ) rdata1);
-    timer.displayIntervalMilliseconds("Reading HDF5 array (no compression)");
+    //timer.displayIntervalMilliseconds("Reading HDF5 array (no compression)");
 
     // Reading with compression
 
@@ -362,7 +370,7 @@ int main (void)
     void* rdata2 = hdf5.readRegular(1, start, stride, count0, block, dimout);
     st_print(flag_print, type, ndim, dimout, rdata2);
     rdata2 = (void *) mem_free((char * ) rdata2);
-    timer.displayIntervalMilliseconds("Reading HDF5 array (with compression)");
+    //timer.displayIntervalMilliseconds("Reading HDF5 array (with compression)");
 
     // Loop on multiple of chunk dimensions
 

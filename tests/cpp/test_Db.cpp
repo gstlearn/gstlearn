@@ -7,6 +7,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
@@ -24,8 +25,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Db" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TestDb-");
   int seed = 10355;

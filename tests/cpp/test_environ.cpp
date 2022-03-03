@@ -7,9 +7,16 @@
 #include "Basic/OptCustom.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/File.hpp"
 
 int main(int argc,char **argv)
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_environ" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Management of OptDbg
   mestitle(0,"Checking 'OptDbg' functionalities");
   OptDbg::define(EDbg::NBGH);

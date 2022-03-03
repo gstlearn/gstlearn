@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -52,10 +53,16 @@ int main(int /*argc*/, char * /*argv*/[])
   int nlag     = 20;
   double nbgh_radius = 10. * range;
   VectorDouble ranges = { range, range};
-  bool verbose          = true;
+  bool verbose          = false;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_AllGibbs" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // Setup constants
 

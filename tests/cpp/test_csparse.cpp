@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "csparse_f.h"
 
 /****************************************************************************/
@@ -21,13 +22,18 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
   int nrow, ncol, *rank_rows, *rank_cols;
   double *urow,*ucol,*work,*work2;
   cs *Atriplet,*Wtriplet;
   cs *A,*At,*Bl,*Bu,*B,*Diag,*Mwork,*W;
   static int flag_leak = 1;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_csparse" << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // Initializations
   Atriplet = Wtriplet = nullptr;

@@ -17,6 +17,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
+#include "Basic/File.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -276,6 +277,12 @@ int main(int /*argc*/, char */*argv*/[])
   int    *colors, *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Gibbs" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   /***********************/
   /* 1 - Initializations */
   /***********************/

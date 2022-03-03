@@ -11,6 +11,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/File.hpp"
 
 /**
  * This test is meant to check the generation of random values
@@ -30,13 +31,16 @@ void st_do_it(bool style, int seed)
   // Setting the seed
   law_set_random_seed(seed);
   message("Getting the seed = %d\n", law_get_random_seed());
-
-
-
 }
 
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Random" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   int seed = 432432;
   int number = 10000;
   VectorDouble tab(number);

@@ -10,6 +10,7 @@
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -20,8 +21,13 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
+  sfn << "test_Model" << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEAPI-");
   int seed = 10355;

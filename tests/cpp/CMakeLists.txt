@@ -5,6 +5,7 @@
 file(GLOB TEST_SOURCES test*.cpp)
 # Without GLOB:
 #set(TEST_SOURCES 
+#  test_Francky.cpp)
 #  test_SPDEDrift.cpp)
 #  test_HDF5.cpp)
 
@@ -13,6 +14,11 @@ cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE}
            OUTPUT_VARIABLE GLOBAL_DST_DIR)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
+
+# Create the output directory (logs)
+cmake_path(APPEND GLOBAL_DST_DIR output
+           OUTPUT_VARIABLE TEST_DST_DIR)
+file(MAKE_DIRECTORY ${TEST_DST_DIR})
 
 # Compile each test executable
 set(TARGETS_EXE "")
@@ -34,8 +40,14 @@ set(CTEST_OUTPUT_ON_FAILURE ON)
 
 # Run each registered executable
 foreach(TARGET_EXE ${TARGETS_EXE})
-    # Add current test (to be run)
-    add_test(NAME ${TARGET_EXE} COMMAND ${TARGET_EXE})
+    # Run the test (and generate *.out in ${TEST_DST_DIR})
+    add_test(NAME ${TARGET_EXE}
+             COMMAND ${TARGET_EXE}
+             WORKING_DIRECTORY ${TEST_DST_DIR})
+    # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+    add_test(NAME ${TARGET_EXE}_cmp
+             COMMAND diff --strip-trailing-cr ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out
+             WORKING_DIRECTORY ${TEST_DST_DIR})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
 # Look parent CMakeLists for MY_CTEST_COMMAND definition

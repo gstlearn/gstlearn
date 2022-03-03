@@ -1,0 +1,80 @@
+d1=Enum#47: SUNDAY|Sunday
+d2=Enum#12: MONDAY|Monday is the first day
+Unknown value 5 for enum EDay
+d3=Enum#12: MONDAY|Monday is the first day
+Enum#12: MONDAY|Monday is the first day
+Enum#13: TUESDAY|Tuesday
+Enum#15: THURSDAY|Thursday
+Enum#36: WEDNESDAY|Wednesday
+Enum#46: FRIDAY|Friday
+Enum#47: SUNDAY|Sunday
+Enum#49: SATURDAY|Saturday
+TOTODAY doesn't exists
+I hate d2!
+d1 is amazing!
+Test Banana : Banana is strange
+NARG=3
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+Bonjour
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+1|2
+3|4
+5|6
+7|8
+9|10
+11|12
+13|14
+15|16
+17|Bonjour
+19|20
+21|22
+23|24
+25|26
+27|28
+29|30
+31|32
+1|2
+3|4
+5|6
+7|8
+9|10
+11|12
+13|14
+15|16
+17|Bonjour
+19|20
+21|22
+23|24
+25|26
+27|28
+29|30
+31|32
