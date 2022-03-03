@@ -3,7 +3,7 @@ Column Name (2): Y
 Column Name (3): Zn
 Column Name (4): Pb
 Number of columns = 4
-Data table read (/home/fors/Projets/gstlearn/gstlearn/build/tests/cpp/Release/../../../doc/data/Pollution/Pollution.dat) successfully
+Data table read (Pollution.dat) successfully
 - Number of columns = 4
 - Number of rows    = 102
 

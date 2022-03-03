@@ -30,8 +30,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   // Standard output redirection to file
   std::stringstream sfn;
-  // TODO c++17 : use #include <filesystem> to retrieve base name of __FILE__
-  sfn << "test_krige" << ".out";
+  sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
   // Global parameters
