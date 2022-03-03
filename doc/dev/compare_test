@@ -1,8 +1,6 @@
 #!/bin/csh -f
 
 # Reference directory
-
-# Get the path to the current Command
 set command_location = `dirname $0`
 set DIR = $command_location/../..
 
