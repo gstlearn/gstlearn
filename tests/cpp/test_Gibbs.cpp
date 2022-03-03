@@ -22,6 +22,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -271,7 +272,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   int    niter      = 10000;
   int    flag_print =     0;
-  int    flag_save  =     1;
+  bool   flag_save  =  true;
   const char triswitch[] = "nqQ";
   int     verbose, seed, ndim, nvar, iptr, nvertex, ncolor;
   int    *colors, *ind, rank;
@@ -419,6 +420,8 @@ int main(int /*argc*/, char */*argv*/[])
   if (flag_save)
   {
     if (st_save(dbgrid,consmin,consmax,z)) goto label_end;
+    DbStringFormat dbfmt(FLAG_STATS);
+    dbgrid->display(&dbfmt);
   }
   
 label_end:

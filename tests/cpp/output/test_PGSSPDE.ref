@@ -76,23 +76,13 @@ Column = 4 - Name = simuGauss-2 - Locator = z2
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 6
-Total number of samples      = 10201
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        101       101
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Facies - Locator = facies1
+Data Base Statistics
+--------------------
+4 - Name Facies - Locator facies1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      1.881
+ Standard Deviation  =      0.896
+ Variance            =      0.803

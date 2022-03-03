@@ -28,7 +28,7 @@ int main()
   StdoutRedirect sr(sfn.str());
 
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");
-  Db* mydb = Db::createFromCSV(filename,CSVformat(),true);
+  Db* mydb = Db::createFromCSV(filename,CSVformat(),false);
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);

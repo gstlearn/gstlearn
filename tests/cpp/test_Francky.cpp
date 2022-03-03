@@ -6,6 +6,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
@@ -74,6 +75,9 @@ int main(int /*argc*/, char */*argv*/[])
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
+
+  DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
+  workingDbc->display(&dbfmt);
 
   message("Test performed successfully\n");
 

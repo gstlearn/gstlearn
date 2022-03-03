@@ -5,6 +5,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/NoStatFunctional.hpp"
@@ -100,8 +101,6 @@ int main(int /*argc*/, char */*argv*/[])
   model.addNoStat(&NoStat);
   model.display();
 
-  message("Test performed successfully\n");
-
   MeshETurbo mesh(workingDbc);
   ShiftOpCs S(&mesh, &model, workingDbc);
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
@@ -113,7 +112,12 @@ int main(int /*argc*/, char */*argv*/[])
   Qsimu.eval(vectnew,result);
   workingDbc->addColumns(result,"Simu",ELoc::Z);
 
+  DbStringFormat dbfmt(FLAG_STATS,{"Simu"});
+  workingDbc->display(&dbfmt);
+
   (void) workingDbc->dumpToNF("spirale.ascii");
+
+  message("Test performed successfully\n");
 
   delete workingDbc;
   return 0;

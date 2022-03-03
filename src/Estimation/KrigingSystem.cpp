@@ -473,18 +473,28 @@ void KrigingSystem::_covtabCalcul(bool flag_init,
   if (_model->isNoStat())
   {
     const ANoStat *nostat = _model->getNoStat();
+    int jech1;
+    int jech2;
+    int icas1;
+    int icas2;
 
-    int jech1 = iech1;
-    int icas1 = 1;
-    if (iech1 < 0)
+    if (iech1 >= 0)
     {
       icas1 = 1;
+      jech1 = iech1;
+    }
+    else
+    {
+      icas2 = 2;
       jech1 = _iechOut;
     }
 
-    int jech2 = iech2;
-    int icas2 = 1;
-    if (iech2 < 0)
+    if (iech2 >= 0)
+    {
+      icas2 = 1;
+      jech2 = iech2;
+    }
+    else
     {
       icas2 = 2;
       jech2 = _iechOut;

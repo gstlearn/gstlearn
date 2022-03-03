@@ -18,6 +18,7 @@ Total Sill     =      1.000
 Non-Stationary Parameters
 -------------------------
 Angle      : GRF=1 Str=1 V#1=1 V#2=1
+
 Data Base Characteristics
 =========================
 
@@ -43,3 +44,33 @@ For Non-Stationary Parameter (1), there are some undefined values (1400)
 They have been replaced by its average value (26.988128)
 For Non-Stationary Parameter (1), there are some undefined values (1400)
 They have been replaced by its average value (26.988128)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+5 - Name spde.variable.simu - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.452
+ Maximum value       =      2.454
+ Mean value          =      0.229
+ Standard Deviation  =      0.773
+ Variance            =      0.597
+6 - Name spde.variable.condSimu - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.574
+ Maximum value       =      3.142
+ Mean value          =     -0.015
+ Standard Deviation  =      0.898
+ Variance            =      0.806
+7 - Name spde.variable.kriging - Locator z1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.334
+ Maximum value       =      3.507
+ Mean value          =      0.000
+ Standard Deviation  =      0.799
+ Variance            =      0.638

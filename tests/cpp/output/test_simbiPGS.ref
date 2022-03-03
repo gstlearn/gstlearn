@@ -80,27 +80,24 @@ Node F3 - Facies 3
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 7
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = Facies.Props.1 - Locator = NA
-Column = 1 - Name = Facies.Props.2 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = PGS-Facies.1 - Locator = facies1
-Column = 4 - Name = PGS-Facies.2 - Locator = facies2
+Data Base Statistics
+--------------------
+4 - Name PGS-Facies.1 - Locator facies1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      2.082
+ Standard Deviation  =      0.725
+ Variance            =      0.526
+5 - Name PGS-Facies.2 - Locator facies2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      2.062
+ Standard Deviation  =      0.680
+ Variance            =      0.462
 
 Lithotype Rule
 ==============
@@ -115,31 +112,40 @@ Node F2 - Facies 2
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 9
-Maximum Number of UIDs       = 15
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = Facies.Props.1 - Locator = NA
-Column = 1 - Name = Facies.Props.2 - Locator = x1
-Column = 2 - Name = Facies.Props.3 - Locator = x2
-Column = 3 - Name = Facies.Props.4 - Locator = NA
-Column = 4 - Name = Facies.Props.5 - Locator = NA
-Column = 5 - Name = BiPGS-Facies.1 - Locator = facies1
-Column = 6 - Name = BiPGS-Facies.2 - Locator = facies2
-Column = 7 - Name = BiPGS-Facies.3 - Locator = facies3
-Column = 8 - Name = BiPGS-Facies.4 - Locator = facies4
+Data Base Statistics
+--------------------
+6 - Name BiPGS-Facies.1 - Locator facies1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      2.127
+ Standard Deviation  =      0.818
+ Variance            =      0.669
+7 - Name BiPGS-Facies.2 - Locator facies2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      3.000
+ Mean value          =      1.872
+ Standard Deviation  =      0.808
+ Variance            =      0.654
+8 - Name BiPGS-Facies.3 - Locator facies3
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      2.000
+ Mean value          =      1.548
+ Standard Deviation  =      0.498
+ Variance            =      0.248
+9 - Name BiPGS-Facies.4 - Locator facies4
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      2.000
+ Mean value          =      1.574
+ Standard Deviation  =      0.494
+ Variance            =      0.245
 
 Lithotype Rule
 ==============
@@ -161,33 +167,24 @@ Node F4 - Facies 4
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 11
-Maximum Number of UIDs       = 19
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = Facies.Props.1 - Locator = NA
-Column = 1 - Name = Facies.Props.2 - Locator = x1
-Column = 2 - Name = Facies.Props.3 - Locator = x2
-Column = 3 - Name = Facies.Props.4 - Locator = NA
-Column = 4 - Name = Facies.Props.5 - Locator = NA
-Column = 5 - Name = BiPGS-Facies.1 - Locator = NA
-Column = 6 - Name = BiPGS-Facies.2 - Locator = NA
-Column = 7 - Name = BiPGS-Facies.3 - Locator = NA
-Column = 8 - Name = BiPGS-Facies.4 - Locator = NA
-Column = 9 - Name = PGS-Shift-Facies.1 - Locator = facies1
-Column = 10 - Name = PGS-Shift-Facies.2 - Locator = facies2
+Data Base Statistics
+--------------------
+10 - Name PGS-Shift-Facies.1 - Locator facies1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =      4.000
+ Mean value          =      1.696
+ Standard Deviation  =      1.678
+ Variance            =      2.815
+11 - Name PGS-Shift-Facies.2 - Locator facies2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =      4.000
+ Mean value          =      1.712
+ Standard Deviation  =      1.684
+ Variance            =      2.835
 
 Lithotype Rule
 ==============
@@ -216,32 +213,21 @@ Node F3 - Facies 3
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 13
-Maximum Number of UIDs       = 23
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      0.010     0.010
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = Facies.Props.1 - Locator = NA
-Column = 1 - Name = Facies.Props.2 - Locator = x1
-Column = 2 - Name = Facies.Props.3 - Locator = x2
-Column = 3 - Name = Facies.Props.4 - Locator = NA
-Column = 4 - Name = Facies.Props.5 - Locator = NA
-Column = 5 - Name = BiPGS-Facies.1 - Locator = NA
-Column = 6 - Name = BiPGS-Facies.2 - Locator = NA
-Column = 7 - Name = BiPGS-Facies.3 - Locator = NA
-Column = 8 - Name = BiPGS-Facies.4 - Locator = NA
-Column = 9 - Name = PGS-Shift-Facies.1 - Locator = NA
-Column = 10 - Name = PGS-Shift-Facies.2 - Locator = NA
-Column = 11 - Name = PGS-Shadow-Facies.1 - Locator = facies1
-Column = 12 - Name = PGS-Shadow-Facies.2 - Locator = facies2
+Data Base Statistics
+--------------------
+12 - Name PGS-Shadow-Facies.1 - Locator facies1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      2.000
+ Mean value          =      1.693
+ Standard Deviation  =      0.461
+ Variance            =      0.213
+13 - Name PGS-Shadow-Facies.2 - Locator facies2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =      2.000
+ Mean value          =      1.736
+ Standard Deviation  =      0.441
+ Variance            =      0.194

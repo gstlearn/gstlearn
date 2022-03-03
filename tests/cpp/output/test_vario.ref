@@ -303,24 +303,21 @@ Column = 4 - Name = VMAP.Simu.Nb - Locator = NA
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
-Total number of samples      = 1681
-
-Grid characteristics:
----------------------
-Origin :     -0.200    -0.200
-Mesh   :      0.010     0.010
-Number :         41        41
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = VMAP.Simu.Var - Locator = z1
-Column = 4 - Name = VMAP.Simu.Nb - Locator = NA
+Data Base Statistics
+--------------------
+4 - Name VMAP.Simu.Var - Locator z1
+ Nb of data          =       1681
+ Nb of active values =       1681
+ Minimum value       =      0.000
+ Maximum value       =      1.074
+ Mean value          =      0.806
+ Standard Deviation  =      0.186
+ Variance            =      0.034
+5 - Name VMAP.Simu.Nb - Locator NA
+ Nb of data          =       1681
+ Nb of active values =       1681
+ Minimum value       =   6400.000
+ Maximum value       =  10000.000
+ Mean value          =   8056.157
+ Standard Deviation  =    752.441
+ Variance            = 566166.790

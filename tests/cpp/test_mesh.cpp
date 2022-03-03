@@ -69,6 +69,7 @@ int main(int /*argc*/, char */*argv*/[])
   int verbose   = 1;
   int variety   = 0;  // 0 for Euclidean; 1 for Spherical
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+
   /* Cleverness of the options */
 
   if (variety == 1) flag_mesh = 0;
@@ -146,6 +147,7 @@ int main(int /*argc*/, char */*argv*/[])
                                  dilate,dbin,dbgrid,triswitch,
                                  apices,meshes,verbose);
   if (mesh == NULL) return(1);
+  mesh->display();
 
   if (flag_mesh)
   {
@@ -157,6 +159,7 @@ int main(int /*argc*/, char */*argv*/[])
     loc_apices = (double *) mem_free((char *) loc_apices);
     loc_meshes = (int    *) mem_free((char *) loc_meshes);
     if (meshb == NULL) return(1);
+    meshb->display();
   }
 
   /* Instantiate the ShiftOp */

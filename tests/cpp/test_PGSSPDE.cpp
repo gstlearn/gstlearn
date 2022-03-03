@@ -16,6 +16,7 @@
 #include "API/SPDE.hpp"
 #include "API/PGSSPDE.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -101,7 +102,8 @@ int main(int /*argc*/, char */*argv*/[])
   PGSSPDE* spgs = &sNonCond;
   spgs->simulate();
   spgs->query(workingDbc);
-  workingDbc->display();
+  DbStringFormat dbfmt(FLAG_STATS,{"Facies"});
+  workingDbc->display(&dbfmt);
   (void) workingDbc->dumpToNF("pgs.ascii");
 
   delete db;

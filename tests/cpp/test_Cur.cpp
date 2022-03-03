@@ -100,11 +100,6 @@ int main(int argc, char *argv[])
                              &flag_int_1d,&flag_int_2d,
                              &flag_aniso,&flag_rotation,&scale,&parmax);
 
-
-
-
-
-
   int seed = 432432;
   law_set_random_seed(seed);
   std::mt19937 gen;
@@ -112,9 +107,6 @@ int main(int argc, char *argv[])
 
   std::normal_distribution<double> d{0,1};
   double val = d(gen);
-
-  std::cout << "Gaussian std " << val << std::endl;
-  std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
 
   return 0;
   ///////////////////////

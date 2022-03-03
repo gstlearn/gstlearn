@@ -3,6 +3,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
@@ -75,6 +76,9 @@ int main(int /*argc*/, char */*argv*/[])
   SPDE spde3(model,workingDbc,dat,ESPDECalcMode::KRIGING);
   spde3.compute();
   spde3.query(workingDbc);
+
+  DbStringFormat dbfmt(FLAG_STATS,{"spde*"});
+  workingDbc->display(&dbfmt);
 
   delete dat;
   delete workingDbc;

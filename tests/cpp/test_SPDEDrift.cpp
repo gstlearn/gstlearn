@@ -13,6 +13,7 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "API/SPDE.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -82,6 +83,9 @@ int main(int /*argc*/, char */*argv*/[])
     kriging(temperatures, grid, model, neighU);
     grid->dumpToNF("Kriging-result.ascii",verbose);
   }
+
+  DbStringFormat dbfmt(FLAG_STATS,{"*kriging"});
+  grid->display(&dbfmt);
 
   delete temperatures;
   delete grid;

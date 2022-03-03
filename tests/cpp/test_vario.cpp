@@ -17,6 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -110,7 +111,8 @@ int main(int /*argc*/, char */*argv*/[])
   // =================================
 
   Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM);
-  vmapG->display();
+  DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
+  vmapG->display(&dbfmt);
 
   delete db;
   delete grid;

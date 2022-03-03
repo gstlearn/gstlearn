@@ -7,11 +7,11 @@ set DIR = $command_location/../..
 set nargs = $#argv
 if ($nargs < 3) then
 		echo "Syntax:"
-		echo "compare_test name1 name2 nametest [option]
-		echo "   name1    : Name of the Main container (e.g.: test)
-		echo "   name2    : Name of the subContainer (e.g.: data)
-		echo "   nametest : Name of the test (e.g.: Jeu1)
-		echo "   option   : must be either Debug or Release (default: Release)
+		echo "compare_test name1 name2 nametest [option]"
+		echo "   name1    : Name of the Main container (e.g.: test)"
+		echo "   name2    : Name of the subContainer (e.g.: data)"
+		echo "   nametest : Name of the test (e.g.: Jeu1)"
+		echo "   option   : must be either Debug or Release (default: Release)"
 		exit
 endif
 
