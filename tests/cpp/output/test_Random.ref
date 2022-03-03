@@ -3,75 +3,81 @@ All subsequent tests are performed on a set of 10000 samples
 Uniform Distribution: mini=2.000000 maxi=4.000000
 Old Style
 - Number of samples = 10000 / 10000
-- Minimum  = 2.000130
-- Maximum  = 3.999904
-- Mean     = 2.993207
-- St. Dev. = 0.582082
+- Minimum  =      2.000
+- Maximum  =      4.000
+- Mean     =      2.993
+- St. Dev. =      0.582
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  = 2.000024
-- Maximum  = 3.999883
-- Mean     = 2.995029
-- St. Dev. = 0.578748
+- Minimum  =      2.000
+- Maximum  =      4.000
+- Mean     =      2.995
+- St. Dev. =      0.579
 
 Normal Distribution: mean=5.000000 sigma=2.000000
 Old Style
 - Number of samples = 10000 / 10000
-- Minimum  = -3.271550
-- Maximum  = 4.771931
-- Mean     = 0.002177
-- St. Dev. = 0.993409
+- Minimum  =     -3.272
+- Maximum  =      4.772
+- Mean     =      0.002
+- St. Dev. =      0.993
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  = -3.917387
-- Maximum  = 3.930755
-- Mean     = 0.001827
-- St. Dev. = 0.998947
+- Minimum  =     -3.917
+- Maximum  =      3.931
+- Mean     =      0.002
+- St. Dev. =      0.999
 
 Exponential Distribution: param=2.000000
 Old Style
 - Number of samples = 10000 / 10000
-- Minimum  = 0.000110
-- Maximum  = 4.347118
-- Mean     = 0.496223
-- St. Dev. = 0.484646
+- Minimum  =      0.000
+- Maximum  =      4.347
+- Mean     =      0.496
+- St. Dev. =      0.485
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  = 0.000056
-- Maximum  = 4.641640
-- Mean     = 0.507845
-- St. Dev. = 0.509046
+- Minimum  =      0.000
+- Maximum  =      4.642
+- Mean     =      0.508
+- St. Dev. =      0.509
 
 Gamma Distribution: alpha=3.400000 beta=1.200000
 Old Style
 - Number of samples = 10000 / 10000
-- Minimum  = 0.097440
-- Maximum  = 13.751123
-- Mean     = 3.413376
-- St. Dev. = 1.848816
+- Minimum  =      0.097
+- Maximum  =     13.751
+- Mean     =      3.413
+- St. Dev. =      1.849
 New Style
 - Number of samples = 10000 / 10000
-- Minimum  = 0.196942
-- Maximum  = 20.295644
-- Mean     = 4.078201
-- St. Dev. = 2.201466
+- Minimum  =      0.197
+- Maximum  =     20.296
+- Mean     =      4.078
+- St. Dev. =      2.201
 
-Poisson Distribution: lambda=14.600000
+Poisson Distribution: lambda=4.600000
 Old Style
-- Number of samples = 10000 / 10000
-- Minimum  = 1.000000
-- Maximum  = 31.000000
-- Mean     = 14.613900
-- St. Dev. = 3.876651
+- Number of samples = 100000 / 100000
+- Minimum  =     0.0000
+- Maximum  =    18.0000
+- Mean     =     4.6086
+- St. Dev. =     2.1546
 New Style
-- Number of samples = 10000 / 10000
-- Minimum  = 2.000000
-- Maximum  = 28.000000
-- Mean     = 14.535200
-- St. Dev. = 3.755391
+- Number of samples = 100000 / 100000
+- Minimum  =     0.0000
+- Maximum  =    16.0000
+- Mean     =     4.6058
+- St. Dev. =     2.1452
 
 Using New Style Random Number Generator
 Getting the seed = 432432
 
 Using Old Style Random Number Generator
 Getting the seed = 432432
+
+Uniform Distribution: mini=2.000000 maxi=4.000000
+Old Style
+     2.540     2.752     3.011     2.200     3.025
+New Style
+     2.949     3.983     3.141     2.379     3.981

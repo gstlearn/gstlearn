@@ -102,7 +102,6 @@ public:
     Proxy(const HDF5format* owner)
         : myOwner(owner)
     {
-      myOwner->displayNames();
     }
     operator int() const
     {
