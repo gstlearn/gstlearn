@@ -3,6 +3,13 @@
 # in Python
 #
 import gstlearn as gl
+import os
+import sys
+
+# Redirection
+
+filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
+sys.stdout = open(filename,'w')
 
 gl.argumentTestInt(12)
 gl.argumentTestDouble(2.3)

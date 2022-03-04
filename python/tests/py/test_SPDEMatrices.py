@@ -11,6 +11,11 @@ import matplotlib.pyplot as plt
 import gstlearn as gl
 import gstlearn.plot as gp
 
+# Redirection
+
+filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
+sys.stdout = open(filename,'w')
+
 # Global environment setup
 
 verbose = False
@@ -39,7 +44,7 @@ dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 model = gl.Model.createFromDb(resultDb)
 cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) 
 cova.setRanges([4,45])
-model.addCova(cova)
+model.addCov(cova)
 spirale = gl.FunctionalSpirale(0., -1.4, 1., 1., 50., 50.);
 nostat = gl.NoStatFunctional(spirale)
 model.addNoStat(nostat)

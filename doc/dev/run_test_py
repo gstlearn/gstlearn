@@ -1,0 +1,33 @@
+# This "csh" script shows how to run a Python(py) test
+# and to store the result in a given directory
+#
+#!/bin/csh -f
+
+# Reference directory
+set command_location = `dirname $0`
+set DIR = $command_location/../..
+
+set nargs = $#argv
+if ($nargs < 1) then
+		echo "Run a Python test"
+		echo "Syntax:"
+		echo "run_test_py nametest [option]
+		echo "   nametest : Name of the test (e.g.: test_Enum.py)
+		echo "   option   : must be either Debug or Release (default: Debug)
+		exit
+endif
+
+set nametest = $argv[1]
+set nametest = `basename $nametest .py`
+
+if ($nargs > 1) then
+		set option = $argv[2]
+else
+		set option = "Debug"
+endif
+
+set nameref = $nametest.py
+
+set FILEIN  = $DIR/python/tests/py/$nameref
+
+python3 $FILEIN 

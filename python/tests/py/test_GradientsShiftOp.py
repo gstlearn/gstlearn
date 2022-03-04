@@ -14,6 +14,11 @@ import matplotlib.pyplot as plt
 import gstlearn as gl
 import gstlearn.plot as myplot
 
+# Redirection
+
+filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
+sys.stdout = open(filename,'w')
+
 # Create representation grid
 
 workingDbc = gl.DbGrid.create([10,10],[10,10])
@@ -37,7 +42,7 @@ dat.addColumns(coords[:,1],"Y",gl.ELoc.X,1)
 model = gl.Model.createFromDb(resultDb)
 cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) #Alias ECov.MATERN
 cova.setRanges([4,45])
-model.addCova(cova)
+model.addCov(cova)
 spirale = gl.FunctionalSpirale(0., -1.4, 1., 1., 50., 50.);
 nostat = gl.NoStatFunctional(spirale)
 model.addNoStat(nostat)

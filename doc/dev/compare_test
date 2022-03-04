@@ -1,3 +1,5 @@
+# This script is meant to compare a Resulting test file (out) to its reference (ref)
+#
 #!/bin/csh -f
 
 # Reference directory

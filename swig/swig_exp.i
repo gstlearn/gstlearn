@@ -79,6 +79,7 @@ class IClonable{};
 %include Basic/OptCustom.hpp
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
+%include Basic/File.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp

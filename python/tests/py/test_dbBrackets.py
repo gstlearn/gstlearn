@@ -1,5 +1,12 @@
 import gstlearn as gl
 import numpy as np
+import os
+import sys
+
+# Redirection
+
+filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
+sys.stdout = open(filename,'w')
 
 np.random.seed(124)
 

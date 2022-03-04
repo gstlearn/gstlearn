@@ -4,6 +4,11 @@ import os
 import gstlearn as gl
 import gstlearn.plot as gp
 
+# Redirection
+
+filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
+sys.stdout = open(filename,'w')
+
 # Instanciation of a 2-D Rotation of 30 degrees
 # Angles are defined in a trigonometric system: counterclockwise from East
 
