@@ -7,10 +7,8 @@ import scipy as sc
 from scipy.sparse import *
 from scipy.sparse.linalg import *
 import numpy as np
-import pandas as pd
 import sys
 import os
-import matplotlib.pyplot as plt
 import gstlearn as gl
 import gstlearn.plot as myplot
 

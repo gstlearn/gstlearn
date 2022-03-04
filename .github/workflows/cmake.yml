@@ -25,14 +25,14 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy
       
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: Build
+    - name: Build the C++ shared library and tests executables
       # -j 16 option seems having no effect on Gitub Action
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
 
@@ -40,7 +40,7 @@ jobs:
     # Install the python wrapper (not done automatically when running ctest)
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
 
-    - name: Test
+    - name: Execute non-regression tests
       working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
