@@ -1,14 +1,3 @@
-<<<<<<< HEAD
-=======
-Column Name (1): X
-Column Name (2): Y
-Column Name (3): Zn
-Column Name (4): Pb
-Number of columns = 4
-Data table read (Pollution.dat) successfully
-- Number of columns = 4
-- Number of rows    = 102
->>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
 
 Data Base Characteristics
 =========================
