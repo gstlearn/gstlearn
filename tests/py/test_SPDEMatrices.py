@@ -197,7 +197,7 @@ if flagDraw:
 from sksparse.cholmod import cholesky
 cc=cholesky(Qmat)
 
-print("Logdet True result",cc.logdet())
+print("Logdet True result", round(cc.logdet(),5))
 
 # 3) Mike Pereira method - approximation
 
@@ -215,8 +215,8 @@ resc = s/nsim
 
 v=np.sum(np.log(S.getLambdas()))
 
-print("Logdet approximation by using evalLog : ",resc+2*v)
+print("Logdet approximation by using evalLog : ", round(resc+2*v, 5))
 
-print("Logdet approximation by using built-in function : ",Qlog.computeLogDet(100,1003))
+print("Logdet approximation by using built-in function : ", round(Qlog.computeLogDet(100,1003), 5))
 
-print("Test sucessfully performed")
+print("Test successfully performed")

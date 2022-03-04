@@ -18,7 +18,10 @@ add_subdirectory(data)
 add_subdirectory(cpp)
 add_subdirectory(inter)
 
+# TODO : Make these tests configuration / execution optional
+add_subdirectory(py)
+#add_subdirectory(ipynb)
+
 # TODO : tests are executed for each directory but mixed
-# TODO : there are two reports separated (data and cpp)
-add_dependencies(check check_cpp check_data)
-#add_dependencies(check check_data)
+# TODO : reports are separated
+add_dependencies(check check_cpp check_data check_py)

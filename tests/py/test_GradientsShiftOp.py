@@ -59,4 +59,4 @@ S.initGradFromMesh(mesh,model,resultDb)
 
 S.getSGrad(0,0)
 
-print("Test sucessfully performed")
+print("Test successfully performed")

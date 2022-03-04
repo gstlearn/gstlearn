@@ -1,5 +1,5 @@
 #
-# Thic file is meant to test the reading of various types of arguments
+# This file is meant to test the reading of various types of arguments
 # in Python
 #
 import gstlearn as gl
@@ -23,4 +23,4 @@ gl.argumentTestSurcharge(["String1","String2","String3"])
 
 gl.argumentTestEnum(gl.ETests.CASE2)
 
-print("Test sucessfully performed")
+print("Test successfully performed")

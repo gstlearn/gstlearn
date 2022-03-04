@@ -1,22 +1,18 @@
-# Preamble
-
 import numpy as np
 import sys
 import os
 import gstlearn as gl
+import gstlearn.plot as gp
 
 # Redirection
 
 filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
 sys.stdout = open(filename,'w')
 
-# Constants
-
-sqr3 = np.sqrt(3)
-
 # Instanciation of a 2-D Rotation of 30 degrees
 # Angles are defined in a trigonometric system: counterclockwise from East
 
+sqr3 = np.sqrt(3)
 ndim = 2
 rot = gl.Rotation(ndim)
 rot.setAngles([30,0])
@@ -117,4 +113,4 @@ print(rank)
 pgrid.rankToIndice(rank,new_indice)
 print(new_indice)
 
-print("Test sucessfully performed")
+print("Test successfully performed")
