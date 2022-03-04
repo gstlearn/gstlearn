@@ -33,8 +33,12 @@ jobs:
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
     - name: Build
-      # Build your program with the given configuration (-j 16 option seems having no effect on Gitub Action)
+      # -j 16 option seems having no effect on Gitub Action
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
+
+    - name: Install python wrapper
+    # Install the python wrapper (not done automatically when running ctest)
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
 
     - name: Test
       working-directory: ${{github.workspace}}/build

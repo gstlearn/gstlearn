@@ -1,7 +1,7 @@
 # Add 'build_tests' target for building all tests executable
 add_custom_target(build_tests)
 
-# Add 'check' target for building then running the tests executable
+# Add 'check' target for building then running the tests
 add_custom_target(check)
 
 # Define ctest command
