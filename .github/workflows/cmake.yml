@@ -25,7 +25,7 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib
       
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
