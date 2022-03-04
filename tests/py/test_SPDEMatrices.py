@@ -195,10 +195,10 @@ if flagDraw:
 #np.sum(np.log(np.real(eigvals)))
 
 # 2) Cholesky (need scikit-sparse based on CHOLMOD - must be installed)
-from sksparse.cholmod import cholesky
-cc=cholesky(Qmat)
+#from sksparse.cholmod import cholesky
+#cc=cholesky(Qmat)
 
-print("Logdet True result", round(cc.logdet(),5))
+#print("Logdet True result", round(cc.logdet(),5))
 
 # 3) Mike Pereira method - approximation
 
