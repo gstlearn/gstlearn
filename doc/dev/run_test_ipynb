@@ -29,7 +29,7 @@ endif
 set nameref = $nametest.ipynb
 set namecmp = $nametest.html
 
-set FILEIN  = $DIR/python/tests/ipynb/$nameref
+set FILEIN  = $DIR/tests/ipynb/$nameref
 #TODO. Next line is temporary until cmake command is adapted
 set FILEOUT = /tmp/$namecmp
 
