@@ -7,38 +7,44 @@ set command_location = `dirname $0`
 set DIR = $command_location/../..
 
 set nargs = $#argv
-if ($nargs < 3) then
+if ($nargs < 2) then
 		echo "Syntax:"
-		echo "compare_test name1 name2 nametest [option]"
-		echo "   name1    : Name of the Main container (e.g.: test)"
-		echo "   name2    : Name of the subContainer (e.g.: data)"
+		echo "compare_test name1 nametest [option]"
+		echo "   name1    : Name of the subContainer (e.g.: data)"
 		echo "   nametest : Name of the test (e.g.: Jeu1)"
 		echo "   option   : must be either Debug or Release (default: Release)"
 		exit
 endif
 
 set name1 = $argv[1]
-set name2 = $argv[2]
-set nametest = $argv[3]
-if ($nargs > 3) then
-		set option = $argv[4]
+set nametest = $argv[2]
+
+if ($nargs > 2) then
+		set option = $argv[3]
 else
 		set option = "Release"
 endif
 
-if ($name2 == "data") then
+if ($name1 == "data") then
 		set direc = $nametest
 		set nameref = "Result.ref"
 		set namecmp = "Result.out"
 endif
-if ($name2 == "cpp") then
+if ($name1 == "cpp") then
 		set direc   = "output"
+		set nametest = `basename $nametest .cpp`
+		set nameref = $nametest.ref
+		set namecmp = $nametest.out
+endif
+if ($name1 == "py") then
+		set direc   = "output"
+		set nametest = `basename $nametest .py`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 
-set FILEREF = $DIR/$name1/$name2/$direc/$nameref
-set FILECMP = $DIR/build/$name1/$name2/$option/$direc/$namecmp
+set FILEREF = $DIR/tests/$name1/$direc/$nameref
+set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp
 
 diff $FILEREF $FILECMP
 
