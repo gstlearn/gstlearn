@@ -166,10 +166,10 @@ def check_nrows(db, nrows):
         useSel = False
     else:
         if db.getActiveSampleNumber() != db.getSampleNumber():
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+            raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
                 str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
         else :
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+            raise ValueError(f"Error of dimension. Your number of lines ({nrows}) has to be equal to " +
                   str(db.getActiveSampleNumber()))
     return useSel
 
