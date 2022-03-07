@@ -61,19 +61,19 @@ static double *RHS_TAB = NULL;
 
 static double _getTolInvert()
 {
-  return OptCst::query(ECst::TOLINV);
+  return 1.e-20;
 }
 static double _getTolInvGen()
 {
-  return OptCst::query(ECst::TOLGEN);
+  return 1.e-20;
 }
 static double _getEpsMatrix()
 {
-  return OptCst::query(ECst::EPSMAT);
+  return 2.3e-16;
 }
 static double _getEpsSVD()
 {
-  return OptCst::query(ECst::EPSSVD);
+  return 1.0e-5;
 }
 
 /*****************************************************************************/

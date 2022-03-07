@@ -2805,7 +2805,7 @@ void ut_trace_sample(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  mode        1 for allocation; -1 for deallocation
- ** \param[in]  locatorType      Type of the pointer (ELoc)
+ ** \param[in]  locatorType Type of the pointer (ELoc)
  ** \param[in]  dbin        Descriptor of the input Db
  ** \param[in]  dbout       Descriptor of the output Db
  ** \param[in,out]  istart      Address of the first allocated external information

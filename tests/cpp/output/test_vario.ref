@@ -1,0 +1,323 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 1000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Range        =      0.200
+- Theo. Range  =      0.058
+Total Sill     =      1.000
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 1000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.010     0.010
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Simu - Locator = z1
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix     0.829
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   157.000     0.011     0.045
+         1   775.000     0.027     0.173
+         2  1939.000     0.051     0.428
+         3  2690.000     0.076     0.615
+         4  3245.000     0.100     0.711
+         5  4253.000     0.125     0.778
+         6  4826.000     0.151     0.832
+         7  5544.000     0.175     0.909
+         8  6022.000     0.200     0.901
+         9  6266.000     0.225     0.924
+        10  7038.000     0.250     0.889
+        11  7329.000     0.275     0.899
+        12  7480.000     0.300     0.928
+        13  8300.000     0.325     0.944
+        14  8260.000     0.350     0.932
+        15  8416.000     0.375     0.942
+        16  8836.000     0.400     0.913
+        17  8584.000     0.425     0.902
+        18  9099.000     0.450     0.874
+        19  8913.000     0.475     0.861
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =      0.000     1.000
+Direction angles (degrees)  =     90.000     0.000
+Tolerance on direction      =     45.000 (degrees)
+Calculation lag             =      0.025
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         0   125.000     0.006     0.021
+         1   986.000     0.027     0.149
+         2  1898.000     0.051     0.370
+         3  2660.000     0.075     0.538
+         4  3407.000     0.100     0.619
+         5  4253.000     0.126     0.720
+         6  4834.000     0.150     0.790
+         7  5588.000     0.175     0.804
+         8  6031.000     0.200     0.860
+         9  6611.000     0.225     0.974
+        10  7093.000     0.250     0.982
+        11  7536.000     0.275     0.947
+        12  7966.000     0.300     0.945
+        13  8180.000     0.325     0.984
+        14  8430.000     0.350     0.974
+        15  8516.000     0.375     0.947
+        16  8500.000     0.400     0.937
+        17  8767.000     0.425     0.864
+        18  8718.000     0.450     0.839
+        19  8568.000     0.475     0.796
+Maximum Variogram Value = 0.984485
+
+Statistics for the Minimization Foxleg procedure
+------------------------------------------------
+- Number of experimental values = 40
+- Number of parameters          = 5
+- Number of iterations          = 1000/1000 
+- Value of minimized function   = 0.000202872
+- Initial increment value       = 1
+- Current increment value       = 0.5
+- Increment Stopping Criterion  = 1e-05
+- Stopping Value                = 4.33626e+06
+- Stopping Criterion            = 1e-06
+- Stopping Criterion (scaled)   = 8.29102e-07
+
+Convergence not reached after 1000 iterations (5 parameters)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 7.32194)
+- Sill         =      0.064
+- Range        =      0.059
+- Theo. Range  =      0.006
+Exponential
+- Sill         =      0.900
+- Ranges       =      0.261     0.307
+- Theo. Ranges =      0.087     0.102
+Total Sill     =      0.964
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix     0.874
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =      0.010
+Tolerance on distance       =      0.000 (Percent of the lag value)
+Grid Direction coefficients =          1         0
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1  9900.000     0.010     0.031
+         2  9800.000     0.020     0.116
+         3  9700.000     0.030     0.231
+         4  9600.000     0.040     0.351
+         5  9500.000     0.050     0.459
+         6  9400.000     0.060     0.551
+         7  9300.000     0.070     0.625
+         8  9200.000     0.080     0.681
+         9  9100.000     0.090     0.716
+        10  9000.000     0.100     0.732
+        11  8900.000     0.110     0.738
+        12  8800.000     0.120     0.749
+        13  8700.000     0.130     0.773
+        14  8600.000     0.140     0.812
+        15  8500.000     0.150     0.856
+        16  8400.000     0.160     0.893
+        17  8300.000     0.170     0.920
+        18  8200.000     0.180     0.937
+        19  8100.000     0.190     0.951
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =      0.000 (degrees)
+Calculation lag             =      0.010
+Tolerance on distance       =      0.000 (Percent of the lag value)
+Grid Direction coefficients =          0         1
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1  9900.000     0.010     0.047
+         2  9800.000     0.020     0.102
+         3  9700.000     0.030     0.186
+         4  9600.000     0.040     0.275
+         5  9500.000     0.050     0.352
+         6  9400.000     0.060     0.464
+         7  9300.000     0.070     0.515
+         8  9200.000     0.080     0.566
+         9  9100.000     0.090     0.592
+        10  9000.000     0.100     0.628
+        11  8900.000     0.110     0.699
+        12  8800.000     0.120     0.727
+        13  8700.000     0.130     0.787
+        14  8600.000     0.140     0.829
+        15  8500.000     0.150     0.893
+        16  8400.000     0.160     0.956
+        17  8300.000     0.170     0.966
+        18  8200.000     0.180     1.000
+        19  8100.000     0.190     1.007
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 1681
+
+Grid characteristics:
+---------------------
+Origin :     -1.000    -0.996
+Mesh   :      0.050     0.050
+Number :         41        41
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = VMAP.Simu.Var - Locator = z1
+Column = 4 - Name = VMAP.Simu.Nb - Locator = NA
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name VMAP.Simu.Var - Locator z1
+ Nb of data          =       1681
+ Nb of active values =       1681
+ Minimum value       =      0.000
+ Maximum value       =      1.074
+ Mean value          =      0.806
+ Standard Deviation  =      0.186
+ Variance            =      0.034
+5 - Name VMAP.Simu.Nb - Locator NA
+ Nb of data          =       1681
+ Nb of active values =       1681
+ Minimum value       =   6400.000
+ Maximum value       =  10000.000
+ Mean value          =   8056.157
+ Standard Deviation  =    752.441
+ Variance            = 566166.790

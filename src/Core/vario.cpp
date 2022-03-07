@@ -127,9 +127,9 @@ static int st_get_generalized_variogram_order(const Vario *vario)
   int norder;
 
   norder = 0;
-  if (vario->getCalculType() == ECalcVario::GENERAL1) norder = 1;
-  if (vario->getCalculType() == ECalcVario::GENERAL2) norder = 2;
-  if (vario->getCalculType() == ECalcVario::GENERAL3) norder = 3;
+  if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
+  if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
+  if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
   return (norder);
 }
 
@@ -327,7 +327,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
       }
       if (s12w <= 0.) continue;
 
-      if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
+      if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
       {
         vario->setVar(ivar, jvar, s12wzz);
         vario->setVar(jvar, ivar, s12wzz);
@@ -343,7 +343,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
 
   // Modification when the ultimate variogram is a transformed one
 
-  if (vario->getCalculType() == ECalcVario::TRANS1)
+  if (vario->getCalcul() == ECalcVario::TRANS1)
   {
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
@@ -353,7 +353,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
         vario->setVar(jvar, ivar, value);
       }
   }
-  else if (vario->getCalculType() == ECalcVario::TRANS2)
+  else if (vario->getCalcul() == ECalcVario::TRANS2)
   {
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
@@ -363,7 +363,7 @@ static void st_variogram_stats(Db *db, Vario *vario)
         vario->setVar(jvar, ivar, value);
       }
   }
-  else if (vario->getCalculType() == ECalcVario::BINORMAL)
+  else if (vario->getCalcul() == ECalcVario::BINORMAL)
   {
     for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < db->getVariableNumber(); jvar++)
@@ -859,7 +859,7 @@ void variogram_scale(Vario *vario, int idir)
           vario->setHhByIndex(idir, j, vario->getHhByIndex(idir, j) / vario->getSwByIndex(idir, j));
           if (vario->getFlagAsym() && i < vario->getLagNumber(idir))
             vario->setHhByIndex(idir, j, -ABS(vario->getHhByIndex(idir, j)));
-          if (vario->getCalculType() != ECalcVario::COVARIOGRAM)
+          if (vario->getCalcul() != ECalcVario::COVARIOGRAM)
             vario->setGgByIndex(idir, j,
                          vario->getGgByIndex(idir, j) / vario->getSwByIndex(idir, j));
         }
@@ -868,7 +868,7 @@ void variogram_scale(Vario *vario, int idir)
 
   // Process the variogram transformations
 
-  if (vario->getCalculType() == ECalcVario::TRANS1)
+  if (vario->getCalcul() == ECalcVario::TRANS1)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
@@ -882,7 +882,7 @@ void variogram_scale(Vario *vario, int idir)
         }
       }
   }
-  else if (vario->getCalculType() == ECalcVario::TRANS2)
+  else if (vario->getCalcul() == ECalcVario::TRANS2)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
@@ -896,7 +896,7 @@ void variogram_scale(Vario *vario, int idir)
         }
       }
   }
-  else if (vario->getCalculType() == ECalcVario::BINORMAL)
+  else if (vario->getCalcul() == ECalcVario::BINORMAL)
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < ivar; jvar++)
@@ -954,8 +954,8 @@ static void st_covariance_center(Db *db, Vario *vario, int idir)
         sumw += ww;
       }
 
-      if (sumw > 0 && (vario->getCalculType() == ECalcVario::COVARIANCE
-          || vario->getCalculType() == ECalcVario::COVARIANCE_NC))
+      if (sumw > 0 && (vario->getCalcul() == ECalcVario::COVARIANCE
+          || vario->getCalcul() == ECalcVario::COVARIANCE_NC))
       {
         m1 /= sumw;
         m2 /= sumw;
@@ -963,8 +963,8 @@ static void st_covariance_center(Db *db, Vario *vario, int idir)
 
       /* Perform the Centering */
 
-      if (!(vario->getCalculType() == ECalcVario::COVARIOGRAM
-          || vario->getCalculType() == ECalcVario::COVARIANCE_NC))
+      if (!(vario->getCalcul() == ECalcVario::COVARIOGRAM
+          || vario->getCalcul() == ECalcVario::COVARIANCE_NC))
         for (i = 0; i < vario->getLagTotalNumber(idir); i++)
         {
           j = vario->getDirAddress(idir, ivar, jvar, i, true, 0);
@@ -1018,7 +1018,7 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
         m2 += ww * z2;
         sumw += ww;
         value = z1 * z2;
-        if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
+        if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
         {
           scale = ww;
         }
@@ -1032,8 +1032,8 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
           st_print_debug(iech, iech, ivar, jvar, i, scale, value);
       }
 
-      if (sumw > 0 && (vario->getCalculType() == ECalcVario::COVARIANCE
-          || vario->getCalculType() == ECalcVario::COVARIANCE_NC))
+      if (sumw > 0 && (vario->getCalcul() == ECalcVario::COVARIANCE
+          || vario->getCalcul() == ECalcVario::COVARIANCE_NC))
       {
         m1 /= sumw;
         m2 /= sumw;
@@ -1042,9 +1042,9 @@ static void st_variogram_patch_c00(Db *db, Vario *vario, int idir)
       /* Final centering and normation */
 
       vario->setSwByIndex(idir, i, sumw);
-      if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
+      if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
         vario->setGgByIndex(idir, i, s12wzz);
-      else if (vario->getCalculType() == ECalcVario::COVARIANCE_NC)
+      else if (vario->getCalcul() == ECalcVario::COVARIANCE_NC)
         vario->setGgByIndex(idir, i, s12wzz / s12w);
       else
         vario->setGgByIndex(idir, i, s12wzz / s12w - m1 * m2);
@@ -1622,7 +1622,7 @@ static void st_variogram_calcul_internal(Db *db,
       IDIRLOC = idir;
       IECH1 = iech;
       IECH2 = jech;
-      st_variogram_evaluate(db, vario->getCalculType(),
+      st_variogram_evaluate(db, vario->getCalcul(),
                             vario->getVariableNumber(), iech, jech, ipas, dist,
                             1, st_variogram_set);
     }
@@ -1784,7 +1784,7 @@ static int st_variogram_calcul1(Db *db,
         IDIRLOC = idir;
         IECH1 = iech;
         IECH2 = jech;
-        st_variogram_evaluate(db, vario->getCalculType(),
+        st_variogram_evaluate(db, vario->getCalcul(),
                               vario->getVariableNumber(), iech, jech, ipas,
                               dist, 1, st_variogram_set);
       }
@@ -1906,7 +1906,7 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
       VARIO = vario;
       IECH1 = iech;
       IECH2 = jech;
-      st_variogram_evaluate(db, vario->getCalculType(),
+      st_variogram_evaluate(db, vario->getCalcul(),
                             vario->getVariableNumber(), iech, jech, ipas, dist,
                             1, st_variogram_set);
     }
@@ -2146,7 +2146,7 @@ static int st_variogram_grid(DbGrid *db, Vario *vario, int idir)
       IDIRLOC = idir;
       IECH1 = iech;
       IECH2 = jech;
-      st_variogram_evaluate(db, vario->getCalculType(),
+      st_variogram_evaluate(db, vario->getCalcul(),
                             vario->getVariableNumber(), iech, jech, ipas, dist,
                             1, st_variogram_set);
     }
@@ -2240,7 +2240,7 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
         value = value * value / NORWGT[norder];
         VARIO = vario;
         nvar = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(), nvar, ipas, 0, 0, 0, 1., dist0,
+        st_variogram_set(vario->getCalcul(), nvar, ipas, 0, 0, 0, 1., dist0,
                          value);
       }
     }
@@ -2341,7 +2341,7 @@ static int st_variogen_grid(DbGrid *db, Vario *vario, int idir, int norder)
         value = value * value / NORWGT[norder];
         VARIO = vario;
         nvar = vario->getVariableNumber();
-        st_variogram_set(vario->getCalculType(), nvar, ipas, 0, 0, 0, 1., dist,
+        st_variogram_set(vario->getCalcul(), nvar, ipas, 0, 0, 0, 1., dist,
                          value);
       }
     }
@@ -2712,7 +2712,7 @@ static int st_variogram_general(Db *db,
   /* Particular case of Transitive Covariogram */
   /* It is only coded in the by_sample case and uses the regression technique */
 
-  if (vario->getCalculType() == ECalcVario::COVARIOGRAM) flag_sample = 1;
+  if (vario->getCalcul() == ECalcVario::COVARIOGRAM) flag_sample = 1;
 
   /* Auxiliary check for Variance Measurement Error */
 
@@ -3409,7 +3409,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
 
   /* In the case of Covariogram, add the weight set to the scale */
 
-  if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
+  if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
   {
     iatt_old = db_attribute_identify(db, ELoc::W, 0);
     iadd_new = db->addColumnsByConstant(1, 0.);
@@ -3434,7 +3434,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
 
   /* Delete the additional weight variable (optional) */
 
-  if (vario->getCalculType() == ECalcVario::COVARIOGRAM)
+  if (vario->getCalcul() == ECalcVario::COVARIOGRAM)
   {
     if (iadd_new > 0) db->deleteColumnByUID(iadd_new);
     if (iatt_old > 0) db->setLocatorByUID(iatt_old, ELoc::W);
@@ -3504,7 +3504,6 @@ int variogram_direction_add(VarioParam *varioparam,
  **
  *****************************************************************************/
 Vario* variogram_delete(Vario *vario)
-
 {
   if (vario == nullptr) return (vario);
   delete vario;
@@ -4624,7 +4623,7 @@ int vario_extract(Vario *vario,
 
   /* Returning arguments */
 
-  *calcul_type = vario->getCalculType();
+  *calcul_type = vario->getCalcul();
   *ndim = vario->getDimensionNumber();
   *nvar = vario->getVariableNumber();
   *ndir = vario->getDirectionNumber();
@@ -6807,12 +6806,12 @@ ECalcVario vario_identify_calcul_type(const String &calcul_name)
  **
  *****************************************************************************/
 DbGrid* db_variogram_cloud(Db *db,
-                       const VarioParam *varioparam,
-                       double lagmax,
-                       double varmax,
-                       int lagnb,
-                       int varnb,
-                       const NamingConvention& namconv)
+                           const VarioParam *varioparam,
+                           double lagmax,
+                           double varmax,
+                           int lagnb,
+                           int varnb,
+                           const NamingConvention& namconv)
 {
   if (FFFF(lagmax)) lagmax = db->getColumnSize();
   if (FFFF(varmax)) (void) variogram_cloud_dim(db, varioparam, &varmax);

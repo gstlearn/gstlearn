@@ -1,0 +1,36 @@
+# This "csh" script shows how to run a Jupyter-notebook(ipynb) test
+# and to store the result in a given directory
+#
+#!/bin/csh -f
+
+# Reference directory
+set command_location = `dirname $0`
+set DIR = $command_location/../..
+
+set nargs = $#argv
+if ($nargs < 1) then
+		echo "Run a Jupyter-notebook test"
+		echo "Syntax:"
+		echo "run_test_ipynb nametest [option]
+		echo "   nametest : Name of the test (e.g.: DnNaming.ipynb)
+		echo "   option   : must be either Debug or Release (default: Debug)
+		exit
+endif
+
+set nametest = $argv[1]
+set nametest = `basename $nametest .ipynb`
+
+if ($nargs > 1) then
+		set option = $argv[2]
+else
+		set option = "Debug"
+endif
+
+set nameref = $nametest.ipynb
+set namecmp = $nametest.html
+
+set FILEIN  = $DIR/tests/ipynb/$nameref
+#TODO. Next line is temporary until cmake command is adapted
+set FILEOUT = /tmp/$namecmp
+
+jupyter nbconvert $FILEIN --to html --no-prompt --log-level=WARN --output $FILEOUT

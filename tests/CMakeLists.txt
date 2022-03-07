@@ -1,7 +1,7 @@
 # Add 'build_tests' target for building all tests executable
 add_custom_target(build_tests)
 
-# Add 'check' target for building then running the tests executable
+# Add 'check' target for building then running the tests
 add_custom_target(check)
 
 # Define ctest command
@@ -18,7 +18,10 @@ add_subdirectory(data)
 add_subdirectory(cpp)
 add_subdirectory(inter)
 
+# TODO : Make these tests configuration / execution optional
+add_subdirectory(py)
+#add_subdirectory(ipynb)
+
 # TODO : tests are executed for each directory but mixed
-# TODO : there are two reports separated (data and cpp)
-add_dependencies(check check_cpp check_data)
-#add_dependencies(check check_data)
+# TODO : reports are separated
+add_dependencies(check check_cpp check_data check_py)

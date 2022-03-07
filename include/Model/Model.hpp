@@ -63,7 +63,7 @@ public:
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
-  void   addCova(const CovAniso* cov);
+  void   addCov(const CovAniso* cov);
   void   delCova(int rank);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
@@ -157,7 +157,7 @@ public:
 
   /////////////////////////////////////////////////
   /// Shortcut for Non-stationary
-  int isNoStat() const;
+  int  isNoStat() const;
   const ANoStat* getNoStat() const { return _noStat; }
   int  getNoStatElemNumber() const;
   int  addNoStatElem(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
@@ -215,8 +215,8 @@ public:
   double gofToVario(const Vario* vario);
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   void _clear();

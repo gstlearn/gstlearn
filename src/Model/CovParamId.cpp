@@ -131,6 +131,7 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
   sstr << " Str=" << _icov + 1;
   sstr << " V#1=" << _iv1  + 1;
   sstr << " V#2=" << _iv2  + 1;
+  sstr << std::endl;
 
   return sstr.str();
 }

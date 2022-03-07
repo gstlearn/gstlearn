@@ -145,7 +145,7 @@ VectorString generateMultipleNames(const String &radix, int number)
 }
 
 /**
- * Check that the name 'rank' is not conflicting with any previous name.
+ * Check that the names in 'list' are not conflicting with any previous name.
  * If it does, increment its name by a version number.
  * @param list
  * @return Number of items whose names are modified

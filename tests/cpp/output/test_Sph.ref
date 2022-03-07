@@ -1,0 +1,15 @@
+
+Testing the distance between two points
+---------------------------------------
+Angle = 23.096551
+
+Testing angles of a spherical triangle
+--------------------------------------
+a=40.642447 b=27.877212 c=12.913348 A=169.692741 B=7.379868 C=3.519647
+ratio=0.274707 ratiob=0.274707 ratioc=0.274707
+Perimeter = 81.433007
+Surface = 0.010337
+
+Covering half-sphere with spherical triangles
+---------------------------------------------
+Surface totale = 1.000001

@@ -1,0 +1,145 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 13
+Maximum Number of UIDs       = 13
+Total number of samples      = 120000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        400       300
+
+Data Base Extension
+-------------------
+Coor #1 - Min =      0.000 - Max =    399.000 - Ext = 399
+Coor #2 - Min =      0.000 - Max =    299.000 - Ext = 299
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =      1.000
+ Maximum value       = 120000.000
+ Mean value          =  60000.500
+ Standard Deviation  =  34641.016
+ Variance            = 1199999999.917
+2 - Name x1 - Locator x1
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =      0.000
+ Maximum value       =    399.000
+ Mean value          =    199.500
+ Standard Deviation  =    115.470
+ Variance            =  13333.250
+3 - Name x2 - Locator x2
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =      0.000
+ Maximum value       =    299.000
+ Mean value          =    149.500
+ Standard Deviation  =     86.602
+ Variance            =   7499.917
+4 - Name ncsimu1 - Locator ncsimu1
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.374
+ Maximum value       =      3.915
+ Mean value          =      0.113
+ Standard Deviation  =      1.112
+ Variance            =      1.236
+5 - Name ncsimu2 - Locator ncsimu2
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.583
+ Maximum value       =      3.578
+ Mean value          =     -0.434
+ Standard Deviation  =      1.023
+ Variance            =      1.047
+6 - Name ncsimu3 - Locator ncsimu3
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.940
+ Maximum value       =      3.621
+ Mean value          =     -0.135
+ Standard Deviation  =      1.121
+ Variance            =      1.257
+7 - Name ncsimu4 - Locator ncsimu4
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -4.507
+ Maximum value       =      3.292
+ Mean value          =     -0.467
+ Standard Deviation  =      1.200
+ Variance            =      1.441
+8 - Name ncsimu5 - Locator ncsimu5
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.473
+ Maximum value       =      3.511
+ Mean value          =      0.418
+ Standard Deviation  =      1.060
+ Variance            =      1.124
+9 - Name ncsimu6 - Locator ncsimu6
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -2.683
+ Maximum value       =      4.003
+ Mean value          =      0.220
+ Standard Deviation  =      1.071
+ Variance            =      1.147
+10 - Name ncsimu7 - Locator ncsimu7
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.626
+ Maximum value       =      2.544
+ Mean value          =     -0.214
+ Standard Deviation  =      1.009
+ Variance            =      1.019
+11 - Name ncsimu8 - Locator ncsimu8
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -3.130
+ Maximum value       =      6.445
+ Mean value          =     -0.113
+ Standard Deviation  =      1.169
+ Variance            =      1.366
+12 - Name ncsimu9 - Locator ncsimu9
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -4.163
+ Maximum value       =      7.264
+ Mean value          =      0.472
+ Standard Deviation  =      1.142
+ Variance            =      1.305
+13 - Name ncsimu10 - Locator ncsimu10
+ Nb of data          =     120000
+ Nb of active values =     120000
+ Minimum value       =     -5.354
+ Maximum value       =      3.838
+ Mean value          =     -0.146
+ Standard Deviation  =      1.227
+ Variance            =      1.505
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = ncsimu1 - Locator = ncsimu1
+Column = 4 - Name = ncsimu2 - Locator = ncsimu2
+Column = 5 - Name = ncsimu3 - Locator = ncsimu3
+Column = 6 - Name = ncsimu4 - Locator = ncsimu4
+Column = 7 - Name = ncsimu5 - Locator = ncsimu5
+Column = 8 - Name = ncsimu6 - Locator = ncsimu6
+Column = 9 - Name = ncsimu7 - Locator = ncsimu7
+Column = 10 - Name = ncsimu8 - Locator = ncsimu8
+Column = 11 - Name = ncsimu9 - Locator = ncsimu9
+Column = 12 - Name = ncsimu10 - Locator = ncsimu10

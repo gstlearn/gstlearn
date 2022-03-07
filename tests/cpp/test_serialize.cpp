@@ -16,6 +16,7 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
+#include "Basic/File.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -28,8 +29,12 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TS-");
 
@@ -51,15 +56,15 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Serialize db1
   (void) db1->dumpToNF("Neutral.Db.ascii",verbose);
-  (void) db1->dumpToNF2("Neutral2.Db.ascii",verbose);
+  (void) db1->dumpToNF("Neutral2.Db.ascii",verbose);
 
   // Deserialize db2
   Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
   db2->display();
   delete db2;
-  db2 = Db::createFromNF2("Neutral2.Db.ascii",verbose);
+  db2 = Db::createFromNF("Neutral2.Db.ascii",verbose);
   db2->display();
-  (void) db2->dumpToNF2("Neutral22.Db.ascii",verbose);
+  (void) db2->dumpToNF("Neutral22.Db.ascii",verbose);
 
   // =======================
   // Checking Db (grid)
@@ -111,7 +116,7 @@ int main(int /*argc*/, char */*argv*/[])
   DirParam dirparam(2, 10, 0.02);
   varioparam1.addDirs(dirparam);
   Vario vario1 = Vario(&varioparam1,db1);
-  vario1.compute("vg");
+  vario1.computeByKey("vg");
   vario1.display();
 
   // Serialize vario1

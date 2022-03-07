@@ -18,6 +18,9 @@
 class Db;
 class DbGrid;
 
+/**
+ * Experimental Variogram calculation direction parameters TODO : to be improved
+ */
 class GSTLEARN_EXPORT DirParam : public AStringable // TODO : Should inherit from ASpaceObject
 {
 public:

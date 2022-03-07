@@ -3718,7 +3718,7 @@ static void st_suppress_added_samples(Db *db, int nech)
 
   if (nech <= 0) return;
   for (iech = db->getSampleNumber() - 1; iech >= nech; iech--)
-    db->deleteSample(iech);
+    (void) db->deleteSample(iech);
   return;
 }
 
@@ -4468,7 +4468,7 @@ int simbipgs(Db *dbin,
 
       /* Allocate the covariance matrix inverted */
 
-      if (gibbs->covmatAlloc(0)) goto label_end;
+      if (gibbs->covmatAlloc(verbose)) goto label_end;
 
       // Core allocation
 

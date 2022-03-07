@@ -614,7 +614,7 @@ Coor #2 - Min =    500.000 - Max =    501.000 - Ext = 1
 
 Data Base Statistics
 --------------------
-1 - Name New-1 - Locator NA
+1 - Name Kriging.z1.estim - Locator z1
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      3.748
@@ -622,7 +622,7 @@ Data Base Statistics
  Mean value          =      6.786
  Standard Deviation  =      1.805
  Variance            =      3.259
-2 - Name New-2 - Locator NA
+2 - Name Kriging.z2.estim - Locator z2
  Nb of data          =          4
  Nb of active values =          4
  Minimum value       =      7.540
@@ -649,7 +649,7 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-                  New-1       New-2 *g.z1.stdev *g.z2.stdev
+            *g.z1.estim *g.z2.estim *g.z1.stdev *g.z2.stdev
      [  0,]       8.496      11.560       4.560       3.134
      [  1,]       7.450       9.933       4.496       3.090
      [  2,]       3.748       7.540       4.560       3.134

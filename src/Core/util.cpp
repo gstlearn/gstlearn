@@ -1099,10 +1099,10 @@ void ut_rotation_copy(int ndim,
  **
  *****************************************************************************/
 double ut_merge_extension(int ndim,
-                                          double *mini1,
-                                          double *maxi1,
-                                          double *mini2,
-                                          double *maxi2)
+                          double *mini1,
+                          double *maxi1,
+                          double *mini2,
+                          double *maxi2)
 {
   double delta, field, mini, maxi;
   int idim;
@@ -3327,9 +3327,7 @@ double ut_distance(int ndim, double *tab1, double *tab2)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-void ut_distance_allocated(int ndim,
-                                           double **tab1,
-                                           double **tab2)
+void ut_distance_allocated(int ndim, double **tab1, double **tab2)
 {
   if (DISTANCE_NDIM < ndim)
   {
@@ -4048,58 +4046,6 @@ int ut_icosphere(int n,
   return (0);
 }
 
-/****************************************************************************/
-/*!
- **   Convert RGB into numeric
- **
- ** \param[in]  red     Red index
- ** \param[in]  green   Green index
- ** \param[in]  blue    Blue index
- **
- ** \param[out] c       Numeric value
- **
- *****************************************************************************/
-void rgb2num(int red,
-                             int green,
-                             int blue,
-                             int /*a*/,
-                             unsigned char *c)
-{
-  double value;
-
-  value = (double) (red + green + blue) / 3.;
-
-  if (value < 0.) value = 0.;
-  if (value > 255.) value = 255.;
-  *c = (unsigned char) value;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Convert numeric to RGB
- **
- ** \param[in]   value   Input value
- **
- ** \param[out]  r     Red index
- ** \param[out]  g     Green index
- ** \param[out]  b     Blue index
- ** \param[out]  a     Transparency index
- **
- *****************************************************************************/
-void num2rgb(unsigned char value,
-                             int *r,
-                             int *g,
-                             int *b,
-                             int *a)
-{
-  *r = static_cast<int>((value >> 24) & 0xff);
-  *g = static_cast<int>((value >> 16) & 0xff);
-  *b = static_cast<int>((value >> 8) & 0xff);
-  *a = static_cast<int>((value) & 0xff);
-}
-
 /*****************************************************************************/
 /*!
  **  Check if Legendre external functions have been defined properly
@@ -4364,9 +4310,9 @@ int is_in_spherical_triangle(double *coor,
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<double> for storing an array of double
+ ** Create a VectorDouble for storing an array of double
  **
- ** \return The std::vector<double>
+ ** \return The VectorDouble
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  rtab      Array of double values to be loaded
@@ -4387,9 +4333,9 @@ VectorDouble util_set_array_double(int ntab, const double *rtab)
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<double> for storing an array of integer
+ ** Create a VectorInt for storing an array of integer
  **
- ** \return  The std::vector<int>
+ ** \return  The VectorInt
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  itab      Array of integer values to be loaded
@@ -4407,9 +4353,9 @@ VectorInt util_set_array_integer(int ntab, const int *itab)
 
 /****************************************************************************/
 /*!
- ** Create a std::vector<std::string> for storing an array of chars
+ ** Create a VectorString for storing an array of chars
  **
- ** \return  The std::vector<std::string>
+ ** \return  The VectorString
  **
  ** \param[in]  ntab      Number of samples
  ** \param[in]  names     Array of character values to be loaded

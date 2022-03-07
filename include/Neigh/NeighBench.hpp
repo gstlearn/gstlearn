@@ -46,8 +46,9 @@ public:
   void setWidth(double width) { _width = width; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+
 
 private:
   double _width;                 /* Width of the slice - bench */

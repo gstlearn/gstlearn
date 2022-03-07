@@ -61,32 +61,32 @@ AnamDiscreteDD::~AnamDiscreteDD()
 
 int AnamDiscreteDD::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteDD", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "AnamDiscreteDD", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 AnamDiscreteDD* AnamDiscreteDD::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteDD", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  AnamDiscreteDD* anam = new AnamDiscreteDD();
-  if (anam->_deserialize(file, verbose))
+  AnamDiscreteDD* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "AnamDiscreteDD", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete anam;
-    anam = nullptr;
+    anam = new AnamDiscreteDD();
+    if (anam->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return anam;
 }
 
@@ -602,43 +602,40 @@ VectorDouble AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
   return chi2i;
 }
 
-int AnamDiscreteDD::_serialize(FILE* file, bool verbose) const
+int AnamDiscreteDD::_serialize(std::ostream& os, bool verbose) const
 {
 
-  AnamDiscrete::_serialize(file, verbose);
+  if (AnamDiscrete::_serialize(os, verbose)) return 1;
 
-  _recordWrite(file, "%lf", getSCoef());
-  _recordWrite(file, "#", "Change of support coefficient");
-  _recordWrite(file, "%lf", getMu());
-  _recordWrite(file, "#", "Additional Mu coefficient");
-  _tableWrite(file, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2F().data());
-  _tableWrite(file, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z().data());
+  bool ret = _recordWrite<double>(os, "Change of support coefficient", getSCoef());
+  ret = ret && _recordWrite<double>(os, "Additional Mu coefficient", getMu());
+  ret = ret && _tableWrite(os, "PCA Z2Y", getNCut() * getNCut(), getPcaZ2F());
+  ret = ret && _tableWrite(os, "PCA Y2Z", getNCut() * getNCut(), getPcaF2Z());
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
-int AnamDiscreteDD::_deserialize(FILE* file, bool verbose)
+int AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
 {
   VectorDouble pcaf2z, pcaz2f;
   double s = TEST;
   double mu = TEST;
 
-  if (AnamDiscrete::_deserialize(file, verbose)) goto label_end;
+  if (! AnamDiscrete::_deserialize(is, verbose)) return 1;
 
-  if (_recordRead(file, "Anamorphosis 's' coefficient", "%lf", &s))
-    goto label_end;
-  if (_recordRead(file, "Anamorphosis 'mu' coefficient", "%lf", &mu))
-    goto label_end;
+  bool ret = _recordRead<double>(is, "Anamorphosis 's' coefficient", s);
+  ret = ret && _recordRead<double>(is, "Anamorphosis 'mu' coefficient", mu);
+  if (! ret) return 1;
   pcaz2f.resize(getNCut() * getNCut());
   pcaf2z.resize(getNCut() * getNCut());
-  if (_tableRead(file, getNCut() * getNCut(), pcaz2f.data())) goto label_end;
-  if (_tableRead(file, getNCut() * getNCut(), pcaf2z.data())) goto label_end;
+
+  if (_tableRead(is, getNCut() * getNCut(), pcaz2f.data())) return 1;
+  if (_tableRead(is, getNCut() * getNCut(), pcaf2z.data())) return 1;
 
   setSCoef(s);
   setMu(mu);
   setPcaF2Z(pcaf2z);
   setPcaZ2F(pcaz2f);
 
-  label_end:
   return 0;
 }

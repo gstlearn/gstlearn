@@ -22,6 +22,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
+#include "Space/ASpaceObject.hpp"
 
 /****************************************************************************
 **
@@ -135,7 +136,7 @@ int main(int argc, char *argv[])
   if (vario != nullptr)
   {
     vario->attachDb(dbin);
-    vario->compute("vg");
+    vario->computeByKey("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
     if (vario->dumpToNF(filename,verbose))

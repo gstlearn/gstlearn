@@ -49,7 +49,7 @@ public:
   static NeighMoving* create(int ndim,
                              bool flag_xvalid,
                              int nmaxi,
-                             double radius,
+                             double radius = TEST,
                              int nmini = 1,
                              int nsect = 1,
                              int nsmax = ITEST,
@@ -84,8 +84,8 @@ public:
   void setRadius(double radius) { _radius = radius; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   int _flagSector;               /* 1 if MOVING neigh. used sector search */

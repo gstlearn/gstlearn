@@ -15,7 +15,9 @@
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -28,6 +30,11 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   int error = 1; //TODO : temporary fail
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
@@ -69,7 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
   std::vector<DirParam> dirparamP = generateMultipleDirs(ndim, 2, nlag, 0.5 / nlag);
   varioparamP.addMultiDirs(dirparamP);
   Vario variop = Vario(&varioparamP,db);
-  variop.compute("vg");
+  variop.computeByKey("vg");
   variop.display();
   message("Maximum Variogram Value = %lf\n",variop.getGmax());
 
@@ -88,7 +95,7 @@ int main(int /*argc*/, char */*argv*/[])
   std::vector<DirParam> dirparamG = generateMultipleGridDirs(ndim, nlag);
   varioparamG.addMultiDirs(dirparamG);
   Vario variog = Vario(&varioparamG, grid);
-  variog.compute("vg",true);
+  variog.computeByKey("vg",true);
   variog.display();
 
   // ==========================================
@@ -103,7 +110,8 @@ int main(int /*argc*/, char */*argv*/[])
   // =================================
 
   Db* vmapG = db_vmap_compute(grid, ECalcVario::VARIOGRAM);
-  vmapG->display();
+  DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
+  vmapG->display(&dbfmt);
 
   delete db;
   delete grid;

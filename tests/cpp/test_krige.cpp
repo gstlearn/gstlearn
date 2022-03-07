@@ -11,12 +11,15 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Neigh/NeighMoving.hpp"
 
 /****************************************************************************/
 /*!
@@ -24,14 +27,20 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Global parameters
   int ndim = 2;
   int nvar = 1;
+  law_set_random_seed(32131);
 
   setup_license("Demonstration");
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid
   VectorInt nx = {100,100};
@@ -40,48 +49,51 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate the data base
   int nech = 100;
-  VectorDouble tab;
   // Coordinates
-  for (int idim=0; idim<ndim; idim++)
-    for (int iech=0; iech<nech; iech++)
-    {
-      tab.push_back(law_uniform(0,100));
-    }
+  VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 100.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
     for (int iech=0; iech<nech; iech++)
-    {
       tab.push_back(10 * law_gaussian());
-    }
 
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
-  data->setNameByUID(1,"xcoor1");
-  data->setNameByUID(2,"xcoor2");
-  data->setNameByUID(3,"var");
+  data->setNameByUID(1,"x1");
+  data->setNameByUID(2,"x2");
+  data->setNameByUID(3,"Var");
   data->setLocatorByUID(1,ELoc::X,0);
   data->setLocatorByUID(2,ELoc::X,1);
   data->setLocatorByUID(3,ELoc::Z);
-  data->display();
+  data->display(&dbfmt);
 
   // Create the Model
   CovContext ctxt(nvar); // use default space
-  Model model(ctxt);
+  Model* model = Model::create(ctxt);
   CovLMC covs(ctxt.getSpace());
-  CovAniso cova(ECov::SPHERICAL, 5., 0., 45, ctxt);
+  CovAniso cova(ECov::SPHERICAL, 80., 0., 45., ctxt);
   covs.addCov(&cova);
-  model.setCovList(&covs);
-  model.display();
+  model->setCovList(&covs);
+  model->setMean(0,123.);
+  model->display();
 
   // Creating a Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim,false);
-  neighU->display();
+  // NeighUnique* neigh = NeighUnique::create(ndim,false);
+  NeighMoving* neigh = NeighMoving::create(ndim, false, 100);
+  neigh->display();
 
-  // Launch kriging
-  kriging(data, grid, &model, neighU);
+  // Launch Kriging
+  data->setLocatorByUID(3,ELoc::Z);
+  kriging(data, grid, model, neigh);
+  grid->display(&dbfmt);
+
+  // Launch Cross-Validation
+  data->setLocatorByUID(3,ELoc::Z);
+  xvalid(data, model, neigh, 0, -1, -1);
+  data->display(&dbfmt);
 
   delete data;
   delete grid;
-  delete neighU;
+  delete neigh;
+  delete model;
 
   return (0);
 }

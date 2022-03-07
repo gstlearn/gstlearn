@@ -78,7 +78,7 @@ Coor #2 - Min =      0.000 - Max =     99.000 - Ext = 99
 
 Data Base Statistics
 --------------------
-1 - Name ncsimu1 - Locator ncsimu1
+1 - Name Simu.z1.1 - Locator z1
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.084
@@ -86,7 +86,7 @@ Data Base Statistics
  Mean value          =      4.988
  Standard Deviation  =      1.021
  Variance            =      1.043
-2 - Name ncsimu2 - Locator ncsimu2
+2 - Name Simu.z1.2 - Locator z2
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.076
@@ -94,7 +94,7 @@ Data Base Statistics
  Mean value          =      5.067
  Standard Deviation  =      1.049
  Variance            =      1.101
-3 - Name ncsimu3 - Locator ncsimu3
+3 - Name Simu.z1.3 - Locator z3
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.252
@@ -102,7 +102,7 @@ Data Base Statistics
  Mean value          =      4.892
  Standard Deviation  =      1.008
  Variance            =      1.016
-4 - Name ncsimu4 - Locator ncsimu4
+4 - Name Simu.z1.4 - Locator z4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.769
@@ -110,7 +110,7 @@ Data Base Statistics
  Mean value          =      5.381
  Standard Deviation  =      1.072
  Variance            =      1.150
-5 - Name ncsimu5 - Locator ncsimu5
+5 - Name Simu.z1.5 - Locator z5
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      0.808
@@ -121,7 +121,7 @@ Data Base Statistics
 
 Data Base Contents
 ------------------
-              ncsimu1   ncsimu2   ncsimu3   ncsimu4   ncsimu5
+            Simu.z1.1 Simu.z1.2 Simu.z1.3 Simu.z1.4 Simu.z1.5
      [  0,]     5.534     5.373     4.855     5.063     4.980
      [  1,]     5.077     5.723     5.448     5.098     5.161
      [  2,]     4.892     4.703     5.066     4.696     5.198

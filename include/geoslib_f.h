@@ -60,15 +60,12 @@ GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 /*********************/
 
 GSTLEARN_EXPORT int csv_manage(const char *filename,
+                               const CSVformat& csv,
                                int mode,
                                int nitem,
                                bool flag_integer = 0,
-                               const char *char_sep = ",",
-                               const char *na_string = "NA",
                                bool verbose = false);
-GSTLEARN_EXPORT void csv_print_string(const char *string);
 GSTLEARN_EXPORT void csv_print_double(double value);
-GSTLEARN_EXPORT void csv_print_eol(void);
 
 /***************************/
 /* Functions for Data Base */
@@ -175,12 +172,12 @@ GSTLEARN_EXPORT int variogram_cloud(const Db *db,
                                     DbGrid *dbgrid,
                                     const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT DbGrid* db_variogram_cloud(Db *db,
-                                       const VarioParam *varioparam,
-                                       double lagmax = TEST,
-                                       double varmax = TEST,
-                                       int lagnb = 100,
-                                       int varnb = 100,
-                                       const NamingConvention& namconv = NamingConvention("Cloud"));
+                                           const VarioParam *varioparam,
+                                           double lagmax = TEST,
+                                           double varmax = TEST,
+                                           int lagnb = 100,
+                                           int varnb = 100,
+                                           const NamingConvention& namconv = NamingConvention("Cloud"));
 GSTLEARN_EXPORT void variogram_print(const Vario *vario);
 GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,
@@ -324,6 +321,18 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  int opt_code = 0,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", ELoc::SEL));
+GSTLEARN_EXPORT int kriging_old(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            ANeighParam *neighparam,
+                            const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
+                            int flag_est = 1,
+                            int flag_std = 1,
+                            int flag_varz = 0,
+                            VectorInt ndisc = VectorInt(),
+                            VectorInt rank_colcok = VectorInt(),
+                            VectorVectorDouble matCL = VectorVectorDouble(),
+                            const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
@@ -334,8 +343,17 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             int flag_varz = 0,
                             VectorInt ndisc = VectorInt(),
                             VectorInt rank_colcok = VectorInt(),
-                            VectorDouble matCL = VectorDouble(),
+                            VectorVectorDouble matCL = VectorVectorDouble(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
+GSTLEARN_EXPORT int xvalid_old(Db *db,
+                           Model *model,
+                           ANeighParam *neighparam,
+                           int flag_code = 0,
+                           int flag_est = 1,
+                           int flag_std = 1,
+                           int flag_varz = 0,
+                           VectorInt rank_colcok = VectorInt(),
+                           const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,
@@ -412,24 +430,18 @@ GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 int ngibbs_int,
                                 int verbose,
                                 double percent);
-GSTLEARN_EXPORT Db* db_read_csv(const char *file_name,
+GSTLEARN_EXPORT Db* db_read_csv(const char *filename,
+                                const CSVformat& csvfmt,
                                 int verbose = 0,
-                                int flag_header = 1,
-                                int nskip = 0,
-                                char char_sep = ',',
-                                char char_dec = '.',
-                                const char *na_string = "NA",
                                 int ncol_max = -1,
                                 int nrow_max = -1,
                                 int flag_add_rank = 0);
 GSTLEARN_EXPORT int db_write_csv(Db *db,
                                  const char *filename,
-                                 int flag_header = 1,
+                                 const CSVformat& csv,
                                  int flag_allcol = 1,
                                  int flag_coor = 1,
-                                 bool flag_integer = false,
-                                 const char *char_sep = ",",
-                                 const char *na_string = "NA");
+                                 bool flag_integer = false);
 GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            DbGrid *dbout,
                                            Model *model,

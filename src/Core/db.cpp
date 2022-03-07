@@ -971,42 +971,45 @@ void db_sample_print(Db *db,
                      int flag_nvar,
                      int flag_nerr)
 {
-  int idim, ivar, ierr;
-  double value;
-
   message("Sample #%d (from %d)\n", iech + 1, db->getSampleNumber());
   if (flag_ndim)
-    for (idim = 0; idim < db->getNDim(); idim++)
+  {
+    for (int idim = 0; idim < db->getNDim(); idim++)
     {
-      value = db->getCoordinate(iech, idim);
+      double value = db->getCoordinate(iech, idim);
       if (FFFF(value))
         message("Coordinate #%d = NA\n", idim + 1);
       else
         message("Coordinate #%d = %lf\n", idim + 1,
                 db->getCoordinate(iech, idim));
     }
-  if (flag_nvar) for (ivar = 0; ivar < db->getVariableNumber(); ivar++)
+  }
+  if (flag_nvar)
   {
-    value = db->getVariable(iech, ivar);
-    if (FFFF(value))
-      message("Variable   #%d = NA\n", ivar + 1);
-    else
-      message("Variable   #%d = %lf\n", ivar + 1, db->getVariable(iech, ivar));
+    for (int ivar = 0; ivar < db->getVariableNumber(); ivar++)
+    {
+      double value = db->getVariable(iech, ivar);
+      if (FFFF(value))
+        message("Variable   #%d = NA\n", ivar + 1);
+      else
+        message("Variable   #%d = %lf\n", ivar + 1, db->getVariable(iech, ivar));
+    }
   }
   if (flag_nerr)
-    for (ierr = 0; ierr < db->getVarianceErrorNumber(); ierr++)
+  {
+    for (int ierr = 0; ierr < db->getVarianceErrorNumber(); ierr++)
     {
-      value = db->getVarianceError(iech, ierr);
+      double value = db->getVarianceError(iech, ierr);
       if (FFFF(value))
         message("Variance   #%d = NA\n", ierr + 1);
       else
         message("Variance   #%d = %lf\n", ierr + 1,
                 db->getVarianceError(iech, ierr));
     }
-
+  }
   if (db->hasCode())
   {
-    value = db->getCode(iech);
+    double value = db->getCode(iech);
     if (FFFF(value))
       message("Code          = NA\n");
     else
@@ -1054,7 +1057,6 @@ void db_print(Db *db,
   DbStringFormat dbfmt(params);
   dbfmt.setCols(ut_ivector_set(ranks, nrank));
   db->display(&dbfmt);
-
   return;
 }
 
@@ -1075,7 +1077,7 @@ void db_print(Db *db,
  **                        (Dimension = get_NDIM(db))
  **
  *****************************************************************************/
-int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
+int db_extension(const Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 {
   double vmin, vmax, diff, mean, stdv;
   int nval;
@@ -1101,12 +1103,15 @@ int db_extension(Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
 
   /* Copy to the returned arguments */
 
-  if (mini_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    mini_arg[idim] = mini[idim];
-  if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    maxi_arg[idim] = maxi[idim];
-  if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    delta_arg[idim] = delta[idim];
+  if (mini_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      mini_arg[idim] = mini[idim];
+  if (maxi_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      maxi_arg[idim] = maxi[idim];
+  if (delta_arg != nullptr)
+    for (int idim = 0; idim < ndim; idim++)
+      delta_arg[idim] = delta[idim];
 
   return 0;
 }

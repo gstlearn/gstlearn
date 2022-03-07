@@ -12,6 +12,9 @@
 
 #include "Enum/AEnum.hpp"
 
+/**
+ * TODO : Documentation
+ */
 #define ENUM_CALC_VARIO ECalcVario, UNDEFINED,\
                         UNDEFINED,    -1, "Undefined",\
                         VARIOGRAM,     0, "Variogram",\

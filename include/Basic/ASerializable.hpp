@@ -15,6 +15,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
 
 #include <iostream>
 #include <stdarg.h>
@@ -31,7 +32,8 @@ public:
 
   static String buildFileName(const String& filename, bool ensureDirExist = false);
 
-  static String getHomeDirectory(const std::string& sub = "");
+  static String getHomeDirectory(const String& sub = "");
+  static String getWorkingDirectory();
   static String getTestData(const String& subdir, const String& filename);
   static String getFileIdentity(const String& filename);
   static void setContainerName(bool useDefault,
@@ -49,129 +51,150 @@ public:
   static String getDirectory(const String& path);
 
 protected:
-  //virtual int _deserialize2(std::istream& s, bool verbose = false);
-  //virtual int _serialize2(std::ostream& s,bool verbose = false) const;
+  virtual int _deserialize(std::istream& s, bool verbose = false) = 0;
+  virtual int _serialize(std::ostream& s,bool verbose = false) const = 0;
 
-  static bool _fileOpenWrite2(const String& filename,
+  static bool _fileOpenWrite(const String& filename,
                               const String& filetype,
                               std::ofstream& os,
                               bool verbose = false);
-  static bool _fileOpenRead2(const String& filename,
+  static bool _fileOpenRead(const String& filename,
                              const String& filetype,
                              std::ifstream& is,
                              bool verbose = false);
 
-  static bool _commentWrite2(std::ostream& os,
+  static bool _commentWrite(std::ostream& os,
                              const String& comment);
-  template <class T>
-  static bool _recordWrite2(std::ostream& os,
+  template <typename T>
+  static bool _recordWrite(std::ostream& os,
                             const String& title,
                             const T& val);
-  template <class T>
-  static bool _recordWriteVec2(std::ostream& os,
+  template <typename T>
+  static bool _recordWriteVec(std::ostream& os,
                                const String& title,
-                               const T& vec);
+                               const std::vector<T>& vec);
 
-  template <class T>
-  static bool _recordRead2(std::istream& is,
+  template <typename T>
+  static bool _recordRead(std::istream& is,
                            const String& title,
                            T& val);
-  template <class T>
-  static bool _recordReadVec2(std::istream& is,
+  template <typename T>
+  static bool _recordReadVec(std::istream& is,
                               const String& title,
-                              T& vec);
+                              std::vector<T>& vec);
 
-
-  virtual int _deserialize(FILE* file, bool verbose = false) = 0;
-  virtual int _serialize(FILE* file, bool verbose = false) const = 0;
-
-  static FILE* _fileOpen(const String& filename,
-                         const String& filetype,
-                         const String& mode,
-                         bool verbose = false);
-  static int _fileClose(FILE* file, bool verbose = false);
-  static int _recordRead(FILE* file,
-                         const char* title,
-                         const char* format, ...);
-  static void _recordWrite(FILE* file, const char* format, ...);
-  static void _tableWrite(FILE *file, const String& string, int ntab, const double *tab);
-  static int  _tableRead(FILE* file, int ntab, double *tab);
-  static int _fileRead(FILE* file, const String& format, va_list ap);
-  static void _fileWrite(FILE* file, const String& format, va_list ap);
   static bool _onlyBlanks(char *string);
+
+  static int  _tableRead(std::istream& is, int ntab, double *tab);
+  static bool _tableWrite(std::ostream& os,
+                           const String& string,
+                           int ntab,
+                           const VectorDouble& tab);
 
 private:
   static String myContainerName;
   static String myPrefixName;
 };
 
-template <class T>
-bool ASerializable::_recordWrite2(std::ostream& os,
+template <typename T>
+bool ASerializable::_recordWrite(std::ostream& os,
                                   const String& title,
                                   const T& val)
 {
   if (os.good())
   {
-    os << val << " # " << title << std::endl;
+    if (isNA<T>(val))
+    {
+      if (title.empty())
+         os << STRING_NA << " ";
+       else
+         os << STRING_NA << " # " << title << std::endl;
+    }
+    else
+    {
+      if (title.empty())
+        os << val << " ";
+      else
+        os << val << " # " << title << std::endl;
+    }
   }
   return os.good();
 }
 
-template <class T>
-bool ASerializable::_recordWriteVec2(std::ostream& os,
+template <typename T>
+bool ASerializable::_recordWriteVec(std::ostream& os,
                                      const String& title,
-                                     const T& vec)
+                                     const std::vector<T>& vec)
 {
   if (os.good())
   {
     if (!title.empty())
       os << "# " << title << std::endl;
     for (auto val: vec)
-      os << val << " ";
+    {
+      if (isNA<T>(val))
+        os << STRING_NA << " ";
+      else
+        os << val << " ";
+    }
     os << std::endl;
   }
   return os.good();
 }
 
-template <class T>
-bool ASerializable::_recordRead2(std::istream& is,
+template <typename T>
+bool ASerializable::_recordRead(std::istream& is,
                                  const String& title,
                                  T& val)
 {
   val = T();
   if (is.good())
   {
-    String line;
+    String word;
     // Skip comment or empty lines
     while (is.good())
     {
-      std::getline(is, line);
+      word.clear();
+      is >> word;
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title);
+        messerr("Error while reading %s", title.c_str());
         return false;
       }
-      line = trimLeft(line);
-      if (!line.empty() && line[0] != '#')
-        break;
+      word = trim(word);
+      if (!word.empty())
+      {
+        if (word == STRING_NA) break;   // We found NA
+        else if (word[0] != '#') break; // We found something
+        else std::getline(is, word);    // We found comment, eat all the line
+      }
     }
-    // Decode the line
-    std::stringstream sstr(line);
-    sstr >> val;
-    if (!sstr.good() && !sstr.eof())
+
+    if (word == STRING_NA)
     {
-      message("Error while reading %s", title);
-      val = T();
-      return false;
+      // Get NA value
+      val = getNAValue<T>();
+    }
+    else
+		{
+      // Decode the line
+      std::stringstream sstr(word);
+      sstr >> val;
+      if (!sstr.good() && !sstr.eof())
+      {
+        messerr("Error while reading %s", title.c_str());
+        val = T();
+        return false;
+      }
     }
   }
   return is.good();
 }
 
-template <class T>
-bool ASerializable::_recordReadVec2(std::istream& is,
+template <typename T>
+bool ASerializable::_recordReadVec(std::istream& is,
                                     const String& title,
-                                    T& vec)
+                                    std::vector<T>& vec)
 {
   vec.clear();
   if (is.good())
@@ -183,26 +206,40 @@ bool ASerializable::_recordReadVec2(std::istream& is,
       std::getline(is, line);
       if (!is.good() && !is.eof())
       {
-        message("Error while reading %s", title);
+        messerr("Error while reading %s", title.c_str());
         return false;
       }
-      line = trimLeft(line);
+      line = trim(line);
       if (!line.empty() && line[0] != '#')
-        break;
+        break; // We found something
     }
     // Decode the line
     std::stringstream sstr(line);
     while (sstr.good())
     {
-      typename T::value_type val;
-      sstr >> val;
+      String word;
+      sstr >> word;
       if (!sstr.good() && !sstr.eof())
       {
-        message("Error while reading %s", title);
+        messerr("Error while reading %s", title.c_str());
         vec.clear();
         return false;
       }
-      if (sstr.good()) vec.push_back(val);
+      word = trim(word);
+      if (word.empty()) continue;
+      T val;
+      if (word == STRING_NA)
+      {
+        // Get NA value
+        val = getNAValue<T>();
+      }
+      else
+      {
+        // Decode the value
+        std::stringstream sword(word);
+        sword >> val;
+      }
+      vec.push_back(val);
     }
   }
   return is.good();

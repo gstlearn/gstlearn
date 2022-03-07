@@ -1,0 +1,36 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 102
+
+Data Base Extension
+-------------------
+Coor #1 - Min =    109.850 - Max =    143.010 - Ext = 33.16
+Coor #2 - Min =    483.660 - Max =    513.040 - Ext = 29.38
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = X - Locator = x1
+Column = 2 - Name = Y - Locator = x2
+Column = 3 - Name = Zn - Locator = z1
+Column = 4 - Name = Pb - Locator = NA
+
+Look for duplicates
+-------------------
+Sample 49 too close to sample 48
+Sample #49 (from 102)
+Coordinate #1 = 110.120000
+Coordinate #2 = 486.730000
+Sample #48 (from 102)
+Coordinate #1 = 110.320000
+Coordinate #2 = 487.010000
+
+- Count of masked samples = 1

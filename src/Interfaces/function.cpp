@@ -30,7 +30,7 @@ VectorDouble range(int n)
 //                                            int ldmax,
 //                                            VectorDouble dmax)
 //{
-//  std::vector<double> vec(db_point.getNSamples());
+//  VectorDouble vec(db_point.getNSamples());
 //  std::string new_name = name + std::string("_migrate");
 //  Db *db = db_grid.toGeoslib();
 //
@@ -47,7 +47,7 @@ VectorDouble range(int n)
 //                                            int ldmax,
 //                                            VectorDouble dmax)
 //{
-//  std::vector<double> vec(db_grid.getGridSize());
+//  VectorDouble vec(db_grid.getGridSize());
 //  std::string new_name = name + std::string("_migrate");
 //  Db *dbp = db_point.toGeoslib();
 //
@@ -64,7 +64,7 @@ VectorDouble range(int n)
 //                                           int ldmax,
 //                                           VectorDouble dmax)
 //{
-//  std::vector<double> vec(dbgout.getGridSize());
+//  VectorDouble vec(dbgout.getGridSize());
 //  std::string new_name = name + std::string("_migrate");
 //  Db *dbin = dbgin.toGeoslib();
 //

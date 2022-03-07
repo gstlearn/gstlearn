@@ -55,13 +55,11 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
   VectorDouble tab;
   int skipnline = pcsv.getSkipNLines();
   String filename = pcsv.getFilePath();
-  char sepchar = pcsv.getSeparatorChar();
-  char decchar = pcsv.getDecimalChar();
+  CSVformat csvfmt(pcsv.getUseHeader(), skipnline, pcsv.getSeparatorChar(),
+                   pcsv.getDecimalChar(), "MISS");
 
   //read content from csv
-  if (csv_table_read(filename, 1, pcsv.getUseHeader(), skipnline,
-                     sepchar, decchar, "MISS", -1, -1,
-                     &ncol_arg, &nrow_arg, names, tab) != 0)
+  if (csv_table_read(filename, csvfmt, 1, -1, -1, &ncol_arg, &nrow_arg, names, tab) != 0)
   {
     // Error, create empty database
     std::cout << "Cannot open csv file!" << std::endl;
@@ -635,7 +633,7 @@ Db* Database::toGeoslib() const
   VectorDouble vec;
   VectorDouble v;
   int irole, jrole, iatt = 0;
-  std::vector<VectorDouble> vec_role(ERoles::getSize());
+  VectorVectorDouble vec_role(ERoles::getSize());
 
   // Concatenate all column in one vector
   for (const auto& var : _vars)
@@ -813,7 +811,7 @@ bool Database::serialize(const String& file_name) const
       // Get size of each dimension
       VectorInt nx = _pgrid.getNx();
       int ndim = nx.size();
-      std::vector<int> dim_size(ndim);
+      VectorInt dim_size(ndim);
       for (int i = 0; i < ndim; i++)
       {
         dim_size[i] = nx[i];

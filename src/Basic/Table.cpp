@@ -55,17 +55,15 @@ int Table::resetFromArray(const VectorVectorDouble& table)
 
 int Table::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "Table", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "Table", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 Table* Table::create(int nrows, int ncols)
@@ -75,20 +73,22 @@ Table* Table::create(int nrows, int ncols)
 
 Table* Table::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "Table", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Table* table = new Table();
-  if (table->_deserialize(file, verbose))
+  Table* table = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "Table", is, verbose))
   {
-    messerr("Problem reading the Neutral File");
-    delete table;
-    _fileClose(file, verbose);
-    return nullptr;
+    table = new Table();
+    if (table->_deserialize(is, verbose))
+    {
+      messerr("Problem reading the Neutral File");
+      delete table;
+      table = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return table;
 }
+
 
 Table* Table::createFromArray(const VectorVectorDouble& tabin)
 {
@@ -189,14 +189,10 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-int Table::_serialize(FILE* file, bool /*verbose*/) const
+int Table::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  /* Writing the header */
-
-  _recordWrite(file, "%d", getColNumber());
-  _recordWrite(file, "#", "Number of Columns");
-  _recordWrite(file, "%d", getRowNumber());
-  _recordWrite(file, "#", "Number of Rows");
+  bool ret = _recordWrite<int>(os, "Number of Columns", getColNumber());
+  ret = ret && _recordWrite<int>(os, "Number of Rows", getRowNumber());
 
   /* Writing the tail of the file */
 
@@ -204,21 +200,21 @@ int Table::_serialize(FILE* file, bool /*verbose*/) const
   {
     for (int icol = 0; icol < getColNumber(); icol++)
     {
-      _recordWrite(file, "%lf", _stats[icol][irow]);
+      ret = ret && _recordWrite<double>(os, "", _stats[icol][irow]);
     }
-   _recordWrite(file, "\n");
+   _commentWrite(os, "");
   }
   return 0;
 }
 
-int Table::_deserialize(FILE* file, bool /*verbose*/)
+int Table::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ncols, nrows;
   double value;
 
-  int error = 1;
-  if (_recordRead(file, "Number of Columns", "%d", &ncols)) goto label_end;
-  if (_recordRead(file, "Number of Rows", "%d", &nrows)) goto label_end;
+  bool ret = _recordRead<int>(is, "Number of Columns", ncols);
+  ret = ret && _recordRead<int>(is, "Number of Rows", nrows);
+  if (! ret) return 1;
 
   _stats.clear();
   _stats.resize(ncols);
@@ -229,17 +225,13 @@ int Table::_deserialize(FILE* file, bool /*verbose*/)
   {
     for (int icol = 0; icol < ncols; icol++)
     {
-      if (_recordRead(file, "Numerical value", "%lf", &value)) goto label_end;
-      _stats[icol].push_back(value);
+      ret = ret && _recordRead<double>(is, "Numerical value", value);
+      if (ret) _stats[icol].push_back(value);
     }
   }
-
-  error = 0;
-
-  label_end:
-  if (error) _stats.clear();
-  return error;
+  return 0;
 }
+
 
 /**
  * Print the contents of the statistics

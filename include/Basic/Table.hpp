@@ -58,8 +58,8 @@ public:
   void plot(int isimu) const;
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   bool _isColValid(int icol) const;

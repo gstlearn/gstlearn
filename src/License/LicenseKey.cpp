@@ -119,7 +119,7 @@ void LicenseKey::messageLicenseInvalid(void)
 
   // Get the activation codes
 
-  std::vector<std::string> all_codes = LicenseUtility::get_activation_code();
+  VectorString all_codes = LicenseUtility::get_activation_code();
   if (all_codes.size() <= 0)
   {
     // Print network interface error
@@ -259,13 +259,13 @@ bool LicenseKey::checkLicenseFromKey(const std::string & lic_key)
   else
   {
     // Read the list of possible activation codes 
-    std::vector<std::string> all_codes = LicenseUtility::get_activation_code();
+    VectorString all_codes = LicenseUtility::get_activation_code();
     if (all_codes.size() <= 0) 
       return false;
 
     // Test each activation code
     md5_state_t state_ref = state;
-    std::vector<std::string>::const_iterator it = all_codes.begin();
+    VectorString::const_iterator it = all_codes.begin();
     while (it != all_codes.end()) 
     {
       state = state_ref;
@@ -571,14 +571,14 @@ bool LicenseKey::isAuthorized(const std::string& feature)
     return false;
   }
 
-  std::vector<std::string> features = _featureTable[_targetName];
+  VectorString features = _featureTable[_targetName];
   if (features.empty())
   {
     messerr("\n---> Target \'%s\' is not registered!\n", _targetName.c_str());
     return false;
   }
   
-  std::vector<std::string>::const_iterator iter = features.begin();
+  VectorString::const_iterator iter = features.begin();
   while (iter < features.end())
   {
     // If the feature names are equal

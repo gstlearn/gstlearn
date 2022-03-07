@@ -20,6 +20,9 @@
 class Db;
 class Model;
 
+/**
+ * Experimental Variogram calculation parameters TODO : to be improved
+ */
 class GSTLEARN_EXPORT VarioParam : public AStringable, public IClonable
 {
 public:

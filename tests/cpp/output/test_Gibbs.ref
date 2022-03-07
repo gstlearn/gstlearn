@@ -1,0 +1,83 @@
+
+Entering in Gibbs algorithm with niter=10000 and ncolor=7
+---------------------------------------------------------
+Iteration 0
+Iteration 1000
+Iteration 2000
+Iteration 3000
+Iteration 4000
+Iteration 5000
+Iteration 6000
+Iteration 7000
+Iteration 8000
+Iteration 9000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =   1.000000
+ Maximum value       = 10000.000000
+ Mean value          = 5000.500000
+ Standard Deviation  = 2886.751332
+ Variance            = 8333333.250000
+2 - Name x1 - Locator x1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =   0.000000
+ Maximum value       =  99.000000
+ Mean value          =  49.500000
+ Standard Deviation  =  28.866070
+ Variance            = 833.250000
+3 - Name x2 - Locator x2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =   0.000000
+ Maximum value       =  99.000000
+ Mean value          =  49.500000
+ Standard Deviation  =  28.866070
+ Variance            = 833.250000
+4 - Name ncsimu1 - Locator ncsimu1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -2.852956
+ Maximum value       =   3.339672
+ Mean value          =   0.001249
+ Standard Deviation  =   1.205934
+ Variance            =   1.454278
+5 - Name ncsimu2 - Locator ncsimu2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -1.876082
+ Maximum value       =   3.841615
+ Mean value          =   0.889248
+ Standard Deviation  =   1.056329
+ Variance            =   1.115831
+6 - Name z1 - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -2.634256
+ Maximum value       =   3.240264
+ Mean value          =   0.228610
+ Standard Deviation  =   0.994861
+ Variance            =   0.989748
+7 - Name lower1 - Locator lower1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -2.852956
+ Maximum value       =   2.721048
+ Mean value          =  -0.245552
+ Standard Deviation  =   1.077077
+ Variance            =   1.160096
+8 - Name upper1 - Locator upper1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =  -1.230756
+ Maximum value       =   3.841615
+ Mean value          =   1.136048
+ Standard Deviation  =   0.921887
+ Variance            =   0.849876

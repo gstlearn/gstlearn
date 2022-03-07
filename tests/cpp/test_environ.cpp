@@ -7,9 +7,15 @@
 #include "Basic/OptCustom.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/File.hpp"
 
 int main(int argc,char **argv)
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Management of OptDbg
   mestitle(0,"Checking 'OptDbg' functionalities");
   OptDbg::define(EDbg::NBGH);
@@ -19,9 +25,9 @@ int main(int argc,char **argv)
 
   // Management of OptCst
   mestitle(0,"Checking 'OptCst' functionalities");
-  VectorDouble vect = ut_vector_simulate_gaussian(20);
-  message("Vector size is: %d\n", vect.size());
   OptCst::display();
+
+  VectorDouble vect = ut_vector_simulate_gaussian(20);
   message("\n");
   ut_vector_display("Vector Display (initial)", vect);
 

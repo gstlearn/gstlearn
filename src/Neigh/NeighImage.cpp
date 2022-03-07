@@ -73,38 +73,40 @@ String NeighImage::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighImage::_deserialize(FILE* file, bool verbose)
+int NeighImage::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize(file, verbose))
+  if (ANeighParam::_deserialize(is, verbose))
   {
     if (verbose)
       messerr("Problem reading from the Neutral File.");
     return 1;
   }
 
-  if (_recordRead(file, "Skipping factor", "%d", &_skip)) return 1;
+  bool ret = _recordRead<int>(is, "Skipping factor", _skip);
   for (int idim = 0; idim < getNDim(); idim++)
   {
     double loc_radius;
-    if (_recordRead(file, "Image NeighImageborhood Radius", "%lf", &loc_radius)) return 1;
+    ret = ret && _recordRead<double>(is, "Image NeighImageborhood Radius", loc_radius);
     _imageRadius[idim] = static_cast<int> (loc_radius);
   }
+
+  if (! ret) return 1;
   return 0;
 }
 
-int NeighImage::_serialize(FILE* file, bool verbose) const
+int NeighImage::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize(file, verbose))
+  if (ANeighParam::_serialize(os, verbose))
   {
     if (verbose) messerr("Problem writing in the Neutral File.");
     return 1;
   }
 
-  _recordWrite(file, "%d", getSkip());
+  bool ret = _recordWrite<int>(os, "", getSkip());
   for (int idim = 0; idim < getNDim(); idim++)
-    _recordWrite(file, "%lf", (double) getImageRadius(idim));
-  _recordWrite(file, "#", "Image NeighImageborhood parameters");
-  return 0;
+    ret = ret && _recordWrite<double>(os, "", (double) getImageRadius(idim));
+  ret = ret && _commentWrite(os, "Image NeighImageborhood parameters");
+  return ret ? 0 : 1;
 }
 
 NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
@@ -121,17 +123,15 @@ NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
 
 int NeighImage::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "NeighImage", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "NeighImage", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 /**
@@ -142,17 +142,19 @@ int NeighImage::dumpToNF(const String& neutralFilename, bool verbose) const
  */
 NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "NeighImage", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  NeighImage* neigh = new NeighImage();
-  if (neigh->_deserialize(file, verbose))
+  NeighImage* neigh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "NeighImage", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete neigh;
-    neigh = nullptr;
+    neigh = new NeighImage();
+    if (neigh->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete neigh;
+      neigh = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return neigh;
 }
 

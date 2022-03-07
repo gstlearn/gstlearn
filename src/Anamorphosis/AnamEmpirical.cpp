@@ -76,34 +76,35 @@ String AnamEmpirical::toString(const AStringFormat* strfmt) const
 
 int AnamEmpirical::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamEmpirical", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "AnamEmpirical", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 AnamEmpirical* AnamEmpirical::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamEmpirical", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  AnamEmpirical* anam = new AnamEmpirical();
-  if (anam->_deserialize(file, verbose))
+  AnamEmpirical* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "AnamEmpirical", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete anam;
-    anam = nullptr;
+    anam = new AnamEmpirical();
+    if (anam->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return anam;
 }
+
 
 AnamEmpirical* AnamEmpirical::create(int ndisc, double sigma2e)
 {
@@ -311,38 +312,34 @@ bool AnamEmpirical::isTDiscIndexValid(int i) const
   return true;
 }
 
-int AnamEmpirical::_serialize(FILE* file, bool verbose) const
+int AnamEmpirical::_serialize(std::ostream& os, bool verbose) const
 {
-  AnamContinuous::_serialize(file, verbose);
+  if (AnamContinuous::_serialize(os, verbose)) return 1;
 
-  _recordWrite(file, "%d", getNDisc());
-  _recordWrite(file, "#", "Number of Discretization lags");
-  _recordWrite(file, "%ld", getSigma2e());
-  _recordWrite(file, "#", "additional variance");
-  _tableWrite(file, "Coefficients", 2 * getNDisc(), getTDisc().data());
+  bool ret = _recordWrite<int>(os, "Number of Discretization lags", getNDisc());
+  ret = ret && _recordWrite<double>(os, "additional variance", getSigma2e());
+  ret = ret && _tableWrite(os, "Coefficients", 2 * getNDisc(), getTDisc());
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
-int AnamEmpirical::_deserialize(FILE* file, bool verbose)
+int AnamEmpirical::_deserialize(std::istream& is, bool verbose)
 {
   int ndisc = 0;
   double sigma2e = TEST;
   VectorDouble tdisc;
 
-  if (AnamContinuous::_deserialize(file, verbose)) goto label_end;
+  if (! AnamContinuous::_deserialize(is, verbose)) return 1;
 
-  if (_recordRead(file, "Number of Discretization classes", "%d", &ndisc))
-    goto label_end;
-  if (_recordRead(file, "Experimental Error Variance", "%lf", &sigma2e))
-    goto label_end;
+  bool ret = _recordRead<int>(is, "Number of Discretization classes", ndisc);
+  ret = ret && _recordRead<double>(is, "Experimental Error Variance", sigma2e);
+  if (! ret) return 1;
+
   tdisc.resize(2 * ndisc);
-  if (_tableRead(file, 2 * ndisc, tdisc.data())) goto label_end;
+  if (_tableRead(is, 2 * ndisc, tdisc.data())) return 1;
 
   setNDisc(ndisc);
   setSigma2e(sigma2e);
   setTDisc(tdisc);
-
-  label_end:
   return 0;
 }

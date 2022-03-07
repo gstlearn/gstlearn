@@ -79,6 +79,7 @@ class IClonable{};
 %include Basic/OptCustom.hpp
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
+%include Basic/File.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp
@@ -262,6 +263,18 @@ class IClonable{};
 %include LithoRule/ERule.hpp
 
 %include Estimation/KrigingSystem.hpp
+
+%include OutputFormat/AOF.hpp
+%include OutputFormat/FileLAS.hpp
+%include OutputFormat/FileVTK.hpp
+%include OutputFormat/GridArcGis.hpp
+%include OutputFormat/GridBmp.hpp
+%include OutputFormat/GridEclipse.hpp
+%include OutputFormat/GridF2G.hpp
+%include OutputFormat/GridIfpEn.hpp
+%include OutputFormat/GridIrap.hpp
+%include OutputFormat/GridXYZ.hpp
+%include OutputFormat/GridZycor.hpp
 
 %include segy.h
 

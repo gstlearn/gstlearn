@@ -1,0 +1,76 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      1.000
+- Ranges       =     10.000    45.000
+- Theo. Ranges =      2.887    12.990
+Total Sill     =      1.000
+
+Non-Stationary Parameters
+-------------------------
+Angle      : GRF=1 Str=1 V#1=1 V#2=1
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x-1 - Locator = x1
+Column = 2 - Name = x-2 - Locator = x2
+Column = 3 - Name = variable - Locator = z1
+For Non-Stationary Parameter (1), there are some undefined values (1756)
+They have been replaced by its average value (23.422193)
+For Non-Stationary Parameter (1), there are some undefined values (1756)
+They have been replaced by its average value (23.422193)
+For Non-Stationary Parameter (1), there are some undefined values (1400)
+They have been replaced by its average value (26.988128)
+For Non-Stationary Parameter (1), there are some undefined values (1400)
+They have been replaced by its average value (26.988128)
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+5 - Name spde.variable.simu - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.452
+ Maximum value       =      2.454
+ Mean value          =      0.229
+ Standard Deviation  =      0.773
+ Variance            =      0.597
+6 - Name spde.variable.condSimu - Locator NA
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.574
+ Maximum value       =      3.142
+ Mean value          =     -0.015
+ Standard Deviation  =      0.898
+ Variance            =      0.806
+7 - Name spde.variable.kriging - Locator z1
+ Nb of data          =      10201
+ Nb of active values =      10201
+ Minimum value       =     -2.334
+ Maximum value       =      3.507
+ Mean value          =      0.000
+ Standard Deviation  =      0.799
+ Variance            =      0.638

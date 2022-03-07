@@ -22,11 +22,11 @@
 #include "Basic/OptDbg.hpp"
 
 #include <math.h>
+#include <algorithm>
 #include <set>
 
 NeighWork::NeighWork(const Db* dbin,
-                     const ANeighParam* neighparam,
-                     bool flag_simu)
+                     const ANeighParam* neighparam)
     : _dbin(),
       _neighParam(),
       _flagInitialized(false),
@@ -43,7 +43,7 @@ NeighWork::NeighWork(const Db* dbin,
       _nbghMemo()
 
 {
-  initialize(dbin, neighparam, flag_simu);
+  initialize(dbin, neighparam);
 }
 
 NeighWork::NeighWork(const NeighWork& r)
@@ -96,7 +96,6 @@ NeighWork::~NeighWork()
  **
  ** \param[in]  dbin          input Db structure
  ** \param[in]  neighparam    Description of the ANeighParam parameters
- ** \param[in]  flag_simu     1 if used for Simulation
  **
  ** \remarks When the Neighborhood is performed in the case of Simulations
  ** \remarks checking for all variables being undefined is performed
@@ -104,13 +103,11 @@ NeighWork::~NeighWork()
  **
  *****************************************************************************/
 void NeighWork::initialize(const Db* dbin,
-                           const ANeighParam* neighparam,
-                           bool flag_simu)
+                           const ANeighParam* neighparam)
 {
   if (neighparam == nullptr || dbin == nullptr) return;
   _neighParam = neighparam;
   _dbin = dbin;
-  _flagSimu = flag_simu;
 
   int nech  = _dbin->getSampleNumber();
   int ndim  = _dbin->getNDim();
@@ -195,17 +192,22 @@ VectorInt NeighWork::select(Db *dbout,
   if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
 
   // Select the neighborhood samples as the target sample has changed
+  bool doCompress = true;
   switch (_neighParam->getType().toEnum())
   {
     case ENeigh::E_IMAGE:
     case ENeigh::E_UNIQUE:
       if (! _isSameTargetUnique(dbout, iech_out, ranks, verbose))
         _unique(dbout, iech_out, ranks);
+      else
+        doCompress = false;
       break;
 
     case ENeigh::E_BENCH:
       if (! _isSameTargetBench(dbout, iech_out, ranks, verbose))
         _bench(dbout, iech_out, ranks);
+      else
+        doCompress = false;
       break;
 
     case ENeigh::E_MOVING:
@@ -213,16 +215,19 @@ VectorInt NeighWork::select(Db *dbout,
       break;
   }
 
-  // In case of debug option, dump out neighborhood characteristics
+  if (doCompress)
+  {
+    // In case of debug option, dump out neighborhood characteristics
 
-  if (OptDbg::query(EDbg::NBGH)) _display(ranks);
+    if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
-  /* Compress the vector of returned sample ranks */
+    /* Compress the vector of returned sample ranks */
 
-  int necr = 0;
-  for (int iech = 0; iech < nech; iech++)
-    if (ranks[iech] >= 0) ranks[necr++] = iech;
-  ranks.resize(necr);
+    int necr = 0;
+    for (int iech = 0; iech < nech; iech++)
+      if (ranks[iech] >= 0) ranks[necr++] = iech;
+    ranks.resize(necr);
+  }
 
   // Set the flag telling if neighborhood has changed or not
   // and memorize the new set of ranks
@@ -263,7 +268,7 @@ void NeighWork::_unique(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -303,7 +308,7 @@ void NeighWork::_bench(Db *dbout, int iech_out, VectorInt& ranks)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -355,7 +360,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
     /* Discard the target sample for the cross-validation option */
 
-    if (_neighParam->getFlagXvalid() != 0)
+    if (_neighParam->getFlagXvalid())
     {
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
@@ -449,9 +454,9 @@ bool NeighWork::_discardUndefined(int iech)
  *****************************************************************************/
 int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
 {
-  if (_neighParam->getFlagXvalid() == 0)
+  if (! _neighParam->getFlagXvalid())
     return 0;
-  else if (_neighParam->getFlagXvalid() > 0)
+  else if (! _neighParam->getFlagKFold())
   {
     if (distance_inter(_dbin, dbout, iech_in, iech_out, NULL) < eps) return 1;
   }
@@ -718,28 +723,30 @@ void NeighWork::_display(const VectorInt& ranks)
 
 void NeighWork::_checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks)
 {
+  VectorInt rsorted = ranks;
+  if (ranks.size() > 0)
+  {
+    std::sort(rsorted.begin(), rsorted.end());
+  }
+
   // Check if Neighborhood has changed
 
   if (_nbghMemo.size() != ranks.size())
+    // Two series do not share the same dimension
+
     _flagIsUnchanged = false;
   else
   {
-    // Two series have the same size: check if they are equal to different
-    // Order should not matter
+    // Two (sorted) series have the same size: check if they are equal
 
-    std::set<int> s1;
-    s1.insert(_nbghMemo.begin(), _nbghMemo.end());
-    std::set<int> s2;
-    s2.insert(ranks.begin(), ranks.end());
-
-    _flagIsUnchanged = (s1 == s2);
+    _flagIsUnchanged = (rsorted == _nbghMemo);
   }
 
   // Store the vector of sample ranks for the current neighborhood search
 
   _dbout = dbout;
   _iechOut = iech_out;
-  _nbghMemo = ranks;
+  _nbghMemo = rsorted;
 }
 
 void NeighWork::_clearMemory()

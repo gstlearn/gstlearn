@@ -41,7 +41,7 @@ Vario::Vario(const VarioParam* varioparam,
       _varioparam(),
       _means(means),
       _vars(vars),
-      _calculName( ),
+      _calcul(),
       _flagSample( ),
       _db(nullptr),
       _sw(),
@@ -61,7 +61,7 @@ Vario::Vario(const Vario& r)
       _varioparam(r._varioparam),
       _means(r._means),
       _vars(r._vars),
-      _calculName(r._calculName),
+      _calcul(r._calcul),
       _flagSample(r._flagSample),
       _db(r._db),
       _sw(r._sw),
@@ -82,7 +82,7 @@ Vario& Vario::operator=(const Vario& r)
     _varioparam = r._varioparam;
     _means = r._means;
     _vars  = r._vars;
-    _calculName = r._calculName;
+    _calcul = r._calcul;
     _flagSample = r._flagSample;
     _db = r._db;
     _sw = r._sw;
@@ -100,17 +100,15 @@ Vario::~Vario()
 
 int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "Vario", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "Vario", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 Vario* Vario::create(const VarioParam* varioparam,
@@ -123,22 +121,24 @@ Vario* Vario::create(const VarioParam* varioparam,
 
 Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "Vario", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  VarioParam* varioparam = new VarioParam();
-  Vario* vario = new Vario(varioparam);
-  if (vario->_deserialize(file, verbose))
+  Vario* vario = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "Vario", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete vario;
-    vario = nullptr;
+    VarioParam* varioparam = new VarioParam();
+    vario = new Vario(varioparam);
+    if (vario->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete vario;
+      vario = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return vario;
 }
 
-int Vario::compute(const String& calcul_name,
+int Vario::compute(const ECalcVario &calcul,
                    bool flag_grid,
                    bool flag_gen,
                    bool flag_sample,
@@ -160,7 +160,7 @@ int Vario::compute(const String& calcul_name,
 
   // Preparation
 
-  setCalculName(calcul_name);
+  _calcul = calcul;
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -172,6 +172,19 @@ int Vario::compute(const String& calcul_name,
     return 1;
   }
   return 0;
+}
+
+int Vario::computeByKey(const String& calcul_name,
+                        bool flag_grid,
+                        bool flag_gen,
+                        bool flag_sample,
+                        bool verr_mode,
+                        Model *model,
+                        bool verbose)
+{
+  ECalcVario calcul = getCalculType(calcul_name);
+  if (calcul == ECalcVario::UNDEFINED) return 1;
+  return compute(calcul, flag_grid, flag_gen, flag_sample, verr_mode, model, verbose);
 }
 
 /**
@@ -318,7 +331,7 @@ void Vario::reduce(const VectorInt& varcols,
   }
 }
 
-int Vario::computeIndic(const String& calcul_name,
+int Vario::computeIndic(const ECalcVario& calcul,
                         bool flag_grid,
                         bool flag_gen,
                         bool flag_sample,
@@ -365,7 +378,7 @@ int Vario::computeIndic(const String& calcul_name,
 
   // Preparation
 
-  setCalculName(calcul_name);
+  _calcul = calcul;
   _nVar  = nclass;
   _means = props;
   _vars  = _varsFromProportions(props);
@@ -386,6 +399,21 @@ int Vario::computeIndic(const String& calcul_name,
   _db->setLocatorByUID(iatt, ELoc::Z);
 
   return 0;
+}
+
+int Vario::computeIndicByKey(const String& calcul_name,
+                             bool flag_grid,
+                             bool flag_gen,
+                             bool flag_sample,
+                             bool verr_mode,
+                             Model *model,
+                             bool verbose,
+                             int nfacmax)
+{
+  ECalcVario calcul = getCalculType(calcul_name);
+  if (calcul == ECalcVario::UNDEFINED) return 1;
+  return computeIndic(calcul, flag_grid, flag_gen, flag_sample, verr_mode,
+                      model, verbose, nfacmax);
 }
 
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
@@ -575,7 +603,7 @@ String Vario::toString(const AStringFormat* strfmt) const
 
   // Print the calculation type
 
-  switch (getCalculType().toEnum())
+  switch (getCalcul().toEnum())
   {
     case ECalcVario::E_UNDEFINED:
       sstr << toTitle(0,"Undefined");
@@ -640,7 +668,7 @@ String Vario::toString(const AStringFormat* strfmt) const
     default:
       break;
   }
-  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
+  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
   sstr << "Number of variable(s)       = " << _nVar << std::endl;
 
   // Print the environment
@@ -652,7 +680,7 @@ String Vario::toString(const AStringFormat* strfmt) const
   sstr << toMatrix("Variance-Covariance Matrix",VectorString(),VectorString(),
                     0,_nVar,_nVar,getVars());
 
-  if (getCalculType() == ECalcVario::UNDEFINED) return sstr.str();
+  if (getCalcul() == ECalcVario::UNDEFINED) return sstr.str();
 
   /* Loop on the directions (only if the resulting arrays have been defined) */
 
@@ -711,43 +739,43 @@ String Vario::_toStringByDirection(const AStringFormat* /*strfmt*/, int idir) co
  *
  * @return The corresponding ECalcVario enum
  */
-ECalcVario Vario::getCalculType() const
+ECalcVario Vario::getCalculType(const String& calcul_name) const
 {
   ECalcVario calcul_type;
 
-  if (_calculName == "undefined")
+  if (calcul_name == "undefined")
     calcul_type = ECalcVario::UNDEFINED;
-  else if (_calculName == "vg")
+  else if (calcul_name == "vg")
     calcul_type = ECalcVario::VARIOGRAM;
-  else if (_calculName == "cov")
+  else if (calcul_name == "cov")
     calcul_type = ECalcVario::COVARIANCE;
-  else if (_calculName == "covnc")
+  else if (calcul_name == "covnc")
     calcul_type = ECalcVario::COVARIANCE_NC;
-  else if (_calculName == "covg")
+  else if (calcul_name == "covg")
     calcul_type = ECalcVario::COVARIOGRAM;
-  else if (_calculName =="mado")
+  else if (calcul_name =="mado")
     calcul_type = ECalcVario::MADOGRAM;
-  else if (_calculName =="rodo")
+  else if (calcul_name =="rodo")
     calcul_type = ECalcVario::RODOGRAM;
-  else if (_calculName =="poisson")
+  else if (calcul_name =="poisson")
     calcul_type = ECalcVario::POISSON;
-  else if (_calculName =="general1")
+  else if (calcul_name =="general1")
     calcul_type = ECalcVario::GENERAL1;
-  else if (_calculName =="general2")
+  else if (calcul_name =="general2")
     calcul_type = ECalcVario::GENERAL2;
-  else if (_calculName =="general3")
+  else if (calcul_name =="general3")
     calcul_type = ECalcVario::GENERAL3;
-  else if (_calculName =="order4")
+  else if (calcul_name =="order4")
     calcul_type = ECalcVario::ORDER4;
-  else if (_calculName =="trans1")
+  else if (calcul_name =="trans1")
     calcul_type = ECalcVario::TRANS1;
-  else if (_calculName =="trans2")
+  else if (calcul_name =="trans2")
     calcul_type = ECalcVario::TRANS2;
-  else if (_calculName =="binormal")
+  else if (calcul_name =="binormal")
     calcul_type = ECalcVario::BINORMAL;
   else
   {
-    messerr("Invalid variogram calculation name : %s", _calculName.c_str());
+    messerr("Invalid variogram calculation name : %s", calcul_name.c_str());
     messerr("The only valid names are:");
     messerr("vg       : Variogram");
     messerr("cov      : Covariance");
@@ -988,6 +1016,35 @@ double Vario::getUtilize(int idir, int ivar, int jvar, int ipas) const
   int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
   if (IFFFF(iad)) return TEST;
   return _utilize[idir][iad];
+}
+
+/**
+ * Returns a triple array of values: 0-Weight; 1-Distance; 2-Variogram
+ * @param idir Target Direction
+ * @param ivar Target first variable
+ * @param jvar Target second variable
+ * @return
+ */
+VectorVectorDouble Vario::getVec(int idir, int ivar, int jvar) const
+{
+  VectorVectorDouble vec;
+  if (!_isVariableValid(ivar)) return vec;
+  if (!_isVariableValid(jvar)) return vec;
+  if (!_isDirectionValid(idir)) return vec;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  int npas = dirparam.getLagNumber();
+  vec.resize(3);
+  for (int i = 0; i < 3; i++) vec[i].resize(npas);
+
+  for (int ipas = 0 ; ipas < npas; ipas++)
+  {
+    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
+    vec[0][ipas] = _sw[idir][iad];
+    vec[1][ipas] = _hh[idir][iad];
+    vec[2][ipas] = _gg[idir][iad];
+  }
+  return vec;
 }
 
 /**
@@ -1238,7 +1295,7 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize(FILE* file, bool /*verbose*/)
+int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
   double dpas, tolang, scale, tolcode, toldis;
@@ -1247,23 +1304,23 @@ int Vario::_deserialize(FILE* file, bool /*verbose*/)
 
   /* Create the Vario structure */
 
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) goto label_end;
-  if (_recordRead(file, "Number of Variables", "%d", &nvar)) goto label_end;
-  if (_recordRead(file, "Number of Variogram Directions", "%d", &ndir)) goto label_end;
-  if (_recordRead(file, "Scale", "%lf", &scale)) goto label_end;
+  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Number of Variables", nvar);
+  ret = ret && _recordRead<int>(is, "Number of Variogram Directions", ndir);
+  ret = ret && _recordRead<double>(is, "Scale", scale);
 
   /* Read the variances (optional) */
 
-  if (_recordRead(file, "Variogram calculation Option", "%d", &flag_calcul))  goto label_end;
+  ret = ret && _recordRead<int>(is, "Variogram calculation Option", flag_calcul);
   vars.resize(nvar * nvar);
   if (flag_calcul)
   {
     int ecr = 0;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++, ecr++)
-        if (_recordRead(file, "Experimental Variance term", "%lf", &vars[ecr]))
-          goto label_end;
+        ret = ret && _recordRead<double>(is, "Experimental Variance term", vars[ecr]);
   }
+  if (! ret) return 1;
 
   /* Initialize the variogram structure */
 
@@ -1277,22 +1334,21 @@ int Vario::_deserialize(FILE* file, bool /*verbose*/)
 
   for (int idir = 0; idir < ndir; idir++)
   {
-    if (_recordRead(file, "Regular Variogram Calculation", "%d", &flag_regular)) goto label_end;
-    if (_recordRead(file, "Number of Variogram Lags", "%d", &npas)) goto label_end;
-    if (_recordRead(file, "Variogram Code Option", "%d", &opt_code)) goto label_end;
-    if (_recordRead(file, "Tolerance on Code", "%lf", &tolcode)) goto label_end;
-    if (_recordRead(file, "Lag Value", "%lf", &dpas)) goto label_end;
-    if (_recordRead(file, "Tolerance on Distance", "%lf", &toldis)) goto label_end;
-    if (_recordRead(file, "Tolerance on Direction", "%lf", &tolang)) goto label_end;
+    ret = ret && _recordRead<int>(is, "Regular Variogram Calculation", flag_regular);
+    ret = ret && _recordRead<int>(is, "Number of Variogram Lags", npas);
+    ret = ret && _recordRead<int>(is, "Variogram Code Option", opt_code);
+    ret = ret && _recordRead<double>(is, "Tolerance on Code", tolcode);
+    ret = ret && _recordRead<double>(is, "Lag Value", dpas);
+    ret = ret && _recordRead<double>(is, "Tolerance on Distance", toldis);
+    ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
     codir.resize(ndim);
     grincr.resize(ndim);
     grloc.resize(ndim);
     for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead(file, "Direction vector", "%lf", &codir[idim]))
-        goto label_end;
+      ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
     for (int idim = 0; idim < ndim; idim++)
-      if (_recordRead(file, "Grid Increment", "%lf", &grloc[idim]))
-        goto label_end;
+      ret = ret && _recordRead<double>(is, "Grid Increment", grloc[idim]);
+    if (! ret) return 1;
 
     DirParam dirparam = DirParam(ndim);
     for (int idim = 0; idim < ndim; idim++)
@@ -1309,49 +1365,42 @@ int Vario::_deserialize(FILE* file, bool /*verbose*/)
       for (int i = 0; i < getDirSize(idir); i++)
       {
         double sw, hh, gg;
-        if (_recordRead(file, "Experimental Variogram Weight", "%lf", &sw)) goto label_end;
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Weight", sw);
         setSwByIndex(idir, i, sw);
-        if (_recordRead(file, "Experimental Variogram Distance", "%lf", &hh)) goto label_end;
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Distance", hh);
         setHhByIndex(idir, i, hh);
-        if (_recordRead(file, "Experimental Variogram Value", "%lf", &gg)) goto label_end;
+        ret = ret && _recordRead<double>(is, "Experimental Variogram Value", gg);
         setGgByIndex(idir, i, gg);
       }
     }
   }
-
-  label_end:
-
+  if (! ret) return 1;
   return 0;
 }
 
-int Vario::_serialize(FILE* file, bool /*verbose*/) const
+int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   double value;
   static int flag_calcul = 1;
 
   /* Write the Vario structure */
 
-  _recordWrite(file, "%d", _varioparam.getDimensionNumber());
-  _recordWrite(file, "#", "Space Dimension");
-  _recordWrite(file, "%d", getVariableNumber());
-  _recordWrite(file, "#", "Number of variables");
-  _recordWrite(file, "%d", getDirectionNumber());
-  _recordWrite(file, "#", "Number of directions");
-  _recordWrite(file, "%lf", _varioparam.getScale());
-  _recordWrite(file, "#", "Scale");
-  _recordWrite(file, "%d", flag_calcul);
-  _recordWrite(file, "#", "Calculation Flag");
+  bool ret = _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
+  ret = ret && _recordWrite<int>(os, "Number of variables", getVariableNumber());
+  ret = ret && _recordWrite<int>(os, "Number of directions", getDirectionNumber());
+  ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
+  ret = ret && _recordWrite<int>(os, "Calculation Flag", flag_calcul);
 
   /* Dumping the Variances */
 
   if (flag_calcul)
   {
-    _recordWrite(file, "#", "Variance");
+    ret = ret && _commentWrite(os, "Variance");
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite(file, "%lf", getVar(ivar,jvar));
-      _recordWrite(file, "\n");
+        ret = ret && _recordWrite<double>(os, "", getVar(ivar,jvar));
+      ret = ret && _commentWrite(os, "");
     }
   }
 
@@ -1360,40 +1409,34 @@ int Vario::_serialize(FILE* file, bool /*verbose*/) const
   for (int idir = 0; idir < getDirectionNumber(); idir++)
   {
     const DirParam dirparam = _varioparam.getDirParam(idir);
-    _recordWrite(file, "#", "Direction characteristics");
-    _recordWrite(file, "%d", dirparam.getFlagRegular());
-    _recordWrite(file, "#", "Regular lags");
-    _recordWrite(file, "%d", dirparam.getLagNumber());
-    _recordWrite(file, "#", "Number of lags");
-    _recordWrite(file, "%d", dirparam.getOptionCode());
-    _recordWrite(file, "%lf", dirparam.getTolCode());
-    _recordWrite(file, "#", "Code selection: Option - Tolerance");
-    _recordWrite(file, "%lf", dirparam.getDPas());
-    _recordWrite(file, "#", "Lag value");
-    _recordWrite(file, "%lf", dirparam.getTolDist());
-    _recordWrite(file, "#", "Tolerance on distance");
-    _recordWrite(file, "%lf", dirparam.getTolAngle());
-    _recordWrite(file, "#", "Tolerance on angle");
+    ret = ret && _commentWrite(os, "Direction characteristics");
+    ret = ret && _recordWrite<int>(os, "Regular lags", dirparam.getFlagRegular());
+    ret = ret && _recordWrite<int>(os, "Number of lags", dirparam.getLagNumber());
+    ret = ret && _recordWrite<int>(os, "", dirparam.getOptionCode());
+    ret = ret && _recordWrite<double>(os, "Code selection: Option - Tolerance", dirparam.getTolCode());
+    ret = ret && _recordWrite<double>(os, "Lag value", dirparam.getDPas());
+    ret = ret && _recordWrite<double>(os, "Tolerance on distance", dirparam.getTolDist());
+    ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite(file, "%lf", dirparam.getCodir(idim));
-    _recordWrite(file, "#", "Direction coefficients");
+      ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
+    ret = ret && _commentWrite(os, "Direction coefficients");
 
     for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      _recordWrite(file, "%lf", (double) dirparam.getGrincr(idim));
-    _recordWrite(file, "#", "Direction increments on grid");
+      ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
+    ret = ret && _commentWrite(os, "Direction increments on grid");
 
     if (!flag_calcul) continue;
-    _recordWrite(file, "#", "Variogram results (Weight, Distance, Variogram)");
+    ret = ret && _commentWrite(os, "Variogram results (Weight, Distance, Variogram)");
     for (int i = 0; i < getDirSize(idir); i++)
     {
       value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
+      ret = ret && _recordWrite<double>(os, "", value);
       value = FFFF(getHhByIndex(idir, i)) ? 0. : getHhByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
+      ret = ret && _recordWrite<double>(os, "", value);
       value = FFFF(getGgByIndex(idir, i)) ? 0. : getGgByIndex(idir, i);
-      _recordWrite(file, "%lf", value);
-      _recordWrite(file, "\n");
+      ret = ret && _recordWrite<double>(os, "", value);
+      ret = ret && _commentWrite(os, "");
     }
   }
   return 0;
@@ -1490,7 +1533,7 @@ int Vario::getDirSize(int idir) const
 
 void Vario::_setFlagAsym()
 {
-  switch (getCalculType().toEnum())
+  switch (getCalcul().toEnum())
   {
     case ECalcVario::E_VARIOGRAM:
     case ECalcVario::E_MADOGRAM:
@@ -1547,7 +1590,7 @@ int Vario::getLagTotalNumber(int idir) const
 
 void Vario::setCalculName(const String calcul_name)
 {
-  _calculName = calcul_name;
+  _calcul = getCalculType(calcul_name);
   _setFlagAsym();
 }
 

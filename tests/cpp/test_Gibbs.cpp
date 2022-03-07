@@ -17,10 +17,12 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
+#include "Basic/File.hpp"
 #include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -270,12 +272,17 @@ int main(int /*argc*/, char */*argv*/[])
 
   int    niter      = 10000;
   int    flag_print =     0;
-  int    flag_save  =     1;
+  bool   flag_save  =  true;
   const char triswitch[] = "nqQ";
   int     verbose, seed, ndim, nvar, iptr, nvertex, ncolor;
   int    *colors, *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   /***********************/
   /* 1 - Initializations */
   /***********************/
@@ -412,6 +419,8 @@ int main(int /*argc*/, char */*argv*/[])
   if (flag_save)
   {
     if (st_save(dbgrid,consmin,consmax,z)) goto label_end;
+    DbStringFormat dbfmt(FLAG_STATS);
+    dbgrid->display(&dbfmt);
   }
   
 label_end:

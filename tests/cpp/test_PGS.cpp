@@ -20,6 +20,7 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -30,8 +31,12 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PGS-");
   int error = 0;
@@ -153,7 +158,7 @@ int main(int /*argc*/, char */*argv*/[])
   varioDerived->display();
 
   Vario varioIndic = Vario(&varioparam1, db);
-  varioIndic.computeIndic("vg");
+  varioIndic.computeIndicByKey("vg");
   (void) varioIndic.dumpToNF("varioindic.ascii");
 
   modelPGS1.display();

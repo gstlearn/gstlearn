@@ -44,34 +44,35 @@ AnamDiscreteIR::~AnamDiscreteIR()
 
 int AnamDiscreteIR::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "AnamDiscreteIR", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "AnamDiscreteIR", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  AnamDiscreteIR* anam = new AnamDiscreteIR();
-  if (anam->_deserialize(file, verbose))
+  AnamDiscreteIR* anam = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "AnamDiscreteIR", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File");
-    delete anam;
-    anam = nullptr;
+    anam = new AnamDiscreteIR();
+    if (anam->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File");
+      delete anam;
+      anam = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return anam;
 }
+
 
 AnamDiscreteIR* AnamDiscreteIR::create(double rcoef)
 {
@@ -329,27 +330,24 @@ double AnamDiscreteIR::_getResidual(int iclass, double z) const
   return (retval);
 }
 
-int AnamDiscreteIR::_serialize(FILE* file, bool verbose) const
+int AnamDiscreteIR::_serialize(std::ostream& os, bool verbose) const
 {
-  AnamDiscrete::_serialize(file, verbose);
+  if (AnamDiscrete::_serialize(os, verbose)) return 1;
 
-  _recordWrite(file, "%lf", getRCoef());
-  _recordWrite(file, "#", "Change of support coefficient");
+  bool ret = _recordWrite<double>(os, "Change of support coefficient", getRCoef());
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
-int AnamDiscreteIR::_deserialize(FILE* file, bool verbose)
+int AnamDiscreteIR::_deserialize(std::istream& is, bool verbose)
 {
   double r = TEST;
 
-  if (AnamDiscrete::_deserialize(file, verbose)) goto label_end;
+  if (! AnamDiscrete::_deserialize(is, verbose)) return 1;
 
-  if (_recordRead(file, "Anamorphosis 'r' coefficient", "%lf", &r))
-    goto label_end;
+  bool ret = _recordRead<double>(is, "Anamorphosis 'r' coefficient", r);
+  if (! ret) return 1;
 
   setRCoef(r);
-
-  label_end:
   return 0;
 }

@@ -49,6 +49,7 @@ int main(int argc, char *argv[])
   flag_norm_sill = 0;
   flag_goulard_used = 1;
   double gofThresh = 2.;
+  char string[1000];
 
   /* Standard output redirection to file */
 
@@ -93,7 +94,7 @@ int main(int argc, char *argv[])
   ascii_filename("Model",0,0,filename);
   model = Model::createFromNF(filename,verbose);
   if (model == (Model *) NULL) goto label_end;
-  
+
   // Define and store the Space
 
   ASpaceObject::defineDefaultSpace(SPACE_RN,model->getDimensionNumber());
@@ -117,7 +118,7 @@ int main(int argc, char *argv[])
   if (dbout != (Db *) NULL)
   {
     vario->attachDb(dbout);
-    vario->compute("vg");
+    vario->computeByKey("vg");
     ascii_filename("Vario",0,1,filename);
     if (vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");

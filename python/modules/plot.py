@@ -630,7 +630,7 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect=
     usesel : Boolean to indicate if the selection has to be considered
     alpha: Transparency index (0: transparent; 1: opaque)
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    xlim: Bounds defined along the first axvis
+    xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     cmap: Optional Color scale (default is 'viridis')
     norm: Optional norm (instance of matplotlib.colors.Normalize). When vmin and vmax are given, 

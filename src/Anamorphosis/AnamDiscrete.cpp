@@ -225,39 +225,34 @@ bool AnamDiscrete::_isClassValid(int iclass) const
   return true;
 }
 
-int AnamDiscrete::_serialize(FILE* file, bool verbose) const
+int AnamDiscrete::_serialize(std::ostream& os, bool verbose) const
 {
-  _recordWrite(file, "%d", getNCut());
-  _recordWrite(file, "#", "Number of cutoffs");
-  _recordWrite(file, "%d", getNClass());
-  _recordWrite(file, "#", "Number of classes");
-  _recordWrite(file, "%d", getNElem());
-  _recordWrite(file, "#", "Number of elements");
-  _tableWrite(file, "Cutoff value", getNCut(), getZCut().data());
-  _tableWrite(file, "DD Stats", getNClass() * getNElem(), getStats().getValues().data());
+  bool ret = _recordWrite<int>(os, "Number of Cuttofs", getNCut());
+  ret = ret && _recordWrite<int>(os, "Number of classes", getNClass());
+  ret = ret && _recordWrite<int>(os, "Number of elements", getNElem());
+  ret = ret && _tableWrite(os, "Cutoff value", getNCut(), getZCut());
+  ret = ret && _tableWrite(os, "DD Stats", getNClass() * getNElem(), getStats().getValues());
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
-int AnamDiscrete::_deserialize(FILE* file, bool verbose)
+int AnamDiscrete::_deserialize(std::istream& is, bool verbose)
 {
   VectorDouble zCut, stats;
   int nCut = 0;
   int nClass = 0;
   int nElem = 0;
 
-  if (_recordRead(file, "Number of Cutoffs", "%d", &nCut))
-    goto label_end;
-  if (_recordRead(file, "Number of Classes", "%d", &nClass))
-    goto label_end;
-  if (_recordRead(file, "Number of Statistic Columns", "%d", &nElem))
-    goto label_end;
+  bool ret = _recordRead<int>(is, "Number of Cutoffs", nCut);
+  ret = ret && _recordRead<int>(is, "Number of Classes", nClass);
+  ret = ret && _recordRead<int>(is, "Number of Statistic Columns", nElem);
+  if (! ret) return 1;
 
   zCut.resize(nCut);
-  if (_tableRead(file, nCut, zCut.data())) goto label_end;
+  if (_tableRead(is, nCut, zCut.data())) goto label_end;
 
   stats.resize(nClass * nElem);
-  if (_tableRead(file, nClass * nElem, stats.data())) goto label_end;
+  if (_tableRead(is, nClass * nElem, stats.data())) goto label_end;
 
   setNCut(nCut);
   setNElem(nElem);

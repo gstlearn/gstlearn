@@ -2648,7 +2648,7 @@ int uc_f(Db *db,
   double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max, varv,
       zvstar;
   VectorDouble psi_hn, hn;
-  std::vector<VectorDouble> phi_b_zc;
+  VectorVectorDouble phi_b_zc;
 
   /* Initializations */
 

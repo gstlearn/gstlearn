@@ -1,0 +1,182 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      0.509
+ Maximum value       =     99.183
+ Mean value          =     53.477
+ Standard Deviation  =     27.336
+ Variance            =    747.266
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.677
+ Maximum value       =     98.059
+ Mean value          =     54.365
+ Standard Deviation  =     30.365
+ Variance            =    922.041
+4 - Name Var - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =    -22.471
+ Maximum value       =     21.385
+ Mean value          =     -1.477
+ Standard Deviation  =      8.911
+ Variance            =     79.397
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =     45.000
+- Range        =     80.000
+Total Sill     =     45.000
+
+Neighborhood characteristics
+============================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 100
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =  10000.000
+ Mean value          =   5000.500
+ Standard Deviation  =   2886.751
+ Variance            = 8333333.250
+2 - Name x1 - Locator x1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+3 - Name x2 - Locator x2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+4 - Name Kriging.Var.estim - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =    -21.108
+ Maximum value       =     44.515
+ Mean value          =      0.424
+ Standard Deviation  =      7.432
+ Variance            =     55.233
+5 - Name Kriging.Var.stdev - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.344
+ Maximum value       =      4.728
+ Mean value          =      2.228
+ Standard Deviation  =      0.570
+ Variance            =      0.325
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      0.509
+ Maximum value       =     99.183
+ Mean value          =     53.477
+ Standard Deviation  =     27.336
+ Variance            =    747.266
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.677
+ Maximum value       =     98.059
+ Mean value          =     54.365
+ Standard Deviation  =     30.365
+ Variance            =    922.041
+4 - Name Var - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =    -22.471
+ Maximum value       =     21.385
+ Mean value          =     -1.477
+ Standard Deviation  =      8.911
+ Variance            =     79.397
+5 - Name Xvalid.Var.estim - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =    -31.905
+ Maximum value       =     25.991
+ Mean value          =      0.902
+ Standard Deviation  =     10.251
+ Variance            =    105.081
+6 - Name Xvalid.Var.stdev - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =    -18.366
+ Maximum value       =     15.602
+ Mean value          =      0.342
+ Standard Deviation  =      4.929
+ Variance            =     24.298

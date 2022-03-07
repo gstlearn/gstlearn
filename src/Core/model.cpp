@@ -571,7 +571,7 @@ int model_add_cova(Model *model,
     cova->setRange(range);
 
   if (static_cast<int>(sill.size()) > 0) cova->setSill(sill);
-  model->addCova(cova);
+  model->addCov(cova);
 
   return 0;
 }
@@ -599,6 +599,7 @@ int model_add_drift(Model *model, const EDrift &type, int rank_fex)
   drift = DriftFactory::createDriftFunc(type, model->getContext());
   drift->setRankFex(rank_fex);
   model->addDrift(drift);
+  delete drift;
   return 0;
 }
 
@@ -1551,9 +1552,11 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
           break;
       }
       covs->addCov(covnew);
+      delete covnew;
     }
   }
   new_model->setCovList(covs);
+  delete covs;
 
   // *********************************
   // Create the basic drift structures
@@ -1568,6 +1571,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
       ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt);
       newdrft->setRankFex(drft->getRankFex());
       drifts.addDrift(newdrft);
+      delete newdrft;
       drifts.setFiltered(il, model->isDriftFiltered(il));
     }
     new_model->setDriftList(&drifts);

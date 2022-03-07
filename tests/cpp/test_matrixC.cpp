@@ -19,6 +19,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 
 void reset_to_initial_contents(AMatrix* M,
                                MatrixSquareDiagonalCst& D,
@@ -44,8 +45,12 @@ void reset_to_initial_contents(AMatrix* M,
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   VectorDouble V1,V2,V3,Vref;
   law_set_random_seed(32432);
   int nrow = 7; // For these tests, the matrix MUST be square (ncol = nrow)

@@ -117,13 +117,14 @@ protected:
   int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
-  virtual int _deserializeSpecific(FILE* /*file*/) { return 0; }
-  virtual void _serializeSpecific(FILE* /*file*/) const { return; }
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual int _deserializeSpecific(std::istream& /*is*/) { return 0; }
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual void _serializeSpecific(std::ostream& /*file*/) const { return; }
 
 private:
-  void _ruleDefine(FILE* file,
+  void _ruleDefine(std::ostream& os,
                    const Node *node,
                    int from_type,
                    int from_rank,

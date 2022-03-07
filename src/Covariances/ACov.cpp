@@ -9,8 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
-#include "Basic/AException.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
 ACov::ACov(const ASpace* space)

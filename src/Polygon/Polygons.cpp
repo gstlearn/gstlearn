@@ -93,9 +93,7 @@ int Polygons::resetFromCSV(const String& filename,
 
   /* Reading the CSV file: the coordinates are supposed to be in the first two columns */
 
-  if (csv_table_read(filename, verbose, csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(), csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(filename, csv, verbose, ncol_max, nrow_max, &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
     return 1;
@@ -198,7 +196,7 @@ PolySet Polygons::_extractFromTab(int ideb,
   return polyset;
 }
 
-int Polygons::_deserialize(FILE* file, bool verbose)
+int Polygons::_deserialize(std::istream& is, bool verbose)
 {
   int npol;
 
@@ -208,36 +206,35 @@ int Polygons::_deserialize(FILE* file, bool verbose)
 
   /* Create the Model structure */
 
-  if (_recordRead(file, "Number of Polygons", "%d", &npol)) return 1;
+  bool ret = _recordRead<int>(is, "Number of Polygons", npol);
+  if (! ret) return 1;
 
   /* Loop on the PolySets */
 
   for (int ipol = 0; ipol < npol; ipol++)
   {
     PolySet polyset;
-    polyset._deserialize(file, verbose);
+    if (polyset._deserialize(is, verbose)) return 1;
     addPolySet(polyset);
   }
   return 0;
 }
 
-int Polygons::_serialize(FILE* file, bool verbose) const
+int Polygons::_serialize(std::ostream& os, bool verbose) const
 {
 
   /* Create the Model structure */
 
-  _recordWrite(file, "%d", getPolySetNumber());
-  _recordWrite(file, "#", "Number of Polygons");
+  bool ret = _recordWrite<int>(os, "Number of Polygons", getPolySetNumber());
 
   /* Writing the covariance part */
 
   for (int ipol = 0; ipol < getPolySetNumber(); ipol++)
   {
     const PolySet& polyset = getPolySet(ipol);
-    polyset._serialize(file, verbose);
+    if (polyset._serialize(os, verbose)) return 1;
   }
-
-  return 0;
+  return ret ? 0 : 1;
 }
 
 Polygons* Polygons::create()
@@ -253,33 +250,33 @@ Polygons* Polygons::create()
  */
 Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "Polygon", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Polygons* polygons = new Polygons();
-  if (polygons->_deserialize(file, verbose))
+  Polygons* polygons = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "Polygon", is, verbose))
   {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete polygons;
-    polygons = nullptr;
+    polygons = new Polygons();
+    if (polygons->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete polygons;
+      polygons = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return polygons;
 }
 
 int Polygons::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "Polygon", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "Polygon", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 Polygons* Polygons::createFromCSV(const String& filename,

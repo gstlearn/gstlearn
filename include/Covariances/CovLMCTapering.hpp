@@ -21,7 +21,7 @@ class Model;
 
 typedef struct
 {
-  std::string name; // Useless but allows checking the correct match
+  String name; // Useless but allows checking the correct match
   int maxNDim;  /* Maximum dimension for validity */
   double (*tapeFunc)(double);
 } Def_Tapering;

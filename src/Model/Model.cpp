@@ -102,32 +102,32 @@ Model* Model::createFromDb(const Db* db)
 
 int Model::dumpToNF(const String& neutralFilename, bool verbose) const
 {
-  FILE* file = _fileOpen(neutralFilename, "Model", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "Model", os, verbose))
   {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
   }
-  _fileClose(file, verbose);
-  return 0;
+  return ret;
 }
 
 Model* Model::createFromNF(const String &neutralFilename, bool verbose)
 {
-  FILE* file = _fileOpen(neutralFilename, "Model", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Model* model = new Model();
-  if (model->_deserialize(file, verbose))
+  Model* model = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "Model", is, verbose))
   {
-    if (verbose) messerr("Problem when reading the Neutral File");
-    delete model;
-    model = nullptr;
+    model = new Model();
+    if (model->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem when reading the Neutral File");
+      delete model;
+      model = nullptr;
+    }
+    is.close();
   }
-  _fileClose(file, verbose);
   return model;
 }
 
@@ -193,7 +193,7 @@ void Model::setCovList(const ACovAnisoList* covalist)
   _covaList = dynamic_cast<ACovAnisoList*>(covalist->clone());
 }
 
-void Model::addCova(const CovAniso *cov)
+void Model::addCov(const CovAniso *cov)
 {
   if (cov == nullptr) return;
   // TODO: the type of CovAnisoList is defaulted to CovLMC
@@ -678,7 +678,7 @@ int Model::fitFromCovIndices(Vario *vario,
   {
     ECov covtype = ECov::fromValue(types[is]);
     CovAniso cov = CovAniso(covtype, _ctxt);
-    addCova(&cov);
+    addCov(&cov);
   }
 
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
@@ -715,12 +715,12 @@ int Model::fit(Vario *vario,
   for (int is = 0; is < (int) types.size(); is++)
   {
     CovAniso cov = CovAniso(types[is], _ctxt);
-    addCova(&cov);
+    addCov(&cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
 }
 
-int Model::_deserialize(FILE* file, bool /*verbose*/)
+int Model::_deserialize(std::istream& is, bool /*verbose*/)
 {
   double field, range, value, param;
   int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
@@ -731,11 +731,12 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
 
   /* Create the Model structure */
 
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) return 1;
-  if (_recordRead(file, "Number of Variables", "%d", &nvar)) return 1;
-  if (_recordRead(file, "Field dimension", "%lf", &field)) return 1;
-  if (_recordRead(file, "Number of Basic Structures", "%d", &ncova)) return 1;
-  if (_recordRead(file, "Number of Basic Drift Functions", "%d", &nbfl)) return 1;
+  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Number of Variables", nvar);
+  ret = ret && _recordRead<double>(is, "Field dimension", field);
+  ret = ret && _recordRead<int>(is, "Number of Basic Structures", ncova);
+  ret = ret && _recordRead<int>(is, "Number of Basic Drift Functions", nbfl);
+  if (! ret) return 1;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
   _ctxt = CovContext(nvar, ndim, 100, field);
@@ -748,23 +749,24 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
   {
     flag_aniso = flag_rotation = 0;
 
-    if (_recordRead(file, "Covariance Type", "%d", &type)) return 1;
-    if (_recordRead(file, "Isotropic Range", "%lf", &range)) return 1;
-    if (_recordRead(file, "Model third Parameter", "%lf", &param)) return 1;
-    if (_recordRead(file, "Flag for Anisotropy", "%d", &flag_aniso)) return 1;
+    ret = ret && _recordRead<int>(is, "Covariance Type", type);
+    ret = ret && _recordRead<double>(is, "Isotropic Range", range);
+    ret = ret && _recordRead<double>(is, "Model third Parameter", param);
+    ret = ret && _recordRead(is, "Flag for Anisotropy", flag_aniso);
+    if (! ret) return 1;
     if (flag_aniso)
     {
       aniso_ranges.resize(ndim);
       // In fact, the file contains the anisotropy coefficients
       // After reading, we must turn them into anisotropic ranges
       for (int idim = 0; idim < ndim; idim++)
-        if (_recordRead(file, "Anisotropy coefficient", "%lf", &aniso_ranges[idim]))
-          return 1;
+        ret = ret && _recordRead<double>(is, "Anisotropy coefficient", aniso_ranges[idim]);
+      if (! ret) return 1;
       for (int idim = 0; idim < ndim; idim++)
         aniso_ranges[idim] *= range;
 
-      if (_recordRead(file, "Flag for Anisotropy Rotation", "%d", &flag_rotation))
-        return 1;
+      ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+      if (! ret) return 1;
       if (flag_rotation)
       {
         // Warning: the storage in the File is performed by column
@@ -773,10 +775,10 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
         int lec = 0;
         for (int idim = 0; idim < ndim; idim++)
           for (int jdim = 0; jdim < ndim; jdim++)
-            if (_recordRead(file, "Anisotropy Rotation Matrix", "%lf",
-                            &aniso_rotmat[lec++])) return 1;
+            ret = ret && _recordRead<double>(is, "Anisotropy Rotation Matrix", aniso_rotmat[lec++]);
       }
     }
+    if (! ret) return 1;
 
     CovAniso cova(ECov::fromValue(type), _ctxt);
     cova.setParam(param);
@@ -796,11 +798,12 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
   DriftList drifts;
   for (int ibfl = 0; ibfl < nbfl; ibfl++)
   {
-    if (_recordRead(file, "Drift Function", "%d", &type)) return 1;
+    ret = ret && _recordRead<int>(is, "Drift Function", type);
     EDrift dtype = EDrift::fromValue(type);
     ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
     drift->setRankFex(0); // TODO : zero? really?
     drifts.addDrift(drift);
+    delete drift;
   }
   setDriftList(&drifts);
 
@@ -809,7 +812,7 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
   if (nbfl <= 0) for (int ivar = 0; ivar < nvar; ivar++)
   {
     double mean;
-    if (_recordRead(file, "Mean of Variable", "%lf", &mean)) return 1;
+    ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
     setMean(ivar, mean);
   }
 
@@ -820,8 +823,8 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
       {
-        if (_recordRead(file, "Matrix of Sills", "%lf", &value)) continue;
-        setSill(icova, ivar, jvar, value);
+        if (_recordRead<double>(is, "Matrix of Sills", value))
+          setSill(icova, ivar, jvar, value);
       }
   }
 
@@ -830,53 +833,48 @@ int Model::_deserialize(FILE* file, bool /*verbose*/)
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      if (_recordRead(file, "Variance-covariance at Origin", "%lf", &value)) continue;
-      setCovar0(ivar, jvar, value);
+      if (_recordRead<double>(is, "Variance-covariance at Origin", value))
+        setCovar0(ivar, jvar, value);
     }
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
-int Model::_serialize(FILE* file, bool /*verbose*/) const
+int Model::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   /* Write the Model structure */
 
-  _recordWrite(file, "%d", getDimensionNumber());
-  _recordWrite(file, "%d", getVariableNumber());
-  _recordWrite(file, "%lf", getField());
-  _recordWrite(file, "#", "General parameters");
-  _recordWrite(file, "%d", getCovaNumber());
-  _recordWrite(file, "#", "Number of basic covariance terms");
-  _recordWrite(file, "%d", getDriftNumber());
-  _recordWrite(file, "#", "Number of drift terms");
+  bool ret = _recordWrite<int>(os, "", getDimensionNumber());
+  ret = ret && _recordWrite<int>(os, "", getVariableNumber());
+  ret = ret && _recordWrite<double>(os, "General parameters", getField());
+  ret = ret && _recordWrite<int>(os, "Number of basic covariance terms", getCovaNumber());
+  ret = ret && _recordWrite<int>(os, "Number of drift terms", getDriftNumber());
 
   /* Writing the covariance part */
 
   for (int icova = 0; icova < getCovaNumber(); icova++)
   {
     const CovAniso *cova = getCova(icova);
-    _recordWrite(file, "%d", cova->getType().getValue());
-    _recordWrite(file, "%lf", cova->getRange());
-    _recordWrite(file, "%lf", cova->getParam());
-    _recordWrite(file, "#", "Covariance characteristics");
+    ret = ret && _recordWrite<int>(os, "", cova->getType().getValue());
+    ret = ret && _recordWrite<double>(os, "", cova->getRange());
+    ret = ret && _recordWrite<double>(os, "Covariance characteristics", cova->getParam());
 
     // Writing the Anisotropy information
 
-    _recordWrite(file, "%d", cova->getFlagAniso());
-    _recordWrite(file, "#", "Anisotropy Flag");
+    ret = ret && _recordWrite<int>(os, "Anisotropy Flag", cova->getFlagAniso());
 
     if (!cova->getFlagAniso()) continue;
     for (int idim = 0; idim < getDimensionNumber(); idim++)
-      _recordWrite(file, "%lf", cova->getAnisoCoeffs(idim));
-    _recordWrite(file, "#", "Anisotropy Coefficients");
-    _recordWrite(file, "%d", cova->getFlagRotation());
-    _recordWrite(file, "#", "Anisotropy Rotation Flag");
+      ret = ret && _recordWrite<double>(os, "", cova->getAnisoCoeffs(idim));
+    ret = ret && _commentWrite(os, "Anisotropy Coefficients");
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", cova->getFlagRotation());
+
     if (!cova->getFlagRotation()) continue;
     // Storing the rotation matrix by Column (compatibility)
     for (int idim = 0; idim < getDimensionNumber(); idim++)
       for (int jdim = 0; jdim < getDimensionNumber(); jdim++)
-        _recordWrite(file, "%lf", cova->getAnisoRotMat(jdim, idim));
-    _recordWrite(file, "#", "Anisotropy Rotation Matrix");
+        ret = ret && _recordWrite<double>(os, "", cova->getAnisoRotMat(jdim, idim));
+    _commentWrite(os, "Anisotropy Rotation Matrix");
   }
 
   /* Writing the drift part */
@@ -884,8 +882,7 @@ int Model::_serialize(FILE* file, bool /*verbose*/) const
   for (int ibfl = 0; ibfl < getDriftNumber(); ibfl++)
   {
     const ADriftElem *drift = getDrift(ibfl);
-    _recordWrite(file, "%d", drift->getType().getValue());
-    _recordWrite(file, "#", "Drift characteristics");
+    ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getType().getValue());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */
@@ -893,8 +890,7 @@ int Model::_serialize(FILE* file, bool /*verbose*/) const
   if (getDriftNumber() <= 0)
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     {
-      _recordWrite(file, "%lf", getContext().getMean(ivar));
-      _recordWrite(file, "#", "Mean of Variables");
+      ret = ret && _recordWrite<double>(os, "Mean of Variables", getContext().getMean(ivar));
     }
 
   /* Writing the matrices of sills (optional) */
@@ -903,16 +899,16 @@ int Model::_serialize(FILE* file, bool /*verbose*/) const
   {
     for (int ivar = 0; ivar < getVariableNumber(); ivar++)
       for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-        _recordWrite(file, "%lf", getSill(icova, ivar, jvar));
-    _recordWrite(file, "#", "Matrix of sills");
+        ret = ret && _recordWrite<double>(os, "", getSill(icova, ivar, jvar));
+    _commentWrite(os, "Matrix of sills");
   }
 
   /* Writing the variance-covariance at the origin (optional) */
 
   for (int ivar = 0; ivar < getVariableNumber(); ivar++)
     for (int jvar = 0; jvar < getVariableNumber(); jvar++)
-      _recordWrite(file, "%lf", getContext().getCovar0(ivar, jvar));
-  _recordWrite(file, "#", "Var-Covar at origin");
+      ret = ret && _recordWrite<double>(os, "", getContext().getCovar0(ivar, jvar));
+  _commentWrite(os, "Var-Covar at origin");
 
   return 0;
 }

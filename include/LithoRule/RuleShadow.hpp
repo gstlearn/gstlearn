@@ -74,8 +74,9 @@ public:
   double getShift(int idim) const { return _shift[idim]; }
 
 private:
-  int _deserializeSpecific(FILE* file) override;
-  void _serializeSpecific(FILE* file) const override;
+  virtual int _deserializeSpecific(std::istream& /*is*/);
+  void _serializeSpecific(std::ostream& os) const override;
+
   void _st_shadow_max(const Db *dbprop,
                       int flag_stat,
                       double *sh_dsup_max,

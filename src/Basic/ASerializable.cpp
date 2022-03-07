@@ -63,7 +63,7 @@ ASerializable::~ASerializable()
 {
 }
 
-bool ASerializable::_fileOpenWrite2(const String& filename,
+bool ASerializable::_fileOpenWrite(const String& filename,
                                     const String& filetype,
                                     std::ofstream& os,
                                     bool verbose)
@@ -74,14 +74,18 @@ bool ASerializable::_fileOpenWrite2(const String& filename,
   String filepath = buildFileName(filename, true);
   // Open new stream
   os.open(filepath, std::ios::out | std::ios::trunc);
-  if (!os.is_open() && verbose)
-    message("Error while opening %s", filepath.c_str());
+  if (!os.is_open())
+  {
+    if (verbose)
+      message("Error while opening %s", filepath.c_str());
+    return false;
+  }
   // Write the file type (class name)
   os << filetype << std::endl;
   return os.good();
 }
 
-bool ASerializable::_fileOpenRead2(const String& filename,
+bool ASerializable::_fileOpenRead(const String& filename,
                                    const String& filetype,
                                    std::ifstream& is,
                                    bool verbose)
@@ -92,401 +96,69 @@ bool ASerializable::_fileOpenRead2(const String& filename,
   String filepath = buildFileName(filename, true);
   // Open new stream
   is.open(filepath, std::ios::in);
-  if (!is.is_open() && verbose)
-    message("Error while opening %s", filepath.c_str());
+  if (!is.is_open())
+  {
+    if (verbose)
+      message("Error while opening %s", filepath.c_str());
+    return false;
+  }
   // Read and check the file type (class name)
   String type;
   is >> type;
-  if (type != filetype && verbose)
+  if (type != filetype)
   {
-    message("The file %s has the wrong type (read: %s, expected: %s)",
-            filepath.c_str(), type, filetype);
+    if (verbose)
+      messerr("The file %s has the wrong type (read: %s, expected: %s)",
+              filepath.c_str(), type, filetype);
     is.close();
+    return false;
   }
   return is.good(); // Cannot be "end of file" already
 }
 
-bool ASerializable::_commentWrite2(std::ostream& os,
+bool ASerializable::_commentWrite(std::ostream& os,
                                    const String& comment)
 {
   if (os.good())
   {
-    os << "# " << comment << std::endl;
+    if (comment.empty())
+      os << std::endl;
+    else
+      os << "# " << comment << std::endl;
   }
   return os.good();
 }
 
-/****************************************************************************/
-/*!
- **   Open an ASCII file
- **
- ** \return  FILE returned pointer
- **
- ** \param[in]  filename Local file name
- ** \param[in]  filetype Type of the file (optional [NULL] when 'w')
- ** \param[in]  mode     "r" or "w"
- ** \param[in]  verbose  Verbose flag
- **
- *****************************************************************************/
-FILE* ASerializable::_fileOpen(const String& filename,
-                               const String& filetype,
-                               const String& mode,
-                               bool verbose)
-{
-  FILE* file = nullptr;
-
-  if (filename.empty() || filetype.empty())
-  {
-    messerr("Arguments 'filename' or 'filetype' are not defined");
-    return nullptr;
-  }
-  else
-  {
-    // Build the multi-platform filename and open it
-    String fileComplete = buildFileName(filename, true);
-
-    // Optional printout
-    if (verbose)
-    {
-      message("Attempt to Open the File (%s) in mode (%s)\n",
-              fileComplete.c_str(), mode.c_str());
-    }
-
-    file = gslFopen(fileComplete, mode);
-    if (file == nullptr)
-    {
-      if (verbose)
-        messerr("Error when opening the Neutral File %s", fileComplete.c_str());
-      return nullptr;
-    }
-    else
-    {
-      if (verbose)
-        message("File successfully opened\n");
-    }
-
-    // Preliminary action
-    if (mode == "r")
-    {
-      char idtype[LONG_SIZE];
-      if (_recordRead(file, "File Type", "%s", idtype))
-      {
-        _fileClose(file, false);
-        return nullptr;
-      }
-      if (strcmp(idtype,filetype.c_str()))
-      {
-        if (verbose)
-          messerr(
-            "Error: in the File (%s), its Type (%s) does not match the requested one (%s)",
-            filename.c_str(), idtype, filetype.c_str());
-        _fileClose(file, false);
-        return nullptr;
-      }
-    }
-    else
-    {
-      // Write the File ID
-      if (!filetype.empty())
-      {
-        _recordWrite(file, "%s", filetype.c_str());
-        _recordWrite(file, "\n");
-      }
-    }
-  }
-  return file;
-}
-
-int ASerializable::_fileClose(FILE *file, bool verbose)
-{
-  if (file != nullptr)
-    fclose(file);
-
-  // Optional printout
-
-  if (verbose)
-    message("File is successfully closed\n");
-
-  return 0;
-}
-
-/**
- *
- * @param file  FILE structure
- * @param title Title to be printed
- * @param format String to be completed
- * @return
- *
- * @remarks: Format is not a reference here:
- * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
- * => roll back to const char* to prevent warning C4840 (MSVC)
- */
-int ASerializable::_recordRead(FILE* file, const char* title, const char* format, ...)
-{
-  va_list ap;
-  int error;
-
-  error = 0;
-  va_start(ap, format);
-  error = _fileRead(file, format, ap);
-
-  if (error > 0)
-    messerr("Error when reading '%s'", title);
-
-  va_end(ap);
-  return (error);
-}
-
-/**
- * Record a String in the Serialized file
- * @param file FILE structure
- * @param format String to be completed
- * @param ... Variable list of arguments
- * @return
- *
- * @remark Format is not a reference here:
- * https://stackoverflow.com/questions/222195/are-there-gotchas-using-varargs-with-reference-parameters
- * => roll back to const char* to prevent warning C4840 (MSVC)
- *
- * TODO : Impose that va_list arguments are stringable ? (For example, we can serialize ECov objects !)
- */
-void ASerializable::_recordWrite(FILE* file, const char* format, ...)
-{
-  va_list ap;
-  va_start(ap, format);
-  _fileWrite(file, format, ap);
-  va_end(ap);
-}
-
-void ASerializable::_tableWrite(FILE *file, const String& string, int ntab, const double *tab)
+bool ASerializable::_tableWrite(std::ostream& os,
+                                 const String& string,
+                                 int ntab,
+                                 const VectorDouble& tab)
 {
   char local[10000];
+  bool ret = true;
 
   for (int i = 0; i < ntab; i++)
   {
-    _recordWrite(file, "%lf", tab[i]);
     if (! string.empty())
     {
       (void) gslSPrintf(local, "%s (%d)", string, i + 1);
-      _recordWrite(file, "#", local);
+      ret = ret && _recordWrite<double>(os, local, tab[i]);
     }
     else
     {
-      _recordWrite(file, "\n");
+      ret = ret && _recordWrite<double>(os, "", tab[i]);
     }
   }
+  return ret;
 }
 
-int ASerializable::_tableRead(FILE* file, int ntab, double *tab)
+int ASerializable::_tableRead(std::istream& is, int ntab, double *tab)
 {
+  bool ret = true;
   for (int i = 0; i < ntab; i++)
-    if (_recordRead(file, "Reading Table", "%lf", &tab[i])) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Read the next token from the file
- **
- ** \return  -1 if the end-of-file has been found
- ** \return   1 for a decoding error
- ** \return   0 otherwise
- **
- ** \param[in]  file       FILE structure
- ** \param[in]  format     format
- ** \param[in]  ap         Value to be read
- **
- ** TODO : template function
- **
- *****************************************************************************/
-int ASerializable::_fileRead(FILE* file, const String& format, va_list ap)
-{
-  char DEL_COM = '#';
-  char DEL_SEP = ' ';
-  char DEL_BLK = ' ';
-  char DEL_TAB = '\t';
-
-  const char *fmt;
-  int    *ret_i;
-  float  *ret_f;
-  double *ret_d;
-  char   *ret_s;
-
-  /* Loop on the elements to read (from the format) */
-
-  int ideb = 0;
-  while (ideb < static_cast<int>(format.size()))
-  {
-    /* Eliminate the blanks */
-
-    if (format[ideb] == DEL_BLK)
-    {
-      ideb++;
-      continue;
-    }
-
-    label_start: fmt = &format[ideb];
-    if (LCUR == NULL)
-    {
-
-      /* Read the next line */
-
-      if (fgets(LINE, LONG_SIZE, file) == NULL) return (-1);
-      size_t wsize = strcspn(LINE, "\r\n");
-      if (wsize > 0)
-        LINE[wsize] = 0;
-      else
-        LINE[strlen(LINE)-1] = '\0';
-      (void) gslStrcpy(LINE_MEM, LINE);
-
-      /* Eliminate the comments and replace <TAB> by blank*/
-
-      int flag_com = 0;
-      for (unsigned int i = 0; i < strlen(LINE); i++)
-      {
-        if (LINE[i] == DEL_TAB) LINE[i] = DEL_BLK;
-        if (LINE[i] == DEL_COM)
-        {
-          flag_com = 1 - flag_com;
-          LINE[i] = '\0';
-        }
-        else
-        {
-          if (flag_com) LINE[i] = '\0';
-        }
-      }
-      cur = LINE;
-    }
-
-    /* Decode the line looking for the next token */
-
-    LCUR = gslStrtok(cur, &DEL_SEP);
-    cur = NULL;
-    if (LCUR == NULL) goto label_start;
-
-    /* Reading */
-
-    if (!strcmp(fmt, "%s"))
-    {
-      ret_s = va_arg(ap, char *);
-      if (!_onlyBlanks(LCUR))
-      {
-        if (gslSScanf(LCUR, "%s", ret_s) <= 0) return (1);
-      }
-      ideb += 2;
-    }
-    else if (!strcmp(fmt, "%d"))
-    {
-      ret_i = va_arg(ap, int *);
-      if (gslSScanf(LCUR, "%d", ret_i) <= 0) return (1);
-      ideb += 2;
-      if (*ret_i == (int) ASCII_TEST) *ret_i = ITEST;
-    }
-    else if (!strcmp(fmt, "%f"))
-    {
-      ret_f = va_arg(ap, float *);
-      if (gslSScanf(LCUR, "%f", ret_f) <= 0) return (1);
-      ideb += 2;
-      if (*ret_f == ASCII_TEST) *ret_f = TEST;
-    }
-    else if (!strcmp(fmt, "%lf"))
-    {
-      ret_d = va_arg(ap, double *);
-      if (gslSScanf(LCUR, "%lf", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-    }
-    else if (!strcmp(fmt, "%lg"))
-    {
-      ret_d = va_arg(ap, double *);
-      if (gslSScanf(LCUR, "%lg", ret_d) <= 0) return (1);
-      ideb += 3;
-      if (*ret_d == ASCII_TEST) *ret_d = TEST;
-    }
-    else
-    {
-      messerr("Wrong format %s", fmt);
-      va_end(ap);
-      return (2);
-    }
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Write the next token from the file
- **
- ** \param[in]  file       FILE structure
- ** \param[in]  format     Encoding format
- ** \param[in]  ap         Value to be written
- **
- ** TODO : template function
- **
- *****************************************************************************/
-void ASerializable::_fileWrite(FILE* file, const String& format, va_list ap)
-{
-  double ret_d;
-  char *ret_s;
-  bool no_blank = false;
-
-  /* Writing */
-
-  if (format == "%s")
-  {
-    ret_s = va_arg(ap, char *);
-    fprintf(file, "%s", ret_s);
-  }
-  else if (format == "%d")
-  {
-    int ret_i = va_arg(ap, int);
-    if (FFFF(ret_i))
-      fprintf(file, "%5.1lf", ASCII_TEST);
-    else
-      fprintf(file, "%d", ret_i);
-  }
-  else if (format == "%f")
-  {
-    ret_d = va_arg(ap, double);
-    if (FFFF(ret_d))
-      fprintf(file, "%5.1lf", ASCII_TEST);
-    else
-      fprintf(file, "%f", ret_d);
-  }
-  else if (format == "%lf")
-  {
-    ret_d = va_arg(ap, double);
-    if (FFFF(ret_d))
-      fprintf(file, "%5.1lf", ASCII_TEST);
-    else
-      fprintf(file, "%lf", ret_d);
-  }
-  else if (format == "%lg")
-  {
-    ret_d = va_arg(ap, double);
-    if (FFFF(ret_d))
-      fprintf(file, "%5.1lf", ASCII_TEST);
-    else
-      fprintf(file, "%lg", ret_d);
-  }
-  else if (format == "\n")
-  {
-    fprintf(file, "\n");
-    no_blank = true;
-  }
-  else if (format == "#")
-  {
-    ret_s = va_arg(ap, char *);
-    fprintf(file, "# %s\n", ret_s);
-    no_blank = true;
-  }
-  else
-  {
-    messerr("Wrong format %s", format.c_str());
-    return;
-  }
-  if (!no_blank) fprintf(file, " ");
-  return;
+    ret = ret && _recordRead<double>(is, "Reading Table", tab[i]);
+  if (! ret) return 1;
+  return 0;
 }
 
 bool ASerializable::_onlyBlanks(char *string)
@@ -550,6 +222,21 @@ String ASerializable::getHomeDirectory(const String& sub)
   if (!sub.empty())
     sstr << "/" << sub;
   return sstr.str();
+}
+
+String ASerializable::getWorkingDirectory()
+{
+  String path = "";
+#if defined(_WIN32) || defined(_WIN64)
+  char buffer[LONG_SIZE];
+  if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)
+    path = String(buffer);
+#else
+  char buffer[LONG_SIZE];
+  if (getcwd(buffer, sizeof(buffer)) != NULL)
+    path = String(buffer);
+#endif
+  return path;
 }
 
 /**

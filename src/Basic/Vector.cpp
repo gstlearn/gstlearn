@@ -94,14 +94,13 @@ void ut_vector_display_stats(const String &title, const VectorDouble &vect)
   {
     mean /= (double) number;
     stdv = stdv / (double) number - mean * mean;
-    stdv = (stdv > 0.) ? sqrt(stdv) :
-                         0.;
+    stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
-    message("- Minimum  = %lf\n", mini);
-    message("- Maximum  = %lf\n", maxi);
-    message("- Mean     = %lf\n", mean);
-    message("- St. Dev. = %lf\n", stdv);
+    message("- Minimum  = %s\n", toDouble(mini).c_str());
+    message("- Maximum  = %s\n", toDouble(maxi).c_str());
+    message("- Mean     = %s\n", toDouble(mean).c_str());
+    message("- St. Dev. = %s\n", toDouble(stdv).c_str());
   }
   else
   {
@@ -554,14 +553,14 @@ VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
 int ut_vector_size(const VectorInt &vec)
 {
   if (vec.empty()) return 0;
-  int size = sizeof(std::vector<int>) + (sizeof(int) * (int) vec.size());
+  int size = sizeof(VectorInt) + (sizeof(int) * (int) vec.size());
   return size;
 }
 
 int ut_vector_size(const VectorDouble &vec)
 {
   if (vec.empty()) return 0;
-  int size = sizeof(std::vector<double>) + (sizeof(double) * (int) vec.size());
+  int size = sizeof(VectorDouble) + (sizeof(double) * (int) vec.size());
   return size;
 }
 
@@ -570,7 +569,7 @@ int ut_vector_size(const VectorVectorInt &vec)
   int size = 0;
   if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
-    size += sizeof(std::vector<int>) + (sizeof(int) * (int) vec[i].size());
+    size += sizeof(VectorInt) + (sizeof(int) * (int) vec[i].size());
   return size;
 
 }
@@ -580,12 +579,13 @@ int ut_vector_size(const VectorVectorDouble &vec)
   int size = 0;
   if (vec.empty()) return size;
   for (auto i = 0; i != (int) vec.size(); i++)
-    size += sizeof(std::vector<double>) + (sizeof(double) * (int) vec[i].size());
+    size += sizeof(VectorDouble) + (sizeof(double) * (int) vec[i].size());
   return size;
 }
 
 VectorInt ut_ivector_set(int* values, int number)
 {
+  if (values == nullptr) return VectorInt();
   VectorInt vec(number);
   for (int i = 0; i < number; i++) vec[i] = values[i];
   return vec;
@@ -593,8 +593,23 @@ VectorInt ut_ivector_set(int* values, int number)
 
 VectorDouble ut_vector_set(double* values, int number)
 {
+  if (values == nullptr) return VectorDouble();
   VectorDouble vec;
   for (int i = 0; i < number; i++) vec[i] = values[i];
+  return vec;
+}
+
+VectorVectorDouble ut_vector_vector_set(double* value, int n1, int n2)
+{
+  if (value == nullptr) return VectorVectorDouble();
+  VectorVectorDouble vec;
+  vec.resize(n1);
+  for (int i1 = 0; i1 < n1; i1++) vec[i1].resize(n2);
+
+  int lec = 0;
+  for (int i1 = 0; i1 < n1; i1++)
+    for (int i2 = 0; i2 < n2; i2++)
+      vec[i1][i2] = value[lec++];
   return vec;
 }
 

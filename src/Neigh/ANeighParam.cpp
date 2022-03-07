@@ -22,7 +22,8 @@ ANeighParam::ANeighParam(int ndim, bool flag_xvalid)
       ASerializable(),
       _nDim(ndim),
       _flagXvalid(flag_xvalid),
-      _flagContinuous(0),
+      _flagContinuous(false),
+      _flagKFold(false),
       _distCont(0.)
 {
 }
@@ -36,6 +37,7 @@ ANeighParam& ANeighParam::operator=(const ANeighParam& r)
     _nDim = r._nDim;
     _flagXvalid = r._flagXvalid;
     _flagContinuous = r._flagContinuous;
+    _flagKFold = r._flagKFold;
     _distCont = r._distCont;
    }
   return *this;
@@ -51,6 +53,7 @@ ANeighParam::ANeighParam(const ANeighParam& r)
       _nDim(r._nDim),
       _flagXvalid(r._flagXvalid),
       _flagContinuous(r._flagContinuous),
+      _flagKFold(r._flagKFold),
       _distCont(r._distCont)
 {
 }
@@ -64,18 +67,19 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
   sstr << toTitle(0,"Neighborhood characteristics");
 
   sstr << "Space dimension = " << getNDim() << std::endl;
-  if (getFlagXvalid() != 0)
+  if (getFlagXvalid())
     sstr << "The Cross-Validation Option is switched ON" << std::endl;
 
   return sstr.str();
 }
 
-int ANeighParam::_deserialize(FILE* file, bool /*verbose*/)
+int ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, flag_xvalid;
 
-  if (_recordRead(file, "Space Dimension", "%d", &ndim)) return 1;
-  if (_recordRead(file, "Cross-validation flag", "%d", &flag_xvalid)) return 1;
+  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Cross-validation flag", flag_xvalid);
+  if (! ret) return 1;
 
   setNDim(ndim);
   setFlagXvalid(flag_xvalid);
@@ -83,14 +87,12 @@ int ANeighParam::_deserialize(FILE* file, bool /*verbose*/)
   return 0;
 }
 
-int ANeighParam::_serialize(FILE* file, bool /*verbose*/) const
+int ANeighParam::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  _recordWrite(file, "%d", getNDim());
-  _recordWrite(file, "#", "Space Dimension");
-  _recordWrite(file, "%d", getFlagXvalid());
-  _recordWrite(file, "#", "Cross-Validation flag");
+  bool ret = _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<int>(os, "Cross-Validation flag", getFlagXvalid());
 
-  return 0;
+  return ret ? 0 : 1;
 }
 
 bool ANeighParam::_isDimensionValid(int idim) const

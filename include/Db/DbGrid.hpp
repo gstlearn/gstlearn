@@ -51,9 +51,10 @@ public:
   inline bool isGrid() const override { return true; }
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   int getNDim() const override;
+  bool mayChangeSampleNumber() const { return false; }
 
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = false);
 
@@ -139,6 +140,10 @@ public:
   {
     return _grid.coordinateToRank(coor,eps);
   }
+  int indiceToRank(const VectorInt& indice) const
+  {
+    return _grid.indiceToRank(indice);
+  }
   void rankToCoordinate(int rank,
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
@@ -148,8 +153,8 @@ public:
 
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   void _createCoordinatesGrid(int icol0);

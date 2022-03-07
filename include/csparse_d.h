@@ -92,9 +92,9 @@ public:
     bool flagFromOne;
     int nrows;
     int ncols;
-    std::vector<int> rows;
-    std::vector<int> cols;
-    std::vector<double> values;
+    VectorInt rows;
+    VectorInt cols;
+    VectorDouble values;
 };
 
 #endif

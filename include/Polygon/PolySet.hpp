@@ -55,8 +55,8 @@ public:
   void setY(const VectorDouble& y) { _y = y; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   VectorDouble _x;
@@ -65,6 +65,4 @@ private:
   double _zmax;
 
   friend class Polygons; // TODO: to be improved (make serialize public)
-//  friend Polygons::_deserialize(FILE* file, bool verbose = false);
-//  friend Polygons::_serialize(FILE* file, bool verbose = false);
 };

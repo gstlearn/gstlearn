@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
       /* Calculate the experimental variograms */
       
       vario->attachDb(dbin);
-      vario->compute("vg");
+      vario->computeByKey("vg");
       variogram_print(vario);
       ascii_filename("Vario",0,1,filename);
       if (vario->dumpToNF(filename,verbose))

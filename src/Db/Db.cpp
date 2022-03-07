@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "Db/Db.hpp"
+#include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
@@ -102,14 +103,14 @@ int Db::resetFromSamples(int nech,
  *
  * @param filename   Name of the CSV file
  * @param verbose    Verbose flag
- * @param csv        Description of the CSV format
+ * @param csvfmt     Description of the CSV format
  * @param ncol_max   Maximum number of columns
  * @param nrow_max   Maximum number of rows
  * @param flag_add_rank 1 if the sample rank must be generated
  */
 int Db::resetFromCSV(const String& filename,
                      bool verbose,
-                     const CSVformat& csv,
+                     const CSVformat& csvfmt,
                      int ncol_max,
                      int nrow_max,
                      int flag_add_rank)
@@ -121,10 +122,8 @@ int Db::resetFromCSV(const String& filename,
 
   /* Reading the CSV file */
 
-  if (csv_table_read(filename, (int) verbose,
-                     csv.getFlagHeader(), csv.getNSkip(),
-                     csv.getCharSep(), csv.getCharDec(),csv.getNaString(),
-                     ncol_max, nrow_max, &ncol, &nrow, names, tab))
+  if (csv_table_read(filename, csvfmt, (int) verbose, ncol_max, nrow_max,
+                     &ncol, &nrow, names, tab))
   {
     messerr("Problem when reading CSV file");
     return 1;
@@ -141,7 +140,6 @@ int Db::resetFromCSV(const String& filename,
   _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   // Set the names
-
   _defineDefaultNames(flag_add_rank, names);
 
   // Locators: Try to guess them from the Names
@@ -1160,6 +1158,14 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
     deleteColumnByColIdx(v[i]);
 }
 
+void Db::deleteColumnsByUID(const VectorInt& iuids)
+{
+  if (iuids.empty()) return;
+
+  for (unsigned int i = 0; i < iuids.size(); i++)
+    deleteColumnByUID(iuids[i]);
+}
+
 /**
  * Add the contents of the 'tab' as a Selection
  * @param tab Input array
@@ -1240,8 +1246,19 @@ int Db::addSelectionByLimit(const String& testvar,
   return iuid;
 }
 
+/**
+ * Add samples to the Data Base
+ * @param nadd    Number of samples to be added
+ * @param valinit Default value given to the added samples
+ * @return Index of the first newly added sample (or -1 if adding samples is not authorized)
+ */
 int Db::addSamples(int nadd, double valinit)
 {
+  if (! mayChangeSampleNumber())
+  {
+    messerr("This type of Data Base does not allow modifying the Count of Samples");
+    return -1;
+  }
   int nech = _nech;
   int nnew = nech + nadd;
   if (nadd <= 0) return (-1);
@@ -1268,11 +1285,21 @@ int Db::addSamples(int nadd, double valinit)
   return (nech);
 }
 
-void Db::deleteSample(int e_del)
+/**
+ * Deleting a sample
+ * @param e_del Index of the sample to be deleted
+ * @return 0 if successfull or -1 if sample deletion is not authorized
+ */
+int Db::deleteSample(int e_del)
 {
+  if (! mayChangeSampleNumber())
+  {
+    messerr("This type of Data Base does not allow modifying the Count of Samples");
+    return 1;
+  }
   int nech = _nech;
   int nnew = nech - 1;
-  if (!isSampleIndexValid(e_del)) return;
+  if (!isSampleIndexValid(e_del)) return 1;
 
   /* Core allocation */
 
@@ -1294,6 +1321,7 @@ void Db::deleteSample(int e_del)
 
   _array = new_array;
   _nech = nnew;
+  return 0;
 }
 
 void Db::deleteColumnByColIdx(int icol_del)
@@ -2633,6 +2661,9 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 {
   std::stringstream sstr;
 
+  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  if (ncol <= 0) return sstr.str();
+
   sstr << toTitle(1, "Data Base Statistics");
 
   int nval, nmask, ntest, nout;
@@ -2642,7 +2673,6 @@ String Db::_summaryStats(VectorInt cols, int mode, int maxNClass) const
 
   // Loop on the columns
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
   for (int jcol = 0; jcol < ncol; jcol++)
   {
     int icol = (cols.empty()) ? jcol :
@@ -2706,9 +2736,11 @@ String Db::_summaryArrays(VectorInt cols, bool useSel) const
 {
   std::stringstream sstr;
 
+  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
+  if (ncol <= 0) return sstr.str();
+
   sstr << toTitle(1, "Data Base Contents");
 
-  int ncol = (cols.empty()) ? getColumnNumber() : static_cast<int> (cols.size());
   int number = getSampleNumber(useSel);
 
   VectorDouble tab;
@@ -2972,6 +3004,12 @@ int Db::getColIdx(const String& name) const
   VectorString exp_name = expandNameList(name);
   if (exp_name.empty()) return -1;
   return getRankInList(_colNames, exp_name[0]);
+}
+
+VectorInt Db::getColIdxs(const String& name) const
+{
+  VectorString exp_names = expandNameList(name);
+  return getColIdxs(exp_names);
 }
 
 VectorInt Db::getColIdxs(const VectorString& names) const
@@ -3285,27 +3323,27 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
-int Db::dumpToNF2(const String& neutralFilename, bool verbose) const
+int Db::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   int ret = 1;
-  if (_fileOpenWrite2(neutralFilename, "Db", os, verbose))
+  if (_fileOpenWrite(neutralFilename, "Db", os, verbose))
   {
-    ret = _serialize2(os, verbose);
+    ret = _serialize(os, verbose);
     if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename);
     os.close();
   }
   return ret;
 }
 
-Db* Db::createFromNF2(const String& neutralFilename, bool verbose)
+Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 {
   Db* db = nullptr;
   std::ifstream is;
-  if (_fileOpenRead2(neutralFilename, "Db", is, verbose))
+  if (_fileOpenRead(neutralFilename, "Db", is, verbose))
   {
     db = new Db;
-    if (db->_deserialize2(is, verbose))
+    if (db->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename);
       delete db;
@@ -3316,15 +3354,15 @@ Db* Db::createFromNF2(const String& neutralFilename, bool verbose)
   return db;
 }
 
-int Db::_serialize2(std::ostream& os,bool /*verbose*/) const
+int Db::_serialize(std::ostream& os,bool /*verbose*/) const
 {
   int ncol = getColumnNumber();
   VectorString locators = getLocators(1);
   VectorString names = getNames("*");
-  bool ret = _recordWrite2<int>(os, "Number of variables", ncol);
-  ret = ret && _recordWriteVec2<VectorString>(os, "Locators", locators);
-  ret = ret && _recordWriteVec2<VectorString>(os, "Names", names);
-  ret = ret && _commentWrite2(os, "Array of values");
+  bool ret = _recordWrite<int>(os, "Number of variables", ncol);
+  ret = ret && _recordWriteVec<String>(os, "Locators", locators);
+  ret = ret && _recordWriteVec<String>(os, "Names", names);
+  ret = ret && _commentWrite(os, "Array of values");
   VectorInt uids = getAllUIDs();
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
   {
@@ -3332,27 +3370,32 @@ int Db::_serialize2(std::ostream& os,bool /*verbose*/) const
     VectorDouble vals;
     for (int icol = 0; icol < ncol; icol++)
       vals.push_back(getArray(iech, uids[icol]));
-    ret = ret && _recordWriteVec2(os, "", vals);
+    ret = ret && _recordWriteVec(os, "", vals);
   }
   return ret ? 0 : 1;
 }
 
-int Db::_deserialize2(std::istream& is, bool /*verbose*/)
+int Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ncol = 0, nech = 0;
   VectorString locators;
   VectorString names;
   VectorDouble values;
   VectorDouble allvalues;
+
   // Read the file
-  bool ret = _recordRead2<int>(is, "Number of variables", ncol);
-  ret = ret && _recordReadVec2<VectorString>(is, "Locators", locators);
-  if (!ret || (int)locators.size() != ncol) return 1;
-  ret = ret && _recordReadVec2<VectorString>(is, "Names", names);
-  if (!ret || (int)names.size() != ncol) return 1;
+  bool ret = _recordRead<int>(is, "Number of variables", ncol);
+  if (ncol > 0)
+  {
+    ret = ret && _recordReadVec<String>(is, "Locators", locators);
+    if (!ret || (int) locators.size() != ncol) return 1;
+    ret = ret && _recordReadVec<String>(is, "Names", names);
+    if (!ret || (int) names.size() != ncol) return 1;
+  }
+
   while (ret)
   {
-    ret = _recordReadVec2<VectorDouble>(is, "", values);
+    ret = _recordReadVec<double>(is, "Array of values", values);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;
@@ -3362,6 +3405,7 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
       nech++;
     } // else "end of file"
   }
+
   // Decode the locators
   std::vector<ELoc> tabloc;
   VectorInt tabnum;
@@ -3373,8 +3417,10 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
     tabloc.push_back(iloc);
     tabnum.push_back(inum);
   }
+
   // Initialize the Db
   resetDims(ncol, nech);
+
   // Load the values
   _loadData(ELoadBy::SAMPLE, 0, allvalues);
   // Update the column names and locators
@@ -3384,220 +3430,6 @@ int Db::_deserialize2(std::istream& is, bool /*verbose*/)
     setLocatorByUID(i, tabloc[i], tabnum[i]);
   }
   return 0;
-}
-
-int Db::_serialize(FILE* file, bool /*verbose*/) const
-{
-  bool onlyLocator = false;
-  bool writeCoorForGrid = true;
-  bool flag_grid = isGrid();
-
-  /* Writing the tail of the file */
-
-  if (_variableWrite(file, flag_grid, onlyLocator, writeCoorForGrid)) return 1;
-
-  return 0;
-}
-
-int Db::_deserialize(FILE* file, bool /*verbose*/)
-{
-  int ndim2, ntot, nloc, nech, i;
-  VectorInt tabnum;
-  std::vector<ELoc> tabloc;
-  VectorString tabnam;
-  VectorDouble tab;
-  static int flag_add_rank = 0;
-
-  /* Initializations */
-
-  nloc = nech = ntot = 0;
-
-  /* Reading the tail of the file */
-
-  _variableRead(file, &nloc, &ndim2, &nech, tabloc, tabnum, tabnam, tab);
-
-  /* Creating the Db */
-
-  resetDims(nloc + flag_add_rank, nech);
-  _loadData(ELoadBy::SAMPLE, flag_add_rank, tab);
-
-  /* Loading the names */
-
-  if (nloc > 0)
-    for (i = 0; i < nloc; i++)
-      setNameByUID(i + flag_add_rank, tabnam[i]);
-
-  /* Create the locators */
-
-  if (nloc > 0)
-    for (i = 0; i < nloc; i++)
-      setLocatorByUID(i + flag_add_rank, tabloc[i], tabnum[i]);
-
-  /* Core deallocation */
-
-  label_end:
-  return 0;
-}
-
-int Db::_variableWrite(FILE* file,bool flag_grid, bool onlyLocator, bool writeCoorForGrid) const
-{
-  int ecr, item, rankZ;
-  ELoc locatorType = ELoc::UNKNOWN;
-
-  /* Preliminary check */
-
-  if (getColumnNumber() <= 0 || getSampleNumber() <= 0) return 0;
-
-  /* Count the number of variables to be written */
-
-  int ncol = 0;
-  for (int icol = 0; icol < getColumnNumber(); icol++)
-  {
-    if (!getLocatorByColIdx(icol, &locatorType, &item))
-    {
-      if (onlyLocator) continue;
-      locatorType = ELoc::UNKNOWN;
-    }
-    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
-    ncol++;
-  }
-  _recordWrite(file, "%d", ncol);
-  _recordWrite(file, "#", "Number of variables");
-
-  /* Print the locators */
-
-  _recordWrite(file, "#", "Locators");
-  rankZ = getLocatorNumber(ELoc::Z);
-  ecr = 0;
-  for (int icol =  0; icol < getColumnNumber(); icol++)
-  {
-    if (! getLocatorByColIdx(icol, &locatorType, &item))
-    {
-      if (onlyLocator) continue;
-      locatorType = ELoc::UNKNOWN;
-      item = rankZ++;
-    }
-    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
-    if (ecr >= ncol) break;
-    String string = getLocatorName(locatorType, item);
-    _recordWrite(file, "%s", string.c_str());
-    ecr++;
-  }
-  _recordWrite(file, "\n");
-
-  /* Print the variable names */
-
-  _recordWrite(file, "#", "Names");
-  VectorInt iuids;
-  ecr = 0;
-  for (int icol = 0; icol < getColumnNumber(); icol++)
-  {
-    if (! getLocatorByColIdx(icol, &locatorType, &item))
-    {
-      if (onlyLocator) continue;
-      locatorType = ELoc::Z;
-    }
-    if (flag_grid && locatorType == ELoc::X && ! writeCoorForGrid) continue;
-    if (ecr >= ncol) break;
-    _recordWrite(file, "%s", getNameByColIdx(icol).c_str());
-    iuids.push_back(getUID(getNameByColIdx(icol)));
-    ecr++;
-  }
-  _recordWrite(file, "\n");
-
-  /* Print the array of values */
-
-  _recordWrite(file, "#", "Array of values");
-  for (int iech = 0; iech < getSampleNumber(); iech++)
-  {
-    if (!flag_grid && !getSelection(iech)) continue;
-    for (int icol = 0; icol < ncol; icol++)
-      _recordWrite(file, "%lf", getArray(iech, iuids[icol]));
-    _recordWrite(file, "\n");
-  }
-  return (0);
-}
-
-void Db::_variableRead(FILE* file,
-                       int *nloc_r,
-                       int *ndim_r,
-                       int *nech_r,
-                       std::vector<ELoc>& tabloc,
-                       VectorInt& tabnum,
-                       VectorString& tabnam,
-                       VectorDouble& tab)
-{
-  char line[LONG_SIZE];
-  int  inum, nloc, ndim, nval, ecr, mult;
-  ELoc iloc;
-  double value;
-
-  /* Initializations */
-
-  nloc = nval = ndim = 0;
-
-  /* Read the number of variables */
-
-  if (_recordRead(file, "Number of Variables", "%d", &nloc))
-  {
-    // This is not necessarily an error (i.e. no column)
-    goto label_end;
-  }
-
-  /* Decoding the locators */
-
-  ecr = 0;
-  while (1)
-  {
-    if (ecr >= nloc) break;
-    if (_recordRead(file, "Locator Name", "%s", line))
-    {
-      std::cout << "Failure while reading locators" << std::endl;
-      goto label_end;
-    }
-    if (locatorIdentify(line, &iloc, &inum, &mult)) break;
-    tabloc.push_back(iloc);
-    tabnum.push_back(inum);
-    if (iloc == ELoc::X) ndim++;
-    ecr++;
-  }
-
-  /* Decoding the names */
-
-  ecr = 0;
-  while (1)
-  {
-    if (ecr >= nloc) break;
-    if (_recordRead(file, "Variable Name", "%s", line))
-    {
-      std::cout << "Failure while reading column names" << std::endl;
-      goto label_end;
-    }
-    tabnam.push_back(line);
-    ecr++;
-  }
-
-  /* Read the numeric values */
-
-  while (1)
-  {
-    if (_recordRead(file, "Numerical value", "%lf", &value))
-    {
-      // This is not a failure... just the end of file
-      goto label_end;
-    }
-    tab.push_back(value);
-    nval++;
-  }
-
-  label_end:
-
-  /* Returning arguments */
-
-  *nloc_r = nloc;
-  *nech_r = (nloc > 0) ? nval / nloc : 0;
-  *ndim_r = ndim;
-  return;
 }
 
 void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab)
@@ -3954,45 +3786,5 @@ Db* Db::createSamplingDb(const Db* dbin,
     delete db;
     return nullptr;
   }
-  return db;
-}
-
-int Db::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  FILE* file = _fileOpen(neutralFilename, "Db", "w", verbose);
-  if (file == nullptr) return 1;
-
-  if (_serialize(file, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    _fileClose(file, verbose);
-    return 1;
-  }
-  _fileClose(file, verbose);
-  return 0;
-}
-
-/**
- * Create a Db by loading the contents of a Neutral File
- *
- * @param neutralFilename Name of the Neutral File (Db format)
- * @param verbose         Verbose
- *
- * @remarks The name does not need to be completed in particular when defined by absolute path
- * @remarks or read from the Data Directory (in the gstlearn distribution)
- */
-Db* Db::createFromNF(const String& neutralFilename, bool verbose)
-{
-  FILE* file = _fileOpen(neutralFilename, "Db", "r", verbose);
-  if (file == nullptr) return nullptr;
-
-  Db* db = new Db;
-  if (db->_deserialize(file, verbose))
-  {
-    if (verbose) messerr("Problem reading the Neutral File.");
-    delete db;
-    db = nullptr;
-  }
-  _fileClose(file, verbose);
   return db;
 }

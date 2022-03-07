@@ -77,8 +77,8 @@ public:
   const MatrixRectangular& getStats() const { return _stats; }
 
 protected:
-  virtual int _deserialize(FILE* file, bool verbose = false) override;
-  virtual int _serialize(FILE* file, bool verbose = false) const override;
+  virtual int _deserialize(std::istream& is, bool verbose) override;
+  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
   bool _isClassValid(int iclass) const;

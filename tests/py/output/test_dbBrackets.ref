@@ -1,0 +1,124 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+ [[ 0.28847906]
+ [-0.46295408]
+ [-1.33800442]
+ [ 2.31701567]]
+[[-1.46737593]
+ [-0.74854769]
+ [-1.01752136]
+ [ 1.6350668 ]]
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+ [[-1.46737593  0.92254561]
+ [-0.74854769 -0.71988132]
+ [-1.01752136 -0.96488339]
+ [ 1.6350668   0.25358279]]
+[[0. 1.]
+ [0. 0.]
+ [0. 0.]
+ [1. 1.]]
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+Column = 5 - Name = newvar-1 - Locator = NA
+Column = 6 - Name = newvar-2 - Locator = NA
+Column = 7 - Name = newvar-3 - Locator = NA
+ [[ 0.3080074  -0.071606   -1.13548051]
+ [-0.1022454   0.80818623  0.23199239]
+ [-1.40035848  0.71590778 -2.12456763]
+ [ 1.24141343  0.23631196 -1.08889182]]
+[[        nan -0.071606   -1.13548051]
+ [-0.1022454   0.80818623  0.23199239]
+ [-1.40035848  0.71590778 -2.12456763]
+ [ 1.24141343  0.23631196 -1.08889182]]

@@ -1,25 +1,43 @@
 from setuptools import setup
 
+# Decorate wheel output file with platform name
+# https://stackoverflow.com/questions/45150304/how-to-force-a-python-wheel-to-be-platform-specific-when-building-it
+try:
+    from wheel.bdist_wheel import bdist_wheel as _bdist_wheel
+    class bdist_wheel(_bdist_wheel):
+        def finalize_options(self):
+            _bdist_wheel.finalize_options(self)
+            self.root_is_pure = False
+except ImportError:
+    bdist_wheel = None
+    
 def get_long_description():
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
     return long_description
 
+# TODO : addition python package description
+# - authors
+# - email
+# - license file
+# - project URLs
+
 setup(
     name="@PYTHON_PACKAGE_NAME@",
     version="@PROJECT_VERSION@",
-    author="Team gstlearn", # TODO author
-    author_email="gstlearn@groupes.mines-paristech.fr", # TODO email
+    author="Team gstlearn",
+    author_email="gstlearn@groupes.mines-paristech.fr",
     description="@PROJECT_DESCRIPTION@",
     long_description=get_long_description(),
-    # TODO license file
-    url="@PROJECT_HOMEPAGE_URL@",
+    long_description_content_type="text/markdown",
+    url="@PROJECT_HOMEPAGE_URL@", 
     project_urls={
-        "Bug Tracker": "https://github.com/gstlearn/gstlearn/issues", # TODO project URLs
+        "Bug Tracker": "https://github.com/gstlearn/gstlearn/issues",
     },
     packages={"@PYTHON_PACKAGE_NAME@"},
     package_data={"@PYTHON_PACKAGE_NAME@":["$<TARGET_FILE_NAME:@PYTGT@>"]},
     include_package_data=True,
+    cmdclass={'bdist_wheel': bdist_wheel},
     classifiers=[
         "Programming Language :: Python :: 3",
         "Development Status :: 4 - Beta",
