@@ -6,7 +6,7 @@ on:
       logLevel:
         description: 'Manual'     
         required: false
-        default: 'warning'  
+        default: ''  
 
 env:
   BUILD_TYPE: Release
@@ -16,9 +16,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy :
+      max-parallel: 6
       matrix:
-       python: ["py35"]
-#,"py36","py37","py38","py39","py310"]
+       python: ["py35","py36","py37","py38","py39","py310"]
     container:
       image: ndesassis/compile_gstlearn_linux_full
  
@@ -30,7 +30,7 @@ jobs:
       run : deploy/pythonBuild.sh  ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}} ${{matrix.python}}
      
     - name : Upload
-      run : python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+      run : /opt/python/p310/bin/python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}

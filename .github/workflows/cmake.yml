@@ -4,7 +4,7 @@ on:
   # Deactivate the workflow
   # push:
   #  branches-ignore:
-      - '**'
+  #    - '**'
   push:
     branches: [ main ]
   pull_request:
