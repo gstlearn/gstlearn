@@ -14,13 +14,15 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-// Enums
+#include "Basic/CSVformat.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
+#include "Neigh/ANeighParam.hpp"
+#include "Neigh/NeighImage.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -321,18 +323,6 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  int opt_code = 0,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", ELoc::SEL));
-GSTLEARN_EXPORT int kriging_old(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeighParam *neighparam,
-                            const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
-                            int flag_est = 1,
-                            int flag_std = 1,
-                            int flag_varz = 0,
-                            VectorInt ndisc = VectorInt(),
-                            VectorInt rank_colcok = VectorInt(),
-                            VectorVectorDouble matCL = VectorVectorDouble(),
-                            const NamingConvention& namconv = NamingConvention("Kriging"));
 GSTLEARN_EXPORT int kriging(Db *dbin,
                             Db *dbout,
                             Model *model,
@@ -345,6 +335,10 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt rank_colcok = VectorInt(),
                             VectorVectorDouble matCL = VectorVectorDouble(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
+GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
+                            Model *model,
+                            NeighImage *neighparam,
+                            const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int xvalid_old(Db *db,
                            Model *model,
                            ANeighParam *neighparam,
@@ -363,9 +357,6 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_varz = 0,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
-GSTLEARN_EXPORT int krimage_func(DbGrid *dbgrid,
-                                 Model *model,
-                                 ANeighParam *neighparam); // TODO : NamingConvention?
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,

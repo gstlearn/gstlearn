@@ -884,3 +884,26 @@ void Grid::divider(const VectorInt& nmult,
   }
 }
 
+/****************************************************************************/
+/*!
+ **  Return the index of a sample when calculated from mirroring within
+ **  an array whose indices vary between 0 and nx-1
+ **
+ ** \return Rank of the restrained cell
+ **
+ ** \param[in]  idim      Rank of the space dimension
+ ** \param[in]  ix        Rank of the cell to be restrained
+ **
+ *****************************************************************************/
+int Grid::getMirrorIndex(int idim, int ix) const
+{
+  int nx = _nx[idim];
+  int nmax = nx - 1;
+  while (!(ix >= 0 && ix < nx))
+  {
+    if (ix < 0)
+      ix = -ix;
+    else if (ix > nmax) ix = 2 * nmax - ix;
+  }
+  return (ix);
+}

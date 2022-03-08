@@ -144,13 +144,20 @@ public:
   {
     return _grid.indiceToRank(indice);
   }
+  void rankToIndice(int node, VectorInt& indice, bool minusOne = false) const
+  {
+    _grid.rankToIndice(node,indice, minusOne);
+  }
   void rankToCoordinate(int rank,
                         VectorDouble& coor,
                         const VectorDouble& percent = VectorDouble()) const
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
-
+  int getMirrorIndex(int idim, int ix) const
+  {
+    return _grid.getMirrorIndex(idim, ix);
+  }
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;

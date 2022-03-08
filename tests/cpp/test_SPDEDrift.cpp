@@ -31,7 +31,6 @@ int main(int /*argc*/, char */*argv*/[])
   String filename;
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
-  //std::cout << "filename=" << filename << std::endl;
   Db* temperatures = Db::createFromNF(filename,verbose);
   temperatures->setLocator("January_temp", ELoc::Z);
   temperatures->display();

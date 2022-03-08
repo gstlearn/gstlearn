@@ -22,6 +22,8 @@
 #include "Model/ANoStat.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighWork.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -64,6 +66,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _supportCoeff(1.),
       _matCL(),
+      _dbaux(),
       _iechOut(-1),
       _nred(0),
       _flagCheckAddress(false),
@@ -108,6 +111,14 @@ KrigingSystem::~KrigingSystem()
     {
       (void) _dbout->deleteColumnsByUID(_dboutUidToBeDeleted);
     }
+  }
+
+  // Clean the auxiliary file for Image
+
+  if (_dbaux != nullptr)
+  {
+    delete _dbaux;
+    _dbaux = nullptr;
   }
 
   // Clean elements from _model
@@ -1189,6 +1200,72 @@ void KrigingSystem::_estimateCalcul(int status)
   return;
 }
 
+void KrigingSystem::_estimateCalculImage(int status)
+{
+  if (_flagEst == 0) return;
+
+  int ndim   = _getNDim();
+  int nech   = _getNech();
+  int nfeq   = _getNFeq();
+  int neq    = _getNeq();
+  int nvar   = _getNVar();
+  const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+
+  VectorInt indn0(ndim);
+  VectorInt indg0(ndim);
+  VectorInt indnl(ndim);
+  VectorInt indgl(ndim);
+
+  _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
+  dbgrid->rankToIndice(_iechOut, indg0);
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    double estim = 0.;
+    if (nfeq <= 0) estim = _getMean(ivar);
+
+    if (status == 0)
+    {
+      /* Loop on the neighboring points */
+
+      int ecr = ivar * neq;
+      for (int jvar = 0; jvar < nvar; jvar++)
+      {
+        for (int iech = 0; iech < nech; iech++)
+        {
+          if (FFFF(dbgrid->getVariable(iech, 0))) continue;
+          _dbaux->rankToIndice(_nbgh[iech], indnl);
+          for (int idim = 0; idim < ndim; idim++)
+          {
+            indgl[idim] = indg0[idim] - indn0[idim] + indnl[idim];
+            indgl[idim] = dbgrid->getMirrorIndex(idim, indgl[idim]);
+          }
+          int jech = dbgrid->indiceToRank(indgl);
+          double data = dbgrid->getVariable(jech, jvar);
+          if (FFFF(data) || FFFF(estim))
+          {
+            estim = TEST;
+          }
+          else
+          {
+            if (nfeq <= 0) data -= _getMean(jvar);
+            estim += data * _wgt[ecr];
+            ecr++;
+          }
+        }
+      }
+      _dbout->setArray(_iechOut, _iptrEst + ivar, estim);
+    }
+    else
+    {
+      // In case of failure with KS, set the result to mean
+      if (nfeq > 0) estim = TEST;
+      _dbout->setArray(_iechOut, _iptrEst + ivar, estim);
+    }
+  }
+  return;
+}
+
 /****************************************************************************/
 /*!
  **  Establish the variance of the estimator
@@ -1403,10 +1480,18 @@ void KrigingSystem::_dual(bool flagLterm,
 bool KrigingSystem::isReady()
 {
   if (! _isCorrect()) return false;
+
+  // Perform some pre-calculation when variance of estimator is requested
   if (_flagStd)
-  {
     _variance0();
+
+  // Perform some preliminary work in the case of Image
+  const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neighParam);
+  if (neighI != nullptr)
+  {
+    if (_prepareForImage(neighI)) return false;
   }
+
   _isReady = true;
   return _isReady;
 }
@@ -1425,9 +1510,17 @@ int KrigingSystem::estimate(int iech_out)
     messerr("You must call 'isReady' before launching 'estimate'");
     return 1;
   }
+  bool skipCalcul = false;
+  // In case of Image Neighborhood, the neighboring samples have already
+  // been selected (in isReady(). No need to compute them again.
+  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
+    skipCalcul = true;
 
   // Store the Rank of the Target sample
   _iechOut = iech_out;
+
+  int status = 0;
+  if (skipCalcul) goto label_store;
 
   if (! _dbout->isActive(_iechOut)) return 0;
   OptDbg::setIndex(iech_out + 1);
@@ -1437,16 +1530,15 @@ int KrigingSystem::estimate(int iech_out)
     db_sample_print(_dbout, iech_out, 1, 0, 0);
   }
 
-  // Check the Neighborhood
+  // Elaborate the Neighborhood
 
-  int status = 0;
   _nbgh = _nbghWork.select(_dbout,iech_out,_rankColCok);
-  int nech = _getNech();
-  status = (nech <= 0);
+  status = (_getNech() <= 0);
 
   /* Establish the Kriging L.H.S. */
 
-  if (! _nbghWork.isUnchanged() || _neighParam->getFlagContinuous() || OptDbg::force())
+  if (!_nbghWork.isUnchanged() || _neighParam->getFlagContinuous() ||
+      OptDbg::force())
   {
     status = _prepar();
     if (status) goto label_store;
@@ -1468,7 +1560,10 @@ int KrigingSystem::estimate(int iech_out)
   /* Perform the estimation */
 
   label_store:
-  _estimateCalcul(status);
+  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
+    _estimateCalculImage(status);
+  else
+    _estimateCalcul(status);
   if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
   return 0;
 }
@@ -2202,4 +2297,99 @@ void KrigingSystem::_checkAddress(const String& title,const String& theme,int iv
   if (ival >= nval)
     messageAbort("Error in %s: %s (%d) may not be larger or equal than %d",
                  title.c_str(),theme.c_str(),ival,nval);
+}
+bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
+{
+  if (!is_grid(_dbout)) return 1;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+  int ndim = _getNDim();
+  int nvar = _getNVar();
+  double seuil = 1. / neighI->getSkip();
+
+  /* Core allocation */
+
+  VectorInt nx(ndim);
+  int nech = 1;
+  for (int i=0; i<ndim; i++)
+  {
+    nx[i] = 2 * neighI->getImageRadius(i) + 1;
+    nech *= nx[i];
+  }
+
+  law_set_random_seed(12345); // TOTO to be suppressed when in KrigingSystem
+  VectorDouble tab(nech);
+  for (int iech = 0; iech < nech; iech++)
+    tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
+
+  /* Create the grid */
+
+  int flag_add_rank = 1;
+  _dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(),
+                          dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
+                          { ELoc::Z.getKey() }, flag_add_rank);
+
+  /* Shift the origin */
+
+  VectorDouble coor(ndim);
+  _dbaux->rankToCoordinate(nech/2, coor);
+  for (int i=0; i<ndim; i++) _dbaux->setX0(i, _dbaux->getX0(i) - coor[i]);
+  if (db_grid_define_coordinates(_dbaux)) return 1;
+
+  // Setup the Kriging pre-processings
+
+  if (_prepareForImageKriging(_dbaux)) return 1;
+
+  return 0;
+}
+
+bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
+{
+  double ldum;
+
+  // Save pointers to previous Data Base (must be restored at the end)
+  Db* dbin_loc  = _dbin;
+  Db* dbout_loc = _dbout;
+
+  _dbin  = dbaux;
+  _dbout = dbaux;
+  int error = 1;
+  int nvar  = _getNVar();
+  int nfeq  = _getNFeq();
+  int ndim  = _getNDim();
+
+  /* Prepare the neighborhood (mimicking the Unique neighborhood) */
+
+  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  _nbghWork.initialize(dbaux, neighU);
+
+  _iechOut = dbaux->getSampleNumber() / 2;
+  _nbgh = _nbghWork.select(_dbout,_iechOut,VectorInt());
+  int nech = _getNech();
+  bool status = (nech <= 0);
+
+  /* Establish the L.H.S. */
+
+  status = _prepar();
+  if (status) goto label_end;
+  _dual(false, &ldum);
+
+  /* Establish the R.H.S. */
+
+  _rhsCalcul();
+  if (status != 0) goto label_end;
+  _rhsIsoToHetero();
+  if (OptDbg::query(EDbg::KRIGING)) _rhsDump();
+
+  /* Derive the Kriging weights (always necessary) */
+
+  _wgtCalcul();
+  if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+
+  error = 0;
+
+  label_end:
+  _dbin  = dbin_loc;
+  _dbout = dbout_loc;
+  _nbghWork.initialize(_dbin, _neighParam);
+  return error;
 }

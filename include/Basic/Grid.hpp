@@ -114,6 +114,7 @@ public:
                VectorInt& nx,
                VectorDouble& dx,
                VectorDouble& x0) const;
+  int getMirrorIndex(int idim, int ix) const;
 
 private:
   const MatrixSquareGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
