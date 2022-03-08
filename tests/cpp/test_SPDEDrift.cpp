@@ -4,6 +4,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Model/ConsItem.hpp"
@@ -12,12 +13,18 @@
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "API/SPDE.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 
 int main(int /*argc*/, char */*argv*/[])
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   bool verbose = false;
   bool flagSPDE = true;
   int ndim = 2;
@@ -75,6 +82,9 @@ int main(int /*argc*/, char */*argv*/[])
     kriging(temperatures, grid, model, neighU);
     grid->dumpToNF("Kriging-result.ascii",verbose);
   }
+
+  DbStringFormat dbfmt(FLAG_STATS,{"*kriging"});
+  grid->display(&dbfmt);
 
   delete temperatures;
   delete grid;

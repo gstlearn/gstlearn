@@ -1,0 +1,80 @@
+
+Checking 'OptDbg' functionalities
+=================================
+
+List of Debug Options
+---------------------
+  Communication with interface[ INTERFACE] : 0
+          Data Base Management[        DB] : 0
+       Neighborhood Management[      NBGH] : 1
+              Model Management[     MODEL] : 0
+            Kriging Operations[   KRIGING] : 0
+                   Simulations[  SIMULATE] : 0
+               Kriging Results[   RESULTS] : 0
+        Variogram calculations[ VARIOGRAM] : 0
+              Convergence test[  CONVERGE] : 0
+       Conditional Expectation[   CONDEXP] : 0
+           Bayesian Estimation[     BAYES] : 0
+      Morphological operations[    MORPHO] : 0
+    Proportions or Intensities[     PROPS] : 0
+                     Upscaling[   UPSCALE] : 0
+         S.P.D.E. calculations[      SPDE] : 0
+Use 'OptCst::define' or 'OptCst::setReference' to modify previous values
+Current value of Neighborhood Debug = 1
+
+Checking 'OptCst' functionalities
+=================================
+
+List of Options of internal Constant values
+-------------------------------------------
+                  Number of characters in printout [  NTCAR] : 10
+              Number of decimal digits in printout [  NTDEC] : 3
+          Maximum number of rows in table printout [  NTROW] : 7
+       Maximum number of columns in table printout [  NTCOL] : 7
+           Number of elements per line for display [NTBATCH] : 7
+            Maximum number of characters for Names [ NTNAME] : 12
+            Maximum Number of characters for Ranks [ NTRANK] : 3
+           Percentage for Display the Progress Bar [  NPROC] : 0
+       Option for updating locator of new variable [ LOCMOD] : 1
+    When defining new locator, option for old ones [ LOCNEW] : 0
+                              Graphic Aspect Ratio [    ASP] : 1
+Use 'OptCst::define' to modify previous values
+
+Vector Display (initial)
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.053    -0.223    -1.527    -0.422    -1.692    -0.038    -1.335
+     [  7,]    -0.215    -0.139     0.009     0.044    -0.210    -0.008     0.908
+     [ 14,]     0.533     0.802     0.729     1.168     0.552    -1.620
+
+List of Options of internal Constant values
+-------------------------------------------
+                  Number of characters in printout [  NTCAR] : 12
+              Number of decimal digits in printout [  NTDEC] : 4
+          Maximum number of rows in table printout [  NTROW] : 7
+       Maximum number of columns in table printout [  NTCOL] : 7
+           Number of elements per line for display [NTBATCH] : 6
+            Maximum number of characters for Names [ NTNAME] : 12
+            Maximum Number of characters for Ranks [ NTRANK] : 3
+           Percentage for Display the Progress Bar [  NPROC] : 0
+       Option for updating locator of new variable [ LOCMOD] : 1
+    When defining new locator, option for old ones [ LOCNEW] : 0
+                              Graphic Aspect Ratio [    ASP] : 1
+Use 'OptCst::define' to modify previous values
+
+Vector Display (modified)
+                   [,  0]      [,  1]      [,  2]      [,  3]      [,  4]      [,  5]
+       [  0,]      0.0531     -0.2232     -1.5270     -0.4222     -1.6915     -0.0383
+       [  6,]     -1.3354     -0.2153     -0.1385      0.0087      0.0442     -0.2100
+       [ 12,]     -0.0081      0.9084      0.5334      0.8023      0.7290      1.1679
+       [ 18,]      0.5516     -1.6196
+
+Checking 'OptCustom' functionalities
+====================================
+Questioning known keyword = 12.000000
+Questioning unknown keyword (with default) = 123.000000
+Questioning unknown keyword (without default) = 0.000000
+
+List of Custom Options
+----------------------
+                                    My first Trial : 12
+                                    My third Trial : 32

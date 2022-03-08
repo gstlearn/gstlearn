@@ -14,6 +14,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -21,6 +22,7 @@
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Model/Model.hpp"
+#include "Basic/File.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
@@ -32,8 +34,12 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("simbiPGS-");
   int error = 0;
@@ -41,6 +47,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nbsimu = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space
+  DbStringFormat dbfmt;
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
@@ -103,7 +110,8 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform a non-conditional PGS simulation on a grid
   error = simpgs(nullptr,dbgrid,ruleprop1,&model1,&model2,neighU,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Facies");
-  dbgrid->display();
+  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Facies*"});
+  dbgrid->display(&dbfmt);
   (void) dbgrid->dumpToNF("simupgs.ascii");
 
   // Creating the RuleProp for simBiPGS
@@ -117,7 +125,8 @@ int main(int /*argc*/, char */*argv*/[])
   error = simbipgs(nullptr,dbgrid,rulepropbi,
                    &model1,&model2,&model3,&model4,neighU,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"BiPGS-Facies");
-  dbgrid->display();
+  dbfmt = DbStringFormat(FLAG_STATS,{"BiPGS-Facies*"});
+  dbgrid->display(&dbfmt);
   (void) dbgrid->dumpToNF("simubipgs.ascii");
 
   // Performing a PGS simulation using Shift
@@ -132,7 +141,8 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform a non-conditional PGS Shift simulation on a grid
   error = simpgs(nullptr,dbgrid,rulepropshift,&model1,nullptr,neighU,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shift-Facies");
-  dbgrid->display();
+  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shift-Facies*"});
+  dbgrid->display(&dbfmt);
   (void) dbgrid->dumpToNF("simushiftpgs.ascii");
 
   // Performing a PGS simulation using Shadow
@@ -149,7 +159,8 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform a non-conditional PGS Shadow simulation on a grid
   error = simpgs(nullptr,dbgrid,rulepropshadow,&model1,nullptr,neighU,nbsimu);
   dbgrid->setNameByLocator(ELoc::FACIES,"PGS-Shadow-Facies");
-  dbgrid->display();
+  dbfmt = DbStringFormat(FLAG_STATS,{"PGS-Shadow-Facies*"});
+  dbgrid->display(&dbfmt);
   (void) dbgrid->dumpToNF("simushadowpgs.ascii");
 
   delete dbgrid;

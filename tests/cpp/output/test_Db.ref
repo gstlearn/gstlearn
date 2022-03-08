@@ -1,0 +1,197 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 24
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     2.000
+Number :          6         4
+Rotation Angles        =     10.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.985     0.174
+     [  1,]    -0.174     0.985
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.985    -0.174
+     [  1,]     0.174     0.985
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 0
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Ranges       =     10.000    45.000
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      1.000
+
+Grid characteristics:
+---------------------
+Origin :     13.623     9.725
+Mesh   :      1.000     4.500
+Number :         11         6
+Rotation Angles        =     30.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866     0.500
+     [  1,]    -0.500     0.866
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+
+Turbo Meshing
+-------------
+Diamond construction is activated
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 100
+Number of Apices          = 66
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:13.623 - Max:23.623
+Dim #2 - Min:9.72478 - Max:32.2248
+List of Apices
+- Number of rows    = 66
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]    13.623     9.725
+     [  1,]    14.489    10.225
+     [  2,]    15.355    10.725
+     [  3,]    16.221    11.225
+     [  4,]    17.087    11.725
+     [  5,]    17.953    12.225
+     [  6,]    18.819    12.725
+(Ncols=2,Nrows=7[from 66])
+List of Meshes
+               [,  0]    [,  1]    [,  2]
+     [  0,]         0         1        12
+     [  1,]         0        11        12
+     [  2,]         1         2        12
+     [  3,]        12         2        13
+     [  4,]         2         3        14
+     [  5,]         2        13        14
+     [  6,]         3         4        14
+(Ncols=3,Nrows=7[from 100])
+sel1
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.000     0.000     1.000     1.000     1.000     0.000     1.000
+     [  7,]     1.000     0.000     1.000     1.000     1.000     1.000     0.000
+     [ 14,]     0.000     0.000     0.000     0.000     0.000     1.000     1.000
+     [ 21,]     1.000     0.000     1.000
+sel2
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.000     1.000     1.000     0.000     1.000     0.000     1.000
+     [  7,]     0.000     0.000     1.000     0.000     1.000     0.000     1.000
+     [ 14,]     1.000     1.000     1.000     0.000     0.000     0.000     0.000
+     [ 21,]     0.000     1.000     0.000
+sel1 && sel2
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.000     0.000     1.000     0.000     1.000     0.000     1.000
+     [  7,]     0.000     0.000     1.000     0.000     1.000     0.000     0.000
+     [ 14,]     0.000     0.000     0.000     0.000     0.000     0.000     0.000
+     [ 21,]     0.000     0.000     0.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Sel1 - Locator NA
+ Nb of data          =         24
+ Nb of active values =          5
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Sel2 - Locator sel
+ Nb of data          =         24
+ Nb of active values =          5
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Sel1 - Locator = NA
+Column = 4 - Name = Sel2 - Locator = sel
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Contents
+------------------
+                 rank        x1        x2      Sel1      Sel2     mySel
+     [  0,]     1.000    10.000    20.000     1.000     0.000     1.000
+     [  1,]     2.000    10.985    20.174     0.000     0.000     1.000
+     [  2,]     3.000    11.970    20.347     1.000     1.000     1.000
+     [  3,]     4.000    12.954    20.521     1.000     0.000     1.000
+     [  4,]     5.000    13.939    20.695     1.000     1.000     1.000
+     [  5,]     6.000    14.924    20.868     0.000     0.000     1.000
+     [  6,]     7.000     9.653    21.970     1.000     1.000     1.000
+     [  7,]     8.000    10.638    22.143     1.000     0.000     1.000
+     [  8,]     9.000    11.622    22.317     0.000     0.000     1.000
+     [  9,]    10.000    12.607    22.491     1.000     1.000     1.000
+     [ 10,]    11.000    13.592    22.664     1.000     0.000     1.000
+     [ 11,]    12.000    14.577    22.838     1.000     1.000     1.000
+     [ 12,]    14.000    10.290    24.113     0.000     0.000     1.000
+     [ 13,]    15.000    11.275    24.287     0.000     0.000     1.000
+     [ 14,]    16.000    12.260    24.460     0.000     0.000     1.000
+     [ 15,]    17.000    13.245    24.634     0.000     0.000     1.000
+     [ 16,]    18.000    14.229    24.807     0.000     0.000     1.000
+     [ 17,]    19.000     8.958    25.909     0.000     0.000     1.000
+     [ 18,]    21.000    10.928    26.256     1.000     0.000     1.000
+     [ 19,]    22.000    11.913    26.430     1.000     0.000     1.000
+     [ 20,]    23.000    12.897    26.603     0.000     0.000     1.000
+     [ 21,]    24.000    13.882    26.777     1.000     0.000     1.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Sel1 - Locator = NA
+Column = 4 - Name = Sel2 - Locator = NA
+Column = 5 - Name = mySel - Locator = sel

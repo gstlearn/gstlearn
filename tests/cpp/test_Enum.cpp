@@ -9,10 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/RepeatMacro.hpp"
+#include "Basic/File.hpp"
 #include "Enum/AEnum.hpp"
 
 #include <string>
 #include <iostream>
+#include <sstream>
 
 #define PRINT_THAT(X) std::cout << #X << std::endl; 
 #define PRINT_ALL_THAT(...) REPEAT(PRINT_THAT, __VA_ARGS__)
@@ -52,6 +54,11 @@ ENUM_DEFINE(ENUM_DAY)
 
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   EDay d1 = EDay::SUNDAY;
   std::cout << "d1=" << "Enum#" << d1.getValue() << ": " << d1.getKey() << "|" << d1.getDescr() << std::endl;
   EDay d2;

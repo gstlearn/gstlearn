@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Basic/CSVformat.hpp"
 
@@ -20,8 +21,13 @@
  */
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   String filename = ASerializable::getTestData("Pollution","Pollution.dat");
-  Db* mydb = Db::createFromCSV(filename,CSVformat(),true);
+  Db* mydb = Db::createFromCSV(filename,CSVformat(),false);
 
   mydb->setLocator("X",ELoc::X,0);
   mydb->setLocator("Y",ELoc::X,1);

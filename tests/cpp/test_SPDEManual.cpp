@@ -4,6 +4,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "API/SPDE.hpp"
@@ -14,6 +15,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshFactory.hpp"
 
@@ -34,8 +36,12 @@
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("SPDEManual-");
   int seed = 10355;
@@ -116,6 +122,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   A.evalInverse(Rhs, resultvc);
   workingDbc->addColumns(resultvc[0], "Kriging");
+  DbStringFormat dsf(FLAG_RESUME | FLAG_STATS);
+  workingDbc->display(&dsf);
   (void) workingDbc->dumpToNF("spde.ascii");
 
   delete dat;

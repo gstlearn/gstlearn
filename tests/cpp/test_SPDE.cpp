@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/OptDbg.hpp"
+#include "Basic/File.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -27,8 +28,12 @@
 **
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
-
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   DbGrid      *dbgrid;
   Model       *model = nullptr;
   SPDE_Option  s_option;

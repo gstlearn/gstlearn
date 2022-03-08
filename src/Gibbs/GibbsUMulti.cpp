@@ -59,10 +59,11 @@ GibbsUMulti::~GibbsUMulti()
 **
 ** \return  Error returned code
 **
-** \param[in]  verbose     Verbose flag
+** \param[in]  verbose      Verbose flag
+** \param[in]  verboseTimer True to show elapse times
 **
 *****************************************************************************/
-int GibbsUMulti::covmatAlloc(bool verbose)
+int GibbsUMulti::covmatAlloc(bool verbose, bool verboseTimer)
 {
   // Initialization
 

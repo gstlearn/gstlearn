@@ -1,0 +1,10 @@
+d1= Enum# 0 : UNIQUE | Unique Neighborhood
+d2= Enum# 0 : UNIQUE | Unique Neighborhood
+d3= Enum# 2 : MOVING | Moving Neighborhood
+Enum# 0 :  UNIQUE | Unique Neighborhood
+Enum# 1 :  BENCH | Bench Neighborhood
+Enum# 2 :  MOVING | Moving Neighborhood
+Enum# 3 :  IMAGE | Image Neighborhood
+SUPERMOVING doesn't exists
+d1= Unique Neighborhood is often used!
+Test successfully performed

@@ -3481,9 +3481,6 @@ int kriging(Db *dbin,
   ksys.setKrigOptColCok(rank_colcok);
   ksys.setKrigOptBayes(false);
   ksys.setKrigOptMatCL(matCL);
-
-  // Check that the Kriging System is ready
-
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -3508,7 +3505,6 @@ int kriging(Db *dbin,
     namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "esterr");
   else
     namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
-
 
   return 0;
 }

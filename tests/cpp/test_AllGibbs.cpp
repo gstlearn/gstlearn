@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
+#include "Basic/File.hpp"
 #include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -23,6 +24,7 @@
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
 
@@ -52,10 +54,15 @@ int main(int /*argc*/, char * /*argv*/[])
   int nlag     = 20;
   double nbgh_radius = 10. * range;
   VectorDouble ranges = { range, range};
-  bool verbose          = true;
+  bool verbose          = false;
   bool flag_moving      = true;
   bool flag_propagation = false;
   bool flag_multi_mono  = false;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // Setup constants
 
@@ -78,6 +85,7 @@ int main(int /*argc*/, char * /*argv*/[])
     db->addColumnsByConstant(1, TEST, "Bounds", ELoc::L);
     db->addColumnsByConstant(1, TEST, "Bounds", ELoc::U);
   }
+  db->display();
 
   // Model
 
@@ -97,6 +105,7 @@ int main(int /*argc*/, char * /*argv*/[])
   if (flag_moving)
   {
     neighparam = NeighMoving::create(ndim, false, nmaxi, nbgh_radius);
+    neighparam->display();
   }
 
   // Gibbs
@@ -106,6 +115,8 @@ int main(int /*argc*/, char * /*argv*/[])
                         flag_sym_neigh, 2,
                         5., false, false, verbose);
   if (error) return 1;
+  DbStringFormat dbfmt(FLAG_STATS,{"*Gibbs*"});
+  db->display(&dbfmt);
   (void) db->dumpToNF("Result");
 
   // Calculate a variogram on the samples

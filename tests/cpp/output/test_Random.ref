@@ -1,0 +1,83 @@
+All subsequent tests are performed on a set of 10000 samples
+
+Uniform Distribution: mini=2.000000 maxi=4.000000
+Old Style
+- Number of samples = 10000 / 10000
+- Minimum  =      2.000
+- Maximum  =      4.000
+- Mean     =      2.993
+- St. Dev. =      0.582
+New Style
+- Number of samples = 10000 / 10000
+- Minimum  =      2.000
+- Maximum  =      4.000
+- Mean     =      2.995
+- St. Dev. =      0.579
+
+Normal Distribution: mean=5.000000 sigma=2.000000
+Old Style
+- Number of samples = 10000 / 10000
+- Minimum  =     -3.272
+- Maximum  =      4.772
+- Mean     =      0.002
+- St. Dev. =      0.993
+New Style
+- Number of samples = 10000 / 10000
+- Minimum  =     -3.917
+- Maximum  =      3.931
+- Mean     =      0.002
+- St. Dev. =      0.999
+
+Exponential Distribution: param=2.000000
+Old Style
+- Number of samples = 10000 / 10000
+- Minimum  =      0.000
+- Maximum  =      4.347
+- Mean     =      0.496
+- St. Dev. =      0.485
+New Style
+- Number of samples = 10000 / 10000
+- Minimum  =      0.000
+- Maximum  =      4.642
+- Mean     =      0.508
+- St. Dev. =      0.509
+
+Gamma Distribution: alpha=3.400000 beta=1.200000
+Old Style
+- Number of samples = 10000 / 10000
+- Minimum  =      0.097
+- Maximum  =     13.751
+- Mean     =      3.413
+- St. Dev. =      1.849
+New Style
+- Number of samples = 10000 / 10000
+- Minimum  =      0.197
+- Maximum  =     20.296
+- Mean     =      4.078
+- St. Dev. =      2.201
+
+Poisson Distribution: lambda=4.600000
+Old Style
+- Number of samples = 100000 / 100000
+- Minimum  =     0.0000
+- Maximum  =    18.0000
+- Mean     =     4.6086
+- St. Dev. =     2.1546
+New Style
+- Number of samples = 100000 / 100000
+- Minimum  =     0.0000
+- Maximum  =    16.0000
+- Mean     =     4.6058
+- St. Dev. =     2.1452
+
+Using New Style Random Number Generator
+Getting the seed = 432432
+
+Using Old Style Random Number Generator
+Getting the seed = 432432
+
+Uniform Distribution: mini=2.000000 maxi=4.000000
+Old Style
+     2.540     2.752     3.011     2.200     3.025
+New Style
+     2.949     3.983     3.141     2.379     3.981

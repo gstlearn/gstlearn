@@ -19,6 +19,11 @@
  */
 int main()
 {
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
+
   // Testing string conversion Old to New style functions
 
   char buf_char[] = "abcde";

@@ -39,7 +39,7 @@ public:
                                int isimu,
                                int ipgs) = 0;
   virtual void update(VectorVectorDouble& y, int isimu, int ipgs, int iter) = 0;
-  virtual int covmatAlloc(bool verbose) = 0;
+  virtual int covmatAlloc(bool verbose, bool verboseTimer = false) = 0;
   virtual double getSimulate(VectorVectorDouble& y,
                              double yk,
                              double sk,

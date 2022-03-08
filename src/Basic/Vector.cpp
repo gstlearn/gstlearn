@@ -94,14 +94,13 @@ void ut_vector_display_stats(const String &title, const VectorDouble &vect)
   {
     mean /= (double) number;
     stdv = stdv / (double) number - mean * mean;
-    stdv = (stdv > 0.) ? sqrt(stdv) :
-                         0.;
+    stdv = (stdv > 0.) ? sqrt(stdv) : 0.;
 
     message("- Number of samples = %d / %d\n", number, ntotal);
-    message("- Minimum  = %lf\n", mini);
-    message("- Maximum  = %lf\n", maxi);
-    message("- Mean     = %lf\n", mean);
-    message("- St. Dev. = %lf\n", stdv);
+    message("- Minimum  = %s\n", toDouble(mini).c_str());
+    message("- Maximum  = %s\n", toDouble(maxi).c_str());
+    message("- Mean     = %s\n", toDouble(mean).c_str());
+    message("- St. Dev. = %s\n", toDouble(stdv).c_str());
   }
   else
   {

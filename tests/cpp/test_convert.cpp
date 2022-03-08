@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Db/Db.hpp"
+#include "Basic/File.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -29,6 +30,11 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   int ndim = 2;
   int nvar = 1;
+
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
 
   setup_license("Demonstration");
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);

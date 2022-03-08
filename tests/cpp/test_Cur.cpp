@@ -6,6 +6,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/File.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -65,6 +66,10 @@ int main(int argc, char *argv[])
   if (setup_license("Demonstration"))
     my_throw("Problem with license check");
 
+  // Standard output redirection to file
+  std::stringstream sfn;
+  sfn << gslBaseName(__FILE__) << ".out";
+  StdoutRedirect sr(sfn.str());
 
   // R_model_characteristics
   int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso;
@@ -94,11 +99,6 @@ int main(int argc, char *argv[])
                              &flag_int_1d,&flag_int_2d,
                              &flag_aniso,&flag_rotation,&scale,&parmax);
 
-
-
-
-
-
   int seed = 432432;
   law_set_random_seed(seed);
   std::mt19937 gen;
@@ -106,9 +106,6 @@ int main(int argc, char *argv[])
 
   std::normal_distribution<double> d{0,1};
   double val = d(gen);
-
-  std::cout << "Gaussian std " << val << std::endl;
-  std::cout << "Gaussian Didier" << law_gaussian() <<std::endl;
 
   return 0;
   ///////////////////////

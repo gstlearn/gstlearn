@@ -1,0 +1,196 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      1.000
+ Maximum value       =    750.000
+ Mean value          =    375.500
+ Standard Deviation  =    216.506
+ Variance            =  46874.917
+2 - Name x1 - Locator x1
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     29.000
+ Mean value          =     14.500
+ Standard Deviation  =      8.655
+ Variance            =     74.917
+3 - Name x2 - Locator x2
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     24.000
+ Mean value          =     12.000
+ Standard Deviation  =      7.211
+ Variance            =     52.000
+4 - Name Simu - Locator z1
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =     -0.946
+ Maximum value       =      3.446
+ Mean value          =      1.431
+ Standard Deviation  =      0.808
+ Variance            =      0.652
+
+Writing VTK Grid
+----------------
+
+Writing Zycor Grid
+------------------
+
+Reading Zycor Grid
+------------------
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      1.000
+ Maximum value       =    750.000
+ Mean value          =    375.500
+ Standard Deviation  =    216.506
+ Variance            =  46874.917
+2 - Name x1 - Locator x1
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     29.000
+ Mean value          =     14.500
+ Standard Deviation  =      8.655
+ Variance            =     74.917
+3 - Name x2 - Locator x2
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     24.000
+ Mean value          =     12.000
+ Standard Deviation  =      7.211
+ Variance            =     52.000
+4 - Name New.1 - Locator NA
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =     -0.946
+ Maximum value       =      3.446
+ Mean value          =      1.431
+ Standard Deviation  =      0.808
+ Variance            =      0.652
+
+Writing BMP Grid
+----------------
+
+Reading BMP Grid
+----------------
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      75000
+ Nb of active values =      75000
+ Minimum value       =      1.000
+ Maximum value       =  75000.000
+ Mean value          =  37500.500
+ Standard Deviation  =  21650.635
+ Variance            = 468749999.917
+2 - Name x1 - Locator x1
+ Nb of data          =      75000
+ Nb of active values =      75000
+ Minimum value       =      0.000
+ Maximum value       =    299.000
+ Mean value          =    149.500
+ Standard Deviation  =     86.602
+ Variance            =   7499.917
+3 - Name x2 - Locator x2
+ Nb of data          =      75000
+ Nb of active values =      75000
+ Minimum value       =      0.000
+ Maximum value       =    249.000
+ Mean value          =    124.500
+ Standard Deviation  =     72.168
+ Variance            =   5208.250
+4 - Name New.1 - Locator NA
+ Nb of data          =      75000
+ Nb of active values =      75000
+ Minimum value       =      2.000
+ Maximum value       =    253.000
+ Mean value          =    137.855
+ Standard Deviation  =     46.153
+ Variance            =   2130.130
+
+Writing Irap Grid
+-----------------
+
+Writing IfpEn Grid
+------------------
+
+Reading IfpEn Grid
+------------------
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      1.000
+ Maximum value       =    750.000
+ Mean value          =    375.500
+ Standard Deviation  =    216.506
+ Variance            =  46874.917
+2 - Name x1 - Locator x1
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     29.000
+ Mean value          =     14.500
+ Standard Deviation  =      8.655
+ Variance            =     74.917
+3 - Name x2 - Locator x2
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =     24.000
+ Mean value          =     12.000
+ Standard Deviation  =      7.211
+ Variance            =     52.000
+4 - Name x3 - Locator x3
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =      0.000
+ Maximum value       =      0.000
+ Mean value          =      0.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name IfpEn-1 - Locator NA
+ Nb of data          =        750
+ Nb of active values =        750
+ Minimum value       =     -0.946
+ Maximum value       =      3.446
+ Mean value          =      1.431
+ Standard Deviation  =      0.808
+ Variance            =      0.652
+
+Writing Eclipse Grid
+--------------------
+
+Writing XYZ Grid
+----------------
+
+Writing VTK Format
+------------------
+
+Writing ArcGis Format
+---------------------
