@@ -1,0 +1,42 @@
+name: publish_python
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'     
+        required: false
+        default: 'warning'  
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+jobs:
+   
+  build:
+    runs-on: ubuntu-latest
+    strategy :
+      matrix:
+       python: ["py35","py36","py37","py38","py39","py40"]
+    container:
+      image: ndesassis/compile_gstlearn_linux
+ 
+    steps:
+   
+    - uses: actions/checkout@v2
+      
+    - name : Create Wheels
+      run : deploy/pythonBuild.sh  ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}} ${{matrix.python}}
+      
+    - name : Install twine
+      run : python3.10 -m pip install twine 
+
+    - name : Upload
+      run : python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_REPOSITORY: testpypi
+
+   
+
