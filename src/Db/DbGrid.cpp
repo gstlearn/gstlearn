@@ -410,7 +410,6 @@ bool DbGrid::isSameGridMeshOldStyle(const DbGrid* dbaux) const
   return _grid.isSameMesh(dbaux->getGrid());
 }
 
-
 bool DbGrid::isSameGridRotation(const DbGrid& dbaux) const
 {
   if (! dbaux.isGrid())

@@ -16,10 +16,12 @@
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
+class DbGrid;
 class Model;
 class ANeighParam;
 class CovCalcMode;
 class ECalcMember;
+class NeighImage;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -93,6 +95,7 @@ private:
   void _dual(bool flagLterm, double *lterm);
   int  _prepar();
   void _estimateCalcul(int status);
+  void _estimateCalculImage(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
   void _variance0();
@@ -121,6 +124,8 @@ private:
   double _getVAR0(int ivCL, int jvCL);
   void   _setVAR0(int ivCL, int jvCL, double value);
   void   _checkAddress(const String& title,const String& theme,int ival,int nval);
+  bool   _prepareForImage(const NeighImage* neighI);
+  bool   _prepareForImageKriging(Db* dbaux);
 
 private:
   // Aggregated classes
@@ -171,6 +176,9 @@ private:
 
   // Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;
+
+  // Option for Estimation based on Image
+  DbGrid* _dbaux;
 
   // Local variables
   int _iechOut;

@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+#include "Space/Space.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -17,6 +19,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptDbg.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -53,8 +56,10 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 100.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
-    for (int iech=0; iech<nech; iech++)
-      tab.push_back(10 * law_gaussian());
+  {
+    VectorDouble tabvar = ut_vector_simulate_gaussian(nech, 0., 5);
+    tab.insert(tab.end(), tabvar.begin(), tabvar.end());
+  }
 
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
   data->setNameByUID(1,"x1");
@@ -69,30 +74,66 @@ int main(int /*argc*/, char */*argv*/[])
   CovContext ctxt(nvar); // use default space
   Model* model = Model::create(ctxt);
   CovLMC covs(ctxt.getSpace());
-  CovAniso cova(ECov::SPHERICAL, 80., 0., 45., ctxt);
-  covs.addCov(&cova);
+  CovAniso cova1(ECov::SPHERICAL, 40., 0., 45., ctxt);
+  covs.addCov(&cova1);
+  CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
+  covs.addCov(&cova2);
   model->setCovList(&covs);
   model->setMean(0,123.);
   model->display();
 
-  // Creating a Neighborhood
-  // NeighUnique* neigh = NeighUnique::create(ndim,false);
-  NeighMoving* neigh = NeighMoving::create(ndim, false, 100);
-  neigh->display();
+  // Creating a Moving Neighborhood
+  NeighMoving* neighM = NeighMoving::create(ndim, false, 100);
+  neighM->display();
 
   // Launch Kriging
   data->setLocatorByUID(3,ELoc::Z);
-  kriging(data, grid, model, neigh);
+  kriging(data, grid, model, neighM);
   grid->display(&dbfmt);
 
   // Launch Cross-Validation
   data->setLocatorByUID(3,ELoc::Z);
-  xvalid(data, model, neigh, 0, -1, -1);
+  xvalid(data, model, neighM, 0, -1, -1);
   data->display(&dbfmt);
 
+  // Unique Neighborhrood
+  NeighUnique* neighU = NeighUnique::create(ndim,false);
+
+  // Launch Kriging
+  data->setLocatorByUID(3,ELoc::Z);
+  kriging(data, grid, model, neighU);
+  grid->display(&dbfmt);
+
+  // Launch Cross-Validation
+  data->setLocatorByUID(3,ELoc::Z);
+  xvalid(data, model, neighU, 0, -1, -1);
+  data->display(&dbfmt);
+
+  // Generate the Image
+  DbGrid* image = DbGrid::create(nx);
+  (void) simtub(nullptr,image,model);
+  image->display();
+
+  // Image Neighborhood
+//  NeighImage* neighI = NeighImage::create(ndim, {3,3}, 2);
+  NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
+  neighI->display();
+
+  // Modify the Model (for filtering)
+  model->setCovaFiltered(1, true);
+  model->display();
+
+  // Perform Image filtering
+  image->setLocator("Simu", ELoc::Z);
+  krimage(image, model, neighI);
+  image->display(&dbfmt);
+
+  delete neighM;
+  delete neighU;
+  delete neighI;
   delete data;
   delete grid;
-  delete neigh;
+  delete image;
   delete model;
 
   return (0);

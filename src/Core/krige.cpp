@@ -15,6 +15,7 @@
 #include "Polynomials/Hermite.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
 #include "Neigh/ANeighParam.hpp"
@@ -359,7 +360,7 @@ static void st_cov(Model *model,
     COVINT.setIech2(IECH_OUT);
   }
 
-  CovCalcMode mode(ECalcMember::LHS);
+  CovCalcMode mode(member);
   mode.update(nugget_opt, nostd, member, icov_r, 0, 1);
   model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1loc, covtab_loc);
 }
@@ -2954,77 +2955,49 @@ static void st_res_nbgh_print(int status, double *tab)
 *****************************************************************************/
 static DbGrid *st_image_build(ANeighParam *neighparam, int nvar)
 {
-  int    *indg,error,ndim,nech,natt;
-  double *coor,seuil,value;
   DbGrid *dbaux;
   DbGrid* dbgrid;
-  VectorInt nx;
-  VectorDouble tab;
 
   /* Initializations */
 
   const NeighImage* neighI = dynamic_cast<const NeighImage*>(neighparam);
   dbaux = nullptr;
-  indg = nullptr;
-  coor = nullptr;
-  error = 1;
+  int error = 1;
 
   /* Preliminary checks */
 
-  if (!is_grid(DBOUT)) goto label_end;
+  if (!is_grid(DBOUT)) return dbaux;
   dbgrid = dynamic_cast<DbGrid*>(DBOUT);
-  ndim = dbgrid->getNDim();
-  natt = ndim + nvar;
-  seuil = 1. / neighI->getSkip();
+  int ndim = dbgrid->getNDim();
+  double seuil = 1. / neighI->getSkip();
 
   /* Core allocation */
 
-  nx.resize(ndim);
-  nech = 1;
+  VectorInt nx(ndim);
+  int nech = 1;
   for (int i=0; i<ndim; i++)
   {
     nx[i] = 2 * neighI->getImageRadius(i) + 1;
     nech *= nx[i];
   }
 
-  tab.resize(nech * natt);
-  for (int i = 0; i < nech * natt; i++)
-    tab[i] = 0.;
+  law_set_random_seed(12345); // TOTO to be suppressed when in KrigingSystem
+  VectorDouble tab(nech);
   for (int iech = 0; iech < nech; iech++)
-  {
-    value = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      tab[ivar * nech + iech] = value;
-  }
+    tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
 
   /* Create the grid */
 
-  dbaux = db_create_grid_generic(ndim, natt, ELoadBy::COLUMN, 1, nx, tab);
-
-  /* Copy the grid characteristics */
-
-  if (db_grid_copy_params(dbgrid, 3, dbaux)) goto label_end;
-  if (db_grid_copy_params(dbgrid, 4, dbaux)) goto label_end;
-
-  /* Set the locators */
-
-  dbaux->setLocatorsByUID(nvar, 0, ELoc::Z);
-  dbaux->setLocatorsByUID(ndim, nvar, ELoc::X);
-  if (db_grid_define_coordinates(dbaux)) goto label_end;
+  int flag_add_rank = 1;
+  dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(),
+                          dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
+                          { ELoc::Z.getKey() }, flag_add_rank);
 
   /* Shift the origin */
 
-  for (int i=0; i<ndim; i++)
-    dbaux->setX0(i, 0.);
-  indg = db_indg_alloc(dbaux);
-  if (indg == nullptr) goto label_end;
-  coor = db_sample_alloc(dbaux, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  db_index_sample_to_grid(dbaux,nech/2,indg);
-  grid_to_point(dbaux,indg,nullptr,coor);
-  for (int i=0; i<ndim; i++) dbaux->setX0(i, dbaux->getX0(i) -coor[i]);
-  indg = db_indg_free(indg);
-  coor = db_sample_free(coor);
+  VectorDouble coor(ndim);
+  dbaux->rankToCoordinate(nech/2, coor);
+  for (int i=0; i<ndim; i++) dbaux->setX0(i, dbaux->getX0(i) - coor[i]);
   if (db_grid_define_coordinates(dbaux)) goto label_end;
 
   /* Set the error return status */
@@ -3080,7 +3053,7 @@ static int st_image_kriging(Db* dbaux,
   status = nbgh_ranks.empty();
   DBIN   = dbaux;
   DBOUT  = dbaux;
-  IECH_OUT = nech / 2;
+  IECH_OUT = dbaux->getSampleNumber() / 2;
 
   /* Establish the L.H.S. */
 
@@ -4838,7 +4811,10 @@ int _krigsim(const char *strloc,
  ** \param[in]  neighparam ANeighParam structure
  **
  *****************************************************************************/
-int krimage_func(DbGrid *dbgrid, Model *model, ANeighParam *neighparam)
+int krimage_old(DbGrid *dbgrid,
+                Model *model,
+                ANeighParam *neighparam,
+                const NamingConvention& namconv)
 {
   int i, iech, jech, error, nvar, nfeq, nb_neigh, ecr, ndim, nred, neq;
   int *indn0, *indnl, *indg0, *indgl;
@@ -4948,6 +4924,7 @@ int krimage_func(DbGrid *dbgrid, Model *model, ANeighParam *neighparam)
   /* Set the error return flag */
 
   error = 0;
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, nvar, dbgrid, IPTR_EST, "estim");
 
   label_end: OptDbg::setIndex(0);
   (void) st_model_manage(-1, model);
@@ -7075,8 +7052,7 @@ int image_smoother(DbGrid *dbgrid, NeighImage *neighI, int type, double range)
   st_global_init(dbgrid, dbgrid);
   nvarin = dbgrid->getVariableNumber();
   ndim = dbgrid->getNDim();
-  r2 = (type == 1) ? 1. :
-                     range * range;
+  r2 = (type == 1) ? 1. : range * range;
   if (nvarin != 1)
   {
     messerr("The Image Smoother is only programmed for a single variable");
@@ -7138,8 +7114,7 @@ int image_smoother(DbGrid *dbgrid, NeighImage *neighI, int type, double range)
       data = dbgrid->getVariable(jech, 0);
       if (!FFFF(data))
       {
-        weight = (type == 1) ? 1. :
-                               exp(-d2 / r2);
+        weight = (type == 1) ? 1. : exp(-d2 / r2);
         estim += data * weight;
         total += weight;
       }
@@ -11097,3 +11072,51 @@ int inhomogeneous_kriging(Db *dbdat,
   delete neighU;
   return (error);
 }
+
+/****************************************************************************/
+/*!
+ **  Kriging (Factorial) a regular grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbgrid     input and output Db grid structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  namconv    Naming Convention
+ **
+ *****************************************************************************/
+int krimage(DbGrid *dbgrid,
+            Model *model,
+            NeighImage *neighparam,
+            const NamingConvention& namconv)
+{
+  int iptr_est  = 1;
+  int nvar = model->getVariableNumber();
+
+  /* Add the attributes for storing the results */
+
+  iptr_est = dbgrid->addColumnsByConstant(nvar, 0.);
+  if (iptr_est < 0) return 1;
+
+  /* Setting options */
+  // Here ALL options are set, even if most of them could keep their default values
+
+  KrigingSystem ksys(dbgrid, dbgrid, model, neighparam);
+  ksys.setKrigOptEstim(iptr_est, -1, -1);
+  if (! ksys.isReady()) return 1;
+
+  /* Loop on the targets to be processed */
+
+  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
+  {
+    mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
+     if (ksys.estimate(iech_out)) return 1;
+  }
+
+  /* Set the error return flag */
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, nvar, dbgrid, iptr_est, "estim");
+
+  return 0;
+}
+
