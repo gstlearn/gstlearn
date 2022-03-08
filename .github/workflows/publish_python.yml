@@ -27,10 +27,7 @@ jobs:
       
     - name : Create Wheels
       run : deploy/pythonBuild.sh  ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}} ${{matrix.python}}
-      
-    - name : Install twine
-      run : python3.10 -m pip install twine 
-
+     
     - name : Upload
       run : python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
       env:
