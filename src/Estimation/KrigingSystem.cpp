@@ -1017,6 +1017,7 @@ void KrigingSystem::_wgtDump(int status)
   /* Header */
 
   mestitle(0, "(Co-) Kriging weights");
+  const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
   /* First line */
 
@@ -1068,7 +1069,10 @@ void KrigingSystem::_wgtDump(int status)
       if (ndisc > 0)
       {
         for (int idim = 0; idim < ndim; idim++)
-          tab_printg(NULL, _dbin->getBlockExtension(_nbgh[iech], idim));
+          if (_discreteMode == 1)
+            tab_printg(NULL, dbgrid->getDX(idim));
+          else
+            tab_printg(NULL, _dbin->getBlockExtension(_nbgh[iech], idim));
       }
         tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
 
@@ -1102,6 +1106,7 @@ void KrigingSystem::_wgtDump(int status)
   /* First line */
 
   tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Lagrange");
   tab_prints(NULL, "Coeff");
   message("\n");
 
@@ -1112,8 +1117,8 @@ void KrigingSystem::_wgtDump(int status)
   {
     int iwgt = ib + cumflag;
     tab_printi(NULL, ib + 1);
-    double value = (status == 0) ? _zam[iwgt] : TEST;
-    tab_printg(NULL, value);
+    tab_printg(NULL, (status == 0) ? _wgt[iwgt] : TEST);
+    tab_printg(NULL, (status == 0) ? _zam[iwgt] : TEST);
     message("\n");
   }
   return;
@@ -1665,6 +1670,8 @@ void KrigingSystem::_krigingDump(int status)
       {
         double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrStd + ivar) : TEST;
         tab_printg(" - Std. Dev. = ", value);
+        message("\n");
+        tab_printg(" - Variance  = ", FFFF(value) ? TEST : value * value);
         value = (status == 0) ? _var0[ivar + nvar * ivar] : TEST;
         message("\n");
         tab_printg(" - Cov(h=0)  = ", value);
@@ -1727,10 +1734,12 @@ void KrigingSystem::_blockDiscretize()
 int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     const VectorInt& ndiscs)
 {
+  int ndim = _getNDim();
   _calcul = calcul;
   if (_calcul == EKrigOpt::BLOCK)
   {
     _ndiscs = ndiscs;
+    _ndiscNumber = ut_ivector_prod(_ndiscs);
 
     // Discretization calculated from Block extension variable (1) or Grid mesh (0)
 
@@ -1751,8 +1760,8 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     // Core dimensioning
 
     int ndisc = _getNDisc();
-    _disc1.resize(ndisc);
-    _disc2.resize(ndisc);
+    _disc1.resize(ndisc * ndim);
+    _disc2.resize(ndisc * ndim);
 
     // For constant discretization, calculate the discretization coordinate immediately
 

@@ -516,7 +516,6 @@ int ut_ivector_prod(const VectorInt vec)
   for (int i = 0; i < (int) vec.size(); i++)
     nprod *= vec[i];
   return nprod;
-
 }
 
 /**

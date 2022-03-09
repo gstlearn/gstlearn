@@ -218,10 +218,10 @@ Sum of weights                               0.000     0.000     1.000
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.000     0.023
+         2     0.000     0.948
+         3     0.000    -0.243
 
 (Co-) Kriging results
 =====================
@@ -229,14 +229,17 @@ Target Sample = 1
 Variable Z1 
  - Estimate  =      0.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =      1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 
 Target location
@@ -300,10 +303,10 @@ Sum of weights                               0.000     0.000     1.000
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.000     0.023
+         2     0.000     0.948
+         3     0.000    -0.243
 
 (Co-) Kriging results
 =====================
@@ -311,14 +314,17 @@ Target Sample = 2
 Variable Z1 
  - Estimate  =      1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      0.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =      0.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 
 Target location
@@ -382,10 +388,10 @@ Sum of weights                               0.000     0.000     1.000
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.000     0.023
+         2     0.000     0.948
+         3     0.000    -0.243
 
 (Co-) Kriging results
 =====================
@@ -393,14 +399,17 @@ Target Sample = 3
 Variable Z1 
  - Estimate  =      2.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =      2.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 
 Target location
@@ -464,10 +473,10 @@ Sum of weights                               0.000     0.000     1.000
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.000     0.023
+         2     0.000     0.948
+         3     0.000    -0.243
 
 (Co-) Kriging results
 =====================
@@ -475,14 +484,17 @@ Target Sample = 4
 Variable Z1 
  - Estimate  =      3.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      2.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =      1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 
 Target location
@@ -546,10 +558,10 @@ Sum of weights                               0.238     0.046    -0.292
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.285     0.023
+         2     0.116     0.948
+         3    -0.021    -0.243
 
 (Co-) Kriging results
 =====================
@@ -557,14 +569,17 @@ Target Sample = 5
 Variable Z1 
  - Estimate  =      0.096
  - Std. Dev. =      0.876
+ - Variance  =      0.767
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      0.732
  - Std. Dev. =      1.499
+ - Variance  =      2.247
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.375
  - Std. Dev. =      1.599
+ - Variance  =      2.557
  - Cov(h=0)  =      2.996
 
 Target location
@@ -628,10 +643,10 @@ Sum of weights                               0.224    -0.018    -0.414
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.144     0.023
+         2     0.024     0.948
+         3    -0.030    -0.243
 
 (Co-) Kriging results
 =====================
@@ -639,14 +654,17 @@ Target Sample = 6
 Variable Z1 
  - Estimate  =      0.822
  - Std. Dev. =      0.823
+ - Variance  =      0.678
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      0.592
  - Std. Dev. =      1.474
+ - Variance  =      2.174
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.166
  - Std. Dev. =      1.498
+ - Variance  =      2.244
  - Cov(h=0)  =      2.996
 
 Target location
@@ -710,10 +728,10 @@ Sum of weights                               0.268     0.086    -0.254
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.014     0.023
+         2    -0.067     0.948
+         3    -0.047    -0.243
 
 (Co-) Kriging results
 =====================
@@ -721,14 +739,17 @@ Target Sample = 7
 Variable Z1 
  - Estimate  =      2.233
  - Std. Dev. =      0.846
+ - Variance  =      0.715
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.260
  - Std. Dev. =      1.478
+ - Variance  =      2.184
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.825
  - Std. Dev. =      1.578
+ - Variance  =      2.489
  - Cov(h=0)  =      2.996
 
 Target location
@@ -792,10 +813,10 @@ Sum of weights                               0.306    -0.046    -0.120
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.122     0.023
+         2    -0.161     0.948
+         3    -0.063    -0.243
 
 (Co-) Kriging results
 =====================
@@ -803,14 +824,17 @@ Target Sample = 8
 Variable Z1 
  - Estimate  =      2.977
  - Std. Dev. =      0.920
+ - Variance  =      0.847
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      0.983
  - Std. Dev. =      1.501
+ - Variance  =      2.253
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.637
  - Std. Dev. =      1.672
+ - Variance  =      2.795
  - Cov(h=0)  =      2.996
 
 Target location
@@ -874,10 +898,10 @@ Sum of weights                               0.023    -0.206    -0.283
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.381     0.023
+         2     0.175     0.948
+         3    -0.077    -0.243
 
 (Co-) Kriging results
 =====================
@@ -885,14 +909,17 @@ Target Sample = 9
 Variable Z1 
  - Estimate  =     -0.154
  - Std. Dev. =      1.126
+ - Variance  =      1.269
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.152
  - Std. Dev. =      1.743
+ - Variance  =      3.039
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.219
  - Std. Dev. =      1.613
+ - Variance  =      2.601
  - Cov(h=0)  =      2.996
 
 Target location
@@ -956,10 +983,10 @@ Sum of weights                              -0.139     0.007    -0.512
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.128     0.023
+         2     0.021     0.948
+         3    -0.045    -0.243
 
 (Co-) Kriging results
 =====================
@@ -967,14 +994,17 @@ Target Sample = 10
 Variable Z1 
  - Estimate  =      0.562
  - Std. Dev. =      0.828
+ - Variance  =      0.686
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      0.019
  - Std. Dev. =      1.533
+ - Variance  =      2.351
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.300
  - Std. Dev. =      1.486
+ - Variance  =      2.209
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1038,10 +1068,10 @@ Sum of weights                               0.071     0.288    -0.284
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.059     0.023
+         2    -0.122     0.948
+         3    -0.119    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1049,14 +1079,17 @@ Target Sample = 11
 Variable Z1 
  - Estimate  =      1.362
  - Std. Dev. =      1.086
+ - Variance  =      1.179
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.182
  - Std. Dev. =      1.733
+ - Variance  =      3.002
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -1.138
  - Std. Dev. =      1.612
+ - Variance  =      2.599
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1120,10 +1153,10 @@ Sum of weights                               0.250     0.069    -0.093
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.304     0.023
+         2    -0.302     0.948
+         3    -0.188    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1131,14 +1164,17 @@ Target Sample = 12
 Variable Z1 
  - Estimate  =      2.407
  - Std. Dev. =      1.380
+ - Variance  =      1.905
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.119
  - Std. Dev. =      1.771
+ - Variance  =      3.136
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.641
  - Std. Dev. =      1.720
+ - Variance  =      2.958
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1202,10 +1238,10 @@ Sum of weights                               0.147    -0.192     0.547
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1    -0.230     0.023
+         2     0.140     0.948
+         3    -0.129    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1213,14 +1249,17 @@ Target Sample = 13
 Variable Z1 
  - Estimate  =     -0.357
  - Std. Dev. =      0.984
+ - Variance  =      0.968
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.231
  - Std. Dev. =      1.750
+ - Variance  =      3.063
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.617
  - Std. Dev. =      1.537
+ - Variance  =      2.364
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1284,10 +1323,10 @@ Sum of weights                               0.000     0.000     1.000
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.000     0.023
+         2     0.000     0.948
+         3     0.000    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1295,14 +1334,17 @@ Target Sample = 14
 Variable Z1 
  - Estimate  =      0.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =     -1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -1.000
  - Std. Dev. =      0.000
+ - Variance  =      0.000
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1366,10 +1408,10 @@ Sum of weights                               0.191     0.263     0.547
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.170     0.023
+         2    -0.130     0.948
+         3    -0.168    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1377,14 +1419,17 @@ Target Sample = 15
 Variable Z1 
  - Estimate  =      0.619
  - Std. Dev. =      0.976
+ - Variance  =      0.953
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.581
  - Std. Dev. =      1.740
+ - Variance  =      3.029
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.633
  - Std. Dev. =      1.538
+ - Variance  =      2.364
  - Cov(h=0)  =      2.996
 
 Target location
@@ -1448,10 +1493,10 @@ Sum of weights                               0.360     0.083     0.184
 
 Drift coefficients
 ==================
-      Rank     Coeff
-         1     0.023
-         2     0.948
-         3    -0.243
+      Rank  Lagrange     Coeff
+         1     0.456     0.023
+         2    -0.336     0.948
+         3    -0.317    -0.243
 
 (Co-) Kriging results
 =====================
@@ -1459,14 +1504,17 @@ Target Sample = 16
 Variable Z1 
  - Estimate  =      2.031
  - Std. Dev. =      1.560
+ - Variance  =      2.433
  - Cov(h=0)  =      1.000
 Variable Z2 
  - Estimate  =      1.468
  - Std. Dev. =      1.755
+ - Variance  =      3.079
  - Cov(h=0)  =      2.996
 Variable Z3 
  - Estimate  =     -0.299
  - Std. Dev. =      1.764
+ - Variance  =      3.113
  - Cov(h=0)  =      2.996
 
 Data Base Grid Characteristics

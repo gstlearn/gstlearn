@@ -2732,6 +2732,7 @@ static void krige_wgt_print(int status,
   /* First line */
 
   tab_prints(NULL, "Rank");
+  tab_prints(NULL, "Lagrange");
   tab_prints(NULL, "Coeff");
   message("\n");
 
@@ -2742,8 +2743,11 @@ static void krige_wgt_print(int status,
   {
     iwgt = ib + cumflag;
     tab_printi(NULL, ib + 1);
+    value = (status == 0) ? wgt[iwgt] : TEST;
+    tab_printg(NULL, value);
     value = (status == 0) ? zam1[iwgt] : TEST;
     tab_printg(NULL, value);
+
     message("\n");
   }
 
