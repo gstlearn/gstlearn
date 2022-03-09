@@ -67,6 +67,8 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _supportCoeff(1.),
       _matCL(),
       _dbaux(),
+      _flagSmooth(false),
+      _flagSaveWeights(false),
       _iechOut(-1),
       _nred(0),
       _flagCheckAddress(false),
@@ -438,7 +440,7 @@ void KrigingSystem::_flagDefine()
  **  Checks if the number of samples is compatible with the number of
  **  drift equations
  **
- ** \return  Error returned code: 1 if an error is found; 0 otherwise
+ ** \return  Error: 1 if an error is found; 0 otherwise
  **
  *****************************************************************************/
 bool KrigingSystem::_isAuthorized()
@@ -1271,6 +1273,64 @@ void KrigingSystem::_estimateCalculImage(int status)
   return;
 }
 
+void KrigingSystem::_estimateCalculSmoothImage(int status)
+{
+  if (_flagEst == 0) return;
+
+  int ndim   = _getNDim();
+  int nech   = _getNech();
+  int nfeq   = _getNFeq();
+  int neq    = _getNeq();
+  int nvar   = _getNVar();
+  double r2  = _smoothRange * _smoothRange;
+  const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
+
+  VectorInt indn0(ndim);
+  VectorInt indg0(ndim);
+  VectorInt indnl(ndim);
+  VectorInt indgl(ndim);
+
+  _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
+  dbgrid->rankToIndice(_iechOut, indg0);
+
+  /* Loop on the neighboring points */
+
+  double estim = 0.;
+  if (status == 0)
+  {
+    double total = 0.;
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (FFFF(_dbaux->getVariable(iech, 0))) continue;
+      _dbaux->rankToIndice(_nbgh[iech], indnl);
+
+      double d2 = 0.;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        int idelta = (indnl[idim] - indn0[idim]);
+        double delta = idelta * dbgrid->getDX(idim);
+        d2 += delta * delta;
+        indgl[idim] = indg0[idim] + idelta;
+        indgl[idim] = dbgrid->getMirrorIndex(idim, indgl[idim]);
+      }
+      int jech = dbgrid->indiceToRank(indgl);
+      double data = dbgrid->getVariable(jech, 0);
+      if (!FFFF(data))
+      {
+        double weight = (_smoothType == 1) ? 1. : exp(-d2 / r2);
+        estim += data * weight;
+        total += weight;
+      }
+    }
+    estim = (total <= 0.) ? TEST : estim / total;
+  }
+  else
+  {
+    estim = TEST;
+  }
+  _dbout->setArray(_iechOut, _iptrEst, estim);
+}
+
 void KrigingSystem::_estimateCalculXvalidUnique(int status)
 {
   int iech  = _iechOut;
@@ -1604,14 +1664,22 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Derive the kriging weights */
 
-  if (_flagStd || _flagVarZ) _wgtCalcul();
+  if (_flagStd || _flagVarZ || _flagSaveWeights) _wgtCalcul();
   if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
+
+  // Optional Save of the Kriging weights
+  if (_flagSaveWeights) _saveWeights(status);
 
   /* Perform the estimation */
 
   label_store:
   if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
-    _estimateCalculImage(status);
+  {
+    if (_flagSmooth)
+      _estimateCalculSmoothImage(status);
+    else
+      _estimateCalculImage(status);
+  }
   else if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE &&
       _neighParam->getFlagXvalid())
     _estimateCalculXvalidUnique(status);
@@ -1826,6 +1894,7 @@ int KrigingSystem::setKrigOptXValid(bool optionXValidEstim,
   _xvalidStdev = optionXValidStdev;
   return 0;
 }
+
 int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 {
   if (rank_colcok.empty()) return 0;
@@ -1889,10 +1958,92 @@ int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
   return 0;
 }
 
+/**
+ * Define the option for Kriging By Profile
+ * @param flag_code True if the option is switched ON
+ * @return
+ *
+ * @remark When the Option for Kriging By Profile is ON, the covariance term in LHS
+ * @remark is incremented by V(iech) when both samples 'iech' and 'jech' have
+ * @remark the same Code.
+ */
+int KrigingSystem::setKrigoptCode(bool flag_code)
+{
+  if (flag_code)
+  {
+    if (! _dbin->hasCode() || _dbin->getVarianceErrorNumber() != 1)
+    {
+      messerr("This method requires variables CODE and V to be defined");
+      return 1;
+    }
+  }
+  _flagCode = flag_code;
+  return 0;
+}
+
 void KrigingSystem::setKrigOptFlagSimu(bool flagSimu)
 {
  _flagSimu = flagSimu;
  _nbghWork.setFlagSimu(flagSimu);
+}
+
+/**
+ * Switch the option for saving the Kriging Weights using Keypair mechanism
+ * @param flag_save Value of the switch
+ */
+void KrigingSystem::setKrigOptSaveWeights(bool flag_save)
+{
+  _flagSaveWeights = flag_save;
+}
+
+/**
+ * In the case of Image Neighborhood, switch the Smoothing option
+ * @param flag_smooth Switch of the Smoothing Image Option
+ * @return
+ */
+int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double range)
+{
+  int nvar = _getNVar();
+  if (flag_smooth)
+  {
+    const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neighParam);
+    if (neighI == nullptr)
+    {
+      messerr("This option requires an Image Neighborhood");
+      return 1;
+    }
+    if (nvar != 1)
+    {
+      messerr("This option only considers the Monovariate case");
+      return 1;
+    }
+    if (type != 1 && type != 2)
+    {
+      messerr("Type(%d) must be either 1 for Uniform or 2 for Gaussian",type);
+      return 1;
+    }
+    if (type == 2 && range <= 0.)
+    {
+      messerr("When Gaussian Kernel is chosen, 'range'(%lf) must be strictly positive",
+              range);
+      return 1;
+    }
+  }
+  _flagSmooth  = flag_smooth;
+  _smoothType  = type;
+  _smoothRange = range;
+  return 0;
+}
+
+/**
+ * This function switches ON the systematic test of addresses before running
+ * @param flagCheckAddress True if addresses must be systematically checked
+ * @remark When turned ON, this option slows the process.
+ * @remark It should only be used for Debugging purposes.
+ */
+void KrigingSystem::setKrigOptCheckAddress(bool flagCheckAddress)
+{
+  _flagCheckAddress = flagCheckAddress;
 }
 
 bool KrigingSystem::_isCorrect()
@@ -2054,7 +2205,8 @@ bool KrigingSystem::_isCorrect()
       return false;
     }
 
-    if (_neighParam->getFlagXvalid() && nvar > 1)
+    if (_neighParam->getType() == ENeigh::UNIQUE &&
+        _neighParam->getFlagXvalid() && nvar > 1)
     {
      messerr("The algorithm for Cross-Validation in Unique Neighborhood");
      messerr("is restricted to a single variable");
@@ -2471,4 +2623,50 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
   _dbout = dbout_loc;
   _nbghWork.initialize(_dbin, _neighParam);
   return error;
+}
+
+void KrigingSystem::_saveWeights(int status)
+{
+  if (status != 0) return;
+
+  int nech = _getNech();
+  int nvar = _getNVar();
+  VectorDouble values(5);
+  values[0] = _iechOut;
+
+  /* Loop on the output variables */
+
+  int lec = 0;
+  int cumflag = 0;
+  for (int jvar = 0; jvar < nvar; jvar++)
+  {
+    values[1] = jvar;
+
+    /* Loop on the input samples */
+
+    for (int iech = 0; iech < nech; iech++, lec++)
+    {
+      int flag_value = (! _flag.empty()) ? _flag[lec] : 1;
+      if (flag_value)
+      {
+        values[2] = _nbgh[iech];
+
+        /* Loop on the input variables */
+
+        for (int ivar = 0; ivar < nvar; ivar++)
+        {
+          int iwgt = _nred * ivar + cumflag;
+          double wgtloc = (! _wgt.empty() && flag_value) ? _wgt[iwgt] : TEST;
+          if (!FFFF(wgtloc))
+          {
+            values[3] = ivar;
+            values[4] = wgtloc;
+            app_keypair("KrigingWeights", 1, 1, 5, values.data());
+          }
+        }
+        if (flag_value) cumflag++;
+      }
+    }
+  }
+  return;
 }

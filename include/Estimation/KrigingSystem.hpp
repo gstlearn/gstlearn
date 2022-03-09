@@ -34,21 +34,18 @@ public:
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
-  int setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
-  int setKrigOptXValid(bool optionXValidEstim = false,
-                       bool optionXValidStdev = false);
-  int setKrigOptColCok(const VectorInt& rank_colcok);
-  int setKrigOptBayes(bool flag_bayes);
-  int setKrigOptMatCL(const VectorVectorDouble& matCL);
+  int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
+  int  setKrigOptXValid(bool optionXValidEstim = false,
+                        bool optionXValidStdev = false);
+  int  setKrigOptColCok(const VectorInt& rank_colcok);
+  int  setKrigOptBayes(bool flag_bayes);
+  int  setKrigOptMatCL(const VectorVectorDouble& matCL);
+  int  setKrigoptCode(bool flag_code);
   void setKrigOptFlagSimu(bool flagSimu);
-  /**
-   * This function enables testing all addresses before running
-   * @param flagCheckAddress True if addresses must be systematically checked
-   * @remark When turned ON, this option slows the process.
-   * @remark It should only be used for Debugging purposes.
-   */
-  void setKrigOptCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
+  void setKrigOptSaveWeights(bool flag_save);
+  int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
+  void setKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -96,11 +93,13 @@ private:
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
+  void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
   void _variance0();
   void _krigingDump(int status);
+  void _saveWeights(int status);
   void _blockDiscretize();
   bool _isCorrect();
 
@@ -152,7 +151,7 @@ private:
   EKrigOpt _calcul;
 
   /// Options complement for neighborhood
-  bool _flagCode;
+  bool _flagCode;  // True when kriging by Code
 
   /// Option for Block estimation
   int _discreteMode;  // 1 : constant; 2 : per Target cell
@@ -181,6 +180,12 @@ private:
 
   // Option for Estimation based on Image
   DbGrid* _dbaux;
+  bool _flagSmooth;
+  int  _smoothType;
+  double _smoothRange;
+
+  // Option for saving the Weights using Keypair mechanism
+  bool _flagSaveWeights;
 
   // Local variables
   int _iechOut;

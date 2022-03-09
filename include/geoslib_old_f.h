@@ -1815,31 +1815,6 @@ GSTLEARN_EXPORT int csv_table_read(const String &filename,
 /* Prototyping the functions in krige.c */
 /****************************************/
 
-GSTLEARN_EXPORT int krimage_old(DbGrid *dbgrid,
-                                 Model *model,
-                                 ANeighParam *neighparam,
-                                 const NamingConvention& namconv = NamingConvention("Filtering"));
-GSTLEARN_EXPORT int kriging_old(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeighParam *neighparam,
-                            const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
-                            int flag_est = 1,
-                            int flag_std = 1,
-                            int flag_varz = 0,
-                            VectorInt ndisc = VectorInt(),
-                            VectorInt rank_colcok = VectorInt(),
-                            VectorVectorDouble matCL = VectorVectorDouble(),
-                            const NamingConvention& namconv = NamingConvention("Kriging"));
-GSTLEARN_EXPORT int xvalid_old(Db *db,
-                               Model *model,
-                               ANeighParam *neighparam,
-                               int flag_code = 0,
-                               int flag_est = 1,
-                               int flag_std = 1,
-                               int flag_varz = 0,
-                               VectorInt rank_colcok = VectorInt(),
-                               const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int is_flag_data_disc_defined(void);
 GSTLEARN_EXPORT int krige_koption_manage(int mode,
                                          int flag_check,
@@ -1867,10 +1842,6 @@ GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    double *rmean,
                                    double *rcov,
                                    double *smean);
-GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
-                                   NeighImage *neighI,
-                                   int type,
-                                   double range);
 GSTLEARN_EXPORT int krigdgm_f(Db *dbin,
                               Db *dbout,
                               Model *model,

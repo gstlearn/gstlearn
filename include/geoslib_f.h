@@ -339,6 +339,11 @@ GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             Model *model,
                             NeighImage *neighparam,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
+GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
+                                   NeighImage *neighI,
+                                   int type,
+                                   double range,
+                                   const NamingConvention& namconv = NamingConvention("Smoothing"));
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,

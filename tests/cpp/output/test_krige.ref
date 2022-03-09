@@ -77,6 +77,9 @@ Nugget Effect
 - Sill         =     12.000
 Total Sill     =     57.000
 
+Test in Moving Neighborhood
+===========================
+
 Neighborhood characteristics
 ============================
 Space dimension = 2
@@ -183,74 +186,15 @@ Data Base Statistics
  Standard Deviation  =      1.883
  Variance            =      3.547
 
-Data Base Grid Characteristics
-==============================
-
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
-2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-4 - Name Kriging.Var.estim - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.494
- Maximum value       =     89.278
- Mean value          =      9.734
- Standard Deviation  =     12.763
- Variance            =    162.895
-5 - Name Kriging.Var.stdev - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      4.058
- Maximum value       =      7.143
- Mean value          =      5.087
- Standard Deviation  =      0.462
- Variance            =      0.214
-6 - Name Kriging.Var.estim.1 - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.494
- Maximum value       =     89.278
- Mean value          =      9.734
- Standard Deviation  =     12.763
- Variance            =    162.895
-7 - Name Kriging.Var.stdev.1 - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      4.058
- Maximum value       =      7.143
- Mean value          =      5.087
- Standard Deviation  =      0.462
- Variance            =      0.214
+Test in Unique Neighborhood
+===========================
 
 Data Base Characteristics
 =========================
 
 Data Base Statistics
 --------------------
-1 - Name Xvalid.Var.varz - Locator NA
+1 - Name rank - Locator NA
  Nb of data          =        100
  Nb of active values =        100
  Minimum value       =      1.000
@@ -314,6 +258,71 @@ Data Base Statistics
  Mean value          =      5.072
  Standard Deviation  =      0.456
  Variance            =      0.208
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =  10000.000
+ Mean value          =   5000.500
+ Standard Deviation  =   2886.751
+ Variance            = 8333333.250
+2 - Name x1 - Locator x1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+3 - Name x2 - Locator x2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+4 - Name Kriging.Var.estim - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -4.494
+ Maximum value       =     89.278
+ Mean value          =      9.734
+ Standard Deviation  =     12.763
+ Variance            =    162.895
+5 - Name Kriging.Var.stdev - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      4.058
+ Maximum value       =      7.143
+ Mean value          =      5.087
+ Standard Deviation  =      0.462
+ Variance            =      0.214
+6 - Name Kriging.Var.estim.1 - Locator z1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =     -4.494
+ Maximum value       =     89.278
+ Mean value          =      9.734
+ Standard Deviation  =     12.763
+ Variance            =    162.895
+7 - Name Kriging.Var.stdev.1 - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      4.058
+ Maximum value       =      7.143
+ Mean value          =      5.087
+ Standard Deviation  =      0.462
+ Variance            =      0.214
+
+Test in Image Neighborhood
+==========================
 
 Data Base Grid Characteristics
 ==============================
