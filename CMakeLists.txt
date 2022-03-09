@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Permit using project VERSION
 project(gstlearn
-        VERSION      0.1.13 # Make it consistent with CHANGES and gstlearn.bib files
+        VERSION      0.1.14 # Make it consistent with CHANGES and gstlearn.bib files
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
         LANGUAGES    C CXX) # Enable C language for third party libraries
