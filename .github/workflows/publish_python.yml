@@ -16,7 +16,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
     strategy :
-      #max-parallel: 6
       matrix:
        python: ["py35","py36","py37","py38","py39","py310"]
     container:
