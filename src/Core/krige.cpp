@@ -3694,14 +3694,14 @@ static int st_xvalid_unique(Db *dbin,
  **
  *****************************************************************************/
 int xvalid_old(Db *db,
-           Model *model,
-           ANeighParam *neighparam,
-           int flag_code,
-           int flag_est,
-           int flag_std,
-           int flag_varz,
-           VectorInt rank_colcok,
-           const NamingConvention& namconv)
+               Model *model,
+               ANeighParam *neighparam,
+               int flag_code,
+               int flag_est,
+               int flag_std,
+               int flag_varz,
+               VectorInt rank_colcok,
+               const NamingConvention& namconv)
 {
   int ret_code;
   if (flag_code)
@@ -3744,7 +3744,7 @@ int xvalid(Db *db,
   if (flag_code)
   {
     if (!db->hasCode())
-      messerr("The K-FOLD option is ignored (no Code defined)");
+      messerr("The K-FOLD option is ignored as no Code is defined");
     else if (neighparam->getType() == ENeigh::UNIQUE)
     {
       messerr("K-FOLD is not available in Unique Neighborhood");
@@ -3753,16 +3753,12 @@ int xvalid(Db *db,
     else
       neighparam->setFlagKFold(true);
   }
-  neighparam->setFlagXvalid(true);
 
-  if (neighparam->getType() == ENeigh::UNIQUE)
-    ret_code = st_xvalid_unique(db, model, neighparam, flag_est, flag_std, flag_varz,
-                                rank_colcok, namconv);
-  else
-    ret_code = kriging(db, db, model, neighparam, EKrigOpt::PONCTUAL,
-                       flag_est, flag_std, flag_varz,
-                       VectorInt(), rank_colcok, VectorVectorDouble(),
-                       namconv);
+  neighparam->setFlagXvalid(true);
+  ret_code = kriging(db, db, model, neighparam, EKrigOpt::PONCTUAL,
+                     flag_est, flag_std, flag_varz,
+                     VectorInt(), rank_colcok, VectorVectorDouble(),
+                     namconv);
   neighparam->setFlagXvalid(0);
   return ret_code;
 }

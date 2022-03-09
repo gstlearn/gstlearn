@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -82,6 +82,9 @@ int main(int /*argc*/, char */*argv*/[])
   model->setMean(0,123.);
   model->display();
 
+  // ====================== Moving Neighborhood case ===========================
+  mestitle(0,"Test in Moving Neighborhood");
+
   // Creating a Moving Neighborhood
   NeighMoving* neighM = NeighMoving::create(ndim, false, 100);
   neighM->display();
@@ -96,18 +99,25 @@ int main(int /*argc*/, char */*argv*/[])
   xvalid(data, model, neighM, 0, -1, -1);
   data->display(&dbfmt);
 
+  // ====================== Unique Neighborhood case ===========================
+  mestitle(0,"Test in Unique Neighborhood");
+
   // Unique Neighborhrood
   NeighUnique* neighU = NeighUnique::create(ndim,false);
+
+  // Launch Cross-Validation
+  data->setLocatorByUID(3,ELoc::Z);
+  xvalid(data, model, neighU, 0, -1, -1);
+  data->display(&dbfmt);
+  OptDbg::setReference(-1);
 
   // Launch Kriging
   data->setLocatorByUID(3,ELoc::Z);
   kriging(data, grid, model, neighU);
   grid->display(&dbfmt);
 
-  // Launch Cross-Validation
-  data->setLocatorByUID(3,ELoc::Z);
-  xvalid(data, model, neighU, 0, -1, -1);
-  data->display(&dbfmt);
+  // ====================== Image Neighborhood case ===========================
+  mestitle(0,"Test in Image Neighborhood");
 
   // Generate the Image
   DbGrid* image = DbGrid::create(nx);
@@ -115,7 +125,6 @@ int main(int /*argc*/, char */*argv*/[])
   image->display();
 
   // Image Neighborhood
-//  NeighImage* neighI = NeighImage::create(ndim, {3,3}, 2);
   NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
   neighI->display();
 

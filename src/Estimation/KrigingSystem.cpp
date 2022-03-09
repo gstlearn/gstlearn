@@ -38,7 +38,7 @@
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
                              Model* model,
-                             const ANeighParam* neighParam)
+                             ANeighParam* neighParam)
     : _dbin(dbin),
       _dbout(dbout),
       _model(model),
@@ -1271,6 +1271,43 @@ void KrigingSystem::_estimateCalculImage(int status)
   return;
 }
 
+void KrigingSystem::_estimateCalculXvalidUnique(int status)
+{
+  int iech  = _iechOut;
+  int iiech = _dbin->getActiveSampleRank(_iechOut);
+
+  if (! _dbin->isActive(iech)) return;
+
+  double trueval = _dbin->getVariable(iech, 0);
+  if (! FFFF(trueval))
+  {
+    double variance = 1. / _getLHSINV(iiech, 0, iiech, 0);
+    double stdv = sqrt(variance);
+
+    /* Perform the estimation */
+
+    double value = (_xvalidEstim) ? -trueval : 0.;
+    int jjech = 0;
+    for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
+    {
+      if (! _dbin->isActive(jech)) continue;
+      if (FFFF(_dbin->getVariable(jech, 0))) continue;
+      if (iiech != jjech)
+        value -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getVariable(jech, 0);
+      jjech++;
+    }
+
+    if (_flagEst) _dbin->setArray(iech, _iptrEst, value);
+    if (_flagStd)
+    {
+      if (_xvalidStdev) stdv = value / stdv;
+      _dbin->setArray(iech, _iptrStd, stdv);
+    }
+
+    if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
+  }
+}
+
 /****************************************************************************/
 /*!
  **  Establish the variance of the estimator
@@ -1515,17 +1552,22 @@ int KrigingSystem::estimate(int iech_out)
     messerr("You must call 'isReady' before launching 'estimate'");
     return 1;
   }
-  bool skipCalcul = false;
+
   // In case of Image Neighborhood, the neighboring samples have already
   // been selected (in isReady(). No need to compute them again.
-  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
-    skipCalcul = true;
+  bool skipCalculAll = false;
+  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE) skipCalculAll = true;
+
+  // In case of Cross-validation in Unique Neighborhood, do not establish the RHS
+  bool caseXvalidUnique = false;
+  if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE &&
+      _neighParam->getFlagXvalid()) caseXvalidUnique = true;
 
   // Store the Rank of the Target sample
   _iechOut = iech_out;
 
   int status = 0;
-  if (skipCalcul) goto label_store;
+  if (skipCalculAll) goto label_store;
 
   if (! _dbout->isActive(_iechOut)) return 0;
   OptDbg::setIndex(iech_out + 1);
@@ -1537,6 +1579,7 @@ int KrigingSystem::estimate(int iech_out)
 
   // Elaborate the Neighborhood
 
+  if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
   _nbgh = _nbghWork.select(_dbout,iech_out,_rankColCok);
   status = (_getNech() <= 0);
 
@@ -1549,9 +1592,11 @@ int KrigingSystem::estimate(int iech_out)
     if (status) goto label_store;
     _dual(false, &ldum);
   }
+  if (caseXvalidUnique) _neighParam->setFlagXvalid(true);
 
   /* Establish the Kriging R.H.S. */
 
+  if (caseXvalidUnique) goto label_store;
   _rhsCalcul();
   if (status != 0) goto label_store;
   _rhsIsoToHetero();
@@ -1567,6 +1612,9 @@ int KrigingSystem::estimate(int iech_out)
   label_store:
   if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
     _estimateCalculImage(status);
+  else if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE &&
+      _neighParam->getFlagXvalid())
+    _estimateCalculXvalidUnique(status);
   else
     _estimateCalcul(status);
   if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
@@ -2005,6 +2053,13 @@ bool KrigingSystem::_isCorrect()
       messerr("The Image neighborhood can only be used when the output Db is a grid");
       return false;
     }
+
+    if (_neighParam->getFlagXvalid() && nvar > 1)
+    {
+     messerr("The algorithm for Cross-Validation in Unique Neighborhood");
+     messerr("is restricted to a single variable");
+     return false;
+    }
   }
 
   /******************************/
@@ -2222,10 +2277,10 @@ void KrigingSystem::_prodLHS(int iech, int ivar, int jech, int jvar, double valu
     _checkAddress("_prodLHS","jvar",jvar,_getNVar());
   }
   int nech = _getNech();
-  int neq = _getNeq();
+  int neq  = _getNeq();
   int indi = _IND(iech, ivar, nech);
   int indj = _IND(jech, jvar, nech);
-  _lhs [indi + neq * indj] *= value;
+  _lhs[indi + neq * indj] *= value;
 }
 double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar)
 {
@@ -2237,10 +2292,25 @@ double KrigingSystem::_getLHS(int iech, int ivar, int jech, int jvar)
     _checkAddress("_getLHS","jvar",jvar,_getNVar());
   }
   int nech = _getNech();
-  int neq = _getNeq();
+  int neq  = _getNeq();
   int indi = _IND(iech, ivar, nech);
   int indj = _IND(jech, jvar, nech);
-  return _lhs [indi + neq * indj];
+  return _lhs[indi + neq * indj];
+}
+double KrigingSystem::_getLHSINV(int iech, int ivar, int jech, int jvar)
+{
+  if (_flagCheckAddress)
+  {
+    _checkAddress("_getLHSINV","iech",iech,_getNech());
+    _checkAddress("_getLHSINV","ivar",ivar,_getNVar());
+    _checkAddress("_getLHSINV","jech",jech,_getNech());
+    _checkAddress("_getLHSINV","jvar",jvar,_getNVar());
+  }
+  int nech = _getNech();
+  int neq  = _getNeq();
+  int indi = _IND(iech, ivar, nech);
+  int indj = _IND(jech, jvar, nech);
+  return _lhsinv[indi + neq * indj];
 }
 double KrigingSystem::_getDISC1(int idisc, int idim)
 {

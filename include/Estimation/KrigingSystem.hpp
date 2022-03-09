@@ -29,7 +29,7 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 Model* model,
-                const ANeighParam* neighParam);
+                ANeighParam* neighParam);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
@@ -96,6 +96,7 @@ private:
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
+  void _estimateCalculXvalidUnique(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
   void _variance0();
@@ -114,6 +115,7 @@ private:
   double _getRHSC(int i, int jvCL);
   double _getWGTC(int i,int jvCL);
   double _getLHS(int iech, int ivar, int jech, int jvar);
+  double _getLHSINV(int iech, int ivar, int jech, int jvar);
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
@@ -132,7 +134,7 @@ private:
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _model;
-  const ANeighParam*   _neighParam;
+  ANeighParam*         _neighParam;
   bool _isReady;
 
   // Options
