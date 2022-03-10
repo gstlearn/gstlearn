@@ -1944,6 +1944,23 @@ GSTLEARN_DEPRECATED int Db::getActiveSampleNumber() const
 }
 
 /**
+ * Return the absolute rank of a sample from its relative rank
+ * @param iech Relative rank
+ * @return
+ */
+int Db::getActiveSampleRank(int iech) const
+{
+  int nech = getSampleNumber(false);
+  int jech = 0;
+  for (int i = 0; i < nech; i++)
+  {
+    if (! isActive(i)) continue;
+    if (iech == jech) return i;
+    jech++;
+  }
+}
+
+/**
  * Returns the Number of samples
  * @param useSel When FALSE returns the total sample number.
  * When TRUE returns the number of active samples

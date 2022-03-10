@@ -70,7 +70,7 @@ String DriftList::toString(const AStringFormat* /*strfmt*/) const
   {
     sstr << _drifts[i]->toString();
     if (_filtered[i])
-      sstr << " (filtered)";
+      sstr << " (This component is filtered)";
     sstr << std::endl;
   }
   return sstr.str();

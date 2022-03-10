@@ -17,10 +17,10 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-NeighImage::NeighImage(int ndim, int skip, VectorInt image)
+NeighImage::NeighImage(int ndim, VectorInt radius, int skip)
     : ANeighParam(ndim),
       _skip(skip),
-      _imageRadius(image)
+      _imageRadius(radius)
 {
 }
 
@@ -46,7 +46,7 @@ NeighImage::~NeighImage()
 {
 }
 
-int NeighImage::reset(int ndim, int skip, const VectorInt& image)
+int NeighImage::reset(int ndim, const VectorInt& image, int skip)
 {
   setNDim(ndim);
   _skip = skip;
@@ -109,10 +109,10 @@ int NeighImage::_serialize(std::ostream& os, bool verbose) const
   return ret ? 0 : 1;
 }
 
-NeighImage* NeighImage::create(int ndim, int skip, const VectorInt& image)
+NeighImage* NeighImage::create(int ndim, const VectorInt& image, int skip)
 {
   NeighImage* neighI = new NeighImage;
-  if (neighI->reset(ndim, skip, image))
+  if (neighI->reset(ndim, image, skip))
   {
     messerr("Problem when creating Image NeighImageborhood");
     delete neighI;

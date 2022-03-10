@@ -1978,10 +1978,10 @@ void set_keypair(const char *keyword,
  **
  *****************************************************************************/
 void app_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 double *values)
+                 int origin,
+                 int nrow,
+                 int ncol,
+                 double *values)
 {
   Keypair *keypair;
   int start, newrow;

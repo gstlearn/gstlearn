@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Db/PtrGeos.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/String.hpp"
 #include "geoslib_enum.h"
 
 #include <string.h>
@@ -167,6 +168,11 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
   int  inum  = -1;
   int  found = -1;
   bool mult  =  0;
+
+  // Transform the input argument into lower case for comparison
+  String string_loc = string;
+  toLower(string_loc);
+
   auto it = ELoc::getIterator();
   while (it.hasNext() && found < 0)
   {
@@ -174,7 +180,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
     {
       int i = it.getValue();
       unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[i].SREF));
-      if (string.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) found = i;
+      if (string_loc.compare(0,lng,DEF_LOCATOR[i].SREF) == 0) found = i;
     }
     it.toNext();
   }
@@ -189,7 +195,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
 
   // Decode the remaining characteristics
   unsigned int lng = static_cast<unsigned int> (strlen(DEF_LOCATOR[found].SREF));
-  if (string.size() > lng) inum = atoi(&string[lng]);
+  if (string_loc.size() > lng) inum = atoi(&string_loc[lng]);
   mult = (DEF_LOCATOR[found].IREF == 0);
   if (! mult && inum > 1)
   {

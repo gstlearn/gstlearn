@@ -173,9 +173,11 @@ double ACovAnisoList::eval(int ivar,
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  for (const auto& cov : _covs)
+  for (int icov = 0; icov < getCovNumber(); icov++)
   {
-    sstr << cov->toString();
+    sstr << getCova(icov)->toString();
+    if (isFiltered(icov))
+      sstr << "  (This component is Filtered)" << std::endl;
   }
 
   // Display the Total Sill (optional)

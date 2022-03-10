@@ -207,8 +207,8 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        if (kriging(dbin,dbin,new_model,neighparam,EKrigOpt::PONCTUAL,
-                    1,1,0)) messageAbort("kriging");
+        if (xvalid(dbin,new_model,neighparam,
+                   0,1,1,0)) messageAbort("xvalid");
         db_print(dbin,1,0,1,1,1);
       }
       else

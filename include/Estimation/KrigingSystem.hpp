@@ -16,10 +16,12 @@
 #include "Enum/EKrigOpt.hpp"
 
 class Db;
+class DbGrid;
 class Model;
 class ANeighParam;
 class CovCalcMode;
 class ECalcMember;
+class NeighImage;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -27,26 +29,25 @@ public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
                 Model* model,
-                const ANeighParam* neighParam);
+                ANeighParam* neighParam);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
-  int setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
-  int setKrigOptXValid(bool optionXValidEstim = false,
-                       bool optionXValidStdev = false);
-  int setKrigOptColCok(const VectorInt& rank_colcok);
-  int setKrigOptBayes(bool flag_bayes);
-  int setKrigOptMatCL(const VectorVectorDouble& matCL);
-  void setKrigOptFlagSimu(bool flagSimu);
-  /**
-   * This function enables testing all addresses before running
-   * @param flagCheckAddress True if addresses must be systematically checked
-   * @remark When turned ON, this option slows the process.
-   * @remark It should only be used for Debugging purposes.
-   */
-  void setKrigOptCheckAddress(bool flagCheckAddress) { _flagCheckAddress = flagCheckAddress; }
+  int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
+  int  setKrigOptXValid(bool flag_xvalid,
+                        bool flag_kfold,
+                        bool optionXValidEstim = false,
+                        bool optionXValidStdev = false);
+  int  setKrigOptColCok(const VectorInt& rank_colcok);
+  int  setKrigOptBayes(bool flag_bayes);
+  int  setKrigOptMatCL(const VectorVectorDouble& matCL);
+  int  setKrigoptCode(bool flag_code);
+  int  setKrigOptFlagSimu(bool flagSimu);
+  int  setKrigOptSaveWeights(bool flag_save);
+  int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
+  int  setKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -93,10 +94,14 @@ private:
   void _dual(bool flagLterm, double *lterm);
   int  _prepar();
   void _estimateCalcul(int status);
+  void _estimateCalculImage(int status);
+  void _estimateCalculSmoothImage(int status);
+  void _estimateCalculXvalidUnique(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
   void _variance0();
   void _krigingDump(int status);
+  void _saveWeights(int status);
   void _blockDiscretize();
   bool _isCorrect();
 
@@ -111,6 +116,7 @@ private:
   double _getRHSC(int i, int jvCL);
   double _getWGTC(int i,int jvCL);
   double _getLHS(int iech, int ivar, int jech, int jvar);
+  double _getLHSINV(int iech, int ivar, int jech, int jvar);
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
@@ -121,13 +127,15 @@ private:
   double _getVAR0(int ivCL, int jvCL);
   void   _setVAR0(int ivCL, int jvCL, double value);
   void   _checkAddress(const String& title,const String& theme,int ival,int nval);
+  bool   _prepareForImage(const NeighImage* neighI);
+  bool   _prepareForImageKriging(Db* dbaux);
 
 private:
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
   Model*               _model;
-  const ANeighParam*   _neighParam;
+  ANeighParam*         _neighParam;
   bool _isReady;
 
   // Options
@@ -145,7 +153,7 @@ private:
   EKrigOpt _calcul;
 
   /// Options complement for neighborhood
-  bool _flagCode;
+  bool _flagCode;  // True when kriging by Code
 
   /// Option for Block estimation
   int _discreteMode;  // 1 : constant; 2 : per Target cell
@@ -171,6 +179,15 @@ private:
 
   // Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;
+
+  // Option for Estimation based on Image
+  DbGrid* _dbaux;
+  bool _flagSmooth;
+  int  _smoothType;
+  double _smoothRange;
+
+  // Option for saving the Weights using Keypair mechanism
+  bool _flagSaveWeights;
 
   // Local variables
   int _iechOut;

@@ -18,6 +18,7 @@
 #include "Covariances/ECov.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Basic/EJustify.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Db/ELoc.hpp"
 #include "LithoRule/EProcessOper.hpp"
@@ -1841,10 +1842,6 @@ GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    double *rmean,
                                    double *rcov,
                                    double *smean);
-GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
-                                   NeighImage *neighI,
-                                   int type,
-                                   double range);
 GSTLEARN_EXPORT int krigdgm_f(Db *dbin,
                               Db *dbout,
                               Model *model,
