@@ -138,6 +138,11 @@ KrigingSystem::~KrigingSystem()
       if (_dbout != nullptr) nostat->detachFromDb(_dbout, 2);
     }
   }
+
+  // Reset elements in _neighParam
+
+  _neighParam->setFlagXvalid(false);
+  _neighParam->setFlagKFold(false);
 }
 
 int KrigingSystem::_getNVar() const
@@ -1804,6 +1809,14 @@ void KrigingSystem::_krigingDump(int status)
   return;
 }
 
+/**
+ * Set the calculation options
+ * @param iptrEst  UID for storing the estimation(s)
+ * @param iptrStd  UID for storing the Standard deviations(s)
+ * @param iptrVarZ UID for storing the Variance(s) of estimator
+ * @return
+ * @remark If a term must not be calculated, its UID must be negative
+ */
 int KrigingSystem::setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 {
   _iptrEst = iptrEst;
@@ -1886,10 +1899,31 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   return 0;
 }
 
-int KrigingSystem::setKrigOptXValid(bool optionXValidEstim,
+int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
+                                    bool flag_kfold,
+                                    bool optionXValidEstim,
                                     bool optionXValidStdev)
 {
-  if (! _neighParam->getFlagXvalid()) return 0;
+  if (! flag_xvalid)
+  {
+    _neighParam->setFlagXvalid(false);
+    _neighParam->setFlagKFold(false);
+  }
+  else
+  {
+    _neighParam->setFlagXvalid(flag_xvalid);
+    if (flag_kfold)
+    {
+      if (_neighParam->getType() == ENeigh::UNIQUE)
+      {
+        messerr("K-FOLD is not available in Unique Neighborhood");
+        return 1;
+      }
+      if (! _dbin->hasCode())
+        messerr("The K-FOLD option is ignored as no Code is defined");
+    }
+    _neighParam->setFlagKFold(flag_kfold);
+  }
   _xvalidEstim = optionXValidEstim;
   _xvalidStdev = optionXValidStdev;
   return 0;
@@ -1981,19 +2015,21 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   return 0;
 }
 
-void KrigingSystem::setKrigOptFlagSimu(bool flagSimu)
+int KrigingSystem::setKrigOptFlagSimu(bool flagSimu)
 {
  _flagSimu = flagSimu;
  _nbghWork.setFlagSimu(flagSimu);
+ return 0;
 }
 
 /**
  * Switch the option for saving the Kriging Weights using Keypair mechanism
  * @param flag_save Value of the switch
  */
-void KrigingSystem::setKrigOptSaveWeights(bool flag_save)
+int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
 {
   _flagSaveWeights = flag_save;
+  return 0;
 }
 
 /**
@@ -2041,9 +2077,10 @@ int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double rang
  * @remark When turned ON, this option slows the process.
  * @remark It should only be used for Debugging purposes.
  */
-void KrigingSystem::setKrigOptCheckAddress(bool flagCheckAddress)
+int KrigingSystem::setKrigOptCheckAddress(bool flagCheckAddress)
 {
   _flagCheckAddress = flagCheckAddress;
+  return 0;
 }
 
 bool KrigingSystem::_isCorrect()

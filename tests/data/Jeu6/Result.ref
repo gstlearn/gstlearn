@@ -170,7 +170,7 @@ Data Base Statistics
  Mean value          =      6.104
  Standard Deviation  =      3.594
  Variance            =     12.916
-5 - Name Kriging.z1.esterr - Locator z1
+5 - Name Xvalid.z1.esterr - Locator z1
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =    -30.990
@@ -178,7 +178,7 @@ Data Base Statistics
  Mean value          =      0.165
  Standard Deviation  =      4.841
  Variance            =     23.434
-6 - Name Kriging.z2.esterr - Locator z2
+6 - Name Xvalid.z2.esterr - Locator z2
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =    -22.014
@@ -186,7 +186,7 @@ Data Base Statistics
  Mean value          =      0.333
  Standard Deviation  =      3.455
  Variance            =     11.940
-7 - Name Kriging.z1.stderr - Locator NA
+7 - Name Xvalid.z1.stderr - Locator NA
  Nb of data          =        102
  Nb of active values =        102
  Minimum value       =     -6.892
@@ -194,7 +194,7 @@ Data Base Statistics
  Mean value          =      0.037
  Standard Deviation  =      1.082
  Variance            =      1.171
-8 - Name Kriging.z2.stderr - Locator NA
+8 - Name Xvalid.z2.stderr - Locator NA
  Nb of data          =        102
  Nb of active values =        101
  Minimum value       =     -7.198

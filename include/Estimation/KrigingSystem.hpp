@@ -36,16 +36,18 @@ public:
 
   int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
   int  setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
-  int  setKrigOptXValid(bool optionXValidEstim = false,
+  int  setKrigOptXValid(bool flag_xvalid,
+                        bool flag_kfold,
+                        bool optionXValidEstim = false,
                         bool optionXValidStdev = false);
   int  setKrigOptColCok(const VectorInt& rank_colcok);
   int  setKrigOptBayes(bool flag_bayes);
   int  setKrigOptMatCL(const VectorVectorDouble& matCL);
   int  setKrigoptCode(bool flag_code);
-  void setKrigOptFlagSimu(bool flagSimu);
-  void setKrigOptSaveWeights(bool flag_save);
+  int  setKrigOptFlagSimu(bool flagSimu);
+  int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
-  void setKrigOptCheckAddress(bool flagCheckAddress);
+  int  setKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
   int  estimate(int iech_out);
