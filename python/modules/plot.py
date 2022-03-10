@@ -120,6 +120,21 @@ def getFileIdentity(filename):
     print(type)
     return type
 
+def update_xylim(ax, xlim=None, ylim=None):
+    """Update x and y limits by keeping the maximum extent between initial limits and input."""
+    if xlim is not None:
+        xlim0 = ax.get_xlim()
+        if xlim[0] is not None and xlim[0] < xlim0[0]:
+            ax.set_xlim(left=xlim[0])
+        if xlim[1] is not None and xlim[1] > xlim0[1]:
+            ax.set_xlim(right=xlim[1])
+    if ylim is not None:
+        ylim0 = ax.get_ylim()
+        if ylim[0] is not None and ylim[0] < ylim0[0]:
+            ax.set_ylim(bottom=ylim[0])
+        if ylim[1] is not None and ylim[1] > ylim0[1]:
+            ax.set_ylim(top=ylim[1])
+
 def varioElem(vario, ivar=0, jvar=0, idir=0,
           color='black', linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None,
           flagLabelDir=False, flagLegend=False, title=None, ax=None, figsize=None, end_plot = False):
@@ -163,10 +178,12 @@ def varioElem(vario, ivar=0, jvar=0, idir=0,
         
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
+    else:
+        update_xylim(ax, xlim, ylim)
 
     label = "vario"
     if flagLabelDir:
-        label = f"vario dir={np.round(vario.getCodir(idir),3)}"
+        label = "vario dir={}".format(np.round(vario.getCodir(idir),3))
     
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
@@ -235,6 +252,8 @@ def varioDir(vario, ivar=0, jvar=0,
         
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
+    else:
+        update_xylim(ax, xlim, ylim)
 
     for idirUtil in ndirUtil:
         varioElem(vario, ivar, jvar, idirUtil, cols(idirUtil), linestyle, color0, linestyle0, 
@@ -307,7 +326,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
         
     # Create a new figure
     if axs is None:
-        fig, axs = newFigure(figsize, xlim, ylim, ivarN, jvarN, ylimnodiag)   
+        fig, axs = newFigure(figsize, None, None, ivarN, jvarN, ylimnodiag)   
         
     # if several directions, label with the direction vectors
     if ndir > 1:
@@ -332,7 +351,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                 varioElem(vario, iv, jv, idirUtil, 
                           color=cols(idirUtil), linestyle=linestyle,
                           color0=color0, linestyle0=linestyle0, 
-                          ax=ax, hmax=hmax, gmax=gmax, 
+                          ax=ax, hmax=hmax, gmax=None, 
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
                 # Plotting the Model (optional)
@@ -340,7 +359,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                     codir = vario.getCodir(idirUtil)
                     model(mymodel, iv, jv, codir, 
                           cols(idirUtil), linestylem, color0, linestyle0, ax=ax,
-                          hmax=hmax, gmax=gmax, nh=nh,
+                          hmax=hmax, gmax=None, nh=nh,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
     if title is not None:
@@ -450,10 +469,12 @@ def model(model, ivar=0, jvar=0, codir=None,
 
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
-    
+    else:
+        update_xylim(ax, xlim, ylim)
+        
     label = "model"
     if flagLabelDir:
-        label = f"model dir={codir}"
+        label = "model dir={}".format(codir)
         
     ax.plot(hh, gg, color = color, linestyle = linestyle, label=label)
     
@@ -1076,7 +1097,7 @@ class PointSelection:
     pickradius : precision of the picker in points (default is 7)
     color : new color for the selected points (default is red)
     """
-    def __init__(self, ax=None, collection=None, mydb=None, pickradius=7, color='r'):
+    def __init__(self, ax=None, collection=None, mydb=None, pickradius=7, color='r', verbose=False):
         self.ax = ax
         if ax is None and collection is None:
             raise ValueError("ax and collection cannot be None at the same time,"
@@ -1092,6 +1113,7 @@ class PointSelection:
         self.collection.set_picker(True)
         self.collection.set_pickradius(pickradius)
         self.color = mcolors.to_rgba(color)
+        self.verbose = verbose
             
         self.cid = self.fig.canvas.mpl_connect('pick_event', self.on_pick)
         self.cid_esc = self.fig.canvas.mpl_connect("key_press_event", self.onkeypress)
@@ -1121,11 +1143,12 @@ class PointSelection:
         if event.mouseevent.button in (1,3):
             xmouse, ymouse = event.mouseevent.xdata, event.mouseevent.ydata
             ind = event.ind
-            print( 'Artist picked:', event.artist)
-            print( '{} vertices picked'.format(len(ind)))
-            print( 'Vertices picked:',ind)
-            print( 'x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
-            print( 'Data point:', self.data[ind[0]])
+            if self.verbose:
+                print( 'Artist picked:', event.artist)
+                print( '{} vertices picked'.format(len(ind)))
+                print( 'Vertices picked:',ind)
+                print( 'x, y of mouse: {:.2f},{:.2f}'.format(xmouse, ymouse))
+                print( 'Data point:', self.data[ind[0]])
             for i in range(len(ind)):
                 self.list_clicks.append(ind[i])
                 if event.mouseevent.button == 1: #left click = select

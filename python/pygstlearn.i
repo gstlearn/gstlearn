@@ -166,10 +166,10 @@ def check_nrows(db, nrows):
         useSel = False
     else:
         if db.getActiveSampleNumber() != db.getSampleNumber():
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+            raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
                 str(db.getActiveSampleNumber()) + " or " + str(db.getSampleNumber()))
         else :
-            raise ValueError("Error of dimension. Your number of lines has to be equal to " +
+            raise ValueError("Error of dimension. Your number of lines ("+str(nrows)+") has to be equal to " +
                   str(db.getActiveSampleNumber()))
     return useSel
 
@@ -201,12 +201,12 @@ def findColumnNames(self, columns):
         Nfields = self.getColumnNumber()
         for i in columns:
             if i >= Nfields:
-                print(f"Warning: the index {i} is out of bounds with {Nfields}, this index is ignored")
+                print("Warning: the index {} is out of bounds with {}, this index is ignored".format(i,Nfields))
             else:
                 names.append(self.getNameByColIdx(int(i)))
         
     else:
-        raise ValueError(f"Argument for columns of wrong type: {type(columns)}")
+        raise ValueError("Argument for columns of wrong type: {}".format(type(columns)))
         
     return np.atleast_1d(names)
 
@@ -321,18 +321,18 @@ def setitem(self,name,tab):
         new_names = gl.generateMultipleNames(columns, nvars)
         
     else:
-        raise ValueError(f"Wrong type or length of input ({columns}): the input should correspond"
-                         f" either to a number of existing variables ({len(ColNames)}) equal to the"
-                         f" number of columns of the table (nvar={nvars}), or should be a name or "
-                         f"list of names of length nvar={nvars} in order to create new variables.")
+        raise ValueError("Wrong type or length of input ({0}): the input should correspond"
+                         " either to a number of existing variables ({1}) equal to the"
+                         " number of columns of the table (nvar={2}), or should be a name or "
+                         "list of names of length nvar={2} in order to create new variables.".format(columns, len(ColNames), nvars))
             
     # loop on the column names to modify/create each column
     for i,name in enumerate(new_names):
         # check if existing name
         ExistingNames = findColumnNames(self, name)
         if len(ExistingNames) > 1:
-            raise ValueError(f"There is more than one variable name corresponding to '{name}' "
-                             f"in the Db: {ExistingNames}")
+            raise ValueError("There is more than one variable name corresponding to '{}' "
+                             "in the Db: {}".format(name, ExistingNames))
             
         if selec_rows:
             useSel = self.useSel
