@@ -183,7 +183,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0,
 
     label = "vario"
     if flagLabelDir:
-        label = f"vario dir={np.round(vario.getCodir(idir),3)}"
+        label = "vario dir={}".format(np.round(vario.getCodir(idir),3))
     
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
@@ -474,7 +474,7 @@ def model(model, ivar=0, jvar=0, codir=None,
         
     label = "model"
     if flagLabelDir:
-        label = f"model dir={codir}"
+        label = "model dir={}".format(codir)
         
     ax.plot(hh, gg, color = color, linestyle = linestyle, label=label)
     
