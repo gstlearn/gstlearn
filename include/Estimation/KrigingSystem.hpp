@@ -48,6 +48,7 @@ public:
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu);
   int  setKrigOptSaveWeights(bool flag_save);
+  int  setKrigOptDGM(bool flag_dgm, double rcoef = 1.);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptCheckAddress(bool flagCheckAddress);
 

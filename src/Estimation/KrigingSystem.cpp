@@ -2050,6 +2050,18 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoef)
+{
+  _flagDGM = flag_dgm;
+  if (rcoef < 0. || rcoef > 1.)
+  {
+    messerr("The Change of Support Coefficient (%lf) should lie in [0,1]");
+    return 1;
+  }
+  _supportCoeff = rcoef;
+  return 0;
+}
+
 /**
  * In the case of Image Neighborhood, switch the Smoothing option
  * @param flag_smooth Switch of the Smoothing Image Option
