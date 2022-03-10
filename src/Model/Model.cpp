@@ -50,11 +50,17 @@ Model::Model(const CovContext &ctxt)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
-      _driftList(dynamic_cast<DriftList*>(m._driftList->clone())),
-      _noStat(dynamic_cast<ANoStat*>(m._noStat->clone())),
+      _covaList(nullptr),
+      _driftList(nullptr),
+      _noStat(nullptr),
       _ctxt(m._ctxt)
 {
+  if (m._covaList != nullptr)
+    _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
+  if (m._driftList != nullptr)
+    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+  if (m._noStat != nullptr)
+    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
 }
 
 Model& Model::operator=(const Model &m)
@@ -63,9 +69,12 @@ Model& Model::operator=(const Model &m)
   {
     AStringable::operator=(m);
     ASerializable::operator=(m);
-    _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
-    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
-    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
+    if (m._covaList != nullptr)
+      _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
+    if (m._driftList != nullptr)
+      _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+    if (m._noStat != nullptr)
+      _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
   }
   return (*this);

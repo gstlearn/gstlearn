@@ -7096,9 +7096,9 @@ int krigmvp_f(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Perform kriging and return the dimensions
+ **  Perform kriging and return the calculation elements
  **
- ** \return  Error return code
+ ** \return  A Krigtest_Res structure
  **
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
@@ -7108,251 +7108,74 @@ int krigmvp_f(Db *dbin,
  ** \param[in]  calcul     Kriging calculation option (EKrigOpt)
  ** \param[in]  ndisc      Array giving the discretization counts
  **
- ** \param[out] ndim_ret   Output space dimension
- ** \param[out] nech_ret   Output number of active samples
- ** \param[out] nred_ret   Output number of equations
- ** \param[out] nrhs_ret   Output number of RHS
- **
  *****************************************************************************/
-int krigtest_dimension(Db *dbin,
-                       Db *dbout,
-                       Model *model,
-                       ANeighParam *neighparam,
-                       int iech0,
-                       const EKrigOpt &calcul,
-                       VectorInt ndisc,
-                       int *ndim_ret,
-                       int *nech_ret,
-                       int *nred_ret,
-                       int *nrhs_ret)
+Krigtest_Res krigtest(Db *dbin,
+                      Db *dbout,
+                      Model *model,
+                      ANeighParam *neighparam,
+                      int iech0,
+                      const EKrigOpt &calcul,
+                      VectorInt ndisc)
 {
-  int iext, error, status, nech, neq, nred, nvar;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
+  Krigtest_Res ktest;
 
-  /* Preliminary checks */
+  // Preliminary checks
 
-  error = 1;
-  iext = -1;
-  nvar = 0;
-  st_global_init(dbin, dbout);
-  FLAG_EST = 1;
-  FLAG_STD = 1;
-  FLAG_WGT = 1;
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
-  if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
-  nvar = model->getVariableNumber();
-
-  /* Pre-calculations */
-
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
-  if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
-
-  /* Initialize the target */
-
-  status = 0;
-  IECH_OUT = iech0;
-  if (iech0 < 0 || iech0 >= dbout->getSampleNumber()) goto label_end;
-
-  /* Select the Neighborhood */
-
-  nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  nech = (int) nbgh_ranks.size();
-  status = nbgh_ranks.empty();
-  if (status)
+  if (neighparam->getType() == ENeigh::IMAGE)
   {
-    messerr("No valid neighborhood can be found for this target");
-    goto label_end;
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return ktest;
   }
 
-  /* Establish the kriging L.H.S. */
+  // Initializations
 
-  st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
-  if (status) goto label_end;
-
-  /* Set the error return flag */
-
-  error = 0;
-  *ndim_ret = dbin->getNDim();
-  *nech_ret = nech;
-  *nred_ret = nred;
-  *nrhs_ret = nvar;
-
-  label_end:
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, nvar, model, neighparam);
-  (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
-  (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Perform kriging and return working arrays
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  iech0      Rank of the target sample
- ** \param[in]  calcul     Kriging calculation option (EKrigOpt)
- ** \param[in]  ndisc      Array giving the discretization counts
- **
- ** \param[out] nred_out  Output number of equations
- ** \param[out] nrhs_out  Output number of RHS
- ** \param[out] xyz_out   Output array containing the coordinates
- ** \param[out] data_out  Output array of (extended) data (Dimension: nred_out)
- ** \param[out] lhs_out   Output LHS matrix (Dimension: nred_out * nred_out)
- ** \param[out] rhs_out   Output RHS matrix (Dimension: nred_out * nrhs_out)
- ** \param[out] wgt_out   Output weight matrix (Dimension: nred_out * nrhs_out)
- ** \param[out] zam_out   Output ZAM matrix (Dimension: nred_out)
- ** \param[out] var_out   Output variance matrix (Dimension: nrhs_out * nrhs_out)
- **
- *****************************************************************************/
-int krigtest_f(Db *dbin,
-               Db *dbout,
-               Model *model,
-               ANeighParam *neighparam,
-               int iech0,
-               const EKrigOpt &calcul,
-               VectorInt ndisc,
-               int nred_out,
-               int nrhs_out,
-               double *xyz_out,
-               double *data_out,
-               double *lhs_out,
-               double *rhs_out,
-               double *wgt_out,
-               double *zam_out,
-               double *var_out)
-{
-  int iext, ivar, jvar, ecr, status, nech, neq, nred, nvar, nfeq, iech, idim,
-      ndim, error;
-  double ldum;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
-
-  /* Preliminary checks */
-
-  error = 1;
-  iext = -1;
-  nvar = neq = nred = 0;
-  st_global_init(dbin, dbout);
-  FLAG_EST = 1;
-  FLAG_STD = 1;
-  FLAG_WGT = 1;
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
-  if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
-  nvar = model->getVariableNumber();
-  nfeq = model->getDriftEquationNumber();
-  ndim = dbin->getNDim();
+  int flag_simu =  0;
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+  int iptr_varz = -1;
+  int nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
-  {
-    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_EST < 0) goto label_end;
-  }
-  if (FLAG_STD != 0)
-  {
-    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_STD < 0) goto label_end;
-  }
+  iptr_est = dbout->addColumnsByConstant(nvar, 0.);
+  if (iptr_est < 0) return ktest;
+  iptr_std = dbout->addColumnsByConstant(nvar, 0.);
+  if (iptr_std < 0) return ktest;
 
-  /* Pre-calculations */
+  /* Setting options */
 
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
-  if (krige_koption_manage(1, 1, calcul, 1, ndisc)) goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
+  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  if (ksys.setKrigOptFlagSimu(flag_simu)) return ktest;
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return ktest;
+  if (ksys.setKrigOptCalcul(calcul, ndisc)) return ktest;
+  if (! ksys.isReady()) return ktest;
 
-  /* Initialize the target */
+  /* Loop on the targets to be processed */
 
-  status = 0;
-  IECH_OUT = iech0;
-  if (iech0 < 0 || iech0 >= dbout->getSampleNumber()) goto label_end;
+  if (ksys.estimate(iech0)) return ktest;
 
-  /* Select the Neighborhood */
+  /* Extract relevant information */
 
-  nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  nech = (int) nbgh_ranks.size();
-  status = nbgh_ranks.empty();
-  if (status) goto label_store;
+  ktest.ndim = ksys.getNDim();
+  ktest.nech = ksys.getNech();
+  ktest.nrhs = 1;
+  ktest.neq  = ksys.getNeq();
+  ktest.xyz  = ksys.getSampleCoordinates();
+  ktest.data = ksys.getSampleData();
+  ktest.zam  = ksys.getZam();
+  ktest.lhs  = ksys.getLHS();
+  ktest.rhs  = ksys.getRHS();
+  ktest.wgt  = ksys.getWeights();
+  ktest.var  = ksys.getVariance();
 
-  /* Establish the kriging L.H.S. */
+  /* Delete fields added in Dbout during calculations */
 
-  st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
-  if (status) goto label_store;
-  st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    dbout->deleteColumnByUID(iptr_est + ivar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    dbout->deleteColumnByUID(iptr_std + ivar);
 
-  /* Establish the kriging R.H.S. */
-
-  st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
-  if (status) goto label_store;
-  st_rhs_iso2hetero(neq, nvar);
-
-  /* Derive the kriging weights */
-
-  if (FLAG_WGT)
-  {
-    matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-    if (OptDbg::query(EDbg::KRIGING))
-      krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
-  }
-
-  /* Perform the estimation */
-
-  label_store:
-  st_estimate(model, NULL, status, neighparam->getFlagXvalid(), nvar, nred);
-  if (OptDbg::query(EDbg::RESULTS))
-    st_result_kriging_print(neighparam->getFlagXvalid(), nvar, status);
-
-  /* Store the output arrays */
-
-  if (nred != nred_out || nrhs_out != nvar)
-  {
-    messerr("The dimension of the output arrays is incorrect:");
-    messerr("- Number of equations: forecast (%d) - actual (%d)", nred_out,
-            neq);
-    messerr("- Number of variables: forecast (%d) - actual (%d)", nrhs_out,
-            nvar);
-    goto label_end;
-  }
-
-  /* Store the coordinates */
-
-  for (idim = ecr = 0; idim < ndim; idim++)
-    for (iech = 0; iech < nech; iech++, ecr++)
-      xyz_out[ecr] = st_get_idim(nbgh_ranks[iech], idim);
-  (void) memcpy(data_out, zext, sizeof(double) * nred);
-  (void) memcpy(zam_out, zam1, sizeof(double) * nred);
-  (void) memcpy(lhs_out, lhs_b, sizeof(double) * nred * nred);
-  (void) memcpy(rhs_out, rhs, sizeof(double) * nred * nvar);
-  (void) memcpy(wgt_out, wgt, sizeof(double) * nred * nvar);
-  for (ivar = ecr = 0; ivar < nvar; ivar++)
-    for (jvar = 0; jvar < nvar; jvar++, ecr++)
-      var_out[ecr] = st_variance(model, ivar, jvar, nred);
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, nvar, model, neighparam);
-  (void) krige_koption_manage(-1, 1, calcul, 1, ndisc);
-  (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
-  (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  return (error);
+  return ktest;
 }
 
 /****************************************************************************/
@@ -7542,140 +7365,71 @@ int kriggam_f(Db *dbin,
  ** \param[in]  flag_est    Option for the storing the estimation
  ** \param[in]  flag_std    Option for the storing the standard deviation
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
+ ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int krigcell_f(Db *dbin,
-               Db *dbout,
-               Model *model,
-               ANeighParam *neighparam,
-               VectorInt ndisc,
-               int flag_est,
-               int flag_std,
-               VectorInt rank_colcok)
+int krigcell(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             int flag_est,
+             int flag_std,
+             VectorInt ndisc,
+             VectorInt rank_colcok,
+             const NamingConvention& namconv)
 {
-  int iext, error, status, nech, neq, nred, nvar, nfeq, ndim;
-  double ldum;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
+  // Preliminary checks
 
-  /* Preliminary checks */
-
-  error = 1;
-  iext = -1;
-  nvar = nred = neq = 0;
-  st_global_init(dbin, dbout);
-  FLAG_EST = flag_est;
-  FLAG_STD = flag_std;
-  FLAG_WGT = flag_std;
-  if (st_check_colcok(dbin, dbout, rank_colcok.data())) goto label_end;
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
-  if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
-  nvar = model->getVariableNumber();
-  nfeq = model->getDriftEquationNumber();
-  ndim = model->getDimensionNumber();
-
-  /* Check that the variables containing the cell dimensions exist */
-  if (dbout->getBlockExtensionNumber() != ndim)
+  if (neighparam->getType() == ENeigh::IMAGE)
   {
-    messerr("The number of Extension Variables in the Output Db is %d",
-            dbout->getBlockExtensionNumber());
-    messerr("The Space Dimension in the Model is %d", ndim);
-    messerr("These two values should be equal");
-    goto label_end;
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
   }
+
+  // Initializations
+
+  int flag_simu =  0;
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+  int nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (flag_est != 0)
   {
-    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_EST < 0) goto label_end;
+    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_est < 0) return 1;
   }
-  if (FLAG_STD != 0)
+  if (flag_std != 0)
   {
-    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_STD < 0) goto label_end;
+    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_std < 0) return 1;
   }
 
-  /* Pre-calculations */
+  /* Setting options */
 
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
-  if (krige_koption_manage(1, 0, EKrigOpt::BLOCK, 1, ndisc)) goto label_end;
+  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndisc, true)) return 1;
+  if (ksys.setKrigOptColCok(rank_colcok)) return 1;
+  if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
 
-  status = 0;
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
   {
-    mes_process("Kriging sample", DBOUT->getSampleNumber(), IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
-    if (!dbout->isActive(IECH_OUT)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
-    }
-
-    /* Update the discretization characteristics (per sample) */
-    st_block_discretize(1, 1, IECH_OUT);
-    if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
-
-    /* Select the Neighborhood */
-
-    nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT, rank_colcok);
-    nech = (int) nbgh_ranks.size();
-    status = nbgh_ranks.empty();
-    if (status) goto label_store;
-
-    /* Establish the kriging L.H.S. */
-
-    if (! nbghw.isUnchanged() || neighparam->getFlagContinuous() || OptDbg::force())
-    {
-      st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
-      if (status) goto label_store;
-      st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
-    }
-
-    /* Establish the kriging R.H.S. */
-
-    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
-    if (status) goto label_store;
-    st_rhs_iso2hetero(neq, nvar);
-    if (OptDbg::query(EDbg::KRIGING))
-      krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
-
-    /* Derive the kriging weights */
-
-    if (FLAG_WGT)
-    {
-      matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (OptDbg::query(EDbg::KRIGING))
-        krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
-    }
-
-    /* Perform the estimation */
-
-    label_store:
-    st_estimate(model, NULL, status, neighparam->getFlagXvalid(), nvar,nred);
-    if (OptDbg::query(EDbg::RESULTS))
-      st_result_kriging_print(neighparam->getFlagXvalid(), nvar, status);
+    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
+    if (ksys.estimate(iech_out)) return 1;
   }
 
   /* Set the error return flag */
 
-  error = 0;
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
-  label_end: OptDbg::setIndex(0);
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, nvar, model, neighparam);
-  (void) krige_koption_manage(-1, 0, EKrigOpt::BLOCK, 1, ndisc);
-  (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
-  (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

@@ -35,7 +35,9 @@ public:
   virtual ~KrigingSystem();
 
   int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int  setKrigOptCalcul(const EKrigOpt& calcul, const VectorInt& ndiscs);
+  int setKrigOptCalcul(const EKrigOpt& calcul,
+                       const VectorInt& ndiscs,
+                       bool flag_per_cell = false);
   int  setKrigOptXValid(bool flag_xvalid,
                         bool flag_kfold,
                         bool optionXValidEstim = false,
@@ -52,15 +54,23 @@ public:
   bool isReady();
   int  estimate(int iech_out);
 
+  int  getNDim() const;
+  int  getNech() const;
+  int  getNeq()  const;
+  VectorDouble getSampleCoordinates() const;
+  VectorDouble getSampleData() const;
+  VectorDouble getZam() const { return _zam; }
+  VectorDouble getLHS() const { return _lhs; }
+  VectorDouble getRHS() const { return _rhs; }
+  VectorDouble getWeights() const { return _wgt; }
+  VectorDouble getVariance() const { return _var0; }
+
 private:
   int  _getNVar() const;
   int  _getNVarCL() const;
   int  _getNbfl() const;
   int  _getNFeq() const;
-  int  _getNech() const;
-  int  _getNDim() const;
   int  _getNFex() const;
-  int  _getNeq()  const;
   int  _getNDisc() const;
   void _setFlag(int iech, int ivar, int value);
   int  _getFlag(int iech, int ivar);
@@ -105,28 +115,31 @@ private:
   void _blockDiscretize();
   bool _isCorrect();
 
-  int    _IND(int iech, int ivar,int nech);
-  int    _getFLAG(int iech,int ivar);
-  double _getCOVTAB(int ivar,int jvar);
+  int    _IND(int iech, int ivar,int nech) const;
+  int    _getFLAG(int iech,int ivar) const;
+  double _getCOVTAB(int ivar,int jvar) const;
   void   _setCOVTAB(int ivar,int jvar,double value);
   void   _addCOVTAB(int ivar,int jvar,double value);
   void   _prodCOVTAB(int ivar,int jvar,double value);
-  double _getRHS(int iech, int ivar, int jvCL);
+  double _getRHS(int iech, int ivar, int jvCL) const;
   void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
-  double _getRHSC(int i, int jvCL);
-  double _getWGTC(int i,int jvCL);
-  double _getLHS(int iech, int ivar, int jech, int jvar);
-  double _getLHSINV(int iech, int ivar, int jech, int jvar);
+  double _getRHSC(int i, int jvCL) const;
+  double _getWGTC(int i,int jvCL) const;
+  double _getLHS(int iech, int ivar, int jech, int jvar) const;
+  double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
-  double _getDISC1(int idisc, int idim);
+  double _getDISC1(int idisc, int idim) const;
   void   _setDISC1(int idisc, int idim, double value);
-  double _getDISC2(int idisc,int idim);
+  double _getDISC2(int idisc,int idim) const;
   void   _setDISC2(int idisc,int idim, double value);
-  double _getVAR0(int ivCL, int jvCL);
+  double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
-  void   _checkAddress(const String& title,const String& theme,int ival,int nval);
+  void _checkAddress(const String& title,
+                     const String& theme,
+                     int ival,
+                     int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux);
 
@@ -153,11 +166,11 @@ private:
   EKrigOpt _calcul;
 
   /// Options complement for neighborhood
-  bool _flagCode;  // True when kriging by Code
+  bool _flagCode;  // True when kriging by Code (Profile)
 
   /// Option for Block estimation
-  int _discreteMode;  // 1 : constant; 2 : per Target cell
-  int _ndiscNumber;
+  bool _flagPerCell;
+  int  _ndiscNumber;
   VectorInt    _ndiscs;
   VectorDouble _disc1;
   VectorDouble _disc2;

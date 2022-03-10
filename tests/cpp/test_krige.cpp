@@ -34,7 +34,12 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
+
+  DbGrid* grid_res;
+  DbGrid* image_res;
+  Db* data_res;
+  Model* model_filt;
 
   // Global parameters
   int ndim = 2;
@@ -46,8 +51,9 @@ int main(int /*argc*/, char */*argv*/[])
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid
-  VectorInt nx = {100,100};
+  VectorInt nx = {50,50};
   DbGrid* grid = DbGrid::create(nx);
+  grid->addColumnsByConstant(2, 1., "Extend", ELoc::BLEX);
   grid->display();
 
   // Generate the data base
@@ -83,45 +89,59 @@ int main(int /*argc*/, char */*argv*/[])
   model->display();
 
   // ====================== Moving Neighborhood case ===========================
-  mestitle(0,"Test in Moving Neighborhood");
+  mestitle(0,"<----- Test in Moving Neighborhood ----->");
 
   // Creating a Moving Neighborhood
   NeighMoving* neighM = NeighMoving::create(ndim, false, 100);
   neighM->display();
 
   // Launch Kriging
-  data->setLocatorByUID(3,ELoc::Z);
-  kriging(data, grid, model, neighM);
-  grid->display(&dbfmt);
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  kriging(data, grid_res, model, neighM);
+  grid_res->display(&dbfmt);
 
   // Launch Cross-Validation
-  data->setLocatorByUID(3,ELoc::Z);
-  xvalid(data, model, neighM, 0, -1, -1);
-  data->display(&dbfmt);
+  data_res = dynamic_cast<Db*>(data->clone());
+  xvalid(data_res, model, neighM, 0, -1, -1);
+  data_res->display(&dbfmt);
 
   // ====================== Unique Neighborhood case ===========================
-  mestitle(0,"Test in Unique Neighborhood");
+  mestitle(0,"<----- Test in Unique Neighborhood ----->");
 
   // Unique Neighborhrood
   NeighUnique* neighU = NeighUnique::create(ndim,false);
 
   // Launch Cross-Validation
-  data->setLocatorByUID(3,ELoc::Z);
-  xvalid(data, model, neighU, 0, -1, -1);
+
+  data_res = dynamic_cast<Db*>(data->clone());
+  xvalid(data_res, model, neighU, 0, -1, -1);
   data->display(&dbfmt);
-  OptDbg::setReference(-1);
 
   // Launch Kriging
-  data->setLocatorByUID(3,ELoc::Z);
-  kriging(data, grid, model, neighU);
-  grid->display(&dbfmt);
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  kriging(data, grid_res, model, neighU);
+  grid_res->display(&dbfmt);
+
+  // ====================== Block Kriging case ===========================
+  mestitle(0,"<----- Test Block Kriging ----->");
+
+  // Launch Block Kriging with fixed block size
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, {3,3});
+  grid_res->display(&dbfmt);
+
+  // Launch Block Kriging with fixed block size
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  krigcell(data, grid_res, model, neighU, 1, 1, {3,3});
+  grid_res->display(&dbfmt);
 
   // ====================== Image Neighborhood case ===========================
-  mestitle(0,"Test in Image Neighborhood");
+  mestitle(0,"<----- Test in Image Neighborhood ----->");
 
   // Generate the Image
   DbGrid* image = DbGrid::create(nx);
   (void) simtub(nullptr,image,model);
+  image->setLocator("Simu", ELoc::Z);
   image->display();
 
   // Image Neighborhood
@@ -129,21 +149,26 @@ int main(int /*argc*/, char */*argv*/[])
   neighI->display();
 
   // Modify the Model (for filtering)
-  model->setCovaFiltered(1, true);
-  model->display();
+  model_filt = dynamic_cast<Model*>(model->clone());
+  model_filt->setCovaFiltered(1, true);
+  model_filt->display();
 
   // Perform Image filtering
-  image->setLocator("Simu", ELoc::Z);
-  krimage(image, model, neighI);
-  image->display(&dbfmt);
+  image_res = dynamic_cast<DbGrid*>(image->clone());
+  krimage(image_res, model_filt, neighI);
+  image_res->display(&dbfmt);
 
   delete neighM;
   delete neighU;
   delete neighI;
   delete data;
+  delete data_res;
   delete grid;
+  delete grid_res;
   delete image;
+  delete image_res;
   delete model;
+  delete model_filt;
 
   return (0);
 }
