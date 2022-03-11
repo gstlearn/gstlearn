@@ -27,7 +27,11 @@ jobs:
     runs-on: windows-latest 
     steps:
     - uses: actions/checkout@v2
-
+    - name : python versions
+      run  : | 
+        cd C:\hostedtoolcache\windows\Python\
+        dir
+    
     - name : Download and install HDF5
       # | offers the possibility to run several command in 1 run (take care to indentation)
       run: | 
