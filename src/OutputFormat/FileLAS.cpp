@@ -17,6 +17,34 @@
 #include "Basic/String.hpp"
 
 #include <string.h>
+#include <algorithm>
+
+#if defined(_WIN32) || defined(_WIN64)
+namespace
+{
+  // STL replacement for strcasestr - far from optimal (several copies)
+  // C++23 introduces std::string::contains
+  // TODO: should be moved elsewhere...
+  std::string tolower(const std::string &s)
+  {
+    std::string result;
+    result.reserve(s.size());
+    std::transform(s.begin(), s.end(), std::back_inserter(result),
+        [](unsigned char c)
+        { return std::tolower(c);});
+    return result;
+  }
+  ;
+  const char* strcasestr(const char *s, const char *ss)
+  {
+    const auto pos = tolower(s).find(tolower(ss));
+    if (pos == std::string::npos) return (const char*) nullptr;
+    return s + pos;
+  }
+  ;
+}
+#endif
+
 
 FileLAS::FileLAS(const char* filename, const Db* db)
   : AOF(filename, db)
@@ -228,30 +256,4 @@ int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
 
   return (0);
 }
-
-#if defined(_WIN32) || defined(_WIN64)
-namespace
-{
-  // STL replacement for strcasestr - far from optimal (several copies)
-  // C++23 introduces std::string::contains
-  // TODO: should be moved elsewhere...
-  std::string tolower(const std::string &s)
-  {
-    std::string result;
-    result.reserve(s.size());
-    std::transform(s.begin(), s.end(), back_inserter(result),
-        [](unsigned char c)
-        { return std::tolower(c);});
-    return result;
-  }
-  ;
-  const char* strcasestr(const char *s, const char *ss)
-  {
-    const auto pos = tolower(s).find(tolower(ss));
-    if (pos == std::string::npos) return (const char*) nullptr;
-    return s + pos;
-  }
-  ;
-}
-#endif
 
