@@ -11,6 +11,7 @@ env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   BOOST_ROOT: boost
+  PROG_ROOT : C:\hostedtoolcache\windows
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
   HDF5_ROOT : hdf5 #do not use "." in the name 
   HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
@@ -36,7 +37,7 @@ jobs:
         cd CMake-${{env.HDF5_VERSION}}
         mkdir build
         cd build
-        cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{github.workspace}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+        cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
         cmake --build . --target all --config Release
         cmake --build . --target install --config Release
 
@@ -61,7 +62,7 @@ jobs:
 
     - name : Configure Cmake
       run : |
-       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{github.workspace}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  
+       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  
 
    
     - name : Install wheel and twine
