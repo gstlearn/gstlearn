@@ -25,13 +25,9 @@ jobs:
    
     - uses: actions/checkout@v2
       
-    - name : Modify path
-      run : echo "PATH=/opt/python/{matrix.python}/bin" >> $GITHUB_PATH
-
     - name : Create Wheels
       run : |
-        echo $PATH
-        echo $GITHUB_PATH
+        export PATH=/opt/python/${{matrix.python}}/bin:$PATH
         cmake -Bbuild  -DHDF5_ROOT:PATH=/opt/hdf5-1.12.1 -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API" -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF
         cmake --build build --target python_build -- -j8
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
