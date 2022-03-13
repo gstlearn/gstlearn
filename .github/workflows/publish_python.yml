@@ -34,7 +34,7 @@ jobs:
         python3 setup.py bdist_wheel --plat-name=manylinux1_x86_64
      
     - name : Upload
-      run : /opt/python/${{matrix.python}}/bin -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+      run : /opt/python/${{matrix.python}}/bin/python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
