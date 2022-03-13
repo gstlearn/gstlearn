@@ -10,8 +10,8 @@ on:
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  BOOST_ROOT: boost
   PROG_ROOT : C:\hostedtoolcache\windows
+  BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
   HDF5_ROOT : hdf5 #do not use "." in the name 
   HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
