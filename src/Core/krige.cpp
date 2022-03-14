@@ -36,6 +36,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Anamorphosis/EAnam.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -4133,8 +4134,7 @@ Global_Res global_arithmetic(Db *dbin,
 
   if (flag_verbose)
   {
-    message("Global estimation by arithmetic average\n");
-    message("=======================================\n");
+    mestitle(1,"Global estimation by arithmetic average");
     message("Total number of data             = %d\n", ntot);
     message("Number of active data            = %d\n", np);
     message("Sample variance                  = %lf\n", var);
@@ -4152,7 +4152,6 @@ Global_Res global_arithmetic(Db *dbin,
       message("CVgeo                            = NA\n");
     else
       message("CVgeo                            = %lf\n", cvgeo);
-    message("\n");
     message("Surface                          = %lf\n", surface);
     if (FFFF(ave))
       message("Q (Estimation * Surface)         = NA\n");
@@ -4273,8 +4272,7 @@ Global_Res global_kriging(Db *dbin,
 
   if (flag_verbose)
   {
-    message("Global estimation kriging\n");
-    message("=========================\n");
+    mestitle(1,"Global estimation kriging");
     message("Total number of data             = %d\n", ntot);
     message("Number of active data            = %d\n", np);
     message("Number of variables              = %d\n", nvar);
@@ -4290,7 +4288,6 @@ Global_Res global_kriging(Db *dbin,
       message("CVgeo                            = NA\n");
     else
       message("CVgeo                            = %lf\n", cvgeo);
-    message("\n");
     message("Surface                          = %lf\n", surface);
     if (FFFF(estim))
       message("Q (Estimation * Surface)         = NA\n");

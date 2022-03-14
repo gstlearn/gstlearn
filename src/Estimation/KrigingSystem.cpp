@@ -2037,20 +2037,32 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
   int nfeq = _getNFeq();
   if (flag_bayes)
   {
-    if ((int) prior_mean.size() != nfeq)
+    VectorDouble local_mean = prior_mean;
+    VectorDouble local_cov  = prior_cov;
+
+    if (local_mean.empty())
+      local_mean.resize(nfeq, 0.);
+    if (local_cov.empty())
     {
-      messerr("Size of argument 'prior_mean'(%d)",(int) prior_mean.size());
+      local_cov.resize(nfeq * nfeq);
+      for (int i = 0; i < nfeq; i++)
+        for (int j = 0; j < nfeq; j++)
+          local_cov[i + j*nfeq] = (i == j) ? 1. : 0.;
+    }
+    if ((int) local_mean.size() != nfeq)
+    {
+      messerr("Size of argument 'prior_mean'(%d)",(int) local_mean.size());
       messerr("should be equal to the Number of Drift Equations(%d)",nfeq);
       return 1;
     }
-    if ((int) prior_cov.size() != nfeq * nfeq)
+    if ((int) local_cov.size() != nfeq * nfeq)
     {
-      messerr("Size of argument 'prior_cov'(%d)",(int) prior_cov.size());
+      messerr("Size of argument 'prior_cov'(%d)",(int) local_cov.size());
       messerr("should be equal to the Number of Drift Equations (squared) (%d)",
               nfeq * nfeq);
       return 1;
     }
-    if (!is_matrix_symmetric(nfeq, prior_cov.data(), 1))
+    if (!is_matrix_symmetric(nfeq, local_cov.data(), 1))
     {
       messerr("Argument 'prior_cov' should be a symmetric matrix");
       return 1;
@@ -2062,8 +2074,10 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
       messerr("is only available in Unique Neighborhood");
       return 1;
     }
-    _priorMean = prior_mean;
-    _priorCov  = prior_cov;
+
+    // Set the parameters
+    _priorMean = local_mean;
+    _priorCov  = local_cov;
     _varCorrec.resize(nfeq * nfeq);
 
     // Duplicate the Model and suppress any Drift component
