@@ -19,7 +19,8 @@ env:
   DOXYGEN_ROOT : Doxygen
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
   COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
-  
+  PYTHON3_PREF : C:\hostedtoolcache\windows\Python
+  PYTHON3_SUFF : x64
 jobs:
    
   build:
@@ -31,10 +32,7 @@ jobs:
           - ["cp39-cp39","3.9.10"]
           - ["cp38-cp38","3.8.12"]
         # - ["cp37-cp37m","3.7.12"]
-    env :
-      PYTHON3_PREF : C:\hostedtoolcache\windows\Python
-      PYTHON3_SUFF : x64
-   
+    
     - names : Setup variables
       run : |
         echo "PYTHONPATH=${{env.PYTHON3_PREF}}\${{matrix.python}}[1]\${{env.PYTHON_SUFF}}">>$GITHUB_ENV
