@@ -324,18 +324,24 @@ VectorDouble ut_vector_add(const VectorDouble &vec1, const VectorDouble &vec2)
 
 /**
  * Performs: vec1 += vec2
- * @param vec1 Input/Output vector
- * @param vec2 Auxiliary vector
+ * @param dest Input/Output vector
+ * @param src Auxiliary vector
  */
-void ut_vector_add_inplace(VectorDouble &vec1, const VectorDouble &vec2)
+void ut_vector_add_inplace(VectorDouble &dest, const VectorDouble &src)
 {
   VectorDouble res;
-  if (vec1.size() != vec2.size())
+  if (dest.size() != src.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    vec1[i] += vec2[i];
+  for (int i = 0, n = static_cast<int>(dest.size()); i < n; i++)
+    dest[i] += src[i];
 }
 
+/**
+ * Return a vector containing vec2 - vec1
+ * @param vec1 Input Vector
+ * @param vec2 Input Vector
+ * @return
+ */
 VectorDouble ut_vector_subtract(const VectorDouble &vec1,
                                 const VectorDouble &vec2)
 {
@@ -632,4 +638,27 @@ VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending)
   if (! ascending)
     std::reverse(vecout.begin(), vecout.end());
   return vecout;
+}
+
+/**
+ * Calculate the diagonal of the box extension
+ * @param mini Array of lower coordinates of the box
+ * @param maxi Array of upper coordinates of the box
+ * @return
+ * @remark If one coordinate is undefined, TEST is returned.
+ */
+double ut_vector_extension_diagonal(const VectorDouble& mini,
+                                    const VectorDouble& maxi)
+{
+  double diag = 0.;
+  VectorDouble delta = ut_vector_subtract(mini, maxi);
+  int ndim = (int) delta.size();
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double dval = delta[idim];
+    if (FFFF(dval)) return TEST;
+    diag += dval * dval;
+  }
+  diag = sqrt(diag);
+  return diag;
 }

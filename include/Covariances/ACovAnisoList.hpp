@@ -25,6 +25,8 @@ class ASpace;
 class SpacePoint;
 class MatrixSquareSymmetric;
 class CovAniso;
+class CovContext;
+class AStringFormat;
 
 class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
 {
@@ -91,6 +93,8 @@ public:
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
   ////////////////////////////////////////////////
+
+  void copyCovContext(const CovContext& ctxt);
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;

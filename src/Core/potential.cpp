@@ -2783,7 +2783,7 @@ static int st_extdrift_create_model(Pot_Ext *pot_ext)
 
   /* Creating the model */
 
-  CovContext ctxt = CovContext(1, pot_ext->ndim, 1000, 1.);
+  CovContext ctxt = CovContext(1, pot_ext->ndim, 1.);
   pot_ext->model = new Model(ctxt);
   if (pot_ext->model == nullptr) return 1;
 

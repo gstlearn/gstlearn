@@ -42,45 +42,14 @@ public:
   int                   getOrderVario()     const { return _orderVario; }
   int                   getEnvelop()        const { return _envelop; }
 
-  void setAsVario(bool asVario)
-  {
-    _asVario = asVario;
-  }
-
-  void setMember(const ECalcMember& member)
-  {
-    _member = member;
-  }
-
-  void setFilterNugget(bool filterNugget)
-  {
-    _filterNugget = filterNugget;
-  }
-
-  void setKeepOnlyCovIdx(unsigned int keepOnlyCovIdx)
-  {
-    _keepOnlyCovIdx = keepOnlyCovIdx;
-  }
-
-  void setUnitary(bool unitary)
-  {
-    _unitary = unitary;
-  }
-
-  void setNormalized(bool normalized)
-  {
-    _normalized = normalized;
-  }
-
-  void setEnvelop(int envelop)
-  {
-    _envelop = envelop;
-  }
-
-  void setOrderVario(int orderVario)
-  {
-    _orderVario = orderVario;
-  }
+  void setAsVario(bool asVario) { _asVario = asVario; }
+  void setMember(const ECalcMember& member) { _member = member; }
+  void setFilterNugget(bool filterNugget) { _filterNugget = filterNugget; }
+  void setKeepOnlyCovIdx(unsigned int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; }
+  void setUnitary(bool unitary) { _unitary = unitary; }
+  void setNormalized(bool normalized) { _normalized = normalized; }
+  void setEnvelop(int envelop) { _envelop = envelop; }
+  void setOrderVario(int orderVario) { _orderVario = orderVario; }
 
   void update(int                nugget_opt = 0,
               int                nostd      = 0,
@@ -98,5 +67,4 @@ private:
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
-
 };

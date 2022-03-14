@@ -138,7 +138,6 @@ void CovAniso::setSill(const VectorDouble& sill)
   _sill.setValues(sill);
 }
 
-
 void CovAniso::setSill(int ivar, int jvar, double sill)
 {
   if (! _isVariableValid(ivar)) return;
@@ -406,7 +405,7 @@ String CovAniso::toString(const AStringFormat* /*strfmt*/) const
     }
     else
     {
-      sstr << "- Slope        = " << toDouble(getSlope(0, 0)) << std::endl;
+      sstr << "- Slope        = " << toDouble(getSlope(0, 0));
     }
 
     if (! _aniso.isIsotropic())
@@ -718,3 +717,10 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
   cov->setParam(param);
   return cov;
 }
+
+void CovAniso::copyCovContext(const CovContext& ctxt)
+{
+  _ctxt.copyCovContext(ctxt);
+  if (_cova != nullptr) _cova->copyCovContext(ctxt);
+}
+

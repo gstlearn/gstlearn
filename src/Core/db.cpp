@@ -1063,21 +1063,27 @@ void db_print(Db *db,
 /****************************************************************************/
 /*!
  **  Returns the extension of the field along each axis
- **  Only returns the array which are allocated
+ **  This calculation takes contents of arguments at input into account
+ **  if 'flag_preserve' is true
  **
  ** \return  Error return code
  **
  ** \param[in]  db    Db structure
  **
- ** \param[out]  mini_arg  Array containing the minimum
- **                        (Dimension = get_NDIM(db))
- ** \param[out]  maxi_arg  Array containing the maximum
- **                        (Dimension =  get_NDIM(db))
- ** \param[out]  delta_arg Array containing the extension
- **                        (Dimension = get_NDIM(db))
+ ** \param[out]  mini   Array containing the minimum
+ **                     (Dimension = ndim)
+ ** \param[out]  maxi   Array containing the maximum
+ **                     (Dimension =  ndim)
+ ** \param[in]   flag_preserve False Contents of arguments at input is preserved
+ **
+ ** \remark If the contents of an item of the arguments is TEST, this value
+ ** \remark is not used in the comparison
  **
  *****************************************************************************/
-int db_extension(const Db *db, double *mini_arg, double *maxi_arg, double *delta_arg)
+void db_extension(const Db *db,
+                  VectorDouble& mini,
+                  VectorDouble& maxi,
+                  bool flag_preserve)
 {
   double vmin, vmax, diff, mean, stdv;
   int nval;
@@ -1085,9 +1091,8 @@ int db_extension(const Db *db, double *mini_arg, double *maxi_arg, double *delta
   /* Initializations */
 
   int ndim = db->getNDim();
-  VectorDouble mini(ndim);
-  VectorDouble maxi(ndim);
-  VectorDouble delta(ndim);
+  if (ndim != (int) mini.size() || ! flag_preserve) mini.resize(ndim,TEST);
+  if (ndim != (int) maxi.size() || ! flag_preserve) maxi.resize(ndim,TEST);
 
   /* Loop on the space dimension */
 
@@ -1096,24 +1101,9 @@ int db_extension(const Db *db, double *mini_arg, double *maxi_arg, double *delta
     VectorDouble coor = db->getCoordinates(idim, true);
     ut_statistics(static_cast<int>(coor.size()), coor.data(), NULL, NULL, &nval,
                   &vmin, &vmax, &diff, &mean, &stdv);
-    mini[idim] = vmin;
-    maxi[idim] = vmax;
-    delta[idim] = diff;
+    if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
+    if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
   }
-
-  /* Copy to the returned arguments */
-
-  if (mini_arg != nullptr)
-    for (int idim = 0; idim < ndim; idim++)
-      mini_arg[idim] = mini[idim];
-  if (maxi_arg != nullptr)
-    for (int idim = 0; idim < ndim; idim++)
-      maxi_arg[idim] = maxi[idim];
-  if (delta_arg != nullptr)
-    for (int idim = 0; idim < ndim; idim++)
-      delta_arg[idim] = delta[idim];
-
-  return 0;
 }
 
 /****************************************************************************/
@@ -4231,13 +4221,13 @@ int db_name_identify(Db *db, const String &string)
  *****************************************************************************/
 static void st_rotate(int ndim,
                       double *rotmat,
-                      double *coor,
-                      double *mini,
-                      double *maxi)
+                      VectorDouble& coor,
+                      VectorDouble& mini,
+                      VectorDouble& maxi)
 {
   double d2[3];
 
-  matrix_product(1, ndim, ndim, coor, rotmat, d2);
+  matrix_product(1, ndim, ndim, coor.data(), rotmat, d2);
   for (int idim = 0; idim < ndim; idim++)
   {
     mini[idim] = getMin(mini[idim], d2[idim]);
@@ -4252,39 +4242,32 @@ static void st_rotate(int ndim,
  ** \param[in]   db        Db structure
  ** \param[in]   rotmat    Rotation matrix (optional)
  ** \param[out]  mini_arg  Array containing the minimum
- **                        (Dimension = get_NDIM(db))
+ **                        (Dimension = ndim)
  ** \param[out]  maxi_arg  Array containing the maximum
- **                        (Dimension =  get_NDIM(db))
- ** \param[out]  delta_arg Array containing the extension
- **                        (Dimension = get_NDIM(db))
+ **                        (Dimension =  ndim)
  **
  ** \remarks This function does nothing if:
  ** \remarks - no rotation matrix is defined
  ** \remarks - space dimension is 1 or larger than 3
  **
  *****************************************************************************/
-int db_extension_rotated(Db *db,
-                         double *rotmat,
-                         double *mini_arg,
-                         double *maxi_arg,
-                         double *delta_arg)
+void db_extension_rotated(Db *db,
+                          double *rotmat,
+                          VectorDouble& mini,
+                          VectorDouble& maxi)
 {
-  double *mini, *maxi, coor[3], minrot[3], maxrot[3];
-  int error, ndim;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = db->getNDim();
-  mini = (double*) mem_alloc(sizeof(double) * ndim, 1);
-  maxi = (double*) mem_alloc(sizeof(double) * ndim, 1);
+  int error = 1;
+  int ndim = db->getNDim();
+  VectorDouble coor(ndim);
+  VectorDouble minrot(ndim);
+  VectorDouble maxrot(ndim);
 
   // Calculate the extension (without rotation)
-  if (db_extension(db, mini, maxi, NULL)) goto label_end;
+  db_extension(db, mini, maxi, false);
 
   // Bypass the calculations
-  if (rotmat == nullptr) goto label_suite;
-  if (ndim <= 1 || ndim > 3) goto label_suite;
+  if (rotmat == nullptr) return;
+  if (ndim <= 1 || ndim > 3) return;
 
   // Perform the rotation
   for (int idim = 0; idim < ndim; idim++)
@@ -4353,22 +4336,7 @@ int db_extension_rotated(Db *db,
     maxi[idim] = maxrot[idim];
   }
 
-  /* Copy to the returned arguments */
-
-  label_suite: if (mini_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    mini_arg[idim] = mini[idim];
-  if (maxi_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    maxi_arg[idim] = maxi[idim];
-  if (delta_arg != nullptr) for (int idim = 0; idim < ndim; idim++)
-    delta_arg[idim] = maxi[idim] - mini[idim];
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
-  return (error);
+  return;
 }
 
 /****************************************************************************/
@@ -4385,7 +4353,7 @@ VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim)
   VectorDouble vect;
 
   if (dbgrid == nullptr) return (vect);
-  if (!is_grid(dbgrid)) return (vect);
+  if (! is_grid(dbgrid)) return (vect);
   if (idim < 0 || idim >= dbgrid->getNDim()) return (vect);
 
   int nvect = dbgrid->getNX(idim);

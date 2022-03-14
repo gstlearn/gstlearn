@@ -322,7 +322,7 @@ int main(int /*argc*/, char */*argv*/[])
   db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,&iptr);
   db_grid_define_coordinates(dbgrid);
   db_extension_diag(dbgrid,&diag);
-  CovContext ctxt(nvar,ndim,1000,diag);
+  CovContext ctxt(nvar,ndim,diag);
     
   // Model for SPDE
 

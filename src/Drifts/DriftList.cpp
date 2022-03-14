@@ -337,3 +337,9 @@ bool DriftList::isDriftDifferentDefined(const EDrift &type0) const
   return 0;
 }
 
+void DriftList::copyCovContext(const CovContext& ctxt)
+{
+  int number = (int) _drifts.size();
+  for (int i = 0; i < number; i++)
+    _drifts[i]->copyCovContext(ctxt);
+}

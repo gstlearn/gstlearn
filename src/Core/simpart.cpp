@@ -48,42 +48,44 @@ typedef struct
  *****************************************************************************/
 int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes)
 {
-  double ap[3], mini[3], maxi[3], diagonal, d0, u;
-  int ip, idim;
+  double ap[3], diagonal;
 
   /* Determine the extension of the grid */
 
-  if (db_extension(dbgrid, mini, maxi, NULL)) return (1);
+  int ndim = dbgrid->getNDim();
+  VectorDouble mini(ndim);
+  VectorDouble maxi(ndim);
+  db_extension(dbgrid, mini, maxi);
   if (db_extension_diag(dbgrid, &diagonal)) return (1);
 
   /* Loop on the planes to be generated */
 
-  for (ip = 0; ip < splanes->nplan; ip++)
+  for (int ip = 0; ip < splanes->nplan; ip++)
   {
     SubPlan &plan = splanes->plans[ip];
-    d0 = diagonal * law_uniform(-1., 1.) / 2.;
-    u = 0.;
-    for (idim = 0; idim < 3; idim++)
+    double d0 = diagonal * law_uniform(-1., 1.) / 2.;
+    double u = 0.;
+    for (int idim = 0; idim < 3; idim++)
     {
       ap[idim] = law_gaussian();
       u += ap[idim] * ap[idim];
     }
     u = sqrt(u);
-    for (idim = 0; idim < 3; idim++)
+    for (int idim = 0; idim < 3; idim++)
     {
       ap[idim] /= u;
       d0 -= ap[idim] * (mini[idim] + maxi[idim]) / 2.;
     }
     if (d0 < 0)
     {
-      for (idim = 0; idim < 3; idim++)
+      for (int idim = 0; idim < 3; idim++)
         ap[idim] = -ap[idim];
       d0 = -d0;
     }
 
     /* Storing the plane */
 
-    for (idim = 0; idim < 3; idim++)
+    for (int idim = 0; idim < 3; idim++)
       plan.coor[idim] = ap[idim];
     plan.intercept = d0;
     plan.rndval = law_uniform(0., 1.);

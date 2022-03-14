@@ -444,13 +444,27 @@ struct Krigtest_Res
   int nech; // Number of Neighboring samples
   int neq;  // Number of Equations in the Kriging/CoKriging system
   int nrhs; // Number of R.H.S. vectors (= nvar)
-  VectorDouble xyz; // Coordinates of the neighboring samples (ndim * nech)
+  VectorInt nbgh;    // Ranks of the neighboring samples
+  VectorDouble xyz;  // Coordinates of the neighboring samples (ndim * nech)
   VectorDouble data; // Usable values at neighboring samples (neq)
   VectorDouble lhs;  // L.H.S. of the Kriging system (neq * neq)
   VectorDouble rhs;  // R.H.S. of the Kriging system (neq * nvar)
   VectorDouble wgt;  // Vector of weights (neq * nvar)
   VectorDouble var;  // Matrix of Target-Target Variance (nvar * nvar)
   VectorDouble zam;  // Vector of pre-calculations
+};
+
+struct Global_Res
+{
+  int ntot; // Total Number of Data
+  int np;   // Number of active Data
+  int ng;   // Number of grid nodes discretizing Domain
+  double surface; // Surface of Domain
+  double zest;    // Estimate
+  double sse;     // Standard deviation of estimation
+  double cvgeo;   // Coefficient of Variation
+  double cvv;     // Variance of Domain
+  VectorDouble weights; // Weights attached to data
 };
 
 typedef struct Local_Relem Relem;

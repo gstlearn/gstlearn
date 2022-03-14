@@ -20,7 +20,7 @@ Interval::Interval(double vmin, double vmax, bool mininc, bool maxinc)
       _maxIncluded(maxinc)
 {
   _modifyUnbounded();
-  if (! _isValid()) throw("Interval is not valid");
+  if (! _isValidInterval()) throw("Interval is not valid");
 }
 
 Interval::Interval(const Interval &m)
@@ -83,7 +83,7 @@ void Interval::init(double vmin, double vmax, bool mininc, bool maxinc)
   _minIncluded = mininc;
   _maxIncluded = maxinc;
   _modifyUnbounded();
-  if (! _isValid()) throw("Interval is not valid");
+  if (! _isValidInterval()) throw("Interval is not valid");
 }
 
 bool Interval::isInside(double value) const
@@ -168,7 +168,7 @@ void Interval::_modifyUnbounded(void)
   if (FFFF(_vmax)) _maxIncluded = false;
 }
 
-bool Interval::_isValid(void)
+bool Interval::_isValidInterval(void)
 {
   if (FFFF(_vmin) || FFFF(_vmax)) return true;
   if (_vmin < _vmax) return true;

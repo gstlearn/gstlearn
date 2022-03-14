@@ -60,5 +60,5 @@ public:
 
 private:
   void _modifyUnbounded();
-  bool _isValid(void);
+  bool _isValidInterval(void);
 };

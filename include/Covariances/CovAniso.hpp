@@ -112,6 +112,7 @@ public:
 
   void setContext(const CovContext& ctxt);
   void setParam(double param);
+  void copyCovContext(const CovContext& ctxt);
 
   void setSill(double sill); /// Only valid when there is only one variable (in the context)
   void setSill(const MatrixSquareGeneral& sill);
