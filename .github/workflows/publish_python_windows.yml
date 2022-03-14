@@ -37,12 +37,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name : Setup variables
+    - name : Create PYTHONPATH
       run : |
-       echo "PYTHONPATH=${{env.PYTHON3_PREF}}\${{matrix.python}}[1]\${{env.PYTHON_SUFF}}">>$GITHUB_ENV
-       echo "PYTHON3=${{env.PYTHONPATH}}\python3.exe" >>$GITHUB_ENV
-    - name : Modify PATH
-      run : echo "$PYTHONPATH" >> $GITHUB_PATH
+        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ env.PYTHON3_SUFF }}")>> $env:GITHUB_ENV
+      
+    - name : Setup python.exe 
+      run : echo ("PYTHON3=${{env.PYTHONPATH}}\python3.exe") >> $env:GITHUB_ENV
+ 
+    - name : Modify PATH #to avoid a warning at cmake configuration
+      run : |
+        echo "${{env.PYTHONPATH}}\Scripts" >> $GITHUB_PATH        
 
     - name : Download and install HDF5
       # | offers the possibility to run several command in 1 run (take care to indentation)
@@ -78,13 +82,13 @@ jobs:
 
     - name : Configure Cmake
       run : |
-       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  
+       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}}
 
    
     - name : Install wheel and twine
       run: |
-       $PYTHON3 -m pip install wheel
-       $PYTHON3 -m pip install twine 
+       ${{env.PYTHON3}} -m pip install wheel
+       ${{env.PYTHON3}} -m pip install twine 
 
     - name : Library compilation
       run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release
@@ -92,8 +96,8 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        $PYTHON3 setup.py bdist_wheel --python-tag=${{matrix.python}}[0]
-        $PYTHON3 -m twine upload dist\* 
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0]
+        ${{env.PYTHON3}} -m twine upload dist\* 
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
