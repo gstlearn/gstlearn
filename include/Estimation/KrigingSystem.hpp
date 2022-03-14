@@ -43,13 +43,16 @@ public:
                         bool optionXValidEstim = false,
                         bool optionXValidStdev = false);
   int  setKrigOptColCok(const VectorInt& rank_colcok);
-  int  setKrigOptBayes(bool flag_bayes);
+  int setKrigOptBayes(bool flag_bayes,
+                      const VectorDouble& prior_mean,
+                      const VectorDouble& prior_cov);
   int  setKrigOptMatCL(const VectorVectorDouble& matCL);
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double rcoef = 1.);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
+  int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
@@ -58,11 +61,15 @@ public:
   int  getNDim() const;
   int  getNech() const;
   int  getNeq()  const;
+  int  getNRed() const { return _nred; }
+  VectorInt    getSampleIndices() const { return _nbgh; }
   VectorDouble getSampleCoordinates() const;
   VectorDouble getSampleData() const;
   VectorDouble getZam() const { return _zam; }
   VectorDouble getLHS() const { return _lhs; }
-  VectorDouble getRHS() const { return _rhs; }
+  VectorDouble getLHSInv() const { return _lhsinv; }
+  VectorDouble getRHSC() const { return _rhs; }
+  VectorDouble getRHSC(int ivar) const;
   VectorDouble getWeights() const { return _wgt; }
   VectorDouble getVariance() const { return _var0; }
 
@@ -79,7 +86,8 @@ private:
   double _getFext(int rank, int ibfl, int iech_out = 0) const;
   double _getIvar(int rank, int ivar, int iech_out = 0) const;
   double _getVerr(int rank, int ivar, int iech_out = 0) const;
-  double _getMean(int ivarCL);
+  double _getMean(int ivarCL) const;
+  double _getCoefDrift(int ivar, int il, int ib) const;
   void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
   void _flagDefine();
@@ -109,7 +117,7 @@ private:
   void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
-  double _variance(int ivarCL, int jvarCL, const double* varb = nullptr);
+  double _variance(int ivarCL, int jvarCL);
   void _variance0();
   void _krigingDump(int status);
   void _saveWeights(int status);
@@ -131,6 +139,7 @@ private:
   void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
   void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
   void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
+  double _getLHSC(int i, int j) const;
   double _getDISC1(int idisc, int idim) const;
   void   _setDISC1(int idisc, int idim, double value);
   double _getDISC2(int idisc,int idim) const;
@@ -143,14 +152,19 @@ private:
                      int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux);
+  int    _bayesPreCalculations();
+  void   _bayesCorrectVariance();
 
 private:
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
-  Model*               _model;
+  Model*               _modelInit;
   ANeighParam*         _neighParam;
   bool _isReady;
+
+  // Pointer to the Model currently used (must not be freed)
+  Model*               _model;
 
   // Options
 
@@ -161,6 +175,7 @@ private:
   bool _flagEst;
   bool _flagStd;
   bool _flagVarZ;
+  bool _flagGlobal;
   bool _flagSimu;
 
   /// Option for Calculation
@@ -185,7 +200,12 @@ private:
 
   /// Option for Bayesian
   bool _flagBayes;
-  VectorDouble _rmean;
+  VectorDouble _priorMean; // Dimension NF
+  VectorDouble _priorCov;  // Dimension NF * NF
+  VectorDouble _postMean;
+  VectorDouble _postCov;
+  VectorDouble _varCorrec;
+  Model* _modelSimple;
 
   /// Option for Disjunctive Kriging
   bool _flagDGM;

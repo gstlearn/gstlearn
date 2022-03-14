@@ -1,6 +1,4 @@
-#!/bin/csh -f
-
-# Reference directory
+t c# Reference directory
 set command_location = `dirname $0`
 set DIR = $command_location/../..
 

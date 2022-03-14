@@ -6,21 +6,23 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 3
-Maximum Number of UIDs       = 3
-Total number of samples      = 10000
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 2500
 
 Grid characteristics:
 ---------------------
 Origin :      0.000     0.000
 Mesh   :      1.000     1.000
-Number :        100       100
+Number :         50        50
 
 Variables
 ---------
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Extend-1 - Locator = dblk1
+Column = 4 - Name = Extend-2 - Locator = dblk2
 
 Data Base Characteristics
 =========================
@@ -38,19 +40,19 @@ Data Base Statistics
 2 - Name x1 - Locator x1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      0.509
- Maximum value       =     99.183
- Mean value          =     53.477
- Standard Deviation  =     27.336
- Variance            =    747.266
+ Minimum value       =      0.255
+ Maximum value       =     49.592
+ Mean value          =     26.738
+ Standard Deviation  =     13.668
+ Variance            =    186.816
 3 - Name x2 - Locator x2
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      1.677
- Maximum value       =     98.059
- Mean value          =     54.365
- Standard Deviation  =     30.365
- Variance            =    922.041
+ Minimum value       =      0.839
+ Maximum value       =     49.030
+ Mean value          =     27.182
+ Standard Deviation  =     15.183
+ Variance            =    230.510
 4 - Name Var - Locator z1
  Nb of data          =        100
  Nb of active values =        100
@@ -65,8 +67,8 @@ Model characteristics
 Space dimension              = 2
 Number of variable(s)        = 1
 Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
 
 Covariance Part
 ---------------
@@ -77,60 +79,17 @@ Nugget Effect
 - Sill         =     12.000
 Total Sill     =     57.000
 
-Test in Moving Neighborhood
-===========================
+Drift Part
+----------
+Universality Condition
+
+<----- Test in Moving Neighborhood ----->
 
 Neighborhood characteristics
 ============================
 Space dimension = 2
 Minimum number of samples           = 1
-Maximum number of samples           = 100
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Statistics
---------------------
-1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
-2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-4 - Name Kriging.Var.estim - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.494
- Maximum value       =     89.278
- Mean value          =      9.734
- Standard Deviation  =     12.763
- Variance            =    162.895
-5 - Name Kriging.Var.stdev - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      4.058
- Maximum value       =      7.143
- Mean value          =      5.087
- Standard Deviation  =      0.462
- Variance            =      0.214
+Maximum number of samples           = 25
 
 Data Base Characteristics
 =========================
@@ -148,19 +107,19 @@ Data Base Statistics
 2 - Name x1 - Locator x1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      0.509
- Maximum value       =     99.183
- Mean value          =     53.477
- Standard Deviation  =     27.336
- Variance            =    747.266
+ Minimum value       =      0.255
+ Maximum value       =     49.592
+ Mean value          =     26.738
+ Standard Deviation  =     13.668
+ Variance            =    186.816
 3 - Name x2 - Locator x2
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      1.677
- Maximum value       =     98.059
- Mean value          =     54.365
- Standard Deviation  =     30.365
- Variance            =    922.041
+ Minimum value       =      0.839
+ Maximum value       =     49.030
+ Mean value          =     27.182
+ Standard Deviation  =     15.183
+ Variance            =    230.510
 4 - Name Var - Locator NA
  Nb of data          =        100
  Nb of active values =        100
@@ -172,22 +131,94 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -7.570
- Maximum value       =     53.626
- Mean value          =     10.156
- Standard Deviation  =     10.883
- Variance            =    118.441
+ Minimum value       =    -14.041
+ Maximum value       =     11.087
+ Mean value          =     -0.022
+ Standard Deviation  =      4.665
+ Variance            =     21.763
 6 - Name Xvalid.Var.stdev - Locator NA
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -1.591
- Maximum value       =      8.066
- Mean value          =      1.897
- Standard Deviation  =      1.883
- Variance            =      3.547
+ Minimum value       =     -3.221
+ Maximum value       =      2.425
+ Mean value          =      0.000
+ Standard Deviation  =      1.036
+ Variance            =      1.073
 
-Test in Unique Neighborhood
-===========================
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.Var.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -5.150
+ Maximum value       =      5.218
+ Mean value          =     -0.633
+ Standard Deviation  =      1.897
+ Variance            =      3.600
+7 - Name Kriging.Var.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      3.937
+ Maximum value       =      6.489
+ Mean value          =      4.502
+ Standard Deviation  =      0.321
+ Variance            =      0.103
+
+Testing KrigTest facility
+- Space Dimension = 2
+- Number of Neighbors = 26
+- Number of Kriging System equations = 26
+- Neighboring Sample Indices
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]         4         6        12        15        16        17        20
+     [  7,]        22        24        37        39        40        42        44
+     [ 14,]        46        51        56        64        66        69        72
+     [ 21,]        80        83        93        96
+
+<----- Test in Unique Neighborhood ----->
 
 Data Base Characteristics
 =========================
@@ -205,20 +236,20 @@ Data Base Statistics
 2 - Name x1 - Locator x1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      0.509
- Maximum value       =     99.183
- Mean value          =     53.477
- Standard Deviation  =     27.336
- Variance            =    747.266
+ Minimum value       =      0.255
+ Maximum value       =     49.592
+ Mean value          =     26.738
+ Standard Deviation  =     13.668
+ Variance            =    186.816
 3 - Name x2 - Locator x2
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =      1.677
- Maximum value       =     98.059
- Mean value          =     54.365
- Standard Deviation  =     30.365
- Variance            =    922.041
-4 - Name Var - Locator NA
+ Minimum value       =      0.839
+ Maximum value       =     49.030
+ Mean value          =     27.182
+ Standard Deviation  =     15.183
+ Variance            =    230.510
+4 - Name Var - Locator z1
  Nb of data          =        100
  Nb of active values =        100
  Minimum value       =    -11.235
@@ -226,38 +257,6 @@ Data Base Statistics
  Mean value          =     -0.738
  Standard Deviation  =      4.455
  Variance            =     19.849
-5 - Name Xvalid.Var.estim - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =     -7.570
- Maximum value       =     53.626
- Mean value          =     10.156
- Standard Deviation  =     10.883
- Variance            =    118.441
-6 - Name Xvalid.Var.stdev - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =     -1.591
- Maximum value       =      8.066
- Mean value          =      1.897
- Standard Deviation  =      1.883
- Variance            =      3.547
-7 - Name Xvalid.Var.estim.1 - Locator z1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =     -6.384
- Maximum value       =      5.186
- Mean value          =     -0.746
- Standard Deviation  =      2.117
- Variance            =      4.481
-8 - Name Xvalid.Var.stdev.1 - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      4.278
- Maximum value       =      6.649
- Mean value          =      5.072
- Standard Deviation  =      0.456
- Variance            =      0.208
 
 Data Base Grid Characteristics
 ==============================
@@ -265,64 +264,209 @@ Data Base Grid Characteristics
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
 2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
 3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-4 - Name Kriging.Var.estim - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.494
- Maximum value       =     89.278
- Mean value          =      9.734
- Standard Deviation  =     12.763
- Variance            =    162.895
-5 - Name Kriging.Var.stdev - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      4.058
- Maximum value       =      7.143
- Mean value          =      5.087
- Standard Deviation  =      0.462
- Variance            =      0.214
-6 - Name Kriging.Var.estim.1 - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     -4.494
- Maximum value       =     89.278
- Mean value          =      9.734
- Standard Deviation  =     12.763
- Variance            =    162.895
-7 - Name Kriging.Var.stdev.1 - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      4.058
- Maximum value       =      7.143
- Mean value          =      5.087
- Standard Deviation  =      0.462
- Variance            =      0.214
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.Var.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -5.242
+ Maximum value       =      5.129
+ Mean value          =     -0.632
+ Standard Deviation  =      1.847
+ Variance            =      3.412
+7 - Name Kriging.Var.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      3.936
+ Maximum value       =      6.275
+ Mean value          =      4.492
+ Standard Deviation  =      0.306
+ Variance            =      0.094
 
-Test in Image Neighborhood
-==========================
+Testing Global Estimate (by Arithmetic Mean)
+- Total Number of Data = 100
+- Number of Active Data = 100
+- Number of Discretized nodes = 2500
+- Surface of the discretized Domain = 2500.000000
+- Mean Covariance over the Domain = 11.207403
+- Estimation (arithmetic mean) = -0.738254
+- Standard Deviation of Estimation = 0.841336
+- Coefficient of Variation = -1.139630
+
+Testing Global Estimate (by Kriging)
+- Total Number of Data = 100
+- Number of Active Data = 100
+- Number of Discretized nodes = 2500
+- Surface of the discretized Domain = 2500.000000
+- Mean Covariance over the Domain = 11.207659
+- Estimation (Kriging) = -0.632274
+- Standard Deviation of Estimation = 0.468608
+- Coefficient of Variation = -0.741148
+
+<----- Test Block Kriging ----->
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Kriging.Var.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -5.126
+ Maximum value       =      5.100
+ Mean value          =     -0.632
+ Standard Deviation  =      1.842
+ Variance            =      3.394
+7 - Name Kriging.Var.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.665
+ Maximum value       =      5.152
+ Mean value          =      2.691
+ Standard Deviation  =      0.473
+ Variance            =      0.224
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name KrigCell.Var.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -5.126
+ Maximum value       =      5.100
+ Mean value          =     -0.632
+ Standard Deviation  =      1.842
+ Variance            =      3.394
+7 - Name KrigCell.Var.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.665
+ Maximum value       =      5.152
+ Mean value          =      2.691
+ Standard Deviation  =      0.473
+ Variance            =      0.224
+
+<----- Test in Image Neighborhood ----->
 
 Data Base Grid Characteristics
 ==============================
@@ -333,13 +477,13 @@ File is organized as a regular grid
 Space dimension              = 2
 Number of Columns            = 4
 Maximum Number of UIDs       = 4
-Total number of samples      = 10000
+Total number of samples      = 2500
 
 Grid characteristics:
 ---------------------
 Origin :      0.000     0.000
 Mesh   :      1.000     1.000
-Number :        100       100
+Number :         50        50
 
 Variables
 ---------
@@ -359,8 +503,8 @@ Model characteristics
 Space dimension              = 2
 Number of variable(s)        = 1
 Number of basic structure(s) = 2
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
 
 Covariance Part
 ---------------
@@ -372,48 +516,207 @@ Nugget Effect
   (This component is Filtered)
 Total Sill     =     57.000
 
+Drift Part
+----------
+Universality Condition
+
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
 1 - Name rank - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      1.000
- Maximum value       =  10000.000
- Mean value          =   5000.500
- Standard Deviation  =   2886.751
- Variance            = 8333333.250
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
 2 - Name x1 - Locator x1
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
 3 - Name x2 - Locator x2
- Nb of data          =      10000
- Nb of active values =      10000
+ Nb of data          =       2500
+ Nb of active values =       2500
  Minimum value       =      0.000
- Maximum value       =     99.000
- Mean value          =     49.500
- Standard Deviation  =     28.866
- Variance            =    833.250
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
 4 - Name Simu - Locator NA
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =     98.784
- Maximum value       =    149.550
- Mean value          =    122.878
- Standard Deviation  =      7.267
- Variance            =     52.811
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =    108.375
+ Maximum value       =    146.543
+ Mean value          =    128.015
+ Standard Deviation  =      5.309
+ Variance            =     28.187
 5 - Name Filtering.Simu.estim - Locator z1
- Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =    106.438
- Maximum value       =    143.961
- Mean value          =    122.865
- Standard Deviation  =      6.174
- Variance            =     38.119
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =    114.917
+ Maximum value       =    140.535
+ Mean value          =    128.020
+ Standard Deviation  =      3.806
+ Variance            =     14.488
+
+<----- Test Kriging Printout ----->
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Linear
+- Slope        =      1.000
+
+Drift Part
+----------
+Universality Condition
+
+---> Kriging in Place (checking Exact Interpolator)
+
+Target location
+---------------
+Sample #1 (from 4)
+Coordinate #1 = 8.855057
+Coordinate #2 = 25.194772
+
+Data selected in neighborhood
+-----------------------------
+      Rank    Sample        x1        x2
+         1         1     8.855    25.195
+         2         2    29.781    45.451
+         3         3    27.005    22.364
+         4         4    35.478    48.170
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 4
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1    58.241    29.117    39.872    23.076     1.000
+         2         2    29.117    58.241    34.987    51.929     1.000
+         3         3    39.872    34.987    58.241    31.080     1.000
+         4         4    23.076    51.929    31.080    58.241     1.000
+         5         5     1.000     1.000     1.000     1.000     0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 4
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Punctual Estimation
+
+      Rank      Flag         1
+         1         1    58.241
+         2         2    29.117
+         3         3    39.872
+         4         4    23.076
+         5         5     1.000
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2      Data       Z1*
+         1     8.855    25.195    -9.118     1.000
+         2    29.781    45.451     6.621     0.000
+         3    27.005    22.364    -3.315     0.000
+         4    35.478    48.170    -6.496     0.000
+Sum of weights                               1.000
+
+Drift coefficients
+==================
+      Rank  Lagrange     Coeff
+         1     0.000    -7.322
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =     -9.118
+ - Std. Dev. =      0.000
+ - Variance  =      0.000
+ - Cov(h=0)  =     58.241
+
+---> Kriging in general
+
+Target location
+---------------
+Sample #1 (from 2500)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+      Rank    Sample        x1        x2
+         1         1     8.855    25.195
+         2         2    29.781    45.451
+         3         3    27.005    22.364
+         4         4    35.478    48.170
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 4
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1   108.851    79.727    90.482    73.685     1.000
+         2         2    79.727   108.851    85.597   102.538     1.000
+         3         3    90.482    85.597   108.851    81.689     1.000
+         4         4    73.685   102.538    81.689   108.851     1.000
+         5         5     1.000     1.000     1.000     1.000     0.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 4
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Punctual Estimation
+
+      Rank      Flag         1
+         1         1    82.145
+         2         2    54.512
+         3         3    73.788
+         4         4    49.026
+         5         5     1.000
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2      Data       Z1*
+         1     8.855    25.195    -9.118     0.768
+         2    29.781    45.451     6.621    -0.103
+         3    27.005    22.364    -3.315     0.354
+         4    35.478    48.170    -6.496    -0.018
+Sum of weights                               1.000
+
+Drift coefficients
+==================
+      Rank  Lagrange     Coeff
+         1   -23.862    -7.322
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =     -8.739
+ - Std. Dev. =      7.075
+ - Variance  =     50.059
+ - Cov(h=0)  =    108.851

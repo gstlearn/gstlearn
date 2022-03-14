@@ -807,14 +807,8 @@ static int st_simfft_alloc(DbGrid *db, Model *model, double percent, ST_FFT *sim
  *****************************************************************************/
 static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
 {
-  double *db_mini, *db_maxi;
-  int error, ndim;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = simu->ndim;
-  db_mini = db_maxi = nullptr;
+  int error = 1;
+  int ndim = simu->ndim;
 
   /**************************************************************/
   /* Check if the Space dimension is compatible with the method */
@@ -824,7 +818,7 @@ static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
   {
     messerr("The FFT Method is not a relevant simulation model");
     messerr("for this Space Dimension (%d)", ndim);
-    goto label_end;
+    return 1;
   }
 
   /**********************/
@@ -837,25 +831,25 @@ static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
     {
       messerr("The FFT method is restricted to the monovariate case (%d)",
               model->getVariableNumber());
-      goto label_end;
+      return 1;
     }
     if (model->getCovaNumber() <= 0)
     {
       messerr("The number of covariance must be positive");
-      goto label_end;
+      return 1;
     }
     if (model->getDimensionNumber() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
               model->getDimensionNumber());
-      goto label_end;
+      return 1;
     }
     if (model->getDimensionNumber() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
               model->getDimensionNumber());
-      goto label_end;
+      return 1;
     }
   }
 
@@ -863,24 +857,19 @@ static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
   /* Calculate the Db */
   /********************/
 
-  db_mini = db_sample_alloc(db, ELoc::X);
-  if (db_mini == nullptr) goto label_end;
-  db_maxi = db_sample_alloc(db, ELoc::X);
-  if (db_maxi == nullptr) goto label_end;
-  if (db_extension(db, db_mini, db_maxi, nullptr)) goto label_end;
+  VectorDouble db_mini(ndim);
+  VectorDouble db_maxi(ndim);
+  db_extension(db, db_mini, db_maxi);
 
   if (model != nullptr)
-    model->setField(
-        ut_merge_extension(ndim, db_mini, db_maxi, nullptr, nullptr));
-
-  db_mini = db_sample_free(db_mini);
-  db_maxi = db_sample_free(db_maxi);
+    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
 
   /* Set the error return code */
 
   error = 0;
 
-  label_end: return (error);
+  label_end:
+  return (error);
 }
 
 /****************************************************************************/

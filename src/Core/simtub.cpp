@@ -361,15 +361,11 @@ static int st_check_simtub_environment(Db *dbin,
                                        Model *model,
                                        ANeighParam *neighparam)
 {
-  double *dbin_mini, *dbin_maxi, *dbout_mini, *dbout_maxi;
-  int error, ndim, nvar, nfex, flag_cond;
-  /* Initializations */
-
-  error = 1;
-  nvar = ndim = nfex = 0;
-  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = nullptr;
-  flag_cond = (dbin != nullptr);
-  ndim = dbout->getNDim();
+  int error = 1;
+  int nvar = 0;
+  int nfex = 0;
+  bool flag_cond = (dbin != nullptr);
+  int ndim = dbout->getNDim();
 
   /**************************************************************/
   /* Check if the Space dimension is compatible with the method */
@@ -379,14 +375,14 @@ static int st_check_simtub_environment(Db *dbin,
   {
     messerr("The Turning Band Method is not a relevant simulation model");
     messerr("for this Space Dimension (%d)", ndim);
-    goto label_end;
+    return 1;
   }
 
   /*********************************/
   /* Compatibility between two Dbs */
   /*********************************/
 
-  if (flag_cond && !dbin->hasSameDimension(dbout)) goto label_end;
+  if (flag_cond && !dbin->hasSameDimension(dbout)) return 1;
 
   /**********************/
   /* Checking the model */
@@ -399,33 +395,33 @@ static int st_check_simtub_environment(Db *dbin,
     {
       messerr("The number of variables must be positive = %d",
               model->getVariableNumber());
-      goto label_end;
+      return 1;
     }
     if (flag_cond && dbin->getVariableNumber() != nvar)
     {
       messerr("The number of variables of the Data (%d)",
               dbin->getVariableNumber());
       messerr("does not match the number of variables of the Model (%d)", nvar);
-      goto label_end;
+      return 1;
     }
     if (model->getCovaNumber() <= 0)
     {
       messerr("The number of covariance must be positive");
-      goto label_end;
+      return 1;
     }
 
     if (model->getDimensionNumber() <= 0)
     {
       messerr("The Space Dimension must be positive = %d",
               model->getDimensionNumber());
-      goto label_end;
+      return 1;
     }
     if (model->getDimensionNumber() != ndim)
     {
       messerr("The Space Dimension of the Db structure (%d)", ndim);
       messerr("Does not correspond to the Space Dimension of the model (%d)",
               model->getDimensionNumber());
-      goto label_end;
+      return 1;
     }
 
     nfex = model_nfex(model);
@@ -435,14 +431,14 @@ static int st_check_simtub_environment(Db *dbin,
       messerr("The Model requires %d external drift(s)", model_nfex(model));
       messerr("but the input Db refers to %d external drift variables",
               dbin->getExternalDriftNumber());
-      goto label_end;
+      return 1;
     }
     if (nfex != 0 && dbout->getExternalDriftNumber() != nfex)
     {
       messerr("The Model requires %d external drift(s)", model_nfex(model));
       messerr("but the output Db refers to %d external drift variables",
               dbout->getExternalDriftNumber());
-      goto label_end;
+      return 1;
     }
   }
 
@@ -450,33 +446,16 @@ static int st_check_simtub_environment(Db *dbin,
   /* Calculate the field extension */
   /*********************************/
 
-  /* Input Db structure */
+  VectorDouble db_mini(ndim);
+  VectorDouble db_maxi(ndim);
+
+  db_extension(dbout, db_mini, db_maxi, false);
 
   if (flag_cond)
-  {
-    dbin_mini = db_sample_alloc(dbin, ELoc::X);
-    if (dbin_mini == nullptr) goto label_end;
-    dbin_maxi = db_sample_alloc(dbin, ELoc::X);
-    if (dbin_maxi == nullptr) goto label_end;
-    if (db_extension(dbin, dbin_mini, dbin_maxi, nullptr)) goto label_end;
-  }
-
-  /* Output Db structure */
-
-  dbout_mini = db_sample_alloc(dbout, ELoc::X);
-  if (dbout_mini == nullptr) goto label_end;
-  dbout_maxi = db_sample_alloc(dbout, ELoc::X);
-  if (dbout_maxi == nullptr) goto label_end;
-  if (db_extension(dbout, dbout_mini, dbout_maxi, nullptr)) goto label_end;
+    db_extension(dbin, db_mini, db_maxi, true);
 
   if (model != nullptr)
-    model->setField(
-        ut_merge_extension(ndim, dbin_mini, dbin_maxi, dbout_mini, dbout_maxi));
-
-  dbin_mini = db_sample_free(dbin_mini);
-  dbin_maxi = db_sample_free(dbin_maxi);
-  dbout_mini = db_sample_free(dbout_mini);
-  dbout_maxi = db_sample_free(dbout_maxi);
+    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
 
   /*****************************/
   /* Checking the Neighborhood */
@@ -489,21 +468,16 @@ static int st_check_simtub_environment(Db *dbin,
       messerr("The Space Dimension of the Neighborhood (%d)", neighparam->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
-      goto label_end;
+      return 1;
     }
     if (neighparam->getFlagXvalid() && neighparam->getType() != ENeigh::MOVING)
     {
       messerr(
           "The Cross-Validation can only be processed with Moving neighborhood");
-      goto label_end;
+      return 1;
     }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /****************************************************************************/

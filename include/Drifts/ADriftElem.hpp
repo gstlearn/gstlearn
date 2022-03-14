@@ -47,10 +47,7 @@ public:
 
   ///////////////////////////////////////////////////
   /// ADrift Interface
-  virtual int getNVariables() const override
-  {
-    return _ctxt.getNVar();
-   }
+  virtual int getNVariables() const override { return _ctxt.getNVar(); }
 
   virtual String getDriftSymbol() const = 0;
   virtual String getDriftName() const = 0;
@@ -63,6 +60,8 @@ public:
   void setRankFex(int rankFex) { _rankFex = rankFex; }
   const EDrift& getType() const { return _type; }
   void setType(const EDrift& type) { _type = type; }
+
+  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
 
 private:
   CovContext  _ctxt;  /* Context (space, irfDegree, field, ...) */

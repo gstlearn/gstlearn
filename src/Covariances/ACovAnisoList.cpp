@@ -346,3 +346,10 @@ double ACovAnisoList::_getNormalizationFactor(int ivar,
   }
   return c00;
 }
+
+void ACovAnisoList::copyCovContext(const CovContext& ctxt)
+{
+  int number = (int) _covs.size();
+  for (int i = 0; i < number; i++)
+    _covs[i]->copyCovContext(ctxt);
+}

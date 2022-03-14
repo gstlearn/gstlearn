@@ -1086,45 +1086,29 @@ void ut_rotation_copy(int ndim,
 /*!
  **  Merge the extensions of the boxes (parallel to main axes)
  **
- ** \return  Returns the field extension
- **
  ** \param[in]  ndim     Space dimension
  ** \param[in]  mini1    Input array containing the minimum along each axis
  ** \param[in]  maxi1    Input array containing the maximum along each axis
  ** \param[in]  mini2    Output array containing the minimum along each axis
  ** \param[in]  maxi2    Output array containing the maximum along each axis
  **
- ** \remark  The extension is calculated by merging the extensions of the
- ** \remark  input and output Db structures
- **
  *****************************************************************************/
-double ut_merge_extension(int ndim,
-                          double *mini1,
-                          double *maxi1,
-                          double *mini2,
-                          double *maxi2)
+void merge_boxes(int ndim,
+                 VectorDouble& mini1,
+                 VectorDouble& maxi1,
+                 VectorDouble& mini2,
+                 VectorDouble& maxi2)
 {
-  double delta, field, mini, maxi;
-  int idim;
-
-  /* Loop on the dimensions */
-
-  field = 0.;
-  for (idim = 0; idim < ndim; idim++)
+  for (int idim = 0; idim < ndim; idim++)
   {
-    mini = 1.e30;
-    if (mini1 != nullptr) mini = MIN(mini, mini1[idim]);
-    if (mini2 != nullptr) mini = MIN(mini, mini2[idim]);
+    double mini = 1.e30;
+    if (! mini1.empty()) mini = MIN(mini, mini1[idim]);
+    if (! mini2.empty()) mini = MIN(mini, mini2[idim]);
 
-    maxi = -1.e30;
-    if (maxi1 != nullptr) maxi = MAX(maxi, maxi1[idim]);
-    if (maxi2 != nullptr) maxi = MAX(maxi, maxi2[idim]);
-
-    if (mini > maxi) return (TEST);
-    delta = maxi - mini;
-    field += delta * delta;
+    double maxi = -1.e30;
+    if (! maxi1.empty()) maxi = MAX(maxi, maxi1[idim]);
+    if (! maxi2.empty()) maxi = MAX(maxi, maxi2[idim]);
   }
-  return (sqrt(field));
 }
 
 /****************************************************************************/

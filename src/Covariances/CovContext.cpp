@@ -23,17 +23,14 @@
  *
  * @param nvar         Number of variables
  * @param space        Space definition
- * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
  */
 CovContext::CovContext(int nvar,
                        const ASpace* space,
-                       int irfMaxDegree,
                        double field)
 
     : ASpaceObject(space),
       _nVar(nvar),
-      _irfMaxDegree(irfMaxDegree),
       _field(field),
       _mean(),
       _covar0()
@@ -46,20 +43,17 @@ CovContext::CovContext(int nvar,
  *
  * @param nvar         Number of variables
  * @param ndim         Number of dimension of the euclidean space (RN)
- * @param irfMaxDegree Maximum IRF degree authorized for future added covariances
  * @param field        Maximum field distance (used for covariances having no sill)
  * @param mean         Vector of Means
  * @param covar0       Vector of variance-covariance
  */
 CovContext::CovContext(int nvar,
                        int ndim,
-                       int irfMaxDegree,
                        double field,
                        const VectorDouble& mean,
                        const VectorDouble& covar0)
     : ASpaceObject(SpaceRN(ndim)),
       _nVar(nvar),
-      _irfMaxDegree(irfMaxDegree),
       _field(field),
       _mean(mean),
       _covar0(covar0)
@@ -67,10 +61,9 @@ CovContext::CovContext(int nvar,
   _update();
 }
 
-CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
+CovContext::CovContext(const Db *db, const ASpace* space)
     : ASpaceObject(space),
       _nVar(0),
-      _irfMaxDegree(irfMaxDegree),
       _field(1.),
       _mean(),
       _covar0()
@@ -84,11 +77,9 @@ CovContext::CovContext(const Db *db, int irfMaxDegree, const ASpace* space)
 }
 
 CovContext::CovContext(const Vario* vario,
-                       int irfMaxDegree,
                        const ASpace* space)
     : ASpaceObject(space),
       _nVar(0),
-      _irfMaxDegree(irfMaxDegree),
       _field(1.),
       _mean(),
       _covar0()
@@ -102,7 +93,6 @@ CovContext::CovContext(const Vario* vario,
 CovContext::CovContext(const CovContext &r)
     : ASpaceObject(r),
       _nVar(r._nVar),
-      _irfMaxDegree(r._irfMaxDegree),
       _field(r._field),
       _mean(r._mean),
       _covar0(r._covar0)
@@ -115,7 +105,6 @@ CovContext& CovContext::operator=(const CovContext &r)
   {
     ASpaceObject::operator =(r);
     _nVar = r._nVar;
-    _irfMaxDegree = r._irfMaxDegree;
     _field = r._field;
     _mean = r._mean;
     _covar0 = r._covar0;
@@ -132,7 +121,6 @@ String CovContext::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << ASpaceObject::toString(strfmt);
   sstr << "Nb Variables       = "       << _nVar << std::endl;
-  sstr << "Maximum IRF Degree = "       << _irfMaxDegree << std::endl;
   sstr << "Field Size         = "       << _field << std::endl;
   sstr << "Mean(s)            = "       << ut_vector_string(_mean);
   sstr << "Covariance (0)     = "       << ut_vector_string(_covar0);
@@ -142,7 +130,7 @@ String CovContext::toString(const AStringFormat* strfmt) const
 bool CovContext::isConsistent(const ASpace* /*space*/) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
-  /// - CovFatory::_isValid
+  /// - CovFactory::_isValid
   /// - ACovFunc::isConsistent
   return true;
 }
@@ -150,7 +138,6 @@ bool CovContext::isConsistent(const ASpace* /*space*/) const
 bool CovContext::isEqual(const CovContext &r) const
 {
   return (_nVar == r.getNVar()                 &&
-          _irfMaxDegree == r.getIrfMaxDegree() &&
           _field == r.getField()               &&
           _space->isEqual(r.getSpace())        &&
           ut_vector_same(_mean, r._mean)       &&
@@ -224,4 +211,25 @@ void CovContext::_update()
     Id.setIdentity();
     _covar0 = Id.getValues();
   }
+}
+
+/**
+ * This operation sets the contents of the current CovContext class
+ * by copying the information from a source CovContext
+ * @param ctxt Source CovContext
+ *
+ * @remark: This operation does not allow changing the number of variables
+ */
+void CovContext::copyCovContext(const CovContext& ctxt)
+{
+  if (ctxt._nVar != _nVar)
+  {
+    messerr("The update of a CovContext does not allow modifying");
+    messerr("the number of variables");
+    messerr("Operation is cancelled");
+    return;
+  }
+  _field  = ctxt._field;
+  _mean   = ctxt._mean;
+  _covar0 = ctxt._covar0;
 }

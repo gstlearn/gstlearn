@@ -149,10 +149,14 @@ public:
   double getMean(int ivar) const { return _ctxt.getMean(ivar); }
   const VectorDouble& getCovar0s() const { return _ctxt.getCovar0(); }
   double getCovar0(int ivar, int jvar) const { return _ctxt.getCovar0(ivar,jvar); }
-  void setMeans(const VectorDouble& mean) { _ctxt.setMean(mean); }
-  void setMean(int ivar, double mean) { _ctxt.setMean(ivar, mean); }
-  void setCovar0s(const VectorDouble& covar0) { _ctxt.setCovar0(covar0); }
-  void setCovar0(int ivar, int jvar, double covar0) { _ctxt.setCovar0(ivar,jvar,covar0); }
+  double getField() const               { return _ctxt.getField(); }
+  int getDimensionNumber() const        { return _ctxt.getNDim(); }
+
+  void setMeans(const VectorDouble& mean);
+  void setMean(int ivar, double mean);
+  void setCovar0s(const VectorDouble& covar0);
+  void setCovar0(int ivar, int jvar, double covar0);
+  void setField(double field);
   /////////////////////////////////////////////////
 
   /////////////////////////////////////////////////
@@ -167,9 +171,6 @@ public:
   CovParamId getCovParamId(int ipar) const;
   ////////////////////////////////////////////////
 
-  double getField() const                       { return _ctxt.getField(); }
-  int getDimensionNumber() const                { return _ctxt.getNDim(); }
-  void setField(double field)                   { _ctxt.setField(field); }
   const EModelProperty& getCovMode() const;
   Model* duplicate() const;
 
@@ -221,6 +222,7 @@ protected:
 private:
   void _clear();
   void _create();
+  void _copyCovContext();
 
 private:
   ACovAnisoList* _covaList;     /* Series of Covariance structures */

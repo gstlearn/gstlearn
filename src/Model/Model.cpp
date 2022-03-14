@@ -377,6 +377,38 @@ int Model::addNoStat(const ANoStat *anostat)
   return 0;
 }
 
+void Model::_copyCovContext()
+{
+  if (_covaList != nullptr) _covaList->copyCovContext(_ctxt);
+  if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
+}
+
+void Model::setMeans(const VectorDouble& mean)
+{
+  _ctxt.setMean(mean);
+  _copyCovContext();
+}
+void Model::setMean(int ivar, double mean)
+{
+  _ctxt.setMean(ivar, mean);
+  _copyCovContext();
+}
+void Model::setCovar0s(const VectorDouble& covar0)
+{
+  _ctxt.setCovar0(covar0);
+  _copyCovContext();
+}
+void Model::setCovar0(int ivar, int jvar, double covar0)
+{
+  _ctxt.setCovar0(ivar,jvar,covar0);
+  _copyCovContext();
+}
+void Model::setField(double field)
+{
+  _ctxt.setField(field);
+  _copyCovContext();
+}
+
 int Model::isNoStat() const
 {
   return _noStat != nullptr;
@@ -748,7 +780,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
   if (! ret) return 1;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
-  _ctxt = CovContext(nvar, ndim, 100, field);
+  _ctxt = CovContext(nvar, ndim, field);
   _create();
 
   /* Reading the covariance part */

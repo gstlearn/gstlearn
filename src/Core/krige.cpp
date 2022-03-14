@@ -912,38 +912,22 @@ static int st_check_environment(int flag_in,
 
   if (model != nullptr)
   {
+    VectorDouble db_mini;
+    VectorDouble db_maxi;
+    db_mini.resize(ndim,TEST);
+    db_maxi.resize(ndim,TEST);
 
     /* Input Db structure */
 
     if (flag_in)
-    {
-      dbin_mini = db_sample_alloc(DBIN, ELoc::X);
-      if (dbin_mini == nullptr) goto label_end;
-      dbin_maxi = db_sample_alloc(DBIN, ELoc::X);
-      if (dbin_maxi == nullptr) goto label_end;
-      if (db_extension(DBIN, dbin_mini, dbin_maxi, nullptr)) goto label_end;
-    }
+      db_extension(DBIN, db_mini, db_maxi, true);
 
     /* Output Db structure */
 
     if (flag_out)
-    {
-      dbout_mini = db_sample_alloc(DBOUT, ELoc::X);
-      if (dbout_mini == nullptr) goto label_end;
-      dbout_maxi = db_sample_alloc(DBOUT, ELoc::X);
-      if (dbout_maxi == nullptr) goto label_end;
-      if (db_extension(DBOUT, dbout_mini, dbout_maxi, nullptr)) goto label_end;
-    }
+      db_extension(DBOUT, db_mini, db_maxi, true);
 
-    if (flag_in && flag_out)
-      model->setField(
-          ut_merge_extension(ndim, dbin_mini, dbin_maxi, dbout_mini,
-                             dbout_maxi));
-
-    dbin_mini = db_sample_free(dbin_mini);
-    dbin_maxi = db_sample_free(dbin_maxi);
-    dbout_mini = db_sample_free(dbout_mini);
-    dbout_maxi = db_sample_free(dbout_maxi);
+    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
   }
 
   /*****************************/
@@ -3707,156 +3691,73 @@ static void st_bayes_correct(Model *model, double *rcov, int *status)
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
+ ** \param[in]  prior_mean Array giving the prior means for the drift terms
+ ** \param[in]  prior_cov  Array containing the prior covariance matrix
  **                        for the drift terms
  ** \param[in]  flag_est   Pointer for the storing the estimation
  ** \param[in]  flag_std   Pointer for the storing the standard deviation
+ ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int kribayes_f(Db *dbin,
-               Db *dbout,
-               Model *model,
-               ANeighParam *neighparam,
-               double *dmean,
-               double *dcov,
-               int flag_est,
-               int flag_std)
+int kribayes(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             const VectorDouble& prior_mean,
+             const VectorDouble& prior_cov,
+             int flag_est,
+             int flag_std,
+             const NamingConvention& namconv)
 {
-  int iext, error, status, nech, neq, nred, nvar;
-  double *rmean, *rcov, *smean, ldum;
-  Model *model_sk;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
+  // Preliminary checks
 
-  /* Preliminary checks */
+  if (neighparam->getType() == ENeigh::IMAGE)
+  {
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
+  }
 
-  error = 1;
-  iext = -1;
-  nvar = neq = nred = 0;
-  model_sk = nullptr;
-  rmean = smean = rcov = nullptr;
-  st_global_init(dbin, dbout);
-  FLAG_BAYES = 1;
-  FLAG_EST = flag_est;
-  FLAG_STD = flag_std;
-  FLAG_WGT = flag_std;
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, DBIN, DBOUT, &iext)) goto label_end;
-  if (manage_nostat_info(1, model, DBIN, DBOUT)) goto label_end;
-  nvar = model->getVariableNumber();
+  // Initializations
+
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+  int nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (flag_est != 0)
   {
-    IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_EST < 0) goto label_end;
+    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_est < 0) return 1;
   }
-  if (FLAG_STD != 0)
+  if (flag_std != 0)
   {
-    IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
-    if (IPTR_STD < 0) goto label_end;
+    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
+    if (iptr_std < 0) return 1;
   }
 
-  /* Complementary core allocation */
+  /* Setting options */
 
-  if (bayes_manage(1, 0, model, &rmean, &rcov, &smean)) goto label_end;
-
-  /* Pre-calculations */
-
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
-  if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
-    goto label_end;
-  if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
-
-  /* Solve the Bayesian estimation of the Drift coefficients */
-
-  if (bayes_precalc(model, neighparam, nbghw, dmean, dcov, rmean, rcov)) goto label_end;
-
-  /* Duplicate the model, suppressing the Drift terms */
-
-  model_sk = model_duplicate(model, 0., -1);
-  if (model_sk == nullptr) goto label_end;
+  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.setKrigOptBayes(true, prior_mean, prior_cov)) return 1;
+  if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
 
-  status = 0;
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
   {
-    mes_process("Bayesian estimation", DBOUT->getSampleNumber(), IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
-    if (!dbout->isActive(IECH_OUT)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
-    }
-
-    /* Select the Neighborhood */
-
-    nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    nech = (int) nbgh_ranks.size();
-    status = nbgh_ranks.empty();
-    if (status) goto label_store;
-
-    /* Establish the kriging L.H.S. */
-
-    if (! nbghw.isUnchanged() || neighparam->getFlagContinuous() || OptDbg::force())
-    {
-      st_prepar(model_sk, neighparam, nbgh_ranks, &status, &nred, &neq);
-      if (status) goto label_store;
-      // We must use the drift initial assumption, hence model (not model_sk)
-      st_data_dual(model, rmean, nbgh_ranks, nred, &ldum);
-    }
-
-    /* Establish the kriging R.H.S. */
-
-    st_rhs(model_sk, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
-    if (status) goto label_store;
-    st_rhs_iso2hetero(neq, nvar);
-
-    /* Modify the arrays in the Bayesian case */
-
-    st_bayes_correct(model, rcov, &status);
-    if (status) goto label_store;
-    if (OptDbg::query(EDbg::KRIGING))
-      krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
-
-    /* Derive the kriging weights */
-
-    if (FLAG_WGT)
-    {
-      matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-      if (OptDbg::query(EDbg::KRIGING))
-        krige_wgt_print(status, nvar, nvar, 0, nbgh_ranks, nred, -1, flag, wgt);
-    }
-
-    /* Perform the estimation */
-
-    label_store:
-    // We must use the drift initial assumption, hence model (not model_sk)
-    st_estimate(model, rmean, status, neighparam->getFlagXvalid(), nvar, nred);
-    if (OptDbg::query(EDbg::RESULTS))
-      st_result_kriging_print(neighparam->getFlagXvalid(), nvar, status);
+    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
+    if (ksys.estimate(iech_out)) return 1;
   }
 
   /* Set the error return flag */
 
-  error = 0;
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
-  label_end: OptDbg::setIndex(0);
-  model_sk = model_free(model_sk);
-  (void) bayes_manage(-1, 0, model, &rmean, &rcov, &smean);
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, nvar, model, neighparam);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
-  (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
-  (void) manage_nostat_info(-1, model, DBIN, DBOUT);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -4126,8 +4027,10 @@ int _krigsim(const char *strloc,
 
     /* Perform the simulation */
 
-    label_store: st_simulate(model, smean, status, icase, nbsimu, nbgh_ranks, nred);
-    if (OptDbg::query(EDbg::RESULTS)) st_result_simulate_print(nbsimu, nvar, status);
+    label_store:
+    st_simulate(model, smean, status, icase, nbsimu, nbgh_ranks, nred);
+    if (OptDbg::query(EDbg::RESULTS))
+      st_result_simulate_print(nbsimu, nvar, status);
   }
 
   /* Set the error return flag */
@@ -4152,91 +4055,87 @@ int _krigsim(const char *strloc,
 /*!
  **  Global estimation over a territory using arithmetic average
  **
+ ** \return A Global_Res structure
+ **
  ** \param[in]  dbin          Db structure
  ** \param[in]  dbgrid        Db grid structure
  ** \param[in]  model         Model structure
- ** \param[in]  ivar          Rank of the target variable
+ ** \param[in]  ivar0         Rank of the target variable
  ** \param[in]  flag_verbose  1 for a verbose output
- ** \param[in]  seed          Seed for the random number generator
- ** \param[in]  surface       surface of the integration polygon
- **                           (all the grid if not defined)
- **
- ** \param[out]  zest   global arithmetic average
- ** \param[out]  sse    global estimation standard devation
- ** \param[out]  cvgeo  CV geo
- **
- ** \remark  This function erases any Weight variable already defined
  **
  *****************************************************************************/
-int global_arithmetic(Db *dbin,
-                      DbGrid *dbgrid,
-                      Model *model,
-                      int ivar,
-                      int flag_verbose,
-                      int seed,
-                      double surface,
-                      double *zest,
-                      double *sse,
-                      double *cvgeo)
+Global_Res global_arithmetic(Db *dbin,
+                             DbGrid *dbgrid,
+                             Model *model,
+                             int ivar0,
+                             bool flag_verbose)
 {
-  double cvv, cxv, cxx, wtot, ave, var, cvsam, cviid, mini, maxi;
-  int error, np, ng, iatt;
-
-  /* Initializations */
-
-  error = 1;
-  st_global_init(dbin, dbgrid);
+  Global_Res gres;
 
   /* Preliminary checks */
 
-  if (st_check_environment(1, 1, model, NULL)) goto label_end;
-  if (ivar < 0 || ivar >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
   {
-    messerr(
-        "The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar + 1, dbin->getVariableNumber());
-    goto label_end;
+    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
+            ivar0 + 1, dbin->getVariableNumber());
+    return gres;
   }
 
   /* Preliminary assignments */
 
-  np = dbin->getSampleNumber(true);
-  ng = dbgrid->getSampleNumber(true);
-  if (FFFF(surface)) surface = ng * db_grid_maille(dbgrid);
-  if (seed != 0) law_set_random_seed(seed);
+  int ntot = dbin->getSampleNumber(false);
+  int np = dbin->getSampleNumber(true);
+  int ng = dbgrid->getSampleNumber(true);
+  double surface = ng * db_grid_maille(dbgrid);
 
   /* Average covariance over the data */
 
-  cxx = model_cxx(model, dbin, dbin, ivar, ivar, 0, 0.);
+  double cxx = model_cxx(model, dbin, dbin, ivar0, ivar0, 0, 0.);
 
   /* Average covariance between the data and the territory */
 
-  cxv = model_cxx(model, dbin, dbgrid, ivar, ivar, 0, 0.);
+  double cxv = model_cxx(model, dbin, dbgrid, ivar0, ivar0, 0, 0.);
 
   /* Average covariance over the territory */
 
-  cvv = model_cxx(model, dbgrid, dbgrid, ivar, ivar, 0,
-                  db_epsilon_distance(dbgrid));
+  double cvv = model_cxx(model, dbgrid, dbgrid, ivar0, ivar0, 0,
+                         db_epsilon_distance(dbgrid));
 
-  /* Auxiliary calculations */
+  /* Calculating basic statistics */
 
-  iatt = db_attribute_identify(dbin, ELoc::Z, ivar);
+  int iatt = db_attribute_identify(dbin, ELoc::Z, ivar0);
+  double wtot;
+  double ave;
+  double var;
+  double mini;
+  double maxi;
   db_monostat(dbin, iatt, &wtot, &ave, &var, &mini, &maxi);
 
-  /* Auxiliary calculations */
+  /* Filling the resulting structure */
 
-  *zest = ave;
-  *sse = cvv - 2. * cxv + cxx;
-  *sse = (*sse > 0) ? sqrt(*sse) : 0.;
-  cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
-  cviid = cvsam / sqrt(np);
-  *cvgeo = (ave != 0.) ? (*sse) / ave : TEST;
+  double sse = cvv - 2. * cxv + cxx;
+  sse = (sse > 0) ? sqrt(sse) : 0.;
+  double cvsam = (ave != 0.) ? sqrt(var) / ave : TEST;
+  double cviid = cvsam / sqrt(np);
+  double cvgeo = (ave != 0.) ? sse / ave : TEST;
+
+  /* Filling the output structure */
+
+  gres.ntot = ntot;
+  gres.np = np;
+  gres.ng = ng;
+  gres.surface = surface;
+  gres.zest = ave;
+  gres.sse  = sse;
+  gres.cvgeo = cvgeo;
+  gres.cvv = cvv;
+  gres.weights.resize(np, 1./np);
 
   if (flag_verbose)
   {
     message("Global estimation by arithmetic average\n");
     message("=======================================\n");
-    message("Total number of data             = %d\n", dbin->getSampleNumber());
+    message("Total number of data             = %d\n", ntot);
     message("Number of active data            = %d\n", np);
     message("Sample variance                  = %lf\n", var);
     message("CVsample                         = %lf\n", cvsam);
@@ -4248,11 +4147,11 @@ int global_arithmetic(Db *dbin,
       message("Estimation by arithmetic average = NA\n");
     else
       message("Estimation by arithmetic average = %lf\n", ave);
-    message("Estimation St. dev. of the mean  = %lf\n", *sse);
-    if (FFFF(*cvgeo))
+    message("Estimation St. dev. of the mean  = %lf\n", sse);
+    if (FFFF(cvgeo))
       message("CVgeo                            = NA\n");
     else
-      message("CVgeo                            = %lf\n", *cvgeo);
+      message("CVgeo                            = %lf\n", cvgeo);
     message("\n");
     message("Surface                          = %lf\n", surface);
     if (FFFF(ave))
@@ -4262,190 +4161,113 @@ int global_arithmetic(Db *dbin,
     message("\n");
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return gres;
 }
 
 /****************************************************************************/
 /*!
  **  Global estimation over a territory using kriging
  **
+ ** \return A Global_Res structure
+ **
  ** \param[in]  dbin          Db structure
  ** \param[in]  dbout         Db grid structure
  ** \param[in]  model         Model structure
- ** \param[in]  ivar          Rank of the target variable
+ ** \param[in]  ivar0         Rank of the target variable
  ** \param[in]  flag_verbose  1 for a verbose output
- ** \param[in]  calcul        EKrigOpt::PONCTUAL or EKrigOpt::DRIFT
- ** \param[in]  seed          Seed for the random number generator
- ** \param[in]  surface       surface of the integration polygon
- **                           (all the grid if not defined)
- **
- ** \param[out]  zest     global estimation
- ** \param[out]  sse      global standard deviation
- ** \param[out]  cvgeo    CV geo
- ** \param[out]  weights  Array of weights attached to data
- **                       (Dimension: nvar * nech)
  **
  *****************************************************************************/
-int global_kriging(Db *dbin,
-                   Db *dbout,
-                   Model *model,
-                   int ivar,
-                   int flag_verbose,
-                   const EKrigOpt &calcul,
-                   int seed,
-                   double surface,
-                   double *zest,
-                   double *sse,
-                   double *cvgeo,
-                   double *weights)
+Global_Res global_kriging(Db *dbin,
+                          Db *dbout,
+                          Model *model,
+                          int ivar0,
+                          bool flag_verbose)
 {
-  double *rhs_tot, estim, stdv, cvv, ldum;
-  int error, i, np, ng, size, nbfl, status, nech, nred, neq, nfeq, nvar;
-  int ntot, lec, jvar;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
+  NeighUnique neighU;
+  Global_Res gres;
+  VectorDouble rhsCum;
 
-  /* Initializations */
+  /* Preliminary tests */
 
-  error = 1;
-  nvar = nech = nred = neq = 0;
-  rhs_tot = nullptr;
-  st_global_init(dbin, dbout);
-  NeighUnique* neighparam = NeighUnique::create(dbin->getNDim(), false);
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
-  if (ivar < 0 || ivar >= dbin->getVariableNumber())
+  if (ivar0 < 0 || ivar0 >= dbin->getVariableNumber())
   {
-    messerr(
-        "The target variable (%d) must lie between 1 and the number of variables (%d)",
-        ivar + 1, dbin->getVariableNumber());
-    goto label_end;
+    messerr("The target variable (%d) must lie between 1 and the number of variables (%d)",
+        ivar0 + 1, dbin->getVariableNumber());
+    return gres;
   }
-  FLAG_EST = 1;
-  FLAG_STD = 1;
-  FLAG_WGT = 1;
 
-  /* Preliminary checks */
+  // Initializations
 
-  np = dbin->getSampleNumber(true);
-  ng = dbout->getSampleNumber(true);
-  nbfl = model->getDriftNumber();
-  nfeq = model->getDriftEquationNumber();
-  nvar = model->getVariableNumber();
-  ntot = dbin->getSampleNumber();
-  if (FFFF(surface)) surface = ng * db_grid_maille(dbout);
-  if (seed != 0) law_set_random_seed(seed);
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+  int ndim = dbin->getNDim();
+  int nvar = model->getVariableNumber();
+  neighU = NeighUnique(ndim, false);
 
-  /* Pre-calculations */
+  /* Setting options */
 
-  nbghw.initialize(dbin, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, nvar, model, neighparam)) goto label_end;
-  if (krige_koption_manage(1, 1, calcul, 1, VectorInt())) goto label_end;
-
-  /* Core allocation */
-
-  size = (np + nbfl) * nvar * nvar;
-  rhs_tot = (double*) mem_alloc(sizeof(double) * size, 0);
-  if (rhs_tot == nullptr) goto label_end;
-  for (i = 0; i < size; i++)
-    rhs_tot[i] = 0.;
-
-  /* Average covariance over the territory */
-
-  cvv = model_cxx(model, dbout, dbout, ivar, ivar, 0,
-                  db_epsilon_distance(dbin));
+  KrigingSystem ksys(dbin, dbout, model, &neighU);
+  if (ksys.setKrigOptFlagGlobal(true)) return gres;
+  if (! ksys.isReady()) return gres;
 
   /* Loop on the targets to be processed */
 
-  status = 0;
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  int ng = 0;
+  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
   {
-    mes_process("Global estimation", DBOUT->getSampleNumber(), IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
-    if (!dbout->isActive(IECH_OUT)) continue;
-    if (OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
-    }
+    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
+    if (! dbout->isActive(iech_out)) continue;
+    if (ksys.estimate(iech_out)) return gres;
 
-    /* Select the Neighborhood */
+    // Cumulate the R.H.S.
 
-    nbgh_ranks = nbghw.select(dbout,  IECH_OUT);
-    nech = (int) nbgh_ranks.size();
-    status = nbgh_ranks.empty();
-
-    /* Establish the kriging L.H.S. */
-
-    if (! nbghw.isUnchanged() || neighparam->getFlagContinuous() || OptDbg::force())
-    {
-      st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
-      if (status) goto label_store;
-      st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
-    }
-
-    /* Establish the kriging R.H.S. */
-
-    st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
-    if (status) goto label_store;
-
-    /* Cumulate the R.H.S */
-
-    for (i = 0; i < size; i++)
-      rhs_tot[i] += rhs[i];
+    VectorDouble rhs = ksys.getRHSC(ivar0);
+    if (rhsCum.empty()) rhsCum.resize(rhs.size(),0.);
+    ut_vector_add_inplace(rhsCum, rhs);
+    ng++;
   }
 
-  label_store: if (status || ng <= 0)
-  {
-    estim = stdv = TEST;
-  }
-  else
-  {
+  /* Preliminary checks */
 
-    /* Load the scaled cumulated R.H.S. in the array rhs */
+  int ntot = dbin->getSampleNumber(false);
+  int np   = dbin->getSampleNumber(true);
+  double surface = ng * db_grid_maille(dbout);
 
-    for (i = 0; i < size; i++)
-      rhs[i] = rhs_tot[i] / (double) ng;
-    st_rhs_iso2hetero(neq, nvar);
-    if (OptDbg::query(EDbg::KRIGING))
-      krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
+  /* Average covariance over the territory */
 
-    /* Derive the kriging weights */
+  double cvv = model_cxx(model, dbout, dbout, ivar0, ivar0, 0,
+                         db_epsilon_distance(dbin));
 
-    matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-    if (OptDbg::query(EDbg::KRIGING))
-      krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
+  /* Load the scaled cumulated R.H.S. in the array rhs */
 
-    /* Perform the estimation */
+  ut_vector_divide_inplace(rhsCum, (double) ng);
 
-    estim = 0.;
-    for (i = 0; i < nred; i++)
-      estim += RHS_C(i,ivar) * ZAM1(i);
-    stdv = cvv;
-    for (i = 0; i < nred; i++)
-      stdv -= RHS_C(i,ivar) * WGT(i, ivar);
-  }
+  /* Derive the kriging weights */
 
-  /* Auxiliary calculations */
+  int nred = ksys.getNRed();
+  VectorDouble lhsinv = ksys.getLHSInv();
+  VectorDouble zam = ksys.getZam();
+  VectorDouble wgt(nred);
+  matrix_product(nred, nred, nvar, lhsinv.data(), rhsCum.data(), wgt.data());
 
-  *zest = estim;
-  *sse = (stdv > 0) ? sqrt(stdv) :
-                      0.;
-  *cvgeo = (estim == 0. || FFFF(estim)) ? TEST : (*sse) / estim;
+  /* Perform the estimation */
 
-  /* Store the weights */
+  double estim = ut_vector_inner_product(rhsCum, zam);
+  double stdv = cvv - ut_vector_inner_product(rhsCum, wgt);
+  stdv = (stdv > 0) ? sqrt(stdv) : 0.;
+  double cvgeo = (estim == 0. || FFFF(estim)) ? TEST : stdv / estim;
 
-  for (i = 0; i < nvar * ntot; i++)
-    weights[i] = TEST;
-  for (jvar = lec = 0; jvar < nvar; jvar++)
-    for (i = 0; i < np; i++)
-      if (flag[jvar * ntot + i] && nbgh_ranks[i] >= 0)
-        weights[ntot * jvar + nbgh_ranks[i]] = wgt[lec++];
+  /* Store the results in the output Global_Res struture */
+
+  gres.ntot = ntot;
+  gres.np = np;
+  gres.ng = ng;
+  gres.surface = surface;
+  gres.zest = estim;
+  gres.sse = stdv;
+  gres.cvgeo = cvgeo;
+  gres.cvv = cvv;
+  gres.weights = wgt;
 
   /* Printout */
 
@@ -4462,16 +4284,12 @@ int global_kriging(Db *dbin,
     else
     {
       message("Estimation by kriging            = %lf\n", estim);
-      if (nbfl > 0)
-        for (i = 0; i < nbfl; i++)
-          message("Lagrange Parameter #%d            = %lf\n", i + 1,
-                  wgt[np + i]);
     }
-    message("Estimation St. Dev. of the mean  = %lf\n", *sse);
-    if (FFFF(*cvgeo))
+    message("Estimation St. Dev. of the mean  = %lf\n", stdv);
+    if (FFFF(cvgeo))
       message("CVgeo                            = NA\n");
     else
-      message("CVgeo                            = %lf\n", *cvgeo);
+      message("CVgeo                            = %lf\n", cvgeo);
     message("\n");
     message("Surface                          = %lf\n", surface);
     if (FFFF(estim))
@@ -4480,18 +4298,7 @@ int global_kriging(Db *dbin,
       message("Q (Estimation * Surface)         = %lf\n", estim * surface);
     message("\n");
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: OptDbg::setIndex(0);
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, nvar, model, neighparam);
-  (void) krige_koption_manage(-1, 1, calcul, 1, VectorInt());
-  rhs_tot = (double*) mem_free((char* ) rhs_tot);
-  delete neighparam;
-  return (error);
+  return gres;
 }
 
 /****************************************************************************/
@@ -7008,14 +6815,15 @@ Krigtest_Res krigtest(Db *dbin,
   /* Extract relevant information */
 
   ktest.ndim = ksys.getNDim();
-  ktest.nech = ksys.getNech();
+  ktest.nech = ksys.getNRed();
   ktest.nrhs = 1;
   ktest.neq  = ksys.getNeq();
+  ktest.nbgh = ksys.getSampleIndices();
   ktest.xyz  = ksys.getSampleCoordinates();
   ktest.data = ksys.getSampleData();
   ktest.zam  = ksys.getZam();
   ktest.lhs  = ksys.getLHS();
-  ktest.rhs  = ksys.getRHS();
+  ktest.rhs  = ksys.getRHSC();
   ktest.wgt  = ksys.getWeights();
   ktest.var  = ksys.getVariance();
 

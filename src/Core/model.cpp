@@ -503,7 +503,7 @@ Model* model_default(int ndim, int nvar)
 {
   /* Create the empty Model */
 
-  CovContext ctxt = CovContext(nvar, ndim, 1000, 1.);
+  CovContext ctxt = CovContext(nvar, ndim, 1.);
   Model* model = new Model(ctxt);
 
   /* Add the nugget effect variogram model */
@@ -2076,7 +2076,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), 1000,
+  CovContext ctxt = CovContext(2, model1->getDimensionNumber(),
                                field, mean, cova0);
 
   // Creating the new Model
