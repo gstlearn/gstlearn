@@ -1,4 +1,4 @@
-name: publish_python
+name: publish_python_ubuntu-16
 
 on:
   workflow_dispatch:
