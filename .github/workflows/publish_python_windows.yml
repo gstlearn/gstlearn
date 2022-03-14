@@ -19,18 +19,25 @@ env:
   DOXYGEN_ROOT : Doxygen
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
   COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
-  PYTHON3 : C:\hostedtoolcache\windows\Python\3.10.2\x64\python3.exe
-
+  PYTHON3_PREF : C:\hostedtoolcache\windows\Python\
+  PYTHON3_SUFF : \x64\python3.exe
 jobs:
    
   build:
     runs-on: windows-latest 
+    strategy :
+      matrix:
+       python: 
+         - ["cp310-cp310","3.10.2"]
+         - ["cp39-cp39","3.9.10"]
+         - ["cp38-cp38","3.8.12"]
+         - ["cp37-cp37","3.7.12"]
+    env : 
+      PYTHON3: PYTHON3_PREF${{matrix.python}}[1]PYTHON3_SUFF
+         
     steps:
     - uses: actions/checkout@v2
-    - name : python versions
-      run  : | 
-        cd C:\hostedtoolcache\windows\Python\
-        dir
+
     
     - name : Download and install HDF5
       # | offers the possibility to run several command in 1 run (take care to indentation)
@@ -80,8 +87,8 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel
-        ${{env.PYTHON3}} -m twine upload dist\*
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0]
+        ${{env.PYTHON3}} -m twine upload dist\* 
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
