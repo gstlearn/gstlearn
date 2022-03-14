@@ -32,15 +32,15 @@ jobs:
           - ["cp39-cp39","3.9.10"]
           - ["cp38-cp38","3.8.12"]
         # - ["cp37-cp37m","3.7.12"]
-    
-    - names : Setup variables
-      run : |
-        echo "PYTHONPATH=${{env.PYTHON3_PREF}}\${{matrix.python}}[1]\${{env.PYTHON_SUFF}}">>$GITHUB_ENV
-        echo "PYTHON3=${{env.PYTHONPATH}}\python3.exe" >>$GITHUB_ENV
+   
          
     steps:
     - uses: actions/checkout@v2
 
+    - names : Setup variables
+      run : |
+       echo "PYTHONPATH=${{env.PYTHON3_PREF}}\${{matrix.python}}[1]\${{env.PYTHON_SUFF}}">>$GITHUB_ENV
+       echo "PYTHON3=${{env.PYTHONPATH}}\python3.exe" >>$GITHUB_ENV
     - name : Modify PATH
       run : echo "$PYTHONPATH" >> $GITHUB_PATH
 
