@@ -75,7 +75,7 @@ void StdoutRedirect::stop()
     SetStdHandle(STD_OUTPUT_HANDLE, _old_stdout);
     int fd = _open_osfhandle((intptr_t)_old_stdout, _O_WRONLY|_O_TEXT);
     FILE* fp = _fdopen(fd, "w");
-    freopen_s( &fp, "CONOUT$", "w", stdout);
+    freopen( &fp, "CONOUT$", "w", stdout);
   #else
     std::cout.rdbuf(_coutbuf);
     _out.close();
@@ -106,7 +106,7 @@ FILE* gslFopen(const char* path, const char* mode)
   file = fopen(path, mode);
 #else
   errno_t err;
-  err = fopen_s( &file, path, mode );
+  err = fopen( &file, path, mode );
   if ( err != 0 ) return nullptr;
 #endif
   return file;
