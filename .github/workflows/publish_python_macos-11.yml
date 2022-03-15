@@ -1,0 +1,85 @@
+name: publish_python_macos
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'     
+        required: false
+        default: ''  
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  PYTHON3 : python3
+  HDF5_ROOT : hdf5 #do not use "." in the name 
+  PROG_ROOT : '/Users/runner/work/'
+  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
+  HDF5_VERSION : hdf5-1.12.1
+  BOOST_ROOT: boost
+  BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
+
+jobs:   
+  build:
+    runs-on: macos-11 
+    steps:
+    - uses: actions/checkout@v2
+
+    - name : Download and install Doxygen  
+      run: brew install doxygen python3
+  
+    - name : HDF5
+      run : |
+        mkdir ${{env.HDF5_ROOT}}
+        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}	
+        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
+        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
+        ls
+        cd ${{env.HDF5_ROOT}} 
+        ls
+        cd CMake-${{env.HDF5_VERSION}}
+        mkdir build
+        cd build
+        cmake -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+        cmake --build . --target all --config Release
+        cmake --build . --target install --config Release
+
+
+    - name : Download and uncompressed Boost
+      run: |
+        mkdir ${{env.BOOST_ROOT}}
+        curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar.bz2 -y -bd
+        7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
+        cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
+
+    - name : Configure Cmake
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  
+
+    - name : Build python package
+      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release
+ 
+    - name : Install wheel and twine
+      run: |
+       ${{env.PYTHON3}} -m pip install wheel
+       ${{env.PYTHON3}} -m pip install twine 
+
+    - name : Build and upload wheel
+      run: |
+        cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=cp39 --plat-name=macosx_10_15_x86_64
+        ${{env.PYTHON3}} -m twine upload dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_REPOSITORY: testpypi
+
+#--plat-name=macosx_11
+
+
+    
+
+   
+
+
+   
+

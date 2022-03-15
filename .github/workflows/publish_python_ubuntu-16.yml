@@ -1,0 +1,44 @@
+name: publish_python_ubuntu-16
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'     
+        required: false
+        default: ''  
+
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+jobs:
+   
+  build:
+    runs-on: ubuntu-latest
+    strategy :
+      matrix:
+       python: ["py35","py36","py37","py38","py39","py310"]
+    container:
+      image: ndesassis/test_ubuntu-16
+ 
+    steps:
+   
+    - uses: actions/checkout@v2
+      
+    - name : Create Wheels
+      run : |
+        export PATH=/opt/python/${{matrix.python}}/bin:$PATH
+        cmake -Bbuild  -DHDF5_ROOT:PATH=/opt/hdf5-1.12.1 -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API" -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF
+        cmake --build build --target python_build -- -j8
+        cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        python3 setup.py bdist_wheel --plat-name=manylinux1_x86_64
+     
+    - name : Upload
+      run : /opt/python/${{matrix.python}}/bin/python3 -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_REPOSITORY: testpypi
+
+   
+

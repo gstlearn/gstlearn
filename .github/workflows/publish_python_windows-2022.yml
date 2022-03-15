@@ -1,4 +1,4 @@
-name: publish_python_windows
+name: publish_python_windows-2022
 
 on:
   workflow_dispatch:
@@ -28,19 +28,25 @@ jobs:
     strategy :
       matrix:
        python: 
-        # - ["cp310-cp310","3.10.2"]
-          - ["cp39-cp39","3.9.10"]
-          - ["cp38-cp38","3.8.12"]
-        # - ["cp37-cp37m","3.7.12"]
-    env : 
-      PYTHONPATH: ${{env.PYTHON3_PREF}}\${{matrix.python}}[1]\${{env.PYTHON_SUFF}}
-      PYTHON3: $${env.PYTHONPATH}\\python3.exe
+          - ["cp310","3.10.2","cp310"]
+          - ["cp39","3.9.10","cp39"]
+          - ["cp38","3.8.10","cp38"]
+          - ["cp37","3.7.9","cp37m"]
+   
          
     steps:
     - uses: actions/checkout@v2
 
-    - name : Modify PATH
-      run : echo "${{env.PYTHONPATH}}" >> $GITHUB_PATH
+    - name : Create PYTHONPATH
+      run : |
+        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ env.PYTHON3_SUFF }}")>> $env:GITHUB_ENV
+      
+    - name : Setup python.exe 
+      run : echo ("PYTHON3=${{env.PYTHONPATH}}\python3.exe") >> $env:GITHUB_ENV
+ 
+    - name : Modify PATH #to avoid a warning at cmake configuration
+      run : |
+        echo "${{env.PYTHONPATH}}\Scripts" >> $GITHUB_PATH        
 
     - name : Download and install HDF5
       # | offers the possibility to run several command in 1 run (take care to indentation)
@@ -76,7 +82,7 @@ jobs:
 
     - name : Configure Cmake
       run : |
-       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  
+       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}}
 
    
     - name : Install wheel and twine
@@ -90,7 +96,7 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0]
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=win_amd64
         ${{env.PYTHON3}} -m twine upload dist\* 
       env:
         TWINE_USERNAME: __token__

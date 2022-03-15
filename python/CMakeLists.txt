@@ -8,8 +8,8 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Look for Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 
-if(APPLE)
-  target_link_libraries(${PYTGT} PRIVATE ${PYTHON_LIBRARIES})
+if (APPLE)
+  find_package(PythonLibs REQUIRED)
 endif()
 
 # Look for SWIG 4
