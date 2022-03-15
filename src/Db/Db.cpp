@@ -3347,7 +3347,7 @@ int Db::dumpToNF(const String& neutralFilename, bool verbose) const
   if (_fileOpenWrite(neutralFilename, "Db", os, verbose))
   {
     ret = _serialize(os, verbose);
-    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename);
+    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename.c_str());
     os.close();
   }
   return ret;
@@ -3362,7 +3362,7 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
     db = new Db;
     if (db->_deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename);
+      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename.c_str());
       delete db;
       db = nullptr;
     }
