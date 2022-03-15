@@ -1,0 +1,38 @@
+name: publish_python_windows
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'     
+        required: false
+        default: ''  
+env:
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+  DOXYGEN_ROOT : Doxygen
+  DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
+  COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
+  PYTHON3_PREF : C:\hostedtoolcache\windows\Python
+  PYTHON3_SUFF : x64
+
+jobs:
+   
+  build:
+    runs-on: windows-latest 
+    strategy :
+      matrix:
+       python: 
+        # - ["cp310","3.10.2","cp310"]
+        #  - ["cp39","3.9.10","cp39"]
+          - ["cp38","3.8.10","cp38"]
+        # - ["cp37","3.7.9","cp37m"]
+    
+    steps:
+    - name : Create PYTHONPATH
+      run : |
+        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}")>> $env:GITHUB_ENV
+    - run : | 
+        cd ${{env.PYTHONPATH}}
+        dir
+
