@@ -67,7 +67,7 @@ jobs:
         mkdir build
         cd build
         cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
-        cmake --build . --target all --config Release -- -j2
+        cmake --build . --target all --config Release -- -j 2
         cmake --build . --target install --config Release
 
 ########################################################################################################
@@ -113,7 +113,7 @@ jobs:
 
 
     - name : Library compilation
-      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- -j2
+      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- -j 2
 
 ########################################################################################################
 # Build and upload wheel
