@@ -10,7 +10,7 @@ on:
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  PROG_ROOT : C:\hostedtoolcache\windows
+  PROG_ROOT : C:\hostedtoolcache\windows   
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
   HDF5_ROOT : hdf5 #do not use "." in the name 
@@ -37,6 +37,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
+#####################################################################################################
+# Create variables to setup python version and modify PATH
+
     - name : Create PYTHONPATH
       run : |
         echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ env.PYTHON3_SUFF }}")>> $env:GITHUB_ENV
@@ -47,6 +50,9 @@ jobs:
     - name : Modify PATH #to avoid a warning at cmake configuration
       run : |
         echo "${{env.PYTHONPATH}}\Scripts" >> $GITHUB_PATH        
+
+#####################################################################################################
+# HDF5 download and install
 
     - name : Download and install HDF5
       # | offers the possibility to run several command in 1 run (take care to indentation)
@@ -61,6 +67,9 @@ jobs:
         cmake --build . --target all --config Release
         cmake --build . --target install --config Release
 
+########################################################################################################
+# Doxygen download and unzip
+
     - name : Download and install Doxygen  
       run: |
         mkdir ${{env.DOXYGEN_ROOT}}
@@ -70,6 +79,9 @@ jobs:
         curl --progress-bar --output ${{env.DOXYGEN_ROOT}}/download.zip ${{env.DOXYGEN_URL}}
         7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
 
+########################################################################################################
+# Boost .h download and unzip
+
     - name : Download and uncompressed Boost
       run: |
         mkdir ${{env.BOOST_ROOT}}
@@ -78,20 +90,30 @@ jobs:
         7z -o${{env.BOOST_ROOT}} x ${{env.BOOST_ROOT}}/download.tar -y -bd
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
    
-  
+########################################################################################################
+# Configuration to prepare compilation  
 
     - name : Configure Cmake
       run : |
        cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}}
 
    
+########################################################################################################
+# Installation of wheel (to build wheel) and twine (to upload package on pypi)
     - name : Install wheel and twine
       run: |
        ${{env.PYTHON3}} -m pip install wheel
        ${{env.PYTHON3}} -m pip install twine 
 
+########################################################################################################
+# Compilation (gstlearn and python package
+
+
     - name : Library compilation
       run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release
+
+########################################################################################################
+# Build and upload wheel
  
     - name : Build and upload wheel
       run: |
