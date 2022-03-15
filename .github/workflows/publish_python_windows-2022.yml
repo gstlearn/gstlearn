@@ -20,7 +20,7 @@ env:
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
   COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
   PYTHON3_PREF : C:\hostedtoolcache\windows\Python
-  PYTHON3_SUFF : x64
+  PYTHON3_SUFF : x86
 jobs:
    
   build:
@@ -28,10 +28,10 @@ jobs:
     strategy :
       matrix:
        python: 
-          - ["cp310","3.10.2"]
-          - ["cp39","3.9.10"]
+         # - ["cp310","3.10.2"]
+         # - ["cp39","3.9.10"]
           - ["cp38","3.8.10"]
-          - ["cp37","3.7.9"]
+         # - ["cp37","3.7.9"]
    
          
     steps:
@@ -118,7 +118,7 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=win_amd64
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=win32
         ${{env.PYTHON3}} -m twine upload dist\* 
       env:
         TWINE_USERNAME: __token__
