@@ -113,7 +113,8 @@ jobs:
 
 
     - name : Library compilation
-      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- -j 2
+      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- 
+#-j 2
 
 ########################################################################################################
 # Build and upload wheel
