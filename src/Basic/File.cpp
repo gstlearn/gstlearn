@@ -12,7 +12,7 @@
 #include "Basic/AStringable.hpp"
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
+//#include <malloc.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <iostream>

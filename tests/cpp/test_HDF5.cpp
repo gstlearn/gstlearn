@@ -16,7 +16,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/File.hpp"
 
-#include <malloc.h>
+//#include <malloc.h>
 
 bool st_is_integer(H5::DataType type)
 {
