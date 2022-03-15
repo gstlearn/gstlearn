@@ -2174,6 +2174,8 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoef)
 /**
  * In the case of Image Neighborhood, switch the Smoothing option
  * @param flag_smooth Switch of the Smoothing Image Option
+ * @param type Smoothing kernel (1 for Uniform; 2 for Gaussian)
+ * @param range Rank of the Gaussian Kernel
  * @return
  */
 int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double range)

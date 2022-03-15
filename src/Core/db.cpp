@@ -4241,10 +4241,8 @@ static void st_rotate(int ndim,
  **
  ** \param[in]   db        Db structure
  ** \param[in]   rotmat    Rotation matrix (optional)
- ** \param[out]  mini_arg  Array containing the minimum
- **                        (Dimension = ndim)
- ** \param[out]  maxi_arg  Array containing the maximum
- **                        (Dimension =  ndim)
+ ** \param[out]  mini      Array containing the minimum (Dimension = ndim)
+ ** \param[out]  maxi      Array containing the maximum (Dimension =  ndim)
  **
  ** \remarks This function does nothing if:
  ** \remarks - no rotation matrix is defined
