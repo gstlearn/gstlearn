@@ -359,7 +359,7 @@ int csv_manage(const char *filename,
       message("File Name                      = %s\n", filename);
       message("Number of items per line       = %d\n", CSV_ENCODE->nitem);
       message("Separator between items        = %s\n", CSV_ENCODE->char_sep);
-      message("String for missing information = %s\n", CSV_ENCODE->na_string);
+      message("String for missing information = %s\n", CSV_ENCODE->na_string.c_str());
     }
   }
   else
