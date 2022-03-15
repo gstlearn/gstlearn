@@ -13,6 +13,7 @@
 #include <stdio.h>
 #include <string.h>
 //#include <malloc.h>
+#include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <iostream>
