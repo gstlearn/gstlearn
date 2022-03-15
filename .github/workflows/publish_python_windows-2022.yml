@@ -32,7 +32,7 @@ jobs:
          # - ["cp39","3.9.10"]
           - ["cp38","3.8.10"]
          # - ["cp37","3.7.9"]
-        windows-type :
+        windowstype :
           - ["win_amd64", "x64"]
           - ["win32","x86"]
    
@@ -45,7 +45,7 @@ jobs:
 
     - name : Create PYTHONPATH
       run : |
-        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ matrix.windows-type[1] }}")>> $env:GITHUB_ENV
+        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ matrix.windowstype[1] }}")>> $env:GITHUB_ENV
       
     - name : Setup python.exe 
       run : echo ("PYTHON3=${{env.PYTHONPATH}}\python3.exe") >> $env:GITHUB_ENV
@@ -121,7 +121,7 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=${{matrix.windows-type[0]}}
+        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=${{matrix.windowstype[0]}}
         ${{env.PYTHON3}} -m twine upload dist\* 
       env:
         TWINE_USERNAME: __token__
