@@ -2,6 +2,11 @@
 set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Beware : the real package name is the PROJECT_NAME (for better import)
 
+
+# Create the global target for building python package (added by Nico from gstlearn example)
+add_custom_target(python_build_package)
+
+
 ###################################
 # DEPENDENCIES
 
