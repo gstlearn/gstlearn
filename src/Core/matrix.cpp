@@ -1332,11 +1332,11 @@ int matrix_cholesky_decompose(const double *a,
  **
  *****************************************************************************/
 void matrix_cholesky_product(int mode,
-                                             int neq,
-                                             int nrhs,
-                                             double *tl,
-                                             double *a,
-                                             double *x)
+                             int neq,
+                             int nrhs,
+                             double *tl,
+                             double *a,
+                             double *x)
 {
   int irhs, i, j, n1, n2;
   double val, *v1, *v2;

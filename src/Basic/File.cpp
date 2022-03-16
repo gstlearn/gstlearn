@@ -12,7 +12,6 @@
 #include "Basic/AStringable.hpp"
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
 #include <stdarg.h>
 #include <stdlib.h>
 #include <iostream>
@@ -81,7 +80,6 @@ void StdoutRedirect::stop()
   #endif
 }
 
-
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
 void skipBOM(std::ifstream &in)
@@ -102,6 +100,8 @@ FILE* gslFopen(const char* path, const char* mode)
   FILE *file;
 
 #ifdef __unix
+  file = fopen(path, mode);
+#elif defined(__APPLE__)
   file = fopen(path, mode);
 #else
   errno_t err;

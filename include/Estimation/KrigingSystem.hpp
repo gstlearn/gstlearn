@@ -48,12 +48,13 @@ public:
                       const VectorDouble& prior_cov);
   int  setKrigOptMatCL(const VectorVectorDouble& matCL);
   int  setKrigoptCode(bool flag_code);
-  int  setKrigOptFlagSimu(bool flagSimu);
+  int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double rcoef = 1.);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptCheckAddress(bool flagCheckAddress);
+
 
   bool isReady();
   int  estimate(int iech_out);
@@ -116,6 +117,7 @@ private:
   void _estimateCalculImage(int status);
   void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
+  void _simulateCalcul(int status);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL);
   void _variance0();
@@ -153,6 +155,7 @@ private:
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux);
   int    _bayesPreCalculations();
+  void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
 
 private:
@@ -176,10 +179,14 @@ private:
   bool _flagStd;
   bool _flagVarZ;
   bool _flagGlobal;
-  bool _flagSimu;
 
   /// Option for Calculation
   EKrigOpt _calcul;
+
+  /// Option for Simulation
+  bool _flagSimu;
+  int  _nbsimu;
+  int  _rankPGS;
 
   /// Options complement for neighborhood
   bool _flagCode;  // True when kriging by Code (Profile)
@@ -204,6 +211,7 @@ private:
   VectorDouble _priorCov;  // Dimension NF * NF
   VectorDouble _postMean;
   VectorDouble _postCov;
+  VectorVectorDouble _postSimu;
   VectorDouble _varCorrec;
   Model* _modelSimple;
 

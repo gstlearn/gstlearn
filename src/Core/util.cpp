@@ -2242,10 +2242,7 @@ double get_keypone(const char *keyword, double valdef)
  ** \remarks not to show up in the memory leak calculations
  **
  *****************************************************************************/
-int get_keypair(const char *keyword,
-                                int *nrow,
-                                int *ncol,
-                                double **values)
+int get_keypair(const char *keyword, int *nrow, int *ncol, double **values)
 {
   int found, size;
   double *valloc;

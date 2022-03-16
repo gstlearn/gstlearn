@@ -10,7 +10,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/HDF5format.hpp"
 
-#include <malloc.h>
+#include <stdlib.h>
 #include <stdio.h>
 #include <typeinfo>
 

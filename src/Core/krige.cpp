@@ -3094,7 +3094,6 @@ int kriging(Db *dbin,
 
   // Initializations
 
-  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -3121,7 +3120,6 @@ int kriging(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
   if (ksys.setKrigOptCalcul(calcul, ndisc)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;
@@ -3186,7 +3184,6 @@ int xvalid(Db *db,
 
   // Initializations
 
-  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -3213,7 +3210,6 @@ int xvalid(Db *db,
   /* Setting options */
 
   KrigingSystem ksys(db, db, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
   if (ksys.setKrigOptXValid(true, flag_kfold, flag_est > 0, flag_std > 0)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;
@@ -3282,7 +3278,6 @@ int krigdgm(Db *dbin,
 
   // Initializations
 
-  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -3309,7 +3304,6 @@ int krigdgm(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
   if (ksys.setKrigOptDGM(true, rval)) return 1;
   if (! ksys.isReady()) return 1;
@@ -3366,7 +3360,6 @@ int krigprof(Db *dbin,
 
   // Initializations
 
-  int flag_simu = 0;
   int iptr_est = -1;
   int iptr_std = -1;
   int nvar = model->getVariableNumber();
@@ -3387,7 +3380,6 @@ int krigprof(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigoptCode(true)) return 1;
   if (!ksys.isReady()) return 1;
@@ -3888,17 +3880,17 @@ int test_neigh(Db *dbin,
  ** \param[in]  rval       Change of support coefficient
  **
  *****************************************************************************/
-int _krigsim(const char *strloc,
-             Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
-             double *dmean,
-             double *dcov,
-             int icase,
-             int nbsimu,
-             int flag_dgm,
-             double rval)
+static int st_krigsim_old(const char *strloc,
+                          Db *dbin,
+                          Db *dbout,
+                          Model *model,
+                          ANeighParam *neighparam,
+                          double *dmean,
+                          double *dcov,
+                          int icase,
+                          int nbsimu,
+                          int flag_dgm,
+                          double rval)
 {
   int error, status, nech, neq, nred, nvar, iext, nfeq;
   double *rmean, *rcov, *smean;
@@ -4050,6 +4042,90 @@ int _krigsim(const char *strloc,
   (void) manage_external_info(-1, ELoc::F, DBIN, DBOUT, &iext);
   (void) manage_nostat_info(-1, model, DBIN, DBOUT);
   return (error);
+}
+
+static int st_krigsim_new(const char *strloc,
+                          Db *dbin,
+                          Db *dbout,
+                          Model *model,
+                          ANeighParam *neighparam,
+                          double *dmean,
+                          double *dcov,
+                          int icase,
+                          int nbsimu,
+                          int flag_dgm,
+                          double rval)
+{
+  // Preliminary checks
+
+  if (neighparam->getType() == ENeigh::IMAGE)
+  {
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
+  }
+
+  // Initializations
+
+  int iptr_est  = -1;
+  int nvar = model->getVariableNumber();
+  int nfeq = model->getDriftNumber();
+
+  /* Add the attributes for storing the results */
+
+  iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
+  if (iptr_est < 0) return 1;
+
+  /* Bayesian temporary code */
+
+  bool flag_bayes = false;
+  VectorDouble prior_mean;
+  VectorDouble prior_cov;
+  if (dmean != nullptr && dcov != nullptr && nfeq > 0)
+  {
+    flag_bayes = true;
+    prior_mean = ut_vector_set(dmean, nfeq);
+    prior_cov  = ut_vector_set(dcov, nfeq * nfeq);
+  }
+
+  /* Setting options */
+
+  KrigingSystem ksys(dbin, dbout, model, neighparam);
+  if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
+  if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
+  if (ksys.setKrigOptBayes(flag_bayes, prior_mean, prior_cov)) return 1;
+  if (ksys.setKrigOptDGM(flag_dgm, rval)) return 1;
+  if (! ksys.isReady()) return 1;
+
+  /* Loop on the targets to be processed */
+
+  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
+  {
+    mes_process(strloc, dbout->getSampleNumber(), iech_out);
+    if (ksys.estimate(iech_out)) return 1;
+  }
+
+  return 0;
+}
+
+int _krigsim(const char *strloc,
+             Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             double *dmean,
+             double *dcov,
+             int icase,
+             int nbsimu,
+             int flag_dgm,
+             double rval)
+{
+  double value;
+
+  int test = (int) get_keypone("krigsim", 0);
+  if (test == 0)
+    return st_krigsim_old(strloc, dbin, dbout, model, neighparam, dmean, dcov, icase, nbsimu, flag_dgm, rval);
+  else
+    return st_krigsim_new(strloc, dbin, dbout, model, neighparam, dmean, dcov, icase, nbsimu, flag_dgm, rval);
 }
 
 /****************************************************************************/
@@ -6784,7 +6860,6 @@ Krigtest_Res krigtest(Db *dbin,
 
   // Initializations
 
-  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int iptr_varz = -1;
@@ -6800,7 +6875,6 @@ Krigtest_Res krigtest(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return ktest;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return ktest;
   if (ksys.setKrigOptCalcul(calcul, ndisc)) return ktest;
   if (! ksys.isReady()) return ktest;
@@ -7044,7 +7118,6 @@ int krigcell(Db *dbin,
 
   // Initializations
 
-  int flag_simu =  0;
   int iptr_est  = -1;
   int iptr_std  = -1;
   int nvar = model->getVariableNumber();
@@ -7065,7 +7138,6 @@ int krigcell(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptFlagSimu(flag_simu)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptCalcul(EKrigOpt::BLOCK, ndisc, true)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;

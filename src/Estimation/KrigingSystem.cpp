@@ -38,6 +38,7 @@
 #define FF(ib,il)         (ff [(il) * shift + (ib)])
 #define FF0(ib,iv)        (ff0 [(ib) + nfeq * (iv)])
 #define SIGMA(ib,jb)      (sigma[(jb)    * shift + (ib)])
+#define SMEAN(i,isimu)    (_postSimu[isimu][i])
 
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
@@ -56,8 +57,10 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagStd(false),
       _flagVarZ(false),
       _flagGlobal(false),
-      _flagSimu(false),
       _calcul(EKrigOpt::PONCTUAL),
+      _flagSimu(false),
+      _nbsimu(0),
+      _rankPGS(-1),
       _flagCode(false),
       _flagPerCell(false),
       _ndiscNumber(0),
@@ -72,6 +75,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _priorCov(),
       _postMean(),
       _postCov(),
+      _postSimu(),
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
@@ -320,6 +324,7 @@ double KrigingSystem::_getIvar(int rank,
       // Particular case of simulations
 
       return _dbin->getVariable(rank, ivar);
+
     else
 
       // Case of the traditional kriging based on Z-variables
@@ -1156,6 +1161,71 @@ void KrigingSystem::_wgtDump(int status)
     tab_printg(NULL, (status == 0) ? _zam[iwgt] : TEST);
     message("\n");
   }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the final conditional simulation
+ **
+ ** \param[in]  status    Kriging error status
+ **
+ *****************************************************************************/
+void KrigingSystem::_simulateCalcul(int status)
+{
+  int nech = getNech();
+  int nvar = _getNVar();
+  int nfeq = _getNFeq();
+
+  /* Simulation */
+
+  int ecr = 0;
+  for (int isimu = ecr = 0; isimu < _nbsimu; isimu++)
+    for (int ivar = 0; ivar < nvar; ivar++, ecr++)
+    {
+      double simu = 0.;
+      if (nfeq <= 0) simu = _getMean(ivar);
+
+      if (status == 0)
+      {
+        if (_flagBayes)
+          simu = _model->_evalDriftCoef(_dbout, _iechOut, ivar,
+                                        _postMean.data());
+
+        int lec = ivar * _nred;
+        for (int jvar = 0; jvar < nvar; jvar++)
+          for (int iech = 0; iech < nech; iech++)
+          {
+            int jech = _nbgh[iech];
+
+            double mean = 0.;
+            if (nfeq <= 0) mean = _getMean(jvar);
+            if (_flagBayes)
+              mean = _model->_evalDriftCoef(_dbin, jech, jvar,_postSimu[isimu].data());
+            double data = _dbin->getSimvar(ELoc::SIMU, jech, isimu, ivar, _rankPGS, _nbsimu, nvar);
+            simu -= _wgt[lec++] * (data + mean);
+          }
+
+        if (OptDbg::query(EDbg::KRIGING))
+        {
+          double value = _dbout->getArray(_iechOut, _iptrEst + ecr);
+          message("Non-conditional simulation #%d = %lf\n", isimu + 1, value);
+          message("Kriged difference = %lf\n", -simu);
+          message("Conditional simulation #%d = %lf\n", isimu + 1,
+                  value + simu);
+        }
+      }
+      else
+      {
+        // In case of failure with KS, set the contidioning to mean
+        if (nfeq > 0) simu = TEST;
+      }
+
+      /* Add the conditioning kriging to the NC simulation at target */
+      _dbout->updSimvar(ELoc::SIMU, _iechOut, isimu, ivar, _rankPGS, _nbsimu, nvar,
+                       0, simu);
+    }
+
   return;
 }
 
@@ -2142,9 +2212,11 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
   return 0;
 }
 
-int KrigingSystem::setKrigOptFlagSimu(bool flagSimu)
+int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
 {
  _flagSimu = flagSimu;
+ _nbsimu = nbsimu;
+ _rankPGS = rankPGS;
  _nbghWork.setFlagSimu(flagSimu);
  return 0;
 }
@@ -3027,6 +3099,11 @@ int KrigingSystem::_bayesPreCalculations()
                  _postCov.data());
     message("\n");
   }
+
+  // Particular case of Simulation: Simulate several outcomes for posterior means
+
+  if (_flagSimu) _bayesPreSimulate();
+
   return 0;
 }
 
@@ -3073,5 +3150,79 @@ void KrigingSystem::_bayesCorrectVariance()
       ecr++;
     }
   return;
+}
+
+/****************************************************************************/
+/*!
+ **  Simulate the drift coefficients from the posterior distributions
+ **
+ *****************************************************************************/
+void KrigingSystem::_bayesPreSimulate()
+{
+  int nfeq = _getNFeq();
+  if (nfeq <= 0) return;
+  int nftri = nfeq * (nfeq + 1) / 2;
+  int memo = law_get_random_seed();
+
+  // Dimension '_smean' to store simulated posterior mean
+  _postSimu.resize(_nbsimu);
+  for (int isimu = 0; isimu < _nbsimu; isimu++) _postSimu[isimu].resize(nfeq);
+
+  /* Core allocation */
+
+  VectorDouble trimat(nftri);
+  VectorDouble rndmat(nfeq);
+  VectorDouble simu(nfeq);
+  // The array _postCov is duplicated as the copy is destroyed by matrix_cholesky_decompose
+  VectorDouble rcov = _postCov;
+
+  /* Cholesky decomposition */
+
+  int rank = matrix_cholesky_decompose(rcov.data(), trimat.data(), nfeq);
+
+  if (rank > 0)
+  {
+    messerr("Error in the Cholesky Decomposition of the covariance matrix");
+    messerr("Rank of the Matrix = %d", rank);
+    messerr("The Drift coefficients have been set to their posterior mean");
+    for (int isimu = 0; isimu < _nbsimu; isimu++)
+      for (int il = 0; il < nfeq; il++)
+        SMEAN(il,isimu) = _postMean[il];
+  }
+  else
+  {
+    for (int isimu = 0; isimu < _nbsimu; isimu++)
+    {
+
+      /* Draw a vector of gaussian independent values */
+
+      for (int il = 0; il < nfeq; il++) rndmat[il] = law_gaussian();
+
+      /* Product of the Lower triangular matrix by the random vector */
+
+      matrix_cholesky_product(1, nfeq, 1, trimat.data(), rndmat.data(), simu.data());
+
+      /* Add the mean */
+
+      for (int il = 0; il < nfeq; il++)
+        SMEAN(il,isimu) = simu[il] + _postMean[il];
+    }
+  }
+
+  /* If DEBUG option is switched ON, the values are printed out */
+
+  if (OptDbg::query(EDbg::BAYES))
+  {
+    mestitle(1, "Simulation of Drift Coefficients (for Bayesian Simulation)");
+    message("Rank     Drift Coefficients\n");
+    for (int isimu = 0; isimu < _nbsimu; isimu++)
+    {
+      message(" %3d ", isimu + 1);
+      for (int il = 0; il < nfeq; il++)
+        message(" %lf", SMEAN(il, isimu));
+      message("\n");
+    }
+  }
+  law_set_random_seed(memo);
 }
 
