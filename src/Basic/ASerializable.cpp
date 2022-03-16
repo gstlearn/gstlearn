@@ -109,7 +109,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   {
     if (verbose)
       messerr("The file %s has the wrong type (read: %s, expected: %s)",
-              filepath.c_str(), type, filetype);
+              filepath.c_str(), type.c_str(), filetype.c_str());
     is.close();
     return false;
   }
@@ -141,7 +141,7 @@ bool ASerializable::_tableWrite(std::ostream& os,
   {
     if (! string.empty())
     {
-      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, "%s (%d)", string.c_str(), i + 1);
       ret = ret && _recordWrite<double>(os, local, tab[i]);
     }
     else
