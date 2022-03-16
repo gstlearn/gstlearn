@@ -31,6 +31,7 @@
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build)
+#  - USE_HDF5=0         To remove HDF5 support (default =1)
 #
 
 ifeq ($(DEBUG), 1)
@@ -47,13 +48,19 @@ ifdef N_PROC
   N_PROC_OPT = -j$(N_PROC)
 endif
 
+ifeq ($(USE_HDF5), 0)
+  HDF5 = OFF
+ else
+  HDF5 = ON 
+endif
+
 all: shared install
 
 
 .PHONY: all cmake static shared build_tests doxygen install uninstall
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -B$(BUILD_DIR) -H.
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=${HDF5} -B$(BUILD_DIR) -H.
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)

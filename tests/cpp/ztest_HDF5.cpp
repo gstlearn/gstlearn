@@ -18,6 +18,14 @@
 
 #include <stdlib.h>
 
+#ifndef _USE_HDF5
+int main (void)
+{
+  message("No HDF5 support: this test does nothing!");
+  return 0;
+}
+
+#else
 bool st_is_integer(H5::DataType type)
 {
   return (type.getClass() == H5T_INTEGER);
@@ -636,3 +644,4 @@ int main (void)
 
   return 0;
 }
+#endif

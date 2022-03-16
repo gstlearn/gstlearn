@@ -32,12 +32,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYP
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 
-# Specific stuff for windows 
+# Change the name of the output file (to distinguish lib files under Windows)
 if (WIN32)
-  # Change the name of the output file (to distinguish lib files under windows)
   set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
-  # Use static library for HDF5 under Windows (no more issue with DLL location)
-  set(HDF5_USE_STATIC_LIBRARIES ON)
 endif()
 
 # Impose 'd' suffix in debug (global property)
@@ -47,10 +44,17 @@ set(CMAKE_DEBUG_POSTFIX d)
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 
-# Look for HDF5
-# https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-find_package(HDF5 REQUIRED COMPONENTS C CXX)
-# TODO : If HDF5 not found, fetch it from the web ?
+if (USE_HDF5)
+  # Look for HDF5
+  # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
+  find_package(HDF5 REQUIRED COMPONENTS C CXX)
+  # TODO : If HDF5 not found, fetch it from the web ?
+
+  # Use static library for HDF5 under Windows (no more issue with DLL location)
+  if (WIN32)
+    set(HDF5_USE_STATIC_LIBRARIES ON)
+  endif()
+endif()
 
 # Shared and Static libraries
 add_library(shared                  SHARED ${SOURCES})
@@ -96,10 +100,15 @@ foreach(FLAVOR ${FLAVORS})
   # It should be PRIVATE if no headers of the gstlearn include boost files
   target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
   
-  # Link to HDF5
-  # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
-  target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
-  target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
+  if (USE_HDF5)
+    # Define _USE_HDF5 macro
+    target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
+
+    # Link to HDF5
+    # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
+    target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})
+    target_link_libraries(${FLAVOR} PUBLIC ${HDF5_CXX_LIBRARIES} ${HDF5_LIBRARIES})
+  endif()
 
   # Link to specific libraries (only for Windows)
   if (MSVC)

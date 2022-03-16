@@ -427,11 +427,13 @@ int GibbsMMulti::_storeAllWeights(bool verbose)
 
   if (! _flagStoreInternal)
   {
+#ifdef _USE_HDF5
     std::vector<hsize_t> dims(2);
     dims[0] = nact;
     dims[1] = nvar * nact * nvar;
     _hdf5.openNewFile("h5data3.h5");
     _hdf5.openNewDataSetDouble("Set3", 2, dims.data());
+#endif
   }
 
   // Loop on the samples
@@ -483,6 +485,17 @@ void GibbsMMulti::cleanup()
   _hdf5.closeDataSet();
   _hdf5.closeFile();
   _hdf5.deleteFile();
+}
+
+void GibbsMMulti::setFlagStoreInternal(bool flagStoreInternal)
+{
+#ifndef _USE_HDF5
+  if (!flagStoreInternal)
+    messerr("No HDF5 support: Cannot use External Storing of weights option!");
+  _flagStoreInternal = true;
+#else
+  _flagStoreInternal = flagStoreInternal;
+#endif
 }
 
 void GibbsMMulti::_getEstimate(int ipgs0,

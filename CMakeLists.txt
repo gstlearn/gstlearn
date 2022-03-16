@@ -12,6 +12,13 @@ project(gstlearn
 ####################################################
 ## CONFIGURATION
 
+# By default, activate HDF5 support
+option(USE_HDF5 "Using HDF5 support" ON)
+
+# TODO : USE_NETCDF in CMake (mimicking USE_HDF5)
+# By default, do not activate NetCDF support
+#option(USE_NETCDF "Using NetCDF support" OFF)
+
 # Create gstlearn_DATE, gstlearn_YEAR and gstlearn_MONTH variables
 string(TIMESTAMP ${PROJECT_NAME}_DATE "%Y/%m/%d - %H:%M")
 string(TIMESTAMP ${PROJECT_NAME}_YEAR "%Y")

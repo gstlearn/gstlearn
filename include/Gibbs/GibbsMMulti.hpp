@@ -40,7 +40,7 @@ public:
   void cleanup() override;
 
   bool getFlagStoreInternal() const { return _flagStoreInternal; }
-  void setFlagStoreInternal(bool flagStoreInternal) { _flagStoreInternal = flagStoreInternal; }
+  void setFlagStoreInternal(bool flagStoreInternal) ;
 
 private:
   int  _getVariableNumber() const;

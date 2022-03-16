@@ -20,20 +20,24 @@ HDF5format::HDF5format(const String& filename,
                        const String& varname)
   : _filename(filename)
   , _varname(varname)
+#ifdef _USE_HDF5
   , _datafile()
   , _dataset()
   , _datatype()
   , _dataspace()
+#endif
 {
 }
 
 HDF5format::HDF5format(const HDF5format &r)
   : _filename(r._filename)
   , _varname(r._varname)
+#ifdef _USE_HDF5
   , _datafile(r._datafile)
   , _dataset(r._dataset)
   , _datatype(r._datatype)
   , _dataspace(r._dataspace)
+#endif
 {
 }
 
@@ -43,10 +47,12 @@ HDF5format& HDF5format::operator= (const HDF5format &r)
   {
     _filename = r._filename;
     _varname  = r._varname;
+#ifdef _USE_HDF5
     _datafile = r._datafile;
     _dataset = r._dataset;
     _datatype = r._datatype;
     _dataspace = r._dataspace;
+#endif
   }
   return *this;
 }
@@ -60,6 +66,7 @@ void HDF5format::openFile(const String& filename)
   // Define the File name
   if (! filename.empty()) _filename = filename;
 
+#ifdef _USE_HDF5
   // Perform the Open operation
   try
   {
@@ -71,6 +78,7 @@ void HDF5format::openFile(const String& filename)
     EXCEPTION_PRINT_ERROR(error);
     return;
   }
+#endif
 }
 
 void HDF5format::openNewFile(const String& filename)
@@ -78,6 +86,7 @@ void HDF5format::openNewFile(const String& filename)
   // Define the File name
   if (! filename.empty()) _filename = filename;
 
+#ifdef _USE_HDF5
   // Perform the Open operation
   try
   {
@@ -89,6 +98,7 @@ void HDF5format::openNewFile(const String& filename)
     EXCEPTION_PRINT_ERROR(error);
     return;
   }
+#endif
 }
 
 void HDF5format::openDataSet(const String& varname)
@@ -96,6 +106,7 @@ void HDF5format::openDataSet(const String& varname)
   // Define the Data Set Name
   if (! varname.empty()) _varname = varname;
 
+#ifdef _USE_HDF5
   // Perform the Open operation
   try
   {
@@ -109,8 +120,10 @@ void HDF5format::openDataSet(const String& varname)
     EXCEPTION_PRINT_ERROR(error);
     return;
   }
+#endif
 }
 
+#ifdef _USE_HDF5
 void HDF5format::openNewDataSetInt(const String& varname,
                                    int ndim,
                                    hsize_t *dims)
@@ -132,7 +145,6 @@ void HDF5format::openNewDataSetInt(const String& varname,
     return;
   }
 }
-
 
 void HDF5format::openNewDataSetFloat(const String& varname,
                                    int ndim,
@@ -156,7 +168,6 @@ void HDF5format::openNewDataSetFloat(const String& varname,
   }
 }
 
-
 void HDF5format::openNewDataSetDouble(const String& varname,
                                    int ndim,
                                    hsize_t *dims)
@@ -178,19 +189,25 @@ void HDF5format::openNewDataSetDouble(const String& varname,
     return;
   }
 }
+#endif
 
 void HDF5format::closeFile()
 {
+#ifdef _USE_HDF5
   _datafile.close();
+#endif
 }
 
 void HDF5format::closeDataSet()
 {
+#ifdef _USE_HDF5
   _dataspace.close();
   _dataset.close();
   _datatype.close();
+#endif
 }
 
+#ifdef _USE_HDF5
 /****************************************************************************/
 /*!
 **  Read an array from an HDF5 file
@@ -332,6 +349,7 @@ int HDF5format::writeRegular(hsize_t *start,
     return 1;
   }
 }
+#endif
 
 int HDF5format::deleteFile()
 {
@@ -342,6 +360,7 @@ int HDF5format::deleteFile()
 
 int HDF5format::getSize() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -353,10 +372,13 @@ int HDF5format::getSize() const
     EXCEPTION_PRINT_ERROR(error);
     return 0;
   }
+#endif
+  return 0;
 }
 
 int HDF5format::getDataInt() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -375,10 +397,13 @@ int HDF5format::getDataInt() const
     EXCEPTION_PRINT_ERROR(error);
     return -1;
   }
+#endif
+  return -1;
 }
 
 float HDF5format::getDataFloat() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -397,10 +422,13 @@ float HDF5format::getDataFloat() const
     EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
+#endif
+  return -1.;
 }
 
 double HDF5format::getDataDouble() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -419,10 +447,13 @@ double HDF5format::getDataDouble() const
     EXCEPTION_PRINT_ERROR(error);
     return -1.;
   }
+#endif
+  return -1.;
 }
 
 VectorInt HDF5format::getDataVInt() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -442,10 +473,13 @@ VectorInt HDF5format::getDataVInt() const
     EXCEPTION_PRINT_ERROR(error);
     return { 1, -1 };
   }
+#endif
+  return { 1, -1 };
 }
 
 VectorFloat HDF5format::getDataVFloat() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -463,12 +497,15 @@ VectorFloat HDF5format::getDataVFloat() const
   {
     messerr("---> Problem in getDataVFloat. Operation aborted");
     EXCEPTION_PRINT_ERROR(error);
-    return { 1, -1. };
+    return { 1., -1. };
   }
+#endif
+  return { 1., -1. };
 }
 
 VectorDouble HDF5format::getDataVDouble() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -486,8 +523,10 @@ VectorDouble HDF5format::getDataVDouble() const
   {
     messerr("---> Problem in getDataVDouble. Operation aborted");
     EXCEPTION_PRINT_ERROR(error);
-    return { 1, -1. };
+    return { 1., -1. };
   }
+#endif
+  return { 1., -1. };
 }
 
 /**
@@ -496,6 +535,7 @@ VectorDouble HDF5format::getDataVDouble() const
  */
 VectorVectorInt HDF5format::getDataVVInt() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -526,10 +566,13 @@ VectorVectorInt HDF5format::getDataVVInt() const
     EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorInt(1, -1) };
   }
+#endif
+  return { 1, VectorInt(1, -1) };
 }
 
 VectorVectorFloat HDF5format::getDataVVFloat() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -560,10 +603,13 @@ VectorVectorFloat HDF5format::getDataVVFloat() const
     EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorFloat(1, -1.) };
   }
+#endif
+  return { 1, VectorFloat(1, -1.) };
 }
 
 VectorVectorDouble HDF5format::getDataVVDouble() const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::Exception::dontPrint();
@@ -594,6 +640,8 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
     EXCEPTION_PRINT_ERROR(error);
     return { 1, VectorDouble(1, -1.) };
   }
+#endif
+  return { 1, VectorDouble(1, -1.) };
 }
 
 /**
@@ -604,6 +652,7 @@ VectorVectorDouble HDF5format::getDataVVDouble() const
  */
 VectorDouble HDF5format::getDataDoublePartial(int myrank) const
 {
+#ifdef _USE_HDF5
   try
   {
     H5::DataSpace dataspace = _dataset.getSpace();
@@ -642,12 +691,17 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
   {
     messerr("---> Problem in getDataDoublePartial. Operation aborted");
     EXCEPTION_PRINT_ERROR(error);
-    return { VectorDouble(1, -1.) };
+    return { VectorDouble(1., -1.) };
   }
+#else
+  DECLARE_UNUSED(myrank);
+#endif
+  return { VectorDouble(1., -1.) };
 }
 
 int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
 {
+#ifdef _USE_HDF5
   H5::Exception::dontPrint();
   size_t npts = data.size(); // size of our data
   auto *a = new double[npts]; // convert to an array
@@ -696,8 +750,14 @@ int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)
     EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
+#else
+  DECLARE_UNUSED(myrank);
+  DECLARE_UNUSED(data);
+#endif
+  return 1;
 }
 
+#ifdef _USE_HDF5
 herr_t
 file_info(hid_t loc_id, const char *name, const H5L_info_t* /*linfo*/, void* /*opdata*/)
 {
@@ -707,9 +767,10 @@ file_info(hid_t loc_id, const char *name, const H5L_info_t* /*linfo*/, void* /*o
     H5Gclose(group);
     return 0;
 }
-
+#endif
 int HDF5format::displayNames() const
 {
+#ifdef _USE_HDF5
   try
   {
     mestitle(2,"List of Data Sets contained in the File");
@@ -724,15 +785,21 @@ int HDF5format::displayNames() const
     EXCEPTION_PRINT_ERROR(error);
     return 1;
   }
+#endif
+  return 1;
 }
 
 int HDF5format::_getNDim() const
 {
+#ifdef _USE_HDF5
   H5::DataSpace dataspace = _dataset.getSpace();
   int rank = dataspace.getSimpleExtentNdims();
   return rank;
+#endif
+  return 0;
 }
 
+#ifdef _USE_HDF5
 hsize_t* HDF5format::_getDims() const
 {
   H5::DataSpace dataspace = _dataset.getSpace();
@@ -858,18 +925,24 @@ void HDF5format::_readDouble(double *data,
   else
     messageAbort("Did not find data type");
 }
+#endif
 
 int HDF5format::_checkClass(int value) const
 {
+#ifdef _USE_HDF5
   H5T_class_t classt = _datatype.getClass();
   if (classt != value)
   {
     messerr("%s has not the requested class %d (expected %d).",_varname.c_str(), classt, value);
     return 1;
   }
+#else
+  DECLARE_UNUSED(value);
+#endif
   return 0;
 }
 
+#ifdef _USE_HDF5
 void HDF5format::_writeDouble(double *data,
                               const H5::DataSpace& memspace,
                               const H5::DataSpace& dataspace) const
@@ -890,9 +963,11 @@ void HDF5format::_writeDouble(double *data,
   else
     messageAbort("Did not find data type");
 }
+#endif
 
 void HDF5format::_writeAll(const char* type, void *a)
 {
+#ifdef _USE_HDF5
   try
   {
     if (*type == *((char*)typeid(int).name()))
@@ -911,4 +986,8 @@ void HDF5format::_writeAll(const char* type, void *a)
     EXCEPTION_PRINT_ERROR(error);
     return;
   }
+#else
+  DECLARE_UNUSED(type);
+  DECLARE_UNUSED(a);
+#endif
 }

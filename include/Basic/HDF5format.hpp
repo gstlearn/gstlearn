@@ -14,13 +14,16 @@
 #include "Basic/String.hpp"
 #include "Basic/AStringable.hpp"
 
-#include <H5Cpp.h>
 #include <typeinfo>
+
+#ifdef _USE_HDF5
+#include <H5Cpp.h>
 
 #if H5_VERSION_GE(1,8,20)
 #define EXCEPTION_PRINT_ERROR(e) e.printErrorStack();
 #else
 #define EXCEPTION_PRINT_ERROR(e) e.printError();
+#endif
 #endif
 
 class GSTLEARN_EXPORT HDF5format
@@ -32,6 +35,7 @@ public:
   virtual ~HDF5format();
 
 public:
+#ifdef _USE_HDF5
   void* readRegular(int flag_compress,
                     hsize_t *start,
                     hsize_t *stride,
@@ -43,6 +47,8 @@ public:
                    hsize_t *count,
                    hsize_t *block,
                    void *wdata);
+#endif
+
   int deleteFile();
 
   void setFileName(const String& filename) { _filename = filename; }
@@ -53,6 +59,8 @@ public:
   void openFile(const String& filename = String());
   void openNewFile(const String& filename);
   void openDataSet(const String& varname = String());
+
+#ifdef _USE_HDF5
   void openNewDataSetInt(const String& varname,
                          int ndim,
                          hsize_t *dims);
@@ -62,6 +70,7 @@ public:
   void openNewDataSetDouble(const String& varname,
                             int ndim,
                             hsize_t *dims);
+#endif
 
   void closeFile();
   void closeDataSet();
@@ -148,6 +157,8 @@ public:
 
 private:
   int _getNDim() const;
+
+#ifdef _USE_HDF5
   hsize_t* _getDims() const;
   void _getOrderSize(H5T_order_t* order, size_t* size, bool* big_endian) const;
   void* _allocArray(const H5::DataType& myh5type, int ndim, hsize_t *dims);
@@ -163,18 +174,21 @@ private:
   void _writeDouble(double *data,
                     const H5::DataSpace& memspace = H5::DataSpace::ALL,
                     const H5::DataSpace& dataspace = H5::DataSpace::ALL) const;
+#endif
+
   int _checkClass(int value) const;
   void _writeAll(const char* myh5type, void* a);
 
 public:
   String        _filename;
   String        _varname;
+#ifdef _USE_HDF5
   H5::H5File    _datafile;
   H5::DataSet   _dataset;
   H5::DataType  _datatype;
   H5::DataSpace _dataspace;
+#endif
 };
-
 
 /**
  * Numeric implementation of our write data function
@@ -184,16 +198,19 @@ public:
 template<typename T>
 void HDF5format::writeData(const T &data)
 {
+#ifdef _USE_HDF5
   H5::Exception::dontPrint();
   char* myh5type = (char*) (typeid(T).name());
   auto *a = new T { data };
   _writeAll(myh5type, (void*) a);
   delete a;
+#endif
 }
 
 template<typename T>
 void HDF5format::writeData(const std::vector<T> &data)
 {
+#ifdef _USE_HDF5
   H5::Exception::dontPrint();
   size_t npts = data.size();
   auto *a = new T[npts];
@@ -202,11 +219,13 @@ void HDF5format::writeData(const std::vector<T> &data)
     a[i] = data[i];
   _writeAll(myh5type, (void*) a);
   delete[] a;
+#endif
  }
 
 template<typename T>
 void HDF5format::writeData(const std::vector<std::vector<T> > &data)
 {
+#ifdef _USE_HDF5
   H5::Exception::dontPrint();
   size_t dim1 = data.size();
   size_t dim2 = data[0].size();
@@ -221,4 +240,6 @@ void HDF5format::writeData(const std::vector<std::vector<T> > &data)
   _writeAll(myh5type, (void* ) a);
   delete[] md;
   delete a;
+#endif
 }
+
