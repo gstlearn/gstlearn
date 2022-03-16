@@ -17,7 +17,7 @@ if (MSVC)
   add_compile_options(/W4) 
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wextra)
+  add_compile_options(-Wall -Wextra)
 endif()
 
 # C++ code location
