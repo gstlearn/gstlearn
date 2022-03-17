@@ -279,8 +279,9 @@ bool ut_vector_constant(const VectorDouble& vect, double refval)
 bool ut_ivector_constant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
+  if (IFFFF(refval)) refval = vect[0];
   for (int i = 1; i < (int) vect.size(); i++)
-    if (vect[i] != vect[0]) return false;
+    if (vect[i] != refval) return false;
   return true;
 }
 
@@ -288,7 +289,7 @@ bool ut_vector_same(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (abs(v1.at(i) - v2.at(i)) > eps) return false;
+    if (ABS(v1.at(i) - v2.at(i)) > eps) return false;
   return true;
 }
 
@@ -296,7 +297,7 @@ bool ut_ivector_same(const VectorInt &v1, const VectorInt &v2)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (abs(v1.at(i) - v2.at(i)) > 0) return false;
+    if (ABS(v1.at(i) - v2.at(i)) > 0) return false;
   return true;
 }
 

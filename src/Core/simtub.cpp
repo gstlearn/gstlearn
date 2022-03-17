@@ -361,7 +361,6 @@ static int st_check_simtub_environment(Db *dbin,
                                        Model *model,
                                        ANeighParam *neighparam)
 {
-  int error = 1;
   int nvar = 0;
   int nfex = 0;
   bool flag_cond = (dbin != nullptr);

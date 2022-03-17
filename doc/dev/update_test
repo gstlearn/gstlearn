@@ -1,4 +1,8 @@
-t c# Reference directory
+# This script is meant to update the reference (ref) starting from the Resulting test file (out)
+#
+#!/bin/csh -f
+
+# Reference directory
 set command_location = `dirname $0`
 set DIR = $command_location/../..
 

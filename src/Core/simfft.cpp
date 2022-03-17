@@ -807,7 +807,6 @@ static int st_simfft_alloc(DbGrid *db, Model *model, double percent, ST_FFT *sim
  *****************************************************************************/
 static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
 {
-  int error = 1;
   int ndim = simu->ndim;
 
   /**************************************************************/
@@ -864,12 +863,7 @@ static int st_check_simfft_environment(Db *db, ST_FFT *simu, Model *model)
   if (model != nullptr)
     model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/

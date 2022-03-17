@@ -12,12 +12,14 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
 
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 /*! \cond */
 #define TRIANGLES(itri,j) (triangles[(itri) * 3 + (j)] - 1)
@@ -294,10 +296,10 @@ Vercoloc* vercoloc_manage(int verbose,
     if (coor_in == nullptr) goto label_end;
     coor_out = db_sample_alloc(dbout, ELoc::X);
     if (coor_out == nullptr) goto label_end;
-    VectorDouble mini(ndim);
-    VectorDouble maxi(ndim);
+    mini.resize(ndim);
+    maxi.resize(ndim);
     db_extension(dbin, mini, maxi);
-    VectorDouble extend = ut_vector_subtract(mini, maxi);
+    extend = ut_vector_subtract(mini, maxi);
 
     /* Look for duplicates */
 
@@ -452,9 +454,7 @@ Vercoloc* vercoloc_manage(int verbose,
  ** \param[in]  dupl_out   Array of duplicate indices from Output Db
  **
  *****************************************************************************/
-Vercoloc* vercoloc_from_external(int ndupl,
-                                                 int *dupl_in,
-                                                 int *dupl_out)
+Vercoloc* vercoloc_from_external(int ndupl, int *dupl_in, int *dupl_out)
 {
   Vercoloc *vercoloc;
 
@@ -486,13 +486,12 @@ Vercoloc* vercoloc_from_external(int ndupl,
  **  Free the triangulateio structure
  **
  ** \param[in]  t           Pointer to the triangulateio structure to be freed
- ** \param[in]  mode        1 for in; 0 for out or vorout
  **
  ** \remark  When mode==1, the pointers which correspond to copies are
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-void meshes_2D_free(triangulateio *t, int mode)
+void meshes_2D_free(triangulateio *t, int /*mode*/)
 {
   if (t == (triangulateio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -1884,14 +1883,10 @@ int meshes_2D_write(const char *file_name,
  ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
  **
  *****************************************************************************/
-void mesh_stats(int ndim,
-                                int ncorner,
-                                int nmesh,
-                                int *meshes,
-                                double *points)
+void mesh_stats(int ndim, int ncorner, int nmesh, int *meshes, double *points)
 {
   double *mini, *maxi, value;
-  int i, flag_print, imin, imax;
+  int flag_print, imin, imax;
 
   /* Core allocation */
 
@@ -1911,7 +1906,7 @@ void mesh_stats(int ndim,
   {
     for (int icorn = 0; icorn < ncorner; icorn++)
     {
-      i = MESHES(imesh, icorn);
+      int i = MESHES(imesh, icorn);
       if (i < imin) imin = i;
       if (i > imax) imax = i;
       for (int idim = 0; idim < ndim; idim++)
@@ -3048,10 +3043,10 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
  **
  *****************************************************************************/
 void meshes_3D_load_vertices(tetgenio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg)
+                             const char *name,
+                             int *ntab_arg,
+                             int *natt_arg,
+                             void **tab_arg)
 {
   double *rtab, *rfrom;
   int *itab, *ifrom, ntab, natt, type;
@@ -3193,13 +3188,12 @@ int meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
  **  Free the segmentio structure
  **
  ** \param[in]  t           Pointer to the segmentio structure to be freed
- ** \param[in]  mode        1 for in; 0 for out or vorout
  **
  ** \remark  When mode==1, the pointers which correspond to copies are
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-void meshes_1D_free(segmentio *t, int mode)
+void meshes_1D_free(segmentio *t, int /*mode*/)
 {
   if (t == (segmentio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -3247,10 +3241,7 @@ void meshes_1D_init(segmentio *t)
  ** \remarks Only the first coordinate is considered
  **
  *****************************************************************************/
-int meshes_1D_from_db(Db *db,
-                                      int nb_mask,
-                                      int *is_mask,
-                                      segmentio *t)
+int meshes_1D_from_db(Db *db, int nb_mask, int *is_mask, segmentio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nold;
 

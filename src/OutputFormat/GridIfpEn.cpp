@@ -52,7 +52,7 @@ int GridIfpEn::writeInFile()
 
   // Preliminary calculations
 
-  int ncol = _cols.size();
+  int ncol = (int) _cols.size();
   int ndim = _dbgrid->getNDim();
   VectorInt nx = _dbgrid->getNXs();
   VectorDouble angles = _dbgrid->getAngles();

@@ -2934,124 +2934,6 @@ static void st_res_nbgh_print(int status, double *tab)
 
 /****************************************************************************/
 /*!
- **  Check the consistency of the Colocation specification
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin          Input Db structure
- ** \param[in]  dbout         Output Db structure
- ** \param[in]  rank_colcok   Array of ranks of colocated variables
- **
- ** \remarks The array 'rank_colcok' (if present) must be dimensioned
- ** \remarks to the number of variables in Dbin.
- ** \remarks Each element gives the rank of the colocated variable within Dbout
- ** \remarks or -1 if not colocated
- ** \remarks If the array 'rank_colcok' is absent, colocation option is OFF.
- **
- ** \remarks In input, the numbering in ; rank_colcok' starts from 1
- ** \remarks In output, the numbering starts from 0
- **
- ** \remarks FLAG_COLK is defined in this function
- **
- *****************************************************************************/
-static int st_check_colcok(Db *dbin, Db *dbout, int *rank_colcok)
-{
-  int ivar, jvar;
-
-  FLAG_COLK = 0;
-  if (rank_colcok == nullptr) return (0);
-
-  /* Loop on the ranks of the colocated variables */
-
-  for (ivar = 0; ivar < dbin->getVariableNumber(); ivar++)
-  {
-    jvar = rank_colcok[ivar];
-    if (IFFFF(jvar)) jvar = 0;
-    if (jvar > dbout->getColumnNumber())
-    {
-      messerr("Error in the Colocation array:");
-      messerr("Input variable (#%d): rank of the colocated variable is %d",
-              ivar + 1, jvar);
-      messerr("But the Output file only contains %d attributes(s)",
-              dbout->getColumnNumber());
-      return (1);
-    }
-    rank_colcok[ivar] = jvar - 1;
-  }
-
-  // Assign the array of ranks as a global variable
-  RANK_COLCOK = rank_colcok;
-  FLAG_COLK = 1;
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Save the (Co-) Kriging weights using the keypair mechanism
- **
- ** \param[in]  status   Kriging error status
- ** \param[in]  iech_out Rank of the output sample
- ** \param[in]  nvar     Number of variables
- ** \param[in]  nbgh_ranks Vector of selected samples
- ** \param[in]  nred     Reduced number of equations
- ** \param[in]  flag     Flag array
- ** \param[in]  wgt      Array of Kriging weights
- **
- *****************************************************************************/
-static void st_save_keypair_weights(int status,
-                                    int iech_out,
-                                    int nvar,
-                                    const VectorInt& nbgh_ranks,
-                                    int nred,
-                                    int *flag,
-                                    double *wgt)
-{
-  double wgtloc, values[5];
-  int lec, flag_value, iwgt, cumflag;
-
-  /* Initializations */
-
-  int nech = (int) nbgh_ranks.size();
-  if (status != 0) return;
-  values[0] = iech_out;
-
-  /* Loop on the output variables */
-
-  for (int jvar = lec = cumflag = 0; jvar < nvar; jvar++)
-  {
-    values[1] = jvar;
-
-    /* Loop on the input samples */
-
-    for (int iech = 0; iech < nech; iech++, lec++)
-    {
-      flag_value = (flag != nullptr) ? flag[lec] : 1;
-      if (flag_value)
-      {
-        values[2] = nbgh_ranks[iech];
-
-        /* Loop on the input variables */
-
-        for (int ivar = 0; ivar < nvar; ivar++)
-        {
-          iwgt = nred * ivar + cumflag;
-          wgtloc = (wgt != nullptr && flag_value) ? wgt[iwgt] : TEST;
-          if (!FFFF(wgtloc))
-          {
-            values[3] = ivar;
-            values[4] = wgtloc;
-            app_keypair("KrigingWeights", 1, 1, 5, values);
-          }
-        }
-        if (flag_value) cumflag++;
-      }
-    }
-  }
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Standard Kriging
  **
  ** \return  Error return code
@@ -4067,7 +3949,6 @@ static int st_krigsim_new(const char *strloc,
   // Initializations
 
   int iptr_est  = -1;
-  int nvar = model->getVariableNumber();
   int nfeq = model->getDriftNumber();
 
   /* Add the attributes for storing the results */
@@ -4119,8 +4000,6 @@ int _krigsim(const char *strloc,
              int flag_dgm,
              double rval)
 {
-  double value;
-
   int test = (int) get_keypone("krigsim", 0);
   if (test == 0)
     return st_krigsim_old(strloc, dbin, dbout, model, neighparam, dmean, dcov, icase, nbsimu, flag_dgm, rval);
@@ -4273,8 +4152,6 @@ Global_Res global_kriging(Db *dbin,
 
   // Initializations
 
-  int iptr_est  = -1;
-  int iptr_std  = -1;
   int ndim = dbin->getNDim();
   int nvar = model->getVariableNumber();
   neighU = NeighUnique(ndim, false);

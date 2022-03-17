@@ -9,8 +9,10 @@ VariableCategorical::VariableCategorical(const VariableCategorical& ref):AVariab
 }
 
 
-VariableCategorical::VariableCategorical(const String& name, const Dictionary& dico)
-: AVariableTemplate(name), _dico(dico)
+VariableCategorical::VariableCategorical(const String& name,
+                                         const Dictionary& dico)
+    : AVariableTemplate(name),
+      _dico(dico)
 {
 }
 

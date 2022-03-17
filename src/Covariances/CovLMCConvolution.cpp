@@ -30,8 +30,8 @@ CovLMCConvolution::CovLMCConvolution(const EConvType& conv_type,
     : CovLMC(space),
       _convType(conv_type),
       _convDir(conv_dir),
-      _convRange(conv_range),
       _convDiscNumber(conv_ndisc),
+      _convRange(conv_range),
       _convNumber(0),
       _convIncr(),
       _convWeight()
@@ -43,8 +43,8 @@ CovLMCConvolution::CovLMCConvolution(const CovLMCConvolution &r)
     : CovLMC(r),
       _convType(r._convType),
       _convDir(r._convDir),
-      _convRange(r._convRange),
       _convDiscNumber(r._convDiscNumber),
+      _convRange(r._convRange),
       _convNumber(r._convNumber),
       _convIncr(r._convIncr),
       _convWeight(r._convWeight)
@@ -58,8 +58,8 @@ CovLMCConvolution& CovLMCConvolution::operator=(const CovLMCConvolution &r)
     CovLMC::operator=(r);
     _convType = r._convType;
     _convDir = r._convDir;
-    _convRange = r._convRange;
     _convDiscNumber = r._convDiscNumber;
+    _convRange = r._convRange;
     _convNumber = r._convNumber;
     _convIncr = r._convIncr;
     _convWeight = r._convWeight;

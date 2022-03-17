@@ -225,7 +225,7 @@ bool AnamDiscrete::_isClassValid(int iclass) const
   return true;
 }
 
-int AnamDiscrete::_serialize(std::ostream& os, bool verbose) const
+int AnamDiscrete::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = _recordWrite<int>(os, "Number of Cuttofs", getNCut());
   ret = ret && _recordWrite<int>(os, "Number of classes", getNClass());
@@ -236,7 +236,7 @@ int AnamDiscrete::_serialize(std::ostream& os, bool verbose) const
   return ret ? 0 : 1;
 }
 
-int AnamDiscrete::_deserialize(std::istream& is, bool verbose)
+int AnamDiscrete::_deserialize(std::istream& is, bool /*verbose*/)
 {
   VectorDouble zCut, stats;
   int nCut = 0;
@@ -271,7 +271,7 @@ void AnamDiscrete::setNCut(int ncut)
 
 void AnamDiscrete::setZCut(const VectorDouble& zcut)
 {
-  _nCut = zcut.size();
+  _nCut = (int) zcut.size();
   _resize();
   _zCut = zcut;
 };

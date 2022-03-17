@@ -2318,7 +2318,6 @@ static void st_estimate_neigh_print(ST_Seismic_Neigh *ngh, int ix0, int iz0)
  ** \param[in]  nbench    Vertical Radius of the neighborhood (center excluded)
  ** \param[in]  nv2max    Maximum number of traces of second variable on each
  **                       side of the target trace
- ** \param[in]  npres     Number of informed traces
  ** \param[in]  presence  Array giving the number of valid samples per trace
  **
  ** \param[out]  ngh      Current ST_Seismic_Neigh structure
@@ -2332,7 +2331,7 @@ static int st_estimate_neigh_create(DbGrid *db,
                                     int iz0,
                                     int nbench,
                                     int nv2max,
-                                    int npres[2],
+                                    int /*npres*/[2],
                                     int *presence[2],
                                     ST_Seismic_Neigh *ngh)
 {

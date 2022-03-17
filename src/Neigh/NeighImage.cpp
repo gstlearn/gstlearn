@@ -85,7 +85,7 @@ int NeighImage::_deserialize(std::istream& is, bool verbose)
   bool ret = _recordRead<int>(is, "Skipping factor", _skip);
   for (int idim = 0; idim < getNDim(); idim++)
   {
-    double loc_radius;
+    double loc_radius = 0.;
     ret = ret && _recordRead<double>(is, "Image NeighImageborhood Radius", loc_radius);
     _imageRadius[idim] = static_cast<int> (loc_radius);
   }

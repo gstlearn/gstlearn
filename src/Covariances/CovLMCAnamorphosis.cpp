@@ -36,8 +36,8 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const EAnam& anam_type,
                                        const ASpace* space)
     : CovLMC(space),
       _anamType(),
-      _anamNClass(0),
       _anamIClass(0),
+      _anamNClass(0),
       _anamPointBlock(0),
       _anamStrCount(),
       _anamMeans(),
@@ -49,8 +49,8 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const EAnam& anam_type,
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
     : CovLMC(r),
       _anamType(r._anamType),
-      _anamNClass(r._anamNClass),
       _anamIClass(r._anamIClass),
+      _anamNClass(r._anamNClass),
       _anamPointBlock(r._anamPointBlock),
       _anamStrCount(r._anamStrCount),
       _anamMeans(r._anamMeans),
@@ -64,8 +64,8 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   {
     CovLMC::operator=(r);
     _anamType = r._anamType;
-    _anamNClass = r._anamNClass;
     _anamIClass = r._anamIClass;
+    _anamNClass = r._anamNClass;
     _anamPointBlock = r._anamPointBlock;
     _anamStrCount = r._anamStrCount;
     _anamMeans = r._anamMeans;
@@ -173,7 +173,6 @@ double CovLMCAnamorphosis::eval(int ivar,
   // The calculation flag 'as.Vario' must be treated here rather than relying on calculation
   // performed internally in 'eval' function
   CovCalcMode modeloc(mode);
-  bool asVario = mode.getAsVario(); // TODO: Pourquoi faire (voir ligne suivante)
   modeloc.setAsVario(false);
 
   int anam_var = getAnamPointBlock();

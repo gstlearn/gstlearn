@@ -2,6 +2,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
+#include "geoslib_define.h"
 
 #include <iostream>
 #include <string>

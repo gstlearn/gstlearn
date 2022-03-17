@@ -183,7 +183,7 @@ int KrigingSystem::_getNVarCL() const
   if (_matCL.empty())
     return _getNVar();
   else
-    return _matCL.size();
+    return (int) _matCL.size();
 }
 
 int KrigingSystem::_getNbfl() const
@@ -201,7 +201,7 @@ int KrigingSystem::_getNFeq() const
 int KrigingSystem::getNech() const
 {
   if (_dbin == nullptr) return 0;
-  return _nbgh.size();
+  return (int) _nbgh.size();
 }
 
 int KrigingSystem::getNDim() const
@@ -422,7 +422,7 @@ void KrigingSystem::_flagDefine()
   for (int iech = 0; iech < nech; iech++)
   {
     bool valid = true;
-    for (int idim = 0; idim < _dbin->getNDim(); idim++)
+    for (int idim = 0; idim < ndim; idim++)
       if (FFFF(_getIdim(_nbgh[iech], idim))) valid = false;
     if (! valid)
       for (int ivar = 0; ivar < nvar; ivar++)
@@ -524,10 +524,10 @@ void KrigingSystem::_covtabCalcul(bool flag_init,
   if (_model->isNoStat())
   {
     const ANoStat *nostat = _model->getNoStat();
-    int jech1;
-    int jech2;
-    int icas1;
-    int icas2;
+    int jech1 = 0;
+    int jech2 = 0;
+    int icas1 = 0;
+    int icas2 = 0;
 
     if (iech1 >= 0)
     {
@@ -850,7 +850,6 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
   int nbfl   = _getNbfl();
   int nfeq   = _getNFeq();
   int ndim   = getNDim();
-  int neq    = getNeq();
   int ndisc  = _getNDisc();
   VectorDouble d1(ndim);
 
@@ -1383,9 +1382,6 @@ void KrigingSystem::_estimateCalculSmoothImage(int status)
 
   int ndim   = getNDim();
   int nech   = getNech();
-  int nfeq   = _getNFeq();
-  int neq    = getNeq();
-  int nvar   = _getNVar();
   double r2  = _smoothRange * _smoothRange;
   const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
 
@@ -2073,17 +2069,34 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Check the consistency of the Colocation specification
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  rank_colcok   Array of ranks of colocated variables
+ **
+ ** \remarks The array 'rank_colcok' (if present) must be dimensioned
+ ** \remarks to the number of variables in Dbin.
+ ** \remarks Each element gives the rank of the colocated variable within Dbout
+ ** \remarks or -1 if not colocated
+ ** \remarks If the array 'rank_colcok' is absent, colocation option is OFF.
+ **
+ ** \remarks In input, the numbering in ; rank_colcok' starts from 1
+ ** \remarks In output, the numbering starts from 0
+ **
+ *****************************************************************************/
 int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 {
   if (rank_colcok.empty()) return 0;
 
   _rankColCok = rank_colcok;
-  int ivar, jvar;
   int nvar = _getNVar();
 
   /* Loop on the ranks of the colocated variables */
 
-  for (int ivar = 0; ivar < _getNVar(); ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
   {
     int jvar = rank_colcok[ivar];
     if (IFFFF(jvar)) jvar = 0;
@@ -2805,7 +2818,6 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
   if (!is_grid(_dbout)) return 1;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
   int ndim = getNDim();
-  int nvar = _getNVar();
   double seuil = 1. / neighI->getSkip();
 
   /* Core allocation */
@@ -2855,8 +2867,6 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
   _dbin  = dbaux;
   _dbout = dbaux;
   int error = 1;
-  int nvar  = _getNVar();
-  int nfeq  = _getNFeq();
   int ndim  = getNDim();
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
@@ -2998,7 +3008,6 @@ VectorDouble KrigingSystem::getRHSC(int ivar) const
 int KrigingSystem::_bayesPreCalculations()
 {
   _iechOut = _dbin->getSampleNumber() / 2;
-  int nech = getNech();
   int nfeq = _getNFeq();
   int nvar = _getNVar();
 

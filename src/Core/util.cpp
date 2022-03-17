@@ -761,10 +761,7 @@ void ut_stats_mima(int nech,
  ** \param[in]  sel     Array containing the Selection or NULL
  **
  ****************************************************************************/
-void ut_stats_mima_print(const char *title,
-                                         int nech,
-                                         double *tab,
-                                         double *sel)
+void ut_stats_mima_print(const char *title, int nech, double *tab, double *sel)
 {
   int nvalid;
   double mini, maxi;

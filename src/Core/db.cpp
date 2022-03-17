@@ -4254,7 +4254,6 @@ void db_extension_rotated(Db *db,
                           VectorDouble& mini,
                           VectorDouble& maxi)
 {
-  int error = 1;
   int ndim = db->getNDim();
   VectorDouble coor(ndim);
   VectorDouble minrot(ndim);

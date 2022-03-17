@@ -1142,7 +1142,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 
   // Initialize the arrays
 
-  VectorDouble srot(2), center[3], axe1(3), axe2(3), vel(3), matv(ncorner);
+  VectorDouble srot(2), axe1(3), axe2(3), vel(3), matv(ncorner);
   MatrixSquareSymmetric hh(ndim);
   MatrixSquareGeneral matu(ncorner);
   MatrixSquareGeneral mat(ncorner);

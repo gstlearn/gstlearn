@@ -257,7 +257,7 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   return retfit;
 }
 
-int AnamContinuous::_serialize(std::ostream& os, bool verbose) const
+int AnamContinuous::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = _recordWrite<double>(os,"", getAzmin());
   ret = ret && _recordWrite<double>(os, "Absolute Values for Z", getAzmax());
@@ -273,12 +273,20 @@ int AnamContinuous::_serialize(std::ostream& os, bool verbose) const
   return ret ? 0 : 1;
 }
 
-int AnamContinuous::_deserialize(std::istream& is, bool verbose)
+int AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax, mean, variance;
-  mean = variance = TEST;
+  double azmin = 0.;
+  double azmax = 0.;
+  double aymin = 0.;
+  double aymax = 0.;
+  double pzmin = 0.;
+  double pzmax = 0.;
+  double pymin = 0.;
+  double pymax = 0;
+  double mean = TEST;
+  double variance = TEST;
 
-  bool ret = _recordRead<double>(is, "Minimum absolute Z-value", azmin);
+  bool   ret = _recordRead<double>(is, "Minimum absolute Z-value", azmin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Z-value", azmax);
   ret = ret && _recordRead<double>(is, "Minimum absolute Y-value", aymin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Y-value", aymax);
@@ -301,6 +309,5 @@ int AnamContinuous::_deserialize(std::istream& is, bool verbose)
   setMean(mean);
   setVariance(variance);
 
-  label_end:
   return 0;
 }

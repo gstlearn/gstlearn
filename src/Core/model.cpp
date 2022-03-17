@@ -1990,7 +1990,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
 
       /* Loop on the variables */
 
-      int ijvar = 0.;
+      int ijvar = 0;
       for (int ivar = 0; ivar < vario->getVariableNumber(); ivar++)
         for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
         {

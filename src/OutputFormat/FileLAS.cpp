@@ -84,7 +84,6 @@ Db* FileLAS::readFromFile()
   char string[1000], *lcur, sep_blank[2], sep_point[2], *token;
   double value;
   static int s_length = 1000;
-  static int sizemax = 10;
   VectorString names = { "X", "Y", "CODE" };
 
   /* Open the file */
@@ -98,8 +97,7 @@ Db* FileLAS::readFromFile()
   sep_blank[1] = '\0';
   sep_point[0] = '.';
   sep_point[1] = '\0';
-  int nechout = 0;
-  int nvar = names.size();
+  int nvar = (int) names.size();
 
   // Loop on the lines
 
@@ -148,7 +146,6 @@ Db* FileLAS::readFromFile()
 
   VectorDouble tab;
   int nech = 0;
-  int ecr = 0;
   while (1)
   {
     if (_readNext(s_length, 1, &numline, string)) break;

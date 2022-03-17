@@ -763,9 +763,22 @@ int Model::fit(Vario *vario,
 
 int Model::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  double field, range, value, param;
-  int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
-  VectorDouble aniso_ranges, aniso_rotmat;
+  int ndim = 0;
+  int nvar = 0;
+  int ncova = 0;
+  int nbfl = 0;
+  int type = 0;
+  int flag_aniso = 0;
+  int flag_rotation = 0;
+
+  double field = 0.;
+  double range = 0.;
+  double param = 0.;
+  double mean = 0.;
+  double value = 0.;
+
+  VectorDouble aniso_ranges;
+  VectorDouble aniso_rotmat;
 
   // Delete previous Model contents (if any)
   _clear();
@@ -852,7 +865,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   if (nbfl <= 0) for (int ivar = 0; ivar < nvar; ivar++)
   {
-    double mean;
+    double mean = 0.;
     ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
     setMean(ivar, mean);
   }

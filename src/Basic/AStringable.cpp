@@ -124,7 +124,7 @@ AStringable::~AStringable()
 {
 }
 
-String AStringable::toString(const AStringFormat* strfmt) const
+String AStringable::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << "toString Not yet implemented for " << typeid(*this).name() << std::endl;
@@ -365,7 +365,7 @@ void mestitle(int level, const char *format, ...)
   va_start(ap, format);
   (void) vsprintf(STRING, format, ap);
   va_end(ap);
-  int size = strlen(STRING);
+  int size = (int) strlen(STRING);
 
   (void) gslStrcat(STRING, "\n");
   message_extern(STRING);
@@ -446,7 +446,7 @@ String toTitle(int level, const char* format, ...)
 
   /* Underline the string */
 
-  int size = strlen(STRING);
+  int size = (int) strlen(STRING);
   (void) gslStrcpy(STRING, "");
   for (int i = 0; i < size; i++)
   {

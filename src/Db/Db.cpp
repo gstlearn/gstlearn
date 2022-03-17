@@ -641,7 +641,7 @@ void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
  * @param flag_rotate Use the rotation (only for Grid)
  * @return
  */
-double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
+double Db::getCoordinate(int iech, int idim, bool /*flag_rotate*/) const
 {
   if (idim >= getNDim()) return TEST;
   return getFromLocator(ELoc::X, iech, idim);
@@ -1958,6 +1958,7 @@ int Db::getActiveSampleRank(int iech) const
     if (iech == jech) return i;
     jech++;
   }
+  return -1;
 }
 
 /**

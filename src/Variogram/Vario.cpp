@@ -1297,9 +1297,23 @@ bool Vario::_isAddressValid(int idir, int i) const
 
 int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
-  double dpas, tolang, scale, tolcode, toldis;
-  VectorDouble codir, grloc, vars;
+  int flag_calcul = 0;
+  int ndim = 0;
+  int nvar = 0;
+  int ndir = 0;
+  int npas = 0;
+  int opt_code = 0;
+  int flag_regular = 0;
+
+  double dpas = 0.;
+  double tolang = 0.;
+  double scale = 0.;
+  double tolcode = 0.;
+  double toldis = 0.;
+
+  VectorDouble codir;
+  VectorDouble grloc;
+  VectorDouble vars;
   VectorInt grincr;
 
   /* Create the Vario structure */
@@ -1364,7 +1378,9 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
       _directionResize(idir);
       for (int i = 0; i < getDirSize(idir); i++)
       {
-        double sw, hh, gg;
+        double sw = 0.;
+        double hh = 0.;
+        double gg = 0.;
         ret = ret && _recordRead<double>(is, "Experimental Variogram Weight", sw);
         setSwByIndex(idir, i, sw);
         ret = ret && _recordRead<double>(is, "Experimental Variogram Distance", hh);
