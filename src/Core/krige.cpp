@@ -823,14 +823,12 @@ static int st_check_environment(int flag_in,
                                 Model *model,
                                 ANeighParam *neighparam)
 {
-  double *dbin_mini, *dbin_maxi, *dbout_mini, *dbout_maxi;
   int error, ndim, nvar, nfex;
 
   /* Initializations */
 
   error = 1;
   nvar = ndim = nfex = 0;
-  dbin_mini = dbin_maxi = dbout_mini = dbout_maxi = nullptr;
 
   /*********************************/
   /* Compatibility between two Dbs */
@@ -3368,7 +3366,7 @@ static int bayes_precalc(Model *model,
                          double *rmean,
                          double *rcov)
 {
-  int nfeq,error,status,nech,nred,neq,shift,ib,jb,il,jl,flag_fix;
+  int nfeq,error,status,nred,neq,shift,ib,jb,il,jl,flag_fix;
   double *ff,*smu,*sigma,*vars;
   VectorInt nbgh_ranks;
 
@@ -3399,7 +3397,6 @@ static int bayes_precalc(Model *model,
   /* Prepare the Kriging matrix (without correction) */
 
   nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-  nech = (int) nbgh_ranks.size();
   status = nbgh_ranks.empty();
 
   FLAG_BAYES = 0;
@@ -3661,7 +3658,7 @@ int test_neigh(Db *dbin,
                ANeighParam *neighparam,
                const NamingConvention &namconv)
 {
-  int error, status, nech, ntab, iext;
+  int error, status, ntab, iext;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
 
@@ -3706,7 +3703,6 @@ int test_neigh(Db *dbin,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    nech = (int) nbgh_ranks.size();
     status = nbgh_ranks.empty();
 
     /* Retrieve the neighborhood parameters */
@@ -8680,7 +8676,7 @@ static int st_declustering_3(Db *db,
                              VectorInt ndisc,
                              int verbose)
 {
-  int error, status, nech, nred, neq, nvar, ecr;
+  int error, status, nred, neq, nvar, ecr;
   double ldum;
   NeighWork nbghw;
   VectorInt nbgh_ranks;
@@ -8715,7 +8711,6 @@ static int st_declustering_3(Db *db,
     /* Select the Neighborhood */
 
     nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-    nech = (int) nbgh_ranks.size();
     status = nbgh_ranks.empty();
     if (status) continue;
 
@@ -9463,7 +9458,7 @@ int inhomogeneous_kriging(Db *dbdat,
                           Model *model_dat,
                           Model *model_src)
 {
-  int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl, status, nech;
+  int error, np, ip, ns, ng, nvar, neq, nred, nfeq, nbfl;
   double *covss, *distps, *distgs, *covpp, *covgp, *covgg, *prodps, *prodgs;
   double *data, *lambda, *driftp, *driftg, *ymat, *zmat, *mu, *maux, *rhs;
   double estim, stdev, auxval;
@@ -9633,8 +9628,6 @@ int inhomogeneous_kriging(Db *dbdat,
     // Neighborhood search
 
     nbgh_ranks = nbghw.select(DBOUT, IECH_OUT);
-    nech = (int) nbgh_ranks.size();
-    status = nbgh_ranks.empty();
     rhs = &COVGP(IECH_OUT, 0);
 
     /* Optional printout of the R.H.S */

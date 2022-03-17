@@ -774,7 +774,6 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
   double field = 0.;
   double range = 0.;
   double param = 0.;
-  double mean = 0.;
   double value = 0.;
 
   VectorDouble aniso_ranges;
