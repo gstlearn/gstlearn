@@ -122,3 +122,14 @@ if(APPLE)
 endif()
 
 
+# Copy each r scripts to package *destination* folder for each configuration
+file(GLOB MODULES ${CMAKE_CURRENT_SOURCE_DIR}/*.r)
+foreach(MODULE ${MODULES})
+  cmake_path(GET MODULE FILENAME MODULE_NAME)
+  set(MODULE_NAME ${R_PACKAGE_NAME}/${MODULE_NAME})
+  file(GENERATE
+    OUTPUT ${R_PACKAGE_ROOT_FOLDER}/${MODULE_NAME}
+    INPUT ${MODULE}
+  )
+endforeach()
+
