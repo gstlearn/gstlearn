@@ -2,11 +2,6 @@
 set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Beware : the real package name is the PROJECT_NAME (for better import)
 
-
-# Create the global target for building python package (added by Nico from gstlearn example)
-add_custom_target(python_build_package)
-
-
 ###################################
 # DEPENDENCIES
 
@@ -87,7 +82,7 @@ set_source_files_properties(${SRC} PROPERTIES
   # Swig wrapper will be regenerated if C++ headers are changed
   # https://stackoverflow.com/a/70375654/3952924
   USE_SWIG_DEPENDENCIES TRUE
-  # myfibo C++ headers will be found by %import directive
+  # gstlearn C++ headers will be found by %import directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
   # Python package name will be the name of the destination folder (see above)
   SWIG_MODULE_NAME __init__

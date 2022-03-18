@@ -45,6 +45,7 @@ include(cmake/install.cmake)
 
 # TODO : Make packages configuration / compilation optional
 add_subdirectory(python)
+add_subdirectory(r)
 #add_subdirectory(r)
 
 
