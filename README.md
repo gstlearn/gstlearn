@@ -11,9 +11,9 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in different forms:
 
-* A C++ Library (this repository): [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
+* A C++ Library: [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
 * A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* A R Package: TODO: coming soon (meanwhile, you may use [RGeostats R package](http://cg.ensmp.fr/rgeostats))
+* A R Package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 ## References
 
