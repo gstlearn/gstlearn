@@ -45,7 +45,7 @@ bool st_is_double(H5::DataType type)
  * This test is meant to check the HDF5 read/write facility
  */
 static void st_init(H5::DataType type,
-                    int ndim,
+                    int /*ndim*/,
                     hsize_t *dims,
                     void *data)
 {
@@ -114,7 +114,7 @@ void* st_allocArray(H5::DataType type, int ndim, hsize_t *dims)
 }
 
 
-static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
+static void st_modify(H5::DataType type, int /*ndim*/, hsize_t *dims, void *data)
 {
   int    *idata;
   float  *fdata;
@@ -154,7 +154,7 @@ static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
 
 static void st_print(int verbose,
                      H5::DataType type,
-                     int ndim,
+                     int /*ndim*/,
                      hsize_t *dims,
                      void *data)
 {

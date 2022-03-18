@@ -9,7 +9,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/File.hpp"
 
-int main(int argc,char **argv)
+int main(int /*argc*/, char **/*argv*/)
 {
   // Standard output redirection to file
   std::stringstream sfn;

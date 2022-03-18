@@ -1113,7 +1113,10 @@ void KrigingSystem::_wgtDump(int status)
           else
             tab_printg(NULL, _dbin->getBlockExtension(_nbgh[iech], idim));
       }
+      if (_rankPGS < 0)
         tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
+      else
+        tab_prints(NULL,  "    ");
 
       for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
       {
@@ -1157,7 +1160,10 @@ void KrigingSystem::_wgtDump(int status)
     int iwgt = ib + cumflag;
     tab_printi(NULL, ib + 1);
     tab_printg(NULL, (status == 0) ? _wgt[iwgt] : TEST);
-    tab_printg(NULL, (status == 0) ? _zam[iwgt] : TEST);
+    if (_flagSimu)
+      tab_printg(NULL, 0.);
+    else
+      tab_printg(NULL, (status == 0) ? _zam[iwgt] : TEST);
     message("\n");
   }
   return;
@@ -1188,8 +1194,7 @@ void KrigingSystem::_simulateCalcul(int status)
       if (status == 0)
       {
         if (_flagBayes)
-          simu = _model->_evalDriftCoef(_dbout, _iechOut, ivar,
-                                        _postMean.data());
+          simu = _model->_evalDriftCoef(_dbout, _iechOut, ivar, _postSimu[isimu].data());
 
         int lec = ivar * _nred;
         for (int jvar = 0; jvar < nvar; jvar++)
@@ -1431,7 +1436,7 @@ void KrigingSystem::_estimateCalculSmoothImage(int status)
   _dbout->setArray(_iechOut, _iptrEst, estim);
 }
 
-void KrigingSystem::_estimateCalculXvalidUnique(int status)
+void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
   int iech  = _iechOut;
   int iiech = _dbin->getActiveSampleRank(_iechOut);
@@ -1463,8 +1468,6 @@ void KrigingSystem::_estimateCalculXvalidUnique(int status)
       if (_xvalidStdev) stdv = value / stdv;
       _dbin->setArray(iech, _iptrStd, stdv);
     }
-
-    if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
   }
 }
 
@@ -1695,6 +1698,12 @@ bool KrigingSystem::isReady()
     if (_prepareForImage(neighI)) return false;
   }
 
+  // In Bayesian case, calculate the Posterior information
+  if (_flagBayes)
+  {
+    _bayesPreCalculations();
+  }
+
   _isReady = true;
   return _isReady;
 }
@@ -1754,9 +1763,6 @@ int KrigingSystem::estimate(int iech_out)
     if (_flagBayes) _model = _modelInit;
     if (status) goto label_store;
 
-    // In the Bayesian case, calculate the Posterior information (once)
-    if (_flagBayes) _bayesPreCalculations();
-
     _dual(false, &ldum);
   }
   if (caseXvalidUnique) _neighParam->setFlagXvalid(true);
@@ -1775,7 +1781,7 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Derive the kriging weights */
 
-  if (_flagStd || _flagVarZ || _flagSaveWeights) _wgtCalcul();
+  if (_flagStd || _flagVarZ || _flagSimu || _flagSaveWeights) _wgtCalcul();
   if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
 
   // Optional Save of the Kriging weights
@@ -1805,6 +1811,9 @@ int KrigingSystem::estimate(int iech_out)
     if (_neighParam->getFlagXvalid())
       _estimateCalculXvalidUnique(status);
 
+    else if (_flagSimu)
+      _simulateCalcul(status);
+
     else if (! _flagGlobal)
       _estimateCalcul(status);
   }
@@ -1812,9 +1821,19 @@ int KrigingSystem::estimate(int iech_out)
   {
     // Moving Neighborhood case
 
-    _estimateCalcul(status);
+    if (_flagSimu)
+      _simulateCalcul(status);
+
+    else
+      _estimateCalcul(status);
   }
-  if (OptDbg::query(EDbg::RESULTS)) _krigingDump(status);
+  if (OptDbg::query(EDbg::RESULTS))
+  {
+    if (_flagSimu)
+      _simulateDump(status);
+    else
+      _krigingDump(status);
+  }
   return 0;
 }
 
@@ -1930,6 +1949,26 @@ void KrigingSystem::_krigingDump(int status)
       }
     }
   }
+  return;
+}
+
+void KrigingSystem::_simulateDump(int status)
+{
+  int nvar = _getNVar();
+
+  mestitle(0, "Simulation results");
+
+  /* Loop on the results */
+
+  int ecr = 0;
+  for (int isimu = 0; isimu < _nbsimu; isimu++)
+    for (int ivar = 0; ivar < nvar; ivar++, ecr++)
+    {
+      message("Simulation #%d of Z%-2d : ", isimu + 1, ivar + 1);
+      double value = (status == 0) ? _dbout->getArray(_iechOut, _iptrEst + ecr) : TEST;
+      tab_printg(" = ", value);
+      message("\n");
+    }
   return;
 }
 
@@ -3011,17 +3050,21 @@ int KrigingSystem::_bayesPreCalculations()
   int nfeq = _getNFeq();
   int nvar = _getNVar();
 
+  // Elaborate the (Unique) Neighborhood
+  _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
+  if (getNech() <= 0) return 1;
+
   /* Prepare the Kriging matrix (without correction) */
 
   _flagBayes = false;
-  _prepar();
+  if (_prepar()) return 1;
   _flagBayes = true;
   int shift = _nred - nfeq;
 
   /* Complementary core allocation */
 
   VectorDouble ff(shift * nfeq);
-  VectorDouble smu(shift);
+  VectorDouble smu(nfeq);
   VectorDouble sigma(shift * shift);
   VectorDouble vars(shift);
 

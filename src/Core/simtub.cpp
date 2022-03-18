@@ -3191,6 +3191,7 @@ static void st_check_gaussian_data2grid(Db *dbin,
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  situba     Situba structure
+ ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
  **                        for the drift terms
@@ -3206,8 +3207,9 @@ static int st_simtub_process(Db *dbin,
                              Model *model,
                              ANeighParam *neighparam,
                              Situba *situba,
-                             double *dmean,
-                             double *dcov,
+                             int flag_bayes,
+                             const VectorDouble& dmean,
+                             const VectorDouble& dcov,
                              int nbsimu,
                              int icase,
                              int flag_pgs,
@@ -3270,7 +3272,7 @@ static int st_simtub_process(Db *dbin,
   if (flag_cond)
   {
     st_title_process(string, "Conditioning by Kriging");
-    if (_krigsim(string, dbin, dbout, model, neighparam, dmean, dcov, icase, nbsimu,
+    if (_krigsim(string, dbin, dbout, model, neighparam, flag_bayes, dmean, dcov, icase, nbsimu,
                  FLAG_DGM, R_COEFF)) goto label_end;
   }
   else
@@ -3473,8 +3475,9 @@ int simtub(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
-                        nbsimu, 0, 0, 0, flag_check)) goto label_end;
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
+                        VectorDouble(), VectorDouble(), nbsimu, 0, 0, 0,
+                        flag_check)) goto label_end;
 
   /* Free the temporary variables */
 
@@ -3486,7 +3489,8 @@ int simtub(Db *dbin,
   namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
                               iptr_out, String(), nbsimu);
 
-  label_end: (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
+  label_end:
+  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   situba = st_dealloc(situba);
   return (error);
@@ -3560,7 +3564,8 @@ int simdgm(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
+                        VectorDouble(), VectorDouble(),
                         nbsimu, 0, 0, 0, flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3588,13 +3593,14 @@ int simdgm(Db *dbin,
  ** \param[in]  dbout      Output Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  nbsimu     Number of simulations
+ ** \param[in]  seed       Seed for random number generator
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
  **                        for the drift terms
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  nbtuba     Number of turning bands
  ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
+ ** \param[in]  namconv    Naming convention
  **
  ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
  ** \remark  be defined only for conditional simulations
@@ -3604,21 +3610,22 @@ int simbayes(Db *dbin,
              Db *dbout,
              Model *model,
              ANeighParam *neighparam,
-             double *dmean,
-             double *dcov,
-             int seed,
              int nbsimu,
+             int seed,
+             const VectorDouble& dmean,
+             const VectorDouble& dcov,
              int nbtuba,
-             int flag_check)
+             int flag_check,
+             const NamingConvention& namconv)
 {
   Situba *situba;
-  int flag_cond, nvar, error, iptr;
+  int flag_cond, nvar, error, iptr_in, iptr_out;
 
   /* Initializations */
 
   error = 1;
   nvar = model->getVariableNumber();
-  iptr = -1;
+  iptr_in = iptr_out = -1;
   flag_cond = (dbin != nullptr);
   situba = nullptr;
   law_set_random_seed(seed);
@@ -3633,17 +3640,17 @@ int simbayes(Db *dbin,
 
   if (flag_cond)
   {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr))
+    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_in))
       goto label_end;
   }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr))
+  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_out))
     goto label_end;
 
   /* Processing the Turning Bands algorithm */
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, dmean, dcov, nbsimu,
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 1, dmean, dcov, nbsimu,
                         0, 0, 0, flag_check)) goto label_end;
 
   /* Free the temporary variables */
@@ -3653,8 +3660,11 @@ int simbayes(Db *dbin,
   /* Set the error return flag */
 
   error = 0;
+  namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
+                              iptr_out, String(), nbsimu);
 
-  label_end: situba = st_dealloc(situba);
+  label_end:
+  situba = st_dealloc(situba);
   return (error);
 }
 
@@ -4050,8 +4060,8 @@ int simpgs(Db *dbin,
     icase = get_rank_from_propdef(propdef, 0, MES_IGRF);
     situba = st_alloc(models[MES_IGRF], nbsimu, nbtuba);
     if (situba == nullptr) goto label_end;
-    if (st_simtub_process(dbin, dbout, models[MES_IGRF], neighparam, situba, nullptr,
-                          nullptr, nbsimu, icase, 1, 0, flag_check))
+    if (st_simtub_process(dbin, dbout, models[MES_IGRF], neighparam, situba, 0,
+                          VectorDouble(), VectorDouble(), nbsimu, icase, 1, 0, flag_check))
       goto label_end;
     situba = st_dealloc(situba);
   }
@@ -4486,7 +4496,7 @@ int simbipgs(Db *dbin,
       situba = st_alloc(models[ipgs][MES_IGRF], nbsimu, nbtuba);
       if (situba == nullptr) goto label_end;
       if (st_simtub_process(dbin, dbout, models[ipgs][MES_IGRF], neighparam, situba,
-                            nullptr, nullptr, nbsimu, icase, 1, 0, flag_check))
+                            0, VectorDouble(), VectorDouble(), nbsimu, icase, 1, 0, flag_check))
         goto label_end;
       situba = st_dealloc(situba);
     }
@@ -5220,8 +5230,8 @@ int simmaxstable(Db *dbout,
 
     situba = st_alloc(model, 1, nbtuba);
     if (situba == nullptr) goto label_end;
-    if (st_simtub_process(NULL, dbout, model, NULL, situba, nullptr, nullptr, 1,
-                          0, 0, 0, 0)) goto label_end;
+    if (st_simtub_process(NULL, dbout, model, NULL, situba, 0, VectorDouble(),
+                          VectorDouble(), 1, 0, 0, 0, 0)) goto label_end;
     situba = st_dealloc(situba);
 
     /* Combine the newly simulated outcome to the background */
@@ -5403,7 +5413,7 @@ int simRI(Db *dbout,
 
     situba = st_alloc(model, 1, nbtuba);
     if (situba == nullptr) goto label_end;
-    if (st_simtub_process(NULL, dbout, model, NULL, situba, nullptr, nullptr, 1,
+    if (st_simtub_process(NULL, dbout, model, NULL, situba, 0, VectorDouble(), VectorDouble(), 1,
                           0, 0, 0, 0)) goto label_end;
     situba = st_dealloc(situba);
 
@@ -5875,8 +5885,9 @@ int simcond(Db *dbin,
 
   situba = st_alloc(model, nbsimu, nbtuba);
   if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, nullptr, nullptr,
-                        nbsimu, 0, 0, 1, flag_check)) goto label_end;
+  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
+                        VectorDouble(), VectorDouble(), nbsimu, 0, 0, 1,
+                        flag_check)) goto label_end;
 
   /* Free the temporary variables not used anymore */
 

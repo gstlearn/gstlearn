@@ -1002,7 +1002,7 @@ int is_matrix_non_negative(int nrow,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-int is_matrix_null(int nrow, int ncol, double *a, int verbose)
+int is_matrix_null(int nrow, int ncol, const double *a, int verbose)
 {
   int i;
 

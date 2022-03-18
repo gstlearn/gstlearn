@@ -613,7 +613,7 @@ GSTLEARN_EXPORT int is_matrix_non_negative(int nrow,
                                            int ncol,
                                            double *a,
                                            int verbose);
-GSTLEARN_EXPORT int is_matrix_null(int nrow, int ncol, double *a, int verbose);
+GSTLEARN_EXPORT int is_matrix_null(int nrow, int ncol, const double *a, int verbose);
 GSTLEARN_EXPORT int is_matrix_symmetric(int neq, const double *a, int verbose);
 GSTLEARN_EXPORT int is_matrix_correlation(int neq, double *a);
 GSTLEARN_EXPORT int is_matrix_rotation(int neq, const double *a, int verbose);
@@ -1839,9 +1839,9 @@ GSTLEARN_EXPORT void krige_dual_print(int nech,
                                       double *dual);
 GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    int nbsimu,
-                                   double *rmean,
-                                   double *rcov,
-                                   double *smean);
+                                   const VectorDouble& rmean,
+                                   const VectorDouble& rcov,
+                                   VectorDouble& smean);
 GSTLEARN_EXPORT int kriggam_f(Db *dbin,
                               Db *dbout,
                               AAnam *anam,
@@ -1999,16 +1999,6 @@ GSTLEARN_EXPORT int simcond(Db *dbin,
                             int flag_ce,
                             int flag_cstd,
                             int verbose);
-GSTLEARN_EXPORT int simbayes(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeighParam *neighparam,
-                             double *dmean,
-                             double *dcov,
-                             int seed,
-                             int nbsimu,
-                             int nbtuba,
-                             int flag_check);
 GSTLEARN_EXPORT int simmaxstable(Db *dbout,
                                  Model *model,
                                  double ratio,

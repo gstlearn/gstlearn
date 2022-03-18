@@ -122,6 +122,7 @@ private:
   double _variance(int ivarCL, int jvarCL);
   void _variance0();
   void _krigingDump(int status);
+  void _simulateDump(int status);
   void _saveWeights(int status);
   void _blockDiscretize();
   bool _isCorrect();

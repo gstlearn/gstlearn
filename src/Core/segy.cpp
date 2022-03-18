@@ -16,6 +16,8 @@
 #include "Db/Db.hpp"
 #include "segy.h"
 
+#include <stdio.h>
+
 struct RefPt
 {
   int iline;

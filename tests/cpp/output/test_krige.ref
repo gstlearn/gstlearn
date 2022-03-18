@@ -83,51 +83,19 @@ Drift Part
 ----------
 Universality Condition
 
-<----- Test in Moving Neighborhood ----->
-
 Neighborhood characteristics
 ============================
 Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 25
 
+<----- Cross-Validation in Moving Neighborhood ----->
+
 Data Base Characteristics
 =========================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      1.000
- Maximum value       =    100.000
- Mean value          =     50.500
- Standard Deviation  =     28.866
- Variance            =    833.250
-2 - Name x1 - Locator x1
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      0.255
- Maximum value       =     49.592
- Mean value          =     26.738
- Standard Deviation  =     13.668
- Variance            =    186.816
-3 - Name x2 - Locator x2
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =      0.839
- Maximum value       =     49.030
- Mean value          =     27.182
- Standard Deviation  =     15.183
- Variance            =    230.510
-4 - Name Var - Locator NA
- Nb of data          =        100
- Nb of active values =        100
- Minimum value       =    -11.235
- Maximum value       =     10.692
- Mean value          =     -0.738
- Standard Deviation  =      4.455
- Variance            =     19.849
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
@@ -145,51 +113,13 @@ Data Base Statistics
  Standard Deviation  =      1.036
  Variance            =      1.073
 
+<----- Kriging in Moving Neighborhood ----->
+
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =   2500.000
- Mean value          =   1250.500
- Standard Deviation  =    721.688
- Variance            = 520833.250
-2 - Name x1 - Locator x1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-3 - Name x2 - Locator x2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-4 - Name Extend-1 - Locator dblk1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Extend-2 - Locator dblk2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
 6 - Name Kriging.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
@@ -207,6 +137,8 @@ Data Base Statistics
  Standard Deviation  =      0.321
  Variance            =      0.103
 
+<----- Kriging Test in Moving Neighborhood ----->
+
 Testing KrigTest facility
 - Space Dimension = 2
 - Number of Neighbors = 26
@@ -218,7 +150,11 @@ Testing KrigTest facility
      [ 14,]        46        51        56        64        66        69        72
      [ 21,]        80        83        93        96
 
-<----- Test in Unique Neighborhood ----->
+Neighborhood characteristics
+============================
+Space dimension = 2
+
+<----- Cross-Validation in Unique Neighborhood ----->
 
 Data Base Characteristics
 =========================
@@ -258,51 +194,13 @@ Data Base Statistics
  Standard Deviation  =      4.455
  Variance            =     19.849
 
+<----- Kriging in Unique Neighborhood ----->
+
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =   2500.000
- Mean value          =   1250.500
- Standard Deviation  =    721.688
- Variance            = 520833.250
-2 - Name x1 - Locator x1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-3 - Name x2 - Locator x2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-4 - Name Extend-1 - Locator dblk1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Extend-2 - Locator dblk2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
 6 - Name Kriging.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
@@ -320,73 +218,111 @@ Data Base Statistics
  Standard Deviation  =      0.306
  Variance            =      0.094
 
-Testing Global Estimate (by Arithmetic Mean)
-- Total Number of Data = 100
-- Number of Active Data = 100
-- Number of Discretized nodes = 2500
-- Surface of the discretized Domain = 2500.000000
-- Mean Covariance over the Domain = 11.207403
-- Estimation (arithmetic mean) = -0.738254
-- Standard Deviation of Estimation = 0.841336
-- Coefficient of Variation = -1.139630
-
-Testing Global Estimate (by Kriging)
-- Total Number of Data = 100
-- Number of Active Data = 100
-- Number of Discretized nodes = 2500
-- Surface of the discretized Domain = 2500.000000
-- Mean Covariance over the Domain = 11.207659
-- Estimation (Kriging) = -0.632274
-- Standard Deviation of Estimation = 0.468608
-- Coefficient of Variation = -0.741148
-
-<----- Test Block Kriging ----->
+<----- Simulations in Unique Neighborhood ----->
 
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
+6 - Name Simu.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =   2500.000
- Mean value          =   1250.500
- Standard Deviation  =    721.688
- Variance            = 520833.250
-2 - Name x1 - Locator x1
+ Minimum value       =    -16.172
+ Maximum value       =     17.533
+ Mean value          =      0.160
+ Standard Deviation  =      4.938
+ Variance            =     24.383
+7 - Name Simu.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-3 - Name x2 - Locator x2
+ Minimum value       =    -16.720
+ Maximum value       =     16.609
+ Mean value          =     -0.277
+ Standard Deviation  =      4.612
+ Variance            =     21.270
+8 - Name Simu.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-4 - Name Extend-1 - Locator dblk1
+ Minimum value       =    -18.359
+ Maximum value       =     15.295
+ Mean value          =     -0.802
+ Standard Deviation  =      4.680
+ Variance            =     21.903
+
+<----- Bayesian Simulations in Unique Neighborhood ----->
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+6 - Name SimBayes.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Extend-2 - Locator dblk2
+ Minimum value       =    -17.466
+ Maximum value       =     16.239
+ Mean value          =     -1.134
+ Standard Deviation  =      4.938
+ Variance            =     24.383
+7 - Name SimBayes.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
+ Minimum value       =    -18.391
+ Maximum value       =     14.938
+ Mean value          =     -1.948
+ Standard Deviation  =      4.612
+ Variance            =     21.270
+8 - Name SimBayes.Var.3 - Locator z3
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =    -19.419
+ Maximum value       =     14.235
+ Mean value          =     -1.862
+ Standard Deviation  =      4.680
+ Variance            =     21.903
+
+<----- Global Estimate (average) ----->
+
+Global estimation by arithmetic average
+---------------------------------------
+Total number of data             = 100
+Number of active data            = 100
+Sample variance                  = 19.849323
+CVsample                         = -6.034860
+CViid                            = -0.603486
+Cxx                              = 11.635243
+Cxv                              = 11.067400
+Cvv                              = 11.207113
+Estimation by arithmetic average = -0.738254
+Estimation St. dev. of the mean  = 0.841164
+CVgeo                            = -1.139397
+Surface                          = 2500.000000
+Q (Estimation * Surface)         = -1845.634472
+
+
+<----- Global Estimate (Kriging) ----->
+
+Global estimation kriging
+-------------------------
+Total number of data             = 100
+Number of active data            = 100
+Number of variables              = 1
+Cvv                              = 11.207591
+Estimation by kriging            = -0.632274
+Estimation St. Dev. of the mean  = 0.468536
+CVgeo                            = -0.741033
+Surface                          = 2500.000000
+Q (Estimation * Surface)         = -1580.684671
+
+
+<----- Block Kriging (fixed size) ----->
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
 6 - Name Kriging.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
@@ -404,51 +340,13 @@ Data Base Statistics
  Standard Deviation  =      0.473
  Variance            =      0.224
 
+<----- Block Kriging (variable size) ----->
+
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =   2500.000
- Mean value          =   1250.500
- Standard Deviation  =    721.688
- Variance            = 520833.250
-2 - Name x1 - Locator x1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-3 - Name x2 - Locator x2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-4 - Name Extend-1 - Locator dblk1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
-5 - Name Extend-2 - Locator dblk2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =      1.000
- Mean value          =      1.000
- Standard Deviation  =      0.000
- Variance            =      0.000
 6 - Name KrigCell.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
@@ -465,8 +363,6 @@ Data Base Statistics
  Mean value          =      2.691
  Standard Deviation  =      0.473
  Variance            =      0.224
-
-<----- Test in Image Neighborhood ----->
 
 Data Base Grid Characteristics
 ==============================
@@ -520,43 +416,13 @@ Drift Part
 ----------
 Universality Condition
 
+<----- Image Filtering ----->
+
 Data Base Grid Characteristics
 ==============================
 
 Data Base Statistics
 --------------------
-1 - Name rank - Locator NA
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      1.000
- Maximum value       =   2500.000
- Mean value          =   1250.500
- Standard Deviation  =    721.688
- Variance            = 520833.250
-2 - Name x1 - Locator x1
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-3 - Name x2 - Locator x2
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =      0.000
- Maximum value       =     49.000
- Mean value          =     24.500
- Standard Deviation  =     14.431
- Variance            =    208.250
-4 - Name Simu - Locator NA
- Nb of data          =       2500
- Nb of active values =       2500
- Minimum value       =    108.375
- Maximum value       =    146.543
- Mean value          =    128.015
- Standard Deviation  =      5.309
- Variance            =     28.187
 5 - Name Filtering.Simu.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
@@ -565,6 +431,55 @@ Data Base Statistics
  Mean value          =    128.020
  Standard Deviation  =      3.806
  Variance            =     14.488
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Linear
+- Slope        =      1.000
+
+Drift Part
+----------
+Universality Condition
+
+<----- Bayesian Kriging in Unique Neighborhood ----->
+
+Bayesian Drift coefficients
+===========================
+Prior Mean      0.000
+Prior Variance-Covariance      1.000
+Posterior Mean      0.012
+Posterior Variance-Covariance      0.985
+
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+6 - Name Bayes.Var.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.012
+ Maximum value       =      0.012
+ Mean value          =      0.012
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Bayes.Var.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      8.303
+ Maximum value       =      8.688
+ Mean value          =      8.475
+ Standard Deviation  =      0.073
+ Variance            =      0.005
 
 <----- Test Kriging Printout ----->
 

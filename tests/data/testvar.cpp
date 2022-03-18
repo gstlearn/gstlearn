@@ -14,6 +14,7 @@
 #include "geoslib_f.h"
 
 #include "Variogram/Vario.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
@@ -49,7 +50,6 @@ int main(int argc, char *argv[])
   flag_norm_sill = 0;
   flag_goulard_used = 1;
   double gofThresh = 2.;
-  char string[1000];
 
   /* Standard output redirection to file */
 

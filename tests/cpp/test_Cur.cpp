@@ -60,7 +60,7 @@ double spirale(VectorDouble pos)
  ** Main Program
  **
  *****************************************************************************/
-int main(int argc, char *argv[])
+int main(int /*argc*/, char */*argv*/[])
 
 {
   if (setup_license("Demonstration"))
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
 
   // R_model_characteristics
   int    flag_range,flag_param,min_order,max_ndim,ndim,flag_aniso;
-  int    flag_int_1d,flag_int_2d,flag_rotation,order;
+  int    flag_int_1d,flag_int_2d,flag_rotation;
   double scale,parmax;
   char   cova_name[STRING_LENGTH];
   std::string cov_name;
@@ -82,7 +82,6 @@ int main(int argc, char *argv[])
 
   cov_name = "Nugget Effect";
   ndim     = 2;
-  order    = 1;
 
   /* Identify the covariance */
 
@@ -105,7 +104,6 @@ int main(int argc, char *argv[])
   gen.seed(seed);
 
   std::normal_distribution<double> d{0,1};
-  double val = d(gen);
 
   return 0;
   ///////////////////////
