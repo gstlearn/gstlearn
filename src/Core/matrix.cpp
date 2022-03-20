@@ -3512,7 +3512,8 @@ int matrix_invreal(double *mat, int neq)
   /* Calculate the determinant */
 
   det = matrix_determinant(neq, mat);
-  if (ABS(det) < _getEpsSVD()) return (1);
+  //if (ABS(det) < _getEpsSVD()) return (1);
+  if (ABS(det) < 1.e-12) return (1);
   if (std::isnan(det))
   {
     print_matrix("Mat", 0, 1, neq, neq, NULL, mat);

@@ -109,6 +109,16 @@ public:
                               int seed = 23241,
                               bool verbose = false);
 
+  static Db* createFromDbGrid(DbGrid* dbgrid,
+                              int mode=0,
+                              double density=1.,
+                              double range=0,
+                              double beta=0,
+                              const VectorDouble origin=VectorDouble(),
+                              const VectorDouble extend=VectorDouble(),
+                              int seed=121334,
+                              int verbose=false);
+
 
   const VectorDouble& getArrays() const { return _array; }
 
