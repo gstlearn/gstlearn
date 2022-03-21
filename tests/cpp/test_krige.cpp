@@ -42,10 +42,15 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
   Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
   data->setNameByUID(1,"x1");
   data->setNameByUID(2,"x2");
-  data->setNameByUID(3,"Var");
+
   data->setLocatorByUID(1,ELoc::X,0);
   data->setLocatorByUID(2,ELoc::X,1);
-  data->setLocatorByUID(3,ELoc::Z);
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    data->setNameByUID(3+ivar,"Var");
+    data->setLocatorByUID(3+ivar,ELoc::Z,ivar);
+  }
   return data;
 }
 
@@ -108,15 +113,16 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
-  DbGrid* grid_res;
-  DbGrid* image_res;
-  Db* data_res;
-  Db* data_short_res;
+  DbGrid* grid_res  = nullptr;
+  DbGrid* image_res = nullptr;
+  Db* data_res      = nullptr;
+  Model* model_res  = nullptr;
+  Global_Res gres;
+  Krigtest_Res ktest;
 
   // Global parameters
   int ndim = 2;
@@ -143,28 +149,45 @@ int main(int /*argc*/, char */*argv*/[])
   Db* data = createLocalDb(nech, ndim, nvar);
   data->display(&dbfmt);
 
-  // Create the Model
-  Model* model1 = createModel(nvar, 1, 1, 1);
-  model1->display();
+  // Generate an image file
+  DbGrid* image = DbGrid::create(nx);
 
-  // ====================== Moving Neighborhood case ===========================
+  // Create the Model
+  Model* model = createModel(nvar, 1, 1, 1);
+  model->display();
+
+  // Image Neighborhood
+  NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
+  neighI->display();
+
   // Creating a Moving Neighborhood
   NeighMoving* neighM = NeighMoving::create(ndim, false, 25);
   neighM->display();
 
+  // Unique Neighborhood
+  NeighUnique* neighU = NeighUnique::create(ndim,false);
+  neighU->display();
+
+  goto label_end;
+
+  // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
   data_res = dynamic_cast<Db*>(data->clone());
-  xvalid(data_res, model1, neighM, 0, -1, -1);
+  xvalid(data_res, model, neighM, 0, -1, -1);
   data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Moving Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  kriging(data, grid_res, model1, neighM);
+  kriging(data, grid_res, model, neighM);
   grid_res->display(&dbfmtKriging);
+
+  message("\n<----- Declustering in Moving Neighborhood ----->\n");
+  data_res = dynamic_cast<Db*>(data->clone());
+  declustering(data_res, model, 3, neighM, grid, VectorDouble(), {3,3}, false, true);
 
   message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  Krigtest_Res ktest = krigtest(data, grid_res, model1, neighM, 0);
+  ktest = krigtest(data, grid_res, model, neighM, 0);
   message("\nTesting KrigTest facility\n");
   message("- Space Dimension = %d\n",ktest.ndim);
   message("- Number of Neighbors = %d\n",ktest.nech);
@@ -172,78 +195,73 @@ int main(int /*argc*/, char */*argv*/[])
   ut_ivector_display("- Neighboring Sample Indices", ktest.nbgh);
 
   // ====================== Unique Neighborhood case ===========================
-  // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim,false);
-  neighU->display();
-
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
   data_res = dynamic_cast<Db*>(data->clone());
-  xvalid(data_res, model1, neighU, 0, -1, -1);
-  data->display(&dbfmtXvalid);
+  xvalid(data_res, model, neighU, 0, -1, -1);
+  data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Unique Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  kriging(data, grid_res, model1, neighU);
+  kriging(data, grid_res, model, neighU);
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Simulations in Unique Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  simtub(data, grid_res, model1, neighU, 3, 12345);
+  simtub(data, grid_res, model, neighU, 3, 12345);
   grid_res->display(&dbfmtSimu);
 
   message("\n<----- Bayesian Simulations in Unique Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  simbayes(data, grid_res, model1, neighU, 3, 12345);
+  simbayes(data, grid_res, model, neighU, 3, 12345);
   grid_res->display(&dbfmtSimu);
 
-  message("\n<----- Global Estimate (average) ----->\n");
+  message("\n<----- Declustering in Unique Neighborhood ----->\n");
+  data_res = dynamic_cast<Db*>(data->clone());
+  declustering(data_res, model, 2, neighU, nullptr, VectorDouble(), VectorInt(), false, true);
+
+  message("\n<----- Global Estimate (Average) ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  Global_Res gres = global_arithmetic(data, grid_res, model1, 0, true);
+  gres = global_arithmetic(data, grid_res, model, 0, true);
 
   message("\n<----- Global Estimate (Kriging) ----->\n");
-  gres = global_kriging(data, grid_res, model1, 0, true);
+  gres = global_kriging(data, grid_res, model, 0, true);
 
   // ====================== Block Kriging case ===========================
   message("\n<----- Block Kriging (fixed size) ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  kriging(data, grid_res, model1, neighU, EKrigOpt::BLOCK, 1, 1, 0, {3,3});
+  kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, {3,3});
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Block Kriging (variable size) ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  krigcell(data, grid_res, model1, neighU, 1, 1, {3,3});
+  krigcell(data, grid_res, model, neighU, 1, 1, {3,3});
   grid_res->display(&dbfmtKriging);
 
   // ====================== Image Neighborhood case ===========================
   // Generate the Image
-  DbGrid* image = DbGrid::create(nx);
-  (void) simtub(nullptr,image,model1);
+  (void) simtub(nullptr,image,model);
   image->setLocator("Simu", ELoc::Z);
   image->display();
 
-  // Image Neighborhood
-  NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
-  neighI->display();
-
   // Modify the Model (for filtering)
-  Model* model4 = dynamic_cast<Model*>(model1->clone());
-  model4->setCovaFiltered(1, true);
-  model4->display();
+  model_res = dynamic_cast<Model*>(model->clone());
+  model_res->setCovaFiltered(1, true);
+  model_res->display();
 
   message("\n<----- Image Filtering ----->\n");
   image_res = dynamic_cast<DbGrid*>(image->clone());
-  krimage(image_res, model4, neighI);
+  krimage(image_res, model_res, neighI);
   image_res->display(&dbfmtImage);
 
-  // ====================== Testing Baysian Kriging ===========================
+  // ====================== Testing Bayesian Kriging ===========================
   // Create the Model
-  Model* model2 = createModel(nvar, 2, 1, 2);
-  model2->display();
+  model = createModel(nvar, 2, 1, 2);
+  model->display();
 
   message("\n<----- Bayesian Kriging in Unique Neighborhood ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
   OptDbg::define(EDbg::BAYES);
-  kribayes(data, grid_res, model2, neighU);
+  kribayes(data, grid_res, model, neighU);
   OptDbg::undefine(EDbg::BAYES);
   grid_res->display(&dbfmtBayes);
 
@@ -251,37 +269,48 @@ int main(int /*argc*/, char */*argv*/[])
   message("\n<----- Test Kriging Printout ----->\n");
 
   // Create the Local Data Base
-  Db* data_short = createLocalDb(4, 2, 1);
+  data = createLocalDb(4, 2, 1);
 
   // Create the Local Model
-  Model* model3 = createModel(nvar, 2, 1, 0);
-  model3->display();
+  model = createModel(nvar, 2, 1, 0);
+  model->display();
 
   message("\n---> Kriging in Place (checking Exact Interpolator)\n");
   OptDbg::setReference(1);
-  data_short_res = dynamic_cast<Db*>(data_short->clone());
-  kriging(data_short_res, data_short_res, model3, neighU);
+  data_res = dynamic_cast<Db*>(data->clone());
+  kriging(data_res, data_res, model, neighU);
   OptDbg::setReference(0);
 
   message("\n---> Kriging in general\n");
   OptDbg::setReference(1);
-  kriging(data_short, grid_res, model3, neighU);
+  kriging(data, grid_res, model, neighU);
   OptDbg::setReference(0);
 
-  delete neighM;
-  delete neighU;
-  delete neighI;
-  delete data;
-  delete data_res;
-  delete data_short;
-  delete grid;
-  delete grid_res;
-  delete image;
-  delete image_res;
-  delete model1;
-  delete model2;
-  delete model3;
-  delete model4;
+  // ====================== Testing Specials ==================================
+  label_end:
+
+  // Create the Local Data Base
+  data = createLocalDb(10, 2, 3);
+
+  message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  VectorDouble tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
+  grid_res->addColumns(tab, "Constraints", ELoc::SUM);
+  krigsum(data, grid_res, model, neighU, true);
+  grid_res->display(&dbfmtKriging);
+
+  // ====================== Free pointers ==================================
+  if (neighM != nullptr)    delete neighM;
+  if (neighU != nullptr)    delete neighU;
+  if (neighI != nullptr)    delete neighI;
+  if (data != nullptr)      delete data;
+  if (data_res != nullptr)  delete data_res;
+  if (grid != nullptr)      delete grid;
+  if (grid_res != nullptr)  delete grid_res;
+  if (image != nullptr)     delete image;
+  if (image_res != nullptr) delete image_res;
+  if (model != nullptr)     delete model;
+  if (model_res != nullptr) delete model_res;
 
   return (0);
 }

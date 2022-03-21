@@ -602,10 +602,8 @@ VectorDouble Db::getArray(int iuid, bool useSel) const
 void Db::updArray(int iech, int iuid, int oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColIdxByUID(iuid);
-  if (!isColIdxValid(icol)) return;
-  double oldval = getArray(iech, icol);
-  setArray(iech, icol, _updateValue(oper, oldval, value));
+  double oldval = getArray(iech, iuid);
+  setArray(iech, iuid, _updateValue(oper, oldval, value));
 }
 
 VectorDouble Db::getSampleCoordinates(int iech) const

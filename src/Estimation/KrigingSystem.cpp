@@ -32,6 +32,8 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Covariances/ACovAnisoList.hpp"
+#include "Polynomials/Hermite.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 
 #include <math.h>
 
@@ -48,6 +50,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dbout(dbout),
       _modelInit(model),
       _neighParam(neighParam),
+      _anam(nullptr),
       _isReady(false),
       _model(nullptr),
       _iptrEst(-1),
@@ -57,7 +60,11 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagStd(false),
       _flagVarZ(false),
       _flagGlobal(false),
+      _flagDataChanged(false),
       _calcul(EKrigOpt::PONCTUAL),
+      _iptrWeights(-1),
+      _flagWeights(false),
+      _flagSet(true),
       _flagSimu(false),
       _nbsimu(0),
       _rankPGS(-1),
@@ -81,9 +88,12 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _supportCoeff(1.),
       _matCL(),
+      _flagLTerm(false),
+      _lterm(0.),
+      _flagAnam(false),
       _dbaux(),
       _flagSmooth(false),
-      _flagSaveWeights(false),
+      _flagKeypairWeights(false),
       _iechOut(-1),
       _nred(0),
       _flagCheckAddress(false),
@@ -1242,6 +1252,7 @@ void KrigingSystem::_simulateCalcul(int status)
  *****************************************************************************/
 void KrigingSystem::_estimateCalcul(int status)
 {
+  int nech   = getNech();
   int nfeq   = _getNFeq();
   int nvarCL = _getNVarCL();
 
@@ -1310,6 +1321,26 @@ void KrigingSystem::_estimateCalcul(int status)
       if (status == 0 && (_nred > 0 || nfeq <= 0))
         varZ = _estimateVarZ(ivarCL, ivarCL);
       _dbout->setArray(_iechOut, _iptrVarZ + ivarCL, varZ);
+    }
+  }
+
+  /* Kriging weights (stored in _dbin) */
+
+  if (_flagWeights != 0)
+  {
+    for (int ivarCL = 0; ivarCL < nvarCL; ivarCL++)
+    {
+      int lec = ivarCL * _nred;
+      for (int i = 0; i < nech; i++)
+      {
+        if (status != 0) continue;
+        double wgt = _wgt[lec + i];
+        int iech = _nbgh[i];
+        if (_flagSet)
+          _dbin->setArray(iech, _iptrWeights + ivarCL, wgt);
+        else
+          _dbin->updArray(iech, _iptrWeights, 0, wgt);
+      }
     }
   }
   return;
@@ -1631,14 +1662,8 @@ int KrigingSystem::_prepar()
  **  Extract the valid data
  **  Operate the product by the inverse covariance matrix
  **
- ** \param[in]  flagLterm True if the LTerm must be calculated
- **
- ** \param[out] lterm  Product Z*C-1*Z
- **                    (only produced if FLAG_LTERM is true)
- **
  *****************************************************************************/
-void KrigingSystem::_dual(bool flagLterm,
-                          double *lterm)
+void KrigingSystem::_dual()
 {
   int nech = getNech();
   int nvar = _getNVar();
@@ -1673,8 +1698,13 @@ void KrigingSystem::_dual(bool flagLterm,
 
   /* Operate the product : Z * A-1 * Z */
 
-  if (flagLterm)
-    matrix_product(1, _nred, 1, _zam.data(), zext.data(), lterm);
+  if (_flagLTerm)
+    matrix_product(1, _nred, 1, _zam.data(), zext.data(), &_lterm);
+
+  // Turn back the flag to OFF in order to avoid provoking
+  // the _dual() calculations again
+
+  _flagDataChanged = false;
 
   return;
 }
@@ -1716,7 +1746,6 @@ bool KrigingSystem::isReady()
  */
 int KrigingSystem::estimate(int iech_out)
 {
-  double ldum;
   if (! _isReady)
   {
     messerr("You must call 'isReady' before launching 'estimate'");
@@ -1762,9 +1791,16 @@ int KrigingSystem::estimate(int iech_out)
     status = _prepar();
     if (_flagBayes) _model = _modelInit;
     if (status) goto label_store;
-
-    _dual(false, &ldum);
   }
+
+  // Establish the precalculation involving the data information
+
+  if (!_nbghWork.isUnchanged() || _neighParam->getFlagContinuous() ||
+      _flagDataChanged || OptDbg::force())
+  {
+    _dual();
+  }
+
   if (caseXvalidUnique) _neighParam->setFlagXvalid(true);
 
   /* Establish the Kriging R.H.S. */
@@ -1781,11 +1817,12 @@ int KrigingSystem::estimate(int iech_out)
 
   /* Derive the kriging weights */
 
-  if (_flagStd || _flagVarZ || _flagSimu || _flagSaveWeights) _wgtCalcul();
+  if (_flagStd || _flagVarZ || _flagSimu || _flagWeights || _flagKeypairWeights)
+    _wgtCalcul();
   if (OptDbg::query(EDbg::KRIGING)) _wgtDump(status);
 
   // Optional Save of the Kriging weights
-  if (_flagSaveWeights) _saveWeights(status);
+  if (_flagKeypairWeights) _saveWeights(status);
 
   /* Perform the final estimation */
 
@@ -1827,6 +1864,11 @@ int KrigingSystem::estimate(int iech_out)
     else
       _estimateCalcul(status);
   }
+
+  // Gaussian transform (optional)
+  if (_flagAnam) _transformGaussianToRaw();
+
+  // Final printout
   if (OptDbg::query(EDbg::RESULTS))
   {
     if (_flagSimu)
@@ -1977,6 +2019,7 @@ void KrigingSystem::_simulateDump(int status)
  * @param iptrEst  UID for storing the estimation(s)
  * @param iptrStd  UID for storing the Standard deviations(s)
  * @param iptrVarZ UID for storing the Variance(s) of estimator
+ * @param iptrWeights UID for storing the Weights (in dbin)
  * @return
  * @remark If a term must not be calculated, its UID must be negative
  */
@@ -1990,6 +2033,22 @@ int KrigingSystem::setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
   _flagStd = (_iptrStd >= 0);
   _flagVarZ = (_iptrVarZ >= 0);
 
+  _flagDataChanged = true;
+
+  return 0;
+}
+
+int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
+{
+  int nvar = _getNVar();
+  if (iptrWeights >= 0 && nvar > 1)
+  {
+    messerr("The storage of the weights is only coded for Monovariate case");
+    return 1;
+  }
+  _iptrWeights = iptrWeights;
+  _flagWeights = true;
+  _flagSet = flagSet;
   return 0;
 }
 
@@ -2279,7 +2338,7 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
  */
 int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
 {
-  _flagSaveWeights = flag_save;
+  _flagKeypairWeights = flag_save;
   return 0;
 }
 
@@ -2352,6 +2411,38 @@ int KrigingSystem::setKrigOptFlagGlobal(bool flag_global)
     }
   }
   _flagGlobal = flag_global;
+  return 0;
+}
+
+/**
+ * Ask for the specific calculation of Z * A-1 * Z
+ * @param flag_lterm Flag for asking this specific calculation
+ * @return
+ * @remark The calculated value can be retrieved using _getLTerm() method
+ */
+
+int KrigingSystem::setKrigOptFlagLTerm(bool flag_lterm)
+{
+  _flagLTerm = flag_lterm;
+  return 0;
+}
+
+/**
+ * Perform Gaussian Anamoprhosis kriging
+ * @param anam Pointer to the AAnam structure
+ * @return
+ */
+int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
+{
+  int nvar = _getNVar();
+  if (nvar != 1)
+  {
+    messerr("This procedure is limited to the monovariate case");
+    return 1;
+  }
+
+  _flagAnam = true;
+  _anam = anam;
   return 0;
 }
 
@@ -2443,7 +2534,7 @@ bool KrigingSystem::_isCorrect()
   {
     if (nfex > 0 && nfex != _model->getExternalDriftNumber())
     {
-      messerr("Incompatible NUmber of External Drifts of '_model'");
+      messerr("Incompatible Number of External Drifts of '_model'");
       return false;
     }
     nfex = _model->getExternalDriftNumber();
@@ -2897,8 +2988,6 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 
 bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 {
-  double ldum;
-
   // Save pointers to previous Data Base (must be restored at the end)
   Db* dbin_loc  = _dbin;
   Db* dbout_loc = _dbout;
@@ -2922,7 +3011,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   status = _prepar();
   if (status) goto label_end;
-  _dual(false, &ldum);
+  _dual();
 
   /* Establish the R.H.S. */
 
@@ -3278,3 +3367,36 @@ void KrigingSystem::_bayesPreSimulate()
   law_set_random_seed(memo);
 }
 
+/****************************************************************************/
+/*!
+ **  Transform the Kriging results from gaussian to raw
+ **
+ ** \remark  This procedure is designed for the monovariate case
+ ** \remark  It assumes that the kriging estimate and variance are already
+ ** \remark  calculated
+ **
+ *****************************************************************************/
+void KrigingSystem::_transformGaussianToRaw()
+{
+  if (_anam == nullptr) return;
+  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+
+  /* Get the estimation */
+
+  double est = _dbout->getArray(_iechOut, _iptrEst);
+
+  /* Get the variance of the kriging error */
+
+  double std = sqrt(_dbout->getArray(_iechOut, _iptrStd));
+
+  /* Calculate the conditional expectation */
+
+  double condexp = hermiteCondExpElement(est, std, anam_hermite->getPsiHn());
+  _dbout->setArray(_iechOut, _iptrEst, condexp);
+
+  /* Calculate the conditional variance */
+
+  double condvar = hermiteEvaluateZ2(est, std, anam_hermite->getPsiHn());
+  condvar -= condexp * condexp;
+  _dbout->setArray(_iechOut, _iptrStd, condvar);
+}

@@ -22,6 +22,7 @@ class ANeighParam;
 class CovCalcMode;
 class ECalcMember;
 class NeighImage;
+class AAnam;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -35,17 +36,18 @@ public:
   virtual ~KrigingSystem();
 
   int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int setKrigOptCalcul(const EKrigOpt& calcul,
-                       const VectorInt& ndiscs,
-                       bool flag_per_cell = false);
+  int  setKrigOptCalcul(const EKrigOpt& calcul,
+                        const VectorInt& ndiscs = VectorInt(),
+                        bool flag_per_cell = false);
   int  setKrigOptXValid(bool flag_xvalid,
                         bool flag_kfold,
                         bool optionXValidEstim = false,
                         bool optionXValidStdev = false);
   int  setKrigOptColCok(const VectorInt& rank_colcok);
-  int setKrigOptBayes(bool flag_bayes,
-                      const VectorDouble& prior_mean,
-                      const VectorDouble& prior_cov);
+  int  setKrigOptBayes(bool flag_bayes,
+                       const VectorDouble& prior_mean,
+                       const VectorDouble& prior_cov);
+  int  setKrigOptDataWeights(int iptrWeights, bool flagSet = true);
   int  setKrigOptMatCL(const VectorVectorDouble& matCL);
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
@@ -53,8 +55,9 @@ public:
   int  setKrigOptDGM(bool flag_dgm, double rcoef = 1.);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
+  int  setKrigOptFlagLTerm(bool flag_lterm);
+  int  setKrigOptAnamophosis(AAnam* anam);
   int  setKrigOptCheckAddress(bool flagCheckAddress);
-
 
   bool isReady();
   int  estimate(int iech_out);
@@ -73,6 +76,7 @@ public:
   VectorDouble getRHSC(int ivar) const;
   VectorDouble getWeights() const { return _wgt; }
   VectorDouble getVariance() const { return _var0; }
+  double getLTerm() const { return _lterm; }
 
 private:
   int  _getNVar() const;
@@ -111,7 +115,7 @@ private:
   void _wgtDump(int status);
   VectorInt _getRelativePosition();
   int  _lhsInvert();
-  void _dual(bool flagLterm, double *lterm);
+  void _dual();
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
@@ -158,6 +162,7 @@ private:
   int    _bayesPreCalculations();
   void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
+  void   _transformGaussianToRaw();
 
 private:
   // Aggregated classes
@@ -165,6 +170,7 @@ private:
   Db*                  _dbout;
   Model*               _modelInit;
   ANeighParam*         _neighParam;
+  AAnam*               _anam;
   bool _isReady;
 
   // Pointer to the Model currently used (must not be freed)
@@ -180,9 +186,15 @@ private:
   bool _flagStd;
   bool _flagVarZ;
   bool _flagGlobal;
+  bool _flagDataChanged;
 
   /// Option for Calculation
   EKrigOpt _calcul;
+
+  /// Option for Weights at Data locations
+  int  _iptrWeights;
+  bool _flagWeights;
+  bool _flagSet;
 
   /// Option for Simulation
   bool _flagSimu;
@@ -220,23 +232,30 @@ private:
   bool _flagDGM;
   double _supportCoeff;
 
-  // Option for Estimating the Linear Combination of Variables
+  /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;
 
-  // Option for Estimation based on Image
+  /// Option for asking for Z * A-1 * Z
+  bool   _flagLTerm;
+  double _lterm;
+
+  /// Option for Gaussian Kriging
+  bool   _flagAnam;
+
+  /// Option for Estimation based on Image
   DbGrid* _dbaux;
   bool _flagSmooth;
   int  _smoothType;
   double _smoothRange;
 
-  // Option for saving the Weights using Keypair mechanism
-  bool _flagSaveWeights;
+  /// Option for saving the Weights using Keypair mechanism
+  bool _flagKeypairWeights;
 
-  // Local variables
+  /// Local variables
   int _iechOut;
   int _nred;
 
-  // Local arrays
+  /// Local arrays
   mutable bool _flagCheckAddress;
   mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;

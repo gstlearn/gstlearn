@@ -178,8 +178,8 @@ VectorDouble hermiteCondExp(VectorDouble krigest,
 }
 
 double hermiteCondExpElement(double krigest,
-                                             double krigstd,
-                                             const VectorDouble &phi)
+                             double krigstd,
+                             const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
@@ -621,9 +621,7 @@ VectorDouble hermiteEvaluateZ2(VectorDouble yk,
   return tab;
 }
 
-double hermiteEvaluateZ2(double yk,
-                                         double sk,
-                                         const VectorDouble &phi)
+double hermiteEvaluateZ2(double yk, double sk, const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   double log2 = log(2.);

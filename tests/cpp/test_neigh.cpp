@@ -28,7 +28,6 @@ int main(int /*argc*/, char */*argv*/[])
 {
   // Global parameters
   int ndim = 2;
-  int nvar = 1;
   bool verbose = true;
 
   // Standard output redirection to file

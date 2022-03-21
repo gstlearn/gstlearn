@@ -1916,10 +1916,10 @@ static void st_keypair_copy(Keypair *keypair, int type, int start, void *values)
  **
  *****************************************************************************/
 void set_keypair(const char *keyword,
-                                 int origin,
-                                 int nrow,
-                                 int ncol,
-                                 const double *values)
+                 int origin,
+                 int nrow,
+                 int ncol,
+                 const double *values)
 {
   Keypair *keypair;
 
@@ -2010,10 +2010,10 @@ void app_keypair(const char *keyword,
  **
  *****************************************************************************/
 void set_keypair_int(const char *keyword,
-                                     int origin,
-                                     int nrow,
-                                     int ncol,
-                                     int *values)
+                     int origin,
+                     int nrow,
+                     int ncol,
+                     int *values)
 {
   Keypair *keypair;
 

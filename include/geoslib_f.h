@@ -23,6 +23,7 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighUnique.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -404,6 +405,27 @@ GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
                                              Model *model,
                                              int ivar0 = 0,
                                              bool flag_verbose = false);
+GSTLEARN_EXPORT int krigsum(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            NeighUnique* neighU,
+                            bool flag_positive = false,
+                            const NamingConvention& namconv = NamingConvention("KrigSum"));
+GSTLEARN_EXPORT int kriggam(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            ANeighParam *neighparam,
+                            AAnam *anam,
+                            const NamingConvention& namconv = NamingConvention("KrigGam"));
+GSTLEARN_EXPORT int declustering(Db *db,
+                                 Model *model,
+                                 int method,
+                                 ANeighParam *neighparam = nullptr,
+                                 DbGrid *dbgrid = nullptr,
+                                 const VectorDouble& radius = VectorDouble(),
+                                 const VectorInt& ndisc = VectorInt(),
+                                 int flag_sel = false,
+                                 bool verbose = false);
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
