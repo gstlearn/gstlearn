@@ -98,6 +98,7 @@ int Db::resetFromSamples(int nech,
   return 0;
 }
 
+
 /**
  * Creating a Db by reading a CSV file
  *
@@ -3664,6 +3665,41 @@ int Db::resetSamplingDb(const Db* dbin,
 
   return 0;
 }
+
+/*****************************************************************************/
+/*!
+ **  Create a new Data Base with points generated at random
+ **
+ ** \return  Pointer for the new Db structure
+ **
+ ** \param[in]  mode        Type of Point generation
+ **                         0: Poisson
+ ** \param[in]  density     Average Poisson intensity
+ ** \param[in]  range       Repulsion range (mode=2)
+ ** \param[in]  beta        Bending coefficient (mode=2)
+ ** \param[in]  dbgrid      Descriptor of the Db grid parameters (mode=1)
+ ** \param[in]  origin      Vector of field origin
+ ** \param[in]  extend      Vector of field extends
+ ** \param[in]  seed        Seed for the random number generator
+ ** \param[in]  verbose     Verbose option
+ **
+ *****************************************************************************/
+
+Db* Db::createFromDbGrid(DbGrid* dbgrid,
+                                int mode,
+                                double density,
+                                double range,
+                                double beta,
+                                const VectorDouble origin,
+                                const VectorDouble extend,
+                                int seed,
+                                int verbose)
+{
+    Db* db = db_point_init(mode,verbose,dbgrid->getNDim(),seed,density,
+                           range,beta,dbgrid,origin,extend);
+    return db;
+}
+
 
 /**
  * Combine 'sel' input argument with an already existing selection (if any)

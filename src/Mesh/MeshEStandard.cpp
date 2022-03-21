@@ -221,9 +221,9 @@ int MeshEStandard::reset(const MatrixRectangular& apices,
 **
 *****************************************************************************/
 int MeshEStandard::resetOldStyle(int                 ndim,
-                          const VectorDouble& apices,
-                          const VectorInt&    meshes,
-                          bool                verbose)
+                                 const VectorDouble& apices,
+                                 const VectorInt&    meshes,
+                                 bool                verbose)
 {
   setNDim(ndim);
   int npoints = static_cast<int> (apices.size()) / ndim;
