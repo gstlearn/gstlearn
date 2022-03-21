@@ -57,13 +57,11 @@ AnamEmpirical::~AnamEmpirical()
 
 }
 
-String AnamEmpirical::toString(const AStringFormat* strfmt) const
+String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
   sstr << toTitle(1,"Empirical Anamorphosis");
-
-  sstr << AAnam::toString(strfmt);
 
   sstr << "Number of discretization lags = " << _nDisc << std::endl;
   sstr << "Additional variance           = " << _sigma2e << std::endl;

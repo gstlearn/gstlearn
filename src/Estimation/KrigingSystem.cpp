@@ -2441,6 +2441,15 @@ int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
     return 1;
   }
 
+  // Check that sill of the (monovariate) Model is smaller or equal to 1
+  double total = _model->getTotalSill(0, 0);
+  if (total > 1.)
+  {
+    messerr("This procedure requires the Sill of the Model (%lf)",total);
+    messerr("to be smaller than 1.");
+    return 1;
+  }
+
   _flagAnam = true;
   _anam = anam;
   return 0;
@@ -3387,7 +3396,7 @@ void KrigingSystem::_transformGaussianToRaw()
 
   /* Get the variance of the kriging error */
 
-  double std = sqrt(_dbout->getArray(_iechOut, _iptrStd));
+  double std = _dbout->getArray(_iechOut, _iptrStd);
 
   /* Calculate the conditional expectation */
 
@@ -3396,7 +3405,6 @@ void KrigingSystem::_transformGaussianToRaw()
 
   /* Calculate the conditional variance */
 
-  double condvar = hermiteEvaluateZ2(est, std, anam_hermite->getPsiHn());
-  condvar -= condexp * condexp;
+  double condvar = hermiteCondStdElement(est, std, anam_hermite->getPsiHn());
   _dbout->setArray(_iechOut, _iptrStd, condvar);
 }

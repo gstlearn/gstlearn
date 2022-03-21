@@ -4464,7 +4464,7 @@ static VectorDouble st_point_init_poisthin(int verbose,
   }
   if (number <= 0)
   {
-    messerr("After thinning, the Point Process does not have any sample left");
+    messerr("After thining, the Point Process does not have any sample left");
     goto label_end;
   }
 

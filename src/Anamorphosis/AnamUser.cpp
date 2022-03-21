@@ -44,13 +44,11 @@ AnamUser::~AnamUser()
 
 }
 
-String AnamUser::toString(const AStringFormat* strfmt) const
+String AnamUser::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
   sstr << "User defined Anamorphosis" << std::endl;
-
-  sstr << AAnam::toString(strfmt);
 
   return sstr.str();
 }

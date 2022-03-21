@@ -69,6 +69,7 @@ GSTLEARN_EXPORT VectorDouble hermiteCondStd(VectorDouble krigest,
 GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi);
+// TODO: to be evaluated. Seem to be corrupted
 GSTLEARN_EXPORT VectorDouble hermiteEvaluateZ2(VectorDouble yk,
                                                VectorDouble sk,
                                                const VectorDouble &phi);

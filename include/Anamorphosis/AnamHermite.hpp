@@ -41,7 +41,7 @@ public:
   double GaussianToRawValue(double y) const override;
   void   calculateMeanAndVariance() override;
 
-  AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
+  static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
 
   int    getNbPoly() const { return _nbPoly; }
   const  VectorDouble& getPsiHn() const { return _psiHn; }

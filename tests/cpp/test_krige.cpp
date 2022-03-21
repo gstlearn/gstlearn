@@ -27,15 +27,16 @@
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 50.);
+  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
-    VectorDouble tabvar = ut_vector_simulate_gaussian(nech, 0., 5);
+    VectorDouble tabvar = ut_vector_simulate_gaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 
@@ -75,12 +76,17 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
     CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
     covs.addCov(&cova2);
     model->setCovList(&covs);
-
   }
   else if (typecov == 2)
   {
     CovAniso covaL(ECov::LINEAR, 1., 0., 1., ctxt);
     covs.addCov(&covaL);
+    model->setCovList(&covs);
+  }
+  else if (typecov == 3)
+  {
+    CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
+    covs.addCov(&cova1);
     model->setCovList(&covs);
   }
 
@@ -115,14 +121,16 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   DbGrid* grid_res  = nullptr;
   DbGrid* image_res = nullptr;
   Db* data_res      = nullptr;
   Model* model_res  = nullptr;
+  AnamHermite* anam = nullptr;
   Global_Res gres;
   Krigtest_Res ktest;
+  VectorDouble tab;
 
   // Global parameters
   int ndim = 2;
@@ -167,8 +175,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create(ndim,false);
   neighU->display();
-
-  goto label_end;
 
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
@@ -287,30 +293,47 @@ int main(int /*argc*/, char */*argv*/[])
   OptDbg::setReference(0);
 
   // ====================== Testing Specials ==================================
-  label_end:
-
   // Create the Local Data Base
   data = createLocalDb(10, 2, 3);
 
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  VectorDouble tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
+  tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
   grid_res->addColumns(tab, "Constraints", ELoc::SUM);
   krigsum(data, grid_res, model, neighU, true);
   grid_res->display(&dbfmtKriging);
 
+  // Create the Local Data Base
+  data = createLocalDb(100, 2, 1);
+
+  // Create the Model
+  model = createModel(1, 3, 0, 0);
+
+  // Create the Gaussian
+  anam = AnamHermite::create(20);
+  anam->fit(data->getColumn("Var"));
+  anam->RawToGaussian(data, ELoc::Z);
+  anam->display();
+  data->display(&dbfmt);
+
+  message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  kriggam(data, grid_res, model, neighU, anam);
+  grid_res->display(&dbfmtKriging);
+
   // ====================== Free pointers ==================================
-  if (neighM != nullptr)    delete neighM;
-  if (neighU != nullptr)    delete neighU;
-  if (neighI != nullptr)    delete neighI;
-  if (data != nullptr)      delete data;
-  if (data_res != nullptr)  delete data_res;
-  if (grid != nullptr)      delete grid;
-  if (grid_res != nullptr)  delete grid_res;
-  if (image != nullptr)     delete image;
+  if (neighM    != nullptr) delete neighM;
+  if (neighU    != nullptr) delete neighU;
+  if (neighI    != nullptr) delete neighI;
+  if (data      != nullptr) delete data;
+  if (data_res  != nullptr) delete data_res;
+  if (grid      != nullptr) delete grid;
+  if (grid_res  != nullptr) delete grid_res;
+  if (image     != nullptr) delete image;
   if (image_res != nullptr) delete image_res;
-  if (model != nullptr)     delete model;
+  if (model     != nullptr) delete model;
   if (model_res != nullptr) delete model_res;
+  if (anam      != nullptr) delete anam;
 
   return (0);
 }

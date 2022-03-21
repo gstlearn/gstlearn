@@ -3695,9 +3695,9 @@ Db* Db::createFromDbGrid(DbGrid* dbgrid,
                                 int seed,
                                 int verbose)
 {
-    Db* db = db_point_init(mode,verbose,dbgrid->getNDim(),seed,density,
-                           range,beta,dbgrid,origin,extend);
-    return db;
+  Db* db = db_point_init(mode, verbose, dbgrid->getNDim(), seed, density, range,
+                         beta, dbgrid, origin, extend);
+  return db;
 }
 
 

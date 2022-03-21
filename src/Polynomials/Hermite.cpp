@@ -199,8 +199,8 @@ double hermiteCondExpElement(double krigest,
  * @return
  */
 VectorDouble hermiteCondStd(VectorDouble krigest,
-                                            VectorDouble krigstd,
-                                            const VectorDouble &phi)
+                            VectorDouble krigstd,
+                            const VectorDouble &phi)
 {
   int nech = static_cast<int>(krigest.size());
   VectorDouble condstd(nech, 0);
@@ -214,8 +214,8 @@ VectorDouble hermiteCondStd(VectorDouble krigest,
 }
 
 double hermiteCondStdElement(double krigest,
-                                             double krigstd,
-                                             const VectorDouble &phi)
+                             double krigstd,
+                             const VectorDouble &phi)
 {
   MatrixSquareGeneral JJ;
   int nbpoly = static_cast<int>(phi.size());
@@ -230,8 +230,7 @@ double hermiteCondStdElement(double krigest,
 
   double condexp = hermiteCondExpElement(krigest, krigstd, phi);
   constd -= condexp * condexp;
-  constd = (constd > 0) ? sqrt(constd) :
-                          0.;
+  constd = (constd > 0) ? sqrt(constd) : 0.;
 
   return constd;
 }

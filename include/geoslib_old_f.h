@@ -1842,12 +1842,6 @@ GSTLEARN_EXPORT int bayes_simulate(Model *model,
                                    const VectorDouble& rmean,
                                    const VectorDouble& rcov,
                                    VectorDouble& smean);
-GSTLEARN_EXPORT int krigmvp_f(Db *dbin,
-                              DbGrid *db3grid,
-                              DbGrid *db2grid,
-                              int fsum,
-                              Model *model,
-                              ANeighParam* neighparam);
 GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                    Db *dbout,
                                    Model *model,

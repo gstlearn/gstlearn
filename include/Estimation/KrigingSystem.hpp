@@ -153,10 +153,10 @@ private:
   void   _setDISC2(int idisc,int idim, double value);
   double _getVAR0(int ivCL, int jvCL) const;
   void   _setVAR0(int ivCL, int jvCL, double value);
-  void _checkAddress(const String& title,
-                     const String& theme,
-                     int ival,
-                     int nval) const;
+  void   _checkAddress(const String& title,
+                       const String& theme,
+                       int ival,
+                       int nval) const;
   bool   _prepareForImage(const NeighImage* neighI);
   bool   _prepareForImageKriging(Db* dbaux);
   int    _bayesPreCalculations();
