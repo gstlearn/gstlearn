@@ -5751,17 +5751,10 @@ int krigcell(Db *dbin,
  *****************************************************************************/
 static int st_calculate_hermite_factors(Db *db, int nfactor)
 {
-  VectorDouble hn;
-  int iptr, error;
-
-  /* Initializations */
-
-  error = 1;
-
   /* Create the new variables */
 
-  iptr = db->addColumnsByConstant(nfactor, 0.);
-  if (iptr < 0) goto label_end;
+  int iptr = db->addColumnsByConstant(nfactor, 0.);
+  if (iptr < 0) return 1;
 
   /* Loop on the samples */
 
@@ -5770,337 +5763,17 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
     if (!db->isActive(iech)) continue;
 
     /* Calculate the factors */
-
-    hn = hermitePolynomials(db->getVariable(iech, 0), 1., nfactor + 1);
+    VectorDouble hn = hermitePolynomials(db->getVariable(iech, 0), 1.,
+                                         nfactor + 1);
 
     /* Store the factors */
-
     for (int ih = 0; ih < nfactor; ih++)
       db->setArray(iech, iptr + ih, hn[ih + 1]);
   }
 
   /* Set the newly created variables to Z locator */
-
   db->setLocatorsByUID(nfactor, iptr, ELoc::Z);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Disjunctive Kriging
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure (containing the factors)
- ** \param[in]  dbgrid     output Grid Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  nfactor    Number of factors to be estimated (0: all)
- ** \param[in]  nmult      Array of Multiplicity for Partition
- ** \param[in]  ndisc      Discretization parameters (or NULL)
- ** \param[in]  flag_est   Option for the storing the estimation
- ** \param[in]  flag_std   Option for the storing the standard deviation
- **
- ** \remark In case the Model handles a Punctual Anamophossis, the
- ** \remark estimation of block average quantities is performed. This initiates
- ** \remark a block estimation kriging and therefore requires the definition of
- ** \remark the block discretization ('ndisc')
- **
- ** \remark In case the Model handles a Block Anamorphosis, the estimation
- ** \remark of probabilities per block is performed. This uses a simple point
- ** \remark (no use of 'ndisc'). Then the user may wish either to exhibit Q,T
- ** \remark on a SMU basis ('dbgrid'should then be the grid of SMUs) or to
- ** \remark directly produce Q,T on the panels (a panel is partitioned into
- ** \remark a set of SMU: this partition is defined through the argument 'nmult')
- **
- ** TODO : Check if the following remark is up to date!
- ** \remark The value 'KOPTION->calcul' must be set to:
- ** \remark - EKrigOpt::PONCTUAL for point-block estimation (flag_block = TRUE)
- ** \remark - EKrigOpt::BLOCK for point estimation
- ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
- ** \remark 'KOPTION->calcul' is set to EKrigOpt::BLOCK to provoke the discretization
- ** \remark of Panel into SMUs.
- **
- *****************************************************************************/
-int dk_f(Db *dbin,
-         DbGrid *dbgrid,
-         Model *model,
-         ANeighParam *neighparam,
-         int nfactor,
-         const VectorInt &nmult,
-         const VectorInt &ndisc,
-         int flag_est,
-         int flag_std)
-{
-  DbGrid *dbsmu;
-  int error, status, nech, neq, nred, nvar, nvarz, nfeq, iclass, imult, nb_mult;
-  int iptr_est_bck, iptr_std_bck, ivar, i;
-  int *varloc, flag_block, flag_panel, flag_continue, neqmax;
-  double *rhs_cum, ldum;
-  CovLMCAnamorphosis* covanam;
-  static double perturb = 1.e-8;
-  NeighWork nbghw;
-  VectorInt nbgh_ranks;
-
-  /* Preliminary checks */
-
-  error = 1;
-  iptr_est_bck = iptr_std_bck = -1;
-  rhs_cum = nullptr;
-  varloc = nullptr;
-  dbsmu = nullptr;
-  st_global_init(dbin, dbgrid);
-  FLAG_EST = flag_est;
-  FLAG_STD = flag_std;
-  FLAG_WGT = flag_std;
-
-  // The model is not checked against the Data, as the number of variables
-  // is not consistent: Model (1) whereas Data (nfactor-1)
-  if (st_check_environment(1, 1, NULL, neighparam)) goto label_end;
-
-  if (model->getVariableNumber() > 1)
-  {
-    messerr("This application is limited to the monovariate Model case");
-    goto label_end;
-  }
-  if (model->getCovMode() != EModelProperty::ANAM)
-  {
-    messerr("When using Disjunctive Kriging, the Model be incremented");
-    messerr("with Properties beforehad");
-    messerr("For that sake, use 'model.properties'");
-    goto label_end;
-  }
-  covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
-  if (covanam == nullptr)
-  {
-    messerr("The Covariance does not seem to be a CovLMCAnamorphosis");
-    goto label_end;
-  }
-
-  if (IFFFF(nfactor)) nfactor = covanam->getAnamNClass();
-  if (covanam->getAnamType() == EAnam::HERMITIAN)
-  {
-    /* In the gaussian case, calculate the 'nfactor-1' factors */
-
-    if (!DBIN->isVariableNumberComparedTo(1))
-    {
-      messerr("In Gaussian case, Input File must contain a single variable");
-      goto label_end;
-    }
-    if (st_calculate_hermite_factors(DBIN, nfactor - 1)) goto label_end;
-  }
-  nvarz = DBIN->getVariableNumber();
-
-  if (nfactor - 1 != nvarz)
-  {
-    messerr("The number of variables in Input Db (%d) does not match", nvarz);
-    messerr("the number of factors (%d)-1", nfactor);
-    goto label_end;
-  }
-  flag_block = 0;
-  if (covanam->getAnamType() == EAnam::HERMITIAN)
-  {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(covanam->getAnam());
-    if (anam_hermite->getRCoef() < 1.) flag_block = 1;
-  }
-  else if (covanam->getAnamType() == EAnam::DISCRETE_DD)
-  {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(covanam->getAnam());
-    if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
-  }
-  else
-  {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(covanam->getAnam());
-    if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
-  }
-  flag_panel = (flag_block && !nmult.empty());
-
-  /* Add the attributes for storing the results */
-
-  if (FLAG_EST != 0)
-  {
-    iptr_est_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
-    if (iptr_est_bck < 0) goto label_end;
-  }
-  if (FLAG_STD != 0)
-  {
-    iptr_std_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
-    if (iptr_std_bck < 0) goto label_end;
-  }
-
-  /* Pre-calculations */
-
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, model->getVariableNumber(), model, neighparam)) goto label_end;
-  nb_mult = 1;
-  if (flag_block)
-  {
-    if (flag_panel)
-    {
-      if (krige_koption_manage(1, 1, EKrigOpt::BLOCK, 1, nmult)) goto label_end;
-      KOPTION->calcul = EKrigOpt::PONCTUAL;
-      nb_mult = KOPTION->ntot;
-    }
-    else
-    {
-      if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
-        goto label_end;
-    }
-  }
-  else
-  {
-    if (krige_koption_manage(1, 1, EKrigOpt::BLOCK, 0, ndisc)) goto label_end;
-  }
-
-  /* Centering the data */
-
-  if (flag_block)
-  {
-    if (flag_panel)
-    {
-      dbsmu = db_create_grid_divider(dbgrid, nmult, 1);
-      if (db_center_point_to_grid(DBIN, dbsmu, perturb)) goto label_end;
-      dbsmu = db_delete(dbsmu);
-    }
-    else
-    {
-      if (db_center_point_to_grid(DBIN, dbgrid, perturb)) goto label_end;
-    }
-  }
-
-  /* Core allocation */
-
-  nvar = model->getVariableNumber();
-  nfeq = model->getDriftEquationNumber();
-  neqmax = 0;
-  if (flag_panel)
-  {
-    neqmax = nvar * st_get_nmax(neighparam) + model->getDriftEquationNumber();
-    rhs_cum = st_core(neqmax, 1);
-  }
-  varloc = (int*) mem_alloc(sizeof(int) * nvarz, 1);
-  for (ivar = 0; ivar < nvarz; ivar++)
-    varloc[ivar] = DBIN->getColIdxByLocator(ELoc::Z, ivar);
-
-  /* Loop on the targets to be processed */
-
-  status = 0;
-  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
-  {
-    mes_process("Disjunctive Kriging for cell", DBOUT->getSampleNumber(),
-                IECH_OUT);
-    OptDbg::setIndex(IECH_OUT + 1);
-    if (!DBOUT->isActive(IECH_OUT)) continue;
-    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
-    {
-      mestitle(1, "Target location");
-      db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
-    }
-
-    /* Select the Neighborhood */
-
-    DBIN->clearLocators(ELoc::Z);
-    DBIN->setLocatorByUID(varloc[0], ELoc::Z);
-    nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-    nech = (int) nbgh_ranks.size();
-    status = nbgh_ranks.empty();
-    if (status) continue;
-
-    /* Loop on the effective factors */
-
-    flag_continue = 1;
-    for (iclass = 1; iclass < nfactor && flag_continue; iclass++)
-    {
-      if (FLAG_EST != 0) IPTR_EST = iptr_est_bck + iclass - 1;
-      if (FLAG_STD != 0) IPTR_STD = iptr_std_bck + iclass - 1;
-      DBIN->clearLocators(ELoc::Z);
-      DBIN->setLocatorByUID(varloc[iclass - 1], ELoc::Z);
-
-      /* Set the rank of the current factor in the model */
-
-      if (model_anamorphosis_set_factor(model, iclass)) goto label_end;
-
-      /* Constant Calculation for the variance */
-
-      if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
-
-      /* Establish the kriging L.H.S. (always performed) */
-
-      st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
-      if (status)
-      {
-        flag_continue = 0;
-        continue;
-      }
-      st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
-
-      /* Blank out the estimate and the R.H.S. */
-
-      if (flag_panel)
-        for (i = 0; i < neqmax; i++)
-          rhs_cum[i] = 0.;
-
-      /* Loop on Panels (*1) or SMU (*nb_mult) */
-
-      for (imult = 0; imult < nb_mult; imult++)
-      {
-
-        /* Establish the kriging R.H.S. */
-
-        if (flag_panel) RAND_INDEX = imult;
-        st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
-        if (status) goto label_store;
-        st_rhs_iso2hetero(neq, nvar);
-
-        /* Cumulate the R.H.S. */
-
-        if (flag_panel) for (i = 0; i < neqmax; i++)
-          rhs_cum[i] += rhs[i];
-      }
-
-      /* Scale the R.H.S. */
-
-      if (flag_panel) for (i = 0; i < neqmax; i++)
-        rhs[i] = rhs_cum[i] / (double) nb_mult;
-      if (OptDbg::query(EDbg::KRIGING))
-        krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
-
-      /* Derive the kriging weights */
-
-      if (FLAG_WGT)
-      {
-        matrix_product(nred, nred, nvar, lhs, rhs, wgt);
-        if (OptDbg::query(EDbg::KRIGING))
-          krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
-      }
-
-      /* Perform the estimation */
-
-      label_store:
-      st_estimate(model, NULL, status, neighparam->getFlagXvalid(),nvar, nred);
-      if (OptDbg::query(EDbg::RESULTS))
-        st_result_kriging_print(neighparam->getFlagXvalid(), nvar, status);
-    }
-  }
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: OptDbg::setIndex(0);
-  rhs_cum = (double*) mem_free((char* ) rhs_cum);
-  varloc = (int*) mem_free((char* ) varloc);
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, model->getVariableNumber(), model, neighparam);
-  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, ndisc);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -8346,4 +8019,559 @@ int krimage(DbGrid *dbgrid,
   namconv.setNamesAndLocators(dbgrid, ELoc::Z, nvar, dbgrid, iptr_est, "estim");
 
   return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Disjunctive Kriging
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure (containing the factors)
+ ** \param[in]  dbgrid     output Grid Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  nfactor    Number of factors to be estimated (0: all)
+ ** \param[in]  nmult      Array of Multiplicity for Partition
+ ** \param[in]  ndisc      Discretization parameters (or NULL)
+ ** \param[in]  flag_est   Option for the storing the estimation
+ ** \param[in]  flag_std   Option for the storing the standard deviation
+ **
+ ** \remark In case the Model handles a Punctual Anamophossis, the
+ ** \remark estimation of block average quantities is performed. This initiates
+ ** \remark a block estimation kriging and therefore requires the definition of
+ ** \remark the block discretization ('ndisc')
+ **
+ ** \remark In case the Model handles a Block Anamorphosis, the estimation
+ ** \remark of probabilities per block is performed. This uses a simple point
+ ** \remark (no use of 'ndisc'). Then the user may wish either to exhibit Q,T
+ ** \remark on a SMU basis ('dbgrid'should then be the grid of SMUs) or to
+ ** \remark directly produce Q,T on the panels (a panel is partitioned into
+ ** \remark a set of SMU: this partition is defined through the argument 'nmult')
+ **
+ ** TODO : Check if the following remark is up to date!
+ ** \remark The value 'KOPTION->calcul' must be set to:
+ ** \remark - EKrigOpt::PONCTUAL for point-block estimation (flag_block = TRUE)
+ ** \remark - EKrigOpt::BLOCK for point estimation
+ ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
+ ** \remark 'KOPTION->calcul' is set to EKrigOpt::BLOCK to provoke the discretization
+ ** \remark of Panel into SMUs.
+ **
+ *****************************************************************************/
+static int dk_f_old(Db *dbin,
+         DbGrid *dbgrid,
+         Model *model,
+         ANeighParam *neighparam,
+         int nfactor,
+         const VectorInt &nmult,
+         const VectorInt &ndisc,
+         int flag_est,
+         int flag_std,
+         const NamingConvention& namconv)
+{
+  DbGrid *dbsmu;
+  int error, status, nech, neq, nred, nvar, nvarz, nfeq, iclass, imult, nb_mult;
+  int iptr_est_bck, iptr_std_bck, ivar, i;
+  int *varloc, flag_block, flag_panel, flag_continue, neqmax;
+  double *rhs_cum, ldum;
+  CovLMCAnamorphosis* covanam;
+  static double perturb = 1.e-8;
+  NeighWork nbghw;
+  VectorInt nbgh_ranks;
+
+  /* Preliminary checks */
+
+  error = 1;
+  iptr_est_bck = iptr_std_bck = -1;
+  rhs_cum = nullptr;
+  varloc = nullptr;
+  dbsmu = nullptr;
+  st_global_init(dbin, dbgrid);
+  FLAG_EST = flag_est;
+  FLAG_STD = flag_std;
+  FLAG_WGT = flag_std;
+
+  // The model is not checked against the Data, as the number of variables
+  // is not consistent: Model (1) whereas Data (nfactor-1)
+  if (st_check_environment(1, 1, NULL, neighparam)) goto label_end;
+
+  if (model->getVariableNumber() > 1)
+  {
+    messerr("This application is limited to the monovariate Model case");
+    goto label_end;
+  }
+  if (model->getCovMode() != EModelProperty::ANAM)
+  {
+    messerr("When using Disjunctive Kriging, the Model be incremented");
+    messerr("with Properties beforehad");
+    messerr("For that sake, use 'model.properties'");
+    goto label_end;
+  }
+  covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
+  if (covanam == nullptr)
+  {
+    messerr("The Covariance does not seem to be a CovLMCAnamorphosis");
+    goto label_end;
+  }
+
+  if (IFFFF(nfactor)) nfactor = covanam->getAnamNClass();
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  {
+    /* In the gaussian case, calculate the 'nfactor-1' factors */
+
+    if (!DBIN->isVariableNumberComparedTo(1))
+    {
+      messerr("In Gaussian case, Input File must contain a single variable");
+      goto label_end;
+    }
+    if (st_calculate_hermite_factors(DBIN, nfactor - 1)) goto label_end;
+  }
+  nvarz = DBIN->getVariableNumber();
+
+  if (nfactor - 1 != nvarz)
+  {
+    messerr("The number of variables in Input Db (%d) does not match", nvarz);
+    messerr("the number of factors (%d)-1", nfactor);
+    goto label_end;
+  }
+  flag_block = 0;
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  {
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(covanam->getAnam());
+    if (anam_hermite->getRCoef() < 1.) flag_block = 1;
+  }
+  else if (covanam->getAnamType() == EAnam::DISCRETE_DD)
+  {
+    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(covanam->getAnam());
+    if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
+  }
+  else
+  {
+    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(covanam->getAnam());
+    if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
+  }
+  flag_panel = (flag_block && !nmult.empty());
+
+  /* Add the attributes for storing the results */
+
+  if (FLAG_EST != 0)
+  {
+    iptr_est_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
+    if (iptr_est_bck < 0) goto label_end;
+  }
+  if (FLAG_STD != 0)
+  {
+    iptr_std_bck = DBOUT->addColumnsByConstant(nfactor - 1, TEST);
+    if (iptr_std_bck < 0) goto label_end;
+  }
+
+  /* Pre-calculations */
+
+  nbghw.initialize(DBIN, neighparam);
+  nbghw.setFlagSimu(FLAG_SIMU);
+  if (st_model_manage(1, model)) goto label_end;
+  if (st_krige_manage(1, model->getVariableNumber(), model, neighparam)) goto label_end;
+  nb_mult = 1;
+  if (flag_block)
+  {
+    if (flag_panel)
+    {
+      if (krige_koption_manage(1, 1, EKrigOpt::BLOCK, 1, nmult)) goto label_end;
+      KOPTION->calcul = EKrigOpt::PONCTUAL;
+      nb_mult = KOPTION->ntot;
+    }
+    else
+    {
+      if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
+        goto label_end;
+    }
+  }
+  else
+  {
+    if (krige_koption_manage(1, 1, EKrigOpt::BLOCK, 0, ndisc)) goto label_end;
+  }
+
+  /* Centering the data */
+
+  if (flag_block)
+  {
+    if (flag_panel)
+    {
+      dbsmu = db_create_grid_divider(dbgrid, nmult, 1);
+      if (db_center_point_to_grid(DBIN, dbsmu, perturb)) goto label_end;
+      dbsmu = db_delete(dbsmu);
+    }
+    else
+    {
+      if (db_center_point_to_grid(DBIN, dbgrid, perturb)) goto label_end;
+    }
+  }
+
+  /* Core allocation */
+
+  nvar = model->getVariableNumber();
+  nfeq = model->getDriftEquationNumber();
+  neqmax = 0;
+  if (flag_panel)
+  {
+    neqmax = nvar * st_get_nmax(neighparam) + model->getDriftEquationNumber();
+    rhs_cum = st_core(neqmax, 1);
+  }
+  varloc = (int*) mem_alloc(sizeof(int) * nvarz, 1);
+  for (ivar = 0; ivar < nvarz; ivar++)
+    varloc[ivar] = DBIN->getColIdxByLocator(ELoc::Z, ivar);
+
+  /* Loop on the targets to be processed */
+
+  status = 0;
+  for (IECH_OUT = 0; IECH_OUT < DBOUT->getSampleNumber(); IECH_OUT++)
+  {
+    mes_process("Disjunctive Kriging for cell", DBOUT->getSampleNumber(),
+                IECH_OUT);
+    OptDbg::setIndex(IECH_OUT + 1);
+    if (!DBOUT->isActive(IECH_OUT)) continue;
+    if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+    {
+      mestitle(1, "Target location");
+      db_sample_print(DBOUT, IECH_OUT, 1, 0, 0);
+    }
+
+    /* Select the Neighborhood */
+
+    DBIN->clearLocators(ELoc::Z);
+    DBIN->setLocatorByUID(varloc[0], ELoc::Z);
+    nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
+    nech = (int) nbgh_ranks.size();
+    status = nbgh_ranks.empty();
+    if (status) continue;
+
+    /* Loop on the effective factors */
+
+    flag_continue = 1;
+    for (iclass = 1; iclass < nfactor && flag_continue; iclass++)
+    {
+      if (FLAG_EST != 0) IPTR_EST = iptr_est_bck + iclass - 1;
+      if (FLAG_STD != 0) IPTR_STD = iptr_std_bck + iclass - 1;
+      DBIN->clearLocators(ELoc::Z);
+      DBIN->setLocatorByUID(varloc[iclass - 1], ELoc::Z);
+
+      /* Set the rank of the current factor in the model */
+
+      if (model_anamorphosis_set_factor(model, iclass)) goto label_end;
+
+      /* Constant Calculation for the variance */
+
+      if (FLAG_STD != 0) st_variance0(model, nvar, VectorVectorDouble());
+
+      /* Establish the kriging L.H.S. (always performed) */
+
+      st_prepar(model, neighparam, nbgh_ranks, &status, &nred, &neq);
+      if (status)
+      {
+        flag_continue = 0;
+        continue;
+      }
+      st_data_dual(model, NULL, nbgh_ranks, nred, &ldum);
+
+      /* Blank out the estimate and the R.H.S. */
+
+      if (flag_panel)
+        for (i = 0; i < neqmax; i++)
+          rhs_cum[i] = 0.;
+
+      /* Loop on Panels (*1) or SMU (*nb_mult) */
+
+      for (imult = 0; imult < nb_mult; imult++)
+      {
+
+        /* Establish the kriging R.H.S. */
+
+        if (flag_panel) RAND_INDEX = imult;
+        st_rhs(model, nbgh_ranks, neq, nvar, VectorVectorDouble(), &status);
+        if (status) goto label_store;
+        st_rhs_iso2hetero(neq, nvar);
+
+        /* Cumulate the R.H.S. */
+
+        if (flag_panel) for (i = 0; i < neqmax; i++)
+          rhs_cum[i] += rhs[i];
+      }
+
+      /* Scale the R.H.S. */
+
+      if (flag_panel) for (i = 0; i < neqmax; i++)
+        rhs[i] = rhs_cum[i] / (double) nb_mult;
+      if (OptDbg::query(EDbg::KRIGING))
+        krige_rhs_print(nvar, nech, neq, nred, flag, rhs);
+
+      /* Derive the kriging weights */
+
+      if (FLAG_WGT)
+      {
+        matrix_product(nred, nred, nvar, lhs, rhs, wgt);
+        if (OptDbg::query(EDbg::KRIGING))
+          krige_wgt_print(status, nvar, nvar, nfeq, nbgh_ranks, nred, -1, flag, wgt);
+      }
+
+      /* Perform the estimation */
+
+      label_store:
+      st_estimate(model, NULL, status, neighparam->getFlagXvalid(),nvar, nred);
+      if (OptDbg::query(EDbg::RESULTS))
+        st_result_kriging_print(neighparam->getFlagXvalid(), nvar, status);
+    }
+  }
+
+  /* Set the error return flag */
+
+  error = 0;
+  /* Set the error return flag */
+
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_std_bck, "stdev", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_est_bck, "estim");
+
+  label_end: OptDbg::setIndex(0);
+  rhs_cum = (double*) mem_free((char* ) rhs_cum);
+  varloc = (int*) mem_free((char* ) varloc);
+  (void) st_model_manage(-1, model);
+  (void) st_krige_manage(-1, model->getVariableNumber(), model, neighparam);
+  (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, ndisc);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Disjunctive Kriging
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure (containing the factors)
+ ** \param[in]  dbgrid     output Grid Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  nfactor    Number of factors to be estimated (0: all)
+ ** \param[in]  nmult      Array of Multiplicity for Partition
+ ** \param[in]  ndisc      Discretization parameters (or NULL)
+ ** \param[in]  flag_est   Option for the storing the estimation
+ ** \param[in]  flag_std   Option for the storing the standard deviation
+ ** \param[in]  namconv    Naming convention
+ **
+ ** \remark In case the Model handles a Punctual Anamorphosis, the
+ ** \remark estimation of block average quantities is performed. This initiates
+ ** \remark a block estimation kriging and therefore requires the definition of
+ ** \remark the block discretization ('ndisc')
+ **
+ ** \remark In case the Model handles a Block Anamorphosis, the estimation
+ ** \remark of probabilities per block is performed. This uses a simple point
+ ** \remark (no use of 'ndisc'). Then the user may wish either to exhibit Q,T
+ ** \remark on a SMU basis ('dbgrid' should then be the grid of SMUs) or to
+ ** \remark directly produce Q,T on the panels (a panel is partitioned into
+ ** \remark a set of SMU: this partition is defined through the argument 'nmult')
+ **
+ ** \remark The value 'KOPTION->calcul' must be set to:
+ ** \remark - EKrigOpt::PONCTUAL for point-block estimation (flag_block = TRUE)
+ ** \remark - EKrigOpt::BLOCK for point estimation
+ ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
+ ** \remark 'KOPTION->calcul' is set to EKrigOpt::BLOCK to provoke the discretization
+ ** \remark of Panel into SMUs.
+ **
+ *****************************************************************************/
+static int dk_f_new(Db *dbin,
+                    DbGrid *dbgrid,
+                    Model *model,
+                    ANeighParam *neighparam,
+                    int nfactor,
+                    const VectorInt &nmult,
+                    const VectorInt &ndisc,
+                    int flag_est,
+                    int flag_std,
+                    const NamingConvention& namconv)
+{
+  static double perturb = 1.e-8;
+
+  // Preliminary checks
+
+  if (neighparam->getType() == ENeigh::IMAGE)
+  {
+    messerr("This tool cannot function with an IMAGE neighborhood");
+    return 1;
+  }
+  if (model->getVariableNumber() > 1)
+  {
+    messerr("This application is limited to the monovariate Model case");
+    return 1;
+  }
+  if (model->getCovMode() != EModelProperty::ANAM)
+  {
+    messerr("When using Disjunctive Kriging, the Model be incremented");
+    messerr("with Properties beforehand");
+    messerr("For that sake, use 'model.properties'");
+    return 1;
+  }
+  CovLMCAnamorphosis* covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
+  if (covanam == nullptr)
+  {
+    messerr("The Covariance does not seem to be a CovLMCAnamorphosis");
+    return 1;
+  }
+  if (IFFFF(nfactor)) nfactor = covanam->getAnamNClass();
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  {
+    /* In the gaussian case, calculate the 'nfactor-1' factors */
+
+    if (! dbin->isVariableNumberComparedTo(1))
+    {
+      messerr("In Gaussian case, Input File must contain a single variable");
+      return 1;
+    }
+    if (st_calculate_hermite_factors(dbin, nfactor - 1)) return 1;
+  }
+  int nvarz = dbin->getVariableNumber();
+  if (nfactor - 1 != nvarz)
+  {
+    messerr("The number of variables in Input Db (%d) does not match", nvarz);
+    messerr("the number of factors (%d)-1", nfactor);
+    return 1;
+  }
+  int flag_block = 0;
+  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  {
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(covanam->getAnam());
+    if (anam_hermite->getRCoef() < 1.) flag_block = 1;
+  }
+  else if (covanam->getAnamType() == EAnam::DISCRETE_DD)
+  {
+    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(covanam->getAnam());
+    if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
+  }
+  else if (covanam->getAnamType() == EAnam::DISCRETE_IR)
+  {
+    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(covanam->getAnam());
+    if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
+  }
+  else
+  {
+    messerr("Non authorized type of Anamophosis");
+    return 1;
+  }
+  int flag_panel = (flag_block && ! nmult.empty());
+
+  // Preparing the information
+
+  EKrigOpt calcul;
+  VectorInt ndiscret;
+  if (flag_block)
+  {
+    if (flag_panel)
+    {
+      calcul = EKrigOpt::PONCTUAL;
+      ndiscret = nmult;
+    }
+    else
+    {
+      calcul = EKrigOpt::PONCTUAL;
+    }
+  }
+  else
+  {
+    calcul = EKrigOpt::BLOCK;
+    ndiscret = ndisc;
+  }
+
+  /* Centering the data */
+
+  if (flag_block)
+  {
+    if (flag_panel)
+    {
+      DbGrid* dbsmu = db_create_grid_divider(dbgrid, nmult, 1);
+      if (db_center_point_to_grid(dbin, dbsmu, perturb)) return 1;
+      dbsmu = db_delete(dbsmu);
+    }
+    else
+    {
+      if (db_center_point_to_grid(dbin, dbgrid, perturb)) return 1;
+    }
+  }
+
+  // Initializations
+
+  int iptr_est  = -1;
+  int iptr_std  = -1;
+
+  /* Add the attributes for storing the results */
+
+  if (flag_est != 0)
+  {
+    iptr_est = dbgrid->addColumnsByConstant(nvarz, 0.);
+    if (iptr_est < 0) return 1;
+  }
+  if (flag_std != 0)
+  {
+    iptr_std = dbgrid->addColumnsByConstant(nvarz, 0.);
+    if (iptr_std < 0) return 1;
+  }
+
+  /* Setting options */
+
+  VectorInt iuids = dbin->getUIDsByLocator(ELoc::Z);
+
+  // Locally turn the problem to a Monovariate case to have it accepted
+  dbin->clearLocators(ELoc::Z);
+  dbin->setLocatorByUID(iuids[0], ELoc::Z);
+
+  KrigingSystem ksys(dbin, dbgrid, model, neighparam);
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.setKrigOptCalcul(calcul, ndiscret)) return 1;
+  if (ksys.setKrigOptDGM(true, flag_panel, 1.)) return 1;
+  if (! ksys.isReady()) return 1;
+
+  /* Loop on the targets to be processed */
+
+  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
+  {
+    mes_process("Disjunctive Kriging for cell", dbgrid->getSampleNumber(),
+                iech_out);
+
+    for (int iclass = 1; iclass < nfactor; iclass++)
+    {
+      int jptr_est = (flag_est != 0) ? iptr_est + iclass - 1 : -1;
+      int jptr_std = (flag_std != 0) ? iptr_std + iclass - 1 : -1;
+      dbin->clearLocators(ELoc::Z);
+      dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
+      if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
+
+      if (model_anamorphosis_set_factor(model, iclass)) return 1;
+
+      if (ksys.estimate(iech_out)) return 1;
+    }
+  }
+
+  /* Set the error return flag */
+
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_std, "stdev", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_est, "estim");
+
+  return 0;
+}
+
+int dk(Db *dbin,
+       DbGrid *dbgrid,
+       Model *model,
+       ANeighParam *neighparam,
+       int nfactor,
+       const VectorInt &nmult,
+       const VectorInt &ndisc,
+       int flag_est,
+       int flag_std,
+       const NamingConvention& namconv)
+{
+  if (OptCustom::query("Version", 0) == 0)
+    return dk_f_old(dbin, dbgrid, model, neighparam, nfactor, nmult, ndisc, flag_est,
+             flag_std, namconv);
+  else
+    return dk_f_new(dbin, dbgrid, model, neighparam, nfactor, nmult, ndisc, flag_est,
+             flag_std, namconv);
 }

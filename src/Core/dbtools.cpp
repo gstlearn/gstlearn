@@ -37,7 +37,6 @@
 
 /*! \cond */
 #define TRACE(i,iseg)       (trace[(i) * nseg + (iseg)])
-#define TAB(iech,idim)      (tab[ndim * (iech) + (idim)])
 #define LINE(nbline,i)      (line[npline * (nbline) + (i)])
 #define PROP1(iz,iprop)     (prop1[(iz) * nprop + (iprop)])
 #define PROP2(iz,iprop)     (prop2[(iz) * nprop + (iprop)])
@@ -4182,7 +4181,7 @@ static VectorDouble st_point_init_poisson(int number,
   tab.resize(ndim * number);
   for (int idim = 0; idim < ndim; idim++)
     for (int iech = 0; iech < number; iech++)
-      TAB(iech,idim) = coormin[idim] + law_uniform(0., extend[idim]);
+      tab[ndim * iech + idim] = coormin[idim] + law_uniform(0., extend[idim]);
   return (tab);
 }
 
@@ -4268,7 +4267,7 @@ static VectorDouble st_point_init_poisreg(int number,
     /* The sample is accepted */
 
     for (int idim = 0; idim < ndim; idim++)
-      TAB(nbloc,idim) = coor[idim];
+      tab[ndim * nbloc + idim] = coor[idim];
     nbloc++;
   }
   return tab;
@@ -4294,7 +4293,7 @@ static void st_poisson_thinning(int ndim,
       double dd = 0.;
       for (int idim = 0; idim < ndim; idim++)
       {
-        double delta = TAB(ip,idim) - TAB(jp, idim);
+        double delta = tab[ndim * ip + idim] - tab[ndim * jp + idim];
         dd += delta * delta;
       }
       if (dd > ddmin) continue;
@@ -4317,7 +4316,7 @@ static void st_poisson_thinning(int ndim,
     if (keep[ip])
     {
       for (int idim = 0; idim < ndim; idim++)
-        TAB(ecr,idim) = TAB(lec, idim);
+        tab[ndim * ecr + idim] = tab[ndim * lec + idim];
       ecr++;
     }
     lec++;
@@ -5837,7 +5836,7 @@ Db* db_point_init(int nech,
   /* Allocate the main structure */
 
   number = (int) tab.size() / ndim;
-  db = db_create_point(number, ndim, ELoadBy::COLUMN, flag_add_rank, tab);
+  db = db_create_point(number, ndim, ELoadBy::SAMPLE, flag_add_rank, tab);
 
   /* Set the locators */
 

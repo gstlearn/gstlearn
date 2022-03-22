@@ -86,6 +86,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
+      _flagPanel(false),
       _supportCoeff(1.),
       _matCL(),
       _flagLTerm(false),
@@ -969,6 +970,26 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
   return 0;
 }
 
+int KrigingSystem::_rhsCalculPanel()
+{
+  VectorDouble rhs_cum;
+  rhs_cum.resize(_nred, 0.);
+  for (int i = 0; i < _ndiscNumber; i++)
+  {
+    // Calculate the RHS for a given panel
+    if (_rhsCalcul(i)) return 1;
+
+    // Cumulate the RHS
+    for (int j = 0; j < _nred; j++)
+      rhs_cum[j] += _rhs[j];
+  }
+
+  // Average the RHS for the different SMUs
+  for (int i = 0; i < _ndiscNumber; i++)
+    _rhs[i] = rhs_cum[i] / (double) _ndiscNumber;
+  return 0;
+}
+
 void KrigingSystem::_rhsIsoToHetero()
 {
   int nvar = _getNVar();
@@ -1808,7 +1829,10 @@ int KrigingSystem::estimate(int iech_out)
   if (caseXvalidUnique) goto label_store;
 
   if (_flagBayes) _model = _modelSimple;
-  _rhsCalcul();
+  if (_flagPanel)
+    _rhsCalculPanel();
+  else
+    _rhsCalcul();
   if (_flagBayes) _model = _modelInit;
 
   if (status != 0) goto label_store;
@@ -2110,15 +2134,18 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
         return 1;
       }
     }
-    _ndiscs = ndiscs;
-    _ndiscNumber = ut_ivector_prod(_ndiscs);
-    _disc1.resize(_ndiscNumber * ndim);
-    _disc2.resize(_ndiscNumber * ndim);
 
     // For constant discretization, calculate discretization coordinates
 
     if (! _flagPerCell) _blockDiscretize();
    }
+
+  // Discretization is stored ... even in Ponctual case (for DGM)
+
+  _ndiscs = ndiscs;
+  _ndiscNumber = ut_ivector_prod(_ndiscs);
+  _disc1.resize(_ndiscNumber * ndim);
+  _disc2.resize(_ndiscNumber * ndim);
   return 0;
 }
 
@@ -2341,14 +2368,15 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoef)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, bool flag_panel, double rcoef)
 {
-  _flagDGM = flag_dgm;
   if (rcoef < 0. || rcoef > 1.)
   {
     messerr("The Change of Support Coefficient (%lf) should lie in [0,1]");
     return 1;
   }
+  _flagDGM = flag_dgm;
+  _flagPanel = flag_panel;
   _supportCoeff = rcoef;
   return 0;
 }

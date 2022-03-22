@@ -52,7 +52,7 @@ public:
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
-  int  setKrigOptDGM(bool flag_dgm, double rcoef = 1.);
+  int  setKrigOptDGM(bool flag_dgm, bool flag_panel, double rcoef = 1.);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
@@ -109,6 +109,7 @@ private:
   void _lhsIsoToHetero();
   void _lhsDump(int nbypas = 5);
   int  _rhsCalcul(int rankRandom = -1);
+  int  _rhsCalculPanel();
   void _rhsIsoToHetero();
   void _rhsDump();
   void _wgtCalcul();
@@ -229,7 +230,8 @@ private:
   Model* _modelSimple;
 
   /// Option for Disjunctive Kriging
-  bool _flagDGM;
+  bool   _flagDGM;
+  bool   _flagPanel;
   double _supportCoeff;
 
   /// Option for Estimating the Linear Combination of Variables

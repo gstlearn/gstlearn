@@ -114,5 +114,5 @@ private:
   int    _anamPointBlock;     /* Type of point / block covariance */
   VectorDouble _anamStrCount; /* Array of structure count per model (IR)  */
   VectorDouble _anamMeans;    /* Array of statistics per class */
-  AAnam*        _anam;
+  AAnam*       _anam;
 };
