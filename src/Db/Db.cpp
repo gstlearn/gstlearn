@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <functional>
 #include <math.h>
+#include <stdio.h>
 
 Db::Db()
     : AStringable(),
@@ -1585,7 +1586,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
-    if (! (getVariableNumber() == nvar))
+    if (getVariableNumber() != nvar)
     {
       messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
               nvar,getVariableNumber());
@@ -3672,34 +3673,30 @@ int Db::resetSamplingDb(const Db* dbin,
  **
  ** \return  Pointer for the new Db structure
  **
- ** \param[in]  mode        Type of Point generation
- **                         0: Poisson
- ** \param[in]  density     Average Poisson intensity
- ** \param[in]  range       Repulsion range (mode=2)
- ** \param[in]  beta        Bending coefficient (mode=2)
- ** \param[in]  dbgrid      Descriptor of the Db grid parameters (mode=1)
- ** \param[in]  origin      Vector of field origin
- ** \param[in]  extend      Vector of field extends
+ ** \param[in]  nech        Expected number of samples
+ ** \param[in]  dbgrid      Descriptor of the Db grid parameters
+ ** \param[in]  flag_exact  True if the number of samples must not be drawn
+ ** \param[in]  flag_repulsion True if repulsion is processed
+ ** \param[in]  range       Repulsion range
+ ** \param[in]  beta        Bending coefficient
  ** \param[in]  seed        Seed for the random number generator
- ** \param[in]  verbose     Verbose option
+ ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
  **
  *****************************************************************************/
-
-Db* Db::createFromDbGrid(DbGrid* dbgrid,
-                                int mode,
-                                double density,
-                                double range,
-                                double beta,
-                                const VectorDouble origin,
-                                const VectorDouble extend,
-                                int seed,
-                                int verbose)
+Db* Db::createFromDbGrid(int nech,
+                         DbGrid* dbgrid,
+                         bool flag_exact,
+                         bool flag_repulsion,
+                         double range,
+                         double beta,
+                         int seed,
+                         int flag_add_rank)
 {
-  Db* db = db_point_init(mode, verbose, dbgrid->getNDim(), seed, density, range,
-                         beta, dbgrid, origin, extend);
+  Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
+                         flag_exact, flag_repulsion, range, beta, seed,
+                         flag_add_rank);
   return db;
 }
-
 
 /**
  * Combine 'sel' input argument with an already existing selection (if any)
@@ -3798,22 +3795,23 @@ Db* Db::createFromCSV(const String& filename,
   }
   return db;
 }
+
 Db* Db::createFromBox(int nech,
                       const VectorDouble& coormin,
                       const VectorDouble& coormax,
-                      int ndim,
+                      bool flag_exact,
+                      bool flag_repulsion,
+                      double range,
+                      double beta,
                       int seed,
                       int flag_add_rank)
 {
-  Db* db = new Db;
-  if (db->resetFromBox(nech, coormin, coormax, ndim, seed, flag_add_rank))
-  {
-    messerr("Error when creating Db from Box");
-    delete db;
-    return nullptr;
-  }
+  Db* db = db_point_init(nech, coormin, coormax, nullptr,
+                         flag_exact, flag_repulsion, range, beta, seed,
+                         flag_add_rank);
   return db;
 }
+
 Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
 {
   Db* db = new Db;

@@ -40,7 +40,7 @@ int main(int /*argc*/, char */*argv*/[])
   int seed = 43243;
   VectorDouble coormin = {0.,0.};
   VectorDouble coormax = {100.,100.};
-  Db* db = Db::createFromBox(nech, coormin, coormax, ndim, seed, true);
+  Db* db = Db::createFromBox(nech, coormin, coormax);
   VectorDouble tab = ut_vector_simulate_gaussian(nech);
   db->addColumns(tab, "Variable", ELoc::Z);
   db->display();
@@ -48,7 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the target data base
   nech = 4;
   seed = 5436;
-  Db* target = Db::createFromBox(nech, coormin, coormax, ndim, seed, true);
+  Db* target = Db::createFromBox(nech, coormin, coormax);
   target->display();
 
   // Creating a Unique Neighborhood

@@ -2019,7 +2019,6 @@ void KrigingSystem::_simulateDump(int status)
  * @param iptrEst  UID for storing the estimation(s)
  * @param iptrStd  UID for storing the Standard deviations(s)
  * @param iptrVarZ UID for storing the Variance(s) of estimator
- * @param iptrWeights UID for storing the Weights (in dbin)
  * @return
  * @remark If a term must not be calculated, its UID must be negative
  */

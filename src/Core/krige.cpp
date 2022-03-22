@@ -5517,108 +5517,6 @@ int krigsum(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Check that the proportions are positive
- **
- ** \return  Number of erroneous proportions
- **
- ** \param[in]  db3grid   Db 3-D Grid
- ** \param[in]  ix        Index of the grid node along X
- ** \param[in]  iy        Index of the grid node along Y
- ** \param[in]  nvarin    Total number of facies
- ** \param[in]  iptr_prop Rank of the proportion attribute
- ** \param[in]  proptab   Array of proportions (dimension: nfac * nx * ny * nz)
- **
- ** \param[out]  lterm   The resulting term Z * C-1 * Z
- **
- ** \remark  If a proportion is negative in a cell, the proportion is set to 0
- ** \remark  and the corresponding LTERM is set to 0
- **
- *****************************************************************************/
-static int st_check_positivity(DbGrid *db3grid,
-                               int ix,
-                               int iy,
-                               int nvarin,
-                               int iptr_prop,
-                               double *proptab,
-                               double *lterm)
-{
-  int indg[3], n_wrong, iech, iz, ivar;
-  double prop;
-
-  indg[0] = ix;
-  indg[1] = iy;
-  n_wrong = 0;
-  for (iz = 0; iz < db3grid->getNX(2); iz++)
-  {
-    indg[2] = iz;
-    iech = db_index_grid_to_sample(db3grid, indg);
-    if (!db3grid->isActive(iech)) continue;
-
-    /* No estimated proportion at this level */
-
-    for (ivar = 0; ivar < nvarin; ivar++)
-    {
-      prop = PROPTAB(ivar, iz);
-      if (prop >= 0) continue;
-      db3grid->setArray(iech, iptr_prop + ivar, 0.);
-      LTERM(ivar,iz)= 0.;
-      n_wrong++;
-    }
-  }
-  return (n_wrong);
-}
-
-/****************************************************************************/
-/*!
- **  Check the seismic constraint
- **
- ** \return  Error return code
- **
- ** \param[in]  ix       Index of the grid node along X
- ** \param[in]  iy       Index of the grid node along Y
- ** \param[in]  nz       Number of layers along Z
- ** \param[in]  nvarin   Number of facies
- ** \param[in]  fsum     Rank of the proportion facies which average up
- **                      to the seismic (no constraint if negative)
- ** \param[in]  seisval  Seismic value
- ** \param[in]  proptab  Array of proportions (dimension: nfac * nx * ny * nz)
- **
- *****************************************************************************/
-static int st_check_constraint_seismic(int ix,
-                                       int iy,
-                                       int nz,
-                                       int nvarin,
-                                       int fsum,
-                                       double seisval,
-                                       double *proptab)
-{
-  double prop;
-  int iz, error;
-
-  error = 0;
-  if (FFFF(seisval)) return (0);
-
-  /* Calculate the average proportion corresponding to the seismic */
-
-  prop = 0.;
-  for (iz = 0; iz < nz; iz++)
-    prop += PROPTAB(fsum, iz);
-  prop /= nz;
-
-  /* Compare seismic and resulting average propotion */
-
-  if (ABS(prop - seisval) > EPSILON5)
-  {
-    messerr(
-        "Block (%d,%d,%d) - Mismatch between proportion (%lf) and seismic (%lf)",
-        ix + 1, iy + 1, iz + 1, prop, seisval);
-    error++;
-  }
-  return (error);
-}
-
-/****************************************************************************/
-/*!
  **  Perform kriging and return the calculation elements
  **
  ** \return  A Krigtest_Res structure
@@ -7476,7 +7374,7 @@ int declustering(Db *dbin,
 
   /* Preliminary checks */
 
-  if (! dbin->isVariableNumberComparedTo(0,1)) goto label_end;
+  if (! dbin->isVariableNumberComparedTo(1)) goto label_end;
 
   /* Add the kriging weight as a new variable */
 

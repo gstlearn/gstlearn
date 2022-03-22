@@ -198,6 +198,32 @@ int Grid::getNTotal() const
   return ntotal;
 }
 
+double Grid::getVolume(bool flag_cell) const
+{
+  double volume = 1;
+  for (int idim = 0; idim < _nDim; idim++)
+    volume *= getExtend(idim, flag_cell);
+  return volume;
+}
+
+double Grid::getExtend(int idim, bool flag_cell) const
+{
+  double ext;
+  if (flag_cell)
+    ext = _nx[idim] * _dx[idim];
+  else
+    ext = (_nx[idim] - 1) * _dx[idim];
+  return ext;
+}
+
+VectorDouble Grid::getExtends(bool flag_cell) const
+{
+  VectorDouble ext(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+      ext[idim] = getExtend(idim, flag_cell);
+  return ext;
+}
+
 double Grid::getCellSize() const
 {
   double size = 1.;

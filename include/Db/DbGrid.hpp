@@ -118,6 +118,8 @@ public:
 
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }
+  double getVolume() const { return _grid.getVolume(); }
+  VectorDouble getExtends() const { return _grid.getExtends(); }
 
   int  getNX(int idim) const { return _grid.getNX(idim); }
   VectorInt getNXs() const { return _grid.getNXs(); }

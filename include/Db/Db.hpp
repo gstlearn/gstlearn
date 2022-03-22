@@ -99,7 +99,10 @@ public:
   static Db* createFromBox(int nech,
                            const VectorDouble& coormin,
                            const VectorDouble& coormax,
-                           int ndim = 2,
+                           bool flag_exact = true,
+                           bool flag_repulsion = false,
+                           double range = 0.,
+                           double beta = 0.,
                            int seed = 321415,
                            int flag_add_rank = 1);
   static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
@@ -108,15 +111,14 @@ public:
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false);
-  static Db* createFromDbGrid(DbGrid* dbgrid,
-                              int mode=0,
-                              double density=1.,
-                              double range=0,
-                              double beta=0,
-                              const VectorDouble origin=VectorDouble(),
-                              const VectorDouble extend=VectorDouble(),
-                              int seed=121334,
-                              int verbose=false);
+  static Db* createFromDbGrid(int nech,
+                              DbGrid* dbgrid,
+                              bool flag_exact = true,
+                              bool flag_repulsion = false,
+                              double range = 0.,
+                              double beta = 0.,
+                              int seed = 13241,
+                              int flag_add_rank = 1);
 
   const VectorDouble& getArrays() const { return _array; }
 

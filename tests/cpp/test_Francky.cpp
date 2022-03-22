@@ -42,6 +42,8 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
+  DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
@@ -74,8 +76,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
-
-  DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
   workingDbc->display(&dbfmt);
 
   message("Test performed successfully\n");

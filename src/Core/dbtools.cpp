@@ -4154,99 +4154,35 @@ int points_to_block(Db *dbpoint,
 
 /*****************************************************************************/
 /*!
- **  Get the number of Poisson points to fill a Volume
- **
- ** \return  Number of points
- **
- ** \param[in]  verbose     Verbose option
- ** \param[in]  ndim        Space dimension
- ** \param[in]  density     Average Poisson intensity
- ** \param[in]  extend      Vector of field extends
- **
- ** \remarks  In the case where the number of points generated is zero,
- ** \remarks  a message is issued
- **
- *****************************************************************************/
-static int st_get_number_poisson(int verbose,
-                                 int ndim,
-                                 double *extend,
-                                 double density)
-{
-  double volume;
-  int number;
-
-  /* Calculate the volume */
-
-  volume = 1.;
-  for (int idim = 0; idim < ndim; idim++)
-    volume *= extend[idim];
-
-  /* Draw the count of samples */
-
-  number = law_poisson(density * volume);
-  if (number <= 0)
-  {
-    messerr("For density (%lf) and Volume (%lf) no sample is generated",
-            density, volume);
-    return (0);
-  }
-
-  /* Optional printout */
-
-  if (verbose)
-  {
-    mestitle(1, "Poisson Point Process");
-    message("Average density  = %lf\n", density);
-    message("Volume           = %lf\n", volume);
-    message("Number of points = %d\n", number);
-  }
-
-  return (number);
-}
-
-/*****************************************************************************/
-/*!
  **  Create a set of samples according to a Poisson process
  **
  ** \return  Array of returned values (or NULL)
  **
- ** \param[in]  verbose     Verbose option
- ** \param[in]  ndim        Space dimension
- ** \param[in]  seed        Seed for the random number generator
- ** \param[in]  density     Average Poisson intensity
- ** \param[in]  origin      Vector of field origin
- ** \param[in]  extend      Vector of field extends
- **
- ** \param[out] count       Number of points generated
+ ** \param[in]  number      Number of samples to be generated
+ ** \param[in]  coormin     Vector of minimum coordinates
+ ** \param[in]  coormax     Vector of maximum coordinates
  **
  *****************************************************************************/
-static VectorDouble st_point_init_poisson(int verbose,
-                                          int ndim,
-                                          int seed,
-                                          double density,
-                                          VectorDouble origin,
-                                          VectorDouble extend,
-                                          int *count)
+static VectorDouble st_point_init_poisson(int number,
+                                          const VectorDouble& coormin,
+                                          const VectorDouble& coormax)
 {
   VectorDouble tab;
-  int number;
 
-  /* Initializations */
-
-  law_set_random_seed(seed);
-
-  /* Calculate the number of samples to be generated */
-
-  number = st_get_number_poisson(verbose, ndim, extend.data(), density);
-  if (number > 0)
+  if (coormin.empty() || coormax.empty())
   {
-    tab.resize(ndim * number);
-    for (int iech = 0; iech < number; iech++)
-      for (int idim = 0; idim < ndim; idim++)
-        TAB(iech,idim) = origin[idim] + law_uniform(0., extend[idim]);
+    messerr("This method requires 'coormin' and 'coormax' defined");
+    return tab;
   }
-  *count = number;
+  VectorDouble extend = ut_vector_subtract(coormin, coormax);
+  int ndim = (int) coormin.size();
 
+  // Generate the samples
+
+  tab.resize(ndim * number);
+  for (int idim = 0; idim < ndim; idim++)
+    for (int iech = 0; iech < number; iech++)
+      TAB(iech,idim) = coormin[idim] + law_uniform(0., extend[idim]);
   return (tab);
 }
 
@@ -4256,78 +4192,57 @@ static VectorDouble st_point_init_poisson(int verbose,
  **
  ** \return  Array of returned values (or NULL)
  **
- ** \param[in]  verbose     Verbose option
- ** \param[in]  seed        Seed for the random number generator
+ ** \param[in]  number      Number of samples to be generated
  ** \param[in]  dbgrid      Descriptor of the Db grid parameters
  **
- ** \param[out] count       Number of points generated
- **
  *****************************************************************************/
-static VectorDouble st_point_init_poisreg(int verbose,
-                                          int seed,
-                                          DbGrid *dbgrid,
-                                          int *count)
+static VectorDouble st_point_init_poisreg(int number,
+                                          DbGrid *dbgrid)
 {
-  int *indg, ndim, number, nbloc, ind;
-  double *extend, densloc, densmax, density, test;
-  VectorDouble tab, coor;
+  VectorDouble tab;
 
-  /* Initializations */
-
-  *count = number = 0;
-  extend = nullptr;
-  indg = nullptr;
-  ndim = dbgrid->getNDim();
+  if (dbgrid == nullptr)
+  {
+    messerr("This function requires a DbGrid data base");
+    return tab;
+  }
   if (!is_grid(dbgrid))
   {
     messerr("This function requires the Db organized as a grid");
-    goto label_end;
+    return tab;
   }
-  if (dbgrid->isVariableNumberComparedTo(0))
+  if (! dbgrid->isVariableNumberComparedTo(1))
   {
     messerr("This function requires the density to be defined in the Db");
-    goto label_end;
+    return tab;
   }
-  law_set_random_seed(seed);
 
   /* Core allocation */
 
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
-  extend = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (extend == nullptr) goto label_end;
-  coor.resize(ndim);
-
-  /* Calculate the volume of the grid */
-
-  for (int idim = 0; idim < ndim; idim++)
-    extend[idim] = dbgrid->getNX(idim) * dbgrid->getDX(idim);
+  int ndim = dbgrid->getNDim();
+  VectorDouble coor(ndim);
+  VectorDouble extend = dbgrid->getExtends();
 
   /* Look for the maximum intensity */
 
-  densmax = density = 0.;
+  double densmax = 0.;
+  double density = 0.;
   for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    densloc = dbgrid->getVariable(iech, 0);
+    double densloc = dbgrid->getVariable(iech, 0);
     if (FFFF(densloc) || densloc < 0) continue;
     if (densmax < densloc) densmax = densloc;
     density += densloc;
   }
-  density /= dbgrid->getSampleNumber();
-
-  /* Draw the count of samples */
-
-  number = st_get_number_poisson(verbose, ndim, extend, density);
-  if (number <= 0) goto label_end;
-
-  /* Core allocation */
-
-  tab.resize(ndim * number);
+  double volume = dbgrid->getVolume();
+  double ratio = number / (density * volume);
+  densmax /= ratio;
 
   /* Point generation */
 
-  nbloc = 0;
+  tab.resize(ndim * number);
+  int nbloc = 0;
   while (nbloc < number)
   {
     for (int idim = 0; idim < ndim; idim++)
@@ -4335,18 +4250,19 @@ static VectorDouble st_point_init_poisreg(int verbose,
 
     /* Locate the new sample in the grid */
 
-    ind = dbgrid->coordinateToRank(coor);
+    int ind = dbgrid->coordinateToRank(coor);
     if (ind < 0) continue;
 
     /* Read the local intensity */
 
-    densloc = dbgrid->getVariable(ind, 0);
     if (!dbgrid->isActive(ind)) continue;
+    double densloc = dbgrid->getVariable(ind, 0);
     if (FFFF(densloc) || densloc < 0) continue;
+    densloc /= ratio;
 
     /* Draw the acceptation-rejection criterion */
 
-    test = law_uniform(0., densmax);
+    double test = law_uniform(0., densmax);
     if (test > densloc) continue;
 
     /* The sample is accepted */
@@ -4355,87 +4271,30 @@ static VectorDouble st_point_init_poisreg(int verbose,
       TAB(nbloc,idim) = coor[idim];
     nbloc++;
   }
-
-  /* Return error code */
-
-  *count = number;
-
-  label_end: indg = db_indg_free(indg);
-  extend = (double*) mem_free((char* ) extend);
-  return (tab);
+  return tab;
 }
 
-/*****************************************************************************/
-/*!
- **  Create a set of samples according to a Poisson Thinning process
- **
- ** \return  Array of returned values (or NULL)
- **
- ** \param[in]  verbose     Verbose option
- ** \param[in]  ndim        Space dimension
- ** \param[in]  seed        Seed for the random number generator
- ** \param[in]  density     Average Poisson intensity
- ** \param[in]  range       Repulsion range
- ** \param[in]  beta        Bending coefficient
- ** \param[in]  origin      Vector of field origin
- ** \param[in]  extend      Vector of field extends
- **
- ** \param[out] count       Number of points generated
- **
- *****************************************************************************/
-static VectorDouble st_point_init_poisthin(int verbose,
-                                           int ndim,
-                                           int seed,
-                                           double density,
-                                           double range,
-                                           double beta,
-                                           VectorDouble origin,
-                                           VectorDouble extend,
-                                           int *count)
+static void st_poisson_thinning(int ndim,
+                                double range,
+                                double beta,
+                                VectorDouble& tab)
 {
-  int *keep, number, lec, ecr;
-  double ddmin, dd, delta, alea, proba;
-  VectorDouble tab;
-
-  /* Initializations */
-
-  *count = number = 0;
-  keep = nullptr;
-  law_set_random_seed(seed);
-
-  /* Preliminary check */
-
-  if (range <= 0)
-  {
-    messerr("Argument 'range' must be non negative");
-    goto label_end;
-  }
-
-  /* Generate the Poisson point process */
-
-  tab = st_point_init_poisson(verbose, ndim, seed, density, origin, extend,
-                              &number);
-
-  /* Core allocation */
-
-  keep = (int*) mem_alloc(sizeof(int) * number, 0);
-  if (keep == nullptr) goto label_end;
-
-  /* Operate the thining algorithm */
+  int number = (int) tab.size() / ndim;
+  VectorInt keep(number);
 
   for (int ip = 0; ip < number; ip++)
   {
 
     /* Find the closest data */
 
-    ddmin = 1.e30;
+    double ddmin = 1.e30;
     for (int jp = 0; jp < number; jp++)
     {
       if (ip == jp) continue;
-      dd = 0.;
+      double dd = 0.;
       for (int idim = 0; idim < ndim; idim++)
       {
-        delta = TAB(ip,idim) - TAB(jp, idim);
+        double delta = TAB(ip,idim) - TAB(jp, idim);
         dd += delta * delta;
       }
       if (dd > ddmin) continue;
@@ -4444,14 +4303,15 @@ static VectorDouble st_point_init_poisthin(int verbose,
 
     /* Check the rejection criterion */
 
-    proba = exp(-pow(sqrt(ddmin) / range, beta));
-    alea = law_uniform(0., 1.);
+    double proba = exp(-pow(sqrt(ddmin) / range, beta));
+    double alea = law_uniform(0., 1.);
     keep[ip] = (alea > proba);
   }
 
   /* Discard the rejected samples */
 
-  ecr = lec = 0;
+  int ecr = 0;
+  int lec = 0;
   for (int ip = 0; ip < number; ip++)
   {
     if (keep[ip])
@@ -4462,30 +4322,8 @@ static VectorDouble st_point_init_poisthin(int verbose,
     }
     lec++;
   }
-  if (number <= 0)
-  {
-    messerr("After thining, the Point Process does not have any sample left");
-    goto label_end;
-  }
-
-  /* Core reallocation */
 
   tab.resize(ndim * ecr);
-
-  /* Optional complementary printout */
-
-  if (verbose)
-  {
-    message("Repulsion range  = %lf\n", range);
-    message("Final number     = %d\n", ecr);
-  }
-
-  /* Return error code */
-
-  *count = ecr;
-
-  label_end: keep = (int*) mem_free((char* ) keep);
-  return (tab);
 }
 
 /****************************************************************************/
@@ -5330,7 +5168,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (db->isVariableNumberComparedTo(0))
+  if (db->isVariableNumberComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
     return (dbnew);
@@ -5934,67 +5772,81 @@ int db_polygon_distance(Db *db,
  **
  ** \return  Pointer for the new Db structure
  **
- ** \param[in]  mode        Type of Point generation
- **                         0: Poisson
- ** \param[in]  verbose     Verbose option
- ** \param[in]  ndim        Space dimension
+ ** \param[in]  nech        Expected number of samples
+ ** \param[in]  coormin     Vector of lower coordinates
+ ** \param[in]  coormax     Vector of upper coordinates
+ ** \param[in]  dbgrid      Descriptor of the Db grid parameters
+ ** \param[in]  flag_exact  True if the number of samples must not be drawn
+ ** \param[in]  flag_repulsion Use repulsion (need: 'range' and 'beta')
+ ** \param[in]  range       Repulsion range
+ ** \param[in]  beta        Bending coefficient
  ** \param[in]  seed        Seed for the random number generator
- ** \param[in]  density     Average Poisson intensity
- ** \param[in]  range       Repulsion range (mode=2)
- ** \param[in]  beta        Bending coefficient (mode=2)
- ** \param[in]  dbgrid      Descriptor of the Db grid parameters (mode=1)
- ** \param[in]  origin      Vector of field origin
- ** \param[in]  extend      Vector of field extends
+ ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
  **
  *****************************************************************************/
-Db* db_point_init(int mode,
-                  int verbose,
-                  int ndim,
-                  int seed,
-                  double density,
+Db* db_point_init(int nech,
+                  const VectorDouble &coormin,
+                  const VectorDouble &coormax,
+                  DbGrid *dbgrid,
+                  bool flag_exact,
+                  bool flag_repulsion,
                   double range,
                   double beta,
-                  DbGrid *dbgrid,
-                  const VectorDouble &origin,
-                  const VectorDouble &extend)
+                  int seed,
+                  int flag_add_rank)
 {
   VectorDouble tab;
-  int count = 0;
-  Db *db;
-  String string;
-  static int flag_add_rank = 1;
+  Db* db = nullptr;
+  int ndim = 0;
+
+  // Initiate the pseudo-random number generator
+
+  law_set_random_seed(seed);
+
+  // Draw the number of data to be generated in the Poisson process
+
+  int number = nech;
+  if (! flag_exact) law_poisson(nech);
 
   // Dispatch
 
-  switch (mode)
+  if (number > 0)
   {
-    case 0:
-      tab = st_point_init_poisson(verbose, ndim, seed, density, origin, extend,
-                                  &count);
-      break;
+    if (dbgrid == nullptr)
+    {
+      ndim = (int) coormin.size();
 
-    case 1:
-      tab = st_point_init_poisreg(verbose, seed, dbgrid, &count);
-      break;
+      // Homogeneous Poisson
+      tab = st_point_init_poisson(number, coormin, coormax);
 
-    case 2:
-      tab = st_point_init_poisthin(verbose, ndim, seed, density, range, beta,
-                                   origin, extend, &count);
+      if (flag_repulsion)
+        st_poisson_thinning(ndim, range, beta, tab);
+    }
+    else
+    {
+      ndim = dbgrid->getNDim();
+
+      // Regionalized Poisson
+      tab = st_point_init_poisreg(number, dbgrid);
+
+      if (flag_repulsion)
+        st_poisson_thinning(ndim, range, beta, tab);
+    }
   }
 
   /* Allocate the main structure */
 
-  db = db_create_point(count, ndim, ELoadBy::COLUMN, flag_add_rank, tab);
+  number = (int) tab.size() / ndim;
+  db = db_create_point(number, ndim, ELoadBy::COLUMN, flag_add_rank, tab);
 
   /* Set the locators */
 
+  VectorString names = generateMultipleNames("x", ndim);
   for (int idim = 0; idim < ndim; idim++)
   {
-    string = getLocatorName(ELoc::X, idim);
-    db_name_set(db, idim + flag_add_rank, string);
+    db->setNameByUID(idim + flag_add_rank, names[idim]);
     db->setLocatorByUID(idim + flag_add_rank, ELoc::X, idim);
   }
-
   return (db);
 }
 

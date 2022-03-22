@@ -55,7 +55,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////
   // Creating Data
   int ndata = 100;
-  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat->addColumns(z,"variable",ELoc::Z);
   dat->display();
