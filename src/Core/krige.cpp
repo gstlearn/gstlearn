@@ -8036,6 +8036,7 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  ndisc      Discretization parameters (or NULL)
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
+ ** \param[in]  namconv    Naming Convention
  **
  ** \remark In case the Model handles a Punctual Anamophossis, the
  ** \remark estimation of block average quantities is performed. This initiates
