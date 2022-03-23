@@ -17,6 +17,8 @@
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
 
+class ECalcMember;
+
 class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {
 public:

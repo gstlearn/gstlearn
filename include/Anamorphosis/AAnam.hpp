@@ -17,6 +17,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
+class EKrigOpt;
+
 class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable
 {
 public:
@@ -27,4 +29,9 @@ public:
 
   /// Interface for AAnam
   virtual const EAnam&  getType() const = 0;
+  virtual double modifyCov(const EKrigOpt& /*member*/,
+                           int /*iclass*/,
+                           double /*cov0*/,
+                           double /*cov1*/,
+                           double /*cov2*/) const { return TEST;}
 };

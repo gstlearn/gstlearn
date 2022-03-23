@@ -17,8 +17,9 @@
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-
 #include "Stats/PCA.hpp"
+
+class ECalcMember;
 
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
@@ -34,6 +35,12 @@ public:
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_DD; }
+  double modifyCov(const ECalcMember& member,
+                   int iclass,
+                   double dist,
+                   double cov0,
+                   double cov1,
+                   double cov2) const;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;

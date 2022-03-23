@@ -16,6 +16,8 @@
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Basic/ASerializable.hpp"
 
+class ECalcMember;
+
 class GSTLEARN_EXPORT AnamUser: public AnamContinuous
 {
 private:

@@ -18,6 +18,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
+#include "Covariances/ECalcMember.hpp"
 
 #include <math.h>
 
@@ -638,4 +639,52 @@ int AnamHermite::_deserialize(std::istream& is, bool verbose)
   setPsiHn(hermite);
 
   return 0;
+}
+
+double AnamHermite::modifyCov(const ECalcMember& member,
+                              int iclass,
+                              double dist,
+                              double /*cov0*/,
+                              double cov1,
+                              double /*cov2*/) const
+{
+  double cov;
+  double coeff = 0.;
+  double rn = pow(_rCoef, (double) iclass);
+  if (dist <= 0.)
+  {
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = 1.;
+        break;
+
+      case ECalcMember::E_RHS:
+        coeff = rn;
+        break;
+
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff;
+  }
+  else
+  {
+    double rhon = pow(cov1, (double) iclass);
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = rn * rn;
+        break;
+      case ECalcMember::E_RHS:
+        coeff = rn;
+        break;
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff * rhon;
+  }
+  return cov;
 }

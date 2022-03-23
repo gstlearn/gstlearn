@@ -18,6 +18,8 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
+class ECalcMember;
+
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
 public:
@@ -35,6 +37,12 @@ public:
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
+  double modifyCov(const ECalcMember& member,
+                   int iclass,
+                   double dist,
+                   double cov0,
+                   double cov1,
+                   double cov2) const;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;

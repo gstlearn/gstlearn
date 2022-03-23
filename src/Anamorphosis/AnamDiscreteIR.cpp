@@ -13,6 +13,8 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include <math.h>
+
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
 
 AnamDiscreteIR::AnamDiscreteIR(double rcoef)
@@ -350,4 +352,33 @@ int AnamDiscreteIR::_deserialize(std::istream& is, bool verbose)
 
   setRCoef(r);
   return 0;
+}
+
+/**
+ * Modify the Covariance included in a Kriging system
+ * @param iclass Rank of the factor
+ * @param dist   Distance (0 for Cii)
+ * @param cov1   Covariance of the previous factor
+ * @param cov2   Covariance of the current factor
+ * @return
+ */
+double AnamDiscreteIR::modifyCov(const ECalcMember& /*member*/,
+                                 int iclass,
+                                 double dist,
+                                 double /*cov0*/,
+                                 double cov1,
+                                 double cov2) const
+{
+  double cov;
+  if (dist <= 0)
+  {
+    cov = getIRStatR(iclass + 1);
+  }
+  else
+  {
+    cov1 = pow(cov1, _rCoef);
+    cov2 = pow(cov2, _rCoef);
+    cov  = cov2 - cov1;
+  }
+  return cov;
 }

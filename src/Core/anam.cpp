@@ -1135,10 +1135,10 @@ static void st_anam_selectivity_hermitian(AAnam *anam,
  **
  *****************************************************************************/
 VectorDouble anam_selectivity(AAnam *anam,
-                                              int nclass,
-                                              VectorDouble zcut,
-                                              int flag_correct,
-                                              int verbose)
+                              int nclass,
+                              VectorDouble zcut,
+                              int flag_correct,
+                              int verbose)
 {
   VectorDouble calest;
   calest.resize(7 * nclass);
@@ -1197,10 +1197,10 @@ VectorDouble anam_selectivity(AAnam *anam,
  **
  *****************************************************************************/
 int anam_discrete_DD_z2factor(AAnam *anam,
-                                              Db *db,
-                                              int iptr,
-                                              int nfact,
-                                              VectorInt ifacs)
+                              Db *db,
+                              int iptr,
+                              int nfact,
+                              VectorInt ifacs)
 {
   VectorDouble chi, i2chi, chi2i;
 
@@ -1255,10 +1255,10 @@ int anam_discrete_DD_z2factor(AAnam *anam,
  **
  *****************************************************************************/
 int anam_discrete_IR_z2factor(AAnam *anam,
-                                              Db *db,
-                                              int iptr,
-                                              int nfact,
-                                              VectorInt ifacs)
+                              Db *db,
+                              int iptr,
+                              int nfact,
+                              VectorInt ifacs)
 {
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
@@ -1288,9 +1288,9 @@ int anam_discrete_IR_z2factor(AAnam *anam,
  **
  *****************************************************************************/
 int anam_discrete_z2factor(AAnam *anam,
-                                           Db *db,
-                                           int nfact,
-                                           const VectorInt &ifacs)
+                           Db *db,
+                           int nfact,
+                           const VectorInt &ifacs)
 {
   int error, iptr, ifac, nmax, nvar;
 
@@ -1385,10 +1385,10 @@ int anam_discrete_z2factor(AAnam *anam,
  **
  *****************************************************************************/
 int anam_point_to_block(AAnam *anam,
-                                        int verbose,
-                                        double cvv,
-                                        double coeff,
-                                        double mu)
+                        int verbose,
+                        double cvv,
+                        double coeff,
+                        double mu)
 {
   int error;
 
@@ -2380,19 +2380,19 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
  **
  *****************************************************************************/
 int anam_factor2qt(Db *db,
-                                   AAnam *anam,
-                                   int ncutmine,
-                                   double *cutmine,
-                                   double z_max,
-                                   int flag_correct,
-                                   int ncode,
-                                   int *codes,
-                                   int nb_est,
-                                   int *cols_est,
-                                   int nb_std,
-                                   int *cols_std,
-                                   int *ncut,
-                                   int *qt_vars)
+                   AAnam *anam,
+                   int ncutmine,
+                   double *cutmine,
+                   double z_max,
+                   int flag_correct,
+                   int ncode,
+                   int *codes,
+                   int nb_est,
+                   int *cols_est,
+                   int nb_std,
+                   int *cols_std,
+                   int *ncut,
+                   int *qt_vars)
 {
   int error, iptr, i, nvarout, nvar, nmax, flag_inter;
   double *calest, *calcut;

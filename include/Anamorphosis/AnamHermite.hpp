@@ -17,6 +17,7 @@
 #include "Basic/ASerializable.hpp"
 
 class Db;
+class ECalcMember;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
@@ -31,6 +32,12 @@ public:
 
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam:: HERMITIAN; }
+  double modifyCov(const ECalcMember& member,
+                   int iclass,
+                   double dist,
+                   double cov0,
+                   double cov1,
+                   double cov2) const;
 
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;

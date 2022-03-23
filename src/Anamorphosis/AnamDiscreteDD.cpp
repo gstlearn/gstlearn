@@ -423,8 +423,9 @@ void AnamDiscreteDD::_lambda_to_mul()
     setDDStatMul(iclass, pow(mu / (mu + getDDStatLambda(iclass)),scoef/2.));
 }
 
-VectorDouble AnamDiscreteDD::z2f(int nfact, const VectorInt& ifacs,
-                                   double z) const
+VectorDouble AnamDiscreteDD::z2f(int nfact,
+                                 const VectorInt& ifacs,
+                                 double z) const
 {
   if (_i2Chi.empty())
     my_throw("I2Chi should not be empty");
@@ -638,4 +639,53 @@ int AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
   setPcaZ2F(pcaz2f);
 
   return 0;
+}
+
+double AnamDiscreteDD::modifyCov(const ECalcMember& member,
+                                 int iclass,
+                                 double dist,
+                                 double cov0,
+                                 double cov1,
+                                 double /*cov2*/) const
+{
+  double cov;
+  double coeff = 0.;
+  double mui = getDDStatMul(iclass);
+  double gamref = cov0 - cov1;
+  if (dist <= 0.)
+  {
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = 1.;
+        break;
+
+      case ECalcMember::E_RHS:
+        coeff = mui;
+        break;
+
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff;
+  }
+  else
+  {
+    double li = getDDStatLambda(iclass);
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = mui * mui;
+        break;
+      case ECalcMember::E_RHS:
+        coeff = mui;
+        break;
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff * exp(-li * gamref);
+  }
+  return cov;
 }
