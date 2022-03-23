@@ -105,7 +105,7 @@ VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble &z) const
   VectorDouble y;
   y.resize(number);
   for (int i = 0; i < number; i++)
-    y[i] = RawToGaussianValue(z[i]);
+    y[i] = RawToTransformValue(z[i]);
   return y;
 }
 
@@ -115,7 +115,7 @@ VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble &y) const
   VectorDouble z;
   z.resize(number);
   for (int i = 0; i < number; i++)
-    z[i] = GaussianToRawValue(y[i]);
+    z[i] = TransformToRawValue(y[i]);
   return z;
 }
 
@@ -226,14 +226,14 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   double pas = (aymax - aymin) / ndisc;
   int ind0 = ndisc / 2;
   y[ind0] = 0.;
-  z[ind0] = GaussianToRawValue(y[ind0]);
+  z[ind0] = TransformToRawValue(y[ind0]);
 
   /* Calculating the values below y=0 */
 
   for (int ind = ind0 - 1; ind >= 0; ind--)
   {
     y[ind] = y[ind + 1] - pas;
-    z[ind] = GaussianToRawValue(y[ind]);
+    z[ind] = TransformToRawValue(y[ind]);
   }
 
   /* Calculating the values above y=0 */
@@ -241,7 +241,7 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   for (int ind = ind0 + 1; ind < ndisc; ind++)
   {
     y[ind] = y[ind - 1] + pas;
-    z[ind] = GaussianToRawValue(y[ind]);
+    z[ind] = TransformToRawValue(y[ind]);
   }
 
   // Preparing the returned structure

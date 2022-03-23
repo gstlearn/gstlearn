@@ -81,6 +81,18 @@ AnamDiscreteIR* AnamDiscreteIR::create(double rcoef)
   return new AnamDiscreteIR(rcoef);
 }
 
+void AnamDiscreteIR::reset(int ncut,
+                           double r_coef,
+                           const VectorDouble &zcut,
+                           const VectorDouble &stats)
+{
+  setNCut(ncut);
+  setZCut(zcut);
+  setRCoef(r_coef);
+  setStats(stats);
+  calculateMeanAndVariance();
+}
+
 String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
@@ -300,11 +312,10 @@ int AnamDiscreteIR::_stats_residuals(int verbose,
   return (0);
 }
 
-VectorDouble AnamDiscreteIR::z2f(int nfact,
-                                   const VectorInt& ifacs,
-                                   double z) const
+VectorDouble AnamDiscreteIR::z2factor(double z, const VectorInt& ifacs) const
 {
   VectorDouble factors;
+  int nfact = (int) ifacs.size();
   factors.resize(nfact, 0);
 
   for (int ifac = 0; ifac < nfact; ifac++)
@@ -381,4 +392,73 @@ double AnamDiscreteIR::modifyCov(const ECalcMember& /*member*/,
     cov  = cov2 - cov1;
   }
   return cov;
+}
+
+double AnamDiscreteIR::getBlockVariance(double sval, double /*power*/) const
+{
+  if (! hasChangeSupport()) return TEST;
+  int nclass = getNClass();
+
+  double var = 0.;
+  for (int iclass = 0; iclass < nclass - 1; iclass++)
+  {
+    double b = getIRStatB(iclass);
+    double tcur = getIRStatT(iclass + 1);
+    double tprev = getIRStatT(iclass);
+    double resid = (tprev > 0 && tcur > 0) ?
+        1. / pow(tcur, sval) - 1. / pow(tprev, sval) : 0.;
+    var += b * b * resid;
+  }
+  return (var);
+}
+
+int AnamDiscreteIR::updatePointToBlock(double r_coef)
+{
+  if (! hasChangeSupport()) return 1;
+  setRCoef(r_coef);
+
+  int nclass = getNClass();
+  double zie = 0.;
+  double zik = 0.;
+  double zje = 0.;
+  double zjk = 0.;
+
+  /* Loop on the classes */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double tcur = getIRStatT(iclass);
+    if (iclass > 0)
+    {
+      zjk = getIRStatZ(iclass - 1);
+      zie = getIRStatZ(iclass);
+      zik = (tcur > 0) ? zjk + (zie - zje) * pow(tcur, 1. - r_coef) : 0.;
+    }
+    else
+    {
+      zik = getIRStatZ(iclass);
+    }
+    zje = getIRStatZ(iclass);
+
+    double Tval = getIRStatT(iclass);
+    double Bval = getIRStatB(iclass);
+    setIRStatZ(iclass, zik);
+    setIRStatT(iclass, pow(Tval, r_coef));
+    setIRStatQ(iclass, Bval + zik * Tval);
+    if (iclass <= 0)
+      setIRStatRV(iclass, 0.);
+    else
+    {
+      tcur = getIRStatT(iclass);
+      double tprev = getIRStatT(iclass - 1);
+      setIRStatRV(
+          iclass, (tprev > 0 && tcur > 0) ? 1. / tcur - 1 / tprev : 0.);
+    }
+  }
+
+  /* Update mean and variance */
+
+  calculateMeanAndVariance();
+
+  return 0;
 }

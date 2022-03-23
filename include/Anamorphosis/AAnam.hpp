@@ -17,7 +17,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
-class EKrigOpt;
+class ECalcMember;
 
 class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable
 {
@@ -28,10 +28,21 @@ public:
   virtual ~AAnam();
 
   /// Interface for AAnam
-  virtual const EAnam&  getType() const = 0;
-  virtual double modifyCov(const EKrigOpt& /*member*/,
+  virtual const EAnam& getType() const = 0;
+  virtual double modifyCov(const ECalcMember& /*member*/,
                            int /*iclass*/,
+                           double /*dist*/,
                            double /*cov0*/,
                            double /*cov1*/,
                            double /*cov2*/) const { return TEST;}
+  virtual int getNFactor() const { return 0; }
+  virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
+  virtual double getBlockVariance(double /*sval*/, double /*power*/ = 1) const;
+  virtual int updatePointToBlock(double /*r_coef*/);
+  virtual bool   hasChangeSupport() const { return false; }
+  virtual bool   hasGaussian() const { return false; }
+  virtual double RawToTransformValue(double z) const;
+  virtual double TransformToRawValue(double y) const;
+
+  double calculateR(double cvv, double power);
 };

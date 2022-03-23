@@ -3675,21 +3675,21 @@ int Db::resetSamplingDb(const Db* dbin,
  **
  ** \param[in]  nech        Expected number of samples
  ** \param[in]  dbgrid      Descriptor of the Db grid parameters
+ ** \param[in]  seed        Seed for the random number generator
  ** \param[in]  flag_exact  True if the number of samples must not be drawn
  ** \param[in]  flag_repulsion True if repulsion is processed
  ** \param[in]  range       Repulsion range
  ** \param[in]  beta        Bending coefficient
- ** \param[in]  seed        Seed for the random number generator
  ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
  **
  *****************************************************************************/
 Db* Db::createFromDbGrid(int nech,
                          DbGrid* dbgrid,
+                         int seed,
                          bool flag_exact,
                          bool flag_repulsion,
                          double range,
                          double beta,
-                         int seed,
                          int flag_add_rank)
 {
   Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
@@ -3799,11 +3799,11 @@ Db* Db::createFromCSV(const String& filename,
 Db* Db::createFromBox(int nech,
                       const VectorDouble& coormin,
                       const VectorDouble& coormax,
+                      int seed,
                       bool flag_exact,
                       bool flag_repulsion,
                       double range,
                       double beta,
-                      int seed,
                       int flag_add_rank)
 {
   Db* db = db_point_init(nech, coormin, coormax, nullptr,

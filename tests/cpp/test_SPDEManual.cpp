@@ -90,7 +90,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////////
   // Creating Data
   auto ndata = 1000;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 432432);
 
   ///////////////////////////
   // Simulating Data points

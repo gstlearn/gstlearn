@@ -47,7 +47,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   bool verbose = false;
 
-  Db* db1 = Db::createFromBox(nech,{0.,0.},{1.,1.});
+  Db* db1 = Db::createFromBox(nech,{0.,0.},{1.,1.}, 32432);
   VectorDouble vec1 = ut_vector_simulate_gaussian(nech);
   db1->addColumns(vec1,"myvar1",ELoc::Z, 0);
   VectorDouble vec2 = ut_vector_simulate_gaussian(nech);

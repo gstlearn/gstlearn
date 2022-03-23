@@ -176,8 +176,6 @@ int main(int /*argc*/, char */*argv*/[])
   NeighUnique* neighU = NeighUnique::create(ndim,false);
   neighU->display();
 
-  goto label_end;
-
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
   data_res = dynamic_cast<Db*>(data->clone());
@@ -325,11 +323,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== KD =============================================
 
-  label_end:
-  message("\n<----- Test KD (old) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  dk(data, grid_res, model, neighM, 3, VectorInt(), VectorInt());
-  grid_res->display(&dbfmtKriging);
+//  message("\n<----- Test KD (old) ----->\n");
+//  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+//  dk(data, grid_res, model, neighM, 3, VectorInt(), VectorInt());
+//  grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;

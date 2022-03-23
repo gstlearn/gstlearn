@@ -135,7 +135,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Data
   int ndata = 1000;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 4324);
   VectorDouble tab;
 
   for (int iech = 0; iech < dat->getSampleNumber(); iech++)

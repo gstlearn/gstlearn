@@ -19,6 +19,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 #include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
@@ -414,6 +415,54 @@ int Vario::computeIndicByKey(const String& calcul_name,
   if (calcul == ECalcVario::UNDEFINED) return 1;
   return computeIndic(calcul, flag_grid, flag_gen, flag_sample, verr_mode,
                       model, verbose, nfacmax);
+}
+
+/*****************************************************************************/
+/*!
+ **  Transform the experimental variogram from raw to gaussian space
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  anam        Point Hermite anamorphosis
+ ** \param[in]  cvv         Block variance
+ **
+ *****************************************************************************/
+int Vario::transformVarioZToY(AAnam *anam, double cvv)
+{
+  int error = 1;
+  if (anam == nullptr)
+  {
+    messerr("This function needs an Anamorphosis");
+    return 1;
+  }
+  AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam);
+  if (anamH == nullptr)
+  {
+    messerr("This function needs a Hermite Anamorphosis");
+    return 1;
+  }
+  if (getVariableNumber() != 1)
+  {
+    messerr("This function is restricted to Monovariate Variogram");
+    goto label_end;
+  }
+
+  /* Loop on the directions of the variogram */
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    /* Loop on the lags */
+
+    for (int i = 0; i < getLagNumber(idir); i++)
+      setGgByIndex(idir,i,
+          1. - anamH->calculateR(cvv - getGgByIndex(idir, i), 1.));
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end: return (error);
 }
 
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)

@@ -119,7 +119,7 @@ int CovLMCAnamorphosis::init(const EAnam& anam_type,
     _anam = new AnamDiscreteDD();
     AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
     anam_discrete_DD->setNCut(anam_nclass);
-    anam_discrete_DD->setSCoef(anam_coefs);
+    anam_discrete_DD->setRCoef(anam_coefs);
     anam_discrete_DD->setStats(anam_stats);
   }
   else

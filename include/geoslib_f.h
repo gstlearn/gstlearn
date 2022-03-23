@@ -243,6 +243,10 @@ GSTLEARN_EXPORT VectorDouble anam_selectivity(AAnam *anam,
                                               VectorDouble zcut,
                                               int flag_correct = 0,
                                               int verbose = 0);
+GSTLEARN_EXPORT int anamZ2Factor(AAnam *anam,
+                                 Db *db,
+                                 const VectorInt &ifacs,
+                                 const NamingConvention& namconv = NamingConvention("Factor"));
 
 /******************************/
 /* Functions for Neighborhood */

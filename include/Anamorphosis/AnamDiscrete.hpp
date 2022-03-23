@@ -27,8 +27,10 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// AAnam interface
+  bool hasGaussian() const override { return false; }
+
   /// Interface for AnamDiscrete
-  virtual VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const = 0;
   virtual void calculateMeanAndVariance();
 
   int getNCut() const { return _nCut; }

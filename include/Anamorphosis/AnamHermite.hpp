@@ -37,18 +37,35 @@ public:
                    double dist,
                    double cov0,
                    double cov1,
-                   double cov2) const;
+                   double cov2) const override;
+  int getNFactor() const override { return _nbPoly; }
+  VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
+  double getBlockVariance(double sval, double power = 1) const override;
+  int updatePointToBlock(double r_coef) override;
+  bool hasChangeSupport() const override { return true; }
 
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AnamContinuous Interface
-  double RawToGaussianValue(double z) const override;
-  double GaussianToRawValue(double y) const override;
+  double RawToTransformValue(double z) const override;
+  double TransformToRawValue(double y) const override;
   void   calculateMeanAndVariance() override;
 
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
+
+  void reset(int nbpoly,
+             double pymin,
+             double pzmin,
+             double pymax,
+             double pzmax,
+             double aymin,
+             double azmin,
+             double aymax,
+             double azmax,
+             double r,
+             const VectorDouble &psi_hn);
 
   int    getNbPoly() const { return _nbPoly; }
   const  VectorDouble& getPsiHn() const { return _psiHn; }
@@ -62,7 +79,7 @@ public:
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
 
-  double calculateVarianceFromPsi(double chh);
+  double calculateVarianceFromPsi(double chh) const;
   int    fit(const VectorDouble& tab,
              const VectorDouble& wt = VectorDouble());
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);

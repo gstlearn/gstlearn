@@ -40,32 +40,44 @@ public:
                    double dist,
                    double cov0,
                    double cov1,
-                   double cov2) const;
+                   double cov2) const override;
+  int getNFactor() const override { return 0; }
+  VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
+  double getBlockVariance(double sval, double power = 1) const override;
+  int  updatePointToBlock(double r_coef) override;
+  bool hasChangeSupport() const override { return true; }
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
-  VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  VectorDouble factors_exp(int verbose);
-  VectorDouble factors_maf(int verbose);
+  VectorDouble factors_exp(bool verbose);
+  VectorDouble factors_maf(bool verbose);
   VectorDouble factors_mod();
   VectorDouble chi2I(const VectorDouble& chi, int mode);
 
   AnamDiscreteDD* create(double mu = 1., double scoef = 0.);
-  int  fit(const VectorDouble& tab, int verbose=0);
+  void reset(int ncut,
+             double scoef,
+             double mu,
+             const VectorDouble &zcut,
+             const VectorDouble &pcaz2f,
+             const VectorDouble &pcaf2z,
+             const VectorDouble &stats);
+
+  int fit(const VectorDouble& tab, bool verbose = false);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
-  double getSCoef() const { return _sCoef; }
+  double getSCoef() const { return _rCoef; }
   const VectorDouble& getI2Chi() const { return _i2Chi; }
   VectorDouble getPcaZ2F() const { return _maf.getZ2F(); }
   VectorDouble getPcaF2Z() const { return _maf.getF2Z(); }
 
   void setMu(double mu) { _mu = mu; }
-  void setSCoef(double scoef) { _sCoef = scoef; }
+  void setRCoef(double rcoef) { _rCoef = rcoef; }
   void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
@@ -81,11 +93,12 @@ private:
                           const VectorDouble& vecb,
                           VectorDouble& eigvec,
                           VectorDouble& eigval);
-  void _lambda_to_mul();
+  void _lambdaToMul();
+  void _blockAnamorphosis(const VectorDouble& chi);
 
 private:
   double _mu;
-  double _sCoef;
+  double _rCoef;
   PCA    _maf;
   VectorDouble _i2Chi;
 };

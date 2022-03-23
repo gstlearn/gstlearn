@@ -70,13 +70,13 @@ int AnamUser::_serialize(std::ostream& /*os*/, bool /*verbose*/) const
   return 1;
 }
 
-double AnamUser::GaussianToRawValue(double h) const
+double AnamUser::TransformToRawValue(double h) const
 {
   if (_y2z_function == nullptr) return TEST;
   return _y2z_function(h);
 }
 
-double AnamUser::RawToGaussianValue(double h) const
+double AnamUser::RawToTransformValue(double h) const
 {
   if (_z2y_function == nullptr) return TEST;
   return _z2y_function(h);

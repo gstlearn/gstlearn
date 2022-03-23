@@ -158,10 +158,10 @@ Statistics before Declustering
 Statistics after Declustering
 -----------------------------
 - Using the average weight for Kriging cells of a Grid
-- Mean              = -0.500019
-- Variance          = 1.257847
+- Mean              = -0.500032
+- Variance          = 1.257850
 - Minimum Weight    = 0.000000
-- Maximum Weight    = 0.124919
+- Maximum Weight    = 0.124933
 
 <----- Kriging Test in Moving Neighborhood ----->
 
@@ -348,19 +348,19 @@ Data Base Statistics
 6 - Name Kriging.Var.estim - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -1.705
- Maximum value       =      0.750
+ Minimum value       =     -1.708
+ Maximum value       =      0.758
  Mean value          =     -0.457
  Standard Deviation  =      0.378
  Variance            =      0.143
 7 - Name Kriging.Var.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      2.342
- Maximum value       =      6.045
- Mean value          =      4.332
- Standard Deviation  =      0.820
- Variance            =      0.672
+ Minimum value       =      4.234
+ Maximum value       =      7.028
+ Mean value          =      5.645
+ Standard Deviation  =      0.635
+ Variance            =      0.403
 
 <----- Block Kriging (variable size) ----->
 

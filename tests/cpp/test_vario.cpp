@@ -42,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 3242);
   db->display();
 
   // Creating a grid covering the same space

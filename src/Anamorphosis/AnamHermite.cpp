@@ -116,7 +116,27 @@ AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
   return new AnamHermite(nbpoly, flagBound, rCoef);
 }
 
-double AnamHermite::RawToGaussianValue(double z) const
+void AnamHermite::reset(int nbpoly,
+                        double pymin,
+                        double pzmin,
+                        double pymax,
+                        double pzmax,
+                        double aymin,
+                        double azmin,
+                        double aymax,
+                        double azmax,
+                        double r,
+                        const VectorDouble &psi_hn)
+{
+  setNbPoly(nbpoly);
+  setPsiHn(psi_hn);
+  setRCoef(r);
+  calculateMeanAndVariance();
+  setABounds(azmin, azmax, aymin, aymax);
+  setPBounds(pzmin, pzmax, pymin, pymax);
+}
+
+double AnamHermite::RawToTransformValue(double z) const
 {
   double y,y1,y2,yg,z1,z2,zg,dz,dzmax,dy,dymax;
   int i,iter;
@@ -149,23 +169,23 @@ double AnamHermite::RawToGaussianValue(double z) const
 
   /* Calculate the precision on Z */
 
-  z1 = GaussianToRawValue(-1);
+  z1 = TransformToRawValue(-1);
 
-  z2 = GaussianToRawValue( 1);
+  z2 = TransformToRawValue( 1);
   dzmax = ABS((z2 - z1)/100000.);
 
   /* Look for a first interval in Y containing Z */
 
   dy = YPAS;
   y1 = 0.;
-  z1 = GaussianToRawValue(y1);
+  z1 = TransformToRawValue(y1);
 
   if (z > z1)
   {
     for( i=0 ; i<101 ; i++ )
     {
       y2 = y1 + dy;
-      z2 = GaussianToRawValue(y2);
+      z2 = TransformToRawValue(y2);
       if(z2 > z) break;
       y1 = y2;
       z1 = z2;
@@ -179,7 +199,7 @@ double AnamHermite::RawToGaussianValue(double z) const
     for( i=0 ; i<101 ; i++ )
     {
       y1 = y2 - dy;
-      z1 = GaussianToRawValue(y1);
+      z1 = TransformToRawValue(y1);
       if(z1 < z) break;
       y2 = y1;
       z2 = z1;
@@ -195,7 +215,7 @@ double AnamHermite::RawToGaussianValue(double z) const
   while( iter<1000000 && dz>dzmax && dy>dymax )
   {
     yg = (y1 + y2)/2.;
-    zg = GaussianToRawValue(yg);
+    zg = TransformToRawValue(yg);
 
     if(zg > z)
     {
@@ -227,7 +247,7 @@ double AnamHermite::RawToGaussianValue(double z) const
   return(y);
 }
 
-double AnamHermite::GaussianToRawValue(double y) const
+double AnamHermite::TransformToRawValue(double y) const
 {
   double z;
   if (_nbPoly < 1) return(TEST);
@@ -269,7 +289,7 @@ double AnamHermite::GaussianToRawValue(double y) const
   return(z);
 }
 
-double AnamHermite::calculateVarianceFromPsi(double chh)
+double AnamHermite::calculateVarianceFromPsi(double chh) const
 {
   double rho = 1.;
   double var = 0.;
@@ -430,16 +450,16 @@ void AnamHermite::_defineBounds(double pymin,
 
   ind0 = (npas - 1) / 2;
   ym[ind0] = 0.;
-  zm[ind0] = GaussianToRawValue(ym[ind0]);
+  zm[ind0] = TransformToRawValue(ym[ind0]);
   for (ind=ind0-1; ind>=0; ind--)
   {
     ym[ind] = ym[ind+1] - YPAS;
-    zm[ind] = GaussianToRawValue(ym[ind]);
+    zm[ind] = TransformToRawValue(ym[ind]);
   }
   for (ind=ind0+1; ind<npas; ind++)
   {
     ym[ind] = ym[ind-1] + YPAS;
-    zm[ind] = GaussianToRawValue(ym[ind]);
+    zm[ind] = TransformToRawValue(ym[ind]);
   }
 
   /* Look for a starting search point */
@@ -457,7 +477,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] < azmin)
     {
       _az.setVmin(zm[ind+1]);
-      _ay.setVmin(RawToGaussianValue(_az.getVmin()));
+      _ay.setVmin(RawToTransformValue(_az.getVmin()));
       break;
     }
     else if (ind == 0)
@@ -473,7 +493,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] > azmax)
     {
       _az.setVmax(zm[ind]);
-      _ay.setVmax(RawToGaussianValue(_az.getVmax()));
+      _ay.setVmax(RawToTransformValue(_az.getVmax()));
       break;
     }
     else if (ind == npas-1)
@@ -490,22 +510,22 @@ void AnamHermite::_defineBounds(double pymin,
   if (FFFF(_az.getVmin()))
   {
     _ay.setVmin(ANAM_YMIN);
-    _az.setVmin(GaussianToRawValue(_ay.getVmin()));
+    _az.setVmin(TransformToRawValue(_ay.getVmin()));
   }
   if (FFFF(_pz.getVmin()))
   {
     _py.setVmin(MAX(ANAM_YMIN,_ay.getVmin()));
-    _pz.setVmin(GaussianToRawValue(_py.getVmin()));
+    _pz.setVmin(TransformToRawValue(_py.getVmin()));
   }
   if (FFFF(_az.getVmax()))
   {
     _ay.setVmax(ANAM_YMAX);
-    _az.setVmax(GaussianToRawValue(_ay.getVmax()));
+    _az.setVmax(TransformToRawValue(_ay.getVmax()));
   }
   if (FFFF(_pz.getVmax()))
   {
     _py.setVmax(MIN(ANAM_YMAX,_ay.getVmax()));
-    _pz.setVmax(GaussianToRawValue(_py.getVmax()));
+    _pz.setVmax(TransformToRawValue(_py.getVmax()));
   }
 
   // Set the FlagBound to its original status
@@ -688,3 +708,42 @@ double AnamHermite::modifyCov(const ECalcMember& member,
   }
   return cov;
 }
+
+VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
+{
+  return hermitePolynomials(z, 1., ifacs);
+}
+
+double AnamHermite::getBlockVariance(double sval, double power) const
+{
+  if (! hasChangeSupport()) return TEST;
+  double variance;
+  if (power == 1)
+    variance = calculateVarianceFromPsi(sval);
+  else
+    variance = calculateVarianceFromPsi(sval * sval);
+
+  return (variance);
+}
+
+int AnamHermite::updatePointToBlock(double r_coef)
+{
+  if (! hasChangeSupport()) return 1;
+  setRCoef(r_coef);
+
+  /* Update the anamorphosis coefficients */
+
+  double rval = 1.;
+  for (int ih = 1; ih < getNbPoly(); ih++)
+  {
+    rval *= r_coef;
+    setPsiHn(ih, _psiHn[ih] * rval);
+  }
+
+  /* Update mean and variance */
+
+  calculateMeanAndVariance();
+
+  return 0;
+}
+

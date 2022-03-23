@@ -17,6 +17,9 @@
 GSTLEARN_EXPORT VectorDouble hermitePolynomials(double yc,
                                                 double r,
                                                 int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermitePolynomials(double z,
+                                                double r,
+                                                const VectorInt& ifacs);
 GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
                                               const VectorDouble &phi);
@@ -69,10 +72,3 @@ GSTLEARN_EXPORT VectorDouble hermiteCondStd(VectorDouble krigest,
 GSTLEARN_EXPORT double hermiteCondStdElement(double krigest,
                                              double krigstd,
                                              const VectorDouble &phi);
-// TODO: to be evaluated. Seem to be corrupted
-GSTLEARN_EXPORT VectorDouble hermiteEvaluateZ2(VectorDouble yk,
-                                               VectorDouble sk,
-                                               const VectorDouble &phi);
-GSTLEARN_EXPORT double hermiteEvaluateZ2(double yk,
-                                         double sk,
-                                         const VectorDouble &phi);

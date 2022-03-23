@@ -167,6 +167,28 @@ double ut_vector_min(const VectorDouble &vec, bool flagAbs)
   return (min);
 }
 
+int ut_ivector_max(const VectorInt &vec)
+{
+  if (vec.size() <= 0) return 0;
+  int max = -10000000;
+  for (auto v : vec)
+  {
+    if (v > max) max = v;
+  }
+  return (max);
+}
+
+int ut_ivector_min(const VectorInt &vec)
+{
+  if (vec.size() <= 0) return 0;
+  double min = 10000000;
+  for (auto v : vec)
+  {
+    if (v < min) min = v;
+  }
+  return (min);
+}
+
 double ut_vector_mean(const VectorDouble &vec)
 {
   if (vec.size() <= 0) return 0.;

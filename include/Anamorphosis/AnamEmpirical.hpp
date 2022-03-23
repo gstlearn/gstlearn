@@ -29,15 +29,28 @@ public:
 
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
-  static AnamEmpirical* createFromNF(const String& neutralFilename, bool verbose = false);
+  static AnamEmpirical* createFromNF(const String& neutralFilename,
+                                     bool verbose = false);
+  void reset(int ndisc,
+             double pymin,
+             double pzmin,
+             double pymax,
+             double pzmax,
+             double aymin,
+             double azmin,
+             double aymax,
+             double azmax,
+             double sigma2e,
+             const VectorDouble &tdisc);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam:: EMPIRICAL; }
+  const EAnam& getType() const override { return EAnam:: EMPIRICAL; }
+  int getNFactor() const override { return _nDisc; }
 
   /// AnamContinuous Interface
   void    calculateMeanAndVariance() override;
-  double  RawToGaussianValue(double zz) const override;
-  double  GaussianToRawValue(double yy) const override;
+  double  RawToTransformValue(double zz) const override;
+  double  TransformToRawValue(double yy) const override;
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

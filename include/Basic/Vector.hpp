@@ -33,6 +33,8 @@ GSTLEARN_EXPORT void ut_ivector_display(const String &title,
                                         const VectorInt &vect);
 GSTLEARN_EXPORT String ut_vector_string(const VectorDouble &vec);
 GSTLEARN_EXPORT String ut_ivector_string(const VectorInt &vec);
+GSTLEARN_EXPORT int ut_ivector_max(const VectorInt &vec);
+GSTLEARN_EXPORT int ut_ivector_min(const VectorInt &vec);
 GSTLEARN_EXPORT double ut_vector_max(const VectorDouble &vec,
                                      bool flagAbs = false);
 GSTLEARN_EXPORT double ut_vector_min(const VectorDouble &vec,
