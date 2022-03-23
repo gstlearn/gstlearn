@@ -41,7 +41,7 @@ public:
   int getNFactor() const override { return _nbPoly; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
-  int updatePointToBlock(double r_coef) override;
+  int  updatePointToBlock(double r_coef) override;
   bool hasChangeSupport() const override { return true; }
 
   /// ASerializable Interface

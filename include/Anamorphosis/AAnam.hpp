@@ -38,7 +38,7 @@ public:
   virtual int getNFactor() const { return 0; }
   virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
   virtual double getBlockVariance(double /*sval*/, double /*power*/ = 1) const;
-  virtual int updatePointToBlock(double /*r_coef*/);
+  virtual int    updatePointToBlock(double /*r_coef*/);
   virtual bool   hasChangeSupport() const { return false; }
   virtual bool   hasGaussian() const { return false; }
   virtual double RawToTransformValue(double z) const;

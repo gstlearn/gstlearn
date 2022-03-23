@@ -2711,10 +2711,10 @@ int ce_f(Db *db,
  ** \param[in]  namconv     Naming convention
  **
  *****************************************************************************/
-int anamZ2Factor(AAnam *anam,
-                 Db *db,
-                 const VectorInt& ifacs,
-                 const NamingConvention& namconv)
+int anamZToFactor(AAnam *anam,
+                  Db *db,
+                  const VectorInt& ifacs,
+                  const NamingConvention& namconv)
 {
   if (anam == nullptr)
   {

@@ -44,7 +44,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ===== Create the Db db1
   int nech = 20;
-  int ndim = 2;
   bool verbose = false;
 
   Db* db1 = Db::createFromBox(nech,{0.,0.},{1.,1.}, 32432);
