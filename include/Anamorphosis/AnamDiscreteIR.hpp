@@ -37,10 +37,10 @@ public:
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
-  double modifyCov(const ECalcMember& member,
+  double modifyCov(const ECalcMember& /*member*/,
                    int iclass,
                    double dist,
-                   double cov0,
+                   double /*cov0*/,
                    double cov1,
                    double cov2) const override;
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;

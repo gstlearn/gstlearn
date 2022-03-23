@@ -92,9 +92,6 @@ double AAnam::calculateR(double cvv, double power)
  **
  ** \return Value of the block variance (as a function of support coefficient)
  **
- ** \param[in]  sval     Tentative Coefficient of change of support
- ** \param[in]  power    Power of the change of support coefficient
- **
  *****************************************************************************/
 double AAnam::getBlockVariance(double /*sval*/, double /*power*/) const
 {
