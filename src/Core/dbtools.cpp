@@ -4128,11 +4128,9 @@ int points_to_block(Db *dbpoint,
   for (int i = 0; i < dbgrid->getSampleNumber(); i++)
   {
     if (flag_size)
-      tab2[i] = (tab2[i] < 0) ? 0 :
-                                tab2[i];
+      tab2[i] = (tab2[i] < 0) ? 0 : tab2[i];
     else
-      tab2[i] = (tab2[i] < 0) ? 0 :
-                                1;
+      tab2[i] = (tab2[i] < 0) ? 0 : 1;
   }
 
   /* Save the array 'tab' in the Grid Db file */
@@ -4160,11 +4158,17 @@ int points_to_block(Db *dbpoint,
  ** \param[in]  number      Number of samples to be generated
  ** \param[in]  coormin     Vector of minimum coordinates
  ** \param[in]  coormax     Vector of maximum coordinates
+ ** \param[in]  flag_repulsion True if the repulsion process is active
+ ** \param[in]  range       Repulsion range
+ ** \param[in]  beta        Repulsion beta coefficient
  **
  *****************************************************************************/
-static VectorDouble st_point_init_poisson(int number,
-                                          const VectorDouble& coormin,
-                                          const VectorDouble& coormax)
+static VectorDouble st_point_init_homogeneous(int number,
+                                                   const VectorDouble& coormin,
+                                                   const VectorDouble& coormax,
+                                                   bool flag_repulsion,
+                                                   double range,
+                                                   double beta)
 {
   VectorDouble tab;
 
@@ -4175,13 +4179,50 @@ static VectorDouble st_point_init_poisson(int number,
   }
   VectorDouble extend = ut_vector_subtract(coormin, coormax);
   int ndim = (int) coormin.size();
+  VectorDouble coor(ndim);
+  VectorDouble delta(ndim);
 
   // Generate the samples
 
   tab.resize(ndim * number);
-  for (int idim = 0; idim < ndim; idim++)
-    for (int iech = 0; iech < number; iech++)
-      tab[ndim * iech + idim] = coormin[idim] + law_uniform(0., extend[idim]);
+
+  int ecr = 0;
+  for (int ip = 0; ip < number; ip++)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      coor[idim] = coormin[idim] + law_uniform(0., extend[idim]);
+
+    // Check if the point is acceptable
+
+    bool flag_drop = false;
+    if (flag_repulsion)
+    {
+
+      // Calculate the shortest distance with the previous samples
+
+      double ddmin = 1.e30;
+      for (int jp = 0; jp < ip; jp++)
+      {
+        for (int idim = 0; idim < ndim; idim++)
+          delta[idim] = (tab[ndim * jp + idim] - coor[idim]) / range;
+        double dd = ut_vector_norm(delta);
+        if (dd < ddmin) ddmin = dd;
+      }
+
+      /* Check the rejection criterion */
+
+      double proba = exp(-pow(ddmin, beta));
+      double alea = law_uniform(0., 1.);
+      flag_drop = (alea < proba);
+    }
+
+    // Add the new point
+    if (flag_drop) continue;
+    for (int idim = 0; idim < ndim; idim++)
+      tab[ndim * ecr + idim] = coor[idim];
+    ecr++;
+  }
+  tab.resize(ndim * ecr);
   return (tab);
 }
 
@@ -4193,13 +4234,27 @@ static VectorDouble st_point_init_poisson(int number,
  **
  ** \param[in]  number      Number of samples to be generated
  ** \param[in]  dbgrid      Descriptor of the Db grid parameters
+ ** \param[in]  flag_repulsion True if the repulsion process is active
+ ** \param[in]  range       Repulsion range
+ ** \param[in]  beta        Repulsion beta coefficient
+ **
+ ** \remarks Thinning can only be defined in 2-D.
+ ** \remarks If the thinning is regionalized, its parameters are stored
+ ** \remarks  as NOSTAT variables: Range-1, Range-2 and Angle
  **
  *****************************************************************************/
-static VectorDouble st_point_init_poisreg(int number,
-                                          DbGrid *dbgrid)
+static VectorDouble st_point_init_inhomogeneous(int number,
+                                                DbGrid *dbgrid,
+                                                bool flag_repulsion,
+                                                double range,
+                                                double beta)
 {
+  message("Repulsion = %d\n",flag_repulsion);
+  message("Range = %lf\n",range);
+  message("Beta = %lf\n",beta);
   VectorDouble tab;
 
+  int ndim = dbgrid->getNDim();
   if (dbgrid == nullptr)
   {
     messerr("This function requires a DbGrid data base");
@@ -4215,170 +4270,109 @@ static VectorDouble st_point_init_poisreg(int number,
     messerr("This function requires the density to be defined in the Db");
     return tab;
   }
-
-  /* Core allocation */
-
-  int ndim = dbgrid->getNDim();
+  bool flag_region = (ndim == 2 &&
+      dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
   VectorDouble coor(ndim);
-  VectorDouble extend = dbgrid->getExtends();
+  VectorDouble delta(ndim);
 
-  /* Look for the maximum intensity */
+  /* Evaluate the density */
 
-  double densmax = 0.;
-  double density = 0.;
-  for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+  int ngrid = dbgrid->getActiveSampleNumber();
+  VectorDouble dens;
+  dens.resize(ngrid,0.);
+  double denstot = 0.;
+  for (int ig = 0; ig < ngrid; ig++)
   {
-    if (!dbgrid->isActive(iech)) continue;
-    double densloc = dbgrid->getVariable(iech, 0);
+    if (!dbgrid->isActive(ig)) continue;
+    double densloc = dbgrid->getVariable(ig, 0);
     if (FFFF(densloc) || densloc < 0) continue;
-    if (densmax < densloc) densmax = densloc;
-    density += densloc;
+    denstot += densloc;
+    dens[ig] = denstot;
   }
-  double volume = dbgrid->getVolume();
-  double ratio = number / (density * volume);
-  densmax /= ratio;
 
   /* Point generation */
 
   tab.resize(ndim * number);
-  int nbloc = 0;
-  while (nbloc < number)
-  {
-    for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = dbgrid->getX0(idim) + law_uniform(0., extend[idim]);
-
-    /* Locate the new sample in the grid */
-
-    int ind = dbgrid->coordinateToRank(coor);
-    if (ind < 0) continue;
-
-    /* Read the local intensity */
-
-    if (!dbgrid->isActive(ind)) continue;
-    double densloc = dbgrid->getVariable(ind, 0);
-    if (FFFF(densloc) || densloc < 0) continue;
-    densloc /= ratio;
-
-    /* Draw the acceptation-rejection criterion */
-
-    double test = law_uniform(0., densmax);
-    if (test > densloc) continue;
-
-    /* The sample is accepted */
-
-    for (int idim = 0; idim < ndim; idim++)
-      tab[ndim * nbloc + idim] = coor[idim];
-    nbloc++;
-  }
-  return tab;
-}
-
-/**
- * Thinning of a Point process. It is parametrized by 'range' and 'beta'.
- * It is defined either globally or locally if 'dbgrid' is provided
- * with 'nostat' variables
- * @param ndim   Space dimension
- * @param range  Repulsion range
- * @param beta   Repulsion beta coefficient
- * @param dbgrid Optional grid for regionalized parameters (see remarks)
- * @param tab    Input / output array
- *
- * @remarks Thinning can only be defined in 2-D.
- * @remarks If the thinning is regionalized, its parameters are stored
- * @remarks as NOSTAT variables: Range-1, Range-2 and Angle
- */
-static void st_poisson_thinning(int ndim,
-                                double range,
-                                double beta,
-                                const DbGrid* dbgrid,
-                                VectorDouble& tab)
-{
-  int number = (int) tab.size() / ndim;
-  bool flag_region = (dbgrid != nullptr && ndim == 2 &&
-      dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
-
-  VectorInt keep(number);
-  VectorDouble coor(ndim);
-  VectorDouble delta(ndim);
-  for (int ip = 0; ip < number; ip++)
-  {
-    int indip = 0;
-    if (flag_region)
-    {
-      for (int idim = 0; idim < ndim; idim++)
-        coor[idim] = tab[ndim * ip + idim];
-      indip = dbgrid->coordinateToRank(coor);
-      if (indip < 0) continue;
-    }
-
-    /* Find the closest data */
-
-    double ddmin = 1.e30;
-    for (int jp = 0; jp < number; jp++)
-    {
-      if (ip == jp) continue;
-
-      int indjp = 0;
-      if (flag_region)
-      {
-        for (int idim = 0; idim < ndim; idim++)
-          coor[idim] = tab[ndim * jp + idim];
-        indjp = dbgrid->coordinateToRank(coor);
-        if (indjp < 0) continue;
-      }
-
-      // Calculate increment
-      for (int idim = 0; idim < ndim; idim++)
-        delta[idim] = tab[ndim * ip + idim] - tab[ndim * jp + idim];
-
-      // Calculate normalized distance
-      double dd = 0.;
-      if (! flag_region)
-      {
-        for (int idim = 0; idim < ndim; idim++)
-           delta[idim] /= range;
-        dd = ut_vector_norm(delta) / range;
-      }
-      else
-      {
-        for (int idim = 0; idim < ndim; idim++)
-          delta[idim] /= (dbgrid->getFromLocator(ELoc::NOSTAT,indip,idim)
-              + dbgrid->getFromLocator(ELoc::NOSTAT,indjp,idim)) / 2.;
-        double angle = (dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim)
-            + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
-        Tensor tensor(ndim);
-        tensor.setRotationAngle(0,angle);
-        VectorDouble newdel = tensor.applyDirect(delta);
-        dd = ut_vector_norm(newdel);
-      }
-
-      // Find the minimum distance
-      if (dd <= ddmin) ddmin = dd;
-    }
-
-    /* Check the rejection criterion */
-
-    double proba = exp(-pow(ddmin, beta));
-    double alea = law_uniform(0., 1.);
-    keep[ip] = (alea > proba);
-  }
-
-  /* Discard the rejected samples */
-
   int ecr = 0;
-  int lec = 0;
+  int indip = 0;
+  int indjp = 0;
   for (int ip = 0; ip < number; ip++)
   {
-    if (keep[ip])
+    // Draw a probability
+
+    double proba = law_uniform(0., denstot);
+
+    // Draw a grid cell at random
+
+    double denscum = 0.;
+    int igloc = -1;
+    for (int ig = 0; ig < ngrid && igloc < 0; ig++)
     {
-      for (int idim = 0; idim < ndim; idim++)
-        tab[ndim * ecr + idim] = tab[ndim * lec + idim];
-      ecr++;
+      if (!dbgrid->isActive(ig)) continue;
+      double densloc = dbgrid->getVariable(ig, 0);
+      if (FFFF(densloc) || densloc < 0) continue;
+      denscum += densloc;
+      if (denscum > proba) igloc = ig;
     }
-    lec++;
+    if (igloc < 0) igloc = ngrid-1;
+
+    // Draw the point within the elected cell
+
+    dbgrid->rankToCoordinate(igloc, coor);
+    for (int idim = 0; idim < ndim; idim++)
+      coor[idim] += law_uniform(0., dbgrid->getDX(idim));
+    if (flag_region) indip = dbgrid->coordinateToRank(coor);
+
+    // Check if the point is acceptable
+
+    bool flag_drop = false;
+    if (flag_repulsion)
+    {
+
+      // Calculate the shortest distance with the previous samples
+
+      double ddmin = 1.e30;
+      for (int jp = 0; jp < ip; jp++)
+      {
+        double dd = 0.;
+        if (! flag_region)
+        {
+          for (int idim = 0; idim < ndim; idim++)
+            delta[idim] = (tab[ndim * jp + idim] - coor[idim]);
+          dd = ut_vector_norm(delta) / range;
+        }
+        else
+        {
+          indjp = dbgrid->coordinateToRank(coor);
+          for (int idim = 0; idim < ndim; idim++)
+            delta[idim] /= (dbgrid->getFromLocator(ELoc::NOSTAT,indip,idim)
+                + dbgrid->getFromLocator(ELoc::NOSTAT,indjp,idim)) / 2.;
+          double angle = (dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim)
+              + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
+          Tensor tensor(ndim);
+          tensor.setRotationAngle(0,angle);
+          VectorDouble newdel = tensor.applyDirect(delta);
+          dd = ut_vector_norm(newdel);
+        }
+        if (dd < ddmin) ddmin = dd;
+      }
+
+      /* Check the rejection criterion */
+
+      double proba = exp(-pow(ddmin, beta));
+      double alea = law_uniform(0., 1.);
+      flag_drop = (alea < proba);
+    }
+
+    // Add the new point
+    if (flag_drop) continue;
+    for (int idim = 0; idim < ndim; idim++)
+      tab[ndim * ecr + idim] = coor[idim];
+    ecr++;
   }
 
   tab.resize(ndim * ecr);
+  return tab;
 }
 
 /****************************************************************************/
@@ -5870,22 +5864,14 @@ Db* db_point_init(int nech,
     if (dbgrid == nullptr)
     {
       ndim = (int) coormin.size();
-
-      // Homogeneous Poisson
-      tab = st_point_init_poisson(number, coormin, coormax);
-
-      if (flag_repulsion)
-        st_poisson_thinning(ndim, range, beta, nullptr, tab);
+      tab = st_point_init_homogeneous(number, coormin, coormax,
+                                      flag_repulsion, range, beta);
     }
     else
     {
       ndim = dbgrid->getNDim();
-
-      // Regionalized Poisson
-      tab = st_point_init_poisreg(number, dbgrid);
-
-      if (flag_repulsion)
-        st_poisson_thinning(ndim, range, beta, nullptr, tab);
+      tab = st_point_init_inhomogeneous(number, dbgrid,
+                                        flag_repulsion, range, beta);
     }
   }
 
