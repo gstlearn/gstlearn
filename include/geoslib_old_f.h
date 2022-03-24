@@ -1185,12 +1185,6 @@ GSTLEARN_EXPORT int anam_factor2qt(Db *db,
                                    int *codes,
                                    int *ncut,
                                    int *qt_vars);
-GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
-                                             double *zcut,
-                                             int nclass,
-                                             double *calest,
-                                             int ncut,
-                                             double *calcut);
 GSTLEARN_EXPORT int uc_f(Db *db,
                          AAnam *anam,
                          int att_est,

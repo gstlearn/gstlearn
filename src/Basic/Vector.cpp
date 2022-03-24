@@ -207,6 +207,17 @@ double ut_vector_mean(const VectorDouble &vec)
   return (mean);
 }
 
+double ut_vector_cumul(const VectorDouble& vec)
+{
+  double total = 0.;
+  for (auto v : vec)
+  {
+    if (FFFF(v)) continue;
+    total += v;
+  }
+  return total;
+}
+
 double ut_vector_var(const VectorDouble &vec)
 {
   if (vec.size() <= 0) return 0.;

@@ -18,6 +18,7 @@
 #include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
@@ -30,50 +31,15 @@
 #define QT_EST    0
 #define QT_STD    1
 
-#define CAL_ZCUT  0
-#define CAL_TEST  1
-#define CAL_QEST  2
-#define CAL_BEST  3
-#define CAL_MEST  4
-#define CAL_TSTD  5
-#define CAL_QSTD  6
-#define N_CAL     7
-
 #define CT(i,j)         (ct[(i)*nclass+(j)])
 #define CQ(i,j)         (cq[(i)*nclass+(j)])
 #define CB(i,j)         (cb[(i)*nclass+(j)])
-#define CALEST(nclass,opt,iclass) (calest[(opt) * (nclass) + (iclass)])
-#define CALCUT(nclass,opt,iclass) (calcut[(opt) * (nclass) + (iclass)])
 #define TAU(ip,jp)                (tau[(ip) * nbpoly + (jp)])
 #define DD(ih,jh)                 (dd[(ih) * nbpoly + (jh)])
 #define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
 #define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
                                    QT_VARS(QT_STD,j) > 0)
 /*! \endcond */
-
-/****************************************************************************/
-/*!
- **  From the cutoff, tonnage and metal quantity, derive
- **  the conventional benefit and the average recovered grade
- **
- ** \param[in]  nclass          Number of classes
- ** \param[in,out]  calest      Array of Global results
- **
- *****************************************************************************/
-static void st_calcul_benefit_and_mean(int nclass, double *calest)
-{
-  int iclass;
-  double zval, tval, qval;
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    zval = CALEST(nclass, CAL_ZCUT, iclass);
-    tval = CALEST(nclass, CAL_TEST, iclass);
-    qval = CALEST(nclass, CAL_QEST, iclass);
-    CALEST(nclass,CAL_BEST,iclass) = qval - zval * tval;
-    CALEST(nclass,CAL_MEST,iclass) = (ABS(tval) < EPSILON6) ? TEST : qval / tval;
-  }
-}
 
 /*****************************************************************************/
 /*!
@@ -124,12 +90,10 @@ static void st_interpolate_interval(double zval,
   }
 
   u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 :
-                        ti0 + dti * pow(u, 1. / aa0);
-  (*qval) =
-      (u <= 0.) ? qi0 :
-                  qi0 + zi0 * ((*tval) - ti0)
-                  + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
+  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
+  (*qval) = (u <= 0.) ? qi0 :
+      qi0 + zi0 * ((*tval) - ti0)
+      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
 }
 
 /*****************************************************************************/
@@ -138,81 +102,66 @@ static void st_interpolate_interval(double zval,
  **
  ** \param[in]  z_max    Maximum grade value (if defined)
  ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  nclass   Number of estimated classes
- ** \param[in]  calest   Array of initial quantities
- ** \param[in]  ncutmine Number of required cutoffs
+ ** \param[in]  calest   Selectivity
  **
- ** \param[out] calcut   Array of interpolated quantities
+ ** \param[out] calcut   Interpolated Selectivity
  **
  *****************************************************************************/
 static void st_interpolate_qt_local(double z_max,
                                     double *zcutmine,
-                                    int nclass,
-                                    double *calest,
-                                    int ncutmine,
-                                    double *calcut)
+                                    Selectivity& calest,
+                                    Selectivity& calcut)
 {
-  double *zz, *TT, *QQ, zval, zi0, zi1, ti0, ti1, qi0, qi1;
-  int icut, iclass, jclass, ncleff;
+  double tval, qval;
 
-  /* Initializations */
-
-  zz = TT = QQ = nullptr;
-
-  /* Core allocation */
-
-  zz = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
-  TT = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
-  QQ = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
+  int nclass = calest.getNClass();
+  int ncutmine = calcut.getNClass();
+  VectorDouble zz(nclass + 2);
+  VectorDouble TT(nclass + 2);
+  VectorDouble QQ(nclass + 2);
 
   /* Load arrays */
 
-  ncleff = 1;
+  int ncleff = 1;
   TT[0] = QQ[0] = 0.;
-  for (iclass = 0; iclass < nclass; iclass++)
+  for (int iclass = 0; iclass < nclass; iclass++)
   {
-    jclass = nclass - iclass - 1;
-    if (CALEST(nclass,CAL_TEST,jclass) <= TT[ncleff - 1]) continue;
-    TT[ncleff] = CALEST(nclass, CAL_TEST, jclass);
-    QQ[ncleff] = CALEST(nclass, CAL_QEST, jclass);
+    int jclass = nclass - iclass - 1;
+    if (calest.getTest(jclass) <= TT[ncleff - 1]) continue;
+    TT[ncleff] = calest.getTest(jclass);
+    QQ[ncleff] = calest.getQest(jclass);
     ncleff++;
   }
   zz[0] = z_max;
-  for (iclass = 0; iclass < ncleff - 1; iclass++)
-    zz[iclass + 1] = (QQ[iclass + 2] - QQ[iclass])
-        / (TT[iclass + 2] - TT[iclass]);
+  for (int iclass = 0; iclass < ncleff - 1; iclass++)
+    zz[iclass + 1] = (QQ[iclass + 2] - QQ[iclass]) / (TT[iclass + 2] - TT[iclass]);
   zz[ncleff - 1] = 0.;
   if (FFFF(z_max)) zz[0] = 2 * zz[1];
 
-  for (icut = 0; icut < ncutmine; icut++)
+  for (int icut = 0; icut < ncutmine; icut++)
   {
-    zval = zcutmine[icut];
-    CALCUT(ncutmine,CAL_ZCUT,icut) = zval;
+    double zval = zcutmine[icut];
+    calcut.setZcut(icut, zval);
 
     /* Find interval [zz[iclass]; zz[iclass+1]] to which cutoffs belongs */
 
-    iclass = -1;
-    for (jclass = 0; jclass < ncleff && iclass < 0; jclass++)
+    int iclass = -1;
+    for (int jclass = 0; jclass < ncleff && iclass < 0; jclass++)
       if ((zval - zz[jclass]) * (zval - zz[jclass + 1]) <= 0) iclass = jclass;
 
     /* Assuming that cutoffs belongs to the interval the class 'iclass' */
 
-    zi0 = zz[iclass];
-    zi1 = (iclass + 1 > ncleff - 1) ? 0. :
-                                      zz[iclass + 1];
-    ti0 = TT[iclass];
-    ti1 = (iclass + 1 > ncleff - 1) ? 0. :
-                                      TT[iclass + 1];
-    qi0 = QQ[iclass];
-    qi1 = QQ[iclass + 1];
+    double zi0 = zz[iclass];
+    double zi1 = (iclass + 1 > ncleff - 1) ? 0. : zz[iclass + 1];
+    double ti0 = TT[iclass];
+    double ti1 = (iclass + 1 > ncleff - 1) ? 0. : TT[iclass + 1];
+    double qi0 = QQ[iclass];
+    double qi1 = QQ[iclass + 1];
     st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                            &CALCUT(ncutmine, CAL_TEST, icut),
-                            &CALCUT(ncutmine, CAL_QEST, icut));
+                            &tval, &qval);
+    calcut.setTest(icut, tval);
+    calcut.setQest(icut, qval);
   }
-
-  zz = (double*) mem_free((char* ) zz);
-  TT = (double*) mem_free((char* ) TT);
-  QQ = (double*) mem_free((char* ) QQ);
   return;
 }
 
@@ -221,36 +170,32 @@ static void st_interpolate_qt_local(double z_max,
  **  Interpolate the QT curves (Global estimation)
  **
  ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  nclass   Number of estimated classes
- ** \param[in]  calest   Array of initial quantities
- ** \param[in]  ncutmine Number of required cutoffs
+ ** \param[in]  calest   Selectivity
  **
- ** \param[out] calcut   Array of interpolated quantities
+ ** \param[out] calcut   Interpolated Selectivity
  **
  *****************************************************************************/
 static void st_interpolate_qt_global(double *zcutmine,
-                                     int nclass,
-                                     double *calest,
-                                     int ncutmine,
-                                     double *calcut)
+                                     Selectivity& calest,
+                                     Selectivity& calcut)
 {
-  double zval, zi0, zi1, ti0, ti1, qi0, qi1, valmin, valmax;
-  int icut, iclass, jclass;
+  double tval, qval;
 
-  for (icut = 0; icut < ncutmine; icut++)
+  int nclass = calest.getNClass();
+  int ncutmine = calcut.getNClass();
+
+  for (int icut = 0; icut < ncutmine; icut++)
   {
-    zval = zcutmine[icut];
-    CALCUT(ncutmine,CAL_ZCUT,icut) = zval;
+    double zval = zcutmine[icut];
+    calcut.setZcut(icut, zval);
 
     /* Find interval [zmoy[iclass]; zmoy[iclass+1]] to which cutoffs belongs */
 
-    iclass = -1;
-    for (jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
+    int iclass = -1;
+    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
     {
-      valmin = MIN(CALEST(nclass,CAL_ZCUT,jclass),
-                   CALEST(nclass,CAL_ZCUT,jclass+1));
-      valmax = MAX(CALEST(nclass,CAL_ZCUT,jclass),
-                   CALEST(nclass,CAL_ZCUT,jclass+1));
+      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass+1));
+      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass+1));
       if (zval >= valmin && zval <= valmax) iclass = jclass;
     }
 
@@ -259,22 +204,21 @@ static void st_interpolate_qt_global(double *zcutmine,
 
       /* Assuming that cutoffs belongs to the interval the class 'iclass' */
 
-      zi0 = CALEST(nclass, CAL_ZCUT, iclass);
-      zi1 = (iclass + 1 > nclass - 1) ? 0. :
-                                        CALEST(nclass, CAL_ZCUT, iclass + 1);
-      ti0 = CALEST(nclass, CAL_TEST, iclass);
-      ti1 = (iclass + 1 > nclass - 1) ? 0. :
-                                        CALEST(nclass, CAL_TEST, iclass + 1);
-      qi0 = CALEST(nclass, CAL_QEST, iclass);
-      qi1 = CALEST(nclass, CAL_QEST, iclass + 1);
+      double zi0 = calest.getZcut(iclass);
+      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
+      double ti0 = calest.getTest(iclass);
+      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
+      double qi0 = calest.getQest(iclass);
+      double qi1 = calest.getQest(iclass + 1);
       st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                              &CALCUT(ncutmine, CAL_TEST, icut),
-                              &CALCUT(ncutmine, CAL_QEST, icut));
+                              &tval, &qval);
+      calcut.setTest(icut, tval);
+      calcut.setQest(icut, qval);
     }
     else
     {
-      CALCUT(ncutmine,CAL_TEST,icut) = 0.;
-      CALCUT(ncutmine,CAL_QEST,icut) = 0.;
+      calcut.setTest(icut, 0.);
+      calcut.setQest(icut, 0.);
     }
   }
   return;
@@ -290,9 +234,9 @@ static void st_interpolate_qt_global(double *zcutmine,
  ** \param[in]  ncode       Number of stored results
  ** \param[in]  codes       Array of codes for stored results
  ** \param[in]  qt_vars     Array with the number of output variables
- ** \param[in]  nclass      Total number of classes
- ** \param[in]  zestim      Estimated grade + St. dev.
- ** \param[in]  calest      Array of Results
+ ** \param[in]  zestim      Estimated grade
+ ** \param[in]  zstdev      St. dev.
+ ** \param[in]  calest      Selectivity
  **
  *****************************************************************************/
 static void st_recovery_local(Db *db,
@@ -301,23 +245,19 @@ static void st_recovery_local(Db *db,
                               int ncode,
                               int *codes,
                               int *qt_vars,
-                              int nclass,
-                              double zestim[2],
-                              double *calest)
+                              double zestim,
+                              double zstdev,
+                              const Selectivity& calest)
 {
-  int jptr;
-  double tval, qval, tstd, qstd, bval, mval;
-
-  /* Initializations */
-
-  jptr = iptr;
+  int jptr = iptr;
+  int nclass = calest.getNClass();
 
   /* Store the recovered grade */
 
   if (codes[0] == 0)
   {
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zestim[0]);
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zestim[1]);
+    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zestim);
+    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zstdev);
   }
 
   /* Loop on the recovery functions */
@@ -329,12 +269,12 @@ static void st_recovery_local(Db *db,
 
     for (int iclass = 0; iclass < nclass; iclass++)
     {
-      tval = CALEST(nclass, CAL_TEST, iclass);
-      qval = CALEST(nclass, CAL_QEST, iclass);
-      bval = CALEST(nclass, CAL_BEST, iclass);
-      mval = CALEST(nclass, CAL_MEST, iclass);
-      tstd = CALEST(nclass, CAL_TSTD, iclass);
-      qstd = CALEST(nclass, CAL_QSTD, iclass);
+      double tval = calest.getTest(iclass);
+      double qval = calest.getQest(iclass);
+      double bval = calest.getBest(iclass);
+      double mval = calest.getMest(iclass);
+      double tstd = calest.getTstd(iclass);
+      double qstd = calest.getQstd(iclass);
 
       switch (codes[icode])
       {
@@ -362,230 +302,6 @@ static void st_recovery_local(Db *db,
 
 /****************************************************************************/
 /*!
- **  Calculate and print the Gini index
- **
- ** \param[in] nclass  Number of discretization classes for the QT curve
- ** \param[in] calest  Array of Global results
- **
- *****************************************************************************/
-static void st_evaluate_gini(int nclass, double *calest)
-{
-  double gini;
-
-  gini = 1.;
-  for (int iclass = 0; iclass < nclass - 1; iclass++)
-    gini -= ((CALEST(nclass, CAL_TEST, iclass)
-        - CALEST(nclass, CAL_TEST, iclass + 1))
-             * (CALEST(nclass,CAL_QEST,iclass) + CALEST(nclass, CAL_QEST,
-                                                        iclass + 1)));
-
-  message("Gini calculated on %d classes\n", nclass);
-  message("Value of the Gini index = %lf\n", gini);
-}
-
-/*****************************************************************************/
-/*!
- **  Correct the order relationship for Tonnage
- **
- ** \param[in]  nclass      Number of estimated classes
- ** \param[in]  tval        Array of estimated tonnages (Dimension: nclass)
- **
- *****************************************************************************/
-static void st_correct_tonnage_order(int nclass, double *tval)
-{
-  double *ta, *tb, auxval;
-  int iclass;
-
-  /* Core allocation */
-
-  ta = (double*) mem_alloc(sizeof(double) * nclass, 1);
-  tb = (double*) mem_alloc(sizeof(double) * nclass, 1);
-
-  for (iclass = nclass - 1; iclass >= 0; iclass--)
-  {
-    auxval = tval[iclass];
-    if (iclass < nclass - 1) auxval = MAX(ta[iclass + 1], auxval);
-    ta[iclass] = MIN(1., MAX(0., auxval));
-  }
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    auxval = tval[iclass];
-    if (iclass > 0) auxval = MIN(tb[iclass - 1], auxval);
-    tb[iclass] = MAX(0., MIN(1., auxval));
-  }
-
-  for (iclass = 0; iclass < nclass; iclass++)
-    tval[iclass] = 0.5 * (ta[iclass] + tb[iclass]);
-
-  /* Core deallocation */
-
-  ta = (double*) mem_free((char* ) ta);
-  tb = (double*) mem_free((char* ) tb);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Discrete Diffusion case)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbosity flag
- **
- ** \param[out] calest      Array of results
- **
- ** \remark Can only calculate the grade-tonnage curve for the discretization
- ** \remark cutoffs.
- **
- *****************************************************************************/
-static void st_anam_selectivity_discrete_DD(AAnam *anam,
-                                            int flag_correct,
-                                            int verbose,
-                                            VectorDouble &calest)
-{
-  double tval, qval, zval;
-  int ic, nclass, iclass, jclass;
-
-  /* Initializations */
-
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  nclass = anam_discrete_DD->getNClass();
-
-  /* Calculate the Grade-Tonnage curves */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    zval =
-        (iclass == nclass - 1) ? 0. :
-                                 anam_discrete_DD->getZCut(nclass - iclass - 2);
-    tval = qval = 0.;
-    for (jclass = 0; jclass <= iclass; jclass++)
-    {
-      ic = nclass - jclass - 1;
-      tval += anam_discrete_DD->getDDStatProp(ic);
-      qval += anam_discrete_DD->getDDStatProp(ic)
-          * anam_discrete_DD->getDDStatZmoy(ic);
-    }
-    CALEST(nclass,CAL_ZCUT,nclass-iclass-1) = zval;
-    CALEST(nclass,CAL_TEST,nclass-iclass-1) = tval;
-    CALEST(nclass,CAL_QEST,nclass-iclass-1) = qval;
-  }
-
-  /* Correct order relationship */
-
-  if (flag_correct)
-    st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(nclass, calest.data());
-  if (verbose) st_evaluate_gini(nclass, calest.data());
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbosity flag
- **
- ** \param[out] calest      Array of results
- **
- ** \remark Can only calculate the grade-tonnage curve for the discretization
- ** \remark cutoffs.
- **
- *****************************************************************************/
-static void st_anam_selectivity_discrete_IR(AAnam *anam,
-                                            int flag_correct,
-                                            int verbose,
-                                            VectorDouble &calest)
-{
-  int nclass, iclass;
-
-  /* Initializations */
-
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nclass = anam_discrete_IR->getNClass();
-
-  /* Calculate the Grade-Tonnage curves */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    CALEST(nclass,CAL_ZCUT,iclass) =
-        (iclass == 0) ? 0. :
-                        anam_discrete_IR->getZCut(iclass - 1);
-    CALEST(nclass,CAL_TEST,iclass) = anam_discrete_IR->getIRStatT(iclass);
-    CALEST(nclass,CAL_QEST,iclass) = anam_discrete_IR->getIRStatQ(iclass);
-  }
-
-  /* Correct order relationship */
-
-  if (flag_correct)
-    st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(nclass, calest.data());
-  if (verbose) st_evaluate_gini(nclass, calest.data());
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Gaussian case)
- **
- ** \param[in] anam    AAnam structure to be updated
- ** \param[in] verbose Verbosity flag
- ** \param[in] ntab    Number of cutoff values
- ** \param[in] tab     Array of cutoffs
- **
- ** \param[out] calest Array of results
- **
- *****************************************************************************/
-static void st_anam_selectivity_hermitian(AAnam *anam,
-                                          int verbose,
-                                          int ntab,
-                                          VectorDouble &tab,
-                                          VectorDouble &calest)
-{
-  double yval, gval, tval, qval, zval;
-  int iclass, ih, flag_bound, nbpoly;
-  VectorDouble hn;
-
-  /* Initializations */
-
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  nbpoly = anam_hermite->getNbPoly();
-  yval = gval = 0.;
-  flag_bound = 0;
-
-  /* Loop on the cutoff values */
-
-  for (iclass = 0; iclass < ntab; iclass++)
-  {
-    zval = tab[iclass];
-    anam_hermite->setFlagBound(flag_bound);
-    yval = anam_hermite->RawToTransformValue(zval);
-    tval = 1. - law_cdf_gaussian(yval);
-    gval = law_df_gaussian(yval);
-    hn = hermitePolynomials(yval, 1., nbpoly);
-    qval = anam_hermite->getPsiHn(0) * (1. - law_cdf_gaussian(yval));
-    for (ih = 1; ih < nbpoly; ih++)
-      qval -= anam_hermite->getPsiHn(ih) * hn[ih - 1] * gval
-          / sqrt((double) ih);
-    CALEST(ntab,CAL_ZCUT,iclass) = zval;
-    CALEST(ntab,CAL_TEST,iclass) = tval;
-    CALEST(ntab,CAL_QEST,iclass) = qval;
-  }
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(ntab, calest.data());
-  if (verbose) st_evaluate_gini(ntab, calest.data());
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the theoretical grade tonnage value
  **
  ** \return  Array f results (Dimension: 7 * nclass)
@@ -600,20 +316,20 @@ static void st_anam_selectivity_hermitian(AAnam *anam,
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-VectorDouble anam_selectivity(AAnam *anam,
-                              int nclass,
-                              VectorDouble zcut,
-                              int flag_correct,
-                              int verbose)
+Selectivity anam_selectivity(AAnam *anam,
+                             int nclass,
+                             VectorDouble zcut,
+                             int flag_correct,
+                             int verbose)
 {
-  VectorDouble calest;
-  calest.resize(7 * nclass);
+  Selectivity calest(nclass);
 
   /* Dispatch according to the anamorphosis */
 
   if (anam->getType() == EAnam::HERMITIAN)
   {
-    st_anam_selectivity_hermitian(anam, verbose, nclass, zcut, calest);
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
+    calest = anam_hermite->calculateSelectivity(zcut);
   }
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
@@ -625,7 +341,7 @@ VectorDouble anam_selectivity(AAnam *anam,
           nclass, anam_discrete_DD->getNClass());
       return calest;
     }
-    st_anam_selectivity_discrete_DD(anam, flag_correct, verbose, calest);
+    calest = anam_discrete_DD->calculateSelectivity(flag_correct);
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
@@ -637,7 +353,8 @@ VectorDouble anam_selectivity(AAnam *anam,
           nclass, anam_discrete_IR->getNClass());
       return calest;
     }
-    st_anam_selectivity_discrete_IR(anam, flag_correct, verbose, calest);
+    calest = anam_discrete_IR->calculateSelectivity(flag_correct);
+
   }
   else
   {
@@ -645,6 +362,7 @@ VectorDouble anam_selectivity(AAnam *anam,
     return calest;
   }
 
+  if (verbose) calest.dumpGini();
   return calest;
 }
 
@@ -1005,7 +723,7 @@ static int st_code_analyze(int verbose,
 /*****************************************************************************/
 /*!
  **  Calculate Experimental Grade-Tonnage curves from factors
- **  Case of Hermitian Anamorphos
+ **  Case of Hermite Anamorphosis
  **
  ** \return  Error return code
  **
@@ -1022,7 +740,7 @@ static int st_code_analyze(int verbose,
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Array of results
+ ** \param[out] calest       Selectivity structure
  **
  *****************************************************************************/
 static int st_anam_factor2qt_hermitian(Db *db,
@@ -1037,20 +755,14 @@ static int st_anam_factor2qt_hermitian(Db *db,
                                        int ncode,
                                        int *codes,
                                        int *qt_vars,
-                                       double *calest)
+                                       Selectivity& calest)
 {
-  int need_T, need_Q, nbpoly;
-  double coeff, value, fn, yc, total, zestim[2];
-  VectorDouble s_cc;
-
-  /* Initializations */
-
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
-  nbpoly = anam_hermite->getNbPoly();
-  need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
-  QT_FLAG(ANAM_QT_PROBA);
-  need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
+  int nbpoly = anam_hermite->getNbPoly();
+  bool need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) ||
+      QT_FLAG(ANAM_QT_M) || QT_FLAG(ANAM_QT_PROBA);
+  bool need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
 
   /* Loop on the samples */
 
@@ -1061,65 +773,67 @@ static int st_anam_factor2qt_hermitian(Db *db,
 
     /* Z: Estimation */
 
+    double zestim = 0.;
     if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
     {
-      total = anam_hermite->getPsiHn(0);
+      double total = anam_hermite->getPsiHn(0);
       for (int ivar = 0; ivar < nb_est; ivar++)
       {
-        value = db->getArray(iech, cols_est[ivar]);
-        coeff = anam_hermite->getPsiHn(ivar + 1);
+        double value = db->getArray(iech, cols_est[ivar]);
+        double coeff = anam_hermite->getPsiHn(ivar + 1);
         total += coeff * value;
       }
-      zestim[0] = total;
+      zestim = total;
     }
 
     /* Z: Standard Deviation */
 
+    double zstdev = 0.;
     if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
     {
-      total = 0.;
+      double total = 0.;
       for (int ivar = 0; ivar < nb_std; ivar++)
       {
-        value = db->getArray(iech, cols_std[ivar]);
-        coeff = anam_hermite->getPsiHn(ivar + 1);
+        double value = db->getArray(iech, cols_std[ivar]);
+        double coeff = anam_hermite->getPsiHn(ivar + 1);
         total += coeff * coeff * value;
       }
-      zestim[1] = sqrt(total);
+      zstdev = sqrt(total);
     }
 
     /* Loop on the cutoffs */
 
     for (int icut = 0; icut < ncutmine; icut++)
     {
-      yc = anam_hermite->RawToTransformValue(cutmine[icut]);
-
+      double yc = anam_hermite->RawToTransformValue(cutmine[icut]);
       if (need_T)
       {
-        s_cc = hermiteCoefIndicator(yc, nbpoly);
+        VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);
 
         /* Tonnage estimation */
 
         if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
         {
-          CALEST(ncutmine,CAL_TEST,icut) = s_cc[0];
+          double total = s_cc[0];
           for (int ivar = 0; ivar < nb_est; ivar++)
           {
-            value = db->getArray(iech, cols_est[ivar]);
-            CALEST(ncutmine,CAL_TEST,icut) += s_cc[ivar + 1] * value;
+            double value = db->getArray(iech, cols_est[ivar]);
+            total += s_cc[ivar + 1] * value;
           }
+          calest.setTest(icut, total);
         }
 
         /* Tonnage: Standard Deviation */
 
         if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
         {
-          total = 0.;
+          double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
           {
-            value = db->getArray(iech, cols_std[ivar]);
+            double value = db->getArray(iech, cols_std[ivar]);
             total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
           }
-          CALEST(ncutmine,CAL_TSTD,icut) = sqrt(total);
+          calest.setTstd(icut, sqrt(total));
         }
       }
 
@@ -1131,45 +845,46 @@ static int st_anam_factor2qt_hermitian(Db *db,
 
         if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
         {
-          CALEST(ncutmine,CAL_QEST,icut) = 0.;
+          double total = 0.;
           for (int ivar = 0; ivar < nb_est; ivar++)
           {
-            value = db->getArray(iech, cols_est[ivar]);
-            fn = 0.;
+            double value = db->getArray(iech, cols_est[ivar]);
+            double fn = 0.;
             for (int jvar = 0; jvar < nbpoly; jvar++)
             {
-              coeff = anam_hermite->getPsiHn(jvar);
+              double coeff = anam_hermite->getPsiHn(jvar);
               fn += coeff * TAU.getValue(ivar, jvar);
             }
-            CALEST(ncutmine,CAL_QEST,icut) += fn * value;
+            total += fn * value;
           }
+          calest.setQest(icut, total);
         }
 
         /* Metal Quantity: Standard Deviation */
 
         if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
         {
-          total = 0.;
+          double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
           {
-            value = db->getArray(iech, cols_std[ivar]);
-            fn = 0.;
+            double value = db->getArray(iech, cols_std[ivar]);
+            double fn = 0.;
             for (int jvar = 0; jvar < nbpoly; jvar++)
             {
-              coeff = anam_hermite->getPsiHn(jvar);
+              double coeff = anam_hermite->getPsiHn(jvar);
               fn += coeff * TAU.getValue(ivar, jvar);
             }
             total += fn * fn * value;
           }
-          CALEST(ncutmine,CAL_QSTD,icut) = sqrt(total);
+          calest.setQstd(icut, sqrt(total));
         }
       }
     }
 
     /* Storage */
 
-    st_calcul_benefit_and_mean(ncutmine, calest);
-    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
+    calest.calculateBenefitGrade();
+    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, zestim, zstdev,
                       calest);
   }
   return (0);
@@ -1197,8 +912,8 @@ static int st_anam_factor2qt_hermitian(Db *db,
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Array of results
- ** \param[out] calcut       Array of translated results
+ ** \param[out] calest       Selectivity structure
+ ** \param[out] calcut       Translated Selectivity
  **
  *****************************************************************************/
 static int st_anam_factor2qt_discrete_DD(Db *db,
@@ -1215,29 +930,22 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
                                          int ncode,
                                          int *codes,
                                          int *qt_vars,
-                                         double *calest,
-                                         double *calcut)
+                                         Selectivity& calest,
+                                         Selectivity& calcut)
 {
-  int error, nech, nclass;
-  double value, zestim[2], prod, total;
-  VectorDouble chi, ct, cq, cb;
-
-  /* Initializations */
-
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  error = 1;
-  nclass = anam_discrete_DD->getNClass();
-  nech = db->getSampleNumber();
+  int nclass = anam_discrete_DD->getNClass();
+  int nech = db->getSampleNumber();
 
   /* Modeling the diffusion process */
 
-  chi = anam_discrete_DD->factors_mod();
-  if (chi.empty()) goto label_end;
-  ct = anam_discrete_DD->chi2I(chi, 1);
-  cq = anam_discrete_DD->chi2I(chi, 2);
-  cb = anam_discrete_DD->chi2I(chi, 3);
+  VectorDouble chi = anam_discrete_DD->factors_mod();
+  if (chi.empty()) return 1;
+  VectorDouble ct = anam_discrete_DD->chi2I(chi, 1);
+  VectorDouble cq = anam_discrete_DD->chi2I(chi, 2);
+  VectorDouble cb = anam_discrete_DD->chi2I(chi, 3);
   for (int iclass = 0; iclass < nclass; iclass++)
-    CALEST(nclass,CAL_ZCUT,iclass) = anam_discrete_DD->getDDStatZmoy(iclass);
+    calest.setZcut(iclass, anam_discrete_DD->getDDStatZmoy(iclass));
 
   /* Calculate the Recovery Functions from the factors */
 
@@ -1250,18 +958,18 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
 
     for (int iclass = 0; iclass < nclass; iclass++)
     {
-      CALEST(nclass,CAL_TEST,iclass) = CT(iclass, 0);
+      double total = CT(iclass, 0);
       for (int ivar = 0; ivar < nb_est; ivar++)
       {
-        value = db->getArray(iech, cols_est[ivar]);
-        CALEST(nclass,CAL_TEST,iclass) += value * CT(iclass, ivar + 1);
+        double value = db->getArray(iech, cols_est[ivar]);
+        total += value * CT(iclass, ivar + 1);
       }
+      calest.setTest(iclass, total);
     }
 
     /* Correct Order relationship for Tonnages */
 
-    if (flag_correct)
-      st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
+    if (flag_correct) calest.correctTonnageOrder();
 
     /* Tonnage: Standard Deviation */
 
@@ -1269,15 +977,15 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
     {
       for (int iclass = 0; iclass < nclass; iclass++)
       {
-        total = 0.;
+        double total = 0.;
         for (int ivar = 0; ivar < nclass - 1; ivar++)
         {
-          value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                    1.;
-          prod = value * CT(iclass, ivar + 1);
+          double value = (ivar < nb_std) ?
+              db->getArray(iech, cols_std[ivar]) : 1.;
+          double prod = value * CT(iclass, ivar + 1);
           total += prod * prod;
         }
-        CALEST(nclass,CAL_TSTD,iclass) = sqrt(total);
+        calest.setTstd(iclass, sqrt(total));
       }
     }
 
@@ -1285,15 +993,12 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
 
     if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
     {
-      CALEST(nclass,CAL_QEST,nclass-1) = (anam_discrete_DD->getDDStatZmoy(
-          nclass - 1)
-                                          * CALEST(nclass, CAL_TEST, nclass - 1));
+      calest.setQest(nclass-1, anam_discrete_DD->getDDStatZmoy(nclass - 1)
+                     * calest.getTest(nclass - 1));
       for (int iclass = nclass - 2; iclass >= 0; iclass--)
-        CALEST(nclass,CAL_QEST,iclass) = CALEST(nclass, CAL_QEST, iclass + 1)
-            + anam_discrete_DD->getDDStatZmoy(iclass) * (CALEST(nclass,
-                                                                CAL_TEST,
-                                                                iclass)
-                - CALEST(nclass, CAL_TEST, iclass + 1));
+        calest.setQest(iclass, calest.getQest(iclass + 1)
+                       + anam_discrete_DD->getDDStatZmoy(iclass) *
+                       (calest.getTest(iclass) - calest.getTest(iclass + 1)));
     }
 
     /* Metal Quantity: Standard Deviation */
@@ -1302,67 +1007,63 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
     {
       for (int iclass = 0; iclass < nclass; iclass++)
       {
-        total = 0.;
+        double total = 0.;
         for (int ivar = 0; ivar < nclass - 1; ivar++)
         {
-          value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                    1.;
-          prod = value * CQ(iclass, ivar + 1);
+          double value = (ivar < nb_std) ?
+              db->getArray(iech, cols_std[ivar]) : 1.;
+          double prod = value * CQ(iclass, ivar + 1);
           total += prod * prod;
         }
-        CALEST(nclass,CAL_QSTD,iclass) = sqrt(total);
+        calest.setQstd(iclass, sqrt(total));
       }
     }
 
     /* Z: Estimation */
 
+    double zestim = 0.;
     if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
     {
-      zestim[0] = anam_discrete_DD->getDDStatZmoy(
-          nclass - 1) * CALEST(nclass,CAL_TEST,nclass-1);
+      zestim = anam_discrete_DD->getDDStatZmoy(
+          nclass - 1) * calest.getTest(nclass-1);
       for (int iclass = 0; iclass < nclass - 1; iclass++)
-        zestim[0] += anam_discrete_DD->getDDStatZmoy(iclass)
-            * (CALEST(nclass,CAL_TEST,iclass) - CALEST(nclass, CAL_TEST,
-                                                       iclass + 1));
+        zestim += anam_discrete_DD->getDDStatZmoy(iclass)
+            * (calest.getTest(iclass) - calest.getTest(iclass + 1));
     }
 
     /* Z: Standard Deviation */
 
+    double zstdev = 0.;
     if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
     {
-      total = 0;
+      double total = 0;
       for (int ivar = 0; ivar < nclass - 1; ivar++)
       {
-        value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                  1.;
-        prod = value * anam_discrete_DD->getDDStatCnorm(ivar);
+        double value = (ivar < nb_std) ?
+            db->getArray(iech, cols_std[ivar]) : 1.;
+        double prod = value * anam_discrete_DD->getDDStatCnorm(ivar);
         total += prod * prod;
       }
-      zestim[1] = sqrt(total);
+      zstdev = sqrt(total);
     }
 
     /* Store the results */
 
     if (ncutmine > 0)
     {
-      st_interpolate_qt_local(z_max, cutmine, nclass, calest, ncutmine, calcut);
-      st_calcul_benefit_and_mean(ncutmine, calcut);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
+      st_interpolate_qt_local(z_max, cutmine, calest, calcut);
+      calcut.calculateBenefitGrade();
+      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, zestim, zstdev,
                         calcut);
     }
     else
     {
-      st_calcul_benefit_and_mean(nclass, calest);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, nclass, zestim,
+      calest.calculateBenefitGrade();
+      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, zestim, zstdev,
                         calest);
     }
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -1387,9 +1088,8 @@ static int st_anam_factor2qt_discrete_DD(Db *db,
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Array of results
- ** \param[out] calcut       Array of translated results
- **
+ ** \param[out] calest       Selectivity
+ ** \param[out] calcut       Translated selectivity
  *****************************************************************************/
 static int st_anam_factor2qt_discrete_IR(Db *db,
                                          AAnam *anam,
@@ -1405,18 +1105,12 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
                                          int ncode,
                                          int *codes,
                                          int *qt_vars,
-                                         double *calest,
-                                         double *calcut)
+                                         Selectivity& calest,
+                                         Selectivity& calcut)
 {
-  int nech, nclass, ncleff;
-  double total, zestim[2], value, prod;
-
-  /* Initializations */
-
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nech = db->getSampleNumber();
-  nclass = anam_discrete_IR->getNCut();
-  ncleff = MAX(nb_est, nb_std);
+  int nech = db->getSampleNumber();
+  int ncleff = MAX(nb_est, nb_std);
 
   /* Calculate the Recovery Functions from the factors */
 
@@ -1427,19 +1121,17 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
 
     /* Calculate the tonnage and the recovered grade */
 
-    total = 0.;
+    double total = 0.;
     for (int ivar = 0; ivar < ncleff; ivar++)
     {
-      value = db->getArray(iech, cols_est[ivar]);
+      double value = db->getArray(iech, cols_est[ivar]);
       total += value;
-      CALEST(nclass,CAL_TEST,ivar) = total
-          * anam_discrete_IR->getIRStatT(ivar + 1);
+      calest.setTest(ivar, total * anam_discrete_IR->getIRStatT(ivar + 1));
     }
 
     /* Correct order relationship */
 
-    if (flag_correct)
-      st_correct_tonnage_order(ncleff, &CALEST(nclass, CAL_TEST, 0));
+    if (flag_correct) calest.correctTonnageOrder();
 
     /* Tonnage: Standard Deviation */
 
@@ -1448,10 +1140,9 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
       {
-        value = db->getArray(iech, cols_std[ivar]);
+        double value = db->getArray(iech, cols_std[ivar]);
         total += value * value;
-        CALEST(nclass,CAL_TSTD,ivar) = sqrt(total)
-            * anam_discrete_IR->getIRStatT(ivar + 1);
+        calest.setTstd(ivar, sqrt(total) * anam_discrete_IR->getIRStatT(ivar + 1));
       }
     }
 
@@ -1459,12 +1150,14 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
 
     if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
     {
-      CALEST(nclass,CAL_QEST,ncleff-1) = anam_discrete_IR->getIRStatZ(
-          ncleff) * CALEST(nclass,CAL_TEST,ncleff-1);
+      calest.setQest(ncleff-1, anam_discrete_IR->getIRStatZ(ncleff)
+                     * calest.getTest(ncleff-1));
       for (int ivar = ncleff - 2; ivar >= 0; ivar--)
-        CALEST(nclass,CAL_QEST,ivar) =
-        CALEST(nclass,CAL_QEST,ivar+1) + anam_discrete_IR->getIRStatZ(ivar + 1)
-            * (CALEST(nclass,CAL_TEST,ivar) - CALEST(nclass, CAL_TEST, ivar + 1));
+      {
+        calest.setQest(ivar,
+                       calest.getQest(ivar+1) + anam_discrete_IR->getIRStatZ(ivar + 1)
+                       * (calest.getTest(ivar) - calest.getTest(ivar + 1)));
+      }
     }
 
     /* Metal Quantity: Standard Deviation */
@@ -1476,61 +1169,62 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
         total = 0.;
         for (int jvar = 0; jvar < ivar; jvar++)
         {
-          value = db->getArray(iech, cols_std[jvar]);
+          double value = db->getArray(iech, cols_std[jvar]);
           total += value * value;
         }
-        prod = anam_discrete_IR->getIRStatB(ivar + 1)
+        double prod = anam_discrete_IR->getIRStatB(ivar + 1)
             + anam_discrete_IR->getIRStatZ(ivar + 1) * anam_discrete_IR->getIRStatT(
                 ivar + 1);
         total *= prod * prod;
         for (int jvar = ivar + 1; jvar < ncleff; jvar++)
         {
-          value = db->getArray(iech, cols_std[jvar])
+          double prod = db->getArray(iech, cols_std[jvar])
               * anam_discrete_IR->getIRStatB(ivar + 1);
           total += prod * prod;
         }
-        CALEST(nclass,CAL_QSTD,ivar) = sqrt(total);
+        calest.setQstd(ivar, sqrt(total));
       }
     }
 
     /* Z: Estimation */
 
+    double zestim = 0.;
     if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
     {
-      zestim[0] = anam_discrete_IR->getIRStatZ(
-          ncleff) * CALEST(nclass,CAL_TEST,ncleff-1);
+      zestim = anam_discrete_IR->getIRStatZ(ncleff) * calest.getTest(ncleff-1);
       for (int ivar = 0; ivar < ncleff - 1; ivar++)
-        zestim[0] += anam_discrete_IR->getIRStatZ(ivar + 1)
-            * (CALEST(nclass,CAL_TEST,ivar) - CALEST(nclass, CAL_TEST, ivar + 1));
+        zestim += anam_discrete_IR->getIRStatZ(ivar + 1)
+            * (calest.getTest(ivar) - calest.getTest(ivar + 1));
     }
 
     /* Z: Standard Deviation */
 
+    double zstdev = 0.;
     if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
     {
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
       {
-        prod = db->getArray(iech, cols_std[ivar])
+        double prod = db->getArray(iech, cols_std[ivar])
             * anam_discrete_IR->getIRStatB(ivar + 1);
         total += prod * prod;
       }
-      zestim[1] = sqrt(total);
+      zstdev = sqrt(total);
     }
 
     /* Store the results */
 
     if (ncutmine > 0)
     {
-      st_interpolate_qt_local(z_max, cutmine, nclass, calest, ncutmine, calcut);
-      st_calcul_benefit_and_mean(ncutmine, calcut);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
+      st_interpolate_qt_local(z_max, cutmine, calest, calcut);
+      calcut.calculateBenefitGrade();
+      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, zestim, zstdev,
                         calcut);
     }
     else
     {
-      st_calcul_benefit_and_mean(nclass, calest);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, nclass, zestim,
+      calest.calculateBenefitGrade();
+      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, zestim, zstdev,
                         calest);
     }
   }
@@ -1579,16 +1273,12 @@ int anam_factor2qt(Db *db,
                    int *ncut,
                    int *qt_vars)
 {
-  int error, iptr, i, nvarout, nvar, nmax, flag_inter;
-  double *calest, *calcut;
-  static int verbose = 0;
+  int iptr = -1;
+  int flag_inter = 0;
+  int verbose = 0;
+  Selectivity calest;
+  Selectivity calcut;
 
-  /* Initializations */
-
-  error = 1;
-  iptr = -1;
-  calest = calcut = nullptr;
-  flag_inter = 0;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -1596,17 +1286,18 @@ int anam_factor2qt(Db *db,
   /* Preliminary checks */
 
   (*ncut) = 0;
-  if (db == nullptr) goto label_end;
-  if (anam == nullptr) goto label_end;
+  if (db == nullptr) return 1;
+  if (anam == nullptr) return 1;
   if (nb_est <= 0 && nb_std <= 0)
   {
     messerr("The number of factors is zero");
-    goto label_end;
+    return 1;
   }
-  nvar = MAX(nb_est, nb_std);
+  int nvar = MAX(nb_est, nb_std);
 
   /* Get the number of initial cutoffs */
 
+  int nmax = 0;
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
@@ -1616,7 +1307,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller than Number of classes (%d)",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       break;
 
@@ -1627,7 +1318,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller than Number of classes (%d)",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       if (ncutmine <= 0)
         ncutmine = nmax;
@@ -1642,7 +1333,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller or equal to Number of cutoffs",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       if (ncutmine <= 0)
         ncutmine = nmax;
@@ -1652,32 +1343,27 @@ int anam_factor2qt(Db *db,
 
     default:
       messerr("This Anamorphosis cannot be used in this method");
-      goto label_end;
+      return 1;
   }
 
   /* Analyzing the code requirements */
 
-  nvarout = st_code_analyze(verbose, ncode, codes, nb_est, nb_std, ncutmine,
-                            TEST, flag_inter, qt_vars);
-  if (nvarout <= 0) goto label_end;
+  int nvarout = st_code_analyze(verbose, ncode, codes,
+                                nb_est, nb_std, ncutmine,
+                                TEST, flag_inter, qt_vars);
+  if (nvarout <= 0) return 1;
 
   /* Variable allocation */
 
   (*ncut) = ncutmine;
   iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) goto label_end;
+  if (iptr < 0) return 1;
 
   /* Core allocation */
 
-  calest = (double*) mem_alloc(sizeof(double) * N_CAL * nmax, 1);
-  for (i = 0; i < N_CAL * nmax; i++)
-    calest[i] = TEST;
+  calest = Selectivity(nmax);
   if (ncutmine > 0)
-  {
-    calcut = (double*) mem_alloc(sizeof(double) * N_CAL * ncutmine, 1);
-    for (i = 0; i < N_CAL * ncutmine; i++)
-      calcut[i] = TEST;
-  }
+    calcut = Selectivity(ncutmine);
 
   /* Dispatch according to the type of Anamorphosis */
 
@@ -1686,35 +1372,29 @@ int anam_factor2qt(Db *db,
     case EAnam::E_HERMITIAN:
       if (st_anam_factor2qt_hermitian(db, anam, ncutmine, cutmine, nb_est,
                                       cols_est, nb_std, cols_std, iptr, ncode,
-                                      codes, qt_vars, calest)) goto label_end;
+                                      codes, qt_vars, calest)) return 1;
       break;
 
     case EAnam::E_DISCRETE_DD:
       if (st_anam_factor2qt_discrete_DD(db, anam, ncutmine, cutmine, z_max,
                                         flag_correct, nb_est, cols_est, nb_std,
                                         cols_std, iptr, ncode, codes, qt_vars,
-                                        calest, calcut)) goto label_end;
+                                        calest, calcut)) return 1;
       break;
 
     case EAnam::E_DISCRETE_IR:
       if (st_anam_factor2qt_discrete_IR(db, anam, ncutmine, cutmine, z_max,
                                         flag_correct, nb_est, cols_est, nb_std,
                                         cols_std, iptr, ncode, codes, qt_vars,
-                                        calest, calcut)) goto label_end;
+                                        calest, calcut)) return 1;
       break;
 
     default:
       messerr("This method is not programmed yet for this anamorphosis");
-      goto label_end;
+      return 1;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: calest = (double*) mem_free((char* ) calest);
-  calcut = (double*) mem_free((char* ) calcut);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1723,23 +1403,19 @@ int anam_factor2qt(Db *db,
  **
  ** \param[in] verbose  Verbose flag
  ** \param[in] zcutmine Array of cutoffs
- ** \param[in] nclass   Number of classes
- ** \param[in] calest   Input array
- ** \param[in] ncutmine Number of cutoff values
+ ** \param[in] calest   Selectivity
  **
- ** \param[out] calcut  Output array
+ ** \param[out] calcut  Selectivity
  **
  *****************************************************************************/
 void selectivity_interpolate(int verbose,
                              double *zcutmine,
-                             int nclass,
-                             double *calest,
-                             int ncutmine,
-                             double *calcut)
+                             Selectivity& calest,
+                             Selectivity& calcut)
 {
-  st_interpolate_qt_global(zcutmine, nclass, calest, ncutmine, calcut);
-  st_calcul_benefit_and_mean(ncutmine, calcut);
-  if (verbose) st_evaluate_gini(ncutmine, calcut);
+  st_interpolate_qt_global(zcutmine, calest, calcut);
+  calcut.calculateBenefitGrade();
+  if (verbose) calcut.dumpGini();
 }
 
 /*****************************************************************************/
@@ -1777,18 +1453,17 @@ int uc_f(Db *db,
          int *qt_vars)
 {
   int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout;
-  double *calest, yc, sv, yv, ore, metal, mean, variance, varb, r_coef;
-  double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max, varv,
-      zvstar;
+  double yc, sv, yv, ore, metal, mean, variance, varb, r_coef, zvstar, varv;
+  double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
   VectorDouble psi_hn, hn;
   VectorVectorDouble phi_b_zc;
+  Selectivity calest;
 
   /* Initializations */
 
   error = 1;
   iptr = iptr_sV = iptr_yV = -1;
-  calest = nullptr;
-  vv_min = zv_min = sv_min = yv_min = 1.e30;
+  vv_min = zv_min = sv_min = yv_min =  1.e30;
   vv_max = zv_max = sv_max = yv_max = -1.e30;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
@@ -1851,7 +1526,7 @@ int uc_f(Db *db,
 
   /* Core allocation */
 
-  calest = (double*) mem_alloc(sizeof(double) * N_CAL * ncutmine, 1);
+  calest = Selectivity(ncutmine);
 
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
@@ -1920,14 +1595,13 @@ int uc_f(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      CALEST(ncutmine,CAL_ZCUT,icut) = yc;
-      CALEST(ncutmine,CAL_TEST,icut) = ore;
-      CALEST(ncutmine,CAL_QEST,icut) = metal;
+      calest.setZcut(icut, yc);
+      calest.setTest(icut, ore);
+      calest.setQest(icut, metal);
     }
 
-    st_calcul_benefit_and_mean(ncutmine, calest);
-    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine,
-    NULL,
+    calest.calculateBenefitGrade();
+    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, TEST, TEST,
                       calest);
   }
 
@@ -1952,9 +1626,9 @@ int uc_f(Db *db,
 
   error = 0;
 
-  label_end: if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
+  label_end:
+  if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
   if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
-  calest = (double*) mem_free((char* ) calest);
   return (error);
 }
 
@@ -2159,8 +1833,7 @@ double ce_compute_Z2(double krigest, double krigstd, const VectorDouble &phis)
   for (int ih = 0; ih < nbpoly; ih++)
     for (int jh = 0; jh < nbpoly; jh++)
     {
-      DD(ih,jh) =
-          (ih + jh >= nbpoly) ? 0 :
+      DD(ih,jh) = (ih + jh >= nbpoly) ? 0 :
                                 (pow(-1., ih) * phis[ih + jh]
                                  * sqrt(ut_cnp(ih + jh, jh)));
     }
@@ -2565,8 +2238,7 @@ int ce_f(Db *db,
 
   count = flag_est + flag_std;
   if (st_code_analyze(verbose, ncode, codes, flag_est, flag_std, ncutmine,
-                      proba, 0, qt_vars)
-      <= 0) goto label_end;
+                      proba, 0, qt_vars) <= 0) goto label_end;
   yc = st_ztoy_cutoffs(anam_hermite, ncutmine, cutmine);
   need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
   QT_FLAG(ANAM_QT_PROBA);

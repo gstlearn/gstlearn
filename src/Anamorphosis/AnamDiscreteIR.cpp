@@ -462,3 +462,36 @@ int AnamDiscreteIR::updatePointToBlock(double r_coef)
 
   return 0;
 }
+
+/****************************************************************************/
+/*!
+ **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
+ **
+ ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
+ **
+ *****************************************************************************/
+Selectivity AnamDiscreteIR::calculateSelectivity(bool flag_correct)
+{
+  int nclass = getNClass();
+  Selectivity calest(nclass);
+
+  /* Calculate the Grade-Tonnage curves */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    calest.setZcut(iclass, (iclass == 0) ? 0. : getZCut(iclass - 1));
+    calest.setTest(iclass, getIRStatT(iclass));
+    calest.setQest(iclass, getIRStatQ(iclass));
+  }
+
+  /* Correct order relationship */
+
+  if (flag_correct) calest.correctTonnageOrder();
+
+  /* Store the results */
+
+  calest.calculateBenefitGrade();
+
+  return calest;
+}
+

@@ -218,9 +218,12 @@
 #include "Morpho/Morpho.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"
+
 #include "Stats/Classical.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Stats/Selectivity.hpp"
+
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"
 #include "LithoRule/RuleProp.hpp"

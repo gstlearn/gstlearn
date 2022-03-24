@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 
@@ -800,3 +801,46 @@ void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
   return;
 }
 
+/****************************************************************************/
+/*!
+ **  Calculate the theoretical grade tonnage value (Discrete Diffusion case)
+ **
+ ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
+ **
+ ** \remark Can only calculate the grade-tonnage curve for the discretization
+ ** \remark cutoffs.
+ **
+ *****************************************************************************/
+Selectivity AnamDiscreteDD::calculateSelectivity(bool flag_correct)
+{
+  int nclass = getNClass();
+  Selectivity calest(nclass);
+
+  /* Calculate the Grade-Tonnage curves */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double zval = (iclass == nclass - 1) ? 0. : getZCut(nclass - iclass - 2);
+    double tval = 0.;
+    double qval = 0.;
+    for (int jclass = 0; jclass <= iclass; jclass++)
+    {
+      int ic = nclass - jclass - 1;
+      tval += getDDStatProp(ic);
+      qval += getDDStatProp(ic) * getDDStatZmoy(ic);
+    }
+    calest.setZcut(nclass-iclass-1, zval);
+    calest.setTest(nclass-iclass-1, tval);
+    calest.setQest(nclass-iclass-1, qval);
+  }
+
+  /* Correct order relationship */
+
+  if (flag_correct) calest.correctTonnageOrder();
+
+  /* Store the results */
+
+  calest.calculateBenefitGrade();
+
+  return calest;
+}

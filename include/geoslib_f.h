@@ -24,6 +24,7 @@
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Stats/Selectivity.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -238,11 +239,15 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT VectorDouble anam_selectivity(AAnam *anam,
-                                              int nclass,
-                                              VectorDouble zcut,
-                                              int flag_correct = 0,
-                                              int verbose = 0);
+GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
+                                             int nclass,
+                                             VectorDouble zcut,
+                                             int flag_correct = 0,
+                                             int verbose = 0);
+GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
+                                             double *zcut,
+                                             Selectivity& calest,
+                                             Selectivity& calcut);
 GSTLEARN_EXPORT int anamZToFactor(AAnam *anam,
                                  Db *db,
                                  const VectorInt &ifacs,

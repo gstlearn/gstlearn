@@ -747,3 +747,39 @@ int AnamHermite::updatePointToBlock(double r_coef)
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Calculate the theoretical grade tonnage value (Gaussian case)
+ **
+ *****************************************************************************/
+Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
+{
+  int nbpoly = getNbPoly();
+  setFlagBound(0);
+  int ncut = (int) zcut.size();
+  Selectivity calest(ncut);
+
+  /* Loop on the cutoff values */
+
+  for (int iclass = 0; iclass < ncut; iclass++)
+  {
+    double zval = zcut[iclass];
+    double yval = RawToTransformValue(zval);
+    double tval = 1. - law_cdf_gaussian(yval);
+    double gval = law_df_gaussian(yval);
+    VectorDouble hn = hermitePolynomials(yval, 1., nbpoly);
+    double qval = getPsiHn(0) * (1. - law_cdf_gaussian(yval));
+    for (int ih = 1; ih < nbpoly; ih++)
+      qval -= getPsiHn(ih) * hn[ih - 1] * gval / sqrt((double) ih);
+    calest.setTest(iclass, zval);
+    calest.setTest(iclass, tval);
+    calest.setQest(iclass, qval);
+  }
+
+  /* Store the results */
+
+  calest.calculateBenefitGrade();
+
+  return calest;
+}
+

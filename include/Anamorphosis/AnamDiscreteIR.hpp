@@ -19,6 +19,7 @@
 #include "Basic/ASerializable.hpp"
 
 class ECalcMember;
+class Selectivity;
 
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
@@ -60,6 +61,8 @@ public:
   int fit(const VectorDouble& tab, int verbose=0);
   double getRCoef() const { return _rCoef; }
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
+
+  Selectivity calculateSelectivity(bool flag_correct);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;

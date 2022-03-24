@@ -39,6 +39,7 @@ GSTLEARN_EXPORT double ut_vector_max(const VectorDouble &vec,
                                      bool flagAbs = false);
 GSTLEARN_EXPORT double ut_vector_min(const VectorDouble &vec,
                                      bool flagAbs = false);
+GSTLEARN_EXPORT double ut_vector_cumul(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble &vec);
 GSTLEARN_EXPORT double ut_vector_var(const VectorDouble &vec);
 GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble &vec);

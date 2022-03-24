@@ -20,6 +20,7 @@
 #include "Stats/PCA.hpp"
 
 class ECalcMember;
+class Selectivity;
 
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
@@ -81,6 +82,8 @@ public:
   void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
+
+  Selectivity calculateSelectivity(bool flag_correct);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
