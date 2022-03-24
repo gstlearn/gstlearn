@@ -4283,7 +4283,7 @@ static VectorDouble st_point_init_poisreg(int number,
  * @param dbgrid Optional grid for regionalized parameters (see remarks)
  * @param tab    Input / output array
  *
- * @remarks Thinning can only be defined in2-D.
+ * @remarks Thinning can only be defined in 2-D.
  * @remarks If the thinning is regionalized, its parameters are stored
  * @remarks as NOSTAT variables: Range-1, Range-2 and Angle
  */
