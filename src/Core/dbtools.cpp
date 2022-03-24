@@ -4273,16 +4273,43 @@ static VectorDouble st_point_init_poisreg(int number,
   return tab;
 }
 
+/**
+ * Thinning of a Point process. It is parametrized by 'range' and 'beta'.
+ * It is defined either globally or locally if 'dbgrid' is provided
+ * with 'nostat' variables
+ * @param ndim   Space dimension
+ * @param range  Repulsion range
+ * @param beta   Repulsion beta coefficient
+ * @param dbgrid Optional grid for regionalized parameters (see remarks)
+ * @param tab    Input / output array
+ *
+ * @remarks Thinning can only be defined in2-D.
+ * @remarks If the thinning is regionalized, its parameters are stored
+ * @remarks as NOSTAT variables: Range-1, Range-2 and Angle
+ */
 static void st_poisson_thinning(int ndim,
                                 double range,
                                 double beta,
+                                const DbGrid* dbgrid,
                                 VectorDouble& tab)
 {
   int number = (int) tab.size() / ndim;
-  VectorInt keep(number);
+  bool flag_region = (dbgrid != nullptr && ndim == 2 &&
+      dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
 
+  VectorInt keep(number);
+  VectorDouble coor(ndim);
+  VectorDouble delta(ndim);
   for (int ip = 0; ip < number; ip++)
   {
+    int indip = 0;
+    if (flag_region)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+        coor[idim] = tab[ndim * ip + idim];
+      indip = dbgrid->coordinateToRank(coor);
+      if (indip < 0) continue;
+    }
 
     /* Find the closest data */
 
@@ -4290,19 +4317,48 @@ static void st_poisson_thinning(int ndim,
     for (int jp = 0; jp < number; jp++)
     {
       if (ip == jp) continue;
-      double dd = 0.;
-      for (int idim = 0; idim < ndim; idim++)
+
+      int indjp = 0;
+      if (flag_region)
       {
-        double delta = tab[ndim * ip + idim] - tab[ndim * jp + idim];
-        dd += delta * delta;
+        for (int idim = 0; idim < ndim; idim++)
+          coor[idim] = tab[ndim * jp + idim];
+        indjp = dbgrid->coordinateToRank(coor);
+        if (indjp < 0) continue;
       }
-      if (dd > ddmin) continue;
-      ddmin = dd;
+
+      // Calculate increment
+      for (int idim = 0; idim < ndim; idim++)
+        delta[idim] = tab[ndim * ip + idim] - tab[ndim * jp + idim];
+
+      // Calculate normalized distance
+      double dd = 0.;
+      if (! flag_region)
+      {
+        for (int idim = 0; idim < ndim; idim++)
+           delta[idim] /= range;
+        dd = ut_vector_norm(delta) / range;
+      }
+      else
+      {
+        for (int idim = 0; idim < ndim; idim++)
+          delta[idim] /= (dbgrid->getFromLocator(ELoc::NOSTAT,indip,idim)
+              + dbgrid->getFromLocator(ELoc::NOSTAT,indjp,idim)) / 2.;
+        double angle = (dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim)
+            + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
+        Tensor tensor(ndim);
+        tensor.setRotationAngle(0,angle);
+        VectorDouble newdel = tensor.applyDirect(delta);
+        dd = ut_vector_norm(newdel);
+      }
+
+      // Find the minimum distance
+      if (dd <= ddmin) ddmin = dd;
     }
 
     /* Check the rejection criterion */
 
-    double proba = exp(-pow(sqrt(ddmin) / range, beta));
+    double proba = exp(-pow(ddmin, beta));
     double alea = law_uniform(0., 1.);
     keep[ip] = (alea > proba);
   }
@@ -5819,7 +5875,7 @@ Db* db_point_init(int nech,
       tab = st_point_init_poisson(number, coormin, coormax);
 
       if (flag_repulsion)
-        st_poisson_thinning(ndim, range, beta, tab);
+        st_poisson_thinning(ndim, range, beta, nullptr, tab);
     }
     else
     {
@@ -5829,7 +5885,7 @@ Db* db_point_init(int nech,
       tab = st_point_init_poisreg(number, dbgrid);
 
       if (flag_repulsion)
-        st_poisson_thinning(ndim, range, beta, tab);
+        st_poisson_thinning(ndim, range, beta, nullptr, tab);
     }
   }
 
