@@ -158,7 +158,7 @@ void MatrixSquareDiagonal::_recopy(const MatrixSquareDiagonal &r)
 
 void MatrixSquareDiagonal::_allocate()
 {
-  _diagMatrix.resize(_getMatrixSize());
+  _diagMatrix.resize(_getMatrixSize(),0.);
 }
 
 bool MatrixSquareDiagonal::_isIndexValid(int irow, int icol) const

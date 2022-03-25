@@ -4249,9 +4249,6 @@ static VectorDouble st_point_init_inhomogeneous(int number,
                                                 double range,
                                                 double beta)
 {
-  message("Repulsion = %d\n",flag_repulsion);
-  message("Range = %lf\n",range);
-  message("Beta = %lf\n",beta);
   VectorDouble tab;
 
   int ndim = dbgrid->getNDim();
@@ -4265,15 +4262,15 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires the Db organized as a grid");
     return tab;
   }
-  if (! dbgrid->isVariableNumberComparedTo(1))
-  {
-    messerr("This function requires the density to be defined in the Db");
-    return tab;
-  }
-  bool flag_region = (ndim == 2 &&
-      dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
+  bool flag_dens = (dbgrid->getVariableNumber() == 1);
+  bool flag_region = (ndim == 2 && dbgrid->getLocatorNumber(ELoc::NOSTAT) == (ndim+1));
+
   VectorDouble coor(ndim);
+  VectorDouble coorbis(ndim);
   VectorDouble delta(ndim);
+  VectorDouble radius(ndim);
+  VectorDouble radip(ndim);
+  double angip = 0.;
 
   /* Evaluate the density */
 
@@ -4281,47 +4278,67 @@ static VectorDouble st_point_init_inhomogeneous(int number,
   VectorDouble dens;
   dens.resize(ngrid,0.);
   double denstot = 0.;
-  for (int ig = 0; ig < ngrid; ig++)
+  if (flag_dens)
   {
-    if (!dbgrid->isActive(ig)) continue;
-    double densloc = dbgrid->getVariable(ig, 0);
-    if (FFFF(densloc) || densloc < 0) continue;
-    denstot += densloc;
-    dens[ig] = denstot;
-  }
-
-  /* Point generation */
-
-  tab.resize(ndim * number);
-  int ecr = 0;
-  int indip = 0;
-  int indjp = 0;
-  for (int ip = 0; ip < number; ip++)
-  {
-    // Draw a probability
-
-    double proba = law_uniform(0., denstot);
-
-    // Draw a grid cell at random
-
-    double denscum = 0.;
-    int igloc = -1;
-    for (int ig = 0; ig < ngrid && igloc < 0; ig++)
+    for (int ig = 0; ig < ngrid; ig++)
     {
       if (!dbgrid->isActive(ig)) continue;
       double densloc = dbgrid->getVariable(ig, 0);
       if (FFFF(densloc) || densloc < 0) continue;
-      denscum += densloc;
-      if (denscum > proba) igloc = ig;
+      denstot += densloc;
+      dens[ig] = denstot;
     }
-    if (igloc < 0) igloc = ngrid-1;
+  }
+  else
+  {
+    denstot = dbgrid->getActiveSampleNumber();
+  }
+
+  /* Point generation */
+
+  int ecr = 0;
+  int indip = 0;
+  int indjp = 0;
+  int ntrial = 0;
+  while (number - ecr > ntrial / 10)
+  {
+    // Draw a probability
+
+    double proba = law_uniform(0., denstot);
+    ntrial++;
+
+    // Draw a grid cell at random
+
+    if (flag_dens)
+    {
+      double denscum = 0.;
+      indip = -1;
+      for (int ig = 0; ig < ngrid && indip < 0; ig++)
+      {
+        if (!dbgrid->isActive(ig)) continue;
+        double densloc = dbgrid->getVariable(ig, 0);
+        if (FFFF(densloc) || densloc < 0) continue;
+        denscum += densloc;
+        if (denscum > proba) indip = ig;
+      }
+      if (indip < 0) indip = ngrid - 1;
+    }
+    else
+    {
+      indip = (int) proba;
+    }
 
     // Draw the point within the elected cell
 
-    dbgrid->rankToCoordinate(igloc, coor);
+    dbgrid->rankToCoordinate(indip, coor);
     for (int idim = 0; idim < ndim; idim++)
       coor[idim] += law_uniform(0., dbgrid->getDX(idim));
-    if (flag_region) indip = dbgrid->coordinateToRank(coor);
+    if (flag_region)
+    {
+      for (int idim = 0; idim < ndim; idim++)
+        radip[idim] = dbgrid->getFromLocator(ELoc::NOSTAT,indip,idim);
+      angip = dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim);
+    }
 
     // Check if the point is acceptable
 
@@ -4331,47 +4348,46 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
       // Calculate the shortest distance with the previous samples
 
-      double ddmin = 1.e30;
-      for (int jp = 0; jp < ip; jp++)
+      flag_drop = false;
+      for (int jp = 0; jp < ecr && ! flag_drop; jp++)
       {
         double dd = 0.;
+        for (int idim = 0; idim < ndim; idim++)
+        {
+          coorbis[idim] = tab[ndim * jp + idim];
+          delta[idim] = (coorbis[idim] - coor[idim]);
+        }
+
         if (! flag_region)
         {
-          for (int idim = 0; idim < ndim; idim++)
-            delta[idim] = (tab[ndim * jp + idim] - coor[idim]);
           dd = ut_vector_norm(delta) / range;
         }
         else
         {
-          indjp = dbgrid->coordinateToRank(coor);
+          indjp = dbgrid->coordinateToRank(coorbis);
           for (int idim = 0; idim < ndim; idim++)
-            delta[idim] /= (dbgrid->getFromLocator(ELoc::NOSTAT,indip,idim)
-                + dbgrid->getFromLocator(ELoc::NOSTAT,indjp,idim)) / 2.;
-          double angle = (dbgrid->getFromLocator(ELoc::NOSTAT, indip, ndim)
-              + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
+            radius[idim] = 2. / (radip[idim] + dbgrid->getFromLocator(ELoc::NOSTAT,indjp,idim));
+          double angle = (angip + dbgrid->getFromLocator(ELoc::NOSTAT, indjp, ndim)) / 2.;
           Tensor tensor(ndim);
           tensor.setRotationAngle(0,angle);
-          VectorDouble newdel = tensor.applyDirect(delta);
+          tensor.setRadiusVec(radius);
+          VectorDouble newdel = tensor.applyDirect(delta,2);
           dd = ut_vector_norm(newdel);
         }
-        if (dd < ddmin) ddmin = dd;
+
+        // Check if the point 'ip' must be dropped
+        double proba = exp(-pow(dd, beta));
+        flag_drop = (law_uniform(0.,1.) < proba);
       }
-
-      /* Check the rejection criterion */
-
-      double proba = exp(-pow(ddmin, beta));
-      double alea = law_uniform(0., 1.);
-      flag_drop = (alea < proba);
     }
+    if (flag_drop) continue;
 
     // Add the new point
-    if (flag_drop) continue;
     for (int idim = 0; idim < ndim; idim++)
-      tab[ndim * ecr + idim] = coor[idim];
+      tab.push_back(coor[idim]);
     ecr++;
   }
 
-  tab.resize(ndim * ecr);
   return tab;
 }
 

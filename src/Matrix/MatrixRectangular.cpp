@@ -132,8 +132,7 @@ void MatrixRectangular::_allocate()
   _rectMatrix.resize(_getMatrixSize(),0.);
 }
 
-int MatrixRectangular::_getIndexToRank(int irow,
-                                        int icol) const
+int MatrixRectangular::_getIndexToRank(int irow, int icol) const
 {
   int rank = icol * getNRows() + irow;
   return rank;

@@ -171,7 +171,9 @@ void MatrixSquareGeneral::_allocate()
 
 int MatrixSquareGeneral::_getIndexToRank(int irow, int icol) const
 {
+  // TODO We must check the impact of this modification
   int rank = irow * getNCols() + icol;
+//  int rank = icol * getNRows() + irow;
   return rank;
 }
 

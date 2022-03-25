@@ -390,8 +390,8 @@ VectorDouble Grid::indicesToCoordinate(const VectorInt& indice,
 }
 
 void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
-                               VectorDouble& coor,
-                               const VectorDouble& percent) const
+                                      VectorDouble& coor,
+                                      const VectorDouble& percent) const
 {
   VectorDouble work1(_nDim);
   VectorDouble work2(_nDim);

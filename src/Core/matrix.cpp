@@ -466,11 +466,11 @@ int matrix_eigen(const double *a_in,
  **
  *****************************************************************************/
 void matrix_product(int n1,
-                                    int n2,
-                                    int n3,
-                                    const double *v1,
-                                    const double *v2,
-                                    double *v3)
+                    int n2,
+                    int n3,
+                    const double *v1,
+                    const double *v2,
+                    double *v3)
 {
   double *v4;
   int i1, i2, i3, i4;
