@@ -996,8 +996,16 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
 
   // Define the global HH matrix
 
+  int igrf = _getIgrf();
+  int icov = _getIcov();
   if (! _isNoStat())
     _loadHHByApex(hh, 0);
+  else
+  {
+    const ANoStat* nostat = _getModel()->getNoStat();
+    if (! nostat->isDefinedforAnisotropy(igrf, icov))
+      _loadHHByApex(hh, 0);
+  }
 
   /* Loop on the meshes */
 
@@ -1016,8 +1024,6 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
     if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
-      int igrf = _getIgrf();
-      int icov = _getIcov();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
         _loadHHPerMesh(hh, amesh, imesh);
     }
