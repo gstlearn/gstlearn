@@ -162,6 +162,7 @@ int Vario::compute(const ECalcVario &calcul,
   // Preparation
 
   _calcul = calcul;
+  _setFlagAsym();
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -383,6 +384,7 @@ int Vario::computeIndic(const ECalcVario& calcul,
   _nVar  = nclass;
   _means = props;
   _vars  = _varsFromProportions(props);
+  _setFlagAsym();
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -1121,15 +1123,52 @@ VectorDouble Vario::getGgVec(int idir,
   if (asCov || flagNorm) c0 = getVar(ivar, jvar);
   int npas = dirparam.getLagNumber();
 
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] <= 0.) continue;
-    double val = _gg[idir][iad];
-    if (asCov && ! getFlagAsym())  val = c0 - val;
-    if (flagNorm) val /= c0;
-    gg.push_back(val);
+    for (int ipas = npas-1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] <= 0.) continue;
+      double val = _gg[idir][iad];
+      if (asCov && !getFlagAsym()) val = c0 - val;
+      if (flagNorm) val /= c0;
+      gg.push_back(val);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+    {
+      double val = _gg[idir][iad];
+      if (asCov && !getFlagAsym()) val = c0 - val;
+      if (flagNorm) val /= c0;
+      gg.push_back(val);
+    }
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      {
+        double val = _gg[idir][iad];
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+        gg.push_back(val);
+      }
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      {
+        double val = _gg[idir][iad];
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+        gg.push_back(val);
+      }
+    }
   }
   return gg;
 }
@@ -1150,11 +1189,34 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
 
   VectorDouble hh;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0) hh.push_back(_hh[idir][iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    double value = _hh[idir][iad];
+    if (_sw[idir][iad] <= 0) value = 0.;
+    hh.push_back(value);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    }
   }
   return hh;
 }
@@ -1168,18 +1230,37 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
  */
 VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return VectorDouble();
-  if (!_isVariableValid(jvar)) return VectorDouble();
+  if (!_isVariableValid(ivar))  return VectorDouble();
+  if (!_isVariableValid(jvar))  return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
   const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    sw.push_back(_sw[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) sw.push_back(_sw[idir][iad]);
+    }
   }
   return sw;
 }
@@ -1200,11 +1281,30 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
 
   VectorDouble utilize;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] > 0.) utilize.push_back(_hh[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+     {
+       iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     }
+     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+     if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     for (int ipas = 0; ipas < npas; ipas++)
+     {
+       iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) utilize.push_back(_utilize[idir][iad]);
+    }
   }
   return utilize;
 }
@@ -1254,8 +1354,8 @@ int Vario::getDirAddress(int idir,
                          int sens) const
 {
   if (!_isDirectionValid(idir)) return ITEST;
-  if (!_isVariableValid(ivar)) return ITEST;
-  if (!_isVariableValid(jvar)) return ITEST;
+  if (!_isVariableValid(ivar))  return ITEST;
+  if (!_isVariableValid(jvar))  return ITEST;
 
   int rank;
 

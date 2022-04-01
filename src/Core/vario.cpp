@@ -3204,8 +3204,7 @@ static int st_vmap_grid(DbGrid *dbgrid,
       /* Evaluate the variogram map */
 
       DBMAP = dbmap;
-      st_variogram_evaluate(dbgrid, calcul_type, nvar, iech1, iech2, iech0,
-      TEST,
+      st_variogram_evaluate(dbgrid, calcul_type, nvar, iech1, iech2, iech0, TEST,
                             0, st_vmap_set);
     }
   }
