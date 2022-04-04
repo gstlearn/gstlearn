@@ -50,6 +50,6 @@ private:
 
 private:
   MatrixRectangular _apices;
-  VectorInt          _meshes; // TODO Transform it into MatrixRectangular of Int
-  VectorDouble       _units;
+  VectorInt         _meshes; // TODO Transform it into MatrixRectangular of Int
+  VectorDouble      _units;
 };

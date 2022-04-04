@@ -16,6 +16,8 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
+class MeshETurbo;
+
 /**
  * Meshing defined in the Euclidean space
  */
@@ -56,9 +58,11 @@ public:
                     const VectorDouble& apices,
                     const VectorInt& meshes,
                     bool verbose = false);
+  int        resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
   cs*        getMeshToDb(const Db *db, int verbose = 0) const override;
   double*    interpolateMeshToDb(Db *db, double* mtab) const override;
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
+
 
 private:
   int _create1D(int ndim_ref,

@@ -670,7 +670,7 @@ double AnamDiscreteDD::modifyCov(const ECalcMember& member,
   double cov;
   double coeff = 0.;
   double mui = getDDStatMul(iclass);
-  double gamref = cov0 - cov1;
+  double gamma = cov0 - cov1;
   if (dist <= 0.)
   {
     switch (member.toEnum())
@@ -691,7 +691,7 @@ double AnamDiscreteDD::modifyCov(const ECalcMember& member,
   }
   else
   {
-    double li = getDDStatLambda(iclass);
+    double ln = getDDStatLambda(iclass);
     switch (member.toEnum())
     {
       case ECalcMember::E_LHS:
@@ -704,7 +704,7 @@ double AnamDiscreteDD::modifyCov(const ECalcMember& member,
         coeff = 1.;
         break;
     }
-    cov = coeff * exp(-li * gamref);
+    cov = coeff * exp(-ln * gamma);
   }
   return cov;
 }
