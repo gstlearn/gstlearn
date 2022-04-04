@@ -6969,6 +6969,7 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  dbgrid     output Grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  anam       Anamoprhosis structure
  ** \param[in]  nfactor    Number of factors to be estimated (0: all)
  ** \param[in]  nmult      Array of Multiplicity for Partition
  ** \param[in]  ndisc      Discretization parameters (or NULL)
@@ -6996,10 +6997,11 @@ int krimage(DbGrid *dbgrid,
  ** \remark of Panel into SMUs.
  **
  *****************************************************************************/
-int dk(Db *dbin,
-       DbGrid *dbgrid,
-       Model *model,
+int dk(Db* dbin,
+       DbGrid* dbgrid,
+       Model* model,
        ANeighParam *neighparam,
+       AAnam* anam,
        int nfactor,
        const VectorInt &nmult,
        const VectorInt &ndisc,
@@ -7021,21 +7023,8 @@ int dk(Db *dbin,
     messerr("This application is limited to the monovariate Model case");
     return 1;
   }
-  if (model->getCovMode() != EModelProperty::ANAM)
-  {
-    messerr("When using Disjunctive Kriging, the Model be incremented");
-    messerr("with Properties beforehand");
-    messerr("For that sake, use 'model.properties'");
-    return 1;
-  }
-  CovLMCAnamorphosis* covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
-  if (covanam == nullptr)
-  {
-    messerr("The Covariance does not seem to be a CovLMCAnamorphosis");
-    return 1;
-  }
-  if (IFFFF(nfactor)) nfactor = covanam->getAnamNClass();
-  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  if (IFFFF(nfactor)) nfactor = anam->getNFactor();
+  if (anam->getType() == EAnam::HERMITIAN)
   {
     /* In the gaussian case, calculate the 'nfactor-1' factors */
 
@@ -7054,19 +7043,19 @@ int dk(Db *dbin,
     return 1;
   }
   int flag_block = 0;
-  if (covanam->getAnamType() == EAnam::HERMITIAN)
+  if (anam->getType() == EAnam::HERMITIAN)
   {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(covanam->getAnam());
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
     if (anam_hermite->getRCoef() < 1.) flag_block = 1;
   }
-  else if (covanam->getAnamType() == EAnam::DISCRETE_DD)
+  else if (anam->getType() == EAnam::DISCRETE_DD)
   {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(covanam->getAnam());
+    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
     if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
   }
-  else if (covanam->getAnamType() == EAnam::DISCRETE_IR)
+  else if (anam->getType() == EAnam::DISCRETE_IR)
   {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(covanam->getAnam());
+    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
     if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
   }
   else

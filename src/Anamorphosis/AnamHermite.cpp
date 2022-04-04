@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -25,6 +26,12 @@
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.
 #define YPAS       0.1
+
+#define QT_EST    0
+#define QT_STD    1
+#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
+#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
+                                   QT_VARS(QT_STD,j) > 0)
 
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(),
@@ -783,3 +790,163 @@ Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
   return calest;
 }
 
+/*****************************************************************************/
+/*!
+ **  Calculate Experimental Grade-Tonnage curves from factors
+ **  Case of Hermite Anamorphosis
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  cutmine      Array of the requested cutoffs
+ ** \param[in]  cols_est     Array of columns for factor estimation
+ ** \param[in]  cols_std     Array of columns for factor st. dev.
+ ** \param[in]  iptr         Rank for storing the results
+ ** \param[in]  codes        Array of codes for stored results
+ ** \param[in]  qt_vars      Array of variables to be calculated
+ **
+ ** \param[out] calest       Selectivity structure
+ **
+ *****************************************************************************/
+int AnamHermite::factor2QT(Db *db,
+                           const VectorDouble& cutmine,
+                           const VectorInt& cols_est,
+                           const VectorInt& cols_std,
+                           int iptr,
+                           const VectorInt& codes,
+                           const VectorInt& qt_vars,
+                           Selectivity& calest)
+{
+  setFlagBound(1);
+  int nbpoly = getNbPoly();
+  bool need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) ||
+      QT_FLAG(ANAM_QT_M) || QT_FLAG(ANAM_QT_PROBA);
+  bool need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
+  int ncutmine = (int) cutmine.size();
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
+
+    /* Z: Estimation */
+
+    double zestim = 0.;
+    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    {
+      double total = getPsiHn(0);
+      for (int ivar = 0; ivar < nb_est; ivar++)
+      {
+        double value = db->getArray(iech, cols_est[ivar]);
+        double coeff = getPsiHn(ivar + 1);
+        total += coeff * value;
+      }
+      zestim = total;
+    }
+
+    /* Z: Standard Deviation */
+
+    double zstdev = 0.;
+    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    {
+      double total = 0.;
+      for (int ivar = 0; ivar < nb_std; ivar++)
+      {
+        double value = db->getArray(iech, cols_std[ivar]);
+        double coeff = getPsiHn(ivar + 1);
+        total += coeff * coeff * value;
+      }
+      zstdev = sqrt(total);
+    }
+
+    /* Loop on the cutoffs */
+
+    for (int icut = 0; icut < ncutmine; icut++)
+    {
+      double yc = RawToTransformValue(cutmine[icut]);
+      if (need_T)
+      {
+        VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);
+
+        /* Tonnage estimation */
+
+        if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
+        {
+          double total = s_cc[0];
+          for (int ivar = 0; ivar < nb_est; ivar++)
+          {
+            double value = db->getArray(iech, cols_est[ivar]);
+            total += s_cc[ivar + 1] * value;
+          }
+          calest.setTest(icut, total);
+        }
+
+        /* Tonnage: Standard Deviation */
+
+        if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_std; ivar++)
+          {
+            double value = db->getArray(iech, cols_std[ivar]);
+            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
+          }
+          calest.setTstd(icut, sqrt(total));
+        }
+      }
+
+      if (need_Q)
+      {
+        MatrixSquareGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
+
+        /* Metal Quantity: Estimation */
+
+        if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_est; ivar++)
+          {
+            double value = db->getArray(iech, cols_est[ivar]);
+            double fn = 0.;
+            for (int jvar = 0; jvar < nbpoly; jvar++)
+            {
+              double coeff = getPsiHn(jvar);
+              fn += coeff * TAU.getValue(ivar, jvar);
+            }
+            total += fn * value;
+          }
+          calest.setQest(icut, total);
+        }
+
+        /* Metal Quantity: Standard Deviation */
+
+        if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_std; ivar++)
+          {
+            double value = db->getArray(iech, cols_std[ivar]);
+            double fn = 0.;
+            for (int jvar = 0; jvar < nbpoly; jvar++)
+            {
+              double coeff = getPsiHn(jvar);
+              fn += coeff * TAU.getValue(ivar, jvar);
+            }
+            total += fn * fn * value;
+          }
+          calest.setQstd(icut, sqrt(total));
+        }
+      }
+    }
+
+    /* Storage */
+
+    calest.calculateBenefitGrade();
+    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
+                   calest);
+  }
+  return (0);
+}

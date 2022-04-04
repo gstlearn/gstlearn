@@ -18,6 +18,8 @@
 #include "Basic/ASerializable.hpp"
 
 class ECalcMember;
+class Db;
+class Selectivity;
 
 class GSTLEARN_EXPORT AAnam : public AStringable, public ASerializable
 {
@@ -45,4 +47,19 @@ public:
   virtual double TransformToRawValue(double y) const;
 
   double calculateR(double cvv, double power);
+  void recoveryLocal(Db *db,
+                      int iech0,
+                      int iptr,
+                      const VectorInt& codes,
+                      const VectorInt& qt_vars,
+                      double zestim,
+                      double zstdev,
+                      const Selectivity& calest);
+
+protected:
+  bool _isSampleSkipped(Db *db,
+                        int iech,
+                        const VectorInt& cols_est,
+                        const VectorInt& cols_std);
+
 };

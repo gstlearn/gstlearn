@@ -88,6 +88,15 @@ public:
 
   Selectivity calculateSelectivity(const VectorDouble& zcut);
 
+  int factor2QT(Db *db,
+                const VectorDouble& cutmine,
+                const VectorInt& cols_est,
+                const VectorInt& cols_std,
+                int iptr,
+                const VectorInt& codes,
+                const VectorInt& qt_vars,
+                Selectivity& calest);
+
 protected:
   /// ASerializable Interface
   virtual int _deserialize(std::istream& is, bool verbose) override;

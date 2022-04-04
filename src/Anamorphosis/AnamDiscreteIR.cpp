@@ -9,13 +9,21 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Db/Db.hpp"
 #include "Basic/Utilities.hpp"
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 
 #include <math.h>
 
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
+#define QT_EST    0
+#define QT_STD    1
+#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
+#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
+                                   QT_VARS(QT_STD,j) > 0)
 
 AnamDiscreteIR::AnamDiscreteIR(double rcoef)
     : AnamDiscrete(),
@@ -493,5 +501,158 @@ Selectivity AnamDiscreteIR::calculateSelectivity(bool flag_correct)
   calest.calculateBenefitGrade();
 
   return calest;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate Experimental Grade-Tonnage curves from factors
+ **  Case of Discrete Indicator Residuals
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  cutmine      Array of the requested cutoffs
+ ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
+ ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
+ ** \param[in]  cols_est     Array of columns for factor estimation
+ ** \param[in]  cols_std     Array of columns for factor st. dev.
+ ** \param[in]  iptr         Rank for storing the results
+ ** \param[in]  codes        Array of codes for stored results
+ ** \param[in]  qt_vars      Array of variables to be calculated
+ **
+ ** \param[out] calest       Selectivity
+ ** \param[out] calcut       Translated selectivity
+ **
+ *****************************************************************************/
+int AnamDiscreteIR::factor2QT(Db *db,
+                              const VectorDouble& cutmine,
+                              double z_max,
+                              int flag_correct,
+                              const VectorInt& cols_est,
+                              const VectorInt& cols_std,
+                              int iptr,
+                              const VectorInt& codes,
+                              const VectorInt& qt_vars,
+                              Selectivity& calest,
+                              Selectivity& calcut)
+{
+  int nech = db->getSampleNumber();
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
+  int ncleff = MAX(nb_est, nb_std);
+  int ncutmine = (int) cutmine.size();
+
+  /* Calculate the Recovery Functions from the factors */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
+
+    /* Calculate the tonnage and the recovered grade */
+
+    double total = 0.;
+    for (int ivar = 0; ivar < ncleff; ivar++)
+    {
+      double value = db->getArray(iech, cols_est[ivar]);
+      total += value;
+      calest.setTest(ivar, total * getIRStatT(ivar + 1));
+    }
+
+    /* Correct order relationship */
+
+    if (flag_correct) calest.correctTonnageOrder();
+
+    /* Tonnage: Standard Deviation */
+
+    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+    {
+      total = 0.;
+      for (int ivar = 0; ivar < ncleff; ivar++)
+      {
+        double value = db->getArray(iech, cols_std[ivar]);
+        total += value * value;
+        calest.setTstd(ivar, sqrt(total) * getIRStatT(ivar + 1));
+      }
+    }
+
+    /* Metal Quantity: Estimation */
+
+    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+    {
+      calest.setQest(ncleff-1, getIRStatZ(ncleff) * calest.getTest(ncleff-1));
+      for (int ivar = ncleff - 2; ivar >= 0; ivar--)
+      {
+        calest.setQest(ivar,
+                       calest.getQest(ivar+1) + getIRStatZ(ivar + 1)
+                       * (calest.getTest(ivar) - calest.getTest(ivar + 1)));
+      }
+    }
+
+    /* Metal Quantity: Standard Deviation */
+
+    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+    {
+      for (int ivar = 0; ivar < ncleff; ivar++)
+      {
+        total = 0.;
+        for (int jvar = 0; jvar < ivar; jvar++)
+        {
+          double value = db->getArray(iech, cols_std[jvar]);
+          total += value * value;
+        }
+        double prod = getIRStatB(ivar + 1) +
+            getIRStatZ(ivar + 1) * getIRStatT(ivar + 1);
+        total *= prod * prod;
+        for (int jvar = ivar + 1; jvar < ncleff; jvar++)
+        {
+          double prod = db->getArray(iech, cols_std[jvar])
+              * getIRStatB(ivar + 1);
+          total += prod * prod;
+        }
+        calest.setQstd(ivar, sqrt(total));
+      }
+    }
+
+    /* Z: Estimation */
+
+    double zestim = 0.;
+    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    {
+      zestim = getIRStatZ(ncleff) * calest.getTest(ncleff-1);
+      for (int ivar = 0; ivar < ncleff - 1; ivar++)
+        zestim += getIRStatZ(ivar + 1)
+            * (calest.getTest(ivar) - calest.getTest(ivar + 1));
+    }
+
+    /* Z: Standard Deviation */
+
+    double zstdev = 0.;
+    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    {
+      total = 0.;
+      for (int ivar = 0; ivar < ncleff; ivar++)
+      {
+        double prod = db->getArray(iech, cols_std[ivar])
+            * getIRStatB(ivar + 1);
+        total += prod * prod;
+      }
+      zstdev = sqrt(total);
+    }
+
+    /* Store the results */
+
+    if (ncutmine > 0)
+    {
+      _interpolateQTLocal(z_max, cutmine, calest, calcut);
+      calcut.calculateBenefitGrade();
+      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calcut);
+    }
+    else
+    {
+      calest.calculateBenefitGrade();
+      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
+    }
+  }
+  return (0);
 }
 

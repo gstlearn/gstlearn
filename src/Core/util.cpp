@@ -909,9 +909,7 @@ void ut_classify(int nech,
  ** \param[out]  sina  sine function
  **
  *****************************************************************************/
-void ut_rotation_sincos(double angle,
-                                        double *cosa,
-                                        double *sina)
+void ut_rotation_sincos(double angle, double *cosa, double *sina)
 {
   double value;
 

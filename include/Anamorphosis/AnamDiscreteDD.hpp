@@ -85,6 +85,18 @@ public:
 
   Selectivity calculateSelectivity(bool flag_correct);
 
+  int factor2QT(Db *db,
+                const VectorDouble& cutmine,
+                double z_max,
+                int flag_correct,
+                const VectorInt& cols_est,
+                const VectorInt& cols_std,
+                int iptr,
+                const VectorInt& codes,
+                const VectorInt& qt_vars,
+                Selectivity& calest,
+                Selectivity& calcut);
+
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;

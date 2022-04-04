@@ -20,6 +20,7 @@
 
 class ECalcMember;
 class Selectivity;
+class Db;
 
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
@@ -63,6 +64,18 @@ public:
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
 
   Selectivity calculateSelectivity(bool flag_correct);
+
+  int factor2QT(Db *db,
+                const VectorDouble& cutmine,
+                double z_max,
+                int flag_correct,
+                const VectorInt& cols_est,
+                const VectorInt& cols_std,
+                int iptr,
+                const VectorInt& codes,
+                const VectorInt& qt_vars,
+                Selectivity& calest,
+                Selectivity& calcut);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
