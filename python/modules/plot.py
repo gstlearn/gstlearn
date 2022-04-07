@@ -135,9 +135,11 @@ def update_xylim(ax, xlim=None, ylim=None):
         if ylim[1] is not None and ylim[1] > ylim0[1]:
             ax.set_ylim(top=ylim[1])
 
-def varioElem(vario, ivar=0, jvar=0, idir=0,
-          color='black', linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None,
-          flagLabelDir=False, flagLegend=False, title=None, ax=None, figsize=None, end_plot = False):
+def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black', 
+              linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
+              flagLabelDir=False, flagLegend=False, flagLabelSill=False,
+              title=None, xlabel=None, ylabel=None,
+              ax=None, figsize=None, end_plot = False, **plot_args):
     """Plot a single and unidirectional experimental variogram (one direction and fixed variable(s)).
     
     Parameters
@@ -145,41 +147,31 @@ def varioElem(vario, ivar=0, jvar=0, idir=0,
     vario : experimental variogram to be represented (gstlearn.Vario).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     idir : Index of the direction of the variogram to be represented (the default is 0).
-    color : color of the line (the default is 'black').
-    linestyle : linestyle of the line (the default is 'solid').
     color0 : color of the horizontal line representing the sill (the default is 'black').
     linestyle0 : linestyle of the horizontal line representing the sill (the default is 'dashed').
     hmax : Maximum distance to be represented.
     gmax : Maximum variogram value to be represented.
+    show_pairs : Flag for annotating the number of pairs for each lag on the plot (the default is False).
     flagLabelDir : Flag to add the direction vector of the variogram in the label of the line. 
                    (default is False) The default label is "vario".
     flagLegend : Flag to display the axes legend (The default is False).
+    flagLabelSill : Flag to define the label for the sill (The default is True).
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
     end_plot : Flag for closing the graphics (the default is False).
+    
+    **plot_args : arguments passed to matplotlib.pyplot.plot
 
     Returns
     -------
     ax : axes where the variogram is represented
 
     """
+    color = plot_args.setdefault('color', 'black')
     
-    if hmax is None:
-        hmax = vario.getHmax(ivar, jvar, idir)
-    if gmax is None:
-        gmax = vario.getGmax(ivar, jvar, idir, True, True) * 1.1
-
-    xlim = [0,hmax]
-    gmin = 0
-    if ivar != jvar:
-        gmin = -gmax
-    ylim = [gmin,gmax]
-        
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        update_xylim(ax, xlim, ylim)
+        fig, ax = newFigure(figsize, None, None)
 
     label = "vario"
     if flagLabelDir:
@@ -188,16 +180,30 @@ def varioElem(vario, ivar=0, jvar=0, idir=0,
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
     hh = vario.getHhVec(idir,ivar,jvar)
-    ax.plot(hh, gg, color = color, linestyle=linestyle, label = label)
-                
+    ax.plot(hh, gg, label = label, **plot_args)
+    
+    hmax = np.nanmax(hh)
+    
     # Plotting relevant control lines
     if ivar != jvar:
         ax.hlines(0, 0, hmax, colors="black", linewidth=0.5)
-    ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0, label = "sill")
-            
-    if title is not None:
-        ax.set_title(title)
+    labsill = None
+    if flagLabelSill:
+        labsill = "sill"
+    ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0, label = labsill)
     
+    if show_pairs:
+        pairs = vario.getSwVec(idir,ivar,jvar)
+        for i in range(len(hh)):
+            ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
+                        textcoords = 'offset points', ha='center')
+    
+    drawDecor(ax, xlabel, ylabel, title)
+    
+    ax.set_xlim(left=0)
+    if ivar == jvar:
+        ax.set_ylim(bottom=0)
+        
     if flagLegend:
         ax.legend()
         
@@ -207,8 +213,9 @@ def varioElem(vario, ivar=0, jvar=0, idir=0,
     return ax
 
 def varioDir(vario, ivar=0, jvar=0,
-             linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-             cmap=None, flagLegend=False, title=None, ax=None, figsize=None, end_plot=False):
+             color0='black', linestyle0='dashed', hmax=None, gmax=None, 
+             cmap=None, flagLegend=False, title=None, xlabel=None, ylabel=None, ax=None, figsize=None, 
+             end_plot=False, **plot_args):
     """Plot a single directional experimental variogram (all avalaible directions, for fixed variable(s)).
     
     Calls the function varioElem for each direction, and labels are automatically set with direction vectors.
@@ -217,7 +224,6 @@ def varioDir(vario, ivar=0, jvar=0,
     ----------
     vario : experimental variogram to be represented (gstlearn.Vario).
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
-    linestyle : linestyle of the line (the default is 'solid').
     color0 : color of the horizontal line representing the sill (the default is 'black').
     linestyle0 : linestyle of the horizontal line representing the sill (the default is 'dashed').
     hmax : Maximum distance to be represented.
@@ -229,6 +235,8 @@ def varioDir(vario, ivar=0, jvar=0,
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
     end_plot : Flag for closing the graphics (the default is False).
 
+    **plot_args : arguments passed to matplotlib.pyplot.plot for all directions plotted
+    
     Returns
     -------
     ax : axes where the variogram is represented
@@ -244,23 +252,31 @@ def varioDir(vario, ivar=0, jvar=0,
     ndirUtil, ivarD = selectItems(ndir)
     cols = get_cmap(vario.getDirectionNumber(),cmap)
     
-    xlim = [0,hmax]
-    gmin = 0
-    if ivar != jvar:
-        gmin = -gmax
-    ylim = [gmin,gmax]
+    # xlim = [0,hmax]
+    # gmin = 0
+    # if ivar != jvar:
+    #     gmin = -gmax
+    # ylim = [gmin,gmax]
         
+    # if ax is None:
+    #     fig, ax = newFigure(figsize, xlim, ylim)
+    # update_xylim(ax, xlim, ylim)
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        update_xylim(ax, xlim, ylim)
-
+        fig, ax = newFigure(figsize, None, None)
+    
     for idirUtil in ndirUtil:
-        varioElem(vario, ivar, jvar, idirUtil, cols(idirUtil), linestyle, color0, linestyle0, 
-                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True)
+        flagLabelSill = idirUtil == 0
+        varioElem(vario, ivar=ivar, jvar=jvar, idir=idirUtil, color=cols(idirUtil), color0=color0, linestyle0=linestyle0, 
+                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, flagLabelSill=flagLabelSill,
+                  **plot_args)
         
-    if title is not None:
-        ax.set_title(title)
+    drawDecor(ax, xlabel, ylabel, title)
+    
+    
+    ax.autoscale(True)
+    ax.set_xlim(left=0)
+    if ivar == jvar:
+        ax.set_ylim(bottom=0)
     
     if flagLegend:
         ax.legend()
@@ -271,9 +287,9 @@ def varioDir(vario, ivar=0, jvar=0,
     return ax
 
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
-           linestyle='solid', linestylem="dashed", color0='black', linestyle0="dotted",
+           linestylem="dashed", color0='black', linestyle0="dotted",
            nh = 100, hmax = None, gmax = None, 
-           cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False):
+           cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, **plot_args):
     """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
     
     Same as vario plus the possible model.
@@ -286,7 +302,6 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multidirectional variograms are represented.
-    linestyle : linestyle of the experimental variograms lines (the default is 'solid').
     linestylem : linestyle of the model lines (the default is 'dashed').
     color0 : color of the horizontal lines representing the experimental sills (the default is 'black').
     linestyle0 : linestyle of the horizontal lines representing the sills (the default is 'dotted').
@@ -301,6 +316,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
     end_plot : Flag for closing the graphics (the default is False).
 
+    **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted (not models!)
+    
     Returns
     -------
     ax : axes where the variograms are represented
@@ -312,8 +329,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     if gmax is None:
         gmax = vario.getGmax(ivar, jvar, idir)
 
-    xlim = [0, hmax]
-    ylim = [0, gmax]
+    # xlim = [0, hmax]
+    # ylim = [0, gmax]
     ylimnodiag = [-gmax, gmax]
         
     ndir = vario.getDirectionNumber()
@@ -349,19 +366,24 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
             
             for idirUtil in ndirUtil:
                 varioElem(vario, iv, jv, idirUtil, 
-                          color=cols(idirUtil), linestyle=linestyle,
+                          color=cols(idirUtil),
                           color0=color0, linestyle0=linestyle0, 
                           ax=ax, hmax=hmax, gmax=None, 
-                          flagLabelDir=flagLabelDir, flagLegend=flagLegend)
+                          flagLabelDir=flagLabelDir, flagLegend=flagLegend, **plot_args)
 
                 # Plotting the Model (optional)
                 if mymodel is not None:
                     codir = vario.getCodir(idirUtil)
-                    model(mymodel, iv, jv, codir, 
-                          cols(idirUtil), linestylem, color0, linestyle0, ax=ax,
+                    model(mymodel, ivar=iv, jvar=jv, codir=codir, 
+                          color=cols(idirUtil), linestyle=linestylem, color0=color0, linestyle0=linestyle0, ax=ax,
                           hmax=hmax, gmax=None, nh=nh,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
+    ax.autoscale(True)
+    ax.set_xlim(left=0)
+    if ivar == jvar:
+        ax.set_ylim(bottom=0)
+    
     if title is not None:
         plt.suptitle(title)
         
@@ -371,8 +393,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     return axs
 
 def vario(vario, ivar=-1, jvar=-1, idir=-1,
-          linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-          cmap = None, flagLegend=False, title = None, axs = None, figsize = None, end_plot=False):
+          color0='black', linestyle0='dashed', hmax=None, gmax=None, 
+          cmap = None, flagLegend=False, title = None, axs = None, figsize = None, end_plot=False, **plot_args):
     """Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
     Parameters
@@ -382,7 +404,6 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
                  variables are selected and all the simple and crossed variograms are represented.
     idir : Index of the direction of the variogram to be represented. If -1 (default) all available
            directions are selected and multidirectional variograms are represented.
-    linestyle : linestyle of the variograms lines (the default is 'solid').
     color0 : color of the horizontal lines representing the sills (the default is 'black').
     linestyle0 : linestyle of the horizontal lines representing the sills (the default is 'dashed').
     hmax : Maximum distance to be represented.
@@ -395,21 +416,23 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
     end_plot : Flag for closing the graphics (the default is False).
 
+    **plot_args : arguments passed to matplotlib.pyplot.plot for all variograms plotted
+
     Returns
     -------
     ax : axes where the variograms are represented
 
     """
-    axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, linestyle=linestyle, 
+    axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, 
                  color0=color0, linestyle0=linestyle0, hmax=hmax, gmax=gmax, cmap=cmap, 
-                 flagLegend=flagLegend, title=title, axs=axs, figsize=figsize, end_plot=end_plot)
+                 flagLegend=flagLegend, title=title, axs=axs, figsize=figsize, end_plot=end_plot, **plot_args)
     
     return axs
 
-def model(model, ivar=0, jvar=0, codir=None,
-          color='black', linestyle='solid', color0='black', linestyle0='dashed',
+def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed',
           nh = 100, flagEnv = True, hmax = None, gmax = None, 
-          flagLabelDir=False, flagLegend=False, title=None, ax=None, figsize = None, end_plot =False):
+          flagLabelDir=False, flagLegend=False, title=None, xlabel=None, ylabel=None, ax=None, 
+          figsize = None, end_plot =False, **plot_args):
     """Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
     
     Parameters
@@ -418,8 +441,6 @@ def model(model, ivar=0, jvar=0, codir=None,
     ivar, jvar : Indices of the variables for the variogram to be represented (the default is 0).
     codir : Vector of the direction of the variogram to be represented. The default is the unit 
             vector in the first space dimension.
-    color : color of the line (the default is 'black').
-    linestyle : linestyle of the line (the default is 'solid').
     color0, linestyle0 : (if flagEnv = True) color and linestyle of the correlation envelop 
                          (the defaults are 'black' and 'dashed')
     nh : number of points between 0 and hmax where the model variogram is calculated (default is 100).
@@ -440,6 +461,7 @@ def model(model, ivar=0, jvar=0, codir=None,
     ax : axes where the variogram is represented
 
     """
+    color = plot_args.setdefault('color', 'black')    
     
     if codir is None:
         ndim = model.getDimensionNumber()
@@ -455,37 +477,36 @@ def model(model, ivar=0, jvar=0, codir=None,
                 hmax = 3*range_max
     if hmax == 0: # if the model has no range defined
         hmax = 1
-        
-    hh = np.linspace(hmax/nh, hmax, nh)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, addZero=False)
+            
+    hh = np.linspace(0, hmax, nh+1)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, addZero=True)
     
-    if gmax is None:
-        gmax = np.max(gg) * 1.1
-    gmin = 0
-    if ivar != jvar:
-        gmin = -gmax
-    xlim = [0,hmax]
-    ylim = [gmin,gmax]
-
     if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        update_xylim(ax, xlim, ylim)
+        fig, ax = newFigure(figsize, None, None)
         
     label = "model"
     if flagLabelDir:
         label = "model dir={}".format(codir)
-        
-    ax.plot(hh, gg, color = color, linestyle = linestyle, label=label)
+    
+    istart = 0
+    for i in range(model.getCovaNumber()):
+        if model.getCovName(i) == 'Nugget Effect':
+            istart = 1 # do not plot the first lag (h=0) for nugget effect (discontinuity)
+            
+    ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
     
     if ivar != jvar and flagEnv:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1)
-        ax.plot(hh, ggp, color = color0, linestyle = linestyle0, label="plus")
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1)
-        ax.plot(hh, ggm, color = color0, linestyle = linestyle0, label="minus")
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, addZero=True)
+        ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0, label="plus")
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, addZero=True)
+        ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
-    if title is not None:
-        ax.set_title(title)
+    drawDecor(ax, xlabel, ylabel, title)
+    
+    ax.autoscale(True)
+    ax.set_xlim(left=0)
+    if ivar == jvar:
+        ax.set_ylim(bottom=0)
     
     if flagLegend:
         ax.legend()
@@ -500,7 +521,7 @@ def point(db,
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
-          title=None, ax=None, figsize = None, end_plot =False):
+          title=None, ax=None, figsize = None, end_plot =False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
@@ -521,6 +542,8 @@ def point(db,
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
     end_plot: Flag for closing the graphics
+
+    **scatter_args : arguments passed to matplotllib.pyplot.scatter
     '''
     
     if ax is None:
@@ -560,7 +583,7 @@ def point(db,
     else:
         sizval = size
 
-    im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap)
+    im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap, **scatter_args)
     ax.set_aspect(aspect)
     
     if flagColorBar and (color_name is not None):
@@ -581,8 +604,10 @@ def point(db,
 
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
-            title= None, ax=None, figsize=None, end_plot=False):
-    '''Function to display a polygon'''
+            title= None, ax=None, figsize=None, end_plot=False, **fill_args):
+    '''Function to display a polygon
+    
+    **fill_args: arguments passed to ax.fill'''
     
     if ax is None:
         fig, ax = newFigure(figsize)
@@ -607,7 +632,7 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
                 edgeColor_local = cols(ipol)
 
         ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local, 
-                 linewidth=linewidth)
+                 linewidth=linewidth, **fill_args)
         
     if title is not None:
         ax.set_title(title)
@@ -617,30 +642,29 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
         
     return ax
         
-def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect='equal',
-         xlim=None, ylim=None, cmap = None, norm=None, vmin = None, vmax = None, 
-         shading="nearest", title = None, ax=None, figsize = None, end_plot=False):
+def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
+         xlim=None, ylim=None,
+         title = None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
 
     dbgrid: Db, organized as a Grid, containing the variable to be plotted
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
-    alpha: Transparency index (0: transparent; 1: opaque)
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
-    cmap: Optional Color scale (default is 'viridis')
-    norm: Optional norm (instance of matplotlib.colors.Normalize). When vmin and vmax are given, 
-          they are used as the defaults bounds and override previous bounds in norm
-    vmin: Minimum of the variable
-    vmax: Maximum of the variable
-    shading: 'nearest' if cells centered in (x,y) or 'flat' if low-left corners of cells in (x,y) (argument of pcolormesh).
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
     end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
+    # define some default values (add them to hist_args if not already set)
+    clip_on = plot_args.setdefault('clip_on', True)
+    shading = plot_args.setdefault('shading', 'nearest')
+    
     if not(dbgrid.isGrid()):
         print("This function is dedicated to Grid Db and cannot be used here")
         return None;
@@ -671,10 +695,6 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect=
         if len(selec)>0 :
             data[np.array(selec) == 0] = np.nan
     
-    if vmin is None and norm is None:
-        vmin = np.nanmin(data)
-    if vmax is None and norm is None:
-        vmax = np.nanmax(data)
     data   = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])
@@ -689,16 +709,8 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect=
     else:
         print("The argument shading should be either 'nearest' for cells centered on (x,y)"
               " or 'flat' for cells with low-left corner in (x,y)")
-    
-    if norm is not None:
-        if vmin is not None:
-            norm.vmin = vmin
-        if vmax is not None:
-            norm.vmax = vmax
-        vmin, vmax = None, None # arguments included in norm, pcolormesh does not accept that we give both
 
-    im = ax.pcolormesh(X, Y, data, shading=shading, cmap=cmap, norm=norm,
-                       clip_on=True, alpha=alpha, vmin=vmin, vmax=vmax)
+    im = ax.pcolormesh(X, Y, data, **plot_args)
     
     ax.set_aspect(aspect)
     im.set_transform(trans_data)
@@ -719,31 +731,27 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect=
     
     return ax
 
-def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True, aspect='equal',
-         xlim=None, ylim=None, cmap = None, norm=None, vmin = None, vmax = None,
-         shading="nearest", title = None, axs=None, figsize = None, end_plot=False):
+def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
+         xlim=None, ylim=None, norm=None,
+         title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
 
     dbgrid: Db, organized as a Grid, containing the variable to be plotted
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
-    alpha: Transparency index (0: transparent; 1: opaque)
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    xlim: Bounds defined along the first axvis
-    ylim: Bounds defined along the second axis
-    cmap: Optional Color scale (default is 'viridis')
     norm: Optional norm. It can be either an instance of matplotlib.colors.Normalize when using a unique norm for 
           all variables (e.g. matplotlib.colors.LogNorm()), or a class of matplotlib.colors.Normalize when using 
           a type of normalization scaled independently for each variable (e.g. matplotlib.colors.LogNorm). 
-          When vmin and vmax are given, they are used as the defaults bounds for all plots.
-    vmin: Minimum of the variable
-    vmax: Maximum of the variable
-    shading: 'nearest' if cells centered in (x,y) or 'flat' if low-left corners of cells in (x,y) (argument of pcolormesh).
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
     title: Title given to the figure (each subplot is titled with the name of the variable represented)
     axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
     end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
     '''
     
     if names is None:
@@ -756,8 +764,8 @@ def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True, aspec
     
     Nplots = len(names)
     if Nplots == 1:
-        ax = grid(dbgrid, name=names[0], usesel=usesel, alpha=alpha, flagColorBar=flagColorBar, xlim=xlim, ylim=ylim, 
-                 cmap=cmap, norm=norm, vmin=vmin, vmax=vmax, shading=shading, title=title, ax=axs, figsize=figsize, end_plot=end_plot)
+        ax = grid(dbgrid, name=names[0], usesel=usesel, flagColorBar=flagColorBar, xlim=xlim, ylim=ylim, 
+                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
         return ax
     elif Nplots == 0:
         print("There is no variable in the dbgrid corresponding to the name given.")
@@ -782,21 +790,28 @@ def grids(dbgrid, names = None, usesel = True, alpha=1, flagColorBar=True, aspec
             else: # a unique norm for all subplots
                 norm_i = norm
             
-        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, alpha=alpha, flagColorBar=flagColorBar, aspect=aspect,
-                 xlim=xlim, ylim=ylim, cmap=cmap, norm=norm_i, vmin=vmin, vmax=vmax, shading=shading)
+        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
+                 xlim=xlim, ylim=ylim, norm=norm_i, **plot_args)
     if end_plot:
         plt.show()
         
     return axs
 
-def hist_tab(val, nbins=30, xlab=None, ylab=None, 
-             title = None, ax = None, figsize=None, end_plot=False):
-    '''Function for plotting the histogram of an array (argument 'val')'''
+def hist_tab(val, xlab=None, ylab=None, 
+             title = None, ax = None, figsize=None, end_plot=False, **hist_args):
+    '''Function for plotting the histogram of an array (argument 'val')
+    
+    hist_args : arguments passed to matplotlib.pyplot.hist'''
+    
+    # define some default values (add them to hist_args if not already set)
+    color     = hist_args.setdefault("color", "yellow")
+    edgecolor = hist_args.setdefault("edgecolor", "red")
+    bins      = hist_args.setdefault("bins", 30)
     
     if ax is None:
         fig, ax = newFigure(figsize)
         
-    ax.hist(val, bins = nbins, color = 'yellow', edgecolor = 'red')
+    ax.hist(val, **hist_args)
     
     drawDecor(ax, xlab=xlab, ylab=ylab, title=title)
         
@@ -805,10 +820,13 @@ def hist_tab(val, nbins=30, xlab=None, ylab=None,
         
     return ax
     
-def hist(db, name, nbins=30, xlab=None, ylab=None, 
-         title = None, ax=None, figsize=None, end_plot=False):
-    '''Function for plotting the histogram of a variable contained in a Db'''
+def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
+         figsize=None, end_plot=False, usesel=True, **hist_args):
+    '''Function for plotting the histogram of a variable contained in a Db
     
+    hist_args : arguments passed to matplotlib.pyplot.hist'''
+    
+    db.useSel = usesel
     #val = db.getColumn(name)
     val = db[name]
     if len(val) == 0:
@@ -816,16 +834,19 @@ def hist(db, name, nbins=30, xlab=None, ylab=None,
     
     if title is None:
         title = db.getNames(name)[0]
-    ax = hist_tab(val, nbins, title, xlab, ylab, ax, figsize, end_plot)
+    ax = hist_tab(val, title=title, xlab=xlab, ylab=ylab, ax=ax, figsize=figsize, end_plot=end_plot, **hist_args)
     
     return ax
 
 def curve(data, icas=1, color='black', 
-          title=None, ax=None, figsize = None, end_plot=False):
+          title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting the curve of an array (argument 'data')
         icas=1 when 'data' represent the abscissae and 2 when 'data' represents the ordinate
+    **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
+    color = plot_args.setdefault('color', 'black')
+    label = plot_args.setdefault('label', 'model')
     
     if ax is None:
         fig, ax = newFigure(figsize)
@@ -834,11 +855,12 @@ def curve(data, icas=1, color='black',
     regular = [i for i in range(nbpoint)]
     
     if icas == 1:
-        ax.plot(data, regular,color=color,label="model")
+        ax.plot(data, regular, **plot_args)
     else:
-        ax.plot(regular, data,color=color,label="model")
+        ax.plot(regular, data, **plot_args)
     
     drawDecor(ax, title=title)
+    ax.legend()
         
     if end_plot:
         plt.show()
@@ -846,7 +868,9 @@ def curve(data, icas=1, color='black',
     return ax
 
 def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, 
-       title=None, ax=None, figsize = None, end_plot=False):
+       title=None, ax=None, figsize = None, end_plot=False, **plot_args):
+    """Plot Y againt X.
+    **plot_args : arguments passed to matplotlib.pyplot.plot"""
     
     if not len(ytab) == len(xtab):
         print("Arrays 'xtab' and 'ytab' should have same dimensions")
@@ -856,11 +880,18 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None,
         fig, ax = newFigure(figsize, xlim, ylim)
     
     if flagAsPoint:
-        ax.plot(xtab, ytab, marker='o', color='blue', markersize=10, label='point')
+        plot_args.setdefault('label', 'point')
+        plot_args.setdefault('markersize', 10)
+        plot_args.setdefault('color', 'blue')
+        plot_args.setdefault('marker', 'o')
+        ax.plot(xtab, ytab, **plot_args)
     else:
-        ax.plot(xtab, ytab, 'g-', label="model")
+        plot_args.setdefault('label', 'model')
+        plot_args.setdefault('fmt', 'g-')
+        ax.plot(xtab, ytab, **plot_args)
     
     drawDecor(ax, title=title)
+    ax.legend()
     
     if end_plot:
         plt.show()
@@ -892,12 +923,12 @@ def rule(rule, proportions=[],
 
 
 def table(table, icols, fmt='ok', xlim=None, ylim=None,
-          title=None, ax=None, figsize=None, end_plot=False):
+          title=None, ax=None, figsize=None, end_plot=False, **plot_args):
     '''
     Function for plotting the contents of a Table (argument 'tablr')
         icols designates the ranks of the variable (0: ordinate; 1: abscissae [or regular]) 
         fmt designates [marker][line][color] information
-        
+    **plot_args
     '''
     
     if ax is None:
@@ -909,20 +940,26 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None,
     else:
         datay = table.getCol(int(icols[0]))
         datax = table.getCol(int(icols[1]))
-    ax.plot(datax, datay, fmt, label="table")
+    
+    plot_args.setdefault('label', 'table')
+    ax.plot(datax, datay, fmt, **plot_args)
     
     drawDecor(ax, title=title)
-        
+    ax.legend()
+    
     if end_plot:
         plt.show()
         
     return ax
 
 def mesh(mesh, 
-         color='r', size=20, sizmin=10, sizmax=200, linewidth=1,
-         faceColor='yellow', edgeColor='blue', flagEdge=True, flagFace=False,
+         #color='r', size=20, sizmin=10, sizmax=200,#arguments not used ?
+         flagEdge=True, flagFace=False,
          xlim=None, ylim=None, 
-         title=None, ax=None, figsize = None, end_plot =False):
+         title=None, ax=None, figsize = None, end_plot =False, **plot_args):
+    """
+    **plot_args : arguments passed to matplotlib.pyplot.fill
+    """
     
     if ax is None:
         if xlim is not None:
@@ -936,15 +973,15 @@ def mesh(mesh,
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
             
-    faceColor_local = 'none'
-    if flagFace:
-        faceColor_local = faceColor
-                
-    edgeColor_local = 'none'
-    if flagEdge:
-        edgeColor_local = edgeColor
 
-    ax.fill(tabx, taby, facecolor=faceColor_local, edgecolor=edgeColor_local, linewidth=linewidth)
+    if flagFace:
+        plot_args.setdefault('facecolor', 'yellow')
+                
+    if flagEdge:
+        plot_args.setdefault('edgecolor', 'blue')
+
+    plot_args.setdefault('linewidth', 1)
+    ax.fill(tabx, taby, **plot_args)
 
     drawDecor(ax, title=title)
     
