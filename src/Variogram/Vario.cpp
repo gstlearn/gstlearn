@@ -1130,7 +1130,7 @@ VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
   {
     int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
     if (IFFFF(iad)) continue;
-    sw.push_back(_sw[idir][iad]);
+    if (_sw[idir][iad] > 0.) sw.push_back(_sw[idir][iad]);
   }
   return sw;
 }
