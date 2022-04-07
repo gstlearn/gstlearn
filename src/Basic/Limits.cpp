@@ -53,6 +53,11 @@ Limits::Limits(const VectorDouble& mini,
   }
 }
 
+/**
+ * Create the limits from a list of bounds. Intervals are demilited between two given bounds: [z_i, z_(i+1)[
+ * @param bounds    list of cutoffs used to create the limits. The number of limits is equal to the number of elements in the 'bounds' vector minus one. 
+ * @return
+ */
 Limits::Limits(const VectorDouble& bounds)
 {
   int nclass = static_cast<int> (bounds.size()) - 1;
@@ -168,6 +173,19 @@ int Limits::toCategory(Db* db, const String& name,
   return toCategoryByAttribute(db, iatt, namconv);
 }
 
+/**
+ * Create indicators variables on the intervals defined by the limits for a given variable in a Db.  
+ * Note:  
+ * If OptionIndicator is 1, the Db-class will contain the new indicator variables. There are as many new variables as they are classes. Each sample of the indicator variable for class 'iclass' is
+ * set to 1 if the sample belongs to this class or 0 otherwise.  
+ * If OptionIndicator is 0, the Db-class will contain a variable such that each sample contains the variable average calculated over the samples whose value belong to this class.
+
+ * @param db                 Db containing the variable to be discretized (from which the indicators are computed)
+ * @param name               Name of the variable in the Db to be discretized.
+ * @param OptionIndicator    When 1, the function calculates the indicator variables.
+ *							 When 0, it calculates the discretized variable: each sample contains the average value of the variable within the class to which it belongs.
+ * @return
+ */
 int Limits::toIndicator(Db* db,
                         const String& name,
                         int OptionIndicator,
