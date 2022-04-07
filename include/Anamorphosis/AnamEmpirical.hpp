@@ -51,6 +51,7 @@ public:
   void    calculateMeanAndVariance() override;
   double  RawToTransformValue(double zz) const override;
   double  TransformToRawValue(double yy) const override;
+  bool    isChangeSupportDefined() const override { return false; }
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

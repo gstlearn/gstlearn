@@ -43,7 +43,8 @@ public:
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
   int updatePointToBlock(double r_coef) override;
-  bool hasChangeSupport() const override { return true; }
+  bool allowChangeSupport() const override { return true; }
+  bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
 
   /// ASerializable Interface
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
@@ -94,8 +95,7 @@ public:
                 const VectorInt& cols_std,
                 int iptr,
                 const VectorInt& codes,
-                const VectorInt& qt_vars,
-                Selectivity& calest);
+                VectorInt& qt_vars);
 
 protected:
   /// ASerializable Interface

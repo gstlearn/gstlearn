@@ -38,7 +38,7 @@
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
     : AnamDiscrete(),
       _mu(mu),
-      _rCoef(scoef),
+      _sCoef(scoef),
       _maf(),
       _i2Chi()
 {
@@ -47,7 +47,7 @@ AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
 AnamDiscreteDD::AnamDiscreteDD(const AnamDiscreteDD &m)
     : AnamDiscrete(m),
       _mu(m._mu),
-      _rCoef(m._rCoef),
+      _sCoef(m._sCoef),
       _maf(m._maf),
       _i2Chi(m._i2Chi)
 {
@@ -58,7 +58,7 @@ AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD &m)
   if (this != &m)
   {
     _mu = m._mu;
-    _rCoef = m._rCoef;
+    _sCoef = m._sCoef;
     _maf = m._maf;
     _i2Chi = m._i2Chi;
   }
@@ -132,10 +132,10 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
-  if (_rCoef != 0.)
+  if (_sCoef != 0.)
   {
     sstr << "Mu Coefficient    = " << _mu << std::endl;
-    sstr << "Change of Support = " << _rCoef << std::endl;
+    sstr << "Change of Support = " << _sCoef << std::endl;
   }
 
   sstr << std::endl;
@@ -721,7 +721,7 @@ double AnamDiscreteDD::modifyCov(const ECalcMember& member,
 
 double AnamDiscreteDD::getBlockVariance(double sval, double /*power*/) const
 {
-  if (! hasChangeSupport()) return TEST;
+  if (! allowChangeSupport()) return TEST;
   int nclass = getNClass();
 
   // At this stage (point -> block)) cnorm designate the point C_i
@@ -737,7 +737,7 @@ double AnamDiscreteDD::getBlockVariance(double sval, double /*power*/) const
 
 int AnamDiscreteDD::updatePointToBlock(double r_coef)
 {
-  if (! hasChangeSupport()) return 1;
+  if (! allowChangeSupport()) return 1;
   setRCoef(r_coef);
   int nclass = getNClass();
 
@@ -872,9 +872,6 @@ Selectivity AnamDiscreteDD::calculateSelectivity(bool flag_correct)
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Selectivity structure
- ** \param[out] calcut       Translated Selectivity
- **
  *****************************************************************************/
 int AnamDiscreteDD::factor2QT(Db *db,
                               const VectorDouble& cutmine,
@@ -884,15 +881,45 @@ int AnamDiscreteDD::factor2QT(Db *db,
                               const VectorInt& cols_std,
                               int iptr,
                               const VectorInt& codes,
-                              const VectorInt& qt_vars,
-                              Selectivity& calest,
-                              Selectivity& calcut)
+                              VectorInt& qt_vars)
 {
   int nclass   = getNClass();
   int nech     = db->getSampleNumber();
   int nb_est   = (int) cols_est.size();
   int nb_std   = (int) cols_std.size();
   int ncutmine = (int) cutmine.size();
+
+  /* Preliminary checks */
+
+  if (db == nullptr)
+  {
+    messerr("You must define a Db");
+    return 1;
+  }
+  if (nb_est <= 0 && nb_std <= 0)
+  {
+    messerr("The number of factors is zero");
+    return 1;
+  }
+  int nvar = MAX(nb_est, nb_std);
+
+  /* Get the number of initial cutoffs */
+
+  int nmax = getNClass();
+  if (nvar >= nmax)
+  {
+    messerr("Number of factors (%d) must be smaller than Number of classes (%d)",
+            nvar, nmax);
+    return 1;
+  }
+  if (ncutmine <= 0) ncutmine = nmax;
+
+  /* Core allocation */
+
+  Selectivity calest(nmax);
+  Selectivity calcut;
+  if (ncutmine > 0)
+    calcut = Selectivity(ncutmine);
 
   /* Modeling the diffusion process */
 

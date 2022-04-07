@@ -38,10 +38,11 @@ public:
                            double /*cov1*/,
                            double /*cov2*/) const { return TEST;}
   virtual int getNFactor() const { return 0; }
+  virtual bool   isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
   virtual double getBlockVariance(double /*sval*/, double /*power*/ = 1) const;
   virtual int    updatePointToBlock(double /*r_coef*/);
-  virtual bool   hasChangeSupport() const { return false; }
+  virtual bool   allowChangeSupport() const { return false; }
   virtual bool   hasGaussian() const { return false; }
   virtual double RawToTransformValue(double z) const;
   virtual double TransformToRawValue(double y) const;
@@ -55,11 +56,25 @@ public:
                       double zestim,
                       double zstdev,
                       const Selectivity& calest);
+  int codeAnalyze(bool verbose,
+                  const VectorInt& codes,
+                  int nb_est,
+                  int nb_std,
+                  int ncut,
+                  double proba,
+                  int flag_inter,
+                  VectorInt& qt_vars) const;
 
 protected:
   bool _isSampleSkipped(Db *db,
                         int iech,
                         const VectorInt& cols_est,
                         const VectorInt& cols_std);
+
+
+private:
+  bool _isNcutValid(int ncut) const;
+  bool _isProbaValid(double proba) const;
+  void _printQTvars(const char *title, int type, int number) const;
 
 };

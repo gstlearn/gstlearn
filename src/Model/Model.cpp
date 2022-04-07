@@ -36,15 +36,26 @@
 #include <math.h>
 
 Model::Model(const CovContext &ctxt)
-    :
-    AStringable(),
-    ASerializable(),
-    _covaList(nullptr),
-    _driftList(nullptr),
-    _noStat(nullptr),
-    _ctxt(ctxt)
+    : AStringable(),
+      ASerializable(),
+      _covaList(nullptr),
+      _driftList(nullptr),
+      _noStat(nullptr),
+      _ctxt(ctxt)
 {
   _create();
+}
+
+Model::Model(int nvar, int ndim)
+    : AStringable(),
+      ASerializable(),
+      _covaList(nullptr),
+      _driftList(nullptr),
+      _noStat(nullptr),
+      _ctxt()
+{
+  SpaceRN space = SpaceRN(ndim);
+  _ctxt = CovContext(nvar, &space);
 }
 
 Model::Model(const Model &m)
@@ -210,6 +221,69 @@ void Model::addCov(const CovAniso *cov)
   _covaList->addCov(cov);
 }
 
+void Model::addCova(const ECov& type,
+                    double range,
+                    double sill,
+                    double param,
+                    const VectorDouble& ranges,
+                    const VectorDouble& sills,
+                    const VectorDouble& angles)
+{
+  // Check consistency with parameters of the model
+
+  int ndim = getDimensionNumber();
+  if (! ranges.empty())
+  {
+    if ((int) ranges.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'ranges' (%d)",(int) ranges.size());
+      messerr("and the Space dimension stored in the Model (%d)",ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
+  if (! angles.empty())
+  {
+    if ((int) angles.size() != ndim)
+    {
+      messerr("Mismatch between the dimension of 'angles' (%d)",(int) angles.size());
+      messerr("and the Space dimension stored in the Model (%d)",ndim);
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
+  int nvar = getVariableNumber();
+  if (! sills.empty())
+  {
+    if ((int) sills.size() != nvar * nvar)
+    {
+      messerr("Mismatch between the size of 'sills' (%d)",(int) sills.size());
+      messerr("and the Number of variables stored in the Model (%d)",nvar);
+      messerr("Operation is cancelled");
+      return;
+    }
+  }
+
+  // Define the covariance
+
+  SpaceRN space = SpaceRN(ndim);
+  _ctxt = CovContext(nvar, &space);
+  CovAniso cov(type, _ctxt);
+  if (! ranges.empty())
+    cov.setRanges(ranges);
+  else
+    cov.setRange(range);
+  if (! sills.empty())
+    cov.setSill(sills);
+  else
+    cov.setSill(sill);
+  cov.setParam(param);
+  if (! angles.empty())
+    cov.setAnisoAngles(angles);
+  addCov(&cov);
+  return;
+}
+
 /**
  * Add a list of Drifts. This operation cleans any previously stored drift function
  * @param driftlist List of Drifts to be added
@@ -229,10 +303,12 @@ void Model::addDrift(const ADriftElem *drift)
   _driftList->addDrift(drift);
 }
 
-void Model::addDrift(const VectorString &driftSymbols)
+void Model::setDrifts(const VectorString &driftSymbols)
 {
   if (_driftList == nullptr)
-    my_throw("Model::addDrift: cannot add an element to non-initialized _driftList");
+    _driftList = new DriftList();
+  else
+    delAllDrifts();
 
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {

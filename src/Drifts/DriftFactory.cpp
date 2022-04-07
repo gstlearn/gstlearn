@@ -159,4 +159,3 @@ EDrift DriftFactory::identifyDrift(const String& symbol,
   return EDrift::UNKNOWN;
 }
 
-

@@ -13,6 +13,7 @@
 #include "Basic/Utilities.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
+#include "Drifts/DriftFactory.hpp"
 #include "Db/Db.hpp"
 
 DriftList::DriftList(bool flagLinked, const ASpace* space)

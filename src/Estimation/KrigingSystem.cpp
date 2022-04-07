@@ -86,8 +86,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
-      _flagPanel(false),
-      _supportCoeff(1.),
+      _iclassDGM(false),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -524,7 +523,8 @@ void KrigingSystem::_covtabInit(bool flag_init)
   for (int i = 0; i < nvar * nvar; i++) _covtab[i] = 0.;
 }
 
-void KrigingSystem::_covtabCalcul(bool flag_init,
+void KrigingSystem::_covtabCalcul(const ECalcMember &member,
+                                  bool flag_init,
                                   const CovCalcMode& mode,
                                   int iech1,
                                   int iech2,
@@ -540,26 +540,28 @@ void KrigingSystem::_covtabCalcul(bool flag_init,
     int icas1 = 0;
     int icas2 = 0;
 
-    if (iech1 >= 0)
+    switch (member.getValue())
     {
-      icas1 = 1;
-      jech1 = iech1;
-    }
-    else
-    {
-      icas2 = 2;
-      jech1 = _iechOut;
-    }
+      case ECalcMember::E_LHS:
+        icas1 = 1;
+        jech1 = iech1;
+        icas2 = 1;
+        jech2 = iech2;
+        break;
 
-    if (iech2 >= 0)
-    {
-      icas2 = 1;
-      jech2 = iech2;
-    }
-    else
-    {
-      icas2 = 2;
-      jech2 = _iechOut;
+      case ECalcMember::E_RHS:
+        icas1 = 1;
+        jech1 = iech1;
+        icas2 = 2;
+        jech2 = _iechOut;
+        break;
+
+      case ECalcMember::E_VAR:
+        icas1 = 2;
+        jech1 = _iechOut;
+        icas2 = 2;
+        jech2 = _iechOut;
+        break;
     }
     nostat->updateModel(_model, icas1, jech1, icas2, jech2);
   }
@@ -567,6 +569,17 @@ void KrigingSystem::_covtabCalcul(bool flag_init,
   // Evaluate the Model
 
   MatrixSquareGeneral mat = _model->getCovAnisoList()->evalNvarIpas(1., d1, VectorDouble(), mode);
+
+  // Modify the Model (DGM case). Only provided for the monovariate case
+
+  if (_flagDGM)
+  {
+    double dist = (member == ECalcMember::LHS && iech1 == iech2) ? 0. : 1.;
+    double covn = _anam->modifyCov(member,_iclassDGM, dist, TEST, mat.getValue(0), TEST);
+    mat.setValue(0, covn);
+   }
+
+  // Expand the Model to all terms of the LHS of the Kriging System
 
   int nvar = _getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
@@ -672,7 +685,7 @@ void KrigingSystem::_lhsCalcul()
       _covtabInit(true);
       for (int idim = 0; idim < ndim; idim++)
         d1[idim] = (_getIdim(_nbgh[jech], idim) - _getIdim(_nbgh[iech], idim));
-      _covtabCalcul(false, mode, _nbgh[iech], _nbgh[jech], d1);
+      _covtabCalcul(ECalcMember::LHS, false, mode, _nbgh[iech], _nbgh[jech], d1);
 
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
@@ -706,14 +719,6 @@ void KrigingSystem::_lhsCalcul()
             }
           }
           if (!FFFF(verr) && verr > 0) _addLHS(iech,ivar,jech,jvar,verr);
-
-          // Correction in the DGM case
-
-          if (_flagDGM)
-          {
-            if (iech != jech)
-            _prodLHS(iech,ivar,jech,jvar,_supportCoeff * _supportCoeff);
-          }
         }
     }
 
@@ -882,7 +887,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
           // In the Point-Block Model, Randomize the target
           if (rankRandom >= 0 && ! _disc1.empty()) d1[idim] += _getDISC1(rankRandom, idim);
         }
-        _covtabCalcul(false, mode, _nbgh[iech], -1, d1);
+        _covtabCalcul(ECalcMember::RHS, false, mode, _nbgh[iech], -1, d1);
         break;
 
       case EKrigOpt::E_BLOCK:
@@ -893,7 +898,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
           for (int idim = 0; idim < ndim; idim++)
             d1[idim] = (_dbout->getCoordinate(_iechOut, idim) - _getIdim(_nbgh[iech], idim)
                         + _getDISC1(i, idim));
-          _covtabCalcul(false, mode, _nbgh[iech], -1, d1);
+          _covtabCalcul(ECalcMember::RHS, false, mode, _nbgh[iech], -1, d1);
         }
         break;
 
@@ -906,7 +911,6 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
     /* Normalization */
 
     double ratio = 1. / (double) nscale;
-    if (_flagDGM) ratio *= _supportCoeff;
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
         _prodCOVTAB(ivar,jvar,ratio);
@@ -970,26 +974,6 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
   return 0;
 }
 
-int KrigingSystem::_rhsCalculPanel()
-{
-  VectorDouble rhs_cum;
-  rhs_cum.resize(_nred, 0.);
-  for (int i = 0; i < _ndiscNumber; i++)
-  {
-    // Calculate the RHS for a given panel
-    if (_rhsCalcul(i)) return 1;
-
-    // Cumulate the RHS
-    for (int j = 0; j < _nred; j++)
-      rhs_cum[j] += _rhs[j];
-  }
-
-  // Average the RHS for the different SMUs
-  for (int i = 0; i < _ndiscNumber; i++)
-    _rhs[i] = rhs_cum[i] / (double) _ndiscNumber;
-  return 0;
-}
-
 void KrigingSystem::_rhsIsoToHetero()
 {
   int nvar = _getNVar();
@@ -1012,7 +996,6 @@ void KrigingSystem::_rhsDump()
   int neq    = getNeq();
   int nvarCL = _getNVarCL();
   int ndim   = getNDim();
-  int ndisc  = _getNDisc();
   VectorInt rel = _getRelativePosition();
 
   /* General Header */
@@ -1036,7 +1019,7 @@ void KrigingSystem::_rhsDump()
       for (int idim = 0; idim < ndim; idim++)
       {
         if (idim != 0) message(" x ");
-        message("%d", ndisc);
+        message("%d", _ndiscs[idim]);
       }
       message("\n");
       break;
@@ -1566,7 +1549,7 @@ void KrigingSystem::_variance0()
   {
     case EKrigOpt::E_PONCTUAL:
       nscale = 1;
-      _covtabCalcul(false, mode, -1, -1, d1);
+      _covtabCalcul(ECalcMember::VAR, false, mode, -1, -1, d1);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1576,7 +1559,7 @@ void KrigingSystem::_variance0()
         {
           for (int idim = 0; idim < ndim; idim++)
             d1[idim] = _getDISC1(i, idim) - _getDISC2(j,idim);
-          _covtabCalcul(false, mode, -1, -1, d1);
+          _covtabCalcul(ECalcMember::VAR, false, mode, -1, -1, d1);
        }
       nscale = nscale * nscale;
       break;
@@ -1589,7 +1572,6 @@ void KrigingSystem::_variance0()
   /* Normalization */
 
   double ratio = 1. / (double) nscale;
-  if (_flagDGM) ratio *= _supportCoeff;
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
       _prodCOVTAB(ivar,jvar,ratio);
@@ -1794,6 +1776,7 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     mestitle(1, "Target location");
+    if (_flagDGM) message("Factor #%d\n",_iclassDGM);
     db_sample_print(_dbout, iech_out, 1, 0, 0);
   }
 
@@ -1829,10 +1812,7 @@ int KrigingSystem::estimate(int iech_out)
   if (caseXvalidUnique) goto label_store;
 
   if (_flagBayes) _model = _modelSimple;
-  if (_flagPanel)
-    _rhsCalculPanel();
-  else
-    _rhsCalcul();
+  _rhsCalcul();
   if (_flagBayes) _model = _modelInit;
 
   if (status != 0) goto label_store;
@@ -1917,6 +1897,7 @@ void KrigingSystem::_krigingDump(int status)
   else
     mestitle(0, "(Co-) Kriging results");
   message("Target Sample = %d\n", _iechOut + 1);
+  if (_flagDGM) message("Factor = %d\n",_iclassDGM);
 
   /* Loop on the results */
 
@@ -2111,6 +2092,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 {
   int ndim = getNDim();
   _calcul = calcul;
+  _flagPerCell = false;
   if (_calcul == EKrigOpt::BLOCK)
   {
     if (flag_per_cell)
@@ -2135,17 +2117,23 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
       }
     }
 
+    // Discretization is stored
+
+    _ndiscs = ndiscs;
+    _ndiscNumber = ut_ivector_prod(_ndiscs);
+    _disc1.resize(_ndiscNumber * ndim);
+    _disc2.resize(_ndiscNumber * ndim);
+
     // For constant discretization, calculate discretization coordinates
 
     if (! _flagPerCell) _blockDiscretize();
-   }
+  }
+  else
+  {
+    _ndiscs.empty();
+    _ndiscNumber = 0;
+  }
 
-  // Discretization is stored ... even in Ponctual case (for DGM)
-
-  _ndiscs = ndiscs;
-  _ndiscNumber = ut_ivector_prod(_ndiscs);
-  _disc1.resize(_ndiscNumber * ndim);
-  _disc2.resize(_ndiscNumber * ndim);
   return 0;
 }
 
@@ -2368,16 +2356,33 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, bool flag_panel, double rcoef)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, const AAnam* anam)
 {
-  if (rcoef < 0. || rcoef > 1.)
+  if (anam == nullptr)
   {
-    messerr("The Change of Support Coefficient (%lf) should lie in [0,1]");
+    messerr("The Anamorphosis must be defined");
     return 1;
   }
   _flagDGM = flag_dgm;
-  _flagPanel = flag_panel;
-  _supportCoeff = rcoef;
+  _anam = anam;
+  return 0;
+}
+
+int KrigingSystem::setKrigOptDGMClass(int iclass)
+{
+  if (! _flagDGM)
+  {
+    messerr("You may not modify the Class rank here");
+    messerr("You should have turned the 'flagDGM' ON beforehand");
+    return 1;
+  }
+  if (iclass <= 0 || iclass > _anam->getNFactor())
+  {
+    messerr("Wrong 'ifactor' (%d): it should lie between 1 and the maximum number of factors (%d)",
+            iclass, _anam->getNFactor());
+    return 1;
+  }
+  _iclassDGM = iclass;
   return 0;
 }
 
@@ -2476,7 +2481,6 @@ int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
     messerr("to be smaller than 1.");
     return 1;
   }
-
   _flagAnam = true;
   _anam = anam;
   return 0;
@@ -3415,7 +3419,7 @@ void KrigingSystem::_bayesPreSimulate()
 void KrigingSystem::_transformGaussianToRaw()
 {
   if (_anam == nullptr) return;
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+  const AnamHermite *anam_hermite = dynamic_cast<const AnamHermite*>(_anam);
 
   /* Get the estimation */
 

@@ -48,7 +48,8 @@ public:
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
   int updatePointToBlock(double r_coef) override;
-  bool hasChangeSupport() const override { return true; }
+  bool allowChangeSupport() const override { return true; }
+  bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
@@ -60,8 +61,8 @@ public:
              const VectorDouble &stats);
 
   int fit(const VectorDouble& tab, int verbose=0);
-  double getRCoef() const { return _rCoef; }
-  void   setRCoef(double rcoef) { _rCoef = rcoef; }
+  double getRCoef() const { return _sCoef; }
+  void   setRCoef(double rcoef) { _sCoef = rcoef; }
 
   Selectivity calculateSelectivity(bool flag_correct);
 
@@ -73,9 +74,7 @@ public:
                 const VectorInt& cols_std,
                 int iptr,
                 const VectorInt& codes,
-                const VectorInt& qt_vars,
-                Selectivity& calest,
-                Selectivity& calcut);
+                VectorInt& qt_vars);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
@@ -93,5 +92,5 @@ private:
   double _getResidual(int iclass, double z) const;
 
 private:
-  double _rCoef;
+  double _sCoef;
 };
