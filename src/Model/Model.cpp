@@ -754,6 +754,7 @@ VectorDouble Model::sample(double hmax,
   {
     hh[ecr] = 0.;
     gg[ecr] = 0.;
+    ecr = 1;
   }
   for (int i = 0; i < nh; i++)
     hh[ecr++] = hmax * (i+1) / nh;
