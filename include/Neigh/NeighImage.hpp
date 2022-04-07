@@ -32,7 +32,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual int getMaxSampleNumber(const Db* db) const;
+  virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::IMAGE; }
 
   int reset(int ndim, const VectorInt& image, int skip = 0);

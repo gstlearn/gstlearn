@@ -114,6 +114,7 @@ private:
   const Model* _getModel() const { return _model; }
   void _setModel(const Model* model) { _model = model; }
   bool _isNoStat();
+  bool _isGlobalHH(int igrf, int icov);
   bool _isVelocity();
   const CovAniso* _getCova();
 

@@ -41,6 +41,7 @@
                  GAUSFAC, 24, "Gaussian value for Facies", \
                  DATE,    25, "Date", \
                  RKLOW,   26, "Rank for lower bound (when discretized)", \
-                 RKUP,    27, "Rank for upper bound (when discretized)"
+                 RKUP,    27, "Rank for upper bound (when discretized)", \
+                 SUM,     28, "Constraints on the Sum"
 
 ENUM_DECLARE(ENUM_LOC)

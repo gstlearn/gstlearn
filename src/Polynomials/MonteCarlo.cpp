@@ -22,9 +22,7 @@
  * @param psi Vector of Hermite coefficients
  * @return Vector of returned values for all Hermite coefficients
  */
-double integralGaussHermite(double yc,
-                                            double r,
-                                            const VectorDouble &psi)
+double integralGaussHermite(double yc, double r, const VectorDouble &psi)
 {
   int nbpoly = static_cast<int>(psi.size()) - 1;
   VectorDouble vect = hermitePolynomials(yc, 1., nbpoly);
@@ -36,9 +34,7 @@ void normalizeResults(int nbsimu, double &valest)
   valest /= (double) nbsimu;
 }
 
-void normalizeResults(int nbsimu,
-                                      double &valest,
-                                      double &valstd)
+void normalizeResults(int nbsimu, double &valest, double &valstd)
 {
   valest /= (double) nbsimu;
   valstd = valstd / nbsimu - valest * valest;
@@ -47,9 +43,9 @@ void normalizeResults(int nbsimu,
 }
 
 VectorDouble MCCondExp(VectorDouble krigest,
-                                       VectorDouble krigstd,
-                                       const VectorDouble &psi,
-                                       int nbsimu)
+                       VectorDouble krigstd,
+                       const VectorDouble &psi,
+                       int nbsimu)
 {
   VectorDouble condexp;
 
@@ -72,9 +68,9 @@ VectorDouble MCCondExp(VectorDouble krigest,
 }
 
 double MCCondExpElement(double krigest,
-                                        double krigstd,
-                                        const VectorDouble &psi,
-                                        int nbsimu)
+                        double krigstd,
+                        const VectorDouble &psi,
+                        int nbsimu)
 {
   double valest = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -88,9 +84,9 @@ double MCCondExpElement(double krigest,
 }
 
 VectorDouble MCCondStd(VectorDouble krigest,
-                                       VectorDouble krigstd,
-                                       const VectorDouble &psi,
-                                       int nbsimu)
+                       VectorDouble krigstd,
+                       const VectorDouble &psi,
+                       int nbsimu)
 {
   VectorDouble condstd;
 
@@ -115,9 +111,9 @@ VectorDouble MCCondStd(VectorDouble krigest,
 }
 
 double MCCondStdElement(double krigest,
-                                        double krigstd,
-                                        const VectorDouble &psi,
-                                        int nbsimu)
+                        double krigstd,
+                        const VectorDouble &psi,
+                        int nbsimu)
 {
   double valest = 0.;
   double valstd = 0.;
@@ -133,9 +129,9 @@ double MCCondStdElement(double krigest,
 }
 
 VectorDouble MCIndicator(double yc,
-                                         VectorDouble krigest,
-                                         VectorDouble krigstd,
-                                         int nbsimu)
+                         VectorDouble krigest,
+                         VectorDouble krigstd,
+                         int nbsimu)
 {
   VectorDouble proba;
 
@@ -159,10 +155,7 @@ VectorDouble MCIndicator(double yc,
   return proba;
 }
 
-double MCIndicatorElement(double yc,
-                                          double krigest,
-                                          double krigstd,
-                                          int nbsimu)
+double MCIndicatorElement(double yc, double krigest, double krigstd, int nbsimu)
 {
   double proba = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -195,9 +188,9 @@ VectorDouble MCIndicatorStd(double yc,
 }
 
 double MCIndicatorStdElement(double yc,
-                                             double krigest,
-                                             double krigstd,
-                                             int nbsimu)
+                             double krigest,
+                             double krigstd,
+                             int nbsimu)
 {
   double proba = MCIndicatorElement(yc, krigest, krigstd, nbsimu);
   double probstd = sqrt(proba * (1. - proba));
@@ -233,10 +226,10 @@ VectorDouble MCMetal(double yc,
 }
 
 double MCMetalElement(double yc,
-                                      double krigest,
-                                      double krigstd,
-                                      const VectorDouble &psi,
-                                      int nbsimu)
+                      double krigest,
+                      double krigstd,
+                      const VectorDouble &psi,
+                      int nbsimu)
 {
   double metal = 0.;
   for (int isimu = 0; isimu < nbsimu; isimu++)
@@ -252,10 +245,10 @@ double MCMetalElement(double yc,
 }
 
 VectorDouble MCMetalStd(double yc,
-                                        VectorDouble krigest,
-                                        VectorDouble krigstd,
-                                        const VectorDouble &psi,
-                                        int nbsimu)
+                        VectorDouble krigest,
+                        VectorDouble krigstd,
+                        const VectorDouble &psi,
+                        int nbsimu)
 {
   VectorDouble metstd;
 
@@ -283,10 +276,10 @@ VectorDouble MCMetalStd(double yc,
 }
 
 double MCMetalStdElement(double yc,
-                                         double krigest,
-                                         double krigstd,
-                                         const VectorDouble &psi,
-                                         int nbsimu)
+                         double krigest,
+                         double krigstd,
+                         const VectorDouble &psi,
+                         int nbsimu)
 {
   double metstd = 0.;
   double metest = 0.;

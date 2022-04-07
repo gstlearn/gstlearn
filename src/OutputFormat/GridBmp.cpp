@@ -432,7 +432,7 @@ DbGrid*  GridBmp::readGridFromFile()
   (void) _compose( 2);
   (void) _compose( 4);
   (void) _compose( 4);
-  int offset = _compose( 4);
+  (void) _compose( 4);
 
   /* Reading the bitmap information header */
 

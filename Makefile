@@ -16,6 +16,12 @@
 #  - python_install Install python package [and its documentation]
 #  - python_upload  Build python package distribution and upload to PyPi [and its documentation]
 #
+# R wrapper:
+#  - r_doc          Build R package documentation [optional] [TODO]
+#  - r_build        Build R package [and its documentation]
+#  - r_install      Install R package [and its documentation] [TODO]
+#  - r_upload       Build R package distribution and upload to PyPi [and its documentation] [TODO]
+#
 # No- regression tests:
 #  - check_data     Execute non-regression tests (data)
 #  - check_cpp      Execute non-regression tests (cpp)
@@ -31,6 +37,7 @@
 #  - DEBUG=1            Build the debug version of the library and tests (default =0)
 #  - N_PROC=N           Use more CPUs for building procedure (default =1)
 #  - BUILD_DIR=<path>   Define a specific build directory (default =build)
+#  - USE_HDF5=0         To remove HDF5 support (default =1)
 #
 
 ifeq ($(DEBUG), 1)
@@ -47,13 +54,19 @@ ifdef N_PROC
   N_PROC_OPT = -j$(N_PROC)
 endif
 
+ifeq ($(USE_HDF5), 0)
+  HDF5 = OFF
+ else
+  HDF5 = ON 
+endif
+
 all: shared install
 
 
 .PHONY: all cmake static shared build_tests doxygen install uninstall
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -B$(BUILD_DIR) -H.
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=${HDF5} -B$(BUILD_DIR) -H.
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)
@@ -88,6 +101,22 @@ python_install: cmake
 
 python_upload: cmake
 	@cmake --build $(BUILD_DIR) --target python_upload -- --no-print-directory
+
+
+
+.PHONY: r_doc r_build r_install r_upload
+
+r_doc: cmake
+	@echo "Target r_doc not yet implemented"
+
+r_build: cmake
+	@cmake --build $(BUILD_DIR) --target r_build -- --no-print-directory $(N_PROC_OPT)
+
+r_install: cmake
+	@echo "Target r_install not yet implemented"
+
+r_upload: cmake
+	@echo "Target r_upload not yet implemented"
 
 
 

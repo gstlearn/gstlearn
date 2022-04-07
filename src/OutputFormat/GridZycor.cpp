@@ -14,10 +14,12 @@
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 
 #include <string.h>
+#include <stdio.h>
 
 #define ZYCOR_NULL_CH "  0.1000000E+31"
 
@@ -142,7 +144,7 @@ DbGrid*  GridZycor::readGridFromFile()
   DbGrid* dbgrid = nullptr;
   char string[100];
   double xf[2], rbid1, rbid2, rbid3, test, value;
-  int nval, ibid1, ibid2, ibid3, error;
+  int nval, ibid1, ibid2, ibid3;
   VectorInt nx(2);
   VectorDouble dx(2);
   VectorDouble x0(2);
@@ -209,7 +211,6 @@ DbGrid*  GridZycor::readGridFromFile()
    /* Read the array of real values */
 
    int lec = 0;
-   int nech = nx[0] * nx[1];
    for (int ix = 0; ix < nx[0]; ix++)
      for (int iy = 0; iy < nx[1]; iy++)
      {

@@ -75,7 +75,8 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
 
 int ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, flag_xvalid;
+  int ndim = 0;
+  int flag_xvalid = 0.;
 
   bool ret = _recordRead<int>(is, "Space Dimension", ndim);
   ret = ret && _recordRead<int>(is, "Cross-validation flag", flag_xvalid);

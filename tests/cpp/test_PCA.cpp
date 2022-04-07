@@ -35,7 +35,6 @@ int main(int /*argc*/, char */*argv*/[])
   int nvar = 1;
   int nbsimu = 5;
 
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
@@ -45,7 +44,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db* db = Db::createFromBox(nech,VectorDouble(2,0.),VectorDouble(2,1.));
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 432423);
 
   // Creating the Model(s) of the Underlying GRF(s)
   Model models(ctxt);

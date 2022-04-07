@@ -521,15 +521,13 @@ def point(db,
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
     end_plot: Flag for closing the graphics
-
     '''
     
     if ax is None:
-        if xlim is not None:
-            plt.xlim(db.getExtrema(0,usesel))
-        if ylim is not None:
-            plt.ylim(db.getExtrema(1,usesel))
         fig, ax = newFigure(figsize, xlim, ylim)
+    else:
+        ax.set_xlim(xlim)
+        ax.set_ylim(ylim)
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
@@ -652,12 +650,6 @@ def grid(dbgrid, name = None, usesel = True, alpha=1, flagColorBar=True, aspect=
             name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
-    
-    # Get the bounding box (potentially rotated)
-    if xlim is None:
-        xlim = dbgrid.getExtrema(0,usesel)
-    if ylim is None:
-        ylim = dbgrid.getExtrema(1,usesel)
     
     if ax is None :
         fig, ax = newFigure(figsize, xlim, ylim)

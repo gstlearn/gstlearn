@@ -10,7 +10,9 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 
@@ -23,11 +25,20 @@
 #define C_S(i,j)         c_s[(i)*nclass+(j)]
 #define Q_S(i,j)         q_s[(i)*nclass+(j)]
 #define MATI(i,j)        mati[(i)*nclass+(j)]
+#define CT(i,j)         (ct[(i)*nclass+(j)])
+#define CQ(i,j)         (cq[(i)*nclass+(j)])
+#define CB(i,j)         (cb[(i)*nclass+(j)])
+
+#define QT_EST    0
+#define QT_STD    1
+#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
+#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
+                                   QT_VARS(QT_STD,j) > 0)
 
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
     : AnamDiscrete(),
       _mu(mu),
-      _sCoef(scoef),
+      _rCoef(scoef),
       _maf(),
       _i2Chi()
 {
@@ -36,7 +47,7 @@ AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
 AnamDiscreteDD::AnamDiscreteDD(const AnamDiscreteDD &m)
     : AnamDiscrete(m),
       _mu(m._mu),
-      _sCoef(m._sCoef),
+      _rCoef(m._rCoef),
       _maf(m._maf),
       _i2Chi(m._i2Chi)
 {
@@ -47,7 +58,7 @@ AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD &m)
   if (this != &m)
   {
     _mu = m._mu;
-    _sCoef = m._sCoef;
+    _rCoef = m._rCoef;
     _maf = m._maf;
     _i2Chi = m._i2Chi;
   }
@@ -95,6 +106,23 @@ AnamDiscreteDD* AnamDiscreteDD::create(double mu, double scoef)
   return new AnamDiscreteDD(mu, scoef);
 }
 
+void AnamDiscreteDD::reset(int ncut,
+                           double scoef,
+                           double mu,
+                           const VectorDouble &zcut,
+                           const VectorDouble &pcaz2f,
+                           const VectorDouble &pcaf2z,
+                           const VectorDouble &stats)
+{
+  setNCut(ncut);
+  setZCut(zcut);
+  setRCoef(scoef);
+  setMu(mu);
+  setPcaF2Z(pcaf2z);
+  setPcaZ2F(pcaz2f);
+  setStats(stats);
+  calculateMeanAndVariance();
+}
 
 String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 {
@@ -104,10 +132,10 @@ String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
-  if (_sCoef != 0.)
+  if (_rCoef != 0.)
   {
     sstr << "Mu Coefficient    = " << _mu << std::endl;
-    sstr << "Change of Support = " << _sCoef << std::endl;
+    sstr << "Change of Support = " << _rCoef << std::endl;
   }
 
   sstr << std::endl;
@@ -140,7 +168,7 @@ void AnamDiscreteDD::calculateMeanAndVariance()
   setVariance(var);
 }
 
-int AnamDiscreteDD::fit(const VectorDouble& tab, int verbose)
+int AnamDiscreteDD::fit(const VectorDouble& tab, bool verbose)
 {
   VectorDouble chi;
 
@@ -154,6 +182,11 @@ int AnamDiscreteDD::fit(const VectorDouble& tab, int verbose)
 
   chi = factors_exp(verbose);
   if (chi.empty()) return 0;
+
+  /* Invert the anamorphosis */
+
+  VectorDouble chi2i = chi2I(chi, 1);
+  matrix_invert_copy(chi2i.data(), getNClass(), _i2Chi.data());
 
   // Update statistics
 
@@ -204,7 +237,7 @@ int AnamDiscreteDD::_stats(int nech, const VectorDouble& tab)
   return(0);
 }
 
-VectorDouble AnamDiscreteDD::factors_exp(int verbose)
+VectorDouble AnamDiscreteDD::factors_exp(bool verbose)
 {
   VectorDouble chi, maf, lambda, veca, vecb, vecc, f1, eigval, eigvec;
 
@@ -267,7 +300,7 @@ VectorDouble AnamDiscreteDD::factors_exp(int verbose)
 
   /* Derive the MUL Terms */
 
-  _lambda_to_mul();
+  _lambdaToMul();
 
   /* Calculate the spectrum weighting function */
 
@@ -299,7 +332,7 @@ VectorDouble AnamDiscreteDD::factors_exp(int verbose)
   return chi;
 }
 
-VectorDouble AnamDiscreteDD::factors_maf(int verbose)
+VectorDouble AnamDiscreteDD::factors_maf(bool verbose)
 {
   VectorDouble maf, tab;
   int ncut   = getNCut();
@@ -411,7 +444,7 @@ VectorDouble AnamDiscreteDD::_generator(const VectorDouble& vecc,
 }
 
 
-void AnamDiscreteDD::_lambda_to_mul()
+void AnamDiscreteDD::_lambdaToMul()
 {
   int nclass   = getNClass();
   double scoef = getSCoef();
@@ -423,12 +456,10 @@ void AnamDiscreteDD::_lambda_to_mul()
     setDDStatMul(iclass, pow(mu / (mu + getDDStatLambda(iclass)),scoef/2.));
 }
 
-VectorDouble AnamDiscreteDD::z2f(int nfact, const VectorInt& ifacs,
-                                   double z) const
+VectorDouble AnamDiscreteDD::z2factor(double z, const VectorInt& ifacs) const
 {
-  if (_i2Chi.empty())
-    my_throw("I2Chi should not be empty");
   VectorDouble factors;
+  int nfact = (int) ifacs.size();
   factors.resize(nfact,0);
 
   int nclass = getNClass();
@@ -598,7 +629,6 @@ VectorDouble AnamDiscreteDD::chi2I(const VectorDouble& chi, int mode)
         value += MATI(iclass,ic) * getDDStatProp(ic) * CHI(jclass,ic);
       chi2i[ecr++] = value;
     }
-
   return chi2i;
 }
 
@@ -632,10 +662,362 @@ int AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
   if (_tableRead(is, getNCut() * getNCut(), pcaz2f.data())) return 1;
   if (_tableRead(is, getNCut() * getNCut(), pcaf2z.data())) return 1;
 
-  setSCoef(s);
+  setRCoef(s);
   setMu(mu);
   setPcaF2Z(pcaf2z);
   setPcaZ2F(pcaz2f);
 
   return 0;
 }
+
+double AnamDiscreteDD::modifyCov(const ECalcMember& member,
+                                 int iclass,
+                                 double dist,
+                                 double cov0,
+                                 double cov1,
+                                 double /*cov2*/) const
+{
+  double cov;
+  double coeff = 0.;
+  double mui = getDDStatMul(iclass);
+  double gamma = cov0 - cov1;
+  if (dist <= 0.)
+  {
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = 1.;
+        break;
+
+      case ECalcMember::E_RHS:
+        coeff = mui;
+        break;
+
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff;
+  }
+  else
+  {
+    double ln = getDDStatLambda(iclass);
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = mui * mui;
+        break;
+      case ECalcMember::E_RHS:
+        coeff = mui;
+        break;
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff * exp(-ln * gamma);
+  }
+  return cov;
+}
+
+double AnamDiscreteDD::getBlockVariance(double sval, double /*power*/) const
+{
+  if (! hasChangeSupport()) return TEST;
+  int nclass = getNClass();
+
+  // At this stage (point -> block)) cnorm designate the point C_i
+
+  double var = 0.;
+  for (int iclass = 1; iclass < nclass; iclass++)
+  {
+    double ci = getDDStatCnorm(iclass);
+    var += ci * ci * pow(_mu / (_mu + getDDStatLambda(iclass)), sval);
+  }
+  return (var);
+}
+
+int AnamDiscreteDD::updatePointToBlock(double r_coef)
+{
+  if (! hasChangeSupport()) return 1;
+  setRCoef(r_coef);
+  int nclass = getNClass();
+
+  /* Update the coefficients mul */
+
+  _lambdaToMul();
+
+  /* Spectral measure */
+
+  double sum = 0.;
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double mul = getDDStatMul(iclass);
+    double newU = getDDStatU(iclass) / (mul * mul);
+    setDDStatU(iclass, newU);
+    sum += newU;
+  }
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double value = getDDStatU(iclass) / sum;
+    setDDStatU(iclass, value);
+  }
+
+  /* Update the C_i from point to block */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double cnorm = getDDStatCnorm(iclass);
+    double mul = getDDStatMul(iclass);
+    setDDStatCnorm(iclass, cnorm * mul);
+  }
+
+  /* Modeling the diffusion process */
+
+  VectorDouble chi = factors_mod();
+  if (chi.empty()) return 1;
+
+  /* Establish the block anamorphosis */
+
+  _blockAnamorphosis(chi);
+
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the block anamorphosis (from point anamorphosis)
+ **
+ ** \param[in]  chi      Array containing the Chi factors
+ **
+ *****************************************************************************/
+void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
+{
+  int nclass = getNClass();
+
+  /* Block anamorphosis on the indicators */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double sum = 0.;
+    for (int jclass = 0; jclass < nclass; jclass++)
+      sum += getDDStatCnorm(jclass) * CHI(jclass, iclass);
+    setDDStatZmoy(iclass, sum);
+  }
+
+  /* Update mean and variance */
+
+  calculateMeanAndVariance();
+
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the theoretical grade tonnage value (Discrete Diffusion case)
+ **
+ ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
+ **
+ ** \remark Can only calculate the grade-tonnage curve for the discretization
+ ** \remark cutoffs.
+ **
+ *****************************************************************************/
+Selectivity AnamDiscreteDD::calculateSelectivity(bool flag_correct)
+{
+  int nclass = getNClass();
+  Selectivity calest(nclass);
+
+  /* Calculate the Grade-Tonnage curves */
+
+  for (int iclass = 0; iclass < nclass; iclass++)
+  {
+    double zval = (iclass == nclass - 1) ? 0. : getZCut(nclass - iclass - 2);
+    double tval = 0.;
+    double qval = 0.;
+    for (int jclass = 0; jclass <= iclass; jclass++)
+    {
+      int ic = nclass - jclass - 1;
+      tval += getDDStatProp(ic);
+      qval += getDDStatProp(ic) * getDDStatZmoy(ic);
+    }
+    calest.setZcut(nclass-iclass-1, zval);
+    calest.setTest(nclass-iclass-1, tval);
+    calest.setQest(nclass-iclass-1, qval);
+  }
+
+  /* Correct order relationship */
+
+  if (flag_correct) calest.correctTonnageOrder();
+
+  /* Store the results */
+
+  calest.calculateBenefitGrade();
+
+  return calest;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate Experimental Grade-Tonnage curves from factors
+ **  Case of Discrete Diffusion
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  cutmine      Array of the requested cutoffs
+ ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
+ ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
+ ** \param[in]  cols_est     Array of columns for factor estimation
+ ** \param[in]  cols_std     Array of columns for factor st. dev.
+ ** \param[in]  iptr         Rank for storing the results
+ ** \param[in]  codes        Array of codes for stored results
+ ** \param[in]  qt_vars      Array of variables to be calculated
+ **
+ ** \param[out] calest       Selectivity structure
+ ** \param[out] calcut       Translated Selectivity
+ **
+ *****************************************************************************/
+int AnamDiscreteDD::factor2QT(Db *db,
+                              const VectorDouble& cutmine,
+                              double z_max,
+                              int flag_correct,
+                              const VectorInt& cols_est,
+                              const VectorInt& cols_std,
+                              int iptr,
+                              const VectorInt& codes,
+                              const VectorInt& qt_vars,
+                              Selectivity& calest,
+                              Selectivity& calcut)
+{
+  int nclass   = getNClass();
+  int nech     = db->getSampleNumber();
+  int nb_est   = (int) cols_est.size();
+  int nb_std   = (int) cols_std.size();
+  int ncutmine = (int) cutmine.size();
+
+  /* Modeling the diffusion process */
+
+  VectorDouble chi = factors_mod();
+  if (chi.empty()) return 1;
+  VectorDouble ct = chi2I(chi, 1);
+  VectorDouble cq = chi2I(chi, 2);
+  VectorDouble cb = chi2I(chi, 3);
+  for (int iclass = 0; iclass < nclass; iclass++)
+    calest.setZcut(iclass, getDDStatZmoy(iclass));
+
+  /* Calculate the Recovery Functions from the factors */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
+
+    /* Tonnage: Estimation */
+
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      double total = CT(iclass, 0);
+      for (int ivar = 0; ivar < nb_est; ivar++)
+      {
+        double value = db->getArray(iech, cols_est[ivar]);
+        total += value * CT(iclass, ivar + 1);
+      }
+      calest.setTest(iclass, total);
+    }
+
+    /* Correct Order relationship for Tonnages */
+
+    if (flag_correct) calest.correctTonnageOrder();
+
+    /* Tonnage: Standard Deviation */
+
+    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+    {
+      for (int iclass = 0; iclass < nclass; iclass++)
+      {
+        double total = 0.;
+        for (int ivar = 0; ivar < nclass - 1; ivar++)
+        {
+          double value = (ivar < nb_std) ?
+              db->getArray(iech, cols_std[ivar]) : 1.;
+          double prod = value * CT(iclass, ivar + 1);
+          total += prod * prod;
+        }
+        calest.setTstd(iclass, sqrt(total));
+      }
+    }
+
+    /* Metal Quantity: Estimation */
+
+    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+    {
+      calest.setQest(nclass-1, getDDStatZmoy(nclass - 1)
+                     * calest.getTest(nclass - 1));
+      for (int iclass = nclass - 2; iclass >= 0; iclass--)
+        calest.setQest(iclass, calest.getQest(iclass + 1)
+                       + getDDStatZmoy(iclass) *
+                       (calest.getTest(iclass) - calest.getTest(iclass + 1)));
+    }
+
+    /* Metal Quantity: Standard Deviation */
+
+    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+    {
+      for (int iclass = 0; iclass < nclass; iclass++)
+      {
+        double total = 0.;
+        for (int ivar = 0; ivar < nclass - 1; ivar++)
+        {
+          double value = (ivar < nb_std) ?
+              db->getArray(iech, cols_std[ivar]) : 1.;
+          double prod = value * CQ(iclass, ivar + 1);
+          total += prod * prod;
+        }
+        calest.setQstd(iclass, sqrt(total));
+      }
+    }
+
+    /* Z: Estimation */
+
+    double zestim = 0.;
+    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    {
+      zestim = getDDStatZmoy(nclass - 1) * calest.getTest(nclass-1);
+      for (int iclass = 0; iclass < nclass - 1; iclass++)
+        zestim += getDDStatZmoy(iclass)
+            * (calest.getTest(iclass) - calest.getTest(iclass + 1));
+    }
+
+    /* Z: Standard Deviation */
+
+    double zstdev = 0.;
+    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    {
+      double total = 0;
+      for (int ivar = 0; ivar < nclass - 1; ivar++)
+      {
+        double value = (ivar < nb_std) ?
+            db->getArray(iech, cols_std[ivar]) : 1.;
+        double prod = value * getDDStatCnorm(ivar);
+        total += prod * prod;
+      }
+      zstdev = sqrt(total);
+    }
+
+    /* Store the results */
+
+    if (ncutmine > 0)
+    {
+      _interpolateQTLocal(z_max, cutmine, calest, calcut);
+      calcut.calculateBenefitGrade();
+      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
+                        calcut);
+    }
+    else
+    {
+      calest.calculateBenefitGrade();
+      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
+                        calest);
+    }
+  }
+  return 0;
+}
+

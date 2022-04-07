@@ -466,11 +466,11 @@ int matrix_eigen(const double *a_in,
  **
  *****************************************************************************/
 void matrix_product(int n1,
-                                    int n2,
-                                    int n3,
-                                    const double *v1,
-                                    const double *v2,
-                                    double *v3)
+                    int n2,
+                    int n3,
+                    const double *v1,
+                    const double *v2,
+                    double *v3)
 {
   double *v4;
   int i1, i2, i3, i4;
@@ -1002,7 +1002,7 @@ int is_matrix_non_negative(int nrow,
  ** \param[in]  verbose  1 for the verbose option
  **
  *****************************************************************************/
-int is_matrix_null(int nrow, int ncol, double *a, int verbose)
+int is_matrix_null(int nrow, int ncol, const double *a, int verbose)
 {
   int i;
 
@@ -1332,11 +1332,11 @@ int matrix_cholesky_decompose(const double *a,
  **
  *****************************************************************************/
 void matrix_cholesky_product(int mode,
-                                             int neq,
-                                             int nrhs,
-                                             double *tl,
-                                             double *a,
-                                             double *x)
+                             int neq,
+                             int nrhs,
+                             double *tl,
+                             double *a,
+                             double *x)
 {
   int irhs, i, j, n1, n2;
   double val, *v1, *v2;
@@ -3512,7 +3512,8 @@ int matrix_invreal(double *mat, int neq)
   /* Calculate the determinant */
 
   det = matrix_determinant(neq, mat);
-  if (ABS(det) < _getEpsSVD()) return (1);
+  //if (ABS(det) < _getEpsSVD()) return (1);
+  if (ABS(det) < 1.e-12) return (1);
   if (std::isnan(det))
   {
     print_matrix("Mat", 0, 1, neq, neq, NULL, mat);

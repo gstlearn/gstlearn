@@ -70,20 +70,20 @@ Testing Moving Neighborhood
 >>> Neighborhood search:
 >>> Search must probably be performed
 For Target Point #0
-         0         9        10        15
+         0
 Is neighborhood Unchanged since last call = 0
 >>> Neighborhood search:
 >>> Search must probably be performed
 For Target Point #1
-         3        16        17
+         1         5         6         9        13
 Is neighborhood Unchanged since last call = 0
 >>> Neighborhood search:
 >>> Search must probably be performed
 For Target Point #2
-         1         2         3        17        18
+         2         3        17        19
 Is neighborhood Unchanged since last call = 0
 >>> Neighborhood search:
 >>> Search must probably be performed
 For Target Point #3
-         2        14        17        18
+         2         3         9        17        19
 Is neighborhood Unchanged since last call = 0

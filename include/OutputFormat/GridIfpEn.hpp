@@ -25,7 +25,7 @@ public:
 
   bool mustBeGrid() const override { return true; }
   bool mustBeOneVariable() const override { return false; }
-  bool mustBeForNDim(int ndim) const override { return true; }
+  bool mustBeForNDim(int /*ndim*/) const override { return true; }
   bool mustBeForRotation(int mode) const override { return mode <= 1; }
   int  writeInFile() override;
   DbGrid* readGridFromFile() override;

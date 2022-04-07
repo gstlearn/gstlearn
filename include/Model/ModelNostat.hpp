@@ -20,20 +20,6 @@ class CovAniso;
 
 class GSTLEARN_EXPORT ModelNostat : public AStringable
 {
-private:
-  int _nDim;
-  std::vector<ElemNostat*> _elems; /* List of non-stationary parameters */
-  double _sill1; /* First Sill */
-  double _sill2; /* Second Sill */
-  double _param1; /* First version of the third parameter */
-  double _param2; /* Second version of the third parameter */
-  double _scadef1; /* First normalization scale */
-  double _scadef2; /* Second normalization scale */
-  VectorDouble _angles1; /* Array for first angles (Dimension: _nDim) */
-  VectorDouble _angles2; /* Array for second angles (Dimension: _nDim) */
-  VectorDouble _scale1; /* Array of first theoretical ranges (Dim: _nDim) */
-  VectorDouble _scale2; /* Array of second theoretical ranges (Dim: _nDim) */
-
 public:
   ModelNostat();
   ModelNostat(const ModelNostat &m);
@@ -80,4 +66,18 @@ private:
   void _setScale1(int idim, double scale) { _scale1[idim] = scale; }
   void _setScale2(VectorDouble scales) { _scale2 = scales; }
   void _setScale2(int idim, double scale) { _scale2[idim] = scale; }
+
+private:
+  int _nDim;
+  std::vector<ElemNostat*> _elems; /* List of non-stationary parameters */
+  double _sill1; /* First Sill */
+  double _sill2; /* Second Sill */
+  double _param1; /* First version of the third parameter */
+  double _param2; /* Second version of the third parameter */
+  double _scadef1; /* First normalization scale */
+  double _scadef2; /* Second normalization scale */
+  VectorDouble _angles1; /* Array for first angles (Dimension: _nDim) */
+  VectorDouble _angles2; /* Array for second angles (Dimension: _nDim) */
+  VectorDouble _scale1; /* Array of first theoretical ranges (Dim: _nDim) */
+  VectorDouble _scale2; /* Array of second theoretical ranges (Dim: _nDim) */
 };

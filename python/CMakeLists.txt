@@ -8,6 +8,10 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Look for Python3
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
 
+if (APPLE)
+  find_package(PythonLibs REQUIRED)
+endif()
+
 # Look for SWIG 4
 find_package(SWIG 4.0 REQUIRED)
 # TODO : If SWIG not found, fetch it from the web
@@ -78,7 +82,7 @@ set_source_files_properties(${SRC} PROPERTIES
   # Swig wrapper will be regenerated if C++ headers are changed
   # https://stackoverflow.com/a/70375654/3952924
   USE_SWIG_DEPENDENCIES TRUE
-  # myfibo C++ headers will be found by %import directive
+  # gstlearn C++ headers will be found by %import directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
   # Python package name will be the name of the destination folder (see above)
   SWIG_MODULE_NAME __init__
@@ -133,6 +137,11 @@ target_include_directories(${PYTGT} PRIVATE ${Python3_INCLUDE_DIRS})
 if(MSVC)
   target_link_libraries(${PYTGT} PRIVATE ${Python3_LIBRARIES})
 endif()
+
+if(APPLE)
+  target_link_libraries(${PYTGT} PRIVATE ${PYTHON_LIBRARIES})
+endif()
+
 
 # Link to pybind11 
 target_link_libraries(${PYTGT} PRIVATE pybind11::module) # TODO: use swig_link_library

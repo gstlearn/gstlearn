@@ -42,6 +42,8 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
+  DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
+
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Francky-");
   // Creating the 2-D Db
@@ -64,7 +66,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
-  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.});
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 3243);
   VectorDouble Z = ut_vector_simulate_gaussian(ndata);
   dat->addColumns(Z, "Z",ELoc::Z);
 
@@ -74,8 +76,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);
   (void) workingDbc->dumpToNF("franckyFunctional.ascii");
-
-  DbStringFormat dbfmt(FLAG_STATS,{"Kriging*"});
   workingDbc->display(&dbfmt);
 
   message("Test performed successfully\n");

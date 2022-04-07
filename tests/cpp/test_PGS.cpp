@@ -42,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
   int error = 0;
   int ndim  = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
-  CovContext ctxt(1,2,1.); // use default space
+  CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
   set_test_discrete(false);
@@ -50,7 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 1000;
-  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 432432);
   DbStringFormat dbfmt(FLAG_STATS);
   db->display(&dbfmt);
 

@@ -16,8 +16,16 @@
 #include "Basic/Vector.hpp"
 #include "Basic/File.hpp"
 
-#include <malloc.h>
+#include <stdlib.h>
 
+#ifndef _USE_HDF5
+int main (void)
+{
+  message("No HDF5 support: this test does nothing!");
+  return 0;
+}
+
+#else
 bool st_is_integer(H5::DataType type)
 {
   return (type.getClass() == H5T_INTEGER);
@@ -37,7 +45,7 @@ bool st_is_double(H5::DataType type)
  * This test is meant to check the HDF5 read/write facility
  */
 static void st_init(H5::DataType type,
-                    int ndim,
+                    int /*ndim*/,
                     hsize_t *dims,
                     void *data)
 {
@@ -106,7 +114,7 @@ void* st_allocArray(H5::DataType type, int ndim, hsize_t *dims)
 }
 
 
-static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
+static void st_modify(H5::DataType type, int /*ndim*/, hsize_t *dims, void *data)
 {
   int    *idata;
   float  *fdata;
@@ -146,7 +154,7 @@ static void st_modify(H5::DataType type, int ndim, hsize_t *dims, void *data)
 
 static void st_print(int verbose,
                      H5::DataType type,
-                     int ndim,
+                     int /*ndim*/,
                      hsize_t *dims,
                      void *data)
 {
@@ -636,3 +644,4 @@ int main (void)
 
   return 0;
 }
+#endif

@@ -52,8 +52,6 @@ bool _isValid(ACovFunc* cova, const CovContext& ctxt)
 {
   if ((int) cova->getMaxNDim() > 0   &&
       (int) ctxt.getNDim() > (int) cova->getMaxNDim())  return false;
-  if ((int) cova->getMinOrder() >= 0 &&
-      ctxt.getIrfMaxDegree() < (int) cova->getMinOrder()) return false;
   return true;
 }
 

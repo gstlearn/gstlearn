@@ -666,11 +666,10 @@ int Rule::setProportions(const VectorDouble& proportions) const
 
 int Rule::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int nb_node;
-
   /* Create the Rule structure */
 
   int mrule = 0;
+  int nb_node = 0;
   bool ret = _recordRead<int>(is, "Rule definition", mrule);
   ret = ret && _recordRead<double>(is, "Correlation Coefficient of GRFs", _rho);
   if (! ret) return 1;

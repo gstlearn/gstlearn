@@ -11,9 +11,9 @@ The name 'gstlearn' stands for several purposes:
 
 *gstlearn* comes in different forms:
 
-* A C++ Library (this repository): [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
+* A C++ Library: [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
 * A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* A R Package: TODO: coming soon (meanwhile, you may use [RGeostats R package](http://cg.ensmp.fr/rgeostats))
+* A R Package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 ## References
 
@@ -38,7 +38,7 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
    * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
 * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
 * [Boost](https://www.boost.org/users/download) header files
-* [HDF5](https://www.hdfgroup.org/solutions/hdf5/) C & C++ library and header files 1.8 or higher
+* [HDF5](https://www.hdfgroup.org/solutions/hdf5/) [Optional] C & C++ library and header files 1.8 or higher 
   
 ## Get the sources
 
@@ -91,6 +91,7 @@ Notes:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
+* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above
 * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/tree/main/python)
 * Only the *shared* library (built by default) is installed.
 * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
@@ -102,6 +103,8 @@ Notes:
 Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
 
 ## Required tools installation
+Please note that HDF5 support is optional
+
 ### Linux (Ubuntu):
 
     sudo apt install git

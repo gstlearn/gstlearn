@@ -12,6 +12,9 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
+#include "Basic/Vector.hpp"
+
+#include <algorithm>
 
 AMesh::AMesh()
   : AStringable(),
@@ -311,4 +314,98 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
   if (flagClose) vec[ncorner] = getCoor(imesh, 0, idim);
 
   return vec;
+}
+
+/**
+ * Returns the list of neighboring meshes
+ * This is a complex structure which stands as a vector of vectors of integers
+ * - the first dimension is the number of apices
+ * - for each apex, the second vector gives the indices of the neighboring meshes
+ * @return
+ */
+std::vector<VectorInt> AMesh::getNeighborhoodPerMesh() const
+{
+
+  int napices  = getNApices();
+  int nmeshes  = getNMeshes();
+  int npermesh = getNApexPerMesh();
+
+  std::vector<VectorInt> Vmesh;
+  Vmesh.resize(napices);
+
+  // Loop on the meshes
+
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+  {
+    // Loop on the apices for each mesh
+
+    for (int rank = 0; rank < npermesh; rank++)
+    {
+      int ip = getApex(imesh, rank);
+      Vmesh[ip].push_back(imesh);
+    }
+  }
+  return Vmesh;
+}
+
+/**
+ * Returns the list of neighboring apices
+ * This is a complex structure which stands as a vector of vectors of integers
+ * - the first dimension is the number of apices
+ * - for each apex, the second vector gives the indices of the neighboring apices
+ * @return
+ */
+std::vector<VectorInt> AMesh::getNeighborhoodPerApex() const
+{
+  int napices  = getNApices();
+  int npermesh = getNApexPerMesh();
+
+  std::vector<VectorInt> Vapex;
+  Vapex.resize(napices);
+
+  // Elaborate the Meshing Neighborhood by Mesh first
+  std::vector<VectorInt> Vmesh = getNeighborhoodPerMesh();
+
+  for (int ip = 0; ip < napices; ip++)
+  {
+    VectorInt vec;
+
+    // Loop on the meshes neighboring the target apex 'ip'
+    int nmesh = (int) Vmesh[ip].size();
+    for (int i = 0; i < nmesh; i++)
+    {
+      // Index of the neighboring mesh
+      int imesh = Vmesh[ip][i];
+
+      // Loop on the apices of the neighboring mesh
+      for (int rank = 0; rank < npermesh; rank++)
+      {
+        int jp = getApex(imesh, rank);
+
+        // Skip the target apex itself
+        if (jp == ip) continue;
+
+        // Add the new apex to the list
+        vec.push_back(jp);
+      }
+    }
+
+    // Sort the list and suppress the duplicates
+    std::sort( vec.begin(), vec.end() );
+    vec.erase( std::unique( vec.begin(), vec.end() ), vec.end() );
+
+    // Store the list
+    Vapex[ip] = vec;
+  }
+  return Vapex;
+}
+
+void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
+{
+  mestitle(1,"List of Meshing Neighborhood");
+  int nrow = (int) Vmesh.size();
+  for (int irow = 0; irow < nrow; irow++)
+  {
+    ut_ivector_display(String(), Vmesh[irow]);
+  }
 }

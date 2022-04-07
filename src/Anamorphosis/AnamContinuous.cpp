@@ -75,10 +75,9 @@ void AnamContinuous::setPBounds(double pzmin,
   _py.init(pymin, pymax);
 }
 
-String AnamContinuous::toString(const AStringFormat* strfmt) const
+String AnamContinuous::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << AAnam::toString(strfmt);
 
   sstr << "Minimum absolute value for Y  = " << _ay.getVmin() << std::endl;
   sstr << "Maximum absolute value for Y  = " << _ay.getVmax() << std::endl;
@@ -106,7 +105,7 @@ VectorDouble AnamContinuous::RawToGaussianVector(const VectorDouble &z) const
   VectorDouble y;
   y.resize(number);
   for (int i = 0; i < number; i++)
-    y[i] = RawToGaussianValue(z[i]);
+    y[i] = RawToTransformValue(z[i]);
   return y;
 }
 
@@ -116,7 +115,7 @@ VectorDouble AnamContinuous::GaussianToRawVector(const VectorDouble &y) const
   VectorDouble z;
   z.resize(number);
   for (int i = 0; i < number; i++)
-    z[i] = GaussianToRawValue(y[i]);
+    z[i] = TransformToRawValue(y[i]);
   return z;
 }
 
@@ -227,14 +226,14 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   double pas = (aymax - aymin) / ndisc;
   int ind0 = ndisc / 2;
   y[ind0] = 0.;
-  z[ind0] = GaussianToRawValue(y[ind0]);
+  z[ind0] = TransformToRawValue(y[ind0]);
 
   /* Calculating the values below y=0 */
 
   for (int ind = ind0 - 1; ind >= 0; ind--)
   {
     y[ind] = y[ind + 1] - pas;
-    z[ind] = GaussianToRawValue(y[ind]);
+    z[ind] = TransformToRawValue(y[ind]);
   }
 
   /* Calculating the values above y=0 */
@@ -242,7 +241,7 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   for (int ind = ind0 + 1; ind < ndisc; ind++)
   {
     y[ind] = y[ind - 1] + pas;
-    z[ind] = GaussianToRawValue(y[ind]);
+    z[ind] = TransformToRawValue(y[ind]);
   }
 
   // Preparing the returned structure
@@ -257,7 +256,7 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   return retfit;
 }
 
-int AnamContinuous::_serialize(std::ostream& os, bool verbose) const
+int AnamContinuous::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = _recordWrite<double>(os,"", getAzmin());
   ret = ret && _recordWrite<double>(os, "Absolute Values for Z", getAzmax());
@@ -273,12 +272,20 @@ int AnamContinuous::_serialize(std::ostream& os, bool verbose) const
   return ret ? 0 : 1;
 }
 
-int AnamContinuous::_deserialize(std::istream& is, bool verbose)
+int AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  double azmin, azmax, aymin, aymax, pzmin, pzmax, pymin, pymax, mean, variance;
-  mean = variance = TEST;
+  double azmin = 0.;
+  double azmax = 0.;
+  double aymin = 0.;
+  double aymax = 0.;
+  double pzmin = 0.;
+  double pzmax = 0.;
+  double pymin = 0.;
+  double pymax = 0;
+  double mean = TEST;
+  double variance = TEST;
 
-  bool ret = _recordRead<double>(is, "Minimum absolute Z-value", azmin);
+  bool   ret = _recordRead<double>(is, "Minimum absolute Z-value", azmin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Z-value", azmax);
   ret = ret && _recordRead<double>(is, "Minimum absolute Y-value", aymin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Y-value", aymax);
@@ -301,6 +308,5 @@ int AnamContinuous::_deserialize(std::istream& is, bool verbose)
   setMean(mean);
   setVariance(variance);
 
-  label_end:
   return 0;
 }

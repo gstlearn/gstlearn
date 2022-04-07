@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_enum.h"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -18,12 +19,19 @@
 #include "Basic/Law.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
+#include "Covariances/ECalcMember.hpp"
 
 #include <math.h>
 
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.
 #define YPAS       0.1
+
+#define QT_EST    0
+#define QT_STD    1
+#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
+#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
+                                   QT_VARS(QT_STD,j) > 0)
 
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(),
@@ -115,7 +123,27 @@ AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
   return new AnamHermite(nbpoly, flagBound, rCoef);
 }
 
-double AnamHermite::RawToGaussianValue(double z) const
+void AnamHermite::reset(int nbpoly,
+                        double pymin,
+                        double pzmin,
+                        double pymax,
+                        double pzmax,
+                        double aymin,
+                        double azmin,
+                        double aymax,
+                        double azmax,
+                        double r,
+                        const VectorDouble &psi_hn)
+{
+  setNbPoly(nbpoly);
+  setPsiHn(psi_hn);
+  setRCoef(r);
+  calculateMeanAndVariance();
+  setABounds(azmin, azmax, aymin, aymax);
+  setPBounds(pzmin, pzmax, pymin, pymax);
+}
+
+double AnamHermite::RawToTransformValue(double z) const
 {
   double y,y1,y2,yg,z1,z2,zg,dz,dzmax,dy,dymax;
   int i,iter;
@@ -148,23 +176,23 @@ double AnamHermite::RawToGaussianValue(double z) const
 
   /* Calculate the precision on Z */
 
-  z1 = GaussianToRawValue(-1);
+  z1 = TransformToRawValue(-1);
 
-  z2 = GaussianToRawValue( 1);
+  z2 = TransformToRawValue( 1);
   dzmax = ABS((z2 - z1)/100000.);
 
   /* Look for a first interval in Y containing Z */
 
   dy = YPAS;
   y1 = 0.;
-  z1 = GaussianToRawValue(y1);
+  z1 = TransformToRawValue(y1);
 
   if (z > z1)
   {
     for( i=0 ; i<101 ; i++ )
     {
       y2 = y1 + dy;
-      z2 = GaussianToRawValue(y2);
+      z2 = TransformToRawValue(y2);
       if(z2 > z) break;
       y1 = y2;
       z1 = z2;
@@ -178,7 +206,7 @@ double AnamHermite::RawToGaussianValue(double z) const
     for( i=0 ; i<101 ; i++ )
     {
       y1 = y2 - dy;
-      z1 = GaussianToRawValue(y1);
+      z1 = TransformToRawValue(y1);
       if(z1 < z) break;
       y2 = y1;
       z2 = z1;
@@ -194,7 +222,7 @@ double AnamHermite::RawToGaussianValue(double z) const
   while( iter<1000000 && dz>dzmax && dy>dymax )
   {
     yg = (y1 + y2)/2.;
-    zg = GaussianToRawValue(yg);
+    zg = TransformToRawValue(yg);
 
     if(zg > z)
     {
@@ -226,7 +254,7 @@ double AnamHermite::RawToGaussianValue(double z) const
   return(y);
 }
 
-double AnamHermite::GaussianToRawValue(double y) const
+double AnamHermite::TransformToRawValue(double y) const
 {
   double z;
   if (_nbPoly < 1) return(TEST);
@@ -268,7 +296,7 @@ double AnamHermite::GaussianToRawValue(double y) const
   return(z);
 }
 
-double AnamHermite::calculateVarianceFromPsi(double chh)
+double AnamHermite::calculateVarianceFromPsi(double chh) const
 {
   double rho = 1.;
   double var = 0.;
@@ -429,16 +457,16 @@ void AnamHermite::_defineBounds(double pymin,
 
   ind0 = (npas - 1) / 2;
   ym[ind0] = 0.;
-  zm[ind0] = GaussianToRawValue(ym[ind0]);
+  zm[ind0] = TransformToRawValue(ym[ind0]);
   for (ind=ind0-1; ind>=0; ind--)
   {
     ym[ind] = ym[ind+1] - YPAS;
-    zm[ind] = GaussianToRawValue(ym[ind]);
+    zm[ind] = TransformToRawValue(ym[ind]);
   }
   for (ind=ind0+1; ind<npas; ind++)
   {
     ym[ind] = ym[ind-1] + YPAS;
-    zm[ind] = GaussianToRawValue(ym[ind]);
+    zm[ind] = TransformToRawValue(ym[ind]);
   }
 
   /* Look for a starting search point */
@@ -456,7 +484,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] < azmin)
     {
       _az.setVmin(zm[ind+1]);
-      _ay.setVmin(RawToGaussianValue(_az.getVmin()));
+      _ay.setVmin(RawToTransformValue(_az.getVmin()));
       break;
     }
     else if (ind == 0)
@@ -472,7 +500,7 @@ void AnamHermite::_defineBounds(double pymin,
     if (zm[ind] > azmax)
     {
       _az.setVmax(zm[ind]);
-      _ay.setVmax(RawToGaussianValue(_az.getVmax()));
+      _ay.setVmax(RawToTransformValue(_az.getVmax()));
       break;
     }
     else if (ind == npas-1)
@@ -489,22 +517,22 @@ void AnamHermite::_defineBounds(double pymin,
   if (FFFF(_az.getVmin()))
   {
     _ay.setVmin(ANAM_YMIN);
-    _az.setVmin(GaussianToRawValue(_ay.getVmin()));
+    _az.setVmin(TransformToRawValue(_ay.getVmin()));
   }
   if (FFFF(_pz.getVmin()))
   {
     _py.setVmin(MAX(ANAM_YMIN,_ay.getVmin()));
-    _pz.setVmin(GaussianToRawValue(_py.getVmin()));
+    _pz.setVmin(TransformToRawValue(_py.getVmin()));
   }
   if (FFFF(_az.getVmax()))
   {
     _ay.setVmax(ANAM_YMAX);
-    _az.setVmax(GaussianToRawValue(_ay.getVmax()));
+    _az.setVmax(TransformToRawValue(_ay.getVmax()));
   }
   if (FFFF(_pz.getVmax()))
   {
     _py.setVmax(MIN(ANAM_YMAX,_ay.getVmax()));
-    _pz.setVmax(GaussianToRawValue(_py.getVmax()));
+    _pz.setVmax(TransformToRawValue(_py.getVmax()));
   }
 
   // Set the FlagBound to its original status
@@ -638,4 +666,287 @@ int AnamHermite::_deserialize(std::istream& is, bool verbose)
   setPsiHn(hermite);
 
   return 0;
+}
+
+double AnamHermite::modifyCov(const ECalcMember& member,
+                              int iclass,
+                              double dist,
+                              double /*cov0*/,
+                              double cov1,
+                              double /*cov2*/) const
+{
+  double cov;
+  double coeff = 0.;
+  double rn = pow(_rCoef, (double) iclass);
+  if (dist <= 0.)
+  {
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = 1.;
+        break;
+
+      case ECalcMember::E_RHS:
+        coeff = rn;
+        break;
+
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff;
+  }
+  else
+  {
+    double rhon = pow(cov1, (double) iclass);
+    switch (member.toEnum())
+    {
+      case ECalcMember::E_LHS:
+        coeff = rn * rn;
+        break;
+      case ECalcMember::E_RHS:
+        coeff = rn;
+        break;
+      case ECalcMember::E_VAR:
+        coeff = 1.;
+        break;
+    }
+    cov = coeff * rhon;
+  }
+  return cov;
+}
+
+VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
+{
+  return hermitePolynomials(z, 1., ifacs);
+}
+
+double AnamHermite::getBlockVariance(double sval, double power) const
+{
+  if (! hasChangeSupport()) return TEST;
+  double variance;
+  if (power == 1)
+    variance = calculateVarianceFromPsi(sval);
+  else
+    variance = calculateVarianceFromPsi(sval * sval);
+
+  return (variance);
+}
+
+int AnamHermite::updatePointToBlock(double r_coef)
+{
+  if (! hasChangeSupport()) return 1;
+  setRCoef(r_coef);
+
+  /* Update the anamorphosis coefficients */
+
+  double rval = 1.;
+  for (int ih = 1; ih < getNbPoly(); ih++)
+  {
+    rval *= r_coef;
+    setPsiHn(ih, _psiHn[ih] * rval);
+  }
+
+  /* Update mean and variance */
+
+  calculateMeanAndVariance();
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the theoretical grade tonnage value (Gaussian case)
+ **
+ *****************************************************************************/
+Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
+{
+  int nbpoly = getNbPoly();
+  setFlagBound(0);
+  int ncut = (int) zcut.size();
+  Selectivity calest(ncut);
+
+  /* Loop on the cutoff values */
+
+  for (int iclass = 0; iclass < ncut; iclass++)
+  {
+    double zval = zcut[iclass];
+    double yval = RawToTransformValue(zval);
+    double tval = 1. - law_cdf_gaussian(yval);
+    double gval = law_df_gaussian(yval);
+    VectorDouble hn = hermitePolynomials(yval, 1., nbpoly);
+    double qval = getPsiHn(0) * (1. - law_cdf_gaussian(yval));
+    for (int ih = 1; ih < nbpoly; ih++)
+      qval -= getPsiHn(ih) * hn[ih - 1] * gval / sqrt((double) ih);
+    calest.setTest(iclass, zval);
+    calest.setTest(iclass, tval);
+    calest.setQest(iclass, qval);
+  }
+
+  /* Store the results */
+
+  calest.calculateBenefitGrade();
+
+  return calest;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate Experimental Grade-Tonnage curves from factors
+ **  Case of Hermite Anamorphosis
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  cutmine      Array of the requested cutoffs
+ ** \param[in]  cols_est     Array of columns for factor estimation
+ ** \param[in]  cols_std     Array of columns for factor st. dev.
+ ** \param[in]  iptr         Rank for storing the results
+ ** \param[in]  codes        Array of codes for stored results
+ ** \param[in]  qt_vars      Array of variables to be calculated
+ **
+ ** \param[out] calest       Selectivity structure
+ **
+ *****************************************************************************/
+int AnamHermite::factor2QT(Db *db,
+                           const VectorDouble& cutmine,
+                           const VectorInt& cols_est,
+                           const VectorInt& cols_std,
+                           int iptr,
+                           const VectorInt& codes,
+                           const VectorInt& qt_vars,
+                           Selectivity& calest)
+{
+  setFlagBound(1);
+  int nbpoly = getNbPoly();
+  bool need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) ||
+      QT_FLAG(ANAM_QT_M) || QT_FLAG(ANAM_QT_PROBA);
+  bool need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
+  int ncutmine = (int) cutmine.size();
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (_isSampleSkipped(db, iech, cols_est, cols_std)) continue;
+
+    /* Z: Estimation */
+
+    double zestim = 0.;
+    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    {
+      double total = getPsiHn(0);
+      for (int ivar = 0; ivar < nb_est; ivar++)
+      {
+        double value = db->getArray(iech, cols_est[ivar]);
+        double coeff = getPsiHn(ivar + 1);
+        total += coeff * value;
+      }
+      zestim = total;
+    }
+
+    /* Z: Standard Deviation */
+
+    double zstdev = 0.;
+    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    {
+      double total = 0.;
+      for (int ivar = 0; ivar < nb_std; ivar++)
+      {
+        double value = db->getArray(iech, cols_std[ivar]);
+        double coeff = getPsiHn(ivar + 1);
+        total += coeff * coeff * value;
+      }
+      zstdev = sqrt(total);
+    }
+
+    /* Loop on the cutoffs */
+
+    for (int icut = 0; icut < ncutmine; icut++)
+    {
+      double yc = RawToTransformValue(cutmine[icut]);
+      if (need_T)
+      {
+        VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);
+
+        /* Tonnage estimation */
+
+        if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
+        {
+          double total = s_cc[0];
+          for (int ivar = 0; ivar < nb_est; ivar++)
+          {
+            double value = db->getArray(iech, cols_est[ivar]);
+            total += s_cc[ivar + 1] * value;
+          }
+          calest.setTest(icut, total);
+        }
+
+        /* Tonnage: Standard Deviation */
+
+        if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_std; ivar++)
+          {
+            double value = db->getArray(iech, cols_std[ivar]);
+            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
+          }
+          calest.setTstd(icut, sqrt(total));
+        }
+      }
+
+      if (need_Q)
+      {
+        MatrixSquareGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
+
+        /* Metal Quantity: Estimation */
+
+        if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_est; ivar++)
+          {
+            double value = db->getArray(iech, cols_est[ivar]);
+            double fn = 0.;
+            for (int jvar = 0; jvar < nbpoly; jvar++)
+            {
+              double coeff = getPsiHn(jvar);
+              fn += coeff * TAU.getValue(ivar, jvar);
+            }
+            total += fn * value;
+          }
+          calest.setQest(icut, total);
+        }
+
+        /* Metal Quantity: Standard Deviation */
+
+        if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+        {
+          double total = 0.;
+          for (int ivar = 0; ivar < nb_std; ivar++)
+          {
+            double value = db->getArray(iech, cols_std[ivar]);
+            double fn = 0.;
+            for (int jvar = 0; jvar < nbpoly; jvar++)
+            {
+              double coeff = getPsiHn(jvar);
+              fn += coeff * TAU.getValue(ivar, jvar);
+            }
+            total += fn * fn * value;
+          }
+          calest.setQstd(icut, sqrt(total));
+        }
+      }
+    }
+
+    /* Storage */
+
+    calest.calculateBenefitGrade();
+    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
+                   calest);
+  }
+  return (0);
 }

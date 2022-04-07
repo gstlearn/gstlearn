@@ -33,10 +33,13 @@ GSTLEARN_EXPORT void ut_ivector_display(const String &title,
                                         const VectorInt &vect);
 GSTLEARN_EXPORT String ut_vector_string(const VectorDouble &vec);
 GSTLEARN_EXPORT String ut_ivector_string(const VectorInt &vec);
+GSTLEARN_EXPORT int ut_ivector_max(const VectorInt &vec);
+GSTLEARN_EXPORT int ut_ivector_min(const VectorInt &vec);
 GSTLEARN_EXPORT double ut_vector_max(const VectorDouble &vec,
                                      bool flagAbs = false);
 GSTLEARN_EXPORT double ut_vector_min(const VectorDouble &vec,
                                      bool flagAbs = false);
+GSTLEARN_EXPORT double ut_vector_cumul(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble &vec);
 GSTLEARN_EXPORT double ut_vector_var(const VectorDouble &vec);
 GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble &vec);
@@ -55,8 +58,8 @@ GSTLEARN_EXPORT void ut_vector_fill(VectorDouble &vec, double v, int size = 0);
 GSTLEARN_EXPORT void ut_ivector_fill(VectorInt &vec, int v, int size = 0);
 GSTLEARN_EXPORT VectorDouble ut_vector_add(const VectorDouble &vec1,
                                            const VectorDouble &vec2);
-GSTLEARN_EXPORT void ut_vector_add_inplace(VectorDouble &vec1,
-                                           const VectorDouble &vec2);
+GSTLEARN_EXPORT void ut_vector_add_inplace(VectorDouble &dest,
+                                           const VectorDouble &src);
 GSTLEARN_EXPORT VectorDouble ut_vector_subtract(const VectorDouble &vec1,
                                                 const VectorDouble &vec2);
 GSTLEARN_EXPORT VectorDouble ut_vector_power(const VectorDouble &vec,
@@ -105,3 +108,6 @@ GSTLEARN_EXPORT int ut_vector_size(const VectorVectorDouble &vec);
 
 GSTLEARN_EXPORT VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending = true);
 GSTLEARN_EXPORT VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending = true);
+
+GSTLEARN_EXPORT double ut_vector_extension_diagonal(const VectorDouble& mini,
+                                                    const VectorDouble& maxi);

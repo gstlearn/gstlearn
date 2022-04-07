@@ -133,9 +133,7 @@ Frac_List* fracture_manage_list(int mode, Frac_List *frac_list)
  ** \param[in]  level     0 summary; 1 fracture; 2 end-points
  **
  *****************************************************************************/
-void fracture_list_print(const char *title,
-                                         Frac_List *frac_list,
-                                         int level)
+void fracture_list_print(const char *title, Frac_List *frac_list, int level)
 {
   message("%s\n", title);
   message("Current number of simulated fractures = %d\n", frac_list->nfracs);

@@ -19,6 +19,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
 #include "geoslib_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
@@ -161,6 +162,7 @@ int Vario::compute(const ECalcVario &calcul,
   // Preparation
 
   _calcul = calcul;
+  _setFlagAsym();
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -382,6 +384,7 @@ int Vario::computeIndic(const ECalcVario& calcul,
   _nVar  = nclass;
   _means = props;
   _vars  = _varsFromProportions(props);
+  _setFlagAsym();
   _setDPasFromGrid(flag_grid);
   if (internalVariableResize()) return 1;
   internalDirectionResize();
@@ -414,6 +417,54 @@ int Vario::computeIndicByKey(const String& calcul_name,
   if (calcul == ECalcVario::UNDEFINED) return 1;
   return computeIndic(calcul, flag_grid, flag_gen, flag_sample, verr_mode,
                       model, verbose, nfacmax);
+}
+
+/*****************************************************************************/
+/*!
+ **  Transform the experimental variogram from raw to gaussian space
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  anam        Point Hermite anamorphosis
+ ** \param[in]  cvv         Block variance
+ **
+ *****************************************************************************/
+int Vario::transformVarioZToY(AAnam *anam, double cvv)
+{
+  int error = 1;
+  if (anam == nullptr)
+  {
+    messerr("This function needs an Anamorphosis");
+    return 1;
+  }
+  AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam);
+  if (anamH == nullptr)
+  {
+    messerr("This function needs a Hermite Anamorphosis");
+    return 1;
+  }
+  if (getVariableNumber() != 1)
+  {
+    messerr("This function is restricted to Monovariate Variogram");
+    goto label_end;
+  }
+
+  /* Loop on the directions of the variogram */
+
+  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  {
+    /* Loop on the lags */
+
+    for (int i = 0; i < getLagNumber(idir); i++)
+      setGgByIndex(idir,i,
+          1. - anamH->calculateR(cvv - getGgByIndex(idir, i), 1.));
+  }
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end: return (error);
 }
 
 int Vario::attachDb(Db* db, const VectorDouble& vars, const VectorDouble& means)
@@ -1072,15 +1123,52 @@ VectorDouble Vario::getGgVec(int idir,
   if (asCov || flagNorm) c0 = getVar(ivar, jvar);
   int npas = dirparam.getLagNumber();
 
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] <= 0.) continue;
-    double val = _gg[idir][iad];
-    if (asCov && ! getFlagAsym())  val = c0 - val;
-    if (flagNorm) val /= c0;
-    gg.push_back(val);
+    for (int ipas = npas-1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] <= 0.) continue;
+      double val = _gg[idir][iad];
+      if (asCov && !getFlagAsym()) val = c0 - val;
+      if (flagNorm) val /= c0;
+      gg.push_back(val);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+    {
+      double val = _gg[idir][iad];
+      if (asCov && !getFlagAsym()) val = c0 - val;
+      if (flagNorm) val /= c0;
+      gg.push_back(val);
+    }
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      {
+        double val = _gg[idir][iad];
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+        gg.push_back(val);
+      }
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (! IFFFF(iad) && _sw[idir][iad] > 0.)
+      {
+        double val = _gg[idir][iad];
+        if (asCov && !getFlagAsym()) val = c0 - val;
+        if (flagNorm) val /= c0;
+        gg.push_back(val);
+      }
+    }
   }
   return gg;
 }
@@ -1101,11 +1189,34 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
 
   VectorDouble hh;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0) hh.push_back(_hh[idir][iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    double value = _hh[idir][iad];
+    if (_sw[idir][iad] <= 0) value = 0.;
+    hh.push_back(value);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) hh.push_back(_hh[idir][iad]);
+    }
   }
   return hh;
 }
@@ -1119,18 +1230,37 @@ VectorDouble Vario::getHhVec(int idir, int ivar, int jvar) const
  */
 VectorDouble Vario::getSwVec(int idir, int ivar, int jvar) const
 {
-  if (!_isVariableValid(ivar)) return VectorDouble();
-  if (!_isVariableValid(jvar)) return VectorDouble();
+  if (!_isVariableValid(ivar))  return VectorDouble();
+  if (!_isVariableValid(jvar))  return VectorDouble();
   if (!_isDirectionValid(idir)) return VectorDouble();
   const DirParam dirparam = _varioparam.getDirParam(idir);
 
   VectorDouble sw;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] > 0.) sw.push_back(_sw[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    }
+    iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+    if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+      if (!IFFFF(iad)) sw.push_back(_sw[idir][iad]);
+    }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) sw.push_back(_sw[idir][iad]);
+    }
   }
   return sw;
 }
@@ -1151,11 +1281,30 @@ VectorDouble Vario::getUtilizeVec(int idir, int ivar, int jvar) const
 
   VectorDouble utilize;
   int npas = dirparam.getLagNumber();
-  for (int ipas = 0 ; ipas < npas; ipas++)
+  int iad;
+  if (_flagAsym)
   {
-    int iad = getDirAddress(idir,ivar,jvar,ipas,true,0);
-    if (IFFFF(iad)) continue;
-    if (_sw[idir][iad] > 0.) utilize.push_back(_hh[idir][iad]);
+    for (int ipas = npas - 1; ipas >= 0; ipas--)
+     {
+       iad = getDirAddress(idir, ivar, jvar, ipas, false, -1);
+       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     }
+     iad = getDirAddress(idir, ivar, jvar, 0, false, 0);
+     if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     for (int ipas = 0; ipas < npas; ipas++)
+     {
+       iad = getDirAddress(idir, ivar, jvar, ipas, false, 1);
+       if (!IFFFF(iad)) utilize.push_back(_utilize[idir][iad]);
+     }
+  }
+  else
+  {
+    for (int ipas = 0; ipas < npas; ipas++)
+    {
+      iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+      if (IFFFF(iad)) continue;
+      if (_sw[idir][iad] > 0.) utilize.push_back(_utilize[idir][iad]);
+    }
   }
   return utilize;
 }
@@ -1205,8 +1354,8 @@ int Vario::getDirAddress(int idir,
                          int sens) const
 {
   if (!_isDirectionValid(idir)) return ITEST;
-  if (!_isVariableValid(ivar)) return ITEST;
-  if (!_isVariableValid(jvar)) return ITEST;
+  if (!_isVariableValid(ivar))  return ITEST;
+  if (!_isVariableValid(jvar))  return ITEST;
 
   int rank;
 
@@ -1297,9 +1446,23 @@ bool Vario::_isAddressValid(int idir, int i) const
 
 int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, nvar, ndir, npas, opt_code, flag_calcul, flag_regular;
-  double dpas, tolang, scale, tolcode, toldis;
-  VectorDouble codir, grloc, vars;
+  int flag_calcul = 0;
+  int ndim = 0;
+  int nvar = 0;
+  int ndir = 0;
+  int npas = 0;
+  int opt_code = 0;
+  int flag_regular = 0;
+
+  double dpas = 0.;
+  double tolang = 0.;
+  double scale = 0.;
+  double tolcode = 0.;
+  double toldis = 0.;
+
+  VectorDouble codir;
+  VectorDouble grloc;
+  VectorDouble vars;
   VectorInt grincr;
 
   /* Create the Vario structure */
@@ -1364,7 +1527,9 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
       _directionResize(idir);
       for (int i = 0; i < getDirSize(idir); i++)
       {
-        double sw, hh, gg;
+        double sw = 0.;
+        double hh = 0.;
+        double gg = 0.;
         ret = ret && _recordRead<double>(is, "Experimental Variogram Weight", sw);
         setSwByIndex(idir, i, sw);
         ret = ret && _recordRead<double>(is, "Experimental Variogram Distance", hh);

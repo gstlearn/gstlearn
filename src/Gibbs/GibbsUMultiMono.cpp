@@ -63,7 +63,7 @@ GibbsUMultiMono::~GibbsUMultiMono()
 ** \param[in]  verboseTimer True to show elapse times
 **
 *****************************************************************************/
-int GibbsUMultiMono::covmatAlloc(bool verbose, bool verboseTimer)
+int GibbsUMultiMono::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 {
   Db* db = getDb();
 

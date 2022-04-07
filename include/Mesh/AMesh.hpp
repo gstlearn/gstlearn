@@ -83,6 +83,10 @@ public:
   /*! Returns the vector of coordinates for an apex */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
 
+  std::vector<VectorInt> getNeighborhoodPerMesh() const;
+  std::vector<VectorInt> getNeighborhoodPerApex() const;
+  void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
+
 private:
   void _recopy(const AMesh &m);
   bool _isSpaceDimensionValid(int idim) const;

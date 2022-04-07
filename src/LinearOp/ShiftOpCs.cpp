@@ -893,9 +893,11 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
-  // Define the global HH matrix
+  // Define the global matrices
 
-  if (! _isNoStat())
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  if (_isGlobalHH(igrf, icov))
     _loadHHByApex(hh, 0);
 
   /* Loop on the meshes */
@@ -996,7 +998,9 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
 
   // Define the global HH matrix
 
-  if (! _isNoStat())
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  if (_isGlobalHH(igrf, icov))
     _loadHHByApex(hh, 0);
 
   /* Loop on the meshes */
@@ -1016,8 +1020,6 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
     if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
-      int igrf = _getIgrf();
-      int icov = _getIcov();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
         _loadHHPerMesh(hh, amesh, imesh);
     }
@@ -1142,17 +1144,20 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 
   // Initialize the arrays
 
-  VectorDouble srot(2), center[3], axe1(3), axe2(3), vel(3), matv(ncorner);
+  VectorDouble srot(2), axe1(3), axe2(3), vel(3), matv(ncorner);
   MatrixSquareSymmetric hh(ndim);
   MatrixSquareGeneral matu(ncorner);
   MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
-  // Define the global HH matrix
+  // Define the global matrices
 
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  if (_isGlobalHH(igrf, icov))
+    _loadHHByApex(hh, 0);
   if (! _isNoStat())
   {
-    _loadHHByApex(hh, 0);
     _loadAux(srot, EConsElem::SPHEROT, 0);
     _loadAux(vel, EConsElem::VELOCITY, 0);
   }
@@ -1168,8 +1173,6 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
     if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
-      int igrf = _getIgrf();
-      int icov = _getIcov();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
         _loadHHPerMesh(hh, amesh, imesh);
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
@@ -1298,12 +1301,13 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   int nvertex = amesh->getNApices();
   const CovAniso* cova = _getCova();
 
-  /* Core allocation */
+  /* Load global matrices */
 
   _Lambda.clear();
-
+  int igrf = _getIgrf();
+  int icov = _getIcov();
   MatrixSquareSymmetric hh(ndim);
-  if (!_isNoStat())
+  if (_isGlobalHH(igrf, icov))
   {
     _loadHHByApex(hh, 0);
     sqdeth = sqrt(hh.determinant());
@@ -1317,8 +1321,6 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     if (_isNoStat())
     {
       const ANoStat* nostat = _getModel()->getNoStat();
-      int igrf = _getIgrf();
-      int icov = _getIcov();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
         _loadHHByApex(hh, ip);
@@ -1499,6 +1501,18 @@ bool ShiftOpCs::_isNoStat()
 {
   const Model* model = _getModel();
   return model->isNoStat();
+}
+
+bool ShiftOpCs::_isGlobalHH(int igrf, int icov)
+{
+  if (! _isNoStat())
+    return true;
+  else
+  {
+    const ANoStat* nostat = _getModel()->getNoStat();
+    if (! nostat->isDefinedforAnisotropy(igrf, icov)) return true;
+  }
+  return false;
 }
 
 bool ShiftOpCs::_isVelocity()

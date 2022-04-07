@@ -102,7 +102,7 @@ Variogram characteristics
 Number of variable(s)       = 1
 Number of direction(s)      = 2
 Space dimension             = 2
-Variance-Covariance Matrix     0.829
+Variance-Covariance Matrix     0.859
 
 Direction #1
 ------------
@@ -115,26 +115,26 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   157.000     0.011     0.045
-         1   775.000     0.027     0.173
-         2  1939.000     0.051     0.428
-         3  2690.000     0.076     0.615
-         4  3245.000     0.100     0.711
-         5  4253.000     0.125     0.778
-         6  4826.000     0.151     0.832
-         7  5544.000     0.175     0.909
-         8  6022.000     0.200     0.901
-         9  6266.000     0.225     0.924
-        10  7038.000     0.250     0.889
-        11  7329.000     0.275     0.899
-        12  7480.000     0.300     0.928
-        13  8300.000     0.325     0.944
-        14  8260.000     0.350     0.932
-        15  8416.000     0.375     0.942
-        16  8836.000     0.400     0.913
-        17  8584.000     0.425     0.902
-        18  9099.000     0.450     0.874
-        19  8913.000     0.475     0.861
+         0   139.000     0.011     0.041
+         1   827.000     0.027     0.184
+         2  1931.000     0.050     0.427
+         3  2700.000     0.076     0.630
+         4  3408.000     0.100     0.695
+         5  4218.000     0.125     0.796
+         6  4683.000     0.150     0.871
+         7  5482.000     0.175     0.901
+         8  5962.000     0.200     0.961
+         9  6180.000     0.225     0.927
+        10  7264.000     0.250     0.942
+        11  7429.000     0.275     0.925
+        12  7539.000     0.300     0.991
+        13  8067.000     0.325     1.011
+        14  7963.000     0.350     1.039
+        15  8426.000     0.375     0.992
+        16  8773.000     0.400     0.960
+        17  8393.000     0.425     0.932
+        18  9144.000     0.450     0.948
+        19  8590.000     0.475     0.975
 
 Direction #2
 ------------
@@ -147,62 +147,73 @@ Tolerance on distance       =     50.000 (Percent of the lag value)
 
 For variable 1
       Rank    Npairs  Distance     Value
-         0   125.000     0.006     0.021
-         1   986.000     0.027     0.149
-         2  1898.000     0.051     0.370
-         3  2660.000     0.075     0.538
-         4  3407.000     0.100     0.619
-         5  4253.000     0.126     0.720
-         6  4834.000     0.150     0.790
-         7  5588.000     0.175     0.804
-         8  6031.000     0.200     0.860
-         9  6611.000     0.225     0.974
-        10  7093.000     0.250     0.982
-        11  7536.000     0.275     0.947
-        12  7966.000     0.300     0.945
-        13  8180.000     0.325     0.984
-        14  8430.000     0.350     0.974
-        15  8516.000     0.375     0.947
-        16  8500.000     0.400     0.937
-        17  8767.000     0.425     0.864
-        18  8718.000     0.450     0.839
-        19  8568.000     0.475     0.796
-Maximum Variogram Value = 0.984485
+         0   133.000     0.006     0.027
+         1   974.000     0.027     0.178
+         2  1795.000     0.051     0.363
+         3  2708.000     0.076     0.529
+         4  3551.000     0.101     0.582
+         5  4190.000     0.126     0.718
+         6  4886.000     0.150     0.802
+         7  5352.000     0.175     0.867
+         8  5915.000     0.200     0.899
+         9  6469.000     0.225     1.006
+        10  6888.000     0.250     1.024
+        11  7270.000     0.275     0.962
+        12  7520.000     0.300     0.982
+        13  7956.000     0.325     1.015
+        14  8211.000     0.350     1.000
+        15  8442.000     0.375     1.005
+        16  8620.000     0.400     0.968
+        17  8627.000     0.425     0.904
+        18  8811.000     0.450     0.876
+        19  8866.000     0.475     0.825
+Maximum Variogram Value = 1.039433
 
 Statistics for the Minimization Foxleg procedure
 ------------------------------------------------
 - Number of experimental values = 40
 - Number of parameters          = 5
 - Number of iterations          = 1000/1000 
-- Value of minimized function   = 0.000202872
+- Value of minimized function   = 0.000255184
 - Initial increment value       = 1
-- Current increment value       = 0.5
+- Current increment value       = 1
 - Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 4.33626e+06
+- Stopping Value                = 9.99093e+07
 - Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 8.29102e-07
+- Stopping Criterion (scaled)   = 8.59413e-07
 
-Convergence not reached after 1000 iterations (5 parameters)
+Suppressing the unnecessary basic structures
+============================================
+Structure 'K-Bessel' in model #1 is suppressed
+
+Statistics for the Minimization Foxleg procedure
+------------------------------------------------
+- Number of experimental values = 40
+- Number of parameters          = 2
+- Number of iterations          = 5/1000 
+- Value of minimized function   = 0.000170307
+- Initial increment value       = 1
+- Current increment value       = 1
+- Increment Stopping Criterion  = 1e-05
+- Stopping Value                = 0.207301
+- Stopping Criterion            = 1e-06
+- Stopping Criterion (scaled)   = 8.59413e-07
 
 Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 2
+Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-K-Bessel (Third Parameter = 7.32194)
-- Sill         =      0.064
-- Range        =      0.059
-- Theo. Range  =      0.006
 Exponential
-- Sill         =      0.900
-- Ranges       =      0.261     0.307
-- Theo. Ranges =      0.087     0.102
-Total Sill     =      0.964
+- Sill         =      1.007
+- Ranges       =      0.254     0.302
+- Theo. Ranges =      0.085     0.101
+Total Sill     =      1.007
 
 Variogram characteristics
 =========================
@@ -288,7 +299,7 @@ Total number of samples      = 1681
 
 Grid characteristics:
 ---------------------
-Origin :     -1.000    -0.996
+Origin :     -0.999    -0.998
 Mesh   :      0.050     0.050
 Number :         41        41
 

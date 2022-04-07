@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   double bound  = TEST;
   double eps    = EPSILON6;
   bool storeTables = true;
-  bool storeInternal = false;
+  bool storeInternal = false; // No HDF5 by default
   bool storeVario = false;
 
   if (flag_inter)
@@ -55,7 +55,9 @@ int main(int /*argc*/, char */*argv*/[])
     nburn = askInt("Number of burning steps",nburn);
     eps   = askDouble("Epsilon",eps);
     range = askDouble("Isotropic Range",range);
+#ifdef _USE_HDF5
     storeInternal = askBool("Store Internal", storeInternal);
+#endif
   }
 
   int seed     = 5452;

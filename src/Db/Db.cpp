@@ -31,6 +31,7 @@
 #include <algorithm>
 #include <functional>
 #include <math.h>
+#include <stdio.h>
 
 Db::Db()
     : AStringable(),
@@ -97,6 +98,7 @@ int Db::resetFromSamples(int nech,
 
   return 0;
 }
+
 
 /**
  * Creating a Db by reading a CSV file
@@ -602,10 +604,8 @@ VectorDouble Db::getArray(int iuid, bool useSel) const
 void Db::updArray(int iech, int iuid, int oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
-  int icol = getColIdxByUID(iuid);
-  if (!isColIdxValid(icol)) return;
-  double oldval = getArray(iech, icol);
-  setArray(iech, icol, _updateValue(oper, oldval, value));
+  double oldval = getArray(iech, iuid);
+  setArray(iech, iuid, _updateValue(oper, oldval, value));
 }
 
 VectorDouble Db::getSampleCoordinates(int iech) const
@@ -641,7 +641,7 @@ void Db::getSampleCoordinates(int iech, VectorDouble& coor) const
  * @param flag_rotate Use the rotation (only for Grid)
  * @return
  */
-double Db::getCoordinate(int iech, int idim, bool flag_rotate) const
+double Db::getCoordinate(int iech, int idim, bool /*flag_rotate*/) const
 {
   if (idim >= getNDim()) return TEST;
   return getFromLocator(ELoc::X, iech, idim);
@@ -1586,7 +1586,7 @@ bool Db::isVariableNumberComparedTo(int nvar, int compare) const
 {
   if (compare == 0)
   {
-    if (! (getVariableNumber() == nvar))
+    if (getVariableNumber() != nvar)
     {
       messerr("This function requires %d variables (locator 'Z'). The 'Db' contains %d variables",
               nvar,getVariableNumber());
@@ -1958,6 +1958,7 @@ int Db::getActiveSampleRank(int iech) const
     if (iech == jech) return i;
     jech++;
   }
+  return -1;
 }
 
 /**
@@ -3347,7 +3348,7 @@ int Db::dumpToNF(const String& neutralFilename, bool verbose) const
   if (_fileOpenWrite(neutralFilename, "Db", os, verbose))
   {
     ret = _serialize(os, verbose);
-    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename);
+    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename.c_str());
     os.close();
   }
   return ret;
@@ -3362,7 +3363,7 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
     db = new Db;
     if (db->_deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename);
+      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename.c_str());
       delete db;
       db = nullptr;
     }
@@ -3666,6 +3667,37 @@ int Db::resetSamplingDb(const Db* dbin,
   return 0;
 }
 
+/*****************************************************************************/
+/*!
+ **  Create a new Data Base with points generated at random
+ **
+ ** \return  Pointer for the new Db structure
+ **
+ ** \param[in]  nech        Expected number of samples
+ ** \param[in]  dbgrid      Descriptor of the Db grid parameters
+ ** \param[in]  seed        Seed for the random number generator
+ ** \param[in]  flag_exact  True if the number of samples must not be drawn
+ ** \param[in]  flag_repulsion True if repulsion is processed
+ ** \param[in]  range       Repulsion range
+ ** \param[in]  beta        Bending coefficient
+ ** \param[in]  flag_add_rank 1 if the Rank must be generated in the output Db
+ **
+ *****************************************************************************/
+Db* Db::createFromDbGrid(int nech,
+                         DbGrid* dbgrid,
+                         int seed,
+                         bool flag_exact,
+                         bool flag_repulsion,
+                         double range,
+                         double beta,
+                         int flag_add_rank)
+{
+  Db* db = db_point_init(nech, VectorDouble(), VectorDouble(), dbgrid,
+                         flag_exact, flag_repulsion, range, beta, seed,
+                         flag_add_rank);
+  return db;
+}
+
 /**
  * Combine 'sel' input argument with an already existing selection (if any)
  * @param sel Input selection (only 0 and 1)
@@ -3763,22 +3795,23 @@ Db* Db::createFromCSV(const String& filename,
   }
   return db;
 }
+
 Db* Db::createFromBox(int nech,
                       const VectorDouble& coormin,
                       const VectorDouble& coormax,
-                      int ndim,
                       int seed,
+                      bool flag_exact,
+                      bool flag_repulsion,
+                      double range,
+                      double beta,
                       int flag_add_rank)
 {
-  Db* db = new Db;
-  if (db->resetFromBox(nech, coormin, coormax, ndim, seed, flag_add_rank))
-  {
-    messerr("Error when creating Db from Box");
-    delete db;
-    return nullptr;
-  }
+  Db* db = db_point_init(nech, coormin, coormax, nullptr,
+                         flag_exact, flag_repulsion, range, beta, seed,
+                         flag_add_rank);
   return db;
 }
+
 Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
 {
   Db* db = new Db;

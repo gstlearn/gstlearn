@@ -6,7 +6,6 @@
 /* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
@@ -16,6 +15,8 @@
 #include "Basic/Vector.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+
+class MeshETurbo;
 
 /**
  * Meshing defined in the Euclidean space
@@ -57,9 +58,11 @@ public:
                     const VectorDouble& apices,
                     const VectorInt& meshes,
                     bool verbose = false);
+  int        resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
   cs*        getMeshToDb(const Db *db, int verbose = 0) const override;
   double*    interpolateMeshToDb(Db *db, double* mtab) const override;
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
+
 
 private:
   int _create1D(int ndim_ref,

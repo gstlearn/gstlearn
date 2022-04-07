@@ -2813,7 +2813,7 @@ char* tetgenio::findnextfield(char *string)
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-char* tetgenio::readnumberline(char *string, FILE *infile, char *infilename)
+char* tetgenio::readnumberline(char *string, FILE *infile, char */*infilename*/)
 {
   char *result;
 
@@ -15225,8 +15225,12 @@ tetgenmesh::finddirection(triface* searchtet, point endpt)
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-enum tetgenmesh::interresult tetgenmesh::scoutsegment(point startpt,point endpt,
-                                                      face *sedge, triface* searchtet, point* refpt, arraypool* intfacelist)
+enum tetgenmesh::interresult tetgenmesh::scoutsegment(point startpt,
+                                                      point endpt,
+                                                      face *sedge,
+                                                      triface* searchtet,
+                                                      point* refpt,
+                                                      arraypool* /*intfacelist*/)
 {
   point pd;
   enum interresult dir;
@@ -24425,8 +24429,12 @@ int tetgenmesh::checkseg4split(face *chkseg, point& encpt, int& qflag)
 //                                                                           //
 ///////////////////////////////////////////////////////////////////////////////
 
-int tetgenmesh::splitsegment(face *splitseg, point encpt, DREAL rrp, 
-                             point encpt1, point encpt2, int qflag, 
+int tetgenmesh::splitsegment(face *splitseg,
+                             point encpt,
+                             DREAL /*rrp*/,
+                             point /*encpt1*/,
+                             point /*encpt2*/,
+                             int qflag,
                              int chkencflag)
 {
 

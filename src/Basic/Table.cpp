@@ -209,8 +209,9 @@ int Table::_serialize(std::ostream& os, bool /*verbose*/) const
 
 int Table::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ncols, nrows;
-  double value;
+  int nrows = 0;
+  int ncols = 0;
+  double value = 0.;
 
   bool ret = _recordRead<int>(is, "Number of Columns", ncols);
   ret = ret && _recordRead<int>(is, "Number of Rows", nrows);

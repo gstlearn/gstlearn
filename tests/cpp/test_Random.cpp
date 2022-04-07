@@ -20,8 +20,6 @@
 
 void st_do_it(bool style, int seed)
 {
-  int number = 3;
-
   if (style)
     message("\nUsing Old Style Random Number Generator\n");
   else

@@ -49,7 +49,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
   int nech = 10;
-  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.});
+  Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 43431);
   db->display(); // TODO : please use FLAG_STATS only when available
 
   auto nx={ 101,101 };
@@ -91,7 +91,7 @@ int main(int /*argc*/, char */*argv*/[])
   RuleProp* ruleprop = RuleProp::createFromRule(rule, props);
 
   auto ndata = 100;
-  Db* dat = Db::createFromBox(ndata, { 0., 0. }, { 100., 100. });
+  Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 32432);
   VectorDouble z = ut_vector_simulate_gaussian(ndata);
   dat->addColumns(z,"variable",ELoc::Z);
 

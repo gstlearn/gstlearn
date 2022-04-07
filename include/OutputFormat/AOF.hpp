@@ -27,13 +27,8 @@ public:
 
   virtual bool mustBeGrid() const { return false; }
   virtual bool mustBeOneVariable() const { return false; }
-  virtual bool mustBeForNDim(int ndim) const { return true; }
-  /**
-   * Check if Grid Rotation is valid
-   * @param mode: 0 No Rotation; 1 Rotation around First Direction; 2 Rotation
-   * @return
-   */
-  virtual bool mustBeForRotation(int mode) const { return true; }
+  virtual bool mustBeForNDim(int /*ndim*/) const { return true; }
+  virtual bool mustBeForRotation(int /*mode*/) const { return true; }
   virtual bool isAuthorized() const;
   virtual int  writeInFile()  { return 1; }
   virtual Db* readFromFile() { return nullptr; }

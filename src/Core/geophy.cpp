@@ -505,27 +505,32 @@ static int pre_init(void)
   n1 *= n0;
 
   /* allocate pointers */
-  if (!(hs = (double***) malloc((unsigned) nx * sizeof(double**))))
-    return ERR_MALLOC;
-  if (!(t = (double***) malloc((unsigned) nx * sizeof(double**))))
+  hs = (double***) malloc((unsigned) nx * sizeof(double**));
+  if (hs == nullptr) return ERR_MALLOC;
+  t = (double***) malloc((unsigned) nx * sizeof(double**));
+  if (t == nullptr)
   {
     free((char*) hs);
     return ERR_MALLOC;
   }
-  if (!(longflags = (int*) malloc((unsigned) n1 * sizeof(int))))
+  longflags = (int*) malloc((unsigned) n1 * sizeof(int));
+  if (longflags == nullptr)
   {
     free((char*) t);
     free((char*) hs);
     return ERR_MALLOC;
   }/* size of the largest side of the model */
   for (x = 0; x < nx; x++)
-    if (!(hs[x] = (double**) malloc((unsigned) ny * sizeof(double*))) || !(t[x] = (double**) malloc(
-        (unsigned) ny * sizeof(double*))))
+  {
+    hs[x] = (double**) malloc((unsigned) ny * sizeof(double*));
+    t[x] = (double**) malloc((unsigned) ny * sizeof(double*));
+    if (hs[x] == nullptr || t[x] == nullptr)
     {
       timeshift = 0.0; /* possibly uninitialized */
       free_ptrs(x);
       return ERR_MALLOC;
     }
+  }
   for (x = 0; x < nx; x++)
     for (y = 0; y < ny; y++)
     {
@@ -544,7 +549,8 @@ static int pre_init(void)
   /* assign T3D_INF to hs in dummy meshes (x=nmesh_x|y=nmesh_y|z=nmesh_z) */
   /* and keep masked values in hs_keep[] (will be restored in free_ptrs()) */
   x = ((nx + 1) * (ny + 1) + (nx + 1) * nz + nz * ny) * sizeof(double);
-  if (!(hs_keep = (double*) malloc((unsigned) x)))
+  hs_keep = (double*) malloc((unsigned) x);
+  if (hs_keep == nullptr)
   {
     timeshift = 0.0; /* possibly uninitialized */
     free_ptrs(nx);

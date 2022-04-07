@@ -23,6 +23,8 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighImage.hpp"
+#include "Neigh/NeighUnique.hpp"
+#include "Stats/Selectivity.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -237,11 +239,29 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT VectorDouble anam_selectivity(AAnam *anam,
-                                              int nclass,
-                                              VectorDouble zcut,
-                                              int flag_correct = 0,
-                                              int verbose = 0);
+GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
+                                             int nclass,
+                                             VectorDouble zcut,
+                                             int flag_correct = 0,
+                                             int verbose = 0);
+GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
+                                             double *zcut,
+                                             Selectivity& calest,
+                                             Selectivity& calcut);
+GSTLEARN_EXPORT int anamZToFactor(AAnam *anam,
+                                 Db *db,
+                                 const VectorInt &ifacs,
+                                 const NamingConvention& namconv = NamingConvention("Factor"));
+GSTLEARN_EXPORT int anamFactor2QT(Db *db,
+                                  AAnam *anam,
+                                  const VectorDouble& cutmine,
+                                  double z_max,
+                                  int flag_correct,
+                                  const VectorInt& codes,
+                                  const VectorInt& cols_est,
+                                  const VectorInt& cols_std,
+                                  int *ncut,
+                                  VectorInt& qt_vars);
 
 /******************************/
 /* Functions for Neighborhood */
@@ -335,6 +355,31 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt rank_colcok = VectorInt(),
                             VectorVectorDouble matCL = VectorVectorDouble(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
+GSTLEARN_EXPORT int krigprof(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             int flag_est = 1,
+                             int flag_std = 1,
+                             const NamingConvention& namconv = NamingConvention("KrigProf"));
+GSTLEARN_EXPORT int krigdgm(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            ANeighParam *neighparam,
+                            int flag_est = 1,
+                            int flag_std = 1,
+                            int flag_varz = 0,
+                            double rval = 1.,
+                            const NamingConvention& namconv = NamingConvention("DGM"));
+GSTLEARN_EXPORT int krigcell(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             int flag_est,
+                             int flag_std,
+                             VectorInt ndisc,
+                             VectorInt rank_colcok = VectorInt(),
+                             const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             Model *model,
                             NeighImage *neighparam,
@@ -353,6 +398,87 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_varz = 0,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
+GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
+                                      Db *dbout,
+                                      Model *model,
+                                      ANeighParam *neighparam,
+                                      int iech0,
+                                      const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
+                                      VectorInt ndisc = VectorInt());
+GSTLEARN_EXPORT int kribayes(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             const VectorDouble& dmean = VectorDouble(),
+                             const VectorDouble& dcov = VectorDouble(),
+                             int flag_est = 1,
+                             int flag_std = 1,
+                             const NamingConvention& namconv = NamingConvention("Bayes"));
+GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
+                                          Db *dbout,
+                                          Model *model,
+                                          int ivar0 = 0,
+                                          bool flag_verbose = false);
+GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
+                                             DbGrid *dbgrid,
+                                             Model *model,
+                                             int ivar0 = 0,
+                                             bool flag_verbose = false);
+GSTLEARN_EXPORT int krigsum(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            NeighUnique* neighU,
+                            bool flag_positive = false,
+                            const NamingConvention& namconv = NamingConvention("KrigSum"));
+GSTLEARN_EXPORT int kriggam(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            ANeighParam *neighparam,
+                            AAnam *anam,
+                            const NamingConvention& namconv = NamingConvention("KrigGam"));
+GSTLEARN_EXPORT int declustering(Db *db,
+                                 Model *model,
+                                 int method,
+                                 ANeighParam *neighparam = nullptr,
+                                 DbGrid *dbgrid = nullptr,
+                                 const VectorDouble& radius = VectorDouble(),
+                                 const VectorInt& ndisc = VectorInt(),
+                                 int flag_sel = false,
+                                 bool verbose = false);
+GSTLEARN_EXPORT int dk(Db* dbin,
+                       DbGrid* dbsmu,
+                       Model* model,
+                       ANeighParam* neighparam,
+                       AAnam* anam,
+                       int nfactor,
+                       const VectorInt &nmult,
+                       const VectorInt &ndisc,
+                       int flag_est = 1,
+                       int flag_std = 1,
+                       const NamingConvention& namconv = NamingConvention("KD"));
+GSTLEARN_EXPORT int uc(Db *db,
+                       AAnam *anam,
+                       int att_est,
+                       int att_var,
+                       VectorDouble& cutmine,
+                       double proba,
+                       double var_bloc,
+                       const VectorInt& codes,
+                       int verbose,
+                       VectorInt& qt_vars);
+GSTLEARN_EXPORT int ce(Db *db,
+                       AAnam *anam,
+                       int att_est,
+                       int att_std,
+                       int flag_est,
+                       int flag_std,
+                       int flag_OK,
+                       const VectorDouble& cutmine,
+                       double proba,
+                       const VectorInt& codes,
+                       int nbsimu,
+                       int verbose,
+                       VectorInt& qt_vars);
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,
@@ -362,6 +488,17 @@ GSTLEARN_EXPORT int simtub(Db *dbin,
                            int nbtuba = 100,
                            int flag_check = 0,
                            const NamingConvention& namconv = NamingConvention("Simu"));
+GSTLEARN_EXPORT int simbayes(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             int nbsimu = 1,
+                             int seed = 132141,
+                             const VectorDouble& dmean = VectorDouble(),
+                             const VectorDouble& dcov = VectorDouble(),
+                             int nbtuba = 100,
+                             int flag_check = false,
+                             const NamingConvention& namconv = NamingConvention("SimBayes"));
 GSTLEARN_EXPORT int simpgs(Db *dbin,
                            Db *dbout,
                            RuleProp *ruleprop,

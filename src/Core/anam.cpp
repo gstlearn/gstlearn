@@ -18,6 +18,7 @@
 #include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
@@ -30,584 +31,15 @@
 #define QT_EST    0
 #define QT_STD    1
 
-#define CAL_ZCUT  0
-#define CAL_TEST  1
-#define CAL_QEST  2
-#define CAL_BEST  3
-#define CAL_MEST  4
-#define CAL_TSTD  5
-#define CAL_QSTD  6
-#define N_CAL     7
-
-#define CHI(i,j)        (chi[(i)*nclass+(j)])
 #define CT(i,j)         (ct[(i)*nclass+(j)])
 #define CQ(i,j)         (cq[(i)*nclass+(j)])
 #define CB(i,j)         (cb[(i)*nclass+(j)])
-#define CALEST(nclass,opt,iclass) (calest[(opt) * (nclass) + (iclass)])
-#define CALCUT(nclass,opt,iclass) (calcut[(opt) * (nclass) + (iclass)])
 #define TAU(ip,jp)                (tau[(ip) * nbpoly + (jp)])
 #define DD(ih,jh)                 (dd[(ih) * nbpoly + (jh)])
 #define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
 #define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
                                    QT_VARS(QT_STD,j) > 0)
-
 /*! \endcond */
-
-/*****************************************************************************/
-/*!
- **  Calculates the block variance (Gaussian Anamorphosis)
- **
- ** \return Value of the block variance (as a function of support coefficient)
- **
- ** \param[in]  anam     AAnam structure
- ** \param[in]  sval     Tentative Coefficient of change of support
- ** \param[in]  power    Power of the change of support coefficient
- **
- *****************************************************************************/
-static double st_anam_hermitian_block_variance(AAnam *anam,
-                                               double sval,
-                                               double power)
-{
-  double variance;
-
-  /* Initializations */
-
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-
-  /* Variance calculation */
-
-  if (power == 1)
-    variance = anam_hermite->calculateVarianceFromPsi(sval);
-  else
-    variance = anam_hermite->calculateVarianceFromPsi(sval * sval);
-
-  return (variance);
-}
-
-/****************************************************************************/
-/*!
- **  Update the AAnam structure for Hermitian Anamorphosis
- **
- ** \param[in,out] anam_hermite  AAnam structure to be updated
- ** \param[in]  pymin    Minimum practical value for Y
- ** \param[in]  pzmin    Minimum practical value for Z
- ** \param[in]  pymax    Maximum practical value for Y
- ** \param[in]  pzmax    Maximum practical value for Z
- ** \param[in]  aymin    Minimum absolute value for Y
- ** \param[in]  azmin    Minimum absolute value for Z
- ** \param[in]  aymax    Maximum absolute value for Y
- ** \param[in]  azmax    Maximum absolute value for Z
- ** \param[in]  r        Change of support coefficient
- ** \param[in]  psi_hn   Coefficients of the Hermite polynomials
- **
- *****************************************************************************/
-void anam_update_hermitian(AnamHermite *anam_hermite,
-                                           double pymin,
-                                           double pzmin,
-                                           double pymax,
-                                           double pzmax,
-                                           double aymin,
-                                           double azmin,
-                                           double aymax,
-                                           double azmax,
-                                           double r,
-                                           const VectorDouble &psi_hn)
-{
-  anam_hermite->setPsiHn(psi_hn);
-  anam_hermite->setRCoef(r);
-  anam_hermite->calculateMeanAndVariance();
-  anam_hermite->setABounds(azmin, azmax, aymin, aymax);
-  anam_hermite->setPBounds(pzmin, pzmax, pymin, pymax);
-}
-
-/****************************************************************************/
-/*!
- **  Update the AAnam structure for Empirical Anamorphosis
- **
- ** \param[in,out] anam_empirical  AAnam structure to be updated
- ** \param[in]  ndisc    Number of discretization lags
- ** \param[in]  pymin    Minimum practical value for Y
- ** \param[in]  pzmin    Minimum practical value for Z
- ** \param[in]  pymax    Maximum practical value for Y
- ** \param[in]  pzmax    Maximum practical value for Z
- ** \param[in]  aymin    Minimum absolute value for Y
- ** \param[in]  azmin    Minimum absolute value for Z
- ** \param[in]  aymax    Maximum absolute value for Y
- ** \param[in]  azmax    Maximum absolute value for Z
- ** \param[in]  sigma2e  Additional variance
- ** \param[in]  tdisc    Discretization array
- **
- *****************************************************************************/
-void anam_update_empirical(AnamEmpirical *anam_empirical,
-                                           int ndisc,
-                                           double pymin,
-                                           double pzmin,
-                                           double pymax,
-                                           double pzmax,
-                                           double aymin,
-                                           double azmin,
-                                           double aymax,
-                                           double azmax,
-                                           double sigma2e,
-                                           const VectorDouble &tdisc)
-{
-  anam_empirical->setNDisc(ndisc);
-  anam_empirical->setSigma2e(sigma2e);
-  anam_empirical->setTDisc(tdisc);
-  anam_empirical->setABounds(azmin, azmax, aymin, aymax);
-  anam_empirical->setPBounds(pzmin, pzmax, pymin, pymax);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Update the AAnam structure for Discrete Diffusion Anamorphosis
- **
- ** \param[in,out] anam_discrete_DD  AAnam structure to be updated
- ** \param[in]  ncut     Number of cutoffs
- ** \param[in]  scoef   Change of support coefficient
- ** \param[in]  mu       Additional coefficient
- ** \param[in]  zcut     Array of cutoffs
- ** \param[in]  pcaz2f   Transform matrix from variables to factors
- ** \param[in]  pcaf2z   Transform matrix from factors to variables
- ** \param[in]  stats    Array of statistics for KDD (optional)
- **
- *****************************************************************************/
-void anam_update_discrete_DD(AnamDiscreteDD *anam_discrete_DD,
-                                             int ncut,
-                                             double scoef,
-                                             double mu,
-                                             const VectorDouble &zcut,
-                                             const VectorDouble &pcaz2f,
-                                             const VectorDouble &pcaf2z,
-                                             const VectorDouble &stats)
-{
-  if (ncut <= 0) return;
-  anam_discrete_DD->setZCut(zcut);
-  anam_discrete_DD->setSCoef(scoef);
-  anam_discrete_DD->setMu(mu);
-  anam_discrete_DD->setPcaF2Z(pcaf2z);
-  anam_discrete_DD->setPcaZ2F(pcaz2f);
-  anam_discrete_DD->setStats(stats);
-  anam_discrete_DD->calculateMeanAndVariance();
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the block variance (Discrete Indicators Residuals)
- **
- ** \return  Value for the block variance (as a function of support coefficient)
- **
- ** \param[in]  anam     AAnam structure
- ** \param[in]  sval     Tentative Coefficient of change of support
- **
- *****************************************************************************/
-static double st_anam_discrete_IR_block_variance(AAnam *anam,
-                                                 double sval,
-                                                 double /*power*/)
-{
-  double var, b, resid, tcur, tprev;
-  int iclass, nclass;
-
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nclass = anam_discrete_IR->getNClass();
-
-  var = 0.;
-  for (iclass = 0; iclass < nclass - 1; iclass++)
-  {
-    b = anam_discrete_IR->getIRStatB(iclass);
-    tcur = anam_discrete_IR->getIRStatT(iclass + 1);
-    tprev = anam_discrete_IR->getIRStatT(iclass);
-    resid =
-        (tprev > 0 && tcur > 0) ? 1. / pow(tcur, sval) - 1. / pow(tprev, sval) :
-                                  0.;
-    var += b * b * resid;
-  }
-  return (var);
-}
-
-/****************************************************************************/
-/*!
- **  Update the AAnam structure for Discrete Indicator Residuals Anamorphosis
- **
- ** \param[in,out] anam_discrete_IR  AAnam structure to be updated
- ** \param[in]  ncut     Number of cutoffs
- ** \param[in]  r_coef   Change of support coefficient
- ** \param[in]  zcut     Array of cutoffs
- ** \param[in]  stats    Array of statistics for KDD (optional)
- **
- *****************************************************************************/
-void anam_update_discrete_IR(AnamDiscreteIR *anam_discrete_IR,
-                                             int ncut,
-                                             double r_coef,
-                                             const VectorDouble &zcut,
-                                             const VectorDouble &stats)
-{
-  if (ncut > 0)
-  {
-    anam_discrete_IR->setZCut(zcut);
-    anam_discrete_IR->setRCoef(r_coef);
-    anam_discrete_IR->setStats(stats);
-    anam_discrete_IR->calculateMeanAndVariance();
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the block variance (Discrete Diffusion)
- **
- ** \return  Value for the block variance (as a function of support coefficient)
- **
- ** \param[in]  anam     AAnam structure
- ** \param[in]  sval     Tentative Coefficient of change of support
- **
- *****************************************************************************/
-static double st_anam_discrete_DD_block_variance(AAnam *anam,
-                                                 double sval,
-                                                 double /*power*/)
-{
-  double var, mu, ci;
-  int iclass, nclass;
-  VectorDouble stats;
-
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  nclass = anam_discrete_DD->getNClass();
-  mu = anam_discrete_DD->getMu();
-
-  // At this stage (point -> block)) cnorm designate the point C_i
-
-  var = 0.;
-  for (iclass = 1; iclass < nclass; iclass++)
-  {
-    ci = anam_discrete_DD->getDDStatCnorm(iclass);
-    var += ci * ci
-           * pow(mu / (mu + anam_discrete_DD->getDDStatLambda(iclass)), sval);
-  }
-  return (var);
-}
-
-/*****************************************************************************/
-/*!
- **  Find the coefficient of change of support
- **
- ** \return  Value for the change of support coefficient
- **
- ** \param[in]  anam     AAnam structure
- ** \param[in]  cvv      Mean covariance value over a block
- ** \param[in]  power    Power of the change of support coefficient
- ** \param[in]  st_block_variance Variance calculation function
- **
- *****************************************************************************/
-static double st_anam_get_r(AAnam *anam,
-                            double cvv,
-                            double power,
-                            double (*st_block_variance)(AAnam *anam,
-                                                        double r,
-                                                        double power))
-{
-  double s0, s1, s2, var0, var1;
-  int converge, niter;
-  static int niter_max = 1000;
-
-  s1 = 0.;
-  var1 = st_block_variance(anam, s1, power);
-
-  /* Dichotomy */
-
-  s2 = 1.;
-  converge = niter = 0;
-  while (!converge)
-  {
-    niter++;
-    s0 = (s1 + s2) / 2.;
-    var0 = st_block_variance(anam, s0, power);
-    converge = (ABS(var0 - cvv) < EPSILON8 || niter > niter_max);
-    if ((var1 - cvv) * (var0 - cvv) < 0.)
-    {
-      s2 = s0;
-    }
-    else
-    {
-      s1 = s0;
-      var1 = var0;
-    }
-  }
-
-  return (s0);
-}
-
-/*****************************************************************************/
-/*!
- **  Derive the MUL coefficients from the LAMBDA and the change of support
- **
- ** \param[in,out]  anam     AAnam structure
- **
- *****************************************************************************/
-static void st_anam_discrete_DD_lambda_to_mul(AAnam *anam)
-{
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  int nclass = anam_discrete_DD->getNClass();
-  double scoef = anam_discrete_DD->getSCoef();
-  double mu = anam_discrete_DD->getMu();
-
-  /* Loop on the classes */
-
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    double value = pow(mu / (mu + anam_discrete_DD->getDDStatLambda(iclass)),
-                       scoef / 2.);
-    anam_discrete_DD->setDDStatMul(iclass, value);
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the block anamorphosis (from point anamorphosis)
- **
- ** \param[in]  anam     AAnam structure
- ** \param[in]  chi      Array containing the Chi factors
- **
- *****************************************************************************/
-static void st_anam_discrete_DD_block_anamorphosis(AAnam *anam, VectorDouble chi)
-
-{
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  int nclass = anam_discrete_DD->getNClass();
-
-  /* Block anamorphosis on the indicators */
-
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    double sum = 0.;
-    for (int jclass = 0; jclass < nclass; jclass++)
-      sum += anam_discrete_DD->getDDStatCnorm(jclass) * CHI(jclass, iclass);
-    anam_discrete_DD->setDDStatZmoy(iclass, sum);
-  }
-
-  /* Update mean and variance */
-
-  anam_discrete_DD->calculateMeanAndVariance();
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Update a point anamorphosis into a block anamorphosis
- **  Discrete Diffusion case
- **
- ** \return Error return code
- **
- ** \param[in,out] anam  AAnam structure to be updated
- **
- *****************************************************************************/
-static int st_anam_point_to_block_discrete_DD(AAnam *anam)
-
-{
-  double sum;
-  int nclass, iclass, error;
-  VectorDouble chi;
-
-  /* Initializations */
-
-  error = 1;
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  nclass = anam_discrete_DD->getNClass();
-
-  /* Update the coefficients mul */
-
-  st_anam_discrete_DD_lambda_to_mul(anam);
-
-  /* Spectral measure */
-
-  sum = 0.;
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    double mul = anam_discrete_DD->getDDStatMul(iclass);
-    double newU = anam_discrete_DD->getDDStatU(iclass) / (mul * mul);
-    anam_discrete_DD->setDDStatU(iclass, newU);
-    sum += newU;
-  }
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    double value = anam_discrete_DD->getDDStatU(iclass) / sum;
-    anam_discrete_DD->setDDStatU(iclass, value);
-  }
-
-  /* Update the C_i from point to block */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    double cnorm = anam_discrete_DD->getDDStatCnorm(iclass);
-    double mul = anam_discrete_DD->getDDStatMul(iclass);
-    anam_discrete_DD->setDDStatCnorm(iclass, cnorm * mul);
-  }
-
-  /* Modeling the diffusion process */
-
-  chi = anam_discrete_DD->factors_mod();
-  if (chi.empty()) goto label_end;
-
-  /* Establish the block anamorphosis */
-
-  st_anam_discrete_DD_block_anamorphosis(anam, chi);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Update a point anamorphosis into a block anamorphosis
- **  Discrete Indicators Residuals case
- **
- ** \param[in,out] anam  AAnam structure to be updated
- **
- *****************************************************************************/
-static void st_anam_point_to_block_discrete_IR(AAnam *anam)
-{
-  double r_coef, tcur, tprev, zie, zje, zik, zjk;
-  int nclass, iclass;
-
-  /* Initializations */
-
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nclass = anam_discrete_IR->getNClass();
-  r_coef = anam_discrete_IR->getRCoef();
-  zie = zik = zje = zjk = 0.;
-
-  /* Loop on the classes */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    tcur = anam_discrete_IR->getIRStatT(iclass);
-    if (iclass > 0)
-    {
-      zjk = anam_discrete_IR->getIRStatZ(iclass - 1);
-      zie = anam_discrete_IR->getIRStatZ(iclass);
-      zik = (tcur > 0) ? zjk + (zie - zje) * pow(tcur, 1. - r_coef) :
-                         0.;
-    }
-    else
-    {
-      zik = anam_discrete_IR->getIRStatZ(iclass);
-    }
-    zje = anam_discrete_IR->getIRStatZ(iclass);
-    double Tval = anam_discrete_IR->getIRStatT(iclass);
-    double Bval = anam_discrete_IR->getIRStatB(iclass);
-    anam_discrete_IR->setIRStatZ(iclass, zik);
-    anam_discrete_IR->setIRStatT(iclass, pow(Tval, r_coef));
-    anam_discrete_IR->setIRStatQ(iclass, Bval + zik * Tval);
-    if (iclass <= 0)
-      anam_discrete_IR->setIRStatRV(iclass, 0.);
-    else
-    {
-      tcur = anam_discrete_IR->getIRStatT(iclass);
-      tprev = anam_discrete_IR->getIRStatT(iclass - 1);
-      anam_discrete_IR->setIRStatRV(
-          iclass, (tprev > 0 && tcur > 0) ? 1. / tcur - 1 / tprev :
-                                            0.);
-    }
-  }
-
-  /* Update mean and variance */
-
-  anam_discrete_IR->calculateMeanAndVariance();
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the raw value from the gaussian value
- **
- ** \return  Raw value
- **
- ** \param[in]  anam        anamorphosis model
- ** \param[in]  y           gaussian value
- ** \param[in]  flag_bound  1 if the bounds must be applied; 0 otherwise
- **
- ** \remark  The procedure checks the argument mode of AAnam structure
- ** \remark  - does nothing and simply returns y (EAnam::UNDEFINED)
- ** \remark  - calls the external function y2z_function (EAnam::EXTERNAL)
- ** \remark  - performs the internal transform (EAnam::HERMITIAN)
- **
- *****************************************************************************/
-double anam_y2z(AAnam *anam, double y, int flag_bound)
-{
-  if (anam == nullptr) return (y);
-  if (anam->getType() == EAnam::HERMITIAN)
-  {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    anam_hermite->setFlagBound(flag_bound);
-    return (anam_hermite->GaussianToRawValue(y));
-  }
-  else if (anam->getType() == EAnam::EMPIRICAL)
-  {
-    AnamEmpirical *anam_empirical = dynamic_cast<AnamEmpirical*>(anam);
-    return (anam_empirical->GaussianToRawValue(y));
-  }
-  else if (anam->getType() == EAnam::EXTERNAL)
-  {
-    AnamUser *anam_user = dynamic_cast<AnamUser*>(anam);
-    return (anam_user->GaussianToRawValue(y));
-  }
-
-  return TEST;
-}
-
-/****************************************************************************/
-/*!
- **  Update a point anamorphosis into a block anamorphosis for Hermitian case
- **
- ** \param[in,out] anam  AAnam structure to be updated
- **
- *****************************************************************************/
-static void st_anam_point_to_block_hermitian(AAnam *anam)
-
-{
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-
-  /* Update the anamorphosis coefficients */
-
-  double rval = 1.;
-  for (int ih = 1; ih < anam_hermite->getNbPoly(); ih++)
-  {
-    rval *= anam_hermite->getRCoef();
-    anam_hermite->setPsiHn(ih, anam_hermite->getPsiHn(ih) * rval);
-  }
-
-  /* Update mean and variance */
-
-  anam_hermite->calculateMeanAndVariance();
-}
-
-/****************************************************************************/
-/*!
- **  From the cutoff, tonnage and metal quantity, derive
- **  the conventional benefit and the average recovered grade
- **
- ** \param[in]  nclass          Number of classes
- ** \param[in,out]  calest      Array of Global results
- **
- *****************************************************************************/
-static void st_calcul_benefit_and_mean(int nclass, double *calest)
-{
-  int iclass;
-  double zval, tval, qval;
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    zval = CALEST(nclass, CAL_ZCUT, iclass);
-    tval = CALEST(nclass, CAL_TEST, iclass);
-    qval = CALEST(nclass, CAL_QEST, iclass);
-    CALEST(nclass,CAL_BEST,iclass) = qval - zval * tval;
-    CALEST(nclass,CAL_MEST,iclass) = (ABS(tval) < EPSILON6) ? TEST :
-                                                              qval / tval;
-  }
-}
 
 /*****************************************************************************/
 /*!
@@ -658,96 +90,10 @@ static void st_interpolate_interval(double zval,
   }
 
   u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 :
-                        ti0 + dti * pow(u, 1. / aa0);
-  (*qval) =
-      (u <= 0.) ? qi0 :
-                  qi0 + zi0 * ((*tval) - ti0)
-                  + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
-}
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT curves (Local estimation)
- **
- ** \param[in]  z_max    Maximum grade value (if defined)
- ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  nclass   Number of estimated classes
- ** \param[in]  calest   Array of initial quantities
- ** \param[in]  ncutmine Number of required cutoffs
- **
- ** \param[out] calcut   Array of interpolated quantities
- **
- *****************************************************************************/
-static void st_interpolate_qt_local(double z_max,
-                                    double *zcutmine,
-                                    int nclass,
-                                    double *calest,
-                                    int ncutmine,
-                                    double *calcut)
-{
-  double *zz, *TT, *QQ, zval, zi0, zi1, ti0, ti1, qi0, qi1;
-  int icut, iclass, jclass, ncleff;
-
-  /* Initializations */
-
-  zz = TT = QQ = nullptr;
-
-  /* Core allocation */
-
-  zz = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
-  TT = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
-  QQ = (double*) mem_alloc(sizeof(double) * (nclass + 2), 1);
-
-  /* Load arrays */
-
-  ncleff = 1;
-  TT[0] = QQ[0] = 0.;
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    jclass = nclass - iclass - 1;
-    if (CALEST(nclass,CAL_TEST,jclass) <= TT[ncleff - 1]) continue;
-    TT[ncleff] = CALEST(nclass, CAL_TEST, jclass);
-    QQ[ncleff] = CALEST(nclass, CAL_QEST, jclass);
-    ncleff++;
-  }
-  zz[0] = z_max;
-  for (iclass = 0; iclass < ncleff - 1; iclass++)
-    zz[iclass + 1] = (QQ[iclass + 2] - QQ[iclass])
-        / (TT[iclass + 2] - TT[iclass]);
-  zz[ncleff - 1] = 0.;
-  if (FFFF(z_max)) zz[0] = 2 * zz[1];
-
-  for (icut = 0; icut < ncutmine; icut++)
-  {
-    zval = zcutmine[icut];
-    CALCUT(ncutmine,CAL_ZCUT,icut) = zval;
-
-    /* Find interval [zz[iclass]; zz[iclass+1]] to which cutoffs belongs */
-
-    iclass = -1;
-    for (jclass = 0; jclass < ncleff && iclass < 0; jclass++)
-      if ((zval - zz[jclass]) * (zval - zz[jclass + 1]) <= 0) iclass = jclass;
-
-    /* Assuming that cutoffs belongs to the interval the class 'iclass' */
-
-    zi0 = zz[iclass];
-    zi1 = (iclass + 1 > ncleff - 1) ? 0. :
-                                      zz[iclass + 1];
-    ti0 = TT[iclass];
-    ti1 = (iclass + 1 > ncleff - 1) ? 0. :
-                                      TT[iclass + 1];
-    qi0 = QQ[iclass];
-    qi1 = QQ[iclass + 1];
-    st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                            &CALCUT(ncutmine, CAL_TEST, icut),
-                            &CALCUT(ncutmine, CAL_QEST, icut));
-  }
-
-  zz = (double*) mem_free((char* ) zz);
-  TT = (double*) mem_free((char* ) TT);
-  QQ = (double*) mem_free((char* ) QQ);
-  return;
+  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
+  (*qval) = (u <= 0.) ? qi0 :
+      qi0 + zi0 * ((*tval) - ti0)
+      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
 }
 
 /*****************************************************************************/
@@ -755,36 +101,32 @@ static void st_interpolate_qt_local(double z_max,
  **  Interpolate the QT curves (Global estimation)
  **
  ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  nclass   Number of estimated classes
- ** \param[in]  calest   Array of initial quantities
- ** \param[in]  ncutmine Number of required cutoffs
+ ** \param[in]  calest   Selectivity
  **
- ** \param[out] calcut   Array of interpolated quantities
+ ** \param[out] calcut   Interpolated Selectivity
  **
  *****************************************************************************/
 static void st_interpolate_qt_global(double *zcutmine,
-                                     int nclass,
-                                     double *calest,
-                                     int ncutmine,
-                                     double *calcut)
+                                     Selectivity& calest,
+                                     Selectivity& calcut)
 {
-  double zval, zi0, zi1, ti0, ti1, qi0, qi1, valmin, valmax;
-  int icut, iclass, jclass;
+  double tval, qval;
 
-  for (icut = 0; icut < ncutmine; icut++)
+  int nclass = calest.getNClass();
+  int ncutmine = calcut.getNClass();
+
+  for (int icut = 0; icut < ncutmine; icut++)
   {
-    zval = zcutmine[icut];
-    CALCUT(ncutmine,CAL_ZCUT,icut) = zval;
+    double zval = zcutmine[icut];
+    calcut.setZcut(icut, zval);
 
     /* Find interval [zmoy[iclass]; zmoy[iclass+1]] to which cutoffs belongs */
 
-    iclass = -1;
-    for (jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
+    int iclass = -1;
+    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
     {
-      valmin = MIN(CALEST(nclass,CAL_ZCUT,jclass),
-                   CALEST(nclass,CAL_ZCUT,jclass+1));
-      valmax = MAX(CALEST(nclass,CAL_ZCUT,jclass),
-                   CALEST(nclass,CAL_ZCUT,jclass+1));
+      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass+1));
+      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass+1));
       if (zval >= valmin && zval <= valmax) iclass = jclass;
     }
 
@@ -793,329 +135,24 @@ static void st_interpolate_qt_global(double *zcutmine,
 
       /* Assuming that cutoffs belongs to the interval the class 'iclass' */
 
-      zi0 = CALEST(nclass, CAL_ZCUT, iclass);
-      zi1 = (iclass + 1 > nclass - 1) ? 0. :
-                                        CALEST(nclass, CAL_ZCUT, iclass + 1);
-      ti0 = CALEST(nclass, CAL_TEST, iclass);
-      ti1 = (iclass + 1 > nclass - 1) ? 0. :
-                                        CALEST(nclass, CAL_TEST, iclass + 1);
-      qi0 = CALEST(nclass, CAL_QEST, iclass);
-      qi1 = CALEST(nclass, CAL_QEST, iclass + 1);
+      double zi0 = calest.getZcut(iclass);
+      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
+      double ti0 = calest.getTest(iclass);
+      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
+      double qi0 = calest.getQest(iclass);
+      double qi1 = calest.getQest(iclass + 1);
       st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                              &CALCUT(ncutmine, CAL_TEST, icut),
-                              &CALCUT(ncutmine, CAL_QEST, icut));
+                              &tval, &qval);
+      calcut.setTest(icut, tval);
+      calcut.setQest(icut, qval);
     }
     else
     {
-      CALCUT(ncutmine,CAL_TEST,icut) = 0.;
-      CALCUT(ncutmine,CAL_QEST,icut) = 0.;
+      calcut.setTest(icut, 0.);
+      calcut.setQest(icut, 0.);
     }
   }
   return;
-}
-
-/****************************************************************************/
-/*!
- **  Store the local results of the recovery
- **
- ** \param[in]  db          Db structure containing the factors (Z-locators)
- ** \param[in]  iech0       Rank of the target sample
- ** \param[in]  iptr        Rank for storing the results
- ** \param[in]  ncode       Number of stored results
- ** \param[in]  codes       Array of codes for stored results
- ** \param[in]  qt_vars     Array with the number of output variables
- ** \param[in]  nclass      Total number of classes
- ** \param[in]  zestim      Estimated grade + St. dev.
- ** \param[in]  calest      Array of Results
- **
- *****************************************************************************/
-static void st_recovery_local(Db *db,
-                              int iech0,
-                              int iptr,
-                              int ncode,
-                              int *codes,
-                              int *qt_vars,
-                              int nclass,
-                              double zestim[2],
-                              double *calest)
-{
-  int jptr;
-  double tval, qval, tstd, qstd, bval, mval;
-
-  /* Initializations */
-
-  jptr = iptr;
-
-  /* Store the recovered grade */
-
-  if (codes[0] == 0)
-  {
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zestim[0]);
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0) db->setArray(iech0, jptr++, zestim[1]);
-  }
-
-  /* Loop on the recovery functions */
-
-  for (int icode = 0; icode < ncode; icode++)
-  {
-
-    /* Loop on the cutoff classes */
-
-    for (int iclass = 0; iclass < nclass; iclass++)
-    {
-      tval = CALEST(nclass, CAL_TEST, iclass);
-      qval = CALEST(nclass, CAL_QEST, iclass);
-      bval = CALEST(nclass, CAL_BEST, iclass);
-      mval = CALEST(nclass, CAL_MEST, iclass);
-      tstd = CALEST(nclass, CAL_TSTD, iclass);
-      qstd = CALEST(nclass, CAL_QSTD, iclass);
-
-      switch (codes[icode])
-      {
-        case 1: /* Tonnage */
-          if (QT_VARS(QT_EST,ANAM_QT_T) > 0) db->setArray(iech0, jptr++, tval);
-          if (QT_VARS(QT_STD,ANAM_QT_T) > 0) db->setArray(iech0, jptr++, tstd);
-          break;
-
-        case 2: /* Metal Quantity */
-          if (QT_VARS(QT_EST,ANAM_QT_Q) > 0) db->setArray(iech0, jptr++, qval);
-          if (QT_VARS(QT_STD,ANAM_QT_Q) > 0) db->setArray(iech0, jptr++, qstd);
-          break;
-
-        case 3: /* Conventional Benefit */
-          if (QT_VARS(QT_EST,ANAM_QT_B) > 0) db->setArray(iech0, jptr++, bval);
-          break;
-
-        case 4: /* Average recovered grade */
-          if (QT_VARS(QT_EST,ANAM_QT_M) > 0) db->setArray(iech0, jptr++, mval);
-          break;
-      }
-    }
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Calculate and print the Gini index
- **
- ** \param[in] nclass  Number of discretization classes for the QT curve
- ** \param[in] calest  Array of Global results
- **
- *****************************************************************************/
-static void st_evaluate_gini(int nclass, double *calest)
-{
-  double gini;
-
-  gini = 1.;
-  for (int iclass = 0; iclass < nclass - 1; iclass++)
-    gini -= ((CALEST(nclass, CAL_TEST, iclass)
-        - CALEST(nclass, CAL_TEST, iclass + 1))
-             * (CALEST(nclass,CAL_QEST,iclass) + CALEST(nclass, CAL_QEST,
-                                                        iclass + 1)));
-
-  message("Gini calculated on %d classes\n", nclass);
-  message("Value of the Gini index = %lf\n", gini);
-}
-
-/*****************************************************************************/
-/*!
- **  Correct the order relationship for Tonnage
- **
- ** \param[in]  nclass      Number of estimated classes
- ** \param[in]  tval        Array of estimated tonnages (Dimension: nclass)
- **
- *****************************************************************************/
-static void st_correct_tonnage_order(int nclass, double *tval)
-{
-  double *ta, *tb, auxval;
-  int iclass;
-
-  /* Core allocation */
-
-  ta = (double*) mem_alloc(sizeof(double) * nclass, 1);
-  tb = (double*) mem_alloc(sizeof(double) * nclass, 1);
-
-  for (iclass = nclass - 1; iclass >= 0; iclass--)
-  {
-    auxval = tval[iclass];
-    if (iclass < nclass - 1) auxval = MAX(ta[iclass + 1], auxval);
-    ta[iclass] = MIN(1., MAX(0., auxval));
-  }
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    auxval = tval[iclass];
-    if (iclass > 0) auxval = MIN(tb[iclass - 1], auxval);
-    tb[iclass] = MAX(0., MIN(1., auxval));
-  }
-
-  for (iclass = 0; iclass < nclass; iclass++)
-    tval[iclass] = 0.5 * (ta[iclass] + tb[iclass]);
-
-  /* Core deallocation */
-
-  ta = (double*) mem_free((char* ) ta);
-  tb = (double*) mem_free((char* ) tb);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Discrete Diffusion case)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbosity flag
- **
- ** \param[out] calest      Array of results
- **
- ** \remark Can only calculate the grade-tonnage curve for the discretization
- ** \remark cutoffs.
- **
- *****************************************************************************/
-static void st_anam_selectivity_discrete_DD(AAnam *anam,
-                                            int flag_correct,
-                                            int verbose,
-                                            VectorDouble &calest)
-{
-  double tval, qval, zval;
-  int ic, nclass, iclass, jclass;
-
-  /* Initializations */
-
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  nclass = anam_discrete_DD->getNClass();
-
-  /* Calculate the Grade-Tonnage curves */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    zval =
-        (iclass == nclass - 1) ? 0. :
-                                 anam_discrete_DD->getZCut(nclass - iclass - 2);
-    tval = qval = 0.;
-    for (jclass = 0; jclass <= iclass; jclass++)
-    {
-      ic = nclass - jclass - 1;
-      tval += anam_discrete_DD->getDDStatProp(ic);
-      qval += anam_discrete_DD->getDDStatProp(ic)
-          * anam_discrete_DD->getDDStatZmoy(ic);
-    }
-    CALEST(nclass,CAL_ZCUT,nclass-iclass-1) = zval;
-    CALEST(nclass,CAL_TEST,nclass-iclass-1) = tval;
-    CALEST(nclass,CAL_QEST,nclass-iclass-1) = qval;
-  }
-
-  /* Correct order relationship */
-
-  if (flag_correct)
-    st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(nclass, calest.data());
-  if (verbose) st_evaluate_gini(nclass, calest.data());
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbosity flag
- **
- ** \param[out] calest      Array of results
- **
- ** \remark Can only calculate the grade-tonnage curve for the discretization
- ** \remark cutoffs.
- **
- *****************************************************************************/
-static void st_anam_selectivity_discrete_IR(AAnam *anam,
-                                            int flag_correct,
-                                            int verbose,
-                                            VectorDouble &calest)
-{
-  int nclass, iclass;
-
-  /* Initializations */
-
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nclass = anam_discrete_IR->getNClass();
-
-  /* Calculate the Grade-Tonnage curves */
-
-  for (iclass = 0; iclass < nclass; iclass++)
-  {
-    CALEST(nclass,CAL_ZCUT,iclass) =
-        (iclass == 0) ? 0. :
-                        anam_discrete_IR->getZCut(iclass - 1);
-    CALEST(nclass,CAL_TEST,iclass) = anam_discrete_IR->getIRStatT(iclass);
-    CALEST(nclass,CAL_QEST,iclass) = anam_discrete_IR->getIRStatQ(iclass);
-  }
-
-  /* Correct order relationship */
-
-  if (flag_correct)
-    st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(nclass, calest.data());
-  if (verbose) st_evaluate_gini(nclass, calest.data());
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value (Gaussian case)
- **
- ** \param[in] anam    AAnam structure to be updated
- ** \param[in] verbose Verbosity flag
- ** \param[in] ntab    Number of cutoff values
- ** \param[in] tab     Array of cutoffs
- **
- ** \param[out] calest Array of results
- **
- *****************************************************************************/
-static void st_anam_selectivity_hermitian(AAnam *anam,
-                                          int verbose,
-                                          int ntab,
-                                          VectorDouble &tab,
-                                          VectorDouble &calest)
-{
-  double yval, gval, tval, qval, zval;
-  int iclass, ih, flag_bound, nbpoly;
-  VectorDouble hn;
-
-  /* Initializations */
-
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  nbpoly = anam_hermite->getNbPoly();
-  yval = gval = 0.;
-  flag_bound = 0;
-
-  /* Loop on the cutoff values */
-
-  for (iclass = 0; iclass < ntab; iclass++)
-  {
-    zval = tab[iclass];
-    anam_hermite->setFlagBound(flag_bound);
-    yval = anam_hermite->RawToGaussianValue(zval);
-    tval = 1. - law_cdf_gaussian(yval);
-    gval = law_df_gaussian(yval);
-    hn = hermitePolynomials(yval, 1., nbpoly);
-    qval = anam_hermite->getPsiHn(0) * (1. - law_cdf_gaussian(yval));
-    for (ih = 1; ih < nbpoly; ih++)
-      qval -= anam_hermite->getPsiHn(ih) * hn[ih - 1] * gval
-          / sqrt((double) ih);
-    CALEST(ntab,CAL_ZCUT,iclass) = zval;
-    CALEST(ntab,CAL_TEST,iclass) = tval;
-    CALEST(ntab,CAL_QEST,iclass) = qval;
-  }
-
-  /* Store the results */
-
-  st_calcul_benefit_and_mean(ntab, calest.data());
-  if (verbose) st_evaluate_gini(ntab, calest.data());
 }
 
 /****************************************************************************/
@@ -1134,20 +171,20 @@ static void st_anam_selectivity_hermitian(AAnam *anam,
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-VectorDouble anam_selectivity(AAnam *anam,
-                                              int nclass,
-                                              VectorDouble zcut,
-                                              int flag_correct,
-                                              int verbose)
+Selectivity anam_selectivity(AAnam *anam,
+                             int nclass,
+                             VectorDouble zcut,
+                             int flag_correct,
+                             int verbose)
 {
-  VectorDouble calest;
-  calest.resize(7 * nclass);
+  Selectivity calest(nclass);
 
   /* Dispatch according to the anamorphosis */
 
   if (anam->getType() == EAnam::HERMITIAN)
   {
-    st_anam_selectivity_hermitian(anam, verbose, nclass, zcut, calest);
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
+    calest = anam_hermite->calculateSelectivity(zcut);
   }
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
@@ -1159,7 +196,7 @@ VectorDouble anam_selectivity(AAnam *anam,
           nclass, anam_discrete_DD->getNClass());
       return calest;
     }
-    st_anam_selectivity_discrete_DD(anam, flag_correct, verbose, calest);
+    calest = anam_discrete_DD->calculateSelectivity(flag_correct);
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
@@ -1171,7 +208,8 @@ VectorDouble anam_selectivity(AAnam *anam,
           nclass, anam_discrete_IR->getNClass());
       return calest;
     }
-    st_anam_selectivity_discrete_IR(anam, flag_correct, verbose, calest);
+    calest = anam_discrete_IR->calculateSelectivity(flag_correct);
+
   }
   else
   {
@@ -1179,193 +217,8 @@ VectorDouble anam_selectivity(AAnam *anam,
     return calest;
   }
 
+  if (verbose) calest.dumpGini();
   return calest;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **  Case of Discrete Diffusion Anamorphosis
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        anamorphosis model
- ** \param[in]  db          Db structure
- ** \param[in]  iptr        Pointer for storing the factors
- ** \param[in]  nfact       Number of factors
- ** \param[in]  ifacs       Array of factor ranks (starting at 1)
- **
- *****************************************************************************/
-int anam_discrete_DD_z2factor(AAnam *anam,
-                                              Db *db,
-                                              int iptr,
-                                              int nfact,
-                                              VectorInt ifacs)
-{
-  VectorDouble chi, i2chi, chi2i;
-
-  /* Initializations */
-
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  int nclass = anam_discrete_DD->getNClass();
-
-  /* Core allocation */
-
-  i2chi.resize(nclass * nclass);
-
-  /* Calculate the diffusion process */
-
-  chi = anam_discrete_DD->factors_exp(0);
-  if (chi.empty()) return 1;
-
-  /* Invert the anamorphosis */
-
-  chi2i = anam_discrete_DD->chi2I(chi, 1);
-  matrix_invert_copy(chi2i.data(), nclass, i2chi.data());
-
-  /* Loop on the variables */
-
-  anam_discrete_DD->setI2Chi(i2chi);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    double zval = db->getVariable(iech, 0);
-    if (!FFFF(zval))
-    {
-      VectorDouble factors = anam_discrete_DD->z2f(nfact, ifacs, zval);
-      for (int ifac = 0; ifac < nfact; ifac++)
-        db->setArray(iech, iptr + ifac, factors[ifac]);
-    }
-  }
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **  Case of Discrete Indicator residuals Anamorphosis
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        anamorphosis model
- ** \param[in]  db          Db structure
- ** \param[in]  iptr        Pointer for storing the factors
- ** \param[in]  nfact       Number of factors
- ** \param[in]  ifacs       Array of factor ranks (starting at 1)
- **
- *****************************************************************************/
-int anam_discrete_IR_z2factor(AAnam *anam,
-                                              Db *db,
-                                              int iptr,
-                                              int nfact,
-                                              VectorInt ifacs)
-{
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    double zval = db->getVariable(iech, 0);
-    if (FFFF(zval)) continue;
-    VectorDouble factors = anam_discrete_IR->z2f(nfact, ifacs, zval);
-
-    for (int ifac = 0; ifac < nfact; ifac++)
-      db->setArray(iech, iptr + ifac, factors[ifac]);
-  }
-
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        anamorphosis model
- ** \param[in]  db          Db structure
- ** \param[in]  nfact       Number of factors
- ** \param[in]  ifacs       Array of factor ranks (starting at 1)
- **
- *****************************************************************************/
-int anam_discrete_z2factor(AAnam *anam,
-                                           Db *db,
-                                           int nfact,
-                                           const VectorInt &ifacs)
-{
-  int error, iptr, ifac, nmax, nvar;
-
-  /* Preliminary checks */
-
-  error = 1;
-  if (anam == nullptr) return (1);
-  if (db == nullptr) return (1);
-  if (nfact <= 0) return (1);
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-
-  nvar = db->getVariableNumber();
-  if (nvar != 1)
-  {
-    messerr("This function is only coded for the monovariate Db");
-    return (1);
-  }
-
-  /* Get the maximum rank for the factor */
-
-  switch (anam->getType().toEnum())
-  {
-    case EAnam::E_DISCRETE_DD:
-      nmax = anam_discrete_DD->getNCut();
-      break;
-
-    case EAnam::E_DISCRETE_IR:
-      nmax = anam_discrete_IR->getNCut();
-      break;
-
-    default:
-      messerr("This function is only coded for the Discrete Anamorphosis");
-      goto label_end;
-  }
-
-  /* Check the validity of the factor ranks */
-
-  for (ifac = 0; ifac < nfact; ifac++)
-    if (ifacs[ifac] < 1 || ifacs[ifac] > nmax)
-    {
-      messerr("Error in the rank of the factor(%d): it should lie in [1,%d]",
-              ifacs[ifac], nmax);
-      goto label_end;
-    }
-
-  /* Create the factors */
-
-  iptr = db->addColumnsByConstant(nfact, TEST);
-  if (iptr <= 0) goto label_end;
-
-  /* Dispatch */
-
-  switch (anam->getType().toEnum())
-  {
-    case EAnam::E_DISCRETE_DD:
-      if (anam_discrete_DD_z2factor(anam, db, iptr, nfact, ifacs))
-        goto label_end;
-      break;
-
-    case EAnam::E_DISCRETE_IR:
-      if (anam_discrete_IR_z2factor(anam, db, iptr, nfact, ifacs))
-        goto label_end;
-      break;
-
-    default:
-      messerr("This function is only coded for the Discrete Anamorphosis");
-      goto label_end;
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
 }
 
 /*****************************************************************************/
@@ -1385,17 +238,13 @@ int anam_discrete_z2factor(AAnam *anam,
  **
  *****************************************************************************/
 int anam_point_to_block(AAnam *anam,
-                                        int verbose,
-                                        double cvv,
-                                        double coeff,
-                                        double mu)
+                        int verbose,
+                        double cvv,
+                        double coeff,
+                        double mu)
 {
-  int error;
-
-  /* Initializations */
-
-  error = 1;
   if (anam == nullptr) return (1);
+  double r_coef = 0.;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -1406,7 +255,7 @@ int anam_point_to_block(AAnam *anam,
   {
     messerr("Change of support coefficient (%lf) must lie between 0 and 1.",
             coeff);
-    goto label_end;
+    return 1;
   }
 
   /* Dispatch according to the anamorphosis type */
@@ -1417,8 +266,7 @@ int anam_point_to_block(AAnam *anam,
 
       if (FFFF(coeff))
       {
-        anam_hermite->setRCoef(
-            st_anam_get_r(anam, cvv, 2., st_anam_hermitian_block_variance));
+        r_coef = anam->calculateR(cvv, 2.);
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -1428,15 +276,14 @@ int anam_point_to_block(AAnam *anam,
         }
       }
       else
-        anam_hermite->setRCoef(coeff);
+        r_coef = coeff;
       break;
 
     case EAnam::E_DISCRETE_DD:
       anam_discrete_DD->setMu(mu);
       if (FFFF(coeff))
       {
-        anam_discrete_DD->setSCoef(
-            st_anam_get_r(anam, cvv, 2., st_anam_discrete_DD_block_variance));
+        r_coef = anam->calculateR(cvv, 2.);
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -1450,14 +297,13 @@ int anam_point_to_block(AAnam *anam,
         }
       }
       else
-        anam_discrete_DD->setSCoef(coeff);
+        r_coef = coeff;
       break;
 
     case EAnam::E_DISCRETE_IR:
       if (FFFF(coeff))
       {
-        anam_discrete_IR->setRCoef(
-            st_anam_get_r(anam, cvv, 2., st_anam_discrete_IR_block_variance));
+        r_coef = anam->calculateR(cvv, 2.);
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -1467,146 +313,19 @@ int anam_point_to_block(AAnam *anam,
         }
       }
       else
-        anam_discrete_IR->setRCoef(coeff);
+        r_coef = coeff;
       break;
 
     default:
       messerr("The change of support is not defined for this Anamorphosis");
-      goto label_end;
+      return 1;
   }
 
   /* Update the Point Anamorphosis into Block Anamorphosis */
 
-  switch (anam->getType().toEnum())
-  {
-    case EAnam::E_HERMITIAN:
-      st_anam_point_to_block_hermitian(anam);
-      break;
+  anam->updatePointToBlock(r_coef);
 
-    case EAnam::E_DISCRETE_DD:
-      if (st_anam_point_to_block_discrete_DD(anam)) goto label_end;
-      break;
-
-    case EAnam::E_DISCRETE_IR:
-      st_anam_point_to_block_discrete_IR(anam);
-      break;
-
-    default:
-      messerr("Point to Block Anamorphosis transform is not programmed yet");
-      goto label_end;
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Return the change of support coefficient
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        Point anamorphosis
- ** \param[in]  cvv         Block variance
- ** \param[in]  mu          Additional coefficient
- **
- ** \param[out] r_coef      Change of support coefficient
- **
- *****************************************************************************/
-int anam_get_r(AAnam *anam,
-                               double cvv,
-                               double mu,
-                               double *r_coef)
-{
-
-  /* Initializations */
-
-  if (anam == nullptr) return (1);
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-
-  /* Dispatch according to the anamorphosis type */
-
-  switch (anam->getType().toEnum())
-  {
-    case EAnam::E_HERMITIAN:
-      if (anam_hermite->getRCoef() != 1.)
-      {
-        messerr("This function requires a Punctual Anamorphosis");
-        return (1);
-      }
-      *r_coef = st_anam_get_r(anam, cvv, 2., st_anam_hermitian_block_variance);
-      return (0);
-
-    case EAnam::E_DISCRETE_DD:
-      if (anam_discrete_DD->getSCoef() != 1.)
-      {
-        messerr("This function requires a Punctual Anamorphosis");
-        return (1);
-      }
-      anam_discrete_DD->setMu(mu);
-      *r_coef = st_anam_get_r(anam, cvv, 2.,
-                              st_anam_discrete_DD_block_variance);
-      return (0);
-
-    case EAnam::E_DISCRETE_IR:
-      if (anam_discrete_IR->getRCoef() != 1.)
-      {
-        messerr("This function requires a Punctual Anamorphosis");
-        return (1);
-      }
-      *r_coef = st_anam_get_r(anam, cvv, 2.,
-                              st_anam_discrete_IR_block_variance);
-      return (0);
-
-    default:
-      messerr(
-          "The change of support cannot be calculated for this Anamorphosis");
-  }
-  return (1);
-}
-
-/*****************************************************************************/
-/*!
- **  Check if a sample must be considered or not
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  iech         Rank of the target sample
- ** \param[in]  nb_est       Number of columns for factor estimation
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  nb_std       Number of columns for factor st. dev.
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- **
- *****************************************************************************/
-static int st_is_sample_skipped(Db *db,
-                                int iech,
-                                int nb_est,
-                                int *cols_est,
-                                int nb_std,
-                                int *cols_std)
-{
-  double value;
-
-  if (!db->isActive(iech)) return (1);
-
-  if (cols_est != nullptr) for (int ivar = 0; ivar < nb_est; ivar++)
-  {
-    value = db->getArray(iech, cols_est[ivar]);
-    if (FFFF(value)) return (1);
-  }
-
-  if (cols_std != nullptr) for (int ivar = 0; ivar < nb_std; ivar++)
-  {
-    value = db->getArray(iech, cols_std[ivar]);
-    if (FFFF(value)) return (1);
-  }
-  return (0);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -1674,7 +393,6 @@ static int st_check_proba(double proba)
  ** \returns The number of different variables to be calculated
  **
  ** \param[in]  verbose      Verbose flag
- ** \param[in]  ncode        Number of operators
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  nb_est       Number of columns for factor estimation
  ** \param[in]  nb_std       Number of columns for factor st. dev.
@@ -1693,24 +411,24 @@ static int st_check_proba(double proba)
  **
  *****************************************************************************/
 static int st_code_analyze(int verbose,
-                           int ncode,
-                           int *codes,
+                           const VectorInt& codes,
                            int nb_est,
                            int nb_std,
                            int ncut,
                            double proba,
                            int flag_inter,
-                           int *qt_vars)
+                           VectorInt& qt_vars)
 {
   int ntotal, flag_est, flag_std;
 
   /* Initializations */
 
+  int ncode = (int) codes.size();
   flag_est = nb_est > 0;
   flag_std = nb_std > 0 && !flag_inter;
   for (int i = 0; i < 2 * ANAM_N_QT; i++)
     qt_vars[i] = 0;
-  ut_sort_int(0, ncode, NULL, codes);
+//  ut_sort_int(0, ncode, NULL, codes.data()); // TODO: it this needed
 
   // Optional printout (title)
 
@@ -1819,556 +537,17 @@ static int st_code_analyze(int verbose,
 
 /*****************************************************************************/
 /*!
- **  Calculate Experimental Grade-Tonnage curves from factors
- **  Case of Hermitian Anamorphos
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  nb_est       Number of columns for factor estimation
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  nb_std       Number of columns for factor st. dev.
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  ncode        Number of stored results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
- **
- ** \param[out] calest       Array of results
- **
- *****************************************************************************/
-static int st_anam_factor2qt_hermitian(Db *db,
-                                       AAnam *anam,
-                                       int ncutmine,
-                                       double *cutmine,
-                                       int nb_est,
-                                       int *cols_est,
-                                       int nb_std,
-                                       int *cols_std,
-                                       int iptr,
-                                       int ncode,
-                                       int *codes,
-                                       int *qt_vars,
-                                       double *calest)
-{
-  int need_T, need_Q, nbpoly;
-  double coeff, value, fn, yc, total, zestim[2];
-  VectorDouble s_cc;
-
-  /* Initializations */
-
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  anam_hermite->setFlagBound(1);
-  nbpoly = anam_hermite->getNbPoly();
-  need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
-  QT_FLAG(ANAM_QT_PROBA);
-  need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (st_is_sample_skipped(db, iech, nb_est, cols_est, nb_std, cols_std))
-      continue;
-
-    /* Z: Estimation */
-
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
-    {
-      total = anam_hermite->getPsiHn(0);
-      for (int ivar = 0; ivar < nb_est; ivar++)
-      {
-        value = db->getArray(iech, cols_est[ivar]);
-        coeff = anam_hermite->getPsiHn(ivar + 1);
-        total += coeff * value;
-      }
-      zestim[0] = total;
-    }
-
-    /* Z: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
-    {
-      total = 0.;
-      for (int ivar = 0; ivar < nb_std; ivar++)
-      {
-        value = db->getArray(iech, cols_std[ivar]);
-        coeff = anam_hermite->getPsiHn(ivar + 1);
-        total += coeff * coeff * value;
-      }
-      zestim[1] = sqrt(total);
-    }
-
-    /* Loop on the cutoffs */
-
-    for (int icut = 0; icut < ncutmine; icut++)
-    {
-      yc = anam_hermite->RawToGaussianValue(cutmine[icut]);
-
-      if (need_T)
-      {
-        s_cc = hermiteCoefIndicator(yc, nbpoly);
-
-        /* Tonnage estimation */
-
-        if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
-        {
-          CALEST(ncutmine,CAL_TEST,icut) = s_cc[0];
-          for (int ivar = 0; ivar < nb_est; ivar++)
-          {
-            value = db->getArray(iech, cols_est[ivar]);
-            CALEST(ncutmine,CAL_TEST,icut) += s_cc[ivar + 1] * value;
-          }
-        }
-
-        /* Tonnage: Standard Deviation */
-
-        if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
-        {
-          total = 0.;
-          for (int ivar = 0; ivar < nb_std; ivar++)
-          {
-            value = db->getArray(iech, cols_std[ivar]);
-            total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
-          }
-          CALEST(ncutmine,CAL_TSTD,icut) = sqrt(total);
-        }
-      }
-
-      if (need_Q)
-      {
-        MatrixSquareGeneral TAU = hermiteIncompleteIntegral(yc, nbpoly);
-
-        /* Metal Quantity: Estimation */
-
-        if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
-        {
-          CALEST(ncutmine,CAL_QEST,icut) = 0.;
-          for (int ivar = 0; ivar < nb_est; ivar++)
-          {
-            value = db->getArray(iech, cols_est[ivar]);
-            fn = 0.;
-            for (int jvar = 0; jvar < nbpoly; jvar++)
-            {
-              coeff = anam_hermite->getPsiHn(jvar);
-              fn += coeff * TAU.getValue(ivar, jvar);
-            }
-            CALEST(ncutmine,CAL_QEST,icut) += fn * value;
-          }
-        }
-
-        /* Metal Quantity: Standard Deviation */
-
-        if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
-        {
-          total = 0.;
-          for (int ivar = 0; ivar < nb_std; ivar++)
-          {
-            value = db->getArray(iech, cols_std[ivar]);
-            fn = 0.;
-            for (int jvar = 0; jvar < nbpoly; jvar++)
-            {
-              coeff = anam_hermite->getPsiHn(jvar);
-              fn += coeff * TAU.getValue(ivar, jvar);
-            }
-            total += fn * fn * value;
-          }
-          CALEST(ncutmine,CAL_QSTD,icut) = sqrt(total);
-        }
-      }
-    }
-
-    /* Storage */
-
-    st_calcul_benefit_and_mean(ncutmine, calest);
-    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
-                      calest);
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate Experimental Grade-Tonnage curves from factors
- **  Case of Discrete Diffusion
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in]  nb_est       Number of columns for factor estimation
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  nb_std       Number of columns for factor st. dev.
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  ncode        Number of stored results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
- **
- ** \param[out] calest       Array of results
- ** \param[out] calcut       Array of translated results
- **
- *****************************************************************************/
-static int st_anam_factor2qt_discrete_DD(Db *db,
-                                         AAnam *anam,
-                                         int ncutmine,
-                                         double *cutmine,
-                                         double z_max,
-                                         int flag_correct,
-                                         int nb_est,
-                                         int *cols_est,
-                                         int nb_std,
-                                         int *cols_std,
-                                         int iptr,
-                                         int ncode,
-                                         int *codes,
-                                         int *qt_vars,
-                                         double *calest,
-                                         double *calcut)
-{
-  int error, nech, nclass;
-  double value, zestim[2], prod, total;
-  VectorDouble chi, ct, cq, cb;
-
-  /* Initializations */
-
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  error = 1;
-  nclass = anam_discrete_DD->getNClass();
-  nech = db->getSampleNumber();
-
-  /* Modeling the diffusion process */
-
-  chi = anam_discrete_DD->factors_mod();
-  if (chi.empty()) goto label_end;
-  ct = anam_discrete_DD->chi2I(chi, 1);
-  cq = anam_discrete_DD->chi2I(chi, 2);
-  cb = anam_discrete_DD->chi2I(chi, 3);
-  for (int iclass = 0; iclass < nclass; iclass++)
-    CALEST(nclass,CAL_ZCUT,iclass) = anam_discrete_DD->getDDStatZmoy(iclass);
-
-  /* Calculate the Recovery Functions from the factors */
-
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (st_is_sample_skipped(db, iech, nb_est, cols_est, nb_std, cols_std))
-      continue;
-
-    /* Tonnage: Estimation */
-
-    for (int iclass = 0; iclass < nclass; iclass++)
-    {
-      CALEST(nclass,CAL_TEST,iclass) = CT(iclass, 0);
-      for (int ivar = 0; ivar < nb_est; ivar++)
-      {
-        value = db->getArray(iech, cols_est[ivar]);
-        CALEST(nclass,CAL_TEST,iclass) += value * CT(iclass, ivar + 1);
-      }
-    }
-
-    /* Correct Order relationship for Tonnages */
-
-    if (flag_correct)
-      st_correct_tonnage_order(nclass, &CALEST(nclass, CAL_TEST, 0));
-
-    /* Tonnage: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
-    {
-      for (int iclass = 0; iclass < nclass; iclass++)
-      {
-        total = 0.;
-        for (int ivar = 0; ivar < nclass - 1; ivar++)
-        {
-          value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                    1.;
-          prod = value * CT(iclass, ivar + 1);
-          total += prod * prod;
-        }
-        CALEST(nclass,CAL_TSTD,iclass) = sqrt(total);
-      }
-    }
-
-    /* Metal Quantity: Estimation */
-
-    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
-    {
-      CALEST(nclass,CAL_QEST,nclass-1) = (anam_discrete_DD->getDDStatZmoy(
-          nclass - 1)
-                                          * CALEST(nclass, CAL_TEST, nclass - 1));
-      for (int iclass = nclass - 2; iclass >= 0; iclass--)
-        CALEST(nclass,CAL_QEST,iclass) = CALEST(nclass, CAL_QEST, iclass + 1)
-            + anam_discrete_DD->getDDStatZmoy(iclass) * (CALEST(nclass,
-                                                                CAL_TEST,
-                                                                iclass)
-                - CALEST(nclass, CAL_TEST, iclass + 1));
-    }
-
-    /* Metal Quantity: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
-    {
-      for (int iclass = 0; iclass < nclass; iclass++)
-      {
-        total = 0.;
-        for (int ivar = 0; ivar < nclass - 1; ivar++)
-        {
-          value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                    1.;
-          prod = value * CQ(iclass, ivar + 1);
-          total += prod * prod;
-        }
-        CALEST(nclass,CAL_QSTD,iclass) = sqrt(total);
-      }
-    }
-
-    /* Z: Estimation */
-
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
-    {
-      zestim[0] = anam_discrete_DD->getDDStatZmoy(
-          nclass - 1) * CALEST(nclass,CAL_TEST,nclass-1);
-      for (int iclass = 0; iclass < nclass - 1; iclass++)
-        zestim[0] += anam_discrete_DD->getDDStatZmoy(iclass)
-            * (CALEST(nclass,CAL_TEST,iclass) - CALEST(nclass, CAL_TEST,
-                                                       iclass + 1));
-    }
-
-    /* Z: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
-    {
-      total = 0;
-      for (int ivar = 0; ivar < nclass - 1; ivar++)
-      {
-        value = (ivar < nb_std) ? db->getArray(iech, cols_std[ivar]) :
-                                  1.;
-        prod = value * anam_discrete_DD->getDDStatCnorm(ivar);
-        total += prod * prod;
-      }
-      zestim[1] = sqrt(total);
-    }
-
-    /* Store the results */
-
-    if (ncutmine > 0)
-    {
-      st_interpolate_qt_local(z_max, cutmine, nclass, calest, ncutmine, calcut);
-      st_calcul_benefit_and_mean(ncutmine, calcut);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
-                        calcut);
-    }
-    else
-    {
-      st_calcul_benefit_and_mean(nclass, calest);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, nclass, zestim,
-                        calest);
-    }
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate Experimental Grade-Tonnage curves from factors
- **  Case of Discrete Indicator Residuals
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in]  nb_est       Number of columns for factor estimation
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  nb_std       Number of columns for factor st. dev.
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  ncode        Number of stored results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
- **
- ** \param[out] calest       Array of results
- ** \param[out] calcut       Array of translated results
- **
- *****************************************************************************/
-static int st_anam_factor2qt_discrete_IR(Db *db,
-                                         AAnam *anam,
-                                         int ncutmine,
-                                         double *cutmine,
-                                         double z_max,
-                                         int flag_correct,
-                                         int nb_est,
-                                         int *cols_est,
-                                         int nb_std,
-                                         int *cols_std,
-                                         int iptr,
-                                         int ncode,
-                                         int *codes,
-                                         int *qt_vars,
-                                         double *calest,
-                                         double *calcut)
-{
-  int nech, nclass, ncleff;
-  double total, zestim[2], value, prod;
-
-  /* Initializations */
-
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  nech = db->getSampleNumber();
-  nclass = anam_discrete_IR->getNCut();
-  ncleff = MAX(nb_est, nb_std);
-
-  /* Calculate the Recovery Functions from the factors */
-
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (st_is_sample_skipped(db, iech, nb_est, cols_est, nb_std, cols_std))
-      continue;
-
-    /* Calculate the tonnage and the recovered grade */
-
-    total = 0.;
-    for (int ivar = 0; ivar < ncleff; ivar++)
-    {
-      value = db->getArray(iech, cols_est[ivar]);
-      total += value;
-      CALEST(nclass,CAL_TEST,ivar) = total
-          * anam_discrete_IR->getIRStatT(ivar + 1);
-    }
-
-    /* Correct order relationship */
-
-    if (flag_correct)
-      st_correct_tonnage_order(ncleff, &CALEST(nclass, CAL_TEST, 0));
-
-    /* Tonnage: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
-    {
-      total = 0.;
-      for (int ivar = 0; ivar < ncleff; ivar++)
-      {
-        value = db->getArray(iech, cols_std[ivar]);
-        total += value * value;
-        CALEST(nclass,CAL_TSTD,ivar) = sqrt(total)
-            * anam_discrete_IR->getIRStatT(ivar + 1);
-      }
-    }
-
-    /* Metal Quantity: Estimation */
-
-    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
-    {
-      CALEST(nclass,CAL_QEST,ncleff-1) = anam_discrete_IR->getIRStatZ(
-          ncleff) * CALEST(nclass,CAL_TEST,ncleff-1);
-      for (int ivar = ncleff - 2; ivar >= 0; ivar--)
-        CALEST(nclass,CAL_QEST,ivar) =
-        CALEST(nclass,CAL_QEST,ivar+1) + anam_discrete_IR->getIRStatZ(ivar + 1)
-            * (CALEST(nclass,CAL_TEST,ivar) - CALEST(nclass, CAL_TEST, ivar + 1));
-    }
-
-    /* Metal Quantity: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
-    {
-      for (int ivar = 0; ivar < ncleff; ivar++)
-      {
-        total = 0.;
-        for (int jvar = 0; jvar < ivar; jvar++)
-        {
-          value = db->getArray(iech, cols_std[jvar]);
-          total += value * value;
-        }
-        prod = anam_discrete_IR->getIRStatB(ivar + 1)
-            + anam_discrete_IR->getIRStatZ(ivar + 1) * anam_discrete_IR->getIRStatT(
-                ivar + 1);
-        total *= prod * prod;
-        for (int jvar = ivar + 1; jvar < ncleff; jvar++)
-        {
-          value = db->getArray(iech, cols_std[jvar])
-              * anam_discrete_IR->getIRStatB(ivar + 1);
-          total += prod * prod;
-        }
-        CALEST(nclass,CAL_QSTD,ivar) = sqrt(total);
-      }
-    }
-
-    /* Z: Estimation */
-
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
-    {
-      zestim[0] = anam_discrete_IR->getIRStatZ(
-          ncleff) * CALEST(nclass,CAL_TEST,ncleff-1);
-      for (int ivar = 0; ivar < ncleff - 1; ivar++)
-        zestim[0] += anam_discrete_IR->getIRStatZ(ivar + 1)
-            * (CALEST(nclass,CAL_TEST,ivar) - CALEST(nclass, CAL_TEST, ivar + 1));
-    }
-
-    /* Z: Standard Deviation */
-
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
-    {
-      total = 0.;
-      for (int ivar = 0; ivar < ncleff; ivar++)
-      {
-        prod = db->getArray(iech, cols_std[ivar])
-            * anam_discrete_IR->getIRStatB(ivar + 1);
-        total += prod * prod;
-      }
-      zestim[1] = sqrt(total);
-    }
-
-    /* Store the results */
-
-    if (ncutmine > 0)
-    {
-      st_interpolate_qt_local(z_max, cutmine, nclass, calest, ncutmine, calcut);
-      st_calcul_benefit_and_mean(ncutmine, calcut);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine, zestim,
-                        calcut);
-    }
-    else
-    {
-      st_calcul_benefit_and_mean(nclass, calest);
-      st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, nclass, zestim,
-                        calest);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
  **  Calculate the recoveries (z,T,Q,m,B) starting from the factors
  **
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
- ** \param[in]  ncutmine     Number of required cutoffs
  ** \param[in]  cutmine      Array of the requested cutoffs
  ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
  ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in]  ncode        Number of operators
  ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  nb_est       Number of columns for factor estimation
  ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  nb_std       Number of columns for factor st. dev.
  ** \param[in]  cols_std     Array of columns for factor st. dev.
  **
  ** \param[out] ncut         Actual number of cutoffs
@@ -2379,31 +558,26 @@ static int st_anam_factor2qt_discrete_IR(Db *db,
  ** \remark for the estimated cutoffs in the discrete case
  **
  *****************************************************************************/
-int anam_factor2qt(Db *db,
-                                   AAnam *anam,
-                                   int ncutmine,
-                                   double *cutmine,
-                                   double z_max,
-                                   int flag_correct,
-                                   int ncode,
-                                   int *codes,
-                                   int nb_est,
-                                   int *cols_est,
-                                   int nb_std,
-                                   int *cols_std,
-                                   int *ncut,
-                                   int *qt_vars)
+int anamFactor2QT(Db *db,
+                  AAnam *anam,
+                  const VectorDouble& cutmine,
+                  double z_max,
+                  int flag_correct,
+                  const VectorInt& codes,
+                  const VectorInt& cols_est,
+                  const VectorInt& cols_std,
+                  int *ncut,
+                  VectorInt& qt_vars)
 {
-  int error, iptr, i, nvarout, nvar, nmax, flag_inter;
-  double *calest, *calcut;
-  static int verbose = 0;
+  int iptr = -1;
+  int flag_inter = 0;
+  int verbose = 0;
+  Selectivity calest;
+  Selectivity calcut;
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
+  int ncutmine = (int) cutmine.size();
 
-  /* Initializations */
-
-  error = 1;
-  iptr = -1;
-  calest = calcut = nullptr;
-  flag_inter = 0;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
@@ -2411,17 +585,18 @@ int anam_factor2qt(Db *db,
   /* Preliminary checks */
 
   (*ncut) = 0;
-  if (db == nullptr) goto label_end;
-  if (anam == nullptr) goto label_end;
+  if (db == nullptr) return 1;
+  if (anam == nullptr) return 1;
   if (nb_est <= 0 && nb_std <= 0)
   {
     messerr("The number of factors is zero");
-    goto label_end;
+    return 1;
   }
-  nvar = MAX(nb_est, nb_std);
+  int nvar = MAX(nb_est, nb_std);
 
   /* Get the number of initial cutoffs */
 
+  int nmax = 0;
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
@@ -2431,7 +606,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller than Number of classes (%d)",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       break;
 
@@ -2442,7 +617,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller than Number of classes (%d)",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       if (ncutmine <= 0)
         ncutmine = nmax;
@@ -2457,7 +632,7 @@ int anam_factor2qt(Db *db,
         messerr(
             "Number of factors (%d) must be smaller or equal to Number of cutoffs",
             nvar, nmax);
-        goto label_end;
+        return 1;
       }
       if (ncutmine <= 0)
         ncutmine = nmax;
@@ -2467,69 +642,55 @@ int anam_factor2qt(Db *db,
 
     default:
       messerr("This Anamorphosis cannot be used in this method");
-      goto label_end;
+      return 1;
   }
 
   /* Analyzing the code requirements */
 
-  nvarout = st_code_analyze(verbose, ncode, codes, nb_est, nb_std, ncutmine,
-                            TEST, flag_inter, qt_vars);
-  if (nvarout <= 0) goto label_end;
+  int nvarout = st_code_analyze(verbose, codes,
+                                nb_est, nb_std, ncutmine,
+                                TEST, flag_inter, qt_vars);
+  if (nvarout <= 0) return 1;
 
   /* Variable allocation */
 
   (*ncut) = ncutmine;
   iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) goto label_end;
+  if (iptr < 0) return 1;
 
   /* Core allocation */
 
-  calest = (double*) mem_alloc(sizeof(double) * N_CAL * nmax, 1);
-  for (i = 0; i < N_CAL * nmax; i++)
-    calest[i] = TEST;
+  calest = Selectivity(nmax);
   if (ncutmine > 0)
-  {
-    calcut = (double*) mem_alloc(sizeof(double) * N_CAL * ncutmine, 1);
-    for (i = 0; i < N_CAL * ncutmine; i++)
-      calcut[i] = TEST;
-  }
+    calcut = Selectivity(ncutmine);
 
   /* Dispatch according to the type of Anamorphosis */
 
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
-      if (st_anam_factor2qt_hermitian(db, anam, ncutmine, cutmine, nb_est,
-                                      cols_est, nb_std, cols_std, iptr, ncode,
-                                      codes, qt_vars, calest)) goto label_end;
+      anam_hermite->factor2QT(db, cutmine, cols_est, cols_std, iptr, codes,
+                              qt_vars, calest);
       break;
 
     case EAnam::E_DISCRETE_DD:
-      if (st_anam_factor2qt_discrete_DD(db, anam, ncutmine, cutmine, z_max,
-                                        flag_correct, nb_est, cols_est, nb_std,
-                                        cols_std, iptr, ncode, codes, qt_vars,
-                                        calest, calcut)) goto label_end;
+      anam_discrete_DD->factor2QT(db, cutmine, z_max, flag_correct, cols_est,
+                                  cols_std, iptr, codes, qt_vars, calest,
+                                  calcut);
       break;
 
     case EAnam::E_DISCRETE_IR:
-      if (st_anam_factor2qt_discrete_IR(db, anam, ncutmine, cutmine, z_max,
-                                        flag_correct, nb_est, cols_est, nb_std,
-                                        cols_std, iptr, ncode, codes, qt_vars,
-                                        calest, calcut)) goto label_end;
+      anam_discrete_IR->factor2QT(db, cutmine, z_max, flag_correct, cols_est,
+                                  cols_std, iptr, codes, qt_vars, calest,
+                                  calcut);
       break;
 
     default:
       messerr("This method is not programmed yet for this anamorphosis");
-      goto label_end;
+      return 1;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: calest = (double*) mem_free((char* ) calest);
-  calcut = (double*) mem_free((char* ) calcut);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -2538,75 +699,19 @@ int anam_factor2qt(Db *db,
  **
  ** \param[in] verbose  Verbose flag
  ** \param[in] zcutmine Array of cutoffs
- ** \param[in] nclass   Number of classes
- ** \param[in] calest   Input array
- ** \param[in] ncutmine Number of cutoff values
+ ** \param[in] calest   Selectivity
  **
- ** \param[out] calcut  Output array
+ ** \param[out] calcut  Selectivity
  **
  *****************************************************************************/
 void selectivity_interpolate(int verbose,
-                                             double *zcutmine,
-                                             int nclass,
-                                             double *calest,
-                                             int ncutmine,
-                                             double *calcut)
+                             double *zcutmine,
+                             Selectivity& calest,
+                             Selectivity& calcut)
 {
-  st_interpolate_qt_global(zcutmine, nclass, calest, ncutmine, calcut);
-  st_calcul_benefit_and_mean(ncutmine, calcut);
-  if (verbose) st_evaluate_gini(ncutmine, calcut);
-}
-
-/*****************************************************************************/
-/*!
- **  Transform the experimental variogram from raw to gaussian space
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        Point anamorphosis
- ** \param[in]  cvv         Block variance
- ** \param[in]  vario       Experimental variogram of Z -> Y [out]
- **
- *****************************************************************************/
-int anam_vario_z2y(AAnam *anam, double cvv, Vario *vario)
-{
-  int error, idir, i;
-
-  /* Preliminary checks */
-
-  error = 1;
-  if (anam == nullptr) goto label_end;
-  if (anam->getType() != EAnam::HERMITIAN)
-  {
-    messerr("This function is restricted to Gaussian Anamorphosis");
-    goto label_end;
-  }
-  if (vario == nullptr) goto label_end;
-  if (vario->getVariableNumber() != 1)
-  {
-    messerr("This function is restricted to Monovariate Variogram");
-    goto label_end;
-  }
-
-  /* Loop on the directions of the variogram */
-
-  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
-  {
-    /* Loop on the lags */
-
-    for (i = 0; i < vario->getLagNumber(idir); i++)
-      vario->setGgByIndex(
-          idir,
-          i,
-          1. - st_anam_get_r(anam, cvv - vario->getGgByIndex(idir, i), 1.,
-                             st_anam_hermitian_block_variance));
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
+  st_interpolate_qt_global(zcutmine, calest, calcut);
+  calcut.calculateBenefitGrade();
+  if (verbose) calcut.dumpGini();
 }
 
 /*****************************************************************************/
@@ -2619,43 +724,38 @@ int anam_vario_z2y(AAnam *anam, double cvv, Vario *vario)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_var      Rank of the Variance of Kriging estimate
- ** \param[in]  ncutmine     Number of required cutoffs
  ** \param[in]  cutmine      Array of the requested cutoffs
  ** \param[in]  proba        Probability
  ** \param[in]  var_bloc     Change of support coefficient
- ** \param[in]  ncode        Number of operators
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  verbose      Verbose option
  **
  ** \param[out]  qt_vars     Array of results
  **
  *****************************************************************************/
-int uc_f(Db *db,
-                         AAnam *anam,
-                         int att_est,
-                         int att_var,
-                         int ncutmine,
-                         double *cutmine,
-                         double proba,
-                         double var_bloc,
-                         int ncode,
-                         int *codes,
-                         int verbose,
-                         int *qt_vars)
+int uc(Db *db,
+       AAnam *anam,
+       int att_est,
+       int att_var,
+       VectorDouble& cutmine,
+       double proba,
+       double var_bloc,
+       const VectorInt& codes,
+       int verbose,
+       VectorInt& qt_vars)
 {
-  int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout;
-  double *calest, yc, sv, yv, ore, metal, mean, variance, varb, r_coef;
-  double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max, varv,
-      zvstar;
+  int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout, ncutmine;
+  double yc, sv, yv, ore, metal, mean, variance, varb, r_coef, zvstar, varv;
+  double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
   VectorDouble psi_hn, hn;
   VectorVectorDouble phi_b_zc;
+  Selectivity calest;
 
   /* Initializations */
 
   error = 1;
   iptr = iptr_sV = iptr_yV = -1;
-  calest = nullptr;
-  vv_min = zv_min = sv_min = yv_min = 1.e30;
+  vv_min = zv_min = sv_min = yv_min =  1.e30;
   vv_max = zv_max = sv_max = yv_max = -1.e30;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
@@ -2677,7 +777,7 @@ int uc_f(Db *db,
             anam_hermite->getVariance());
     goto label_end;
   }
-  if (ncutmine <= 0)
+  if (cutmine.empty())
   {
     messerr("You must define some cutoff values");
     goto label_end;
@@ -2685,6 +785,7 @@ int uc_f(Db *db,
   nbpoly = anam_hermite->getNbPoly();
   mean = anam_hermite->getMean();
   variance = anam_hermite->getVariance();
+  ncutmine = (int) cutmine.size();
 
   /* Core allocation */
 
@@ -2705,7 +806,7 @@ int uc_f(Db *db,
 
   /* Analyzing the codes */
 
-  nvarout = st_code_analyze(verbose, ncode, codes, 1, 1, ncutmine, proba, 0,
+  nvarout = st_code_analyze(verbose, codes, 1, 1, ncutmine, proba, 0,
                             qt_vars);
   if (nvarout <= 0) goto label_end;
   if (QT_FLAG(ANAM_QT_Z))
@@ -2718,7 +819,7 @@ int uc_f(Db *db,
 
   /* Core allocation */
 
-  calest = (double*) mem_alloc(sizeof(double) * N_CAL * ncutmine, 1);
+  calest = Selectivity(ncutmine);
 
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
@@ -2729,7 +830,7 @@ int uc_f(Db *db,
   /* Transform cutmine into gaussian equivalent */
 
   for (int icut = 0; icut < ncutmine; icut++)
-    cutmine[icut] = anam_hermite->RawToGaussianValue(cutmine[icut]);
+    cutmine[icut] = anam_hermite->RawToTransformValue(cutmine[icut]);
 
   /* Fill the array phi_b_zc */
 
@@ -2750,7 +851,7 @@ int uc_f(Db *db,
     varv = db->getArray(iech, att_var);
     if (anam_point_to_block(anam, 0, varv, TEST, TEST)) goto label_end;
     db->setArray(iech, iptr_sV, anam_hermite->getRCoef());
-    db->setArray(iech, iptr_yV, anam_hermite->RawToGaussianValue(zvstar));
+    db->setArray(iech, iptr_yV, anam_hermite->RawToTransformValue(zvstar));
 
     if (varv < vv_min) vv_min = varv;
     if (varv > vv_max) vv_max = varv;
@@ -2787,14 +888,13 @@ int uc_f(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      CALEST(ncutmine,CAL_ZCUT,icut) = yc;
-      CALEST(ncutmine,CAL_TEST,icut) = ore;
-      CALEST(ncutmine,CAL_QEST,icut) = metal;
+      calest.setZcut(icut, yc);
+      calest.setTest(icut, ore);
+      calest.setQest(icut, metal);
     }
 
-    st_calcul_benefit_and_mean(ncutmine, calest);
-    st_recovery_local(db, iech, iptr, ncode, codes, qt_vars, ncutmine,
-    NULL,
+    calest.calculateBenefitGrade();
+    anam_hermite->recoveryLocal(db, iech, iptr, codes, qt_vars, TEST, TEST,
                       calest);
   }
 
@@ -2819,9 +919,9 @@ int uc_f(Db *db,
 
   error = 0;
 
-  label_end: if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
+  label_end:
+  if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
   if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
-  calest = (double*) mem_free((char* ) calest);
   return (error);
 }
 
@@ -3011,9 +1111,7 @@ static int st_ce_compute_Z(Db *db,
  ** \param[in]  phis         Array of the Polynomial expansion
  **
  *****************************************************************************/
-double ce_compute_Z2(double krigest,
-                                     double krigstd,
-                                     const VectorDouble &phis)
+double ce_compute_Z2(double krigest, double krigstd, const VectorDouble &phis)
 {
   VectorDouble dd;
 
@@ -3028,8 +1126,7 @@ double ce_compute_Z2(double krigest,
   for (int ih = 0; ih < nbpoly; ih++)
     for (int jh = 0; jh < nbpoly; jh++)
     {
-      DD(ih,jh) =
-          (ih + jh >= nbpoly) ? 0 :
+      DD(ih,jh) = (ih + jh >= nbpoly) ? 0 :
                                 (pow(-1., ih) * phis[ih + jh]
                                  * sqrt(ut_cnp(ih + jh, jh)));
     }
@@ -3150,17 +1247,14 @@ static int st_ce_compute_quant(Db *db,
                                int flag_OK,
                                int iptr_QUANT)
 {
-  double krigest, krigstd, quant;
-
-  /* Loop on the samples */
+  double krigest, krigstd;
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     st_correct_from_OK(db, iech, att_est, att_std, flag_OK, &krigest, &krigstd);
-    quant = krigest + krigstd * law_invcdf_gaussian(proba);
-    quant = anam_y2z(anam, quant, 0);
-    db->setArray(iech, iptr_QUANT, quant);
+    double y = krigest + krigstd * law_invcdf_gaussian(proba);
+    db->setArray(iech, iptr_QUANT, anam->TransformToRawValue(y));
   }
   return (0);
 }
@@ -3238,7 +1332,6 @@ static int st_ce_compute_Q(Db *db,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  ncutmine     Number of required cutoffs
  ** \param[in]  cutmine      Array of the requested cutoffs
  ** \param[in]  count        Number of items (Estim + St. Dev.)
  ** \param[in]  iptr_T       Address of the Tonnage
@@ -3247,8 +1340,7 @@ static int st_ce_compute_Q(Db *db,
  **
  *****************************************************************************/
 static int st_ce_compute_B(Db *db,
-                           int ncutmine,
-                           double *cutmine,
+                           const VectorDouble& cutmine,
                            int count,
                            int iptr_T,
                            int iptr_Q,
@@ -3259,6 +1351,7 @@ static int st_ce_compute_B(Db *db,
 
   /* Loop on the samples */
 
+  int ncutmine = (int) cutmine.size();
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
@@ -3339,21 +1432,20 @@ static int st_ce_compute_M(Db *db,
  ** \return  Pointer to the newly allocated vector of values
  **
  ** \param[in]  anam_hermite Point Hermite anamorphosis
- ** \param[in]  ncutmine     Number of required cutoffs
  ** \param[in]  cutmine      Array of the requested cutoffs
  **
  ** \remarks The returned array must be freed by the calling function
  **
  *****************************************************************************/
 static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
-                               int ncutmine,
-                               double *cutmine)
+                               const VectorDouble& cutmine)
 {
   double *yc;
 
   // Initializations
 
   yc = nullptr;
+  int ncutmine = (int) cutmine.size();
   if (ncutmine < 0) return (yc);
 
   // Core allocation
@@ -3364,7 +1456,7 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
   // Loop on the cutoff values
 
   for (int icut = 0; icut < ncutmine; icut++)
-    yc[icut] = anam_hermite->RawToGaussianValue(cutmine[icut]);
+    yc[icut] = anam_hermite->RawToTransformValue(cutmine[icut]);
   return (yc);
 }
 
@@ -3381,10 +1473,8 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
  ** \param[in]  flag_est     1 for computing the Estimation
  ** \param[in]  flag_std     1 for computing the St. Deviation
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
- ** \param[in]  ncutmine     Number of required cutoffs
  ** \param[in]  cutmine      Array of the requested cutoffs
  ** \param[in]  proba        Probability
- ** \param[in]  ncode        Number of operators
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  nbsimu       Number of Monte Carlo simulations (0 : Hermite)
  ** \param[in]  verbose      Verbose option
@@ -3392,24 +1482,22 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
  ** \param[out] qt_vars      Array for storage (Dimension: 2*ANAM_N_QT)
  **
  *****************************************************************************/
-int ce_f(Db *db,
-                         AAnam *anam,
-                         int att_est,
-                         int att_std,
-                         int flag_est,
-                         int flag_std,
-                         int flag_OK,
-                         int ncutmine,
-                         double *cutmine,
-                         double proba,
-                         int ncode,
-                         int *codes,
-                         int nbsimu,
-                         int verbose,
-                         int *qt_vars)
+int ce(Db *db,
+       AAnam *anam,
+       int att_est,
+       int att_std,
+       int flag_est,
+       int flag_std,
+       int flag_OK,
+       const VectorDouble& cutmine,
+       double proba,
+       const VectorInt& codes,
+       int nbsimu,
+       int verbose,
+       VectorInt& qt_vars)
 {
   int error, nbpoly, iptr_Z, iptr_T, iptr_Q, iptr_B, iptr_M, need_T, need_Q,
-      count;
+      ncode, count, ncutmine;
   int iptr_est, iptr_std, iptr_PROBA, iptr_QUANT;
   double *yc;
 
@@ -3420,6 +1508,8 @@ int ce_f(Db *db,
   iptr_Z = iptr_T = iptr_Q = iptr_B = iptr_M = iptr_PROBA = iptr_QUANT = -1;
   yc = nullptr;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
+  ncode = (int) codes.size();
+  ncutmine = (int) cutmine.size();
 
   if (anam->getType() != EAnam::HERMITIAN)
   {
@@ -3436,10 +1526,9 @@ int ce_f(Db *db,
   /* Analyzing the codes */
 
   count = flag_est + flag_std;
-  if (st_code_analyze(verbose, ncode, codes, flag_est, flag_std, ncutmine,
-                      proba, 0, qt_vars)
-      <= 0) goto label_end;
-  yc = st_ztoy_cutoffs(anam_hermite, ncutmine, cutmine);
+  if (st_code_analyze(verbose, codes, flag_est, flag_std, ncutmine,
+                      proba, 0, qt_vars) <= 0) goto label_end;
+  yc = st_ztoy_cutoffs(anam_hermite, cutmine);
   need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
   QT_FLAG(ANAM_QT_PROBA);
   need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
@@ -3529,7 +1618,7 @@ int ce_f(Db *db,
 
   if (QT_FLAG(ANAM_QT_B) && need_T && need_Q)
   {
-    if (st_ce_compute_B(db, ncutmine, cutmine, count, iptr_T, iptr_Q, iptr_B))
+    if (st_ce_compute_B(db, cutmine, count, iptr_T, iptr_Q, iptr_B))
       goto label_end;
   }
 
@@ -3571,3 +1660,75 @@ int ce_f(Db *db,
   return (error);
 }
 
+/*****************************************************************************/
+/*!
+ **  Calculate the factors corresponding to an input data vector
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  anam        anamorphosis model
+ ** \param[in]  db          Db structure
+ ** \param[in]  ifacs       Array of factor ranks
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int anamZToFactor(AAnam *anam,
+                  Db *db,
+                  const VectorInt& ifacs,
+                  const NamingConvention& namconv)
+{
+  if (anam == nullptr)
+  {
+    messerr("You must define the 'anam' argument");
+    return 1;
+  }
+  if (db == nullptr)
+  {
+    messerr("You must define the 'db' argument");
+    return 1;
+  }
+  int nvar = db->getVariableNumber();
+  if (nvar != 1)
+  {
+    messerr("This function is only coded for the monovariate Db");
+    return 1;
+  }
+  int nfact = (int) ifacs.size();
+  if (nfact <= 0)
+  {
+    messerr("You must define the list of factors");
+    return 1;
+  }
+  int nmax = anam->getNFactor();
+  for (int ifac = 0; ifac < nfact; ifac++)
+    if (ifacs[ifac] < 1 || ifacs[ifac] > nmax)
+    {
+      messerr("Error in the rank of the factor(%d): it should lie in [1,%d]",
+              ifacs[ifac], nmax);
+      return 1;
+    }
+
+  /* Create the factors */
+
+  int iptr = db->addColumnsByConstant(nfact, TEST);
+  if (iptr <= 0) return 1;
+
+  // Loop on the samples
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    double zval = db->getVariable(iech, 0);
+    if (FFFF(zval)) continue;
+    VectorDouble factors = anam->z2factor(zval, ifacs);
+    if (factors.empty()) continue;
+    for (int ifac = 0; ifac < nfact; ifac++)
+      db->setArray(iech, iptr + ifac, factors[ifac]);
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, nfact, db, iptr, "Factor");
+
+  return 0;
+}

@@ -59,6 +59,8 @@ public:
   const CovContext&    getContext() const { return _ctxt; }
   double               getParam()   const { return _param; }
 
+  void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
+
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)

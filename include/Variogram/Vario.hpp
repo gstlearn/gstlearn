@@ -25,6 +25,7 @@
 class Db;
 class Model;
 class DirParam;
+class AAnam;
 
 /**
  * Experimental Variogram (not only): TODO : to be improved
@@ -184,6 +185,7 @@ public:
                    Model *model = nullptr,
                    bool verbose = false,
                    int nfacmax = -1);
+  int transformVarioZToY(AAnam *anam, double cvv);
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }

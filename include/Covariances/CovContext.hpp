@@ -23,19 +23,15 @@ class GSTLEARN_EXPORT CovContext : public ASpaceObject
 public:
   CovContext(int nvar = 1,
              const ASpace* space = nullptr,
-             int irfMaxDegree = 1000,
              double field = 1);
   CovContext(int nvar,
              int ndim,
-             int irfMaxDegree = 1000,
              double field = 1,
              const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
   CovContext(const Db *db,
-             int irfMaxDegree = 1000,
              const ASpace* space = nullptr);
   CovContext(const Vario* vario,
-             int irfMaxDegree = 1000,
              const ASpace* space = nullptr);
   CovContext(const CovContext &r);
   CovContext& operator= (const CovContext &r);
@@ -51,7 +47,6 @@ public:
   bool isEqual(const CovContext &r) const;
 
   int                 getNVar()         const { return _nVar; }
-  int                 getIrfMaxDegree() const { return _irfMaxDegree; }
   double              getField()        const { return _field; }
   const VectorDouble& getMean()         const { return _mean; }
   const VectorDouble& getCovar0()       const { return _covar0; }
@@ -60,7 +55,6 @@ public:
   double getCovar0(int ivar, int jvar) const;
 
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
-  void setIrfMaxDegree(int irfMaxDegree) { _irfMaxDegree = irfMaxDegree; }
   void setField(double field)            { _field = field; }
 
   void setMean(const VectorDouble& mean);
@@ -69,9 +63,10 @@ public:
   void setCovar0(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 
+  void copyCovContext(const CovContext& ctxt);
+
 private:
   int           _nVar;         /*! Number of variables */
-  int           _irfMaxDegree; /*! Current maximum admissible IRF degree */
   double        _field;        /*! Field maximum size */
   VectorDouble  _mean;         /*! Array of Variable Mean */
   VectorDouble  _covar0;       /*! Variance-Covariance matrix (used for covariances) */

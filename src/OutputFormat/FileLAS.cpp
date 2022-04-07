@@ -17,6 +17,34 @@
 #include "Basic/String.hpp"
 
 #include <string.h>
+#include <algorithm>
+
+#if defined(_WIN32) || defined(_WIN64)
+namespace
+{
+  // STL replacement for strcasestr - far from optimal (several copies)
+  // C++23 introduces std::string::contains
+  // TODO: should be moved elsewhere...
+  std::string tolower(const std::string &s)
+  {
+    std::string result;
+    result.reserve(s.size());
+    std::transform(s.begin(), s.end(), std::back_inserter(result),
+        [](unsigned char c)
+        { return std::tolower(c);});
+    return result;
+  }
+  ;
+  const char* strcasestr(const char *s, const char *ss)
+  {
+    const auto pos = tolower(s).find(tolower(ss));
+    if (pos == std::string::npos) return (const char*) nullptr;
+    return s + pos;
+  }
+  ;
+}
+#endif
+
 
 FileLAS::FileLAS(const char* filename, const Db* db)
   : AOF(filename, db)
@@ -56,7 +84,6 @@ Db* FileLAS::readFromFile()
   char string[1000], *lcur, sep_blank[2], sep_point[2], *token;
   double value;
   static int s_length = 1000;
-  static int sizemax = 10;
   VectorString names = { "X", "Y", "CODE" };
 
   /* Open the file */
@@ -70,8 +97,7 @@ Db* FileLAS::readFromFile()
   sep_blank[1] = '\0';
   sep_point[0] = '.';
   sep_point[1] = '\0';
-  int nechout = 0;
-  int nvar = names.size();
+  int nvar = (int) names.size();
 
   // Loop on the lines
 
@@ -120,7 +146,6 @@ Db* FileLAS::readFromFile()
 
   VectorDouble tab;
   int nech = 0;
-  int ecr = 0;
   while (1)
   {
     if (_readNext(s_length, 1, &numline, string)) break;
@@ -228,30 +253,4 @@ int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
 
   return (0);
 }
-
-#if defined(_WIN32) || defined(_WIN64)
-namespace
-{
-  // STL replacement for strcasestr - far from optimal (several copies)
-  // C++23 introduces std::string::contains
-  // TODO: should be moved elsewhere...
-  std::string tolower(const std::string &s)
-  {
-    std::string result;
-    result.reserve(s.size());
-    std::transform(s.begin(), s.end(), back_inserter(result),
-        [](unsigned char c)
-        { return std::tolower(c);});
-    return result;
-  }
-  ;
-  const char* strcasestr(const char *s, const char *ss)
-  {
-    const auto pos = tolower(s).find(tolower(ss));
-    if (pos == std::string::npos) return (const char*) nullptr;
-    return s + pos;
-  }
-  ;
-}
-#endif
 

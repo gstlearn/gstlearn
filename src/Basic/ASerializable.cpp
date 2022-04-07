@@ -36,9 +36,6 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR;
-static char *cur = NULL;
-
 String ASerializable::myContainerName = String();
 String ASerializable::myPrefixName    = String();
 
@@ -109,7 +106,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   {
     if (verbose)
       messerr("The file %s has the wrong type (read: %s, expected: %s)",
-              filepath.c_str(), type, filetype);
+              filepath.c_str(), type.c_str(), filetype.c_str());
     is.close();
     return false;
   }
@@ -141,7 +138,7 @@ bool ASerializable::_tableWrite(std::ostream& os,
   {
     if (! string.empty())
     {
-      (void) gslSPrintf(local, "%s (%d)", string, i + 1);
+      (void) gslSPrintf(local, "%s (%d)", string.c_str(), i + 1);
       ret = ret && _recordWrite<double>(os, local, tab[i]);
     }
     else

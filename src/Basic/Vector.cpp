@@ -167,6 +167,28 @@ double ut_vector_min(const VectorDouble &vec, bool flagAbs)
   return (min);
 }
 
+int ut_ivector_max(const VectorInt &vec)
+{
+  if (vec.size() <= 0) return 0;
+  int max = -10000000;
+  for (auto v : vec)
+  {
+    if (v > max) max = v;
+  }
+  return (max);
+}
+
+int ut_ivector_min(const VectorInt &vec)
+{
+  if (vec.size() <= 0) return 0;
+  double min = 10000000;
+  for (auto v : vec)
+  {
+    if (v < min) min = v;
+  }
+  return (min);
+}
+
 double ut_vector_mean(const VectorDouble &vec)
 {
   if (vec.size() <= 0) return 0.;
@@ -183,6 +205,17 @@ double ut_vector_mean(const VectorDouble &vec)
   else
     mean = TEST;
   return (mean);
+}
+
+double ut_vector_cumul(const VectorDouble& vec)
+{
+  double total = 0.;
+  for (auto v : vec)
+  {
+    if (FFFF(v)) continue;
+    total += v;
+  }
+  return total;
 }
 
 double ut_vector_var(const VectorDouble &vec)
@@ -279,8 +312,9 @@ bool ut_vector_constant(const VectorDouble& vect, double refval)
 bool ut_ivector_constant(const VectorInt& vect, int refval)
 {
   if (vect.empty()) return false;
+  if (IFFFF(refval)) refval = vect[0];
   for (int i = 1; i < (int) vect.size(); i++)
-    if (vect[i] != vect[0]) return false;
+    if (vect[i] != refval) return false;
   return true;
 }
 
@@ -288,7 +322,7 @@ bool ut_vector_same(const VectorDouble &v1, const VectorDouble &v2, double eps)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (abs(v1.at(i) - v2.at(i)) > eps) return false;
+    if (ABS(v1.at(i) - v2.at(i)) > eps) return false;
   return true;
 }
 
@@ -296,7 +330,7 @@ bool ut_ivector_same(const VectorInt &v1, const VectorInt &v2)
 {
   if (v1.size() != v2.size()) return false;
   for (int i = 0, n = static_cast<int>(v1.size()); i < n; i++)
-    if (abs(v1.at(i) - v2.at(i)) > 0) return false;
+    if (ABS(v1.at(i) - v2.at(i)) > 0) return false;
   return true;
 }
 
@@ -324,18 +358,24 @@ VectorDouble ut_vector_add(const VectorDouble &vec1, const VectorDouble &vec2)
 
 /**
  * Performs: vec1 += vec2
- * @param vec1 Input/Output vector
- * @param vec2 Auxiliary vector
+ * @param dest Input/Output vector
+ * @param src Auxiliary vector
  */
-void ut_vector_add_inplace(VectorDouble &vec1, const VectorDouble &vec2)
+void ut_vector_add_inplace(VectorDouble &dest, const VectorDouble &src)
 {
   VectorDouble res;
-  if (vec1.size() != vec2.size())
+  if (dest.size() != src.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    vec1[i] += vec2[i];
+  for (int i = 0, n = static_cast<int>(dest.size()); i < n; i++)
+    dest[i] += src[i];
 }
 
+/**
+ * Return a vector containing vec2 - vec1
+ * @param vec1 Input Vector
+ * @param vec2 Input Vector
+ * @return
+ */
 VectorDouble ut_vector_subtract(const VectorDouble &vec1,
                                 const VectorDouble &vec2)
 {
@@ -632,4 +672,27 @@ VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending)
   if (! ascending)
     std::reverse(vecout.begin(), vecout.end());
   return vecout;
+}
+
+/**
+ * Calculate the diagonal of the box extension
+ * @param mini Array of lower coordinates of the box
+ * @param maxi Array of upper coordinates of the box
+ * @return
+ * @remark If one coordinate is undefined, TEST is returned.
+ */
+double ut_vector_extension_diagonal(const VectorDouble& mini,
+                                    const VectorDouble& maxi)
+{
+  double diag = 0.;
+  VectorDouble delta = ut_vector_subtract(mini, maxi);
+  int ndim = (int) delta.size();
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double dval = delta[idim];
+    if (FFFF(dval)) return TEST;
+    diag += dval * dval;
+  }
+  diag = sqrt(diag);
+  return diag;
 }

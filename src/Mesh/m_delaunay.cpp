@@ -12,12 +12,14 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
 
 #include <math.h>
 #include <string.h>
+#include <stdio.h>
 
 /*! \cond */
 #define TRIANGLES(itri,j) (triangles[(itri) * 3 + (j)] - 1)
@@ -183,42 +185,36 @@ static double* st_extend_grid(DbGrid *db, const double *gext, int *nout)
  *****************************************************************************/
 static double* st_extend_point(Db *db, const double *gext, int *nout)
 {
-  int ndim, number, ndiv, ndiv0, rank, ival, error;
-  double *coor, *mini, *maxi, *ext;
+  double *ext;
 
   /* Initializations */
 
-  error = 1;
-  ndim = db->getNDim();
-  number = (int) pow(2., ndim);
-  ndiv0 = (int) pow(2., ndim - 1);
-  mini = maxi = ext = nullptr;
-  *nout = 0;
+  int ndim = db->getNDim();
+  int number = (int) pow(2., ndim);
+  int ndiv0 = (int) pow(2., ndim - 1);
 
   /* Core allocation */
 
-  coor = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor == nullptr) goto label_end;
-  mini = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (mini == nullptr) goto label_end;
-  maxi = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (maxi == nullptr) goto label_end;
+  *nout = 0;
+  VectorDouble coor(ndim);
+  VectorDouble mini(ndim);
+  VectorDouble maxi(ndim);
   ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
-  if (ext == nullptr) goto label_end;
+  if (ext == nullptr) return ext;
 
   /* Calculate the extension of the domain */
 
-  if (db_extension(db, mini, maxi, NULL)) goto label_end;
+  db_extension(db, mini, maxi);
 
   /* Generate the corner points */
 
   for (int corner = 0; corner < number; corner++)
   {
-    rank = corner;
-    ndiv = ndiv0;
+    int rank = corner;
+    int ndiv = ndiv0;
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
-      ival = rank / ndiv;
+      int ival = rank / ndiv;
       rank = rank - ndiv * ival;
       ndiv /= 2;
       coor[idim] = (ival == 0) ? mini[idim] - gext[idim] :
@@ -231,13 +227,7 @@ static double* st_extend_point(Db *db, const double *gext, int *nout)
 
   // Set the error returned code
 
-  error = 0;
   *nout = number;
-
-  label_end: coor = (double*) mem_free((char* ) coor);
-  mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
-  if (error) ext = (double*) mem_free((char* ) ext);
   return (ext);
 }
 
@@ -268,7 +258,10 @@ Vercoloc* vercoloc_manage(int verbose,
                           Vercoloc *vercoloc)
 {
   int *indg, iclose, jclose, error, ndim, iiech, jjech, jech;
-  double *coor_in, *coor_out, *extend, part, d2, d2min;
+  double *coor_in, *coor_out, part, d2, d2min;
+  VectorDouble mini;
+  VectorDouble maxi;
+  VectorDouble extend;
 
   /* Initializations */
 
@@ -276,7 +269,6 @@ Vercoloc* vercoloc_manage(int verbose,
   indg = nullptr;
   coor_in = nullptr;
   coor_out = nullptr;
-  extend = nullptr;
 
   /* Dispatch */
 
@@ -304,9 +296,10 @@ Vercoloc* vercoloc_manage(int verbose,
     if (coor_in == nullptr) goto label_end;
     coor_out = db_sample_alloc(dbout, ELoc::X);
     if (coor_out == nullptr) goto label_end;
-    extend = (double*) mem_alloc(sizeof(double) * ndim, 0);
-    if (extend == nullptr) goto label_end;
-    db_extension(dbin, NULL, NULL, extend);
+    mini.resize(ndim);
+    maxi.resize(ndim);
+    db_extension(dbin, mini, maxi);
+    extend = ut_vector_subtract(mini, maxi);
 
     /* Look for duplicates */
 
@@ -444,7 +437,6 @@ Vercoloc* vercoloc_manage(int verbose,
 
   label_end: if (error) vercoloc = (Vercoloc*) mem_free((char* ) vercoloc);
   indg = db_indg_free(indg);
-  extend = (double*) mem_free((char* ) extend);
   coor_in = db_sample_free(coor_in);
   coor_out = db_sample_free(coor_out);
   return (vercoloc);
@@ -462,9 +454,7 @@ Vercoloc* vercoloc_manage(int verbose,
  ** \param[in]  dupl_out   Array of duplicate indices from Output Db
  **
  *****************************************************************************/
-Vercoloc* vercoloc_from_external(int ndupl,
-                                                 int *dupl_in,
-                                                 int *dupl_out)
+Vercoloc* vercoloc_from_external(int ndupl, int *dupl_in, int *dupl_out)
 {
   Vercoloc *vercoloc;
 
@@ -496,13 +486,12 @@ Vercoloc* vercoloc_from_external(int ndupl,
  **  Free the triangulateio structure
  **
  ** \param[in]  t           Pointer to the triangulateio structure to be freed
- ** \param[in]  mode        1 for in; 0 for out or vorout
  **
  ** \remark  When mode==1, the pointers which correspond to copies are
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-void meshes_2D_free(triangulateio *t, int mode)
+void meshes_2D_free(triangulateio *t, int /*mode*/)
 {
   if (t == (triangulateio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -714,91 +703,52 @@ int meshes_2D_from_db(Db *db,
  *****************************************************************************/
 static double* st_get_db_extension(Db *dbin, Db *dbout, int *nout)
 {
-  double *mini_loc, *maxi_loc, *mini_abs, *maxi_abs, *coor, *ext;
-  int ndim, number, ndiv0, rank, ndiv, ival, error;
-
-  /* Initializations */
-
-  ext = coor = mini_loc = maxi_loc = mini_abs = maxi_abs = nullptr;
-  error = 1;
-  ndim = 0;
+  int ndim = 0;
   if (dbin != nullptr) ndim = dbin->getNDim();
   if (dbout != nullptr) ndim = dbout->getNDim();
-  if (ndim <= 0) goto label_end;
-  number = (int) pow(2., ndim);
-  ndiv0 = (int) pow(2., ndim - 1);
+  int number = (int) pow(2., ndim);
+  int ndiv0 = (int) pow(2., ndim - 1);
 
   /* Core allocation */
 
-  ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
-  if (ext == nullptr) goto label_end;
-  coor = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (coor == nullptr) goto label_end;
-  mini_loc = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (mini_loc == nullptr) goto label_end;
-  maxi_loc = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (maxi_loc == nullptr) goto label_end;
-  mini_abs = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (mini_abs == nullptr) goto label_end;
-  maxi_abs = (double*) mem_alloc(sizeof(double) * ndim, 0);
-  if (maxi_abs == nullptr) goto label_end;
+  double* ext = (double*) mem_alloc(sizeof(double) * ndim * number, 0);
+  if (ext == nullptr) return ext;
+
+  VectorDouble coor(ndim);
+  VectorDouble mini_abs;
+  VectorDouble maxi_abs;
+  mini_abs.resize(ndim,TEST);
+  maxi_abs.resize(ndim,TEST);
 
   /* Get the extension */
 
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    mini_abs[idim] = +1.e30;
-    maxi_abs[idim] = -1.e30;
-  }
   if (dbin != nullptr)
   {
-    db_extension(dbin, mini_loc, maxi_loc, NULL);
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (mini_loc[idim] < mini_abs[idim]) mini_abs[idim] = mini_loc[idim];
-      if (maxi_loc[idim] > maxi_abs[idim]) maxi_abs[idim] = maxi_loc[idim];
-    }
+    db_extension(dbin, mini_abs, maxi_abs, true);
   }
   if (dbout != nullptr)
   {
-    db_extension(dbout, mini_loc, maxi_loc, NULL);
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (mini_loc[idim] < mini_abs[idim]) mini_abs[idim] = mini_loc[idim];
-      if (maxi_loc[idim] > maxi_abs[idim]) maxi_abs[idim] = maxi_loc[idim];
-    }
+    db_extension(dbout, mini_abs, maxi_abs, true);
   }
 
   /* Generate the corner points */
 
   for (int corner = 0; corner < number; corner++)
   {
-    rank = corner;
-    ndiv = ndiv0;
+    int rank = corner;
+    int ndiv = ndiv0;
     for (int idim = ndim - 1; idim >= 0; idim--)
     {
-      ival = rank / ndiv;
+      int ival = rank / ndiv;
       rank = rank - ndiv * ival;
       ndiv /= 2;
-      coor[idim] = (ival == 0) ? mini_abs[idim] :
-                                 maxi_abs[idim];
+      coor[idim] = (ival == 0) ? mini_abs[idim] : maxi_abs[idim];
     }
-
     for (int idim = 0; idim < ndim; idim++)
       EXT(idim,corner) = coor[idim];
   }
 
-  /* Set the error return code */
-
-  error = 0;
   *nout = number;
-
-  label_end: coor = (double*) mem_free((char* ) coor);
-  mini_loc = (double*) mem_free((char* ) mini_loc);
-  maxi_loc = (double*) mem_free((char* ) maxi_loc);
-  mini_abs = (double*) mem_free((char* ) mini_abs);
-  maxi_abs = (double*) mem_free((char* ) maxi_abs);
-  if (error) ext = (double*) mem_free((char* ) ext);
   return (ext);
 }
 
@@ -1933,14 +1883,10 @@ int meshes_2D_write(const char *file_name,
  ** \param[in]  points    Array of 'ndim' coordinates for mesh vertex
  **
  *****************************************************************************/
-void mesh_stats(int ndim,
-                                int ncorner,
-                                int nmesh,
-                                int *meshes,
-                                double *points)
+void mesh_stats(int ndim, int ncorner, int nmesh, int *meshes, double *points)
 {
   double *mini, *maxi, value;
-  int i, flag_print, imin, imax;
+  int flag_print, imin, imax;
 
   /* Core allocation */
 
@@ -1960,7 +1906,7 @@ void mesh_stats(int ndim,
   {
     for (int icorn = 0; icorn < ncorner; icorn++)
     {
-      i = MESHES(imesh, icorn);
+      int i = MESHES(imesh, icorn);
       if (i < imin) imin = i;
       if (i > imax) imax = i;
       for (int idim = 0; idim < ndim; idim++)
@@ -3097,10 +3043,10 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
  **
  *****************************************************************************/
 void meshes_3D_load_vertices(tetgenio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg)
+                             const char *name,
+                             int *ntab_arg,
+                             int *natt_arg,
+                             void **tab_arg)
 {
   double *rtab, *rfrom;
   int *itab, *ifrom, ntab, natt, type;
@@ -3242,13 +3188,12 @@ int meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
  **  Free the segmentio structure
  **
  ** \param[in]  t           Pointer to the segmentio structure to be freed
- ** \param[in]  mode        1 for in; 0 for out or vorout
  **
  ** \remark  When mode==1, the pointers which correspond to copies are
  ** \remark  simply set to NULL (not actually freed)
  **
  *****************************************************************************/
-void meshes_1D_free(segmentio *t, int mode)
+void meshes_1D_free(segmentio *t, int /*mode*/)
 {
   if (t == (segmentio*) NULL) return;
   t->pointlist = (double*) mem_free((char* ) t->pointlist);
@@ -3296,10 +3241,7 @@ void meshes_1D_init(segmentio *t)
  ** \remarks Only the first coordinate is considered
  **
  *****************************************************************************/
-int meshes_1D_from_db(Db *db,
-                                      int nb_mask,
-                                      int *is_mask,
-                                      segmentio *t)
+int meshes_1D_from_db(Db *db, int nb_mask, int *is_mask, segmentio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nold;
 

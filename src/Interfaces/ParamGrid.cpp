@@ -66,11 +66,7 @@ VectorDouble ParamGrid::getValues(int i) const
   double x0 = getX0()[i];
   double dx = getDx()[i];
   VectorDouble res(nx);
-
-  for (int i = 0; i < nx; i++)
-  {
-    res[i] = x0 + dx * i;
-  }
+  res[i] = x0 + dx * i; // TODO strange code: to be corrected or abandoned
   return(res);
 }
 

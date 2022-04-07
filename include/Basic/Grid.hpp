@@ -51,6 +51,9 @@ public:
   int     getNX(int idim) const;
   int     getNTotal() const;
   double  getCellSize() const;
+  double  getExtend(int idim, bool flag_cell = false) const;
+  double  getVolume(bool flag_cell = false) const;
+  VectorDouble  getExtends(bool flag_cell = false) const;
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

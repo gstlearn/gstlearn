@@ -46,14 +46,6 @@ static void (*EXIT_FUNC)(void) = st_exit;
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
 static char *cur = NULL;
 
-static double _getThresh()
-{
-  int ndec = (int) OptCst::query(ECst::NTDEC);
-  // Recalculate threshold under which any small value must be displayed has 0.0
-  double thresh = (0.5 * pow(10, - ndec));
-  return thresh;
-}
-
 /****************************************************************************/
 /*!
  **  Exit from the gstlearn library

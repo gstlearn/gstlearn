@@ -13,6 +13,7 @@
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
+#include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 
@@ -20,6 +21,7 @@ Tensor::Tensor(unsigned int ndim)
 :  AStringable(),
    _nDim(ndim),
    _tensorDirect(),
+   _tensorDirect2(),
    _tensorInverse(),
    _radius(),
    _rotation(),
@@ -32,6 +34,7 @@ Tensor::Tensor(const Tensor& r)
 :  AStringable(r),
    _nDim(r._nDim),
    _tensorDirect(r._tensorDirect),
+   _tensorDirect2(r._tensorDirect2),
    _tensorInverse(r._tensorInverse),
    _radius(r._radius),
    _rotation(r._rotation),
@@ -46,6 +49,7 @@ Tensor& Tensor::operator=(const Tensor &r)
     AStringable::operator=(r);
     _nDim = r._nDim;
     _tensorDirect = r._tensorDirect;
+    _tensorDirect2 = r._tensorDirect2;
     _tensorInverse = r._tensorInverse;
     _radius = r._radius;
     _rotation = r._rotation;
@@ -65,6 +69,7 @@ void Tensor::init(int ndim)
   _rotation.resetFromSpaceDimension(_nDim);
   _rotation.setIdentity();
   _tensorDirect  = _rotation.getMatrixDirect();
+  _tensorDirect2 = _rotation.getMatrixDirect();
   _tensorInverse = _rotation.getMatrixDirect();
   _isotropic = true;
 }
@@ -140,17 +145,23 @@ void Tensor::setRotationAngle(unsigned int idim, double angle)
   _fillTensors();
 }
 
-VectorDouble Tensor::applyDirect(const VectorDouble& vec) const
+VectorDouble Tensor::applyDirect(const VectorDouble& vec, int mode) const
 {
   VectorDouble out = vec;
-  _tensorDirect.prodVector(vec, out);
+  if (mode == 1)
+    _tensorDirect.prodVector(vec, out);
+  else
+    _tensorDirect2.prodVector(vec, out);
   return out;
 }
 
-VectorDouble Tensor::applyInverse(const VectorDouble& vec) const
+VectorDouble Tensor::applyInverse(const VectorDouble& vec, int mode) const
 {
   VectorDouble out = vec;
-  _tensorInverse.prodVector(vec, out);
+  if (mode == 1)
+    _tensorInverse.prodVector(vec, out);
+  else
+    _tensorInverse.prodVector(vec, out);
   return out;
 }
 
@@ -171,9 +182,19 @@ void Tensor::_updateIsotrop()
 
 void Tensor::_fillTensors()
 {
+  // Tensor = Radius %*% Rotation
   _tensorDirect = _rotation.getMatrixInverse();
   _tensorDirect.multiplyRow(_radius);
 
+  // Tensor = Radius %*% Rotation (correct product)
+  _tensorDirect2 = _tensorDirect;
+  _tensorDirect2.transposeInPlace();
+
+  // Tensor = Rotation %*% 1/Radius
   _tensorInverse = _rotation.getMatrixDirect();
   _tensorInverse.divideColumn(_radius);
+
+  // Tensor = Rotation %*% 1/Radius (correct product)
+  _tensorInverse2 = _tensorInverse;
+  _tensorInverse2.transposeInPlace();
 }

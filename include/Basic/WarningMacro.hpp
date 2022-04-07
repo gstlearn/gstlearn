@@ -10,6 +10,8 @@
 /******************************************************************************/
 #pragma once
 
+#define DECLARE_UNUSED(x) (void)(x);
+
 // Thanks to https://www.fluentcpp.com/2019/08/30/how-to-disable-a-warning-in-cpp/
 
 #if defined(_MSC_VER)

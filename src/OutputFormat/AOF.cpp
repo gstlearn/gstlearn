@@ -64,7 +64,7 @@ bool AOF::isValidForGrid() const
 
 bool AOF::isValidForVariable() const
 {
-  int ncol = _cols.size();
+  int ncol = (int) _cols.size();
   if (mustBeOneVariable() && ncol > 1)
   {
     messerr("This function requires a single Variable but ncol = %d",ncol);

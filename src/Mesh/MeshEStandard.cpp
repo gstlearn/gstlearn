@@ -13,6 +13,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
+#include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/tetgen.h"
@@ -180,8 +181,8 @@ int MeshEStandard::resetFromDb(Db*                 dbin,
 **
 *****************************************************************************/
 int MeshEStandard::reset(const MatrixRectangular& apices,
-                          const VectorInt&          meshes,
-                          bool                      verbose)
+                         const VectorInt& meshes,
+                         bool verbose)
 {
   int ndim = apices.getNCols();
   setNDim(ndim);
@@ -210,6 +211,48 @@ int MeshEStandard::reset(const MatrixRectangular& apices,
   return(0);
 }
 
+int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
+{
+  int ndim     = turbo.getNDim();
+  int napices  = turbo.getNApices();
+  int nmeshes  = turbo.getNMeshes();
+  int npermesh = turbo.getNApexPerMesh();
+
+  // Dimension the members
+
+  _apices = MatrixRectangular(napices, ndim);
+  _meshes = VectorInt(nmeshes * npermesh);
+
+  // Load the apices;
+  for (int ip = 0; ip < napices; ip++)
+    for (int idim = 0; idim < ndim; idim++)
+      _apices.setValue(ip, idim, turbo.getApexCoor(ip, idim));
+
+  // Load the meshes
+  int ecr = 0;
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+    for (int rank = 0; rank < npermesh; rank++)
+      _meshes[ecr] = turbo.getApex(imesh, rank);
+
+  // Check consistency
+
+  _checkConsistency();
+
+  // Define and store the Bounding Box extension
+
+  _defineBoundingBox();
+
+  // Calculate and store the units
+
+  _defineUnits();
+
+  // Optional printout
+
+  if (verbose) messageFlush(toString());
+
+  return 0;
+}
+
 /****************************************************************************/
 /*!
 ** Create the meshing (from mesh information)
@@ -221,9 +264,9 @@ int MeshEStandard::reset(const MatrixRectangular& apices,
 **
 *****************************************************************************/
 int MeshEStandard::resetOldStyle(int                 ndim,
-                          const VectorDouble& apices,
-                          const VectorInt&    meshes,
-                          bool                verbose)
+                                 const VectorDouble& apices,
+                                 const VectorInt&    meshes,
+                                 bool                verbose)
 {
   setNDim(ndim);
   int npoints = static_cast<int> (apices.size()) / ndim;

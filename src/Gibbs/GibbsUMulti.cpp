@@ -63,7 +63,7 @@ GibbsUMulti::~GibbsUMulti()
 ** \param[in]  verboseTimer True to show elapse times
 **
 *****************************************************************************/
-int GibbsUMulti::covmatAlloc(bool verbose, bool verboseTimer)
+int GibbsUMulti::covmatAlloc(bool verbose, bool /*verboseTimer*/)
 {
   // Initialization
 

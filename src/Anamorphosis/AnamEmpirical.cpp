@@ -57,13 +57,11 @@ AnamEmpirical::~AnamEmpirical()
 
 }
 
-String AnamEmpirical::toString(const AStringFormat* strfmt) const
+String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
   sstr << toTitle(1,"Empirical Anamorphosis");
-
-  sstr << AAnam::toString(strfmt);
 
   sstr << "Number of discretization lags = " << _nDisc << std::endl;
   sstr << "Additional variance           = " << _sigma2e << std::endl;
@@ -105,6 +103,24 @@ AnamEmpirical* AnamEmpirical::createFromNF(const String& neutralFilename, bool v
   return anam;
 }
 
+void AnamEmpirical::reset(int ndisc,
+                          double pymin,
+                          double pzmin,
+                          double pymax,
+                          double pzmax,
+                          double aymin,
+                          double azmin,
+                          double aymax,
+                          double azmax,
+                          double sigma2e,
+                          const VectorDouble &tdisc)
+{
+  setNDisc(ndisc);
+  setSigma2e(sigma2e);
+  setTDisc(tdisc);
+  setABounds(azmin, azmax, aymin, aymax);
+  setPBounds(pzmin, pzmax, pymin, pymax);
+}
 
 AnamEmpirical* AnamEmpirical::create(int ndisc, double sigma2e)
 {
@@ -123,7 +139,7 @@ void AnamEmpirical::setTDisc(const VectorDouble& tdisc)
   _nDisc = static_cast<int> (tdisc.size()) / 2;
 }
 
-double AnamEmpirical::RawToGaussianValue(double zz) const
+double AnamEmpirical::RawToTransformValue(double zz) const
 {
   double yy,za,zb,ya,yb;
   int    idisc,found;
@@ -158,7 +174,7 @@ double AnamEmpirical::RawToGaussianValue(double zz) const
   return(yy);
 }
 
-double AnamEmpirical::GaussianToRawValue(double yy) const
+double AnamEmpirical::TransformToRawValue(double yy) const
 {
   double zz,za,zb,ya,yb;
   int    idisc,found;

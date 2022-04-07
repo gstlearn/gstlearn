@@ -18,6 +18,10 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
+class ECalcMember;
+class Selectivity;
+class Db;
+
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
 {
 public:
@@ -35,15 +39,43 @@ public:
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
+  double modifyCov(const ECalcMember& /*member*/,
+                   int iclass,
+                   double dist,
+                   double /*cov0*/,
+                   double cov1,
+                   double cov2) const override;
+  VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
+  double getBlockVariance(double sval, double power = 1) const override;
+  int updatePointToBlock(double r_coef) override;
+  bool hasChangeSupport() const override { return true; }
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
-  VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const override;
 
   AnamDiscreteIR* create(double rcoef = 0.);
+  void reset(int ncut,
+             double r_coef,
+             const VectorDouble &zcut,
+             const VectorDouble &stats);
+
   int fit(const VectorDouble& tab, int verbose=0);
   double getRCoef() const { return _rCoef; }
   void   setRCoef(double rcoef) { _rCoef = rcoef; }
+
+  Selectivity calculateSelectivity(bool flag_correct);
+
+  int factor2QT(Db *db,
+                const VectorDouble& cutmine,
+                double z_max,
+                int flag_correct,
+                const VectorInt& cols_est,
+                const VectorInt& cols_std,
+                int iptr,
+                const VectorInt& codes,
+                const VectorInt& qt_vars,
+                Selectivity& calest,
+                Selectivity& calcut);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;

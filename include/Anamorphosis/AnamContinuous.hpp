@@ -43,10 +43,11 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// AAnam interface
+  bool hasGaussian() const override { return true; }
+
   /// Interface for AnamContinuous
-  virtual void calculateMeanAndVariance();
-  virtual double RawToGaussianValue(double z) const = 0;
-  virtual double GaussianToRawValue(double y) const = 0;
+  virtual void   calculateMeanAndVariance();
 
   void setABounds(double azmin = TEST,
                   double azmax = TEST,

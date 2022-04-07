@@ -16,6 +16,8 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
+class Selectivity;
+
 class GSTLEARN_EXPORT AnamDiscrete: public AAnam
 {
 public:
@@ -27,8 +29,10 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// AAnam interface
+  bool hasGaussian() const override { return false; }
+
   /// Interface for AnamDiscrete
-  virtual VectorDouble z2f(int nfact, const VectorInt& ifacs, double z) const = 0;
   virtual void calculateMeanAndVariance();
 
   int getNCut() const { return _nCut; }
@@ -79,6 +83,19 @@ public:
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  void _interpolateQTLocal(double z_max,
+                           const VectorDouble& zcutmine,
+                           Selectivity& calest,
+                           Selectivity& calcut) const;
+  void _interpolateInterval(double zval,
+                            double zi0,
+                            double zi1,
+                            double ti0,
+                            double ti1,
+                            double qi0,
+                            double qi1,
+                            double *tval,
+                            double *qval) const;
 
 private:
   bool _isClassValid(int iclass) const;

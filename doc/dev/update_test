@@ -1,3 +1,5 @@
+# This script is meant to update the reference (ref) starting from the Resulting test file (out)
+#
 #!/bin/csh -f
 
 # Reference directory

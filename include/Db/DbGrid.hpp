@@ -52,7 +52,7 @@ public:
   double getCoordinate(int iech, int idim, bool flag_rotate=true) const override;
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
-  bool mayChangeSampleNumber() const { return false; }
+  bool mayChangeSampleNumber() const override { return false; }
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static DbGrid* createFromNF(const String& neutralFilename,
@@ -118,6 +118,8 @@ public:
 
   int  getNTotal() const { return _grid.getNTotal(); }
   double getCellSize() const { return _grid.getCellSize(); }
+  double getVolume() const { return _grid.getVolume(); }
+  VectorDouble getExtends() const { return _grid.getExtends(); }
 
   int  getNX(int idim) const { return _grid.getNX(idim); }
   VectorInt getNXs() const { return _grid.getNXs(); }

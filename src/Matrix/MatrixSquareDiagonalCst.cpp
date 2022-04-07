@@ -61,7 +61,7 @@ void MatrixSquareDiagonalCst::_setValue(int irow, int icol, double value)
     _cstDiagMatrix = value;
   else
   {
-    if (abs(value) > EPSILON10)
+    if (ABS(value) > EPSILON10)
     {
       messerr("Attempt to assign a non-zero value to a non-diagonal term");
       messerr("Element(%d,%d) = %lf",irow,icol,value);

@@ -457,7 +457,7 @@ int DbGrid::getNDim() const
 
 int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, ndim2, ntot, nech, i, flag_grid, ncol;
+  int ndim, ntot, nech, i, ncol;
   VectorInt nx;
   VectorString locators;
   VectorString names;

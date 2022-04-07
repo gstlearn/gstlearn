@@ -175,8 +175,7 @@ void MatrixSquareSymmetric::_allocate()
   _squareSymMatrix.resize(_getMatrixSize());
 }
 
-int MatrixSquareSymmetric::_getIndexToRank(int irow,
-                                 int icol) const
+int MatrixSquareSymmetric::_getIndexToRank(int irow, int icol) const
 {
   int rank;
 

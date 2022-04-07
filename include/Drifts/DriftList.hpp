@@ -99,6 +99,8 @@ public:
   bool isDriftDefined(const EDrift &type0) const;
   bool isDriftDifferentDefined(const EDrift &type0) const;
 
+  void copyCovContext(const CovContext& ctxt);
+
 private:
   bool _isDriftIndexValid(int i) const;
   bool _isDriftEquationValid(int ib) const;

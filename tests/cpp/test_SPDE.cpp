@@ -19,6 +19,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Covariances/ECov.hpp"
 
 #define VERBOSE 0
 
@@ -80,7 +81,7 @@ int main(int /*argc*/, char */*argv*/[])
     
   // Model 
 
-  ctxt = CovContext(1, ndim, 1000, diag);
+  ctxt = CovContext(1, ndim, diag);
   model = new Model(ctxt);
   if (model == nullptr) goto label_end;
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,

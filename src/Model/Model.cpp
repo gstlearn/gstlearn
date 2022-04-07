@@ -50,11 +50,17 @@ Model::Model(const CovContext &ctxt)
 Model::Model(const Model &m)
     : AStringable(m),
       ASerializable(m),
-      _covaList(dynamic_cast<ACovAnisoList*>(m._covaList->clone())),
-      _driftList(dynamic_cast<DriftList*>(m._driftList->clone())),
-      _noStat(dynamic_cast<ANoStat*>(m._noStat->clone())),
+      _covaList(nullptr),
+      _driftList(nullptr),
+      _noStat(nullptr),
       _ctxt(m._ctxt)
 {
+  if (m._covaList != nullptr)
+    _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
+  if (m._driftList != nullptr)
+    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+  if (m._noStat != nullptr)
+    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
 }
 
 Model& Model::operator=(const Model &m)
@@ -63,9 +69,12 @@ Model& Model::operator=(const Model &m)
   {
     AStringable::operator=(m);
     ASerializable::operator=(m);
-    _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
-    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
-    _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
+    if (m._covaList != nullptr)
+      _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
+    if (m._driftList != nullptr)
+      _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+    if (m._noStat != nullptr)
+      _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
   }
   return (*this);
@@ -366,6 +375,38 @@ int Model::addNoStat(const ANoStat *anostat)
   if (_noStat != nullptr) delete _noStat;
   _noStat = dynamic_cast<ANoStat*>(anostat->clone());
   return 0;
+}
+
+void Model::_copyCovContext()
+{
+  if (_covaList != nullptr) _covaList->copyCovContext(_ctxt);
+  if (_driftList != nullptr) _driftList->copyCovContext(_ctxt);
+}
+
+void Model::setMeans(const VectorDouble& mean)
+{
+  _ctxt.setMean(mean);
+  _copyCovContext();
+}
+void Model::setMean(int ivar, double mean)
+{
+  _ctxt.setMean(ivar, mean);
+  _copyCovContext();
+}
+void Model::setCovar0s(const VectorDouble& covar0)
+{
+  _ctxt.setCovar0(covar0);
+  _copyCovContext();
+}
+void Model::setCovar0(int ivar, int jvar, double covar0)
+{
+  _ctxt.setCovar0(ivar,jvar,covar0);
+  _copyCovContext();
+}
+void Model::setField(double field)
+{
+  _ctxt.setField(field);
+  _copyCovContext();
 }
 
 int Model::isNoStat() const
@@ -723,9 +764,21 @@ int Model::fit(Vario *vario,
 
 int Model::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  double field, range, value, param;
-  int ndim, nvar, ncova, nbfl, type, flag_aniso, flag_rotation;
-  VectorDouble aniso_ranges, aniso_rotmat;
+  int ndim = 0;
+  int nvar = 0;
+  int ncova = 0;
+  int nbfl = 0;
+  int type = 0;
+  int flag_aniso = 0;
+  int flag_rotation = 0;
+
+  double field = 0.;
+  double range = 0.;
+  double param = 0.;
+  double value = 0.;
+
+  VectorDouble aniso_ranges;
+  VectorDouble aniso_rotmat;
 
   // Delete previous Model contents (if any)
   _clear();
@@ -740,7 +793,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
   if (! ret) return 1;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
-  _ctxt = CovContext(nvar, ndim, 100, field);
+  _ctxt = CovContext(nvar, ndim, field);
   _create();
 
   /* Reading the covariance part */
@@ -812,7 +865,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   if (nbfl <= 0) for (int ivar = 0; ivar < nvar; ivar++)
   {
-    double mean;
+    double mean = 0.;
     ret = ret && _recordRead<double>(is, "Mean of Variable", mean);
     setMean(ivar, mean);
   }

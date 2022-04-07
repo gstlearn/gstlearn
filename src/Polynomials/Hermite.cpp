@@ -152,6 +152,20 @@ VectorDouble hermitePolynomials(double y, double r, int nbpoly)
   return poly;
 }
 
+VectorDouble hermitePolynomials(double z, double r, const VectorInt& ifacs)
+{
+  int nfact = (int) ifacs.size();
+  VectorDouble vec(nfact);
+
+  int nbpoly = ut_ivector_max(ifacs);
+  VectorDouble poly = hermitePolynomials(z, r, nbpoly);
+
+  for (int ifac = 0; ifac < nfact; ifac++)
+    vec[ifac] = poly[ifacs[ifac]];
+
+  return poly;
+}
+
 /**
  * Calculate the Conditional Expectation:
  *    E[Z | Z1=z1, Z2=z2, ..., Zn=zn] = int Phi(y_kk + s_k u) g(u) du
@@ -162,8 +176,8 @@ VectorDouble hermitePolynomials(double y, double r, int nbpoly)
  * @return Conditional Expectation
  */
 VectorDouble hermiteCondExp(VectorDouble krigest,
-                                            VectorDouble krigstd,
-                                            const VectorDouble &phi)
+                            VectorDouble krigstd,
+                            const VectorDouble &phi)
 {
   VectorDouble condexp;
 
@@ -178,8 +192,8 @@ VectorDouble hermiteCondExp(VectorDouble krigest,
 }
 
 double hermiteCondExpElement(double krigest,
-                                             double krigstd,
-                                             const VectorDouble &phi)
+                             double krigstd,
+                             const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
@@ -199,8 +213,8 @@ double hermiteCondExpElement(double krigest,
  * @return
  */
 VectorDouble hermiteCondStd(VectorDouble krigest,
-                                            VectorDouble krigstd,
-                                            const VectorDouble &phi)
+                            VectorDouble krigstd,
+                            const VectorDouble &phi)
 {
   int nech = static_cast<int>(krigest.size());
   VectorDouble condstd(nech, 0);
@@ -214,8 +228,8 @@ VectorDouble hermiteCondStd(VectorDouble krigest,
 }
 
 double hermiteCondStdElement(double krigest,
-                                             double krigstd,
-                                             const VectorDouble &phi)
+                             double krigstd,
+                             const VectorDouble &phi)
 {
   MatrixSquareGeneral JJ;
   int nbpoly = static_cast<int>(phi.size());
@@ -230,8 +244,7 @@ double hermiteCondStdElement(double krigest,
 
   double condexp = hermiteCondExpElement(krigest, krigstd, phi);
   constd -= condexp * condexp;
-  constd = (constd > 0) ? sqrt(constd) :
-                          0.;
+  constd = (constd > 0) ? sqrt(constd) : 0.;
 
   return constd;
 }
@@ -244,8 +257,8 @@ double hermiteCondStdElement(double krigest,
  * @return The indicator above Cutoff
  */
 VectorDouble hermiteIndicator(double yc,
-                                              VectorDouble krigest,
-                                              VectorDouble krigstd)
+                              VectorDouble krigest,
+                              VectorDouble krigstd)
 {
   int nech = static_cast<int>(krigest.size());
   VectorDouble proba(nech);
@@ -257,9 +270,7 @@ VectorDouble hermiteIndicator(double yc,
   return proba;
 }
 
-double hermiteIndicatorElement(double yc,
-                                               double krigest,
-                                               double krigstd)
+double hermiteIndicatorElement(double yc, double krigest, double krigstd)
 {
   double proba;
 
@@ -270,8 +281,8 @@ double hermiteIndicatorElement(double yc,
 }
 
 VectorDouble hermiteIndicatorStd(double yc,
-                                                 VectorDouble krigest,
-                                                 VectorDouble krigstd)
+                                 VectorDouble krigest,
+                                 VectorDouble krigstd)
 {
   int nech = static_cast<int>(krigest.size());
   VectorDouble probstd(nech);
@@ -283,9 +294,7 @@ VectorDouble hermiteIndicatorStd(double yc,
   return probstd;
 }
 
-double hermiteIndicatorStdElement(double yc,
-                                                  double krigest,
-                                                  double krigstd)
+double hermiteIndicatorStdElement(double yc, double krigest, double krigstd)
 {
   double proba = hermiteIndicatorElement(yc, krigest, krigstd);
   double probstd = sqrt(proba * (1. - proba));
@@ -301,9 +310,9 @@ double hermiteIndicatorStdElement(double yc,
  * @return The Metal
  */
 VectorDouble hermiteMetal(double yc,
-                                          VectorDouble krigest,
-                                          VectorDouble krigstd,
-                                          const VectorDouble &phi)
+                          VectorDouble krigest,
+                          VectorDouble krigstd,
+                          const VectorDouble &phi)
 {
   int nech = static_cast<int>(krigest.size());
   int nbpoly = static_cast<int>(phi.size());
@@ -325,9 +334,9 @@ VectorDouble hermiteMetal(double yc,
 }
 
 double hermiteMetalElement(double yc,
-                                           double krigest,
-                                           double krigstd,
-                                           const VectorDouble &phi)
+                           double krigest,
+                           double krigstd,
+                           const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble In(nbpoly);
@@ -344,9 +353,9 @@ double hermiteMetalElement(double yc,
 }
 
 VectorDouble hermiteMetalStd(double yc,
-                                             VectorDouble krigest,
-                                             VectorDouble krigstd,
-                                             const VectorDouble &phi)
+                             VectorDouble krigest,
+                             VectorDouble krigstd,
+                             const VectorDouble &phi)
 {
   MatrixSquareGeneral JJ;
 
@@ -375,9 +384,9 @@ VectorDouble hermiteMetalStd(double yc,
 }
 
 double hermiteMetalStdElement(double yc,
-                                              double krigest,
-                                              double krigstd,
-                                              const VectorDouble &phi)
+                              double krigest,
+                              double krigstd,
+                              const VectorDouble &phi)
 {
   MatrixSquareGeneral JJ;
   int nbpoly = static_cast<int>(phi.size());
@@ -426,8 +435,7 @@ VectorDouble hermiteCoefIndicator(double yc, int nbpoly)
  * @param phi Coefficients of Hermite polynomial
  * @return The vector of coefficients of the Metal Quantity
  */
-VectorDouble hermiteCoefMetal(double yc,
-                                              const VectorDouble &phi)
+VectorDouble hermiteCoefMetal(double yc, const VectorDouble &phi)
 {
   int nbpoly = static_cast<int>(phi.size());
   VectorDouble vect(nbpoly);
@@ -442,8 +450,7 @@ VectorDouble hermiteCoefMetal(double yc,
  * @param nbpoly Number of Hermite polynomials
  * @return The matrix of Incomplete Integral (Dimension: nbpoly * nbpoly)
  */
-MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
-                                                              int nbpoly)
+MatrixSquareGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
 {
   MatrixSquareGeneral TAU;
 
@@ -489,9 +496,7 @@ MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
  * @param nbpoly Number of Hermite polynomials
  * @return The array of coefficients
  */
-VectorDouble hermiteLognormal(double mean,
-                                              double sigma,
-                                              int nbpoly)
+VectorDouble hermiteLognormal(double mean, double sigma, int nbpoly)
 {
   VectorDouble hn(nbpoly);
 
@@ -511,8 +516,7 @@ VectorDouble hermiteLognormal(double mean,
  * @param hn Hermite polynomial values
  * @return The result of the expansion
  */
-double hermiteSeries(const VectorDouble &an,
-                                     const VectorDouble &hn)
+double hermiteSeries(const VectorDouble &an, const VectorDouble &hn)
 {
   double value = 0.;
   for (int ih = 0; ih < (int) hn.size(); ih++)
@@ -530,10 +534,6 @@ double hermiteSeries(const VectorDouble &an,
  */
 VectorDouble hermiteFunction(double y, int nbpoly)
 {
-// TODO a corriger car le texte actuel ne fait pas sens.
-
-  /* Calculate the Hermite polynomials for value 'y' */
-
   VectorDouble hn = hermitePolynomials(y, 1., nbpoly);
   VectorDouble coeff(nbpoly);
 
@@ -547,138 +547,3 @@ VectorDouble hermiteFunction(double y, int nbpoly)
     hn[i] = dg * (y * hn[i - 1] / sqrt(i) + hn[i - 2] / sqrt(i * (i - 1)));
   return coeff;
 }
-
-/**
- *
- * @param yk Gaussian value
- * @param sk Standard Deviation coefficient
- * @param phi Array of Hermite coefficient
- * @return Calculate: E[Z^2| z1,...,zn]
- */
-VectorDouble hermiteEvaluateZ2(VectorDouble yk,
-                                               VectorDouble sk,
-                                               const VectorDouble &phi)
-{
-  int nech = static_cast<int>(yk.size());
-  int nbpoly = static_cast<int>(phi.size());
-  double log2 = log(2.);
-  VectorDouble tab(nech, 0);
-  VectorDouble fact(nbpoly);
-  ut_log_factorial(nbpoly, fact.data());
-
-  for (int iech = 0; iech < nech; iech++)
-  {
-    double var = sk[iech] * sk[iech];
-    double logs = 0.5 * log(1 - var);
-
-    /* Calculate the Hermite and log-factorial terms */
-
-    VectorDouble hn = hermitePolynomials(yk[iech], 1., nbpoly);
-
-    /* Loop on the different terms */
-
-    double z = 0.;
-    for (int n = 0; n < nbpoly; n++)
-    {
-      double phin = phi[n];
-      if (ABS(phin) < EPSILON10) continue;
-      for (int m = 0; m < nbpoly; m++)
-      {
-        double phim = phi[m];
-        if (ABS(phim) < EPSILON10) continue;
-
-        double coef = 0.;
-        double fkmn = fact[m] + fact[n];
-        for (int k1 = 0; 2 * k1 <= n; k1++)
-          for (int k2 = 0; 2 * k2 <= m; k2++)
-          {
-            int k1p2 = k1 + k2;
-            double fk12 = fact[k1] + fact[k2];
-            double c1 = k1p2 * (2. * logs - log2);
-            for (int p1 = 0; p1 <= n - 2 * k1; p1++)
-            {
-              double hnp1 = hn[p1];
-              if (ABS(hnp1) < EPSILON10) continue;
-              for (int p2 = 0; p2 <= m - 2 * k2; p2++)
-              {
-                double hnp2 = hn[p2];
-                if (ABS(hnp2) < EPSILON10) continue;
-                double fp12 = fact[p1] + fact[p2];
-                for (int q = 0; q <= n - 2 * k1 - p1 && q <= m - 2 * k2 - p2;
-                    q++)
-                {
-                  double a = c1 + 2. * q * logs + fkmn - fk12 - fp12 - fact[q];
-                  coef += exp(a) * hnp1 * hnp2;
-                }
-              }
-            }
-          }
-        z += coef * phin * phim;
-      }
-      tab[iech] = z;
-    }
-  }
-  return tab;
-}
-
-double hermiteEvaluateZ2(double yk,
-                                         double sk,
-                                         const VectorDouble &phi)
-{
-  int nbpoly = static_cast<int>(phi.size());
-  double log2 = log(2.);
-  VectorDouble fact(nbpoly);
-  ut_log_factorial(nbpoly, fact.data());
-
-  double tab = 0.;
-  double var = sk * sk;
-  double logs = 0.5 * log(1 - var);
-
-  /* Calculate the Hermite and log-factorial terms */
-
-  VectorDouble hn = hermitePolynomials(yk, 1., nbpoly);
-
-  /* Loop on the different terms */
-
-  double z = 0.;
-  for (int n = 0; n < nbpoly; n++)
-  {
-    double phin = phi[n];
-    if (ABS(phin) < EPSILON10) continue;
-    for (int m = 0; m < nbpoly; m++)
-    {
-      double phim = phi[m];
-      if (ABS(phim) < EPSILON10) continue;
-
-      double coef = 0.;
-      double fkmn = fact[m] + fact[n];
-      for (int k1 = 0; 2 * k1 <= n; k1++)
-        for (int k2 = 0; 2 * k2 <= m; k2++)
-        {
-          int k1p2 = k1 + k2;
-          double fk12 = fact[k1] + fact[k2];
-          double c1 = k1p2 * (2. * logs - log2);
-          for (int p1 = 0; p1 <= n - 2 * k1; p1++)
-          {
-            double hnp1 = hn[p1];
-            if (ABS(hnp1) < EPSILON10) continue;
-            for (int p2 = 0; p2 <= m - 2 * k2; p2++)
-            {
-              double hnp2 = hn[p2];
-              if (ABS(hnp2) < EPSILON10) continue;
-              double fp12 = fact[p1] + fact[p2];
-              for (int q = 0; q <= n - 2 * k1 - p1 && q <= m - 2 * k2 - p2; q++)
-              {
-                double a = c1 + 2. * q * logs + fkmn - fk12 - fp12 - fact[q];
-                coef += exp(a) * hnp1 * hnp2;
-              }
-            }
-          }
-        }
-      z += coef * phin * phim;
-    }
-    tab = z;
-  }
-  return tab;
-}
-
