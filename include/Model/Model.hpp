@@ -66,9 +66,9 @@ public:
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);
   void   addCova(const ECov& type,
-                 double range,
-                 double sill,
-                 double param = 0,
+                 double range = 0.,
+                 double sill = 1.,
+                 double param = 0.,
                  const VectorDouble& ranges = VectorDouble(),
                  const VectorDouble& sills = VectorDouble(),
                  const VectorDouble& angles = VectorDouble());
