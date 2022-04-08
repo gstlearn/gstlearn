@@ -47,6 +47,7 @@ class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public I
 {
 public:
   Model(const CovContext& ctxt = CovContext());
+  Model(int nvar, int ndim = 2);
   Model(const Model &m);
   Model& operator= (const Model &m);
   virtual ~Model();
@@ -64,11 +65,18 @@ public:
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);
+  void   addCova(const ECov& type,
+                 double range = 0.,
+                 double sill = 1.,
+                 double param = 0.,
+                 const VectorDouble& ranges = VectorDouble(),
+                 const VectorDouble& sills = VectorDouble(),
+                 const VectorDouble& angles = VectorDouble());
   void   delCova(int rank);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
   void   addDrift(const ADriftElem* drift);
-  void   addDrift(const VectorString& driftSymbols);
+  void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);

@@ -27,13 +27,13 @@
 
 AnamDiscreteIR::AnamDiscreteIR(double rcoef)
     : AnamDiscrete(),
-      _rCoef(rcoef)
+      _sCoef(rcoef)
 {
 }
 
 AnamDiscreteIR::AnamDiscreteIR(const AnamDiscreteIR &m)
     : AnamDiscrete(m),
-      _rCoef(m._rCoef)
+      _sCoef(m._sCoef)
 {
 
 }
@@ -42,7 +42,7 @@ AnamDiscreteIR& AnamDiscreteIR::operator=(const AnamDiscreteIR &m)
 {
   if (this != &m)
   {
-    _rCoef = m._rCoef;
+    _sCoef = m._sCoef;
   }
   return *this;
 }
@@ -109,9 +109,9 @@ String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 
   sstr << AnamDiscrete::toString(strfmt);
 
-  if (_rCoef != 1.)
+  if (_sCoef != 1.)
   {
-    sstr << "Change of Support = " << _rCoef << std::endl;
+    sstr << "Change of Support = " << _sCoef << std::endl;
   }
 
   sstr << "In the following printout:" << std::endl;
@@ -395,8 +395,8 @@ double AnamDiscreteIR::modifyCov(const ECalcMember& /*member*/,
   }
   else
   {
-    cov1 = pow(cov1, _rCoef);
-    cov2 = pow(cov2, _rCoef);
+    cov1 = pow(cov1, _sCoef);
+    cov2 = pow(cov2, _sCoef);
     cov  = cov2 - cov1;
   }
   return cov;
@@ -404,7 +404,7 @@ double AnamDiscreteIR::modifyCov(const ECalcMember& /*member*/,
 
 double AnamDiscreteIR::getBlockVariance(double sval, double /*power*/) const
 {
-  if (! hasChangeSupport()) return TEST;
+  if (! allowChangeSupport()) return TEST;
   int nclass = getNClass();
 
   double var = 0.;
@@ -422,7 +422,7 @@ double AnamDiscreteIR::getBlockVariance(double sval, double /*power*/) const
 
 int AnamDiscreteIR::updatePointToBlock(double r_coef)
 {
-  if (! hasChangeSupport()) return 1;
+  if (! allowChangeSupport()) return 1;
   setRCoef(r_coef);
 
   int nclass = getNClass();
@@ -520,9 +520,6 @@ Selectivity AnamDiscreteIR::calculateSelectivity(bool flag_correct)
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Selectivity
- ** \param[out] calcut       Translated selectivity
- **
  *****************************************************************************/
 int AnamDiscreteIR::factor2QT(Db *db,
                               const VectorDouble& cutmine,
@@ -532,15 +529,40 @@ int AnamDiscreteIR::factor2QT(Db *db,
                               const VectorInt& cols_std,
                               int iptr,
                               const VectorInt& codes,
-                              const VectorInt& qt_vars,
-                              Selectivity& calest,
-                              Selectivity& calcut)
+                              VectorInt& qt_vars)
 {
   int nech = db->getSampleNumber();
   int nb_est = (int) cols_est.size();
   int nb_std = (int) cols_std.size();
   int ncleff = MAX(nb_est, nb_std);
   int ncutmine = (int) cutmine.size();
+
+  if (db == nullptr)
+  {
+    messerr("You must define a Db");
+    return 1;
+  }
+  if (nb_est <= 0 && nb_std <= 0)
+  {
+    messerr("The number of factors is zero");
+    return 1;
+  }
+  int nvar = MAX(nb_est, nb_std);
+  int nmax = getNCut();
+  if (nvar > nmax)
+  {
+    messerr("Number of factors (%d) must be smaller or equal to Number of cutoffs",
+            nvar, nmax);
+    return 1;
+  }
+  if (ncutmine <= 0) ncutmine = nmax;
+
+  /* Core allocation */
+
+  Selectivity calest(nmax);
+  Selectivity calcut;
+  if (ncutmine > 0)
+    calcut = Selectivity(ncutmine);
 
   /* Calculate the Recovery Functions from the factors */
 

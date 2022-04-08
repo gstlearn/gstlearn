@@ -1930,11 +1930,15 @@ int krigdgm(Db *dbin,
     if (iptr_varz < 0) return 1;
   }
 
+  // Building a local Hermite anamorphosis (only 1 Polynomial and Change of Support coefficient)
+
+  AnamHermite anam = AnamHermite(1, true, rval);
+
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptDGM(true, rval)) return 1;
+  if (ksys.setKrigOptDGM(true, &anam)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -2266,13 +2270,17 @@ int _krigsim(const char *strloc,
   iptr_est = dbout->getColIdxByLocator(ELoc::SIMU, 0);
   if (iptr_est < 0) return 1;
 
+  // Building a local Hermite anamorphosis (only 1 Polynomial and Change of Support coefficient)
+
+  AnamHermite anam = AnamHermite(1, true, rval);
+
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
-  if (ksys.setKrigOptDGM(flag_dgm, rval)) return 1;
+  if (ksys.setKrigOptDGM(flag_dgm, &anam)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -4684,7 +4692,7 @@ int krigcell(Db *dbin,
  ** \param[in]  nfactor   Number of factors to be estimated (0: all)
  **
  ** \remark At the end, the newly created variables are transformed into
- ** \remark Z variables for future steps
+ ** \remark Z locator variables for future steps
  **
  *****************************************************************************/
 static int st_calculate_hermite_factors(Db *db, int nfactor)
@@ -6971,30 +6979,11 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  anam       Anamoprhosis structure
  ** \param[in]  nfactor    Number of factors to be estimated (0: all)
- ** \param[in]  nmult      Array of Multiplicity for Partition
+ ** \param[in]  calcul     Type of estimate (from EKrigopt)
  ** \param[in]  ndisc      Discretization parameters (or NULL)
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
  ** \param[in]  namconv    Naming convention
- **
- ** \remark In case the Model handles a Punctual Anamorphosis, the
- ** \remark estimation of block average quantities is performed. This initiates
- ** \remark a block estimation kriging and therefore requires the definition of
- ** \remark the block discretization ('ndisc')
- **
- ** \remark In case the Model handles a Block Anamorphosis, the estimation
- ** \remark of probabilities per block is performed. This uses a simple point
- ** \remark (no use of 'ndisc'). Then the user may wish either to exhibit Q,T
- ** \remark on a SMU basis ('dbgrid' should then be the grid of SMUs) or to
- ** \remark directly produce Q,T on the panels (a panel is partitioned into
- ** \remark a set of SMU: this partition is defined through the argument 'nmult')
- **
- ** \remark The value 'KOPTION->calcul' must be set to:
- ** \remark - EKrigOpt::PONCTUAL for point-block estimation (flag_block = TRUE)
- ** \remark - EKrigOpt::BLOCK for point estimation
- ** \remark Nevertheless, for Point-Block model, if dbgrid is a grid of Panels
- ** \remark 'KOPTION->calcul' is set to EKrigOpt::BLOCK to provoke the discretization
- ** \remark of Panel into SMUs.
  **
  *****************************************************************************/
 int dk(Db* dbin,
@@ -7003,7 +6992,7 @@ int dk(Db* dbin,
        ANeighParam *neighparam,
        AAnam* anam,
        int nfactor,
-       const VectorInt &nmult,
+       const EKrigOpt &calcul,
        const VectorInt &ndisc,
        int flag_est,
        int flag_std,
@@ -7026,80 +7015,58 @@ int dk(Db* dbin,
   if (IFFFF(nfactor)) nfactor = anam->getNFactor();
   if (anam->getType() == EAnam::HERMITIAN)
   {
-    /* In the gaussian case, calculate the 'nfactor-1' factors */
+    /* In the gaussian case, calculate the factors */
 
     if (! dbin->isVariableNumberComparedTo(1))
     {
       messerr("In Gaussian case, Input File must contain a single variable");
       return 1;
     }
-    if (st_calculate_hermite_factors(dbin, nfactor - 1)) return 1;
+    if (st_calculate_hermite_factors(dbin, nfactor)) return 1;
   }
   int nvarz = dbin->getVariableNumber();
-  if (nfactor - 1 != nvarz)
+  if (nfactor != nvarz)
   {
     messerr("The number of variables in Input Db (%d) does not match", nvarz);
-    messerr("the number of factors (%d)-1", nfactor);
+    messerr("the number of factors (%d)", nfactor);
     return 1;
   }
-  int flag_block = 0;
-  if (anam->getType() == EAnam::HERMITIAN)
-  {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    if (anam_hermite->getRCoef() < 1.) flag_block = 1;
-  }
-  else if (anam->getType() == EAnam::DISCRETE_DD)
-  {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    if (anam_discrete_DD->getSCoef() > 0.) flag_block = 1;
-  }
-  else if (anam->getType() == EAnam::DISCRETE_IR)
-  {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    if (anam_discrete_IR->getRCoef() < 1.) flag_block = 1;
-  }
-  else
-  {
-    messerr("Non authorized type of Anamophosis");
-    return 1;
-  }
-  int flag_panel = (flag_block && ! nmult.empty());
 
-  // Preparing the information
+  bool flag_change_support = anam->isChangeSupportDefined();
 
-  EKrigOpt calcul;
-  VectorInt ndiscret;
-  if (flag_block)
+  EKrigOpt calcul_loc = calcul;
+  if (flag_change_support)
   {
-    if (flag_panel)
-    {
-      calcul = EKrigOpt::PONCTUAL;
-      ndiscret = nmult;
-    }
+    if (ndisc.empty())
+      calcul_loc = EKrigOpt::PONCTUAL;
     else
-    {
-      calcul = EKrigOpt::PONCTUAL;
-    }
+      calcul_loc = EKrigOpt::BLOCK;
   }
   else
   {
-    calcul = EKrigOpt::BLOCK;
-    ndiscret = ndisc;
+    calcul_loc = calcul;
+  }
+  if (calcul_loc == EKrigOpt::BLOCK && ndisc.empty())
+  {
+    messerr("For Block estimate, you must specify the discretization");
+    return 1;
   }
 
-  /* Centering the data */
+  // Centering the information
 
-  if (flag_block)
+  if (flag_change_support)
   {
-    if (flag_panel)
+    if (ndisc.empty())
     {
-      DbGrid* dbsmu = db_create_grid_divider(dbgrid, nmult, 1);
+      // Center the information in the blocks of the output grid
+      if (db_center_point_to_grid(dbin, dbgrid, perturb)) return 1;
+    }
+    if (! ndisc.empty())
+    {
+      // Center the information in sub-blocks when the output grid defines panels
+      DbGrid* dbsmu = db_create_grid_divider(dbgrid, ndisc, 1);
       if (db_center_point_to_grid(dbin, dbsmu, perturb)) return 1;
       dbsmu = db_delete(dbsmu);
-    }
-    else
-    {
-      if (db_center_point_to_grid(dbin, dbgrid, perturb)) return 1;
     }
   }
 
@@ -7131,8 +7098,8 @@ int dk(Db* dbin,
 
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
-  if (ksys.setKrigOptCalcul(calcul, ndiscret)) return 1;
-  if (ksys.setKrigOptDGM(true, flag_panel, 1.)) return 1;
+  if (ksys.setKrigOptCalcul(calcul_loc, ndisc)) return 1;
+  if (ksys.setKrigOptDGM(true, anam)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -7142,16 +7109,15 @@ int dk(Db* dbin,
     mes_process("Disjunctive Kriging for cell", dbgrid->getSampleNumber(),
                 iech_out);
 
-    for (int iclass = 1; iclass < nfactor; iclass++)
+    for (int iclass = 1; iclass <= nfactor; iclass++)
     {
       int jptr_est = (flag_est != 0) ? iptr_est + iclass - 1 : -1;
       int jptr_std = (flag_std != 0) ? iptr_std + iclass - 1 : -1;
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
       if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-
+      if (ksys.setKrigOptDGMClass(iclass)) return 1;
       if (model_anamorphosis_set_factor(model, iclass)) return 1;
-
       if (ksys.estimate(iech_out)) return 1;
     }
   }

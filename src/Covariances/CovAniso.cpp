@@ -116,16 +116,21 @@ void CovAniso::setParam(double param)
 
 void CovAniso::setSill(double sill)
 {
-  /// TODO : Replace throw by error message management
   if (getNVariables() != 1)
-  my_throw("Number of provided sill doesn't match number of variables");
+  {
+    messerr("Number of provided sill doesn't match number of variables");
+    return;
+  }
   _sill.reset(1, 1, sill);
 }
 
 void CovAniso::setSill(const MatrixSquareGeneral& sill)
 {
   if (getNVariables() != sill.getNSize())
-  my_throw("Number of provided sills doesn't match number of variables");
+  {
+    messerr("Number of provided sills doesn't match number of variables");
+    return;
+  }
   _sill = sill;
 }
 
@@ -134,7 +139,10 @@ void CovAniso::setSill(const VectorDouble& sill)
   int size = static_cast<int> (sill.size());
   int nvar = getNVariables();
   if (size != nvar * nvar)
-    my_throw("Number of provided sills doesn't match number of variables");
+  {
+    messerr("Number of provided sills doesn't match number of variables");
+    return;
+  }
   _sill.setValues(sill);
 }
 
@@ -143,8 +151,7 @@ void CovAniso::setSill(int ivar, int jvar, double sill)
   if (! _isVariableValid(ivar)) return;
   if (! _isVariableValid(jvar)) return;
   /// TODO : Test if sill matrix is positive definite (if not, generate a warning)
-  if (!_sill.isValid(ivar, jvar))
-  my_throw("Invalid indices in setSill");
+  if (!_sill.isValid(ivar, jvar)) return;
   _sill.setValue(ivar, jvar, sill);
 }
 
@@ -169,11 +176,17 @@ void CovAniso::setRanges(const VectorDouble& range)
 {
   if (!hasRange()) return;
   if (range.size() != getNDim())
-  my_throw("Inconsistency on Space Dimension");
+  {
+    message("Inconsistency on Space Dimension");
+    return;
+  }
   for (unsigned int i = 0; i < range.size(); i++)
+  {
     if (range[i] <= EPSILON20)
-    my_throw("A range should not be too small");
-
+    {
+      message("The range in Space dimension (%d) should not be too small",i);
+    }
+  }
   double scadef = _cova->getScadef();
   VectorDouble scale = range;
   ut_vector_divide_inplace(scale, scadef);
@@ -184,7 +197,10 @@ void CovAniso::setRange(int idim, double range)
 {
   if (!hasRange()) return;
   if (range <= EPSILON20)
-  my_throw("A range should not be too small");
+  {
+    message("The range should not be too small");
+    return;
+  }
   double scadef = _cova->getScadef();
   setScale(idim, range / scadef);
 }
@@ -193,7 +209,10 @@ void CovAniso::setScale(double scale)
 {
   if (!hasRange()) return;
   if (scale <= EPSILON20)
-  my_throw("A scale should not be too small");
+  {
+    message("A scale should not be too small");
+    return;
+  }
   _aniso.setRadius(scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * scale);
@@ -203,8 +222,13 @@ void CovAniso::setScales(const VectorDouble& scale)
 {
   if (!hasRange()) return;
   for (unsigned int i = 0; i < scale.size(); i++)
+  {
     if (scale[i] <= EPSILON20)
-    my_throw("A scale should not be too small");
+    {
+      message("The scale in Space Dimension (%d) should not be too small",i);
+      return;
+    }
+  }
   _aniso.setRadiusVec(scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * ut_vector_max(scale));
@@ -213,7 +237,10 @@ void CovAniso::setScales(const VectorDouble& scale)
 void CovAniso::setScale(int idim, double scale)
 {
   if (scale <= EPSILON20)
-  my_throw("A scale should not be too small");
+  {
+    message("A scale should not be too small");
+    return;
+  }
   _aniso.setRadiusDir(idim, scale);
   double scadef = _cova->getScadef();
   _cova->setField(scadef * ut_vector_max(_aniso.getRadius()));
@@ -230,7 +257,10 @@ void CovAniso::setAnisoRotation(const VectorDouble& rot)
   if (!hasRange()) return;
   int ndim = getNDim();
   if ((int) rot.size() != ndim * ndim)
-    my_throw("Error in dimension of 'rot'");
+  {
+    message("Dimension of 'rot' (%d) is not compatible with Space Dimension (%d)",
+            (int) rot.size(),ndim);
+  }
   Rotation r(ndim);
   r.setMatrixDirectByVector(rot);
   _aniso.setRotation(r);
@@ -441,8 +471,7 @@ double CovAniso::getSill(int ivar, int jvar) const
 {
   if (! _isVariableValid(ivar)) return TEST;
   if (! _isVariableValid(jvar)) return TEST;
-  if (!_sill.isValid(ivar, jvar))
-  my_throw("Wrong variable index while getting the sill");
+  if (!_sill.isValid(ivar, jvar)) return TEST;
   return _sill.getValue(ivar, jvar);
 }
 
@@ -456,8 +485,7 @@ double CovAniso::getSlope(int ivar, int jvar) const
 {
   if (! _isVariableValid(ivar)) return TEST;
   if (! _isVariableValid(jvar)) return TEST;
-  if (!_sill.isValid(ivar, jvar))
-    my_throw("Wrong variable index while getting the sill");
+  if (!_sill.isValid(ivar, jvar)) return TEST;
   if (hasRange() == 0) return TEST;
   double range = getRange(0);
   return _sill.getValue(ivar, jvar) / range;
@@ -506,7 +534,10 @@ const VectorDouble CovAniso::getAnisoCoeffs() const
   VectorDouble coef = getRanges();
   double max = ut_vector_max(coef);
   if (max < EPSILON10)
-  my_throw("Range is null");
+  {
+    message("Range is null");
+    return VectorDouble();
+  }
   ut_vector_divide_inplace(coef, max);
   return coef;
 }
@@ -575,7 +606,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       break;
 
     default:
-      my_throw("Integral Range has been programmed for Space Dimensio  between 1 and 3");
+      my_throw("Integral Range has been programmed for Space Dimension 1 to 3");
   }
   return total;
 }

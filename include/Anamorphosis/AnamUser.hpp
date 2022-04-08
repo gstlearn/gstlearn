@@ -35,6 +35,7 @@ public:
 
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::EXTERNAL; }
+  bool isChangeSupportDefined() const override { return false; }
 
   /// AnamContinuous Interface
   void   calculateMeanAndVariance() override;

@@ -675,11 +675,12 @@ double AnamHermite::modifyCov(const ECalcMember& member,
                               double cov1,
                               double /*cov2*/) const
 {
-  double cov;
   double coeff = 0.;
-  double rn = pow(_rCoef, (double) iclass);
+  double rhon  = 0.;
+  double rn    = pow(_rCoef, (double) iclass);
   if (dist <= 0.)
   {
+    rhon = 1.;
     switch (member.toEnum())
     {
       case ECalcMember::E_LHS:
@@ -694,11 +695,10 @@ double AnamHermite::modifyCov(const ECalcMember& member,
         coeff = 1.;
         break;
     }
-    cov = coeff;
   }
   else
   {
-    double rhon = pow(cov1, (double) iclass);
+    rhon = pow(cov1, (double) iclass);
     switch (member.toEnum())
     {
       case ECalcMember::E_LHS:
@@ -711,9 +711,8 @@ double AnamHermite::modifyCov(const ECalcMember& member,
         coeff = 1.;
         break;
     }
-    cov = coeff * rhon;
   }
-  return cov;
+  return coeff * rhon;
 }
 
 VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
@@ -723,7 +722,7 @@ VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
 
 double AnamHermite::getBlockVariance(double sval, double power) const
 {
-  if (! hasChangeSupport()) return TEST;
+  if (! allowChangeSupport()) return TEST;
   double variance;
   if (power == 1)
     variance = calculateVarianceFromPsi(sval);
@@ -735,7 +734,7 @@ double AnamHermite::getBlockVariance(double sval, double power) const
 
 int AnamHermite::updatePointToBlock(double r_coef)
 {
-  if (! hasChangeSupport()) return 1;
+  if (! allowChangeSupport()) return 1;
   setRCoef(r_coef);
 
   /* Update the anamorphosis coefficients */
@@ -805,8 +804,6 @@ Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
  ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  qt_vars      Array of variables to be calculated
  **
- ** \param[out] calest       Selectivity structure
- **
  *****************************************************************************/
 int AnamHermite::factor2QT(Db *db,
                            const VectorDouble& cutmine,
@@ -814,8 +811,7 @@ int AnamHermite::factor2QT(Db *db,
                            const VectorInt& cols_std,
                            int iptr,
                            const VectorInt& codes,
-                           const VectorInt& qt_vars,
-                           Selectivity& calest)
+                           VectorInt& qt_vars)
 {
   setFlagBound(1);
   int nbpoly = getNbPoly();
@@ -825,6 +821,34 @@ int AnamHermite::factor2QT(Db *db,
   int ncutmine = (int) cutmine.size();
   int nb_est = (int) cols_est.size();
   int nb_std = (int) cols_std.size();
+  int nvar = MAX(nb_est, nb_std);
+
+  /* Preliminary checks */
+
+  if (db == nullptr)
+  {
+    messerr("You must define a Db");
+    return 1;
+  }
+  if (nb_est <= 0 && nb_std <= 0)
+  {
+    messerr("The number of factors is zero");
+    return 1;
+  }
+
+  /* Get the number of initial cutoffs */
+
+  int nmax = getNbPoly();
+  if (nvar >= nmax)
+  {
+    messerr("Number of factors (%d) must be smaller than Number of classes (%d)",
+        nvar, nmax);
+    return 1;
+  }
+
+  /* Core allocation */
+
+  Selectivity calest(nmax);
 
   /* Loop on the samples */
 
@@ -945,8 +969,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Storage */
 
     calest.calculateBenefitGrade();
-    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
-                   calest);
+    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
   }
   return (0);
 }

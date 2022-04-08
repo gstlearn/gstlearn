@@ -54,9 +54,9 @@ public:
   virtual int    getOrderIRF() const = 0;
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  int getOrderIrf() const { return _orderIRF; }
+  int  getOrderIrf() const { return _orderIRF; }
   void setOrderIrf(int orderIrf) { _orderIRF = orderIrf; }
-  int getRankFex() const { return _rankFex; }
+  int  getRankFex() const { return _rankFex; }
   void setRankFex(int rankFex) { _rankFex = rankFex; }
   const EDrift& getType() const { return _type; }
   void setType(const EDrift& type) { _type = type; }

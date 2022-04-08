@@ -260,8 +260,8 @@ GSTLEARN_EXPORT int anamFactor2QT(Db *db,
                                   const VectorInt& codes,
                                   const VectorInt& cols_est,
                                   const VectorInt& cols_std,
-                                  int *ncut,
-                                  VectorInt& qt_vars);
+                                  VectorInt& qt_vars,
+                                  bool verbose = false);
 
 /******************************/
 /* Functions for Neighborhood */
@@ -451,7 +451,7 @@ GSTLEARN_EXPORT int dk(Db* dbin,
                        ANeighParam* neighparam,
                        AAnam* anam,
                        int nfactor,
-                       const VectorInt &nmult,
+                       const EKrigOpt &calcul,
                        const VectorInt &ndisc,
                        int flag_est = 1,
                        int flag_std = 1,

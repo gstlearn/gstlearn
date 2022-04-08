@@ -46,7 +46,8 @@ public:
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
   int  updatePointToBlock(double r_coef) override;
-  bool hasChangeSupport() const override { return true; }
+  bool allowChangeSupport() const override { return true; }
+  bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
@@ -72,13 +73,13 @@ public:
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }
-  double getSCoef() const { return _rCoef; }
+  double getSCoef() const { return _sCoef; }
   const VectorDouble& getI2Chi() const { return _i2Chi; }
   VectorDouble getPcaZ2F() const { return _maf.getZ2F(); }
   VectorDouble getPcaF2Z() const { return _maf.getF2Z(); }
 
   void setMu(double mu) { _mu = mu; }
-  void setRCoef(double rcoef) { _rCoef = rcoef; }
+  void setRCoef(double rcoef) { _sCoef = rcoef; }
   void setPcaZ2F(VectorDouble pcaz2f) { _maf.setPcaZ2F(pcaz2f); }
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
@@ -93,9 +94,7 @@ public:
                 const VectorInt& cols_std,
                 int iptr,
                 const VectorInt& codes,
-                const VectorInt& qt_vars,
-                Selectivity& calest,
-                Selectivity& calcut);
+                VectorInt& qt_vars);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose) override;
@@ -113,7 +112,7 @@ private:
 
 private:
   double _mu;
-  double _rCoef;
+  double _sCoef;
   PCA    _maf;
   VectorDouble _i2Chi;
 };
