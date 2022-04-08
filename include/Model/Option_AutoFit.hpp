@@ -61,7 +61,9 @@ private:
   void setTolstop(double tolstop) { _tolstop = tolstop; }
   void setVerbose(bool verbose) { _verbose = verbose; }
   /**
- * Set the type of the weighting function used in the fitting procedure. This function is defined in the case of several directional experimental variograms, calculated in a multivariate case:  
+ * Set the type of the weighting function used in the fitting procedure.
+ * This function is defined in the case of several directional experimental variograms,
+ * calculated in a multivariate case:
  * 0: The weight is constant  
  * 1: The weight is proportional to the number of pairs  
  * 2: The weight is proportional to the number of pairs and inverse proportional to the distance  

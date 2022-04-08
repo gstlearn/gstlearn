@@ -17,12 +17,6 @@
 
 class GSTLEARN_EXPORT Interval : public AStringable
 {
-  private:
-  double _vmin;
-  double _vmax;
-  bool   _minIncluded;
-  bool   _maxIncluded;
-
 public:
   Interval(double vmin = TEST,
            double vmax = TEST,
@@ -61,4 +55,10 @@ public:
 private:
   void _modifyUnbounded();
   bool _isValidInterval(void);
+
+private:
+  double _vmin;
+  double _vmax;
+  bool _minIncluded;
+  bool _maxIncluded;
 };

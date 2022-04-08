@@ -2068,14 +2068,10 @@ int _db_indicator(Db *db,
   {
     count[iclass] = 0;
     mean[iclass] = 0.;
-    minival[iclass] = (mini.empty()) ? iclass + 0.5 :
-                                       mini[iclass];
-    maxival[iclass] = (maxi.empty()) ? iclass + 1.5 :
-                                       maxi[iclass];
-    flagmin[iclass] = (incmini.empty()) ? 1 :
-                                          (int) incmini[iclass];
-    flagmax[iclass] = (incmaxi.empty()) ? 0 :
-                                          (int) incmaxi[iclass];
+    minival[iclass] = (mini.empty()) ? iclass + 0.5 : mini[iclass];
+    maxival[iclass] = (maxi.empty()) ? iclass + 1.5 : maxi[iclass];
+    flagmin[iclass] = (incmini.empty()) ? 1 : (int) incmini[iclass];
+    flagmax[iclass] = (incmaxi.empty()) ? 0 : (int) incmaxi[iclass];
   }
   int nbelow = 0;
   int nabove = 0;
@@ -2123,16 +2119,14 @@ int _db_indicator(Db *db,
       int belong = 1;
       if (!FFFF(minival[iclass]))
       {
-        if ((flagmin[iclass] == 0 && value <= minival[iclass]) || (flagmin[iclass]
-            == 1
-                                                                   && value < minival[iclass]))
+        if ((flagmin[iclass] == 0 && value <= minival[iclass]) ||
+            (flagmin[iclass] == 1 && value <  minival[iclass]))
           belong = 0;
       }
       if (!FFFF(maxival[iclass]))
       {
-        if ((flagmax[iclass] == 0 && value >= maxival[iclass]) || (flagmax[iclass]
-            == 1
-                                                                   && value > maxival[iclass]))
+        if ((flagmax[iclass] == 0 && value >= maxival[iclass]) ||
+            (flagmax[iclass] == 1 && value >  maxival[iclass]))
           belong = 0;
       }
 
