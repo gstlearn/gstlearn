@@ -3230,6 +3230,38 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
   }
 }
 
+/**
+ * Return the monovariate statistics on variables given their UID
+ * @param iuids              List of UID of the variables
+ * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param flagIso  
+ * @param flagVariableWise
+ * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
+ * @param proba 
+ * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
+ * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
+ * @param title              If flagPrint is True, the title of the printed statistics.
+ * @param namconv
+ * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
+ * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
+ * 
+ * @par List of operators available: 
+ * num    : Number of defined values  
+ * mean   : Mean over the defined values  
+ * var    : Variance over the defined values  
+ * stdv   : Standard Deviation over the defined values  
+ * mini   : Minimum over the defined values  
+ * maxi   : Maximum over the defined values  
+ * sum    : Sum over the variables  
+ * prop   : Proportion of values within [vmin;vmax]  
+ * quant  : Quantile corresponding to given probability  
+ * T      : Tonnage within [vmin;vmax]  
+ * Q      : Metal quantity within [vmin;vmax]  
+ * M      : Recovered mean within [vmin;vmax]  
+ * B      : Conventional Benefit within [vmin;vmax]  
+ 
+ * @see statisticsMulti (multivariate statistics)
+ */
 VectorDouble Db::statistics(const VectorInt& iuids,
                             const VectorString& opers,
                             bool flagIso,
@@ -3276,6 +3308,38 @@ VectorDouble Db::statistics(const VectorInt& iuids,
   return stats;
 }
 
+/**
+ * Return the monovariate statistics on variables given their names.
+ * @param names              List of names of the variables
+ * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param flagIso  
+ * @param flagVariableWise
+ * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
+ * @param proba 
+ * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
+ * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
+ * @param title              If flagPrint is True, the title of the printed statistics. 
+ * @param namconv
+ * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
+ * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
+ * 
+ * @par List of operators available: 
+ * num    : Number of defined values  
+ * mean   : Mean over the defined values  
+ * var    : Variance over the defined values  
+ * stdv   : Standard Deviation over the defined values  
+ * mini   : Minimum over the defined values  
+ * maxi   : Maximum over the defined values  
+ * sum    : Sum over the variables  
+ * prop   : Proportion of values within [vmin;vmax]  
+ * quant  : Quantile corresponding to given probability  
+ * T      : Tonnage within [vmin;vmax]  
+ * Q      : Metal quantity within [vmin;vmax]  
+ * M      : Recovered mean within [vmin;vmax]  
+ * B      : Conventional Benefit within [vmin;vmax]  
+ 
+ * @see statisticsMulti (multivariate statistics)
+ */
 VectorDouble Db::statistics(const VectorString& names,
                             const VectorString& opers,
                             bool flagIso,

@@ -732,7 +732,7 @@ int Model::fitFromCovIndices(Vario *vario,
  * @param vario       Experimental variogram to be fitted
  * @param types       Vector of ECov
  * @param verbose     Verbose option
- * @param mauto       Special parameters for Automatic fitting procedure
+ * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
  * @param constraints Set of Constraints
  * @param optvar      Set of options
  *
