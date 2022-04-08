@@ -3237,11 +3237,11 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
  * @param flagIso  
  * @param flagVariableWise
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
- * @param proba 
+ * @param proba              For 'quant': the quantile for this probability is calculated 
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
  * @param title              If flagPrint is True, the title of the printed statistics.
- * @param namconv
+ * @param namconv            Naming Convention
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
@@ -3315,11 +3315,11 @@ VectorDouble Db::statistics(const VectorInt& iuids,
  * @param flagIso  
  * @param flagVariableWise
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
- * @param proba 
+ * @param proba              For 'quant': the quantile for this probability is calculated
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
  * @param title              If flagPrint is True, the title of the printed statistics. 
- * @param namconv
+ * @param namconv            Naming Convention
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
