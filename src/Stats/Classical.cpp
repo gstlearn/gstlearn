@@ -133,12 +133,12 @@ VectorString statsNames(const VectorInt &iopers)
 }
 
 void dbStatisticsVariables(Db *db,
-                                           const VectorInt &iatts,
-                                           const VectorInt &iopers,
-                                           int iattn,
-                                           double vmin,
-                                           double vmax,
-                                           double proba)
+                           const VectorInt &iatts,
+                           const VectorInt &iopers,
+                           int iattn,
+                           double vmin,
+                           double vmax,
+                           double proba)
 {
   int noper = static_cast<int>(iopers.size());
   if (noper <= 0) return;
@@ -188,8 +188,7 @@ void dbStatisticsVariables(Db *db,
     {
       mean /= neff;
       var = var / neff - mean * mean;
-      stdv = (var >= 0) ? sqrt(var) :
-                          0.;
+      stdv = (var >= 0) ? sqrt(var) : 0.;
     }
 
     /* Set the return array */
@@ -222,11 +221,9 @@ void dbStatisticsVariables(Db *db,
         else if (iopers[i] == STAT_Q)
           tab = metal / (double) neff;
         else if (iopers[i] == STAT_M)
-          tab = (nperc > 0) ? metal / (double) nperc :
-                              TEST;
+          tab = (nperc > 0) ? metal / (double) nperc : TEST;
         else if (iopers[i] == STAT_B)
-          tab = (!FFFF(vmin)) ? (metal - vmin) / (double) neff :
-                                TEST;
+          tab = (!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST;
         else
           return;
       }
@@ -251,12 +248,12 @@ void dbStatisticsVariables(Db *db,
  **
  *****************************************************************************/
 VectorDouble dbStatisticsMono(Db *db,
-                                              const VectorInt &iatts,
-                                              const VectorInt &iopers,
-                                              bool flagIso,
-                                              double proba,
-                                              double vmin,
-                                              double vmax)
+                              const VectorInt &iatts,
+                              const VectorInt &iopers,
+                              bool flagIso,
+                              double proba,
+                              double vmin,
+                              double vmax)
 {
   int noper = static_cast<int>(iopers.size());
   int natt = static_cast<int>(iatts.size());
@@ -269,6 +266,8 @@ VectorDouble dbStatisticsMono(Db *db,
   VectorInt accept(nech, 0);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
+    accept[iech] = 0;
+    if (! db->isActive(iech)) continue;
     accept[iech] = 1;
     int nundef = 0;
     for (int iatt = 0; iatt < natt; iatt++)
@@ -319,8 +318,7 @@ VectorDouble dbStatisticsMono(Db *db,
     {
       mean /= neff;
       var = var / neff - mean * mean;
-      stdv = (var >= 0) ? sqrt(var) :
-                          0.;
+      stdv = (var >= 0) ? sqrt(var) : 0.;
     }
 
     // Constitute the array to be printed
@@ -343,11 +341,9 @@ VectorDouble dbStatisticsMono(Db *db,
         if (iopers[i] == STAT_T) tab.push_back((double) nperc / (double) neff);
         if (iopers[i] == STAT_Q) tab.push_back(metal / (double) neff);
         if (iopers[i] == STAT_M)
-          tab.push_back((nperc > 0) ? metal / (double) nperc :
-                                      TEST);
+          tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
         if (iopers[i] == STAT_B)
-          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff :
-                                        TEST);
+          tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
       }
       else
       {
@@ -465,9 +461,7 @@ double dbStatisticsIndicator(Db *db)
  ** \param[in]  flagIso    Restrain statistics to isotopic samples
  **
  *****************************************************************************/
-VectorDouble dbStatisticsMulti(Db *db,
-                                               const VectorInt &iatts,
-                                               bool flagIso)
+VectorDouble dbStatisticsMulti(Db *db, const VectorInt &iatts, bool flagIso)
 {
   int natt = static_cast<int>(iatts.size());
 

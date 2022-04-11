@@ -1974,7 +1974,7 @@ int _db_category(Db *db,
 
   /* Loop on the samples */
 
-  for (int iech = 0; iech < db->getSampleNumber(true); iech++)
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     double value = db->getArray(iech, iatt);
@@ -2187,8 +2187,9 @@ int _db_indicator(Db *db,
 
   if (!flag_indic)
   {
-    for (int iech = 0; iech < db->getSampleNumber(true); iech++)
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
+      if (! db->isActive(iech)) continue;
       double value = db->getArray(iech, iptr);
       if (FFFF(value)) continue;
       int iclass = (int) value;

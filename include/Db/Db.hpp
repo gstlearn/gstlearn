@@ -493,20 +493,20 @@ public:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
-  VectorDouble statistics(const VectorInt& iuids,
-                          const VectorString& opers = { "Mean" },
-                          bool flagIso = true,
-                          bool flagVariableWise = true,
-                          bool flagPrint = true,
-                          double proba = TEST,
-                          double vmin = TEST,
-                          double vmax = TEST,
-                          const String& title = "",
-                          const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsMulti(const VectorInt& iuids,
+  VectorDouble statisticsByUID(const VectorInt& iuids,
+                               const VectorString& opers = { "Mean" },
                                bool flagIso = true,
-                               bool flagPrint = false,
-                               const String& title = "");
+                               bool flagVariableWise = true,
+                               bool flagPrint = true,
+                               double proba = TEST,
+                               double vmin = TEST,
+                               double vmax = TEST,
+                               const String& title = "",
+                               const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsMultiByUID(const VectorInt& iuids,
+                                    bool flagIso = true,
+                                    bool flagPrint = false,
+                                    const String& title = "");
   bool areSame(const VectorString& names1,
                const VectorString& names2,
                double eps = EPSILON3,

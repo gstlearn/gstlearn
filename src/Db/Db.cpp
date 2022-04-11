@@ -3273,16 +3273,16 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
  
  * @see statisticsMulti (multivariate statistics)
  */
-VectorDouble Db::statistics(const VectorInt& iuids,
-                            const VectorString& opers,
-                            bool flagIso,
-                            bool flagVariableWise,
-                            bool flagPrint,
-                            double proba,
-                            double vmin,
-                            double vmax,
-                            const String& title,
-                            const NamingConvention& namconv)
+VectorDouble Db::statisticsByUID(const VectorInt& iuids,
+                                 const VectorString& opers,
+                                 bool flagIso,
+                                 bool flagVariableWise,
+                                 bool flagPrint,
+                                 double proba,
+                                 double vmin,
+                                 double vmax,
+                                 const String& title,
+                                 const NamingConvention& namconv)
 {
   VectorDouble stats;
 
@@ -3364,14 +3364,14 @@ VectorDouble Db::statistics(const VectorString& names,
 {
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return VectorDouble();
-  return statistics(iuids, opers, flagIso, flagVariableWise, flagPrint, proba,
-                    vmin, vmax, title, namconv);
+  return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
+                         proba, vmin, vmax, title, namconv);
 }
 
-VectorDouble Db::statisticsMulti(const VectorInt& iuids,
-                                 bool flagIso,
-                                 bool flagPrint,
-                                 const String& title)
+VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
+                                      bool flagIso,
+                                      bool flagPrint,
+                                      const String& title)
 {
   VectorDouble stats;
 
@@ -3395,7 +3395,7 @@ VectorDouble Db::statisticsMulti(const VectorString& names,
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return VectorDouble();
 
-  return statisticsMulti(iuids, flagIso, flagPrint, title);
+  return statisticsMultiByUID(iuids, flagIso, flagPrint, title);
 }
 
 /****************************************************************************/
