@@ -64,7 +64,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ===============
 
   PCA pca(nbsimu);
-  pca.compute(db);
+  pca.pca_compute(db);
   pca.display();
 
   // Store the transformed variables

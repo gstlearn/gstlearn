@@ -916,6 +916,17 @@ void Db::setLocatorsByUID(int number,
     setLocatorByUID(iuid+i, locatorType, locatorIndex + i);
 }
 
+void Db::setLocatorsByUID(const VectorInt& iuids,
+                          const ELoc& locatorType,
+                          int locatorIndex)
+{
+  if (!isLocatorTypeValid(locatorType, true)) return;
+  int number = (int) iuids.size();
+  for (int i = 0; i < number; i++)
+    setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
+}
+
+
 void Db::setLocatorsByColIdx(const VectorInt& icols,
                               const ELoc& locatorType,
                               int locatorIndex)
@@ -3901,4 +3912,39 @@ Db* Db::createSamplingDb(const Db* dbin,
     return nullptr;
   }
   return db;
+}
+
+bool Db::areSame(const String& name1,
+                 const String& name2,
+                 double eps,
+                 bool useSel,
+                 bool verbose)
+{
+  VectorDouble tab1 = getColumn(name1, true);
+  VectorDouble tab2 = getColumn(name2, true);
+  if (tab1.empty() || tab2.empty()) return true;
+
+  int nech = (int) tab1.size();
+  int ndiff = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    int ntest = 0;
+    if (FFFF(tab1[iech])) ntest++;
+    if (FFFF(tab2[iech])) ntest++;
+    if (ntest == 1) return false;
+    if (ntest == 2) continue;
+    double dist = tab1[iech] - tab2[iech];
+    if (ABS(dist) > eps) ndiff++;
+  }
+
+  if (verbose)
+  {
+    if (ndiff > 0)
+      message("Difference between %s and %s (eps = %lf) = %d / %d\n",
+              name1.c_str(),name2.c_str(),eps,ndiff,nech);
+    else
+      message("Variables %s and %s are similar (eps=%lf)\n",
+              name1.c_str(),name2.c_str(),eps);
+  }
+  return (ndiff > 0);
 }

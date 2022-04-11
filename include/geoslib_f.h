@@ -25,6 +25,7 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Stats/Selectivity.hpp"
+#include "Variogram/DirParam.hpp"
 
 #include "Basic/NamingConvention.hpp"
 
@@ -202,10 +203,6 @@ GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db, const ECalcVario &calcul_type, /
                                         int radius = 0.,
                                         bool flag_FFT = true,
                                         const NamingConvention& namconv = NamingConvention("VMAP"));
-GSTLEARN_EXPORT int pca_z2f(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
-                            const NamingConvention& namconv = NamingConvention("Z2F"));
-GSTLEARN_EXPORT int pca_f2z(Db *db, const PCA *pca, bool flag_norm, bool flag_verbose,
-                            const NamingConvention& namconv = NamingConvention("F2Z"));
 
 /***********************/
 /* Functions for Model */

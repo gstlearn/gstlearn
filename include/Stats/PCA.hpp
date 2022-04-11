@@ -16,8 +16,7 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-
-class Db;
+class DirParam;
 
 class GSTLEARN_EXPORT PCA: public AStringable
 {
@@ -30,8 +29,6 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int nvar);
-  void clean();
-  int calculateEigen(int nvar, VectorDouble& c0);
 
   const VectorDouble& getEigen() const { return _eigen; }
   double getEigen(int ivar) const { return _eigen[ivar]; }
@@ -53,18 +50,49 @@ public:
   void setMean(VectorDouble& mean) { _mean = mean; }
   void setSigma(VectorDouble& sigma) { _sigma = sigma; }
 
-  int compute(const Db *db, bool verbose = false);
+  int pca_compute(const Db *db, bool verbose = false);
+  int maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose = false);
   int dbZ2F(Db* db,
-            bool flag_norm = true,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("Z2F"));
   int dbF2Z(Db* db,
-            bool flag_norm = true,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("F2Z"));
 
 private:
   int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }
+  VectorBool _getVectorIsotopic(const Db* db);
+  void _loadData(const Db* db, int iech, VectorDouble& data);
+  int  _calculateEigen(VectorDouble& c0);
+  int _pcaCalculate(const Db *db, const VectorBool& isoFlag, bool verbose);
+  int _normalization(const Db *db,
+                     const VectorBool& isoFlag,
+                     VectorDouble& mean,
+                     VectorDouble& sigma,
+                     bool verbose);
+  void _covariance0(const Db *db,
+                   const VectorBool& isoFlag,
+                   const VectorDouble& mean,
+                   const VectorDouble& sigma,
+                   VectorDouble& c0,
+                   bool verbose);
+  int _covarianceh(Db *db,
+                   double h0,
+                   double dh,
+                   const DirParam& dirparam,
+                   const VectorBool& isoFlag,
+                   VectorDouble& ch,
+                   bool verbose);
+  void _center(VectorDouble& data,
+               const VectorDouble &mean,
+               const VectorDouble &sigma);
+  void _pcaZ2F(bool flag_norm,
+               int iptr,
+               Db *db,
+               const VectorBool isoFlag,
+               const VectorDouble& mean,
+               const VectorDouble& sigma);
+  void _pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag);
 
 private:
   int          _nVar;

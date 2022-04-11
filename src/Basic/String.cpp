@@ -100,10 +100,10 @@ String incrementStringVersion(const String &string,
 }
 
 String concatenateStrings(const String &delim,
-                                          const String &string1,
-                                          const String &string2,
-                                          const String &string3,
-                                          const String &string4)
+                          const String &string1,
+                          const String &string2,
+                          const String &string3,
+                          const String &string4)
 {
   bool started = false;
   std::stringstream ss;
@@ -133,13 +133,13 @@ String concatenateStrings(const String &delim,
   return ss.str();
 }
 
-VectorString generateMultipleNames(const String &radix, int number)
+VectorString generateMultipleNames(const String &radix, int number, const String& delim)
 {
   VectorString list;
 
   for (int i = 0; i < number; i++)
   {
-    list.push_back(incrementStringVersion(radix, i + 1, "-"));
+    list.push_back(incrementStringVersion(radix, i + 1, delim));
   }
   return list;
 }

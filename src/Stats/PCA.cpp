@@ -8,11 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Stats/PCA.hpp"
-
-#include "Stats/PCAStringFormat.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
+
+#include "Stats/PCA.hpp"
+#include "Stats/PCAStringFormat.hpp"
+
+#include <math.h>
 
 PCA::PCA(int nvar)
   : AStringable(),
@@ -60,7 +63,7 @@ PCA::~PCA()
 
 void PCA::init(int nvar)
 {
-  _nVar   = nvar;
+  _nVar = nvar;
   _mean.resize(nvar);
   _sigma.resize(nvar,0);
   _eigen.resize(nvar,0);
@@ -68,34 +71,17 @@ void PCA::init(int nvar)
   _F2Z.resize(nvar * nvar,0);
 }
 
-void PCA::clean()
+int PCA::_calculateEigen(VectorDouble& c0)
 {
-  for (int ivar=0; ivar<_nVar; ivar++)
-  {
-    _mean[ivar]  = 0.;
-    _sigma[ivar] = 1.;
-    _eigen[ivar] = 0.;
-    for (int jvar=0; jvar<_nVar; jvar++)
-    {
-      _Z2F[ivar * _nVar + jvar] = 0.;
-      _F2Z[ivar * _nVar + jvar] = 0.;
-    }
-  }
-}
-
-int PCA::calculateEigen(int nvar, VectorDouble& c0)
-{
-  _nVar = nvar;
-  _eigen.resize (nvar * nvar,0);
+  int nvar = _nVar;
+  _eigen.resize (nvar,0);
   _Z2F.resize(nvar * nvar,0);
   _F2Z.resize(nvar * nvar,0);
 
   /* Eigen decomposition */
 
-  if (matrix_eigen(c0.data(), nvar, _eigen.data(),
-                   _Z2F.data())) return (1);
-  if (matrix_invert_copy(_Z2F.data(), nvar,
-                         _F2Z.data())) return (1);
+  if (matrix_eigen(c0.data(), nvar, _eigen.data(), _Z2F.data())) return (1);
+  if (matrix_invreal_copy(_Z2F.data(), nvar, _F2Z.data())) return (1);
 
   return(0);
 }
@@ -108,7 +94,7 @@ String PCA::toString(const AStringFormat* strfmt) const
   PCAStringFormat dsf;
   if (pcafmt != nullptr) dsf = *pcafmt;
 
-  sstr << toTitle(1, "PCA Transform");
+  sstr << toTitle(1, "PCA Contents");
 
   if (dsf.getflagCenter())
   {
@@ -133,22 +119,608 @@ String PCA::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int PCA::compute(const Db *db, bool verbose)
+int PCA::pca_compute(const Db *db, bool verbose)
 {
-  return pca_compute(db, verbose, this);
+
+  /* Initializations */
+
+  if (db == nullptr)
+  {
+    messerr("You must define the 'Db'");
+    return 1;
+  }
+  int nvar = db->getVariableNumber();
+  if (nvar <= 0)
+  {
+    messerr("You must define 'Db' with some Z-variables");
+    return 1;
+  }
+  init(nvar);
+
+  // Optional title
+
+  if (verbose) mestitle(0,"PCA computation");
+
+  /* Calculate the PCA */
+
+  VectorBool isoFlag = _getVectorIsotopic(db);
+  if (_pcaCalculate(db, isoFlag, verbose)) return 1;
+  return 0;
 }
+
 int PCA::dbZ2F(Db* db,
-               bool flag_norm,
                bool verbose,
                const NamingConvention& namconv)
 {
-  return pca_z2f(db, this, flag_norm, verbose, namconv);
+  if (db == nullptr)
+  {
+    messerr("You must define 'Db'");
+    return 1;
+  }
+  int nvar = db->getVariableNumber();
+  if (nvar != _nVar)
+  {
+    messerr("The number of Z variables (%d) does not match the number of variables in PCA (%d)",
+            nvar,_nVar);
+    return 1;
+  }
+
+  // Core allocation
+
+  VectorDouble data(nvar);
+  VectorDouble mean(nvar);
+  VectorDouble sigma(nvar);
+  VectorBool isoFlag = _getVectorIsotopic(db);
+
+  /* Allocate new variables */
+
+  int iptr = db->addColumnsByConstant(nvar, TEST);
+  if (iptr < 0) return 1;
+
+  // Optional title
+
+  if (verbose) mestitle(0,"Transform from Z to Factors");
+
+  /* Normalization (optional) */
+
+  if (_normalization(db, isoFlag, mean, sigma, verbose)) return 1;
+
+  /* Perform the normalization */
+
+  _pcaZ2F(0, iptr, db, isoFlag, mean, sigma);
+
+  /* Optional printout */
+
+  if (verbose)
+  {
+    VectorInt cols(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++)
+      cols[ivar] = iptr + ivar;
+    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Factors","Factor");
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  return 0;
 }
 
 int PCA::dbF2Z(Db* db,
-               bool flag_norm,
                bool verbose,
                const NamingConvention& namconv)
 {
-  return pca_f2z(db, this, flag_norm, verbose, namconv);
+  if (db == nullptr)
+  {
+    messerr("You must define 'Db'");
+    return 1;
+  }
+  int nvar = db->getVariableNumber();
+  if (nvar != _nVar)
+  {
+    messerr("The number of Z variables (%d) does not match the number of variables in PCA (%d)",
+            nvar,_nVar);
+    return 1;
+  }
+
+  /* Allocate new variables */
+
+  int iptr = db->addColumnsByConstant(nvar, TEST);
+  if (iptr < 0) return 1;
+
+  // Optional title
+
+  if (verbose) mestitle(0,"Transform from Factors to Z");
+
+  /* Rotate the factors into data in the PCA system */
+
+  VectorBool isoFlag = _getVectorIsotopic(db);
+  _pcaF2Z(iptr, db, isoFlag);
+
+  /* Optional printout */
+
+  if (verbose)
+  {
+    VectorInt cols(nvar);
+    for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
+    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Variables", "Variable");
+  }
+
+  /* Set the error return code */
+
+  namconv.setNamesAndLocators(db, ELoc::Z, -1, db, iptr);
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Internal function to calculate MAF
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db         Db descriptor
+ ** \param[in]  data       Data vector
+ ** \param[in]  verbose    Verbose flag
+ **
+ *****************************************************************************/
+int PCA::_pcaCalculate(const Db *db,
+                       const VectorBool& isoFlag,
+                       bool verbose)
+{
+  int nvar = getNVar();
+  VectorDouble mean(nvar);
+  VectorDouble sigma(nvar);
+  VectorDouble c0(nvar * nvar);
+  if (_normalization(db, isoFlag, mean, sigma, verbose)) return 1;
+  _covariance0(db, isoFlag, mean, sigma, c0, verbose);
+  setMean(mean);
+  setSigma(sigma);
+  if (_calculateEigen(c0)) return 1;
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Fill the mean and variance arrays
+ **
+ ** \param[in] verbose     Verbose flag
+ ** \param[in] db          Db descriptor
+ ** \param[in] data        Array containing variables for one sample
+ **
+ ** \param[out] mean       Array of means
+ ** \param[out] sigma      Array of standard deviations
+ **
+ *****************************************************************************/
+int PCA::_normalization(const Db *db,
+                        const VectorBool& isoFlag,
+                        VectorDouble& mean,
+                        VectorDouble& sigma,
+                        bool verbose)
+{
+  int niso, nvar, nech;
+
+  // Initializations
+
+  niso = 0;
+  nvar = db->getVariableNumber();
+  nech = db->getSampleNumber();
+  VectorDouble data(nvar);
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    mean[ivar] = sigma[ivar] = 0.;
+
+  /* Calculate the statistics */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!isoFlag[iech]) continue;
+    _loadData(db, iech, data);
+
+    niso++;
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      mean[ivar] += data[ivar];
+      sigma[ivar] += data[ivar] * data[ivar];
+    }
+  }
+
+  /* Normalization */
+
+  if (niso > 0)
+  {
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      mean[ivar] /= niso;
+      sigma[ivar] = (sigma[ivar] / niso - mean[ivar] * mean[ivar]);
+      sigma[ivar] = (sigma[ivar] > 0) ? sqrt(sigma[ivar]) :
+                                        0.;
+      if (sigma[ivar] <= 0.)
+      {
+        messerr("Error: Variable (%d) is constant", ivar + 1);
+        return 1;
+      }
+    }
+  }
+
+  if (verbose)
+  {
+    message("Number of variables         = %d\n", nvar);
+    message("Number of samples in the Db = %d\n", nech);
+    message("Number of isotropic samples = %d\n", niso);
+    print_matrix("Mean", 0, 1, 1, nvar, NULL, mean.data());
+    print_matrix("St. Dev.", 0, 1, 1, nvar, NULL, sigma.data());
+    message("\n");
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Internal PCA covariance calculation
+ **
+ ** \return The array of covariance (or NULL)
+ **
+ ** \param[in]  verbose     Verbose flag
+ ** \param[in]  db          Db descriptor
+ ** \param[in]  mean        Array containing the mean
+ ** \param[in]  sigma       Array containing the standard deviation
+ **
+ ** \param[out] data1       Array containing variables for one sample
+ **
+ *****************************************************************************/
+void PCA::_covariance0(const Db *db,
+                       const VectorBool& isoFlag,
+                       const VectorDouble& mean,
+                       const VectorDouble& sigma,
+                       VectorDouble& c0,
+                       bool verbose)
+{
+  int nvar = db->getVariableNumber();
+  int nech = db->getSampleNumber();
+  int niso = 0;
+  VectorDouble data1(nvar);
+  for (int i = 0; i < nvar * nvar; i++) c0[i] = 0.;
+
+  /* Calculate the variance-covariance matrix at distance 0 */
+
+  niso = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! isoFlag[iech]) continue;
+    _loadData(db, iech, data1);
+    _center(data1, mean, sigma);
+
+    niso++;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int jvar = 0; jvar < nvar; jvar++)
+        c0[ivar * nvar + jvar] += data1[ivar] * data1[jvar];
+  }
+
+  /* Normalization */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      c0[ivar * nvar + jvar] /= niso;
+
+  /* Printout of the covariance matrix (optional) */
+
+  if (verbose)
+    print_matrix("Variance-Covariance matrix for distance 0", 0, 1, nvar, nvar,
+                 NULL,c0.data());
+}
+
+/****************************************************************************/
+/*!
+ **  Normalize the isotropic array of values
+ **
+ ** \param[in,out] data      Array of information
+ ** \param[in]  mean         Array containing the mean
+ ** \param[in]  sigma        Array containing the standard deviation
+ **
+ *****************************************************************************/
+void PCA::_center(VectorDouble& data,
+                  const VectorDouble &mean,
+                  const VectorDouble &sigma)
+{
+  int ivar;
+  int nvar = (int) mean.size();
+
+  for (ivar = 0; ivar < nvar; ivar++)
+  {
+    if (sigma[ivar] <= 0.) continue;
+    data[ivar] = (data[ivar] - mean[ivar]) / sigma[ivar];
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Procedure for transforming the variables into factors using PCA
+ **
+ ** \param[in]  flag_norm    1 if the factors must be normalized
+ ** \param[in]  iptr         Pointer for storing the result in db
+ ** \param[in]  db           Db descriptor
+ ** \param[in]  pca          PCA descriptor
+ ** \param[in]  data1        Input array
+ ** \param[in]  mean         Array containing the mean
+ ** \param[in]  sigma        Array containing the standard deviation
+ **
+ ** \remarks The standardization statistics are passed as arguments
+ ** \remarks The ones stored in PCA structure are not used.
+ **
+ *****************************************************************************/
+void PCA::_pcaZ2F(bool flag_norm,
+                  int iptr,
+                  Db *db,
+                  const VectorBool isoFlag,
+                  const VectorDouble& mean,
+                  const VectorDouble& sigma)
+{
+  int nvar = db->getVariableNumber();
+  int nech = db->getSampleNumber();
+  VectorDouble data1(nvar);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! isoFlag[iech]) continue;
+    _loadData(db, iech, data1);
+    _center(data1, mean, sigma);
+
+    /* Loop on the factors */
+
+    for (int ifac = 0; ifac < nvar; ifac++)
+    {
+      double value = 0.;
+      for (int ivar = 0; ivar < nvar; ivar++)
+        value += getZ2F(ifac, ivar) * data1[ivar];
+      if (flag_norm) value /= sqrt(getEigen(ifac));
+      db->setArray(iech, ifac + iptr, value);
+    }
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Procedure for transforming the factors into variables using PCA
+ **
+ ** \param[in]  iptr         Pointer to the storage
+ ** \param[in]  db           Db descriptor
+ **
+ *****************************************************************************/
+void PCA::_pcaF2Z(int iptr,
+                  Db *db,
+                  const VectorBool& isoFlag)
+{
+  int nvar = db->getVariableNumber();
+  int nech = db->getSampleNumber();
+  VectorDouble data1(nvar);
+
+  /* Loop on the samples */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! isoFlag[iech]) continue;
+    _loadData(db, iech, data1);
+
+    /* Loop on the factors */
+
+    for (int ivar = 0; ivar < nvar; ivar++)
+    {
+      double value = 0.;
+      for (int ifac = 0; ifac < nvar; ifac++)
+        value += getF2Z(ivar, ifac) * data1[ifac];
+      value = getMean(ivar) + getSigma(ivar) * value;
+      db->setArray(iech, ivar + iptr, value);
+    }
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the MAF on irregular data
+ **
+ ** \return  PCA structure (or nullptr)
+ **
+ ** \param[in]  db         Db descriptor
+ ** \param[in]  dirparam   DirParam structure
+ ** \param[in]  h0         Reference distance
+ ** \param[in]  dh         Tolerance on distance
+ ** \param[in]  verbose    Verbose flag
+ **
+ *****************************************************************************/
+int PCA::maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose)
+{
+
+  /* Initializations */
+
+  if (db == nullptr)
+  {
+    messerr("You must define 'Db' beforehand");
+    return 1;
+  }
+  int nvar = db->getVariableNumber();
+  if (nvar <= 0)
+  {
+    messerr("You must define 'Db' with some Z-variables");
+    return 1;
+  }
+  init(nvar);
+  PCA pca2(nvar);
+
+  /* Allocate new variables */
+
+  VectorInt uidZ = db->getUIDsByLocator(ELoc::Z);
+  int iptr = db->addColumnsByConstant(nvar, TEST);
+  if (iptr < 0) return 1;
+
+  // Optional title
+
+  if (verbose) mestitle(0,"MAF computation");
+
+  /* Core allocation */
+
+  VectorBool isoFlag = _getVectorIsotopic(db);
+  VectorDouble identity(nvar * nvar);
+  VectorDouble ch(nvar * nvar);
+  for (int i = 0; i < nvar * nvar; i++) identity[i] = 0.;
+
+  /* Calculate the first PCA (centered and normalized) */
+
+  if (_pcaCalculate(db, isoFlag, verbose)) return 1;
+
+  /* Rotate the initial data in the PCA system */
+
+  _pcaZ2F(1, iptr, db, isoFlag, getMean(), getSigma());
+  db->setLocatorsByUID(nvar, iptr, ELoc::Z);
+
+  /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
+
+  if (_covarianceh(db, h0, dh, dirparam, isoFlag, ch, verbose)) return 1;
+  if (pca2._calculateEigen(ch)) return 1;
+
+  /* Rotate the initial data in the second PCA system */
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    identity[ivar * nvar + ivar] = 1. / sqrt(getEigen(ivar));
+  VectorDouble pcaz2f  = getZ2F();
+  VectorDouble pca2z2f = pca2.getZ2F();
+  VectorDouble pcaf2z  = getF2Z();
+  matrix_product(nvar, nvar, nvar, pcaz2f.data(), identity.data(), pcaz2f.data());
+  matrix_product(nvar, nvar, nvar, pcaz2f.data(), pca2z2f.data(), pca2z2f.data());
+  setPcaZ2F(pcaz2f);
+  pca2.setPcaZ2F(pca2z2f);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    int kvar = nvar - ivar - 1;
+    setEigen(kvar, pca2.getEigen(ivar));
+    for (int jvar = 0; jvar < nvar; jvar++)
+      setPcaZ2F(kvar, jvar, pca2.getZ2F(ivar, jvar));
+  }
+  if (matrix_invert_copy(getZ2F().data(), nvar, pcaf2z.data())) return 1;
+  setPcaF2Z(pcaf2z);
+
+  (void) db_attribute_del_mult(db, iptr, nvar);
+  db->setLocatorsByUID(uidZ, ELoc::Z);
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Internal PCA translated covariance calculation
+ **
+ **  Error returned case
+ **
+ ** \param[in]  verbose     Verbose flag
+ ** \param[in]  db          Db descriptor
+ ** \param[in]  dirparam    DirParam structure
+ ** \param[in]  h0          Reference distance
+ ** \param[in]  dh          Tolerance on distance
+ **
+ ** \param[out] ch          The vector of variance-covariance
+ **
+ *****************************************************************************/
+int PCA::_covarianceh(Db *db,
+                      double h0,
+                      double dh,
+                      const DirParam& dirparam,
+                      const VectorBool& isoFlag,
+                      VectorDouble& ch,
+                      bool verbose)
+{
+  double ps;
+
+  int nech = db->getSampleNumber();
+  int nvar = db->getVariableNumber();
+  int npairs = 0;
+  double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
+  VectorDouble data1(nvar);
+  VectorDouble data2(nvar);
+
+  /* Core allocation */
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! isoFlag[iech]) continue;
+    _loadData(db, iech, data1);
+
+    /* Loop on the second sample */
+
+    for (int jech = 0; jech < iech; jech++)
+    {
+      if (! isoFlag[jech]) continue;
+      _loadData(db, jech, data2);
+
+      /* Should the pair be retained */
+
+      double dist = distance_intra(db, iech, jech, NULL);
+      if (dist < h0 - dh || dist > h0 + dh) continue;
+      if (code_comparable(db, db, iech, jech, dirparam.getOptionCode(),
+                          (int) dirparam.getTolCode())) continue;
+      if (variogram_reject_pair(db, iech, jech, dist, psmin,
+                                dirparam.getBench(), dirparam.getCylRad(),
+                                dirparam.getCodir(), &ps)) continue;
+
+      /* Update the variance-covariance matrix at distance h */
+
+      for (int ivar = 0; ivar < nvar; ivar++)
+        for (int jvar = 0; jvar < nvar; jvar++)
+        {
+          double di = data1[ivar] - data2[ivar];
+          double dj = data1[jvar] - data2[jvar];
+          ch[ivar * nvar + jvar] += di * dj;
+        }
+      npairs++;
+    }
+  }
+
+  /* Normation */
+
+  if (npairs <= 1)
+  {
+    messerr("Number of pairs of isotopic samples is smaller than 2");
+    return 1;
+  }
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int jvar = 0; jvar < nvar; jvar++)
+      ch[ivar * nvar + jvar] /= npairs;
+
+  /* Verbose printout */
+
+  if (verbose)
+  {
+    message("\n");
+    dirparam.display();
+    message("Reference Distance          = %lf\n", h0);
+    message("Tolerance on Distance       = %lf\n", dh);
+    message("Number of samples in the Db = %d\n", nech);
+    message("Number of isotopic pairs    = %d\n", npairs);
+    message("\n");
+    print_matrix("Variance-Covariance matrix for distance h", 0, 1, nvar, nvar,
+                 NULL,ch.data());
+  }
+  return 0;
+}
+
+VectorBool PCA::_getVectorIsotopic(const Db* db)
+{
+  int nvar = db->getVariableNumber();
+  int nech = db->getSampleNumber();
+  VectorDouble data(nvar);
+  VectorBool isoFlag = VectorBool(nech);
+
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (! db->isActive(iech))
+      isoFlag[iech] = false;
+    else
+      isoFlag[iech] = db_is_isotropic(db, iech, data.data());
+  }
+  return isoFlag;
+}
+
+void PCA::_loadData(const Db* db, int iech, VectorDouble& data)
+{
+  int nvar = (int) db->getVariableNumber();
+  for (int ivar = 0; ivar < nvar; ivar++)
+    data[ivar] = db->getVariable(iech, ivar);
 }

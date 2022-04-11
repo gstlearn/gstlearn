@@ -240,9 +240,10 @@ double DirParam::getMaximumDistance() const
 String DirParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-
-  sstr << "Number of lags              = " << getLagNumber() << std::endl;
   int ndim = getDimensionNumber();
+
+  if (getLagNumber() > 0)
+    sstr << "Number of lags              = " << getLagNumber() << std::endl;
 
   if (! _codir.empty())
   {

@@ -531,6 +531,7 @@ GSTLEARN_EXPORT int matrix_invgen(double *a,
                                   double *cond);
 GSTLEARN_EXPORT int matrix_invsvdsym(double *a, int neq, int rank);
 GSTLEARN_EXPORT int matrix_invreal(double *mat, int neq);
+GSTLEARN_EXPORT int matrix_invreal_copy(const double *a, int neq, double *b);
 GSTLEARN_EXPORT void matrix_svd_inverse(int neq,
                                         double *s,
                                         double *u,
@@ -790,8 +791,6 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
 /****************************************/
 
 GSTLEARN_EXPORT void vario_fix_codir(int ndim, VectorDouble &codir);
-GSTLEARN_EXPORT PCA* pca_free(PCA *pca);
-GSTLEARN_EXPORT PCA* pca_alloc(int nvar);
 
 GSTLEARN_EXPORT Vario* variogram_delete(Vario *vario);
 GSTLEARN_EXPORT int variogram_maximum_dist1D_reached(Db *db,
@@ -912,18 +911,6 @@ GSTLEARN_EXPORT int vario_extract(Vario *vario,
                                   double *scale,
                                   double **dates);
 GSTLEARN_EXPORT int vario_get_rank(Vario *vario, int idir, int idate);
-GSTLEARN_EXPORT int maf_compute(Db *db,
-                                int opt_code,
-                                double tolcode,
-                                VectorDouble &codir,
-                                double tolang,
-                                double bench,
-                                double cylrad,
-                                double h0,
-                                double dh,
-                                int verbose,
-                                PCA *pca);
-GSTLEARN_EXPORT int pca_compute(const Db *db, bool verbose, PCA *pca);
 GSTLEARN_EXPORT int variogram_y2z(Vario *vario, AAnam *anam, Model *model);
 
 /****************************************/

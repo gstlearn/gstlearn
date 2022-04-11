@@ -83,7 +83,7 @@ public:
 private:
   void _setNames(Db *dbout,
                  int iattout_start,
-                 VectorString names,
+                 const VectorString& names,
                  const String& suffix,
                  int nitems) const;
 

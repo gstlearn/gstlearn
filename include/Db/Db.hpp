@@ -170,6 +170,9 @@ public:
                         int iuid,
                         const ELoc& locatorType = ELoc::UNKNOWN,
                         int locatorIndex = 0);
+  void setLocatorsByUID(const VectorInt& iuids,
+                        const ELoc& locatorType = ELoc::UNKNOWN,
+                        int locatorIndex = 0);
   void setLocatorsByColIdx(const VectorInt& icols,
                            const ELoc& locatorType = ELoc::UNKNOWN,
                            int locatorIndex = 0);
@@ -504,6 +507,11 @@ public:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
+  bool areSame(const String& name1,
+               const String& name2,
+               double eps = EPSILON3,
+               bool useSel = true,
+               bool verbose = true);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;

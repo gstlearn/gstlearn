@@ -21,6 +21,7 @@
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Variogram/ECalcVario.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/
@@ -35,7 +36,7 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
-  int error = 1; //TODO : temporary fail
+  int error = 1;
   int ndim = 2;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space

@@ -3490,6 +3490,38 @@ int matrix_get_extreme(int mode, int ntab, double *tab)
 
 /*****************************************************************************/
 /*!
+ **  Invert a symmetric square matrix
+ **  Pivots are assumed to located on the diagonal
+ **
+ ** \return  Return code: 0 no error; k if the k-th pivot is zero
+ **
+ ** \param[in]  a    input matrix
+ ** \param[in]  neq  number of equations in the matrix 'a'
+ **
+ ** \param[out] b    output matrix
+ **
+ ** \remark  The difference with matrix_invert() is that the output
+ ** \remark  matrix is different from input matrix
+ **
+ *****************************************************************************/
+int matrix_invreal_copy(const double *a, int neq, double *b)
+{
+  int i, error;
+
+  /* Copy the input matrix into the output matrix */
+
+  for (i = 0; i < neq * neq; i++)
+    b[i] = a[i];
+
+  /* Invert the matrix */
+
+  error = matrix_invreal(b, neq);
+
+  return (error);
+}
+
+/*****************************************************************************/
+/*!
  **  Invert a square real full matrix
  **
  ** \return  Error return code

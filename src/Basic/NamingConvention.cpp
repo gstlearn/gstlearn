@@ -245,7 +245,7 @@ void NamingConvention::setLocators(Db *dbout,
  */
 void NamingConvention::_setNames(Db *dbout,
                                  int iattout_start,
-                                 VectorString names,
+                                 const VectorString& names,
                                  const String& suffix,
                                  int nitems) const
 {
@@ -261,7 +261,7 @@ void NamingConvention::_setNames(Db *dbout,
     for (int item = 0; item < nitems; item++)
     {
       String locnum = (nitems <= 1) ? String() : std::to_string(item+1);
-      String name = concatenateStrings(_delim,_radix, local, suffix, locnum);
+      String name = concatenateStrings(_delim, _radix, local, suffix, locnum);
       dbout->setNameByUID(iattout_start + ecr, name);
       ecr++;
     }
