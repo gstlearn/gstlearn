@@ -187,6 +187,8 @@ int Limits::toCategory(Db* db, const String& name,
  * @param name               Name of the variable in the Db to be discretized.
  * @param OptionIndicator    When 1, the function assignes the indicator variables.
  *							             When 0, the function assignes the average of the class.
+ * @param namconv            Naming convention
+ *
  * @return
  */
 int Limits::toIndicator(Db* db,

@@ -507,11 +507,16 @@ public:
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
+  bool areSame(const VectorString& names1,
+               const VectorString& names2,
+               double eps = EPSILON3,
+               bool useSel = true,
+               bool verbose = false);
   bool areSame(const String& name1,
                const String& name2,
                double eps = EPSILON3,
                bool useSel = true,
-               bool verbose = true);
+               bool verbose = false);
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;

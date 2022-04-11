@@ -20,6 +20,7 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Stats/PCA.hpp"
+#include "Stats/PCAStringFormat.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/
@@ -29,6 +30,7 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
+  double eps = 1.e-6;
   int error = 1;
 
   int ndim = 2;
@@ -37,7 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(nvar,ndim);
@@ -59,19 +61,52 @@ int main(int /*argc*/, char */*argv*/[])
   error = simtub(nullptr,db,&models,nullptr,nbsimu);
   db->display();
 
-  // ===============
+  // ============
   // Evaluate PCA
-  // ===============
+  // ============
 
-  PCA pca(nbsimu);
+  PCA pca = PCA();
   pca.pca_compute(db);
   pca.display();
 
   // Store the transformed variables
 
   pca.dbZ2F(db);
-  db->display();
+  pca.dbF2Z(db);
+
+  // Comparing initial and back-transformed variables
+  VectorString names1 = generateMultipleNames("Simu" , nbsimu, ".");
+  VectorString names2 = generateMultipleNames("F2Z.Z2F.Simu", nbsimu, ".");
+  for (int i = 0; i < nbsimu; i++)
+    (void) db->areSame(names1[i], names2[i], eps);
+
+  // ============
+  // Evaluate MAF
+  // ============
+
+  db->setLocator("Simu*", ELoc::Z);
+  DirParam dirparam = DirParam(2);
+  PCA maf = PCA();
+  maf.maf_compute(db, 0.1, 0.05, dirparam);
+  maf.display();
+
+  // Store the transformed variable
+
+  maf.dbZ2F(db, false, NamingConvention("Z2MAF"));
+  maf.dbF2Z(db, false, NamingConvention("MAF2Z"));
+
+  // Comparing initial and back-transformed variables
+
+  names1 = generateMultipleNames("Simu" , nbsimu, ".");
+  names2 = generateMultipleNames("MAF2Z.Z2MAF.Simu", nbsimu, ".");
+  for (int i = 0; i < nbsimu; i++)
+    (void) db->areSame(names1[i], names2[i], eps);
 
   delete db;
   return (error);
 }
+
+
+//zzz
+//delete grid;
+//return 0;

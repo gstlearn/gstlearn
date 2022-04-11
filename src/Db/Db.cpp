@@ -3920,12 +3920,12 @@ bool Db::areSame(const String& name1,
                  bool useSel,
                  bool verbose)
 {
-  VectorDouble tab1 = getColumn(name1, true);
-  VectorDouble tab2 = getColumn(name2, true);
+  int ndiff = 0;
+  VectorDouble tab1 = getColumn(name1, useSel);
+  VectorDouble tab2 = getColumn(name2, useSel);
   if (tab1.empty() || tab2.empty()) return true;
 
   int nech = (int) tab1.size();
-  int ndiff = 0;
   for (int iech = 0; iech < nech; iech++)
   {
     int ntest = 0;
@@ -3934,17 +3934,40 @@ bool Db::areSame(const String& name1,
     if (ntest == 1) return false;
     if (ntest == 2) continue;
     double dist = tab1[iech] - tab2[iech];
-    if (ABS(dist) > eps) ndiff++;
+    if (ABS(dist) > eps)
+    {
+      ndiff++;
+      if (verbose)
+        message("Sample #%d: V1=%lf V2=%lf\n",iech+1,tab1[iech],tab2[iech]);
+    }
   }
 
-  if (verbose)
+  if (ndiff > 0)
+    message("Differences between %s and %s (eps = %lf) = %d / %d\n",
+            name1.c_str(),name2.c_str(),eps,ndiff,nech);
+  else
+    message("Variables %s and %s are similar (eps=%lf)\n",
+            name1.c_str(),name2.c_str(),eps);
+  return (ndiff > 0);
+}
+
+bool Db::areSame(const VectorString& names1,
+                 const VectorString& names2,
+                 double eps,
+                 bool useSel,
+                 bool verbose)
+{
+  VectorString exp_names1 = expandNameList(names1);
+  VectorString exp_names2 = expandNameList(names2);
+  if ((int) exp_names1.size() != (int) exp_names2.size()) return false;
+  int number = (int) exp_names1.size();
+
+  // Loop on the variables
+
+  int ndiff = 0;
+  for (int i = 0; i < number; i++)
   {
-    if (ndiff > 0)
-      message("Difference between %s and %s (eps = %lf) = %d / %d\n",
-              name1.c_str(),name2.c_str(),eps,ndiff,nech);
-    else
-      message("Variables %s and %s are similar (eps=%lf)\n",
-              name1.c_str(),name2.c_str(),eps);
+    if (areSame(exp_names1[i], exp_names2[i], eps, useSel, verbose)) return true;
   }
   return (ndiff > 0);
 }

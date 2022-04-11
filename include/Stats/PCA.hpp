@@ -86,8 +86,10 @@ private:
   void _center(VectorDouble& data,
                const VectorDouble &mean,
                const VectorDouble &sigma);
-  void _pcaZ2F(bool flag_norm,
-               int iptr,
+  void _uncenter(VectorDouble& data,
+                 const VectorDouble &mean,
+                 const VectorDouble &sigma);
+  void _pcaZ2F(int iptr,
                Db *db,
                const VectorBool isoFlag,
                const VectorDouble& mean,

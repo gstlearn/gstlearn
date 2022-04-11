@@ -27,14 +27,13 @@
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  double eps = 0.001;
   VectorString names1;
   VectorString names2;
 
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   DbStringFormat dbfmt(FLAG_STATS);
 
@@ -59,7 +58,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a set of Limits
   Limits limits({-1.,-0.5,0.,0.5,1.});
   limits.display();
-  int nclass = limits.getLimitNumber();
 
   // Other option
   grid->setLocator("Simu", ELoc::Z);
@@ -73,36 +71,6 @@ int main(int /*argc*/, char */*argv*/[])
   dbfmt = DbStringFormat(FLAG_ARRAY, {"Indicator.Simu.Class*"});
   grid->display(&dbfmt);
 
-  // Testing PCA calculations
-  grid->setLocator("Indicator.Simu.Class*", ELoc::Z);
-  PCA pca = PCA();
-  pca.pca_compute(grid,true);
-  pca.display();
-
-  // Back and Forth transforms
-  pca.dbZ2F(grid, true);
-  pca.dbF2Z(grid, true);
-  names1 = generateMultipleNames("Indicator.Simu.Class" , nclass, ".");
-  names2 = generateMultipleNames("F2Z.Z2F.Indicator.Simu.Class", nclass, ".");
-  for (int iclass = 0; iclass < nclass; iclass++)
-    (void) grid->areSame(names1[iclass], names2[iclass], eps);
-
-  // Testing MAF calculations
-  grid->setLocator("Indicator.Simu.Class*", ELoc::Z);
-  DirParam dirparam = DirParam(2);
-  PCA maf = PCA();
-  maf.maf_compute(grid, 2., 1., dirparam, true);
-  maf.display();
-
-  // Back and Forth transforms
-  grid->setLocator("Indicator.Simu.Class*", ELoc::Z);
-  maf.dbZ2F(grid, true, NamingConvention("Z2MAF"));
-  maf.dbF2Z(grid, true, NamingConvention("MAF2Z"));
-  grid->display();
-  names1 = generateMultipleNames("Indicator.Simu.Class" , nclass, ".");
-  names2 = generateMultipleNames("MAF2Z.Z2MAF.Indicator.Simu.Class", nclass, ".");
-  for (int iclass = 0; iclass < nclass; iclass++)
-    (void) grid->areSame(names1[iclass], names2[iclass], eps);
   delete grid;
   return 0;
 }

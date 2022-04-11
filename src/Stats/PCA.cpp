@@ -81,7 +81,7 @@ int PCA::_calculateEigen(VectorDouble& c0)
   /* Eigen decomposition */
 
   if (matrix_eigen(c0.data(), nvar, _eigen.data(), _Z2F.data())) return (1);
-  if (matrix_invreal_copy(_Z2F.data(), nvar, _F2Z.data())) return (1);
+  matrix_transpose(nvar,  nvar, _Z2F.data(), _F2Z.data());
 
   return(0);
 }
@@ -187,7 +187,7 @@ int PCA::dbZ2F(Db* db,
 
   /* Perform the normalization */
 
-  _pcaZ2F(0, iptr, db, isoFlag, mean, sigma);
+  _pcaZ2F(iptr, db, isoFlag, mean, sigma);
 
   /* Optional printout */
 
@@ -258,7 +258,7 @@ int PCA::dbF2Z(Db* db,
  ** \return  Error return code
  **
  ** \param[in]  db         Db descriptor
- ** \param[in]  data       Data vector
+ ** \param[in]  isoFlag    Vector of active samples
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
@@ -282,9 +282,10 @@ int PCA::_pcaCalculate(const Db *db,
 /*!
  **  Fill the mean and variance arrays
  **
- ** \param[in] verbose     Verbose flag
+
  ** \param[in] db          Db descriptor
- ** \param[in] data        Array containing variables for one sample
+ ** \param[in] isoFlag     Vector of active samples
+ ** \param[in] verbose     Verbose flag
  **
  ** \param[out] mean       Array of means
  ** \param[out] sigma      Array of standard deviations
@@ -359,12 +360,13 @@ int PCA::_normalization(const Db *db,
  **
  ** \return The array of covariance (or NULL)
  **
- ** \param[in]  verbose     Verbose flag
  ** \param[in]  db          Db descriptor
+ ** \param[in]  isoFlag     Vector of active samples
  ** \param[in]  mean        Array containing the mean
  ** \param[in]  sigma       Array containing the standard deviation
+ ** \param[in]  verbose     Verbose flag
  **
- ** \param[out] data1       Array containing variables for one sample
+ ** \param[out] c0          Vector of covariances at distance 0
  **
  *****************************************************************************/
 void PCA::_covariance0(const Db *db,
@@ -433,13 +435,34 @@ void PCA::_center(VectorDouble& data,
 
 /****************************************************************************/
 /*!
+ **  Un-normalize the isotropic array of values
+ **
+ ** \param[in,out] data      Array of information
+ ** \param[in]  mean         Array containing the mean
+ ** \param[in]  sigma        Array containing the standard deviation
+ **
+ *****************************************************************************/
+void PCA::_uncenter(VectorDouble& data,
+                    const VectorDouble &mean,
+                    const VectorDouble &sigma)
+{
+  int ivar;
+  int nvar = (int) mean.size();
+
+  for (ivar = 0; ivar < nvar; ivar++)
+  {
+    if (sigma[ivar] <= 0.) continue;
+    data[ivar] = data[ivar] * sigma[ivar] + mean[ivar];
+  }
+}
+
+/****************************************************************************/
+/*!
  **  Procedure for transforming the variables into factors using PCA
  **
- ** \param[in]  flag_norm    1 if the factors must be normalized
  ** \param[in]  iptr         Pointer for storing the result in db
  ** \param[in]  db           Db descriptor
- ** \param[in]  pca          PCA descriptor
- ** \param[in]  data1        Input array
+ ** \param[in]  isoFlag      Vector of active samples
  ** \param[in]  mean         Array containing the mean
  ** \param[in]  sigma        Array containing the standard deviation
  **
@@ -447,8 +470,7 @@ void PCA::_center(VectorDouble& data,
  ** \remarks The ones stored in PCA structure are not used.
  **
  *****************************************************************************/
-void PCA::_pcaZ2F(bool flag_norm,
-                  int iptr,
+void PCA::_pcaZ2F(int iptr,
                   Db *db,
                   const VectorBool isoFlag,
                   const VectorDouble& mean,
@@ -457,6 +479,7 @@ void PCA::_pcaZ2F(bool flag_norm,
   int nvar = db->getVariableNumber();
   int nech = db->getSampleNumber();
   VectorDouble data1(nvar);
+  VectorDouble data2(nvar);
 
   /* Loop on the samples */
 
@@ -473,9 +496,12 @@ void PCA::_pcaZ2F(bool flag_norm,
       double value = 0.;
       for (int ivar = 0; ivar < nvar; ivar++)
         value += getZ2F(ifac, ivar) * data1[ivar];
-      if (flag_norm) value /= sqrt(getEigen(ifac));
-      db->setArray(iech, ifac + iptr, value);
+      data2[ifac] = value;
     }
+
+    // Storage
+    for (int ifac = 0; ifac < nvar; ifac++)
+      db->setArray(iech, ifac + iptr, data2[ifac]);
   }
 }
 
@@ -485,15 +511,15 @@ void PCA::_pcaZ2F(bool flag_norm,
  **
  ** \param[in]  iptr         Pointer to the storage
  ** \param[in]  db           Db descriptor
+ ** \param[in]  isoFlag      Vector of active samples
  **
  *****************************************************************************/
-void PCA::_pcaF2Z(int iptr,
-                  Db *db,
-                  const VectorBool& isoFlag)
+void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
 {
   int nvar = db->getVariableNumber();
   int nech = db->getSampleNumber();
   VectorDouble data1(nvar);
+  VectorDouble data2(nvar);
 
   /* Loop on the samples */
 
@@ -506,12 +532,20 @@ void PCA::_pcaF2Z(int iptr,
 
     for (int ivar = 0; ivar < nvar; ivar++)
     {
+      // Calculate the projection
       double value = 0.;
       for (int ifac = 0; ifac < nvar; ifac++)
         value += getF2Z(ivar, ifac) * data1[ifac];
-      value = getMean(ivar) + getSigma(ivar) * value;
-      db->setArray(iech, ivar + iptr, value);
+      data2[ivar] = value;
     }
+
+    // De-normalize
+    _uncenter(data2, getMean(), getSigma());
+
+    // Storage
+
+    for (int ivar = 0; ivar < nvar; ivar++)
+      db->setArray(iech, ivar + iptr, data2[ivar]);
   }
 }
 
@@ -570,7 +604,7 @@ int PCA::maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, boo
 
   /* Rotate the initial data in the PCA system */
 
-  _pcaZ2F(1, iptr, db, isoFlag, getMean(), getSigma());
+  _pcaZ2F(iptr, db, isoFlag, getMean(), getSigma());
   db->setLocatorsByUID(nvar, iptr, ELoc::Z);
 
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
@@ -610,13 +644,14 @@ int PCA::maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, boo
  **
  **  Error returned case
  **
- ** \param[in]  verbose     Verbose flag
  ** \param[in]  db          Db descriptor
- ** \param[in]  dirparam    DirParam structure
  ** \param[in]  h0          Reference distance
  ** \param[in]  dh          Tolerance on distance
+ ** \param[in]  dirparam    DirParam structure
+ ** \param[in]  isoFlag     Vector of active samples
+ ** \param[in]  verbose     Verbose flag
  **
- ** \param[out] ch          The vector of variance-covariance
+ ** \param[out] ch          Vector of covariances at distance h
  **
  *****************************************************************************/
 int PCA::_covarianceh(Db *db,

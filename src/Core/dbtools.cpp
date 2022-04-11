@@ -2183,7 +2183,7 @@ int _db_indicator(Db *db,
   if (nbelow > 0) mbelow = (int) (mbelow / (double) nbelow);
   if (nabove > 0) mabove = (int) (mabove / (double) nabove);
 
-  /* Calculate the discretized variable */
+  /* Assign the mean variable per class */
 
   if (!flag_indic)
   {
