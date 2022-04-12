@@ -29,7 +29,6 @@ public:
 
   /// Return the concrete space type
   SpaceType getType() const override { return SPACE_RN; }
-
   /// Move the given space point by the given vector
   void move(SpacePoint& p1,
             const VectorDouble& vec) const override;
@@ -40,9 +39,7 @@ public:
   double getDistance(const SpacePoint& p1,
                      const SpacePoint& p2,
                      const Tensor& tensor) const override;
-
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
 };
-

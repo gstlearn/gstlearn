@@ -39,7 +39,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   CovContext ctxt(nvar,ndim);
@@ -65,8 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Evaluate PCA
   // ============
 
-  PCA pca = PCA();
-  pca.pca_compute(db);
+  PCA pca = PCA(db);
   pca.display();
 
   // Store the transformed variables
@@ -86,8 +85,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   db->setLocator("Simu*", ELoc::Z);
   DirParam dirparam = DirParam(2);
-  PCA maf = PCA();
-  maf.maf_compute(db, 0.1, 0.05, dirparam);
+  PCA maf = PCA(db, 0.1, 0.05, dirparam);
   maf.display();
 
   // Store the transformed variable
@@ -105,8 +103,3 @@ int main(int /*argc*/, char */*argv*/[])
   delete db;
   return (error);
 }
-
-
-//zzz
-//delete grid;
-//return 0;

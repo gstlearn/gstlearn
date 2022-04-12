@@ -46,10 +46,6 @@ public:
                                  double param = 0.);
   /// Return a clone of the unique default global space
   static const ASpace* cloneDefaultSpace();
-private:
-  /// Unique default global space
-  static ASpace* _defaultSpace;
-
 
 public:
   /// Accessor to the current object space context
@@ -82,4 +78,8 @@ public:
 protected:
   /// Current space context of the object
   const ASpace* _space;
+
+private:
+  /// Unique default global space
+  static ASpace* _defaultSpace;
 };

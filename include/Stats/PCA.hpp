@@ -22,6 +22,8 @@ class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
   PCA(int nvar = 1);
+  PCA(const Db *db, bool verbose = false);
+  PCA(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose = false);
   PCA(const PCA &m);
   PCA& operator= (const PCA &m);
   virtual ~PCA();

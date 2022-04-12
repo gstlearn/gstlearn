@@ -9,6 +9,9 @@ import sys
 filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
 sys.stdout = open(filename,'w')
 
+# Define the global Space
+gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN, 2);
+
 # Create a Model with 1 variable in the 2-D Space
 model = gl.Model(1)
 # Add a Nugget Effect (with sill=2)

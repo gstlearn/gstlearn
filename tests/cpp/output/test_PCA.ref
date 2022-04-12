@@ -37,8 +37,8 @@ Column = 5 - Name = Simu.3 - Locator = z3
 Column = 6 - Name = Simu.4 - Locator = z4
 Column = 7 - Name = Simu.5 - Locator = z5
 
-PCA Transform
--------------
+PCA Contents
+------------
 Matrix M to transform standardized Variables Z into Factors Y
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
      [  0,]     0.330     0.378    -0.696     0.501     0.108
@@ -55,30 +55,32 @@ Matrix t(M) to back-transform Factors Y into standardized Variables Z
      [  3,]     0.501    -0.750    -0.375     0.191     0.097
      [  4,]     0.108    -0.038    -0.295    -0.669    -0.672
 Z = Y * t(M) (rows  = eigen vectors)
+Variables Simu.1 and F2Z.Z2F.Simu.1 are similar (eps=0.000001)
+Variables Simu.2 and F2Z.Z2F.Simu.2 are similar (eps=0.000001)
+Variables Simu.3 and F2Z.Z2F.Simu.3 are similar (eps=0.000001)
+Variables Simu.4 and F2Z.Z2F.Simu.4 are similar (eps=0.000001)
+Variables Simu.5 and F2Z.Z2F.Simu.5 are similar (eps=0.000001)
 
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 13
-Maximum Number of UIDs       = 13
-Total number of samples      = 1000
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x-1 - Locator = x1
-Column = 2 - Name = x-2 - Locator = x2
-Column = 3 - Name = Simu.1 - Locator = NA
-Column = 4 - Name = Simu.2 - Locator = NA
-Column = 5 - Name = Simu.3 - Locator = NA
-Column = 6 - Name = Simu.4 - Locator = NA
-Column = 7 - Name = Simu.5 - Locator = NA
-Column = 8 - Name = Z2F.Simu.1 - Locator = z1
-Column = 9 - Name = Z2F.Simu.2 - Locator = z2
-Column = 10 - Name = Z2F.Simu.3 - Locator = z3
-Column = 11 - Name = Z2F.Simu.4 - Locator = z4
-Column = 12 - Name = Z2F.Simu.5 - Locator = z5
+PCA Contents
+------------
+Matrix M to transform standardized Variables Z into Factors Y
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]     0.130     0.258    -0.208    -0.586     0.738
+     [  1,]    -0.122    -0.469     0.029     0.657     0.592
+     [  2,]    -0.138    -0.832    -0.394    -0.381    -0.083
+     [  3,]    -0.993     0.188    -0.199    -0.079     0.014
+     [  4,]    -0.442    -0.238     0.836    -0.343     0.025
+Y = Z * M (columns  = eigen vectors)
+Matrix t(M) to back-transform Factors Y into standardized Variables Z
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]
+     [  0,]     0.119    -0.124    -0.037    -0.884    -0.194
+     [  1,]     0.208    -0.367    -0.796     0.291    -0.242
+     [  2,]    -0.124     0.068    -0.411    -0.360     0.883
+     [  3,]    -0.541     0.630    -0.413     0.059    -0.337
+     [  4,]     0.796     0.669    -0.159     0.000     0.100
+Z = Y * t(M) (rows  = eigen vectors)
+Variables Simu.1 and MAF2Z.Z2MAF.Simu.1 are similar (eps=0.000001)
+Variables Simu.2 and MAF2Z.Z2MAF.Simu.2 are similar (eps=0.000001)
+Variables Simu.3 and MAF2Z.Z2MAF.Simu.3 are similar (eps=0.000001)
+Variables Simu.4 and MAF2Z.Z2MAF.Simu.4 are similar (eps=0.000001)
+Variables Simu.5 and MAF2Z.Z2MAF.Simu.5 are similar (eps=0.000001)

@@ -1,0 +1,68 @@
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      2.000
+- Ranges       =     10.000    45.000
+- Angles       =     30.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.866    -0.500
+     [  1,]     0.500     0.866
+Total Sill     =      2.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Simu - Locator z1
+ Nb of data          =        600
+ Nb of active values =        600
+ Minimum value       =     -2.686
+ Maximum value       =      2.708
+ Mean value          =      0.158
+ Standard Deviation  =      1.212
+ Variance            =      1.470
+Bound( 1 ) : [ -1 ; -0.5 [
+Bound( 2 ) : [ -0.5 ; 0 [
+Bound( 3 ) : [ 0 ; 0.5 [
+Bound( 4 ) : [ 0.5 ; 1 [
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Contents
+------------------
+            *.Simu.Mean
+     [  0,]      -1.000
+     [  1,]      -1.000
+     [  2,]      -1.000
+     [  3,]      -1.000
+     [  4,]      -0.761
+     [  5,]      -0.284
+     [  6,]      -0.284
+(Ncols=1,Nrows=7[from 600])
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Contents
+------------------
+            *mu.Class.1 *mu.Class.2 *mu.Class.3 *mu.Class.4
+     [  0,]       0.000       0.000       0.000       0.000
+     [  1,]       0.000       0.000       0.000       0.000
+     [  2,]       0.000       0.000       0.000       0.000
+     [  3,]       0.000       0.000       0.000       0.000
+     [  4,]       1.000       0.000       0.000       0.000
+     [  5,]       0.000       1.000       0.000       0.000
+     [  6,]       0.000       1.000       0.000       0.000
+(Ncols=4,Nrows=7[from 600])

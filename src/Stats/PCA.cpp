@@ -29,6 +29,30 @@ PCA::PCA(int nvar)
   init(nvar);
 }
 
+PCA::PCA(const Db *db, bool verbose)
+    : AStringable(),
+      _nVar(0),
+      _mean(),
+      _sigma(),
+      _eigen(),
+      _Z2F(),
+      _F2Z()
+{
+  pca_compute(db, verbose);
+}
+
+PCA::PCA(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose)
+    : AStringable(),
+      _nVar(0),
+      _mean(),
+      _sigma(),
+      _eigen(),
+      _Z2F(),
+      _F2Z()
+{
+  maf_compute(db, h0, dh, dirparam, verbose);
+}
+
 PCA::PCA(const PCA &m)
     : AStringable(m),
       _nVar(m._nVar),
