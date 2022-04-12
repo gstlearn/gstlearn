@@ -22,8 +22,7 @@ ADriftElem::ADriftElem(const EDrift& type,
     : ADrift(ctxt.getSpace()), /// TODO : shared pointer
       _ctxt(ctxt),
       _type(type),
-      _rankFex(rankFex),
-      _orderIRF(0)
+      _rankFex(rankFex)
 {
 }
 
@@ -31,8 +30,7 @@ ADriftElem::ADriftElem(const ADriftElem &r)
     : ADrift(r),
       _ctxt(r._ctxt), /// TODO : shared pointer
       _type(r._type),
-      _rankFex(r._rankFex),
-      _orderIRF(r._orderIRF)
+      _rankFex(r._rankFex)
 {
 }
 
@@ -44,7 +42,6 @@ ADriftElem& ADriftElem::operator=(const ADriftElem &r)
     _ctxt = r._ctxt;
     _type = r._type;
     _rankFex = r._rankFex;
-    _orderIRF = r._orderIRF;
   }
   return *this;
 }

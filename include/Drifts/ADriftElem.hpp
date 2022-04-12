@@ -52,10 +52,10 @@ public:
   virtual String getDriftSymbol() const = 0;
   virtual String getDriftName() const = 0;
   virtual int    getOrderIRF() const = 0;
+  virtual int    getNDim() const { return 0; }
+  virtual bool   getDriftExternal() const { return false; }
   virtual double eval(const Db* db,int iech) const override = 0;
 
-  int  getOrderIrf() const { return _orderIRF; }
-  void setOrderIrf(int orderIrf) { _orderIRF = orderIrf; }
   int  getRankFex() const { return _rankFex; }
   void setRankFex(int rankFex) { _rankFex = rankFex; }
   const EDrift& getType() const { return _type; }
@@ -67,5 +67,4 @@ private:
   CovContext  _ctxt;  /* Context (space, irfDegree, field, ...) */
   EDrift _type;       /* Drift function type */
   int _rankFex;       /* Rank of the external drift */
-  int _orderIRF;      /* Rank of the IRF induced by presence of Drift Elementary */
 };

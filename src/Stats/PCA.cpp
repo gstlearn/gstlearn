@@ -586,7 +586,11 @@ void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
  ** \param[in]  verbose    Verbose flag
  **
  *****************************************************************************/
-int PCA::maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose)
+int PCA::maf_compute(Db *db,
+                     double h0,
+                     double dh,
+                     const DirParam& dirparam,
+                     bool verbose)
 {
 
   /* Initializations */

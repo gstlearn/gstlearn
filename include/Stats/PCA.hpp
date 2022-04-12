@@ -44,16 +44,20 @@ public:
   const VectorDouble& getSigma() const { return _sigma; }
   double getSigma(int ivar) const { return _sigma[ivar]; }
 
-  void setPcaZ2F(VectorDouble& pcaz2f) { _Z2F = pcaz2f; }
+  void setPcaZ2F(const VectorDouble& pcaz2f) { _Z2F = pcaz2f; }
   void setPcaZ2F(int ivar, int jvar, double pcaz2f) { _Z2F[_getAddress(ivar,jvar)] = pcaz2f; }
   void setPcaF2Z(VectorDouble& pcaf2z) { _F2Z = pcaf2z; }
   void setEigen(VectorDouble& eigen) { _eigen = eigen; }
   void setEigen(int ivar, double eigen) { _eigen[ivar] = eigen; }
-  void setMean(VectorDouble& mean) { _mean = mean; }
-  void setSigma(VectorDouble& sigma) { _sigma = sigma; }
+  void setMean(const VectorDouble& mean) { _mean = mean; }
+  void setSigma(const VectorDouble& sigma) { _sigma = sigma; }
 
   int pca_compute(const Db *db, bool verbose = false);
-  int maf_compute(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose = false);
+  int maf_compute(Db *db,
+                  double h0,
+                  double dh,
+                  const DirParam& dirparam,
+                  bool verbose = false);
   int dbZ2F(Db* db,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("Z2F"));
@@ -73,11 +77,11 @@ private:
                      VectorDouble& sigma,
                      bool verbose);
   void _covariance0(const Db *db,
-                   const VectorBool& isoFlag,
-                   const VectorDouble& mean,
-                   const VectorDouble& sigma,
-                   VectorDouble& c0,
-                   bool verbose);
+                    const VectorBool& isoFlag,
+                    const VectorDouble& mean,
+                    const VectorDouble& sigma,
+                    VectorDouble& c0,
+                    bool verbose);
   int _covarianceh(Db *db,
                    double h0,
                    double dh,

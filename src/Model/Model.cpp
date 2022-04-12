@@ -108,6 +108,25 @@ Model* Model::create(const CovContext& ctxt)
   return new Model(ctxt);
 }
 
+Model* Model::createFromParam(const ECov& type,
+                              double range,
+                              double sill,
+                              double param,
+                              const VectorDouble& ranges,
+                              const VectorDouble& sills,
+                              const VectorDouble& angles,
+                              int ndim)
+{
+  int nvar = 1;
+  if (! sills.empty())
+    nvar = (int)  sqrt(sills.size());
+  if (! ranges.empty())
+    ndim = (int) ranges.size();
+  Model* model = new Model(nvar,ndim);
+  model->addCova(type,range,sill,param,ranges,sills,angles);
+  return model;
+}
+
 Model* Model::createFromDb(const Db* db)
 {
   Model* model = new Model();
@@ -234,34 +253,37 @@ void Model::addCova(const ECov& type,
   int ndim = getDimensionNumber();
   if (! ranges.empty())
   {
-    if ((int) ranges.size() != ndim)
+    if (ndim > 0 && (int) ranges.size() != ndim)
     {
       messerr("Mismatch between the dimension of 'ranges' (%d)",(int) ranges.size());
       messerr("and the Space dimension stored in the Model (%d)",ndim);
       messerr("Operation is cancelled");
       return;
     }
+    ndim = (int) ranges.size();
   }
   if (! angles.empty())
   {
-    if ((int) angles.size() != ndim)
+    if (ndim > 0 && (int) angles.size() != ndim)
     {
       messerr("Mismatch between the dimension of 'angles' (%d)",(int) angles.size());
       messerr("and the Space dimension stored in the Model (%d)",ndim);
       messerr("Operation is cancelled");
       return;
     }
+    ndim = (int) angles.size();
   }
   int nvar = getVariableNumber();
   if (! sills.empty())
   {
-    if ((int) sills.size() != nvar * nvar)
+    if (nvar > 0 && (int) sills.size() != nvar * nvar)
     {
       messerr("Mismatch between the size of 'sills' (%d)",(int) sills.size());
       messerr("and the Number of variables stored in the Model (%d)",nvar);
       messerr("Operation is cancelled");
       return;
     }
+    nvar = sqrt((int) sills.size());
   }
 
   // Define the covariance
@@ -269,6 +291,7 @@ void Model::addCova(const ECov& type,
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
+
   if (! ranges.empty())
     cov.setRanges(ranges);
   else
@@ -287,12 +310,28 @@ void Model::addCova(const ECov& type,
 /**
  * Add a list of Drifts. This operation cleans any previously stored drift function
  * @param driftlist List of Drifts to be added
+ *
+ * @remark This method deletes any pre-existing drift functions
  */
 void Model::setDriftList(const DriftList* driftlist)
 {
   if (driftlist == nullptr) return;
   if (_driftList != nullptr) delete _driftList;
   _driftList = dynamic_cast<DriftList*>(driftlist->clone());
+}
+
+/**
+ * Define the list of drift functions for:
+ * - a given degree of the IRF
+ * - a given number of external drifts
+ * @param order Order of the IRF
+ * @param nfex  Number of External Drifts
+ *
+ * @remark This method deletes any pre-existing drift functions
+ */
+void Model::setDriftIRF(int order, int nfex)
+{
+  _driftList->setDriftIRF(order, nfex, _ctxt);
 }
 
 void Model::addDrift(const ADriftElem *drift)
@@ -329,7 +368,7 @@ void Model::delDrift(int rank)
 void Model::delAllDrifts()
 {
   if (_driftList == nullptr) return;
-  _driftList->delAllDrift();
+  _driftList->delAllDrifts();
 }
 
 const CovAniso* Model::getCova(unsigned int icov) const

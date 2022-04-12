@@ -26,6 +26,7 @@ public:
   String getDriftSymbol() const override { return "xy"; }
   String getDriftName() const override { return "Drift XY"; }
   int getOrderIRF() const override { return 2; }
+  int getNDim() const { return 2; }
   double eval(const Db* db, int iech) const override;
 };
 

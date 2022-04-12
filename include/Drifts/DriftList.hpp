@@ -29,21 +29,16 @@ public:
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
 
-  ///////////////////////////////////////////////////
   /// IClonable interface */
   virtual IClonable* clone() const override { return new DriftList(*this); };
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  ///////////////////////////////////////////////////
 
+  /// ADrift interface */
   virtual double eval(const Db* db, int iech) const override;
   int getNVariables() const override;
 
@@ -55,10 +50,11 @@ public:
   // Remove an elementary drift structure
   void delDrift(unsigned int i);
   // Remove all elementary drift structures
-  void delAllDrift();
+  void delAllDrifts();
 
   const std::vector<ADriftElem*>& getDriftList() const { return _drifts; }
   void setDrifts(const std::vector<ADriftElem*>& drifts) { _drifts = drifts; }
+  void setDriftIRF(int order, int nfex, const CovContext& ctxt);
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }
   bool isFiltered(int i) const;

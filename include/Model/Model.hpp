@@ -60,6 +60,14 @@ public:
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Model* create(const CovContext& ctxt = CovContext());
+  static Model* createFromParam(const ECov& type,
+                                double range = 0.,
+                                double sill = 1.,
+                                double param = 0.,
+                                const VectorDouble& ranges = VectorDouble(),
+                                const VectorDouble& sills = VectorDouble(),
+                                const VectorDouble& angles = VectorDouble(),
+                                int ndim = 0);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 
@@ -75,6 +83,7 @@ public:
   void   delCova(int rank);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
+  void   setDriftIRF(int order = 0, int nfex = 0);
   void   addDrift(const ADriftElem* drift);
   void   setDrifts(const VectorString& driftSymbols);
   void   delDrift(int rank);

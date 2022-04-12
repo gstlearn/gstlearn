@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Space/ASpace.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Drifts/DriftList.hpp"
@@ -56,7 +57,7 @@ DriftList& DriftList::operator=(const DriftList &r)
 
 DriftList::~DriftList()
 {
-  delAllDrift();
+  delAllDrifts();
 }
 
 bool DriftList::isConsistent(const ASpace* /*space*/) const
@@ -105,7 +106,7 @@ void DriftList::delDrift(unsigned int i)
   _updateCoefDrift();
 }
 
-void DriftList::delAllDrift()
+void DriftList::delAllDrifts()
 {
   for (auto e: _drifts)
   {
@@ -167,7 +168,8 @@ void DriftList::setType(int il, const EDrift& type)
 int DriftList::getDriftEquationNumber() const
 {
   int ndrift = getDriftNumber();
-  int ndriftEquationNumber = (_flagLinked) ? ndrift : ndrift * getNVariables();
+  int nvar = getNVariables();
+  int ndriftEquationNumber = (_flagLinked) ? ndrift : ndrift * nvar;
   return ndriftEquationNumber;
 }
 
@@ -343,4 +345,44 @@ void DriftList::copyCovContext(const CovContext& ctxt)
   int number = (int) _drifts.size();
   for (int i = 0; i < number; i++)
     _drifts[i]->copyCovContext(ctxt);
+}
+
+void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
+{
+  // Clear already defined Drifts (if any)
+  delAllDrifts();
+
+  // Loop on all possible Drifts (within Factory)
+  // The external Drift is not processed here
+  auto it = EDrift::getIterator();
+  while (it.hasNext())
+  {
+    if (*it != EDrift::UNKNOWN)
+    {
+      ADriftElem* drift = DriftFactory::createDriftFunc(*it, ctxt);
+
+      if (drift->getDriftExternal() ||
+          drift->getOrderIRF() > order ||
+          drift->getNDim() > (int) ctxt.getNDim())
+      {
+        delete drift;
+      }
+      else
+      {
+        addDrift(drift);
+      }
+    }
+    it.toNext();
+  }
+
+  if (nfex > 0)
+  {
+    // Adding the external drift(s)
+    for (int ifex = 0; ifex < nfex; ifex++)
+    {
+      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt);
+      drift->setRankFex(ifex);
+      addDrift(drift);
+    }
+  }
 }
