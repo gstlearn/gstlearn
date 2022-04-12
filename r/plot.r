@@ -145,7 +145,7 @@ plot.point <- function(db, color_name=NA, size_name=NA,
   # Color of symbol
   if (! is.na(color_name))
   {
-    colval  = db$getField(color_name,TRUE)
+    colval  = Db_getColumn(db,color_name,TRUE)
     colval[colval == getTEST()] = NA
   }
   else
@@ -157,7 +157,7 @@ plot.point <- function(db, color_name=NA, size_name=NA,
   reduction = 100
   if (! is.na(size_name))
   {
-    sizval  = db$getField(size_name,TRUE)
+    sizval  = Db_getColumn(db,size_name,TRUE)
     sizval[sizval == getTEST()] = NA
     m = min(abs(sizval))
     M = max(abs(sizval))
@@ -217,7 +217,7 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
 
   x = dbgrid$getColumnByLocator(ELoc_X(),0)
   y = dbgrid$getColumnByLocator(ELoc_X(),1)
-  data = dbgrid$getColumn(name)
+  data = Db_getColumn(dbgrid, name)
   data[data == getTEST()] = NA
   df = data.frame(x,y,data)
 
@@ -238,7 +238,7 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
             xlab="", ylab="", title="", padd = NULL)
 {    
-  val  = db$getField(name)
+  val  = Db_getColumn(db,name)
   rp = data.frame(val)
     
   if (length(padd) > 0)
