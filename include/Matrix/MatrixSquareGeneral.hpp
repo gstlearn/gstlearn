@@ -6,7 +6,6 @@
 /* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
-/* Created on: 9 avr. 2019 by N. Desassis                                     */
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
