@@ -1,0 +1,55 @@
+#
+# This file is meant to test the reading of various types of arguments in R
+#
+
+# Loading the package
+
+gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
+source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
+load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
+
+# Testing main argument types
+
+argumentTestInt(12)
+argumentTestDouble(2.3)
+argumentTestVectorInt(c(1,2,3))
+argumentTestVectorDouble(c(1.1, 2.2, 3.3))
+argumentTestString("my_String")
+argumentTestVectorString(c("my_String1","my_String2","my_String3"))
+
+# Testing missing arguments
+
+argumentTestInt(ITEST)
+argumentTestDouble(TEST)
+argumentTestVectorInt(c(ITEST))
+argumentTestVectorDouble(c(TEST))
+
+# Testing overloading of methods
+
+argumentTestIntOverload(12)
+argumentTestIntOverload(c(21, 32))
+argumentTestStringOverload("my_String")
+argumentTestStringOverload(c("my_String1","my_String2","String3"))
+
+# Testing ENUM
+
+argumentTestEnum(ETests_CASE2())
+
+# Testing Returning arguments
+
+print(argumentReturnInt(12))
+print(argumentReturnInt(ITEST))
+print(argumentReturnDouble(21.4))
+print(argumentReturnDouble(TEST))
+
+# Testing assessors to the elements of a class
+
+myClass = argClass()
+myClass$display()
+myClass$getIval()
+myClass$setIval(21)
+myClass$setRval(2.122)
+myClass$setSval("coucou")
+myClass$display()
+
+print("Test successfully performed")

@@ -69,7 +69,7 @@ typedef std::vector<int>           VectorInt;
 typedef std::vector<bool>          VectorBool;
 typedef std::vector<float>         VectorFloat;
 typedef std::vector<unsigned char> VectorUChar;
-typedef std::vector<std::string>   VectorString;
+typedef std::vector<String>        VectorString;
 typedef std::vector<VectorDouble>  VectorVectorDouble;
 typedef std::vector<VectorInt>     VectorVectorInt;
 typedef std::vector<VectorFloat>   VectorVectorFloat;

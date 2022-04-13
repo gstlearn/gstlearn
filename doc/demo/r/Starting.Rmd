@@ -1,0 +1,56 @@
+---
+title: "Starting gstlearn with R"
+author: "RGeostats Team"
+date: "September 2019"
+output: pdf_document
+---
+
+
+```{r setup,echo=FALSE}
+library(knitr)
+```
+# Introduction
+
+This document gives the template preliminary statements that need to be
+specified in order to launch gstlearn under R.
+This is a temporary solution ... unitl rgstlearn becomes a package.
+
+The current version consists in loading the loader and the contents
+
+You must adapt the following line before launching it.
+
+```{r}
+gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
+```
+
+```{r,echo=FALSE,message=FALSE}
+source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
+load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
+```
+
+# Demonstration
+
+This script:
+- constructs a regular grid
+- load values generated randomly
+    
+```{r}
+# Grid size
+nx = 60
+ny = 30
+mygrid = DbGrid_create(c(nx,ny))
+
+# Add a uniform random field
+var = ut_vector_simulate_uniform(nx * ny)
+uid = mygrid$addColumns(var, "var1")
+
+# Display the current contents of the Data Base
+mygrid$display()
+```
+
+The grid is plotted (this uses a function provided in plot.r)
+
+```{r}
+# Display the field
+plot.grid(mygrid, "var1")
+```

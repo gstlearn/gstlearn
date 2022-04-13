@@ -17,29 +17,34 @@ ENUM_DEFINE(ENUM_TESTS)
 
 void _introduction(const String& title)
 {
-  std::cout << "Testing for " << title << " : ";
+  message("Testing for %s : ",title.c_str());
 }
+void _endOfLine()
+{
+  message("\n");
+}
+void _test()
+{
+  message("NA ");
+}
+
 void _printInt(int value)
 {
   if (IFFFF(value))
-    std::cout << "NA" << " ";
+   _test();
   else
-    std::cout << value << " ";
+    message("%d ",value);
 }
 void _printDouble(double value)
 {
   if (FFFF(value))
-    std::cout << "NA" << " ";
+    _test();
   else
-    std::cout << value << " ";
+    message("%lf ",value);
 }
 void _printString(const String& value)
 {
-  std::cout << value << " ";
-}
-void _endOfLine()
-{
-  std::cout << std::endl;
+  message("%s ",value.c_str());
 }
 
 void argumentTestInt(int value)
@@ -87,16 +92,31 @@ void argumentTestVectorString(const VectorString& values)
   _endOfLine();
 }
 
-void argumentTestSurcharge(const String& value)
+void argumentTestStringOverload(const String& value)
 {
-  _introduction("String (surcharge)");
+  _introduction("String (Overload)");
   _printString(value);
   _endOfLine();
 }
 
-void argumentTestSurcharge(const VectorString& values)
+void argumentTestIntOverload(int value)
 {
-  _introduction("Vector String (surcharge)");
+  _introduction("Int (Overload)");
+  _printInt(value);
+  _endOfLine();
+}
+
+void argumentTestIntOverload(const VectorInt& values)
+{
+  _introduction("Vector Integer (Overload)");
+  for (int i = 0; i < (int) values.size(); i++)
+    _printInt(values[i]);
+  _endOfLine();
+}
+
+void argumentTestStringOverload(const VectorString& values)
+{
+  _introduction("Vector String (Overload)");
   for (int i = 0; i < (int) values.size(); i++)
     _printString(values[i]);
   _endOfLine();
@@ -104,6 +124,22 @@ void argumentTestSurcharge(const VectorString& values)
 
 void argumentTestEnum(ETests value)
 {
-  std::cout << value.getValue() << std::endl;
+  message("Case : Value = %d - Descr = %s\n", value.getValue(),value.getDescr().c_str());
+}
+
+int argumentReturnInt(int value)
+{
+  _introduction("Integer");
+  _printInt(value);
+  _endOfLine();
+  return value;
+}
+
+double argumentReturnDouble(double value)
+{
+  _introduction("Double");
+  _printDouble(value);
+  _endOfLine();
+  return value;
 }
 

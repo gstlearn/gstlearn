@@ -473,8 +473,7 @@ public:
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
 
-  void combineSelection(VectorDouble& sel,
-                        const String& combine = "set") const;
+  void combineSelection(VectorDouble& sel, const String& combine = "set") const;
 
   void generateRank(const String& radix = "rank");
 
@@ -507,11 +506,6 @@ public:
                                     bool flagIso = true,
                                     bool flagPrint = false,
                                     const String& title = "");
-  bool areSame(const VectorString& names1,
-               const VectorString& names2,
-               double eps = EPSILON3,
-               bool useSel = true,
-               bool verbose = false);
   bool areSame(const String& name1,
                const String& name2,
                double eps = EPSILON3,

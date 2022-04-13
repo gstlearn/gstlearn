@@ -89,13 +89,20 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
                                         { 1, 1, 1 } } } };
 
   int ival = 0;
+  if (ipol < 0 || icorn < 0 || icas < 0 || idim < 0) return ival;
 
   if (ndim == 1)
+  {
     ival = S1D[ipol][icas][icorn][idim];
+  }
   else if (ndim == 2)
+  {
     ival = S2D[ipol][icas][icorn][idim];
+  }
   else
+  {
     ival = S3D[ipol][icas][icorn][idim];
+  }
   return (ival);
 }
 

@@ -17,6 +17,7 @@
 #include "segy.h"
 
 #include <stdio.h>
+#include <string.h>
 
 struct RefPt
 {
@@ -300,6 +301,46 @@ static void st_print_BFileHead(binaryFileHeader *Bheader)
   message("NUM_EXT_HEAD         :%hi \n", st_to_s(Bheader->NUM_EXT_HEAD));
 }
 
+static binaryFileHeader st_binaryFileHeader_init()
+{
+  binaryFileHeader binfile;
+
+  binfile.JOB_ID = 0;
+  binfile.LINE_NUM = 0;
+  binfile.REEL_NUM = 0;
+  binfile.NUM_OF_TRACE = 0;
+  binfile.NUM_OF_AUX = 0;
+  binfile.INTERVAL_MS = 0;
+  binfile.INTERVAL_MS_ORI = 0;
+  binfile.NUM_OF_SAMPLES = 0;
+  binfile.NUM_OF_SAMPLES_ORI = 0;
+  binfile.SAMPLE_FORMAT = 0;
+  binfile.ENSEMBLE = 0;
+  binfile.TRACE_SORT = 0;
+  binfile.VERT_SUM = 0;
+  binfile.SWEEP_FREQ_START = 0;
+  binfile.SWEEP_FREQ_END = 0;
+  binfile.SWEEP_LENGTH = 0;
+  binfile.SWEEP_TYPE = 0;
+  binfile.SWEEP_NUM_CHANNEL = 0;
+  binfile.SWEEP_TAPER_LEN_START = 0;
+  binfile.SWEEP_TAPER_LEN_END = 0;
+  binfile.TAPER_TYPE = 0;
+  binfile.CORRELATED = 0;
+  binfile.BINARY_GAIN = 0;
+  binfile.AMP_RECOR = 0;
+  binfile.MEASURE_SYSTEM = 0;
+  binfile.IMPULSE_POLAR = 0;
+  binfile.POLAR_CODE = 0;
+  memset(binfile.UNNASSIGNED1,0,240);
+  binfile.SEGY_REV_NUM = 0;
+  binfile.FIXED_LEN = 0;
+  binfile.NUM_EXT_HEAD = 0;
+  memset(binfile.UNNASSIGNED2,0,94);
+
+  return binfile;
+}
+
 /****************************************************************************/
 /*!
  ** Internal function for reading the File header
@@ -317,7 +358,7 @@ static int st_readFileHeader(FILE *file,
                              double *delta)
 {
   unsigned char TFileHead_[3200];
-  binaryFileHeader BFileHead_;
+  binaryFileHeader BFileHead_ = st_binaryFileHeader_init();
 
   if (fread(&TFileHead_, 1, sizeof(TFileHead_), file) == 0) return (1);
   if (fread(&BFileHead_, 1, sizeof(BFileHead_), file) == 0) return (1);
@@ -1310,6 +1351,101 @@ static void st_refstats_init(RefStats &refstats,
   refstats.modif_scale = modif_scale;
 }
 
+static traceHead st_traceHead_init()
+{
+  traceHead trace;
+
+  trace.TRACE_SEQ_GLOBAL = 0;
+  trace.TRACE_SEQ_LOCAL = 0;
+  trace.ORI_RECORD_NUM = 0;
+  trace.TRACE_NUM_FIELD = 0;
+  trace.SOURCE_POINT = 0;
+  trace.ENSEMBLE_NUM = 0;
+  trace.ENS_TRACE_NUM = 0;
+  trace.TRACE_CODE = 0;
+  trace.NUM_VERT_SUM = 0;
+  trace.NUM_HORZ_SUM = 0;
+  trace.DATA_USE = 0;
+  trace.DIST_CENT_RECV = 0;
+  trace.RECV_GRP_ELEV = 0;
+  trace.SURF_ELEV_SRC = 0;
+  trace.SOURCE_DEPTH = 0;
+  trace.DATUM_ELEV_RECV = 0;
+  trace.DATUM_ELAV_SRC = 0;
+  trace.WATER_DEPTH_SRC = 0;
+  trace.WATER_DEPTH_GRP = 0;
+  trace.SCALE_DEPTH = 0;
+  trace.SCALE_COOR = 0;
+  trace.SRC_COOR_X = 0;
+  trace.SRC_COOR_Y = 0;
+  trace.GRP_COOR_X = 0;
+  trace.GRP_COOR_Y = 0;
+  trace.COOR_UNIT = 0;
+  trace.WEATHER_VEL = 0;
+  trace.SWEATHER_VEL = 0;
+  trace.UPHOLE_T_SRC = 0;
+  trace.UPHOLE_T_GRP = 0;
+  trace.SRC_STA_CORRC = 0;
+  trace.GRP_STA_CORRC = 0;
+  trace.TOTAL_STA = 0;
+  trace.LAG_TIME_A = 0;
+  trace.LAG_TIME_B = 0;
+  trace.DELAY_T = 0;
+  trace.MUTE_T_STRT = 0;
+  trace.MUTE_T_END = 0;
+  trace.NUM_OF_SAMPL = 0;
+  trace.SAMPLE_INTRVL = 0;
+  trace.GAIN_TYPE = 0;
+  trace.GAIN_CONST = 0;
+  trace.GAIN_INIT = 0;
+  trace.CORRLTD = 0;
+  trace.SWEEP_FREQ_START = 0;
+  trace.SWEEP_FREQ_END = 0;
+  trace.SWEEP_LENGTH = 0;
+  trace.SWEEP_TYPE = 0;
+  trace.SWEEP_TAPER_LEN_START = 0;
+  trace.SWEEP_TAPER_LEN_END = 0;
+  trace.TAPER_TYPE = 0;
+  trace.ALIAS_FREQ = 0;
+  trace.ALIAS_SLOPE = 0;
+  trace.NOTCH_FREQ = 0;
+  trace.NOTCH_SLOPE = 0;
+  trace.LOWCUT_FREQ = 0;
+  trace.HIGHCUT_FREQ = 0;
+  trace.LOWCUT_SLOPE = 0;
+  trace.HIGHCUT_SLOPE = 0;
+  trace.YEAR = 0;
+  trace.DAY = 0;
+  trace.HOUR = 0;
+  trace.MINUTE = 0;
+  trace.SECOND = 0;
+  trace.TIME_CODE = 0;
+  trace.WEIGHT_FACT = 0;
+  trace.GEOPHNE_ROLL = 0;
+  trace.GEOPHNE_TRACE = 0;
+  trace.GEOPHNE_LAST = 0;
+  trace.GAP_SIZE = 0;
+  trace.OVER_TRAVEL = 0;
+  trace.ENS_COOR_X = 0;
+  trace.ENS_COOR_Y = 0;
+  trace.INLINE = 0;
+  trace.CROSS = 0;
+  trace.SHOOTPOINT = 0;
+  trace.SHOOTPOINT_SCALE = 0;
+  trace.TRACE_UNIT = 0;
+  memset(trace.TRANSD_CONST,0,6);
+  trace.TRANSD_UNIT = 0;
+  trace.TRACE_IDENT = 0;
+  trace.SCALE_TIME = 0;
+  trace.SRC_ORIENT = 0;
+  memset(trace.SRC_DIRECTION,0,6);
+  memset(trace.SRC_MEASUREMT,0,6);
+  trace.SRC_UNIT = 0;
+  memset(trace.UNNASSIGNED1,0,6);
+
+  return trace;
+}
+
 /****************************************************************************/
 /*!
  ** Read the contents of a SEGY file
@@ -1379,7 +1515,6 @@ SegYArg segy_array(const char *filesegy,
                    double modif_low,
                    double modif_scale)
 {
-  traceHead traceHead_;
   double xtrace, ytrace;
   int nPerTrace, iatt_bot, iatt_top, iaux_top, iaux_bot;
   int iline, xline, nbvalues;
@@ -1398,6 +1533,7 @@ SegYArg segy_array(const char *filesegy,
   double z0 = 0.;
   double cztop = 0.;
   double czbot = 0.;
+  traceHead traceHead_ = st_traceHead_init();
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
 
   // Preliminary checks
@@ -1576,7 +1712,6 @@ Grid segy_summary(const char *filesegy,
                   double modif_low,
                   double modif_scale)
 {
-  traceHead traceHead_;
   double   xtrace,ytrace;
   int      iline,xline,nbvalues;
   int      nPerTrace,iatt_top = 0,iatt_bot = 0,iaux_top = 0,iaux_bot = 0;
@@ -1596,6 +1731,7 @@ Grid segy_summary(const char *filesegy,
   double czbot = 0.;
   double cztop = 0.;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
+  traceHead traceHead_ = st_traceHead_init();
 
   // Preliminary checks
 
@@ -1754,7 +1890,6 @@ int db_segy(const char *filesegy,
             double modif_scale,
             const NamingConvention& namconv)
 {
-  traceHead traceHead_;
   double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
   int indg[3], rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;
@@ -1777,6 +1912,7 @@ int db_segy(const char *filesegy,
     indg[i] = 0;
   iatt = -1;
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
+  traceHead traceHead_ = st_traceHead_init();
 
   // Preliminary checks
 

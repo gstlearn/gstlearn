@@ -33,4 +33,80 @@ Drift Part
 Universality Condition
 Drift X
 Drift Y
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 4
+Number of drift function(s)  = 5
+Number of drift equation(s)  = 5
+
+Covariance Part
+---------------
+Nugget Effect
+- Sill         =      2.000
+Spherical
+- Sill         =      1.200
+- Range        =      5.000
+Exponential
+- Sill         =      2.300
+- Ranges       =      4.000     7.000
+- Theo. Ranges =      1.335     2.337
+Cubic
+- Sill         =      1.100
+- Ranges       =      3.100     2.100
+- Angles       =     10.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.985    -0.174
+     [  1,]     0.174     0.985
+Total Sill     =      6.600
+
+Drift Part
+----------
+Universality Condition
+Drift X
+Drift Y
+External Drift - Rank=0
+External Drift - Rank=1
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 2
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Gaussian
+- Sill matrix:
+               [,  0]    [,  1]
+     [  0,]     2.000     1.000
+     [  1,]     1.000     4.000
+- Ranges       =      3.000     1.000
+- Theo. Ranges =      1.733     0.578
+Total Sill
+               [,  0]    [,  1]
+     [  0,]     2.000     1.000
+     [  1,]     1.000     4.000
+
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Gaussian
+- Sill         =      1.000
+- Range        =      5.000
+- Theo. Range  =      2.889
+Total Sill     =      1.000
  Test successfully performed

@@ -1,1 +1,26 @@
-Test successfully performed
+Testing for Integer :  12  
+ Testing for Double :  2.300000  
+ Testing for Vector Integer :  1  2  3  
+ Testing for Vector Double :  1.100000  2.200000  3.300000  
+ Testing for String :  my_String  
+ Testing for Vector String :  my_String1  my_String2  my_String3  
+ Testing for Integer :  NA  
+ Testing for Double :  NA  
+ Testing for Vector Integer :  NA  
+ Testing for Vector Double :  NA  
+ Testing for Int (Overload) :  12  
+ Testing for Vector Integer (Overload) :  21  32  
+ Testing for String (Overload) :  my_String  
+ Testing for Vector String (Overload) :  my_String1  my_String2  my_String3  
+ Case : Value = 2 - Descr = Enum test case 2
+ Testing for Integer :  12  
+ 12
+Testing for Integer :  NA  
+ -1234567
+Testing for Double :  21.400000  
+ 21.4
+Testing for Double :  NA  
+ 1.234e+30
+Integer = -1 - Real = -1.100000 - String = NA
+ Integer = 21 - Real = 2.122000 - String = coucou
+ Test successfully performed

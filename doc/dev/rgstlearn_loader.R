@@ -5,9 +5,9 @@ load_gstlearn = function(libdir)
 {
   dyn.load(paste0(libdir,"/gstlearn.so"))
   cacheMetaData(1)
-  rgeostats <- new.env()
-  eval(parse(paste0(libdir,"/gstlearn.R")), envir=rgeostats)
-  attach(rgeostats)
+  gstlearn <- new.env()
+  eval(parse(paste0(libdir,"/gstlearn.R")), envir=gstlearn)
+  attach(gstlearn)
 
   # Add default show S4 methods to all objects (assuming that they inherits from AStringable)
   cl = showMethods('$', printTo=FALSE)

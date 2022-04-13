@@ -2959,6 +2959,7 @@ VectorDouble Db::getColumnsByColIdx(const VectorInt& icols, bool useSel) const
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     VectorDouble local = getColumnByColIdx(icols[ivar], useSel);
+    if (local.empty()) continue;
     for (int iech = 0; iech < nech; iech++)
       retval[ecr++] = local[iech];
   }
@@ -3951,23 +3952,3 @@ bool Db::areSame(const String& name1,
   return (ndiff > 0);
 }
 
-bool Db::areSame(const VectorString& names1,
-                 const VectorString& names2,
-                 double eps,
-                 bool useSel,
-                 bool verbose)
-{
-  VectorString exp_names1 = expandNameList(names1);
-  VectorString exp_names2 = expandNameList(names2);
-  if ((int) exp_names1.size() != (int) exp_names2.size()) return false;
-  int number = (int) exp_names1.size();
-
-  // Loop on the variables
-
-  int ndiff = 0;
-  for (int i = 0; i < number; i++)
-  {
-    if (areSame(exp_names1[i], exp_names2[i], eps, useSel, verbose)) return true;
-  }
-  return (ndiff > 0);
-}
