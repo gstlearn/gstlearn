@@ -176,6 +176,14 @@ public:
   void setLocatorsByColIdx(const VectorInt& icols,
                            const ELoc& locatorType = ELoc::UNKNOWN,
                            int locatorIndex = 0);
+
+  void addColumnsByVVD(const VectorVectorDouble tab,
+                      const String& radix,
+                      const ELoc& locatorType,
+                      int locatorIndex,
+                      bool useSel,
+                      double valinit,
+                      int nvar);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
                  const ELoc& locatorType = ELoc::UNKNOWN,

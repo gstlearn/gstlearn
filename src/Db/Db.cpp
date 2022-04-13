@@ -999,6 +999,23 @@ int Db::addColumnsByConstant(int nadd,
   return (nmax);
 }
 
+
+void Db::addColumnsByVVD(const VectorVectorDouble tab,
+                    const String& radix,
+                    const ELoc& locatorType,
+                    int locatorIndex,
+                    bool useSel,
+                    double valinit,
+                    int nvar)
+{
+  VectorDouble tabv;
+  for(auto &e : tab)
+    for(auto &f : e)
+      tabv.push_back(f);
+  addColumns(tabv,radix,locatorType,locatorIndex,useSel,valinit,nvar);
+}
+
+
 /**
  * Add one or several columns to an already existing Db. This is performed
  * by providing an array of values 'tab'. Its dimension must be equal to the

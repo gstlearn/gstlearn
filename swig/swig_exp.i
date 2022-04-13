@@ -1,5 +1,12 @@
 %ignore *::operator=;
 
+
+%{
+#define SWIG_FILE_WITH_INIT
+
+%}
+
+
 // TODO: How to mask IClonable and clone method?
 class IClonable{};
 //%ignore *::clone;
@@ -36,6 +43,22 @@ class IClonable{};
 %template(VectorToken_Def)      std::vector<Token_Def*>;
 %template(VectorToken_Par)      std::vector<Token_Par*>;
 %template(VectorIntervals)      std::vector<Interval*>;
+
+
+%include "numpy.i"
+
+%init %{
+import_array();
+%}
+
+
+%apply (double IN_ARRAY1[ANY]){(VectorDouble(ANY))};
+%apply (double IN_ARRAY2[ANY][ANY){(VectorVectorDouble(ANY))};
+
+
+//%apply (double IN_ARRAY2[ANY][ANY]){(AMatrix(ANY,ANY))};
+//%apply (double IN_ARRAY2[ANY][ANY]){(MatrixSquareGeneral(ANY,ANY))};
+
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!

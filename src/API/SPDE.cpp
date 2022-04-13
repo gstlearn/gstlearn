@@ -136,7 +136,7 @@ void SPDE::init(Model* model,
       if (_calculSimu())
       {
         mesh = new MeshETurbo();
-        mesh->initFromCova(*cova,field,14,5,useSel,verbose);
+        mesh->initFromCova(*cova,field,18,5,useSel,verbose);
         _simuMeshing.push_back(mesh);
         shiftOp = new ShiftOpCs(mesh, model, field, 0, icov);
         precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
