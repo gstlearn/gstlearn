@@ -23,26 +23,27 @@ ENUM_DECLARE(ENUM_TESTS)
 
 class GSTLEARN_EXPORT argClass
 {
+  // The members are public (just for testing)
 public:
-  int    _ival;
-  double _rval;
-  String _sval;
+  int    ival;
+  double rval;
+  String sval;
 
   argClass(int ival = -1, double rval = -1.1, String sval = "NA")
-      : _ival(ival),
-        _rval(rval),
-        _sval(sval)
+      : ival(ival),
+        rval(rval),
+        sval(sval)
   {
   }
 
-  int    getIval() const { return _ival; }
-  void   setIval(int ival) { _ival = ival; }
-  double getRval() const { return _rval; }
-  void   setRval(double rval) { _rval = rval; }
-  const String& getSval() const { return _sval; }
-  void   setSval(const String& sval) { _sval = sval; }
+  int    getIval() const { return this->ival; }
+  void   setIval(int ival) { this->ival = ival; }
+  double getRval() const { return this->rval; }
+  void   setRval(double rval) { this->rval = rval; }
+  const String& getSval() const { return this->sval; }
+  void   setSval(const String& sval) {this->sval = sval; }
   void   display() const {
-    message("Integer = %d - Real = %lf - String = %s\n", _ival,_rval,_sval.c_str());
+    message("Integer = %d - Real = %lf - String = %s\n", ival,rval,sval.c_str());
   }
 };
 
@@ -55,6 +56,7 @@ GSTLEARN_EXPORT void argumentTestInt(int value);
 GSTLEARN_EXPORT void argumentTestDouble(double value);
 GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values);
 GSTLEARN_EXPORT void argumentTestVectorDouble(const VectorDouble& values);
+GSTLEARN_EXPORT void argumentTestVectorVectorInt(const VectorVectorInt& values);
 GSTLEARN_EXPORT void argumentTestString(const String& value);
 GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
 

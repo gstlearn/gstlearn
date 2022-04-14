@@ -36,10 +36,10 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 Column = 3 - Name = variable - Locator = z1
-For Non-Stationary Parameter (1), there are some undefined values (1756)
-They have been replaced by its average value (23.422193)
-For Non-Stationary Parameter (1), there are some undefined values (1756)
-They have been replaced by its average value (23.422193)
+For Non-Stationary Parameter (1), there are some undefined values (2038)
+They have been replaced by its average value (25.592716)
+For Non-Stationary Parameter (1), there are some undefined values (2038)
+They have been replaced by its average value (25.592716)
 For Non-Stationary Parameter (1), there are some undefined values (1400)
 They have been replaced by its average value (26.988128)
 For Non-Stationary Parameter (1), there are some undefined values (1400)
@@ -53,19 +53,19 @@ Data Base Statistics
 5 - Name spde.variable.simu - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.452
- Maximum value       =      2.454
- Mean value          =      0.229
- Standard Deviation  =      0.773
- Variance            =      0.597
+ Minimum value       =     -2.830
+ Maximum value       =      3.077
+ Mean value          =      0.354
+ Standard Deviation  =      0.987
+ Variance            =      0.973
 6 - Name spde.variable.condSimu - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.910
- Maximum value       =      2.814
- Mean value          =     -0.097
- Standard Deviation  =      0.960
- Variance            =      0.921
+ Minimum value       =     -3.403
+ Maximum value       =      3.194
+ Mean value          =     -0.075
+ Standard Deviation  =      0.920
+ Variance            =      0.846
 7 - Name spde.variable.kriging - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201

@@ -491,7 +491,7 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
     ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
   }
-  ntot = ut_ivector_prod(nx);
+  ntot = ut_vector_prod(nx);
 
   ret = ret && _recordRead<int>(is, "Number of variables", ncol);
   if (ncol > 0)
@@ -539,7 +539,7 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
     ncol = 0;
   }
 
-  resetDims(ncol, ut_ivector_prod(nx));
+  resetDims(ncol, ut_vector_prod(nx));
   (void) gridDefine(nx, dx, x0, angles);
 
   // Load the values

@@ -745,6 +745,12 @@ void Db::_clear(void)
   }
 }
 
+int Db::_getUIDcol(int iuid) const
+{
+  if (! isUIDValid(iuid)) return ITEST;
+  return _uidcol[iuid];
+}
+
 int Db::_getAddress(int iech, int icol) const
 {
   return ((iech) + _nech * icol);
@@ -2521,6 +2527,12 @@ String Db::getNameByLocator(const ELoc& locatorType, int locatorIndex) const
   return _colNames[icol];
 }
 
+String Db::getNameByColIdx(int icol) const
+{
+  if (! isColIdxValid(icol)) return String();
+  return _colNames[icol];
+}
+
 String Db::getNameByUID(int iuid) const
 {
   int icol = getColIdxByUID(iuid);
@@ -3006,6 +3018,13 @@ VectorDouble Db::getAllColumns(bool useSel) const
 }
 
 VectorDouble Db::getColumns(const VectorString& names, bool useSel) const
+{
+  if (names.empty()) return VectorDouble();
+  VectorInt iuids =  _ids(names, false);
+  return getColumnsByUID(iuids, useSel);
+}
+
+VectorDouble Db::getFFFFs(const VectorString& names, bool useSel) const
 {
   if (names.empty()) return VectorDouble();
   VectorInt iuids =  _ids(names, false);

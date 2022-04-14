@@ -135,8 +135,12 @@ void exit_f(void)
 %extend Polygons {
   std::string __repr__() {  return $self->toString();  }
 };
-
-
+%extend Limits {
+  std::string __repr__() {  return $self->toString();  }
+};
+%extend PCA {
+  std::string __repr__() {  return $self->toString();  }
+};
 
 %pythoncode %{
 # Override operator [] for the Db class

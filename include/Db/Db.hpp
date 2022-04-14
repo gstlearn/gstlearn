@@ -91,7 +91,7 @@ public:
                                const VectorString& locatorNames = VectorString(),
                                int flag_add_rank = 1);
   static Db* createFromCSV(const String& filename,
-                           const CSVformat& csv,
+                           const CSVformat& csv = CSVformat(),
                            bool verbose = false,
                            int ncol_max = -1,
                            int nrow_max = -1,
@@ -123,7 +123,7 @@ public:
   const VectorDouble& getArrays() const { return _array; }
 
   String getNameByLocator(const ELoc& locatorType, int locatorIndex=0) const;
-  String getNameByColIdx(int icol) const { return _colNames[icol]; }
+  String getNameByColIdx(int icol) const;
   String getNameByUID(int iuid) const;
 
   VectorString getNames(const String& name) const;
@@ -444,6 +444,8 @@ public:
   VectorDouble getAllColumns(bool useSel = false) const;
   VectorDouble getColumns(const VectorString& names = VectorString(),
                           bool useSel = false) const;
+  VectorDouble getFFFFs(const VectorString& names = VectorString(),
+                          bool useSel = false) const;
   VectorDouble getColumnsByLocator(const ELoc& locatorType,
                                    bool useSel = false) const;
   VectorDouble getColumnsByUID(const VectorInt& iuids,
@@ -541,7 +543,7 @@ protected:
 private:
   const VectorInt& _getUIDcol() const { return _uidcol; }
   const VectorString _getNames() const { return _colNames; }
-  double _getUIDcol(int iuid) const { return _uidcol[iuid]; }
+  int _getUIDcol(int iuid) const;
   int _getAddress(int iech, int icol) const;
   void _columnInit(int ncol, int icol0, double valinit);
   double _updateValue(int oper, double oldval, double value);

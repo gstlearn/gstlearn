@@ -2120,7 +2120,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     // Discretization is stored
 
     _ndiscs = ndiscs;
-    _ndiscNumber = ut_ivector_prod(_ndiscs);
+    _ndiscNumber = ut_vector_prod(_ndiscs);
     _disc1.resize(_ndiscNumber * ndim);
     _disc2.resize(_ndiscNumber * ndim);
 

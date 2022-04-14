@@ -23,28 +23,35 @@ void _endOfLine()
 {
   message("\n");
 }
+void _nextOfLine()
+{
+  message(" - ");
+}
 void _test()
 {
   message("NA ");
 }
 
-void _printInt(int value)
+void _printInt(int value, bool next = false)
 {
   if (IFFFF(value))
    _test();
   else
-    message("%d ",value);
+    message("%d",value);
+  if (next) _nextOfLine();
 }
-void _printDouble(double value)
+void _printDouble(double value, bool next = false)
 {
   if (FFFF(value))
     _test();
   else
-    message("%lf ",value);
+    message("%lf",value);
+  if (next) _nextOfLine();
 }
-void _printString(const String& value)
+void _printString(const String& value, bool next = false)
 {
-  message("%s ",value.c_str());
+  message("%s",value.c_str());
+  if (next) _nextOfLine();
 }
 
 void argumentTestInt(int value)
@@ -63,17 +70,17 @@ void argumentTestDouble(double value)
 
 void argumentTestVectorInt(const VectorInt& values)
 {
-  _introduction("Vector Integer");
+  _introduction("VectorInt");
   for (int i = 0; i < (int) values.size(); i++)
-    _printInt(values[i]);
+    _printInt(values[i],true);
   _endOfLine();
 }
 
 void argumentTestVectorDouble(const VectorDouble& values)
 {
-  _introduction("Vector Double");
+  _introduction("VectorDouble");
   for (int i = 0; i < (int) values.size(); i++)
-    _printDouble(values[i]);
+    _printDouble(values[i],true);
   _endOfLine();
 }
 
@@ -84,11 +91,24 @@ void argumentTestString(const String& value)
   _endOfLine();
 }
 
+void argumentTestVectorVectorInt(const VectorVectorInt& values)
+{
+  _introduction("VectorVectorInt");
+  message("Dimension First Level = %d\n",(int) values.size());
+  for (auto &e: values)
+  {
+    message("Dimension of Second Level = %d\n",(int) e.size());
+    for (auto &f: e)
+      _printInt(f, true);
+    _endOfLine();
+  }
+}
+
 void argumentTestVectorString(const VectorString& values)
 {
-  _introduction("Vector String");
+  _introduction("VectorString");
   for (int i = 0; i < (int) values.size(); i++)
-    _printString(values[i]);
+    _printString(values[i],true);
   _endOfLine();
 }
 
@@ -108,17 +128,17 @@ void argumentTestIntOverload(int value)
 
 void argumentTestIntOverload(const VectorInt& values)
 {
-  _introduction("Vector Integer (Overload)");
+  _introduction("VectorInt (Overload)");
   for (int i = 0; i < (int) values.size(); i++)
-    _printInt(values[i]);
+    _printInt(values[i], true);
   _endOfLine();
 }
 
 void argumentTestStringOverload(const VectorString& values)
 {
-  _introduction("Vector String (Overload)");
+  _introduction("VectorString (Overload)");
   for (int i = 0; i < (int) values.size(); i++)
-    _printString(values[i]);
+    _printString(values[i],true);
   _endOfLine();
 }
 

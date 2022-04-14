@@ -12,13 +12,13 @@
 
 PCAStringFormat::PCAStringFormat(int level)
     : AStringFormat(level),
-      _flagCenter(false),
-      _flagStats(false)
+      _flagCenter(true),
+      _flagStats(true)
 {
-  if (level > 1)
+  if (level == 0)
   {
-    _flagCenter = true;
-    _flagStats = true;
+    _flagCenter = false;
+    _flagStats = false;
   }
 }
 

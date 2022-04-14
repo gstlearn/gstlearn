@@ -21,6 +21,7 @@ gl.argumentTestVectorInt([1,2,3])
 gl.argumentTestVectorDouble([1.1, 2.2, 3.3])
 gl.argumentTestString("my_String")
 gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
+gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ]);
 
 # Testing missing arguments
 
@@ -51,10 +52,8 @@ print(gl.argumentReturnDouble(gl.TEST))
 
 myClass = gl.argClass()
 myClass.display()
-myClass.getIval()
-myClass.setIval(21)
-myClass.setRval(2.122)
-myClass.setSval("coucou")
+myClass.ival
+myClass.ival = 2
 myClass.display()
 
 print("Test successfully performed")

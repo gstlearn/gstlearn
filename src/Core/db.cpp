@@ -1443,7 +1443,7 @@ DbGrid* db_create_grid(int flag_rot,
 
   /* Allocate the main structure */
 
-  db->resetDims(natt + flag_add_rank, ut_ivector_prod(nx));
+  db->resetDims(natt + flag_add_rank, ut_vector_prod(nx));
 
   /* Dimension the data arrays */
 

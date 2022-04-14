@@ -14,6 +14,7 @@
 
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 
@@ -211,7 +212,7 @@ int PCA::dbZ2F(Db* db,
 
   /* Perform the normalization */
 
-  _pcaZ2F(iptr, db, isoFlag, mean, sigma);
+  _pcaZ2F(false, iptr, db, isoFlag, mean, sigma);
 
   /* Optional printout */
 
@@ -494,7 +495,8 @@ void PCA::_uncenter(VectorDouble& data,
  ** \remarks The ones stored in PCA structure are not used.
  **
  *****************************************************************************/
-void PCA::_pcaZ2F(int iptr,
+void PCA::_pcaZ2F(bool flag_norm,
+                  int iptr,
                   Db *db,
                   const VectorBool isoFlag,
                   const VectorDouble& mean,
@@ -520,6 +522,7 @@ void PCA::_pcaZ2F(int iptr,
       double value = 0.;
       for (int ivar = 0; ivar < nvar; ivar++)
         value += getZ2F(ifac, ivar) * data1[ivar];
+      if (flag_norm) value /= sqrt(_eigen[ifac]);
       data2[ifac] = value;
     }
 
@@ -624,15 +627,17 @@ int PCA::maf_compute(Db *db,
   VectorBool isoFlag = _getVectorIsotopic(db);
   VectorDouble identity(nvar * nvar);
   VectorDouble ch(nvar * nvar);
-  for (int i = 0; i < nvar * nvar; i++) identity[i] = 0.;
+  for (int i = 0; i < nvar * nvar; i++)
+    identity[i] = 0.;
 
   /* Calculate the first PCA (centered and normalized) */
 
   if (_pcaCalculate(db, isoFlag, verbose)) return 1;
+  if (verbose) display();
 
   /* Rotate the initial data in the PCA system */
 
-  _pcaZ2F(iptr, db, isoFlag, getMean(), getSigma());
+  _pcaZ2F(true, iptr, db, isoFlag, getMean(), getSigma());
   db->setLocatorsByUID(nvar, iptr, ELoc::Z);
 
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */
@@ -698,6 +703,11 @@ int PCA::_covarianceh(Db *db,
   double psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   VectorDouble data1(nvar);
   VectorDouble data2(nvar);
+
+  // Initialization
+
+  for (int i = 0; i < nvar * nvar; i++)
+    ch[i] = 0.;
 
   /* Core allocation */
 

@@ -11,19 +11,19 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Variogram/DirParam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class DirParam;
 
 class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
   PCA(int nvar = 1);
   PCA(const Db *db, bool verbose = false);
-  PCA(Db *db, double h0, double dh, const DirParam& dirparam, bool verbose = false);
+  PCA(Db *db, double h0, double dh, const DirParam& dirparam = DirParam(), bool verbose = false);
   PCA(const PCA &m);
   PCA& operator= (const PCA &m);
   virtual ~PCA();
@@ -95,7 +95,8 @@ private:
   void _uncenter(VectorDouble& data,
                  const VectorDouble &mean,
                  const VectorDouble &sigma);
-  void _pcaZ2F(int iptr,
+  void _pcaZ2F(bool flag_norm,
+               int iptr,
                Db *db,
                const VectorBool isoFlag,
                const VectorDouble& mean,

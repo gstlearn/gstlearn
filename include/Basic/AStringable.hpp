@@ -88,6 +88,8 @@ GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorVectorDouble& tab);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorInt& tab);
+GSTLEARN_EXPORT String toVector(const String& title,
+                                const VectorString& tab);
 GSTLEARN_EXPORT String toStr(const String& string,
                              const EJustify& justify = EJustify::RIGHT);
 GSTLEARN_EXPORT String toDouble(double value,

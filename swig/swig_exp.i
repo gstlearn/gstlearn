@@ -45,15 +45,15 @@ class IClonable{};
 %template(VectorIntervals)      std::vector<Interval*>;
 
 
-%include "numpy.i"
+//%include "numpy.i"
 
-%init %{
-import_array();
-%}
+//%init %{
+//import_array();
+//%}
 
 
-%apply (double IN_ARRAY1[ANY]){(VectorDouble(ANY))};
-%apply (double IN_ARRAY2[ANY][ANY){(VectorVectorDouble(ANY))};
+//%apply (double IN_ARRAY1[ANY]){(VectorDouble(ANY))};
+//%apply (double IN_ARRAY2[ANY][ANY){(VectorVectorDouble(ANY))};
 
 
 //%apply (double IN_ARRAY2[ANY][ANY]){(AMatrix(ANY,ANY))};

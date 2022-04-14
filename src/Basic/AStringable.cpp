@@ -1092,6 +1092,40 @@ String toVector(const String& title, const VectorVectorDouble& tab)
   return sstr.str();
 }
 
+String toVector(const String& title, const VectorString& tab)
+{
+  std::stringstream sstr;
+  if (tab.empty()) return sstr.str();
+
+  int ncutil = static_cast<int> (tab.size());
+  bool multi_row = ncutil > _getNBatch();
+
+  /* Print the title (optional) */
+
+  if (! title.empty())
+  {
+    sstr << title;
+    if (multi_row) sstr << std::endl;
+  }
+
+  int lec = 0;
+  if (multi_row) sstr << _printColumnHeader(VectorString(), 0, _getNBatch());
+
+  for (int i = 0; i < ncutil; i += _getNBatch())
+  {
+    if (multi_row) sstr << _printRowHeader(VectorString(), i);
+
+    for (int j = 0; j < _getNBatch(); j++)
+    {
+      if (lec >= ncutil) continue;
+      sstr << tab[lec];
+      lec++;
+    }
+    sstr << std::endl;
+  }
+  return sstr.str();
+}
+
 /**
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)

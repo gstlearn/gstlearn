@@ -268,9 +268,12 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
 
     if (getFlagRegular())
     {
-      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
-             << " (Percent of the lag value)" << std::endl;
+      if (getDPas() > .0)
+      {
+        sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
+        sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+                 << " (Percent of the lag value)" << std::endl;
+      }
     }
     else
     {

@@ -12,6 +12,7 @@
 #include "geoslib_f_private.h"
 #include "Db/Db.hpp"
 #include "Basic/Limits.hpp"
+#include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
 
@@ -56,15 +57,26 @@ Limits::Limits(const VectorDouble& mini,
 /**
  * Create the limits from a list of bounds. Intervals are delimited between two given bounds: [z_i, z_(i+1)[
  * @param bounds    list of cutoffs used to create the limits. The number of limits is equal to the number of elements in the 'bounds' vector minus one. 
+ * @param addFromZero When TRUE, add a class from 0 to bounds[0]
  * @return
  */
-Limits::Limits(const VectorDouble& bounds)
+Limits::Limits(const VectorDouble& bounds, bool addFromZero)
 {
   int nclass = static_cast<int> (bounds.size()) - 1;
   if (nclass <= 0)
     throw("The argument 'bounds' should have at least 2 items");
 
   _bounds.clear();
+
+  // Add the first class from 0 to bounds[0] (optional)
+
+  if (addFromZero && bounds[0] > 0)
+  {
+    Interval bd = Interval(0., bounds[0]);
+    _bounds.push_back(bd);
+  }
+
+  // Store the remaining classes
   for (int i = 0; i < nclass; i++)
   {
     Interval bd;

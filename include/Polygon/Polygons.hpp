@@ -40,7 +40,7 @@ public:
   static Polygons* create();
   static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
-                                 const CSVformat& csv,
+                                 const CSVformat& csv = CSVformat(),
                                  int verbose = false,
                                  int ncol_max = -1,
                                  int nrow_max = -1);

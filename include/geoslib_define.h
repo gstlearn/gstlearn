@@ -73,4 +73,3 @@ typedef std::vector<String>        VectorString;
 typedef std::vector<VectorDouble>  VectorVectorDouble;
 typedef std::vector<VectorInt>     VectorVectorInt;
 typedef std::vector<VectorFloat>   VectorVectorFloat;
-

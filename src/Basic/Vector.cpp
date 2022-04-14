@@ -51,6 +51,10 @@ String ut_vector_string(const VectorVectorDouble &vec)
 {
   return toVector(String(), vec);
 }
+String ut_vector_string(const VectorString& vec)
+{
+  return toVector(String(), vec);
+}
 
 String ut_ivector_string(const VectorInt &vec)
 {
@@ -58,6 +62,12 @@ String ut_ivector_string(const VectorInt &vec)
 }
 
 void ut_vector_display(const String &title, const VectorDouble &vect)
+{
+  if (!title.empty()) message("%s\n", title.c_str());
+  messageFlush(ut_vector_string(vect));
+}
+
+void ut_vector_display(const String &title, const VectorString &vect)
 {
   if (!title.empty()) message("%s\n", title.c_str());
   messageFlush(ut_vector_string(vect));
@@ -549,10 +559,19 @@ int ut_vector_count_undefined(const VectorDouble &vec)
   return count;
 }
 
-int ut_ivector_prod(const VectorInt vec)
+int ut_vector_prod(const VectorInt& vec)
 {
   if (vec.empty()) return 0;
   int nprod = 1;
+  for (int i = 0; i < (int) vec.size(); i++)
+    nprod *= vec[i];
+  return nprod;
+}
+
+double ut_vector_prod(const VectorDouble& vec)
+{
+  if (vec.empty()) return 0;
+  double nprod = 1.;
   for (int i = 0; i < (int) vec.size(); i++)
     nprod *= vec[i];
   return nprod;

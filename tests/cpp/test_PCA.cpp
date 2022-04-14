@@ -12,6 +12,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
+#include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
@@ -49,22 +50,20 @@ int main(int /*argc*/, char */*argv*/[])
   Db* db = Db::createFromBox(nech,{0.,0.},{1.,1.}, 432423);
 
   // Creating the Model(s) of the Underlying GRF(s)
-  Model models(ctxt);
-  CovLMC covs(ctxt.getSpace());
   double range1 = 0.2;
-  CovAniso cova1(ECov::BESSEL_K,range1,1.,1.,ctxt);
-  covs.addCov(&cova1);
-  models.setCovList(&covs);
-  models.display();
+  Model* models = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.,
+                                        VectorDouble(), VectorDouble(), VectorDouble(), ndim);
+  models->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid
-  error = simtub(nullptr,db,&models,nullptr,nbsimu);
+  error = simtub(nullptr,db,models,nullptr,nbsimu);
   db->display();
 
   // ============
   // Evaluate PCA
   // ============
 
+  mestitle(0,"Testing PCA");
   PCA pca = PCA(db);
   pca.display();
 
@@ -83,6 +82,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Evaluate MAF
   // ============
 
+  mestitle(0,"Testing MAF");
   db->setLocator("Simu*", ELoc::Z);
   DirParam dirparam = DirParam(2);
   PCA maf = PCA(db, 0.1, 0.05, dirparam);
