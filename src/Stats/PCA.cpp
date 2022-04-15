@@ -15,6 +15,7 @@
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
 #include "Db/Db.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 #include <math.h>
 
@@ -485,6 +486,7 @@ void PCA::_uncenter(VectorDouble& data,
 /*!
  **  Procedure for transforming the variables into factors using PCA
  **
+ ** \param[in]  flag_norm    True if the variables must be rescaled beforehand
  ** \param[in]  iptr         Pointer for storing the result in db
  ** \param[in]  db           Db descriptor
  ** \param[in]  isoFlag      Vector of active samples
@@ -797,3 +799,32 @@ void PCA::_loadData(const Db* db, int iech, VectorDouble& data)
   for (int ivar = 0; ivar < nvar; ivar++)
     data[ivar] = db->getVariable(iech, ivar);
 }
+
+VectorDouble PCA::mafOfIndex() const
+{
+  // Calculate the probability of each interval
+  VectorDouble w = _mean;
+  int ncut = (int) _mean.size();
+  w.push_back(1 - ut_vector_cumul(_mean));
+  int nclass = (int) w.size();
+
+  // Normalize the indicator of intervals
+  MatrixRectangular i_norm_val(nclass, ncut);
+  for (int iclass = 0 ; iclass < ncut; iclass++)
+  {
+    for (int jclass = 0; jclass < nclass; jclass++)
+    {
+      double value = (iclass == jclass) ? 1 : 0.;
+      value = (value - w[iclass]) / sqrt(w[iclass] * (1. - w[iclass]));
+      i_norm_val.setValue(jclass,  iclass, value);
+    }
+  }
+
+  VectorDouble local(nclass * ncut);
+  matrix_product(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
+
+  VectorDouble maf_index = ut_vector_concatenate(ut_vector_double(nclass, 1.), local);
+
+  return maf_index;
+}
+

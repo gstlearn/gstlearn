@@ -741,9 +741,16 @@ void AMatrix::addMatrix(const AMatrix& y)
  */
 void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
 {
-  if (! isSameSize(y) || x.getNCols() != y.getNRows())
+  if (x.getNCols() != y.getNRows() ||
+      x.getNRows() != getNRows() ||
+      y.getNCols() != getNCols())
   {
-    my_throw("Incompatible matrix dimensions for matrix product");
+    messerr("Incompatible matrix dimensions for matrix product");
+    messerr("- First matrix:  NRows = %d - NColumns = %d", x.getNRows(), x.getNCols());
+    messerr("- Second matrix: NRows = %d - NColumns = %d", y.getNRows(), y.getNCols());
+    messerr("- Result matrix: NRows = %d - NColumns = %d", getNRows(), getNCols());
+    messerr("Operation is cancelled");
+    return;
   }
 
   if (_sparse)

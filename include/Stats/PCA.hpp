@@ -64,6 +64,7 @@ public:
   int dbF2Z(Db* db,
             bool verbose = false,
             const NamingConvention& namconv = NamingConvention("F2Z"));
+  VectorDouble mafOfIndex() const;
 
 private:
   int _getAddress(int ivar, int jvar) const { return (ivar * _nVar + jvar); }

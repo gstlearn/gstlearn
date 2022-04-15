@@ -356,6 +356,15 @@ void ut_ivector_fill(VectorInt &vec, int value, int size)
   std::fill(vec.begin(), vec.end(), value);
 }
 
+VectorDouble ut_vector_concatenate(const VectorDouble& vec1,
+                                   const VectorDouble& vec2)
+{
+  VectorDouble res = vec1;
+  for (auto &e: vec2)
+    res.push_back(e);
+  return res;
+}
+
 VectorDouble ut_vector_add(const VectorDouble &vec1, const VectorDouble &vec2)
 {
   VectorDouble res;
