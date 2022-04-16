@@ -481,18 +481,26 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, dou
  * Sample a set of 'ntotal' consecutive ranks
  * @param ntotal      Dimension to be sampled
  * @param proportion  Proportion of elected samples (in [0,1])
+ * @param number      Number of elected samples
  * @param seed        Seed used for the random number generator
  * @return A vector of ranks (between 0 and 'ntotal-1'). No duplicate
+ *
+ * @remark You must specify either 'proportion' or 'number'
  */
-VectorInt ut_vector_sample(int ntotal, double proportion, int seed)
+VectorInt ut_vector_sample(int ntotal, double proportion, int number, int seed)
 {
-  int number = (int) (ntotal * proportion);
-  number = MIN(ntotal, MAX(1, number));
-  VectorInt ranks(number);
+  if (proportion <= 0. && number <= 0) return VectorInt();
+  int count;
+  if (proportion > 0.)
+    count = (int) (ntotal * proportion);
+  else
+    count = number;
+  count = MIN(ntotal, MAX(1, count));
+  VectorInt ranks(ntotal);
 
   int memo = law_get_random_seed();
   if (seed > 0) law_set_random_seed(seed);
-  for (int i = 0; i < number; i++)
+  for (int i = 0; i < ntotal; i++)
     ranks[i] = (int) law_uniform(0., (double) ntotal);
 
   // Check that the ranks are 'unique'
@@ -500,7 +508,12 @@ VectorInt ut_vector_sample(int ntotal, double proportion, int seed)
   auto last = std::unique(ranks.begin(), ranks.end());
   ranks.erase(last, ranks.end());
 
+  // Resize the arguments to the expected number of samples
+  count = MIN(count, (int) ranks.size());
+  ranks.resize(count);
+
   law_set_random_seed(memo);
+
   return ranks;
 }
 

@@ -141,6 +141,9 @@ void exit_f(void)
 %extend PCA {
   std::string __repr__() {  return $self->toString();  }
 };
+%extend AMatrix {
+  std::string __repr__() {  return $self->toString();  }
+};
 
 %pythoncode %{
 # Override operator [] for the Db class

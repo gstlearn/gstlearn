@@ -3612,10 +3612,7 @@ int get_mirror_sample(int nx, int ix)
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-void ut_rotation_direction(double ct,
-                                           double st,
-                                           double *a,
-                                           double *codir)
+void ut_rotation_direction(double ct, double st, double *a, double *codir)
 {
   double rd, b[3], c[3], p[3];
 

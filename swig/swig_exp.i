@@ -302,6 +302,10 @@ class IClonable{};
 %include OutputFormat/GridXYZ.hpp
 %include OutputFormat/GridZycor.hpp
 
+%include Simulation/ASimulation.hpp
+%include Simulation/TurningBands.hpp
+%include Simulation/TurningDirection.hpp
+
 %include segy.h
 
 /*

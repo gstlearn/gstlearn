@@ -266,4 +266,7 @@ set(SRC
   OutputFormat/FileVTK.cpp
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
+  Simulation/ASimulation.cpp
+  Simulation/TurningBands.cpp
+  Simulation/TurningDirection.cpp
 )

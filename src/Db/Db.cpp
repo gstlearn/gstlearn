@@ -1456,6 +1456,18 @@ double Db::getExtension(int idim, bool useSel) const
   return maxi - mini;
 }
 
+double Db::getExtensionDiagonal(bool useSel) const
+{
+  int ndim = getNDim();
+  double total = 0.;
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double delta = getExtension(idim, useSel);
+    total += delta * delta;
+  }
+  return sqrt(total);
+}
+
 /**
  * Return a Unit calculated for a Db (in a given Space dimension)
  * @param idim Rank of the Space dimension
@@ -3724,24 +3736,32 @@ double Db::getCosineToDirection(int iech1,
  *
  * @param dbin       Pointer to the input Db
  * @param proportion Proportion of samples to be retained
+ * @param number     Number of samples to be retained
  * @param names      Vector of Names to be copied (empty: all names)
  * @param seed       Seed used for the random number generator
  * @param verbose    Verbose flag
  *
  * @remark A possible selection in 'dbin' will not be taken into account
+ * @remark You can use either 'proportion' or 'number'
  */
 int Db::resetSamplingDb(const Db* dbin,
                          double proportion,
+                         int number,
                          const VectorString& names,
                          int seed,
                          bool verbose)
 {
+  if (proportion <= 0. && number <= 0)
+  {
+    messerr("You must specify either 'proportion' or 'number'");
+    return 1;
+  }
   _clear();
 
   // Creating the vector of selected samples
 
   int nfrom = dbin->getSampleNumber();
-  VectorInt ranks = ut_vector_sample(nfrom, proportion, seed);
+  VectorInt ranks = ut_vector_sample(nfrom, proportion, number, seed);
   _nech = static_cast<int> (ranks.size());
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);
@@ -3937,12 +3957,13 @@ Db* Db::createFromOnePoint(const VectorDouble& tab, int flag_add_rank)
 }
 Db* Db::createSamplingDb(const Db* dbin,
                          double proportion,
+                         int number,
                          const VectorString& names,
                          int seed,
                          bool verbose)
 {
   Db* db = new Db;
-  if (db->resetSamplingDb(dbin, proportion, names, seed, verbose))
+  if (db->resetSamplingDb(dbin, proportion, number, names, seed, verbose))
   {
     messerr("Error when clearing Db by Sampling another Db");
     delete db;
