@@ -118,3 +118,4 @@ GSTLEARN_EXPORT VectorDouble ut_vector_sort(const VectorDouble& vecin, bool asce
 
 GSTLEARN_EXPORT double ut_vector_extension_diagonal(const VectorDouble& mini,
                                                     const VectorDouble& maxi);
+GSTLEARN_EXPORT VectorDouble ut_vector_angle_from_codir(const VectorDouble& codir);

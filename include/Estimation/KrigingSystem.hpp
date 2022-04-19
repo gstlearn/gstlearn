@@ -29,7 +29,7 @@ class GSTLEARN_EXPORT KrigingSystem
 public:
   KrigingSystem(Db* dbin,
                 Db* dbout,
-                Model* model,
+                const Model* model,
                 ANeighParam* neighParam);
   KrigingSystem(const KrigingSystem &m) = delete;
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
@@ -170,7 +170,7 @@ private:
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
-  Model*               _modelInit;
+  const Model*         _modelInit;
   ANeighParam*         _neighParam;
   const AAnam*         _anam;
   bool _isReady;

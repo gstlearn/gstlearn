@@ -25,17 +25,19 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/EJustify.hpp"
+#include "Basic/OptCustom.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
-#include "Basic/EJustify.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Simulation/TurningBands.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3218,7 +3220,6 @@ static int st_simtub_process(Db *dbin,
 {
   int flag_cond, error, ncova, nvar;
   double *aic, *valpro, *vecpro;
-  char string[100];
 
   /* Initializations */
 
@@ -3271,8 +3272,7 @@ static int st_simtub_process(Db *dbin,
 
   if (flag_cond)
   {
-    st_title_process(string, "Conditioning by Kriging");
-    if (_krigsim(string, dbin, dbout, model, neighparam, flag_bayes, dmean, dcov, icase, nbsimu,
+    if (_krigsim(dbin, dbout, model, neighparam, flag_bayes, dmean, dcov, icase, nbsimu,
                  FLAG_DGM, R_COEFF)) goto label_end;
   }
   else
@@ -3473,11 +3473,21 @@ int simtub(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = st_alloc(model, nbsimu, nbtuba);
-  if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
-                        VectorDouble(), VectorDouble(), nbsimu, 0, 0, 0,
-                        flag_check)) goto label_end;
+  if (OptCustom::query("SIMTUB",1) == 1)
+  {
+    situba = st_alloc(model, nbsimu, nbtuba);
+    if (situba == nullptr) goto label_end;
+    if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
+                          VectorDouble(), VectorDouble(), nbsimu, 0, 0, 0,
+                          flag_check)) goto label_end;
+  }
+  else
+  {
+    TurningBands situba_new(nbsimu, nbtuba, model);
+    if (situba_new.simulate(dbin, dbout, neighparam, 0)) goto label_end;
+    if (flag_check)
+      st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
+  }
 
   /* Free the temporary variables */
 

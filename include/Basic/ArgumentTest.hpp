@@ -47,11 +47,6 @@ public:
   }
 };
 
-/**
- * This file is meant to provide a set of functions for testing arguments
- * for Python and R interfaces
- */
-
 GSTLEARN_EXPORT void argumentTestInt(int value);
 GSTLEARN_EXPORT void argumentTestDouble(double value);
 GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values);

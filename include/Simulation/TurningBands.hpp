@@ -23,26 +23,40 @@ class Model;
 class GSTLEARN_EXPORT TurningBands : public ASimulation {
 
 public:
-  TurningBands(int nbtuba, int seed = 4324324);
+  TurningBands(int nbsimu, int nbtuba, const Model* model, int seed = 4324324);
   TurningBands(const TurningBands& r);
   TurningBands& operator=(const TurningBands& r);
   virtual ~TurningBands();
 
   int getNBtuba() const { return _nbtuba; }
   void setNBtuba(int nbtuba) { _nbtuba = nbtuba; }
-  int init(const Model* model);
 
+  int simulate(Db *dbin,
+               Db *dbout,
+               ANeighParam *neighparam,
+               int icase,
+               int flag_bayes = false,
+               const VectorDouble& dmean = VectorDouble(),
+               const VectorDouble& dcov = VectorDouble(),
+               bool flag_pgs = false,
+               bool flag_gibbs = false,
+               bool flag_dgm = false,
+               double r_coeff = 0.);
   void simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
   void simulateGrid(DbGrid *db, const VectorDouble& aic, int icase, int shift);;
   void simulateNugget(Db *db, const VectorDouble& aic, int icase);;
   void meanCorrect(Db *dbout, int icase);
   void difference(Db *dbin,
                   int icase,
-                  int flag_pgs,
-                  int flag_gibbs,
-                  int flag_dgm,
-                  double r_coeff);
-  void updateData2ToTarget(Db *dbin, Db *dbout, int icase, int flag_pgs, int flag_dgm);
+                  bool flag_pgs = false,
+                  bool flag_gibbs = false,
+                  bool flag_dgm = false,
+                  double r_coeff = 0.);
+  void updateData2ToTarget(Db *dbin,
+                           Db *dbout,
+                           int icase,
+                           bool flag_pgs = false,
+                           bool flag_dgm = false);
 
 private:
   void _setCodirAng(int ibs, int idir, double value) { _codirs[ibs].setAng(idir, value); }

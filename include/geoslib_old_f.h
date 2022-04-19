@@ -211,7 +211,6 @@ GSTLEARN_EXPORT int ut_angles_from_rotation_matrix(const double *rot,
                                                    int ndim,
                                                    double *angles);
 GSTLEARN_EXPORT void ut_angles_from_codir(int ndim,
-                                          int ndir,
                                           const VectorDouble &codir,
                                           VectorDouble &angles);
 GSTLEARN_EXPORT void ut_angles_to_codir(int ndim,

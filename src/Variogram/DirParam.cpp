@@ -254,7 +254,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     if (ndim > 1)
     {
       VectorDouble angles(ndim);
-      (void) ut_angles_from_codir(ndim,1,_codir,angles);
+      (void) ut_angles_from_codir(ndim,_codir,angles);
       sstr << toVector("Direction angles (degrees)  = ", angles);
     }
 

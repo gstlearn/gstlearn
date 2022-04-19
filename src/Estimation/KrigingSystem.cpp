@@ -44,7 +44,7 @@
 
 KrigingSystem::KrigingSystem(Db* dbin,
                              Db* dbout,
-                             Model* model,
+                             const Model* model,
                              ANeighParam* neighParam)
     : _dbin(dbin),
       _dbout(dbout),
@@ -113,7 +113,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
 {
   // The current Model coincides with _modelInit
 
-  _model = _modelInit;
+  _model = (Model*) _modelInit->clone();
 
   _resetMemoryGeneral();
 }
@@ -1793,11 +1793,11 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (_flagBayes) _model = _modelSimple;
     status = _prepar();
-    if (_flagBayes) _model = _modelInit;
+    if (_flagBayes) _model = (Model*) _modelInit->clone();
     if (status) goto label_store;
   }
 
-  // Establish the precalculation involving the data information
+  // Establish the pre-calculation involving the data information
 
   if (!_nbghWork.isUnchanged() || _neighParam->getFlagContinuous() ||
       _flagDataChanged || OptDbg::force())
@@ -1813,7 +1813,7 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagBayes) _model = _modelSimple;
   _rhsCalcul();
-  if (_flagBayes) _model = _modelInit;
+  if (_flagBayes) _model = (Model *) _modelInit->clone();
 
   if (status != 0) goto label_store;
   _rhsIsoToHetero();

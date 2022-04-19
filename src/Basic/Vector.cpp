@@ -9,15 +9,20 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/OptCustom.hpp"
 
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
-#include "math.h"
+#include <ctime>
+#include <cstdlib>
+#include <math.h>
 
 VectorInt ut_vector_int(int nval, int value)
 {
@@ -483,37 +488,36 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, dou
  * @param proportion  Proportion of elected samples (in [0,1])
  * @param number      Number of elected samples
  * @param seed        Seed used for the random number generator
- * @return A vector of ranks (between 0 and 'ntotal-1'). No duplicate
+ * @return A vector of indices lying between 0 and ntotal-1. No duplicate.
  *
- * @remark You must specify either 'proportion' or 'number'
+ * @remark If 'proportion' and 'number' are not specified,
+ * @remark the output vector has dimension equal to 'ntotal'
  */
+// random generator function:
+int myrandom (int i) { return std::rand()%i;}
+
 VectorInt ut_vector_sample(int ntotal, double proportion, int number, int seed)
 {
+  // Find the number of expected values
   if (proportion <= 0. && number <= 0) return VectorInt();
   int count;
-  if (proportion > 0.)
+  if (proportion <= 0. && number <= 0)
+    count = ntotal;
+  else if (proportion > 0.)
     count = (int) (ntotal * proportion);
   else
     count = number;
   count = MIN(ntotal, MAX(1, count));
-  VectorInt ranks(ntotal);
 
-  int memo = law_get_random_seed();
-  if (seed > 0) law_set_random_seed(seed);
-  for (int i = 0; i < ntotal; i++)
-    ranks[i] = (int) law_uniform(0., (double) ntotal);
+  // Define the Seed
+  std::srand(seed);
 
-  // Check that the ranks are 'unique'
-  std::sort(ranks.begin(), ranks.end());
-  auto last = std::unique(ranks.begin(), ranks.end());
-  ranks.erase(last, ranks.end());
+  VectorInt ranks;
+  for (int i = 0; i < ntotal; i++) ranks.push_back(i);
 
-  // Resize the arguments to the expected number of samples
-  count = MIN(count, (int) ranks.size());
+  std::random_shuffle ( ranks.begin(), ranks.end(), myrandom);
+
   ranks.resize(count);
-
-  law_set_random_seed(memo);
-
   return ranks;
 }
 
@@ -737,3 +741,12 @@ double ut_vector_extension_diagonal(const VectorDouble& mini,
   diag = sqrt(diag);
   return diag;
 }
+
+VectorDouble ut_vector_angle_from_codir(const VectorDouble& codir)
+{
+  int ndim = (int) codir.size();
+  VectorDouble angles(ndim);
+  ut_angles_from_codir(ndim, codir, angles);
+  return angles;
+}
+

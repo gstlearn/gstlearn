@@ -54,6 +54,10 @@ void _printString(const String& value, bool next = false)
   if (next) _nextOfLine();
 }
 
+/**
+ * Function to test Integer argument
+ * @param value Integer input argument
+ */
 void argumentTestInt(int value)
 {
   _introduction("Integer");
@@ -61,6 +65,10 @@ void argumentTestInt(int value)
   _endOfLine();
 }
 
+/**
+ * Function to test Double argument
+ * @param value Double input argument
+ */
 void argumentTestDouble(double value)
 {
   _introduction("Double");

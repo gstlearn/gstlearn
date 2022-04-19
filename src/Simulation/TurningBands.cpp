@@ -9,6 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
+#include "geoslib_f_private.h"
+
 #include "Simulation/TurningBands.hpp"
 #include "Simulation/TurningDirection.hpp"
 #include "Model/Model.hpp"
@@ -23,16 +25,35 @@
 
 #include <math.h>
 
-TurningBands::TurningBands(int nbtuba, int seed)
-    : ASimulation(seed),
+TurningBands::TurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
+    : ASimulation(nbsimu, seed),
       _nbtuba(nbtuba),
       _npointSimulated(0),
       _field(0.),
       _theta(0.),
       _seeds(),
       _codirs(),
-      _model(nullptr)
+      _model(model)
 {
+  int nvar  = _getNVar();
+  int ncova = _getNCova();
+
+  /* Allocate the structure */
+
+  _codirs.clear();
+  _seeds.clear();
+
+  /* Allocate the structures for the seeds */
+
+  int size = nvar * ncova * _nbtuba * nbsimu;
+  _seeds.resize(size,0.);
+
+  /* Allocate the structures for the directions */
+
+  int nbands = nbsimu * _nbtuba * ncova;
+  _codirs.resize(nbands);
+  for (int i = 0; i < nbands; i++)
+    _codirs[i] = TurningDirection();
 }
 
 TurningBands::TurningBands(const TurningBands &r)
@@ -81,43 +102,6 @@ int TurningBands::_getSeed(int ivar, int is, int ib, int isimu)
   int nvar = _getNVar();
   int iad = ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
   return _seeds[iad];
-}
-
-int TurningBands::init(const Model* model)
-{
-  int nbsimu = getNbSimu();
-  if (_nbtuba <= 0 || nbsimu <= 0)
-  {
-    messerr("You must define 'nbsimu' and 'nbtuba' beforehand");
-    return 1;
-  }
-  if (model == nullptr)
-  {
-    messerr("You need a Model");
-    return 1;
-  }
-  _model = model;
-  int nvar  = _getNVar();
-  int ncova = _getNCova();
-
-  /* Allocate the Situba structure */
-
-  _codirs.clear();
-  _seeds.clear();
-
-  /* Allocate the structures for the seeds */
-
-  int size = nvar * ncova * _nbtuba * nbsimu;
-  _seeds.resize(size,0.);
-
-  /* Allocate the structures for the directions */
-
-  int nbands = nbsimu * _nbtuba * ncova;
-  _codirs.resize(nbands);
-  for (int i = 0; i < nbands; i++)
-    _codirs[i] = TurningDirection();
-
-  return 0;
 }
 
 /****************************************************************************/
@@ -544,6 +528,7 @@ int TurningBands::_initializeSeeds()
  ** \param[in]  tmin  minimum value
  ** \param[in]  tmax  maximum value
  ** \param[in]  scale scale of the exponential
+ ** \param[in]  eps   Epsilon value
  **
  *****************************************************************************/
 VectorDouble TurningBands::_migration(double tmin,
@@ -849,6 +834,7 @@ void TurningBands::_spline1D(int ib,
  **  allocation
  **
  ** \param[in]  type   degree of the IRF -> number of integrations
+ ** \param[in]  t      Vector of Poisson delimitors
  **
  ** \param[out] v0     Wiener-Levy process
  ** \param[out] v1     First integration of the Wiener-Levy process
@@ -902,13 +888,7 @@ void TurningBands::_irfProcess(const ECov &type,
  **  Calculate the linear model of coregionalization starting from the
  **  coregionalization matrix
  **
- ** \return  Error return code.
- **
- ** \param[in]  model    Model structure
- **
- ** \param[out]  aic     array of 'aic' values
- ** \param[out]  valpro  array of eigen values
- ** \param[out]  vecpro  array of eigen vectors
+ ** \return  The Vector containing the AIC matrix
  **
  ** \remark  In case of error, the message is printed by the routine
  ** \remark  Warning: in the case of linked drift, the test of definite
@@ -1831,9 +1811,9 @@ double TurningBands::_getAIC(const VectorDouble& aic,
  *****************************************************************************/
 void TurningBands::difference(Db *dbin,
                               int icase,
-                              int flag_pgs,
-                              int flag_gibbs,
-                              int flag_dgm,
+                              bool flag_pgs,
+                              bool flag_gibbs,
+                              bool flag_dgm,
                               double r_coeff)
 {
   int nbsimu = getNbSimu();
@@ -1963,14 +1943,9 @@ void TurningBands::meanCorrect(Db *dbout, int icase)
 void TurningBands::updateData2ToTarget(Db *dbin,
                                        Db *dbout,
                                        int icase,
-                                       int flag_pgs,
-                                       int flag_dgm)
+                                       bool flag_pgs,
+                                       bool flag_dgm)
 {
-//  double *coor1, *coor2, dist, eps, eps2, valdat, radius, delta;
-//  int *indg, ip, idim, ip_close, isimu, ivar, nvar, ndim, nbsimu, ik;
-
-  /* Initialization */
-
   if (dbin->getSampleNumber() <= 0) return;
   if (flag_dgm) return;
   int nvar = _getNVar();
@@ -2081,3 +2056,107 @@ void TurningBands::updateData2ToTarget(Db *dbin,
     }
   }
 }
+
+/****************************************************************************/
+/*!
+ **  Perform the Simulation Process using the Turning Bands Method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  icase      Case for PGS or -1
+ ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
+ ** \param[in]  dmean      Array giving the prior means for the drift terms
+ ** \param[in]  dcov       Array containing the prior covariance matrix
+ **                        for the drift terms
+ ** \param[in]  flag_pgs   1 if called from PGS
+ ** \param[in]  flag_gibbs 1 if called from Gibbs
+ ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
+ ** \param[in]  r_coeff    Change of Support ceofficient
+ **
+ *****************************************************************************/
+int TurningBands::simulate(Db *dbin,
+                           Db *dbout,
+                           ANeighParam *neighparam,
+                           int icase,
+                           int flag_bayes,
+                           const VectorDouble& dmean,
+                           const VectorDouble& dcov,
+                           bool flag_pgs,
+                           bool flag_gibbs,
+                           bool flag_dgm,
+                           double r_coeff)
+{
+  int nbsimu = getNbSimu();
+  if (_model == nullptr || nbsimu <= 0 || _nbtuba <= 0)
+  {
+    messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
+    return 1;
+  }
+
+  bool flag_cond = (dbin != nullptr);
+
+  // Initializations
+
+  if (_generateDirections(dbout)) return 1;
+  _minmax(dbout);
+  _minmax(dbin);
+  if (_initializeSeeds()) return 1;
+
+  // Calculate the 'aic' array
+
+  VectorDouble aic = _createAIC();
+  if (aic.empty()) return 1;
+
+  // Non conditional simulations on the data points
+
+  if (flag_cond)
+  {
+    simulatePoint(dbin, aic, icase, 0);
+
+    // Calculate the simulated error
+
+    difference(dbin, icase, flag_pgs, flag_gibbs, flag_dgm, r_coeff);
+  }
+
+  // Non conditional simulations on the grid
+
+  if (dbout->isGrid())
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    simulateGrid(dbgrid, aic, icase, 0);
+  }
+  else
+  {
+    simulatePoint(dbout, aic, icase, 0);
+  }
+
+  /* Add the contribution of Nugget effect (optional) */
+
+  simulateNugget(dbout, aic, icase);
+
+  /* Conditional simulations */
+
+  if (flag_cond)
+  {
+    if (_krigsim(dbin, dbout, _model, neighparam, flag_bayes, dmean, dcov, icase,
+                 nbsimu, flag_dgm, r_coeff)) return 1;
+  }
+  else
+  {
+
+    /* In non-conditional case, correct for the mean */
+
+    meanCorrect(dbout, icase);
+  }
+
+  /* Copy value from data to coinciding grid node */
+
+  if (flag_cond)
+    updateData2ToTarget(dbin, dbout, icase, flag_pgs, flag_dgm);
+
+  return 0;
+}
+
