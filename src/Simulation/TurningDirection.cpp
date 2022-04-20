@@ -12,7 +12,7 @@
 #include "Simulation/TurningDirection.hpp"
 #include "Db/DbGrid.hpp"
 
-TurningDirection::TurningDirection()
+TurningDirection::TurningDirection(int ndim)
     : _tmin(0.),
       _tmax(0.),
       _scale(0.),
@@ -22,6 +22,7 @@ TurningDirection::TurningDirection()
       _dzp(0.),
       _ang()
 {
+  _ang.resize(ndim);
 }
 
 TurningDirection::TurningDirection(const TurningDirection &r)

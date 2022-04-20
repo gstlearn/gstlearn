@@ -20,7 +20,7 @@ class Db;
 class GSTLEARN_EXPORT TurningDirection
 {
 public:
-  TurningDirection();
+  TurningDirection(int ndim = 2);
   TurningDirection(const TurningDirection& r);
   TurningDirection& operator=(const TurningDirection& r);
   virtual ~TurningDirection();

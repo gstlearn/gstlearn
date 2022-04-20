@@ -47,7 +47,6 @@
 #define RESULT 1
 
 #define AD(ivar,jvar)           (ivar) + nvar * (jvar)
-#define SEEDS(ivar,is,ib,isimu)  situba->seeds[(ivar)+nvar*((is)+ncova*((ib)+nbtuba*(isimu)))]
 #define AIC(icov,ivar,jvar)      aic[(icov)*nvar*nvar + AD(ivar,jvar)]
 #define IND(iech,ivar)           ((iech) + (ivar) * nech)
 
@@ -60,7 +59,6 @@
 
 /*! \endcond */
 
-static int QUANT = 1000;
 static int MES_IGRF, MES_NGRF, MES_IPGS, MES_NPGS, FLAG_DGM;
 static double GIBBS_RHO, GIBBS_SQR;
 static double R_COEFF;
@@ -483,2616 +481,6 @@ static int st_check_simtub_environment(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Calculate the Poisson intensity for the generation
- **  of the Wiener-Levy along the line
- **
- ** \param[in]  situba Situba structure
- **
- ** \remark  The average number of points per band is calculated:
- ** \remark  - so as too have in average one band between two target
- ** \remark    points (either data or target)
- ** \remark  - to have a number of Poisson points per band lying within
- ** \remark    [nmini; nmaxi]
- **
- *****************************************************************************/
-static void st_density(Situba *situba)
-
-{
-  double scale;
-  int nbtuba, naverage, npoint;
-  int nmini = 5;
-  int nmaxi = 5000;
-
-  nbtuba = situba->nbtuba;
-  npoint = situba->nb_points_simu;
-  naverage = npoint / nbtuba;
-  if (naverage < nmini) naverage = nmini;
-  if (naverage > nmaxi) naverage = nmaxi;
-  scale = situba->field / naverage;
-  situba->theta = 1. / scale;
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Generates the process constituted by independent gaussian
- **  variables along a 1D Poisson process. The process consists in
- **  the integration(s) of the previous process Perform the core
- **  allocation
- **
- ** \param[in]  nt     number for exponential intervals
- ** \param[in]  type   degree of the IRF -> number of integrations
- **
- ** \param[out] v0     Wiener-Levy process
- ** \param[out] v1     First integration of the Wiener-Levy process
- ** \param[out] v2     Second integration of the Wiener-Levy process
- **
- ** \remark  This procedure allocates memory that should be freed
- **
- *****************************************************************************/
-static void st_irf_process_alloc(int nt,
-                                 const ECov &type,
-                                 double **v0,
-                                 double **v1,
-                                 double **v2)
-{
-  int i;
-
-  /* Initializations */
-
-  (*v0) = (*v1) = (*v2) = nullptr;
-
-  /* Generations of the independent gaussian variables */
-
-  for (i = 0; i < nt; i++)
-    (void) law_gaussian();
-
-  /* Core allocation */
-
-  (*v0) = (double*) mem_alloc(sizeof(double) * nt, 0);
-  if ((*v0) == nullptr) return;
-  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return;
-
-  (*v1) = (double*) mem_alloc(sizeof(double) * nt, 0);
-  if ((*v1) == nullptr) return;
-  if (type == ECov::ORDER3_GC) return;
-
-  (*v2) = (double*) mem_alloc(sizeof(double) * nt, 0);
-  if ((*v2) == nullptr) return;
-  if (type == ECov::ORDER5_GC) return;
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Generates the process constituted by independent gaussian
- **  variables along a 1D Poisson process. The process consists in
- **  the integration(s) of the previous process
- **
- ** \param[in]  nt     The number for exponential intervals
- ** \param[in]  type   The covariance type
- ** \param[in]  t      Array giving the coordinates of the Poisson points
- **
- ** \param[out] v0     Wiener-Levy process
- ** \param[out] v1     First integration of the Wiener-Levy process
- ** \param[out] v2     Second integration of the Wiener-Levy process
- **
- *****************************************************************************/
-static void st_irf_process(int nt,
-                           const ECov &type,
-                           double *t,
-                           double *v0,
-                           double *v1,
-                           double *v2)
-{
-  double delta;
-  int i;
-
-  /* Generation of the Wiener-Levy process */
-
-  v0[0] = 0.;
-  for (i = 1; i < nt; i++)
-    v0[i] = v0[i - 1] + law_gaussian();
-  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return;
-
-  /* First integration of the Wiener-Levy process */
-
-  v1[0] = 0.;
-  for (i = 1; i < nt; i++)
-  {
-    delta = t[i] - t[i - 1];
-    v1[i] = v1[i - 1] + v0[i - 1] * delta;
-  }
-  if (type == ECov::ORDER3_GC) return;
-
-  /* Second integration of the Wiener-Levy process */
-
-  v2[0] = 0.;
-  for (i = 1; i < nt; i++)
-  {
-    delta = t[i] - t[i - 1];
-    v2[i] = v2[i - 1] + v1[i - 1] * delta + v0[i - 1] * delta * delta / 2.;
-  }
-  if (type == ECov::ORDER5_GC) return;
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Sample the Wiener-Levy (integrated) process
- **
- ** \param[in]  type   type of polynomial generalized covariance
- ** \param[in]  nt0    Rank of the Poisson point
- ** \param[in]  t0     starting time
- ** \param[in]  t      Poisson point process
- ** \param[in]  v0     Wiener-Levy process
- ** \param[in]  v1     First integration of the Wiener-Levy process
- ** \param[in]  v2     Second integration of the Wiener-Levy process
- **
- *****************************************************************************/
-static double st_irf_process_sample(const ECov &type,
-                                    int nt0,
-                                    double t0,
-                                    double *t,
-                                    double *v0,
-                                    double *v1,
-                                    double *v2)
-{
-  double value, delta;
-
-  /* Initializations */
-
-  delta = t0 - t[nt0];
-
-  /* Wiener-Levy process */
-
-  value = v0[nt0];
-  if (type == ECov::LINEAR || type == ECov::ORDER1_GC) return (value);
-
-  /* First integration of the Wiener-Levy process */
-
-  value = v1[nt0] + v0[nt0] * delta;
-  if (type == ECov::ORDER3_GC) return (value);
-
-  /* Second integration of the Wiener-Levy process */
-
-  value = v2[nt0] + v1[nt0] * delta + v0[nt0] * delta * delta / 2.;
-  if (type == ECov::ORDER5_GC) return (value);
-
-  return (TEST);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the correction factor for IRF_k models
- **
- ** \return  Correction factor
- **
- ** \param[in]  type    type of polynomial generalized covariance
- ** \param[in]  theta1  Equal to inverse of theta value
- ** \param[in]  scale   Range of the model
- **
- *****************************************************************************/
-static double st_irf_correc(const ECov &type, double theta1, double scale)
-{
-  double correc;
-
-  /* Initializations */
-
-  correc = 1.;
-
-  /* Dispatch */
-
-  switch (type.toEnum())
-  {
-    case ECov::E_LINEAR:
-    case ECov::E_ORDER1_GC:
-      correc = sqrt((4. * theta1) / scale);
-      break;
-
-    case ECov::E_ORDER3_GC:
-      correc = sqrt((48. * theta1) / scale) / scale;
-      break;
-
-    case ECov::E_ORDER5_GC:
-      correc = sqrt((1440. * theta1) / scale) / scale / scale;
-      break;
-    default:
-      break;
-  }
-
-  return (correc);
-}
-/****************************************************************************/
-/*!
- **  Calculate the scale for 1D process for the K-Bessel model (param<0.5)
- **
- ** \return  Scale parameter of the 1D process to simulate (param<0.5)
- **
- ** \param[in]  param       Third parameter of the K-Bessel covariance model
- ** \param[in]  scale       Scale parameter of the model
- **
- *****************************************************************************/
-static double st_compute_scale_Kb(double param, double scale)
-
-{
-  double scale_out;
-
-  scale_out = scale * sqrt(law_beta1(param, 0.5 - param));
-
-  return (scale_out);
-}
-/****************************************************************************/
-/*!
- **  Calculate the scale for 1D process for the stable model
- **
- ** \return  Scale parameter of the 1D process to simulate
- **
- ** \param[in]  alpha       Third parameter of the stable covariance model
- ** \param[in]  scale       Scale parameter of the model
- **
- *****************************************************************************/
-static double st_compute_scale(double alpha, double scale)
-
-{
-  double scale_out;
-
-  if (alpha < 1)
-    scale_out = scale / law_stable_standard_abgd(alpha);
-  else
-    scale_out = scale / sqrt(law_stable_standard_abgd(alpha / 2.));
-
-  return (scale_out);
-}
-/*****************************************************************************/
-/*!
- **  Prepare a spectral method
- **
- ** \param[in]  type   type of method for generating the period
- ** \param[in]  scale  scale factor
- ** \param[in]  param  factor for the period
- **
- ** \param[out] omega  resulting period
- ** \param[out] phi    uniform phase lying within [0,2 PI]
- **
- *****************************************************************************/
-static void st_spectral(const ECov &type,
-                        double scale,
-                        double param,
-                        double *omega,
-                        double *phi)
-{
-  double val, period;
-  int i;
-
-  period = 0.;
-  switch (type.toEnum())
-  {
-    case ECov::E_GAUSSIAN:
-      for (i = 0; i < 3; i++)
-      {
-        val = law_gaussian();
-        period += val * val;
-      }
-      period = sqrt(param * period) / scale;
-      break;
-
-    case ECov::E_STABLE:
-      for (i = 0; i < 3; i++)
-      {
-        val = law_gaussian();
-        period += val * val;
-      }
-      scale = st_compute_scale(param, scale);
-      period = sqrt(2. * period) / scale;
-      break;
-
-    case ECov::E_SINCARD:
-      val = (law_uniform(0., 1.) >= 0.5) ? 1 :
-                                           -1;
-      period = val / scale;
-      break;
-
-    case ECov::E_BESSEL_J:
-      val = law_beta1(1.5, param - 0.5);
-      period = sqrt(val) / scale;
-      break;
-
-    case ECov::E_BESSEL_K:
-      param = sqrt(2. * law_gamma(param));
-      for (i = 0; i < 3; i++)
-      {
-        val = law_gaussian();
-        period += val * val;
-      }
-      period = sqrt(period) / (param * scale);
-      break;
-
-    default:
-      break;
-  }
-
-  *omega = period;
-  *phi = 2. * GV_PI * law_uniform(0., 1.);
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Generate the 1D stochastic process
- **
- ** \param[in]  ib      Rank of the turning band
- ** \param[in]  scale   scale factor
- ** \param[in]  alpha   power of the variogram h^alpha
- **
- ** \param[out] omega   period = 2piR
- **                     where R is a second kind beta variable with parameters
- **                     1-alpha/2 and alpha/2
- ** \param[out] phi     uniform phase lying within [0,2 PI]
- ** \param[out] theta_3 value of theta_alpha,3(R)
- ** \param[out] correc0 value to substract from Y_alpha,2 in order to avoid
- **                     numerical problems when R is very small
- **
- **  \remark Y_alpha_1=theta_alpha_1(R)cos(2pi R.x+phi)
- **  \remark used to simulate a GRF with a power semi-variogram h^alpha
- **  \remark according to the method proposed in
- **  \remark Emery, X. and Lantuejoul, C. (2008)
- **  \remark A spectral approach to simulating intrinsec random fields with power
- **  \remark and spline generalized covariance.
- **  \remark In Computational Geosciences 12:121-132
- **
- *****************************************************************************/
-static void st_set_power_1D(int ib,
-                            double scale,
-                            double alpha,
-                            double *omega,
-                            double *phi,
-                            double *theta_3,
-                            double *correc0)
-{
-  double R, theta_1;
-  static double twoPI, log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff,
-      coeff3;
-  static double alpha_mem = -1.;
-
-  if (ib == 0 || alpha != alpha_mem)
-  {
-    as2 = alpha / 2.;
-    twoPI = 2. * GV_PI;
-    log3s2 = loggamma(1.5);
-    log1s2 = loggamma(0.5);
-    logap1 = loggamma(1.0 + alpha);
-    logap1s2 = loggamma(0.5 + as2);
-    logap3s2 = loggamma(1.5 + as2);
-    coeff = 2. * sqrt(exp(logap1) / pow(twoPI, alpha)) * pow(scale, as2);
-    coeff3 = sqrt(exp(log3s2 + logap1s2 - log1s2 - logap3s2));
-    alpha_mem = alpha;
-  }
-
-  R = law_beta2(1 - as2, as2);
-  theta_1 = coeff * sqrt((R + 1.) / pow(R, as2 + 1));
-  *correc0 = cos(*phi);
-  *omega = twoPI * R;
-  *phi = twoPI * law_uniform(0., 1.);
-  *theta_3 = theta_1 / coeff3;
-}
-
-/*****************************************************************************/
-/*!
- **  Generate the 1D stochastic process for spline covariance
- **
- ** \param[in]  ib      Rank of the turning band
- ** \param[in]  scale   scale factor
- ** \param[in]  k       power of the variogram h^(2k)log(h)
- **
- ** \param[out] omega   period = 2piR
- **                     where R is a second kind beta variable with parameters
- **                     1/2 and 1/2
- ** \param[out] phi     uniform phase lying within [0,2 PI]
- ** \param[out] xi_3    value of xi_2k,3(R)
- ** \param[out] correc0 value to substract from S_2k,3 in order to avoid
- **                     numerical problems when R is very small
- **
- **  \remark Compute the random elements
- **  \remark used to simulate a GRF with a power semi-variogram GC h^(2k)log(h)
- **  \remark according to the method proposed in
- **  \remark Emery, X. and Lantuejoul, C. (2008)
- **  \remark A spectral approach to simulating intrinsec random fields with power
- **  \remark and spline generalized covariance.
- **  \remark In Computational Geosciences 12:121-132
- **
- *****************************************************************************/
-static void st_set_spline_1D(int ib,
-                             double scale,
-                             int k,
-                             double *omega,
-                             double *phi,
-                             double *xi_3,
-                             double *correc0)
-{
-  double R;
-  int twokm1;
-  static double twoPI, twokp1s2, log3s2, logkp3s2, logkp1, coeff;
-  static int twok = 0;
-  static int k_mem = -1;
-
-  if (ib == 0 || k != k_mem)
-  {
-    twok = 2 * k;
-    twokm1 = twok - 1;
-    twokp1s2 = twok + 1. / 2;
-    twoPI = 2. * GV_PI;
-    log3s2 = loggamma(1.5);
-    logkp3s2 = loggamma(k + 1.5);
-    logkp1 = loggamma(k + 1.);
-    coeff = sqrt(2 * exp(logkp3s2 + logkp1 - log3s2) / pow(GV_PI, twokm1));
-    k_mem = k;
-  }
-
-  R = law_beta2(1. / 2, 1. / 2);
-  *xi_3 = coeff * sqrt((R + 1.) / pow(R, twokp1s2));
-  *correc0 = cos(*phi);
-  *omega = twoPI * R * pow(scale, twok);
-  *phi = twoPI * law_uniform(0., 1.);
-
-}
-
-/*****************************************************************************/
-/*!
- **  Generate a migration process - Perform the core allocation
- **
- ** \param[in]  tmin  minimum value
- ** \param[in]  tmax  maximum value
- ** \param[in]  scale scale of the exponential
- **
- ** \param[out] number count of values generated
- **
- ** \remark  This procedure allocates memory that should be freed
- **
- *****************************************************************************/
-static double* st_migration_alloc(double tmin,
-                                  double tmax,
-                                  double scale,
-                                  int *number)
-{
-  double *tab, step, delta;
-  int count, n_quant, i;
-
-  /* Initializations */
-
-  *number = count = 0;
-
-  delta = tmax - tmin;
-  if (scale < delta * EPS)
-  {
-    step = delta * EPS;
-    count = (int) ceil(delta / EPS);
-    tab = (double*) mem_alloc(sizeof(double) * count, 0);
-    if (tab == nullptr) return (tab);
-    for (i = 0; i < count; i++)
-      tab[i] = tmin + i * step;
-  }
-  else
-  {
-    n_quant = count = 1;
-    tab = (double*) mem_alloc(sizeof(double) * n_quant * QUANT, 0);
-    if (tab == nullptr) return (tab);
-    tab[0] = tmin + scale * log(law_uniform(0., 1.));
-    tab[1] = tmin - scale * log(law_uniform(0., 1.));
-
-    while (tab[count] <= tmax)
-    {
-      count++;
-      if (count >= n_quant * QUANT)
-      {
-        n_quant++;
-        tab = (double*) mem_realloc((char* ) tab,
-                                    sizeof(double) * QUANT * n_quant, 0);
-        if (tab == nullptr) return (tab);
-      }
-      tab[count] = tab[count - 1] - scale * log(law_uniform(0., 1.));
-    }
-
-    /* Resize the array */
-
-    count++;
-    tab = (double*) mem_realloc((char* ) tab, sizeof(double) * count, 0);
-  }
-
-  *number = count;
-  return (tab);
-}
-
-/*****************************************************************************/
-/*!
- **  Generate a migration process
- **
- ** \param[in]  tmin  minimum value
- ** \param[in]  tmax  maximum value
- ** \param[in]  scale scale of the exponential
- **
- ** \param[out] tab    working array
- ** \param[out] number count of values generated
- **
- *****************************************************************************/
-static void st_migration(double tmin,
-                         double tmax,
-                         double scale,
-                         double *tab,
-                         int *number)
-{
-  int count, i;
-  double delta;
-
-  /* Initializations */
-
-  delta = tmax - tmin;
-  if (scale < delta * EPS)
-  {
-    count = (int) ceil(delta / EPS);
-    for (i = 0; i < count; i++)
-      tab[i] = law_gaussian();
-  }
-  else
-  {
-    count = 1;
-    tab[0] = tmin + scale * log(law_uniform(0., 1.));
-    tab[1] = tmin - scale * log(law_uniform(0., 1.));
-    while (tab[count] <= tmax)
-    {
-      count++;
-      tab[count] = tab[count - 1] - scale * log(law_uniform(0., 1.));
-    }
-  }
-
-  *number = count + 1;
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Generate a dilution process
- **
- ** \param[in]  tmin minimum value
- ** \param[in]  tmax maximum value
- ** \param[in]  mesh mesh of the random walk
- **
- ** \param[out] tab    working array
- ** \param[out] start  initial time
- ** \param[out] number count of values generated
- **
- *****************************************************************************/
-static void st_dilution(double tmin,
-                        double tmax,
-                        double mesh,
-                        double *tab,
-                        double *start,
-                        int *number)
-
-{
-  double tdeb;
-  int count;
-
-  /* Initializations */
-
-  count = 0;
-  tdeb = tmin - mesh * law_uniform(0., 1.);
-
-  while (tdeb + count * mesh <= tmax)
-  {
-    tab[count] = (law_uniform(0., 1.) < 0.5) ? -1. :
-                                               1.;
-    count++;
-  }
-  *start = tdeb;
-  *number = count;
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Generate a migration process. Perform the core allocation
- **
- ** \param[in]  tmin minimum value
- ** \param[in]  tmax maximum value
- ** \param[in]  mesh mesh of the random walk
- **
- ** \param[out] start  initial time
- ** \param[out] number count of values generated
- **
- ** \remark  This procedure allocates memory that should be freed
- **
- *****************************************************************************/
-static double* st_dilution_alloc(double tmin,
-                                 double tmax,
-                                 double mesh,
-                                 double *start,
-                                 int *number)
-{
-  double *tab, tdeb;
-  int count, n_quant;
-
-  /* Initializations */
-
-  n_quant = 1;
-  count = 0;
-  tab = (double*) mem_alloc(sizeof(double) * n_quant * QUANT, 0);
-  if (tab == nullptr) goto label_end;
-
-  tdeb = tmin - mesh * law_uniform(0., 1.);
-
-  while (tdeb + count * mesh <= tmax)
-  {
-    if (count >= n_quant * QUANT)
-    {
-      n_quant++;
-      tab = (double*) mem_realloc((char* ) tab,
-                                  sizeof(double) * QUANT * n_quant, 0);
-      if (tab == nullptr) goto label_end;
-    }
-    tab[count] = (law_uniform(0., 1.) < 0.5) ? -1. :
-                                               1.;
-    count++;
-  }
-
-  /* Resize the array */
-
-  tab = (double*) mem_realloc((char* ) tab, sizeof(double) * count, 0);
-  *start = tdeb;
-
-  label_end: *number = count;
-  return (tab);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the rank of the point t0 in the Poisson point process
- **
- ** \param[in]  def_rank Rank of the Poisson point
- ** \param[in]  t0 starting time
- ** \param[in]  t  Poisson point process
- ** \param[in]  nt number of Poisson point process
- **
- *****************************************************************************/
-static int st_rank_in_poisson(int def_rank, double t0, double *t, int nt)
-
-{
-  int it, itp, itn;
-
-  /* First, try with the default interval then the next one and finally
-   the previous one */
-
-  if (t0 >= t[def_rank] && t0 < t[def_rank + 1])
-    return (def_rank);
-  else if (def_rank < (nt - 2) && t0 >= t[def_rank + 1] && t0 < t[def_rank + 2])
-    return (def_rank + 1);
-  else if (def_rank > 0 && t0 >= t[def_rank - 1] && t0 < t[def_rank])
-    return (def_rank - 1);
-
-  /* The default value is not good ==> dichotomy */
-
-  itp = 0;
-  itn = nt - 1;
-  while (itn - itp > 1)
-  {
-    it = (itn + itp) / 2;
-    if (t0 >= t[it])
-      itp = it;
-    else
-      itn = it;
-  }
-  return (itp);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the rank of the point t0 in a regular pavement
- **
- ** \param[in]  t0    starting time
- ** \param[in]  tdeb  origin on the line
- ** \param[in]  scale scaling factor
- ** \param[in]  nt    number of Poisson point process
- **
- *****************************************************************************/
-static int st_rank_regular(double t0, double tdeb, double scale, int nt)
-
-{
-  int nt0;
-
-  nt0 = (int) ((t0 - tdeb) / scale);
-  if (nt0 < 0 || nt0 >= nt) messageAbort("Error in st_rank_regular");
-
-  return (nt0);
-}
-
-/****************************************************************************/
-/*!
- **  Particular case of the stable model. It must be turned into:
- **  - Exponential : when param is too close to 1
- **  - Gaussian    : when param is too close to 2
- **
- **  Particular case of the K-Bessel model. It must be turned into:
- **  - Exponential : when param is too close to 0.5
- **
- ** \return  The modified type
- **
- *****************************************************************************/
-static ECov st_particular_case(const ECov &type, double param)
-{
-  static double eps = 1.e-7;
-
-  switch (type.toEnum())
-  {
-    case ECov::E_STABLE:
-      if (ABS(param - 1.) < eps) return (ECov::EXPONENTIAL);
-      if (ABS(param - 2.) < eps) return (ECov::GAUSSIAN);
-      return (ECov::STABLE);
-      break;
-
-    case ECov::E_BESSEL_K:
-      if (ABS(param - 0.5) < eps) return (ECov::EXPONENTIAL);
-      break;
-
-    default:
-      break;
-  }
-
-  return (type);
-}
-
-/****************************************************************************/
-/*!
- **  Initialize the array of seeds for the generation of a simulation
- **  using the Turning Bands method
- **
- ** \return  Error return code : 1 for problem; 0 otherwise
- **
- ** \param[in]  model    Model structure
- **
- ** \param[out]  situba  Situba structure
- **
- *****************************************************************************/
-static int st_initialize(Model *model, Situba *situba)
-{
-  double *t, *v0, *v1, *v2;
-  double scale, tdeb, tmin, tmax, omega, phi, correc, correc0, theta1, param;
-  int is, ib, ivar, ibs, ncova, nt, isimu, nvar;
-  int error, nbtuba, nbsimu, mem_seed;
-  ECov type;
-
-  /* Initializations */
-
-  st_density(situba);
-  error = 1;
-  ncova = model->getCovaNumber();
-  nvar = model->getVariableNumber();
-  nbtuba = situba->nbtuba;
-  nbsimu = situba->nbsimu;
-  theta1 = 1. / situba->theta;
-  t = v0 = v1 = v2 = nullptr;
-  nt = 0;
-
-  /* Loop on the turning bands */
-
-  mem_seed = law_get_random_seed();
-  for (ivar = 0; ivar < nvar; ivar++)
-    for (isimu = ibs = 0; isimu < nbsimu; isimu++)
-      for (is = 0; is < ncova; is++)
-        for (ib = 0; ib < nbtuba; ib++, ibs++)
-        {
-          tmin = situba->codir[ibs]->tmin;
-          tmax = situba->codir[ibs]->tmax;
-          scale = situba->codir[ibs]->scale;
-          type = model->getCovaType(is);
-          param = model->getParam(is);
-          nt = 0;
-          correc0 = 0;
-          type = st_particular_case(type, param);
-          SEEDS(ivar,is,ib,isimu)= law_get_random_seed();
-
-          switch (type.toEnum())
-          {
-            case ECov::E_NUGGET:
-              // Next line is simply to let the random number cycle
-              (void) law_gaussian();
-              break;
-
-            case ECov::E_EXPONENTIAL:
-              scale *= 2.;
-              t = st_migration_alloc(tmin, tmax, scale, &nt);
-              (void) law_uniform(0., 1.);
-              break;
-
-            case ECov::E_SPHERICAL:
-              t = st_dilution_alloc(tmin, tmax, scale, &tdeb, &nt);
-              break;
-
-            case ECov::E_CUBIC:
-              t = st_dilution_alloc(tmin, tmax, scale, &tdeb, &nt);
-              break;
-
-            case ECov::E_GAUSSIAN:
-            case ECov::E_SINCARD:
-              st_spectral(type, scale, 2., &omega, &phi);
-              break;
-
-            case ECov::E_BESSEL_J:
-              st_spectral(type, scale, param, &omega, &phi);
-              break;
-
-            case ECov::E_BESSEL_K:
-              if (param > 0.5)
-                st_spectral(type, scale, param, &omega, &phi);
-              else
-              {
-                scale = st_compute_scale_Kb(param, scale) * 2;
-                t = st_migration_alloc(tmin, tmax, scale, &nt);
-                (void) law_uniform(0., 1.);
-              }
-              break;
-
-            case ECov::E_STABLE:
-              if (param > 1)
-                st_spectral(type, scale, param, &omega, &phi);
-              else
-              {
-                scale *= 2;
-                scale = st_compute_scale(param, scale);
-                t = st_migration_alloc(tmin, tmax, scale, &nt);
-                (void) law_uniform(0., 1.);
-              }
-              break;
-
-            case ECov::E_POWER:
-              st_set_power_1D(ib, scale, param, &omega, &phi, &correc,
-                              &correc0);
-              break;
-
-            case ECov::E_SPLINE_GC:
-              st_set_spline_1D(ib, scale, 1, &omega, &phi, &correc, &correc0);
-              break;
-
-            case ECov::E_LINEAR:
-            case ECov::E_ORDER1_GC:
-            case ECov::E_ORDER3_GC:
-            case ECov::E_ORDER5_GC:
-              t = st_migration_alloc(tmin, tmax, theta1, &nt);
-              st_irf_process_alloc(nt, type, &v0, &v1, &v2);
-              break;
-
-            default:
-              messerr("The structure (%s) cannot be simulated",
-                      type.getDescr().c_str());
-              messerr("using the Turning Bands algorithm");
-              goto label_end;
-          }
-          if (nt > situba->max_alloc) situba->max_alloc = nt;
-          t = (double*) mem_free((char* ) t);
-          v0 = (double*) mem_free((char* ) v0);
-          v1 = (double*) mem_free((char* ) v1);
-          v2 = (double*) mem_free((char* ) v2);
-        }
-  law_set_random_seed(mem_seed);
-  error = 0;
-
-  label_end: t = (double*) mem_free((char* ) t);
-  v0 = (double*) mem_free((char* ) v0);
-  v1 = (double*) mem_free((char* ) v1);
-  v2 = (double*) mem_free((char* ) v2);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Deallocates the Situba structure
- **
- ** \return  Pointer to the freed Situba structure
- **
- ** \param[in]  situba  Situba structure to be deallocated
- **
- *****************************************************************************/
-static Situba* st_dealloc(Situba *situba)
-
-{
-  int ibs;
-
-  if (situba == nullptr) return (situba);
-
-  /* Deallocate the structures for the seeds */
-
-  situba->seeds = (int*) mem_free((char* ) situba->seeds);
-
-  /* Deallocate the structures for the directions */
-
-  for (ibs = 0; ibs < situba->nbands; ibs++)
-    situba->codir[ibs] = (Direction*) mem_free((char* ) situba->codir[ibs]);
-  situba->codir = (Direction**) mem_free((char* ) situba->codir);
-
-  /* Deallocate the Situba structure */
-
-  situba = (Situba*) mem_free((char* ) situba);
-
-  return (situba);
-}
-
-/*****************************************************************************/
-/*!
- **  Allocates the arrays for the simulations using Turning Bands
- **
- ** \return  Pointer to the Situba structure or NULL
- **
- ** \param[in]  model   Model structure
- ** \param[in]  nbsimu  number of simulations
- ** \param[in]  nbtuba  number of turning bands
- **
- *****************************************************************************/
-static Situba* st_alloc(Model *model, int nbsimu, int nbtuba)
-{
-  Situba *situba;
-  int i, ibs, nvar, ncova, error, size;
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  ncova = model->getCovaNumber();
-
-  /* Allocate the Situba structure */
-
-  situba = (Situba*) mem_alloc(sizeof(Situba), 0);
-  if (situba == nullptr) goto label_end;
-  situba->nbands = nbsimu * nbtuba * ncova;
-  situba->nbsimu = nbsimu;
-  situba->nbtuba = nbtuba;
-  situba->max_alloc = 0;
-  situba->nb_points_simu = 0;
-  situba->theta = 0.;
-  situba->field = 0.;
-  situba->seeds = nullptr;
-  situba->codir = (Direction**) NULL;
-
-  /* Allocate the structures for the seeds */
-
-  size = nvar * ncova * nbtuba * nbsimu;
-  situba->seeds = (int*) mem_alloc(sizeof(int) * size, 0);
-  if (situba->seeds == nullptr) goto label_end;
-  for (i = 0; i < size; i++)
-    situba->seeds[i] = 0;
-
-  /* Allocate the structures for the directions */
-
-  size = situba->nbands;
-  situba->codir = (Direction**) mem_alloc(sizeof(Direction*) * size, 0);
-  if (situba->codir == (Direction**) NULL) goto label_end;
-  for (ibs = 0; ibs < size; ibs++)
-    situba->codir[ibs] = (Direction*) NULL;
-
-  for (ibs = 0; ibs < size; ibs++)
-  {
-    situba->codir[ibs] = (Direction*) mem_alloc(sizeof(Direction), 0);
-    if (situba->codir[ibs] == (Direction*) NULL) goto label_end;
-  }
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: if (error) situba = st_dealloc(situba);
-  return (situba);
-}
-
-/*****************************************************************************/
-/*!
- **  Perform the rotation of a set of normalized direction
- **  coefficients
- **
- ** \param[in]  situba Situba structure
- ** \param[in]  a      Rotation direction
- ** \param[in]  theta  Rotation angle
- **
- *****************************************************************************/
-static void st_rotate_directions(Situba *situba, double a[3], double theta)
-{
-  double ct, st, dir[3];
-  int i, ibs;
-
-  /* Initializations */
-
-  ct = cos(theta);
-  st = sin(theta);
-
-  /* Loop on the direction coefficients */
-
-  for (ibs = 0; ibs < situba->nbands; ibs++)
-  {
-    for (i = 0; i < 3; i++)
-      dir[i] = situba->codir[ibs]->ang[i];
-    ut_rotation_direction(ct, st, a, dir);
-    for (i = 0; i < 3; i++)
-      situba->codir[ibs]->ang[i] = dir[i];
-  }
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Calculates the projection of a point on a turning band
- **
- ** \return  Projection value
- **
- ** \param[in]  db      Db structure
- ** \param[in]  situba  Situba structure
- ** \param[in]  ibs     rank of the turning band
- ** \param[in]  iech    rank of the sample
- **
- *****************************************************************************/
-static double st_project_point(Db *db, Situba *situba, int ibs, int iech)
-{
-  double t;
-  int idim;
-
-  t = 0.;
-  for (idim = 0; idim < db->getNDim(); idim++)
-    t += db->getCoordinate(iech, idim) * situba->codir[ibs]->ang[idim];
-
-  return (t);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculates the projection of a grid node on a turning band
- **
- ** \return  Projection value
- **
- ** \param[in]  db      Db structure
- ** \param[in]  situba  Situba structure
- ** \param[in]  ibs     rank of the turning band
- ** \param[in]  ix      grid index along X
- ** \param[in]  iy      grid index along Y
- ** \param[in]  iz      grid index along Z
- **
- *****************************************************************************/
-static double st_project_grid(DbGrid *db,
-                              Situba *situba,
-                              int ibs,
-                              int ix,
-                              int iy,
-                              int iz)
-{
-  double t, xyz[3];
-  int idim, indg[3];
-
-  indg[0] = ix;
-  indg[1] = iy;
-  indg[2] = iz;
-  grid_to_point(db, indg, nullptr, xyz);
-
-  t = 0.;
-  for (idim = 0; idim < db->getNDim(); idim++)
-    t += xyz[idim] * situba->codir[ibs]->ang[idim];
-  return (t);
-}
-
-/****************************************************************************/
-/*!
- **  Generate directions according to Van Der Corput algorithm.
- **  The count of directions returned is the product of nbtuba by the
- **  number of basic structures
- **
- ** \param[in]  dbout   Output Db structure
- ** \param[in]  model   Model     structure
- ** \param[in]  situba  Situba    structure
- **
- *****************************************************************************/
-static void st_gendir(Db *dbout, Model *model, Situba *situba)
-{
-  CovAniso *cova;
-  double axyz[3], x[2], d, r, theta, sqr, scale, val, t00, rot, range;
-  int i, j, n, ib, is, ibs, id, p, ncova, nbtuba, ndim, nbsimu, isimu;
-
-  /* Initializations */
-
-  ndim = model->getDimensionNumber();
-  ncova = model->getCovaNumber();
-  nbtuba = situba->nbtuba;
-  nbsimu = situba->nbsimu;
-
-  /* Loop on the directions */
-
-  for (ibs = 0; ibs < situba->nbands; ibs++)
-  {
-
-    /* Decomposition according to basis 2 then 3 */
-
-    for (id = 0; id < 2; id++)
-    {
-      n = 1 + ibs;
-      x[id] = 0;
-      d = p = id + 2;
-      while (n > 0)
-      {
-        x[id] += (n % p) / d;
-        d *= p;
-        n /= p;
-      }
-    }
-
-    /* Direction coefficients */
-
-    sqr = sqrt(1. - x[1] * x[1]);
-    situba->codir[ibs]->ang[0] = cos(2. * GV_PI * x[0]) * sqr;
-    situba->codir[ibs]->ang[1] = sin(2. * GV_PI * x[0]) * sqr;
-    situba->codir[ibs]->ang[2] = x[1];
-    situba->codir[ibs]->tmin = 1.e30;
-    situba->codir[ibs]->tmax = -1.e30;
-    situba->codir[ibs]->scale = 1.;
-  }
-
-  /* Random rotation of the directions */
-
-  r = 0.;
-  for (i = 0; i < 3; i++)
-  {
-    axyz[i] = law_gaussian();
-    r += axyz[i] * axyz[i];
-  }
-  r = sqrt(r);
-  for (i = 0; i < 3; i++)
-    axyz[i] /= r;
-  theta = 2. * GV_PI * law_uniform(0., 1.);
-  st_rotate_directions(situba, axyz, theta);
-
-  /* Take the anisotropy into account */
-
-  for (isimu = ibs = 0; isimu < nbsimu; isimu++)
-    for (is = 0; is < ncova; is++)
-      for (ib = 0; ib < nbtuba; ib++, ibs++)
-      {
-        cova = model->getCova(is);
-        // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
-        // Nevertheless this code is maintained to ensure in order not to disorganize
-        // the possible drawing of random numbers.
-        if (!cova->hasRange()) continue;
-        if (cova->getFlagAniso())
-        {
-          VectorDouble ranges = cova->getScales();
-          scale = 0.;
-          for (i = 0; i < 3; i++)
-          {
-            val = 0.;
-            if (cova->getFlagRotation())
-              for (j = 0; j < 3; j++)
-              {
-                rot = (i == j) ? 1. :
-                                 0.;
-                if (i < ndim && j < ndim) rot = cova->getAnisoRotMat(i, j);
-                range = 0.;
-                if (j < ndim) range = ranges[j];
-                if (range > 0.)
-                  val += (situba->codir[ibs]->ang[j] * rot / range);
-              }
-            else
-            {
-              range = 0.;
-              if (i < ndim) range = ranges[i];
-              if (range > 0.) val += (situba->codir[ibs]->ang[i] / range);
-            }
-            scale += val * val;
-            axyz[i] = val;
-          }
-          situba->codir[ibs]->scale = 1. / sqrt(scale);
-          for (i = 0; i < 3; i++)
-            situba->codir[ibs]->ang[i] = axyz[i] * situba->codir[ibs]->scale;
-        }
-        else
-        {
-          situba->codir[ibs]->scale = cova->getTheoretical();
-        }
-
-        if (is_grid(dbout))
-        {
-          DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-          situba->codir[ibs]->t00 = t00 = st_project_grid(dbgrid, situba, ibs, 0, 0, 0);
-          situba->codir[ibs]->dxp = st_project_grid(dbgrid, situba, ibs, 1, 0, 0)
-              - t00;
-          situba->codir[ibs]->dyp = st_project_grid(dbgrid, situba, ibs, 0, 1, 0)
-              - t00;
-          situba->codir[ibs]->dzp = st_project_grid(dbgrid, situba, ibs, 0, 0, 1)
-              - t00;
-          if (cova->getType() == ECov::SPHERICAL || cova->getType()
-              == ECov::CUBIC)
-          {
-            situba->codir[ibs]->t00 /= situba->codir[ibs]->scale;
-            situba->codir[ibs]->dxp /= situba->codir[ibs]->scale;
-            situba->codir[ibs]->dyp /= situba->codir[ibs]->scale;
-            situba->codir[ibs]->dzp /= situba->codir[ibs]->scale;
-          }
-        }
-      }
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the data extension for a set of turning bands
- **
- ** \param[in]  db      Db structure
- ** \param[in]  situba  Situba structure
- **
- *****************************************************************************/
-static void st_minmax(Db *db, Situba *situba)
-{
-  double tt, delta;
-  int ibs, iech, nx, ny, nz, ix, iy, iz;
-
-  /* Initializations */
-
-  if (db == nullptr) return;
-
-  if (is_grid(db))
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
-    nx = (dbgrid->getNDim() >= 1) ? dbgrid->getNX(0) : 1;
-    ny = (dbgrid->getNDim() >= 2) ? dbgrid->getNX(1) : 1;
-    nz = (dbgrid->getNDim() >= 3) ? dbgrid->getNX(2) : 1;
-
-    /* Case when the data obeys to a grid organization */
-    /* This test is programmed for 3-D (maximum) grid  */
-    /* as the Turning Bands method is limited to 3-D   */
-
-    for (ibs = 0; ibs < situba->nbands; ibs++)
-    {
-      for (iz = 0; iz < 2; iz++)
-        for (iy = 0; iy < 2; iy++)
-          for (ix = 0; ix < 2; ix++)
-          {
-            tt = st_project_grid(dbgrid, situba, ibs, ix * (nx - 1), iy * (ny - 1),
-                                 iz * (nz - 1));
-            if (tt < situba->codir[ibs]->tmin) situba->codir[ibs]->tmin = tt;
-            if (tt > situba->codir[ibs]->tmax) situba->codir[ibs]->tmax = tt;
-            delta = situba->codir[ibs]->tmax - situba->codir[ibs]->tmin;
-            if (situba->field < delta) situba->field = delta;
-          }
-    }
-  }
-  else
-  {
-
-    /* Case of an isolated set of data */
-
-    for (iech = 0; iech < db->getSampleNumber(); iech++)
-    {
-      for (ibs = 0; ibs < situba->nbands; ibs++)
-      {
-        if (!db->isActive(iech)) continue;
-        tt = st_project_point(db, situba, ibs, iech);
-        if (tt < situba->codir[ibs]->tmin) situba->codir[ibs]->tmin = tt;
-        if (tt > situba->codir[ibs]->tmax) situba->codir[ibs]->tmax = tt;
-        delta = situba->codir[ibs]->tmax - situba->codir[ibs]->tmin;
-        if (situba->field < delta) situba->field = delta;
-      }
-    }
-  }
-  situba->nb_points_simu += db->getSampleNumber();
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Convert the non conditional simulations at the data points
- **  into simulation error
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  nvar       Number of variables
- ** \param[in]  icase      Case for PGS or GRF
- ** \param[in]  flag_pgs   1 if called from PGS
- ** \param[in]  flag_gibbs 1 if called from Gibbs
- **
- *****************************************************************************/
-static void st_difference(Db *dbin,
-                          Situba *situba,
-                          int nvar,
-                          int icase,
-                          int flag_pgs,
-                          int flag_gibbs)
-{
-  double zvar, simval, simunc;
-  int iech, ivar, isimu, nbsimu;
-  char string[100];
-
-  /* Optional general title */
-
-  nbsimu = situba->nbsimu;
-  if (OptDbg::query(EDbg::SIMULATE))
-  {
-    mestitle(1, "Difference between Data and NC Simulation");
-    tab_prints(NULL, "Sample");
-  }
-
-  /* Transform the non conditional simulation into simulation error */
-
-  if (!flag_pgs)
-  {
-    /********************************/
-    /* Standard case (multivariate) */
-    /********************************/
-
-    /* Optional Header */
-
-    if (OptDbg::query(EDbg::SIMULATE))
-    {
-      for (ivar = 0; ivar < nvar; ivar++)
-      {
-        (void) gslSPrintf(string, "Data%d", ivar + 1);
-        tab_prints(NULL, string);
-
-        for (isimu = 0; isimu < nbsimu; isimu++)
-        {
-          (void) gslSPrintf(string, "Simu%d", isimu + 1);
-          tab_prints(NULL, string);
-        }
-      }
-      message("\n");
-    }
-
-    /* Processing */
-
-    for (iech = 0; iech < dbin->getSampleNumber(); iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-      if (OptDbg::query(EDbg::SIMULATE))
-        tab_printi(NULL, iech + 1);
-      for (ivar = 0; ivar < nvar; ivar++)
-      {
-        zvar = TEST;
-        if (!flag_gibbs)
-        {
-          zvar = dbin->getVariable(iech, ivar);
-          if (OptDbg::query(EDbg::SIMULATE))
-            tab_printg(NULL, zvar);
-        }
-        for (isimu = 0; isimu < nbsimu; isimu++)
-        {
-          if (flag_gibbs)
-          {
-            zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, ivar, 0, nbsimu,
-                                   nvar);
-            if (OptDbg::query(EDbg::SIMULATE))
-              tab_printg(NULL, zvar);
-          }
-          simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
-                                   nvar);
-          if (FLAG_DGM)
-          {
-            simval = R_COEFF * simval
-                + sqrt(1. - R_COEFF * R_COEFF) * law_gaussian();
-          }
-          if (OptDbg::query(EDbg::SIMULATE) && !FFFF(zvar))
-          {
-            tab_printg(NULL, simval);
-          }
-          simunc = (!FFFF(zvar) && !FFFF(simval)) ? simval - zvar :
-                                                    TEST;
-          dbin->setSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu, nvar,
-                          simunc);
-        }
-      }
-      if (OptDbg::query(EDbg::SIMULATE)) message("\n");
-    }
-  }
-  else
-  {
-
-    /*********************************************************/
-    /* Case of PGS: Data varies per simulation (monovariate) */
-    /*********************************************************/
-
-    /* Optional Header */
-
-    if (OptDbg::query(EDbg::SIMULATE))
-    {
-      for (isimu = 0; isimu < nbsimu; isimu++)
-      {
-        (void) gslSPrintf(string, "Data%d", isimu + 1);
-        tab_prints(NULL, string);
-
-        (void) gslSPrintf(string, "Simulation%d", isimu + 1);
-        tab_prints(NULL, string);
-      }
-      message("\n");
-    }
-
-    /* Processing */
-
-    for (iech = 0; iech < dbin->getSampleNumber(); iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-      if (OptDbg::query(EDbg::SIMULATE))
-        tab_printi(NULL, iech + 1);
-      for (isimu = 0; isimu < nbsimu; isimu++)
-      {
-        zvar = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, icase, nbsimu, 1);
-        if (OptDbg::query(EDbg::SIMULATE))
-        {
-          tab_printg(NULL, zvar);
-          if (!FFFF(zvar))
-          {
-            simval = dbin->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu,
-                                     1);
-            tab_printg(NULL, simval);
-          }
-        }
-        if (!FFFF(zvar))
-          dbin->updSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, 1, 0,
-                          -zvar);
-      }
-      if (OptDbg::query(EDbg::SIMULATE)) message("\n");
-    }
-  }
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Elaborates the title for the mes_process statement
- **
- ** \param[in]  string  Resulting title
- ** \param[in]  title   Generic title
- **
- *****************************************************************************/
-static void st_title_process(char *string, const char *title)
-{
-  (void) gslStrcpy(string, title);
-  if (MES_NPGS > 1)
-    (void) gslSPrintf(&string[strlen(string)], " (PGS %d/%d)", MES_IPGS + 1,
-                      MES_NPGS);
-  (void) gslSPrintf(&string[strlen(string)], " (GRF %d/%d)", MES_IGRF + 1,
-                    MES_NGRF);
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a grid using the
- **  Turning Bands method
- **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
- ** \param[in]  db         Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  aic        Array 'aic'
- ** \param[in]  icase      Rank of PGS or GRF
- ** \param[in]  shift      Shift before writing the simulation result
- **
- *****************************************************************************/
-static int st_simulate_grid(DbGrid *db,
-                            Model *model,
-                            Situba *situba,
-                            double *aic,
-                            int icase,
-                            int shift)
-{
-  double   *t,*v0,*v1,*v2,*tab,correc,correc0,vexp;
-  double    tmin,tmax,tdeb,omega,phi,scale,param,t0,dt0,norme;
-  double    t00,t0y,t0z,dxp,dyp,dzp,dt,theta1;
-  double    c1,s1,c0x,s0x,c0y,s0y,c0z,s0z,cxp,sxp,cyp,syp,czp,szp;
-  int       iech,ivar,jvar,is,ind,ib,ibs,ix,iy,iz,nvar,nt,nt0,nech;
-  int       error,nbtuba,nbsimu,nx,ny,nz,isimu,ncova,istat;
-  char      string[100];
-  static double vexp1 = 0.1;
-  static double vexp2 = 0.1967708298;
-  ECov type;
-
-  /* Initializations */
-
-  nbsimu = situba->nbsimu;
-  nbtuba = situba->nbtuba;
-  theta1 = 1. / situba->theta;
-  nvar   = model->getVariableNumber();
-  ncova  = model->getCovaNumber();
-  nx     = (db->getNDim() >= 1) ? db->getNX(0) : 1;
-  ny     = (db->getNDim() >= 2) ? db->getNX(1) : 1;
-  nz     = (db->getNDim() >= 3) ? db->getNX(2) : 1;
-  nech   = nx * ny * nz;
-  norme  = sqrt(1. / nbtuba);
-  nt     = iech = 0;
-  vexp   = phi = omega = 0.;
-  t = v0 = v1 = v2 = tab = nullptr;
-
-  /* Core allocation */
-
-  error = 1;
-  if (situba->max_alloc > 0)
-  {
-    t = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (t == nullptr) goto label_end;
-    v0 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v0 == nullptr) goto label_end;
-    v1 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v1 == nullptr) goto label_end;
-    v2 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v2 == nullptr) goto label_end;
-  }
-  tab = (double*) mem_alloc(sizeof(double) * nech, 0);
-  if (tab == nullptr) goto label_end;
-
-  /*****************************/
-  /* Performing the simulation */
-  /*****************************/
-
-  st_title_process(string, "Non-conditional Simulation on Grid");
-  for (ivar = istat = 0; ivar < nvar; ivar++)
-    for (isimu = ibs = 0; isimu < nbsimu; isimu++)
-      for (is = 0; is < ncova; is++)
-        for (ib = 0; ib < nbtuba; ib++, ibs++, istat++)
-        {
-          mes_process(string, nbsimu * nvar * ncova * nbtuba, istat);
-          tmin = situba->codir[ibs]->tmin;
-          tmax = situba->codir[ibs]->tmax;
-          dxp = situba->codir[ibs]->dxp;
-          dyp = situba->codir[ibs]->dyp;
-          dzp = situba->codir[ibs]->dzp;
-          t00 = situba->codir[ibs]->t00;
-          scale = situba->codir[ibs]->scale;
-          type = model->getCovaType(is);
-          param = model->getParam(is);
-          correc = 1.;
-          correc0 = 0.;
-          type = st_particular_case(type, param);
-          law_set_random_seed(SEEDS(ivar, is, ib, isimu));
-
-          switch (type.toEnum())
-          {
-            case ECov::E_NUGGET:
-              break;
-
-            case ECov::E_STABLE:
-              if (param > 1)
-              {
-                correc = sqrt(2.);
-                st_spectral(type, scale, param, &omega, &phi);
-
-                cxp = cos(omega * dxp);
-                sxp = sin(omega * dxp);
-                cyp = cos(omega * dyp);
-                syp = sin(omega * dyp);
-                czp = cos(omega * dzp);
-                szp = sin(omega * dzp);
-
-                c0z = cos(omega * t00 + phi);
-                s0z = sin(omega * t00 + phi);
-                for (iz = ind = 0; iz < nz; iz++)
-                {
-                  c0y = c0z;
-                  s0y = s0z;
-                  c1 = c0z * czp - s0z * szp;
-                  s1 = s0z * czp + c0z * szp;
-                  c0z = c1;
-                  s0z = s1;
-                  for (iy = 0; iy < ny; iy++)
-                  {
-                    c0x = c0y;
-                    s0x = s0y;
-                    c1 = c0y * cyp - s0y * syp;
-                    s1 = s0y * cyp + c0y * syp;
-                    c0y = c1;
-                    s0y = s1;
-                    for (ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
-                      c1 = c0x * cxp - s0x * sxp;
-                      s1 = s0x * cxp + c0x * sxp;
-                      c0x = c1;
-                      s0x = s1;
-                    }
-                  }
-                }
-              }
-              else
-              {
-                scale *= 2;
-                scale = st_compute_scale(param, scale);
-                st_migration(tmin, tmax, scale, t, &nt);
-                vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-                t0z = t00;
-
-                nt0 = 0;
-                for (iz = ind = 0; iz < nz; iz++)
-                {
-                  t0y = t0z;
-                  t0z += dzp;
-                  for (iy = 0; iy < ny; iy++)
-                  {
-                    t0 = t0y;
-                    t0y += dyp;
-                    for (ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (db->isActive(ind))
-                      {
-                        nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                        tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp :
-                                                                     vexp;
-                      }
-                      t0 += dxp;
-                    }
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_BESSEL_K:
-              if (param > 0.5)
-              {
-                correc = sqrt(2.);
-                st_spectral(type, scale, param, &omega, &phi);
-
-                cxp = cos(omega * dxp);
-                sxp = sin(omega * dxp);
-                cyp = cos(omega * dyp);
-                syp = sin(omega * dyp);
-                czp = cos(omega * dzp);
-                szp = sin(omega * dzp);
-
-                c0z = cos(omega * t00 + phi);
-                s0z = sin(omega * t00 + phi);
-                for (iz = ind = 0; iz < nz; iz++)
-                {
-                  c0y = c0z;
-                  s0y = s0z;
-                  c1 = c0z * czp - s0z * szp;
-                  s1 = s0z * czp + c0z * szp;
-                  c0z = c1;
-                  s0z = s1;
-                  for (iy = 0; iy < ny; iy++)
-                  {
-                    c0x = c0y;
-                    s0x = s0y;
-                    c1 = c0y * cyp - s0y * syp;
-                    s1 = s0y * cyp + c0y * syp;
-                    c0y = c1;
-                    s0y = s1;
-                    for (ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (db->isActive(ind)) tab[ind] = c0x - correc0;
-                      c1 = c0x * cxp - s0x * sxp;
-                      s1 = s0x * cxp + c0x * sxp;
-                      c0x = c1;
-                      s0x = s1;
-                    }
-                  }
-                }
-              }
-              else
-              {
-                scale = st_compute_scale_Kb(param, scale) * 2;
-                st_migration(tmin, tmax, scale, t, &nt);
-                vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-                t0z = t00;
-
-                nt0 = 0;
-                for (iz = ind = 0; iz < nz; iz++)
-                {
-                  t0y = t0z;
-                  t0z += dzp;
-                  for (iy = 0; iy < ny; iy++)
-                  {
-                    t0 = t0y;
-                    t0y += dyp;
-                    for (ix = 0; ix < nx; ix++, ind++)
-                    {
-                      if (db->isActive(ind))
-                      {
-                        nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                        tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp :
-                                                                     vexp;
-                      }
-                      t0 += dxp;
-                    }
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_EXPONENTIAL:
-              scale *= 2.;
-              st_migration(tmin, tmax, scale, t, &nt);
-              vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-
-              t0z = t00;
-              nt0 = 0;
-              for (iz = ind = 0; iz < nz; iz++)
-              {
-                t0y = t0z;
-                t0z += dzp;
-                for (iy = 0; iy < ny; iy++)
-                {
-                  t0 = t0y;
-                  t0y += dyp;
-                  for (ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (db->isActive(ind))
-                    {
-                      nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                      tab[ind] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp :
-                                                                   vexp;
-                    }
-                    t0 += dxp;
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_SPHERICAL:
-              correc = sqrt(3.);
-              st_dilution(tmin, tmax, scale, t, &tdeb, &nt);
-              tdeb /= scale;
-              t0z = t00;
-              for (iz = ind = 0; iz < nz; iz++)
-              {
-                t0y = t0z;
-                t0z += dzp;
-                for (iy = 0; iy < ny; iy++)
-                {
-                  t0 = t0y;
-                  t0y += dyp;
-                  for (ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (db->isActive(ind))
-                    {
-                      dt = (t0 - tdeb);
-                      nt0 = (int) dt;
-                      dt0 = dt - nt0;
-                      tab[ind] = t[nt0] * (2. * dt0 - 1.);
-                    }
-                    t0 += dxp;
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_CUBIC:
-              correc = sqrt(840.);
-              st_dilution(tmin, tmax, scale, t, &tdeb, &nt);
-              tdeb /= scale;
-              t0z = t00;
-              for (iz = ind = 0; iz < nz; iz++)
-              {
-                t0y = t0z;
-                t0z += dzp;
-                for (iy = 0; iy < ny; iy++)
-                {
-                  t0 = t0y;
-                  t0y += dyp;
-                  for (ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (db->isActive(ind))
-                    {
-                      dt = (t0 - tdeb);
-                      nt0 = (int) dt;
-                      dt0 = dt - nt0;
-                      tab[ind] = t[nt0] * dt0 * (dt0 - 0.5) * (dt0 - 1.);
-                    }
-                    t0 += dxp;
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_GAUSSIAN:
-            case ECov::E_SINCARD:
-            case ECov::E_POWER:
-            case ECov::E_SPLINE_GC:
-            case ECov::E_BESSEL_J:
-              correc = sqrt(2.);
-              switch (type.toEnum())
-              {
-                case ECov::E_POWER:
-                  st_set_power_1D(ib, scale, param, &omega, &phi, &correc,
-                                  &correc0);
-                  break;
-
-                case ECov::E_SPLINE_GC:
-                  st_set_spline_1D(ib, scale, 1, &omega, &phi, &correc,
-                                   &correc0);
-                  break;
-
-                case ECov::E_GAUSSIAN:
-                case ECov::E_SINCARD:
-                  st_spectral(type, scale, 2., &omega, &phi);
-                  break;
-
-                case ECov::E_BESSEL_J:
-                  st_spectral(type, scale, param, &omega, &phi);
-                  break;
-
-                default:
-                  break;
-              }
-
-              cxp = cos(omega * dxp);
-              sxp = sin(omega * dxp);
-              cyp = cos(omega * dyp);
-              syp = sin(omega * dyp);
-              czp = cos(omega * dzp);
-              szp = sin(omega * dzp);
-
-              c0z = cos(omega * t00 + phi);
-              s0z = sin(omega * t00 + phi);
-              for (iz = ind = 0; iz < nz; iz++)
-              {
-                c0y = c0z;
-                s0y = s0z;
-                c1 = c0z * czp - s0z * szp;
-                s1 = s0z * czp + c0z * szp;
-                c0z = c1;
-                s0z = s1;
-                for (iy = 0; iy < ny; iy++)
-                {
-                  c0x = c0y;
-                  s0x = s0y;
-                  c1 = c0y * cyp - s0y * syp;
-                  s1 = s0y * cyp + c0y * syp;
-                  c0y = c1;
-                  s0y = s1;
-                  for (ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (db->isActive(ind)) tab[ind] = c0x - correc0;
-                    c1 = c0x * cxp - s0x * sxp;
-                    s1 = s0x * cxp + c0x * sxp;
-                    c0x = c1;
-                    s0x = s1;
-                  }
-                }
-              }
-              break;
-
-            case ECov::E_LINEAR:
-            case ECov::E_ORDER1_GC:
-            case ECov::E_ORDER3_GC:
-            case ECov::E_ORDER5_GC:
-              st_migration(tmin, tmax, theta1, t, &nt);
-              st_irf_process(nt, type, t, v0, v1, v2);
-              correc = st_irf_correc(type, theta1, scale);
-
-              t0z = t00;
-              nt0 = 0;
-              for (iz = ind = 0; iz < nz; iz++)
-              {
-                t0y = t0z;
-                t0z += dzp;
-                for (iy = 0; iy < ny; iy++)
-                {
-                  t0 = t0y;
-                  t0y += dyp;
-                  for (ix = 0; ix < nx; ix++, ind++)
-                  {
-                    if (db->isActive(ind))
-                    {
-                      nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                      tab[ind] = st_irf_process_sample(type, nt0, t0, t, v0, v1,
-                                                       v2);
-                    }
-                    t0 += dxp;
-                  }
-                }
-              }
-              break;
-
-            default:
-              break;
-          }
-
-          if (type != ECov::NUGGET)
-            for (iech = 0; iech < nech; iech++)
-              if (db->isActive(iech))
-                for (jvar = 0; jvar < nvar; jvar++)
-                  db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                                nbsimu, nvar, 0,
-                                tab[iech] * correc * AIC(is, jvar, ivar));
-        }
-
-  /* Normation */
-
-  for (isimu = 0; isimu < nbsimu; isimu++)
-    for (iech = 0; iech < nech; iech++)
-      for (jvar = 0; jvar < nvar; jvar++)
-        if (db->isActive(iech))
-          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
-                        nvar, 1, norme);
-
-  error = 0;
-
-  label_end: t = (double*) mem_free((char* ) t);
-  v0 = (double*) mem_free((char* ) v0);
-  v1 = (double*) mem_free((char* ) v1);
-  v2 = (double*) mem_free((char* ) v2);
-  tab = (double*) mem_free((char* ) tab);
-
-  return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Add the contribution of the nugget effect to the non-conditional
- **  simulations
- **
- ** \param[in]  db         Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  aic        Array 'aic'
- ** \param[in]  icase      Rank of PGS or GRF
- **
- *****************************************************************************/
-static void st_simulate_nugget(Db *db,
-                               Model *model,
-                               Situba *situba,
-                               double *aic,
-                               int icase)
-{
-  double nugget;
-  int iech, is, ivar, jvar, ncova, nech, isimu, nvar, nbtuba, nbsimu, flag_used;
-  ECov type;
-
-  /* Initializations */
-
-  nech = db->getSampleNumber();
-  ncova = model->getCovaNumber();
-  nvar = model->getVariableNumber();
-  nbtuba = situba->nbtuba;
-  nbsimu = situba->nbsimu;
-
-  /* Do nothing if there is no nugget effect in the model */
-
-  flag_used = 0;
-  for (is = 0; is < ncova && flag_used == 0; is++)
-  {
-    if (model->getCovaType(is) == ECov::NUGGET) flag_used = 1;
-  }
-  if (!flag_used) return;
-
-  /* Performing the simulation */
-
-  for (isimu = 0; isimu < nbsimu; isimu++)
-    for (ivar = 0; ivar < nvar; ivar++)
-      for (is = 0; is < ncova; is++)
-      {
-        type = model->getCovaType(is);
-
-        if (type != ECov::NUGGET) continue;
-        law_set_random_seed(SEEDS(ivar, is, 0, isimu));
-
-        for (iech = 0; iech < nech; iech++)
-        {
-          if (!db->isActive(iech)) continue;
-          nugget = law_gaussian();
-          for (jvar = 0; jvar < nvar; jvar++)
-            db->updSimvar(ELoc::SIMU, iech, isimu, jvar, icase, nbsimu, nvar, 0,
-                          nugget * AIC(is, jvar, ivar));
-        }
-      }
-
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a set of points using
- **  Turning Bands method.
- **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
- ** \param[in]  db         Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  aic        Array 'aic'
- ** \param[in]  icase      Rank of PGS or GRF
- ** \param[in]  shift      Shift before writing the simulation result
- **
- *****************************************************************************/
-static int st_simulate_point(Db *db,
-                             Model *model,
-                             Situba *situba,
-                             double *aic,
-                             int icase,
-                             int shift)
-{
-  double *t, *v0, *v1, *v2, *tab, correc, correc0, vexp;
-  double tmin, tmax, tdeb, omega, phi, param, scale, t0, dt0, norme, r, theta1;
-  int iech, is, ib, ivar, jvar, ibs, ncova, nt, nt0, nech, isimu, nvar;
-  int error, nbtuba, nbsimu, istat;
-  char string[100];
-  static double vexp1 = 0.1;
-  static double vexp2 = 0.1967708298;
-  ECov type;
-
-  /* Initializations */
-
-  nech = db->getSampleNumber();
-  ncova = model->getCovaNumber();
-  nvar = model->getVariableNumber();
-  nbtuba = situba->nbtuba;
-  nbsimu = situba->nbsimu;
-  theta1 = 1. / situba->theta;
-  norme = sqrt(1. / nbtuba);
-  nt = 0;
-  vexp = phi = omega = 0.;
-  t = v0 = v1 = v2 = tab = nullptr;
-
-  /* Core allocation */
-
-  error = 1;
-  if (situba->max_alloc > 0)
-  {
-    t = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (t == nullptr) goto label_end;
-    v0 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v0 == nullptr) goto label_end;
-    v1 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v1 == nullptr) goto label_end;
-    v2 = (double*) mem_alloc(sizeof(double) * situba->max_alloc, 0);
-    if (v2 == nullptr) goto label_end;
-  }
-  tab = (double*) mem_alloc(sizeof(double) * nech, 0);
-  if (tab == nullptr) goto label_end;
-
-  /*****************************/
-  /* Performing the simulation */
-  /*****************************/
-
-  st_title_process(string, "Non-conditional Simulation on Points");
-  for (ivar = istat = 0; ivar < nvar; ivar++)
-    for (isimu = ibs = 0; isimu < nbsimu; isimu++)
-      for (is = 0; is < ncova; is++)
-        for (ib = 0; ib < nbtuba; ib++, ibs++, istat++)
-        {
-          mes_process(string, nbsimu * nvar * ncova * nbtuba, istat);
-          tmin = situba->codir[ibs]->tmin;
-          tmax = situba->codir[ibs]->tmax;
-          scale = situba->codir[ibs]->scale;
-          param = model->getParam(is);
-          type = model->getCovaType(is);
-          correc = 1.;
-          correc0 = 0.;
-          type = st_particular_case(type, param);
-          law_set_random_seed(SEEDS(ivar, is, ib, isimu));
-
-          switch (type.toEnum())
-          {
-            case ECov::E_NUGGET:
-              break;
-
-            case ECov::E_STABLE:
-              if (param > 1)
-              {
-                correc = sqrt(2.);
-                st_spectral(type, scale, param, &omega, &phi);
-                for (iech = 0; iech < nech; iech++)
-                {
-                  if (!db->isActive(iech)) continue;
-                  t0 = st_project_point(db, situba, ibs, iech);
-                  tab[iech] = cos(omega * t0 + phi);
-                }
-              }
-              else
-              {
-                scale *= 2;
-                scale = st_compute_scale(param, scale);
-                st_migration(tmin, tmax, scale, t, &nt);
-                vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-
-                for (iech = nt0 = 0; iech < nech; iech++)
-                {
-                  if (!db->isActive(iech)) continue;
-                  t0 = st_project_point(db, situba, ibs, iech);
-                  nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                  tab[iech] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp :
-                                                                vexp;
-                }
-              }
-              break;
-
-            case ECov::E_EXPONENTIAL:
-              scale *= 2.;
-              st_migration(tmin, tmax, scale, t, &nt);
-              vexp = 1. - vexp1 + vexp2 * law_uniform(0., 1.);
-
-              for (iech = nt0 = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                tab[iech] = (2. * t0 > t[nt0 + 1] + t[nt0]) ? -vexp :
-                                                              vexp;
-              }
-              break;
-
-            case ECov::E_SPHERICAL:
-              correc = sqrt(3.);
-              st_dilution(tmin, tmax, scale, t, &tdeb, &nt);
-              for (iech = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                nt0 = st_rank_regular(t0, tdeb, scale, nt);
-                dt0 = (t0 - tdeb) - scale * nt0;
-                r = dt0 / scale;
-                tab[iech] = t[nt0] * (2. * r - 1.);
-              }
-              break;
-
-            case ECov::E_CUBIC:
-              correc = sqrt(840.);
-              st_dilution(tmin, tmax, scale, t, &tdeb, &nt);
-              for (iech = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                nt0 = st_rank_regular(t0, tdeb, scale, nt);
-                dt0 = (t0 - tdeb) - scale * nt0;
-                r = dt0 / scale;
-                tab[iech] = t[nt0] * r * (r - 0.5) * (r - 1.);
-              }
-              break;
-
-            case ECov::E_POWER:
-              st_set_power_1D(ib, scale, param, &omega, &phi, &correc,
-                              &correc0);
-              for (iech = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                tab[iech] = cos(omega * t0 + phi) - correc0;
-              }
-              break;
-
-            case ECov::E_SPLINE_GC:
-              st_set_spline_1D(ib, scale, 1, &omega, &phi, &correc, &correc0);
-              for (iech = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                tab[iech] = cos(omega * t0 + phi) - correc0;
-              }
-              break;
-
-            case ECov::E_GAUSSIAN:
-            case ECov::E_SINCARD:
-            case ECov::E_BESSEL_J:
-            case ECov::E_BESSEL_K:
-              correc = sqrt(2.);
-              switch (type.toEnum())
-              {
-                case ECov::E_GAUSSIAN:
-                case ECov::E_SINCARD:
-                  st_spectral(type, scale, 2., &omega, &phi);
-                  break;
-
-                case ECov::E_BESSEL_J:
-                case ECov::E_BESSEL_K:
-                  st_spectral(type, scale, param, &omega, &phi);
-                  break;
-                default:
-                  break;
-              }
-
-              for (iech = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                tab[iech] = cos(omega * t0 + phi);
-              }
-              break;
-
-            case ECov::E_LINEAR:
-            case ECov::E_ORDER1_GC:
-            case ECov::E_ORDER3_GC:
-            case ECov::E_ORDER5_GC:
-              st_migration(tmin, tmax, theta1, t, &nt);
-              st_irf_process(nt, type, t, v0, v1, v2);
-              correc = st_irf_correc(type, theta1, scale);
-
-              for (iech = nt0 = 0; iech < nech; iech++)
-              {
-                if (!db->isActive(iech)) continue;
-                t0 = st_project_point(db, situba, ibs, iech);
-                nt0 = st_rank_in_poisson(nt0, t0, t, nt);
-                tab[iech] = st_irf_process_sample(type, nt0, t0, t, v0, v1, v2);
-              }
-              break;
-
-            default:
-              break;
-          }
-
-          if (type != ECov::NUGGET)
-            for (iech = 0; iech < nech; iech++)
-              if (db->isActive(iech))
-                for (jvar = 0; jvar < nvar; jvar++)
-                  db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase,
-                                nbsimu, nvar, 0,
-                                tab[iech] * correc * AIC(is, jvar, ivar));
-        }
-
-  /* Normation */
-
-  for (isimu = 0; isimu < nbsimu; isimu++)
-    for (iech = 0; iech < nech; iech++)
-      for (jvar = 0; jvar < nvar; jvar++)
-        if (db->isActive(iech))
-          db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
-                        nvar, 1, norme);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: t = (double*) mem_free((char* ) t);
-  v0 = (double*) mem_free((char* ) v0);
-  v1 = (double*) mem_free((char* ) v1);
-  v2 = (double*) mem_free((char* ) v2);
-  tab = (double*) mem_free((char* ) tab);
-
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Update the conditional simulations when the target coincides
- **  with a data point
- **
- ** \param[in]  dbin      Input Db structure
- ** \param[in]  dbout     Output Db structure
- ** \param[in]  model     Model structure
- ** \param[in]  situba    Situba structure
- ** \param[in]  icase     Case for PGS or GRF
- ** \param[in]  flag_pgs  1 if called from PGS
- **
- ** \remarks This migration is not performed in the case where data point
- ** \remarks coincide with the target artificially. This is the case
- ** \remarks for the Discrete Gaussian Model (DGM) where data have been
- ** \remarks migrated to the cell center to mimic a point randomized
- ** \remarks within a cell
- **
- *****************************************************************************/
-static void st_update_data2target(Db *dbin,
-                                  Db *dbout,
-                                  Model *model,
-                                  Situba *situba,
-                                  int icase,
-                                  int flag_pgs)
-{
-  double *coor1, *coor2, dist, eps, eps2, valdat, radius, delta;
-  int *indg, ip, idim, ip_close, isimu, ivar, nvar, ndim, nbsimu, ik;
-
-  /* Initialization */
-
-  if (dbin->getSampleNumber() <= 0) return;
-  if (FLAG_DGM) return;
-  nvar = model->getVariableNumber();
-  ndim = dbin->getNDim();
-  nbsimu = situba->nbsimu;
-
-  coor1 = db_vector_alloc(dbin);
-  coor2 = db_vector_alloc(dbout);
-  indg = db_indg_alloc(dbout);
-
-  /* Calculate the field extension */
-
-  (void) db_extension_diag(dbin, &radius);
-  eps = radius * 1.e-6;
-  eps2 = eps * eps;
-
-  /* Dispatch according to the file type */
-
-  if (is_grid(dbout))
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-
-    /*********************************************/
-    /* Case where the output file is a grid file */
-    /*********************************************/
-
-    for (ip = 0; ip < dbin->getSampleNumber(); ip++)
-    {
-      if (!dbin->isActive(ip)) continue;
-      db_sample_load(dbin, ELoc::X, ip, coor2);
-      if (point_to_grid(dbgrid, coor2, 1, indg)) continue;
-      ik = db_index_grid_to_sample(dbgrid, indg);
-      if (!dbgrid->isActive(ik)) continue;
-      grid_to_point(dbgrid, indg, nullptr, coor1);
-
-      /* Get the distance to the target point */
-
-      dist = 0;
-      for (idim = 0; idim < ndim; idim++)
-      {
-        delta = coor1[idim] - coor2[idim];
-        dist += delta * delta;
-      }
-      if (dist > eps2) continue;
-
-      /* We have found a close data point: perform the assignment */
-
-      for (isimu = 0; isimu < nbsimu; isimu++)
-        for (ivar = 0; ivar < nvar; ivar++)
-        {
-          if (!flag_pgs)
-            valdat = dbin->getVariable(ip, ivar);
-          else
-            valdat = dbin->getSimvar(ELoc::GAUSFAC, ip, isimu, 0, icase, nbsimu,
-                                     1);
-          if (FFFF(valdat)) continue;
-          dbgrid->setSimvar(ELoc::SIMU, ik, isimu, ivar, icase, nbsimu, nvar,
-                           valdat);
-        }
-    }
-  }
-  else
-  {
-
-    /**********************************************/
-    /* Case where the output file is a point file */
-    /**********************************************/
-
-    for (ik = 0; ik < dbout->getSampleNumber(); ik++)
-    {
-      if (!dbout->isActive(ik)) continue;
-      db_sample_load(dbout, ELoc::X, ik, coor1);
-
-      /* Look for the closest data point */
-
-      ip_close = -1;
-      for (ip = 0; ip < dbin->getSampleNumber() && ip_close < 0; ip++)
-      {
-        if (!dbin->isActive(ip)) continue;
-        db_sample_load(dbin, ELoc::X, ip, coor2);
-
-        /* Get the distance to the target point */
-
-        dist = 0;
-        for (idim = 0; idim < ndim; idim++)
-        {
-          delta = coor1[idim] - coor2[idim];
-          dist += delta * delta;
-        }
-        if (dist <= eps2) ip_close = ip;
-      }
-
-      if (ip_close < 0) continue;
-
-      /* We have found a close data point: perform the assignment */
-
-      for (isimu = 0; isimu < nbsimu; isimu++)
-        for (ivar = 0; ivar < nvar; ivar++)
-        {
-          if (!flag_pgs)
-            valdat = dbin->getVariable(ip_close, ivar);
-          else
-            valdat = dbin->getSimvar(ELoc::GAUSFAC, ip_close, isimu, 0, icase,
-                                     nbsimu, 1);
-          if (FFFF(valdat)) continue;
-          dbout->setSimvar(ELoc::SIMU, ik, isimu, ivar, icase, nbsimu, nvar,
-                           valdat);
-        }
-    }
-  }
-
-  coor1 = db_vector_free(coor1);
-  coor2 = db_vector_free(coor2);
-  indg = db_indg_free(indg);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Correct for the mean in the case of non-conditional simualtions
- **
- ** \param[in]  dbout     Output Db structure
- ** \param[in]  model     Model structure
- ** \param[in]  icase     Rank of PGS or GRF
- ** \param[in]  nbsimu    Number of simulations
- **
- *****************************************************************************/
-static void st_mean_correct(Db *dbout, Model *model, int icase, int nbsimu)
-{
-  int isimu, ivar, ecr, iech;
-
-  /* Loop on the simulations */
-
-  for (isimu = ecr = 0; isimu < nbsimu; isimu++)
-  {
-
-    /* Loop on the variables */
-
-    for (ivar = 0; ivar < model->getVariableNumber(); ivar++, ecr++)
-    {
-
-      /* Loop on the samples */
-
-      for (iech = 0; iech < dbout->getSampleNumber(); iech++)
-      {
-        if (!dbout->isActive(iech)) continue;
-        dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
-                         model->getVariableNumber(), 0,
-                         model->getContext().getMean(ivar));
-      }
-    }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a set of gradient points using
- **  Turning Bands method.
- **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
- ** \param[in]  dbgrd      Gradient Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  aic        Array 'aic'
- ** \param[in]  delta      Value of the increment
- **
- ** \remarks The simulated gradients are stored as follows:
- ** \remarks idim * nbsimu + isimu (for simulation at first point)
- ** \remarks idim * nbsimu + isimu + ndim * nbsimu (for simulation at 2nd point)
- ** \remarks At the end, the simulated gradient is stored at first point
- **
- *****************************************************************************/
-static int st_simulate_gradient(Db *dbgrd,
-                                Model *model,
-                                Situba *situba,
-                                double *aic,
-                                double delta)
-{
-  int icase, nbsimu, jsimu, ndim, error;
-  double value1, value2;
-
-  /* Initializations */
-
-  error = 1;
-  icase = 0;
-  nbsimu = situba->nbsimu;
-  ndim = dbgrd->getNDim();
-
-  for (int idim = 0; idim < ndim; idim++)
-  {
-
-    /* Simulation at the initial location */
-
-    for (int isimu = 0; isimu < nbsimu; isimu++)
-    {
-      jsimu = isimu + idim * nbsimu;
-      if (st_simulate_point(dbgrd, model, situba, aic, icase, jsimu))
-        goto label_end;
-    }
-
-    /* Shift the information */
-
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
-      if (dbgrd->isActive(iech))
-        dbgrd->setCoordinate(iech, idim,
-                             dbgrd->getCoordinate(iech, idim) + delta);
-
-    /* Simulation at the shift location */
-
-    for (int isimu = 0; isimu < nbsimu; isimu++)
-    {
-      jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      if (st_simulate_point(dbgrd, model, situba, aic, icase, jsimu))
-        goto label_end;
-    }
-
-    /* Un-Shift the information */
-
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
-      if (dbgrd->isActive(iech))
-        dbgrd->setCoordinate(iech, idim,
-                             dbgrd->getCoordinate(iech, idim) - delta);
-
-    /* Scaling */
-
-    for (int isimu = 0; isimu < nbsimu; isimu++)
-      for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
-      {
-        if (!dbgrd->isActive(iech)) continue;
-        jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-        value2 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
-                                  2 * ndim * nbsimu, 1);
-        jsimu = isimu + idim * nbsimu;
-        value1 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
-                                  2 * ndim * nbsimu, 1);
-        dbgrd->setSimvar(ELoc::SIMU, iech, jsimu, 0, icase, 2 * ndim * nbsimu,
-                         1, (value2 - value1) / delta);
-      }
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/*****************************************************************************/
-/*!
- **  Perform non-conditional simulations on a set of tangent points using
- **  Turning Bands method.
- **
- ** \return  Error return code :
- ** \return    0 no problem
- ** \return    1 a structure cannot be simulated
- ** \return    2 no structure to be simulated 1 core problem
- **
- ** \param[in]  dbtgt      Tangent Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  aic        Array 'aic'
- ** \param[in]  delta      Value of the increment
- **
- ** \remarks Warning: To perform the simulation of the tangent, we must
- ** \remarks simulated the gradients first. So we need to dimension the
- ** \remarks simulation outcome variables as for the gradients
- **
- *****************************************************************************/
-static int st_simulate_tangent(Db *dbtgt,
-                               Model *model,
-                               Situba *situba,
-                               double *aic,
-                               double delta)
-{
-  int error, nvar, nbsimu, icase;
-  double value;
-
-  /* Initializations */
-
-  error = 1;
-  icase = 0;
-  nvar = model->getVariableNumber();
-  nbsimu = situba->nbsimu;
-
-  /* Perform the simulation of the gradients at tangent points */
-
-  if (st_simulate_gradient(dbtgt, model, situba, aic, delta)) goto label_end;
-
-  /* Calculate the simulated tangent */
-
-  for (int isimu = 0; isimu < nbsimu; isimu++)
-    for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
-    {
-      if (!dbtgt->isActive(iech)) continue;
-
-      value = 0.;
-      for (int idim = 0; idim < dbtgt->getNDim(); idim++)
-        value += dbtgt->getTangent(iech, idim)
-            * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar);
-      dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu, nvar, value);
-    }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: return (error);
-}
-
-/****************************************************************************/
-/*!
  **  Check/Show the data (gaussian) against the closest grid node
  **
  ** \param[in]  dbin       Input Db structure
@@ -3184,234 +572,6 @@ static void st_check_gaussian_data2grid(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Perform the Simulation Process using the Turning Bands Method
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  situba     Situba structure
- ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  icase      Case for PGS or -1
- ** \param[in]  flag_pgs   1 if called from PGS
- ** \param[in]  flag_gibbs 1 if called from Gibbs
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- **
- *****************************************************************************/
-static int st_simtub_process(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeighParam *neighparam,
-                             Situba *situba,
-                             int flag_bayes,
-                             const VectorDouble& dmean,
-                             const VectorDouble& dcov,
-                             int nbsimu,
-                             int icase,
-                             int flag_pgs,
-                             int flag_gibbs,
-                             int flag_check)
-{
-  int flag_cond, error, ncova, nvar;
-  double *aic, *valpro, *vecpro;
-
-  /* Initializations */
-
-  error = 1;
-  ncova = model->getCovaNumber();
-  nvar = model->getVariableNumber();
-  aic = valpro = vecpro = nullptr;
-  flag_cond = (dbin != nullptr);
-  st_gendir(dbout, model, situba);
-  st_minmax(dbout, situba);
-  st_minmax(dbin, situba);
-  if (st_initialize(model, situba)) goto label_end;
-
-  /* Calculate the 'aic' array */
-
-  valpro = (double*) mem_alloc(sizeof(double) * nvar, 1);
-  vecpro = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
-  aic = (double*) mem_alloc(sizeof(double) * nvar * nvar * ncova, 1);
-  if (model_update_coreg(model, aic, valpro, vecpro))
-    messageAbort("model_update_coreg");
-
-  /* Non conditional simulations on the data points */
-
-  if (flag_cond)
-  {
-    if (st_simulate_point(dbin, model, situba, aic, icase, 0)) goto label_end;
-
-    /* Calculate the simulated error */
-
-    st_difference(dbin, situba, nvar, icase, flag_pgs, flag_gibbs);
-  }
-
-  /* Non conditional simulations on the grid */
-
-  if (is_grid(dbout))
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
-  }
-  else
-  {
-    if (st_simulate_point(dbout, model, situba, aic, icase, 0)) goto label_end;
-  }
-
-  /* Add the contribution of nugget effect (optional) */
-
-  st_simulate_nugget(dbout, model, situba, aic, icase);
-
-  /* Conditional simulations */
-
-  if (flag_cond)
-  {
-    if (_krigsim(dbin, dbout, model, neighparam, flag_bayes, dmean, dcov, icase, nbsimu,
-                 FLAG_DGM, R_COEFF)) goto label_end;
-  }
-  else
-  {
-
-    /* In non-conditional case, correct for the mean */
-
-    st_mean_correct(dbout, model, icase, nbsimu);
-  }
-
-  /* Copy value from data to coinciding grid node */
-
-  if (flag_cond)
-    st_update_data2target(dbin, dbout, model, situba, icase, flag_pgs);
-
-  /* Check consistency between data and resulting simulations (optional) */
-
-  if (flag_check)
-    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, flag_pgs,
-                                flag_gibbs);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: aic = (double*) mem_free((char* ) aic);
-  valpro = (double*) mem_free((char* ) valpro);
-  vecpro = (double*) mem_free((char* ) vecpro);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the (non-conditional) Simulation(s) using the Turning Bands Method
- **
- ** \return  Error return code
- **
- ** \param[in]  dbiso     Isovalues Db structure
- ** \param[in]  dbgrd     Gradient Db structure
- ** \param[in]  dbtgt     Tangent Db structure
- ** \param[in]  dbout     Output Db structure
- ** \param[in]  model     Model structure
- ** \param[in]  nbsimu    Number of simulations
- ** \param[in]  nbtuba    Number of turning bands
- ** \param[in]  delta     Value of the increment
- **
- *****************************************************************************/
-int simtub_potential(Db *dbiso,
-                     Db *dbgrd,
-                     Db *dbtgt,
-                     Db *dbout,
-                     Model *model,
-                     int nbsimu,
-                     int nbtuba,
-                     double delta)
-{
-  Situba *situba;
-  int error, ncova, nvar, icase;
-  double *aic, *valpro, *vecpro;
-
-  /* Initializations */
-
-  error = 1;
-  icase = 0;
-  ncova = model->getCovaNumber();
-  nvar = model->getVariableNumber();
-  aic = valpro = vecpro = nullptr;
-  situba = nullptr;
-
-  /* Processing the Turning Bands algorithm */
-
-  situba = st_alloc(model, nbsimu, nbtuba);
-  if (situba == nullptr) goto label_end;
-
-  st_gendir(dbout, model, situba);
-  st_minmax(dbout, situba);
-  st_minmax(dbiso, situba);
-  st_minmax(dbgrd, situba);
-  st_minmax(dbtgt, situba);
-  if (st_initialize(model, situba)) goto label_end;
-
-  /* Calculate the 'aic' array */
-
-  valpro = (double*) mem_alloc(sizeof(double) * nvar, 1);
-  vecpro = (double*) mem_alloc(sizeof(double) * nvar * nvar, 1);
-  aic = (double*) mem_alloc(sizeof(double) * nvar * nvar * ncova, 1);
-  if (model_update_coreg(model, aic, valpro, vecpro))
-    messageAbort("model_update_coreg");
-
-  /* Non conditional simulations on the data points */
-
-  if (dbiso != nullptr)
-  {
-    if (st_simulate_point(dbiso, model, situba, aic, icase, 0)) goto label_end;
-  }
-
-  /* Non conditional simulations on the gradient points */
-
-  if (dbgrd != nullptr)
-  {
-    if (st_simulate_gradient(dbgrd, model, situba, aic, delta)) goto label_end;
-  }
-
-  /* Non conditional simulations on the tangent points */
-
-  if (dbtgt != nullptr)
-  {
-    if (st_simulate_tangent(dbtgt, model, situba, aic, delta)) goto label_end;
-  }
-
-  /* Non conditional simulations on the grid */
-
-  if (is_grid(dbout))
-  {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    if (st_simulate_grid(dbgrid, model, situba, aic, icase, 0)) goto label_end;
-  }
-  else
-  {
-    if (st_simulate_point(dbout, model, situba, aic, icase, 0)) goto label_end;
-  }
-
-  /* Add the contribution of nugget effect (optional) */
-
-  st_simulate_nugget(dbout, model, situba, aic, icase);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: situba = st_dealloc(situba);
-  aic = (double*) mem_free((char* ) aic);
-  valpro = (double*) mem_free((char* ) valpro);
-  vecpro = (double*) mem_free((char* ) vecpro);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
  **  Perform the conditional or non-conditional simulation
  **
  ** \return  Error return code
@@ -3440,7 +600,7 @@ int simtub(Db *dbin,
            int flag_check,
            const NamingConvention& namconv)
 {
-  Situba *situba;
+  TurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
 
   /* Initializations */
@@ -3449,8 +609,6 @@ int simtub(Db *dbin,
   nvar = model->getVariableNumber();
   iptr_in = iptr_out = -1;
   flag_cond = (dbin != nullptr);
-  situba = nullptr;
-  law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
   if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
@@ -3473,21 +631,10 @@ int simtub(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  if (OptCustom::query("SIMTUB",1) == 1)
-  {
-    situba = st_alloc(model, nbsimu, nbtuba);
-    if (situba == nullptr) goto label_end;
-    if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
-                          VectorDouble(), VectorDouble(), nbsimu, 0, 0, 0,
-                          flag_check)) goto label_end;
-  }
-  else
-  {
-    TurningBands situba_new(nbsimu, nbtuba, model);
-    if (situba_new.simulate(dbin, dbout, neighparam, 0)) goto label_end;
-    if (flag_check)
-      st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
-  }
+  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
+  if (flag_check)
+    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
 
   /* Free the temporary variables */
 
@@ -3502,7 +649,6 @@ int simtub(Db *dbin,
   label_end:
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  situba = st_dealloc(situba);
   return (error);
 }
 
@@ -3537,7 +683,7 @@ int simdgm(Db *dbin,
            int nbtuba,
            int flag_check)
 {
-  Situba *situba;
+  TurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr;
 
   /* Initializations */
@@ -3546,8 +692,6 @@ int simdgm(Db *dbin,
   nvar = model->getVariableNumber();
   iptr = -1;
   flag_cond = (dbin != nullptr);
-  situba = nullptr;
-  law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
   if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
@@ -3572,11 +716,10 @@ int simdgm(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = st_alloc(model, nbsimu, nbtuba);
-  if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
-                        VectorDouble(), VectorDouble(),
-                        nbsimu, 0, 0, 0, flag_check)) goto label_end;
+  situba = TurningBands(nbsimu, nbtuba, model,seed);
+  if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
+  if (flag_check)
+    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
 
   /* Free the temporary variables */
 
@@ -3588,7 +731,6 @@ int simdgm(Db *dbin,
 
   label_end: (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  situba = st_dealloc(situba);
   return (error);
 }
 
@@ -3628,7 +770,7 @@ int simbayes(Db *dbin,
              int flag_check,
              const NamingConvention& namconv)
 {
-  Situba *situba;
+  TurningBands situba;
   int flag_cond, nvar, error, iptr_in, iptr_out;
 
   /* Initializations */
@@ -3637,8 +779,6 @@ int simbayes(Db *dbin,
   nvar = model->getVariableNumber();
   iptr_in = iptr_out = -1;
   flag_cond = (dbin != nullptr);
-  situba = nullptr;
-  law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
 
   /* Define the environment variables for printout */
@@ -3658,10 +798,11 @@ int simbayes(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = st_alloc(model, nbsimu, nbtuba);
-  if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 1, dmean, dcov, nbsimu,
-                        0, 0, 0, flag_check)) goto label_end;
+  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  if (situba.simulate(dbin, dbout, neighparam, 0, true, dmean, dcov))
+    goto label_end;
+  if (flag_check)
+    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
 
   /* Free the temporary variables */
 
@@ -3674,7 +815,6 @@ int simbayes(Db *dbin,
                               iptr_out, String(), nbsimu);
 
   label_end:
-  situba = st_dealloc(situba);
   return (error);
 }
 
@@ -3869,8 +1009,8 @@ int simpgs(Db *dbin,
            const NamingConvention& namconv)
 {
   int iptr, icase, nfacies, flag_used[2];
-  int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN;
-  Situba *situba;
+  int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN, local_seed;
+  TurningBands situba;
   Model *models[2];
   PropDef *propdef;
   std::vector<Model*> modvec;
@@ -3880,7 +1020,6 @@ int simpgs(Db *dbin,
   int error = 1;
   int nechin = 0;
   int ngrf = 0;
-  situba = nullptr;
   propdef = nullptr;
   models[0] = model1;
   models[1] = model2;
@@ -3888,7 +1027,6 @@ int simpgs(Db *dbin,
   iptr_RP = iptr_RF = iptr_DF = iptr_DN = iptr_RN = nfacies = 0;
   iptr = -1;
   bool verbose = false;
-  law_set_random_seed(seed);
 
   if (ruleprop == nullptr)
   {
@@ -4038,7 +1176,7 @@ int simpgs(Db *dbin,
     // Create the Gibbs sampler (multi-mono case)
 
     AGibbs *gibbs = GibbsFactory::createGibbs(dbin, modvec, rule->getRho(), false);
-    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, 0, true);
+    gibbs->init(npgs, ngrf, gibbs_nburn, gibbs_niter, seed);
 
     /* Allocate the covariance matrix inverted */
 
@@ -4064,16 +1202,18 @@ int simpgs(Db *dbin,
   /* Perform the conditional simulation for each GRF */
   /***************************************************/
 
+  local_seed = seed;
   for (MES_IGRF = 0; MES_IGRF < 2; MES_IGRF++)
   {
     if (!flag_used[MES_IGRF]) continue;
     icase = get_rank_from_propdef(propdef, 0, MES_IGRF);
-    situba = st_alloc(models[MES_IGRF], nbsimu, nbtuba);
-    if (situba == nullptr) goto label_end;
-    if (st_simtub_process(dbin, dbout, models[MES_IGRF], neighparam, situba, 0,
-                          VectorDouble(), VectorDouble(), nbsimu, icase, 1, 0, flag_check))
-      goto label_end;
-    situba = st_dealloc(situba);
+    situba = TurningBands(nbsimu, nbtuba, models[MES_IGRF], local_seed);
+    local_seed = 0;
+    if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
+                        VectorDouble(), true)) goto label_end;
+    if (flag_check)
+      st_check_gaussian_data2grid(dbin, dbout, models[MES_IGRF],
+                                  nbsimu, false, false);
   }
 
   /* Convert gaussian to facies at target point */
@@ -4147,11 +1287,10 @@ int simpgs(Db *dbin,
 
   error = 0;
 
-  label_end: propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
-                                         dbin, dbprop, propcst, propdef);
+  label_end:
+    propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0,
+                                dbin, dbprop, propcst, propdef);
   st_suppress_added_samples(dbin, nechin);
-  for (int igrf = 0; igrf < 2; igrf++)
-    situba = st_dealloc(situba);
   return (error);
 }
 
@@ -4217,12 +1356,12 @@ int simbipgs(Db *dbin,
   int     iptr,iatt_z[2];
   int     npgs,flag_cond,error,icase;
   int     nfac[2],nfactot,flag_used[2][2],nechin,ngrf[2],ngrftot;
-  int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN;
+  int     iptr_RP,iptr_RF,iptr_DF,iptr_RN,iptr_DN, local_seed;
   bool    verbose;
   Rule   *rules[2];
   Model  *models[2][2];
   std::vector<Model *> modvec[2];
-  Situba *situba;
+  TurningBands situba;
   PropDef *propdef;
 
   /* Initializations */
@@ -4231,7 +1370,6 @@ int simbipgs(Db *dbin,
   npgs = 2;
   nechin = 0;
   verbose = false;
-  situba = nullptr;
   propdef = nullptr;
 
   if (ruleprop == nullptr)
@@ -4267,7 +1405,6 @@ int simbipgs(Db *dbin,
     ngrf[ipgs] = 0;
     iatt_z[ipgs] = -1;
   }
-  law_set_random_seed(seed);
   if (rules[0]->particularities(dbout, dbprop, model11, 1, flag_stat))
     goto label_end;
   if (rules[1]->particularities(dbout, dbprop, model21, 1, flag_stat))
@@ -4457,7 +1594,7 @@ int simbipgs(Db *dbin,
 
       AGibbs *gibbs = GibbsFactory::createGibbs(dbin, modvec[ipgs],
                                                 rules[ipgs]->getRho(), false);
-      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter, 0, true);
+      gibbs->init(npgs, ngrf[ipgs], gibbs_nburn, gibbs_niter, seed);
 
       /* Allocate the covariance matrix inverted */
 
@@ -4499,16 +1636,18 @@ int simbipgs(Db *dbin,
     MES_IPGS = ipgs;
     MES_NGRF = ngrf[ipgs];
 
+    local_seed = seed;
     for (MES_IGRF = 0; MES_IGRF < 2; MES_IGRF++)
     {
       if (!flag_used[ipgs][MES_IGRF]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, MES_IGRF);
-      situba = st_alloc(models[ipgs][MES_IGRF], nbsimu, nbtuba);
-      if (situba == nullptr) goto label_end;
-      if (st_simtub_process(dbin, dbout, models[ipgs][MES_IGRF], neighparam, situba,
-                            0, VectorDouble(), VectorDouble(), nbsimu, icase, 1, 0, flag_check))
-        goto label_end;
-      situba = st_dealloc(situba);
+      situba = TurningBands(nbsimu, nbtuba, models[ipgs][MES_IGRF], local_seed);
+      local_seed = 0;
+      if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
+                          VectorDouble(), true)) goto label_end;
+      if (flag_check)
+        st_check_gaussian_data2grid(dbin, dbout, models[ipgs][MES_IGRF],
+                                    nbsimu, false, false);
     }
 
     /* Convert gaussian to facies at target point */
@@ -4582,9 +1721,6 @@ int simbipgs(Db *dbin,
 
 label_end:
   st_suppress_added_samples(dbin,nechin);
-  for (int ipgs=0; ipgs<npgs; ipgs++)
-    for (int igrf=0; igrf<2; igrf++)
-      situba = st_dealloc(situba);
   propdef = proportion_manage(-1, 1, flag_stat, ngrf[0], ngrf[1], nfac[0],
                               nfac[1], dbin, dbprop, propcst, propdef);
   return (error);
@@ -4794,8 +1930,6 @@ int gibbs_sampler(Db *dbin,
   /* Core allocation */
   /*******************/
 
-  law_set_random_seed(seed);
-
   propdef = proportion_manage(1, 0, 1, 1, 0, nvar, 0, dbin, NULL,
                               VectorDouble(), propdef);
   if (propdef == nullptr) goto label_end;
@@ -4823,7 +1957,7 @@ int gibbs_sampler(Db *dbin,
     }
     if (gibbs == nullptr) goto label_end;
     gibbs->setOptionStats(gibbs_optstats);
-    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, 0, true);
+    gibbs->init(npgs, nvar, gibbs_nburn, gibbs_niter, seed);
 
     // Allocate the Gaussian vector
 
@@ -5173,7 +2307,7 @@ int simmaxstable(Db *dbout,
                  int flag_rank,
                  int verbose)
 {
-  Situba *situba;
+  TurningBands situba;
   double tpois, seuil;
   int error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
   static double seuil_ref = 5.;
@@ -5182,7 +2316,6 @@ int simmaxstable(Db *dbout,
 
   error = 1;
   iptrv = iptrg = iptrs = iptrr = -1;
-  situba = nullptr;
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
   seuil = get_keypone("MaxStableThresh", seuil_ref);
@@ -5238,11 +2371,8 @@ int simmaxstable(Db *dbout,
 
     /* Processing the Turning Bands algorithm */
 
-    situba = st_alloc(model, 1, nbtuba);
-    if (situba == nullptr) goto label_end;
-    if (st_simtub_process(NULL, dbout, model, NULL, situba, 0, VectorDouble(),
-                          VectorDouble(), 1, 0, 0, 0, 0)) goto label_end;
-    situba = st_dealloc(situba);
+    situba = TurningBands(1, nbtuba, model, seed);
+    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
 
     /* Combine the newly simulated outcome to the background */
 
@@ -5338,7 +2468,7 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  Situba *situba;
+  TurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 
@@ -5347,7 +2477,6 @@ int simRI(Db *dbout,
   error = 1;
   iptrg = iptrs = -1;
   pres = pton = sort = nullptr;
-  situba = nullptr;
   nech = dbout->getSampleNumber();
   law_set_random_seed(seed);
   if (st_check_simtub_environment(NULL, dbout, model, NULL)) goto label_end;
@@ -5421,17 +2550,13 @@ int simRI(Db *dbout,
 
     /* Simulation in the non-masked part of the grid */
 
-    situba = st_alloc(model, 1, nbtuba);
-    if (situba == nullptr) goto label_end;
-    if (st_simtub_process(NULL, dbout, model, NULL, situba, 0, VectorDouble(), VectorDouble(), 1,
-                          0, 0, 0, 0)) goto label_end;
-    situba = st_dealloc(situba);
+    situba = TurningBands(1, nbtuba, model, seed);
+    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
 
     /* Look for the quantile */
 
     proba = 1. - pres[icut];
-    seuil = (icut < ncut - 1) ? st_quantile(dbout, proba, sort) :
-                                TEST;
+    seuil = (icut < ncut - 1) ? st_quantile(dbout, proba, sort) : TEST;
 
     /* Update the current selection */
 
@@ -5811,7 +2936,7 @@ int simcond(Db *dbin,
             int flag_cstd,
             int verbose)
 {
-  Situba *situba;
+  TurningBands situba;
   PropDef *propdef;
   ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
@@ -5822,7 +2947,6 @@ int simcond(Db *dbin,
   nvar = model->getVariableNumber();
   ndim = model->getDimensionNumber();
   iptr = -1;
-  situba = nullptr;
   propdef = nullptr;
 
   /* Preliminary checks */
@@ -5873,7 +2997,7 @@ int simcond(Db *dbin,
 
   {
     AGibbs *gibbs = GibbsFactory::createGibbs(dbin, model, false);
-    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, 0, true);
+    gibbs->init(1, 1, gibbs_nburn, gibbs_niter, seed);
 
     /* Allocate the covariance matrix inverted */
 
@@ -5893,11 +3017,11 @@ int simcond(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = st_alloc(model, nbsimu, nbtuba);
-  if (situba == nullptr) goto label_end;
-  if (st_simtub_process(dbin, dbout, model, neighparam, situba, 0,
-                        VectorDouble(), VectorDouble(), nbsimu, 0, 0, 1,
-                        flag_check)) goto label_end;
+  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(),
+                      VectorDouble(), false, true)) goto label_end;
+  if (flag_check)
+    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
 
   /* Free the temporary variables not used anymore */
 
@@ -5934,6 +3058,5 @@ int simcond(Db *dbin,
   delete neighparam;
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  situba = st_dealloc(situba);
   return (error);
 }

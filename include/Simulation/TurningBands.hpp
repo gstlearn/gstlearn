@@ -23,7 +23,10 @@ class Model;
 class GSTLEARN_EXPORT TurningBands : public ASimulation {
 
 public:
-  TurningBands(int nbsimu, int nbtuba, const Model* model, int seed = 4324324);
+  TurningBands(int nbsimu = 0,
+               int nbtuba = 0,
+               const Model* model = nullptr,
+               int seed = 4324324);
   TurningBands(const TurningBands& r);
   TurningBands& operator=(const TurningBands& r);
   virtual ~TurningBands();
@@ -42,9 +45,16 @@ public:
                bool flag_gibbs = false,
                bool flag_dgm = false,
                double r_coeff = 0.);
+  int simulatePotential(Db *dbiso,
+                        Db *dbgrd,
+                        Db *dbtgt,
+                        Db *dbout,
+                        double delta);
   void simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
   void simulateGrid(DbGrid *db, const VectorDouble& aic, int icase, int shift);;
-  void simulateNugget(Db *db, const VectorDouble& aic, int icase);;
+  void simulateNugget(Db *db, const VectorDouble& aic, int icase);
+  void simulateGradient(Db *dbgrd, const VectorDouble& aic, double delta);
+  void simulateTangent(Db *dbtgt, const VectorDouble& aic, double delta);
   void meanCorrect(Db *dbout, int icase);
   void difference(Db *dbin,
                   int icase,
@@ -81,15 +91,15 @@ private:
   int _getNCova() const { return _model->getCovaNumber(); }
   int _getNVar() const { return _model->getVariableNumber(); }
   int _getNBands() const { return (int) _codirs.size(); }
-  void _setSeed(int ivar, int is, int ib, int isimu, int seed);
-  int  _getSeed(int ivar, int is, int ib, int isimu);
+  void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
+  int  _getSeedBand(int ivar, int is, int ib, int isimu);
 
   void _rotateDirections(double a[3], double theta);
   int  _generateDirections(const Db* dbout);
   void _minmax(const Db *db);
   void _setDensity();
   ECov _particularCase(const ECov &type, double param);
-  int  _initializeSeeds();
+  int  _initializeSeedBands();
   VectorDouble _createAIC();
   double _getAIC(const VectorDouble& aic, int icov, int ivar, int jvar);
 
@@ -151,7 +161,7 @@ private:
   int _npointSimulated;
   double _field;
   double _theta;
-  VectorInt _seeds;
+  VectorInt _seedBands;
   std::vector<TurningDirection> _codirs;
   const Model* _model;
 };

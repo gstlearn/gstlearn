@@ -31,29 +31,32 @@ TurningBands::TurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
       _npointSimulated(0),
       _field(0.),
       _theta(0.),
-      _seeds(),
+      _seedBands(),
       _codirs(),
       _model(model)
 {
-  int nvar  = _getNVar();
-  int ncova = _getNCova();
-
-  /* Allocate the structure */
-
   _codirs.clear();
-  _seeds.clear();
+  _seedBands.clear();
 
-  /* Allocate the structures for the seeds */
+  // The class is only partially defined
+  if (nbsimu > 0 && nbtuba > 0 && model != nullptr)
+  {
+    int nvar  = _getNVar();
+    int ncova = _getNCova();
+    int ndim  = _model->getDimensionNumber();
 
-  int size = nvar * ncova * _nbtuba * nbsimu;
-  _seeds.resize(size,0.);
+    /* Allocate the structures for the seeds */
 
-  /* Allocate the structures for the directions */
+    int size = nvar * ncova * _nbtuba * nbsimu;
+    _seedBands.resize(size,0.);
 
-  int nbands = nbsimu * _nbtuba * ncova;
-  _codirs.resize(nbands);
-  for (int i = 0; i < nbands; i++)
-    _codirs[i] = TurningDirection();
+    /* Allocate the structures for the directions */
+
+    int nbands = nbsimu * _nbtuba * ncova;
+    _codirs.resize(nbands);
+    for (int i = 0; i < nbands; i++)
+      _codirs[i] = TurningDirection(ndim);
+  }
 }
 
 TurningBands::TurningBands(const TurningBands &r)
@@ -62,7 +65,7 @@ TurningBands::TurningBands(const TurningBands &r)
       _npointSimulated(r._npointSimulated),
       _field(r._field),
       _theta(r._theta),
-      _seeds(r._seeds),
+      _seedBands(r._seedBands),
       _codirs(r._codirs),
       _model(r._model)
 {
@@ -77,7 +80,7 @@ TurningBands& TurningBands::operator=(const TurningBands &r)
     _npointSimulated = r._npointSimulated;
     _field = r._field;
     _theta = r._theta;
-    _seeds = r._seeds;
+    _seedBands = r._seedBands;
     _codirs = r._codirs;
     _model = r._model;
   }
@@ -88,20 +91,20 @@ TurningBands::~TurningBands()
 {
 }
 
-void TurningBands::_setSeed(int ivar, int is, int ib, int isimu, int seed)
+void TurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
 {
   int ncova = _getNCova();
   int nvar = _getNVar();
   int iad = ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
-  _seeds[iad] = seed;
+  _seedBands[iad] = seed;
 }
 
-int TurningBands::_getSeed(int ivar, int is, int ib, int isimu)
+int TurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 {
   int ncova = _getNCova();
   int nvar = _getNVar();
   int iad = ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
-  return _seeds[iad];
+  return _seedBands[iad];
 }
 
 /****************************************************************************/
@@ -406,7 +409,7 @@ ECov TurningBands::_particularCase(const ECov &type, double param)
  ** \return  Error return code : 1 for problem; 0 otherwise
  **
  *****************************************************************************/
-int TurningBands::_initializeSeeds()
+int TurningBands::_initializeSeedBands()
 {
   double tdeb, omega, phi, correc, correc0;
   VectorDouble v0;
@@ -438,7 +441,7 @@ int TurningBands::_initializeSeeds()
           ECov type = _model->getCovaType(is);
           double param = _model->getParam(is);
           type = _particularCase(type, param);
-          _setSeed(ivar, is, ib, isimu, law_get_random_seed());
+          _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
           switch (type.toEnum())
           {
@@ -991,7 +994,7 @@ void TurningBands::simulatePoint(Db *db,
           double correc = 1.;
           double correc0 = 0.;
           type = _particularCase(type, param);
-          law_set_random_seed(_getSeed(ivar, is, ib, isimu));
+          law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
 
           switch (type.toEnum())
           {
@@ -1160,6 +1163,135 @@ void TurningBands::simulatePoint(Db *db,
 
 /*****************************************************************************/
 /*!
+ **  Perform non-conditional simulations on a set of gradient points using
+ **  Turning Bands method.
+ **
+ ** \return  Error return code :
+ ** \return    0 no problem
+ ** \return    1 a structure cannot be simulated
+ ** \return    2 no structure to be simulated 1 core problem
+ **
+ ** \param[in]  dbgrd      Gradient Db structure
+ ** \param[in]  aic        Array 'aic'
+ ** \param[in]  delta      Value of the increment
+ **
+ ** \remarks The simulated gradients are stored as follows:
+ ** \remarks idim * nbsimu + isimu (for simulation at first point)
+ ** \remarks idim * nbsimu + isimu + ndim * nbsimu (for simulation at 2nd point)
+ ** \remarks At the end, the simulated gradient is stored at first point
+ **
+ *****************************************************************************/
+void TurningBands::simulateGradient(Db *dbgrd,
+                                    const VectorDouble& aic,
+                                    double delta)
+{
+  int jsimu;
+  int icase = 0;
+  int ndim = dbgrd->getNDim();
+  int nbsimu = getNbSimu();
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+
+    /* Simulation at the initial location */
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      jsimu = isimu + idim * nbsimu;
+      simulatePoint(dbgrd, aic, icase, jsimu);
+    }
+
+    /* Shift the information */
+
+    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+      if (dbgrd->isActive(iech))
+        dbgrd->setCoordinate(iech, idim,
+                             dbgrd->getCoordinate(iech, idim) + delta);
+
+    /* Simulation at the shift location */
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      jsimu = isimu + idim * nbsimu + ndim * nbsimu;
+      simulatePoint(dbgrd, aic, icase, jsimu);
+    }
+
+    /* Un-Shift the information */
+
+    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+      if (dbgrd->isActive(iech))
+        dbgrd->setCoordinate(iech, idim,
+                             dbgrd->getCoordinate(iech, idim) - delta);
+
+    /* Scaling */
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+      for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+      {
+        if (!dbgrd->isActive(iech)) continue;
+        jsimu = isimu + idim * nbsimu + ndim * nbsimu;
+        double value2 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
+                                         2 * ndim * nbsimu, 1);
+        jsimu = isimu + idim * nbsimu;
+        double value1 = dbgrd->getSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
+                                         2 * ndim * nbsimu, 1);
+        dbgrd->setSimvar(ELoc::SIMU, iech, jsimu, 0, icase,
+                         2 * ndim * nbsimu,
+                         1, (value2 - value1) / delta);
+      }
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Perform non-conditional simulations on a set of tangent points using
+ **  Turning Bands method.
+ **
+ ** \return  Error return code :
+ ** \return    0 no problem
+ ** \return    1 a structure cannot be simulated
+ ** \return    2 no structure to be simulated 1 core problem
+ **
+ ** \param[in]  dbtgt      Tangent Db structure
+ ** \param[in]  aic        Array 'aic'
+ ** \param[in]  delta      Value of the increment
+ **
+ ** \remarks Warning: To perform the simulation of the tangent, we must
+ ** \remarks simulated the gradients first. So we need to dimension the
+ ** \remarks simulation outcome variables as for the gradients
+ **
+ *****************************************************************************/
+void TurningBands::simulateTangent(Db *dbtgt,
+                                   const VectorDouble& aic,
+                                   double delta)
+{
+  int icase = 0;
+  int nvar = _getNVar();
+  int nbsimu = getNbSimu();
+
+  /* Perform the simulation of the gradients at tangent points */
+
+  simulateGradient(dbtgt, aic, delta);
+
+  /* Calculate the simulated tangent */
+
+  for (int isimu = 0; isimu < nbsimu; isimu++)
+    for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
+    {
+      if (!dbtgt->isActive(iech)) continue;
+
+      double value = 0.;
+      for (int idim = 0; idim < dbtgt->getNDim(); idim++)
+        value += dbtgt->getTangent(iech, idim)
+            * dbtgt->getSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu,
+                               nvar);
+      dbtgt->setSimvar(ELoc::SIMU, iech, isimu, 0, icase, nbsimu,
+                       nvar, value);
+    }
+}
+
+/*****************************************************************************/
+/*!
  **  Perform non-conditional simulations on a grid using the
  **  Turning Bands method
  **
@@ -1224,7 +1356,7 @@ void TurningBands::simulateGrid(DbGrid *db,
           double correc = 1.;
           double correc0 = 0.;
           type = _particularCase(type, param);
-          law_set_random_seed(_getSeed(ivar, is, ibs, isimu));
+          law_set_random_seed(_getSeedBand(ivar, is, ibs, isimu));
 
           switch (type.toEnum())
           {
@@ -1772,7 +1904,7 @@ void TurningBands::simulateNugget(Db *db, const VectorDouble& aic, int icase)
         ECov type = _model->getCovaType(is);
 
         if (type != ECov::NUGGET) continue;
-        law_set_random_seed(_getSeed(ivar, is, 0, isimu));
+        law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
 
         for (int iech = 0; iech < nech; iech++)
         {
@@ -2095,7 +2227,7 @@ int TurningBands::simulate(Db *dbin,
     messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
     return 1;
   }
-
+  law_set_random_seed(getSeed());
   bool flag_cond = (dbin != nullptr);
 
   // Initializations
@@ -2103,7 +2235,7 @@ int TurningBands::simulate(Db *dbin,
   if (_generateDirections(dbout)) return 1;
   _minmax(dbout);
   _minmax(dbin);
-  if (_initializeSeeds()) return 1;
+  if (_initializeSeedBands()) return 1;
 
   // Calculate the 'aic' array
 
@@ -2157,6 +2289,87 @@ int TurningBands::simulate(Db *dbin,
   if (flag_cond)
     updateData2ToTarget(dbin, dbout, icase, flag_pgs, flag_dgm);
 
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the (non-conditional) Simulation(s) using the Turning Bands Method
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbiso     Isovalues Db structure
+ ** \param[in]  dbgrd     Gradient Db structure
+ ** \param[in]  dbtgt     Tangent Db structure
+ ** \param[in]  dbout     Output Db structure
+ ** \param[in]  delta     Value of the increment
+ **
+ *****************************************************************************/
+int TurningBands::simulatePotential(Db *dbiso,
+                                    Db *dbgrd,
+                                    Db *dbtgt,
+                                    Db *dbout,
+                                    double delta)
+{
+  int nbsimu = getNbSimu();
+  if (_model == nullptr || nbsimu <= 0 || _nbtuba <= 0)
+  {
+    messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
+    return 1;
+  }
+  law_set_random_seed(getSeed());
+  int icase = 0;
+
+  /* Processing the Turning Bands algorithm */
+
+  if (_generateDirections(dbout)) return 1;
+  _minmax(dbout);
+  _minmax(dbiso);
+  _minmax(dbgrd);
+  _minmax(dbtgt);
+  if (_initializeSeedBands()) return 1;
+
+  /* Calculate the 'aic' array */
+
+  VectorDouble aic = _createAIC();
+  if (aic.empty()) return 1;
+
+  /* Non conditional simulations on the data points */
+
+  if (dbiso != nullptr)
+  {
+    simulatePoint(dbiso, aic, icase, 0);
+  }
+
+  /* Non conditional simulations on the gradient points */
+
+  if (dbgrd != nullptr)
+  {
+    simulateGradient(dbgrd, aic, delta);
+  }
+
+  /* Non conditional simulations on the tangent points */
+
+  if (dbtgt != nullptr)
+  {
+    simulateTangent(dbtgt, aic, delta);
+  }
+
+  /* Non conditional simulations on the grid */
+
+  if (is_grid(dbout))
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+    simulateGrid(dbgrid, aic, icase, 0);
+  }
+  else
+  {
+    simulatePoint(dbout, aic, icase, 0);
+  }
+
+  /* Add the contribution of nugget effect (optional) */
+
+  simulateNugget(dbout, aic, icase);
   return 0;
 }
 

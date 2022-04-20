@@ -46,5 +46,5 @@ endif
 set FILEREF = $DIR/tests/$name1/$direc/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp
 
-diff $FILEREF $FILECMP
+diff --side -b $FILEREF $FILECMP
 

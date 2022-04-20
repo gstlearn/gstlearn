@@ -482,6 +482,9 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, dou
   return vec;
 }
 
+// random generator function:
+int myrandom (int i) { return std::rand()%i;}
+
 /**
  * Sample a set of 'ntotal' consecutive ranks
  * @param ntotal      Dimension to be sampled
@@ -493,9 +496,6 @@ GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, dou
  * @remark If 'proportion' and 'number' are not specified,
  * @remark the output vector has dimension equal to 'ntotal'
  */
-// random generator function:
-int myrandom (int i) { return std::rand()%i;}
-
 VectorInt ut_vector_sample(int ntotal, double proportion, int number, int seed)
 {
   // Find the number of expected values

@@ -28,6 +28,7 @@ public:
          int nvar,
          int nburn,
          int niter,
+         int seed,
          int flag_order,
          bool flag_decay);
   AGibbs(const AGibbs &r);
@@ -60,8 +61,9 @@ public:
             int nvar,
             int nburn,
             int niter,
-            int flag_order,
-            bool flag_decay);
+            int seed = 3241,
+            int flag_order = 0,
+            bool flag_decay= true);
   void getBoundsDecay(int iter, double *vmin, double *vmax) const;
 
   int getNvar() const { return _nvar; }

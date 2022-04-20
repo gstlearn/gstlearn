@@ -331,6 +331,8 @@ void Model::setDriftList(const DriftList* driftlist)
  */
 void Model::setDriftIRF(int order, int nfex)
 {
+  if (_driftList == nullptr)
+    _driftList = new DriftList();
   _driftList->setDriftIRF(order, nfex, _ctxt);
 }
 
