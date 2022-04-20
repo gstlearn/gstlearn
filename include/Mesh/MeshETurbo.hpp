@@ -42,14 +42,17 @@ public:
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
 
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// Interface to AMesh
   int    getNApices() const override;
   int    getNMeshes() const override;
   int    getApex(int imesh, int rank) const override;
   double getCoor(int imesh, int rank, int idim) const override;
   double getApexCoor(int i, int idim) const override;
   double getMeshSize(int imesh) const override;
+
   void   setPolarized(bool flag) { _isPolarized = flag; }
   void   setMaskArrayFromInt(int* array);
   void   setMaskArrayFromDouble(double* array);

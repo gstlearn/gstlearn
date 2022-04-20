@@ -28,6 +28,7 @@ public:
   AMesh& operator= (const AMesh &m);
 	virtual ~AMesh();
 
+	/// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Returns the space variety */

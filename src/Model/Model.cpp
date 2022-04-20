@@ -204,7 +204,10 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   // Non-stationary parameters
 
-  if (isNoStat()) sstr << _noStat->toString();
+  if (isNoStat())
+  {
+    sstr << _noStat->toString();
+  }
 
   return sstr.str();
 }

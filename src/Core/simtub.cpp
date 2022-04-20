@@ -1641,7 +1641,8 @@ int simbipgs(Db *dbin,
     {
       if (!flag_used[ipgs][MES_IGRF]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, MES_IGRF);
-      situba = TurningBands(nbsimu, nbtuba, models[ipgs][MES_IGRF], local_seed);
+      situba = TurningBands(nbsimu, nbtuba, models[ipgs][MES_IGRF],
+                            local_seed);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
                           VectorDouble(), true)) goto label_end;

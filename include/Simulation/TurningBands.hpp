@@ -50,25 +50,26 @@ public:
                         Db *dbtgt,
                         Db *dbout,
                         double delta);
-  void simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
-  void simulateGrid(DbGrid *db, const VectorDouble& aic, int icase, int shift);;
-  void simulateNugget(Db *db, const VectorDouble& aic, int icase);
-  void simulateGradient(Db *dbgrd, const VectorDouble& aic, double delta);
-  void simulateTangent(Db *dbtgt, const VectorDouble& aic, double delta);
-  void meanCorrect(Db *dbout, int icase);
-  void difference(Db *dbin,
-                  int icase,
-                  bool flag_pgs = false,
-                  bool flag_gibbs = false,
-                  bool flag_dgm = false,
-                  double r_coeff = 0.);
-  void updateData2ToTarget(Db *dbin,
-                           Db *dbout,
-                           int icase,
-                           bool flag_pgs = false,
-                           bool flag_dgm = false);
 
 private:
+  void _simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
+  void _simulateGrid(DbGrid *db, const VectorDouble& aic, int icase, int shift);;
+  void _simulateNugget(Db *db, const VectorDouble& aic, int icase);
+  void _simulateGradient(Db *dbgrd, const VectorDouble& aic, double delta);
+  void _simulateTangent(Db *dbtgt, const VectorDouble& aic, double delta);
+  void _meanCorrect(Db *dbout, int icase);
+  void _difference(Db *dbin,
+                   int icase,
+                   bool flag_pgs = false,
+                   bool flag_gibbs = false,
+                   bool flag_dgm = false,
+                   double r_coeff = 0.);
+  void _updateData2ToTarget(Db *dbin,
+                            Db *dbout,
+                            int icase,
+                            bool flag_pgs = false,
+                            bool flag_dgm = false);
+
   void _setCodirAng(int ibs, int idir, double value) { _codirs[ibs].setAng(idir, value); }
   void _setCodirTmin(int ibs, double value) { _codirs[ibs].setTmin(value); }
   void _setCodirTmax(int ibs, double value) { _codirs[ibs].setTmax(value); }
@@ -91,6 +92,7 @@ private:
   int _getNCova() const { return _model->getCovaNumber(); }
   int _getNVar() const { return _model->getVariableNumber(); }
   int _getNBands() const { return (int) _codirs.size(); }
+  int  _getAddressBand(int ivar, int is, int ib, int isimu);
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
   int  _getSeedBand(int ivar, int is, int ib, int isimu);
 

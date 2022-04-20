@@ -266,25 +266,25 @@ Data Base Statistics
 6 - Name SimBayes.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -19.016
- Maximum value       =     12.870
- Mean value          =     -2.054
+ Minimum value       =    -17.667
+ Maximum value       =     14.219
+ Mean value          =     -0.705
  Standard Deviation  =      4.865
  Variance            =     23.670
 7 - Name SimBayes.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -25.705
- Maximum value       =     17.708
- Mean value          =     -1.774
+ Minimum value       =    -27.051
+ Maximum value       =     16.362
+ Mean value          =     -3.121
  Standard Deviation  =      5.706
  Variance            =     32.562
 8 - Name SimBayes.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =    -16.359
- Maximum value       =     15.346
- Mean value          =     -1.124
+ Minimum value       =    -16.619
+ Maximum value       =     15.086
+ Mean value          =     -1.385
  Standard Deviation  =      4.891
  Variance            =     23.919
 
@@ -315,10 +315,10 @@ CVsample                         = -6.382030
 CViid                            = -0.638203
 Cxx                              = 2.144745
 Cxv                              = 1.743657
-Cvv                              = 11.206648
+Cvv                              = 11.207063
 Estimation by arithmetic average = -0.168158
-Estimation St. dev. of the mean  = 3.140713
-CVgeo                            = -18.677178
+Estimation St. dev. of the mean  = 3.140779
+CVgeo                            = -18.677571
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = -420.394464
 
@@ -330,10 +330,10 @@ Global estimation kriging
 Total number of data             = 100
 Number of active data            = 100
 Number of variables              = 1
-Cvv                              = 11.189542
+Cvv                              = 11.190386
 Estimation by kriging            = -0.457114
-Estimation St. Dev. of the mean  = 1.641325
-CVgeo                            = -3.590623
+Estimation St. Dev. of the mean  = 1.641582
+CVgeo                            = -3.591185
 Surface                          = 2500.000000
 Q (Estimation * Surface)         = -1142.785553
 

@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Db/Db.hpp"

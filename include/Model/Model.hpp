@@ -53,7 +53,10 @@ public:
   virtual ~Model();
 
 public:
+  /// Interface to AStringeable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface to IClonable
   virtual IClonable* clone() const override { return new Model(*this); }
 
   int resetFromDb(const Db* db);
@@ -110,6 +113,7 @@ public:
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
+
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
@@ -233,6 +237,8 @@ public:
   double gofToVario(const Vario* vario);
 
 protected:
+
+  /// Interface to ASerializable
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 

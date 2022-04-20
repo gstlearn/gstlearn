@@ -90,20 +90,22 @@ TurningBands& TurningBands::operator=(const TurningBands &r)
 TurningBands::~TurningBands()
 {
 }
-
-void TurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
+int TurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
   int ncova = _getNCova();
   int nvar = _getNVar();
-  int iad = ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
+  return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
+}
+
+void TurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
+{
+  int iad = _getAddressBand(ivar, is, ib, isimu);
   _seedBands[iad] = seed;
 }
 
 int TurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 {
-  int ncova = _getNCova();
-  int nvar = _getNVar();
-  int iad = ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
+  int iad = _getAddressBand(ivar, is, ib, isimu);
   return _seedBands[iad];
 }
 
@@ -520,6 +522,8 @@ int TurningBands::_initializeSeedBands()
           }
         }
   }
+
+  // Set the initial seed back
   law_set_random_seed(mem_seed);
   return 0;
 }
@@ -947,7 +951,7 @@ VectorDouble TurningBands::_createAIC()
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void TurningBands::simulatePoint(Db *db,
+void TurningBands::_simulatePoint(Db *db,
                                  const VectorDouble& aic,
                                  int icase,
                                  int shift)
@@ -979,6 +983,7 @@ void TurningBands::simulatePoint(Db *db,
   /* Performing the simulation */
   /*****************************/
 
+  int mem_seed = law_get_random_seed();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int ibs = 0;
@@ -1159,6 +1164,9 @@ void TurningBands::simulatePoint(Db *db,
         if (db->isActive(iech))
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
+
+  // Set the initial seed back
+  law_set_random_seed(mem_seed);
 }
 
 /*****************************************************************************/
@@ -1181,7 +1189,7 @@ void TurningBands::simulatePoint(Db *db,
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void TurningBands::simulateGradient(Db *dbgrd,
+void TurningBands::_simulateGradient(Db *dbgrd,
                                     const VectorDouble& aic,
                                     double delta)
 {
@@ -1198,7 +1206,7 @@ void TurningBands::simulateGradient(Db *dbgrd,
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu;
-      simulatePoint(dbgrd, aic, icase, jsimu);
+      _simulatePoint(dbgrd, aic, icase, jsimu);
     }
 
     /* Shift the information */
@@ -1213,7 +1221,7 @@ void TurningBands::simulateGradient(Db *dbgrd,
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
       jsimu = isimu + idim * nbsimu + ndim * nbsimu;
-      simulatePoint(dbgrd, aic, icase, jsimu);
+      _simulatePoint(dbgrd, aic, icase, jsimu);
     }
 
     /* Un-Shift the information */
@@ -1261,7 +1269,7 @@ void TurningBands::simulateGradient(Db *dbgrd,
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void TurningBands::simulateTangent(Db *dbtgt,
+void TurningBands::_simulateTangent(Db *dbtgt,
                                    const VectorDouble& aic,
                                    double delta)
 {
@@ -1271,7 +1279,7 @@ void TurningBands::simulateTangent(Db *dbtgt,
 
   /* Perform the simulation of the gradients at tangent points */
 
-  simulateGradient(dbtgt, aic, delta);
+  _simulateGradient(dbtgt, aic, delta);
 
   /* Calculate the simulated tangent */
 
@@ -1301,7 +1309,7 @@ void TurningBands::simulateTangent(Db *dbtgt,
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void TurningBands::simulateGrid(DbGrid *db,
+void TurningBands::_simulateGrid(DbGrid *db,
                                 const VectorDouble& aic,
                                 int icase,
                                 int shift)
@@ -1337,6 +1345,7 @@ void TurningBands::simulateGrid(DbGrid *db,
   /* Performing the simulation */
   /*****************************/
 
+  int mem_seed = law_get_random_seed();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
     int ibs = 0;
@@ -1356,7 +1365,7 @@ void TurningBands::simulateGrid(DbGrid *db,
           double correc = 1.;
           double correc0 = 0.;
           type = _particularCase(type, param);
-          law_set_random_seed(_getSeedBand(ivar, is, ibs, isimu));
+          law_set_random_seed(_getSeedBand(ivar, is, ib, isimu));
 
           switch (type.toEnum())
           {
@@ -1697,6 +1706,9 @@ void TurningBands::simulateGrid(DbGrid *db,
         if (db->isActive(iech))
           db->updSimvar(ELoc::SIMU, iech, shift + isimu, jvar, icase, nbsimu,
                         nvar, 1, norme);
+
+  // Set the initial seed back
+  law_set_random_seed(mem_seed);
 }
 
 /*****************************************************************************/
@@ -1879,7 +1891,7 @@ void TurningBands::_getOmegaPhi(int ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void TurningBands::simulateNugget(Db *db, const VectorDouble& aic, int icase)
+void TurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
 {
   int nech = db->getSampleNumber();
   int ncova = _getNCova();
@@ -1897,6 +1909,7 @@ void TurningBands::simulateNugget(Db *db, const VectorDouble& aic, int icase)
 
   /* Performing the simulation */
 
+  int mem_seed = law_get_random_seed();
   for (int isimu = 0; isimu < nbsimu; isimu++)
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int is = 0; is < ncova; is++)
@@ -1916,6 +1929,8 @@ void TurningBands::simulateNugget(Db *db, const VectorDouble& aic, int icase)
         }
       }
 
+  // Set the initial seed back
+  law_set_random_seed(mem_seed);
   return;
 }
 
@@ -1941,7 +1956,7 @@ double TurningBands::_getAIC(const VectorDouble& aic,
  ** \param[in]  r_coeff    Change of support coefficient
  **
  *****************************************************************************/
-void TurningBands::difference(Db *dbin,
+void TurningBands::_difference(Db *dbin,
                               int icase,
                               bool flag_pgs,
                               bool flag_gibbs,
@@ -2027,7 +2042,7 @@ void TurningBands::difference(Db *dbin,
  ** \param[in]  icase     Rank of PGS or GRF
  **
  *****************************************************************************/
-void TurningBands::meanCorrect(Db *dbout, int icase)
+void TurningBands::_meanCorrect(Db *dbout, int icase)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
@@ -2072,7 +2087,7 @@ void TurningBands::meanCorrect(Db *dbout, int icase)
  ** \remarks within a cell
  **
  *****************************************************************************/
-void TurningBands::updateData2ToTarget(Db *dbin,
+void TurningBands::_updateData2ToTarget(Db *dbin,
                                        Db *dbout,
                                        int icase,
                                        bool flag_pgs,
@@ -2221,14 +2236,15 @@ int TurningBands::simulate(Db *dbin,
                            bool flag_dgm,
                            double r_coeff)
 {
-  int nbsimu = getNbSimu();
-  if (_model == nullptr || nbsimu <= 0 || _nbtuba <= 0)
+  int nbands = _getNBands();
+  if (_model == nullptr || nbands <= 0)
   {
     messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
     return 1;
   }
   law_set_random_seed(getSeed());
   bool flag_cond = (dbin != nullptr);
+  int nbsimu = getNbSimu();
 
   // Initializations
 
@@ -2246,11 +2262,11 @@ int TurningBands::simulate(Db *dbin,
 
   if (flag_cond)
   {
-    simulatePoint(dbin, aic, icase, 0);
+    _simulatePoint(dbin, aic, icase, 0);
 
     // Calculate the simulated error
 
-    difference(dbin, icase, flag_pgs, flag_gibbs, flag_dgm, r_coeff);
+    _difference(dbin, icase, flag_pgs, flag_gibbs, flag_dgm, r_coeff);
   }
 
   // Non conditional simulations on the grid
@@ -2258,16 +2274,16 @@ int TurningBands::simulate(Db *dbin,
   if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    simulateGrid(dbgrid, aic, icase, 0);
+    _simulateGrid(dbgrid, aic, icase, 0);
   }
   else
   {
-    simulatePoint(dbout, aic, icase, 0);
+    _simulatePoint(dbout, aic, icase, 0);
   }
 
   /* Add the contribution of Nugget effect (optional) */
 
-  simulateNugget(dbout, aic, icase);
+  _simulateNugget(dbout, aic, icase);
 
   /* Conditional simulations */
 
@@ -2281,13 +2297,13 @@ int TurningBands::simulate(Db *dbin,
 
     /* In non-conditional case, correct for the mean */
 
-    meanCorrect(dbout, icase);
+    _meanCorrect(dbout, icase);
   }
 
   /* Copy value from data to coinciding grid node */
 
   if (flag_cond)
-    updateData2ToTarget(dbin, dbout, icase, flag_pgs, flag_dgm);
+    _updateData2ToTarget(dbin, dbout, icase, flag_pgs, flag_dgm);
 
   return 0;
 }
@@ -2311,8 +2327,8 @@ int TurningBands::simulatePotential(Db *dbiso,
                                     Db *dbout,
                                     double delta)
 {
-  int nbsimu = getNbSimu();
-  if (_model == nullptr || nbsimu <= 0 || _nbtuba <= 0)
+  int nbands = _getNBands();
+  if (_model == nullptr || nbands <= 0)
   {
     messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
     return 1;
@@ -2338,21 +2354,21 @@ int TurningBands::simulatePotential(Db *dbiso,
 
   if (dbiso != nullptr)
   {
-    simulatePoint(dbiso, aic, icase, 0);
+    _simulatePoint(dbiso, aic, icase, 0);
   }
 
   /* Non conditional simulations on the gradient points */
 
   if (dbgrd != nullptr)
   {
-    simulateGradient(dbgrd, aic, delta);
+    _simulateGradient(dbgrd, aic, delta);
   }
 
   /* Non conditional simulations on the tangent points */
 
   if (dbtgt != nullptr)
   {
-    simulateTangent(dbtgt, aic, delta);
+    _simulateTangent(dbtgt, aic, delta);
   }
 
   /* Non conditional simulations on the grid */
@@ -2360,16 +2376,16 @@ int TurningBands::simulatePotential(Db *dbiso,
   if (is_grid(dbout))
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    simulateGrid(dbgrid, aic, icase, 0);
+    _simulateGrid(dbgrid, aic, icase, 0);
   }
   else
   {
-    simulatePoint(dbout, aic, icase, 0);
+    _simulatePoint(dbout, aic, icase, 0);
   }
 
   /* Add the contribution of nugget effect (optional) */
 
-  simulateNugget(dbout, aic, icase);
+  _simulateNugget(dbout, aic, icase);
   return 0;
 }
 
