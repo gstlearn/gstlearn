@@ -17,19 +17,6 @@
 
 class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 {
-private:
-  bool _verbose;                   /* Verbose option */
-  int _wmode;                      /* Weighting option (used in Goulard) */
-  int _maxiter;                    /* Maximum number of iterations */
-  int _flag_intrinsic;             /* Ask for an intrinsic model */
-  double _tolstop;                 /* Tolerance for the stopping criterion */
-  double _tolred;                  /* Scaled tolerance (used in calculations) */
-  double _epsdelta;                /* Tolerance for the search */
-  double _tolsigma;                /* Percentage of variance below which a structure is discarded */
-  double _initdelta;               /* Initial radius of the trusting area */
-  double _constantSillValue;       /* Constant Sill as a constraint */
-  VectorDouble _constantSills;     /* Array of constant Sills (expanded to the variables) */
-
  public:
   Option_AutoFit();
   Option_AutoFit(const Option_AutoFit &m);
@@ -73,4 +60,17 @@ private:
  */
   void setWmode(int wmode) { _wmode = wmode; }
   void setConstantSills(int nvar);
+
+ private:
+   bool _verbose;                   /* Verbose option */
+   int _wmode;                      /* Weighting option (used in Goulard) */
+   int _maxiter;                    /* Maximum number of iterations */
+   int _flag_intrinsic;             /* Ask for an intrinsic model */
+   double _tolstop;                 /* Tolerance for the stopping criterion */
+   double _tolred;                  /* Scaled tolerance (used in calculations) */
+   double _epsdelta;                /* Tolerance for the search */
+   double _tolsigma;                /* Percentage of variance below which a structure is discarded */
+   double _initdelta;               /* Initial radius of the trusting area */
+   double _constantSillValue;       /* Constant Sill as a constraint */
+   VectorDouble _constantSills;     /* Array of constant Sills (expanded to the variables) */
 };

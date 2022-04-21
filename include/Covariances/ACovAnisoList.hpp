@@ -36,19 +36,13 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
-  /*! Clonable interface */
+  /// Interface for IClonable
   virtual IClonable* clone() const override = 0;
 
-  // Add an elementary covariance structure
-  virtual void addCov(const CovAniso* cov);
-
-  ///////////////////////////////////////////////////
-  /// ASpaceObject Interface
+  /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
-  /// ACov Interface
+  /// Interface for ACov
   virtual int    getNVariables() const override;
   virtual double eval0(int ivar,
                        int jvar,
@@ -58,11 +52,12 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
-  //////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
-  /// AStringable Interface
+  /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ACovAnisoList Interface
+  virtual void addCov(const CovAniso* cov);
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure

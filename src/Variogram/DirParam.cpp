@@ -114,6 +114,30 @@ DirParam::~DirParam()
 {
 }
 
+DirParam* DirParam::create(int ndim,
+                           int npas,
+                           double dpas,
+                           double toldis,
+                           double tolang,
+                           int opt_code,
+                           int idate,
+                           double bench,
+                           double cylrad,
+                           double tolcode,
+                           VectorDouble breaks,
+                           VectorDouble codir)
+{
+  return new DirParam(ndim, npas, dpas, toldis, tolang, opt_code, idate,
+                      bench, cylrad, tolcode, breaks, codir, VectorInt());
+}
+
+DirParam* DirParam::createFromGrid(int ndim, int npas, VectorInt grincr)
+{
+  return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0,
+                      TEST, TEST, 0., VectorDouble(), VectorDouble(),
+                      grincr);
+}
+
 void DirParam::init(int ndim,
                     int npas,
                     double dpas,

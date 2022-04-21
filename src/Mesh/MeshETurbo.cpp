@@ -299,23 +299,23 @@ bool MeshETurbo::isNodeMasked(int iabs) const
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
+** \param[in]  fatal     Error type when point does not belong to Meshing
 ** \param[in]  verbose   Verbose flag
 **
 *****************************************************************************/
-cs* MeshETurbo::getMeshToDb(const Db  *db,
-                            int verbose) const
+cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 {
-  double *rhs,*lambda;
-  cs     *A,*Atriplet;
-  int     error,ndim,ncorner,ip_max,iech;
+  int ip_max,iech;
   
   // Initializations
 
-  error    = 1;
-  Atriplet = A = nullptr;
-  rhs      = lambda = nullptr;
-  ndim     = getNDim();
-  ncorner  = getNApexPerMesh();
+  int error    = 1;
+  cs* Atriplet = nullptr;
+  cs* A = nullptr;
+  double* rhs      = nullptr;
+  double* lambda   = nullptr;
+  int ndim     = getNDim();
+  int ncorner  = getNApexPerMesh();
   VectorInt indg0(ndim);
   VectorInt indgg(ndim);
   VectorInt indices(ncorner);
@@ -329,7 +329,6 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) goto label_end;
-
   rhs    = (double *) mem_alloc(sizeof(double) * ncorner,0);
   if (rhs    == nullptr) goto label_end;
   lambda = (double *) mem_alloc(sizeof(double) * ncorner,0);
@@ -356,8 +355,8 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
     if (_grid.coordinateToIndice(coor,indg0) != 0) 
     {
       messerr("Sample #%d does not belong to the meshing",jech+1);
+      if (fatal) goto label_end;
       continue;
-      //goto label_end;
     }
 
     /* Optional printout */
@@ -385,8 +384,8 @@ cs* MeshETurbo::getMeshToDb(const Db  *db,
     if (found < 0)
     {
       messerr("Sample #%d does not belong to the meshing",jech+1);
+      if (fatal) goto label_end;
       continue;
-      //goto label_end;
     }
     iech++;
   }
@@ -429,8 +428,7 @@ label_end:
 ** \remarks It must be freed by the calling function
 **
 *****************************************************************************/
-double* MeshETurbo::interpolateMeshToDb(Db *db,
-                                        double* mtab) const
+double* MeshETurbo::interpolateMeshToDb(Db *db, double* mtab) const
 {
   double *rhs,*lambda,*dtab;
   int     error,ndim,ncorner,nech,iech;

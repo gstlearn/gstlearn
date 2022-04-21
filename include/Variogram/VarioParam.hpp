@@ -35,7 +35,10 @@ public:
   virtual ~VarioParam();
 
 public:
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface to Iclonable
   virtual IClonable* clone() const override { return new VarioParam(*this); };
 
   void addDirs(const DirParam& dirparam);

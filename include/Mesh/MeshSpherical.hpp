@@ -27,8 +27,10 @@ public:
   MeshSpherical& operator= (const MeshSpherical &m);
 	virtual ~MeshSpherical();
 
+	/// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// Interface to AMesh
   int     getNApices() const override;
   int     getNMeshes() const override;
   double  getMeshSize(int imesh) const override;
@@ -37,10 +39,12 @@ public:
   double  getApexCoor(int i, int idim) const override;
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
+  cs* getMeshToDb(const Db *db,
+                  bool fatal = false,
+                  bool verbose = false) const override;
+  double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
-  cs*     getMeshToDb(const Db  *db, int verbose = 0) const override;
-  double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
 private:
   void    _defineBoundingBox();

@@ -46,12 +46,15 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface to AMesh
-  int    getNApices() const override;
-  int    getNMeshes() const override;
-  int    getApex(int imesh, int rank) const override;
-  double getCoor(int imesh, int rank, int idim) const override;
-  double getApexCoor(int i, int idim) const override;
-  double getMeshSize(int imesh) const override;
+  int     getNApices() const override;
+  int     getNMeshes() const override;
+  int     getApex(int imesh, int rank) const override;
+  double  getCoor(int imesh, int rank, int idim) const override;
+  double  getApexCoor(int i, int idim) const override;
+  double  getMeshSize(int imesh) const override;
+  cs* getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
+      override;
+  double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   void   setPolarized(bool flag) { _isPolarized = flag; }
   void   setMaskArrayFromInt(int* array);
@@ -75,8 +78,6 @@ public:
                    bool useSel = true,
                    int verbose = 0);
   bool isNodeMasked(int iabs) const;
-  cs*  getMeshToDb(const Db *db, int verbose = 0) const override;
-  double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   const Grid& getGrid() const
   {

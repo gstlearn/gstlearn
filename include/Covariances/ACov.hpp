@@ -27,28 +27,18 @@ public:
   ACov& operator=(const ACov &r);
   virtual ~ACov();
 
-  /// Number of variables (used for covariance matrix size)
+  /// ACov Interface
   virtual int getNVariables() const = 0;
-  /// Covariance at the origin
   virtual double eval0(int ivar,
                        int jvar,
                        const CovCalcMode& mode = CovCalcMode()) const = 0;
-  /// Covariance between two points for two given variables
   virtual double eval(int ivar,
                       int jvar,
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
-  /// Compatibility with gradient calculations
   virtual bool isGradientCompatible() const;
-
-  /////////////////////////////////////////////////////////////////////////
-  /// Convenient shortcut methods
-
-  /// Covariance at the origin
   virtual MatrixSquareGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;
-
-  /// Covariance between two points
   virtual VectorDouble eval(int ivar,
                             int jvar,
                             const std::vector<SpacePoint>& vec_p1,

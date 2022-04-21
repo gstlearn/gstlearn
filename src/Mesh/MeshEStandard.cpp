@@ -394,11 +394,11 @@ void MeshEStandard::getDuplicates(int   verbose,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
+** \param[in]  fatal     Error type when point does not belong to Meshing
 ** \param[in]  verbose   Verbosity flag
 **
 *****************************************************************************/
-cs* MeshEStandard::getMeshToDb(const Db *db,
-                               int verbose) const
+cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 {
   double *coor,*container,*weight;
   int     error,imesh,imesh0,ncorner,ip,found,iech,ip_max,ndim,nmeshes;
@@ -479,6 +479,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db,
       messerr("Point %d does not belong to any mesh",jech+1);
       for (int idim=0; idim<ndim; idim++)
         messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
+      if (fatal) goto label_end;
     }
     iech++;
   }

@@ -369,7 +369,6 @@ setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
 
-
 # Add plot functions as methods of the class
 import gstlearn.plot as gp
 
