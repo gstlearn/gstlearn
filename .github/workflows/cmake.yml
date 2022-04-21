@@ -5,8 +5,8 @@ on:
   push:
     branches-ignore:
       - '**'
-  #push:
-  #  branches: [ main ]
+  push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
