@@ -77,16 +77,17 @@ public:
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovAniso*    getCova(unsigned int icov) const;
-  CovAniso*          getCova(unsigned int icov); // TODO : beurk :(
-  const ECov&        getType(unsigned int icov) const;
-  String             getCovName(unsigned int icov) const;
+  const CovAniso*    getCova(int icov) const;
+  CovAniso*          getCova(int icov); // TODO : beurk :(
+  const ECov&        getType(int icov) const;
+  String             getCovName(int icov) const;
   double             getParam(unsigned int icov) const;
   const MatrixSquareSymmetric& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
+  CovAniso           extractCova(int icov) const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

@@ -1444,14 +1444,13 @@ int foxleg_f(int ndat,
  **
  ** \return Error return code
  **
- ** \param[in]  mauto        Option_AutoFit structure
+ ** \param[in]  constraints  Constraints structure
  ** \param[in]  constantSill Constant value for the Sill as a constraint
  **
  *****************************************************************************/
-int opt_mauto_add_constraints(Option_AutoFit &mauto,
-                                              double constantSill)
+int add_sill_constraints(Constraints& constraints, double constantSill)
 {
-  mauto.setConstantSillValue(constantSill);
+  constraints.setConstantSillValue(constantSill);
 
   return (0);
 }
@@ -1462,12 +1461,12 @@ int opt_mauto_add_constraints(Option_AutoFit &mauto,
  **
  ** \return Error return code
  **
- ** \param[in]  mauto       Option_AutoFit structure
+ ** \param[in]  constraints   Constraints structure
  **
  *****************************************************************************/
-int opt_mauto_add_unit_constraints(Option_AutoFit &mauto)
+int add_unit_sill_constraints(Constraints& constraints)
 {
-  mauto.setConstantSillValue(1.);
+  constraints.setConstantSillValue(1.);
   return (0);
 }
 

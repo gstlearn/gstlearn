@@ -229,22 +229,27 @@ bool ACovAnisoList::isStationary() const
   return true;
 }
 
-const CovAniso* ACovAnisoList::getCova(unsigned int icov) const
+CovAniso ACovAnisoList::extractCova(int icov) const
+{
+  return *(_covs[icov]);
+}
+
+const CovAniso* ACovAnisoList::getCova(int icov) const
 {
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
-CovAniso* ACovAnisoList::getCova(unsigned int icov)
+CovAniso* ACovAnisoList::getCova(int icov)
 {
   if (! _isCovarianceIndexValid(icov)) return nullptr;
   return _covs[icov];
 }
-const ECov& ACovAnisoList::getType(unsigned int icov) const
+const ECov& ACovAnisoList::getType(int icov) const
 {
   if (! _isCovarianceIndexValid(icov)) return ECov::UNKNOWN;
   return _covs[icov]->getType();
 }
-String ACovAnisoList::getCovName(unsigned int icov) const
+String ACovAnisoList::getCovName(int icov) const
 {
   if (! _isCovarianceIndexValid(icov)) return String();
   return _covs[icov]->getCovName();

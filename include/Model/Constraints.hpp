@@ -38,9 +38,19 @@ public:
   const ConsItem* getConsItems(int i) const { return _consItems[i]; }
   void modifyConstraintsForSill();
 
+  double getConstantSillValue() const { return _constantSillValue; }
+  const VectorDouble& getConstantSills() const { return _constantSills; }
+  double getConstantSills(int ivar) const { return _constantSills[ivar]; }
+  void setConstantSillValue(double value) { _constantSillValue = value; }
+  void setConstantSills(const VectorDouble& constantSills) { _constantSills = constantSills; }
+  void expandConstantSill(int nvar);
+  bool isConstraintSillDefined() const;
+
   // Pipe to Consitem
   void setValue(int item, double value);
 
 private:
+  double _constantSillValue;       /* Constant Sill as a constraint */
+  VectorDouble _constantSills;     /* Array of constant Sills (expanded to the variables) */
   std::vector<ConsItem *> _consItems;
 };

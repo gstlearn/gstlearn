@@ -719,6 +719,23 @@ VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending)
   return vecout;
 }
 
+VectorInt ut_vector_sort_indices(const VectorDouble& vecin)
+{
+  if (vecin.empty()) return VectorInt();
+
+  VectorInt idx(vecin.size());
+  iota(idx.begin(), idx.end(), 0);
+
+  // sort indexes based on comparing values in v
+  // using std::stable_sort instead of std::sort
+  // to avoid unnecessary index re-orderings
+  // when v contains elements of equal values
+  stable_sort(idx.begin(), idx.end(),
+       [&vecin](size_t i1, size_t i2) {return vecin[i1] < vecin[i2];});
+
+  return idx;
+}
+
 /**
  * Calculate the diagonal of the box extension
  * @param mini Array of lower coordinates of the box

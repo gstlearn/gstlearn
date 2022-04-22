@@ -98,9 +98,9 @@ GSTLEARN_EXPORT int fftn(int ndim,
 /* Prototyping the functions in math.c */
 /***************************************/
 
-GSTLEARN_EXPORT int opt_mauto_add_constraints(Option_AutoFit &mauto,
+GSTLEARN_EXPORT int add_sill_constraints(Constraints& constraints,
                                               double constantSill);
-GSTLEARN_EXPORT int opt_mauto_add_unit_constraints(Option_AutoFit &mauto);
+GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
@@ -979,6 +979,7 @@ GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
                                              double *covtab);
 GSTLEARN_EXPORT int model_fitting_sills(const Vario *vario,
                                         Model *model,
+                                        const Constraints& constraints,
                                         const Option_AutoFit& mauto);
 GSTLEARN_EXPORT int model_nfex(Model *model);
 GSTLEARN_EXPORT int model_update_coreg(Model *model,

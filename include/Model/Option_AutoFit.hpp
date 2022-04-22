@@ -25,7 +25,6 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  double getConstantSillValue() const { return _constantSillValue; }
   double getEpsdelta() const { return _epsdelta; }
   int getFlagIntrinsic() const { return _flag_intrinsic; }
   double getInitdelta() const { return _initdelta; }
@@ -35,10 +34,7 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
   double getTolstop() const { return _tolstop; }
   bool getVerbose() const { return _verbose; }
   int getWmode() const { return _wmode; }
-  const VectorDouble& getConstantSills() const { return _constantSills; }
-  double getConstantSills(int ivar) const { return _constantSills[ivar]; }
 
-  void setConstantSillValue(double value) { _constantSillValue = value; }
   void setEpsdelta(double epsdelta) { _epsdelta = epsdelta; }
   void setFlagIntrinsic(int flagIntrinsic) { _flag_intrinsic = flagIntrinsic; }
   void setInitdelta(double initdelta) { _initdelta = initdelta; }
@@ -59,7 +55,6 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
  * @note The default value for wmode is 2 
  */
   void setWmode(int wmode) { _wmode = wmode; }
-  void setConstantSills(int nvar);
 
  private:
    bool _verbose;                   /* Verbose option */
@@ -71,6 +66,4 @@ class GSTLEARN_EXPORT Option_AutoFit : public AStringable
    double _epsdelta;                /* Tolerance for the search */
    double _tolsigma;                /* Percentage of variance below which a structure is discarded */
    double _initdelta;               /* Initial radius of the trusting area */
-   double _constantSillValue;       /* Constant Sill as a constraint */
-   VectorDouble _constantSills;     /* Array of constant Sills (expanded to the variables) */
 };

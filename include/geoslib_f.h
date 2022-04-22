@@ -154,6 +154,8 @@ GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                     int flag_correl = 0,
                                     const String &title = String(),
                                     const String &radix = String());
+GSTLEARN_EXPORT int db_normal_score(Db *db,
+                                    const NamingConvention& namconv = NamingConvention("Gaussian"));
 
 /***************************/
 /* Functions for Variogram */

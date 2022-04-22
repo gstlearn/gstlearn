@@ -127,6 +127,7 @@ static Regularize REGULARIZE;
 static std::vector<StrExp> STREXPS;
 static StrMod *STRMOD = nullptr;
 static Option_AutoFit MAUTO;
+static Constraints CONSTRAINTS;
 static int *INDG1;
 static int *INDG2;
 static const DbGrid *DBMAP;
@@ -1792,17 +1793,19 @@ static void st_print(const char *name,
  **  Print the resulting parameters of the Model
  **
  ** \param[in]  flag_title  1 if the conditions must be printed
- ** \param[in]  strmod    StrMod structure
- ** \param[in]  mauto     Option_AutoFit structure
- ** \param[in]  param     Current values for parameters
- ** \param[in]  lower     Array of lower values
- ** \param[in]  upper     Array of upper values
- ** \param[in]  npar      Number of parameters to be inferred
- ** \param[in]  nbexp     Number of experiments
+ ** \param[in]  strmod      StrMod structure
+ ** \param[in]  constraints Constraints structure
+ ** \param[in]  mauto       Option_AutoFit structure
+ ** \param[in]  param       Current values for parameters
+ ** \param[in]  lower       Array of lower values
+ ** \param[in]  upper       Array of upper values
+ ** \param[in]  npar        Number of parameters to be inferred
+ ** \param[in]  nbexp      Number of experiments
  **
  *****************************************************************************/
 static void st_model_auto_strmod_print(int flag_title,
                                        StrMod *strmod,
+                                       const Constraints& constraints,
                                        const Option_AutoFit &mauto,
                                        VectorDouble &param,
                                        VectorDouble &lower,
@@ -1837,8 +1840,9 @@ static void st_model_auto_strmod_print(int flag_title,
     message("- Number of experiments     %d  \n", nbexp);
     message("- Number of parameters      %d  \n", npar);
     message("- Constrained Minimization  %s\n",
-            NOK[!FFFF(mauto.getConstantSillValue())]);
-    message("- Intrinsic option          %s\n", NOK[mauto.getFlagIntrinsic()]);
+            NOK[!FFFF(constraints.getConstantSillValue())]);
+    message("- Intrinsic option          %s\n",
+            NOK[mauto.getFlagIntrinsic()]);
     messageFlush(optvar.toString());
   }
 
@@ -3039,6 +3043,7 @@ static int st_makeDefinitePositive(int icov0,
  ** \param[in]  nvs2        Dimension of the triangular matrix (Dimension: nvar)
  ** \param[in]  ncova       Number of basic structures
  ** \param[in]  npadir      Total number of lags
+ ** \param[in]  constraints Constraints structure
  ** \param[in]  mauto       Option_AutoFit structure
  ** \param[in]  wt          Array of weights attached to variogram lags
  ** \param[in]  gg          Array of experimental values
@@ -3052,6 +3057,7 @@ static int st_optimize_under_constraints(int nvar,
                                          int nvs2,
                                          int ncova,
                                          int npadir,
+                                         const Constraints& constraints,
                                          const Option_AutoFit &mauto,
                                          VectorDouble &wt,
                                          VectorDouble &gg,
@@ -3087,11 +3093,11 @@ static int st_optimize_under_constraints(int nvar,
 
   for (ivar = 0; ivar < nvar; ivar++)
   {
-    if (FFFF(mauto.getConstantSills(ivar)))
+    if (FFFF(constraints.getConstantSills(ivar)))
       xr[ivar] = 1.;
     else
       xr[ivar] = sqrt(
-          mauto.getConstantSills(ivar) / st_sum_sills(ivar, ncova, nvar,
+          constraints.getConstantSills(ivar) / st_sum_sills(ivar, ncova, nvar,
                                                       alpha));
   }
 
@@ -3103,13 +3109,13 @@ static int st_optimize_under_constraints(int nvar,
       {
         denom = st_sum_sills(ivar0, ncova, nvar, alpha)-
         ALPHA(icov0,ivar0,ivar0);
-        if (!FFFF(mauto.getConstantSills(ivar0)) && denom < 1e-30) continue;
-        if (!FFFF(mauto.getConstantSills(ivar0)))
+        if (!FFFF(constraints.getConstantSills(ivar0)) && denom < 1e-30) continue;
+        if (!FFFF(constraints.getConstantSills(ivar0)))
         {
-          xrmax = sqrt(mauto.getConstantSills(ivar0) / denom);
+          xrmax = sqrt(constraints.getConstantSills(ivar0) / denom);
           xr[ivar0] = st_minimize_P4(icov0, ivar0, ncova, nvar, npadir, xrmax,
                                      xr, alpha, wt, gg, ge,
-                                     mauto.getConstantSills());
+                                     constraints.getConstantSills());
 
           if (xr[ivar0] == 0)
           {
@@ -3125,9 +3131,9 @@ static int st_optimize_under_constraints(int nvar,
 
           /* Update 'alpha' (diagonal only) */
 
-        if (!FFFF(mauto.getConstantSills(ivar0)))
+        if (!FFFF(constraints.getConstantSills(ivar0)))
           st_updateAlphaDiag(icov0, ivar0, ncova, nvar, xr, alpha,
-                             mauto.getConstantSills());
+                             constraints.getConstantSills());
 
         /* Update 'sills' for the structures other than the current one */
 
@@ -3137,23 +3143,23 @@ static int st_optimize_under_constraints(int nvar,
         /* (except diagonal in the constrained case)        */
 
         st_updateCurrentSillGoulard(icov0, ivar0, npadir, nvar, ncova, wt, ge,
-                                    gg, mauto.getConstantSills(), matcor);
+                                    gg, constraints.getConstantSills(), matcor);
 
         /* Update sill matrix for the current structure (for diagonal) */
 
-        if (!FFFF(mauto.getConstantSills(ivar0)))
+        if (!FFFF(constraints.getConstantSills(ivar0)))
           st_updateCurrentSillDiag(icov0, ivar0, nvar, alpha, xr, matcor);
 
         /* Make sure the current matrix of sills if definite positive */
         /* (diagonal unchanged)                                       */
 
-        (void) st_makeDefinitePositive(icov0, nvar, mauto.getConstantSills(),
+        (void) st_makeDefinitePositive(icov0, nvar, constraints.getConstantSills(),
                                        matcor);
 
         /* Update 'alpha' for the current structure */
 
         for (ivar = 0; ivar < nvar; ivar++)
-          st_updateAlphaNoDiag(icov0, ivar, nvar, xr, mauto.getConstantSills(),
+          st_updateAlphaNoDiag(icov0, ivar, nvar, xr, constraints.getConstantSills(),
                                matcor, alpha);
       }
     }
@@ -3271,8 +3277,8 @@ static int st_initialize_goulard(int nvar,
 
         /* Update (taking into account possible constraints) */
 
-        if (matrix_qoci(ncova,aa.data(),bb.data(),nae,Ae.data(),&be,nai,
-                Ai.data(),bi.data(),res.data()))
+        if (matrix_qoci(ncova,aa.data(),bb.data(),nae,Ae.data(),
+                        &be,nai,Ai.data(),bi.data(),res.data()))
         {
           for (icov=0; icov<ncova; icov++)
           res[icov] = (ivar == jvar);
@@ -3280,14 +3286,14 @@ static int st_initialize_goulard(int nvar,
           {
             temp = consSill[ivar] / ncova;
             for(icov=0; icov<ncova; icov++)
-            res[icov] = temp;
+              res[icov] = temp;
           }
         }
 
         /* Store in the output matrix */
 
         for (icov=0; icov<ncova; icov++)
-        MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar) = res[icov];
+          MATCOR(icov,ivar,jvar) = MATCOR(icov,jvar,ivar) = res[icov];
       }
 
       /* Set the error return code */
@@ -3320,7 +3326,6 @@ static void st_goulard_sill_to_model(int nvar,
       for (int jvar = 0; jvar <= ivar; jvar++, ijvar++)
       {
         model->setSill(icov, ivar, jvar, SILL(icov, ijvar));
-        model->setSill(icov, jvar, ivar, SILL(icov, ijvar));
       }
 }
 
@@ -3330,6 +3335,7 @@ static void st_goulard_sill_to_model(int nvar,
  **
  ** \return  Error returned code
  **
+ ** \param[in]  constraints Constraints structure
  ** \param[in]  mauto       Option_AutoFit structure
  ** \param[in]  nvar        Number of variables
  ** \param[in]  ncova       Number of covariances
@@ -3341,7 +3347,8 @@ static void st_goulard_sill_to_model(int nvar,
  ** \param[out] sill        Array of resulting sills
  **
  *****************************************************************************/
-static int st_goulard_with_constraints(const Option_AutoFit &mauto,
+static int st_goulard_with_constraints(const Constraints& constraints,
+                                       const Option_AutoFit &mauto,
                                        int nvar,
                                        int ncova,
                                        int npadir,
@@ -3364,13 +3371,13 @@ static int st_goulard_with_constraints(const Option_AutoFit &mauto,
   /* Initialize the Goulard system */
 
   st_initialize_goulard(nvar, nvs2, ncova, npadir, wt, gg, ge,
-                        mauto.getConstantSills(), matcor);
+                        constraints.getConstantSills(), matcor);
 
   /* Update according to the eigen values */
 
   flag_positive = 1;
   for (icov = 0; icov < ncova; icov++)
-    if (!st_makeDefinitePositive(icov, nvar, mauto.getConstantSills(), matcor))
+    if (!st_makeDefinitePositive(icov, nvar, constraints.getConstantSills(), matcor))
       flag_positive = 0;
 
   if (!flag_positive)
@@ -3378,8 +3385,8 @@ static int st_goulard_with_constraints(const Option_AutoFit &mauto,
     for (icov = 0; icov < ncova; icov++)
       for (ivar = 0; ivar < nvar; ivar++)
       {
-        if (!FFFF(mauto.getConstantSills(ivar)))
-          MATCOR(icov,ivar,ivar)= mauto.getConstantSills(ivar) / ncova;
+        if (!FFFF(constraints.getConstantSills(ivar)))
+          MATCOR(icov,ivar,ivar)= constraints.getConstantSills(ivar) / ncova;
           else
           MATCOR(icov,ivar,ivar)=1.;
 
@@ -3389,7 +3396,7 @@ static int st_goulard_with_constraints(const Option_AutoFit &mauto,
 
         /* Perform the optimization under constraints */
 
-        iter = st_optimize_under_constraints(nvar,nvs2,ncova,npadir,mauto,
+        iter = st_optimize_under_constraints(nvar,nvs2,ncova,npadir,constraints,mauto,
             wt,gg,ge,matcor,&crit);
 
         /* Optional printout */
@@ -3401,7 +3408,7 @@ static int st_goulard_with_constraints(const Option_AutoFit &mauto,
 
   for (icov = 0; icov < ncova; icov++)
     for (ivar = ijvar = 0; ivar < nvar; ivar++)
-      for (jvar = 0; jvar < nvar; jvar++, ijvar++)
+      for (jvar = 0; jvar <= ivar; jvar++, ijvar++)
         SILL(icov,ijvar)= MATCOR(icov,ivar,jvar);
 
   return (0);
@@ -3543,12 +3550,14 @@ static int st_sill_fitting_int(Model *model,
  ** \param[in]  flag_reset  1 to reset the array of sill before usage
  ** \param[in]  flag_title  1 to print the title
  ** \param[in]  model       Model to be fitted
+ ** \param[in]  constraints Constraints structure
  ** \param[in]  mauto       Option_AutoFit structure
  **
  *****************************************************************************/
 static int st_goulard_fitting(int flag_reset,
                               int flag_title,
                               Model *model,
+                              const Constraints& constraints,
                               const Option_AutoFit& mauto)
 {
   int status;
@@ -3572,7 +3581,7 @@ static int st_goulard_fitting(int flag_reset,
 
     /* No intrinsic hypothesis */
 
-    if (FFFF(mauto.getConstantSillValue()))
+    if (FFFF(constraints.getConstantSillValue()))
     {
       /* Without constraint on the sill */
 
@@ -3587,7 +3596,8 @@ static int st_goulard_fitting(int flag_reset,
 
       /* With constraint on the sill */
 
-      status = st_goulard_with_constraints(mauto, model->getVariableNumber(),
+      status = st_goulard_with_constraints(constraints, mauto,
+                                           model->getVariableNumber(),
                                            model->getCovaNumber(),
                                            RECINT.npadir, RECINT.wt, RECINT.gg,
                                            RECINT.ge, RECINT.sill);
@@ -3654,6 +3664,7 @@ static int st_model_has_intrinsic(Model *model, int *filter)
  ** \param[in]  param       Current values for parameters
  ** \param[in]  lower       Lower values for parameters
  ** \param[in]  upper       Upper values for parameters
+ ** \param[in]  constraints Constraints structure
  ** \param[in]  mauto       Option_AutoFit structure
  **
  *****************************************************************************/
@@ -3664,6 +3675,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
                                        VectorDouble &param,
                                        VectorDouble &lower,
                                        VectorDouble &upper,
+                                       Constraints& constraints,
                                        Option_AutoFit &mauto)
 {
   int ntot, nparloc, icov, jcov, ncova, ivar, jvar, jmod, kcov, ncovleft;
@@ -3692,7 +3704,7 @@ static int st_model_auto_strmod_reduce(StrMod *strmod,
   if (optvar.getFlagGoulardUsed()) for (imod = 0; imod < strmod->nmodel; imod++)
   {
     ST_PREPAR_GOULARD(imod);
-    (void) st_goulard_fitting(1, 1, STRMOD->models[imod], mauto);
+    (void) st_goulard_fitting(1, 1, STRMOD->models[imod], constraints, mauto);
   }
   st_goulard_verbose(1, mauto);
 
@@ -4238,7 +4250,7 @@ static void st_strmod_vario_evaluate(int nbexp,
     for (imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], MAUTO);
+      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4330,7 +4342,7 @@ static void st_strmod_vmap_evaluate(int /*nbexp*/,
     for (imod = 0; imod < STRMOD->nmodel; imod++)
     {
       ST_PREPAR_GOULARD(imod);
-      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], MAUTO);
+      (void) st_goulard_fitting(1, 0, STRMOD->models[imod], CONSTRAINTS, MAUTO);
     }
   st_goulard_verbose(1, MAUTO);
 
@@ -4628,15 +4640,16 @@ int model_auto_fit(const Vario *vario,
     messerr("Procedure is designed only for symmetric covariance");
     return (1);
   }
-  if (!FFFF(mauto.getConstantSillValue()))
+  if (constraints.isConstraintSillDefined())
   {
     if (!optvar.getFlagGoulardUsed())
-    {
-      messerr("When Constraints on the sum of Sills are defined");
-      messerr("The Goulard option must be switched ON");
-      return (1);
-    }
-    mauto.setConstantSills(nvar);
+     {
+       messerr("When Constraints on the sum of Sills are defined");
+       messerr("The Goulard option must be switched ON");
+       return (1);
+     }
+    if (!FFFF(constraints.getConstantSillValue()))
+     constraints.expandConstantSill(nvar);
   }
 
   // Define regularizing constraints (temporarily) using "keypair" mechanism
@@ -4716,11 +4729,12 @@ int model_auto_fit(const Vario *vario,
   STREXPS = strexps;
   STRMOD = strmod;
   MAUTO = mauto;
+  CONSTRAINTS = constraints;
   ST_PREPAR_GOULARD = st_prepar_goulard_vario;
   do
   {
-    st_model_auto_strmod_print(1, strmod, mauto, param, lower, upper, npar,
-                               nbexp);
+    st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
     if (npar > 0)
     {
       status = foxleg_f(nbexp, npar, 0, VectorDouble(), param, lower, upper,
@@ -4729,14 +4743,14 @@ int model_auto_fit(const Vario *vario,
     }
     else
     {
-      status = st_goulard_fitting(1, 1, model, mauto);
+      status = st_goulard_fitting(1, 1, model, constraints, mauto);
     }
     if (status > 0) goto label_end;
 
-    st_model_auto_strmod_print(0, strmod, mauto, param, lower, upper, npar,
-                               nbexp);
+    st_model_auto_strmod_print(0, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
     flag_reduce = st_model_auto_strmod_reduce(strmod, &npar, hmax, gmax, param,
-                                              lower, upper, mauto);
+                                              lower, upper, constraints, mauto);
 
     /* Reset the parameters to their default values */
 
@@ -4787,12 +4801,16 @@ int model_auto_fit(const Vario *vario,
  **
  ** \return  Error return code
  **
- ** \param[in]     vario     Vario structure
- ** \param[in,out] model     Model to be fitted
- ** \param[in]     mauto     Option_AutoFit structure
+ ** \param[in]     vario       Vario structure
+ ** \param[in,out] model       Model to be fitted
+ ** \param[in]     constraints Constraints structure
+ ** \param[in]     mauto       Option_AutoFit structure
  **
  *****************************************************************************/
-int model_fitting_sills(const Vario *vario, Model *model, const Option_AutoFit &mauto)
+int model_fitting_sills(const Vario *vario,
+                        Model *model,
+                        const Constraints& constraints,
+                        const Option_AutoFit& mauto)
 {
   int nvar, ncova, ndir, nbexp, npadir, ndim;
   std::vector<StrExp> strexps;
@@ -4838,7 +4856,7 @@ int model_fitting_sills(const Vario *vario, Model *model, const Option_AutoFit &
 
   /* Automatic Sill Fitting procedure */
 
-  if (st_goulard_fitting(1, 1, model, mauto)) return 1;
+  if (st_goulard_fitting(1, 1, model, constraints, mauto)) return 1;
 
   /* Store the sills in the keypair mechanism */
 
@@ -5100,15 +5118,16 @@ int vmap_auto_fit(const DbGrid *dbmap,
             model->getVariableNumber(), dbmap->getVariableNumber());
     goto label_end;
   }
-  if (!FFFF(mauto.getConstantSillValue()))
+  if (constraints.isConstraintSillDefined())
   {
     if (!optvar.getFlagGoulardUsed())
-    {
-      messerr("When Constraints on the sum of Sills are defined");
-      messerr("The Goulard option must be switched ON");
-      goto label_end;
-    }
-    mauto.setConstantSills(nvar);
+     {
+       messerr("When Constraints on the sum of Sills are defined");
+       messerr("The Goulard option must be switched ON");
+       goto label_end;
+     }
+    if (!FFFF(constraints.getConstantSillValue()))
+     constraints.expandConstantSill(nvar);
   }
   if (st_get_vmap_dimension(dbmap, nvar, &npadir, &nbexp)) goto label_end;
   angles.resize(ndim);
@@ -5170,21 +5189,21 @@ int vmap_auto_fit(const DbGrid *dbmap,
 
   STRMOD = strmod;
   MAUTO = mauto;
+  CONSTRAINTS = constraints;
   ST_PREPAR_GOULARD = st_prepar_goulard_vmap;
   do
   {
-    st_model_auto_strmod_print(1, strmod, mauto, param, lower, upper, npar,
-                               nbexp);
-
+    st_model_auto_strmod_print(1, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
     status = foxleg_f(nbexp, npar, 0, VectorDouble(), param, lower, upper,
                       scale, mauto, 0, st_strmod_vmap_evaluate, RECINT.gg,
                       RECINT.wt);
     if (status > 0) goto label_end;
 
-    st_model_auto_strmod_print(0, strmod, mauto, param, lower, upper, npar,
-                               nbexp);
+    st_model_auto_strmod_print(0, strmod, constraints, mauto, param, lower,
+                               upper, npar, nbexp);
     flag_reduce = st_model_auto_strmod_reduce(strmod, &npar, hmax, gmax, param,
-                                              lower, upper, mauto);
+                                              lower, upper, constraints, mauto);
 
     /* Reset the parameters to their default values */
 

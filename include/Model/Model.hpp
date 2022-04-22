@@ -27,6 +27,7 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/CovParamId.hpp"
+#include "Covariances/CovAniso.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -39,7 +40,6 @@ class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
-class CovAniso;
 class ANoStat;
 class ADriftElem;
 
@@ -96,6 +96,7 @@ public:
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
+  CovAniso extractCova(int icov) const { return _covaList->extractCova(icov); }
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)

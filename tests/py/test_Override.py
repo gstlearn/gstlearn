@@ -248,7 +248,6 @@ u = np.sum(np.abs(a["var1"][:,0] - np.array([-1.0856306 ,  0.99734545,  0.282978
 if u>1e-7:
     raise Exception("Problem in simple get or add new variable")
 
-
 # ## Get a variable
 
 # ## Replace an existing variable
