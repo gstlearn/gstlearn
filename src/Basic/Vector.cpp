@@ -724,7 +724,7 @@ VectorInt ut_vector_sort_indices(const VectorDouble& vecin)
   if (vecin.empty()) return VectorInt();
 
   VectorInt idx(vecin.size());
-  std::iota(idx.begin(), idx.end(), 0);
+  for (int i = 0; i < (int) vecin.size(); i++) idx[i] = i;
 
   // sort indexes based on comparing values in v
   // using std::stable_sort instead of std::sort
