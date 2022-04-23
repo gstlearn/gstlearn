@@ -28,7 +28,29 @@ public:
   AMesh& operator= (const AMesh &m);
 	virtual ~AMesh();
 
+	/// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /*! Returns the number of apex per mesh */
+  virtual int getNApexPerMesh() const { return _nDim + 1; }
+  /*! Returns the number of apices */
+  virtual int getNApices() const = 0;
+  /*! Returns the number of meshes */
+  virtual int getNMeshes() const = 0;
+  /*! Returns the rank of apex 'rank' for mesh 'imesh' */
+  virtual int getApex(int imesh, int rank) const = 0;
+  /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
+  virtual double getCoor(int imesh, int rank, int idim) const = 0;
+  /*! Returns coordinate 'idim' of apex 'i' */
+  virtual double getApexCoor(int i, int idim) const = 0;
+  /*! Returns the mesh size */
+  virtual double getMeshSize(int imesh) const = 0;
+  /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
+  virtual cs* getMeshToDb(const Db *db,
+                          bool fatal = false,
+                          bool verbose = false) const = 0;
+  /*! Interpolates an array from Mesh to Db */
+  virtual double* interpolateMeshToDb(Db *db, double* mtab) const = 0;
 
   /*! Returns the space variety */
   int getVariety() const { return _variety; }
@@ -53,27 +75,8 @@ public:
   int  isCompatibleDb(const Db *db) const;
   VectorDouble getMeshSizes() const;
 
-  /*! Returns the number of apex per mesh */
-  virtual int getNApexPerMesh() const { return _nDim + 1; }
-  /*! Returns the number of apices */
-  virtual int getNApices() const = 0;
-  /*! Returns the number of meshes */
-  virtual int getNMeshes() const = 0;
-  /*! Returns the rank of apex 'rank' for mesh 'imesh' */
-  virtual int getApex(int imesh, int rank) const = 0;
-  /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
-  virtual double getCoor(int imesh, int rank, int idim) const = 0;
-  /*! Returns coordinate 'idim' of apex 'i' */
-  virtual double getApexCoor(int i, int idim) const = 0;
-  /*! Returns the mesh size */
-  virtual double getMeshSize(int imesh) const = 0;
-  /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
-  virtual cs* getMeshToDb(const Db *db, int verbose = 0) const = 0;
-  /*! Interpolates an array from Mesh to Db */
-  virtual double* interpolateMeshToDb(Db *db, double* mtab) const = 0;
   /*! Print the list of meshes and apices */
   void printMeshes(int imesh) const;
-
   /*! Convert from New Mesh into Old Mesh */
   SPDE_Mesh* _convertToOldMesh(AMesh* a_mesh) const;
   /*! Returns Vector of Apex coordinates for space index */

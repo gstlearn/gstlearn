@@ -2225,7 +2225,6 @@ int test_neigh(Db *dbin,
  **
  ** \return  Error return code
  **
- ** \param[in]  strloc     Message used for process
  ** \param[in]  dbin       input Db structure
  ** \param[in]  dbout      output Db structure
  ** \param[in]  model      Model structure
@@ -2237,21 +2236,20 @@ int test_neigh(Db *dbin,
  ** \param[in]  icase      Case for PGS and GRF (or -1)
  ** \param[in]  nbsimu     Number of simulations
  ** \param[in]  flag_dgm   1 if the DGM version of kriging should be used
- ** \param[in]  rval       Change of support coefficient
+ ** \param[in]  r_coeff    Change of support coefficient
  **
  *****************************************************************************/
-int _krigsim(const char *strloc,
-             Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
+int _krigsim(Db* dbin,
+             Db* dbout,
+             const Model* model,
+             ANeighParam* neighparam,
              int flag_bayes,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
              int icase,
              int nbsimu,
-             int flag_dgm,
-             double rval)
+             bool flag_dgm,
+             double r_coeff)
 {
   // Preliminary checks
 
@@ -2272,7 +2270,7 @@ int _krigsim(const char *strloc,
 
   // Building a local Hermite anamorphosis (only 1 Polynomial and Change of Support coefficient)
 
-  AnamHermite anam = AnamHermite(1, true, rval);
+  AnamHermite anam = AnamHermite(1, true, r_coeff);
 
   /* Setting options */
 
@@ -2287,7 +2285,7 @@ int _krigsim(const char *strloc,
 
   for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
   {
-    mes_process(strloc, dbout->getSampleNumber(), iech_out);
+    mes_process("Conditional Simulation", dbout->getSampleNumber(), iech_out);
     if (ksys.estimate(iech_out)) return 1;
   }
 

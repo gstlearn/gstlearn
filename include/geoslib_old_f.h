@@ -98,9 +98,9 @@ GSTLEARN_EXPORT int fftn(int ndim,
 /* Prototyping the functions in math.c */
 /***************************************/
 
-GSTLEARN_EXPORT int opt_mauto_add_constraints(Option_AutoFit &mauto,
+GSTLEARN_EXPORT int add_sill_constraints(Constraints& constraints,
                                               double constantSill);
-GSTLEARN_EXPORT int opt_mauto_add_unit_constraints(Option_AutoFit &mauto);
+GSTLEARN_EXPORT int add_unit_sill_constraints(Constraints& constraints);
 GSTLEARN_EXPORT int foxleg_f(int ndat,
                              int npar,
                              int ncont,
@@ -211,7 +211,6 @@ GSTLEARN_EXPORT int ut_angles_from_rotation_matrix(const double *rot,
                                                    int ndim,
                                                    double *angles);
 GSTLEARN_EXPORT void ut_angles_from_codir(int ndim,
-                                          int ndir,
                                           const VectorDouble &codir,
                                           VectorDouble &angles);
 GSTLEARN_EXPORT void ut_angles_to_codir(int ndim,
@@ -980,6 +979,7 @@ GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
                                              double *covtab);
 GSTLEARN_EXPORT int model_fitting_sills(const Vario *vario,
                                         Model *model,
+                                        const Constraints& constraints,
                                         const Option_AutoFit& mauto);
 GSTLEARN_EXPORT int model_nfex(Model *model);
 GSTLEARN_EXPORT int model_update_coreg(Model *model,
@@ -1859,14 +1859,6 @@ GSTLEARN_EXPORT int simmaxstable(Db *dbout,
                                  int flag_simu,
                                  int flag_rank,
                                  int verbose);
-GSTLEARN_EXPORT int simtub_potential(Db *dbiso,
-                                     Db *dbgrd,
-                                     Db *dbtgt,
-                                     Db *dbout,
-                                     Model *model,
-                                     int nbsimu,
-                                     int nbtuba,
-                                     double delta);
 GSTLEARN_EXPORT int simRI(Db *dbout,
                           Model *model,
                           int ncut,

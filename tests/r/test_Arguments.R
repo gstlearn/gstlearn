@@ -15,6 +15,7 @@ argumentTestDouble(2.3)
 argumentTestVectorInt(c(1,2,3))
 argumentTestVectorDouble(c(1.1, 2.2, 3.3))
 argumentTestString("my_String")
+argumentTestVectorString("my_String")
 argumentTestVectorString(c("my_String1","my_String2","my_String3"))
 argumentTestVectorVectorInt(c( c(2,3),c(1, 5 ) ))
 

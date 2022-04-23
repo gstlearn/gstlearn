@@ -108,10 +108,11 @@ void DriftList::delDrift(unsigned int i)
 
 void DriftList::delAllDrifts()
 {
-  for (auto e: _drifts)
-  {
-    delete e;
-  }
+  if (! _drifts.empty())
+    for (auto e: _drifts)
+    {
+      delete e;
+    }
   _drifts.clear();
   _filtered.clear();
   _coefDrift.clear();

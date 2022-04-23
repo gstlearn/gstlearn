@@ -16,6 +16,7 @@
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Model/Model.hpp"
+#include "Model/Constraints.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -127,16 +128,17 @@ int main(int /*argc*/, char */*argv*/[])
   Model modelPGS1(ctxt);
   Model modelPGS2(ctxt);
   Option_AutoFit option = Option_AutoFit();
-  option.setConstantSillValue(1.);
+  Constraints constraints = Constraints();
+  constraints.setConstantSillValue(1.);
 
   std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  modelPGS1.fit(&vario1,covs,true,option);
+  modelPGS1.fit(&vario1,covs,true,option,constraints);
   modelPGS1.display();
 
   (void) vario1.dumpToNF("variopgs1.ascii");
   (void) modelPGS1.dumpToNF("modelfitpgs1.ascii");
 
-  modelPGS2.fit(&vario2,covs,true,option);
+  modelPGS2.fit(&vario2,covs,true,option,constraints);
   modelPGS2.display();
 
   (void) vario2.dumpToNF("variopgs2.ascii");

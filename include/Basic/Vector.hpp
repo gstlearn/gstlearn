@@ -86,7 +86,8 @@ GSTLEARN_EXPORT void ut_vector_divide_vec(VectorDouble& vec,
 GSTLEARN_EXPORT int ut_vector_count_undefined(const VectorDouble& vec);
 
 GSTLEARN_EXPORT VectorInt ut_vector_sample(int ntotal,
-                                           double proportion,
+                                           double proportion = 0.,
+                                           int number = 0,
                                            int seed = 242141);
 
 GSTLEARN_EXPORT VectorDouble ut_vector_simulate_uniform(int n,
@@ -114,6 +115,8 @@ GSTLEARN_EXPORT int ut_vector_size(const VectorVectorDouble& vec);
 
 GSTLEARN_EXPORT VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending = true);
 GSTLEARN_EXPORT VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending = true);
+GSTLEARN_EXPORT VectorInt ut_vector_sort_indices(const VectorDouble& vecin);
 
 GSTLEARN_EXPORT double ut_vector_extension_diagonal(const VectorDouble& mini,
                                                     const VectorDouble& maxi);
+GSTLEARN_EXPORT VectorDouble ut_vector_angle_from_codir(const VectorDouble& codir);

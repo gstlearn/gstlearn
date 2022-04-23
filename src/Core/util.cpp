@@ -1503,23 +1503,21 @@ int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
  **  Calculates the rotation angle from the direction coefficient
  **
  ** \param[in]  ndim   Space dimension
- ** \param[in]  ndir   Number of directions
- ** \param[in]  codir  Direction vector (Dimension = ndim * ndir)
+ ** \param[in]  codir  Direction vector (Dimension = ndim)
  **
- ** \param[out]  angles Rotation angles (Dimension = ndim * ndir)
+ ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
 void ut_angles_from_codir(int ndim,
-                                          int ndir,
-                                          const VectorDouble &codir,
-                                          VectorDouble &angles)
+                          const VectorDouble &codir,
+                          VectorDouble &angles)
 {
   double norme;
   int i, nval;
 
   /* Initializations */
 
-  for (i = 0; i < ndim * ndir; i++)
+  for (i = 0; i < ndim; i++)
     angles[i] = 0.;
 
   /* Dispatch */
@@ -3612,10 +3610,7 @@ int get_mirror_sample(int nx, int ix)
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-void ut_rotation_direction(double ct,
-                                           double st,
-                                           double *a,
-                                           double *codir)
+void ut_rotation_direction(double ct, double st, double *a, double *codir)
 {
   double rd, b[3], c[3], p[3];
 

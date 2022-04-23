@@ -16,12 +16,16 @@
 
 Constraints::Constraints()
     : AStringable(),
+      _constantSillValue(TEST),
+      _constantSills(),
       _consItems()
 {
 }
 
 Constraints::Constraints(const Constraints &m)
     : AStringable(m),
+      _constantSillValue(m._constantSillValue),
+      _constantSills(m._constantSills),
       _consItems()
 {
   for (auto e: m._consItems)
@@ -35,6 +39,8 @@ Constraints& Constraints::operator=(const Constraints &m)
   if (this != &m)
   {
     AStringable::operator=(m);
+    _constantSillValue = m._constantSillValue;
+    _constantSills = m._constantSills;
     for (auto e: m._consItems)
     {
       _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));
@@ -67,6 +73,10 @@ String Constraints::toString(const AStringFormat* strfmt) const
     sstr << "Constraint #" << i + 1 << std::endl;
     sstr << _consItems[i]->toString(strfmt);
   }
+
+  if (! FFFF(getConstantSillValue()))
+    sstr << "- Constraints on the sills          " << getConstantSillValue() << std::endl;
+
   return sstr.str();
 }
 
@@ -93,4 +103,16 @@ void Constraints::modifyConstraintsForSill()
 void Constraints::setValue(int item, double value)
 {
   _consItems[item]->setValue(value);
+}
+
+void Constraints::expandConstantSill(int nvar)
+{
+  _constantSills.resize(nvar,_constantSillValue);
+}
+
+bool Constraints::isConstraintSillDefined() const
+{
+  if (! FFFF(_constantSillValue)) return true;
+  if (! _constantSills.empty()) return true;
+  return false;
 }

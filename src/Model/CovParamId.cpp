@@ -84,42 +84,52 @@ int CovParamId::init(int igrf,
 String CovParamId::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+  bool flag_V2 = true;
 
   switch (_elemType.toEnum())
   {
     case EConsElem::E_RANGE:
+      flag_V2 = false;
       sstr << "Range     ";
       break;
 
     case EConsElem::E_ANGLE:
+      flag_V2 = false;
       sstr << "Angle     ";
       break;
 
     case EConsElem::E_PARAM:
+      flag_V2 = false;
       sstr << "Param     ";
       break;
 
     case EConsElem::E_SILL:
+      flag_V2 = true;
       sstr << "Sill      ";
       break;
 
     case EConsElem::E_SCALE:
+      flag_V2 = false;
       sstr << "Scale     ";
       break;
 
     case EConsElem::E_T_RANGE:
+      flag_V2 = false;
       sstr << "Tapering  ";
       break;
 
     case EConsElem::E_VELOCITY:
+      flag_V2 = true;  // TODO: to be validated
       sstr << "Velocity  ";
       break;
 
     case EConsElem::E_SPHEROT:
+      flag_V2 = true;  // TODO: to be validated
       sstr << "S-Rotation";
       break;
 
     case EConsElem::E_TENSOR:
+      flag_V2 = true;
       sstr << "Anis-Matrix";
       break;
 
@@ -130,7 +140,7 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
   sstr << " GRF=" << _igrf + 1;
   sstr << " Str=" << _icov + 1;
   sstr << " V#1=" << _iv1  + 1;
-  sstr << " V#2=" << _iv2  + 1;
+  if (flag_V2) sstr << " V#2=" << _iv2  + 1;
   sstr << std::endl;
 
   return sstr.str();

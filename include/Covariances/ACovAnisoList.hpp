@@ -36,19 +36,13 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
-  /*! Clonable interface */
+  /// Interface for IClonable
   virtual IClonable* clone() const override = 0;
 
-  // Add an elementary covariance structure
-  virtual void addCov(const CovAniso* cov);
-
-  ///////////////////////////////////////////////////
-  /// ASpaceObject Interface
+  /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
-  /// ACov Interface
+  /// Interface for ACov
   virtual int    getNVariables() const override;
   virtual double eval0(int ivar,
                        int jvar,
@@ -58,11 +52,12 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
-  //////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
-  /// AStringable Interface
+  /// Interface for AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// ACovAnisoList Interface
+  virtual void addCov(const CovAniso* cov);
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure
@@ -82,16 +77,17 @@ public:
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
-  const CovAniso*    getCova(unsigned int icov) const;
-  CovAniso*          getCova(unsigned int icov); // TODO : beurk :(
-  const ECov&        getType(unsigned int icov) const;
-  String             getCovName(unsigned int icov) const;
+  const CovAniso*    getCova(int icov) const;
+  CovAniso*          getCova(int icov); // TODO : beurk :(
+  const ECov&        getType(int icov) const;
+  String             getCovName(int icov) const;
   double             getParam(unsigned int icov) const;
   const MatrixSquareSymmetric& getSill(unsigned int icov) const;
   double             getSill(unsigned int icov, int ivar, int jvar) const;
   int                getGradParamNumber(unsigned int icov) const;
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
+  CovAniso           extractCova(int icov) const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

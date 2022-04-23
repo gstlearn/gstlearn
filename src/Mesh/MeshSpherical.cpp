@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Mesh/MeshSpherical.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "csparse_f.h"
@@ -262,11 +263,11 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
+** \param[in]  fatal     Error type when point does not belong to Meshing
 ** \param[in]  verbose   Verbosity flag
 **
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(const Db  *db,
-                               int /*verbose*/) const
+cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 {
   double *coor,*weight;
   int     error,imesh,imesh0,ncorner,ip,found;
@@ -339,6 +340,7 @@ cs* MeshSpherical::getMeshToDb(const Db  *db,
       messerr("Point %d does not belong to any mesh",iech+1);
       for (int idim=0; idim<ndim; idim++)
         messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
+      if (fatal) goto label_end;
     }
   }
   

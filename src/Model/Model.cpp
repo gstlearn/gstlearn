@@ -204,7 +204,10 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
 
   // Non-stationary parameters
 
-  if (isNoStat()) sstr << _noStat->toString();
+  if (isNoStat())
+  {
+    sstr << _noStat->toString();
+  }
 
   return sstr.str();
 }
@@ -331,6 +334,8 @@ void Model::setDriftList(const DriftList* driftlist)
  */
 void Model::setDriftIRF(int order, int nfex)
 {
+  if (_driftList == nullptr)
+    _driftList = new DriftList();
   _driftList->setDriftIRF(order, nfex, _ctxt);
 }
 

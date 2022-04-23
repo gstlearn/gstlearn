@@ -42,6 +42,32 @@ public:
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
 
+  static DirParam* create(int ndim = 2,
+                          int npas = 0,
+                          double dpas = 0.,
+                          double toldis = 0.5,
+                          double tolang = 90.,
+                          int opt_code = 0,
+                          int idate = 0,
+                          double bench = TEST,
+                          double cylrad = TEST,
+                          double tolcode = 0.,
+                          VectorDouble breaks = VectorDouble(),
+                          VectorDouble codir = VectorDouble());
+  static DirParam* createOmniDirection(int ndim = 2,
+                                       int npas = 0,
+                                       double dpas = 0.,
+                                       double toldis = 0.5,
+                                       int opt_code = 0,
+                                       int idate = 0,
+                                       double bench = TEST,
+                                       double cylrad = TEST,
+                                       double tolcode = 0.,
+                                       VectorDouble breaks = VectorDouble());
+  static DirParam* createFromGrid(int ndim = 2,
+                                  int npas = 0,
+                                  VectorInt grincr = VectorInt());
+
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

@@ -39,34 +39,6 @@ public:
   double *dsize;
 };
 
-// TODO: Transform to a class and prevent calling malloc and memfree
-typedef struct
-{
-  double tmin; /* Minimum abscissa along line */
-  double tmax; /* Maximum abscissa along line */
-  double scale; /* Scaling factor */
-  double t00; /* Origin along the line */
-  double dxp; /* Increment along X */
-  double dyp; /* Increment along Y */
-  double dzp; /* Increment along Z */
-  double ang[3]; /* Angles for the line orientation */
-} Direction;
-
-typedef struct
-{
-  int nbands; /* Total number of bands */
-  int nbtuba; /* Number of turning bands */
-  int nbsimu; /* Number of simulations */
-  int max_alloc; /* Maximum allocated core space */
-  int nb_points_simu; /* Total number of target (point + grid) */
-  double theta; /* Poisson intensity along the line */
-  double field; /* Field extension */
-  int *seeds; /* Array for seeds */
-  int *senug; /* Array for seeds (nugget effect) */
-  Direction **codir; /* Direction sub-structures */
-} Situba;
-
-
 typedef struct
 {
   int law; /* Type of law */

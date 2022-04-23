@@ -78,7 +78,8 @@ public:
                    int flag_add_rank = 1);
   int resetFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
   int resetSamplingDb(const Db* dbin,
-                      double proportion,
+                      double proportion = 0,
+                      int number = 0,
                       const VectorString& names = VectorString(),
                       int seed = 23241,
                       bool verbose = false);
@@ -107,7 +108,8 @@ public:
                            int flag_add_rank = 1);
   static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
   static Db* createSamplingDb(const Db* dbin,
-                              double proportion,
+                              double proportion = 0,
+                              int number = 0,
                               const VectorString& names = VectorString(),
                               int seed = 23241,
                               bool verbose = false);
@@ -465,6 +467,7 @@ public:
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
+  double getExtensionDiagonal(bool useSel = false) const;
 
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;

@@ -141,6 +141,9 @@ void exit_f(void)
 %extend PCA {
   std::string __repr__() {  return $self->toString();  }
 };
+%extend AMatrix {
+  std::string __repr__() {  return $self->toString();  }
+};
 
 %pythoncode %{
 # Override operator [] for the Db class
@@ -365,7 +368,6 @@ setattr(gl.Db,"useSel",False)
 setattr(gl.Db,"__getitem__",getitem)
 
 setattr(gl.Db,"__setitem__",setitem)
-
 
 # Add plot functions as methods of the class
 import gstlearn.plot as gp

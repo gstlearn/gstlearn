@@ -1,0 +1,151 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 2500
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :         50        50
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -158.624
+ Maximum value       =    131.935
+ Mean value          =      0.678
+ Standard Deviation  =     50.083
+ Variance            =   2508.331
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -112.354
+ Maximum value       =    106.924
+ Mean value          =     -7.383
+ Standard Deviation  =     44.553
+ Variance            =   1984.932
+4 - Name Var - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =     -2.429
+ Maximum value       =      2.484
+ Mean value          =     -0.168
+ Standard Deviation  =      1.073
+ Variance            =      1.152
+Wrong dimension = 0 when creating SpaceRN (ndim set to 2)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      1.000
+- Range        =     10.000
+Total Sill     =      1.000
+
+Neighborhood characteristics
+============================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 25
+
+Neighborhood characteristics
+============================
+Space dimension = 2
+
+<----- Simulation (Moving Neighborhood) ----->
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Simu.Var.1 - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -2.891
+ Maximum value       =      3.388
+ Mean value          =      0.237
+ Standard Deviation  =      0.992
+ Variance            =      0.985
+5 - Name Simu.Var.2 - Locator z2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.132
+ Maximum value       =      3.358
+ Mean value          =     -0.060
+ Standard Deviation  =      1.078
+ Variance            =      1.161
+6 - Name Simu.Var.3 - Locator z3
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.910
+ Maximum value       =      2.819
+ Mean value          =     -0.135
+ Standard Deviation  =      1.021
+ Variance            =      1.042
+
+<----- Simulation (Unique Neighborhood) ----->
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+4 - Name Simu.Var.1 - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -2.891
+ Maximum value       =      3.388
+ Mean value          =      0.237
+ Standard Deviation  =      0.992
+ Variance            =      0.985
+5 - Name Simu.Var.2 - Locator z2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.132
+ Maximum value       =      3.358
+ Mean value          =     -0.060
+ Standard Deviation  =      1.078
+ Variance            =      1.161
+6 - Name Simu.Var.3 - Locator z3
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -3.910
+ Maximum value       =      2.819
+ Mean value          =     -0.135
+ Standard Deviation  =      1.021
+ Variance            =      1.042

@@ -23,6 +23,7 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include "Simulation/TurningBands.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3275,6 +3276,7 @@ int potential_simulate(Db *dbiso,
       refpot;
   Pot_Env pot_env;
   Pot_Ext pot_ext;
+  TurningBands situba_new;
   static int nring = 1;
 
   // Initialization
@@ -3381,8 +3383,9 @@ int potential_simulate(Db *dbiso,
 
   /* Processing the non-conditional simulation over the iso-values */
 
-  if (simtub_potential(dbiso, dbgrd, dbtgt, dbout, model, nbsimu, nbtuba,
-                       delta)) goto label_end;
+  situba_new = TurningBands(nbsimu, nbtuba, model, seed);
+  if (situba_new.simulatePotential(dbiso, dbgrd, dbtgt, dbout, delta))
+    goto label_end;
 
   // Core allocation
 

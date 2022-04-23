@@ -37,7 +37,7 @@ public:
                            double /*cov0*/,
                            double /*cov1*/,
                            double /*cov2*/) const { return TEST;}
-  virtual int getNFactor() const { return 0; }
+  virtual int    getNFactor() const { return 0; }
   virtual bool   isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
   virtual double getBlockVariance(double /*sval*/, double /*power*/ = 1) const;

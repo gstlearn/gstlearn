@@ -29,17 +29,22 @@ public:
   MeshEStandard& operator=(const MeshEStandard &m);
   virtual ~MeshEStandard();
 
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int    getNApices() const override;
-  int    getNMeshes() const override;
-  int    getApex(int imesh, int rank) const override;
-  double getCoor(int imesh, int rank, int idim) const override;
-  double getApexCoor(int i, int idim) const override;
-  double getMeshSize(int imesh) const override;
+  /// Interface for AMesh
+  int     getNApices() const override;
+  int     getNMeshes() const override;
+  int     getApex(int imesh, int rank) const override;
+  double  getCoor(int imesh, int rank, int idim) const override;
+  double  getApexCoor(int i, int idim) const override;
+  double  getMeshSize(int imesh) const override;
+  cs* getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
+      override;
+  double* interpolateMeshToDb(Db *db, double* mtab) const override;
+
   VectorInt    getMeshList() const { return _meshes; }
   VectorDouble getPointList(bool byCol = true) const;
-
   void   getDuplicates(int verbose,
                        Db *dbin,
                        Db *dbout,
@@ -59,10 +64,7 @@ public:
                     const VectorInt& meshes,
                     bool verbose = false);
   int        resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
-  cs*        getMeshToDb(const Db *db, int verbose = 0) const override;
-  double*    interpolateMeshToDb(Db *db, double* mtab) const override;
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
-
 
 private:
   int _create1D(int ndim_ref,

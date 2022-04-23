@@ -52,7 +52,7 @@ AGibbs::AGibbs(Db* db)
 }
 
 AGibbs::AGibbs(Db* db,
-               int npgs, int nvar, int nburn, int niter,
+               int npgs, int nvar, int nburn, int niter, int seed,
                int flag_order, bool flag_decay)
     : AStringable(),
       _npgs(1),
@@ -66,7 +66,7 @@ AGibbs::AGibbs(Db* db,
       _db(db),
       _stats()
 {
-  init(npgs, nvar, nburn, niter, flag_order, flag_decay);
+  init(npgs, nvar, nburn, niter, seed, flag_order, flag_decay);
 }
 
 AGibbs::AGibbs(const AGibbs &r)
@@ -111,6 +111,7 @@ void AGibbs::init(int npgs,
                   int nvar,
                   int nburn,
                   int niter,
+                  int seed,
                   int flag_order,
                   bool flag_decay)
 {
@@ -123,6 +124,9 @@ void AGibbs::init(int npgs,
 
   // Evaluate the array of active sample ranks
   _ranks = calculateSampleRanks();
+
+  // Initialize the series of Random Numbers
+  law_set_random_seed(seed);
 }
 
 /****************************************************************************/

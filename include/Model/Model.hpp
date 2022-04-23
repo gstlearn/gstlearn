@@ -27,6 +27,7 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/CovParamId.hpp"
+#include "Covariances/CovAniso.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -39,7 +40,6 @@ class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
 class Vario;
-class CovAniso;
 class ANoStat;
 class ADriftElem;
 
@@ -53,7 +53,10 @@ public:
   virtual ~Model();
 
 public:
+  /// Interface to AStringeable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface to IClonable
   virtual IClonable* clone() const override { return new Model(*this); }
 
   int resetFromDb(const Db* db);
@@ -93,6 +96,7 @@ public:
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
+  CovAniso extractCova(int icov) const { return _covaList->extractCova(icov); }
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
@@ -110,6 +114,7 @@ public:
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
+
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
@@ -233,6 +238,8 @@ public:
   double gofToVario(const Vario* vario);
 
 protected:
+
+  /// Interface to ASerializable
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 

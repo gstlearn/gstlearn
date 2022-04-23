@@ -70,18 +70,17 @@ int _variogram_compute(Db *db,
 /* Prototyping the functions in krige.c */
 /****************************************/
 
-int _krigsim(const char *string,
-             Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
+int _krigsim(Db* dbin,
+             Db* dbout,
+             const Model* model,
+             ANeighParam* neighparam,
              int flag_bayes,
              const VectorDouble& dmean,
              const VectorDouble& dcov,
              int icase,
              int nbsimu,
-             int flag_dgm,
-             double rval);
+             bool flag_dgm,
+             double r_coeff);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

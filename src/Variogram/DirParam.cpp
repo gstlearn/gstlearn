@@ -114,6 +114,45 @@ DirParam::~DirParam()
 {
 }
 
+DirParam* DirParam::create(int ndim,
+                           int npas,
+                           double dpas,
+                           double toldis,
+                           double tolang,
+                           int opt_code,
+                           int idate,
+                           double bench,
+                           double cylrad,
+                           double tolcode,
+                           VectorDouble breaks,
+                           VectorDouble codir)
+{
+  return new DirParam(ndim, npas, dpas, toldis, tolang, opt_code, idate,
+                      bench, cylrad, tolcode, breaks, codir, VectorInt());
+}
+
+DirParam* DirParam::createOmniDirection(int ndim,
+                                        int npas,
+                                        double dpas,
+                                        double toldis,
+                                        int opt_code,
+                                        int idate,
+                                        double bench,
+                                        double cylrad,
+                                        double tolcode,
+                                        VectorDouble breaks)
+{
+  return new DirParam(ndim, npas, dpas, toldis, 90.1, opt_code, idate,
+                      bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt());
+}
+
+DirParam* DirParam::createFromGrid(int ndim, int npas, VectorInt grincr)
+{
+  return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0,
+                      TEST, TEST, 0., VectorDouble(), VectorDouble(),
+                      grincr);
+}
+
 void DirParam::init(int ndim,
                     int npas,
                     double dpas,
@@ -254,7 +293,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     if (ndim > 1)
     {
       VectorDouble angles(ndim);
-      (void) ut_angles_from_codir(ndim,1,_codir,angles);
+      (void) ut_angles_from_codir(ndim,_codir,angles);
       sstr << toVector("Direction angles (degrees)  = ", angles);
     }
 

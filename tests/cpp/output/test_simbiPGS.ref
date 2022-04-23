@@ -135,17 +135,17 @@ Data Base Statistics
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      2.000
- Mean value          =      1.548
- Standard Deviation  =      0.498
- Variance            =      0.248
+ Mean value          =      1.570
+ Standard Deviation  =      0.495
+ Variance            =      0.245
 9 - Name BiPGS-Facies.4 - Locator facies4
  Nb of data          =      10000
  Nb of active values =      10000
  Minimum value       =      1.000
  Maximum value       =      2.000
- Mean value          =      1.574
- Standard Deviation  =      0.494
- Variance            =      0.245
+ Mean value          =      1.466
+ Standard Deviation  =      0.499
+ Variance            =      0.249
 
 Lithotype Rule
 ==============

@@ -30,7 +30,7 @@ class IClonable{};
 
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
-%template(VectorDirection)      std::vector<Direction*>;
+%template(VectorDirection)      std::vector<TurningDirection>;
 %template(VectorDrft)           std::vector<Drift*>;
 %template(VectorFrac_Desc)      std::vector<Frac_Desc*>;
 %template(VectorFrac_Fam)       std::vector<Frac_Fam*>;
@@ -301,6 +301,10 @@ class IClonable{};
 %include OutputFormat/GridIrap.hpp
 %include OutputFormat/GridXYZ.hpp
 %include OutputFormat/GridZycor.hpp
+
+%include Simulation/ASimulation.hpp
+%include Simulation/TurningBands.hpp
+%include Simulation/TurningDirection.hpp
 
 %include segy.h
 

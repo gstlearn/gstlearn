@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
   
   /* Fit the model */
 
-  if (flag_norm_sill) opt_mauto_add_unit_constraints(mauto);
+  if (flag_norm_sill) constraints.setConstantSillValue(1.);
   options.setFlagGoulardUsed(flag_goulard_used);
   (void) model_auto_fit(vario,model,verbose,mauto,constraints,options);
   // Model is not printed any more to avoid differences among platforms

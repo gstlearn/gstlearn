@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
   Model     *model,*new_model;
   ANeighParam *neighparam;
   Option_AutoFit mauto;
+  Constraints constraints;
   int        nbsimu,seed,nbtuba;
   static int    nboot   = 10;
   static int    niter   = 10;
@@ -150,7 +151,7 @@ int main(int argc, char *argv[])
   if (model == nullptr) goto label_end;
   if (vario != nullptr) 
   {
-    if (model_fitting_sills(vario,model,mauto)) goto label_end;
+    if (model_fitting_sills(vario,model,constraints,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
     if (model->dumpToNF(filename,verbose))
       messageAbort("ascii_model_write");

@@ -3139,18 +3139,19 @@ static int st_calcul_error(int neq,
  **
  ** \param[in,out] xmat solution of the linear system with constraints (neq)
  **
- ** REMAKRS:    The initial xmat has to satisfied all the constraints.
+ ** REMARKS:    The initial xmat has to satisfied all the constraints.
+ **
  *****************************************************************************/
 int matrix_qoci(int neq,
-                                double *hmat,
-                                double *gmat,
-                                int nae,
-                                double *aemat,
-                                double *bemat,
-                                int nai,
-                                double *aimat,
-                                double *bimat,
-                                double *xmat)
+                double *hmat,
+                double *gmat,
+                int nae,
+                double *aemat,
+                double *bemat,
+                int nai,
+                double *aimat,
+                double *bimat,
+                double *xmat)
 {
   int *active, error, sortie, namax, ncur, i, j, first, lec;
   double *beimat, *aeimat, *vmat, *lambda, *xcand, omega, omin, value;
