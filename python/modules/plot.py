@@ -677,9 +677,9 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     if ax is None :
         fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
+    # else:
+    #     ax.set_xlim(xlim)
+    #     ax.set_ylim(ylim)
         
     x0 = dbgrid.getX0(0)
     y0 = dbgrid.getX0(1)
@@ -717,6 +717,8 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "red", transform=trans_data)
+    
+    update_xylim(ax, xlim=xlim, ylim=ylim) 
     
     if flagColorBar:# and alpha > 0:
         addColorbar(im, ax)
