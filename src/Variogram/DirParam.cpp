@@ -27,14 +27,15 @@ DirParam::DirParam(int ndim,
                    double bench,
                    double cylrad,
                    double tolcode,
-                   VectorDouble breaks,
-                   VectorDouble codir,
-                   VectorInt grincr)
+                   const VectorDouble& breaks,
+                   const VectorDouble& codir,
+                   const VectorInt& grincr)
     : AStringable(),
       _ndim(ndim),
       _nPas(npas),
       _optionCode(opt_code),
       _idate(idate),
+      _definedForGrid(false),
       _dPas(dpas),
       _bench(bench),
       _cylRad(cylrad),
@@ -54,6 +55,7 @@ DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
       _nPas(npas),
       _optionCode(0),
       _idate(0),
+      _definedForGrid(false),
       _dPas(TEST),
       _bench(0.),
       _cylRad(0.),
@@ -73,6 +75,7 @@ DirParam::DirParam(const DirParam& r)
       _nPas(r._nPas),
       _optionCode(r._optionCode),
       _idate(r._idate),
+      _definedForGrid(r._definedForGrid),
       _dPas(r._dPas),
       _bench(r._bench),
       _cylRad(r._cylRad),
@@ -83,7 +86,6 @@ DirParam::DirParam(const DirParam& r)
       _codir(r._codir),
       _grincr(r._grincr)
 {
-  _completeDefinition();
 }
 
 DirParam& DirParam::operator=(const DirParam& r)
@@ -95,6 +97,7 @@ DirParam& DirParam::operator=(const DirParam& r)
     _nPas = r._nPas;
     _optionCode = r._optionCode;
     _idate = r._idate;
+    _definedForGrid = r._definedForGrid;
     _dPas = r._dPas;
     _bench = r._bench;
     _cylRad = r._cylRad;
@@ -104,8 +107,6 @@ DirParam& DirParam::operator=(const DirParam& r)
     _breaks = r._breaks;
     _codir = r._codir;
     _grincr = r._grincr;
-
-    _completeDefinition();
   }
   return *this;
 }
@@ -124,8 +125,8 @@ DirParam* DirParam::create(int ndim,
                            double bench,
                            double cylrad,
                            double tolcode,
-                           VectorDouble breaks,
-                           VectorDouble codir)
+                           const VectorDouble& breaks,
+                           const VectorDouble& codir)
 {
   return new DirParam(ndim, npas, dpas, toldis, tolang, opt_code, idate,
                       bench, cylrad, tolcode, breaks, codir, VectorInt());
@@ -140,13 +141,13 @@ DirParam* DirParam::createOmniDirection(int ndim,
                                         double bench,
                                         double cylrad,
                                         double tolcode,
-                                        VectorDouble breaks)
+                                        const VectorDouble& breaks)
 {
   return new DirParam(ndim, npas, dpas, toldis, 90.1, opt_code, idate,
                       bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt());
 }
 
-DirParam* DirParam::createFromGrid(int ndim, int npas, VectorInt grincr)
+DirParam* DirParam::createFromGrid(int ndim, int npas, const VectorInt& grincr)
 {
   return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0,
                       TEST, TEST, 0., VectorDouble(), VectorDouble(),
@@ -163,9 +164,9 @@ void DirParam::init(int ndim,
                     double bench,
                     double cylrad,
                     double tolcode,
-                    VectorDouble breaks,
-                    VectorDouble codir,
-                    VectorInt grincr)
+                    const VectorDouble& breaks,
+                    const VectorDouble& codir,
+                    const VectorInt& grincr)
 {
   _ndim = ndim;
   _nPas = npas;
@@ -210,16 +211,29 @@ void DirParam::_completeDefinition()
   {
     if (_breaks.size() < 2) _breaks.clear();
   }
+
+  bool flagPoint = true;
   if (_codir.empty())
   {
+    flagPoint = false;
     _codir.resize(_ndim,0.);
     _codir[0] = 1.;
   }
+
+  bool flagGrid = true;
   if (_grincr.empty())
   {
+    flagGrid = false;
     _grincr.resize(_ndim,0);
     _grincr[0] = 1;
   }
+
+  if (flagPoint)
+    _definedForGrid = false;
+  if (flagGrid)
+    _definedForGrid = true;
+  // Correction for the particular case of Omni-Direction definition
+  if (! flagPoint && ! flagGrid) _definedForGrid = false;
 }
 
 bool DirParam::isDimensionValid(int idim) const
@@ -284,7 +298,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   if (getLagNumber() > 0)
     sstr << "Number of lags              = " << getLagNumber() << std::endl;
 
-  if (! _codir.empty())
+  if (! _definedForGrid)
   {
 
     // Case of a Direction defined for a non-grid Db
@@ -300,32 +314,33 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     if (! FFFF(_tolAngle))
       sstr << "Tolerance on direction      = " << toDouble(_tolAngle)
       << " (degrees)" << std::endl;
-    if (! FFFF(_bench)  && _bench > 0.)
-      sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
-    if (! FFFF(_cylRad) && _cylRad > 0.)
-      sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+  }
 
-    if (getFlagRegular())
+  if (! FFFF(_bench)  && _bench > 0.)
+    sstr << "Slice bench                 = " << toDouble(_bench) << std::endl;
+  if (! FFFF(_cylRad) && _cylRad > 0.)
+    sstr << "Slice radius                = " << toDouble(_cylRad) << std::endl;
+
+  if (getFlagRegular())
+  {
+    if (getDPas() > .0)
     {
-      if (getDPas() > .0)
-      {
-        sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
-        sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
-                 << " (Percent of the lag value)" << std::endl;
-      }
+      sstr << "Calculation lag             = " << toDouble(getDPas()) << std::endl;
+      sstr << "Tolerance on distance       = " << toDouble(100. * getTolDist())
+                     << " (Percent of the lag value)" << std::endl;
     }
-    else
+  }
+  else
+  {
+    sstr << "Calculation intervals       = " << std::endl;
+    for (int i = 0; i < getBreakNumber(); i++)
     {
-      sstr << "Calculation intervals       = " << std::endl;
-      for (int i = 0; i < getBreakNumber(); i++)
-      {
-        sstr << " - Interval " << i + 1 << " = ["
-            << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
-      }
+      sstr << " - Interval " << i + 1 << " = ["
+          << toInterval(getBreak(i), getBreak(i + 1)) << "]" << std::endl;
     }
   }
 
-  if (! _grincr.empty())
+  if (_definedForGrid)
   {
 
     // Case of a variogram defined on a Grid db
@@ -344,11 +359,11 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-std::vector<DirParam> generateMultipleDirs(int ndim,
-                                                           int ndir,
-                                                           int npas,
-                                                           double dpas,
-                                                           double toldis)
+std::vector<DirParam> DirParam::createMultiple(int ndim,
+                                               int ndir,
+                                               int npas,
+                                               double dpas,
+                                               double toldis)
 {
   VectorDouble angles = VectorDouble(1);
   VectorDouble codir  = VectorDouble(ndim);
@@ -365,7 +380,7 @@ std::vector<DirParam> generateMultipleDirs(int ndim,
   return dirs;
 }
 
-std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas)
+std::vector<DirParam> DirParam::createMultipleFromGrid(int ndim, int npas)
 {
   VectorInt grincr = VectorInt(ndim);
   std::vector<DirParam> dirs;
@@ -379,4 +394,3 @@ std::vector<DirParam> generateMultipleGridDirs(int ndim, int npas)
   }
   return dirs;
 }
-

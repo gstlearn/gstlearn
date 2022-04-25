@@ -27,7 +27,7 @@ class GSTLEARN_EXPORT VarioParam : public AStringable, public IClonable
 {
 public:
   VarioParam(double scale = 0.,
-             VectorDouble dates = VectorDouble());
+             const VectorDouble& dates = VectorDouble());
   VarioParam(const VarioParam& VarioParam,
              const VectorInt& rankdirs);
   VarioParam(const VarioParam& r);
@@ -41,35 +41,54 @@ public:
   /// Interface to Iclonable
   virtual IClonable* clone() const override { return new VarioParam(*this); };
 
-  void addDirs(const DirParam& dirparam);
+  /// Shortcuts
+  static VarioParam* createOmniDirection(int ndim = 2,
+                                         int npas = 10,
+                                         double dpas = 1.,
+                                         double toldis = 0.5,
+                                         int opt_code = 0,
+                                         int idate = 0,
+                                         double bench = TEST,
+                                         double cylrad = TEST,
+                                         double tolcode = 0.,
+                                         const VectorDouble& breaks = VectorDouble(),
+                                         double scale = 0.,
+                                         const VectorDouble& dates = VectorDouble());
+  static VarioParam* createMultiple(int ndim,
+                                    int ndir,
+                                    int npas = 10,
+                                    double dpas = 1.,
+                                    double toldis = 0.5,
+                                    double scale = 0.,
+                                    const VectorDouble& dates = VectorDouble());
+  static VarioParam* createMultipleFromGrid(int ndim, int npas,
+                                            double scale = 0.,
+                                            const VectorDouble& dates = VectorDouble());
+
+  void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);
   void delDir(int rank);
   void delAllDirs();
 
   double getScale() const { return _scale; }
-
   int    getDateNumber() const { return (int) _dates.size() / 2; }
   int    getDirectionNumber() const { return (int) _dirparams.size(); }
-
   const VectorDouble& getDates() const { return _dates; }
   double getDate(int idate, int icas) const;
+  int getLagNumber(int idir) const;
+  VectorDouble getCodir(int idir = 0) const;
+  const std::vector<DirParam>& getDirParams() const { return _dirparams; }
+  const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
+  int getDimensionNumber() const;
+  bool isDefinedForGrid() const;
 
   int hasDate() const { return (getDateNumber() > 0 && (_dates[0] > -1.e30 || _dates[1] < 1.e30)); }
 
   void setScale(double scale) { _scale = scale; }
-
-  int getLagNumber(int idir) const;
-  VectorDouble getCodir(int idir = 0) const;
-
   void setDates(VectorDouble dates) { _dates = dates; }
-
-  const std::vector<DirParam>& getDirParams() const { return _dirparams; }
-  const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
-
   void setDPas(int idir,const DbGrid* db);
   void setGrincr(int idir, const VectorInt& grincr);
 
-  int getDimensionNumber() const { return _dirparams[0].getDimensionNumber(); }
   String toStringMain(const AStringFormat* strfmt) const;
 
 private:
@@ -81,6 +100,7 @@ private:
   void _initMeans();
   void _initVars();
   VectorDouble _getDirectionInterval(int idir) const;
+  bool _validDefinedFromGrid(const DirParam& dirparam) const;
 
 private:
   double                _scale;

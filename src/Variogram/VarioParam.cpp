@@ -21,7 +21,7 @@
 #include "geoslib_f_private.h"
 
 VarioParam::VarioParam(double scale,
-                       VectorDouble dates)
+                       const VectorDouble& dates)
   : AStringable()
   , IClonable()
   , _scale(scale)
@@ -70,15 +70,102 @@ VarioParam::~VarioParam()
 {
 }
 
-void VarioParam::addDirs(const DirParam& dirparam)
+bool VarioParam::isDefinedForGrid() const
 {
+  int ndir = getDirectionNumber();
+  if (ndir <= 0) return false;
+  return _dirparams[0].isDefinedForGrid();
+}
+
+bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
+{
+  int ndir = getDirectionNumber();
+  bool definedFromGrid = dirparam.isDefinedForGrid();
+  if (ndir > 0)
+  {
+    for (int idir = 0; idir < ndir; idir++)
+    {
+      if (_dirparams[idir].isDefinedForGrid() != definedFromGrid)
+      {
+        messerr("The current 'dirParam' cannot be added to 'varioParam'");
+        if (_dirparams[idir].isDefinedForGrid())
+          messerr("Element (%d) is defined using Grid definition",idir+1);
+        else
+          messerr("Element(%d) is defined NOT using Grid definition",idir+1);
+
+        if (definedFromGrid)
+          messerr("Current 'dirparam' is defined using Grid definition");
+        else
+          messerr("Current 'dirparam' is defined NOT using Grid definition");
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+VarioParam* VarioParam::createOmniDirection(int ndim,
+                                            int npas,
+                                            double dpas,
+                                            double toldis,
+                                            int opt_code,
+                                            int idate,
+                                            double bench,
+                                            double cylrad,
+                                            double tolcode,
+                                            const VectorDouble& breaks,
+                                            double scale,
+                                            const VectorDouble& dates)
+{
+  DirParam* dir = DirParam::createOmniDirection(ndim, npas, dpas, toldis,
+                                                opt_code, idate, bench, cylrad,
+                                                tolcode, breaks);
+  VarioParam* varioparam = new VarioParam(scale, dates);
+  varioparam->addDir(*dir);
+  return varioparam;
+}
+
+VarioParam* VarioParam::createMultiple(int ndim,
+                           int ndir,
+                           int npas,
+                           double dpas,
+                           double toldis,
+                           double scale,
+                           const VectorDouble& dates)
+{
+  std::vector<DirParam> dirs = DirParam::createMultiple(ndim, ndir, npas, dpas,
+                                                        toldis);
+  if (dirs.empty()) return nullptr;
+  VarioParam* varioparam = new VarioParam(scale, dates);
+  varioparam->addMultiDirs(dirs);
+  return varioparam;
+}
+
+VarioParam* VarioParam::createMultipleFromGrid(int ndim,
+                                   int npas,
+                                   double scale,
+                                   const VectorDouble& dates)
+{
+  std::vector<DirParam> dirs = DirParam::createMultipleFromGrid(ndim, npas);
+  if (dirs.empty()) return nullptr;
+  VarioParam* varioparam = new VarioParam(scale, dates);
+  varioparam->addMultiDirs(dirs);
+  return varioparam;
+}
+
+void VarioParam::addDir(const DirParam& dirparam)
+{
+  if (! _validDefinedFromGrid(dirparam)) return;
   _dirparams.push_back(dirparam);
 }
 
 void VarioParam::addMultiDirs(const std::vector<DirParam>& dirparams)
 {
   for (int i = 0; i < (int) dirparams.size(); i++)
+  {
+    if (! _validDefinedFromGrid(dirparams[i])) return;
     _dirparams.push_back(dirparams[i]);
+  }
 }
 
 void VarioParam::delDir(int rank)
@@ -195,5 +282,10 @@ void VarioParam::setGrincr(int idir, const VectorInt& grincr)
 {
   if (! _isDirectionValid(idir)) return;
   _dirparams[idir].setGrincr(grincr);
+}
 
+int VarioParam::getDimensionNumber() const
+{
+  if (getDirectionNumber() <= 0) return 0;
+  return _dirparams[0].getDimensionNumber();
 }

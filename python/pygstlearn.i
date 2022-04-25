@@ -81,6 +81,9 @@ void exit_f(void)
 %extend Vario {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend DirParam {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend VarioParam {
   std::string __repr__() {  return $self->toString(); }
 }

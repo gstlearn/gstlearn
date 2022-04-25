@@ -3456,7 +3456,7 @@ int variogram_direction_add(VarioParam *varioparam,
   DirParam dirparam = DirParam(varioparam->getDimensionNumber(), npas, dpas,
                                toldis, tolang, opt_code, idate, bench, cylrad,
                                tolcode, breaks, codir, grincr);
-  varioparam->addDirs(dirparam);
+  varioparam->addDir(dirparam);
   return (0);
 }
 
@@ -4595,8 +4595,7 @@ int vario_extract(Vario *vario,
   *ndir = vario->getDirectionNumber();
   *ndate = vario->getDateNumber();
   *scale = vario->getScale();
-  date_loc = (double*) mem_alloc(sizeof(double) * vario->getDateNumber() * 2,
-                                 1);
+  date_loc = (double*) mem_alloc(sizeof(double) * vario->getDateNumber() * 2, 1);
   int ecr = 0;
   for (int i = 0; i < vario->getDateNumber(); i++)
     for (int icas = 0; icas < 2; icas++)
@@ -5833,7 +5832,6 @@ void condexp(Db *db1,
  **
  ** \param[in]  db           Db descriptor
  ** \param[in]  vario        Vario structure
- ** \param[in]  flag_grid    1 for calculation on a grid
  ** \param[in]  flag_gen     1 for calculation of generalized variogram
  ** \param[in]  flag_sample  calculate the variogram per sample
  ** \param[in]  verr_mode    Mode of variogram correction (1, 2 or 3)
@@ -5846,7 +5844,6 @@ void condexp(Db *db1,
  *****************************************************************************/
 int _variogram_compute(Db *db,
                        Vario *vario,
-                       int flag_grid,
                        int flag_gen,
                        int flag_sample,
                        int verr_mode,
@@ -5855,9 +5852,16 @@ int _variogram_compute(Db *db,
 {
   int error;
 
-  if (flag_grid)
+  if (vario == nullptr) return 1;
+
+  if (vario->isDefinedForGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
+    if (dbgrid == nullptr)
+    {
+      messerr("'Vario' is defined for Grid but 'db' is not organized as a grid");
+      return 1;
+    }
     if (flag_gen)
       error = st_variogen_grid_calcul(dbgrid, vario);
     else

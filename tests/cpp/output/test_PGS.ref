@@ -158,7 +158,6 @@ Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          1         0
 
 For variable 1
       Rank    Npairs  Distance     Value
@@ -301,7 +300,6 @@ Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          1         0
 
 For variable 1
       Rank    Npairs  Distance     Value
@@ -340,7 +338,6 @@ Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          1         0
 
 For variable 1
       Rank    Npairs  Distance     Value
@@ -525,7 +522,6 @@ Direction angles (degrees)  =      0.000     0.000
 Tolerance on direction      =     90.000 (degrees)
 Calculation lag             =      0.026
 Tolerance on distance       =     50.000 (Percent of the lag value)
-Grid Direction coefficients =          1         0
 
 For variable 1
       Rank    Npairs  Distance     Value

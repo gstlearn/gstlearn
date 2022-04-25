@@ -677,7 +677,8 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
                                       const ECov& type,
                                       const VectorDouble& ranges,
                                       double sill,
-                                      double param)
+                                      double param,
+                                      const VectorDouble& angles)
 {
   if (ctxt.getNVar() != 1)
   {
@@ -696,6 +697,7 @@ CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,
   cov->setRanges(ranges);
   cov->setSill(sill);
   cov->setParam(param);
+  if (! angles.empty()) cov->setAnisoAngles(angles);
   return cov;
 }
 
@@ -723,7 +725,8 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
                                            const ECov& type,
                                            const VectorDouble& ranges,
                                            const MatrixSquareGeneral& sills,
-                                           double param)
+                                           double param,
+                                           const VectorDouble& angles)
 {
 
   int nvar = sills.getNSize();
@@ -746,6 +749,7 @@ CovAniso* CovAniso::createAnisotropicMulti(const CovContext& ctxt,
   cov->setRanges(ranges);
   cov->setSill(sills);
   cov->setParam(param);
+  if (! angles.empty()) cov->setAnisoAngles(angles);
   return cov;
 }
 

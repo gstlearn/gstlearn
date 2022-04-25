@@ -378,14 +378,12 @@ void Model::delAllDrifts()
 
 const CovAniso* Model::getCova(unsigned int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return nullptr;
   return _covaList->getCova(icov);
 }
 CovAniso* Model::getCova(unsigned int icov)
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return nullptr;
   return _covaList->getCova(icov);
 }
 int Model::getCovaNumber() const
@@ -673,14 +671,12 @@ void Model::setDriftFiltered(int il, bool filtered)
 }
 VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return VectorDouble();
   return _driftList->getDrift(db, ib, useSel);
 }
 VectorVectorDouble Model::getDrifts(const Db *db, bool useSel)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return VectorVectorDouble();
   return _driftList->getDrifts(db, useSel);
 }
 

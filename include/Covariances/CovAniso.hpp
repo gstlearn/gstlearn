@@ -98,7 +98,8 @@ public:
                                      const ECov& type,
                                      const VectorDouble& ranges,
                                      double sill = 1.,
-                                     double param = 1.);
+                                     double param = 1.,
+                                     const VectorDouble& angles = VectorDouble());
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
@@ -108,7 +109,8 @@ public:
                                           const ECov& type,
                                           const VectorDouble& ranges,
                                           const MatrixSquareGeneral& sills,
-                                          double param = 1.);
+                                          double param = 1.,
+                                          const VectorDouble& angles = VectorDouble());
 
   void setContext(const CovContext& ctxt);
   void setParam(double param);

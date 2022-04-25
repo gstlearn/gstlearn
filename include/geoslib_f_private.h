@@ -59,7 +59,6 @@ void _erase_current_string(void);
 double _variogram_convert_angular_tolerance(double tolang);
 int _variogram_compute(Db *db,
                        Vario *vario,
-                       int flag_grid = 0,
                        int flag_gen = 0,
                        int flag_sample = 0,
                        int verr_mode = 0,

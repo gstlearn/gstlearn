@@ -225,9 +225,6 @@ Variance-Covariance Matrix     0.874
 Direction #1
 ------------
 Number of lags              = 20
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
-Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =      0.000 (Percent of the lag value)
 Grid Direction coefficients =          1         0
@@ -257,9 +254,6 @@ For variable 1
 Direction #2
 ------------
 Number of lags              = 20
-Direction coefficients      =      1.000     0.000
-Direction angles (degrees)  =      0.000     0.000
-Tolerance on direction      =      0.000 (degrees)
 Calculation lag             =      0.010
 Tolerance on distance       =      0.000 (Percent of the lag value)
 Grid Direction coefficients =          0         1

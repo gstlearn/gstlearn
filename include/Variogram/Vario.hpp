@@ -51,6 +51,14 @@ public:
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
   static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Vario* computeFromDb(const VarioParam* varioparam,
+                              Db* db,
+                              const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+                              bool flag_gen = false,
+                              bool flag_sample = false,
+                              bool verr_mode = false,
+                              Model *model = nullptr,
+                              bool verbose = false);
 
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
@@ -156,14 +164,12 @@ public:
                const VectorDouble& vars = VectorDouble(),
                const VectorDouble& means = VectorDouble());
   int computeByKey(const String& calcul_name = "vg",
-                   bool flag_grid = false,
                    bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
                    Model *model = nullptr,
                    bool verbose = false);
   int computeIndicByKey(const String& calcul_name = "vg",
-                        bool flag_grid = false,
                         bool flag_gen = false,
                         bool flag_sample = false,
                         bool verr_mode = false,
@@ -171,14 +177,12 @@ public:
                         bool verbose = false,
                         int nfacmax = -1);
   int compute(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
-              bool flag_grid = false,
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
   int computeIndic(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
-                   bool flag_grid = false,
                    bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
@@ -198,7 +202,7 @@ public:
   int getDimensionNumber() const { return getDirParam(0).getDimensionNumber(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
-  void addDirs(const DirParam& dirparam) { _varioparam.addDirs(dirparam); }
+  void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }
 
   int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
@@ -208,6 +212,7 @@ public:
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }
   double getGrincr(int idir, int idim) { return getDirParam(idir).getGrincr(idim); }
+  bool isDefinedForGrid() const { return _varioparam.isDefinedForGrid(); }
 
   void setNVar(int nvar) { _nVar = nvar; }
   void setCalculName(const String calcul_name);

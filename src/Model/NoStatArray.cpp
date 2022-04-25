@@ -368,7 +368,7 @@ String NoStatArray::toString(const AStringFormat* strfmt) const
 
   AStringFormat sf;
   if (strfmt != nullptr) sf = *strfmt;
-  if (sf.getLevel() > 0)
+  if (sf.getLevel() > 1)
     sstr << _displayStats(0);
   return sstr.str();
 }

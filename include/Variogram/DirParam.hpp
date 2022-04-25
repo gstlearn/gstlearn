@@ -25,8 +25,8 @@ class GSTLEARN_EXPORT DirParam : public AStringable // TODO : Should inherit fro
 {
 public:
   DirParam(int ndim = 2,
-           int npas = 0,
-           double dpas = 0.,
+           int npas = 10,
+           double dpas = 1.,
            double toldis = 0.5,
            double tolang = 90.,
            int opt_code = 0,
@@ -34,17 +34,17 @@ public:
            double bench = TEST,
            double cylrad = TEST,
            double tolcode = 0.,
-           VectorDouble breaks = VectorDouble(),
-           VectorDouble codir  = VectorDouble(),
-           VectorInt grincr    = VectorInt());
+           const VectorDouble& breaks = VectorDouble(),
+           const VectorDouble& codir  = VectorDouble(),
+           const VectorInt& grincr    = VectorInt());
   DirParam(int ndim, int npas, const VectorInt& grincr);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
 
   static DirParam* create(int ndim = 2,
-                          int npas = 0,
-                          double dpas = 0.,
+                          int npas = 10,
+                          double dpas = 1.,
                           double toldis = 0.5,
                           double tolang = 90.,
                           int opt_code = 0,
@@ -52,21 +52,27 @@ public:
                           double bench = TEST,
                           double cylrad = TEST,
                           double tolcode = 0.,
-                          VectorDouble breaks = VectorDouble(),
-                          VectorDouble codir = VectorDouble());
+                          const VectorDouble& breaks = VectorDouble(),
+                          const VectorDouble& codir = VectorDouble());
   static DirParam* createOmniDirection(int ndim = 2,
-                                       int npas = 0,
-                                       double dpas = 0.,
+                                       int npas = 10,
+                                       double dpas = 1.,
                                        double toldis = 0.5,
                                        int opt_code = 0,
                                        int idate = 0,
                                        double bench = TEST,
                                        double cylrad = TEST,
                                        double tolcode = 0.,
-                                       VectorDouble breaks = VectorDouble());
+                                       const VectorDouble& breaks = VectorDouble());
   static DirParam* createFromGrid(int ndim = 2,
-                                  int npas = 0,
-                                  VectorInt grincr = VectorInt());
+                                  int npas = 10,
+                                  const VectorInt& grincr = VectorInt());
+  static std::vector<DirParam> createMultiple(int ndim,
+                                              int ndir,
+                                              int npas = 10,
+                                              double dpas = 1.,
+                                              double toldis = 0.5);
+  static std::vector<DirParam> createMultipleFromGrid(int ndim, int npas);
 
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -81,9 +87,9 @@ public:
             double bench = TEST,
             double cylrad = TEST,
             double tolcode = 0,
-            VectorDouble breaks = VectorDouble(),
-            VectorDouble codir  = VectorDouble(),
-            VectorInt grincr    = VectorInt());
+            const VectorDouble& breaks = VectorDouble(),
+            const VectorDouble& codir  = VectorDouble(),
+            const VectorInt& grincr    = VectorInt());
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
@@ -126,15 +132,17 @@ public:
 
   bool isLagValid(int ilag) const;
   bool isDimensionValid(int idim) const;
+  bool isDefinedForGrid() const { return _definedForGrid; }
 
 private:
   void _completeDefinition();
 
 private:
-  int _ndim;  // TODO : Should be stored by ASpaceObject upper class
-  int _nPas;
-  int _optionCode;
-  int _idate;
+  int    _ndim;  // TODO : Should be stored by ASpaceObject upper class
+  int    _nPas;
+  int    _optionCode;
+  int    _idate;
+  bool   _definedForGrid;
   double _dPas;
   double _bench;
   double _cylRad;
@@ -146,10 +154,3 @@ private:
   VectorInt    _grincr;
 };
 
-GSTLEARN_EXPORT std::vector<DirParam> generateMultipleDirs(int ndim,
-                                                           int ndir,
-                                                           int npas = 0,
-                                                           double dpas = 0.,
-                                                           double toldis = 0.5);
-GSTLEARN_EXPORT std::vector<DirParam> generateMultipleGridDirs(int ndim,
-                                                               int npas);

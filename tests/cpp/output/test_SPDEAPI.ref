@@ -53,24 +53,24 @@ Data Base Statistics
 5 - Name spde.variable.simu - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -2.830
- Maximum value       =      3.077
- Mean value          =      0.354
- Standard Deviation  =      0.987
- Variance            =      0.973
+ Minimum value       =     -2.926
+ Maximum value       =      3.187
+ Mean value          =      0.352
+ Standard Deviation  =      0.993
+ Variance            =      0.985
 6 - Name spde.variable.condSimu - Locator NA
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -3.403
- Maximum value       =      3.194
- Mean value          =     -0.075
- Standard Deviation  =      0.920
- Variance            =      0.846
+ Minimum value       =     -3.921
+ Maximum value       =      3.019
+ Mean value          =     -0.051
+ Standard Deviation  =      0.940
+ Variance            =      0.884
 7 - Name spde.variable.kriging - Locator z1
  Nb of data          =      10201
  Nb of active values =      10201
- Minimum value       =     -3.189
- Maximum value       =      2.289
- Mean value          =     -0.087
- Standard Deviation  =      0.845
- Variance            =      0.715
+ Minimum value       =     -3.588
+ Maximum value       =      3.081
+ Mean value          =     -0.043
+ Standard Deviation  =      0.829
+ Variance            =      0.687

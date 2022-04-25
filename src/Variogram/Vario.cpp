@@ -139,8 +139,23 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   return vario;
 }
 
+Vario* Vario::computeFromDb(const VarioParam* varioparam,
+                            Db* db,
+                            const ECalcVario& calcul,
+                            bool flag_gen,
+                            bool flag_sample,
+                            bool verr_mode,
+                            Model *model,
+                            bool verbose)
+{
+  Vario* vario = nullptr;
+  vario = new Vario(varioparam, db);
+  vario->compute(calcul, flag_gen, flag_sample, verr_mode, model,
+                 verbose);
+  return vario;
+}
+
 int Vario::compute(const ECalcVario &calcul,
-                   bool flag_grid,
                    bool flag_gen,
                    bool flag_sample,
                    bool verr_mode,
@@ -163,11 +178,11 @@ int Vario::compute(const ECalcVario &calcul,
 
   _calcul = calcul;
   _setFlagAsym();
-  _setDPasFromGrid(flag_grid);
+  _setDPasFromGrid(isDefinedForGrid());
   if (internalVariableResize()) return 1;
   internalDirectionResize();
 
-  if (_variogram_compute(_db, this, flag_grid, flag_gen,
+  if (_variogram_compute(_db, this, flag_gen,
                          flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram");
@@ -177,7 +192,6 @@ int Vario::compute(const ECalcVario &calcul,
 }
 
 int Vario::computeByKey(const String& calcul_name,
-                        bool flag_grid,
                         bool flag_gen,
                         bool flag_sample,
                         bool verr_mode,
@@ -186,7 +200,7 @@ int Vario::computeByKey(const String& calcul_name,
 {
   ECalcVario calcul = getCalculType(calcul_name);
   if (calcul == ECalcVario::UNDEFINED) return 1;
-  return compute(calcul, flag_grid, flag_gen, flag_sample, verr_mode, model, verbose);
+  return compute(calcul, flag_gen, flag_sample, verr_mode, model, verbose);
 }
 
 /**
@@ -334,7 +348,6 @@ void Vario::reduce(const VectorInt& varcols,
 }
 
 int Vario::computeIndic(const ECalcVario& calcul,
-                        bool flag_grid,
                         bool flag_gen,
                         bool flag_sample,
                         bool verr_mode,
@@ -385,12 +398,12 @@ int Vario::computeIndic(const ECalcVario& calcul,
   _means = props;
   _vars  = _varsFromProportions(props);
   _setFlagAsym();
-  _setDPasFromGrid(flag_grid);
+  _setDPasFromGrid(isDefinedForGrid());
   if (internalVariableResize()) return 1;
   internalDirectionResize();
 
   // Calculate the variogram of indicators
-  if (_variogram_compute(_db, this, flag_grid, flag_gen,
+  if (_variogram_compute(_db, this, flag_gen,
                          flag_sample, verr_mode, model, verbose))
   {
     messerr("Error when calculating the Variogram of Indicators");
@@ -405,7 +418,6 @@ int Vario::computeIndic(const ECalcVario& calcul,
 }
 
 int Vario::computeIndicByKey(const String& calcul_name,
-                             bool flag_grid,
                              bool flag_gen,
                              bool flag_sample,
                              bool verr_mode,
@@ -415,7 +427,7 @@ int Vario::computeIndicByKey(const String& calcul_name,
 {
   ECalcVario calcul = getCalculType(calcul_name);
   if (calcul == ECalcVario::UNDEFINED) return 1;
-  return computeIndic(calcul, flag_grid, flag_gen, flag_sample, verr_mode,
+  return computeIndic(calcul, flag_gen, flag_sample, verr_mode,
                       model, verbose, nfacmax);
 }
 
@@ -1460,10 +1472,7 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
   double tolcode = 0.;
   double toldis = 0.;
 
-  VectorDouble codir;
-  VectorDouble grloc;
   VectorDouble vars;
-  VectorInt grincr;
 
   /* Create the Vario structure */
 
@@ -1492,6 +1501,7 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
   setVars(vars);
   setCalculName("vg");
   setScale(scale);
+  int isDefinedForGrid;
 
   /* Reading the variogram calculation directions */
 
@@ -1503,22 +1513,38 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Tolerance on Code", tolcode);
     ret = ret && _recordRead<double>(is, "Lag Value", dpas);
     ret = ret && _recordRead<double>(is, "Tolerance on Distance", toldis);
-    ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
-    codir.resize(ndim);
-    grincr.resize(ndim);
-    grloc.resize(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
-    for (int idim = 0; idim < ndim; idim++)
-      ret = ret && _recordRead<double>(is, "Grid Increment", grloc[idim]);
+    ret = ret && _recordRead<int>(is, "Grid Definition",isDefinedForGrid);
+
+    VectorDouble codir;
+    VectorInt grincr;
+    if (! isDefinedForGrid)
+    {
+
+      // Direction definition
+
+      codir.resize(ndim);
+      ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
+      }
+    }
+    else
+    {
+      // Grid definition
+
+      grincr.resize(ndim);
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        ret = ret && _recordRead<int>(is, "Grid Increment", grincr[idim]);
+      }
+    }
     if (! ret) return 1;
 
     DirParam dirparam = DirParam(ndim);
-    for (int idim = 0; idim < ndim; idim++)
-      grincr[idim] = (int) grloc[idim];
     dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
                   TEST, TEST, tolcode, VectorDouble(), codir, grincr);
-    _varioparam.addDirs(dirparam);
+    _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */
 
@@ -1581,15 +1607,22 @@ int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
     ret = ret && _recordWrite<double>(os, "Code selection: Option - Tolerance", dirparam.getTolCode());
     ret = ret && _recordWrite<double>(os, "Lag value", dirparam.getDPas());
     ret = ret && _recordWrite<double>(os, "Tolerance on distance", dirparam.getTolDist());
-    ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
+    ret = ret && _recordWrite<int>(os, "Grid Definition",dirparam.isDefinedForGrid());
 
-    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
-    ret = ret && _commentWrite(os, "Direction coefficients");
+    if (! dirparam.isDefinedForGrid())
+    {
+      ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
+      for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+        ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
+      ret = ret && _commentWrite(os, "Direction coefficients");
+    }
 
-    for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
-      ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
-    ret = ret && _commentWrite(os, "Direction increments on grid");
+    if (dirparam.isDefinedForGrid())
+    {
+      for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+        ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
+      ret = ret && _commentWrite(os, "Direction increments on grid");
+    }
 
     if (!flag_calcul) continue;
     ret = ret && _commentWrite(os, "Variogram results (Weight, Distance, Variogram)");

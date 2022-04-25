@@ -12,9 +12,9 @@ Vario
 0 0.000000 # Code selection: Option - Tolerance
 50000. # Lag value
 0.500000 # Tolerance on distance
+0 # Grid Definition
 0.500000 # Tolerance on angle
 1.000000 0.000000 # Direction coefficients
-0.000000 0.000000 # Direction increments on grid
 # Variogram results (Weight, Distance, Variogram)
 0597.  12083.32     299.1814
 3043.  51596.53     433.6125

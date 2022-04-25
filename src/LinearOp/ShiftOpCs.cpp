@@ -653,7 +653,7 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
     _updateCova(cova, ip);
 
     // Calculate the current HH matrix (using local covariance parameters)
-    const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
+    const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
     VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
     MatrixSquareSymmetric temp(ndim);
     temp.setDiagonal(diag);

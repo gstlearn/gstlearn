@@ -133,7 +133,7 @@ int main(int /*argc*/, char */*argv*/[])
   if (storeVario)
   {
     VarioParam varioparam;
-    std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
+    std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(ndim, nlag);
     varioparam.addMultiDirs(dirparams);
     VectorString names = db->getNames("gausfac*");
     for (int isimu = 0; isimu < (int) names.size(); isimu++)
@@ -141,7 +141,7 @@ int main(int /*argc*/, char */*argv*/[])
       db->clearLocators(ELoc::Z);
       db->setLocator(names[isimu], ELoc::Z);
       Vario vario(&varioparam, db);
-      vario.computeByKey("vg", true);
+      vario.computeByKey("vg");
       (void) vario.dumpToNF(incrementStringVersion("Vario", isimu + 1));
     }
   }

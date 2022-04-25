@@ -113,7 +113,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ===== Compute an experimental variogram
   VarioParam varioparam1;
   DirParam dirparam(2, 10, 0.02);
-  varioparam1.addDirs(dirparam);
+  varioparam1.addDir(dirparam);
   Vario vario1 = Vario(&varioparam1,db1);
   vario1.computeByKey("vg");
   vario1.display();

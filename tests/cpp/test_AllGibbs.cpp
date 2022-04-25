@@ -122,7 +122,7 @@ int main(int /*argc*/, char * /*argv*/[])
   // Calculate a variogram on the samples
 
   VarioParam varioparam;
-  std::vector<DirParam> dirparams = generateMultipleGridDirs(ndim, nlag);
+  std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(ndim, nlag);
   varioparam.addMultiDirs(dirparams);
   Vario vario(&varioparam,db);
   VectorString names = db->getNames("Gibbs*");
@@ -130,7 +130,7 @@ int main(int /*argc*/, char * /*argv*/[])
   {
     db->clearLocators(ELoc::Z);
     db->setLocator(names[isimu],ELoc::Z);
-    vario.computeByKey("vg",true);
+    vario.computeByKey("vg");
     (void) vario.dumpToNF(incrementStringVersion("Vario",isimu+1));
   }
 
