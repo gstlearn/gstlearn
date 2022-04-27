@@ -238,7 +238,7 @@ void Model::setCovList(const ACovAnisoList* covalist)
 void Model::addCov(const CovAniso *cov)
 {
   if (cov == nullptr) return;
-  // TODO: the type of CovAnisoList is defaulted to CovLMC
+  // TODO: If _covaList does not exist, it is created as a CovLMC (by default)
   if (_covaList == nullptr) _covaList = new CovLMC();
   _covaList->addCov(cov);
 }
@@ -912,7 +912,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
   _ctxt = CovContext(nvar, ndim, field);
   _create();
 
-  /* Reading the covariance part */
+  /* Reading the covariance part and store it into a CovLMC */
 
   CovLMC covs(_ctxt.getSpace());
   for (int icova = 0; icova < ncova; icova++)

@@ -63,7 +63,7 @@ public:
   double getAnisoRotMat(int i) const { return _anisoRotMat[i]; }
   int getFlagAniso() const { return _flagAniso; }
   int getFlagRotation() const { return _flagRotation; }
-  int getFlagSector() const { return _flagSector; }
+  bool getFlagSector() const;
   int getNMaxi() const { return _nMaxi; }
   int getNMini() const { return _nMini; }
   int getNSect() const { return _nSect; }
@@ -76,7 +76,6 @@ public:
   void setAnisoRotMat(const VectorDouble& anisoRotMat) { _anisoRotMat = anisoRotMat; }
   void setFlagAniso(int flagAniso) { _flagAniso = flagAniso; }
   void setFlagRotation(int flagRotation) { _flagRotation = flagRotation; }
-  void setFlagSector(int flagSector) { _flagSector = flagSector; }
   void setNMaxi(int nmaxi) { _nMaxi = nmaxi; }
   void setNMini(int nmini) { _nMini = nmini; }
   void setNSect(int nsect) { _nSect = nsect; }
@@ -88,7 +87,6 @@ protected:
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
-  int _flagSector;               /* 1 if MOVING neigh. used sector search */
   int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */
   int _flagRotation;             /* 1 if the anisotropy is rotated */
   int _nMini;                    /* Minimum number of points in neigh. */

@@ -4688,12 +4688,15 @@ int krigcell(Db *dbin,
  **
  ** \param[in]  db        Input Db structure (containing the factors)
  ** \param[in]  nfactor   Number of factors to be estimated (0: all)
+ ** \param[in]  namconv   Naming convention
  **
  ** \remark At the end, the newly created variables are transformed into
  ** \remark Z locator variables for future steps
  **
  *****************************************************************************/
-static int st_calculate_hermite_factors(Db *db, int nfactor)
+int calculateHermiteFactors(Db *db,
+                            int nfactor,
+                            const NamingConvention& namconv)
 {
   /* Create the new variables */
 
@@ -4707,8 +4710,7 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
     if (!db->isActive(iech)) continue;
 
     /* Calculate the factors */
-    VectorDouble hn = hermitePolynomials(db->getVariable(iech, 0), 1.,
-                                         nfactor + 1);
+    VectorDouble hn = hermitePolynomials(db->getVariable(iech, 0), 1.,nfactor + 1);
 
     /* Store the factors */
     for (int ih = 0; ih < nfactor; ih++)
@@ -4717,6 +4719,9 @@ static int st_calculate_hermite_factors(Db *db, int nfactor)
 
   /* Set the newly created variables to Z locator */
   db->setLocatorsByUID(nfactor, iptr, ELoc::Z);
+
+  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, "Hn");
+
   return 0;
 }
 
@@ -7020,7 +7025,7 @@ int dk(Db* dbin,
       messerr("In Gaussian case, Input File must contain a single variable");
       return 1;
     }
-    if (st_calculate_hermite_factors(dbin, nfactor)) return 1;
+    if (calculateHermiteFactors(dbin, nfactor)) return 1;
   }
   int nvarz = dbin->getVariableNumber();
   if (nfactor != nvarz)

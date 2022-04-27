@@ -11,6 +11,8 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include "Space/ASpaceObject.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -20,6 +22,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
 #include "Covariances/ECalcMember.hpp"
+#include "Covariances/CovLMC.hpp"
 
 #include <math.h>
 
@@ -666,53 +669,6 @@ int AnamHermite::_deserialize(std::istream& is, bool verbose)
   setPsiHn(hermite);
 
   return 0;
-}
-
-double AnamHermite::modifyCov(const ECalcMember& member,
-                              int iclass,
-                              double dist,
-                              double /*cov0*/,
-                              double cov1,
-                              double /*cov2*/) const
-{
-  double coeff = 0.;
-  double rhon  = 0.;
-  double rn    = pow(_rCoef, (double) iclass);
-  if (dist <= 0.)
-  {
-    rhon = 1.;
-    switch (member.toEnum())
-    {
-      case ECalcMember::E_LHS:
-        coeff = 1.;
-        break;
-
-      case ECalcMember::E_RHS:
-        coeff = rn;
-        break;
-
-      case ECalcMember::E_VAR:
-        coeff = 1.;
-        break;
-    }
-  }
-  else
-  {
-    rhon = pow(cov1, (double) iclass);
-    switch (member.toEnum())
-    {
-      case ECalcMember::E_LHS:
-        coeff = rn * rn;
-        break;
-      case ECalcMember::E_RHS:
-        coeff = rn;
-        break;
-      case ECalcMember::E_VAR:
-        coeff = 1.;
-        break;
-    }
-  }
-  return coeff * rhon;
 }
 
 VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const

@@ -19,7 +19,6 @@
 
 NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
     : ANeighParam(ndim, flag_xvalid),
-      _flagSector(0),
       _flagAniso(0),
       _flagRotation(0),
       _nMini(1),
@@ -34,7 +33,6 @@ NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
 
 NeighMoving::NeighMoving(const NeighMoving& r)
     : ANeighParam(r),
-      _flagSector(r._flagSector),
       _flagAniso(r._flagAniso),
       _flagRotation(r._flagRotation),
       _nMini(r._nMini),
@@ -52,7 +50,6 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
   if (this != &r)
   {
     ANeighParam::operator=(r);
-    _flagSector = r._flagSector;
     _flagAniso = r._flagAniso;
     _flagRotation = r._flagRotation;
     _nMini = r._nMini;
@@ -116,7 +113,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
   if (_nMaxi > 0)
     sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
-  if (_flagSector)
+  if (_nSect > 1)
   {
     sstr << "Number of angular sectors           = " << _nSect << std::endl;
     if (_nSMax > 0)
@@ -203,9 +200,8 @@ int NeighMoving::_deserialize(std::istream& is, bool verbose)
     for (int idim = 0; idim < ndim; idim++)
       nbgh_coeffs[idim] *= dmax;
 
-  setNSect((flag_sector) ? MAX(_nSect, 1) : 1);
+  setNSect((getFlagSector()) ? MAX(_nSect, 1) : 1);
   setRadius(dmax);
-  setFlagSector(flag_sector && ndim >= 2);
   setFlagAniso(flag_aniso && !nbgh_coeffs.empty());
   setFlagRotation(flag_rotation && flag_aniso && !nbgh_rotmat.empty());
 
@@ -339,5 +335,10 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
  */
 int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
 {
-  return (_flagSector) ? _nSect * _nSMax : _nMaxi;
+  return (getFlagSector()) ? _nSect * _nSMax : _nMaxi;
+}
+
+bool NeighMoving::getFlagSector() const
+{
+  return (getNDim() > 1 && _nSect > 1);
 }

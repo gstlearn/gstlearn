@@ -25,35 +25,25 @@
 
 #include <math.h>
 
-CovLMCAnamorphosis::CovLMCAnamorphosis(const EAnam& anam_type,
-                                       int anam_nclass,
+CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
                                        int anam_iclass,
                                        int anam_var,
-                                       double anam_coefr,
-                                       double anam_coefs,
-                                       VectorDouble& anam_strcnt,
-                                       VectorDouble& anam_stats,
+                                       const VectorInt& strcnt,
                                        const ASpace* space)
     : CovLMC(space),
-      _anamType(),
       _anamIClass(0),
-      _anamNClass(0),
       _anamPointBlock(0),
       _anamStrCount(),
-      _anamMeans(),
-      _anam(nullptr)
+      _anam(anam)
 {
- init(anam_type,anam_nclass,anam_iclass,anam_var,anam_coefr,anam_coefs,anam_strcnt,anam_stats);
+  init(anam_iclass,anam_var,strcnt);
 }
 
 CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMCAnamorphosis &r)
     : CovLMC(r),
-      _anamType(r._anamType),
       _anamIClass(r._anamIClass),
-      _anamNClass(r._anamNClass),
       _anamPointBlock(r._anamPointBlock),
       _anamStrCount(r._anamStrCount),
-      _anamMeans(r._anamMeans),
       _anam(r._anam)
 {
 }
@@ -63,12 +53,9 @@ CovLMCAnamorphosis& CovLMCAnamorphosis::operator=(const CovLMCAnamorphosis &r)
   if (this != &r)
   {
     CovLMC::operator=(r);
-    _anamType = r._anamType;
     _anamIClass = r._anamIClass;
-    _anamNClass = r._anamNClass;
     _anamPointBlock = r._anamPointBlock;
     _anamStrCount = r._anamStrCount;
-    _anamMeans = r._anamMeans;
     _anam = r._anam;
   }
   return *this;
@@ -78,67 +65,34 @@ CovLMCAnamorphosis::~CovLMCAnamorphosis()
 {
 }
 
-int CovLMCAnamorphosis::init(const EAnam& anam_type,
-                             int anam_nclass,
-                             int anam_iclass,
+int CovLMCAnamorphosis::init(int anam_iclass,
                              int anam_var,
-                             double anam_coefr,
-                             double anam_coefs,
-                             VectorDouble& anam_strcnt,
-                             VectorDouble& anam_stats)
+                             const VectorInt& anam_strcnt)
 {
-  /* Preliminary checks */
-
-  if (! (anam_iclass == 0 || anam_iclass < anam_nclass))
+  if (_anam == nullptr)
+  {
+    messerr("You must define 'anam'");
+    return 1;
+  }
+  if (! (anam_iclass == 0 || anam_iclass < _anam->getNFactor()))
   {
     messerr("The rank of the active factor (%d) is incorrect",anam_iclass);
     messerr("It should lie between 1 and the number of factors (%d)",
-            anam_nclass-1);
+            _anam->getNFactor()-1);
     messerr("or be set to 0 to estimate the whole discretized grade");
     return 1;
   }
 
-  /* Load the parameters */
-
-  if (anam_type == EAnam::HERMITIAN)
+  EAnam type = _anam->getType();
+  if (type != EAnam::HERMITIAN && type != EAnam::DISCRETE_IR && type != EAnam::DISCRETE_DD)
   {
-    _anam = new AnamHermite();
-    AnamHermite* anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    anam_hermite->setRCoef(anam_coefr);
-  }
-  else if (anam_type == EAnam::DISCRETE_IR)
-  {
-    _anam = new AnamDiscreteIR();
-    AnamDiscreteIR* anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
-    anam_discrete_IR->setNCut(anam_nclass);
-    anam_discrete_IR->setRCoef(anam_coefr);
-    anam_discrete_IR->setStats(anam_stats);
-  }
-  else if (anam_type == EAnam::DISCRETE_DD)
-  {
-    _anam = new AnamDiscreteDD();
-    AnamDiscreteDD* anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
-    anam_discrete_DD->setNCut(anam_nclass);
-    anam_discrete_DD->setRCoef(anam_coefs);
-    anam_discrete_DD->setStats(anam_stats);
-  }
-  else
-  {
-    messerr("Unknown Anamorphosis type int Definition of Model Transformation");
+    messerr("Unknown Anamorphosis Definition of Model Transformation");
     return 1;
   }
 
-  _anamType = anam_type;
   _anamIClass = anam_iclass;
-  _anamNClass = anam_nclass;
   _anamPointBlock = FFFF(anam_var) ? 0 : anam_var - 1;
-
-  if (!anam_strcnt.empty())
-  {
-    _anamStrCount.resize(anam_nclass - 1);
-    for (int i = 0; i < anam_nclass - 1; i++)
-      _anamStrCount[i] = anam_strcnt[i];
-  }
+  _anamStrCount = anam_strcnt;
 
   return 0;
 }
@@ -181,35 +135,34 @@ double CovLMCAnamorphosis::eval(int ivar,
   // TODO : this must be checked! anam_vario always equal to LHS, RHS or VAR ???
   if (anam_var >= 0) modeloc.setMember(ECalcMember::fromValue(anam_var));
 
-  if (_anamType == EAnam::HERMITIAN)
+  EAnam type = _anam->getType();
+  if (type == EAnam::HERMITIAN)
   {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
-    return _evalHermite(anam_hermite, ivar, jvar, p1, p2, mode);
+    return _evalHermite(ivar, jvar, p1, p2, mode);
   }
 
-  if (_anamType == EAnam::DISCRETE_DD)
+  if (type == EAnam::DISCRETE_DD)
   {
-    AnamDiscreteDD *anam_discreteDD = dynamic_cast<AnamDiscreteDD*>(_anam);
-    return _evalDiscreteDD(anam_discreteDD, ivar, jvar, p1, p2, mode);
+    return _evalDiscreteDD(ivar, jvar, p1, p2, mode);
   }
 
-  if (_anamType == EAnam::DISCRETE_IR)
+  if (type == EAnam::DISCRETE_IR)
   {
-    AnamDiscreteIR *anam_discreteIR = dynamic_cast<AnamDiscreteIR*>(_anam);
-    return _evalDiscreteIR(anam_discreteIR, ivar, jvar, p1, p2, mode);
+    return _evalDiscreteIR(ivar, jvar, p1, p2, mode);
   }
 
   return TEST;
 }
 
-double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
-                                        int ivar,
+double CovLMCAnamorphosis::_evalHermite(int ivar,
                                         int jvar,
                                         const SpacePoint& p1,
                                         const SpacePoint& p2,
                                         const CovCalcMode& mode) const
 {
   double rho, coeff, psin2, rn, rhon;
+  const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
+
 
   /* Check if the distance is zero */
 
@@ -227,13 +180,14 @@ double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
     /* Structure for the whole discretized grade */
     /*********************************************/
 
+    psin2 = 1.;
     if (dist2 <= 0.)
     {
       rn = 1.;
-      for (int iclass = 1; iclass < getAnamNClass(); iclass++)
+      for (int iclass = 1; iclass < anamH->getNFactor(); iclass++)
       {
-        psin2 = getAnamMeans(iclass) * getAnamMeans(iclass);
-        rn *= anam->getRCoef();
+//        psin2 = getAnamMeans(iclass) * getAnamMeans(iclass);
+        rn *= anamH->getRCoef();
         switch (mode.getMember().toEnum())
         {
           case ECalcMember::E_LHS:
@@ -253,10 +207,10 @@ double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
     {
       rn = 1.;
       rhon = 1.;
-      for (int iclass = 1; iclass < getAnamNClass(); iclass++)
+      for (int iclass = 1; iclass < anamH->getNFactor(); iclass++)
       {
-        psin2 = getAnamMeans(iclass) * getAnamMeans(iclass);
-        rn *= anam->getRCoef();
+//        psin2 = getAnamMeans(iclass) * getAnamMeans(iclass);
+        rn *= anamH->getRCoef();
         rhon *= rho;
         switch (mode.getMember().toEnum())
         {
@@ -283,9 +237,10 @@ double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
     /* Structure for the factor 'modtrs.anam_iclass' */
     /**************************************************/
 
+    int iclass = getAnamIClass();
     if (dist2 <= 0.)
     {
-      rn = pow(anam->getRCoef(), (double) getAnamIClass());
+      rn = pow(anamH->getRCoef(), (double) iclass);
       switch (mode.getMember().toEnum())
       {
         case ECalcMember::E_LHS:
@@ -304,8 +259,8 @@ double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
     }
     else
     {
-      rn = pow(anam->getRCoef(), (double) getAnamIClass());
-      rhon = pow(rho, (double) getAnamIClass());
+      rn = pow(anamH->getRCoef(), (double) iclass);
+      rhon = pow(rho, (double) iclass);
       switch (mode.getMember().toEnum())
       {
         case ECalcMember::E_LHS:
@@ -324,13 +279,13 @@ double CovLMCAnamorphosis::_evalHermite(AnamHermite *anam,
   return cov;
 }
 
-double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
-                                           int ivar,
+double CovLMCAnamorphosis::_evalDiscreteDD(int ivar,
                                            int jvar,
                                            const SpacePoint& p1,
                                            const SpacePoint& p2,
                                            const CovCalcMode& mode) const
 {
+  const AnamDiscreteDD *anamDD = dynamic_cast<const AnamDiscreteDD*>(_anam);
   double gamref, csi, li, mui, coeff;
 
   /* Check if the distance is zero */
@@ -355,10 +310,10 @@ double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
     /*********************************************/
 
     if (dist2 <= 0.)
-      for (int iclass = 1; iclass < getAnamNClass(); iclass++)
+      for (int iclass = 1; iclass < anamDD->getNClass(); iclass++)
       {
-        csi = anam->getDDStatCnorm(iclass);
-        mui = anam->getDDStatMul(iclass);
+        csi = anamDD->getDDStatCnorm(iclass);
+        mui = anamDD->getDDStatMul(iclass);
         switch (mode.getMember().toEnum())
         {
           case ECalcMember::E_LHS:
@@ -374,11 +329,11 @@ double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
         cov += coeff;
       }
     else
-      for (int iclass = 1; iclass < getAnamNClass(); iclass++)
+      for (int iclass = 1; iclass < anamDD->getNClass(); iclass++)
       {
-        li = anam->getDDStatLambda(iclass);
-        csi = anam->getDDStatCnorm(iclass);
-        mui = anam->getDDStatMul(iclass);
+        li  = anamDD->getDDStatLambda(iclass);
+        csi = anamDD->getDDStatCnorm(iclass);
+        mui = anamDD->getDDStatMul(iclass);
         switch (mode.getMember().toEnum())
         {
           case ECalcMember::E_LHS:
@@ -403,9 +358,10 @@ double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
     /* Structure for the factor 'modtrs.anam_iclass' */
     /**************************************************/
 
+    int iclass = getAnamIClass();
     if (dist2 <= 0.)
     {
-      mui = anam->getDDStatMul(getAnamIClass());
+      mui = anamDD->getDDStatMul(iclass);
       switch (mode.getMember().toEnum())
       {
         case ECalcMember::E_LHS:
@@ -424,8 +380,8 @@ double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
     }
     else
     {
-      mui = anam->getDDStatMul(getAnamIClass());
-      li = anam->getDDStatLambda(getAnamIClass());
+      mui = anamDD->getDDStatMul(iclass);
+      li  = anamDD->getDDStatLambda(iclass);
       switch (mode.getMember().toEnum())
       {
         case ECalcMember::E_LHS:
@@ -444,20 +400,20 @@ double CovLMCAnamorphosis::_evalDiscreteDD(AnamDiscreteDD* anam,
   return cov;
 }
 
-double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
-                                           int ivar,
+double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
                                            int jvar,
                                            const SpacePoint& p1,
                                            const SpacePoint& p2,
                                            const CovCalcMode& mode) const
 {
+  const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
   CovCalcMode modeloc(mode);
 
   /* Initializations */
 
-  int nclass = getAnamNClass();
+  int nclass = anamIR->getNClass();
   int ncut = nclass - 1;
-  double r = anam->getRCoef();
+  double r = anamIR->getRCoef();
 
   /* Calculate the generic variogram value */
 
@@ -478,8 +434,8 @@ double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
     for (int icut = 0; icut < ncut; icut++)
     {
       double cov1 = cov2;
-      double bi = anam->getIRStatB(icut);
-      cov2 = pow(_st_covsum_residual(anam, modeloc, icut, ivar, jvar, p1, p2), r);
+      double bi = anamIR->getIRStatB(icut);
+      cov2 = pow(__covSumResidualIR(modeloc, icut, ivar, jvar, p1, p2), r);
       cov += bi * bi * (cov2 - cov1);
     }
   }
@@ -492,52 +448,49 @@ double CovLMCAnamorphosis::_evalDiscreteIR(AnamDiscreteIR* anam,
 
     if (dist2 <= 0)
     {
-      cov = anam->getIRStatR(icut0 + 1);
+      cov = anamIR->getIRStatR(icut0 + 1);
     }
     else
     {
-      double cov1 = pow(
-          _st_covsum_residual(anam, modeloc, icut0 - 1, ivar, jvar, p1, p2), r);
-      double cov2 = pow(
-          _st_covsum_residual(anam, modeloc, icut0, ivar, jvar, p1, p2), r);
+      double cov1 = pow(__covSumResidualIR(modeloc, icut0 - 1, ivar, jvar, p1, p2), r);
+      double cov2 = pow(__covSumResidualIR(modeloc, icut0, ivar, jvar, p1, p2), r);
       cov = cov2 - cov1;
     }
   }
   return cov;
 }
 
-double CovLMCAnamorphosis::_st_cov_residual(AnamDiscreteIR *anam,
-                                            CovCalcMode& mode,
+double CovLMCAnamorphosis::_covResidualIR(CovCalcMode& mode,
                                             int icut0,
                                             int ivar,
                                             int jvar,
                                             const SpacePoint& p1,
                                             const SpacePoint& p2) const
 {
+  const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
 
   /* Get the pointer of the basic structure for the current model */
 
   int icov = 0;
   for (int icut = 0; icut < icut0; icut++)
-    icov += (int) getAnamStrCount()[icut];
+    icov += _anamStrCount[icut];
 
   /* Loop of the covariance basic structures */
 
   double cov = 0.;
-  int number = (int) getAnamStrCount()[icut0];
+  int number = _anamStrCount[icut0];
   for (int i = 0; i < number; i++, icov++)
   {
     mode.setKeepOnlyCovIdx(i);
     double covloc = CovLMC::eval(ivar, jvar, p1, p2, mode);
     cov += covloc;
   }
-  cov *= anam->getIRStatR(icut0 + 1);
+  cov *= anamIR->getIRStatR(icut0 + 1);
 
   return cov;
 }
 
-double CovLMCAnamorphosis::_st_covsum_residual(AnamDiscreteIR* anam,
-                                               CovCalcMode& mode,
+double CovLMCAnamorphosis::__covSumResidualIR(CovCalcMode& mode,
                                                int icut0,
                                                int ivar,
                                                int jvar,
@@ -546,18 +499,24 @@ double CovLMCAnamorphosis::_st_covsum_residual(AnamDiscreteIR* anam,
 {
   double covsum = 0.;
   for (int icut = 0; icut <= icut0; icut++)
-    covsum += _st_cov_residual(anam, mode, icut, ivar, jvar, p1, p2);
+    covsum += _covResidualIR(mode, icut, ivar, jvar, p1, p2);
   return (1. + covsum);
 }
 
 int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)
 {
-  if (! (anam_iclass == 0 || anam_iclass < getAnamNClass()))
+  if (! (anam_iclass == 0 || anam_iclass < _anam->getNFactor()))
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
-    messerr("It should lie between 1 and the number of factors (%d)", getAnamNClass() - 1);
+    messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);
     messerr("or be set to 0 to estimate the whole discretized grade");
     return 1;
   }
   return 0;
+}
+
+const EAnam CovLMCAnamorphosis::getAnamType() const
+{
+  if (_anam == nullptr) return EAnam::UNKNOWN;
+  return _anam->getType();
 }

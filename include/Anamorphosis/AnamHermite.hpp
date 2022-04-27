@@ -19,6 +19,7 @@
 class Db;
 class ECalcMember;
 class Selectivity;
+class SpacePoint;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
@@ -33,12 +34,6 @@ public:
 
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam:: HERMITIAN; }
-  double modifyCov(const ECalcMember& member,
-                   int iclass,
-                   double dist,
-                   double cov0,
-                   double cov1,
-                   double cov2) const override;
   int getNFactor() const override { return _nbPoly; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;

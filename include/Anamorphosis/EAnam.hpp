@@ -13,10 +13,11 @@
 #include "Enum/AEnum.hpp"
 
 #define ENUM_ANAM EAnam, HERMITIAN, \
-                  EXTERNAL,    0,  "External anamorphosis", \
-                  HERMITIAN,   1,  "Hermitian anamorphosis", \
-                  EMPIRICAL,   2,  "Empirical anamorphosis", \
-                  DISCRETE_DD, 3,  "Disjunctive Discrete anamorphosis", \
-                  DISCRETE_IR, 4,  "Indicator Residuals anamorphosis"
+                  UNKNOWN,     0,  "Undefined", \
+                  EXTERNAL,    1,  "External anamorphosis", \
+                  HERMITIAN,   2,  "Hermitian anamorphosis", \
+                  EMPIRICAL,   3,  "Empirical anamorphosis", \
+                  DISCRETE_DD, 4,  "Disjunctive Discrete anamorphosis", \
+                  DISCRETE_IR, 5,  "Indicator Residuals anamorphosis"
 
 ENUM_DECLARE(ENUM_ANAM)

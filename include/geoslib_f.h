@@ -197,11 +197,12 @@ GSTLEARN_EXPORT int vmap_compute(Db *db,
                                  int radius = 0,
                                  bool flag_FFT = true,
                                  const NamingConvention& namconv = NamingConvention("VMAP"));
-GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db, const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
+GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
+                                        const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
                                         int nxx = 20,
                                         int nyy = 20,
-                                        double dx = TEST,
-                                        double dy = TEST,
+                                        double dxx = TEST,
+                                        double dyy = TEST,
                                         int radius = 0.,
                                         bool flag_FFT = true,
                                         const NamingConvention& namconv = NamingConvention("VMAP"));
@@ -261,6 +262,9 @@ GSTLEARN_EXPORT int anamFactor2QT(Db *db,
                                   const VectorInt& cols_std,
                                   VectorInt& qt_vars,
                                   bool verbose = false);
+GSTLEARN_EXPORT int calculateHermiteFactors(Db *db,
+                                            int nfactor,
+                                            const NamingConvention& namconv = NamingConvention("Hn"));
 
 /******************************/
 /* Functions for Neighborhood */

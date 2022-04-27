@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
 #include "Anamorphosis/EAnam.hpp"
 
@@ -31,12 +32,6 @@ public:
 
   /// Interface for AAnam
   virtual const EAnam& getType() const = 0;
-  virtual double modifyCov(const ECalcMember& /*member*/,
-                           int /*iclass*/,
-                           double /*dist*/,
-                           double /*cov0*/,
-                           double /*cov1*/,
-                           double /*cov2*/) const { return TEST;}
   virtual int    getNFactor() const { return 0; }
   virtual bool   isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
@@ -71,10 +66,8 @@ protected:
                         const VectorInt& cols_est,
                         const VectorInt& cols_std);
 
-
 private:
   bool _isNcutValid(int ncut) const;
   bool _isProbaValid(double proba) const;
   void _printQTvars(const char *title, int type, int number) const;
-
 };

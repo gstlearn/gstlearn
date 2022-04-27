@@ -575,7 +575,8 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   if (_flagDGM)
   {
     double dist = (member == ECalcMember::LHS && iech1 == iech2) ? 0. : 1.;
-    double covn = _anam->modifyCov(member,_iclassDGM, dist, TEST, mat.getValue(0), TEST);
+//    double covn = _anam->modifyCov(member,_iclassDGM, dist, TEST, mat.getValue(0), TEST);
+    double covn = 1.; // TODO To be corrected with previous line
     mat.setValue(0, covn);
    }
 

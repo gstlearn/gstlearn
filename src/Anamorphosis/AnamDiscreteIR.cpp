@@ -186,23 +186,19 @@ int AnamDiscreteIR::fit(const VectorDouble& tab, int verbose)
 
   for (int iclass = 0; iclass < nclass; iclass++)
   {
-    tnext = (iclass < nclass - 1) ? getIRStatT(iclass + 1) :
-                                    0.;
-    qnext = (iclass < nclass - 1) ? getIRStatQ(iclass + 1) :
-                                    0.;
+    tnext = (iclass < nclass - 1) ? getIRStatT(iclass + 1) : 0.;
+    qnext = (iclass < nclass - 1) ? getIRStatQ(iclass + 1) : 0.;
     tcur = getIRStatT(iclass);
     dt = tcur - tnext;
     dq = getIRStatQ(iclass) - qnext;
-    setIRStatZ(iclass, (dt > 0) ? dq / dt :
-                                  0.);
+    setIRStatZ(iclass, (dt > 0) ? dq / dt : 0.);
     setIRStatB(iclass, getIRStatQ(iclass) - tcur * getIRStatZ(iclass));
     if (iclass <= 0)
       setIRStatR(iclass, 0.);
     else
     {
       tprev = getIRStatT(iclass - 1);
-      setIRStatR(iclass, (tprev > 0 && tcur > 0) ? 1. / tcur - 1. / tprev :
-                                                   0.);
+      setIRStatR(iclass, (tprev > 0 && tcur > 0) ? 1. / tcur - 1. / tprev : 0.);
     }
     setIRStatRV(iclass, getIRStatR(iclass));
   }
@@ -371,35 +367,6 @@ int AnamDiscreteIR::_deserialize(std::istream& is, bool verbose)
 
   setRCoef(r);
   return 0;
-}
-
-/**
- * Modify the Covariance included in a Kriging system
- * @param iclass Rank of the factor
- * @param dist   Distance (0 for Cii)
- * @param cov1   Covariance of the previous factor
- * @param cov2   Covariance of the current factor
- * @return
- */
-double AnamDiscreteIR::modifyCov(const ECalcMember& /*member*/,
-                                 int iclass,
-                                 double dist,
-                                 double /*cov0*/,
-                                 double cov1,
-                                 double cov2) const
-{
-  double cov;
-  if (dist <= 0)
-  {
-    cov = getIRStatR(iclass + 1);
-  }
-  else
-  {
-    cov1 = pow(cov1, _sCoef);
-    cov2 = pow(cov2, _sCoef);
-    cov  = cov2 - cov1;
-  }
-  return cov;
 }
 
 double AnamDiscreteIR::getBlockVariance(double sval, double /*power*/) const
@@ -677,4 +644,3 @@ int AnamDiscreteIR::factor2QT(Db *db,
   }
   return (0);
 }
-

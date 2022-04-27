@@ -670,55 +670,6 @@ int AnamDiscreteDD::_deserialize(std::istream& is, bool verbose)
   return 0;
 }
 
-double AnamDiscreteDD::modifyCov(const ECalcMember& member,
-                                 int iclass,
-                                 double dist,
-                                 double cov0,
-                                 double cov1,
-                                 double /*cov2*/) const
-{
-  double cov;
-  double coeff = 0.;
-  double mui = getDDStatMul(iclass);
-  double gamma = cov0 - cov1;
-  if (dist <= 0.)
-  {
-    switch (member.toEnum())
-    {
-      case ECalcMember::E_LHS:
-        coeff = 1.;
-        break;
-
-      case ECalcMember::E_RHS:
-        coeff = mui;
-        break;
-
-      case ECalcMember::E_VAR:
-        coeff = 1.;
-        break;
-    }
-    cov = coeff;
-  }
-  else
-  {
-    double ln = getDDStatLambda(iclass);
-    switch (member.toEnum())
-    {
-      case ECalcMember::E_LHS:
-        coeff = mui * mui;
-        break;
-      case ECalcMember::E_RHS:
-        coeff = mui;
-        break;
-      case ECalcMember::E_VAR:
-        coeff = 1.;
-        break;
-    }
-    cov = coeff * exp(-ln * gamma);
-  }
-  return cov;
-}
-
 double AnamDiscreteDD::getBlockVariance(double sval, double /*power*/) const
 {
   if (! allowChangeSupport()) return TEST;

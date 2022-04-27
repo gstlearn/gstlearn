@@ -180,8 +180,10 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
     hh = vario.getHhVec(idir,ivar,jvar)
-    ax.plot(hh, gg, label = label, **plot_args)
+    if len(hh) == 0:
+        return ax
     
+    ax.plot(hh, gg, label = label, **plot_args)
     hmax = np.nanmax(hh)
     
     # Plotting relevant control lines
@@ -190,6 +192,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     labsill = None
     if flagLabelSill:
         labsill = "sill"
+        
     ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0, label = labsill)
     
     if show_pairs:
