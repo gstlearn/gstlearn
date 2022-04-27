@@ -50,6 +50,8 @@ public:
                         Db *dbtgt,
                         Db *dbout,
                         double delta);
+  void checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
+  static bool isTurningBandsWorkable(const Model *model);
 
 private:
   void _simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);

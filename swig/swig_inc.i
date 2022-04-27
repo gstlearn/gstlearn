@@ -41,6 +41,12 @@
 #include "Basic/File.hpp"
 #include "Basic/Limits.hpp"
 
+#include "Boolean/ETLaw.hpp"
+#include "Boolean/ETShape.hpp"
+#include "Boolean/TokenParameter.hpp"
+#include "Boolean/AToken.hpp"
+#include "Boolean/TokenParallelepiped.hpp"
+
 #include "Enum/EKrigOpt.hpp"
 
 #include "Space/Space.hpp"

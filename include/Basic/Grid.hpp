@@ -55,6 +55,7 @@ public:
   double  getVolume(bool flag_cell = false) const;
   VectorDouble  getExtends(bool flag_cell = false) const;
 
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void    copyParams(int mode, const Grid& gridaux);

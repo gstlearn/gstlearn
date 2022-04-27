@@ -321,15 +321,15 @@ Tokens* tokens_create(int nb_tokens)
  **
  *****************************************************************************/
 int tokone_create(Tokens *tokens,
-                                  int rank,
-                                  int type,
-                                  int npar,
-                                  double prop,
-                                  double factor_x2y,
-                                  double factor_x2z,
-                                  double factor_y2z,
-                                  int *law,
-                                  double *valarg)
+                  int rank,
+                  int type,
+                  int npar,
+                  double prop,
+                  double factor_x2y,
+                  double factor_x2z,
+                  double factor_y2z,
+                  int *law,
+                  double *valarg)
 {
   if (tokens == nullptr) return 1;
   if (rank < 0 || rank >= tokens->nb_tokens) return 1;

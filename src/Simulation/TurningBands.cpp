@@ -2389,3 +2389,119 @@ int TurningBands::simulatePotential(Db *dbiso,
   return 0;
 }
 
+/****************************************************************************/
+/*!
+ **  Check if the Model can be simulated using Turning Bands
+ **
+ ** \return  True if the Model is valid; 0 otherwise
+ **
+ ** \param[in]  model    Model structure
+ **
+ *****************************************************************************/
+bool TurningBands::isTurningBandsWorkable(const Model *model)
+
+{
+  bool workable = true;
+
+  /* Loop on the structures */
+
+  for (int is = 0; is < model->getCovaNumber(); is++)
+  {
+    ECov type = model->getCovaType(is);
+
+    switch (type.toEnum())
+    {
+      case ECov::E_NUGGET:
+      case ECov::E_EXPONENTIAL:
+      case ECov::E_SPHERICAL:
+      case ECov::E_CUBIC:
+      case ECov::E_GAUSSIAN:
+      case ECov::E_SINCARD:
+      case ECov::E_BESSEL_J:
+      case ECov::E_BESSEL_K:
+      case ECov::E_STABLE:
+      case ECov::E_POWER:
+      case ECov::E_SPLINE_GC:
+      case ECov::E_LINEAR:
+      case ECov::E_ORDER1_GC:
+      case ECov::E_ORDER3_GC:
+      case ECov::E_ORDER5_GC:
+        break;
+
+      default:
+        workable = false;
+    }
+  }
+  return workable;
+}
+
+/****************************************************************************/
+/*!
+ **  Check/Show the data (gaussian) against the closest grid node
+ **
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db grid structure
+ ** \param[in]  model      Model structure
+ **
+ ** \remark Attributes ELoc::SIMU and ELoc::GAUSFAC (for PGS) are mandatory
+ ** \remark Tests have only been produced for icase=0
+ **
+ *****************************************************************************/
+void TurningBands::checkGaussianData2Grid(Db *dbin,
+                                          Db *dbout,
+                                          Model *model) const
+{
+  if (dbin == nullptr) return;
+  if (get_LOCATOR_NITEM(dbout,ELoc::SIMU) <= 0) return;
+  int nbsimu = getNbSimu();
+  if (nbsimu <= 0) return;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  if (dbgrid == nullptr) return;
+  int ndim = dbin->getNDim();
+
+  mestitle(1, "Checking Gaussian of data against closest grid node");
+
+
+  /* Loop on the data */
+
+  int number = 0;
+  VectorDouble coor(ndim);
+  for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
+  {
+    if (!dbin->isActive(iech)) continue;
+
+    // Find the index of the closest grid node and derive tolerance
+    int jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
+    if (jech < 0) continue;
+    double eps = model_calcul_stdev(model, dbin, iech, dbgrid, jech, 0, 2.);
+    if (eps < 1.e-6) eps = 1.e-6;
+
+    for (int isimu = 0; isimu < nbsimu; isimu++)
+    {
+      double valdat = dbin->getSimvar(ELoc::GAUSFAC, iech, 0, 0, 0, nbsimu, 1);
+      double valres = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
+      if (ABS(valdat - valres) < eps) continue;
+      number++;
+
+      /* The data facies is different from the grid facies */
+
+      message("Inconsistency for Simulation (%d) between :\n", isimu + 1);
+      message("- Value (%lf) at Data (#%d) ", valdat, iech + 1);
+      message("at (");
+      for (int idim = 0; idim < ndim; idim++)
+        message(" %lf", dbin->getCoordinate(iech, idim));
+      message(")\n");
+
+      message("- Value (%lf) at Grid (#%d) ", valres, jech + 1);
+      message("at (");
+      for (int idim = 0; idim < ndim; idim++)
+        message(" %lf", dbgrid->getCoordinate(jech, idim));
+      message(")\n");
+
+      message("- Tolerance = %lf\n", eps);
+    }
+  }
+  if (number <= 0) message("No problem found\n");
+  return;
+}
+

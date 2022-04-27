@@ -30,6 +30,8 @@
 #include "Covariances/ETape.hpp"
 #include "Covariances/EConvType.hpp"
 #include "Covariances/EConvDir.hpp"
+#include "Boolean/ETLaw.hpp"
+#include "Boolean/ETShape.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -53,4 +55,7 @@ ENUM_DEFINE(ENUM_SPDE_CALC_MODE)
 ENUM_DEFINE(ENUM_TAPE)
 ENUM_DEFINE(ENUM_CONVTYPE)
 ENUM_DEFINE(ENUM_CONVDIR)
+ENUM_DEFINE(ENUM_TLAW)
+ENUM_DEFINE(ENUM_TSHAPE)
+
 

@@ -46,20 +46,14 @@
 #define DATA   0
 #define RESULT 1
 
-#define AD(ivar,jvar)           (ivar) + nvar * (jvar)
-#define AIC(icov,ivar,jvar)      aic[(icov)*nvar*nvar + AD(ivar,jvar)]
-#define IND(iech,ivar)           ((iech) + (ivar) * nech)
-
 // TODO : transform this to enum
 #define TYPE_GAUS   0
 #define TYPE_FACIES 1
 #define TYPE_PROP   2
 
-#define EPS 1e-5
-
 /*! \endcond */
 
-static int MES_IGRF, MES_NGRF, MES_IPGS, MES_NPGS, FLAG_DGM;
+static int FLAG_DGM;
 static double GIBBS_RHO, GIBBS_SQR;
 static double R_COEFF;
 static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
@@ -71,16 +65,10 @@ static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
  *****************************************************************************/
 static void st_simulation_environment(void)
 {
-  MES_IGRF = 0;
-  MES_NGRF = 0;
-  MES_IPGS = 0;
-  MES_NPGS = 0;
   FLAG_DGM = 0;
-
   GIBBS_RHO = 0.;
   GIBBS_SQR = 0.;
   R_COEFF = 0.;
-
 }
 
 /****************************************************************************/
@@ -481,97 +469,6 @@ static int st_check_simtub_environment(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Check/Show the data (gaussian) against the closest grid node
- **
- ** \param[in]  dbin       Input Db structure
- ** \param[in]  dbout      Output Db grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  flag_pgs   1 if called from PGS
- ** \param[in]  flag_gibbs 1 if called from Gibbs
- **
- ** \remark Attributes ELoc::SIMU and ELoc::GAUSFAC (for PGS) are mandatory
- ** \remark Tests have only been produced for icase=0
- **
- *****************************************************************************/
-static void st_check_gaussian_data2grid(Db *dbin,
-                                        Db *dbout,
-                                        Model *model,
-                                        int nbsimu,
-                                        int flag_pgs,
-                                        int flag_gibbs)
-{
-  int iech, jech, isimu, number;
-  double valdat, valres, eps;
-  VectorDouble coor;
-
-  /* Initializations */
-
-  if (dbin == nullptr) return;
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-  number = 0;
-  check_mandatory_attribute("st_check_gaussian_data2grid", dbout, ELoc::SIMU);
-  mestitle(1, "Checking Gaussian of data against closest grid node");
-
-  /* Core allocation */
-
-  coor.resize(dbin->getNDim());
-
-  /* Loop on the data */
-
-  for (iech = 0; iech < dbin->getSampleNumber(); iech++)
-  {
-    if (!dbin->isActive(iech)) continue;
-
-    // Find the index of the closest grid node and derive tolerance
-    jech = index_point_to_grid(dbin, iech, 0, dbgrid, coor.data());
-    if (jech < 0) continue;
-    eps = model_calcul_stdev(model, dbin, iech, dbgrid, jech, 0, 2.);
-    if (eps < 1.e-6) eps = 1.e-6;
-
-    for (isimu = 0; isimu < nbsimu; isimu++)
-    {
-      if (!flag_pgs)
-      {
-        if (flag_gibbs)
-          valdat = dbin->getSimvar(ELoc::GAUSFAC, iech, isimu, 0, 0, nbsimu, 1);
-        else
-          valdat = dbin->getVariable(iech, 0);
-      }
-      else
-      {
-        valdat = dbin->getSimvar(ELoc::GAUSFAC, iech, 0, 0, 0, nbsimu, 1);
-      }
-
-      valres = dbgrid->getSimvar(ELoc::SIMU, jech, isimu, 0, 0, nbsimu, 1);
-      if (ABS(valdat - valres) < eps) continue;
-      number++;
-
-      /* The data facies is different from the grid facies */
-
-      message("Inconsistency for Simulation (%d) between :\n", isimu + 1);
-      message("- Value (%lf) at Data (#%d) ", valdat, iech + 1);
-      message("at (");
-      for (int idim = 0; idim < dbin->getNDim(); idim++)
-        message(" %lf", dbin->getCoordinate(iech, idim));
-      message(")\n");
-
-      message("- Value (%lf) at Grid (#%d) ", valres, jech + 1);
-      message("at (");
-      for (int idim = 0; idim < dbgrid->getNDim(); idim++)
-        message(" %lf", dbgrid->getCoordinate(jech, idim));
-      message(")\n");
-
-      message("- Tolerance = %lf\n", eps);
-    }
-  }
-
-  if (number <= 0) message("No problem found\n");
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Perform the conditional or non-conditional simulation
  **
  ** \return  Error return code
@@ -617,7 +514,6 @@ int simtub(Db *dbin,
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
 
   /* Add the attributes for storing the results */
 
@@ -629,12 +525,14 @@ int simtub(Db *dbin,
   if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0.,
                                &iptr_out)) goto label_end;
 
-  /* Processing the Turning Bands algorithm */
+  // Processing the Turning Bands algorithm
 
   situba = TurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
-  if (flag_check)
-    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
+
+  // Check the simulation at data location
+
+  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
 
   /* Free the temporary variables */
 
@@ -694,13 +592,11 @@ int simdgm(Db *dbin,
   flag_cond = (dbin != nullptr);
   if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
-    goto label_end;
+  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat)) goto label_end;
 
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
   FLAG_DGM = 1;
   R_COEFF = rval;
 
@@ -714,12 +610,14 @@ int simdgm(Db *dbin,
   if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
     goto label_end;
 
-  /* Processing the Turning Bands algorithm */
+  // Processing the Turning Bands algorithm
 
   situba = TurningBands(nbsimu, nbtuba, model,seed);
   if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
-  if (flag_check)
-    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
+
+  // Check the simulations at data locations
+
+  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
 
   /* Free the temporary variables */
 
@@ -784,7 +682,6 @@ int simbayes(Db *dbin,
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
 
   /* Add the attributes for storing the results */
 
@@ -796,13 +693,15 @@ int simbayes(Db *dbin,
   if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_out))
     goto label_end;
 
-  /* Processing the Turning Bands algorithm */
+  // Processing the Turning Bands algorithm
 
   situba = TurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0, true, dmean, dcov))
     goto label_end;
-  if (flag_check)
-    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
+
+  // Check simulations at data locations
+
+  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
 
   /* Free the temporary variables */
 
@@ -1097,10 +996,6 @@ int simpgs(Db *dbin,
 
   /* Define the environment variables for printout */
 
-  MES_NPGS = 1;
-  MES_IPGS = 0;
-  MES_NGRF = ngrf;
-
   /**********************/
   /* Add the attributes */
   /**********************/
@@ -1203,17 +1098,15 @@ int simpgs(Db *dbin,
   /***************************************************/
 
   local_seed = seed;
-  for (MES_IGRF = 0; MES_IGRF < 2; MES_IGRF++)
+  for (int igrf = 0; igrf < 2; igrf++)
   {
-    if (!flag_used[MES_IGRF]) continue;
-    icase = get_rank_from_propdef(propdef, 0, MES_IGRF);
-    situba = TurningBands(nbsimu, nbtuba, models[MES_IGRF], local_seed);
+    if (!flag_used[igrf]) continue;
+    icase = get_rank_from_propdef(propdef, 0, igrf);
+    situba = TurningBands(nbsimu, nbtuba, models[igrf], local_seed);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
-    if (flag_check)
-      st_check_gaussian_data2grid(dbin, dbout, models[MES_IGRF],
-                                  nbsimu, false, false);
+    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[igrf]);
   }
 
   /* Convert gaussian to facies at target point */
@@ -1559,8 +1452,6 @@ int simbipgs(Db *dbin,
 
   /* Define the environment variables for printout */
 
-  MES_NPGS = npgs;
-
   /************************/
   /* Main loop on the PGS */
   /************************/
@@ -1633,22 +1524,16 @@ int simbipgs(Db *dbin,
 
     /* Define the environment variables for printout */
 
-    MES_IPGS = ipgs;
-    MES_NGRF = ngrf[ipgs];
-
     local_seed = seed;
-    for (MES_IGRF = 0; MES_IGRF < 2; MES_IGRF++)
+    for (int igrf = 0; igrf < 2; igrf++)
     {
-      if (!flag_used[ipgs][MES_IGRF]) continue;
-      icase = get_rank_from_propdef(propdef, ipgs, MES_IGRF);
-      situba = TurningBands(nbsimu, nbtuba, models[ipgs][MES_IGRF],
-                            local_seed);
+      if (!flag_used[ipgs][igrf]) continue;
+      icase = get_rank_from_propdef(propdef, ipgs, igrf);
+      situba = TurningBands(nbsimu, nbtuba, models[ipgs][igrf], local_seed);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
                           VectorDouble(), true)) goto label_end;
-      if (flag_check)
-        st_check_gaussian_data2grid(dbin, dbout, models[ipgs][MES_IGRF],
-                                    nbsimu, false, false);
+      if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[ipgs][igrf]);
     }
 
     /* Convert gaussian to facies at target point */
@@ -1812,8 +1697,7 @@ int db_simulations_to_ce(Db *db,
         mean = db->getArray(iech, iptr_ce + ivar) / count;
         db->setArray(iech, iptr_ce + ivar, mean);
         var = db->getArray(iech, iptr_cstd + ivar) / count - mean * mean;
-        var = (var > 0.) ? sqrt(var) :
-                           0.;
+        var = (var > 0.) ? sqrt(var) : 0.;
         db->setArray(iech, iptr_cstd + ivar, var);
       }
     }
@@ -2337,7 +2221,6 @@ int simmaxstable(Db *dbout,
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
 
   /* Add the attributes for storing the results */
 
@@ -2493,7 +2376,6 @@ int simRI(Db *dbout,
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
 
   /* Add the attributes for storing the results */
 
@@ -2740,10 +2622,6 @@ int simpgs_spde(Db *dbin,
 
   /* Define the environment variables for printout */
 
-  MES_NPGS = 1;
-  MES_IPGS = 0;
-  MES_NGRF = ngrf;
-
   /**********************/
   /* Add the attributes */
   /**********************/
@@ -2849,57 +2727,6 @@ int simpgs_spde(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Check if the Model can be simulated using Turning Bands
- **
- ** \return  1 if the Model is valid; 0 otherwise
- **
- ** \param[in]  model    Model structure
- **
- *****************************************************************************/
-int simtub_workable(Model *model)
-
-{
-  int workable;
-  ECov type;
-
-  /* Initializations */
-
-  workable = 1;
-
-  /* Loop on the structures */
-
-  for (int is = 0; is < model->getCovaNumber(); is++)
-  {
-    type = model->getCovaType(is);
-
-    switch (type.toEnum())
-    {
-      case ECov::E_NUGGET:
-      case ECov::E_EXPONENTIAL:
-      case ECov::E_SPHERICAL:
-      case ECov::E_CUBIC:
-      case ECov::E_GAUSSIAN:
-      case ECov::E_SINCARD:
-      case ECov::E_BESSEL_J:
-      case ECov::E_BESSEL_K:
-      case ECov::E_STABLE:
-      case ECov::E_POWER:
-      case ECov::E_SPLINE_GC:
-      case ECov::E_LINEAR:
-      case ECov::E_ORDER1_GC:
-      case ECov::E_ORDER3_GC:
-      case ECov::E_ORDER5_GC:
-        break;
-
-      default:
-        workable = 0;
-    }
-  }
-  return (workable);
-}
-
-/****************************************************************************/
-/*!
  **  Perform the conditional simulations under inequality constraints
  **
  ** \return  Error return code
@@ -2981,7 +2808,6 @@ int simcond(Db *dbin,
   /* Define the environment variables for printout */
 
   st_simulation_environment();
-  MES_NPGS = MES_NGRF = 1;
 
   /* Add the attributes for storing the results */
 
@@ -3021,8 +2847,7 @@ int simcond(Db *dbin,
   situba = TurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(),
                       VectorDouble(), false, true)) goto label_end;
-  if (flag_check)
-    st_check_gaussian_data2grid(dbin, dbout, model, nbsimu, false, false);
+  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
 
   /* Free the temporary variables not used anymore */
 

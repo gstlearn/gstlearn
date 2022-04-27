@@ -1829,7 +1829,6 @@ GSTLEARN_EXPORT int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
 GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
                                                Db *db,
                                                const ELoc &locatorType);
-GSTLEARN_EXPORT int simtub_workable(Model *model);
 GSTLEARN_EXPORT int simdgm(Db *dbin,
                            Db *dbout,
                            Model *model,

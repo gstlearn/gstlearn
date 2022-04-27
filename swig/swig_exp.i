@@ -104,6 +104,12 @@ class IClonable{};
 %include Basic/ECst.hpp
 %include Basic/File.hpp
 
+%include Boolean/ETLaw.hpp
+%include Boolean/ETShape.hpp
+%include Boolean/TokenParameter.hpp
+%include Boolean/AToken.hpp
+%include Boolean/TokenParallelepiped.hpp
+
 %include Space/Space.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp

@@ -209,6 +209,9 @@ set(SRC
   Basic/OptDbg.cpp
   Basic/OptCst.cpp
   Basic/OptCustom.cpp
+  Boolean/TokenParameter.cpp
+  Boolean/AToken.cpp
+  Boolean/TokenParallelepiped.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
