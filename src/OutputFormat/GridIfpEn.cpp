@@ -17,7 +17,7 @@
 #include "Basic/String.hpp"
 
 #include <string.h>
-#include "../../include/OutputFormat/GridIfpEn.hpp"
+#include "OutputFormat/GridIfpEn.hpp"
 
 GridIfpEn::GridIfpEn(const char* filename, const Db* db)
   : AOF(filename, db)

@@ -1,0 +1,529 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#include "Boolean/Object.hpp"
+#include "Boolean/AToken.hpp"
+#include "Boolean/Tokens.hpp"
+#include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
+#include "Basic/Vector.hpp"
+#include "Basic/Law.hpp"
+
+#include <math.h>
+
+Object::Object(const AToken* atoken)
+    : AStringable(),
+      _token(atoken),
+      _center({0.,0.,0.}),
+      _extension({0.,0.,0.,}),
+      _orientation(0.),
+      _values({0.,0.,0.}),
+      _box({{0.,0.},{0.,0.},{0.,0.}})
+{
+}
+
+Object::Object(const Object &r)
+    : AStringable(r),
+      _token(r._token),
+      _center(r._center),
+      _extension(r._extension),
+      _orientation(r._orientation),
+      _values(r._values),
+      _box(r._box)
+{
+}
+
+Object& Object::operator=(const Object &r)
+{
+  if (this != &r)
+  {
+    AStringable::operator =(r);
+    _token = r._token;
+    _center = r._center;
+    _extension = r._extension;
+    _orientation = r._orientation;
+    _values = r._values;
+    _box = r._box;
+  }
+  return *this;
+}
+
+Object::~Object()
+{
+}
+
+String Object::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+
+  sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
+  sstr << "- Center      = " << ut_vector_string(_center) << std::endl;
+  sstr << "- Extension   = " << ut_vector_string(_extension) << std::endl;
+  sstr << "- Orientation = " << _orientation << std::endl;
+
+  return sstr.str();
+}
+
+/*****************************************************************************/
+/*!
+ **  Blank out a given object
+ **
+ *****************************************************************************/
+void Object::blank()
+{
+  for (int idim = 0; idim < 3; idim++)
+  {
+    _center[idim] = 0.;
+    _extension[idim] = 0.;
+    for (int i = 0; i < 2; i++)
+      _box[idim][i] = 0.;
+  }
+  _orientation = 0.;
+  for (int i = 0; i < 3; i++)
+    _values[i] = 0.;
+}
+
+void Object::_defineBoundingBox(double eps)
+{
+  double dx, dy, dz;
+
+  if (ABS(_orientation) < eps)
+  {
+    dx = _extension[0];
+    dy = _extension[1];
+    dz = _extension[2];
+  }
+  else
+  {
+    double angle = _orientation * GV_PI / 180.;
+    double sint = ABS(sin(angle));
+    double cost = ABS(cos(angle));
+    dx = cost * _extension[0] + sint * _extension[1];
+    dy = sint * _extension[0] + cost * _extension[1];
+    dz = _extension[2];
+  }
+
+  _box[0][0] = _center[0] - dx / 2;
+  _box[0][1] = _center[0] + dx / 2;
+  _box[1][0] = _center[1] - dy / 2;
+  _box[1][1] = _center[1] + dy / 2;
+
+  if (_token->getFlagCutZ())
+  {
+    _box[2][0] = _center[2] - dz / 2;
+    _box[2][1] = _center[2] + dz / 2;
+  }
+  else
+  {
+    _box[2][0] = _center[2] - dz;
+    _box[2][1] = _center[2];
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Function used to generate the geometry of an object
+ **
+ *****************************************************************************/
+ Object* Object::generateObject(const DbGrid* dbout,
+                                const VectorDouble& cdgrain,
+                                Tokens* tokens,
+                                int maxiter,
+                                bool flagStat,
+                                double thetaCst,
+                                double eps)
+{
+  bool flag_fix = ! cdgrain.empty();
+
+  // Extract grid information
+
+  int ndim = dbout->getNDim();
+  VectorDouble origin = dbout->getX0s();
+  VectorDouble field = dbout->getExtends();
+
+  // Define the (primary) location of the object
+
+  int iter = 0;
+  VectorDouble coor(ndim);
+  if (flag_fix)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+      coor[idim] = cdgrain[idim];
+  }
+  else
+  {
+    do
+    {
+      iter++;
+      for (int idim = 0; idim < ndim; idim++)
+        coor[idim] = origin[idim] + field[idim] * law_uniform(0., 1.);
+    }
+    while (_checkIntensity(dbout, coor, flagStat, thetaCst) && iter < maxiter);
+    if (iter >= maxiter) return nullptr;
+  }
+
+  // Generate an object of the correct Token type
+
+  Object* object = tokens->generateObject(ndim);
+
+  /* Operate the linkage */
+
+  _extensionLinkage();
+
+  /* Store the coordinates of the object center */
+
+  double valrand;
+  if (flag_fix)
+  {
+    do
+    {
+      iter++;
+      for (int idim = 0; idim < ndim; idim++)
+      {
+        if (idim < 2)
+        {
+          valrand = law_uniform(0., 1.) - 0.5;
+        }
+        else
+        {
+          if (_token->getFlagCutZ())
+            valrand = law_uniform(0., 1.) - 0.5;
+          else
+            valrand = law_uniform(0., 1.);
+        }
+        _center[idim] = coor[idim] + _extension[idim] * valrand;
+      }
+    }
+    while (! _checkObject(cdgrain, ndim) && iter < maxiter);
+    if (iter >= maxiter)
+    {
+      delete object;
+      return object;
+    }
+  }
+  else
+    for (int idim = 0; idim < ndim; idim++)
+      _center[idim] = coor[idim];
+
+  /* Determine the inclusive box */
+
+  _defineBoundingBox(eps);
+
+  return object;
+}
+
+ /*****************************************************************************/
+ /*!
+  **  Function to link the geometries of an object
+  **
+  *****************************************************************************/
+ void Object::_extensionLinkage()
+ {
+   if (_token->getFactorX2Y() > 0.)
+     _extension[1] = _extension[0] * _token->getFactorX2Y();
+   if (_token->getFactorX2Z() > 0.)
+     _extension[2] = _extension[0] * _token->getFactorX2Z();
+   if (_token->getFactorY2Z() > 0.)
+     _extension[2] = _extension[1] * _token->getFactorY2Z();
+ }
+
+ /*****************************************************************************/
+ /*!
+  **  Check if an object may be generated according to the value
+  **  of the Intensity
+  **  This Intensity can be local or not (if Flag_stat)
+  **
+  ** \return  Error return code:
+  ** \return  0 the token is created
+  ** \return  1 the token may not be created
+  **
+  *****************************************************************************/
+bool Object::_checkIntensity(const DbGrid* dbout,
+                             const VectorDouble& coor,
+                             bool flagStat,
+                             double thetaCst,
+                             double eps)
+ {
+   double theta;
+   if (flagStat)
+   {
+     theta = thetaCst;
+   }
+   else
+   {
+     int iech = dbout->coordinateToRank(coor, eps);
+     theta = dbout->getProportion(iech, 0);
+   }
+   return (law_uniform(0., 1.) > theta);
+ }
+
+/*****************************************************************************/
+/*!
+ **  Check if the pixel (coor) belongs to the grain.
+ **
+ ** \return  1 if the pixel is in the grain, 0 if it is in the pore
+ **
+ ** \param[in]  coor     location of the pixel
+ ** \param[in]  ndim     Space dimension
+ **
+ *****************************************************************************/
+bool Object::_checkObject(const VectorDouble& coor, int ndim)
+{
+  double dx = coor[0] - _center[0];
+  double dy = coor[1] - _center[1];
+  double dz = coor[2] - _center[2];
+
+  if (_orientation)
+  {
+    double angle = _orientation * GV_PI / 180.;
+    double sint = sin(angle);
+    double cost = cos(angle);
+    double dxr = dx * cost + dy * sint;
+    double dyr = dy * cost - dx * sint;
+    dx = dxr;
+    dy = dyr;
+  }
+
+  /* Check if the grain is outside the box */
+
+  if (ABS(dx) > _extension[0] / 2.) return false;
+  if (ABS(dy) > _extension[1] / 2.) return false;
+
+  if (ndim > 2)
+  {
+    if (_token->getFlagCutZ())
+    {
+      if (ABS(dz) > _extension[2] / 2.) return false;
+    }
+    else
+    {
+      if (dz > 0) return false;
+      if (ABS(dz) > _extension[2]) return false;
+    }
+  }
+
+  /* Check the pixel according to the grain definition */
+
+  int memo = law_get_random_seed();
+  bool answer = _token->belongObject(coor, this);
+  law_set_random_seed(memo);
+
+  return answer;
+}
+
+/*****************************************************************************/
+/*!
+ **  Check if the pixel (coor) belongs to the object bounding box
+ **
+ ** \param[in]  coor     location of the pixel
+ ** \param[in]  ndim     Space dimension
+ **
+ *****************************************************************************/
+bool Object::_checkBoundingBox(const VectorDouble& coor, int ndim)
+
+{
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    if (coor[idim] < _box[idim][0]) return false;
+    if (coor[idim] > _box[idim][1]) return false;
+  }
+  return true;
+}
+
+bool Object::_isPore(const Db* db, int iech)
+{
+  int ival = db->getVariable(iech, 0);
+  return (ival == 0);
+}
+
+bool Object::_isGrain(const Db* db, int iech)
+{
+  int ival = db->getVariable(iech, 0);
+  return (ival != 0);
+}
+
+int Object::_getCoverageAtSample(const Db* db, int iech)
+{
+  return db->getVariable(iech,1);
+}
+
+void Object::_updateCoverageAtSample(Db* db, int iech, int ival)
+{
+  db->setVariable(iech, 1, db->getVariable(iech, 1) + ival);
+}
+
+/*****************************************************************************/
+/*!
+ **  Check if the current object is compatible with the constraining pores
+ **
+ ** \param[in]  nbpore  count of constraining pores
+ ** \param[in]  cdpore  Bool_Cond describing the constraining pores
+ **
+ *****************************************************************************/
+bool Object::_checkPore(const Db* db)
+{
+  int ndim = db->getNDim();
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    if (! _isPore(db, iech)) continue;
+    VectorDouble coor = db->getSampleCoordinates(iech);
+    if (! _checkBoundingBox(coor, ndim)) continue;
+    if (_checkObject(coor, ndim)) return true;
+  }
+  return false;
+}
+
+/*****************************************************************************/
+/*!
+ **  Check if an object can be added with regards to the constraining grains
+ **
+ ** \param[in]  db       Constraining data set
+ **
+ *****************************************************************************/
+bool Object::_canBeAdded(const Db* db)
+{
+  int ndim = db->getNDim();
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    if (! _isGrain(db,iech)) continue;
+    VectorDouble coor = db->getSampleCoordinates(iech);
+    if (! _checkBoundingBox(coor, ndim)) continue;
+    if (! _checkObject(coor, ndim)) continue;
+  }
+  return true;
+}
+
+/*****************************************************************************/
+/*!
+ **  Check if an object can be deleted with regards to the constraining grains
+ **
+ ** \param[in]  db       Constraining data set
+ **
+ *****************************************************************************/
+bool Object::_canBeDeleted(const Db* db)
+{
+  int ndim = db->getNDim();
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    if (! _isGrain(db, iech)) continue;
+    VectorDouble coor = db->getSampleCoordinates(iech);
+    if (! _checkBoundingBox(coor, ndim)) continue;
+    if (_getCoverageAtSample(db, iech) > 1) continue;
+    if (_checkObject(coor, ndim)) return false;
+  }
+  return true;
+}
+
+/*****************************************************************************/
+/*!
+ **  Update the covering value of each constraining grain after a
+ **  deletion or an addition operation
+ **
+ ** \return  Count of grains not covered after the operation
+ **
+ ** \param[in]  object   Bool_Object describing token to be operated
+ ** \param[in]  nbgrain  number of constraining grains
+ ** \param[in]  cdgrain  Bool_Cond describing the conditioning grains
+ ** \param[in]  val      type of the operation to be tested
+ **                      1 for addition; -1 for deletion
+ **
+ *****************************************************************************/
+int Object::_coverageUpdate(Db* db, int val)
+{
+  int ndim = db->getNDim();
+  int not_covered = 0;
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    if (! _isGrain(db, iech)) continue;
+    VectorDouble coor = db->getSampleCoordinates(iech);
+    if (_checkBoundingBox(coor, ndim))
+    {
+      if (_checkObject(coor, ndim))
+      {
+        if (val < 0)
+        {
+          // Deletion
+          _updateCoverageAtSample(db, iech, -1);
+        }
+        else
+        {
+          // Addition
+          _updateCoverageAtSample(db, iech, +1);
+        }
+      }
+    }
+    if (_getCoverageAtSample(db, iech) <= 0) not_covered++;
+  }
+  return not_covered;
+}
+
+void Object::projectToGrid(DbGrid* dbout,
+                           int iptr_simu,
+                           int iptr_rank,
+                           int facies,
+                           int rank)
+{
+  int ix0, ix1, iy0, iy1, iz0, iz1;
+  VectorDouble coor(3);
+  VectorInt indice(3);
+  int ndim = dbout->getNDim();
+
+  /* Look for the nodes in the box of influence of the object */
+
+  ix0 = (int) ((_box[0][0] - dbout->getX0(0)) / dbout->getDX(0) - 1);
+  ix0 = MAX(ix0, 0);
+  ix1 = (int) ((_box[0][1] - dbout->getX0(0)) / dbout->getDX(0) + 1);
+  ix1 = MIN(ix1, dbout->getNX(0) - 1);
+  iy0 = (int) ((_box[1][0] - dbout->getX0(1)) / dbout->getDX(1) - 1);
+  iy0 = MAX(iy0, 0);
+  iy1 = (int) ((_box[1][1] - dbout->getX0(1)) / dbout->getDX(1) + 1);
+  iy1 = MIN(iy1, dbout->getNX(1) - 1);
+  iz0 = (int) ((_box[2][0] - dbout->getX0(2)) / dbout->getDX(2) - 1);
+  iz0 = MAX(iz0, 0);
+  iz1 = (int) ((_box[2][1] - dbout->getX0(2)) / dbout->getDX(2) + 1);
+  iz1 = MIN(iz1, dbout->getNX(2) - 1);
+
+  /* Check the pixels within the box */
+
+  for (int ix = ix0; ix <= ix1; ix++)
+    for (int iy = iy0; iy <= iy1; iy++)
+      for (int iz = iz0; iz <= iz1; iz++)
+      {
+        coor[0] = dbout->getX0(0) + ix * dbout->getDX(0);
+        coor[1] = dbout->getX0(1) + iy * dbout->getDX(1);
+        coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
+        if (! _checkObject(coor, ndim)) continue;
+        indice[0] = ix;
+        indice[1] = iy;
+        indice[2] = iz;
+        int iad = dbout->indiceToRank(indice);
+
+        /* Bypass writing if the cell is masked off */
+
+        if (! dbout->isActive(iad)) continue;
+
+        /* Set the values */
+
+        if (iptr_simu >= 0)
+        {
+          dbout->setArray(iad, iptr_simu, facies);
+        }
+        if (iptr_rank >= 0)
+        {
+          if (FFFF(dbout->getArray(iad, iptr_rank)))
+            dbout->setArray(iad, iptr_rank, (double) (rank + 1));
+        }
+      }
+}

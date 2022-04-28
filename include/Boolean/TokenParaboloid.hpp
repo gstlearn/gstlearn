@@ -10,15 +10,26 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/AEnum.hpp"
+#include "gstlearn_export.hpp"
 
-#define ENUM_TSHAPE ETShape, PARALLELEPIPED,\
-                 PARALLELEPIPED,    0, "Parallelepiped",\
-                 ELLIPSOID,         1, "Full Ellipsoid",\
-                 PARABOLOID,        2, "Full Paraboloid",\
-                 HALFELLIPSOID,     3, "Lower-Half Ellipsoid",\
-                 HALFPARABOLOID,    4, "Lower-Hald Paraboloid",\
-                 HALFSINUSOID,      5, "Lower-Half Sinusoid"
+#include "Basic/Vector.hpp"
+#include "Boolean/ETShape.hpp"
+#include "Boolean/AToken.hpp"
+#include "Boolean/TokenParameter.hpp"
 
-ENUM_DECLARE(ENUM_TSHAPE)
+class Object;
 
+class GSTLEARN_EXPORT TokenParaboloid: public AToken
+{
+public:
+  TokenParaboloid();
+  TokenParaboloid(const TokenParaboloid &r);
+  TokenParaboloid& operator=(const TokenParaboloid &r);
+  virtual ~TokenParaboloid();
+
+  ETShape getType() const override { return ETShape::PARABOLOID; }
+  int  getNParams() const override { return 4; }
+  bool getFlagCutZ() const override { return false; }
+  Object* generateObject(int ndim = 3) override;
+  bool belongObject(const VectorDouble& coor, const Object* object) const override;
+};

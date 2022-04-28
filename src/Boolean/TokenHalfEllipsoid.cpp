@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenParallelepiped.hpp"
+#include "Boolean/TokenHalfEllipsoid.hpp"
 #include "Boolean/Object.hpp"
 
-TokenParallelepiped::TokenParallelepiped()
+TokenHalfEllipsoid::TokenHalfEllipsoid()
     : AToken()
 {
   initParams(4);
@@ -21,12 +21,12 @@ TokenParallelepiped::TokenParallelepiped()
   setParamName(3, "Orientation Angle");
 }
 
-TokenParallelepiped::TokenParallelepiped(const TokenParallelepiped &r)
+TokenHalfEllipsoid::TokenHalfEllipsoid(const TokenHalfEllipsoid &r)
     : AToken(r)
 {
 }
 
-TokenParallelepiped& TokenParallelepiped::operator=(const TokenParallelepiped &r)
+TokenHalfEllipsoid& TokenHalfEllipsoid::operator=(const TokenHalfEllipsoid &r)
 {
   if (this != &r)
   {
@@ -35,7 +35,7 @@ TokenParallelepiped& TokenParallelepiped::operator=(const TokenParallelepiped &r
   return *this;
 }
 
-TokenParallelepiped::~TokenParallelepiped()
+TokenHalfEllipsoid::~TokenHalfEllipsoid()
 {
 }
 
@@ -46,7 +46,7 @@ TokenParallelepiped::~TokenParallelepiped()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenParallelepiped::generateObject(int ndim)
+Object* TokenHalfEllipsoid::generateObject(int ndim)
 
 {
   Object* object = new Object(this);
@@ -64,9 +64,14 @@ Object* TokenParallelepiped::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenParallelepiped::belongObject(const VectorDouble& /*coor*/,
-                                       const Object* /*object*/) const
+bool TokenHalfEllipsoid::belongObject(const VectorDouble& coor,
+                                      const Object* object) const
 {
+  int ndim = (int) coor.size();
+  double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;
+  double dy = (ndim >= 2) ? coor[1] / (object->getExtension(1) / 2.) : 0.;
+  double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2))      : 0.;
+  if (dx * dx + dy * dy + dz * dz > 1) return false;
   return true;
 }
 

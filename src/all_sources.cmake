@@ -212,6 +212,13 @@ set(SRC
   Boolean/TokenParameter.cpp
   Boolean/AToken.cpp
   Boolean/TokenParallelepiped.cpp
+  Boolean/TokenEllipsoid.cpp
+  Boolean/TokenParaboloid.cpp
+  Boolean/TokenHalfEllipsoid.cpp
+  Boolean/TokenHalfParaboloid.cpp
+  Boolean/TokenHalfSinusoid.cpp
+  Boolean/Tokens.cpp
+  Boolean/Object.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp

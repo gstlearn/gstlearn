@@ -60,7 +60,7 @@ typedef struct
 {
   int nb_tokens; /* Number of tokens */
   std::vector<Token_Def> defs; /* Token Definition array */
-} Tokens;
+} Old_Tokens;
 
 struct Local_Bool_Object
 {

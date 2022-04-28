@@ -2105,9 +2105,9 @@ GSTLEARN_EXPORT int seismic_convolve(DbGrid *db,
 /* Prototyping the functions in simbool.c */
 /******************************************/
 
-GSTLEARN_EXPORT Tokens* tokens_free(Tokens *tokens);
-GSTLEARN_EXPORT Tokens* tokens_create(int nb_tokens);
-GSTLEARN_EXPORT int tokone_create(Tokens *token,
+GSTLEARN_EXPORT Old_Tokens* tokens_free(Old_Tokens *tokens);
+GSTLEARN_EXPORT Old_Tokens* tokens_create(int nb_tokens);
+GSTLEARN_EXPORT int tokone_create(Old_Tokens *token,
                                   int rank,
                                   int type,
                                   int npar,
@@ -2117,25 +2117,25 @@ GSTLEARN_EXPORT int tokone_create(Tokens *token,
                                   double factor_y2z,
                                   int *law,
                                   double *valarg);
-GSTLEARN_EXPORT void tokone_print(Tokens *tokens, int rank);
-GSTLEARN_EXPORT Tokens* tokens_input(void);
-GSTLEARN_EXPORT void tokone_get_nbparams(Tokens *tokens,
+GSTLEARN_EXPORT void tokone_print(Old_Tokens *tokens, int rank);
+GSTLEARN_EXPORT Old_Tokens* tokens_input(void);
+GSTLEARN_EXPORT void tokone_get_nbparams(Old_Tokens *tokens,
                                          int rank,
                                          int *types,
                                          int *npar,
                                          double *prop);
-GSTLEARN_EXPORT void tokone_get_params(Tokens *tokens,
+GSTLEARN_EXPORT void tokone_get_params(Old_Tokens *tokens,
                                        int rank,
                                        double *factor_x2y,
                                        double *factor_x2z,
                                        double *factor_y2z,
                                        int *law,
                                        double *valarg);
-GSTLEARN_EXPORT void tokens_print(Tokens *tokens);
+GSTLEARN_EXPORT void tokens_print(Old_Tokens *tokens);
 GSTLEARN_EXPORT int toktype_get_nbparams(int type);
 GSTLEARN_EXPORT int simbool_f(Db *dbin,
                               DbGrid *dbout,
-                              Tokens *tokens,
+                              Old_Tokens *tokens,
                               int seed,
                               int nb_average,
                               int flag_stat,

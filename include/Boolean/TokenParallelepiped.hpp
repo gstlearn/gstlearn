@@ -16,6 +16,8 @@
 #include "Boolean/AToken.hpp"
 #include "Boolean/TokenParameter.hpp"
 
+class Object;
+
 class GSTLEARN_EXPORT TokenParallelepiped: public AToken
 {
 public:
@@ -25,12 +27,8 @@ public:
   virtual ~TokenParallelepiped();
 
   ETShape getType() const override { return ETShape::PARALLELEPIPED; }
-  int getNArgs() const override { return 4; }
-  int getFlagSymZ() const override { return 0; }
-  String getParamName(int i) const override { return _paramNames[i]; }
-  const TokenParameter& getParam(int i) const override { return _params[i]; }
-
-private:
-  VectorString _paramNames;
-  std::vector<TokenParameter> _params;
+  int  getNParams() const override { return 4; }
+  bool getFlagCutZ() const override { return false; }
+  Object* generateObject(int ndim = 3) override;
+  bool belongObject(const VectorDouble& coor, const Object* object) const override;
 };

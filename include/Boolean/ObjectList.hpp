@@ -10,15 +10,32 @@
 /******************************************************************************/
 #pragma once
 
-#include "Enum/AEnum.hpp"
+#include "gstlearn_export.hpp"
+#include "geoslib_define.h"
 
-#define ENUM_TSHAPE ETShape, PARALLELEPIPED,\
-                 PARALLELEPIPED,    0, "Parallelepiped",\
-                 ELLIPSOID,         1, "Full Ellipsoid",\
-                 PARABOLOID,        2, "Full Paraboloid",\
-                 HALFELLIPSOID,     3, "Lower-Half Ellipsoid",\
-                 HALFPARABOLOID,    4, "Lower-Hald Paraboloid",\
-                 HALFSINUSOID,      5, "Lower-Half Sinusoid"
+#include "Basic/AStringable.hpp"
 
-ENUM_DECLARE(ENUM_TSHAPE)
+class AToken;
+class Object;
+class DbGrid;
 
+class GSTLEARN_EXPORT ObjectList: public AStringable
+{
+public:
+  ObjectList(const AToken* atoken);
+  ObjectList(const ObjectList &r);
+  ObjectList& operator=(const ObjectList &r);
+  virtual ~ObjectList();
+
+  /// Interface to AStringable
+  String toString(const AStringFormat* strfmt) const;
+
+  void projectToGrid(DbGrid* dbout,
+                     int iptr_simu,
+                     int iptr_rank,
+                     int background,
+                     int facies);
+
+private:
+  std::vector<Object> _objlist;
+};

@@ -15,6 +15,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/Db.hpp"
 
 #include <string.h>
 #include <math.h>
@@ -232,12 +233,12 @@ static Def_Token DEF_TOKEN[] = { { "Parallelepiped",
  ** \param[in]  tokens Pointer to the Tokens structure to be freed
  **
  *****************************************************************************/
-Tokens* tokens_free(Tokens *tokens)
+Old_Tokens* tokens_free(Old_Tokens *tokens)
 
 {
   if (tokens == nullptr) return (tokens);
   delete tokens;
-  tokens = (Tokens*) nullptr;
+  tokens = (Old_Tokens*) nullptr;
   return (tokens);
 }
 
@@ -248,7 +249,7 @@ Tokens* tokens_free(Tokens *tokens)
  ** \param[in]  tokens Tokens structure
  **
  *****************************************************************************/
-static void st_normalize_proportions(Tokens *tokens)
+static void st_normalize_proportions(Old_Tokens *tokens)
 
 {
   int i;
@@ -282,10 +283,10 @@ static void st_normalize_proportions(Tokens *tokens)
  ** \param[in]  nb_tokens  Number of tokens
  **
  *****************************************************************************/
-Tokens* tokens_create(int nb_tokens)
+Old_Tokens* tokens_create(int nb_tokens)
 
 {
-  Tokens *tokens;
+  Old_Tokens *tokens;
 
   /* Initializations */
 
@@ -294,7 +295,7 @@ Tokens* tokens_create(int nb_tokens)
 
   /* Allocate the main structure */
 
-  tokens = new Tokens;
+  tokens = new Old_Tokens;
   tokens->nb_tokens = nb_tokens;
   tokens->defs.resize(nb_tokens);
 
@@ -320,7 +321,7 @@ Tokens* tokens_create(int nb_tokens)
  **                        (Dimension: 4 * npar)
  **
  *****************************************************************************/
-int tokone_create(Tokens *tokens,
+int tokone_create(Old_Tokens *tokens,
                   int rank,
                   int type,
                   int npar,
@@ -593,10 +594,10 @@ static int st_lire_extension_linkage(Token_Def &def, int rank)
  ** \return  Pointer to the newly created Tokens structure
  **
  *****************************************************************************/
-Tokens* tokens_input(void)
+Old_Tokens* tokens_input(void)
 
 {
-  Tokens *tokens;
+  Old_Tokens *tokens;
   int i, j, nb_tokens;
 
   /* Initializations */
@@ -606,7 +607,7 @@ Tokens* tokens_input(void)
 
   /* Allocate the main structure */
 
-  tokens = new Tokens;
+  tokens = new Old_Tokens;
   tokens->nb_tokens = nb_tokens;
   tokens->defs.resize(nb_tokens);
 
@@ -663,11 +664,11 @@ Tokens* tokens_input(void)
  ** \param[out]  prop    Token proportions
  **
  *****************************************************************************/
-void tokone_get_nbparams(Tokens *tokens,
-                                         int rank,
-                                         int *type,
-                                         int *npar,
-                                         double *prop)
+void tokone_get_nbparams(Old_Tokens *tokens,
+                         int rank,
+                         int *type,
+                         int *npar,
+                         double *prop)
 {
   Token_Def &def = tokens->defs[rank];
   *type = def.type;
@@ -691,13 +692,13 @@ void tokone_get_nbparams(Tokens *tokens,
  ** \param[out]  valarg     Array of randomization parameters (Dimension: 4*npar)
  **
  *****************************************************************************/
-void tokone_get_params(Tokens *tokens,
-                                       int rank,
-                                       double *factor_x2y,
-                                       double *factor_x2z,
-                                       double *factor_y2z,
-                                       int *law,
-                                       double *valarg)
+void tokone_get_params(Old_Tokens *tokens,
+                       int rank,
+                       double *factor_x2y,
+                       double *factor_x2z,
+                       double *factor_y2z,
+                       int *law,
+                       double *valarg)
 {
   Token_Def &def = tokens->defs[rank];
   *factor_x2y = def.factor_x2y;
@@ -723,7 +724,7 @@ void tokone_get_params(Tokens *tokens,
  ** \param[in]  rank     Rank of the Token set
  **
  *****************************************************************************/
-void tokone_print(Tokens *tokens, int rank)
+void tokone_print(Old_Tokens *tokens, int rank)
 {
   if (tokens == nullptr) return;
   if (rank < 0 || rank >= tokens->nb_tokens) return;
@@ -746,7 +747,7 @@ void tokone_print(Tokens *tokens, int rank)
  ** \param[in]  tokens   Tokens structure
  **
  *****************************************************************************/
-void tokens_print(Tokens *tokens)
+void tokens_print(Old_Tokens *tokens)
 
 {
   int i;
@@ -1480,7 +1481,7 @@ static void st_print_all_objects(void)
  **
  *****************************************************************************/
 static int st_generate_object(Bool_Cond *cdgrain,
-                              Tokens *tokens,
+                              Old_Tokens *tokens,
                               Bool_Object *object)
 {
   double value, cumul, dx, dy, dz, sint, cost, angle, valrand, total;
@@ -2073,7 +2074,7 @@ static void st_print_grain(Bool_Cond *cdgrain)
  *****************************************************************************/
 int simbool_f(Db *dbin,
               DbGrid *dbout,
-              Tokens *tokens,
+              Old_Tokens *tokens,
               int seed,
               int nb_average,
               int flag_stat,

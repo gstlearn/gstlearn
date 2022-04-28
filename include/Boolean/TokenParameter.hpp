@@ -16,10 +16,12 @@
 #include "Basic/AStringable.hpp"
 #include "Boolean/ETLaw.hpp"
 
+// TODO Will be replaced by future class"Law" or "Distribution" which does not
+// actually exist
 class GSTLEARN_EXPORT TokenParameter: public AStringable
 {
 public:
-  TokenParameter();
+  TokenParameter(ETLaw law = ETLaw::CONSTANT, double value = 0.);
   TokenParameter(const TokenParameter &r);
   TokenParameter& operator=(const TokenParameter &r);
   virtual ~TokenParameter();
@@ -28,12 +30,16 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   ETLaw getLaw() const { return _law; }
-  void setLaw(ETLaw law) { _law = law; }
   const VectorDouble& getValarg() const { return _valarg; }
-  double getValarg(int i) const { return _valarg[i]; }
-  void setValarg(int i, double value) { _valarg[i] = value; }
+  double getValarg(int iarg) const;
 
-  double getValue() const;
+  void setLaw(ETLaw law) { _law = law; }
+  void setValarg(int iarg, double value);
+
+  double generateValue() const;
+
+private:
+  bool _isValidArgIndex(int iarg) const;
 
 private:
   ETLaw _law; /* Type of law */

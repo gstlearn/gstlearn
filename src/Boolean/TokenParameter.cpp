@@ -12,11 +12,12 @@
 #include "Boolean/ETLaw.hpp"
 #include "Basic/Law.hpp"
 
-TokenParameter::TokenParameter()
+TokenParameter::TokenParameter(ETLaw law, double value)
     : AStringable(),
-      _law(ETLaw::CONSTANT),
+      _law(law),
       _valarg()
 {
+  _valarg.push_back(value);
 }
 
 TokenParameter::TokenParameter(const TokenParameter &r)
@@ -41,7 +42,7 @@ TokenParameter::~TokenParameter()
 {
 }
 
-double TokenParameter::getValue() const
+double TokenParameter::generateValue() const
 {
   if (_law == ETLaw::CONSTANT)
     return _valarg[0];
@@ -111,3 +112,27 @@ String TokenParameter::toString(const AStringFormat* /*strfmt*/) const
     }
   return sstr.str();
 }
+
+bool TokenParameter::_isValidArgIndex(int iarg) const
+{
+  int nargs = (int) _valarg.size();
+  if (iarg < 0 || iarg >= nargs)
+  {
+    messerr("Index %d is not valid. It should lie in [0,%d[",iarg,nargs);
+    return false;
+  }
+  return true;
+}
+
+double TokenParameter::getValarg(int iarg) const
+{
+  if (! _isValidArgIndex(iarg)) return TEST;
+  return _valarg[iarg];
+}
+
+void TokenParameter::setValarg(int iarg, double value)
+{
+  if (! _isValidArgIndex(iarg)) return;
+  _valarg[iarg] = value;
+}
+

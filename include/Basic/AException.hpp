@@ -1,4 +1,3 @@
-/******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
 /* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */

@@ -8,10 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenParallelepiped.hpp"
+#include "Boolean/TokenHalfSinusoid.hpp"
 #include "Boolean/Object.hpp"
 
-TokenParallelepiped::TokenParallelepiped()
+#include <math.h>
+
+TokenHalfSinusoid::TokenHalfSinusoid()
     : AToken()
 {
   initParams(4);
@@ -21,12 +23,12 @@ TokenParallelepiped::TokenParallelepiped()
   setParamName(3, "Orientation Angle");
 }
 
-TokenParallelepiped::TokenParallelepiped(const TokenParallelepiped &r)
+TokenHalfSinusoid::TokenHalfSinusoid(const TokenHalfSinusoid &r)
     : AToken(r)
 {
 }
 
-TokenParallelepiped& TokenParallelepiped::operator=(const TokenParallelepiped &r)
+TokenHalfSinusoid& TokenHalfSinusoid::operator=(const TokenHalfSinusoid &r)
 {
   if (this != &r)
   {
@@ -35,7 +37,7 @@ TokenParallelepiped& TokenParallelepiped::operator=(const TokenParallelepiped &r
   return *this;
 }
 
-TokenParallelepiped::~TokenParallelepiped()
+TokenHalfSinusoid::~TokenHalfSinusoid()
 {
 }
 
@@ -46,14 +48,17 @@ TokenParallelepiped::~TokenParallelepiped()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenParallelepiped::generateObject(int ndim)
+Object* TokenHalfSinusoid::generateObject(int ndim)
 
 {
   Object* object = new Object(this);
-  if (ndim >= 1) object->setExtension(0, generateParam(0));
-  if (ndim >= 2) object->setExtension(1, generateParam(1));
-  if (ndim >= 3) object->setExtension(2, generateParam(2));
-  object->setOrientation(generateParam(3));
+  if (ndim >= 1) object->setValue(0, generateParam(0));
+  if (ndim >= 2) object->setValue(1, generateParam(1));
+  if (ndim >= 3) object->setValue(2, generateParam(2));
+  if (ndim >= 1) object->setExtension(0, generateParam(3));
+  if (ndim >= 2) object->setExtension(1, object->getValue(1) + object->getValue(2));
+  if (ndim >= 3) object->setExtension(2, generateParam(4));
+  object->setOrientation(generateParam(5));
   return object;
 }
 
@@ -64,9 +69,15 @@ Object* TokenParallelepiped::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenParallelepiped::belongObject(const VectorDouble& /*coor*/,
-                                       const Object* /*object*/) const
+bool TokenHalfSinusoid::belongObject(const VectorDouble& coor,
+                                     const Object* object) const
 {
+  int ndim = (int) coor.size();
+  double dx = (ndim >= 1) ? coor[0] / object->getValue(0) : 0.;
+  double dz = (ndim >= 3) ? coor[2] / object->getExtension(2) : 0.;
+  double yloc = object->getValue(1) * cos(2. * GV_PI * dx) / 2.;
+  double dy = (ndim >= 2) ? (coor[1] - yloc) / (object->getValue(2) / 2.) :  0.;
+
+  if (dx * dx + dy * dy + dz * dz > 1) return false;
   return true;
 }
-

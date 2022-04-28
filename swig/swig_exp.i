@@ -109,6 +109,13 @@ class IClonable{};
 %include Boolean/TokenParameter.hpp
 %include Boolean/AToken.hpp
 %include Boolean/TokenParallelepiped.hpp
+%include Boolean/TokenEllipsoid.hpp
+%include Boolean/TokenParaboloid.hpp
+%include Boolean/TokenHalfEllipsoid.hpp
+%include Boolean/TokenHalfParaboloid.hpp
+%include Boolean/TokenHalfSinusoid.hpp
+%include Boolean/Tokens.hpp
+%include Boolean/Object.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp

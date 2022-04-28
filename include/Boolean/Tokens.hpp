@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
+#include "Boolean/Object.hpp"
 #include "Basic/Vector.hpp"
-#include "Boolean/AToken.hpp"
+
+class AToken;
 
 class GSTLEARN_EXPORT Tokens
 {
@@ -23,6 +24,10 @@ public:
   Tokens& operator=(const Tokens &r);
   virtual ~Tokens();
 
+  void addToken(const AToken& token);
+  void normalizeProportions();
+  Object* generateObject(int ndim) const;
+
 private:
-  std::vector<AToken> _tokens;
+  std::vector<AToken*> _tokens; // List of the Token
 };
