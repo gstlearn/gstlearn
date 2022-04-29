@@ -30,7 +30,7 @@ public:
   virtual ~ObjectList();
 
   /// Interface to AStringable
-  String toString(const AStringFormat* strfmt) const;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNObjects(int mode = 0) const;
   void countConditioning(const Db* db,

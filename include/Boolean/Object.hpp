@@ -29,7 +29,7 @@ public:
   virtual ~Object();
 
   /// Interface to AStringable
-  String toString(const AStringFormat* /*strfmt*/) const;
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void setMode(int mode) { _mode = mode; }
   void setOrientation(double orientation) { _orientation = orientation; }

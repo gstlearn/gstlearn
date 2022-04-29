@@ -218,10 +218,8 @@ int ObjectList::generateSecondary(Db* dbin,
   double tabtime = 0.;
   int Nb_object = getNObjects();
 
-  while (tabtime < tmax)
+  while (tabtime < tmax && iter < maxiter)
   {
-    if (iter > maxiter) break;
-
     // The next line is not correct but is kept for compatibility.
     // The correct version should be implemented on next case study
     // update.
