@@ -13,14 +13,23 @@
 
 #include <math.h>
 
-TokenHalfSinusoid::TokenHalfSinusoid()
+TokenHalfSinusoid::TokenHalfSinusoid(double proportion,
+                                     double period,
+                                     double amplitude,
+                                     double thickness,
+                                     double xext,
+                                     double zext,
+                                     double theta)
     : AToken()
 {
-  initParams(4);
-  setParamName(0, "X-Extension");
-  setParamName(1, "Y-Extension");
-  setParamName(2, "Z-Extension");
-  setParamName(3, "Orientation Angle");
+  initParams(getNParams());
+  setParamDefault(0, "Period", period);
+  setParamDefault(1, "Amplitude", amplitude);
+  setParamDefault(2, "Thickness", thickness);
+  setParamDefault(3, "X-Extension", xext);
+  setParamDefault(4, "Z-Extension", zext);
+  setParamDefault(5, "Orientation Angle", theta);
+  setProportion(proportion);
 }
 
 TokenHalfSinusoid::TokenHalfSinusoid(const TokenHalfSinusoid &r)

@@ -22,10 +22,17 @@ class Object;
 class GSTLEARN_EXPORT TokenHalfParaboloid: public AToken
 {
 public:
-  TokenHalfParaboloid();
+  TokenHalfParaboloid(double proportion = 1.,
+                      double xext = 1.,
+                      double yext = 1.,
+                      double zext = 1.,
+                      double theta = 0.);
   TokenHalfParaboloid(const TokenHalfParaboloid &r);
   TokenHalfParaboloid& operator=(const TokenHalfParaboloid &r);
   virtual ~TokenHalfParaboloid();
+
+  /// Interface for Iclonable
+  virtual IClonable* clone() const override { return new TokenHalfParaboloid(*this); };
 
   ETShape getType() const override { return ETShape::HALFPARABOLOID; }
   int  getNParams() const override { return 4; }

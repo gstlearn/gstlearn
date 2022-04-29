@@ -22,10 +22,17 @@ class Object;
 class GSTLEARN_EXPORT TokenParaboloid: public AToken
 {
 public:
-  TokenParaboloid();
+  TokenParaboloid(double proportion = 1.,
+                  double xext = 1.,
+                  double yext = 1.,
+                  double zext = 1.,
+                  double theta = 0.);
   TokenParaboloid(const TokenParaboloid &r);
   TokenParaboloid& operator=(const TokenParaboloid &r);
   virtual ~TokenParaboloid();
+
+  /// Interface for Iclonable
+  virtual IClonable* clone() const override { return new TokenParaboloid(*this); };
 
   ETShape getType() const override { return ETShape::PARABOLOID; }
   int  getNParams() const override { return 4; }

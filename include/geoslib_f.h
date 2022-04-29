@@ -15,6 +15,7 @@
 #include "geoslib_d.h"
 
 #include "Basic/CSVformat.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/EConsElem.hpp"
@@ -26,8 +27,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
-
-#include "Basic/NamingConvention.hpp"
+#include "Boolean/Tokens.hpp"
 
 class Db;
 class Vario;
@@ -538,6 +538,22 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              int niter = 100,
                              double percent = 5.,
                              const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
+GSTLEARN_EXPORT int simbool(Db *dbin,
+                            DbGrid *dbout,
+                            Tokens *tokens,
+                            int seed,
+                            int nb_average,
+                            bool flagStat,
+                            int flag_simu,
+                            int flag_rank,
+                            double background,
+                            double facies,
+                            double thetaCst,
+                            double tmax,
+                            const VectorDouble& dilate = VectorDouble(),
+                            int maxiter = 100000,
+                            bool verbose = true,
+                            const NamingConvention& namconv = NamingConvention("Boolean"));
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

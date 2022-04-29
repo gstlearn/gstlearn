@@ -21,10 +21,17 @@ class Object;
 class GSTLEARN_EXPORT TokenParallelepiped: public AToken
 {
 public:
-  TokenParallelepiped();
+  TokenParallelepiped(double proportion = 1.,
+                      double xext = 1.,
+                      double yext = 1.,
+                      double zext = 1.,
+                      double theta = 0.);
   TokenParallelepiped(const TokenParallelepiped &r);
   TokenParallelepiped& operator=(const TokenParallelepiped &r);
   virtual ~TokenParallelepiped();
+
+  /// Interface for Iclonable
+  virtual IClonable* clone() const override { return new TokenParallelepiped(*this); };
 
   ETShape getType() const override { return ETShape::PARALLELEPIPED; }
   int  getNParams() const override { return 4; }

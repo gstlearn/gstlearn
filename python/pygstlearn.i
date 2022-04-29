@@ -147,6 +147,15 @@ void exit_f(void)
 %extend AMatrix {
   std::string __repr__() {  return $self->toString();  }
 };
+%extend ObjectList {
+  std::string __repr__() {  return $self->toString();  }
+};
+%extend Object {
+  std::string __repr__() {  return $self->toString();  }
+};
+%extend AToken {
+  std::string __repr__() {  return $self->toString();  }
+};
 
 %pythoncode %{
 # Override operator [] for the Db class

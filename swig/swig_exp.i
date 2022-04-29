@@ -116,6 +116,7 @@ class IClonable{};
 %include Boolean/TokenHalfSinusoid.hpp
 %include Boolean/Tokens.hpp
 %include Boolean/Object.hpp
+%include Boolean/ObjectList.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp

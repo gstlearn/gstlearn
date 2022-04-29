@@ -16,13 +16,15 @@
 #include "Basic/AStringable.hpp"
 
 class AToken;
+class Tokens;
 class Object;
 class DbGrid;
+class Db;
 
 class GSTLEARN_EXPORT ObjectList: public AStringable
 {
 public:
-  ObjectList(const AToken* atoken);
+  ObjectList();
   ObjectList(const ObjectList &r);
   ObjectList& operator=(const ObjectList &r);
   virtual ~ObjectList();
@@ -30,12 +32,37 @@ public:
   /// Interface to AStringable
   String toString(const AStringFormat* strfmt) const;
 
+  int getNObjects(int mode = 0) const;
+  void countConditioning(const Db* db,
+                          int *nbgrain_arg,
+                          int *nbpore_arg,
+                          bool verbose);
+  int generatePrimary(Db* dbin,
+                      DbGrid* dbout,
+                      const Tokens* tokens,
+                      bool flagStat,
+                      double thetaCst,
+                      const VectorDouble& dilate = VectorDouble(),
+                      int maxiter = 100000);
+  int generateSecondary(Db* dbin,
+                        DbGrid* dbout,
+                        const Tokens* tokens,
+                        bool flagStat,
+                        double thetaCst,
+                        int nb_average,
+                        double tmax,
+                        const VectorDouble& dilate = VectorDouble(),
+                        int maxiter = 100000);
   void projectToGrid(DbGrid* dbout,
                      int iptr_simu,
                      int iptr_rank,
-                     int background,
                      int facies);
 
 private:
-  std::vector<Object> _objlist;
+  int _getRankUncovered(const Db* db, int rank);
+  int _getObjectRank(int mode, int rank);
+  int _deleteObject(int mode, Db* dbin);
+
+private:
+  std::vector<Object*> _objlist;
 };

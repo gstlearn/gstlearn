@@ -13,9 +13,9 @@
 
 AToken::AToken()
     : AStringable(),
-      _factorX2Y(1.),
-      _factorX2Z(1.),
-      _factorY2Z(1.),
+      _factorX2Y(0.),
+      _factorX2Z(0.),
+      _factorY2Z(0.),
       _proportion(1.),
       _paramNames(),
       _params()
@@ -56,13 +56,20 @@ String AToken::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << "Token:"<< getType().getDescr() << " - Nb. params=" << getNParams() <<
-      " - Proportion=" <<_proportion << std::endl;
+  sstr << getType().getDescr() << " - Proportion=" << _proportion
+      << std::endl;
 
   for (int ipar = 0; ipar < getNParams(); ipar++)
   {
-    sstr << getParamName(ipar) << getParam(ipar).toString() << std::endl;
+    sstr << "- " << getParamName(ipar) << ":" << getParam(ipar).toString();
   }
+
+  if (_factorX2Y > 0.)
+    sstr << "Y-Extension = X_Extension * "<< _factorX2Y << std::endl;
+  if (_factorX2Z > 0.)
+    sstr << "Z-Extension = X_Extension * "<< _factorX2Z << std::endl;
+  if (_factorY2Z > 0.)
+    sstr << "Z-Extension = Y_Extension * "<< _factorY2Z << std::endl;
 
   return sstr.str();
 }
@@ -84,7 +91,7 @@ void AToken::setLaw(int ipar, ETLaw law)
   _params[ipar].setLaw(law);
 }
 
-void AToken::setValarg(int ipar, int iarg, double value)
+void AToken::setParam(int ipar, int iarg, double value)
 {
   if (! _isValidParamIndex(ipar)) return;
   _params[ipar].setValarg(iarg, value);
@@ -96,10 +103,25 @@ void AToken::setParamName(int ipar, const String& name)
   _paramNames[ipar] = name;
 }
 
+void AToken::setParamDefault(int ipar,
+                             const String& name,
+                             double value)
+{
+  if (! _isValidParamIndex(ipar)) return;
+  _paramNames[ipar] = name;
+  _params[ipar].setValarg(0, value);
+}
+
 String AToken::getParamName(int ipar) const
 {
   if (! _isValidParamIndex(ipar)) return String();
   return _paramNames[ipar];
+}
+
+double AToken::getParam(int ipar, int iarg) const
+{
+  if (! _isValidParamIndex(ipar)) return TEST;
+  return _params[ipar].getValarg(iarg);
 }
 
 const TokenParameter& AToken::getParam(int ipar) const
@@ -120,7 +142,8 @@ bool AToken::_isValidParamIndex(int ipar) const
   int npar = (int) _params.size();
   if (ipar < 0 || ipar >= npar)
   {
-    messerr("fdsfsd");
+    messerr("Index %d is not valid. It should lie in [0,%d[",
+            ipar,npar);
     return false;
   }
   return true;

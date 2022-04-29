@@ -22,10 +22,19 @@ class Object;
 class GSTLEARN_EXPORT TokenHalfSinusoid: public AToken
 {
 public:
-  TokenHalfSinusoid();
+  TokenHalfSinusoid(double proportion = 1.,
+                    double period = 10.,
+                    double amplitude = 1.,
+                    double thickness = 1.,
+                    double xext = 1.,
+                    double zext = 1.,
+                    double theta = 0.);
   TokenHalfSinusoid(const TokenHalfSinusoid &r);
   TokenHalfSinusoid& operator=(const TokenHalfSinusoid &r);
   virtual ~TokenHalfSinusoid();
+
+  /// Interface for Iclonable
+  virtual IClonable* clone() const override { return new TokenHalfSinusoid(*this); };
 
   ETShape getType() const override { return ETShape::HALFSINUSOID; }
   int  getNParams() const override { return 6; }

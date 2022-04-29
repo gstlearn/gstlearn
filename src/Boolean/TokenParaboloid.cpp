@@ -11,14 +11,19 @@
 #include "Boolean/TokenParaboloid.hpp"
 #include "Boolean/Object.hpp"
 
-TokenParaboloid::TokenParaboloid()
+TokenParaboloid::TokenParaboloid(double proportion,
+                                 double xext,
+                                 double yext,
+                                 double zext,
+                                 double theta)
     : AToken()
 {
-  initParams(4);
-  setParamName(0, "X-Extension");
-  setParamName(1, "Y-Extension");
-  setParamName(2, "Z-Extension");
-  setParamName(3, "Orientation Angle");
+  initParams(getNParams());
+  setParamDefault(0, "X-Extension", xext);
+  setParamDefault(1, "Y-Extension", yext);
+  setParamDefault(2, "Z-Extension", zext);
+  setParamDefault(3, "Orientation Angle", theta);
+  setProportion(proportion);
 }
 
 TokenParaboloid::TokenParaboloid(const TokenParaboloid &r)

@@ -13,12 +13,14 @@
 #include "Basic/Law.hpp"
 
 Tokens::Tokens()
-    : _tokens()
+    : AStringable(),
+      _tokens()
 {
 }
 
 Tokens::Tokens(const Tokens &r)
-    : _tokens(r._tokens)
+    : AStringable(r),
+      _tokens(r._tokens)
 {
 
 }
@@ -27,6 +29,7 @@ Tokens& Tokens::operator=(const Tokens &r)
 {
   if (this != &r)
   {
+    AStringable::operator =(r);
     _tokens = r._tokens;
   }
   return *this;
@@ -95,4 +98,16 @@ Object* Tokens::generateObject(int ndim) const
   }
   if (rank < 0) rank = nb_token - 1;
   return _tokens[rank]->generateObject(ndim);
+}
+
+String Tokens::toString(const AStringFormat* strfmt) const
+{
+  std::stringstream sstr;
+
+  for (int itok = 0; itok < getNbTokens(); itok++)
+  {
+    sstr << toTitle(1, "Token %d", itok+1);
+    sstr << _tokens[itok]->toString(strfmt);
+  }
+  return sstr.str();
 }

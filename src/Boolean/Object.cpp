@@ -20,6 +20,7 @@
 
 Object::Object(const AToken* atoken)
     : AStringable(),
+      _mode(0),
       _token(atoken),
       _center({0.,0.,0.}),
       _extension({0.,0.,0.,}),
@@ -31,6 +32,7 @@ Object::Object(const AToken* atoken)
 
 Object::Object(const Object &r)
     : AStringable(r),
+      _mode(r._mode),
       _token(r._token),
       _center(r._center),
       _extension(r._extension),
@@ -45,6 +47,7 @@ Object& Object::operator=(const Object &r)
   if (this != &r)
   {
     AStringable::operator =(r);
+    _mode = r._mode;
     _token = r._token;
     _center = r._center;
     _extension = r._extension;
@@ -63,6 +66,10 @@ String Object::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
+  if (_mode == 1)
+    sstr << "- Primary Object" << std::endl;
+  else
+    sstr << "- Secondary Object" << std::endl;
   sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
   sstr << "- Center      = " << ut_vector_string(_center) << std::endl;
   sstr << "- Extension   = " << ut_vector_string(_extension) << std::endl;
@@ -132,27 +139,35 @@ void Object::_defineBoundingBox(double eps)
  **  Function used to generate the geometry of an object
  **
  *****************************************************************************/
- Object* Object::generateObject(const DbGrid* dbout,
-                                const VectorDouble& cdgrain,
-                                Tokens* tokens,
-                                int maxiter,
-                                bool flagStat,
-                                double thetaCst,
-                                double eps)
+Object* Object::generate(const DbGrid* dbout,
+                         const VectorDouble& cdgrain,
+                         const Tokens* tokens,
+                         bool flagStat,
+                         double thetaCst,
+                         const VectorDouble& dilate,
+                         int maxiter,
+                         double eps)
 {
-  bool flag_fix = ! cdgrain.empty();
-
-  // Extract grid information
-
   int ndim = dbout->getNDim();
   VectorDouble origin = dbout->getX0s();
   VectorDouble field = dbout->getExtends();
+
+  // Dilate the field (optional)
+
+  if (! dilate.empty())
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      origin[idim] -= dilate[idim];
+      field[idim] += 2 * dilate[idim];
+    }
+  }
 
   // Define the (primary) location of the object
 
   int iter = 0;
   VectorDouble coor(ndim);
-  if (flag_fix)
+  if (! cdgrain.empty())
   {
     for (int idim = 0; idim < ndim; idim++)
       coor[idim] = cdgrain[idim];
@@ -165,7 +180,8 @@ void Object::_defineBoundingBox(double eps)
       for (int idim = 0; idim < ndim; idim++)
         coor[idim] = origin[idim] + field[idim] * law_uniform(0., 1.);
     }
-    while (_checkIntensity(dbout, coor, flagStat, thetaCst) && iter < maxiter);
+    while (_checkIntensity(dbout, coor, flagStat, thetaCst) &&
+        iter < maxiter);
     if (iter >= maxiter) return nullptr;
   }
 
@@ -175,12 +191,12 @@ void Object::_defineBoundingBox(double eps)
 
   /* Operate the linkage */
 
-  _extensionLinkage();
+  object->_extensionLinkage();
 
   /* Store the coordinates of the object center */
 
   double valrand;
-  if (flag_fix)
+  if (! cdgrain.empty())
   {
     do
     {
@@ -193,15 +209,16 @@ void Object::_defineBoundingBox(double eps)
         }
         else
         {
-          if (_token->getFlagCutZ())
+          if (object->getToken()->getFlagCutZ())
             valrand = law_uniform(0., 1.) - 0.5;
           else
             valrand = law_uniform(0., 1.);
         }
-        _center[idim] = coor[idim] + _extension[idim] * valrand;
+        object->setCenter(idim, coor[idim] +
+                          object->getExtension(idim) * valrand);
       }
     }
-    while (! _checkObject(cdgrain, ndim) && iter < maxiter);
+    while (! object->_checkObject(cdgrain, ndim) && iter < maxiter);
     if (iter >= maxiter)
     {
       delete object;
@@ -210,11 +227,11 @@ void Object::_defineBoundingBox(double eps)
   }
   else
     for (int idim = 0; idim < ndim; idim++)
-      _center[idim] = coor[idim];
+      object->setCenter(idim, coor[idim]);
 
   /* Determine the inclusive box */
 
-  _defineBoundingBox(eps);
+  object->_defineBoundingBox(eps);
 
   return object;
 }
@@ -268,7 +285,7 @@ bool Object::_checkIntensity(const DbGrid* dbout,
 /*!
  **  Check if the pixel (coor) belongs to the grain.
  **
- ** \return  1 if the pixel is in the grain, 0 if it is in the pore
+ ** \return  true if the pixel is in the grain, 0false otherwise
  **
  ** \param[in]  coor     location of the pixel
  ** \param[in]  ndim     Space dimension
@@ -339,14 +356,12 @@ bool Object::_checkBoundingBox(const VectorDouble& coor, int ndim)
 
 bool Object::_isPore(const Db* db, int iech)
 {
-  int ival = db->getVariable(iech, 0);
-  return (ival == 0);
+  return (db->getVariable(iech, 0) == 0);
 }
 
 bool Object::_isGrain(const Db* db, int iech)
 {
-  int ival = db->getVariable(iech, 0);
-  return (ival != 0);
+  return (db->getVariable(iech, 0) != 0);
 }
 
 int Object::_getCoverageAtSample(const Db* db, int iech)
@@ -363,12 +378,15 @@ void Object::_updateCoverageAtSample(Db* db, int iech, int ival)
 /*!
  **  Check if the current object is compatible with the constraining pores
  **
+ ** \return True if it is compatible; False otherwise
+ **
  ** \param[in]  nbpore  count of constraining pores
  ** \param[in]  cdpore  Bool_Cond describing the constraining pores
  **
  *****************************************************************************/
-bool Object::_checkPore(const Db* db)
+bool Object::isCompatiblePore(const Db* db)
 {
+  if (db == nullptr) return true;
   int ndim = db->getNDim();
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -385,11 +403,13 @@ bool Object::_checkPore(const Db* db)
 /*!
  **  Check if an object can be added with regards to the constraining grains
  **
- ** \param[in]  db       Constraining data set
+ ** \param[in]  db  Constraining data set
  **
  *****************************************************************************/
-bool Object::_canBeAdded(const Db* db)
+bool Object::isCompatibleGrainAdd(const Db* db)
 {
+  if (db == nullptr) return true;
+
   int ndim = db->getNDim();
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
@@ -409,8 +429,9 @@ bool Object::_canBeAdded(const Db* db)
  ** \param[in]  db       Constraining data set
  **
  *****************************************************************************/
-bool Object::_canBeDeleted(const Db* db)
+bool Object::isCompatibleGrainDelete(const Db* db)
 {
+  if (db == nullptr) return true;
   int ndim = db->getNDim();
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
@@ -432,15 +453,14 @@ bool Object::_canBeDeleted(const Db* db)
  **
  ** \return  Count of grains not covered after the operation
  **
- ** \param[in]  object   Bool_Object describing token to be operated
- ** \param[in]  nbgrain  number of constraining grains
- ** \param[in]  cdgrain  Bool_Cond describing the conditioning grains
+ ** \param[in]  db       Db structure
  ** \param[in]  val      type of the operation to be tested
  **                      1 for addition; -1 for deletion
  **
  *****************************************************************************/
-int Object::_coverageUpdate(Db* db, int val)
+int Object::coverageUpdate(Db* db, int val)
 {
+  if (db == nullptr) return 0;
   int ndim = db->getNDim();
   int not_covered = 0;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
@@ -476,24 +496,48 @@ void Object::projectToGrid(DbGrid* dbout,
                            int rank)
 {
   int ix0, ix1, iy0, iy1, iz0, iz1;
-  VectorDouble coor(3);
-  VectorInt indice(3);
   int ndim = dbout->getNDim();
+  VectorDouble coor(ndim);
+  VectorInt indice(ndim);
 
   /* Look for the nodes in the box of influence of the object */
 
-  ix0 = (int) ((_box[0][0] - dbout->getX0(0)) / dbout->getDX(0) - 1);
-  ix0 = MAX(ix0, 0);
-  ix1 = (int) ((_box[0][1] - dbout->getX0(0)) / dbout->getDX(0) + 1);
-  ix1 = MIN(ix1, dbout->getNX(0) - 1);
-  iy0 = (int) ((_box[1][0] - dbout->getX0(1)) / dbout->getDX(1) - 1);
-  iy0 = MAX(iy0, 0);
-  iy1 = (int) ((_box[1][1] - dbout->getX0(1)) / dbout->getDX(1) + 1);
-  iy1 = MIN(iy1, dbout->getNX(1) - 1);
-  iz0 = (int) ((_box[2][0] - dbout->getX0(2)) / dbout->getDX(2) - 1);
-  iz0 = MAX(iz0, 0);
-  iz1 = (int) ((_box[2][1] - dbout->getX0(2)) / dbout->getDX(2) + 1);
-  iz1 = MIN(iz1, dbout->getNX(2) - 1);
+  if (ndim >= 1)
+  {
+    ix0 = (int) ((_box[0][0] - dbout->getX0(0)) / dbout->getDX(0) - 1);
+    ix0 = MAX(ix0, 0);
+    ix1 = (int) ((_box[0][1] - dbout->getX0(0)) / dbout->getDX(0) + 1);
+    ix1 = MIN(ix1, dbout->getNX(0) - 1);
+  }
+  else
+  {
+    ix0 = 0;
+    ix1 = 0;
+  }
+  if (ndim >= 2)
+  {
+    iy0 = (int) ((_box[1][0] - dbout->getX0(1)) / dbout->getDX(1) - 1);
+    iy0 = MAX(iy0, 0);
+    iy1 = (int) ((_box[1][1] - dbout->getX0(1)) / dbout->getDX(1) + 1);
+    iy1 = MIN(iy1, dbout->getNX(1) - 1);
+  }
+  else
+  {
+    iy0 = 0;
+    iy1 = 0;
+  }
+  if (ndim >= 3)
+  {
+    iz0 = (int) ((_box[2][0] - dbout->getX0(2)) / dbout->getDX(2) - 1);
+    iz0 = MAX(iz0, 0);
+    iz1 = (int) ((_box[2][1] - dbout->getX0(2)) / dbout->getDX(2) + 1);
+    iz1 = MIN(iz1, dbout->getNX(2) - 1);
+  }
+  else
+  {
+    iz0 = 0;
+    iz1 = 0;
+  }
 
   /* Check the pixels within the box */
 
@@ -501,13 +545,19 @@ void Object::projectToGrid(DbGrid* dbout,
     for (int iy = iy0; iy <= iy1; iy++)
       for (int iz = iz0; iz <= iz1; iz++)
       {
-        coor[0] = dbout->getX0(0) + ix * dbout->getDX(0);
-        coor[1] = dbout->getX0(1) + iy * dbout->getDX(1);
-        coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
+        if (ndim >= 1)
+          coor[0] = dbout->getX0(0) + ix * dbout->getDX(0);
+        if (ndim >= 2)
+          coor[1] = dbout->getX0(1) + iy * dbout->getDX(1);
+        if (ndim >= 3)
+          coor[2] = dbout->getX0(2) + iz * dbout->getDX(2);
+
         if (! _checkObject(coor, ndim)) continue;
-        indice[0] = ix;
-        indice[1] = iy;
-        indice[2] = iz;
+
+        if (ndim >= 1) indice[0] = ix;
+        if (ndim >= 2) indice[1] = iy;
+        if (ndim >= 3) indice[2] = iz;
+
         int iad = dbout->indiceToRank(indice);
 
         /* Bypass writing if the cell is masked off */

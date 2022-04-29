@@ -1,0 +1,124 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -158.624
+ Maximum value       =    131.935
+ Mean value          =      0.678
+ Standard Deviation  =     50.083
+ Variance            =   2508.331
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -112.354
+ Maximum value       =    106.924
+ Mean value          =     -7.383
+ Standard Deviation  =     44.553
+ Variance            =   1984.932
+4 - Name Var - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.120
+ Standard Deviation  =      0.325
+ Variance            =      0.106
+
+<----- Creating Shape Dictionary ----->
+
+Token 1
+-------
+Full Ellipsoid - Proportion=0.4
+- X-Extension: Constant=10
+- Y-Extension: Constant=20
+- Z-Extension: Constant=2
+- Orientation Angle: Constant=0
+Y-Extension = X_Extension * 1.5
+
+Token 2
+-------
+Parallelepiped - Proportion=0.6
+- X-Extension: Constant=5
+- Y-Extension: Constant=7
+- Z-Extension: Constant=1
+- Orientation Angle: Constant=0
+
+<----- Perform Boolean Simulation ----->
+Boolean non conditional simulation. Average of 100 objects
+
+Simulating the initial tokens
+-----------------------------
+- Number of grains to be covered = 0
+- Number of Initial Objects = 0
+
+Simulating the secondary tokens
+-------------------------------
+- Maximum time available = 100.000000
+
+Boolean simulation
+==================
+Conditioning option               = NO
+Maximum simulation time           = 100
+Average number of objects         = 100
+Total number of objects           = 8268
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Boolean.Facies - Locator = NA
+Column = 4 - Name = Boolean.Rank - Locator = NA

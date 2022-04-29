@@ -13,10 +13,11 @@
 #include "gstlearn_export.hpp"
 #include "Boolean/Object.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
 
 class AToken;
 
-class GSTLEARN_EXPORT Tokens
+class GSTLEARN_EXPORT Tokens: public AStringable
 {
 public:
   Tokens();
@@ -24,6 +25,10 @@ public:
   Tokens& operator=(const Tokens &r);
   virtual ~Tokens();
 
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  int getNbTokens() const { return (int) _tokens.size(); }
   void addToken(const AToken& token);
   void normalizeProportions();
   Object* generateObject(int ndim) const;

@@ -49,6 +49,7 @@ public:
   double getFactorY2Z() const { return _factorY2Z; }
   double getProportion() const { return _proportion; }
   String getParamName(int ipar) const;
+  double getParam(int ipar, int iarg) const;
   const TokenParameter& getParam(int ipar) const;
 
   void setFactorX2Y(double factorX2Y) { _factorX2Y = factorX2Y; }
@@ -56,11 +57,12 @@ public:
   void setFactorY2Z(double factorY2Z) { _factorY2Z = factorY2Z; }
   void setProportion(double proportion) { _proportion = proportion; }
   void setParamName(int ipar, const String& name);
+  void setParam(int ipar, int iarg, double value);
+  void setParamDefault(int ipar, const String& name, double value);
+  void setLaw(int ipar, ETLaw law);
 
   void initParams(int count);
 
-  void setLaw(int ipar, ETLaw law);
-  void setValarg(int ipar, int iarg, double value);
   double generateParam(int ipar) const;
 
 private:

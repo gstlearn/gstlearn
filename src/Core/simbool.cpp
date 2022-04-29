@@ -16,6 +16,8 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
+#include "Boolean/Tokens.hpp"
+#include "Boolean/ObjectList.hpp"
 
 #include <string.h>
 #include <math.h>
@@ -2424,5 +2426,171 @@ int toktype_get_nbparams(int type)
     return (0);
   }
   return (DEF_TOKEN[type].npar);
+}
+
+/*****************************************************************************/
+/*!
+ **  Performs the boolean simulation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin          Db structure containing the data (optional)
+ ** \param[in]  dbout         DbGrid structure containing the simulated grid
+ ** \param[in]  tokens        Tokens structure
+ ** \param[in]  seed          Seed for the random number generator
+ ** \param[in]  nb_average    Average number of boolean objects
+ ** \param[in]  flag_stat     1 if the Intensity is constant
+ ** \param[in]  flag_simu     Store the boolean simulation
+ ** \param[in]  flag_rank     Store the object rank
+ ** \param[in]  background    Value assigned to the background
+ ** \param[in]  facies        Value of the facies assigned
+ ** \param[in]  dilate        Array of dilation radius (optional)
+ ** \param[in]  theta_cste    Intensity constant value
+ ** \param[in]  tmax          Maximum time
+ ** \param[in]  verbose       1 for a verbose output
+ ** \param[in]  namconv       Naming convention
+ **
+ *****************************************************************************/
+int simbool(Db *dbin,
+            DbGrid *dbout,
+            Tokens *tokens,
+            int seed,
+            int nb_average,
+            bool flagStat,
+            int flag_simu,
+            int flag_rank,
+            double background,
+            double facies,
+            double thetaCst,
+            double tmax,
+            const VectorDouble& dilate,
+            int maxiter,
+            bool verbose,
+            const NamingConvention& namconv)
+{
+  int iptr_cover = -1;
+  if (dbin != nullptr)
+  {
+    if (dbin->getVariableNumber() != 1)
+    {
+      messerr("Conditional Boolean simulation needs 1 variable");
+      return 1;
+    }
+    iptr_cover = dbin->addColumnsByConstant(1, 0.,"Cover",ELoc::Z,1);
+    if (iptr_cover < 0) return 1;
+  }
+
+  /* Add the attributes for storing the simulation */
+
+  int iptr_simu = -1;
+  if (flag_simu)
+  {
+    iptr_simu = dbout->addColumnsByConstant(1, background);
+    if (iptr_simu < 0) return 1;
+  }
+  int iptr_rank = -1;
+  if (flag_rank)
+  {
+    iptr_rank = dbout->addColumnsByConstant(1, TEST);
+    if (iptr_rank < 0) return 1;
+  }
+
+  /* Define the global variables */
+
+  law_set_random_seed(seed);
+  if (verbose)
+  {
+    if (dbin == nullptr)
+      message("Boolean non conditional simulation. Average of %d objects\n",
+              nb_average);
+    else
+      message("Boolean conditional simulation. Average of %d objects\n",
+              nb_average);
+  }
+
+  /* Count the number of conditioning pores and grains */
+
+  ObjectList objlist;
+
+  int nbgrain = 0;
+  int nbpore = 0;
+  objlist.countConditioning(dbin, &nbgrain, &nbpore, verbose);
+
+  /*******************************/
+  /* Simulate the Initial grains */
+  /*******************************/
+
+  if (verbose)
+  {
+    mestitle(1, "Simulating the initial tokens");
+    message("- Number of grains to be covered = %d\n", nbgrain);
+  }
+
+  if (objlist.generatePrimary(dbin, dbout, tokens,
+                              flagStat, thetaCst,
+                              dilate, maxiter)) return 1;
+  int nb_memo_init = objlist.getNObjects(1);
+  if (verbose)
+    message("- Number of Initial Objects = %d\n",nb_memo_init);
+
+  /*********************************/
+  /* Simulate the Secondary grains */
+  /*********************************/
+
+  if (verbose)
+  {
+    mestitle(1, "Simulating the secondary tokens");
+    message("- Maximum time available = %lf\n", tmax);
+  }
+
+  if (objlist.generateSecondary(dbin, dbout, tokens,
+                                flagStat, thetaCst,
+                                nb_average, tmax,
+                                dilate, maxiter)) return 1;
+
+  /* Print the list of retained tokens */
+
+  if (DEBUG) st_print_all_objects();
+
+  /******************************************/
+  /* Project the objects on the output grid */
+  /******************************************/
+
+  objlist.projectToGrid(dbout, iptr_simu, iptr_rank, facies);
+
+  if (verbose)
+  {
+    mestitle(0,"Boolean simulation");
+
+    if (dbin != nullptr)
+    {
+      message("Conditioning option               = YES\n");
+      message("Number of conditioning grains     = %d\n", nbgrain);
+      message("Number of conditioning pores      = %d\n", nbpore);
+    }
+    else
+    {
+      message("Conditioning option               = NO\n");
+    }
+
+    message("Maximum simulation time           = %g\n", tmax);
+    message("Average number of objects         = %d\n", nb_average);
+
+    if (dbin != nullptr)
+    {
+      message("Initial number of primary objects = %d\n",
+              nb_memo_init);
+      message("Ending number of primary objects  = %d\n",
+              objlist.getNObjects(1));
+    }
+    message("Total number of objects           = %d\n",
+            objlist.getNObjects());
+  }
+
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
+                              false);
+  return 0;
 }
 

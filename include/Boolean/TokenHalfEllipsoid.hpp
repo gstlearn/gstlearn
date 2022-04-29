@@ -22,10 +22,17 @@ class Object;
 class GSTLEARN_EXPORT TokenHalfEllipsoid: public AToken
 {
 public:
-  TokenHalfEllipsoid();
+  TokenHalfEllipsoid(double proportion = 1.,
+                     double xext = 1.,
+                     double yext = 1.,
+                     double zext = 1.,
+                     double theta = 0.);
   TokenHalfEllipsoid(const TokenHalfEllipsoid &r);
   TokenHalfEllipsoid& operator=(const TokenHalfEllipsoid &r);
   virtual ~TokenHalfEllipsoid();
+
+  /// Interface for Iclonable
+  virtual IClonable* clone() const override { return new TokenHalfEllipsoid(*this); };
 
   ETShape getType() const override { return ETShape::HALFELLIPSOID; }
   int  getNParams() const override { return 4; }

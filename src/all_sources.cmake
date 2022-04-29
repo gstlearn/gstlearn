@@ -219,6 +219,7 @@ set(SRC
   Boolean/TokenHalfSinusoid.cpp
   Boolean/Tokens.cpp
   Boolean/Object.cpp
+  Boolean/ObjectList.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
