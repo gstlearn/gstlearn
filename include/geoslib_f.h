@@ -27,7 +27,6 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
-#include "Boolean/Tokens.hpp"
 
 class Db;
 class Vario;
@@ -39,6 +38,7 @@ class Polygons;
 class RuleProp;
 class ECalcVario;
 class PCA;
+class Tokens;
 
 /*************************/
 /* Functions for License */

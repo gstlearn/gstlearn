@@ -15,7 +15,6 @@
 
 // Enums
 #include "Db/ELoadBy.hpp"
-
 #include "Db/PtrGeos.hpp"
 
 #include "Basic/Grid.hpp"

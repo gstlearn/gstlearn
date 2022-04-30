@@ -54,7 +54,6 @@ public:
                           int maxiter = 100000,
                           double eps = EPSILON3);
 
-  void blank();
   bool isCompatiblePore(const Db* db);
   bool isCompatibleGrainAdd(const Db* db);
   bool isCompatibleGrainDelete(const Db* db);

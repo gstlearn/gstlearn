@@ -78,25 +78,6 @@ String Object::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-/*****************************************************************************/
-/*!
- **  Blank out a given object
- **
- *****************************************************************************/
-void Object::blank()
-{
-  for (int idim = 0; idim < 3; idim++)
-  {
-    _center[idim] = 0.;
-    _extension[idim] = 0.;
-    for (int i = 0; i < 2; i++)
-      _box[idim][i] = 0.;
-  }
-  _orientation = 0.;
-  for (int i = 0; i < 3; i++)
-    _values[i] = 0.;
-}
-
 void Object::_defineBoundingBox(double eps)
 {
   double dx, dy, dz;

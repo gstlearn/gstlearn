@@ -13,11 +13,11 @@
 #include "Space/Space.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Basic/OptDbg.hpp"
-#include "Basic/OptCustom.hpp"
 #include "Basic/Vector.hpp"
 #include "Boolean/Tokens.hpp"
 #include "Boolean/TokenEllipsoid.hpp"
@@ -92,17 +92,18 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Create Shape Dictionary ===================
   message("\n<----- Creating Shape Dictionary ----->\n");
-  Tokens tokens = Tokens();
+  Tokens* tokens = new Tokens();
   TokenEllipsoid token_ellipsoid(0.4, 10., 20., 2.);
   token_ellipsoid.setFactorX2Y(1.5);
-  tokens.addToken(token_ellipsoid);
+  tokens->addToken(token_ellipsoid);
   TokenParallelepiped token_parallelepiped(0.6, 5, 7., 1.);
-  tokens.addToken(token_parallelepiped);
-  tokens.display();
+  tokens->addToken(token_parallelepiped);
+  tokens->display();
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Boolean Simulation ----->\n");
-  (void) simbool(nullptr, grid, &tokens, true, 0.01, 2.);
+  (void) simbool(nullptr, grid, tokens, true, 0.01, 2.);
+
   grid->display(&dbfmt);
 
   grid->dumpToNF("Simulation");

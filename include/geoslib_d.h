@@ -41,42 +41,6 @@ public:
 
 typedef struct
 {
-  int law; /* Type of law */
-  double valarg[4]; /* Randomization arguments */
-} Token_Par;
-
-typedef struct
-{
-  int type; /* Token type */
-  int npar; /* Number of parameters */
-  double factor_x2y; /* Link factor for the geometry from x to y */
-  double factor_x2z; /* Link factor for the geometry from x to z */
-  double factor_y2z; /* Link factor for the geometry from y to z */
-  double prop; /* Token Proportion */
-  std::vector<Token_Par> pars; /* Token parameter array */
-} Token_Def;
-
-typedef struct
-{
-  int nb_tokens; /* Number of tokens */
-  std::vector<Token_Def> defs; /* Token Definition array */
-} Old_Tokens;
-
-struct Local_Bool_Object
-{
-  int type; /* Type of the token */
-  int seed; /* Seed for the token generation */
-  struct Local_Bool_Object *address; /* Pointer to the next token */
-  double center[3]; /* Coordinates of the center of the token */
-  double extension[3]; /* Extension of the token */
-  double orientation; /* Orientation angle for the token (radian) */
-  double values[3]; /* List of additional arguments */
-  double box[3][2]; /* Box containing the token */
-};
-typedef struct Local_Bool_Object Bool_Object;
-
-typedef struct
-{
   double center[3]; /* Location of the conditioning information */
   int nb_cover; /* Number of covering tokens */
 } Bool_Cond;

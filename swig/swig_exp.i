@@ -40,8 +40,6 @@ class IClonable{};
 %template(VectorQChol)          std::vector<QChol*>;
 %template(VectorSPDE_SS_Option) std::vector<SPDE_SS_Option*>;
 %template(VectorSubPlan)        std::vector<SubPlan*>;
-%template(VectorToken_Def)      std::vector<Token_Def*>;
-%template(VectorToken_Par)      std::vector<Token_Par*>;
 %template(VectorIntervals)      std::vector<Interval*>;
 
 
