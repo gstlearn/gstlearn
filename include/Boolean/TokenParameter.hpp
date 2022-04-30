@@ -32,6 +32,7 @@ public:
   ETLaw getLaw() const { return _law; }
   const VectorDouble& getValarg() const { return _valarg; }
   double getValarg(int iarg) const;
+  int getNbValarg() const { return (int) _valarg.size(); }
 
   void setLaw(ETLaw law) { _law = law; }
   void setValarg(int iarg, double value);

@@ -120,6 +120,7 @@ public:
   double getCellSize() const { return _grid.getCellSize(); }
   double getVolume() const { return _grid.getVolume(); }
   VectorDouble getExtends() const { return _grid.getExtends(); }
+  double getExtend(int idim) const { return _grid.getExtend(idim); }
 
   int  getNX(int idim) const { return _grid.getNX(idim); }
   VectorInt getNXs() const { return _grid.getNXs(); }

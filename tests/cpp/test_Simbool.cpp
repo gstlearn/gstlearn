@@ -102,9 +102,10 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Boolean Simulation ----->\n");
-  (void) simbool(nullptr, grid, &tokens, 132, 100, true,
-                 1, 1, 3., 5., 0.0001, 100.);
-  grid->display();
+  (void) simbool(nullptr, grid, &tokens, true, 0.01, 2.);
+  grid->display(&dbfmt);
+
+  grid->dumpToNF("Simulation");
 
   delete grid;
   delete data;

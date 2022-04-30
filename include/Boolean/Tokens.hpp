@@ -32,6 +32,7 @@ public:
   void addToken(const AToken& token);
   void normalizeProportions();
   Object* generateObject(int ndim) const;
+  const AToken* getToken(int itok) const { return _tokens[itok]; }
 
 private:
   std::vector<AToken*> _tokens; // List of the Token

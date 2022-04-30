@@ -50,8 +50,6 @@ void Tokens::addToken(const AToken& token)
 /*!
  **  Normalize the proportions
  **
- ** \param[in]  tokens Tokens structure
- **
  *****************************************************************************/
 void Tokens::normalizeProportions()
 

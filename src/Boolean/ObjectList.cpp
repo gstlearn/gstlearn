@@ -179,9 +179,8 @@ int ObjectList::generatePrimary(Db* dbin,
 
     /* Generate an object covering the grain(x,y,z) */
 
-    Object* object = Object::generate(dbout, cdgrain, tokens,
-                                      flagStat, thetaCst,
-                                      dilate, maxiter);
+    Object* object = Object::generate(dbout, cdgrain, tokens, flagStat,
+                                      thetaCst, dilate, maxiter);
     if (object == nullptr) continue;
 
     /* Check if the object is compatible with the constraining pores */
@@ -209,33 +208,36 @@ int ObjectList::generateSecondary(Db* dbin,
                                   const Tokens* tokens,
                                   bool flagStat,
                                   double thetaCst,
-                                  int nb_average,
                                   double tmax,
                                   const VectorDouble& dilate,
                                   int maxiter)
 {
   int iter = 0;
   double tabtime = 0.;
-  int Nb_object = getNObjects();
+  int nb_average = _getAverageCount(dbout, flagStat, thetaCst, dilate);
 
-  while (tabtime < tmax && iter < maxiter)
+  while (tabtime < tmax)
   {
+    iter++;
+    if (iter >= maxiter) return 0;
+
+    int nbObject = getNObjects();
     // The next line is not correct but is kept for compatibility.
     // The correct version should be implemented on next case study
     // update.
-    tabtime += law_exponential() / (nb_average + Nb_object);
+    tabtime += law_exponential() / (nb_average + nbObject);
     // This should be the right version
     //    tabtime += law_exponential();
 
-    double ratio = (double) nb_average / (double) (nb_average + Nb_object);
+    double ratio = (double) nb_average / (double) (nb_average + nbObject);
+
     if (law_uniform(0., 1.) <= ratio)
     {
 
       /* Add an object */
 
-      Object* object = Object::generate(dbout, VectorDouble(), tokens,
-                                         flagStat, thetaCst,
-                                         dilate, maxiter);
+      Object* object = Object::generate(dbout, VectorDouble(), tokens, flagStat,
+                                        thetaCst, dilate, maxiter);
       if (object == nullptr) continue;
 
       /* Check if the object is compatible with the constraining pores */
@@ -248,6 +250,7 @@ int ObjectList::generateSecondary(Db* dbin,
 
       /* Add the object to the list */
 
+      object->setMode(2);
       _objlist.push_back(object);
 
       // Update the coverage
@@ -259,11 +262,13 @@ int ObjectList::generateSecondary(Db* dbin,
 
       /* Delete a primary object */
 
-      if (_deleteObject(0, dbin)) continue;
+      if (_deleteObject(1, dbin))
+      {
 
-     /* Delete a secondary object */
+        /* Delete a secondary object */
 
-      if (_deleteObject(1, dbin)) continue;
+        if (_deleteObject(2, dbin)) continue;
+      }
     }
   }
   return 0;
@@ -298,6 +303,7 @@ int ObjectList::_deleteObject(int mode, Db* dbin)
   /* Search for the object to be deleted */
 
   int count = getNObjects(mode);
+  if (count <= 0) return 1;
   int rank = (int) (count * law_uniform(0., 1.));
   int iref = _getObjectRank(mode, rank);
   if (iref < 0) return 1;
@@ -321,3 +327,34 @@ int ObjectList::_deleteObject(int mode, Db* dbin)
 
   return 0;
 }
+
+int ObjectList::_getAverageCount(const DbGrid* dbout,
+                                 bool flagStat,
+                                 double thetaCst,
+                                 const VectorDouble& dilate)
+ {
+   double theta;
+   if (flagStat)
+   {
+     theta = thetaCst;
+   }
+   else
+   {
+     VectorDouble vec = dbout->getColumnByLocator(ELoc::P, 0, true);
+     theta = ut_vector_mean(vec);
+   }
+
+   VectorDouble field = dbout->getExtends();
+
+   // Dilate the field (optional)
+
+   int ndim = dbout->getNDim();
+   double volume = 1.;
+   for (int idim = 0; idim < ndim; idim++)
+   {
+     if (! dilate.empty()) field[idim] += 2 * dilate[idim];
+     volume *= field[idim];
+   }
+
+   return (int) (theta * volume);
+ }

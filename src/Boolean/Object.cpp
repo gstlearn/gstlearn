@@ -67,12 +67,12 @@ String Object::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
 
   if (_mode == 1)
-    sstr << "- Primary Object" << std::endl;
+    sstr << "Primary Object" << std::endl;
   else
-    sstr << "- Secondary Object" << std::endl;
+    sstr << "Secondary Object" << std::endl;
   sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
-  sstr << "- Center      = " << ut_vector_string(_center) << std::endl;
-  sstr << "- Extension   = " << ut_vector_string(_extension) << std::endl;
+  sstr << "- Center      = " << ut_vector_string(_center);
+  sstr << "- Extension   = " << ut_vector_string(_extension);
   sstr << "- Orientation = " << _orientation << std::endl;
 
   return sstr.str();
@@ -134,6 +134,21 @@ void Object::_defineBoundingBox(double eps)
   }
 }
 
+void Object::_drawCoordinate(const DbGrid *dbout,
+                             const VectorDouble& dilate,
+                             VectorDouble& coor)
+{
+  int ndim = dbout->getNDim();
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    double origin = dbout->getX0(idim);
+    if (! dilate.empty()) origin -= dilate[idim];
+    double field = dbout->getExtend(idim);
+    if (! dilate.empty()) field += 2. * dilate[idim];
+    coor[idim] = origin + field * law_uniform(0., 1.);
+  }
+}
+
 /*****************************************************************************/
 /*!
  **  Function used to generate the geometry of an object
@@ -149,19 +164,6 @@ Object* Object::generate(const DbGrid* dbout,
                          double eps)
 {
   int ndim = dbout->getNDim();
-  VectorDouble origin = dbout->getX0s();
-  VectorDouble field = dbout->getExtends();
-
-  // Dilate the field (optional)
-
-  if (! dilate.empty())
-  {
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      origin[idim] -= dilate[idim];
-      field[idim] += 2 * dilate[idim];
-    }
-  }
 
   // Define the (primary) location of the object
 
@@ -169,20 +171,17 @@ Object* Object::generate(const DbGrid* dbout,
   VectorDouble coor(ndim);
   if (! cdgrain.empty())
   {
-    for (int idim = 0; idim < ndim; idim++)
-      coor[idim] = cdgrain[idim];
+    coor = cdgrain;
   }
   else
   {
     do
     {
       iter++;
-      for (int idim = 0; idim < ndim; idim++)
-        coor[idim] = origin[idim] + field[idim] * law_uniform(0., 1.);
+      if (iter > maxiter) return nullptr;
+      _drawCoordinate(dbout, dilate, coor);
     }
-    while (_checkIntensity(dbout, coor, flagStat, thetaCst) &&
-        iter < maxiter);
-    if (iter >= maxiter) return nullptr;
+    while (_checkIntensity(dbout, coor, flagStat, thetaCst));
   }
 
   // Generate an object of the correct Token type
@@ -201,6 +200,11 @@ Object* Object::generate(const DbGrid* dbout,
     do
     {
       iter++;
+      if (iter > maxiter)
+      {
+        delete object;
+        return nullptr;
+      }
       for (int idim = 0; idim < ndim; idim++)
       {
         if (idim < 2)
@@ -218,16 +222,10 @@ Object* Object::generate(const DbGrid* dbout,
                           object->getExtension(idim) * valrand);
       }
     }
-    while (! object->_checkObject(cdgrain, ndim) && iter < maxiter);
-    if (iter >= maxiter)
-    {
-      delete object;
-      return object;
-    }
+    while (! object->_checkObject(cdgrain, ndim));
   }
   else
-    for (int idim = 0; idim < ndim; idim++)
-      object->setCenter(idim, coor[idim]);
+    object->setCenter(coor);
 
   /* Determine the inclusive box */
 
@@ -293,44 +291,42 @@ bool Object::_checkIntensity(const DbGrid* dbout,
  *****************************************************************************/
 bool Object::_checkObject(const VectorDouble& coor, int ndim)
 {
-  double dx = coor[0] - _center[0];
-  double dy = coor[1] - _center[1];
-  double dz = coor[2] - _center[2];
+  VectorDouble incr(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    incr[idim] = coor[idim] - _center[idim];
 
   if (_orientation)
   {
     double angle = _orientation * GV_PI / 180.;
     double sint = sin(angle);
     double cost = cos(angle);
-    double dxr = dx * cost + dy * sint;
-    double dyr = dy * cost - dx * sint;
-    dx = dxr;
-    dy = dyr;
+    double dxr = incr[0] * cost + incr[1] * sint;
+    double dyr = incr[0] * cost - incr[1] * sint;
+    incr[0] = dxr;
+    incr[1] = dyr;
   }
 
   /* Check if the grain is outside the box */
 
-  if (ABS(dx) > _extension[0] / 2.) return false;
-  if (ABS(dy) > _extension[1] / 2.) return false;
+  if (ABS(incr[0]) > _extension[0] / 2.) return false;
+  if (ABS(incr[1]) > _extension[1] / 2.) return false;
 
   if (ndim > 2)
   {
     if (_token->getFlagCutZ())
     {
-      if (ABS(dz) > _extension[2] / 2.) return false;
+      if (ABS(incr[2]) > _extension[2] / 2.) return false;
     }
     else
     {
-      if (dz > 0) return false;
-      if (ABS(dz) > _extension[2]) return false;
+      if (incr[2] > 0) return false;
+      if (ABS(incr[2]) > _extension[2]) return false;
     }
   }
 
   /* Check the pixel according to the grain definition */
 
-  int memo = law_get_random_seed();
-  bool answer = _token->belongObject(coor, this);
-  law_set_random_seed(memo);
+  bool answer = _token->belongObject(incr, this);
 
   return answer;
 }
@@ -380,8 +376,7 @@ void Object::_updateCoverageAtSample(Db* db, int iech, int ival)
  **
  ** \return True if it is compatible; False otherwise
  **
- ** \param[in]  nbpore  count of constraining pores
- ** \param[in]  cdpore  Bool_Cond describing the constraining pores
+ ** \param[in]  db  Constraining data set
  **
  *****************************************************************************/
 bool Object::isCompatiblePore(const Db* db)

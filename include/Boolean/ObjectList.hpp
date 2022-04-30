@@ -49,7 +49,6 @@ public:
                         const Tokens* tokens,
                         bool flagStat,
                         double thetaCst,
-                        int nb_average,
                         double tmax,
                         const VectorDouble& dilate = VectorDouble(),
                         int maxiter = 100000);
@@ -62,6 +61,10 @@ private:
   int _getRankUncovered(const Db* db, int rank);
   int _getObjectRank(int mode, int rank);
   int _deleteObject(int mode, Db* dbin);
+  int _getAverageCount(const DbGrid* dbout,
+                       bool flagStat,
+                       double thetaCst,
+                       const VectorDouble& dilate);
 
 private:
   std::vector<Object*> _objlist;

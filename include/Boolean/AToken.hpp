@@ -17,6 +17,7 @@
 #include "Basic/Vector.hpp"
 #include "Boolean/TokenParameter.hpp"
 #include "Boolean/ETShape.hpp"
+#include "Boolean/ETLaw.hpp"
 
 class Object;
 

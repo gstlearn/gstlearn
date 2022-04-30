@@ -34,6 +34,7 @@ public:
   void setMode(int mode) { _mode = mode; }
   void setOrientation(double orientation) { _orientation = orientation; }
   void setCenter(int idim, double value) { _center[idim] = value; }
+  void setCenter(const VectorDouble& center) { _center = center; }
   void setExtension(int idim, double value) { _extension[idim] = value; }
   void setValue(int rank, double value) { _values[rank] = value; }
 
@@ -79,7 +80,9 @@ private:
   bool _checkBoundingBox(const VectorDouble& coor, int ndim);
   int  _getCoverageAtSample(const Db* db, int iech);
   void _updateCoverageAtSample(Db* db, int iech, int ival);
-
+  static void _drawCoordinate(const DbGrid *dbout,
+                              const VectorDouble& dilate,
+                              VectorDouble& coor);
 
 private:
   int _mode;                // 1 for Primary; 2 for Secondary object

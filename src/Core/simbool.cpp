@@ -2437,16 +2437,16 @@ int toktype_get_nbparams(int type)
  ** \param[in]  dbin          Db structure containing the data (optional)
  ** \param[in]  dbout         DbGrid structure containing the simulated grid
  ** \param[in]  tokens        Tokens structure
+ ** \param[in]  flagStat      1 if the Intensity is constant
+ ** \param[in]  thetaCst      Intensity constant value
+ ** \param[in]  tmax          Maximum time
  ** \param[in]  seed          Seed for the random number generator
- ** \param[in]  nb_average    Average number of boolean objects
- ** \param[in]  flag_stat     1 if the Intensity is constant
  ** \param[in]  flag_simu     Store the boolean simulation
  ** \param[in]  flag_rank     Store the object rank
  ** \param[in]  background    Value assigned to the background
  ** \param[in]  facies        Value of the facies assigned
  ** \param[in]  dilate        Array of dilation radius (optional)
- ** \param[in]  theta_cste    Intensity constant value
- ** \param[in]  tmax          Maximum time
+ ** \param[in]  maxiter       Maximum number of iterations
  ** \param[in]  verbose       1 for a verbose output
  ** \param[in]  namconv       Naming convention
  **
@@ -2454,15 +2454,14 @@ int toktype_get_nbparams(int type)
 int simbool(Db *dbin,
             DbGrid *dbout,
             Tokens *tokens,
-            int seed,
-            int nb_average,
             bool flagStat,
-            int flag_simu,
-            int flag_rank,
-            double background,
-            double facies,
             double thetaCst,
             double tmax,
+            int seed,
+            bool flag_simu,
+            bool flag_rank,
+            double background,
+            double facies,
             const VectorDouble& dilate,
             int maxiter,
             bool verbose,
@@ -2498,20 +2497,11 @@ int simbool(Db *dbin,
   /* Define the global variables */
 
   law_set_random_seed(seed);
-  if (verbose)
-  {
-    if (dbin == nullptr)
-      message("Boolean non conditional simulation. Average of %d objects\n",
-              nb_average);
-    else
-      message("Boolean conditional simulation. Average of %d objects\n",
-              nb_average);
-  }
 
   /* Count the number of conditioning pores and grains */
 
+  if (verbose) mestitle(0,"Boolean simulation");
   ObjectList objlist;
-
   int nbgrain = 0;
   int nbpore = 0;
   objlist.countConditioning(dbin, &nbgrain, &nbpore, verbose);
@@ -2520,18 +2510,25 @@ int simbool(Db *dbin,
   /* Simulate the Initial grains */
   /*******************************/
 
-  if (verbose)
+  if (dbin != nullptr)
   {
-    mestitle(1, "Simulating the initial tokens");
-    message("- Number of grains to be covered = %d\n", nbgrain);
-  }
+    if (verbose)
+    {
+      message("- Conditioning option               = YES\n");
+      mestitle(1, "Simulating the initial tokens");
+      message("- Number of grains to be covered = %d\n", nbgrain);
+      message("- Number of conditioning pores      = %d\n", nbpore);
+    }
 
-  if (objlist.generatePrimary(dbin, dbout, tokens,
-                              flagStat, thetaCst,
-                              dilate, maxiter)) return 1;
-  int nb_memo_init = objlist.getNObjects(1);
-  if (verbose)
-    message("- Number of Initial Objects = %d\n",nb_memo_init);
+    if (objlist.generatePrimary(dbin, dbout, tokens, flagStat, thetaCst,
+                                dilate, maxiter)) return 1;
+    if (verbose)
+      message("- Number of Initial Objects = %d\n",objlist.getNObjects(1));
+  }
+  else
+  {
+    if (verbose) message("- Conditioning option               = NO\n");
+  }
 
   /*********************************/
   /* Simulate the Secondary grains */
@@ -2541,50 +2538,32 @@ int simbool(Db *dbin,
   {
     mestitle(1, "Simulating the secondary tokens");
     message("- Maximum time available = %lf\n", tmax);
+    if (flagStat)
+      message("- Poisson Intensity                 = %g\n", thetaCst);
+    else
+      message("- Variable Poisson Intensity\n");
   }
 
-  if (objlist.generateSecondary(dbin, dbout, tokens,
-                                flagStat, thetaCst,
-                                nb_average, tmax,
-                                dilate, maxiter)) return 1;
+  if (objlist.generateSecondary(dbin, dbout, tokens, flagStat, thetaCst,
+                                tmax, dilate, maxiter)) return 1;
 
   /* Print the list of retained tokens */
 
   if (DEBUG) st_print_all_objects();
 
-  /******************************************/
-  /* Project the objects on the output grid */
-  /******************************************/
+  // Project the objects on the output grid
 
   objlist.projectToGrid(dbout, iptr_simu, iptr_rank, facies);
 
+  // Final statistics
+
   if (verbose)
   {
-    mestitle(0,"Boolean simulation");
-
     if (dbin != nullptr)
     {
-      message("Conditioning option               = YES\n");
-      message("Number of conditioning grains     = %d\n", nbgrain);
-      message("Number of conditioning pores      = %d\n", nbpore);
+      message("- Ending number of primary objects  = %d\n",objlist.getNObjects(1));
     }
-    else
-    {
-      message("Conditioning option               = NO\n");
-    }
-
-    message("Maximum simulation time           = %g\n", tmax);
-    message("Average number of objects         = %d\n", nb_average);
-
-    if (dbin != nullptr)
-    {
-      message("Initial number of primary objects = %d\n",
-              nb_memo_init);
-      message("Ending number of primary objects  = %d\n",
-              objlist.getNObjects(1));
-    }
-    message("Total number of objects           = %d\n",
-            objlist.getNObjects());
+    message("- Total number of objects           = %d\n",objlist.getNObjects());
   }
 
   namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,

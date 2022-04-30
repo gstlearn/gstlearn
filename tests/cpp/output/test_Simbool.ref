@@ -80,45 +80,49 @@ Parallelepiped - Proportion=0.6
 - Orientation Angle: Constant=0
 
 <----- Perform Boolean Simulation ----->
-Boolean non conditional simulation. Average of 100 objects
-
-Simulating the initial tokens
------------------------------
-- Number of grains to be covered = 0
-- Number of Initial Objects = 0
-
-Simulating the secondary tokens
--------------------------------
-- Maximum time available = 100.000000
-
-Boolean simulation
-==================
-Conditioning option               = NO
-Maximum simulation time           = 100
-Average number of objects         = 100
-Total number of objects           = 8268
 
 Data Base Grid Characteristics
 ==============================
 
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
-Total number of samples      = 10000
-
-Grid characteristics:
----------------------
-Origin :      0.000     0.000
-Mesh   :      1.000     1.000
-Number :        100       100
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Boolean.Facies - Locator = NA
-Column = 4 - Name = Boolean.Rank - Locator = NA
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      1.000
+ Maximum value       =  10000.000
+ Mean value          =   5000.500
+ Standard Deviation  =   2886.751
+ Variance            = 8333333.250
+2 - Name x1 - Locator x1
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+3 - Name x2 - Locator x2
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =     99.000
+ Mean value          =     49.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+4 - Name Boolean.Facies - Locator NA
+ Nb of data          =      10000
+ Nb of active values =      10000
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.385
+ Standard Deviation  =      0.487
+ Variance            =      0.237
+5 - Name Boolean.Rank - Locator NA
+ Nb of data          =      10000
+ Nb of active values =       3853
+ Minimum value       =      2.000
+ Maximum value       =     74.000
+ Mean value          =     36.248
+ Standard Deviation  =     20.642
+ Variance            =    426.091
