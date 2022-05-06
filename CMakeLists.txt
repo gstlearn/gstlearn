@@ -30,6 +30,22 @@ string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
 # Fix version.h automatically
 configure_file(version.h.in version.h)
 
+# Activate verbose mode
+#set(CMAKE_VERBOSE_MAKEFILE ON)
+
+# Options
+option(BUILD_PYTHON "Build python package")
+option(BUILD_R      "Build R package")
+set(BUILD_PYTHON ON)
+set(BUILD_R      ON)
+if (MINGW)
+  set(BUILD_PYTHON OFF)
+endif()
+if (MSVC)
+  set(BUILD_R OFF)
+endif()
+message(STATUS "BUILD_PYTHON=" ${BUILD_PYTHON})
+message(STATUS "BUILD_R="      ${BUILD_R})
 
 ####################################################
 ## BUILD & INSTALL
@@ -45,7 +61,6 @@ include(cmake/install.cmake)
 
 # TODO : Make packages configuration / compilation optional
 add_subdirectory(python)
-add_subdirectory(r)
 #add_subdirectory(r)
 
 

@@ -1,3 +1,7 @@
+if(NOT BUILD_PYTHON)
+  return()
+endif()
+
 # Python package name
 set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # Beware : the real package name is the PROJECT_NAME (for better import)
@@ -135,6 +139,7 @@ target_include_directories(${PYTGT} PRIVATE ${Python3_INCLUDE_DIRS})
 
 # Link to python's libraries (only for MSVC - Release)
 if(MSVC)
+  #message(STATUS Python3_LIBRARIES=${Python3_LIBRARIES})
   target_link_libraries(${PYTGT} PRIVATE ${Python3_LIBRARIES})
 endif()
 

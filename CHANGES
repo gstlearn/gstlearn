@@ -4,6 +4,7 @@ This file contains the logs between consecutive releases
 Release 0.1.7
 ==============
 - testpypi requires a new version
+- Prevent from building Python / R according windows compiler (MinGw/Visual) 
 
 Release 0.1.6
 ==============
