@@ -893,48 +893,56 @@ int surface(Db *db_point,
             double *dtab,
             double *gtab)
 {
-  double v1, v2, dist, d2min, d2max, delta, maille;
-  int idim, iech, igrid, ndim;
-
-  /* Initializations */
+  bool flagTest;
 
   if (!db_grid->hasSameDimension(db_point)) return (1);
-  ndim = db_point->getNDim();
+  int ndim = db_point->getNDim();
 
   /* Preliminary calculations */
 
-  d2max = (FFFF(dlim)) ? 1.e30 :
-                         dlim * dlim;
-  maille = db_grid->getCellSize();
-  for (iech = 0; iech < db_point->getSampleNumber(); iech++)
+  double d2max = (FFFF(dlim)) ? 1.e30 : dlim * dlim;
+  double maille = db_grid->getCellSize();
+  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
     dtab[iech] = 0.;
 
   /* Loop on the target points */
 
-  for (igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  VectorDouble vgrid(ndim);
+  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
   {
     gtab[igrid] = -1;
     if (!db_grid->isActive(igrid)) continue;
+    flagTest = false;
+    for (int idim = 0; idim < ndim && ! flagTest; idim++)
+    {
+      vgrid[idim] = db_grid->getCoordinate(igrid, idim);
+      if (FFFF(vgrid[idim])) flagTest = true;
+    }
+    if (flagTest) continue;
 
     /* Loop on the data points */
 
-    d2min = d2max;
-    for (iech = 0; iech < db_point->getSampleNumber(); iech++)
+    double d2min = d2max;
+    for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
     {
       if (!db_point->isActive(iech)) continue;
 
       /* Calculate the distance between node and data */
 
-      dist = 0.;
-      for (idim = 0; idim < ndim && !FFFF(dist); idim++)
+      double dist = 0.;
+      flagTest = false;
+      for (int idim = 0; idim < ndim && ! flagTest; idim++)
       {
-        v1 = db_grid->getCoordinate(igrid, idim);
-        v2 = db_point->getCoordinate(iech, idim);
-        if (FFFF(v1) || FFFF(v2)) dist = TEST;
-        delta = v1 - v2;
-        dist += delta * delta;
+        double v2 = db_point->getCoordinate(iech, idim);
+        if (FFFF(v2))
+          flagTest = true;
+        else
+        {
+          double delta = v2 - vgrid[idim];
+          dist += delta * delta;
+        }
       }
-      if (FFFF(dist)) continue;
+      if (flagTest) continue;
       if (dist > d2max) continue;
 
       /* Keep the closest sample */
@@ -947,22 +955,22 @@ int surface(Db *db_point,
 
   /* Calculate the influence of each datum */
 
-  for (igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
   {
-    iech = (int) gtab[igrid];
-    if (iech >= 0) dtab[iech]++;
+    int jech = (int) gtab[igrid];
+    if (jech >= 0) dtab[jech]++;
   }
-  for (iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
     dtab[iech] *= maille;
 
   /* Evaluate each grid node with the size of the influence polygon */
   /* to which it belongs                                            */
 
-  for (igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
+  for (int igrid = 0; igrid < db_grid->getSampleNumber(); igrid++)
   {
-    iech = (int) gtab[igrid];
-    if (iech >= 0)
-      gtab[igrid] = dtab[iech];
+    int jech = (int) gtab[igrid];
+    if (jech >= 0)
+      gtab[igrid] = dtab[jech];
     else
       gtab[igrid] = TEST;
   }

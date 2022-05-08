@@ -67,7 +67,7 @@ String AnamEmpirical::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Additional variance           = " << _sigma2e << std::endl;
   sstr << std::endl;
   sstr << "Discretization intervals Y - Z" << std::endl;
-  sstr << toMatrix(String(), VectorString(), VectorString(), true, 2, _nDisc, _tDisc);
+  sstr << toMatrix(String(), VectorString(), VectorString(), false, 2, _nDisc, _tDisc);
 
   return sstr.str();
 }
@@ -312,7 +312,7 @@ int AnamEmpirical::fit(const VectorDouble& tab)
 
   /* Save the results */
 
-  setABounds(_az.getVmin(), _az.getVmax(), _ay.getVmin(), _ay.getVmax());
+  setABounds(pzmin, pzmax, pymin, pymax);
   setPBounds(pzmin, pzmax, pymin, pymax);
 
   return 0;
