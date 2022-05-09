@@ -27,9 +27,10 @@ jobs:
     runs-on: windows-2019
     strategy :
       matrix:
+       # Installed software : https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
        python: 
           - ["cp310","3.10.4"]
-          - ["cp39","3.9.10"]
+          - ["cp39","3.9.12"]
           - ["cp38","3.8.10"]
           - ["cp37","3.7.9"]
        windows-type :
