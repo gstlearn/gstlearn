@@ -20,7 +20,7 @@ class DbGrid;
 class GSTLEARN_EXPORT AOF
 {
 public:
-  AOF(const char* filename, const Db* db = nullptr);
+  AOF(const String& filename, const Db* db = nullptr);
   AOF(const AOF& r);
   AOF& operator=(const AOF& r);
   virtual ~AOF();
@@ -43,7 +43,7 @@ public:
   void setCols(int ncol, int* icols);
   void setCol(int icol);
 
-  const char* getFilename() const { return _filename; }
+  const String& getFilename() const { return _filename; }
 
 protected:
   int  _fileWriteOpen();
@@ -51,7 +51,7 @@ protected:
   void _fileClose();
 
 protected:
-  const char*   _filename;
+  String _filename;
   const Db*     _db;
   const DbGrid* _dbgrid;
   VectorInt     _cols;

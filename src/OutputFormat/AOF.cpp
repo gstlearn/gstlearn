@@ -15,7 +15,7 @@
 #include "Db/DbGrid.hpp"
 #include <stdio.h>
 
-AOF::AOF(const char* filename, const Db* db)
+AOF::AOF(const String& filename, const Db* db)
   : _filename(filename)
   , _db(db)
   , _dbgrid(nullptr)
@@ -106,10 +106,10 @@ bool AOF::isValidForRotation() const
 
 int AOF::_fileWriteOpen()
 {
-  _file = gslFopen(_filename, "w");
+  _file = gslFopen(_filename.c_str(), "w");
   if (_file == nullptr)
   {
-    messerr("Error when opening the file %s for writing", _filename);
+    messerr("Error when opening the file %s for writing", _filename.c_str());
     return (1);
   }
   return 0;
@@ -117,10 +117,10 @@ int AOF::_fileWriteOpen()
 
 int AOF::_fileReadOpen()
 {
-  _file = gslFopen(_filename, "r");
+  _file = gslFopen(_filename.c_str(), "r");
   if (_file == nullptr)
   {
-    messerr("Error when opening the file %s for reading", _filename);
+    messerr("Error when opening the file %s for reading", _filename.c_str());
     return (1);
   }
   return 0;

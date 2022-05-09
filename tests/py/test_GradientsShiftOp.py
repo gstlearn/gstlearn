@@ -1,5 +1,5 @@
 #
-# Thic file is meant to test the reading of various types of arguments
+# This file is meant to test the reading of various types of arguments
 # in Python
 #
 

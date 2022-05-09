@@ -191,10 +191,12 @@ int FileVTK::writeInFile()
   /* Write the file */
 
   if (flag_grid)
-    write_rectilinear_mesh(getFilename(), _flagBinary, dims, xcoor.data(), ycoor.data(), zcoor.data(), ncol,
+    write_rectilinear_mesh(getFilename().c_str(), _flagBinary,
+                           dims, xcoor.data(), ycoor.data(), zcoor.data(), ncol,
                            vardim.data(), center.data(), vc.data(), tab);
   else
-    write_point_mesh(getFilename(), _flagBinary, nactive, points.data(), ncol, vardim.data(), vc.data(), tab);
+    write_point_mesh(getFilename().c_str(), _flagBinary,
+                     nactive, points.data(), ncol, vardim.data(), vc.data(), tab);
 
   for (int icol = 0; icol < ncol; icol++)
     tab[icol] = (float*) mem_free((char* ) tab[icol]);
