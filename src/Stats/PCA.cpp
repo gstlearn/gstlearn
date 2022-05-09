@@ -119,6 +119,7 @@ String PCA::toString(const AStringFormat* strfmt) const
   const PCAStringFormat* pcafmt = dynamic_cast<const PCAStringFormat*>(strfmt);
   PCAStringFormat dsf;
   if (pcafmt != nullptr) dsf = *pcafmt;
+  if (_nVar <= 0) return sstr.str();
 
   sstr << toTitle(1, "PCA Contents");
 

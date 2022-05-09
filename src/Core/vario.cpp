@@ -5521,7 +5521,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
   for (idisc = 0; idisc < ndisc; idisc++)
     ro[idisc] = disc * idisc - 1.;
 
-  /* Calculate the first normalized hermite polynomials for ycut */
+  /* Calculate the first normalized Hermite polynomials for ycut */
 
   VectorDouble hermite = hermiteFunction(ycut, nh);
 
