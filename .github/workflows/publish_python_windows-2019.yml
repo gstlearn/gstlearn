@@ -27,11 +27,12 @@ jobs:
     runs-on: windows-2019
     strategy :
       matrix:
+       # Installed software : https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
        python: 
-         # - ["cp310","3.10.2"]
-         # - ["cp39","3.9.10"]
+          - ["cp310","3.10.4"]
+          - ["cp39","3.9.12"]
           - ["cp38","3.8.10"]
-         # - ["cp37","3.7.9"]
+          - ["cp37","3.7.9"]
        windows-type :
           - ["win_amd64", "x64"]
           - ["win32","x86"]
@@ -57,18 +58,18 @@ jobs:
 #####################################################################################################
 # HDF5 download and install
 
-    - name : Download and install HDF5
-      # | offers the possibility to run several command in 1 run (take care to indentation)
-      run: | 
-        mkdir ${{env.HDF5_ROOT}}
-        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.zip ${{env.HDF5_URL}}	
-        7z x ${{env.HDF5_ROOT}}/download.zip
-        cd CMake-${{env.HDF5_VERSION}}
-        mkdir build
-        cd build
-        cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
-        cmake --build . --target all --config Release -- -j 2
-        cmake --build . --target install --config Release
+#    - name : Download and install HDF5
+#      # | offers the possibility to run several command in 1 run (take care to indentation)
+#      run: | 
+#        mkdir ${{env.HDF5_ROOT}}
+#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.zip ${{env.HDF5_URL}}	
+#        7z x ${{env.HDF5_ROOT}}/download.zip
+#        cd CMake-${{env.HDF5_VERSION}}
+#        mkdir build
+#        cd build
+#        cmake -G ${{env.COMPILE_VERSION}} -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+#        cmake --build . --target all --config Release -- -j 2
+#        cmake --build . --target install --config Release
 
 ########################################################################################################
 # Doxygen download and unzip
@@ -98,7 +99,9 @@ jobs:
 
     - name : Configure Cmake
       run : |
-       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
+       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
+     
+ #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
 
    
 ########################################################################################################
