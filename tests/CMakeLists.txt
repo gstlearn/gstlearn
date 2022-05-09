@@ -10,8 +10,8 @@ if (MSVC) # TODO use IS_MULTI_CONFIG
 #  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose -C $<CONFIG> --output-on-failure)
   set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG> --output-on-failure)
 else()
-#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose --output-on-failure)
-  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
+  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND})
 endif()
 
 # TODO : tests are executed for each directory but mixed

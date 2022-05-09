@@ -31,7 +31,7 @@ string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
 configure_file(version.h.in version.h)
 
 # Activate verbose mode
-#set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
 option(BUILD_PYTHON "Build python package")
@@ -46,7 +46,7 @@ if (MSVC)
 endif()
 message(STATUS "BUILD_PYTHON=" ${BUILD_PYTHON})
 message(STATUS "BUILD_R="      ${BUILD_R})
-#message(STATUS "WIN32="        ${WIN32})
+message(STATUS "WIN32="        ${WIN32})
 
 ####################################################
 ## BUILD & INSTALL
