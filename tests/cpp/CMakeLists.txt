@@ -50,7 +50,7 @@ foreach(TARGET_EXE ${TARGETS_EXE})
              WORKING_DIRECTORY ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     add_test(NAME ${TARGET_EXE}_cmp
-             COMMAND diff --strip-trailing-cr ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out
+             COMMAND git diff -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out
              WORKING_DIRECTORY ${TEST_DST_DIR})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 

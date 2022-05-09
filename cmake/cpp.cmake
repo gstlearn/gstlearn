@@ -45,15 +45,15 @@ find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 
 if (USE_HDF5)
-  # Look for HDF5
-  # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-  find_package(HDF5 REQUIRED COMPONENTS C CXX)
-  # TODO : If HDF5 not found, fetch it from the web ?
-
   # Use static library for HDF5 under Windows (no more issue with DLL location)
   if (WIN32)
     set(HDF5_USE_STATIC_LIBRARIES ON)
   endif()
+  
+  # Look for HDF5
+  # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
+  find_package(HDF5 REQUIRED COMPONENTS C CXX)
+  # TODO : If HDF5 not found, fetch it from the web ?
 endif()
 
 # Shared and Static libraries
@@ -103,7 +103,7 @@ foreach(FLAVOR ${FLAVORS})
   if (USE_HDF5)
     # Define _USE_HDF5 macro
     target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
-
+    
     # Link to HDF5
     # CMake>=3.19 introduces hdf5 targets that could be used the same way as boost targets
     target_include_directories(${FLAVOR} PUBLIC ${HDF5_INCLUDE_DIRS})

@@ -46,6 +46,7 @@ if (MSVC)
 endif()
 message(STATUS "BUILD_PYTHON=" ${BUILD_PYTHON})
 message(STATUS "BUILD_R="      ${BUILD_R})
+#message(STATUS "WIN32="        ${WIN32})
 
 ####################################################
 ## BUILD & INSTALL

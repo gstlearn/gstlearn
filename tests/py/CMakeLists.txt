@@ -1,3 +1,7 @@
+if(NOT BUILD_PYTHON)
+  return()
+endif()
+
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
@@ -39,7 +43,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
              WORKING_DIRECTORY ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     add_test(NAME ${TARGET_TEST_NAME}_cmp
-             COMMAND diff --strip-trailing-cr ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out
+             COMMAND git diff -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out
              WORKING_DIRECTORY ${TEST_DST_DIR})
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 

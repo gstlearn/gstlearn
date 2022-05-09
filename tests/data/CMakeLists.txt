@@ -60,7 +60,7 @@ foreach(TARGET_EXE ${TARGETS_EXE})
                  WORKING_DIRECTORY ${TEST_DST_DIR})
         # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND diff --strip-trailing-cr ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
+                 COMMAND git diff -w ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DST_DIR})
     endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})
