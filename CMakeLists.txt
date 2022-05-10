@@ -31,7 +31,7 @@ string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UP)
 configure_file(version.h.in version.h)
 
 # Activate verbose mode
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
 option(BUILD_PYTHON "Build python package")
