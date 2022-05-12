@@ -165,10 +165,7 @@ static int st_matrix_solve(double *at, double *b, double *x, int neq, int nrhs)
  ** \remark  a_in is protected
  **
  *****************************************************************************/
-int matrix_eigen(const double *a_in,
-                                 int neq,
-                                 double *value,
-                                 double *vector)
+int matrix_eigen(const double *a_in, int neq, double *value, double *vector)
 
 {
   double a11, a12, a13, a21, a22, a23, a33, a34;
@@ -907,10 +904,10 @@ int is_matrix_symmetric(int neq, const double *a, int verbose)
  **
  *****************************************************************************/
 int is_matrix_definite_positive(int neq,
-                                                const double *a,
-                                                double *valpro,
-                                                double *vecpro,
-                                                int verbose)
+                                const double *a,
+                                double *valpro,
+                                double *vecpro,
+                                int verbose)
 {
   int i, code;
 

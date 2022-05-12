@@ -919,8 +919,7 @@ VectorDouble TurningBands::_createAIC()
   {
     if (!is_matrix_definite_positive(
         nvar, _model->getCova(icov)->getSill().getValues().data(),
-        valpro.data(),
-        vecpro.data(), 0))
+        valpro.data(), vecpro.data(), 0))
     {
       messerr("Warning: the model is not authorized");
       messerr("The coregionalization matrix for the structure %d is not definite positive",
@@ -1940,7 +1939,7 @@ double TurningBands::_getAIC(const VectorDouble& aic,
                              int jvar)
 {
   int nvar = _getNVar();
-  return aic[icov*nvar*nvar + nvar * jvar + ivar];
+  return aic[icov*nvar*nvar + nvar * ivar + jvar];
 }
 
 /*****************************************************************************/
