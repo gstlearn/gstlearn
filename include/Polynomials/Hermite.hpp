@@ -14,10 +14,10 @@
 #include "Basic/Vector.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
-GSTLEARN_EXPORT VectorDouble hermitePolynomials(double yc,
+GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
                                                 double r,
                                                 int nbpoly);
-GSTLEARN_EXPORT VectorDouble hermitePolynomials(double z,
+GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
                                                 double r,
                                                 const VectorInt& ifacs);
 GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly);

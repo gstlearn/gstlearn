@@ -30,6 +30,14 @@ double _convert2u(double yc, double krigest, double krigstd)
   }
 }
 
+/**
+ * Calculate In(u,v) = int_u^v H_n(yk + sk * t) g(t) dt (with v = +Inf)
+ * @param In Returned vector (in place)
+ * @param yk Kriged value
+ * @param sk Standard deviation of estimation error
+ * @param u  Lower bound of integral (-inf if set to TEST)
+ * @param hnYc Vector of Hermite polynomials at cutoff
+ */
 void _calculateIn(VectorDouble &In,
                   double yk,
                   double sk,
@@ -38,17 +46,17 @@ void _calculateIn(VectorDouble &In,
 {
   double Gcomp, gusk;
   bool flag_u = !FFFF(u);
-  double s2 = 1 - sk * sk;
+  double r2 = 1 - sk * sk;
   int nbpoly = static_cast<int>(In.size());
   if (flag_u)
   {
     Gcomp = 1 - law_cdf_gaussian(u);
-    gusk = sk * law_df_gaussian(u);
+    gusk  = sk * law_df_gaussian(u);
   }
   else
   {
     Gcomp = 1.;
-    gusk = 0.;
+    gusk  = 0.;
   }
 
   In.resize(nbpoly, 0.);
@@ -59,12 +67,22 @@ void _calculateIn(VectorDouble &In,
   for (int ih = 2; ih < nbpoly; ih++)
   {
     if (flag_u) cutval = gusk * hnYc[ih - 1];
-    In[ih] = -(yk * In[ih - 1] + s2 * sqrt((double) ih - 1) * In[ih - 2]
-               + cutval)
-             / sqrt((double) ih);
+    double sqh  = sqrt((double) ih);
+    double sqh1 = sqrt((double) (ih - 1.));
+    In[ih] = -(yk * In[ih - 1] + r2 * sqh1 * In[ih - 2] + cutval) / sqh;
   }
 }
 
+/**
+ * Calculate matrix JJ(n,p) = int_u_v H_n(y+st) H_p(y+st) g(t) dt (with v = +Inf)
+ * @param JJ Output matrix
+ * @param In Preliminary calculations (see _calculateII)
+ * @param yk Kriged value
+ * @param sk Standard deviation of Krging error
+ * @param u  Lower bound for integration
+ * @param hnYc Vector of Hermite polynomials at cutoff
+ * @param phi
+ */
 void _calculateJJ(MatrixSquareGeneral &JJ,
                   VectorDouble &In,
                   double yk,
@@ -77,8 +95,8 @@ void _calculateJJ(MatrixSquareGeneral &JJ,
 
   bool flag_u = !FFFF(u);
   double s2 = sk * sk;
-  double gusk = (flag_u) ? sk * law_df_gaussian(u) :
-                           0.;
+  double r2 = 1 - s2;
+  double gusk = (flag_u) ? sk * law_df_gaussian(u) :  0.;
 
   _calculateIn(In, yk, sk, u, hnYc);
 
@@ -91,25 +109,22 @@ void _calculateJJ(MatrixSquareGeneral &JJ,
   for (int n = 1; n < nbpoly; n++)
   {
     if (flag_u) cutval = gusk * hnYc[n];
-    double sq2n = s2 * sqrt((double) n);
-    double value = -yk * JJ.getValue(n, 0) + sq2n * JJ.getValue(n - 1, 0)
-        - cutval;
+    double sqn = sqrt((double) n);
+    double value = -yk * JJ.getValue(n, 0) + s2 * sqn * JJ.getValue(n - 1, 0) - cutval;
 
     JJ.setValue(n, 1, value);
     JJ.setValue(1, n, value);
   }
   for (int n = 1; n < nbpoly; n++)
   {
-    double sq2n = (1. - s2) * sqrt((double) n);
+    double sqn  = sqrt((double) n);
     double sqn1 = sqrt((double) (n + 1.));
     for (int p = n + 1; p < nbpoly; p++)
     {
       if (flag_u) cutval = gusk * hnYc[n] * hnYc[p];
-      double sq2p = s2 * sqrt((double) p);
-      double value = -(yk * JJ.getValue(n, p) + sq2n * JJ.getValue(n - 1, p)
-          - sq2p * JJ.getValue(n, p - 1)
-                       + cutval)
-                     / sqn1;
+      double sqp = sqrt((double) p);
+      double value = -(yk * JJ.getValue(n, p) + sqn * r2 * JJ.getValue(n - 1, p)
+          - sqp * s2* JJ.getValue(n, p - 1) + cutval) / sqn1;
       JJ.setValue(n + 1, p, value);
       JJ.setValue(p, n + 1, value);
     }
@@ -117,6 +132,7 @@ void _calculateJJ(MatrixSquareGeneral &JJ,
 }
 
 /**
+ * Calculation of the Hermite Polynomials for a given value
  *
  * @param y Gaussian value for which the Hermite polynomials are calculated
  * @param r Change of support coefficient
@@ -135,8 +151,11 @@ VectorDouble hermitePolynomials(double y, double r, int nbpoly)
     if (nbpoly > 2)
     {
       for (int ih = 2; ih < nbpoly; ih++)
-        poly[ih] = -(y * poly[ih - 1] + sqrt((double) (ih - 1)) * poly[ih - 2])
-            / sqrt((double) ih);
+      {
+        double sqh   = sqrt((double) ih);
+        double sqhm1 = sqrt((double) (ih - 1.));
+        poly[ih] = -(y * poly[ih - 1] + sqhm1 * poly[ih - 2]) / sqh;
+      }
     }
   }
 
@@ -152,13 +171,20 @@ VectorDouble hermitePolynomials(double y, double r, int nbpoly)
   return poly;
 }
 
-VectorDouble hermitePolynomials(double z, double r, const VectorInt& ifacs)
+/**
+ * Returns the vector of Hermite Polynomials selected by ranks
+ * @param y Target variable
+ * @param r Change of support coefficient
+ * @param ifacs Vector of ranks (staring from 0)
+ * @return The vector of Hi(y) where 'i' is in 'ifacs'
+ */
+VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
 {
   int nfact = (int) ifacs.size();
   VectorDouble vec(nfact);
 
   int nbpoly = ut_ivector_max(ifacs);
-  VectorDouble poly = hermitePolynomials(z, r, nbpoly);
+  VectorDouble poly = hermitePolynomials(y, r, nbpoly);
 
   for (int ifac = 0; ifac < nfact; ifac++)
     vec[ifac] = poly[ifacs[ifac]];
@@ -170,7 +196,7 @@ VectorDouble hermitePolynomials(double z, double r, const VectorInt& ifacs)
  * Calculate the Conditional Expectation:
  *    E[Z | Z1=z1, Z2=z2, ..., Zn=zn] = int Phi(y_kk + s_k u) g(u) du
  *
- * @param krigest Vector of Kriging estimated
+ * @param krigest Vector of Kriging estimates
  * @param krigstd Vector of Kriging standard deviations
  * @param phi Array of Hermite coefficients
  * @return Conditional Expectation
@@ -345,11 +371,11 @@ double hermiteMetalElement(double yc,
   double u = _convert2u(yc, krigest, krigstd);
   _calculateIn(In, krigest, krigstd, u, hnYc);
 
-  double metal = 0.;
+  double result = 0.;
   for (int ih = 0; ih < nbpoly; ih++)
-    metal += phi[ih] * In[ih];
+    result += phi[ih] * In[ih];
 
-  return metal;
+  return result;
 }
 
 VectorDouble hermiteMetalStd(double yc,
@@ -405,8 +431,7 @@ double hermiteMetalStdElement(double yc,
   double metal = hermiteMetalElement(yc, krigest, krigstd, phi);
   result -= metal * metal;
 
-  double metstd = (metal > 0) ? sqrt(result) :
-                                0.;
+  double metstd = (metal > 0) ? sqrt(result) : 0.;
 
   return metstd;
 }
@@ -482,8 +507,7 @@ MatrixSquareGeneral hermiteIncompleteIntegral(double yc, int nbpoly)
 
   for (int n = 0; n < nbpoly; n++)
     for (int m = 0; m < nbpoly; m++)
-      TAU.setValue(m, n, (m == n) ? 1. - TAU.getValue(m, n) :
-                                    -TAU.getValue(m, n));
+      TAU.setValue(m, n, (m == n) ? 1. - TAU.getValue(m, n) : -TAU.getValue(m, n));
 
   return TAU;
 }
@@ -527,10 +551,10 @@ double hermiteSeries(const VectorDouble &an, const VectorDouble &hn)
 }
 
 /**
- *
- * @param y value where the Hermite polynomials are calculated
+ * Returns the vector of Hermite coefficients of the gaussian floored at 'y'
+ * @param y Floor value
  * @param nbpoly Number of Polynomial functions
- * @return Coefficients of f(Y)=Yp in Hermite polynomials
+ * @return Hermite Coefficients
  */
 VectorDouble hermiteFunction(double y, int nbpoly)
 {
@@ -541,9 +565,13 @@ VectorDouble hermiteFunction(double y, int nbpoly)
 
   double dg = law_df_gaussian(y);
   double pg = law_cdf_gaussian(y);
-  hn[0] = dg + y * pg;
-  hn[1] = pg - 1.;
-  for (int i = 2; i < nbpoly; i++)
-    hn[i] = dg * (y * hn[i - 1] / sqrt(i) + hn[i - 2] / sqrt(i * (i - 1)));
+  coeff[0] = dg + y * pg;
+  coeff[1] = pg - 1.;
+  for (int n = 2; n < nbpoly; n++)
+  {
+    double sqn = sqrt((double) n);
+    double sqnnm1 = sqrt((double) n * (n - 1.));
+    coeff[n] = dg * (y * hn[n - 1] / sqn + hn[n - 2] / sqnnm1);
+  }
   return coeff;
 }

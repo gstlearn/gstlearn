@@ -5515,7 +5515,6 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Core allocation */
 
-  VectorDouble fncoeff(nh);
   VectorDouble ro(ndisc);
   VectorDouble covyp(ndisc);
   for (idisc = 0; idisc < ndisc; idisc++)
@@ -5523,18 +5522,19 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Calculate the first normalized Hermite polynomials for ycut */
 
-  VectorDouble hermite = hermiteFunction(ycut, nh);
+  VectorDouble psic = hermiteFunction(ycut, nh);
 
   /* Variance */
 
   variance = 0.;
   for (ih = 1; ih < nh; ih++)
-    variance += fncoeff[ih] * fncoeff[ih];
+    variance += psic[ih] * psic[ih];
+
   for (idisc = 0; idisc < ndisc; idisc++)
   {
     sum = 0.;
     for (ih = 1; ih < nh; ih++)
-      sum += fncoeff[ih] * fncoeff[ih] * pow(ro[idisc], ih);
+      sum += psic[ih] * psic[ih] * pow(ro[idisc], ih);
     covyp[idisc] = sum;
   }
 
