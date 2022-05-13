@@ -86,13 +86,13 @@ PrecisionOp::~PrecisionOp()
   _purge();
 }
 
-int PrecisionOp::_preparePoly(const EPowerPT& power)
+int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
 {
   // Polynomial already exists. Nothing to be done
-  if (_polynomials.count(power)) return 0;
+  if (_polynomials.count(power) && !force) return 0;
 
   // Prepare Polynomial for EPowerPT::ONE
-  if (_preparePrecisionPoly()) return 1;
+  if (_preparePrecisionPoly() && !force) return 1;
 
   // Prepare polynomials for other powers than 1
   if (power != EPowerPT::ONE)
@@ -104,7 +104,7 @@ int PrecisionOp::_preparePoly(const EPowerPT& power)
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power)
 {
-  if (_cova == nullptr) return 1;
+  if (_cova == nullptr && _polynomials.count(EPowerPT::ONE)==0) return 1;
   if (_shiftOp == nullptr) return 1;
 
   double b = _shiftOp->getMaxEigenValue();

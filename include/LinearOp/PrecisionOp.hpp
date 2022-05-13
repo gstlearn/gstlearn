@@ -74,13 +74,19 @@ public:
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
 
+  void setPolynomialFromPoly(APolynomial* &polynomial)
+  {
+    _polynomials[EPowerPT::ONE] = polynomial;
+    _preparePoly(_power,true);
+  }
+
 protected:
   APolynomial* getPoly(const EPowerPT& power);
   const EPowerPT&   getPower()const{return _power;}
   const ShiftOpCs* getShiftOpCs() const {return _shiftOp;}
 
 private:
-  int  _preparePoly(const EPowerPT& power);
+  int  _preparePoly(const EPowerPT& power,bool force = false);
   int  _prepareChebychev(const EPowerPT& power);
   int  _preparePrecisionPoly();
 
