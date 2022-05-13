@@ -1,4 +1,6 @@
 /*
+                                      csparse
+
 Original Author: Timothy Davis
 Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
 License: see doc/csparse_license.txt
@@ -2507,7 +2509,15 @@ int cs_utsolve(const cs *U, double *x)
   return (1);
 }
 
-/* sparseinv: computes the sparse inverse subset, using Takahashi's equations.
+/*
+                                      sparseinv
+
+Original Author: Timothy Davis
+Website: http://www.suitesparse.com
+License: see doc/sparseinv_license.txt
+*/
+
+/* sparsinv: computes the sparse inverse subset, using Takahashi's equations.
 
  On input, the pattern of Z must be equal to the symbolic Cholesky
  factorization of A+A', where A=(L+I)*(U+I).   The pattern of L+U must be a
@@ -2667,6 +2677,19 @@ int n, /* L, U, D, and Z are n-by-n */
   }
   return (flops);
 }
+
+
+
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 
 /* compressed-column form into arrays */
 /* number: Number of non-zero terms in the sparse matrix A */
