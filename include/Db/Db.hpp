@@ -232,6 +232,43 @@ public:
                                           int icol_end,
                                           bool useSel = false) const;
 
+  VectorVectorDouble getItem(const VectorInt& rows,
+                             const VectorString& colnames,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorInt& rows,
+                             const ELoc& locatorType,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorString& colnames,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const ELoc& locatorType,
+                             bool useSel = false) const;
+  VectorDouble getItem(const VectorInt& rows,
+                       const String& colname,
+                       bool useSel = false) const;
+  VectorDouble getItem(const String& colname, bool useSel = false) const;
+
+  int setItem(const VectorInt& rows,
+              const VectorString& colnames,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorInt& rows,
+              const ELoc& locatorType,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorString& colnames,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const ELoc& locatorType,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorInt& rows,
+              const String& colname,
+              const VectorDouble& values,
+              bool useSel = false);
+  int setItem(const String& colname,
+              const VectorDouble& values,
+              bool useSel = false);
+
   bool getLocator(const String& name,
                   ELoc* ret_locatorType,
                   int* ret_locatorIndex) const;
@@ -482,6 +519,7 @@ public:
   bool isColIdxValid(int icol) const;
   bool isUIDValid(int iuid) const;
   bool isSampleIndexValid(int iech) const;
+  bool isSampleIndicesValid(const VectorInt& iechs, bool useSel = false) const;
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
 

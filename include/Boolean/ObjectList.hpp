@@ -33,17 +33,14 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNObjects(int mode = 0) const;
-  void countConditioning(const Db* db,
-                          int *nbgrain_arg,
-                          int *nbpore_arg,
-                          bool verbose);
   int generatePrimary(Db* dbin,
                       DbGrid* dbout,
                       const Tokens* tokens,
                       bool flagStat,
                       double thetaCst,
                       const VectorDouble& dilate = VectorDouble(),
-                      int maxiter = 100000);
+                      int maxiter = 100000,
+                      bool verbose = false);
   int generateSecondary(Db* dbin,
                         DbGrid* dbout,
                         const Tokens* tokens,
@@ -51,7 +48,8 @@ public:
                         double thetaCst,
                         double tmax,
                         const VectorDouble& dilate = VectorDouble(),
-                        int maxiter = 100000);
+                        int maxiter = 100000,
+                        bool verbose = false);
   void projectToGrid(DbGrid* dbout,
                      int iptr_simu,
                      int iptr_rank,
@@ -65,6 +63,8 @@ private:
                        bool flagStat,
                        double thetaCst,
                        const VectorDouble& dilate);
+  int _countConditioningPore(const Db* db);
+  int _countConditioningGrain(const Db* db);
 
 private:
   std::vector<Object*> _objlist;

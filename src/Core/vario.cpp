@@ -5522,7 +5522,7 @@ void variogram_trans_cut(Vario *vario, int nh, double ycut)
 
   /* Calculate the first normalized Hermite polynomials for ycut */
 
-  VectorDouble psic = hermiteFunction(ycut, nh);
+  VectorDouble psic = hermiteCoefLower(ycut, nh);
 
   /* Variance */
 

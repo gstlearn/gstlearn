@@ -268,6 +268,20 @@ bool Db::isSampleIndexValid(int iech) const
   return true;
 }
 
+bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
+{
+  for (int i = 0; i < (int) iechs.size(); i++)
+  {
+    int iech = iechs[i];
+    if (iech < 0 || iech >= getSampleNumber(useSel))
+    {
+      mesArg("Sample Index", iech, getSampleNumber(useSel));
+      return false;
+    }
+  }
+  return true;
+}
+
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return false;
@@ -3021,6 +3035,331 @@ VectorDouble Db::getColumnsByUIDRange(int iuid_beg, int iuid_end, bool useSel) c
   for (int iuid = iuid_beg; iuid < iuid_end; iuid++)
     iuids.push_back(iuid);
   return getColumnsByUID(iuids, useSel);
+}
+
+VectorVectorDouble Db::getItem(const VectorInt& rows,
+                               const VectorString& colnames,
+                               bool useSel) const
+{
+  VectorVectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return values;
+
+  int ncols = (int) exp_names.size();
+  int nrows = (int) rows.size();
+  VectorDouble local(nrows);
+
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    // Read the whole column of values through possible selection
+    VectorDouble allvec = getColumn(exp_names[icol], useSel);
+
+    // Shrink the values for the retained rows only
+    for (int irow = 0; irow < nrows; irow++)
+      local[irow] = allvec[rows[irow]];
+
+    // Bind the new vector to the returned vector
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const VectorInt& rows,
+                               const ELoc& locatorType,
+                               bool useSel) const
+{
+  VectorVectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return values;
+
+  int ncols = (int) exp_names.size();
+  int nrows = (int) rows.size();
+  VectorDouble local(nrows);
+
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    // Read the whole column of values through possible selection
+    VectorDouble allvec = getColumn(exp_names[icol], useSel);
+
+    // Shrink the values for the retained rows only
+    for (int irow = 0; irow < nrows; irow++)
+      local[irow] = allvec[rows[irow]];
+
+    // Bind the new vector to the returned vector
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorDouble Db::getItem(const VectorInt& rows,
+                         const String& colname,
+                         bool useSel) const
+{
+  VectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+
+  int nrows = (int) rows.size();
+  values.resize(nrows,0.);
+
+  // Read the whole column of values through possible selection
+  VectorDouble allvec = getColumn(colname, useSel);
+
+  // Shrink the values for the retained rows only
+  for (int irow = 0; irow < nrows; irow++)
+    values[irow] = allvec[rows[irow]];
+
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const VectorString& colnames, bool useSel) const
+{
+  VectorVectorDouble values;
+
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return values;
+
+  int ncols = (int) exp_names.size();
+
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    // Read the whole column of values through possible selection
+    VectorDouble allvec = getColumn(exp_names[icol], useSel);
+
+    // Bind the new vector to the returned vector
+    values.push_back(allvec);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const ELoc& locatorType, bool useSel) const
+{
+  VectorVectorDouble values;
+
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return values;
+
+  int ncols = (int) exp_names.size();
+
+  for (int icol = 0; icol < ncols; icol++)
+  {
+    // Read the whole column of values through possible selection
+    VectorDouble allvec = getColumn(exp_names[icol], useSel);
+
+    // Bind the new vector to the returned vector
+    values.push_back(allvec);
+  }
+  return values;
+}
+
+VectorDouble Db::getItem(const String& colname, bool useSel) const
+{
+  // Read the whole column of values through possible selection
+  VectorDouble values = getColumn(colname, useSel);
+
+  return values;
+}
+
+int Db::setItem(const VectorInt& rows,
+                const VectorString& colnames,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! isSampleIndicesValid(rows, useSel)) return 1;
+  if (rows.empty()) return 1;
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return 1;
+
+  int ncols  = (int) exp_names.size();
+  if (ncols != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d", (int) values.size());
+    messerr("- From 'colnames'= %d", ncols);
+    return 1;
+  }
+  int nrows  = (int) rows.size();
+  if (nrows != (int) values[0].size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values[0].size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  for (int iicol = 0; iicol < ncols; iicol++)
+  {
+    int icol = getUID(exp_names[iicol]);
+    for (int jjrow = 0; jjrow < nrows; jjrow++)
+    {
+      int jrow = rows[jjrow];
+      setArray(jrow, icol, values[iicol][jjrow]);
+    }
+  }
+  return 0;
+}
+
+int Db::setItem(const VectorInt& rows,
+                const ELoc& locatorType,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! isSampleIndicesValid(rows, useSel)) return 1;
+  if (rows.empty()) return 1;
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return 1;
+
+  int ncols  = (int) exp_names.size();
+  if (ncols != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d", (int) values.size());
+    messerr("- From 'colnames'= %d", ncols);
+    return 1;
+  }
+  int nrows  = (int) rows.size();
+  if (nrows != (int) values[0].size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values[0].size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  for (int iicol = 0; iicol < ncols; iicol++)
+  {
+    int icol = getUID(exp_names[iicol]);
+    for (int jjrow = 0; jjrow < nrows; jjrow++)
+    {
+      int jrow = rows[jjrow];
+      setArray(jrow, icol, values[iicol][jjrow]);
+    }
+  }
+  return 0;
+}
+
+int Db::setItem(const VectorInt& rows,
+                const String& name,
+                const VectorDouble& values,
+                bool useSel)
+{
+  if (! isSampleIndicesValid(rows, useSel)) return 1;
+  if (rows.empty()) return 1;
+
+  int nrows  = (int) rows.size();
+  if (nrows != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values.size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  int icol = getUID(name);
+  for (int jjrow = 0; jjrow < nrows; jjrow++)
+  {
+    int jrow = rows[jjrow];
+    setArray(jrow, icol, values[jjrow]);
+  }
+  return 0;
+}
+
+int Db::setItem(const VectorString& colnames,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return 1;
+
+  int ncols  = (int) exp_names.size();
+  if (ncols != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d", (int) values.size());
+    messerr("- From 'colnames'= %d", ncols);
+    return 1;
+  }
+  int nrows  = getSampleNumber(useSel);
+  if (nrows != (int) values[0].size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values[0].size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  for (int iicol = 0; iicol < ncols; iicol++)
+  {
+    int icol = getUID(exp_names[iicol]);
+    for (int jrow = 0; jrow < nrows; jrow++)
+    {
+      setArray(jrow, icol, values[iicol][jrow]);
+    }
+  }
+  return 0;
+}
+
+int Db::setItem(const ELoc& locatorType,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return 1;
+
+  int ncols  = (int) exp_names.size();
+  if (ncols != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d", (int) values.size());
+    messerr("- From 'colnames'= %d", ncols);
+    return 1;
+  }
+  int nrows  = getSampleNumber(useSel);
+  if (nrows != (int) values[0].size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values[0].size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  for (int iicol = 0; iicol < ncols; iicol++)
+  {
+    int icol = getUID(exp_names[iicol]);
+    for (int jrow = 0; jrow < nrows; jrow++)
+    {
+      setArray(jrow, icol, values[iicol][jrow]);
+    }
+  }
+  return 0;
+}
+
+int Db::setItem(const String& name,
+                const VectorDouble& values,
+                bool useSel)
+{
+  int nrows  = getSampleNumber(useSel);
+  if (nrows != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values.size());
+    messerr("- From 'rows' = %d",nrows);
+    return 1;
+  }
+
+  int icol = getUID(name);
+  for (int jrow = 0; jrow < nrows; jrow++)
+  {
+    setArray(jrow, icol, values[jrow]);
+  }
+  return 0;
 }
 
 VectorDouble Db::getAllColumns(bool useSel) const

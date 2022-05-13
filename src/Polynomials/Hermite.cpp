@@ -556,7 +556,7 @@ double hermiteSeries(const VectorDouble &an, const VectorDouble &hn)
  * @param nbpoly Number of Polynomial functions
  * @return Hermite Coefficients
  */
-VectorDouble hermiteFunction(double y, int nbpoly)
+VectorDouble hermiteCoefLower(double y, int nbpoly)
 {
   VectorDouble hn = hermitePolynomials(y, 1., nbpoly);
   VectorDouble coeff(nbpoly);

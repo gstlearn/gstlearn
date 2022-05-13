@@ -4,6 +4,8 @@
 // https://stackoverflow.com/a/26035360/3952924
 #%import "doc/documentation.i"
 
+%rename(__getitem__) Db::operator[];
+
 // Include C++ library SWIG interface (Keep Order !!!!)
 %include ../swig/swig_inc.i
 %include ../swig/swig_exp.i
@@ -64,3 +66,4 @@ void R_Exit(void)
   redefine_read(R_Read);
   redefine_exit(R_Exit);
 %}
+

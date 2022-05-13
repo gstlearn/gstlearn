@@ -16,14 +16,10 @@ specified in order to launch gstlearn under R.
 This is a temporary solution ... unitl rgstlearn becomes a package.
 
 The current version consists in loading the loader and the contents
-
-You must adapt the following line before launching it.
+You must adapt the following lines$display before launching it.
 
 ```{r}
 gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
-```
-
-```{r,echo=FALSE,message=FALSE}
 source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
 load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
 ```
