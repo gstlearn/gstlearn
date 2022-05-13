@@ -29,14 +29,11 @@ file(MAKE_DIRECTORY ${TEST_DST_DIR})
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
 # Run each registered executable
-set(TARGETS_SCRIPT "")
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     # Retrieve script file name without extension
     get_filename_component(TEST_NAME ${TEST_SOURCE_FILE} NAME_WE)
     # Build the target test name
     set(TARGET_TEST_NAME ${TEST_NAME}_py)
-    # Add to script targets list
-    list(APPEND TARGETS_SCRIPT ${TARGET_TEST_NAME})
     # Run the test (and generate *.out in ${TEST_DST_DIR})
     add_test(NAME ${TARGET_TEST_NAME}
              COMMAND ${Python3_EXECUTABLE} ${TEST_SOURCE_FILE}

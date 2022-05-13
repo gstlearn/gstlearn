@@ -1,13 +1,37 @@
-/******************************************************************************/
-/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
-/*                                                                            */
-/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
-/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
-/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
-/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
-/*                                                                            */
-/* TAG_SOURCE_CG                                                              */
-/******************************************************************************/
+/*
+                                      csparse
+
+Original Author: Timothy Davis
+Website: https://people.math.sc.edu/Burkardt/c_src/csparse/csparse.html
+License: see doc/csparse_license.txt
+*/
+
+/*
+Author: Timothy Davis
+
+License:
+
+CSPARSE: a Concise Sparse matrix package.
+Copyright (c) 2006, Timothy A. Davis.
+http://www.cise.ufl.edu/research/sparse/CSparse
+
+CSPARSE is free software; you can redistribute it and/or modify it under the terms of
+the GNU Lesser General Public License as published by the Free Software Foundation;
+either version 2.1 of the License, or (at your option) any later version.
+
+CSPARSE is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License along with
+this Module; if not, write to the Free Software Foundation,
+Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
+*/
+
+/*
+ Modified by ARMINES-MINES Paris (2022)
+*/
+
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
@@ -2485,7 +2509,15 @@ int cs_utsolve(const cs *U, double *x)
   return (1);
 }
 
-/* sparseinv: computes the sparse inverse subset, using Takahashi's equations.
+/*
+                                      sparseinv
+
+Original Author: Timothy Davis
+Website: http://www.suitesparse.com
+License: see doc/sparseinv_license.txt
+*/
+
+/* sparsinv: computes the sparse inverse subset, using Takahashi's equations.
 
  On input, the pattern of Z must be equal to the symbolic Cholesky
  factorization of A+A', where A=(L+I)*(U+I).   The pattern of L+U must be a
@@ -2645,6 +2677,19 @@ int n, /* L, U, D, and Z are n-by-n */
   }
   return (flops);
 }
+
+
+
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 
 /* compressed-column form into arrays */
 /* number: Number of non-zero terms in the sparse matrix A */
