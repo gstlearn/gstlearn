@@ -23,4 +23,24 @@ load_gstlearn = function(libdir)
   
   
   source(paste0(libdir,"/plot.r"))
+  
+  setMethod("["  ,signature(x="_p_Db"),
+  	function(x,i,j,...,drop) 
+  	{ 
+  		if (! hasArg(j))
+	  		x$getItem(i)
+	  	else
+	  		x$getItem(i,j)
+  	}
+  )
+  setMethod("[<-",signature(x="_p_Db"),
+  	function(x,i,j,value)
+  	{
+  		if (! hasArg(j))
+  			x$setItem(i,value)
+  		else
+  			x$setItem(i,j,value)
+  		x
+  	}
+  )
 }

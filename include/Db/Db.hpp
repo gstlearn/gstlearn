@@ -236,16 +236,17 @@ public:
                              const VectorString& colnames,
                              bool useSel = false) const;
   VectorVectorDouble getItem(const VectorInt& rows,
+                             const String& colname,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorInt& rows,
                              const ELoc& locatorType,
                              bool useSel = false) const;
   VectorVectorDouble getItem(const VectorString& colnames,
                              bool useSel = false) const;
+  VectorVectorDouble getItem(const String& colname,
+                             bool useSel = false) const;
   VectorVectorDouble getItem(const ELoc& locatorType,
                              bool useSel = false) const;
-  VectorDouble getItem(const VectorInt& rows,
-                       const String& colname,
-                       bool useSel = false) const;
-  VectorDouble getItem(const String& colname, bool useSel = false) const;
 
   int setItem(const VectorInt& rows,
               const VectorString& colnames,
@@ -314,6 +315,7 @@ public:
   void   setArray(int iech, int iuid, double value);
   void   updArray(int iech, int iuid, int oper, double value);
   VectorDouble getArray(int iuid, bool useSel = false) const;
+  VectorDouble getArrayBySample(int iech) const;
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
@@ -607,6 +609,20 @@ private:
   VectorInt _ids(const VectorString& names, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const ELoc& locatorType, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const VectorInt& iuids, bool flagOne, bool verbose = true) const;
+
+  VectorDouble _getItem(const String& exp_name,
+                        bool useSel,
+                        const VectorInt& rows) const;
+  void _setItem(const String& name,
+                const VectorInt& rows,
+                const VectorDouble& values);
+  void _setItem(const String& name, bool useSel, const VectorDouble& values);
+  bool _isValidCountRows(const VectorInt& rows,
+                         bool useSel,
+                         const VectorDouble& values) const;
+  bool _isValidCountRows(bool useSel, const VectorDouble& values) const;
+  VectorString _getVarNames(const VectorString& colnames,
+                            int expectedVarCount);
 
   // Higher level methods
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;
