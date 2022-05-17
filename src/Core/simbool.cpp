@@ -93,52 +93,18 @@ int simbool(Db* dbin,
 
   if (verbose) mestitle(0,"Boolean simulation");
   ObjectList objlist;
-  int nbgrain = 0;
-  int nbpore = 0;
-  objlist.countConditioning(dbin, &nbgrain, &nbpore, verbose);
 
-  /*******************************/
-  /* Simulate the Initial grains */
-  /*******************************/
+  // Simulate the Initial grains (optional if dbin == nullptr)
 
-  if (dbin != nullptr)
-  {
-    if (verbose)
-    {
-      message("- Conditioning option               = YES\n");
-      mestitle(1, "Simulating the initial tokens");
-      message("- Number of grains to be covered = %d\n", nbgrain);
-      message("- Number of conditioning pores      = %d\n", nbpore);
-    }
+  if (objlist.generatePrimary(dbin, dbout, tokens, flagStat, thetaCst,
+                              dilate, maxiter, verbose)) return 1;
 
-    if (objlist.generatePrimary(dbin, dbout, tokens, flagStat, thetaCst,
-                                dilate, maxiter)) return 1;
-    if (verbose)
-      message("- Number of Initial Objects = %d\n",objlist.getNObjects(1));
-  }
-  else
-  {
-    if (verbose) message("- Conditioning option               = NO\n");
-  }
-
-  /*********************************/
-  /* Simulate the Secondary grains */
-  /*********************************/
-
-  if (verbose)
-  {
-    mestitle(1, "Simulating the secondary tokens");
-    message("- Maximum time available = %lf\n", tmax);
-    if (flagStat)
-      message("- Poisson Intensity                 = %g\n", thetaCst);
-    else
-      message("- Variable Poisson Intensity\n");
-  }
+  // Simulate the Secondary grains
 
   if (objlist.generateSecondary(dbin, dbout, tokens, flagStat, thetaCst,
-                                tmax, dilate, maxiter)) return 1;
+                                tmax, dilate, maxiter, verbose)) return 1;
 
-  /* Print the list of retained tokens */
+  // Print the list of retained tokens
 
   if (verbose) objlist.display();
 

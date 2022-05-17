@@ -1,0 +1,462 @@
+---
+title: "Hermite Formulae"
+author: "D. Renard, N. Desassis, X. Freulon"
+date: "May 17th 2022"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+OptCst_defineByKey("ASP",0)
+```
+
+# General Introduction
+
+The objective of this document is to provide some guides for manipulation of Hermite polynomials.
+In praticular, it will give some hints for calculating of complex expressions (e.g. metal bove cutoff) and be double checked using a Monte Carlo approach.
+
+It will also demonstrate the quality of the polynomial expandsion for a gien known distribution of the data (i.e. lognormal).
+Finally it will serve in demonstrating the ability of representing any function through a Hermite polynomial expansion.
+
+# Part I
+
+The objective of the first part is to compute
+
+$$
+\psi_1(\alpha,\beta)=\int \phi(\alpha + \beta \, u) \, g(u) \, du
+$$
+
+and
+
+$$
+\psi_2(\alpha,\beta) = \int \phi^2(\alpha + \beta \, u) \, g(u) \, du
+$$
+
+for a function $\phi$ in order to compute the conditional expectation and the conditional variance, usually defined by its expansion in terms of Hermite polynomials:
+
+$$
+\phi(y) = \sum_{n=0}^{N} a_n \eta_n(y)
+$$
+
+In particular, we may be interested in the case where $\alpha=r y$ and $\beta = \sqrt { { 1-r^2 } }$. Note that $|\beta|< 1$.
+
+Many methods can be used to compute these draw.matrix:
+
+* the Monte-Carlo integration (easy)
+
+* the computation of the Hermite coefficient for $\phi$ and $\phi^2$ 
+
+$$
+\int_{-\infty}^{+\infty} \eta_n(\alpha + \beta \, u)\, g(u) \, du = (1-\beta^2)^n \, \eta_n(\frac{\alpha}{\sqrt{1-\beta^2}})
+$$
+
+# Evaluation on the lognormal case
+
+Processing parameters
+
+```{r Initial setup, echo=TRUE, eval=TRUE}
+nbpoly = 100
+nbsimu = 1000
+params = list(nbpoly=nbpoly, nbsimu=nbsimu, yc=1.5)
+```
+
+We consider the Lognormal case (where the anamorphosis is known exactly).
+
+```{r lognormal, echo=TRUE, eval=TRUE}
+m     <- 2.5
+sigma <- 0.5
+hn     = hermiteLognormal(m, sigma, params$nbpoly)
+```
+
+We calculate the various functions (expectation, ore and metal quantity, for expectation and standard deviation) for different values of $y$ varying from -3 to 3 and different values of $r$ varying from 0 to 1. The results are stored in a Db (organized as a matrix) whose parameters are given next.
+
+```{r Grid Definition}
+y0  = -3
+dy  = 0.1
+dr  = 0.1
+y   = seq(-3,3,by=dy)
+ny  = length(y)
+r   = seq(1,0,by=-dr)
+nr  = length(r)
+```
+
+# Comparisons
+
+We evaluate the variable, the ore and metal quantity above a cutoff, in conditional expectation or in conditional standard deviation.
+
+```{r Internal Functions, echo = FALSE}
+# Function to generate the title
+get.title <- function(type,calcul,flag.est,params)
+{
+  if (calcul == 1)
+  {
+    if (flag.est)
+      title = "E(Z)"
+    else
+      title = "St.dev.(Z)"
+  }
+  else if (calcul == 2)
+  {
+    if (flag.est)
+      title = paste("Ore above Cutoff (",params$yc,")")
+    else
+      title = paste("Ore St.Dev. above Cutoff (",params$yc,")")
+  }
+  else
+  {
+    if (flag.est)
+      title = paste("Metal above Cutoff (",params$yc,")")
+    else
+      title = paste("Metal St.Dev. above Cutoff (",params$yc,")")
+  }
+  
+  if (type == 1)
+    title = paste(title," using Hermite (",params$nbpoly,")")
+  else if (type == 2)
+    title = paste(title," using Monte Carlo (",params$nbsimu,")")
+
+  title
+}
+
+# Function to calculate a quantity (Cond. Exp., Tonnage, Metal) by Hermite or Monte Carlo
+# for different parameters of the parameters
+# The results are provided on a regular Db
+calculate.matrix <- function(type,calcul,flag.est,params)
+{
+  # Setting the result grid
+  
+  db = DbGrid_create(nx=c(ny,nr),x0=c(y0,0),dx=c(dy,dr))
+  
+  if (type == 1)
+  {
+    # Calculation using Hermite expansion
+    
+    if (calcul == 1)
+    {
+      if (flag.est)
+        psi = hermiteCondExp(db["x1"],db["x2"],hn)
+      else
+        psi = hermiteCondStd(db["x1"],db["x2"],hn)
+    }
+    else if (calcul == 2)
+    {
+      if (flag.est)
+        psi = hermiteIndicator(params$yc,db["x1"],db["x2"])
+      else
+        psi = hermiteIndicatorStd(params$yc,db["x1"],db["x2"])
+    }
+    else if (calcul == 3)
+    {
+      if (flag.est)
+        psi = hermiteMetal(params$yc,db["x1"],db["x2"],hn)
+      else
+        psi = hermiteMetalStd(params$yc,db["x1"],db["x2"],hn)
+    }
+    else
+      stop("Wrong value for 'calcul'")
+  }
+  else if (type == 2)
+  {
+    # Calculation using Monte Carlo
+    
+    if (calcul == 1)
+    {
+      if (flag.est)
+        psi = MCCondExp(db["x1"],db["x2"],hn,params$nbsimu)
+      else
+        psi = MCCondStd(db["x1"],db["x2"],hn,params$nbsimu)
+    }
+    else if (calcul == 2)
+    {
+      if (flag.est)
+        psi = MCIndicator(params$yc,db["x1"],db["x2"],params$nbsimu)
+      else
+        psi = MCIndicatorStd(params$yc,db["x1"],db["x2"],params$nbsimu)
+    }
+    else if (calcul == 3)
+    {
+      if (flag.est)
+        psi = MCMetal(params$yc,db["x1"],db["x2"],hn,params$nbsimu)
+      else
+        psi = MCMetalStd(params$yc,db["x1"],db["x2"],hn,params$nbsimu)
+    }
+    else
+      stop("Wrong value for 'calcul'")
+  }
+  else
+    stop("Wrong value for 'type'")
+  
+  uid = db$addColumns(as.numeric(psi),"psi")
+  db
+}
+
+# Representation of the grid
+draw.matrix <- function(type,calcul,flag.est,params,flag.cut=TRUE)
+{
+  title = get.title(type,calcul,flag.est,params)
+  db = calculate.matrix(type,calcul,flag.est,params)
+  p = plot.grid(db,name="psi",title=title)
+  if (flag.cut) p <- p + geom_vline(xintercept = params$yc)
+  p
+}
+
+# Representation of a scatter plot
+draw.correlation <- function(calcul,flag.est,params,flag.iso=TRUE)
+{
+  title = get.title(0,calcul,flag.est,params)
+  db1 = calculate.matrix(type=1,calcul,flag.est,params)
+  db2 = calculate.matrix(type=2,calcul,flag.est,params)
+  plot.correlation(db1,"psi","psi",db2,title=title, flagDiag=TRUE,
+                    xlab="Hermite",ylab="Monte Carlo")
+}
+```
+
+Calculating all elements using either Hermite expansion or Monte Carlo Simulations
+
+```{r Grids for Estimation and Variances, eval=FALSE}
+draw.matrix(type=1,calcul=1,flag.est=TRUE,params,flag.cut=FALSE)
+draw.matrix(type=2,calcul=1,flag.est=TRUE,params,flag.cut=FALSE)
+draw.correlation(calcul=1,flag.est=TRUE,params)
+
+draw.matrix(type=1,calcul=2,flag.est=TRUE,params)
+draw.matrix(type=2,calcul=2,flag.est=TRUE,params)
+draw.correlation(calcul=2,flag.est=TRUE,params)
+
+draw.matrix(type=1,calcul=3,flag.est=TRUE,params)
+draw.matrix(type=2,calcul=3,flag.est=TRUE,params)
+draw.correlation(calcul=3,flag.est=TRUE,params)
+
+draw.matrix(type=1,calcul=1,flag.est=FALSE,params,flag.cut=FALSE)
+draw.matrix(type=2,calcul=1,flag.est=FALSE,params,flag.cut=FALSE)
+draw.correlation(calcul=1,flag.est=FALSE,params)
+
+draw.matrix(type=1,calcul=2,flag.est=FALSE,params)
+draw.matrix(type=2,calcul=2,flag.est=FALSE,params)
+draw.correlation(calcul=2,flag.est=FALSE,params)
+
+draw.matrix(type=1,calcul=3,flag.est=FALSE,params)
+draw.matrix(type=2,calcul=3,flag.est=FALSE,params)
+draw.correlation(calcul=3,flag.est=FALSE,params)
+```
+
+# Part II
+
+We use the lognormal model to test some computations done with Hermite polynomials.
+
+We consider the second order stationary model $Z_{\lambda}(x) = e^{\lambda Y(x) - \frac{1}{2} \lambda^2}$ where $Y(x)$ is a centered Gaussian model with autocorrelation $\rho$:
+
+* $E\{Y\} = 0$
+
+* $Cov(Y(x), Y(x+h)) = E\{Y(x)Y(x+h)\} = \rho(h)$
+
+* $E\{Z_{\lambda}\} = 1$
+
+* $Cov(Z_{\lambda}(x), Z_{\lambda}(x+h)) = E\{Z_{\lambda}(x)Z_{\lambda}(x+h)\} - 1 = e^{\lambda^2\rho(h)} - 1$
+
+
+The anamorphosis $\phi_{\lambda}$ maps the Gaussian field into the lognormal SOS model 
+$Z_{\lambda} = \phi_{\lambda}(Y) = \sum_{n=0}^{+\infty}\phi_n{(\lambda)}H_n(Y)$.
+
+The Hermite coefficients are $\phi_n{(\lambda)} = \frac{(-\lambda)^n}{\sqrt{n!}}$ and we have
+$$
+C_{\lambda}(h) = e^{\lambda^2 \rho } - 1 = \sum_{n = 1}^{+\infty} \phi_n^2(\lambda) \rho^{n}.
+$$
+
+The recursion formula to compute the values of the Hermite polynomials are: $H_0(y) = 1$, $H_1(y)= -y$, and
+$$
+H_{n+1}(y) = -\frac{1}{\sqrt{n+1}} y H_n(y) - \sqrt{\frac{n}{n+1}} H_{n-1}(y)
+$$
+
+```{r}
+OptCst_defineByKey("ASP",1)
+```
+
+The next lines define some functions which can be explitely written in the lognormal case
+
+```{r hermite_test, echo=TRUE, eval=TRUE}
+GM_hermite <- function(y, nh){
+  h <- matrix(NaN, nrow = length(y), ncol = 1+nh)
+  h[,1] <- 1.0
+  h[,2] <- -y
+  for (i in 2:nh)
+  {
+    h[,1+i] <- -y*h[,i]/sqrt(i) - sqrt((i-1)/i)*h[,i-1]
+  }
+  h
+}
+
+# fonct 
+GM_LN_psi <- function(lambda, nh){
+  (-lambda)^{0:nh} / sqrt(factorial(0:nh))
+}
+GM_LN_Cov_theo <- function(lambda){
+  function(rho) {exp(lambda^2 * rho) - 1}
+}
+GM_LN_Cov_nh <- function(lambda, nh)
+{
+  psi <- GM_LN_psi(lambda = lambda, nh = nh)
+  foo <- function(rho) {outer(X = rho, Y = 1:nh, FUN = function(r,n){r^n}) %*% psi[-1]^2}
+}
+```
+
+The next paragraph initiates a data set and runs the previous functions. The output will serve as reference for comparison with rgstlearn functions.
+
+```{r}
+np <- 10000
+nh <- 100
+lambda <- 1.0
+# anamorphosis in the lognormal case (theoretical)
+yy <- qnorm(p = (1:np)/(np+1), mean = 0, sd = 1.0)
+aymin = range(yy)[1]
+aymax = range(yy)[2]
+zz_theo <- exp(lambda*yy - lambda^2/2)
+```
+
+## Perfoming the tests with the functions programmed internally
+
+Anamorphosis in the lognormal case (Hermite pol.)
+
+```{r ana_test, echo=TRUE, eval=TRUE}
+zz_hm   <- GM_hermite(y = yy, nh = nh) %*% GM_LN_psi(lambda = lambda, nh = nh)
+
+p = plot.XY(yy, zz_theo, join=TRUE, color = "red", xlab = "Y", ylab = "Z", 
+     title = "Lognormal transform")
+plot.XY(yy, zz_hm, color = "blue", linetype="dashed", padd=p)
+#legend("topleft", legend = c("theoretical", "Hermite pol."), col = c("red", "blue"), 
+#       lty = c(1,2))
+```
+
+
+```{r}
+plot.XY(zz_theo, zz_hm, join=TRUE, flagDiag=TRUE, color = "blue", 
+        xlab = "theoretical", ylab = "Hermite pol.", title = "Lognormal transform")
+#legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
+```
+
+Covariance
+
+```{r}
+r <- seq(from = 0, to =1, by = 0.01)
+C_theo <- GM_LN_Cov_theo(lambda = lambda)
+C_nh   <- GM_LN_Cov_nh(lambda = lambda, nh = nh)
+p = plot.XY(r, C_theo(r), color = "red", join=TRUE, 
+            xlab = "Covariance of Y", ylab = "Covarariance of Z", title = "Lognormal transform")
+plot.XY(r,C_nh(r), join=TRUE, color = "blue", linetype="dashed",  padd=p)
+
+#legend("topleft", legend = c("theoretical", "Hermite pol."), col = c("red", "blue"), 
+#       lty = c(1,2))
+```
+
+## Performing similar tests with rgstlearn
+
+```{r rgeostats_test, echo=TRUE, eval=TRUE}
+db <- Db_createFromSamples(np,ELoadBy_SAMPLE(),zz_theo)
+db$setNameByUID(db$getLastUID(),"zz_theo")
+
+ana = AnamHermite_create(nh)
+err = ana$fit(db, name="zz_theo")
+
+# Patch the Hermite coefficients to have exact numerical values
+localPsi <- GM_LN_psi(lambda = lambda, nh = nh-2)
+err = ana$setPsiHn(localPsi)
+
+p = plot.anam(ana, aymin=aymin, aymax=aymax, title="Lognormal Transform")
+plot.XY(yy, zz_theo, color="red", linetype="dashed", padd=p)
+#legend("topleft", legend = c("theoretical", "RGeostats"), col = c("red", "black"), lty = c(1,1))
+```
+
+
+```{r,eval=FALSE}
+zz_rg = ana$GaussianToRawVector(yy)
+plot.XY(zz_theo, zz_rg, join=TRUE, flagDiag=TRUE, color="blue", 
+        xlab="theoretical", ylab="Hermite pol.", title="Lognormal Transform")
+#legend("topleft", legend = c("transform", "Y=X"), col = c("blue", "red"), lty = c(1,2))
+```
+
+Covariance
+
+```{r}
+mod_y <- Model(nvar=1, ndim=2)
+mod_y$addCova(ECov_SPHERICAL(),range=1,sill=1)
+h     <- seq(from = 0, to =1, by = 0.01)
+r = mod_y$getCovAnisoList()$evalIvarNpas(0,0,h)
+C_theo<- GM_LN_Cov_theo(lambda = lambda)
+cov_theo<- C_theo(rho = r) 
+
+# Creation of the lognormal model (il faudrait pouvoir créer un modèle gaussien à partir de la covariance de la gaussienne mod_Y et de l'anamorphose gaussienne ana)
+# mod_Z <- model.create.GM(model = mod_Y, anam = ana)
+# cov_rg<- model.eval(model = mod_Z, h = h)
+
+model.eval.GM <- function(model, anam, h){
+  r = model$getCovAnisoList()$evalIvarNpas(0,0,h)
+  psi <- anam$getPsiHn()
+  nh <- length(psi) - 1
+  outer(X = r, Y = 1:nh, FUN = function(rho,n){rho^n}) %*% (psi[-1])^2
+}
+cov_rg <- model.eval.GM(model = mod_y, anam = ana, h = h)
+
+p = plot.XY(r, cov_theo, color = "red", join=TRUE, 
+            xlab = "Covariance of Y", ylab = "Covariance of Z", title = "Lognormal transform")
+plot.XY(r, cov_rg, color = "blue", linetype = "dashed", padd=p)
+
+#legend("topleft", legend = c("theoretical", "RGeostats."), col = c("red", "blue"), lty = c(1,2))
+```
+
+The empirical anamorphosis does not reproduce the lognormal transform and the Hermite coefficient need to be altered.
+
+# Part III
+
+The observed variable is 
+
+$$
+Y_{y_c} = \phi_{y_c}(Y) = Y\times 1_{Y \geq y_c} + y_c \times 1_{Y < y_c} =
+\sum_{n\geq 0} \phi_n(y_c) \times H_n(Y)
+$$
+
+where normalized Hermite polynomials are $H_n(n) = \frac{1}{\sqrt{n!}} \frac{g^{(n)}(y)}{g(y)}$.
+
+The computation of the coefficients $\phi_n(y_c)$ gives
+
+* $\phi_0(y_c) = g(y_c) + y_c \times G(y_c)$,
+
+* $\phi_1(y_c) = G(y_c) - 1$,
+
+* $\phi_n(y_c) = g(y_c)  \frac{H_{n-2}(y_c)}{\sqrt{n\times(n-1)}}$ for $n > 1$.
+
+```{r}
+np <- 1000
+nh <- 1000
+yc <- qnorm(0.25)
+yy <- qnorm(p = (1:np)/(np+1))
+hm <- GM_hermite(y = yy, nh = nh-1)
+```
+
+Floor variable Z = max(yc, Y)
+
+```{r}
+psi = hermiteCoefLower(yc, nh)
+zz <- hm %*% psi
+ylim = c(-3.5, 3.5)
+p = plot.XY(yy, zz, join=TRUE, 
+     xlab = "Y", ylab = "Z", title = paste0("cut = ",round(yc,2), " nh = ", nh), 
+     color = "red", ylim=ylim)
+plot.XY(yy, pmax(yc, yy), color = "blue", join=TRUE, linetype = "dashed", padd=p)
+#legend("topleft", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
+```
+
+QC Indicator
+
+```{r}
+psi = hermiteIndicatorLower(yc, nh)
+zz <- hm %*% psi
+p = plot.XY(yy, zz, join=TRUE, 
+     xlab = "Y", ylab = "Indicator", title = paste0("cut = ",round(yc,2), " nh = ", nh), 
+     color = "red",  ylim = range(-0.5, 1.5)
+     )
+plot.XY(yy, as.numeric(yy >= yc), color = "blue", join=TRUE, linetype="dashed", padd=p)
+#legend("bottomright", legend = c("theoretical", "Hermit. pol."), col = c("blue", "red"), lty = #c(1,2))
+```

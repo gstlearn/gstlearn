@@ -12,11 +12,6 @@ import os
 import gstlearn as gl
 import gstlearn.plot as myplot
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Create representation grid
 
 workingDbc = gl.DbGrid.create([10,10],[10,10])

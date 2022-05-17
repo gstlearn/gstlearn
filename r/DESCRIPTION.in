@@ -1,0 +1,15 @@
+Package: @R_PACKAGE_NAME@
+Title: @PROJECT_DESCRIPTION@
+Version: @PROJECT_VERSION@
+Date: @PROJET_DATE@
+Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
+Depends:
+    R (>= 3.6),
+    ggplot2,
+    gridExtra
+Description: @PROJECT_DESCRIPTION@
+License: GPL
+LazyLoad: yes
+Maintainer: Team gstlearn <gstlearn@groupes.mines-paristech.fr>
+URL: @PROJECT_HOMEPAGE_URL@
+BugReports: @PROJECT_HOMEPAGE_URL@

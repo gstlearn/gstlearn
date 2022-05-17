@@ -1,31 +1,21 @@
 ---
 title: "Starting gstlearn with R"
-author: "RGeostats Team"
-date: "September 2019"
+author: "gstlearn Team"
+date: "May 2022"
 output: pdf_document
 ---
-
 
 ```{r setup,echo=FALSE}
 library(knitr)
 ```
+
 # Introduction
 
 This document gives the template preliminary statements that need to be
-specified in order to launch gstlearn under R.
-This is a temporary solution ... unitl rgstlearn becomes a package.
-
-The current version consists in loading the loader and the contents
-
-You must adapt the following line before launching it.
+specified in order to use gstlearn package under R.
 
 ```{r}
-gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
-```
-
-```{r,echo=FALSE,message=FALSE}
-source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
-load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
+library(gstlearn)
 ```
 
 # Demonstration

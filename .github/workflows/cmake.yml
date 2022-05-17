@@ -2,13 +2,13 @@ name: CMake
 
 on:
   # Deactivate the workflow
+  #push:
+  #  branches-ignore:
+  #    - '**'
   push:
-    branches-ignore:
-      - '**'
- # push:
- #   branches: [ main ]
- # pull_request:
- #   branches: [ main ]
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
@@ -25,7 +25,10 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib r-base
+
+    - name: Setup personal R libraries directory and install R packages dependencies
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'gridExtra'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
       
     #- name: Install scikit dependency
     #  run: python3 -m pip install scikit-sparse
@@ -35,17 +38,18 @@ jobs:
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
 
-    - name: Build the C++ shared library and tests executables
-      # -j 16 option seems having no effect on Gitub Action
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
+    #- name: Build the C++ shared library and tests executables
+    #  # -j 16 option seems having no effect on Gitub Action
+    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
 
-    - name: Install python wrapper
-    # Install the python wrapper (not done automatically when running ctest)
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
+    #- name: Install python module
+    #  # Install the python module (not done automatically when running ctest)
+    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
+
+    #- name: Install R package
+    #  # Install the R package (not done automatically when running ctest)
+    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target r_install -- -j 8
 
     - name: Execute non-regression tests
-      working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
-      # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target check
       

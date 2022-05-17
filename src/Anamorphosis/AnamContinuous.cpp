@@ -246,12 +246,12 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
 
   // Preparing the returned structure
   AnamContinuousFit retfit;
-  retfit.y = y;
-  retfit.z = z;
-  retfit.aylim = _ay.getBounds();
-  retfit.azlim = _az.getBounds();
-  retfit.pylim = _py.getBounds();
-  retfit.pzlim = _pz.getBounds();
+  retfit.setY(y);
+  retfit.setZ(z);
+  retfit.setAylim(_ay.getBounds());
+  retfit.setAzlim(_az.getBounds());
+  retfit.setPylim(_py.getBounds());
+  retfit.setPzlim(_pz.getBounds());
 
   return retfit;
 }

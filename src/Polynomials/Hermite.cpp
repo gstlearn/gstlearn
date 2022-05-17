@@ -556,22 +556,36 @@ double hermiteSeries(const VectorDouble &an, const VectorDouble &hn)
  * @param nbpoly Number of Polynomial functions
  * @return Hermite Coefficients
  */
-VectorDouble hermiteFunction(double y, int nbpoly)
+VectorDouble hermiteCoefLower(double y, int nbpoly)
 {
   VectorDouble hn = hermitePolynomials(y, 1., nbpoly);
   VectorDouble coeff(nbpoly);
 
-  /* Calculate the coefficients */
-
   double dg = law_df_gaussian(y);
-  double pg = law_cdf_gaussian(y);
-  coeff[0] = dg + y * pg;
-  coeff[1] = pg - 1.;
+  double dG = law_cdf_gaussian(y);
+  coeff[0] = dg + y * dG;
+  coeff[1] = dG - 1.;
   for (int n = 2; n < nbpoly; n++)
   {
-    double sqn = sqrt((double) n);
     double sqnnm1 = sqrt((double) n * (n - 1.));
-    coeff[n] = dg * (y * hn[n - 1] / sqn + hn[n - 2] / sqnnm1);
+//    coeff[n] = dg * (y * hn[n - 1] / sqn + hn[n - 2] / sqnnm1);
+    coeff[n] = dg * hn[n - 2] / sqnnm1;  // Correction from XF
   }
   return coeff;
 }
+
+VectorDouble hermiteIndicatorLower(double y, int nbpoly)
+{
+  VectorDouble hn = hermitePolynomials(y, 1., nbpoly);
+  VectorDouble coeff(nbpoly);
+
+  double dg = law_df_gaussian(y);
+  double dG = law_cdf_gaussian(y);
+  coeff[0] = 1. - dG;
+  for (int n = 1; n < nbpoly; n++)
+  {
+    coeff[n] = -dg * hn[n-1] / sqrt((double) n);
+  }
+  return coeff;
+}
+

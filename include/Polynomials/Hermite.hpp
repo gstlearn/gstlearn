@@ -23,7 +23,8 @@ GSTLEARN_EXPORT VectorDouble hermitePolynomials(double y,
 GSTLEARN_EXPORT VectorDouble hermiteCoefIndicator(double yc, int nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteCoefMetal(double yc,
                                               const VectorDouble &phi);
-GSTLEARN_EXPORT VectorDouble hermiteFunction(double y, int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteCoefLower(double y, int nbpoly);
+GSTLEARN_EXPORT VectorDouble hermiteIndicatorLower(double y, int nbpoly);
 GSTLEARN_EXPORT MatrixSquareGeneral hermiteIncompleteIntegral(double yc,
                                                               int nbpoly);
 GSTLEARN_EXPORT VectorDouble hermiteLognormal(double mean,

@@ -99,63 +99,9 @@ void exit_f(void)
 %extend Model {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend NeighUnique {
-  std::string __repr__() {  return $self->toString();  }
+%extend CovAniso {
+  std::string __repr__() {  return $self->toString(); }
 }
-%extend NeighBench {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NeighMoving {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NeighImage {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend AnamHermite {
-  std::string __repr__() {   return $self->toString();  }
-}
-%extend Rule {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Interval {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend AMesh {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend MeshETurbo {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend NoStatArray {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Rotation {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend ProjMatrix {
-  std::string __repr__() {  return $self->toString();  }
-}
-%extend Polygons {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend Limits {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend PCA {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend AMatrix {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend ObjectList {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend Object {
-  std::string __repr__() {  return $self->toString();  }
-};
-%extend AToken {
-  std::string __repr__() {  return $self->toString();  }
-};
 
 %pythoncode %{
 # Override operator [] for the Db class

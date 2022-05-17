@@ -268,6 +268,20 @@ bool Db::isSampleIndexValid(int iech) const
   return true;
 }
 
+bool Db::isSampleIndicesValid(const VectorInt& iechs, bool useSel) const
+{
+  for (int i = 0; i < (int) iechs.size(); i++)
+  {
+    int iech = iechs[i];
+    if (iech < 0 || iech >= getSampleNumber(useSel))
+    {
+      mesArg("Sample Index", iech, getSampleNumber(useSel));
+      return false;
+    }
+  }
+  return true;
+}
+
 bool Db::isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const
 {
   if (!isLocatorTypeValid(locatorType)) return false;
@@ -599,6 +613,15 @@ VectorDouble Db::getArray(int iuid, bool useSel) const
   }
   tab.resize(ecr);
   return tab;
+}
+
+VectorDouble Db::getArrayBySample(int iech) const
+{
+  VectorInt uids = getAllUIDs();
+  VectorDouble vals;
+  for (int iuid = 0; iuid < (int) uids.size(); iuid++)
+    vals.push_back(getArray(iech, uids[iuid]));
+  return vals;
 }
 
 void Db::updArray(int iech, int iuid, int oper, double value)
@@ -3023,6 +3046,336 @@ VectorDouble Db::getColumnsByUIDRange(int iuid_beg, int iuid_end, bool useSel) c
   return getColumnsByUID(iuids, useSel);
 }
 
+VectorDouble Db::_getItem(const String& exp_name,
+                          bool useSel,
+                          const VectorInt& rows) const
+{
+  int nrows = (int) rows.size();
+  VectorDouble local(nrows);
+
+  // Read the whole column of values through possible selection
+  VectorDouble allvec = getColumn(exp_name, useSel);
+
+  // Shrink the values for the retained rows only
+  for (int irow = 0; irow < nrows; irow++)
+    local[irow] = allvec[rows[irow]];
+
+  return local;
+}
+
+void Db::_setItem(const String& name,
+                  const VectorInt& rows,
+                  const VectorDouble& values)
+{
+  int icol = getUID(name);
+  for (int jjrow = 0; jjrow < (int) rows.size(); jjrow++)
+  {
+    int jrow = rows[jjrow];
+    setArray(jrow, icol, values[jjrow]);
+  }
+}
+
+void Db::_setItem(const String& name,
+                  bool useSel,
+                  const VectorDouble& values)
+{
+  int icol = getUID(name);
+  int nrows  = getSampleNumber();
+  int jjrow = 0;
+  for (int jrow = 0; jrow < nrows; jrow++)
+  {
+    if (useSel && ! isActive(jrow)) continue;
+    setArray(jjrow, icol, values[jrow]);
+    jjrow++;
+  }
+}
+
+bool Db::_isValidCountRows(const VectorInt& rows,
+                           bool useSel,
+                           const VectorDouble& values) const
+{
+  if (rows.empty()) return false;
+  if (! isSampleIndicesValid(rows, useSel)) return false;
+  if (rows.size() != values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values.size());
+    messerr("- From 'rows' = %d",(int) rows.size());
+    return false;
+  }
+  return true;
+}
+
+bool Db::_isValidCountRows(bool useSel, const VectorDouble& values) const
+{
+  int nrows = getSampleNumber(useSel);
+  if (nrows != (int) values.size())
+  {
+    messerr("Mismatch in dimensions:");
+    messerr("- From 'values' = %d",(int) values.size());
+    messerr("- From 'rows' = %d",nrows);
+    return false;
+  }
+  return true;
+}
+
+VectorString Db::_getVarNames(const VectorString& colnames,
+                              int expectedVarCount)
+{
+  VectorString exp_names;
+
+  if (colnames.empty()) return exp_names;
+  int number = (int) colnames.size();
+
+  // Constitute the output list by gluing expanded parts
+
+  for (int i = 0; i < number; i++)
+  {
+    VectorString sublist = expandNameList(colnames[i]);
+
+    if (sublist.empty())
+    {
+      // sublist is empty: the variable must be created
+
+      (void) addColumnsByConstant(1, TEST, colnames[i]);
+      exp_names.push_back(colnames[i]);
+    }
+    else
+    {
+
+      // Glue the expanded variable names to the output list
+
+      exp_names.insert(exp_names.end(),
+                       sublist.begin(), sublist.end());
+    }
+  }
+
+  int current = (int) exp_names.size();
+  if (current > expectedVarCount)
+  {
+    messerr("Mismatch between dimension of 'values'(%d) and variable list");
+    for (int i =0; i < current; i++)
+      messerr("- %s",exp_names[i].c_str());
+    return VectorString();
+  }
+  if (current < expectedVarCount)
+  {
+    // Complete the variable list by duplicating the last variable
+
+    int missing = expectedVarCount - current;
+    VectorString sublist = generateMultipleNames(colnames[number-1],
+                                                 missing);
+    exp_names.insert(exp_names.end(),
+                     sublist.begin(), sublist.end());
+  }
+
+  return exp_names;
+}
+
+VectorVectorDouble Db::getItem(const VectorInt& rows,
+                               const VectorString& colnames,
+                               bool useSel) const
+{
+  VectorVectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = _getItem(exp_names[icol],useSel,rows);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const VectorInt& rows,
+                               const String& colname,
+                               bool useSel) const
+{
+  VectorVectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+  VectorString exp_names = expandNameList(colname);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = _getItem(exp_names[icol],useSel,rows);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const VectorInt& rows,
+                               const ELoc& locatorType,
+                               bool useSel) const
+{
+  VectorVectorDouble values;
+
+  if (! isSampleIndicesValid(rows, useSel)) return values;
+  if (rows.empty()) return values;
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = _getItem(exp_names[icol],useSel,rows);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const VectorString& colnames, bool useSel) const
+{
+  VectorVectorDouble values;
+
+  VectorString exp_names = expandNameList(colnames);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = getColumn(exp_names[icol], useSel);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const String& colname, bool useSel) const
+{
+  VectorVectorDouble values;
+
+  VectorString exp_names = expandNameList(colname);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = getColumn(exp_names[icol], useSel);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorVectorDouble Db::getItem(const ELoc& locatorType, bool useSel) const
+{
+  VectorVectorDouble values;
+
+  VectorString exp_names = getNamesByLocator(locatorType);
+  if (exp_names.empty()) return values;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+  {
+    VectorDouble local = getColumn(exp_names[icol], useSel);
+    values.push_back(local);
+  }
+  return values;
+}
+
+VectorString Db::getItemNames(const VectorString& colnames)
+{
+  return expandNameList(colnames);
+}
+VectorString Db::getItemNames(const String& colname)
+{
+  return expandNameList(colname);
+}
+VectorString Db::getItemNames(const ELoc& locatorType)
+{
+  return getNamesByLocator(locatorType);
+}
+
+int Db::setItem(const VectorInt& rows,
+                const VectorString& colnames,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(rows, useSel, values[0])) return 1;
+  int expectedVarCount = (int) values.size();
+  VectorString exp_names = _getVarNames(colnames, expectedVarCount);
+  if (exp_names.empty()) return 1;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+    _setItem(exp_names[icol], rows, values[icol]);
+  return 0;
+}
+
+int Db::setItem(const VectorInt& rows,
+                const ELoc& locatorType,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(rows, useSel, values[0])) return 1;
+  VectorString colnames = getNamesByLocator(locatorType);
+  int expectedVarCount = (int) values.size();
+  VectorString exp_names = _getVarNames(colnames, expectedVarCount);
+  if (exp_names.empty()) return 1;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+    _setItem(exp_names[icol], rows, values[icol]);
+  return 0;
+}
+
+int Db::setItem(const VectorInt& rows,
+                const String& colname,
+                const VectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(rows, useSel, values)) return 1;
+  VectorString colnames(1);
+  colnames[0] = colname;
+  VectorString exp_names = _getVarNames(colnames, 1);
+  if (exp_names.empty()) return 1;
+
+  _setItem(exp_names[0], rows, values);
+  return 0;
+}
+
+int Db::setItem(const VectorString& colnames,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(useSel, values[0])) return 1;
+  int expectedVarCount = (int) values.size();
+  VectorString exp_names = _getVarNames(colnames, expectedVarCount);
+  if (exp_names.empty()) return 1;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+    _setItem(exp_names[icol], useSel, values[icol]);
+  return 0;
+}
+
+int Db::setItem(const ELoc& locatorType,
+                const VectorVectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(useSel, values[0])) return 1;
+  VectorString colnames = getNamesByLocator(locatorType);
+  int expectedVarCount = (int) values.size();
+  VectorString exp_names = _getVarNames(colnames, expectedVarCount);
+  if (exp_names.empty()) return 1;
+
+  for (int icol = 0; icol < (int) exp_names.size(); icol++)
+    _setItem(exp_names[icol], useSel, values[icol]);
+  return 0;
+}
+
+int Db::setItem(const String& colname,
+                const VectorDouble& values,
+                bool useSel)
+{
+  if (! _isValidCountRows(useSel, values)) return 1;
+  VectorString colnames(1);
+  colnames[0] = colname;
+  VectorString exp_names = _getVarNames(colnames, 1);
+  if (exp_names.empty()) return 1;
+
+  _setItem(colname, useSel, values);
+  return 0;
+}
+
 VectorDouble Db::getAllColumns(bool useSel) const
 {
   VectorInt iuids = getAllUIDs();
@@ -3508,10 +3861,7 @@ int Db::_serialize(std::ostream& os,bool /*verbose*/) const
   VectorInt uids = getAllUIDs();
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
   {
-    // TODO :Create a getValues(iech) function?
-    VectorDouble vals;
-    for (int icol = 0; icol < ncol; icol++)
-      vals.push_back(getArray(iech, uids[icol]));
+    VectorDouble vals = getArrayBySample(iech);
     ret = ret && _recordWriteVec(os, "", vals);
   }
   return ret ? 0 : 1;
@@ -3745,11 +4095,11 @@ double Db::getCosineToDirection(int iech1,
  * @remark You can use either 'proportion' or 'number'
  */
 int Db::resetSamplingDb(const Db* dbin,
-                         double proportion,
-                         int number,
-                         const VectorString& names,
-                         int seed,
-                         bool verbose)
+                        double proportion,
+                        int number,
+                        const VectorString& names,
+                        int seed,
+                        bool verbose)
 {
   if (proportion <= 0. && number <= 0)
   {

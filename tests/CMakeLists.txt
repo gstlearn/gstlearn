@@ -11,11 +11,10 @@ if (MSVC) # TODO use IS_MULTI_CONFIG
   set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG> --output-on-failure)
 else()
 #  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND})
+  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
 endif()
 
-# TODO : tests are executed for each directory but mixed
-# TODO : reports are separated
+# TODO : Output logs of each target are mixed when using several processors
 
 add_subdirectory(data)
 add_subdirectory(cpp)
@@ -26,6 +25,11 @@ if (BUILD_PYTHON)
   add_subdirectory(py)
   #add_subdirectory(ipynb)
   list(APPEND CHECK_DEP check_py)
+endif()
+
+if (BUILD_R)
+  add_subdirectory(r)
+  list(APPEND CHECK_DEP check_r)
 endif()
 
 add_dependencies(check ${CHECK_DEP})

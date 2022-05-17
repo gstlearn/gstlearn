@@ -1091,8 +1091,15 @@ void db_extension(const Db *db,
   /* Initializations */
 
   int ndim = db->getNDim();
-  if (ndim != (int) mini.size() || ! flag_preserve) mini.resize(ndim,TEST);
-  if (ndim != (int) maxi.size() || ! flag_preserve) maxi.resize(ndim,TEST);
+  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
+  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
+  if (! flag_preserve)
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      mini[idim] = maxi[idim] = TEST;
+    }
+  }
 
   /* Loop on the space dimension */
 

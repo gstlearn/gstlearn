@@ -232,6 +232,47 @@ public:
                                           int icol_end,
                                           bool useSel = false) const;
 
+  VectorVectorDouble getItem(const VectorInt& rows,
+                             const VectorString& colnames,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorInt& rows,
+                             const String& colname,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorInt& rows,
+                             const ELoc& locatorType,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const VectorString& colnames,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const String& colname,
+                             bool useSel = false) const;
+  VectorVectorDouble getItem(const ELoc& locatorType,
+                             bool useSel = false) const;
+  VectorString getItemNames(const VectorString& colnames);
+  VectorString getItemNames(const String& colname);
+  VectorString getItemNames(const ELoc& locatorType);
+
+  int setItem(const VectorInt& rows,
+              const VectorString& colnames,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorInt& rows,
+              const ELoc& locatorType,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorString& colnames,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const ELoc& locatorType,
+              const VectorVectorDouble& values,
+              bool useSel = false);
+  int setItem(const VectorInt& rows,
+              const String& colname,
+              const VectorDouble& values,
+              bool useSel = false);
+  int setItem(const String& colname,
+              const VectorDouble& values,
+              bool useSel = false);
+
   bool getLocator(const String& name,
                   ELoc* ret_locatorType,
                   int* ret_locatorIndex) const;
@@ -277,6 +318,7 @@ public:
   void   setArray(int iech, int iuid, double value);
   void   updArray(int iech, int iuid, int oper, double value);
   VectorDouble getArray(int iuid, bool useSel = false) const;
+  VectorDouble getArrayBySample(int iech) const;
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
@@ -482,6 +524,7 @@ public:
   bool isColIdxValid(int icol) const;
   bool isUIDValid(int iuid) const;
   bool isSampleIndexValid(int iech) const;
+  bool isSampleIndicesValid(const VectorInt& iechs, bool useSel = false) const;
   bool isLocatorIndexValid(const ELoc& locatorType, int locatorIndex) const;
   bool isDimensionIndexValid(int idim) const;
 
@@ -569,6 +612,20 @@ private:
   VectorInt _ids(const VectorString& names, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const ELoc& locatorType, bool flagOne, bool verbose = true) const;
   VectorInt _ids(const VectorInt& iuids, bool flagOne, bool verbose = true) const;
+
+  VectorDouble _getItem(const String& exp_name,
+                        bool useSel,
+                        const VectorInt& rows) const;
+  void _setItem(const String& name,
+                const VectorInt& rows,
+                const VectorDouble& values);
+  void _setItem(const String& name, bool useSel, const VectorDouble& values);
+  bool _isValidCountRows(const VectorInt& rows,
+                         bool useSel,
+                         const VectorDouble& values) const;
+  bool _isValidCountRows(bool useSel, const VectorDouble& values) const;
+  VectorString _getVarNames(const VectorString& colnames,
+                            int expectedVarCount);
 
   // Higher level methods
   bool _isCountValid(const VectorInt iuds, bool flagOne, bool verbose = true) const;

@@ -17,9 +17,9 @@
 #include "Drifts/DriftFactory.hpp"
 #include "Db/Db.hpp"
 
-DriftList::DriftList(bool flagLinked, const ASpace* space)
+DriftList::DriftList(const ASpace* space)
     : ADrift(space),
-      _flagLinked(flagLinked),
+      _flagLinked(false),
       _coefDrift(),
       _drifts(),
       _filtered()

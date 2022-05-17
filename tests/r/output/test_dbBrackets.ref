@@ -1,0 +1,82 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+NULL
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+NULL
+[1] -0.6833277 -1.1301354 -2.4392946  0.7419877
+[1] 1.2251098 0.8211658 0.1537982 0.7252239
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+NULL
+       var1        var2
+1 1.2251098 -0.28178531
+2 0.8211658  1.53703351
+3 0.1537982 -0.43177770
+4 0.7252239 -0.00755856

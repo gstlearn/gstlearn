@@ -22,15 +22,77 @@
 /**
  * Output structure
  */
-typedef struct
+class AnamContinuousFit
 {
+  private:
   VectorDouble y;
   VectorDouble z;
   VectorDouble aylim;
   VectorDouble azlim;
   VectorDouble pylim;
   VectorDouble pzlim;
-} AnamContinuousFit;
+
+  public:
+  const VectorDouble& getAylim() const
+  {
+    return aylim;
+  }
+
+  void setAylim(const VectorDouble& aylim)
+  {
+    this->aylim = aylim;
+  }
+
+  const VectorDouble& getAzlim() const
+  {
+    return azlim;
+  }
+
+  void setAzlim(const VectorDouble& azlim)
+  {
+    this->azlim = azlim;
+  }
+
+  const VectorDouble& getPylim() const
+  {
+    return pylim;
+  }
+
+  void setPylim(const VectorDouble& pylim)
+  {
+    this->pylim = pylim;
+  }
+
+  const VectorDouble& getPzlim() const
+  {
+    return pzlim;
+  }
+
+  void setPzlim(const VectorDouble& pzlim)
+  {
+    this->pzlim = pzlim;
+  }
+
+  const VectorDouble& getY() const
+  {
+    return y;
+  }
+
+  void setY(const VectorDouble& y)
+  {
+    this->y = y;
+  }
+
+  const VectorDouble& getZ() const
+  {
+    return z;
+  }
+
+  void setZ(const VectorDouble& z)
+  {
+    this->z = z;
+  }
+};
 
 class GSTLEARN_EXPORT AnamContinuous: public AAnam
 {

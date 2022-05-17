@@ -3,7 +3,7 @@
 
 %{
 #define SWIG_FILE_WITH_INIT
-
+// This is for numpy.i (see below). To be moved in python swig.
 %}
 
 

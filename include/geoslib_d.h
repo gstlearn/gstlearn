@@ -39,12 +39,6 @@ public:
   double *dsize;
 };
 
-typedef struct
-{
-  double center[3]; /* Location of the conditioning information */
-  int nb_cover; /* Number of covering tokens */
-} Bool_Cond;
-
 class Model;
 typedef struct
 {

@@ -79,33 +79,36 @@ void ObjectList::projectToGrid(DbGrid* dbout,
   return;
 }
 
-void ObjectList::countConditioning(const Db* db,
-                                   int *nbgrain_arg,
-                                   int *nbpore_arg,
-                                   bool verbose)
+int ObjectList::_countConditioningPore(const Db* db)
 {
-  *nbgrain_arg = 0;
-  *nbpore_arg = 0;
-  if (db == nullptr) return;
+  if (db == nullptr) return 0;
 
-  int nbgrain = 0;
   int nbpore = 0;
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     double data = db->getVariable(iech, 0);
     if (FFFF(data)) continue;
-    if (data)
-      nbgrain++;
-    else
-      nbpore++;
+    if (data) continue;
+    nbpore++;
   }
-  if (verbose)
-    message("Conditioning data: %d grains and %d pores\n",
-            nbgrain, nbpore);
+  return nbpore;
+}
 
-  *nbgrain_arg = nbgrain;
-  *nbpore_arg = nbpore;
+int ObjectList::_countConditioningGrain(const Db* db)
+{
+  if (db == nullptr) return 0 ;
+
+  int nbgrain = 0;
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (! db->isActive(iech)) continue;
+    double data = db->getVariable(iech, 0);
+    if (FFFF(data)) continue;
+    if (! data) continue;
+    nbgrain++;
+  }
+  return nbgrain;
 }
 
 int ObjectList::_getRankUncovered(const Db* db, int rank)
@@ -146,14 +149,24 @@ int ObjectList::generatePrimary(Db* dbin,
                                 bool flagStat,
                                 double thetaCst,
                                 const VectorDouble& dilate,
-                                int maxiter)
+                                int maxiter,
+                                bool verbose)
 {
-  int nbgrain, nbpore;
+  if (dbin == nullptr) return 0;
   int ndim = dbout->getNDim();
-  VectorDouble cdgrain(ndim);
 
   // Count the conditioning information
-  countConditioning(dbin, &nbgrain, &nbpore, false);
+  int nbpore  = _countConditioningPore(dbin);
+  int nbgrain = _countConditioningGrain(dbin);
+  VectorDouble cdgrain(ndim);
+
+  if (verbose)
+  {
+    message("- Conditioning option               = YES\n");
+    mestitle(1, "Simulating the initial tokens");
+    message("- Number of grains to be covered = %d\n", nbgrain);
+    message("- Number of conditioning pores      = %d\n", nbpore);
+  }
 
   // Generate the initial objects
   int draw_more = nbgrain;
@@ -200,6 +213,10 @@ int ObjectList::generatePrimary(Db* dbin,
 
     object->coverageUpdate(dbin, 1);
   }
+
+  if (verbose)
+    message("- Number of Initial Objects = %d\n",getNObjects(1));
+
   return 0;
 }
 
@@ -210,11 +227,22 @@ int ObjectList::generateSecondary(Db* dbin,
                                   double thetaCst,
                                   double tmax,
                                   const VectorDouble& dilate,
-                                  int maxiter)
+                                  int maxiter,
+                                  bool verbose)
 {
   int iter = 0;
   double tabtime = 0.;
   int nb_average = _getAverageCount(dbout, flagStat, thetaCst, dilate);
+
+  if (verbose)
+  {
+    mestitle(1, "Simulating the secondary tokens");
+    message("- Maximum time available = %lf\n", tmax);
+    if (flagStat)
+      message("- Poisson Intensity                 = %g\n", thetaCst);
+    else
+      message("- Variable Poisson Intensity\n");
+  }
 
   while (tabtime < tmax)
   {

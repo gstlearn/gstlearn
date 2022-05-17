@@ -2,11 +2,6 @@ import gstlearn as gl
 import os
 import sys
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Enums are global unique object instances
 d1 = gl.ENeigh.UNIQUE
 print ("d1=", "Enum#", d1.getValue(), ":", d1.getKey(), "|", d1.getDescr())
