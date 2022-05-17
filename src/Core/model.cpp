@@ -1564,7 +1564,8 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
 
   if (mode >= 0)
   {
-    DriftList drifts = DriftList(flag_linked, ctxt.getSpace());
+    DriftList drifts = DriftList(ctxt.getSpace());
+    drifts.setFlagLinked(flag_linked);
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);

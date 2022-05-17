@@ -2,6 +2,7 @@
 
 suppressWarnings(suppressMessages(library(gstlearn)))
 
+set.seed(32421)
 a = DbGrid_create(nx=c(2,2),dx=c(1.,1.))
 nech = a$getSampleNumber()
 

@@ -24,7 +24,7 @@ class Db;
 class GSTLEARN_EXPORT DriftList : public ADrift, public IClonable
 {
 public:
-  DriftList(bool flagLinked = false, const ASpace* space = nullptr);
+  DriftList(const ASpace* space = nullptr);
   DriftList(const DriftList &r);
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
@@ -96,6 +96,8 @@ public:
   bool isDriftDifferentDefined(const EDrift &type0) const;
 
   void copyCovContext(const CovContext& ctxt);
+
+  void setFlagLinked(bool flagLinked) { _flagLinked = flagLinked; }
 
 private:
   bool _isDriftIndexValid(int i) const;

@@ -2840,7 +2840,7 @@ void KrigingSystem::_setLHS(int iech, int ivar, int jech, int jvar, double value
     }
   }
   int nech = getNech();
-  int neq = getNeq();
+  int neq  = getNeq();
   int indi = _IND(iech, ivar, nech);
   int indj = _IND(jech, jvar, nech);
   _lhs [indi + neq * indj] = value;
@@ -2855,7 +2855,7 @@ void KrigingSystem::_addLHS(int iech, int ivar, int jech, int jvar, double value
     _checkAddress("_addLHS","jvar",jvar,_getNVar());
   }
   int nech = getNech();
-  int neq = getNeq();
+  int neq  = getNeq();
   int indi = _IND(iech, ivar, nech);
   int indj = _IND(jech, jvar, nech);
   _lhs [indi + neq * indj] += value;

@@ -3274,12 +3274,24 @@ VectorVectorDouble Db::getItem(const ELoc& locatorType, bool useSel) const
   return values;
 }
 
+VectorString Db::getItemNames(const VectorString& colnames)
+{
+  return expandNameList(colnames);
+}
+VectorString Db::getItemNames(const String& colname)
+{
+  return expandNameList(colname);
+}
+VectorString Db::getItemNames(const ELoc& locatorType)
+{
+  return getNamesByLocator(locatorType);
+}
+
 int Db::setItem(const VectorInt& rows,
                 const VectorString& colnames,
                 const VectorVectorDouble& values,
                 bool useSel)
 {
-  message("set item rows & colnames\n");
   if (! _isValidCountRows(rows, useSel, values[0])) return 1;
   int expectedVarCount = (int) values.size();
   VectorString exp_names = _getVarNames(colnames, expectedVarCount);
@@ -3295,7 +3307,6 @@ int Db::setItem(const VectorInt& rows,
                 const VectorVectorDouble& values,
                 bool useSel)
 {
-  message("set item rows & locatorType\n");
   if (! _isValidCountRows(rows, useSel, values[0])) return 1;
   VectorString colnames = getNamesByLocator(locatorType);
   int expectedVarCount = (int) values.size();
@@ -3312,7 +3323,6 @@ int Db::setItem(const VectorInt& rows,
                 const VectorDouble& values,
                 bool useSel)
 {
-  message("set item rows & colname\n");
   if (! _isValidCountRows(rows, useSel, values)) return 1;
   VectorString colnames(1);
   colnames[0] = colname;
@@ -3327,7 +3337,6 @@ int Db::setItem(const VectorString& colnames,
                 const VectorVectorDouble& values,
                 bool useSel)
 {
-  message("set item colnames\n");
   if (! _isValidCountRows(useSel, values[0])) return 1;
   int expectedVarCount = (int) values.size();
   VectorString exp_names = _getVarNames(colnames, expectedVarCount);
@@ -3342,7 +3351,6 @@ int Db::setItem(const ELoc& locatorType,
                 const VectorVectorDouble& values,
                 bool useSel)
 {
-  message("set item locatorType\n");
   if (! _isValidCountRows(useSel, values[0])) return 1;
   VectorString colnames = getNamesByLocator(locatorType);
   int expectedVarCount = (int) values.size();
@@ -3358,7 +3366,6 @@ int Db::setItem(const String& colname,
                 const VectorDouble& values,
                 bool useSel)
 {
-  message("set item colname\n");
   if (! _isValidCountRows(useSel, values)) return 1;
   VectorString colnames(1);
   colnames[0] = colname;

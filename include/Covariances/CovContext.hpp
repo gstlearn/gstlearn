@@ -43,7 +43,8 @@ public:
   /// Indicate if I am consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
-  /// CovCotext equality
+  static CovContext* create(int nvar, int ndim, double field = 1.);
+
   bool isEqual(const CovContext &r) const;
 
   int                 getNVar()         const { return _nVar; }

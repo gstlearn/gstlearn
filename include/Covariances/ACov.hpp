@@ -61,7 +61,7 @@ public:
   virtual VectorDouble evalIvarNpas(int ivar,
                                     int jvar,
                                     const VectorDouble& vec_step,
-                                    const VectorDouble& dir,
+                                    const VectorDouble& dir = VectorDouble(),
                                     const VectorDouble& center = VectorDouble(),
                                     const CovCalcMode& mode = CovCalcMode()) const;
   /// Covariance Matrix from a given point (center) in a given direction (dir * step)
