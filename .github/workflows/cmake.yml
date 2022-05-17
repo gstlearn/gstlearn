@@ -42,13 +42,17 @@ jobs:
       # -j 16 option seems having no effect on Gitub Action
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
 
-    - name: Install python wrapper
-    # Install the python wrapper (not done automatically when running ctest)
+    - name: Install python module
+      # Install the python module (not done automatically when running ctest)
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
+
+    - name: Install R package
+      # Install the R package (not done automatically when running ctest)
+      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target r_install -- -j 8
 
     - name: Execute non-regression tests
       working-directory: ${{github.workspace}}/build
-      # Execute tests defined by the CMake configuration.  
+      # Execute tests defined by the CMake configuration (make check).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
       run: ctest -C ${{env.BUILD_TYPE}} --output-on-failure
       

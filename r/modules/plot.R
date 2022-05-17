@@ -1,8 +1,6 @@
 library(ggplot2)
 library(gridExtra)
 
-setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
-
 get.colors <- function()
 {
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
