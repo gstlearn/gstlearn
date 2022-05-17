@@ -127,21 +127,29 @@ String CovContext::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool CovContext::isConsistent(const ASpace* /*space*/) const
+CovContext* CovContext::create(int nvar, int ndim, double field)
+{
+  CovContext* ctxt = new CovContext(nvar, ndim, field);
+  return ctxt;
+}
+
+bool CovContext::isConsistent(const ASpace* space) const
 {
   /// TODO: Consistency of CovContext toward a space: Possible duplicate:
   /// - CovFactory::_isValid
   /// - ACovFunc::isConsistent
-  return true;
+  return (_space->isEqual(space));
 }
 
+/**
+ * Checks that two CovContext are 'similar'
+ * @param r Secondary CovContext to be compared with this
+ * @return
+ */
 bool CovContext::isEqual(const CovContext &r) const
 {
   return (_nVar == r.getNVar()                 &&
-          _field == r.getField()               &&
-          _space->isEqual(r.getSpace())        &&
-          ut_vector_same(_mean, r._mean)       &&
-          ut_vector_same(_covar0, r._covar0)
+          _space->isEqual(r.getSpace())
           );
 }
 

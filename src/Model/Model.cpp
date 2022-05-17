@@ -238,8 +238,15 @@ void Model::setCovList(const ACovAnisoList* covalist)
 void Model::addCov(const CovAniso *cov)
 {
   if (cov == nullptr) return;
+  if (! cov->getContext().isEqual(_ctxt))
+  {
+    messerr("Error: Covariance should share the same Context as 'Model'");
+    messerr("Operation is cancelled");
+    return;
+  }
+
   // TODO: If _covaList does not exist, it is created as a CovLMC (by default)
-  if (_covaList == nullptr) _covaList = new CovLMC();
+  if (_covaList == nullptr) _covaList = new CovLMC(_ctxt.getSpace());
   _covaList->addCov(cov);
 }
 
@@ -1094,8 +1101,8 @@ void Model::_create()
   // TODO: The next two lines are there in order to allow direct call to
   // model::addCova() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
-  _covaList = new CovLMC();
-  _driftList = new DriftList();
+  _covaList = new CovLMC(_ctxt.getSpace());
+  _driftList = new DriftList(_ctxt.getSpace());
 }
 
 double Model::getTotalSill(int ivar, int jvar) const

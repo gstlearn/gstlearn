@@ -10,6 +10,7 @@ gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
 source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
 load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
 
+set.seed(32421)
 a = DbGrid_create(nx=c(2,2),dx=c(1.,1.))
 nech = a$getSampleNumber()
 
