@@ -1,7 +1,7 @@
 ---
 title: "Gauss Integration"
 author: "D. Renard, N. Desassis, X. Freulon"
-date: "Mai 17th 2022"
+date: "May 17th 2022"
 output:
   pdf_document: default
   html_document: default
@@ -12,8 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 ```
 
-This document gives the template preliminary statements that need to be
-specified in order to use gstlearn package under R.
+Load the gstlearn package under R.
 
 ```{r}
 library(gstlearn)
