@@ -22,7 +22,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 NULL
-set item colname
 
 Data Base Grid Characteristics
 ==============================
@@ -48,14 +47,8 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
 NULL
-[[1]]
-[1] -0.5046582 -0.4253244 -0.5431576  1.1051303
-
-set item colname
-[[1]]
-[1]  0.1487064  0.6007737 -0.5275778  0.9199378
-
-set item colname
+[1] -0.6833277 -1.1301354 -2.4392946  0.7419877
+[1] 1.2251098 0.8211658 0.1537982 0.7252239
 
 Data Base Grid Characteristics
 ==============================
@@ -82,9 +75,8 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
 Column = 4 - Name = var2 - Locator = NA
 NULL
-[[1]]
-[1]  0.1487064  0.6007737 -0.5275778  0.9199378
-
-[[2]]
-[1]  1.1119776  0.2322892 -1.0125550 -0.6730220
-
+       var1        var2
+1 1.2251098 -0.28178531
+2 0.8211658  1.53703351
+3 0.1537982 -0.43177770
+4 0.7252239 -0.00755856

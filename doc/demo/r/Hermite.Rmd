@@ -1,7 +1,7 @@
 ---
 title: "Gauss Integration"
 author: "D. Renard, N. Desassis, X. Freulon"
-date: "8 septembre 2020"
+date: "Mai 17th 2022"
 output:
   pdf_document: default
   html_document: default
@@ -12,14 +12,11 @@ knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 ```
 
-The next line is the dedicated code which launches the version of Geoslib which has been made available through the *swig* mechanism. It will be modified as soon as rgstlearn becomes an official R package.
+This document gives the template preliminary statements that need to be
+specified in order to use gstlearn package under R.
 
-```{r, message=FALSE, warning=FALSE}
-if ("package.RGeostats" %in% (.packages())) { detach("package.RGeostats",force=TRUE) }
-if ("gstlearn" %in% (.packages())) { detach("gstlearn",force=TRUE) }
-gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
-source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
-load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
+```{r}
+library(gstlearn)
 ```
 
 ```{r}
@@ -29,9 +26,9 @@ OptCst_defineByKey("ASP",0)
 # General Introduction
 
 The objective of this document is to provide some guides for manipulation of Hermite polynomials.
-In praticular, it will give some hints for calculating of complex expressions (e.g. metal bove cutoff) and be double checked using a Monte Carlo approach.
+In particular, it will give some hints for calculating of complex expressions (e.g. metal above cutoff) and be double checked using a Monte Carlo approach.
 
-It will also demonstrate the quality of the polynomial expandsion for a gien known distribution of the data (i.e. lognormal).
+It will also demonstrate the quality of the polynomial expansion for a given known distribution of the data (i.e. lognormal).
 Finally it will serve in demonstrating the ability of representing any function through a Hermite polynomial expansion.
 
 # Part I

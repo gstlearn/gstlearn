@@ -29,8 +29,7 @@ endif()
 
 if (BUILD_R)
   add_subdirectory(r)
-# TODO : restore non-regression R tests
-#  list(APPEND CHECK_DEP check_r)
+  list(APPEND CHECK_DEP check_r)
 endif()
 
 add_dependencies(check ${CHECK_DEP})
