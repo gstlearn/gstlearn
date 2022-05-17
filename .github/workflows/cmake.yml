@@ -25,7 +25,10 @@ jobs:
     - uses: actions/checkout@v2
     
     - name: Install dependencies
-      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib r-base
+
+    - name: Setup personal R libraries directory
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile
       
     #- name: Install scikit dependency
     #  run: python3 -m pip install scikit-sparse
