@@ -4,7 +4,7 @@ Version: @PROJECT_VERSION@
 Date: @PROJET_DATE@
 Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
-    R (>= 4.0),
+    R (>= 3.6),
     ggplot2,
     gridExtra
 Description: @PROJECT_DESCRIPTION@
