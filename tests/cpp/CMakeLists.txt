@@ -19,7 +19,7 @@ cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE}
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 
-# Create the output directory (logs)
+# Create the output directory for logs
 cmake_path(APPEND GLOBAL_DST_DIR output
            OUTPUT_VARIABLE TEST_DST_DIR)
 file(MAKE_DIRECTORY ${TEST_DST_DIR})
@@ -33,7 +33,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     list(APPEND TARGETS_EXE ${TEST_NAME})
     # Define sources list for the target executable
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${TEST_SOURCE_FILE})
-    # Link gstlearn to each test
+    # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
     # Trigger the build of the test with the target build_tests
     add_dependencies(build_tests ${TEST_NAME})
@@ -49,14 +49,14 @@ foreach(TARGET_EXE ${TARGETS_EXE})
              COMMAND ${TARGET_EXE}
              WORKING_DIRECTORY ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
     add_test(NAME ${TARGET_EXE}_cmp
-             COMMAND git diff -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out
-             WORKING_DIRECTORY ${TEST_DST_DIR})
+             COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out)
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
 # Look parent CMakeLists for MY_CTEST_COMMAND definition
 if (WIN32)
-  # Need to copy C++ shared library to tests directory
+  # Need to copy C++ shared library to tests directory # TODO : still mandatory ?
   add_custom_target(check_cpp
     COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
     COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
@@ -66,3 +66,4 @@ else()
     COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
   )
 endif()
+

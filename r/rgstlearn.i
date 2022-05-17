@@ -4,6 +4,7 @@
 // https://stackoverflow.com/a/26035360/3952924
 #%import "doc/documentation.i"
 
+// TODO: to be kept ?
 %rename(__getitem__) Db::operator[];
 
 // Include C++ library SWIG interface (Keep Order !!!!)

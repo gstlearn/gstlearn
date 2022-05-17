@@ -5,11 +5,6 @@ import sys
 import os
 import gstlearn as gl
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Constants
 
 sqr3 = np.sqrt(3)

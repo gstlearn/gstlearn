@@ -9,11 +9,6 @@ import os
 import gstlearn as gl
 import gstlearn.plot as gp
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Global environment setup
 
 verbose = False

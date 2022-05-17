@@ -1,4 +1,4 @@
-# Make Release version the default
+# Make Release version the default (only for single configuration generators)
 if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   message(STATUS "Setting build type to 'Release' as none was specified")
   set(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build." FORCE)
@@ -37,9 +37,6 @@ if (WIN32)
   set(CMAKE_STATIC_LIBRARY_PREFIX "lib")
 endif()
 
-# Impose 'd' suffix in debug (global property)
-set(CMAKE_DEBUG_POSTFIX d)
-
 # Look for Boost
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
@@ -61,20 +58,20 @@ add_library(shared                  SHARED ${SOURCES})
 add_library(static EXCLUDE_FROM_ALL STATIC ${SOURCES})
 set(FLAVORS shared static)
 
-############################## Loop on flavor: shared and static
+############################## Loop on flavors: shared and static
 foreach(FLAVOR ${FLAVORS})
   # Convert flavor to uppercase
   string(TOUPPER ${FLAVOR} FLAVOR_UP)
-  
+
   # Alias target for a better name
   add_library(${PROJECT_NAME}::${FLAVOR} ALIAS ${FLAVOR})
-    
+
   # Include directories
   target_include_directories(${FLAVOR} PUBLIC
-    # Includes for compiling the library
+    # Add includes path for compiling the library
     $<BUILD_INTERFACE: ${PROJECT_SOURCE_DIR}/include>
     # Add binary directory to find generated version.h and export.hpp
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+    $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
   )
 
   # Set some target properties
@@ -85,7 +82,7 @@ foreach(FLAVOR ${FLAVORS})
     # Any client who links the library needs -fPIC (static or shared)
     POSITION_INDEPENDENT_CODE 1
   )
-  
+
   # Rename the output library name
   set_target_properties(${FLAVOR} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
   
@@ -119,7 +116,7 @@ foreach(FLAVOR ${FLAVORS})
   endif()
 
 endforeach(FLAVOR ${FLAVORS})
-############################## End loop on flavor
+############################## End loop on flavors
 
 
 ###################### Shared library specific options

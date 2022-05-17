@@ -1,6 +1,13 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.26
+==============
+- New R package (r_install target)
+- Non-regression R tests (check_r target) (not yet launched with check target)
+- No more log redirection needed for python non-regression tests (check_py)
+- No more 'd' suffix for Debug library (python and R tests are now available through debug)
+
 Release 0.1.25
 ==============
 - Prevent from building Python / R according windows compiler (MinGw/Visual)

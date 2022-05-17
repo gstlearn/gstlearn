@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.20)
 
 # Permit using project VERSION
 project(gstlearn
-        VERSION      0.1.25 # Make it consistent with CHANGES and gstlearn.bib files
+        VERSION      0.1.26 # Make it consistent with CHANGES and gstlearn.bib files
         DESCRIPTION  "Geostatistics & Machine Learning toolbox"
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
         LANGUAGES    C CXX) # Enable C language for third party libraries
@@ -36,8 +36,12 @@ configure_file(version.h.in version.h)
 # Options
 option(BUILD_PYTHON "Build python package")
 option(BUILD_R      "Build R package")
-set(BUILD_PYTHON ON)
-set(BUILD_R      ON)
+if(NOT BUILD_PYTHON)
+  set(BUILD_PYTHON ON)
+endif()
+if(NOT BUILD_R)
+  set(BUILD_R ON)
+endif()
 if (MINGW)
   set(BUILD_PYTHON OFF)
 endif()
@@ -46,7 +50,6 @@ if (MSVC)
 endif()
 message(STATUS "BUILD_PYTHON=" ${BUILD_PYTHON})
 message(STATUS "BUILD_R="      ${BUILD_R})
-message(STATUS "WIN32="        ${WIN32})
 
 ####################################################
 ## BUILD & INSTALL
@@ -60,15 +63,14 @@ include(cmake/install.cmake)
 ####################################################
 ## PACKAGES
 
-# TODO : Make packages configuration / compilation optional
 add_subdirectory(python)
 add_subdirectory(r)
-
 
 ####################################################
 ## TESTING
 
-# Add test target (execution)
+# Add non-regression test target
 include(CTest)
 enable_testing()
+
 add_subdirectory(tests)

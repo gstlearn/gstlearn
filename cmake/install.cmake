@@ -34,8 +34,8 @@ target_include_directories(shared PUBLIC
 
 # Install the includes
 install(
-  DIRECTORY   ${PROJECT_SOURCE_DIR}/include/ # Install library headers
-  DESTINATION include/${PROJECT_NAME}        # in DESTINATION/include/${PROJECT_NAME}
+  DIRECTORY   ${INCLUDES}/            # Install library headers
+  DESTINATION include/${PROJECT_NAME} # in DESTINATION/include/${PROJECT_NAME}
 )
 
 # Install the export file

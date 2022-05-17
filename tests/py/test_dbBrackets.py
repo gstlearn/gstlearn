@@ -3,11 +3,6 @@ import numpy as np
 import os
 import sys
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 np.random.seed(124)
 
 a = gl.DbGrid.create([2,2],[1.,1.])

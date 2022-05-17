@@ -5,11 +5,6 @@ import os
 import sys
 import numpy as np
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Define the global Space
 ndim = 2
 nvar = 1

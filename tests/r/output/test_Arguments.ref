@@ -1,0 +1,26 @@
+Testing for Integer : 12
+NULL
+Testing for Double : 2.300000
+NULL
+Testing for VectorInt : 1 - 2 - 3 - 
+NULL
+Testing for VectorDouble : 1.100000 - 2.200000 - 3.300000 - 
+NULL
+Testing for String : my_String
+NULL
+Testing for VectorString : my_String - 
+NULL
+Testing for VectorString : my_String1 - my_String2 - my_String3 - 
+NULL
+Testing for VectorVectorInt : Dimension First Level = 4
+Dimension of Second Level = 1
+2 - 
+Dimension of Second Level = 1
+3 - 
+Dimension of Second Level = 1
+1 - 
+Dimension of Second Level = 1
+5 - 
+NULL
+Erreur dans argumentTestInt(ITEST) : objet 'ITEST' introuvable
+Exécution arrêtée

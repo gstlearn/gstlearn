@@ -8,11 +8,6 @@ import sys
 import os
 import gstlearn as gl
 
-# Redirection
-
-filename = os.path.splitext(os.path.basename(__file__))[0] + '.out'
-sys.stdout = open(filename,'w')
-
 # Create a grid: 60 by 40 meshes, with a square mesh of size 10
 
 grid = gl.DbGrid.create([60,40],[10,10])

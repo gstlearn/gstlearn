@@ -4,9 +4,7 @@
 
 # Loading the package
 
-gstlearn_path = file.path("/home","drenard","project_gstlearn","gstlearn")
-source(file.path(gstlearn_path,"doc","dev","rgstlearn_loader.R"))
-load_gstlearn(file.path(gstlearn_path,"build","r","Release","gstlearn"))
+suppressWarnings(suppressMessages(library(gstlearn)))
 
 # Testing main argument types
 
