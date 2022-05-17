@@ -248,10 +248,7 @@ def getNrows(self, useSel=None):
     """ get number of rows of the Db when using or not a selection"""
     if useSel is None:
         useSel = self.useSel
-    if useSel:
-        nrows = self.getActiveSampleNumber()
-    else:
-        nrows = self.getSampleNumber()
+    nrows = self.getSampleNumber(useSel)
     return nrows
 
 def getitem(self,arg):
