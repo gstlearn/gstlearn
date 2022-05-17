@@ -28,7 +28,7 @@ jobs:
       run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev doxygen python3-numpy python3-scipy python3-matplotlib r-base
 
     - name: Setup personal R libraries directory and install R packages dependencies
-      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('maps', 'gridExtra'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'gridExtra'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
       
     #- name: Install scikit dependency
     #  run: python3 -m pip install scikit-sparse
