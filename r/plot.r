@@ -211,7 +211,7 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
-    cat("This function is dedicated to Grid Db and cannot be used here")
+    cat("This function is restricted to Grid Db and cannot be used here")
     return
   }
 
@@ -269,7 +269,8 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
 }
 
 # Function for plotting a curve of regularly sampled values
-plot.curve <- function(data, xlab="", ylab="", title="", padd=NULL)
+plot.curve <- function(data, color="black",
+		xlab="", ylab="", title="", padd=NULL)
 {
   nbpoint = length(data)
   absc = seq(1,nbpoint)
@@ -279,7 +280,7 @@ plot.curve <- function(data, xlab="", ylab="", title="", padd=NULL)
     p <- padd
   else
     p <- ggplot() 
-  p <- p + geom_line(data = rp, aes(x=absc,y=data))
+  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color)
   p <- p + labs(x = xlab)
   p <- p + labs(y = ylab)
   p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
@@ -287,7 +288,8 @@ plot.curve <- function(data, xlab="", ylab="", title="", padd=NULL)
 }
 
 # Function for representing a line between points provided as arguments
-plot.XY <-function(xtab, ytab, xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
+plot.XY <-function(xtab, ytab, join=TRUE, diagLine=FALSE, color="black",
+	xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
 {    
   if (length(ytab) != length(xtab))
   {
@@ -300,15 +302,53 @@ plot.XY <-function(xtab, ytab, xlim="", ylim="", xlab="", ylab="", title="", pad
     p <- padd
   else
     p <- ggplot() 
-  if (length(xlim) > 0)
+    
+  if (xlim != "")
     p <- p + scale_x_continuous(limits = xlim, expand = c(0,0))
-  if (length(ylim) > 0)
+  if (ylim != "")
     p <- p + scale_y_continuous(limits = ylim, expand = c(0,0))
-  p <- p + geom_line(data = rp, aes(x=xtab,y=ytab))
+  
+  if (diagLine)
+  {
+ 	u = min(xtab, ytab)
+ 	v = max(xtab, ytab)
+	p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),color="red")
+  }
+  
+  if (join)
+	p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), color=color)
+  else 
+  	p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), color=color)
+  	
   p <- p + labs(x = xlab)
   p <- p + labs(y = ylab)
   p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
   p
+}
+
+plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, 
+		color="black",
+		xlim="", ylim="", xlab="Y", ylab="Z", title="", padd=NULL)
+{
+	res = anam$sample(ndisc, aymin, aymax)
+	valY = res$getY()
+	valZ = res$getZ()
+	p = plot.XY(valY, valZ, join=TRUE, color=color,
+  		xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
+  		padd=padd)
+	p
+}
+
+plot.correlation <- function(db1, name1, name2, db2, diagLine = FALSE,
+	color="black", xlim="", ylim="", xlab="", ylab="", title="", 
+	padd=NULL)
+{
+  val1 = Db_getColumn(db1,name1)
+  val2 = Db_getColumn(db2,name2)
+  p = plot.XY(val1, val2, join=FALSE, diagLine=diagLine, color=color,
+  		xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
+  		padd=padd)
+  p	
 }
 
 # Representing a Lithotype rule
@@ -344,3 +384,4 @@ plot.rule <- function(rule, proportions=NA, xlab="", ylab="", title="", padd=NUL
   p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
   p
 }
+ 

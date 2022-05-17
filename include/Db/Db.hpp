@@ -247,6 +247,9 @@ public:
                              bool useSel = false) const;
   VectorVectorDouble getItem(const ELoc& locatorType,
                              bool useSel = false) const;
+  VectorString getItemNames(const VectorString& colnames);
+  VectorString getItemNames(const String& colname);
+  VectorString getItemNames(const ELoc& locatorType);
 
   int setItem(const VectorInt& rows,
               const VectorString& colnames,

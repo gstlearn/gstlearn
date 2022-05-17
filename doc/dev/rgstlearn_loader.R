@@ -28,9 +28,27 @@ load_gstlearn = function(libdir)
   	function(x,i,j,...,drop) 
   	{ 
   		if (! hasArg(j))
-	  		x$getItem(i)
+  		{
+	  		ans = x$getItem(i)
+	  		names = x$getItemNames(i)
+	  	}
 	  	else
-	  		x$getItem(i,j)
+	  	{
+	  		ans = x$getItem(i,j)
+	  		names = x$getItemNames(j)
+	  	}
+	  	
+	  	# Conversion to numeric vector (dim=1) or data.frame (dim>1)
+	  	# is performed here. It would be beneficial to perform
+	  	# this conversion in swig R-dependent module	
+	  	if (length(ans) == 1) 
+	  		ans = as.numeric(ans[[1]])
+	  	else
+	  	{
+	  		ans = as.data.frame(ans)
+	  		names(ans) <- names
+	  	}
+ 		ans
   	}
   )
   setMethod("[<-",signature(x="_p_Db"),

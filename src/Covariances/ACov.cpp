@@ -89,12 +89,15 @@ double ACov::evalIvarIpas(int ivar,
   // Define the point in the ACov space (center will be checked)
   SpacePoint p1(center,getSpace());
   SpacePoint p2(center,getSpace());
-  if (! dir.empty())
+  VectorDouble dirloc(dir);
+  if (dirloc.empty())
   {
-    VectorDouble vec(dir);
-    ut_vector_multiply_inplace(vec, step);
-    p2.move(vec);
+    dirloc.resize(getNDim(),0.);
+    dirloc[0] = 1.;
   }
+  VectorDouble vec(dirloc);
+  ut_vector_multiply_inplace(vec, step);
+  p2.move(vec);
   return eval(ivar, jvar, p1, p2, mode); // pure virtual method
 }
 
