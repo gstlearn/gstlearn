@@ -34,7 +34,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
                OUTPUT_VARIABLE TEST_SOURCE_FILE)
     # Run the test (and generate *.out in ${TEST_DST_DIR})
     add_test(NAME ${TEST_NAME}_r
-             COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing ${TEST_SOURCE_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
+             COMMAND ${R_EXECUTABLE} CMD BATCH --slave --no-timing ${TEST_SOURCE_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_r_cmp
