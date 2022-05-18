@@ -130,7 +130,7 @@ public:
   void setCodir(VectorDouble codir) {_codir = codir; }
   void setGrincr(VectorInt grincr) {_grincr = grincr; }
 
-  bool isLagValid(int ilag) const;
+  bool isLagValid(int ilag, bool flagAsym = false) const;
   bool isDimensionValid(int idim) const;
   bool isDefinedForGrid() const { return _definedForGrid; }
 

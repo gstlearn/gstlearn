@@ -22,9 +22,7 @@ ANeighParam::ANeighParam(int ndim, bool flag_xvalid)
       ASerializable(),
       _nDim(ndim),
       _flagXvalid(flag_xvalid),
-      _flagContinuous(false),
-      _flagKFold(false),
-      _distCont(0.)
+      _flagKFold(false)
 {
 }
 
@@ -36,9 +34,7 @@ ANeighParam& ANeighParam::operator=(const ANeighParam& r)
     ASerializable::operator=(r);
     _nDim = r._nDim;
     _flagXvalid = r._flagXvalid;
-    _flagContinuous = r._flagContinuous;
     _flagKFold = r._flagKFold;
-    _distCont = r._distCont;
    }
   return *this;
 }
@@ -52,9 +48,7 @@ ANeighParam::ANeighParam(const ANeighParam& r)
       ASerializable(r),
       _nDim(r._nDim),
       _flagXvalid(r._flagXvalid),
-      _flagContinuous(r._flagContinuous),
-      _flagKFold(r._flagKFold),
-      _distCont(r._distCont)
+      _flagKFold(r._flagKFold)
 {
 }
 
@@ -64,11 +58,16 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
 
   /* NeighUniqueborhood options */
 
-  sstr << toTitle(0,"Neighborhood characteristics");
-
   sstr << "Space dimension = " << getNDim() << std::endl;
   if (getFlagXvalid())
+  {
     sstr << "The Cross-Validation Option is switched ON" << std::endl;
+
+    if (getFlagKFold())
+    {
+      sstr << "KFold Option is switched ON" << std::endl;
+    }
+  }
 
   return sstr.str();
 }

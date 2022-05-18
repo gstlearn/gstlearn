@@ -26,6 +26,7 @@ NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
       _nSect(1),
       _nSMax(0),
       _radius(0.),
+      _distCont(TEST),
       _anisoCoeffs(),
       _anisoRotMat()
 {
@@ -40,6 +41,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _nSect(r._nSect),
       _nSMax(r._nSMax),
       _radius(r._radius),
+      _distCont(r._distCont),
       _anisoCoeffs(r._anisoCoeffs),
       _anisoRotMat(r._anisoRotMat)
 {
@@ -57,6 +59,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _nSect = r._nSect;
     _nSMax = r._nSMax;
     _radius = r._radius;
+    _distCont = r._distCont;
     _anisoCoeffs = r._anisoCoeffs;
     _anisoRotMat = r._anisoRotMat;
    }
@@ -75,7 +78,8 @@ int NeighMoving::reset(int ndim,
                        int nsect,
                        int nsmax,
                        VectorDouble coeffs,
-                       VectorDouble angles)
+                       VectorDouble angles,
+                       double distcont)
 {
   setNDim(ndim);
   setFlagXvalid(flag_xvalid);
@@ -85,6 +89,7 @@ int NeighMoving::reset(int ndim,
   _nSect = nsect;
   _nSMax = nsmax;
   _radius = radius;
+  _distCont = distcont;
 
   if (! coeffs.empty())
   {
@@ -107,6 +112,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   int ndim = getNDim();
 
+  sstr << toTitle(0,"Moving Neighborhood");
   sstr << ANeighParam::toString(strfmt);
 
   if (_nMini > 0)
@@ -119,12 +125,6 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
     if (_nSMax > 0)
       sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
   }
-  if (getFlagContinuous())
-  {
-    sstr << "Norm. dist. for continuous NeighMoving.   = " << getDistCont()
-         << std::endl;
-  }
-
   if (!FFFF(_radius))
   {
     if (!_flagAniso)
@@ -146,12 +146,11 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
       }
     }
   }
-
-  /* Cross-validation option */
-
-  if (getFlagXvalid() != 0)
-    sstr << "The Cross-Validation Option is switched ON" << std::endl;
-
+  if (! FFFF(getDistCont()))
+  {
+    sstr << "Norm. dist. for continuous NeighMoving.   = " << getDistCont()
+         << std::endl;
+  }
   return sstr.str();
 }
 
@@ -278,11 +277,12 @@ NeighMoving* NeighMoving::create(int ndim,
                                  int nsect,
                                  int nsmax,
                                  VectorDouble coeffs,
-                                 VectorDouble angles)
+                                 VectorDouble angles,
+                                 double distcont)
 {
   NeighMoving* neighM = new NeighMoving;
   if (neighM->reset(ndim, flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                    coeffs, angles))
+                    coeffs, angles, distcont))
   {
     messerr("Problem when creating Moving NeighMovingborhood");
     delete neighM;
@@ -342,3 +342,4 @@ bool NeighMoving::getFlagSector() const
 {
   return (getNDim() > 1 && _nSect > 1);
 }
+

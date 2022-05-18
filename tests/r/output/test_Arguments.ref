@@ -1,15 +1,54 @@
+AVIS : option inconnue '--no-echo'
+
+
+R version 3.6.3 (2020-02-29) -- "Holding the Windsock"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> #
+> # This file is meant to test the reading of various types of arguments in R
+> #
+> 
+> # Loading the package
+> 
+> suppressWarnings(suppressMessages(library(gstlearn)))
+> 
+> # Testing main argument types
+> 
+> argumentTestInt(12)
 Testing for Integer : 12
 NULL
+> argumentTestDouble(2.3)
 Testing for Double : 2.300000
 NULL
+> argumentTestVectorInt(c(1,2,3))
 Testing for VectorInt : 1 - 2 - 3 - 
 NULL
+> argumentTestVectorDouble(c(1.1, 2.2, 3.3))
 Testing for VectorDouble : 1.100000 - 2.200000 - 3.300000 - 
 NULL
+> argumentTestString("my_String")
 Testing for String : my_String
 NULL
+> argumentTestVectorString("my_String")
 Testing for VectorString : my_String - 
 NULL
+> #argumentTestVectorString(c("my_String1","my_String2","my_String3"))
+> argumentTestVectorVectorInt(c( c(2,3),c(1, 5 ) ))
 Testing for VectorVectorInt : Dimension First Level = 4
 Dimension of Second Level = 1
 2 - 
@@ -20,33 +59,69 @@ Dimension of Second Level = 1
 Dimension of Second Level = 1
 5 - 
 NULL
+> 
+> # Testing missing arguments
+> 
+> argumentTestInt(getITEST())
 Testing for Integer : NA 
 NULL
+> argumentTestDouble(getTEST())
 Testing for Double : NA 
 NULL
+> argumentTestVectorInt(c(getITEST()))
 Testing for VectorInt : NA  - 
 NULL
+> argumentTestVectorDouble(c(getTEST()))
 Testing for VectorDouble : NA  - 
 NULL
+> 
+> # Testing overloading of methods
+> 
+> argumentTestIntOverload(12)
 Testing for Int (Overload) : 12
 NULL
+> argumentTestIntOverload(c(21, 32))
 Testing for VectorInt (Overload) : 21 - 32 - 
 NULL
+> argumentTestStringOverload("my_String")
 Testing for String (Overload) : my_String
 NULL
+> #argumentTestStringOverload(c("my_String1","my_String2","String3"))
+> 
+> # Testing ENUM
+> 
+> argumentTestEnum(ETests_CASE2())
 Case : Value = 2 - Descr = Enum test case 2
 NULL
+> 
+> # Testing Returning arguments
+> 
+> print(argumentReturnInt(12))
 Testing for Integer : 12
 [1] 12
+> print(argumentReturnInt(getITEST()))
 Testing for Integer : NA 
 [1] -1234567
+> print(argumentReturnDouble(21.4))
 Testing for Double : 21.400000
 [1] 21.4
+> print(argumentReturnDouble(getTEST()))
 Testing for Double : NA 
 [1] 1.234e+30
+> 
+> # Testing assessors (instead of relevant functions) to access the elements of a class
+> 
+> myClass = argClass()
+> myClass$display()
 Integer = -1 - Real = -1.100000 - String = NA
 NULL
+> myClass$ival
 [1] -1
+> myClass$ival = 21
+> myClass$display()
 Integer = 21 - Real = -1.100000 - String = NA
 NULL
+> 
+> print("Test successfully performed")
 [1] "Test successfully performed"
+> 

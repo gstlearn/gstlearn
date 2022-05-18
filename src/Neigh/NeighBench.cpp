@@ -54,6 +54,7 @@ String NeighBench::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
+  sstr << toTitle(0,"Bench Neighborhood");
   sstr << ANeighParam::toString(strfmt);
 
   sstr << "Bench width     = " << _width << std::endl;

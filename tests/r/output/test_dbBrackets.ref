@@ -1,3 +1,33 @@
+AVIS : option inconnue '--no-echo'
+
+
+R version 3.6.3 (2020-02-29) -- "Holding the Windsock"
+Copyright (C) 2020 The R Foundation for Statistical Computing
+Platform: x86_64-pc-linux-gnu (64-bit)
+
+R est un logiciel libre livré sans AUCUNE GARANTIE.
+Vous pouvez le redistribuer sous certaines conditions.
+Tapez 'license()' ou 'licence()' pour plus de détails.
+
+R est un projet collaboratif avec de nombreux contributeurs.
+Tapez 'contributors()' pour plus d'information et
+'citation()' pour la façon de le citer dans les publications.
+
+Tapez 'demo()' pour des démonstrations, 'help()' pour l'aide
+en ligne ou 'help.start()' pour obtenir l'aide au format HTML.
+Tapez 'q()' pour quitter R.
+
+[Sauvegarde de la session précédente restaurée]
+
+> # Loading the package
+> 
+> suppressWarnings(suppressMessages(library(gstlearn)))
+> 
+> set.seed(32421)
+> a = DbGrid_create(nx=c(2,2),dx=c(1.,1.))
+> nech = a$getSampleNumber()
+> 
+> a$display()
 
 Data Base Grid Characteristics
 ==============================
@@ -22,6 +52,8 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 NULL
+> a["var1"] = rnorm(nech)
+> a$display()
 
 Data Base Grid Characteristics
 ==============================
@@ -47,8 +79,17 @@ Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
 NULL
+> 
+> print(a["var1"])
 [1] -0.6833277 -1.1301354 -2.4392946  0.7419877
+> 
+> a["var1"] = rnorm(nech)
+> 
+> print(a["var1"])
 [1] 1.2251098 0.8211658 0.1537982 0.7252239
+> 
+> a["var2"] = rnorm(nech)
+> a$display()
 
 Data Base Grid Characteristics
 ==============================
@@ -75,8 +116,32 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = NA
 Column = 4 - Name = var2 - Locator = NA
 NULL
+> 
+> print(a["var*"])
        var1        var2
 1 1.2251098 -0.28178531
 2 0.8211658  1.53703351
 3 0.1537982 -0.43177770
 4 0.7252239 -0.00755856
+> 
+> # La ligne suivante ne fonctionne pas encore car
+> # a["var*"] est considere comme une liste (de listes)
+> 
+> #a["var*"] = a["var*"]>0 
+> #print(a["var*"])
+> 
+> # La ligne suivante ne fonctionne pas car
+> # le mode d'entree n'est pas reconnu
+> 
+> #a["newvar"] = list(runif(nech), rnorm(nech))
+> #a$display()
+> #print(a["newvar*"])
+> 
+> # Les lignes suivantes n'ont pas de sens puisque newvar n'a pas ete cree
+> 
+> #v = a["newvar*"]
+> #v[0,0] = NA
+> #a["newvar*"] = v
+> #print(a["newvar*"])
+> 
+> 

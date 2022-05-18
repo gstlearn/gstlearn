@@ -4637,6 +4637,15 @@ static int st_copy_swhh(const Vario *vario1,
     messerr("Both variograms should share the same number of Directions");
     return 1;
   }
+  for (int idir = 0; idir < vario1->getDirectionNumber(); idir++)
+  {
+    if (vario1->getLagTotalNumber(idir) != vario2->getLagTotalNumber(idir))
+    {
+      messerr("Both variograms should share the same number of flags for Direction #%d",
+              idir+1);
+      return 1;
+    }
+  }
   int nvar = vario2->getVariableNumber();
 
   for (int idir = 0; idir < vario2->getDirectionNumber(); idir++)

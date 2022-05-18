@@ -246,11 +246,13 @@ bool DirParam::isDimensionValid(int idim) const
   return true;
 }
 
-bool DirParam::isLagValid(int ilag) const
+bool DirParam::isLagValid(int ilag, bool flagAsym) const
 {
-  if (ilag < 0 || ilag >= getLagNumber())
+  int nlag = getLagNumber();
+  if (flagAsym) nlag = 2 * nlag + 1;
+  if (ilag < 0 || ilag >= nlag)
   {
-    mesArg("Lag Index",ilag,getLagNumber());
+    mesArg("Lag Index",ilag,nlag);
     return false;
   }
   return true;

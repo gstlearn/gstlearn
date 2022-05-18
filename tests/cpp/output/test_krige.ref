@@ -83,20 +83,20 @@ Drift Part
 ----------
 Universality Condition
 
-Neighborhood characteristics
-============================
+Image Neighborhood
+==================
 Space dimension = 2
 Skipping factor = 2
 Image radius :         2         2
 
-Neighborhood characteristics
-============================
+Moving Neighborhood
+===================
 Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 25
 
-Neighborhood characteristics
-============================
+Unique Neighborhood
+===================
 Space dimension = 2
 
 <----- Cross-Validation in Moving Neighborhood ----->

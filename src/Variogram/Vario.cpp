@@ -1385,7 +1385,7 @@ int Vario::getDirAddress(int idir,
 
   if (! getFlagAsym())
   {
-    if (! dirparam.isLagValid(ipas)) return ITEST;
+    if (! dirparam.isLagValid(ipas, getFlagAsym())) return ITEST;
     iad = ipas;
   }
   else
@@ -1396,7 +1396,7 @@ int Vario::getDirAddress(int idir,
     }
     else
     {
-      if (! dirparam.isLagValid(ipas)) return ITEST;
+      if (! dirparam.isLagValid(ipas, getFlagAsym())) return ITEST;
       int npas = dirparam.getLagNumber();
       switch (sens)
       {

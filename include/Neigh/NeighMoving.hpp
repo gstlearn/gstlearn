@@ -19,6 +19,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
+#include "Basic/Utilities.hpp"
 
 class Db;
 
@@ -30,10 +31,13 @@ public:
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// Interface for ANeighParam
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::MOVING; }
+  virtual bool getFlagContinuous() const override { return (! FFFF(_distCont)); }
 
   int reset(int ndim,
             bool flag_xvalid,
@@ -43,7 +47,8 @@ public:
             int nsect = 1,
             int nsmax = ITEST,
             VectorDouble coeffs = VectorDouble(),
-            VectorDouble angles = VectorDouble());
+            VectorDouble angles = VectorDouble(),
+            double distcont = TEST);
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighMoving* create(int ndim,
@@ -54,7 +59,8 @@ public:
                              int nsect = 1,
                              int nsmax = ITEST,
                              VectorDouble coeffs = VectorDouble(),
-                             VectorDouble angles = VectorDouble());
+                             VectorDouble angles = VectorDouble(),
+                             double distcont = TEST);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
 
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
@@ -69,6 +75,7 @@ public:
   int getNSect() const { return _nSect; }
   int getNSMax() const { return _nSMax; }
   double getRadius() const { return _radius; }
+  double getDistCont() const { return _distCont; }
 
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoCoeff(int idim, double value);
@@ -81,6 +88,7 @@ public:
   void setNSect(int nsect) { _nSect = nsect; }
   void setNSMax(int nsmax) { _nSMax = nsmax; }
   void setRadius(double radius) { _radius = radius; }
+  void setDistCont(double distCont) { _distCont = distCont; }
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
@@ -94,6 +102,8 @@ private:
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
   double _radius;                /* Maximum isotropic distance */
+  bool   _flagContinuous;        /* true for continuous moving neighborhood */
+  double _distCont;              /* Distance for continuous ANeighParamborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
 };

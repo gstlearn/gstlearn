@@ -33,17 +33,14 @@ public:
   // ANeighParam Interface definition
   virtual int getMaxSampleNumber(const Db* db) const = 0;
   virtual ENeigh getType() const = 0;
+  virtual bool getFlagContinuous() const { return false; }
 
   int getNDim() const { return _nDim; }
-  double getDistCont() const { return _distCont; }
-  bool getFlagContinuous() const { return _flagContinuous; }
   bool getFlagXvalid() const { return _flagXvalid; }
   bool getFlagKFold() const { return _flagKFold; }
 
-  void setDistCont(double distCont) { _distCont = distCont; }
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setNDim(int dim) { _nDim = dim; }
-  void setFlagContinuous(bool flagContinuous) { _flagContinuous = flagContinuous; }
   void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
 
 protected:
@@ -56,7 +53,5 @@ protected:
 private:
   int _nDim;                     /* Space dimension */
   bool _flagXvalid;              /* 1 to suppress the target */
-  bool _flagContinuous;          /* 1 for continuous moving neighborhood */
   bool _flagKFold;               /* 1 to perform a KFold Cross-validation */
-  double _distCont;              /* Distance for continuous ANeighParamborhood */
 };

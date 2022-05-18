@@ -80,20 +80,43 @@ public:
   double getLTerm() const { return _lterm; }
 
 private:
-  int  _getNVar() const;
-  int  _getNVarCL() const;
-  int  _getNbfl() const;
-  int  _getNFeq() const;
-  int  _getNFex() const;
-  int  _getNDisc() const;
-  void _setFlag(int iech, int ivar, int value);
-  int  _getFlag(int iech, int ivar);
+  int    _getNVar() const;
+  int    _getNVarCL() const;
+  int    _getNbfl() const;
+  int    _getNFeq() const;
+  int    _getNFex() const;
+  int    _getNDisc() const;
+  void   _setFlag(int iech, int ivar, int value);
+  int    _getFlag(int iech, int ivar);
   double _getIdim(int loc_rank, int idim, int iech_out = 0) const;
   double _getFext(int rank, int ibfl, int iech_out = 0) const;
   double _getIvar(int rank, int ivar, int iech_out = 0) const;
   double _getVerr(int rank, int ivar, int iech_out = 0) const;
   double _getMean(int ivarCL) const;
   double _getCoefDrift(int ivar, int il, int ib) const;
+  int    _IND(int iech, int ivar,int nech) const;
+  int    _getFLAG(int iech,int ivar) const;
+  double _getCOVTAB(int ivar,int jvar) const;
+  void   _setCOVTAB(int ivar,int jvar,double value);
+  void   _addCOVTAB(int ivar,int jvar,double value);
+  void   _prodCOVTAB(int ivar,int jvar,double value);
+  double _getRHS(int iech, int ivar, int jvCL) const;
+  void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
+  double _getRHSC(int i, int jvCL) const;
+  double _getWGTC(int i,int jvCL) const;
+  double _getLHS(int iech, int ivar, int jech, int jvar) const;
+  double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
+  void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
+  void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
+  void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
+  double _getLHSC(int i, int j) const;
+  double _getDISC1(int idisc, int idim) const;
+  void   _setDISC1(int idisc, int idim, double value);
+  double _getDISC2(int idisc,int idim) const;
+  void   _setDISC2(int idisc,int idim, double value);
+  double _getVAR0(int ivCL, int jvCL) const;
+  void   _setVAR0(int ivCL, int jvCL, double value);
+
   void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
   void _flagDefine();
@@ -104,7 +127,7 @@ private:
                      int iech1,
                      int iech2,
                      VectorDouble d1);
-  void _drftabCalcul(const ECalcMember &member, const Db* db, int iech);
+  void _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
   void _lhsCalcul();
@@ -133,28 +156,6 @@ private:
   void _blockDiscretize();
   bool _isCorrect();
 
-  int    _IND(int iech, int ivar,int nech) const;
-  int    _getFLAG(int iech,int ivar) const;
-  double _getCOVTAB(int ivar,int jvar) const;
-  void   _setCOVTAB(int ivar,int jvar,double value);
-  void   _addCOVTAB(int ivar,int jvar,double value);
-  void   _prodCOVTAB(int ivar,int jvar,double value);
-  double _getRHS(int iech, int ivar, int jvCL) const;
-  void   _setRHS(int iech, int ivar, int jvCL, double value, bool isForDrift = false);
-  double _getRHSC(int i, int jvCL) const;
-  double _getWGTC(int i,int jvCL) const;
-  double _getLHS(int iech, int ivar, int jech, int jvar) const;
-  double _getLHSINV(int iech, int ivar, int jech, int jvar) const;
-  void   _setLHS(int iech, int ivar, int jech, int jvar, double value, bool isForDrift = false);
-  void   _addLHS(int iech, int ivar, int jech, int jvar, double value);
-  void   _prodLHS(int iech, int ivar, int jech, int jvar, double value);
-  double _getLHSC(int i, int j) const;
-  double _getDISC1(int idisc, int idim) const;
-  void   _setDISC1(int idisc, int idim, double value);
-  double _getDISC2(int idisc,int idim) const;
-  void   _setDISC2(int idisc,int idim, double value);
-  double _getVAR0(int ivCL, int jvCL) const;
-  void   _setVAR0(int ivCL, int jvCL, double value);
   void   _checkAddress(const String& title,
                        const String& theme,
                        int ival,

@@ -568,8 +568,7 @@ VectorDouble hermiteCoefLower(double y, int nbpoly)
   for (int n = 2; n < nbpoly; n++)
   {
     double sqnnm1 = sqrt((double) n * (n - 1.));
-//    coeff[n] = dg * (y * hn[n - 1] / sqn + hn[n - 2] / sqnnm1);
-    coeff[n] = dg * hn[n - 2] / sqnnm1;  // Correction from XF
+    coeff[n] = dg * hn[n - 2] / sqnnm1;
   }
   return coeff;
 }
@@ -584,7 +583,7 @@ VectorDouble hermiteIndicatorLower(double y, int nbpoly)
   coeff[0] = 1. - dG;
   for (int n = 1; n < nbpoly; n++)
   {
-    coeff[n] = -dg * hn[n-1] / sqrt((double) n);
+    coeff[n] = -dg * hn[n - 1] / sqrt((double) n);
   }
   return coeff;
 }

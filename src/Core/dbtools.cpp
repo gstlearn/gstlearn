@@ -6377,6 +6377,8 @@ int migrateByLocator(Db *db1,
                      int flag_inter,
                      const NamingConvention &namconv)
 {
+  NamingConvention nc(namconv);
+
   VectorString names = db1->getNamesByLocator(locatorType);
   int natt = static_cast<int>(names.size());
   if (natt <= 0) return 0;
@@ -6396,7 +6398,8 @@ int migrateByLocator(Db *db1,
   }
 
   // Set the output variable names and locators
-  namconv.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
+  nc.setLocatorOutType(locatorType);
+  nc.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
   return 0;
 }
 

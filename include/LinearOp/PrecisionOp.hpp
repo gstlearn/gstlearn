@@ -89,7 +89,6 @@ private:
   int  _preparePoly(const EPowerPT& power,bool force = false);
   int  _prepareChebychev(const EPowerPT& power);
   int  _preparePrecisionPoly();
-
   int  _evalPoly(const EPowerPT& power,const VectorDouble& in, VectorDouble& out);
   void _purge();
 
@@ -100,8 +99,6 @@ private:
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;
-
-
 
 protected :
   mutable VectorDouble _work;

@@ -43,6 +43,12 @@ if ($name1 == "py") then
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
+if ($name1 == "r") then
+		set direc   = "output"
+		set nametest = `basename $nametest .r`
+		set nameref = $nametest.ref
+		set namecmp = $nametest.out
+endif
 
 set FILEREF = $DIR/tests/$name1/$direc/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp

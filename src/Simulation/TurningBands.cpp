@@ -191,6 +191,7 @@ int TurningBands::_generateDirections(const Db* dbout)
         // Nevertheless this code is maintained to ensure in order not to disorganize
         // the possible drawing of random numbers.
         if (!cova->hasRange()) continue;
+
         if (cova->getFlagAniso())
         {
           VectorDouble ranges = cova->getScales();
@@ -229,25 +230,19 @@ int TurningBands::_generateDirections(const Db* dbout)
         if (dbout->isGrid())
         {
           const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
-          int nbands = _getNBands();
+          double t00 = _codirs[ibs].projectGrid(dbgrid, 0, 0, 0);
+          _setCodirT00(ibs, t00);
+          _setCodirDXP(ibs,_codirs[ibs].projectGrid(dbgrid, 1, 0, 0) - t00);
+          _setCodirDYP(ibs,_codirs[ibs].projectGrid(dbgrid, 0, 1, 0) - t00);
+          _setCodirDZP(ibs,_codirs[ibs].projectGrid(dbgrid, 0, 0, 1) - t00);
 
-          for (int ibs = 0; ibs < nbands; ibs++)
+          if (cova->getType() == ECov::SPHERICAL || cova->getType() == ECov::CUBIC)
           {
-            double t00 = _codirs[ibs].projectGrid(dbgrid, 0, 0, 0);
-            _setCodirT00(ibs, t00);
-            _setCodirDXP(ibs,_codirs[ibs].projectGrid(dbgrid, 1, 0, 0) - t00);
-            _setCodirDYP(ibs,_codirs[ibs].projectGrid(dbgrid, 0, 1, 0) - t00);
-            _setCodirDZP(ibs,_codirs[ibs].projectGrid(dbgrid, 0, 0, 1) - t00);
-
-            if (cova->getType() == ECov::SPHERICAL || cova->getType()
-                == ECov::CUBIC)
-            {
-              double scale = _getCodirScale(ibs);
-              _setCodirT00(ibs, _getCodirT00(ibs) / scale);
-              _setCodirDXP(ibs, _getCodirDXP(ibs) / scale);
-              _setCodirDYP(ibs, _getCodirDYP(ibs) / scale);
-              _setCodirDZP(ibs, _getCodirDZP(ibs) / scale);
-            }
+            double scale = _getCodirScale(ibs);
+            _setCodirT00(ibs, _getCodirT00(ibs) / scale);
+            _setCodirDXP(ibs, _getCodirDXP(ibs) / scale);
+            _setCodirDYP(ibs, _getCodirDYP(ibs) / scale);
+            _setCodirDZP(ibs, _getCodirDZP(ibs) / scale);
           }
         }
       }

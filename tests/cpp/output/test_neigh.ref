@@ -34,8 +34,8 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x-1 - Locator = x1
 Column = 2 - Name = x-2 - Locator = x2
 
-Neighborhood characteristics
-============================
+Unique Neighborhood
+===================
 Space dimension = 2
 
 Testing Unique Neighborhood
@@ -58,8 +58,8 @@ For Target Point #1
      [ 14,]        14        15        16        17        18        19
 Is neighborhood Unchanged since last call = 1
 
-Neighborhood characteristics
-============================
+Moving Neighborhood
+===================
 Space dimension = 2
 Minimum number of samples           = 1
 Maximum number of samples           = 5

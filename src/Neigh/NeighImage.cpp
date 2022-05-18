@@ -64,6 +64,7 @@ String NeighImage::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
+  sstr << toTitle(0,"Image Neighborhood");
   sstr << ANeighParam::toString(strfmt);
 
   sstr << "Skipping factor = " << _skip << std::endl;

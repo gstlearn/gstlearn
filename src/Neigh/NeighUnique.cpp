@@ -54,6 +54,7 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
+  sstr << toTitle(0,"Unique Neighborhood");
   sstr << ANeighParam::toString(strfmt);
 
   return sstr.str();

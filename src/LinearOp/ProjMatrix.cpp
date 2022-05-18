@@ -81,7 +81,7 @@ ProjMatrix::~ProjMatrix()
 
 int ProjMatrix::resetFromDb(const Db* db, AMesh *a_mesh, int verbose)
 {
-  if (db!= nullptr)
+  if (db != nullptr)
   {
     _Aproj = a_mesh->getMeshToDb(db,verbose);
     if (_Aproj == nullptr) return 1;
@@ -99,7 +99,7 @@ int ProjMatrix::resetFromDb(const Db* db, AMesh *a_mesh, int verbose)
 
 int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
 {
-  _Aproj   = cs_duplicate(aproj);
+  _Aproj = cs_duplicate(aproj);
   if (_Aproj == nullptr) return 1;
   _nPoint  = npoint;
   _nApices = napices;
