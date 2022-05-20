@@ -8,15 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenEllipsoid.hpp"
-#include "Boolean/Object.hpp"
+#include "Boolean/ShapeEllipsoid.hpp"
 
-TokenEllipsoid::TokenEllipsoid(double proportion,
+#include "../../include/Simulation/BooleanObject.hpp"
+
+ShapeEllipsoid::ShapeEllipsoid(double proportion,
                                double xext,
                                double yext,
                                double zext,
                                double theta)
-    : AToken()
+    : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "X-Extension", xext);
@@ -26,21 +27,21 @@ TokenEllipsoid::TokenEllipsoid(double proportion,
   setProportion(proportion);
 }
 
-TokenEllipsoid::TokenEllipsoid(const TokenEllipsoid &r)
-    : AToken(r)
+ShapeEllipsoid::ShapeEllipsoid(const ShapeEllipsoid &r)
+    : AShape(r)
 {
 }
 
-TokenEllipsoid& TokenEllipsoid::operator=(const TokenEllipsoid &r)
+ShapeEllipsoid& ShapeEllipsoid::operator=(const ShapeEllipsoid &r)
 {
   if (this != &r)
   {
-    AToken::operator =(r);
+    AShape::operator =(r);
   }
   return *this;
 }
 
-TokenEllipsoid::~TokenEllipsoid()
+ShapeEllipsoid::~ShapeEllipsoid()
 {
 }
 
@@ -51,10 +52,10 @@ TokenEllipsoid::~TokenEllipsoid()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenEllipsoid::generateObject(int ndim)
+BooleanObject* ShapeEllipsoid::generateObject(int ndim)
 
 {
-  Object* object = new Object(this);
+  BooleanObject* object = new BooleanObject(this);
   if (ndim >= 1) object->setExtension(0, generateParam(0));
   if (ndim >= 2) object->setExtension(1, generateParam(1));
   if (ndim >= 3) object->setExtension(2, generateParam(2));
@@ -69,8 +70,8 @@ Object* TokenEllipsoid::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenEllipsoid::belongObject(const VectorDouble& coor,
-                                  const Object* object) const
+bool ShapeEllipsoid::belongObject(const VectorDouble& coor,
+                                  const BooleanObject* object) const
 {
   int ndim = (int) coor.size();
   double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;

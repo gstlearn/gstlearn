@@ -636,7 +636,7 @@ int model_anamorphosis_set_factor(Model *model, int anam_iclass)
  **  For a given basic structure, get the reduction factor to convert the
  **  theoretical to practical scale
  **
- ** \return  Convertion factor
+ ** \return  Conversion factor
  **
  ** \param[in]  type      Type of the basic structure
  ** \param[in]  param     Value of the third parameter
@@ -1614,7 +1614,7 @@ int model_normalize(Model *model, int flag_verbose)
   int flag_norm = 0;
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    total[ivar] = model->getCovAnisoList()->getTotalSill(ivar, ivar);
+    total[ivar] = model->getTotalSill(ivar, ivar);
     if (total[ivar] == 0.) return 1;
     total[ivar] = sqrt(total[ivar]);
     if (ABS(total[ivar] - 1.) > EPSILON6) flag_norm = 1;

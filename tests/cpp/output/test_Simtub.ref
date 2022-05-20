@@ -59,7 +59,6 @@ Data Base Statistics
  Mean value          =     -0.168
  Standard Deviation  =      1.073
  Variance            =      1.152
-Wrong dimension = 0 when creating SpaceRN (ndim set to 2)
 
 Model characteristics
 =====================

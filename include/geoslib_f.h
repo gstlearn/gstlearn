@@ -25,6 +25,7 @@
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -38,7 +39,8 @@ class Polygons;
 class RuleProp;
 class ECalcVario;
 class PCA;
-class Tokens;
+class ModelBoolean;
+class SimuBooleanParam;
 
 /*************************/
 /* Functions for License */
@@ -540,17 +542,11 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
 GSTLEARN_EXPORT int simbool(Db *dbin,
                             DbGrid *dbout,
-                            Tokens *tokens,
-                            bool flagStat,
-                            double thetaCst,
-                            double tmax,
+                            ModelBoolean *tokens,
+                            const SimuBooleanParam& boolparam = SimuBooleanParam(),
                             int seed = 432431,
                             bool flag_simu = true,
                             bool flag_rank = true,
-                            double background = 0.,
-                            double facies = 1.,
-                            const VectorDouble& dilate = VectorDouble(),
-                            int maxiter = 100000,
                             bool verbose = false,
                             const NamingConvention& namconv = NamingConvention("Boolean"));
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,

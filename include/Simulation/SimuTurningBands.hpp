@@ -19,17 +19,18 @@
 #include "geoslib_define.h"
 
 class Model;
+class ANeighParam;
 
-class GSTLEARN_EXPORT TurningBands : public ASimulation {
+class GSTLEARN_EXPORT SimuTurningBands : public ASimulation {
 
 public:
-  TurningBands(int nbsimu = 0,
-               int nbtuba = 0,
-               const Model* model = nullptr,
-               int seed = 4324324);
-  TurningBands(const TurningBands& r);
-  TurningBands& operator=(const TurningBands& r);
-  virtual ~TurningBands();
+  SimuTurningBands(int nbsimu = 0,
+                   int nbtuba = 0,
+                   const Model* model = nullptr,
+                   int seed = 4324324);
+  SimuTurningBands(const SimuTurningBands& r);
+  SimuTurningBands& operator=(const SimuTurningBands& r);
+  virtual ~SimuTurningBands();
 
   int getNBtuba() const { return _nbtuba; }
   void setNBtuba(int nbtuba) { _nbtuba = nbtuba; }

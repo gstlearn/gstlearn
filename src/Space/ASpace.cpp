@@ -10,6 +10,10 @@ ASpace::ASpace(unsigned int ndim)
       _nDim(ndim),
       _origin(VectorDouble(ndim, 0.))
 {
+  if (ndim <= 0)
+  {
+    messerr(">>> Creating a Space with dimension 0 should be forbidden");
+  }
 }
 
 ASpace::ASpace(const ASpace& r)

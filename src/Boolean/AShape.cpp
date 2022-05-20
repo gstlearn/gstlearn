@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/AToken.hpp"
+#include "Boolean/AShape.hpp"
 #include "Basic/AException.hpp"
 
-AToken::AToken()
+AShape::AShape()
     : AStringable(),
       _factorX2Y(0.),
       _factorX2Z(0.),
@@ -22,7 +22,7 @@ AToken::AToken()
 {
 }
 
-AToken::AToken(const AToken &r)
+AShape::AShape(const AShape &r)
     : AStringable(r),
       _factorX2Y(r._factorX2Y),
       _factorX2Z(r._factorX2Z),
@@ -33,7 +33,7 @@ AToken::AToken(const AToken &r)
 {
 }
 
-AToken& AToken::operator=(const AToken &r)
+AShape& AShape::operator=(const AShape &r)
 {
   if (this != &r)
   {
@@ -48,11 +48,11 @@ AToken& AToken::operator=(const AToken &r)
   return *this;
 }
 
-AToken::~AToken()
+AShape::~AShape()
 {
 }
 
-String AToken::toString(const AStringFormat* /*strfmt*/) const
+String AShape::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -74,36 +74,36 @@ String AToken::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-void AToken::initParams(int count)
+void AShape::initParams(int count)
 {
   _paramNames.resize(count);
   _params.resize(count);
 
   for (int ipar = 0; ipar < count; ipar++)
   {
-    _params[ipar] = TokenParameter();
+    _params[ipar] = ShapeParameter();
   }
 }
 
-void AToken::setLaw(int ipar, ETLaw law)
+void AShape::setLaw(int ipar, ETLaw law)
 {
   if (! _isValidParamIndex(ipar)) return;
   _params[ipar].setLaw(law);
 }
 
-void AToken::setParam(int ipar, int iarg, double value)
+void AShape::setParam(int ipar, int iarg, double value)
 {
   if (! _isValidParamIndex(ipar)) return;
   _params[ipar].setValarg(iarg, value);
 }
 
-void AToken::setParamName(int ipar, const String& name)
+void AShape::setParamName(int ipar, const String& name)
 {
   if (! _isValidParamIndex(ipar)) return;
   _paramNames[ipar] = name;
 }
 
-void AToken::setParamDefault(int ipar,
+void AShape::setParamDefault(int ipar,
                              const String& name,
                              double value)
 {
@@ -112,32 +112,32 @@ void AToken::setParamDefault(int ipar,
   _params[ipar].setValarg(0, value);
 }
 
-String AToken::getParamName(int ipar) const
+String AShape::getParamName(int ipar) const
 {
   if (! _isValidParamIndex(ipar)) return String();
   return _paramNames[ipar];
 }
 
-double AToken::getParam(int ipar, int iarg) const
+double AShape::getParam(int ipar, int iarg) const
 {
   if (! _isValidParamIndex(ipar)) return TEST;
   return _params[ipar].getValarg(iarg);
 }
 
-const TokenParameter& AToken::getParam(int ipar) const
+const ShapeParameter& AShape::getParam(int ipar) const
 {
   if (! _isValidParamIndex(ipar))
     my_throw("Argument invalid");
   return _params[ipar];
 }
 
-double AToken::generateParam(int ipar) const
+double AShape::generateParam(int ipar) const
 {
   if (! _isValidParamIndex(ipar)) return TEST;
  return _params[ipar].generateValue();
 }
 
-bool AToken::_isValidParamIndex(int ipar) const
+bool AShape::_isValidParamIndex(int ipar) const
 {
   int npar = (int) _params.size();
   if (ipar < 0 || ipar >= npar)

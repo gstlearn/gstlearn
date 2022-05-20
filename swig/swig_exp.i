@@ -104,17 +104,15 @@ class IClonable{};
 
 %include Boolean/ETLaw.hpp
 %include Boolean/ETShape.hpp
-%include Boolean/TokenParameter.hpp
-%include Boolean/AToken.hpp
-%include Boolean/TokenParallelepiped.hpp
-%include Boolean/TokenEllipsoid.hpp
-%include Boolean/TokenParaboloid.hpp
-%include Boolean/TokenHalfEllipsoid.hpp
-%include Boolean/TokenHalfParaboloid.hpp
-%include Boolean/TokenHalfSinusoid.hpp
-%include Boolean/Tokens.hpp
-%include Boolean/Object.hpp
-%include Boolean/ObjectList.hpp
+%include Boolean/ShapeParameter.hpp
+%include Boolean/AShape.hpp
+%include Boolean/ShapeParallelepiped.hpp
+%include Boolean/ShapeEllipsoid.hpp
+%include Boolean/ShapeParaboloid.hpp
+%include Boolean/ShapeHalfEllipsoid.hpp
+%include Boolean/ShapeHalfParaboloid.hpp
+%include Boolean/ShapeHalfSinusoid.hpp
+%include Boolean/ModelBoolean.hpp
 
 %include Space/Space.hpp
 %include Space/ASpace.hpp
@@ -315,8 +313,11 @@ class IClonable{};
 %include OutputFormat/GridZycor.hpp
 
 %include Simulation/ASimulation.hpp
-%include Simulation/TurningBands.hpp
+%include Simulation/SimuTurningBands.hpp
 %include Simulation/TurningDirection.hpp
+%include Simulation/BooleanObject.hpp
+%include Simulation/SimuBoolean.hpp
+%include Simulation/SimuBooleanParam.hpp
 
 %include segy.h
 

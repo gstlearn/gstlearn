@@ -19,9 +19,10 @@
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Vector.hpp"
-#include "Boolean/Tokens.hpp"
-#include "Boolean/TokenEllipsoid.hpp"
-#include "Boolean/TokenParallelepiped.hpp"
+#include "Boolean/ShapeEllipsoid.hpp"
+#include "Boolean/ShapeParallelepiped.hpp"
+#include "Boolean/ModelBoolean.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar,
                          bool flag_sel = false, double proba = 0.5)
@@ -92,17 +93,17 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Create Shape Dictionary ===================
   message("\n<----- Creating Shape Dictionary ----->\n");
-  Tokens* tokens = new Tokens();
-  TokenEllipsoid token_ellipsoid(0.4, 10., 20., 2.);
+  ModelBoolean* tokens = new ModelBoolean(0.01, true);
+  ShapeEllipsoid token_ellipsoid(0.4, 10., 20., 2.);
   token_ellipsoid.setFactorX2Y(1.5);
   tokens->addToken(token_ellipsoid);
-  TokenParallelepiped token_parallelepiped(0.6, 5, 7., 1.);
+  ShapeParallelepiped token_parallelepiped(0.6, 5, 7., 1.);
   tokens->addToken(token_parallelepiped);
   tokens->display();
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Boolean Simulation ----->\n");
-  (void) simbool(nullptr, grid, tokens, true, 0.01, 2.);
+  (void) simbool(nullptr, grid, tokens);
 
   grid->display(&dbfmt);
 

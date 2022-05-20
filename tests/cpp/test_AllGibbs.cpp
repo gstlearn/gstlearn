@@ -36,8 +36,6 @@
 int main(int /*argc*/, char * /*argv*/[])
 
 {
-  int error = 1;
-
   int nx        = 10;
   int niter     = 10000;
   int nburn     = 100;
@@ -110,11 +108,9 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Gibbs
 
-  error = gibbs_sampler(db, model, neighparam, nbsimu, seed, nburn, niter, false,
-                        flag_multi_mono, flag_propagation,
-                        flag_sym_neigh, 2,
-                        5., false, false, verbose);
-  if (error) return 1;
+  if (gibbs_sampler(db, model, neighparam, nbsimu, seed, nburn, niter, false,
+                    flag_multi_mono, flag_propagation, flag_sym_neigh, 2, 5.,
+                    false, false, verbose)) return 1;
   DbStringFormat dbfmt(FLAG_STATS,{"*Gibbs*"});
   db->display(&dbfmt);
   (void) db->dumpToNF("Result");

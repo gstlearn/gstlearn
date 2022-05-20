@@ -52,8 +52,8 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  cs* getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
-      override;
+  cs*     getMeshToDb(const Db *db, bool fatal = false,
+                      bool verbose = false) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   void   setPolarized(bool flag) { _isPolarized = flag; }

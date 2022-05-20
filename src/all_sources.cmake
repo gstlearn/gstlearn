@@ -90,7 +90,6 @@ set(SRC
   Polygon/Polygons.cpp
   Polygon/PolySet.cpp
   Core/surface.cpp
-  Core/simbool.cpp
   Core/math.cpp
   Core/stats.cpp
   Core/license.cpp
@@ -209,17 +208,15 @@ set(SRC
   Basic/OptDbg.cpp
   Basic/OptCst.cpp
   Basic/OptCustom.cpp
-  Boolean/TokenParameter.cpp
-  Boolean/AToken.cpp
-  Boolean/TokenParallelepiped.cpp
-  Boolean/TokenEllipsoid.cpp
-  Boolean/TokenParaboloid.cpp
-  Boolean/TokenHalfEllipsoid.cpp
-  Boolean/TokenHalfParaboloid.cpp
-  Boolean/TokenHalfSinusoid.cpp
-  Boolean/Tokens.cpp
-  Boolean/Object.cpp
-  Boolean/ObjectList.cpp
+  Boolean/ShapeParameter.cpp
+  Boolean/AShape.cpp
+  Boolean/ShapeParallelepiped.cpp
+  Boolean/ShapeEllipsoid.cpp
+  Boolean/ShapeParaboloid.cpp
+  Boolean/ShapeHalfEllipsoid.cpp
+  Boolean/ShapeHalfParaboloid.cpp
+  Boolean/ShapeHalfSinusoid.cpp
+  Boolean/ModelBoolean.cpp
   Polynomials/Chebychev.cpp
   Polynomials/APolynomial.cpp
   Polynomials/Hermite.cpp
@@ -278,6 +275,10 @@ set(SRC
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
   Simulation/ASimulation.cpp
-  Simulation/TurningBands.cpp
+  Simulation/SimuTurningBands.cpp
   Simulation/TurningDirection.cpp
+  Simulation/BooleanObject.cpp
+  Simulation/SimuBoolean.cpp
+  Simulation/SimuBooleanParam.cpp
+  
 )

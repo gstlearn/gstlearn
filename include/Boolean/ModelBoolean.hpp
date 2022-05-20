@@ -12,37 +12,37 @@
 
 #include "gstlearn_export.hpp"
 
+#include "../Simulation/BooleanObject.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "Boolean/ETLaw.hpp"
 
-// TODO Will be replaced by future class"Law" or "Distribution" which does not
-// actually exist
-class GSTLEARN_EXPORT TokenParameter: public AStringable
+class AShape;
+
+class GSTLEARN_EXPORT ModelBoolean: public AStringable
 {
 public:
-  TokenParameter(ETLaw law = ETLaw::CONSTANT, double value = 0.);
-  TokenParameter(const TokenParameter &r);
-  TokenParameter& operator=(const TokenParameter &r);
-  virtual ~TokenParameter();
+  ModelBoolean(double thetaCst = 1., bool flagStat = true);
+  ModelBoolean(const ModelBoolean &r);
+  ModelBoolean& operator=(const ModelBoolean &r);
+  virtual ~ModelBoolean();
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  ETLaw getLaw() const { return _law; }
-  const VectorDouble& getValarg() const { return _valarg; }
-  double getValarg(int iarg) const;
-  int getNbValarg() const { return (int) _valarg.size(); }
+  int getNbTokens() const { return (int) _shapes.size(); }
+  void addToken(const AShape& token);
+  void normalizeProportions();
+  BooleanObject* generateObject(int ndim) const;
+  const AShape* getToken(int itok) const { return _shapes[itok]; }
 
-  void setLaw(ETLaw law) { _law = law; }
-  void setValarg(int iarg, double value);
+  bool   isFlagStat() const { return _flagStat; }
+  double getThetaCst() const { return _thetaCst; }
 
-  double generateValue() const;
+  void setFlagStat(bool flagStat) { _flagStat = flagStat; }
+  void setThetaCst(double thetaCst) { _thetaCst = thetaCst; }
 
 private:
-  bool _isValidArgIndex(int iarg) const;
-
-private:
-  ETLaw _law; /* Type of law */
-  VectorDouble _valarg; /* Randomization arguments */
+  bool   _flagStat;
+  double _thetaCst;
+  std::vector<AShape*> _shapes; // List of the Token
 };

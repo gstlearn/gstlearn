@@ -567,6 +567,11 @@ public:
                bool useSel = true,
                bool verbose = false);
 
+  VectorInt filter(const String& name,
+                   const Interval& interval,
+                   int belowRow = ITEST,
+                   int aboveRow = ITEST) const;
+
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os,bool verbose = false) const override;

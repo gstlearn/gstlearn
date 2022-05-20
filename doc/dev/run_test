@@ -1,0 +1,82 @@
+# This script is meant to perform a test
+# The type of operation is linked to the file extension
+# The result is either produced on terminal or routed to /tmp (default)
+# (processing time is displayed for information)
+#
+#!/bin/csh -f
+
+if ($#argv < 1 || $#argv > 3) then
+		echo "Syntax:"
+		echo "run_test filename [notmp]"
+		echo "   notmp : if defined, output is printed directly"
+   		echo "           otherwise it is routed to /tmp"
+		exit
+endif
+
+set filepath = $argv[1]
+
+set redirect = ""
+while ($#argv > 0)
+		set redirect = $argv[1]
+end
+
+# Extract the filename
+set filename = `basename $filepath`
+
+# Extract the file extension
+set filext = `echo "$filename"|awk -F . '{print $NF}'`
+set file   = `basename "$filename" .$filext`
+
+# Prepare the name of the output file (if necessary)
+set fileout = "/tmp/NONREG_"$file."log"
+
+set time_start = `date +%s`
+echo ""
+echo "============================="
+echo $filepath
+echo "============================="
+
+# Test CPP #
+if ($filext == $filename) then
+		if ($redirect != "notmp") then
+				$filepath >> $fileout
+		else
+				$filepath
+		endif
+
+# Test RMD #
+else if ($filext == "Rmd") then
+		Rscript -e "library("rmarkdown");library("knitr");rmarkdown::render('$filepath', quiet=TRUE, output_dir='/tmp')"
+
+# Test PY #
+else if ($filext == "py") then
+		if ($redirect != "notmp") then
+				python3 $filepath > $fileout
+		else
+				python3 $filepath
+		endif
+
+# Test IPYNB #
+else if ($filext == "ipynb") then
+		if ($redirect != "notmp") then
+				jupyter nbconvert --output "/tmp/jupyter.nbconvert" --log-level WARN --to notebook --execute $filepath >> $fileout
+		else
+				jupyter nbconvert --output "/tmp/jupyter.nbconvert" --log-level WARN --to notebook --execute $filepath
+		endif
+
+# Test R #
+else if ($filext == "R") then
+		if ($redirect != "notmp") then
+				R CMD BATCH $filepath $fileout
+		else
+				Rscript $filepath 
+		endif
+
+else
+		echo "File extension not recognized"
+endif
+
+set time_end = `date +%s`
+set time_run = `echo "$time_end - $time_start" | bc`
+
+echo "--- Time elapsed =" $time_run "sec."

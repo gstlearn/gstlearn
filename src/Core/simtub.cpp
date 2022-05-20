@@ -37,10 +37,12 @@
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/TurningBands.hpp"
+#include "Simulation/SimuTurningBands.hpp"
+#include "Simulation/SimuBoolean.hpp"
 
 #include <math.h>
 #include <string.h>
+
 
 /*! \cond */
 #define DATA   0
@@ -497,7 +499,7 @@ int simtub(Db *dbin,
            int flag_check,
            const NamingConvention& namconv)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
 
   /* Initializations */
@@ -527,7 +529,7 @@ int simtub(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
 
   // Check the simulation at data location
@@ -548,6 +550,71 @@ int simtub(Db *dbin,
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   return (error);
+}
+
+/*****************************************************************************/
+/*!
+ **  Performs the boolean simulation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin          Db structure containing the data (optional)
+ ** \param[in]  dbout         DbGrid structure containing the simulated grid
+ ** \param[in]  tokens        Tokens structure
+ ** \param[in]  boolparam     SimuBooleanParam structure
+ ** \param[in]  seed          Seed for the random number generator
+ ** \param[in]  flag_simu     Store the boolean simulation
+ ** \param[in]  flag_rank     Store the object rank
+ ** \param[in]  verbose       1 for a verbose output
+ ** \param[in]  namconv       Naming convention
+ **
+ *****************************************************************************/
+int simbool(Db* dbin,
+            DbGrid* dbout,
+            ModelBoolean* tokens,
+            const SimuBooleanParam& boolparam,
+            int seed,
+            bool flag_simu,
+            bool flag_rank,
+            bool verbose,
+            const NamingConvention& namconv)
+{
+  int iptr_cover = -1;
+  if (dbin != nullptr)
+  {
+    if (dbin->getVariableNumber() != 1)
+    {
+      messerr("Conditional Boolean simulation needs 1 variable");
+      return 1;
+    }
+    iptr_cover = dbin->addColumnsByConstant(1, 0.,"Cover",ELoc::Z,1);
+    if (iptr_cover < 0) return 1;
+  }
+
+  /* Add the attributes for storing the simulation */
+
+  int iptr_simu = -1;
+  if (flag_simu)
+  {
+    iptr_simu = dbout->addColumnsByConstant(1, boolparam.getBackground());
+    if (iptr_simu < 0) return 1;
+  }
+  int iptr_rank = -1;
+  if (flag_rank)
+  {
+    iptr_rank = dbout->addColumnsByConstant(1, TEST);
+    if (iptr_rank < 0) return 1;
+  }
+
+  SimuBoolean simubool(1, seed);
+  if (simubool.simulate(dbin, dbout, tokens, boolparam,
+                        iptr_simu, iptr_rank, verbose)) return 1;
+
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_simu, "Facies", 1,
+                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
+                              false);
+  return 0;
 }
 
 /****************************************************************************/
@@ -581,7 +648,7 @@ int simdgm(Db *dbin,
            int nbtuba,
            int flag_check)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr;
 
   /* Initializations */
@@ -612,7 +679,7 @@ int simdgm(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = TurningBands(nbsimu, nbtuba, model,seed);
+  situba = SimuTurningBands(nbsimu, nbtuba, model,seed);
   if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
 
   // Check the simulations at data locations
@@ -668,7 +735,7 @@ int simbayes(Db *dbin,
              int flag_check,
              const NamingConvention& namconv)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   int flag_cond, nvar, error, iptr_in, iptr_out;
 
   /* Initializations */
@@ -695,7 +762,7 @@ int simbayes(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0, true, dmean, dcov))
     goto label_end;
 
@@ -909,7 +976,7 @@ int simpgs(Db *dbin,
 {
   int iptr, icase, nfacies, flag_used[2];
   int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN, local_seed;
-  TurningBands situba;
+  SimuTurningBands situba;
   Model *models[2];
   PropDef *propdef;
   std::vector<Model*> modvec;
@@ -1102,7 +1169,7 @@ int simpgs(Db *dbin,
   {
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
-    situba = TurningBands(nbsimu, nbtuba, models[igrf], local_seed);
+    situba = SimuTurningBands(nbsimu, nbtuba, models[igrf], local_seed);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
@@ -1254,7 +1321,7 @@ int simbipgs(Db *dbin,
   Rule   *rules[2];
   Model  *models[2][2];
   std::vector<Model *> modvec[2];
-  TurningBands situba;
+  SimuTurningBands situba;
   PropDef *propdef;
 
   /* Initializations */
@@ -1529,7 +1596,7 @@ int simbipgs(Db *dbin,
     {
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
-      situba = TurningBands(nbsimu, nbtuba, models[ipgs][igrf], local_seed);
+      situba = SimuTurningBands(nbsimu, nbtuba, models[ipgs][igrf], local_seed);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
                           VectorDouble(), true)) goto label_end;
@@ -2192,7 +2259,7 @@ int simmaxstable(Db *dbout,
                  int flag_rank,
                  int verbose)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   double tpois, seuil;
   int error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
   static double seuil_ref = 5.;
@@ -2255,7 +2322,7 @@ int simmaxstable(Db *dbout,
 
     /* Processing the Turning Bands algorithm */
 
-    situba = TurningBands(1, nbtuba, model, seed);
+    situba = SimuTurningBands(1, nbtuba, model, seed);
     if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
 
     /* Combine the newly simulated outcome to the background */
@@ -2352,7 +2419,7 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 
@@ -2433,7 +2500,7 @@ int simRI(Db *dbout,
 
     /* Simulation in the non-masked part of the grid */
 
-    situba = TurningBands(1, nbtuba, model, seed);
+    situba = SimuTurningBands(1, nbtuba, model, seed);
     if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
 
     /* Look for the quantile */
@@ -2764,7 +2831,7 @@ int simcond(Db *dbin,
             int flag_cstd,
             int verbose)
 {
-  TurningBands situba;
+  SimuTurningBands situba;
   PropDef *propdef;
   ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
@@ -2844,7 +2911,7 @@ int simcond(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = TurningBands(nbsimu, nbtuba, model, seed);
+  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
   if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(),
                       VectorDouble(), false, true)) goto label_end;
   if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);

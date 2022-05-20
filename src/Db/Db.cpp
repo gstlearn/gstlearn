@@ -4359,3 +4359,33 @@ bool Db::areSame(const String& name1,
   return (ndiff > 0);
 }
 
+/**
+ * Find the occurrence of a given range of values for a given variable
+ *
+ * @param name     Name of the Target variable
+ * @param interval Interval definition
+ * @param belowRow If specified, search must be performed below this row
+ * @param aboveRow If specified, search must be performed above this row
+ * @return
+ */
+VectorInt Db::filter(const String& name,
+                     const Interval& interval,
+                     int belowRow,
+                     int aboveRow) const
+{
+  VectorInt rows;
+
+  VectorDouble tab = getColumn(name, false);
+  if (tab.empty()) return rows;
+
+  int rankFrom = 0;
+  if (! IFFFF(belowRow)) rankFrom = belowRow;
+  int rankTo = getSampleNumber() - 1;
+  if (! IFFFF(aboveRow)) rankTo = aboveRow;
+
+  for (int irow = rankFrom; irow <= rankTo; irow++)
+  {
+    if (interval.isInside(tab[irow])) rows.push_back(irow);
+  }
+  return rows;
+}

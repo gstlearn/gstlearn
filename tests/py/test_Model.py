@@ -36,7 +36,7 @@ model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, ranges=[3.,1.],sills=[2.,1.,1
 model.display()
 
 # Creating an isotropic Gaussian Model in 2-D using shortcut
-model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, range=5., ndim=2)
+model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, range=5.)
 
 model.display()
 

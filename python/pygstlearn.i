@@ -102,6 +102,9 @@ void exit_f(void)
 %extend CovAniso {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SimuBooleanParam {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

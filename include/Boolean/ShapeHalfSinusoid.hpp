@@ -14,31 +14,31 @@
 
 #include "Basic/Vector.hpp"
 #include "Boolean/ETShape.hpp"
-#include "Boolean/AToken.hpp"
-#include "Boolean/TokenParameter.hpp"
+#include "Boolean/AShape.hpp"
+#include "Boolean/ShapeParameter.hpp"
 
-class Object;
+class BooleanObject;
 
-class GSTLEARN_EXPORT TokenHalfSinusoid: public AToken
+class GSTLEARN_EXPORT ShapeHalfSinusoid: public AShape
 {
 public:
-  TokenHalfSinusoid(double proportion = 1.,
+  ShapeHalfSinusoid(double proportion = 1.,
                     double period = 10.,
                     double amplitude = 1.,
                     double thickness = 1.,
                     double xext = 1.,
                     double zext = 1.,
                     double theta = 0.);
-  TokenHalfSinusoid(const TokenHalfSinusoid &r);
-  TokenHalfSinusoid& operator=(const TokenHalfSinusoid &r);
-  virtual ~TokenHalfSinusoid();
+  ShapeHalfSinusoid(const ShapeHalfSinusoid &r);
+  ShapeHalfSinusoid& operator=(const ShapeHalfSinusoid &r);
+  virtual ~ShapeHalfSinusoid();
 
   /// Interface for Iclonable
-  virtual IClonable* clone() const override { return new TokenHalfSinusoid(*this); };
+  virtual IClonable* clone() const override { return new ShapeHalfSinusoid(*this); };
 
   ETShape getType() const override { return ETShape::HALFSINUSOID; }
   int  getNParams() const override { return 6; }
   bool getFlagCutZ() const override { return true; }
-  Object* generateObject(int ndim = 3) override;
-  bool belongObject(const VectorDouble& coor, const Object* object) const override;
+  BooleanObject* generateObject(int ndim = 3) override;
+  bool belongObject(const VectorDouble& coor, const BooleanObject* object) const override;
 };

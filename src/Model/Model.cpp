@@ -56,6 +56,7 @@ Model::Model(int nvar, int ndim)
 {
   SpaceRN space = SpaceRN(ndim);
   _ctxt = CovContext(nvar, &space);
+  _create();
 }
 
 Model::Model(const Model &m)
@@ -115,15 +116,27 @@ Model* Model::createFromParam(const ECov& type,
                               const VectorDouble& ranges,
                               const VectorDouble& sills,
                               const VectorDouble& angles,
-                              int ndim)
+                              const ASpace* space)
 {
   int nvar = 1;
   if (! sills.empty())
     nvar = (int)  sqrt(sills.size());
+
+  // TODO: Improve this tedious manipulation
+  ASpace* spaceloc = nullptr;
+  if (space != nullptr) spaceloc = dynamic_cast<ASpace*>(space->clone());
+
   if (! ranges.empty())
-    ndim = (int) ranges.size();
-  Model* model = new Model(nvar,ndim);
+  {
+    delete spaceloc;
+    spaceloc = new SpaceRN(ranges.size());
+  }
+
+  CovContext ctxt = CovContext(nvar,spaceloc);
+  Model* model = new Model(ctxt);
   model->addCova(type,range,sill,param,ranges,sills,angles);
+
+  delete spaceloc;
   return model;
 }
 
@@ -244,9 +257,7 @@ void Model::addCov(const CovAniso *cov)
     messerr("Operation is cancelled");
     return;
   }
-
-  // TODO: If _covaList does not exist, it is created as a CovLMC (by default)
-  if (_covaList == nullptr) _covaList = new CovLMC(_ctxt.getSpace());
+  if (_covaList == nullptr) return;
   _covaList->addCov(cov);
 }
 
@@ -349,8 +360,7 @@ void Model::setDriftIRF(int order, int nfex)
 void Model::addDrift(const ADriftElem *drift)
 {
   if (drift == nullptr) return;
-  if (_driftList == nullptr)
-    _driftList = new DriftList();
+  if (_driftList == nullptr) return;
   _driftList->addDrift(drift);
 }
 
@@ -400,8 +410,7 @@ int Model::getCovaNumber() const
 }
 const ECov& Model::getCovaType(int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return ECov::UNKNOWN;
   return _covaList->getType(icov);
 }
 const MatrixSquareSymmetric& Model::getSill(int icov) const
@@ -412,44 +421,37 @@ const MatrixSquareSymmetric& Model::getSill(int icov) const
 }
 double Model::getSill(int icov, int ivar, int jvar) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return TEST;
   return _covaList->getSill(icov, ivar, jvar);
 }
 double Model::getParam(int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return TEST;
   return _covaList->getParam(icov);
 }
 bool Model::isCovaFiltered(int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return false;
   return _covaList->isFiltered(icov);
 }
 String Model::getCovName(int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return String();
   return _covaList->getCovName(icov);
 }
 int Model::getGradParamNumber(int icov) const
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return ITEST;
   return _covaList->getGradParamNumber(icov);
 }
 void Model::setSill(int icov, int ivar, int jvar, double value)
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return;
   _covaList->setSill(icov, ivar, jvar, value);
 }
 void Model::setCovaFiltered(int icov, bool filtered)
 {
-  if (_covaList == nullptr)
-    my_throw("Covariance List is empty");
+  if (_covaList == nullptr) return;
   _covaList->setFiltered(icov, filtered);
 }
 int Model::hasExternalCov() const
@@ -570,14 +572,12 @@ CovParamId Model::getCovParamId(int ipar) const
 
 int Model::getNoStatElemIcov(int ipar)
 {
-  if (!isNoStat())
-    my_throw("Nostat is not defined");
+  if (!isNoStat()) return ITEST;
   return _noStat->getICov(ipar);
 }
 const EConsElem& Model::getNoStatElemType(int ipar)
 {
-  if (!isNoStat())
-    my_throw("Nostat is not defined");
+  if (!isNoStat()) return EConsElem::UNKNOWN;
   return _noStat->getType(ipar);
 }
 const DriftList* Model::getDriftList() const
@@ -586,14 +586,12 @@ const DriftList* Model::getDriftList() const
 }
 const ADriftElem* Model::getDrift(int il) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
 ADriftElem* Model::getDrift(int il)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return nullptr;
   return _driftList->getDrift(il);
 }
 int Model::getDriftNumber() const
@@ -613,14 +611,12 @@ int Model::getExternalDriftNumber() const
 }
 const EDrift& Model::getDriftType(int il) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return EDrift::UNKNOWN;
   return _driftList->getType(il);
 }
 int Model::getRankFext(int il) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return ITEST;
   return _driftList->getRankFex(il);
 }
 const VectorDouble& Model::getCoefDrifts() const
@@ -631,8 +627,7 @@ const VectorDouble& Model::getCoefDrifts() const
 }
 double Model::getCoefDrift(int ivar, int il, int ib) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return TEST;
   return _driftList->getCoefDrift(ivar, il, ib);
 }
 int Model::getDriftEquationNumber() const
@@ -642,38 +637,32 @@ int Model::getDriftEquationNumber() const
 }
 bool Model::isDriftFiltered(unsigned int il) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return false;
   return _driftList->isFiltered(il);
 }
 bool Model::isDriftDefined(const EDrift& type0) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return false;
   return _driftList->isDriftDefined(type0);
 }
 bool Model::isDriftDifferentDefined(const EDrift& type0) const
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return false;
   return _driftList->isDriftDifferentDefined(type0);
 }
 void Model::setCoefDrift(int ivar, int il, int ib, double coeff)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return;
   _driftList->setCoefDrift(ivar, il, ib, coeff);
 }
 void Model::setCoefDriftByRank(int rank, double coeff)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return;
   _driftList->setCoefDriftByRank(rank, coeff);
 }
 void Model::setDriftFiltered(int il, bool filtered)
 {
-  if (_driftList == nullptr)
-    my_throw("Drift List if empty");
+  if (_driftList == nullptr) return;
   _driftList->setFiltered(il, filtered);
 }
 VectorDouble Model::getDrift(const Db *db, int ib, bool useSel)
@@ -704,8 +693,7 @@ double Model::evalDrift(const Db *db,
     return 0.;
   else
   {
-    if (_driftList == nullptr)
-      my_throw("Drift List if empty");
+    if (_driftList == nullptr) return TEST;
     ADriftElem *drift = _driftList->getDrift(il);
     if (drift != nullptr) return drift->eval(db, iech);
   }
@@ -903,9 +891,6 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
   VectorDouble aniso_ranges;
   VectorDouble aniso_rotmat;
 
-  // Delete previous Model contents (if any)
-  _clear();
-
   /* Create the Model structure */
 
   bool ret = _recordRead<int>(is, "Space Dimension", ndim);
@@ -917,6 +902,7 @@ int Model::_deserialize(std::istream& is, bool /*verbose*/)
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
   _ctxt = CovContext(nvar, ndim, field);
+  _clear();
   _create();
 
   /* Reading the covariance part and store it into a CovLMC */
@@ -1093,9 +1079,13 @@ int Model::_serialize(std::ostream& os, bool /*verbose*/) const
 void Model::_clear()
 {
   delete _covaList;
+  _covaList = nullptr;
   delete _driftList;
+  _driftList = nullptr;
   delete _noStat;
+  _noStat = nullptr;
 }
+
 void Model::_create()
 {
   // TODO: The next two lines are there in order to allow direct call to
@@ -1107,10 +1097,7 @@ void Model::_create()
 
 double Model::getTotalSill(int ivar, int jvar) const
 {
-  double var = 0.;
-  for (int icov=0; icov<getCovaNumber(); icov++)
-    var += getSill(icov,ivar,jvar);
-  return var;
+  return getCovAnisoList()->getTotalSill(ivar, jvar);
 }
 
 /**

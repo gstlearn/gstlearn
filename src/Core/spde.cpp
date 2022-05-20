@@ -10717,7 +10717,7 @@ int m2d_gibbs_spde(Db *dbin,
 
   /* Prepare the M2D_Environ structure */
 
-  vartot = model->getCovAnisoList()->getTotalSill(0, 0);
+  vartot = model->getTotalSill(0, 0);
 
   m2denv = m2denv_manage(1, flag_ed, sqrt(vartot), NULL);
   if (m2denv == (M2D_Environ*) NULL) goto label_end;

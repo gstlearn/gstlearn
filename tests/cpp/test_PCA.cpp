@@ -51,8 +51,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Creating the Model(s) of the Underlying GRF(s)
   double range1 = 0.2;
-  Model* models = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.,
-                                        VectorDouble(), VectorDouble(), VectorDouble(), ndim);
+  Model* models = Model::createFromParam(ECov::BESSEL_K, range1, 1., 1.);
   models->display();
 
   // Perform a non-conditional simulation on the Db and on the Grid

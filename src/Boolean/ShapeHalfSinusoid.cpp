@@ -8,19 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenHalfSinusoid.hpp"
-#include "Boolean/Object.hpp"
-
+#include "Boolean/ShapeHalfSinusoid.hpp"
 #include <math.h>
 
-TokenHalfSinusoid::TokenHalfSinusoid(double proportion,
+#include "../../include/Simulation/BooleanObject.hpp"
+
+ShapeHalfSinusoid::ShapeHalfSinusoid(double proportion,
                                      double period,
                                      double amplitude,
                                      double thickness,
                                      double xext,
                                      double zext,
                                      double theta)
-    : AToken()
+    : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "Period", period);
@@ -32,21 +32,21 @@ TokenHalfSinusoid::TokenHalfSinusoid(double proportion,
   setProportion(proportion);
 }
 
-TokenHalfSinusoid::TokenHalfSinusoid(const TokenHalfSinusoid &r)
-    : AToken(r)
+ShapeHalfSinusoid::ShapeHalfSinusoid(const ShapeHalfSinusoid &r)
+    : AShape(r)
 {
 }
 
-TokenHalfSinusoid& TokenHalfSinusoid::operator=(const TokenHalfSinusoid &r)
+ShapeHalfSinusoid& ShapeHalfSinusoid::operator=(const ShapeHalfSinusoid &r)
 {
   if (this != &r)
   {
-    AToken::operator =(r);
+    AShape::operator =(r);
   }
   return *this;
 }
 
-TokenHalfSinusoid::~TokenHalfSinusoid()
+ShapeHalfSinusoid::~ShapeHalfSinusoid()
 {
 }
 
@@ -57,10 +57,10 @@ TokenHalfSinusoid::~TokenHalfSinusoid()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenHalfSinusoid::generateObject(int ndim)
+BooleanObject* ShapeHalfSinusoid::generateObject(int ndim)
 
 {
-  Object* object = new Object(this);
+  BooleanObject* object = new BooleanObject(this);
   if (ndim >= 1) object->setValue(0, generateParam(0));
   if (ndim >= 2) object->setValue(1, generateParam(1));
   if (ndim >= 3) object->setValue(2, generateParam(2));
@@ -78,8 +78,8 @@ Object* TokenHalfSinusoid::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenHalfSinusoid::belongObject(const VectorDouble& coor,
-                                     const Object* object) const
+bool ShapeHalfSinusoid::belongObject(const VectorDouble& coor,
+                                     const BooleanObject* object) const
 {
   int ndim = (int) coor.size();
   double dx = (ndim >= 1) ? coor[0] / object->getValue(0) : 0.;

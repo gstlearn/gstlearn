@@ -11,7 +11,6 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
-#include "Simulation/TurningBands.hpp"
 #include "Simulation/TurningDirection.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -24,8 +23,9 @@
 #include "Db/DbGrid.hpp"
 
 #include <math.h>
+#include <Simulation/SimuTurningBands.hpp>
 
-TurningBands::TurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
+SimuTurningBands::SimuTurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
     : ASimulation(nbsimu, seed),
       _nbtuba(nbtuba),
       _npointSimulated(0),
@@ -59,7 +59,7 @@ TurningBands::TurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
   }
 }
 
-TurningBands::TurningBands(const TurningBands &r)
+SimuTurningBands::SimuTurningBands(const SimuTurningBands &r)
     : ASimulation(r),
       _nbtuba(r._nbtuba),
       _npointSimulated(r._npointSimulated),
@@ -71,7 +71,7 @@ TurningBands::TurningBands(const TurningBands &r)
 {
 }
 
-TurningBands& TurningBands::operator=(const TurningBands &r)
+SimuTurningBands& SimuTurningBands::operator=(const SimuTurningBands &r)
 {
   if (this != &r)
   {
@@ -87,23 +87,23 @@ TurningBands& TurningBands::operator=(const TurningBands &r)
   return *this;
 }
 
-TurningBands::~TurningBands()
+SimuTurningBands::~SimuTurningBands()
 {
 }
-int TurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
+int SimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
   int ncova = _getNCova();
   int nvar = _getNVar();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
 
-void TurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
+void SimuTurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   _seedBands[iad] = seed;
 }
 
-int TurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
+int SimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   return _seedBands[iad];
@@ -118,7 +118,7 @@ int TurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
  ** \param[in]  dbout   Db structure
  **
  *****************************************************************************/
-int TurningBands::_generateDirections(const Db* dbout)
+int SimuTurningBands::_generateDirections(const Db* dbout)
 {
   if (_model == nullptr)
   {
@@ -258,7 +258,7 @@ int TurningBands::_generateDirections(const Db* dbout)
  ** \param[in]  theta  Rotation angle
  **
  *****************************************************************************/
-void TurningBands::_rotateDirections(double a[3], double theta)
+void SimuTurningBands::_rotateDirections(double a[3], double theta)
 {
   double dirs[3];
   double ct = cos(theta);
@@ -284,7 +284,7 @@ void TurningBands::_rotateDirections(double a[3], double theta)
  ** \param[in]  db      Db structure
  **
  *****************************************************************************/
-void TurningBands::_minmax(const Db *db)
+void SimuTurningBands::_minmax(const Db *db)
 {
   double tt;
   if (db == nullptr) return;
@@ -351,7 +351,7 @@ void TurningBands::_minmax(const Db *db)
  ** \remark    [nmini; nmaxi]
  **
  *****************************************************************************/
-void TurningBands::_setDensity()
+void SimuTurningBands::_setDensity()
 
 {
   int nmini = 5;
@@ -376,7 +376,7 @@ void TurningBands::_setDensity()
  ** \return  The modified type
  **
  *****************************************************************************/
-ECov TurningBands::_particularCase(const ECov &type, double param)
+ECov SimuTurningBands::_particularCase(const ECov &type, double param)
 {
   static double eps = 1.e-7;
 
@@ -406,7 +406,7 @@ ECov TurningBands::_particularCase(const ECov &type, double param)
  ** \return  Error return code : 1 for problem; 0 otherwise
  **
  *****************************************************************************/
-int TurningBands::_initializeSeedBands()
+int SimuTurningBands::_initializeSeedBands()
 {
   double tdeb, omega, phi, correc, correc0;
   VectorDouble v0;
@@ -533,7 +533,7 @@ int TurningBands::_initializeSeedBands()
  ** \param[in]  eps   Epsilon value
  **
  *****************************************************************************/
-VectorDouble TurningBands::_migration(double tmin,
+VectorDouble SimuTurningBands::_migration(double tmin,
                                       double tmax,
                                       double scale,
                                       double eps)
@@ -577,7 +577,7 @@ VectorDouble TurningBands::_migration(double tmin,
  ** \param[out] start  initial time
  **
  *****************************************************************************/
-VectorDouble TurningBands::_dilution(double tmin,
+VectorDouble SimuTurningBands::_dilution(double tmin,
                                      double tmax,
                                      double mesh,
                                      double *start)
@@ -609,7 +609,7 @@ VectorDouble TurningBands::_dilution(double tmin,
  ** \param[out] phi    uniform phase lying within [0,2 PI]
  **
  *****************************************************************************/
-void TurningBands::_spectral(const ECov &type,
+void SimuTurningBands::_spectral(const ECov &type,
                              double scale,
                              double param,
                              double *omega,
@@ -680,7 +680,7 @@ void TurningBands::_spectral(const ECov &type,
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/
-double TurningBands::_computeScale(double alpha, double scale)
+double SimuTurningBands::_computeScale(double alpha, double scale)
 
 {
   double scale_out;
@@ -703,7 +703,7 @@ double TurningBands::_computeScale(double alpha, double scale)
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/
-double TurningBands::_computeScaleKB(double param, double scale)
+double SimuTurningBands::_computeScaleKB(double param, double scale)
 
 {
   return (scale * sqrt(law_beta1(param, 0.5 - param)));
@@ -734,7 +734,7 @@ double TurningBands::_computeScaleKB(double param, double scale)
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void TurningBands::_power1D(int ib,
+void SimuTurningBands::_power1D(int ib,
                             double scale,
                             double alpha,
                             double *omega,
@@ -794,7 +794,7 @@ void TurningBands::_power1D(int ib,
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void TurningBands::_spline1D(int ib,
+void SimuTurningBands::_spline1D(int ib,
                              double scale,
                              int k,
                              double *omega,
@@ -845,7 +845,7 @@ void TurningBands::_spline1D(int ib,
  ** \remark  This procedure allocates memory that should be freed
  **
  *****************************************************************************/
-void TurningBands::_irfProcess(const ECov &type,
+void SimuTurningBands::_irfProcess(const ECov &type,
                                const VectorDouble& t,
                                VectorDouble& v0,
                                VectorDouble& v1,
@@ -899,7 +899,7 @@ void TurningBands::_irfProcess(const ECov &type,
  ** \remark  As a consequence the array "aic()" is not evaluated
  **
  *****************************************************************************/
-VectorDouble TurningBands::_createAIC()
+VectorDouble SimuTurningBands::_createAIC()
 {
   int ncova = _getNCova();
   int nvar  = _getNVar();
@@ -945,7 +945,7 @@ VectorDouble TurningBands::_createAIC()
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void TurningBands::_simulatePoint(Db *db,
+void SimuTurningBands::_simulatePoint(Db *db,
                                  const VectorDouble& aic,
                                  int icase,
                                  int shift)
@@ -1183,7 +1183,7 @@ void TurningBands::_simulatePoint(Db *db,
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void TurningBands::_simulateGradient(Db *dbgrd,
+void SimuTurningBands::_simulateGradient(Db *dbgrd,
                                     const VectorDouble& aic,
                                     double delta)
 {
@@ -1263,7 +1263,7 @@ void TurningBands::_simulateGradient(Db *dbgrd,
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void TurningBands::_simulateTangent(Db *dbtgt,
+void SimuTurningBands::_simulateTangent(Db *dbtgt,
                                    const VectorDouble& aic,
                                    double delta)
 {
@@ -1303,7 +1303,7 @@ void TurningBands::_simulateTangent(Db *dbtgt,
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void TurningBands::_simulateGrid(DbGrid *db,
+void SimuTurningBands::_simulateGrid(DbGrid *db,
                                 const VectorDouble& aic,
                                 int icase,
                                 int shift)
@@ -1714,7 +1714,7 @@ void TurningBands::_simulateGrid(DbGrid *db,
  ** \param[in]  t  Poisson point process
  **
  *****************************************************************************/
-int TurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble& t)
+int SimuTurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble& t)
 
 {
   int it, itp, itn;
@@ -1754,7 +1754,7 @@ int TurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble& t)
  ** \param[in]  scale scaling factor
  **
  *****************************************************************************/
-int TurningBands::_rankRegular(double t0, double tdeb, double scale)
+int SimuTurningBands::_rankRegular(double t0, double tdeb, double scale)
 
 {
   return ((int) ((t0 - tdeb) / scale));
@@ -1771,7 +1771,7 @@ int TurningBands::_rankRegular(double t0, double tdeb, double scale)
  ** \param[in]  scale   Range of the model
  **
  *****************************************************************************/
-double TurningBands::_irfCorrec(const ECov &type, double theta1, double scale)
+double SimuTurningBands::_irfCorrec(const ECov &type, double theta1, double scale)
 {
   double correc;
 
@@ -1815,7 +1815,7 @@ double TurningBands::_irfCorrec(const ECov &type, double theta1, double scale)
  ** \param[in]  v2     Second integration of the Wiener-Levy process
  **
  *****************************************************************************/
-double TurningBands::_irfProcessSample(const ECov &type,
+double SimuTurningBands::_irfProcessSample(const ECov &type,
                                        int nt0,
                                        double t0,
                                        const VectorDouble& t,
@@ -1847,7 +1847,7 @@ double TurningBands::_irfProcessSample(const ECov &type,
   return (TEST);
 }
 
-void TurningBands::_getOmegaPhi(int ibs,
+void SimuTurningBands::_getOmegaPhi(int ibs,
                                 double omega,
                                 double phi,
                                 double* cxp,
@@ -1885,7 +1885,7 @@ void TurningBands::_getOmegaPhi(int ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void TurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
+void SimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
 {
   int nech = db->getSampleNumber();
   int ncova = _getNCova();
@@ -1928,7 +1928,7 @@ void TurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
   return;
 }
 
-double TurningBands::_getAIC(const VectorDouble& aic,
+double SimuTurningBands::_getAIC(const VectorDouble& aic,
                              int icov,
                              int ivar,
                              int jvar)
@@ -1950,7 +1950,7 @@ double TurningBands::_getAIC(const VectorDouble& aic,
  ** \param[in]  r_coeff    Change of support coefficient
  **
  *****************************************************************************/
-void TurningBands::_difference(Db *dbin,
+void SimuTurningBands::_difference(Db *dbin,
                               int icase,
                               bool flag_pgs,
                               bool flag_gibbs,
@@ -2036,7 +2036,7 @@ void TurningBands::_difference(Db *dbin,
  ** \param[in]  icase     Rank of PGS or GRF
  **
  *****************************************************************************/
-void TurningBands::_meanCorrect(Db *dbout, int icase)
+void SimuTurningBands::_meanCorrect(Db *dbout, int icase)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
@@ -2081,7 +2081,7 @@ void TurningBands::_meanCorrect(Db *dbout, int icase)
  ** \remarks within a cell
  **
  *****************************************************************************/
-void TurningBands::_updateData2ToTarget(Db *dbin,
+void SimuTurningBands::_updateData2ToTarget(Db *dbin,
                                        Db *dbout,
                                        int icase,
                                        bool flag_pgs,
@@ -2218,7 +2218,7 @@ void TurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  r_coeff    Change of Support ceofficient
  **
  *****************************************************************************/
-int TurningBands::simulate(Db *dbin,
+int SimuTurningBands::simulate(Db *dbin,
                            Db *dbout,
                            ANeighParam *neighparam,
                            int icase,
@@ -2315,7 +2315,7 @@ int TurningBands::simulate(Db *dbin,
  ** \param[in]  delta     Value of the increment
  **
  *****************************************************************************/
-int TurningBands::simulatePotential(Db *dbiso,
+int SimuTurningBands::simulatePotential(Db *dbiso,
                                     Db *dbgrd,
                                     Db *dbtgt,
                                     Db *dbout,
@@ -2392,7 +2392,7 @@ int TurningBands::simulatePotential(Db *dbiso,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool TurningBands::isTurningBandsWorkable(const Model *model)
+bool SimuTurningBands::isTurningBandsWorkable(const Model *model)
 
 {
   bool workable = true;
@@ -2441,7 +2441,7 @@ bool TurningBands::isTurningBandsWorkable(const Model *model)
  ** \remark Tests have only been produced for icase=0
  **
  *****************************************************************************/
-void TurningBands::checkGaussianData2Grid(Db *dbin,
+void SimuTurningBands::checkGaussianData2Grid(Db *dbin,
                                           Db *dbout,
                                           Model *model) const
 {

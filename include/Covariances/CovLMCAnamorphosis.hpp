@@ -79,18 +79,7 @@ private:
                          const SpacePoint& p1,
                          const SpacePoint& p2,
                          const CovCalcMode& mode) const;
-  double _covResidualIR(CovCalcMode& mode,
-                          int icut0,
-                          int ivar,
-                          int jvar,
-                          const SpacePoint& p1,
-                          const SpacePoint& p2) const;
-  double __covSumResidualIR(CovCalcMode& mode,
-                            int icut0,
-                            int ivar,
-                            int jvar,
-                            const SpacePoint& p1,
-                            const SpacePoint& p2) const;
+  double _covSumResidualIR(const VectorDouble& covs, int icut0) const;
 
 private:
   int    _anamIClass;         /* Target factor (-1: discretized grade) */

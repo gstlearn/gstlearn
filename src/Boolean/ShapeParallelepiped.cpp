@@ -8,15 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenParaboloid.hpp"
-#include "Boolean/Object.hpp"
+#include "Boolean/ShapeParallelepiped.hpp"
 
-TokenParaboloid::TokenParaboloid(double proportion,
-                                 double xext,
-                                 double yext,
-                                 double zext,
-                                 double theta)
-    : AToken()
+#include "../../include/Simulation/BooleanObject.hpp"
+
+ShapeParallelepiped::ShapeParallelepiped(double proportion,
+                                         double xext,
+                                         double yext,
+                                         double zext,
+                                         double theta)
+    : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "X-Extension", xext);
@@ -26,21 +27,21 @@ TokenParaboloid::TokenParaboloid(double proportion,
   setProportion(proportion);
 }
 
-TokenParaboloid::TokenParaboloid(const TokenParaboloid &r)
-    : AToken(r)
+ShapeParallelepiped::ShapeParallelepiped(const ShapeParallelepiped &r)
+    : AShape(r)
 {
 }
 
-TokenParaboloid& TokenParaboloid::operator=(const TokenParaboloid &r)
+ShapeParallelepiped& ShapeParallelepiped::operator=(const ShapeParallelepiped &r)
 {
   if (this != &r)
   {
-    AToken::operator =(r);
+    AShape::operator =(r);
   }
   return *this;
 }
 
-TokenParaboloid::~TokenParaboloid()
+ShapeParallelepiped::~ShapeParallelepiped()
 {
 }
 
@@ -51,10 +52,10 @@ TokenParaboloid::~TokenParaboloid()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenParaboloid::generateObject(int ndim)
+BooleanObject* ShapeParallelepiped::generateObject(int ndim)
 
 {
-  Object* object = new Object(this);
+  BooleanObject* object = new BooleanObject(this);
   if (ndim >= 1) object->setExtension(0, generateParam(0));
   if (ndim >= 2) object->setExtension(1, generateParam(1));
   if (ndim >= 3) object->setExtension(2, generateParam(2));
@@ -69,14 +70,9 @@ Object* TokenParaboloid::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenParaboloid::belongObject(const VectorDouble& coor,
-                                   const Object* object) const
+bool ShapeParallelepiped::belongObject(const VectorDouble& /*coor*/,
+                                       const BooleanObject* /*object*/) const
 {
-  int ndim = (int) coor.size();
-  double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;
-  double dy = (ndim >= 2) ? coor[1] / (object->getExtension(1) / 2.) : 0.;
-  double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2))      : 0.;
-  if (dx * dx + dy * dy - dz > 1) return false;
-  if (dx * dx + dy * dy + dz > 1) return false;
   return true;
 }
+
