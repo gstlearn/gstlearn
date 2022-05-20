@@ -280,5 +280,4 @@ set(SRC
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
-  
 )

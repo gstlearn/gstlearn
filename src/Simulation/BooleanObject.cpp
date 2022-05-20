@@ -12,13 +12,13 @@
 
 #include "Boolean/AShape.hpp"
 #include "Boolean/ModelBoolean.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
-#include "../../include/Simulation/SimuBooleanParam.hpp"
 
 BooleanObject::BooleanObject(const AShape* ashape)
     : AStringable(),

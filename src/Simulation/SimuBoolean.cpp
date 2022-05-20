@@ -12,13 +12,12 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Simulation/ASimulation.hpp"
+#include "Simulation/SimuBoolean.hpp"
+#include "Simulation/BooleanObject.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
-#include "../../include/Simulation/SimuBoolean.hpp"
-
-#include "../../include/Simulation/BooleanObject.hpp"
-#include "../../include/Simulation/SimuBooleanParam.hpp"
 
 SimuBoolean::SimuBoolean(int nbsimu, int seed)
     : ASimulation(nbsimu, seed),
