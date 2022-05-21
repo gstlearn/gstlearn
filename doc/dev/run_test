@@ -16,8 +16,8 @@ endif
 set filepath = $argv[1]
 
 set redirect = ""
-while ($#argv > 0)
-		set redirect = $argv[1]
+while ($#argv > 1)
+		set redirect = $argv[2]
 end
 
 # Extract the filename
