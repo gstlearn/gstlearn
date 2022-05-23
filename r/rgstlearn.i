@@ -1,4 +1,4 @@
-// TODO: restore directors feature
+// TODO: test directors feature (inheritance in target language)
 %module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
 // https://stackoverflow.com/a/26035360/3952924
@@ -18,16 +18,11 @@
 /// TODO, include numpy.i ?
 
 %{
-#include <string>
-#include <sstream>
+#include <stdio.h>
 
-#define R_INTERFACE_PTRS 1
-#include <Rembedded.h>
-#include <Rinterface.h>
+#include <R_ext/Print.h>
+#include <R_ext/Error.h>
 
-// TODO : Clean the code below
-
-// Look at rgeostats_loader.R for knowing how to display R object directly
 void R_Write(const char *string)
 {
   if (string == NULL) return;
@@ -41,7 +36,9 @@ void R_Warning(const char *string)
   int length = strlen(string);
   if (length > 0) Rprintf(string);
 }
-
+#ifndef _WIN32
+#define R_INTERFACE_PTRS 1
+#include <Rinterface.h>
 void R_Read(const char *prompt,char *answer)
 {
 #define LNG 100
@@ -53,10 +50,11 @@ void R_Read(const char *prompt,char *answer)
   reponse[longueur-1] = '\0';
   if (strlen(reponse) > 0) (void) strcpy(answer,reponse);
 }
+#endif // Not _WIN32
 
 void R_Exit(void)
 {
-  Rf_error("Abort caught by C and return to R");
+  Rf_error("Abort caught by C++ and return to R");
 }
 
 %}
@@ -64,7 +62,9 @@ void R_Exit(void)
 %init %{
   redefine_message(R_Write);
   redefine_error(R_Warning);
+#ifndef _WIN32
   redefine_read(R_Read);
+#endif // Not _WIN32
   redefine_exit(R_Exit);
 %}
 

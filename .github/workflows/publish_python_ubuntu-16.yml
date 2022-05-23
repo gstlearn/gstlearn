@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Manual'     
+        description: 'Manual'
         required: false
         default: ''  
 
@@ -31,6 +31,7 @@ jobs:
         cmake -Bbuild  -DHDF5_ROOT:PATH=/opt/hdf5-1.12.1 -DCMAKE_BUILD_TYPE:STRING=Release -DCMAKE_C_FLAGS="-DH5_USE_110_API" -DCMAKE_VERBOSE_MAKEFILE:BOOL=OFF
         cmake --build build --target python_build -- -j2
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
+        # Note: wheel must be declared pure (see setup.py)
         python3 setup.py bdist_wheel --plat-name=manylinux1_x86_64
      
     - name : Upload

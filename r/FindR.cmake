@@ -2,6 +2,7 @@
 # All rights reserved.
 #
 # For the licensing terms see $ROOTSYS/LICENSE.
+# i.e. https://github.com/root-project/root/blob/master/LICENSE
 # For the list of contributors see $ROOTSYS/README/CREDITS.
 
 # CMake module to find R
@@ -12,29 +13,41 @@
 #  R_INCLUDE_DIRS - the R include directories
 #  R_LIBRARIES - link these to use R
 #  R_ROOT_DIR - As reported by R
-# Autor: Omar Andres Zapata Mesa 31/05/2013
+# Authors: Omar Andres Zapata Mesa 31/05/2013
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_FIND_APPBUNDLE "LAST")
 endif()
 
 find_program(R_EXECUTABLE NAMES R R.exe)
+#message(STATUS "R_EXECUTABLE=" ${R_EXECUTABLE})
 
-#---searching R installtion unsing R executable
+#---searching R installation using R executable
 if(R_EXECUTABLE)
   execute_process(COMMAND ${R_EXECUTABLE} RHOME
                   OUTPUT_VARIABLE R_ROOT_DIR
                   OUTPUT_STRIP_TRAILING_WHITESPACE)
-
+  #message(STATUS "R_ROOT_DIR=" ${R_ROOT_DIR})
+  
   find_path(R_INCLUDE_DIR R.h
             HINTS ${R_ROOT_DIR}
             PATHS /usr/local/lib /usr/local/lib64 /usr/share
             PATH_SUFFIXES include R/include
             DOC "Path to file R.h")
-
-  find_library(R_LIBRARY R
-            HINTS ${R_ROOT_DIR}/lib
-            DOC "R library (example libR.a, libR.dylib, etc.).")
+  #message(STATUS "R_INCLUDE_DIR=" ${R_INCLUDE_DIR})
+  
+  if (WIN32)
+    find_file(R_LIBRARY R.dll
+              HINTS ${R_ROOT_DIR}
+              PATH_SUFFIXES lib bin/x64
+              DOC "R library (R.dll).")
+  else()
+    find_library(R_LIBRARY R
+                 HINTS ${R_ROOT_DIR}/lib
+                 DOC "R library (example libR.a, libR.dylib, etc.).")
+  endif()
+  #message(STATUS "R_LIBRARY=" ${R_LIBRARY})
+  
 endif()
 
 #---setting include dirs and libraries
