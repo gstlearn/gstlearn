@@ -1967,21 +1967,6 @@ GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
                                          int verbose);
 
 /*****************************************/
-/* Prototyping the functions in simsph.c */
-/*****************************************/
-GSTLEARN_EXPORT int simsph_f(DbGrid *db,
-                             Model *model,
-                             int seed,
-                             int special,
-                             int nbf,
-                             int nfmax,
-                             int verbose,
-                             int flag_test,
-                             int test_degree,
-                             int test_order,
-                             double test_phase);
-
-/*****************************************/
 /* Prototyping the functions in thresh.c */
 /*****************************************/
 

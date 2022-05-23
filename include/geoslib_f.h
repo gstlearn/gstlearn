@@ -62,6 +62,21 @@ GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 
+/*****************************************/
+/* Prototyping the functions in simsph.c */
+/*****************************************/
+GSTLEARN_EXPORT int simsph_f(DbGrid *db,
+                             Model *model,
+                             int seed,
+                             int special,
+                             int nbf,
+                             int nfmax,
+                             int verbose,
+                             int flag_test,
+                             int test_degree,
+                             int test_order,
+                             double test_phase);
+
 GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
 GSTLEARN_EXPORT void variety_query(int *flag_sphere);
 GSTLEARN_EXPORT void variety_print(void);
