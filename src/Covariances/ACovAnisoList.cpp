@@ -123,15 +123,19 @@ int ACovAnisoList::getNVariables() const
 double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
 {
   double cov = 0.;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+
+  if (mode.getKeepOnlyCovIdx() >= 0)
+    cov = _covs[mode.getKeepOnlyCovIdx()]->eval0(ivar, jvar, mode);
+  else
   {
-    if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
-      continue;
-    if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
-      continue;
-    if (mode.getKeepOnlyCovIdx() == i)
-      return _covs[i]->eval0(ivar, jvar, mode);
-    cov += _covs[i]->eval0(ivar, jvar, mode);
+    for (int i=0, n=getCovNumber(); i<n; i++)
+    {
+      if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
+        continue;
+      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
+        continue;
+      cov += _covs[i]->eval0(ivar, jvar, mode);
+    }
   }
 
   // Normalization
@@ -150,15 +154,18 @@ double ACovAnisoList::eval(int ivar,
                            const CovCalcMode& mode) const
 {
   double cov = 0.;
-  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  if (mode.getKeepOnlyCovIdx() >= 0)
+    cov = _covs[mode.getKeepOnlyCovIdx()]->eval(ivar, jvar, p1, p2, mode);
+  else
   {
-    if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
-      continue;
-    if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
-      continue;
-    if (mode.getKeepOnlyCovIdx() == i)
-      return _covs[i]->eval(ivar, jvar, p1, p2, mode);
-    cov += _covs[i]->eval(ivar, jvar, p1, p2, mode);
+    for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+    {
+      if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
+        continue;
+      if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
+        continue;
+      cov += _covs[i]->eval(ivar, jvar, p1, p2, mode);
+    }
   }
 
   // Normalization

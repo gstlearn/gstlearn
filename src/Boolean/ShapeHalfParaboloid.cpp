@@ -8,15 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenHalfParaboloid.hpp"
-#include "Boolean/Object.hpp"
+#include "Boolean/ShapeHalfParaboloid.hpp"
 
-TokenHalfParaboloid::TokenHalfParaboloid(double proportion,
+#include "../../include/Simulation/BooleanObject.hpp"
+
+ShapeHalfParaboloid::ShapeHalfParaboloid(double proportion,
                                          double xext,
                                          double yext,
                                          double zext,
                                          double theta)
-    : AToken()
+    : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "X-Extension", xext);
@@ -26,21 +27,21 @@ TokenHalfParaboloid::TokenHalfParaboloid(double proportion,
   setProportion(proportion);
 }
 
-TokenHalfParaboloid::TokenHalfParaboloid(const TokenHalfParaboloid &r)
-    : AToken(r)
+ShapeHalfParaboloid::ShapeHalfParaboloid(const ShapeHalfParaboloid &r)
+    : AShape(r)
 {
 }
 
-TokenHalfParaboloid& TokenHalfParaboloid::operator=(const TokenHalfParaboloid &r)
+ShapeHalfParaboloid& ShapeHalfParaboloid::operator=(const ShapeHalfParaboloid &r)
 {
   if (this != &r)
   {
-    AToken::operator =(r);
+    AShape::operator =(r);
   }
   return *this;
 }
 
-TokenHalfParaboloid::~TokenHalfParaboloid()
+ShapeHalfParaboloid::~ShapeHalfParaboloid()
 {
 }
 
@@ -51,10 +52,10 @@ TokenHalfParaboloid::~TokenHalfParaboloid()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenHalfParaboloid::generateObject(int ndim)
+BooleanObject* ShapeHalfParaboloid::generateObject(int ndim)
 
 {
-  Object* object = new Object(this);
+  BooleanObject* object = new BooleanObject(this);
   if (ndim >= 1) object->setExtension(0, generateParam(0));
   if (ndim >= 2) object->setExtension(1, generateParam(1));
   if (ndim >= 3) object->setExtension(2, generateParam(2));
@@ -69,8 +70,8 @@ Object* TokenHalfParaboloid::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenHalfParaboloid::belongObject(const VectorDouble& coor,
-                                       const Object* object) const
+bool ShapeHalfParaboloid::belongObject(const VectorDouble& coor,
+                                       const BooleanObject* object) const
 {
   int ndim = (int) coor.size();
   double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;

@@ -8,15 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenParallelepiped.hpp"
-#include "Boolean/Object.hpp"
+#include "Boolean/ShapeHalfEllipsoid.hpp"
 
-TokenParallelepiped::TokenParallelepiped(double proportion,
-                                         double xext,
-                                         double yext,
-                                         double zext,
-                                         double theta)
-    : AToken()
+#include "../../include/Simulation/BooleanObject.hpp"
+
+ShapeHalfEllipsoid::ShapeHalfEllipsoid(double proportion,
+                                       double xext,
+                                       double yext,
+                                       double zext,
+                                       double theta)
+    : AShape()
 {
   initParams(getNParams());
   setParamDefault(0, "X-Extension", xext);
@@ -26,21 +27,21 @@ TokenParallelepiped::TokenParallelepiped(double proportion,
   setProportion(proportion);
 }
 
-TokenParallelepiped::TokenParallelepiped(const TokenParallelepiped &r)
-    : AToken(r)
+ShapeHalfEllipsoid::ShapeHalfEllipsoid(const ShapeHalfEllipsoid &r)
+    : AShape(r)
 {
 }
 
-TokenParallelepiped& TokenParallelepiped::operator=(const TokenParallelepiped &r)
+ShapeHalfEllipsoid& ShapeHalfEllipsoid::operator=(const ShapeHalfEllipsoid &r)
 {
   if (this != &r)
   {
-    AToken::operator =(r);
+    AShape::operator =(r);
   }
   return *this;
 }
 
-TokenParallelepiped::~TokenParallelepiped()
+ShapeHalfEllipsoid::~ShapeHalfEllipsoid()
 {
 }
 
@@ -51,10 +52,10 @@ TokenParallelepiped::~TokenParallelepiped()
  ** \param[in]  ndim    Space dimension
  **
  *****************************************************************************/
-Object* TokenParallelepiped::generateObject(int ndim)
+BooleanObject* ShapeHalfEllipsoid::generateObject(int ndim)
 
 {
-  Object* object = new Object(this);
+  BooleanObject* object = new BooleanObject(this);
   if (ndim >= 1) object->setExtension(0, generateParam(0));
   if (ndim >= 2) object->setExtension(1, generateParam(1));
   if (ndim >= 3) object->setExtension(2, generateParam(2));
@@ -69,9 +70,14 @@ Object* TokenParallelepiped::generateObject(int ndim)
  ** \return  1 if the pixel is in the grain, 0 if it is in the pore
  **
  *****************************************************************************/
-bool TokenParallelepiped::belongObject(const VectorDouble& /*coor*/,
-                                       const Object* /*object*/) const
+bool ShapeHalfEllipsoid::belongObject(const VectorDouble& coor,
+                                      const BooleanObject* object) const
 {
+  int ndim = (int) coor.size();
+  double dx = (ndim >= 1) ? coor[0] / (object->getExtension(0) / 2.) : 0.;
+  double dy = (ndim >= 2) ? coor[1] / (object->getExtension(1) / 2.) : 0.;
+  double dz = (ndim >= 3) ? coor[2] / (object->getExtension(2))      : 0.;
+  if (dx * dx + dy * dy + dz * dz > 1) return false;
   return true;
 }
 

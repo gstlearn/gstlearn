@@ -11,29 +11,38 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Boolean/Object.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Boolean/ETLaw.hpp"
 
-class AToken;
-
-class GSTLEARN_EXPORT Tokens: public AStringable
+// TODO Will be replaced by future class"Law" or "Distribution" which does not
+// actually exist
+class GSTLEARN_EXPORT ShapeParameter: public AStringable
 {
 public:
-  Tokens();
-  Tokens(const Tokens &r);
-  Tokens& operator=(const Tokens &r);
-  virtual ~Tokens();
+  ShapeParameter(ETLaw law = ETLaw::CONSTANT, double value = 0.);
+  ShapeParameter(const ShapeParameter &r);
+  ShapeParameter& operator=(const ShapeParameter &r);
+  virtual ~ShapeParameter();
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int getNbTokens() const { return (int) _tokens.size(); }
-  void addToken(const AToken& token);
-  void normalizeProportions();
-  Object* generateObject(int ndim) const;
-  const AToken* getToken(int itok) const { return _tokens[itok]; }
+  ETLaw getLaw() const { return _law; }
+  const VectorDouble& getValarg() const { return _valarg; }
+  double getValarg(int iarg) const;
+  int getNbValarg() const { return (int) _valarg.size(); }
+
+  void setLaw(ETLaw law) { _law = law; }
+  void setValarg(int iarg, double value);
+
+  double generateValue() const;
 
 private:
-  std::vector<AToken*> _tokens; // List of the Token
+  bool _isValidArgIndex(int iarg) const;
+
+private:
+  ETLaw _law; /* Type of law */
+  VectorDouble _valarg; /* Randomization arguments */
 };

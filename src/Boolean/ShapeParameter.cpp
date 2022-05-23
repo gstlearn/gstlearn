@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/TokenParameter.hpp"
+#include "Boolean/ShapeParameter.hpp"
 #include "Boolean/ETLaw.hpp"
 #include "Basic/Law.hpp"
 
-TokenParameter::TokenParameter(ETLaw law, double value)
+ShapeParameter::ShapeParameter(ETLaw law, double value)
     : AStringable(),
       _law(law),
       _valarg()
@@ -20,14 +20,14 @@ TokenParameter::TokenParameter(ETLaw law, double value)
   _valarg.push_back(value);
 }
 
-TokenParameter::TokenParameter(const TokenParameter &r)
+ShapeParameter::ShapeParameter(const ShapeParameter &r)
     : AStringable(r),
       _law(r._law),
       _valarg(r._valarg)
 {
 }
 
-TokenParameter& TokenParameter::operator=(const TokenParameter &r)
+ShapeParameter& ShapeParameter::operator=(const ShapeParameter &r)
 {
   if (this != &r)
   {
@@ -38,11 +38,11 @@ TokenParameter& TokenParameter::operator=(const TokenParameter &r)
   return *this;
 }
 
-TokenParameter::~TokenParameter()
+ShapeParameter::~ShapeParameter()
 {
 }
 
-double TokenParameter::generateValue() const
+double ShapeParameter::generateValue() const
 {
   if (_law == ETLaw::CONSTANT)
     return _valarg[0];
@@ -71,7 +71,7 @@ double TokenParameter::generateValue() const
   return TEST;
 }
 
-String TokenParameter::toString(const AStringFormat* /*strfmt*/) const
+String ShapeParameter::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -113,7 +113,7 @@ String TokenParameter::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool TokenParameter::_isValidArgIndex(int iarg) const
+bool ShapeParameter::_isValidArgIndex(int iarg) const
 {
   int nargs = (int) _valarg.size();
   if (iarg < 0 || iarg >= nargs)
@@ -124,13 +124,13 @@ bool TokenParameter::_isValidArgIndex(int iarg) const
   return true;
 }
 
-double TokenParameter::getValarg(int iarg) const
+double ShapeParameter::getValarg(int iarg) const
 {
   if (! _isValidArgIndex(iarg)) return TEST;
   return _valarg[iarg];
 }
 
-void TokenParameter::setValarg(int iarg, double value)
+void ShapeParameter::setValarg(int iarg, double value)
 {
   if (! _isValidArgIndex(iarg)) return;
   _valarg[iarg] = value;

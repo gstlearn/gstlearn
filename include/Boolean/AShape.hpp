@@ -15,22 +15,22 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/IClonable.hpp"
 #include "Basic/Vector.hpp"
-#include "Boolean/TokenParameter.hpp"
+#include "Boolean/ShapeParameter.hpp"
 #include "Boolean/ETShape.hpp"
 #include "Boolean/ETLaw.hpp"
 
-class Object;
+class BooleanObject;
 
 /**
  * Class defining the generic shape of the objects for Boolean Model
  */
-class GSTLEARN_EXPORT AToken: public AStringable, public IClonable
+class GSTLEARN_EXPORT AShape: public AStringable, public IClonable
 {
 public:
-  AToken();
-  AToken(const AToken &r);
-  AToken& operator=(const AToken &r);
-  virtual ~AToken();
+  AShape();
+  AShape(const AShape &r);
+  AShape& operator=(const AShape &r);
+  virtual ~AShape();
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -38,12 +38,12 @@ public:
   /// Interface for IClonable
   virtual IClonable* clone() const override = 0;
 
-  /// Interface for AToken
+  /// Interface for AShape
   virtual ETShape getType() const = 0;
   virtual int  getNParams() const = 0;
   virtual bool getFlagCutZ() const = 0;
-  virtual Object* generateObject(int ndim = 3) = 0;
-  virtual bool belongObject(const VectorDouble& coor, const Object* object) const = 0;
+  virtual BooleanObject* generateObject(int ndim = 3) = 0;
+  virtual bool belongObject(const VectorDouble& coor, const BooleanObject* object) const = 0;
 
   double getFactorX2Y() const { return _factorX2Y; }
   double getFactorX2Z() const { return _factorX2Z; }
@@ -51,7 +51,7 @@ public:
   double getProportion() const { return _proportion; }
   String getParamName(int ipar) const;
   double getParam(int ipar, int iarg) const;
-  const TokenParameter& getParam(int ipar) const;
+  const ShapeParameter& getParam(int ipar) const;
 
   void setFactorX2Y(double factorX2Y) { _factorX2Y = factorX2Y; }
   void setFactorX2Z(double factorX2Z) { _factorX2Z = factorX2Z; }
@@ -73,7 +73,7 @@ private:
   double _factorX2Y; /* Link factor for the geometry from x to y */
   double _factorX2Z; /* Link factor for the geometry from x to z */
   double _factorY2Z; /* Link factor for the geometry from y to z */
-  double _proportion; /* Token Proportion */
+  double _proportion; /* Proportion for object of current shape */
   VectorString _paramNames;
-  std::vector<TokenParameter> _params; // TODO map (regrouping the two last lines)
+  std::vector<ShapeParameter> _params; // TODO map (regrouping the two last lines)
 };

@@ -14,29 +14,29 @@
 
 #include "Basic/Vector.hpp"
 #include "Boolean/ETShape.hpp"
-#include "Boolean/AToken.hpp"
-#include "Boolean/TokenParameter.hpp"
+#include "Boolean/AShape.hpp"
+#include "Boolean/ShapeParameter.hpp"
 
-class Object;
+class BooleanObject;
 
-class GSTLEARN_EXPORT TokenParaboloid: public AToken
+class GSTLEARN_EXPORT ShapeParaboloid: public AShape
 {
 public:
-  TokenParaboloid(double proportion = 1.,
+  ShapeParaboloid(double proportion = 1.,
                   double xext = 1.,
                   double yext = 1.,
                   double zext = 1.,
                   double theta = 0.);
-  TokenParaboloid(const TokenParaboloid &r);
-  TokenParaboloid& operator=(const TokenParaboloid &r);
-  virtual ~TokenParaboloid();
+  ShapeParaboloid(const ShapeParaboloid &r);
+  ShapeParaboloid& operator=(const ShapeParaboloid &r);
+  virtual ~ShapeParaboloid();
 
   /// Interface for Iclonable
-  virtual IClonable* clone() const override { return new TokenParaboloid(*this); };
+  virtual IClonable* clone() const override { return new ShapeParaboloid(*this); };
 
   ETShape getType() const override { return ETShape::PARABOLOID; }
   int  getNParams() const override { return 4; }
   bool getFlagCutZ() const override { return false; }
-  Object* generateObject(int ndim = 3) override;
-  bool belongObject(const VectorDouble& coor, const Object* object) const override;
+  BooleanObject* generateObject(int ndim = 3) override;
+  bool belongObject(const VectorDouble& coor, const BooleanObject* object) const override;
 };

@@ -13,7 +13,7 @@
 #include "Enum/AEnum.hpp"
 
 #define ENUM_MODEL_PROPERTY EModelProperty, NONE,\
-                            NONE, 0,  "No specific property", \
+                            NONE, 0,  "No specific property (LMC)", \
                             CONV, 1,  "Convolution mode", \
                             ANAM, 2,  "Anamorphosis mode", \
                             TAPE, 3,  "Tapering mode", \

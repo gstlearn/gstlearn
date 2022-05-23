@@ -62,6 +62,10 @@ Data Base Statistics
 
 <----- Creating Shape Dictionary ----->
 
+Object Model
+============
+- Poisson Intensity = 0.01
+
 Token 1
 -------
 Full Ellipsoid - Proportion=0.4
@@ -112,17 +116,17 @@ Data Base Statistics
  Variance            =    833.250
 4 - Name Boolean.Facies - Locator NA
  Nb of data          =      10000
- Nb of active values =      10000
- Minimum value       =      0.000
+ Nb of active values =       4767
+ Minimum value       =      1.000
  Maximum value       =      1.000
- Mean value          =      0.385
- Standard Deviation  =      0.487
- Variance            =      0.237
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
 5 - Name Boolean.Rank - Locator NA
  Nb of data          =      10000
- Nb of active values =       3853
+ Nb of active values =       4767
  Minimum value       =      2.000
- Maximum value       =     74.000
- Mean value          =     36.248
- Standard Deviation  =     20.642
- Variance            =    426.091
+ Maximum value       =    102.000
+ Mean value          =     43.353
+ Standard Deviation  =     28.101
+ Variance            =    789.644

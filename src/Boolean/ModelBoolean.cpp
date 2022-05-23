@@ -8,42 +8,48 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Boolean/Tokens.hpp"
-#include "Boolean/AToken.hpp"
+#include "Boolean/ModelBoolean.hpp"
+#include "Boolean/AShape.hpp"
 #include "Basic/Law.hpp"
 
-Tokens::Tokens()
+ModelBoolean::ModelBoolean(double thetaCst, bool flagStat)
     : AStringable(),
-      _tokens()
+      _flagStat(flagStat),
+      _thetaCst(thetaCst),
+      _shapes()
 {
 }
 
-Tokens::Tokens(const Tokens &r)
+ModelBoolean::ModelBoolean(const ModelBoolean &r)
     : AStringable(r),
-      _tokens(r._tokens)
+      _flagStat(r._flagStat),
+      _thetaCst(r._thetaCst),
+      _shapes(r._shapes)
 {
 
 }
 
-Tokens& Tokens::operator=(const Tokens &r)
+ModelBoolean& ModelBoolean::operator=(const ModelBoolean &r)
 {
   if (this != &r)
   {
     AStringable::operator =(r);
-    _tokens = r._tokens;
+    _flagStat = r._flagStat;
+    _thetaCst = r._thetaCst;
+    _shapes = r._shapes;
   }
   return *this;
 }
 
-Tokens::~Tokens()
+ModelBoolean::~ModelBoolean()
 {
-  for (int itok = 0; itok < (int) _tokens.size(); itok++)
-    delete _tokens[itok];
+  for (int itok = 0; itok < (int) _shapes.size(); itok++)
+    delete _shapes[itok];
 }
 
-void Tokens::addToken(const AToken& token)
+void ModelBoolean::addToken(const AShape& token)
 {
-  _tokens.push_back((AToken*)token.clone());
+  _shapes.push_back((AShape*)token.clone());
 }
 
 /****************************************************************************/
@@ -51,36 +57,36 @@ void Tokens::addToken(const AToken& token)
  **  Normalize the proportions
  **
  *****************************************************************************/
-void Tokens::normalizeProportions()
+void ModelBoolean::normalizeProportions()
 
 {
-  int nb_tokens = (int) _tokens.size();
+  int nb_tokens = (int) _shapes.size();
   double total = 0.;
   for (int itok = 0; itok < nb_tokens; itok++)
-    total += _tokens[itok]->getProportion();
+    total += _shapes[itok]->getProportion();
 
   if (ABS(total) <= 0.)
   {
     for (int itok = 0; itok < nb_tokens; itok++)
-      _tokens[itok]->setProportion(1. / (double) nb_tokens);
+      _shapes[itok]->setProportion(1. / (double) nb_tokens);
   }
   else
   {
     for (int itok = 0; itok < nb_tokens; itok++)
-      _tokens[itok]->setProportion( _tokens[itok]->getProportion() / total);
+      _shapes[itok]->setProportion( _shapes[itok]->getProportion() / total);
   }
   return;
 }
 
-Object* Tokens::generateObject(int ndim) const
+BooleanObject* ModelBoolean::generateObject(int ndim) const
 {
-  int nb_token = (int) _tokens.size();
+  int nb_token = (int) _shapes.size();
 
   /* Calculate the total probability */
 
   double total = 0.;
   for (int itok = 0; itok < nb_token; itok++)
-    total += _tokens[itok]->getProportion();
+    total += _shapes[itok]->getProportion();
   if (total <= 0.) return nullptr;
 
   /* Find the type of token to be generated */
@@ -90,22 +96,28 @@ Object* Tokens::generateObject(int ndim) const
   double cumul = 0.;
   for (int itok = 0; itok < nb_token; itok++)
   {
-    cumul += _tokens[itok]->getProportion();
+    cumul += _shapes[itok]->getProportion();
     rank = itok;
     if (value < cumul) break;
   }
   if (rank < 0) rank = nb_token - 1;
-  return _tokens[rank]->generateObject(ndim);
+  return _shapes[rank]->generateObject(ndim);
 }
 
-String Tokens::toString(const AStringFormat* strfmt) const
+String ModelBoolean::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+
+  sstr << toTitle(0, "Object Model");
+  if (_flagStat)
+     sstr << "- Poisson Intensity = "<< _thetaCst << std::endl;
+   else
+     sstr << "- Variable Poisson Intensity" << std::endl;
 
   for (int itok = 0; itok < getNbTokens(); itok++)
   {
     sstr << toTitle(1, "Token %d", itok+1);
-    sstr << _tokens[itok]->toString(strfmt);
+    sstr << _shapes[itok]->toString(strfmt);
   }
   return sstr.str();
 }

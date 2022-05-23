@@ -37,7 +37,7 @@ public:
   bool                  getAsVario()        const { return _asVario; }
   bool                  getNormalized()     const { return _normalized; }
   bool                  isFilterNugget()    const { return _filterNugget; }
-  unsigned int          getKeepOnlyCovIdx() const { return _keepOnlyCovIdx; }
+  int                   getKeepOnlyCovIdx() const { return _keepOnlyCovIdx; }
   bool                  getUnitary()        const { return _unitary; }
   int                   getOrderVario()     const { return _orderVario; }
   int                   getEnvelop()        const { return _envelop; }
@@ -45,7 +45,7 @@ public:
   void setAsVario(bool asVario) { _asVario = asVario; }
   void setMember(const ECalcMember& member) { _member = member; }
   void setFilterNugget(bool filterNugget) { _filterNugget = filterNugget; }
-  void setKeepOnlyCovIdx(unsigned int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; }
+  void setKeepOnlyCovIdx(int keepOnlyCovIdx) { _keepOnlyCovIdx = keepOnlyCovIdx; }
   void setUnitary(bool unitary) { _unitary = unitary; }
   void setNormalized(bool normalized) { _normalized = normalized; }
   void setEnvelop(int envelop) { _envelop = envelop; }
@@ -63,7 +63,7 @@ private:
   bool          _asVario;        /*! True to calculate variogram and not covariance (default = false)*/
   bool          _normalized;     /*! Normalized variogram */
   bool          _filterNugget;   /*! True to filter nugget structure (default = false) */
-  unsigned int  _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
+  int           _keepOnlyCovIdx; /*! Index of the covariance to be kept (default is -1) */
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */

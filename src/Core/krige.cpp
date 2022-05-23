@@ -1904,6 +1904,11 @@ int krigdgm(Db *dbin,
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
+  if (model->getCovMode() != EModelProperty::NONE)
+  {
+    messerr("This tool requires a CovLMCAnamorphosis");
+    return 1;
+  }
 
   // Initializations
 
