@@ -62,6 +62,12 @@ GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 
+GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
+GSTLEARN_EXPORT void variety_query(int *flag_sphere);
+GSTLEARN_EXPORT void variety_print(void);
+GSTLEARN_EXPORT void variety_toggle(int mode);
+GSTLEARN_EXPORT void variety_get_characteristics(double *radius);
+
 /*********************/
 /* Functions for CSV */
 /*********************/
