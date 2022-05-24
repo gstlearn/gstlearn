@@ -41,6 +41,7 @@ class ECalcVario;
 class PCA;
 class ModelBoolean;
 class SimuBooleanParam;
+class MeshSpherical;
 
 /*************************/
 /* Functions for License */
@@ -61,6 +62,30 @@ GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
+
+/*****************************************/
+/* Prototyping the functions in simsph.c */
+/*****************************************/
+GSTLEARN_EXPORT int simsph_f(DbGrid *db,
+                             Model *model,
+                             int seed,
+                             int special,
+                             int nbf,
+                             int nfmax,
+                             int verbose);
+VectorDouble simsph_mesh(MeshSpherical *mesh,
+                         Model *model,
+                         int seed,
+                         int special,
+                         int nbf,
+                         int nfmax,
+                         int verbose);
+
+GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
+GSTLEARN_EXPORT void variety_query(int *flag_sphere);
+GSTLEARN_EXPORT void variety_print(void);
+GSTLEARN_EXPORT void variety_toggle(int mode);
+GSTLEARN_EXPORT void variety_get_characteristics(double *radius);
 
 /*********************/
 /* Functions for CSV */

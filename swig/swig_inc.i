@@ -86,6 +86,7 @@
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
+#include "Mesh/MeshSpherical.hpp"
 
 #include "Enum/AEnum.hpp"
 

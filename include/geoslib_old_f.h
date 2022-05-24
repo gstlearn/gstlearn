@@ -230,11 +230,6 @@ GSTLEARN_EXPORT int string_compare(int flag_case,
 GSTLEARN_EXPORT void projec_query(int *actif);
 GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
-GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius);
-GSTLEARN_EXPORT void variety_query(int *flag_sphere);
-GSTLEARN_EXPORT void variety_print(void);
-GSTLEARN_EXPORT void variety_toggle(int mode);
-GSTLEARN_EXPORT void variety_get_characteristics(double *radius);
 GSTLEARN_EXPORT double ut_factorial(int k);
 GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
 GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
@@ -1970,21 +1965,6 @@ GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
                                          double intensity,
                                          int nbtuba,
                                          int verbose);
-
-/*****************************************/
-/* Prototyping the functions in simsph.c */
-/*****************************************/
-GSTLEARN_EXPORT int simsph_f(DbGrid *db,
-                             Model *model,
-                             int seed,
-                             int special,
-                             int nbf,
-                             int nfmax,
-                             int verbose,
-                             int flag_test,
-                             int test_degree,
-                             int test_order,
-                             double test_phase);
 
 /*****************************************/
 /* Prototyping the functions in thresh.c */
