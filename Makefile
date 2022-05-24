@@ -45,6 +45,8 @@
 #  make check N_PROC=2
 #
 
+USE_HDF5 = 1
+
 ifeq ($(OS),Windows_NT)
   GENERATOR = -G"MSYS Makefiles"
 else
@@ -83,7 +85,7 @@ endif
 all: shared install
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=${HDF5} -B$(BUILD_DIR) -H. $(GENERATOR)
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=${USE_HDF5} -B$(BUILD_DIR) -H. $(GENERATOR)
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)
