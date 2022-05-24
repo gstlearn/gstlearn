@@ -162,6 +162,11 @@ public:
     return _grid.getMirrorIndex(idim, ix);
   }
 
+  VectorVectorDouble getSlice(const String& name,
+                              int pos,
+                              int indice,
+                              bool useSel = false) const;
+
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;

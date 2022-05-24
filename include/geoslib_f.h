@@ -41,6 +41,7 @@ class ECalcVario;
 class PCA;
 class ModelBoolean;
 class SimuBooleanParam;
+class MeshSpherical;
 
 /*************************/
 /* Functions for License */
@@ -71,11 +72,14 @@ GSTLEARN_EXPORT int simsph_f(DbGrid *db,
                              int special,
                              int nbf,
                              int nfmax,
-                             int verbose,
-                             int flag_test,
-                             int test_degree,
-                             int test_order,
-                             double test_phase);
+                             int verbose);
+VectorDouble simsph_mesh(MeshSpherical *mesh,
+                         Model *model,
+                         int seed,
+                         int special,
+                         int nbf,
+                         int nfmax,
+                         int verbose);
 
 GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
 GSTLEARN_EXPORT void variety_query(int *flag_sphere);

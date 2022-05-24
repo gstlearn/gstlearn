@@ -25,6 +25,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
 
@@ -686,3 +687,142 @@ void DbGrid::generateCoordinates(const String& radix)
   }
 }
 
+/**
+ * Extracts a slice from a 3-D Grid
+ * @param name   Name of the target variable
+ * @param pos    Type of section: 0 for YoZ; 1 for XoZ and 2 for XoY
+ * @param indice Rank of the section
+ * @param useSel Use the active selection
+ * @return A VectorVectorDouble with 4 columns, i.e: X, Y, Z, Var
+ *
+ * @remark In presence of a selection, values are returned but set to TEST
+ * @remark (if useSel)
+ */
+VectorVectorDouble DbGrid::getSlice(const String& name,
+                                    int pos,
+                                    int indice,
+                                    bool useSel) const
+{
+  VectorVectorDouble tab;
+  int nvect = 4;
+  if (getNDim() != 3)
+  {
+    messerr("This method is limited to 3-D Grid data base");
+    return tab;
+  }
+  if (pos < 0 || pos > 2)
+  {
+    mesArg("Argument 'pos'", pos, 3);
+    return tab;
+  }
+  int iuid = getUID(name);
+  if (iuid < 0)
+  {
+    messerr("The Variable %s is not found",name.c_str());
+    return tab;
+  }
+
+  tab.resize(nvect);
+  VectorInt indices(3);
+  VectorDouble coor(3);
+
+  if (pos == 0)
+  {
+    // Section YoZ
+    int n1 = getNX(1);
+    int n2 = getNX(2);
+    int n3 = getNX(0);
+    int nech = n1 * n2;
+    for (int i = 0; i < nvect; i++) tab[i].resize(nech,TEST);
+    if (indice < 0 || indice >= n3)
+    {
+      mesArg("Error in argument 'indice'",indice,n3);
+      return VectorVectorDouble();
+    }
+    indices[0] = indice;
+
+    int ecr = 0;
+    for (int i1 = 0; i1 < n1; i1++)
+      for (int i2 = 0; i2 < n2; i2++, ecr++)
+      {
+        indices[1] = i1;
+        indices[2] = i2;
+        int iech = indiceToRank(indices);
+        getCoordinatesInPlace(iech, coor);
+        tab[0][ecr] = coor[0];
+        tab[1][ecr] = coor[1];
+        tab[2][ecr] = coor[2];
+        if (isActive(iech))
+          tab[3][ecr] = getArray(iech, iuid);
+        else
+          tab[3][ecr] = TEST;
+      }
+  }
+  else if (pos == 1)
+  {
+    // Section XoZ
+    int n1 = getNX(0);
+    int n2 = getNX(2);
+    int n3 = getNX(1);
+    int nech = n1 * n2;
+    for (int i = 0; i < nvect; i++)
+      tab[i].resize(nech, TEST);
+    if (indice < 0 || indice >= n3)
+    {
+      mesArg("Error in argument 'indice'",indice,n3);
+      return VectorVectorDouble();
+    }
+    indices[1] = indice;
+
+    int ecr = 0;
+    for (int i1 = 0; i1 < n1; i1++)
+      for (int i2 = 0; i2 < n2; i2++, ecr++)
+      {
+        indices[0] = i1;
+        indices[2] = i2;
+        int iech = indiceToRank(indices);
+        getCoordinatesInPlace(iech, coor);
+        tab[0][ecr] = coor[0];
+        tab[1][ecr] = coor[1];
+        tab[2][ecr] = coor[2];
+        if (isActive(iech))
+          tab[3][ecr] = getArray(iech, iuid);
+        else
+          tab[3][ecr] = TEST;
+      }
+  }
+  else
+  {
+    // Section XoY
+    int n1 = getNX(0);
+    int n2 = getNX(1);
+    int n3 = getNX(2);
+    int nech = n1 * n2;
+    for (int i = 0; i < nvect; i++)
+      tab[i].resize(nech, TEST);
+    if (indice < 0 || indice >= n3)
+    {
+      mesArg("Error in argument 'indice'",indice,n3);
+      return VectorVectorDouble();
+    }
+    indices[2] = indice;
+
+    int ecr = 0;
+    for (int i1 = 0; i1 < n1; i1++)
+      for (int i2 = 0; i2 < n2; i2++, ecr++)
+      {
+        indices[0] = i1;
+        indices[1] = i2;
+        int iech = indiceToRank(indices);
+        getCoordinatesInPlace(iech, coor);
+        tab[0][ecr] = coor[0];
+        tab[1][ecr] = coor[1];
+        tab[2][ecr] = coor[2];
+        if (isActive(iech))
+          tab[3][ecr] = getArray(iech, iuid);
+        else
+          tab[3][ecr] = TEST;
+      }
+  }
+  return tab;
+}
