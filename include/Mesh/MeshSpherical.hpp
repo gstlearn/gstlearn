@@ -43,7 +43,7 @@ public:
                   bool fatal = false,
                   bool verbose = false) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
-
+  VectorInt getMeshes() const {return _meshes;}
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 
 private:
