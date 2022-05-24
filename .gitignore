@@ -20,4 +20,7 @@ tests/data/*/*.out
 .settings
 core
 nano.save
+doc/demo/*.pdf
+doc/demo/.Rhistory
+doc/demo/.RData
 .*~

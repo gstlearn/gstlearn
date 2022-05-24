@@ -1,6 +1,9 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.27
+==============
+
 Release 0.1.26
 ==============
 - New R package (r_install target)

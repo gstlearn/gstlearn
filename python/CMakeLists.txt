@@ -83,7 +83,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY    ${PYTHON_PACKAGE_DESTINATION_FOLDER}) # Us
 set_source_files_properties(${SRC} PROPERTIES
   CPLUSPLUS ON
   # Swig wrapper will be regenerated if C++ headers are changed
-  # https://stackoverflow.com/a/70375654/3952924
+  # https://stackoverflow.com/a/70375654/3952924 (CMake 3.20 minimum)
   USE_SWIG_DEPENDENCIES TRUE
   # gstlearn C++ headers will be found by %import directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE

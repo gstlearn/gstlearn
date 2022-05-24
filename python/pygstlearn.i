@@ -1,6 +1,5 @@
-// https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
-// No need of %module keyword when building using cmake UseSWIG
-// TODO: restore directors feature
+// No need of %module keyword for python when building using cmake UseSWIG
+// TODO: restore directors feature (inheritance in target language)
 //%module(directors="1") gstlearn
 
 // https://stackoverflow.com/a/26035360/3952924
@@ -30,15 +29,11 @@ using namespace py::literals; // To get access to _a literal below
 void write_f(const char * str)
 {
   py::print(str, "end"_a=" ");  // pybind11 print wrapper with no new line
-//  PyObject *item = Py_BuildValue(str);
-//  PyObject_Print(item, stdout, 0);
 }
 
 void warn_f(const char * str)
 {
   py::print(str, "end"_a=" ");  // pybind11 print wrapper with no new line
-//  PyObject *item = Py_BuildValue(sstr.str().c_str());
-//  PyObject_Print(item, stderr, 0);
 }
 
 void read_f(const char * str, char * out)
