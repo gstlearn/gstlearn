@@ -31,68 +31,6 @@ typedef struct
   VectorDouble valsim;
 } Stack;
 
-/****************************************************************************/
-/*!
- **  Generate the Poisson planes that cover the grid
- **
- ** \return Error return code
- **
- ** \param[in]  dbgrid   Db corresponding to the target grid
- **
- ** \param[out] splanes  SubPlanes structure
- **
- ** \remarks  The array 'planes' contains successively a,b,c,d such that
- ** \remarks  ax + by + cz + d = 0
- ** \remarks  The valuation of each line is assigned a uniform value [0,1]
- **
- *****************************************************************************/
-int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes)
-{
-  double ap[3], diagonal;
-
-  /* Determine the extension of the grid */
-
-  int ndim = dbgrid->getNDim();
-  VectorDouble mini(ndim);
-  VectorDouble maxi(ndim);
-  db_extension(dbgrid, mini, maxi);
-  if (db_extension_diag(dbgrid, &diagonal)) return (1);
-
-  /* Loop on the planes to be generated */
-
-  for (int ip = 0; ip < splanes->nplan; ip++)
-  {
-    SubPlan &plan = splanes->plans[ip];
-    double d0 = diagonal * law_uniform(-1., 1.) / 2.;
-    double u = 0.;
-    for (int idim = 0; idim < 3; idim++)
-    {
-      ap[idim] = law_gaussian();
-      u += ap[idim] * ap[idim];
-    }
-    u = sqrt(u);
-    for (int idim = 0; idim < 3; idim++)
-    {
-      ap[idim] /= u;
-      d0 -= ap[idim] * (mini[idim] + maxi[idim]) / 2.;
-    }
-    if (d0 < 0)
-    {
-      for (int idim = 0; idim < 3; idim++)
-        ap[idim] = -ap[idim];
-      d0 = -d0;
-    }
-
-    /* Storing the plane */
-
-    for (int idim = 0; idim < 3; idim++)
-      plan.coor[idim] = ap[idim];
-    plan.intercept = d0;
-    plan.rndval = law_uniform(0., 1.);
-  }
-  return (0);
-}
-
 /*****************************************************************************
  **
  ** Management of the SubPlanes structure

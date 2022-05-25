@@ -11,36 +11,34 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/Plane.hpp"
+#include"Basic/AStringable.hpp"
+#include "Basic/Vector.hpp"
 
-class SimuSubstitutionParam;
-class Db;
-class DbGrid;
-
-class GSTLEARN_EXPORT SimuSubstitution: public ASimulation, public AStringable
+class GSTLEARN_EXPORT Plane : public AStringable
 {
 public:
-  SimuSubstitution(int nbsimu = 0, int seed = 4324324);
-  SimuSubstitution(const SimuSubstitution &r);
-  SimuSubstitution& operator=(const SimuSubstitution &r);
-  virtual ~SimuSubstitution();
+  Plane();
+  Plane(const Plane &m);
+  Plane& operator=(const Plane &m);
+  virtual ~Plane();
 
-  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int simulate(DbGrid *dbgrid,
-               const SimuSubstitutionParam& subparam,
-               int iptr,
-               int verbose);
+  const VectorDouble& getCoor() const { return _coor; }
+  void setCoor(const VectorDouble& coor) { _coor = coor; }
+  double getIntercept() const { return _intercept; }
+  void setIntercept(double intercept) { _intercept = intercept; }
+  double getRndval() const { return _rndval; }
+  void setRndval(double rndval) { _rndval = rndval; }
+  double getValue() const { return _value; }
+  void setValue(double value) { _value = value; }
+  void setCoor(int idim, double value) { _coor[idim] = value; }
+  double getCoor(int idim) const { return _coor[idim]; }
 
 private:
-  void _poissonPlanesGenerate(DbGrid *dbgrid);
-  void _calculValue(int ip, double factor, const VectorDouble& vector);
-
-private:
-  std::vector<Plane> _planes;
+  VectorDouble _coor;
+  double _intercept;
+  double _value;
+  double _rndval;
 };

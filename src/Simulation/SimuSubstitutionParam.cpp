@@ -11,6 +11,8 @@
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Basic/Vector.hpp"
 
+#include <math.h>
+
 #define TRANS(i,j)     (_trans[(j) + _nfacies * (i)])
 
 SimuSubstitutionParam::SimuSubstitutionParam()
@@ -24,8 +26,8 @@ SimuSubstitutionParam::SimuSubstitutionParam()
       _flagAuto(false),
       _intensity(1.),
       _factor(0.),
-      _vector(),
       _colang(),
+      _vector(),
       _trans()
 {
 }
@@ -41,8 +43,8 @@ SimuSubstitutionParam::SimuSubstitutionParam(const SimuSubstitutionParam &r)
       _flagAuto(r._flagAuto),
       _intensity(r._intensity),
       _factor(r._factor),
-      _vector(r._vector),
       _colang(r._colang),
+      _vector(r._vector),
       _trans(r._trans)
 {
 }
@@ -61,8 +63,8 @@ SimuSubstitutionParam& SimuSubstitutionParam::operator=(const SimuSubstitutionPa
     _flagAuto = r._flagAuto;
     _intensity = r._intensity;
     _factor = r._factor;
-    _vector = r._vector;
     _colang = r._colang;
+    _vector = r._vector;
     _trans = r._trans;
   }
   return *this;
@@ -78,9 +80,8 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool SimuSubstitutionParam::isValid(bool verbose) const
+bool SimuSubstitutionParam::isValid(bool verbose)
 {
-  bool flag_angloc = false;
   if (isFlagCoding())
   {
     if (! _isIrreductibility(verbose)) return false;
@@ -90,20 +91,17 @@ bool SimuSubstitutionParam::isValid(bool verbose) const
 
   if (isFlagOrient())
   {
-    for (int i = 0; i < 3; i++)
-      if (getColang(i) >= 0) flag_angloc = true;
 
     /* Check the (constant) angle */
 
-    if (!flag_angloc && st_check_orientation(getVector(), 1))
-      goto label_end;
+    isValidOrientation(_vector, verbose);
 
     /* Check the (constant) desorientation factor */
 
-    if (subparam.getColfac() < 0 && st_check_factor(&subparam.getFactor(), 1))
-      goto label_end;
-
-    flag_local = (flag_angloc || subparam.getColfac() >= 0);
+    if (getColfac() < 0)
+    {
+      isValidFactor(&_factor, verbose);
+    }
   }
   return true;
 }
@@ -175,27 +173,56 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
  **
  ** Checks the validity of an orientation vector
  **
- ** \returns 1 if the vector is not valid; 0 otherwise
- **
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int SimuSubstitutionParam::_check_orientation(bool verbose)
+void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
+                                               bool verbose) const
 {
   double total = 0.;
   for (int i = 0; i < 3; i++)
-    total += _vector[i] * _vector[i];
+    total += vector[i] * vector[i];
   if (total <= 0.)
   {
     if (verbose)
     {
       messerr("The desorientation vector should not be zero");
-      return (1);
+      messerr("It is set to the first Direction Unit vector");
     }
-    _vector[0] = 1.;
+    vector[0] = 1.;
     total = 1.;
   }
-  for (i = 0; i < 3; i++)
-    _vector[i] /= sqrt(total);
-  return (0);
+  for (int i = 0; i < 3; i++)
+    vector[i] /= sqrt(total);
+}
+
+/*****************************************************************************
+ **
+ ** Checks the validity of an orientation factor
+ **
+ ** \param[in,out] factor   Input and output factor values
+ ** \param[in]  verbose     Verbose option
+ **
+ *****************************************************************************/
+void SimuSubstitutionParam::isValidFactor(double* factor, bool verbose) const
+{
+  if (*factor < 0.)
+  {
+    if (verbose)
+    {
+      messerr("The desorientation factor cannot be negative");
+      messerr("It is set to 0.");
+    }
+    *factor = 0.;
+  }
+  if (*factor > 1.)
+  {
+    if (verbose)
+    {
+      messerr("The desorientation factor cannot be larger than 1");
+      messerr("It is set to 1.");
+    }
+    *factor = 1.;
+  }
+  return;
 }

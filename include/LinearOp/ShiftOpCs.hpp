@@ -136,10 +136,14 @@ private:
                       const AMesh* amesh,
                       int imesh = 0);
   void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
+  void _loadHHVarietyByApex(MatrixSquareSymmetric& hh, int ip);
 
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ip);
+  void _loadHHVarietyPerMesh(MatrixSquareSymmetric& hh,
+                             const AMesh* amesh,
+                             int imesh);
 
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           const AMesh* amesh,

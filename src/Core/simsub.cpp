@@ -110,64 +110,6 @@ static double* trans_to_props(int nfacies, int verbose, double *trans)
   return (props);
 }
 
-/*****************************************************************************
- **
- ** Checks the validity of an orientation factor
- **
- ** \returns 1 if the vector is not valid; 0 otherwise
- **
- ** \param[in]  factor      Disorientation factor
- ** \param[in]  verbose     Verbose option
- **
- ** \param[out]  factor     Possibly corrected Disorientation factor
- **
- *****************************************************************************/
-static int st_check_factor(double *factor, int verbose)
-
-{
-  if ((*factor) < 0.)
-  {
-    if (verbose)
-    {
-      messerr("The desorientation factor cannot be negative");
-      return (1);
-    }
-    (*factor) = 0.;
-  }
-  if ((*factor) > 1.)
-  {
-    if (verbose)
-    {
-      messerr("The desorientation factor cannot be larger than 1");
-      return (1);
-    }
-    (*factor) = 1.;
-  }
-  return (0);
-}
-
-/*****************************************************************************
- **
- ** Calculate the projected value
- **
- ** \param[in,out]  plan    SubPlan structure
- ** \param[in]  factor      Disorientation factor
- ** \param[in]  vector      Disorientation vector
- **
- *****************************************************************************/
-static void st_calcul_value(SubPlan &plan, double factor, double *vector)
-{
-  int ival, i;
-  double cossin;
-
-  ival = ((2. * plan.rndval) > (1. + factor)) ? -1 :
-                                                1;
-  cossin = 0.;
-  for (i = 0; i < 3; i++)
-    cossin += plan.coor[i] * vector[i];
-  if (cossin < 0) ival = -ival;
-  plan.value = (double) ival;
-}
 
 /*****************************************************************************
  **
@@ -247,7 +189,7 @@ int substitution(DbGrid *dbgrid,
 
     /* Check the (constant) desorientation factor */
 
-    if (colfac < 0 && st_check_factor(&factor, 1)) goto label_end;
+//    if (colfac < 0 && st_check_factor(&factor, 1)) goto label_end;
 
     flag_local = (flag_angloc || colfac >= 0);
   }
@@ -292,7 +234,7 @@ int substitution(DbGrid *dbgrid,
       }
       else if (!flag_local)
       {
-        st_calcul_value(plan, factor, vector);
+//        _calculValue(ip, subparam);
       }
     }
 
@@ -319,7 +261,7 @@ int substitution(DbGrid *dbgrid,
           if (colfac >= 0)
           {
             factor = dbgrid->getArray(iech, colfac);
-            (void) st_check_factor(&factor, 0);
+//            (void) st_check_factor(&factor, 0);
           }
           if (flag_angloc)
           {
@@ -327,7 +269,7 @@ int substitution(DbGrid *dbgrid,
               if (colang[i] >= 0) vector[i] = dbgrid->getArray(iech, colang[i]);
 //            (void) st_check_orientation(vector, 0);
           }
-          st_calcul_value(plan, factor, vector);
+//          st_calcul_value(plan, factor, vector);
         }
 
         valloc = plan.value / 2.;

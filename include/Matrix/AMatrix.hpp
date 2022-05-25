@@ -178,7 +178,6 @@ public:
                  const VectorInt icols,
                  const VectorDouble values);
 
-
 #ifndef SWIG
   /*! Get value operator override */
   double  operator()(int row, int col) const { return getValue(row, col); }

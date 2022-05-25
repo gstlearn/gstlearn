@@ -48,6 +48,7 @@ public:
   bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
 
   void initMatTri(int nsize,double* tab);
+  void normSingleMatrix(const AMatrix& x);
 
 protected:
 #ifndef SWIG

@@ -509,6 +509,8 @@ public:
   VectorDouble getExtrema(int idim, bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
   double getExtensionDiagonal(bool useSel = false) const;
+  double getCenter(int idim, bool useSel = false) const;
+  VectorDouble getCenter(bool useSel = false) const;
 
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;

@@ -207,6 +207,8 @@ set(SRC
   Basic/OptDbg.cpp
   Basic/OptCst.cpp
   Basic/OptCustom.cpp
+  Basic/Plane.cpp
+  
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
@@ -281,4 +283,6 @@ set(SRC
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
+  Simulation/SimuSubstitution.cpp
+  Simulation/SimuSubstitutionParam.cpp
 )

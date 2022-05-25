@@ -101,6 +101,7 @@ class IClonable{};
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
 %include Basic/File.hpp
+%include Basic/Plane.hpp
 
 %include Boolean/ETLaw.hpp
 %include Boolean/ETShape.hpp
@@ -321,6 +322,8 @@ class IClonable{};
 %include Simulation/SimuBooleanParam.hpp
 %include Simulation/SimuSpherical.hpp
 %include Simulation/SimuSphericalParam.hpp
+%include Simulation/SimuSubstitution.hpp
+%include Simulation/SimuSubstitutionParam.hpp
 
 %include segy.h
 

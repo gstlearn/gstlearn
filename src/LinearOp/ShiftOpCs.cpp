@@ -64,7 +64,7 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
       _model(model),
       _igrf(0),
       _icov(0),
-      _ndim(amesh->getNDim())
+      _ndim(amesh->getEmbeddedNDim())
 {
   (void) initFromMesh(amesh, model, dbout, igrf, icov, verbose);
 }
@@ -226,7 +226,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
-    _ndim = amesh->getNDim();
+    _ndim = amesh->getEmbeddedNDim();
 
     // Attach the Non-stationary to Mesh and Db (optional)
 
@@ -269,14 +269,17 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     }
     else
     {
-      if (_buildSSphere(amesh))
-      my_throw("Problem when buildSSphere");
+      if (_buildSVariety(amesh)) // TODO or _buildSSphere
+      my_throw("Problem when buildSVariety");
     }
 
     // Construct the TildeC vector
 
-    if (_buildTildeC(amesh, units))
-    my_throw("Problem with buildTildeC");
+    if (amesh->getVariety() == 0)
+    {
+      if (_buildTildeC(amesh, units))
+        my_throw("Problem with buildTildeC");
+    }
 
     // Construct the Lambda vector
 
@@ -564,8 +567,7 @@ cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
  * @param cova Local CovAniso structure (updated here)
  * @param ip   Rank of the point
  */
-void ShiftOpCs::_updateCova(CovAniso* cova,
-                            int ip)
+void ShiftOpCs::_updateCova(CovAniso* cova, int ip)
 {
   // Initializations
   if (! _isNoStat()) return;
@@ -659,6 +661,30 @@ void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
     MatrixSquareSymmetric temp(ndim);
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
+  }
+  delete cova;
+}
+
+void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
+{
+  int ndim = getNDim();
+  const CovAniso* covini = _getCova();
+  CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+
+  if (_flagNoStatByHH)
+  {
+    messerr("To be implemented");
+  }
+  else
+  {
+//     Locally update the covariance for non-stationarity (if necessary)
+//    _updateCova(cova, ip);
+
+    // Calculate the current HH matrix (using local covariance parameters)
+    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+    hh.fill(0.);
+    for (int idim = 0; idim < ndim; idim++)
+      hh.setValue(idim,idim, diag[0]);
   }
   delete cova;
 }
@@ -758,7 +784,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
-  int ndim = amesh->getNDim();
+  int ndim = _ndim;
   MatrixSquareSymmetric hhloc(ndim);
   hh.fill(0.);
 
@@ -767,6 +793,31 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
   {
     int ip = amesh->getApex(imesh, rank);
     _loadHHByApex(hhloc, ip);
+    hh.add(hhloc);
+  }
+  hh.prodScalar(1. / number);
+}
+
+/**
+ * Constitue HH (only in non-stationary case)
+ * @param hh   Returned HH symmetric matrix
+ * @param amesh Pointer to the meshing
+ * @param imesh Rank of the mesh
+ */
+void ShiftOpCs::_loadHHVarietyPerMesh(MatrixSquareSymmetric& hh,
+                                      const AMesh* amesh,
+                                      int imesh)
+{
+  int number = amesh->getNApexPerMesh();
+  int ndim = _ndim;
+  MatrixSquareSymmetric hhloc(ndim);
+  hh.fill(0.);
+
+  // HH per mesh is obtained as the average of the HH per apex of the mesh
+  for (int rank = 0; rank < number; rank++)
+  {
+    int ip = amesh->getApex(imesh, rank);
+    _loadHHVarietyByApex(hhloc, ip);
     hh.add(hhloc);
   }
   hh.prodScalar(1. / number);
@@ -817,7 +868,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
                                MatrixSquareGeneral& matu,
                                MatrixRectangular& matw) const
 {
-  int ndim = amesh->getNDim();
+  int ndim = _ndim;
   int ncorner = amesh->getNApexPerMesh();
 
   for (int icorn = 0; icorn < ncorner; icorn++)
@@ -1054,38 +1105,50 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
  * @param amesh Description of the Mesh (New class)
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
+ *
+ * @remark TildeC is calculated at the same time
  */
 int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 {
   std::map<std::pair<int, int>, double> tab;
-  double coeff[3][2];
 
   int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
 
+  _TildeC.clear();
+  _TildeC.resize(amesh->getNApices(), 0.);
+
   // Initialize the arrays
 
-  VectorDouble srot(2), axe1(3), axe2(3), vel(3), matv(ncorner);
+  VectorDouble srot(2);
   MatrixSquareSymmetric hh(ndim);
-  MatrixSquareGeneral matu(ncorner);
-  MatrixSquareGeneral mat(ncorner);
-  MatrixRectangular matw(ndim, ncorner);
+  MatrixRectangular matM(ndim, ncorner-1);
+  MatrixSquareSymmetric matMtM(ncorner-1,ncorner-1);
+  MatrixRectangular matP(ncorner-1,ndim);
+  MatrixSquareSymmetric matPinvHPt(ncorner-1, ncorner-1);
 
   // Define the global matrices
 
   int igrf = _getIgrf();
   int icov = _getIcov();
+  double dethh = 0.;
   if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(hh, 0);
-  if (! _isNoStat())
   {
-    _loadAux(srot, EConsElem::SPHEROT, 0);
-    _loadAux(vel, EConsElem::VELOCITY, 0);
+    _loadHHVarietyByApex(hh, 0);
+    dethh = hh.determinant();
+    if (hh.invert())
+    {
+      messerr("Problem when inverting Global HH");
+      my_throw("Matrix inversion");
+    }
   }
+  if (! _isNoStat())
+    _loadAux(srot, EConsElem::SPHEROT, 0);
 
   /* Loop on the meshes */
 
+  VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
     OptDbg::setIndex(imesh + 1);
@@ -1096,59 +1159,82 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
-        _loadHHPerMesh(hh, amesh, imesh);
+      {
+        _loadHHVarietyPerMesh(hh, amesh, imesh);
+        dethh = hh.determinant();
+        if (hh.invert())
+        {
+          messerr("Problem when inverting HH for mesh %d", imesh+1);
+          my_throw("Matrix inversion");
+        }
+      }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
         _loadAuxPerMesh(srot, amesh, EConsElem::SPHEROT, imesh);
-      if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
-        _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
     }
 
-    // Case of Spherical geometry
-
-    _projectMesh(amesh, srot, imesh, coeff);
-
-    for (int icorn = 0; icorn < ncorner; icorn++)
+    // Load M matrix [ndim, ncorner-1]
+    amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
+    for (int icorn = 0; icorn < ncorner-1; icorn++)
     {
       for (int idim = 0; idim < ndim; idim++)
-        matu.setValue(idim, icorn, coeff[icorn][idim]);
-      matu.setValue(ncorner - 1, icorn, 1.);
+        matM.setValue(idim, icorn,
+                      coords[idim][icorn] - coords[idim][ncorner-1]);
     }
 
-    if (matu.invert())
+    // Calculate M^t %*% M
+
+    matMtM.normSingleMatrix(matM);
+    double detMtM = matMtM.determinant();
+
+    // Calculate (M^t %*% M)^{-1}
+
+    if (matMtM.invert())
     {
       messerr("Problem for Mesh #%d", imesh + 1);
       amesh->printMeshes(imesh);
       my_throw("Matrix inversion");
     }
 
-    for (int icorn = 0; icorn < ncorner; icorn++)
-      for (int idim = 0; idim < ndim; idim++)
-        matw.setValue(idim, icorn, matu.getValue(icorn, idim));
+    // Calculate P = (M^t %*% M)^{-1} %*% M^t
 
-    // Update for Advection (non-stationary)
+    matM.transposeInPlace();
+    matP.prodMatrix(matMtM, matM);
 
-    if (_isVelocity())
+    // Calculate P %*% HH^{-1} %*% P^t
+
+    matPinvHPt.normTMatrix(hh, matP);
+
+    // Storing in the Map
+
+    double ratio = sqrt(dethh * detMtM);
+    double S = 0.;
+    for (int j0 = 0; j0 < ncorner-1; j0++)
     {
-      for (int icorn = 0; icorn < ncorner; icorn++)
-      {
-        matv[icorn] = 0.;
-        for (int idim = 0; idim < ndim; idim++)
-          matv[icorn] += vel[idim] * matw.getValue(idim, icorn);
-      }
-    }
-    else
-    {
-      mat.normMatrix(hh, matw);
-    }
+      // Update TildeC
 
-    for (int j0 = 0; j0 < ncorner; j0++)
-      for (int j1 = 0; j1 < ncorner; j1++)
+      int ip0 = amesh->getApex(imesh, j0);
+      _TildeC[ip0] += ratio / 6.;
+
+      double s = 0.;
+      for (int j1 = 0; j1 < ncorner-1; j1++)
       {
-        int ip0 = amesh->getApex(imesh, j0);
         int ip1 = amesh->getApex(imesh, j1);
-        double vald = (_isVelocity()) ? matv[j1] : mat.getValue(j0, j1);
-        _mapUpdate(tab, ip0, ip1, vald * amesh->getMeshSize(imesh), tol);
+        double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
+        s += vald;
+        _mapUpdate(tab, ip0, ip1, vald, tol);
       }
+      int j1 = ncorner - 1;
+      int ip1 = amesh->getApex(imesh, j1);
+      _mapUpdate(tab, ip0, ip1, s, tol);
+      _mapUpdate(tab, ip1, ip0, s, tol);
+      S += s;
+    }
+    int j0 = ncorner-1;
+    int j1 = ncorner-1;
+    int ip0 = amesh->getApex(imesh, j0);
+    _TildeC[ip0] += ratio / 6.;
+    int ip1 = amesh->getApex(imesh, j1);
+    _mapUpdate(tab, ip0, ip1, S, tol);
   }
 
   _S = cs_spfree(_S);
@@ -1162,7 +1248,6 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   label_end: if (error) _S = cs_spfree(_S);
   return error;
 }
-
 
 /**
  * Calculate the private member "_S" directly from the Mesh
@@ -1547,8 +1632,8 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
   ut_vector_divide_inplace(center, sqrt(ratio));
 
   // Center gives the vector joining the origin to the center of triangle
-  double phi = srot[1] * GV_PI / 180.;
-  double theta = srot[0] * GV_PI / 180.;
+  double phi    = srot[1] * GV_PI / 180.;
+  double theta  = srot[0] * GV_PI / 180.;
   double sinphi = sin(phi);
   double cosphi = cos(phi);
   double sintet = sin(theta);

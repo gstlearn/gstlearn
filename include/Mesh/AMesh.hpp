@@ -86,7 +86,7 @@ public:
   /*! Returns the vector of coordinates for a mesh */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
 
-  virtual int getEmbeddedDim() const { return _nDim; }
+  virtual int getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;

@@ -1300,3 +1300,4 @@ void AMatrix::_clear()
   _setNCols(0);
   _allocate();
 }
+
