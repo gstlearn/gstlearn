@@ -2,15 +2,15 @@ if(NOT BUILD_PYTHON)
   return()
 endif()
 
-# TODO : All CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similars (factorization ?)
+# TODO : All CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similar (factorization ?)
 
 # Look for Python3 (
 find_package(Python3 REQUIRED)
 get_filename_component(PYDIR ${Python3_EXECUTABLE} DIRECTORY)
 set(PYTHON3_EXECUTABLE_DIR ${PYDIR} CACHE STRING "python3_dir")
 
-set(CMAKE_FIND_DEBUG_MODE TRUE)
-execute_process(COMMAND which jupyter-nbconvert)
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
+#execute_process(COMMAND which jupyter-nbconvert)
 
 # Look for jupyter-nbconvert executable
 find_program(JUPYTER_NBCONVERT_EXECUTABLE REQUIRED

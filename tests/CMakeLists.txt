@@ -24,8 +24,9 @@ set(CHECK_DEP check_cpp check_data)
 if (BUILD_PYTHON)
   add_subdirectory(py)
   add_subdirectory(ipynb)
-#  list(APPEND CHECK_DEP check_py)
-  list(APPEND CHECK_DEP check_py check_ipynb)
+# TODO : ipynb non-reg not yet possible on github
+#  list(APPEND CHECK_DEP check_py check_ipynb)
+  list(APPEND CHECK_DEP check_py)
 endif()
 
 if (BUILD_R)
