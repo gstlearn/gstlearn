@@ -9,13 +9,14 @@ find_package(Python3 REQUIRED)
 get_filename_component(PYDIR ${Python3_EXECUTABLE} DIRECTORY)
 set(PYTHON3_EXECUTABLE_DIR ${PYDIR} CACHE STRING "python3_dir")
 
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
+set(CMAKE_FIND_DEBUG_MODE TRUE)
+execute_process(COMMAND which jupyter-nbconvert)
 
 # Look for jupyter-nbconvert executable
 find_program(JUPYTER_NBCONVERT_EXECUTABLE REQUIRED
              NAMES jupyter-nbconvert
-             PATHS ${PYTHON3_EXECUTABLE_DIR}
-             NO_DEFAULT_PATH)
+             PATHS ${PYTHON3_EXECUTABLE_DIR})
+             #NO_DEFAULT_PATH)
 
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
