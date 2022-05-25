@@ -1,0 +1,235 @@
+[[variogram-on-grid]]
+= Variogram on grid
+
+This file is meant to demonstrate the use of gstlearn by loading a numpy
+array, perform some calculations (including variogram) based on the grid
+organization and return the variogram output arrays to be used in Python
+
+[source, ipython3]
+----
+import os
+import sys
+import numpy as np
+import gstlearn as gl
+import gstlearn.plot as gp
+verbose = True
+----
+
+[[define-an-array-in-python]]
+== Define an array in Python
+
+Here we define two numpy.arrays containing real values. They should be
+viewed as two variables defined on a regular 2-D grid
+
+[source, ipython3]
+----
+ndim = 2
+nx = 5
+ny = 3
+np.random.seed(123085)
+array1 = np.arange(0.,nx * ny).reshape(nx * ny)
+array2 = np.random.randn(nx * ny)
+if verbose:
+    print(array1)
+    print(array2)
+----
+
+
+----
+[ 0.  1.  2.  3.  4.  5.  6.  7.  8.  9. 10. 11. 12. 13. 14.]
+[-0.7557564   0.39557902 -0.74696358 -0.19330886  0.44301441 -0.35785915
+ -0.3989405  -2.09852844 -0.58105041 -1.6923563  -1.67125865 -1.19059388
+  0.74398967  0.37966442  1.76399173]
+----
+
+[[import-this-array-in-gstlearn]]
+== Import this array in gstlearn
+
+First of all, the global instruction for defining the default dimension
+number is called and the Help of the Db class is displayed.
+
+[source, ipython3]
+----
+ndim = 2
+gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN, ndim)
+----
+
+Then, the Grid file is created first (defining the origin, mesh size and
+count). Then each variable is added one by one, giving the name. Then,
+the 'Z' Locator is set for the two variables. Note that locators are
+entered simultaneously. Otherwise, "var1" will be assigned to locator
+"z1". Then, when adding "var2", it will be assigned in turn to "z1",
+erasing the locator previously assigned to "var1".
+
+[source, ipython3]
+----
+x0 = [1., 3.]
+dx = [2., 1.]
+grid = gl.DbGrid.create([nx,ny],dx,x0)
+ipt_z1 = grid.addColumns(array1, "var1")
+ipt_z2 = grid.addColumns(array2, "var2")
+grid.setLocators(["var1","var2"], gl.ELoc.Z)
+if verbose:
+    print(grid)
+----
+
+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 15
+
+Grid characteristics:
+---------------------
+Origin :      1.000     3.000
+Mesh   :      2.000     1.000
+Number :          5         3
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = z1
+Column = 4 - Name = var2 - Locator = z2
+
+----
+
+[[calculate-the-variogram-on-grid]]
+== Calculate the Variogram on Grid
+
+We now calculate the variogram on the grid specifying the parameters : 2
+orthogonal directions with 5 lags of grid mesh size.
+
+[source, ipython3]
+----
+nvar = grid.getVariableNumber()
+variop = gl.VarioParam()
+npas = 5
+dir1 = gl.DirParam(ndim,npas,dx[0])
+dir1.setGrincr([1,0])
+dir2 = gl.DirParam(ndim,20,dx[1])
+dir2.setGrincr([0,1])
+variop.addDir(dir1)
+variop.addDir(dir2)
+vario = gl.Vario(variop,grid)
+err = vario.compute()
+if verbose:
+    print(vario)
+----
+
+
+----
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 2
+Number of direction(s)      = 2
+Space dimension             = 2
+Variance-Covariance Matrix
+               [,  0]    [,  1]
+     [  0,]    18.667     0.788
+     [  1,]     0.788     1.004
+
+Direction #1
+------------
+Number of lags              = 5
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      2.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1    51.000     2.008    19.471
+         2    27.000     4.160    18.667
+         3    18.000     6.109    21.167
+         4     9.000     8.082    24.667
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         1    51.000     2.008     0.427
+         2    27.000     4.160     1.115
+         3    18.000     6.109     0.771
+         4     9.000     8.082     2.538
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         1    51.000     2.008     0.990
+         2    27.000     4.160     1.081
+         3    18.000     6.109     0.966
+         4     9.000     8.082     1.770
+
+Direction #2
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.000 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1    10.000     1.000    12.500
+         2    33.000     2.114    14.061
+         3     8.000     2.828    50.500
+         4    27.000     4.160    18.667
+         6    18.000     6.109    21.167
+         8     9.000     8.082    24.667
+
+For variables 2 and 1
+      Rank    Npairs  Distance     Value
+         1    10.000     1.000     0.221
+         2    33.000     2.114     0.317
+         3     8.000     2.828     1.140
+         4    27.000     4.160     1.115
+         6    18.000     6.109     0.771
+         8     9.000     8.082     2.538
+
+For variable 2
+      Rank    Npairs  Distance     Value
+         1    10.000     1.000     1.531
+         2    33.000     2.114     0.903
+         3     8.000     2.828     0.673
+         4    27.000     4.160     1.081
+         6    18.000     6.109     0.966
+         8     9.000     8.082     1.770
+
+----
+
+Extract the variogram items corresponding to the variable #1 and
+direction #2 as an example. Note that the variables and directions are
+numbered starting from 0
+
+[source, ipython3]
+----
+ivar = 0
+jvar = 0
+idir = 1
+sw = vario.getSwVec(idir,ivar,jvar)
+hh = vario.getHhVec(idir,ivar,jvar)
+gg = vario.getGgVec(idir,ivar,jvar)
+variance = vario.getVar(ivar,jvar)
+----
+
+We can also plot it using the plotting module functions
+
+[source, ipython3]
+----
+ax = gp.varmod(vario,None,ivar,jvar,idir)
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_VarioGrid_17_0.png)
+----

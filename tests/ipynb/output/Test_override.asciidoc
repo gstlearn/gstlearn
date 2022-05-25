@@ -1,0 +1,371 @@
+[source, ipython3]
+----
+import gstlearn as gl
+import numpy as np
+----
+
+[source, ipython3]
+----
+def getitem(self,name):
+    if type(name) == str:
+        temp = np.array(self.getColumns([name],self.useSel))
+        nbvar = len(self.getNames([name]))
+    elif type(name) == list :
+        nbvar = len(name)
+        names = gl.VectorString(nbvar)
+        for i in range(nbvar):
+            names[i] = name[i]
+        temp = np.array(self.getColumns(names,self.useSel))
+        
+        
+    if self.useSel:
+        nrows = self.getActiveSampleNumber()
+    else:
+        nrows = self.getSampleNumber()
+        
+    temp = temp.reshape([nbvar,nrows]).T
+    temp[temp == gl.TEST] = None
+    return temp
+
+# This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
+# corresponding variables will be replaced and not added.
+
+def setitem(self,name,tab):
+    
+    if len(tab.shape) == 1 :
+        temptab = np.atleast_2d(tab).T
+    else :
+        temptab = tab
+    
+    nrows = tab.shape[0]
+    
+    if nrows == self.getActiveSampleNumber() :
+        useSel = True
+    elif nrows == self.getSampleNumber() or self.getSampleNumber()==0 :
+        useSel = False
+    else :
+        if self.getActiveSampleNumber() != self.getSampleNumber():
+            print("Error of dimension. Your number of lines has to be equal to " +
+                str(self.getActiveSampleNumber()) + " or " + str(self.getSampleNumber()))
+        else :
+            print("Error of dimension. Your number of lines has to be equal to " +
+                  str(self.getActiveSampleNumber()))
+
+    if type(name) == str :
+        names = self.getNames([name])
+    
+        if len(names) == 0 :
+            names = [name]
+        
+        if len(names) == 1 and temptab.shape[1] > 1:
+            names = gl.generateMultipleNames(name,temptab.shape[1])
+    elif type(name) == list :
+        names = name
+    
+    vectD = gl.VectorDouble()
+
+    for j in range(temptab.shape[1]):
+        vectD.resize(0)
+        for i in range(nrows):       
+            u = np.double(temptab[i,j])
+            if u is None : 
+                u = gl.TEST
+            vectD.push_back(u)
+            
+        self.setColumn(vectD,names[j],useSel)
+    
+#setattr(gl.Db,"useSel",False)
+
+#setattr(gl.Db,"__getitem__",getitem)
+
+#setattr(gl.Db,"__setitem__",setitem)
+----
+
+[[example]]
+= Example
+
+[source, ipython3]
+----
+a = gl.DbGrid.create([2,2],[1.,1.])
+a
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2----
+
+[[create-a-new-variable]]
+== Create a new variable
+
+[source, ipython3]
+----
+np.random.seed(123)
+x = np.random.normal(size=4)
+a["var1"] = x
+x
+----
+
+
+----array([-1.0856306 ,  0.99734545,  0.2829785 , -1.50629471])----
+
+[[get-a-variable]]
+== Get a variable
+
+[source, ipython3]
+----
+a["var1"]
+----
+
+
+----array([[-1.0856306 ],
+       [ 0.99734545],
+       [ 0.2829785 ],
+       [-1.50629471]])----
+
+[[replace-an-existing-variable]]
+== Replace an existing variable
+
+[source, ipython3]
+----
+a["var1"] = np.random.normal(size=4)
+----
+
+[source, ipython3]
+----
+a["var1"]
+----
+
+
+----array([[-0.57860025],
+       [ 1.65143654],
+       [-2.42667924],
+       [-0.42891263]])----
+
+[[use-regexp-for-get]]
+== Use regexp for get
+
+[source, ipython3]
+----
+a["var2"] = np.random.normal(size =4)
+a
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA----
+
+[source, ipython3]
+----
+a["var*"]
+----
+
+
+----array([[-0.57860025,  1.26593626],
+       [ 1.65143654, -0.8667404 ],
+       [-2.42667924, -0.67888615],
+       [-0.42891263, -0.09470897]])----
+
+[[use-regexp-for-replacing-several-variables]]
+== Use regexp for replacing several variables
+
+[source, ipython3]
+----
+a["var*"]=a["var*"]>0
+----
+
+[source, ipython3]
+----
+a["var*"]
+----
+
+
+----array([[0., 1.],
+       [1., 0.],
+       [0., 0.],
+       [0., 0.]])----
+
+[[create-several-variables-with-one-name]]
+= Create several variables with one name
+
+[source, ipython3]
+----
+a["newvar"] = np.random.normal(size = (4,3))
+----
+
+[source, ipython3]
+----
+a
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 4
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :          2         2
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = var1 - Locator = NA
+Column = 4 - Name = var2 - Locator = NA
+Column = 5 - Name = newvar-1 - Locator = NA
+Column = 6 - Name = newvar-2 - Locator = NA
+Column = 7 - Name = newvar-3 - Locator = NA----
+
+[source, ipython3]
+----
+a["newvar*"]
+----
+
+
+----array([[ 1.49138963, -0.638902  , -0.44398196],
+       [-0.43435128,  2.20593008,  2.18678609],
+       [ 1.0040539 ,  0.3861864 ,  0.73736858],
+       [ 1.49073203, -0.93583387,  1.17582904]])----
+
+[source, ipython3]
+----
+v = a["newvar*"]
+v[0,0]=None
+----
+
+[source, ipython3]
+----
+a["newvar*"] = v
+----
+
+[source, ipython3]
+----
+a["newvar*"]
+----
+
+
+----array([[        nan, -0.638902  , -0.44398196],
+       [-0.43435128,  2.20593008,  2.18678609],
+       [ 1.0040539 ,  0.3861864 ,  0.73736858],
+       [ 1.49073203, -0.93583387,  1.17582904]])----
+
+[[add-tab-to-a-newly-created-db-and-provide-several-names]]
+== Add tab to a newly created db (and provide several names)
+
+[source, ipython3]
+----
+a = gl.Db()
+a[["var1","var2"]] = np.random.normal(size=(12,2))
+a
+----
+
+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 0
+Number of Columns            = 2
+Maximum Number of UIDs       = 2
+Total number of samples      = 12
+
+Variables
+---------
+Column = 0 - Name = var1 - Locator = NA
+Column = 1 - Name = var2 - Locator = NA----
+
+[source, ipython3]
+----
+a[["var1","var2"]]
+----
+
+
+----array([[-1.25388067, -0.6377515 ],
+       [ 0.9071052 , -1.4286807 ],
+       [-0.14006872, -0.8617549 ],
+       [-0.25561937, -2.79858911],
+       [-1.7715331 , -0.69987723],
+       [ 0.92746243, -0.17363568],
+       [ 0.00284592,  0.68822271],
+       [-0.87953634,  0.28362732],
+       [-0.80536652, -1.72766949],
+       [-0.39089979,  0.57380586],
+       [ 0.33858905, -0.01183049],
+       [ 2.39236527,  0.41291216]])----
+
+[source, ipython3]
+----
+a["var*"]
+----
+
+
+----array([[-1.25388067, -0.6377515 ],
+       [ 0.9071052 , -1.4286807 ],
+       [-0.14006872, -0.8617549 ],
+       [-0.25561937, -2.79858911],
+       [-1.7715331 , -0.69987723],
+       [ 0.92746243, -0.17363568],
+       [ 0.00284592,  0.68822271],
+       [-0.87953634,  0.28362732],
+       [-0.80536652, -1.72766949],
+       [-0.39089979,  0.57380586],
+       [ 0.33858905, -0.01183049],
+       [ 2.39236527,  0.41291216]])----

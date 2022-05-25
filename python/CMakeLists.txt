@@ -10,29 +10,24 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # DEPENDENCIES
 
 # Look for Python3
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
-
-if (APPLE)
-  find_package(PythonLibs REQUIRED)
-endif()
 
 # Look for SWIG 4
 find_package(SWIG 4.0 REQUIRED)
-# TODO : If SWIG not found, fetch it from the web
+# TODO : If SWIG not found, fetch it from the web ?
 include(${SWIG_USE_FILE})
 
-# TODO : Look for matplotlib or fetch it from the web
-
 # Look for pybind11
+#set(PYBIND11_FINDPYTHON ON)
 find_package(pybind11 QUIET) # try locally
+# TODO : here is an issue https://github.com/pybind/pybind11/issues/2661
 if(NOT pybind11_FOUND) # else fetch it from github
   message(STATUS "Could NOT find pybind11 (fetching it from GitHub)")
   include(FetchContent)
   FetchContent_Declare(
     pybind11
     GIT_REPOSITORY https://github.com/pybind/pybind11.git
-    GIT_TAG v2.6.1
+    GIT_TAG v2.6.1 # TODO adjust pybind11 version
   )
   FetchContent_MakeAvailable(pybind11)
 endif()
@@ -64,7 +59,6 @@ add_dependencies(python_doc doxygen)
 
 # Python package interface file
 set(SRC pygstlearn.i)
-# No need to define %module in the interface file
 
 # Generation folders
 if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG ?

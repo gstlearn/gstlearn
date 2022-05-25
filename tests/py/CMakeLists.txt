@@ -2,10 +2,12 @@ if(NOT BUILD_PYTHON)
   return()
 endif()
 
+# TODO : All CMakeLists.txt for non-regression test scripts (py, R, ipynb) are similars (factorization ?)
+
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
-# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
+# Look for Python3
 find_package(Python3 REQUIRED)
 
 # With GLOB:

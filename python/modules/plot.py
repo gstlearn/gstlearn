@@ -847,7 +847,7 @@ def curve(data, icas=1, color='black',
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting the curve of an array (argument 'data')
-        icas=1 when 'data' represent the abscissae and 2 when 'data' represents the ordinate
+        icas=1 when 'data' represent the abscissa and 2 when 'data' represents the ordinate
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
     color = plot_args.setdefault('color', 'black')
@@ -874,7 +874,7 @@ def curve(data, icas=1, color='black',
 
 def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, 
        title=None, ax=None, figsize = None, end_plot=False, **plot_args):
-    """Plot Y againt X.
+    """Plot Y against X.
     **plot_args : arguments passed to matplotlib.pyplot.plot"""
     
     if not len(ytab) == len(xtab):
@@ -892,7 +892,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None,
         ax.plot(xtab, ytab, **plot_args)
     else:
         plot_args.setdefault('label', 'model')
-        plot_args.setdefault('fmt', 'g-')
+        #plot_args.setdefault('fmt', 'g-') # TODO : to be restored ? (doesn't work with python 3.9.2 / mpl 3.5.1)
         ax.plot(xtab, ytab, **plot_args)
     
     drawDecor(ax, title=title)

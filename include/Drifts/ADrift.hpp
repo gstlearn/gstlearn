@@ -26,5 +26,6 @@ public:
   virtual ~ADrift();
 
   virtual int getNVariables() const = 0;
+  /// TODO : Change ADrift::eval args from {Db,iech} to {SpacePoint p1, SpacePoint p2}
   virtual double eval(const Db* db, int iech) const = 0;
 };

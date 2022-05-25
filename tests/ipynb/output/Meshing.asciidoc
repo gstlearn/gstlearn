@@ -1,0 +1,205 @@
+[source, ipython3]
+----
+import gstlearn as gl
+import gstlearn.plot as gp
+import matplotlib.pyplot as plt
+import numpy as np
+----
+
+[source, ipython3]
+----
+grid = gl.DbGrid.create([6,4],[1.,5.],[10.,20.],[-80.,0.])
+grid.display();
+
+model = gl.Model.createFromDb(grid);
+cova = gl.CovAniso(gl.ECov.CUBIC,model.getContext());
+cova.setRanges([10,5]);
+cova.setAnisoAngles([80.,0.]);
+model.addCov(cova);
+model.display();
+
+mesh = gl.MeshETurbo();
+mesh.initFromCova(cova,grid,10,2,True,1);
+mesh.display()
+----
+
+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 24
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     5.000
+Number :          6         4
+Rotation Angles        =    -80.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174     0.985
+     [  1,]    -0.985     0.174
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Ranges       =     10.000     5.000
+- Angles       =     80.000     0.000
+- Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
+Total Sill     =      1.000
+ 
+Grid characteristics:
+---------------------
+Origin :     25.387    10.485
+Mesh   :      1.000     0.500
+Number :         14        36
+Rotation Angles        =     80.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174     0.985
+     [  1,]    -0.985     0.174
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
+ 
+Turbo Meshing
+-------------
+Diamond construction is activated
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 910
+Number of Apices          = 504
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:25.387 - Max:38.387
+Dim #2 - Min:10.4851 - Max:27.9851
+List of Apices
+- Number of rows    = 504
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]    25.387    10.485
+     [  1,]    25.561    11.470
+     [  2,]    25.734    12.455
+     [  3,]    25.908    13.439
+     [  4,]    26.082    14.424
+     [  5,]    26.255    15.409
+     [  6,]    26.429    16.394
+(Ncols=2,Nrows=7[from 504])
+List of Meshes
+               [,  0]    [,  1]    [,  2]
+     [  0,]         0         1        15
+     [  1,]         0        14        15
+     [  2,]         1         2        15
+     [  3,]        15         2        16
+     [  4,]         2         3        17
+     [  5,]         2        16        17
+     [  6,]         3         4        17
+(Ncols=3,Nrows=7[from 910])
+ 
+Grid characteristics:
+---------------------
+Origin :     25.387    10.485
+Mesh   :      1.000     0.500
+Number :         14        36
+Rotation Angles        =     80.000     0.000
+Direct Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174     0.985
+     [  1,]    -0.985     0.174
+Inverse Rotation Matrix
+               [,  0]    [,  1]
+     [  0,]     0.174    -0.985
+     [  1,]     0.985     0.174
+ 
+Turbo Meshing
+-------------
+Diamond construction is activated
+Euclidean Geometry
+Space Dimension           = 2
+Number of Apices per Mesh = 3
+Number of Meshes          = 910
+Number of Apices          = 504
+
+Bounding Box Extension
+----------------------
+Dim #1 - Min:25.387 - Max:38.387
+Dim #2 - Min:10.4851 - Max:27.9851
+List of Apices
+- Number of rows    = 504
+- Number of columns = 2
+               [,  0]    [,  1]
+     [  0,]    25.387    10.485
+     [  1,]    25.561    11.470
+     [  2,]    25.734    12.455
+     [  3,]    25.908    13.439
+     [  4,]    26.082    14.424
+     [  5,]    26.255    15.409
+     [  6,]    26.429    16.394
+(Ncols=2,Nrows=7[from 504])
+List of Meshes
+               [,  0]    [,  1]    [,  2]
+     [  0,]         0         1        15
+     [  1,]         0        14        15
+     [  2,]         1         2        15
+     [  3,]        15         2        16
+     [  4,]         2         3        17
+     [  5,]         2        16        17
+     [  6,]         3         4        17
+(Ncols=3,Nrows=7[from 910])
+ ----
+
+[source, ipython3]
+----
+x=mesh.getCoordinates(0)
+y=mesh.getCoordinates(1)
+dbP = gl.Db()
+dbP['x']=np.array(x)
+dbP['y']=np.array(y)
+dbP.setLocators(['x','y'],gl.ELoc.X)
+
+ax = gp.mesh(mesh, flagEdge=True, figsize=[10,10]) # Mesh
+ax = gp.grid(grid, ax=ax) # Initial grid
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Meshing_2_0.png)
+----
+
+[source, ipython3]
+----
+
+----

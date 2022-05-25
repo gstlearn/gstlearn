@@ -91,6 +91,9 @@ void exit_f(void)
 %extend Constraints {
   std::string __repr__() {  return $self->toString();  }
 }
+%extend Polygons {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend Model {
   std::string __repr__() {  return $self->toString(); }
 }

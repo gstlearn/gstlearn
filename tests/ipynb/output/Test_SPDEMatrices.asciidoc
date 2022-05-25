@@ -1,0 +1,594 @@
+Packages réguliers
+
+[source, ipython3]
+----
+import scipy as sc
+from scipy.sparse import *
+from scipy.sparse.linalg import *
+import numpy as np
+import pandas as pd
+import sys
+import os
+import matplotlib.pyplot as plt
+import gstlearn as gl
+import gstlearn.plot as gp
+----
+
+Paramètres d'environnement
+
+[source, ipython3]
+----
+verbose = False
+----
+
+[[création-du-champ-de-vecteur]]
+=== Création du champ de vecteur
+
+[source, ipython3]
+----
+def fa(x,y,a,b):
+    return a*x + b*y
+
+def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
+    x1c = np.array(db.getColumn("x1")) #getColumn ou mieux getCoords coords = workingDb.getCoords()
+    x2c = np.array(db.getColumn("x2")) 
+    u1=fa(x1c-50,x2c-50,a,b)
+    u2=fa(x1c-50,x2c-50,c,d)
+    shape = db.getNXs()
+    norm = np.sqrt(u1**2+u2**2)
+    ind = norm>0
+    theta = np.zeros_like(norm)
+    theta[norm>0] = np.arccos(u2[ind]/norm[ind])/np.pi*180*np.sign(u1[ind])
+    x1c=x1c.reshape(shape)
+    x2c=x2c.reshape(shape)
+    u1=u1.reshape(shape)
+    u2=u2.reshape(shape)
+    if plot:
+        plt.quiver(x1c,x2c,u1,u2)
+        plt.axis("equal")
+        plt.show()
+    return theta
+----
+
+Draw a vector field
+
+[source, ipython3]
+----
+workingDbc = gl.DbGrid.create([10,10],[10,10])
+spirale(workingDbc,plot=True);
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_7_0.png)
+array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
+        130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
+        105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
+        141.34019175,  136.97493401,  131.7602997 ,  125.53767779,
+        118.17859011,  109.65382406,  100.12467166,   90.        ,
+        152.30052719,  149.03624347,  145.0079798 ,  139.96974073,
+        133.60281897,  125.53767779,  115.46334506,  103.39249775,
+         90.        ,   76.60750225,  158.19859051,  154.98310652,
+        150.75117366,  145.0079798 ,  136.97493401,  125.53767779,
+        109.65382406,   90.        ,   70.34617594,   54.46232221,
+        166.86597769,  164.35775354,  160.70995378,  154.98310652,
+        145.0079798 ,  125.53767779,   90.        ,   54.46232221,
+         34.9920202 ,   25.01689348,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+       -160.70995378, -154.98310652, -145.0079798 , -125.53767779,
+        -90.        ,  -54.46232221,  -34.9920202 ,  -25.01689348,
+        -19.29004622,  -15.64224646, -136.97493401, -125.53767779,
+       -109.65382406,  -90.        ,  -70.34617594,  -54.46232221,
+        -43.02506599,  -34.9920202 ,  -29.24882634,  -25.01689348,
+       -115.46334506, -103.39249775,  -90.        ,  -76.60750225,
+        -64.53665494,  -54.46232221,  -46.39718103,  -40.03025927,
+        -34.9920202 ,  -30.96375653, -100.12467166,  -90.        ,
+        -79.87532834,  -70.34617594,  -61.82140989,  -54.46232221,
+        -48.2397003 ,  -43.02506599,  -38.65980825,  -34.9920202 ])----
+
+Création de la grille de travail
+
+[source, ipython3]
+----
+resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
+----
+
+Création de la db des données
+
+[source, ipython3]
+----
+np.random.seed(124)
+ndat=10000
+coords=np.random.uniform(1,99,size=(ndat,2))
+dat = gl.Db()
+dat.addColumns(coords[:,0],"X")
+dat.addColumns(coords[:,1],"Y")
+dat.setLocators(['X','Y'],gl.ELoc.X)
+----
+
+Création du modèle. Attention le grand axe doit etre fourni en premier:
+il correspond à la direction pointée par l'angle 'theta'.
+
+[source, ipython3]
+----
+model = gl.Model.createFromDb(resultDb)
+cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) #Alias ECov.MATERN
+cova.setRanges([4,45])
+model.addCov(cova)
+spirale = gl.FunctionalSpirale(0., 1.4, 1., 1., 50., 50.);
+nostat = gl.NoStatFunctional(spirale)
+err = model.addNoStat(nostat)
+----
+
+Création du meshing (Turbo)
+
+[source, ipython3]
+----
+workingDb = gl.DbGrid.create([101,101],[1,1]) 
+mesh = gl.MeshETurbo(workingDb)
+----
+
+Création du Shift Operator
+
+[source, ipython3]
+----
+S = gl.ShiftOpCs(mesh, model, resultDb)
+----
+
+Création de l'opérateur de précision
+
+[source, ipython3]
+----
+Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, verbose)
+----
+
+Simulation non-conditionnelle
+
+[source, ipython3]
+----
+vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
+result = gl.VectorDouble(np.empty_like(vect))
+Qsimu.eval(vect,result)
+workingDb.addColumns(result,"Simu",gl.ELoc.X)
+
+ax = gp.grid(workingDb,"Simu")
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_21_0.png)
+----
+
+Matrice de précision
+
+[source, ipython3]
+----
+Qkriging = gl.PrecisionOpCs(S, cova, gl.EPowerPT.ONE)
+Qtr = gl.csToTriplet(Qkriging.getQ())
+Qmat = sc.sparse.csc_matrix((np.array(Qtr.values), (np.array(Qtr.rows), np.array(Qtr.cols))))
+----
+
+[[comparaison-produit-par-q-de-2-façons]]
+== Comparaison produit par Q de 2 façons
+
+[source, ipython3]
+----
+xx=np.random.normal(size=Qkriging.getSize())
+vectxx = gl.VectorDouble(xx)
+----
+
+[source, ipython3]
+----
+y=Qmat@xx
+----
+
+[source, ipython3]
+----
+resultxx = gl.VectorDouble(np.empty_like(vectxx))
+Qkriging.eval(vectxx,resultxx)
+----
+
+[source, ipython3]
+----
+plt.scatter(resultxx,y,s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_28_0.png)
+----
+
+[[vérification-de-linverse]]
+=== Vérification de l'inverse
+
+[source, ipython3]
+----
+Qtest = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSONE)
+resulttest = gl.VectorDouble(np.empty_like(vectxx))
+Qtest.eval(resultxx,resulttest)
+plt.scatter(resulttest,xx,s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_30_0.png)
+----
+
+[[suspect]]
+= Suspect
+
+Comparaison de latexmath:[$Q^{-1}x$] et latexmath:[$Q^{-1/2}Q^{-1/2}x$]
+
+[source, ipython3]
+----
+xx=np.random.normal(size=Qkriging.getSize())
+vectxx = gl.VectorDouble(xx)
+resultxx2 = gl.VectorDouble(np.empty_like(vectxx))
+
+#Méthode 1
+Qsimu.eval(xx,vectxx)
+Qsimu.eval(vectxx,resultxx2)
+
+#Méthode 2
+Qtest.eval(xx,resulttest)
+
+plt.scatter(resultxx2,resulttest,s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_32_0.png)
+----
+
+Matrice de projection (on utilise un constructeur specifique)
+
+[source, ipython3]
+----
+B = gl.ProjMatrix(dat,mesh)
+Btr = gl.csToTriplet(B.getAproj())
+Bmat=sc.sparse.csc_matrix((np.array(Btr.values), (np.array(Btr.rows), np.array(Btr.cols))),
+                          shape=(Btr.nrows,Btr.ncols))
+----
+
+Génération des données
+
+[source, ipython3]
+----
+size = dat.getSampleNumber()
+u=gl.VectorDouble(np.zeros(size))
+B.mesh2point(result,u)
+dat.addColumns(u,"Z",gl.ELoc.Z)
+plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")
+plt.show()
+datVal =[i for i in u]
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_36_0.png)
+----
+
+[source, ipython3]
+----
+nug = 0.01
+WorkingMat = Qmat+1/nug * Bmat.T @ Bmat
+rhs = 1/nug * Bmat.T * datVal
+rhsvd = gl.VectorDouble(rhs)
+----
+
+[source, ipython3]
+----
+kriging = sc.sparse.linalg.cg(WorkingMat,rhs)[0] #Ici rebrancher le gradient conjugué
+----
+
+[source, ipython3]
+----
+iatt = workingDb.addColumns(kriging,"Kriging")
+----
+
+[source, ipython3]
+----
+ax = gp.grid(workingDb,"Kriging",title="Kriging on Working Grid")
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_40_0.png)
+----
+
+Projection sur la grille de résultats
+
+[source, ipython3]
+----
+Bresult = gl.ProjMatrix(resultDb,mesh)
+Bresulttr = gl.csToTriplet(Bresult.getAproj())
+Bresultmat=sc.sparse.csc_matrix((np.array(Bresulttr.values), (np.array(Bresulttr.rows), np.array(Bresulttr.cols))),
+                          shape=(Bresulttr.nrows,Bresulttr.ncols))
+----
+
+[source, ipython3]
+----
+iatt = resultDb.addColumns(Bresultmat@kriging,"Kriging")
+----
+
+[source, ipython3]
+----
+ax = gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid")
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_44_0.png)
+----
+
+[source, ipython3]
+----
+vc = gl.VectorVectorDouble()
+vc.push_back(gl.VectorDouble(rhs))
+resultvc = gl.VectorVectorDouble()
+resultvc.push_back(gl.VectorDouble(np.zeros_like(rhs)))
+----
+
+[[test-de-evaldirect]]
+= Test de evalDirect
+
+[source, ipython3]
+----
+A=gl.PrecisionOpMultiConditional()
+A.push_back(Qkriging,B)
+A.setVarianceData(nug)
+A.evalDirect(vc,resultvc)
+----
+
+[source, ipython3]
+----
+m=np.min(WorkingMat@rhs)
+M=np.max(WorkingMat@rhs)
+plt.scatter(WorkingMat@rhs,resultvc[0],s=1)
+plt.plot([m,M],[m,M],c="r")
+plt.show()
+np.max(np.abs(WorkingMat@rhs-resultvc[0]))
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_48_0.png)
+3.4924596548080444e-10----
+
+[[test-de-evalinverse]]
+= Test de evalInverse
+
+[source, ipython3]
+----
+A.evalInverse(vc,resultvc)
+plt.scatter(kriging,resultvc[0],s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_50_0.png)
+----
+
+[source, ipython3]
+----
+iatt = workingDb.addColumns(resultvc[0],"Kriging")
+ax = gp.grid(workingDb,"Kriging")
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_51_0.png)
+----
+
+[[calcul-du-log-du-déterminant-de-q]]
+== Calcul du log du déterminant de Q
+
+1.  Somme des logs des valeurs propres
+
+[source, ipython3]
+----
+#eigvals=sc.linalg.eigvals(Qmat.todense())
+----
+
+[source, ipython3]
+----
+#np.sum(np.log(np.real(eigvals)))
+----
+
+1.  Cholesky (nécessite scikit-sparse basé sur CHOLMOD qui doit être
+installé)
+
+[source, ipython3]
+----
+from sksparse.cholmod import cholesky
+cc=cholesky(Qmat)
+cc.logdet()
+----
+
+
+----56730.22202892841----
+
+1.  Approximation par la méthode de Mike
+
+[source, ipython3]
+----
+Qlog = gl.PrecisionOp(S, cova, gl.EPowerPT.LOG)
+----
+
+[source, ipython3]
+----
+s=0
+nsim = 1000
+for i in range(nsim):
+    xx=np.array([1.  if i>0 else -1. for i in np.random.normal(size=Qkriging.getSize())])
+    xx=np.random.normal(size=Qkriging.getSize())
+    Qlog.eval(xx,result)
+    s+=np.sum(result*xx)
+resc=s/nsim
+----
+
+[source, ipython3]
+----
+v=np.sum(np.log(S.getLambdas()))
+----
+
+[source, ipython3]
+----
+resc+2*v
+----
+
+
+----56715.322048707596----
+
+[source, ipython3]
+----
+Qlog.computeLogDet(1000,1003)
+----
+
+
+----56756.47486885724----
+
+[source, ipython3]
+----
+import numpy as np
+
+from scipy.sparse.linalg import LinearOperator
+
+class prodBlock():
+    def __init__(self,Q,Pmat,nugget=0.01,Qinv=None):
+        self.Q = Qkriging
+        self.P = Pmat
+        self.Qinv=Qinv
+        self.nugget = nugget
+        self.nvertex = self.Q.getSize()
+        self.ndata=self.P.getPointNumber()
+        n=self.ndata+self.nvertex
+        self.shape=[n,n]
+       # self.dtype=object
+        self.r1 = gl.VectorDouble(np.zeros(self.nvertex))
+        self.r2 = gl.VectorDouble(np.zeros(self.ndata))
+        self.t1 = gl.VectorDouble(np.zeros(self.nvertex))
+        self.t2 = gl.VectorDouble(np.zeros(self.ndata))
+    def _matvec(self,v):
+        v1 = gl.VectorDouble(v[0:self.nvertex])
+        v2 = gl.VectorDouble(v[self.nvertex:(self.nvertex+self.ndata)])
+        self.Q.eval(v1,self.r1)
+        self.P.point2mesh(v2,self.t1)
+        for i in range(self.r1.size()):
+            self.r1[i]+=self.t1[i]
+        self.P.mesh2point(v1,self.r2)
+        for i in range(self.r2.size()):
+            self.r2[i]-=self.nugget * v2[i]
+        return np.concatenate([np.array(self.r1),np.array(self.r2)])
+    def _precond(self,v):
+        v1 = gl.VectorDouble(v[0:self.nvertex])
+        v2 =v[self.nvertex:(self.nvertex+self.ndata)]
+        self.Qinv.eval(v1,self.r1)
+        return np.concatenate([np.array(self.r1),v2])
+    def _precondDirect(self,v):
+        v1 = gl.VectorDouble(v)
+        self.Qinv.eval(v1,self.r1)
+        return np.array(self.r1)
+    def _direct(self,v):
+        v1 = gl.VectorDouble(v)
+        self.Q.eval(v1,self.r1)
+        self.P.mesh2point(v1,self.t2)
+        self.P.point2mesh(self.t2,self.t1)
+        for i in range(self.r1.size()):
+            self.r1[i]+=1/self.nugget*self.t1[i]
+        return np.array(self.r1)
+----
+
+[source, ipython3]
+----
+LinOp=prodBlock(Qkriging,B,nug,Qtest)
+NewRHS=gl.VectorDouble(np.concatenate((rhs,np.zeros(ndat))))
+----
+
+[source, ipython3]
+----
+LinOp._matvec(NewRHS)
+----
+
+
+----array([-1.24821469e+05,  1.63725798e+05, -8.91689914e+03, ...,
+       -1.16572229e+00, -4.16357029e+01,  4.57790241e+01])----
+
+[source, ipython3]
+----
+np.random.seed(0)
+NewRHS=gl.VectorDouble(np.concatenate((rhs,np.zeros(ndat))))
+LinOp._matvec(NewRHS)
+Alin = LinearOperator(LinOp.shape, matvec=LinOp._matvec)
+ACG = LinearOperator((Qkriging.getSize(),Qkriging.getSize()), matvec=LinOp._direct)
+Precond = LinearOperator(LinOp.shape, matvec=LinOp._precond)
+PrecondDirect = LinearOperator((Qkriging.getSize(),Qkriging.getSize()), matvec=LinOp._precondDirect)
+----
+
+[source, ipython3]
+----
+from scipy.sparse.linalg import gmres
+u=gmres(Alin, NewRHS,maxiter=10,tol=1e-5,atol=1e-5,M=Precond)
+plt.scatter(kriging,u[0][0:Qkriging.getSize()],s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_67_0.png)
+----
+
+[source, ipython3]
+----
+from scipy.sparse.linalg import lgmres
+u=lgmres(Alin, NewRHS,maxiter=15,tol=1e-5,atol=1e-5,M=Precond)
+plt.scatter(kriging,u[0][0:Qkriging.getSize()],s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_68_0.png)
+----
+
+[source, ipython3]
+----
+from scipy.sparse.linalg import minres
+u=minres(Alin, NewRHS,maxiter=100,tol=1e-10,M=Precond)
+plt.scatter(kriging,u[0][0:Qkriging.getSize()],s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_69_0.png)
+----
+
+[source, ipython3]
+----
+u=cg(ACG, rhs,maxiter=100,tol=1e-10,atol=1e-10,M=PrecondDirect)
+plt.scatter(u[0],kriging,s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_70_0.png)
+----
+
+[source, ipython3]
+----
+u=cg(Alin, NewRHS,maxiter=10,tol=1e-10,atol=1e-10,M=Precond)
+plt.scatter(kriging,u[0][0:Qkriging.getSize()],s=1)
+plt.show()
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEMatrices_71_0.png)
+----

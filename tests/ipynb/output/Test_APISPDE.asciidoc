@@ -1,0 +1,248 @@
+[source, ipython3]
+----
+import scipy as sc
+from scipy.sparse import *
+from scipy.sparse.linalg import *
+import numpy as np
+import pandas as pd
+import sys
+import os
+import matplotlib.pyplot as plt
+import gstlearn as gl
+import gstlearn.plot as gp
+----
+
+[source, ipython3]
+----
+def fa(x,y,a,b):
+    return a*x + b*y
+
+def spirale(db,a=0,b=-1.4,c=1.,d=1.,plot = False):
+    x1c = np.array(db.getColumn("x1")) #getColumn ou mieux getCoords coords = workingDb.getCoords()
+    x2c = np.array(db.getColumn("x2")) 
+    u1=fa(x1c-50,x2c-50,a,b)
+    u2=fa(x1c-50,x2c-50,c,d)
+    shape = db.getNXs()
+    norm = np.sqrt(u1**2+u2**2)
+    ind = norm>0
+    theta = np.zeros_like(norm)
+    theta[norm>0] = np.arccos(u2[ind]/norm[ind])/np.pi*180*np.sign(u1[ind])
+    x1c=x1c.reshape(shape)
+    x2c=x2c.reshape(shape)
+    u1=u1.reshape(shape)
+    u2=u2.reshape(shape)
+    if plot:
+        plt.quiver(x1c,x2c,u1,u2)
+        plt.axis("equal")
+        plt.show()
+    return theta
+----
+
+[source, ipython3]
+----
+workingDbc = gl.DbGrid.create([10,10],[10,10])
+spirale(workingDbc,plot=True);
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_2_0.png)
+array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
+        130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
+        105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
+        141.34019175,  136.97493401,  131.7602997 ,  125.53767779,
+        118.17859011,  109.65382406,  100.12467166,   90.        ,
+        152.30052719,  149.03624347,  145.0079798 ,  139.96974073,
+        133.60281897,  125.53767779,  115.46334506,  103.39249775,
+         90.        ,   76.60750225,  158.19859051,  154.98310652,
+        150.75117366,  145.0079798 ,  136.97493401,  125.53767779,
+        109.65382406,   90.        ,   70.34617594,   54.46232221,
+        166.86597769,  164.35775354,  160.70995378,  154.98310652,
+        145.0079798 ,  125.53767779,   90.        ,   54.46232221,
+         34.9920202 ,   25.01689348,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+       -160.70995378, -154.98310652, -145.0079798 , -125.53767779,
+        -90.        ,  -54.46232221,  -34.9920202 ,  -25.01689348,
+        -19.29004622,  -15.64224646, -136.97493401, -125.53767779,
+       -109.65382406,  -90.        ,  -70.34617594,  -54.46232221,
+        -43.02506599,  -34.9920202 ,  -29.24882634,  -25.01689348,
+       -115.46334506, -103.39249775,  -90.        ,  -76.60750225,
+        -64.53665494,  -54.46232221,  -46.39718103,  -40.03025927,
+        -34.9920202 ,  -30.96375653, -100.12467166,  -90.        ,
+        -79.87532834,  -70.34617594,  -61.82140989,  -54.46232221,
+        -48.2397003 ,  -43.02506599,  -38.65980825,  -34.9920202 ])----
+
+[source, ipython3]
+----
+resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
+x1 = resultDb['x1']
+x2 = resultDb['x2']
+theta = spirale(resultDb)
+iatt = resultDb['theta'] = theta
+resultDb.setLocator("theta",gl.ELoc.NOSTAT)
+resultDb
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 40000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.500     0.500
+Number :        200       200
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = theta - Locator = nostat1----
+
+[source, ipython3]
+----
+np.random.seed(124)
+ndat=10000
+coords=np.random.uniform(1,99,size=(ndat,2))
+dat = gl.Db()
+dat["X"]= coords[:,0]
+dat["Y"]= coords[:,1]
+dat.setLocators(['X','Y'],gl.ELoc.X)
+----
+
+[source, ipython3]
+----
+model = gl.Model.createFromDb(resultDb)
+cova = gl.CovAniso(gl.ECov.BESSEL_K,model.getContext()) #Alias ECov.MATERN
+cova.setRanges([4,45])
+model.addCov(cova)
+----
+
+[source, ipython3]
+----
+workingDb = gl.DbGrid.create([101,101],[1.,1.]) 
+mesh = gl.MeshETurbo(workingDb)
+----
+
+[source, ipython3]
+----
+NoStat = gl.NoStatArray(["A"], resultDb)
+#err = model.addNoStat(NoStat)
+----
+
+[source, ipython3]
+----
+S = gl.ShiftOpCs(mesh, model, resultDb)
+----
+
+[source, ipython3]
+----
+Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, False)
+----
+
+[source, ipython3]
+----
+vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
+result = gl.VectorDouble(np.empty_like(vect))
+Qsimu.eval(vect,result)
+workingDb.addColumns(result,"Simu",gl.ELoc.X)
+
+gp.grid(workingDb,"Simu")
+spirale(workingDbc,plot=True);
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_10_0.png)
+array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
+        130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
+        105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
+        141.34019175,  136.97493401,  131.7602997 ,  125.53767779,
+        118.17859011,  109.65382406,  100.12467166,   90.        ,
+        152.30052719,  149.03624347,  145.0079798 ,  139.96974073,
+        133.60281897,  125.53767779,  115.46334506,  103.39249775,
+         90.        ,   76.60750225,  158.19859051,  154.98310652,
+        150.75117366,  145.0079798 ,  136.97493401,  125.53767779,
+        109.65382406,   90.        ,   70.34617594,   54.46232221,
+        166.86597769,  164.35775354,  160.70995378,  154.98310652,
+        145.0079798 ,  125.53767779,   90.        ,   54.46232221,
+         34.9920202 ,   25.01689348,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+          0.        ,    0.        ,    0.        ,    0.        ,
+       -160.70995378, -154.98310652, -145.0079798 , -125.53767779,
+        -90.        ,  -54.46232221,  -34.9920202 ,  -25.01689348,
+        -19.29004622,  -15.64224646, -136.97493401, -125.53767779,
+       -109.65382406,  -90.        ,  -70.34617594,  -54.46232221,
+        -43.02506599,  -34.9920202 ,  -29.24882634,  -25.01689348,
+       -115.46334506, -103.39249775,  -90.        ,  -76.60750225,
+        -64.53665494,  -54.46232221,  -46.39718103,  -40.03025927,
+        -34.9920202 ,  -30.96375653, -100.12467166,  -90.        ,
+        -79.87532834,  -70.34617594,  -61.82140989,  -54.46232221,
+        -48.2397003 ,  -43.02506599,  -38.65980825,  -34.9920202 ])----
+
+[source, ipython3]
+----
+ind = np.random.choice(workingDb.getActiveSampleNumber(), size=100, replace=False)
+data = gl.Db()
+data['x1'] = workingDb['x1'][ind]
+data['x2'] = workingDb['x1'][ind]
+data['z']  = workingDb['Simu'][ind]
+data.setLocator('x*',gl.ELoc.X)
+data.setLocator('z',gl.ELoc.Z)
+data
+----
+
+
+----
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 100
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = z - Locator = z1----
+
+[source, ipython3]
+----
+spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND)
+----
+
+[source, ipython3]
+----
+spde.compute()
+----
+
+[source, ipython3]
+----
+iuid = spde.query(workingDb)
+----
+
+[source, ipython3]
+----
+ax=gp.grid(workingDb,'*simu')
+----
+
+
+----
+![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_15_0.png)
+----
