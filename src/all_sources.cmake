@@ -108,7 +108,6 @@ set(SRC
   Core/simtub.cpp
   Core/matrix.cpp
   Core/spill.cpp
-  Core/simsphe.cpp
   Core/acknowledge.cpp
   Core/simfine.cpp
   Core/vtk.cpp
@@ -280,4 +279,6 @@ set(SRC
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
+  Simulation/SimuSpherical.cpp
+  Simulation/SimuSphericalParam.cpp
 )

@@ -752,7 +752,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
-        if (isActive(iech))
+        if (! useSel || isActive(iech))
           tab[3][ecr] = getArray(iech, iuid);
         else
           tab[3][ecr] = TEST;
@@ -785,7 +785,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
-        if (isActive(iech))
+        if (! useSel || isActive(iech))
           tab[3][ecr] = getArray(iech, iuid);
         else
           tab[3][ecr] = TEST;
@@ -818,7 +818,7 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
         tab[0][ecr] = coor[0];
         tab[1][ecr] = coor[1];
         tab[2][ecr] = coor[2];
-        if (isActive(iech))
+        if (! useSel || isActive(iech))
           tab[3][ecr] = getArray(iech, iuid);
         else
           tab[3][ecr] = TEST;

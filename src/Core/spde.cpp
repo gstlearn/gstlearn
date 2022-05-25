@@ -10724,8 +10724,7 @@ int m2d_gibbs_spde(Db *dbin,
 
   /* Preparing the variables in 'dbout' */
 
-  nfois = (flag_drift) ? 1 :
-                         nbsimu;
+  nfois = (flag_drift) ? 1 : nbsimu;
   iatt_out = dbout->addColumnsByConstant(nlayer * nfois, TEST);
   if (iatt_out < 0) goto label_end;
 

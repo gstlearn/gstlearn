@@ -39,10 +39,11 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
+#include "Simulation/SimuSpherical.hpp"
+#include "Simulation/SimuSphericalParam.hpp"
 
 #include <math.h>
 #include <string.h>
-
 
 /*! \cond */
 #define DATA   0
@@ -2952,4 +2953,104 @@ int simcond(Db *dbin,
   (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
   (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
   return (error);
+}
+
+/*****************************************************************************/
+/*!
+ **  Simulates the random function on the sphere
+ **
+ ** \param[in]  db          Data base containing the coordinates of target points
+ **                         These coordinates must be expressed in long/lat
+ ** \param[in]  model       Model (defined in Euclidean space) to be used
+ ** ]param[in]  sphepar     SimuSphericalParam structure
+ ** \param[in]  seed        Seed for random number generation
+ ** \param[in]  verbose     Verbose flag
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int simsph(DbGrid *db,
+           Model *model,
+           const SimuSphericalParam& sphepar,
+           int seed,
+           bool verbose,
+           const NamingConvention& namconv)
+{
+  int flag_sphere;
+
+  /* Preliminary checks */
+
+  variety_query(&flag_sphere);
+  if (!flag_sphere)
+  {
+    messerr("The Spherical Simulation is restricted to Spherical coordinates");
+    return 1;
+  }
+  if (!ut_is_legendre_defined()) return 1;
+  if (db->getNDim() != 2)
+  {
+    messerr("The Simulation on Sphere is restricted to 2-D case");
+    return 1;
+  }
+  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  {
+    if (model->getCova(icova)->getFlagAniso())
+    {
+      messerr("Only Isotropic Models may be used for Spherical Simulations");
+      return 1;
+    }
+  }
+
+  /* Create the new variable in the Data base */
+
+  int iptr = db->addColumnsByConstant(1, 0., String(), ELoc::SIMU);
+
+  SimuSpherical simsphe(1, seed);
+  if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
+
+  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, "Simu");
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+ **  Simulates the random function on the sphere
+ **
+ ** \return The Vector simulated values
+ **
+ ** \param[in]  mesh        MeshSpherical object
+ ** \param[in]  model       Model (defined in Euclidean space) to be used
+ ** \param[in]  sphepar     SimuSphericalParam structure
+ ** \param[in]  seed        Seed for random number generation
+ ** \param[in]  verbose     Verbose flag
+ **
+ *****************************************************************************/
+VectorDouble simsph_mesh(MeshSpherical *mesh,
+                         Model *model,
+                         const SimuSphericalParam& sphepar,
+                         int seed,
+                         int verbose)
+{
+  VectorDouble simu;
+  int flag_sphere;
+
+  variety_query(&flag_sphere);
+  if (!flag_sphere)
+  {
+    messerr("The Spherical Simulation is restricted to Spherical coordinates");
+    return simu;
+  }
+  if (!ut_is_legendre_defined()) return simu;
+  for (int icova = 0; icova < model->getCovaNumber(); icova++)
+  {
+    if (model->getCova(icova)->getFlagAniso())
+    {
+      messerr("Only Isotropic Models may be used for Spherical Simulations");
+      return simu;
+    }
+  }
+
+  SimuSpherical simsphe(1, seed);
+  simu = simsphe.simulate_mesh(mesh, model, sphepar, verbose);
+
+  return simu;
 }

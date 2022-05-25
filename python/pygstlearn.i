@@ -100,6 +100,9 @@ void exit_f(void)
 %extend SimuBooleanParam {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SimuSphericalParam {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

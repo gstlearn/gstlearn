@@ -41,6 +41,7 @@ class ECalcVario;
 class PCA;
 class ModelBoolean;
 class SimuBooleanParam;
+class SimuSphericalParam;
 class MeshSpherical;
 
 /*************************/
@@ -63,23 +64,9 @@ GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 
-/*****************************************/
-/* Prototyping the functions in simsph.c */
-/*****************************************/
-GSTLEARN_EXPORT int simsph_f(DbGrid *db,
-                             Model *model,
-                             int seed,
-                             int special,
-                             int nbf,
-                             int nfmax,
-                             int verbose);
-VectorDouble simsph_mesh(MeshSpherical *mesh,
-                         Model *model,
-                         int seed,
-                         int special,
-                         int nbf,
-                         int nfmax,
-                         int verbose);
+/****************************************/
+/* Prototyping the functions in variety */
+/****************************************/
 
 GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
 GSTLEARN_EXPORT void variety_query(int *flag_sphere);
@@ -574,6 +561,17 @@ GSTLEARN_EXPORT int simbool(Db *dbin,
                             bool flag_rank = true,
                             bool verbose = false,
                             const NamingConvention& namconv = NamingConvention("Boolean"));
+GSTLEARN_EXPORT int simsph(DbGrid *db,
+                           Model *model,
+                           const SimuSphericalParam& sphepar,
+                           int seed,
+                           bool verbose,
+                           const NamingConvention& namconv = NamingConvention("SimSphe"));
+GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
+                                         Model *model,
+                                         const SimuSphericalParam& sphepar,
+                                         int seed,
+                                         int verbose);
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

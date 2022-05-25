@@ -265,6 +265,8 @@
 #include "Simulation/BooleanObject.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Simulation/SimuSpherical.hpp"
+#include "Simulation/SimuSphericalParam.hpp"
 
 #include "segy.h"
 
