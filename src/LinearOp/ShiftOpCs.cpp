@@ -143,6 +143,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
   try
   {
     // Not stationarity is not coded in this deprecated code
+
     if (model->isNoStat())
       my_throw("Non-stationarity is not coded in this deprecated Shiftop code");
 
@@ -1049,58 +1050,95 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
 }
 
 /**
- * Calculate the private member "_S" directly from the Mesh for Velocity
+ * Calculate the private member "_S" directly from the Mesh on a Variety in 3-D space
  * @param amesh Description of the Mesh (New class)
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSVel(const AMesh *amesh,
-                          double tol)
+int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 {
   std::map<std::pair<int, int>, double> tab;
+  double coeff[3][2];
 
   int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
-  int igrf = _getIgrf();
-  int icov = _getIcov();
 
   // Initialize the arrays
 
-  VectorDouble vel(2);
-  VectorDouble matv(ncorner);
+  VectorDouble srot(2), axe1(3), axe2(3), vel(3), matv(ncorner);
+  MatrixSquareSymmetric hh(ndim);
   MatrixSquareGeneral matu(ncorner);
+  MatrixSquareGeneral mat(ncorner);
   MatrixRectangular matw(ndim, ncorner);
 
-  // Define the global HH matrix
+  // Define the global matrices
 
-  _loadAux(vel, EConsElem::VELOCITY, 0);
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+  if (_isGlobalHH(igrf, icov))
+    _loadHHByApex(hh, 0);
+  if (! _isNoStat())
+  {
+    _loadAux(srot, EConsElem::SPHEROT, 0);
+    _loadAux(vel, EConsElem::VELOCITY, 0);
+  }
 
   /* Loop on the meshes */
 
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
   {
     OptDbg::setIndex(imesh + 1);
-    double meshSize = amesh->getMeshSize(imesh);
 
     // Non stationary case
 
-    const ANoStat* nostat = _getModel()->getNoStat();
-    if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
-      _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
+    if (_isNoStat())
+    {
+      const ANoStat* nostat = _getModel()->getNoStat();
+      if (nostat->isDefinedforAnisotropy(igrf, icov))
+        _loadHHPerMesh(hh, amesh, imesh);
+      if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
+        _loadAuxPerMesh(srot, amesh, EConsElem::SPHEROT, imesh);
+      if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
+        _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
+    }
 
-    // Case of Euclidean geometry
+    // Case of Spherical geometry
 
-    if (_preparMatrices(amesh, imesh, matu, matw))
-      my_throw("Problem in matrix inversion");
-
-    // Update for Advection (non-stationary)
+    _projectMesh(amesh, srot, imesh, coeff);
 
     for (int icorn = 0; icorn < ncorner; icorn++)
     {
-      matv[icorn] = 0.;
       for (int idim = 0; idim < ndim; idim++)
-        matv[icorn] += vel[idim] * matw.getValue(idim, icorn);
+        matu.setValue(idim, icorn, coeff[icorn][idim]);
+      matu.setValue(ncorner - 1, icorn, 1.);
+    }
+
+    if (matu.invert())
+    {
+      messerr("Problem for Mesh #%d", imesh + 1);
+      amesh->printMeshes(imesh);
+      my_throw("Matrix inversion");
+    }
+
+    for (int icorn = 0; icorn < ncorner; icorn++)
+      for (int idim = 0; idim < ndim; idim++)
+        matw.setValue(idim, icorn, matu.getValue(icorn, idim));
+
+    // Update for Advection (non-stationary)
+
+    if (_isVelocity())
+    {
+      for (int icorn = 0; icorn < ncorner; icorn++)
+      {
+        matv[icorn] = 0.;
+        for (int idim = 0; idim < ndim; idim++)
+          matv[icorn] += vel[idim] * matw.getValue(idim, icorn);
+      }
+    }
+    else
+    {
+      mat.normMatrix(hh, matw);
     }
 
     for (int j0 = 0; j0 < ncorner; j0++)
@@ -1108,8 +1146,8 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
       {
         int ip0 = amesh->getApex(imesh, j0);
         int ip1 = amesh->getApex(imesh, j1);
-        double vald = matv[j1] * meshSize;
-        _mapUpdate(tab, ip0, ip1, vald, tol);
+        double vald = (_isVelocity()) ? matv[j1] : mat.getValue(j0, j1);
+        _mapUpdate(tab, ip0, ip1, vald * amesh->getMeshSize(imesh), tol);
       }
   }
 
@@ -1121,10 +1159,10 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 
   error = 0;
 
-  label_end:
-  if (error) _S = cs_spfree(_S);
+  label_end: if (error) _S = cs_spfree(_S);
   return error;
 }
+
 
 /**
  * Calculate the private member "_S" directly from the Mesh
@@ -1238,6 +1276,84 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
   error = 0;
 
   label_end: if (error) _S = cs_spfree(_S);
+  return error;
+}
+
+/**
+ * Calculate the private member "_S" directly from the Mesh for Velocity
+ * @param amesh Description of the Mesh (New class)
+ * @param tol Tolerance beyond which elements are not stored in S matrix
+ * @return Error return code
+ */
+int ShiftOpCs::_buildSVel(const AMesh *amesh,
+                          double tol)
+{
+  std::map<std::pair<int, int>, double> tab;
+
+  int error = 1;
+  int ndim = getNDim();
+  int ncorner = amesh->getNApexPerMesh();
+  int igrf = _getIgrf();
+  int icov = _getIcov();
+
+  // Initialize the arrays
+
+  VectorDouble vel(2);
+  VectorDouble matv(ncorner);
+  MatrixSquareGeneral matu(ncorner);
+  MatrixRectangular matw(ndim, ncorner);
+
+  // Define the global HH matrix
+
+  _loadAux(vel, EConsElem::VELOCITY, 0);
+
+  /* Loop on the meshes */
+
+  for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
+  {
+    OptDbg::setIndex(imesh + 1);
+    double meshSize = amesh->getMeshSize(imesh);
+
+    // Non stationary case
+
+    const ANoStat* nostat = _getModel()->getNoStat();
+    if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
+      _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
+
+    // Case of Euclidean geometry
+
+    if (_preparMatrices(amesh, imesh, matu, matw))
+      my_throw("Problem in matrix inversion");
+
+    // Update for Advection (non-stationary)
+
+    for (int icorn = 0; icorn < ncorner; icorn++)
+    {
+      matv[icorn] = 0.;
+      for (int idim = 0; idim < ndim; idim++)
+        matv[icorn] += vel[idim] * matw.getValue(idim, icorn);
+    }
+
+    for (int j0 = 0; j0 < ncorner; j0++)
+      for (int j1 = 0; j1 < ncorner; j1++)
+      {
+        int ip0 = amesh->getApex(imesh, j0);
+        int ip1 = amesh->getApex(imesh, j1);
+        double vald = matv[j1] * meshSize;
+        _mapUpdate(tab, ip0, ip1, vald, tol);
+      }
+  }
+
+  _S = cs_spfree(_S);
+  _S = _BuildSfromMap(tab);
+  if (_S == nullptr) goto label_end;
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end:
+  if (error) _S = cs_spfree(_S);
   return error;
 }
 

@@ -2430,10 +2430,10 @@ int meshes_2D_sph_create(int verbose, SphTriangle *t)
  **
  *****************************************************************************/
 void meshes_2D_sph_load_vertices(SphTriangle *t,
-                                                 const char *name,
-                                                 int *ntab_arg,
-                                                 int *natt_arg,
-                                                 void **tab_arg)
+                                 const char *name,
+                                 int *ntab_arg,
+                                 int *natt_arg,
+                                 void **tab_arg)
 {
   int *ltri, *itab, nrow, nt, natt, ntab, ecr, lec, type, error;
   double *rtab, rlong, rlat;

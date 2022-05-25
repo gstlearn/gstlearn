@@ -83,8 +83,13 @@ public:
   VectorDouble getCoordinates(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
-  /*! Returns the vector of coordinates for an apex */
+  /*! Returns the vector of coordinates for a mesh */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
+
+  virtual int getEmbeddedDim() const { return _nDim; }
+  virtual void getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const;
+  VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
+  void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
 
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
@@ -95,7 +100,7 @@ private:
   bool _isSpaceDimensionValid(int idim) const;
 
 private:
-  int          _variety;
+  int          _variety; // 0 for Euclidean; 1 for Variety
   int          _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;

@@ -37,6 +37,9 @@ public:
   int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
+  int     getEmbeddedDim() const override { return 3; }
+  void    getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const override;
+
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
   cs* getMeshToDb(const Db *db,

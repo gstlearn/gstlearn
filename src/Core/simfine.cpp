@@ -40,24 +40,15 @@ static void st_dim_1_to_2(DbGrid *db)
 
   /* Input file */
 
-  NX1[0] = (NDIM >= 1) ? db->getNX(0) :
-                         1;
-  NX1[1] = (NDIM >= 2) ? db->getNX(1) :
-                         1;
-  NX1[2] = (NDIM >= 3) ? db->getNX(2) :
-                         1;
-  DX1[0] = (NDIM >= 1) ? db->getDX(0) :
-                         1.;
-  DX1[1] = (NDIM >= 2) ? db->getDX(1) :
-                         1.;
-  DX1[2] = (NDIM >= 3) ? db->getDX(2) :
-                         1.;
-  X01[0] = (NDIM >= 1) ? db->getX0(0) :
-                         0.;
-  X01[1] = (NDIM >= 2) ? db->getX0(1) :
-                         0.;
-  X01[2] = (NDIM >= 3) ? db->getX0(2) :
-                         0.;
+  NX1[0] = (NDIM >= 1) ? db->getNX(0) : 1;
+  NX1[1] = (NDIM >= 2) ? db->getNX(1) : 1;
+  NX1[2] = (NDIM >= 3) ? db->getNX(2) : 1;
+  DX1[0] = (NDIM >= 1) ? db->getDX(0) : 1.;
+  DX1[1] = (NDIM >= 2) ? db->getDX(1) : 1.;
+  DX1[2] = (NDIM >= 3) ? db->getDX(2) : 1.;
+  X01[0] = (NDIM >= 1) ? db->getX0(0) : 0.;
+  X01[1] = (NDIM >= 2) ? db->getX0(1) : 0.;
+  X01[2] = (NDIM >= 3) ? db->getX0(2) : 0.;
 
   /* Output file */
 
@@ -85,24 +76,15 @@ static void st_dim_2_to_1(DbGrid *db)
 
   /* Input file */
 
-  NX2[0] = (NDIM >= 1) ? db->getNX(0) :
-                         1;
-  NX2[1] = (NDIM >= 2) ? db->getNX(1) :
-                         1;
-  NX2[2] = (NDIM >= 3) ? db->getNX(2) :
-                         1;
-  DX2[0] = (NDIM >= 1) ? db->getDX(0) :
-                         1.;
-  DX2[1] = (NDIM >= 2) ? db->getDX(1) :
-                         1.;
-  DX2[2] = (NDIM >= 3) ? db->getDX(2) :
-                         1.;
-  X02[0] = (NDIM >= 1) ? db->getX0(0) :
-                         0.;
-  X02[1] = (NDIM >= 2) ? db->getX0(1) :
-                         0.;
-  X02[2] = (NDIM >= 3) ? db->getX0(2) :
-                         0.;
+  NX2[0] = (NDIM >= 1) ? db->getNX(0) : 1;
+  NX2[1] = (NDIM >= 2) ? db->getNX(1) : 1;
+  NX2[2] = (NDIM >= 3) ? db->getNX(2) : 1;
+  DX2[0] = (NDIM >= 1) ? db->getDX(0) : 1.;
+  DX2[1] = (NDIM >= 2) ? db->getDX(1) : 1.;
+  DX2[2] = (NDIM >= 3) ? db->getDX(2) : 1.;
+  X02[0] = (NDIM >= 1) ? db->getX0(0) : 0.;
+  X02[1] = (NDIM >= 2) ? db->getX0(1) : 0.;
+  X02[2] = (NDIM >= 3) ? db->getX0(2) : 0.;
 
   /* Output file */
 
@@ -323,8 +305,7 @@ static int st_kriging_solve(int type, int rank, int nb, Model *model)
 
   /* Initializations */
 
-  neq = (FLAG_KS) ? nb :
-                    nb + 1;
+  neq = (FLAG_KS) ? nb : nb + 1;
   d1.resize(3);
 
   /* Establish the kriging L.H.S. */
@@ -468,7 +449,7 @@ static void st_simulate_nodes(DbGrid *db, int iatt)
  ** \return  Error return code
  **
  ** \param[in]  dbin       Input grid Db structure
- ** \param[in]  model      Model srtucture
+ ** \param[in]  model      Model structure
  ** \param[in]  flag_ks    1 for SK and 0 for OK
  ** \param[in]  nmult      Refinement factor
  ** \param[in]  seed       Seed for the random number generator
@@ -503,10 +484,7 @@ int simfine_f(DbGrid *dbin,
 
   /* Patch the model with maximum dimension for OK */
 
-  diag = 0.;
-  for (idim = 0; idim < NDIM; idim++)
-    diag += dbin->getDX(idim) * dbin->getDX(idim);
-  model->setField(sqrt(diag));
+  model->setField(dbin->getExtensionDiagonal());
 
   /* Store information from the input grid */
 

@@ -105,7 +105,6 @@ public:
   void setFlagNoStatByHH(bool flagGradByHH) { _flagNoStatByHH = flagGradByHH; }
   int  getLambdaGradSize() const;
 
-
 private:
   int  _getIcov() const { return _icov; }
   void _setIcov(int icov) { _icov = icov; }
@@ -120,6 +119,7 @@ private:
 
   int  _buildS(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSVel(const AMesh *amesh, double tol = EPSILON10);
+  int  _buildSVariety(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSSphere(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSGrad(const AMesh *amesh, double tol = EPSILON10);
   int  _buildTildeC(const AMesh *amesh, const VectorDouble& units);

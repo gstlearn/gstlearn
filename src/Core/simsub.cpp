@@ -25,80 +25,6 @@
 
 /****************************************************************************/
 /*!
- **  Check if the transition matrix is irreductible
- **
- ** \return  1 if the transition matrix is not irreductible; 0 otherwise
- **
- ** \param[in]  nfacies  Number of facies
- ** \param[in]  verbose  Verbose option
- ** \param[in]  trans    Transition matrix
- **
- *****************************************************************************/
-static int st_check_irreductibility(int nfacies, int verbose, double *trans)
-{
-  int *flag, i, j, ndeb, nend, error;
-  double total;
-
-  /* Initializations */
-
-  error = 1;
-  flag = nullptr;
-
-  /* Check that the transition matrix is correct */
-
-  for (i = 0; i < nfacies; i++)
-  {
-    total = 0.;
-    for (j = 0; j < nfacies; j++)
-    {
-      if (TRANS(i,j) < 0. || TRANS(i,j) > 1.) goto label_end;
-      total += TRANS(i, j);
-    }
-    if (total <= 0.) goto label_end;
-    for (j = 0; j < nfacies; j++)
-      TRANS(i,j) /= total;
-  }
-
-  /* Check the irreductibility */
-
-  flag = (int*) mem_alloc(sizeof(int) * nfacies, 1);
-  flag[0] = nend = ndeb = 0;
-  for (i = 1; i < nfacies; i++)
-  {
-    flag[i] = 0;
-    if (TRANS(i,0) > 0)
-    {
-      flag[i] = 1;
-      nend++;
-    }
-  }
-
-  while (ndeb != nend)
-  {
-    for (i = 0; i < nfacies; i++)
-      if (flag[i]) for (j = 0; j < nfacies; j++)
-        if (i != j && TRANS(j,i) > 0) flag[j] = 1;
-    ndeb = nend;
-    for (i = nend = 0; i < nfacies; i++)
-      nend += flag[i];
-  }
-  if (nend != nfacies) goto label_end;
-
-  /* Printout (conditional) */
-
-  if (verbose) print_matrix("Transitions", 0, 1, nfacies, nfacies, NULL, trans);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: flag = (int*) mem_free((char* ) flag);
-  if (error) messerr("The transition matrix is not irreductible");
-  return (error);
-}
-
-/****************************************************************************/
-/*!
  **  Derive proportions from the transition matrix
  **
  ** \return The proprotion matrix
@@ -222,40 +148,6 @@ static int st_check_factor(double *factor, int verbose)
 
 /*****************************************************************************
  **
- ** Checks the validity of an orientation vector
- **
- ** \returns 1 if the vector is not valid; 0 otherwise
- **
- ** \param[in]  vector      Disorientation vector
- ** \param[in]  verbose     Verbose option
- **
- ** \param[out] vector      Disorientation vector (normalized)
- **
- *****************************************************************************/
-static int st_check_orientation(double *vector, int verbose)
-{
-  int i;
-  double total;
-
-  total = 0.;
-  for (i = 0; i < 3; i++)
-    total += vector[i] * vector[i];
-  if (total <= 0.)
-  {
-    if (verbose)
-    {
-      messerr("The desorientation vector should not be zero");
-      return (1);
-    }
-    vector[0] = total = 1.;
-  }
-  for (i = 0; i < 3; i++)
-    vector[i] /= sqrt(total);
-  return (0);
-}
-
-/*****************************************************************************
- **
  ** Calculate the projected value
  **
  ** \param[in,out]  plan    SubPlan structure
@@ -337,10 +229,10 @@ int substitution(DbGrid *dbgrid,
     messerr("The substitution is available for Grid File with dimension <= 3");
     goto label_end;
   }
-  if (flag_coding)
-  {
-    if (st_check_irreductibility(nfacies, verbose, trans)) goto label_end;
-  }
+//  if (flag_coding)
+//  {
+//    if (_check_irreductibility(nfacies, verbose, trans)) goto label_end;
+//  }
 
   /* Check that the validity of the desorientation information */
 
@@ -351,7 +243,7 @@ int substitution(DbGrid *dbgrid,
 
     /* Check the (constant) angle */
 
-    if (!flag_angloc && st_check_orientation(vector, 1)) goto label_end;
+//    if (!flag_angloc && st_check_orientation(vector, 1)) goto label_end;
 
     /* Check the (constant) desorientation factor */
 
@@ -389,7 +281,6 @@ int substitution(DbGrid *dbgrid,
     if (poisson_generate_planes(dbgrid, splanes)) goto label_end;
 
     /* Assigning a value to the half-space that contains the center */
-
     for (ip = 0; ip < np; ip++)
     {
       SubPlan &plan = splanes->plans[ip];
@@ -434,7 +325,7 @@ int substitution(DbGrid *dbgrid,
           {
             for (i = 0; i < 3; i++)
               if (colang[i] >= 0) vector[i] = dbgrid->getArray(iech, colang[i]);
-            (void) st_check_orientation(vector, 0);
+//            (void) st_check_orientation(vector, 0);
           }
           st_calcul_value(plan, factor, vector);
         }

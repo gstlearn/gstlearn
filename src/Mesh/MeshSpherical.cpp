@@ -14,6 +14,7 @@
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
+#include "Basic/Vector.hpp"
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical()
@@ -495,17 +496,21 @@ int MeshSpherical::getApex(int imesh,
 ** \param[in]  idim     Rank of the coordinate (from 0 to _ndimh-1)
 **
 *****************************************************************************/
-double MeshSpherical::getCoor(int imesh,
-                              int rank,
-                              int idim) const
+double MeshSpherical::getCoor(int imesh, int rank, int idim) const
 {
   return _apices(getApex(imesh,rank),idim);
 }
 
-double MeshSpherical::getApexCoor(int i,
-                                  int idim) const
+double MeshSpherical::getApexCoor(int i, int idim) const
 {
   return _apices(i,idim);
+}
+
+void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
+{
+  util_convert_sph2cart(getCoor(imesh, ic, 0),
+                        getCoor(imesh, ic, 1),
+                        &coords[0], &coords[1], &coords[2]);
 }
 
 void MeshSpherical::_defineUnits(void)
