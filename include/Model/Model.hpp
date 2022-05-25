@@ -117,7 +117,25 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
-  double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
+  double getMaximumDistance() const
+  {
+    return _covaList->getMaximumDistance();
+  }
+  double eval0(int ivar,
+               int jvar,
+               const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->eval0(ivar, jvar, mode);
+  }
+  double eval(int ivar,
+              int jvar,
+              const SpacePoint& p1,
+              const SpacePoint& p2,
+              const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->eval(ivar, jvar, p1, p2, mode);
+  }
+
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

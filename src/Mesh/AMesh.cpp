@@ -174,7 +174,6 @@ void AMesh::_recopy(const AMesh &m)
 {
   _variety = m._variety;
   _nDim    = m._nDim;
-
   _extendMin = m._extendMin;
   _extendMax = m._extendMax;
 }
@@ -313,6 +312,50 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
     vec[ic] = getCoor(imesh, ic, idim);
   if (flagClose) vec[ncorner] = getCoor(imesh, 0, idim);
 
+  return vec;
+}
+
+/**
+ * Fill the coordinates of a corner of a mesh in embedded space
+ * @param imesh  Mesh rank
+ * @param ic     Corner index
+ * @param coords Array of coordinates
+ */
+void AMesh::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
+{
+  for (int idim = 0; idim < _nDim; idim++)
+    coords[idim] = getCoor(imesh, ic, idim);
+}
+
+/**
+ * Fill the array of coordinates of all apices of a mesh in embedded space
+ * @param imesh Mesh rank
+ * @param vec   Returned array
+ */
+void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) const
+{
+  int ndim = getEmbeddedDim();
+  int ncorner = getNApexPerMesh();
+  VectorDouble coords(ndim);
+
+  for (int ic = 0; ic < ncorner; ic++)
+    getEmbeddedCoor(imesh, ic, vec[ic]);
+}
+
+/**
+ * Returns the array of coordinates of all apices of a mesh in embedded space
+ * @param imesh Mesh rank
+ * @return
+ */
+VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
+{
+  int ndim = getEmbeddedDim();
+  int ncorner = getNApexPerMesh();
+  VectorVectorDouble vec(ncorner);
+  for (auto &e: vec)
+    e = VectorDouble(ndim);
+
+  getEmbeddedCoordinatesPerMesh(imesh, vec);
   return vec;
 }
 

@@ -104,9 +104,7 @@ int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes)
  ** \param[in]  splanes     SubPlanes structure to be deallocated
  **
  *****************************************************************************/
-SubPlanes* poisson_manage_planes(int mode,
-                                                 int np,
-                                                 SubPlanes *splanes)
+SubPlanes* poisson_manage_planes(int mode, int np, SubPlanes *splanes)
 {
 
   /* Dispatch */
