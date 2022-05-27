@@ -61,16 +61,20 @@ String SimuSphericalParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(1, "Covariance spectrum in Spherical Coordinates generated");
-  if (_special == 1)
-    sstr << "Using Chentsov construction";
+  sstr << toTitle(1, "Option for constructing the covariance spectrum");
+  if (_special == 0)
+    sstr << "For all standard covariances" << std::endl;
+  else if (_special == 1)
+    sstr << "For Chentsov construction" << std::endl;
   else if (_special == 2)
-    sstr << "Using Exponential construction";
-  else
-    sstr << "Number of discretization  = " << _ndisc << std::endl;
+    sstr << "For particular Exponential Model" << std::endl;
 
-  sstr << "Spectrum Tolerance        = " << _tol << std::endl;
   sstr << "Number of basic functions = " << _nbf << std::endl;
+  if (_nfmax > 0)
+    sstr << "Maximum number of frequencies = " << _nfmax << std::endl;
+
+  sstr << "Number of discretization  = " << _ndisc << std::endl;
+  sstr << "Spectrum Tolerance        = " << _tol << std::endl;
+
   return sstr.str();
 }
-

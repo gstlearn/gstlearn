@@ -106,6 +106,13 @@ void exit_f(void)
 %extend SimuSphericalParam {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SimuPartitionParam {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend SimuSubstitutionParam {
+  std::string __repr__() {  return $self->toString(); }
+}
+
 
 %pythoncode %{
 # Override operator [] for the Db class

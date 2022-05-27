@@ -2966,7 +2966,7 @@ int simcond(Db *dbin,
  ** \param[in]  db          Data base containing the coordinates of target points
  **                         These coordinates must be expressed in long/lat
  ** \param[in]  model       Model (defined in Euclidean space) to be used
- ** ]param[in]  sphepar     SimuSphericalParam structure
+ ** \param[in]  sphepar     SimuSphericalParam structure
  ** \param[in]  seed        Seed for random number generation
  ** \param[in]  verbose     Verbose flag
  ** \param[in]  namconv     Naming convention
@@ -2989,7 +2989,6 @@ int simsph(DbGrid *db,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return 1;
   }
-  if (!ut_is_legendre_defined()) return 1;
   if (db->getNDim() != 2)
   {
     messerr("The Simulation on Sphere is restricted to 2-D case");
@@ -3043,7 +3042,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return simu;
   }
-  if (!ut_is_legendre_defined()) return simu;
   for (int icova = 0; icova < model->getCovaNumber(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
@@ -3066,17 +3064,8 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
  ** \returns Error return code
  **
  ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  subparam    SimuSubstitutionParam structure
  ** \param[in]  seed        Seed
- ** \param[in]  nfacies     Number of facies
- ** \param[in]  nstates     Number of states
- ** \param[in]  flag_direct 1 to perform the Directing step
- ** \param[in]  flag_coding 1 to perform the Coding step
- ** \param[in]  flag_orient 1 if disorientation must be used
- ** \param[in]  flag_auto   1 for an automatic number of states
- ** \param[in]  intensity   Intensity of the Poisson Process
- ** \param[in]  factor      Disorientation factor within [0,1]
- ** \param[in]  vector      Disorientation vector
- ** \param[in]  trans       Transition matrix (Dimension: nfacies * nfacies)
  ** \param[in]  verbose     Verbose option
  ** \param[in]  namconv     Naming convention
  **

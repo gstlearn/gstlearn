@@ -422,11 +422,6 @@ GSTLEARN_EXPORT int ut_icosphere(int n,
                                  int *ntri_arg,
                                  double **coor_arg);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
-GSTLEARN_EXPORT int ut_is_legendre_defined(void);
-GSTLEARN_EXPORT void define_legendre(double (*legendre_sphPlm)(int,
-                                                               int,
-                                                               double),
-                                     double (*legendre_Pl)(int, double));
 GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v);
 GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta);
 GSTLEARN_EXPORT int* ut_name_decode(const char *name,

@@ -128,22 +128,19 @@ private:
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadAuxPerMesh(VectorDouble& tab,
-                       const AMesh* amesh,
+  void _loadAuxPerMesh(const AMesh* amesh,
+                       VectorDouble& tab,
                        const EConsElem& type,
                        int imesh = 0);
-  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
-                      const AMesh* amesh,
+  void _loadHHPerMesh(const AMesh* amesh,
+                      MatrixSquareSymmetric& hh,
                       int imesh = 0);
-  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
+  void _loadHHRegularByApex(MatrixSquareSymmetric& hh, int ip);
   void _loadHHVarietyByApex(MatrixSquareSymmetric& hh, int ip);
-
+  void _loadHHByApex(const AMesh* amesh, MatrixSquareSymmetric& hh, int ip);
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ip);
-  void _loadHHVarietyPerMesh(MatrixSquareSymmetric& hh,
-                             const AMesh* amesh,
-                             int imesh);
 
   void _loadHHGradPerMesh(MatrixSquareSymmetric& hh,
                           const AMesh* amesh,

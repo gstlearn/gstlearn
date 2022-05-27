@@ -49,6 +49,7 @@ public:
 
   void initMatTri(int nsize,double* tab);
   void normSingleMatrix(const AMatrix& x);
+  void normTSingleMatrix(const AMatrix& x);
 
 protected:
 #ifndef SWIG

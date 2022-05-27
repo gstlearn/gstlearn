@@ -65,7 +65,8 @@ public:
   bool isLocal() const;
 
 private:
-  bool _isIrreductibility(bool verbose);
+  bool _isIrreductibility(bool verbose = false);
+  bool _isValidTransition(bool verbose = false, double eps = EPSILON3);
 
 private:
   int _nfacies;

@@ -637,10 +637,29 @@ void ShiftOpCs::_updateHH(MatrixSquareSymmetric& hh, int ip)
  * Calculate HH matrix from parameters
  * Note that this function is also called in Stationary case...
  * So it must be workable without any updates
+ * @param amesh AMesh structure
  * @param hh Output Array
  * @param ip Rank of the point
  */
-void ShiftOpCs::_loadHHByApex(MatrixSquareSymmetric& hh, int ip)
+void ShiftOpCs::_loadHHByApex(const AMesh *amesh,
+                              MatrixSquareSymmetric& hh,
+                              int ip)
+{
+  if (amesh->getVariety() == 0)
+    _loadHHRegularByApex(hh, ip);
+  else
+    _loadHHVarietyByApex(hh, ip);
+}
+
+/**
+ * Calculate HH matrix from parameters
+ * Note that this function is also called in Stationary case...
+ * So it must be workable without any updates
+ * @param hh Output Array
+ * @param ip Rank of the point
+ */
+void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric& hh,
+                                     int ip)
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();
@@ -779,8 +798,8 @@ void ShiftOpCs::_loadAux(VectorDouble& tab,
  * @param amesh Pointer to the meshing
  * @param imesh Rank of the mesh
  */
-void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
-                               const AMesh* amesh,
+void ShiftOpCs::_loadHHPerMesh(const AMesh* amesh,
+                               MatrixSquareSymmetric& hh,
                                int imesh)
 {
   int number = amesh->getNApexPerMesh();
@@ -792,32 +811,7 @@ void ShiftOpCs::_loadHHPerMesh(MatrixSquareSymmetric& hh,
   for (int rank = 0; rank < number; rank++)
   {
     int ip = amesh->getApex(imesh, rank);
-    _loadHHByApex(hhloc, ip);
-    hh.add(hhloc);
-  }
-  hh.prodScalar(1. / number);
-}
-
-/**
- * Constitue HH (only in non-stationary case)
- * @param hh   Returned HH symmetric matrix
- * @param amesh Pointer to the meshing
- * @param imesh Rank of the mesh
- */
-void ShiftOpCs::_loadHHVarietyPerMesh(MatrixSquareSymmetric& hh,
-                                      const AMesh* amesh,
-                                      int imesh)
-{
-  int number = amesh->getNApexPerMesh();
-  int ndim = _ndim;
-  MatrixSquareSymmetric hhloc(ndim);
-  hh.fill(0.);
-
-  // HH per mesh is obtained as the average of the HH per apex of the mesh
-  for (int rank = 0; rank < number; rank++)
-  {
-    int ip = amesh->getApex(imesh, rank);
-    _loadHHVarietyByApex(hhloc, ip);
+    _loadHHByApex(amesh, hhloc, ip);
     hh.add(hhloc);
   }
   hh.prodScalar(1. / number);
@@ -842,10 +836,10 @@ void ShiftOpCs::_loadHHGradPerMesh(MatrixSquareSymmetric& hh,
   hh.prodScalar(1. / number);
 }
 
-void ShiftOpCs::_loadAuxPerMesh(VectorDouble& tab,
-                              const AMesh* amesh,
-                              const EConsElem& type,
-                              int imesh)
+void ShiftOpCs::_loadAuxPerMesh(const AMesh* amesh,
+                                VectorDouble& tab,
+                                const EConsElem& type,
+                                int imesh)
 {
   if (tab.empty()) return;
   int number = amesh->getNApexPerMesh();
@@ -950,7 +944,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   int igrf = _getIgrf();
   int icov = _getIcov();
   if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(hh, 0);
+    _loadHHByApex(amesh, hh, 0);
 
   /* Loop on the meshes */
 
@@ -1053,7 +1047,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
   int igrf = _getIgrf();
   int icov = _getIcov();
   if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(hh, 0);
+    _loadHHByApex(amesh, hh, 0);
 
   /* Loop on the meshes */
 
@@ -1073,7 +1067,7 @@ int ShiftOpCs::_buildS(const AMesh *amesh,
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
-        _loadHHPerMesh(hh, amesh, imesh);
+        _loadHHPerMesh(amesh, hh, imesh);
     }
     mat.normMatrix(hh, matw);
 
@@ -1123,10 +1117,9 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
   VectorDouble srot(2);
   MatrixSquareSymmetric hh(ndim);
-  MatrixRectangular matM(ndim, ncorner-1);
-  MatrixSquareSymmetric matMtM(ncorner-1,ncorner-1);
+  MatrixSquareSymmetric matMtM(ncorner-1);
   MatrixRectangular matP(ncorner-1,ndim);
-  MatrixSquareSymmetric matPinvHPt(ncorner-1, ncorner-1);
+  MatrixSquareSymmetric matPinvHPt(ncorner-1);
 
   // Define the global matrices
 
@@ -1135,7 +1128,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   double dethh = 0.;
   if (_isGlobalHH(igrf, icov))
   {
-    _loadHHVarietyByApex(hh, 0);
+    _loadHHByApex(amesh, hh, 0);
     dethh = hh.determinant();
     if (hh.invert())
     {
@@ -1160,7 +1153,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       const ANoStat* nostat = _getModel()->getNoStat();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
-        _loadHHVarietyPerMesh(hh, amesh, imesh);
+        _loadHHPerMesh(amesh, hh, imesh);
         dethh = hh.determinant();
         if (hh.invert())
         {
@@ -1169,11 +1162,12 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         }
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
-        _loadAuxPerMesh(srot, amesh, EConsElem::SPHEROT, imesh);
+        _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
     }
 
     // Load M matrix [ndim, ncorner-1]
     amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
+    MatrixRectangular matM(ndim, ncorner-1);
     for (int icorn = 0; icorn < ncorner-1; icorn++)
     {
       for (int idim = 0; idim < ndim; idim++)
@@ -1278,7 +1272,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
   int igrf = _getIgrf();
   int icov = _getIcov();
   if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(hh, 0);
+    _loadHHByApex(amesh, hh, 0);
   if (! _isNoStat())
   {
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1297,11 +1291,11 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
     {
       const ANoStat* nostat = _getModel()->getNoStat();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
-        _loadHHPerMesh(hh, amesh, imesh);
+        _loadHHPerMesh(amesh, hh, imesh);
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
-        _loadAuxPerMesh(srot, amesh, EConsElem::SPHEROT, imesh);
+        _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
       if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
-        _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
+        _loadAuxPerMesh(amesh, vel, EConsElem::VELOCITY, imesh);
     }
 
     // Case of Spherical geometry
@@ -1403,7 +1397,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 
     const ANoStat* nostat = _getModel()->getNoStat();
     if (nostat->isDefined(igrf, icov, EConsElem::VELOCITY, -1, -1))
-      _loadAuxPerMesh(vel, amesh, EConsElem::VELOCITY, imesh);
+      _loadAuxPerMesh(amesh, vel, EConsElem::VELOCITY, imesh);
 
     // Case of Euclidean geometry
 
@@ -1510,7 +1504,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   MatrixSquareSymmetric hh(ndim);
   if (_isGlobalHH(igrf, icov))
   {
-    _loadHHByApex(hh, 0);
+    _loadHHByApex(amesh, hh, 0);
     sqdeth = sqrt(hh.determinant());
   }
 
@@ -1524,7 +1518,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       const ANoStat* nostat = _getModel()->getNoStat();
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
-        _loadHHByApex(hh, ip);
+        _loadHHByApex(amesh, hh, ip);
         sqdeth = sqrt(hh.determinant());
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))

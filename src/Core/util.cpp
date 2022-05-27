@@ -19,6 +19,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -71,9 +72,6 @@ typedef struct
   int *indg;
   double *tab;
 } Dim_Loop;
-
-static double (*LEGENDRE_SPHPLM)(int, int, double) = NULL;
-static double (*LEGENDRE_PL)(int, double) = NULL;
 
 static Projec_Environ PROJEC = { 0 };
 static Variety_Environ VARIETY = { 0, 0. };
@@ -1242,6 +1240,8 @@ void variety_define(int flag_sphere, double radius)
 
   VARIETY.flag_sphere = flag_sphere;
   VARIETY.radius = radius;
+  if (flag_sphere)
+    ASpaceObject::defineDefaultSpace(SPACE_SN,2,radius);
   return;
 }
 
@@ -4019,34 +4019,7 @@ int ut_icosphere(int n,
 
 /*****************************************************************************/
 /*!
- **  Check if Legendre external functions have been defined properly
- **
- ** \return  1 if Legendre have been defined; 0 otherwise
- **
- ** \remarks This function returns a message is Legendre functions have not
- ** \remarks been defined
- **
- *****************************************************************************/
-int ut_is_legendre_defined(void)
-{
-  if (LEGENDRE_PL == nullptr)
-  {
-    messerr("You must define function 'legendre_Pl' beforehand");
-    messerr("using the function 'define_legendre'");
-    return (0);
-  }
-  if (LEGENDRE_SPHPLM == nullptr)
-  {
-    messerr("You must define function 'legendre_sphPlm' beforehand");
-    messerr("using the function 'define_legendre'");
-    return (0);
-  }
-  return (1);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the Associated Legendre Function: legendre_Pl
+ **  Returns the Associated Legendre Function
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
@@ -4055,35 +4028,7 @@ int ut_is_legendre_defined(void)
  *****************************************************************************/
 double ut_legendre(int flag_norm, int n, double v)
 {
-  int renard = -1;
-  double res1 = 0.;
-  double res2 = 0.;
-  //double res3 = 0.;
-
-  // TODO: Waiting for validation by Lantuejoul
-  if (renard <= 0)
-  {
-    res1 = LEGENDRE_PL(n, v);
-  }
-//  if (renard == -1)
-//  {
-//    res3 = std::tr1::legendre(n, v);
-//  }
-  if (renard >= 0)
-  {
-    //  res2 = std::legendre(n,v);
-    res2 = boost::math::legendre_p<double>(n, v);
-  }
-
-  if (renard == 0)
-  {
-    double diff = ABS(res1 + res2);
-    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
-    if (diff > 5)
-      messerr("---> Legendre n=%d v=%lf res1=%lf res2=%lf", n, v, res1, res2);
-  }
-
-  double result = res1;
+  double result = boost::math::legendre_p<double>(n, v);
   if (flag_norm)
   {
     double norme = sqrt((2. * ((double) n) + 1.) / 2.);
@@ -4094,7 +4039,7 @@ double ut_legendre(int flag_norm, int n, double v)
 
 /*****************************************************************************/
 /*!
- **  Returns the Legendre Function legendre_Sphplm(n,k0,v) normalized
+ **  Returns the Spherical Legendre normalized function
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
@@ -4104,51 +4049,10 @@ double ut_legendre(int flag_norm, int n, double v)
  *****************************************************************************/
 double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
-  int k, flag_negative;
-  int renard = -1;
-
-  if (k0 < 0)
-  {
-    k = -k0;
-    flag_negative = 1;
-  }
-  else
-  {
-    k = k0;
-    flag_negative = 0;
-  }
-
-  // TODO: Waiting for the validation by Lantuejoul
-
-  double res1 = 0.;
-  double res2 = 0.;
-  //double res3 = 0.;
-  if (renard <= 0)
-  {
-    double v = cos(theta);
-    res1 = LEGENDRE_SPHPLM(n, k, v);
-    if (flag_negative && k % 2 == 1) res1 = -res1;
-  }
-//  if (renard == -1)
-//  {
-//    res3 = std::tr1::sph_legendre(n, k, theta);
-//  }
-//
-  if (renard >= 0)
-  {
-    std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
-        n, k, theta, 0.);
-    res2 = resbis.real();
-  }
-  if (renard == 0)
-  {
-    double diff = ABS(res1 + res2);
-    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
-    if (diff > 5)
-      messerr("---> Sph-Legendre n=%d k0=%d theta=%lf res1=%lf res2=%lf", n, k0,
-              theta, res1, res2);
-  }
-  double result = res1;
+  int k = ABS(k0);
+  std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
+      n, k, theta, 0.);
+  double result = resbis.real();
 
   if (flag_norm)
   {
@@ -4156,23 +4060,6 @@ double ut_flegendre(int flag_norm, int n, int k0, double theta)
     result /= norme;
   }
   return (result);
-}
-
-/*****************************************************************************/
-/*!
- **  Define the Legendre functions
- **
- ** \param[in]  legendre_sphPlm
- ** \param[in]  legendre_Pl
- **
- *****************************************************************************/
-void define_legendre(double (*legendre_sphPlm)(int,
-                                                               int,
-                                                               double),
-                                     double (*legendre_Pl)(int, double))
-{
-  LEGENDRE_SPHPLM = legendre_sphPlm;
-  LEGENDRE_PL = legendre_Pl;
 }
 
 /*****************************************************************************/

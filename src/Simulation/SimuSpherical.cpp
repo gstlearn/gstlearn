@@ -83,7 +83,6 @@ int SimuSpherical::simulate(DbGrid *db,
 
   if (verbose)
   {
-    sphepar.display();
     message("Random generation seed    = %d\n", law_get_random_seed());
     message("Number of frequencies     = %d\n", (int) freqs.size());
   }
@@ -173,7 +172,6 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical *mesh,
 
   if (verbose)
   {
-    sphepar.display();
     message("Random generation seed    = %d\n", law_get_random_seed());
     message("Number of frequencies     = %d\n", (int) freqs.size());
   }

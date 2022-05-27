@@ -35,6 +35,7 @@ SimuSubstitutionParam::SimuSubstitutionParam(int nfacies,
       _vector(),
       _trans()
 {
+  (void) isValid();
 }
 
 SimuSubstitutionParam::SimuSubstitutionParam(const SimuSubstitutionParam &r)
@@ -84,7 +85,8 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
 
   sstr << "Number of Facies = " << _nfacies << std::endl;
-  sstr << "Number of States = " << _nstates << std::endl;
+  if (! _flagAuto)
+    sstr << "Number of States = " << _nstates << std::endl;
   sstr << "Intensity of Poisson Point Process = " << _intensity << std::endl;
   if (_flagDirect)
     sstr << "Direction information performed Internally" << std::endl;
@@ -96,9 +98,10 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
     sstr << "Coding not performed: Result is the Direction information" << std::endl;
   if (_flagOrient)
     sstr << toVector("Vector orthogonal to desorientation layering", _vector);
-  sstr << "Factor for desorientation strength (0: isotropic; 1: stratified)" << std::endl;
+  sstr << "Factor for desorientation strength (0: isotropic; 1: stratified) = " <<
+      _factor << std::endl;
   sstr << toVector("Transition probability matrix", _trans);
-  sstr << "Attribute rank for desorientation factor" << _colfac << std::endl;
+  sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
   sstr << toVector("Attribute ranks for Desorientation Vector", _colang);
 
   return sstr.str();
@@ -106,12 +109,7 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
 
 bool SimuSubstitutionParam::isValid(bool verbose)
 {
-  if (isFlagCoding())
-  {
-    if (! _isIrreductibility(verbose)) return false;
-  }
-
-  /* Check that the validity of the desorientation information */
+  // Check the desorientation information
 
   if (isFlagOrient())
   {
@@ -127,6 +125,26 @@ bool SimuSubstitutionParam::isValid(bool verbose)
       isValidFactor(&_factor, verbose);
     }
   }
+
+  // Check the transition information
+
+  if (_trans.empty())
+  {
+    _trans = VectorDouble(_nfacies * _nfacies, 1. / _nfacies);
+  }
+  else
+  {
+    if (! _isValidTransition(verbose))
+      _trans = VectorDouble(_nfacies * _nfacies, 1. / _nfacies);
+  }
+
+  // Check the irreductibility
+
+  if (isFlagCoding())
+  {
+    if (! _isIrreductibility(verbose)) return false;
+  }
+
   return true;
 }
 
@@ -262,4 +280,27 @@ bool SimuSubstitutionParam::isAngleLocal() const
 bool SimuSubstitutionParam::isLocal() const
 {
   return isAngleLocal() || _colfac >= 0;
+}
+
+bool SimuSubstitutionParam::_isValidTransition(bool verbose,
+                                               double eps)
+{
+  if ((int) _trans.size() != _nfacies * _nfacies) return false;
+
+  for (int irow = 0; irow < _nfacies; irow++)
+  {
+    double total = 0.;
+    for (int icol = 0; icol < _nfacies; icol++)
+    {
+      total += TRANS(irow, icol);
+    }
+    if (ABS(total - 1.) > eps)
+    {
+      if (verbose)
+        messerr("Transition: Sum of elements of row(%d) must be 1 (%lf)",
+                irow+1,total);
+        return false;
+    }
+  }
+  return true;
 }

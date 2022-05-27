@@ -261,10 +261,11 @@ void SimuSubstitution::_calculValue(int ip,
 /*!
  **  Derive proportions from the transition matrix
  **
- ** \return The proprotion matrix
+ ** \return The proportion matrix
  **
  ** \param[in]  subparam SimuSubstitutionParam structure
  ** \param[in]  verbose  Verbose option
+ ** \param[in]  eps      Tolerance
  **
  *****************************************************************************/
 VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subparam,
