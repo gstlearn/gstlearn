@@ -511,6 +511,12 @@ void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) con
   util_convert_sph2cart(getCoor(imesh, ic, 0),
                         getCoor(imesh, ic, 1),
                         &coords[0], &coords[1], &coords[2]);
+  double r;
+  variety_get_characteristics(&r);
+  coords[0]*=r;
+  coords[1]*=r;
+  coords[2]*=r;
+
 }
 
 void MeshSpherical::_defineUnits(void)
