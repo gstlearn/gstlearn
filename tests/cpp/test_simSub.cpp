@@ -36,7 +36,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Global parameters
   int ndim = 2;
-  int seed = 334322;
+  int seed = 3322;
   int nxcell = 100;
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
 
@@ -54,7 +54,11 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Substitution Simulation ----->\n");
+  (void) substitution(grid, subparam, seed, false);
 
+  subparam.setFactor(0.6);
+  subparam.setVector({0.,1.});
+  subparam.setFlagOrient(true);
   (void) substitution(grid, subparam, seed, false);
 
   grid->dumpToNF("grid.ascii");

@@ -24,7 +24,7 @@ SimuSubstitutionParam::SimuSubstitutionParam(int nfacies,
     : AStringable(),
       _nfacies(nfacies),
       _nstates(0),
-      _colfac(0),
+      _colfac(-1),
       _flagDirect(flag_direct),
       _flagCoding(flag_coding),
       _flagOrient(flag_orient),
@@ -101,8 +101,10 @@ String SimuSubstitutionParam::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Factor for desorientation strength (0: isotropic; 1: stratified) = " <<
       _factor << std::endl;
   sstr << toVector("Transition probability matrix", _trans);
-  sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
-  sstr << toVector("Attribute ranks for Desorientation Vector", _colang);
+  if (_colfac >= 0)
+    sstr << "Attribute rank for desorientation factor = " << _colfac << std::endl;
+  if (! _colang.empty())
+    sstr << toVector("Attribute ranks for Desorientation Vector", _colang);
 
   return sstr.str();
 }

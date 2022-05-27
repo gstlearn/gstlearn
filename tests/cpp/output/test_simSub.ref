@@ -1,0 +1,36 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :        100       100
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+<----- Creating Parameter File ----->
+Number of Facies = 3
+Intensity of Poisson Point Process = 1
+Direction information performed Internally
+Coding process performed internally
+Factor for desorientation strength (0: isotropic; 1: stratified) = 0
+Transition probability matrix
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.333     0.333     0.333     0.333     0.333     0.333     0.333
+     [  7,]     0.333     0.333
+
+<----- Perform Substitution Simulation ----->

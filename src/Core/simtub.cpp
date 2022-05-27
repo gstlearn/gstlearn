@@ -3010,7 +3010,7 @@ int simsph(DbGrid *db,
   SimuSpherical simsphe(1, seed);
   if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
 
-  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, "Simu");
+  namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
   return 0;
 }
 
@@ -3093,7 +3093,7 @@ int substitution(DbGrid *dbgrid,
   SimuSubstitution simsub(1,seed);
   if (simsub.simulate(dbgrid, subparam, iptr, verbose)) return 1;
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
 
   return 0;
 }
@@ -3141,7 +3141,7 @@ int tessellation_poisson(DbGrid *dbgrid,
   if (simpart.poisson(dbgrid, model, parparam, iptr, verbose))
     return 1;
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
 
   return 0;
 }
@@ -3184,7 +3184,7 @@ int tessellation_voronoi(DbGrid *dbgrid,
   if (simpart.voronoi(dbgrid, model, parparam, iptr, verbose))
     return 1;
 
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
   return 0;
 }
 

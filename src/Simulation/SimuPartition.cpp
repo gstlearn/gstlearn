@@ -222,7 +222,7 @@ int SimuPartition::poisson(DbGrid *dbgrid,
     /* Check if the value has already been treated */
 
     double valsim = _stackSearch(stacks, valref);
-    if (! FFFF(valsim))
+    if (FFFF(valsim))
     {
 
       /* Not in the stack: read the value from the Gaussian field */
@@ -241,6 +241,10 @@ int SimuPartition::poisson(DbGrid *dbgrid,
 
     dbgrid->setArray(iech, iattg, valsim);
   }
+
+  // Delete the internal Simulation
+
+  dbgrid->deleteColumnByUID(iattg);
 
   return 0;
 }
