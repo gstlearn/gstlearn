@@ -41,6 +41,10 @@
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
+#include "Simulation/SimuSubstitution.hpp"
+#include "Simulation/SimuSubstitutionParam.hpp"
+#include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/SimuPartition.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3054,3 +3058,144 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
 
   return simu;
 }
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using substitution method
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  seed        Seed
+ ** \param[in]  nfacies     Number of facies
+ ** \param[in]  nstates     Number of states
+ ** \param[in]  flag_direct 1 to perform the Directing step
+ ** \param[in]  flag_coding 1 to perform the Coding step
+ ** \param[in]  flag_orient 1 if disorientation must be used
+ ** \param[in]  flag_auto   1 for an automatic number of states
+ ** \param[in]  intensity   Intensity of the Poisson Process
+ ** \param[in]  factor      Disorientation factor within [0,1]
+ ** \param[in]  vector      Disorientation vector
+ ** \param[in]  trans       Transition matrix (Dimension: nfacies * nfacies)
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int substitution(DbGrid *dbgrid,
+                 SimuSubstitutionParam& subparam,
+                 int seed,
+                 int verbose,
+                 const NamingConvention& namconv)
+{
+  if (!is_grid(dbgrid) || dbgrid->getNDim() > 3)
+  {
+    messerr("The substitution is available for Grid File with dimension <= 3");
+    return 1;
+  }
+  if (! subparam.isValid(verbose)) return 1;
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, 0.);
+  if (iptr < 0) return 1;
+
+  // Call the operational function
+
+  SimuSubstitution simsub(1,seed);
+  if (simsub.simulate(dbgrid, subparam, iptr, verbose)) return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+
+  return 0;
+}
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  model       Model used for the valuation of tesselation
+ ** \param[in]  parparam    SimuPartitionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int tessellation_poisson(DbGrid *dbgrid,
+                         Model *model,
+                         const SimuPartitionParam& parparam,
+                         int seed,
+                         int verbose,
+                         const NamingConvention& namconv)
+{
+  int ndim = dbgrid->getNDim();
+  if (!is_grid(dbgrid))
+  {
+    messerr("The output Db file must be a grid");
+    return 1;
+  }
+  if (!is_grid(dbgrid) || ndim > 3)
+  {
+    messerr(
+        "The Poisson Tesselation is available for Grid File with dimension <= 3");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
+
+  SimuPartition simpart(1, seed);
+  if (simpart.poisson(dbgrid, model, parparam, iptr, verbose))
+    return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+
+  return 0;
+}
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  model       Model used for the valuation of tesselation
+ ** \param[in]  parparam    SimuPartitionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int tessellation_voronoi(DbGrid *dbgrid,
+                         Model *model,
+                         const SimuPartitionParam& parparam,
+                         int seed,
+                         int verbose,
+                         const NamingConvention& namconv)
+{
+  int ndim = dbgrid->getNDim();
+  if (ndim > 3)
+  {
+    messerr(
+        "The Poisson Tesselation is available for Grid File with dimension <= 3");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
+
+  SimuPartition simpart(1, seed);
+  if (simpart.voronoi(dbgrid, model, parparam, iptr, verbose))
+    return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr, "Simu");
+  return 0;
+}
+

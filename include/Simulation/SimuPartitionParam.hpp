@@ -12,37 +12,32 @@
 
 #include "gstlearn_export.hpp"
 
-#include"Basic/AStringable.hpp"
+#include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
-class DbGrid;
-
-class GSTLEARN_EXPORT Plane : public AStringable
+class GSTLEARN_EXPORT SimuPartitionParam: public AStringable
 {
 public:
-  Plane();
-  Plane(const Plane &m);
-  Plane& operator=(const Plane &m);
-  virtual ~Plane();
+  SimuPartitionParam(int nbtuba = 100,
+                     double intensity = 0.1,
+                     const VectorDouble& dilate = VectorDouble());
+  SimuPartitionParam(const SimuPartitionParam &r);
+  SimuPartitionParam& operator=(const SimuPartitionParam &r);
+  virtual ~SimuPartitionParam();
 
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const VectorDouble& getCoor() const { return _coor; }
-  void setCoor(const VectorDouble& coor) { _coor = coor; }
-  double getIntercept() const { return _intercept; }
-  void setIntercept(double intercept) { _intercept = intercept; }
-  double getRndval() const { return _rndval; }
-  void setRndval(double rndval) { _rndval = rndval; }
-  double getValue() const { return _value; }
-  void setValue(double value) { _value = value; }
-  void setCoor(int idim, double value) { _coor[idim] = value; }
-  double getCoor(int idim) const { return _coor[idim]; }
-
-  static std::vector<Plane> poissonPlanesGenerate(DbGrid *dbgrid, int np);
+  const VectorDouble getDilate() const { return _dilate; }
+  void setDilate(const VectorDouble& dilate) { _dilate = dilate; }
+  double getIntensity() const { return _intensity; }
+  void setIntensity(double intensity) { _intensity = intensity; }
+  int getNbtuba() const { return _nbtuba; }
+  void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
+  double getDilate(int idim) const;
 
 private:
-  VectorDouble _coor;
-  double _intercept;
-  double _value;
-  double _rndval;
+  int _nbtuba;
+  double _intensity;
+  VectorDouble _dilate;
 };

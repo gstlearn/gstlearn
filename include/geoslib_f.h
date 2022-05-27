@@ -26,6 +26,7 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Simulation/SimuPartitionParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -43,6 +44,7 @@ class ModelBoolean;
 class SimuBooleanParam;
 class SimuSphericalParam;
 class MeshSpherical;
+class SimuSubstitutionParam;
 
 /*************************/
 /* Functions for License */
@@ -567,11 +569,30 @@ GSTLEARN_EXPORT int simsph(DbGrid *db,
                            int seed,
                            bool verbose,
                            const NamingConvention& namconv = NamingConvention("SimSphe"));
+GSTLEARN_EXPORT int substitution(DbGrid *dbgrid,
+                                 SimuSubstitutionParam& subparam,
+                                 int seed,
+                                 int verbose,
+                                 const NamingConvention& namconv = NamingConvention("SimSub"));
 GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          Model *model,
                                          const SimuSphericalParam& sphepar,
                                          int seed,
                                          int verbose);
+GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
+                                         Model *model,
+                                         const SimuPartitionParam& parparam,
+                                         int seed,
+                                         int verbose,
+                                         const NamingConvention& namconv = NamingConvention(
+                                             "Voronoi"));
+GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
+                                         Model *model,
+                                         const SimuPartitionParam& parparam,
+                                         int seed,
+                                         int verbose,
+                                         const NamingConvention& namconv = NamingConvention(
+                                             "Poisson"));
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

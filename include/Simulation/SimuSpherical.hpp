@@ -14,21 +14,17 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ASimulation.hpp"
-#include "Basic/AStringable.hpp"
 
 class SimuSphericalParam;
 class MeshSpherical;
 
-class GSTLEARN_EXPORT SimuSpherical: public ASimulation, public AStringable
+class GSTLEARN_EXPORT SimuSpherical: public ASimulation
 {
 public:
   SimuSpherical(int nbsimu = 1, int seed = 4324324);
   SimuSpherical(const SimuSpherical &r);
   SimuSpherical& operator=(const SimuSpherical &r);
   virtual ~SimuSpherical();
-
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int simulate(DbGrid *db,
                Model *model,

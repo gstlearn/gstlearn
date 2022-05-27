@@ -18,15 +18,15 @@
 
 #include <math.h>
 
+#define TRANS(i,j)     (trans[(j) + nfacies * (i)])
+
 SimuSubstitution::SimuSubstitution(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
-      AStringable()
+    : ASimulation(nbsimu, seed)
 {
 }
 
 SimuSubstitution::SimuSubstitution(const SimuSubstitution &r)
-    : ASimulation(r),
-      AStringable(r)
+    : ASimulation(r)
 {
 }
 
@@ -35,20 +35,12 @@ SimuSubstitution& SimuSubstitution::operator=(const SimuSubstitution &r)
   if (this != &r)
   {
     ASimulation::operator=(r);
-    AStringable::operator =(r);
   }
   return *this;
 }
 
 SimuSubstitution::~SimuSubstitution()
 {
-}
-
-String SimuSubstitution::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  return sstr.str();
 }
 
 /*****************************************************************************
@@ -69,10 +61,6 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
                                int verbose)
 {
   law_set_random_seed(getSeed());
-  int error = 1;
-  VectorDouble props;
-  bool flag_local = false;
-  bool flag_angloc = false;
   int np = 0;
 
   /***********************/
@@ -90,8 +78,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
 
     /* Generate the Poisson planes */
 
-    _planes.resize(np);
-    _poissonPlanesGenerate(dbgrid);
+    _planes = Plane::poissonPlanesGenerate(dbgrid,np);
 
     /* Assigning a value to the half-space that contains the center */
 
@@ -102,7 +89,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
         int ival = (_planes[ip].getRndval() > 0.5) ? -1 : 1;
         _planes[ip].setValue((double) ival);
       }
-      else if (! flag_local)
+      else if (! subparam.isLocal())
       {
         _calculValue(ip, subparam.getFactor(), subparam.getVector());
       }
@@ -123,7 +110,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
         for (int i = 0; i < 3; i++)
           prod += _planes[ip].getCoor(i) * cen[i];
 
-        if (flag_local)
+        if (subparam.isLocal())
         {
           double factor;
           VectorDouble vector(3);
@@ -132,7 +119,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
             factor = dbgrid->getArray(iech, subparam.getColfac());
             subparam.isValidFactor(&factor);
           }
-          if (flag_angloc)
+          if (subparam.isAngleLocal())
           {
             for (int i = 0; i < 3; i++)
               if (subparam.getColang(i) >= 0)
@@ -184,134 +171,71 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
   /* Coding process */
   /******************/
 
-//  if (subparam.isFlagCoding())
-//  {
-//    if (subparam.isFlagAuto()) nstates = np;
-//    if (subparam.isFlagDirect() && nstates != np)
-//    {
-//      message("You have used the internal information process\n");
-//      message("The number of states should be equal to %d\n", np);
-//      message("Nevertheless, your choice prevails\n");
-//    }
-//    props = trans_to_props(nfacies, verbose, trans);
-//    status = (int*) mem_alloc(sizeof(int) * nstates, 1);
-//
-//    /* Simulation of the initial state */
-//
-//    u = law_uniform(0., 1.);
-//    w0 = ie = 0;
-//    while (w0 < u)
-//      w0 += props[ie++];
-//    status[0] = ie - 1;
-//
-//    /* Simulation of the current state */
-//
-//    for (ip = 1; ip < nstates; ip++)
-//    {
-//      u = law_uniform(0., 1.);
-//      p0 = je = 0;
-//      ie = status[ip - 1];
-//      while (p0 < u)
-//      {
-//        p0 += TRANS(ie, je);
-//        je++;
-//      }
-//      status[ip] = je - 1;
-//    }
-//
-//    /* Simulating the directing function */
-//
-//    for (iech = 0; iech < dbgrid->getSampleNumber(); iech++)
-//    {
-//      if (!dbgrid->isActive(iech)) continue;
-//      value = (flag_direct) ? dbgrid->getArray(iech, iptr) :
-//                              dbgrid->getVariable(iech, 0);
-//      ival = (int) ((value - vmin) / (vmax - vmin) * nstates);
-//      if (ival < 0) ival = 0;
-//      if (ival >= nstates) ival = nstates - 1;
-//      dbgrid->setArray(iech, iptr, 1 + status[ival]);
-//    }
-//
-//    /* Core deallocation */
-//
-//    status = (int*) mem_free((char* ) status);
-//    props = (double*) mem_free((char* ) props);
-//
-//    /* Printout statistics */
-//
-//    if (verbose)
-//    {
-//      message("\nCoding process: \n");
-//      message("Number of coded states     = %d \n", nstates);
-//      message("Minimum information value  = %lf\n", vmin);
-//      message("Maximum information value  = %lf\n", vmax);
-//    }
-//  }
-//
-//  /* Set the error return code */
-//
-//  error = 0;
-//
-//  /* Core deallocation */
-//
-//  label_end:
-//  indg = db_indg_free(indg);
-//  status = (int*) mem_free((char* ) status);
-//  props = (double*) mem_free((char* ) props);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Generate the Poisson planes that cover the grid
- **
- ** \param[in]  dbgrid   Db corresponding to the target grid
- **
- ** \param[out] splanes  SubPlanes structure
- **
- ** \remarks  The array 'planes' contains successively a,b,c,d such that
- ** \remarks  ax + by + cz + d = 0
- ** \remarks  The valuation of each line is assigned a uniform value [0,1]
- **
- *****************************************************************************/
-void SimuSubstitution::_poissonPlanesGenerate(DbGrid *dbgrid)
-{
-  double ap[3];
-
-  VectorDouble center = dbgrid->getCenter();
-  double diagonal = dbgrid->getExtensionDiagonal();
-
-  /* Loop on the planes to be generated */
-
-  for (int ip = 0; ip < (int) _planes.size(); ip++)
+  int nstates = subparam.getNstates();
+  if (subparam.isFlagCoding())
   {
-    double d0 = diagonal * law_uniform(-1., 1.) / 2.;
-    double u = 0.;
-    for (int idim = 0; idim < 3; idim++)
+    if (subparam.isFlagAuto()) nstates = np;
+    if (subparam.isFlagDirect() && nstates != np)
     {
-      ap[idim] = law_gaussian();
-      u += ap[idim] * ap[idim];
+      message("You have used the internal information process\n");
+      message("The number of states should be equal to %d\n", np);
+      message("Nevertheless, your choice prevails\n");
     }
-    u = sqrt(u);
-    for (int idim = 0; idim < 3; idim++)
+    VectorDouble props = _transToProp(subparam, verbose);
+    VectorInt status(nstates);
+
+    /* Simulation of the initial state */
+
+    double u = law_uniform(0., 1.);
+    double w0 = 0.;
+    double ie = 0;
+    while (w0 < u)
+      w0 += props[ie++];
+    status[0] = ie - 1;
+
+    /* Simulation of the current state */
+
+    VectorDouble trans = subparam.getTrans();
+    int nfacies = subparam.getNfacies();
+    for (int ip = 1; ip < nstates; ip++)
     {
-      ap[idim] /= u;
-      d0 -= ap[idim] * center[idim];
-    }
-    if (d0 < 0)
-    {
-      for (int idim = 0; idim < 3; idim++)
-        ap[idim] = -ap[idim];
-      d0 = -d0;
+      u = law_uniform(0., 1.);
+      double p0 = 0.;
+      int je = 0;
+      ie = status[ip - 1];
+      while (p0 < u)
+      {
+        p0 += TRANS(ie, je);
+        je++;
+      }
+      status[ip] = je - 1;
     }
 
-    /* Storing the plane */
+    /* Simulating the directing function */
 
-    for (int idim = 0; idim < 3; idim++)
-      _planes[ip].setCoor(idim, ap[idim]);
-    _planes[ip].setIntercept(d0);
-    _planes[ip].setRndval(law_uniform(0., 1.));
+    for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
+    {
+      if (!dbgrid->isActive(iech)) continue;
+      double value = (subparam.isFlagDirect()) ? dbgrid->getArray(iech, iptr) :
+          dbgrid->getVariable(iech, 0);
+      int ival = (int) ((value - vmin) / (vmax - vmin) * nstates);
+      if (ival < 0) ival = 0;
+      if (ival >= nstates) ival = nstates - 1;
+      dbgrid->setArray(iech, iptr, 1 + status[ival]);
+    }
+
+    /* Printout statistics */
+
+    if (verbose)
+    {
+      message("\nCoding process: \n");
+      message("Number of coded states     = %d \n", nstates);
+      message("Minimum information value  = %lf\n", vmin);
+      message("Maximum information value  = %lf\n", vmax);
+    }
   }
+
+  return 0;
 }
 
 /*****************************************************************************
@@ -331,5 +255,93 @@ void SimuSubstitution::_calculValue(int ip,
     cossin += _planes[ip].getCoor(i) * vector[i];
   if (cossin < 0) ival = -ival;
   _planes[ip].setValue((double) ival);
+}
+
+/****************************************************************************/
+/*!
+ **  Derive proportions from the transition matrix
+ **
+ ** \return The proprotion matrix
+ **
+ ** \param[in]  subparam SimuSubstitutionParam structure
+ ** \param[in]  verbose  Verbose option
+ **
+ *****************************************************************************/
+VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subparam,
+                                            int verbose,
+                                            double eps)
+{
+  VectorDouble props;
+  VectorDouble propold;
+  VectorDouble trans = subparam.getTrans();
+
+  /* Initializations */
+
+  int nfacies = subparam.getNfacies();
+  if (nfacies <= 0 || subparam.getTrans().empty()) return props;
+  props.resize(nfacies);
+  propold.resize(nfacies);
+
+  /* Checks the transition matrix */
+
+  bool flag_error = false;
+  for (int i = 0; i < nfacies && !flag_error; i++)
+  {
+    double total = 0.;
+    for (int j = 0; j < nfacies; j++)
+      total += ABS(TRANS(i,j));
+
+    if (total <= 0.)
+      flag_error = 1;
+    else
+      for (int j = 0; j < nfacies; j++)
+        TRANS(i,j) = ABS(TRANS(i,j)) / total;
+  }
+
+  /* Wrong transition matrix: initialize it */
+
+  if (flag_error)
+  {
+    for (int i = 0; i < nfacies; i++)
+      for (int j = 0; j < nfacies; j++)
+        TRANS(i,j) = 1. / nfacies;
+  }
+
+  /* Initialize the proportion matrix */
+
+  for (int i = 0; i < nfacies; i++)
+    props[i] = 1. / nfacies;
+
+  /* Loop to reach the stationarity of the proportions */
+
+  double diff = 2. * eps;
+  while (diff > eps)
+  {
+    double w0 = 0.;
+    diff = 0.;
+    for (int i = 0; i < nfacies; i++)
+      propold[i] = props[i];
+    for (int i = 0; i < nfacies; i++)
+    {
+      double val = 0.;
+      for (int j = 0; j < nfacies; j++)
+        val += TRANS(j,i) * propold[j];
+      props[i] = val;
+      w0 += val;
+    }
+    if (w0 == 0.) w0 = 1.;
+    for (int i = 0; i < nfacies; i++)
+    {
+      props[i] /= w0;
+      diff += ABS(propold[i] - props[i]);
+    }
+  }
+
+  /* Printout the proportions */
+
+  if (verbose)
+    print_matrix("Proportions", 0, 1, 1, nfacies, NULL, props.data());
+
+  return props;
 }
 

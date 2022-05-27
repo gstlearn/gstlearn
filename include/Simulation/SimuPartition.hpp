@@ -16,29 +16,35 @@
 #include "Simulation/ASimulation.hpp"
 #include "Basic/Plane.hpp"
 
-class SimuSubstitutionParam;
+class SimuPartitionParam;
 class Db;
 class DbGrid;
 
-class GSTLEARN_EXPORT SimuSubstitution: public ASimulation
+typedef struct
+{
+  double valref;
+  double valsim;
+} Stack;
+
+class GSTLEARN_EXPORT SimuPartition: public ASimulation
 {
 public:
-  SimuSubstitution(int nbsimu = 0, int seed = 4324324);
-  SimuSubstitution(const SimuSubstitution &r);
-  SimuSubstitution& operator=(const SimuSubstitution &r);
-  virtual ~SimuSubstitution();
+  SimuPartition(int nbsimu = 0, int seed = 4324324);
+  SimuPartition(const SimuPartition &r);
+  SimuPartition& operator=(const SimuPartition &r);
+  virtual ~SimuPartition();
 
-  int simulate(DbGrid *dbgrid,
-               const SimuSubstitutionParam& subparam,
-               int iptr,
-               int verbose);
+  int voronoi(DbGrid *dbgrid,
+              Model *model,
+              const SimuPartitionParam& parparam,
+              int iptr,
+              int verbose);
+  int poisson(DbGrid *dbgrid,
+              Model *model,
+              const SimuPartitionParam& parparam,
+              int iptr,
+              int verbose);
 
 private:
-  void _calculValue(int ip, double factor, const VectorDouble& vector);
-  VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
-                            int verbose,
-                            double eps = EPSILON5);
-
-private:
-  std::vector<Plane> _planes;
+  double _stackSearch(const std::vector<Stack>& stacks, double valref);
 };

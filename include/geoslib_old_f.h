@@ -1924,26 +1924,6 @@ GSTLEARN_EXPORT int simfine_f(DbGrid *dbin,
                               int seed,
                               VectorDouble &tab);
 
-/*****************************************/
-/* Prototyping the functions in simsub.c */
-/*****************************************/
-
-GSTLEARN_EXPORT int substitution(DbGrid *dbgrid,
-                                 int seed,
-                                 int nfacies,
-                                 int nstates,
-                                 int flag_direct,
-                                 int flag_coding,
-                                 int flag_orient,
-                                 int flag_auto,
-                                 double intensity,
-                                 double factor,
-                                 double vector[3],
-                                 double *trans,
-                                 int colfac,
-                                 int colang[3],
-                                 int verbose);
-
 /******************************************/
 /* Prototyping the functions in simpart.c */
 /******************************************/
@@ -1952,19 +1932,6 @@ GSTLEARN_EXPORT SubPlanes* poisson_manage_planes(int mode,
                                                  int np,
                                                  SubPlanes *splanes);
 GSTLEARN_EXPORT int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes);
-GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
-                                         Model *model,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose);
-GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
-                                         Model *model,
-                                         double *dilate,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose);
 
 /*****************************************/
 /* Prototyping the functions in thresh.c */

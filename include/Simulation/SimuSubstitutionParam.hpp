@@ -18,7 +18,11 @@
 class GSTLEARN_EXPORT SimuSubstitutionParam: public AStringable
 {
 public:
-  SimuSubstitutionParam();
+  SimuSubstitutionParam(int nfacies = 2,
+                        double intensity = 0.1,
+                        bool flag_direct = true,
+                        bool flag_coding = true,
+                        bool flag_orient = false);
   SimuSubstitutionParam(const SimuSubstitutionParam &r);
   SimuSubstitutionParam& operator=(const SimuSubstitutionParam &r);
   virtual ~SimuSubstitutionParam();
@@ -46,7 +50,7 @@ public:
   void setNfacies(int nfacies) { _nfacies = nfacies; }
   int getNstates() const { return _nstates; }
   void setNstates(int nstates) { _nstates = nstates; }
-  const VectorDouble& getTrans() const { return _trans; }
+  const VectorDouble getTrans() const { return _trans; }
   void setTrans(const VectorDouble& trans) { _trans = trans; }
   const VectorDouble& getVector() const { return _vector; }
   void setVector(const VectorDouble& vector) { _vector = vector; }
@@ -56,6 +60,9 @@ public:
   bool isValid(bool verbose = false);
   void isValidOrientation(VectorDouble& vector, bool verbose = false) const;
   void isValidFactor(double* factor, bool verbose = false) const;
+
+  bool isAngleLocal() const;
+  bool isLocal() const;
 
 private:
   bool _isIrreductibility(bool verbose);

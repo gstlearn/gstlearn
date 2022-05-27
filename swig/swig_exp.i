@@ -324,6 +324,8 @@ class IClonable{};
 %include Simulation/SimuSphericalParam.hpp
 %include Simulation/SimuSubstitution.hpp
 %include Simulation/SimuSubstitutionParam.hpp
+%include Simulation/SimuPartition.hpp
+%include Simulation/SimuPartitionParam.hpp
 
 %include segy.h
 

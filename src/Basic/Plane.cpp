@@ -9,6 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Plane.hpp"
+#include "Basic/Law.hpp"
+#include "Db/DbGrid.hpp"
+
+#include <math.h>
 
 Plane::Plane()
     : AStringable(),
@@ -53,3 +57,60 @@ String Plane::toString(const AStringFormat* /*strfmt*/) const
 
   return sstr.str();
 }
+
+/****************************************************************************/
+/*!
+ **  Generate the Poisson planes that cover the grid
+ **
+ ** \param[in]  dbgrid   Db corresponding to the target grid
+ ** \param[in]  np       Number of planes
+ **
+ ** \remarks  The array 'planes' contains successively a,b,c,d such that
+ ** \remarks  ax + by + cz + d = 0
+ ** \remarks  The valuation of each line is assigned a uniform value [0,1]
+ **
+ *****************************************************************************/
+std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
+{
+  double ap[3];
+
+  VectorDouble center = dbgrid->getCenter();
+  double diagonal = dbgrid->getExtensionDiagonal();
+  std::vector<Plane> planes;
+  planes.resize(np);
+
+  /* Loop on the planes to be generated */
+
+  for (int ip = 0; ip < np; ip++)
+  {
+    double d0 = diagonal * law_uniform(-1., 1.) / 2.;
+    double u = 0.;
+    for (int idim = 0; idim < 3; idim++)
+    {
+      ap[idim] = law_gaussian();
+      u += ap[idim] * ap[idim];
+    }
+    u = sqrt(u);
+    for (int idim = 0; idim < 3; idim++)
+    {
+      ap[idim] /= u;
+      d0 -= ap[idim] * center[idim];
+    }
+    if (d0 < 0)
+    {
+      for (int idim = 0; idim < 3; idim++)
+        ap[idim] = -ap[idim];
+      d0 = -d0;
+    }
+
+    /* Storing the plane */
+
+    for (int idim = 0; idim < 3; idim++)
+      planes[ip].setCoor(idim, ap[idim]);
+    planes[ip].setIntercept(d0);
+    planes[ip].setRndval(law_uniform(0., 1.));
+  }
+
+  return planes;
+}
+

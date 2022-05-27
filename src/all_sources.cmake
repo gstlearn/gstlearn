@@ -97,8 +97,6 @@ set(SRC
   Core/csparse.cpp
   Core/sphtriangle.cpp
   Core/vario.cpp
-  Core/simsub.cpp
-  Core/simpart.cpp
   Core/io.cpp
   Core/db.cpp
   Core/variopgs.cpp
@@ -285,4 +283,6 @@ set(SRC
   Simulation/SimuSphericalParam.cpp
   Simulation/SimuSubstitution.cpp
   Simulation/SimuSubstitutionParam.cpp
+  Simulation/SimuPartition.cpp
+  Simulation/SimuPartitionParam.cpp
 )
