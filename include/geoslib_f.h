@@ -571,26 +571,26 @@ GSTLEARN_EXPORT int simsph(DbGrid *db,
                            const NamingConvention& namconv = NamingConvention("SimSphe"));
 GSTLEARN_EXPORT int substitution(DbGrid *dbgrid,
                                  SimuSubstitutionParam& subparam,
-                                 int seed,
-                                 int verbose,
+                                 int seed = 43242,
+                                 int verbose = false,
                                  const NamingConvention& namconv = NamingConvention("SimSub"));
 GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          Model *model,
                                          const SimuSphericalParam& sphepar,
-                                         int seed,
-                                         int verbose);
+                                         int seed = 54523,
+                                         int verbose = false);
 GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
                                          Model *model,
                                          const SimuPartitionParam& parparam,
-                                         int seed,
-                                         int verbose,
+                                         int seed = 43243,
+                                         int verbose = false,
                                          const NamingConvention& namconv = NamingConvention(
                                              "Voronoi"));
 GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
                                          Model *model,
                                          const SimuPartitionParam& parparam,
-                                         int seed,
-                                         int verbose,
+                                         int seed = 432432,
+                                         int verbose = false,
                                          const NamingConvention& namconv = NamingConvention(
                                              "Poisson"));
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,

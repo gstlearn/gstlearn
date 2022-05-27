@@ -69,7 +69,7 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("Simbool-");
+  ASerializable::setPrefixName("SimBool-");
 
   // Global parameters
   law_set_random_seed(32131);
