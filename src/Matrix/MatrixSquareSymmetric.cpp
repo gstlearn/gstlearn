@@ -237,7 +237,7 @@ void MatrixSquareSymmetric::normSingleMatrix(const AMatrix& x)
   }
 
   int nout = getNSize();
-  int n = x.getNCols();
+  int n = x.getNRows();
   for (int irow = 0; irow < nout; irow++)
   {
     for (int icol = 0; icol <= irow; icol++)
@@ -264,7 +264,7 @@ void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
   }
 
   int nout = getNSize();
-  int n = x.getNRows();
+  int n = x.getNCols();
   for (int irow = 0; irow < nout; irow++)
   {
     for (int icol = 0; icol <= irow; icol++)

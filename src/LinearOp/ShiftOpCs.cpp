@@ -1172,7 +1172,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     {
       for (int idim = 0; idim < ndim; idim++)
         matM.setValue(idim, icorn,
-                      coords[idim][icorn] - coords[idim][ncorner-1]);
+                      coords[icorn][idim] - coords[ncorner-1][idim]);
     }
 
     // Calculate M^t %*% M

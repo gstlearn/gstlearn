@@ -508,7 +508,7 @@ double MeshSpherical::getApexCoor(int i, int idim) const
 
 void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
 {
-  util_convert_sph2cart(getCoor(imesh, ic, 0),
+  util_convert_sph2cart(getCoor(imesh, ic, 0)-180.,
                         getCoor(imesh, ic, 1),
                         &coords[0], &coords[1], &coords[2]);
   double r;
