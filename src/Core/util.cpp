@@ -980,10 +980,7 @@ void ut_rotation_matrix_2D(double angle, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix_3D(double alpha,
-                                           double beta,
-                                           double gamma,
-                                           double *rot)
+void ut_rotation_matrix_3D(double alpha, double beta, double gamma, double *rot)
 {
   double ca[3], sa[3];
 
@@ -1018,9 +1015,7 @@ void ut_rotation_matrix_3D(double alpha,
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix(int ndim,
-                                        const double *angles,
-                                        double *rot)
+void ut_rotation_matrix(int ndim, const double *angles, double *rot)
 {
   if (ndim == 2)
     ut_rotation_matrix_2D(angles[0], rot);
@@ -1039,8 +1034,7 @@ void ut_rotation_matrix(int ndim,
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-VectorDouble ut_rotation_matrix_VD(int ndim,
-                                                   const VectorDouble &angles)
+VectorDouble ut_rotation_matrix_VD(int ndim, const VectorDouble &angles)
 {
   VectorDouble rot;
 
@@ -1271,7 +1265,6 @@ void variety_get_characteristics(double *radius)
 
 {
   *radius = VARIETY.radius;
-
   return;
 }
 
@@ -2670,14 +2663,14 @@ PL_Dist* pldist_manage(int mode,
  **
  *****************************************************************************/
 double distance_point_to_segment(double x0,
-                                                 double y0,
-                                                 double x1,
-                                                 double y1,
-                                                 double x2,
-                                                 double y2,
-                                                 double *xd,
-                                                 double *yd,
-                                                 int *nint)
+                                 double y0,
+                                 double x1,
+                                 double y1,
+                                 double x2,
+                                 double y2,
+                                 double *xd,
+                                 double *yd,
+                                 int *nint)
 {
   double dx, dy, dxp, dyp, ratio, dist, signe;
 
@@ -2770,9 +2763,9 @@ void distance_point_to_polyline(double x0,
  **
  *****************************************************************************/
 double distance_along_polyline(PL_Dist *pldist1,
-                                               PL_Dist *pldist2,
-                                               double *xl,
-                                               double *yl)
+                               PL_Dist *pldist2,
+                               double *xl,
+                               double *yl)
 {
   int i;
   double dist, local1[2], local2[2];
@@ -2884,14 +2877,14 @@ static void st_shift_point(double x1,
  **
  *****************************************************************************/
 double distance_points_to_polyline(double ap,
-                                                   double al,
-                                                   double x1,
-                                                   double y1,
-                                                   double x2,
-                                                   double y2,
-                                                   int nvert,
-                                                   double *xl,
-                                                   double *yl)
+                                   double al,
+                                   double x1,
+                                   double y1,
+                                   double x2,
+                                   double y2,
+                                   int nvert,
+                                   double *xl,
+                                   double *yl)
 {
   double dist, d1, d2, dh, dv, dloc, dmin, xp1, xp2, yp1, yp2, dist1, dist2;
   PL_Dist *pldist1, *pldist2;
@@ -3088,9 +3081,9 @@ double* ut_pascal(int ndim)
  **
  *****************************************************************************/
 double ut_geodetic_angular_distance(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2)
+                                    double lat1,
+                                    double long2,
+                                    double lat2)
 {
   double rlon1, rlat1, rlon2, rlat2, dlong, angdst;
 
@@ -3151,17 +3144,17 @@ static double st_convert_geodetic_angle(double /*sina*/,
  **
  *****************************************************************************/
 void ut_geodetic_angles(double long1,
-                                        double lat1,
-                                        double long2,
-                                        double lat2,
-                                        double long3,
-                                        double lat3,
-                                        double *a,
-                                        double *b,
-                                        double *c,
-                                        double *A,
-                                        double *B,
-                                        double *C)
+                        double lat1,
+                        double long2,
+                        double lat2,
+                        double long3,
+                        double lat3,
+                        double *a,
+                        double *b,
+                        double *c,
+                        double *A,
+                        double *B,
+                        double *C)
 {
   double cosa, cosb, cosc, sina, sinb, sinc;
 
@@ -3198,11 +3191,11 @@ void ut_geodetic_angles(double long1,
  **
  *****************************************************************************/
 double ut_geodetic_triangle_perimeter(double long1,
-                                                      double lat1,
-                                                      double long2,
-                                                      double lat2,
-                                                      double long3,
-                                                      double lat3)
+                                      double lat1,
+                                      double long2,
+                                      double lat2,
+                                      double long3,
+                                      double lat3)
 {
   double a, b, c, ga, gb, gc, perimeter;
 
@@ -3227,11 +3220,11 @@ double ut_geodetic_triangle_perimeter(double long1,
  **
  *****************************************************************************/
 double ut_geodetic_triangle_surface(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2,
-                                                    double long3,
-                                                    double lat3)
+                                    double lat1,
+                                    double long2,
+                                    double lat2,
+                                    double long3,
+                                    double lat3)
 {
   double a, b, c, A, B, C, surface;
 
@@ -4139,11 +4132,11 @@ double ut_rad2deg(double angle)
  **
  *****************************************************************************/
 int is_in_spherical_triangle(double *coor,
-                                             double surface,
-                                             double *pts1,
-                                             double *pts2,
-                                             double *pts3,
-                                             double *wgts)
+                             double surface,
+                             double *pts1,
+                             double *pts2,
+                             double *pts3,
+                             double *wgts)
 {
   double total, s[3], eps;
 
@@ -4488,10 +4481,10 @@ int* ut_split_into_two(int ncolor,
  **
  *****************************************************************************/
 int is_in_spherical_triangle_optimized(double *coor,
-                                                       double *ptsa,
-                                                       double *ptsb,
-                                                       double *ptsc,
-                                                       double *wgts)
+                                       double *ptsa,
+                                       double *ptsb,
+                                       double *ptsc,
+                                       double *wgts)
 {
   double total, s[3], stot, eps;
   double A, B, C, AB, AC, BA, BC, CA, CB, OA, OB, OC;
@@ -4572,10 +4565,7 @@ int is_in_spherical_triangle_optimized(double *coor,
  ** \remarks The calling function must free the returned array
  **
  *****************************************************************************/
-int* ut_name_decode(const char *name,
-                                    int ndim,
-                                    int *nx,
-                                    int verbose)
+int* ut_name_decode(const char *name, int ndim, int *nx, int verbose)
 {
   int *order, *ranks, num, orient, idim, error, a_order;
   char *p;
@@ -4738,10 +4728,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-double* ut_rank_cells(int ndim,
-                                      int *nx,
-                                      int *order,
-                                      int verbose)
+double* ut_rank_cells(int ndim, int *nx, int *order, int verbose)
 {
   double *tab, *tab2;
   int *indg, *ind, error, ncell;
@@ -4947,8 +4934,8 @@ static int st_string_search(const String &string,
  **
  *****************************************************************************/
 VectorInt util_string_search(const VectorString &list_string,
-                                             const String &pattern,
-                                             int verbose)
+                             const String &pattern,
+                             int verbose)
 {
   VectorInt ranks;
   int ns = static_cast<int>(list_string.size());
@@ -4958,4 +4945,47 @@ VectorInt util_string_search(const VectorString &list_string,
       ranks.push_back(is + 1);
   }
   return ranks;
+}
+
+/**
+ * Returns the Vector of Sample coordinates in 3-D from Longitude-Latitude
+ * @param longitude Array of longitude values
+ * @param latitude  Array of latitude values
+ * @param dilate    Dilation applied to radius
+ * @param radius    Raius (if note defined, taken from variety definition)
+ * @return
+ */
+VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
+                                        const VectorDouble& latitude,
+                                        double dilate,
+                                        double radius)
+{
+  double locR = radius;
+  if (FFFF(locR)) variety_get_characteristics(&locR);
+  locR *= dilate;
+
+  VectorVectorDouble tab;
+  int number = (int) longitude.size();
+  if (number != (int) latitude.size())
+  {
+    messerr("Arguments longitude' and  'latitude' should have same dimension");
+    return tab;
+  }
+
+  // Dimension the returned argument
+  tab.resize(3);
+  for (int idim = 0; idim < 3; idim++)
+    tab[idim].resize(number,0.);
+
+  // Load the returned argument
+
+  for (int ip = 0; ip < number; ip++)
+  {
+    double lon = ut_deg2rad(longitude[ip]);
+    double lat = ut_deg2rad(latitude[ip]);
+    tab[0][ip] = locR * cos(lon) * cos(lat);
+    tab[1][ip] = locR * sin(lon) * cos(lat);
+    tab[2][ip] = locR * sin(lat);
+  }
+  return tab;
 }

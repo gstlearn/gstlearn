@@ -36,7 +36,6 @@ SpaceRN::~SpaceRN()
 void SpaceRN::move(SpacePoint& p1,
                    const VectorDouble& vec) const
 {
-
   p1.setCoord(ut_vector_add(p1.getCoord(), vec));
 }
 
@@ -58,5 +57,3 @@ VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
 {
   return ut_vector_subtract(p1.getCoord(), p2.getCoord());
 }
-
-
