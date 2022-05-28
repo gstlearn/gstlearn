@@ -50,6 +50,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
+  void closePolySet();
 
   void setX(const VectorDouble& x) { _x = x; }
   void setY(const VectorDouble& y) { _y = y; }

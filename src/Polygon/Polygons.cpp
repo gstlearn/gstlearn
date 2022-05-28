@@ -126,7 +126,9 @@ int Polygons::resetFromCSV(const String& filename,
 
 void Polygons::addPolySet(const PolySet& polyset)
 {
-  _polysets.push_back(polyset);
+  PolySet local = polyset;
+  local.closePolySet();
+  _polysets.push_back(local);
 }
 
 String Polygons::toString(const AStringFormat* strfmt) const
