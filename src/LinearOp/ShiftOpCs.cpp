@@ -1121,8 +1121,9 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   MatrixSquareSymmetric hh(ndim);
   MatrixSquareSymmetric matMtM(ncorner-1);
   MatrixRectangular matP(ncorner-1,ndim);
+  MatrixSquareGeneral matMs(ndim);
   MatrixSquareSymmetric matPinvHPt(ncorner-1);
-
+  double detMtM = 0.;
   // Define the global matrices
 
   int igrf = _getIgrf();
@@ -1131,12 +1132,12 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   if (_isGlobalHH(igrf, icov))
   {
     _loadHHByApex(amesh, hh, 0);
-    dethh = hh.determinant();
-    if (hh.invert())
-    {
-      messerr("Problem when inverting Global HH");
-      my_throw("Matrix inversion");
-    }
+    dethh = 1./hh.determinant();
+//    if (hh.invert())
+//    {
+//      messerr("Problem when inverting Global HH");
+//      my_throw("Matrix inversion");
+//    }
   }
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1156,12 +1157,12 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if (nostat->isDefinedforAnisotropy(igrf, icov))
       {
         _loadHHPerMesh(amesh, hh, imesh);
-        dethh = hh.determinant();
-        if (hh.invert())
-        {
-          messerr("Problem when inverting HH for mesh %d", imesh+1);
-          my_throw("Matrix inversion");
-        }
+        dethh = 1./hh.determinant();
+//        if (hh.invert())
+//        {
+//          messerr("Problem when inverting HH for mesh %d", imesh+1);
+//          my_throw("Matrix inversion");
+//        }
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
         _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
@@ -1169,49 +1170,58 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
     // Load M matrix [ndim, ncorner-1]
     amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
+
     MatrixRectangular matM(ndim, ncorner-1);
+
     for (int icorn = 0; icorn < ncorner-1; icorn++)
     {
       for (int idim = 0; idim < ndim; idim++)
-        matM.setValue(idim, icorn,
-                      coords[icorn][idim] - coords[ncorner-1][idim]);
+      {
+        double val = coords[icorn][idim] - coords[ncorner-1][idim];
+        if(amesh->getVariety()==1)
+        {
+          matM.setValue(idim, icorn, val);
+          matMtM.normSingleMatrix(matM);
+          // Calculate M^t %*% M
+          detMtM = matMtM.determinant();
+        }
+        else
+        {
+          matMs.setValue(idim, icorn, val);
+          double detM = matMs.determinant();
+          detMtM = detM * detM;
+        }
+      }
     }
-
-    // Calculate M^t %*% M
-
-    matMtM.normSingleMatrix(matM);
-    double detMtM = matMtM.determinant();
-
-    // Calculate (M^t %*% M)^{-1}
-
-    if (matMtM.invert())
-    {
-      messerr("Problem for Mesh #%d", imesh + 1);
-      amesh->printMeshes(imesh);
-      my_throw("Matrix inversion");
-    }
-
-    // Calculate P = (M^t %*% M)^{-1} %*% M^t
 
     if(amesh->getVariety() == 1)
     {
+      // Calculate (M^t %*% M)^{-1}
+
+      if (matMtM.invert())
+      {
+        messerr("Problem for Mesh #%d", imesh + 1);
+        amesh->printMeshes(imesh);
+        my_throw("Matrix inversion");
+      }
+      // Calculate P = (M^t %*% M)^{-1} %*% M^t
       matM.transposeInPlace();
       matP.prodMatrix(matMtM, matM);
 
-    // Calculate P %*% HH^{-1} %*% P^t
+      // Calculate P %*% HH^{-1} %*% P^t
 
       matPinvHPt.normTMatrix(hh, matP);
     }
     else
     {
-      if(matM.invert())
+      if(matMs.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
         amesh->printMeshes(imesh);
         my_throw("Matrix inversion");
 
       }
-      matPinvHPt.normTMatrix(hh, matM);
+      matPinvHPt.normTMatrix(hh, matMs);
     }
     // Storing in the Map
 
@@ -1234,8 +1244,8 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       }
       int j1 = ncorner - 1;
       int ip1 = amesh->getApex(imesh, j1);
-      _mapUpdate(tab, ip0, ip1, s, tol);
-      _mapUpdate(tab, ip1, ip0, s, tol);
+      _mapUpdate(tab, ip0, ip1, -s, tol);
+      _mapUpdate(tab, ip1, ip0, -s, tol);
       S += s;
     }
     int j0 = ncorner-1;
@@ -1538,7 +1548,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
         sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);
     }
-    _Lambda.push_back(sqrt((_TildeC[ip]) / (sqdeth * sill)));
+    _Lambda.push_back(sqrt((_TildeC[ip]) / (sill)));
   }
 }
 
