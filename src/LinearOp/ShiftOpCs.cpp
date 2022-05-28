@@ -258,7 +258,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     {
       if (!_isVelocity())
       {
-        if (_buildS(amesh))
+        if (_buildSVariety(amesh))
         my_throw("Problem when buildS");
       }
       else
@@ -275,7 +275,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 
     // Construct the TildeC vector
 
-    if (amesh->getVariety() == 0)
+    if (amesh->getVariety() == 2)
     {
       if (_buildTildeC(amesh, units))
         my_throw("Problem with buildTildeC");
@@ -701,6 +701,8 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
 
     // Calculate the current HH matrix (using local covariance parameters)
     VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+   // for(auto &e : diag)
+    //  e = 1./e;
     hh.fill(0.);
     for (int idim = 0; idim < ndim; idim++)
       hh.setValue(idim,idim, diag[0]);
@@ -1191,13 +1193,26 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 
     // Calculate P = (M^t %*% M)^{-1} %*% M^t
 
-    matM.transposeInPlace();
-    matP.prodMatrix(matMtM, matM);
+    if(amesh->getVariety() == 1)
+    {
+      matM.transposeInPlace();
+      matP.prodMatrix(matMtM, matM);
 
     // Calculate P %*% HH^{-1} %*% P^t
 
-    matPinvHPt.normTMatrix(hh, matP);
+      matPinvHPt.normTMatrix(hh, matP);
+    }
+    else
+    {
+      if(matM.invert())
+      {
+        messerr("Problem for Mesh #%d", imesh + 1);
+        amesh->printMeshes(imesh);
+        my_throw("Matrix inversion");
 
+      }
+      matPinvHPt.normTMatrix(hh, matM);
+    }
     // Storing in the Map
 
     double ratio = sqrt(dethh * detMtM);
@@ -1224,11 +1239,10 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       S += s;
     }
     int j0 = ncorner-1;
-    int j1 = ncorner-1;
+
     int ip0 = amesh->getApex(imesh, j0);
     _TildeC[ip0] += ratio / 6.;
-    int ip1 = amesh->getApex(imesh, j1);
-    _mapUpdate(tab, ip0, ip1, S, tol);
+    _mapUpdate(tab, ip0, ip0, S, tol);
   }
 
   _S = cs_spfree(_S);
