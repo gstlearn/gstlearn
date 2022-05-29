@@ -40,6 +40,7 @@ ShiftOpCs::ShiftOpCs()
       _SGrad(),
       _LambdaGrad(),
       _flagNoStatByHH(false),
+      _variety(0),
       _model(nullptr),
       _igrf(0),
       _icov(0),
@@ -61,6 +62,7 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
       _SGrad(),
       _LambdaGrad(),
       _flagNoStatByHH(false),
+      _variety(amesh->getVariety()),
       _model(model),
       _igrf(0),
       _icov(0),
@@ -222,7 +224,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
   _setModel(model);
   _setIgrf(igrf);
   _setIcov(icov);
-
+  _variety = amesh->getVariety();
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
@@ -1181,8 +1183,8 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         if(amesh->getVariety()==1)
         {
           matM.setValue(idim, icorn, val);
-          matMtM.normSingleMatrix(matM);
           // Calculate M^t %*% M
+          matMtM.normSingleMatrix(matM);
           detMtM = matMtM.determinant();
         }
         else
@@ -1548,7 +1550,14 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
         sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);
     }
-    _Lambda.push_back(sqrt((_TildeC[ip]) / (sill)));
+    if (amesh->getVariety() == 0)
+    {
+      _Lambda.push_back(sqrt((_TildeC[ip]) / sill));
+    }
+    else
+    {
+      _Lambda.push_back(sqrt((_TildeC[ip]) / sill * pow(sqdeth, 1. / 3.)));
+    }
   }
 }
 

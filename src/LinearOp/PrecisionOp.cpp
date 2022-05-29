@@ -284,7 +284,15 @@ int PrecisionOp::_preparePrecisionPoly()
   double alpha = param + ndims2;
   if (! isInteger(alpha,EPSILON3)) return 1;
 
-  double correc = spde_compute_correc(ndim, param);
+  double correc = 1.;
+  if(_shiftOp->getVariety()==0)
+  {
+    correc = spde_compute_correc(ndim, param);
+  }
+  else
+  {
+    correc = 0.1222057;
+  }
   int p = getClosestInteger(alpha);
   int ndimp = p + 1;
   blin.resize(ndimp);
