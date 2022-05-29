@@ -91,7 +91,7 @@ public:
                               VectorDouble& in,
                               double puis = 2) const;
   double getMaxEigenValue() const;
-
+  int getVariety()const {return _variety;}
   cs* getS() const { return _S; }
   cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
@@ -173,7 +173,7 @@ private:
   std::vector<cs *> _SGrad;
   VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
-
+  int _variety;
   // Following list of members are there to ease the manipulation and reduce argument list
   const Model* _model;
   int _igrf;
