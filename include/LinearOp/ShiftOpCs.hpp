@@ -164,7 +164,7 @@ private:
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
   void _determineFlagNoStatByHH();
-
+  double _computeSphereVarianceCorrec(double nu,double scale,int n=100) const;
 private:
   VectorDouble _TildeC;
   VectorDouble _Lambda;
