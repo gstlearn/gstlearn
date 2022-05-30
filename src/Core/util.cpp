@@ -4951,14 +4951,14 @@ VectorInt util_string_search(const VectorString &list_string,
  * Returns the Vector of Sample coordinates in 3-D from Longitude-Latitude
  * @param longitude Array of longitude values
  * @param latitude  Array of latitude values
+ * @param radius    Radius (if note defined, taken from variety definition)
  * @param dilate    Dilation applied to radius
- * @param radius    Raius (if note defined, taken from variety definition)
  * @return
  */
 VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
-                                        double dilate,
-                                        double radius)
+                                        double radius,
+                                        double dilate)
 {
   double locR = radius;
   if (FFFF(locR)) variety_get_characteristics(&locR);
@@ -4981,11 +4981,22 @@ VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
 
   for (int ip = 0; ip < number; ip++)
   {
-    double lon = ut_deg2rad(longitude[ip]);
-    double lat = ut_deg2rad(latitude[ip]);
-    tab[0][ip] = locR * cos(lon) * cos(lat);
-    tab[1][ip] = locR * sin(lon) * cos(lat);
-    tab[2][ip] = locR * sin(lat);
+    double lon = longitude[ip];
+    double lat = latitude[ip];
+    if (FFFF(lon) || FFFF(lat))
+    {
+      tab[0][ip] = TEST;
+      tab[1][ip] = TEST;
+      tab[2][ip] = TEST;
+    }
+    else
+    {
+      lon = ut_deg2rad(lon);
+      lat = ut_deg2rad(lat);
+      tab[0][ip] = locR * cos(lon) * cos(lat);
+      tab[1][ip] = locR * sin(lon) * cos(lat);
+      tab[2][ip] = locR * sin(lat);
+    }
   }
   return tab;
 }

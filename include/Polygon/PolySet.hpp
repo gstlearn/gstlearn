@@ -60,6 +60,9 @@ protected:
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
 
 private:
+  bool _isClosed() const;
+
+private:
   VectorDouble _x;
   VectorDouble _y;
   double _zmin;

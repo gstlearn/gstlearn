@@ -31,7 +31,8 @@ public:
            double range,
            double param,
            double sill,
-           const CovContext& ctxt);
+           const CovContext& ctxt,
+           bool flagRange = true);
   CovAniso(const CovAniso& r);
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
@@ -93,24 +94,28 @@ public:
                                    const ECov& type,
                                    double range,
                                    double sill = 1.,
-                                   double param = 1.);
+                                   double param = 1.,
+                                   bool flagRange = true);
   static CovAniso* createAnisotropic(const CovContext& ctxt,
                                      const ECov& type,
                                      const VectorDouble& ranges,
                                      double sill = 1.,
                                      double param = 1.,
-                                     const VectorDouble& angles = VectorDouble());
+                                     const VectorDouble& angles = VectorDouble(),
+                                     bool flagRange = true);
   static CovAniso* createIsotropicMulti(const CovContext& ctxt,
                                         const ECov& type,
                                         double range,
                                         const MatrixSquareGeneral& sills,
-                                        double param = 1.);
+                                        double param = 1.,
+                                        bool flagRange = true);
   static CovAniso* createAnisotropicMulti(const CovContext& ctxt,
                                           const ECov& type,
                                           const VectorDouble& ranges,
                                           const MatrixSquareGeneral& sills,
                                           double param = 1.,
-                                          const VectorDouble& angles = VectorDouble());
+                                          const VectorDouble& angles = VectorDouble(),
+                                          bool flagRange = true);
 
   void setContext(const CovContext& ctxt);
   void setParam(double param);

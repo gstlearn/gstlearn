@@ -307,3 +307,10 @@ Polygons* Polygons::createFromDb(const Db* db)
   }
   return polygons;
 }
+
+PolySet Polygons::getClosedPolySet(int ipol)
+{
+  PolySet polyset = getPolySet(ipol);
+  polyset.closePolySet();
+  return polyset;
+}

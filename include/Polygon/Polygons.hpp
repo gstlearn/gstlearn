@@ -51,6 +51,7 @@ public:
 
   const std::vector<PolySet>& getPolySets() const { return _polysets; }
   const PolySet& getPolySet(int ipol) const { return _polysets[ipol]; }
+  PolySet getClosedPolySet(int ipol);
   const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
   const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
   void setX(int ipol, const VectorDouble& x) { _polysets[ipol].setX(x); }

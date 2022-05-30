@@ -381,7 +381,7 @@ Covariance
 
 ```{r}
 mod_y <- Model(nvar=1, ndim=2)
-mod_y$addCova(ECov_SPHERICAL(),range=1,sill=1)
+mod_y$addCovFromParam(ECov_SPHERICAL(),range=1,sill=1)
 h     <- seq(from = 0, to =1, by = 0.01)
 r = mod_y$getCovAnisoList()$evalIvarNpas(0,0,h)
 C_theo<- GM_LN_Cov_theo(lambda = lambda)
