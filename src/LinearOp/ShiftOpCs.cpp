@@ -1513,18 +1513,32 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   int nvertex = amesh->getNApices();
   const CovAniso* cova = _getCova();
 
+  double r = 1.;
+  if( amesh->getVariety() == 1)
+  {
+    variety_get_characteristics(&r);
+  }
+
   /* Load global matrices */
 
   _Lambda.clear();
   int igrf = _getIgrf();
   int icov = _getIcov();
   MatrixSquareSymmetric hh(ndim);
+  double correc  = 1.;
   if (_isGlobalHH(igrf, icov))
   {
     _loadHHByApex(amesh, hh, 0);
     sqdeth = sqrt(hh.determinant());
+   if(amesh->getVariety() == 1)
+   {
+     correc = _computeSphereVarianceCorrec(cova->getParam(),cova->getScale(0) / r);
+   }
   }
-
+  else
+  {
+    correc = 1.; // TO IMPLEMENT
+  }
   /* Fill the array */
 
   double sill = cova->getSill(0, 0);
@@ -1547,12 +1561,23 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     }
     else
     {
-      double r;
-      variety_get_characteristics(&r);
-      _Lambda.push_back(sqrt((_TildeC[ip]) * r  / (sill )));
-      //* pow(sqdeth,-1./6.)
+      //_Lambda.push_back(sqrt((_TildeC[ip]) * r/ sill));
+      _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * r * r * pow(sqdeth, - 1./3.)/  sill));
     }
   }
+}
+
+double ShiftOpCs::_computeSphereVarianceCorrec(double nu,double scale,int n) const
+{
+  double s = 0.;
+  double kappa2 = 1. / (scale * scale);
+  double alpha = nu + 1.;
+  for(int i = 0; i < n; i++)
+  {
+    s += (2 * i + 1)/ pow(kappa2 + i * (i + 1), alpha);
+  }
+
+  return s / (4. * GV_PI);
 }
 
 /**
