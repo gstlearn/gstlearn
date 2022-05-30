@@ -291,7 +291,7 @@ int PrecisionOp::_preparePrecisionPoly()
   }
   else
   {
-    correc = 0.1222057;
+    // TODO implement something
   }
   int p = getClosestInteger(alpha);
   int ndimp = p + 1;

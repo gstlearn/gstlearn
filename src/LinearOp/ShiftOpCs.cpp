@@ -703,8 +703,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
 
     // Calculate the current HH matrix (using local covariance parameters)
     VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
-   // for(auto &e : diag)
-    //  e = 1./e;
+
     hh.fill(0.);
     for (int idim = 0; idim < ndim; idim++)
       hh.setValue(idim,idim, diag[0]);
@@ -1135,11 +1134,6 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   {
     _loadHHByApex(amesh, hh, 0);
     dethh = 1./hh.determinant();
-//    if (hh.invert())
-//    {
-//      messerr("Problem when inverting Global HH");
-//      my_throw("Matrix inversion");
-//    }
   }
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
@@ -1160,11 +1154,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       {
         _loadHHPerMesh(amesh, hh, imesh);
         dethh = 1./hh.determinant();
-//        if (hh.invert())
-//        {
-//          messerr("Problem when inverting HH for mesh %d", imesh+1);
-//          my_throw("Matrix inversion");
-//        }
+
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
         _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
@@ -1183,21 +1173,20 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         if(amesh->getVariety()==1)
         {
           matM.setValue(idim, icorn, val);
-          // Calculate M^t %*% M
-          matMtM.normSingleMatrix(matM);
-          detMtM = matMtM.determinant();
         }
         else
         {
           matMs.setValue(idim, icorn, val);
-          double detM = matMs.determinant();
-          detMtM = detM * detM;
         }
       }
     }
 
     if(amesh->getVariety() == 1)
     {
+      // Calculate M^t %*% M
+      matMtM.normSingleMatrix(matM);
+      detMtM = matMtM.determinant();
+
       // Calculate (M^t %*% M)^{-1}
 
       if (matMtM.invert())
@@ -1216,6 +1205,8 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     }
     else
     {
+      double detM = matMs.determinant();
+      detMtM = detM * detM;
       if(matMs.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
@@ -1550,13 +1541,16 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
       if (nostat->isDefined(igrf, icov, EConsElem::SILL, -1, -1))
         sill = nostat->getValue(igrf, icov, EConsElem::SILL, -1, -1, 0, ip);
     }
-    if (amesh->getVariety() == 0)
+    if (amesh->getVariety() != 1)
     {
       _Lambda.push_back(sqrt((_TildeC[ip]) / sill));
     }
     else
     {
-      _Lambda.push_back(sqrt((_TildeC[ip]) / sill * pow(sqdeth, 1. / 3.)));
+      double r;
+      variety_get_characteristics(&r);
+      _Lambda.push_back(sqrt((_TildeC[ip]) * r  / (sill )));
+      //* pow(sqdeth,-1./6.)
     }
   }
 }
