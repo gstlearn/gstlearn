@@ -116,7 +116,8 @@ Model* Model::createFromParam(const ECov& type,
                               const VectorDouble& ranges,
                               const VectorDouble& sills,
                               const VectorDouble& angles,
-                              const ASpace* space)
+                              const ASpace* space,
+                              bool flagRange)
 {
   int nvar = 1;
   if (! sills.empty())
@@ -134,7 +135,8 @@ Model* Model::createFromParam(const ECov& type,
 
   CovContext ctxt = CovContext(nvar,spaceloc);
   Model* model = new Model(ctxt);
-  model->addCova(type,range,sill,param,ranges,sills,angles);
+  model->addCovFromParam(type, range, sill, param, ranges, sills, angles,
+                         flagRange);
 
   delete spaceloc;
   return model;
@@ -261,13 +263,14 @@ void Model::addCov(const CovAniso *cov)
   _covaList->addCov(cov);
 }
 
-void Model::addCova(const ECov& type,
-                    double range,
-                    double sill,
-                    double param,
-                    const VectorDouble& ranges,
-                    const VectorDouble& sills,
-                    const VectorDouble& angles)
+void Model::addCovFromParam(const ECov& type,
+                            double range,
+                            double sill,
+                            double param,
+                            const VectorDouble& ranges,
+                            const VectorDouble& sills,
+                            const VectorDouble& angles,
+                            bool flagRange)
 {
   // Check consistency with parameters of the model
 
@@ -314,9 +317,19 @@ void Model::addCova(const ECov& type,
   CovAniso cov(type, _ctxt);
 
   if (! ranges.empty())
-    cov.setRanges(ranges);
+  {
+    if (flagRange)
+      cov.setRanges(ranges);
+    else
+      cov.setScales(ranges);
+  }
   else
-    cov.setRange(range);
+  {
+    if (flagRange)
+      cov.setRange(range);
+    else
+      cov.setScale(range);
+  }
   if (! sills.empty())
     cov.setSill(sills);
   else
@@ -1089,7 +1102,7 @@ void Model::_clear()
 void Model::_create()
 {
   // TODO: The next two lines are there in order to allow direct call to
-  // model::addCova() and model::addDrift
+  // model::addCov() and model::addDrift
   // The defaulted types of CovAnisoList and DriftList are assumed
   _covaList = new CovLMC(_ctxt.getSpace());
   _driftList = new DriftList(_ctxt.getSpace());

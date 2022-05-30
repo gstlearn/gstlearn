@@ -67,9 +67,8 @@ GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
 VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
-                                        double dilate = 1.,
-                                        double radius = TEST);
-
+                                        double radius = TEST,
+                                        double dilate = 1.);
 
 /****************************************/
 /* Prototyping the functions in variety */

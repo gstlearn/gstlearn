@@ -2084,7 +2084,6 @@ GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
                                        double *ymin,
                                        double *ymax);
 GSTLEARN_EXPORT double polygon_surface(Polygons *polygon);
-GSTLEARN_EXPORT Polygons* input_polygon(void);
 GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db);
 GSTLEARN_EXPORT int polygon_hull(const Db *db,
                                  VectorDouble &x,

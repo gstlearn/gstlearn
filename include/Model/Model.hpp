@@ -70,19 +70,21 @@ public:
                                 const VectorDouble& ranges = VectorDouble(),
                                 const VectorDouble& sills = VectorDouble(),
                                 const VectorDouble& angles = VectorDouble(),
-                                const ASpace* space = nullptr);
+                                const ASpace* space = nullptr,
+                                bool flagRange = true);
   static Model* createFromDb(const Db* db);
   static Model* createFromNF(const String& neutralFilename, bool verbose = false);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);
-  void   addCova(const ECov& type,
-                 double range = 0.,
-                 double sill = 1.,
-                 double param = 0.,
-                 const VectorDouble& ranges = VectorDouble(),
-                 const VectorDouble& sills = VectorDouble(),
-                 const VectorDouble& angles = VectorDouble());
+  void   addCovFromParam(const ECov& type,
+                         double range = 0.,
+                         double sill = 1.,
+                         double param = 0.,
+                         const VectorDouble& ranges = VectorDouble(),
+                         const VectorDouble& sills  = VectorDouble(),
+                         const VectorDouble& angles = VectorDouble(),
+                         bool flagRange = true);
   void   delCova(int rank);
   void   delAllCovas();
   void   setDriftList(const DriftList* driftlist);
