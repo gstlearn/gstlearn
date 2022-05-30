@@ -2493,7 +2493,8 @@ GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
                                            double rlat,
                                            double *x,
                                            double *y,
-                                           double *z);
+                                           double *z,
+                                           double radius = 1.);
 GSTLEARN_EXPORT void util_convert_cart2sph(double x,
                                            double y,
                                            double z,
