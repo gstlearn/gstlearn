@@ -127,7 +127,6 @@ int Polygons::resetFromCSV(const String& filename,
 void Polygons::addPolySet(const PolySet& polyset)
 {
   PolySet local = polyset;
-  local.closePolySet();
   _polysets.push_back(local);
 }
 
@@ -308,7 +307,7 @@ Polygons* Polygons::createFromDb(const Db* db)
   return polygons;
 }
 
-PolySet Polygons::getClosedPolySet(int ipol)
+PolySet Polygons::getClosedPolySet(int ipol) const
 {
   PolySet polyset = getPolySet(ipol);
   polyset.closePolySet();

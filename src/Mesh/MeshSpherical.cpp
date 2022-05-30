@@ -134,11 +134,6 @@ int MeshSpherical::reset(Db* dbin,
 
   setNDim(ndim_ref);
 
-  /* The Variety is defined in the Global Environment */
-  /* The required radius is set to the radius of Earth (6371m) */
-
-  variety_define(1,6371);
-
   /* Initialize the Meshing output structure */
   
   meshes_2D_sph_init(&in);
@@ -508,8 +503,20 @@ double MeshSpherical::getApexCoor(int i, int idim) const
 
 void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
 {
+  /* The Variety is defined in the Global Environment */
+  /* The required radius is set to the radius of Earth (6371m) */
+
+  int variety_sphere;
   double r;
-  variety_get_characteristics(&r);
+  variety_query(&variety_sphere);
+  if(variety_sphere==1)
+  {
+    variety_get_characteristics(&r);
+  }
+  else
+  {
+    r = 6371.;
+  }
 
   util_convert_sph2cart(getCoor(imesh, ic, 0)-180.,
                         getCoor(imesh, ic, 1),

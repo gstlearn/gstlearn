@@ -675,7 +675,7 @@ CovAniso* CovAniso::createIsotropic(const CovContext& ctxt,
     messerr("This function is dedicated to the Monovariate case");
     return nullptr;
   }
-  return new CovAniso(type, range, param, sill, ctxt);
+  return new CovAniso(type, range, param, sill, ctxt,flagRange);
 }
 
 CovAniso* CovAniso::createAnisotropic(const CovContext& ctxt,

@@ -699,7 +699,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
   else
   {
 //     Locally update the covariance for non-stationarity (if necessary)
-//    _updateCova(cova, ip);
+   // _updateCova(cova, ip);
 
     // Calculate the current HH matrix (using local covariance parameters)
     VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
@@ -1512,7 +1512,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   int ndim = getNDim();
   int nvertex = amesh->getNApices();
   const CovAniso* cova = _getCova();
-
+  double param = cova->getParam();
   double r = 1.;
   if( amesh->getVariety() == 1)
   {
@@ -1532,13 +1532,11 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     sqdeth = sqrt(hh.determinant());
    if(amesh->getVariety() == 1)
    {
-     correc = _computeSphereVarianceCorrec(cova->getParam(),cova->getScale(0) / r);
+     std::cout<< cova->getScale(0)<<std::endl;
+     correc = _computeSphereVarianceCorrec(param,cova->getScale(0) / r);
    }
   }
-  else
-  {
-    correc = 1.; // TO IMPLEMENT
-  }
+
   /* Fill the array */
 
   double sill = cova->getSill(0, 0);
@@ -1561,12 +1559,10 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     }
     else
     {
-      //_Lambda.push_back(sqrt((_TildeC[ip]) * r/ sill));
-      _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * r * r * pow(sqdeth, - 1./3.)/  sill));
+        _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * pow(r, 2. * param)  * pow(sqdeth, - (2. * param  - 1.)/3.)/  sill));
     }
   }
 }
-
 double ShiftOpCs::_computeSphereVarianceCorrec(double nu,double scale,int n) const
 {
   double s = 0.;
