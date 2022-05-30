@@ -1532,7 +1532,6 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     sqdeth = sqrt(hh.determinant());
    if(amesh->getVariety() == 1)
    {
-     std::cout<< cova->getScale(0)<<std::endl;
      correc = _computeSphereVarianceCorrec(param,cova->getScale(0) / r);
    }
   }
