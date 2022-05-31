@@ -46,6 +46,7 @@ class SimuBooleanParam;
 class SimuSphericalParam;
 class MeshSpherical;
 class SimuSubstitutionParam;
+class SimuRefineParam;
 
 /*************************/
 /* Functions for License */
@@ -606,6 +607,10 @@ GSTLEARN_EXPORT int simfft(DbGrid *db,
                            int verbose = false,
                            const NamingConvention& namconv = NamingConvention(
                                "FFT"));
+GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
+                                Model *model,
+                                const SimuRefineParam& param,
+                                int seed);
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

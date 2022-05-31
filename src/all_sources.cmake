@@ -108,7 +108,6 @@ set(SRC
   Core/matrix.cpp
   Core/spill.cpp
   Core/acknowledge.cpp
-  Core/simfine.cpp
   Core/vtk.cpp
   Core/geophy.cpp
   Core/potential.cpp

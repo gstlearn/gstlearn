@@ -47,6 +47,8 @@
 #include "Simulation/SimuPartition.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuFFT.hpp"
+#include "Simulation/SimuRefineParam.hpp"
+#include "Simulation/SimuRefine.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3224,5 +3226,38 @@ int simfft(DbGrid *db,
   namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
 
   return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Refine the simulation
+ **
+ ** \return  Newly refined Grid
+ **
+ ** \param[in]  dbin       Input grid Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  param      SimuRefineParam structure
+ ** \param[in]  seed       Seed for the random number generator
+ **
+ *****************************************************************************/
+DbGrid* simfine(DbGrid *dbin,
+                Model *model,
+                const SimuRefineParam& param,
+                int seed)
+{
+  /* Preliminary check */
+
+  if (!dbin->isVariableNumberComparedTo(1)) return nullptr;
+
+  /* Patch the model with maximum dimension for OK */
+
+  model->setField(dbin->getExtensionDiagonal());
+
+  // Perform the simulation
+
+  SimuRefine simfine(1, seed);
+  DbGrid* dbout = simfine.simulate(dbin, model, param);
+
+  return dbout;
 }
 
