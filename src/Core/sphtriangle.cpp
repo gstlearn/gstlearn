@@ -1882,7 +1882,7 @@ int trmesh_(int *n,
  **
  ** \param[in]  rlong Longitude (in degrees)
  ** \param[in]  rlat  Latitude (in degrees)
- ** \param[ind] radius radius of the sphere
+ ** \param[in]  radius radius of the sphere
  **
  ** \param[out] x     First cartesian coordinate
  ** \param[out] y     Second cartesian coordinate

@@ -45,6 +45,10 @@
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuPartition.hpp"
+#include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/SimuFFT.hpp"
+#include "Simulation/SimuRefineParam.hpp"
+#include "Simulation/SimuRefine.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3186,5 +3190,74 @@ int tessellation_voronoi(DbGrid *dbgrid,
 
   namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
   return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the non-conditional simulation by FFT method on a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  model   Model structure
+ ** \param[in]  param   SimuFFTParam structure
+ ** \param[in]  nbsimu  Number of simulations
+ ** \param[in]  seed    Value of the seed
+ ** \param[in]  verbose Verbosity flag
+ ** \param[in]  namconv Naming Convention
+ **
+ *****************************************************************************/
+int simfft(DbGrid *db,
+           Model *model,
+           SimuFFTParam& param,
+           int nbsimu,
+           int seed,
+           int verbose,
+           const NamingConvention& namconv)
+{
+
+  /* Add the attributes for storing the results in the data base */
+
+  int iptr = db->addColumnsByConstant(nbsimu, 0.);
+
+  SimuFFT simufft(nbsimu, seed);
+  if (simufft.simulate(db, model, param, iptr, verbose)) return 1;
+
+  namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Refine the simulation
+ **
+ ** \return  Newly refined Grid
+ **
+ ** \param[in]  dbin       Input grid Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  param      SimuRefineParam structure
+ ** \param[in]  seed       Seed for the random number generator
+ **
+ *****************************************************************************/
+DbGrid* simfine(DbGrid *dbin,
+                Model *model,
+                const SimuRefineParam& param,
+                int seed)
+{
+  /* Preliminary check */
+
+  if (!dbin->isVariableNumberComparedTo(1)) return nullptr;
+
+  /* Patch the model with maximum dimension for OK */
+
+  model->setField(dbin->getExtensionDiagonal());
+
+  // Perform the simulation
+
+  SimuRefine simfine(1, seed);
+  DbGrid* dbout = simfine.simulate(dbin, model, param);
+
+  return dbout;
 }
 

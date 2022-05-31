@@ -45,6 +45,7 @@ set(SRC
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
+  Covariances/ACovOnSphere.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland2.cpp
@@ -107,9 +108,7 @@ set(SRC
   Core/matrix.cpp
   Core/spill.cpp
   Core/acknowledge.cpp
-  Core/simfine.cpp
   Core/vtk.cpp
-  Core/simfft.cpp
   Core/geophy.cpp
   Core/potential.cpp
   Core/foxleg.cpp
@@ -285,4 +284,8 @@ set(SRC
   Simulation/SimuSubstitutionParam.cpp
   Simulation/SimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
+  Simulation/SimuFFTParam.cpp
+  Simulation/SimuFFT.cpp
+  Simulation/SimuRefineParam.cpp
+  Simulation/SimuRefine.cpp
 )

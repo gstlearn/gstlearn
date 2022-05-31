@@ -38,12 +38,12 @@ public:
               Model *model,
               const SimuPartitionParam& parparam,
               int iptr,
-              int verbose);
+              bool verbose = false);
   int poisson(DbGrid *dbgrid,
               Model *model,
               const SimuPartitionParam& parparam,
               int iptr,
-              int verbose);
+              bool verbose = false);
 
 private:
   double _stackSearch(const std::vector<Stack>& stacks, double valref);

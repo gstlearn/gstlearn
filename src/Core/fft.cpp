@@ -964,11 +964,11 @@ static int fftradix(double Re[],
  **
  *****************************************************************************/
 int fftn(int ndim,
-                         const int dims[],
-                         double Re[],
-                         double Im[],
-                         int iSign,
-                         double scaling)
+         const int dims[],
+         double Re[],
+         double Im[],
+         int iSign,
+         double scaling)
 {
   size_t nTotal;
   int maxFactors, maxPerm;

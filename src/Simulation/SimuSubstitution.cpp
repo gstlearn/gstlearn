@@ -58,7 +58,7 @@ SimuSubstitution::~SimuSubstitution()
 int SimuSubstitution::simulate(DbGrid *dbgrid,
                                const SimuSubstitutionParam& subparam,
                                int iptr,
-                               int verbose)
+                               bool verbose)
 {
   law_set_random_seed(getSeed());
   int np = 0;
@@ -269,7 +269,7 @@ void SimuSubstitution::_calculValue(int ip,
  **
  *****************************************************************************/
 VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subparam,
-                                            int verbose,
+                                            bool verbose,
                                             double eps)
 {
   VectorDouble props;

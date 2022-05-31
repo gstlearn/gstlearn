@@ -27,6 +27,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/SimuFFTParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
@@ -45,6 +46,7 @@ class SimuBooleanParam;
 class SimuSphericalParam;
 class MeshSpherical;
 class SimuSubstitutionParam;
+class SimuRefineParam;
 
 /*************************/
 /* Functions for License */
@@ -597,6 +599,18 @@ GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
                                          int verbose = false,
                                          const NamingConvention& namconv = NamingConvention(
                                              "Poisson"));
+GSTLEARN_EXPORT int simfft(DbGrid *db,
+                           Model *model,
+                           SimuFFTParam& param,
+                           int nbsimu = 1,
+                           int seed = 432431,
+                           int verbose = false,
+                           const NamingConvention& namconv = NamingConvention(
+                               "FFT"));
+GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
+                                Model *model,
+                                const SimuRefineParam& param,
+                                int seed);
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

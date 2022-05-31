@@ -54,7 +54,7 @@ class NeighImage;
 class NeighUnique;
 class Polygons;
 class PCA;
-class Grid;
+class Grid;class SimuRefineParam;
 
 class cs;
 class QChol;
@@ -961,12 +961,12 @@ GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  int flag_norm,
                                  int flag_cov);
 GSTLEARN_EXPORT void model_calcul_cov(CovInternal *covint,
-                                             Model *model,
-                                             const CovCalcMode &mode,
-                                             int flag_init,
-                                             double weight,
-                                             VectorDouble d1,
-                                             double *covtab);
+                                      Model *model,
+                                      const CovCalcMode &mode,
+                                      int flag_init,
+                                      double weight,
+                                      VectorDouble d1,
+                                      double *covtab);
 GSTLEARN_EXPORT int model_fitting_sills(const Vario *vario,
                                         Model *model,
                                         const Constraints& constraints,
@@ -1883,25 +1883,6 @@ GSTLEARN_EXPORT int db_simulations_to_ce(Db *db,
                                          int *iptr_cstd_arg);
 
 /*****************************************/
-/* Prototyping the functions in simfft.c */
-/*****************************************/
-
-GSTLEARN_EXPORT int simfft_f(DbGrid *db,
-                             Model *model,
-                             int seed,
-                             int nbsimu,
-                             double percent,
-                             int flag_aliasing);
-GSTLEARN_EXPORT int simfft_support(DbGrid *db,
-                                   Model *model,
-                                   double percent,
-                                   int flag_aliasing,
-                                   int nval,
-                                   double *sigma,
-                                   double *r2val,
-                                   double *coeffs);
-
-/*****************************************/
 /* Prototyping the functions in simreg.c */
 /*****************************************/
 
@@ -1914,8 +1895,7 @@ GSTLEARN_EXPORT int simfine_dim(DbGrid *dbin,
                                 double *dx);
 GSTLEARN_EXPORT int simfine_f(DbGrid *dbin,
                               Model *model,
-                              int flag_ks,
-                              int mult,
+                              const SimuRefineParam& param,
                               int seed,
                               VectorDouble &tab);
 
