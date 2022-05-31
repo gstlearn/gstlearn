@@ -95,7 +95,7 @@ int SimuFFT::simulate(DbGrid *db,
 
   /* Construction of the Simu_FFT structure and core allocation */
 
-  _simfft_alloc(db, model, param, verbose);
+  _alloc(db, model, param, verbose);
 
   /* Preparation of the FFT environment */
 
@@ -108,11 +108,11 @@ int SimuFFT::simulate(DbGrid *db,
 
     /* Initiate the random normal values */
 
-    _simfftRandom();
+    _defineRandom();
 
     /* Apply the symmetry */
 
-    _simfftSymmetry();
+    _defineSymmetry();
 
     /* Perform the simulation */
 
@@ -132,7 +132,7 @@ int SimuFFT::simulate(DbGrid *db,
  ** \param[in]  verbose Verbosity flag
  **
  *****************************************************************************/
-void SimuFFT::_simfft_alloc(DbGrid *db,
+void SimuFFT::_alloc(DbGrid *db,
                             Model *model,
                             const SimuFFTParam& param,
                             bool verbose)
@@ -682,7 +682,7 @@ void SimuFFT::_prepar(DbGrid *db,
  **  Initiate a vector of random normal values
  **
  *****************************************************************************/
-void SimuFFT::_simfftRandom()
+void SimuFFT::_defineRandom()
 
 {
   for (int i = 0; i < _sizes_alloc; i++)
@@ -733,7 +733,7 @@ void SimuFFT::_setVariance(int ix, int iy, int iz)
  **  Operate the symmetry
  **
  *****************************************************************************/
-void SimuFFT::_simfftSymmetry(void)
+void SimuFFT::_defineSymmetry(void)
 {
 
   /* Dispatch according to the space dimension */
@@ -741,15 +741,15 @@ void SimuFFT::_simfftSymmetry(void)
   switch (_ndim)
   {
     case 1:
-      _simfftSym1();
+      _defineSym1();
       break;
 
     case 2:
-      _simfftSym2(0);
+      _defineSym2(0);
       break;
 
     case 3:
-      _simfftSym3();
+      _defineSym3();
       break;
   }
   return;
@@ -760,18 +760,18 @@ void SimuFFT::_simfftSymmetry(void)
  **  Operate the symmetry for a 1-D space
  **
  *****************************************************************************/
-void SimuFFT::_simfftSym1()
+void SimuFFT::_defineSym1()
 
 {
   // A(1) and A(N1/2+1) are real
   for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
-    _set_zero(ix, 0, 0);
+    _setZero(ix, 0, 0);
 
   // A(j) = A*(N1-j+2) for j in [2,N1/2]
   for (int ix = 1; ix < _dim2[0]; ix++)
   {
     int jx = _dims[0] - ix;
-    _set_conj(ix, 0, 0, jx, 0, 0);
+    _setConjugate(ix, 0, 0, jx, 0, 0);
   }
 
   return;
@@ -784,12 +784,12 @@ void SimuFFT::_simfftSym1()
  ** \param[in]  iz0   fixed third index
  **
  *****************************************************************************/
-void SimuFFT::_simfftSym2(int iz0)
+void SimuFFT::_defineSym2(int iz0)
 {
   // A(1,1), A(N1/2,1), A(1,N2/2) and A(N1/2,N2/2) real
   for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
     for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
-      _set_zero(ix, iy, iz0);
+      _setZero(ix, iy, iz0);
 
   // A(1,k)      = A*(1,N2-k+2)      for k in [2,N2/2]
   // A(N2/2+1,k) = A*(N2/2+1,N2-k+2) for k in [2,N2/2]
@@ -797,7 +797,7 @@ void SimuFFT::_simfftSym2(int iz0)
     for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
     {
       int jy = _dims[1] - iy;
-      _set_conj(ix, iy, iz0, ix, jy, iz0);
+      _setConjugate(ix, iy, iz0, ix, jy, iz0);
     }
 
   // A(j,1)      = A*(N1-j+2,1)      for j in [2,N1/2]
@@ -806,7 +806,7 @@ void SimuFFT::_simfftSym2(int iz0)
     for (int ix = 1; ix < _dim2[0]; ix++)
     {
       int jx = _dims[0] - ix;
-      _set_conj(ix, iy, iz0, jx, iy, iz0);
+      _setConjugate(ix, iy, iz0, jx, iy, iz0);
     }
 
   // A(j,k) = A*(N1-j+2,N2-k+2) for j in [2,N1/2] and k in [2,N2/2]
@@ -815,7 +815,7 @@ void SimuFFT::_simfftSym2(int iz0)
     {
       int jx = _dims[0] - ix;
       int jy = _dims[1] - iy;
-      _set_conj(ix, iy, iz0, jx, jy, iz0);
+      _setConjugate(ix, iy, iz0, jx, jy, iz0);
     }
 
   // A(j,N2-k+2) = A*(N1-j+2,k) for j in [2,N1/2] and k in [2,N2/2]
@@ -824,7 +824,7 @@ void SimuFFT::_simfftSym2(int iz0)
     {
       int jx = _dims[0] - ix;
       int jy = _dims[1] - iy;
-      _set_conj(ix, jy, iz0, jx, iy, iz0);
+      _setConjugate(ix, jy, iz0, jx, iy, iz0);
     }
 
   return;
@@ -835,12 +835,12 @@ void SimuFFT::_simfftSym2(int iz0)
  **  Operate the symmetry for a 3-D space
  **
  *****************************************************************************/
-void SimuFFT::_simfftSym3()
+void SimuFFT::_defineSym3()
 
 {
   // For l=1 or N3/2+1, use the 2-D symmetry
   for (int iz = 0; iz < _dims[2]; iz += _dim2[2])
-    _simfftSym2(iz);
+    _defineSym2(iz);
 
   // For the other planes:
 
@@ -853,7 +853,7 @@ void SimuFFT::_simfftSym3()
       for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
       {
         int jz = _dims[2] - iz;
-        _set_conj(ix, iy, iz, ix, iy, jz);
+        _setConjugate(ix, iy, iz, ix, iy, jz);
       }
 
   // A(1,k,l)      = A*(1,N2-k+2,N3-l+2)      for k in [2,N2/2] and l in [2,N3/2]
@@ -864,7 +864,7 @@ void SimuFFT::_simfftSym3()
       {
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(ix, iy, iz, ix, jy, jz);
+        _setConjugate(ix, iy, iz, ix, jy, jz);
       }
 
   // A(1,N2-k+2,l)      = A*(1,k,N3/-l+2)      for k in [2,N2/2] and l in [2,N3/2]
@@ -875,7 +875,7 @@ void SimuFFT::_simfftSym3()
       {
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(ix, jy, iz, ix, iy, jz);
+        _setConjugate(ix, jy, iz, ix, iy, jz);
       }
 
   // A(j,1,l)      = A*(N1-j+2,1,N3-l+2)      for j in [2,N1/2] and l in [2,N3/2]
@@ -886,7 +886,7 @@ void SimuFFT::_simfftSym3()
       {
         int jx = _dims[0] - ix;
         int jz = _dims[2] - iz;
-        _set_conj(ix, iy, iz, jx, iy, jz);
+        _setConjugate(ix, iy, iz, jx, iy, jz);
       }
 
   // A(N1-j+2,1,l)      = A*(j,1,N3-l+2)      for j in [2,N1/2] and l in [2,N3/2]
@@ -897,7 +897,7 @@ void SimuFFT::_simfftSym3()
       {
         int jx = _dims[0] - ix;
         int jz = _dims[2] - iz;
-        _set_conj(jx, iy, iz, ix, iy, jz);
+        _setConjugate(jx, iy, iz, ix, iy, jz);
       }
 
   // A(j,k,l) = A*(N1-j+2,N2-k+2,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
@@ -908,7 +908,7 @@ void SimuFFT::_simfftSym3()
         int jx = _dims[0] - ix;
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(ix, iy, iz, jx, jy, jz);
+        _setConjugate(ix, iy, iz, jx, jy, jz);
       }
 
   // A(N1-j+2,N2-k+2,l) = A*(j,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
@@ -919,7 +919,7 @@ void SimuFFT::_simfftSym3()
         int jx = _dims[0] - ix;
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(jx, jy, iz, ix, iy, jz);
+        _setConjugate(jx, jy, iz, ix, iy, jz);
       }
 
   // A(j,N2-k+2,l) = A*(N2-j+2,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
@@ -930,7 +930,7 @@ void SimuFFT::_simfftSym3()
         int jx = _dims[0] - ix;
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(ix, jy, iz, jx, iy, jz);
+        _setConjugate(ix, jy, iz, jx, iy, jz);
       }
 
   // A(N1-j+2,k,l) = A*(j,k,N3-l+2) for j in [2,N1/2], k in [2,N2/2] and l in [2,N3/2]
@@ -941,7 +941,7 @@ void SimuFFT::_simfftSym3()
         int jx = _dims[0] - ix;
         int jy = _dims[1] - iy;
         int jz = _dims[2] - iz;
-        _set_conj(jx, iy, iz, ix, jy, jz);
+        _setConjugate(jx, iy, iz, ix, jy, jz);
       }
 
   return;
@@ -956,7 +956,7 @@ void SimuFFT::_simfftSym3()
  ** \param[in]  iz    Cell location along Z
  **
  *****************************************************************************/
-void SimuFFT::_set_zero(int ix, int iy, int iz)
+void SimuFFT::_setZero(int ix, int iy, int iz)
 {
   int ind = IND(ix, iy, iz);
   _v[ind] = 0.;
@@ -974,7 +974,7 @@ void SimuFFT::_set_zero(int ix, int iy, int iz)
  ** \param[in]  jz    Target cell location along Z
  **
  *****************************************************************************/
-void SimuFFT::_set_conj(int ix, int iy, int iz, int jx, int jy, int jz)
+void SimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
 {
   int ind1 = IND(ix, iy, iz);
   int ind2 = IND(jx, jy, jz);
@@ -1037,7 +1037,7 @@ VectorDouble SimuFFT::getChangeSupport(DbGrid *db,
 
   if (! _isValid(db, model)) return VectorDouble();
 
-  _simfft_alloc(db, model, param, verbose);
+  _alloc(db, model, param, verbose);
 
   /* Preparation of the FFT environment */
 
@@ -1082,15 +1082,15 @@ double SimuFFT::_support(double sigma)
   switch (_ndim)
   {
     case 1:
-      value = _support_1(sigma);
+      value = _support1(sigma);
       break;
 
     case 2:
-      value = _support_2(sigma);
+      value = _support2(sigma);
       break;
 
     case 3:
-      value = _support_3(sigma);
+      value = _support3(sigma);
       break;
   }
 
@@ -1117,13 +1117,13 @@ double SimuFFT::_support(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support_1(double sigma)
+double SimuFFT::_support1(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
   {
     int iix = (ix < 0) ? _dims[0] + ix : ix;
-    double rho = _rho_sigma(sigma, iix, 0, 0);
+    double rho = _rhoSigma(sigma, iix, 0, 0);
     value += (_nx[0] - ABS(ix)) * rho;
   }
   return (value);
@@ -1138,7 +1138,7 @@ double SimuFFT::_support_1(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support_2(double sigma)
+double SimuFFT::_support2(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
@@ -1146,7 +1146,7 @@ double SimuFFT::_support_2(double sigma)
     {
       int iix = (ix < 0) ? _dims[0] + ix : ix;
       int iiy = (iy < 0) ? _dims[1] + iy : iy;
-      double rho = _rho_sigma(sigma, iix, iiy, 0);
+      double rho = _rhoSigma(sigma, iix, iiy, 0);
       value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * rho);
     }
   return (value);
@@ -1161,7 +1161,7 @@ double SimuFFT::_support_2(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support_3(double sigma)
+double SimuFFT::_support3(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
@@ -1171,7 +1171,7 @@ double SimuFFT::_support_3(double sigma)
         int iix = (ix < 0) ? _dims[0] + ix : ix;
         int iiy = (iy < 0) ? _dims[1] + iy : iy;
         int iiz = (iz < 0) ? _dims[2] + iz : iz;
-        double rho = _rho_sigma(sigma, iix, iiy, iiz);
+        double rho = _rhoSigma(sigma, iix, iiy, iiz);
         value += ((_nx[0] - ABS(ix)) * (_nx[1] - ABS(iy)) * (_nx[2] - ABS(iz)) * rho);
       }
   return (value);
@@ -1189,7 +1189,7 @@ double SimuFFT::_support_3(double sigma)
  ** \param[in]  iz     Index for the discretized covariance along Z
  **
  *****************************************************************************/
-double SimuFFT::_rho_sigma(double sigma, int ix, int iy, int iz)
+double SimuFFT::_rhoSigma(double sigma, int ix, int iy, int iz)
 {
   double rho = _cmat[IND(ix, iy, iz)];
   if (!FFFF(sigma)) rho = exp(sigma * sigma * rho);

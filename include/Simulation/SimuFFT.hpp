@@ -42,10 +42,10 @@ public:
 
 private:
   bool _isValid(Db *db, Model *model);
-  void _simfft_alloc(DbGrid *db,
-                     Model *model,
-                     const SimuFFTParam& param,
-                     bool verbose = false);
+  void _alloc(DbGrid *db,
+              Model *model,
+              const SimuFFTParam& param,
+              bool verbose = false);
   int _getOptimalEvenNumber(int number, int largeFactor = 11);
   VectorInt _getFactors(int number);
   void _gridDilate(const DbGrid *db,
@@ -64,20 +64,20 @@ private:
                bool flag_amplitude,
                bool verbose = false,
                double eps = EPSILON5);
-  void _simfftRandom();
+  void _defineRandom();
   void _setVariance(int ix, int iy, int iz);
-  void _simfftSymmetry(void);
-  void _simfftSym1();
-  void _simfftSym2(int iz0);
-  void _simfftSym3();
-  void _set_zero(int ix, int iy, int iz);
-  void _set_conj(int ix, int iy, int iz, int jx, int jy, int jz);
+  void _defineSymmetry(void);
+  void _defineSym1();
+  void _defineSym2(int iz0);
+  void _defineSym3();
+  void _setZero(int ix, int iy, int iz);
+  void _setConjugate(int ix, int iy, int iz, int jx, int jy, int jz);
   void _final(DbGrid *db, int iad);
   double _support(double sigma);
-  double _support_1(double sigma);
-  double _support_2(double sigma);
-  double _support_3(double sigma);
-  double _rho_sigma(double sigma, int ix, int iy, int iz);
+  double _support1(double sigma);
+  double _support2(double sigma);
+  double _support3(double sigma);
+  double _rhoSigma(double sigma, int ix, int iy, int iz);
 
 private:
   int _ndim;

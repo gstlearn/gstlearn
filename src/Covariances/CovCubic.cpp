@@ -67,5 +67,5 @@ double CovCubic::_evaluateCovDerivate(int degree, double h) const
 
 String CovCubic::getFormula() const
 {
-  return "C(h)=exp \\left( -{\\frac{h^2}{a_t^2}} \\right)";
+  return "C(h)=1. - h^2 * \\left(7. + h * \\left(-8.75 + h^2 * \\left(3.5 - 0.75 * h^2 \\right) \\right) \\right)";
 }
