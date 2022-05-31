@@ -69,3 +69,9 @@ String CovBesselK::getFormula() const
 {
   return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
 }
+
+double CovBesselK::evalSpectrumOnSphere(int degree, double scale) const
+{
+  double kappa = 1. / scale;
+  return (2.*degree+1.) / pow(kappa * kappa + degree * (degree+1), getParam());
+}

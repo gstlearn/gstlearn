@@ -110,11 +110,11 @@ double MeshEStandard::getMeshSize(int imesh) const
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshEStandard::resetFromDb(Db*                 dbin,
-                          Db*                 dbout,
-                          const VectorDouble& dilate,
-                          const String&       triswitch,
-                          bool                verbose)
+int MeshEStandard::resetFromDb(Db* dbin,
+                               Db* dbout,
+                               const VectorDouble& dilate,
+                               const String& triswitch,
+                               bool verbose)
 {
   int error = 1;
 

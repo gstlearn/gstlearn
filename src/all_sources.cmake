@@ -45,6 +45,7 @@ set(SRC
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
+  Covariances/ACovOnSphere.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland2.cpp
@@ -286,4 +287,6 @@ set(SRC
   Simulation/SimuPartitionParam.cpp
   Simulation/SimuFFTParam.cpp
   Simulation/SimuFFT.cpp
+  Simulation/SimuRefineParam.cpp
+  Simulation/SimuRefine.cpp
 )

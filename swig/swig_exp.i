@@ -188,6 +188,7 @@ class IClonable{};
 %include Model/CovParamId.hpp
 
 %include Covariances/ACov.hpp
+%include Covariances/ACovOnSphere.hpp
 %include Covariances/ACovFunc.hpp
 %include Covariances/ACovAnisoList.hpp
 %include Covariances/CovAniso.hpp
@@ -328,6 +329,8 @@ class IClonable{};
 %include Simulation/SimuPartitionParam.hpp
 %include Simulation/SimuFFTParam.hpp
 %include Simulation/SimuFFT.hpp
+%include Simulation/SimuRefineParam.hpp
+%include Simulation/SimuRefine.hpp
 
 %include segy.h
 

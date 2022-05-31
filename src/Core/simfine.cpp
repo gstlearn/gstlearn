@@ -14,6 +14,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
+#include "Simulation/SimuRefineParam.hpp"
 
 #include <math.h>
 
@@ -450,8 +451,7 @@ static void st_simulate_nodes(DbGrid *db, int iatt)
  **
  ** \param[in]  dbin       Input grid Db structure
  ** \param[in]  model      Model structure
- ** \param[in]  flag_ks    1 for SK and 0 for OK
- ** \param[in]  nmult      Refinement factor
+ ** \param[in]  param      SimuRefineParam structure
  ** \param[in]  seed       Seed for the random number generator
  **
  ** \param[out] tab        Output array
@@ -459,8 +459,7 @@ static void st_simulate_nodes(DbGrid *db, int iatt)
  *****************************************************************************/
 int simfine_f(DbGrid *dbin,
               Model *model,
-              int flag_ks,
-              int nmult,
+              const SimuRefineParam& param,
               int seed,
               VectorDouble &tab)
 {
@@ -472,9 +471,9 @@ int simfine_f(DbGrid *dbin,
   error = 1;
   db1 = db2 = nullptr;
   NDIM = dbin->getNDim();
-  NMULT = nmult;
+  NMULT = param.getNmult();
   db1 = dbin;
-  FLAG_KS = flag_ks;
+  FLAG_KS = param.isFlagKs();
   law_set_random_seed(seed);
 
   /* Preliminary check */

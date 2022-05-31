@@ -54,7 +54,7 @@ class NeighImage;
 class NeighUnique;
 class Polygons;
 class PCA;
-class Grid;
+class Grid;class SimuRefineParam;
 
 class cs;
 class QChol;
@@ -1895,8 +1895,7 @@ GSTLEARN_EXPORT int simfine_dim(DbGrid *dbin,
                                 double *dx);
 GSTLEARN_EXPORT int simfine_f(DbGrid *dbin,
                               Model *model,
-                              int flag_ks,
-                              int mult,
+                              const SimuRefineParam& param,
                               int seed,
                               VectorDouble &tab);
 
