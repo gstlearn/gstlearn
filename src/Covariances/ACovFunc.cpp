@@ -135,9 +135,9 @@ double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
   return 0.;
 }
 
-double ACovFunc::evalCovOnSphere(double scale, int degree) const
+double ACovFunc::evalCovOnSphere(double val, double scale, int degree) const
 {
   const ACovOnSphere* csphere = dynamic_cast<const ACovOnSphere*>(this);
   if (csphere == nullptr) return TEST;
-  return csphere->evalCovOnSphere(scale, degree);
+  return csphere->evalCovOnSphere(val,scale, degree);
 }

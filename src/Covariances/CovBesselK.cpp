@@ -72,6 +72,7 @@ String CovBesselK::getFormula() const
 
 double CovBesselK::evalSpectrumOnSphere(int degree, double scale) const
 {
-  double kappa = 1. / scale;
-  return (2.*degree+1.) / pow(kappa * kappa + degree * (degree+1), getParam());
+  double kappa2 = 1. / ( scale * scale );
+  return (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1),
+                                  1. + getParam());
 }

@@ -60,7 +60,7 @@ public:
   double               getParam()   const { return _param; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
-  double evalCovOnSphere(double scale, int degree = 50) const;
+  double evalCovOnSphere(double val, double scale = 1., int degree = 50) const;
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
