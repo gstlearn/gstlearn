@@ -761,6 +761,7 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
   }
   else
   {
+    int n = x.getNCols();
     for (int irow = 0; irow < _nRows; irow++)
     {
       for (int icol = 0; icol < _nCols; icol++)
@@ -768,7 +769,7 @@ void AMatrix::prodMatrix(const AMatrix& x, const AMatrix& y)
         if (!_isPhysicallyPresent(irow, icol)) continue;
 
         double value = 0.;
-        for (int k = 0; k < _nCols; k++)
+        for (int k = 0; k < n; k++)
         {
           value += x.getValue(irow, k) * y.getValue(k, icol);
         }
@@ -947,12 +948,12 @@ bool AMatrix::_isIndexValid(int irow, int icol) const
 {
   if (irow < 0 || irow >= getNRows())
   {
-    messerr("Argument 'irow' is not valid");
+    mesArg("Row index invalid",irow,getNRows());
     return false;
   }
   if (icol < 0 || icol >= getNCols())
   {
-    messerr("Argument 'icol' is not valid");
+    mesArg("Column index invalid",icol,getNCols());
     return false;
   }
   return true;
@@ -1300,3 +1301,4 @@ void AMatrix::_clear()
   _setNCols(0);
   _allocate();
 }
+

@@ -17,8 +17,7 @@
 #include <algorithm>
 
 AMesh::AMesh()
-  : AStringable(),
-    _variety(0)
+  : AStringable()
   , _nDim(0)
   , _extendMin()
   , _extendMax()
@@ -86,7 +85,7 @@ String AMesh::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  if (_variety == 0)
+  if (getVariety() == 0)
     sstr << "Euclidean Geometry" << std::endl;
   else
     sstr << "Geometry defined on the Sphere" << std::endl;
@@ -172,7 +171,6 @@ void AMesh::printMeshes(int imesh0) const
 
 void AMesh::_recopy(const AMesh &m)
 {
-  _variety = m._variety;
   _nDim    = m._nDim;
   _extendMin = m._extendMin;
   _extendMax = m._extendMax;
@@ -329,12 +327,13 @@ void AMesh::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space
+ * Storage [ndim, ncorner]
  * @param imesh Mesh rank
  * @param vec   Returned array
  */
 void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) const
 {
-  int ndim = getEmbeddedDim();
+  int ndim = getEmbeddedNDim();
   int ncorner = getNApexPerMesh();
   VectorDouble coords(ndim);
 
@@ -349,7 +348,7 @@ void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) co
  */
 VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
 {
-  int ndim = getEmbeddedDim();
+  int ndim = getEmbeddedNDim();
   int ncorner = getNApexPerMesh();
   VectorVectorDouble vec(ncorner);
   for (auto &e: vec)

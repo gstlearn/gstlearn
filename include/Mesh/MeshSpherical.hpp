@@ -37,7 +37,7 @@ public:
   int     getApex(int imesh, int rank) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
-  int     getEmbeddedDim() const override { return 3; }
+  int     getEmbeddedNDim() const override { return 3; }
   void    getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const override;
 
   void    getDuplicates(Db *dbin, Db *dbout,
@@ -46,6 +46,9 @@ public:
                   bool fatal = false,
                   bool verbose = false) const override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
+  int getVariety() const { return 1; }
+
+
   VectorInt getMeshes() const {return _meshes;}
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 

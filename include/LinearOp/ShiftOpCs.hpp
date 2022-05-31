@@ -91,7 +91,7 @@ public:
                               VectorDouble& in,
                               double puis = 2) const;
   double getMaxEigenValue() const;
-
+  int getVariety()const {return _variety;}
   cs* getS() const { return _S; }
   cs* getSGrad(int iapex, int igparam) const;
   const VectorDouble& getTildeC() const { return _TildeC; }
@@ -128,15 +128,16 @@ private:
   void _loadAux(VectorDouble& tab,
                 const EConsElem& type,
                 int ip);
-  void _loadAuxPerMesh(VectorDouble& tab,
-                       const AMesh* amesh,
+  void _loadAuxPerMesh(const AMesh* amesh,
+                       VectorDouble& tab,
                        const EConsElem& type,
                        int imesh = 0);
-  void _loadHHPerMesh(MatrixSquareSymmetric& hh,
-                      const AMesh* amesh,
+  void _loadHHPerMesh(const AMesh* amesh,
+                      MatrixSquareSymmetric& hh,
                       int imesh = 0);
-  void _loadHHByApex(MatrixSquareSymmetric& hh, int ip);
-
+  void _loadHHRegularByApex(MatrixSquareSymmetric& hh, int ip);
+  void _loadHHVarietyByApex(MatrixSquareSymmetric& hh, int ip);
+  void _loadHHByApex(const AMesh* amesh, MatrixSquareSymmetric& hh, int ip);
   void _loadHHGradByApex(MatrixSquareSymmetric& hh,
                          int igparam,
                          int ip);
@@ -163,7 +164,7 @@ private:
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
   void _determineFlagNoStatByHH();
-
+  double _computeSphereVarianceCorrec(double nu,double scale,int n=100) const;
 private:
   VectorDouble _TildeC;
   VectorDouble _Lambda;
@@ -172,7 +173,7 @@ private:
   std::vector<cs *> _SGrad;
   VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
-
+  int _variety;
   // Following list of members are there to ease the manipulation and reduce argument list
   const Model* _model;
   int _igrf;

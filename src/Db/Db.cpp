@@ -1470,6 +1470,24 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   return ext;
 }
 
+VectorDouble Db::getCenter(bool useSel) const
+{
+  int ndim = getNDim();
+  VectorDouble center(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    center[idim] = getCenter(idim, useSel);
+  return center;
+}
+
+double Db::getCenter(int idim, bool useSel) const
+{
+  if (!isDimensionIndexValid(idim)) return TEST;
+  VectorDouble coor = getCoordinates(idim, useSel);
+  double mini = ut_vector_min(coor);
+  double maxi = ut_vector_max(coor);
+  return ((mini + maxi) / 2.);
+}
+
 double Db::getExtension(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;

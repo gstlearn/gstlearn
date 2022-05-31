@@ -225,3 +225,57 @@ bool MatrixSquareSymmetric::_isPhysicallyPresent(int irow, int icol) const
   return true;
 }
 
+/**
+ * Perform the product: this = t(X) %*% X
+ * @param x: Matrix [nrow, ncol] where ncol = this->getNSize()
+ */
+void MatrixSquareSymmetric::normSingleMatrix(const AMatrix& x)
+{
+  if (getNSize() != x.getNCols())
+  {
+    my_throw("Incompatible matrix dimensions");
+  }
+
+  int nout = getNSize();
+  int n = x.getNRows();
+  for (int irow = 0; irow < nout; irow++)
+  {
+    for (int icol = 0; icol <= irow; icol++)
+    {
+      double value = 0.;
+      for (int k = 0; k < n; k++)
+      {
+        value += x.getValue(k,irow) * x.getValue(k,icol);
+      }
+      setValue(irow,icol,value);
+    }
+  }
+}
+
+/**
+ * Perform the product: this = X %*% t(X)
+ * @param x: Matrix [nrow, ncol] where nrow = this->getNSize()
+ */
+void MatrixSquareSymmetric::normTSingleMatrix(const AMatrix& x)
+{
+  if (getNSize() != x.getNRows())
+  {
+    my_throw("Incompatible matrix dimensions");
+  }
+
+  int nout = getNSize();
+  int n = x.getNCols();
+  for (int irow = 0; irow < nout; irow++)
+  {
+    for (int icol = 0; icol <= irow; icol++)
+    {
+      double value = 0.;
+      for (int k = 0; k < n; k++)
+      {
+        value += x.getValue(irow,k) * x.getValue(icol,k);
+      }
+      setValue(irow,icol,value);
+    }
+  }
+}
+

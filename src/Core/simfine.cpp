@@ -464,8 +464,7 @@ int simfine_f(DbGrid *dbin,
               int seed,
               VectorDouble &tab)
 {
-  int error, imult, iatt1, iatt2, idim;
-  double diag;
+  int error, imult, iatt1, iatt2;
   DbGrid *db1, *db2;
 
   /* Initializations */

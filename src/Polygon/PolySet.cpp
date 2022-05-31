@@ -73,17 +73,10 @@ void PolySet::init(const VectorDouble& x,
 {
   int nvert = static_cast<int> (x.size());
 
-  /* Check if the polygon must be closed */
-
-  bool flag_close = false;
-  if (ABS(x[0] - x[nvert-1]) > EPSILON5 ||
-      ABS(y[0] - y[nvert-1]) > EPSILON5) flag_close = true;
-  int nvert1 = nvert + flag_close;
-
   /* Load the new PolySet */
 
-  _x.resize(nvert1,0);
-  _y.resize(nvert1,0);
+  _x.resize(nvert,0);
+  _y.resize(nvert,0);
 
   /* Copy the arrays */
 
@@ -92,11 +85,7 @@ void PolySet::init(const VectorDouble& x,
     _x[i] = x[i];
     _y[i] = y[i];
   }
-  if (flag_close)
-  {
-    _x[nvert] = x[0];
-    _y[nvert] = y[0];
-  }
+
   _zmin  = zmin;
   _zmax  = zmax;
 }
@@ -152,12 +141,25 @@ double PolySet::getSurface() const
     double y2 = _y[i + 1] - y0;
     surface += 0.5 * ((x1 * y2) - (x2 * y1));
   }
+
+  // Check if the PolySet is closed
+
+  if (! _isClosed())
+  {
+    double x1 = _x[np-1] - x0;
+    double y1 = _y[np-1] - y0;
+    double x2 = _x[0] - x0;
+    double y2 = _y[0] - y0;
+    surface += 0.5 * ((x1 * y2) - (x2 * y1));
+  }
+
   surface = ABS(surface);
   return(surface);
 }
 
 int PolySet::_serialize(std::ostream& os, bool /*verbose*/) const
 {
+  if (getNVertices() <= 0) return 0;
   bool ret = _recordWrite<int>(os, "Number of Vertices", getNVertices());
 
   for (int i = 0; i < getNVertices(); i++)
@@ -229,4 +231,32 @@ PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
     is.close();
   }
   return polyset;
+}
+
+bool PolySet::_isClosed() const
+{
+  int nvert = static_cast<int> (_x.size());
+  if (ABS(_x[0] - _x[nvert-1]) > EPSILON5 ||
+      ABS(_y[0] - _y[nvert-1]) > EPSILON5) return false;
+  return true;
+}
+
+/**
+ * Check if the PolySet must be closed
+ */
+void PolySet::closePolySet()
+{
+  int nvert = static_cast<int>(_x.size());
+
+  if (!_isClosed())
+  {
+    // Duplicate the first point at the end of the PolySet
+
+    int nvert1 = nvert + 1;
+    _x.resize(nvert1);
+    _y.resize(nvert1);
+
+    _x[nvert] = _x[0];
+    _y[nvert] = _y[0];
+  }
 }

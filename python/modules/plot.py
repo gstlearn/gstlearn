@@ -275,7 +275,6 @@ def varioDir(vario, ivar=0, jvar=0,
         
     drawDecor(ax, xlabel, ylabel, title)
     
-    
     ax.autoscale(True)
     ax.set_xlim(left=0)
     if ivar == jvar:

@@ -72,10 +72,10 @@ Polygons* polygon_free(Polygons *polygon)
  **
  *****************************************************************************/
 Polygons* polygon_add(Polygons *polygon,
-                                      const VectorDouble &x,
-                                      const VectorDouble &y,
-                                      double zmin,
-                                      double zmax)
+                      const VectorDouble &x,
+                      const VectorDouble &y,
+                      double zmin,
+                      double zmax)
 {
   if (polygon == nullptr) return (polygon);
   PolySet polyset = PolySet();
@@ -228,10 +228,10 @@ static int st_polyset_inside(double xx,
  **
  *****************************************************************************/
 int polygon_inside(double xx,
-                                   double yy,
-                                   double zz,
-                                   int flag_nested,
-                                   Polygons *polygon)
+                   double yy,
+                   double zz,
+                   int flag_nested,
+                   Polygons *polygon)
 {
   if (flag_nested)
   {
@@ -241,7 +241,7 @@ int polygon_inside(double xx,
     int number = 0;
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
-      const PolySet &polyset = polygon->getPolySet(ipol);
+      PolySet polyset = polygon->getClosedPolySet(ipol);
       if (st_polyset_inside(xx, yy, polyset.getNVertices(),
                             polyset.getX().data(), polyset.getY().data()))
         number++;
@@ -254,7 +254,7 @@ int polygon_inside(double xx,
   {
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
-      const PolySet &polyset = polygon->getPolySet(ipol);
+      PolySet polyset = polygon->getClosedPolySet(ipol);
       if (st_polyset_inside(xx, yy, polyset.getNVertices(),
                             polyset.getX().data(), polyset.getY().data())
           && st_polyset_inside_3D(zz, polyset.getZmin(), polyset.getZmax()))
@@ -277,10 +277,10 @@ int polygon_inside(double xx,
  **
  *****************************************************************************/
 void polygon_extension(Polygons *polygon,
-                                       double *xmin,
-                                       double *xmax,
-                                       double *ymin,
-                                       double *ymax)
+                       double *xmin,
+                       double *xmax,
+                       double *ymin,
+                       double *ymax)
 {
   polygon->getExtension(xmin, xmax, ymin, ymax);
 }
@@ -298,84 +298,6 @@ double polygon_surface(Polygons *polygon)
 
 {
   return polygon->getSurface();
-}
-
-/****************************************************************************/
-/*!
- **  Ask the characteristics of the Polygon structure
- **
- ** \return  Pointer to the newly allocated Polygon
- **
- *****************************************************************************/
-Polygons* input_polygon(void)
-
-{
-  Polygons *polygon;
-  double xval, yval;
-  int nvert, nquant, error, flag_stop;
-  VectorDouble x, y;
-  static int quant = 100;
-
-  /* Initializations */
-
-  error = 1;
-  polygon = nullptr;
-
-  /* Core allocation */
-
-  polygon = polygon_create();
-  if (polygon == nullptr) goto label_end;
-
-  /* Implicit loop on the PolySets */
-
-  label_loop: nquant = quant;
-  x.resize(nquant);
-  y.resize(nquant);
-
-  /* Read the next polyset */
-
-  nvert = flag_stop = 0;
-  while (!flag_stop)
-  {
-    if (nvert > 0) flag_stop = !_lire_logical("Add another Vertex", 1, 1);
-
-    if (flag_stop)
-    {
-      xval = x[0];
-      yval = y[0];
-    }
-    else
-    {
-      xval = _lire_double("X-vertex", 1, 0, TEST, TEST);
-      yval = _lire_double("Y-vertex", 1, 0, TEST, TEST);
-    }
-
-    if (nvert >= nquant)
-    {
-      nquant += quant;
-      x.resize(nquant);
-      y.resize(nquant);
-    }
-
-    x[nvert] = xval;
-    y[nvert] = yval;
-    nvert++;
-  }
-
-  /* Add the new PolySet */
-
-  polygon = polygon_add(polygon, x, y, TEST, TEST);
-
-  /* Continue with other PolySets */
-
-  if (_lire_logical("Add another PolySet", 1, 0)) goto label_loop;
-
-  /* Set the error returned code */
-
-  error = 0;
-
-  label_end: if (error) polygon = polygon_free(polygon);
-  return (polygon);
 }
 
 /*****************************************************************************/

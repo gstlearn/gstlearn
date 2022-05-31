@@ -1882,17 +1882,20 @@ int trmesh_(int *n,
  **
  ** \param[in]  rlong Longitude (in degrees)
  ** \param[in]  rlat  Latitude (in degrees)
+ ** \param[ind] radius radius of the sphere
  **
  ** \param[out] x     First cartesian coordinate
  ** \param[out] y     Second cartesian coordinate
  ** \param[out] z     Third cartesian coordinate
+ **
  **
  *****************************************************************************/
 void util_convert_sph2cart(double rlong,
                            double rlat,
                            double *x,
                            double *y,
-                           double *z)
+                           double *z,
+                           double radius)
 {
   double phi, theta, sinphi, cosphi, sinthe, costhe;
 
@@ -1903,9 +1906,9 @@ void util_convert_sph2cart(double rlong,
   sinthe = sin(theta);
   costhe = cos(theta);
 
-  *x = cosphi * costhe;
-  *y = cosphi * sinthe;
-  *z = sinphi;
+  *x = radius * cosphi * costhe;
+  *y = radius * cosphi * sinthe;
+  *z = radius * sinphi;
 }
 
 /****************************************************************************/

@@ -19,6 +19,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
@@ -71,9 +72,6 @@ typedef struct
   int *indg;
   double *tab;
 } Dim_Loop;
-
-static double (*LEGENDRE_SPHPLM)(int, int, double) = NULL;
-static double (*LEGENDRE_PL)(int, double) = NULL;
 
 static Projec_Environ PROJEC = { 0 };
 static Variety_Environ VARIETY = { 0, 0. };
@@ -982,10 +980,7 @@ void ut_rotation_matrix_2D(double angle, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix_3D(double alpha,
-                                           double beta,
-                                           double gamma,
-                                           double *rot)
+void ut_rotation_matrix_3D(double alpha, double beta, double gamma, double *rot)
 {
   double ca[3], sa[3];
 
@@ -1020,9 +1015,7 @@ void ut_rotation_matrix_3D(double alpha,
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix(int ndim,
-                                        const double *angles,
-                                        double *rot)
+void ut_rotation_matrix(int ndim, const double *angles, double *rot)
 {
   if (ndim == 2)
     ut_rotation_matrix_2D(angles[0], rot);
@@ -1041,8 +1034,7 @@ void ut_rotation_matrix(int ndim,
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-VectorDouble ut_rotation_matrix_VD(int ndim,
-                                                   const VectorDouble &angles)
+VectorDouble ut_rotation_matrix_VD(int ndim, const VectorDouble &angles)
 {
   VectorDouble rot;
 
@@ -1242,6 +1234,8 @@ void variety_define(int flag_sphere, double radius)
 
   VARIETY.flag_sphere = flag_sphere;
   VARIETY.radius = radius;
+  if (flag_sphere)
+    ASpaceObject::defineDefaultSpace(SPACE_SN,2,radius);
   return;
 }
 
@@ -1271,7 +1265,6 @@ void variety_get_characteristics(double *radius)
 
 {
   *radius = VARIETY.radius;
-
   return;
 }
 
@@ -2670,14 +2663,14 @@ PL_Dist* pldist_manage(int mode,
  **
  *****************************************************************************/
 double distance_point_to_segment(double x0,
-                                                 double y0,
-                                                 double x1,
-                                                 double y1,
-                                                 double x2,
-                                                 double y2,
-                                                 double *xd,
-                                                 double *yd,
-                                                 int *nint)
+                                 double y0,
+                                 double x1,
+                                 double y1,
+                                 double x2,
+                                 double y2,
+                                 double *xd,
+                                 double *yd,
+                                 int *nint)
 {
   double dx, dy, dxp, dyp, ratio, dist, signe;
 
@@ -2770,9 +2763,9 @@ void distance_point_to_polyline(double x0,
  **
  *****************************************************************************/
 double distance_along_polyline(PL_Dist *pldist1,
-                                               PL_Dist *pldist2,
-                                               double *xl,
-                                               double *yl)
+                               PL_Dist *pldist2,
+                               double *xl,
+                               double *yl)
 {
   int i;
   double dist, local1[2], local2[2];
@@ -2884,14 +2877,14 @@ static void st_shift_point(double x1,
  **
  *****************************************************************************/
 double distance_points_to_polyline(double ap,
-                                                   double al,
-                                                   double x1,
-                                                   double y1,
-                                                   double x2,
-                                                   double y2,
-                                                   int nvert,
-                                                   double *xl,
-                                                   double *yl)
+                                   double al,
+                                   double x1,
+                                   double y1,
+                                   double x2,
+                                   double y2,
+                                   int nvert,
+                                   double *xl,
+                                   double *yl)
 {
   double dist, d1, d2, dh, dv, dloc, dmin, xp1, xp2, yp1, yp2, dist1, dist2;
   PL_Dist *pldist1, *pldist2;
@@ -3088,9 +3081,9 @@ double* ut_pascal(int ndim)
  **
  *****************************************************************************/
 double ut_geodetic_angular_distance(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2)
+                                    double lat1,
+                                    double long2,
+                                    double lat2)
 {
   double rlon1, rlat1, rlon2, rlat2, dlong, angdst;
 
@@ -3151,17 +3144,17 @@ static double st_convert_geodetic_angle(double /*sina*/,
  **
  *****************************************************************************/
 void ut_geodetic_angles(double long1,
-                                        double lat1,
-                                        double long2,
-                                        double lat2,
-                                        double long3,
-                                        double lat3,
-                                        double *a,
-                                        double *b,
-                                        double *c,
-                                        double *A,
-                                        double *B,
-                                        double *C)
+                        double lat1,
+                        double long2,
+                        double lat2,
+                        double long3,
+                        double lat3,
+                        double *a,
+                        double *b,
+                        double *c,
+                        double *A,
+                        double *B,
+                        double *C)
 {
   double cosa, cosb, cosc, sina, sinb, sinc;
 
@@ -3198,11 +3191,11 @@ void ut_geodetic_angles(double long1,
  **
  *****************************************************************************/
 double ut_geodetic_triangle_perimeter(double long1,
-                                                      double lat1,
-                                                      double long2,
-                                                      double lat2,
-                                                      double long3,
-                                                      double lat3)
+                                      double lat1,
+                                      double long2,
+                                      double lat2,
+                                      double long3,
+                                      double lat3)
 {
   double a, b, c, ga, gb, gc, perimeter;
 
@@ -3227,11 +3220,11 @@ double ut_geodetic_triangle_perimeter(double long1,
  **
  *****************************************************************************/
 double ut_geodetic_triangle_surface(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2,
-                                                    double long3,
-                                                    double lat3)
+                                    double lat1,
+                                    double long2,
+                                    double lat2,
+                                    double long3,
+                                    double lat3)
 {
   double a, b, c, A, B, C, surface;
 
@@ -4019,34 +4012,7 @@ int ut_icosphere(int n,
 
 /*****************************************************************************/
 /*!
- **  Check if Legendre external functions have been defined properly
- **
- ** \return  1 if Legendre have been defined; 0 otherwise
- **
- ** \remarks This function returns a message is Legendre functions have not
- ** \remarks been defined
- **
- *****************************************************************************/
-int ut_is_legendre_defined(void)
-{
-  if (LEGENDRE_PL == nullptr)
-  {
-    messerr("You must define function 'legendre_Pl' beforehand");
-    messerr("using the function 'define_legendre'");
-    return (0);
-  }
-  if (LEGENDRE_SPHPLM == nullptr)
-  {
-    messerr("You must define function 'legendre_sphPlm' beforehand");
-    messerr("using the function 'define_legendre'");
-    return (0);
-  }
-  return (1);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the Associated Legendre Function: legendre_Pl
+ **  Returns the Associated Legendre Function
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
@@ -4055,35 +4021,7 @@ int ut_is_legendre_defined(void)
  *****************************************************************************/
 double ut_legendre(int flag_norm, int n, double v)
 {
-  int renard = -1;
-  double res1 = 0.;
-  double res2 = 0.;
-  //double res3 = 0.;
-
-  // TODO: Waiting for validation by Lantuejoul
-  if (renard <= 0)
-  {
-    res1 = LEGENDRE_PL(n, v);
-  }
-//  if (renard == -1)
-//  {
-//    res3 = std::tr1::legendre(n, v);
-//  }
-  if (renard >= 0)
-  {
-    //  res2 = std::legendre(n,v);
-    res2 = boost::math::legendre_p<double>(n, v);
-  }
-
-  if (renard == 0)
-  {
-    double diff = ABS(res1 + res2);
-    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
-    if (diff > 5)
-      messerr("---> Legendre n=%d v=%lf res1=%lf res2=%lf", n, v, res1, res2);
-  }
-
-  double result = res1;
+  double result = boost::math::legendre_p<double>(n, v);
   if (flag_norm)
   {
     double norme = sqrt((2. * ((double) n) + 1.) / 2.);
@@ -4094,7 +4032,7 @@ double ut_legendre(int flag_norm, int n, double v)
 
 /*****************************************************************************/
 /*!
- **  Returns the Legendre Function legendre_Sphplm(n,k0,v) normalized
+ **  Returns the Spherical Legendre normalized function
  **
  ** \param[in]  flag_norm 1 for normalized and 0 otherwise
  ** \param[in]  n           Degree
@@ -4104,51 +4042,10 @@ double ut_legendre(int flag_norm, int n, double v)
  *****************************************************************************/
 double ut_flegendre(int flag_norm, int n, int k0, double theta)
 {
-  int k, flag_negative;
-  int renard = -1;
-
-  if (k0 < 0)
-  {
-    k = -k0;
-    flag_negative = 1;
-  }
-  else
-  {
-    k = k0;
-    flag_negative = 0;
-  }
-
-  // TODO: Waiting for the validation by Lantuejoul
-
-  double res1 = 0.;
-  double res2 = 0.;
-  //double res3 = 0.;
-  if (renard <= 0)
-  {
-    double v = cos(theta);
-    res1 = LEGENDRE_SPHPLM(n, k, v);
-    if (flag_negative && k % 2 == 1) res1 = -res1;
-  }
-//  if (renard == -1)
-//  {
-//    res3 = std::tr1::sph_legendre(n, k, theta);
-//  }
-//
-  if (renard >= 0)
-  {
-    std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
-        n, k, theta, 0.);
-    res2 = resbis.real();
-  }
-  if (renard == 0)
-  {
-    double diff = ABS(res1 + res2);
-    if (diff > EPSILON5) diff = 100. * ABS(res1 - res2) / diff;
-    if (diff > 5)
-      messerr("---> Sph-Legendre n=%d k0=%d theta=%lf res1=%lf res2=%lf", n, k0,
-              theta, res1, res2);
-  }
-  double result = res1;
+  int k = ABS(k0);
+  std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
+      n, k, theta, 0.);
+  double result = resbis.real();
 
   if (flag_norm)
   {
@@ -4156,23 +4053,6 @@ double ut_flegendre(int flag_norm, int n, int k0, double theta)
     result /= norme;
   }
   return (result);
-}
-
-/*****************************************************************************/
-/*!
- **  Define the Legendre functions
- **
- ** \param[in]  legendre_sphPlm
- ** \param[in]  legendre_Pl
- **
- *****************************************************************************/
-void define_legendre(double (*legendre_sphPlm)(int,
-                                                               int,
-                                                               double),
-                                     double (*legendre_Pl)(int, double))
-{
-  LEGENDRE_SPHPLM = legendre_sphPlm;
-  LEGENDRE_PL = legendre_Pl;
 }
 
 /*****************************************************************************/
@@ -4252,11 +4132,11 @@ double ut_rad2deg(double angle)
  **
  *****************************************************************************/
 int is_in_spherical_triangle(double *coor,
-                                             double surface,
-                                             double *pts1,
-                                             double *pts2,
-                                             double *pts3,
-                                             double *wgts)
+                             double surface,
+                             double *pts1,
+                             double *pts2,
+                             double *pts3,
+                             double *wgts)
 {
   double total, s[3], eps;
 
@@ -4601,10 +4481,10 @@ int* ut_split_into_two(int ncolor,
  **
  *****************************************************************************/
 int is_in_spherical_triangle_optimized(double *coor,
-                                                       double *ptsa,
-                                                       double *ptsb,
-                                                       double *ptsc,
-                                                       double *wgts)
+                                       double *ptsa,
+                                       double *ptsb,
+                                       double *ptsc,
+                                       double *wgts)
 {
   double total, s[3], stot, eps;
   double A, B, C, AB, AC, BA, BC, CA, CB, OA, OB, OC;
@@ -4685,10 +4565,7 @@ int is_in_spherical_triangle_optimized(double *coor,
  ** \remarks The calling function must free the returned array
  **
  *****************************************************************************/
-int* ut_name_decode(const char *name,
-                                    int ndim,
-                                    int *nx,
-                                    int verbose)
+int* ut_name_decode(const char *name, int ndim, int *nx, int verbose)
 {
   int *order, *ranks, num, orient, idim, error, a_order;
   char *p;
@@ -4851,10 +4728,7 @@ static void st_dimension_recursion(int idim, int verbose, void *int_str)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-double* ut_rank_cells(int ndim,
-                                      int *nx,
-                                      int *order,
-                                      int verbose)
+double* ut_rank_cells(int ndim, int *nx, int *order, int verbose)
 {
   double *tab, *tab2;
   int *indg, *ind, error, ncell;
@@ -5060,8 +4934,8 @@ static int st_string_search(const String &string,
  **
  *****************************************************************************/
 VectorInt util_string_search(const VectorString &list_string,
-                                             const String &pattern,
-                                             int verbose)
+                             const String &pattern,
+                             int verbose)
 {
   VectorInt ranks;
   int ns = static_cast<int>(list_string.size());
@@ -5071,4 +4945,58 @@ VectorInt util_string_search(const VectorString &list_string,
       ranks.push_back(is + 1);
   }
   return ranks;
+}
+
+/**
+ * Returns the Vector of Sample coordinates in 3-D from Longitude-Latitude
+ * @param longitude Array of longitude values
+ * @param latitude  Array of latitude values
+ * @param radius    Radius (if note defined, taken from variety definition)
+ * @param dilate    Dilation applied to radius
+ * @return
+ */
+VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
+                                        const VectorDouble& latitude,
+                                        double radius,
+                                        double dilate)
+{
+  double locR = radius;
+  if (FFFF(locR)) variety_get_characteristics(&locR);
+  locR *= dilate;
+
+  VectorVectorDouble tab;
+  int number = (int) longitude.size();
+  if (number != (int) latitude.size())
+  {
+    messerr("Arguments longitude' and  'latitude' should have same dimension");
+    return tab;
+  }
+
+  // Dimension the returned argument
+  tab.resize(3);
+  for (int idim = 0; idim < 3; idim++)
+    tab[idim].resize(number,0.);
+
+  // Load the returned argument
+
+  for (int ip = 0; ip < number; ip++)
+  {
+    double lon = longitude[ip];
+    double lat = latitude[ip];
+    if (FFFF(lon) || FFFF(lat))
+    {
+      tab[0][ip] = TEST;
+      tab[1][ip] = TEST;
+      tab[2][ip] = TEST;
+    }
+    else
+    {
+      lon = ut_deg2rad(lon);
+      lat = ut_deg2rad(lat);
+      tab[0][ip] = locR * cos(lon) * cos(lat);
+      tab[1][ip] = locR * sin(lon) * cos(lat);
+      tab[2][ip] = locR * sin(lat);
+    }
+  }
+  return tab;
 }

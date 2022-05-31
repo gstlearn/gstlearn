@@ -51,13 +51,11 @@ public:
                           bool verbose = false) const = 0;
   /*! Interpolates an array from Mesh to Db */
   virtual double* interpolateMeshToDb(Db *db, double* mtab) const = 0;
-
   /*! Returns the space variety */
-  int getVariety() const { return _variety; }
+  virtual int getVariety() const { return 0; }
+
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
-  /*! Set the Variety */
-  void setVariety(int variety) { _variety = variety; }
   /*! Set the Space dimension */
   void setNDim(int ndim) { _nDim = ndim; }
   /*! Returns the minimum of the Bounding box for a given space dimension */
@@ -86,7 +84,7 @@ public:
   /*! Returns the vector of coordinates for a mesh */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
 
-  virtual int getEmbeddedDim() const { return _nDim; }
+  virtual int getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
@@ -100,7 +98,6 @@ private:
   bool _isSpaceDimensionValid(int idim) const;
 
 private:
-  int          _variety; // 0 for Euclidean; 1 for Variety
   int          _nDim;
   VectorDouble _extendMin;
   VectorDouble _extendMax;

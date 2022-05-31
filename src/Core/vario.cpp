@@ -3950,8 +3950,7 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
     z1 = st_get_IVAR(db, iech, 0);
     if (FFFF(z1)) continue;
 
-    ideb = (st_date_is_used(&varioparam, db, db)) ? 0 :
-                                                    iech + 1;
+    ideb = (st_date_is_used(&varioparam, db, db)) ? 0 : iech + 1;
     for (jech = ideb; jech < nech; jech++)
     {
       if (!db->isActive(jech)) continue;

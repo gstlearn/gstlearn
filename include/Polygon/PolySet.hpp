@@ -50,6 +50,7 @@ public:
                     double *ymin,
                     double *ymax) const;
   double getSurface() const;
+  void closePolySet();
 
   void setX(const VectorDouble& x) { _x = x; }
   void setY(const VectorDouble& y) { _y = y; }
@@ -57,6 +58,9 @@ public:
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+
+private:
+  bool _isClosed() const;
 
 private:
   VectorDouble _x;

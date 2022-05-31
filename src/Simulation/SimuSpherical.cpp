@@ -26,14 +26,12 @@
 #define DISCRET(idisc)     (GV_PI * (0.5 + (idisc)) / ((double) ndisc))
 
 SimuSpherical::SimuSpherical(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
-      AStringable()
+    : ASimulation(nbsimu, seed)
 {
 }
 
 SimuSpherical::SimuSpherical(const SimuSpherical &r)
-    : ASimulation(r),
-      AStringable(r)
+    : ASimulation(r)
 {
 }
 
@@ -42,20 +40,12 @@ SimuSpherical& SimuSpherical::operator=(const SimuSpherical &r)
   if (this != &r)
   {
     ASimulation::operator=(r);
-    AStringable::operator =(r);
   }
   return *this;
 }
 
 SimuSpherical::~SimuSpherical()
 {
-}
-
-String SimuSpherical::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-
-  return sstr.str();
 }
 
 int SimuSpherical::simulate(DbGrid *db,
@@ -93,7 +83,6 @@ int SimuSpherical::simulate(DbGrid *db,
 
   if (verbose)
   {
-    sphepar.display();
     message("Random generation seed    = %d\n", law_get_random_seed());
     message("Number of frequencies     = %d\n", (int) freqs.size());
   }
@@ -183,7 +172,6 @@ VectorDouble SimuSpherical::simulate_mesh(MeshSpherical *mesh,
 
   if (verbose)
   {
-    sphepar.display();
     message("Random generation seed    = %d\n", law_get_random_seed());
     message("Number of frequencies     = %d\n", (int) freqs.size());
   }

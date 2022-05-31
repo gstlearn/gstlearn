@@ -14,13 +14,13 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ASimulation.hpp"
-#include "Basic/AStringable.hpp"
+#include "Basic/Plane.hpp"
 
 class SimuSubstitutionParam;
 class Db;
 class DbGrid;
 
-class GSTLEARN_EXPORT SimuSubstitution: public ASimulation, public AStringable
+class GSTLEARN_EXPORT SimuSubstitution: public ASimulation
 {
 public:
   SimuSubstitution(int nbsimu = 0, int seed = 4324324);
@@ -28,13 +28,17 @@ public:
   SimuSubstitution& operator=(const SimuSubstitution &r);
   virtual ~SimuSubstitution();
 
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  int simulate(Db *dbin,
-               DbGrid *dbout,
+  int simulate(DbGrid *dbgrid,
                const SimuSubstitutionParam& subparam,
-               int iptr_simu,
-               int iptr_rank,
-               bool verbose = false);
+               int iptr,
+               int verbose);
+
+private:
+  void _calculValue(int ip, double factor, const VectorDouble& vector);
+  VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
+                            int verbose,
+                            double eps = EPSILON5);
+
+private:
+  std::vector<Plane> _planes;
 };

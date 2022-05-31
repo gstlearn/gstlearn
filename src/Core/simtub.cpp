@@ -41,6 +41,10 @@
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
+#include "Simulation/SimuSubstitution.hpp"
+#include "Simulation/SimuSubstitutionParam.hpp"
+#include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/SimuPartition.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -2962,7 +2966,7 @@ int simcond(Db *dbin,
  ** \param[in]  db          Data base containing the coordinates of target points
  **                         These coordinates must be expressed in long/lat
  ** \param[in]  model       Model (defined in Euclidean space) to be used
- ** ]param[in]  sphepar     SimuSphericalParam structure
+ ** \param[in]  sphepar     SimuSphericalParam structure
  ** \param[in]  seed        Seed for random number generation
  ** \param[in]  verbose     Verbose flag
  ** \param[in]  namconv     Naming convention
@@ -2985,7 +2989,6 @@ int simsph(DbGrid *db,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return 1;
   }
-  if (!ut_is_legendre_defined()) return 1;
   if (db->getNDim() != 2)
   {
     messerr("The Simulation on Sphere is restricted to 2-D case");
@@ -3007,7 +3010,7 @@ int simsph(DbGrid *db,
   SimuSpherical simsphe(1, seed);
   if (simsphe.simulate(db, model, sphepar, iptr, verbose)) return 1;
 
-  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, "Simu");
+  namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
   return 0;
 }
 
@@ -3039,7 +3042,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
     return simu;
   }
-  if (!ut_is_legendre_defined()) return simu;
   for (int icova = 0; icova < model->getCovaNumber(); icova++)
   {
     if (model->getCova(icova)->getFlagAniso())
@@ -3054,3 +3056,135 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
 
   return simu;
 }
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using substitution method
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  subparam    SimuSubstitutionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int substitution(DbGrid *dbgrid,
+                 SimuSubstitutionParam& subparam,
+                 int seed,
+                 int verbose,
+                 const NamingConvention& namconv)
+{
+  if (!is_grid(dbgrid) || dbgrid->getNDim() > 3)
+  {
+    messerr("The substitution is available for Grid File with dimension <= 3");
+    return 1;
+  }
+  if (! subparam.isValid(verbose)) return 1;
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, 0.);
+  if (iptr < 0) return 1;
+
+  // Call the operational function
+
+  SimuSubstitution simsub(1,seed);
+  if (simsub.simulate(dbgrid, subparam, iptr, verbose)) return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
+
+  return 0;
+}
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  model       Model used for the valuation of tesselation
+ ** \param[in]  parparam    SimuPartitionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int tessellation_poisson(DbGrid *dbgrid,
+                         Model *model,
+                         const SimuPartitionParam& parparam,
+                         int seed,
+                         int verbose,
+                         const NamingConvention& namconv)
+{
+  int ndim = dbgrid->getNDim();
+  if (!is_grid(dbgrid))
+  {
+    messerr("The output Db file must be a grid");
+    return 1;
+  }
+  if (!is_grid(dbgrid) || ndim > 3)
+  {
+    messerr(
+        "The Poisson Tesselation is available for Grid File with dimension <= 3");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
+
+  SimuPartition simpart(1, seed);
+  if (simpart.poisson(dbgrid, model, parparam, iptr, verbose))
+    return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
+
+  return 0;
+}
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  model       Model used for the valuation of tesselation
+ ** \param[in]  parparam    SimuPartitionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int tessellation_voronoi(DbGrid *dbgrid,
+                         Model *model,
+                         const SimuPartitionParam& parparam,
+                         int seed,
+                         int verbose,
+                         const NamingConvention& namconv)
+{
+  int ndim = dbgrid->getNDim();
+  if (ndim > 3)
+  {
+    messerr(
+        "The Poisson Tesselation is available for Grid File with dimension <= 3");
+    return 1;
+  }
+
+  /* Add the attributes for storing the results */
+
+  int iptr = dbgrid->addColumnsByConstant(1, TEST);
+  if (iptr < 0) return 1;
+
+  SimuPartition simpart(1, seed);
+  if (simpart.voronoi(dbgrid, model, parparam, iptr, verbose))
+    return 1;
+
+  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
+  return 0;
+}
+

@@ -24,3 +24,4 @@ doc/demo/*.pdf
 doc/demo/.Rhistory
 doc/demo/.RData
 .*~
+.metadata

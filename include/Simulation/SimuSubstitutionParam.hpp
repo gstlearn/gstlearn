@@ -18,7 +18,11 @@
 class GSTLEARN_EXPORT SimuSubstitutionParam: public AStringable
 {
 public:
-  SimuSubstitutionParam();
+  SimuSubstitutionParam(int nfacies = 2,
+                        double intensity = 0.1,
+                        bool flag_direct = true,
+                        bool flag_coding = true,
+                        bool flag_orient = false);
   SimuSubstitutionParam(const SimuSubstitutionParam &r);
   SimuSubstitutionParam& operator=(const SimuSubstitutionParam &r);
   virtual ~SimuSubstitutionParam();
@@ -26,8 +30,8 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  const VectorDouble& getColang() const { return _colang; }
-  void setColang(const VectorDouble& colang) { _colang = colang; }
+  const VectorInt& getColang() const { return _colang; }
+  void setColang(const VectorInt& colang) { _colang = colang; }
   int getColfac() const { return _colfac; }
   void setColfac(int colfac) { _colfac = colfac; }
   double getFactor() const { return _factor; }
@@ -46,16 +50,23 @@ public:
   void setNfacies(int nfacies) { _nfacies = nfacies; }
   int getNstates() const { return _nstates; }
   void setNstates(int nstates) { _nstates = nstates; }
-  const VectorDouble& getTrans() const { return _trans; }
+  const VectorDouble getTrans() const { return _trans; }
   void setTrans(const VectorDouble& trans) { _trans = trans; }
   const VectorDouble& getVector() const { return _vector; }
   void setVector(const VectorDouble& vector) { _vector = vector; }
-  double getColang(int idim) const { return _colang[idim]; }
+  int getColang(int idim) const { return _colang[idim]; }
+  double getVector(int idim) const { return _vector[idim]; }
 
-  bool SimuSubstitutionParam::isValid(bool verbose) const;
+  bool isValid(bool verbose = false);
+  void isValidOrientation(VectorDouble& vector, bool verbose = false) const;
+  void isValidFactor(double* factor, bool verbose = false) const;
+
+  bool isAngleLocal() const;
+  bool isLocal() const;
 
 private:
-  bool _isIrreductibility(bool verbose);
+  bool _isIrreductibility(bool verbose = false);
+  bool _isValidTransition(bool verbose = false, double eps = EPSILON3);
 
 private:
   int _nfacies;
@@ -67,7 +78,7 @@ private:
   bool _flagAuto;
   double _intensity;
   double _factor;
+  VectorInt _colang;
   VectorDouble _vector;
-  VectorDouble _colang;
   VectorDouble _trans;
 };

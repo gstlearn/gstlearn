@@ -97,8 +97,6 @@ set(SRC
   Core/csparse.cpp
   Core/sphtriangle.cpp
   Core/vario.cpp
-  Core/simsub.cpp
-  Core/simpart.cpp
   Core/io.cpp
   Core/db.cpp
   Core/variopgs.cpp
@@ -207,6 +205,8 @@ set(SRC
   Basic/OptDbg.cpp
   Basic/OptCst.cpp
   Basic/OptCustom.cpp
+  Basic/Plane.cpp
+  
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
@@ -281,4 +281,8 @@ set(SRC
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
+  Simulation/SimuSubstitution.cpp
+  Simulation/SimuSubstitutionParam.cpp
+  Simulation/SimuPartition.cpp
+  Simulation/SimuPartitionParam.cpp
 )

@@ -422,11 +422,6 @@ GSTLEARN_EXPORT int ut_icosphere(int n,
                                  int *ntri_arg,
                                  double **coor_arg);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
-GSTLEARN_EXPORT int ut_is_legendre_defined(void);
-GSTLEARN_EXPORT void define_legendre(double (*legendre_sphPlm)(int,
-                                                               int,
-                                                               double),
-                                     double (*legendre_Pl)(int, double));
 GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v);
 GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta);
 GSTLEARN_EXPORT int* ut_name_decode(const char *name,
@@ -1924,26 +1919,6 @@ GSTLEARN_EXPORT int simfine_f(DbGrid *dbin,
                               int seed,
                               VectorDouble &tab);
 
-/*****************************************/
-/* Prototyping the functions in simsub.c */
-/*****************************************/
-
-GSTLEARN_EXPORT int substitution(DbGrid *dbgrid,
-                                 int seed,
-                                 int nfacies,
-                                 int nstates,
-                                 int flag_direct,
-                                 int flag_coding,
-                                 int flag_orient,
-                                 int flag_auto,
-                                 double intensity,
-                                 double factor,
-                                 double vector[3],
-                                 double *trans,
-                                 int colfac,
-                                 int colang[3],
-                                 int verbose);
-
 /******************************************/
 /* Prototyping the functions in simpart.c */
 /******************************************/
@@ -1952,19 +1927,6 @@ GSTLEARN_EXPORT SubPlanes* poisson_manage_planes(int mode,
                                                  int np,
                                                  SubPlanes *splanes);
 GSTLEARN_EXPORT int poisson_generate_planes(DbGrid *dbgrid, SubPlanes *splanes);
-GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
-                                         Model *model,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose);
-GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
-                                         Model *model,
-                                         double *dilate,
-                                         int seed,
-                                         double intensity,
-                                         int nbtuba,
-                                         int verbose);
 
 /*****************************************/
 /* Prototyping the functions in thresh.c */
@@ -2122,7 +2084,6 @@ GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
                                        double *ymin,
                                        double *ymax);
 GSTLEARN_EXPORT double polygon_surface(Polygons *polygon);
-GSTLEARN_EXPORT Polygons* input_polygon(void);
 GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db);
 GSTLEARN_EXPORT int polygon_hull(const Db *db,
                                  VectorDouble &x,
@@ -2531,7 +2492,8 @@ GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
                                            double rlat,
                                            double *x,
                                            double *y,
-                                           double *z);
+                                           double *z,
+                                           double radius = 1.);
 GSTLEARN_EXPORT void util_convert_cart2sph(double x,
                                            double y,
                                            double z,
