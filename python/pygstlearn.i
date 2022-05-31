@@ -112,6 +112,9 @@ void exit_f(void)
 %extend SimuSubstitutionParam {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend SimuFFTParam {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 
 %pythoncode %{

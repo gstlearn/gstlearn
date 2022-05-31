@@ -64,7 +64,7 @@ int SimuPartition::voronoi(DbGrid *dbgrid,
                            Model *model,
                            const SimuPartitionParam& parparam,
                            int iptr,
-                           int verbose)
+                           bool verbose)
 {
   law_set_random_seed(getSeed());
   int ndim = dbgrid->getNDim();
@@ -143,7 +143,7 @@ int SimuPartition::poisson(DbGrid *dbgrid,
                            Model *model,
                            const SimuPartitionParam& parparam,
                            int iptr,
-                           int verbose)
+                           bool verbose)
 {
   std::vector<Stack> stacks;
   std::vector<Plane> planes;

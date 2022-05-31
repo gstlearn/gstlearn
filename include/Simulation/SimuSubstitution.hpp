@@ -31,12 +31,12 @@ public:
   int simulate(DbGrid *dbgrid,
                const SimuSubstitutionParam& subparam,
                int iptr,
-               int verbose);
+               bool verbose = false);
 
 private:
   void _calculValue(int ip, double factor, const VectorDouble& vector);
   VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
-                            int verbose,
+                            bool verbose = false,
                             double eps = EPSILON5);
 
 private:

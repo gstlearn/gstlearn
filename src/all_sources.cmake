@@ -109,7 +109,6 @@ set(SRC
   Core/acknowledge.cpp
   Core/simfine.cpp
   Core/vtk.cpp
-  Core/simfft.cpp
   Core/geophy.cpp
   Core/potential.cpp
   Core/foxleg.cpp
@@ -285,4 +284,6 @@ set(SRC
   Simulation/SimuSubstitutionParam.cpp
   Simulation/SimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
+  Simulation/SimuFFTParam.cpp
+  Simulation/SimuFFT.cpp
 )
