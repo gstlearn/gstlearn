@@ -96,7 +96,7 @@ double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
     double u1 = calpha;
     for (int i = 1; i < (degree + 2); i++)
     {
-      u2 = 1 / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
+      u2 = 1. / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
       s += u0 * _evaluateCovOnSphere(scale, i-1);
       u0 = u1;
       u1 = u2;

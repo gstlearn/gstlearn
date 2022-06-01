@@ -372,7 +372,7 @@ int SimuRefine::_kriging_solve(int type,
                                bool verbose)
 {
   int neq = (_param.isFlagSK()) ? nb : nb + 1;
-  VectorDouble d1(3);
+  VectorDouble d1(_ndim);
   VectorDouble lhs(36);
   VectorDouble rhs(6);
 
@@ -384,20 +384,20 @@ int SimuRefine::_kriging_solve(int type,
   for (int i = 0; i < nb; i++)
     for (int j = 0; j < nb; j++)
     {
-      d1[0] = _XN[type][i] - _XN[type][j];
-      d1[1] = _YN[type][i] - _YN[type][j];
-      d1[2] = _ZN[type][i] - _ZN[type][j];
-      model_calcul_cov(NULL, _model, mode, 1, 1., d1, lhs.data());
+      if (_ndim >= 1) d1[0] = _XN[type][i] - _XN[type][j];
+      if (_ndim >= 2) d1[1] = _YN[type][i] - _YN[type][j];
+      if (_ndim >= 2) d1[2] = _ZN[type][i] - _ZN[type][j];
+      model_calcul_cov(NULL, _model, mode, 1, 1., d1, &LHS(i,j));
     }
 
   /* Establish the kriging R.H.S. */
 
   for (int i = 0; i < nb; i++)
   {
-    d1[0] = _XN[type][i];
-    d1[1] = _YN[type][i];
-    d1[2] = _ZN[type][i];
-    model_calcul_cov(NULL, _model, mode, 1, 1., d1, rhs.data());
+    if (_ndim >= 1) d1[0] = _XN[type][i];
+    if (_ndim >= 2) d1[1] = _YN[type][i];
+    if (_ndim >= 3) d1[2] = _ZN[type][i];
+    model_calcul_cov(NULL, _model, mode, 1, 1., d1, &RHS(i));
   }
 
   /* Add the Universality condition (optional) */
@@ -426,8 +426,7 @@ int SimuRefine::_kriging_solve(int type,
   /* Calculate the variance */
 
   mode.setMember(ECalcMember::VAR);
-  for (int i = 0; i < 3; i++)
-    d1[i] = 0.;
+  for (int i = 0; i < _ndim; i++) d1[i] = 0.;
   double var[2];
   model_calcul_cov(NULL,_model, mode, 1, 1., d1, &var[0]);
   matrix_product(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
