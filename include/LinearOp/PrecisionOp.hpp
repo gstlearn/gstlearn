@@ -38,6 +38,9 @@ public:
             bool verbose = false);
 
   void   eval(const VectorDouble& in, VectorDouble& out);
+
+  VectorDouble evalCov(int imesh);
+
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
                        VectorDouble& /*result*/)
