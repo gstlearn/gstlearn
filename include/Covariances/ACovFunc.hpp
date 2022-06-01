@@ -54,7 +54,7 @@ public:
   void setField(double field);
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
-  double evalCovOnSphere(double alpha, double scale, int degree = 50) const; // TODO en vectoriel
+  double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const; // TODO en vectoriel
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
@@ -68,7 +68,7 @@ protected:
   /// Change argument : double h becomes VectorDouble (number of sub-space)
   virtual double _evaluateCov(double h) const = 0;
   virtual double _evaluateCovDerivate(int degree, double h) const;
-  virtual double _evaluateCovOnSphere(double scale, int degree = 50) const;
+  virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
 private:
   ECov        _type;    /*! Covariance function type */

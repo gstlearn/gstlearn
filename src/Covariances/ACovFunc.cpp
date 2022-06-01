@@ -16,6 +16,8 @@
 #include "Basic/AException.hpp"
 #include "Covariances/ACovOnSphere.hpp"
 
+#include <math.h>
+
 ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
 : AStringable(),
   _type(type),
@@ -89,10 +91,12 @@ double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
   else
   {
     double u0 = 1.;
-    double u1 = alpha;
-    for (int i = 1; i < degree; i++)
+    double u2 = 0.;
+    double calpha = cos(alpha);
+    double u1 = calpha;
+    for (int i = 1; i < (degree + 2); i++)
     {
-      double u2 = 1 / (i + 1) * ((2 * i + 1) * alpha * u1 - i * u0);
+      u2 = 1 / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
       s += u0 * _evaluateCovOnSphere(scale, i-1);
       u0 = u1;
       u1 = u2;
