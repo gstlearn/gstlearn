@@ -14,8 +14,8 @@
 #include "geoslib_define.h"
 
 #include "Simulation/ASimulation.hpp"
+#include "Simulation/SimuRefineParam.hpp"
 
-class SimuRefineParam;
 class Db;
 class DbGrid;
 
