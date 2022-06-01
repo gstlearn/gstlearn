@@ -383,8 +383,13 @@ double CovAniso::eval(int ivar,
 double CovAniso::evalCovOnSphere(double alpha, int degree) const
 {
   if (! _cova->hasCovOnSphere()) return TEST;
-  double scale = getScale();
-  return _cova->evalCovOnSphere(alpha, scale, degree);
+  double radius;
+  variety_get_characteristics(&radius);
+  double scale = getScale() / radius;
+  double sill = getSill(0, 0);
+  double cov = _cova->evalCovOnSphere(alpha, scale, degree);
+  double cov0 = _cova->evalCovOnSphere(0., scale, degree);
+  return sill * cov / cov0;
 }
 
 String CovAniso::toString(const AStringFormat* /*strfmt*/) const

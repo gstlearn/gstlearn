@@ -509,7 +509,7 @@ void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) con
   int variety_sphere;
   double r;
   variety_query(&variety_sphere);
-  if(variety_sphere==1)
+  if(variety_sphere == 1)
   {
     variety_get_characteristics(&r);
   }
