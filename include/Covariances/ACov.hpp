@@ -37,6 +37,7 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
+  virtual double evalCovOnSphere(double /*alpha*/, int /*degree*/) const { return TEST; }
   /////////////////////////////////////////////////////////////////////////////////
 
   virtual MatrixSquareGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;

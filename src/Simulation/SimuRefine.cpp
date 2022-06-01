@@ -26,6 +26,8 @@
 
 SimuRefine::SimuRefine(int nbsimu, int seed)
     : ASimulation(nbsimu, seed),
+      _param(),
+      _model(nullptr),
       _ndim(0),
       _nx1(3),
       _dx1(3),
@@ -34,34 +36,6 @@ SimuRefine::SimuRefine(int nbsimu, int seed)
       _dx2(3),
       _x02(3)
 {
-}
-
-SimuRefine::SimuRefine(const SimuRefine &r)
-    : ASimulation(r),
-      _ndim(r._ndim),
-      _nx1(r._nx1),
-      _dx1(r._dx1),
-      _x01(r._x01),
-      _nx2(r._nx2),
-      _dx2(r._dx2),
-      _x02(r._x02)
-{
-}
-
-SimuRefine& SimuRefine::operator=(const SimuRefine &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator=(r);
-    _ndim = r._ndim;
-    _nx1 = r._nx1;
-    _dx1 = r._dx1;
-    _x01 = r._x01;
-    _nx2 = r._nx2;
-    _dx2 = r._dx2;
-    _x02 = r._x02;
-  }
-  return *this;
 }
 
 SimuRefine::~SimuRefine()
@@ -89,6 +63,8 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
   db1 = dbin;
   law_set_random_seed(getSeed());
   _ndim = dbin->getNDim();
+  _param = param;
+  _model = model;
 
   /* Store information from the input grid */
 
@@ -218,9 +194,9 @@ void SimuRefine::_dim_2_to_1(DbGrid *db)
 
 /****************************************************************************/
 /*!
- **  Establish and solve the different kriging systems
+ **  Establish and solve the different Kriging systems
  **
- ** \return  Eror return code
+ ** \return  Error return code
  **
  ** \param[in]  model  Model structure
  **
@@ -239,7 +215,7 @@ int SimuRefine::_kriging_define(const SimuRefineParam& param, Model* model)
   if (_kriging_solve(param, model, 0, 0, 4)) return (1);
   if (_kriging_solve(param, model, 0, 1, 5)) return (1);
 
-  /* Define the kriging system for the mid-vertices */
+  /* Define the Kriging system for the mid-vertices */
 
   _neigh_simfine(1, 0, -1,  0,  0);
   _neigh_simfine(1, 1,  0, -1,  0);

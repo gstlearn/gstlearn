@@ -224,7 +224,7 @@ int SimuTurningBands::_generateDirections(const Db* dbout)
         }
         else
         {
-          _setCodirScale(ibs, cova->getTheoretical());
+          _setCodirScale(ibs, cova->getScale());
         }
 
         if (dbout->isGrid())

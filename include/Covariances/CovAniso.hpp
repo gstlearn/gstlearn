@@ -84,6 +84,8 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
+
+  virtual double evalCovOnSphere(double alpha, int degree) const override;
   ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
@@ -148,10 +150,9 @@ public:
   const Rotation& getAnisoRotation() const { return _aniso.getRotation(); }
   const VectorDouble& getScales() const { return _aniso.getRadius(); }
 
-  // Look at C2R before touching that
   void   setType(const ECov& type);
   double getRange() const;
-  double getTheoretical() const;
+  double getScale() const;
   bool   getFlagAniso() const { return !isIsotropic(); }
   bool   getFlagRotation() const { return hasRotation(); }
   double getRange(int idim) const { return getRanges()[idim]; }

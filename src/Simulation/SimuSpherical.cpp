@@ -280,7 +280,7 @@ VectorDouble SimuSpherical::_spectrum_exponential(Model *model,
   VectorDouble freqs;
   int ifreq = 0;
   double total = 0.;
-  double fcs = 1. / model->getCova(0)->getTheoretical();
+  double fcs = 1. / model->getCova(0)->getScale();
   double fcs2 = fcs * fcs;
   double expfc = exp(-fcs * GV_PI);
 
