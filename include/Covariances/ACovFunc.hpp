@@ -47,12 +47,14 @@ public:
   virtual bool         hasParam()     const { return false; }
   virtual String       getCovName()   const = 0;
   virtual bool         hasCovDerivative() const { return false; }
+  virtual bool         hasCovOnSphere() const { return false; }
   ///////////////////////////////////////////////////
 
   void setParam(double param);
   void setField(double field);
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
+  double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const; // TODO en vectoriel
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
@@ -60,13 +62,13 @@ public:
   double               getParam()   const { return _param; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
-  double evalCovOnSphere(double val, double scale = 1., int degree = 50) const;
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
   virtual double _evaluateCov(double h) const = 0;
   virtual double _evaluateCovDerivate(int degree, double h) const;
+  virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
 private:
   ECov        _type;    /*! Covariance function type */

@@ -37,7 +37,8 @@ public:
                       const SpacePoint& p1,
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
-  virtual bool isGradientCompatible() const;
+  /////////////////////////////////////////////////////////////////////////////////
+
   virtual MatrixSquareGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;
   virtual VectorDouble eval(int ivar,
                             int jvar,

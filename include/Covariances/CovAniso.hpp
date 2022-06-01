@@ -185,6 +185,7 @@ public:
   const ACovFunc* getCova() const { return _cova; }
   int    getGradParamNumber() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
+  bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
 
   static double scale2range(const ECov& type, double scale, double param = 1.);
   static double range2scale(const ECov& type, double range, double param = 1.);

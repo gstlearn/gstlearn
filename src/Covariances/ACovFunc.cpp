@@ -16,6 +16,8 @@
 #include "Basic/AException.hpp"
 #include "Covariances/ACovOnSphere.hpp"
 
+#include <math.h>
+
 ACovFunc::ACovFunc(const ECov& type, const CovContext& ctxt)
 : AStringable(),
   _type(type),
@@ -74,6 +76,33 @@ double ACovFunc::evalCov(double h) const
 double ACovFunc::evalCovDerivative(int degree, double h) const
 {
   return _evaluateCovDerivate(degree, h);
+}
+
+double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
+{
+  double s = 0.;
+  if (alpha == 0.)
+  {
+    for (int i = 0; i < degree; i++)
+    {
+      s += _evaluateCovOnSphere(scale, i-1);
+    }
+  }
+  else
+  {
+    double u0 = 1.;
+    double u2 = 0.;
+    double calpha = cos(alpha);
+    double u1 = calpha;
+    for (int i = 1; i < (degree + 2); i++)
+    {
+      u2 = 1 / (i + 1) * ((2 * i + 1) * calpha * u1 - i * u0);
+      s += u0 * _evaluateCovOnSphere(scale, i-1);
+      u0 = u1;
+      u1 = u2;
+    }
+  }
+  return s;
 }
 
 VectorDouble ACovFunc::evalCovVec(const VectorDouble& vech) const
@@ -135,9 +164,9 @@ double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
   return 0.;
 }
 
-double ACovFunc::evalCovOnSphere(double val, double scale, int degree) const
+double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
 {
-  const ACovOnSphere* csphere = dynamic_cast<const ACovOnSphere*>(this);
-  if (csphere == nullptr) return TEST;
-  return csphere->evalCovOnSphere(val,scale, degree);
+  my_throw("Undefined covariance on sphere");
+  return 0.;
 }
+
