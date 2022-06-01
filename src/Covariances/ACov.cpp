@@ -37,12 +37,6 @@ ACov::~ACov()
 {
 }
 
-bool ACov::isGradientCompatible() const
-{
-  messerr("This covariance is not compatible with Gradient calculations");
-  return false;
-}
-
 MatrixSquareGeneral ACov::eval0(const CovCalcMode& mode) const
 {
   int nvar = getNVariables();

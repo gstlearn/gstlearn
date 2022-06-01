@@ -12,11 +12,10 @@
 
 #include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
-#include "Covariances/ACovOnSphere.hpp"
 
 class CovContext;
 
-class GSTLEARN_EXPORT CovBesselK : public ACovFunc, public ACovOnSphere
+class GSTLEARN_EXPORT CovBesselK : public ACovFunc
 {
 public:
   CovBesselK(const CovContext& ctx);
@@ -27,13 +26,13 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }
 
-  /// Interface for ACovOnSphere
-  double evalSpectrumOnSphere(int degree, double scale) const;
 
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
+  bool   hasCovOnSphere() const override { return true; }
 
 protected:
   double _evaluateCov(double h) const override;
+  double _evaluateCovOnSphere(double scale, int degree = 50) const override;
 };
