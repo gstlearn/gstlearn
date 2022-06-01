@@ -138,7 +138,7 @@ def update_xylim(ax, xlim=None, ylim=None):
 def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black', 
               linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
               flagLabelDir=False, flagLegend=False, flagLabelSill=False,
-              title=None, xlabel=None, ylabel=None,
+              title=None, xlabel=None, ylabel=None, label=None,
               ax=None, figsize=None, end_plot = False, **plot_args):
     """Plot a single and unidirectional experimental variogram (one direction and fixed variable(s)).
     
@@ -152,8 +152,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     hmax : Maximum distance to be represented.
     gmax : Maximum variogram value to be represented.
     show_pairs : Flag for annotating the number of pairs for each lag on the plot (the default is False).
+    label : Label to be drawn if flagLegend is switched ON
     flagLabelDir : Flag to add the direction vector of the variogram in the label of the line. 
-                   (default is False) The default label is "vario".
     flagLegend : Flag to display the axes legend (The default is False).
     flagLabelSill : Flag to define the label for the sill (The default is True).
     title : Optional title for the axes.
@@ -173,7 +173,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
 
-    label = "vario"
+    if label is None:
+        label = "vario"
     if flagLabelDir:
         label = "vario dir={}".format(np.round(vario.getCodir(idir),3))
     
@@ -217,7 +218,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
 
 def varioDir(vario, ivar=0, jvar=0,
              color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-             cmap=None, flagLegend=False, title=None, xlabel=None, ylabel=None, ax=None, figsize=None, 
+             cmap=None, flagLegend=False, title=None, xlabel=None, ylabel=None, label=None,
+             ax=None, figsize=None, 
              end_plot=False, **plot_args):
     """Plot a single directional experimental variogram (all avalaible directions, for fixed variable(s)).
     
@@ -270,7 +272,7 @@ def varioDir(vario, ivar=0, jvar=0,
     for idirUtil in ndirUtil:
         flagLabelSill = idirUtil == 0
         varioElem(vario, ivar=ivar, jvar=jvar, idir=idirUtil, color=cols(idirUtil), color0=color0, linestyle0=linestyle0, 
-                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, flagLabelSill=flagLabelSill,
+                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
     drawDecor(ax, xlabel, ylabel, title)
