@@ -20,6 +20,8 @@
 #include <map>
 
 class APolynomial;
+class AMesh;
+class Model;
 
 class GSTLEARN_EXPORT PrecisionOp {
 
@@ -27,6 +29,11 @@ public:
   PrecisionOp(ShiftOpCs* shiftop = nullptr,
               const CovAniso* cova = nullptr,
               const EPowerPT& power = EPowerPT::UNDEFINED,
+              bool verbose = false);
+  PrecisionOp(AMesh* mesh,
+              Model* model,
+              int igrf = 0,
+              const EPowerPT& power = EPowerPT::ONE,
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -40,6 +47,7 @@ public:
   void   eval(const VectorDouble& in, VectorDouble& out);
 
   VectorDouble evalCov(int imesh);
+  VectorVectorDouble simulate(int nbsimus = 1);
 
   virtual void gradYQX(const VectorDouble& /*X*/,
                        const VectorDouble& /*Y*/,
@@ -102,6 +110,7 @@ private:
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;
+  bool _destroyShiftOp;
 
 protected :
   mutable VectorDouble _work;

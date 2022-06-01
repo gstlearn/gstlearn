@@ -16,8 +16,10 @@
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/Model.hpp"
+#include "Mesh/AMesh.hpp"
 #include "csparse_d.h"
 #include "LinearOp/ShiftOpCs.hpp"
+#include "Model/Model.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 
 PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
@@ -27,6 +29,17 @@ PrecisionOpCs::PrecisionOpCs(ShiftOpCs* shiftop,
     : PrecisionOp(shiftop, cova, power, verbose)
 {
 }
+
+
+PrecisionOpCs::PrecisionOpCs(AMesh* mesh,
+                             Model* model,
+                             int igrf,
+                             const EPowerPT& power,
+                             bool verbose)
+    : PrecisionOp(mesh, model,igrf, power, verbose)
+{
+}
+
 
 PrecisionOpCs::~PrecisionOpCs()
 {

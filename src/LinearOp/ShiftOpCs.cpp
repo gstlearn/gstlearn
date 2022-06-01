@@ -89,6 +89,7 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _icov(0),
       _ndim(0)
 {
+  _variety = 0;
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
 }
 

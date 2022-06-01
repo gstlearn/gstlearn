@@ -15,8 +15,10 @@
 #include "gstlearn_export.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 
+class AMesh;
 class ShiftOpCs;
 class CovAniso;
+class Model;
 
 /** This class is just a specialization of PrecisionOp when the shift
 * Operator is built with sparse (cs) matrices.
@@ -29,6 +31,14 @@ public:
                 const CovAniso* cova = nullptr,
                 const EPowerPT& power = EPowerPT::UNDEFINED,
                 bool verbose = false);
+
+  PrecisionOpCs(AMesh* mesh,
+                Model* model,
+                int igrf,
+                const EPowerPT& power,
+                bool verbose);
+
+
   void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
   void evalDerivOptim(VectorDouble& out,int iapex,int igparam) override;
   //void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
