@@ -30,8 +30,8 @@ class GSTLEARN_EXPORT SimuPartition: public ASimulation
 {
 public:
   SimuPartition(int nbsimu = 0, int seed = 4324324);
-  SimuPartition(const SimuPartition &r);
-  SimuPartition& operator=(const SimuPartition &r);
+  SimuPartition(const SimuPartition &r) = delete;
+  SimuPartition& operator=(const SimuPartition &r) = delete;
   virtual ~SimuPartition();
 
   int voronoi(DbGrid *dbgrid,
