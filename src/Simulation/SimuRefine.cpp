@@ -85,7 +85,7 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 
     /* Establish the Kriging system */
 
-    if (_kriging_define(param,model))
+    if (_kriging_define())
     {
       if (db1 != dbin) delete db1;
       delete db2;
@@ -198,10 +198,8 @@ void SimuRefine::_dim_2_to_1(DbGrid *db)
  **
  ** \return  Error return code
  **
- ** \param[in]  model  Model structure
- **
  *****************************************************************************/
-int SimuRefine::_kriging_define(const SimuRefineParam& param, Model* model)
+int SimuRefine::_kriging_define()
 
 {
   /* Define the kriging system for the cell centers */
@@ -212,8 +210,8 @@ int SimuRefine::_kriging_define(const SimuRefineParam& param, Model* model)
   _neigh_simfine(0, 3, -1,  1,  0);
   _neigh_simfine(0, 4,  0,  0, -1);
 
-  if (_kriging_solve(param, model, 0, 0, 4)) return (1);
-  if (_kriging_solve(param, model, 0, 1, 5)) return (1);
+  if (_kriging_solve(0, 0, 4)) return (1);
+  if (_kriging_solve(0, 1, 5)) return (1);
 
   /* Define the Kriging system for the mid-vertices */
 
@@ -223,8 +221,8 @@ int SimuRefine::_kriging_define(const SimuRefineParam& param, Model* model)
   _neigh_simfine(1, 3,  0,  1,  0);
   _neigh_simfine(1, 4,  0,  0, -1);
 
-  if (_kriging_solve(param, model, 1, 0, 4)) return (1);
-  if (_kriging_solve(param, model, 1, 1, 5)) return (1);
+  if (_kriging_solve(1, 0, 4)) return (1);
+  if (_kriging_solve(1, 1, 5)) return (1);
 
   return (0);
 }
@@ -362,21 +360,18 @@ void SimuRefine::_truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1
  **
  ** \return  Error return code
  **
- ** \param[in]  param  SimuRefineParam structure
- ** \param[in]  model  Model structure
- ** \param[in]  type   Type of kriging
- ** \param[in]  rank   Rank of the neighboring data
- ** \param[in]  nb     Number of equations
+ ** \param[in]  type    Type of kriging
+ ** \param[in]  rank    Rank of the neighboring data
+ ** \param[in]  nb      Number of equations
+ ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-int SimuRefine::_kriging_solve(const SimuRefineParam& param,
-                               Model* model,
-                               int type,
+int SimuRefine::_kriging_solve(int type,
                                int rank,
                                int nb,
                                bool verbose)
 {
-  int neq = (param.isFlagSK()) ? nb : nb + 1;
+  int neq = (_param.isFlagSK()) ? nb : nb + 1;
   VectorDouble d1(3);
   VectorDouble lhs(36);
   VectorDouble rhs(6);
@@ -392,7 +387,7 @@ int SimuRefine::_kriging_solve(const SimuRefineParam& param,
       d1[0] = _XN[type][i] - _XN[type][j];
       d1[1] = _YN[type][i] - _YN[type][j];
       d1[2] = _ZN[type][i] - _ZN[type][j];
-      model_calcul_cov(NULL, model, mode, 1, 1., d1, lhs.data());
+      model_calcul_cov(NULL, _model, mode, 1, 1., d1, lhs.data());
     }
 
   /* Establish the kriging R.H.S. */
@@ -402,12 +397,12 @@ int SimuRefine::_kriging_solve(const SimuRefineParam& param,
     d1[0] = _XN[type][i];
     d1[1] = _YN[type][i];
     d1[2] = _ZN[type][i];
-    model_calcul_cov(NULL, model, mode, 1, 1., d1, rhs.data());
+    model_calcul_cov(NULL, _model, mode, 1, 1., d1, rhs.data());
   }
 
   /* Add the Universality condition (optional) */
 
-  if (! param.isFlagSK())
+  if (! _param.isFlagSK())
   {
     for (int i = 0; i < nb; i++)
     {
@@ -434,7 +429,7 @@ int SimuRefine::_kriging_solve(const SimuRefineParam& param,
   for (int i = 0; i < 3; i++)
     d1[i] = 0.;
   double var[2];
-  model_calcul_cov(NULL,model, mode, 1, 1., d1, &var[0]);
+  model_calcul_cov(NULL,_model, mode, 1, 1., d1, &var[0]);
   matrix_product(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
   double variance = var[0] - var[1];
   _STDV[type][rank] = (variance > 0) ? sqrt(variance) : 0.;

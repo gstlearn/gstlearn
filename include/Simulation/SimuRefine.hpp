@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Model/Model.hpp"
 #include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 
@@ -32,7 +33,7 @@ public:
 private:
   void _dim_1_to_2(DbGrid *db);
   void _dim_2_to_1(DbGrid *db);
-  int _kriging_define(const SimuRefineParam& param, Model* model);
+  int _kriging_define();
   void _neigh_simfine(int type, int rank, int idx, int idy, int idz);
   void _merge_data(DbGrid *db1, int iatt1, DbGrid *db2, int iatt2);
   double _read(DbGrid *db,
@@ -45,9 +46,7 @@ private:
                int idz);
   void _write(DbGrid *db, int iatt, int ix0, int iy0, int iz0, double value);
   void _truncate_result(DbGrid *db2, int iatt2, DbGrid *db1, int iatt1);
-  int _kriging_solve(const SimuRefineParam& param,
-                     Model* model,
-                     int type,
+  int _kriging_solve(int type,
                      int rank,
                      int nb,
                      bool verbose = false);
