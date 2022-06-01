@@ -272,6 +272,22 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
   return 0;
 }
 
+VectorDouble PrecisionOp::evalCov(int imesh)
+{
+
+  int n = getSize();
+  VectorDouble ei(n);
+  VectorDouble result(n);
+  ut_vector_fill(ei,0.,n);
+  ei[imesh] = 1.;
+  _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);
+  _evalPoly(EPowerPT::MINUSONE,result,ei);
+  _shiftOp->prodLambda(ei, result, EPowerPT::MINUSONE);
+
+  return result;
+
+}
+
 int PrecisionOp::_preparePrecisionPoly()
 {
   if (_polynomials.count(EPowerPT::ONE)) return 0;
