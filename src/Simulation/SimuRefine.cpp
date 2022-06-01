@@ -79,7 +79,13 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     /* Create the output grid */
 
     _dim_1_to_2(db1);
-    db2 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, _nx2, _x02, _dx2,
+    VectorInt nx2 = _nx2;
+    VectorDouble x02 = _x02;
+    VectorDouble dx2 = _dx2;
+    nx2.resize(_ndim);
+    x02.resize(_ndim);
+    dx2.resize(_ndim);
+    db2 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, nx2, x02, dx2,
                          dbin->getGrid().getRotAngles());
     int iatt2 = db2->addColumnsByConstant(1, TEST);
 
@@ -104,7 +110,13 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 
     if (db1 != dbin) db1 = db_delete(db1);
     _dim_2_to_1(db2);
-    db1 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, _nx1, _x01, _dx1,
+    VectorInt nx1 = _nx1;
+    VectorDouble x01 = _x01;
+    VectorDouble dx1 = _dx1;
+    nx1.resize(_ndim);
+    x01.resize(_ndim);
+    dx1.resize(_ndim);
+    db1 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, nx1, x01, dx1,
                          dbin->getGrid().getRotAngles());
     iatt1 = db1->addColumnsByConstant(1, TEST);
 
@@ -145,15 +157,15 @@ void SimuRefine::_dim_1_to_2(DbGrid *db)
 
   /* Output file */
 
-  _nx2[0] = _nx1[0] * 2 + 1;
-  _nx2[1] = _nx1[1] * 2 + 1;
-  _nx2[2] = _nx1[2];
-  _dx2[0] = _dx1[0] / 2.;
-  _dx2[1] = _dx1[1] / 2.;
-  _dx2[2] = _dx1[2];
-  _x02[0] = _x01[0] - _dx2[0];
-  _x02[1] = _x01[1] - _dx2[1];
-  _x02[2] = _x01[2];
+  _nx2[0] = (_ndim >= 1) ? _nx1[0] * 2 + 1 : 1;
+  _nx2[1] = (_ndim >= 2) ? _nx1[1] * 2 + 1 : 1;
+  _nx2[2] = (_ndim >= 3) ? _nx1[2]         : 1;
+  _dx2[0] = (_ndim >= 1) ? _dx1[0] / 2.    : 1.;
+  _dx2[1] = (_ndim >= 2) ? _dx1[1] / 2.    : 1.;
+  _dx2[2] = (_ndim >= 3) ? _dx1[2]         : 1.;
+  _x02[0] = (_ndim >= 1) ? _x01[0] - _dx2[0] : 0.;
+  _x02[1] = (_ndim >= 2) ? _x01[1] - _dx2[1] : 0.;
+  _x02[2] = (_ndim >= 3) ? _x01[2]           : 0.;
 }
 
 /****************************************************************************/
@@ -181,15 +193,15 @@ void SimuRefine::_dim_2_to_1(DbGrid *db)
 
   /* Output file */
 
-  _nx1[0] = _nx2[0] - 2;
-  _nx1[1] = _nx2[1] - 2;
-  _nx1[2] = _nx2[2];
-  _dx1[0] = _dx2[0];
-  _dx1[1] = _dx2[1];
-  _dx1[2] = _dx2[2];
-  _x01[0] = _x02[0] + _dx2[0];
-  _x01[1] = _x02[1] + _dx2[1];
-  _x01[2] = _x02[2];
+  _nx1[0] = (_ndim >= 1) ? _nx2[0] - 2 : 1;
+  _nx1[1] = (_ndim >= 2) ? _nx2[1] - 2 : 1;
+  _nx1[2] = (_ndim >= 3) ? _nx2[2]     : 1;
+  _dx1[0] = (_ndim >= 1) ? _dx2[0]     : 1.;
+  _dx1[1] = (_ndim >= 2) ? _dx2[1]     : 1.;
+  _dx1[2] = (_ndim >= 3) ? _dx2[2]     : 1.;
+  _x01[0] = (_ndim >= 1) ? _x02[0] + _dx2[0] : 0.;
+  _x01[1] = (_ndim >= 2) ? _x02[1] + _dx2[1] : 0.;
+  _x01[2] = (_ndim >= 3) ? _x02[2]           : 0.;
 }
 
 /****************************************************************************/
@@ -240,12 +252,12 @@ int SimuRefine::_kriging_define()
  *****************************************************************************/
 void SimuRefine::_neigh_simfine(int type, int rank, int idx, int idy, int idz)
 {
-  _IX[type][rank] = idx;
-  _IY[type][rank] = idy;
-  _IZ[type][rank] = idz;
-  _XN[type][rank] = idx * _dx2[0];
-  _YN[type][rank] = idy * _dx2[1];
-  _ZN[type][rank] = idz * _dx2[2];
+  _IXYZ[0][type][rank] = idx;
+  _IXYZ[1][type][rank] = idy;
+  _IXYZ[2][type][rank] = idz;
+  _XYZN[0][type][rank] = idx * _dx2[0];
+  _XYZN[1][type][rank] = idy * _dx2[1];
+  _XYZN[2][type][rank] = idz * _dx2[2];
 }
 
 /****************************************************************************/
@@ -297,16 +309,25 @@ double SimuRefine::_read(DbGrid *db,
                          int idy,
                          int idz)
 {
-  VectorInt ind(3);
-  int ix = ix0 + idx;
-  if (ix < 0 || ix >= db->getNX(0)) ix = ix0 - idx;
-  int iy = iy0 + idy;
-  if (iy < 0 || iy >= db->getNX(1)) iy = iy0 - idy;
-  int iz = iz0 + idz;
-  if (iz < 0 || iz >= db->getNX(2)) iz = iz0 - idz;
-  ind[0] = ix;
-  ind[1] = iy;
-  ind[2] = iz;
+  VectorInt ind(_ndim,0);
+  if (_ndim >= 1)
+  {
+    int ix = ix0 + idx;
+    if (ix < 0 || ix >= db->getNX(0)) ix = ix0 - idx;
+    ind[0] = ix;
+  }
+  if (_ndim >= 2)
+  {
+    int iy = iy0 + idy;
+    if (iy < 0 || iy >= db->getNX(1)) iy = iy0 - idy;
+    ind[1] = iy;
+  }
+  if (_ndim >= 3)
+  {
+    int iz = iz0 + idz;
+    if (iz < 0 || iz >= db->getNX(2)) iz = iz0 - idz;
+    ind[2] = iz;
+  }
   int iad = db->indiceToRank(ind);
   return db->getArray(iad, iatt);
 }
@@ -384,9 +405,9 @@ int SimuRefine::_kriging_solve(int type,
   for (int i = 0; i < nb; i++)
     for (int j = 0; j < nb; j++)
     {
-      if (_ndim >= 1) d1[0] = _XN[type][i] - _XN[type][j];
-      if (_ndim >= 2) d1[1] = _YN[type][i] - _YN[type][j];
-      if (_ndim >= 2) d1[2] = _ZN[type][i] - _ZN[type][j];
+      if (_ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
+      if (_ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
+      if (_ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
       model_calcul_cov(NULL, _model, mode, 1, 1., d1, &LHS(i,j));
     }
 
@@ -394,9 +415,9 @@ int SimuRefine::_kriging_solve(int type,
 
   for (int i = 0; i < nb; i++)
   {
-    if (_ndim >= 1) d1[0] = _XN[type][i];
-    if (_ndim >= 2) d1[1] = _YN[type][i];
-    if (_ndim >= 3) d1[2] = _ZN[type][i];
+    if (_ndim >= 1) d1[0] = _XYZN[0][type][i];
+    if (_ndim >= 2) d1[1] = _XYZN[1][type][i];
+    if (_ndim >= 3) d1[2] = _XYZN[2][type][i];
     model_calcul_cov(NULL, _model, mode, 1, 1., d1, &RHS(i));
   }
 
@@ -440,7 +461,8 @@ int SimuRefine::_kriging_solve(int type,
     message("\nDisplay of the Kriging weights\n");
     for (int i = 0; i < nb; i++)
       message("X=%10.3lf Y=%10.3lf Z=%10.3lf W=%10.6lf\n",
-              _XN[type][i], _YN[type][i], _ZN[type][i], _WGT[type][rank][i]);
+              _XYZN[0][type][i], _XYZN[1][type][i], _XYZN[2][type][i],
+              _WGT[type][rank][i]);
     message("Variance of error           = %10.6lf\n", variance);
     message("Standard deviation of error = %10.6lf\n", _STDV[type][rank]);
   }
@@ -500,7 +522,7 @@ void SimuRefine::_simulate_target(DbGrid *db,
 
     for (int i = 0; i < 4; i++)
       value += (_WGT[type][0][i]
-          * _read(db, iatt, ix0, iy0, iz0, _IX[type][i], _IY[type][i], _IZ[type][i]));
+          * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][0] * law_gaussian();
   }
   else
@@ -510,7 +532,7 @@ void SimuRefine::_simulate_target(DbGrid *db,
 
     for (int i = 0; i < 5; i++)
       value += (_WGT[type][1][i]
-          * _read(db, iatt, ix0, iy0, iz0, _IX[type][i], _IY[type][i], _IZ[type][i]));
+          * _read(db, iatt, ix0, iy0, iz0, _IXYZ[0][type][i], _IXYZ[1][type][i], _IXYZ[2][type][i]));
     value += _STDV[type][1] * law_gaussian();
   }
 

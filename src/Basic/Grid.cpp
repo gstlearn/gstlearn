@@ -440,10 +440,12 @@ int Grid::indiceToRank(const VectorInt& indice) const
 {
   int ndim = _nDim;
   int ival = indice[ndim-1];
-  if (ival < 0 || ival >= _nx[ndim-1]) return(-1);
+  if (ival < 0 || ival >= _nx[ndim-1])
+    return(-1);
   for (int idim=ndim-2; idim>=0; idim--)
   {
-    if (indice[idim] < 0 || indice[idim] >= _nx[idim]) return(-1);
+    if (indice[idim] < 0 || indice[idim] >= _nx[idim])
+      return(-1);
     ival = ival * _nx[idim] + indice[idim];
   }
   return ival;

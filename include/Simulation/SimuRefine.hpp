@@ -68,12 +68,8 @@ private:
   VectorInt _nx2;
   VectorDouble _dx2;
   VectorDouble _x02;
-  int _IX[2][5];
-  int _IY[2][5];
-  int _IZ[2][5];
-  double _XN[2][5];
-  double _YN[2][5];
-  double _ZN[2][5];
+  int _IXYZ[3][2][5];
+  double _XYZN[3][2][5];
   double _WGT[2][2][5];
   double _STDV[2][2];
 };

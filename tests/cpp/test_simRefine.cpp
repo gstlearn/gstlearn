@@ -34,7 +34,7 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("SimFFT-");
+  ASerializable::setPrefixName("SimRefine-");
 
   // Global parameters
   int ndim = 2;
