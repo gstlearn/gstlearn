@@ -45,7 +45,6 @@ set(SRC
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
-  Covariances/ACovOnSphere.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland2.cpp

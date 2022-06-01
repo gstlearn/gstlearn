@@ -14,7 +14,6 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Covariances/ACovOnSphere.hpp"
 
 #include <math.h>
 
