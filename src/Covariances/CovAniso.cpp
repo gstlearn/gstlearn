@@ -380,6 +380,13 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
+double CovAniso::evalCovOnSphere(double alpha, int degree) const
+{
+  if (! _cova->hasCovOnSphere()) return TEST;
+  double scale = getScale();
+  return _cova->evalCovOnSphere(alpha, scale, degree);
+}
+
 String CovAniso::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
@@ -524,7 +531,7 @@ double CovAniso::getRange() const
     return ut_vector_max(getRanges());
 }
 
-double CovAniso::getTheoretical() const
+double CovAniso::getScale() const
 {
   if (!hasRange()) return 0.;
   if (isIsotropic())

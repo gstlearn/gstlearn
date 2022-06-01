@@ -24,8 +24,8 @@ class GSTLEARN_EXPORT SimuSubstitution: public ASimulation
 {
 public:
   SimuSubstitution(int nbsimu = 0, int seed = 4324324);
-  SimuSubstitution(const SimuSubstitution &r);
-  SimuSubstitution& operator=(const SimuSubstitution &r);
+  SimuSubstitution(const SimuSubstitution &r) = delete;
+  SimuSubstitution& operator=(const SimuSubstitution &r) = delete;
   virtual ~SimuSubstitution();
 
   int simulate(DbGrid *dbgrid,

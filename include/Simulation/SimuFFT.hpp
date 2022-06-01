@@ -25,8 +25,8 @@ class GSTLEARN_EXPORT SimuFFT: public ASimulation
 {
 public:
   SimuFFT(int nbsimu = 0, int seed = 4324324);
-  SimuFFT(const SimuFFT &r);
-  SimuFFT& operator=(const SimuFFT &r);
+  SimuFFT(const SimuFFT &r) = delete;
+  SimuFFT& operator=(const SimuFFT &r) = delete;
   virtual ~SimuFFT();
 
   int simulate(DbGrid *db,

@@ -54,8 +54,7 @@ double CovBesselK::_evaluateCov(double h) const
   int nb = (int) floor(third);
   double alpha = third - nb;
   if (third <= 0 || nb >= MAXTAB) return (0.);
-  double coeff = (h > 0) ? pow(h / 2., third) :
-                    1.;
+  double coeff = (h > 0) ? pow(h / 2., third) : 1.;
   cov = 1.;
   if (h > 0)
   {

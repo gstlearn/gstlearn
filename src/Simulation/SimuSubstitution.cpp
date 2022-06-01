@@ -25,20 +25,6 @@ SimuSubstitution::SimuSubstitution(int nbsimu, int seed)
 {
 }
 
-SimuSubstitution::SimuSubstitution(const SimuSubstitution &r)
-    : ASimulation(r)
-{
-}
-
-SimuSubstitution& SimuSubstitution::operator=(const SimuSubstitution &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator=(r);
-  }
-  return *this;
-}
-
 SimuSubstitution::~SimuSubstitution()
 {
 }

@@ -30,20 +30,6 @@ SimuSpherical::SimuSpherical(int nbsimu, int seed)
 {
 }
 
-SimuSpherical::SimuSpherical(const SimuSpherical &r)
-    : ASimulation(r)
-{
-}
-
-SimuSpherical& SimuSpherical::operator=(const SimuSpherical &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator=(r);
-  }
-  return *this;
-}
-
 SimuSpherical::~SimuSpherical()
 {
 }
@@ -280,7 +266,7 @@ VectorDouble SimuSpherical::_spectrum_exponential(Model *model,
   VectorDouble freqs;
   int ifreq = 0;
   double total = 0.;
-  double fcs = 1. / model->getCova(0)->getTheoretical();
+  double fcs = 1. / model->getCova(0)->getScale();
   double fcs2 = fcs * fcs;
   double expfc = exp(-fcs * GV_PI);
 
