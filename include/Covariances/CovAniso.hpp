@@ -86,6 +86,9 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
+
+  virtual double evalSpectrum(double freq) const override;
+
   ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
@@ -187,12 +190,15 @@ public:
   int    getGradParamNumber() const;
   bool   hasCovDerivative() const { return _cova->hasCovDerivative(); }
   bool   hasCovOnSphere() const { return _cova->hasCovOnSphere(); }
+  bool   hasMarkovCoeffs() const { return _cova->hasMarkovCoeffs(); }
+  bool   hasSpectrum() const { return _cova->hasSpectrum(); }
 
   static double scale2range(const ECov& type, double scale, double param = 1.);
   static double range2scale(const ECov& type, double range, double param = 1.);
 
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
-
+  VectorDouble getMarkovCoeffs() const;
+  void setMarkovCoeffs(VectorDouble coeffs);
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
