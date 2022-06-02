@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl
+from numpy import pi
 
 
 def getCscale():
@@ -120,3 +121,60 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False):
                     coloraxis='coloraxis')
     return slice
    
+def Equator(ndisc = 360, color='black', width=3, dilate=1.05):
+    long = np.arange(0,ndisc+1) * 360. / ndisc
+    lat  = np.zeros(ndisc+1)
+    line = LineOnSphere(long, lat, color=color, width=width, dilate=dilate)
+    return line
+
+def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.05):
+    number = (int) (360 / angle)  
+    xs = list()
+    ys = list()
+    zs = list()
+    
+    for i in range(number):
+        lat = (np.arange(0,ndisc+1) - ndisc / 2.) * 180. / ndisc
+        long = np.zeros(ndisc+1)
+        long.fill(i * angle)
+        tab = np.array(gl.util_convert_longlat(long, lat, dilate))
+        xp = tab[0,:]
+        yp = tab[1,:]
+        zp = tab[2,:]
+        xs.extend(list(xp) + [None])
+        ys.extend(list(yp) + [None])
+        zs.extend(list(zp) + [None])
+        
+    xs = np.array(xs)
+    ys = np.array(ys)
+    zs = np.array(zs)
+    line = Line(x=xs, y=ys, z=zs, color=color, width=width)
+    
+    return line
+
+def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.05):
+    number = (int) (180 / angle)  
+    xs = list()
+    ys = list()
+    zs = list()
+    
+    for i in range(number+1):
+        long = np.arange(0,ndisc+1) * 360. / ndisc
+        lat  = np.zeros(ndisc+1)
+        lat.fill((i - number/2) * angle)
+        tab = np.array(gl.util_convert_longlat(long, lat, dilate))
+        xp = tab[0,:]
+        yp = tab[1,:]
+        zp = tab[2,:]
+        xs.extend(list(xp) + [None])
+        ys.extend(list(yp) + [None])
+        zs.extend(list(zp) + [None])
+        
+    xs = np.array(xs)
+    ys = np.array(ys)
+    zs = np.array(zs)
+    line = Line(x=xs, y=ys, z=zs, color=color, width=width)
+    
+    return line
+
+    

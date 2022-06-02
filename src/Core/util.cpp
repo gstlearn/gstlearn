@@ -4953,14 +4953,14 @@ VectorInt util_string_search(const VectorString &list_string,
  * Returns the Vector of Sample coordinates in 3-D from Longitude-Latitude
  * @param longitude Array of longitude values
  * @param latitude  Array of latitude values
- * @param radius    Radius (if note defined, taken from variety definition)
  * @param dilate    Dilation applied to radius
+ * @param radius    Radius (if note defined, taken from variety definition)
  * @return
  */
 VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
-                                        double radius,
-                                        double dilate)
+                                        double dilate,
+                                        double radius)
 {
   double locR = radius;
   if (FFFF(locR)) variety_get_characteristics(&locR);

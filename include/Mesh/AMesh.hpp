@@ -83,6 +83,8 @@ public:
   VectorInt getMeshByApexPair(int apex1, int apex2) const;
   /*! Returns the vector of coordinates for a mesh */
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
+  /*! Returns the coordinates of an Apex */
+  VectorDouble getApexCoordinates(int iapex) const;
 
   virtual int getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
@@ -91,7 +93,7 @@ public:
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
   VectorVectorDouble getEmbeddedApexCoordinates() const;
 
-  VectorDouble getDistance(int imesh, const VectorInt& jmesh = VectorInt()); // TODO
+  VectorDouble getDistance(int imesh0, const VectorInt& jmeshs = VectorInt());
 
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
