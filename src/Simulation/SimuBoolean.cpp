@@ -26,10 +26,29 @@ SimuBoolean::SimuBoolean(int nbsimu, int seed)
 {
 }
 
+SimuBoolean::SimuBoolean(const SimuBoolean &r)
+    : ASimulation(r),
+      AStringable(r),
+     _objlist(r._objlist)
+{
+}
+
+SimuBoolean& SimuBoolean::operator=(const SimuBoolean &r)
+{
+  if (this != &r)
+  {
+    ASimulation::operator =(r);
+    AStringable::operator =(r);
+    _objlist = r._objlist;
+  }
+  return *this;
+}
+
 SimuBoolean::~SimuBoolean()
 {
   _clearAllObjects();
 }
+
 
 void SimuBoolean::_clearAllObjects()
 {

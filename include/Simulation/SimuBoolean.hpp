@@ -27,8 +27,8 @@ class GSTLEARN_EXPORT SimuBoolean: public ASimulation, public AStringable
 {
 public:
   SimuBoolean(int nbsimu = 0, int seed = 4324324);
-  SimuBoolean(const SimuBoolean &r) = delete;
-  SimuBoolean& operator=(const SimuBoolean &r) = delete;
+  SimuBoolean(const SimuBoolean &r);
+  SimuBoolean& operator=(const SimuBoolean &r);
   virtual ~SimuBoolean();
 
   /// Interface to AStringable

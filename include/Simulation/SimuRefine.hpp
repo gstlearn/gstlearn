@@ -24,8 +24,8 @@ class GSTLEARN_EXPORT SimuRefine: public ASimulation
 {
 public:
   SimuRefine(int nbsimu = 0, int seed = 4324324);
-  SimuRefine(const SimuRefine &r) = delete;
-  SimuRefine& operator=(const SimuRefine &r) = delete;
+  SimuRefine(const SimuRefine &r);
+  SimuRefine& operator=(const SimuRefine &r);
   virtual ~SimuRefine();
 
   DbGrid* simulate(DbGrid *dbin, Model *model, const SimuRefineParam& param);

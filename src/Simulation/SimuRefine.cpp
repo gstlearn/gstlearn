@@ -38,6 +38,40 @@ SimuRefine::SimuRefine(int nbsimu, int seed)
 {
 }
 
+// All terms are not copie on purpose (they correspond to internal arrays)
+SimuRefine::SimuRefine(const SimuRefine &r)
+    : ASimulation(r),
+      _param(r._param),
+      _model(r._model),
+      _ndim(r._ndim),
+      _nx1(r._nx1),
+      _dx1(r._dx1),
+      _x01(r._x01),
+      _nx2(r._nx2),
+      _dx2(r._dx2),
+      _x02(r._x02)
+{
+}
+
+SimuRefine& SimuRefine::operator=(const SimuRefine &r)
+{
+  if (this != &r)
+  {
+    ASimulation::operator =(r);
+    _param = r._param;
+    _model = r._model;
+    _ndim = r._ndim;
+    _nx1 = r._nx1;
+    _dx1 = r._dx1;
+    _x01 = r._x01;
+    _nx2 = r._nx2;
+    _dx2 = r._dx2;
+    _x02 = r._x02;
+
+  }
+  return *this;
+}
+
 SimuRefine::~SimuRefine()
 {
 }

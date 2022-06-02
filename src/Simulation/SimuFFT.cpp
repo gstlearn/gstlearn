@@ -39,6 +39,42 @@ SimuFFT::SimuFFT(int nbsimu, int seed)
 {
 }
 
+SimuFFT::SimuFFT(const SimuFFT &r)
+    : ASimulation(r),
+      _ndim(r._ndim),
+      _nxyz(r._nxyz),
+      _nx(r._nx),
+      _shift(r._shift),
+      _dims(r._dims),
+      _dim2(r._dim2),
+      _sizes_alloc(r._sizes_alloc),
+      _cmat(r._cmat),
+      _rnd(r._rnd),
+      _u(r._u),
+      _v(r._v)
+{
+}
+
+SimuFFT& SimuFFT::operator=(const SimuFFT &r)
+{
+  if (this != &r)
+  {
+    ASimulation::operator =(r);
+    _ndim = r._ndim;
+    _nxyz = r._nxyz;
+    _nx = r._nx;
+    _shift = r._shift;
+    _dims = r._dims;
+    _dim2 = r._dim2;
+    _sizes_alloc = r._sizes_alloc;
+    _cmat = r._cmat;
+    _rnd = r._rnd;
+    _u = r._u;
+    _v = r._v;
+  }
+  return *this;
+}
+
 SimuFFT::~SimuFFT()
 {
 }
