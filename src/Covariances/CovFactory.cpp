@@ -47,6 +47,7 @@
 #include "Covariances/CovTriangle.hpp"
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
+#include "Covariances/CovMarkov.hpp"
 
 bool _isValid(ACovFunc* cova, const CovContext& ctxt)
 {
@@ -86,6 +87,7 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_WENDLAND1:   return new CovWendland1(ctxt);
     case ECov::E_WENDLAND2:   return new CovWendland2(ctxt);
     case ECov::E_P8:          return new CovP8(ctxt);
+    case ECov::E_MARKOV:      return new CovMarkov(ctxt);
     default: break;
   }
   my_throw ("Covariance function not yet implemented!");
@@ -124,6 +126,7 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_WENDLAND1:   return new CovWendland1(  dynamic_cast<const CovWendland1&>  (cov));
     case ECov::E_WENDLAND2:   return new CovWendland2(  dynamic_cast<const CovWendland2&>  (cov));
     case ECov::E_P8:          return new CovP8(         dynamic_cast<const CovP8&>         (cov));
+    case ECov::E_MARKOV:      return new CovMarkov(     dynamic_cast<const CovMarkov&>     (cov));
     default: break;
   }
   my_throw ("Covariance function not yet implemented!");
