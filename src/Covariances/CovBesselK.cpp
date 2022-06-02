@@ -18,12 +18,18 @@
 
 CovBesselK::CovBesselK(const CovContext& ctxt)
 : ACovFunc(ECov::BESSEL_K, ctxt)
+  ,_markovCoeffs(VectorDouble())
+  ,_coeffsComputed(false)
 {
   setParam(1);
+
+  //TODO compute blin (rapatrier de PrecisionOp.cpp
 }
 
 CovBesselK::CovBesselK(const CovBesselK &r)
 : ACovFunc(r)
+  ,_markovCoeffs(r._markovCoeffs)
+  ,_coeffsComputed(r._coeffsComputed)
 {
 }
 
@@ -75,10 +81,22 @@ double CovBesselK::_evaluateCovOnSphere(double scale, int degree) const
   return (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
 }
 
-double CovBesselK::_evaluateSpectrum(double freq, double scale, int ndim) const
+double CovBesselK::evaluateSpectrum(double freq, double scale, int ndim) const
 {
   double kappa2 = 1. / ( scale * scale );
   double alpha = (double) ndim / 2. + getParam();
-  double fourier = 1. / pow(kappa2 + freq, alpha);
-  return fourier;
+  return 1. / pow(kappa2 + freq, alpha);
+}
+
+void CovBesselK::_computeCoeffs() const
+{
+
+}
+
+VectorDouble CovBesselK::getMarkovCoeffs()const
+{
+  if(!_coeffsComputed)
+    _computeCoeffs();
+  _coeffsComputed = true;
+  return _markovCoeffs;
 }

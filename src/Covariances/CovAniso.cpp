@@ -396,6 +396,30 @@ double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
   return sill * cov;
 }
 
+
+void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
+{
+  _cova->setMarkovCoeffs(coeffs);
+}
+
+double CovAniso::evalSpectrum(double freq) const
+{
+
+  if (! _cova->hasSpectrum()) return TEST;
+  double scale = getScale();
+  double sill = getSill(0,0);
+  double val = _cova->evaluateSpectrum(freq,scale,getNDim());
+  return sill * val;
+}
+
+
+VectorDouble CovAniso::getMarkovCoeffs() const
+{
+  if( !_cova->hasMarkovCoeffs()) return VectorDouble();
+
+  return _cova->getMarkovCoeffs();
+}
+
 VectorDouble CovAniso::evalCovOnSphere(const VectorDouble& alpha, int degree) const
 {
   int n = (int) alpha.size();
