@@ -75,10 +75,10 @@ double CovBesselK::_evaluateCovOnSphere(double scale, int degree) const
   return (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
 }
 
-//double CovBesselK::_evaluateSpectrum(double freq, double scale, int ndim)
-//{
-//  double kappa2 = 1. / ( scale * scale );
-//  double alpha = (double) ndim / 2. + getParam();
-//  double fourier = 1. / pow(kappa2 + freq, alpha);
-//  return fourier;
-//}
+double CovBesselK::_evaluateSpectrum(double freq, double scale, int ndim) const
+{
+  double kappa2 = 1. / ( scale * scale );
+  double alpha = (double) ndim / 2. + getParam();
+  double fourier = 1. / pow(kappa2 + freq, alpha);
+  return fourier;
+}

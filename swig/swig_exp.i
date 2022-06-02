@@ -103,6 +103,7 @@ class IClonable{};
 %include Basic/File.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
+%include Basic/Array.hpp
 
 %include Boolean/ETLaw.hpp
 %include Boolean/ETShape.hpp

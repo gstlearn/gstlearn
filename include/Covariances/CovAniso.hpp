@@ -85,7 +85,7 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  virtual double evalCovOnSphere(double alpha, int degree) const override;
+  virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
@@ -190,6 +190,8 @@ public:
 
   static double scale2range(const ECov& type, double scale, double param = 1.);
   static double range2scale(const ECov& type, double range, double param = 1.);
+
+  VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
 
 protected:
   /// Update internal parameters consistency with the context

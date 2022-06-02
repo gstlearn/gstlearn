@@ -380,7 +380,7 @@ double CovAniso::eval(int ivar,
   return (cov);
 }
 
-double CovAniso::evalCovOnSphere(double alpha, int degree) const
+double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (! _cova->hasCovOnSphere()) return TEST;
   double radius;
@@ -388,8 +388,23 @@ double CovAniso::evalCovOnSphere(double alpha, int degree) const
   double scale = getScale() / radius;
   double sill = getSill(0, 0);
   double cov = _cova->evalCovOnSphere(alpha, scale, degree);
-  double cov0 = _cova->evalCovOnSphere(0., scale, degree);
-  return sill * cov / cov0;
+  if (normalize)
+  {
+    double cov0 = _cova->evalCovOnSphere(0., scale, degree);
+    cov /= cov0;
+  }
+  return sill * cov;
+}
+
+VectorDouble CovAniso::evalCovOnSphere(const VectorDouble& alpha, int degree) const
+{
+  int n = (int) alpha.size();
+  VectorDouble vec(n);
+  double c0 = evalCovOnSphere(0., degree);
+  for (int i = 0; i < n; i++)
+    vec[i] = evalCovOnSphere(alpha[i], degree, false) / c0;
+
+  return vec;
 }
 
 String CovAniso::toString(const AStringFormat* /*strfmt*/) const

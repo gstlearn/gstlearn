@@ -11,30 +11,32 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
 
-class CovContext;
-
-class GSTLEARN_EXPORT CovBesselK : public ACovFunc
+class GSTLEARN_EXPORT Array : public AStringable
 {
 public:
-  CovBesselK(const CovContext& ctx);
-  CovBesselK(const CovBesselK &r);
-  CovBesselK& operator= (const CovBesselK &r);
-  virtual ~CovBesselK();
+  Array(const VectorInt& ndims = VectorInt());
+  Array(const Array &m);
+  Array& operator=(const Array &m);
+  virtual ~Array();
 
-  virtual String getFormula() const override;
-  String         getCovName() const override { return "K-Bessel"; }
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  void init(const VectorInt& ndims);
+  int  indiceToRank(const VectorInt& indice) const;
+  double getValue(const VectorInt& indice) const;
+  void setValue(const VectorInt& indice, double value);
 
-  bool   hasParam() const override { return true; }
-  double getParMax() const override { return MAX_PARAM; }
-  double getScadef() const override;
-  bool   hasCovOnSphere() const override { return true; }
-  bool   hasSpectrum() const { return true; }
+  const VectorInt& getNdims() const { return _ndims; }
+  const VectorDouble& getValues() const { return _values; }
 
-protected:
-  double _evaluateCov(double h) const override;
-  double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-  double _evaluateSpectrum(double freq, double scale, int ndim) const override;
+private:
+  void _update();
+  bool _isValidIndice(const VectorInt& indice) const;
+
+private:
+  VectorInt _ndims;
+  VectorDouble _values;
 };
