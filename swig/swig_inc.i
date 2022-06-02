@@ -167,6 +167,7 @@
 #include "Covariances/CovGCspline.hpp"
 #include "Covariances/CovLinear.hpp"
 #include "Covariances/CovNugget.hpp"
+#include "Covariances/CovMarkov.hpp"
 #include "Covariances/CovP8.hpp"
 #include "Covariances/CovPenta.hpp"
 #include "Covariances/CovPower.hpp"
