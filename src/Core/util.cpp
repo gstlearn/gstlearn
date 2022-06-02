@@ -3078,12 +3078,14 @@ double* ut_pascal(int ndim)
  ** \param[in]  lat1   Latitude of the first point (in degrees)
  ** \param[in]  long2  Longitude of the second point (in degrees)
  ** \param[in]  lat2   Latitude of the second point (in degrees)
+ ** \param[in]  radius Radius of the sphere
  **
  *****************************************************************************/
 double ut_geodetic_angular_distance(double long1,
                                     double lat1,
                                     double long2,
-                                    double lat2)
+                                    double lat2,
+                                    double radius)
 {
   double rlon1, rlat1, rlon2, rlat2, dlong, angdst;
 
@@ -3093,7 +3095,7 @@ double ut_geodetic_angular_distance(double long1,
   rlat2 = ut_deg2rad(lat2);
   dlong = rlon2 - rlon1;
   angdst = acos(sin(rlat1) * sin(rlat2) + cos(rlat1) * cos(rlat2) * cos(dlong));
-  return (angdst);
+  return (radius * angdst);
 }
 
 /****************************************************************************/

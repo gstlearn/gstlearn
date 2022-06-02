@@ -501,7 +501,7 @@ double MeshSpherical::getApexCoor(int i, int idim) const
   return _apices(i,idim);
 }
 
-void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
+void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
   /* The Variety is defined in the Global Environment */
   /* The required radius is set to the radius of Earth (6371m) */
@@ -509,7 +509,7 @@ void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) con
   int variety_sphere;
   double r;
   variety_query(&variety_sphere);
-  if(variety_sphere == 1)
+  if (variety_sphere == 1)
   {
     variety_get_characteristics(&r);
   }
@@ -517,9 +517,28 @@ void MeshSpherical::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) con
   {
     r = 6371.;
   }
-
   util_convert_sph2cart(getCoor(imesh, ic, 0)-180.,
                         getCoor(imesh, ic, 1),
+                        &coords[0], &coords[1], &coords[2],
+                        r);
+
+}
+
+void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
+{
+  int variety_sphere;
+  double r;
+  variety_query(&variety_sphere);
+  if (variety_sphere == 1)
+  {
+    variety_get_characteristics(&r);
+  }
+  else
+  {
+    r = 6371.;
+  }
+  util_convert_sph2cart(getApexCoor(iapex, 0)-180.,
+                        getApexCoor(iapex, 1),
                         &coords[0], &coords[1], &coords[2],
                         r);
 

@@ -71,6 +71,12 @@ VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
                                         double radius = TEST,
                                         double dilate = 1.);
+GSTLEARN_EXPORT double ut_geodetic_angular_distance(double long1,
+                                                    double lat1,
+                                                    double long2,
+                                                    double lat2,
+                                                    double radius = 1.);
+
 
 /****************************************/
 /* Prototyping the functions in variety */

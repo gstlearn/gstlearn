@@ -41,6 +41,7 @@
 #include "Basic/File.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/Plane.hpp"
+#include "Basic/FFT.hpp"
 
 #include "Boolean/ETLaw.hpp"
 #include "Boolean/ETShape.hpp"

@@ -80,9 +80,6 @@ String MeshManifold::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-
-
-
 /****************************************************************************/
 /*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
