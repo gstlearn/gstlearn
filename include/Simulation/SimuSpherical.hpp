@@ -22,8 +22,8 @@ class GSTLEARN_EXPORT SimuSpherical: public ASimulation
 {
 public:
   SimuSpherical(int nbsimu = 1, int seed = 4324324);
-  SimuSpherical(const SimuSpherical &r) = delete;
-  SimuSpherical& operator=(const SimuSpherical &r) = delete;
+  SimuSpherical(const SimuSpherical &r);
+  SimuSpherical& operator=(const SimuSpherical &r);
   virtual ~SimuSpherical();
 
   int simulate(DbGrid *db,

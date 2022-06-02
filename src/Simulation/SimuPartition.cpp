@@ -27,6 +27,20 @@ SimuPartition::SimuPartition(int nbsimu, int seed)
 {
 }
 
+SimuPartition::SimuPartition(const SimuPartition &r)
+    : ASimulation(r)
+{
+}
+
+SimuPartition& SimuPartition::operator=(const SimuPartition &r)
+{
+  if (this != &r)
+  {
+    ASimulation::operator =(r);
+  }
+  return *this;
+}
+
 SimuPartition::~SimuPartition()
 {
 }

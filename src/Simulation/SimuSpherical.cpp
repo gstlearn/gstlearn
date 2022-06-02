@@ -30,6 +30,20 @@ SimuSpherical::SimuSpherical(int nbsimu, int seed)
 {
 }
 
+SimuSpherical::SimuSpherical(const SimuSpherical &r)
+    : ASimulation(r)
+{
+}
+
+SimuSpherical& SimuSpherical::operator=(const SimuSpherical &r)
+{
+  if (this != &r)
+  {
+    ASimulation::operator =(r);
+  }
+  return *this;
+}
+
 SimuSpherical::~SimuSpherical()
 {
 }

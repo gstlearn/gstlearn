@@ -3232,12 +3232,16 @@ int simfft(DbGrid *db,
 /*!
  **  Refine the simulation
  **
- ** \return  Newly refined Grid
+ ** \return  Newly refined Grid.
  **
  ** \param[in]  dbin       Input grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  param      SimuRefineParam structure
  ** \param[in]  seed       Seed for the random number generator
+ **
+ ** \remark For each dimension of the space, if N stands for the number of
+ ** \remark nodes in the input grid, the number of nodes of the output grid
+ ** \remark will be (N-1) * 2^p + 1 where p is the param.getNmult()
  **
  *****************************************************************************/
 DbGrid* simfine(DbGrid *dbin,
