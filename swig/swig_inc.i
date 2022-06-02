@@ -91,6 +91,7 @@
 
 #include "Enum/AEnum.hpp"
 
+#include "Polynomials/ClassicalPolynomials.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
 

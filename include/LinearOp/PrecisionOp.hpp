@@ -88,7 +88,9 @@ public:
   void setPolynomialFromPoly(APolynomial* &polynomial)
   {
     _polynomials[EPowerPT::ONE] = polynomial;
-    _preparePoly(_power,true);
+    _preparePoly(EPowerPT::MINUSONE,true);
+    _preparePoly(EPowerPT::MINUSHALF,true);
+    _preparePoly(EPowerPT::LOG,true);
   }
 
 protected:
