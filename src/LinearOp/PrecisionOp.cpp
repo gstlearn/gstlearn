@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "Basic/Vector.hpp"
@@ -36,6 +37,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   , _verbose(verbose)
   , _training(false)
   , _destroyShiftOp(false)
+  , _userPoly(false)
   , _work()
   , _work2()
   , _work3()
@@ -60,6 +62,7 @@ PrecisionOp::PrecisionOp(AMesh* mesh,
   , _verbose(verbose)
   , _training(false)
   , _destroyShiftOp(true)
+  , _userPoly(false)
   , _work()
   , _work2()
   , _work3()
@@ -82,6 +85,7 @@ PrecisionOp::PrecisionOp(const PrecisionOp &pmat)
   , _verbose(pmat._verbose)
   , _training(false)
   , _destroyShiftOp(pmat._destroyShiftOp)
+  , _userPoly(false)
   , _work(pmat._work)
   , _work2(pmat._work2)
   , _work3(pmat._work3)
@@ -97,6 +101,7 @@ PrecisionOp& PrecisionOp::operator= (const PrecisionOp &pmat)
   _verbose        = pmat._verbose;
   _training       = pmat._training;
   _destroyShiftOp = pmat._destroyShiftOp;
+  _userPoly       = pmat._userPoly;
   _work           = pmat._work;
   _work2          = pmat._work2;
   _work3          = pmat._work3;
@@ -108,7 +113,8 @@ void PrecisionOp::_purge()
 {
   for (auto& e: _polynomials)
   {
-    delete e.second;
+    if(e.first!=EPowerPT::ONE || !_userPoly)
+      delete e.second;
   }
   _polynomials.clear();
 
@@ -138,6 +144,21 @@ int PrecisionOp::_preparePoly(const EPowerPT& power,bool force)
   }
   return 0;
 }
+
+VectorDouble PrecisionOp::getPolyCoeffs(EPowerPT power)
+{
+  return _polynomials[power]->getCoeffs();
+}
+
+void PrecisionOp::setPolynomialFromPoly(APolynomial* polynomial)
+  {
+    _purge();
+    _userPoly = true;
+    _polynomials[EPowerPT::ONE] = polynomial;
+    _preparePoly(EPowerPT::MINUSONE,true);
+    _preparePoly(EPowerPT::MINUSHALF,true);
+    _preparePoly(EPowerPT::LOG,true);
+  }
 
 int PrecisionOp::_prepareChebychev(const EPowerPT& power)
 {

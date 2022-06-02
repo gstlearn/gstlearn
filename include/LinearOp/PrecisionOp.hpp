@@ -84,14 +84,8 @@ public:
   bool getTraining()const {return _training;}
   void setTraining(bool tr){ _training = tr;}
   ShiftOpCs* getShiftOp() const { return _shiftOp; }
-
-  void setPolynomialFromPoly(APolynomial* &polynomial)
-  {
-    _polynomials[EPowerPT::ONE] = polynomial;
-    _preparePoly(EPowerPT::MINUSONE,true);
-    _preparePoly(EPowerPT::MINUSHALF,true);
-    _preparePoly(EPowerPT::LOG,true);
-  }
+  VectorDouble getPolyCoeffs(EPowerPT power);
+  void setPolynomialFromPoly(APolynomial* polynomial);
 
 protected:
   APolynomial* getPoly(const EPowerPT& power);
@@ -112,7 +106,8 @@ private:
   std::map<EPowerPT, APolynomial*> _polynomials;
   bool                             _verbose;
   bool                             _training;
-  bool _destroyShiftOp;
+  bool                             _destroyShiftOp;
+  bool                             _userPoly;
 
 protected :
   mutable VectorDouble _work;
