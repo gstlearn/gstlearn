@@ -142,6 +142,9 @@ class IClonable{};
 %include Mesh/MeshETurbo.hpp
 %include Mesh/MeshSpherical.hpp
 
+
+%include Polynomials/APolynomial.hpp
+%include Polynomials/ClassicalPolynomial.hpp
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
 
