@@ -204,6 +204,8 @@ set(SRC
   Basic/OptCst.cpp
   Basic/OptCustom.cpp
   Basic/Plane.cpp
+  Basic/FFT.cpp
+  Basic/Array.cpp
   
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp

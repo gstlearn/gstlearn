@@ -159,13 +159,39 @@ bool ACovFunc::hasInt2D() const
   */
 double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
 {
-  my_throw("Undefined derivative for this covariance");
+  if (! hasCovDerivative())
+  {
+    messerr("This covariance does not allow Derivative calculations");
+    return TEST;
+  }
+  messerr("This covariance should have Derivative calculations");
+  messerr("But _evaluateCovDerivative has not been coded");
+  my_throw("This should never happen");
   return 0.;
 }
 
 double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
 {
-  my_throw("Undefined covariance on sphere");
+  if (! hasCovOnSphere())
+  {
+    messerr("This covariance does not allow On Sphere calculations");
+    return TEST;
+  }
+  messerr("This covariance should have On Sphere calculations");
+  messerr("But _evaluateCovOnSphere has not been coded");
+  my_throw("This should never happen");
   return 0.;
 }
 
+double ACovFunc::_evaluateSpectrum(double /*freq*/, double /*scale*/, int /*ndim*/) const
+{
+  if (! hasSpectrum())
+  {
+    messerr("This covariance does not allow Spectrum calculations");
+    return TEST;
+  }
+  messerr("This covariance should have Spectrum calculations");
+  messerr("But _evaluateSpectrum has not been coded");
+  my_throw("This should never happen");
+  return 0.;
+}

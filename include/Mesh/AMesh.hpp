@@ -85,9 +85,13 @@ public:
   VectorDouble getCoordinatesPerMesh(int imesh, int idim, bool flagClose=false) const;
 
   virtual int getEmbeddedNDim() const { return _nDim; }
-  virtual void getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const;
+  virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
+  virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
+  VectorVectorDouble getEmbeddedApexCoordinates() const;
+
+  VectorDouble getDistance(int imesh, const VectorInt& jmesh = VectorInt()); // TODO
 
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;

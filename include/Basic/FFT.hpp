@@ -11,30 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Basic/Vector.hpp"
 
-class CovContext;
-
-class GSTLEARN_EXPORT CovBesselK : public ACovFunc
-{
-public:
-  CovBesselK(const CovContext& ctx);
-  CovBesselK(const CovBesselK &r);
-  CovBesselK& operator= (const CovBesselK &r);
-  virtual ~CovBesselK();
-
-  virtual String getFormula() const override;
-  String         getCovName() const override { return "K-Bessel"; }
-
-
-  bool   hasParam() const override { return true; }
-  double getParMax() const override { return MAX_PARAM; }
-  double getScadef() const override;
-  bool   hasCovOnSphere() const override { return true; }
-  bool   hasSpectrum() const { return true; }
-
-protected:
-  double _evaluateCov(double h) const override;
-  double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-  double _evaluateSpectrum(double freq, double scale, int ndim) const override;
-};
+GSTLEARN_EXPORT int FFTn(int ndim,
+                         const VectorInt& dims,
+                         VectorDouble& Re,
+                         VectorDouble& Im,
+                         int iSign = 1,
+                         double scaling = 1.);

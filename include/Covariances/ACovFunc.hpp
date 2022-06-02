@@ -48,13 +48,14 @@ public:
   virtual String       getCovName()   const = 0;
   virtual bool         hasCovDerivative() const { return false; }
   virtual bool         hasCovOnSphere() const { return false; }
+  virtual bool         hasSpectrum() const { return false; }
   ///////////////////////////////////////////////////
 
   void setParam(double param);
   void setField(double field);
   double evalCov(double h) const;
   double evalCovDerivative(int degree, double h) const;
-  double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const; // TODO en vectoriel
+  double evalCovOnSphere(double alpha, double scale = 1., int degree = 50) const;
   VectorDouble evalCovVec(const VectorDouble& vech) const;
   VectorDouble evalCovDerivativeVec(int degree, const VectorDouble& vech) const;
   const ECov&          getType()    const { return _type; }
@@ -69,6 +70,7 @@ protected:
   virtual double _evaluateCov(double h) const = 0;
   virtual double _evaluateCovDerivate(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
+  virtual double _evaluateSpectrum(double freq, double scale, int ndim) const;
 
 private:
   ECov        _type;    /*! Covariance function type */

@@ -344,10 +344,6 @@ GSTLEARN_EXPORT int db_fold_polyline(DbGrid *dbin,
                                      int nvert,
                                      double *xl,
                                      double *yl);
-GSTLEARN_EXPORT double ut_geodetic_angular_distance(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2);
 GSTLEARN_EXPORT void ut_geodetic_angles(double long1,
                                         double lat1,
                                         double long2,

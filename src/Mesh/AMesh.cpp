@@ -319,11 +319,23 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
  * @param ic     Corner index
  * @param coords Array of coordinates
  */
-void AMesh::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
+void AMesh::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const
 {
   for (int idim = 0; idim < _nDim; idim++)
     coords[idim] = getCoor(imesh, ic, idim);
 }
+
+/**
+ * Fill the coordinates of an apex in embedded space
+ * @param iapex  Apex index
+ * @param coords Array of coordinates
+ */
+void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
+{
+  for (int idim = 0; idim < _nDim; idim++)
+    coords[idim] = getApexCoor(iapex, idim);
+}
+
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space
@@ -333,12 +345,10 @@ void AMesh::getEmbeddedCoor(int imesh, int ic, VectorDouble& coords) const
  */
 void AMesh::getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& vec) const
 {
-  int ndim = getEmbeddedNDim();
   int ncorner = getNApexPerMesh();
-  VectorDouble coords(ndim);
 
   for (int ic = 0; ic < ncorner; ic++)
-    getEmbeddedCoor(imesh, ic, vec[ic]);
+    getEmbeddedCoorPerMesh(imesh, ic, vec[ic]);
 }
 
 /**
@@ -355,6 +365,34 @@ VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
     e = VectorDouble(ndim);
 
   getEmbeddedCoordinatesPerMesh(imesh, vec);
+  return vec;
+}
+
+/**
+ * Returns the coordinates of the Mesh apices expressed in the embedded space
+ * The returned vector is organized by coordinate
+ * @return
+ */
+VectorVectorDouble AMesh::getEmbeddedApexCoordinates() const
+{
+  int ndim = getEmbeddedNDim();
+  int napices = getNApices();
+  VectorVectorDouble vec(ndim);
+  for (auto &e: vec)
+    e = VectorDouble(napices);
+
+  VectorDouble local(ndim);
+  for (int ip = 0; ip < napices; ip++)
+  {
+    getEmbeddedCoorPerApex(ip, local);
+    for (int idim = 0; idim < ndim; idim++)
+      vec[idim][ip] = local[idim];
+  }
+  return vec;
+}
+VectorDouble AMesh::getDistance(int imesh, const VectorInt& jmesh)
+{
+  VectorDouble vec;
   return vec;
 }
 
