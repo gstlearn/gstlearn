@@ -13,6 +13,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Space/SpacePoint.hpp"
 
 #include <algorithm>
 
@@ -390,9 +391,29 @@ VectorVectorDouble AMesh::getEmbeddedApexCoordinates() const
   }
   return vec;
 }
-VectorDouble AMesh::getDistance(int imesh, const VectorInt& jmesh)
+
+VectorDouble AMesh::getApexCoordinates(int iapex) const
+{
+  VectorDouble vec(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+    vec[idim] = getApexCoor(iapex, idim);
+  return vec;
+}
+
+VectorDouble AMesh::getDistance(int imesh0, const VectorInt& jmeshs)
 {
   VectorDouble vec;
+  VectorInt jlocal = jmeshs;
+  if (jlocal.empty()) jlocal = ut_ivector_sequence(getNMeshes());
+  int number = (int) jlocal.size();
+
+  SpacePoint P1 = SpacePoint(getApexCoordinates(imesh0));
+
+  for (int jmesh = 0; jmesh < number; jmesh++)
+  {
+    SpacePoint P2 = SpacePoint(getApexCoordinates(jmesh));
+    vec[jmesh] = P1.getDistance(P2);
+  }
   return vec;
 }
 
