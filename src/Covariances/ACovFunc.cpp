@@ -77,10 +77,10 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
   return _evaluateCovDerivate(degree, h);
 }
 
-double ACovFunc::evalCovOnSphere(double calpha, double scale, int degree) const
+double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
 {
   double s = 0.;
-  if (calpha == 1.)
+  if (alpha == 0.)
   {
     for (int i = 0; i < degree; i++)
     {
@@ -89,9 +89,9 @@ double ACovFunc::evalCovOnSphere(double calpha, double scale, int degree) const
   }
   else
   {
+    double calpha = cos(alpha);
     double u0 = 1.;
     double u2 = 0.;
-    //double calpha = cos(alpha);
     double u1 = calpha;
     for (int i = 1; i < (degree + 2); i++)
     {

@@ -78,7 +78,8 @@ String CovBesselK::getFormula() const
 double CovBesselK::_evaluateCovOnSphere(double scale, int degree) const
 {
   double kappa2 = 1. / ( scale * scale );
-  return (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
+  double cons = 1. / (4 * GV_PI);
+  return  cons * (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
 }
 
 double CovBesselK::evaluateSpectrum(double freq, double scale, int ndim) const

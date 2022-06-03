@@ -1533,7 +1533,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     sqdeth = sqrt(hh.determinant());
    if(amesh->getVariety() == 1)
    {
-     correc = _computeSphereVarianceCorrec(param,cova->getScale(0) / r);
+     correc = cova->evalCovOnSphere(0,50,false);
    }
   }
 
@@ -1559,21 +1559,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     }
     else
     {
-        _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * pow(r, 2. * param)  * pow(sqdeth, - (2. * param  - 1.)/3.)/  sill));
+        _Lambda.push_back(sqrt((_TildeC[ip]) *  correc * pow(r, 2. * param)  * pow(sqdeth, - (2. * param  - 1.)/3.)/ (sill*sill)));
     }
   }
-}
-double ShiftOpCs::_computeSphereVarianceCorrec(double nu,double scale,int n) const
-{
-  double s = 0.;
-  double kappa2 = 1. / (scale * scale);
-  double alpha = nu + 1.;
-  for(int i = 0; i < n; i++)
-  {
-    s += (2 * i + 1)/ pow(kappa2 + i * (i + 1), alpha);
-  }
-
-  return s / (4. * GV_PI);
 }
 
 /**
