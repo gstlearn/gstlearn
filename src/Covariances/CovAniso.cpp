@@ -812,44 +812,45 @@ Array CovAniso::evalSpectrum(const VectorDouble& ext, int N) const
     nxs[idim] = N;
   Array array(nxs);
 
-  int ntotal = pow(N, ndim);
-  for (int iad = 0; iad < ntotal; iad++)
-  {
-    VectorInt ind = array.getIndices(iad);
-    double s = 0.;
-    for (auto &e: ind)
-      s += e * e;
-    evalSp
-  }
-  for (int idim = 0; idim < ndim; idim++)
-    for (int jdim = 0; jdim < ndim; jdim ++ )
-  {
-    for (int ix = -nx)
-  }
-  d = 2
-  a= np.pi * (N-1) * dx[0] #3 x la portée
-  ind = np.arange(0,int(N/2),2)
-  v = np.linspace(-1.,1.,N)
-  u = a/2 * v
-  deltau=a/(N-1)
-  normxi = np.array([i**2 + j**2 for i in u for j in u])#.reshape((len(u),len(u)))
-
-  fourier = 1./(2*np.pi)**d * np.array([model.getCova(0).evalSpectrum(i) for i in normxi.reshape(-1)])
-  # Préparation pour gstlearn
-  # On met la matrice dans un vector double
-  f = fourier.reshape(-1)
-  ve = gl.VectorDouble(f.shape[0])
-  for i in range(ve.size()):
-      ve[i]=f[i]
-  im = gl.VectorDouble()
-  gl.FFTn(2,[N,N],ve,im)
-
-  # Reformatage des sorties
-  w=np.array(ve).reshape((len(u),len(u)))
-
-  A = w[0,:][ind]
-  covZ=A*deltau**d
-  X= np.pi * (v[ind]-v[0]) /deltau
-
+//  int ntotal = pow(N, ndim);
+//  for (int iad = 0; iad < ntotal; iad++)
+//  {
+//    VectorInt indices = array.getIndices(iad);
+//    double s = 0.;
+//    for (auto &e: indices)
+//      s += e * e;
+//    double res = evalSpectrum(ext, N)
+//    array.setValue(indices, value)
+//  }
+//  for (int idim = 0; idim < ndim; idim++)
+//    for (int jdim = 0; jdim < ndim; jdim ++ )
+//  {
+//    for (int ix = -nx)
+//  }
+//  d = 2
+//  a= np.pi * (N-1) * dx[0] #3 x la portée
+//  ind = np.arange(0,int(N/2),2)
+//  v = np.linspace(-1.,1.,N)
+//  u = a/2 * v
+//  deltau=a/(N-1)
+//  normxi = np.array([i**2 + j**2 for i in u for j in u])#.reshape((len(u),len(u)))
+//
+//  fourier = 1./(2*np.pi)**d * np.array([model.getCova(0).evalSpectrum(i) for i in normxi.reshape(-1)])
+//  # Préparation pour gstlearn
+//  # On met la matrice dans un vector double
+//  f = fourier.reshape(-1)
+//  ve = gl.VectorDouble(f.shape[0])
+//  for i in range(ve.size()):
+//      ve[i]=f[i]
+//  im = gl.VectorDouble()
+//  gl.FFTn(2,[N,N],ve,im)
+//
+//  # Reformatage des sorties
+//  w=np.array(ve).reshape((len(u),len(u)))
+//
+//  A = w[0,:][ind]
+//  covZ=A*deltau**d
+//  X= np.pi * (v[ind]-v[0]) /deltau
+//
   return array;
 }
