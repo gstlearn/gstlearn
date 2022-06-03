@@ -149,7 +149,6 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.05):
     ys = np.array(ys)
     zs = np.array(zs)
     line = Line(x=xs, y=ys, z=zs, color=color, width=width)
-    
     return line
 
 def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.05):

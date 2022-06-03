@@ -301,7 +301,7 @@ bool SimuSubstitutionParam::_isValidTransition(bool verbose,
       if (verbose)
         messerr("Transition: Sum of elements of row(%d) must be 1 (%lf)",
                 irow+1,total);
-        return false;
+      return false;
     }
   }
   return true;
