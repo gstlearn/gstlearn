@@ -58,7 +58,7 @@ String CovMarkov::getFormula() const
 double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
 {
   double kappa2 = 1. / ( scale * scale );
-  double s =0.;
+  double s = 0.;
   int n = (int)_markovCoeffs.size();
   double nnp1 = scale * scale * (double) degree * ((double) degree + 1.);
   for(int i = 0; i< n;i++)

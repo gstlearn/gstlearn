@@ -15,6 +15,7 @@
 #include "Basic/IClonable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
+#include "Basic/Array.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
@@ -197,8 +198,11 @@ public:
   static double range2scale(const ECov& type, double range, double param = 1.);
 
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
+  Array evalSpectrum(const VectorDouble& ext, int N = 128) const;
+
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
+
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
