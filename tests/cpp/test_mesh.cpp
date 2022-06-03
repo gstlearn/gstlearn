@@ -14,6 +14,7 @@
 #include "csparse_f.h"
 
 #include "Model/Model.hpp"
+#include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshSpherical.hpp"
@@ -36,7 +37,6 @@
 
 int main(int /*argc*/, char */*argv*/[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
@@ -45,7 +45,6 @@ int main(int /*argc*/, char */*argv*/[])
   Db    *dbin,*dbgrid;
   Model *model;
   CovContext ctxt;
-  double  angle[3];
   double  range,param;
   MatrixRectangular apices;
   VectorInt meshes;
@@ -53,12 +52,11 @@ int main(int /*argc*/, char */*argv*/[])
   ShiftOpCs shiftop;
   VectorInt nx(3);
   VectorDouble rotmat;
-  VectorDouble extendmin(3);
-  VectorDouble extendmax(3);
-  VectorDouble cellsize(3);
-  VectorDouble dilate(3);
-  double *loc_apices;
-  int    *loc_meshes;
+  VectorDouble extendmin = {50., 0., 10.};
+  VectorDouble extendmax = { 300., 200., 100.};
+  VectorDouble cellsize = { 10., 20., 30.};
+  VectorDouble dilate = {0., 0., 0.};
+  VectorDouble angle = {30., 0., 0.};
 
   /* Main options */
 
@@ -67,7 +65,10 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim      = 3;
   int verbose   = 1;
   int variety   = 0;  // 0 for Euclidean; 1 for Spherical
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  if (variety == 0)
+    ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  else
+    ASpaceObject::defineDefaultSpace(SPACE_SN, 2, EARTH_RADIUS);
 
   /* Cleverness of the options */
 
@@ -76,25 +77,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Initializations */
 
-  extendmin[0] = 50.;
-  extendmin[1] = 0.;
-  extendmin[2] = 10.;
-  extendmax[0] = 300.;
-  extendmax[1] = 200.;
-  extendmax[2] = 100.;
-  cellsize[0]  = 10.;
-  cellsize[1]  = 20.;
-  cellsize[2]  = 10.;
-  dilate[0]    = 0.;
-  dilate[1]    = 0.;
-  dilate[2]    = 0.;
-  angle[0]     = 30.;
-  angle[1]     = 0.;
-  angle[2]     = 0.;
   dbin         = nullptr;
   dbgrid       = nullptr;
-  loc_apices   = nullptr;
-  loc_meshes   = nullptr;
 
   /* Triswitch option */
 
@@ -131,14 +115,6 @@ int main(int /*argc*/, char */*argv*/[])
     dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
   }
 
-//  /* Setup the license */
-//
-//  if (setup_license("Demonstration")) return(0);
-//
-//  /* Setup constants */
-//
-//  OptDbg::reset();
-
   /* Instantiate the Meshing */
 
   mesh = MeshFactory::createMesh(variety,
@@ -155,13 +131,9 @@ int main(int /*argc*/, char */*argv*/[])
                                     extendmin,extendmax,rotmat,cellsize,
                                     dilate,dbin,dbgrid,triswitch,
                                     apices,meshes,verbose);
-    loc_apices = (double *) mem_free((char *) loc_apices);
-    loc_meshes = (int    *) mem_free((char *) loc_meshes);
     if (meshb == NULL) return(1);
     meshb->display();
   }
-
-//  VectorDouble result = meshb->distance();
 
   /* Instantiate the ShiftOp */
 

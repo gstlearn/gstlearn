@@ -57,6 +57,8 @@
 #define THRESH_INF      -10
 #define THRESH_SUP       10
 
+#define EARTH_RADIUS  6371.
+
 // Hide warnings C4251 under windows: https://stackoverflow.com/a/22054743
 #ifndef SWIG
 DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
