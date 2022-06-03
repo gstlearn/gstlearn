@@ -830,7 +830,7 @@ void CovAniso::copyCovContext(const CovContext& ctxt)
   if (_cova != nullptr) _cova->copyCovContext(ctxt);
 }
 
-Array CovAniso::evalSpectrum(const VectorDouble& /*ext*/, int N) const
+Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
 {
   int ndim = getNDim();
   VectorInt nxs(ndim);
@@ -839,31 +839,62 @@ Array CovAniso::evalSpectrum(const VectorDouble& /*ext*/, int N) const
   Array array(nxs);
 
   int ntotal = pow(N, ndim);
-  double coeff = pow(2. * GV_PI, ndim);
+  int nresult = pow(N/2, ndim);
+  VectorDouble a(ndim);
+  double coeff = 0;
+  double prod = 1.;
+
+  for(int i = 0; i < ndim; i++)
+  {
+    coeff = 1. / (2 * hmax[i]);
+    a[i]= 4 * GV_PI * (N-1) * coeff;
+    prod *= coeff;
+  }
+
+  VectorDouble Re(ntotal);
+  VectorDouble Im(ntotal,0.);
+  VectorInt indices(ndim);
+
   for (int iad = 0; iad < ntotal; iad++)
   {
-    VectorInt indices = array.RankToIndice(iad);
+    array.RankToIndice(iad,indices);
+
     double s = 0.;
-    for (auto &e: indices)
-      s += e * e;
-    double res = 1. / (coeff * evalSpectrum(s));
-    array.setValue(indices, res);
+    for (int i = 0; i < ndim; i++)
+    {
+      double temp = (double)indices[i]/N - 0.5;
+       s += a[i] * temp * temp;
+    }
+    Re[iad] = coeff /  evalSpectrum(s);
+
   }
-  VectorDouble Im(ntotal,0.);
-  VectorDouble Re = array.getValues();
 
-  FFTn(ndim, array.getNdims(), Re, Im);
+  FFTn(ndim, nxs, Re, Im);
 
-  // Retrieve information from the Re array and load them back in the array
+  // Retrieve information from the Re array and load them back in the array result.
 
-  array.setValues(Re);
-//
-//  # Reformatage des sorties
-//  w=np.array(ve).reshape((len(u),len(u)))
-//
-//  A = w[0,:][ind]
-//  covZ=A*deltau**d
-//  X= np.pi * (v[ind]-v[0]) /deltau
-//
-  return array;
+  for (int idim = 0; idim < ndim; idim++)
+       nxs[idim]/=2;
+
+  Array results(nxs);
+
+  VectorInt newIndices(ndim);
+
+  for (int iad = 0; iad < nresult; iad++)
+  {
+    array.RankToIndice(iad,indices);
+    for (int i = 0;  i < ndim; i++)
+    {
+      if (indices[i] % 2 !=0 )
+        continue;
+
+      newIndices[i] = indices[i] / 2 + indices[i] % 2;
+    }
+
+    results.setValue(newIndices, Re[iad]);
+
+    }
+  }
+
+  return results;
 }

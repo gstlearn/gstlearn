@@ -84,10 +84,9 @@ int Array::indiceToRank(const VectorInt& indice) const
   return ival;
 }
 
-VectorInt Array::RankToIndice(int rank) const
+void Array::RankToIndice(int rank, VectorInt& indices) const
 {
   int ndim = (int) _ndims.size();
-  VectorInt indices(ndim);
 
   int nval = 1;
   for (int idim=0; idim<ndim; idim++) nval *= _ndims[idim];
@@ -98,6 +97,13 @@ VectorInt Array::RankToIndice(int rank) const
     indices[idim] = rank / nval;
     rank -= indices[idim] * nval;
   }
+}
+
+VectorInt Array::RankToIndice(int rank) const
+{
+  int ndim = (int) _ndims.size();
+  VectorInt indices(ndim);
+  RankToIndice(rank,indices);
   return indices;
 }
 

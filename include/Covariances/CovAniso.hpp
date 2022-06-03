@@ -197,7 +197,7 @@ public:
   static double range2scale(const ECov& type, double range, double param = 1.);
 
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
-  Array evalSpectrum(const VectorDouble& ext, int N = 128) const;
+  Array evalCovFFT(const VectorDouble& ext, int N = 128) const;
 
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
