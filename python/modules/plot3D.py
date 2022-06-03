@@ -59,22 +59,33 @@ def Meshing(mesh, color='black', width=1):
                    )
     return meshing
     
-def Scatter(x, y, z, mode='lines', color='black', width=1):
+def Scatter(x, y, z, mode='lines', color='black', width=1, 
+            m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2):
+    ''' 
+    mode can be 'lines' or 'markers'
+    '''
     meshing = dict(type='scatter3d',x=x, y=y, z=z, 
                    mode=mode,
+                   marker_symbol=m_symbol,
+                   marker_line_color=m_line, marker_color=m_color, marker_line_width=m_width, 
+                   marker_size=m_size,
                    line=dict(color=color, width=width)
                    )
     return meshing
     
-def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, dilate=1):
+def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, 
+                    m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
+                    dilate=1):
     tab = np.array(gl.util_convert_longlat(long, lat, dilate))
-    meshing = scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, color=color, width=width)
+    meshing = scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, color=color, width=width,
+                      m_symbol=m_symbol, m_color=m_color, m_line=m_line, m_size=m_size, m_width=m_width)
     return meshing
 
 def Line(x, y, z, color='black', width=1):
     line = dict(type='scatter3d',x=x, y=y, z=z, 
                    mode='lines',
-                   line=dict(color=color, width=width)
+                   line=dict(color=color, width=width),
+                   showlegend=False
                    )
     return line
     
@@ -121,13 +132,13 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False):
                     coloraxis='coloraxis')
     return slice
    
-def Equator(ndisc = 360, color='black', width=3, dilate=1.05):
+def Equator(ndisc = 360, color='black', width=3, dilate=1.):
     long = np.arange(0,ndisc+1) * 360. / ndisc
     lat  = np.zeros(ndisc+1)
     line = LineOnSphere(long, lat, color=color, width=width, dilate=dilate)
     return line
 
-def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.05):
+def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.):
     number = (int) (360 / angle)  
     xs = list()
     ys = list()
@@ -151,7 +162,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.05):
     line = Line(x=xs, y=ys, z=zs, color=color, width=width)
     return line
 
-def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.05):
+def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
     number = (int) (180 / angle)  
     xs = list()
     ys = list()
@@ -176,4 +187,26 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.05):
     
     return line
 
+def Pole(sizeref = 1000, dilate=1.3):
+    long = np.zeros(1)
+    lat = np.ones(1) * 90
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate))
+    pole = go.Cone(
+        u=[0],v=[0],w=[1],
+        x=tab[0,:],y=tab[1,:],z=tab[2,:],
+        sizemode="absolute",
+        sizeref=sizeref,
+        anchor="tip",
+        showscale=False)
+    return pole
+
+def PolarAxis(color='black', width=3, dilate=1.2):
+    long = np.zeros(2)
+    lat = np.zeros(2)
+    lat[0] = -90.
+    lat[1] = 90.
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate))
     
+    line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
+
+    return line

@@ -131,13 +131,13 @@ int main(int /*argc*/, char */*argv*/[])
     dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
   }
 
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) return(0);
-
-  /* Setup constants */
-
-  OptDbg::reset();
+//  /* Setup the license */
+//
+//  if (setup_license("Demonstration")) return(0);
+//
+//  /* Setup constants */
+//
+//  OptDbg::reset();
 
   /* Instantiate the Meshing */
 
@@ -160,6 +160,8 @@ int main(int /*argc*/, char */*argv*/[])
     if (meshb == NULL) return(1);
     meshb->display();
   }
+
+//  VectorDouble result = meshb->distance();
 
   /* Instantiate the ShiftOp */
 
