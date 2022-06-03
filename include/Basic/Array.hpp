@@ -32,6 +32,7 @@ public:
 
   const VectorInt& getNdims() const { return _ndims; }
   const VectorDouble& getValues() const { return _values; }
+  void setValues(const VectorDouble& values) { _values = values; }
 
 private:
   void _update();
