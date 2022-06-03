@@ -130,7 +130,7 @@ void SPDE::init(Model* model,
     {
       _nugget = cova->getSill(0,0);
     }
-    else if (cova->getType() == ECov::BESSEL_K)
+    else if (cova->getType() == ECov::BESSEL_K || cova->getType() == ECov::MARKOV)
     {
       totalSill += cova->getSill(0, 0);
       if (_calculSimu())
@@ -164,7 +164,7 @@ void SPDE::init(Model* model,
     }
     else
     {
-      my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K)");
+      my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K) and Markov (MARKOV)");
     }
   }
 

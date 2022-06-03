@@ -862,7 +862,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
     double s = 0.;
     for (int i = 0; i < ndim; i++)
     {
-      double temp = (double)indices[i]/N - 0.5;
+      double temp = (double)indices[i] / (N - 1) - 0.5;
        s += a[i] * temp * temp;
     }
     Re[iad] = coeff /  evalSpectrum(s);
@@ -894,7 +894,6 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
     results.setValue(newIndices, Re[iad]);
 
     }
-  }
 
   return results;
 }
