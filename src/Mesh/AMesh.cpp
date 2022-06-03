@@ -400,19 +400,20 @@ VectorDouble AMesh::getApexCoordinates(int iapex) const
   return vec;
 }
 
-VectorDouble AMesh::getDistance(int imesh0, const VectorInt& jmeshs)
+VectorDouble AMesh::getDistances(int iapex0, const VectorInt& jmeshs)
 {
-  VectorDouble vec;
+
   VectorInt jlocal = jmeshs;
   if (jlocal.empty()) jlocal = ut_ivector_sequence(getNMeshes());
   int number = (int) jlocal.size();
+  VectorDouble vec(number,0.);
 
-  SpacePoint P1 = SpacePoint(getApexCoordinates(imesh0));
+  SpacePoint P1(getApexCoordinates(iapex0));
 
-  for (int jmesh = 0; jmesh < number; jmesh++)
+  for (int iapex = 0; iapex < number; iapex++)
   {
-    SpacePoint P2 = SpacePoint(getApexCoordinates(jmesh));
-    vec[jmesh] = P1.getDistance(P2);
+    SpacePoint P2(getApexCoordinates(iapex));
+    vec[iapex] = P1.getDistance(P2);
   }
   return vec;
 }

@@ -93,7 +93,7 @@ public:
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
   VectorVectorDouble getEmbeddedApexCoordinates() const;
 
-  VectorDouble getDistance(int imesh0, const VectorInt& jmeshs = VectorInt());
+  VectorDouble getDistances(int iapex0, const VectorInt& jmeshs = VectorInt());
 
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
