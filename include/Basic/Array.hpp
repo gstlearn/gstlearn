@@ -26,6 +26,7 @@ public:
 
   void init(const VectorInt& ndims);
   int  indiceToRank(const VectorInt& indice) const;
+  VectorInt RankToIndice(int rank) const;
   double getValue(const VectorInt& indice) const;
   void setValue(const VectorInt& indice, double value);
 

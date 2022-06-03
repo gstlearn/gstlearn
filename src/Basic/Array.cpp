@@ -84,6 +84,23 @@ int Array::indiceToRank(const VectorInt& indice) const
   return ival;
 }
 
+VectorInt Array::RankToIndice(int rank) const
+{
+  int ndim = (int) _ndims.size();
+  VectorInt indices(ndim);
+
+  int nval = 1;
+  for (int idim=0; idim<ndim; idim++) nval *= _ndims[idim];
+
+  for (int idim=ndim-1; idim>=0; idim--)
+  {
+    nval /= _ndims[idim];
+    indices[idim] = rank / nval;
+    rank -= indices[idim] * nval;
+  }
+  return indices;
+}
+
 bool Array::_isValidIndice(const VectorInt& indice) const
 {
   int ndim = (int) _ndims.size();

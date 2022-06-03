@@ -213,7 +213,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
  */
 int ShiftOpCs::initFromMesh(const AMesh* amesh,
                             Model* model,
-                            const Db* dbout,
+                            const Db* /*dbout*/,
                             int igrf,
                             int icov,
                             bool flagAdvection,

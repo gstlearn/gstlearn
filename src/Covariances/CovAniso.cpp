@@ -833,7 +833,7 @@ void CovAniso::copyCovContext(const CovContext& ctxt)
   if (_cova != nullptr) _cova->copyCovContext(ctxt);
 }
 
-Array CovAniso::evalSpectrum(const VectorDouble& ext, int N) const
+Array CovAniso::evalSpectrum(const VectorDouble& /*ext*/, int N) const
 {
   int ndim = getNDim();
   VectorInt nxs(ndim);
@@ -841,16 +841,16 @@ Array CovAniso::evalSpectrum(const VectorDouble& ext, int N) const
     nxs[idim] = N;
   Array array(nxs);
 
-//  int ntotal = pow(N, ndim);
-//  for (int iad = 0; iad < ntotal; iad++)
-//  {
-//    VectorInt indices = array.getIndices(iad);
-//    double s = 0.;
-//    for (auto &e: indices)
-//      s += e * e;
-//    double res = evalSpectrum(ext, N)
-//    array.setValue(indices, value)
-//  }
+  int ntotal = pow(N, ndim);
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    VectorInt indices = array.RankToIndice(iad);
+    double s = 0.;
+    for (auto &e: indices)
+      s += e * e;
+    double res = evalSpectrum(s);
+    array.setValue(indices, res);
+  }
 //  for (int idim = 0; idim < ndim; idim++)
 //    for (int jdim = 0; jdim < ndim; jdim ++ )
 //  {

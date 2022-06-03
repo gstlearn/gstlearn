@@ -75,7 +75,6 @@ protected:
   virtual double _evaluateCovDerivate(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
-
 private:
   ECov        _type;    /*! Covariance function type */
   CovContext  _ctxt;    /*! Context (space, irfDegree, field, ...) */
