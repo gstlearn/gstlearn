@@ -31,10 +31,17 @@ public:
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
   bool   hasCovOnSphere() const override { return true; }
-  bool   hasSpectrum() const { return true; }
-
+  bool   hasSpectrum() const override { return true; }
+  bool   hasMarkovCoeffs() const override { return false; } //TODO pas to True when _computeCoeffs will be implemented
+  double evaluateSpectrum(double freq, double scale, int ndim) const override;
+  void   setMarkovCoeffs(VectorDouble coeffs){ _markovCoeffs = coeffs;}
+  VectorDouble getMarkovCoeffs() const;
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-  double _evaluateSpectrum(double freq, double scale, int ndim) const override;
+  void _computeCoeffs() const;
+
+private:
+  mutable VectorDouble _markovCoeffs;
+  mutable bool _coeffsComputed;
 };

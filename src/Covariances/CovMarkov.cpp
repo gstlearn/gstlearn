@@ -42,43 +42,42 @@ CovMarkov::~CovMarkov()
 
 double CovMarkov::getScadef() const
 {
-  return sqrt(12. * getParam());
+  return getParam();
 }
 
-double CovMarkov::_evaluateCov(double h) const
+double CovMarkov::_evaluateCov(double /*h*/) const
 {
-  static double TAB[MAXTAB];
-
-  double cov = 0.;
-  double third = getParam();
-  int nb = (int) floor(third);
-  double alpha = third - nb;
-  if (third <= 0 || nb >= MAXTAB) return (0.);
-  double coeff = (h > 0) ? pow(h / 2., third) : 1.;
-  cov = 1.;
-  if (h > 0)
-  {
-    if (bessel_k(h, alpha, nb + 1, TAB) < nb + 1) return (cov);
-    cov = 2. * coeff * TAB[nb] / exp(loggamma(third));
-  }
-  return (cov);
+  return TEST;
 }
 
 String CovMarkov::getFormula() const
 {
-  return "C(h)=\\frac{ \\left( \\frac{h}{a_t} \\right)^\\alpha}{2^{\\alpha-1}\\Gamma(\\alpha)}K_{-\\alpha} \\left( \\frac{h}{a_t} \\right)";
+  return "C(h)=\\int_{R^d} \\frac{e^{-i\\omega^t.h}}{P(||\\omega||^2)}d\\omega";
 }
 
 double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
 {
   double kappa2 = 1. / ( scale * scale );
-  return (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
+  double s = 0.;
+  int n = (int)_markovCoeffs.size();
+  double nnp1 = scale * scale * (double) degree * ((double) degree + 1.);
+  for(int i = 0; i< n;i++)
+  {
+    s += _markovCoeffs[i] * pow(nnp1,i);
+  }
+  return scale * scale * (2. * degree + 1.) / s;
 }
 
-double CovMarkov::_evaluateSpectrum(double freq, double scale, int ndim) const
+double CovMarkov::evaluateSpectrum(double freq, double scale, int /*ndim*/) const
 {
   double kappa2 = 1. / ( scale * scale );
-  double alpha = (double) ndim / 2. + getParam();
-  double fourier = 1. / pow(kappa2 + freq, alpha);
-  return fourier;
+ // double s = kappa2;
+  double s = 0.;
+  int n = (int)_markovCoeffs.size();
+  for(int i = 0; i< n;i++)
+  {
+      s += _markovCoeffs[i] * pow(freq,i);
+  }
+  return 1. / s;
 }
+

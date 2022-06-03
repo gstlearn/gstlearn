@@ -77,10 +77,10 @@ double ACovFunc::evalCovDerivative(int degree, double h) const
   return _evaluateCovDerivate(degree, h);
 }
 
-double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
+double ACovFunc::evalCovOnSphere(double calpha, double scale, int degree) const
 {
   double s = 0.;
-  if (alpha == 0.)
+  if (calpha == 1.)
   {
     for (int i = 0; i < degree; i++)
     {
@@ -91,7 +91,7 @@ double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
   {
     double u0 = 1.;
     double u2 = 0.;
-    double calpha = cos(alpha);
+    //double calpha = cos(alpha);
     double u1 = calpha;
     for (int i = 1; i < (degree + 2); i++)
     {
@@ -170,6 +170,43 @@ double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
   return 0.;
 }
 
+void ACovFunc::setMarkovCoeffs(VectorDouble /* coeffs */)
+{
+  if (! hasMarkovCoeffs())
+  {
+    messerr("This covariance is not known to be Markovian");
+  }
+  messerr("This covariance should have a method giving the Markov coefficients");
+  messerr("But getMarkovCoeffs has not been coded");
+  my_throw("This should never happen");
+}
+
+VectorDouble ACovFunc::getMarkovCoeffs() const
+{
+  if (! hasMarkovCoeffs())
+  {
+      messerr("This covariance is not known to be Markovian");
+      return VectorDouble();
+  }
+  messerr("This covariance should have a method giving the Markov coefficients");
+  messerr("But getMarkovCoeffs has not been coded");
+  my_throw("This should never happen");
+  return VectorDouble();
+}
+
+double ACovFunc::evaluateSpectrum(double /*freq*/, double /*scale*/, int /*ndim*/) const
+{
+  if (! hasSpectrum())
+  {
+      messerr("This covariance does not allow spectrum calculations");
+      return TEST;
+  }
+  messerr("This covariance should have a method giving the spectrum");
+  messerr("But evaluateSpectrum has not been coded");
+  my_throw("This should never happen");
+  return 0.;
+}
+
 double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
 {
   if (! hasCovOnSphere())
@@ -183,15 +220,3 @@ double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
   return 0.;
 }
 
-double ACovFunc::_evaluateSpectrum(double /*freq*/, double /*scale*/, int /*ndim*/) const
-{
-  if (! hasSpectrum())
-  {
-    messerr("This covariance does not allow Spectrum calculations");
-    return TEST;
-  }
-  messerr("This covariance should have Spectrum calculations");
-  messerr("But _evaluateSpectrum has not been coded");
-  my_throw("This should never happen");
-  return 0.;
-}

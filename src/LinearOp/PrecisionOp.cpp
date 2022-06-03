@@ -365,6 +365,10 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
 
 int PrecisionOp::_preparePrecisionPoly()
 {
+  if(_cova->hasMarkovCoeffs())
+  {
+    _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(_cova->getMarkovCoeffs());
+  }
   if (_polynomials.count(EPowerPT::ONE)) return 0;
   VectorDouble blin;
 

@@ -43,6 +43,13 @@ public:
   {
     return TEST;
   }
+
+  virtual double evalSpectrum(double /*freq*/) const
+  {
+    return TEST;
+  }
+
+
   /////////////////////////////////////////////////////////////////////////////////
 
   virtual MatrixSquareGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;

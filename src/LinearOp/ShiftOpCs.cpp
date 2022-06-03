@@ -249,9 +249,9 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     _determineFlagNoStatByHH();
 
     // Attach the Model
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-                   1, 1, 0, 0))
-    my_throw("Problem with spde_check() method");
+//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
+//                   1, 1, 0, 0))
+//    my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);

@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
+#include "Basic/Vector.hpp"
 
 class CovContext;
 
@@ -31,10 +32,18 @@ public:
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
   bool   hasCovOnSphere() const override { return true; }
-  bool   hasSpectrum() const { return true; }
+  bool   hasSpectrum() const override { return true; }
+  bool   hasMarkovCoeffs() const override { return true; }
+
+  double evaluateSpectrum(double freq, double scale, int ndim) const override;
+  VectorDouble getMarkovCoeffs() const {return _markovCoeffs;}
+  void   setMarkovCoeffs(VectorDouble coeffs){ _markovCoeffs = coeffs;}
+
 
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-  double _evaluateSpectrum(double freq, double scale, int ndim) const override;
+
+private :
+  VectorDouble _markovCoeffs;
 };

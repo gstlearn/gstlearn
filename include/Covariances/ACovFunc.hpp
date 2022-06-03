@@ -47,8 +47,9 @@ public:
   virtual bool         hasParam()     const { return false; }
   virtual String       getCovName()   const = 0;
   virtual bool         hasCovDerivative() const { return false; }
-  virtual bool         hasCovOnSphere() const { return false; }
-  virtual bool         hasSpectrum() const { return false; }
+  virtual bool         hasCovOnSphere()   const { return false; }
+  virtual bool         hasSpectrum()      const { return false; }
+  virtual bool         hasMarkovCoeffs()  const { return false; }
   ///////////////////////////////////////////////////
 
   void setParam(double param);
@@ -63,6 +64,9 @@ public:
   double               getParam()   const { return _param; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
+  virtual double evaluateSpectrum(double freq, double scale, int ndim) const;
+  virtual VectorDouble getMarkovCoeffs() const;
+  virtual void setMarkovCoeffs(VectorDouble coeffs);
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
@@ -70,7 +74,7 @@ protected:
   virtual double _evaluateCov(double h) const = 0;
   virtual double _evaluateCovDerivate(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
-  virtual double _evaluateSpectrum(double freq, double scale, int ndim) const;
+
 
 private:
   ECov        _type;    /*! Covariance function type */
