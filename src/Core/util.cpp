@@ -2722,11 +2722,11 @@ double distance_point_to_segment(double x0,
  **
  *****************************************************************************/
 void distance_point_to_polyline(double x0,
-                                                double y0,
-                                                int nvert,
-                                                const double *xl,
-                                                const double *yl,
-                                                PL_Dist *pldist)
+                                double y0,
+                                int nvert,
+                                const double *xl,
+                                const double *yl,
+                                PL_Dist *pldist)
 {
   double xx, yy, dist, dmin;
   int i, nint;
@@ -3249,7 +3249,7 @@ double ut_geodetic_triangle_surface(double long1,
  *****************************************************************************/
 double ut_distance(int ndim, double *tab1, double *tab2)
 {
-  double distance, distang, R, v1, v2, delta;
+  double distance, R, v1, v2, delta;
   int flag_sphere;
 
   distance = 0.;
@@ -3261,8 +3261,7 @@ double ut_distance(int ndim, double *tab1, double *tab2)
     /* Longitude = 1st coord; Latitude = 2nd coord (in degrees) */
 
     variety_get_characteristics(&R);
-    distang = ut_geodetic_angular_distance(tab1[0], tab1[1], tab2[0], tab2[1]);
-    distance = R * distang;
+    distance = ut_geodetic_angular_distance(tab1[0], tab1[1], tab2[0], tab2[1], R);
   }
   else
   {

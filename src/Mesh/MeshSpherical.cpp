@@ -15,6 +15,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Space/SpaceSN.hpp"
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical()
@@ -515,7 +516,7 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   }
   else
   {
-    r = 6371.;
+    r = EARTH_RADIUS;
   }
   util_convert_sph2cart(getCoor(imesh, ic, 0)-180.,
                         getCoor(imesh, ic, 1),
@@ -535,7 +536,7 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   }
   else
   {
-    r = 6371.;
+    r = EARTH_RADIUS;
   }
   util_convert_sph2cart(getApexCoor(iapex, 0)-180.,
                         getApexCoor(iapex, 1),

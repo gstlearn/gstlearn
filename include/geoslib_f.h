@@ -82,7 +82,7 @@ GSTLEARN_EXPORT double ut_geodetic_angular_distance(double long1,
 /* Prototyping the functions in variety */
 /****************************************/
 
-GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = 6371.);
+GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = EARTH_RADIUS);
 GSTLEARN_EXPORT void variety_query(int *flag_sphere);
 GSTLEARN_EXPORT void variety_print(void);
 GSTLEARN_EXPORT void variety_toggle(int mode);

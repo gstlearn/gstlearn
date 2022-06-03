@@ -48,11 +48,15 @@ void SpaceSN::move(SpacePoint& p1,
   p1.setCoord(ut_vector_add(p1.getCoord(), vec));
 }
 
-double SpaceSN::getDistance(const SpacePoint& /*p1*/,
-                            const SpacePoint& /*p2*/) const
+double SpaceSN::getDistance(const SpacePoint& p1,
+                            const SpacePoint& p2) const
 {
-  /// TODO : SpaceSN::getDistance
-  return 0.;
+  double long1 = p1.getCoord(0);
+  double lat1  = p1.getCoord(1);
+  double long2 = p2.getCoord(0);
+  double lat2  = p2.getCoord(1);
+  double dist = ut_geodetic_angular_distance(long1, lat1, long2, lat2, _radius);
+  return dist;
 }
 
 double SpaceSN::getDistance(const SpacePoint& /*p1*/,
