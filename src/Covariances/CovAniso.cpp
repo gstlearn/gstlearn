@@ -387,10 +387,15 @@ double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
   variety_get_characteristics(&radius);
   double scale = getScale() / radius;
   double sill = getSill(0, 0);
-  double cov = _cova->evalCovOnSphere(alpha, scale, degree);
+  //
+ // alpha = alpha / scale;
+ // scale = 1.;
+
+  //
+  double cov = _cova->evalCovOnSphere(cos(alpha), scale, degree);
   if (normalize)
   {
-    double cov0 = _cova->evalCovOnSphere(0., scale, degree);
+    double cov0 = _cova->evalCovOnSphere(1., scale, degree);
     cov /= cov0;
   }
   return sill * cov;

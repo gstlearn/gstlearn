@@ -60,14 +60,12 @@ double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
   double kappa2 = 1. / ( scale * scale );
   double s =0.;
   int n = (int)_markovCoeffs.size();
-  int nnp1 = degree * (degree + 1);
-  int temp = nnp1;
+  double nnp1 = scale * scale * (double) degree * ((double) degree + 1.);
   for(int i = 0; i< n;i++)
   {
     s += _markovCoeffs[i] * pow(nnp1,i);
-    temp *= nnp1;
   }
-  return (2. * degree + 1.) / s;
+  return scale * scale * (2. * degree + 1.) / s;
 }
 
 double CovMarkov::evaluateSpectrum(double freq, double scale, int /*ndim*/) const
@@ -76,11 +74,9 @@ double CovMarkov::evaluateSpectrum(double freq, double scale, int /*ndim*/) cons
  // double s = kappa2;
   double s = 0.;
   int n = (int)_markovCoeffs.size();
-  int temp = 1.;
   for(int i = 0; i< n;i++)
   {
       s += _markovCoeffs[i] * pow(freq,i);
-      temp *= freq;
   }
   return 1. / s;
 }
