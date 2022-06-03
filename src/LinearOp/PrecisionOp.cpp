@@ -383,6 +383,7 @@ int PrecisionOp::_preparePrecisionPoly()
   if(_shiftOp->getVariety()==0)
   {
     correc = spde_compute_correc(ndim, param);
+    //correc = 1.;
   }
   else
   {
