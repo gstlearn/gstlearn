@@ -832,22 +832,22 @@ void CovAniso::copyCovContext(const CovContext& ctxt)
 
 Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
 {
+  N *= 2;
   int ndim = getNDim();
   VectorInt nxs(ndim);
   for (int idim = 0; idim < ndim; idim++)
-    nxs[idim] = N;
+    nxs[idim] = N ;
   Array array(nxs);
 
   int ntotal = pow(N, ndim);
-  int nresult = pow(N/2, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
   double prod = 1.;
 
-  for(int i = 0; i < ndim; i++)
+  for(int idim = 0; idim < ndim; idim++)
   {
-    coeff = 1. / (2 * hmax[i]);
-    a[i]= 4 * GV_PI * (N-1) * coeff;
+    coeff = 1. / (2. * hmax[idim]);
+    a[idim]=    GV_PI * (N-1) / ( hmax[idim]);
     prod *= coeff;
   }
 
@@ -857,43 +857,64 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
 
   for (int iad = 0; iad < ntotal; iad++)
   {
-    array.RankToIndice(iad,indices);
+    array.rankToIndice(iad,indices);
 
     double s = 0.;
-    for (int i = 0; i < ndim; i++)
+    for (int idim = 0; idim < ndim; idim++)
     {
-      double temp = (double)indices[i] / (N - 1) - 0.5;
-       s += a[i] * temp * temp;
+      double temp = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
+      s += temp * temp;
     }
-    Re[iad] = coeff /  evalSpectrum(s);
+    Re[iad] = prod * evalSpectrum(s);
+    array.setValue(indices,Re[iad]);
 
   }
 
   FFTn(ndim, nxs, Re, Im);
 
+
   // Retrieve information from the Re array and load them back in the array result.
 
+  VectorInt nxs2(ndim);
   for (int idim = 0; idim < ndim; idim++)
-       nxs[idim]/=2;
-
-  Array results(nxs);
-
+    nxs2[idim] = N/2 ;
+  Array result(nxs2);
   VectorInt newIndices(ndim);
 
-  for (int iad = 0; iad < nresult; iad++)
+  for (int iad = 0; iad < ntotal; iad++)
   {
-    array.RankToIndice(iad,indices);
-    for (int i = 0;  i < ndim; i++)
+    array.rankToIndice(iad,indices);
+    for (int idim = 0;  idim < ndim; idim++)
     {
-      if (indices[i] % 2 !=0 )
+      int odd = indices[idim] % 2;
+      int s = 1 - 2 * odd;
+      newIndices[idim] = nxs[idim]/2 + s * (indices[idim]/2 + odd);
+      Re[iad] *= s;
+
+    }
+    array.setValue(newIndices,Re[iad]);
+  }
+
+  bool cont;
+  int iadr = 0;
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+    cont = true;
+    for (int idim = 0;  idim < ndim; idim++)
+    {
+      if (indices[idim]<(nxs2[idim]/2) || indices[idim] >= (3 * nxs2[idim]/2 ))
+      {
+        cont = false;
         continue;
-
-      newIndices[i] = indices[i] / 2 + indices[i] % 2;
+      }
     }
-
-    results.setValue(newIndices, Re[iad]);
-
+    if(cont)
+    {
+      result.rankToIndice(iadr++,newIndices);
+      result.setValue(newIndices,array.getValue(indices));
     }
+  }
 
-  return results;
+  return result;
 }
