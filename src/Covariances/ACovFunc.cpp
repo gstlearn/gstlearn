@@ -14,6 +14,7 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/FFT.hpp"
 
 #include <math.h>
 
@@ -220,3 +221,109 @@ double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
   return 0.;
 }
 
+Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
+{
+  N *= 2;
+  int ndim = hmax.size();
+  VectorInt nxs(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    nxs[idim] = N ;
+  Array array(nxs);
+
+  int ntotal = pow(N, ndim);
+  VectorDouble a(ndim);
+  double coeff = 0;
+  double prod = 1.;
+
+  for(int idim = 0; idim < ndim; idim++)
+  {
+    coeff = 1. / (2. * hmax[idim]);
+    a[idim]=    GV_PI * (N-1) / ( hmax[idim]);
+    prod *= coeff;
+  }
+
+  VectorDouble Re(ntotal);
+  VectorDouble Im(ntotal,0.);
+  VectorInt indices(ndim);
+
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+
+    double s = 0.;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double temp = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
+      s += temp * temp;
+    }
+    Re[iad] = prod * evaluateSpectrum(s,1,ndim);
+    array.setValue(indices,Re[iad]);
+
+  }
+
+  FFTn(ndim, nxs, Re, Im);
+
+
+  // Retrieve information from the Re array and load them back in the array result.
+
+  VectorInt nxs2(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    nxs2[idim] = N/2 ;
+  Array result(nxs2);
+  VectorInt newIndices(ndim);
+
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+    for (int idim = 0;  idim < ndim; idim++)
+    {
+      int odd = indices[idim] % 2;
+      int s = 1 - 2 * odd;
+      newIndices[idim] = nxs[idim]/2 + s * (indices[idim]/2 + odd);
+      Re[iad] *= s;
+
+    }
+    array.setValue(newIndices,Re[iad]);
+  }
+
+  bool cont;
+  int iadr = 0;
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+    cont = true;
+    for (int idim = 0;  idim < ndim; idim++)
+    {
+      if (indices[idim]<(nxs2[idim]/2) || indices[idim] >= (3 * nxs2[idim]/2 ))
+      {
+        cont = false;
+        continue;
+      }
+    }
+    if(cont)
+    {
+      result.rankToIndice(iadr++,newIndices);
+      result.setValue(newIndices,array.getValue(indices));
+    }
+  }
+
+  return result;
+}
+
+
+void ACovFunc::computeCorrec(int dim)
+{
+
+  int N = pow(2,8);
+  VectorInt Nv(dim);
+  VectorDouble hmax(dim);
+  for (int idim = 0; idim<dim; idim++)
+  {
+    hmax[idim] = 3 * getScadef();
+    Nv[idim] = N/2;
+  }
+
+  Array res = _evalCovFFT(hmax,N);
+  setCorrec(res.getValue(Nv));
+
+}

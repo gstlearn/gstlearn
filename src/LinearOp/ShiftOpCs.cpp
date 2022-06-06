@@ -1526,7 +1526,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   int igrf = _getIgrf();
   int icov = _getIcov();
   MatrixSquareSymmetric hh(ndim);
-  double correc  = 1.;
+  double correc  = cova->getCorrec();
   if (_isGlobalHH(igrf, icov))
   {
     _loadHHByApex(amesh, hh, 0);
@@ -1555,7 +1555,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
     }
     if (amesh->getVariety() != 1)
     {
-      _Lambda.push_back(sqrt((_TildeC[ip]) / sill));
+      _Lambda.push_back(sqrt((_TildeC[ip]) * correc / sill));
     }
     else
     {

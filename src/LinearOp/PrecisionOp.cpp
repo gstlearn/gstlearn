@@ -365,39 +365,35 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
 
 int PrecisionOp::_preparePrecisionPoly()
 {
+
+  if (_cova == nullptr) return 1;
+
   if(_cova->hasMarkovCoeffs())
   {
     _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(_cova->getMarkovCoeffs());
   }
+
   if (_polynomials.count(EPowerPT::ONE)) return 0;
-  VectorDouble blin;
 
-  if (_cova == nullptr) return 1;
-  int ndim = _cova->getNDim();
-  double param = _cova->getParam();
-  double ndims2 = ((double) ndim) / 2.;
-  double alpha = param + ndims2;
-  if (! isInteger(alpha,EPSILON3)) return 1;
-
-  double correc = 1.;
-  if(_shiftOp->getVariety()==0)
-  {
-    correc = spde_compute_correc(ndim, param);
-    //correc = 1.;
-  }
-  else
-  {
-    // TODO implement something
-  }
-  int p = getClosestInteger(alpha);
-  int ndimp = p + 1;
-  blin.resize(ndimp);
-  for (int i = 0; i < ndimp; i++)
-  {
-    blin[i] = ut_cnp(p, i) * correc;
-    if (_verbose) message("Coefficient blin[%d] = %lf\n",i+1,blin[i]);
-  }
-  _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(blin);
+//  VectorDouble blin;
+//
+//
+//  int ndim = _cova->getNDim();
+//  double param = _cova->getParam();
+//  double ndims2 = ((double) ndim) / 2.;
+//  double alpha = param + ndims2;
+//  if (! isInteger(alpha,EPSILON3)) return 1;
+//
+//
+//  int p = getClosestInteger(alpha);
+//  int ndimp = p + 1;
+//  blin.resize(ndimp);
+//  for (int i = 0; i < ndimp; i++)
+//  {
+//    blin[i] = ut_cnp(p, i);
+//    if (_verbose) message("Coefficient blin[%d] = %lf\n",i+1,blin[i]);
+//  }
+//  _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(blin);
   return 0;
 }
 

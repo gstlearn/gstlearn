@@ -12,24 +12,25 @@
 #include "Covariances/CovContext.hpp"
 #include "Basic/MathFunc.hpp"
 #include "geoslib_f.h"
+#include "geoslib_old_f.h"
 #include "math.h"
 
 #define MAXTAB 100
 
 CovBesselK::CovBesselK(const CovContext& ctxt)
 : ACovFunc(ECov::BESSEL_K, ctxt)
+  ,_correc(1.)
   ,_markovCoeffs(VectorDouble())
-  ,_coeffsComputed(false)
 {
   setParam(1);
-
+  computeMarkovCoeffs(2);
   //TODO compute blin (rapatrier de PrecisionOp.cpp
 }
 
 CovBesselK::CovBesselK(const CovBesselK &r)
 : ACovFunc(r)
+  ,_correc(r._correc)
   ,_markovCoeffs(r._markovCoeffs)
-  ,_coeffsComputed(r._coeffsComputed)
 {
 }
 
@@ -86,18 +87,38 @@ double CovBesselK::evaluateSpectrum(double freq, double scale, int ndim) const
 {
   double kappa2 = 1. / ( scale * scale );
   double alpha = (double) ndim / 2. + getParam();
-  return 1. / pow(kappa2 + freq, alpha);
+  return _correc / ( pow(kappa2 + freq, alpha));
 }
 
-void CovBesselK::_computeCoeffs() const
+void CovBesselK::computeMarkovCoeffs(int ndim)
 {
 
+  double param = getParam();
+  double ndims2 = ((double) ndim) / 2.;
+  double alpha = param + ndims2;
+  int p = getClosestInteger(alpha);
+  int ndimp = p + 1;
+  _markovCoeffs.resize(ndimp);
+  for (int i = 0; i < ndimp; i++)
+  {
+    _markovCoeffs[i] = (double)ut_cnp(p, i);
+  }
+  computeCorrec(ndim);
 }
+
+void CovBesselK::computeCorrec(int ndim)
+{
+  double g0, ndims2, gammap, gammaa;
+  ndims2 = ((double) ndim) / 2.;
+  gammap = exp(loggamma(getParam()));
+  gammaa = exp(loggamma(getParam() + ndims2));
+  g0 = pow(4. * GV_PI, ndims2);
+  _correc = gammap / (g0 * gammaa);
+
+}
+
 
 VectorDouble CovBesselK::getMarkovCoeffs()const
 {
-  if(!_coeffsComputed)
-    _computeCoeffs();
-  _coeffsComputed = true;
   return _markovCoeffs;
 }

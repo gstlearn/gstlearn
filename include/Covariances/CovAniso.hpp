@@ -197,17 +197,20 @@ public:
   static double range2scale(const ECov& type, double range, double param = 1.);
 
   VectorDouble evalCovOnSphere(const VectorDouble& alpha, int degree) const;
-  Array evalCovFFT(const VectorDouble& ext, int N = 128) const;
+  Array evalCovFFT(const VectorDouble& ext, int N = 128, int ivar = 0, int jvar = 0) const;
 
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
-
+  void computeMarkovCoeffs();
+  double getCorrec() const;
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
+  virtual void _initFromContext();
 
 private:
   bool   _isVariableValid(int ivar) const;
+  void   _computeCorrec();
 
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?

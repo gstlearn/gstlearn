@@ -36,14 +36,17 @@ public:
   bool   hasMarkovCoeffs() const override { return true; }
 
   double evaluateSpectrum(double freq, double scale, int ndim) const override;
-  VectorDouble getMarkovCoeffs() const {return _markovCoeffs;}
-  void   setMarkovCoeffs(VectorDouble coeffs){ _markovCoeffs = coeffs;}
-
+  VectorDouble getMarkovCoeffs() const override {return _markovCoeffs;}
+  void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
+  double getCorrec() const override {return _correc;}
+  void setCorrec(double val) override { _correc = val;}
 
 protected:
+
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
 
 private :
   VectorDouble _markovCoeffs;
+  double _correc;
 };

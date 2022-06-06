@@ -32,16 +32,23 @@ public:
   double getScadef() const override;
   bool   hasCovOnSphere() const override { return true; }
   bool   hasSpectrum() const override { return true; }
-  bool   hasMarkovCoeffs() const override { return false; } //TODO pas to True when _computeCoeffs will be implemented
+  bool   hasMarkovCoeffs() const override { return true; }
   double evaluateSpectrum(double freq, double scale, int ndim) const override;
-  void   setMarkovCoeffs(VectorDouble coeffs){ _markovCoeffs = coeffs;}
-  VectorDouble getMarkovCoeffs() const;
+  void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
+  VectorDouble getMarkovCoeffs() const override;
+  double getCorrec() const override { return _correc;}
+  void   computeCorrec(int ndim);
+  void  setCorrec(double val) override { _correc = val;}
+  void  computeMarkovCoeffs(int dim) override;
+
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-  void _computeCoeffs() const;
+
+
 
 private:
-  mutable VectorDouble _markovCoeffs;
-  mutable bool _coeffsComputed;
+  double _correc;
+  VectorDouble _markovCoeffs;
+
 };

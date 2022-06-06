@@ -37,7 +37,7 @@ CovAniso::CovAniso(const ECov& type, const CovContext& ctxt)
       _sill(),
       _aniso(ctxt.getSpace()->getNDim())
 {
-  _updateFromContext();
+  _initFromContext();
 }
 
 CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
@@ -49,7 +49,7 @@ CovAniso::CovAniso(const String& symbol, const CovContext& ctxt)
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
-  _updateFromContext();
+  _initFromContext();
 }
 
 CovAniso::CovAniso(const ECov& type,
@@ -71,7 +71,7 @@ CovAniso::CovAniso(const ECov& type,
   }
   else
   {
-    _updateFromContext();
+    _initFromContext();
     _sill.setValue(0, 0, sill);
     setParam(param);
     if (flagRange)
@@ -103,6 +103,16 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
   return *this;
 }
 
+void CovAniso::_computeCorrec()
+{
+  _cova->computeCorrec(getNDim());
+}
+
+
+void CovAniso::computeMarkovCoeffs()
+{
+  _cova->computeMarkovCoeffs(getNDim());
+}
 CovAniso::~CovAniso()
 {
   delete _cova;
@@ -118,6 +128,7 @@ void CovAniso::setParam(double param)
 {
   if (!_cova->hasParam()) return;
   _cova->setParam(param);
+  _updateFromContext();
 }
 
 void CovAniso::setSill(double sill)
@@ -403,8 +414,14 @@ double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 void CovAniso::setMarkovCoeffs(VectorDouble coeffs)
 {
   _cova->setMarkovCoeffs(coeffs);
+  _computeCorrec();
 }
 
+
+double CovAniso::getCorrec() const
+{
+  return _cova->getCorrec();
+}
 double CovAniso::evalSpectrum(double freq) const
 {
 
@@ -412,7 +429,7 @@ double CovAniso::evalSpectrum(double freq) const
   double scale = getScale();
   double sill = getSill(0,0);
   double val = _cova->evaluateSpectrum(freq,scale,getNDim());
-  return sill * val;
+  return sill / getCorrec() * val;
 }
 
 
@@ -613,12 +630,23 @@ double CovAniso::getParam() const
     return _cova->getParam();
 }
 
-void CovAniso::_updateFromContext()
+void CovAniso::_initFromContext()
 {
   int ndim = getNDim();
   int nvar = getNVariables();
   _sill.reset(nvar, nvar, 1.);
   _aniso.init(ndim);
+ _updateFromContext();
+
+}
+
+
+void CovAniso::_updateFromContext()
+{
+
+  computeMarkovCoeffs();
+  _computeCorrec();
+
 }
 
 /**
@@ -830,7 +858,7 @@ void CovAniso::copyCovContext(const CovContext& ctxt)
   if (_cova != nullptr) _cova->copyCovContext(ctxt);
 }
 
-Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
+Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N , int ivar, int jvar) const
 {
   N *= 2;
   int ndim = getNDim();
@@ -912,7 +940,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N) const
     if(cont)
     {
       result.rankToIndice(iadr++,newIndices);
-      result.setValue(newIndices,array.getValue(indices));
+      result.setValue(newIndices,  array.getValue(indices));
     }
   }
 

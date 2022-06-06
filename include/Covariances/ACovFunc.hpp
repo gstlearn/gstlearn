@@ -15,6 +15,7 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
+#include "Basic/Array.hpp"
 
 /* Covariance basic function for normalized sill and distance:
  * Positive definite function
@@ -67,6 +68,10 @@ public:
   virtual double evaluateSpectrum(double freq, double scale, int ndim) const;
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(VectorDouble coeffs);
+  virtual double getCorrec() const {return 1.;}
+  virtual void setCorrec(double /*val*/){}
+  virtual void computeCorrec(int dim);
+  virtual void computeMarkovCoeffs(int /*dim*/){};
 
 protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
@@ -76,6 +81,7 @@ protected:
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
 private:
+  Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;
   ECov        _type;    /*! Covariance function type */
   CovContext  _ctxt;    /*! Context (space, irfDegree, field, ...) */
   double      _param;   /*! Third parameter (TEST if not used) */

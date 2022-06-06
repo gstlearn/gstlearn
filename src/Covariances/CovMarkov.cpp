@@ -18,13 +18,17 @@
 
 CovMarkov::CovMarkov(const CovContext& ctxt)
 : ACovFunc(ECov::MARKOV, ctxt)
+  , _correc(1.)
 {
   setParam(1);
+
 }
 
 CovMarkov::CovMarkov(const CovMarkov &r)
 : ACovFunc(r)
 {
+  _markovCoeffs = r._markovCoeffs;
+  _correc = r._correc;
 }
 
 CovMarkov& CovMarkov::operator=(const CovMarkov &r)
@@ -42,7 +46,8 @@ CovMarkov::~CovMarkov()
 
 double CovMarkov::getScadef() const
 {
-  return getParam();
+  //return sqrt(12. * _markovCoeffs.size());
+  return sqrt(12.);
 }
 
 double CovMarkov::_evaluateCov(double /*h*/) const
