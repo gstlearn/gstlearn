@@ -40,16 +40,21 @@ public:
   void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
 
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
+  static MeshManifold* createFromNF(const String& neutralFilename,
+                                     bool verbose = false);
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
   cs* getMeshToDb(const Db *db,
                   bool fatal = false,
                   bool verbose = false) const override;
-
   int getVariety() const { return 2; }
 
-
   VectorInt getMeshes() const {return _meshes;}
+
+protected:
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
   void    _defineBoundingBox();

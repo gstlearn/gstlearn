@@ -13,20 +13,23 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
 #include "Space/SpacePoint.hpp"
 
 #include <algorithm>
 
 AMesh::AMesh()
-  : AStringable()
-  , _nDim(0)
-  , _extendMin()
-  , _extendMax()
+    : AStringable(),
+      ASerializable(),
+      _nDim(0),
+      _extendMin(),
+      _extendMax()
 {
 }
 
 AMesh::AMesh(const AMesh &m)
-  : AStringable(m)
+  : AStringable(m),
+    ASerializable(m)
 {
   _recopy(m);
 }
@@ -36,6 +39,7 @@ AMesh& AMesh::operator= (const AMesh &m)
   if (this != &m)
   {
     AStringable::operator=(m);
+    ASerializable::operator=(m);
     _recopy(m);
   }
   return *this;
@@ -509,4 +513,20 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
   {
     ut_ivector_display(String(), Vmesh[irow]);
   }
+}
+
+int AMesh::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  bool ret = _recordRead<int>(is, "Space Dimension", _nDim);
+  ret = ret && _recordReadVec<double>(is, "Minimum Extension", _extendMin);
+  ret = ret && _recordReadVec<double>(is, "Maximum Extension", _extendMax);
+  return 0;
+}
+
+int AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWriteVec<double>(os, "Minimum Extension", _extendMin);
+  ret = ret && _recordWriteVec<double>(os, "Maximum Extension", _extendMax);
+  return 0;
 }

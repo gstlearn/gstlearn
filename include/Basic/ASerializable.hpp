@@ -98,8 +98,8 @@ private:
 
 template <typename T>
 bool ASerializable::_recordWrite(std::ostream& os,
-                                  const String& title,
-                                  const T& val)
+                                 const String& title,
+                                 const T& val)
 {
   if (os.good())
   {
@@ -123,8 +123,8 @@ bool ASerializable::_recordWrite(std::ostream& os,
 
 template <typename T>
 bool ASerializable::_recordWriteVec(std::ostream& os,
-                                     const String& title,
-                                     const std::vector<T>& vec)
+                                    const String& title,
+                                    const std::vector<T>& vec)
 {
   if (os.good())
   {
@@ -143,9 +143,7 @@ bool ASerializable::_recordWriteVec(std::ostream& os,
 }
 
 template <typename T>
-bool ASerializable::_recordRead(std::istream& is,
-                                 const String& title,
-                                 T& val)
+bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
 {
   val = T();
   if (is.good())
@@ -193,8 +191,8 @@ bool ASerializable::_recordRead(std::istream& is,
 
 template <typename T>
 bool ASerializable::_recordReadVec(std::istream& is,
-                                    const String& title,
-                                    std::vector<T>& vec)
+                                   const String& title,
+                                   std::vector<T>& vec)
 {
   vec.clear();
   if (is.good())

@@ -13,13 +13,14 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "csparse_d.h"
 
 class MatrixRectangular;
 class Db;
 class SPDE_Mesh;
 
-class GSTLEARN_EXPORT AMesh : public AStringable
+class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {
 
 public:
@@ -54,6 +55,7 @@ public:
   /*! Returns the space variety */
   virtual int getVariety() const { return 0; }
 
+  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const = 0;
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
   /*! Set the Space dimension */
@@ -98,6 +100,10 @@ public:
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
   void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
+
+protected:
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
   void _recopy(const AMesh &m);

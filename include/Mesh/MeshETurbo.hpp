@@ -59,6 +59,10 @@ public:
   void   setPolarized(bool flag) { _isPolarized = flag; }
   void   setMaskArrayFromInt(int* array);
   void   setMaskArrayFromDouble(double* array);
+
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
+  static MeshETurbo* createFromNF(const String& neutralFilename,
+                                     bool verbose = false);
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,
@@ -78,11 +82,7 @@ public:
                    bool useSel = true,
                    int verbose = 0);
   bool isNodeMasked(int iabs) const;
-
-  const Grid& getGrid() const
-  {
-    return _grid;
-  }
+  const Grid& getGrid() const { return _grid; }
 
 private:
   int  _defineGrid(const VectorDouble& cellsize);
@@ -96,13 +96,15 @@ private:
                   VectorInt& indices,
                   double *rhs,
                   double *lambda) const;
-
-private:
   void _deallocate();
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
 
+protected:
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+
 private:
-  Grid _grid;
+  Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
   bool  _isMaskDefined;
