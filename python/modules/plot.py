@@ -91,8 +91,14 @@ def addColorbar(im, ax):
     cbar = plt.colorbar(im, ax=ax, cax=cax)
     return cbar
 
-def getDefinedValues(db, name, usesel=True, compress=False):
-    tabx = db.getColumn(name, usesel)
+def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True, compress=False):
+
+    if db.isGrid() and db.getNDim() > 2:
+        if corner is None:
+            corner = gl.ut_vector_int(db.getNDim(),0)
+        tabx = db.getOneSlice(name, posx, posy, corner, usesel)
+    else:
+        tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
     tabx[tabx == gl.getTEST()] = np.nan
     
@@ -564,7 +570,7 @@ def point(db,
     
     # Color of symbol
     if color_name is not None:
-        colval = getDefinedValues(db, color_name, usesel, False)
+        colval = getDefinedValues(db, color_name, 0, 1, None, usesel, False)
         if (directColor and cmap is not None):
             colval = colval.astype(int)
             colval = cmap(colval)
@@ -573,7 +579,7 @@ def point(db,
 
     # Size of symbol
     if size_name is not None:
-        sizval = getDefinedValues(db, size_name, usesel, False)
+        sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, False)
         m = np.nanmin(np.absolute(sizval))
         M = np.nanmax(np.absolute(sizval))
         sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
@@ -647,7 +653,7 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
     return ax
         
 def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
-         xlim=None, ylim=None,
+         xlim=None, ylim=None, posx=0, posy=1, corner=None,
          title = None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
@@ -679,26 +685,21 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
         else : # if no Z locator, choose the last field
             name = dbgrid.getLastName()
     
-    if ax is None :
+    if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
     # else:
     #     ax.set_xlim(xlim)
     #     ax.set_ylim(ylim)
         
-    x0 = dbgrid.getX0(0)
-    y0 = dbgrid.getX0(1)
-    nx = dbgrid.getNX(0)
-    ny = dbgrid.getNX(1)
-    dx = dbgrid.getDX(0)
-    dy = dbgrid.getDX(1)
+    x0 = dbgrid.getX0(posx)
+    y0 = dbgrid.getX0(posy)
+    nx = dbgrid.getNX(posx)
+    ny = dbgrid.getNX(posy)
+    dx = dbgrid.getDX(posx)
+    dy = dbgrid.getDX(posy)
     angles = dbgrid.getAngles()
     
-    data = getDefinedValues(dbgrid, name, False, False)
-    if usesel:
-        selec  = dbgrid.getSelection()
-        if len(selec)>0 :
-            data[np.array(selec) == 0] = np.nan
-    
+    data = getDefinedValues(dbgrid, name, posx, posy, corner, usesel, False)
     data   = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])

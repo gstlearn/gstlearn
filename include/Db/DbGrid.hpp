@@ -166,6 +166,11 @@ public:
                               int pos,
                               int indice,
                               bool useSel = false) const;
+  VectorDouble getOneSlice(const String& name,
+                           int posx,
+                           int posy,
+                           const VectorInt& corner,
+                           bool useSel) const;
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
