@@ -314,12 +314,12 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
 void ACovFunc::computeCorrec(int dim)
 {
 
-  int N = pow(2,8);
+  int N = pow(2,9);
   VectorInt Nv(dim);
   VectorDouble hmax(dim);
   for (int idim = 0; idim<dim; idim++)
   {
-    hmax[idim] = 3 * getScadef();
+    hmax[idim] = 10 * getScadef();
     Nv[idim] = N/2;
   }
 
