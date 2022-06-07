@@ -25,7 +25,7 @@ public:
   virtual ~CovMarkov();
 
   virtual String getFormula() const override;
-  String         getCovName() const override { return "K-Bessel"; }
+  String         getCovName() const override { return "Markov"; }
 
 
   bool   hasParam() const override { return true; }

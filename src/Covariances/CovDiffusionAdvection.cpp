@@ -5,13 +5,13 @@
 
 
 CovDiffusionAdvection::CovDiffusionAdvection()
-:   _markovL(nullptr)
-  , _markovR(nullptr)
-  , _scaleTime(1.)
-  , _vel(VectorDouble())
-  , _sigma2(1.)
-  , _ndim(2)
-  , _globalCorrec(1.)
+    : _markovL(nullptr),
+      _markovR(nullptr),
+      _scaleTime(1.),
+      _vel(VectorDouble()),
+      _sigma2(1.),
+      _ndim(2),
+      _globalCorrec(1.)
 {
 
 }
@@ -102,7 +102,6 @@ CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
   return cov;
 }
 
-
 std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble freq, double time) const
 {
 
@@ -128,11 +127,10 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
     s2 = 1./(_markovR->evalSpectrum(normfreq));
   }
 
-  std::complex<double> temp = _scaleTime * (-1i * velinner * time);
+  std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
 
   double ratio = 0.5 * _globalCorrec / (s1 * s2);
-  return ratio * exp(temp) * exp(- _scaleTime * abs(time * s1));;
-
+  return ratio * exp(temp);
 }
 
 Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax,double time, int N) const
@@ -143,7 +141,6 @@ Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax,double time, in
     nxs[idim] = N ;
   Array array(nxs);
 
-
   int ntotal = pow(N, _ndim);
   VectorDouble a(_ndim);
   double coeff = 0;
@@ -152,7 +149,7 @@ Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax,double time, in
   for(int idim = 0; idim < _ndim; idim++)
   {
     coeff = 1. / (2. * hmax[idim]);
-    a[idim]=    GV_PI * (N-1) / ( hmax[idim]);
+    a[idim] = GV_PI * (N-1) / (hmax[idim]);
     prod *= coeff;
   }
 
@@ -173,19 +170,15 @@ Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax,double time, in
     std::complex<double> fourier = evalSpatialSpectrum(temp,time);
     Re[iad] = prod * fourier.real();
     Im[iad] = prod * fourier.imag();
-    //array.setValue(indices,Re[iad]);
-    //arrayImag.setValue(indices,Im[iad]);
-
   }
-
   FFTn(_ndim, nxs, Re, Im);
-
 
   // Retrieve information from the Re array and load them back in the array result.
 
   VectorInt nxs2(_ndim);
   for (int idim = 0; idim < _ndim; idim++)
     nxs2[idim] = N/2 ;
+
   Array result(nxs2);
   VectorInt newIndices(_ndim);
 

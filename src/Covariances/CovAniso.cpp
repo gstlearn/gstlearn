@@ -25,31 +25,27 @@
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
-static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 }, { 6, -8, 2, 0, 0 }, { 20,
-                                                                      -30,
-                                                                      12,
-                                                                      -2,
-                                                                      0 },
+static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
+                            { 6, -8, 2, 0, 0 },
+                            { 20, -30, 12, -2, 0 },
                             { 70, -112, 56, -16, 2 } };
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
-    :
-    ACov(ctxt.getSpace()), /// TODO : shared pointer
-    _ctxt(ctxt),
-    _cova(CovFactory::createCovFunc(type, ctxt)),
-    _sill(),
-    _aniso(ctxt.getSpace()->getNDim())
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      _ctxt(ctxt),
+      _cova(CovFactory::createCovFunc(type, ctxt)),
+      _sill(),
+      _aniso(ctxt.getSpace()->getNDim())
 {
   _initFromContext();
 }
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
-    :
-    ACov(ctxt.getSpace()), /// TODO : shared pointer
-    _ctxt(ctxt),
-    _cova(),
-    _sill(),
-    _aniso(ctxt.getSpace()->getNDim())
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      _ctxt(ctxt),
+      _cova(),
+      _sill(),
+      _aniso(ctxt.getSpace()->getNDim())
 {
   ECov covtype = CovFactory::identifyCovariance(symbol, ctxt);
   _cova = CovFactory::createCovFunc(covtype, ctxt);
@@ -899,19 +895,10 @@ void CovAniso::copyCovContext(const CovContext &ctxt)
   if (_cova != nullptr) _cova->copyCovContext(ctxt);
 }
 
-<<<<<<< HEAD
 Array CovAniso::evalCovFFT(const VectorDouble& hmax,
-                           int N,
-                           int /*ivar*/,
-                           int /*jvar*/) const
-=======
-//see https://www.davidhbailey.com//dhbpapers/fourint.pdf
-
-Array CovAniso::evalCovFFT(const VectorDouble &hmax,
                            int N,
                            int ivar,
                            int jvar) const
->>>>>>> branch 'main' of https://github.com/gstlearn/gstlearn
 {
   N *= 2;
   int ndim = getNDim();
@@ -948,9 +935,7 @@ Array CovAniso::evalCovFFT(const VectorDouble &hmax,
     }
     Re[iad] = prod * evalSpectrum(s, ivar, jvar);
     // array.setValue(indices,Re[iad]);
-
   }
-
   FFTn(ndim, nxs, Re, Im);
 
   // Retrieve information from the Re array and load them back in the array result.
