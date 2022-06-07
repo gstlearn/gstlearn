@@ -22,6 +22,7 @@
 #include "geoslib_f_private.h"
 
 #include <math.h>
+#include <functional>
 
 static int NWGT[4] = { 2, 3, 4, 5 };
 static int NORWGT[4] = { 2, 6, 20, 70 };
@@ -455,13 +456,17 @@ double CovAniso::getCorrec() const
 {
   return _cova->getCorrec();
 }
-double CovAniso::evalSpectrum(double freq, int ivar, int jvar) const
+double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
-
   if (!_cova->hasSpectrum()) return TEST;
   double scale = getScale();
   double sill = getSill(ivar, jvar);
-  double val = _cova->evaluateSpectrum(freq, scale, getNDim());
+
+  SpacePoint p1;
+  SpacePoint p2;
+  p2.setCoord(freq);
+  double freqnorm = getSpace()->getDistance(p1, p2, _aniso);
+  double val = _cova->evaluateSpectrum(freqnorm, scale, getNDim());
   return sill * val / getCorrec();
 }
 
@@ -900,87 +905,11 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
                            int ivar,
                            int jvar) const
 {
-  N *= 2;
-  int ndim = getNDim();
-  VectorInt nxs(ndim);
-  for (int idim = 0; idim < ndim; idim++)
-    nxs[idim] = N;
-  Array array(nxs);
+  if (! hasSpectrum()) return Array();
 
-  int ntotal = pow(N, ndim);
-  VectorDouble a(ndim);
-  double coeff = 0;
-  double prod = 1.;
+  std::function<double(const VectorDouble&)> funcSpectrum;
+  funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
+      { return evalSpectrum(freq, ivar, jvar);};
 
-  for (int idim = 0; idim < ndim; idim++)
-  {
-    coeff = 1. / (2. * hmax[idim]);
-    a[idim] = GV_PI * (N - 1) / (hmax[idim]);
-    prod *= coeff;
-  }
-
-  VectorDouble Re(ntotal);
-  VectorDouble Im(ntotal, 0.);
-  VectorInt indices(ndim);
-
-  for (int iad = 0; iad < ntotal; iad++)
-  {
-    array.rankToIndice(iad, indices);
-
-    double s = 0.;
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      double temp = a[idim] * ((double) indices[idim] / (N - 1) - 0.5);
-      s += temp * temp;
-    }
-    Re[iad] = prod * evalSpectrum(s, ivar, jvar);
-    // array.setValue(indices,Re[iad]);
-  }
-  FFTn(ndim, nxs, Re, Im);
-
-  // Retrieve information from the Re array and load them back in the array result.
-
-  VectorInt nxs2(ndim);
-  for (int idim = 0; idim < ndim; idim++)
-    nxs2[idim] = N / 2;
-  Array result(nxs2);
-  VectorInt newIndices(ndim);
-
-  for (int iad = 0; iad < ntotal; iad++)
-  {
-    array.rankToIndice(iad, indices);
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      int odd = indices[idim] % 2;
-      int s = 1 - 2 * odd;
-      newIndices[idim] = nxs[idim] / 2 + s * (indices[idim] / 2 + odd);
-      Re[iad] *= s;
-
-    }
-    array.setValue(newIndices, Re[iad]);
-  }
-
-  bool cont;
-  int iadr = 0;
-  for (int iad = 0; iad < ntotal; iad++)
-  {
-    array.rankToIndice(iad, indices);
-    cont = true;
-    for (int idim = 0; idim < ndim; idim++)
-    {
-      if (indices[idim] < (nxs2[idim] / 2) || indices[idim]
-          >= (3 * nxs2[idim] / 2))
-      {
-        cont = false;
-        continue;
-      }
-    }
-    if (cont)
-    {
-      result.rankToIndice(iadr++, newIndices);
-      result.setValue(newIndices, array.getValue(indices));
-    }
-  }
-
-  return result;
+  return evalCovFFTSpatial(hmax, N, funcSpectrum);
 }

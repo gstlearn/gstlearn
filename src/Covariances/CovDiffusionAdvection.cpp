@@ -101,25 +101,23 @@ CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
 std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble freq, double time) const
 {
 
-  double normfreq = 0.;
   double velinner = 0.;
 
   for(int i = 0; i<(int) freq.size();i++)
   {
     velinner += _vel[i] * freq[i];
-    normfreq += freq[i] * freq[i];
   }
 
   double s1 = 1.;
   if (!isNoneMarkovL())
   {
-    s1 = 1./(_markovL->evalSpectrum(normfreq));
+    s1 = 1./(_markovL->evalSpectrum(freq));
   }
 
   double s2 = 1.;
   if (!isNoneMarkovR())
   {
-    s2 = 1./(_markovR->evalSpectrum(normfreq));
+    s2 = 1./(_markovR->evalSpectrum(freq));
   }
 
   std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
@@ -128,7 +126,7 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   return ratio * exp(temp);
 }
 
-Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax,double time, int N) const
+Array CovDiffusionAdvection::evalCovFFT(const VectorDouble& hmax, double time, int N) const
 {
   std::function<std::complex<double>(VectorDouble, double)> funcSpectrum;
   funcSpectrum = [this](VectorDouble freq, double time)

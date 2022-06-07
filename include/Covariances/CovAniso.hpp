@@ -87,7 +87,7 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
-  virtual double evalSpectrum(double freq, int ivar = 0, int jvar = 0) const override;
+  virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
 
   ///////////////////////////////////////////////////
 
