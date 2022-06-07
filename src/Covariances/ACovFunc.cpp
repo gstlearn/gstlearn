@@ -260,9 +260,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
     array.setValue(indices,Re[iad]);
 
   }
-
   FFTn(ndim, nxs, Re, Im);
-
 
   // Retrieve information from the Re array and load them back in the array result.
 
@@ -306,14 +304,12 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
       result.setValue(newIndices,array.getValue(indices));
     }
   }
-
   return result;
 }
 
-
 void ACovFunc::computeCorrec(int dim)
 {
-
+  if (! hasSpectrum()) return;
   int N = pow(2,8);
   VectorInt Nv(dim);
   VectorDouble hmax(dim);
@@ -322,8 +318,6 @@ void ACovFunc::computeCorrec(int dim)
     hmax[idim] = 3 * getScadef();
     Nv[idim] = N/2;
   }
-
   Array res = _evalCovFFT(hmax,N);
   setCorrec(res.getValue(Nv));
-
 }

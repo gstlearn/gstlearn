@@ -2006,10 +2006,7 @@ void meshes_2D_sph_free(SphTriangle *t, int mode)
  ** \remarks (longitude,latitude) into 3-D coordinates
  **
  *****************************************************************************/
-int meshes_2D_sph_from_db(Db *db,
-                                          int nb_mask,
-                                          int *is_mask,
-                                          SphTriangle *t)
+int meshes_2D_sph_from_db(Db *db, int nb_mask, int *is_mask, SphTriangle *t)
 {
   int error, nech, ndim, neff, nold, ecr;
   double xx, yy, zz;

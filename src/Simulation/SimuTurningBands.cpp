@@ -1934,7 +1934,7 @@ double SimuTurningBands::_getAIC(const VectorDouble& aic,
                              int jvar)
 {
   int nvar = _getNVar();
-  return aic[icov*nvar*nvar + nvar * ivar + jvar];
+  return aic[jvar + nvar * (ivar + nvar * icov)];
 }
 
 /*****************************************************************************/

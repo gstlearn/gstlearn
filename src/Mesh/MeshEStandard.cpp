@@ -142,7 +142,7 @@ int MeshEStandard::resetFromDb(Db* dbin,
       }
   }
 
-  // Dispatch according to SPace Dimension
+  // Dispatch according to Space Dimension
 
   if (ndim == 1)
     error = _create1D(1,verbose,dbin,dbout,dilate);

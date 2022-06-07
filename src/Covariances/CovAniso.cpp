@@ -858,7 +858,10 @@ void CovAniso::copyCovContext(const CovContext& ctxt)
   if (_cova != nullptr) _cova->copyCovContext(ctxt);
 }
 
-Array CovAniso::evalCovFFT(const VectorDouble& hmax, int N , int ivar, int jvar) const
+Array CovAniso::evalCovFFT(const VectorDouble& hmax,
+                           int N,
+                           int /*ivar*/,
+                           int /*jvar*/) const
 {
   N *= 2;
   int ndim = getNDim();

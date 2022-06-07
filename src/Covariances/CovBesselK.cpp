@@ -92,7 +92,6 @@ double CovBesselK::evaluateSpectrum(double freq, double scale, int ndim) const
 
 void CovBesselK::computeMarkovCoeffs(int ndim)
 {
-
   double param = getParam();
   double ndims2 = ((double) ndim) / 2.;
   double alpha = param + ndims2;
@@ -114,9 +113,7 @@ void CovBesselK::computeCorrec(int ndim)
   gammaa = exp(loggamma(getParam() + ndims2));
   g0 = pow(4. * GV_PI, ndims2);
   _correc = gammap / (g0 * gammaa);
-
 }
-
 
 VectorDouble CovBesselK::getMarkovCoeffs()const
 {

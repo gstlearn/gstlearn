@@ -26,7 +26,6 @@ public:
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }
 
-
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
   double getScadef() const override;
@@ -38,13 +37,12 @@ public:
   VectorDouble getMarkovCoeffs() const override;
   double getCorrec() const override { return _correc;}
   void   computeCorrec(int ndim);
-  void  setCorrec(double val) override { _correc = val;}
-  void  computeMarkovCoeffs(int dim) override;
+  void   setCorrec(double val) override { _correc = val;}
+  void   computeMarkovCoeffs(int dim) override;
 
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-
 
 
 private:
