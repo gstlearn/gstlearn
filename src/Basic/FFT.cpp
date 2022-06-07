@@ -11,8 +11,10 @@
 #include "geoslib_old_f.h"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Array.hpp"
 
 #include <math.h>
+#include <complex>
 
 /****************************************************************************/
 /*!
@@ -31,4 +33,61 @@ int FFTn(int ndim,
   int n = (int) Re.size();
   Im.resize(n,0.);
   return fftn(ndim, dims.data(), Re.data(), Im.data(), iSign, scaling);
+}
+
+Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
+                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum)
+{
+  int ndim = (int) hmax.size();
+  VectorInt nxs(ndim);
+  for (int idim = 0; idim < ndim; idim++)
+    nxs[idim] = N ;
+  Array array(nxs);
+
+  int ntotal = pow(N, ndim);
+  VectorDouble a(ndim);
+  double coeff = 0;
+  double prod = 1.;
+
+  for(int idim = 0; idim < ndim; idim++)
+  {
+    coeff = 1. / (2. * hmax[idim]);
+    a[idim] = GV_PI * (N-1) / (hmax[idim]);
+    prod *= coeff;
+  }
+
+  VectorDouble Re(ntotal);
+  VectorDouble Im(ntotal);
+  VectorInt indices(ndim);
+  VectorDouble temp(ndim);
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+
+    int s = 1;
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      temp[idim] = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
+      s *= (indices[idim] % 2) ? -1 : 1;
+    }
+
+    std::complex<double> fourier = funcSpectrum(temp,time);
+    Re[iad] = s * prod * fourier.real();
+    Im[iad] = s * prod * fourier.imag();
+  }
+  FFTn(ndim, nxs, Re, Im, 1, 1.);
+
+  // Retrieve information from the Re array and load them back in the array result.
+
+  for (int iad = 0; iad < ntotal; iad++)
+  {
+    array.rankToIndice(iad,indices);
+    int s = 1;
+    for (int idim = 0;  idim < ndim; idim++)
+    {
+      s *= (indices[idim] % 2) ? -1 : 1;
+    }
+    array.setValue(indices,Re[iad] * s);
+  }
+  return array;
 }

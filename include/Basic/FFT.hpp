@@ -12,6 +12,11 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Array.hpp"
+
+#include <math.h>
+#include <complex>
+#include <functional>
 
 GSTLEARN_EXPORT int FFTn(int ndim,
                          const VectorInt& dims,
@@ -19,3 +24,5 @@ GSTLEARN_EXPORT int FFTn(int ndim,
                          VectorDouble& Im,
                          int iSign = 1,
                          double scaling = 1.);
+GSTLEARN_EXPORT Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
+                                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum);
