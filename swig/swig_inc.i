@@ -179,6 +179,7 @@
 #include "Covariances/CovTriangle.hpp"
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
+#include "Covariances/CovDiffusionAdvection.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/ETape.hpp"
 #include "Covariances/EConvType.hpp"

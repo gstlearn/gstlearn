@@ -87,7 +87,7 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
-  virtual double evalSpectrum(double freq) const override;
+  virtual double evalSpectrum(double freq, int ivar = 0, int jvar = 0) const override;
 
   ///////////////////////////////////////////////////
 
@@ -201,6 +201,7 @@ public:
 
   VectorDouble getMarkovCoeffs() const;
   void setMarkovCoeffs(VectorDouble coeffs);
+  void setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
 protected:

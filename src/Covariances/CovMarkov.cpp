@@ -21,6 +21,7 @@ CovMarkov::CovMarkov(const CovContext& ctxt)
   , _correc(1.)
 {
   setParam(1);
+  _markovCoeffs.push_back(1.);
 
 }
 
@@ -46,8 +47,7 @@ CovMarkov::~CovMarkov()
 
 double CovMarkov::getScadef() const
 {
-  //return sqrt(12. * _markovCoeffs.size());
-  return sqrt(12.);
+  return sqrt(12. * _markovCoeffs.size());
 }
 
 double CovMarkov::_evaluateCov(double /*h*/) const
@@ -76,10 +76,14 @@ double CovMarkov::evaluateSpectrum(double freq, double /*scale*/, int /*ndim*/) 
 {
   double s = 0.;
   int n = (int)_markovCoeffs.size();
+  if (n == 0)
+  {
+    return TEST;
+  }
   for(int i = 0; i< n;i++)
   {
       s += _markovCoeffs[i] * pow(freq,i);
   }
-  return 1. / s;
+  return 1./  s;
 }
 
