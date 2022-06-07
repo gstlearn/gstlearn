@@ -181,7 +181,7 @@ int MeshEStandard::resetFromDb(Db* dbin,
 **
 *****************************************************************************/
 int MeshEStandard::reset(const MatrixRectangular& apices,
-                         const VectorInt& meshes,
+                         const MatrixInt& meshes,
                          bool verbose)
 {
   int ndim = apices.getNCols();
@@ -221,7 +221,7 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
   // Dimension the members
 
   _apices = MatrixRectangular(napices, ndim);
-  _meshes = VectorInt(nmeshes * npermesh);
+  _meshes = MatrixInt(nmeshes, npermesh);
 
   // Load the apices;
   for (int ip = 0; ip < napices; ip++)
@@ -229,10 +229,9 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
       _apices.setValue(ip, idim, turbo.getApexCoor(ip, idim));
 
   // Load the meshes
-  int ecr = 0;
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int rank = 0; rank < npermesh; rank++)
-      _meshes[ecr] = turbo.getApex(imesh, rank);
+      _meshes.setValue(imesh,  rank, turbo.getApex(imesh, rank));
 
   // Check consistency
 
@@ -258,24 +257,28 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 ** Create the meshing (from mesh information)
 **
 ** \param[in]  ndim            Space Dimension
+** \param[in]  napexpermesh    Number of apices per mesh
 ** \param[in]  apices          Vector of Apex information
 ** \param[in]  meshes          Vector of mesh indices
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
 int MeshEStandard::resetOldStyle(int                 ndim,
+                                 int                 napexpermesh,
                                  const VectorDouble& apices,
                                  const VectorInt&    meshes,
                                  bool                verbose)
 {
   setNDim(ndim);
   int npoints = static_cast<int> (apices.size()) / ndim;
+  int nmeshes = static_cast<int> (meshes.size()) / napexpermesh;
 
   // Core allocation
 
   _apices.reset(npoints,ndim);
   _apices.setValues(apices);
-  _meshes = meshes;
+  _meshes.reset(nmeshes,napexpermesh);
+  _meshes.setValues(meshes);
 
   // Check consistency
 
@@ -306,10 +309,9 @@ int MeshEStandard::resetOldStyle(int                 ndim,
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh)
 **
 *****************************************************************************/
-int MeshEStandard::getApex(int imesh,
-                           int rank) const
+int MeshEStandard::getApex(int imesh, int rank) const
 {
-  return (_meshes[getNApexPerMesh() * imesh + rank]);
+  return _meshes.getValue(imesh,rank);
 }
 
 /****************************************************************************/
@@ -766,9 +768,9 @@ int MeshEStandard::_create1D(int                 ndim_ref,
             ncorner,getNApexPerMesh());
     goto label_end;
   }
-  _meshes.resize(nmeshes * ncorner);
-  _meshes.assign(meshes, meshes + ncorner * nmeshes);
-  ut_ivector_addval(_meshes,-1);
+  _meshes.reset(nmeshes, ncorner);
+  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
+  _meshes.setValues(meshes, false);
 
   /* Set the error return code */
 
@@ -871,9 +873,9 @@ int MeshEStandard::_create2D(int                 ndim_ref,
             ncorner,getNApexPerMesh());
     goto label_end;
   }
-  _meshes.resize(nmeshes * ncorner);
-  _meshes.assign(meshes, meshes + ncorner * nmeshes);
-  ut_ivector_addval(_meshes,-1);
+  _meshes.reset(nmeshes,ncorner);
+  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
+  _meshes.setValues(meshes, false);
 
   /* Set the error return code */
 
@@ -967,9 +969,9 @@ int MeshEStandard::_create3D(int                 ndim_ref,
             ncorner,getNApexPerMesh());
     goto label_end;
   }
-  _meshes.resize(nmeshes * ncorner);
-  _meshes.assign(meshes, meshes + ncorner * nmeshes);
-  ut_ivector_addval(_meshes,-1);
+  _meshes.reset(nmeshes,ncorner);
+  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
+  _meshes.setValues(meshes, false);
 
   /* Set the error return code */
 
@@ -1291,13 +1293,11 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
   if (shift_min != 0 && shift_min != 1)
     throw("Wrong minimum shift: it should be 0 or 1");
 
-  VectorInt meshes = VectorInt(nmeshes * ncorner);
+  MatrixInt meshes(nmeshes,ncorner);
   lec = 0;
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int ic = 0; ic < ncorner; ic++, lec++)
-    {
-      meshes[lec] = s_mesh->meshes[lec] - shift_min;
-    }
+      meshes.setValue(imesh, ic, s_mesh->meshes[lec] - shift_min);
 
   int error = reset(points, meshes, verbose);
   return error;
@@ -1305,11 +1305,25 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
 
 int MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  VectorDouble local;
-  bool ret = _recordReadVec<double>(is, "Apices", local);
-  _apices.setValues(local);
-  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes);
-  ret = ret && _recordReadVec<double>(is, "Units", _units);
+  int ndim, napices, napexpermesh, nmeshes;
+
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Napices", napices);
+  ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
+  ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
+
+  VectorDouble apices_local;
+  ret = ret && _recordReadVec<double>(is, "Apices", apices_local, napices * ndim);
+  _apices = MatrixRectangular(napices, ndim);
+  _apices.setValues(apices_local);
+
+  VectorInt meshes_local;
+  ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
+  _meshes = MatrixInt(nmeshes, napexpermesh);
+  _meshes.setValues(meshes_local);
+
+  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
 
   return 0;
 }
@@ -1324,7 +1338,7 @@ int MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
-  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   ret = ret && _recordWriteVec<double>(os, "Units", _units);
   return 0;
 }

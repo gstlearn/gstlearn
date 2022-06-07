@@ -15,6 +15,7 @@
 #include "gstlearn_export.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 
 /**
  * Meshing defined in the Spherical Space
@@ -52,7 +53,7 @@ public:
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
   int getVariety() const { return 1; }
 
-  VectorInt getMeshes() const {return _meshes;}
+  VectorInt getMeshes() const {return _meshes.getValues();}
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 
 protected:
@@ -67,6 +68,6 @@ private:
 
 private:
   MatrixRectangular _apices;
-  VectorInt         _meshes; // TODO Transform it into MatrixRectangular of Int
+  MatrixInt         _meshes; // TODO Transform it into MatrixRectangular of Int
   VectorDouble      _units;
 };

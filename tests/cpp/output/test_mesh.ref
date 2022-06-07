@@ -43,6 +43,8 @@ List of Apices
      [  6,]   101.962    30.000    10.000
 (Ncols=3,Nrows=7[from 1144])
 List of Meshes
+- Number of rows    = 4500
+- Number of columns = 4
                [,  0]    [,  1]    [,  2]    [,  3]
      [  0,]         0         1       287       313
      [  1,]         0       286       287       313

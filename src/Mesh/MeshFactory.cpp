@@ -34,7 +34,7 @@ AMesh* MeshFactory::createMesh(int variety,
                                Db *dbout,
                                const String& triswitch,
                                MatrixRectangular& apices,
-                               VectorInt& meshes,
+                               MatrixInt& meshes,
                                bool flag_polarize,
                                int verbose)
 {

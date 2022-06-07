@@ -548,6 +548,7 @@ GSTLEARN_EXPORT int matrix_prod_norme(int tranpose,
                                       const double *a,
                                       double *v2);
 GSTLEARN_EXPORT void matrix_transpose(int n1, int n2, double *v1, double *w1);
+GSTLEARN_EXPORT void matrix_int_transpose(int n1, int n2, int *v1, int *w1);
 GSTLEARN_EXPORT void matrix_transpose_in_place(int n1, int n2, double *v1);
 GSTLEARN_EXPORT void matrix_int_transpose_in_place(int n1, int n2, int *v1);
 GSTLEARN_EXPORT int matrix_solve(int mode,

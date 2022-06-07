@@ -81,7 +81,8 @@ protected:
   template <typename T>
   static bool _recordReadVec(std::istream& is,
                               const String& title,
-                              std::vector<T>& vec);
+                              std::vector<T>& vec,
+                              int nvalues = -1);
 
   static bool _onlyBlanks(char *string);
 
@@ -192,7 +193,8 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
 template <typename T>
 bool ASerializable::_recordReadVec(std::istream& is,
                                    const String& title,
-                                   std::vector<T>& vec)
+                                   std::vector<T>& vec,
+                                   int nvalues)
 {
   vec.clear();
   if (is.good())
@@ -238,6 +240,16 @@ bool ASerializable::_recordReadVec(std::istream& is,
         sword >> val;
       }
       vec.push_back(val);
+    }
+  }
+
+  if (nvalues > 0)
+  {
+    if (nvalues != (int) vec.size())
+    {
+      messerr("Reading was expecting %d terms. %d found",nvalues, (int) vec.size());
+      vec.clear();
+      return false;
     }
   }
   return is.good();

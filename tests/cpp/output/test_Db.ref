@@ -100,6 +100,8 @@ List of Apices
      [  6,]    18.819    12.725
 (Ncols=2,Nrows=7[from 66])
 List of Meshes
+- Number of rows    = 100
+- Number of columns = 3
                [,  0]    [,  1]    [,  2]
      [  0,]         0         1        12
      [  1,]         0        11        12

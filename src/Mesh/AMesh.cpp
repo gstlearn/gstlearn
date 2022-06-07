@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
@@ -113,14 +114,13 @@ String AMesh::toString(const AStringFormat* strfmt) const
   if (sf.getLevel() > 0)
   {
     MatrixRectangular apices;
-    VectorInt meshes;
+    MatrixInt meshes;
     getElements(apices, meshes);
 
     sstr << "List of Apices" << std::endl;
     sstr << apices.toString(strfmt);
-
-    sstr << toMatrix("List of Meshes", VectorString(), VectorString(), false,
-                    getNApexPerMesh(), getNMeshes(), meshes);
+    sstr << "List of Meshes" << std::endl;
+    sstr << meshes.toString(strfmt);
   }
   return sstr.str();
 }
@@ -200,7 +200,7 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
 
   // Retrieve the elements
   MatrixRectangular points;
-  VectorInt meshes;
+  MatrixInt meshes;
   a_mesh->getElements(points, meshes);
 
   number = points.getNTotal();
@@ -209,8 +209,9 @@ SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
   for (int i=0; i<number; i++) s_mesh->points[i] = vect[i];
 
   number = static_cast<int> (meshes.size());
+  VectorInt ivect = meshes.getValues();
   s_mesh->meshes = (int *) mem_alloc(sizeof(int) * number,1);
-  for (int i=0; i<number; i++) s_mesh->meshes[i] = meshes[i];
+  for (int i=0; i<number; i++) s_mesh->meshes[i] = ivect[i];
 
   return s_mesh;
 }
@@ -259,7 +260,7 @@ VectorInt AMesh::getMeshByApexPair(int apex1, int apex2) const
 ** \param[out]  meshes  Pointer on the array of Meshes
 **
 *****************************************************************************/
-void AMesh::getElements(MatrixRectangular& apices, VectorInt& meshes) const
+void AMesh::getElements(MatrixRectangular& apices, MatrixInt& meshes) const
 {
   int nmeshes = getNMeshes();
   int ndim    = getNDim();
@@ -269,7 +270,7 @@ void AMesh::getElements(MatrixRectangular& apices, VectorInt& meshes) const
   // Dimension the returned containers
 
   apices.reset(napices,ndim);
-  meshes.clear();
+  meshes.reset(nmeshes, ncorner);
 
   // Load the Apices
 
@@ -281,7 +282,7 @@ void AMesh::getElements(MatrixRectangular& apices, VectorInt& meshes) const
 
   for (int imesh = 0; imesh < nmeshes; imesh++)
     for (int icorner= 0; icorner < ncorner; icorner++)
-      meshes.push_back(getApex(imesh, icorner));
+      meshes.setValue(imesh, icorner, getApex(imesh, icorner));
  }
 
 bool AMesh::_isSpaceDimensionValid(int idim) const
@@ -518,8 +519,8 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
 int AMesh::_deserialize(std::istream& is, bool /*verbose*/)
 {
   bool ret = _recordRead<int>(is, "Space Dimension", _nDim);
-  ret = ret && _recordReadVec<double>(is, "Minimum Extension", _extendMin);
-  ret = ret && _recordReadVec<double>(is, "Maximum Extension", _extendMax);
+  ret = ret && _recordReadVec<double>(is, "Minimum Extension", _extendMin, _nDim);
+  ret = ret && _recordReadVec<double>(is, "Maximum Extension", _extendMax, _nDim);
   return 0;
 }
 

@@ -16,6 +16,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 
 class MeshETurbo;
 
@@ -47,7 +48,7 @@ public:
   int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
-  VectorInt    getMeshList() const { return _meshes; }
+  VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
   void   getDuplicates(int verbose,
                        Db *dbin,
@@ -61,9 +62,10 @@ public:
                   const String& triswitch = "Q",
                   bool verbose = false);
   int reset(const MatrixRectangular& apices,
-            const VectorInt& meshes,
+            const MatrixInt& meshes,
             bool verbose = false);
   int resetOldStyle(int ndim,
+                    int napexpermesh,
                     const VectorDouble& apices,
                     const VectorInt& meshes,
                     bool verbose = false);
@@ -117,6 +119,6 @@ private:
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
-  VectorInt         _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  MatrixInt         _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
   VectorDouble      _units;
 };

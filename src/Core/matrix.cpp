@@ -634,6 +634,32 @@ void matrix_transpose(int n1, int n2, double *v1, double *w1)
 
 /*****************************************************************************/
 /*!
+ **  Transpose a (square or rectangular) matrix
+ **
+ ** \param[in]  n1 matrix dimension
+ ** \param[in]  n2 matrix dimension
+ ** \param[in]  v1 rectangular matrix (n1,n2)
+ **
+ ** \param[out] w1 rectangular matrix (n2,n1)
+ **
+ ** \remark  The matrix w1[] may NOT coincide with v1[]
+ **
+ *****************************************************************************/
+void matrix_int_transpose(int n1, int n2, int *v1, int *w1)
+{
+  int i1, i2, ecr;
+
+  ecr = 0;
+  for (i1 = 0; i1 < n1; i1++)
+    for (i2 = 0; i2 < n2; i2++)
+      w1[ecr++] = V1(i1, i2);
+
+  return;
+}
+
+
+/*****************************************************************************/
+/*!
  **  Transpose a matrix in place
  **
  ** \param[in]  n1 matrix dimension
