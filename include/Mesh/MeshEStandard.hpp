@@ -13,6 +13,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
@@ -43,6 +44,9 @@ public:
       override;
   double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
+  static MeshEStandard* createFromNF(const String& neutralFilename,
+                                     bool verbose = false);
   VectorInt    getMeshList() const { return _meshes; }
   VectorDouble getPointList(bool byCol = true) const;
   void   getDuplicates(int verbose,
@@ -65,6 +69,10 @@ public:
                     bool verbose = false);
   int        resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
+
+protected:
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
   int _create1D(int ndim_ref,

@@ -26,6 +26,7 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/CovContext.hpp"
 
@@ -39,19 +40,12 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
-  AMesh *mesh,*meshb;
-  Db    *dbin,*dbgrid;
-  Model *model;
-  CovContext ctxt;
-  double  range,param;
-  MatrixRectangular apices;
-  VectorInt meshes;
-  char    triswitch[10];
-  ShiftOpCs shiftop;
+  ASerializable::setContainerName(true);
+  ASerializable::setPrefixName("TestMesh-");
+
   VectorInt nx(3);
-  VectorDouble rotmat;
   VectorDouble extendmin = {50., 0., 10.};
   VectorDouble extendmax = { 300., 200., 100.};
   VectorDouble cellsize = { 10., 20., 30.};
@@ -64,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
   int flag_mesh = 0;
   int ndim      = 3;
   int verbose   = 1;
-  int variety   = 0;  // 0 for Euclidean; 1 for Spherical
+  int variety   = 1;  // 0 for Euclidean; 1 for Spherical
   if (variety == 0)
     ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   else
@@ -77,11 +71,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Initializations */
 
-  dbin         = nullptr;
-  dbgrid       = nullptr;
+  Db* dbin       = nullptr;
+  DbGrid* dbgrid = nullptr;
 
   /* Triswitch option */
 
+  char triswitch[10];
   if (variety == 0)
     (void) gslStrcpy((char *) triswitch,"Q");
   else
@@ -89,7 +84,7 @@ int main(int /*argc*/, char */*argv*/[])
   
   /* Rotation definition */
 
-  rotmat.resize(ndim * ndim);
+  VectorDouble rotmat(ndim * ndim);
   if (ndim == 2)
     ut_rotation_matrix_2D(angle[0],rotmat.data());
   else if (ndim == 3)
@@ -97,11 +92,11 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Model definition */
 
-  range        = 5.;
-  param        = 1.;
+  double range = 5.;
+  double param = 1.;
   VectorDouble sill = { 2. };
-  ctxt = CovContext(1, ndim);
-  model = new Model(ctxt);
+  CovContext ctxt(1, ndim);
+  Model* model = new Model(ctxt);
   if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
                      VectorDouble(),VectorDouble(),sill,0.))
     messageAbort("Definition of the Model");
@@ -117,26 +112,32 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* Instantiate the Meshing */
 
-  mesh = MeshFactory::createMesh(variety,
-                                 extendmin,extendmax,cellsize,rotmat,
-                                 dilate,dbin,dbgrid,triswitch,
-                                 apices,meshes,verbose);
-  if (mesh == NULL) return(1);
+  MatrixRectangular apices;
+  VectorInt meshes;
+  AMesh* mesh = MeshFactory::createMesh(variety,
+                                        extendmin,extendmax,cellsize,rotmat,
+                                        dilate,dbin,dbgrid,triswitch,
+                                        apices,meshes,verbose);
+  if (mesh == nullptr) return(1);
   mesh->display();
+  (void) mesh->dumpToNF("Standard.ascii",verbose);
 
+  AMesh* meshb;
   if (flag_mesh)
   {
     mesh->getElements(apices,meshes);
     meshb = MeshFactory::createMesh(variety,
-                                    extendmin,extendmax,rotmat,cellsize,
-                                    dilate,dbin,dbgrid,triswitch,
-                                    apices,meshes,verbose);
-    if (meshb == NULL) return(1);
+                                    extendmin, extendmax, cellsize,rotmat,
+                                    dilate, dbin, dbgrid, triswitch,
+                                    apices, meshes, verbose);
+    if (meshb == nullptr) return(1);
     meshb->display();
+    (void) meshb->dumpToNF("Standard.ascii",verbose);
   }
 
   /* Instantiate the ShiftOp */
 
+  ShiftOpCs shiftop;
   if (! flag_mesh)
     shiftop.initFromMesh(mesh,model,NULL);
   else

@@ -461,9 +461,7 @@ int Grid::indiceToRank(const VectorInt& indice) const
  * \remarks: The number of nodes in the grid per direction
  * \remarks: must be adapted (subtracting 1) due to interval.
  */
-void Grid::rankToIndice(int  rank,
-                         VectorInt& indice,
-                         bool minusOne) const
+void Grid::rankToIndice(int rank, VectorInt& indice, bool minusOne) const
 {
   int ndim = _nDim;
   int minus = (minusOne) ? 1 : 0;

@@ -213,6 +213,43 @@ label_end:
   return error;
 }
 
+int MeshSpherical::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "MeshSpherical", os, verbose))
+  {
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
+/**
+ * Create a MeshSpherical by loading the contents of a Neutral File
+ *
+ * @param neutralFilename Name of the Neutral File (MeshEStandard format)
+ * @param verbose         Verbose
+ */
+MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool verbose)
+{
+  MeshSpherical* mesh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "MeshSpherical", is, verbose))
+  {
+    mesh = new MeshSpherical;
+    if (mesh->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete mesh;
+      mesh = nullptr;
+    }
+    is.close();
+  }
+  return mesh;
+}
+
 /****************************************************************************/
 /*!
 ** Returns the duplicate information (if any) 
@@ -624,4 +661,38 @@ int MeshSpherical::_recopy(const MeshSpherical &m)
   _meshes = m._meshes;
   _units = m._units;
   return(0);
+}
+
+int MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  int ndim, napices, nmeshes, napexpermesh;
+
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Napices", napices);
+  ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
+  ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
+
+  VectorDouble local;
+  ret = ret && _recordReadVec<double>(is, "Apices", local);
+  _apices = MatrixRectangular(napices, ndim);
+  _apices.setValues(local);
+  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes);
+  ret = ret && _recordReadVec<double>(is, "Units", _units);
+  return 0;
+}
+
+int MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<int>(os, "Napices", getNApices());
+  ret = ret && _recordWrite<int>(os, "Number of Apices per Mesh", getNApexPerMesh());
+  ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
+
+  ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<double>(os, "Units", _units);
+  return 0;
 }

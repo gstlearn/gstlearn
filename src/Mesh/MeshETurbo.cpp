@@ -20,6 +20,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Rotation.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
 #include "csparse_f.h"
 
@@ -239,6 +240,43 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
   if (verbose) messageFlush(toString());
 
   return 0;
+}
+
+int MeshETurbo::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "MeshETurbo", os, verbose))
+  {
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
+/**
+ * Create a MeshETurbo by loading the contents of a Neutral File
+ *
+ * @param neutralFilename Name of the Neutral File (MeshEStandard format)
+ * @param verbose         Verbose
+ */
+MeshETurbo* MeshETurbo::createFromNF(const String& neutralFilename, bool verbose)
+{
+  MeshETurbo* mesh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "MeshETurbo", is, verbose))
+  {
+    mesh = new MeshETurbo;
+    if (mesh->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete mesh;
+      mesh = nullptr;
+    }
+    is.close();
+  }
+  return mesh;
 }
 
 /****************************************************************************/
@@ -736,5 +774,34 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   rot.rotateInverse(extendMinNoRot, x0);
 
   initFromGrid(nx,dx,x0,rot.getMatrixDirectByVector(),true,verbose);
+  return 0;
+}
+
+int MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  VectorInt nx;
+  VectorDouble dx;
+  VectorDouble x0;
+  VectorDouble rotmat;
+  int flag_polarized;
+
+  bool ret = _recordReadVec<int>(is, "Nx", nx);
+  ret = ret && _recordReadVec<double>(is, "Dx", dx);
+  ret = ret && _recordReadVec<double>(is, "X0", x0);
+  ret = ret && _recordReadVec<double>(is, "Rotation", rotmat);
+  ret = ret && _recordRead<int>(is, "Polarization", flag_polarized);
+
+  (void) initFromGrid(nx, dx, x0, rotmat, (bool) flag_polarized);
+
+  return 0;
+}
+
+int MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = _recordWriteVec<int>(os, "Nx", _grid.getNXs());
+  ret = ret && _recordWriteVec<double>(os, "Dx", _grid.getDXs());
+  ret = ret && _recordWriteVec<double>(os, "X0", _grid.getX0s());
+  ret = ret && _recordWriteVec<double>(os, "Rotation", _grid.getRotMat());
+  ret = ret && _recordWrite<int>(os, "Polarization", _isPolarized);
   return 0;
 }

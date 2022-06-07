@@ -614,6 +614,43 @@ label_end:
   return(dtab);
 }
 
+int MeshEStandard::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "MeshEStandard", os, verbose))
+  {
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
+/**
+ * Create a MeshEStandard by loading the contents of a Neutral File
+ *
+ * @param neutralFilename Name of the Neutral File (MeshEStandard format)
+ * @param verbose         Verbose
+ */
+MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool verbose)
+{
+  MeshEStandard* mesh = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "MeshEStandard", is, verbose))
+  {
+    mesh = new MeshEStandard;
+    if (mesh->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete mesh;
+      mesh = nullptr;
+    }
+    is.close();
+  }
+  return mesh;
+}
+
 /**
  * Returns the list of mesh vertex information
  * This List is organized as a single Vector of Double
@@ -1264,4 +1301,30 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
 
   int error = reset(points, meshes, verbose);
   return error;
+}
+
+int MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  VectorDouble local;
+  bool ret = _recordReadVec<double>(is, "Apices", local);
+  _apices.setValues(local);
+  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes);
+  ret = ret && _recordReadVec<double>(is, "Units", _units);
+
+  return 0;
+}
+
+int MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<int>(os, "Napices", getNApices());
+  ret = ret && _recordWrite<int>(os, "Number of Apices per Mesh", getNApexPerMesh());
+  ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
+
+  ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<double>(os, "Units", _units);
+  return 0;
 }
