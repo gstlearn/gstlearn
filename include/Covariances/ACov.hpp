@@ -44,7 +44,7 @@ public:
     return TEST;
   }
 
-  virtual double evalSpectrum(double /*freq*/) const
+  virtual double evalSpectrum(double /*freq*/, int /*ivar*/, int /*jvar*/) const
   {
     return TEST;
   }
