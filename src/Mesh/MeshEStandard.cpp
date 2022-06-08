@@ -24,7 +24,6 @@ MeshEStandard::MeshEStandard()
   : AMesh()
   , _apices()
   , _meshes()
-  , _units()
 {
 }
 
@@ -160,10 +159,6 @@ int MeshEStandard::resetFromDb(Db* dbin,
 
   _defineBoundingBox();
 
-  // Calculate and store the units
-
-  _defineUnits();
-
   // Optional printout
   
   if (verbose) messageFlush(toString());
@@ -199,10 +194,6 @@ int MeshEStandard::reset(const MatrixRectangular& apices,
   // Define and store the Bounding Box extension
 
   _defineBoundingBox();
-
-  // Calculate and store the units
-
-  _defineUnits();
 
   // Optional printout
   
@@ -240,10 +231,6 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
   // Define and store the Bounding Box extension
 
   _defineBoundingBox();
-
-  // Calculate and store the units
-
-  _defineUnits();
 
   // Optional printout
 
@@ -287,10 +274,6 @@ int MeshEStandard::resetOldStyle(int                 ndim,
   // Define and store the Bounding Box extension
 
   _defineBoundingBox();
-
-  // Calculate and store the units
-
-  _defineUnits();
 
   // Optional printout
 
@@ -397,25 +380,25 @@ void MeshEStandard::getDuplicates(int   verbose,
 **
 ** \param[in]  db        Db structure
 ** \param[in]  fatal     Error type when point does not belong to Meshing
-** \param[in]  verbose   Verbosity flag
+** \param[in]  verbose   Verbose flag
 **
 *****************************************************************************/
 cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 {
-  double *coor,*container,*weight;
-  int     error,imesh,imesh0,ncorner,ip,found,iech,ip_max,ndim,nmeshes;
-  cs     *A,*Atriplet;
+  int imesh,imesh0,ip,found,iech,ip_max;
+  VectorDouble units;
  
   /* Initializations */
 
-  error     = 1;
-  coor      = nullptr;
-  container = nullptr;
-  weight    = nullptr;
-  Atriplet  = A = nullptr;
-  nmeshes   = getNMeshes();
-  ncorner   = getNApexPerMesh();
-  ndim      = getNDim();
+  int error         = 1;
+  double* coor      = nullptr;
+  double* container = nullptr;
+  double* weight    = nullptr;
+  cs* Atriplet      = nullptr;
+  cs* A             = nullptr;
+  int nmeshes       = getNMeshes();
+  int ncorner       = getNApexPerMesh();
+  int ndim          = getNDim();
 
   // Preliminary checks 
 
@@ -432,6 +415,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   if (weight == nullptr) goto label_end;
   container = _defineContainers();
   if (container == nullptr) goto label_end;
+  units = _defineUnits();
   
   /* Optional title */
 
@@ -443,9 +427,6 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
-
-    /* Identification */
-
     for (int idim=0; idim<ndim; idim++)
       coor[idim] = db->getCoordinate(jech,idim);
     
@@ -457,7 +438,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
       imesh = imesh0 + jmesh;
       if (imesh >= nmeshes) imesh -= nmeshes;
       if (! _coorInMeshContainer(coor,imesh,container)) continue;
-      if (! _coorInMesh(coor,imesh,_units[imesh],weight)) continue;
+      if (! _coorInMesh(coor,imesh,units[imesh],weight)) continue;
 
       /* Store the items in the sparse matrix */
 
@@ -509,111 +490,6 @@ label_end:
   coor      = db_sample_free(coor);
   if (error) A = cs_spfree(A);
   return(A);
-}
-
-/****************************************************************************/
-/*!
-** Interpolates an array defined on the Meshes to the Db locations
-**
-** \return The array of interpolated values
-**
-** \param[in]  db        Db structure
-** \param[in]  mtab      Array of values defined on the meshes
-**
-** \remarks The newly allocated array is dimensioned to the total number
-** \remarks of samples in the Db (masked included).
-** \remarks It must be freed by the calling function
-**
-*****************************************************************************/
-double* MeshEStandard::interpolateMeshToDb(Db *db,
-                                           double* mtab) const
-{
-  double *coor,*container,*weight,*dtab;
-  int     error,imesh,imesh0,ncorner,ip,found,nech,ndim,nmeshes,iech;
- 
-  /* Initializations */
-  
-  error     = 1;
-  coor      = nullptr;
-  container = nullptr;
-  weight    = nullptr;
-  dtab      = nullptr;
-  nmeshes   = getNMeshes();
-  ncorner   = getNApexPerMesh();
-  ndim      = getNDim();
-  nech      = db->getSampleNumber(true);
-
-  // Preliminary checks
-
-  if (isCompatibleDb(db)) goto label_end;
-
-  /* Core allocation */
-
-  dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (dtab == nullptr) goto label_end;
-  coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == nullptr) goto label_end;
-  weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == nullptr) goto label_end;
-  container = _defineContainers();
-  if (container == nullptr) goto label_end;
-  
-  /* Loop on the samples */
-
-  imesh0 = iech = 0;
-  for (int jech=0; jech<db->getSampleNumber(); jech++)
-  {
-    if (! db->isActive(jech)) continue;
-
-    /* Identification */
-
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(jech,idim);
-    
-    /* Loop on the meshes */
-    
-    found = -1;
-    for (int jmesh=0; jmesh<nmeshes; jmesh++)
-    {
-      imesh = imesh0 + jmesh;
-      if (imesh >= nmeshes) imesh -= nmeshes;
-      if (! _coorInMeshContainer(coor,imesh,container)) continue;
-      if (! _coorInMesh(coor,imesh,_units[imesh],weight)) continue;
-
-      // Perform the interpolation
-
-      double total = 0.;
-      for (int icorn=0; icorn<ncorner; icorn++)
-      {
-        ip = getApex(imesh,icorn);
-        total += mtab[ip] * weight[icorn];
-      }
-      dtab[iech] = total;
-      imesh0 = found = imesh;
-      break;
-    }
-
-    /* Printout if a point does not belong to any mesh */
-
-    if (found < 0)
-    {
-      messerr("Point %d does not belong to any mesh",jech+1);
-      for (int idim=0; idim<ndim; idim++)
-        messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
-    }
-    iech++;
-  }
-  
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  container = (double *) mem_free((char *) container);
-  weight    = (double *) mem_free((char *) weight);
-  coor      = db_sample_free(coor);
-  if (error) dtab = (double *) mem_free((char *) dtab);
-  return(dtab);
 }
 
 int MeshEStandard::dumpToNF(const String& neutralFilename, bool verbose) const
@@ -991,18 +867,13 @@ double MeshEStandard::getApexCoor(int i, int idim) const
   return _apices(i, idim);
 }
 
-void MeshEStandard::_defineUnits(void)
+VectorDouble MeshEStandard::_defineUnits(void) const
 {
   int nmeshes = getNMeshes();
-
-  // Core allocation
-
-  _units.resize(nmeshes);
-
-  // Loop on the meshes 
-
+  VectorDouble units(nmeshes);
   for (int imesh=0; imesh<nmeshes; imesh++)
-    _units[imesh ] = getMeshSize(imesh);
+    units[imesh ] = getMeshSize(imesh);
+  return units;
 }
 
 void MeshEStandard::_defineBoundingBox(void)
@@ -1161,7 +1032,6 @@ bool MeshEStandard::_coorInMesh(double    *coor,
       if (icorn == jcorn) continue;
       for (int idim=0; idim<ndim; idim++) 
         mat.setValue(idim,kcorn,getCoor(imesh,jcorn,idim) - coor[idim]);
-      //        mat[ecr++] = getCoor(imesh,jcorn,idim) - coor[idim];
       kcorn++;
     }
     ratio = ABS(mat.determinant()) / meshsize / FACDIM[ndim];
@@ -1243,7 +1113,6 @@ int MeshEStandard::_recopy(const MeshEStandard &m)
 
   _apices = m._apices;
   _meshes = m._meshes;
-  _units = m._units;
 
   return(0);
 }
@@ -1323,8 +1192,6 @@ int MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
   _meshes = MatrixInt(nmeshes, napexpermesh);
   _meshes.setValues(meshes_local);
 
-  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
-
   return 0;
 }
 
@@ -1339,6 +1206,5 @@ int MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
-  ret = ret && _recordWriteVec<double>(os, "Units", _units);
   return 0;
 }

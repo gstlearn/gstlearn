@@ -50,10 +50,9 @@ public:
   cs* getMeshToDb(const Db *db,
                   bool fatal = false,
                   bool verbose = false) const override;
-  double* interpolateMeshToDb(Db *db, double* mtab) const override;
   int getVariety() const { return 1; }
 
-  VectorInt getMeshes() const {return _meshes.getValues();}
+  VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 
 protected:
@@ -62,12 +61,11 @@ protected:
 
 private:
   void    _defineBoundingBox();
-  void    _defineUnits();
+  VectorDouble _defineUnits() const;
   bool    _coorInMesh(double* coor,int imesh,double* weights) const;
   int     _recopy(const MeshSpherical &m);
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(2)
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
-  VectorDouble      _units;
 };

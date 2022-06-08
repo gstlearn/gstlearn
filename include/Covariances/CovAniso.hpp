@@ -217,7 +217,6 @@ private:
   void   _computeCorrec();
   double _getDetTensor() const;
 
-
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function

@@ -123,6 +123,9 @@ void exit_f(void)
 %extend Array {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend ProjMatrix {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

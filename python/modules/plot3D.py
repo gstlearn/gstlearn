@@ -24,7 +24,7 @@ def getCscale():
 def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', opacity=0.50):
     
     tab = np.array(mesh.getEmbeddedApexCoordinates())
-    meshes = np.array(mesh.getMeshes()).reshape([mesh.getNMeshes(),3])-1
+    meshes = np.array(mesh.getMeshes())-1
     
     if cscale is None:
         cscale = getCscale()

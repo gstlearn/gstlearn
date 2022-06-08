@@ -139,6 +139,21 @@ VectorInt MatrixInt::getValues() const
   return vect;
 }
 
+VectorVectorInt MatrixInt::getMatrix() const
+{
+  VectorVectorInt vect(_nRows);;
+  for (int irow = 0; irow < _nRows; irow++)
+  {
+    vect[irow].resize(_nCols);
+    for (int icol = 0; icol < _nCols; icol++)
+    {
+      int value = getValue(irow,icol);
+      vect[irow][icol] = value;
+    }
+  }
+  return vect;
+}
+
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number

@@ -22,7 +22,6 @@ MeshManifold::MeshManifold()
   : AMesh()
   , _apices()
   , _meshes()
-  , _units()
 {
 }
 
@@ -192,7 +191,6 @@ int MeshManifold::_recopy(const MeshManifold &m)
 {
   _apices = m._apices;
   _meshes = m._meshes;
-  _units = m._units;
   return(0);
 }
 
@@ -211,7 +209,6 @@ int MeshManifold::_deserialize(std::istream& is, bool /*verbose*/)
   _apices = MatrixRectangular(napices, ndim);
   _apices.setValues(local);
   ret = ret && _recordReadVec<int>(is, "Meshes", _meshes, nmeshes * napexpermesh);
-  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
   return 0;
 }
 
@@ -225,6 +222,5 @@ int MeshManifold::_serialize(std::ostream& os, bool /*verbose*/) const
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
-  ret = ret && _recordWriteVec<double>(os, "Units", _units);
   return 0;
 }

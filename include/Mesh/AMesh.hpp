@@ -33,6 +33,7 @@ public:
 	/// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// Interface for AMesh
   /*! Returns the number of apex per mesh */
   virtual int getNApexPerMesh() const { return _nDim + 1; }
   /*! Returns the number of apices */
@@ -51,8 +52,6 @@ public:
   virtual cs* getMeshToDb(const Db *db,
                           bool fatal = false,
                           bool verbose = false) const = 0;
-  /*! Interpolates an array from Mesh to Db */
-  virtual double* interpolateMeshToDb(Db *db, double* mtab) const = 0;
   /*! Returns the space variety */
   virtual int getVariety() const { return 0; }
 

@@ -42,6 +42,7 @@ public:
   int    getMatrixSize() const;
   int    size() const { return getMatrixSize(); }
   VectorInt getValues() const;
+  VectorVectorInt getMatrix() const;
   void   setValues(const VectorInt& values, bool byCol = true);
   void   setValues(const int* values, bool byCol = true);
   void   transposeInPlace();
