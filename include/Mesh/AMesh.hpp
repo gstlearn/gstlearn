@@ -17,6 +17,7 @@
 #include "csparse_d.h"
 
 class MatrixRectangular;
+class MatrixInt;
 class Db;
 class SPDE_Mesh;
 
@@ -67,7 +68,7 @@ public:
   /*! Returns the Vector of Extrema of the Bounding Box */
   VectorDouble getExtrema(int idim) const;
   /*! Returns the set of apexes and meshes */
-  void getElements(MatrixRectangular& apices, VectorInt& meshes) const;
+  void getElements(MatrixRectangular& apices, MatrixInt& meshes) const;
 
   int  setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
   void getDuplicates(int verbose, Db *dbin, Db *dbout,

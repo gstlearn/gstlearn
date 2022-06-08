@@ -3445,10 +3445,10 @@ void meshes_1D_print(segmentio *t, int brief)
  **
  *****************************************************************************/
 void meshes_1D_load_vertices(segmentio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg)
+                             const char *name,
+                             int *ntab_arg,
+                             int *natt_arg,
+                             void **tab_arg)
 {
   double *rtab, *rfrom;
   int *itab, *ifrom, ntab, natt, type;

@@ -136,8 +136,7 @@ double MeshETurbo::getMeshSize(int /*imesh*/) const
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh-1)
 **
 *****************************************************************************/
-int MeshETurbo::getApex(int imesh,
-                        int rank) const
+int MeshETurbo::getApex(int imesh, int rank) const
 {
   int node,icas;
   int ndim = getNDim();
@@ -779,16 +778,19 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
 
 int MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 {
+  int ndim;
   VectorInt nx;
   VectorDouble dx;
   VectorDouble x0;
   VectorDouble rotmat;
   int flag_polarized;
 
-  bool ret = _recordReadVec<int>(is, "Nx", nx);
-  ret = ret && _recordReadVec<double>(is, "Dx", dx);
-  ret = ret && _recordReadVec<double>(is, "X0", x0);
-  ret = ret && _recordReadVec<double>(is, "Rotation", rotmat);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordReadVec<int>(is, "Nx", nx, ndim);
+  ret = ret && _recordReadVec<double>(is, "Dx", dx, ndim);
+  ret = ret && _recordReadVec<double>(is, "X0", x0, ndim);
+  ret = ret && _recordReadVec<double>(is, "Rotation", rotmat, ndim * ndim);
   ret = ret && _recordRead<int>(is, "Polarization", flag_polarized);
 
   (void) initFromGrid(nx, dx, x0, rotmat, (bool) flag_polarized);
@@ -798,7 +800,9 @@ int MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 
 int MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWriteVec<int>(os, "Nx", _grid.getNXs());
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWriteVec<int>(os, "Nx", _grid.getNXs());
   ret = ret && _recordWriteVec<double>(os, "Dx", _grid.getDXs());
   ret = ret && _recordWriteVec<double>(os, "X0", _grid.getX0s());
   ret = ret && _recordWriteVec<double>(os, "Rotation", _grid.getRotMat());

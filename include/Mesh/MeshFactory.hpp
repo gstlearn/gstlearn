@@ -15,6 +15,7 @@
 
 class AMesh;
 class MatrixRectangular;
+class MatrixInt;
 
 class GSTLEARN_EXPORT MeshFactory
 {
@@ -34,7 +35,7 @@ public:
                            Db *dbout,
                            const String& triswitch,
                            MatrixRectangular& apices,
-                           VectorInt& meshes,
+                           MatrixInt& meshes,
                            bool flag_polarize,
                            int verbose = 0);
 };

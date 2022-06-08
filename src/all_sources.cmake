@@ -15,6 +15,7 @@ set(SRC
   Matrix/MatrixSquareDiagonal.cpp
   Matrix/AMatrixSquare.cpp
   Matrix/MatrixSquareGeneral.cpp
+  Matrix/MatrixInt.cpp
   API/PGSSPDE.cpp
   API/SPDE.cpp
   INIParser.cpp

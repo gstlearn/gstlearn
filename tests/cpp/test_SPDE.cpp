@@ -92,7 +92,7 @@ int main(int /*argc*/, char */*argv*/[])
   s_option = spde_option_alloc();
   spde_option_update(s_option,triswitch);
   if (spde_f(NULL,dbgrid,model,gext,s_option,1,1,
-           seed,nsimu,0,0,0,0,0,0,0,verbose))
+             seed,nsimu,0,0,0,0,0,0,0,verbose))
     goto label_end;
   
   // Print statistics on the results

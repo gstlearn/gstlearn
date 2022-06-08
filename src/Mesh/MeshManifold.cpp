@@ -91,10 +91,9 @@ String MeshManifold::toString(const AStringFormat* strfmt) const
 ** \param[in]  rank     Rank of the Apex within a Mesh (from 0 to _nApices-1)
 **
 *****************************************************************************/
-int MeshManifold::getApex(int imesh,
-                           int rank) const
+int MeshManifold::getApex(int imesh, int rank) const
 {
-  return (_meshes[getNApexPerMesh() * imesh + rank] - 1);
+  return _meshes.getValue(imesh, rank) - 1;
 }
 
 /****************************************************************************/
@@ -208,11 +207,11 @@ int MeshManifold::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
 
   VectorDouble local;
-  ret = ret && _recordReadVec<double>(is, "Apices", local);
+  ret = ret && _recordReadVec<double>(is, "Apices", local, ndim * napices);
   _apices = MatrixRectangular(napices, ndim);
   _apices.setValues(local);
-  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes);
-  ret = ret && _recordReadVec<double>(is, "Units", _units);
+  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes, nmeshes * napexpermesh);
+  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
   return 0;
 }
 

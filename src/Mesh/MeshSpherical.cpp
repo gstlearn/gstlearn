@@ -13,6 +13,7 @@
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
 #include "Space/SpaceSN.hpp"
@@ -187,8 +188,8 @@ int MeshSpherical::reset(Db* dbin,
   }
   else
   {
-    _meshes.resize(nmeshes * ncorner);
-    _meshes.assign(meshes, meshes + ncorner * nmeshes);
+    _meshes.reset(nmeshes,ncorner);
+    _meshes.setValues(meshes, false);
   }
   
   /* Define and store the Bounding Box extension */
@@ -512,10 +513,9 @@ label_end:
 ** \param[in]  rank     Rank of the Apex within a Mesh (from 0 to _nApices-1)
 **
 *****************************************************************************/
-int MeshSpherical::getApex(int imesh,
-                           int rank) const
+int MeshSpherical::getApex(int imesh, int rank) const
 {
-  return (_meshes[getNApexPerMesh() * imesh + rank] - 1);
+  return _meshes.getValue(imesh,rank) - 1;
 }
 
 /****************************************************************************/
@@ -673,12 +673,17 @@ int MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
   ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
 
-  VectorDouble local;
-  ret = ret && _recordReadVec<double>(is, "Apices", local);
+  VectorDouble apices_local;
+  ret = ret && _recordReadVec<double>(is, "Apices", apices_local, ndim * napices);
   _apices = MatrixRectangular(napices, ndim);
-  _apices.setValues(local);
-  ret = ret && _recordReadVec<int>(is, "Meshes", _meshes);
-  ret = ret && _recordReadVec<double>(is, "Units", _units);
+  _apices.setValues(apices_local);
+
+  VectorInt meshes_local;
+  ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
+  _meshes = MatrixInt(nmeshes, napexpermesh);
+  _meshes.setValues(meshes_local);
+
+  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
   return 0;
 }
 
@@ -692,7 +697,7 @@ int MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
-  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes);
+  ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   ret = ret && _recordWriteVec<double>(os, "Units", _units);
   return 0;
 }

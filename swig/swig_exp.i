@@ -17,6 +17,7 @@ class IClonable{};
 // Cast vectors of integers into native type of the target language
 %include std_vector.i
 
+//%include std_complex.i
 
 // Keep order in the file
 %template(VectorDouble)         std::vector< double >;
@@ -268,6 +269,7 @@ class IClonable{};
 %include Matrix/MatrixSquareDiagonalCst.hpp
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
+%include Matrix/MatrixInt.hpp
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp

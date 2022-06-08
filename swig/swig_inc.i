@@ -214,6 +214,7 @@
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Matrix/MatrixInt.hpp"
 
 #include "API/SPDE.hpp"
 #include "API/PGSSPDE.hpp"

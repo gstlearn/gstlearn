@@ -19,6 +19,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Mesh/MeshSpherical.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Db/ELoadBy.hpp"
@@ -40,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("TestMesh-");
@@ -58,7 +59,7 @@ int main(int /*argc*/, char */*argv*/[])
   int flag_mesh = 0;
   int ndim      = 3;
   int verbose   = 1;
-  int variety   = 1;  // 0 for Euclidean; 1 for Spherical
+  int variety   = 0;  // 0 for Euclidean; 1 for Spherical
   if (variety == 0)
     ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   else
@@ -113,7 +114,7 @@ int main(int /*argc*/, char */*argv*/[])
   /* Instantiate the Meshing */
 
   MatrixRectangular apices;
-  VectorInt meshes;
+  MatrixInt meshes;
   AMesh* mesh = MeshFactory::createMesh(variety,
                                         extendmin,extendmax,cellsize,rotmat,
                                         dilate,dbin,dbgrid,triswitch,
