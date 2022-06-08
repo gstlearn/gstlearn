@@ -54,6 +54,9 @@ public:
                           bool verbose = false) const = 0;
   /*! Returns the space variety */
   virtual int getVariety() const { return 0; }
+  virtual int getEmbeddedNDim() const { return _nDim; }
+  virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
+  virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
 
   virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const = 0;
   /*! Returns the space dimension */
@@ -88,9 +91,7 @@ public:
   /*! Returns the coordinates of an Apex */
   VectorDouble getApexCoordinates(int iapex) const;
 
-  virtual int getEmbeddedNDim() const { return _nDim; }
-  virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
-  virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
+  VectorVectorDouble getCoordinatesPerMesh(int imesh) const;
   VectorVectorDouble getEmbeddedCoordinatesPerMesh(int imesh = 0) const;
   void getEmbeddedCoordinatesPerMesh(int imesh, VectorVectorDouble& coors) const;
   VectorVectorDouble getEmbeddedApexCoordinates() const;
@@ -104,6 +105,11 @@ public:
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  bool _weightsInMesh(const VectorDouble& coor,
+                      const VectorVectorDouble& corners,
+                      double meshsize,
+                      VectorDouble& weights) const;;
+  double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 private:
   void _recopy(const AMesh &m);

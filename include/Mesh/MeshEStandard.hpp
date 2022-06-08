@@ -94,23 +94,25 @@ private:
                 const char *triswitch);
   void    _defineBoundingBox();
   VectorDouble _defineUnits() const;
-  double* _defineContainers() const;
-  bool    _coorInMeshContainer(double* coor, int imesh, double* container) const;
-  bool    _coorInMesh(double* coor,
+  VectorDouble _defineContainers() const;
+  bool _coorInMeshContainer(const VectorDouble& coor,
+                            int imesh,
+                            const VectorDouble& container) const;
+  bool _coorInMesh(const VectorDouble& coor,
                    int imesh,
                    double meshsize,
-                   double* weights) const;
-  void    _setContainer(double* container,
+                   VectorDouble& weights) const;
+  void    _setContainer(VectorDouble& container,
                      int imesh,
                      int idim,
                      double vmin,
                      double vmax) const;
-  void _getContainer(double* container,
+  void _getContainer(const VectorDouble& container,
                      int imesh,
                      int idim,
                      double* vmin,
                      double* vmax) const;
-  void _printContainers(double* container) const;
+  void _printContainers(const VectorDouble& container) const;
   void _deallocate();
   int  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;

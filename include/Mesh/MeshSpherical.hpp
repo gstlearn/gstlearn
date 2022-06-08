@@ -47,10 +47,9 @@ public:
                                      bool verbose = false);
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
-  cs* getMeshToDb(const Db *db,
-                  bool fatal = false,
-                  bool verbose = false) const override;
-  int getVariety() const { return 1; }
+  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
+          override;
+  int     getVariety() const { return 1; }
 
   VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
@@ -60,12 +59,17 @@ protected:
   virtual int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
-  void    _defineBoundingBox();
+  void _defineBoundingBox();
   VectorDouble _defineUnits() const;
-  bool    _coorInMesh(double* coor,int imesh,double* weights) const;
-  int     _recopy(const MeshSpherical &m);
+  bool _coorInMesh(const VectorDouble& coor,
+                   int imesh,
+                   double meshsize,
+                   VectorDouble& weights,
+                   bool flag_approx = true) const;
+  int _recopy(const MeshSpherical &m);
+  double _closestValue(double ref, double coor, double period) const;
 
 private:
-  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(2)
+  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim(=2)
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
 };

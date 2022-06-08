@@ -374,7 +374,7 @@ GSTLEARN_EXPORT int is_in_spherical_triangle(double *coor,
                                              double *pts2,
                                              double *pts3,
                                              double *wgts);
-GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(double *coo0,
+GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(const double *coor,
                                                        double *ptsa,
                                                        double *ptsb,
                                                        double *ptsc,
@@ -2465,17 +2465,6 @@ GSTLEARN_EXPORT int trlist_(int *n,
                             int *nt,
                             int *ltri,
                             int *ier);
-GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
-                                           double rlat,
-                                           double *x,
-                                           double *y,
-                                           double *z,
-                                           double radius = 1.);
-GSTLEARN_EXPORT void util_convert_cart2sph(double x,
-                                           double y,
-                                           double z,
-                                           double *rlong,
-                                           double *rlat);
 
 /***************************************/
 /* Prototyping the functions in spde.c */

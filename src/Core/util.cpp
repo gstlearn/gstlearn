@@ -4480,7 +4480,7 @@ int* ut_split_into_two(int ncolor,
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-int is_in_spherical_triangle_optimized(double *coor,
+int is_in_spherical_triangle_optimized(const double *coor,
                                        double *ptsa,
                                        double *ptsb,
                                        double *ptsc,
@@ -4952,17 +4952,17 @@ VectorInt util_string_search(const VectorString &list_string,
  * @param longitude Array of longitude values
  * @param latitude  Array of latitude values
  * @param dilate    Dilation applied to radius
- * @param radius    Radius (if note defined, taken from variety definition)
+ * @param radius_arg    Radius (if note defined, taken from variety definition)
  * @return
  */
 VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
                                         double dilate,
-                                        double radius)
+                                        double radius_arg)
 {
-  double locR = radius;
-  if (FFFF(locR)) variety_get_characteristics(&locR);
-  locR *= dilate;
+  double radius = radius_arg;
+  if (FFFF(radius)) variety_get_characteristics(&radius);
+  radius *= dilate;
 
   VectorVectorDouble tab;
   int number = (int) longitude.size();
@@ -4993,10 +4993,91 @@ VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
     {
       lon = ut_deg2rad(lon);
       lat = ut_deg2rad(lat);
-      tab[0][ip] = locR * cos(lon) * cos(lat);
-      tab[1][ip] = locR * sin(lon) * cos(lat);
-      tab[2][ip] = locR * sin(lat);
+      tab[0][ip] = radius * cos(lon) * cos(lat);
+      tab[1][ip] = radius * sin(lon) * cos(lat);
+      tab[2][ip] = radius * sin(lat);
     }
   }
   return tab;
 }
+
+/****************************************************************************/
+/*!
+ **  Convert the cartesian coordinates into spherical coordinates
+ **
+ ** \param[in]  x     First cartesian coordinate
+ ** \param[in]  y     Second cartesian coordinate
+ ** \param[in]  z     Third cartesian coordinate
+ ** \param[in]  radius_arg Radius of the sphere (Earth if TEST)
+ **
+ ** \param[out] rlong Longitude (in degrees)
+ ** \param[out] rlat  Latitude (in degrees)
+ **
+ *****************************************************************************/
+void util_convert_cart2sph(double x,
+                           double y,
+                           double z,
+                           double *rlong,
+                           double *rlat,
+                           double radius_arg)
+{
+  double radius = radius_arg;
+  if (FFFF(radius)) variety_get_characteristics(&radius);
+
+  double loc_long, loc_lat;
+
+  x /= radius;
+  y /= radius;
+  z /= radius;
+
+  loc_long = ut_rad2deg(atan2(y, x));
+  loc_lat = ut_rad2deg(asin(z));
+
+  if (loc_long < 0.)
+    loc_long += 360.;
+  else if (loc_long > 360.) loc_long -= 360.;
+  if (loc_lat < -90.)
+    loc_lat += 180.;
+  else if (loc_lat > 90.) loc_lat -= 180.;
+
+  *rlong = loc_long;
+  *rlat = loc_lat;
+}
+
+/****************************************************************************/
+/*!
+ **  Convert the spherical coordinates into cartesian coordinates
+ **
+ ** \param[in]  rlong Longitude (in degrees)
+ ** \param[in]  rlat  Latitude (in degrees)
+ ** \param[in]  radius_arg radius of the sphere (Earth if TEST)
+ **
+ ** \param[out] x     First cartesian coordinate
+ ** \param[out] y     Second cartesian coordinate
+ ** \param[out] z     Third cartesian coordinate
+ **
+ *****************************************************************************/
+void util_convert_sph2cart(double rlong,
+                           double rlat,
+                           double *x,
+                           double *y,
+                           double *z,
+                           double radius_arg)
+{
+  double radius = radius_arg;
+  if (FFFF(radius)) variety_get_characteristics(&radius);
+
+  double phi, theta, sinphi, cosphi, sinthe, costhe;
+
+  phi = ut_deg2rad(rlat);
+  theta = ut_deg2rad(rlong);
+  sinphi = sin(phi);
+  cosphi = cos(phi);
+  sinthe = sin(theta);
+  costhe = cos(theta);
+
+  *x = radius * cosphi * costhe;
+  *y = radius * cosphi * sinthe;
+  *z = radius * sinphi;
+}
+

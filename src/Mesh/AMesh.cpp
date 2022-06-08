@@ -11,6 +11,7 @@
 #include "geoslib_old_f.h"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
@@ -374,6 +375,20 @@ VectorVectorDouble AMesh::getEmbeddedCoordinatesPerMesh(int imesh) const
   return vec;
 }
 
+VectorVectorDouble AMesh::getCoordinatesPerMesh(int imesh) const
+{
+  int ndim = getNDim();
+  int ncorner = getNApexPerMesh();
+  VectorVectorDouble vec(ncorner);
+  for (auto &e: vec)
+    e = VectorDouble(ndim);
+
+  for (int ic = 0; ic < ncorner; ic++)
+    for (int idim = 0; idim < ndim; idim++)
+      vec[ic][idim] = getCoor(imesh, ic, idim);
+  return vec;
+}
+
 /**
  * Returns the coordinates of the Mesh apices expressed in the embedded space
  * The returned vector is organized by coordinate
@@ -531,3 +546,83 @@ int AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<double>(os, "Maximum Extension", _extendMax);
   return 0;
 }
+
+/****************************************************************************/
+/*!
+**  Check if a point, defined by its coordinates, belongs to a Mesh
+**
+** \return true if the point belongs to the Mesh; false otherwise
+**
+** \param[in]  coor      Vector of target coordinates
+** \param[in]  corners   Vector of coordinates of mesh apices
+** \param[in]  meshsize  Dimension of the mesh
+**
+** \param[out] weights   Array of barycentric weights (Dim: NApexPerMesh)
+**
+** \remarks The argument 'meshsize' is used to speed the calculations
+**
+*****************************************************************************/
+bool AMesh::_weightsInMesh(const VectorDouble& coor,
+                           const VectorVectorDouble& corners,
+                           double meshsize,
+                           VectorDouble& weights) const
+{
+  static double FACDIM[] = {0., 1., 2., 6.};
+
+  // Initialiations
+  int ncorner = getNApexPerMesh();
+  int ndim    = getNDim();
+
+  // Loop on the vertices
+  double total = 0.;
+  for (int icorn=0; icorn<ncorner; icorn++)
+  {
+
+    // Build the determinant
+    MatrixSquareGeneral mat(ndim);
+    int kcorn = 0;
+    for (int jcorn=0; jcorn<ncorner; jcorn++)
+    {
+      if (icorn == jcorn) continue;
+      for (int idim=0; idim<ndim; idim++)
+        mat.setValue(idim,kcorn,corners[jcorn][idim] - coor[idim]);
+      kcorn++;
+    }
+    double ratio = ABS(mat.determinant()) / meshsize / FACDIM[ndim];
+    if (ratio < 0 || ratio > 1) return false;
+    weights[icorn] = ratio;
+    total += ratio;
+  }
+  if (ABS(total - 1) > 1.e-3) return false;
+  return true;
+}
+
+/****************************************************************************/
+/*!
+** Returns the size of the Mesh 'imesh'
+**
+** \returns mesh dimension
+**
+** \param[in]  corners   Vector of coordinates of mesh apices
+**
+*****************************************************************************/
+double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
+{
+  double unit;
+  static double facdim[] = {0., 1., 2., 6.};
+
+  // Initializations
+  int ndim    = getNDim();
+  int ncorner = getNApexPerMesh();
+
+  // Calculate the mesh size
+  MatrixSquareGeneral mat;
+  mat.reset(ndim,ndim);
+  for (int icorn=1; icorn<ncorner; icorn++)
+    for (int idim=0; idim<ndim; idim++)
+      mat.setValue(icorn-1,idim, corners[icorn][idim] - corners[0][idim]);
+  unit = ABS(mat.determinant()) / facdim[ndim];
+
+  return unit;
+}
+

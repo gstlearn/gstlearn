@@ -79,23 +79,8 @@ int MeshEStandard::getNMeshes() const
 *****************************************************************************/
 double MeshEStandard::getMeshSize(int imesh) const
 {
-  double unit;
-  static double facdim[] = {0., 1., 2., 6.};
-
-  // Initializations
-  int ndim    = getNDim();
-  int ncorner = getNApexPerMesh();
-
-  // Calculate the mesh size
-  MatrixSquareGeneral mat;
-  mat.reset(ndim,ndim);
-  for (int icorn=1; icorn<ncorner; icorn++)
-    for (int idim=0; idim<ndim; idim++)
-      mat.setValue(icorn-1,idim,
-                   getCoor(imesh,icorn,idim) - getCoor(imesh,0,idim));
-  unit = ABS(mat.determinant()) / facdim[ndim];
-
-  return unit;
+  VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
+  return _getMeshUnit(corners);
 }
 
 /****************************************************************************/
@@ -385,15 +370,6 @@ void MeshEStandard::getDuplicates(int   verbose,
 *****************************************************************************/
 cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 {
-  int imesh,imesh0,ip,found,iech,ip_max;
-  VectorDouble units;
- 
-  /* Initializations */
-
-  int error         = 1;
-  double* coor      = nullptr;
-  double* container = nullptr;
-  double* weight    = nullptr;
   cs* Atriplet      = nullptr;
   cs* A             = nullptr;
   int nmeshes       = getNMeshes();
@@ -402,20 +378,15 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
   // Preliminary checks 
 
-  if (isCompatibleDb(db)) goto label_end;
+  if (isCompatibleDb(db)) return nullptr;
 
   /* Core allocation */
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
-
-  coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == nullptr) goto label_end;
-  weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == nullptr) goto label_end;
-  container = _defineContainers();
-  if (container == nullptr) goto label_end;
-  units = _defineUnits();
+  if (Atriplet == nullptr) return nullptr;
+  VectorDouble weight(ncorner,0);
+  VectorDouble container = _defineContainers();
+  VectorDouble units = _defineUnits();
   
   /* Optional title */
 
@@ -423,19 +394,20 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
   /* Loop on the samples */
 
-  imesh0 = ip_max = iech = 0;
+  int imesh0 = 0;
+  int ip_max = 0;
+  int iech = 0;
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(jech,idim);
+    VectorDouble coor = db->getSampleCoordinates(iech);
     
     /* Loop on the meshes */
     
-    found = -1;
+    int found = -1;
     for (int jmesh=0; jmesh<nmeshes; jmesh++)
     {
-      imesh = imesh0 + jmesh;
+      int imesh = imesh0 + jmesh;
       if (imesh >= nmeshes) imesh -= nmeshes;
       if (! _coorInMeshContainer(coor,imesh,container)) continue;
       if (! _coorInMesh(coor,imesh,units[imesh],weight)) continue;
@@ -445,10 +417,14 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
       if (verbose) message("Sample %4d in Mesh %4d :",jech+1,imesh+1);
       for (int icorn=0; icorn<ncorner; icorn++)
       {
-        ip = getApex(imesh,icorn);
+        int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
         if (verbose) message(" %4d (%4.2lf)",ip,weight[icorn]);
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn])) goto label_end;
+        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
+        {
+          Atriplet  = cs_spfree(Atriplet);
+          return nullptr;
+        }
       }
       if (verbose) message("\n");
       imesh0 = found = imesh;
@@ -462,7 +438,11 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
       messerr("Point %d does not belong to any mesh",jech+1);
       for (int idim=0; idim<ndim; idim++)
         messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
-      if (fatal) goto label_end;
+      if (fatal)
+      {
+         Atriplet  = cs_spfree(Atriplet);
+         return nullptr;
+      }
     }
     iech++;
   }
@@ -471,24 +451,17 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
   if (ip_max < getNApices() - 1)
   {
-    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1,
-                  getNApices() - 1, 0.)) goto label_end;
+    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1, getNApices() - 1, 0.))
+    {
+      Atriplet  = cs_spfree(Atriplet);
+      return nullptr;
+    }
   }
   
   /* Convert the triplet into a sparse matrix */
 
   A = cs_triplet(Atriplet);
-  
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
   Atriplet  = cs_spfree(Atriplet);
-  container = (double *) mem_free((char *) container);
-  weight    = (double *) mem_free((char *) weight);
-  coor      = db_sample_free(coor);
-  if (error) A = cs_spfree(A);
   return(A);
 }
 
@@ -914,22 +887,16 @@ void MeshEStandard::_defineBoundingBox(void)
 ** \return Pointer to the array containing the containers
 **
 *****************************************************************************/
-double* MeshEStandard::_defineContainers() const
+VectorDouble MeshEStandard::_defineContainers() const
 
 {
-  double *container,value,vmin,vmax;
-  int ncorner,ndim,nmesh;
-
-  /* Initializations */
-
-  ndim    = getNDim();
-  nmesh   = getNMeshes();
-  ncorner = getNApexPerMesh();
+  int ndim    = getNDim();
+  int nmesh   = getNMeshes();
+  int ncorner = getNApexPerMesh();
   
   /* Allocation */
 
-  container = (double *) mem_alloc(sizeof(double) * 2 * ndim * nmesh,0);
-  if (container == nullptr) return(container);
+  VectorDouble container(2 * ndim * nmesh,0);
   
   /* Loop on the meshes */
 
@@ -940,14 +907,14 @@ double* MeshEStandard::_defineContainers() const
     
     for (int idim=0; idim<ndim; idim++)
     {
-      vmin =  1.e30;
-      vmax = -1.e30;
+      double vmin =  1.e30;
+      double vmax = -1.e30;
 
       /* Loop on the corners */
       
       for (int icorn=0; icorn<ncorner; icorn++)
       {
-        value = getCoor(imesh,icorn,idim);
+        double value = getCoor(imesh,icorn,idim);
         if (value < vmin) vmin = value;
         if (value > vmax) vmax = value;
       }
@@ -969,21 +936,15 @@ double* MeshEStandard::_defineContainers() const
 ** \param[in]  container Array of containers
 **
 *****************************************************************************/
-bool MeshEStandard::_coorInMeshContainer(double *coor,
+bool MeshEStandard::_coorInMeshContainer(const VectorDouble& coor,
                                          int     imesh,
-                                         double *container) const
+                                         const VectorDouble& container) const
 {
-  double center,vmin,vmax;
+  double vmin,vmax;
   
-  /* Initializations */
-  
-  if (container == nullptr) return true;
-  
-  /* Loop on the space dimension */
-
   for (int idim=0; idim<getNDim(); idim++)
   {
-    center = coor[idim];
+    double center = coor[idim];
     _getContainer(container,imesh,idim,&vmin,&vmax);
     if ((center - vmin) * (center - vmax) > 0) return false;
   }
@@ -1005,45 +966,16 @@ bool MeshEStandard::_coorInMeshContainer(double *coor,
 ** \remarks The argument 'meshsize' is used to speed the calculations
 **
 *****************************************************************************/
-bool MeshEStandard::_coorInMesh(double    *coor,
-                                int        imesh,
-                                double     meshsize,
-                                double    *weights) const
+bool MeshEStandard::_coorInMesh(const VectorDouble& coor,
+                                int imesh,
+                                double meshsize,
+                                VectorDouble& weights) const
 {
-  double ratio,total;
-  int    ncorner,ndim,kcorn;
-  static double FACDIM[] = {0., 1., 2., 6.};
-
-  // Initialiations
-  ncorner = getNApexPerMesh();
-  ndim    = getNDim();
-  
-  // Loop on the vertices
-  total = 0.;
-  for (int icorn=0; icorn<ncorner; icorn++)
-  {
-    
-    // Build the determinant
-    MatrixSquareGeneral mat;
-    mat.reset(ndim,ndim);
-    kcorn = 0;
-    for (int jcorn=0; jcorn<ncorner; jcorn++)
-    {
-      if (icorn == jcorn) continue;
-      for (int idim=0; idim<ndim; idim++) 
-        mat.setValue(idim,kcorn,getCoor(imesh,jcorn,idim) - coor[idim]);
-      kcorn++;
-    }
-    ratio = ABS(mat.determinant()) / meshsize / FACDIM[ndim];
-    if (ratio < 0 || ratio > 1) return false;
-    weights[icorn] = ratio;
-    total += ratio;
-  }
-  if (ABS(total - 1) > 1.e-3) return false;
-  return true;
+  VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
+  return _weightsInMesh(coor, corners, meshsize, weights);
 }
 
-void MeshEStandard::_setContainer(double *container,
+void MeshEStandard::_setContainer(VectorDouble& container,
                                   int     imesh,
                                   int     idim,
                                   double  vmin,
@@ -1054,7 +986,7 @@ void MeshEStandard::_setContainer(double *container,
   container[(1) + 2*((idim) + ndim * (imesh))] = vmax;
 }
 
-void MeshEStandard::_getContainer(double *container,
+void MeshEStandard::_getContainer(const VectorDouble& container,
                                   int     imesh,
                                   int     idim,
                                   double *vmin,
@@ -1065,7 +997,7 @@ void MeshEStandard::_getContainer(double *container,
   *vmax = container[(1) + 2*((idim) + ndim * (imesh))];
 }
 
-void MeshEStandard::_printContainers(double *container) const
+void MeshEStandard::_printContainers(const VectorDouble& container) const
 {
   int    ndim,nmesh,ncorner;
   double vmin,vmax;

@@ -67,10 +67,22 @@ GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
-VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
-                                        const VectorDouble& latitude,
-                                        double dilate = 1.,
-                                        double radius = TEST);
+GSTLEARN_EXPORT VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
+                                                        const VectorDouble& latitude,
+                                                        double dilate = 1.,
+                                                        double radius_arg = TEST);
+GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
+                                           double rlat,
+                                           double *x,
+                                           double *y,
+                                           double *z,
+                                           double radius = 1.);
+GSTLEARN_EXPORT void util_convert_cart2sph(double x,
+                                           double y,
+                                           double z,
+                                           double *rlong,
+                                           double *rlat,
+                                           double radius = 1.);
 GSTLEARN_EXPORT double ut_geodetic_angular_distance(double long1,
                                                     double lat1,
                                                     double long2,

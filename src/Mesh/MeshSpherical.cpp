@@ -77,15 +77,12 @@ int MeshSpherical::getNMeshes() const
 *****************************************************************************/
 double MeshSpherical::getMeshSize(int imesh) const
 {
-  double unit;
-
-  unit = ut_geodetic_triangle_surface(getCoor(imesh,0,0),
-                                      getCoor(imesh,0,1),
-                                      getCoor(imesh,1,0),
-                                      getCoor(imesh,1,1),
-                                      getCoor(imesh,2,0),
-                                      getCoor(imesh,2,1));
-  return unit;
+  return ut_geodetic_triangle_surface(getCoor(imesh, 0, 0),
+                                      getCoor(imesh, 0, 1),
+                                      getCoor(imesh, 1, 0),
+                                      getCoor(imesh, 1, 1),
+                                      getCoor(imesh, 2, 0),
+                                      getCoor(imesh, 2, 1));
 }
 
 /****************************************************************************/
@@ -299,13 +296,10 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 *****************************************************************************/
 cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 {
-  int imesh,imesh0,ip,found,iech_max,ip_max;
+  bool flag_approx = true;
  
   /* Initializations */
   
-  int error      = 1;
-  double* coor   = nullptr;
-  double* weight = nullptr;
   cs* Atriplet   = nullptr;
   cs* A          = nullptr;
   int nmeshes    = getNMeshes();
@@ -315,50 +309,45 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
   // Preliminary checks 
 
-  if (isCompatibleDb(db)) goto label_end;
+  if (isCompatibleDb(db)) return nullptr;
 
   /* Core allocation */
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (Atriplet == nullptr) goto label_end;
-
-  coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == nullptr) goto label_end;
-  weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == nullptr) goto label_end;
+  if (Atriplet == nullptr) return nullptr;
+  VectorDouble weight(ncorner,0);
+  VectorDouble units = _defineUnits();
   
   /* Loop on the samples */
 
-  imesh0 = ip_max = iech_max = 0;
+  int ip_max = 0;
+  int iech_max = 0;
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
     if (iech > iech_max) iech_max = iech;
-
-    /* Identification */
-
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(iech,idim);
+    VectorDouble coorLongLat = db->getSampleCoordinates(iech);
     
     /* Loop on the meshes */
     
-    found = -1;
-    for (int jmesh=0; jmesh<nmeshes; jmesh++)
+    int found = -1;
+    for (int imesh=0; imesh<nmeshes && found < 0; imesh++)
     {
-      imesh = imesh0 + jmesh;
-      if (imesh >= nmeshes) imesh -= nmeshes;
-      if (! _coorInMesh(coor,imesh,weight)) continue;
+      if (! _coorInMesh(coorLongLat,imesh,units[imesh],weight,flag_approx)) continue;
 
       /* Store the items in the sparse matrix */
 
       for (int icorn=0; icorn<ncorner; icorn++)
       {
-        ip = getApex(imesh,icorn);
+        int ip = getApex(imesh,icorn);
         if (ip > ip_max) ip_max = ip;
-        if (! cs_entry(Atriplet,iech,ip,weight[icorn])) goto label_end;
+        if (! cs_entry(Atriplet,iech,ip,weight[icorn]))
+        {
+          Atriplet = cs_spfree(Atriplet);
+          return nullptr;
+        }
       }
-      imesh0 = found = imesh;
-      break;
+      found = imesh;
     }
 
     /* Printout if a point does not belong to any mesh */
@@ -367,8 +356,12 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
     {
       messerr("Point %d does not belong to any mesh",iech+1);
       for (int idim=0; idim<ndim; idim++)
-        messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
-      if (fatal) goto label_end;
+        messerr(" Coordinate #%d = %lf",idim+1,coorLongLat[idim]);
+      if (fatal)
+      {
+        Atriplet = cs_spfree(Atriplet);
+        return nullptr;
+      }
     }
   }
   
@@ -376,22 +369,17 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
   if (ip_max < nvertex - 1)
   {
-    if (! cs_entry(Atriplet,iech_max,nvertex-1,0.)) goto label_end;
+    if (! cs_entry(Atriplet,iech_max,nvertex-1,0.))
+    {
+      Atriplet = cs_spfree(Atriplet);
+      return nullptr;
+    };
   }
   
   /* Convert the triplet into a sparse matrix */
 
   A = cs_triplet(Atriplet);
-  
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
   Atriplet = cs_spfree(Atriplet);
-  weight   = (double *) mem_free((char *) weight);
-  coor     = db_sample_free(coor);
-  if (error) A = cs_spfree(A);
   return(A);
 }
 
@@ -447,8 +435,7 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   {
     r = EARTH_RADIUS;
   }
-  util_convert_sph2cart(getCoor(imesh, ic, 0)-180.,
-                        getCoor(imesh, ic, 1),
+  util_convert_sph2cart(getCoor(imesh, ic, 0)-180., getCoor(imesh, ic, 1),
                         &coords[0], &coords[1], &coords[2],
                         r);
 
@@ -467,18 +454,24 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   {
     r = EARTH_RADIUS;
   }
-  util_convert_sph2cart(getApexCoor(iapex, 0)-180.,
-                        getApexCoor(iapex, 1),
+  util_convert_sph2cart(getApexCoor(iapex, 0)-180., getApexCoor(iapex, 1),
                         &coords[0], &coords[1], &coords[2],
                         r);
 }
 
+/**
+ * Calculate the Mesh of each Mesh (using approximated calculations)
+ * @return
+ */
 VectorDouble MeshSpherical::_defineUnits(void) const
 {
   int nmeshes = getNMeshes();
   VectorDouble units(nmeshes);
   for (int imesh=0; imesh<nmeshes; imesh++)
-    units[imesh ] = getMeshSize(imesh);
+  {
+    VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
+    units[imesh] = _getMeshUnit(corners);
+  }
   return units;
 }
 
@@ -522,22 +515,61 @@ void MeshSpherical::_defineBoundingBox(void)
 **
 ** \param[in]  coor      Array of target coordinates
 ** \param[in]  imesh     Mesh Index
+** \param[in]  meshsize  Dimension of the mesh (approx)
+** \param[in]  flag_approx Approcimation flag
 **
 ** \param[out] weights   Array of barycentric weights (Dim: NApexPerMesh)
 ** 
-** \remarks The argument 'meshsize' is used to speed the calculations
+** \remark If flag_approx is False, calculations are performed with geodetic
+** \remark distances
+** \remark Otherwise calculations are performed by simply interpolating
+** \remark in the longitude-latitude space
 **
 *****************************************************************************/
-bool MeshSpherical::_coorInMesh(double    *coor,
-                                int        imesh,
-                                double    *weights) const
+bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
+                                int imesh,
+                                double meshsize,
+                                VectorDouble& weights,
+                                bool flag_approx) const
 {
-  double pts[3][2];
+  VectorVectorDouble corners = getCoordinatesPerMesh(imesh);
 
-  for (int i = 0; i < 3; i++)
-    for (int j = 0; j < 2; j++)
-      pts[i][j] = getCoor(imesh, i, j);
-  return (is_in_spherical_triangle_optimized(coor, pts[0], pts[1], pts[2],weights));
+  if (! flag_approx)
+  {
+    return (is_in_spherical_triangle_optimized(coor.data(),
+                                               corners[0].data(),
+                                               corners[1].data(),
+                                               corners[2].data(),
+                                               weights.data()));
+  }
+  else
+  {
+
+    // Round the angles with respect to the target coordinates
+
+    for (int i = 0; i < 3; i++)
+      corners[i][0] = _closestValue(coor[0], corners[i][0], 360.);
+    return _weightsInMesh(coor, corners, meshsize, weights);
+  }
+}
+
+double MeshSpherical::_closestValue(double ref, double coor, double period) const
+{
+  double coeff = 0.;
+  double dmin = ABS(ref - coor);
+  double d1 = ABS(ref - coor - period);
+  if (d1 < dmin)
+  {
+    dmin = d1;
+    coeff = +1.;
+  }
+  double d2 = ABS(ref - coor + period);
+  if (d2 < dmin)
+  {
+    dmin = d2;
+    coeff = -1.;
+  }
+  return coor + coeff * period;
 }
 
 int MeshSpherical::_recopy(const MeshSpherical &m)
