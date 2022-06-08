@@ -61,7 +61,7 @@ private:
   int     _recopy(const MeshManifold &m);
 
 private:
-  MatrixRectangular _apices;
-  MatrixInt         _meshes; // TODO Transform it into MatrixRectangular of Int
+  MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
+  MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
   VectorDouble      _units;
 };

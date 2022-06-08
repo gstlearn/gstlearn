@@ -2219,16 +2219,16 @@ void SimuTurningBands::_updateData2ToTarget(Db *dbin,
  **
  *****************************************************************************/
 int SimuTurningBands::simulate(Db *dbin,
-                           Db *dbout,
-                           ANeighParam *neighparam,
-                           int icase,
-                           int flag_bayes,
-                           const VectorDouble& dmean,
-                           const VectorDouble& dcov,
-                           bool flag_pgs,
-                           bool flag_gibbs,
-                           bool flag_dgm,
-                           double r_coeff)
+                               Db *dbout,
+                               ANeighParam *neighparam,
+                               int icase,
+                               int flag_bayes,
+                               const VectorDouble& dmean,
+                               const VectorDouble& dcov,
+                               bool flag_pgs,
+                               bool flag_gibbs,
+                               bool flag_dgm,
+                               double r_coeff)
 {
   int nbands = _getNBands();
   if (_model == nullptr || nbands <= 0)

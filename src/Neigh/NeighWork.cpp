@@ -175,14 +175,10 @@ VectorInt NeighWork::select(Db *dbout,
                             const VectorInt& rankColCok,
                             bool verbose)
 {
-  VectorInt ranks;
-  bool doCompress;
-  int necr, nech;
-
-  if (! _flagInitialized) return ranks;
-  if (! dbout->isSampleIndexValid(iech_out)) return ranks;
-  nech = _dbin->getSampleNumber();
-  ranks.resize(nech, -1);
+  if (! _flagInitialized) return VectorInt();
+  if (! dbout->isSampleIndexValid(iech_out)) return VectorInt();
+  int nech = _dbin->getSampleNumber();
+  VectorInt ranks(nech, -1);
 
   // Optional title (only in verbose case)
 
@@ -194,7 +190,7 @@ VectorInt NeighWork::select(Db *dbout,
   if (_isSameTarget(dbout, iech_out, ranks, verbose)) return ranks;
 
   // Select the neighborhood samples as the target sample has changed
-  doCompress = true;
+  bool doCompress = true;
   switch (_neighParam->getType().toEnum())
   {
     case ENeigh::E_IMAGE:
@@ -220,21 +216,19 @@ VectorInt NeighWork::select(Db *dbout,
   if (doCompress)
   {
     // In case of debug option, dump out neighborhood characteristics
-
     if (OptDbg::query(EDbg::NBGH)) _display(ranks);
 
     /* Compress the vector of returned sample ranks */
-
-    necr = 0;
+    int necr = 0;
     for (int iech = 0; iech < nech; iech++)
       if (ranks[iech] >= 0) ranks[necr++] = iech;
     ranks.resize(necr);
+
+    // Set the flag telling if neighborhood has changed or not
+    // and memorize the new set of ranks
+
+    _checkUnchanged(dbout, iech_out, ranks);
   }
-
-  // Set the flag telling if neighborhood has changed or not
-  // and memorize the new set of ranks
-
-  _checkUnchanged(dbout, iech_out, ranks);
 
   // Update in case of Colocated option
 

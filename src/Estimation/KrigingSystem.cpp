@@ -49,7 +49,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
                              ANeighParam* neighParam)
     : _dbin(dbin),
       _dbout(dbout),
-      _modelInit(model),
+      _modelInit(nullptr),
       _neighParam(neighParam),
       _anam(nullptr),
       _isReady(false),
@@ -112,9 +112,11 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dbinUidToBeDeleted(),
       _dboutUidToBeDeleted()
 {
-  // The current Model coincides with _modelInit
+  // _modelInit is a copy of the input model (const) to allow modifying it
+  _modelInit = (Model*) model->clone();
 
-  _model = (Model*) _modelInit->clone();
+  // Set the current Model to _modelInit
+  _model = _modelInit;
 
   _resetMemoryGeneral();
 }
@@ -161,13 +163,13 @@ KrigingSystem::~KrigingSystem()
     _modelSimple = nullptr;
   }
 
-  // Clean elements from _model
+  // Clean elements from _modelInit
 
-  if (_model != nullptr)
+  if (_modelInit != nullptr)
   {
-    if (_model->isNoStat())
+    if (_modelInit->isNoStat())
     {
-      const ANoStat *nostat = _model->getNoStat();
+      const ANoStat *nostat = _modelInit->getNoStat();
 
       // Detach the Input Db
       if (_dbin != nullptr) nostat->detachFromDb(_dbin, 1);
@@ -175,6 +177,9 @@ KrigingSystem::~KrigingSystem()
       // Detach the output Db
       if (_dbout != nullptr) nostat->detachFromDb(_dbout, 2);
     }
+
+    delete _modelInit;
+    _modelInit = nullptr;
   }
 
   // Reset elements in _neighParam
@@ -1252,7 +1257,7 @@ void KrigingSystem::_simulateCalcul(int status)
       }
       else
       {
-        // In case of failure with KS, set the contidioning to mean
+        // In case of failure with KS, set the conditional simulation to the mean
         if (nfeq > 0) simu = TEST;
       }
 
@@ -1810,7 +1815,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (_flagBayes) _model = _modelSimple;
     status = _prepar();
-    if (_flagBayes) _model = (Model*) _modelInit->clone();
+    if (_flagBayes) _model = _modelInit;
     if (status) goto label_store;
   }
 
@@ -1830,7 +1835,7 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagBayes) _model = _modelSimple;
   _rhsCalcul();
-  if (_flagBayes) _model = (Model *) _modelInit->clone();
+  if (_flagBayes) _model = _modelInit;
 
   if (status != 0) goto label_store;
   _rhsIsoToHetero();
@@ -2294,7 +2299,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     // Duplicate the Model and suppress any Drift component
 
-    _modelSimple = (Model*) _model->clone();
+    _modelSimple = (Model*) _modelInit->clone();
     _modelSimple->delAllDrifts();
   }
   _flagBayes = flag_bayes;

@@ -119,6 +119,6 @@ private:
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
-  MatrixInt         _meshes; // TODO MatrixRectangular of Int. Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
+  MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
   VectorDouble      _units;
 };

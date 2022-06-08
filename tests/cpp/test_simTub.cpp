@@ -32,7 +32,7 @@
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
+  VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
@@ -111,7 +111,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  simtub(data, grid_res, model, neighM, nbsimu);
+  simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
   grid_res->dumpToNF("Unique.ascii",verbose);
 

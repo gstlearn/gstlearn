@@ -171,7 +171,7 @@ private:
   // Aggregated classes
   Db*                  _dbin;
   Db*                  _dbout;
-  const Model*         _modelInit;
+  Model*               _modelInit; // Copy of the input model
   ANeighParam*         _neighParam;
   const AAnam*         _anam;
   bool _isReady;

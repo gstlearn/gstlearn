@@ -38,27 +38,27 @@ Data Base Statistics
 2 - Name x1 - Locator x1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =   -158.624
- Maximum value       =    131.935
- Mean value          =      0.678
- Standard Deviation  =     50.083
- Variance            =   2508.331
+ Minimum value       =      0.255
+ Maximum value       =     49.592
+ Mean value          =     26.738
+ Standard Deviation  =     13.668
+ Variance            =    186.816
 3 - Name x2 - Locator x2
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =   -112.354
- Maximum value       =    106.924
- Mean value          =     -7.383
- Standard Deviation  =     44.553
- Variance            =   1984.932
+ Minimum value       =      0.839
+ Maximum value       =     49.030
+ Mean value          =     27.182
+ Standard Deviation  =     15.183
+ Variance            =    230.510
 4 - Name Var - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -2.429
- Maximum value       =      2.484
- Mean value          =     -0.168
- Standard Deviation  =      1.073
- Variance            =      1.152
+ Minimum value       =     -2.247
+ Maximum value       =      2.138
+ Mean value          =     -0.148
+ Standard Deviation  =      0.891
+ Variance            =      0.794
 
 Model characteristics
 =====================
@@ -95,27 +95,27 @@ Data Base Statistics
 4 - Name Simu.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.891
- Maximum value       =      3.388
- Mean value          =      0.237
- Standard Deviation  =      0.992
- Variance            =      0.985
+ Minimum value       =     -3.470
+ Maximum value       =      3.739
+ Mean value          =      0.080
+ Standard Deviation  =      0.938
+ Variance            =      0.881
 5 - Name Simu.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.132
- Maximum value       =      3.358
- Mean value          =     -0.060
- Standard Deviation  =      1.078
- Variance            =      1.161
+ Minimum value       =     -3.501
+ Maximum value       =      3.197
+ Mean value          =     -0.023
+ Standard Deviation  =      0.983
+ Variance            =      0.966
 6 - Name Simu.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.910
- Maximum value       =      2.819
- Mean value          =     -0.135
- Standard Deviation  =      1.021
- Variance            =      1.042
+ Minimum value       =     -3.752
+ Maximum value       =      3.536
+ Mean value          =     -0.122
+ Standard Deviation  =      1.011
+ Variance            =      1.021
 
 <----- Simulation (Unique Neighborhood) ----->
 
@@ -127,24 +127,24 @@ Data Base Statistics
 4 - Name Simu.Var.1 - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -2.891
- Maximum value       =      3.388
- Mean value          =      0.237
- Standard Deviation  =      0.992
- Variance            =      0.985
+ Minimum value       =     -3.471
+ Maximum value       =      3.736
+ Mean value          =      0.081
+ Standard Deviation  =      0.936
+ Variance            =      0.876
 5 - Name Simu.Var.2 - Locator z2
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.132
- Maximum value       =      3.358
- Mean value          =     -0.060
- Standard Deviation  =      1.078
- Variance            =      1.161
+ Minimum value       =     -3.480
+ Maximum value       =      3.197
+ Mean value          =     -0.024
+ Standard Deviation  =      0.980
+ Variance            =      0.960
 6 - Name Simu.Var.3 - Locator z3
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =     -3.910
- Maximum value       =      2.819
- Mean value          =     -0.135
- Standard Deviation  =      1.021
- Variance            =      1.042
+ Minimum value       =     -3.752
+ Maximum value       =      3.536
+ Mean value          =     -0.122
+ Standard Deviation  =      1.008
+ Variance            =      1.016
