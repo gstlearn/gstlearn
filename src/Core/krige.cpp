@@ -336,7 +336,7 @@ static void st_cov(Model *model,
   }
 
   CovCalcMode mode(member);
-  mode.update(nugget_opt, nostd, member, icov_r, 0, 1);
+  mode.update(member, nugget_opt, nostd, icov_r);
   model_calcul_cov(&COVINT, model, mode, flag_init, weight, d1loc, covtab_loc);
 }
 

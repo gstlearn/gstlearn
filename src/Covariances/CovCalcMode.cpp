@@ -82,6 +82,8 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
 
 /**
  * Update the CovCalcMode structure according to the input arguments
+ * @param member      Member of the Kriging System (ECalcMember)
+ **                          (Default: ECalcMember::LHS)
  * @param nugget_opt  Option for nugget effect basic structure
  ** \li                      (Default: 0)
  ** \li                       0 : no particular option
@@ -89,8 +91,6 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
  ** \li                      -1 : only consider the nugget effect
  * @param nostd       0 standard; +-1 special; ITEST normalized
  **                          (Default: 0)
- * @param member      Member of the Kriging System (ECalcMember)
- **                          (Default: ECalcMember::LHS)
  * @param icov_r      rank of the target covariance or -1 for all
  **                          (Default: -1)
  * @param flag_norm   1 if the model is normalized
@@ -98,9 +98,9 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
  * @param flag_cov    1 if the result must be given in covariance
  **                          (Default: 1)
  */
-void CovCalcMode::update(int nugget_opt,
+void CovCalcMode::update(const ECalcMember& member,
+                         int nugget_opt,
                          int nostd,
-                         const ECalcMember& member,
                          int icov_r,
                          int flag_norm,
                          int flag_cov)

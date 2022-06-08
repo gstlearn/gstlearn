@@ -746,7 +746,7 @@ int model_evaluate(Model *model,
                    double *g)
 {
   CovCalcMode mode;
-  mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
+  mode.update(member, nugget_opt, nostd, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
 
   /* Preliminary checks */
@@ -831,7 +831,7 @@ int model_evaluate_nostat(Model *model,
                           double *g)
 {
   CovCalcMode mode;
-  mode.update(nugget_opt, nostd, member, rank_sel, flag_norm, flag_cov);
+  mode.update(member, nugget_opt, nostd, rank_sel, flag_norm, flag_cov);
   if (norder > 0) mode.setOrderVario(norder);
 
   /* Preliminary checks */
@@ -895,7 +895,7 @@ int model_grid(Model *model,
                double *g)
 {
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
 
   /* Preliminary checks */
 
@@ -1079,7 +1079,7 @@ double* model_covmat_by_ranks(Model *model,
                               int flag_cov)
 {
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
   if (st_check_environ(model, db2)) return nullptr;
@@ -1959,7 +1959,7 @@ int model_sample(Vario *vario, Model *model, int flag_norm, int flag_cov)
   int ndir = vario->getDirectionNumber();
   int nvar = model->getVariableNumber();
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
 
   /* Core allocation */
 
@@ -2601,7 +2601,7 @@ cs* model_covmat_by_ranks_cs(Model *model,
                              int flag_cov)
 {
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (st_check_model(model)) return nullptr;
   if (st_check_environ(model, db1)) return nullptr;
   if (st_check_environ(model, db2)) return nullptr;
@@ -2738,7 +2738,7 @@ int model_covmat(Model *model,
                  double *covmat)
 {
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, flag_norm, flag_cov);
+  mode.update(ECalcMember::LHS, 0, 0, -1, flag_norm, flag_cov);
   if (db2 == nullptr) db2 = db1;
   if (st_check_model(model)) return 1;
   if (st_check_environ(model, db1)) return 1;

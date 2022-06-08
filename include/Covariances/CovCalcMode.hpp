@@ -33,6 +33,13 @@ public:
 
   bool isEqual(const CovCalcMode &r) const;
 
+  void update(const ECalcMember& member     = ECalcMember::LHS,
+              int                nugget_opt = 0,
+              int                nostd      = 0,
+              int                icov_r     = -1,
+              int                flag_norm  = 0,
+              int                flag_cov   = 1);
+
   const ECalcMember& getMember()         const { return _member; }
   bool                  getAsVario()        const { return _asVario; }
   bool                  getNormalized()     const { return _normalized; }
@@ -51,12 +58,6 @@ public:
   void setEnvelop(int envelop) { _envelop = envelop; }
   void setOrderVario(int orderVario) { _orderVario = orderVario; }
 
-  void update(int                nugget_opt = 0,
-              int                nostd      = 0,
-              const ECalcMember& member     = ECalcMember::LHS,
-              int                icov_r     = -1,
-              int                flag_norm  = 0,
-              int                flag_cov   = 1);
 
 private:
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */

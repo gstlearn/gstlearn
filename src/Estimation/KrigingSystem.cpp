@@ -698,7 +698,7 @@ void KrigingSystem::_lhsCalcul()
   VectorDouble d1(ndim);
 
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::LHS, -1, 0, 1);
+  mode.update(ECalcMember::LHS, 0, 0);
 
   /* Establish the covariance part */
 
@@ -889,7 +889,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
   VectorDouble d1(ndim);
 
   CovCalcMode mode;
-  mode.update(0, 0, ECalcMember::RHS, -1, 0, 1);
+  mode.update(ECalcMember::RHS, 0, 0);
 
   /* Establish the covariance part */
 

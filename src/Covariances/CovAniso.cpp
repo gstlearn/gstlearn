@@ -358,7 +358,6 @@ double CovAniso::eval(int ivar,
   {
 
     // Calculate High-order Variogram (only valuable when h != 0)
-
     for (int iwgt = 1; iwgt < NWGT[norder]; iwgt++)
     {
       double hp = h * (1. + iwgt);
@@ -368,6 +367,8 @@ double CovAniso::eval(int ivar,
   }
   else
   {
+
+    // Traditional Covariance or Variogram
     cov = _cova->evalCov(h);
 
     // Convert into a variogram
@@ -383,8 +384,7 @@ double CovAniso::eval(int ivar,
     double sill;
     if (mode.getEnvelop() != 0)
     {
-      double sign = (mode.getEnvelop() > 0) ? 1 :
-                                              -1;
+      double sign = (mode.getEnvelop() > 0) ? 1 : -1;
       double coef = sqrt(getSill(ivar, ivar) * getSill(jvar, jvar));
       sill = sign * coef;
     }
