@@ -11,6 +11,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Polynomials/Chebychev.hpp"
+#include "LinearOp/ALinearOpMulti.hpp"
 #include "csparse_f.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -187,6 +188,11 @@ double Chebychev::eval(double x) const
    }
 
    return y;
+}
+
+void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const
+{
+
 }
 
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const

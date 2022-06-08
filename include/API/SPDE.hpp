@@ -10,7 +10,7 @@
 class ShiftOpCs;
 class Db;
 class DbGrid;
-class PrecisionOpCs;
+class PrecisionOp;
 class Model;
 class MeshETurbo;
 
@@ -38,6 +38,7 @@ public:
   double computeProfiledLogLike() const;
   VectorDouble getCoeffs();
   void setDriftCoeffs(VectorDouble coeffs);
+  double computeLogDet() const;
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
 
@@ -65,8 +66,7 @@ private:
   ESPDECalcMode _calcul;
   PrecisionOpMultiConditional _precisionsKriging;
   PrecisionOpMultiConditional _precisionsSimu;
-  std::vector<ShiftOpCs*>     _pileShiftOp;
-  std::vector<PrecisionOpCs*> _pilePrecisions;
+  std::vector<PrecisionOp*>   _pilePrecisions;
   std::vector<ProjMatrix*>    _pileProjMatrix;
   std::vector<MeshETurbo*>    _simuMeshing;
   std::vector<MeshETurbo*>    _krigingMeshing;

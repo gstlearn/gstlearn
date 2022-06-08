@@ -375,26 +375,24 @@ int PrecisionOp::_preparePrecisionPoly()
 
   if (_polynomials.count(EPowerPT::ONE)) return 0;
 
-//  VectorDouble blin;
-//
-//
-//  int ndim = _cova->getNDim();
-//  double param = _cova->getParam();
-//  double ndims2 = ((double) ndim) / 2.;
-//  double alpha = param + ndims2;
-//  if (! isInteger(alpha,EPSILON3)) return 1;
-//
-//
-//  int p = getClosestInteger(alpha);
-//  int ndimp = p + 1;
-//  blin.resize(ndimp);
-//  for (int i = 0; i < ndimp; i++)
-//  {
-//    blin[i] = ut_cnp(p, i);
-//    if (_verbose) message("Coefficient blin[%d] = %lf\n",i+1,blin[i]);
-//  }
-//  _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(blin);
   return 0;
+}
+
+std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
+{
+  std::pair<double,double> rangeVals;
+
+  double sill = _cova->getSill(0,0);
+  double sMax = _shiftOp->getMaxEigenValue();
+  VectorDouble val;
+  double x = 0;
+  double delta = sMax/(ndiscr-1);
+  for(int i = 0; i < ndiscr; i++)
+  {
+    val[i] = _polynomials[EPowerPT::ONE]->eval(x) / sill;
+    x += delta;
+  }
+  return ut_vector_rangeVals(val);
 }
 
 APolynomial* PrecisionOp::getPoly(const EPowerPT& power)

@@ -85,7 +85,6 @@ CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
   cov->setScaleTime(scaleTime);
   cov->setVel(vel);
   cov->setSigma2(sigma2);
-
   cov->_init();
 
   return cov;
@@ -127,7 +126,6 @@ void CovDiffusionAdvection::_init()
      _destroyMarkovR = true;
      _markovRdefined = false;
      correcR = 1.;
-
   }
   else
   {
@@ -136,11 +134,8 @@ void CovDiffusionAdvection::_init()
   }
 
     _computeSpatialTrace();
-//    correcR = _markovR->getFullCorrec();
-//    correcL = _markovL->getFullCorrec();
 
    _globalCorrec = _spatialTrace->getFullCorrec()/(correcR * correcL);
-
 
 }
 
@@ -176,8 +171,6 @@ void CovDiffusionAdvection::_computeSpatialTrace()
      }
 
     _spatialTrace->setMarkovCoeffs(coeffs);
-
-
 }
 
 

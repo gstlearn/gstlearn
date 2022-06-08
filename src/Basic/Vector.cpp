@@ -477,11 +477,19 @@ void ut_vector_sum(const VectorDouble &vec1,
 GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);
-  for (int i = 0; i < n; i++)
-    vec[i] = mean + sigma * law_gaussian();
+  ut_vector_simulate_gaussian_inplace(vec,mean,sigma);
   return vec;
 }
 
+void ut_vector_simulate_gaussian_inplace(VectorDouble& vect,
+                                         double mean,
+                                         double sigma)
+{
+  int n = vect.size();
+  for (int i = 0; i < n; i++)
+    vect[i] = mean + sigma * law_gaussian();
+
+}
 // random generator function:
 int myrandom (int i) { return std::rand()%i;}
 
@@ -543,6 +551,16 @@ void ut_vector_multiply_inplace(VectorDouble &vec, double v)
   { d *= v;});
 }
 
+VectorDouble ut_vector_inverse(const VectorDouble& vec)
+{
+  VectorDouble inv(vec.size());
+  for (int i = 0; i < (int)vec.size();i++)
+  {
+    inv[i] = 1. / vec[i];
+  }
+  return inv;
+
+}
 void ut_vector_divide_inplace(VectorDouble &vec, double v)
 {
   if (ABS(v) < EPSILON10)
@@ -658,6 +676,16 @@ int ut_vector_size(const VectorVectorInt &vec)
 
 }
 
+std::pair<double,double> ut_vector_rangeVals(const VectorDouble& vec)
+{
+  std::pair<double,double> res(vec[0],vec[0]);
+  for (int i = 1; i < (int)vec.size(); i++)
+  {
+    res.first  = MIN(res.first ,vec[i]);
+    res.second = MAX(res.second,vec[i]);
+  }
+  return res;
+}
 int ut_vector_size(const VectorVectorDouble &vec)
 {
   int size = 0;

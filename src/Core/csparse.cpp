@@ -1619,6 +1619,24 @@ cs* cs_multiply(const cs *A, const cs *B)
   return (cs_done(C, w, x, 1)); /* success; free workspace, return C */
 }
 
+/* Transform VectorDouble to cs diagonal */
+
+cs* cs_diag(VectorDouble diag)
+{
+  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+
+  for (int i = 0; i < (int)diag.size(); i++)
+  {
+    if (!cs_entry(Striplet, i, i, diag[i]))
+    {
+      return nullptr;
+    }
+  }
+  Striplet = cs_spfree(Striplet);
+  return cs_triplet(Striplet);
+}
+
+
 /* 1-norm of a sparse matrix = max (sum (abs (A))), largest column sum */
 double cs_norm(const cs *A)
 {
@@ -3533,6 +3551,34 @@ cs* cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_release)
   return (bres2);
 }
 
+/** Compute the max along the lines of the sum of the absolute values along the columns **/
+
+double cs_maxsumabscol(const cs *A)
+{
+  int *Ap;
+  double *Ax;
+  double maxval, sumval;
+
+  Ap = A->p;
+  Ax = A->x;
+
+  /* Loop on the rows */
+
+  maxval = 0.;
+  for (int j = 0; j < A->n; j++)
+  {
+    sumval = 0.;
+    for (int p = Ap[j]; p < Ap[j + 1]; p++)
+      sumval += abs(Ax[p]);
+    if (sumval > maxval)
+      maxval = sumval;
+  }
+
+  return maxval;
+}
+
+
+
 /* Return per column, the sum along the row */
 /* Note: Check existence of returned argument */
 /* Note: The returned array must be freed by calling function */
@@ -4424,6 +4470,56 @@ cs* cs_prod_norm(int mode, cs *A, cs *B)
   BtA = cs_spfree(BtA);
   return (Res);
 }
+
+
+// Calculate the norm as follows:
+// mode=1: t(B) %*% diag %*% B (initial form)
+// mode=2: B %*% diag%*% t(B)
+//
+cs* cs_prod_norm_diagonal(int mode, cs *B, VectorDouble diag)
+
+{
+ cs* diagM = cs_diag(diag);
+ cs* Res = cs_prod_norm(mode, diagM,B);
+ cs_free(diagM);
+ return (Res);
+}
+
+
+// Calculate the norm as follows:
+// mode=1: t(B) %*% B (initial form)
+// mode=2: B %*% t(B)
+//
+cs* cs_prod_norm_single(int mode, cs *B)
+
+{
+  cs *Bt, *Res;
+
+  // Initializations
+  Bt = Res = nullptr;
+
+  // Transpose matrix B
+
+  Bt = cs_transpose(B, 1);
+  if (Bt == nullptr) goto label_end;
+
+  // Dispatch
+
+  if (mode == 1)
+  {
+    Res = cs_multiply(Bt, B);
+    if (Res == nullptr) goto label_end;
+  }
+  else
+  {
+    Res = cs_multiply(B, Bt);
+    if (Res == nullptr) goto label_end;
+  }
+  label_end: Bt = cs_spfree(Bt);
+
+  return (Res);
+}
+
 
 // flag_upper is 1 -> Keep upper triangular part; otherwise lower triangle
 // flag_diag is 0  -> Diagonal is cleared

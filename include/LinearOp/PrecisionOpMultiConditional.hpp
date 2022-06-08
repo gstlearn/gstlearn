@@ -6,8 +6,10 @@
 #include "PrecisionOp.hpp"
 #include "ProjMatrix.hpp"
 
+
 #include <vector>
 
+class Chebychev;
 /**
  * Class to store objects for SPDE
  */
@@ -32,6 +34,14 @@ public:
   void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void evalInvCov(const VectorDouble& in, VectorDouble& result) const;
+  std::pair<double,double> computeRangeEigenVal() const;
+  std::pair<double,double> rangeEigenValQ() const;
+  double getMaxEigenValProj() const;
+  double computeLogDetOp(int nsimus = 1, int seed = 123) const;
+  double computeLogDetQ(int nsimus = 1, int seed = 123) const;
+  double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
+  void preparePoly(Chebychev& poly) const;
+
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 
 protected:

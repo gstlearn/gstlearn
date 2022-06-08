@@ -8,7 +8,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/PrecisionOpCs.hpp"
+#include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Db/Db.hpp"
@@ -22,7 +22,6 @@ SPDE::SPDE()
       _calcul(),
       _precisionsKriging(),
       _precisionsSimu(),
-      _pileShiftOp(),
       _pilePrecisions(),
       _pileProjMatrix(),
       _simuMeshing(),
@@ -49,7 +48,6 @@ SPDE::SPDE(Model* model,
       _calcul(),
       _precisionsKriging(),
       _precisionsSimu(),
-      _pileShiftOp(),
       _pilePrecisions(),
       _pileProjMatrix(),
       _simuMeshing(),
@@ -85,10 +83,6 @@ void SPDE::_purge()
   {
     delete e;
   }
-  for(auto &e : _pileShiftOp)
-  {
-    delete e;
-  }
   for(auto &e : _simuMeshing)
   {
     delete e;
@@ -117,7 +111,7 @@ void SPDE::init(Model* model,
   VectorDouble varianceData;
   double totalSill = 0.;
   ShiftOpCs* shiftOp;
-  PrecisionOpCs* precision;
+  PrecisionOp* precision;
   MeshETurbo* mesh;
   ProjMatrix* proj;
   _driftTab = _model->getDrifts(_data, useSel);
@@ -138,9 +132,7 @@ void SPDE::init(Model* model,
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,18,5,useSel,verbose);
         _simuMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, model, field, 0, icov);
-        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::MINUSHALF);
-        _pileShiftOp.push_back(shiftOp);
+        precision = new PrecisionOp(mesh, model,icov, EPowerPT::MINUSHALF);
         _pilePrecisions.push_back(precision);
         proj = new ProjMatrix(_data,mesh);
         _pileProjMatrix.push_back(proj);
@@ -152,10 +144,8 @@ void SPDE::init(Model* model,
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,11,5,useSel,verbose);
         _krigingMeshing.push_back(mesh);
-        shiftOp = new ShiftOpCs(mesh, model, field, 0, icov);
-        precision = new PrecisionOpCs(shiftOp, cova, EPowerPT::ONE);
+        precision = new PrecisionOp(mesh, model, icov, EPowerPT::ONE);
         proj = new ProjMatrix(_data,mesh);
-        _pileShiftOp.push_back(shiftOp);
         _pilePrecisions.push_back(precision);
         _pileProjMatrix.push_back(proj);
         _precisionsKriging.push_back(precision,proj);
@@ -341,9 +331,17 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
   return iptr;
 }
 
+
+
+double SPDE::computeLogDet() const
+{
+  //_precisionsKriging.get();
+  return 1.;
+}
 double SPDE::computeLogLike() const
 {
   double loglike = 0.;
+
 
 
   return loglike;
@@ -353,10 +351,9 @@ double SPDE::computeLogLike() const
 double SPDE::computeProfiledLogLike() const
 {
   _requireCoeffs = true;
-  _isCoeffsComputed = false; // we assume that covariance parameters have changed,
+  _isCoeffsComputed = false; // we assume that covariance parameters have changed when using this function
                             //  so driftCoeffs have to be recomputed
   _computeDriftCoeffs();
-
 
   return computeLogLike();
 

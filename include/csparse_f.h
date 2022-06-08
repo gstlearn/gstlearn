@@ -3,6 +3,7 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Basic/Vector.hpp"
 #include "csparse_d.h"
 
 GSTLEARN_EXPORT cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;
@@ -27,12 +28,14 @@ GSTLEARN_EXPORT cs     *cs_matvecL(const cs *A, double *x, int oper);
 GSTLEARN_EXPORT cs     *cs_matvecnorm(const cs *A, const double *x, int oper);
 GSTLEARN_EXPORT void    cs_matvecnorm_inplace(cs *A, const double *x, int oper);
 GSTLEARN_EXPORT cs     *cs_triplet (const cs *T) ;
+GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag);
 GSTLEARN_EXPORT double  cs_norm (const cs *A) ;
 GSTLEARN_EXPORT int     cs_print (const cs *A, int brief) ;
 GSTLEARN_EXPORT void    cs_print_only(const char *title, const cs *A,int nlimit);
 GSTLEARN_EXPORT void    cs_print_nice (const char *title,const cs *A, int maxrow, int maxcol);
 GSTLEARN_EXPORT cs     *cs_load (FILE *f) ;
 GSTLEARN_EXPORT double *cs_col_sumrow(const cs *A,int *ncol,int *nrow);
+GSTLEARN_EXPORT double  cs_maxsumabscol(const cs *A);
 GSTLEARN_EXPORT void    cs_print_dim(const char *title,const cs *A);
 GSTLEARN_EXPORT void    cs_print_short(const char *title, const cs *L, int nmax);
 GSTLEARN_EXPORT void    cs_print_file(const char *radix, int rank, cs *A);
@@ -128,6 +131,8 @@ GSTLEARN_EXPORT cs     *cs_add_and_release(cs *b1, cs *b2, double alpha, double 
                                            int flag_rel);
 GSTLEARN_EXPORT cs     *cs_normalize_by_diag_and_release(cs *Q, int flag_rel);
 GSTLEARN_EXPORT cs     *cs_prod_norm(int mode, cs *A, cs *IhH);
+GSTLEARN_EXPORT cs     *cs_prod_norm_single(int mode, cs *B);
+GSTLEARN_EXPORT cs     *cs_prod_norm_diagonal(int mode, cs *B, VectorDouble diag);
 GSTLEARN_EXPORT cs     *cs_prod_norm_and_release(cs *b1, cs *lambda, int flag_rel);
 GSTLEARN_EXPORT int     cs_coarsening(cs *Q,int type,int **indCo,cs **L);
 GSTLEARN_EXPORT cs     *cs_interpolate(cs *AA,cs *LL,int *indCo);

@@ -13,6 +13,9 @@
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Polynomials/Chebychev.hpp"
+
+#include <functional>
 
 #include <math.h>
 
@@ -73,6 +76,103 @@ void PrecisionOpMultiConditional::push_back(PrecisionOp* pmatElem,
   _multiProjData.push_back(projDataElem);
   _updated();
   _ncova++;
+}
+
+std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
+{
+  std::pair<double,double> result = _multiPrecisionOp[0]->getRangeEigenVal();
+
+  for (int i = 1; i < (int)_multiPrecisionOp.size(); i++)
+  {
+    std::pair<double,double> vals =_multiPrecisionOp[i]->getRangeEigenVal();
+    result.first  = MIN(result.first ,vals.first);
+    result.second = MAX(result.second,vals.second);
+  }
+
+  return result;
+}
+
+double PrecisionOpMultiConditional::getMaxEigenValProj() const
+{
+  double result = _multiProjData[0]->getMaxAtDinvA(_varianceData);
+
+  for (int i = 1; i < (int)_multiProjData.size(); i++)
+  {
+    double vals =_multiProjData[i]->getMaxAtDinvA(_varianceData);
+    result = MAX(result,vals);
+  }
+
+  return result;
+}
+
+std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() const
+{
+  std::pair<double,double> result = rangeEigenValQ();
+  result.second += getMaxEigenValProj();
+  return result;
+}
+
+
+void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
+{
+  std::pair<double,double> ranges = computeRangeEigenVal();
+
+  double a = ranges.first;
+  double b = ranges.second;
+  logPoly.setA(a);
+  logPoly.setB(b);
+  std::function<double(double)> f;
+  f = [this](double val){return log(val);};
+  logPoly.fit(f,a,b);
+}
+
+double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
+{
+  Chebychev logPoly;
+  preparePoly(logPoly);
+  VectorVectorDouble gauss(_ncova);
+  VectorVectorDouble out(_ncova);
+
+  for (int i = 0; i<_ncova; i++)
+  {
+    int size = _multiPrecisionOp[i]->getSize();
+    gauss[i] =  VectorDouble(size);
+    out[i] = VectorDouble(size);
+  }
+
+  double val = 0.;
+
+  for (int i = 0; i < nsimus; i++)
+  {
+    for (auto &e : gauss)
+    {
+      ut_vector_simulate_gaussian_inplace(e);
+    }
+
+//    logPoly.evalOp()
+//    val += gauss[i] * result[i];
+  }
+
+ return val / nsimus;
+
+}
+
+double PrecisionOpMultiConditional::computeLogDetQ(int nsimus, int seed) const
+{
+  double result = 0.;
+  for (auto &e : _multiPrecisionOp)
+  {
+    result += e->computeLogDet(nsimus,seed);
+  }
+  return result;
+}
+
+
+double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) const
+{
+  double result = computeLogDetOp(nsimus,seed);
+  result += computeLogDetQ(nsimus,seed);
+  return result;
 }
 
 /*****************************************************************************/

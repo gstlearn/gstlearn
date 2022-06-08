@@ -37,8 +37,10 @@ public:
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
+
   virtual ~PrecisionOp();
 
+  virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
   int reset(const ShiftOpCs* shiftop,
             const CovAniso* cova = nullptr,
             const EPowerPT& power = EPowerPT::UNDEFINED,
