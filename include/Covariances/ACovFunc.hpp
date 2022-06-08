@@ -65,7 +65,7 @@ public:
   double               getParam()   const { return _param; }
 
   void copyCovContext(const CovContext& ctxt) { _ctxt.copyCovContext(ctxt); }
-  virtual double evaluateSpectrum(double freq, double scale, int ndim) const;
+  virtual double evaluateSpectrum(double freq, int ndim) const;
   virtual VectorDouble getMarkovCoeffs() const;
   virtual void setMarkovCoeffs(VectorDouble coeffs);
   virtual double getCorrec() const {return 1.;}

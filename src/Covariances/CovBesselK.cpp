@@ -83,11 +83,10 @@ double CovBesselK::_evaluateCovOnSphere(double scale, int degree) const
   return  cons * (2. * degree + 1.) / pow(kappa2 + degree * (degree + 1), 1. + getParam());
 }
 
-double CovBesselK::evaluateSpectrum(double freq, double scale, int ndim) const
+double CovBesselK::evaluateSpectrum(double freq, int ndim) const
 {
-  double kappa2 = 1. / ( scale * scale );
   double alpha = (double) ndim / 2. + getParam();
-  return 1. /  pow(kappa2 + freq, alpha);
+  return 1. /  pow(1. + freq, alpha);
 }
 
 void CovBesselK::computeMarkovCoeffs(int ndim)
@@ -103,11 +102,7 @@ void CovBesselK::computeMarkovCoeffs(int ndim)
     _markovCoeffs[i] = (double)ut_cnp(p, i);
   }
   computeCorrec(ndim);
-//  for (auto &e : _markovCoeffs)
-//  {
-//    e *= _correc;
-//  }
-//
+
 }
 
 void CovBesselK::computeCorrec(int ndim)

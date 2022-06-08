@@ -34,12 +34,15 @@ public:
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
+  double computeLogLike() const;
+  double computeProfiledLogLike() const;
   VectorDouble getCoeffs();
+  void setDriftCoeffs(VectorDouble coeffs);
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
 
 private:
-  void _computeCoeffs();
+  void _computeDriftCoeffs() const;
   void _purge();
   MeshETurbo* _createMeshing(const CovAniso &cova,
                              const DbGrid &field,
@@ -76,7 +79,7 @@ private:
   VectorInt                   _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
-  bool _requireCoeffs;
-  bool _isCoeffsComputed;
+  mutable bool _requireCoeffs;
+  mutable bool _isCoeffsComputed;
   // query sur aproj ou // TODO ??
 };

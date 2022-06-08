@@ -67,6 +67,12 @@ double SpaceSN::getDistance(const SpacePoint& /*p1*/,
   return 0.;
 }
 
+double SpaceSN::getFrequentialDistance(const SpacePoint& /*p1*/,
+                              const SpacePoint& /*p2*/,
+                              const Tensor& /*tensor*/) const
+{
+  return 0.;
+}
 
 VectorDouble SpaceSN::getIncrement(const SpacePoint& p1,
                                    const SpacePoint& p2) const

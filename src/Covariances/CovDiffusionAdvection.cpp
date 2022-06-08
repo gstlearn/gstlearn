@@ -1,21 +1,27 @@
 #include "Covariances/CovDiffusionAdvection.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/FFT.hpp"
+#include "Basic/AException.hpp"
 
 #include <cmath>
 
 CovDiffusionAdvection::CovDiffusionAdvection()
-    : _markovL(nullptr),
-      _markovR(nullptr),
-      _scaleTime(1.),
-      _vel(VectorDouble()),
-      _sigma2(1.),
-      _ndim(2),
-      _globalCorrec(1.)
+:   _markovL(nullptr)
+  , _markovR(nullptr)
+  , _scaleTime(1.)
+  , _vel(VectorDouble())
+  , _sigma2(1.)
+  , _ndim(2)
+  , _globalCorrec(1.)
+  , _spatialTrace(nullptr)
+  , _ctxt(CovContext())
+  , _destroyMarkovL(false)
+  , _destroyMarkovR(false)
+  , _markovRdefined(false)
+  , _markovLdefined(false)
 {
 
 }
-
 
 CovDiffusionAdvection::CovDiffusionAdvection(const CovDiffusionAdvection& r)
 :   _markovL((CovAniso*)r._markovL->clone())
@@ -25,7 +31,13 @@ CovDiffusionAdvection::CovDiffusionAdvection(const CovDiffusionAdvection& r)
   , _sigma2(r._sigma2)
   , _ndim(r._ndim)
   , _globalCorrec(r._globalCorrec)
+  , _spatialTrace(r._spatialTrace)
+  , _destroyMarkovL(true)
+  , _destroyMarkovR(true)
+  , _markovRdefined(r._markovRdefined)
+  , _markovLdefined(r._markovLdefined)
 {
+
 
 }
 
@@ -33,19 +45,29 @@ CovDiffusionAdvection& CovDiffusionAdvection::operator=(const CovDiffusionAdvect
 {
   if (this != &r)
   {
-    _markovL      = (CovAniso*)r._markovL->clone();
-    _markovR      = (CovAniso*)r._markovR->clone();
-    _scaleTime    = r._scaleTime;
-    _vel          = r._vel;
-    _sigma2       = r._sigma2;
-    _ndim         = r._ndim;
-    _globalCorrec = r._globalCorrec;
+    _markovL        = (CovAniso*)r._markovL->clone();
+    _markovR        = (CovAniso*)r._markovR->clone();
+    _scaleTime      = r._scaleTime;
+    _vel            = r._vel;
+    _sigma2         = r._sigma2;
+    _ndim           = r._ndim;
+    _globalCorrec   = r._globalCorrec;
+    _spatialTrace   = (CovAniso*)r._spatialTrace->clone();
+    _destroyMarkovL = true;
+    _destroyMarkovR = true;
+    _markovRdefined = r._markovRdefined;
+    _markovLdefined = r._markovLdefined;
    }
    return *this;
 }
 
 CovDiffusionAdvection::~CovDiffusionAdvection()
 {
+  delete _spatialTrace;
+  if (_destroyMarkovL)
+    delete _markovL;
+  if (_destroyMarkovR)
+    delete _markovR;
 
 }
 
@@ -64,39 +86,100 @@ CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
   cov->setVel(vel);
   cov->setSigma2(sigma2);
 
-  if (!cov->isNoneMarkovL() && !cov->isNoneMarkovR())
-  {
-    CovContext ctxt = cov->getMarkovL()->getContext();
-    CovAniso* covtemp = CovAniso::createIsotropic(ctxt,ECov::MARKOV,1.,1.,1);
-    VectorDouble coeffsL = markovL->getMarkovCoeffs();
-    VectorDouble coeffsR = markovR->getMarkovCoeffs();
-    int degree = (coeffsL.size() + coeffsR.size() - 2);
-    VectorDouble coeffs;
-    coeffs.resize(degree + 1,0.);
-
-    for(int i = 0; i<(int)coeffsL.size();i++)
-      for(int j = 0; j<(int)coeffsL.size();j++)
-      {
-        coeffs[i+j] += coeffsL[i] * coeffsR[j];
-      }
-
-    covtemp->setMarkovCoeffs(coeffs);
-    cov->_globalCorrec = markovL->getCorrec() * markovR->getCorrec() / covtemp->getCorrec();
-    delete covtemp;
-  }
-
-  if (!cov->isNoneMarkovL())
-  {
-    cov->_ndim = markovL->getNDim();
-  }
-  else
-  {
-    cov->_ndim = markovR->getNDim();
-  }
-
+  cov->_init();
 
   return cov;
 }
+
+
+void CovDiffusionAdvection::_init()
+{
+  if (_markovL == nullptr && _markovR==nullptr)
+  {
+    my_throw("At least one of the covariances has to be defined to make a valid advection diffusion equation!");
+  }
+
+  const CovAniso* cova =  _markovL == nullptr? _markovR : _markovL;
+
+  double correcR = 1.;
+  double correcL = 1.;
+
+  _ctxt = cova->getContext();
+  _ndim = cova->getNDim();
+
+  VectorDouble temp(_ndim,1.);
+  if (_markovL == nullptr)
+  {
+
+    _markovL = CovAniso::createAnisotropic(_ctxt,ECov::MARKOV,temp ,1.,1.,temp,false);
+    _destroyMarkovL = true;
+    _markovLdefined = false;
+    correcL = 1.;
+  }
+  else
+  {
+    _markovLdefined = true;
+    correcL = _markovL->getCorrec();
+  }
+  if (_markovR == nullptr)
+  {
+     _markovR = CovAniso::createAnisotropic(_ctxt,ECov::MARKOV,temp ,1.,1.,temp,false);
+     _destroyMarkovR = true;
+     _markovRdefined = false;
+     correcR = 1.;
+
+  }
+  else
+  {
+    _markovRdefined = true;
+    correcR = _markovR->getCorrec();
+  }
+
+    _computeSpatialTrace();
+//    correcR = _markovR->getFullCorrec();
+//    correcL = _markovL->getFullCorrec();
+
+   _globalCorrec = _spatialTrace->getFullCorrec()/(correcR * correcL);
+
+
+}
+
+void CovDiffusionAdvection::_computeSpatialTrace()
+{
+   delete _spatialTrace;
+
+  VectorDouble scales;
+  VectorDouble angles;
+  if (_markovLdefined)
+  {
+    scales = _markovL->getScales();
+    angles = _markovL->getAnisoAngles();
+  }
+  else
+  {
+    scales = _markovR->getScales();
+    angles = _markovR->getAnisoAngles();
+  }
+
+   _spatialTrace = CovAniso::createAnisotropic(_ctxt,ECov::MARKOV, scales, _sigma2,1.,angles,false);
+
+   VectorDouble coeffsL = _markovL->getMarkovCoeffs();
+   VectorDouble coeffsR = _markovR->getMarkovCoeffs();
+   int degree = (coeffsL.size() + coeffsR.size() - 2);
+   VectorDouble coeffs;
+   coeffs.resize(degree + 1,0.);
+
+   for(int i = 0; i<(int)coeffsR.size();i++)
+     for(int j = 0; j<(int)coeffsL.size();j++)
+     {
+       coeffs[i+j] += coeffsR[i] * coeffsL[j];
+     }
+
+    _spatialTrace->setMarkovCoeffs(coeffs);
+
+
+}
+
 
 std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble freq, double time) const
 {
@@ -109,20 +192,19 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   }
 
   double s1 = 1.;
-  if (!isNoneMarkovL())
-  {
+
+  if (_markovLdefined)
     s1 = 1./(_markovL->evalSpectrum(freq));
-  }
+
 
   double s2 = 1.;
-  if (!isNoneMarkovR())
-  {
+
+  if (_markovRdefined)
     s2 = 1./(_markovR->evalSpectrum(freq));
-  }
 
   std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
 
-  double ratio = 0.5 * _globalCorrec / (s1 * s2);
+  double ratio =  _sigma2 / (_globalCorrec * s1 * s2 );
   return ratio * exp(temp);
 }
 

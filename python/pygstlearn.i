@@ -8,6 +8,8 @@
 // Include C++ library SWIG interface (Keep Order !!!!)
 %include ../swig/swig_inc.i
 %include ../swig/swig_exp.i
+%include stl.i
+%include std_complex.i
 
 // For suppressing SWIG warning due to -keyword option
 #pragma SWIG nowarn=511

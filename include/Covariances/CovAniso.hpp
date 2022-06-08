@@ -204,14 +204,19 @@ public:
   void setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1, VectorDouble coeffs2, double eps = 0);
   void computeMarkovCoeffs();
   double getCorrec() const;
+  double getFullCorrec() const;
+
 protected:
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
   virtual void _initFromContext();
 
+
 private:
   bool   _isVariableValid(int ivar) const;
   void   _computeCorrec();
+  double _getDetTensor() const;
+
 
 private:
   CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?

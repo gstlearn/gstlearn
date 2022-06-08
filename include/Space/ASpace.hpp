@@ -59,6 +59,11 @@ public:
                              const SpacePoint& p2,
                              const Tensor& tensor) const = 0;
 
+  /// Return the distance in frequential domain between two space points with the given tensor
+  virtual double getFrequentialDistance(const SpacePoint& p1,
+                                        const SpacePoint& p2,
+                                        const Tensor& tensor) const = 0;
+
   /// Return the increment vector between two space points
   virtual VectorDouble getIncrement(const SpacePoint& p1,
                                     const SpacePoint& p2) const = 0;

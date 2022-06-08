@@ -72,7 +72,7 @@ double CovMarkov::_evaluateCovOnSphere(double scale, int degree) const
   return scale * scale * (2. * degree + 1.) / (4 * GV_PI * s);
 }
 
-double CovMarkov::evaluateSpectrum(double freq, double /*scale*/, int /*ndim*/) const
+double CovMarkov::evaluateSpectrum(double freq, int /*ndim*/) const
 {
   double s = 0.;
   int n = (int)_markovCoeffs.size();

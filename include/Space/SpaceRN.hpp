@@ -39,6 +39,9 @@ public:
   double getDistance(const SpacePoint& p1,
                      const SpacePoint& p2,
                      const Tensor& tensor) const override;
+  double getFrequentialDistance(const SpacePoint& p1,
+                                const SpacePoint& p2,
+                                const Tensor& tensor) const override;
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;

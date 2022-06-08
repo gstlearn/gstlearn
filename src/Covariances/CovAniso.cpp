@@ -456,18 +456,34 @@ double CovAniso::getCorrec() const
 {
   return _cova->getCorrec();
 }
+
+double CovAniso::getFullCorrec() const
+{
+  return  _cova->getCorrec() / _getDetTensor();
+}
+
+double CovAniso::_getDetTensor() const
+{
+  VectorDouble scales = getScales();
+  double detTensor = 1.;
+  for (auto &e : scales)
+  {
+    detTensor *= e;
+  }
+  return detTensor;
+}
 double CovAniso::evalSpectrum(const VectorDouble& freq, int ivar, int jvar) const
 {
   if (!_cova->hasSpectrum()) return TEST;
-  double scale = getScale();
+
   double sill = getSill(ivar, jvar);
 
   SpacePoint p1;
   SpacePoint p2;
   p2.setCoord(freq);
-  double freqnorm = getSpace()->getDistance(p1, p2, _aniso);
-  double val = _cova->evaluateSpectrum(freqnorm, scale, getNDim());
-  return sill * val / getCorrec();
+  double freqnorm = getSpace()->getFrequentialDistance(p1, p2, _aniso);
+  double val = _cova->evaluateSpectrum(freqnorm * freqnorm, getNDim());
+  return  sill * val / getCorrec();
 }
 
 VectorDouble CovAniso::getMarkovCoeffs() const
@@ -909,7 +925,7 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
 
   std::function<double(const VectorDouble&)> funcSpectrum;
   funcSpectrum = [this, ivar, jvar](const VectorDouble& freq)
-      { return evalSpectrum(freq, ivar, jvar);};
+      { return evalSpectrum(freq, ivar, jvar) * _getDetTensor();};
 
-  return evalCovFFTSpatial(hmax, N, funcSpectrum);
+  return evalCovFFTSpatial(hmax, N, funcSpectrum) ;
 }

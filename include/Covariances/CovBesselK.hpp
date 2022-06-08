@@ -32,7 +32,7 @@ public:
   bool   hasCovOnSphere() const override { return true; }
   bool   hasSpectrum() const override { return true; }
   bool   hasMarkovCoeffs() const override { return true; }
-  double evaluateSpectrum(double freq, double scale, int ndim) const override;
+  double evaluateSpectrum(double freq, int ndim) const override;
   void   setMarkovCoeffs(VectorDouble coeffs) override { _markovCoeffs = coeffs;}
   VectorDouble getMarkovCoeffs() const override;
   double getCorrec() const override { return _correc;}

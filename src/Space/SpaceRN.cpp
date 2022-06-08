@@ -52,6 +52,13 @@ double SpaceRN::getDistance(const SpacePoint& p1,
   return ut_vector_norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
 
+double SpaceRN::getFrequentialDistance(const SpacePoint& p1,
+                                       const SpacePoint& p2,
+                                       const Tensor& tensor) const
+{
+  return ut_vector_norm(tensor.applyDirect(getIncrement(p1, p2),0));
+}
+
 VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
                                    const SpacePoint& p2) const
 {

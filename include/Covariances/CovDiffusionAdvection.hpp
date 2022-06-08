@@ -3,6 +3,7 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Array.hpp"
+#include "Covariances/CovContext.hpp"
 
 #include <complex>
 
@@ -77,14 +78,24 @@ public:
     return _globalCorrec;
   }
 
+  const CovAniso* getSpatialTrace() const
+  {
+    return _spatialTrace;
+  }
+
   bool isNoneMarkovL() const {return _markovL==nullptr;}
 
   bool isNoneMarkovR() const {return _markovR==nullptr;}
+
 
   std::complex<double> evalSpatialSpectrum(VectorDouble freq, double time) const;
   Array evalCovFFT(const VectorDouble& hmax,double time = 0, int N = 128) const;
 
 private:
+
+  void _init();
+  void _computeSpatialTrace();
+
   const CovAniso*    _markovL;
   const CovAniso*    _markovR;
   double             _scaleTime;
@@ -92,4 +103,10 @@ private:
   double             _sigma2;
   int                _ndim;
   double             _globalCorrec;
+  CovAniso*          _spatialTrace;
+  CovContext         _ctxt;
+  bool               _destroyMarkovL;
+  bool               _destroyMarkovR;
+  bool               _markovRdefined;
+  bool               _markovLdefined;
 };

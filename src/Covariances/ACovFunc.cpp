@@ -195,7 +195,7 @@ VectorDouble ACovFunc::getMarkovCoeffs() const
   return VectorDouble();
 }
 
-double ACovFunc::evaluateSpectrum(double /*freq*/, double /*scale*/, int /*ndim*/) const
+double ACovFunc::evaluateSpectrum(double /*freq*/, int /*ndim*/) const
 {
   if (! hasSpectrum())
   {
@@ -256,7 +256,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
       double temp = a[idim] * ((double)indices[idim] / (N - 1) - 0.5);
       s += temp * temp;
     }
-    Re[iad] = prod * evaluateSpectrum(s,1,ndim);
+    Re[iad] = prod * evaluateSpectrum(s,ndim);
     array.setValue(indices,Re[iad]);
 
   }

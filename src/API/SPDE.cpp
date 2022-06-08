@@ -231,7 +231,7 @@ void SPDE::compute(int nbsimus, int seed)
   {
     dataVect = _data->getColumnByLocator(ELoc::Z,ivar,useSel);
 
-    _computeCoeffs();
+    _computeDriftCoeffs();
 
     _workingData = _model->evalDrifts(_data,_driftCoeffs,ivar,useSel);
 
@@ -341,7 +341,29 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
   return iptr;
 }
 
-void SPDE::_computeCoeffs()
+double SPDE::computeLogLike() const
+{
+  double loglike = 0.;
+
+
+  return loglike;
+
+}
+
+double SPDE::computeProfiledLogLike() const
+{
+  _requireCoeffs = true;
+  _isCoeffsComputed = false; // we assume that covariance parameters have changed,
+                            //  so driftCoeffs have to be recomputed
+  _computeDriftCoeffs();
+
+
+  return computeLogLike();
+
+}
+
+
+void SPDE::_computeDriftCoeffs() const
 {
 
   if(!_isCoeffsComputed)
@@ -354,8 +376,14 @@ void SPDE::_computeCoeffs()
   }
 }
 
+void SPDE::setDriftCoeffs(VectorDouble coeffs)
+{
+  _driftCoeffs  = coeffs;
+  _isCoeffsComputed = true;
+}
+
 VectorDouble SPDE::getCoeffs()
 {
-  _computeCoeffs();
+  _computeDriftCoeffs();
   return _driftCoeffs;
 }
