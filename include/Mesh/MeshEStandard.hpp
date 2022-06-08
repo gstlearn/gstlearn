@@ -41,9 +41,7 @@ public:
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  cs* getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
-      override;
-  double* interpolateMeshToDb(Db *db, double* mtab) const override;
+  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
 
   int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
@@ -95,7 +93,7 @@ private:
                 const VectorDouble& dilate,
                 const char *triswitch);
   void    _defineBoundingBox();
-  void    _defineUnits();
+  VectorDouble _defineUnits() const;
   double* _defineContainers() const;
   bool    _coorInMeshContainer(double* coor, int imesh, double* container) const;
   bool    _coorInMesh(double* coor,
@@ -120,5 +118,4 @@ private:
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
-  VectorDouble      _units;
 };

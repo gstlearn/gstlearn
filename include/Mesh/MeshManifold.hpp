@@ -50,7 +50,7 @@ public:
                   bool verbose = false) const override;
   int getVariety() const { return 2; }
 
-  VectorInt getMeshes() const {return _meshes;}
+  VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
@@ -63,5 +63,4 @@ private:
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim
   MatrixInt         _meshes; // Dimension: Nrow=Nmesh; Ncol=NApexPerMesh
-  VectorDouble      _units;
 };

@@ -3119,8 +3119,7 @@ static double st_convert_geodetic_angle(double /*sina*/,
   double prod, cosA;
 
   prod = sinb * sinc;
-  cosA = (prod == 0.) ? 0. :
-                        (cosa - cosb * cosc) / prod;
+  cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
   if (cosA < -1) cosA = -1.;
   if (cosA > +1) cosA = +1.;
   return (acos(cosA));

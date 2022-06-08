@@ -3064,7 +3064,7 @@ void cs_print_range(const char *title, const cs *C)
     message("%s\n", title);
   else
     message("Sparse matrix\n");
-  message(" Descr: m=%d n=%d nzmax=%d\n", C->m, C->n, C->nzmax);
+  message(" Descr: m=%d n=%d nnz=%d\n", C->m, C->n, C->nzmax);
   message(" Range: [%lf ; %lf] (%d/%d)\n", mini, maxi, nvalid, number);
 
   /* Core deallocation */

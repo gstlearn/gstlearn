@@ -285,7 +285,6 @@ typedef struct
 class SPDE_Mesh
 {
 public:
-
   int ndim;
   int ncorner;
   int nmesh;

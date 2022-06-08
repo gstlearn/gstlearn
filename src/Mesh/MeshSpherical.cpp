@@ -23,7 +23,6 @@ MeshSpherical::MeshSpherical()
   : AMesh()
   , _apices()
   , _meshes()
-  , _units()
 {
 }
 
@@ -196,10 +195,6 @@ int MeshSpherical::reset(Db* dbin,
 
   _defineBoundingBox();
 
-  // Calculate and store the units
-
-  _defineUnits();
-
   // Optional printout
   
   if (verbose) messageFlush(toString());
@@ -304,21 +299,19 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 *****************************************************************************/
 cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 {
-  double *coor,*weight;
-  int     error,imesh,imesh0,ncorner,ip,found;
-  int     iech_max,ip_max,nmeshes,ndim,nvertex;
-  cs     *A,*Atriplet;
+  int imesh,imesh0,ip,found,iech_max,ip_max;
  
   /* Initializations */
   
-  error     = 1;
-  coor      = nullptr;
-  weight    = nullptr;
-  Atriplet  = A = nullptr;
-  nmeshes   = getNMeshes();
-  nvertex   = getNApices();
-  ncorner   = getNApexPerMesh();
-  ndim      = getNDim();
+  int error      = 1;
+  double* coor   = nullptr;
+  double* weight = nullptr;
+  cs* Atriplet   = nullptr;
+  cs* A          = nullptr;
+  int nmeshes    = getNMeshes();
+  int nvertex    = getNApices();
+  int ncorner    = getNApexPerMesh();
+  int ndim       = getNDim();
 
   // Preliminary checks 
 
@@ -404,107 +397,6 @@ label_end:
 
 /****************************************************************************/
 /*!
-** Interpolates an array defined on the Meshes to the Db locations
-**
-** \return The array of interpolated values
-**
-** \param[in]  db        Db structure
-** \param[in]  mtab      Array of values defined on the meshes
-**
-** \remarks The newly allocated array is dimensionned to the total number 
-** \remarks of samples in the Db (masked included).
-** \remarks It must be freed by the calling function
-*,nech;
-*****************************************************************************/
-double* MeshSpherical::interpolateMeshToDb(Db *db,
-                                           double* mtab) const
-{
-  double *coor,*weight,*dtab,total;
-  int     error,imesh,imesh0,ncorner,ip,found;
-  int     iech_max,ip_max,nmeshes,ndim,nech;
- 
-  /* Initializations */
-  
-  error     = 1;
-  dtab      = nullptr;
-  coor      = nullptr;
-  weight    = nullptr;
-  nmeshes   = getNMeshes();
-  ncorner   = getNApexPerMesh();
-  ndim      = getNDim();
-  nech      = db->getSampleNumber();
-
-  // Preliminary checks 
-
-  if (isCompatibleDb(db)) goto label_end;
-
-  /* Core allocation */
-
-  dtab   = (double *) mem_alloc(sizeof(double) * nech,0);
-  if (dtab == nullptr) goto label_end;
-  coor   = db_sample_alloc(db,ELoc::X);
-  if (coor   == nullptr) goto label_end;
-  weight = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (weight == nullptr) goto label_end;
-  
-  /* Loop on the samples */
-
-  imesh0 = ip_max = iech_max = 0;
-  for (int iech=0; iech<db->getSampleNumber(); iech++)
-  {
-    if (! db->isActive(iech)) continue;
-    if (iech > iech_max) iech_max = iech;
-
-    /* Identification */
-
-    for (int idim=0; idim<ndim; idim++)
-      coor[idim] = db->getCoordinate(iech,idim);
-    
-    /* Loop on the meshes */
-    
-    found = -1;
-    for (int jmesh=0; jmesh<nmeshes; jmesh++)
-    {
-      imesh = imesh0 + jmesh;
-      if (imesh >= nmeshes) imesh -= nmeshes;
-      if (! _coorInMesh(coor,imesh,weight)) continue;
-
-      /* Store the items in the sparse matrix */
-
-      total = 0.;
-      for (int icorn=0; icorn<ncorner; icorn++)
-      {
-        ip = getApex(imesh,icorn);
-        total += mtab[ip] * weight[icorn];
-      }
-      dtab[iech] = total;
-      imesh0 = found = imesh;
-      break;
-    }
-
-    /* Printout if a point does not belong to any mesh */
-
-    if (found < 0)
-    {
-      messerr("Point %d does not belong to any mesh",iech+1);
-      for (int idim=0; idim<ndim; idim++)
-        messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
-    }
-  }
-  
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  weight   = (double *) mem_free((char *) weight);
-  coor     = db_sample_free(coor);
-  if (error) dtab = (double *) mem_free((char *) dtab);
-  return(dtab);
-}
-
-/****************************************************************************/
-/*!
 ** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
 **
 ** \returns The rank of the target  apex
@@ -579,21 +471,15 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
                         getApexCoor(iapex, 1),
                         &coords[0], &coords[1], &coords[2],
                         r);
-
 }
 
-void MeshSpherical::_defineUnits(void)
+VectorDouble MeshSpherical::_defineUnits(void) const
 {
   int nmeshes = getNMeshes();
-
-  // Core allocation
-
-  _units.resize(nmeshes);
-
-  // Loop on the meshes 
-
+  VectorDouble units(nmeshes);
   for (int imesh=0; imesh<nmeshes; imesh++)
-    _units[imesh ] = getMeshSize(imesh);
+    units[imesh ] = getMeshSize(imesh);
+  return units;
 }
 
 void MeshSpherical::_defineBoundingBox(void)
@@ -648,18 +534,16 @@ bool MeshSpherical::_coorInMesh(double    *coor,
 {
   double pts[3][2];
 
-  for (int i=0; i<3; i++)
-    for (int j=0; j<2; j++)
-      pts[i][j] = getCoor(imesh,i,j);
-  return (is_in_spherical_triangle_optimized(coor, pts[0], pts[1], pts[2],
-                                             weights));
+  for (int i = 0; i < 3; i++)
+    for (int j = 0; j < 2; j++)
+      pts[i][j] = getCoor(imesh, i, j);
+  return (is_in_spherical_triangle_optimized(coor, pts[0], pts[1], pts[2],weights));
 }
 
 int MeshSpherical::_recopy(const MeshSpherical &m)
 {
   _apices = m._apices;
   _meshes = m._meshes;
-  _units = m._units;
   return(0);
 }
 
@@ -683,7 +567,6 @@ int MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
   _meshes = MatrixInt(nmeshes, napexpermesh);
   _meshes.setValues(meshes_local);
 
-  ret = ret && _recordReadVec<double>(is, "Units", _units, nmeshes);
   return 0;
 }
 
@@ -698,6 +581,5 @@ int MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
 
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
-  ret = ret && _recordWriteVec<double>(os, "Units", _units);
   return 0;
 }

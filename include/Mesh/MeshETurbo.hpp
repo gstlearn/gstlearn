@@ -54,7 +54,6 @@ public:
   double  getMeshSize(int imesh) const override;
   cs*     getMeshToDb(const Db *db, bool fatal = false,
                       bool verbose = false) const override;
-  double* interpolateMeshToDb(Db *db, double* mtab) const override;
 
   void   setPolarized(bool flag) { _isPolarized = flag; }
   void   setMaskArrayFromInt(int* array);

@@ -2607,7 +2607,6 @@ GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    int *npoint,
                                    int **triangles,
                                    double **points);
-GSTLEARN_EXPORT cs* db_mesh_sparse(Db *db, MeshEStandard *amesh, int verbose);
 GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
                                   SPDE_Mesh *s_mesh,
                                   double radius,
