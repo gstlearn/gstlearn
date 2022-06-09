@@ -119,10 +119,10 @@ typedef struct
 {
   double coord;                //!< Abscissas of the first Fault point
   double orient;               //!< Fault orientation
-  VectorDouble thetal;               //!< Maximum density on left
-  VectorDouble thetar;               //!< Maximum density on right
-  VectorDouble rangel;               //!< Decrease range on left
-  VectorDouble ranger;               //!< Decrease range on right
+  VectorDouble thetal;         //!< Maximum density on left
+  VectorDouble thetar;         //!< Maximum density on right
+  VectorDouble rangel;         //!< Decrease range on left
+  VectorDouble ranger;         //!< Decrease range on right
 } Frac_Fault;
 
 typedef struct
@@ -141,8 +141,8 @@ typedef struct
 
 typedef struct
 {
-  int nfamilies;            //!< Number of families
-  int nfaults;              //!< Number of main faults
+  int nfamilies;               //!< Number of families
+  int nfaults;                 //!< Number of main faults
   double xmax;                 //!< Maximum horizontal distance
   double ymax;                 //!< Maximum vertical distance
   double deltax;               //!< Dilation along the horizontal axis

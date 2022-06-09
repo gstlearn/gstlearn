@@ -8,17 +8,32 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_d.h"
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
+
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_define.h"
+#include "Basic/Geometry.hpp"
 #include "Basic/WarningMacro.hpp"
+
 #include <math.h>
+#include <boost/math/special_functions/legendre.hpp>
+#include <boost/math/special_functions/spherical_harmonic.hpp>
 
 DISABLE_WARNING_PUSH
 
 DISABLE_WARNING_ARRAY_BOUNDS
 
+typedef struct
+{
+  int ntri;
+  double *coor;
+} Reg_Coor;
+
 static double c_b11 = 1.;
+#define COORD(i,ip)  (coord[3 * (ip) + (i)])
+#define RCOORD(i,ip) (R_coor->coor[3 * (ip) + (i)])
 
 /*****************************************************************************/
 /*!
@@ -2238,3 +2253,625 @@ double loggamma(double parameter)
 }
 
 DISABLE_WARNING_POP
+
+/*****************************************************************************/
+/*!
+ **  Returns the Associated Legendre Function
+ **
+ ** \param[in]  flag_norm 1 for normalized and 0 otherwise
+ ** \param[in]  n           Degree
+ ** \param[in]  v           Value
+ **
+ *****************************************************************************/
+double ut_legendre(int flag_norm, int n, double v)
+{
+  double result = boost::math::legendre_p<double>(n, v);
+  if (flag_norm)
+  {
+    double norme = sqrt((2. * ((double) n) + 1.) / 2.);
+    result *= norme;
+  }
+  return (result);
+}
+
+/*****************************************************************************/
+/*!
+ **  Returns the Spherical Legendre normalized function
+ **
+ ** \param[in]  flag_norm 1 for normalized and 0 otherwise
+ ** \param[in]  n           Degree
+ ** \param[in]  k0          Order (ABS(k0) <= n)
+ ** \param[in]  theta       Theta angle in radian
+ **
+ *****************************************************************************/
+double ut_flegendre(int flag_norm, int n, int k0, double theta)
+{
+  int k = ABS(k0);
+  std::complex<double> resbis = boost::math::spherical_harmonic<double, double>(
+      n, k, theta, 0.);
+  double result = resbis.real();
+
+  if (flag_norm)
+  {
+    double norme = 1. / sqrt(2 * GV_PI);
+    result /= norme;
+  }
+  return (result);
+}
+
+/****************************************************************************/
+/*!
+ **  Golden Search algorithm
+ **
+ ** \return  The estimated value
+ **
+ ** \param[in]  func_evaluate  Evaluating function
+ ** \param[in]  user_data      User Data
+ ** \param[in]  tolstop        Tolerance parameter
+ ** \param[in]  a0             Initial value for lower bound of interval
+ ** \param[in]  c0             Initial value for upper bound of interval
+ **
+ ** \param[out] test_loc       Final value of the evaluating function
+ ** \param[out] niter          Number of iterations
+ **
+ *****************************************************************************/
+double golden_search(double (*func_evaluate)(double test, void *user_data),
+                     void *user_data,
+                     double tolstop,
+                     double a0,
+                     double c0,
+                     double *test_loc,
+                     double *niter)
+{
+  double phi, resphi, b, x, fb, fx, result, a, c;
+  int flag_test;
+
+  /* Initializations */
+
+  phi = (1. + sqrt(5.)) / 2.;
+  resphi = 2. - phi;
+  a = a0;
+  c = c0;
+
+  /* Initial values for the golden search */
+
+  b = (a + c) / 2;
+  fb = func_evaluate(b, user_data);
+
+  (*niter) = 1;
+  while ((c - a) > tolstop)
+  {
+    flag_test = (c - b) > (b - a);
+    if (flag_test)
+      x = b + resphi * (c - b);
+    else
+      x = b - resphi * (b - a);
+    fx = func_evaluate(x, user_data);
+    (*niter) = (*niter) + 1.;
+
+    if (fx < fb)
+    {
+      if (flag_test)
+      {
+        a = b;
+        b = x;
+        fb = fx;
+      }
+      else
+      {
+        c = b;
+        b = x;
+        fb = fx;
+      }
+    }
+    else
+    {
+      if (flag_test)
+        c = x;
+      else
+        a = x;
+    }
+  }
+
+  /* Returning value */
+
+  result = (a + c) / 2.;
+  if (test_loc != NULL) *test_loc = fb;
+
+  return (result);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the number of coefficients necessary to evaluate a function
+ **  (at a sample location) at a given approximation
+ **
+ ** \return Minimum number of necessary coefficients
+ **
+ ** \param[in]  func       Function to be approximated
+ ** \param[in]  cheb_elem  Cheb_Elem structure
+ ** \param[in]  x          Sampling value
+ ** \param[in]  nblin      Number of terms in the polynomial expansion
+ ** \param[in]  blin       Array of coefficients for polynomial expansion
+ **
+ *****************************************************************************/
+int ut_chebychev_count(double (*func)(double, double, int, double*),
+                       Cheb_Elem *cheb_elem,
+                       double x,
+                       int nblin,
+                       double *blin)
+{
+  double *coeffs, y, y0, T1, Tx, Tm1, Tm2, power, a, b, tol;
+  int ncmax;
+
+  // Initializations
+
+  power = cheb_elem->power;
+  a = cheb_elem->a;
+  b = cheb_elem->b;
+  tol = cheb_elem->tol;
+  ncmax = cheb_elem->ncmax;
+  coeffs = cheb_elem->coeffs;
+
+  /* Get the true value */
+
+  y0 = func(x, power, nblin, blin);
+
+  /* Calculate the approximate value until tolerance is reached */
+
+  T1 = 2 * (x - a) / (b - a) - 1.;
+  y = coeffs[0] + coeffs[1] * T1;
+  if (ABS(y * y - y0 * y0) / (y * y) < tol) return (2);
+  Tm1 = T1;
+  Tm2 = 1.;
+  for (int i = 2; i < ncmax; i++)
+  {
+    Tx = 2. * T1 * Tm1 - Tm2;
+    y += coeffs[i] * Tx;
+    if (ABS(y * y - y0 * y0) / (y * y) < tol) return (i + 1);
+    Tm2 = Tm1;
+    Tm1 = Tx;
+  }
+  return (ncmax);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculates the coefficients of the Chebychev polynomial which is an
+ **  approximation of a given function
+ **
+ **  \return  Error return code
+ **
+ ** \param[in]  func      Function to be approximated
+ ** \param[in]  cheb_elem Cheb_Elem structure
+ ** \param[in]  nblin     Number of terms in the polynomial expansion
+ ** \param[in]  blin      Array of coefficients for polynomial expansion
+ **
+ *****************************************************************************/
+int ut_chebychev_coeffs(double (*func)(double, double, int, double*),
+                        Cheb_Elem *cheb_elem,
+                        int nblin,
+                        double *blin)
+{
+  double *coeffs, *x1, *y1, *x2, *y2;
+  double minsubdiv, theta, ct, val1, val2, coeff, power, a, b;
+  int n, ncmax, error;
+
+  /* Initializations */
+
+  error = 1;
+  power = cheb_elem->power;
+  ncmax = cheb_elem->ncmax;
+  a = cheb_elem->a;
+  b = cheb_elem->b;
+  coeffs = cheb_elem->coeffs;
+  x1 = y1 = x2 = y2 = nullptr;
+
+  minsubdiv = pow(2., 20.);
+  if (minsubdiv >= (ncmax + 1) / 2)
+    n = static_cast<int>(minsubdiv);
+  else
+    n = static_cast<int>(ceil((double) (ncmax + 1) / 2));
+
+  /* Core allocation */
+
+  x1 = (double*) mem_alloc(sizeof(double) * n, 0);
+  if (x1 == nullptr) goto label_end;
+  y1 = (double*) mem_alloc(sizeof(double) * n, 0);
+  if (y1 == nullptr) goto label_end;
+  x2 = (double*) mem_alloc(sizeof(double) * n, 0);
+  if (x2 == nullptr) goto label_end;
+  y2 = (double*) mem_alloc(sizeof(double) * n, 0);
+  if (y2 == nullptr) goto label_end;
+
+  /* Filling the arrays */
+
+  for (int i = 0; i < n; i++)
+  {
+    theta = 2. * GV_PI * ((double) i) / ((double) n);
+    ct = cos(theta / 2.);
+    val1 = func(((b + a) + (b - a) * ct) / 2., power, nblin, blin);
+    val2 = func(((b + a) - (b - a) * ct) / 2., power, nblin, blin);
+    x1[i] = 0.5 * (val1 + val2);
+    y1[i] = 0.;
+    x2[i] = 0.5 * (val1 - val2) * cos(-theta / 2.);
+    y2[i] = 0.5 * (val1 - val2) * sin(-theta / 2.);
+  }
+
+  /* Perform the FFT transform */
+
+  if (fftn(1, &n, x1, y1, 1, 1.)) goto label_end;
+  if (fftn(1, &n, x2, y2, -1, 1.)) goto label_end;
+
+  /* Store the coefficients */
+
+  coeff = 2. / (double) n;
+  for (int i = 0; i < ncmax; i++)
+    coeffs[i] = 0.;
+  for (int i = 0; i < n; i++)
+  {
+    if (2 * i >= ncmax) break;
+    coeffs[2 * i] = coeff * x1[i];
+    if (2 * i + 1 >= ncmax) break;
+    coeffs[2 * i + 1] = coeff * x2[i];
+  }
+  coeffs[0] /= 2.;
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end: x1 = (double*) mem_free((char* ) x1);
+  y1 = (double*) mem_free((char* ) y1);
+  x2 = (double*) mem_free((char* ) x2);
+  y2 = (double*) mem_free((char* ) y2);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Generate a random rotation axis
+ **
+ ** \param[out]  ct       Cosine of the random rotation angle
+ ** \param[out]  st       Sine of the random rotation angle
+ ** \param[out]  a        Random direction vector
+ **
+ *****************************************************************************/
+static void st_init_rotation(double *ct, double *st, double *a)
+{
+  double rd, theta;
+
+  for (int k = 0; k < 3; k++)
+    a[k] = law_gaussian();
+  rd = 0.;
+  for (int k = 0; k < 3; k++)
+    rd += a[k] * a[k];
+  rd = sqrt(rd);
+  for (int k = 0; k < 3; k++)
+    a[k] /= rd;
+
+  theta = 2. * GV_PI * law_uniform(0., 1.);
+  *ct = cos(theta);
+  *st = sin(theta);
+}
+
+/****************************************************************************/
+/*!
+ **  Generate a Van Der Corput list of points in R^3
+ **
+ ** \param[in]  n         Number of points
+ ** \param[in]  flag_sym  Duplicate the samples by symmetry
+ ** \param[in]  flag_rot  Perform a random rotation
+ **
+ ** \param[out] ntri_arg  Number of points
+ ** \param[out] coor_arg  Array of point coordinates
+ **                       (Dimension: 3*ntri)
+ **
+ *****************************************************************************/
+void ut_vandercorput(int n,
+                     int flag_sym,
+                     int flag_rot,
+                     int *ntri_arg,
+                     double **coor_arg)
+{
+  int i, j, ri, nb, ntri;
+  double *coord, base, u, v, ct, st, a[3];
+
+  /* Core allocation */
+
+  ntri = 2 * n;
+  coord = (double*) mem_alloc(sizeof(double) * 3 * ntri, 1);
+
+  /* Processing */
+
+  nb = 0;
+  for (i = 0; i < n; i++)
+  {
+
+    // Binary decomposition
+    j = i;
+    u = 0;
+    base = 2.;
+
+    while (j)
+    {
+      ri = j % 2;
+      u += ri / base;
+      base *= 2;
+      j = j / 2;
+    }
+
+    // Ternary decomposition
+    j = i;
+    v = 0;
+    base = 3;
+
+    while (j)
+    {
+      ri = j % 3;
+      v += ri / base;
+      base *= 3;
+      j = j / 3;
+    }
+
+    COORD(0,nb) = cos(2. * GV_PI * u) * sqrt(1 - v * v);
+    COORD(1,nb) = sin(2. * GV_PI * u) * sqrt(1 - v * v);
+    COORD(2,nb) = v;
+    nb++;
+
+    if (flag_sym)
+    {
+      COORD(0,nb) = -cos(2. * GV_PI * u) * sqrt(1 - v * v);
+      COORD(1,nb) = -sin(2. * GV_PI * u) * sqrt(1 - v * v);
+      COORD(2,nb) = -v;
+      nb++;
+    }
+  }
+
+  /* Random rotation */
+
+  if (flag_rot)
+  {
+    st_init_rotation(&ct, &st, a);
+    for (i = 0; i < ntri; i++)
+      ut_rotation_direction(ct, st, a, &coord[3 * i]);
+  }
+
+  /* Shuffle the samples in order to avoid three first colinear samples */
+
+  ut_shuffle_array(ntri, 3, coord);
+
+  /* Returning arguments */
+
+  *ntri_arg = 2 * n;
+  *coor_arg = coord;
+
+  return;
+}
+
+static void st_addTriangle(double v1[3],
+                           double v2[3],
+                           double v3[3],
+                           Reg_Coor *R_coor)
+{
+  int n;
+
+  n = R_coor->ntri;
+
+  R_coor->coor = (double*) mem_realloc((char* ) R_coor->coor,
+                                       sizeof(double) * 3 * (n + 3), 1);
+
+  for (int i = 0; i < 3; i++)
+    RCOORD(i,n) = v1[i];
+  for (int i = 0; i < 3; i++)
+    RCOORD(i,n+1) = v2[i];
+  for (int i = 0; i < 3; i++)
+    RCOORD(i,n+2) = v3[i];
+  R_coor->ntri += 3;
+}
+
+/* normalize a vector of non-zero length */
+static void st_normalize(double v[3])
+{
+  double d = sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  v[0] /= d;
+  v[1] /= d;
+  v[2] /= d;
+}
+
+/* recursively subdivide face `depth' times */
+void st_subdivide(double v1[3],
+                  double v2[3],
+                  double v3[3],
+                  int depth,
+                  Reg_Coor *R_coor)
+{
+  double v12[3], v23[3], v31[3];
+
+  if (depth == 0)
+  {
+    st_addTriangle(v1, v2, v3, R_coor);
+    return;
+  }
+
+  /* calculate midpoints of each side */
+  for (int i = 0; i < 3; i++)
+  {
+    v12[i] = (v1[i] + v2[i]) / 2.0;
+    v23[i] = (v2[i] + v3[i]) / 2.0;
+    v31[i] = (v3[i] + v1[i]) / 2.0;
+  }
+
+  /* extrude midpoints to lie on unit sphere */
+  st_normalize(v12);
+  st_normalize(v23);
+  st_normalize(v31);
+
+  /* recursively subdivide new triangles */
+  st_subdivide(v1, v12, v31, depth - 1, R_coor);
+  st_subdivide(v2, v23, v12, depth - 1, R_coor);
+  st_subdivide(v3, v31, v23, depth - 1, R_coor);
+  st_subdivide(v12, v23, v31, depth - 1, R_coor);
+}
+
+static int st_already_present(Reg_Coor *R_coor, int i0, int ntri, double *coord)
+{
+  int found;
+  static double eps = 1.e-03;
+
+  if (ntri <= 0) return (0);
+  for (int itri = 0; itri < ntri; itri++)
+  {
+    for (int k = found = 0; k < 3; k++)
+      if (ABS(COORD(k,itri) - RCOORD(k,i0)) > eps) found = k + 1;
+    if (found == 0) return (1);
+  }
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Generate regular Icosahedron discretization
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  n         Number of discretization steps
+ ** \param[in]  flag_rot  Perform a random rotation
+ **
+ ** \param[out] ntri_arg  Number of points
+ ** \param[out] coor_arg  Array of point coordinates
+ **                       (Dimension: 3*ntri)
+ **
+ ** \remarks As random number are used in this function, a specific seed
+ ** \remarks is fixed here
+ **
+ *****************************************************************************/
+int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
+{
+  Reg_Coor R_coor;
+  double *coord, ct, st, a[3];
+  int ntri, seed_memo;
+#define X 0.525731112119133696
+#define Z 0.850650808352039932
+
+  /* Get the current sed */
+
+  seed_memo = law_get_random_seed();
+  law_set_random_seed(43241);
+
+  /* vertex data array */
+  static double vdata[12][3] = { { -X, 0.0, Z },
+                                 { X, 0.0, Z },
+                                 { -X, 0.0, -Z },
+                                 { X, 0.0, -Z },
+                                 { 0.0, Z, X },
+                                 { 0.0, Z, -X },
+                                 { 0.0, -Z, X },
+                                 { 0.0, -Z, -X },
+                                 { Z, X, 0.0 },
+                                 { -Z, X, 0.0 },
+                                 { Z, -X, 0.0 },
+                                 { -Z, -X, 0.0 } };
+
+  /* triangle indices */
+  static int tindices[20][3] = { { 1, 4, 0 }, { 4, 9, 0 }, { 4, 5, 9 }, { 8, 5, 4 },
+                                 { 1, 8, 4 }, { 1, 10, 8 }, { 10, 3, 8 }, { 8, 3, 5 },
+                                 { 3, 2, 5 }, { 3, 7, 2 }, { 3, 10, 7 }, { 10, 6, 7 },
+                                 { 6, 11, 7 }, { 6, 0, 11 }, { 6, 1, 0 }, { 10, 1, 6 },
+                                 { 11, 0, 9 }, { 2, 11, 9 }, { 5, 2, 9 }, { 11, 2, 7 } };
+
+  if (n > 10)
+  {
+    messerr("The Regular Sphere discretization is limited to degree 10");
+    law_set_random_seed(seed_memo);
+    return (1);
+  }
+  R_coor.ntri = 0;
+  R_coor.coor = nullptr;
+
+  /* Subdivide the initial icosahedron */
+
+  for (int i = 0; i < 20; i++)
+  {
+    st_subdivide(&vdata[tindices[i][0]][0], &vdata[tindices[i][1]][0],
+                 &vdata[tindices[i][2]][0], n, &R_coor);
+  }
+
+  /* Suppress repeated triangle vertices */
+
+  ntri = 0;
+  coord = (double*) mem_alloc(sizeof(double) * 3 * R_coor.ntri, 1);
+  for (int i = 0; i < R_coor.ntri; i++)
+  {
+    if (st_already_present(&R_coor, i, ntri, coord)) continue;
+    for (int k = 0; k < 3; k++)
+      COORD(k,ntri) = R_coor.coor[3 * i + k];
+    ntri++;
+  }
+
+  /* Final resize */
+
+  coord = (double*) mem_realloc((char* ) coord, sizeof(double) * 3 * ntri, 1);
+
+  /* Random rotation */
+
+  if (flag_rot)
+  {
+    st_init_rotation(&ct, &st, a);
+    for (int i = 0; i < ntri; i++)
+      ut_rotation_direction(ct, st, a, &coord[3 * i]);
+  }
+
+  /* Shuffle the samples in order to avoid three first colinear samples */
+
+  ut_shuffle_array(ntri, 3, coord);
+
+  /* Returning arguments */
+
+  *ntri_arg = ntri;
+  *coor_arg = coord;
+
+  /* Free the Reg_Coor structure */
+
+  R_coor.coor = (double*) mem_free((char* ) R_coor.coor);
+  law_set_random_seed(seed_memo);
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculates the nbpoly log-factorial coefficients
+ **
+ ** \param[in]  nbpoly  Number of terms
+ **
+ ** \param[out] factor  logarithm of factorials
+ **
+ *****************************************************************************/
+void ut_log_factorial(int nbpoly, double *factor)
+{
+  int i;
+
+  factor[0] = 0;
+  for (i = 1; i < nbpoly; i++)
+    factor[i] = factor[i - 1] + log((double) (i + 1));
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculates the factorial coefficient
+ **
+ ** \return Returned value
+ **
+ ** \param[in]  k     Value
+ **
+ *****************************************************************************/
+double ut_factorial(int k)
+{
+  double val;
+
+  val = 1;
+  for (int i = 1; i <= k; i++)
+    val *= (double) i;
+  return (val);
+}
+

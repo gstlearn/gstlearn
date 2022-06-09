@@ -106,6 +106,9 @@ class IClonable{};
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
 %include Basic/Array.hpp
+%include Basic/Geometry.hpp
+
+%include Faults/PolyLine.hpp
 
 %include Boolean/ETLaw.hpp
 %include Boolean/ETShape.hpp

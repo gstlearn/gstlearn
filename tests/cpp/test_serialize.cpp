@@ -22,6 +22,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
 #include "LithoRule/Rule.hpp"
+#include "Faults/PolyLine.hpp"
 
 /****************************************************************************/
 /*!
@@ -181,6 +182,23 @@ int main(int /*argc*/, char */*argv*/[])
   Rule* rule2 = Rule::createFromNF("Neutral.Rule.ascii",verbose);
   rule2->display();
 
+  // ======================
+  // Checking PolyLine
+  // ======================
+
+  int npolyline = 100;
+  VectorDouble xpolyline = ut_vector_simulate_gaussian(npolyline);
+  VectorDouble ypolyline = ut_vector_simulate_gaussian(npolyline);
+  PolyLine* polyline = new PolyLine(xpolyline, ypolyline);
+  polyline->display();
+
+  // Serialize
+  (void) polyline->dumpToNF("Neutral.Polyline.ascii", verbose);
+
+  // Deserialize
+  PolyLine* polyline2 = PolyLine::createFromNF("Neutral.Polyline.ascii", verbose);
+  polyline2->display();
+
   delete db1;
   delete db2;
   delete dbg1;
@@ -191,5 +209,8 @@ int main(int /*argc*/, char */*argv*/[])
   delete table2;
   delete rule;
   delete rule2;
+  delete polyline;
+  delete polyline2;
+
   return(0);
 }

@@ -30,6 +30,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 
@@ -3755,12 +3756,10 @@ int db_compositional_transform(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  nvert   Number of segments in the polyline
- ** \param[in]  xl      Array of X-coordinates of the polyline
- ** \param[in]  yl      Array of Y-coordinates of the polyline
+ ** \param[in]  polyline PolyLine structure
  **
  *****************************************************************************/
-int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
+int db_unfold_polyline(Db *db, int nvert, const PolyLine& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, newx, newy;
@@ -3796,7 +3795,7 @@ int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
 
   /* Project the starting point */
 
-  distance_point_to_polyline(xl[0], yl[0], nvert, xl, yl, pldist0);
+  distance_point_to_polyline(polyline.getX(0), polyline.getY(0), polyline, pldist0);
 
   /* Loop on the samples of the Db */
 
@@ -3805,9 +3804,9 @@ int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
     if (!db->isActive(iech)) continue;
     xx = db->getCoordinate(iech, 0);
     yy = db->getCoordinate(iech, 1);
-    distance_point_to_polyline(xx, yy, nvert, xl, yl, pldist);
+    distance_point_to_polyline(xx, yy, polyline, pldist);
     newx = pldist->dist;
-    newy = distance_along_polyline(pldist0, pldist, xl, yl);
+    newy = distance_along_polyline(pldist0, pldist, polyline);
     db->setArray(iech, iptr, newx);
     db->setArray(iech, iptr + 1, newy);
   }
@@ -3831,18 +3830,14 @@ int db_unfold_polyline(Db *db, int nvert, double *xl, double *yl)
  ** \param[in]  dbout   Output Db structure
  ** \param[in]  ncol    Number of target variables
  ** \param[in]  cols    Ranks of the target variables
- ** \param[in]  nvert   Number of segments in the polyline
- ** \param[in]  xl      Array of X-coordinates of the polyline
- ** \param[in]  yl      Array of Y-coordinates of the polyline
+ ** \param[in]  polyline Polyline structure
 
  *****************************************************************************/
 int db_fold_polyline(DbGrid *dbin,
                      Db *dbout,
                      int ncol,
                      int *cols,
-                     int nvert,
-                     double *xl,
-                     double *yl)
+                     const PolyLine& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, value;
@@ -3853,6 +3848,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   error = 1;
   pldist = pldist0 = nullptr;
+  int nvert = polyline.getNVertices();
 
   /* Preliminary checks */
 
@@ -3884,7 +3880,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   /* Project the starting point */
 
-  distance_point_to_polyline(xl[0], yl[0], nvert, xl, yl, pldist0);
+  distance_point_to_polyline(polyline.getX(0), polyline.getY(0), polyline, pldist0);
 
   /* Loop on the samples of the output Db */
 
@@ -3896,9 +3892,9 @@ int db_fold_polyline(DbGrid *dbin,
 
     /* Project the target point according to the line */
 
-    distance_point_to_polyline(xx, yy, nvert, xl, yl, pldist);
+    distance_point_to_polyline(xx, yy, polyline, pldist);
     coor[0] = pldist->dist;
-    coor[1] = distance_along_polyline(pldist0, pldist, xl, yl);
+    coor[1] = distance_along_polyline(pldist0, pldist, polyline);
 
     /* Locate the sample on the Input Grid */
 
@@ -5736,10 +5732,10 @@ int db_polygon_distance(Db *db,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
+      PolyLine polyline(polyset.getX(), polyset.getY());
       distance_point_to_polyline(db->getCoordinate(iech, 0),
                                  db->getCoordinate(iech, 1),
-                                 polyset.getNVertices(), polyset.getX().data(),
-                                 polyset.getY().data(), pldist);
+                                 polyline, pldist);
       distloc = pldist->dist;
       if (FFFF(distloc)) continue;
       distmin = db->getArray(iech, iptr);

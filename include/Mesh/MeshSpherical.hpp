@@ -47,8 +47,7 @@ public:
                                      bool verbose = false);
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
-  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const
-          override;
+  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
   int     getVariety() const { return 1; }
 
   VectorVectorInt getMeshes() const {return _meshes.getMatrix();}

@@ -126,7 +126,7 @@ void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
   logPoly.fit(f,a,b);
 }
 
-double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
+double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int /*seed*/) const
 {
   Chebychev logPoly;
   preparePoly(logPoly);

@@ -190,7 +190,9 @@ double Chebychev::eval(double x) const
    return y;
 }
 
-void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const
+void Chebychev::evalOp(const ALinearOpMulti* /*Op*/,
+                       const VectorVectorDouble& /*in*/,
+                       VectorVectorDouble& /*out*/) const
 {
 
 }

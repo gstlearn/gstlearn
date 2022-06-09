@@ -26,6 +26,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
+#include "Basic/Utilities.hpp"
 #include "Stats/Classical.hpp"
 
 #include <algorithm>

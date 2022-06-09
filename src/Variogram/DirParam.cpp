@@ -14,6 +14,7 @@
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Geometry.hpp"
 
 #include <math.h>
 

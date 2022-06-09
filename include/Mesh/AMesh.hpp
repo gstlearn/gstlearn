@@ -108,7 +108,8 @@ protected:
   bool _weightsInMesh(const VectorDouble& coor,
                       const VectorVectorDouble& corners,
                       double meshsize,
-                      VectorDouble& weights) const;;
+                      VectorDouble& weights,
+                      double eps = EPSILON5) const;;
   double _getMeshUnit(const VectorVectorDouble& corners) const;
 
 private:

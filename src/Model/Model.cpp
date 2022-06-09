@@ -17,6 +17,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Geometry.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"

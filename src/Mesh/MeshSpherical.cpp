@@ -16,6 +16,7 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/Geometry.hpp"
 #include "Space/SpaceSN.hpp"
 #include "csparse_f.h"
 
@@ -555,21 +556,12 @@ bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
 
 double MeshSpherical::_closestValue(double ref, double coor, double period) const
 {
-  double coeff = 0.;
-  double dmin = ABS(ref - coor);
-  double d1 = ABS(ref - coor - period);
-  if (d1 < dmin)
-  {
-    dmin = d1;
-    coeff = +1.;
-  }
-  double d2 = ABS(ref - coor + period);
-  if (d2 < dmin)
-  {
-    dmin = d2;
-    coeff = -1.;
-  }
-  return coor + coeff * period;
+  double dref = ABS(coor - ref);
+  double d1 = ABS(coor - period - ref);
+  if (d1 < dref)
+    return coor - period;
+  else
+    return coor;
 }
 
 int MeshSpherical::_recopy(const MeshSpherical &m)

@@ -24,6 +24,7 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Geometry.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
