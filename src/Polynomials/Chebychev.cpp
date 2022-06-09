@@ -200,13 +200,7 @@ double Chebychev::eval(double x) const
    return y;
 }
 
-<<<<<<< HEAD
-void Chebychev::evalOp(const ALinearOpMulti* /*Op*/,
-                       const VectorVectorDouble& /*in*/,
-                       VectorVectorDouble& /*out*/) const
-=======
 void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const
->>>>>>> 2e20ed1bbc9a88ae9ebf25538ddeb586e5ae54f5
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
