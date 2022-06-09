@@ -67,7 +67,7 @@ PrecisionOp::PrecisionOp(AMesh* mesh,
   , _work2()
   , _work3()
 {
-  _shiftOp = new ShiftOpCs(mesh,model,nullptr,igrf,0,verbose);
+  _shiftOp = new ShiftOpCs(mesh,model,nullptr,0,igrf,verbose);
 
   _work.resize(_shiftOp->getSize());
   _work2.resize(_shiftOp->getSize());
@@ -367,16 +367,18 @@ int PrecisionOp::_preparePrecisionPoly()
 {
 
   if (_cova == nullptr) return 1;
+  if (!_cova->hasMarkovCoeffs()) return 1;
 
-  if(_cova->hasMarkovCoeffs())
-  {
-    _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(_cova->getMarkovCoeffs());
-  }
+  _polynomials[EPowerPT::ONE] = new ClassicalPolynomial(_cova->getMarkovCoeffs());
 
   if (_polynomials.count(EPowerPT::ONE)) return 0;
 
   return 0;
 }
+
+/* Evaluation of the polynomial of the precision over the interval [0, lambda_max(ShiftOp)] */
+/* discretized over ndiscr points */
+/* and return the min and the max */
 
 std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 {
@@ -384,15 +386,25 @@ std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 
   double sill = _cova->getSill(0,0);
   double sMax = _shiftOp->getMaxEigenValue();
-  VectorDouble val(ndiscr);
   double x = 0;
   double delta = sMax/(ndiscr-1);
-  for(int i = 0; i < ndiscr; i++)
+
+  double val =  _polynomials[EPowerPT::ONE]->eval(x);
+  rangeVals.first = val;
+  rangeVals.second = val;
+
+  for(int i = 1; i < ndiscr; i++)
   {
-    val[i] = _polynomials[EPowerPT::ONE]->eval(x) / sill;
     x += delta;
+    val =  _polynomials[EPowerPT::ONE]->eval(x) ;
+    rangeVals.first  = MIN(val,rangeVals.first);
+    rangeVals.second = MAX(val,rangeVals.first);
   }
-  return ut_vector_rangeVals(val);
+
+  rangeVals.first  = rangeVals.first/sill;
+  rangeVals.second = rangeVals.second/sill;
+
+  return rangeVals;
 }
 
 APolynomial* PrecisionOp::getPoly(const EPowerPT& power)

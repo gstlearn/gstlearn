@@ -41,6 +41,8 @@ public:
   double computeLogDet(int nbsimus = 1,int seed = 1234) const;
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
+  const PrecisionOp* getPrecisionOp(int i = 0) const  { return _pilePrecisions[i];}
+  const ProjMatrix* getProj(int i = 0) const  { return _pileProjMatrix[i];}
 
 private:
   void _computeDriftCoeffs() const;
