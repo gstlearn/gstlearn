@@ -211,7 +211,6 @@ set(SRC
   Basic/Array.cpp
   Basic/Geometry.cpp
   Faults/PolyLine.cpp
-  
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
@@ -294,4 +293,5 @@ set(SRC
   Simulation/SimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
+  Basic/AFunction.cpp
 )

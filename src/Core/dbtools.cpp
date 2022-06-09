@@ -3759,7 +3759,7 @@ int db_compositional_transform(Db *db,
  ** \param[in]  polyline PolyLine structure
  **
  *****************************************************************************/
-int db_unfold_polyline(Db *db, int nvert, const PolyLine& polyline)
+int db_unfold_polyline(Db *db, const PolyLine& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, newx, newy;
@@ -3769,6 +3769,7 @@ int db_unfold_polyline(Db *db, int nvert, const PolyLine& polyline)
 
   error = 1;
   pldist = pldist0 = nullptr;
+  int nvert = polyline.getNVertices();
 
   /* Preliminary checks */
 

@@ -20,7 +20,9 @@
 #include <iostream>
 
 ALinearOpMulti::ALinearOpMulti()
-: _nIterMax(10000)
+: _temp(VectorVectorDouble())
+, _p(VectorVectorDouble())
+, _nIterMax(10000)
 , _eps(1.e-12)
 , _precondStatus(false)
 , _userInitialValue(false)
@@ -28,8 +30,6 @@ ALinearOpMulti::ALinearOpMulti()
 , _initialized(false)
 , _z(VectorVectorDouble())
 , _r(VectorVectorDouble())
-, _temp(VectorVectorDouble())
-, _p(VectorVectorDouble())
 , _timeCG(0)
 , _niterCG(0)
 , _numberCG(0)
@@ -115,20 +115,20 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
   Timer time;
 
-  nb = _prod(in,in);
+  nb = innerProduct(in,in);
 
 
   if(_userInitialValue)
   {
 
     evalDirect(out,_temp); //temp = Ax0 (x0 est stocké dans out)
-    _diff(_temp,in,_r);    //r=b-Ax0
+    diff(_temp,in,_r);    //r=b-Ax0
   }
   else
   {
 
-    _fillVal(out,0.);
-    _fillVal(_temp,0.); // temp = Ax0=0
+    fillVal(out,0.);
+    fillVal(_temp,0.); // temp = Ax0=0
     _copyVals(in,_r);   // r = b
   }
 
@@ -136,14 +136,14 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   {
     _precond->evalDirect(_r,_temp); //z=Mr
     _copyVals(_temp,_p); //p=z
-    rsold=_prod(_r,_temp); //<r, z>
-    crit=_prod(_r,_r);  //<r,r>
+    rsold=innerProduct(_r,_temp); //<r, z>
+    crit=innerProduct(_r,_r);  //<r,r>
 
   }
   else
   {
     _copyVals(_r,_p); //p=r (=z)
-    crit=rsold=_prod(_r,_r);
+    crit=rsold=innerProduct(_r,_r);
   }
 
   crit/=nb;
@@ -155,7 +155,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   {
     niter++;
     evalDirect(_p,_temp); //temp = Ap
-    alpha = rsold / _prod(_temp,_p); // r'r/p'Ap
+    alpha = rsold / innerProduct(_temp,_p); // r'r/p'Ap
     //std::cout<<"alpha "<<alpha<<" "<< _prod(_p,_p)<<std::endl;
     _linearComb(1.,out,alpha,_p,out);//x=x+alpha p
     _linearComb(1.,_r,-alpha,_temp,_r); //r=r-alpha*Ap
@@ -163,12 +163,12 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     if(_precondStatus)
     {
       _precond->evalDirect(_r,_temp); //z=Mr
-      rsnew=_prod(_r,_temp); //r'z
+      rsnew=innerProduct(_r,_temp); //r'z
       _linearComb(1.,_temp,rsnew/rsold,_p,_p); //p=z+beta p
     }
     else
     {
-      rsnew=_prod(_r,_r);
+      rsnew=innerProduct(_r,_r);
       crit=rsnew/nb;
       _linearComb(1.,_r,rsnew/rsold,_p,_p);//p=r+beta p
 
@@ -256,7 +256,7 @@ void ALinearOpMulti::printStatCG(void) const
  ** \param[in]  y      Second array
  **
  *****************************************************************************/
-double ALinearOpMulti::_prod(const VectorDouble& x,
+double ALinearOpMulti::innerProduct(const VectorDouble& x,
                              const VectorDouble& y) const
 {
   double prod = 0.;
@@ -278,23 +278,19 @@ double ALinearOpMulti::_prod(const VectorDouble& x,
  ** \param[in]  y      Second array
  **
  *****************************************************************************/
-double ALinearOpMulti::_prod(const VectorVectorDouble& x,
+double ALinearOpMulti::innerProduct(const VectorVectorDouble& x,
                              const VectorVectorDouble& y) const
 {
-  double prod = 0.;
-  int n = sizes();
-  for (int is=0; is<n; is++)
-  {
-    for(int i=0; i<size(is);i++)
-    {
-      prod += x[is][i] * y[is][i];
-    }
-  }
-  return prod;
+  double s = 0.;
+
+  for (int i = 0; i<(int)x.size();i++)
+    s+= ut_vector_inner_product(x[i],y[i]);
+
+  return s;
 }
 
 
-void ALinearOpMulti::_diff(const VectorVectorDouble& in1,
+void ALinearOpMulti::diff(const VectorVectorDouble& in1,
                            const VectorVectorDouble& in2,
                            VectorVectorDouble& out) const
 {
@@ -326,17 +322,36 @@ void ALinearOpMulti::_linearComb(double val1,
   }
 }
 
-void ALinearOpMulti::_fillVal(VectorVectorDouble& vect, double val) const
+void ALinearOpMulti::prodScalar(double val1,
+                                const VectorVectorDouble& in1,
+                                VectorVectorDouble& out) const
 {
   for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
-      vect[is][i] = val;
+      out[is][i] = val1 * in1[is][i];
     }
   }
 }
+void ALinearOpMulti::fillVal(VectorVectorDouble& vect, double val) const
+{
+  for (auto &e : vect)
+  {
+    ut_vector_fill_inplace(e, val);
+  }
+}
 
+double ALinearOpMulti::max(const VectorVectorDouble& vect) const
+{
+  double val = ut_vector_max(vect[0]);
+
+  for (int i = 1; i < (int)vect.size(); i++)
+  {
+    val = MAX(val,  ut_vector_max(vect[i]));
+  }
+  return val;
+}
 void ALinearOpMulti::_updated()const
 {
   _initialized=false;

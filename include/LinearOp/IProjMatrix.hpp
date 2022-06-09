@@ -20,8 +20,6 @@ public:
   virtual ~IProjMatrix() { }
   virtual int point2mesh(const VectorDouble& in, VectorDouble& out) const = 0;
   virtual int mesh2point(const VectorDouble& in, VectorDouble& out) const = 0;
-  virtual double getMaxAtA() const { return TEST;}
-  virtual double getMaxAtDinvA(const VectorDouble& /*D*/) const { return TEST;}
   virtual int getApexNumber() const = 0;
   virtual int getPointNumber() const = 0;
 };

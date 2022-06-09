@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/AException.hpp"
+#include "Basic/AFunction.hpp"
 #include "Basic/Vector.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
@@ -43,6 +44,15 @@ void Chebychev::init(int ncMax,int nDisc,double a,double b,bool verbose)
   _verbose = verbose;
 }
 
+int Chebychev::fit(AFunction* f,
+                   double a ,
+                   double b ,
+                   double tol )
+{
+  std::function<double(double)> func = [f](double val){return f->eval(val);};
+  return fit(func,a,b,tol);
+
+}
 
 int Chebychev::fit(std::function<double(double)> f, double a, double b, double tol)
 {
@@ -190,11 +200,43 @@ double Chebychev::eval(double x) const
    return y;
 }
 
+<<<<<<< HEAD
 void Chebychev::evalOp(const ALinearOpMulti* /*Op*/,
                        const VectorVectorDouble& /*in*/,
                        VectorVectorDouble& /*out*/) const
+=======
+void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const
+>>>>>>> 2e20ed1bbc9a88ae9ebf25538ddeb586e5ae54f5
 {
+  double v1 = 2. / (_b - _a);
+  double v2 = -(_b + _a) / (_b - _a);
+  VectorVectorDouble*   y = &in;
+  VectorVectorDouble* tm1 = &Op->_temp;
+  VectorVectorDouble* tm2 = &Op->_p;
+  VectorVectorDouble* swap;
 
+  //remplir tm1 de 0
+    Op->fillVal(out,0.);
+    Op->evalDirect(in,*tm1);
+    Op->_linearComb(v1,*tm1,v2,in,*tm1);
+    Op->_linearComb(_coeffs[0],in,_coeffs[1],*tm1,out);
+
+
+   /* Loop on the AChebychev polynomials */
+    v1 *= 2.;
+    v2 *= 2.;
+
+    for (int ib=2; ib<(int) _coeffs.size(); ib++)
+    {
+      Op->evalDirect(*tm1,*tm2);
+      Op->_linearComb(v1, *tm2, v2, *tm1, *tm2);
+      Op->diff(*y,*tm2,*tm2);
+      Op->prodScalar(_coeffs[ib],*y,out);
+      swap = y;
+      y = tm1;
+      tm1 = tm2;
+      tm2 = swap;
+    }
 }
 
 void Chebychev::evalOp(cs* S,const VectorDouble& x,VectorDouble& y) const

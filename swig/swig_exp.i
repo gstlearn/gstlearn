@@ -91,6 +91,7 @@ class IClonable{};
 %include Basic/Limits.hpp
 %include Basic/Utilities.hpp
 %include Basic/CSVformat.hpp
+%include Basic/AFunction.hpp
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
 %include Basic/RepeatMacro.hpp
@@ -273,6 +274,8 @@ class IClonable{};
 %include Matrix/MatrixSquareGeneral.hpp
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
+
+%include Polynomials/Chebychev.hpp
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
