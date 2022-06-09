@@ -122,10 +122,10 @@ void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
   double b = ranges.second;
   logPoly.setA(a);
   logPoly.setB(b);
+  logPoly.setNcMax(10000);
   std::function<double(double)> f;
-  f = [this](double val){return log(val);};
-  logPoly.fit(f,a,b);
-  logPoly.display();
+  f = [] (double val){return log(val);};
+  logPoly.fit(f,a,b,EPSILON4);
 }
 
 double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
@@ -152,7 +152,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
       ut_vector_simulate_gaussian_inplace(e);
     }
 
-     logPoly.evalOp(this,_work2,_work3);
+     logPoly.evalOp(this,gauss,_work3);
      val += innerProduct(gauss,_work3);
   }
 
@@ -229,12 +229,10 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
                                               VectorVectorDouble& out) const
 {
   _init();
-
+  //fillVal(out,0.);
   AtA(in,_work2);
   for (int imod = 0; imod < sizes(); imod++)
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
-
-
   _linearComb(1., _work2, 1., out, out);
 
 }

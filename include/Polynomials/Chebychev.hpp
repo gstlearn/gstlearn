@@ -34,7 +34,7 @@ public:
           double a = 0.,
           double b = 1.,
           double tol = EPSILON5) override;
-  int fit(AFunction* f,
+  int fit2(AFunction* f,
             double a = 0.,
             double b = 1.,
             double tol = EPSILON5);

@@ -303,6 +303,19 @@ void ALinearOpMulti::diff(const VectorVectorDouble& in1,
   }
 }
 
+
+void ALinearOpMulti::sum(const VectorVectorDouble& in1,
+         const VectorVectorDouble& in2,
+         VectorVectorDouble& out) const
+{
+  for(int is = 0;is<sizes();is++)
+  {
+    for(int i = 0;i<size(is);i++)
+    {
+      out[is][i] = in2[is][i] + in1[is][i];
+    }
+  }
+}
 /**
  * out = val1 * in1 + val2  in2
  */
@@ -334,6 +347,20 @@ void ALinearOpMulti::prodScalar(double val1,
     }
   }
 }
+
+void ALinearOpMulti::addProdScalar(double val1,
+                                   const VectorVectorDouble& in1,
+                                   VectorVectorDouble& out) const
+{
+  for (int is = 0; is < sizes(); is++)
+  {
+    for (int i = 0; i < size(is); i++)
+    {
+      out[is][i] += val1 * in1[is][i];
+    }
+  }
+}
+
 void ALinearOpMulti::fillVal(VectorVectorDouble& vect, double val) const
 {
   for (auto &e : vect)

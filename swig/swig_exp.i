@@ -1,6 +1,7 @@
 %ignore *::operator=;
 
-
+%feature(director) AFunction;
+%module(directors="1") gstlearn
 %{
 #define SWIG_FILE_WITH_INIT
 // This is for numpy.i (see below). To be moved in python swig.
@@ -154,6 +155,8 @@ class IClonable{};
 %include Polynomials/ClassicalPolynomial.hpp
 %include Polynomials/Hermite.hpp
 %include Polynomials/MonteCarlo.hpp
+%include Polynomials/Chebychev.hpp
+
 
 %include LinearOp/ALinearOp.hpp
 %include LinearOp/ALinearOpMulti.hpp
@@ -275,8 +278,6 @@ class IClonable{};
 %include Matrix/MatrixSquareSymmetric.hpp
 %include Matrix/MatrixInt.hpp
 
-%include Polynomials/Chebychev.hpp
-
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
 %include API/ESPDECalcMode.hpp
@@ -365,6 +366,5 @@ class IClonable{};
 
 /// https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
 %feature("director");
-
 // For suppressing SWIG warning for overloaded methods
 #pragma SWIG nowarn=509

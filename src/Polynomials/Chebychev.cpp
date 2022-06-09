@@ -44,7 +44,7 @@ void Chebychev::init(int ncMax,int nDisc,double a,double b,bool verbose)
   _verbose = verbose;
 }
 
-int Chebychev::fit(AFunction* f,
+int Chebychev::fit2(AFunction* f,
                    double a ,
                    double b ,
                    double tol )
@@ -71,9 +71,10 @@ int Chebychev::fit(std::function<double(double)> f, double a, double b, double t
    while(value <= b)
    {
      int numloc = _countCoeffs(f,value,a,b);
-     if (numloc > number) number = numloc;
+     number = MAX(number,numloc);
      value  += incr;
    }
+
 
    /* Optional printout  */
 
@@ -100,24 +101,27 @@ int Chebychev::fit(std::function<double(double)> f, double a, double b, double t
 
 int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,double b,double tol)const
 {
-  double y, y0, T1, Tx, Tm1, Tm2;
+  double y, y0, xc, Tx, Tm1, Tm2;
 
   /* Get the true value  */
 
   y0 = f(x);
+  double normy0 = MAX(y0 * y0, EPSILON3);
 
   /* Calculate the approximate value until tolerance is reached */
-
-  T1 = 2 * (x - a) / (b - a) - 1.;
-  y = _coeffs[0] + _coeffs[1] * T1;
-  if (ABS(y * y - y0 * y0) / (y * y) < tol) return (2);
-  Tm1 = T1;
+  xc = 2 * (x - a) / (b - a) - 1.;
+  y = _coeffs[0] + _coeffs[1] * xc;
+  if (ABS(y * y - y0 * y0) / normy0 < tol) return (2);
   Tm2 = 1.;
+  Tm1 = xc;
+
   for (int i = 2; i < _ncMax; i++)
   {
-    Tx = 2. * T1 * Tm1 - Tm2;
+    Tx = 2. * Tm1 * xc - Tm2;
     y += _coeffs[i] * Tx;
-    if (ABS(y * y - y0 * y0) / (y * y) < tol) return (i + 1);
+    if (ABS(y * y - y0 * y0) / normy0 < tol)
+      return (i + 1);
+
     Tm2 = Tm1;
     Tm1 = Tx;
   }
@@ -204,32 +208,43 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVe
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
-  VectorVectorDouble*   y = &in;
+  // Initialization
+
+  VectorVectorDouble* tm2 = &in;
   VectorVectorDouble* tm1 = &Op->_temp;
-  VectorVectorDouble* tm2 = &Op->_p;
+  VectorVectorDouble* t0 = &Op->_p;
   VectorVectorDouble* swap;
 
-  //remplir tm1 de 0
-    Op->fillVal(out,0.);
-    Op->evalDirect(in,*tm1);
-    Op->_linearComb(v1,*tm1,v2,in,*tm1);
-    Op->_linearComb(_coeffs[0],in,_coeffs[1],*tm1,out);
+  // tm1 = v1 Op tm2 + v2 tm2
+    Op->evalDirect(*tm2,*tm1);
+    Op->_linearComb(v1,*tm1,v2,*tm2,*tm1);
+
+    Op->_linearComb(_coeffs[0],*tm2,_coeffs[1],*tm1,out);
 
 
    /* Loop on the AChebychev polynomials */
+    // Op * = 2
     v1 *= 2.;
     v2 *= 2.;
 
     for (int ib=2; ib<(int) _coeffs.size(); ib++)
     {
-      Op->evalDirect(*tm1,*tm2);
-      Op->_linearComb(v1, *tm2, v2, *tm1, *tm2);
-      Op->diff(*y,*tm2,*tm2);
-      Op->prodScalar(_coeffs[ib],*y,out);
-      swap = y;
-      y = tm1;
-      tm1 = tm2;
-      tm2 = swap;
+      // t0 = (v1 Op + v2 I) tm1
+      Op->evalDirect(*tm1,*t0);
+      Op->_linearComb(v1, *t0, v2, *tm1, *t0);
+
+      // t0 = t0 - tm2
+
+      Op->diff(*tm2,*t0,*t0);
+
+      // out += coeff * y
+      Op->addProdScalar(_coeffs[ib],*t0,out);
+
+      // swap
+      swap = tm2;
+      tm2 = tm1;
+      tm1 = t0;
+      t0 = swap;
     }
 }
 
