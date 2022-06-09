@@ -384,7 +384,7 @@ std::pair<double,double> PrecisionOp::getRangeEigenVal(int ndiscr)
 
   double sill = _cova->getSill(0,0);
   double sMax = _shiftOp->getMaxEigenValue();
-  VectorDouble val;
+  VectorDouble val(ndiscr);
   double x = 0;
   double delta = sMax/(ndiscr-1);
   for(int i = 0; i < ndiscr; i++)

@@ -40,8 +40,6 @@ public:
                                  double radius,
                                  int flag_exact = 0,
                                  int verbose = 0);
-  double getMaxAtA() const override;
-  double getMaxAtDinvA(const VectorDouble& D) const override;
   int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
   int mesh2point(const VectorDouble& in, VectorDouble& out) const override;
   int getApexNumber() const override { return _nApices; }

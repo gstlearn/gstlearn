@@ -38,7 +38,7 @@ public:
   double computeProfiledLogLike() const;
   VectorDouble getCoeffs();
   void setDriftCoeffs(VectorDouble coeffs);
-  double computeLogDet() const;
+  double computeLogDet(int nbsimus = 1,int seed = 1234) const;
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
 

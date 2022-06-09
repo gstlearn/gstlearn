@@ -32,6 +32,6 @@ public:
   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
                        VectorDouble& out,const VectorVectorDouble workpoly,int iapex,int igparam)const;
   void evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const ;
-  void evalOp(const ALinearOpMulti* Op, const VectorVectorDouble& in, VectorVectorDouble& out)const override {}
+  void evalOp(const ALinearOpMulti* /*Op*/, VectorVectorDouble& /*in*/, VectorVectorDouble& /*out*/)const override {}
   void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
 };

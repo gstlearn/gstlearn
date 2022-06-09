@@ -16,6 +16,7 @@
 #include "csparse_f.h"
 
 #include "Basic/Vector.hpp"
+#include "Basic/AFunction.hpp"
 #include "Basic/ArgumentTest.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AStringFormat.hpp"
@@ -267,6 +268,7 @@
 #include "OutputFormat/GridXYZ.hpp"
 #include "OutputFormat/GridZycor.hpp"
 
+#include "Polynomials/Chebychev.hpp"
 #include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuTurningBands.hpp"
 #include "Simulation/TurningDirection.hpp"

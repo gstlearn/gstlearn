@@ -41,28 +41,35 @@ public:
   /*! Print out the Conjugate Gradient statistics */
   void printStatCG() const;
 
-protected:
-  void _init() const;
-  virtual void _evalDirect(const VectorVectorDouble& in,
-                           VectorVectorDouble& out) const = 0;
+
   void _linearComb(double val1,
                    const VectorVectorDouble& in1,
                    double val2,
                    const VectorVectorDouble& in2,
                    VectorVectorDouble& out) const;
+  void prodScalar(double val,
+                  const VectorVectorDouble& in,
+                  VectorVectorDouble& out) const;
+
   void _copyVals(const VectorVectorDouble& in,
                  VectorVectorDouble& out) const;
   void _updated() const;
-  double _prod(const VectorDouble& x,const VectorDouble& y) const;
-  double _prod(const VectorVectorDouble& x,
+  double innerProduct(const VectorDouble& x,const VectorDouble& y) const;
+  double innerProduct(const VectorVectorDouble& x,
                const VectorVectorDouble& y) const;
+  double max(const VectorVectorDouble& vect) const;
+  void  fillVal(VectorVectorDouble& vect,double val)const;
+  void diff(const VectorVectorDouble&,
+              const VectorVectorDouble&,
+              VectorVectorDouble&) const;
 
-private:
-  void _diff(const VectorVectorDouble&,
-             const VectorVectorDouble&,
-             VectorVectorDouble&) const;
+  mutable VectorVectorDouble _temp;
+  mutable VectorVectorDouble _p;
 
-  void _fillVal(VectorVectorDouble& vect,double val)const;
+protected:
+  void _init() const;
+  virtual void _evalDirect(const VectorVectorDouble& in,
+                           VectorVectorDouble& out) const = 0;
 
 private:
   int                       _nIterMax;
@@ -77,8 +84,7 @@ private:
   mutable bool               _initialized;
   mutable VectorVectorDouble _z;
   mutable VectorVectorDouble _r;
-  mutable VectorVectorDouble _temp;
-  mutable VectorVectorDouble _p;
+
 
   // Environment parameters
 

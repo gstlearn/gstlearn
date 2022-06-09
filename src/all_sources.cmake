@@ -209,7 +209,6 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/Array.cpp
-  
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
@@ -292,4 +291,5 @@ set(SRC
   Simulation/SimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
+  Basic/AFunction.cpp
 )

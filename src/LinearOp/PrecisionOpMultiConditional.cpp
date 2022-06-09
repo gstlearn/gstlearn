@@ -92,23 +92,24 @@ std::pair<double,double> PrecisionOpMultiConditional::rangeEigenValQ() const
   return result;
 }
 
+/* Evaluate the max along columns of the sum along lines of AtA. */
+/*Since the terms of A are positive, we can compute AtA * 1_n  and take the max */
+
 double PrecisionOpMultiConditional::getMaxEigenValProj() const
 {
-  double result = _multiProjData[0]->getMaxAtDinvA(_varianceData);
 
-  for (int i = 1; i < (int)_multiProjData.size(); i++)
-  {
-    double vals =_multiProjData[i]->getMaxAtDinvA(_varianceData);
-    result = MAX(result,vals);
-  }
-
-  return result;
+  _allocate(3);
+  fillVal(_work3,1.);
+  AtA(_work3,_work2);
+  return ALinearOpMulti::max(_work2);
 }
 
 std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() const
 {
   std::pair<double,double> result = rangeEigenValQ();
+  std::cout << "Q " << result.first << "   " <<result.second << std::endl;
   result.second += getMaxEigenValProj();
+  std::cout << "Q + AtDiA" << result.second << std::endl;
   return result;
 }
 
@@ -124,6 +125,7 @@ void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
   std::function<double(double)> f;
   f = [this](double val){return log(val);};
   logPoly.fit(f,a,b);
+  logPoly.display();
 }
 
 double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
@@ -132,6 +134,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
   preparePoly(logPoly);
   VectorVectorDouble gauss(_ncova);
   VectorVectorDouble out(_ncova);
+  law_set_random_seed(seed);
 
   for (int i = 0; i<_ncova; i++)
   {
@@ -149,8 +152,8 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
       ut_vector_simulate_gaussian_inplace(e);
     }
 
-//    logPoly.evalOp()
-//    val += gauss[i] * result[i];
+     logPoly.evalOp(this,_work2,_work3);
+     val += innerProduct(gauss,_work3);
   }
 
  return val / nsimus;
@@ -168,11 +171,46 @@ double PrecisionOpMultiConditional::computeLogDetQ(int nsimus, int seed) const
 }
 
 
+double PrecisionOpMultiConditional::sumLogVar() const
+{
+  double s = 0.;
+  for (auto &e : _varianceData)
+  {
+    s += log(e);
+  }
+  return s;
+}
+
+// We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
 double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) const
 {
   double result = computeLogDetOp(nsimus,seed);
-  result += computeLogDetQ(nsimus,seed);
+  result -= computeLogDetQ(nsimus,seed);
+  result += sumLogVar();
   return result;
+}
+
+void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVectorDouble& out) const
+{
+
+  for(auto &e : _workdata)
+  {
+    e = 0.;
+  }
+
+  for (int imod = 0; imod < sizes(); imod++)
+  {
+    _multiProjData[imod]->mesh2point(in[imod], _work1);
+    ut_vector_add_inplace(_workdata,_work1);
+  }
+
+  ut_vector_divide_vec(_workdata, _varianceData);
+
+  for (int imod = 0; imod < sizes(); imod++)
+  {
+    _multiProjData[imod]->point2mesh(_workdata, out[imod]);
+  }
+
 }
 
 /*****************************************************************************/
@@ -192,24 +230,10 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
 {
   _init();
 
-  for(auto &e : _workdata)
-  {
-    e = 0.;
-  }
-
+  AtA(in,_work2);
   for (int imod = 0; imod < sizes(); imod++)
-  {
-    _multiProjData[imod]->mesh2point(in[imod], _work1);
-    ut_vector_add_inplace(_workdata,_work1);
-  }
-
-  ut_vector_divide_vec(_workdata, _varianceData);
-
-  for (int imod = 0; imod < sizes(); imod++)
-  {
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
-     _multiProjData[imod]->point2mesh(_workdata, _work2[imod]);
-   }
+
 
   _linearComb(1., _work2, 1., out, out);
 
@@ -241,25 +265,31 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
 
 }
 
-void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDouble& result) const
+void PrecisionOpMultiConditional::_allocate(int i) const
 {
-  if(static_cast<int>(_work3.size()) <= 0)
+  if (i == 3)
   {
     _work3.resize(sizes());
   }
+  for(int i = 0; i<sizes();i++)
+  {
+    if(_work3[i].empty())
+    {
+      _work3[i].resize(size(i));
+    }
+  }
+
+}
+
+void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDouble& result) const
+{
 
   if(static_cast<int>(_work1ter.size()) <= 0)
   {
       _work1ter.resize(_ndat);
   }
 
-  for(int i = 0; i<sizes();i++)
-  {
-    if(_work3[i].empty())
-    {
-    _work3[i].resize(size(i));
-    }
-  }
+  _allocate(3);
 
   if(_work1bis.empty())
   {

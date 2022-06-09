@@ -57,6 +57,7 @@ GSTLEARN_EXPORT bool ut_vector_same(const VectorDouble& v1,
                                     const VectorDouble& v2,
                                     double eps = EPSILON10);
 GSTLEARN_EXPORT bool ut_ivector_same(const VectorInt& v1, const VectorInt& v2);
+GSTLEARN_EXPORT void ut_vector_fill_inplace(VectorDouble &vec, double value);
 GSTLEARN_EXPORT void ut_vector_fill(VectorDouble& vec, double v, int size = 0);
 GSTLEARN_EXPORT void ut_ivector_fill(VectorInt& vec, int v, int size = 0);
 GSTLEARN_EXPORT VectorDouble ut_vector_concatenate(const VectorDouble& vec1,

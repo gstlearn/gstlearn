@@ -37,16 +37,18 @@ public:
   std::pair<double,double> computeRangeEigenVal() const;
   std::pair<double,double> rangeEigenValQ() const;
   double getMaxEigenValProj() const;
+  double sumLogVar() const;
   double computeLogDetOp(int nsimus = 1, int seed = 123) const;
   double computeLogDetQ(int nsimus = 1, int seed = 123) const;
   double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
   void preparePoly(Chebychev& poly) const;
-
+  void AtA(const VectorVectorDouble& in,VectorVectorDouble& out) const;
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 
 protected:
   void _evalDirect(const VectorVectorDouble& in,
                    VectorVectorDouble& out) const override;
+  void _allocate(int i) const;
 
 private:
   std::vector<PrecisionOp*>  _multiPrecisionOp;

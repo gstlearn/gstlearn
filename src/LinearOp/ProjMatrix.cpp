@@ -191,25 +191,6 @@ int ProjMatrix::mesh2point(const VectorDouble& in, VectorDouble& out) const
   return 0;
 }
 
-double ProjMatrix::getMaxAtA() const
-{
-  cs* AtA;
-  AtA = cs_prod_norm_single(1, _Aproj);
-  double result = cs_maxsumabscol(AtA);
-  cs_spfree(AtA);
-  return result;
-
-}
-
-double ProjMatrix::getMaxAtDinvA(const VectorDouble& D) const
-{
-  cs* AtA;
-  VectorDouble Dinv = ut_vector_inverse(D);
-  AtA = cs_prod_norm_diagonal(1, _Aproj,Dinv);
-  double result = cs_maxsumabscol(AtA);
-  cs_spfree(AtA);
-  return result;
-}
 String ProjMatrix::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;

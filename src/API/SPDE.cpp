@@ -110,7 +110,6 @@ void SPDE::init(Model* model,
   bool useSel = true;
   VectorDouble varianceData;
   double totalSill = 0.;
-  ShiftOpCs* shiftOp;
   PrecisionOp* precision;
   MeshETurbo* mesh;
   ProjMatrix* proj;
@@ -132,12 +131,12 @@ void SPDE::init(Model* model,
         mesh = new MeshETurbo();
         mesh->initFromCova(*cova,field,18,5,useSel,verbose);
         _simuMeshing.push_back(mesh);
-        precision = new PrecisionOp(mesh, model,icov, EPowerPT::MINUSHALF);
+         precision = new PrecisionOp(mesh, model,icov, EPowerPT::MINUSHALF);
         _pilePrecisions.push_back(precision);
-        proj = new ProjMatrix(_data,mesh);
+         proj = new ProjMatrix(_data,mesh);
         _pileProjMatrix.push_back(proj);
         _precisionsSimu.push_back(precision,proj);
-        _workingSimu.push_back(VectorDouble(shiftOp->getSize()));
+        _workingSimu.push_back(VectorDouble(precision->getSize()));
       }
       if (_calculKriging() || _requireCoeffs)
       {
@@ -149,7 +148,7 @@ void SPDE::init(Model* model,
         _pilePrecisions.push_back(precision);
         _pileProjMatrix.push_back(proj);
         _precisionsKriging.push_back(precision,proj);
-        _workKriging.push_back(VectorDouble(shiftOp->getSize()));
+        _workKriging.push_back(VectorDouble(precision->getSize()));
       }
     }
     else
@@ -157,8 +156,8 @@ void SPDE::init(Model* model,
       my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K) and Markov (MARKOV)");
     }
   }
-
-  // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
+//
+//  // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
   {
     if(dat->getVarianceErrorNumber() > 0)
@@ -179,6 +178,7 @@ void SPDE::init(Model* model,
   _precisionsKriging.setVarianceDataVector(varianceData);
   _precisionsSimu.setVarianceDataVector(varianceData);
 }
+
 
 void SPDE::computeKriging() const
 {
@@ -333,10 +333,11 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
 
 
 
-double SPDE::computeLogDet() const
+double SPDE::computeLogDet(int nbsimus,int seed) const
 {
-  //_precisionsKriging.get();
-  return 1.;
+  double val;
+  val = _precisionsKriging.computeTotalLogDet(nbsimus,seed);
+  return val;
 }
 double SPDE::computeLogLike() const
 {
