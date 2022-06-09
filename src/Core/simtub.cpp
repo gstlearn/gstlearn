@@ -468,10 +468,12 @@ static int st_check_simtub_environment(Db *dbin,
               ndim);
       return 1;
     }
-    if (neighparam->getFlagXvalid() && neighparam->getType() != ENeigh::MOVING)
+    if (neighparam->getFlagXvalid() &&
+        neighparam->getType() != ENeigh::MOVING &&
+        neighparam->getType() != ENeigh::MOVING_WITH_SCREENS)
     {
       messerr(
-          "The Cross-Validation can only be processed with Moving neighborhood");
+        "The Cross-Validation can only be processed with Moving neighborhood");
       return 1;
     }
   }

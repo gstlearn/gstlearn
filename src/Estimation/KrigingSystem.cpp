@@ -617,7 +617,10 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
 double KrigingSystem::_continuousMultiplier(int rank1,int rank2, double eps)
 {
   if (_neighParam == nullptr) return (0.);
-  if (_neighParam->getType() != ENeigh::MOVING) return (0.);
+  if (_neighParam->getType() != ENeigh::MOVING &&
+      _neighParam->getType() != ENeigh::MOVING_WITH_SCREENS) {
+    return (0.);
+  }
   const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
   int ndim = getNDim();
   VectorDouble dd(ndim);

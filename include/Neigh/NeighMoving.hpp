@@ -39,7 +39,7 @@ public:
   virtual ENeigh getType() const override { return ENeigh::MOVING; }
   virtual bool getFlagContinuous() const override { return (! FFFF(_distCont)); }
 
-  int reset(int ndim,
+  virtual int reset(int ndim,
             bool flag_xvalid,
             int nmaxi,
             double radius,
@@ -50,7 +50,7 @@ public:
             VectorDouble angles = VectorDouble(),
             double distcont = TEST);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighMoving* create(int ndim,
                              bool flag_xvalid,
                              int nmaxi,
@@ -103,7 +103,7 @@ private:
   int _nSMax;                    /* Maximum number of points per 2-D sector */
   double _radius;                /* Maximum isotropic distance */
   bool   _flagContinuous;        /* true for continuous moving neighborhood */
-  double _distCont;              /* Distance for continuous ANeighParamborhood */
+  double _distCont;              /* Distance for continuous ANeighParam */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
 };

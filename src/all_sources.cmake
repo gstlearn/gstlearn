@@ -261,6 +261,7 @@ set(SRC
   Neigh/NeighUnique.cpp
   Neigh/NeighImage.cpp
   Neigh/NeighMoving.cpp
+  Neigh/NeighMovingWithScreens.cpp
   Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp

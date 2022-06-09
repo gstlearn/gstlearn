@@ -14,6 +14,7 @@
 #include "Neigh/NeighWork.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighMovingWithScreens.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -215,6 +216,10 @@ VectorInt NeighWork::select(Db *dbout,
     case ENeigh::E_MOVING:
       if (_moving(dbout, iech_out, ranks)) return VectorInt();
       break;
+
+    case ENeigh::E_MOVING_WITH_SCREENS:
+      if (_movingWithScreens(dbout, iech_out, ranks)) return VectorInt();
+      break;
   }
 
   if (doCompress)
@@ -414,6 +419,101 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
 /****************************************************************************/
 /*!
+ **  Moving neighborhood search using screens
+ **
+ **  Note: This is a mere copy/paste of NeighWork::_moving() that additionally
+ **  discards input samples that are not "visible" from the target location
+ **  (i.e., that are separated by a screen).
+ **
+ ** \return  Error return code
+ ** \return  0 : No error
+ ** \return  1 : The number of data is smaller than the minimum number of
+ ** \return      data in Moving Neighborhood
+ **
+ ** \param[in]  dbout     Output Db structure
+ ** \param[in]  iech_out  Rank of the target in the output Db structure
+ ** \param[in]  eps       Tolerance
+ **
+ ** \param[out]  ranks    Vector of samples elected in the Neighborhood
+ **
+ *****************************************************************************/
+int NeighWork::_movingWithScreens(Db *dbout, int iech_out, VectorInt& ranks, double eps)
+{
+  const auto* neighM = dynamic_cast<const NeighMovingWithScreens*>(_neighParam);
+  const auto nech = _dbin->getSampleNumber();
+  int isect = 0;
+  if (nech < neighM->getNMini()) return 1;
+
+  /* Loop on the data points */
+
+  double distmax = 0.;
+  int nsel = 0;
+  for (int iech = 0; iech < nech; iech++)
+  {
+    /* Discard the masked input sample */
+
+    if (! _dbin->isActive(iech)) continue;
+
+    /* Discard samples where all variables are undefined */
+
+    if (_discardUndefined(iech)) continue;
+
+    /* Discard the target sample for the cross-validation option */
+
+    if (_neighParam->getFlagXvalid()) {
+      if (_xvalid(dbout, iech, iech_out)) continue;
+    }
+
+    /* Calculate the distance between data and target */
+
+    double dist = _movingDist(dbout, iech, iech_out);
+    if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
+    if (dist > distmax) distmax = dist;
+
+    /* Checks whether a screen blocks the visibility between data and target */
+
+    if (_movingIntersectScreen(dbout, iech, iech_out)) continue;
+
+    /* Calculate the angular sector to which the sample belongs */
+
+    if (neighM->getFlagSector())
+      isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+
+    /* The sample may be selected */
+
+    _movingInd[nsel] = iech;
+    _movingDst[nsel] = dist;
+    ranks[iech] = isect;
+    nsel++;
+  }
+  if (nsel < neighM->getNMini()) return 1;
+
+  /* Slightly modify the distances in order to ensure the sorting results */
+  /* In the case of equal distances                                       */
+
+  for (int isel = 0; isel < nsel; isel++)
+    _movingDst[isel] += distmax * isel * eps;
+
+  /* Sort the selected samples according to the distance */
+
+  ut_sort_double(0, nsel, _movingInd.data(), _movingDst.data());
+
+  /* For each angular sector, select the first sample up to the maximum */
+
+  if (neighM->getFlagSector() && neighM->getNSMax() > 0)
+  {
+    _movingSectorNsmax(nsel, ranks);
+    if (nsel < neighM->getNMini()) return 1;
+  }
+
+  /* Select the first data samples */
+  _movingSelect(nsel, ranks);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
  **  Discard a sample for which all variables are undefined
  **
  **  Returns 1 if all variables are undefined; 0 otherwise
@@ -515,6 +615,71 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   matrix_product(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
   dist = sqrt(dist);
   return dist;
+}
+
+/****************************************************************************/
+/*!
+ **  Returns true if the segment between the input sample and the target
+ **  intersects any of the screens, else false
+ **
+ ** \param[in]  dbout    output Db structure
+ ** \param[in]  iech_in  Rank of the sample in the input Db structure
+ ** \param[in]  iech_out Rank of the sample in the output Db structure
+ **
+ *****************************************************************************/
+bool NeighWork::_movingIntersectScreen(Db *dbout, int iech_in, int iech_out) const
+{
+  if (_dbin->getNDim() < 2) {
+    messerr("Cannot handle screens for space dimension < 2");
+  }
+  const NeighMovingWithScreens* neighMS = dynamic_cast<const NeighMovingWithScreens*>(_neighParam);
+  VectorDouble p0{ _dbin->getCoordinate(iech_in, 0), _dbin->getCoordinate(iech_in, 1) };
+  VectorDouble p1{ dbout->getCoordinate(iech_out, 0), dbout->getCoordinate(iech_out, 1) };
+  const auto range_x = std::minmax(p0[0], p1[0]);
+  const auto range_y = std::minmax(p0[1], p1[1]);
+  const auto x01 = p0[0] - p1[0];
+  const auto y01 = p0[1] - p1[1];
+  if (x01 == 0. && y01 == 0.) {
+    return false;
+  }
+  for (const auto &screen : neighMS->getScreens())
+  {
+    const auto &p2 = screen.first;
+    const auto &p3 = screen.second;
+    //If bounding boxes do not overlap, no intersection
+    const auto range_xs = std::minmax(p2[0], p3[0]);
+    if (range_x.first > range_xs.second || range_x.second < range_xs.first) continue;
+    const auto range_ys = std::minmax(p2[1], p3[1]);
+    if (range_y.first > range_ys.second || range_y.second < range_ys.first) continue;
+    // Check if segments [p0, p1] and [p2, p3] intersect
+    // https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection#Given_two_points_on_each_line_segment
+    const auto x02 = p0[0] - p2[0];
+    const auto y02 = p0[1] - p2[1];
+    const auto x23 = p2[0] - p3[0];
+    const auto y23 = p2[1] - p3[1];
+    // Screen blocks visibility if:
+    //   (0 <= t <= 1) && (0 <= u <= 1)
+    auto scaling = x01 * y23 - y01 * x23;
+    if (scaling != 0.)  // Segments are not colinear
+    {
+      scaling = 1. / scaling;
+      const auto t = scaling * (x02 * y23 - y02 * x23);
+      if (t < 0. || t > 1.) continue;
+      const auto u = scaling * (x02 * y01 - y02 * x01);
+      if (u < 0. || u > 1.) continue;
+    }
+    else // Case (colinear + bbox overlap): segments overlap if same y-intercept
+    {
+      // "Vertical" case: no y_intercept
+      if (x01 == 0. && p0[0] != p2[0]) continue;
+      // "Default" case
+      const auto b01 = (p0[0] * p1[1]) - (p1[0] * p0[1]) / x01;
+      const auto b23 = (p2[0] * p3[1]) - (p3[0] * p2[1]) / x23;
+      if (b01 != b23) continue;
+    }
+    return true;
+  }
+  return false;
 }
 
 /****************************************************************************/
@@ -693,7 +858,8 @@ void NeighWork::_display(const VectorInt& ranks)
       tab_prints(NULL, string.c_str());
     }
   }
-  if (_neighParam->getType() == ENeigh::MOVING)
+  if (_neighParam->getType() == ENeigh::MOVING ||
+      _neighParam->getType() == ENeigh::MOVING_WITH_SCREENS)
     tab_prints(NULL, "Sector");
   message("\n");
 
@@ -715,7 +881,8 @@ void NeighWork::_display(const VectorInt& ranks)
       for (int idim = 0; idim < ndim; idim++)
         tab_printg(NULL, _dbin->getBlockExtension(iech, idim));
     }
-    if (_neighParam->getType() == ENeigh::MOVING)
+    if (_neighParam->getType() == ENeigh::MOVING ||
+        _neighParam->getType() == ENeigh::MOVING_WITH_SCREENS)
       tab_printi(NULL, ranks[iech] + 1);
     message("\n");
     nsel++;

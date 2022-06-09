@@ -116,6 +116,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighMoving.hpp"
+#include "Neigh/NeighMovingWithScreens.hpp"
 #include "Neigh/NeighBench.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"

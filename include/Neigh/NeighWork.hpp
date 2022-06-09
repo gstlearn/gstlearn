@@ -42,11 +42,13 @@ private:
   void _unique(Db *dbout, int iech_out, VectorInt& ranks);
   void _bench(Db *dbout, int iech_out, VectorInt& ranks);
   int  _moving(Db *dbout, int iech_out, VectorInt& ranks, double eps = EPSILON9);
+  int  _movingWithScreens(Db *dbout, int iech_out, VectorInt& ranks, double eps = EPSILON9);
   bool _discardUndefined(int iech);
   int  _xvalid(Db *dbout, int iech_in, int iech_out, double eps = EPSILON9);
   int  _movingSectorDefine(double dx, double dy);
   void _movingSectorNsmax(int nsel, VectorInt& ranks);
   void _movingSelect(int nsel, VectorInt& ranks);
+  bool _movingIntersectScreen(Db *dbout, int iech_in, int iech_out) const;
   void _display(const VectorInt& ranks);
   double _movingDist(Db *dbout, int iech_in, int iech_out);
   void _checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks);
