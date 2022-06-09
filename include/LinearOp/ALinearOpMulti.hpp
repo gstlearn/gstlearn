@@ -50,7 +50,9 @@ public:
   void prodScalar(double val,
                   const VectorVectorDouble& in,
                   VectorVectorDouble& out) const;
-
+  void  addProdScalar(double val,
+                      const VectorVectorDouble& in,
+                      VectorVectorDouble& out) const;
   void _copyVals(const VectorVectorDouble& in,
                  VectorVectorDouble& out) const;
   void _updated() const;
@@ -63,6 +65,9 @@ public:
               const VectorVectorDouble&,
               VectorVectorDouble&) const;
 
+  void sum(const VectorVectorDouble&,
+                const VectorVectorDouble&,
+                VectorVectorDouble&) const;
   mutable VectorVectorDouble _temp;
   mutable VectorVectorDouble _p;
 

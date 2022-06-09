@@ -1,6 +1,13 @@
 // No need of %module keyword for python when building using cmake UseSWIG
 // TODO: restore directors feature (inheritance in target language)
-//%module(directors="1") gstlearn
+//
+%module(directors="1") gstlearn
+%feature(director) AFunction;
+
+
+
+%include stl.i
+%include std_complex.i
 
 // https://stackoverflow.com/a/26035360/3952924
 %import "doc/documentation.i"
@@ -8,8 +15,7 @@
 // Include C++ library SWIG interface (Keep Order !!!!)
 %include ../swig/swig_inc.i
 %include ../swig/swig_exp.i
-%include stl.i
-%include std_complex.i
+
 
 // For suppressing SWIG warning due to -keyword option
 #pragma SWIG nowarn=511

@@ -9,6 +9,6 @@ public:
   virtual ~AFunction(){};
 
 public :
-  virtual double eval(double x) const=0;
+  virtual double eval(double x) const {return x;};
 
 };
