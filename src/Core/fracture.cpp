@@ -13,6 +13,7 @@
 #include "geoslib_f_private.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Geometry.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 

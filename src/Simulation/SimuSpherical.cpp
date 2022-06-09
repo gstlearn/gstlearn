@@ -19,6 +19,7 @@
 #include "Simulation/SimuSphericalParam.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/MathFunc.hpp"
 
 #include <math.h>
 

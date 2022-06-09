@@ -24,6 +24,8 @@ GSTLEARN_EXPORT double getTEST();  // TODO getNAValue<double>
 GSTLEARN_EXPORT int    getITEST(); // TODO getNAValue<int>
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
+GSTLEARN_EXPORT double ut_deg2rad(double angle);
+GSTLEARN_EXPORT double ut_rad2deg(double angle);
 
 #define DOUBLE_NA TEST
 #define INT_NA    ITEST
@@ -54,3 +56,50 @@ public:
 
 template <typename T> inline T    getNAValue()     { return ValueNA<T>::getNA(); }
 template <typename T> inline bool isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
+
+// Other Utiity functions
+
+
+GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff);
+GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value);
+GSTLEARN_EXPORT void ut_sort_int(int safe, int nech, int *ind, int *value);
+GSTLEARN_EXPORT void ut_statistics(int nech,
+                                   double *tab,
+                                   double *sel,
+                                   double *wgt,
+                                   int *nval,
+                                   double *mini,
+                                   double *maxi,
+                                   double *delta,
+                                   double *mean,
+                                   double *stdv);
+GSTLEARN_EXPORT void ut_stats_mima(int nech,
+                   double *tab,
+                   double *sel,
+                   int *nvalid,
+                   double *mini,
+                   double *maxi);
+GSTLEARN_EXPORT void ut_stats_mima_print(const char *title, int nech, double *tab, double *sel);
+GSTLEARN_EXPORT void ut_facies_statistics(int nech,
+                                          double *tab,
+                                          double *sel,
+                                          int *nval,
+                                          int *mini,
+                                          int *maxi);
+GSTLEARN_EXPORT void ut_classify(int nech,
+                                 double *tab,
+                                 double *sel,
+                                 int nclass,
+                                 double start,
+                                 double pas,
+                                 int *nmask,
+                                 int *ntest,
+                                 int *nout,
+                                 int *classe);
+GSTLEARN_EXPORT double ut_median(double *tab, int ntab);
+GSTLEARN_EXPORT void ut_normalize(int ntab, double *tab);
+GSTLEARN_EXPORT double ut_cnp(int n, int k);
+GSTLEARN_EXPORT double* ut_pascal(int ndim);
+GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
+GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
+

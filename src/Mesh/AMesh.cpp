@@ -556,6 +556,7 @@ int AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
 ** \param[in]  coor      Vector of target coordinates
 ** \param[in]  corners   Vector of coordinates of mesh apices
 ** \param[in]  meshsize  Dimension of the mesh
+** \param[in]  eps       Tolerance
 **
 ** \param[out] weights   Array of barycentric weights (Dim: NApexPerMesh)
 **
@@ -565,11 +566,12 @@ int AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
 bool AMesh::_weightsInMesh(const VectorDouble& coor,
                            const VectorVectorDouble& corners,
                            double meshsize,
-                           VectorDouble& weights) const
+                           VectorDouble& weights,
+                           double eps) const
 {
   static double FACDIM[] = {0., 1., 2., 6.};
 
-  // Initialiations
+  // Initializations
   int ncorner = getNApexPerMesh();
   int ndim    = getNDim();
 
@@ -589,11 +591,11 @@ bool AMesh::_weightsInMesh(const VectorDouble& coor,
       kcorn++;
     }
     double ratio = ABS(mat.determinant()) / meshsize / FACDIM[ndim];
-    if (ratio < 0 || ratio > 1) return false;
+    if (ratio < -eps || ratio > 1 + eps) return false;
     weights[icorn] = ratio;
     total += ratio;
   }
-  if (ABS(total - 1) > 1.e-3) return false;
+  if (ABS(total - 1) > eps) return false;
   return true;
 }
 

@@ -29,6 +29,7 @@
 #include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
 #include "Variogram/ECalcVario.hpp"
+#include "Faults/PolyLine.hpp"
 
 // References
 #include "Covariances/CovCalcMode.hpp"
@@ -122,106 +123,11 @@ GSTLEARN_EXPORT int foxleg_f(int ndat,
 /* Prototyping the functions in util.c */
 /***************************************/
 
-GSTLEARN_EXPORT double ut_deg2rad(double angle);
-GSTLEARN_EXPORT double ut_rad2deg(double angle);
 GSTLEARN_EXPORT int get_mirror_sample(int nx, int ix);
-GSTLEARN_EXPORT void get_matrix(const char *title,
-                                int flag_sym,
-                                int flag_def,
-                                int nx,
-                                int ny,
-                                double valmin,
-                                double valmax,
-                                double *tab);
-GSTLEARN_EXPORT void get_rotation(const char *title,
-                                  int flag_def,
-                                  int ndim,
-                                  double *rot);
-GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *tab);
-GSTLEARN_EXPORT void ut_sort_int(int safe, int nech, int *ind, int *tab);
-GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff);
-GSTLEARN_EXPORT void ut_statistics(int nech,
-                                   double *tab,
-                                   double *sel,
-                                   double *wgt,
-                                   int *nval,
-                                   double *mini,
-                                   double *maxi,
-                                   double *delta,
-                                   double *mean,
-                                   double *stdv);
-GSTLEARN_EXPORT double ut_cnp(int n, int k);
-GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
 GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
                                        int flag_half,
                                        int verbose,
                                        int *nposs);
-GSTLEARN_EXPORT double* ut_pascal(int ndim);
-GSTLEARN_EXPORT double ut_median(double *tab, int ntab);
-GSTLEARN_EXPORT void ut_stats_mima(int nech,
-                                   double *tab,
-                                   double *sel,
-                                   int *nvalid,
-                                   double *mini,
-                                   double *maxi);
-GSTLEARN_EXPORT void ut_stats_mima_print(const char *title,
-                                         int nech,
-                                         double *tab,
-                                         double *sel);
-GSTLEARN_EXPORT void ut_facies_statistics(int nech,
-                                          double *tab,
-                                          double *sel,
-                                          int *nval,
-                                          int *mini,
-                                          int *maxi);
-GSTLEARN_EXPORT void ut_classify(int nech,
-                                 double *tab,
-                                 double *sel,
-                                 int nclass,
-                                 double start,
-                                 double pas,
-                                 int *nmask,
-                                 int *ntest,
-                                 int *nout,
-                                 int *classe);
-GSTLEARN_EXPORT void ut_normalize(int ntab, double *tab);
-GSTLEARN_EXPORT void ut_rotation_sincos(double angle,
-                                        double *cosa,
-                                        double *sina);
-GSTLEARN_EXPORT void ut_rotation_matrix_2D(double angle, double *rot);
-GSTLEARN_EXPORT void ut_rotation_matrix_3D(double alpha,
-                                           double beta,
-                                           double gamma,
-                                           double *rot);
-GSTLEARN_EXPORT void ut_rotation_matrix(int ndim,
-                                        const double *angles,
-                                        double *rot);
-GSTLEARN_EXPORT VectorDouble ut_rotation_matrix_VD(int ndim,
-                                                   const VectorDouble &angles);
-GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot);
-GSTLEARN_EXPORT int ut_rotation_check(double *rot, int ndim);
-GSTLEARN_EXPORT void ut_rotation_copy(int ndim,
-                                      const double *rotin,
-                                      double *rotout);
-GSTLEARN_EXPORT void ut_rotation_direction(double ct,
-                                           double st,
-                                           double *a,
-                                           double *codir);
-GSTLEARN_EXPORT int ut_angles_from_rotation_matrix(const double *rot,
-                                                   int ndim,
-                                                   double *angles);
-GSTLEARN_EXPORT void ut_angles_from_codir(int ndim,
-                                          const VectorDouble &codir,
-                                          VectorDouble &angles);
-GSTLEARN_EXPORT void ut_angles_to_codir(int ndim,
-                                        int ndir,
-                                        const VectorDouble &angles,
-                                        VectorDouble &codr);
-GSTLEARN_EXPORT void merge_boxes(int ndim,
-                                 VectorDouble& mini1,
-                                 VectorDouble& maxi1,
-                                 VectorDouble& mini2,
-                                 VectorDouble& maxi2);
 GSTLEARN_EXPORT void string_to_uppercase(char *string);
 GSTLEARN_EXPORT void string_to_lowercase(char *string);
 GSTLEARN_EXPORT int string_compare(int flag_case,
@@ -230,16 +136,6 @@ GSTLEARN_EXPORT int string_compare(int flag_case,
 GSTLEARN_EXPORT void projec_query(int *actif);
 GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
-GSTLEARN_EXPORT double ut_factorial(int k);
-GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
-GSTLEARN_EXPORT double golden_search(double (*func_evaluate)(double test,
-                                                             void *user_data),
-                                     void *user_data,
-                                     double tolstop,
-                                     double a0,
-                                     double c0,
-                                     double *testval,
-                                     double *niter);
 GSTLEARN_EXPORT void set_last_message(int mode, const char *string);
 GSTLEARN_EXPORT void print_last_message(void);
 GSTLEARN_EXPORT void set_keypair(const char *keyword,
@@ -305,121 +201,30 @@ GSTLEARN_EXPORT PL_Dist* pldist_manage(int mode,
                                        PL_Dist *pldist_loc,
                                        int ndim,
                                        int nvert);
-GSTLEARN_EXPORT double distance_point_to_segment(double x0,
-                                                 double y0,
-                                                 double x1,
-                                                 double y1,
-                                                 double x2,
-                                                 double y2,
-                                                 double *xd,
-                                                 double *yd,
-                                                 int *nint);
 GSTLEARN_EXPORT void distance_point_to_polyline(double x0,
                                                 double y0,
-                                                int nvert,
-                                                const double *x,
-                                                const double *y,
+                                                const PolyLine& polyline,
                                                 PL_Dist *pldist);
 GSTLEARN_EXPORT double distance_along_polyline(PL_Dist *pldist1,
                                                PL_Dist *pldist2,
-                                               double *xk,
-                                               double *yl);
+                                               const PolyLine& polyline);
 GSTLEARN_EXPORT double distance_points_to_polyline(double ap,
                                                    double al,
                                                    double x1,
                                                    double y1,
                                                    double x2,
                                                    double y2,
-                                                   int nvert,
-                                                   double *x,
-                                                   double *y);
-GSTLEARN_EXPORT int db_unfold_polyline(Db *db,
-                                       int nvert,
-                                       double *xl,
-                                       double *yl);
+                                                   const PolyLine& polyline);
+GSTLEARN_EXPORT int db_unfold_polyline(Db *db, const PolyLine& polyline);
 GSTLEARN_EXPORT int db_fold_polyline(DbGrid *dbin,
                                      Db *dbout,
                                      int ncol,
                                      int *cols,
-                                     int nvert,
-                                     double *xl,
-                                     double *yl);
-GSTLEARN_EXPORT void ut_geodetic_angles(double long1,
-                                        double lat1,
-                                        double long2,
-                                        double lat2,
-                                        double long3,
-                                        double lat3,
-                                        double *a,
-                                        double *b,
-                                        double *c,
-                                        double *ga,
-                                        double *gb,
-                                        double *gc);
-GSTLEARN_EXPORT double ut_geodetic_triangle_perimeter(double long1,
-                                                      double lat1,
-                                                      double long2,
-                                                      double lat2,
-                                                      double long3,
-                                                      double lat3);
-GSTLEARN_EXPORT double ut_geodetic_triangle_surface(double long1,
-                                                    double lat1,
-                                                    double long2,
-                                                    double lat2,
-                                                    double long3,
-                                                    double lat3);
-GSTLEARN_EXPORT int is_in_spherical_triangle(double *coor,
-                                             double surface,
-                                             double *pts1,
-                                             double *pts2,
-                                             double *pts3,
-                                             double *wgts);
-GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(const double *coor,
-                                                       double *ptsa,
-                                                       double *ptsb,
-                                                       double *ptsc,
-                                                       double *wgts);
+                                     const PolyLine& polyline);
 GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,
                                            double **tab2);
-GSTLEARN_EXPORT int segment_intersect(double xd1,
-                                      double yd1,
-                                      double xe1,
-                                      double ye1,
-                                      double xd2,
-                                      double yd2,
-                                      double xe2,
-                                      double ye2,
-                                      double *xint,
-                                      double *yint);
-GSTLEARN_EXPORT int ut_chebychev_coeffs(double (*func)(double,
-                                                       double,
-                                                       int,
-                                                       double*),
-                                        Cheb_Elem *cheb_elem,
-                                        int nblin,
-                                        double *blin);
-GSTLEARN_EXPORT int ut_chebychev_count(double (*func)(double,
-                                                      double,
-                                                      int,
-                                                      double*),
-                                       Cheb_Elem *cheb_elem,
-                                       double x,
-                                       int nblin,
-                                       double *blin);
-GSTLEARN_EXPORT void ut_vandercorput(int n,
-                                     int flag_sym,
-                                     int flag_rot,
-                                     int *ntri_arg,
-                                     double **coor_arg);
-GSTLEARN_EXPORT int ut_icosphere(int n,
-                                 int flag_rot,
-                                 int *ntri_arg,
-                                 double **coor_arg);
-GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
-GSTLEARN_EXPORT double ut_legendre(int flag_norm, int n, double v);
-GSTLEARN_EXPORT double ut_flegendre(int flag_norm, int n, int k0, double theta);
 GSTLEARN_EXPORT int* ut_name_decode(const char *name,
                                     int ndim,
                                     int *nx,

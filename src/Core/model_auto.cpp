@@ -10,20 +10,22 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "Model/Constraints.hpp"
+
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/EJustify.hpp"
+#include "Basic/String.hpp"
+#include "Basic/OptDbg.hpp"
+#include "Basic/Geometry.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Model.hpp"
+#include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
-#include "Basic/EJustify.hpp"
-#include "Basic/String.hpp"
-#include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/EAnam.hpp"
@@ -2768,22 +2770,19 @@ static double st_minimize_P4(int icov0,
       {
         xt[k] = MAX(0., MIN(xrmax, xx[k]));
         xest[k] = (a * xt[k] * xt[k] * xt[k] * xt[k] + c * xt[k] * xt[k]
-                   + d * xt[k])
-                  / 2.;
+                   + d * xt[k]) / 2.;
         if (xt[k] == xx[k]) nin++;
       }
       if (nin == 1)
       {
-        retval = (xt[0] == xx[0]) ? xx[0] :
-                                    xx[1];
+        retval = (xt[0] == xx[0]) ? xx[0] : xx[1];
       }
       else
       {
-        retval = (xest[0] < xest[1]) ? xt[0] :
-                                       xt[1];
+        retval = (xest[0] < xest[1]) ? xt[0] : xt[1];
       }
     }
-      break;
+    break;
 
     default:
       retval = xr[ivar0];

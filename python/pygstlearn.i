@@ -132,6 +132,9 @@ void exit_f(void)
 %extend ProjMatrix {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend PolyLine {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

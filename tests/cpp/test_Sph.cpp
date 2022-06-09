@@ -17,6 +17,7 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Geometry.hpp"
 
 #include <math.h>
 

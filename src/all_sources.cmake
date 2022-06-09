@@ -209,6 +209,8 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/Array.cpp
+  Basic/Geometry.cpp
+  Faults/PolyLine.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
