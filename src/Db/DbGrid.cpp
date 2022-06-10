@@ -705,9 +705,9 @@ VectorDouble DbGrid::getOneSlice(const String& name,
 {
   VectorDouble tab;
   int ndim = getNDim();
-  if (getNDim() <= 2)
+  if (getNDim() < 2)
   {
-    messerr("This method is limited to Grid with space dimension >= 2");
+    messerr("This method is limited to Grid with space dimension >= 1");
     return tab;
   }
   if (posx < 0 || posx >= ndim)

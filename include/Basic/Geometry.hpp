@@ -107,18 +107,18 @@ GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(const double *coor,
                                                        double *wgts);
 GSTLEARN_EXPORT VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                                         const VectorDouble& latitude,
-                                                        double dilate,
-                                                        double radius_arg = TEST);
+                                                        double dilate = 1.,
+                                                        double radius_arg = 1.);
 GSTLEARN_EXPORT void util_convert_cart2sph(double x,
                                            double y,
                                            double z,
                                            double *rlong,
                                            double *rlat,
-                                           double radius_arg = TEST);
+                                           double radius_arg = 1.);
 GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
                                            double rlat,
                                            double *x,
                                            double *y,
                                            double *z,
-                                           double radius_arg = TEST);
+                                           double radius_arg = 1.);
 

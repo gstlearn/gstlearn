@@ -1830,3 +1830,15 @@ VectorDouble Vario::_varsFromProportions(VectorDouble props)
     }
   return vars;
 }
+
+bool Vario::drawOnlyPositiveX(int ivar, int jvar) const
+{
+  if (ivar == jvar || ! getFlagAsym()) return true;
+  return false;
+}
+
+bool Vario::drawOnlyPositiveY(int ivar, int jvar) const
+{
+  if (ivar == jvar && ! getFlagAsym()) return true;
+  return false;
+}

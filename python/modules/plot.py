@@ -5,6 +5,7 @@ import matplotlib.colors     as mcolors
 import numpy                 as np
 import gstlearn              as gl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from numpy import shape
 
 def get_cmap(n, name='gist_rainbow'):
     '''Returns a function that maps each index in 0, 1, ..., n-1 to a distinct 
@@ -91,9 +92,10 @@ def addColorbar(im, ax):
     cbar = plt.colorbar(im, ax=ax, cax=cax)
     return cbar
 
-def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True, compress=False):
+def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True, 
+                     compress=False, asGrid=True, flagConvertNanToZero=False):
 
-    if db.isGrid():
+    if db.isGrid() and asGrid:
         if db.getNDim() == 2:
             posx = 0
             posy = 1
@@ -103,11 +105,14 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True, compres
     else:
         tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
-    tabx[tabx == gl.getTEST()] = np.nan
     
     if compress:
         tabx = tabx[np.logical_not(np.isnan(tabx))]
         
+    if flagConvertNanToZero:
+        tabx[tabx == gl.getTEST()] = 0
+    else:
+        tabx[tabx == gl.getTEST()] = np.nan
     return tabx
 
 def getBiDefinedValues(db, name1, name2, usesel=True):
@@ -213,8 +218,9 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     
     drawDecor(ax, xlabel, ylabel, title)
     
-    ax.set_xlim(left=0)
-    if ivar == jvar:
+    if vario.drawOnlyPositiveX(ivar, jvar):
+        ax.set_xlim(left=0)
+    if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
         
     if flagLegend:
@@ -287,8 +293,10 @@ def varioDir(vario, ivar=0, jvar=0,
     drawDecor(ax, xlabel, ylabel, title)
     
     ax.autoscale(True)
-    ax.set_xlim(left=0)
-    if ivar == jvar:
+    
+    if vario.drawOnlyPositiveX(ivar, jvar):
+        ax.set_xlim(left=0)
+    if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
     
     if flagLegend:
@@ -393,8 +401,10 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
     ax.autoscale(True)
-    ax.set_xlim(left=0)
-    if ivar == jvar:
+    
+    if vario.drawOnlyPositiveX(ivar, jvar):
+        ax.set_xlim(left=0)
+    if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
     
     if title is not None:
@@ -517,8 +527,9 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     drawDecor(ax, xlabel, ylabel, title)
     
     ax.autoscale(True)
-    ax.set_xlim(left=0)
-    if ivar == jvar:
+    if vario.drawOnlyPositiveX(ivar, jvar):
+        ax.set_xlim(left=0)
+    if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
     
     if flagLegend:
@@ -573,7 +584,8 @@ def point(db,
     
     # Color of symbol
     if color_name is not None:
-        colval = getDefinedValues(db, color_name, 0, 1, None, usesel, False)
+        colval = getDefinedValues(db, color_name, 0, 1, None, usesel, 
+                                  compress=False, asGrid=False, flagConvertNanToZero=True)
         if (directColor and cmap is not None):
             colval = colval.astype(int)
             colval = cmap(colval)
@@ -582,17 +594,11 @@ def point(db,
 
     # Size of symbol
     if size_name is not None:
-        sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, False)
+        sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, 
+                                  compress=False, asGrid=False, flagConvertNanToZero=True)
         m = np.nanmin(np.absolute(sizval))
         M = np.nanmax(np.absolute(sizval))
         sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin
-        mask = ~np.isnan(sizval)
-        sizval = sizval[mask]
-        tabx = np.array(tabx)[mask]
-        taby = np.array(taby)[mask]
-        if color_name is not None:
-            colval = colval[mask]
-            color = cmap
     else:
         sizval = size
 
@@ -690,9 +696,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
-    # else:
-    #     ax.set_xlim(xlim)
-    #     ax.set_ylim(ylim)
         
     x0 = dbgrid.getX0(posx)
     y0 = dbgrid.getX0(posy)
@@ -702,7 +705,8 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     dy = dbgrid.getDX(posy)
     angles = dbgrid.getAngles()
     
-    data = getDefinedValues(dbgrid, name, posx, posy, corner, usesel, False)
+    data = getDefinedValues(dbgrid, name, posx, posy, corner, usesel, 
+                            compress=False, asGrid=True)
     data   = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])
