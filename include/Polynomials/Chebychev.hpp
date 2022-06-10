@@ -18,8 +18,11 @@ public:
   virtual ~Chebychev();
   IClonable* clone() const override {return new Chebychev(*this);}
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
+  static Chebychev* createFromCoeffs(const VectorDouble coeffs);
   int getNcMax() const {return _ncMax;}
   int getNDisc() const {return _nDisc;}
+  double getA() const {return _a;}
+  double getB() const {return _b;}
   bool getVerbose() const {return _verbose;}
   void setA(double a){_a=a;}
   void setB(double b){_b=b;}

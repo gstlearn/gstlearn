@@ -107,22 +107,19 @@ double PrecisionOpMultiConditional::getMaxEigenValProj() const
 std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() const
 {
   std::pair<double,double> result = rangeEigenValQ();
-  std::cout << "Q " << result.first << "   " <<result.second << std::endl;
   result.second += getMaxEigenValProj();
-  std::cout << "Q + AtDiA " << result.second << std::endl;
   return result;
 }
 
 
-void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
+ void PrecisionOpMultiConditional::preparePoly(Chebychev& logPoly) const
 {
   std::pair<double,double> ranges = computeRangeEigenVal();
-
   double a = ranges.first;
   double b = ranges.second;
   logPoly.setA(a);
   logPoly.setB(b);
-  logPoly.setNcMax(10000);
+  logPoly.setNcMax(1000);
   std::function<double(double)> f;
   f = [] (double val){return log(val);};
   logPoly.fit(f,a,b,EPSILON4);

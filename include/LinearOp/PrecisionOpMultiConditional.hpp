@@ -41,7 +41,7 @@ public:
   double computeLogDetOp(int nsimus = 1, int seed = 123) const;
   double computeLogDetQ(int nsimus = 1, int seed = 123) const;
   double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
-  void preparePoly(Chebychev& poly) const;
+  void preparePoly(Chebychev& logPoly) const;
   void AtA(const VectorVectorDouble& in,VectorVectorDouble& out) const;
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
 

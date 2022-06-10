@@ -43,6 +43,7 @@ public:
             const NamingConvention &namconv = NamingConvention("spde")) const;
   const PrecisionOp* getPrecisionOp(int i = 0) const  { return _pilePrecisions[i];}
   const ProjMatrix* getProj(int i = 0) const  { return _pileProjMatrix[i];}
+  PrecisionOpMultiConditional getPrecisionKriging() const { return _precisionsKriging;}
 
 private:
   void _computeDriftCoeffs() const;
