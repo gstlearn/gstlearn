@@ -67,6 +67,8 @@ public:
   const ECalcVario& getCalcul() const { return _calcul; }
   ECalcVario    getCalculType(const String& calcul_name) const;
   bool          getFlagAsym() const { return _flagAsym; }
+  bool          drawOnlyPositiveX(int ivar, int jvar) const;
+  bool          drawOnlyPositiveY(int ivar, int jvar) const;
 
   int    getVariableNumber() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }

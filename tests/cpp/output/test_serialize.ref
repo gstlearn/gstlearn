@@ -274,3 +274,25 @@ Node F1 - Facies 1
 Node F2 - Facies 2
 Node F3 - Facies 3
 Node F4 - Facies 4
+Number of vertices = 100
+PolyLine Vertex Coordinates
+               [,  0]    [,  1]
+     [  0,]     1.274     0.946
+     [  1,]     0.451     0.111
+     [  2,]     1.174    -0.710
+     [  3,]     0.268    -0.154
+     [  4,]    -0.532    -0.343
+     [  5,]    -0.188     0.048
+     [  6,]    -1.087     1.010
+(Ncols=2,Nrows=7[from 100])
+Number of vertices = 100
+PolyLine Vertex Coordinates
+               [,  0]    [,  1]
+     [  0,]     1.274     0.946
+     [  1,]     0.451     0.111
+     [  2,]     1.174    -0.710
+     [  3,]     0.268    -0.154
+     [  4,]    -0.532    -0.343
+     [  5,]    -0.188     0.048
+     [  6,]    -1.087     1.010
+(Ncols=2,Nrows=7[from 100])
