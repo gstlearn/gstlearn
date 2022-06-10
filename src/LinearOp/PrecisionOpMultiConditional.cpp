@@ -109,7 +109,7 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   std::pair<double,double> result = rangeEigenValQ();
   std::cout << "Q " << result.first << "   " <<result.second << std::endl;
   result.second += getMaxEigenValProj();
-  std::cout << "Q + AtDiA" << result.second << std::endl;
+  std::cout << "Q + AtDiA " << result.second << std::endl;
   return result;
 }
 
@@ -182,6 +182,7 @@ double PrecisionOpMultiConditional::sumLogVar() const
 }
 
 // We use the fact that log|Sigma| = log |Q + A^t diag^(-1) (sigma) A|- log|Q| + Sum(log sigma_i^2)
+
 double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) const
 {
   double result = computeLogDetOp(nsimus,seed);
@@ -229,11 +230,10 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
                                               VectorVectorDouble& out) const
 {
   _init();
-  //fillVal(out,0.);
   AtA(in,_work2);
   for (int imod = 0; imod < sizes(); imod++)
     _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
-  _linearComb(1., _work2, 1., out, out);
+  sum(_work2,out, out);
 
 }
 
