@@ -170,7 +170,7 @@ public:
                            int posx,
                            int posy,
                            const VectorInt& corner,
-                           bool useSel) const;
+                           bool useSel = false) const;
 
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;

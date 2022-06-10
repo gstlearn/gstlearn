@@ -93,7 +93,10 @@ def addColorbar(im, ax):
 
 def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True, compress=False):
 
-    if db.isGrid() and db.getNDim() > 2:
+    if db.isGrid():
+        if db.getNDim() == 2:
+            posx = 0
+            posy = 1
         if corner is None:
             corner = gl.ut_vector_int(db.getNDim(),0)
         tabx = db.getOneSlice(name, posx, posy, corner, usesel)
