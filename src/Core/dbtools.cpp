@@ -5066,7 +5066,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
           total = 0.;
           for (int i = -width; i <= width; i++)
           {
-            jz = get_mirror_sample(nz, iz + i);
+            jz = Grid::generateMirrorIndex(nz, iz+i);
             propval = PROP1(jz, iprop);
             total += kernel[i + width] * propval;
           }

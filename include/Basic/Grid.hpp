@@ -31,6 +31,12 @@ public:
 	virtual ~Grid();
 
 public:
+  static VectorInt generateGridIndices(const VectorInt& nx,
+                                       const String& string,
+                                       bool startFromZero = true,
+                                       bool verbose = false);
+  static int generateMirrorIndex(int nx, int ix);
+
   void resetFromSpaceDimension(int ndim);
   void resetFromGrid(Grid* grid);
   int resetFromVector(const VectorInt& nx = VectorInt(),

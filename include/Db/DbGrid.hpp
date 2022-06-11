@@ -76,7 +76,6 @@ public:
                        const VectorInt& nodes,
                        const VectorDouble& dcell,
                        int flag_add_rank);
-
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -172,10 +171,6 @@ public:
                            const VectorInt& corner,
                            bool useSel = false) const;
 
-  static VectorDouble getGridOrderIndices(const VectorInt& nx,
-                                          const String& string,
-                                          bool verbose = false);
-
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;
@@ -186,3 +181,4 @@ private:
 private:
   Grid _grid;                //!< Grid characteristics
 };
+

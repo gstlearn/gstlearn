@@ -479,7 +479,7 @@ void ut_vector_sum(const VectorDouble &vec1,
   }
 }
 
-GSTLEARN_EXPORT VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
+VectorDouble ut_vector_simulate_gaussian(int n, double mean, double sigma)
 {
   VectorDouble vec(n);
   ut_vector_simulate_gaussian_inplace(vec,mean,sigma);
