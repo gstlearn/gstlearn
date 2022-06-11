@@ -70,7 +70,7 @@ GSTLEARN_EXPORT int getMaxStringSize(const VectorString &list);
 GSTLEARN_EXPORT VectorString separateKeywords(const String &code);
 
 // TODO : Use template functions
-GSTLEARN_EXPORT int toInt(const String &v);
+GSTLEARN_EXPORT int toInteger(const String &v);
 GSTLEARN_EXPORT double toDouble(const String &v, char dec = '.');
 GSTLEARN_EXPORT String toString(int value);
 GSTLEARN_EXPORT String toString(double value);
@@ -86,6 +86,10 @@ GSTLEARN_EXPORT String trimRight(const String &s, const String &t = SPACES);
 GSTLEARN_EXPORT String trimLeft(const String &s, const String &t = SPACES);
 GSTLEARN_EXPORT String trim(const String &s, const String &t = SPACES);
 GSTLEARN_EXPORT String erase(const String &s, const String &t = SPACES);
+
+GSTLEARN_EXPORT VectorInt decodeGridSorting(const String& name,
+                                            const VectorInt& nx,
+                                            bool verbose = false);
 
 GSTLEARN_EXPORT char* gslStrcpy(char *dst, const char *src);
 GSTLEARN_EXPORT char* gslStrcat(char *dst, const char *src);

@@ -172,6 +172,10 @@ public:
                            const VectorInt& corner,
                            bool useSel = false) const;
 
+  static VectorDouble getGridOrderIndices(const VectorInt& nx,
+                                          const String& string,
+                                          bool verbose = false);
+
 protected:
   virtual int _deserialize(std::istream& is, bool verbose = false) override;
   virtual int _serialize(std::ostream& os, bool verbose = false) const override;

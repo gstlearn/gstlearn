@@ -71,8 +71,6 @@ static Keypair *KEYPAIR_TABS = NULL;
 static int DISTANCE_NDIM = 0;
 static double *DISTANCE_TAB1 = NULL;
 static double *DISTANCE_TAB2 = NULL;
-static char INSTR1[STRING_LENGTH];
-static char INSTR2[STRING_LENGTH];
 static char **LAST_MESSAGE = NULL;
 static int NB_LAST_MESSAGE = 0;
 
@@ -1296,74 +1294,6 @@ double distance_points_to_polyline(double ap,
   pldist1 = pldist_manage(-1, pldist1, 2, nvert);
   pldist2 = pldist_manage(-1, pldist2, 2, nvert);
   return (dist);
-}
-
-/****************************************************************************/
-/*!
- **  Convert a string into lowercase characters
- **
- ** \param[in,out]  string  Input/Output string
- **
- *****************************************************************************/
-void string_to_lowercase(char *string)
-
-{
-  int i, n;
-
-  n = static_cast<int>(strlen(string));
-  for (i = 0; i < n; i++)
-    if (string[i] >= 'A' && string[i] <= 'Z')
-      string[i] = ('a' + string[i] - 'A');
-}
-
-/****************************************************************************/
-/*!
- **  Convert a string into uppercase characters
- **
- ** \param[in,out]  string  Input/Output string
- **
- *****************************************************************************/
-void string_to_uppercase(char *string)
-
-{
-  int i, n;
-
-  n = static_cast<int>(strlen(string));
-  for (i = 0; i < n; i++)
-    if (string[i] >= 'a' && string[i] <= 'z')
-      string[i] = ('A' + string[i] - 'a');
-}
-
-/****************************************************************************/
-/*!
- **  Compare two strings (case dependent or not)
- **
- ** \return 0 if strings are equal; 1 otherwise
- **
- ** \param[in]  flag_case 1 if match must be case independent; 0 otherwise
- ** \param[in]  string1   First input string
- ** \param[in]  string2   Second input string
- **
- *****************************************************************************/
-int string_compare(int flag_case, const char *string1, const char *string2)
-{
-  int flag_diff;
-
-  /* Dispatch */
-
-  if (flag_case)
-  {
-    flag_diff = strcmp(string1, string2);
-  }
-  else
-  {
-    (void) gslStrcpy(INSTR1, string1);
-    (void) gslStrcpy(INSTR2, string2);
-    string_to_lowercase(INSTR1);
-    string_to_lowercase(INSTR2);
-    flag_diff = strcmp(INSTR1, INSTR2);
-  }
-  return (flag_diff);
 }
 
 /****************************************************************************/

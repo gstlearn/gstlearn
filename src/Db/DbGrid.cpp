@@ -33,6 +33,16 @@
 #include <functional>
 #include <math.h>
 
+typedef struct
+{
+  int curech;
+  int ndim;
+  VectorInt nx;
+  VectorInt order;
+  VectorInt indg;
+  VectorDouble tab;
+} Dim_Loop;
+
 DbGrid::DbGrid()
     : Db(),
       _grid(0)
@@ -900,3 +910,119 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
   }
   return tab;
 }
+
+/****************************************************************************/
+/*!
+ ** Perform the recursion through the dimension
+ **
+ ** \param[in]  idim    Space rank
+ ** \param[in]  verbose Verbose flag
+ ** \param[in]  int_str Pointer to the internal structure
+ **
+ *****************************************************************************/
+static void _dimensionRecursion(int idim, int verbose, void *int_str)
+{
+  Dim_Loop *dlp;
+  int order, sdim, nval, ival, ndim;
+
+  // Assignments
+
+  dlp = (Dim_Loop*) int_str;
+  ndim = dlp->ndim;
+
+  if (idim < 0)
+  {
+
+    // We have reached the bottom of the pile, evaluate the absolute address
+
+    ival = dlp->indg[ndim - 1];
+    for (int jdim = ndim - 2; jdim >= 0; jdim--)
+      ival = ival * dlp->nx[jdim] + dlp->indg[jdim];
+    dlp->tab[dlp->curech++] = ival + 1;
+
+    // Optional printout
+
+    if (verbose)
+    {
+      message("node (");
+      for (int jdim = 0; jdim < ndim; jdim++)
+        message(" %d", dlp->indg[jdim] + 1);
+      message(" ) -> %d\n", ival + 1);
+    }
+    return;
+  }
+
+  order = dlp->order[idim];
+  sdim = ABS(order) - 1;
+  nval = dlp->nx[sdim];
+
+  // Loop
+
+  for (int jy = 0; jy < nval; jy++)
+  {
+    dlp->indg[sdim] = (order < 0) ? nval - jy - 1 :
+                                    jy;
+    _dimensionRecursion(idim - 1, verbose, (void*) dlp);
+  }
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Returns an array giving the ranks of the
+ **  cells (sequentially according to user's order) coded
+ **  with standard ranks (according to gstlearn internal order)
+ **
+ ** \return Array of indices
+ **
+ ** \param[in]  nx      Array giving the number of cells per direction
+ ** \param[in]  string  String describing the sorting order
+ ** \param[in]  verbose Verbose flag
+ **
+ *****************************************************************************/
+VectorDouble getGridOrderIndices(const VectorInt& nx,
+                                 const String& string,
+                                 bool verbose)
+{
+  Dim_Loop dlp;
+
+  // Initializations
+
+  int ndim = (int) nx.size();
+  int ncell = ut_vector_prod(nx);
+
+  // Core allocation
+
+  VectorDouble tab(ncell);
+  VectorInt indg(ndim,0);
+  VectorInt ind(ncell);
+  VectorDouble tab2(ncell);
+
+  // Decode the string
+
+  VectorInt order = decodeGridSorting(string, nx, verbose);
+  if (order.empty()) return VectorDouble();
+
+  // Initialization of the recursion structure
+
+  dlp.curech = 0;
+  dlp.ndim = ndim;
+  dlp.nx = nx;
+  dlp.order = order;
+  dlp.indg = indg;
+  dlp.tab = tab;
+
+  // Recursion
+
+  _dimensionRecursion(ndim - 1, verbose, (void*) &dlp);
+
+  // Invert order
+
+  for (int i = 0; i < ncell; i++) ind[i] = i;
+  ut_sort_double(0, ncell, ind.data(), tab.data());
+  for (int i = 0; i < ncell; i++)
+    tab2[i] = tab[ind[i]];
+
+  return (tab2);
+}
+

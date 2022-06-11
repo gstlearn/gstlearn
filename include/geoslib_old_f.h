@@ -128,11 +128,6 @@ GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
                                        int flag_half,
                                        int verbose,
                                        int *nposs);
-GSTLEARN_EXPORT void string_to_uppercase(char *string);
-GSTLEARN_EXPORT void string_to_lowercase(char *string);
-GSTLEARN_EXPORT int string_compare(int flag_case,
-                                   const char *string1,
-                                   const char *string2);
 GSTLEARN_EXPORT void projec_query(int *actif);
 GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
