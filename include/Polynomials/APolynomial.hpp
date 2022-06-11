@@ -42,6 +42,8 @@ public:
                       VectorDouble& /*work*/) const {};
   VectorDouble evalOp(cs* /*Op*/, const VectorDouble& /*in*/) const;
   VectorDouble getCoeffs() const { return _coeffs; }
+  void setCoeffs(const VectorDouble coeffs){_coeffs = coeffs;}
+
   int getDegree() const { return static_cast<int>(_coeffs.size());}
   virtual void evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const =0;
   virtual int fit(std::function<double(double)> /*f*/,

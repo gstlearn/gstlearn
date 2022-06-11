@@ -35,6 +35,13 @@ Chebychev::~Chebychev()
   // TODO Auto-generated destructor stub
 }
 
+Chebychev* Chebychev::createFromCoeffs(const VectorDouble coeffs)
+{
+  Chebychev* cheb = new Chebychev();
+  cheb->setCoeffs(coeffs);
+  return cheb;
+}
+
 void Chebychev::init(int ncMax,int nDisc,double a,double b,bool verbose)
 {
   _ncMax=ncMax;
@@ -99,19 +106,43 @@ int Chebychev::fit(std::function<double(double)> f, double a, double b, double t
   return 0;
 }
 
+double Chebychev::eval(double x) const
+{
+  double y, xc, Tx, Tm1, Tm2;
+
+   /* Calculate the approximate value until tolerance is reached */
+
+   xc = 2 * (x - _a) / (_b - _a) - 1.;
+   y = _coeffs[0] + _coeffs[1] * xc;
+   Tm2 = 1.;
+   Tm1 = xc;
+   for (int i = 2; i < _ncMax; i++)
+   {
+     Tx = 2. * xc * Tm1 - Tm2;
+     y += _coeffs[i] * Tx;
+     Tm2 = Tm1;
+     Tm1 = Tx;
+   }
+
+   return y;
+}
+
+
 int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,double b,double tol)const
 {
-  double y, y0, xc, Tx, Tm1, Tm2;
+  double y, y0, y_2, xc, Tx, Tm1, Tm2;
 
   /* Get the true value  */
 
   y0 = f(x);
-  double normy0 = MAX(y0 * y0, EPSILON3);
-
+  double y0_2 = y0 * y0;
+  double normy0 = y0_2 + EPSILON2;
+  tol *= normy0;
   /* Calculate the approximate value until tolerance is reached */
   xc = 2 * (x - a) / (b - a) - 1.;
   y = _coeffs[0] + _coeffs[1] * xc;
-  if (ABS(y * y - y0 * y0) / normy0 < tol) return (2);
+  y_2 = y * y;
+  if (ABS(y_2 - y0_2) < tol) return (2);
   Tm2 = 1.;
   Tm1 = xc;
 
@@ -119,7 +150,7 @@ int Chebychev::_countCoeffs(std::function<double(double)> f,double x,double a,do
   {
     Tx = 2. * Tm1 * xc - Tm2;
     y += _coeffs[i] * Tx;
-    if (ABS(y * y - y0 * y0) / normy0 < tol)
+    if (ABS(y * y - y0 * y0)  < tol)
       return (i + 1);
 
     Tm2 = Tm1;
@@ -183,26 +214,6 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
   _coeffs[0] /= 2.;
 }
 
-double Chebychev::eval(double x) const
-{
-  double y, T1, Tx, Tm1, Tm2;
-
-   /* Calculate the approximate value until tolerance is reached */
-
-   T1 = 2 * (x - _a) / (_b - _a) - 1.;
-   y = _coeffs[0] + _coeffs[1] * T1;
-   Tm1 = T1;
-   Tm2 = 1.;
-   for (int i = 2; i < _ncMax; i++)
-   {
-     Tx = 2. * T1 * Tm1 - Tm2;
-     y += _coeffs[i] * Tx;
-     Tm2 = Tm1;
-     Tm1 = Tx;
-   }
-
-   return y;
-}
 
 void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const
 {
