@@ -997,6 +997,7 @@ int Grid::getMirrorIndex(int idim, int ix) const
  **
  ** \param[in]  nx      Array giving the number of cells per direction
  ** \param[in]  string  String describing the sorting order
+ ** \param[in]  startFromZero True if numbering must start from 0 (1 otherwise)
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
