@@ -37,7 +37,7 @@ ACov::~ACov()
 {
 }
 
-MatrixSquareGeneral ACov::eval0(const CovCalcMode& mode) const
+MatrixSquareGeneral ACov::eval0Nvar(const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
@@ -73,6 +73,16 @@ MatrixSquareGeneral ACov::eval(const SpacePoint& p1,
   return mat;
 }
 
+/**
+ * Covariance from a given point (center) in a given direction (dir *step)
+ * @param ivar   Rank of the first variable
+ * @param jvar   Rank of the second variable
+ * @param step   Step value
+ * @param dir    Direction definition
+ * @param center Coordinates of the center
+ * @param mode   CovCalcMode structure
+ * @return
+ */
 double ACov::evalIvarIpas(int ivar,
                           int jvar,
                           double step,
@@ -95,6 +105,17 @@ double ACov::evalIvarIpas(int ivar,
   return eval(ivar, jvar, p1, p2, mode); // pure virtual method
 }
 
+/**
+ * Covariance vector from a given point (center) in a given direction (dir * steps)
+ * for a pair of variables and a set of steps
+ * @param ivar      Rank of the first variable
+ * @param jvar      Rank of the second variable
+ * @param vec_step  Vector of step values
+ * @param dir       Direction definition
+ * @param center    Coordinates of the Center
+ * @param mode      CovCalcMode structure
+ * @return
+ */
 VectorDouble ACov::evalIvarNpas(int ivar,
                                 int jvar,
                                 const VectorDouble& vec_step,
@@ -108,6 +129,15 @@ VectorDouble ACov::evalIvarNpas(int ivar,
   return vec;
 }
 
+/**
+ * Covariance Matrix from a given point (center) in a given direction (dir * step)
+ * for a set of variables and a given step
+ * @param step   Step value
+ * @param dir    Direction definition
+ * @param center Coordinates of the center
+ * @param mode   CovCalcMode structure
+ * @return
+ */
 MatrixSquareGeneral ACov::evalNvarIpas(double step,
                                        const VectorDouble& dir,
                                        const VectorDouble& center,
@@ -121,6 +151,15 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
   return mat;
 }
 
+/**
+ * Covariance for a given unit global distance (without anisotropy)
+ * for a pair of variables and a single step
+ * @param ivar Rank of the first variable
+ * @param jvar Rank of the second variable
+ * @param step Step value
+ * @param mode CovCalcMode structure
+ * @return
+ */
 double ACov::evalIsoIvarIpas(int ivar,
                              int jvar,
                              double step,
@@ -132,6 +171,15 @@ double ACov::evalIsoIvarIpas(int ivar,
   return evalIvarIpas(ivar, jvar, step, dir, center, mode);
 }
 
+/**
+ * Covariance for a given unit global distance (without anisotropy)
+ * for a pair of variables and a set of steps
+ * @param ivar
+ * @param jvar
+ * @param vec_step
+ * @param mode
+ * @return
+ */
 VectorDouble ACov::evalIsoIvarNpas(int ivar,
                                    int jvar,
                                    const VectorDouble& vec_step,
@@ -146,6 +194,13 @@ VectorDouble ACov::evalIsoIvarNpas(int ivar,
   return vec;
 }
 
+/**
+ * Covariance for a given unit global distance (without anisotropy)
+ * for a set of variables and a single step
+ * @param step Step value
+ * @param mode CovCalcMode structure
+ * @return
+ */
 MatrixSquareGeneral ACov::evalIsoNvarIpas(double step,
                                           const CovCalcMode& mode) const
 {

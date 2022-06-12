@@ -578,7 +578,11 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
 
   // Evaluate the Model
 
-  MatrixSquareGeneral mat = _model->getCovAnisoList()->evalNvarIpas(1., d1, VectorDouble(), mode);
+  MatrixSquareGeneral mat;
+  if (iech1 >= 0 && iech1 == iech2)
+    mat = _model->eval0Nvar(mode);
+  else
+    mat = _model->evalNvarIpas(1., d1, VectorDouble(), mode);
 
   // Modify the Model (DGM case). Only provided for the monovariate case
 
@@ -609,7 +613,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
 /*!
  **  Returns the additional variance for continuous moving neighborhood
  **
- ** \return  Variance mutipplier for Continuous Option
+ ** \return  Variance multiplier for Continuous Option
  **
  ** \param[in]  rank1      Rank of the sample in the first Db
  ** \param[in]  rank2      Rank of the sample in the second Db

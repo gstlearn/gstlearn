@@ -20,6 +20,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/EAnam.hpp"
 
 class ASpace;
 class SpacePoint;

@@ -165,7 +165,6 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
   double rho, coeff, psin2, rn, rhon;
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
 
-
   /* Check if the distance is zero */
 
   rho = coeff = 0.;
