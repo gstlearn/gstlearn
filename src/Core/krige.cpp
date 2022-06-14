@@ -1943,7 +1943,7 @@ int krigdgm(Db *dbin,
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptDGM(true, &anam)) return 1;
+  if (ksys.setKrigOptDGM(true, rval)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -2283,7 +2283,7 @@ int _krigsim(Db* dbin,
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
   if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
-  if (ksys.setKrigOptDGM(flag_dgm, &anam)) return 1;
+  if (ksys.setKrigOptDGM(flag_dgm, r_coeff)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -7107,7 +7107,7 @@ int dk(Db* dbin,
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptCalcul(calcul_loc, ndisc)) return 1;
-  if (ksys.setKrigOptDGM(true, anam)) return 1;
+//  if (ksys.setKrigOptDGM(true, anam)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */

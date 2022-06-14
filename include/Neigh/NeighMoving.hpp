@@ -37,7 +37,9 @@ public:
   /// Interface for ANeighParam
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::MOVING; }
-  virtual bool getFlagContinuous() const override { return (! FFFF(_distCont)); }
+  virtual bool getFlagContinuous() const override {
+    return (! FFFF(_distCont) && _distCont < 1.);
+  }
 
   int reset(int ndim,
             bool flag_xvalid,

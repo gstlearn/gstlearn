@@ -705,6 +705,33 @@ double Db::getDistance(int iech, int jech) const
 }
 
 /**
+ * Calculate the distance vector in place
+ * @param iech Rank of the first sample
+ * @param jech Rank of the second sample (from db2 if db2 provided)
+ * @param dd   Vector for distances (It must be dimensioned to getNDim())
+ * @param db2  Second Db if different from current one (or nullptr)
+ * @return
+ */
+int Db::getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2) const
+{
+  int ndim = getNDim();
+  double v1;
+  double v2;
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    v1 = getCoordinate(iech, idim);
+    if (FFFF(v1)) return 1;
+    if (db2 == nullptr)
+      v2 = getCoordinate(jech, idim);
+    else
+      v2 = db2->getCoordinate(jech, idim);
+    if (FFFF(v2)) return 1;
+    dd[idim] = v1 - v2;
+  }
+  return 0;
+}
+
+/**
  * Constitute a Vector of Vector of coordinates at a given sample, for all (active) samples
  * @param useSel
  * @return

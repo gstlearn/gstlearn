@@ -87,6 +87,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _varCorrec(),
       _modelSimple(nullptr),
       _flagDGM(false),
+      _rDGM(1.),
       _iclassDGM(false),
       _matCL(),
       _flagLTerm(false),
@@ -275,14 +276,13 @@ void KrigingSystem::_resetMemoryGeneral()
 /****************************************************************************/
 /*!
  **  Returns the coordinate of the data (at rank if rank >= 0)
- **  or of the target (at iech_out if rank < 0)
+ **  or of the target (if rank < 0)
  **
  ** \param[in]  loc_rank   Rank of the sample
  ** \param[in]  idim   Rank of the coordinate
- ** \param[in]  iech_out Rank of the target (if rank < 0)
  **
  *****************************************************************************/
-double KrigingSystem::_getIdim(int loc_rank, int idim, int iech_out) const
+double KrigingSystem::_getIdim(int loc_rank, int idim) const
 {
   if (loc_rank >= 0)
   {
@@ -290,21 +290,58 @@ double KrigingSystem::_getIdim(int loc_rank, int idim, int iech_out) const
   }
   else
   {
-    return _dbout->getCoordinate(iech_out, idim);
+    return _dbout->getCoordinate(_iechOut, idim);
   }
+}
+
+/**
+ * Update the vector of distances between two samples of two Dbs
+ * @param loc_rank1 First Sample Rank in input Db (>=0) or Target (<0)
+ * @param loc_rank2 Second Sample Rank in input Db (>=0) or Target (<0)
+ * @param dd Vector of distances
+ */
+void KrigingSystem::_getDistance(int loc_rank1, int loc_rank2, VectorDouble& dd) const
+{
+  const Db* db1;
+  const Db* db2;
+  int rank1, rank2;
+
+  if (loc_rank1 >= 0)
+  {
+    db1 = _dbin;
+    rank1 = loc_rank1;
+  }
+  else
+  {
+    db1 = _dbout;
+    rank1 = _iechOut;
+  }
+
+  if (loc_rank2 >= 0)
+  {
+    db2 = _dbin;
+    rank2 = loc_rank2;
+  }
+  else
+  {
+    db2 = _dbout;
+    rank2 = _iechOut;
+  }
+
+  db1->getDistanceVec(rank1, rank2, dd, db2);
+  return;
 }
 
 /****************************************************************************/
 /*!
  **  Returns the value of the external drift "rank" (if rank >= 0)
- **  or of the target (at iech_out if rank < 0)
+ **  or of the target (if rank < 0)
  **
  ** \param[in]  rank   Rank of the sample
  ** \param[in]  ibfl   Rank of the external drift
- ** \param[in]  iech_out Rank of the target (used when rank < 0)
  **
  *****************************************************************************/
-double KrigingSystem::_getFext(int rank, int ibfl, int iech_out) const
+double KrigingSystem::_getFext(int rank, int ibfl) const
 {
   if (rank >= 0)
   {
@@ -312,27 +349,24 @@ double KrigingSystem::_getFext(int rank, int ibfl, int iech_out) const
   }
   else
   {
-    return _dbout->getExternalDrift(iech_out, ibfl);
+    return _dbout->getExternalDrift(_iechOut, ibfl);
   }
 }
 
 /****************************************************************************/
 /*!
  **  Returns the value of the variable (at rank if rank >= 0)
- **  or of the target (at iech_out if rank < 0)
+ **  or of the target (if rank < 0)
  **
  ** \param[in]  rank   Rank of the sample
  ** \param[in]  ivar   Rank of the variable
- ** \param[in]  iech_out Rank of the target (if rank < 0)
  **
  ** \remarks   In case of simulation, the variable of the first simulation
  ** \remarks   is systematically returned. This has no influence on the rest
  ** \remarks   of the calculations
  **
  *****************************************************************************/
-double KrigingSystem::_getIvar(int rank,
-                               int ivar,
-                               int iech_out) const
+double KrigingSystem::_getIvar(int rank, int ivar) const
 {
   if (rank >= 0)
   {
@@ -360,21 +394,20 @@ double KrigingSystem::_getIvar(int rank,
     if (IFFFF(jvar))
       return TEST;
     else
-      return _dbout->getArray(iech_out, jvar);
+      return _dbout->getArray(_iechOut, jvar);
   }
 }
 
 /****************************************************************************/
 /*!
  **  Returns the value of the measurement error (at rank if rank >= 0)
- **  or of the target (at iech_out if rank < 0)
+ **  or of the target (if rank < 0)
  **
  ** \param[in]  rank     Rank of the sample
  ** \param[in]  ivar     Rank of the variable
- ** \param[in]  iech_out Rank of the target
  **
  *****************************************************************************/
-double KrigingSystem::_getVerr(int rank, int ivar, int iech_out) const
+double KrigingSystem::_getVerr(int rank, int ivar) const
 {
   if (rank >= 0)
   {
@@ -382,7 +415,7 @@ double KrigingSystem::_getVerr(int rank, int ivar, int iech_out) const
   }
   else
   {
-    return _dbout->getVarianceError(iech_out, ivar);
+    return _dbout->getVarianceError(_iechOut, ivar);
   }
 }
 double KrigingSystem::_getMean(int ivarCL) const
@@ -526,19 +559,26 @@ bool KrigingSystem::_isAuthorized()
   return true;
 }
 
-void KrigingSystem::_covtabInit(bool flag_init)
+void KrigingSystem::_covtabInit()
 {
-  if (! flag_init) return;
   int nvar = _getNVar();
   for (int i = 0; i < nvar * nvar; i++) _covtab[i] = 0.;
 }
 
+/**
+ * Module for calculating the covariance internally
+ * It is called for LHS (iech1>=0 && iech2>=0), RHS (iech1>=0 && iech2=-1) and VAR (iech1=-1 && iech2=-1)
+ * @param member    Type of usage (LHS, RHS or VAR)
+ * @param mode      CovCalcMode structure
+ * @param iech1     Rank of the first sample (or -1)
+ * @param iech2     Rank of the second sample (or -1)
+ * @param d1
+ */
 void KrigingSystem::_covtabCalcul(const ECalcMember &member,
-                                  bool flag_init,
                                   const CovCalcMode& mode,
                                   int iech1,
                                   int iech2,
-                                  VectorDouble d1)
+                                  const VectorDouble& d1)
 {
   // Load the non-stationary parameters if needed
 
@@ -601,10 +641,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     for (int jvar = 0; jvar < nvar; jvar++)
     {
       double value = mat.getValue(ivar, jvar);
-      if (flag_init)
-        _setCOVTAB(ivar,jvar,value);
-      else
-        _addCOVTAB(ivar,jvar,value);
+      _addCOVTAB(ivar,jvar,value);
     }
   return;
 }
@@ -709,10 +746,9 @@ void KrigingSystem::_lhsCalcul()
   for (int iech = 0; iech < nech; iech++)
     for (int jech = 0; jech < nech; jech++)
     {
-      _covtabInit(true);
-      for (int idim = 0; idim < ndim; idim++)
-        d1[idim] = (_getIdim(_nbgh[jech], idim) - _getIdim(_nbgh[iech], idim));
-      _covtabCalcul(ECalcMember::LHS, false, mode, _nbgh[iech], _nbgh[jech], d1);
+      _covtabInit();
+      _getDistance(_nbgh[jech], _nbgh[iech], d1);
+      _covtabCalcul(ECalcMember::LHS, mode, _nbgh[iech], _nbgh[jech], d1);
 
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
@@ -899,7 +935,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
 
   for (int iech = 0; iech < nech; iech++)
   {
-    _covtabInit(true);
+    _covtabInit();
     switch (_calcul.toEnum())
     {
       case EKrigOpt::E_PONCTUAL:
@@ -910,7 +946,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
           // In the Point-Block Model, Randomize the target
           if (rankRandom >= 0 && ! _disc1.empty()) d1[idim] += _getDISC1(rankRandom, idim);
         }
-        _covtabCalcul(ECalcMember::RHS, false, mode, _nbgh[iech], -1, d1);
+        _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
         break;
 
       case EKrigOpt::E_BLOCK:
@@ -921,13 +957,13 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
           for (int idim = 0; idim < ndim; idim++)
             d1[idim] = (_dbout->getCoordinate(_iechOut, idim) - _getIdim(_nbgh[iech], idim)
                         + _getDISC1(i, idim));
-          _covtabCalcul(ECalcMember::RHS, false, mode, _nbgh[iech], -1, d1);
+          _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
         }
         break;
 
       case EKrigOpt::E_DRIFT:
         nscale = 1;
-        _covtabInit(true);
+        _covtabInit();
         break;
     }
 
@@ -1570,12 +1606,12 @@ void KrigingSystem::_variance0()
 
   CovCalcMode mode(ECalcMember::VAR);
 
-  _covtabInit(true);
+  _covtabInit();
   switch (_calcul.toEnum())
   {
     case EKrigOpt::E_PONCTUAL:
       nscale = 1;
-      _covtabCalcul(ECalcMember::VAR, false, mode, -1, -1, d1);
+      _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
       break;
 
     case EKrigOpt::E_BLOCK:
@@ -1585,7 +1621,7 @@ void KrigingSystem::_variance0()
         {
           for (int idim = 0; idim < ndim; idim++)
             d1[idim] = _getDISC1(i, idim) - _getDISC2(j,idim);
-          _covtabCalcul(ECalcMember::VAR, false, mode, -1, -1, d1);
+          _covtabCalcul(ECalcMember::VAR, mode, -1, -1, d1);
        }
       nscale = nscale * nscale;
       break;
@@ -1768,7 +1804,7 @@ bool KrigingSystem::isReady()
 }
 
 /**
- * Perform the Kriging of target iech_out
+ * Perform the Kriging of target
  *
  * @param iech_out Rank of the target
  * @return
@@ -1798,18 +1834,17 @@ int KrigingSystem::estimate(int iech_out)
   if (skipCalculAll) goto label_store;
 
   if (! _dbout->isActive(_iechOut)) return 0;
-  OptDbg::setIndex(iech_out + 1);
+  OptDbg::setIndex(_iechOut + 1);
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     mestitle(1, "Target location");
-    if (_flagDGM) message("Factor #%d\n",_iclassDGM);
-    db_sample_print(_dbout, iech_out, 1, 0, 0);
+    db_sample_print(_dbout, _iechOut, 1, 0, 0);
   }
 
   // Elaborate the Neighborhood
 
   if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
-  _nbgh = _nbghWork.select(_dbout,iech_out,_rankColCok);
+  _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
   status = (getNech() <= 0);
 
   /* Establish the Kriging L.H.S. */
@@ -1923,7 +1958,6 @@ void KrigingSystem::_krigingDump(int status)
   else
     mestitle(0, "(Co-) Kriging results");
   message("Target Sample = %d\n", _iechOut + 1);
-  if (_flagDGM) message("Factor = %d\n",_iclassDGM);
 
   /* Loop on the results */
 
@@ -2382,15 +2416,10 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, const AAnam* anam)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff)
 {
-  if (anam == nullptr)
-  {
-    messerr("The Anamorphosis must be defined");
-    return 1;
-  }
   _flagDGM = flag_dgm;
-  _anam = anam;
+  _rDGM = rcoeff;
   return 0;
 }
 
