@@ -33,6 +33,7 @@
 #include <functional>
 #include <math.h>
 
+
 DbGrid::DbGrid()
     : Db(),
       _grid(0)
@@ -900,3 +901,4 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
   }
   return tab;
 }
+

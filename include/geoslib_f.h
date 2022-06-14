@@ -58,10 +58,6 @@ GSTLEARN_EXPORT int setup_license(const char *target_name);
 /* Functions for Basic */
 /***********************/
 
-GSTLEARN_EXPORT VectorInt util_string_search(const VectorString &list_strings,
-                                             const String &string,
-                                             int verbose);
-
 GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
                                                    const double *rtab);
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);

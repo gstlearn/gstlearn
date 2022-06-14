@@ -76,7 +76,6 @@ public:
                        const VectorInt& nodes,
                        const VectorDouble& dcell,
                        int flag_add_rank);
-
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -182,3 +181,4 @@ private:
 private:
   Grid _grid;                //!< Grid characteristics
 };
+

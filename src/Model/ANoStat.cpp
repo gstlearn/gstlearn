@@ -361,7 +361,7 @@ int ANoStat::_understandCode(const String& code,
   // Decoding the rank of the GRF (conditional)
   if (lec < size && flagGRF)
   {
-    *igrf = toInt(keywords[lec]);
+    *igrf = toInteger(keywords[lec]);
     if (IFFFF(*igrf)) return 1;
     (*igrf)--;
     lec++;
@@ -380,7 +380,7 @@ int ANoStat::_understandCode(const String& code,
   // Decoding the rank of the Structure (conditional)
   if (lec < size && flagSTR)
   {
-    *icov = toInt(keywords[lec]);
+    *icov = toInteger(keywords[lec]);
     if (IFFFF(*icov)) return 1;
     (*icov)--;
     lec++;
@@ -401,7 +401,7 @@ int ANoStat::_understandCode(const String& code,
   // Decoding the rank of the operator (conditional)
   if (lec < size && flagV1)
   {
-    *iv1 = toInt(keywords[lec]);
+    *iv1 = toInteger(keywords[lec]);
     if (IFFFF(*iv1)) return 1;
     (*iv1)--;
     lec++;
@@ -420,7 +420,7 @@ int ANoStat::_understandCode(const String& code,
   // Decoding the rank of the second variable (conditional)
   if (lec < size && flagV2)
   {
-    *iv2 = toInt(keywords[lec]);
+    *iv2 = toInteger(keywords[lec]);
     if (IFFFF(*iv2)) return 1;
     (*iv2)--;
     lec++;

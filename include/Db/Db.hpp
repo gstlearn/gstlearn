@@ -140,7 +140,7 @@ public:
   void setNameByColIdx(int icol, const String& name);
   void setNameByLocator(const ELoc& locatorType, const String& name);
 
-  inline int getUIDMaxNumber() const { return static_cast<int>(_uidcol.size()); }
+  inline int getUIDMaxNumber() const { return (int) _uidcol.size(); }
   inline int getColumnNumber() const { return _ncol; }
   double getColumnSize(bool useSel = false) const;
   int getSampleNumber(bool useSel = false) const;
@@ -310,6 +310,7 @@ public:
 
   double getDistance1D(int iech, int jech, int idim, bool flagAbs = false) const;
   double getDistance(int iech, int jech) const;
+  int    getDistanceVec(int iech, int jech, VectorDouble& dd, const Db* db2 = nullptr) const;
 
   double getValue(const String& name, int iech) const;
   void   setValue(const String& name, int iech, double value);

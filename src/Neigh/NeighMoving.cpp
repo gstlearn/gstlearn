@@ -146,7 +146,7 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
       }
     }
   }
-  if (! FFFF(getDistCont()))
+  if (getFlagContinuous())
   {
     sstr << "Norm. dist. for continuous NeighMoving.   = " << getDistCont()
          << std::endl;

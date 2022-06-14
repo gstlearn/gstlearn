@@ -253,7 +253,7 @@ static double* st_extend_point(Db *db, const double *gext, int *nout)
  ** \param[in]  mode       1 for allocation; -1 for deallocation
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure for the Output File
- ** \param[in]  mesh_dbin  0 if 'dbin' do not belong to the meshing
+ ** \param[in]  mesh_dbin  0 if 'dbin' does not belong to the meshing
  ** \param[in]  vercoloc   Vercoloc structure
  **
  ** \remarks If 'dbin' does not belong to the meshing, then there will be
@@ -294,7 +294,11 @@ Vercoloc* vercoloc_manage(int verbose,
     vercoloc->dupl_grid = nullptr;
     if (dbin == nullptr || !mesh_dbin) return (vercoloc);
 
-    /* Allocation */
+    // Nothing to  do if 'dbout' is not defined
+
+    if (dbout == nullptr) return (vercoloc);
+
+    // Allocation
 
     if (is_grid(dbout))
     {

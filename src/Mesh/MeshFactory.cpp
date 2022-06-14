@@ -46,7 +46,7 @@ AMesh* MeshFactory::createMesh(int variety,
   {
     // Euclidean case
 
-    if (dbin != nullptr)
+    if (dbin != nullptr || dbout != nullptr)
     {
       if (verbose)
       {

@@ -39,66 +39,44 @@ public:
                       const CovCalcMode& mode = CovCalcMode()) const = 0;
   virtual double evalCovOnSphere(double /*alpha*/,
                                  int /*degree*/,
-                                 bool /*normalize*/) const
-  {
-    return TEST;
-  }
-
-  virtual double evalSpectrum(const VectorDouble& /*freq*/, int /*ivar*/, int /*jvar*/) const
-  {
-    return TEST;
-  }
-
+                                 bool /*normalize*/) const { return TEST; }
+  virtual double evalSpectrum(const VectorDouble& /*freq*/,
+                              int /*ivar*/, int /*jvar*/) const { return TEST; }
   /////////////////////////////////////////////////////////////////////////////////
 
-  virtual MatrixSquareGeneral eval0(const CovCalcMode& mode = CovCalcMode()) const;
-  virtual VectorDouble eval(int ivar,
+  MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const;
+  VectorDouble eval(int ivar,
+                    int jvar,
+                    const std::vector<SpacePoint>& vec_p1,
+                    const std::vector<SpacePoint>& vec_p2,
+                    const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixSquareGeneral eval(const SpacePoint& p1,
+                           const SpacePoint& p2,
+                           const CovCalcMode& mode = CovCalcMode()) const;
+  double evalIvarIpas(int ivar,
+                      int jvar,
+                      double step,
+                      const VectorDouble& dir,
+                      const VectorDouble& center = VectorDouble(),
+                      const CovCalcMode& mode = CovCalcMode()) const;
+  VectorDouble evalIvarNpas(int ivar,
                             int jvar,
-                            const std::vector<SpacePoint>& vec_p1,
-                            const std::vector<SpacePoint>& vec_p2,
+                            const VectorDouble& vec_step,
+                            const VectorDouble& dir = VectorDouble(),
+                            const VectorDouble& center = VectorDouble(),
                             const CovCalcMode& mode = CovCalcMode()) const;
-  virtual MatrixSquareGeneral eval(const SpacePoint& p1,
-                                   const SpacePoint& p2,
+  MatrixSquareGeneral evalNvarIpas(double step,
+                                   const VectorDouble& dir,
+                                   const VectorDouble& center = VectorDouble(),
                                    const CovCalcMode& mode = CovCalcMode()) const;
-
-  /// Covariance from a given point (center) in a given direction (dir * step)
-  /// for a pair of variables and a single step
-  virtual double evalIvarIpas(int ivar,
-                              int jvar,
-                              double step,
-                              const VectorDouble& dir,
-                              const VectorDouble& center = VectorDouble(),
-                              const CovCalcMode& mode = CovCalcMode()) const;
-  /// Covariance vector from a given point (center) in a given direction (dir * steps)
-  /// for a pair of variables and a set of steps
-  virtual VectorDouble evalIvarNpas(int ivar,
-                                    int jvar,
-                                    const VectorDouble& vec_step,
-                                    const VectorDouble& dir = VectorDouble(),
-                                    const VectorDouble& center = VectorDouble(),
-                                    const CovCalcMode& mode = CovCalcMode()) const;
-  /// Covariance Matrix from a given point (center) in a given direction (dir * step)
-  /// for a set of variables and a given step
-  virtual MatrixSquareGeneral evalNvarIpas(double step,
-                                           const VectorDouble& dir,
-                                           const VectorDouble& center = VectorDouble(),
-                                           const CovCalcMode& mode = CovCalcMode()) const;
-
-  /// Covariance for a given unit global distance (without anisotropy)
-  /// for a pair of variables and a single step
-  virtual double evalIsoIvarIpas(int ivar,
-                                 int jvar,
-                                 double step,
-                                 const CovCalcMode& mode = CovCalcMode()) const;
-  /// Covariance for a given unit global distance (without anisotropy)
-  /// for a pair of variables and a set of steps
-  virtual VectorDouble evalIsoIvarNpas(int ivar,
-                                       int jvar,
-                                       const VectorDouble& vec_step,
-                                       const CovCalcMode& mode = CovCalcMode()) const;
-  /// Covariance for a given unit global distance (without anisotropy)
-  /// for a set of variables and a single step
-  virtual MatrixSquareGeneral evalIsoNvarIpas(double step,
-                                              const CovCalcMode& mode = CovCalcMode()) const;
-
+  double evalIsoIvarIpas(int ivar,
+                         int jvar,
+                         double step,
+                         const CovCalcMode& mode = CovCalcMode()) const;
+  VectorDouble evalIsoIvarNpas(int ivar,
+                               int jvar,
+                               const VectorDouble& vec_step,
+                               const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixSquareGeneral evalIsoNvarIpas(double step,
+                                      const CovCalcMode& mode = CovCalcMode()) const;
 };

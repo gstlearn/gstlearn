@@ -2343,7 +2343,7 @@ static void st_migrate_seed(int ndim,
     for (int idim = 0; idim < ndim; idim++)
     {
       locwrk[idim] = loccur[idim] + NBGH(ivois, idim);
-      locwrk[idim] = get_mirror_sample(nxyz[idim], locwrk[idim]);
+      locwrk[idim] = Grid::generateMirrorIndex(nxyz[idim], locwrk[idim]);
     }
     iabs = st_grid_to_sample(ndim, nxyz, locwrk);
     valwrk[ivois] = valtab0[iabs];

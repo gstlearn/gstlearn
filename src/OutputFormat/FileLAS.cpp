@@ -249,8 +249,15 @@ int FileLAS::_readNext(int s_length, int flag_up, int *numline, char *string)
   }
 
   // Convert to uppercase (optional)
-  if (flag_up) string_to_uppercase(string);
+  if (flag_up) _stringToUppercase(string);
 
   return (0);
 }
 
+void FileLAS::_stringToUppercase(char *string) const
+{
+  int n = static_cast<int>(strlen(string));
+  for (int i = 0; i < n; i++)
+    if (string[i] >= 'a' && string[i] <= 'z')
+      string[i] = ('A' + string[i] - 'a');
+}

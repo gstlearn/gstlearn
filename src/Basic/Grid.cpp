@@ -18,6 +18,69 @@
 
 #include <math.h>
 
+typedef struct
+{
+  int curech;
+  int ndim;
+  VectorInt nx;
+  VectorInt order;
+  VectorInt indg;
+  VectorInt tab;
+} DimLoop;
+
+/****************************************************************************/
+/*!
+ ** Perform the recursion through the dimension
+ **
+ ** \param[in]  idim    Space rank
+ ** \param[in]  verbose Verbose flag
+ ** \param[in]  dlp     DimLoop structure
+ **
+ *****************************************************************************/
+static void _dimensionRecursion(int idim, bool verbose, DimLoop& dlp)
+{
+  int order, sdim, nval, ival, ndim;
+
+  // Assignments
+
+  ndim = dlp.ndim;
+
+  if (idim < 0)
+  {
+
+    // We have reached the bottom of the pile, evaluate the absolute address
+
+    ival = dlp.indg[ndim - 1];
+    for (int jdim = ndim - 2; jdim >= 0; jdim--)
+      ival = ival * dlp.nx[jdim] + dlp.indg[jdim];
+    dlp.tab[dlp.curech++] = ival + 1;
+
+    // Optional printout
+
+    if (verbose)
+    {
+      message("node (");
+      for (int jdim = 0; jdim < ndim; jdim++)
+        message(" %d", dlp.indg[jdim] + 1);
+      message(" ) -> %d\n", ival + 1);
+    }
+    return;
+  }
+
+  order = dlp.order[idim];
+  sdim = ABS(order) - 1;
+  nval = dlp.nx[sdim];
+
+  // Loop
+
+  for (int jy = 0; jy < nval; jy++)
+  {
+    dlp.indg[sdim] = (order < 0) ? nval - jy - 1 : jy;
+    _dimensionRecursion(idim - 1, verbose, dlp);
+  }
+  return;
+}
+
 Grid::Grid(int ndim,
              const VectorInt& nx,
              const VectorDouble& x0,
@@ -923,8 +986,79 @@ void Grid::divider(const VectorInt& nmult,
  *****************************************************************************/
 int Grid::getMirrorIndex(int idim, int ix) const
 {
-  int nx = _nx[idim];
-  int nmax = nx - 1;
+  return generateMirrorIndex(_nx[idim], ix);
+}
+/****************************************************************************/
+/*!
+ **  Returns an array giving the ranks of the nodes (according to user's order)
+ **  coded with standard ranks (according to gstlearn internal order)
+ **
+ ** \return Array of indices
+ **
+ ** \param[in]  nx      Array giving the number of cells per direction
+ ** \param[in]  string  String describing the sorting order
+ ** \param[in]  startFromZero True if numbering must start from 0 (1 otherwise)
+ ** \param[in]  verbose Verbose flag
+ **
+ *****************************************************************************/
+VectorInt Grid::generateGridIndices(const VectorInt& nx,
+                                    const String& string,
+                                    bool startFromZero,
+                                    bool verbose)
+{
+  int ndim = (int) nx.size();
+  int ncell = ut_vector_prod(nx);
+
+  // Decode the string
+
+  VectorInt order = decodeGridSorting(string, nx, verbose);
+  if (order.empty()) return VectorInt();
+
+  // Initialization of the recursion structure
+
+  DimLoop dlp;
+  dlp.curech = 0;
+  dlp.ndim = ndim;
+  dlp.nx = nx;
+  dlp.order = order;
+  dlp.indg = VectorInt(ndim,0);
+  dlp.tab = VectorInt(ncell);
+
+  // Recursion
+
+  _dimensionRecursion(ndim-1, verbose, dlp);
+
+  // Invert order
+
+  VectorInt ind(ncell);
+  for (int i = 0; i < ncell; i++) ind[i] = i;
+  ut_sort_int(0, ncell, ind.data(), dlp.tab.data());
+  VectorInt tab2(ncell);
+  for (int i = 0; i < ncell; i++)
+  {
+    tab2[i] = dlp.tab[ind[i]];
+    if (startFromZero) tab2[i] -= 1;
+  }
+
+  return (tab2);
+}
+
+/****************************************************************************/
+/*!
+ **  Return the index of a sample when calculated from mirroring within
+ **  an array whose indices vary between 0 and nx-1
+ **
+ ** \return Rank of the restrained cell
+ **
+ ** \param[in]  nx        Number of cells
+ ** \param[in]  ix        Rank of the cell to be restrained
+ **
+ *****************************************************************************/
+int Grid::generateMirrorIndex(int nx, int ix)
+{
+  int nmax;
+
+  nmax = nx - 1;
   while (!(ix >= 0 && ix < nx))
   {
     if (ix < 0)
@@ -933,3 +1067,4 @@ int Grid::getMirrorIndex(int idim, int ix) const
   }
   return (ix);
 }
+

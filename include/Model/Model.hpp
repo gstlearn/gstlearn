@@ -116,18 +116,16 @@ public:
   int getGradParamNumber(int icov) const;
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
-
-  void setSill(int icov, int ivar, int jvar, double value);
-  void setCovaFiltered(int icov, bool filtered);
-  double getMaximumDistance() const
-  {
-    return _covaList->getMaximumDistance();
-  }
+  double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
   double eval0(int ivar,
                int jvar,
                const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->eval0(ivar, jvar, mode);
+  }
+  MatrixSquareGeneral eval0Nvar(const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->eval0Nvar(mode);
   }
   double eval(int ivar,
               int jvar,
@@ -137,7 +135,34 @@ public:
   {
     return _covaList->eval(ivar, jvar, p1, p2, mode);
   }
+  MatrixSquareGeneral evalNvarIpas(double step,
+                                   const VectorDouble& dir,
+                                   const VectorDouble& center,
+                                   const CovCalcMode& mode) const
+  {
+    return _covaList->evalNvarIpas(step, dir, center, mode);
+  }
+  VectorDouble evalIvarNpas(int ivar,
+                            int jvar,
+                            const VectorDouble& vec_step,
+                            const VectorDouble& dir = VectorDouble(),
+                            const VectorDouble& center = VectorDouble(),
+                            const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalIvarNpas(ivar, jvar, vec_step, dir, center, mode);
+  }
+  double evalIvarIpas(int ivar,
+                      int jvar,
+                      double step,
+                      const VectorDouble& dir,
+                      const VectorDouble& center,
+                      const CovCalcMode& mode) const
+  {
+    return _covaList->evalIvarIpas(ivar, jvar, step, dir, center, mode);
+  }
 
+  void setSill(int icov, int ivar, int jvar, double value);
+  void setCovaFiltered(int icov, bool filtered);
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

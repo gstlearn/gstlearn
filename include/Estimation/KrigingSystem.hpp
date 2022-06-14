@@ -52,7 +52,7 @@ public:
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
-  int  setKrigOptDGM(bool flag_dgm, const AAnam* anam);
+  int  setKrigOptDGM(bool flag_dgm, double rcoeff);
   int  setKrigOptDGMClass(int iclass);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
@@ -88,12 +88,13 @@ private:
   int    _getNDisc() const;
   void   _setFlag(int iech, int ivar, int value);
   int    _getFlag(int iech, int ivar);
-  double _getIdim(int loc_rank, int idim, int iech_out = 0) const;
-  double _getFext(int rank, int ibfl, int iech_out = 0) const;
-  double _getIvar(int rank, int ivar, int iech_out = 0) const;
-  double _getVerr(int rank, int ivar, int iech_out = 0) const;
+  double _getIdim(int loc_rank, int idim) const;
+  double _getFext(int rank, int ibfl) const;
+  double _getIvar(int rank, int ivar) const;
+  double _getVerr(int rank, int ivar) const;
   double _getMean(int ivarCL) const;
   double _getCoefDrift(int ivar, int il, int ib) const;
+  void   _getDistance(int loc_rank1, int loc_rank2, VectorDouble& dd) const;
   int    _IND(int iech, int ivar,int nech) const;
   int    _getFLAG(int iech,int ivar) const;
   double _getCOVTAB(int ivar,int jvar) const;
@@ -120,13 +121,12 @@ private:
   void _resetMemoryPerNeigh();
   void _resetMemoryGeneral();
   void _flagDefine();
-  void _covtabInit(bool flag_init);
+  void _covtabInit();
   void _covtabCalcul(const ECalcMember &member,
-                     bool flag_init,
                      const CovCalcMode& mode,
                      int iech1,
                      int iech2,
-                     VectorDouble d1);
+                     const VectorDouble& d1);
   void _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
@@ -231,8 +231,9 @@ private:
   VectorDouble _varCorrec;
   Model* _modelSimple;
 
-  /// Option for Disjunctive Kriging
+  /// Option for Discrete Gaussian Model
   bool   _flagDGM;
+  double _rDGM;
   int    _iclassDGM;
 
   /// Option for Estimating the Linear Combination of Variables

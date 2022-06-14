@@ -123,16 +123,10 @@ GSTLEARN_EXPORT int foxleg_f(int ndat,
 /* Prototyping the functions in util.c */
 /***************************************/
 
-GSTLEARN_EXPORT int get_mirror_sample(int nx, int ix);
 GSTLEARN_EXPORT int* ut_split_into_two(int ncolor,
                                        int flag_half,
                                        int verbose,
                                        int *nposs);
-GSTLEARN_EXPORT void string_to_uppercase(char *string);
-GSTLEARN_EXPORT void string_to_lowercase(char *string);
-GSTLEARN_EXPORT int string_compare(int flag_case,
-                                   const char *string1,
-                                   const char *string2);
 GSTLEARN_EXPORT void projec_query(int *actif);
 GSTLEARN_EXPORT void projec_print(void);
 GSTLEARN_EXPORT void projec_toggle(int mode);
@@ -225,14 +219,6 @@ GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,
                                            double **tab2);
-GSTLEARN_EXPORT int* ut_name_decode(const char *name,
-                                    int ndim,
-                                    int *nx,
-                                    int verbose);
-GSTLEARN_EXPORT double* ut_rank_cells(int ndim,
-                                      int *nx,
-                                      int *order,
-                                      int verbose);
 
 /*************************************/
 /* Prototyping the functions in io.c */

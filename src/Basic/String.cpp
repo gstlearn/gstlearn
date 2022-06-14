@@ -446,7 +446,7 @@ VectorString separateKeywords(const String &code)
  * @param v String to be decoded
  * @return The integer value or ITEST (in case of failure)
  */
-int toInt(const String &v)
+int toInteger(const String &v)
 {
   std::istringstream iss(v);
   int number;
@@ -778,3 +778,97 @@ char* gslStrncpy(char *dest, const char *src, size_t n)
 {
   return strncpy(dest, src, n);
 }
+
+/****************************************************************************/
+/*!
+ **  Decode the grid sorting order
+ **
+ ** \return Array describing the order
+ **
+ ** \param[in]  string  Name of the sorting string
+ ** \param[in]  nx      Array giving the number of cells per direction
+ ** \param[in]  verbose Verbose flag
+ **
+ ** \remarks The value of order[i] gives the dimension of the space along
+ ** \remarks which sorting takes place at rank "i". This value is positive
+ ** \remarks for increasing order and negative for decreasing order.
+ ** \remarks 'order' values start from 1 (for first space dimension)
+ **
+ *****************************************************************************/
+VectorInt decodeGridSorting(const String& string,
+                            const VectorInt& nx,
+                            bool verbose)
+{
+  int ndim = (int) nx.size();
+  VectorInt order(ndim,0);
+  VectorInt ranks(ndim,0);
+
+  // Loop on the character string
+
+  int idim = 0;
+  int ind = 0;
+  int length = (int) string.size();
+
+  while (ind < length)
+  {
+    int orient = 0;
+    if (string[ind] == '-' && (string[ind+1] == 'x' && std::isdigit(string[ind+2])))
+      orient = -1;
+    else if (string[ind] == '+' && (string[ind+1] == 'x' && std::isdigit(string[ind+2])))
+      orient = 1;
+    else
+      orient = 0;
+
+    if (orient != 0)
+    {
+
+      // The string '+x*' or '-x*' has been encountered
+
+      ind += 2;
+      int num = string[ind] - '0';
+      order[idim] = orient * num;
+      if (num > ndim)
+      {
+        messerr("'order' refers to 'x%d' while space dimension is %d", num,ndim);
+        return VectorInt();
+      }
+      ranks[num - 1] = orient;
+      idim++;
+    }
+    else
+    {
+      ind++;
+    }
+  }
+
+  // Check that all indices (below space dimension) have been specified
+
+  for (int i = 0; i < ndim; i++)
+  {
+    if (ranks[i] != 0) continue;
+    messerr("'x%d' is not mentioned in 'order'", i + 1);
+    return VectorInt();
+  }
+
+  // Optional printout
+
+  if (verbose)
+  {
+    message("Decoding the sorting rule (%s) with nx = (", string);
+    for (int i = 0; i < ndim; i++)
+      message(" %d", nx[i]);
+    message(" )\n");
+    for (int i = 0; i < ndim; i++)
+    {
+      int a_order = ABS(order[i]);
+      message("%d - Dimension=%d - N%d=%d", i + 1, a_order, a_order,
+              nx[a_order - 1]);
+      if (order[i] > 0)
+        message(" - Increasing\n");
+      else
+        message(" - Decreasing\n");
+    }
+  }
+  return (order);
+}
+
