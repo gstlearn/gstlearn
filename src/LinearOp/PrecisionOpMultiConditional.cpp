@@ -182,11 +182,19 @@ double PrecisionOpMultiConditional::sumLogVar() const
 
 double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) const
 {
-  double result = computeLogDetOp(nsimus,seed);
+  double result = 0;
+  result += computeLogDetOp(nsimus,seed);
   result -= computeLogDetQ(nsimus,seed);
   result += sumLogVar();
   return result;
 }
+
+double PrecisionOpMultiConditional::computeQuadratic(const VectorDouble& x) const
+{
+  evalInvCov(x,_work1ter);
+  return ut_vector_inner_product(x,_work1ter);
+}
+
 
 void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVectorDouble& out) const
 {
@@ -262,34 +270,60 @@ void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVe
 
 void PrecisionOpMultiConditional::_allocate(int i) const
 {
+  if (i == 1)
+  {
+    if(_work1bis.empty())
+    {
+      _work1bis.resize(_ndat);
+    }
+  }
+
+  if (i == 0)
+  {
+    if(_work1.empty())
+    {
+      _work1.resize(_ndat);
+    }
+  }
+
   if (i == 3)
   {
     _work3.resize(sizes());
-  }
-  for(int i = 0; i<sizes();i++)
-  {
-    if(_work3[i].empty())
+
+    for(int i = 0; i<sizes();i++)
     {
-      _work3[i].resize(size(i));
+      if(_work3[i].empty())
+      {
+        _work3[i].resize(size(i));
+      }
+    }
+  }
+  if (i ==2)
+  {
+    if(_workdata.empty())
+    {
+      _workdata.resize(_ndat);
+    }
+  }
+  if (i ==4)
+  {
+    if(_work1ter.empty())
+    {
+      _work1ter.resize(_ndat);
     }
   }
 
 }
 
+
 void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDouble& result) const
 {
 
-  if(static_cast<int>(_work1ter.size()) <= 0)
-  {
-      _work1ter.resize(_ndat);
-  }
-
+  _allocate(0);
+  _allocate(1);
+  _allocate(2);
   _allocate(3);
-
-  if(_work1bis.empty())
-  {
-    _work1bis.resize(_ndat);
-  }
+  _allocate(4);
 
   for(int idat = 0; idat < _ndat; idat++)
   {
@@ -317,6 +351,7 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDoubl
 VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const
 {
 
+  _allocate(4);
   int xsize = static_cast<int>(X.size());
   VectorDouble XtInvSigmaZ(static_cast<int>(xsize));
   MatrixSquareSymmetric XtInvSigmaX(xsize,false);
@@ -332,12 +367,6 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
       XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1ter));
     }
   }
-
-//  std::cout<< XtInvSigmaX.getValue(0,0)<< "  "<< XtInvSigmaX.getValue(0,1) <<std::endl;
-//  std::cout<< XtInvSigmaX.getValue(1,0)<< "  "<< XtInvSigmaX.getValue(1,1) <<std::endl;
-//  std::cout <<" ---------------------" <<std::endl;
-//  std::cout<< XtInvSigmaZ[0] << "  "<< XtInvSigmaZ[1] <<std::endl;
-
 
   XtInvSigmaX.solve(XtInvSigmaZ,result);
 

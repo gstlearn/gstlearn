@@ -24,7 +24,7 @@ class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public AStringable
 {
 public:
   ProjMatrix();
-  ProjMatrix(const Db* db, AMesh *a_mesh, int verbose = 0);
+  ProjMatrix(const Db* db, const AMesh *a_mesh, int verbose = 0);
   ProjMatrix(int npoint, int napices, const cs *aproj);
   ProjMatrix(const ProjMatrix &m);
   ProjMatrix& operator= (const ProjMatrix &m);
@@ -32,7 +32,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromDb(const Db* db, AMesh *a_mesh, int verbose = 0);
+  int resetFromDb(const Db* db, const AMesh *a_mesh, int verbose = 0);
   int resetFromPoints(int npoint, int napices, const cs *aproj);
   int resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
   int resetFromDbByNeighOldStyle(const Db* db,

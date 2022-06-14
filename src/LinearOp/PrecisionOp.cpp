@@ -50,7 +50,7 @@ PrecisionOp::PrecisionOp(ShiftOpCs* shiftop,
   }
 }
 
-PrecisionOp::PrecisionOp(AMesh* mesh,
+PrecisionOp::PrecisionOp(const AMesh* mesh,
                          Model* model,
                          int igrf,
                          const EPowerPT& power,

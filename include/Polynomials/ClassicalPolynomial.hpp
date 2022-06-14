@@ -33,7 +33,7 @@ public:
                        VectorDouble& out,const VectorVectorDouble workpoly,int iapex,int igparam)const;
   void evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const ;
   void evalOp(const ALinearOpMulti* /*Op*/,
-              VectorVectorDouble& /*in*/,
+              const VectorVectorDouble& /*in*/,
               VectorVectorDouble& /*out*/) const override { }
   void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
 };

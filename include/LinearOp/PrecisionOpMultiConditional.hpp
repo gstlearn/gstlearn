@@ -41,9 +41,11 @@ public:
   double computeLogDetOp(int nsimus = 1, int seed = 123) const;
   double computeLogDetQ(int nsimus = 1, int seed = 123) const;
   double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
+  double computeQuadratic(const VectorDouble& x) const;
   void preparePoly(Chebychev& logPoly) const;
   void AtA(const VectorVectorDouble& in,VectorVectorDouble& out) const;
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
+  const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*)_multiProjData[i];}
 
 protected:
   void _evalDirect(const VectorVectorDouble& in,

@@ -215,17 +215,19 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
 }
 
 
-void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const
+void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
   // Initialization
 
-  VectorVectorDouble* tm2 = &in;
+
+  VectorVectorDouble* tm2 = &Op->_z;
   VectorVectorDouble* tm1 = &Op->_temp;
   VectorVectorDouble* t0 = &Op->_p;
   VectorVectorDouble* swap;
 
+  Op->_copyVals(in,*tm2);
   // tm1 = v1 Op tm2 + v2 tm2
     Op->evalDirect(*tm2,*tm1);
     Op->_linearComb(v1,*tm1,v2,*tm2,*tm1);
@@ -244,7 +246,7 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVe
       Op->evalDirect(*tm1,*t0);
       Op->_linearComb(v1, *t0, v2, *tm1, *t0);
 
-      // t0 = t0 - tm2
+      // t0 = 2 * t0 - tm2
 
       Op->diff(*tm2,*t0,*t0);
 

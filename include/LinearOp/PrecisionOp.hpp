@@ -30,7 +30,7 @@ public:
               const CovAniso* cova = nullptr,
               const EPowerPT& power = EPowerPT::UNDEFINED,
               bool verbose = false);
-  PrecisionOp(AMesh* mesh,
+  PrecisionOp(const AMesh* mesh,
               Model* model,
               int igrf = 0,
               const EPowerPT& power = EPowerPT::ONE,
