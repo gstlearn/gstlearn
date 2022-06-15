@@ -6,17 +6,6 @@ endif()
 
 # Look for Python3 (
 find_package(Python3 REQUIRED)
-get_filename_component(PYDIR ${Python3_EXECUTABLE} DIRECTORY)
-set(PYTHON3_EXECUTABLE_DIR ${PYDIR} CACHE STRING "python3_dir")
-
-#set(CMAKE_FIND_DEBUG_MODE TRUE)
-#execute_process(COMMAND which jupyter-nbconvert)
-
-# Look for jupyter-nbconvert executable
-find_program(JUPYTER_NBCONVERT_EXECUTABLE REQUIRED
-             NAMES jupyter-nbconvert
-             PATHS ${PYTHON3_EXECUTABLE_DIR})
-             #NO_DEFAULT_PATH)
 
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
@@ -50,7 +39,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
                OUTPUT_VARIABLE TEST_SOURCE_FILE)
     # Run the test (and generate asciidoc in ${TEST_DST_DIR} - asciidoc extension will be added by nbconvert) 
     add_test(NAME ${TEST_NAME}_ipynb
-             COMMAND ${JUPYTER_NBCONVERT_EXECUTABLE} ${TEST_SOURCE_FILE} --to asciidoc --no-prompt --log-level=WARN --execute --output ${TEST_DST_DIR}/${TEST_NAME})
+             COMMAND ${Python3_EXECUTABLE} -m nbconvert ${TEST_SOURCE_FILE} --to asciidoc --no-prompt --log-level=WARN --execute --output ${TEST_DST_DIR}/${TEST_NAME})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
     # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
     add_test(NAME ${TEST_NAME}_ipynb_cmp
