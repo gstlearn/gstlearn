@@ -153,7 +153,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
               linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
               flagLabelDir=False, flagLegend=False, flagLabelSill=False,
               title=None, xlabel=None, ylabel=None, label=None,
-              ax=None, figsize=None, end_plot = False, **plot_args):
+              ax=None, figsize=None, end_plot = False, flagDrawVariance = True,
+              **plot_args):
     """Plot a single and unidirectional experimental variogram (one direction and fixed variable(s)).
     
     Parameters
@@ -174,7 +175,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
     end_plot : Flag for closing the graphics (the default is False).
-    
+    flagDrawVariance : Flag to add the variance (default is True)
     **plot_args : arguments passed to matplotlib.pyplot.plot
 
     Returns
@@ -207,8 +208,9 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     labsill = None
     if flagLabelSill:
         labsill = "sill"
-        
-    ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0, label = labsill)
+
+    if flagDrawVariance:
+        ax.hlines(vario.getVar(ivar,jvar), 0, hmax, color0, linestyle0, label = labsill)
     
     if show_pairs:
         pairs = vario.getSwVec(idir,ivar,jvar)
@@ -527,10 +529,10 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     drawDecor(ax, xlabel, ylabel, title)
     
     ax.autoscale(True)
-    if vario.drawOnlyPositiveX(ivar, jvar):
-        ax.set_xlim(left=0)
-    if vario.drawOnlyPositiveY(ivar, jvar):
-        ax.set_ylim(bottom=0)
+#    if vario.drawOnlyPositiveX(ivar, jvar):
+#        ax.set_xlim(left=0)
+#    if vario.drawOnlyPositiveY(ivar, jvar):
+#        ax.set_ylim(bottom=0)
     
     if flagLegend:
         ax.legend()

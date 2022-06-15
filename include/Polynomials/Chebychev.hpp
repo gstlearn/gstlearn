@@ -19,6 +19,7 @@ public:
   IClonable* clone() const override {return new Chebychev(*this);}
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
   static Chebychev* createFromCoeffs(const VectorDouble coeffs);
+  void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}
   int getNcMax() const {return _ncMax;}
   int getNDisc() const {return _nDisc;}
   double getA() const {return _a;}
@@ -31,7 +32,7 @@ public:
   void setVerbose(bool verbose){_verbose = verbose;}
 
   void evalOp(cs* Op,const VectorDouble& in, VectorDouble& out) const override;
-  void evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const override;
+  void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const override;
   double eval(double x) const override;
   int fit(std::function<double(double)> f,
           double a = 0.,

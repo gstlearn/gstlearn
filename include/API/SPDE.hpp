@@ -11,6 +11,7 @@ class ShiftOpCs;
 class Db;
 class DbGrid;
 class PrecisionOp;
+class PrecisionOpCs;
 class Model;
 class MeshETurbo;
 
@@ -29,22 +30,26 @@ public:
   void init(Model* model,
             const DbGrid* field,
             const Db* dat = nullptr,
-            const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
+            const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND,
+            const AMesh* mesh = nullptr);
   void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
-  double computeLogLike() const;
-  double computeProfiledLogLike() const;
+  double computeLogLike(int nbsimus = 1, int seed = 131323) const;
+  double computeProfiledLogLike(int nbsimus = 1, int seed = 131323) const;
   VectorDouble getCoeffs();
+  void centerByDrift(const VectorDouble& dataVect,int ivar=0,bool useSel=true) const;
+
   void setDriftCoeffs(VectorDouble coeffs);
   double computeLogDet(int nbsimus = 1,int seed = 1234) const;
   int query(Db *db,
             const NamingConvention &namconv = NamingConvention("spde")) const;
-  const PrecisionOp* getPrecisionOp(int i = 0) const  { return _pilePrecisions[i];}
+  const PrecisionOpCs* getPrecisionOp(int i = 0) const  { return (PrecisionOpCs*)_pilePrecisions[i];}
   const ProjMatrix* getProj(int i = 0) const  { return _pileProjMatrix[i];}
-  PrecisionOpMultiConditional getPrecisionKriging() const { return _precisionsKriging;}
-
+  const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKriging;}
+  double computeQuad() const;
+  const Db* getData() const {return  _data;}
 private:
   void _computeDriftCoeffs() const;
   void _purge();
@@ -67,22 +72,24 @@ private:
 private:
   const Db*_data;
   ESPDECalcMode _calcul;
-  PrecisionOpMultiConditional _precisionsKriging;
-  PrecisionOpMultiConditional _precisionsSimu;
+  PrecisionOpMultiConditional* _precisionsKriging;
+  PrecisionOpMultiConditional* _precisionsSimu;
   std::vector<PrecisionOp*>   _pilePrecisions;
   std::vector<ProjMatrix*>    _pileProjMatrix;
-  std::vector<MeshETurbo*>    _simuMeshing;
-  std::vector<MeshETurbo*>    _krigingMeshing;
+  std::vector<const AMesh*>         _simuMeshing;
+  std::vector<const AMesh*>         _krigingMeshing;
   mutable VectorDouble        _driftCoeffs;
   Model*                      _model;
   mutable VectorVectorDouble  _workKriging;
   mutable VectorVectorDouble  _workingSimu;
   mutable VectorDouble        _workingData;
+  mutable VectorDouble        _workingData2;
   std::vector<ProjMatrix*>    _projOnDbOut;
   VectorInt                   _adressesICov;
   double _nugget;
   VectorVectorDouble _driftTab;
-  mutable bool _requireCoeffs;
+  bool _requireCoeffs;
   mutable bool _isCoeffsComputed;
+  bool _deleteMesh;
   // query sur aproj ou // TODO ??
 };

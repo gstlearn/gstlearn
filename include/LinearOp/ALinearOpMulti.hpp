@@ -70,6 +70,7 @@ public:
                 VectorVectorDouble&) const;
   mutable VectorVectorDouble _temp;
   mutable VectorVectorDouble _p;
+  mutable VectorVectorDouble _z;
 
 protected:
   void _init() const;
@@ -87,7 +88,6 @@ private:
   // Work arrays
 
   mutable bool               _initialized;
-  mutable VectorVectorDouble _z;
   mutable VectorVectorDouble _r;
 
 

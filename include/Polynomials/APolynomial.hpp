@@ -45,7 +45,7 @@ public:
   void setCoeffs(const VectorDouble coeffs){_coeffs = coeffs;}
 
   int getDegree() const { return static_cast<int>(_coeffs.size());}
-  virtual void evalOp(const ALinearOpMulti* Op,VectorVectorDouble& in, VectorVectorDouble& out) const =0;
+  virtual void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const =0;
   virtual int fit(std::function<double(double)> /*f*/,
                   double /*from*/ = 0.,
                   double /*to*/ = 1.,

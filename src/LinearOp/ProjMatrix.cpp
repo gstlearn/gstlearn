@@ -26,7 +26,7 @@ ProjMatrix::ProjMatrix()
 {
 }
 
-ProjMatrix::ProjMatrix(const Db* db, AMesh *a_mesh, int verbose)
+ProjMatrix::ProjMatrix(const Db* db,const  AMesh *a_mesh, int verbose)
   : AStringable()
   , _nPoint(0)
   , _nApices(0)
@@ -80,7 +80,7 @@ ProjMatrix::~ProjMatrix()
 }
 
 
-int ProjMatrix::resetFromDb(const Db* db, AMesh *a_mesh, int verbose)
+int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int verbose)
 {
   if (db != nullptr)
   {
