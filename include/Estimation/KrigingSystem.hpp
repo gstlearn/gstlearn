@@ -53,7 +53,6 @@ public:
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double rcoeff);
-  int  setKrigOptDGMClass(int iclass);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
@@ -234,7 +233,6 @@ private:
   /// Option for Discrete Gaussian Model
   bool   _flagDGM;
   double _rDGM;
-  int    _iclassDGM;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;

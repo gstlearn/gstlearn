@@ -7124,7 +7124,7 @@ int dk(Db* dbin,
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
       if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-      if (ksys.setKrigOptDGMClass(iclass)) return 1;
+//      if (ksys.setKrigOptDGMClass(iclass)) return 1;
       if (model_anamorphosis_set_factor(model, iclass)) return 1;
       if (ksys.estimate(iech_out)) return 1;
     }

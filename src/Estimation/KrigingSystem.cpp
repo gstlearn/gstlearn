@@ -88,7 +88,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _modelSimple(nullptr),
       _flagDGM(false),
       _rDGM(1.),
-      _iclassDGM(false),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -2420,24 +2419,6 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff)
 {
   _flagDGM = flag_dgm;
   _rDGM = rcoeff;
-  return 0;
-}
-
-int KrigingSystem::setKrigOptDGMClass(int iclass)
-{
-  if (! _flagDGM)
-  {
-    messerr("You may not modify the Class rank here");
-    messerr("You should have turned the 'flagDGM' ON beforehand");
-    return 1;
-  }
-  if (iclass <= 0 || iclass > _anam->getNFactor())
-  {
-    messerr("Wrong 'ifactor' (%d): it should lie between 1 and the maximum number of factors (%d)",
-            iclass, _anam->getNFactor());
-    return 1;
-  }
-  _iclassDGM = iclass;
   return 0;
 }
 
