@@ -33,6 +33,8 @@ Note:
   
 ## Installation
   
+  These instructions will compile and install the Python package in your usual Python site-packages directory:
+  
 ### Microsoft Visual Studio, XCode, ...
 
     cmake -Bbuild -H.

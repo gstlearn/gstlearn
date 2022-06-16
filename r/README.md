@@ -23,6 +23,8 @@ This package contains a modified copy of [findR.cmake](https://github.com/root-p
   
 ## Installation
 
+These instructions will compile and install the R package in your usual R libraries directory:
+
 ### GCC, Clang, MinGW, ...
 
     cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
@@ -84,7 +86,7 @@ Notes:
 
 ### Windows:
 
-First, install R and RTools with Boost and HDF5 support by following (these instructions)[https://github.com/gstlearn/gstlearn#minggw-rtools].
+First, install R and RTools with Boost and HDF5 support by following [these instructions](https://github.com/gstlearn/gstlearn#minggw-rtools).
 
 Then, download and install the following tools:
 
