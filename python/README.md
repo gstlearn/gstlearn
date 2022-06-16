@@ -17,17 +17,17 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
 ## Requirements
 
-For using this package, the requirements for building *gstlearn C++ library* must be installed:
+1. For using this package, the requirements for building *gstlearn C++ library* must be installed:
 
 * See [instructions here](https://github.com/gstlearn/gstlearn#required-tools-installation)
   
-The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
+2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
 * SWIG 4 or higher
 * Python 3 or higher with *pip*, *numpy*, *pybind11* and *matplotlib* modules installed
-* Optionnaly, following Python modules can be installed: *pypandoc*, *geopandas*, *jupyter*
+* Optionnaly, following Python modules can also be installed [optional]: *pypandoc*, *geopandas*, *jupyter*
 
-See [required tools installation](#required-tools-installation) instructions below
+3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
 
 Note:
 

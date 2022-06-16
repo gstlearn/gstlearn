@@ -9,15 +9,17 @@ The R *gstlearn* package is a R wrapper of the [gstlearn C++ Library](https://gi
 
 ## Requirements
 
-For using this package, the requirements for building *gstlearn C++ library* must be installed:
+1. For using this package, the requirements for building *gstlearn C++ library* must be installed:
 
 * See [instructions here](https://github.com/gstlearn/gstlearn#required-tools-installation)
-  
-The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
+
+2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
 * SWIG 4 or higher
 * R 4 or higher with ggplot2 and gridExtra packages
 * RTools 4 for Windows user
+
+3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
   
 ## Installation
 

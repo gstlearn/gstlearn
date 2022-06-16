@@ -161,7 +161,7 @@ Download and install the following tools:
 
 Download and install the following tools:
 
-* R 4 or higher
+* R 4 or higher [from here](https://cran.r-project.org)
 * RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
   
 Notes:
