@@ -5,14 +5,12 @@ add_custom_target(build_tests)
 add_custom_target(check)
 
 # Define ctest command # TODO : really needed ? (yaml use --target check)
+set(VERBOSE_TEST --verbose)
 if (MSVC) # TODO use IS_MULTI_CONFIG
   # Need configuration to be tested
-#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose -C $<CONFIG> --output-on-failure)
-  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} -C $<CONFIG> --output-on-failure)
-else()
-#  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
-  set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure)
+  set(CONFIG_TEST -C $<CONFIG>)
 endif()
+set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} ${VERBOSE_TEST} ${CONFIG_TEST} --output-on-failure)
 
 # TODO : Output logs of each target are mixed when using several processors
 
@@ -24,7 +22,9 @@ set(CHECK_DEP check_cpp check_data)
 if (BUILD_PYTHON)
   add_subdirectory(py)
   add_subdirectory(ipynb)
-#  list(APPEND CHECK_DEP check_py check_ipynb) # TODO : ipynb non-reg not yet possible on github
+  # TODO : create a python script and recover only the output
+  # TODO : ipynb non-reg not yet possible on github
+#  list(APPEND CHECK_DEP check_py check_ipynb) 
   list(APPEND CHECK_DEP check_py)
 endif()
 

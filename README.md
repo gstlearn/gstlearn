@@ -32,10 +32,10 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
 * [CMake](https://cmake.org/download) tool 3.20 or higher
 * A C++ compiler:
   * Linux/MacOS:
-   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
+    * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
   * Windows:
-   * [Microsoft Visual Studio C++](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) 14 or higher
-   * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
+    * [Microsoft Visual Studio C++](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) 14 or higher
+    * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
 * [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
 * [Boost](https://www.boost.org/users/download) header files
 * [HDF5](https://www.hdfgroup.org/solutions/hdf5/) [Optional] C & C++ library and header files 1.8 or higher 
@@ -49,7 +49,7 @@ For getting the sources files, just clone the github repository:
 
 Notes:
 
-* In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn`)
+* In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn` above)
 
 ## Library compilation & installation
 
