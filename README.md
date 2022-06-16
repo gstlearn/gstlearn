@@ -15,11 +15,13 @@ The name 'gstlearn' stands for several purposes:
 * A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
 * A R Package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
+If you simply want to install the Python or R package for gstlearn you should look at the corresponding sub folders.
+
 ## References
 
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PariTech](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
 
@@ -28,18 +30,20 @@ When using the *gstlearn* C++ Library, please use the citation from [doc/gstlear
 This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
-* [Git](https://git-scm.com/downloads) client
-* [CMake](https://cmake.org/download) tool 3.20 or higher
+* Git client
+* CMake tool 3.20 or higher
 * A C++ compiler:
   * Linux/MacOS:
-    * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
+    * GCC compiler 5.4 or higher
   * Windows:
-    * [Microsoft Visual Studio C++](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) 14 or higher
-    * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
-* [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-* [Boost](https://www.boost.org/users/download) header files
-* [HDF5](https://www.hdfgroup.org/solutions/hdf5/) [Optional] C & C++ library and header files 1.8 or higher 
-  
+    * Microsoft Visual Studio C++ 14 or higher
+    * MinGW 7 or higher (we propose the one provided with RTools)
+* Doxygen 1.8.3 or higher
+* Boost header files
+* HDF5 [Optional] C & C++ library and header files 1.8 or higher
+
+See [required tools installation](#required-tools-installation) instructions below
+
 ## Get the sources
 
 For getting the sources files, just clone the github repository:
@@ -153,16 +157,16 @@ Download and install the following tools:
 * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory for example)
 * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
 
-#### MingGW
+#### MingGW (RTools)
 
 Download and install the following tools:
 
-* Rtools4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
+* RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
   
 Notes:
 
 * You must restart your computer after installing these requirements
-* Rtools is not the unique way to install MinGW, but it is the best way to create R packages on Windows.
+* Rtools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 
 Then, from a Windows command prompt, execute following instructions:
 
