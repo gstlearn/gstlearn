@@ -38,8 +38,8 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
   * Windows:
     * Microsoft Visual Studio C++ 14 or higher
     * MinGW 7 or higher (we propose the one provided with RTools)
-* Doxygen 1.8.3 or higher
 * Boost header files
+* Doxygen [Optional] 1.8.3 or higher
 * HDF5 [Optional] C & C++ library and header files 1.8 or higher
 
 See [required tools installation](#required-tools-installation) instructions below
@@ -69,7 +69,7 @@ or for those who prefer a single command line
 
     mkdir -p build & cd build & cmake .. & make shared & make install
 
-or even faster
+or even faster (see [shortcut Makefile](https://github.com/gstlearn/gstlearn/blob/main/Makefile))
 
     make
 
@@ -95,7 +95,7 @@ Notes:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above
+* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
 * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/tree/main/python)
 * Only the *shared* library (built by default) is installed.
 * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
@@ -107,7 +107,7 @@ Notes:
 Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
 
 ## Required tools installation
-Please note that HDF5 support is optional
+Please note that HDF5 and Doxygen installation is optional.
 
 ### Linux (Ubuntu):
 
@@ -161,12 +161,13 @@ Download and install the following tools:
 
 Download and install the following tools:
 
+* R 4 or higher
 * RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
   
 Notes:
 
 * You must restart your computer after installing these requirements
-* Rtools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
+* RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 
 Then, from a Windows command prompt, execute following instructions:
 
