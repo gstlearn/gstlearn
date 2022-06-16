@@ -7,6 +7,8 @@ Copyright (c) MINES Paris / PSL University
 
 The R *gstlearn* package is a R wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
+This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).
+
 ## Requirements
 
 1. For using this package, the requirements for building *gstlearn C++ library* must be installed: See [instructions here](https://github.com/gstlearn/gstlearn#required-tools-installation)
