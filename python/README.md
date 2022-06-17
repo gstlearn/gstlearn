@@ -1,7 +1,7 @@
 ## Overview
 
 The Python *gstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
-Copyright (c) MINES Paristech / PSL University
+Copyright (c) MINES Paris / PSL University
 
 If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib* (see [modules](https://github.com/gstlearn/gstlearn/tree/main/python/modules) directory).
 
@@ -17,35 +17,23 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
 ## Requirements
 
-For using this package, the requirements for building *gstlearn C++ library* must be installed:
-
-* See [instructions here](https://github.com/gstlearn/gstlearn)
+1. For using this package, the requirements for building *gstlearn C++ library* must be installed: See [instructions here](https://github.com/gstlearn/gstlearn#required-tools-installation)
   
-The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
+2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
-* [Python](https://www.python.org/downloads) 3 or higher with *pip*, *numpy*, *pypandoc*, *pybind11* and *matplotlib* modules installed
-* [SWIG](http://www.swig.org/download.html) 4 or higher
+    * SWIG 4 or higher
+    * Python 3 or higher with *pip*, *numpy*, *pybind11* and *matplotlib* modules installed
+    * Optionnaly, following Python modules can also be installed [optional]: *pypandoc*, *geopandas*, *jupyter*
+
+3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
 
 Note:
 
 * In all commands below, users must use the correct `python` command (python command prompt) (can be `python3`, `python` or something else depending on your configuration)
   
 ## Installation
-
-### GCC, Clang, MinGW, ...
-
-    cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
-    cmake --build build --target python_doc
-    cmake --build build --target python_install
-
-or for those who prefer a single command line
-
-    make python_doc & make python_install
-
-Note:
-
-* The Python package documentation (python_doc target) is optional
-* Using MingGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
+  
+  These instructions will compile and install the Python package in your usual Python site-packages directory:
   
 ### Microsoft Visual Studio, XCode, ...
 
@@ -53,15 +41,11 @@ Note:
     cmake --build build --target python_doc --config Release
     cmake --build build --target python_install --config Release
 
-Note:
-
-* The Python package documentation (python_doc target) is optional
-* Using Visual Studio on a Windows where MingGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
-  
 ### Important Notes
 
-Notes:
-
+* Under Windows, using Visual Studio is mandatory for compiling Python packages
+* The Python package documentation (python_doc target) is optional and requires Doxygen (see (here)[https://github.com/gstlearn/gstlearn#required-tools-installation])
+* Using Visual Studio on a Windows where MingGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
   * `-DBoost_ROOT=<path/to/boost>`
@@ -69,7 +53,7 @@ Notes:
 
 ## Usage
 
-Simply import the package and its plot module, then enjoy:
+Simply import the *gstlearn* package and its plot module, then enjoy:
 
     # Import packages
     import numpy as np
@@ -102,6 +86,7 @@ Execute the following commands:
     sudo apt install swig
     python3 -m ensurepip --upgrade
     python3 -m pip install pybind11 numpy matplotlib
+    python3 -m pip install pypandoc geopandas jupyter
 
 Notes:
 
@@ -115,6 +100,7 @@ Execute the following commands (Not tested):
     brew install swig
     python3 -m ensurepip --upgrade
     python3 -m pip install pybind11 numpy matplotlib
+    python3 -m pip install pypandoc geopandas jupyter
 
 Notes:
 
@@ -129,6 +115,7 @@ Download and install the following tools:
 * Pybind11, numpy and matplolib python modules by running following instructions in a command prompt:
 
     python -m pip install pybind11[global] numpy matplotlib
+    python -m pip install pypandoc geopandas jupyter
   
 Notes:
 
@@ -149,7 +136,7 @@ Note : You may need to directly modify your site-packages folder by:
 
 ## Documentation
 
-The classes and functions documentation is provided with the gstlearn package as html files generated by doxygen. Please refer to gstlearn [README file](https://github.com/gstlearn/gstlearn) for more details. This documentation is also available using the `help` python command (if generated).
+The classes and functions documentation is provided with the gstlearn package as html files generated by Doxygen [optional]. Please refer to gstlearn [README file](https://github.com/gstlearn/gstlearn) for more details. This documentation is also available using the `help` python command (if generated).
 
 ---
 

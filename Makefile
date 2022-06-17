@@ -1,4 +1,11 @@
-# This Makefile is just a shortcut to cmake commands for make users (Linux-gcc or Windows-msys)
+####################################################################
+#
+#               GSTLEARN C++ Library and Packages
+#
+####################################################################
+#
+# This Makefile is just a shortcut to cmake commands
+# for make users (Linux-GCC, MacOS-clang or Windows-Rtools)
 #
 # Call 'make' with one of this target:
 # 
@@ -10,7 +17,7 @@
 #  - install        Install gstlearn shared library [and html doxymentation]
 #  - uninstall      Uninstall gstlearn shared library [and html doxymentation]
 #
-# Python wrapper (only for Linux-gcc):
+# Python wrapper (only for Linux-GCC or MacOS-clang):
 #  - python_doc     Build python package documentation [optional]
 #  - python_build   Build python wrapper [and its documentation]
 #  - python_install Install python package [and its documentation]
@@ -28,7 +35,7 @@
 #  - check_py       Execute non-regression tests (python)
 #  - check_ipynb    Execute non-regression tests (jupyter-notebook)
 #  - check_r        Execute non-regression tests (R)
-#  - check          Execute non-regression tests (data + cpp + python + jupyter-notebook + R)
+#  - check          Execute non-regression tests (data + cpp + python + R [+ jupyter-notebook in a close future])
 #
 # Clean:
 #  - clean          Clean generated files
@@ -46,7 +53,10 @@
 #  make check N_PROC=2
 #
 
-USE_HDF5 = 1
+
+ifndef USE_HDF5
+  USE_HDF5 = 1
+endif
 
 ifeq ($(OS),Windows_NT)
   GENERATOR = -G"MSYS Makefiles"
@@ -86,7 +96,7 @@ endif
 all: shared install
 
 cmake:
-	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=${USE_HDF5} -B$(BUILD_DIR) -H. $(GENERATOR)
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR)
 
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)

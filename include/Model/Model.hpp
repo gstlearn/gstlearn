@@ -43,6 +43,7 @@ class Vario;
 class ANoStat;
 class ADriftElem;
 
+/// TODO : Create AModel which inherits from ACov ?
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
 {
 public:
@@ -300,6 +301,7 @@ private:
   void _copyCovContext();
 
 private:
+  /// TODO : Transform to ACov in place of ACovAnisoList (to be put in AModel)
   ACovAnisoList* _covaList;     /* Series of Covariance structures */
   DriftList*     _driftList;    /* Series of Drift functions */
   ANoStat*       _noStat;       /* Description of Non-stationary Model */

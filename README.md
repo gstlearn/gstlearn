@@ -15,11 +15,13 @@ The name 'gstlearn' stands for several purposes:
 * A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
 * A R Package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
+If you simply want to install the Python or R package for gstlearn you should look at the corresponding sub folders.
+
 ## References
 
 The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES PariTech](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
 
@@ -28,18 +30,20 @@ When using the *gstlearn* C++ Library, please use the citation from [doc/gstlear
 This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
 For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
-* [Git](https://git-scm.com/downloads) client
-* [CMake](https://cmake.org/download) tool 3.20 or higher
+* Git client
+* CMake tool 3.20 or higher
 * A C++ compiler:
   * Linux/MacOS:
-   * [GCC](https://gcc.gnu.org) compiler 5.4 or higher
+    * GCC compiler 5.4 or higher
   * Windows:
-   * [Microsoft Visual Studio C++](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) 14 or higher
-   * [MinGW](https://wiki.python.org/moin/WindowsCompilers#GCC_-_MinGW-w64_.28x86.2C_x64.29) 7 or higher
-* [Doxygen](https://www.doxygen.nl/download.html) 1.8.3 or higher
-* [Boost](https://www.boost.org/users/download) header files
-* [HDF5](https://www.hdfgroup.org/solutions/hdf5/) [Optional] C & C++ library and header files 1.8 or higher 
-  
+    * Microsoft Visual Studio C++ 14 or higher
+    * MinGW 7 or higher (we propose the one provided with RTools)
+* Boost header files
+* Doxygen [Optional] 1.8.3 or higher
+* HDF5 [Optional] C & C++ library and header files 1.8 or higher
+
+See [required tools installation](#required-tools-installation) instructions below
+
 ## Get the sources
 
 For getting the sources files, just clone the github repository:
@@ -49,7 +53,7 @@ For getting the sources files, just clone the github repository:
 
 Notes:
 
-* In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn`)
+* In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn` above)
 
 ## Library compilation & installation
 
@@ -65,7 +69,7 @@ or for those who prefer a single command line
 
     mkdir -p build & cd build & cmake .. & make shared & make install
 
-or even faster
+or even faster (see [shortcut Makefile](https://github.com/gstlearn/gstlearn/blob/main/Makefile))
 
     make
 
@@ -91,7 +95,7 @@ Notes:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above
+* If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
 * The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/tree/main/python)
 * Only the *shared* library (built by default) is installed.
 * You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
@@ -103,7 +107,7 @@ Notes:
 Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
 
 ## Required tools installation
-Please note that HDF5 support is optional
+Please note that HDF5 and Doxygen installation is optional.
 
 ### Linux (Ubuntu):
 
@@ -153,16 +157,17 @@ Download and install the following tools:
 * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory for example)
 * HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
 
-#### MingGW
+#### MingGW (RTools)
 
 Download and install the following tools:
 
-* Rtools4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
+* R 4 or higher [from here](https://cran.r-project.org)
+* RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
   
 Notes:
 
 * You must restart your computer after installing these requirements
-* Rtools is not the unique way to install MinGW, but it is the best way to create R packages on Windows.
+* RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 
 Then, from a Windows command prompt, execute following instructions:
 
