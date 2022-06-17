@@ -13,6 +13,7 @@ if ($nargs < 2) then
 		echo "   name1    : Name of the subContainer (e.g.: data)"
 		echo "   nametest : Name of the test (e.g.: Jeu1)"
 		echo "   option   : must be either Debug or Release (default: Release)"
+		echo "   ajout    : additional parameters for diff (example: -w=160 --side"
 		exit
 endif
 
@@ -23,6 +24,12 @@ if ($nargs > 2) then
 		set option = $argv[3]
 else
 		set option = "Release"
+endif
+
+if ($nargs > 3) then
+		set ajout = $argv[4]
+else
+		set ajout = ""
 endif
 
 if ($name1 == "data") then
@@ -48,9 +55,14 @@ if ($name1 == "r") then
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
+if ($name1 == "ipynb") then
+		set direc   = "output"
+		set nametest = `basename $nametest .ipynb`
+		set nameref = $nametest.asciidoc
+		set namecmp = $nametest.asciidoc
+endif
 
 set FILEREF = $DIR/tests/$name1/$direc/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp
 
-diff --side -b $FILEREF $FILECMP
-
+diff -b $FILEREF $FILECMP $ajout

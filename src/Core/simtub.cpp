@@ -66,7 +66,6 @@
 
 static int FLAG_DGM;
 static double GIBBS_RHO, GIBBS_SQR;
-static double R_COEFF;
 static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
 
 /****************************************************************************/
@@ -79,7 +78,6 @@ static void st_simulation_environment(void)
   FLAG_DGM = 0;
   GIBBS_RHO = 0.;
   GIBBS_SQR = 0.;
-  R_COEFF = 0.;
 }
 
 /****************************************************************************/
@@ -634,7 +632,7 @@ int simbool(Db* dbin,
  ** \return  Error return code
  **
  ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
+ ** \param[in]  dbout      Output Db Grid structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure (optional)
  ** \param[in]  rval       Change of support coefficient
@@ -648,7 +646,7 @@ int simbool(Db* dbin,
  **
  *****************************************************************************/
 int simdgm(Db *dbin,
-           Db *dbout,
+           DbGrid *dbout,
            Model *model,
            ANeighParam *neighparam,
            double rval,
@@ -674,7 +672,6 @@ int simdgm(Db *dbin,
 
   st_simulation_environment();
   FLAG_DGM = 1;
-  R_COEFF = rval;
 
   /* Add the attributes for storing the results */
 
@@ -689,7 +686,8 @@ int simdgm(Db *dbin,
   // Processing the Turning Bands algorithm
 
   situba = SimuTurningBands(nbsimu, nbtuba, model,seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
+  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(), VectorDouble(),
+                      false, false, true, rval)) goto label_end;
 
   // Check the simulations at data locations
 

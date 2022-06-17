@@ -25,8 +25,9 @@ public:
   CovGCspline& operator= (const CovGCspline &r);
   virtual ~CovGCspline();
 
-  int    hasRange() const override { return -1; }
+  int            hasRange() const override { return -1; }
   String         getCovName() const override { return "Spline G.C."; }
+  int            getMinOrder() const override { return 1; }
 
 protected:
   double _evaluateCov(double h) const override;

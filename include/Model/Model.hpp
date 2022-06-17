@@ -94,6 +94,7 @@ public:
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
+  int    addAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
@@ -117,6 +118,10 @@ public:
   double getTotalSill(int ivar, int jvar) const;
   double getBallRadius() const;
   double getMaximumDistance() const { return _covaList->getMaximumDistance(); }
+  int    getMinOrder() const { return _covaList->getMinOrder(); }
+  bool   hasAnam() const { return _covaList->hasAnam(); }
+  const AAnam* getAnam() { return _covaList->getAnam(); }
+
   double eval0(int ivar,
                int jvar,
                const CovCalcMode& mode = CovCalcMode()) const
@@ -163,6 +168,7 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
+  int    setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

@@ -23,6 +23,7 @@ class CovCalcMode;
 class ECalcMember;
 class NeighImage;
 class AAnam;
+class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT KrigingSystem
 {
@@ -52,11 +53,13 @@ public:
   int  setKrigoptCode(bool flag_code);
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
-  int  setKrigOptDGM(bool flag_dgm, double rcoeff);
+  int  setKrigOptDGM(bool flag_dgm, double rcoeff, double eps = EPSILON6);
   int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
   int  setKrigOptAnamophosis(AAnam* anam);
+  int  setKrigOptIclass(int index_class);
+  int  setKrigOptFactorKriging(bool flag_factor_kriging);
   int  setKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
@@ -126,13 +129,18 @@ private:
                      int iech1,
                      int iech2,
                      const VectorDouble& d1);
+  void _covtabModifyDGM(const ECalcMember &member,
+                        int iech1,
+                        int iech2,
+                        const VectorDouble& d1,
+                        MatrixSquareGeneral& mat);
   void _drftabCalcul(const ECalcMember &member, int iech);
   bool _isAuthorized();
   double _continuousMultiplier(int rank1,int rank2, double eps = EPSILON4);
   void _lhsCalcul();
   void _lhsIsoToHetero();
   void _lhsDump(int nbypas = 5);
-  int  _rhsCalcul(int rankRandom = -1);
+  int  _rhsCalcul();
   void _rhsIsoToHetero();
   void _rhsDump();
   void _wgtCalcul();
@@ -233,6 +241,10 @@ private:
   /// Option for Discrete Gaussian Model
   bool   _flagDGM;
   double _rDGM;
+
+  /// Option for (Disjunctive) Kriging of Factor
+  bool _flagFactorKriging;
+  int  _indexClass;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;

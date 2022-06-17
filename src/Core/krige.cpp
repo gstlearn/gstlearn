@@ -1877,7 +1877,7 @@ int xvalid(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
+ ** \param[in]  dbout       Output DbGrid structure
  ** \param[in]  model       Model structure
  ** \param[in]  neighparam  ANeighParam structure
  ** \param[in]  flag_est    Option for storing the estimation
@@ -1888,7 +1888,7 @@ int xvalid(Db *db,
  **
  *****************************************************************************/
 int krigdgm(Db *dbin,
-            Db *dbout,
+            DbGrid *dbout,
             Model *model,
             ANeighParam *neighparam,
             int flag_est,
@@ -1904,11 +1904,10 @@ int krigdgm(Db *dbin,
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
-  if (model->getCovMode() != EModelProperty::NONE)
-  {
-    messerr("This tool requires a CovLMCAnamorphosis");
-    return 1;
-  }
+
+  // Centering the Data
+
+  if (db_center_point_to_grid(dbin, dbout)) return 1;
 
   // Initializations
 
@@ -1934,10 +1933,6 @@ int krigdgm(Db *dbin,
     iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_varz < 0) return 1;
   }
-
-  // Building a local Hermite anamorphosis (only 1 Polynomial and Change of Support coefficient)
-
-  AnamHermite anam = AnamHermite(1, true, rval);
 
   /* Setting options */
 
@@ -6985,7 +6980,6 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  dbgrid     output Grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  anam       Anamoprhosis structure
  ** \param[in]  nfactor    Number of factors to be estimated (0: all)
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
  ** \param[in]  ndisc      Discretization parameters (or NULL)
@@ -6993,12 +6987,15 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  flag_std   Option for the storing the standard deviation
  ** \param[in]  namconv    Naming convention
  **
+ ** \remark When the change of support is defined through the Anamorphosis
+ ** \remark the 'calcul' option must be set to PONCTUAL and 'ndisc' does not
+ ** \remark have to be defined
+ **
  *****************************************************************************/
 int dk(Db* dbin,
        DbGrid* dbgrid,
        Model* model,
        ANeighParam *neighparam,
-       AAnam* anam,
        int nfactor,
        const EKrigOpt &calcul,
        const VectorInt &ndisc,
@@ -7006,7 +7003,6 @@ int dk(Db* dbin,
        int flag_std,
        const NamingConvention& namconv)
 {
-  static double perturb = 1.e-8;
 
   // Preliminary checks
 
@@ -7020,16 +7016,18 @@ int dk(Db* dbin,
     messerr("This application is limited to the monovariate Model case");
     return 1;
   }
+  if (! model->hasAnam())
+  {
+    messerr("Argument 'model' should has an Anamorphosis attached");
+    return 1;
+  }
+  const AAnam* anam = model->getAnam();
   if (IFFFF(nfactor)) nfactor = anam->getNFactor();
+
+  // Transform the Initial data into Factors that become new Z-locator variables
   if (anam->getType() == EAnam::HERMITIAN)
   {
-    /* In the gaussian case, calculate the factors */
-
-    if (! dbin->isVariableNumberComparedTo(1))
-    {
-      messerr("In Gaussian case, Input File must contain a single variable");
-      return 1;
-    }
+    // In the gaussian case, calculate the factors
     if (calculateHermiteFactors(dbin, nfactor)) return 1;
   }
   int nvarz = dbin->getVariableNumber();
@@ -7039,21 +7037,17 @@ int dk(Db* dbin,
     messerr("the number of factors (%d)", nfactor);
     return 1;
   }
+  // Memorize the UIDd of the different factors
+  VectorInt iuids = dbin->getUIDsByLocator(ELoc::Z);
 
+  // Check if the change of support is defined in the Anamorphosis
   bool flag_change_support = anam->isChangeSupportDefined();
 
+  // If change of support is defined through the anamorphosis,
+  // the calculation option (EKrigOpt) should be set to PONCTUAL
+  // in order to avoid additional block randomization
   EKrigOpt calcul_loc = calcul;
-  if (flag_change_support)
-  {
-    if (ndisc.empty())
-      calcul_loc = EKrigOpt::PONCTUAL;
-    else
-      calcul_loc = EKrigOpt::BLOCK;
-  }
-  else
-  {
-    calcul_loc = calcul;
-  }
+  if (flag_change_support) calcul_loc = EKrigOpt::PONCTUAL;
   if (calcul_loc == EKrigOpt::BLOCK && ndisc.empty())
   {
     messerr("For Block estimate, you must specify the discretization");
@@ -7061,61 +7055,54 @@ int dk(Db* dbin,
   }
 
   // Centering the information
+  // TODO A Ameliorer
 
   if (flag_change_support)
   {
     if (ndisc.empty())
     {
       // Center the information in the blocks of the output grid
-      if (db_center_point_to_grid(dbin, dbgrid, perturb)) return 1;
+      if (db_center_point_to_grid(dbin, dbgrid)) return 1;
     }
     if (! ndisc.empty())
     {
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, ndisc, 1);
-      if (db_center_point_to_grid(dbin, dbsmu, perturb)) return 1;
+      if (db_center_point_to_grid(dbin, dbsmu)) return 1;
       dbsmu = db_delete(dbsmu);
     }
   }
 
-  // Initializations
-
-  int iptr_est  = -1;
-  int iptr_std  = -1;
-
   /* Add the attributes for storing the results */
 
+  int iptr_est  = -1;
   if (flag_est != 0)
   {
     iptr_est = dbgrid->addColumnsByConstant(nvarz, 0.);
     if (iptr_est < 0) return 1;
   }
+  int iptr_std  = -1;
   if (flag_std != 0)
   {
     iptr_std = dbgrid->addColumnsByConstant(nvarz, 0.);
     if (iptr_std < 0) return 1;
   }
 
-  /* Setting options */
-
-  VectorInt iuids = dbin->getUIDsByLocator(ELoc::Z);
-
-  // Locally turn the problem to a Monovariate case to have it accepted
+  // Turn the problem to Monovariate before checking consistency with 'Model'
   dbin->clearLocators(ELoc::Z);
   dbin->setLocatorByUID(iuids[0], ELoc::Z);
 
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptCalcul(calcul_loc, ndisc)) return 1;
-//  if (ksys.setKrigOptDGM(true, anam)) return 1;
+  if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
 
   for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
   {
-    mes_process("Disjunctive Kriging for cell", dbgrid->getSampleNumber(),
-                iech_out);
+    mes_process("Disjunctive Kriging for cell", dbgrid->getSampleNumber(),iech_out);
 
     for (int iclass = 1; iclass <= nfactor; iclass++)
     {
@@ -7124,8 +7111,7 @@ int dk(Db* dbin,
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
       if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-//      if (ksys.setKrigOptDGMClass(iclass)) return 1;
-      if (model_anamorphosis_set_factor(model, iclass)) return 1;
+      if (ksys.setKrigOptIclass(iclass)) return 1;
       if (ksys.estimate(iech_out)) return 1;
     }
   }

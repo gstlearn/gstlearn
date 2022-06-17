@@ -2967,66 +2967,46 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
  *****************************************************************************/
 int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
 {
-  int *indg, iech, error, idim, ndim;
-  double *coor;
-
-  /* Initializations */
-
-  error = 1;
-  indg = nullptr;
-  coor = nullptr;
-
-  /* Preliminary checks */
-
-  if (db_point == nullptr) goto label_end;
-  if (db_grid == nullptr) goto label_end;
-  if (!is_grid(db_grid)) goto label_end;
-  if (!db_point->hasSameDimension(db_grid)) goto label_end;
-  ndim = db_point->getNDim();
+  if (db_point == nullptr) return 1;
+  if (db_grid == nullptr) return 1;
+  if (!db_point->hasSameDimension(db_grid))
+  {
+    messerr("For centering, 'dbin' and 'dbout' should share the same Space Dimension");
+    return 1;
+  }
+  int ndim = db_point->getNDim();
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db_point, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  indg = db_indg_alloc(db_grid);
-  if (indg == nullptr) goto label_end;
+  VectorDouble coor(ndim);
 
   /* Loop on the samples of the Point Db */
 
-  for (iech = 0; iech < db_point->getSampleNumber(); iech++)
+  for (int iech = 0; iech < db_point->getSampleNumber(); iech++)
   {
 
     /* Read the coordinates of the point sample */
 
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       coor[idim] = db_point->getCoordinate(iech, idim);
 
     /* Get the indices of the grid node */
 
-    (void) point_to_grid(db_grid, coor, -1, indg);
-
-    /* Get the coordinates of the grid center */
-
-    grid_to_point(db_grid, indg, NULL, coor);
+    int rank = db_grid->coordinateToRank(coor);
+    db_grid->rankToCoordinate(rank, coor);
 
     /* Randomize the migrated center */
 
-    if (eps_random > 0) for (idim = 0; idim < ndim; idim++)
-      coor[idim] += db_grid->getDX(idim) * law_uniform(0., eps_random);
+    if (eps_random > 0)
+      for (int idim = 0; idim < ndim; idim++)
+        coor[idim] += db_grid->getDX(idim) * law_uniform(0., eps_random);
 
     /* Correct the sample locations */
 
-    for (idim = 0; idim < ndim; idim++)
+    for (int idim = 0; idim < ndim; idim++)
       db_point->setCoordinate(iech, idim, coor[idim]);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: coor = db_sample_free(coor);
-  indg = db_indg_free(indg);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/

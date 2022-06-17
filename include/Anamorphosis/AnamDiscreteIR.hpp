@@ -39,6 +39,7 @@ public:
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
+  bool hasFactor() const override { return true; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
   int updatePointToBlock(double r_coef) override;

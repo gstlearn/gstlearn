@@ -29,6 +29,7 @@ public:
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Stable"; }
+  int            getMinOrder() const override { return -1; }
 
 protected:
   double _evaluateCov(double h) const override;

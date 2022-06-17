@@ -30,20 +30,24 @@ CovCalcMode::CovCalcMode(const ECalcMember& member,
   _keepOnlyCovIdx(keepOnlyCovIdx),
   _unitary(unitary),
   _envelop(envelop),
-  _orderVario(orderVario)
+  _orderVario(orderVario),
+  _indexClass(0),
+  _covFiltered()
 {
 }
 
 CovCalcMode::CovCalcMode(const CovCalcMode &r)
-: AStringable(r),
-  _member(r._member),
-  _asVario(r._asVario),
-  _normalized(r._normalized),
-  _filterNugget(r._filterNugget),
-  _keepOnlyCovIdx(r._keepOnlyCovIdx),
-  _unitary(r._unitary),
-  _envelop(r._envelop),
-  _orderVario(r._orderVario)
+    : AStringable(r),
+      _member(r._member),
+      _asVario(r._asVario),
+      _normalized(r._normalized),
+      _filterNugget(r._filterNugget),
+      _keepOnlyCovIdx(r._keepOnlyCovIdx),
+      _unitary(r._unitary),
+      _envelop(r._envelop),
+      _orderVario(r._orderVario),
+      _indexClass(r._indexClass),
+      _covFiltered(r._covFiltered)
 {
 
 }
@@ -61,6 +65,8 @@ CovCalcMode& CovCalcMode::operator=(const CovCalcMode &r)
     _unitary = r._unitary;
     _envelop = r._envelop;
     _orderVario = r._orderVario;
+    _indexClass = r._indexClass;
+    _covFiltered = r._covFiltered;
   }
   return *this;
 }
@@ -77,7 +83,9 @@ bool CovCalcMode::isEqual(const CovCalcMode &r) const
           _keepOnlyCovIdx == r._keepOnlyCovIdx &&
           _unitary == r._unitary &&
           _envelop == r._envelop &&
-          _orderVario == r._orderVario);
+          _orderVario == r._orderVario &&
+          _indexClass == r._indexClass &&
+          _covFiltered == r._covFiltered);
 }
 
 /**
@@ -119,4 +127,29 @@ void CovCalcMode::update(const ECalcMember& member,
   _keepOnlyCovIdx = icov_r;
   _asVario = flag_cov == 0;
   _normalized = flag_norm == 1;
+}
+
+bool CovCalcMode::getCovFiltered(int i) const
+{
+  if (_covFiltered.empty()) return false;
+  if (i < 0 || i >= (int) _covFiltered.size()) return false;
+  return _covFiltered[i];
+}
+
+void CovCalcMode::setCovFiltered(int i, bool status)
+{
+  if (_covFiltered.empty()) return;
+  if (i < 0 || i >= (int) _covFiltered.size()) return;
+  _covFiltered[i] = status;
+}
+
+void CovCalcMode::setAllCovFiltered(int ncov, bool status)
+{
+  if (_covFiltered.empty())
+    _covFiltered.resize(ncov, status);
+  else
+  {
+    for (int i=0; i<(int) _covFiltered.size(); i++)
+      _covFiltered[i] = status;
+  }
 }

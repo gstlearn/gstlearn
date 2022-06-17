@@ -25,6 +25,7 @@ public:
 
   virtual String getFormula() const override;
   String         getCovName() const override { return "K-Bessel"; }
+  int            getMinOrder() const override { return -1; }
 
   bool   hasParam() const override { return true; }
   double getParMax() const override { return MAX_PARAM; }
@@ -43,7 +44,6 @@ public:
 protected:
   double _evaluateCov(double h) const override;
   double _evaluateCovOnSphere(double scale, int degree = 50) const override;
-
 
 private:
   double _correc;

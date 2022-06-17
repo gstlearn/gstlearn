@@ -46,7 +46,7 @@ spirale(workingDbc,plot=True);
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_2_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_2_0.png)
 array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
         130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
         105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
@@ -164,7 +164,7 @@ spirale(workingDbc,plot=True);
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_10_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_10_0.png)
 array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
         130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
         105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
@@ -244,5 +244,5 @@ ax=gp.grid(workingDb,'*simu')
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_15_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_15_0.png)
 ----

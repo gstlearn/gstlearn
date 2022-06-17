@@ -25,7 +25,7 @@ AMatrix::AMatrix(int nrow, int ncol, bool sparse)
       _sparse(sparse),
       _csMatrix(nullptr)
 {
-  _isNumbersValid(nrow, ncol);
+  (void) _isNumbersValid(nrow, ncol);
   if (sparse) _initiateSparse();
 }
 
@@ -152,7 +152,7 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
 
 void AMatrix::reset(int nrows, int ncols, bool sparse)
 {
-  _isNumbersValid(nrows, ncols);
+  if (! _isNumbersValid(nrows, ncols)) return;
   _sparse = sparse;
   if (_sparse)
   {
@@ -170,7 +170,7 @@ void AMatrix::reset(int nrows, int ncols, bool sparse)
 
 void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
 {
-  _isNumbersValid(nrows, ncols);
+  if (! _isNumbersValid(nrows, ncols)) return;
   _sparse = sparse;
   if (_sparse)
   {
@@ -189,7 +189,7 @@ void AMatrix::reset(int nrows, int ncols, double value, bool sparse)
 
 void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
 {
-  _isNumbersValid(nrows, ncols);
+  if (! _isNumbersValid(nrows, ncols)) return;
   _sparse = sparse;
   if (_sparse)
   {
@@ -210,7 +210,7 @@ void AMatrix::reset(int nrows, int ncols, const double* tab, bool sparse)
 
 void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
 {
-  _isNumbersValid(nrows, ncols);
+  if (! _isNumbersValid(nrows, ncols)) return;
   _sparse = sparse;
   if (_sparse)
   {

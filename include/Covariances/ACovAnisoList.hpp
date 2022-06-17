@@ -27,6 +27,7 @@ class MatrixSquareSymmetric;
 class CovAniso;
 class CovContext;
 class AStringFormat;
+class AAnam;
 
 class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
 {
@@ -58,6 +59,9 @@ public:
 
   /// ACovAnisoList Interface
   virtual void addCov(const CovAniso* cov);
+  virtual bool hasAnam() const { return false; }
+  virtual const AAnam* getAnam() { return nullptr; }
+  virtual int setAnamIClass(int /*iclass*/) { return 0; }
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure
@@ -66,6 +70,8 @@ public:
   void delAllCov();
   // Filter a covariance
   void setFiltered(unsigned int i, bool filtered);
+  // Filter all covariances
+  void setAllFiltered(bool status);
 
   int             getCovNumber() const;
   bool            isFiltered(unsigned int i) const;
@@ -88,6 +94,7 @@ public:
   void               setSill(unsigned int icov, int ivar, int jvar, double value);
   void               setType(unsigned int icov, const ECov& type);
   CovAniso           extractCova(int icov) const;
+  int                getMinOrder() const;
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);

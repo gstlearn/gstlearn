@@ -32,6 +32,7 @@ public:
 
   /// Interface for AAnam
   virtual const EAnam& getType() const = 0;
+  virtual bool   hasFactor() const { return false; }
   virtual int    getNFactor() const { return 0; }
   virtual bool   isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;

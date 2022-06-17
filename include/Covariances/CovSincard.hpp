@@ -26,6 +26,7 @@ public:
   double getScadef() const override;
   virtual String getFormula() const override;
   String         getCovName() const override { return "Cardinal Sine"; }
+  int            getMinOrder() const override { return -1; }
 
 protected:
   double _evaluateCov(double h) const override;

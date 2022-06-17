@@ -31,11 +31,11 @@ class GSTLEARN_EXPORT CovLMCAnamorphosis : public CovLMC
 {
 public:
   CovLMCAnamorphosis(const AAnam* anam,
-                     int anam_iclass,
-                     int anam_var,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-
+  CovLMCAnamorphosis(const CovLMC* lmc,
+                     const AAnam* anam,
+                     const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);
   CovLMCAnamorphosis& operator= (const CovLMCAnamorphosis &r);
   virtual ~CovLMCAnamorphosis();
@@ -55,14 +55,16 @@ public:
                       const SpacePoint& p2,
                       const CovCalcMode& mode = CovCalcMode()) const override;
 
-  int init(int anam_iclass, int anam_var, const VectorInt& strcnt);
+  /// Interface for ACovAnisoList
+  void addCov(const CovAniso* cov) override;
+  bool hasAnam() const override { return true; }
+  const AAnam* getAnam() override { return _anam; }
+  int setAnamIClass(int iclass) override;
 
+  int init(const VectorInt& strcnt = VectorInt());
   int getAnamIClass() const { return _anamIClass; }
-  int getAnamPointBlock() const { return _anamPointBlock; }
   const EAnam getAnamType() const;
-
-  int setAnamIClass(int anamIClass);
-  void setAnamPointBlock(int anamPointBlock) { _anamPointBlock = anamPointBlock; }
+  void setAnam(const AAnam*& anam) { _anam = anam; }
 
 private:
   double _evalHermite(int ivar,
@@ -80,11 +82,13 @@ private:
                          const SpacePoint& p1,
                          const SpacePoint& p2,
                          const CovCalcMode& mode) const;
+  double _evalHermite0(int ivar, int jvar, const CovCalcMode& mode) const;
+  double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode& mode) const;
+  double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode& mode) const;
   double _covSumResidualIR(const VectorDouble& covs, int icut0) const;
 
 private:
   int    _anamIClass;         /* Target factor (-1: discretized grade) */
-  int    _anamPointBlock;     /* Type of point / block covariance */
   VectorInt _anamStrCount;    /* List of covariances in the Model (for RI only) */
   const AAnam* _anam;
 };

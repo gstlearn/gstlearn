@@ -320,139 +320,6 @@ void model_calcul_drift(Model *model,
 
 /****************************************************************************/
 /*!
- **  Calculate the C0 terms
- **
- ** \param[in]  model     Model structure
- ** \param[in]  koption   Koption structure
- ** \param[in]  covtab    array of cumulated covariances
- **
- ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
- **
- *****************************************************************************/
-void model_variance0(Model *model,
-                     Koption *koption,
-                     double *covtab,
-                     double *var0)
-{
-  int i, j, ecr, ivar, jvar, idim, nscale;
-  CovCalcMode mode;
-
-  /* Initializations */
-
-  nscale = 1;
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
-  VectorDouble d1(ndim, 0.);
-  mode.setMember(ECalcMember::VAR);
-
-  switch (koption->calcul.toEnum())
-  {
-    case EKrigOpt::E_PONCTUAL:
-      nscale = 1;
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, covtab);
-      break;
-
-    case EKrigOpt::E_BLOCK:
-      nscale = koption->ntot;
-      model_covtab_init(1, model, covtab);
-      for (i = 0; i < nscale; i++)
-        for (j = 0; j < nscale; j++)
-        {
-          for (idim = 0; idim < model->getDimensionNumber(); idim++)
-            d1[idim] = DISC1(i,idim) - DISC2(j, idim);
-          model_calcul_cov(NULL,model, mode, 0, 1., d1, covtab);
-        }
-      nscale = nscale * nscale;
-      break;
-
-    case EKrigOpt::E_DRIFT:
-      nscale = 1;
-      model_covtab_init(1, model, covtab);
-      break;
-  }
-
-  /* Normalization */
-
-  st_covtab_rescale(nvar, (double) nscale, covtab);
-
-      /* Returning arguments */
-
-  for (ivar = ecr = 0; ivar < nvar; ivar++)
-    for (jvar = 0; jvar < nvar; jvar++, ecr++)
-      var0[ecr] = COVTAB(ivar, jvar);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the C0 terms
- **  This function is available in the non-stationary case
- **
- ** \param[in]  model     Model structure
- ** \param[in]  koption   Koption structure
- ** \param[in]  covint    Covariance Internal structure
- ** \param[in]  covtab    array of cumulated covariances
- **
- ** \param[out]  var0     array for C0[] (Dimension = nvar * nvar)
- **
- *****************************************************************************/
-void model_variance0_nostat(Model *model,
-                            Koption *koption,
-                            CovInternal *covint,
-                            double *covtab,
-                            double *var0)
-{
-  CovCalcMode mode;
-
-  /* Initializations */
-
-  int nscale = 1;
-  int nvar = model->getVariableNumber();
-  int ndim = model->getDimensionNumber();
-  VectorDouble d1(ndim, 0.);
-
-  mode.setMember(ECalcMember::VAR);
-  switch (koption->calcul.toEnum())
-  {
-    case EKrigOpt::E_PONCTUAL:
-      nscale = 1;
-      model_calcul_cov(covint, model, mode, 1, 1., d1, covtab);
-      break;
-
-    case EKrigOpt::E_BLOCK:
-      nscale = koption->ntot;
-      model_covtab_init(1, model, covtab);
-      for (int i = 0; i < nscale; i++)
-        for (int j = 0; j < nscale; j++)
-        {
-          for (int idim = 0; idim < model->getDimensionNumber(); idim++)
-            d1[idim] = DISC1(i,idim) - DISC2(j, idim);
-          model_calcul_cov(covint, model, mode, 0, 1., d1, covtab);
-        }
-      nscale = nscale * nscale;
-      break;
-
-    case EKrigOpt::E_DRIFT:
-      nscale = 1;
-      model_covtab_init(1, model, covtab);
-      break;
-  }
-
-  st_covtab_rescale(nvar, (double) nscale, covtab);
-
-  /* Returning arguments */
-
-  int ecr = 0;
-  for (int ivar = 0; ivar < nvar; ivar++)
-    for (int jvar = 0; jvar < nvar; jvar++)
-      var0[ecr++] = COVTAB(ivar, jvar);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Deallocate the Model structure
  **
  ** \return  Pointer to the freed structure
@@ -600,34 +467,6 @@ int model_add_drift(Model *model, const EDrift &type, int rank_fex)
   drift->setRankFex(rank_fex);
   model->addDrift(drift);
   delete drift;
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Define the ranks of the factors of interest
- **
- ** \return  Error return code
- **
- ** \param[in]  model       Pointer to the Model structure
- ** \param[in]  anam_iclass Rank of the target factor (starting from 1)
- **                         0 for the whole discretized grade variable
- **
- ** \remark  This function overwrites some items of properties such as:
- ** \remark  - the rank of anam_iclass (passed as argument)
- ** \remark  - the anam_var element is set to -1 in order to avoid choosing
- ** \remark    the covariance mode as a function of anam_var rather than member
- **
- *****************************************************************************/
-int model_anamorphosis_set_factor(Model *model, int anam_iclass)
-{
-  if (st_check_model(model)) return 1;
-  CovLMCAnamorphosis* covanam = dynamic_cast<CovLMCAnamorphosis*>(model->getCovAnisoList());
-  if (covanam != nullptr)
-  {
-    if (covanam->setAnamIClass(anam_iclass)) return 1;
-    covanam->setAnamPointBlock(-1);
-  }
   return 0;
 }
 
@@ -1905,8 +1744,8 @@ double model_drift_evaluate(int /*verbose*/,
  ** \param[out] max_ndim       Maximum dimension for validity
  ** \param[out] flag_int_1d    Integral range in 1-D
  ** \param[out] flag_int_2d    Integral range in 2-D
- ** \param[out] flag_aniso     1 if anisotropy is meaningfull
- ** \param[out] flag_rotation  1 if an anisotropy rotation is meaningfull
+ ** \param[out] flag_aniso     1 if anisotropy is meaningful
+ ** \param[out] flag_rotation  1 if an anisotropy rotation is meaningful
  ** \param[out] scale          Scaling parameter
  ** \param[out] parmax         Maximum value for the third parameter
  **

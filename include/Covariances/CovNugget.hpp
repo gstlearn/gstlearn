@@ -25,6 +25,7 @@ public:
 
   virtual String getFormula() const override;
   String         getCovName() const override { return "Nugget Effect"; }
+  int            getMinOrder() const override { return -1; }
 
   int    hasRange() const override { return 0; }
 

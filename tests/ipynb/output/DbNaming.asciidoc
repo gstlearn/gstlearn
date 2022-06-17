@@ -56,11 +56,11 @@ dbfmt.setParams(gl.FLAG_LOCATOR)
 == Creating a data file
 
 A Data Base is created for experimentation. It is constructed as a
-regular Grid (named *grid*). The variable _nech_ will contain the number
-of samples within _grid_. The number of meshes is voluntarily limited.
-The mesh is square with dimension 1. The origin (lower left corner) is
-set to (10,20) in order to be able to distinguish coordinates along
-first and second axes.
+regular Grid (named **grid**). The variable _nech_ will contain the
+number of samples within _grid_. The number of meshes is voluntarily
+limited. The mesh is square with dimension 1. The origin (lower left
+corner) is set to (10,20) in order to be able to distinguish coordinates
+along first and second axes.
 
 [source, ipython3]
 ----
@@ -442,7 +442,7 @@ List of locators
 
 We can see that the 7 existing fields currently correspond to the 7
 first columns of the Data Base _grid_. The second display gives the
-indices of the locators in use (_x_ and _z_) and the indeices of the
+indices of the locators in use (_x__ and __z_) and the indices of the
 attributes corresponding to the ranks of the items for each locator
 type.
 
@@ -620,8 +620,9 @@ grid.getColumnByUID(1)
 == Remark on Space Dimension
 
 It might be considered as surprising to see that _grid_ is considered as
-a 2-D Grid while there is only *one* coordinate field (locator _x_). In
-order to avoid any missunderstanding, let us recall this important fact.
+a 2-D Grid while there is only *one* coordinate field (locator _x_).
+In order to avoid any missunderstanding, let us recall this important
+fact.
 
 The data base _grid_ is organized as a grid and for that sake, it
 contains a descrption of the grid organization. This organization is

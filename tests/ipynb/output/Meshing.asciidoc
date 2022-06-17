@@ -119,6 +119,8 @@ List of Apices
      [  6,]    26.429    16.394
 (Ncols=2,Nrows=7[from 504])
 List of Meshes
+- Number of rows    = 910
+- Number of columns = 3
                [,  0]    [,  1]    [,  2]
      [  0,]         0         1        15
      [  1,]         0        14        15
@@ -170,6 +172,8 @@ List of Apices
      [  6,]    26.429    16.394
 (Ncols=2,Nrows=7[from 504])
 List of Meshes
+- Number of rows    = 910
+- Number of columns = 3
                [,  0]    [,  1]    [,  2]
      [  0,]         0         1        15
      [  1,]         0        14        15
@@ -196,7 +200,7 @@ ax = gp.grid(grid, ax=ax) # Initial grid
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Meshing_2_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Meshing_2_0.png)
 ----
 
 [source, ipython3]

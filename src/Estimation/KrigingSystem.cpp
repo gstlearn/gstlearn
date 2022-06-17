@@ -88,6 +88,8 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _modelSimple(nullptr),
       _flagDGM(false),
       _rDGM(1.),
+      _flagFactorKriging(false),
+      _indexClass(0),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -618,20 +620,15 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   // Evaluate the Model
 
   MatrixSquareGeneral mat;
-  if (iech1 >= 0 && iech1 == iech2)
+  bool flagSameData = (iech1 >= 0 && iech1 == iech2);
+  if (flagSameData)
     mat = _model->eval0Nvar(mode);
   else
     mat = _model->evalNvarIpas(1., d1, VectorDouble(), mode);
 
   // Modify the Model (DGM case). Only provided for the monovariate case
 
-  if (_flagDGM)
-  {
-//    double dist = (member == ECalcMember::LHS && iech1 == iech2) ? 0. : 1.;
-//    double covn = _anam->modifyCov(member,_iclassDGM, dist, TEST, mat.getValue(0), TEST);
-    double covn = 1.; // TODO : DGM : To be corrected with previous line
-    mat.setValue(0, covn);
-   }
+  if (_flagDGM) _covtabModifyDGM(member, iech1, iech2, d1, mat);
 
   // Expand the Model to all terms of the LHS of the Kriging System
 
@@ -644,6 +641,44 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
     }
   return;
 }
+
+/**
+ * This function modifies the Covariance returned array between 'iech1' and 'iech2'
+ * due to the presence of 'flagDGM' flag.
+ * This is programmed in the monovariate case only
+ * @param member Type of usage (LHS, RHS or VAR)
+ * @param iech1  Rank of the first sample (or <0 for target)
+ * @param iech2  Rank of the second sample (or <0 for target)
+ * @param d1     Vector of increment vector between samples
+ * @param mat    Covariance matrix table
+ */
+void KrigingSystem::_covtabModifyDGM(const ECalcMember &member,
+                                     int iech1,
+                                     int iech2,
+                                     const VectorDouble& d1,
+                                     MatrixSquareGeneral& mat)
+{
+  double covn = 0.;
+  double dist = ut_vector_norm(d1);
+  if (member == ECalcMember::LHS)
+  {
+    if (iech1 >= 0 && iech1 == iech2)
+      covn = 1.;
+    else if (dist <= 0.)
+      covn = _rDGM * _rDGM; // Samples at zero distance (due to centering) but different
+    else
+      covn = _rDGM * _rDGM * mat.getValue(0);
+  }
+  else if (member == ECalcMember::RHS)
+  {
+    covn = _rDGM * mat.getValue(0);
+  }
+  else
+  {
+    covn = 1.;
+  }
+  mat.setValue(0, covn);
+ }
 
 /****************************************************************************/
 /*!
@@ -737,8 +772,7 @@ void KrigingSystem::_lhsCalcul()
   for (int i = 0; i < neq * neq; i++) _lhs[i] = 0.;
   VectorDouble d1(ndim);
 
-  CovCalcMode mode;
-  mode.update(ECalcMember::LHS, 0, 0);
+  CovCalcMode mode(ECalcMember::LHS);
 
   /* Establish the covariance part */
 
@@ -908,14 +942,12 @@ int KrigingSystem::_lhsInvert()
 /*!
  **  Establish the kriging R.H.S
  **
- ** \param[in]  rankRandom Rank of the discretization for DGM case
- **
  ** \remarks When 'matCL' is provided, 'nvar' stands for the first dimension of
  ** \remarks the matrix 'matCL' (its second dimension is equal to model->getNVar()).
  ** \remarks Otherwise nvar designates model->getNVar()
  **
  *****************************************************************************/
-int KrigingSystem::_rhsCalcul(int rankRandom)
+int KrigingSystem::_rhsCalcul()
 {
   double nscale = 1;
   int nech   = getNech();
@@ -927,8 +959,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
   int ndisc  = _getNDisc();
   VectorDouble d1(ndim);
 
-  CovCalcMode mode;
-  mode.update(ECalcMember::RHS, 0, 0);
+  CovCalcMode mode(ECalcMember::RHS);
 
   /* Establish the covariance part */
 
@@ -939,12 +970,7 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
     {
       case EKrigOpt::E_PONCTUAL:
         nscale = 1;
-        for (int idim = 0; idim < ndim; idim++)
-        {
-          d1[idim] = (_dbout->getCoordinate(_iechOut, idim) - _getIdim(_nbgh[iech], idim));
-          // In the Point-Block Model, Randomize the target
-          if (rankRandom >= 0 && ! _disc1.empty()) d1[idim] += _getDISC1(rankRandom, idim);
-        }
+        _getDistance(-1, _nbgh[iech], d1);
         _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
         break;
 
@@ -953,9 +979,8 @@ int KrigingSystem::_rhsCalcul(int rankRandom)
         nscale = ndisc;
         for (int i = 0; i < nscale; i++)
         {
-          for (int idim = 0; idim < ndim; idim++)
-            d1[idim] = (_dbout->getCoordinate(_iechOut, idim) - _getIdim(_nbgh[iech], idim)
-                        + _getDISC1(i, idim));
+          _getDistance(-1, _nbgh[iech], d1);
+          for (int idim = 0; idim < ndim; idim++) d1[idim] += _getDISC1(i, idim);
           _covtabCalcul(ECalcMember::RHS, mode, _nbgh[iech], -1, d1);
         }
         break;
@@ -2415,8 +2440,30 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
   return 0;
 }
 
-int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff)
+int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
 {
+  // Preliminary checks
+
+  if (_model->getMinOrder() != -1)
+  {
+    messerr("The option DGM is limited to Stationary Covariances");
+    return 1;
+  }
+  if (_model->getVariableNumber() != 1)
+  {
+    messerr("The DGM option is limited to the Monovariate case");
+    return 1;
+  }
+  if (ABS(_model->getTotalSill(0,0) - 1.) > eps)
+  {
+    messerr("The DGM option requires a Model with Total Sill equal to 1.");
+    return 1;
+  }
+  if (rcoeff <= 0. || rcoeff >= 1.)
+  {
+    messerr("For DGM option, the change of support coefficient must be in ]0.,1[ (%lf)",rcoeff);
+    return 1;
+  }
   _flagDGM = flag_dgm;
   _rDGM = rcoeff;
   return 0;
@@ -2519,6 +2566,37 @@ int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
   }
   _flagAnam = true;
   _anam = anam;
+  return 0;
+}
+
+int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
+{
+  if (! flag_factor_kriging)
+  {
+    _flagFactorKriging = false;
+  }
+  else
+  {
+    if (! _model->hasAnam())
+    {
+      messerr("You may not use this option as there is no Anamorphosis defined");
+      return 1;
+    }
+    _flagFactorKriging = true;
+  }
+  _indexClass = 0;
+  return 0;
+}
+
+int KrigingSystem::setKrigOptIclass(int index_class)
+{
+  if (! _flagFactorKriging)
+  {
+    messerr("Setting the Class Index only makes sense if 'flagFactorKriging' is ON");
+    messerr("Use 'setKrigOptFactorKriging()' beforehand");
+    return 1;
+  }
+  _indexClass = index_class;
   return 0;
 }
 
@@ -2714,6 +2792,16 @@ bool KrigingSystem::_isCorrect()
       // Attach the Output Db
       if (nostat->attachToDb(_dbout, 2)) return false;
     }
+  }
+
+  /**************************/
+  /* Checking cross-options */
+  /**************************/
+
+  if (_flagDGM && _calcul != EKrigOpt::PONCTUAL)
+  {
+    messerr("The DGM option is incompatible with 'Block' calculation option");
+    return false;
   }
   return true;
 }

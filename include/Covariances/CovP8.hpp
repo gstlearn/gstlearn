@@ -27,6 +27,7 @@ public:
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Order-8 Polynomial"; }
+  int            getMinOrder() const override { return -1; }
   virtual bool   hasCovDerivative() const override { return true; }
 
 protected:

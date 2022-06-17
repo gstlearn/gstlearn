@@ -40,14 +40,17 @@ public:
               int                flag_norm  = 0,
               int                flag_cov   = 1);
 
-  const ECalcMember& getMember()         const { return _member; }
-  bool                  getAsVario()        const { return _asVario; }
-  bool                  getNormalized()     const { return _normalized; }
-  bool                  isFilterNugget()    const { return _filterNugget; }
-  int                   getKeepOnlyCovIdx() const { return _keepOnlyCovIdx; }
-  bool                  getUnitary()        const { return _unitary; }
-  int                   getOrderVario()     const { return _orderVario; }
-  int                   getEnvelop()        const { return _envelop; }
+  const ECalcMember&    getMember()              const { return _member; }
+  bool                  getAsVario()          const { return _asVario; }
+  bool                  getNormalized()       const { return _normalized; }
+  bool                  isFilterNugget()      const { return _filterNugget; }
+  int                   getKeepOnlyCovIdx()   const { return _keepOnlyCovIdx; }
+  bool                  getUnitary()          const { return _unitary; }
+  int                   getOrderVario()       const { return _orderVario; }
+  int                   getEnvelop()          const { return _envelop; }
+  const VectorBool&     getCovFiltered()      const { return _covFiltered; }
+  bool                  getCovFiltered(int i) const;
+  int                   getIndexClass()       const { return _indexClass; }
 
   void setAsVario(bool asVario) { _asVario = asVario; }
   void setMember(const ECalcMember& member) { _member = member; }
@@ -57,7 +60,10 @@ public:
   void setNormalized(bool normalized) { _normalized = normalized; }
   void setEnvelop(int envelop) { _envelop = envelop; }
   void setOrderVario(int orderVario) { _orderVario = orderVario; }
-
+  void setCovFiltered(const VectorBool& covFiltered) { _covFiltered = covFiltered; }
+  void setCovFiltered(int i, bool status);
+  void setAllCovFiltered(int ncov, bool status);
+  void setIndexClass(int indexClass) { _indexClass = indexClass; }
 
 private:
   ECalcMember   _member;         /*! LHS (default), RHS or VAR(IANCE) */
@@ -68,4 +74,6 @@ private:
   bool          _unitary;        /*! True to calculate covariance without sill (in Goulard) */
   int           _envelop;        /*! Envelop of Multivariate model: 1(upper) or -1(lower) */
   int           _orderVario;     /*! Higher Variogram Order (0: standard) */
+  int           _indexClass;     /*! Index of the working class (used when calculating Covariance) */
+  VectorBool    _covFiltered;    /*! Array of Covariance filtering flags (optional) */
 };

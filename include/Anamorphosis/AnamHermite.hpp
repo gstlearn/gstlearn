@@ -34,6 +34,7 @@ public:
 
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam:: HERMITIAN; }
+  bool hasFactor() const override { return true; }
   int getNFactor() const override { return _nbPoly; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;

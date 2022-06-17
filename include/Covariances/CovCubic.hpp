@@ -27,6 +27,7 @@ public:
 
   virtual String getFormula() const override;
   String         getCovName() const override { return "Cubic"; }
+  int            getMinOrder() const override { return -1; }
   virtual bool   hasCovDerivative() const override { return true; }
 
 protected:

@@ -28,6 +28,7 @@ public:
 
   virtual String getFormula() const override;
   String         getCovName() const override { return "J-Bessel"; }
+  int            getMinOrder() const override { return -1; }
 
 protected:
   double _evaluateCov(double h) const override;

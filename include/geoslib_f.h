@@ -14,6 +14,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
+#include "Enum/EKrigOpt.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/ELoadBy.hpp"
@@ -380,7 +381,7 @@ GSTLEARN_EXPORT int krigprof(Db *dbin,
                              int flag_std = 1,
                              const NamingConvention& namconv = NamingConvention("KrigProf"));
 GSTLEARN_EXPORT int krigdgm(Db *dbin,
-                            Db *dbout,
+                            DbGrid *dbout,
                             Model *model,
                             ANeighParam *neighparam,
                             int flag_est = 1,
@@ -466,7 +467,6 @@ GSTLEARN_EXPORT int dk(Db* dbin,
                        DbGrid* dbsmu,
                        Model* model,
                        ANeighParam* neighparam,
-                       AAnam* anam,
                        int nfactor,
                        const EKrigOpt &calcul,
                        const VectorInt &ndisc,

@@ -25,6 +25,7 @@ public:
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "1-D Regularized"; }
+  int            getMinOrder() const override { return -1; }
 
   unsigned int getMaxNDim()   const  override { return 1; }
   double getScadef() const override;

@@ -518,6 +518,48 @@ int Model::addNoStat(const ANoStat *anostat)
   return 0;
 }
 
+/**
+ * Adding an Anamorphosis information to the Model
+ * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
+ * @param anam Pointer to the anamorphosis
+ * @param strcnt Array of covariance description used for IR case
+ * @return
+ */
+int Model::addAnam(const AAnam* anam, const VectorInt& strcnt)
+{
+  if (hasAnam())
+  {
+    // ACovAnisoList is already a covLmcAnamorphosis, simply update the anamorphosis
+    CovLMCAnamorphosis* cov = dynamic_cast<CovLMCAnamorphosis*>(_covaList);
+    if (cov == nullptr)
+    {
+      messerr("Impossible to reach the internal CovLMCAnamorphosis structure");
+      return 1;
+    }
+    cov->setAnam(anam);
+  }
+  else
+  {
+    CovLMC* cov = dynamic_cast<CovLMC*>(_covaList);
+    if (cov == nullptr)
+    {
+      messerr("Impossible to add 'anam' to the covariance part of the Model");
+      messerr("This covariance is probably not a 'CovLMC'");
+      return 1;
+    }
+
+    // Initiate a new CovLMCAnamorphosis class
+    CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(cov, anam, strcnt);
+
+    // Delete the current ACovAnisoList structure
+    delete _covaList;
+
+    // Replace it by the newly create one (CovLMCAnamorphosis)
+    _covaList = newcov;
+  }
+  return 0;
+}
+
 void Model::_copyCovContext()
 {
   if (_covaList != nullptr) _covaList->copyCovContext(_ctxt);

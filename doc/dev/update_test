@@ -49,6 +49,12 @@ if ($name1 == "r") then
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
+if ($name1 == "ipynb") then
+		set direc   = "output"
+		set nametest = `basename $nametest .ipynb`
+		set nameref = $nametest.asciidoc
+		set namecmp = $nametest.asciidoc
+endif
 
 set FILEREF = $DIR/tests/$name1/$direc/$nameref
 set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp

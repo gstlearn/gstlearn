@@ -134,6 +134,8 @@ double ACovAnisoList::eval0(int ivar, int jvar, const CovCalcMode& mode) const
         continue;
       if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
         continue;
+      if (mode.getCovFiltered(i))
+        continue;
       cov += _covs[i]->eval0(ivar, jvar, mode);
     }
   }
@@ -163,6 +165,8 @@ double ACovAnisoList::eval(int ivar,
       if (mode.getMember() != ECalcMember::LHS && isFiltered(i))
         continue;
       if (mode.isFilterNugget() && getType(i) == ECov::NUGGET)
+        continue;
+      if (mode.getCovFiltered(i))
         continue;
       cov += _covs[i]->eval(ivar, jvar, p1, p2, mode);
     }
@@ -239,6 +243,17 @@ bool ACovAnisoList::isStationary() const
 CovAniso ACovAnisoList::extractCova(int icov) const
 {
   return *(_covs[icov]);
+}
+
+int ACovAnisoList::getMinOrder() const
+{
+  int nmini = -1;
+  for (unsigned i = 0, n = getCovNumber(); i<n; i++)
+  {
+    int locmini = _covs[i]->getMinOrder();
+    if (locmini > nmini) nmini = locmini;
+  }
+  return nmini;
 }
 
 const CovAniso* ACovAnisoList::getCova(int icov) const
@@ -364,4 +379,11 @@ void ACovAnisoList::copyCovContext(const CovContext& ctxt)
   int number = (int) _covs.size();
   for (int i = 0; i < number; i++)
     _covs[i]->copyCovContext(ctxt);
+}
+
+void ACovAnisoList::setAllFiltered(bool status)
+{
+  int number = (int) _covs.size();
+  for (int i = 0; i < number; i++)
+    _filtered[i] = status;
 }

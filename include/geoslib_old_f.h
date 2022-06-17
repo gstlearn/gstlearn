@@ -719,15 +719,6 @@ GSTLEARN_EXPORT void model_calcul_drift(Model *model,
                                         const Db *db,
                                         int iech,
                                         double *drftab);
-GSTLEARN_EXPORT void model_variance0(Model *model,
-                                     Koption *koption,
-                                     double *covtab,
-                                     double *var0);
-GSTLEARN_EXPORT void model_variance0_nostat(Model *model,
-                                            Koption *koption,
-                                            CovInternal *covint,
-                                            double *covtab,
-                                            double *var0);
 GSTLEARN_EXPORT Model* model_free(Model *model);
 GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model);
 GSTLEARN_EXPORT int model_add_cova(Model *model,
@@ -743,7 +734,6 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
 GSTLEARN_EXPORT int model_add_drift(Model *model,
                                     const EDrift &type,
                                     int rank_fex);
-GSTLEARN_EXPORT int model_anamorphosis_set_factor(Model *model, int iclass);
 GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  Model *model,
                                  int flag_norm,
@@ -1172,7 +1162,7 @@ GSTLEARN_EXPORT int expand_point_to_grid(Db *db_point,
                                          VectorDouble &tab);
 GSTLEARN_EXPORT int db_center_point_to_grid(Db *db_point,
                                             DbGrid *db_grid,
-                                            double eps_random);
+                                            double eps_random = EPSILON6);
 GSTLEARN_EXPORT int interpolate_variable_to_point(DbGrid *db_grid,
                                                   int iatt,
                                                   int np,
@@ -1608,7 +1598,7 @@ GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
                                                Db *db,
                                                const ELoc &locatorType);
 GSTLEARN_EXPORT int simdgm(Db *dbin,
-                           Db *dbout,
+                           DbGrid *dbout,
                            Model *model,
                            ANeighParam *neighparam,
                            double rval,
