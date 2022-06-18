@@ -6980,7 +6980,6 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  dbgrid     output Grid Db structure
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  nfactor    Number of factors to be estimated (0: all)
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
  ** \param[in]  ndisc      Discretization parameters (or NULL)
  ** \param[in]  flag_est   Option for the storing the estimation
@@ -6996,7 +6995,6 @@ int dk(Db* dbin,
        DbGrid* dbgrid,
        Model* model,
        ANeighParam *neighparam,
-       int nfactor,
        const EKrigOpt &calcul,
        const VectorInt &ndisc,
        int flag_est,
@@ -7022,21 +7020,8 @@ int dk(Db* dbin,
     return 1;
   }
   const AAnam* anam = model->getAnam();
-  if (IFFFF(nfactor)) nfactor = anam->getNFactor();
+  int nfactor = dbin->getVariableNumber();
 
-  // Transform the Initial data into Factors that become new Z-locator variables
-  if (anam->getType() == EAnam::HERMITIAN)
-  {
-    // In the gaussian case, calculate the factors
-    if (calculateHermiteFactors(dbin, nfactor)) return 1;
-  }
-  int nvarz = dbin->getVariableNumber();
-  if (nfactor != nvarz)
-  {
-    messerr("The number of variables in Input Db (%d) does not match", nvarz);
-    messerr("the number of factors (%d)", nfactor);
-    return 1;
-  }
   // Memorize the UIDd of the different factors
   VectorInt iuids = dbin->getUIDsByLocator(ELoc::Z);
 
@@ -7078,13 +7063,13 @@ int dk(Db* dbin,
   int iptr_est  = -1;
   if (flag_est != 0)
   {
-    iptr_est = dbgrid->addColumnsByConstant(nvarz, 0.);
+    iptr_est = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_est < 0) return 1;
   }
   int iptr_std  = -1;
   if (flag_std != 0)
   {
-    iptr_std = dbgrid->addColumnsByConstant(nvarz, 0.);
+    iptr_std = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_std < 0) return 1;
   }
 
@@ -7118,9 +7103,9 @@ int dk(Db* dbin,
 
   /* Set the error return flag */
 
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_std, "stdev", 1,
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_std, "stdev", 1,
                               false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvarz, dbgrid, iptr_est, "estim");
+  namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_est, "estim");
 
   return 0;
 }

@@ -135,6 +135,9 @@ void exit_f(void)
 %extend PolyLine {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Environ {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

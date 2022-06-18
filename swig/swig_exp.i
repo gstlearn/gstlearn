@@ -348,6 +348,12 @@ class IClonable{};
 %include Simulation/SimuRefineParam.hpp
 %include Simulation/SimuRefine.hpp
 
+%include Fractures/Environ.hpp
+%include Fractures/Family.hpp
+%include Fractures/Fault.hpp
+%include Fractures/Description.hpp
+%include Fractures/FracList.hpp
+
 %include segy.h
 
 /*

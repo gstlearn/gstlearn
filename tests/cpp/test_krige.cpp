@@ -323,10 +323,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== KD =============================================
 
-//  message("\n<----- Test KD (old) ----->\n");
-//  grid_res = dynamic_cast<DbGrid*>(grid->clone());
-//  dk(data, grid_res, model, neighM, 3, VectorInt(), VectorInt());
-//  grid_res->display(&dbfmtKriging);
+  message("\n<----- Test KD (old) ----->\n");
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  int nfactor = 5;
+  // Estimate Hermite polynomials at Data locations
+  (void) calculateHermiteFactors(data, nfactor);
+  dk(data, grid_res, model, neighM);
+  grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;

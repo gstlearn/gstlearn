@@ -173,12 +173,12 @@ void fracture_list_print(const char *title, Frac_List *frac_list, int level)
  **
  *****************************************************************************/
 Frac_Environ* fracture_alloc_environ(int nfamilies,
-                                                     double xmax,
-                                                     double ymax,
-                                                     double deltax,
-                                                     double deltay,
-                                                     double mean,
-                                                     double stdev)
+                                     double xmax,
+                                     double ymax,
+                                     double deltax,
+                                     double deltay,
+                                     double mean,
+                                     double stdev)
 {
   Frac_Environ *frac_environ;
   int family;
@@ -247,8 +247,8 @@ Frac_Environ* fracture_dealloc_environ(Frac_Environ *frac_environ)
  **
  *****************************************************************************/
 int fracture_add_fault(Frac_Environ *frac_environ,
-                                       double fault_coord,
-                                       double fault_orient)
+                       double fault_coord,
+                       double fault_orient)
 {
   int nfaults;
 
@@ -297,17 +297,17 @@ int fracture_add_fault(Frac_Environ *frac_environ,
  **
  *****************************************************************************/
 void fracture_update_family(Frac_Environ *frac_environ,
-                                            int family,
-                                            double orient,
-                                            double dorient,
-                                            double theta0,
-                                            double alpha,
-                                            double ratcst,
-                                            double prop1,
-                                            double prop2,
-                                            double aterm,
-                                            double bterm,
-                                            double range)
+                            int family,
+                            double orient,
+                            double dorient,
+                            double theta0,
+                            double alpha,
+                            double ratcst,
+                            double prop1,
+                            double prop2,
+                            double aterm,
+                            double bterm,
+                            double range)
 {
   if (family < 0 || family >= frac_environ->nfamilies) return;
   Frac_Fam &frac_family = frac_environ->frac_fams[family];
@@ -338,12 +338,12 @@ void fracture_update_family(Frac_Environ *frac_environ,
  **
  *****************************************************************************/
 void fracture_update_fault(Frac_Environ *frac_environ,
-                                           int ifault,
-                                           int family,
-                                           double fault_thetal,
-                                           double fault_thetar,
-                                           double fault_rangel,
-                                           double fault_ranger)
+                           int ifault,
+                           int family,
+                           double fault_thetal,
+                           double fault_thetar,
+                           double fault_rangel,
+                           double fault_ranger)
 {
   if (ifault < 0 || ifault >= frac_environ->nfaults) return;
   Frac_Fault &fault = frac_environ->frac_faults[ifault];
@@ -778,8 +778,7 @@ static int st_frac_add(int ifrac,
 
   /* Set the attributes of the new segment */
 
-  number = (desc.npoint == 0) ? 2 :
-                                desc.npoint + 1;
+  number = (desc.npoint == 0) ? 2 : desc.npoint + 1;
   desc.xy.resize(2 * number);
   if (desc.npoint == 0)
   {
@@ -1326,16 +1325,16 @@ static void st_layers_read(int nlayers_in,
  **
  *****************************************************************************/
 int fracture_simulate(Frac_Environ *frac_environ,
-                                      int flag_sim_layer,
-                                      int flag_sim_fract,
-                                      int seed,
-                                      int verbose,
-                                      int nlayers_in,
-                                      double *elevations,
-                                      int *nlayers,
-                                      int *ninfo_arg,
-                                      double **layinfo,
-                                      Frac_List *frac_list)
+                      int flag_sim_layer,
+                      int flag_sim_fract,
+                      int seed,
+                      int verbose,
+                      int nlayers_in,
+                      double *elevations,
+                      int *nlayers,
+                      int *ninfo_arg,
+                      double **layinfo,
+                      Frac_List *frac_list)
 {
   double *denstab, *thicks, *locinfo;
   double cote, thick, thickp, theta1, theta2, thetap, xx, y0, angle, propsur;
@@ -1489,170 +1488,6 @@ int fracture_simulate(Frac_Environ *frac_environ,
 
 /****************************************************************************/
 /*!
- **  Fracture input function
- **
- ** \return  Pointer to the newly created Fracture
- **
- ** \param[in] frac_def : Frac_Environ default structure
- **
- *****************************************************************************/
-Frac_Environ* fracture_input(Frac_Environ *frac_def)
-
-{
-  Frac_Environ *frac_environ;
-  int flag_new, flag_def, ifault, nfamilies, family, flag_def_new;
-  double coord, thetal, thetar, rangel, ranger, mean, stdev, deltax, deltay,
-      range;
-  double orient, dorient, xmax, ymax, theta0, prop1, prop2, aterm, bterm, alpha,
-      ratcst;
-
-  /* Initializations */
-
-  frac_environ = nullptr;
-  flag_def = (frac_def != nullptr);
-
-  /* Ask for the main questions */
-
-  nfamilies = (flag_def) ? frac_def->nfamilies :
-                           0;
-  nfamilies = _lire_int("Number of fracture families", flag_def, nfamilies, 1,
-                        ITEST);
-
-  mestitle(1, "Scene Geometry");
-  xmax = (flag_def) ? frac_def->xmax :
-                      0.;
-  xmax = _lire_double("Field Extension along X-axis", flag_def, xmax, 0., TEST);
-  ymax = (flag_def) ? frac_def->ymax :
-                      0.;
-  ymax = _lire_double("Field Extension along Y-axis", flag_def, ymax, 0., TEST);
-  deltax = (flag_def) ? frac_def->deltax :
-                        0.;
-  deltax = _lire_double("Field Dilation along X-axis ", flag_def, deltax, 0.,
-                        TEST);
-  deltay = (flag_def) ? frac_def->deltay :
-                        0.;
-  deltay = _lire_double("Field Dilation along Y-axis ", flag_def, deltay, 0.,
-                        TEST);
-  mean = (flag_def) ? frac_def->mean :
-                      1.;
-  mean = _lire_double("Mean of thickness law       ", 1, mean, 0., TEST);
-  stdev = (flag_def) ? frac_def->stdev :
-                       1.;
-  stdev = _lire_double("St. dev. of thickness law   ", 1, stdev, 0., TEST);
-
-  frac_environ = fracture_alloc_environ(nfamilies, xmax, ymax, deltax, deltay,
-                                        mean, stdev);
-
-  /* Loop on fracture families */
-
-  mestitle(1, "Family linked parameters");
-  for (family = 0; family < frac_environ->nfamilies; family++)
-  {
-    message("General parameters for family %d\n", family + 1);
-    Frac_Fam &fam_def = frac_def->frac_fams[family];
-
-    flag_def_new = (flag_def && family < frac_def->nfamilies);
-    orient = (flag_def_new) ? fam_def.orient :
-                              0.;
-    orient = _lire_double("Mean Fracture Orientation      ", 1, orient, -89.,
-                          89.);
-    dorient = (flag_def_new) ? fam_def.dorient :
-                               0.;
-    dorient = _lire_double("Tolerance for Orientation      ", 1, dorient, 0.,
-                           45.);
-    theta0 = (flag_def_new) ? fam_def.theta0 :
-                              1.;
-    theta0 = _lire_double("Reference Poisson intensity    ", 1, theta0, 0.,
-                          TEST);
-    alpha = (flag_def_new) ? fam_def.alpha :
-                             1.;
-    alpha = _lire_double("Intensity from thick. exponent ", 1, alpha, 0., 1.);
-    ratcst = (flag_def_new) ? fam_def.ratcst :
-                              0.;
-    ratcst = _lire_double("Intensity Constant/Shaped ratio", flag_def, ratcst,
-                          0., 1.);
-    prop1 = (flag_def_new) ? fam_def.prop1 :
-                             0.;
-    prop1 = _lire_double("Survival constant probability  ", flag_def, prop1, 0.,
-                         1.);
-    prop2 = (flag_def_new) ? fam_def.prop2 :
-                             0.;
-    prop2 = _lire_double("Survival length-dependent proba", flag_def, prop2, 0.,
-                         1.);
-    aterm = (flag_def_new) ? fam_def.aterm :
-                             0.;
-    aterm = _lire_double("Survival cumul. length exponent", flag_def, aterm, 0.,
-                         TEST);
-    bterm = (flag_def_new) ? fam_def.bterm :
-                             0.;
-    bterm = _lire_double("Survival thickness exponent    ", flag_def, bterm, 0.,
-                         TEST);
-    range = (flag_def_new) ? fam_def.range :
-                             0.;
-    range = _lire_double("Fracture repulsion area Range  ", flag_def, range, 0.,
-                         TEST);
-
-    fracture_update_family(frac_environ, family, orient, dorient, theta0, alpha,
-                           ratcst, prop1, prop2, aterm, bterm, range);
-  }
-
-  /* Implicit loop on the faults */
-
-  flag_new = 1;
-  while (flag_new)
-  {
-    message("\n");
-    flag_def_new = 0;
-    if (flag_def) flag_def_new = frac_environ->nfaults < frac_def->nfaults;
-    flag_new = _lire_logical("Add a new Deterministic Fault", flag_def,
-                             flag_def_new);
-    if (!flag_new) break;
-
-    coord =
-        (flag_def_new) ? frac_def->frac_faults[frac_environ->nfaults].coord :
-                         0.;
-    coord = _lire_double("Fault Location   ", flag_def_new, coord, 0., xmax);
-    orient =
-        (flag_def_new) ? frac_def->frac_faults[frac_environ->nfaults].orient :
-                         0.;
-    orient = _lire_double("Fault orientation", flag_def_new, orient, -89., 89.);
-    ifault = fracture_add_fault(frac_environ, coord, orient);
-
-    Frac_Fault &fault_def = frac_def->frac_faults[ifault];
-
-    for (family = 0; family < frac_environ->nfamilies; family++)
-    {
-      message("Fault parameters for family %d\n", family + 1);
-      thetal =
-          (flag_def_new && family < frac_def->nfamilies) ? fault_def.thetal[family] :
-                                                           0.;
-      thetal = _lire_double("Intensity max. value (left)    ", flag_def_new,
-                            thetal, 0., TEST);
-      rangel =
-          (flag_def_new && family < frac_def->nfamilies) ? fault_def.rangel[family] :
-                                                           0.;
-      rangel = _lire_double("Intensity max. distance (left) ", flag_def_new,
-                            rangel, 0., TEST);
-      thetar =
-          (flag_def_new && family < frac_def->nfamilies) ? fault_def.thetar[family] :
-                                                           0.;
-      thetar = _lire_double("Intensity max. value (right)   ", flag_def_new,
-                            thetar, 0., TEST);
-      ranger =
-          (flag_def_new && family < frac_def->nfamilies) ? fault_def.ranger[family] :
-                                                           0.;
-      ranger = _lire_double("Intensity max. distance (right)", flag_def_new,
-                            ranger, 0., TEST);
-      fracture_update_fault(frac_environ, ifault, family, thetal, thetar,
-                            rangel, ranger);
-    }
-  }
-
-  return (frac_environ);
-}
-
-/****************************************************************************/
-/*!
  **  Return the number of values per Fracture Segment
  **
  *****************************************************************************/
@@ -1687,9 +1522,9 @@ static int st_get_nbyout(void)
  **
  *****************************************************************************/
 void fracture_export(Frac_List *frac_list,
-                                     int *nfracs_arg,
-                                     int *nbyfrac_arg,
-                                     double **fracs_arg)
+                     int *nfracs_arg,
+                     int *nbyfrac_arg,
+                     double **fracs_arg)
 {
   int nfracs, nbyfrac, ifrac, ip, ntotal;
   double *frac_segs;
@@ -1800,7 +1635,7 @@ Frac_List* fracture_import(int nval, double *frac_segs)
 
 /****************************************************************************/
 /*!
- **  Extract the array of fracture lengthes
+ **  Extract the array of fracture lengths
  **
  ** \return The returned array
  **
@@ -1815,10 +1650,10 @@ Frac_List* fracture_import(int nval, double *frac_segs)
  **
  *****************************************************************************/
 double* fracture_extract_length(Frac_List *frac_list,
-                                                int family,
-                                                double cote,
-                                                double dcote,
-                                                int *ntab)
+                                int family,
+                                double cote,
+                                double dcote,
+                                int *ntab)
 {
   int i, ecr;
   double *tab, value;
@@ -1877,10 +1712,10 @@ double* fracture_extract_length(Frac_List *frac_list,
  **
  *****************************************************************************/
 double* fracture_extract_dist(Frac_List *frac_list,
-                                              int family,
-                                              double cote,
-                                              double dcote,
-                                              int *ntab)
+                              int family,
+                              double cote,
+                              double dcote,
+                              int *ntab)
 {
   int i, ip, number, ecr, ndist;
   double *tab, value, valref;
@@ -2224,12 +2059,12 @@ static double* st_wellout_add(double *wellout,
  **
  *****************************************************************************/
 double* fracture_to_well(int nval,
-                                         double *well,
-                                         Frac_List *frac_list,
-                                         double xmax,
-                                         double *permtab,
-                                         int *nint,
-                                         int *ncol)
+                         double *well,
+                         Frac_List *frac_list,
+                         double xmax,
+                         double *permtab,
+                         int *nint,
+                         int *ncol)
 {
   int nout, nbyout, nw_xy, family;
   double *wellout, x1, y1, x2, y2, x, y, perm;

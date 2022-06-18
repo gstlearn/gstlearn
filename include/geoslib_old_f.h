@@ -1929,7 +1929,6 @@ GSTLEARN_EXPORT int fracture_simulate(Frac_Environ *frac_environ,
                                       int *ninfos,
                                       double **layinfo,
                                       Frac_List *frac_list);
-GSTLEARN_EXPORT Frac_Environ* fracture_input(Frac_Environ *frac_def);
 GSTLEARN_EXPORT void fracture_print(Frac_Environ *frac_environ);
 GSTLEARN_EXPORT void fracture_list_print(const char *title,
                                          Frac_List *frac_list,
