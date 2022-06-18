@@ -26,7 +26,8 @@ public:
   FracList(int ndisc = 1000,
            bool flag_check = true,
            double low0 = EPSILON8,
-           double low1 = EPSILON6);
+           double low1 = EPSILON6,
+           double eps = EPSILON3);
   FracList(const FracList& r);
   FracList& operator=(const FracList& r);
   virtual ~FracList();
@@ -54,11 +55,10 @@ private:
   void setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,getRank(ifam,3),value); }
   void setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,getRank(ifam,4),value); }
 
-  VectorDouble _layersManage(const Environ& environ, double *y0, bool verbose);
+  VectorDouble _layersManage(const Environ& environ, double *y0);
   VectorDouble _layersRead(int nlayers_in,
                            const VectorDouble& elevations,
-                           double *y0,
-                           bool verbose);
+                           double *y0);
   void _manage(int mode);
   int _fracAdd(int ifrac,
                int ifam,
@@ -73,34 +73,26 @@ private:
                       double *xd,
                       double *yd,
                       double *xe,
-                      double *ye,
-                      double eps = EPSILON3);
+                      double *ye);
   double _layerIntensity(const Family& family,
-                         double thick,
-                         bool verbose = false);
+                         double thick);
   void _generateDensity(const Environ& environ,
                         const Family& family,
                         int ifam,
                         double cote,
-                        VectorDouble& denstab,
-                        bool verbose = false);
+                        VectorDouble& denstab);
   void _correctDensity(const Family& family,
                        int ifam,
                        double cote,
-                       VectorDouble& denstab,
-                       bool verbose = false,
-                       double eps = EPSILON3);
+                       VectorDouble& denstab);
   double _deriveIntensity(double theta1,
                           double thetap,
-                          double propsur,
-                          bool verbose = false);
+                          double propsur);
   double _extendFractures(const Family& family,
                           int ifam,
                           double cote,
                           double thick,
-                          VectorDouble& denstab,
-                          bool verbose = false,
-                          double eps = EPSILON3);
+                          VectorDouble& denstab);
   bool _sameFaultSide(const Environ& environ, int ifault0, double x0);
   double _densityUpdate(const Fault& fault,
                         int side,
@@ -110,8 +102,7 @@ private:
   bool _densityCumulate(const char *title,
                         bool flag_print,
                         const VectorDouble& denstab,
-                        double *totdens,
-                        bool verbose = false);
+                        double *totdens);
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
   bool _fractureInterrupt(const Family& family,
                           const Description& desc,
@@ -125,8 +116,7 @@ private:
                          double cote,
                          double thick,
                          double theta,
-                         VectorDouble& denstab,
-                         bool verbose = false);
+                         VectorDouble& denstab);
   int _getDiscretizedRank(double cumdens, const VectorDouble& denstab);
   int _getEndPointCount() const;
   bool _isValidDisc(int idisc);
@@ -145,4 +135,6 @@ private:
   double _low1;
   double _xorigin;
   double _step;
+  double _eps;
+  bool _verbose;
 };
