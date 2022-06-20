@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Fractures/Family.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 Family::Family(double orient,
                double dorient,
@@ -22,6 +23,7 @@ Family::Family(double orient,
                double bterm,
                double range)
     : AStringable(),
+      ASerializable(),
       _orient(orient),
       _dorient(dorient),
       _theta0(theta0),
@@ -37,6 +39,7 @@ Family::Family(double orient,
 
 Family::Family(const Family& r)
     : AStringable(r),
+      ASerializable(r),
       _orient(r._orient),
       _dorient(r._dorient),
       _theta0(r._theta0),
@@ -55,6 +58,7 @@ Family& Family::operator=(const Family& r)
   if (this != &r)
   {
     AStringable::operator=(r);
+    ASerializable::operator=(r);
     _orient = r._orient;
     _dorient =r ._dorient;
     _theta0 = r._theta0;
@@ -89,5 +93,38 @@ String Family::toString(const AStringFormat* /*strfmt*/) const
   sstr << "Fracture repulsion area Range   = " << _range << std::endl;
 
   return sstr.str();
+}
+
+int Family::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  bool ret = true;
+  ret = ret && _recordRead<double>(is, "Mean orientation", _orient);
+  ret = ret && _recordRead<double>(is, "Tolerance for orientation", _dorient);
+  ret = ret && _recordRead<double>(is, "Reference Poisson intensity", _theta0);
+  ret = ret && _recordRead<double>(is, "Power dependency between layer and intensity", _alpha);
+  ret = ret && _recordRead<double>(is, "Ratio of constant vs. shaped intensity", _ratcst);
+  ret = ret && _recordRead<double>(is, "Survival probability (constant term)", _prop1);
+  ret = ret && _recordRead<double>(is, "Survival probability (length dependent term)", _prop2);
+  ret = ret && _recordRead<double>(is, "Survival probability (cumulative length exponent)", _aterm);
+  ret = ret && _recordRead<double>(is, "Survival probability (layer thickness exponent", _bterm);
+  ret = ret && _recordRead<double>(is, "Fracture repulsion area Range", _range);
+  return 0;
+}
+
+int Family::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<double>(os, "Mean orientation", _orient);
+  ret = ret && _recordWrite<double>(os, "Tolerance for orientation", _dorient);
+  ret = ret && _recordWrite<double>(os, "Reference Poisson intensity", _theta0);
+  ret = ret && _recordWrite<double>(os, "Power dependency between layer and intensity", _alpha);
+  ret = ret && _recordWrite<double>(os, "Ratio of constant vs. shaped intensity", _ratcst);
+  ret = ret && _recordWrite<double>(os, "Survival probability (constant term)", _prop1);
+  ret = ret && _recordWrite<double>(os, "Survival probability (length dependent term)", _prop2);
+  ret = ret && _recordWrite<double>(os, "Survival probability (cumulative length exponent)", _aterm);
+  ret = ret && _recordWrite<double>(os, "Survival probability (layer thickness exponent)", _bterm);
+  ret = ret && _recordWrite<double>(os, "Fracture repulsion area Range", _range);
+
+  return 0;
 }
 

@@ -7020,6 +7020,11 @@ int dk(Db* dbin,
     return 1;
   }
   const AAnam* anam = model->getAnam();
+  if (anam == nullptr)
+  {
+    messerr("The Model must contain an Anamorphosis");
+    return 1;
+  }
   int nfactor = dbin->getVariableNumber();
 
   // Memorize the UIDd of the different factors

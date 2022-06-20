@@ -12,11 +12,12 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 #include "Fractures/Family.hpp"
 #include "Fractures/Fault.hpp"
 
-class GSTLEARN_EXPORT Environ: public AStringable
+class GSTLEARN_EXPORT Environ: public AStringable, public ASerializable
 {
 public:
   Environ(double xmax = 0.,
@@ -29,6 +30,10 @@ public:
   Environ(const Environ& r);
   Environ& operator=(const Environ& r);
   virtual ~Environ();
+
+  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
+  static Environ* createFromNF(const String& neutralFilename,
+                               bool verbose = false);
 
   static Environ* create(double xmax = 0.,
                          double ymax = 0.,
@@ -55,6 +60,10 @@ public:
 
   void addFamily(const Family& family) { _families.push_back(family); }
   void addFault(const Fault& fault) { _faults.push_back(fault); }
+
+protected:
+  int _deserialize(std::istream& is, bool verbose = false) override;
+  int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
   double _xmax;                 //!< Maximum horizontal distance

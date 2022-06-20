@@ -464,7 +464,7 @@ GSTLEARN_EXPORT int declustering(Db *db,
                                  int flag_sel = false,
                                  bool verbose = false);
 GSTLEARN_EXPORT int dk(Db* dbin,
-                       DbGrid* dbsmu,
+                       DbGrid* dbgrid,
                        Model* model,
                        ANeighParam* neighparam,
                        const EKrigOpt &calcul = EKrigOpt::PONCTUAL,

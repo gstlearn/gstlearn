@@ -38,6 +38,7 @@ public:
   void setYYF(int i, double value) { _y[i] = value; }
 
   void addPoint(double x, double y);
+  double fractureExtension(double cote, double dcote);
 
 private:
   int _family;

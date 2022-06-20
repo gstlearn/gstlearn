@@ -10,6 +10,9 @@
 /******************************************************************************/
 #include "Fractures/Description.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
+
+#include <math.h>
 
 Description::Description()
   : AStringable(),
@@ -67,3 +70,28 @@ void Description::addPoint(double x, double y)
   _x[np] = x;
   _y[np] = y;
 }
+
+/****************************************************************************/
+/*!
+ **  Calculate the fracture extension
+ **
+ ** \return  The fracture extension
+ **
+ ** \param[in]  cote         Selected layer or TEST for all layers
+ ** \param[in]  dcote        Tolerance on the layer elevation
+ **
+ *****************************************************************************/
+double Description::fractureExtension(double cote, double dcote)
+{
+  double dist = 0.;
+  for (int i = 0; i < getNPoint() - 1; i++)
+  {
+    double distx = getXXF(i+1) - getXXF(i);
+    double disty = getYYF(i+1) - getYYF(i);
+    if (!FFFF(cote) && (getYYF(i) < cote - dcote || getYYF(i+1) < cote - dcote))
+      continue;
+    dist += sqrt(distx * distx + disty * disty);
+  }
+  return (dist);
+}
+

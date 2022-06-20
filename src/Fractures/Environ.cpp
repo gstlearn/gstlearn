@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Fractures/Environ.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 
 Environ::Environ(double xmax,
                  double ymax,
@@ -19,6 +20,7 @@ Environ::Environ(double xmax,
                  double mean,
                  double stdev)
   : AStringable(),
+    ASerializable(),
     _xmax(xmax),
     _ymax(ymax),
     _deltax(deltax),
@@ -33,6 +35,7 @@ Environ::Environ(double xmax,
 
 Environ::Environ(const Environ& r)
     : AStringable(r),
+      ASerializable(r),
       _xmax(r._xmax),
       _ymax(r._ymax),
       _deltax(r._deltax),
@@ -50,6 +53,7 @@ Environ& Environ::operator=(const Environ& r)
   if (this != &r)
   {
     AStringable::operator=(r);
+    ASerializable::operator=(r);
     _xmax = r._xmax;
     _ymax = r._ymax;
     _deltax = r._deltax;
@@ -66,6 +70,44 @@ Environ& Environ::operator=(const Environ& r)
 Environ::~Environ()
 {
 }
+
+int Environ::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  int ret = 1;
+  if (_fileOpenWrite(neutralFilename, "Fracture_Environ", os, verbose))
+  {
+    ret = _serialize(os, verbose);
+    if (ret && verbose) messerr("Problem writing in the Neutral File.");
+    os.close();
+  }
+  return ret;
+}
+
+/**
+ * Create a Environ by loading the contents of a Neutral File
+ *
+ * @param neutralFilename Name of the Neutral File
+ * @param verbose         Verbose
+ */
+Environ* Environ::createFromNF(const String& neutralFilename, bool verbose)
+{
+  Environ* environ = nullptr;
+  std::ifstream is;
+  if (_fileOpenRead(neutralFilename, "Fracture_Environ", is, verbose))
+  {
+    environ = new Environ;
+    if (environ->_deserialize(is, verbose))
+    {
+      if (verbose) messerr("Problem reading the Neutral File.");
+      delete environ;
+      environ = nullptr;
+    }
+    is.close();
+  }
+  return environ;
+}
+
 
 Environ* Environ::create(double xmax,
                          double ymax,
@@ -111,4 +153,67 @@ String Environ::toString(const AStringFormat* strfmt) const
   }
 
   return sstr.str();
+}
+
+int Environ::_deserialize(std::istream& is, bool verbose)
+{
+  int nfamilies, nfaults;
+  bool ret = true;
+
+  ret = ret && _recordRead<int>(is, "Number of families", nfamilies);
+  ret = ret && _recordRead<int>(is, "Number of main faults", nfaults);
+  ret = ret && _recordRead<double>(is, "Maximum horizontal distance", _xmax);
+  ret = ret && _recordRead<double>(is, "Maximum vertical distance", _ymax);
+  ret = ret && _recordRead<double>(is, "Dilation along the horizontal axis", _deltax);
+  ret = ret && _recordRead<double>(is, "Dilation along the vertical axis", _deltay);
+  ret = ret && _recordRead<double>(is, "Mean of thickness distribution", _mean);
+  ret = ret && _recordRead<double>(is, "Stdev of thickness distribution", _stdev);
+  if (ret) return 1;
+
+  for (int ifam = 0; ifam < nfamilies; ifam++)
+  {
+    Family family = Family();
+    ret = ret && family._deserialize(is, verbose);
+    addFamily(family);
+  }
+
+  for (int ifault = 0; ifault < nfaults; ifault++)
+  {
+    Fault fault = Fault();
+    ret = ret && fault._deserialize(is, verbose);
+    addFault(fault);
+  }
+
+  return 0;
+}
+
+int Environ::_serialize(std::ostream& os, bool verbose) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Number of families", getNFamilies());
+  ret = ret && _recordWrite<int>(os, "Number of main faults", getNFaults());
+  ret = ret && _recordWrite<double>(os, "Maximum horizontal distance", _xmax);
+  ret = ret && _recordWrite<double>(os, "Maximum vertical distance", _ymax);
+  ret = ret && _recordWrite<double>(os, "Dilation along the horizontal axis", _deltax);
+  ret = ret && _recordWrite<double>(os, "Dilation along the vertical axis", _deltay);
+  ret = ret && _recordWrite<double>(os, "Mean of thickness distribution", _mean);
+  ret = ret && _recordWrite<double>(os, "Stdev of thickness distribution", _stdev);
+
+  for (int ifam = 0; ifam < getNFamilies(); ifam++)
+  {
+    ret = ret && _commentWrite(os, "Characteristics of family");
+    const Family& family = getFamily(ifam);
+    ret = ret && family._serialize(os, verbose);
+  }
+
+  /* Loop on the main faults */
+
+  for (int ifault = 0; ifault < getNFaults(); ifault++)
+  {
+    ret = ret && _commentWrite(os, "Characteristics of main fault");
+    const Fault& fault = getFault(ifault);
+    ret = ret && fault._serialize(os, verbose);
+  }
+
+  return 0;
 }

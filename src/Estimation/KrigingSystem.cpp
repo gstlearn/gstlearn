@@ -2442,7 +2442,12 @@ int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
 
 int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
 {
-  // Preliminary checks
+  if (! flag_dgm)
+  {
+    _flagDGM = flag_dgm;
+    _rDGM = 1.;
+    return 0;
+  }
 
   if (_model->getMinOrder() != -1)
   {

@@ -16,6 +16,7 @@
 
 Fault::Fault(double coord, double orient)
   : AStringable(),
+    ASerializable(),
     _coord(coord),
     _orient(orient),
     _thetal(),
@@ -27,6 +28,7 @@ Fault::Fault(double coord, double orient)
 
 Fault::Fault(const Fault& r)
     : AStringable(r),
+      ASerializable(r),
       _coord(r._coord),
       _orient(r._orient),
       _thetal(r._thetal),
@@ -41,6 +43,7 @@ Fault& Fault::operator=(const Fault& r)
   if (this != &r)
   {
     AStringable::operator=(r);
+    ASerializable::operator=(r);
     _coord = r._coord;
     _orient = r._orient;
     _thetal = r._thetal;
@@ -102,4 +105,29 @@ void Fault::addFaultPerFamily(double thetal,
   _thetar[nfam] = thetar;
   _rangel[nfam] = rangel;
   _ranger[nfam] = ranger;
+}
+
+int Fault::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  bool ret = true;
+  ret = ret && _recordRead<double>(is, "Abscissa of the first Fault point", _coord);
+  ret = ret && _recordRead<double>(is, "Fault orientation", _orient);
+  ret = ret && _recordReadVec<double>(is, "Maximum Density on the left", _thetal);
+  ret = ret && _recordReadVec<double>(is, "Maximum Density on the right", _thetar);
+  ret = ret && _recordReadVec<double>(is, "Decrease Range on the left", _rangel);
+  ret = ret && _recordReadVec<double>(is, "Decrease Range on the right", _ranger);
+  return 0;
+}
+
+int Fault::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<double>(os, "Abscissa of the first Fault point", _coord);
+  ret = ret && _recordWrite<double>(os, "Fault orientation", _orient);
+  ret = ret && _recordWriteVec<double>(os, "Maximum Density on the left", _thetal);
+  ret = ret && _recordWriteVec<double>(os, "Maximum Density on the right", _thetar);
+  ret = ret && _recordWriteVec<double>(os, "Decrease Range on the left", _rangel);
+  ret = ret && _recordWriteVec<double>(os, "Decrease Range on the right", _ranger);
+
+  return 0;
 }

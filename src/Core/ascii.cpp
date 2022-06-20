@@ -371,29 +371,6 @@ static FILE* st_file_open(const char *filename,
 
 /****************************************************************************/
 /*!
- **   Deliver a message for successfull creation
- **
- ** \param[in]  filename Local file name
- ** \param[in]  filetype Type of the file
- ** \param[in]  verbose  Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-static void st_create_message(const char *filename,
-                              const char *filetype,
-                              int verbose)
-{
-  if (!verbose) return;
-
-  if (filename != NULL)
-    message("File %s (%s) created successfully\n", filename, filetype);
-  else
-    message("Buffer created successfully\n", filetype);
-
-  return;
-}
-
-/****************************************************************************/
-/*!
  **   Read the Environment definition file
  **
  ** \param[in] file_name  Name of the ASCII file
@@ -488,10 +465,10 @@ void ascii_simu_read(char *file_name,
  **
  *****************************************************************************/
 int ascii_option_defined(const char *file_name,
-                                         int verbose,
-                                         const char *option_name,
-                                         int type,
-                                         void *answer)
+                         int verbose,
+                         const char *option_name,
+                         int type,
+                         void *answer)
 {
   FILE *file;
   char keyword[100], keyval[100];
@@ -542,202 +519,6 @@ int ascii_option_defined(const char *file_name,
 
   label_end: st_file_close(file);
   return (lrep);
-}
-
-/****************************************************************************/
-/*!
- **   Write a set of Fracture
- **
- ** \return  Error returned code
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  frac       Pointer to the Frac_Environ structure to be written
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-int ascii_frac_write(const char *file_name,
-                                     Frac_Environ *frac,
-                                     int verbose)
-{
-  FILE *file;
-  int family, ifault, error;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, "Frac", NEW, verbose);
-  if (file == nullptr) return (1);
-
-  /* Create the Frac_Environ structure */
-
-  st_record_write("%d", frac->nfamilies);
-  st_record_write("#", "Number of families");
-  st_record_write("%d", frac->nfaults);
-  st_record_write("#", "Number of main faults");
-  st_record_write("%lf", frac->xmax);
-  st_record_write("#", "Maximum horizontal distance");
-  st_record_write("%lf", frac->ymax);
-  st_record_write("#", "Maximum vertical distance");
-  st_record_write("%lf", frac->deltax);
-  st_record_write("#", "Dilation along the horizontal axis");
-  st_record_write("%lf", frac->deltay);
-  st_record_write("#", "Dilation along the vertical axis");
-  st_record_write("%lf", frac->mean);
-  st_record_write("#", "Mean of thickness distribution");
-  st_record_write("%lf", frac->stdev);
-  st_record_write("#", "Stdev of thickness distribution");
-
-  /* Loop on the families */
-
-  for (family = 0; family < frac->nfamilies; family++)
-  {
-    st_record_write("#", "Characteristics of family");
-    const Frac_Fam &frac_fam = frac->frac_fams[family];
-    st_record_write("%lf", frac_fam.orient);
-    st_record_write("#", "Mean orientation");
-    st_record_write("%lf", frac_fam.dorient);
-    st_record_write("#", "Tolerance for orientation");
-    st_record_write("%lf", frac_fam.theta0);
-    st_record_write("#", "Reference Poisson intensity");
-    st_record_write("%lf", frac_fam.alpha);
-    st_record_write("#", "Power dependency between layer and intensity");
-    st_record_write("%lf", frac_fam.ratcst);
-    st_record_write("#", "Ratio of cste vs. shaped intensity");
-    st_record_write("%lf", frac_fam.prop1);
-    st_record_write("#", "Survival probability (constant term)");
-    st_record_write("%lf", frac_fam.prop2);
-    st_record_write("#", "Survival probability (length dependent term)");
-    st_record_write("%lf", frac_fam.aterm);
-    st_record_write("#", "Survival probability (cumulative length exponent)");
-    st_record_write("%lf", frac_fam.bterm);
-    st_record_write("#", "Survival probability (layer thickness exponent)");
-    st_record_write("%lf", frac_fam.range);
-    st_record_write("#", "Fracture repulsion area Range");
-  }
-
-  /* Loop on the main faults */
-
-  for (ifault = 0; ifault < frac->nfaults; ifault++)
-  {
-    st_record_write("#", "Characteristics of main fault");
-    const Frac_Fault &frac_fault = frac->frac_faults[ifault];
-    st_record_write("%lf", frac_fault.coord);
-    st_record_write("#", "Abscissae of the first Fault point");
-    st_record_write("%lf", frac_fault.orient);
-    st_record_write("#", "Fault orientation");
-
-    /* Loop on the families */
-
-    for (family = 0; family < frac->nfamilies; family++)
-    {
-      st_record_write("%lf", frac_fault.thetal[family]);
-      st_record_write("%lf", frac_fault.rangel[family]);
-      st_record_write("%lf", frac_fault.thetar[family]);
-      st_record_write("%lf", frac_fault.ranger[family]);
-      st_record_write("#", "Max-left, Range-Left, Max-Right, Range-Right");
-    }
-  }
-
-  /* Set the error return code */
-
-  st_create_message(file_name, "Frac", verbose);
-  error = 0;
-
-  st_file_close(file);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **   Read the fracture definition file
- **
- ** \return  Pointer to the Frac_Environ structure
- **
- ** \param[in]  file_name  Name of the ASCII file
- ** \param[in]  verbose    Verbose option if the file cannot be opened
- **
- *****************************************************************************/
-Frac_Environ* ascii_frac_read(const char *file_name,
-                                              int verbose)
-{
-  Frac_Environ *frac;
-  FILE *file;
-  int family, ifault, nfamilies, nfaults;
-  double thetal, rangel, thetar, ranger, xmax, ymax, deltax, deltay, mean,
-      stdev;
-  double orient, dorient, coord, theta0, alpha, prop1, prop2, aterm, bterm,
-      ratcst, range;
-
-  /* Initializations */
-
-  frac = nullptr;
-
-  /* Opening the Data file */
-
-  file = st_file_open(file_name, "Frac", OLD, verbose);
-  if (file == nullptr) return (frac);
-
-  /* Create the structure */
-
-  if (st_record_read("Number of Families", "%d", &nfamilies)) goto label_end;
-  if (st_record_read("Number of Faults", "%d", &nfaults)) goto label_end;
-  if (st_record_read("Maximum X-value", "%lf", &xmax)) goto label_end;
-  if (st_record_read("Maximum Y-value", "%lf", &ymax)) goto label_end;
-  if (st_record_read("Increment along X", "%lf", &deltax)) goto label_end;
-  if (st_record_read("Increment along Y", "%lf", &deltay)) goto label_end;
-  if (st_record_read("Mean value", "%lf", &mean)) goto label_end;
-  if (st_record_read("Standard Deviation value", "%lf", &stdev)) goto label_end;
-
-  frac = fracture_alloc_environ(nfamilies, xmax, ymax, deltax, deltay, mean,
-                                stdev);
-
-  /* Loop on the families */
-
-  for (family = 0; family < nfamilies; family++)
-  {
-    if (st_record_read("Fracture Orientation", "%lf", &orient)) goto label_end;
-    if (st_record_read("Tolerance on the Orientation", "%lf", &dorient))
-      goto label_end;
-    if (st_record_read("Reference Angle", "%lf", &theta0)) goto label_end;
-    if (st_record_read("Fracture 'alpha' coefficient", "%lf", &alpha))
-      goto label_end;
-    if (st_record_read("Constant Ratio", "%lf", &ratcst)) goto label_end;
-    if (st_record_read("First Proportion", "%lf", &prop1)) goto label_end;
-    if (st_record_read("Second Proportion", "%lf", &prop2)) goto label_end;
-    if (st_record_read("Coefficient 'aterm'", "%lf", &aterm)) goto label_end;
-    if (st_record_read("Coefficient 'bterm'", "%lf", &bterm)) goto label_end;
-    if (st_record_read("Range value", "%lf", &range)) goto label_end;
-
-    fracture_update_family(frac, family, orient, dorient, theta0, alpha, ratcst,
-                           prop1, prop2, aterm, bterm, range);
-  }
-
-  /* Loop on the faults */
-
-  for (ifault = 0; ifault < nfaults; ifault++)
-  {
-    if (st_record_read("Fault coordinate", "%lf", &coord)) goto label_end;
-    if (st_record_read("Fault orientation", "%lf", &orient)) goto label_end;
-    (void) fracture_add_fault(frac, coord, orient);
-
-    for (family = 0; family < nfamilies; family++)
-    {
-      if (st_record_read("Coefficient 'theta' on the left", "%lf", &thetal))
-        goto label_end;
-      if (st_record_read("Coefficient 'range' on the left", "%lf", &rangel))
-        goto label_end;
-      if (st_record_read("Coefficient 'theta' on the right", "%lf", &thetar))
-        goto label_end;
-      if (st_record_read("Coefficient 'range' on the right", "%lf", &ranger))
-        goto label_end;
-
-      fracture_update_fault(frac, ifault, family, thetal, thetar, rangel,
-                            ranger);
-    }
-  }
-
-  label_end: if (OptDbg::query(EDbg::INTERFACE)) fracture_print(frac);
-  st_file_close(file);
-  return (frac);
 }
 
 /****************************************************************************/

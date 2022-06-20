@@ -12,9 +12,10 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT Family: public AStringable
+class GSTLEARN_EXPORT Family: public AStringable, public ASerializable
 {
 public:
   Family(double orient = 0.,
@@ -53,6 +54,9 @@ public:
   void setRatcst(double ratcst) { _ratcst = ratcst; }
   double getTheta0() const { return _theta0; }
   void setTheta0(double theta0) { _theta0 = theta0; }
+
+  int _deserialize(std::istream& is, bool verbose = false) override;
+  int _serialize(std::ostream& os,bool verbose = false) const override;
 
 private:
   double _orient;              //!< Mean orientation

@@ -105,7 +105,6 @@ set(SRC
   Core/variopgs.cpp
   Core/model_auto.cpp
   Core/cluster.cpp
-  Core/fracture.cpp
   Core/simtub.cpp
   Core/matrix.cpp
   Core/spill.cpp

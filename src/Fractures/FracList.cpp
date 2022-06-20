@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Fractures/FracList.hpp"
 #include "Fractures/Description.hpp"
 #include "Fractures/Environ.hpp"
@@ -18,13 +20,20 @@
 #include "Basic/Geometry.hpp"
 #include "Basic/Law.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <math.h>
+
+#define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
+#define WELL(iw,i)          (well[2*(iw) + (i)])
+#define WELLOUT(is,i)       (wellout[NBYWOUT * (is) + (i)])
+#define TRAJ(ip,i)          (traj[2*(ip)+(i)])
 
 FracList::FracList(int ndisc, bool flag_check, double low0, double low1, double eps)
   : AStringable(),
     _descs(),
     _layinfo(),
+    _nlayers(0),
     _ndisc(ndisc),
     _flagCheck(flag_check),
     _low0(low0),
@@ -40,6 +49,7 @@ FracList::FracList(const FracList& r)
     : AStringable(r),
       _descs(r._descs),
       _layinfo(r._layinfo),
+      _nlayers(r._nlayers),
       _ndisc(r._ndisc),
       _flagCheck(r._flagCheck),
       _low0(r._low0),
@@ -58,6 +68,7 @@ FracList& FracList::operator=(const FracList& r)
     AStringable::operator=(r);
     _descs = r._descs;
     _layinfo = r._layinfo;
+    _nlayers = r._nlayers;
     _ndisc = r._ndisc;
     _flagCheck = r._flagCheck;
     _low0 = r._low0;
@@ -134,24 +145,24 @@ int FracList::simulate(const Environ* environ,
     thicks = _layersManage(*environ, &y0);
   else
     thicks = _layersRead(nlayers_in, elevations, &y0);
-  int nlayers = (int) thicks.size();
+  _nlayers = (int) thicks.size();
 
   /* Core allocation */
 
-  int np1 = nlayers + 1;
+  int np1 = _nlayers + 1;
   VectorDouble denstab(_ndisc);
   _layinfo = MatrixRectangular(np1, ninfos);
 
   /* Define the layers */
 
   double cote = y0;
-  for (int ilayer = 0; ilayer < nlayers; ilayer++)
+  for (int ilayer = 0; ilayer < _nlayers; ilayer++)
   {
     double thick = thicks[ilayer];
     setMemLayer(ilayer, cote);
     cote += thick;
   }
-  setMemLayer(nlayers, cote);
+  setMemLayer(_nlayers, cote);
 
   /* Define the main faults */
 
@@ -164,7 +175,7 @@ int FracList::simulate(const Environ* environ,
     int ifrac = -1;
     cote = y0;
     double xx = environ->getFault(ifault).faultAbscissae(cote);
-    for (int ilayer = 0; ilayer < nlayers; ilayer++)
+    for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
       double thick = thicks[ilayer];
       ifrac = _fracAdd(ifrac, 0, xx, cote, thick, angle, &xx);
@@ -189,12 +200,12 @@ int FracList::simulate(const Environ* environ,
 
     cote = y0;
     double thetap = 0.;
-    for (int ilayer = 0; ilayer < nlayers; ilayer++)
+    for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
       double thick = thicks[ilayer];
       if (_verbose)
       {
-        mestitle(1, "Processing Layer #%d/%d", ilayer + 1, nlayers);
+        mestitle(1, "Processing Layer #%d/%d", ilayer + 1, _nlayers);
         message("Elevation of the layer bottom     = %lf\n", cote);
         message("Thickness of the layer            = %lf\n", thick);
       }
@@ -369,7 +380,6 @@ void FracList::_manage(int mode)
       break;
 
     case 1:
-
       _descs.resize(number + 1);
       _descs[number] = Description();
       break;
@@ -1064,9 +1074,8 @@ int FracList::_getDiscretizedRank(double cumdens, const VectorDouble& denstab)
  *****************************************************************************/
 MatrixRectangular FracList::fractureExport() const
 {
-  int nbyfrac = 7;
   int ntotal = _getEndPointCount();
-  MatrixRectangular segs(ntotal, nbyfrac);
+  MatrixRectangular segs(ntotal, NBYFRAC);
 
   /* Loading the fractures */
 
@@ -1100,5 +1109,653 @@ bool FracList::_isValidDisc(int idisc)
 {
   if ((idisc) >= 0 && (idisc) < _ndisc) return true;
   return false;
+}
+
+/****************************************************************************/
+/*!
+ **  Import the Fractures
+ **
+ ** \return Pointer to the Frac_List structure
+ **
+ ** \param[in]  frac_segs    Array of fracture segments
+ ** \param[in]  layinfo      Array of layer information
+ ** \param[in]  nfamilies    Number of families
+ **
+ *****************************************************************************/
+FracList* FracList::fractureImport(const VectorDouble& frac_segs,
+                                   const VectorDouble& layinfo,
+                                   int nfamilies)
+{
+  int nvalf = (int) frac_segs.size();
+  if (!isMultiple(nvalf, NBYFRAC))
+  {
+    messerr("The number of values in 'frac_segs' (%d) should be a multiple of %d",
+            nvalf, NBYFRAC);
+    return nullptr;
+  }
+  int nseg = nvalf / NBYFRAC;
+
+  int nvall = 0;
+  int number = 0;
+  int nlayer = 0;
+  if (! layinfo.empty())
+  {
+    nvall = (int) layinfo.size();
+    number = 1 + nfamilies * NPART;
+    if (!isMultiple(nvall, number))
+    {
+      messerr("The number of values in 'layinfo' (%d) should be a multiple of %d",
+              nvall, number);
+      return nullptr;
+    }
+    nlayer = nvall / number;
+  }
+
+  /* Initializations */
+
+  FracList* frac_list = new FracList();
+
+  // Loop on Descriptions
+
+  int icur = -1;
+  for (int i = 0; i < nseg; i++)
+  {
+    int ifam = (int) FRACSEG(i, 2);
+    double xx = FRACSEG(i, 3);
+    double yy = FRACSEG(i, 4);
+    double orient = FRACSEG(i, 5);
+    bool flag_new = (int) FRACSEG(i, 6);
+
+    if (flag_new || icur < 0)
+    {
+      Description desc = Description();
+      frac_list->addDescription(desc);
+      icur = frac_list->getNFracs() - 1;
+    }
+    Description& desc = frac_list->getDescs(icur);
+    desc.setFamily(ifam);
+    desc.setOrient(orient);
+    desc.addPoint(xx, yy);
+  }
+
+  // Loop on the layer informations
+
+  if (! layinfo.empty())
+  {
+    frac_list->_layinfo.init(nlayer, number);
+    for (int i = 0; i < nvall; i++)
+      frac_list->_layinfo.setValue(i, layinfo[i]);
+  }
+  return (frac_list);
+}
+
+/****************************************************************************/
+/*!
+ **  Plunge a subset of the simulated fractures into a block
+ **
+ **  \return Error return code
+ **
+ ** \param[in,out] dbgrid    Db structure
+ ** \param[in]  xmax         Maximum extension along horizontal axis
+ ** \param[in]  permtab      Permabilities per family (starting from 0)
+ ** \param[in]  perm_mat     Permability for the matrix
+ ** \param[in]  perm_bench   Permability along the bench edge
+ ** \param[in]  ndisc        Number of discretization steps
+ **
+ *****************************************************************************/
+int FracList::fractureToBlock(DbGrid *dbgrid,
+                              double xmax,
+                              VectorDouble& permtab,
+                              double perm_mat,
+                              double perm_bench,
+                              int ndisc)
+{
+  if (dbgrid->getNDim() != 2)
+  {
+    messerr("This application is limited to 2-D grid");
+    return 1;
+  }
+  double dmin = 1.e30;
+  for (int idim = 0; idim < dbgrid->getNDim(); idim++)
+  {
+    if (dbgrid->getDX(idim) < dmin) dmin = dbgrid->getDX(idim);
+  }
+  double delta = dmin / (double) ndisc;
+
+  // Allocate the new variable
+
+  int iptr = dbgrid->addColumnsByConstant(1, perm_mat);
+
+  // Plunge the environment
+
+  if (perm_bench > 0)
+  {
+    for (int ilayer = 0; ilayer < _nlayers; ilayer++)
+    {
+      double cote = getMemLayer(ilayer);
+      _plungeSegment(dbgrid, iptr, delta, perm_bench, 0., cote, xmax, cote);
+    }
+  }
+
+  /* Loop on the fractures */
+
+  for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
+  {
+    Description &desc = _descs[ifrac];
+
+    /* Loop on the segments */
+
+    int npoint = desc.getNPoint();
+    for (int ip = 0; ip < npoint - 1; ip++)
+    {
+      _plungeSegment(dbgrid, iptr, delta, permtab[desc.getFamily()],
+                     desc.getXXF(ip), desc.getYYF(ip), desc.getXXF(ip + 1),
+                     desc.getYYF(ip + 1));
+    }
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Plunge a segment in a block Db
+ **
+ ** \param[in]  dbgrid    Db structure
+ ** \param[in]  iptr      Pointer to the Perm variable
+ ** \param[in]  delta     Increment
+ ** \param[in]  value     Value assigned to the fracture segment
+ ** \param[in]  x1        First coordinate of the first point
+ ** \param[in]  y1        Second coordinate of the first point
+ ** \param[in]  x2        First coordinate of the second point
+ ** \param[in]  y2        Second coordinate of the second point
+ **
+ *****************************************************************************/
+void FracList::_plungeSegment(DbGrid *dbgrid,
+                              int iptr,
+                              double delta,
+                              double value,
+                              double x1,
+                              double y1,
+                              double x2,
+                              double y2)
+{
+  VectorDouble coor(2);
+
+  double deltax = x2 - x1;
+  double deltay = y2 - y1;
+  double dist = sqrt(deltax * deltax + deltay * deltay);
+  int number = (int) floor(dist / delta);
+
+  // Loop on the discretization lags
+
+  for (int i = 0; i <= number; i++)
+  {
+    coor[0] = x1 + deltax * i / number;
+    coor[1] = y1 + deltay * i / number;
+
+    int iech = dbgrid->coordinateToRank(coor);
+    if (iech < 0) continue;
+    dbgrid->updArray(iech, iptr, 5, value);
+  }
+}
+
+/****************************************************************************/
+/*!
+ **  Plunge a well line in a set of fractures
+ **
+ **  \return Array of the intersections (should be checked against NULL)
+ **
+ ** \param[in]  nval         Number of well information
+ ** \param[in]  well         Array giving the well trajectory
+ ** \param[in]  frac_list    Pointer to the Frac_List structure
+ ** \param[in]  xmax         Maximum extension along horizontal axis
+ ** \param[in]  permtab      Permabilities per family (starting from 0) Optional
+ **
+ ** \param[out] nint         Number of intersections
+ ** \param[out] ncol         Number of attributes per intersection
+ **
+ ** \remark Output array must be freed by the calling function
+ **
+ *****************************************************************************/
+VectorDouble FracList::fractureToWell(int nval,
+                                      const VectorDouble& well,
+                                      double xmax,
+                                      const VectorDouble& permtab,
+                                      int *nint,
+                                      int *ncol)
+{
+  double x, y;
+  VectorDouble wellout;
+
+  /* Preliminary checks */
+
+  if (!isMultiple(nval, 2))
+  {
+    messerr("The number of values read from 'well' should be a multiple of 2");
+    return VectorDouble();
+  }
+  int nw_xy = nval / 2;
+  if (nw_xy < 2)
+  {
+    messerr("Number of end points for the well line must not be less than 2");
+    return VectorDouble();
+  }
+
+  /* Loop on the line segments */
+
+  for (int iw = 0; iw < nw_xy - 1; iw++)
+  {
+    double x1 = WELL(iw, 0);
+    double y1 = WELL(iw, 1);
+    double x2 = WELL(iw + 1, 0);
+    double y2 = WELL(iw + 1, 1);
+
+    /* Store the starting point */
+
+    _welloutAdd(wellout, x1, y1, -1, -1, 0, 0.);
+
+    /* Loop on the fractures */
+
+    for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
+    {
+      Description& desc = _descs[ifrac];
+      int ifam = desc.getFamily();
+      int npoint = desc.getNPoint();
+
+      /* Loop on the segments */
+
+      for (int ip = 0; ip < npoint - 1; ip++)
+      {
+        if (segment_intersect(x1, y1, x2, y2,
+                              desc.getXXF(ip), desc.getYYF(ip),
+                              desc.getXXF(ip + 1), desc.getYYF(ip + 1), &x, &y)) continue;
+        if (y <= -_eps || x <= -_eps || x >= xmax + _eps) continue;
+
+        /* Store the new intersection */
+
+        double perm = (permtab.empty()) ? 0. : permtab[ifam];
+        _welloutAdd(wellout, x, y, ifrac, ip, ifam, perm);
+      }
+    }
+
+    /* Store the ending point */
+
+    _welloutAdd(wellout, x2, y2, -1, -1, 0, 0.);
+  }
+
+  (*nint) = (int) wellout.size() / NBYWOUT;
+  (*ncol) = NBYWOUT;
+  return wellout;
+}
+
+/****************************************************************************/
+/*!
+ **  Add an end point to the wellout array
+ **
+ **  \return New allocated wellout array
+ **
+ ** \param[in]  wellout      Array provided as input
+ ** \param[in]  nbyout       Number of attribute by end point
+ ** \param[in]  x            Ascissae of the intersection
+ ** \param[in]  y            Ordinate of the intersection
+ ** \param[in]  ifrac        Rank of the fracture (starting from 1)
+ ** \param[in]  ip           Rank of the segment (starting from 1)
+ ** \param[in]  family       Family to which the fracture belongs
+ ** \param[in]  perm         Assigned permeability or TEST
+ ** \param[in,out] nout      Initial/Final number of end points
+ **
+ *****************************************************************************/
+void FracList::_welloutAdd(VectorDouble& wellout,
+                           double x,
+                           double y,
+                           int ifrac,
+                           int ip,
+                           int family,
+                           double perm)
+{
+  int nloc;
+
+  nloc = wellout.size() / NBYWOUT;
+  wellout.resize(NBYWOUT * (nloc+1));
+
+  WELLOUT(nloc,0) = x; /* First coordinate */
+  WELLOUT(nloc,1) = y; /* Second coordinate */
+  WELLOUT(nloc,2) = (double) ifrac + 1; /* Rank of the fracture */
+  WELLOUT(nloc,3) = (double) ip + 1; /* Rank of segment in frature */
+  WELLOUT(nloc,4) = (double) family; /* Rank of family */
+  WELLOUT(nloc,5) = perm; /* Starting permeability */
+  WELLOUT(nloc,6) = perm; /* Ending permeability */
+  WELLOUT(nloc,7) = TEST; /* Range of permeability change */
+}
+
+/****************************************************************************/
+/*!
+ **  Extract the array of fracture lengths
+ **
+ ** \return The returned array
+ **
+ ** \param[in]  ifam       Rank of the family or ITEST for all
+ ** \param[in]  cote         Selected layer or TEST for all layers
+ ** \param[in]  dcote        Tolerance on the layer elevation
+ **
+ *****************************************************************************/
+VectorDouble FracList::fractureExtractLength(int ifam,
+                                             double cote,
+                                             double dcote)
+{
+  VectorDouble tab(getNFracs(), 0);
+
+  /* Loading the fractures */
+
+  int ecr = 0;
+  for (int i = 0; i < getNFracs(); i++)
+  {
+    Description& desc = _descs[i];
+
+    /* Selection according to the family criterion */
+
+    if (!IFFFF(ifam) && desc.getFamily() != ifam) continue;
+
+    /* Calculate the fracture length */
+
+    double value = desc.fractureExtension(cote, dcote);
+    if (value <= 0.) continue;
+    tab[ecr++] = value;
+  }
+
+  /* Sort the intersections */
+
+  ut_sort_double(0, ecr, NULL, tab.data());
+
+  return tab;
+}
+
+/****************************************************************************/
+/*!
+ **  Extract the fracture interdistances
+ **
+ ** \return The returned array
+ **
+ ** \param[in]  ifam         Rank of the family or ITEST for all
+ ** \param[in]  cote         Selected layer or TEST for all layers
+ ** \param[in]  dcote        Tolerance on the layer elevation
+ **
+ *****************************************************************************/
+VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
+{
+  int number = _getEndPointCount();
+  VectorDouble tab(number, 0);
+
+  /* Loading the abcissae of the fracture (with the target layer) */
+
+  int ecr = 0;
+  for (int i = 0; i < getNFracs(); i++)
+  {
+    Description& desc = _descs[i];
+    int npoint = desc.getNPoint();
+
+    /* Loop on the end points */
+
+    for (int ip = 0; ip < npoint; ip++)
+    {
+
+      /* Selection according to the family criterion */
+
+      if (!IFFFF(ifam) && desc.getFamily() != ifam) continue;
+
+      /* Selection according to the layer */
+
+      if (!FFFF(cote) && !FFFF(dcote) &&
+      ABS(cote - desc.getYYF(ip)) > dcote) continue;
+
+      tab[ecr++] = desc.getXXF(ip);
+    }
+  }
+  int ndist = ecr;
+  if (ndist <= 0) return VectorDouble();
+
+  /* Sort the intersections */
+
+  ut_sort_double(0, ndist, NULL, tab.data());
+
+  /* Calculate the inter-fracture distances */
+
+  double valref = tab[0];
+  for (int i = 1; i < ndist; i++)
+  {
+    double value = tab[i];
+    tab[i - 1] = value - valref;
+    valref = value;
+  }
+
+  /* Sort the fracture inter-distances */
+
+  ndist--;
+  ut_sort_double(0, ndist, NULL, tab.data());
+
+  return tab;
+}
+
+/****************************************************************************/
+/*!
+ **  Plunge a line trajectory and the modified permeabilities within an
+ **  existing block
+ **
+ **  \return Error return code
+ **
+ ** \param[in,out] dbgrid    Db structure
+ ** \param[in]  col_perm     Existing attribute for permeability (or ITEST)
+ ** \param[in]  col_fluid    Existing attribute for fluid (or ITEST)
+ ** \param[in]  flag_fluid   1 for performing the Fluid filling
+ ** \param[in]  val_fluid    Value assigned to the fluid
+ ** \param[in]  wellout      Pointer to the new wellout information
+ ** \param[in]  nval         Number of values for wellout informations
+ ** \param[in]  ndisc        Number of discretization steps
+ ** \param[in]  verbose      Verbose flag
+ **
+ *****************************************************************************/
+int FracList::fractureWellToBlock(DbGrid *dbgrid,
+                                  int col_perm,
+                                  int col_fluid,
+                                  int flag_fluid,
+                                  double val_fluid,
+                                  const VectorDouble& wellout,
+                                  int nval,
+                                  int ndisc,
+                                  bool verbose)
+{
+  VectorDouble traj;
+  int iptr_perm = -1;
+  int iptr_fluid = -1;
+
+  /* Preliminary checks */
+
+  if (!isMultiple(nval, NBYWOUT))
+  {
+    messerr("The number of values read (%d) in well should be a multiple of %d",
+            nval, NBYWOUT);
+    return 1;
+  }
+  int nw_xy = nval / NBYWOUT;
+  if (dbgrid->getNDim() != 2)
+  {
+    messerr("This application is limited to 2-D grid");
+    return 1;
+  }
+  double dmin = 1.e30;
+  for (int idim = 0; idim < dbgrid->getNDim(); idim++)
+  {
+    if (dbgrid->getDX(idim) < dmin) dmin = dbgrid->getDX(idim);
+  }
+  double delta = dmin / (double) ndisc;
+
+  /* Allocate the new variable */
+
+  iptr_perm = dbgrid->addColumnsByConstant(1, 0);
+  if (!IFFFF(col_perm)) db_attribute_copy(dbgrid, col_perm, iptr_perm);
+
+  if (flag_fluid)
+  {
+    iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
+    if (!IFFFF(col_fluid)) db_attribute_copy(dbgrid, col_fluid, iptr_fluid);
+  }
+
+  /* Verbose option */
+
+  if (verbose)
+    print_matrix("Well information", 0, 0, NBYWOUT, nw_xy, NULL, wellout.data());
+
+  /* Paint the fluid (optional) */
+
+  if (flag_fluid)
+  {
+    for (int iw = 0; iw < nw_xy - 1; iw++)
+    {
+      double x1 = WELLOUT(iw, 0);
+      double y1 = WELLOUT(iw, 1);
+      double x2 = WELLOUT(iw + 1, 0);
+      double y2 = WELLOUT(iw + 1, 1);
+      _plungeSegment(dbgrid, iptr_fluid, delta, val_fluid, x1, y1, x2, y2);
+    }
+  }
+
+  /* Loop on the end points of the wellout */
+
+  for (int iw = 0; iw < nw_xy; iw++)
+  {
+    double xx = WELLOUT(iw, 0);
+    double yy = WELLOUT(iw, 1);
+    int ifrac = (int) WELLOUT(iw, 2) - 1;
+    int ip = (int) WELLOUT(iw, 3) - 1;
+    double perm1 = WELLOUT(iw, 5);
+    double perm2 = WELLOUT(iw, 6);
+    double range = WELLOUT(iw, 7);
+    if (ifrac < 0) continue;
+
+    if (ifrac >= getNFracs())
+    {
+      messerr("The well information (line %d/%d) is invalid:", iw + 1, nw_xy);
+      messerr("- Fracture number (%d) should lie within [1,%d]", ifrac + 1,
+              getNFracs());
+      continue;
+    }
+
+    Description &desc = _descs[ifrac];
+    if (ip < 0 || ip >= desc.getNPoint())
+    {
+      messerr("The well information (line %d/%d) is invalid:", iw + 1, nw_xy);
+      messerr("- For fracture (%d, Segment number (%d) is not within [1,%d]",
+              ifrac + 1, ip + 1, desc.getNPoint());
+      continue;
+    }
+    int npoint = desc.getNPoint();
+
+    /* Paint the blocks with the stationary permeability */
+
+    for (int i = 0; i < npoint - 1; i++)
+      _plungeSegment(dbgrid, iptr_perm, delta, perm2,
+                     desc.getXXF(i), desc.getYYF(i),
+                     desc.getXXF(i + 1), desc.getYYF(i + 1));
+
+    /* Allocate the trajectory */
+
+    traj.resize(2 * (npoint + 1), 0);
+
+    /* Trajectory upwards */
+
+    _trajAdd(traj, xx, yy);
+    for (int i = ip; i >= 0; i--)
+      _trajAdd(traj, desc.getXXF(ip), desc.getYYF(ip));
+    _plungeSegmentGradual(dbgrid, iptr_perm, delta, traj, perm1, perm2, range);
+
+    /* Trajectory downwards */
+
+    _trajAdd(traj, xx, yy);
+    for (int i = ip; i < npoint; i++)
+      _trajAdd(traj, desc.getXXF(ip), desc.getYYF(ip));
+    _plungeSegmentGradual(dbgrid, iptr_perm, delta, traj, perm1, perm2, range);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Add a sample to the trajectory
+ **
+ ** \param[in]  traj         Array for storing the trajectory
+ ** \param[in]  x            First coordinate
+ ** \param[in]  y            Second coordinate
+ **
+ *****************************************************************************/
+void FracList::_trajAdd(VectorDouble& traj, double x, double y)
+{
+  int nloc = (int) traj.size();
+  traj.resize(2 * (nloc+1));
+  TRAJ(nloc,0) = x;
+  TRAJ(nloc,1) = y;
+}
+
+/****************************************************************************/
+/*!
+ **  Plunge a segment painted with gradually changing permeability in a block Db
+ **
+ ** \param[in]  dbgrid    Db structure
+ ** \param[in]  iptr      Pointer to the Perm variable
+ ** \param[in]  delta     Increment
+ ** \param[in]  traj      Vector describing the trajectory
+ ** \param[in]  perm1     Permeability at origin of curvilinear distance
+ ** \param[in]  perm2     Permeability at range of curvilinear distance
+ ** \param[in]  range     Range of the permeability change
+ **
+ *****************************************************************************/
+void FracList::_plungeSegmentGradual(DbGrid *dbgrid,
+                                     int iptr,
+                                     double delta,
+                                     VectorDouble& traj,
+                                     double perm1,
+                                     double perm2,
+                                     double range)
+{
+  VectorDouble coor(2);
+
+  int ntraj = (int) traj.size();
+  double total = 0.;
+  for (int ip = 0; ip < ntraj - 1; ip++)
+  {
+    double x1 = TRAJ(ip, 0);
+    double y1 = TRAJ(ip, 1);
+    double x2 = TRAJ(ip + 1, 0);
+    double y2 = TRAJ(ip + 1, 1);
+    double deltax = x2 - x1;
+    double deltay = y2 - y1;
+    double dist = sqrt(deltax * deltax + deltay * deltay);
+    int number = (int) floor(dist / delta);
+    double incx = deltax / number;
+    double incy = deltay / number;
+    double incr = dist / number;
+
+    /* Loop on the discretization lags */
+
+    for (int i = 0; i <= number; i++)
+    {
+      coor[0] = x1 + i * incx;
+      coor[1] = y1 + i * incy;
+      total += incr;
+
+      int iech = dbgrid->coordinateToRank(coor);
+      if (iech < 0) continue;
+
+      double perm;
+      if (FFFF(range))
+        perm = perm2;
+      else
+      {
+        double h = total / range;
+        double red = _cubic(h);
+        perm = perm2 + (perm1 - perm2) * red;
+      }
+      dbgrid->setArray(iech, iptr, perm);
+    }
+  }
 }
 

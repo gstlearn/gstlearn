@@ -17,8 +17,11 @@
 #include "Matrix/MatrixRectangular.hpp"
 
 #define NPART 5
+#define NBYFRAC 7
+#define NBYWOUT 8
 
 class Environ;
+class DbGrid;
 
 class GSTLEARN_EXPORT FracList: public AStringable
 {
@@ -45,6 +48,36 @@ public:
                const VectorDouble& elevations);
   MatrixRectangular fractureExport() const;
   MatrixRectangular layinfoExport() const { return _layinfo; };
+  static FracList* fractureImport(const VectorDouble& frac_segs,
+                                  const VectorDouble& layinfo = VectorDouble(),
+                                  int nfamilies = 0);
+
+  Description& getDescs(int i) { return _descs[i]; }
+  void addDescription(const Description& description = Description()) { _descs.push_back(description); }
+
+  int fractureToBlock(DbGrid *dbgrid,
+                      double xmax,
+                      VectorDouble& permtab,
+                      double perm_mat,
+                      double perm_bench,
+                      int ndisc);
+  VectorDouble fractureToWell(int nval,
+                              const VectorDouble& well,
+                              double xmax,
+                              const VectorDouble& permtab,
+                              int *nint,
+                              int *ncol);
+  int fractureWellToBlock(DbGrid *dbgrid,
+                          int col_perm,
+                          int col_fluid,
+                          int flag_fluid,
+                          double val_fluid,
+                          const VectorDouble& wellout,
+                          int nval,
+                          int ndisc,
+                          bool verbose);
+  VectorDouble fractureExtractLength(int ifam, double cote, double dcote);
+  VectorDouble fractureExtractDist(int ifam, double cote, double dcote);
 
 private:
   int getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
@@ -54,6 +87,7 @@ private:
   void setMemPropsur(int i, int ifam, double value) { _layinfo.setValue(i,getRank(ifam,2),value); }
   void setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,getRank(ifam,3),value); }
   void setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,getRank(ifam,4),value); }
+  double getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
   VectorDouble _layersManage(const Environ& environ, double *y0);
   VectorDouble _layersRead(int nlayers_in,
@@ -121,10 +155,35 @@ private:
   int _getEndPointCount() const;
   bool _isValidDisc(int idisc);
 
+  void _plungeSegment(DbGrid *dbgrid,
+                      int iptr,
+                      double delta,
+                      double value,
+                      double x1,
+                      double y1,
+                      double x2,
+                      double y2);
+  void _welloutAdd(VectorDouble& wellout,
+                   double x,
+                   double y,
+                   int ifrac,
+                   int ip,
+                   int family,
+                   double perm);
+  void _trajAdd(VectorDouble& traj, double x, double y);
+  void _plungeSegmentGradual(DbGrid *dbgrid,
+                             int iptr,
+                             double delta,
+                             VectorDouble& traj,
+                             double perm1,
+                             double perm2,
+                             double range);
+
 private:
   // Array of fracture descriptions
   std::vector<Description> _descs;
   MatrixRectangular _layinfo;
+  int _nlayers;
   // The number of discretization steps used to establish the fracture density
   int _ndisc;
   // The option for checking the fracture intersect or not

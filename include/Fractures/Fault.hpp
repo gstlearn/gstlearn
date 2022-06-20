@@ -12,9 +12,10 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT Fault: public AStringable
+class GSTLEARN_EXPORT Fault: public AStringable, public ASerializable
 {
 public:
   Fault(double coord = 0., double orient = 0.);
@@ -22,7 +23,12 @@ public:
   Fault& operator=(const Fault& r);
   virtual ~Fault();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  /// Interface for ASerializable
+  int _deserialize(std::istream& is, bool verbose = false) override;
+  int _serialize(std::ostream& os,bool verbose = false) const override;
 
   double getCoord() const { return _coord; }
   double getOrient() const { return _orient; }

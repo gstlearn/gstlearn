@@ -502,16 +502,11 @@ GSTLEARN_EXPORT void ascii_filename(const char *type,
                                     int rank,
                                     int mode,
                                     char *filename);
-GSTLEARN_EXPORT int ascii_frac_write(const char *file_name,
-                                     Frac_Environ *frac,
-                                     int verbose);
 GSTLEARN_EXPORT void ascii_simu_read(char *file_name,
                                      int verbose,
                                      int *nbsimu,
                                      int *nbtuba,
                                      int *seed);
-GSTLEARN_EXPORT Frac_Environ* ascii_frac_read(const char *file_name,
-                                              int verbose);
 GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
                                          int verbose,
                                          const char *option_name,
@@ -1882,99 +1877,6 @@ GSTLEARN_EXPORT void vario_order_get_auxiliary(Vario_Order *vorder,
                                                int ipair,
                                                char *aux_iech,
                                                char *aux_jech);
-
-/**************************/
-/* Prototyping fracture.c */
-/**************************/
-GSTLEARN_EXPORT Frac_Environ* fracture_alloc_environ(int nfamilies,
-                                                     double xmax,
-                                                     double ymax,
-                                                     double deltax,
-                                                     double deltay,
-                                                     double mean,
-                                                     double stdev);
-GSTLEARN_EXPORT Frac_Environ* fracture_dealloc_environ(Frac_Environ *frac_environ);
-
-GSTLEARN_EXPORT Frac_List* fracture_manage_list(int mode, Frac_List *frac_list);
-GSTLEARN_EXPORT void fracture_update_family(Frac_Environ *frac_environ,
-                                            int family,
-                                            double orient,
-                                            double dorient,
-                                            double theta0,
-                                            double alpha,
-                                            double ratcst,
-                                            double prop1,
-                                            double prop2,
-                                            double aterm,
-                                            double bterm,
-                                            double range);
-GSTLEARN_EXPORT int fracture_add_fault(Frac_Environ *frac_environ,
-                                       double fault_coord,
-                                       double fault_orient);
-GSTLEARN_EXPORT void fracture_update_fault(Frac_Environ *frac_environ,
-                                           int ifault,
-                                           int family,
-                                           double thetal,
-                                           double thetar,
-                                           double rangel,
-                                           double ranger);
-GSTLEARN_EXPORT int fracture_simulate(Frac_Environ *frac_environ,
-                                      int flag_sim_layer,
-                                      int flag_sim_fract,
-                                      int seed,
-                                      int verbose,
-                                      int nlayers_in,
-                                      double *elevations,
-                                      int *nlayers,
-                                      int *ninfos,
-                                      double **layinfo,
-                                      Frac_List *frac_list);
-GSTLEARN_EXPORT void fracture_print(Frac_Environ *frac_environ);
-GSTLEARN_EXPORT void fracture_list_print(const char *title,
-                                         Frac_List *frac_list,
-                                         int level);
-GSTLEARN_EXPORT void fracture_export(Frac_List *frac_list,
-                                     int *nfracs_arg,
-                                     int *nbyfrac_arg,
-                                     double **frac_segs_arg);
-GSTLEARN_EXPORT Frac_List* fracture_import(int nval, double *frac_segs);
-GSTLEARN_EXPORT double* fracture_extract_length(Frac_List *frac_list,
-                                                int family,
-                                                double cote,
-                                                double dcote,
-                                                int *ntab);
-GSTLEARN_EXPORT double* fracture_extract_dist(Frac_List *frac_list,
-                                              int family,
-                                              double cote,
-                                              double dcote,
-                                              int *ntab);
-GSTLEARN_EXPORT int fracture_to_block(DbGrid *dbgrid,
-                                      Frac_List *frac_list,
-                                      double *locinfo,
-                                      int n_layers,
-                                      int nfamilies,
-                                      double xmax,
-                                      double *permtab,
-                                      double perm_mat,
-                                      double perm_bench,
-                                      int ndisc);
-GSTLEARN_EXPORT double* fracture_to_well(int nw_xy,
-                                         double *well,
-                                         Frac_List *frac_list,
-                                         double xmax,
-                                         double *permtab,
-                                         int *nint,
-                                         int *ncol);
-GSTLEARN_EXPORT int fracture_well_to_block(DbGrid *dbgrid,
-                                           Frac_List *frac_list,
-                                           int col_perm,
-                                           int col_fluid,
-                                           int flag_fluid,
-                                           double val_fluid,
-                                           double *wellout,
-                                           int nw_xy,
-                                           int ndisc,
-                                           int verbose);
 
 /******************************************/
 /* Prototyping the functions in mlayers.c */
