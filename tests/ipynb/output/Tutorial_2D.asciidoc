@@ -362,7 +362,7 @@ Calculating the Variogram Map
 
 [source, ipython3]
 ----
-myvmap = gl.db_vmap_compute(mydb,gl.ECalcVario.VARIOGRAM,20,20)
+myvmap = gl.db_vmap_compute(mydb,gl.ECalcVario.VARIOGRAM,[20,20])
 if verbose:
     myvmap.display()
 ----
