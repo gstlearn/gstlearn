@@ -74,7 +74,7 @@ bool ASerializable::_fileOpenWrite(const String& filename,
   if (!os.is_open())
   {
     if (verbose)
-      message("Error while opening %s", filepath.c_str());
+      messerr("Error while opening %s", filepath.c_str());
     return false;
   }
   // Write the file type (class name)
@@ -96,7 +96,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   if (!is.is_open())
   {
     if (verbose)
-      message("Error while opening %s", filepath.c_str());
+      messerr("Error while opening %s", filepath.c_str());
     return false;
   }
   // Read and check the file type (class name)

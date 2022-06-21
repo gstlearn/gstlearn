@@ -21,6 +21,7 @@
 #include "Basic/Law.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/Db.hpp"
 
 #include <math.h>
 
@@ -256,7 +257,7 @@ int FracList::simulate(const Environ* environ,
  **
  ** \return The vector of layer thicknesses
  **
- ** \param[in]  environ      Pointer to the Frac_Environ structure
+ ** \param[in]  environ      Pointer to the Environ structure
  ** \param[in]  y0           Ordinate of the origin
  **
  ** \remarks The origin is calculated so that a layer edge is located at 0.
@@ -363,9 +364,9 @@ VectorDouble FracList::_layersRead(int nlayers_in,
 
 /****************************************************************************/
 /*!
- **  Manage the Frac_List structure
+ **  Manage the FracList structure
  **
- ** \return  Pointer to the Frac_List structure
+ ** \return  Pointer to the FracList structure
  **
  ** \param[in]  mode         0 initialization; 1 allocation; -1 deallocation
  **
@@ -490,7 +491,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
  **
  ** \return 1 if the segment belongs to the layer; 0 otherwise
  **
- ** \param[in]  desc         Frac_Desc structure
+ ** \param[in]  desc         Description structure
  ** \param[in]  cote         Ordinate of the fracture starting point
  **
  ** \param[in]  xd           Abscissae of the first end-point
@@ -916,7 +917,7 @@ bool FracList::_fractureInterrupt(const Family& family,
  **
  ** \return The fault abscissae
  **
- ** \param[in]  fault  Frac_Fault structure
+ ** \param[in]  fault  Fault structure
  ** \param[in]  cote   Ordinate of the fracture starting point
  **
  *****************************************************************************/
@@ -1115,7 +1116,7 @@ bool FracList::_isValidDisc(int idisc)
 /*!
  **  Import the Fractures
  **
- ** \return Pointer to the Frac_List structure
+ ** \return Pointer to the FracList structure
  **
  ** \param[in]  frac_segs    Array of fracture segments
  ** \param[in]  layinfo      Array of layer information
@@ -1307,7 +1308,6 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
  **
  ** \param[in]  nval         Number of well information
  ** \param[in]  well         Array giving the well trajectory
- ** \param[in]  frac_list    Pointer to the Frac_List structure
  ** \param[in]  xmax         Maximum extension along horizontal axis
  ** \param[in]  permtab      Permabilities per family (starting from 0) Optional
  **
@@ -1395,14 +1395,12 @@ VectorDouble FracList::fractureToWell(int nval,
  **  \return New allocated wellout array
  **
  ** \param[in]  wellout      Array provided as input
- ** \param[in]  nbyout       Number of attribute by end point
  ** \param[in]  x            Ascissae of the intersection
  ** \param[in]  y            Ordinate of the intersection
  ** \param[in]  ifrac        Rank of the fracture (starting from 1)
  ** \param[in]  ip           Rank of the segment (starting from 1)
  ** \param[in]  family       Family to which the fracture belongs
  ** \param[in]  perm         Assigned permeability or TEST
- ** \param[in,out] nout      Initial/Final number of end points
  **
  *****************************************************************************/
 void FracList::_welloutAdd(VectorDouble& wellout,

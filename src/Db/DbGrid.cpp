@@ -618,20 +618,20 @@ int DbGrid::dumpToNF(const String& neutralFilename, bool verbose) const
  */
 DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
 {
-  DbGrid* db = nullptr;
+  DbGrid* dbgrid = nullptr;
   std::ifstream is;
   if (_fileOpenRead(neutralFilename, "DbGrid", is, verbose))
   {
-    db = new DbGrid;
-    if (db->_deserialize(is, verbose))
+    dbgrid = new DbGrid;
+    if (dbgrid->_deserialize(is, verbose))
     {
       if (verbose) messerr("Problem reading the Neutral File.");
-      delete db;
-      db = nullptr;
+      delete dbgrid;
+      dbgrid = nullptr;
     }
     is.close();
   }
-  return db;
+  return dbgrid;
 }
 
 VectorDouble DbGrid::getColumnSubGrid(const String& name,

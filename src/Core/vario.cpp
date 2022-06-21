@@ -6056,21 +6056,23 @@ int vmap_compute(Db *db,
  **
  ** \param[in]  db          Db containing the data
  ** \param[in]  calcul_type Type of calculation (ECalcVario)
- ** \param[in]  nxx         (Half-) Number of nodes for the VMAP grid along X
- ** \param[in]  nyy         (Half-) Number of nodes for the VMAP grid along Y
- ** \param[in]  dxx         Mesh of the VMAP grid along X
- ** \param[in]  dyy         Mesh of the VMAP grid along Y
+ ** \param[in]  nx_arg      Vector of (Half-) number of nodes for Vmap (def:20)
+ ** \param[in]  dxx         Vector of mesh for Vmap (seed details)
  ** \param[in]  radius      Dilation radius (mooth resulting maps) only on points
  ** \param[in]  flag_FFT    Use FFT method (only valid on grid)
  ** \param[in]  namconv     Naming convention
  **
+ ** \remarks For calculating the default values:
+ ** \remarks - for nx: it is set to 20 in all directions
+ ** \remarks - for dx:
+ ** \remarks   . If 'Db' is a grid, the mesh of the grid is used
+ ** \remarks   - Otherwise, the mesh is set to the field extension / nx
+ **
  *****************************************************************************/
 DbGrid* db_vmap_compute(Db *db,
                         const ECalcVario &calcul_type,
-                        int nxx,
-                        int nyy,
-                        double dxx,
-                        double dyy,
+                        const VectorInt& nx_arg,
+                        const VectorDouble& dxx,
                         int radius,
                         bool flag_FFT,
                         const NamingConvention& namconv)
@@ -6079,26 +6081,40 @@ DbGrid* db_vmap_compute(Db *db,
 
   // Creating the output Variogram Map grid
 
-  VectorInt nx(2);
-  nx[0] = 2 * nxx + 1;
-  nx[1] = 2 * nyy + 1;
-  VectorDouble dx(2);
+  int ndim = db->getNDim();
+  VectorInt nxx = nx_arg;
+  if (nxx.empty()) nxx.resize(ndim, 20);
+  if (ndim != (int) nxx.size())
+  {
+    messerr("Argument 'nxx' should have same Space Dimension as 'db'");
+    return nullptr;
+  }
+  if (! dxx.empty() && ndim != (int) dxx.size())
+  {
+    messerr("Argument 'dxx'  should have same Space Dimension as 'db'");
+    return nullptr;
+  }
+  VectorInt nx_map(ndim);
+  VectorDouble dx_map(ndim);
+  VectorDouble x0_map(ndim);
+
+  for (int idim = 0; idim<ndim; idim++)
+    nx_map[idim] = 2 * nxx[idim] + 1;
   if (db->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(db);
-    dx[0] = dbgrid->getDX(0);
-    dx[1] = dbgrid->getDX(1);
+    for (int idim = 0; idim < ndim; idim++)
+      dx_map[idim] = dbgrid->getDX(idim);
   }
   else
   {
-    dx[0] = (!FFFF(dxx)) ? dxx : db->getExtension(0) / (double) nxx;
-    dx[1] = (!FFFF(dyy)) ? dyy : db->getExtension(1) / (double) nyy;
+    for (int idim = 0; idim < ndim; idim++)
+      dx_map[idim] = (!FFFF(dxx[idim])) ? dxx[idim] : db->getExtension(idim) / (double) nxx[idim];
   }
-  VectorDouble x0(2);
-  x0[0] = -nxx * dx[0];
-  x0[1] = -nyy * dx[1];
+  for (int idim = 0; idim < ndim; idim++)
+    x0_map[idim] = -nxx[idim] * dx_map[idim];
 
-  DbGrid *dbmap = DbGrid::create(nx, dx, x0);
+  DbGrid *dbmap = DbGrid::create(nx_map, dx_map, x0_map);
 
   // Calculating the variogram map in different ways
 

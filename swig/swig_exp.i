@@ -35,9 +35,6 @@ class IClonable{};
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection)      std::vector<TurningDirection>;
 %template(VectorDrft)           std::vector<Drift*>;
-%template(VectorFrac_Desc)      std::vector<Frac_Desc*>;
-%template(VectorFrac_Fam)       std::vector<Frac_Fam*>;
-%template(VectorFrac_Fault)     std::vector<Frac_Fault*>;
 %template(VectorLocal_Split)    std::vector<Local_Split*>;
 %template(VectorPolySet)        std::vector<PolySet*>;
 %template(VectorQChol)          std::vector<QChol*>;

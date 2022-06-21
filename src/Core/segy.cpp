@@ -18,6 +18,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 struct RefPt
 {
@@ -1483,12 +1484,12 @@ static traceHead st_traceHead_init()
  **                         -1 flattening from bottom
  **                         -2 squeeze and stretch option
  **                          2 averaging from 3-D to 2-D
+ ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  verbOption  Verbose option
  ** \param[in]  iline_min   Minimum Inline number included (if defined)
  ** \param[in]  iline_max   Maximum Inline number included (if defined)
  ** \param[in]  xline_min   Minimum Xline number included (if defined)
  ** \param[in]  xline_max   Maximum Xline number included (if defined)
- ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
@@ -1505,12 +1506,12 @@ SegYArg segy_array(const char *filesegy,
                    const String& bot_aux,
                    double thickmin,
                    int option,
+                   int nz_ss,
                    int verbOption,
                    int iline_min,
                    int iline_max,
                    int xline_min,
                    int xline_max,
-                   int nz_ss,
                    double modif_high,
                    double modif_low,
                    double modif_scale)
@@ -1681,12 +1682,12 @@ SegYArg segy_array(const char *filesegy,
  **                         -1 flattening from bottom
  **                         -2 squeeze and stretch option
  **                          2 averaging from 3-D to 2-D
+ ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  verbOption  Verbose option
  ** \param[in]  iline_min   Minimum Inline number included (if defined)
  ** \param[in]  iline_max   Maximum Inline number included (if defined)
  ** \param[in]  xline_min   Minimum Xline number included (if defined)
  ** \param[in]  xline_max   Maximum Xline number included (if defined)
- ** \param[in]  nz_ss       Number of layers for different options (see details)
  ** \param[in]  modif_high  Upper truncation (when defined)
  ** \param[in]  modif_low   Lower truncation (when defined)
  ** \param[in]  modif_scale Scaling value (when defined)
@@ -1702,12 +1703,12 @@ Grid segy_summary(const char *filesegy,
                   const String &name_bot,
                   double thickmin,
                   int option,
+                  int nz_ss,
                   int verbOption,
                   int iline_min,
                   int iline_max,
                   int xline_min,
                   int xline_max,
-                  int nz_ss,
                   double modif_high,
                   double modif_low,
                   double modif_scale)
@@ -1879,12 +1880,12 @@ int db_segy(const char *filesegy,
             const String &name_bot,
             double thickmin,
             int option,
+            int /*nz_ss*/,
             int verbOption,
             int iline_min,
             int iline_max,
             int xline_min,
             int xline_max,
-            int /*nz_ss*/,
             double modif_high,
             double modif_low,
             double modif_scale,

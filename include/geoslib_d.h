@@ -117,59 +117,6 @@ typedef struct
 
 typedef struct
 {
-  double coord;                //!< Abscissas of the first Fault point
-  double orient;               //!< Fault orientation
-  VectorDouble thetal;         //!< Maximum density on left
-  VectorDouble thetar;         //!< Maximum density on right
-  VectorDouble rangel;         //!< Decrease range on left
-  VectorDouble ranger;         //!< Decrease range on right
-} Frac_Fault;
-
-typedef struct
-{
-  double orient;              //!< Mean orientation
-  double dorient;             //!< Standard deviation for orientation
-  double theta0;              //!< Reference Poisson intensity
-  double alpha;               //!< Power dependency between layer & intensity
-  double ratcst;              //!< Ratio of Constant vs. shaped intensity
-  double prop1;               //!< Survival probability (constant term)
-  double prop2;               //!< Survival probability (length dependent term)
-  double aterm;               //!< Survival probability (cumulative length term)
-  double bterm;               //!< Survival probability (layer thickness term)
-  double range;               //!< Range of fracture repulsion area
-} Frac_Fam;
-
-typedef struct
-{
-  int nfamilies;               //!< Number of families
-  int nfaults;                 //!< Number of main faults
-  double xmax;                 //!< Maximum horizontal distance
-  double ymax;                 //!< Maximum vertical distance
-  double deltax;               //!< Dilation along the horizontal axis
-  double deltay;               //!< Dilation along the vertical axis
-  double xextend;              //!< Field extension along horizontal axis
-  double mean;                 //!< Mean of thickness distribution
-  double stdev;                //!< Standard deviation of thickness distribution
-  std::vector<Frac_Fam> frac_fams; //!< Family definition (dim: nfamilies)
-  std::vector<Frac_Fault> frac_faults; //!< Fault definition (dim: nfaults)
-} Frac_Environ;
-
-typedef struct
-{
-  int npoint;
-  int family;
-  double orient;
-  VectorDouble xy;
-} Frac_Desc;
-
-typedef struct
-{
-  int nfracs;               //<! Number of fractures
-  std::vector<Frac_Desc> frac_descs; //<! Array of fracture descriptions
-} Frac_List;
-
-typedef struct
-{
   double coor[3];
   double intercept;
   double value;
