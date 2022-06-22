@@ -209,6 +209,7 @@ set(SRC
   Basic/FFT.cpp
   Basic/Array.cpp
   Basic/Geometry.cpp
+  Basic/Line2D.cpp
   Faults/PolyLine.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp

@@ -1,0 +1,86 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 40000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000     0.000
+Mesh   :      1.000     1.000     1.000
+Number :         50        40        20
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+
+Model characteristics
+=====================
+Space dimension              = 3
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Spherical
+- Sill         =      1.000
+- Ranges       =      1.000     1.000     0.100
+Total Sill     =      1.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 3
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 40000
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000     0.000
+Mesh   :      1.000     1.000     1.000
+Number :         50        40        20
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+Column = 4 - Name = Simu - Locator = z1
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+5 - Name VMAP.Simu.Var - Locator z1
+ Nb of data          =       3087
+ Nb of active values =       3087
+ Minimum value       =      0.000
+ Maximum value       =      1.052
+ Mean value          =      1.006
+ Standard Deviation  =      0.023
+ Variance            =      0.001
+6 - Name VMAP.Simu.Nb - Locator NA
+ Nb of data          =       3087
+ Nb of active values =       3087
+ Minimum value       =  20400.000
+ Maximum value       =  40000.000
+ Mean value          =  28452.737
+ Standard Deviation  =   3541.376
+ Variance            = 12541344.856

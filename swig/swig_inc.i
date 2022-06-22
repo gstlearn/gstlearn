@@ -45,6 +45,7 @@
 #include "Basic/FFT.hpp"
 #include "Basic/Array.hpp"
 #include "Basic/Geometry.hpp"
+#include "Basic/Line2D.hpp"
 
 #include "Faults/PolyLine.hpp"
 
