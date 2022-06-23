@@ -79,6 +79,10 @@ ProjMatrix::~ProjMatrix()
   _Aproj = cs_spfree(_Aproj);
 }
 
+ProjMatrix* ProjMatrix::create(const Db* db, const AMesh *a_mesh, int verbose)
+{
+  return new ProjMatrix(db,a_mesh,verbose);
+}
 
 int ProjMatrix::resetFromDb(const Db* db, const AMesh *a_mesh, int verbose)
 {

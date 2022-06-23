@@ -32,6 +32,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static ProjMatrix* create(const Db* db, const AMesh *a_mesh, int verbose = 0);
   int resetFromDb(const Db* db, const AMesh *a_mesh, int verbose = 0);
   int resetFromPoints(int npoint, int napices, const cs *aproj);
   int resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
