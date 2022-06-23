@@ -11,18 +11,20 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "FracFault.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Fractures/Family.hpp"
-#include "Fractures/Fault.hpp"
 
-class GSTLEARN_EXPORT Description: public AStringable
+class GSTLEARN_EXPORT FracDesc: public AStringable
 {
 public:
-  Description();
-  Description(const Description& r);
-  Description& operator=(const Description& r);
-  virtual ~Description();
+  FracDesc();
+  FracDesc(const FracDesc& r);
+  FracDesc& operator=(const FracDesc& r);
+  virtual ~FracDesc();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

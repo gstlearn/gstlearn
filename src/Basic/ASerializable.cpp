@@ -37,7 +37,7 @@
 #include <sys/types.h>
 
 String ASerializable::myContainerName = String();
-String ASerializable::myPrefixName    = String();
+String ASerializable::myPrefixName = String();
 
 ASerializable::ASerializable()
 {
@@ -60,10 +60,38 @@ ASerializable::~ASerializable()
 {
 }
 
+bool ASerializable::deserialize(std::istream& is, bool verbose)
+{
+  bool ret = _deserialize(is, verbose);
+  if (verbose && !ret) messerr("Problem when reading the Neutral File.");
+  return ret;
+}
+
+bool ASerializable::serialize(std::ostream& os, bool verbose) const
+{
+  return _serialize(os, verbose);
+}
+
+bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
+{
+  std::ofstream os;
+  bool ret = true;
+  if (_fileOpenWrite(neutralFilename, _getNFName(), os, verbose))
+  {
+    ret = _serialize(os, verbose);
+    if (! ret)
+    {
+      if (verbose) messerr("Problem writing in the Neutral File.");
+    }
+    os.close();
+  }
+  return ret;
+}
+
 bool ASerializable::_fileOpenWrite(const String& filename,
-                                    const String& filetype,
-                                    std::ofstream& os,
-                                    bool verbose)
+                                   const String& filetype,
+                                   std::ofstream& os,
+                                   bool verbose)
 {
   // Close the stream if opened
   if (os.is_open()) os.close();
@@ -73,8 +101,7 @@ bool ASerializable::_fileOpenWrite(const String& filename,
   os.open(filepath, std::ios::out | std::ios::trunc);
   if (!os.is_open())
   {
-    if (verbose)
-      messerr("Error while opening %s", filepath.c_str());
+    if (verbose) messerr("Error while opening %s", filepath.c_str());
     return false;
   }
   // Write the file type (class name)
@@ -83,9 +110,9 @@ bool ASerializable::_fileOpenWrite(const String& filename,
 }
 
 bool ASerializable::_fileOpenRead(const String& filename,
-                                   const String& filetype,
-                                   std::ifstream& is,
-                                   bool verbose)
+                                  const String& filetype,
+                                  std::ifstream& is,
+                                  bool verbose)
 {
   // Close the stream if opened
   if (is.is_open()) is.close();
@@ -95,8 +122,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   is.open(filepath, std::ios::in);
   if (!is.is_open())
   {
-    if (verbose)
-      messerr("Error while opening %s", filepath.c_str());
+    if (verbose) messerr("Error while opening %s", filepath.c_str());
     return false;
   }
   // Read and check the file type (class name)
@@ -113,8 +139,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
   return is.good(); // Cannot be "end of file" already
 }
 
-bool ASerializable::_commentWrite(std::ostream& os,
-                                   const String& comment)
+bool ASerializable::_commentWrite(std::ostream& os, const String& comment)
 {
   if (os.good())
   {
@@ -127,16 +152,16 @@ bool ASerializable::_commentWrite(std::ostream& os,
 }
 
 bool ASerializable::_tableWrite(std::ostream& os,
-                                 const String& string,
-                                 int ntab,
-                                 const VectorDouble& tab)
+                                const String& string,
+                                int ntab,
+                                const VectorDouble& tab)
 {
   char local[10000];
   bool ret = true;
 
   for (int i = 0; i < ntab; i++)
   {
-    if (! string.empty())
+    if (!string.empty())
     {
       (void) gslSPrintf(local, "%s (%d)", string.c_str(), i + 1);
       ret = ret && _recordWrite<double>(os, local, tab[i]);
@@ -154,7 +179,7 @@ int ASerializable::_tableRead(std::istream& is, int ntab, double *tab)
   bool ret = true;
   for (int i = 0; i < ntab; i++)
     ret = ret && _recordRead<double>(is, "Reading Table", tab[i]);
-  if (! ret) return 1;
+  if (!ret) return 1;
   return 0;
 }
 
@@ -192,7 +217,7 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
     fileLocal += myContainerName;
     if (ensureDirExist)
     {
-      (void)createDirectory(fileLocal);
+      (void) createDirectory(fileLocal);
     }
   }
   if (!myPrefixName.empty())
@@ -216,8 +241,7 @@ String ASerializable::getHomeDirectory(const String& sub)
   sstr << home_dir;
 #endif
   // TODO : Cross-platform way to build file path (use boost ?)
-  if (!sub.empty())
-    sstr << "/" << sub;
+  if (!sub.empty()) sstr << "/" << sub;
   return sstr.str();
 }
 
@@ -227,11 +251,10 @@ String ASerializable::getWorkingDirectory()
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[LONG_SIZE];
   if (GetModuleFileName(NULL, buffer, LONG_SIZE) != 0)
-    path = String(buffer);
+  path = String(buffer);
 #else
   char buffer[LONG_SIZE];
-  if (getcwd(buffer, sizeof(buffer)) != NULL)
-    path = String(buffer);
+  if (getcwd(buffer, sizeof(buffer)) != NULL) path = String(buffer);
 #endif
   return path;
 }
@@ -288,7 +311,7 @@ String ASerializable::getFileIdentity(const String& filename)
   std::ifstream file(filename);
   if (!file.is_open())
   {
-    messerr("Could not open the Neutral File %s",filename.c_str());
+    messerr("Could not open the Neutral File %s", filename.c_str());
     return String();
   }
 
@@ -325,8 +348,7 @@ void ASerializable::setContainerName(bool useDefault,
     {
       // Otherwise, it is set to HOME/gstlearn_dir
       pygst = ASerializable::getHomeDirectory("gstlearn_dir/");
-      if (verbose)
-        std::cout << "Results are stored in" << pygst << std::endl;
+      if (verbose) std::cout << "Results are stored in" << pygst << std::endl;
     }
     else
     {
@@ -378,13 +400,14 @@ bool ASerializable::createDirectory(const String& dir)
   // TODO boost::filesystem::create_directory(dir);
 #if defined(_WIN32) || defined(_WIN64)
   if (CreateDirectory(dir.c_str(), NULL) ||       // Directory creation
-      ERROR_ALREADY_EXISTS == GetLastError()) {   // or Directory was existing
+      ERROR_ALREADY_EXISTS == GetLastError())
+  {   // or Directory was existing
     return true;
   }
 #else
   struct stat sb;
   if ((stat(dir.c_str(), &sb) == 0 && S_ISDIR(sb.st_mode)) || // Directory exists
-      (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
+  (mkdir(dir.c_str(), 0755) == 0))                        // or Creation
     return true;
 #endif
   return false;
@@ -401,11 +424,10 @@ String ASerializable::getExecDirectory()
 #if defined(_WIN32) || defined(_WIN64)
   char buffer[MAX_PATH] = "";
   if (GetModuleFileName(NULL, buffer, MAX_PATH) != 0)
-    dir = String(buffer);
+  dir = String(buffer);
 #else
   char buffer[LONG_SIZE] = "";
-  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1)
-    dir = String(buffer);
+  if (readlink("/proc/self/exe", buffer, LONG_SIZE) != -1) dir = String(buffer);
 #endif
   return getDirectory(dir);
 }
@@ -418,6 +440,6 @@ String ASerializable::getDirectory(const String& path)
 {
   // TODO boost::filesystem::parent_path
   size_t found = path.find_last_of("/\\");
-  String dir = path.substr(0,found+1);
+  String dir = path.substr(0, found + 1);
   return dir;
 }

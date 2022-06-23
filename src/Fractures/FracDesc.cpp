@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Fractures/Description.hpp"
+#include "Fractures/FracDesc.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
 
-Description::Description()
+FracDesc::FracDesc()
   : AStringable(),
     _family(0),
     _orient(0.),
@@ -23,7 +23,7 @@ Description::Description()
 {
 }
 
-Description::Description(const Description& r)
+FracDesc::FracDesc(const FracDesc& r)
     : AStringable(r),
       _family(r._family),
       _orient(r._orient),
@@ -32,7 +32,7 @@ Description::Description(const Description& r)
 {
 }
 
-Description& Description::operator=(const Description& r)
+FracDesc& FracDesc::operator=(const FracDesc& r)
 {
   if (this != &r)
   {
@@ -45,11 +45,11 @@ Description& Description::operator=(const Description& r)
   return *this;
 }
 
-Description::~Description()
+FracDesc::~FracDesc()
 {
 }
 
-String Description::toString(const AStringFormat* /*strfmt*/) const
+String FracDesc::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -62,7 +62,7 @@ String Description::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-void Description::addPoint(double x, double y)
+void FracDesc::addPoint(double x, double y)
 {
   int np = getNPoint();
   _x.resize(np+1);
@@ -81,7 +81,7 @@ void Description::addPoint(double x, double y)
  ** \param[in]  dcote        Tolerance on the layer elevation
  **
  *****************************************************************************/
-double Description::fractureExtension(double cote, double dcote)
+double FracDesc::fractureExtension(double cote, double dcote)
 {
   double dist = 0.;
   for (int i = 0; i < getNPoint() - 1; i++)

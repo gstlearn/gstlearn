@@ -52,7 +52,6 @@ public:
             VectorDouble angles = VectorDouble(),
             double distcont = TEST);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighMoving* create(int ndim,
                              bool flag_xvalid,
                              int nmaxi,
@@ -64,7 +63,6 @@ public:
                              VectorDouble angles = VectorDouble(),
                              double distcont = TEST);
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
-
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
@@ -93,8 +91,10 @@ public:
   void setDistCont(double distCont) { _distCont = distCont; }
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "NeighMoving"; }
 
 private:
   int _flagAniso;                /* 1 if the MOVING neigh. is anisotropic */

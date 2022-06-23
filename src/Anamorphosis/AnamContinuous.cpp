@@ -256,9 +256,10 @@ AnamContinuousFit AnamContinuous::sample(int ndisc, double aymin, double aymax)
   return retfit;
 }
 
-int AnamContinuous::_serialize(std::ostream& os, bool /*verbose*/) const
+bool AnamContinuous::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWrite<double>(os,"", getAzmin());
+  bool ret = true;
+  ret = ret && _recordWrite<double>(os,"", getAzmin());
   ret = ret && _recordWrite<double>(os, "Absolute Values for Z", getAzmax());
   ret = ret && _recordWrite<double>(os, "", getAymin());
   ret = ret && _recordWrite<double>(os, "Absolute Values for Y", getAymax());
@@ -269,10 +270,10 @@ int AnamContinuous::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<double>(os, "Calculated mean", getMean());
   ret = ret && _recordWrite<double>(os, "Calculated variance", getVariance());
 
-  return ret ? 0 : 1;
+  return ret;
 }
 
-int AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
+bool AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
 {
   double azmin = 0.;
   double azmax = 0.;
@@ -285,7 +286,8 @@ int AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
   double mean = TEST;
   double variance = TEST;
 
-  bool   ret = _recordRead<double>(is, "Minimum absolute Z-value", azmin);
+  bool ret = true;
+  ret = ret && _recordRead<double>(is, "Minimum absolute Z-value", azmin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Z-value", azmax);
   ret = ret && _recordRead<double>(is, "Minimum absolute Y-value", aymin);
   ret = ret && _recordRead<double>(is, "Maximum absolute Y-value", aymax);
@@ -295,7 +297,7 @@ int AnamContinuous::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<double>(is, "Maximum Experimental Y-value", pymax);
   ret = ret && _recordRead<double>(is, "Experimental Mean", mean);
   ret = ret && _recordRead<double>(is, "Experimental Variance", variance);
-  if (! ret) return 1;
+  if (! ret) return ret;
 
   setPymin(pymin);
   setPzmin(pzmin);

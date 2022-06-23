@@ -51,7 +51,7 @@ public:
   VectorDouble applyInverse(const VectorDouble& vec, int mode = 1) const;
 
 private:
-  void _updateIsotrop();
+  void _updateIsotropic();
   void _fillTensors();
 
 private:

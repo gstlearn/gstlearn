@@ -228,42 +228,49 @@ bool AnamDiscrete::_isClassValid(int iclass) const
   return true;
 }
 
-int AnamDiscrete::_serialize(std::ostream& os, bool /*verbose*/) const
+bool AnamDiscrete::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWrite<int>(os, "Number of Cuttofs", getNCut());
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Number of Cuttofs", getNCut());
   ret = ret && _recordWrite<int>(os, "Number of classes", getNClass());
   ret = ret && _recordWrite<int>(os, "Number of elements", getNElem());
   ret = ret && _tableWrite(os, "Cutoff value", getNCut(), getZCut());
   ret = ret && _tableWrite(os, "DD Stats", getNClass() * getNElem(), getStats().getValues());
-
-  return ret ? 0 : 1;
+  return ret;
 }
 
-int AnamDiscrete::_deserialize(std::istream& is, bool /*verbose*/)
+bool AnamDiscrete::_deserialize(std::istream& is, bool /*verbose*/)
 {
   VectorDouble zCut, stats;
   int nCut = 0;
   int nClass = 0;
   int nElem = 0;
 
-  bool ret = _recordRead<int>(is, "Number of Cutoffs", nCut);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Number of Cutoffs", nCut);
   ret = ret && _recordRead<int>(is, "Number of Classes", nClass);
   ret = ret && _recordRead<int>(is, "Number of Statistic Columns", nElem);
-  if (! ret) return 1;
 
-  zCut.resize(nCut);
-  if (_tableRead(is, nCut, zCut.data())) goto label_end;
+  if (ret)
+  {
+    zCut.resize(nCut);
+    ret = ret && _tableRead(is, nCut, zCut.data());
+  }
 
-  stats.resize(nClass * nElem);
-  if (_tableRead(is, nClass * nElem, stats.data())) goto label_end;
+  if (ret)
+  {
+    stats.resize(nClass * nElem);
+    ret = ret && _tableRead(is, nClass * nElem, stats.data());
+  }
 
-  setNCut(nCut);
-  setNElem(nElem);
-  setZCut(zCut);
-  setStats(stats);
-
-  label_end:
-  return 0;
+  if (ret)
+  {
+    setNCut(nCut);
+    setNElem(nElem);
+    setZCut(zCut);
+    setStats(stats);
+  }
+  return ret;
 }
 
 void AnamDiscrete::setNCut(int ncut)

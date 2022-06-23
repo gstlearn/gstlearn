@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "FracDesc.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
-#include "Fractures/Description.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 #define NPART 5
@@ -52,8 +54,8 @@ public:
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
 
-  Description& getDescs(int i) { return _descs[i]; }
-  void addDescription(const Description& description = Description()) { _descs.push_back(description); }
+  FracDesc& getDescs(int i) { return _descs[i]; }
+  void addDescription(const FracDesc& description = FracDesc()) { _descs.push_back(description); }
 
   int fractureToBlock(DbGrid *dbgrid,
                       double xmax,
@@ -102,7 +104,7 @@ private:
                double orient,
                double* xp);
   void _checkFractureIntersect(double cote, int ifrac0);
-  bool _belongToLayer(const Description& desc,
+  bool _belongToLayer(const FracDesc& desc,
                       double cote,
                       double *xd,
                       double *yd,
@@ -128,7 +130,7 @@ private:
                           double thick,
                           VectorDouble& denstab);
   bool _sameFaultSide(const Environ& environ, int ifault0, double x0);
-  double _densityUpdate(const Fault& fault,
+  double _densityUpdate(const FracFault& fault,
                         int side,
                         int ifam,
                         double cote,
@@ -139,11 +141,11 @@ private:
                         double *totdens);
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
   bool _fractureInterrupt(const Family& family,
-                          const Description& desc,
+                          const FracDesc& desc,
                           double thick);
-  double _faultAbscissae(const Fault& fault, double cote);
+  double _faultAbscissae(const FracFault& fault, double cote);
   double _cubic(double h);
-  double _fractureExtension(const Description& desc, double cote, double dcote);
+  double _fractureExtension(const FracDesc& desc, double cote, double dcote);
   int _simulateFractures(const Environ& environ,
                          const Family& family,
                          int ifam,
@@ -181,7 +183,7 @@ private:
 
 private:
   // Array of fracture descriptions
-  std::vector<Description> _descs;
+  std::vector<FracDesc> _descs;
   MatrixRectangular _layinfo;
   int _nlayers;
   // The number of discretization steps used to establish the fracture density

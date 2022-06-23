@@ -99,19 +99,6 @@ Vario::~Vario()
 {
 }
 
-int Vario::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "Vario", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 Vario* Vario::create(const VarioParam* varioparam,
                      Db* db,
                      const VectorDouble& means,
@@ -128,9 +115,8 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
   {
     VarioParam* varioparam = new VarioParam();
     vario = new Vario(varioparam);
-    if (vario->_deserialize(is, verbose))
+    if (! vario->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File");
       delete vario;
       vario = nullptr;
     }
@@ -1456,7 +1442,7 @@ bool Vario::_isAddressValid(int idir, int i) const
   return true;
 }
 
-int Vario::_deserialize(std::istream& is, bool /*verbose*/)
+bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int flag_calcul = 0;
   int ndim = 0;
@@ -1476,7 +1462,8 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Create the Vario structure */
 
-  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
   ret = ret && _recordRead<int>(is, "Number of Variables", nvar);
   ret = ret && _recordRead<int>(is, "Number of Variogram Directions", ndir);
   ret = ret && _recordRead<double>(is, "Scale", scale);
@@ -1488,11 +1475,11 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
   if (flag_calcul)
   {
     int ecr = 0;
-    for (int ivar = 0; ivar < nvar; ivar++)
-      for (int jvar = 0; jvar < nvar; jvar++, ecr++)
+    for (int ivar = 0; ret && ivar < nvar; ivar++)
+      for (int jvar = 0; ret && jvar < nvar; jvar++, ecr++)
         ret = ret && _recordRead<double>(is, "Experimental Variance term", vars[ecr]);
   }
-  if (! ret) return 1;
+  if (! ret) return ret;
 
   /* Initialize the variogram structure */
 
@@ -1505,7 +1492,7 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the variogram calculation directions */
 
-  for (int idir = 0; idir < ndir; idir++)
+  for (int idir = 0; ret && idir < ndir; idir++)
   {
     ret = ret && _recordRead<int>(is, "Regular Variogram Calculation", flag_regular);
     ret = ret && _recordRead<int>(is, "Number of Variogram Lags", npas);
@@ -1524,7 +1511,7 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
 
       codir.resize(ndim);
       ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
-      for (int idim = 0; idim < ndim; idim++)
+      for (int idim = 0; ret && idim < ndim; idim++)
       {
         ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
       }
@@ -1534,12 +1521,12 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
       // Grid definition
 
       grincr.resize(ndim);
-      for (int idim = 0; idim < ndim; idim++)
+      for (int idim = 0; ret && idim < ndim; idim++)
       {
         ret = ret && _recordRead<int>(is, "Grid Increment", grincr[idim]);
       }
     }
-    if (! ret) return 1;
+    if (! ret) return ret;
 
     DirParam dirparam = DirParam(ndim);
     dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
@@ -1551,7 +1538,7 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
     if (flag_calcul)
     {
       _directionResize(idir);
-      for (int i = 0; i < getDirSize(idir); i++)
+      for (int i = 0; ret && i < getDirSize(idir); i++)
       {
         double sw = 0.;
         double hh = 0.;
@@ -1565,18 +1552,18 @@ int Vario::_deserialize(std::istream& is, bool /*verbose*/)
       }
     }
   }
-  if (! ret) return 1;
-  return 0;
+  return ret;
 }
 
-int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
+bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   double value;
   static int flag_calcul = 1;
 
   /* Write the Vario structure */
 
-  bool ret = _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Space Dimension", _varioparam.getDimensionNumber());
   ret = ret && _recordWrite<int>(os, "Number of variables", getVariableNumber());
   ret = ret && _recordWrite<int>(os, "Number of directions", getDirectionNumber());
   ret = ret && _recordWrite<double>(os, "Scale", _varioparam.getScale());
@@ -1587,9 +1574,9 @@ int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
   if (flag_calcul)
   {
     ret = ret && _commentWrite(os, "Variance");
-    for (int ivar = 0; ivar < getVariableNumber(); ivar++)
+    for (int ivar = 0; ret && ivar < getVariableNumber(); ivar++)
     {
-      for (int jvar = 0; jvar < getVariableNumber(); jvar++)
+      for (int jvar = 0; ret && jvar < getVariableNumber(); jvar++)
         ret = ret && _recordWrite<double>(os, "", getVar(ivar,jvar));
       ret = ret && _commentWrite(os, "");
     }
@@ -1597,7 +1584,7 @@ int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
 
   /* Loop on the directions */
 
-  for (int idir = 0; idir < getDirectionNumber(); idir++)
+  for (int idir = 0; ret && idir < getDirectionNumber(); idir++)
   {
     const DirParam dirparam = _varioparam.getDirParam(idir);
     ret = ret && _commentWrite(os, "Direction characteristics");
@@ -1612,21 +1599,21 @@ int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
     if (! dirparam.isDefinedForGrid())
     {
       ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
-      for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+      for (int idim = 0; idim < dirparam.getDimensionNumber() && ret; idim++)
         ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
       ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (dirparam.isDefinedForGrid())
     {
-      for (int idim = 0; idim < dirparam.getDimensionNumber(); idim++)
+      for (int idim = 0; ret && idim < dirparam.getDimensionNumber() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
     }
 
     if (!flag_calcul) continue;
     ret = ret && _commentWrite(os, "Variogram results (Weight, Distance, Variogram)");
-    for (int i = 0; i < getDirSize(idir); i++)
+    for (int i = 0; i < getDirSize(idir) && ret; i++)
     {
       value = FFFF(getSwByIndex(idir, i)) ? 0. : getSwByIndex(idir, i);
       ret = ret && _recordWrite<double>(os, "", value);
@@ -1637,7 +1624,7 @@ int Vario::_serialize(std::ostream& os, bool /*verbose*/) const
       ret = ret && _commentWrite(os, "");
     }
   }
-  return 0;
+  return ret;
 }
 
 void Vario::patchCenter(int idir, int nech, double rho)

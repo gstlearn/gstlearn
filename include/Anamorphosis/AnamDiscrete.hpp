@@ -81,8 +81,11 @@ public:
   const MatrixRectangular& getStats() const { return _stats; }
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "AnamDiscrete"; }
+
   void _interpolateQTLocal(double z_max,
                            const VectorDouble& zcutmine,
                            Selectivity& calest,
@@ -97,7 +100,6 @@ protected:
                             double *tval,
                             double *qval) const;
 
-private:
   bool _isClassValid(int iclass) const;
   void _resize();
 

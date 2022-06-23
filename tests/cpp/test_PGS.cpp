@@ -90,7 +90,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the Rule
   Rule* rule = Rule::createFromNames({"S","T","F1","F2","F3"});
   rule->display();
-  rule->dumpToNF("truerule.ascii");
+  (void) rule->dumpToNF("truerule.ascii");
   RuleProp* ruleprop;
   if (flagStationary)
     ruleprop = RuleProp::createFromRule(rule, props);

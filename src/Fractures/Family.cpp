@@ -95,7 +95,7 @@ String Family::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int Family::_deserialize(std::istream& is, bool /*verbose*/)
+bool Family::_deserialize(std::istream& is, bool /*verbose*/)
 {
   bool ret = true;
   ret = ret && _recordRead<double>(is, "Mean orientation", _orient);
@@ -108,10 +108,10 @@ int Family::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<double>(is, "Survival probability (cumulative length exponent)", _aterm);
   ret = ret && _recordRead<double>(is, "Survival probability (layer thickness exponent", _bterm);
   ret = ret && _recordRead<double>(is, "Fracture repulsion area Range", _range);
-  return 0;
+  return ret;
 }
 
-int Family::_serialize(std::ostream& os, bool /*verbose*/) const
+bool Family::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<double>(os, "Mean orientation", _orient);
@@ -124,7 +124,6 @@ int Family::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<double>(os, "Survival probability (cumulative length exponent)", _aterm);
   ret = ret && _recordWrite<double>(os, "Survival probability (layer thickness exponent)", _bterm);
   ret = ret && _recordWrite<double>(os, "Fracture repulsion area Range", _range);
-
-  return 0;
+  return ret;
 }
 

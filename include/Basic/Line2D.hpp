@@ -27,7 +27,6 @@ public:
   /// Interface of AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Line2D* createFromNF(const String& neutralFilename,
                               bool verbose = false);
   static Line2D* create(const VectorDouble& x = VectorDouble(),
@@ -39,10 +38,17 @@ public:
   const VectorDouble& getY() const { return _y; }
   double getX(int i) const { return _x[i]; }
   double getY(int i) const { return _y[i]; }
+  double getXmin() const { return ut_vector_min(_x); }
+  double getYmin() const { return ut_vector_min(_y); }
+  double getXmax() const { return ut_vector_max(_x); }
+  double getYmax() const { return ut_vector_max(_y); }
+  void addPoint(double x, double y);
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Line2D"; }
 
 private:
   VectorDouble _x;

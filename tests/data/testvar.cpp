@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
     vario->attachDb(dbout);
     vario->computeByKey("vg");
     ascii_filename("Vario",0,1,filename);
-    if (vario->dumpToNF(filename,verbose))
+    if (! vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
   }
   
@@ -132,7 +132,7 @@ int main(int argc, char *argv[])
   // Model is not printed any more to avoid differences among platforms
   //  model->display();
   ascii_filename("Model",0,1,filename);
-  if (model->dumpToNF(filename,verbose))
+  if (! model->dumpToNF(filename,verbose))
     messageAbort("ascii_model_write");
   
   // produce the Goodness-of-fit score

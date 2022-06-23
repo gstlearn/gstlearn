@@ -53,19 +53,6 @@ int Table::resetFromArray(const VectorVectorDouble& table)
   return 0;
 }
 
-int Table::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "Table", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 Table* Table::create(int nrows, int ncols)
 {
   return new Table(nrows, ncols);
@@ -78,9 +65,8 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   if (_fileOpenRead(neutralFilename, "Table", is, verbose))
   {
     table = new Table();
-    if (table->_deserialize(is, verbose))
+    if (! table->deserialize(is, verbose))
     {
-      messerr("Problem reading the Neutral File");
       delete table;
       table = nullptr;
     }
@@ -88,7 +74,6 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
   }
   return table;
 }
-
 
 Table* Table::createFromArray(const VectorVectorDouble& tabin)
 {
@@ -189,48 +174,50 @@ VectorDouble Table::getAllRange() const
   return limits;
 }
 
-int Table::_serialize(std::ostream& os, bool /*verbose*/) const
+bool Table::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWrite<int>(os, "Number of Columns", getColNumber());
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Number of Columns", getColNumber());
   ret = ret && _recordWrite<int>(os, "Number of Rows", getRowNumber());
 
   /* Writing the tail of the file */
 
-  for (int irow = 0; irow < getRowNumber(); irow++)
+  for (int irow = 0; ret && irow < getRowNumber(); irow++)
   {
-    for (int icol = 0; icol < getColNumber(); icol++)
+    for (int icol = 0; ret && icol < getColNumber(); icol++)
     {
       ret = ret && _recordWrite<double>(os, "", _stats[icol][irow]);
     }
-   _commentWrite(os, "");
+    ret = ret && _commentWrite(os, "");
   }
-  return 0;
+  return ret;
 }
 
-int Table::_deserialize(std::istream& is, bool /*verbose*/)
+bool Table::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int nrows = 0;
   int ncols = 0;
   double value = 0.;
 
-  bool ret = _recordRead<int>(is, "Number of Columns", ncols);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Number of Columns", ncols);
   ret = ret && _recordRead<int>(is, "Number of Rows", nrows);
-  if (! ret) return 1;
+  if (! ret) return false;
 
   _stats.clear();
   _stats.resize(ncols);
 
   /* Loop on the lines */
 
-  for (int irow = 0; irow < nrows; irow++)
+  for (int irow = 0; ret && irow < nrows; irow++)
   {
-    for (int icol = 0; icol < ncols; icol++)
+    for (int icol = 0; ret && icol < ncols; icol++)
     {
       ret = ret && _recordRead<double>(is, "Numerical value", value);
       if (ret) _stats[icol].push_back(value);
     }
   }
-  return 0;
+  return ret;
 }
 
 

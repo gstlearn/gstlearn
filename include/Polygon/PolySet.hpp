@@ -11,16 +11,15 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/AStringable.hpp"
-#include "Basic/ASerializable.hpp"
+#include "Basic/Line2D.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT PolySet: public AStringable, public ASerializable
+class GSTLEARN_EXPORT PolySet: public Line2D
 {
 public:
-  PolySet();
-  PolySet(const VectorDouble& x,
-          const VectorDouble& y,
+  PolySet(const VectorDouble& x = VectorDouble(),
+          const VectorDouble& y = VectorDouble(),
           double zmin = TEST,
           double zmax = TEST);
   PolySet(const PolySet& r);
@@ -29,15 +28,12 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static PolySet* create();
-  static PolySet* createFromNF(const String& neutralFilename, bool verbose = false);
-
-  int getNVertices() const { return static_cast<int>(_x.size()); }
-  const VectorDouble& getX() const { return _x; }
-  const VectorDouble& getY() const { return _y; }
-  double getX(int i) const { return _x[i]; }
-  double getY(int i) const { return _y[i]; }
+  static PolySet* createFromNF(const String& neutralFilename, bool verbose);
+  const VectorDouble& getX() const { return Line2D::getX(); }
+  const VectorDouble& getY() const { return Line2D::getY(); }
+  double getX(int i) const { return Line2D::getX(i); }
+  double getY(int i) const { return Line2D::getY(i); }
   double getZmax() const { return _zmax; }
   double getZmin() const { return _zmin; }
 
@@ -52,19 +48,16 @@ public:
   double getSurface() const;
   void closePolySet();
 
-  void setX(const VectorDouble& x) { _x = x; }
-  void setY(const VectorDouble& y) { _y = y; }
-
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "PolySet"; }
 
 private:
   bool _isClosed() const;
 
 private:
-  VectorDouble _x;
-  VectorDouble _y;
   double _zmin;
   double _zmax;
 

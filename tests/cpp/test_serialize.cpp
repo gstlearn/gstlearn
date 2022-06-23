@@ -17,12 +17,12 @@
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Line2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Polygon/Polygons.hpp"
 #include "LithoRule/Rule.hpp"
-#include "Faults/PolyLine.hpp"
 
 /****************************************************************************/
 /*!
@@ -131,17 +131,11 @@ int main(int /*argc*/, char */*argv*/[])
   // =======================
 
   // ===== Create a Model
-  db1->display();
-  Model model1(db1);
-  CovContext ctxt = model1.getContext();
-  CovLMC covs(ctxt.getSpace());
-  CovAniso cova(ECov::EXPONENTIAL, 0.3, 1., 0.2, ctxt);
-  covs.addCov(&cova);
-  model1.setCovList(&covs);
-  model1.display();
+  Model* model1 = Model::createFromParam(ECov::EXPONENTIAL, 0.3, 0.2, 1.);
+  model1->display();
 
   // Serialize model1
-  (void) model1.dumpToNF("Neutral.Model.ascii",verbose);
+  (void) model1->dumpToNF("Neutral.Model.ascii",verbose);
 
   // Deserialize model2
   Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
@@ -183,20 +177,20 @@ int main(int /*argc*/, char */*argv*/[])
   rule2->display();
 
   // ======================
-  // Checking PolyLine
+  // Checking Line2D
   // ======================
 
   int npolyline = 100;
   VectorDouble xpolyline = ut_vector_simulate_gaussian(npolyline);
   VectorDouble ypolyline = ut_vector_simulate_gaussian(npolyline);
-  PolyLine* polyline = new PolyLine(xpolyline, ypolyline);
+  Line2D* polyline = new Line2D(xpolyline, ypolyline);
   polyline->display();
 
   // Serialize
   (void) polyline->dumpToNF("Neutral.Polyline.ascii", verbose);
 
   // Deserialize
-  PolyLine* polyline2 = PolyLine::createFromNF("Neutral.Polyline.ascii", verbose);
+  Line2D* polyline2 = Line2D::createFromNF("Neutral.Polyline.ascii", verbose);
   polyline2->display();
 
   delete db1;
@@ -204,6 +198,7 @@ int main(int /*argc*/, char */*argv*/[])
   delete dbg1;
   delete dbg2;
   delete vario2;
+  delete model1;
   delete model2;
   delete table1;
   delete table2;

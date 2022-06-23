@@ -241,19 +241,6 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
   return 0;
 }
 
-int MeshETurbo::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "MeshETurbo", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 /**
  * Create a MeshETurbo by loading the contents of a Neutral File
  *
@@ -267,9 +254,8 @@ MeshETurbo* MeshETurbo::createFromNF(const String& neutralFilename, bool verbose
   if (_fileOpenRead(neutralFilename, "MeshETurbo", is, verbose))
   {
     mesh = new MeshETurbo;
-    if (mesh->_deserialize(is, verbose))
+    if (! mesh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete mesh;
       mesh = nullptr;
     }
@@ -679,7 +665,7 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
   return 0;
 }
 
-int MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
+bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim;
   VectorInt nx;
@@ -696,12 +682,13 @@ int MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordReadVec<double>(is, "Rotation", rotmat, ndim * ndim);
   ret = ret && _recordRead<int>(is, "Polarization", flag_polarized);
 
-  (void) initFromGrid(nx, dx, x0, rotmat, (bool) flag_polarized);
+  if (ret)
+    (void) initFromGrid(nx, dx, x0, rotmat, (bool) flag_polarized);
 
-  return 0;
+  return ret;
 }
 
-int MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
+bool MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
@@ -710,5 +697,5 @@ int MeshETurbo::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<double>(os, "X0", _grid.getX0s());
   ret = ret && _recordWriteVec<double>(os, "Rotation", _grid.getRotMat());
   ret = ret && _recordWrite<int>(os, "Polarization", _isPolarized);
-  return 0;
+  return ret;
 }

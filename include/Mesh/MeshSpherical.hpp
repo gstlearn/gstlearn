@@ -42,9 +42,9 @@ public:
   void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshSpherical* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
+
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
   cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
@@ -54,8 +54,10 @@ public:
   int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "MeshSpherical"; }
 
 private:
   void _defineBoundingBox();

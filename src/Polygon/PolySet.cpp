@@ -11,38 +11,23 @@
 #include "Polygon/PolySet.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/Line2D.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
-
-PolySet::PolySet()
-  : AStringable(),
-    ASerializable(),
-    _x(0)
-  , _y(0)
-  , _zmin(TEST)
-  , _zmax(TEST)
-{
-}
 
 PolySet::PolySet(const VectorDouble& x,
                  const VectorDouble& y,
                  double zmin,
                  double zmax)
-  : AStringable(),
-    ASerializable(),
-    _x(0)
-  , _y(0)
-  , _zmin(TEST)
-  , _zmax(TEST)
+    : Line2D(x, y),
+      _zmin(TEST),
+      _zmax(TEST)
 {
   init(x,y,zmin,zmax);
 }
 
 PolySet::PolySet(const PolySet& r)
-    : AStringable(r),
-      ASerializable(r),
-      _x(r._x),
-      _y(r._y),
+    : Line2D(r),
       _zmin(r._zmin),
       _zmax(r._zmax)
 {
@@ -52,10 +37,7 @@ PolySet& PolySet::operator=(const PolySet& r)
 {
   if (this != &r)
   {
-    AStringable::operator=(r);
-    ASerializable::operator=(r);
-    _x = r._x;
-    _y = r._y;
+    Line2D::operator=(r);
     _zmin = r._zmin;
     _zmax = r._zmax;
   }
@@ -71,20 +53,7 @@ void PolySet::init(const VectorDouble& x,
                    double zmin,
                    double zmax)
 {
-  int nvert = static_cast<int> (x.size());
-
-  /* Load the new PolySet */
-
-  _x.resize(nvert,0);
-  _y.resize(nvert,0);
-
-  /* Copy the arrays */
-
-  for (int i=0; i<nvert; i++)
-  {
-    _x[i] = x[i];
-    _y[i] = y[i];
-  }
+  Line2D::init(x,y);
 
   _zmin  = zmin;
   _zmax  = zmax;
@@ -94,25 +63,10 @@ String PolySet::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  int nvert = static_cast<int> (_x.size());
-  sstr << "Number of vertices = " << nvert << std::endl;
+  sstr << Line2D::toString(strfmt);
 
-  AStringFormat sf;
-  if (strfmt != nullptr) sf = *strfmt;
-  if (sf.getLevel() > 0)
-  {
-    VectorDouble tab = VectorDouble(2 * nvert);
-    for (int i = 0; i < nvert; i++)
-    {
-      tab[i] = _x[i];
-      tab[i + nvert] = _y[i];
-    }
-    sstr << toMatrix("Polygon Vertex Coordinates", VectorString(), VectorString(),
-                     true, 2, nvert, tab);
+  if (!FFFF(_zmin) || !FFFF(_zmax)) sstr << toInterval(_zmin, _zmax);
 
-    if (!FFFF(_zmin) || !FFFF(_zmax))
-      sstr << toInterval(_zmin, _zmax);
-  }
   return sstr.str();
 }
 
@@ -121,24 +75,24 @@ void PolySet::getExtension(double *xmin,
                            double *ymin,
                            double *ymax) const
 {
-  *xmin = ut_vector_min(_x);
-  *ymin = ut_vector_min(_y);
-  *xmax = ut_vector_max(_x);
-  *ymax = ut_vector_max(_y);
+  *xmin = getXmin();
+  *ymin = getYmin();
+  *xmax = getXmax();
+  *ymax = getYmax();
 }
 
 double PolySet::getSurface() const
 {
-  int np = getNVertices();
-  double x0 = _x[0];
-  double y0 = _y[0];
+  int np = getNPoints();
+  double x0 = getX(0);
+  double y0 = getY(0);
   double surface = 0.;
   for (int i=1; i<np-2; i++)
   {
-    double x1 = _x[i] - x0;
-    double y1 = _y[i] - y0;
-    double x2 = _x[i + 1] - x0;
-    double y2 = _y[i + 1] - y0;
+    double x1 = getX(i) - x0;
+    double y1 = getY(i) - y0;
+    double x2 = getX(i + 1) - x0;
+    double y2 = getY(i + 1) - y0;
     surface += 0.5 * ((x1 * y2) - (x2 * y1));
   }
 
@@ -146,10 +100,10 @@ double PolySet::getSurface() const
 
   if (! _isClosed())
   {
-    double x1 = _x[np-1] - x0;
-    double y1 = _y[np-1] - y0;
-    double x2 = _x[0] - x0;
-    double y2 = _y[0] - y0;
+    double x1 = getX(np-1) - x0;
+    double y1 = getY(np-1) - y0;
+    double x2 = getX(0) - x0;
+    double y2 = getY(0) - y0;
     surface += 0.5 * ((x1 * y2) - (x2 * y1));
   }
 
@@ -157,56 +111,24 @@ double PolySet::getSurface() const
   return(surface);
 }
 
-int PolySet::_serialize(std::ostream& os, bool /*verbose*/) const
+bool PolySet::_serialize(std::ostream& os, bool verbose) const
 {
-  if (getNVertices() <= 0) return 0;
-  bool ret = _recordWrite<int>(os, "Number of Vertices", getNVertices());
-
-  for (int i = 0; i < getNVertices(); i++)
-  {
-    ret = ret && _recordWrite<double>(os, "", getX(i));
-    ret = ret && _recordWrite<double>(os, "", getY(i));
-    ret = ret && _commentWrite(os, "");
-  }
-  return ret ? 0 : 1;
+  if (getNPoints() <= 0) return false;
+  bool ret = true;
+  ret = ret && _recordWrite<double>(os, "Z-Minimum", _zmin);
+  ret = ret && _recordWrite<double>(os, "Z-Maximum", _zmax);
+  ret = ret && Line2D::_serialize(os, verbose);
+  return ret;
 }
 
-int PolySet::_deserialize(std::istream& is, bool /*verbose*/)
+bool PolySet::_deserialize(std::istream& is, bool verbose)
 {
-  int nvert;
-  double zmin = TEST;
-  double zmax = TEST;
-
-  bool ret = _recordRead<int>(is, "Number of Vertices", nvert);
-  VectorDouble x(nvert);
-  VectorDouble y(nvert);
-
-  /* Loop on the Vertices */
-
-  for (int i = 0; i < nvert; i++)
-  {
-    ret = ret && _recordRead<double>(is, "X-Coordinate of a Polyset", x[i]);
-    ret = ret && _recordRead<double>(is, "Y-Coordinate of a Polyset", y[i]);
-  }
-  if (! ret) return 1;
-
-  /* Add the polyset */
-
-  init(x,y,zmin,zmax);
-
-  return 0;
-}
-
-int PolySet::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "PolySet", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
+  _zmin = TEST;
+  _zmax = TEST;
+  bool ret = true;
+  ret = ret && _recordRead<double>(is, "Z-Minimum", _zmin);
+  ret = ret && _recordRead<double>(is, "Z-Maximum", _zmax);
+  ret = ret && Line2D::_deserialize(is, verbose);
   return ret;
 }
 
@@ -222,9 +144,8 @@ PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
   if (_fileOpenRead(neutralFilename, "PolySet", is, verbose))
   {
     polyset = new PolySet();
-    if (polyset->_deserialize(is, verbose))
+    if (! polyset->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete polyset;
       polyset = nullptr;
     }
@@ -235,28 +156,16 @@ PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
 
 bool PolySet::_isClosed() const
 {
-  int nvert = static_cast<int> (_x.size());
-  if (ABS(_x[0] - _x[nvert-1]) > EPSILON5 ||
-      ABS(_y[0] - _y[nvert-1]) > EPSILON5) return false;
+  int nvert = getNPoints();
+  if (ABS(getX(0) - getX(nvert-1)) > EPSILON5 ||
+      ABS(getY(0) - getY(nvert-1)) > EPSILON5) return false;
   return true;
 }
 
 /**
- * Check if the PolySet must be closed
+ * Close the PolySet if necessary
  */
 void PolySet::closePolySet()
 {
-  int nvert = static_cast<int>(_x.size());
-
-  if (!_isClosed())
-  {
-    // Duplicate the first point at the end of the PolySet
-
-    int nvert1 = nvert + 1;
-    _x.resize(nvert1);
-    _y.resize(nvert1);
-
-    _x[nvert] = _x[0];
-    _y[nvert] = _y[0];
-  }
+  if (!_isClosed()) addPoint(getX(0), getY(0));
 }

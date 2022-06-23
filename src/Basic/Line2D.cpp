@@ -58,40 +58,21 @@ Line2D* Line2D::create(const VectorDouble& x, const VectorDouble& y)
   return new Line2D(x, y);
 }
 
-String Line2D::toString(const AStringFormat* strfmt) const
+String Line2D::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
   int npoints = getNPoints();
-  sstr << "Number of Points = " << npoints << std::endl;
 
-  AStringFormat sf;
-  if (strfmt != nullptr) sf = *strfmt;
-  if (sf.getLevel() > 0)
+  VectorDouble tab = VectorDouble(2 * npoints);
+  for (int i = 0; i < npoints; i++)
   {
-    VectorDouble tab = VectorDouble(2 * npoints);
-    for (int i = 0; i < npoints; i++)
-    {
-      tab[i] = _x[i];
-      tab[i + npoints] = _y[i];
-    }
-    sstr << toMatrix("PolyLine Vertex Coordinates", VectorString(), VectorString(),
-                     true, 2, npoints, tab);
+    tab[i] = _x[i];
+    tab[i + npoints] = _y[i];
   }
+  sstr << toMatrix("Line Vertex Coordinates", VectorString(), VectorString(),
+                   true, 2, npoints, tab);
   return sstr.str();
-}
-
-int Line2D::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "Line2D", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
 }
 
 Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
@@ -101,9 +82,8 @@ Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
   if (_fileOpenRead(neutralFilename, "Line2D", is, verbose))
   {
     line2D = new Line2D();
-    if (line2D->_deserialize(is, verbose))
+    if (! line2D->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete line2D;
       line2D = nullptr;
     }
@@ -112,29 +92,31 @@ Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
   return line2D;
 }
 
-int Line2D::_serialize(std::ostream& os, bool /*verbose*/) const
+bool Line2D::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  if (getNPoints() <= 0) return 0;
+  if (getNPoints() <= 0) return false;
   bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Number of Points", (int) _x.size());
   ret = ret && _recordWriteVec<double>(os, "X-Coordinates of Line2D", _x);
   ret = ret && _recordWriteVec<double>(os, "Y-Coordinates of Line2D", _y);
-  return ret ? 0 : 1;
+  return ret;
 }
 
-int Line2D::_deserialize(std::istream& is, bool /*verbose*/)
+bool Line2D::_deserialize(std::istream& is, bool /*verbose*/)
 {
+  int np;
   bool ret = true;
-  ret = ret && _recordReadVec<double>(is, "X-Coordinates of Line2D", _x);
-  ret = ret && _recordReadVec<double>(is, "Y-Coordinates of Line2D", _y);
-  if (! ret) return 1;
-  return 0;
+  ret = ret && _recordRead<int>(is, "Number of Points", np);
+  ret = ret && _recordReadVec<double>(is, "X-Coordinates of Line2D", _x, np);
+  ret = ret && _recordReadVec<double>(is, "Y-Coordinates of Line2D", _y, np);
+  return ret;
 }
 
 void Line2D::init(const VectorDouble& x, const VectorDouble& y)
 {
   int nvert = static_cast<int> (x.size());
 
-  /* Load the new PolyLine */
+  /* Load the new Line */
 
   _x.resize(nvert,0);
   _y.resize(nvert,0);
@@ -146,4 +128,13 @@ void Line2D::init(const VectorDouble& x, const VectorDouble& y)
     _x[i] = x[i];
     _y[i] = y[i];
   }
+}
+
+void Line2D::addPoint(double x, double y)
+{
+  int n = getNPoints();
+  _x.resize(n+1);
+  _y.resize(n+1);
+  _x[n] = x;
+  _y[n] = y;
 }

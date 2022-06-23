@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Model/Model.hpp"
 #include "LithoRule/Rule.hpp"
@@ -664,25 +665,25 @@ int Rule::setProportions(const VectorDouble& proportions) const
   return(0);
 }
 
-int Rule::_deserialize(std::istream& is, bool /*verbose*/)
+bool Rule::_deserialize(std::istream& is, bool /*verbose*/)
 {
   /* Create the Rule structure */
 
   int mrule = 0;
   int nb_node = 0;
-  bool ret = _recordRead<int>(is, "Rule definition", mrule);
+  bool ret = true;
+
+  ret = ret && _recordRead<int>(is, "Rule definition", mrule);
   ret = ret && _recordRead<double>(is, "Correlation Coefficient of GRFs", _rho);
-  if (! ret) return 1;
+  if (! ret) return ret;
+
   _modeRule = ERule::fromValue(mrule);
-
-  // Specific case
-
-  if (_deserializeSpecific(is)) return 1;
 
   /* Read the number of nodes */
 
   ret = ret && _recordRead<int>(is, "Number of Rule Nodes", nb_node);
-  if (! ret) return 1;
+  if (! ret) return ret;
+
   VectorInt nodes(6 * nb_node);
 
   /* Loop on the nodes for reading: */
@@ -693,39 +694,37 @@ int Rule::_deserialize(std::istream& is, bool /*verbose*/)
   /* - node_rank: Rank of the node (starting from 1) */
   /* - facies   : Rank of the facies */
   int lec = 0;
-  for (int inode =  0; inode < nb_node; inode++)
-    for (int i = 0; i < 6; i++)
+  for (int inode =  0; ret && inode < nb_node; inode++)
+    for (int i = 0; ret && i < 6; i++)
       ret = ret && _recordRead<int>(is, "Rule Node Definition", nodes[lec++]);
-  setMainNodeFromNodNames(nodes);
+  if (ret) setMainNodeFromNodNames(nodes);
 
-  return 0;
+  return ret;
 }
 
-int Rule::_serialize(std::ostream& os, bool /*verbose*/) const
+bool Rule::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   int nb_node, nfacies, nmax_tot, ny1_tot, ny2_tot, rank;
   double prop_tot;
+  bool ret = true;
 
   /* Create the Rule structure */
 
-  bool ret = _recordWrite<int>(os, "Type of Rule", getModeRule().getValue());
+  ret = ret && _recordWrite<int>(os, "Type of Rule", getModeRule().getValue());
   ret = ret && _recordWrite<double>(os, "Correlation coefficient between GRFs", getRho());
-
-  // Specific parameters
-
-  _serializeSpecific(os);
 
   /* Count the number of nodes */
 
-  statistics(0,&nb_node,&nfacies,&nmax_tot,&ny1_tot,&ny2_tot,&prop_tot);
+  if (ret)
+    statistics(0,&nb_node,&nfacies,&nmax_tot,&ny1_tot,&ny2_tot,&prop_tot);
   ret = ret && _recordWrite<int>(os, "Number of nodes", nb_node);
 
   /* Fill the nodes characteristics recursively */
 
   rank = 0;
-  _ruleDefine(os, getMainNode(), 0, 0, 0, &rank);
+  if (ret) _ruleDefine(os, getMainNode(), 0, 0, 0, &rank);
 
-  return ret ? 0 : 1;
+  return ret;
 }
 
 void Rule::_ruleDefine(std::ostream& os,
@@ -1022,20 +1021,6 @@ int Rule::evaluateBounds(PropDef* propdef,
   return(0);
 }
 
-int Rule::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-
-  if (_fileOpenWrite(neutralFilename, "Rule", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 Rule* Rule::create(double rho)
 {
   return new Rule(rho);
@@ -1049,9 +1034,8 @@ Rule* Rule::createFromNF(const String& neutralFilename, bool verbose)
   {
     rule = new Rule();
     rule->setModeRule(ERule::STD);
-    if (rule->_deserialize(is, verbose))
+    if (! rule->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete rule;
       rule = nullptr;
     }

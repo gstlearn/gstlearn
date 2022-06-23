@@ -36,7 +36,6 @@ public:
 
   int resetFromArray(const VectorVectorDouble& table);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Table* create(int nrows = 0, int ncols = 0);
   static Table* createFromNF(const String& neutralFilename, bool verbose = false);
   static Table* createFromArray(const VectorVectorDouble& tabin);
@@ -58,8 +57,10 @@ public:
   void plot(int isimu) const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Table"; }
 
 private:
   bool _isColValid(int icol) const;

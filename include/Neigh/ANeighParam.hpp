@@ -44,10 +44,12 @@ public:
   void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
 
 protected:
-  // ASerializable Interface overriding
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  // Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "ANeighParam"; }
 
+private:
   bool _isDimensionValid(int idim) const;
 
 private:

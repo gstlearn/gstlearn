@@ -3736,10 +3736,10 @@ int db_compositional_transform(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  polyline PolyLine structure
+ ** \param[in]  polyline Line2D structure
  **
  *****************************************************************************/
-int db_unfold_polyline(Db *db, const PolyLine& polyline)
+int db_unfold_polyline(Db *db, const Line2D& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, newx, newy;
@@ -3749,7 +3749,7 @@ int db_unfold_polyline(Db *db, const PolyLine& polyline)
 
   error = 1;
   pldist = pldist0 = nullptr;
-  int nvert = polyline.getNVertices();
+  int nvert = polyline.getNPoints();
 
   /* Preliminary checks */
 
@@ -3811,14 +3811,14 @@ int db_unfold_polyline(Db *db, const PolyLine& polyline)
  ** \param[in]  dbout   Output Db structure
  ** \param[in]  ncol    Number of target variables
  ** \param[in]  cols    Ranks of the target variables
- ** \param[in]  polyline Polyline structure
+ ** \param[in]  polyline Line2D structure
 
  *****************************************************************************/
 int db_fold_polyline(DbGrid *dbin,
                      Db *dbout,
                      int ncol,
                      int *cols,
-                     const PolyLine& polyline)
+                     const Line2D& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, value;
@@ -3829,7 +3829,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   error = 1;
   pldist = pldist0 = nullptr;
-  int nvert = polyline.getNVertices();
+  int nvert = polyline.getNPoints();
 
   /* Preliminary checks */
 
@@ -3845,7 +3845,7 @@ int db_fold_polyline(DbGrid *dbin,
   }
   if (nvert <= 1)
   {
-    messerr("This function requires a Polyline with at least one segment");
+    messerr("This function requires a Line2D with at least one segment");
     goto label_end;
   }
 
@@ -5706,14 +5706,14 @@ int db_polygon_distance(Db *db,
   for (int iset = 0; iset < polygon->getPolySetNumber(); iset++)
   {
     const PolySet &polyset = polygon->getPolySet(iset);
-    pldist = pldist_manage(1, NULL, 2, polyset.getNVertices());
+    pldist = pldist_manage(1, NULL, 2, polyset.getNPoints());
 
     // Loop on the samples
 
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      PolyLine polyline(polyset.getX(), polyset.getY());
+      Line2D polyline(polyset.getX(), polyset.getY());
       distance_point_to_polyline(db->getCoordinate(iech, 0),
                                  db->getCoordinate(iech, 1),
                                  polyline, pldist);
@@ -5727,10 +5727,10 @@ int db_polygon_distance(Db *db,
       if (!FFFF(dmax) && distmin > dmax) distmin = dmax;
       db->setArray(iech, iptr, distmin);
     }
-    pldist = pldist_manage(-1, pldist, 2, polyset.getNVertices());
+    pldist = pldist_manage(-1, pldist, 2, polyset.getNPoints());
   }
 
-  // Calculate the extrema
+  // Calculate the extreme values
 
   if (scale != 0 || polin != 0)
   {

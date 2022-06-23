@@ -53,10 +53,8 @@ public:
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
 
-  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Db* createFromNF(const String& neutralFilename,
                            bool verbose = false);
-
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::SAMPLE,
                        const VectorDouble& tab = VectorDouble(),
@@ -576,8 +574,10 @@ public:
                    int aboveRow = ITEST) const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "Db"; }
 
   void _clear();
   void _createRank(int icol = 0);

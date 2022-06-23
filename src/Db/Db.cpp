@@ -3864,19 +3864,6 @@ int Db::_getSimrank(int isimu, int ivar, int icase, int nbsimu, int nvar) const
   return (isimu + nbsimu * (ivar + nvar * icase));
 }
 
-int Db::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "Db", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (verbose) messerr("Problem writing the Neutral File %s", neutralFilename.c_str());
-    os.close();
-  }
-  return ret;
-}
-
 Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 {
   Db* db = nullptr;
@@ -3884,9 +3871,8 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
   if (_fileOpenRead(neutralFilename, "Db", is, verbose))
   {
     db = new Db;
-    if (db->_deserialize(is, verbose))
+    if (! db->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File %s", neutralFilename.c_str());
       delete db;
       db = nullptr;
     }
@@ -3895,12 +3881,15 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
   return db;
 }
 
-int Db::_serialize(std::ostream& os,bool /*verbose*/) const
+bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 {
   int ncol = getColumnNumber();
   VectorString locators = getLocators(1);
   VectorString names = getNames("*");
-  bool ret = _recordWrite<int>(os, "Number of variables", ncol);
+  bool ret = true;
+
+  ret = ret && _recordWrite<int>(os, "Number of variables", ncol);
+  ret = ret && _recordWrite<int>(os, "Number of samples", getSampleNumber());
   ret = ret && _recordWriteVec<String>(os, "Locators", locators);
   ret = ret && _recordWriteVec<String>(os, "Names", names);
   ret = ret && _commentWrite(os, "Array of values");
@@ -3910,37 +3899,39 @@ int Db::_serialize(std::ostream& os,bool /*verbose*/) const
     VectorDouble vals = getArrayBySample(iech);
     ret = ret && _recordWriteVec(os, "", vals);
   }
-  return ret ? 0 : 1;
+  return ret;
 }
 
-int Db::_deserialize(std::istream& is, bool /*verbose*/)
+bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ncol = 0, nech = 0;
+  int ncol = 0, nrow = 0, nech = 0;
   VectorString locators;
   VectorString names;
   VectorDouble values;
   VectorDouble allvalues;
 
   // Read the file
-  bool ret = _recordRead<int>(is, "Number of variables", ncol);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Number of variables", ncol);
+  ret = ret && _recordRead<int>(is, "Number of samples", nrow);
   if (ncol > 0)
   {
     ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
 
-  while (ret)
+  while (ret && (nech < nrow))
   {
-    ret = _recordReadVec<double>(is, "Array of values", values);
+    ret = ret && _recordReadVec<double>(is, "Array of values", values, ncol);
     if (ret)
     {
-      if ((int)values.size() != ncol) return 1;
       // Concatenate values by samples
       allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
                                         std::make_move_iterator(values.end()));
       nech++;
-    } // else "end of file"
+    }
   }
+  ret = (nech == nrow);
 
   // Decode the locators
   std::vector<ELoc> tabloc;
@@ -3965,7 +3956,7 @@ int Db::_deserialize(std::istream& is, bool /*verbose*/)
     setNameByUID(i, names[i]);
     setLocatorByUID(i, tabloc[i], tabnum[i]);
   }
-  return 0;
+  return ret;
 }
 
 void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& tab)

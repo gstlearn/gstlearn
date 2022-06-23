@@ -43,7 +43,6 @@ public:
   double  getMeshSize(int imesh) const override;
   cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
   VectorInt    getMeshList() const { return _meshes.getValues(); }
@@ -71,8 +70,10 @@ public:
   int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "MeshEStandard"; }
 
 private:
   int _create1D(int ndim_ref,

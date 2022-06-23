@@ -28,9 +28,9 @@ public:
   virtual ~AnamEmpirical();
 
   /// ASerializable Interface
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static AnamEmpirical* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
+
   void reset(int ndisc,
              double pymin,
              double pzmin,
@@ -68,9 +68,10 @@ public:
   bool   isTDiscIndexValid(int i) const;
 
 protected:
-  /// ASerializable Interface
-  virtual int _deserialize(std::istream& is, bool verbose) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "AnamEmpirical"; }
 
 private:
   int    _nDisc;

@@ -16,6 +16,7 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Array.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
@@ -23,7 +24,7 @@
 
 class Rotation;
 
-class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable
+class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable, public ASerializable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -205,12 +206,17 @@ public:
   void computeMarkovCoeffs();
   double getCorrec() const;
   double getFullCorrec() const;
+  int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
 protected:
+  /// Interface to ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "CovAniso"; }
+
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
   virtual void _initFromContext();
-
 
 private:
   bool   _isVariableValid(int ivar) const;

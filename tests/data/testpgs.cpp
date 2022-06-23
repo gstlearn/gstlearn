@@ -36,7 +36,7 @@
 int main(int argc, char *argv[])
 
 {
-  char   filename[BUFFER_LENGTH];
+  char       filename[BUFFER_LENGTH];
   Db        *dbin;
   DbGrid    *dbout;
   Vario     *vario;
@@ -125,6 +125,7 @@ int main(int argc, char *argv[])
     ascii_filename("Rule",i,0,filename);
     rule[i] = Rule::createFromNF(filename,verbose);
     if (rule[i] == nullptr) continue;
+    rule[i]->display();
 
     npgs++;
     rule[i]->display();
@@ -159,7 +160,7 @@ int main(int argc, char *argv[])
       vario->computeByKey("vg");
       variogram_print(vario);
       ascii_filename("Vario",0,1,filename);
-      if (vario->dumpToNF(filename,verbose))
+      if (! vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");
       
       /* Delete the indicator variables */

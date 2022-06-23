@@ -108,7 +108,7 @@ class IClonable{};
 %include Basic/Geometry.hpp
 %include Basic/Line2D.hpp
 
-%include Faults/PolyLine.hpp
+%include Faults/Faults.hpp
 
 %include Boolean/ETLaw.hpp
 %include Boolean/ETShape.hpp
@@ -348,8 +348,8 @@ class IClonable{};
 
 %include Fractures/Environ.hpp
 %include Fractures/Family.hpp
-%include Fractures/Fault.hpp
-%include Fractures/Description.hpp
+%include Fractures/FracFault.hpp
+%include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp
 
 %include segy.h

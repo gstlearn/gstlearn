@@ -55,8 +55,11 @@ public:
   double getTheta0() const { return _theta0; }
   void setTheta0(double theta0) { _theta0 = theta0; }
 
-  int _deserialize(std::istream& is, bool verbose = false) override;
-  int _serialize(std::ostream& os,bool verbose = false) const override;
+protected:
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Family"; }
 
 private:
   double _orient;              //!< Mean orientation

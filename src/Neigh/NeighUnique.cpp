@@ -60,25 +60,18 @@ String NeighUnique::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighUnique::_deserialize(std::istream& is, bool verbose)
+bool NeighUnique::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize(is, verbose))
-  {
-    if (verbose)
-      messerr("Problem reading from the Neutral File.");
-    return 1;
-  }
-  return 0;
+  bool ret = true;
+  ret = ret && ANeighParam::_deserialize(is, verbose);
+  return ret;
 }
 
-int NeighUnique::_serialize(std::ostream& os, bool verbose) const
+bool NeighUnique::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize(os, verbose))
-  {
-    if (verbose) messerr("Problem writing in the Neutral File.");
-    return 1;
-  }
-  return 0;
+  bool ret = true;
+  ret = ret && ANeighParam::_serialize(os, verbose);
+  return ret;
 }
 
 NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
@@ -91,19 +84,6 @@ NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
     neighU = nullptr;
   }
   return neighU;
-}
-
-int NeighUnique::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "NeighUnique", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
 }
 
 /**
@@ -119,9 +99,8 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
   if (_fileOpenRead(neutralFilename, "NeighUnique", is, verbose))
   {
     neigh = new NeighUnique;
-    if (neigh->_deserialize(is, verbose))
+    if (! neigh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;
       neigh = nullptr;
     }
@@ -129,7 +108,6 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
   }
   return neigh;
 }
-
 
 /**
  * Given a Db, returns the maximum number of samples per NeighUniqueborhood

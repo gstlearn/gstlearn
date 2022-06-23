@@ -4,6 +4,7 @@ DbGrid
 81 65.000000 4.938272 0.000000 
 137 535.000000 4.963504 0.000000 
 4 # Number of variables
+11097 # Number of samples
 # Locators
 x1 x2 f1 sel 
 # Names

@@ -40,7 +40,6 @@ public:
   void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshManifold* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
   void    getDuplicates(Db *dbin, Db *dbout,
@@ -53,10 +52,14 @@ public:
   VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override { return true; } // TODO
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override { return true; }
+  String _getNFName() const override { return "MeshManifold"; }
 
 private:
+  virtual int _deserialize(std::istream& is, bool verbose = false) override;
+  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
   void    _defineBoundingBox();
   int     _recopy(const MeshManifold &m);
 

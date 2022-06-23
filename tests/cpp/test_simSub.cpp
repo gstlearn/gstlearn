@@ -61,7 +61,7 @@ int main(int /*argc*/, char */*argv*/[])
   subparam.setFlagOrient(true);
   (void) substitution(grid, subparam, seed, false);
 
-  grid->dumpToNF("grid.ascii");
+  (void) grid->dumpToNF("grid.ascii");
 
   delete grid;
 

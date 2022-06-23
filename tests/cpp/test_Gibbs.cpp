@@ -68,7 +68,7 @@ static int st_save(Db    *dbgrid,
 
   /* Save the resulting 'dbgrid' in a neutral file */
 
-  if (dbgrid->dumpToNF("Colored_Gibbs",1)) return(1);
+  (void) dbgrid->dumpToNF("Colored_Gibbs");
   return(0);
 }
 

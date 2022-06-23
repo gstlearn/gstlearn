@@ -210,7 +210,7 @@ set(SRC
   Basic/Array.cpp
   Basic/Geometry.cpp
   Basic/Line2D.cpp
-  Faults/PolyLine.cpp
+  Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
   Boolean/ShapeParallelepiped.cpp
@@ -296,7 +296,7 @@ set(SRC
   Basic/AFunction.cpp
   Fractures/Environ.cpp
   Fractures/Family.cpp
-  Fractures/Fault.cpp
-  Fractures/Description.cpp
+  Fractures/FracFault.cpp
+  Fractures/FracDesc.cpp
   Fractures/FracList.cpp
 )

@@ -58,7 +58,6 @@ public:
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
 
-  virtual int dumpToNF(const String& neutralFilename, bool verbose = false) const = 0;
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
   /*! Set the Space dimension */
@@ -103,14 +102,18 @@ public:
   void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
   bool _weightsInMesh(const VectorDouble& coor,
                       const VectorVectorDouble& corners,
                       double meshsize,
                       VectorDouble& weights,
                       double eps = EPSILON5) const;;
   double _getMeshUnit(const VectorVectorDouble& corners) const;
+
+protected:
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "AMesh"; }
 
 private:
   void _recopy(const AMesh &m);

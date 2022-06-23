@@ -6109,7 +6109,8 @@ DbGrid* db_vmap_compute(Db *db,
   else
   {
     for (int idim = 0; idim < ndim; idim++)
-      dx_map[idim] = (!FFFF(dxx[idim])) ? dxx[idim] : db->getExtension(idim) / (double) nxx[idim];
+      dx_map[idim] = (! dxx.empty() && !FFFF(dxx[idim])) ?
+          dxx[idim] : db->getExtension(idim) / (double) nxx[idim];
   }
   for (int idim = 0; idim < ndim; idim++)
     x0_map[idim] = -nxx[idim] * dx_map[idim];

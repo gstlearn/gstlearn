@@ -11,11 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "FracFault.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 #include "Fractures/Family.hpp"
-#include "Fractures/Fault.hpp"
 
 class GSTLEARN_EXPORT Environ: public AStringable, public ASerializable
 {
@@ -31,10 +33,8 @@ public:
   Environ& operator=(const Environ& r);
   virtual ~Environ();
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Environ* createFromNF(const String& neutralFilename,
                                bool verbose = false);
-
   static Environ* create(double xmax = 0.,
                          double ymax = 0.,
                          double deltax = 0.,
@@ -55,15 +55,17 @@ public:
   double getXmax() const { return _xmax; }
   double getYmax() const { return _ymax; }
 
-  const Fault& getFault(int i) const { return _faults[i]; }
+  const FracFault& getFault(int i) const { return _faults[i]; }
   const Family& getFamily(int i) const { return _families[i]; }
 
   void addFamily(const Family& family) { _families.push_back(family); }
-  void addFault(const Fault& fault) { _faults.push_back(fault); }
+  void addFault(const FracFault& fault) { _faults.push_back(fault); }
 
 protected:
-  int _deserialize(std::istream& is, bool verbose = false) override;
-  int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "Fracture Environ"; }
 
 private:
   double _xmax;                 //!< Maximum horizontal distance
@@ -74,5 +76,5 @@ private:
   double _mean;                 //!< Mean of thickness distribution
   double _stdev;                //!< Standard deviation of thickness distribution
   std::vector<Family> _families; //!< Family definition
-  std::vector<Fault>  _faults;   //!< Fault definition
+  std::vector<FracFault>  _faults;   //!< Fault definition
 };

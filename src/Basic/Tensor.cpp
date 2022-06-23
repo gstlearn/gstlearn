@@ -102,7 +102,7 @@ void Tensor::setRadiusVec(const VectorDouble& radius)
       my_throw ("Radius cannot be null");
   }
   _radius = radius;
-  _updateIsotrop();
+  _updateIsotropic();
   _fillTensors();
 }
 
@@ -113,7 +113,7 @@ void Tensor::setRadiusDir(unsigned int idim, double radius)
   if (ABS(radius) < EPSILON10)
     my_throw ("Radius cannot be null");
   _radius[idim] = radius;
-  _updateIsotrop();
+  _updateIsotropic();
   _fillTensors();
 }
 
@@ -165,7 +165,7 @@ VectorDouble Tensor::applyInverse(const VectorDouble& vec, int mode) const
   return out;
 }
 
-void Tensor::_updateIsotrop()
+void Tensor::_updateIsotropic()
 {
   double rad0 = _radius[0];
   // for (const auto& rad1 : _radius) // (rad1 is forbidden under windows)

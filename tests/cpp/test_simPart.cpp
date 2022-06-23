@@ -63,7 +63,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   (void) tessellation_voronoi(grid, model, parparam, seed, false);
 
-  grid->dumpToNF("grid.ascii");
+  (void) grid->dumpToNF("grid.ascii");
 
   delete grid;
 

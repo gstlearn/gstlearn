@@ -531,20 +531,22 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
   }
 }
 
-int AMesh::_deserialize(std::istream& is, bool /*verbose*/)
+bool AMesh::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  bool ret = _recordRead<int>(is, "Space Dimension", _nDim);
+  bool ret = true;
+  ret = ret && _recordRead<int>(is, "Space Dimension", _nDim);
   ret = ret && _recordReadVec<double>(is, "Minimum Extension", _extendMin, _nDim);
   ret = ret && _recordReadVec<double>(is, "Maximum Extension", _extendMax, _nDim);
-  return 0;
+  return ret;
 }
 
-int AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
+bool AMesh::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  bool ret = _recordWrite<int>(os, "Space Dimension", getNDim());
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
   ret = ret && _recordWriteVec<double>(os, "Minimum Extension", _extendMin);
   ret = ret && _recordWriteVec<double>(os, "Maximum Extension", _extendMax);
-  return 0;
+  return ret;
 }
 
 /****************************************************************************/

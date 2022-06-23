@@ -59,7 +59,6 @@ public:
   void   setMaskArrayFromInt(int* array);
   void   setMaskArrayFromDouble(double* array);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static MeshETurbo* createFromNF(const String& neutralFilename,
                                      bool verbose = false);
   int initFromExtend(const VectorDouble& extendmin,
@@ -99,8 +98,10 @@ private:
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os,bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "MeshETurbo"; }
 
 private:
   Grid  _grid;

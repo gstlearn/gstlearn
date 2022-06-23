@@ -116,19 +116,6 @@ double MeshManifold::getApexCoor(int i, int idim) const
   return _apices(i,idim);
 }
 
-int MeshManifold::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "MeshManifold", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 /**
  * Create a MeshManifold by loading the contents of a Neutral File
  *
@@ -139,12 +126,11 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
 {
   MeshManifold* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "MeshManifold", is, verbose))
+  if (_fileOpenRead(neutralFilename, _getNFName(), is, verbose))
   {
     mesh = new MeshManifold;
-    if (mesh->_deserialize(is, verbose))
+    if (! mesh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete mesh;
       mesh = nullptr;
     }
@@ -152,8 +138,6 @@ MeshManifold* MeshManifold::createFromNF(const String& neutralFilename, bool ver
   }
   return mesh;
 }
-
-
 
 void MeshManifold::_defineBoundingBox(void)
 {

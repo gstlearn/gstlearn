@@ -65,7 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   DbStringFormat dbfmt(FLAG_STATS,{"VMAP*"});
   vmap->display(&dbfmt);
 
-  vmap->dumpToNF("vmap.ascii");
+  (void) vmap->dumpToNF("vmap.ascii");
 
   delete grid;
   delete vmap;
