@@ -400,7 +400,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
-    VectorDouble coor = db->getSampleCoordinates(iech);
+    VectorDouble coor = db->getSampleCoordinates(jech);
     
     /* Loop on the meshes */
     
