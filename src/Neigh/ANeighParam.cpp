@@ -72,7 +72,7 @@ String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
+bool ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim = 0;
   int flag_xvalid = 0.;
@@ -80,21 +80,21 @@ int ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
   ret = ret && _recordRead<int>(is, "Cross-validation flag", flag_xvalid);
-  if (! ret) return 1;
-
-  setNDim(ndim);
-  setFlagXvalid(flag_xvalid);
-
-  return 0;
+  if (ret)
+  {
+    setNDim(ndim);
+    setFlagXvalid(flag_xvalid);
+  }
+  return ret;
 }
 
-int ANeighParam::_serialize(std::ostream& os, bool /*verbose*/) const
+bool ANeighParam::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
   ret = ret && _recordWrite<int>(os, "Cross-Validation flag", getFlagXvalid());
 
-  return ret ? 0 : 1;
+  return ret;
 }
 
 bool ANeighParam::_isDimensionValid(int idim) const

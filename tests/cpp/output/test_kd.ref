@@ -1,0 +1,2952 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 2500
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      1.000     1.000
+Number :         50        50
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = Extend-1 - Locator = dblk1
+Column = 4 - Name = Extend-2 - Locator = dblk2
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -158.624
+ Maximum value       =    131.935
+ Mean value          =      0.678
+ Standard Deviation  =     50.083
+ Variance            =   2508.331
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -112.354
+ Maximum value       =    106.924
+ Mean value          =     -7.383
+ Standard Deviation  =     44.553
+ Variance            =   1984.932
+4 - Name Var - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =     -2.429
+ Maximum value       =      2.484
+ Mean value          =     -0.168
+ Standard Deviation  =      1.073
+ Variance            =      1.152
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 2
+Number of drift function(s)  = 1
+Number of drift equation(s)  = 1
+
+Covariance Part
+---------------
+Spherical
+- Sill         =     45.000
+- Range        =     40.000
+Nugget Effect
+- Sill         =     12.000
+Total Sill     =     57.000
+
+Drift Part
+----------
+Universality Condition
+
+Moving Neighborhood
+===================
+Space dimension = 2
+Minimum number of samples           = 1
+Maximum number of samples           = 25
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.4
+Maximum absolute value for Y  = 2.6
+Minimum absolute value for Z  = -2.3944
+Maximum absolute value for Z  = 2.49386
+Minimum practical value for Y = -2.4
+Maximum practical value for Y = 2.6
+Minimum practical value for Z = -2.3944
+Maximum practical value for Z = 2.49386
+Mean                          = -0.168158
+Variance                      = 1.14706
+Number of Hermite polynomials = 20
+Normalized coefficients for Hermite polynomials
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]    -0.168    -1.062     0.033     0.110     0.000    -0.033    -0.002
+     [  7,]     0.034    -0.004    -0.036     0.009     0.030    -0.010    -0.021
+     [ 14,]     0.007     0.011    -0.002    -0.003    -0.003    -0.001
+
+Data Base Characteristics
+=========================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =      1.000
+ Maximum value       =    100.000
+ Mean value          =     50.500
+ Standard Deviation  =     28.866
+ Variance            =    833.250
+2 - Name x1 - Locator x1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -158.624
+ Maximum value       =    131.935
+ Mean value          =      0.678
+ Standard Deviation  =     50.083
+ Variance            =   2508.331
+3 - Name x2 - Locator x2
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =   -112.354
+ Maximum value       =    106.924
+ Mean value          =     -7.383
+ Standard Deviation  =     44.553
+ Variance            =   1984.932
+4 - Name Var - Locator NA
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =     -2.429
+ Maximum value       =      2.484
+ Mean value          =     -0.168
+ Standard Deviation  =      1.073
+ Variance            =      1.152
+5 - Name Y.Var - Locator z1
+ Nb of data          =        100
+ Nb of active values =        100
+ Minimum value       =     -2.400
+ Maximum value       =      2.588
+ Mean value          =      0.003
+ Standard Deviation  =      0.992
+ Variance            =      0.985
+
+<----- Test KD ----->
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+Error in matrix inversion : Pivot #2 is null
+The Kriging Matrix (26,26) is singular
+One of the usual reason is the presence of duplicates
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name KD.Hn.New-1.Hn.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       1589
+ Minimum value       =     -9.686
+ Maximum value       =      6.132
+ Mean value          =     -2.757
+ Standard Deviation  =      3.741
+ Variance            =     13.997
+7 - Name KD.Hn.New-1.Hn.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       1589
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000

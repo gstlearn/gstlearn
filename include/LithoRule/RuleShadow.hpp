@@ -73,10 +73,13 @@ public:
   const VectorDouble& getShift() const { return _shift; }
   double getShift(int idim) const { return _shift[idim]; }
 
-private:
-  virtual int _deserializeSpecific(std::istream& /*is*/) override;
-  void _serializeSpecific(std::ostream& os) const override;
+protected:
+  /// Interface for ASerializable
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  String _getNFName() const override { return "RuleShadow"; }
 
+private:
   void _st_shadow_max(const Db *dbprop,
                       int flag_stat,
                       double *sh_dsup_max,

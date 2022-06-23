@@ -260,13 +260,13 @@ External Drift - Rank=0----
 [source, ipython3]
 ----
 fileM = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","model.ascii")
-err = model.dumpToNF(fileM)
+model.dumpToNF(fileM)
 fileG = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","grid.ascii")
-err = grid.dumpToNF(fileG)
+grid.dumpToNF(fileG)
 fileT = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","temperatures.ascii")
-err = temperatures.dumpToNF(fileT)
+temperatures.dumpToNF(fileT)
 fileV = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","vario.ascii")
-err = vario.dumpToNF(fileV)
+vario.dumpToNF(fileV)
 #gl.Model.createFromNF(fileM)
 #gl.Db.createFromNF(fileG)
 #gl.Db.createFromNF(fileT)

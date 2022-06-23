@@ -54,7 +54,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Reference Simulation ----->\n");
   simtub(nullptr, grid, model, nullptr);
-  grid->dumpToNF("grid_small.ascii");
+  (void) grid->dumpToNF("grid_small.ascii");
 
   // ====================== Create Parameter File ===================
   message("\n<----- Creating Parameter File ----->\n");
@@ -65,7 +65,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Perform Boolean simulation ===================
   message("\n<----- Perform Refinement Simulation ----->\n");
   DbGrid* grid2 = simfine(grid, model, param, seed);
-  grid2->dumpToNF("grid_large.ascii");
+  (void) grid2->dumpToNF("grid_large.ascii");
 
   delete grid;
   delete grid2;

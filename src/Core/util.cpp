@@ -19,9 +19,9 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Geometry.hpp"
+#include "Basic/Line2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Faults/PolyLine.hpp"
 
 #include <complex>
 #include <cmath>
@@ -1086,7 +1086,7 @@ PL_Dist* pldist_manage(int mode, PL_Dist *pldist_loc, int ndim, int /*nvert*/)
  **  Find the shortest distance between the point (x0,y0) and a polyline
  **
  ** \param[in]  x0,y0    Coordinates of the target point
- ** \param[in]  polyline Polyline structure
+ ** \param[in]  polyline Line2D structure
  **
  ** \param[out] pldist  PL_Dist structure
  **
@@ -1095,12 +1095,12 @@ PL_Dist* pldist_manage(int mode, PL_Dist *pldist_loc, int ndim, int /*nvert*/)
  *****************************************************************************/
 void distance_point_to_polyline(double x0,
                                 double y0,
-                                const PolyLine& polyline,
+                                const Line2D& polyline,
                                 PL_Dist *pldist)
 {
   double xx, yy, dist;
   int nint;
-  int nvert = polyline.getNVertices();
+  int nvert = polyline.getNPoints();
 
   /* Dispatch */
 
@@ -1129,12 +1129,12 @@ void distance_point_to_polyline(double x0,
  **
  ** \param[in]  pldist1 First PL_Dist structure
  ** \param[in]  pldist2 Second PL_Dist structure
- ** \param[in]  polyline Polyline structure
+ ** \param[in]  polyline Line2D structure
  **
  *****************************************************************************/
 double distance_along_polyline(PL_Dist *pldist1,
                                PL_Dist *pldist2,
-                               const PolyLine& polyline)
+                               const Line2D& polyline)
 {
   int i;
   double dist, local1[2], local2[2];
@@ -1238,7 +1238,7 @@ static void st_shift_point(double x1,
  ** \param[in]  al      Coefficient applied to the distance along line
  ** \param[in]  x1,y1   Coordinates of the first point
  ** \param[in]  x2,y2   Coordinates of the second point
- ** \param[in]  polyline PolyLine structure
+ ** \param[in]  polyline Line2D structure
  **
  *****************************************************************************/
 double distance_points_to_polyline(double ap,
@@ -1247,14 +1247,14 @@ double distance_points_to_polyline(double ap,
                                    double y1,
                                    double x2,
                                    double y2,
-                                   const PolyLine& polyline)
+                                   const Line2D& polyline)
 {
   double dist, d1, d2, dh, dv, dloc, dmin, xp1, xp2, yp1, yp2, dist1, dist2;
   PL_Dist *pldist1, *pldist2;
 
   /* Initialization */
 
-  int nvert = polyline.getNVertices();
+  int nvert = polyline.getNPoints();
   pldist1 = pldist_manage(1, NULL, 2, nvert);
   pldist2 = pldist_manage(1, NULL, 2, nvert);
 

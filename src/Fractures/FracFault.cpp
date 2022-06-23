@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Fractures/Fault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
+#include "../../include/Fractures/FracFault.hpp"
 
-Fault::Fault(double coord, double orient)
+FracFault::FracFault(double coord, double orient)
   : AStringable(),
     ASerializable(),
     _coord(coord),
@@ -26,7 +26,7 @@ Fault::Fault(double coord, double orient)
 {
 }
 
-Fault::Fault(const Fault& r)
+FracFault::FracFault(const FracFault& r)
     : AStringable(r),
       ASerializable(r),
       _coord(r._coord),
@@ -38,7 +38,7 @@ Fault::Fault(const Fault& r)
 {
 }
 
-Fault& Fault::operator=(const Fault& r)
+FracFault& FracFault::operator=(const FracFault& r)
 {
   if (this != &r)
   {
@@ -54,11 +54,11 @@ Fault& Fault::operator=(const Fault& r)
   return *this;
 }
 
-Fault::~Fault()
+FracFault::~FracFault()
 {
 }
 
-String Fault::toString(const AStringFormat* /*strfmt*/) const
+String FracFault::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
   sstr << "Location of the Fault           = " << _coord << std::endl;
@@ -85,12 +85,12 @@ String Fault::toString(const AStringFormat* /*strfmt*/) const
  ** \param[in]  cote   Ordinate of the fracture starting point
  **
  *****************************************************************************/
-double Fault::faultAbscissae(double cote) const
+double FracFault::faultAbscissae(double cote) const
 {
   return (_coord + cote * tan(ut_deg2rad(_orient)));
 }
 
-void Fault::addFaultPerFamily(double thetal,
+void FracFault::addFaultPerFamily(double thetal,
                               double thetar,
                               double rangel,
                               double ranger)
@@ -107,27 +107,29 @@ void Fault::addFaultPerFamily(double thetal,
   _ranger[nfam] = ranger;
 }
 
-int Fault::_deserialize(std::istream& is, bool /*verbose*/)
+bool FracFault::_deserialize(std::istream& is, bool /*verbose*/)
 {
+  int nfam;
   bool ret = true;
   ret = ret && _recordRead<double>(is, "Abscissa of the first Fault point", _coord);
   ret = ret && _recordRead<double>(is, "Fault orientation", _orient);
-  ret = ret && _recordReadVec<double>(is, "Maximum Density on the left", _thetal);
-  ret = ret && _recordReadVec<double>(is, "Maximum Density on the right", _thetar);
-  ret = ret && _recordReadVec<double>(is, "Decrease Range on the left", _rangel);
-  ret = ret && _recordReadVec<double>(is, "Decrease Range on the right", _ranger);
-  return 0;
+  ret = ret && _recordRead<int>   (is, "Number of Families", nfam);
+  ret = ret && _recordReadVec<double>(is, "Maximum Density on the left", _thetal, nfam);
+  ret = ret && _recordReadVec<double>(is, "Maximum Density on the right", _thetar, nfam);
+  ret = ret && _recordReadVec<double>(is, "Decrease Range on the left", _rangel, nfam);
+  ret = ret && _recordReadVec<double>(is, "Decrease Range on the right", _ranger, nfam);
+  return ret;
 }
 
-int Fault::_serialize(std::ostream& os, bool /*verbose*/) const
+bool FracFault::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<double>(os, "Abscissa of the first Fault point", _coord);
   ret = ret && _recordWrite<double>(os, "Fault orientation", _orient);
+  ret = ret && _recordWrite<int>   (os, "Number of Families", getNFamilies());
   ret = ret && _recordWriteVec<double>(os, "Maximum Density on the left", _thetal);
   ret = ret && _recordWriteVec<double>(os, "Maximum Density on the right", _thetar);
   ret = ret && _recordWriteVec<double>(os, "Decrease Range on the left", _rangel);
   ret = ret && _recordWriteVec<double>(os, "Decrease Range on the right", _ranger);
-
-  return 0;
+  return ret;
 }

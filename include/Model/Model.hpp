@@ -62,7 +62,6 @@ public:
 
   int resetFromDb(const Db* db);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Model* create(const CovContext& ctxt = CovContext());
   static Model* createFromParam(const ECov& type,
                                 double range = 1.,
@@ -290,10 +289,10 @@ public:
   double gofToVario(const Vario* vario);
 
 protected:
-
   /// Interface to ASerializable
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Model"; }
 
 private:
   void _clear();

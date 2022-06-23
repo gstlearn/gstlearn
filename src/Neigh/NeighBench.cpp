@@ -62,32 +62,20 @@ String NeighBench::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-int NeighBench::_deserialize(std::istream& is, bool verbose)
+bool NeighBench::_deserialize(std::istream& is, bool verbose)
 {
-  if (ANeighParam::_deserialize(is, verbose))
-  {
-    if (verbose)
-      messerr("Problem reading from the Neutral File.");
-    return 1;
-  }
-
-  bool ret = _recordRead<double>(is, "Bench Width", _width);
-
-  if (! ret) return 1;
-  return 0;
+  bool ret = true;
+  ret = ret && ANeighParam::_deserialize(is, verbose);
+  ret = ret && _recordRead<double>(is, "Bench Width", _width);
+  return ret;
 }
 
-int NeighBench::_serialize(std::ostream& os, bool verbose) const
+bool NeighBench::_serialize(std::ostream& os, bool verbose) const
 {
-  if (ANeighParam::_serialize(os, verbose))
-   {
-     if (verbose) messerr("Problem writing in the Neutral File.");
-     return 1;
-   }
-
-  bool ret = _recordWrite<double>(os, "Bench Width", getWidth());
-
-  return ret ? 0 : 1;
+  bool ret = true;
+  ret = ret && ANeighParam::_serialize(os, verbose);
+  ret = ret && _recordWrite<double>(os, "Bench Width", getWidth());
+  return ret;
 }
 
 NeighBench* NeighBench::create(int ndim, bool flag_xvalid, double width)
@@ -100,19 +88,6 @@ NeighBench* NeighBench::create(int ndim, bool flag_xvalid, double width)
     neighB =  nullptr;
   }
   return neighB;
-}
-
-int NeighBench::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "NeighBench", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
 }
 
 /**
@@ -128,9 +103,8 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
   if (_fileOpenRead(neutralFilename, "NeighBench", is, verbose))
   {
     neigh = new NeighBench();
-    if (neigh->_deserialize(is, verbose))
+    if (! neigh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete neigh;
       neigh = nullptr;
     }

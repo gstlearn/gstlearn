@@ -20,6 +20,7 @@ ADriftElem::ADriftElem(const EDrift& type,
                        const CovContext& ctxt,
                        int rankFex)
     : ADrift(ctxt.getSpace()), /// TODO : shared pointer
+      ASerializable(),
       _ctxt(ctxt),
       _type(type),
       _rankFex(rankFex)
@@ -28,6 +29,7 @@ ADriftElem::ADriftElem(const EDrift& type,
 
 ADriftElem::ADriftElem(const ADriftElem &r)
     : ADrift(r),
+      ASerializable(r),
       _ctxt(r._ctxt), /// TODO : shared pointer
       _type(r._type),
       _rankFex(r._rankFex)
@@ -39,6 +41,7 @@ ADriftElem& ADriftElem::operator=(const ADriftElem &r)
   if (this != &r)
   {
     ADrift::operator=(r);
+    ASerializable::operator=(r);
     _ctxt = r._ctxt;
     _type = r._type;
     _rankFex = r._rankFex;
@@ -63,3 +66,21 @@ String ADriftElem::toString(const AStringFormat* /*strfmt*/) const
     sstr << " - Rank=" << getRankFex();
   return sstr.str();
 }
+
+bool ADriftElem::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  bool ret = true;
+  int type;
+  ret = ret && _recordRead<int>(is, "Drift Function", type);
+  _type = EDrift::fromValue(type);
+  _rankFex = 0;
+  return ret;
+}
+
+bool ADriftElem::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os,"Drift characteristics", getType().getValue());
+  return ret;
+}
+

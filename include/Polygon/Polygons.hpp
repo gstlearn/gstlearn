@@ -36,7 +36,6 @@ public:
                    int ncol_max = -1,
                    int nrow_max = -1);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Polygons* create();
   static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
   static Polygons* createFromCSV(const String& filename,
@@ -54,8 +53,6 @@ public:
   PolySet getClosedPolySet(int ipol) const;
   const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
   const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
-  void setX(int ipol, const VectorDouble& x) { _polysets[ipol].setX(x); }
-  void setY(int ipol, const VectorDouble& y) { _polysets[ipol].setY(y); }
 
   void getExtension(double *xmin,
                     double *xmax,
@@ -64,8 +61,10 @@ public:
   double getSurface() const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "Polygon"; }
 
 private:
   PolySet _extractFromTab(int ideb,

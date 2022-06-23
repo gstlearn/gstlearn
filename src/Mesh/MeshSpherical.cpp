@@ -207,19 +207,6 @@ label_end:
   return error;
 }
 
-int MeshSpherical::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "MeshSpherical", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 /**
  * Create a MeshSpherical by loading the contents of a Neutral File
  *
@@ -233,9 +220,8 @@ MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool v
   if (_fileOpenRead(neutralFilename, "MeshSpherical", is, verbose))
   {
     mesh = new MeshSpherical;
-    if (mesh->_deserialize(is, verbose))
+    if (! mesh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete mesh;
       mesh = nullptr;
     }
@@ -571,7 +557,7 @@ int MeshSpherical::_recopy(const MeshSpherical &m)
   return(0);
 }
 
-int MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
+bool MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, napices, nmeshes, napexpermesh;
 
@@ -581,29 +567,32 @@ int MeshSpherical::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
   ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
 
-  VectorDouble apices_local;
-  ret = ret && _recordReadVec<double>(is, "Apices", apices_local, ndim * napices);
-  _apices = MatrixRectangular(napices, ndim);
-  _apices.setValues(apices_local);
+  if (ret)
+  {
+    VectorDouble apices_local;
+    ret = ret && _recordReadVec<double>(is, "Apices", apices_local, ndim * napices);
+    _apices = MatrixRectangular(napices, ndim);
+    _apices.setValues(apices_local);
+  }
 
-  VectorInt meshes_local;
-  ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
-  _meshes = MatrixInt(nmeshes, napexpermesh);
-  _meshes.setValues(meshes_local);
-
-  return 0;
+  if (ret)
+  {
+    VectorInt meshes_local;
+    ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
+    _meshes = MatrixInt(nmeshes, napexpermesh);
+    _meshes.setValues(meshes_local);
+  }
+  return ret;
 }
 
-int MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
+bool MeshSpherical::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-
   ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
   ret = ret && _recordWrite<int>(os, "Napices", getNApices());
   ret = ret && _recordWrite<int>(os, "Number of Apices per Mesh", getNApexPerMesh());
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
-
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
-  return 0;
+  return ret;
 }

@@ -105,8 +105,8 @@ int RuleProp::resetFromRuleAndDb(const Rule* rule, const Db* dbprop)
 }
 
 int RuleProp::resetFromRules(const Rule* rule1,
-                                           const Rule* rule2,
-                                           const VectorDouble& propcst)
+                             const Rule* rule2,
+                             const VectorDouble& propcst)
 {
   _clear();
 
@@ -380,8 +380,8 @@ RuleProp* RuleProp::createFromRuleAndDb(const Rule* rule, const Db* dbprop)
   return ruleprop;
 }
 RuleProp* RuleProp::createFromRules(const Rule* rule1,
-                                                  const Rule* rule2,
-                                                  const VectorDouble& propcst)
+                                    const Rule* rule2,
+                                    const VectorDouble& propcst)
 {
   RuleProp* ruleprop = new RuleProp;
   if (ruleprop->resetFromRules(rule1, rule2, propcst))

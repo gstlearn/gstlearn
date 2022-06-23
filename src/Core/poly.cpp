@@ -242,7 +242,7 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getNVertices(),
+      if (st_polyset_inside(xx, yy, polyset.getNPoints(),
                             polyset.getX().data(), polyset.getY().data()))
         number++;
       if (number % 2 != 0 && st_polyset_inside_3D(zz, polyset.getZmin(),
@@ -255,7 +255,7 @@ int polygon_inside(double xx,
     for (int ipol = 0; ipol < polygon->getPolySetNumber(); ipol++)
     {
       PolySet polyset = polygon->getClosedPolySet(ipol);
-      if (st_polyset_inside(xx, yy, polyset.getNVertices(),
+      if (st_polyset_inside(xx, yy, polyset.getNPoints(),
                             polyset.getX().data(), polyset.getY().data())
           && st_polyset_inside_3D(zz, polyset.getZmin(), polyset.getZmax()))
         return (1);

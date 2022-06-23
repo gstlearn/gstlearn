@@ -35,7 +35,6 @@ public:
 
   int reset(int ndim = 2, bool flag_xvalid = false, double width = 0);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static NeighBench* create(int ndim = 2, bool flag_xvalid = false, double width = 0);
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = false);
 
@@ -46,9 +45,10 @@ public:
   void setWidth(double width) { _width = width; }
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
-
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "NeighBench"; }
 
 private:
   double _width;                 /* Width of the slice - bench */

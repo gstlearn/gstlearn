@@ -62,7 +62,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("\n<----- Perform FFT Simulation ----->\n");
   (void) simfft(grid, model, param, 1, seed, true);
 
-  grid->dumpToNF("grid.ascii");
+  (void) grid->dumpToNF("grid.ascii");
 
   delete grid;
   delete model;

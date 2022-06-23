@@ -39,7 +39,6 @@ public:
   int resetFromNumericalCoding(const VectorInt& n_type, const VectorInt& n_facs, double rho = 0.);
   int resetFromFaciesCount(int nfacies, double rho = 0.);
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static Rule* create(double rho = 0.);
   static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
@@ -111,17 +110,17 @@ public:
   void updateShift() const;
 
 protected:
+  /// Interface for ASerializable
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  String _getNFName() const override { return "Rule"; }
+
   void setMainNodeFromNodNames(const VectorInt& n_type,
                                const VectorInt& n_facs);
   void setMainNodeFromNodNames(const VectorString& nodnames);
   int  setMainNodeFromNodNames(const VectorInt& nodes);
   int replicateInvalid(Db *dbin, Db *dbout, int jech) const;
   VectorString buildNodNames(int nfacies);
-
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
-  virtual int _deserializeSpecific(std::istream& /*is*/) { return 0; }
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual void _serializeSpecific(std::ostream& /*file*/) const { return; }
 
 private:
   void _ruleDefine(std::ostream& os,

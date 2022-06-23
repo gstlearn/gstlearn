@@ -322,17 +322,6 @@ int main(int /*argc*/, char */*argv*/[])
   kriggam(data, grid_res, model, neighU, anam);
   grid_res->display(&dbfmtKriging);
 
-  // ====================== KD =============================================
-
-//  message("\n<----- Test KD ----->\n");
-//  grid_res = dynamic_cast<DbGrid*>(grid->clone());
-//  int nfactor = 5;
-//  // Estimate Hermite polynomials at Data locations
-//  (void) calculateHermiteFactors(data, nfactor);
-//  model->addAnam(anam);
-//  dk(data, grid_res, model, neighM);
-//  grid_res->display(&dbfmtKriging);
-
   // ====================== Free pointers ==================================
   if (neighM    != nullptr) delete neighM;
   if (neighU    != nullptr) delete neighU;

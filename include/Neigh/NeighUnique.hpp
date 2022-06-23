@@ -37,9 +37,10 @@ public:
   int reset(int ndim, bool flag_xvalid = false);
   static NeighUnique* create(int ndim, bool flag_xvalid = false);
   static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = false);
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "NeighUnique"; }
 };

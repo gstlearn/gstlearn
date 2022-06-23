@@ -140,7 +140,7 @@ int main(int argc, char *argv[])
     vario->computeByKey("vg");
     vario->display();
     ascii_filename("Vario",0,1,filename);
-    if (vario->dumpToNF(filename,verbose))
+    if (! vario->dumpToNF(filename,verbose))
       messageAbort("ascii_vario_write");
   }
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[])
   {
     if (model_fitting_sills(vario,model,constraints,mauto)) goto label_end;
     ascii_filename("Model",0,1,filename);
-    if (model->dumpToNF(filename,verbose))
+    if (! model->dumpToNF(filename,verbose))
       messageAbort("ascii_model_write");
   }
   new_model = st_modify(model,dbin);

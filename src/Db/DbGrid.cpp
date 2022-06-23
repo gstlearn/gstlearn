@@ -457,9 +457,9 @@ int DbGrid::getNDim() const
   return (_grid.getNDim());
 }
 
-int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
+bool DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, ntot, nech, i, ncol;
+  int ndim, ntot, nech, i, ncol, nsample;
   VectorInt nx;
   VectorString locators;
   VectorString names;
@@ -472,10 +472,11 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
   /* Initializations */
 
   ndim = nech = ntot = ncol = 0;
+  bool ret = true;
 
   /* Decoding the header */
 
-  bool ret = _recordRead<int>(is, "Space Dimension", ndim);
+  ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
 
   /* Core allocation */
 
@@ -486,7 +487,7 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Read the grid characteristics */
 
-  for (int idim = 0; idim < ndim; idim++)
+  for (int idim = 0; ret && idim < ndim; idim++)
   {
     ret = ret && _recordRead<int>(is, "Grid Number of Nodes", nx[idim]);
     ret = ret && _recordRead<double>(is, "Grid Origin", x0[idim]);
@@ -496,6 +497,7 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
   ntot = ut_vector_prod(nx);
 
   ret = ret && _recordRead<int>(is, "Number of variables", ncol);
+  ret = ret && _recordRead<int>(is, "Number of samples", nsample);
   if (ncol > 0)
   {
     ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
@@ -504,9 +506,9 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Reading the tail of the file */
 
-  while (ret)
+  while (ret && nech < ntot)
   {
-    ret = _recordReadVec<double>(is, "", values);
+    ret = _recordReadVec<double>(is, "", values, ncol);
     if (ret)
     {
       if ((int)values.size() != ncol) return 1;
@@ -514,8 +516,9 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
       allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
                                         std::make_move_iterator(values.end()));
       nech++;
-    } // else "end of file"
+    }
   }
+  ret = (nech == ntot);
 
   // Decode the locators
   std::vector<ELoc> tabloc;
@@ -552,20 +555,21 @@ int DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
       setLocatorByUID(i, tabloc[i], tabnum[i]);
     }
 
-  return 0;
+  return ret;
 }
 
-int DbGrid::_serialize(std::ostream& os, bool verbose) const
+bool DbGrid::_serialize(std::ostream& os, bool verbose) const
 {
+  bool ret = true;
 
   /* Writing the header */
 
-  bool ret = _recordWrite<int>(os, "Space Dimension", getNDim());
+  ret = ret && _recordWrite<int>(os, "Space Dimension", getNDim());
 
   /* Writing the grid characteristics */
 
   ret = ret && _commentWrite(os, "Grid characteristics (NX,X0,DX,ANGLE)");
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (int idim = 0; ret && idim < getNDim(); idim++)
   {
     ret = ret && _recordWrite<int>(os, "",  getNX(idim));
     ret = ret && _recordWrite<double>(os, "", getX0(idim));
@@ -576,9 +580,9 @@ int DbGrid::_serialize(std::ostream& os, bool verbose) const
 
   /* Writing the tail of the file */
 
-  if (Db::_serialize(os, verbose)) return 1;
+  ret && Db::_serialize(os, verbose);
 
-  return 0;
+  return ret;
 }
 
 double DbGrid::getUnit(int idim) const
@@ -592,19 +596,6 @@ int DbGrid::gridDefine(const VectorInt& nx,
                        const VectorDouble& angles)
 {
   return (_grid.resetFromVector(nx, dx, x0, angles));
-}
-
-int DbGrid::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "DbGrid", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
 }
 
 /**
@@ -623,9 +614,8 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
   if (_fileOpenRead(neutralFilename, "DbGrid", is, verbose))
   {
     dbgrid = new DbGrid;
-    if (dbgrid->_deserialize(is, verbose))
+    if (! dbgrid->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete dbgrid;
       dbgrid = nullptr;
     }

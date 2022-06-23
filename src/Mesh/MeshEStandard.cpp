@@ -465,19 +465,6 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   return(A);
 }
 
-int MeshEStandard::dumpToNF(const String& neutralFilename, bool verbose) const
-{
-  std::ofstream os;
-  int ret = 1;
-  if (_fileOpenWrite(neutralFilename, "MeshEStandard", os, verbose))
-  {
-    ret = _serialize(os, verbose);
-    if (ret && verbose) messerr("Problem writing in the Neutral File.");
-    os.close();
-  }
-  return ret;
-}
-
 /**
  * Create a MeshEStandard by loading the contents of a Neutral File
  *
@@ -491,9 +478,8 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
   if (_fileOpenRead(neutralFilename, "MeshEStandard", is, verbose))
   {
     mesh = new MeshEStandard;
-    if (mesh->_deserialize(is, verbose))
+    if (! mesh->deserialize(is, verbose))
     {
-      if (verbose) messerr("Problem reading the Neutral File.");
       delete mesh;
       mesh = nullptr;
     }
@@ -1104,7 +1090,7 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
   return error;
 }
 
-int MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
+bool MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int ndim, napices, napexpermesh, nmeshes;
 
@@ -1114,20 +1100,25 @@ int MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
   ret = ret && _recordRead<int>(is, "Number of Apices per Mesh", napexpermesh);
   ret = ret && _recordRead<int>(is, "Number of Meshes", nmeshes);
 
-  VectorDouble apices_local;
-  ret = ret && _recordReadVec<double>(is, "Apices", apices_local, napices * ndim);
-  _apices = MatrixRectangular(napices, ndim);
-  _apices.setValues(apices_local);
+  if (ret)
+  {
+    VectorDouble apices_local;
+    ret = ret && _recordReadVec<double>(is, "Apices", apices_local, napices * ndim);
+    _apices = MatrixRectangular(napices, ndim);
+    _apices.setValues(apices_local);
+  }
 
-  VectorInt meshes_local;
-  ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
-  _meshes = MatrixInt(nmeshes, napexpermesh);
-  _meshes.setValues(meshes_local);
-
-  return 0;
+  if (ret)
+  {
+    VectorInt meshes_local;
+    ret = ret && _recordReadVec<int>(is, "Meshes", meshes_local, nmeshes * napexpermesh);
+    _meshes = MatrixInt(nmeshes, napexpermesh);
+    _meshes.setValues(meshes_local);
+  }
+  return ret;
 }
 
-int MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
+bool MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
 
@@ -1135,8 +1126,7 @@ int MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<int>(os, "Napices", getNApices());
   ret = ret && _recordWrite<int>(os, "Number of Apices per Mesh", getNApexPerMesh());
   ret = ret && _recordWrite<int>(os, "Number of Meshes", getNMeshes());
-
   ret = ret && _recordWriteVec<double>(os, "Apices", _apices.getValues());
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
-  return 0;
+  return ret;
 }

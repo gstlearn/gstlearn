@@ -33,6 +33,7 @@ static int COVWGT[4][5] = { { 2, -2, 0, 0, 0 },
 
 CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
     : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      ASerializable(),
       _ctxt(ctxt),
       _cova(CovFactory::createCovFunc(type, ctxt)),
       _sill(),
@@ -43,6 +44,7 @@ CovAniso::CovAniso(const ECov &type, const CovContext &ctxt)
 
 CovAniso::CovAniso(const String &symbol, const CovContext &ctxt)
     : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      ASerializable(),
       _ctxt(ctxt),
       _cova(),
       _sill(),
@@ -59,12 +61,12 @@ CovAniso::CovAniso(const ECov &type,
                    double sill,
                    const CovContext &ctxt,
                    bool flagRange)
-    :
-    ACov(ctxt.getSpace()), /// TODO : shared pointer
-    _ctxt(ctxt),
-    _cova(CovFactory::createCovFunc(type, ctxt)),
-    _sill(),
-    _aniso(ctxt.getSpace()->getNDim())
+    : ACov(ctxt.getSpace()), /// TODO : shared pointer
+      ASerializable(),
+      _ctxt(ctxt),
+      _cova(CovFactory::createCovFunc(type, ctxt)),
+      _sill(),
+      _aniso(ctxt.getSpace()->getNDim())
 {
   if (ctxt.getNVar() != 1)
   {
@@ -86,6 +88,7 @@ CovAniso::CovAniso(const ECov &type,
 CovAniso::CovAniso(const CovAniso &r)
     :
     ACov(r),
+    ASerializable(r),
     _ctxt(r._ctxt),
     _cova(CovFactory::duplicateCovFunc(*r._cova)),
     _sill(r._sill),
@@ -98,6 +101,7 @@ CovAniso& CovAniso::operator=(const CovAniso &r)
   if (this != &r)
   {
     ACov::operator =(r);
+    ASerializable::operator =(r);
     _ctxt = r._ctxt;
     _cova = CovFactory::duplicateCovFunc(*r._cova);
     _sill = r._sill;
@@ -928,3 +932,91 @@ Array CovAniso::evalCovFFT(const VectorDouble& hmax,
 
   return evalCovFFTSpatial(hmax, N, funcSpectrum) ;
 }
+
+bool CovAniso::_deserialize(std::istream& is, bool /*verbose*/)
+{
+  bool ret = true;
+  int flag_aniso = 0;
+  int flag_rotation = 0;
+  int type;
+  double range;
+  double param;
+  VectorDouble aniso_ranges;
+  VectorDouble aniso_rotmat;
+
+  int ndim = getDimensionNumber(); // TODO Il faut parer cette betise
+
+  ret = ret && _recordRead<int>(is, "Covariance Type", type);
+  ret = ret && _recordRead<double>(is, "Isotropic Range", range);
+  ret = ret && _recordRead<double>(is, "Model third Parameter", param);
+  ret = ret && _recordRead(is, "Flag for Anisotropy", flag_aniso);
+  if (! ret) return ret;
+  if (flag_aniso)
+  {
+    aniso_ranges.resize(ndim);
+    // In fact, the file contains the anisotropy coefficients
+    // After reading, we must turn them into anisotropic ranges
+    for (int idim = 0; idim < ndim; idim++)
+      ret = ret && _recordRead<double>(is, "Anisotropy coefficient", aniso_ranges[idim]);
+    if (! ret) return ret;
+    for (int idim = 0; idim < ndim; idim++)
+      aniso_ranges[idim] *= range;
+
+    ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+    if (! ret) return ret;
+    if (flag_rotation)
+    {
+      // Warning: the storage in the File is performed by column
+      // whereas the internal storage is by column (TODO : ???)
+      aniso_rotmat.resize(ndim * ndim);
+      int lec = 0;
+      for (int idim = 0; ret && idim < ndim; idim++)
+        for (int jdim = 0; ret && jdim < ndim; jdim++)
+          ret = ret && _recordRead<double>(is, "Anisotropy Rotation Matrix", aniso_rotmat[lec++]);
+    }
+  }
+  if (! ret) return ret;
+
+  CovAniso cova(ECov::fromValue(type), _ctxt);
+  cova.setParam(param);
+  if (flag_aniso)
+  {
+    cova.setRanges(aniso_ranges);
+    if (flag_rotation) setAnisoRotation(aniso_rotmat);
+  }
+  else
+    cova.setRange(range);
+  return ret;
+}
+
+bool CovAniso::_serialize(std::ostream& os, bool /*verbose*/) const
+{
+  bool ret = true;
+  ret = ret && _recordWrite<int>(os, "", getType().getValue());
+  ret = ret && _recordWrite<double>(os, "", getRange());
+  ret = ret && _recordWrite<double>(os, "Covariance characteristics", getParam());
+
+  // Writing the Anisotropy information
+
+  ret = ret && _recordWrite<int>(os, "Anisotropy Flag", getFlagAniso());
+
+  if (getFlagAniso())
+  {
+    for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
+      ret = ret && _recordWrite<double>(os, "", getAnisoCoeffs(idim));
+    ret = ret && _commentWrite(os, "Anisotropy Coefficients");
+    ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
+
+    if (getFlagRotation())
+    {
+      // Storing the rotation matrix by Column (compatibility)
+      for (int idim = 0; ret && idim < getDimensionNumber(); idim++)
+        for (int jdim = 0; ret && jdim < getDimensionNumber(); jdim++)
+          ret = ret && _recordWrite<double>(os, "", getAnisoRotMat(jdim, idim));
+      ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
+    }
+  }
+
+  return ret;
+}
+

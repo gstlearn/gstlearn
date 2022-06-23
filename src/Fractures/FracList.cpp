@@ -11,10 +11,9 @@
 #include "geoslib_old_f.h"
 
 #include "Fractures/FracList.hpp"
-#include "Fractures/Description.hpp"
+#include "Fractures/FracDesc.hpp"
 #include "Fractures/Environ.hpp"
 #include "Fractures/Family.hpp"
-#include "Fractures/Fault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Geometry.hpp"
@@ -24,6 +23,7 @@
 #include "Db/Db.hpp"
 
 #include <math.h>
+#include "../../include/Fractures/FracFault.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw,i)          (well[2*(iw) + (i)])
@@ -382,7 +382,7 @@ void FracList::_manage(int mode)
 
     case 1:
       _descs.resize(number + 1);
-      _descs[number] = Description();
+      _descs[number] = FracDesc();
       break;
 
     case -1:
@@ -424,7 +424,7 @@ int FracList::_fracAdd(int ifrac,
 
   /* Set the attributes of the new segment */
 
-  Description& desc = _descs[ifrac];
+  FracDesc& desc = _descs[ifrac];
 
   if (desc.getNPoint() == 0)
   {
@@ -455,7 +455,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
   double xd2, yd2, xe2, ye2, x, y;
 
   if (! _flagCheck) return;
-  Description& desc = _descs[ifrac0];
+  FracDesc& desc = _descs[ifrac0];
   int npoint = desc.getNPoint();
   double xd1 = desc.getXXF(npoint - 2);
   double yd1 = desc.getYYF(npoint - 2);
@@ -467,7 +467,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
     if (ifrac == ifrac0) continue;
-    Description& desc2 = _descs[ifrac];
+    FracDesc& desc2 = _descs[ifrac];
 
     /* Look for the segment belonging to the current layer */
 
@@ -500,7 +500,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
  ** \param[in]  ye           Ordinate of the second end-point
  **
  *****************************************************************************/
-bool FracList::_belongToLayer(const Description& desc,
+bool FracList::_belongToLayer(const FracDesc& desc,
                               double cote,
                               double *xd,
                               double *yd,
@@ -577,7 +577,7 @@ void FracList::_generateDensity(const Environ& environ,
       double value = 0.;
       for (int ifault = 0; ifault < environ.getNFaults(); ifault++)
       {
-        const Fault& fault = environ.getFault(ifault);
+        const FracFault& fault = environ.getFault(ifault);
         if (! _sameFaultSide(environ, ifault, x0)) continue;
 
         /* Left side */
@@ -625,7 +625,7 @@ void FracList::_correctDensity(const Family& family,
 
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
-    Description& desc = _descs[ifrac];
+    FracDesc& desc = _descs[ifrac];
     if (desc.getFamily() >= ifam + 1) continue;
 
     /* Loop on the segments of the fault */
@@ -691,7 +691,7 @@ double FracList::_extendFractures(const Family& family,
   int ntotal = 0;
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
-    const Description& desc = _descs[ifrac];
+    const FracDesc& desc = _descs[ifrac];
     int npoint = desc.getNPoint();
     if (desc.getFamily() != ifam + 1) continue;
     if (ABS(desc.getYYF(npoint-1) - cote) > _eps) continue;
@@ -770,7 +770,7 @@ bool FracList::_sameFaultSide(const Environ& environ,
  ** \remarks The density shape function is analoguous to the Cubic Covariance
  **
  *****************************************************************************/
-double FracList::_densityUpdate(const Fault& fault,
+double FracList::_densityUpdate(const FracFault& fault,
                                 int side,
                                 int ifam,
                                 double cote,
@@ -888,7 +888,7 @@ void FracList::_updateRepulsion(double x0,
  **
  *****************************************************************************/
 bool FracList::_fractureInterrupt(const Family& family,
-                                  const Description& desc,
+                                  const FracDesc& desc,
                                   double thick)
 {
   /* Constant probability */
@@ -921,7 +921,7 @@ bool FracList::_fractureInterrupt(const Family& family,
  ** \param[in]  cote   Ordinate of the fracture starting point
  **
  *****************************************************************************/
-double FracList::_faultAbscissae(const Fault& fault, double cote)
+double FracList::_faultAbscissae(const FracFault& fault, double cote)
 {
   return (fault.getCoord() + cote * tan(ut_deg2rad(fault.getOrient())));
 }
@@ -958,7 +958,7 @@ double FracList::_cubic(double h)
  ** \param[in]  dcote        Tolerance on the layer elevation
  **
  *****************************************************************************/
-double FracList::_fractureExtension(const Description& desc,
+double FracList::_fractureExtension(const FracDesc& desc,
                                     double cote,
                                     double dcote)
 {
@@ -1169,11 +1169,11 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
 
     if (flag_new || icur < 0)
     {
-      Description desc = Description();
+      FracDesc desc = FracDesc();
       frac_list->addDescription(desc);
       icur = frac_list->getNFracs() - 1;
     }
-    Description& desc = frac_list->getDescs(icur);
+    FracDesc& desc = frac_list->getDescs(icur);
     desc.setFamily(ifam);
     desc.setOrient(orient);
     desc.addPoint(xx, yy);
@@ -1242,7 +1242,7 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
 
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
-    Description &desc = _descs[ifrac];
+    FracDesc &desc = _descs[ifrac];
 
     /* Loop on the segments */
 
@@ -1358,7 +1358,7 @@ VectorDouble FracList::fractureToWell(int nval,
 
     for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
     {
-      Description& desc = _descs[ifrac];
+      FracDesc& desc = _descs[ifrac];
       int ifam = desc.getFamily();
       int npoint = desc.getNPoint();
 
@@ -1448,7 +1448,7 @@ VectorDouble FracList::fractureExtractLength(int ifam,
   int ecr = 0;
   for (int i = 0; i < getNFracs(); i++)
   {
-    Description& desc = _descs[i];
+    FracDesc& desc = _descs[i];
 
     /* Selection according to the family criterion */
 
@@ -1489,7 +1489,7 @@ VectorDouble FracList::fractureExtractDist(int ifam, double cote, double dcote)
   int ecr = 0;
   for (int i = 0; i < getNFracs(); i++)
   {
-    Description& desc = _descs[i];
+    FracDesc& desc = _descs[i];
     int npoint = desc.getNPoint();
 
     /* Loop on the end points */
@@ -1638,7 +1638,7 @@ int FracList::fractureWellToBlock(DbGrid *dbgrid,
       continue;
     }
 
-    Description &desc = _descs[ifrac];
+    FracDesc &desc = _descs[ifrac];
     if (ip < 0 || ip >= desc.getNPoint())
     {
       messerr("The well information (line %d/%d) is invalid:", iw + 1, nw_xy);

@@ -30,6 +30,10 @@ public:
   ASerializable& operator=(const ASerializable& r);
   virtual ~ASerializable();
 
+  bool deserialize(std::istream& is, bool verbose = false);
+  bool serialize(std::ostream& os,bool verbose = false) const;
+  bool dumpToNF(const String& neutralFilename, bool verbose = false) const;
+
   static String buildFileName(const String& filename, bool ensureDirExist = false);
 
   static String getHomeDirectory(const String& sub = "");
@@ -51,8 +55,9 @@ public:
   static String getDirectory(const String& path);
 
 protected:
-  virtual int _deserialize(std::istream& s, bool verbose = false) = 0;
-  virtual int _serialize(std::ostream& s,bool verbose = false) const = 0;
+  virtual bool _deserialize(std::istream& s, bool verbose = false) = 0;
+  virtual bool _serialize(std::ostream& s,bool verbose = false) const = 0;
+  virtual String _getNFName() const = 0;
 
   static bool _fileOpenWrite(const String& filename,
                               const String& filetype,
@@ -82,7 +87,7 @@ protected:
   static bool _recordReadVec(std::istream& is,
                               const String& title,
                               std::vector<T>& vec,
-                              int nvalues = -1);
+                              int nvalues);
 
   static bool _onlyBlanks(char *string);
 
@@ -187,7 +192,7 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
       }
     }
   }
-  return is.good();
+  return true;
 }
 
 template <typename T>
@@ -243,14 +248,11 @@ bool ASerializable::_recordReadVec(std::istream& is,
     }
   }
 
-  if (nvalues > 0)
+  if (nvalues != (int) vec.size())
   {
-    if (nvalues != (int) vec.size())
-    {
-      messerr("Reading was expecting %d terms. %d found",nvalues, (int) vec.size());
-      vec.clear();
-      return false;
-    }
+    messerr("Reading was expecting %d terms. %d found", nvalues,(int) vec.size());
+    vec.clear();
+    return false;
   }
-  return is.good();
+  return true;
 }

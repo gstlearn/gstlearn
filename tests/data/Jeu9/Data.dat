@@ -1,5 +1,6 @@
 Db 
 3 # Number of variables
+10 # Number of samples
 # Locators
 x1 x2 z1 
 # Names

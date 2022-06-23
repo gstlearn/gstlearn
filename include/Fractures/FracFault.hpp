@@ -15,20 +15,16 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT Fault: public AStringable, public ASerializable
+class GSTLEARN_EXPORT FracFault: public AStringable, public ASerializable
 {
 public:
-  Fault(double coord = 0., double orient = 0.);
-  Fault(const Fault& r);
-  Fault& operator=(const Fault& r);
-  virtual ~Fault();
+  FracFault(double coord = 0., double orient = 0.);
+  FracFault(const FracFault& r);
+  FracFault& operator=(const FracFault& r);
+  virtual ~FracFault();
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// Interface for ASerializable
-  int _deserialize(std::istream& is, bool verbose = false) override;
-  int _serialize(std::ostream& os,bool verbose = false) const override;
 
   double getCoord() const { return _coord; }
   double getOrient() const { return _orient; }
@@ -53,6 +49,12 @@ public:
   void setRanger(const VectorDouble& ranger) { _ranger = ranger; }
   void setThetal(const VectorDouble& thetal) { _thetal = thetal; }
   void setThetar(const VectorDouble& thetar) { _thetar = thetar; }
+
+protected:
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os,bool verbose = false) const override;
+  String _getNFName() const override { return "FracFault"; }
 
 private:
   double _coord;                //!< Abscissas of the first Fault point

@@ -1,5 +1,6 @@
 Db 
 5 # Number of variables
+5 # Number of samples
 # Locators
 x1 x2 z1 g1 g2 
 # Names

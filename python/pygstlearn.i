@@ -132,10 +132,10 @@ void exit_f(void)
 %extend ProjMatrix {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend PolyLine {
+%extend Environ {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend Environ {
+%extend Line2D {
   std::string __repr__() {  return $self->toString(); }
 }
 

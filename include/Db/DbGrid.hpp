@@ -54,10 +54,8 @@ public:
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
 
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const override;
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = false);
-
   int reset(const VectorInt& nx,
             const VectorDouble& dx = VectorDouble(),
             const VectorDouble& x0 = VectorDouble(),
@@ -172,8 +170,10 @@ public:
                            bool useSel = false) const;
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose = false) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "DbGrid"; }
 
 private:
   void _createCoordinatesGrid(int icol0);

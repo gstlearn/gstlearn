@@ -43,7 +43,6 @@ public:
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
 
   /// ASerializable Interface
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AnamContinuous Interface
@@ -94,9 +93,10 @@ public:
                 VectorInt& qt_vars);
 
 protected:
-  /// ASerializable Interface
-  virtual int _deserialize(std::istream& is, bool verbose) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "AnamHermite"; }
 
 private:
   bool _isIndexValid(int i) const;

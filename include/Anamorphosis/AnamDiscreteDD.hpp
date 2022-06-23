@@ -31,7 +31,6 @@ public:
   virtual ~AnamDiscreteDD();
 
   /// ASerializable Interface
-  int dumpToNF(const String& neutralFilename, bool verbose = false) const;
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
@@ -92,8 +91,10 @@ public:
                 VectorInt& qt_vars);
 
 protected:
-  virtual int _deserialize(std::istream& is, bool verbose) override;
-  virtual int _serialize(std::ostream& os, bool verbose = false) const override;
+  /// Interface for ASerializable
+  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
+  String _getNFName() const override { return "AnamDiscreteDD"; }
 
 private:
   int _stats(int nech, const VectorDouble& tab);

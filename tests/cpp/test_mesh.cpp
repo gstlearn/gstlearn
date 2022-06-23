@@ -95,12 +95,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   double range = 5.;
   double param = 1.;
-  VectorDouble sill = { 2. };
-  CovContext ctxt(1, ndim);
-  Model* model = new Model(ctxt);
-  if (model_add_cova(model,ECov::BESSEL_K,0,0,range,param,
-                     VectorDouble(),VectorDouble(),sill,0.))
-    messageAbort("Definition of the Model");
+  double sill  = 2.;
+  Model* model = Model::createFromParam(ECov::BESSEL_K, range, sill, param);
 
   /* Define the Grid Db */
 
@@ -133,7 +129,7 @@ int main(int /*argc*/, char */*argv*/[])
                                     apices, meshes, verbose);
     if (meshb == nullptr) return(1);
     meshb->display();
-    (void) meshb->dumpToNF("Standard.ascii",verbose);
+    (void) meshb->dumpToNF("Standard.bis.ascii",verbose);
   }
 
   /* Instantiate the ShiftOp */
