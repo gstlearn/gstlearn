@@ -15,21 +15,21 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT Line2D : public AStringable, public ASerializable
+class GSTLEARN_EXPORT PolyLine2D : public AStringable, public ASerializable
 {
 public:
-  Line2D(const VectorDouble& x = VectorDouble(),
-         const VectorDouble& y = VectorDouble());
-  Line2D(const Line2D &m);
-  Line2D& operator=(const Line2D &m);
-  virtual ~Line2D();
+  PolyLine2D(const VectorDouble& x = VectorDouble(),
+             const VectorDouble& y = VectorDouble());
+  PolyLine2D(const PolyLine2D &m);
+  PolyLine2D& operator=(const PolyLine2D &m);
+  virtual ~PolyLine2D();
 
   /// Interface of AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static Line2D* createFromNF(const String& neutralFilename,
+  static PolyLine2D* createFromNF(const String& neutralFilename,
                               bool verbose = false);
-  static Line2D* create(const VectorDouble& x = VectorDouble(),
+  static PolyLine2D* create(const VectorDouble& x = VectorDouble(),
                         const VectorDouble& y = VectorDouble());
 
   int getNPoints() const { return (int) _x.size(); }
@@ -48,7 +48,7 @@ protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
-  String _getNFName() const override { return "Line2D"; }
+  String _getNFName() const override { return "PolyLine2D"; }
 
 private:
   VectorDouble _x;

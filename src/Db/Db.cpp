@@ -3897,7 +3897,6 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
   ret = ret && _recordWriteVec<String>(os, "Locators", locators);
   ret = ret && _recordWriteVec<String>(os, "Names", names);
   ret = ret && _commentWrite(os, "Array of values");
-  VectorInt uids = getAllUIDs();
   for (int iech = 0; ret && iech < getSampleNumber(); iech++)
   {
     VectorDouble vals = getArrayBySample(iech);
@@ -3924,7 +3923,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
 
-  while (ret && (nech < nrow))
+  for (int iech = 0; iech < nrow; iech++)
   {
     ret = ret && _recordReadVec<double>(is, "Array of values", values, ncol);
     if (ret)
@@ -3954,6 +3953,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
 
   // Load the values
   _loadData(ELoadBy::SAMPLE, 0, allvalues);
+
   // Update the column names and locators
   for (int i = 0; i < ncol; i++)
   {

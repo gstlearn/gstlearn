@@ -3736,10 +3736,10 @@ int db_compositional_transform(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db      Db structure
- ** \param[in]  polyline Line2D structure
+ ** \param[in]  polyline PolyLine2D structure
  **
  *****************************************************************************/
-int db_unfold_polyline(Db *db, const Line2D& polyline)
+int db_unfold_polyline(Db *db, const PolyLine2D& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, newx, newy;
@@ -3811,14 +3811,14 @@ int db_unfold_polyline(Db *db, const Line2D& polyline)
  ** \param[in]  dbout   Output Db structure
  ** \param[in]  ncol    Number of target variables
  ** \param[in]  cols    Ranks of the target variables
- ** \param[in]  polyline Line2D structure
+ ** \param[in]  polyline PolyLine2D structure
 
  *****************************************************************************/
 int db_fold_polyline(DbGrid *dbin,
                      Db *dbout,
                      int ncol,
                      int *cols,
-                     const Line2D& polyline)
+                     const PolyLine2D& polyline)
 {
   PL_Dist *pldist, *pldist0;
   double xx, yy, value;
@@ -3845,7 +3845,7 @@ int db_fold_polyline(DbGrid *dbin,
   }
   if (nvert <= 1)
   {
-    messerr("This function requires a Line2D with at least one segment");
+    messerr("This function requires a PolyLine2D with at least one segment");
     goto label_end;
   }
 
@@ -5713,7 +5713,7 @@ int db_polygon_distance(Db *db,
     for (int iech = 0; iech < nech; iech++)
     {
       if (!db->isActive(iech)) continue;
-      Line2D polyline(polyset.getX(), polyset.getY());
+      PolyLine2D polyline(polyset.getX(), polyset.getY());
       distance_point_to_polyline(db->getCoordinate(iech, 0),
                                  db->getCoordinate(iech, 1),
                                  polyline, pldist);

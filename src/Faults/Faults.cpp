@@ -75,7 +75,7 @@ bool Faults::_deserialize(std::istream& is, bool verbose)
 
   for (int i = 0; ret && i < nfaults; i++)
   {
-    Line2D fault;
+    PolyLine2D fault;
     ret = ret && fault.deserialize(is, verbose);
     addFault(fault);
   }
@@ -100,7 +100,7 @@ Faults* Faults::createFromNF(const String& neutralFilename, bool verbose)
   return faults;
 }
 
-void Faults::addFault(const Line2D& fault)
+void Faults::addFault(const PolyLine2D& fault)
 {
   _faults.push_back(fault);
 }

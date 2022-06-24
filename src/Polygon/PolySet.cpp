@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Basic/PolyLine2D.hpp>
 #include "Polygon/PolySet.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Line2D.hpp"
 #include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 
@@ -19,7 +19,7 @@ PolySet::PolySet(const VectorDouble& x,
                  const VectorDouble& y,
                  double zmin,
                  double zmax)
-    : Line2D(x, y),
+    : PolyLine2D(x, y),
       _zmin(TEST),
       _zmax(TEST)
 {
@@ -27,7 +27,7 @@ PolySet::PolySet(const VectorDouble& x,
 }
 
 PolySet::PolySet(const PolySet& r)
-    : Line2D(r),
+    : PolyLine2D(r),
       _zmin(r._zmin),
       _zmax(r._zmax)
 {
@@ -37,7 +37,7 @@ PolySet& PolySet::operator=(const PolySet& r)
 {
   if (this != &r)
   {
-    Line2D::operator=(r);
+    PolyLine2D::operator=(r);
     _zmin = r._zmin;
     _zmax = r._zmax;
   }
@@ -53,7 +53,7 @@ void PolySet::init(const VectorDouble& x,
                    double zmin,
                    double zmax)
 {
-  Line2D::init(x,y);
+  PolyLine2D::init(x,y);
 
   _zmin  = zmin;
   _zmax  = zmax;
@@ -63,7 +63,7 @@ String PolySet::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-  sstr << Line2D::toString(strfmt);
+  sstr << PolyLine2D::toString(strfmt);
 
   if (!FFFF(_zmin) || !FFFF(_zmax)) sstr << toInterval(_zmin, _zmax);
 
@@ -117,7 +117,7 @@ bool PolySet::_serialize(std::ostream& os, bool verbose) const
   bool ret = true;
   ret = ret && _recordWrite<double>(os, "Z-Minimum", _zmin);
   ret = ret && _recordWrite<double>(os, "Z-Maximum", _zmax);
-  ret = ret && Line2D::_serialize(os, verbose);
+  ret = ret && PolyLine2D::_serialize(os, verbose);
   return ret;
 }
 
@@ -128,7 +128,7 @@ bool PolySet::_deserialize(std::istream& is, bool verbose)
   bool ret = true;
   ret = ret && _recordRead<double>(is, "Z-Minimum", _zmin);
   ret = ret && _recordRead<double>(is, "Z-Maximum", _zmax);
-  ret = ret && Line2D::_deserialize(is, verbose);
+  ret = ret && PolyLine2D::_deserialize(is, verbose);
   return ret;
 }
 

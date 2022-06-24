@@ -4717,10 +4717,7 @@ int calculateHermiteFactors(Db *db,
       db->setArray(iech, iptr + ih, hn[ih + 1]);
   }
 
-  /* Set the newly created variables to Z locator */
-  db->setLocatorsByUID(nfactor, iptr, ELoc::Z);
-
-  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, "Hn");
+  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, String(), nfactor);
 
   return 0;
 }
@@ -7108,6 +7105,7 @@ int dk(Db* dbin,
 
   /* Set the error return flag */
 
+  dbgrid->display();
   namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_std, "stdev", 1,
                               false);
   namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_est, "estim");

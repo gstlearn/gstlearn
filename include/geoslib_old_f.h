@@ -20,12 +20,12 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-#include "Basic/Line2D.hpp"
 #include "Db/ELoc.hpp"
 #include "LithoRule/EProcessOper.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
 #include "Anamorphosis/EAnam.hpp"
+#include "Basic/PolyLine2D.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
@@ -197,24 +197,24 @@ GSTLEARN_EXPORT PL_Dist* pldist_manage(int mode,
                                        int nvert);
 GSTLEARN_EXPORT void distance_point_to_polyline(double x0,
                                                 double y0,
-                                                const Line2D& polyline,
+                                                const PolyLine2D& polyline,
                                                 PL_Dist *pldist);
 GSTLEARN_EXPORT double distance_along_polyline(PL_Dist *pldist1,
                                                PL_Dist *pldist2,
-                                               const Line2D& polyline);
+                                               const PolyLine2D& polyline);
 GSTLEARN_EXPORT double distance_points_to_polyline(double ap,
                                                    double al,
                                                    double x1,
                                                    double y1,
                                                    double x2,
                                                    double y2,
-                                                   const Line2D& polyline);
-GSTLEARN_EXPORT int db_unfold_polyline(Db *db, const Line2D& polyline);
+                                                   const PolyLine2D& polyline);
+GSTLEARN_EXPORT int db_unfold_polyline(Db *db, const PolyLine2D& polyline);
 GSTLEARN_EXPORT int db_fold_polyline(DbGrid *dbin,
                                      Db *dbout,
                                      int ncol,
                                      int *cols,
-                                     const Line2D& polyline);
+                                     const PolyLine2D& polyline);
 GSTLEARN_EXPORT double ut_distance(int ndim, double *tab1, double *tab2);
 GSTLEARN_EXPORT void ut_distance_allocated(int ndim,
                                            double **tab1,

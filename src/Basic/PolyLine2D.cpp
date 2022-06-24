@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Basic/PolyLine2D.hpp"
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
-#include "Basic/Line2D.hpp"
 
-Line2D::Line2D(const VectorDouble& x,
+PolyLine2D::PolyLine2D(const VectorDouble& x,
                const VectorDouble& y)
     : AStringable(),
       ASerializable(),
@@ -27,7 +27,7 @@ Line2D::Line2D(const VectorDouble& x,
   }
 }
 
-Line2D::Line2D(const Line2D &m)
+PolyLine2D::PolyLine2D(const PolyLine2D &m)
     : AStringable(m),
       ASerializable(m),
       _x(m._x),
@@ -36,7 +36,7 @@ Line2D::Line2D(const Line2D &m)
 
 }
 
-Line2D& Line2D::operator=(const Line2D &m)
+PolyLine2D& PolyLine2D::operator=(const PolyLine2D &m)
 {
   if (this != &m)
   {
@@ -48,17 +48,17 @@ Line2D& Line2D::operator=(const Line2D &m)
   return *this;
 }
 
-Line2D::~Line2D()
+PolyLine2D::~PolyLine2D()
 {
 
 }
 
-Line2D* Line2D::create(const VectorDouble& x, const VectorDouble& y)
+PolyLine2D* PolyLine2D::create(const VectorDouble& x, const VectorDouble& y)
 {
-  return new Line2D(x, y);
+  return new PolyLine2D(x, y);
 }
 
-String Line2D::toString(const AStringFormat* /*strfmt*/) const
+String PolyLine2D::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -75,11 +75,11 @@ String Line2D::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
+PolyLine2D* PolyLine2D::createFromNF(const String& neutralFilename, bool verbose)
 {
-  Line2D* line2D = nullptr;
+  PolyLine2D* line2D = nullptr;
   std::ifstream is;
-  line2D = new Line2D();
+  line2D = new PolyLine2D();
   bool success = false;
   if (line2D->_fileOpenRead(neutralFilename, is, verbose))
   {
@@ -93,27 +93,27 @@ Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
   return line2D;
 }
 
-bool Line2D::_serialize(std::ostream& os, bool /*verbose*/) const
+bool PolyLine2D::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Number of Points", (int) _x.size());
-  ret = ret && _recordWriteVec<double>(os, "X-Coordinates of Line2D", _x);
-  ret = ret && _recordWriteVec<double>(os, "Y-Coordinates of Line2D", _y);
+  ret = ret && _recordWriteVec<double>(os, "X-Coordinates of PolyLine2D", _x);
+  ret = ret && _recordWriteVec<double>(os, "Y-Coordinates of PolyLine2D", _y);
   return ret;
 }
 
-bool Line2D::_deserialize(std::istream& is, bool /*verbose*/)
+bool PolyLine2D::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int np;
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of Points", np);
-  ret = ret && _recordReadVec<double>(is, "X-Coordinates of Line2D", _x, np);
-  ret = ret && _recordReadVec<double>(is, "Y-Coordinates of Line2D", _y, np);
+  ret = ret && _recordReadVec<double>(is, "X-Coordinates of PolyLine2D", _x, np);
+  ret = ret && _recordReadVec<double>(is, "Y-Coordinates of PolyLine2D", _y, np);
   return ret;
 }
 
-void Line2D::init(const VectorDouble& x, const VectorDouble& y)
+void PolyLine2D::init(const VectorDouble& x, const VectorDouble& y)
 {
   int nvert = static_cast<int> (x.size());
 
@@ -131,7 +131,7 @@ void Line2D::init(const VectorDouble& x, const VectorDouble& y)
   }
 }
 
-void Line2D::addPoint(double x, double y)
+void PolyLine2D::addPoint(double x, double y)
 {
   int n = getNPoints();
   _x.resize(n+1);

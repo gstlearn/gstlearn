@@ -135,7 +135,7 @@ void exit_f(void)
 %extend FracEnviron {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend Line2D {
+%extend PolyLine2D {
   std::string __repr__() {  return $self->toString(); }
 }
 

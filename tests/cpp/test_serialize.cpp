@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Basic/PolyLine2D.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -17,7 +18,6 @@
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Line2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -177,20 +177,20 @@ int main(int /*argc*/, char */*argv*/[])
   rule2->display();
 
   // ======================
-  // Checking Line2D
+  // Checking PolyLine2D
   // ======================
 
   int npolyline = 100;
   VectorDouble xpolyline = ut_vector_simulate_gaussian(npolyline);
   VectorDouble ypolyline = ut_vector_simulate_gaussian(npolyline);
-  Line2D* polyline = new Line2D(xpolyline, ypolyline);
+  PolyLine2D* polyline = new PolyLine2D(xpolyline, ypolyline);
   polyline->display();
 
   // Serialize
   (void) polyline->dumpToNF("Neutral.Polyline.ascii", verbose);
 
   // Deserialize
-  Line2D* polyline2 = Line2D::createFromNF("Neutral.Polyline.ascii", verbose);
+  PolyLine2D* polyline2 = PolyLine2D::createFromNF("Neutral.Polyline.ascii", verbose);
   polyline2->display();
 
   delete db1;

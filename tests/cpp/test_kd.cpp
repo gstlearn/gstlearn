@@ -121,7 +121,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   DbGrid* grid_res  = nullptr;
   Db* data_res      = nullptr;
@@ -177,6 +177,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nfactor = 5;
   // Estimate Hermite polynomials at Data locations
   (void) calculateHermiteFactors(data, nfactor);
+  data->display();
   model->addAnam(anam);
   dk(data, grid_res, model, neighM);
   grid_res->display(&dbfmtKriging);

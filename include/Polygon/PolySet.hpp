@@ -11,11 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Line2D.hpp"
+
+#include "../Basic/PolyLine2D.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT PolySet: public Line2D
+class GSTLEARN_EXPORT PolySet: public PolyLine2D
 {
 public:
   PolySet(const VectorDouble& x = VectorDouble(),
@@ -30,10 +31,10 @@ public:
 
   static PolySet* create();
   static PolySet* createFromNF(const String& neutralFilename, bool verbose);
-  const VectorDouble& getX() const { return Line2D::getX(); }
-  const VectorDouble& getY() const { return Line2D::getY(); }
-  double getX(int i) const { return Line2D::getX(i); }
-  double getY(int i) const { return Line2D::getY(i); }
+  const VectorDouble& getX() const { return PolyLine2D::getX(); }
+  const VectorDouble& getY() const { return PolyLine2D::getY(); }
+  double getX(int i) const { return PolyLine2D::getX(i); }
+  double getY(int i) const { return PolyLine2D::getY(i); }
   double getZmax() const { return _zmax; }
   double getZmin() const { return _zmin; }
 

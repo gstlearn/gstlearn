@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "../Basic/PolyLine2D.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Line2D.hpp"
 
 class GSTLEARN_EXPORT Faults: public AStringable, public ASerializable
 {
@@ -27,7 +28,7 @@ public:
 
   static Faults* createFromNF(const String& neutralFilename, bool verbose = false);
   int getNFaults() const { return (int) _faults.size(); }
-  void addFault(const Line2D& fault);
+  void addFault(const PolyLine2D& fault);
 
 protected:
   /// Interface for ASerializable
@@ -36,5 +37,5 @@ protected:
   String _getNFName() const override { return "Faults"; }
 
 private:
-  std::vector<Line2D> _faults;
+  std::vector<PolyLine2D> _faults;
 };

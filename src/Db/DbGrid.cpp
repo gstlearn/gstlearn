@@ -457,9 +457,9 @@ int DbGrid::getNDim() const
   return (_grid.getNDim());
 }
 
-bool DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
+bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
-  int ndim, ntot, nech, i, ncol, nsample;
+  int ndim = 0;
   VectorInt nx;
   VectorString locators;
   VectorString names;
@@ -471,11 +471,7 @@ bool DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
 
   /* Initializations */
 
-  ndim = nech = ntot = ncol = 0;
   bool ret = true;
-
-  /* Decoding the header */
-
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
 
   /* Core allocation */
@@ -494,66 +490,11 @@ bool DbGrid::_deserialize(std::istream& is, bool /*verbose*/)
     ret = ret && _recordRead<double>(is, "Grid Mesh", dx[idim]);
     ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
   }
-  ntot = ut_vector_prod(nx);
 
-  ret = ret && _recordRead<int>(is, "Number of variables", ncol);
-  ret = ret && _recordRead<int>(is, "Number of samples", nsample);
-  if (ncol > 0)
-  {
-    ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
-    ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
-  }
+  ret && Db::_deserialize(is, verbose);
 
-  /* Reading the tail of the file */
-
-  while (ret && nech < ntot)
-  {
-    ret = _recordReadVec<double>(is, "", values, ncol);
-    if (ret)
-    {
-      if ((int)values.size() != ncol) return 1;
-      // Concatenate values by samples
-      allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
-                                        std::make_move_iterator(values.end()));
-      nech++;
-    }
-  }
-  ret = (nech == ntot);
-
-  // Decode the locators
-  std::vector<ELoc> tabloc;
-  VectorInt tabnum;
-  int  inum = 0, mult = 0;
-  ELoc iloc;
-  for (auto loc : locators)
-  {
-    if (locatorIdentify(loc, &iloc, &inum, &mult)) return 1;
-    tabloc.push_back(iloc);
-    tabnum.push_back(inum);
-  }
-
-  /* Creating the Db */
-
-  if (ncol > 0 && nech != ntot)
-  {
-    messerr("The number of lines read from the Grid file (%d)", nech);
-    messerr("is not a multiple of the number of samples (%d)", ntot);
-    messerr("The Grid Db is created with no sample attached");
-    ncol = 0;
-  }
-
-  resetDims(ncol, ut_vector_prod(nx));
+  // Create the Grid coordinates
   (void) gridDefine(nx, dx, x0, angles);
-
-  // Load the values
-  _loadData(ELoadBy::SAMPLE, 0, allvalues);
-  // Update the column names and locators
-  if (ncol > 0)
-    for (i = 0; i < ncol; i++)
-    {
-      setNameByUID(i, names[i]);
-      setLocatorByUID(i, tabloc[i], tabnum[i]);
-    }
 
   return ret;
 }
