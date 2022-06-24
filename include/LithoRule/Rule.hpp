@@ -113,7 +113,8 @@ protected:
   /// Interface for ASerializable
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  String _getNFName() const override { return "Rule"; }
+  String _getNFName() const override { return "Rule"; } // TODO To be chamged by next line
+//  String _getNFName() const override { return typeid(this).name(); }
 
   void setMainNodeFromNodNames(const VectorInt& n_type,
                                const VectorInt& n_facs);

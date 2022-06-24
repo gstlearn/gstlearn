@@ -52,8 +52,6 @@ public:
   // Remove all elementary drift structures
   void delAllDrifts();
 
-  const std::vector<ADriftElem*>& getDriftList() const { return _drifts; }
-  void setDrifts(const std::vector<ADriftElem*>& drifts) { _drifts = drifts; }
   void setDriftIRF(int order, int nfex, const CovContext& ctxt);
   const VectorBool& getFiltered() const { return _filtered; }
   void setFiltered(const VectorBool& filtered) { _filtered = filtered; }

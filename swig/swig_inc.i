@@ -290,8 +290,8 @@
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
 
-#include "Fractures/Environ.hpp"
-#include "Fractures/Family.hpp"
+#include "Fractures/FracEnviron.hpp"
+#include "Fractures/FracFamily.hpp"
 #include "Fractures/FracFault.hpp"
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracList.hpp"

@@ -217,15 +217,16 @@ MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool v
 {
   MeshSpherical* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "MeshSpherical", is, verbose))
+  mesh = new MeshSpherical;
+  bool success = false;
+  if (mesh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    mesh = new MeshSpherical;
-    if (! mesh->deserialize(is, verbose))
-    {
-      delete mesh;
-      mesh = nullptr;
-    }
-    is.close();
+    success =  mesh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete mesh;
+    mesh = nullptr;
   }
   return mesh;
 }

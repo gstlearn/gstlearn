@@ -100,15 +100,16 @@ NeighBench* NeighBench::createFromNF(const String& neutralFilename, bool verbose
 {
   NeighBench* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "NeighBench", is, verbose))
+  neigh = new NeighBench();
+  bool success = false;
+  if (neigh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    neigh = new NeighBench();
-    if (! neigh->deserialize(is, verbose))
-    {
-      delete neigh;
-      neigh = nullptr;
-    }
-    is.close();
+    success =  neigh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete neigh;
+    neigh = nullptr;
   }
   return neigh;
 }

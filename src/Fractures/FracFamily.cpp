@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Fractures/Family.hpp"
+#include "../../include/Fractures/FracFamily.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
-Family::Family(double orient,
+FracFamily::FracFamily(double orient,
                double dorient,
                double theta0,
                double alpha,
@@ -37,7 +37,7 @@ Family::Family(double orient,
 {
 }
 
-Family::Family(const Family& r)
+FracFamily::FracFamily(const FracFamily& r)
     : AStringable(r),
       ASerializable(r),
       _orient(r._orient),
@@ -53,7 +53,7 @@ Family::Family(const Family& r)
 {
 }
 
-Family& Family::operator=(const Family& r)
+FracFamily& FracFamily::operator=(const FracFamily& r)
 {
   if (this != &r)
   {
@@ -73,11 +73,11 @@ Family& Family::operator=(const Family& r)
   return *this;
 }
 
-Family::~Family()
+FracFamily::~FracFamily()
 {
 }
 
-String Family::toString(const AStringFormat* /*strfmt*/) const
+String FracFamily::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
@@ -95,7 +95,7 @@ String Family::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-bool Family::_deserialize(std::istream& is, bool /*verbose*/)
+bool FracFamily::_deserialize(std::istream& is, bool /*verbose*/)
 {
   bool ret = true;
   ret = ret && _recordRead<double>(is, "Mean orientation", _orient);
@@ -111,7 +111,7 @@ bool Family::_deserialize(std::istream& is, bool /*verbose*/)
   return ret;
 }
 
-bool Family::_serialize(std::ostream& os, bool /*verbose*/) const
+bool FracFamily::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
   ret = ret && _recordWrite<double>(os, "Mean orientation", _orient);

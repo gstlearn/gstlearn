@@ -66,14 +66,14 @@ void exit_f(void)
   redefine_exit(exit_f);
 %}
 
-%extend SpacePoint {
-  std::string __repr__() {  return $self->toString(); }
-}
 %extend std::vector<double> {
   std::string __repr__() {  return ut_vector_string(*$self); }
 }
 %extend std::vector<int> {
   std::string __repr__() {  return ut_ivector_string(*$self); }
+}
+%extend SpacePoint {
+  std::string __repr__() {  return $self->toString(); }
 }
 %extend Db {
   std::string __repr__() {  return $self->toString(); }
@@ -132,7 +132,7 @@ void exit_f(void)
 %extend ProjMatrix {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend Environ {
+%extend FracEnviron {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Line2D {

@@ -22,7 +22,7 @@
 #define NBYFRAC 7
 #define NBYWOUT 8
 
-class Environ;
+class FracEnviron;
 class DbGrid;
 
 class GSTLEARN_EXPORT FracList: public AStringable
@@ -41,7 +41,7 @@ public:
 
   int getNFracs() const { return (int) _descs.size(); }
 
-  int simulate(const Environ* environ,
+  int simulate(const FracEnviron* environ,
                bool flag_sim_layer,
                bool flag_sim_fract,
                int seed,
@@ -91,7 +91,7 @@ private:
   void setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,getRank(ifam,4),value); }
   double getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
-  VectorDouble _layersManage(const Environ& environ, double *y0);
+  VectorDouble _layersManage(const FracEnviron& environ, double *y0);
   VectorDouble _layersRead(int nlayers_in,
                            const VectorDouble& elevations,
                            double *y0);
@@ -110,26 +110,26 @@ private:
                       double *yd,
                       double *xe,
                       double *ye);
-  double _layerIntensity(const Family& family,
+  double _layerIntensity(const FracFamily& family,
                          double thick);
-  void _generateDensity(const Environ& environ,
-                        const Family& family,
+  void _generateDensity(const FracEnviron& environ,
+                        const FracFamily& family,
                         int ifam,
                         double cote,
                         VectorDouble& denstab);
-  void _correctDensity(const Family& family,
+  void _correctDensity(const FracFamily& family,
                        int ifam,
                        double cote,
                        VectorDouble& denstab);
   double _deriveIntensity(double theta1,
                           double thetap,
                           double propsur);
-  double _extendFractures(const Family& family,
+  double _extendFractures(const FracFamily& family,
                           int ifam,
                           double cote,
                           double thick,
                           VectorDouble& denstab);
-  bool _sameFaultSide(const Environ& environ, int ifault0, double x0);
+  bool _sameFaultSide(const FracEnviron& environ, int ifault0, double x0);
   double _densityUpdate(const FracFault& fault,
                         int side,
                         int ifam,
@@ -140,14 +140,14 @@ private:
                         const VectorDouble& denstab,
                         double *totdens);
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
-  bool _fractureInterrupt(const Family& family,
+  bool _fractureInterrupt(const FracFamily& family,
                           const FracDesc& desc,
                           double thick);
   double _faultAbscissae(const FracFault& fault, double cote);
   double _cubic(double h);
   double _fractureExtension(const FracDesc& desc, double cote, double dcote);
-  int _simulateFractures(const Environ& environ,
-                         const Family& family,
+  int _simulateFractures(const FracEnviron& environ,
+                         const FracFamily& family,
                          int ifam,
                          double cote,
                          double thick,

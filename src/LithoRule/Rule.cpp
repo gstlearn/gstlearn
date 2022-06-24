@@ -1030,16 +1030,17 @@ Rule* Rule::createFromNF(const String& neutralFilename, bool verbose)
 {
   Rule* rule = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Rule", is, verbose))
+  rule = new Rule;
+  bool success = false;
+  if (rule->_fileOpenRead(neutralFilename, is, verbose))
   {
-    rule = new Rule();
     rule->setModeRule(ERule::STD);
-    if (! rule->deserialize(is, verbose))
-    {
-      delete rule;
-      rule = nullptr;
-    }
-    is.close();
+    success = rule->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete rule;
+    rule = nullptr;
   }
   return rule;
 }

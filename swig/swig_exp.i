@@ -34,29 +34,12 @@ class IClonable{};
 %template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
 %template(VectorDirection)      std::vector<TurningDirection>;
-%template(VectorDrft)           std::vector<Drift*>;
 %template(VectorLocal_Split)    std::vector<Local_Split*>;
 %template(VectorPolySet)        std::vector<PolySet*>;
 %template(VectorQChol)          std::vector<QChol*>;
 %template(VectorSPDE_SS_Option) std::vector<SPDE_SS_Option*>;
 %template(VectorSubPlan)        std::vector<SubPlan*>;
 %template(VectorIntervals)      std::vector<Interval*>;
-
-
-//%include "numpy.i"
-
-//%init %{
-//import_array();
-//%}
-
-
-//%apply (double IN_ARRAY1[ANY]){(VectorDouble(ANY))};
-//%apply (double IN_ARRAY2[ANY][ANY){(VectorVectorDouble(ANY))};
-
-
-//%apply (double IN_ARRAY2[ANY][ANY]){(AMatrix(ANY,ANY))};
-//%apply (double IN_ARRAY2[ANY][ANY]){(MatrixSquareGeneral(ANY,ANY))};
-
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
@@ -346,8 +329,8 @@ class IClonable{};
 %include Simulation/SimuRefineParam.hpp
 %include Simulation/SimuRefine.hpp
 
-%include Fractures/Environ.hpp
-%include Fractures/Family.hpp
+%include Fractures/FracEnviron.hpp
+%include Fractures/FracFamily.hpp
 %include Fractures/FracFault.hpp
 %include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp

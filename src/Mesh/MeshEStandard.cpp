@@ -475,15 +475,16 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
 {
   MeshEStandard* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "MeshEStandard", is, verbose))
+  mesh = new MeshEStandard;
+  bool success = false;
+  if (mesh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    mesh = new MeshEStandard;
-    if (! mesh->deserialize(is, verbose))
-    {
-      delete mesh;
-      mesh = nullptr;
-    }
-    is.close();
+    success =  mesh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete mesh;
+    mesh = nullptr;
   }
   return mesh;
 }

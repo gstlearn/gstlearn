@@ -124,15 +124,16 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
 {
   NeighImage* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "NeighImage", is, verbose))
+  neigh = new NeighImage();
+  bool success = false;
+  if (neigh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    neigh = new NeighImage();
-    if (! neigh->deserialize(is, verbose))
-    {
-      delete neigh;
-      neigh = nullptr;
-    }
-    is.close();
+    success =  neigh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete neigh;
+    neigh = nullptr;
   }
   return neigh;
 }

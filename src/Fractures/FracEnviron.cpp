@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Fractures/Environ.hpp"
+#include "../../include/Fractures/FracEnviron.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
-Environ::Environ(double xmax,
+FracEnviron::FracEnviron(double xmax,
                  double ymax,
                  double deltax,
                  double deltay,
@@ -33,7 +33,7 @@ Environ::Environ(double xmax,
 {
 }
 
-Environ::Environ(const Environ& r)
+FracEnviron::FracEnviron(const FracEnviron& r)
     : AStringable(r),
       ASerializable(r),
       _xmax(r._xmax),
@@ -48,7 +48,7 @@ Environ::Environ(const Environ& r)
 {
 }
 
-Environ& Environ::operator=(const Environ& r)
+FracEnviron& FracEnviron::operator=(const FracEnviron& r)
 {
   if (this != &r)
   {
@@ -67,7 +67,7 @@ Environ& Environ::operator=(const Environ& r)
   return *this;
 }
 
-Environ::~Environ()
+FracEnviron::~FracEnviron()
 {
 }
 
@@ -77,25 +77,25 @@ Environ::~Environ()
  * @param neutralFilename Name of the Neutral File
  * @param verbose         Verbose
  */
-Environ* Environ::createFromNF(const String& neutralFilename, bool verbose)
+FracEnviron* FracEnviron::createFromNF(const String& neutralFilename, bool verbose)
 {
-  Environ* environ = nullptr;
+  FracEnviron* environ = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Fracture", is, verbose))
+  environ = new FracEnviron;
+  bool success = false;
+  if (environ->_fileOpenRead(neutralFilename, is, verbose))
   {
-    environ = new Environ;
-    if (! environ->deserialize(is, verbose))
-    {
-      if (verbose) messerr("Problem reading the Neutral File.");
-      delete environ;
-      environ = nullptr;
-    }
-    is.close();
+    success =  environ->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete environ;
+    environ = nullptr;
   }
   return environ;
 }
 
-Environ* Environ::create(double xmax,
+FracEnviron* FracEnviron::create(double xmax,
                          double ymax,
                          double deltax,
                          double deltay,
@@ -103,10 +103,10 @@ Environ* Environ::create(double xmax,
                          double mean,
                          double stdev)
 {
-  return new Environ(xmax, ymax, deltax, deltay, xextend, mean, stdev);
+  return new FracEnviron(xmax, ymax, deltax, deltay, xextend, mean, stdev);
 }
 
-String Environ::toString(const AStringFormat* strfmt) const
+String FracEnviron::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
@@ -141,7 +141,7 @@ String Environ::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-bool Environ::_deserialize(std::istream& is, bool verbose)
+bool FracEnviron::_deserialize(std::istream& is, bool verbose)
 {
   int nfamilies, nfaults;
   bool ret = true;
@@ -157,7 +157,7 @@ bool Environ::_deserialize(std::istream& is, bool verbose)
 
   for (int ifam = 0; ret && ifam < nfamilies; ifam++)
   {
-    Family family;
+    FracFamily family;
     ret = ret && family.deserialize(is, verbose);
     if (ret) addFamily(family);
   }
@@ -171,7 +171,7 @@ bool Environ::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
-bool Environ::_serialize(std::ostream& os, bool verbose) const
+bool FracEnviron::_serialize(std::ostream& os, bool verbose) const
 {
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Number of families", getNFamilies());
@@ -186,7 +186,7 @@ bool Environ::_serialize(std::ostream& os, bool verbose) const
   for (int ifam = 0; ret && ifam < getNFamilies(); ifam++)
   {
     ret = ret && _commentWrite(os, "Characteristics of family");
-    const Family& family = getFamily(ifam);
+    const FracFamily& family = getFamily(ifam);
     ret = ret && family.serialize(os, verbose);
   }
 

@@ -95,6 +95,11 @@ public:
     VectorInt rows;
     VectorInt cols;
     VectorDouble values;
+
+public:
+    VectorDouble getValues() const { return values; }
+    VectorInt getRows() const { return rows; }
+    VectorInt getCols() const { return cols; }
 };
 
 #endif

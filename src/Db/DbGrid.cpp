@@ -611,15 +611,16 @@ DbGrid* DbGrid::createFromNF(const String& neutralFilename, bool verbose)
 {
   DbGrid* dbgrid = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "DbGrid", is, verbose))
+  dbgrid = new DbGrid;
+  bool success = false;
+  if (dbgrid->_fileOpenRead(neutralFilename, is, verbose))
   {
-    dbgrid = new DbGrid;
-    if (! dbgrid->deserialize(is, verbose))
-    {
-      delete dbgrid;
-      dbgrid = nullptr;
-    }
-    is.close();
+    success =  dbgrid->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete dbgrid;
+    dbgrid = nullptr;
   }
   return dbgrid;
 }

@@ -12,30 +12,30 @@
 
 #include "gstlearn_export.hpp"
 
+#include "FracFamily.hpp"
 #include "FracFault.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
-#include "Fractures/Family.hpp"
 
-class GSTLEARN_EXPORT Environ: public AStringable, public ASerializable
+class GSTLEARN_EXPORT FracEnviron: public AStringable, public ASerializable
 {
 public:
-  Environ(double xmax = 0.,
+  FracEnviron(double xmax = 0.,
           double ymax = 0.,
           double deltax = 0.,
           double deltay = 0,
           double xextend = 0.,
           double mean = 0.,
           double stdev = 0.);
-  Environ(const Environ& r);
-  Environ& operator=(const Environ& r);
-  virtual ~Environ();
+  FracEnviron(const FracEnviron& r);
+  FracEnviron& operator=(const FracEnviron& r);
+  virtual ~FracEnviron();
 
-  static Environ* createFromNF(const String& neutralFilename,
+  static FracEnviron* createFromNF(const String& neutralFilename,
                                bool verbose = false);
-  static Environ* create(double xmax = 0.,
+  static FracEnviron* create(double xmax = 0.,
                          double ymax = 0.,
                          double deltax = 0.,
                          double deltay = 0,
@@ -56,9 +56,9 @@ public:
   double getYmax() const { return _ymax; }
 
   const FracFault& getFault(int i) const { return _faults[i]; }
-  const Family& getFamily(int i) const { return _families[i]; }
+  const FracFamily& getFamily(int i) const { return _families[i]; }
 
-  void addFamily(const Family& family) { _families.push_back(family); }
+  void addFamily(const FracFamily& family) { _families.push_back(family); }
   void addFault(const FracFault& fault) { _faults.push_back(fault); }
 
 protected:
@@ -75,6 +75,6 @@ private:
   double _xextend;              //!< Field extension along horizontal axis
   double _mean;                 //!< Mean of thickness distribution
   double _stdev;                //!< Standard deviation of thickness distribution
-  std::vector<Family> _families; //!< Family definition
+  std::vector<FracFamily> _families; //!< Family definition
   std::vector<FracFault>  _faults;   //!< Fault definition
 };

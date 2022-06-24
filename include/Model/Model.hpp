@@ -35,7 +35,6 @@
 
 class Model;
 class Db;
-class Drift;
 class CovInternal;
 class MatrixSquareSymmetric;
 class CovCalcMode;
@@ -168,7 +167,7 @@ public:
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
-  int    setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
+  int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

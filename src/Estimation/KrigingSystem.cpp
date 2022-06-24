@@ -89,7 +89,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _rDGM(1.),
       _flagFactorKriging(false),
-      _indexClass(0),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -620,7 +619,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   // Evaluate the Model
 
   MatrixSquareGeneral mat;
-  bool flagSameData = (iech1 >= 0 && iech1 == iech2);
+  bool flagSameData = (iech1 == iech2);
   if (flagSameData)
     mat = _model->eval0Nvar(mode);
   else
@@ -2589,7 +2588,6 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
     }
     _flagFactorKriging = true;
   }
-  _indexClass = 0;
   return 0;
 }
 
@@ -2601,7 +2599,7 @@ int KrigingSystem::setKrigOptIclass(int index_class)
     messerr("Use 'setKrigOptFactorKriging()' beforehand");
     return 1;
   }
-  _indexClass = index_class;
+  _model->setAnamIClass(index_class);
   return 0;
 }
 

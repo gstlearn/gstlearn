@@ -12,8 +12,6 @@
 
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
-#include "Fractures/Environ.hpp"
-#include "Fractures/Family.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Geometry.hpp"
@@ -23,6 +21,9 @@
 #include "Db/Db.hpp"
 
 #include <math.h>
+
+#include "../../include/Fractures/FracEnviron.hpp"
+#include "../../include/Fractures/FracFamily.hpp"
 #include "../../include/Fractures/FracFault.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
@@ -114,7 +115,7 @@ String FracList::toString(const AStringFormat* strfmt) const
  ** \param[in]  verbose        Verbose option
  **
  *****************************************************************************/
-int FracList::simulate(const Environ* environ,
+int FracList::simulate(const FracEnviron* environ,
                        bool flag_sim_layer,
                        bool flag_sim_fract,
                        int seed,
@@ -195,7 +196,7 @@ int FracList::simulate(const Environ* environ,
   {
     if (_verbose)
       mestitle(0, "Processing Family #%d/%d", ifam + 1, environ->getNFamilies());
-    const Family& family = environ->getFamily(ifam);
+    const FracFamily& family = environ->getFamily(ifam);
 
     /* Loop on the layers */
 
@@ -263,7 +264,7 @@ int FracList::simulate(const Environ* environ,
  ** \remarks The origin is calculated so that a layer edge is located at 0.
  **
  *****************************************************************************/
-VectorDouble FracList::_layersManage(const Environ& environ,
+VectorDouble FracList::_layersManage(const FracEnviron& environ,
                                      double *y0)
 {
   VectorDouble thicks;
@@ -529,7 +530,7 @@ bool FracList::_belongToLayer(const FracDesc& desc,
  ** \param[in]  thick        Layer thickness
  **
  *****************************************************************************/
-double FracList::_layerIntensity(const Family& family, double thick)
+double FracList::_layerIntensity(const FracFamily& family, double thick)
 {
   double theta1 = family.getTheta0() / pow(thick, family.getAlpha());
 
@@ -551,8 +552,8 @@ double FracList::_layerIntensity(const Family& family, double thick)
  ** \param[out] denstab      Discretization density array
  **
  *****************************************************************************/
-void FracList::_generateDensity(const Environ& environ,
-                                const Family& family,
+void FracList::_generateDensity(const FracEnviron& environ,
+                                const FracFamily& family,
                                 int ifam,
                                 double cote,
                                 VectorDouble& denstab)
@@ -614,7 +615,7 @@ void FracList::_generateDensity(const Environ& environ,
  ** \param[in]  denstab      Discretization density array
  **
  *****************************************************************************/
-void FracList::_correctDensity(const Family& family,
+void FracList::_correctDensity(const FracFamily& family,
                                int ifam,
                                double cote,
                                VectorDouble& denstab)
@@ -681,7 +682,7 @@ double FracList::_deriveIntensity(double theta1,
  ** \param[in]  denstab       Discretization density array
  **
  *****************************************************************************/
-double FracList::_extendFractures(const Family& family,
+double FracList::_extendFractures(const FracFamily& family,
                                   int ifam,
                                   double cote,
                                   double thick,
@@ -737,7 +738,7 @@ double FracList::_extendFractures(const Family& family,
  ** \param[in]  x0           Location of the discretized point
  **
  *****************************************************************************/
-bool FracList::_sameFaultSide(const Environ& environ,
+bool FracList::_sameFaultSide(const FracEnviron& environ,
                               int ifault0,
                               double x0)
 {
@@ -887,7 +888,7 @@ void FracList::_updateRepulsion(double x0,
  ** \param[in]  thick        Thickness of the current layer
  **
  *****************************************************************************/
-bool FracList::_fractureInterrupt(const Family& family,
+bool FracList::_fractureInterrupt(const FracFamily& family,
                                   const FracDesc& desc,
                                   double thick)
 {
@@ -990,8 +991,8 @@ double FracList::_fractureExtension(const FracDesc& desc,
  ** \param[in]  denstab      Discretized density array
  **
  *******************************************************************F**********/
-int FracList::_simulateFractures(const Environ& environ,
-                                 const Family& family,
+int FracList::_simulateFractures(const FracEnviron& environ,
+                                 const FracFamily& family,
                                  int ifam,
                                  double cote,
                                  double thick,

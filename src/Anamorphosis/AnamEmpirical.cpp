@@ -76,15 +76,16 @@ AnamEmpirical* AnamEmpirical::createFromNF(const String& neutralFilename, bool v
 {
   AnamEmpirical* anam = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "AnamEmpirical", is, verbose))
+  anam = new AnamEmpirical();
+  bool success = false;
+  if (anam->_fileOpenRead(neutralFilename, is, verbose))
   {
-    anam = new AnamEmpirical();
-    if (! anam->deserialize(is, verbose))
-    {
-      delete anam;
-      anam = nullptr;
-    }
-    is.close();
+    success =  anam->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete anam;
+    anam = nullptr;
   }
   return anam;
 }

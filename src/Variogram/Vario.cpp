@@ -111,16 +111,18 @@ Vario* Vario::createFromNF(const String& neutralFilename, bool verbose)
 {
   Vario* vario = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Vario", is, verbose))
+  VarioParam* varioparam = new VarioParam();
+  vario = new Vario(varioparam);
+  bool success = false;
+  if (vario->_fileOpenRead(neutralFilename, is, verbose))
   {
-    VarioParam* varioparam = new VarioParam();
-    vario = new Vario(varioparam);
-    if (! vario->deserialize(is, verbose))
-    {
-      delete vario;
-      vario = nullptr;
-    }
-    is.close();
+    success =  vario->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete vario;
+    delete varioparam;
+    vario = nullptr;
   }
   return vario;
 }

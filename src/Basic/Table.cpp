@@ -62,15 +62,16 @@ Table* Table::createFromNF(const String& neutralFilename, bool verbose)
 {
   Table* table = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Table", is, verbose))
+  table = new Table();
+  bool success = false;
+  if (table->_fileOpenRead(neutralFilename, is, verbose))
   {
-    table = new Table();
-    if (! table->deserialize(is, verbose))
-    {
-      delete table;
-      table = nullptr;
-    }
-    is.close();
+    success =  table->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete table;
+    table = nullptr;
   }
   return table;
 }

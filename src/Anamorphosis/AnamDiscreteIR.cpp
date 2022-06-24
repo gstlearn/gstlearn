@@ -56,15 +56,16 @@ AnamDiscreteIR* AnamDiscreteIR::createFromNF(const String& neutralFilename, bool
 {
   AnamDiscreteIR* anam = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "AnamDiscreteIR", is, verbose))
+  anam = new AnamDiscreteIR();
+  bool success = false;
+  if (anam->_fileOpenRead(neutralFilename, is, verbose))
   {
-    anam = new AnamDiscreteIR();
-    if (! anam->deserialize(is, verbose))
-    {
-      delete anam;
-      anam = nullptr;
-    }
-    is.close();
+    success =  anam->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete anam;
+    anam = nullptr;
   }
   return anam;
 }

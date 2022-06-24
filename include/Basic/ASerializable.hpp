@@ -59,14 +59,12 @@ protected:
   virtual bool _serialize(std::ostream& s,bool verbose = false) const = 0;
   virtual String _getNFName() const = 0;
 
-  static bool _fileOpenWrite(const String& filename,
-                              const String& filetype,
-                              std::ofstream& os,
-                              bool verbose = false);
-  static bool _fileOpenRead(const String& filename,
-                             const String& filetype,
-                             std::ifstream& is,
-                             bool verbose = false);
+  bool _fileOpenWrite(const String& filename,
+                      std::ofstream& os,
+                      bool verbose = false) const;
+  bool _fileOpenRead(const String& filename,
+                     std::ifstream& is,
+                     bool verbose = false) const;
 
   static bool _commentWrite(std::ostream& os,
                              const String& comment);

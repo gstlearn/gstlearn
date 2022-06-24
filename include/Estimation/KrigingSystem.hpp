@@ -244,7 +244,6 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
-  int  _indexClass;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;

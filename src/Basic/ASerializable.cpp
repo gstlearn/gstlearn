@@ -76,7 +76,7 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   bool ret = true;
-  if (_fileOpenWrite(neutralFilename, _getNFName(), os, verbose))
+  if (_fileOpenWrite(neutralFilename, os, verbose))
   {
     ret = _serialize(os, verbose);
     if (! ret)
@@ -89,9 +89,8 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
 }
 
 bool ASerializable::_fileOpenWrite(const String& filename,
-                                   const String& filetype,
                                    std::ofstream& os,
-                                   bool verbose)
+                                   bool verbose) const
 {
   // Close the stream if opened
   if (os.is_open()) os.close();
@@ -105,14 +104,13 @@ bool ASerializable::_fileOpenWrite(const String& filename,
     return false;
   }
   // Write the file type (class name)
-  os << filetype << std::endl;
+  os << _getNFName() << std::endl;
   return os.good();
 }
 
 bool ASerializable::_fileOpenRead(const String& filename,
-                                  const String& filetype,
                                   std::ifstream& is,
-                                  bool verbose)
+                                  bool verbose) const
 {
   // Close the stream if opened
   if (is.is_open()) is.close();
@@ -128,11 +126,11 @@ bool ASerializable::_fileOpenRead(const String& filename,
   // Read and check the file type (class name)
   String type;
   is >> type;
-  if (type != filetype)
+  if (type != _getNFName())
   {
     if (verbose)
       messerr("The file %s has the wrong type (read: %s, expected: %s)",
-              filepath.c_str(), type.c_str(), filetype.c_str());
+              filepath.c_str(), type.c_str(), _getNFName().c_str());
     is.close();
     return false;
   }

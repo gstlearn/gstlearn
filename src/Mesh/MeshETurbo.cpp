@@ -251,15 +251,16 @@ MeshETurbo* MeshETurbo::createFromNF(const String& neutralFilename, bool verbose
 {
   MeshETurbo* mesh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "MeshETurbo", is, verbose))
+  mesh = new MeshETurbo;
+  bool success = false;
+  if (mesh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    mesh = new MeshETurbo;
-    if (! mesh->deserialize(is, verbose))
-    {
-      delete mesh;
-      mesh = nullptr;
-    }
-    is.close();
+    success =  mesh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete mesh;
+    mesh = nullptr;
   }
   return mesh;
 }

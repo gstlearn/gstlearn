@@ -3868,15 +3868,19 @@ Db* Db::createFromNF(const String& neutralFilename, bool verbose)
 {
   Db* db = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Db", is, verbose))
+  db = new Db;
+  if (db->_fileOpenRead(neutralFilename, is, verbose))
   {
-    db = new Db;
     if (! db->deserialize(is, verbose))
     {
       delete db;
       db = nullptr;
     }
-    is.close();
+  }
+  else
+  {
+    delete db;
+    db = nullptr;
   }
   return db;
 }

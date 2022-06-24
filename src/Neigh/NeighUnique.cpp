@@ -96,15 +96,16 @@ NeighUnique* NeighUnique::createFromNF(const String& neutralFilename, bool verbo
 {
   NeighUnique* neigh = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "NeighUnique", is, verbose))
+  neigh = new NeighUnique;
+  bool success = false;
+  if (neigh->_fileOpenRead(neutralFilename, is, verbose))
   {
-    neigh = new NeighUnique;
-    if (! neigh->deserialize(is, verbose))
-    {
-      delete neigh;
-      neigh = nullptr;
-    }
-    is.close();
+    success =  neigh->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete neigh;
+    neigh = nullptr;
   }
   return neigh;
 }

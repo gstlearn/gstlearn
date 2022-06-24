@@ -250,15 +250,16 @@ Polygons* Polygons::createFromNF(const String& neutralFilename, bool verbose)
 {
   Polygons* polygons = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Polygon", is, verbose))
+  polygons = new Polygons();
+  bool success = false;
+  if (polygons->_fileOpenRead(neutralFilename, is, verbose))
   {
-    polygons = new Polygons();
-    if (! polygons->deserialize(is, verbose))
-    {
-      delete polygons;
-      polygons = nullptr;
-    }
-    is.close();
+    success = polygons->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete polygons;
+    polygons = nullptr;
   }
   return polygons;
 }

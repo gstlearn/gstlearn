@@ -159,15 +159,17 @@ Model* Model::createFromNF(const String &neutralFilename, bool verbose)
 {
   Model* model = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Model", is, verbose))
+  model = new Model();
+  bool success = false;
+  if (model->_fileOpenRead(neutralFilename, is, verbose))
   {
-    model = new Model();
-    if (! model->deserialize(is, verbose))
-    {
-      delete model;
-      model = nullptr;
-    }
-    is.close();
+    success = model->deserialize(is, verbose);
+  }
+
+  if (! success)
+  {
+    delete model;
+    model = nullptr;
   }
   return model;
 }

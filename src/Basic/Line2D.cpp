@@ -79,15 +79,16 @@ Line2D* Line2D::createFromNF(const String& neutralFilename, bool verbose)
 {
   Line2D* line2D = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Line2D", is, verbose))
+  line2D = new Line2D();
+  bool success = false;
+  if (line2D->_fileOpenRead(neutralFilename, is, verbose))
   {
-    line2D = new Line2D();
-    if (! line2D->deserialize(is, verbose))
-    {
-      delete line2D;
-      line2D = nullptr;
-    }
-    is.close();
+    success =  line2D->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete line2D;
+    line2D = nullptr;
   }
   return line2D;
 }

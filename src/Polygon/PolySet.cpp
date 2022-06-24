@@ -141,15 +141,17 @@ PolySet* PolySet::createFromNF(const String& neutralFilename, bool verbose)
 {
   PolySet* polyset = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "PolySet", is, verbose))
+  polyset = new PolySet();
+  bool success = false;
+  if (polyset->_fileOpenRead(neutralFilename, is, verbose))
   {
-    polyset = new PolySet();
-    if (! polyset->deserialize(is, verbose))
-    {
-      delete polyset;
-      polyset = nullptr;
-    }
-    is.close();
+    success = polyset->deserialize(is, verbose);
+  }
+
+  if (! success)
+  {
+    delete polyset;
+    polyset = nullptr;
   }
   return polyset;
 }

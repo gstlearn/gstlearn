@@ -86,16 +86,16 @@ Faults* Faults::createFromNF(const String& neutralFilename, bool verbose)
 {
   Faults* faults = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "Faults", is, verbose))
+  faults = new Faults();
+  bool success = false;
+  if (faults->_fileOpenRead(neutralFilename, is, verbose))
   {
-    faults = new Faults();
-    if (! faults->deserialize(is, verbose))
-    {
-      if (verbose) messerr("Problem reading the Neutral File.");
-      delete faults;
-      faults = nullptr;
-    }
-    is.close();
+    success =  faults->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete faults;
+    faults = nullptr;
   }
   return faults;
 }

@@ -294,8 +294,8 @@ set(SRC
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
   Basic/AFunction.cpp
-  Fractures/Environ.cpp
-  Fractures/Family.cpp
+  Fractures/FracEnviron.cpp
+  Fractures/FracFamily.cpp
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp

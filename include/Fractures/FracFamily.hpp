@@ -15,10 +15,10 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/Vector.hpp"
 
-class GSTLEARN_EXPORT Family: public AStringable, public ASerializable
+class GSTLEARN_EXPORT FracFamily: public AStringable, public ASerializable
 {
 public:
-  Family(double orient = 0.,
+  FracFamily(double orient = 0.,
          double dorient = 0.,
          double theta0 = 0.,
          double alpha = 0.,
@@ -28,9 +28,9 @@ public:
          double aterm = 0.,
          double bterm = 0.,
          double range = 0.);
-  Family(const Family& r);
-  Family& operator=(const Family& r);
-  virtual ~Family();
+  FracFamily(const FracFamily& r);
+  FracFamily& operator=(const FracFamily& r);
+  virtual ~FracFamily();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

@@ -93,15 +93,16 @@ AnamHermite* AnamHermite::createFromNF(const String& neutralFilename, bool verbo
 {
   AnamHermite* anam = nullptr;
   std::ifstream is;
-  if (_fileOpenRead(neutralFilename, "AnamHermite", is, verbose))
+  anam = new AnamHermite();
+  bool success = false;
+  if (anam->_fileOpenRead(neutralFilename, is, verbose))
   {
-    anam = new AnamHermite();
-    if (! anam->deserialize(is, verbose))
-    {
-      delete anam;
-      anam = nullptr;
-    }
-    is.close();
+    success =  anam->deserialize(is, verbose);
+  }
+  if (! success)
+  {
+    delete anam;
+    anam = nullptr;
   }
   return anam;
 }

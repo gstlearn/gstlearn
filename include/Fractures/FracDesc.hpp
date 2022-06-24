@@ -12,11 +12,11 @@
 
 #include "gstlearn_export.hpp"
 
+#include "FracFamily.hpp"
 #include "FracFault.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
-#include "Fractures/Family.hpp"
 
 class GSTLEARN_EXPORT FracDesc: public AStringable
 {
