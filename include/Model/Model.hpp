@@ -168,6 +168,7 @@ public:
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
+  int  getAnamIClass() const { return _covaList->getAnamIClass(); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

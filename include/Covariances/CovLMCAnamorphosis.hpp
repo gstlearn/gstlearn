@@ -60,9 +60,9 @@ public:
   bool hasAnam() const override { return true; }
   const AAnam* getAnam() override { return _anam; }
   int setAnamIClass(int iclass) override;
+  int getAnamIClass() const override { return _anamIClass; }
 
   int init(const VectorInt& strcnt = VectorInt());
-  int getAnamIClass() const { return _anamIClass; }
   const EAnam getAnamType() const;
   void setAnam(const AAnam*& anam) { _anam = anam; }
 
@@ -85,7 +85,7 @@ private:
   double _evalHermite0(int ivar, int jvar, const CovCalcMode& mode) const;
   double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode& mode) const;
   double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode& mode) const;
-  double _covSumResidualIR(const VectorDouble& covs, int icut0) const;
+  CovCalcMode _transformCovCalcModeIR(const CovCalcMode& mode) const;
 
 private:
   int    _anamIClass;         /* Target factor (-1: discretized grade) */

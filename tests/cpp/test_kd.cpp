@@ -71,19 +71,13 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
 
   if (typecov == 1)
   {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 45., ctxt);
+    CovAniso cova1(ECov::SPHERICAL, 40., 0., 0.8, ctxt);
     covs.addCov(&cova1);
-    CovAniso cova2(ECov::NUGGET, 0., 0., 12., ctxt);
+    CovAniso cova2(ECov::NUGGET, 0., 0., 0.2, ctxt);
     covs.addCov(&cova2);
     model->setCovList(&covs);
   }
   else if (typecov == 2)
-  {
-    CovAniso covaL(ECov::LINEAR, 1., 0., 1., ctxt);
-    covs.addCov(&covaL);
-    model->setCovList(&covs);
-  }
-  else if (typecov == 3)
   {
     CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
     covs.addCov(&cova1);
@@ -121,7 +115,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   DbGrid* grid_res  = nullptr;
   Db* data_res      = nullptr;
@@ -147,7 +141,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Generate the output grid
   VectorInt nx = {50,50};
   DbGrid* grid = DbGrid::create(nx);
-  grid->addColumnsByConstant(2, 1., "Extend", ELoc::BLEX);
   grid->display();
 
   // Generate the data base
@@ -156,11 +149,12 @@ int main(int /*argc*/, char */*argv*/[])
   data->display(&dbfmt);
 
   // Create the Model
-  Model* model = createModel(nvar, 1, 1, 1);
+  Model* model = createModel(nvar, 2, 0, 1);
   model->display();
 
   // Creating a Moving Neighborhood
-  NeighMoving* neighM = NeighMoving::create(ndim, false, 25);
+  int nmaxi = 5;
+  NeighMoving* neighM = NeighMoving::create(ndim, false, nmaxi);
   neighM->display();
 
   // Create the Anamorphosis (and Gaussian Data)
@@ -174,11 +168,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   message("\n<----- Test KD ----->\n");
   grid_res = dynamic_cast<DbGrid*>(grid->clone());
-  int nfactor = 5;
+  int nfactor = 3;
   // Estimate Hermite polynomials at Data locations
   (void) calculateHermiteFactors(data, nfactor);
-  data->display();
+
+  // Attach the Anamorphosis to the Model (-> CovLMCAnamorphosis)
   model->addAnam(anam);
+
+  // Perform the Disjunctive Kriging estimation
+  OptDbg::setReference(1);
   dk(data, grid_res, model, neighM);
   grid_res->display(&dbfmtKriging);
 

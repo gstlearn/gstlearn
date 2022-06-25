@@ -7006,9 +7006,14 @@ int dk(Db* dbin,
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
-  if (model->getVariableNumber() > 1)
+  if (model->getVariableNumber() != 1)
   {
     messerr("This application is limited to the monovariate Model case");
+    return 1;
+  }
+  if (ABS(model->getTotalSill(0,0) - 1.) > EPSILON3)
+  {
+    messerr("This option requires a Model with Total Sill equal to 1.");
     return 1;
   }
   if (! model->hasAnam())
@@ -7105,10 +7110,10 @@ int dk(Db* dbin,
 
   /* Set the error return flag */
 
-  dbgrid->display();
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_std, "stdev", 1,
+  dbin->setLocatorsByUID(iuids, ELoc::Z);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_std, "stdev", 1,
                               false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nfactor, dbgrid, iptr_est, "estim");
+  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_est, "estim");
 
   return 0;
 }

@@ -62,6 +62,7 @@ public:
   virtual bool hasAnam() const { return false; }
   virtual const AAnam* getAnam() { return nullptr; }
   virtual int setAnamIClass(int /*iclass*/) { return 0; }
+  virtual int getAnamIClass() const { return 0; }
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure

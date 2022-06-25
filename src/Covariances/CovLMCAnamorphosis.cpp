@@ -251,7 +251,6 @@ double CovLMCAnamorphosis::_evalDiscreteIR(int ivar,
                                            const SpacePoint& p2,
                                            const CovCalcMode& mode) const
 {
-//  const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
   int iclass = getAnamIClass();
 
   // Highlight the only covariances of the Model which are valid for current class
@@ -281,21 +280,6 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
                                             const CovCalcMode& /*mode*/) const
 {
   return 1.;
-}
-
-double CovLMCAnamorphosis::_covSumResidualIR(const VectorDouble& covs,
-                                             int icut0) const
-{
-  const AnamDiscreteIR *anamIR = dynamic_cast<const AnamDiscreteIR*>(_anam);
-
-  int from = 0;
-  if (icut0 > 0) from = _anamStrCount[icut0-1];
-
-  double covsum = 0.;
-  for (int i = from; i < _anamStrCount[icut0]; i++)
-    covsum += covs[i];
-  covsum *= anamIR->getIRStatR(icut0 + 1);
-  return (1. + covsum);
 }
 
 int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)

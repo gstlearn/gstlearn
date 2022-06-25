@@ -397,7 +397,6 @@ double CovAniso::eval(int ivar,
     }
     cov *= sill;
   }
-
   return (cov);
 }
 
