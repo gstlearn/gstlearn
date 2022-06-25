@@ -8,7 +8,6 @@ project(gstlearn
         HOMEPAGE_URL https://github.com/gstlearn/gstlearn
         LANGUAGES    C CXX) # Enable C language for third party libraries
 
-
 ####################################################
 ## CONFIGURATION
 
@@ -34,14 +33,8 @@ configure_file(version.h.in version.h)
 #set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # Options
-option(BUILD_PYTHON "Build python package")
-option(BUILD_R      "Build R package")
-if(NOT BUILD_PYTHON)
-  set(BUILD_PYTHON ON)
-endif()
-if(NOT BUILD_R)
-  set(BUILD_R ON)
-endif()
+option(BUILD_PYTHON "Build Python package" ON)
+option(BUILD_R      "Build R package"      ON)
 if (MINGW)
   set(BUILD_PYTHON OFF)
 endif()
@@ -58,7 +51,6 @@ include(cmake/cpp.cmake)
 include(cmake/doxygen.cmake)
 include(cmake/doc.cmake)
 include(cmake/install.cmake)
-
 
 ####################################################
 ## PACKAGES
