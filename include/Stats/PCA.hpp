@@ -21,13 +21,14 @@ class Db;
 class GSTLEARN_EXPORT PCA: public AStringable
 {
 public:
-  PCA(int nvar = 1);
+  PCA(int nvar = 0);
   PCA(const Db *db, bool verbose = false);
   PCA(Db *db, double h0, double dh, const DirParam& dirparam = DirParam(), bool verbose = false);
   PCA(const PCA &m);
   PCA& operator= (const PCA &m);
   virtual ~PCA();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(int nvar);

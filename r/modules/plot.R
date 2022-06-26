@@ -79,11 +79,11 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
         ylim = c(0,0)
         for (id in idirUtil)
         {
-          sill = vario$getVars(iv,jv)
+          sill = vario$getVar(iv,jv)
           nlag = vario$getLagNumber(id)
-          sw = vario$getSw(iv,jv,id)
-          gg = vario$getGg(iv,jv,id)
-          hh = vario$getHh(iv,jv,id)
+          sw = vario$getSwVec(iv,jv,id)
+          gg = vario$getGgVec(iv,jv,id)
+          hh = vario$getHhVec(iv,jv,id)
           hmax = max(hh)
           gmax = max(abs(gg))
           if (abs(sill) > gmax) gmax = abs(sill)
@@ -147,8 +147,8 @@ plot.point <- function(db, color_name=NA, size_name=NA,
               xlab="", ylab="", title="", padd = NULL, ...) 
 {    
   # Extracting coordinates
-  tabx = db$getCoordinate(0,TRUE)
-  taby = db$getCoordinate(1,TRUE)
+  tabx = db$getCoordinates(0,TRUE)
+  taby = db$getCoordinates(1,TRUE)
   np   = length(tabx)
     
   # Color of symbol

@@ -310,9 +310,7 @@ double MeshEStandard::getCoor(int imesh,
 String MeshEStandard::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << toTitle(0,"Standard Meshing characteristics");
-
-  sstr << toTitle(1,"Standard Meshing");
+  sstr << toTitle(0,"Standard Meshing");
   sstr << AMesh::toString(strfmt);
   return sstr.str();
 }

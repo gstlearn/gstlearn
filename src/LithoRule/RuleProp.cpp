@@ -147,6 +147,7 @@ void RuleProp::_clear()
 String RuleProp::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getRuleNumber() <= 0) return sstr.str();
 
   // Stationary Flag
   if (_flagStat)

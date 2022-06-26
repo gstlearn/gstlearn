@@ -274,13 +274,13 @@ public:
 
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
-                        const VectorInt& types,
+                        const std::vector<ECov> &types = {ECov::EXPONENTIAL},
                         bool verbose = false,
                         Option_AutoFit mauto = Option_AutoFit(),
                         const Constraints& constraints = Constraints(),
                         Option_VarioFit optvar = Option_VarioFit());
   int fit(Vario *vario,
-          const std::vector<ECov>& types,
+          const std::vector<ECov>& types = {ECov::SPHERICAL},
           bool verbose = false,
           Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),

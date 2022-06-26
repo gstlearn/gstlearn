@@ -1038,6 +1038,18 @@ def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, as
         
     return ax
 
+def anam(anam, xlim=None, ylim=None, 
+         xlab=None, ylab=None, title = None, ax=None, figsize=None, end_plot=False):
+    
+    res = anam.sample()
+    ax = XY(res.getY(), res.getZ(),
+            xlim=res.getAylim(), ylim=res.getAzlim(),title=title)
+    
+    if end_plot:
+        plt.show()
+
+    return ax
+
 def plot(object, name1=None, name2=None, ranks=None, **kwargs):
     filetype = type(object).__name__
 

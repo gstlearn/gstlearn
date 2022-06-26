@@ -24,6 +24,7 @@ public:
   Faults& operator=(const Faults& r);
   virtual ~Faults();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static Faults* createFromNF(const String& neutralFilename, bool verbose = false);

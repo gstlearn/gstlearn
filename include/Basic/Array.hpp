@@ -22,6 +22,7 @@ public:
   Array& operator=(const Array &m);
   virtual ~Array();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(const VectorInt& ndims);

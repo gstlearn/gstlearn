@@ -24,8 +24,10 @@ public:
   Tensor& operator= (const Tensor &r);
   virtual ~Tensor();
 
-  void init(int ndim);
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  void init(int ndim);
   void setTensorDirect (const MatrixSquareGeneral& tensor) { _tensorDirect  = tensor; }
   void setTensorInverse(const MatrixSquareGeneral& tensor) { _tensorInverse = tensor; }
 

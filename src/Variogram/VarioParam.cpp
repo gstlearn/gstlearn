@@ -182,6 +182,7 @@ void VarioParam::delAllDirs()
 String VarioParam::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getDirectionNumber() <= 0) return sstr.str();
 
   // Print the Main part
 

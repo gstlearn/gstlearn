@@ -32,6 +32,7 @@ public:
   NoStatFunctional& operator=(const NoStatFunctional &m);
   virtual ~NoStatFunctional();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual IClonable* clone() const override { return new NoStatFunctional(*this); };

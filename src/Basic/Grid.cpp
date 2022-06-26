@@ -299,6 +299,7 @@ String Grid::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   int ndim = _nDim;
+  if (ndim <= 0) return sstr.str();
 
   sstr << toTitle(1,"Grid characteristics:");
   sstr << "Origin : ";

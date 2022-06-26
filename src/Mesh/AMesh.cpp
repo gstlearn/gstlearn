@@ -91,6 +91,7 @@ void AMesh::getDuplicates(int   /*verbose*/,
 String AMesh::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (_nDim <= 0) return sstr.str();
 
   if (getVariety() == 0)
     sstr << "Euclidean Geometry" << std::endl;

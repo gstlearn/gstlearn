@@ -27,6 +27,8 @@
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Drifts/DriftList.hpp"
+#include "Drifts/ADriftElem.hpp"
+#include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Db/Db.hpp"
@@ -179,6 +181,7 @@ String Model::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   int ncov   = getCovaNumber();
   int ndrift = getDriftNumber();
+  if (ncov <= 0 && ndrift <= 0) return sstr.str();
 
   sstr << toTitle(0, "Model characteristics");
   if (isFlagGradient()) sstr << "(Specific for Handling Gradient)" << std::endl;
@@ -847,7 +850,7 @@ VectorDouble Model::sample(double hmax,
  * Automatic Fitting procedure
  *
  * @param vario       Experimental variogram to be fitted
- * @param types       Vector of ECov integer values (treated as 'int' due to compiler problem)
+ * @param types       Vector of ECov integer values
  * @param verbose     Verbose option
  * @param mauto       Special parameters for Automatic fitting procedure
  * @param constraints Set of Constraints
@@ -856,7 +859,7 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
-                             const VectorInt &types,
+                             const std::vector<ECov> &types,
                              bool verbose,
                              Option_AutoFit mauto,
                              const Constraints &constraints,
@@ -873,8 +876,7 @@ int Model::fitFromCovIndices(Vario *vario,
   _ctxt = CovContext(vario); /// TODO : What to do with that ?
   for (int is = 0; is < (int) types.size(); is++)
   {
-    ECov covtype = ECov::fromValue(types[is]);
-    CovAniso cov = CovAniso(covtype, _ctxt);
+    CovAniso cov = CovAniso(types[is], _ctxt);
     addCov(&cov);
   }
 

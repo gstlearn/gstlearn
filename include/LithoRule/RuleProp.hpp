@@ -28,6 +28,7 @@ public:
   RuleProp& operator=(const RuleProp &m);
   virtual ~RuleProp();
 
+  /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromDb(const Db* dbprop,

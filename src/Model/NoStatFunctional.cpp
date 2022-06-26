@@ -158,6 +158,8 @@ double NoStatFunctional::getValueByParam(int ipar, int icas, int rank) const
 String NoStatFunctional::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (_func == nullptr) return sstr.str();
+
   sstr << ANoStat::toString(strfmt);
 
   AStringFormat sf;

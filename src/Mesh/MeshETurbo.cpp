@@ -448,7 +448,7 @@ label_end:
 String MeshETurbo::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  sstr << toTitle(1,"Turbo Meshing");
+  sstr << toTitle(0,"Turbo Meshing");
   if (_isPolarized) sstr << "Diamond construction is activated" << std::endl;
   _grid.display();
   sstr << AMesh::toString(strfmt);

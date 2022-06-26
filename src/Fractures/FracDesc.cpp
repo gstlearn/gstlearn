@@ -52,6 +52,7 @@ FracDesc::~FracDesc()
 String FracDesc::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+  if (getNPoint() <= 0) return sstr.str();
 
   sstr << "Fracture: family=" << _family << ":" <<
       getNPoint()-1 << " segment(s) - start at level #" << getYYF(0) << std::endl;

@@ -134,7 +134,7 @@ String CovParamId::toString(const AStringFormat* /*strfmt*/) const
       break;
 
     default:
-      break;
+      return sstr.str();
   }
   sstr << " :";
   sstr << " GRF=" << _igrf + 1;

@@ -107,6 +107,7 @@ BooleanObject* ModelBoolean::generateObject(int ndim) const
 String ModelBoolean::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getNbTokens() <= 0) return sstr.str();
 
   sstr << toTitle(0, "Object Model");
   if (_flagStat)

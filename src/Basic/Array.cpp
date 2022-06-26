@@ -59,6 +59,8 @@ void Array::_update()
 String Array::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+  if (_ndims.size() <= 0) return sstr.str();
+
   sstr << "Array dimension = " << (int) _ndims.size() << std::endl;
 
   for (int idim = 0; idim < (int) _ndims.size(); idim++)

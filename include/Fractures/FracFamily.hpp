@@ -32,6 +32,7 @@ public:
   FracFamily& operator=(const FracFamily& r);
   virtual ~FracFamily();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getAlpha() const { return _alpha; }

@@ -184,6 +184,8 @@ double ACovAnisoList::eval(int ivar,
 String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+  if (getCovNumber() <= 0) return sstr.str();
+
   for (int icov = 0; icov < getCovNumber(); icov++)
   {
     sstr << getCova(icov)->toString();

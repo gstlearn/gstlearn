@@ -303,6 +303,7 @@ int Rule::setMainNodeFromNodNames(const VectorInt& nodes)
 String Rule::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (_mainNode == nullptr) return sstr.str();
   int node_tot,nfac_tot,nmax_tot,ny1_tot,ny2_tot;
   double prop_tot;
 

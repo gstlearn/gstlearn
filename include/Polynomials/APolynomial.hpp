@@ -29,8 +29,10 @@ public:
   APolynomial & operator=(const APolynomial& p);
   virtual ~APolynomial();
 
-  void init(VectorDouble coeffs);
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  void init(VectorDouble coeffs);
   virtual double eval(double x) const = 0;
 
   virtual void evalOp(cs* /*Op*/,

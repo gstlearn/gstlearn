@@ -46,8 +46,9 @@ Faults::~Faults()
 String Faults::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-
   int nfaults = getNFaults();
+  if (nfaults <= 0) return sstr.str();
+
   sstr << "Number of Faults = " << nfaults << std::endl;
 
   for (int i = 0; i < nfaults; i++)

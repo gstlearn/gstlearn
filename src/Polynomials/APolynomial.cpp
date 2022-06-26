@@ -62,6 +62,8 @@ VectorDouble APolynomial::evalOp(cs* Op, const VectorDouble& in) const
 String APolynomial::toString(const AStringFormat* /*strfmt*/) const
 {
   String str;
+  if (_coeffs.size() <= 0) return str;
+
   std::ostringstream oss;
   str += "Polynomials of degree " + std::to_string(_coeffs.size()-1) + "\n";
   if (!_coeffs.empty())
