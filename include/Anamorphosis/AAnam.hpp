@@ -17,6 +17,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/NamingConvention.hpp"
 
 class ECalcMember;
 class Db;
@@ -60,6 +61,9 @@ public:
                   double proba,
                   int flag_inter,
                   VectorInt& qt_vars) const;
+  int DbZToFactor(Db *db,
+                  const VectorInt& ifacs,
+                  const NamingConvention& namconv = NamingConvention("Factor"));
 
 protected:
   bool _isSampleSkipped(Db *db,

@@ -209,7 +209,6 @@ Selectivity anam_selectivity(AAnam *anam,
       return calest;
     }
     calest = anam_discrete_IR->calculateSelectivity(flag_correct);
-
   }
   else
   {
@@ -1393,75 +1392,3 @@ int ce(Db *db,
   return (error);
 }
 
-/*****************************************************************************/
-/*!
- **  Calculate the factors corresponding to an input data vector
- **
- ** \return  Error return code
- **
- ** \param[in]  anam        anamorphosis model
- ** \param[in]  db          Db structure
- ** \param[in]  ifacs       Array of factor ranks
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int anamZToFactor(AAnam *anam,
-                  Db *db,
-                  const VectorInt& ifacs,
-                  const NamingConvention& namconv)
-{
-  if (anam == nullptr)
-  {
-    messerr("You must define the 'anam' argument");
-    return 1;
-  }
-  if (db == nullptr)
-  {
-    messerr("You must define the 'db' argument");
-    return 1;
-  }
-  int nvar = db->getVariableNumber();
-  if (nvar != 1)
-  {
-    messerr("This function is only coded for the monovariate Db");
-    return 1;
-  }
-  int nfact = (int) ifacs.size();
-  if (nfact <= 0)
-  {
-    messerr("You must define the list of factors");
-    return 1;
-  }
-  int nmax = anam->getNFactor();
-  for (int ifac = 0; ifac < nfact; ifac++)
-    if (ifacs[ifac] < 1 || ifacs[ifac] > nmax)
-    {
-      messerr("Error in the rank of the factor(%d): it should lie in [1,%d]",
-              ifacs[ifac], nmax);
-      return 1;
-    }
-
-  /* Create the factors */
-
-  int iptr = db->addColumnsByConstant(nfact, TEST);
-  if (iptr <= 0) return 1;
-
-  // Loop on the samples
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    double zval = db->getVariable(iech, 0);
-    if (FFFF(zval)) continue;
-    VectorDouble factors = anam->z2factor(zval, ifacs);
-    if (factors.empty()) continue;
-    for (int ifac = 0; ifac < nfact; ifac++)
-      db->setArray(iech, iptr + ifac, factors[ifac]);
-  }
-
-  /* Set the error return code */
-
-  namconv.setNamesAndLocators(db, ELoc::Z, nfact, db, iptr, "Factor");
-
-  return 0;
-}

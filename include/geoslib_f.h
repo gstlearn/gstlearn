@@ -261,10 +261,6 @@ GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
                                              double *zcut,
                                              Selectivity& calest,
                                              Selectivity& calcut);
-GSTLEARN_EXPORT int anamZToFactor(AAnam *anam,
-                                 Db *db,
-                                 const VectorInt &ifacs,
-                                 const NamingConvention& namconv = NamingConvention("Factor"));
 GSTLEARN_EXPORT int anamFactor2QT(Db *db,
                                   AAnam *anam,
                                   const VectorDouble& cutmine,

@@ -38,7 +38,7 @@ Spherical
 Total Sill     =      1.000
 
 <----- Creating Parameter File ----->
-Intensity of Poisson Law0.1
-Number of Bands used for valuation simulation50
+Intensity of Poisson Law = 0.1
+Number of Bands used for valuation simulation = 50
 
 <----- Perform Partition Simulation ----->

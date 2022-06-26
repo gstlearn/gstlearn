@@ -35,14 +35,6 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 0
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
 Number of basic structure(s) = 1
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
@@ -75,7 +67,7 @@ Inverse Rotation Matrix
      [  1,]     0.500     0.866
 
 Turbo Meshing
--------------
+=============
 Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
