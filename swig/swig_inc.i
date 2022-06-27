@@ -289,12 +289,16 @@
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
+#include "Simulation/SimuEden.hpp"
 
 #include "Fractures/FracEnviron.hpp"
 #include "Fractures/FracFamily.hpp"
 #include "Fractures/FracFault.hpp"
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracList.hpp"
+
+#include "Skin/ISkinFunctions.hpp"
+#include "Skin/Skin.hpp"
 
 #include "segy.h"
 

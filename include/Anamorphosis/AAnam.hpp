@@ -19,7 +19,6 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/NamingConvention.hpp"
 
-class ECalcMember;
 class Db;
 class Selectivity;
 

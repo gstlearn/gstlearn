@@ -114,6 +114,7 @@ void AnamDiscreteDD::reset(int ncut,
 String AnamDiscreteDD::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getNCut() <= 0 && getNElem() <= 0) return sstr.str();
 
   sstr << "Discrete Diffusion Anamorphosis" << std::endl;
 

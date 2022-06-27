@@ -33,6 +33,8 @@
 #include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
+#include "Skin/ISkinFunctions.hpp"
+#include "Skin/Skin.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -69,6 +71,41 @@ static Edit_Item EDIT[] = { { "P", "Define the Properties", 0, 0 },
 
 static DbGrid *DB_GRID_FILL;
 /*! \endcond */
+
+class LocalSkin: public ISkinFunctions
+{
+  /****************************************************************************/
+  /*!
+   **  Check if the cell is already filled
+   **
+   ** \return  1 if the cell (filled with facies) is already filled
+   **
+   ** \param[in]  ipos  Absolute grid index of the input grid node
+   **
+   *****************************************************************************/
+  int isAlreadyFilled(int ipos) const override
+  {
+    if (!DB_GRID_FILL->getSelection(ipos)) return (0);
+    int value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 0 : 1;
+    return (value);
+  }
+  /****************************************************************************/
+  /*!
+   **  Check if the cell can be filled with fluid
+   **
+   ** \return  1 if the cell (filled with facies) can be filled with Fluid
+   **
+   ** \param[in]  ipos  Absolute grid index of the input grid node
+   **
+   *****************************************************************************/
+  int isToBeFilled(int ipos) const override
+
+  {
+    if (!DB_GRID_FILL->getSelection(ipos)) return (0);
+    int value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 1 : 0;
+    return (value);
+  }
+};
 
 /*****************************************************************************/
 /*!
@@ -1541,46 +1578,6 @@ int db_normalize(Db *db,
 
 /****************************************************************************/
 /*!
- **  Check if the cell is already filled
- **
- ** \return  1 if the cell (filled with facies) is already filled
- **
- ** \param[in]  ipos  Absolute grid index of the input grid node
- **
- *****************************************************************************/
-static int st_grid_fill_already_filled(int ipos)
-
-{
-  int value;
-
-  if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-  value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 0 :
-                                                     1;
-  return (value);
-}
-
-/****************************************************************************/
-/*!
- **  Check if the cell can be filled with fluid
- **
- ** \return  1 if the cell (filled with facies) can be filled with Fluid
- **
- ** \param[in]  ipos  Absolute grid index of the input grid node
- **
- *****************************************************************************/
-static int st_grid_fill_to_be_filled(int ipos)
-
-{
-  int value;
-
-  if (!DB_GRID_FILL->getSelection(ipos)) return (0);
-  value = FFFF(DB_GRID_FILL->getVariable(ipos, 0)) ? 1 :
-                                                     0;
-  return (value);
-}
-
-/****************************************************************************/
-/*!
  **  Find the neighborhood of the current cell
  **
  ** \param[in]  ipos    Absolute grid index of the input grid node
@@ -1612,12 +1609,9 @@ static void st_grid_fill_neigh(int ipos,
                       0;
   nrz = (ndim >= 3) ? radius :
                       0;
-  nmx = (ndim >= 1) ? DB_GRID_FILL->getNX(0) :
-                      1;
-  nmy = (ndim >= 2) ? DB_GRID_FILL->getNX(1) :
-                      1;
-  nmz = (ndim >= 3) ? DB_GRID_FILL->getNX(2) :
-                      1;
+  nmx = (ndim >= 1) ? DB_GRID_FILL->getNX(0) : 1;
+  nmy = (ndim >= 2) ? DB_GRID_FILL->getNX(1) : 1;
+  nmz = (ndim >= 3) ? DB_GRID_FILL->getNX(2) : 1;
 
   /* Locate the central cell */
 
@@ -1770,9 +1764,10 @@ int db_grid_fill(DbGrid *dbgrid,
                  bool verbose,
                  const NamingConvention &namconv)
 {
-  Skin *skin;
+  Skin *skin = nullptr;
   double *tabval;
   int *tabind, error, rank, ipos, ndim, count, nech;
+  LocalSkin SKF;
 
   /* Initializations */
 
@@ -1825,11 +1820,11 @@ int db_grid_fill(DbGrid *dbgrid,
   if (tabval == nullptr) goto label_end;
   tabind = (int*) mem_alloc(sizeof(int) * count, 0);
   if (tabind == nullptr) goto label_end;
-  skin = skin_define(dbgrid, st_grid_fill_already_filled,
-                     st_grid_fill_to_be_filled, NULL);
-  if (skin == nullptr) goto label_end;
 
-  if (skin_init(skin, verbose))
+
+  skin = new Skin(&SKF, dbgrid);
+
+  if (skin->init(verbose))
   {
     error = 0;
     goto label_end;
@@ -1837,12 +1832,12 @@ int db_grid_fill(DbGrid *dbgrid,
 
   /* Implicit loop on the cells to be filled */
 
-  while (skin_remains(skin))
+  while (skin->remains(verbose))
   {
 
     /* Find the next cell to be processed */
 
-    skin_next(skin, &rank, &ipos);
+    skin->next(&rank, &ipos);
 
     /* Find the neighborhood */
 
@@ -1854,19 +1849,20 @@ int db_grid_fill(DbGrid *dbgrid,
 
     /* Deduce the initial influence of the central cell */
 
-    if (skin_unstack(skin, rank, ipos)) goto label_end;
+    if (skin->unstack(rank, ipos)) goto label_end;
   }
 
   // Optional printout
 
-  if (verbose) skin_print(skin);
+  if (verbose) skin->skinPrint();
 
   /* Set the error return code */
 
   error = 0;
   namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
 
-  label_end: skin = skin_undefine(skin);
+  label_end:
+  delete skin;
   tabval = (double*) mem_free((char* ) tabval);
   tabind = (int*) mem_free((char* ) tabind);
   return (error);

@@ -1360,22 +1360,6 @@ GSTLEARN_EXPORT int db_diffusion(DbGrid *dbgrid1,
                                  int seed,
                                  int verbose);
 
-/***************************************/
-/* Prototyping the functions in skin.c */
-/***************************************/
-
-GSTLEARN_EXPORT Skin* skin_define(DbGrid *db,
-                                  int (*func_already_filled)(int ipos),
-                                  int (*func_to_be_filled)(int ipos),
-                                  double (*func_get_weight)(int ipos, int idir));
-GSTLEARN_EXPORT Skin* skin_undefine(Skin *skin);
-GSTLEARN_EXPORT void skin_print(Skin *skin);
-GSTLEARN_EXPORT int skin_init(Skin *skin, int verbose);
-GSTLEARN_EXPORT int skin_remains(Skin *skin);
-GSTLEARN_EXPORT void skin_next(Skin *skin, int *rank, int *ipos);
-GSTLEARN_EXPORT int skin_unstack(Skin *skin, int rank, int ipos);
-GSTLEARN_EXPORT int skin_grid_shift(Skin *skin, int lec, int dir, int *iad);
-
 /******************************************/
 /* Prototyping the functions in spatial.c */
 /******************************************/

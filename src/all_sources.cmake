@@ -113,11 +113,9 @@ set(SRC
   Core/geophy.cpp
   Core/potential.cpp
   Core/foxleg.cpp
-  Core/eden.cpp
   Core/util.cpp
   Core/anam.cpp
   Core/ascii.cpp
-  Core/skin.cpp
   Core/pile.cpp
   Core/segy.cpp
   Core/mlayers.cpp
@@ -293,10 +291,12 @@ set(SRC
   Simulation/SimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
+  Simulation/SimuEden.cpp
   Basic/AFunction.cpp
   Fractures/FracEnviron.cpp
   Fractures/FracFamily.cpp
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp
+  Skin/Skin.cpp
 )

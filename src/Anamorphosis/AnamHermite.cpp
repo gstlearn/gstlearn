@@ -76,6 +76,7 @@ AnamHermite::~AnamHermite()
 String AnamHermite::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (_nbPoly <= 0) return sstr.str();
 
   sstr << toTitle(1,"Hermitian Anamorphosis");
 

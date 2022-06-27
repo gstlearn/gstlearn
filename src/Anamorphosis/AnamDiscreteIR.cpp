@@ -90,6 +90,7 @@ void AnamDiscreteIR::reset(int ncut,
 String AnamDiscreteIR::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getNCut() <= 0 && getNElem() <= 0) return sstr.str();
 
   sstr << "Indicator Residuals Anamorphosis" << std::endl;
 

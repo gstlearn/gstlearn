@@ -85,23 +85,6 @@ typedef struct
 class DbGrid;
 typedef struct
 {
-  int nxyz;
-  int ndim;
-  int nval;
-  int size;
-  int quant;
-  int date;
-  int nalloc;
-  int nval_max;
-  double  total;
-  double  total_max;
-  int    *address;
-  double *energy;
-  DbGrid *db;
-} Skin;
-
-typedef struct
-{
   int nalloc;
   int npair;
   int size_aux;
