@@ -17,9 +17,8 @@
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Stats/Selectivity.hpp"
 
-class ECalcMember;
-class Selectivity;
 class Db;
 
 class GSTLEARN_EXPORT AnamDiscreteIR: public AnamDiscrete
@@ -37,7 +36,7 @@ public:
   static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam:: DISCRETE_IR; }
+  const EAnam&  getType() const override { return EAnam::DISCRETE_IR; }
   bool hasFactor() const override { return true; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
@@ -72,7 +71,7 @@ public:
 
 protected:
   /// Interface for ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AnamDiscreteIR"; }
 

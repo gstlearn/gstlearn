@@ -18,15 +18,16 @@
 
 #include <iostream>
 #include <string>
+#include <iomanip>
 #include <map>
 
 class GSTLEARN_EXPORT AEnum
 {
 public:
-  //! Return the enum key as a string
+  //! Return the enum key as a string (max 10 characters)
   const String& getKey() const { return _key; }
 
-  //! Return enum value as an integer value
+  //! Return enum value as an integer value (max 32 enum)
   int getValue() const { return _value; }
 
   //! Return the enum description as a string
@@ -51,6 +52,10 @@ public:
   bool isGreaterOrEqual(const AEnum& e) const { return e >= *this; }
   bool isEqual         (const AEnum& e) const { return e == *this; }
   bool isDifferent     (const AEnum& e) const { return e != *this; }
+
+  void printEnum() const { std::cout << std::setw(2)  << std::right << _value << " - "
+                                     << std::setw(10) << std::left  << _key
+                                     << ": "                        << _descr << std::endl; }
 
 protected:
   AEnum(const String& key, int value, const String& descr)
@@ -120,6 +125,7 @@ public:\
 \
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
+  static void printAll();\
   \
   static bool existsKey(const String& key);\
   static bool existsValue(int value);\
@@ -181,6 +187,18 @@ NAME ## Iterator NAME::getIterator()\
   auto it(_iterator);\
   it.toFront();\
   return it;\
+}\
+\
+void NAME::printAll()\
+{\
+  std::cout << #NAME << ":" << std::endl;\
+  auto it(getIterator());\
+  while (it.hasNext())\
+  {\
+    std::cout << "  ";\
+    (*it).printEnum();\
+    it.toNext();\
+  }\
 }\
 \
 bool NAME::existsKey(const String& key)\

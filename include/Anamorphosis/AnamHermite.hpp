@@ -15,11 +15,9 @@
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Stats/Selectivity.hpp"
 
 class Db;
-class ECalcMember;
-class Selectivity;
-class SpacePoint;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
@@ -33,7 +31,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface AAnam
-  const EAnam&  getType() const override { return EAnam:: HERMITIAN; }
+  const EAnam&  getType() const override { return EAnam::HERMITIAN; }
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return _nbPoly; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
@@ -94,7 +92,7 @@ public:
 
 protected:
   /// Interface for ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AnamHermite"; }
 

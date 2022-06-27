@@ -55,8 +55,8 @@ public:
   static String getDirectory(const String& path);
 
 protected:
-  virtual bool _deserialize(std::istream& s, bool verbose = false) = 0;
-  virtual bool _serialize(std::ostream& s,bool verbose = false) const = 0;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) = 0;
+  virtual bool _serialize(std::ostream& os, bool verbose = false) const = 0;
   virtual String _getNFName() const = 0;
 
   bool _fileOpenWrite(const String& filename,

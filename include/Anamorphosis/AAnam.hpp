@@ -19,7 +19,6 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/NamingConvention.hpp"
 
-class ECalcMember;
 class Db;
 class Selectivity;
 
@@ -33,16 +32,16 @@ public:
 
   /// Interface for AAnam
   virtual const EAnam& getType() const = 0;
-  virtual bool   hasFactor() const { return false; }
-  virtual int    getNFactor() const { return 0; }
-  virtual bool   isChangeSupportDefined() const = 0;
-  virtual VectorDouble z2factor(double /*z*/, const VectorInt& /*nfact*/) const;
-  virtual double getBlockVariance(double /*sval*/, double /*power*/ = 1) const;
-  virtual int    updatePointToBlock(double /*r_coef*/);
-  virtual bool   allowChangeSupport() const { return false; }
-  virtual bool   hasGaussian() const { return false; }
-  virtual double RawToTransformValue(double z) const;
-  virtual double TransformToRawValue(double y) const;
+  virtual bool         hasFactor() const { return false; }
+  virtual int          getNFactor() const { return 0; }
+  virtual bool         isChangeSupportDefined() const = 0;
+  virtual VectorDouble z2factor(double z, const VectorInt& nfact) const;
+  virtual double       getBlockVariance(double sval, double power = 1) const;
+  virtual int          updatePointToBlock(double r_coef);
+  virtual bool         allowChangeSupport() const { return false; }
+  virtual bool         hasGaussian() const { return false; }
+  virtual double       RawToTransformValue(double z) const;
+  virtual double       TransformToRawValue(double y) const;
 
   double calculateR(double cvv, double power);
   void recoveryLocal(Db *db,
