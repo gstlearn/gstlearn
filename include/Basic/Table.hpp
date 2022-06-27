@@ -23,7 +23,7 @@
  * The organization stands as a vector (variables) or samples.
  * This allows adding the statistics for all variables for a new sample
  */
-class GSTLEARN_EXPORT Table: public ASerializable ,public AStringable
+class GSTLEARN_EXPORT Table: public ASerializable, public AStringable
 {
 public:
   Table(int nrows = 0, int ncols = 0);
@@ -58,7 +58,7 @@ public:
 
 protected:
   /// Interface for ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "Table"; }
 

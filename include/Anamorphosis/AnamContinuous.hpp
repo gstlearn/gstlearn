@@ -116,7 +116,7 @@ public:
 
 protected:
   /// ASerializable Interface
-  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AnamContinuous"; }
 

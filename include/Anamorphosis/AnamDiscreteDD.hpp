@@ -18,9 +18,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Stats/PCA.hpp"
-
-class ECalcMember;
-class Selectivity;
+#include "Stats/Selectivity.hpp"
 
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
@@ -34,7 +32,7 @@ public:
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
 
   /// AAnam Interface
-  const EAnam&  getType() const override { return EAnam:: DISCRETE_DD; }
+  const EAnam&  getType() const override { return EAnam::DISCRETE_DD; }
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return 0; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
@@ -92,7 +90,7 @@ public:
 
 protected:
   /// Interface for ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose) override;
+  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AnamDiscreteDD"; }
 

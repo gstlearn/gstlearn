@@ -82,7 +82,7 @@ set_property(SOURCE ${SRC} PROPERTY
 )
 
 # SWIG flags
-#set(CMAKE_SWIG_FLAGS)
+#set(CMAKE_SWIG_FLAGS -debug-classes)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
@@ -125,6 +125,11 @@ endif()
 if(APPLE)
   target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
 endif()
+
+# TODO : Build the R package (tarball)
+#add_custom_command(OUTPUT r_build_log.txt DEPENDS r_build 
+#  COMMAND ${R_EXECUTABLE} CMD BUILD --no-multiarch ${R_PACKAGE_DESTINATION_FOLDER}
+#)
 
 ########################################
 # PACKAGING

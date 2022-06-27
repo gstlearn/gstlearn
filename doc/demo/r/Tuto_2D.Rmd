@@ -30,7 +30,7 @@ At this stage:
 **
 
 ```{r}
-dataDir = "/home/drenard/project_gstlearn/gstlearn/doc/data/Pollution"
+dataDir = "../../data/Pollution"
 filepath = paste(dataDir,"Pollution.dat",sep="/")
 
 mydb = Db_createFromCSV(filepath,CSVformat())
@@ -113,7 +113,7 @@ Calculate a variogram in several directions
 
 ```{r}
 myvarioParam = VarioParam()
-mydirs = DirParam_createMultiple(2, 4, 10, 1.)
+mydirs = DirParam_createMultiple(2, 4, dpas=1., npas=10)
 myvarioParam$addMultiDirs(mydirs)
 myvario = Vario(myvarioParam,mydb)
 myvario$compute(ECalcVario_VARIOGRAM())
@@ -174,8 +174,8 @@ constr = Constraints()
 paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
 constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
 opt = Option_AutoFit()
-err = myModelConstrained$fit(myVarioOmni,c(ECov_SPHERICAL()),
-                             FALSE,opt,constr)
+#err = myModelConstrained$fit(myVarioOmni,c(ECov_SPHERICAL()),
+#                             FALSE,opt,constr)
 myModelConstrained
 ```
 
@@ -210,8 +210,7 @@ if (verbose)
 We must first create a Grid which covers the area of interest
 
 ```{r}
-mygrid = DbGrid()
-mygrid$resetCoveringDb(mydb,c(80,72),c(0.5,0.5),c(107.,481.),c(2,2))
+mygrid = DbGrid_createCoveringDb(mydb,c(80,72),c(0.5,0.5),c(107.,481.),c(2,2))
 if (verbose)
     mygrid$display()
 ```
