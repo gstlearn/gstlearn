@@ -3275,10 +3275,10 @@ DbGrid* simfine(DbGrid *dbin,
 ** \param[in]  dbgrid        Db grid structure
 
 ** \param[in]  seed          Seed for random number generator (or 0)
-** \param[in]  ind_facies    Rank of the variable containing the Facies
-** \param[in]  ind_fluid     Rank of the variable containing the Fluid
-** \param[in]  ind_perm      Rank of the variable containing the Permeability
-** \param[in]  ind_poro      Rank of the variable containing the Porosity
+** \param[in]  name_facies   Name of the variable containing the Facies
+** \param[in]  name_fluid    Name of the variable containing the Fluid
+** \param[in]  name_perm     Name of the variable containing the Permeability
+** \param[in]  name_poro     Name of the variable containing the Porosity
 ** \param[in]  nfacies       number of facies (facies 0 excluded)
 ** \param[in]  nfluids       number of fluids
 ** \param[in]  niter         Number of iterations
@@ -3388,14 +3388,13 @@ int fluid_propagation(DbGrid *dbgrid,
 /*!
 **  Extract time charts from the fluid propagation block
 **
-** \return  Error return code
+** \return  The returned matrix
 **
 ** \param[in]  dbgrid        Db grid structure
-** \param[in]  verbose       1 for a verbose option
-** \param[in]  ind_date      Rank of variable containing Date
-** \param[in]  ind_facies    Rank of variable containing Facies
-** \param[in]  ind_fluid     Rank of variable containing Fluid
-** \param[in]  ind_poro      Rank of variable containing Porosity (optional)
+** \param[in]  name_facies   Name of variable containing Facies
+** \param[in]  name_fluid    Name of variable containing Fluid
+** \param[in]  name_poro     Name of variable containing Porosity (optional)
+** \param[in]  name_date     Name of variable containing Date
 ** \param[in]  nfacies       number of facies (facies 0 excluded)
 ** \param[in]  nfluids       number of fluids
 ** \param[in]  facies0       Value of the target facies
@@ -3403,9 +3402,7 @@ int fluid_propagation(DbGrid *dbgrid,
 ** \param[in]  ntime         Number of Time intervals
 ** \param[in]  time0         Starting time
 ** \param[in]  dtime         Time interval
-** \param[in]  tab           Array of extracted statistics
-**
-** \note Needs license for Keyword simeden
+** \param[in]  verbose       1 for a verbose option
 **
 *****************************************************************************/
 MatrixRectangular fluid_extract(DbGrid *dbgrid,

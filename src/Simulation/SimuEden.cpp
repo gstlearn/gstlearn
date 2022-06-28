@@ -72,8 +72,6 @@ String SimuEden::toString(const AStringFormat* /*strfmt*/) const
  ** \return  Error return code : 1 no fluid to propagate
  **
  ** \param[in]  dbgrid        Db grid structure
- ** \param[in]  verbose       1 for a verbose option
-
  ** \param[in]  ind_facies    Rank of the variable containing the Facies
  ** \param[in]  ind_fluid     Rank of the variable containing the Fluid
  ** \param[in]  ind_perm      Rank of the variable containing the Permeability
@@ -86,6 +84,7 @@ String SimuEden::toString(const AStringFormat* /*strfmt*/) const
  ** \param[in]  iptr_stat_fluid Optional rank for storing (nfluids)
  ** \param[in]  iptr_stat_cork  Optional rank for storing Cork (1)
  ** \param[in]  speeds        array containing the travel speeds
+ ** \param[in]  verbose       1 for a verbose option
  ** \param[in]  show_fluid    1 for modifying the value of the cells to show
  ** \li                       the initial valid fluid information
  ** \li                       the cork (different from shale)
@@ -1028,8 +1027,13 @@ int SimuEden::getTimeInterval(double date,
  **
  ** \return  Error return code
  **
-
+ ** \param[in]  dbgrid        Pointer to the DbGrid structure
+ ** \param[in]  ind_facies    Rank of the variable containing the Facies
+ ** \param[in]  ind_fluid     Rank of the variable containing the Fluid
+ ** \param[in]  ind_poro      Rank of the variable containing the Porosity
  ** \param[in]  ind_date      Rank of variable containing Date
+ ** \param[in]  nfacies       number of facies (facies 0 excluded)
+ ** \param[in]  nfluids       number of fluids
  ** \param[in]  facies0       Value of the target facies
  ** \param[in]  fluid0        Value of the target fluid
  ** \param[in]  ntime         Number of Time intervals
