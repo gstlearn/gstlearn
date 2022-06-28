@@ -61,6 +61,8 @@ FracFault::~FracFault()
 String FracFault::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+
+  sstr << toTitle(0, "Fault");
   sstr << "Location of the Fault           = " << _coord << std::endl;
   sstr << "Fault orientation               = " << _orient << " (deg)" << std::endl;
 
@@ -91,9 +93,9 @@ double FracFault::faultAbscissae(double cote) const
 }
 
 void FracFault::addFaultPerFamily(double thetal,
-                              double thetar,
-                              double rangel,
-                              double ranger)
+                                  double thetar,
+                                  double rangel,
+                                  double ranger)
 {
   int nfam  = getNFamilies();
   _thetal.resize(nfam + 1);

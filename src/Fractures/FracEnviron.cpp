@@ -16,7 +16,6 @@ FracEnviron::FracEnviron(double xmax,
                  double ymax,
                  double deltax,
                  double deltay,
-                 double xextend,
                  double mean,
                  double stdev)
   : AStringable(),
@@ -25,7 +24,6 @@ FracEnviron::FracEnviron(double xmax,
     _ymax(ymax),
     _deltax(deltax),
     _deltay(deltay),
-    _xextend(xextend),
     _mean(mean),
     _stdev(stdev),
     _families(),
@@ -40,7 +38,6 @@ FracEnviron::FracEnviron(const FracEnviron& r)
       _ymax(r._ymax),
       _deltax(r._deltax),
       _deltay(r._deltay),
-      _xextend(r._xextend),
       _mean(r._mean),
       _stdev(r._stdev),
       _families(r._families),
@@ -58,7 +55,6 @@ FracEnviron& FracEnviron::operator=(const FracEnviron& r)
     _ymax = r._ymax;
     _deltax = r._deltax;
     _deltay = r._deltay;
-    _xextend = r._xextend;
     _mean = r._mean;
     _stdev = r._stdev;
     _families = r._families;
@@ -96,14 +92,13 @@ FracEnviron* FracEnviron::createFromNF(const String& neutralFilename, bool verbo
 }
 
 FracEnviron* FracEnviron::create(double xmax,
-                         double ymax,
-                         double deltax,
-                         double deltay,
-                         double xextend,
-                         double mean,
-                         double stdev)
+                                 double ymax,
+                                 double deltax,
+                                 double deltay,
+                                 double mean,
+                                 double stdev)
 {
-  return new FracEnviron(xmax, ymax, deltax, deltay, xextend, mean, stdev);
+  return new FracEnviron(xmax, ymax, deltax, deltay, mean, stdev);
 }
 
 String FracEnviron::toString(const AStringFormat* strfmt) const
@@ -199,4 +194,9 @@ bool FracEnviron::_serialize(std::ostream& os, bool verbose) const
     ret = ret && fault.serialize(os, verbose);
   }
   return ret;
+}
+
+double FracEnviron::getXextend() const
+{
+  return _xmax + 2. * _deltax;
 }

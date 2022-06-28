@@ -37,6 +37,7 @@ public:
   FracList& operator=(const FracList& r);
   virtual ~FracList();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNFracs() const { return (int) _descs.size(); }
@@ -46,8 +47,7 @@ public:
                bool flag_sim_fract,
                int seed,
                bool verbose,
-               int nlayers_in,
-               const VectorDouble& elevations);
+               const VectorDouble& elevations = VectorDouble());
   MatrixRectangular fractureExport() const;
   MatrixRectangular layinfoExport() const { return _layinfo; };
   static FracList* fractureImport(const VectorDouble& frac_segs,
@@ -62,7 +62,7 @@ public:
                       VectorDouble& permtab,
                       double perm_mat,
                       double perm_bench,
-                      int ndisc);
+                      int ndisc = 1000.);
   VectorDouble fractureToWell(int nval,
                               const VectorDouble& well,
                               double xmax,
@@ -76,8 +76,8 @@ public:
                           double val_fluid,
                           const VectorDouble& wellout,
                           int nval,
-                          int ndisc,
-                          bool verbose);
+                          int ndisc = 1000.,
+                          bool verbose = false);
   VectorDouble fractureExtractLength(int ifam, double cote, double dcote);
   VectorDouble fractureExtractDist(int ifam, double cote, double dcote);
 
@@ -92,9 +92,7 @@ private:
   double getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
   VectorDouble _layersManage(const FracEnviron& environ, double *y0);
-  VectorDouble _layersRead(int nlayers_in,
-                           const VectorDouble& elevations,
-                           double *y0);
+  VectorDouble _layersRead(const VectorDouble& elevations, double *y0);
   void _manage(int mode);
   int _fracAdd(int ifrac,
                int ifam,
@@ -135,10 +133,10 @@ private:
                         int ifam,
                         double cote,
                         double xx);
-  bool _densityCumulate(const char *title,
-                        bool flag_print,
-                        const VectorDouble& denstab,
-                        double *totdens);
+  double _densityCumulate(const char *title,
+                          bool flag_print,
+                          const VectorDouble& denstab);
+  bool _noRoomForMoreFracture(const VectorDouble& denstab) const;
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
   bool _fractureInterrupt(const FracFamily& family,
                           const FracDesc& desc,

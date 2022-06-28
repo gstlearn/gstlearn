@@ -19,6 +19,7 @@
 #include "Basic/AStringable.hpp"
 
 class Skin;
+class MatrixRectangular;
 
 class GSTLEARN_EXPORT SimuEden: public ASimulation, public AStringable, public ISkinFunctions
 {
@@ -37,31 +38,36 @@ public:
   double getWeight(int ipos, int idir) const override;
 
   int simulate(DbGrid *dbgrid,
-               int niter,
                int ind_facies,
                int ind_fluid,
                int ind_perm,
                int ind_poro,
                int nfacies,
                int nfluids,
+               int niter,
                int iptr_fluid,
                int iptr_date,
                int iptr_stat_fluid,
                int iptr_stat_cork,
                const VectorInt& speeds,
-               bool verbose,
-               bool show_fluid,
-               double number_max,
-               double volume_max);
-
+               bool verbose = false,
+               bool show_fluid = false,
+               double number_max = TEST,
+               double volume_max = TEST);
   int getTimeInterval(double date, int ntime, double time0, double dtime);
-  int fluidExtract(int ind_date,
-                   int facies0,
-                   int fluid0,
-                   int ntime,
-                   double time0,
-                   double dtime,
-                   bool verbose);
+  MatrixRectangular fluidExtract(DbGrid* dbgrid,
+                                           int ind_facies,
+                                           int ind_fluid,
+                                 int ind_poro,
+                                 int ind_date,
+                                 int nfacies,
+                                 int nfluids,
+                                 int facies0,
+                                 int fluid0,
+                                 int ntime,
+                                 double time0,
+                                 double dtime,
+                                 bool verbose = false);
 
 private:
   bool _fluid_check(void);
@@ -94,7 +100,6 @@ private:
   void _calculateCumul(void);
   void _updateResults(int reset_facies, int show_fluid);
   void _normalizeCumul(int niter);
-  int _getTimeInterval(double date, int ntime, double time0, double dtime);
 
 private:
   int _nxyz;

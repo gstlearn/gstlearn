@@ -73,13 +73,14 @@ String SimuEden::toString(const AStringFormat* /*strfmt*/) const
  **
  ** \param[in]  dbgrid        Db grid structure
  ** \param[in]  verbose       1 for a verbose option
- ** \param[in]  niter         Number of iterations
+
  ** \param[in]  ind_facies    Rank of the variable containing the Facies
  ** \param[in]  ind_fluid     Rank of the variable containing the Fluid
  ** \param[in]  ind_perm      Rank of the variable containing the Permeability
  ** \param[in]  ind_poro      Rank of the variable containing the Porosity
  ** \param[in]  nfacies       number of facies (facies 0 excluded)
  ** \param[in]  nfluids       number of fluids
+ ** \param[in]  niter         Number of iterations
  ** \param[in]  iptr_fluid      Rank for storing the Fluid
  ** \param[in]  iptr_date       Rank for storing the Date
  ** \param[in]  iptr_stat_fluid Optional rank for storing (nfluids)
@@ -107,13 +108,13 @@ String SimuEden::toString(const AStringFormat* /*strfmt*/) const
  **
  *****************************************************************************/
 int SimuEden::simulate(DbGrid *dbgrid,
-                       int niter,
                        int ind_facies,
                        int ind_fluid,
                        int ind_perm,
                        int ind_poro,
                        int nfacies,
                        int nfluids,
+                       int niter,
                        int iptr_fluid,
                        int iptr_date,
                        int iptr_stat_fluid,
@@ -559,8 +560,6 @@ double SimuEden::getWeight(int ipos, int idir) const
 /*****************************************************************************/
 /*!
  **  Reset the Eden_Stats structure
- **
- ** \param[in]  stats  Eden_Stats structure to be reset
  **
  *****************************************************************************/
 void SimuEden::_statsReset()
@@ -1009,10 +1008,10 @@ void SimuEden::_normalizeCumul(int niter)
  ** \param[in]  dtime    Time interval
  **
  *****************************************************************************/
-int SimuEden::_getTimeInterval(double date,
-                               int ntime,
-                               double time0,
-                               double dtime)
+int SimuEden::getTimeInterval(double date,
+                              int ntime,
+                              double time0,
+                              double dtime)
 {
   for (int itime = 0; itime < ntime; itime++)
   {
@@ -1037,30 +1036,41 @@ int SimuEden::_getTimeInterval(double date,
  ** \param[in]  time0         Starting time
  ** \param[in]  dtime         Time interval
  ** \param[in]  verbose       1 for a verbose option
- ** \param[in]  tab           Array of extracted statistics
  **
  *****************************************************************************/
-int SimuEden::fluidExtract(int ind_date,
-                           int facies0,
-                           int fluid0,
-                           int ntime,
-                           double time0,
-                           double dtime,
-                           bool verbose)
+MatrixRectangular SimuEden::fluidExtract(DbGrid* dbgrid,
+                                         int ind_facies,
+                                         int ind_fluid,
+                                         int ind_poro,
+                                         int ind_date,
+                                         int nfacies,
+                                         int nfluids,
+                                         int facies0,
+                                         int fluid0,
+                                         int ntime,
+                                         double time0,
+                                         double dtime,
+                                         bool verbose)
 {
+  MatrixRectangular tab;
+
   /* Preliminary checks */
 
-  if (ntime < 0 || time0 < 0 || dtime <= 0)
-  {
-    messerr("Error in Time Interval Definition");
-    messerr("Origin=%lf - Step=%lf - Number=%d", time0, dtime, ntime);
-    return (1);
-  }
+  /* Define global variables */
+
+  _dbgrid  = dbgrid;
+  _nxyz    = _dbgrid->getSampleNumber();
+  _nfacies = nfacies;
+  _nfluids = nfluids;
+
+  _indFacies = ind_facies;
+  _indFluid  = ind_fluid;
+  _indPoro   = ind_poro;
   _indDate = ind_date;
 
   /* Initialize the array */
 
-  MatrixRectangular tab(ntime, 4);
+  tab = MatrixRectangular(ntime, 4);
   for (int itime = 0; itime < ntime; itime++)
   {
     tab.setValue(itime, 0, time0 + dtime * itime);
@@ -1087,7 +1097,7 @@ int SimuEden::fluidExtract(int ind_date,
 
     totnum += 1;
     totvol += volume;
-    int itime = _getTimeInterval(date, ntime, time0, dtime);
+    int itime = getTimeInterval(date, ntime, time0, dtime);
     if (itime < 0) continue;
     locnum += 1;
     locvol += volume;
@@ -1101,8 +1111,8 @@ int SimuEden::fluidExtract(int ind_date,
   if (verbose)
   {
     mestitle(1, "Extraction for Fluid(%d) and Facies(%d)", facies0, fluid0);
-    message("Time slices: From %lf to %lf by step of %lf\n", time0,
-            time0 + dtime * ntime, dtime);
+    message("Time slices: From %lf to %lf by step of %lf\n",
+            time0, time0 + dtime * ntime, dtime);
     message("Total Number of Cells               = %d\n", _nxyz);
     message("Maximum Date                        = %lf\n", datmax);
     message("Total Number of Invaded Cells       = %lf\n", totnum);
@@ -1111,5 +1121,5 @@ int SimuEden::fluidExtract(int ind_date,
     message("Total Volume of Cells in Time Slice = %lf\n", locvol);
   }
 
-  return (0);
+  return tab;
 }

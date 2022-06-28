@@ -19,6 +19,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/DbGrid.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
@@ -596,6 +597,33 @@ GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
                                 Model *model,
                                 const SimuRefineParam& param,
                                 int seed);
+GSTLEARN_EXPORT int fluid_propagation(DbGrid *dbgrid,
+                                      int seed,
+                                      const String& name_facies,
+                                      const String& name_fluid,
+                                      const String& name_perm,
+                                      const String& name_poro,
+                                      int nfacies,
+                                      int nfluids,
+                                      int niter,
+                                      const VectorInt& speeds,
+                                      int show_fluid,
+                                      double number_max,
+                                      double volume_max,
+                                      bool verbose);
+GSTLEARN_EXPORT MatrixRectangular fluid_extract(DbGrid *dbgrid,
+                                                const String& name_facies,
+                                                const String& name_fluid,
+                                                const String& name_poro,
+                                                const String& name_date,
+                                                int nfacies,
+                                                int nfluids,
+                                                int facies0,
+                                                int fluid0,
+                                                int ntime,
+                                                double time0,
+                                                double dtime,
+                                                bool verbose = false);
 GSTLEARN_EXPORT int simpgs_spde(Db *dbin,
                                 Db *dbout,
                                 RuleProp *ruleprop,

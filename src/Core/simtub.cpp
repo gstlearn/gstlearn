@@ -33,6 +33,7 @@
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/EProcessOper.hpp"
+#include "LithoRule/ERule.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
@@ -49,6 +50,7 @@
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
+#include "Simulation/SimuEden.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3263,3 +3265,207 @@ DbGrid* simfine(DbGrid *dbin,
   return dbout;
 }
 
+/*****************************************************************************/
+/*!
+**  Multivariate multiphase propagation into a set of components
+**  constrained by initial conditions and fluid densities
+**
+** \return  Error return code : 1 no fluid to propagate
+**
+** \param[in]  dbgrid        Db grid structure
+
+** \param[in]  seed          Seed for random number generator (or 0)
+** \param[in]  ind_facies    Rank of the variable containing the Facies
+** \param[in]  ind_fluid     Rank of the variable containing the Fluid
+** \param[in]  ind_perm      Rank of the variable containing the Permeability
+** \param[in]  ind_poro      Rank of the variable containing the Porosity
+** \param[in]  nfacies       number of facies (facies 0 excluded)
+** \param[in]  nfluids       number of fluids
+** \param[in]  niter         Number of iterations
+** \param[in]  speeds        array containing the travel speeds
+** \param[in]  show_fluid    1 for modifying the value of the cells to show
+** \li                       the initial valid fluid information
+** \li                       the cork (different from shale)
+** \param[in]  number_max    Maximum count of cells invaded (or TEST)
+** \param[in]  volume_max    Maximum volume invaded (or TEST)
+** \param[in]  verbose       1 for a verbose option
+**
+** \remark  Directions are ordered as follows :
+** \remark  0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
+** \remark  The coding of the matrix is:
+** \remark              facies + nfacies * fluid
+** \remark  Facies: 0 (Shale), 1 to nfacies, -1 (Cork)
+** \remark  Fluids: 0 (undefined), 1 to nfluids, -1 (No Fluid)
+** \remark  Fluids should be ordered by increasing weight
+** \remark  A Permeability variable is a value (>=1) which divides
+** \remark  the velocities. This variable is optional.
+** \remark  A Porosity variable is a value (in [0,1]) which multiplies
+** \remark  the volumes. This variable is optional.
+** \remark  Volume_max represents the volumic part of the invaded area:
+** \remark  it is always <= number of cells invaded.
+**
+** \note Needs license for Keyword simeden
+**
+*****************************************************************************/
+int fluid_propagation(DbGrid *dbgrid,
+                      int     seed,
+                      const String& name_facies,
+                      const String& name_fluid,
+                      const String& name_perm,
+                      const String& name_poro,
+                      int     nfacies,
+                      int     nfluids,
+                      int     niter,
+                      const VectorInt& speeds,
+                      int     show_fluid,
+                      double  number_max,
+                      double  volume_max,
+                      bool verbose)
+{
+  if (! is_grid(dbgrid))
+  {
+    messerr("The Fluid Propagation is restricted to regular grid");
+    return 1;
+  }
+  if (dbgrid->getNDim() > 3)
+  {
+    messerr("Fluid propagation is limited to 3-D space (maximum)");
+    return 1;
+  }
+  int ind_facies = dbgrid->getUID(name_facies);
+  int ind_fluid  = dbgrid->getUID(name_fluid);
+  if (ind_facies < 0)
+  {
+    messerr("Variable 'Facies' must be provided");
+    return 1;
+  }
+  if (ind_fluid < 0)
+  {
+    messerr("Variable 'Fluid' must be provided");
+    return 1;
+  }
+  int ind_poro = dbgrid->getUID(name_poro);
+  int ind_perm = dbgrid->getUID(name_perm);
+
+  /* Add the attributes for storing the results */
+
+  int iptr_stat_fluid = -1;
+  int iptr_stat_cork = -1;
+  if (niter > 1)
+  {
+    iptr_stat_fluid = dbgrid->addColumnsByConstant(nfluids, 0.);
+    if (iptr_stat_fluid < 0) return 1;
+    iptr_stat_cork = dbgrid->addColumnsByConstant(1, 0.);
+    if (iptr_stat_cork < 0) return 1;
+  }
+
+  /* Add the attributes for storing the Fluid and Data informations */
+
+  int iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
+  if (iptr_fluid < 0) return 1;
+  int iptr_date = dbgrid->addColumnsByConstant(1, TEST);
+  if (iptr_date < 0) return 1;
+
+  // Launch the Simulator
+
+  SimuEden seden = SimuEden(1, seed);
+  seden.simulate(dbgrid, ind_facies, ind_fluid, ind_perm, ind_poro,
+                 nfacies, nfluids, niter,
+                 iptr_fluid, iptr_date, iptr_stat_fluid, iptr_stat_cork,
+                 speeds, verbose, show_fluid, number_max, volume_max);
+
+  // Free some variables
+
+  if (niter > 1)
+  {
+    if (iptr_fluid > 0) dbgrid->deleteColumnByUID(iptr_fluid);
+    if (iptr_date  > 0) dbgrid->deleteColumnByUID(iptr_date);
+  }
+  return 0;
+}
+
+/*****************************************************************************/
+/*!
+**  Extract time charts from the fluid propagation block
+**
+** \return  Error return code
+**
+** \param[in]  dbgrid        Db grid structure
+** \param[in]  verbose       1 for a verbose option
+** \param[in]  ind_date      Rank of variable containing Date
+** \param[in]  ind_facies    Rank of variable containing Facies
+** \param[in]  ind_fluid     Rank of variable containing Fluid
+** \param[in]  ind_poro      Rank of variable containing Porosity (optional)
+** \param[in]  nfacies       number of facies (facies 0 excluded)
+** \param[in]  nfluids       number of fluids
+** \param[in]  facies0       Value of the target facies
+** \param[in]  fluid0        Value of the target fluid
+** \param[in]  ntime         Number of Time intervals
+** \param[in]  time0         Starting time
+** \param[in]  dtime         Time interval
+** \param[in]  tab           Array of extracted statistics
+**
+** \note Needs license for Keyword simeden
+**
+*****************************************************************************/
+MatrixRectangular fluid_extract(DbGrid *dbgrid,
+                                const String& name_facies,
+                                const String& name_fluid,
+                                const String& name_poro,
+                                const String& name_date,
+                                int nfacies,
+                                int nfluids,
+                                int facies0,
+                                int fluid0,
+                                int ntime,
+                                double time0,
+                                double dtime,
+                                bool verbose)
+{
+  MatrixRectangular tab;
+  if (! is_grid(dbgrid))
+  {
+    messerr("The Fluid Propagation is restricted to regular grid");
+    return tab;
+  }
+  if (dbgrid->getNDim() > 3)
+  {
+    messerr("Fluid propagation is limited to 3-D space (maximum)");
+    return tab;
+  }
+  if (ntime < 0 || time0 < 0 || dtime <= 0)
+  {
+    messerr("Error in Time Interval Definition");
+    messerr("Origin=%lf - Step=%lf - Number=%d",time0,dtime,ntime);
+    return tab;
+  }
+
+  /* Define global variables */
+
+  int ind_facies = dbgrid->getUID(name_facies);
+  int ind_fluid  = dbgrid->getUID(name_fluid);
+  int ind_date   = dbgrid->getUID(name_date);
+  if (ind_facies < 0)
+  {
+    messerr("Variable 'Facies' must be provided");
+    return 1;
+  }
+  if (ind_fluid < 0)
+  {
+    messerr("Variable 'Fluid' must be provided");
+    return 1;
+  }
+  if (ind_date < 0)
+  {
+    messerr("Variable 'Date' must be provided");
+    return 1;
+  }
+  int ind_poro = dbgrid->getUID(name_poro);
+
+  SimuEden seden = SimuEden(1);
+  tab = seden.fluidExtract(dbgrid, ind_facies, ind_fluid, ind_poro, ind_date,
+                           nfacies, nfluids, facies0, fluid0, ntime, time0,
+                           dtime, verbose);
+
+  return tab;
+}

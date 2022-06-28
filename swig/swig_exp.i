@@ -334,7 +334,6 @@ class IClonable{};
 %include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp
 
-%include Skin/ISkinFuntions.hpp
 %include Skin/Skin.hpp
 
 %include segy.h

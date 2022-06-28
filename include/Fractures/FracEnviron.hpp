@@ -23,25 +23,23 @@ class GSTLEARN_EXPORT FracEnviron: public AStringable, public ASerializable
 {
 public:
   FracEnviron(double xmax = 0.,
-          double ymax = 0.,
-          double deltax = 0.,
-          double deltay = 0,
-          double xextend = 0.,
-          double mean = 0.,
-          double stdev = 0.);
+              double ymax = 0.,
+              double deltax = 0.,
+              double deltay = 0,
+              double mean = 0.,
+              double stdev = 0.);
   FracEnviron(const FracEnviron& r);
   FracEnviron& operator=(const FracEnviron& r);
   virtual ~FracEnviron();
 
   static FracEnviron* createFromNF(const String& neutralFilename,
-                               bool verbose = false);
+                                   bool verbose = false);
   static FracEnviron* create(double xmax = 0.,
-                         double ymax = 0.,
-                         double deltax = 0.,
-                         double deltay = 0,
-                         double xextend = 0.,
-                         double mean = 0.,
-                         double stdev = 0.);
+                             double ymax = 0.,
+                             double deltax = 0.,
+                             double deltay = 0,
+                             double mean = 0.,
+                             double stdev = 0.);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNFamilies() const { return (int) _families.size(); }
@@ -51,9 +49,9 @@ public:
   double getDeltay() const { return _deltay; }
   double getMean() const { return _mean; }
   double getStdev() const { return _stdev; }
-  double getXextend() const { return _xextend; }
   double getXmax() const { return _xmax; }
   double getYmax() const { return _ymax; }
+  double getXextend() const;
 
   const FracFault& getFault(int i) const { return _faults[i]; }
   const FracFamily& getFamily(int i) const { return _families[i]; }
@@ -72,7 +70,6 @@ private:
   double _ymax;                 //!< Maximum vertical distance
   double _deltax;               //!< Dilation along the horizontal axis
   double _deltay;               //!< Dilation along the vertical axis
-  double _xextend;              //!< Field extension along horizontal axis
   double _mean;                 //!< Mean of thickness distribution
   double _stdev;                //!< Standard deviation of thickness distribution
   std::vector<FracFamily> _families; //!< Family definition

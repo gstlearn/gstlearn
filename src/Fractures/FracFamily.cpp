@@ -81,6 +81,7 @@ String FracFamily::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
+  sstr << toTitle(0, "Fault Family");
   sstr << "Average Fault Orientation       = " << _orient << " (deg)" << std::endl;
   sstr << "Tolerance for Orientation       = " << _dorient << " (deg)" << std::endl;
   sstr << "Reference Poisson Intensity     = " << _theta0 << std::endl;

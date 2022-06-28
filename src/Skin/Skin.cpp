@@ -130,7 +130,6 @@ int Skin::_gridShift(const VectorInt& indg0, int dir)
  **
  ** \return  The absolute sample address
  **
- ** \param[in]  skin  Skin2 structure
  ** \param[in]  lec   Absolute grid index of the input grid node
  ** \param[in]  dir   Rank of the direction
  **
@@ -422,8 +421,6 @@ int Skin::unstack(int rank0, int ipos0)
 /*****************************************************************************/
 /*!
  **  Print the computing information concerning the skin algorithm
- **
- ** \param[in] skin    Skin structure
  **
  *****************************************************************************/
 void Skin::skinPrint()
