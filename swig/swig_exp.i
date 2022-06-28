@@ -111,6 +111,10 @@ class IClonable{};
 %include Space/SpacePoint.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+
+%include Skin/ISkinFunctions.hpp
+%include Skin/Skin.hpp
+
 /*
 %include Interfaces/geoslib_f_swig.h
 %include Interfaces/ACalculator.hpp

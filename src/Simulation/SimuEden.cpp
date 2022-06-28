@@ -192,7 +192,7 @@ int SimuEden::simulate(DbGrid *dbgrid,
 
       int rank;
       int ipos;
-      skin->next(&rank, &ipos);
+      skin->getNext(&rank, &ipos);
 
       /* Find the new value of the target cell according to its neighborhood */
 

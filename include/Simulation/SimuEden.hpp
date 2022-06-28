@@ -56,8 +56,8 @@ public:
                double volume_max = TEST);
   int getTimeInterval(double date, int ntime, double time0, double dtime);
   MatrixRectangular fluidExtract(DbGrid* dbgrid,
-                                           int ind_facies,
-                                           int ind_fluid,
+                                 int ind_facies,
+                                 int ind_fluid,
                                  int ind_poro,
                                  int ind_date,
                                  int nfacies,

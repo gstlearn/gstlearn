@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "FracFamily.hpp"
-#include "FracFault.hpp"
+#include "Fractures/FracFamily.hpp"
+#include "Fractures/FracFault.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"

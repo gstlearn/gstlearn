@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Fractures-");
@@ -90,7 +90,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   FracList flist = FracList();
   int seed = 432431;
-  flist.simulate(&env, true, true, seed, true, VectorDouble());
+  flist.simulate(env, true, true, seed, true, VectorDouble());
   flist.display();
 
   // Plunge the set of fractures on the Grid
