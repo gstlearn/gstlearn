@@ -111,6 +111,10 @@ class IClonable{};
 %include Space/SpacePoint.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+
+%include Skin/ISkinFunctions.hpp
+%include Skin/Skin.hpp
+
 /*
 %include Interfaces/geoslib_f_swig.h
 %include Interfaces/ACalculator.hpp
@@ -333,9 +337,6 @@ class IClonable{};
 %include Fractures/FracFault.hpp
 %include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp
-
-%include Skin/ISkinFuntions.hpp
-%include Skin/Skin.hpp
 
 %include segy.h
 

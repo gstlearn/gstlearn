@@ -9,9 +9,11 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
+#include "Fractures/FracEnviron.hpp"
+#include "Fractures/FracFamily.hpp"
+#include "Fractures/FracFault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Geometry.hpp"
@@ -21,10 +23,6 @@
 #include "Db/Db.hpp"
 
 #include <math.h>
-
-#include "../../include/Fractures/FracEnviron.hpp"
-#include "../../include/Fractures/FracFamily.hpp"
-#include "../../include/Fractures/FracFault.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw,i)          (well[2*(iw) + (i)])
@@ -115,7 +113,7 @@ String FracList::toString(const AStringFormat* strfmt) const
  ** \param[in]  verbose        Verbose option
  **
  *****************************************************************************/
-int FracList::simulate(const FracEnviron* environ,
+int FracList::simulate(const FracEnviron& environ,
                        bool flag_sim_layer,
                        bool flag_sim_fract,
                        int seed,
@@ -123,12 +121,12 @@ int FracList::simulate(const FracEnviron* environ,
                        int nlayers_in,
                        const VectorDouble& elevations)
 {
-  _step = environ->getXextend() / _ndisc;
-  _xorigin = -environ->getDeltax();
+  _step = environ.getXextend() / _ndisc;
+  _xorigin = -environ.getDeltax();
   _verbose = verbose;
 
   double y0 = 0.;
-  int ninfos = 1 + environ->getNFamilies() * NPART;
+  int ninfos = 1 + environ.getNFamilies() * NPART;
   law_set_random_seed(seed);
 
   if (_verbose)
@@ -144,7 +142,7 @@ int FracList::simulate(const FracEnviron* environ,
 
   VectorDouble thicks;
   if (flag_sim_layer)
-    thicks = _layersManage(*environ, &y0);
+    thicks = _layersManage(environ, &y0);
   else
     thicks = _layersRead(nlayers_in, elevations, &y0);
   _nlayers = (int) thicks.size();
@@ -168,15 +166,15 @@ int FracList::simulate(const FracEnviron* environ,
 
   /* Define the main faults */
 
-  for (int ifault = 0; ifault < environ->getNFaults(); ifault++)
+  for (int ifault = 0; ifault < environ.getNFaults(); ifault++)
   {
-    double angle = environ->getFault(ifault).getOrient();
+    double angle = environ.getFault(ifault).getOrient();
 
     /* Loop on the layers */
 
     int ifrac = -1;
     cote = y0;
-    double xx = environ->getFault(ifault).faultAbscissae(cote);
+    double xx = environ.getFault(ifault).faultAbscissae(cote);
     for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
       double thick = thicks[ilayer];
@@ -192,11 +190,11 @@ int FracList::simulate(const FracEnviron* environ,
 
   /* Loop on the different fault families */
 
-  for (int ifam = 0; ifam < environ->getNFamilies(); ifam++)
+  for (int ifam = 0; ifam < environ.getNFamilies(); ifam++)
   {
     if (_verbose)
-      mestitle(0, "Processing Family #%d/%d", ifam + 1, environ->getNFamilies());
-    const FracFamily& family = environ->getFamily(ifam);
+      mestitle(0, "Processing Family #%d/%d", ifam + 1, environ.getNFamilies());
+    const FracFamily& family = environ.getFamily(ifam);
 
     /* Loop on the layers */
 
@@ -218,7 +216,7 @@ int FracList::simulate(const FracEnviron* environ,
 
       /* Generate the density function */
 
-      _generateDensity(*environ, family, ifam, cote, denstab);
+      _generateDensity(environ, family, ifam, cote, denstab);
 
       /* Correct the density due to already existing faults */
 
@@ -234,7 +232,7 @@ int FracList::simulate(const FracEnviron* environ,
 
       /* Simulate the fractures abscissa */
 
-      int nfracs = _simulateFractures(*environ, family, ifam, cote, thick, theta2, denstab);
+      int nfracs = _simulateFractures(environ, family, ifam, cote, thick, theta2, denstab);
 
       /* Shift the ordinate */
 

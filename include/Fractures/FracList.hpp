@@ -12,7 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "FracDesc.hpp"
+#include "Fractures/FracDesc.hpp"
+#include "Fractures/FracEnviron.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
@@ -22,7 +23,6 @@
 #define NBYFRAC 7
 #define NBYWOUT 8
 
-class FracEnviron;
 class DbGrid;
 
 class GSTLEARN_EXPORT FracList: public AStringable
@@ -41,7 +41,7 @@ public:
 
   int getNFracs() const { return (int) _descs.size(); }
 
-  int simulate(const FracEnviron* environ,
+  int simulate(const FracEnviron& environ,
                bool flag_sim_layer,
                bool flag_sim_fract,
                int seed,
@@ -54,7 +54,7 @@ public:
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
 
-  FracDesc& getDescs(int i) { return _descs[i]; }
+  FracDesc& getDescs(int i) { return _descs[i]; } /// TODO : Beurk (non const return)
   void addDescription(const FracDesc& description = FracDesc()) { _descs.push_back(description); }
 
   int fractureToBlock(DbGrid *dbgrid,

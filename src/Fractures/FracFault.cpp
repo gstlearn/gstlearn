@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Fractures/FracFault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
-#include "../../include/Fractures/FracFault.hpp"
 
 FracFault::FracFault(double coord, double orient)
   : AStringable(),

@@ -343,7 +343,7 @@ int Skin::remains(bool verbose)
  ** \param[out] ipos     Cell location
  **
  *****************************************************************************/
-void Skin::next(int *rank, int *ipos)
+void Skin::getNext(int *rank, int *ipos)
 {
   /* Draw a random cell */
 

@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "FracFamily.hpp"
-#include "FracFault.hpp"
+#include "Fractures/FracFamily.hpp"
+#include "Fractures/FracFault.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -23,12 +23,12 @@ class GSTLEARN_EXPORT FracEnviron: public AStringable, public ASerializable
 {
 public:
   FracEnviron(double xmax = 0.,
-          double ymax = 0.,
-          double deltax = 0.,
-          double deltay = 0,
-          double xextend = 0.,
-          double mean = 0.,
-          double stdev = 0.);
+              double ymax = 0.,
+              double deltax = 0.,
+              double deltay = 0,
+              double xextend = 0.,
+              double mean = 0.,
+              double stdev = 0.);
   FracEnviron(const FracEnviron& r);
   FracEnviron& operator=(const FracEnviron& r);
   virtual ~FracEnviron();
@@ -36,12 +36,12 @@ public:
   static FracEnviron* createFromNF(const String& neutralFilename,
                                bool verbose = false);
   static FracEnviron* create(double xmax = 0.,
-                         double ymax = 0.,
-                         double deltax = 0.,
-                         double deltay = 0,
-                         double xextend = 0.,
-                         double mean = 0.,
-                         double stdev = 0.);
+                             double ymax = 0.,
+                             double deltax = 0.,
+                             double deltay = 0,
+                             double xextend = 0.,
+                             double mean = 0.,
+                             double stdev = 0.);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNFamilies() const { return (int) _families.size(); }

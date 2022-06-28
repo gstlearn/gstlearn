@@ -54,7 +54,6 @@ public:
                double number_max,
                double volume_max);
 
-  int getTimeInterval(double date, int ntime, double time0, double dtime);
   int fluidExtract(int ind_date,
                    int facies0,
                    int fluid0,

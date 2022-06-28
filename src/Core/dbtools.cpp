@@ -1837,7 +1837,7 @@ int db_grid_fill(DbGrid *dbgrid,
 
     /* Find the next cell to be processed */
 
-    skin->next(&rank, &ipos);
+    skin->getNext(&rank, &ipos);
 
     /* Find the neighborhood */
 
