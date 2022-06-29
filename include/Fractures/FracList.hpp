@@ -54,8 +54,7 @@ public:
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
 
-  FracDesc& getDescs(int i) { return _descs[i]; } /// TODO : Beurk (non const return)
-  void addDescription(const FracDesc& description = FracDesc()) { _descs.push_back(description); }
+  void addDescription(const FracDesc& description = FracDesc());
 
   int fractureToBlock(DbGrid *dbgrid,
                       double xmax,
@@ -81,19 +80,23 @@ public:
   VectorDouble fractureExtractLength(int ifam, double cote, double dcote);
   VectorDouble fractureExtractDist(int ifam, double cote, double dcote);
 
+  // Pipe for Class Description
+  void setFamily(int i, int ifam) { _descs[i].setFamily(ifam); }
+  void setOrient(int i, int orient) { _descs[i].setOrient(orient); }
+  void addPoint(int i, double xx, double yy) { _descs[i].addPoint(xx,yy); }
+
 private:
-  int getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
-  void setMemLayer(int i, double value)             { _layinfo.setValue(i,0,value); }
-  void setMemTheta1(int i, int ifam, double value)  { _layinfo.setValue(i,getRank(ifam,0),value); }
-  void setMemTheta2(int i, int ifam, double value)  { _layinfo.setValue(i,getRank(ifam,1),value); }
-  void setMemPropsur(int i, int ifam, double value) { _layinfo.setValue(i,getRank(ifam,2),value); }
-  void setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,getRank(ifam,3),value); }
-  void setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,getRank(ifam,4),value); }
-  double getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
+  int _getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
+  void _setMemLayer(int i, double value)             { _layinfo.setValue(i,0,value); }
+  void _setMemTheta1(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,0),value); }
+  void _setMemTheta2(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,1),value); }
+  void _setMemPropsur(int i, int ifam, double value) { _layinfo.setValue(i,_getRank(ifam,2),value); }
+  void _setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,_getRank(ifam,3),value); }
+  void _setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,_getRank(ifam,4),value); }
+  double _getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
   VectorDouble _layersManage(const FracEnviron& environ, double *y0);
   VectorDouble _layersRead(const VectorDouble& elevations, double *y0);
-  void _manage(int mode);
   int _fracAdd(int ifrac,
                int ifam,
                double xx,
@@ -133,9 +136,7 @@ private:
                         int ifam,
                         double cote,
                         double xx);
-  double _densityCumulate(const char *title,
-                          bool flag_print,
-                          const VectorDouble& denstab);
+  double _densityCumulate(const VectorDouble& denstab);
   bool _noRoomForMoreFracture(const VectorDouble& denstab) const;
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
   bool _fractureInterrupt(const FracFamily& family,

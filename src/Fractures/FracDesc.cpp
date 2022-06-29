@@ -27,7 +27,7 @@ FracDesc::FracDesc(const FracDesc& r)
     : AStringable(r),
       _family(r._family),
       _orient(r._orient),
-      _x(r._y),
+      _x(r._x),
       _y(r._y)
 {
 }
@@ -39,7 +39,7 @@ FracDesc& FracDesc::operator=(const FracDesc& r)
     AStringable::operator=(r);
     _family = r._family;
     _orient = r._orient;
-    _x = r._y;
+    _x = r._x;
     _y = r._y;
   }
   return *this;

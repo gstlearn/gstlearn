@@ -22,802 +22,139 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 
-Fault Family
-============
-Average Fault Orientation       = 90 (deg)
-Tolerance for Orientation       = 10 (deg)
-Reference Poisson Intensity     = 1
-Intensity from thick. exponent  = 1
-Intensity Constant/Shaped ratio = 1
-Survival constant probability   = 0.5
-Survival length-dependent proba = 0.2
-Survival cumul. length exponent = 1.2
-Survival thickness exponent     = 2.4
-Fracture repulsion area Range   = 12
-
-Fault
-=====
-Location of the Fault           = 30
-Fault orientation               = 90 (deg)
-
-Family #1/1
-...........
-Intensity maximum value (left)  = 1
-Intensity range (left)          = 10
-Intensity maximum value (right) = 2
-Intensity range (right)         = 20
-
-Fault #1/1
-----------
-
 Geometry
 ========
 Field extension (horizontal)    = 300
 Field extension (vertical)      = 100
 Field dilation (horizontal)     = 0
 Field dilation (vertical)       = 0
-Mean of thickness law           = 5
-St. dev. of thickness law       = 0.2
-Number of families              = 1
+Mean of thickness law           = 20
+St. dev. of thickness law       = 10
+Number of families              = 2
 Number of faults                = 1
 
-Family #1/1
+Family #1/2
 ...........
-
-Fault Family
-============
-Average Fault Orientation       = 90 (deg)
-Tolerance for Orientation       = 10 (deg)
-Reference Poisson Intensity     = 1
+Average Fault Orientation       = 0 (degree)
+Tolerance for Orientation       = 20 (degree)
+Reference Poisson Intensity     = 0.2
 Intensity from thick. exponent  = 1
 Intensity Constant/Shaped ratio = 1
 Survival constant probability   = 0.5
 Survival length-dependent proba = 0.2
 Survival cumul. length exponent = 1.2
 Survival thickness exponent     = 2.4
-Fracture repulsion area Range   = 12
+Fracture repulsion area Range   = 5
 
-Fault
-=====
+Family #2/2
+...........
+Average Fault Orientation       = 30 (degree)
+Tolerance for Orientation       = 5 (degree)
+Reference Poisson Intensity     = 0.2
+Intensity from thick. exponent  = 1
+Intensity Constant/Shaped ratio = 1
+Survival constant probability   = 0.5
+Survival length-dependent proba = 0.2
+Survival cumul. length exponent = 1.2
+Survival thickness exponent     = 2.4
+Fracture repulsion area Range   = 5
+
+Fault #1/1
+..........
 Location of the Fault           = 30
-Fault orientation               = 90 (deg)
+Fault orientation               = 0 (degree)
 
-Family #1/1
+Family #1/2
 ...........
 Intensity maximum value (left)  = 1
 Intensity range (left)          = 10
 Intensity maximum value (right) = 2
 Intensity range (right)         = 20
-Options set by the keypair mechanism:
-Fracture_Discretization_Count = 1000 
-Fracture_Check_Intersect      = 1 
-Fracture_Repulsion_Low0       = 1e-08
-Fracture_Repulsion_Low1       = 1e-06
 
-Layer generation
-================
-Thickness law - Mean               = 5.000000
-Thickness law - St. Dev.           = 0.200000
-Minimum simulated level            = -0.000000
-Maximum simulated level            = 102.708748
-Number of layers                   = 21 
-Total number of main faults        = 1 
-
-Processing Family #1/1
-======================
-
-Processing Layer #1/21
-----------------------
-Elevation of the layer bottom     = -0.000000
-Thickness of the layer            = 4.735326
-Initial Intensity                 = 0.211179
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Intensity corrected from survival = 0.211179
-Fracture simulation interrupted: no more room available
-Total = 0.000980 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 19 
-Total count of fractures          = 20 
-
-Processing Layer #2/21
-----------------------
-Elevation of the layer bottom     = 4.735326
-Thickness of the layer            = 4.937284
-Initial Intensity                 = 0.202541
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.944055
-Survival proportion               = 0.000000 (0 from 15)
-- Cumulated Distribution: After survival      = 0.944055
-Intensity corrected from survival = 0.202541
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 37 
-
-Processing Layer #3/21
-----------------------
-Elevation of the layer bottom     = 9.672609
-Thickness of the layer            = 4.868957
-Initial Intensity                 = 0.205383
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.927072
-Survival proportion               = 0.090909 (1 from 11)
-- Cumulated Distribution: After survival      = 0.927072
-Intensity corrected from survival = 0.186970
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 54 
-
-Processing Layer #4/21
-----------------------
-Elevation of the layer bottom     = 14.541567
-Thickness of the layer            = 4.844458
-Initial Intensity                 = 0.206421
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 7)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.206421
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 71 
-
-Processing Layer #5/21
-----------------------
-Elevation of the layer bottom     = 19.386025
-Thickness of the layer            = 4.913426
-Initial Intensity                 = 0.203524
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.125000 (1 from 8)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.177721
-Fracture simulation interrupted: no more room available
-Total = 0.000980 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 20 
-Total count of fractures          = 91 
-
-Processing Layer #6/21
-----------------------
-Elevation of the layer bottom     = 24.299451
-Thickness of the layer            = 4.877335
-Initial Intensity                 = 0.205030
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 11)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.205030
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 18 
-Total count of fractures          = 109 
-
-Processing Layer #7/21
-----------------------
-Elevation of the layer bottom     = 29.176786
-Thickness of the layer            = 5.020637
-Initial Intensity                 = 0.199178
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.125000 (1 from 8)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.173549
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 20 
-Total count of fractures          = 129 
-
-Processing Layer #8/21
-----------------------
-Elevation of the layer bottom     = 34.197423
-Thickness of the layer            = 5.221405
-Initial Intensity                 = 0.191519
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.250000 (1 from 4)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.141725
-Fracture simulation interrupted: no more room available
-Total = 0.000979 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 20 
-Total count of fractures          = 149 
-
-Processing Layer #9/21
-----------------------
-Elevation of the layer bottom     = 39.418828
-Thickness of the layer            = 4.777131
-Initial Intensity                 = 0.209331
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.500000 (3 from 6)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.113571
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 166 
-
-Processing Layer #10/21
------------------------
-Elevation of the layer bottom     = 44.195960
-Thickness of the layer            = 4.872682
-Initial Intensity                 = 0.205226
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.838160
-Survival proportion               = 0.000000 (0 from 5)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.205226
-Fracture simulation interrupted: no more room available
-Total = 0.000984 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 16 
-Total count of fractures          = 182 
-
-Processing Layer #11/21
------------------------
-Elevation of the layer bottom     = 49.068642
-Thickness of the layer            = 4.662374
-Initial Intensity                 = 0.214483
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 4)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.214483
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 199 
-
-Processing Layer #12/21
------------------------
-Elevation of the layer bottom     = 53.731016
-Thickness of the layer            = 4.785551
-Initial Intensity                 = 0.208962
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 2)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.208962
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 18 
-Total count of fractures          = 217 
-
-Processing Layer #13/21
------------------------
-Elevation of the layer bottom     = 58.516567
-Thickness of the layer            = 4.923507
-Initial Intensity                 = 0.203107
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.142857 (1 from 7)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.173256
-Fracture simulation interrupted: no more room available
-Total = 0.000983 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 234 
-
-Processing Layer #14/21
------------------------
-Elevation of the layer bottom     = 63.440073
-Thickness of the layer            = 4.571064
-Initial Intensity                 = 0.218767
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.838160
-Survival proportion               = 0.000000 (0 from 5)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.218767
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 19 
-Total count of fractures          = 253 
-
-Processing Layer #15/21
------------------------
-Elevation of the layer bottom     = 68.011137
-Thickness of the layer            = 5.085681
-Initial Intensity                 = 0.196630
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 6)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.196630
-Fracture simulation interrupted: no more room available
-Total = 0.000980 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 19 
-Total count of fractures          = 272 
-
-Processing Layer #16/21
------------------------
-Elevation of the layer bottom     = 73.096819
-Thickness of the layer            = 4.705196
-Initial Intensity                 = 0.212531
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 6)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.212531
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 289 
-
-Processing Layer #17/21
------------------------
-Elevation of the layer bottom     = 77.802015
-Thickness of the layer            = 4.871998
-Initial Intensity                 = 0.205255
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 4)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.205255
-Fracture simulation interrupted: no more room available
-Total = 0.000983 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 16 
-Total count of fractures          = 305 
-
-Processing Layer #18/21
------------------------
-Elevation of the layer bottom     = 82.674013
-Thickness of the layer            = 5.166704
-Initial Intensity                 = 0.193547
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.100000 (1 from 10)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.173022
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 322 
-
-Processing Layer #19/21
------------------------
-Elevation of the layer bottom     = 87.840717
-Thickness of the layer            = 4.909257
-Initial Intensity                 = 0.203697
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.838160
-Survival proportion               = 0.000000 (0 from 5)
-- Cumulated Distribution: After survival      = 0.838160
-Intensity corrected from survival = 0.203697
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 339 
-
-Processing Layer #20/21
------------------------
-Elevation of the layer bottom     = 92.749974
-Thickness of the layer            = 5.001538
-Initial Intensity                 = 0.199938
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.333333 (1 from 3)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.132040
-Fracture simulation interrupted: no more room available
-Total = 0.000981 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 18 
-Total count of fractures          = 357 
-
-Processing Layer #21/21
------------------------
-Elevation of the layer bottom     = 97.751513
-Thickness of the layer            = 4.957236
-Initial Intensity                 = 0.201725
-- Cumulated Distribution: Main Fault          = 1.000000
-- Cumulated Distribution: Previous families   = 0.919080
-Survival proportion               = 0.000000 (0 from 7)
-- Cumulated Distribution: After survival      = 0.919080
-Intensity corrected from survival = 0.201725
-Fracture simulation interrupted: no more room available
-Total = 0.000982 < low1(0.000001) * _ndisc(1000)
-New Simulated fractures in Bench  = 17 
-Total count of fractures          = 374 
+Family #2/2
+...........
+Intensity maximum value (left)  = 1
+Intensity range (left)          = 10
+Intensity maximum value (right) = 2
+Intensity range (right)         = 20
 
 Fracture Description
 ====================
-Current number of simulated fractures = 374
-Fracture: family=1 : 21 segment(s) starting at level #-0
+Current number of simulated fractures = 74
+Fracture: family=1 : 7 segment(s) starting at level #-0
 Fracture: family=2 : 1 segment(s) starting at level #-0
 Fracture: family=2 : 1 segment(s) starting at level #-0
 Fracture: family=2 : 1 segment(s) starting at level #-0
 Fracture: family=2 : 1 segment(s) starting at level #-0
 Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #-0
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=1 : 2 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #4.73533
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=2 : 1 segment(s) starting at level #9.67261
-Fracture: family=1 : 2 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #14.5416
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #19.386
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=1 : 2 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #24.2995
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=1 : 2 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #29.1768
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=1 : 2 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=1 : 2 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=1 : 2 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #34.1974
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #39.4188
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #44.196
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #49.0686
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=1 : 2 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #53.731
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #58.5166
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #63.4401
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #68.0111
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #73.0968
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=1 : 2 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #77.802
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #82.674
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=1 : 2 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #87.8407
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #92.75
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-Fracture: family=2 : 1 segment(s) starting at level #97.7515
-- Number of rows    = 22
-- Number of columns = 6
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]
-     [  0,]     0.000     0.211     0.211     0.000    74.000    20.000
-     [  1,]     4.735     0.203     0.203     0.000    60.000    37.000
-     [  2,]     9.673     0.205     0.187     0.091    62.000    54.000
-     [  3,]    14.542     0.206     0.206     0.000    77.000    71.000
-     [  4,]    19.386     0.204     0.178     0.125    62.000    91.000
-     [  5,]    24.299     0.205     0.205     0.000    65.000   109.000
-     [  6,]    29.177     0.199     0.174     0.125    45.000   129.000
-(Ncols=6,Nrows=7[from 22])
-- Number of rows    = 778
-- Number of columns = 7
-               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]     1.000    22.000     0.000   102.709   102.709    90.000     0.000
-     [  1,]     2.000     2.000     1.000     4.735     4.735    88.294     0.000
-     [  2,]     3.000     2.000     1.000     4.735     4.735    89.375     0.000
-     [  3,]     4.000     2.000     1.000     1.549     1.549    85.906     0.000
-     [  4,]     5.000     2.000     1.000     4.735     4.735    86.118     0.000
-     [  5,]     6.000     2.000     1.000     4.735     4.735    80.846     0.000
-     [  6,]     7.000     2.000     1.000     4.735     4.735    82.661     0.000
-(Ncols=7,Nrows=7[from 778])
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #12.8124
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #22.4253
+Fracture: family=2 : 1 segment(s) starting at level #30.891
+Fracture: family=2 : 1 segment(s) starting at level #30.891
+Fracture: family=2 : 1 segment(s) starting at level #30.891
+Fracture: family=2 : 1 segment(s) starting at level #30.891
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #42.5862
+Fracture: family=2 : 1 segment(s) starting at level #52.5914
+Fracture: family=2 : 1 segment(s) starting at level #52.5914
+Fracture: family=2 : 1 segment(s) starting at level #52.5914
+Fracture: family=2 : 1 segment(s) starting at level #52.5914
+Fracture: family=2 : 1 segment(s) starting at level #69.307
+Fracture: family=2 : 1 segment(s) starting at level #69.307
+Fracture: family=3 : 1 segment(s) starting at level #-0
+Fracture: family=3 : 1 segment(s) starting at level #-0
+Fracture: family=3 : 1 segment(s) starting at level #-0
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 2 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #12.8124
+Fracture: family=3 : 1 segment(s) starting at level #22.4253
+Fracture: family=3 : 1 segment(s) starting at level #22.4253
+Fracture: family=3 : 1 segment(s) starting at level #22.4253
+Fracture: family=3 : 1 segment(s) starting at level #22.4253
+Fracture: family=3 : 1 segment(s) starting at level #30.891
+Fracture: family=3 : 1 segment(s) starting at level #30.891
+Fracture: family=3 : 1 segment(s) starting at level #30.891
+Fracture: family=3 : 1 segment(s) starting at level #30.891
+Fracture: family=3 : 1 segment(s) starting at level #30.891
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #42.5862
+Fracture: family=3 : 1 segment(s) starting at level #52.5914
+Fracture: family=3 : 1 segment(s) starting at level #69.307
+Fracture: family=3 : 1 segment(s) starting at level #69.307
 
 Data Base Grid Characteristics
 ==============================
@@ -852,7 +189,7 @@ Data Base Statistics
  Nb of data          =      30401
  Nb of active values =      30401
  Minimum value       =      0.000
- Maximum value       =      5.000
- Mean value          =      0.836
- Standard Deviation  =      1.866
- Variance            =      3.481
+ Maximum value       =     20.000
+ Mean value          =      0.908
+ Standard Deviation  =      2.994
+ Variance            =      8.964

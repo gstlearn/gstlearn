@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Fractures-");
@@ -62,19 +62,14 @@ int main(int /*argc*/, char */*argv*/[])
   FracEnviron env = FracEnviron(xmax, ymax, deltax, deltay, mean, stdev);
 
   // Creating the Fault Families
-  double orient  = 0.;
-  double dorient = 20.;
-  double theta0  = 1.;
-  double alpha   = 1.;
-  double ratcst  = 1;
-  double prop1   = 0.5;
-  double prop2   = 0.2;
-  double aterm   = 1.2;
-  double bterm   = 2.4;
-  double range   = 12.;
-  FracFamily family = FracFamily(orient, dorient, theta0, alpha, ratcst,
-                                 prop1, prop2, aterm, bterm, range);
-  family.display();
+
+  // Family1: orient=0, dorient=20, theta0=0.2, alpha=1, ratcst=1,
+  //          prop1 = 0.5, prop2=0.2, aterm=1.2, bterm=2.4, range=5
+  FracFamily family1 = FracFamily(0., 20., 0.2, 1., 1., 0.5, 0.2, 1.2, 2.4, 5.);
+
+  // Family2: orient=30, dorient=5., theta0=0.2, alpha=1, ratcst=1,
+  //          prop1 = 0.5, prop2=0.2, aterm=1.2, bterm=2.4, range=5
+  FracFamily family2 = FracFamily(30., 5., 0.2, 1., 1., 0.5, 0.2, 1.2, 2.4, 5.);
 
   // Creating the Major Fault
   double coord   = 30.;
@@ -85,11 +80,12 @@ int main(int /*argc*/, char */*argv*/[])
   double rangel  = 10.;
   double ranger  = 20.;
   fault.addFaultPerFamily(thetal, thetar, rangel, ranger);
-  fault.display();
+  fault.addFaultPerFamily(thetal, thetar, rangel, ranger);
 
   // Gluing all elements within the Environment
   env.addFault(fault);
-  env.addFamily(family);
+  env.addFamily(family1);
+  env.addFamily(family2);
   env.display();
 
   // Simulating fractures
@@ -99,15 +95,10 @@ int main(int /*argc*/, char */*argv*/[])
   flist.display();
 
   // Plunge the set of fractures on the Grid
-  VectorDouble permtab = { 10., 20., 30. };
+  VectorDouble permtab = { 20., 10., 15. };
   double perm_mat   = 0.;
   double perm_bench = 5.;
   (void) flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench);
-
-  MatrixRectangular layinfo = flist.layinfoExport();
-  layinfo.display();
-  MatrixRectangular fracinfo = flist.fractureExport();
-  fracinfo.display();
 
   grid->display(&dbfmt);
 

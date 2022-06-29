@@ -105,31 +105,31 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   /* General characteristics */
+  /* General characteristics */
 
-   sstr << toTitle(0, "Geometry");
-   sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
-   sstr << "Field extension (vertical)      = " << _ymax << std::endl;
-   sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
-   sstr << "Field dilation (vertical)       = " << _deltay << std::endl;
-   sstr << "Mean of thickness law           = " << _mean << std::endl;
-   sstr << "St. dev. of thickness law       = " << _stdev << std::endl;
-   sstr << "Number of families              = " << getNFamilies() << std::endl;
-   sstr << "Number of faults                = " << getNFaults() << std::endl;
+  sstr << toTitle(0, "Geometry");
+  sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
+  sstr << "Field extension (vertical)      = " << _ymax << std::endl;
+  sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
+  sstr << "Field dilation (vertical)       = " << _deltay << std::endl;
+  sstr << "Mean of thickness law           = " << _mean << std::endl;
+  sstr << "St. dev. of thickness law       = " << _stdev << std::endl;
+  sstr << "Number of families              = " << getNFamilies() << std::endl;
+  sstr << "Number of faults                = " << getNFaults() << std::endl;
 
-   /* Loop on the families */
+  /* Loop on the families */
 
-  for (int j = 0; j < getNFamilies(); j++)
+  for (int i = 0; i < getNFamilies(); i++)
   {
-    sstr << toTitle(2, "Family #%d/%d", j + 1, getNFamilies());
-    sstr << _families[j].toString(strfmt);
+    sstr << toTitle(2, "Family #%d/%d", i + 1, getNFamilies());
+    sstr << _families[i].toString(strfmt);
   }
 
   /* Loop on the faults */
 
   for (int i = 0; i < getNFaults(); i++)
   {
-    mestitle(1, "Fault #%d/%d", i + 1, getNFaults());
+    sstr << toTitle(2, "Fault #%d/%d", i + 1, getNFaults());
     sstr << _faults[i].toString(strfmt);
   }
 
