@@ -142,6 +142,8 @@ int SimuEden::simulate(DbGrid *dbgrid,
   _iptrStatFluid = iptr_stat_fluid;
   _iptrStatCork  = iptr_stat_cork;
 
+  law_set_random_seed(getSeed());
+
   Skin* skin = new Skin(this, _dbgrid);
 
   /* Preliminary checks */
@@ -1070,7 +1072,7 @@ MatrixRectangular SimuEden::fluidExtract(DbGrid* dbgrid,
   _indFacies = ind_facies;
   _indFluid  = ind_fluid;
   _indPoro   = ind_poro;
-  _indDate = ind_date;
+  _indDate   = ind_date;
 
   /* Initialize the array */
 

@@ -35,7 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Fractures-");
@@ -53,51 +53,61 @@ int main(int /*argc*/, char */*argv*/[])
   grid->display();
 
   // Creating the Fracture Environment
-
   double xmax = grid->getExtend(0);
   double ymax = grid->getExtend(1);
   double deltax = 0.;
   double deltay = 0.;
-  double mean   = 5.;
-  double stdev  = 0.2;
+  double mean   = 20.;
+  double stdev  = 10.;
   FracEnviron env = FracEnviron(xmax, ymax, deltax, deltay, mean, stdev);
-  env.display();
 
-  double theta0 = 1.;
-  double alpha  = 1.;
-  double ratcst = 1;
-  double prop1  = 0.5;
-  double prop2  = 0.2;
-  double aterm  = 1.2;
-  double bterm  = 2.4;
-  double range  = 12.;
-  FracFamily family = FracFamily(90., 10., theta0, alpha, ratcst,
+  // Creating the Fault Families
+  double orient  = 0.;
+  double dorient = 20.;
+  double theta0  = 1.;
+  double alpha   = 1.;
+  double ratcst  = 1;
+  double prop1   = 0.5;
+  double prop2   = 0.2;
+  double aterm   = 1.2;
+  double bterm   = 2.4;
+  double range   = 12.;
+  FracFamily family = FracFamily(orient, dorient, theta0, alpha, ratcst,
                                  prop1, prop2, aterm, bterm, range);
   family.display();
 
-  double coord  = 30.;
-  double orient = 90.;
-  FracFault fault = FracFault(coord, orient);
-  double thetal = 1.;
-  double thetar = 2.;
-  double rangel = 10.;
-  double ranger = 20.;
+  // Creating the Major Fault
+  double coord   = 30.;
+  double forient = 0.;
+  FracFault fault = FracFault(coord, forient);
+  double thetal  = 1.;
+  double thetar  = 2.;
+  double rangel  = 10.;
+  double ranger  = 20.;
   fault.addFaultPerFamily(thetal, thetar, rangel, ranger);
   fault.display();
 
+  // Gluing all elements within the Environment
   env.addFault(fault);
   env.addFamily(family);
+  env.display();
 
+  // Simulating fractures
   FracList flist = FracList();
   int seed = 432431;
-  flist.simulate(env, true, true, seed, true, VectorDouble());
+  flist.simulate(env, true, true, seed, false, VectorDouble());
   flist.display();
 
   // Plunge the set of fractures on the Grid
-  VectorDouble permtab = { 0. };
+  VectorDouble permtab = { 10., 20., 30. };
   double perm_mat   = 0.;
   double perm_bench = 5.;
   (void) flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench);
+
+  MatrixRectangular layinfo = flist.layinfoExport();
+  layinfo.display();
+  MatrixRectangular fracinfo = flist.fractureExport();
+  fracinfo.display();
 
   grid->display(&dbfmt);
 

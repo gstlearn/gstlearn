@@ -170,6 +170,7 @@ int FracList::simulate(const FracEnviron& environ,
   for (int ifault = 0; ifault < environ.getNFaults(); ifault++)
   {
     double angle = environ.getFault(ifault).getOrient();
+    message("Angle=\n",angle);
 
     /* Loop on the layers */
 
@@ -179,7 +180,9 @@ int FracList::simulate(const FracEnviron& environ,
     for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
       double thick = thicks[ilayer];
+      message("Thick(%d) = %lf\n",ilayer,thick);
       ifrac = _fracAdd(ifrac, 0, xx, cote, thick, angle, &xx);
+      message("xx = %lf\n",xx);
       cote += thick;
     }
   }
@@ -1243,7 +1246,9 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
     FracDesc &desc = _descs[ifrac];
-    double perm = permtab[desc.getFamily()];
+    int ifam = desc.getFamily();
+    double perm = 0.;
+    if (ifam < (int) permtab.size()) perm = permtab[ifam];
     if (perm <= 0.) continue;
 
     /* Loop on the segments */

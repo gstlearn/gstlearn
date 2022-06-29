@@ -62,7 +62,7 @@ String FracFault::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
 
-  sstr << toTitle(0, "Fault");
+  sstr << toTitle(0, "Major Fault");
   sstr << "Location of the Fault           = " << _coord << std::endl;
   sstr << "Fault orientation               = " << _orient << " (deg)" << std::endl;
 
