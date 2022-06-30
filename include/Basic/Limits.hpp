@@ -31,6 +31,13 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static Limits* create(const VectorDouble& mini,
+                        const VectorDouble& maxi,
+                        const VectorBool& incmini = VectorBool(),
+                        const VectorBool& incmaxi = VectorBool());
+  static Limits* create(const VectorDouble& bounds, bool addFromZero = false);
+  static Limits* create(int nclass);
+
   int getLimitNumber() const { return static_cast<int>(_bounds.size()); }
   std::vector<Interval>& getBounds() { return _bounds; }
   VectorDouble getLowerBounds() const;

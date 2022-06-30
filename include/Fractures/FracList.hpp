@@ -14,9 +14,9 @@
 
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracEnviron.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 #define NPART 5
@@ -48,20 +48,20 @@ public:
                int seed,
                bool verbose,
                const VectorDouble& elevations = VectorDouble());
+  void addDescription(const FracDesc& description = FracDesc());
+
   MatrixRectangular fractureExport() const;
   MatrixRectangular layinfoExport() const { return _layinfo; };
   static FracList* fractureImport(const VectorDouble& frac_segs,
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
-
-  void addDescription(const FracDesc& description = FracDesc());
-
   int fractureToBlock(DbGrid *dbgrid,
                       double xmax,
                       VectorDouble& permtab,
                       double perm_mat,
                       double perm_bench,
-                      int ndisc = 1000.);
+                      int ndisc = 1000.,
+                      const NamingConvention& namconv = NamingConvention("Fractures"));
   VectorDouble fractureToWell(int nval,
                               const VectorDouble& well,
                               double xmax,

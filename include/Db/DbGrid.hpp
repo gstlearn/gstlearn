@@ -168,6 +168,11 @@ public:
                            int posy,
                            const VectorInt& corner,
                            bool useSel = false) const;
+  int assignGridColumn(const String& name,
+                       int idim,
+                       int rank,
+                       double value,
+                       bool useSel = false);
 
 protected:
   /// Interface for ASerializable

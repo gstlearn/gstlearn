@@ -17,6 +17,7 @@
 #include "Skin/ISkinFunctions.hpp"
 #include "Basic/Law.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Db/Db.hpp"
 
 #define DIR_UP         4
 #define DIR_DOWN       5
@@ -172,6 +173,7 @@ int SimuEden::simulate(DbGrid *dbgrid,
     /* Initialize the grid with the initial values */
 
     _statsInit();
+
     if (skin->init(verbose))
     {
       delete skin;
@@ -409,8 +411,10 @@ void SimuEden::_statsDefine(void)
  *****************************************************************************/
 int SimuEden::isAlreadyFilled(int ipos) const
 {
-  return (_getFACIES(ipos) > 0 &&  _getPERM(ipos) > 0
-          && _getFLUID(ipos) != UNDEF_FLUID);
+  bool answer = _getFACIES(ipos) > 0 &&
+                _getPERM(ipos)   > 0 &&
+                _getFLUID(ipos) != UNDEF_FLUID;
+  return answer;
 }
 
 /****************************************************************************/
@@ -424,8 +428,10 @@ int SimuEden::isAlreadyFilled(int ipos) const
  *****************************************************************************/
 int SimuEden::isToBeFilled(int ipos) const
 {
-  return (_getFACIES(ipos) > 0 && _getPERM(ipos) > 0
-          && _getFLUID(ipos) == UNDEF_FLUID);
+  bool answer = _getFACIES(ipos) > 0 &&
+                _getPERM(ipos)   > 0 &&
+                _getFLUID(ipos) == UNDEF_FLUID;
+  return answer;
 }
 
 /****************************************************************************/
@@ -589,7 +595,7 @@ void SimuEden::_addStatNumber(int ifacies, int ifluid, int value)
 }
 void SimuEden::_addStatVolume(int ifacies, int ifluid, double value)
 {
-  _volume[ifacies * _nfluids + ifluid] = +value;
+  _volume[ifacies * _nfluids + ifluid] += value;
 }
 int SimuEden::_getStatNumber(int ifacies, int ifluid) const
 {
@@ -613,7 +619,7 @@ void SimuEden::_checkInconsistency(bool verbose)
   int n_shale_fluid = 0;
   for (int iech = 0; iech < _nxyz; iech++)
   {
-    int ifluid = _getFLUID_OLD(iech);
+    int ifluid  = _getFLUID_OLD(iech);
     int ifacies = _getFACIES(iech);
     double perm = _getPERM(iech);
 
@@ -850,7 +856,7 @@ void SimuEden::_statsPrint(const char *title)
     }
   if (totnum > 0)
   {
-    message("           Total Number = %d\n", totnum);
+    message("           Total Number = %lf\n", totnum);
     message("           Total Volume = %lf\n", totvol);
   }
 
@@ -1129,3 +1135,20 @@ MatrixRectangular SimuEden::fluidExtract(DbGrid* dbgrid,
 
   return tab;
 }
+
+int SimuEden::_countAlreadyFilled() const
+{
+  int count = 0;
+  for (int lec = 0; lec < _nxyz; lec++)
+    count += isAlreadyFilled(lec);
+  return count;
+}
+
+int SimuEden::_countIsToBeFilled() const
+{
+  int count = 0;
+  for (int lec = 0; lec < _nxyz; lec++)
+    count += isToBeFilled(lec);
+  return count;
+}
+

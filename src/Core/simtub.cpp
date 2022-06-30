@@ -3273,8 +3273,6 @@ DbGrid* simfine(DbGrid *dbin,
 ** \return  Error return code : 1 no fluid to propagate
 **
 ** \param[in]  dbgrid        Db grid structure
-
-** \param[in]  seed          Seed for random number generator (or 0)
 ** \param[in]  name_facies   Name of the variable containing the Facies
 ** \param[in]  name_fluid    Name of the variable containing the Fluid
 ** \param[in]  name_perm     Name of the variable containing the Permeability
@@ -3282,13 +3280,15 @@ DbGrid* simfine(DbGrid *dbin,
 ** \param[in]  nfacies       number of facies (facies 0 excluded)
 ** \param[in]  nfluids       number of fluids
 ** \param[in]  niter         Number of iterations
-** \param[in]  speeds        array containing the travel speeds
+** \param[in]  speeds        Array containing the travel speeds
 ** \param[in]  show_fluid    1 for modifying the value of the cells to show
 ** \li                       the initial valid fluid information
 ** \li                       the cork (different from shale)
 ** \param[in]  number_max    Maximum count of cells invaded (or TEST)
 ** \param[in]  volume_max    Maximum volume invaded (or TEST)
+** \param[in]  seed          Seed for random number generator (or 0)
 ** \param[in]  verbose       1 for a verbose option
+** \param[in]  namconv       Naming convention
 **
 ** \remark  Directions are ordered as follows :
 ** \remark  0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
@@ -3304,11 +3304,8 @@ DbGrid* simfine(DbGrid *dbin,
 ** \remark  Volume_max represents the volumic part of the invaded area:
 ** \remark  it is always <= number of cells invaded.
 **
-** \note Needs license for Keyword simeden
-**
 *****************************************************************************/
 int fluid_propagation(DbGrid *dbgrid,
-                      int     seed,
                       const String& name_facies,
                       const String& name_fluid,
                       const String& name_perm,
@@ -3317,10 +3314,12 @@ int fluid_propagation(DbGrid *dbgrid,
                       int     nfluids,
                       int     niter,
                       const VectorInt& speeds,
-                      int     show_fluid,
+                      bool    show_fluid,
                       double  number_max,
                       double  volume_max,
-                      bool verbose)
+                      int seed,
+                      bool verbose,
+                      const NamingConvention& namconv)
 {
   if (! is_grid(dbgrid))
   {
@@ -3344,8 +3343,10 @@ int fluid_propagation(DbGrid *dbgrid,
     messerr("Variable 'Fluid' must be provided");
     return 1;
   }
-  int ind_poro = dbgrid->getUID(name_poro);
-  int ind_perm = dbgrid->getUID(name_perm);
+  int ind_poro = -1;
+  if (! name_poro.empty()) ind_poro = dbgrid->getUID(name_poro);
+  int ind_perm = -1;
+  if (! name_perm.empty()) ind_perm = dbgrid->getUID(name_perm);
 
   /* Add the attributes for storing the results */
 
@@ -3379,8 +3380,22 @@ int fluid_propagation(DbGrid *dbgrid,
   if (niter > 1)
   {
     if (iptr_fluid > 0) dbgrid->deleteColumnByUID(iptr_fluid);
+    iptr_fluid = -1;
     if (iptr_date  > 0) dbgrid->deleteColumnByUID(iptr_date);
+    iptr_date = -1;
   }
+
+  // Naming output variables
+
+  if (iptr_stat_fluid >= 0)
+    namconv.setNamesAndLocators(dbgrid, iptr_stat_fluid, "Stat_Fluid", niter);
+  if (iptr_stat_cork >= 0)
+    namconv.setNamesAndLocators(dbgrid, iptr_stat_cork, "Stat_Cork", niter);
+  if (iptr_fluid)
+    namconv.setNamesAndLocators(dbgrid, iptr_fluid, "Fluid");
+  if (iptr_date)
+    namconv.setNamesAndLocators(dbgrid, iptr_date, "Date");
+
   return 0;
 }
 

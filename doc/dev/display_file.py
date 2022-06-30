@@ -24,13 +24,13 @@ if filetype == "":
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
     dbfmt = gl.DbStringFormat()
-    dbfmt.setParams([gl.FLAG_VARS,gl.FLAG_STATS])
+    dbfmt.setParams(gl.FLAG_VARS | gl.FLAG_STATS)
     db.display(dbfmt)
            
 elif filetype == "DbGrid":
     dbgrid = gl.DbGrid.createFromNF(filename,False)
     dbfmt = gl.DbStringFormat()
-    dbfmt.setParams([gl.FLAG_VARS,gl.FLAG_STATS])
+    dbfmt.setParams(gl.FLAG_VARS | gl.FLAG_STATS)
     dbgrid.display(dbfmt)
             
 elif filetype == "Vario":

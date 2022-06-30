@@ -100,6 +100,8 @@ private:
   void _calculateCumul(void);
   void _updateResults(int reset_facies, int show_fluid);
   void _normalizeCumul(int niter);
+  int  _countAlreadyFilled() const;
+  int  _countIsToBeFilled() const;
 
 private:
   int _nxyz;

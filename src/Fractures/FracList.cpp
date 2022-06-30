@@ -18,6 +18,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Geometry.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
@@ -1168,6 +1169,7 @@ void FracList::addDescription(const FracDesc& description)
  ** \param[in]  perm_mat     Permability for the matrix
  ** \param[in]  perm_bench   Permability along the bench edge
  ** \param[in]  ndisc        Number of discretization steps
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
 int FracList::fractureToBlock(DbGrid *dbgrid,
@@ -1175,7 +1177,8 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
                               VectorDouble& permtab,
                               double perm_mat,
                               double perm_bench,
-                              int ndisc)
+                              int ndisc,
+                              const NamingConvention& namconv)
 {
   if (dbgrid->getNDim() != 2)
   {
@@ -1225,6 +1228,8 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
                      desc.getXXF(jp), desc.getYYF(jp));
     }
   }
+
+  namconv.setNamesAndLocators(dbgrid, iptr);
   return 0;
 }
 

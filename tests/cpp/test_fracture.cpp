@@ -101,9 +101,6 @@ int main(int /*argc*/, char */*argv*/[])
   (void) flist.fractureToBlock(grid, xmax, permtab, perm_mat, perm_bench);
 
   grid->display(&dbfmt);
-
-  // Save as Neutral File
-
   (void) grid->dumpToNF("Grid.ascii");
 
   // ====================== Free pointers ==================================
