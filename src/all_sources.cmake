@@ -1,6 +1,11 @@
 # Why is cmake file GLOB evil?
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 set(SRC
+  Fractures/FracEnviron.cpp
+  Fractures/FracFamily.cpp
+  Fractures/FracFault.cpp
+  Fractures/FracDesc.cpp
+  Fractures/FracList.cpp
   License/MD5Utility.cpp
   License/RegistryUtility.cpp
   License/MACAddressUtility.cpp
@@ -293,10 +298,5 @@ set(SRC
   Simulation/SimuRefine.cpp
   Simulation/SimuEden.cpp
   Basic/AFunction.cpp
-  Fractures/FracEnviron.cpp
-  Fractures/FracFamily.cpp
-  Fractures/FracFault.cpp
-  Fractures/FracDesc.cpp
-  Fractures/FracList.cpp
   Skin/Skin.cpp
 )
