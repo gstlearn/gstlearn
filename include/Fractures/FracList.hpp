@@ -12,12 +12,13 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Fractures/FracDesc.hpp"
-#include "Fractures/FracEnviron.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+
+#include "Fractures/FracDesc.hpp"
+#include "Fractures/FracEnviron.hpp"
 
 #define NPART 5
 #define NBYFRAC 7

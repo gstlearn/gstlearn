@@ -75,9 +75,9 @@ FracEnviron::~FracEnviron()
  */
 FracEnviron* FracEnviron::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FracEnviron* environ = nullptr;
+  //FracEnviron* environ = nullptr;
   std::ifstream is;
-  environ = new FracEnviron;
+  FracEnviron* environ = new FracEnviron();
   bool success = false;
   if (environ->_fileOpenRead(neutralFilename, is, verbose))
   {

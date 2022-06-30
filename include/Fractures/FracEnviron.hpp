@@ -25,7 +25,7 @@ public:
   FracEnviron(double xmax = 0.,
               double ymax = 0.,
               double deltax = 0.,
-              double deltay = 0,
+              double deltay = 0.,
               double mean = 0.,
               double stdev = 0.);
   FracEnviron(const FracEnviron& r);
