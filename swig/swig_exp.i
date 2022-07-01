@@ -30,9 +30,9 @@ class IClonable{};
 
 %template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
 
-%template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
-%template(VectorPolySet)        std::vector<PolySet>;
-%template(VectorIntervals)      std::vector<Interval>; 
+%template(VectorDir)            std::vector< DirParam >;  // Not a pointers list
+%template(VectorPolySet)        std::vector< PolySet >;
+%template(VectorIntervals)      std::vector< Interval >; 
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!

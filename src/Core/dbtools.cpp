@@ -5210,7 +5210,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (db->isVariableNumberComparedTo(1,1))
+  if (! db->isVariableNumberComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
     return (dbnew);
