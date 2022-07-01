@@ -32,6 +32,9 @@ public:
   FracEnviron& operator=(const FracEnviron& r);
   virtual ~FracEnviron();
 
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   static FracEnviron* createFromNF(const String& neutralFilename,
                                    bool verbose = false);
   static FracEnviron* create(double xmax = 0.,
@@ -40,7 +43,6 @@ public:
                              double deltay = 0,
                              double mean = 0.,
                              double stdev = 0.);
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNFamilies() const { return (int) _families.size(); }
   int getNFaults() const { return (int) _faults.size(); }

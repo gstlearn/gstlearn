@@ -25,21 +25,14 @@ class IClonable{};
 %template(VectorInt)            std::vector< int >;
 %template(VectorString)         std::vector< std::string >;
 %template(VectorBool)           std::vector< bool >;
-%template(VectorUChar)          std::vector< unsigned char >;
 %template(VectorVectorInt)      std::vector< std::vector< int > >;
 %template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
 %template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
 
-%template(VectorCTable)         std::vector<CTable*>;
 %template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
-%template(VectorDirection)      std::vector<TurningDirection>;
-%template(VectorLocal_Split)    std::vector<Local_Split*>;
-%template(VectorPolySet)        std::vector<PolySet*>;
-%template(VectorQChol)          std::vector<QChol*>;
-%template(VectorSPDE_SS_Option) std::vector<SPDE_SS_Option*>;
-%template(VectorSubPlan)        std::vector<SubPlan*>;
-%template(VectorIntervals)      std::vector<Interval*>;
+%template(VectorPolySet)        std::vector<PolySet>;
+%template(VectorIntervals)      std::vector<Interval>; 
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
