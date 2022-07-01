@@ -4,6 +4,7 @@
 #include "Basic/AException.hpp"
 
 #include <cmath>
+#include <complex>
 
 CovDiffusionAdvection::CovDiffusionAdvection()
 :   _markovL(nullptr)
@@ -195,7 +196,9 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   if (_markovRdefined)
     s2 = 1./(_markovR->evalSpectrum(freq));
 
-  std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
+  //std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
+  std::complex<double> a(-_scaleTime * abs(time * s1), -_scaleTime * velinner * time);
+  std::complex<double> temp = a;
 
   double ratio =  _sigma2 / (_globalCorrec * s1 * s2 );
   return ratio * exp(temp);

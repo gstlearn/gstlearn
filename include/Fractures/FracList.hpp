@@ -43,7 +43,7 @@ public:
 
   int getNFracs() const { return (int) _descs.size(); }
 
-  int simulate(const FracEnviron& environ,
+  int simulate(const FracEnviron& envir,
                bool flag_sim_layer,
                bool flag_sim_fract,
                int seed,
@@ -96,7 +96,7 @@ private:
   void _setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,_getRank(ifam,4),value); }
   double _getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
 
-  VectorDouble _layersManage(const FracEnviron& environ, double *y0);
+  VectorDouble _layersManage(const FracEnviron& envir, double *y0);
   VectorDouble _layersRead(const VectorDouble& elevations, double *y0);
   int _fracAdd(int ifrac,
                int ifam,
@@ -114,7 +114,7 @@ private:
                       double *ye);
   double _layerIntensity(const FracFamily& family,
                          double thick);
-  void _generateDensity(const FracEnviron& environ,
+  void _generateDensity(const FracEnviron& envir,
                         const FracFamily& family,
                         int ifam,
                         double cote,
@@ -131,7 +131,7 @@ private:
                           double cote,
                           double thick,
                           VectorDouble& denstab);
-  bool _sameFaultSide(const FracEnviron& environ, int ifault0, double x0);
+  bool _sameFaultSide(const FracEnviron& envir, int ifault0, double x0);
   double _densityUpdate(const FracFault& fault,
                         int side,
                         int ifam,
@@ -146,7 +146,7 @@ private:
   double _faultAbscissae(const FracFault& fault, double cote);
   double _cubic(double h);
   double _fractureExtension(const FracDesc& desc, double cote, double dcote);
-  int _simulateFractures(const FracEnviron& environ,
+  int _simulateFractures(const FracEnviron& envir,
                          const FracFamily& family,
                          int ifam,
                          double cote,
