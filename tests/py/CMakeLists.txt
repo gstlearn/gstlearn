@@ -17,19 +17,24 @@ file(GLOB TEST_SOURCES test*.py)
 #  test_Arguments.py)
 
 # Generation folder
-cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE}
-           OUTPUT_VARIABLE GLOBAL_DST_DIR)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
+if (CMAKE_CONFIGURATION_TYPES)
+  cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR $<CONFIG>
+             OUTPUT_VARIABLE TEST_DST_DIR)
+else()
+  cmake_path(APPEND CMAKE_CURRENT_BINARY_DIR ${CMAKE_BUILD_TYPE}
+             OUTPUT_VARIABLE TEST_DST_DIR)
+endif()
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${TEST_DST_DIR})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${TEST_DST_DIR})
 
-# Python script test runner path
-cmake_path(APPEND PROJECT_SOURCE_DIR python run_test.py
-           OUTPUT_VARIABLE RUN_TEST_SCRIPT)
+# Create the target and the output directory for logs
+# Look parent CMakeLists for MY_CTEST_COMMAND definition
+add_custom_target(check_py
+                  COMMAND ${CMAKE_COMMAND} -E make_directory "${TEST_DST_DIR}"
+                  COMMAND ${MY_CTEST_COMMAND})
 
-# Create the output directory for logs
-cmake_path(APPEND GLOBAL_DST_DIR output
-           OUTPUT_VARIABLE TEST_DST_DIR)
-file(MAKE_DIRECTORY ${TEST_DST_DIR})
+# Add dependency for check_py
+add_dependencies(check_py python_install)
 
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
@@ -50,9 +55,3 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
 
-# Look parent CMakeLists for MY_CTEST_COMMAND definition
-add_custom_target(check_py
-                  COMMAND ${MY_CTEST_COMMAND})
-
-# Add dependency for check_py
-add_dependencies(check_py python_install)

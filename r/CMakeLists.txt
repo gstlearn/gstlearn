@@ -47,7 +47,7 @@ include(${SWIG_USE_FILE})
 set(SRC rgstlearn.i)
 
 # Generation folders
-if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG
+if (CMAKE_CONFIGURATION_TYPES)
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})

@@ -14,10 +14,16 @@ set(MY_CTEST_COMMAND ${CMAKE_CTEST_COMMAND} ${VERBOSE_TEST} ${CONFIG_TEST} --out
 
 # TODO : Output logs of each target are mixed when using several processors
 
-add_subdirectory(data)
+if(NOT CMAKE_CONFIGURATION_TYPES)
+  add_subdirectory(data)
+endif()
 add_subdirectory(cpp)
 add_subdirectory(inter)
-set(CHECK_DEP check_cpp check_data)
+if(NOT CMAKE_CONFIGURATION_TYPES)
+  set(CHECK_DEP check_cpp check_data)
+else()
+  set(CHECK_DEP check_cpp)
+endif()
 
 if (BUILD_PYTHON)
   add_subdirectory(py)
