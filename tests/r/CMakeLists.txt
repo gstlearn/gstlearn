@@ -47,7 +47,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_r
              COMMAND ${R_EXECUTABLE} CMD BATCH --slave --no-timing ${TEST_SOURCE_FILE} ${TEST_DST_DIR}/${TEST_NAME}.out)
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
+    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
     add_test(NAME ${TEST_NAME}_r_cmp
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})

@@ -36,6 +36,10 @@ add_custom_target(check_py
 # Add dependency for check_py
 add_dependencies(check_py python_install)
 
+# Python script test runner path
+cmake_path(APPEND PROJECT_SOURCE_DIR python run_test.py
+           OUTPUT_VARIABLE RUN_TEST_SCRIPT)
+           
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
@@ -50,7 +54,7 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_test(NAME ${TEST_NAME}_py
              COMMAND ${Python3_EXECUTABLE} ${RUN_TEST_SCRIPT} ${TEST_SOURCE_FILE} ${TEST_DST_DIR})
     # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
-    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
+    # Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore white spaces (-w)
     add_test(NAME ${TEST_NAME}_py_cmp
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TEST_NAME}.ref ${TEST_DST_DIR}/${TEST_NAME}.out)
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
