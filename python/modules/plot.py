@@ -274,15 +274,6 @@ def varioDir(vario, ivar=0, jvar=0,
     ndirUtil, ivarD = selectItems(ndir)
     cols = get_cmap(vario.getDirectionNumber(),cmap)
     
-    # xlim = [0,hmax]
-    # gmin = 0
-    # if ivar != jvar:
-    #     gmin = -gmax
-    # ylim = [gmin,gmax]
-        
-    # if ax is None:
-    #     fig, ax = newFigure(figsize, xlim, ylim)
-    # update_xylim(ax, xlim, ylim)
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
     
@@ -352,8 +343,6 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     if gmax is None:
         gmax = vario.getGmax(ivar, jvar, idir)
 
-    # xlim = [0, hmax]
-    # ylim = [0, gmax]
     ylimnodiag = [-gmax, gmax]
         
     ndir = vario.getDirectionNumber()
@@ -529,10 +518,6 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     drawDecor(ax, xlabel, ylabel, title)
     
     ax.autoscale(True)
-#    if vario.drawOnlyPositiveX(ivar, jvar):
-#        ax.set_xlim(left=0)
-#    if vario.drawOnlyPositiveY(ivar, jvar):
-#        ax.set_ylim(bottom=0)
     
     if flagLegend:
         ax.legend()
@@ -547,7 +532,7 @@ def point(db,
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
-          title=None, ax=None, figsize = None, end_plot =False, **scatter_args):
+          title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
@@ -574,9 +559,6 @@ def point(db,
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
@@ -605,8 +587,9 @@ def point(db,
         sizval = size
 
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap, **scatter_args)
+
     ax.set_aspect(aspect)
-    
+        
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
     
@@ -621,7 +604,7 @@ def point(db,
     if end_plot:
         plt.show()
 
-    return ax
+    return ax, im
 
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
@@ -734,7 +717,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
-    if flagColorBar:# and alpha > 0:
+    if flagColorBar:
         addColorbar(im, ax)
     
     if title is not None:
@@ -745,7 +728,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     if end_plot:
         plt.show()
     
-    return ax
+    return ax, im
 
 def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
          xlim=None, ylim=None, norm=None,
@@ -978,10 +961,6 @@ def mesh(mesh,
     """
     
     if ax is None:
-        if xlim is not None:
-            plt.xlim(mesh.getExtrema(0))
-        if ylim is not None:
-            plt.ylim(mesh.getExtrema(1))
         fig, ax = newFigure(figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()

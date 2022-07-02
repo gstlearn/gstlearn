@@ -1498,6 +1498,28 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   return ext;
 }
 
+VectorDouble Db::getCoorMinimum(bool useSel) const
+{
+  VectorDouble ext;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, useSel);
+    ext.push_back(ut_vector_min(coor));
+  }
+  return ext;
+}
+
+VectorDouble Db::getCoorMaximum(bool useSel) const
+{
+  VectorDouble ext;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, useSel);
+    ext.push_back(ut_vector_max(coor));
+  }
+  return ext;
+}
+
 VectorDouble Db::getCenter(bool useSel) const
 {
   int ndim = getNDim();
