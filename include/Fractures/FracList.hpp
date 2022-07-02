@@ -83,7 +83,7 @@ public:
 
   // Pipe for Class Description
   void setFamily(int i, int ifam) { _descs[i].setFamily(ifam); }
-  void setOrient(int i, int orient) { _descs[i].setOrient(orient); }
+  void setOrient(int i, double orient) { _descs[i].setOrient(orient); }
   void addPoint(int i, double xx, double yy) { _descs[i].addPoint(xx,yy); }
 
 private:

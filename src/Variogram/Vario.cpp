@@ -1490,7 +1490,7 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
   setVars(vars);
   setCalculName("vg");
   setScale(scale);
-  int isDefinedForGrid;
+  int isDefinedForGrid = 0;
 
   /* Reading the variogram calculation directions */
 

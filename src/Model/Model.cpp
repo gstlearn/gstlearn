@@ -133,7 +133,7 @@ Model* Model::createFromParam(const ECov& type,
   if (! ranges.empty())
   {
     delete spaceloc;
-    spaceloc = new SpaceRN(ranges.size());
+    spaceloc = new SpaceRN((int) ranges.size());
   }
 
   CovContext ctxt = CovContext(nvar,spaceloc);
@@ -299,7 +299,7 @@ void Model::addCovFromParam(const ECov& type,
       messerr("Operation is cancelled");
       return;
     }
-    nvar = sqrt((int) sills.size());
+    nvar = sqrt((double) sills.size());
   }
 
   // Define the covariance

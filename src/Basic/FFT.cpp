@@ -52,7 +52,7 @@ Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
     nxs[idim] = N ;
   Array array(nxs);
 
-  int ntotal = pow(N, ndim);
+  int ntotal = (int) pow(N, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
   double prod = 1.;
@@ -109,7 +109,7 @@ Array evalCovFFTSpatial(const VectorDouble& hmax, int N,
     nxs[idim] = N;
   Array array(nxs);
 
-  int ntotal = pow(N, ndim);
+  int ntotal = (int) pow(N, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
   double prod = 1.;

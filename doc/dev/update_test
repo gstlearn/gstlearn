@@ -27,36 +27,41 @@ else
 endif
 
 if ($name1 == "data") then
-		set direc = $nametest
+		set direcref = $nametest
+		set directest = $nametest
 		set nameref = "Result.ref"
 		set namecmp = "Result.out"
 endif
 if ($name1 == "cpp") then
-		set direc   = "output"
+		set direcref = "output"
+		set directest = ""
 		set nametest = `basename $nametest .cpp`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "py") then
-		set direc   = "output"
+		set direcref = "output"
+		set directest = ""
 		set nametest = `basename $nametest .py`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "r") then
-		set direc   = "output"
+		set direcref = "output"
+		set directest = ""
 		set nametest = `basename $nametest .r`
 		set nameref = $nametest.ref
 		set namecmp = $nametest.out
 endif
 if ($name1 == "ipynb") then
-		set direc   = "output"
+		set direcref = "output"
+		set directest = ""
 		set nametest = `basename $nametest .ipynb`
 		set nameref = $nametest.asciidoc
 		set namecmp = $nametest.asciidoc
 endif
 
-set FILEREF = $DIR/tests/$name1/$direc/$nameref
-set FILECMP = $DIR/build/tests/$name1/$option/$direc/$namecmp
+set FILEREF = $DIR/tests/$name1/$direcref/$nameref
+set FILECMP = $DIR/build/tests/$name1/$option/$directest/$namecmp
 
 cp $FILECMP $FILEREF

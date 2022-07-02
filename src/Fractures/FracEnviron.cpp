@@ -138,7 +138,8 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
 bool FracEnviron::_deserialize(std::istream& is, bool verbose)
 {
-  int nfamilies, nfaults;
+  int nfamilies = 0;
+  int nfaults = 0;
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of families", nfamilies);
   ret = ret && _recordRead<int>(is, "Number of main faults", nfaults);

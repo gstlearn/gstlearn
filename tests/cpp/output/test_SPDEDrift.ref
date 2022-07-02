@@ -34,7 +34,7 @@ Number of active samples     = 3092
 Grid characteristics:
 ---------------------
 Origin :     65.000   535.000
-Mesh   :      4.938     4.964
+Mesh   :      4.938     4.963
 Number :         81       137
 
 Variables
@@ -48,7 +48,7 @@ Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 3
+Number of basic structure(s) = 2
 Number of drift function(s)  = 2
 Number of drift equation(s)  = 2
 
@@ -57,14 +57,10 @@ Covariance Part
 Nugget Effect
 - Sill         =      0.100
 K-Bessel (Third Parameter = 1)
-- Sill         =      0.110
-- Range        =    100.000
-- Theo. Range  =     28.868
-K-Bessel (Third Parameter = 2)
-- Sill         =      0.382
-- Range        =    400.000
-- Theo. Range  =     81.650
-Total Sill     =      0.592
+- Sill         =      0.420
+- Range        =    282.574
+- Theo. Range  =     81.572
+Total Sill     =      0.520
 
 Drift Part
 ----------
@@ -116,11 +112,12 @@ Trajectory of parameters in Foxleg Algorithm
          2   0.00316         1     0.237     0.653     1.000   126.509
          3  0.000645         1     0.316     0.563     1.000   161.414
          4  0.000308         1     0.316     0.585     1.000   215.247
-         5  0.000267         1     0.316     0.623     1.000   256.662
-         6  0.000262         1     0.316     0.641     1.000   275.066
-         7  0.000262         1     0.316     0.646     1.000   280.745
-         8  0.000262         1     0.316     0.648     1.000   282.215
-         9  0.000262         1     0.316     0.648     1.000   282.574
+         5  0.000299         1     0.316     0.585     1.000   223.312
+         6  0.000265         1     0.316     0.627     1.000   261.810
+         7  0.000262         1     0.316     0.642     1.000   276.816
+         8  0.000262         1     0.316     0.647     1.000   281.212
+         9  0.000262         1     0.316     0.648     1.000   282.330
+        10  0.000262         1     0.316     0.648     1.000   282.602
 
 Model characteristics
 =====================
@@ -136,8 +133,8 @@ Nugget Effect
 - Sill         =      0.100
 K-Bessel (Third Parameter = 1)
 - Sill         =      0.420
-- Range        =    282.574
-- Theo. Range  =     81.572
+- Range        =    282.602
+- Theo. Range  =     81.580
 Total Sill     =      0.520
 
 Drift Part
@@ -150,7 +147,7 @@ Unique Neighborhood
 Space dimension = 2
 -- Conjugate Gradient (precond=0) : 372 iterations (max=10000) (eps=1e-12)
 -- Conjugate Gradient (precond=0) : 364 iterations (max=10000) (eps=1e-12)
--- Conjugate Gradient (precond=0) : 376 iterations (max=10000) (eps=1e-12)
+-- Conjugate Gradient (precond=0) : 379 iterations (max=10000) (eps=1e-12)
 
 Data Base Grid Characteristics
 ==============================

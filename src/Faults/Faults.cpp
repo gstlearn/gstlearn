@@ -70,7 +70,7 @@ bool Faults::_serialize(std::ostream& os, bool verbose) const
 
 bool Faults::_deserialize(std::istream& is, bool verbose)
 {
-  int nfaults;
+  int nfaults = 0;
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of Faults", nfaults);
 

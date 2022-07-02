@@ -1,5 +1,7 @@
 Polygon
 541 # Number of Polygons
+NA # Z-Minimum
+NA # Z-Maximum
 26 # Number of Vertices
 -180 68.9938 
 -179.998 68.9929 
@@ -27,6 +29,8 @@ Polygon
 -179.382 66.3213 
 -179.276 65.5266 
 -180 65.0845 
+NA # Z-Minimum
+NA # Z-Maximum
 1003 # Number of Vertices
 180 65.0845 
 179.525 64.7946 
@@ -1031,6 +1035,8 @@ Polygon
 173.223 69.7654 
 176.082 69.8837 
 180 68.9938 
+NA # Z-Minimum
+NA # Z-Maximum
 221 # Number of Vertices
 31.9192 31.5312 
 32.2845 31.2328 
@@ -1253,6 +1259,8 @@ Polygon
 29.0649 30.8221 
 31.0283 31.6004 
 31.9192 31.5312 
+NA # Z-Minimum
+NA # Z-Maximum
 667 # Number of Vertices
 -81.0826 8.80839 
 -79.9095 9.35944 
@@ -1921,6 +1929,8 @@ Polygon
 -81.7892 8.94333 
 -81.8948 9.18825 
 -81.0826 8.80839 
+NA # Z-Minimum
+NA # Z-Maximum
 311 # Number of Vertices
 -73.3617 -53.0004 
 -73.3626 -53 
@@ -2233,6 +2243,8 @@ Polygon
 -72.9268 -52.5563 
 -72.9776 -53.0824 
 -73.3617 -53.0004 
+NA # Z-Minimum
+NA # Z-Maximum
 170 # Number of Vertices
 146.23 -38.6971 
 146.276 -39 
@@ -2404,6 +2416,8 @@ Polygon
 147.454 -38.0796 
 147.972 -37.8934 
 146.23 -38.6971 
+NA # Z-Minimum
+NA # Z-Maximum
 292 # Number of Vertices
 -44.6993 59.995 
 -44.4683 60.5387 
@@ -2697,6 +2711,8 @@ Polygon
 -43.1391 60.0717 
 -44.1134 60.3529 
 -44.6993 59.995 
+NA # Z-Minimum
+NA # Z-Maximum
 75 # Number of Vertices
 150 -10.0879 
 150.005 -10.0879 
@@ -2773,6 +2789,8 @@ Polygon
 150.013 -9.63128 
 149.71 -9.82005 
 150 -10.0879 
+NA # Z-Minimum
+NA # Z-Maximum
 60 # Number of Vertices
 115 -4.01458 
 114.998 -4.01628 
@@ -2834,6 +2852,8 @@ Polygon
 116.1 -2.86253 
 116.278 -3.13003 
 115 -4.01458 
+NA # Z-Minimum
+NA # Z-Maximum
 35 # Number of Vertices
 44.9991 -25.4871 
 44.9983 -25.4871 
@@ -2870,6 +2890,8 @@ Polygon
 49.4304 -18.1642 
 47.1012 -24.9933 
 44.9991 -25.4871 
+NA # Z-Minimum
+NA # Z-Maximum
 152 # Number of Vertices
 -65.9991 61.9549 
 -65.9984 61.9537 
@@ -3023,6 +3045,8 @@ Polygon
 -67.6885 63.3689 
 -68.9834 63.7559 
 -65.9991 61.9549 
+NA # Z-Minimum
+NA # Z-Maximum
 36 # Number of Vertices
 103.999 -5.32545 
 103.998 -5.32458 
@@ -3060,6 +3084,8 @@ Polygon
 104.53 -5.52211 
 104.582 -5.94544 
 103.999 -5.32545 
+NA # Z-Minimum
+NA # Z-Maximum
 48 # Number of Vertices
 136 33.7104 
 135.998 33.7083 
@@ -3109,6 +3135,8 @@ Polygon
 136.503 34.6525 
 136.9 34.2767 
 136 33.7104 
+NA # Z-Minimum
+NA # Z-Maximum
 41 # Number of Vertices
 -113.554 68.9991 
 -113.556 69 
@@ -3151,6 +3179,8 @@ Polygon
 -109.011 68.7288 
 -113.188 68.4611 
 -113.554 68.9991 
+NA # Z-Minimum
+NA # Z-Maximum
 60 # Number of Vertices
 0 50.7879 
 -0.00499725 50.7879 
@@ -3212,6 +3242,8 @@ Polygon
 1.42661 51.3929 
 1.3942 51.1533 
 0 50.7879 
+NA # Z-Minimum
+NA # Z-Maximum
 93 # Number of Vertices
 -77.0881 83.1256 
 -77 83.1295 
@@ -3306,6 +3338,8 @@ Polygon
 -80.42 82.0407 
 -82.3566 82.675 
 -77.0881 83.1256 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 119.478 -5.00044 
 119.478 -5 
@@ -3347,6 +3381,8 @@ Polygon
 120.47 -5.62505 
 119.44 -5.60128 
 119.478 -5.00044 
+NA # Z-Minimum
+NA # Z-Maximum
 28 # Number of Vertices
 170 -46.2554 
 169.998 -46.2575 
@@ -3376,6 +3412,8 @@ Polygon
 171.322 -44.005 
 170.752 -45.8708 
 170 -46.2554 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 114 -8.59045 
 113.998 -8.59211 
@@ -3396,6 +3434,8 @@ Polygon
 114.438 -7.78875 
 114.593 -8.75253 
 114 -8.59045 
+NA # Z-Minimum
+NA # Z-Maximum
 35 # Number of Vertices
 174.937 -41.0029 
 174.941 -41 
@@ -3432,6 +3472,8 @@ Polygon
 175.238 -41.6096 
 174.615 -41.2942 
 174.937 -41.0029 
+NA # Z-Minimum
+NA # Z-Maximum
 48 # Number of Vertices
 -55.2016 46.9989 
 -55.2017 46.9983 
@@ -3481,6 +3523,8 @@ Polygon
 -53.7939 47.4391 
 -54.0854 47.8791 
 -55.2016 46.9989 
+NA # Z-Minimum
+NA # Z-Maximum
 23 # Number of Vertices
 -75 19.9155 
 -75.0001 19.9155 
@@ -3505,6 +3549,8 @@ Polygon
 -75.7183 20.6812 
 -74.1429 20.2458 
 -75 19.9155 
+NA # Z-Minimum
+NA # Z-Maximum
 33 # Number of Vertices
 123.999 12.9679 
 123.999 12.9675 
@@ -3539,6 +3585,8 @@ Polygon
 124.19 13.065 
 124.079 12.5379 
 123.999 12.9679 
+NA # Z-Minimum
+NA # Z-Maximum
 34 # Number of Vertices
 -17 63.7937 
 -16.9993 63.7933 
@@ -3574,6 +3622,8 @@ Polygon
 -13.6808 64.9142 
 -14.9584 64.2404 
 -17 63.7937 
+NA # Z-Minimum
+NA # Z-Maximum
 30 # Number of Vertices
 125 5.85875 
 124.999 5.85956 
@@ -3605,6 +3655,8 @@ Polygon
 125.385 5.55959 
 125.265 6.09372 
 125 5.85875 
+NA # Z-Minimum
+NA # Z-Maximum
 28 # Number of Vertices
 -8 51.8587 
 -8.00166 51.8579 
@@ -3634,6 +3686,8 @@ Polygon
 -6.39917 54.0133 
 -6.31425 52.2408 
 -8 51.8587 
+NA # Z-Minimum
+NA # Z-Maximum
 20 # Number of Vertices
 143.259 41.9991 
 143.259 41.9983 
@@ -3655,6 +3709,8 @@ Polygon
 145.818 43.3866 
 143.994 42.9271 
 143.259 41.9991 
+NA # Z-Minimum
+NA # Z-Maximum
 18 # Number of Vertices
 142 45.9688 
 141.999 45.97 
@@ -3674,6 +3730,8 @@ Polygon
 143.377 46.547 
 142.512 46.7221 
 142 45.9688 
+NA # Z-Minimum
+NA # Z-Maximum
 20 # Number of Vertices
 -71.1504 17.9983 
 -71.1513 17.9975 
@@ -3695,6 +3753,8 @@ Polygon
 -68.645 18.2079 
 -70.6717 18.4287 
 -71.1504 17.9983 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 -120.334 71.9981 
 -120.346 71.9959 
@@ -3709,6 +3769,8 @@ Polygon
 -117.625 74.251 
 -115.322 73.5408 
 -120.334 71.9981 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 80.2575 5.99711 
 80.2546 6 
@@ -3722,6 +3784,8 @@ Polygon
 81.8804 7.02331 
 81.325 6.19373 
 80.2575 5.99711 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 145.999 -43.3304 
 146 -43.3304 
@@ -3738,6 +3802,8 @@ Polygon
 147.197 -42.7279 
 146.87 -43.6404 
 145.999 -43.3304 
+NA # Z-Minimum
+NA # Z-Maximum
 28 # Number of Vertices
 -92.1665 74.9923 
 -92.1698 75 
@@ -3767,6 +3833,8 @@ Polygon
 -88.5509 74.9074 
 -89.9811 74.5295 
 -92.1665 74.9923 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 -66.7242 -55.0025 
 -66.7242 -55 
@@ -3787,6 +3855,8 @@ Polygon
 -67.7675 -53.8317 
 -65.1142 -54.6417 
 -66.7242 -55.0025 
+NA # Z-Minimum
+NA # Z-Maximum
 24 # Number of Vertices
 58.2574 73.9996 
 58.2549 73.9996 
@@ -3812,6 +3882,8 @@ Polygon
 59.1549 74.4187 
 58.2187 74.5433 
 58.2574 73.9996 
+NA # Z-Minimum
+NA # Z-Maximum
 16 # Number of Vertices
 -81 63.4375 
 -81.0081 63.4356 
@@ -3829,6 +3901,8 @@ Polygon
 -80.9211 64.1224 
 -80.1354 63.7752 
 -81 63.4375 
+NA # Z-Minimum
+NA # Z-Maximum
 26 # Number of Vertices
 -115.56 74.9946 
 -115.568 74.9934 
@@ -3856,6 +3930,8 @@ Polygon
 -113.917 75.0524 
 -114.03 75.4748 
 -115.56 74.9946 
+NA # Z-Minimum
+NA # Z-Maximum
 26 # Number of Vertices
 -94.197 78.9981 
 -94.1939 79 
@@ -3883,6 +3959,8 @@ Polygon
 -92.9875 78.4754 
 -91.6602 78.568 
 -94.197 78.9981 
+NA # Z-Minimum
+NA # Z-Maximum
 25 # Number of Vertices
 15.4382 77 
 13.9149 77.5242 
@@ -3909,6 +3987,8 @@ Polygon
 19.0282 78.4225 
 16.9899 76.5962 
 15.4382 77 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 -50.7764 -0.782967 
 -50.3392 -0.0962524 
@@ -3919,6 +3999,8 @@ Polygon
 -50.7862 -1.09895 
 -50.4798 -1.04082 
 -50.7764 -0.782967 
+NA # Z-Minimum
+NA # Z-Maximum
 16 # Number of Vertices
 130.669 30.9991 
 130.798 31.6996 
@@ -3936,6 +4018,8 @@ Polygon
 132.086 32.9308 
 131.35 31.3649 
 130.669 30.9991 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 120.864 21.9996 
 120.863 21.9996 
@@ -3944,6 +4028,8 @@ Polygon
 121.573 25.3004 
 122 25.0074 
 120.864 21.9996 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 151.053 -6.00169 
 151.053 -6.005 
@@ -3960,6 +4046,8 @@ Polygon
 151.949 -5.00506 
 152.12 -5.39836 
 151.053 -6.00169 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 -85 71.2809 
 -85.0033 71.2809 
@@ -3971,6 +4059,8 @@ Polygon
 -86.2838 72.7028 
 -86.0963 71.9778 
 -85 71.2809 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 108.999 18.3604 
 108.997 18.3604 
@@ -3981,6 +4071,8 @@ Polygon
 110.412 18.6612 
 109.572 18.1604 
 108.999 18.3604 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 -97 71.7499 
 -97.0038 71.7464 
@@ -3999,6 +4091,8 @@ Polygon
 -98.4889 73.0091 
 -96.5221 72.756 
 -97 71.7499 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 53.9975 70.7371 
 53.9861 70.7409 
@@ -4015,6 +4109,8 @@ Polygon
 55.1862 71.8992 
 57.6111 70.7125 
 53.9975 70.7371 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 -125.673 48.9996 
 -125.672 49 
@@ -4028,6 +4124,8 @@ Polygon
 -125.102 48.7204 
 -124.827 49.2554 
 -125.673 48.9996 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 124 -10.2779 
 123.997 -10.2779 
@@ -4036,6 +4134,8 @@ Polygon
 125.123 -8.64792 
 127.301 -8.40086 
 124 -10.2779 
+NA # Z-Minimum
+NA # Z-Maximum
 6 # Number of Vertices
 14.9992 36.7012 
 14.9975 36.7012 
@@ -4043,6 +4143,8 @@ Polygon
 12.4888 38.0183 
 15.6508 38.2713 
 14.9992 36.7012 
+NA # Z-Minimum
+NA # Z-Maximum
 8 # Number of Vertices
 -95 71.982 
 -95.0169 71.9804 
@@ -4052,6 +4154,8 @@ Polygon
 -94.2929 72.7741 
 -93.4519 72.4411 
 -95 71.982 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 8.45123 38.9974 
 8.45125 38.995 
@@ -4060,6 +4164,8 @@ Polygon
 9.83203 40.5283 
 9.6345 39.2974 
 8.45123 38.9974 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 137.994 74.845 
 137.994 74.8466 
@@ -4072,6 +4178,8 @@ Polygon
 142.403 75.7337 
 143.587 74.8938 
 137.994 74.845 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 132.999 32.9833 
 132.999 32.979 
@@ -4086,6 +4194,8 @@ Polygon
 134.178 33.2446 
 133.556 33.5546 
 132.999 32.9833 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 128 -0.303001 
 128 -0.305031 
@@ -4101,6 +4211,8 @@ Polygon
 128.919 0.201637 
 127.924 0.46125 
 128 -0.303001 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 127.999 -3.07125 
 128 -3.07125 
@@ -4112,12 +4224,16 @@ Polygon
 128.178 -3.05625 
 127.91 -3.56622 
 127.999 -3.07125 
+NA # Z-Minimum
+NA # Z-Maximum
 5 # Number of Vertices
 167 -22.3432 
 166.997 -22.3438 
 164.944 -21.3613 
 163.998 -20.0799 
 167 -22.3432 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 -100.017 74.9874 
 -100.056 74.9864 
@@ -4133,6 +4249,8 @@ Polygon
 -97.2633 75.3981 
 -97.9731 75.0238 
 -100.017 74.9874 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 -117 77.4387 
 -117 77.4398 
@@ -4144,6 +4262,8 @@ Polygon
 -122.581 75.9386 
 -119.213 77.3113 
 -117 77.4387 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 117 -9.09509 
 117 -9.09422 
@@ -4154,6 +4274,8 @@ Polygon
 117.926 -8.08128 
 119.197 -8.61089 
 117 -9.09509 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 95.9898 78.9771 
 95.9833 78.9771 
@@ -4164,6 +4286,8 @@ Polygon
 100.112 79.8032 
 100.005 78.9092 
 95.9898 78.9771 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 27 79.9446 
 27.0049 79.9433 
@@ -4179,6 +4303,8 @@ Polygon
 23.0747 80.1037 
 24.8302 80.3463 
 27 79.9446 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 123 -8.33792 
 122.999 -8.33789 
@@ -4189,6 +4315,8 @@ Polygon
 122.432 -8.54915 
 122.866 -8.06878 
 123 -8.33792 
+NA # Z-Minimum
+NA # Z-Maximum
 6 # Number of Vertices
 -99.0059 68.9172 
 -99.0103 68.9168 
@@ -4196,6 +4324,8 @@ Polygon
 -95.1554 68.8706 
 -96.5419 68.4517 
 -99.0059 68.9172 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 123.216 9.99958 
 123.215 9.99958 
@@ -4206,6 +4336,8 @@ Polygon
 123.194 11.0045 
 123.565 10.7958 
 123.216 9.99958 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 125.008 11.3045 
 125.043 11.7516 
@@ -4214,6 +4346,8 @@ Polygon
 125.513 12.1958 
 125.759 11.0191 
 125.008 11.3045 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 138 -8.39381 
 137.999 -8.39291 
@@ -4222,6 +4356,8 @@ Polygon
 139.105 -7.57503 
 138.956 -8.05125 
 138 -8.39381 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 106.692 -3.00136 
 106.692 -3.00217 
@@ -4233,6 +4369,8 @@ Polygon
 106.291 -2.415 
 106.845 -2.5725 
 106.692 -3.00136 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 118 8.88372 
 117.999 8.88458 
@@ -4244,6 +4382,8 @@ Polygon
 119.717 10.5108 
 118.751 9.92873 
 118 8.88372 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 121.997 10.4404 
 121.996 10.4395 
@@ -4252,6 +4392,8 @@ Polygon
 123.152 11.6 
 123.127 11.1716 
 121.997 10.4404 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 -99 77.9047 
 -98.9929 77.9033 
@@ -4262,6 +4404,8 @@ Polygon
 -105.452 79.3367 
 -100.357 78.8343 
 -99 77.9047 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 100.325 77.995 
 100.316 77.9929 
@@ -4270,6 +4414,8 @@ Polygon
 103.887 79.1704 
 105.471 78.4924 
 100.325 77.995 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 -80.1328 72.9989 
 -80.1312 73 
@@ -4278,6 +4424,8 @@ Polygon
 -76.0544 72.8611 
 -79.3356 72.7386 
 -80.1328 72.9989 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 -77 17.8438 
 -77.0004 17.8441 
@@ -4286,6 +4434,8 @@ Polygon
 -76.8984 18.4129 
 -76.1846 17.9167 
 -77 17.8438 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 120 -10.0496 
 119.999 -10.0484 
@@ -4294,6 +4444,8 @@ Polygon
 120.826 -10.0292 
 120.452 -10.3179 
 120 -10.0496 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 -59.8463 45.9983 
 -59.8463 45.9941 
@@ -4305,6 +4457,8 @@ Polygon
 -60.7893 45.7263 
 -60.2914 46.3423 
 -59.8463 45.9983 
+NA # Z-Minimum
+NA # Z-Maximum
 6 # Number of Vertices
 178.647 -18.0009 
 178.647 -18.0051 
@@ -4312,12 +4466,16 @@ Polygon
 177.246 -17.9584 
 178.183 -17.3104 
 178.647 -18.0009 
+NA # Z-Minimum
+NA # Z-Maximum
 5 # Number of Vertices
 -155.787 18.9982 
 -155.788 19 
 -155.853 20.2728 
 -154.806 19.5191 
 -155.787 18.9982 
+NA # Z-Minimum
+NA # Z-Maximum
 46 # Number of Vertices
 49.3517 39.3214 
 49.4881 40.1506 
@@ -4365,6 +4523,8 @@ Polygon
 48.83 38.8594 
 49.3403 39.3281 
 49.3517 39.3214 
+NA # Z-Minimum
+NA # Z-Maximum
 49 # Number of Vertices
 -86.2292 42.9997 
 -86.6203 41.9122 
@@ -4415,6 +4575,8 @@ Polygon
 -86.265 44.7006 
 -86.2342 43.005 
 -86.2292 42.9997 
+NA # Z-Minimum
+NA # Z-Maximum
 23 # Number of Vertices
 31.6133 -2.04556 
 32.0181 -0.0500031 
@@ -4439,6 +4601,8 @@ Polygon
 31.7947 -2.83444 
 31.6139 -2.04417 
 31.6133 -2.04556 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 61.4519 44.7356 
 60.7269 44.0189 
@@ -4459,6 +4623,8 @@ Polygon
 61.965 45.0436 
 61.4525 44.7356 
 61.4519 44.7356 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 29.0456 -4.30917 
 29.3108 -3.34583 
@@ -4471,6 +4637,8 @@ Polygon
 29.1903 -6.08139 
 29.2378 -4.05305 
 29.0456 -4.30917 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 109.486 55.7244 
 109.965 55.6719 
@@ -4486,6 +4654,8 @@ Polygon
 108.208 53.9225 
 109.486 55.7253 
 109.486 55.7244 
+NA # Z-Minimum
+NA # Z-Maximum
 20 # Number of Vertices
 -123.492 65.1633 
 -122.14 65.7839 
@@ -4507,6 +4677,8 @@ Polygon
 -122.039 64.9389 
 -123.491 65.1603 
 -123.492 65.1633 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 -115.022 60.8878 
 -117.684 61.3025 
@@ -4527,6 +4699,8 @@ Polygon
 -113.742 61.0086 
 -115.027 60.8819 
 -115.022 60.8878 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 33.9283 -9.69972 
 34.0436 -9.48473 
@@ -4539,6 +4713,8 @@ Polygon
 34.3272 -11.6478 
 33.9222 -9.70306 
 33.9283 -9.69972 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 -81.6547 42.4781 
 -80.1006 42.5431 
@@ -4553,6 +4729,8 @@ Polygon
 -82.9175 41.9853 
 -81.6558 42.4783 
 -81.6547 42.4781 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 -98.4353 53.0467 
 -99.2158 53.33 
@@ -4569,6 +4747,8 @@ Polygon
 -98.8983 52.8506 
 -98.5247 52.9975 
 -98.4353 53.0467 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 -75.8122 44.5025 
 -76.3636 44.1214 
@@ -4581,12 +4761,16 @@ Polygon
 -77.5672 44.1136 
 -75.8136 44.5019 
 -75.8122 44.5025 
+NA # Z-Minimum
+NA # Z-Maximum
 5 # Number of Vertices
 30.9419 61.7292 
 32.9556 60.6508 
 31.4106 59.8992 
 29.7961 61.2161 
 30.9419 61.7292 
+NA # Z-Minimum
+NA # Z-Maximum
 920 # Number of Vertices
 79.0039 33.7717 
 78.9367 33.4075 
@@ -5508,6 +5692,8 @@ Polygon
 108.074 49.8444 
 108.005 49.917 
 107.978 49.9458 
+NA # Z-Minimum
+NA # Z-Maximum
 444 # Number of Vertices
 -69.4997 -17.5053 
 -69.4658 -17.5993 
@@ -5953,6 +6139,8 @@ Polygon
 -72.0549 -51.8793 
 -71.978 -51.9432 
 -71.9122 -51.9978 
+NA # Z-Minimum
+NA # Z-Maximum
 316 # Number of Vertices
 28.8989 -8.48139 
 28.8429 -8.56425 
@@ -6270,6 +6458,8 @@ Polygon
 13.38 -5.85925 
 13.28 -5.85795 
 13.1814 -5.85667 
+NA # Z-Minimum
+NA # Z-Maximum
 314 # Number of Vertices
 61.6097 25.1931 
 61.6329 25.2903 
@@ -6585,6 +6775,8 @@ Polygon
 74.7929 37.256 
 74.8919 37.2422 
 74.9136 37.2392 
+NA # Z-Minimum
+NA # Z-Maximum
 120 # Number of Vertices
 12.0936 50.3228 
 12.1911 50.3448 
@@ -6706,6 +6898,8 @@ Polygon
 22.4543 49.1177 
 22.5478 49.0822 
 22.5581 49.0783 
+NA # Z-Minimum
+NA # Z-Maximum
 172 # Number of Vertices
 13.7211 46.5275 
 13.8198 46.5111 
@@ -6879,6 +7073,8 @@ Polygon
 28.4825 43.7737 
 28.5794 43.7487 
 28.5831 43.7478 
+NA # Z-Minimum
+NA # Z-Maximum
 304 # Number of Vertices
 22.8778 10.9217 
 22.9378 10.8417 
@@ -7184,6 +7380,8 @@ Polygon
 39.065 -4.56877 
 39.1457 -4.62792 
 39.2042 -4.67083 
+NA # Z-Minimum
+NA # Z-Maximum
 187 # Number of Vertices
 89.1364 21.6281 
 89.1269 21.7276 
@@ -7372,6 +7570,8 @@ Polygon
 92.6692 21.2969 
 92.3631 21.4733 
 92.2014 21.1408 
+NA # Z-Minimum
+NA # Z-Maximum
 398 # Number of Vertices
 38.5983 17.9928 
 38.5208 17.9297 
@@ -7771,6 +7971,8 @@ Polygon
 43.1792 11.3698 
 43.2365 11.4517 
 43.2542 11.4769 
+NA # Z-Minimum
+NA # Z-Maximum
 128 # Number of Vertices
 34.9617 29.3608 
 35.0605 29.3455 
@@ -7900,6 +8102,8 @@ Polygon
 35.7887 32.6444 
 35.6933 32.6744 
 35.6441 32.69 
+NA # Z-Minimum
+NA # Z-Maximum
 100 # Number of Vertices
 101.148 21.5714 
 101.282 21.1803 
@@ -8001,6 +8205,8 @@ Polygon
 107.647 21.7051 
 107.744 21.6787 
 107.786 21.6672 
+NA # Z-Minimum
+NA # Z-Maximum
 192 # Number of Vertices
 -78.8097 1.43777 
 -78.7291 1.37856 
@@ -8194,6 +8400,8 @@ Polygon
 -69.3455 0.611206 
 -69.2455 0.614784 
 -69.2086 0.616112 
+NA # Z-Minimum
+NA # Z-Maximum
 94 # Number of Vertices
 7.58889 47.585 
 7.63091 47.6757 
@@ -8289,6 +8497,8 @@ Polygon
 6.53697 53.5599 
 6.44324 53.5947 
 6.40889 53.6075 
+NA # Z-Minimum
+NA # Z-Maximum
 228 # Number of Vertices
 5.54361 13.8906 
 5.63873 13.8597 
@@ -8518,6 +8728,8 @@ Polygon
 8.54968 4.78819 
 8.52099 4.69239 
 8.51778 4.68166 
+NA # Z-Minimum
+NA # Z-Maximum
 401 # Number of Vertices
 25.1514 31.6469 
 25.1228 31.5511 
@@ -8920,6 +9132,8 @@ Polygon
 11.5335 33.0413 
 11.5279 33.1411 
 11.5261 33.1725 
+NA # Z-Minimum
+NA # Z-Maximum
 243 # Number of Vertices
 87.8431 49.1706 
 87.9367 49.2057 
@@ -9164,6 +9378,8 @@ Polygon
 107.806 49.9803 
 107.903 49.9601 
 107.984 49.9436 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 38.4903 -11.4153 
 38.3932 -11.3912 
@@ -9205,6 +9421,8 @@ Polygon
 35.1444 -11.5069 
 35.0453 -11.5201 
 34.9518 -11.5326 
+NA # Z-Minimum
+NA # Z-Maximum
 217 # Number of Vertices
 34.9518 -11.5326 
 34.9462 -11.5333 
@@ -9426,6 +9644,8 @@ Polygon
 2 # Number of Vertices
 34.9518 -11.5326 
 34.9631 -11.565 
+NA # Z-Minimum
+NA # Z-Maximum
 195 # Number of Vertices
 -67.7006 -10.6919 
 -67.62 -10.6327 
@@ -9827,6 +10047,8 @@ Polygon
 61.0482 29.835 
 60.9492 29.8495 
 60.8692 29.8611 
+NA # Z-Minimum
+NA # Z-Maximum
 127 # Number of Vertices
 20.2617 46.1181 
 20.3598 46.1371 
@@ -10114,6 +10336,8 @@ Polygon
 -67.8771 -10.7714 
 -67.7857 -10.731 
 -67.7033 -10.6947 
+NA # Z-Minimum
+NA # Z-Maximum
 139 # Number of Vertices
 98.7442 10.345 
 98.7968 10.43 
@@ -10413,6 +10637,8 @@ Polygon
 86.8079 26.5515 
 86.907 26.5383 
 86.9481 26.5328 
+NA # Z-Minimum
+NA # Z-Maximum
 93 # Number of Vertices
 -92.2469 14.5483 
 -92.2148 14.643 
@@ -10605,6 +10831,8 @@ Polygon
 9.49449 47.0558 
 9.47583 47.0581 
 9.56694 47.5406 
+NA # Z-Minimum
+NA # Z-Maximum
 138 # Number of Vertices
 94.6289 29.3278 
 94.7222 29.2918 
@@ -10992,6 +11220,8 @@ Polygon
 -97.3285 26.0085 
 -97.2309 25.9867 
 -97.14 25.9664 
+NA # Z-Minimum
+NA # Z-Maximum
 148 # Number of Vertices
 11.3403 2.17 
 11.4402 2.17503 
@@ -11287,6 +11517,8 @@ Polygon
 48.6284 29.9576 
 48.7028 29.8909 
 48.7447 29.8533 
+NA # Z-Minimum
+NA # Z-Maximum
 290 # Number of Vertices
 -17.0525 20.765 
 -17.0354 20.8635 
@@ -11701,6 +11933,8 @@ Polygon
 -57.3424 5.00079 
 -57.2883 5.01667 
 -57.2489 5.48556 
+NA # Z-Minimum
+NA # Z-Maximum
 172 # Number of Vertices
 23.9994 19.4997 
 23.9994 19.3997 
@@ -11993,6 +12227,8 @@ Polygon
 19.7939 54.4716 
 19.6939 54.4743 
 19.6019 54.4767 
+NA # Z-Minimum
+NA # Z-Maximum
 71 # Number of Vertices
 103.09 18.1372 
 103.305 18.4211 
@@ -12154,6 +12390,8 @@ Polygon
 -7.3885 37.295 
 -7.41093 37.1976 
 -7.41306 37.1883 
+NA # Z-Minimum
+NA # Z-Maximum
 82 # Number of Vertices
 9.73111 47.5367 
 9.81714 47.4857 
@@ -12349,6 +12587,8 @@ Polygon
 99.8562 22.0637 
 99.9553 22.05 
 99.9656 22.0486 
+NA # Z-Minimum
+NA # Z-Maximum
 41 # Number of Vertices
 -83.1317 14.9931 
 -83.228 14.9663 
@@ -12504,6 +12744,8 @@ Polygon
 18.6095 3.63882 
 18.6191 3.53929 
 18.625 3.47889 
+NA # Z-Minimum
+NA # Z-Maximum
 127 # Number of Vertices
 18.2247 2.42389 
 18.2078 2.32534 
@@ -12746,6 +12988,8 @@ Polygon
 117.765 4.18898 
 117.864 4.17992 
 117.9 4.17667 
+NA # Z-Minimum
+NA # Z-Maximum
 43 # Number of Vertices
 86.9461 26.5317 
 87.0451 26.5171 
@@ -12873,6 +13117,8 @@ Polygon
 89.0608 27.4515 
 88.9867 27.3844 
 88.926 27.3293 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 88.926 27.3293 
 88.9167 27.3208 
@@ -13011,6 +13257,8 @@ Polygon
 127.505 50.3454 
 127.556 50.259 
 127.585 50.2083 
+NA # Z-Minimum
+NA # Z-Maximum
 65 # Number of Vertices
 102.139 22.3975 
 102.198 22.3165 
@@ -13211,6 +13459,8 @@ Polygon
 69.411 24.2835 
 69.3113 24.2757 
 69.2283 24.2692 
+NA # Z-Minimum
+NA # Z-Maximum
 359 # Number of Vertices
 -124.754 48.5011 
 -124.655 48.4865 
@@ -13650,6 +13900,8 @@ Polygon
 22.7194 48.0282 
 22.8114 47.989 
 22.8947 47.9536 
+NA # Z-Minimum
+NA # Z-Maximum
 69 # Number of Vertices
 20.9831 40.8561 
 21.0807 40.8774 
@@ -13821,6 +14073,8 @@ Polygon
 13.4798 2.17 
 13.3799 2.16654 
 13.2953 2.16361 
+NA # Z-Minimum
+NA # Z-Maximum
 164 # Number of Vertices
 -82.6547 42.55 
 -82.7261 42.48 
@@ -14066,6 +14320,8 @@ Polygon
 -3.59734 13.344 
 -3.5057 13.304 
 -3.44056 13.2756 
+NA # Z-Minimum
+NA # Z-Maximum
 55 # Number of Vertices
 102.916 11.6356 
 102.887 11.7314 
@@ -14243,6 +14499,8 @@ Polygon
 -67.6307 6.18641 
 -67.5308 6.19018 
 -67.4544 6.19305 
+NA # Z-Minimum
+NA # Z-Maximum
 64 # Number of Vertices
 7.04 45.9322 
 6.98577 46.0162 
@@ -14382,6 +14640,8 @@ Polygon
 36.0411 35.9743 
 35.9483 35.937 
 35.9228 35.9267 
+NA # Z-Minimum
+NA # Z-Maximum
 88 # Number of Vertices
 130.604 42.4194 
 130.528 42.4838 
@@ -14568,6 +14828,8 @@ Polygon
 130.629 42.3867 
 130.685 42.3039 
 130.691 42.2956 
+NA # Z-Minimum
+NA # Z-Maximum
 51 # Number of Vertices
 19.9272 39.8447 
 20.2644 39.6692 
@@ -14663,6 +14925,8 @@ Polygon
 106.512 16.7343 
 106.569 16.6523 
 106.587 16.6272 
+NA # Z-Minimum
+NA # Z-Maximum
 91 # Number of Vertices
 -69.5678 -10.9511 
 -69.5178 -11.0378 
@@ -14957,6 +15221,8 @@ Polygon
 10.9214 58.9119 
 10.8214 58.9129 
 10.7575 58.9136 
+NA # Z-Minimum
+NA # Z-Maximum
 75 # Number of Vertices
 -53.8358 -27.1717 
 -53.9236 -27.2196 
@@ -15055,6 +15321,8 @@ Polygon
 34.8475 29.6364 
 34.8825 29.5427 
 34.9039 29.4855 
+NA # Z-Minimum
+NA # Z-Maximum
 247 # Number of Vertices
 -130.608 54.7078 
 -130.534 54.7748 
@@ -15396,6 +15664,8 @@ Polygon
 54.0853 37.3729 
 53.986 37.3611 
 53.9019 37.3511 
+NA # Z-Minimum
+NA # Z-Maximum
 86 # Number of Vertices
 -75.2819 -0.10778 
 -75.6283 -0.111115 
@@ -15627,6 +15897,8 @@ Polygon
 24.1027 65.6835 
 24.1216 65.5853 
 24.1356 65.5133 
+NA # Z-Minimum
+NA # Z-Maximum
 23 # Number of Vertices
 18.851 49.518 
 18.7606 49.4753 
@@ -15720,6 +15992,8 @@ Polygon
 -51.7656 3.91349 
 -51.7093 3.99613 
 -51.6828 4.035 
+NA # Z-Minimum
+NA # Z-Maximum
 64 # Number of Vertices
 29.215 -3.33694 
 29.2335 -3.43523 
@@ -15865,6 +16139,8 @@ Polygon
 -55.6488 -27.3092 
 -55.7224 -27.377 
 -55.7844 -27.4342 
+NA # Z-Minimum
+NA # Z-Maximum
 106 # Number of Vertices
 -67.1825 -22.8206 
 -67.1148 -22.747 
@@ -16063,6 +16339,8 @@ Polygon
 134.553 48.238 
 134.651 48.2534 
 134.735 48.2664 
+NA # Z-Minimum
+NA # Z-Maximum
 72 # Number of Vertices
 -64.6419 4.22195 
 -64.6094 4.12738 
@@ -16215,6 +16493,8 @@ Polygon
 56.1516 41.3169 
 56.0518 41.323 
 55.9997 41.3261 
+NA # Z-Minimum
+NA # Z-Maximum
 105 # Number of Vertices
 25.2633 -17.8014 
 25.3629 -17.8103 
@@ -16370,6 +16650,8 @@ Polygon
 2.66951 51.0029 
 2.58721 51.0597 
 2.54166 51.0911 
+NA # Z-Minimum
+NA # Z-Maximum
 103 # Number of Vertices
 21.3806 -18.0144 
 21.2809 -18.0064 
@@ -16513,6 +16795,8 @@ Polygon
 100.911 17.5968 
 100.91 17.5928 
 101.23 17.5275 
+NA # Z-Minimum
+NA # Z-Maximum
 39 # Number of Vertices
 106.459 11.67 
 106.359 11.6615 
@@ -16631,6 +16915,8 @@ Polygon
 75.2676 32.3607 
 75.351 32.3055 
 75.3547 32.3031 
+NA # Z-Minimum
+NA # Z-Maximum
 113 # Number of Vertices
 -90.3894 48.0972 
 -90.2901 48.0859 
@@ -16815,6 +17101,8 @@ Polygon
 -57.4976 -30.1748 
 -57.5971 -30.184 
 -57.6078 -30.185 
+NA # Z-Minimum
+NA # Z-Maximum
 42 # Number of Vertices
 13.7172 45.5981 
 13.6741 45.6883 
@@ -16907,6 +17195,8 @@ Polygon
 44.675 39.69 
 44.7675 39.652 
 44.8142 39.6328 
+NA # Z-Minimum
+NA # Z-Maximum
 96 # Number of Vertices
 28.9594 69.0506 
 28.9301 68.9549 
@@ -17062,6 +17352,8 @@ Polygon
 -16.4791 16.1723 
 -16.5287 16.0855 
 -16.5428 16.0608 
+NA # Z-Minimum
+NA # Z-Maximum
 100 # Number of Vertices
 3.52361 15.3572 
 3.5783 15.4409 
@@ -17248,6 +17540,8 @@ Polygon
 33.0539 21.9988 
 33.1539 21.9989 
 33.1842 21.9989 
+NA # Z-Minimum
+NA # Z-Maximum
 27 # Number of Vertices
 106.589 16.6286 
 106.674 16.5754 
@@ -17350,6 +17644,8 @@ Polygon
 -16.5791 12.3566 
 -16.6763 12.3332 
 -16.7172 12.3233 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 22.9347 41.3414 
 22.9245 41.4409 
@@ -17462,6 +17758,8 @@ Polygon
 87.2839 49.1716 
 87.3475 49.0945 
 87.3494 49.0922 
+NA # Z-Minimum
+NA # Z-Maximum
 60 # Number of Vertices
 25.5856 -25.6217 
 25.488 -25.6438 
@@ -17557,6 +17855,8 @@ Polygon
 14.249 53.8094 
 14.2297 53.9075 
 14.2256 53.9286 
+NA # Z-Minimum
+NA # Z-Maximum
 60 # Number of Vertices
 21.0539 56.0781 
 21.1487 56.11 
@@ -17679,6 +17979,8 @@ Polygon
 26.4486 55.7499 
 26.5397 55.7087 
 26.6136 55.6753 
+NA # Z-Minimum
+NA # Z-Maximum
 47 # Number of Vertices
 -60.7294 5.20583 
 -60.5797 4.94667 
@@ -17802,6 +18104,8 @@ Polygon
 63.2029 54.17 
 63.3024 54.1801 
 63.3258 54.1825 
+NA # Z-Minimum
+NA # Z-Maximum
 84 # Number of Vertices
 9.53722 30.2339 
 9.51221 30.3307 
@@ -17949,6 +18253,8 @@ Polygon
 48.7498 38.5061 
 48.841 38.4649 
 48.8844 38.4453 
+NA # Z-Minimum
+NA # Z-Maximum
 45 # Number of Vertices
 -8.79639 12.0081 
 -8.73978 11.9256 
@@ -18093,6 +18399,8 @@ Polygon
 23.9891 -11.0066 
 23.9875 -10.9066 
 23.9869 -10.8714 
+NA # Z-Minimum
+NA # Z-Maximum
 125 # Number of Vertices
 23.2894 -17.9989 
 23.1904 -18.0126 
@@ -18282,6 +18590,8 @@ Polygon
 29.0898 -8.44948 
 28.991 -8.46469 
 28.8969 -8.47916 
+NA # Z-Minimum
+NA # Z-Maximum
 24 # Number of Vertices
 100.894 21.6828 
 101.162 21.5306 
@@ -18349,6 +18659,8 @@ Polygon
 16.976 48.2614 
 17.0377 48.1828 
 17.0681 48.1442 
+NA # Z-Minimum
+NA # Z-Maximum
 42 # Number of Vertices
 -8.46917 7.56 
 -8.4371 7.46528 
@@ -18459,6 +18771,8 @@ Polygon
 141.007 -8.90542 
 141.007 -9.00542 
 141.007 -9.10149 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 0.380554 10.2733 
 0.360756 10.1753 
@@ -18533,6 +18847,8 @@ Polygon
 35.0068 29.6919 
 34.9765 29.5966 
 34.9619 29.5511 
+NA # Z-Minimum
+NA # Z-Maximum
 48 # Number of Vertices
 -59.6381 -24.2486 
 -59.5513 -24.2983 
@@ -18635,6 +18951,8 @@ Polygon
 27.6019 -20.438 
 27.6864 -20.4915 
 27.7156 -20.51 
+NA # Z-Minimum
+NA # Z-Maximum
 33 # Number of Vertices
 -7.25306 55.0706 
 -7.33501 55.0132 
@@ -18687,6 +19005,8 @@ Polygon
 -82.8999 8.17213 
 -82.8973 8.07217 
 -82.8961 8.02917 
+NA # Z-Minimum
+NA # Z-Maximum
 31 # Number of Vertices
 6.01167 50.7567 
 5.93176 50.8168 
@@ -18778,6 +19098,8 @@ Polygon
 15.4905 9.98892 
 15.5905 9.98949 
 15.6828 9.99 
+NA # Z-Minimum
+NA # Z-Maximum
 28 # Number of Vertices
 107.461 13.7961 
 107.467 13.6963 
@@ -18862,6 +19184,8 @@ Polygon
 2.69704 8.05834 
 2.68792 7.95876 
 2.68195 7.89361 
+NA # Z-Minimum
+NA # Z-Maximum
 64 # Number of Vertices
 -16.5611 13.59 
 -16.4623 13.6057 
@@ -18950,6 +19274,8 @@ Polygon
 -77.8581 7.33805 
 -77.8859 7.242 
 -77.8897 7.22889 
+NA # Z-Minimum
+NA # Z-Maximum
 91 # Number of Vertices
 -62.6397 -22.2392 
 -62.607 -22.1447 
@@ -19069,6 +19395,8 @@ Polygon
 102.982 18.052 
 103.06 18.1146 
 103.091 18.1392 
+NA # Z-Minimum
+NA # Z-Maximum
 46 # Number of Vertices
 19.9964 -28.4222 
 19.9114 -28.475 
@@ -19193,6 +19521,8 @@ Polygon
 -11.9676 14.8755 
 -12.0188 14.7896 
 -12.0567 14.7261 
+NA # Z-Minimum
+NA # Z-Maximum
 34 # Number of Vertices
 26.1608 54.9772 
 26.118 54.8868 
@@ -19263,6 +19593,8 @@ Polygon
 23.6804 53.9639 
 23.5808 53.9548 
 23.5042 53.9478 
+NA # Z-Minimum
+NA # Z-Maximum
 55 # Number of Vertices
 66.5358 37.3656 
 66.5525 37.4642 
@@ -19375,6 +19707,8 @@ Polygon
 62.5911 39.9587 
 62.501 40.0022 
 62.4411 40.0311 
+NA # Z-Minimum
+NA # Z-Maximum
 56 # Number of Vertices
 35.9383 4.61945 
 35.8383 4.61884 
@@ -19482,6 +19816,8 @@ Polygon
 47.5588 50.3382 
 47.4635 50.3687 
 47.4439 50.375 
+NA # Z-Minimum
+NA # Z-Maximum
 47 # Number of Vertices
 -13.3011 9.03555 
 -13.2307 9.10659 
@@ -19573,6 +19909,8 @@ Polygon
 29.2804 -22.2494 
 29.3664 -22.1983 
 29.3767 -22.1922 
+NA # Z-Minimum
+NA # Z-Maximum
 35 # Number of Vertices
 46.5394 38.8781 
 46.5397 38.9781 
@@ -19652,6 +19990,8 @@ Polygon
 71.2127 42.1514 
 71.2744 42.1889 
 70.9694 42.2528 
+NA # Z-Minimum
+NA # Z-Maximum
 45 # Number of Vertices
 -60.1103 5.22667 
 -60.2102 5.22292 
@@ -19737,6 +20077,8 @@ Polygon
 102.022 6.09639 
 102.069 6.18466 
 102.096 6.23473 
+NA # Z-Minimum
+NA # Z-Maximum
 42 # Number of Vertices
 70.3469 40.4303 
 70.4448 40.4099 
@@ -19816,6 +20158,8 @@ Polygon
 37.894 50.0268 
 37.9665 49.958 
 38.0242 49.9033 
+NA # Z-Minimum
+NA # Z-Maximum
 38 # Number of Vertices
 33.9975 4.22278 
 34.0454 4.13501 
@@ -20016,6 +20360,8 @@ Polygon
 -8.50435 27.1942 
 -8.59035 27.2452 
 -8.66639 27.2903 
+NA # Z-Minimum
+NA # Z-Maximum
 41 # Number of Vertices
 -54.6036 2.32944 
 -54.5562 2.41749 
@@ -20165,6 +20511,8 @@ Polygon
 15.0146 22.8832 
 15.0012 22.9823 
 14.9986 23.0011 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 18.5392 3.07555 
 18.529 3.17504 
@@ -20228,6 +20576,8 @@ Polygon
 -83.9652 10.7174 
 -83.9186 10.7083 
 -83.6453 10.925 
+NA # Z-Minimum
+NA # Z-Maximum
 4 # Number of Vertices
 35.6441 32.69 
 35.5528 32.3939 
@@ -20262,6 +20612,8 @@ Polygon
 44.6914 37.112 
 44.7849 37.1473 
 44.7883 37.1486 
+NA # Z-Minimum
+NA # Z-Maximum
 42 # Number of Vertices
 70.9694 42.2533 
 71.1758 42.6947 
@@ -20356,6 +20708,8 @@ Polygon
 80.1405 42.2498 
 80.2273 42.2 
 80.2336 42.1964 
+NA # Z-Minimum
+NA # Z-Maximum
 34 # Number of Vertices
 70.9822 40.245 
 70.8846 40.2231 
@@ -20412,6 +20766,8 @@ Polygon
 -89.2209 14.3482 
 -89.3045 14.4031 
 -89.3475 14.4314 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 27.5683 -30.4044 
 27.6585 -30.4478 
@@ -20482,6 +20838,8 @@ Polygon
 -9.06557 7.24557 
 -9.11083 7.19389 
 -9.30472 7.41666 
+NA # Z-Minimum
+NA # Z-Maximum
 35 # Number of Vertices
 55.1992 22.6997 
 55.2203 22.7975 
@@ -20560,6 +20918,8 @@ Polygon
 54.5504 50.6488 
 54.5262 50.5518 
 54.5203 50.5283 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 68.1439 41.0514 
 68.0156 40.8139 
@@ -20636,6 +20996,8 @@ Polygon
 14.6591 12.6642 
 14.6065 12.7492 
 14.5567 12.8297 
+NA # Z-Minimum
+NA # Z-Maximum
 41 # Number of Vertices
 -67.4536 6.19305 
 -67.4785 6.0962 
@@ -20727,6 +21089,8 @@ Polygon
 9.65407 0.97718 
 9.55408 0.975723 
 9.54278 0.975555 
+NA # Z-Minimum
+NA # Z-Maximum
 38 # Number of Vertices
 91.6608 27.765 
 91.7602 27.7764 
@@ -20847,6 +21211,8 @@ Polygon
 87.9631 27.8928 
 88.0619 27.8778 
 88.1494 27.8644 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 29.8958 46.5511 
 29.8386 46.6331 
@@ -20898,6 +21264,8 @@ Polygon
 34.2586 51.9593 
 34.332 51.8914 
 34.3833 51.8439 
+NA # Z-Minimum
+NA # Z-Maximum
 79 # Number of Vertices
 31.3003 -22.4181 
 31.3334 -22.5124 
@@ -21017,6 +21385,8 @@ Polygon
 -69.6428 1.71548 
 -69.7428 1.71497 
 -69.8422 1.71445 
+NA # Z-Minimum
+NA # Z-Maximum
 34 # Number of Vertices
 27.3711 57.5358 
 27.2744 57.5613 
@@ -21077,6 +21447,8 @@ Polygon
 -10.5221 8.32952 
 -10.6176 8.29967 
 -10.7 8.27389 
+NA # Z-Minimum
+NA # Z-Maximum
 30 # Number of Vertices
 30.9256 55.6031 
 30.8275 55.6225 
@@ -21139,6 +21511,8 @@ Polygon
 28.2771 56.1278 
 28.179 56.1472 
 28.1678 56.1494 
+NA # Z-Minimum
+NA # Z-Maximum
 37 # Number of Vertices
 46.4517 41.8967 
 46.3669 41.9498 
@@ -21215,6 +21589,8 @@ Polygon
 43.5326 42.8154 
 43.4469 42.867 
 43.3933 42.8992 
+NA # Z-Minimum
+NA # Z-Maximum
 37 # Number of Vertices
 46.4517 41.8967 
 46.3669 41.9498 
@@ -21307,6 +21683,8 @@ Polygon
 1.78893 6.44973 
 1.79547 6.34995 
 1.8 6.28083 
+NA # Z-Minimum
+NA # Z-Maximum
 42 # Number of Vertices
 61.6781 51.2647 
 61.6288 51.1777 
@@ -21401,6 +21779,8 @@ Polygon
 44.1889 29.4352 
 44.0898 29.4484 
 43.999 29.4605 
+NA # Z-Minimum
+NA # Z-Maximum
 36 # Number of Vertices
 32.4919 -21.345 
 32.4933 -21.245 
@@ -21486,6 +21866,8 @@ Polygon
 2.35592 12.0278 
 2.38641 11.9325 
 2.39833 11.8953 
+NA # Z-Minimum
+NA # Z-Maximum
 36 # Number of Vertices
 30.4139 -15.6336 
 30.4228 -16.0092 
@@ -21565,6 +21947,8 @@ Polygon
 49.121 46.3895 
 49.2128 46.3499 
 49.2228 46.3456 
+NA # Z-Minimum
+NA # Z-Maximum
 34 # Number of Vertices
 70.6739 39.5075 
 70.7729 39.5214 
@@ -21644,6 +22028,8 @@ Polygon
 52.5651 41.7855 
 52.4705 41.7531 
 52.4389 41.7422 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 106.332 14.445 
 106.43 14.4263 
@@ -21681,6 +22067,8 @@ Polygon
 29.1964 51.3968 
 29.2954 51.3831 
 29.3539 51.375 
+NA # Z-Minimum
+NA # Z-Maximum
 20 # Number of Vertices
 -0.000274658 42.71 
 -0.093483 42.7462 
@@ -21727,6 +22115,8 @@ Polygon
 -53.8394 -26.9809 
 -53.8375 -27.0809 
 -53.8358 -27.1717 
+NA # Z-Minimum
+NA # Z-Maximum
 31 # Number of Vertices
 67.3667 39.2942 
 67.4596 39.2573 
@@ -21783,6 +22173,8 @@ Polygon
 40.0045 49.6225 
 40.1035 49.6084 
 40.1272 49.605 
+NA # Z-Minimum
+NA # Z-Maximum
 36 # Number of Vertices
 43.3933 42.8992 
 43.296 42.9224 
@@ -21857,6 +22249,8 @@ Polygon
 40.1956 43.4418 
 40.0978 43.421 
 40.0072 43.4017 
+NA # Z-Minimum
+NA # Z-Maximum
 26 # Number of Vertices
 30.7692 -8.19305 
 30.8565 -8.24183 
@@ -21911,6 +22305,8 @@ Polygon
 46.4631 41.7476 
 46.4548 41.8473 
 46.4508 41.8958 
+NA # Z-Minimum
+NA # Z-Maximum
 46 # Number of Vertices
 31.5867 62.9125 
 31.5019 62.8594 
@@ -21976,6 +22372,8 @@ Polygon
 27.4692 57.3655 
 27.4194 57.4522 
 27.3711 57.5364 
+NA # Z-Minimum
+NA # Z-Maximum
 30 # Number of Vertices
 -58.6008 -27.2964 
 -58.5009 -27.3012 
@@ -22032,6 +22430,8 @@ Polygon
 -2.59985 8.917 
 -2.58881 8.81761 
 -2.58472 8.78083 
+NA # Z-Minimum
+NA # Z-Maximum
 25 # Number of Vertices
 23.2936 -17.9994 
 23.3488 -18.0828 
@@ -22078,6 +22478,8 @@ Polygon
 26.5279 41.804 
 26.4398 41.7566 
 26.3578 41.7125 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 69.0978 40.2244 
 69.1449 40.3126 
@@ -22109,6 +22511,8 @@ Polygon
 -89.458 14.4446 
 -89.5019 14.3548 
 -89.5411 14.2744 
+NA # Z-Minimum
+NA # Z-Maximum
 27 # Number of Vertices
 27.7125 -20.5075 
 27.74 -20.6036 
@@ -22179,6 +22583,8 @@ Polygon
 30.6942 69.7254 
 30.7864 69.764 
 30.8569 69.7936 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 -87.7431 18.1728 
 -87.8348 18.2126 
@@ -22233,6 +22639,8 @@ Polygon
 81.4478 50.8323 
 81.5322 50.7787 
 81.5994 50.7361 
+NA # Z-Minimum
+NA # Z-Maximum
 27 # Number of Vertices
 46.4519 41.8972 
 46.5401 41.8502 
@@ -22291,6 +22699,8 @@ Polygon
 0.116325 11.0984 
 0.0166016 11.1057 
 0.0152817 11.1058 
+NA # Z-Minimum
+NA # Z-Maximum
 59 # Number of Vertices
 38.795 33.3753 
 38.8854 33.418 
@@ -22390,6 +22800,8 @@ Polygon
 32.4139 -21.4147 
 32.4884 -21.3479 
 32.4892 -21.3472 
+NA # Z-Minimum
+NA # Z-Maximum
 58 # Number of Vertices
 39.3019 32.2361 
 39.3939 32.1969 
@@ -22474,6 +22886,8 @@ Polygon
 -13.9118 12.0601 
 -13.9625 12.1463 
 -13.9678 12.1553 
+NA # Z-Minimum
+NA # Z-Maximum
 18 # Number of Vertices
 -71.7533 19.7058 
 -71.755 19.6059 
@@ -22537,6 +22951,8 @@ Polygon
 73.4875 53.5331 
 73.4415 53.4443 
 73.4372 53.4361 
+NA # Z-Minimum
+NA # Z-Maximum
 39 # Number of Vertices
 42.9431 11.0031 
 42.8431 11.0012 
@@ -22597,6 +23013,8 @@ Polygon
 68.9008 40.0343 
 68.9609 40.1142 
 68.9872 40.1492 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 31.1989 54.4608 
 31.1756 54.5581 
@@ -22635,6 +23053,8 @@ Polygon
 40.2945 -10.5478 
 40.3846 -10.5044 
 40.4364 -10.4794 
+NA # Z-Minimum
+NA # Z-Maximum
 29 # Number of Vertices
 -68.8878 47.1881 
 -68.7921 47.2171 
@@ -22686,6 +23106,8 @@ Polygon
 -7.82879 10.2545 
 -7.91425 10.2026 
 -7.97472 10.1658 
+NA # Z-Minimum
+NA # Z-Maximum
 22 # Number of Vertices
 28.7014 -28.6142 
 28.6059 -28.6437 
@@ -22731,6 +23153,8 @@ Polygon
 23.7821 51.5672 
 23.6841 51.5475 
 23.6028 51.5311 
+NA # Z-Minimum
+NA # Z-Maximum
 22 # Number of Vertices
 -67.855 2.79 
 -67.7693 2.73855 
@@ -22776,6 +23200,8 @@ Polygon
 -11.3758 7.07057 
 -11.4374 6.99182 
 -11.4886 6.92639 
+NA # Z-Minimum
+NA # Z-Maximum
 4 # Number of Vertices
 104.444 10.4239 
 104.086 10.1681 
@@ -22797,6 +23223,8 @@ Polygon
 -80.3078 -3.51205 
 -80.3472 -3.42012 
 -80.3689 -3.36945 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 114.095 4.59028 
 114.164 4.51801 
@@ -22834,6 +23262,8 @@ Polygon
 0.189209 42.6959 
 0.0894699 42.7031 
 0.00527954 42.7092 
+NA # Z-Minimum
+NA # Z-Maximum
 8 # Number of Vertices
 6.13306 50.1267 
 6.08434 50.0393 
@@ -22874,6 +23304,8 @@ Polygon
 68.6017 55.2709 
 68.6809 55.3318 
 68.7269 55.3672 
+NA # Z-Minimum
+NA # Z-Maximum
 21 # Number of Vertices
 25.5481 51.9208 
 25.647 51.9062 
@@ -22909,6 +23341,8 @@ Polygon
 31.7123 52.2861 
 31.7496 52.1934 
 31.7839 52.1081 
+NA # Z-Minimum
+NA # Z-Maximum
 21 # Number of Vertices
 44.775 39.7056 
 44.874 39.6914 
@@ -22948,6 +23382,8 @@ Polygon
 -57.7864 -22.0883 
 -57.8864 -22.0887 
 -57.9828 -22.0892 
+NA # Z-Minimum
+NA # Z-Maximum
 20 # Number of Vertices
 52.5831 51.4644 
 52.3469 51.7811 
@@ -22986,6 +23422,8 @@ Polygon
 1.90993 42.4993 
 1.81006 42.5042 
 1.75584 42.5069 
+NA # Z-Minimum
+NA # Z-Maximum
 37 # Number of Vertices
 -2.58139 8.78 
 -2.56551 8.68127 
@@ -23040,6 +23478,8 @@ Polygon
 39.8781 48.216 
 39.9056 48.3121 
 39.9214 48.3675 
+NA # Z-Minimum
+NA # Z-Maximum
 40 # Number of Vertices
 -3.43889 13.2764 
 -3.36987 13.3488 
@@ -23112,6 +23552,8 @@ Polygon
 46.9825 48.2892 
 47.0791 48.2635 
 47.1353 48.2486 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 32.7372 53.4389 
 32.6398 53.4162 
@@ -23157,6 +23599,8 @@ Polygon
 118.99 49.9477 
 119.083 49.9843 
 119.096 49.9894 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 -58.1997 -32.4539 
 -58.2034 -32.5538 
@@ -23187,6 +23631,8 @@ Polygon
 -89.9818 13.8415 
 -90.0584 13.7773 
 -90.0956 13.7461 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 39.0392 47.8683 
 38.9458 47.8327 
@@ -23214,6 +23660,8 @@ Polygon
 26.2749 55.0298 
 26.1841 54.9879 
 26.1608 54.9772 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 26.6125 55.6747 
 26.8197 55.2811 
@@ -23235,6 +23683,8 @@ Polygon
 40.0109 49.0814 
 40.0679 49.1636 
 40.0819 49.1839 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 -10.6544 11.8958 
 -10.3289 12.2242 
@@ -23269,6 +23719,8 @@ Polygon
 61.5047 41.2066 
 61.4076 41.2303 
 61.3858 41.2356 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 13.0922 -4.63361 
 13.0089 -4.68889 
@@ -23307,6 +23759,8 @@ Polygon
 -69.2889 47.3966 
 -69.2325 47.4714 
 -68.8922 47.1878 
+NA # Z-Minimum
+NA # Z-Maximum
 36 # Number of Vertices
 75.6914 54.1103 
 75.7873 54.1387 
@@ -23369,6 +23823,8 @@ Polygon
 -68.6371 -54.7435 
 -68.638 -54.8435 
 -68.6383 -54.8858 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 69.2308 24.2694 
 68.7533 24.3211 
@@ -23399,6 +23855,8 @@ Polygon
 113.903 22.1439 
 113.881 22.1439 
 113.861 22.4594 
+NA # Z-Minimum
+NA # Z-Maximum
 37 # Number of Vertices
 -71.9172 -51.9956 
 -71.8178 -52.0065 
@@ -23450,6 +23908,8 @@ Polygon
 28.351 48.1174 
 28.4432 48.0788 
 28.4608 48.0714 
+NA # Z-Minimum
+NA # Z-Maximum
 21 # Number of Vertices
 47.9469 30.0142 
 47.8469 30.0143 
@@ -23482,6 +23942,8 @@ Polygon
 107.491 14.1105 
 107.482 14.0109 
 107.474 13.9297 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 -89.1508 15.0736 
 -89.0687 15.1307 
@@ -23510,6 +23972,8 @@ Polygon
 35.1742 50.9954 
 35.2707 50.969 
 35.3058 50.9594 
+NA # Z-Minimum
+NA # Z-Maximum
 54 # Number of Vertices
 7.44473 20.8464 
 7.53088 20.8972 
@@ -23579,6 +24043,8 @@ Polygon
 30.5566 -1.24181 
 30.5191 -1.14911 
 30.4836 -1.06139 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 29.3539 51.375 
 29.4534 51.3648 
@@ -23599,6 +24065,8 @@ Polygon
 -11.3197 12.0253 
 -10.9289 12.2244 
 -10.6525 11.8939 
+NA # Z-Minimum
+NA # Z-Maximum
 30 # Number of Vertices
 -0.00222015 11.1094 
 -0.10215 11.1056 
@@ -23648,6 +24116,8 @@ Polygon
 2.68689 7.76436 
 2.6846 7.86433 
 2.68389 7.89555 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 54.5236 50.5286 
 54.447 50.5928 
@@ -23726,6 +24196,8 @@ Polygon
 -0.133873 21.9132 
 -0.0504379 21.858 
 -0.000831604 21.8253 
+NA # Z-Minimum
+NA # Z-Maximum
 15 # Number of Vertices
 -69.8431 1.71361 
 -69.8429 1.61361 
@@ -23751,6 +24223,8 @@ Polygon
 100.152 21.5854 
 100.189 21.4925 
 100.213 21.4328 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 -12.2447 14.7642 
 -12.2293 14.6654 
@@ -23774,6 +24248,8 @@ Polygon
 100.328 21.4763 
 100.234 21.4415 
 100.216 21.4347 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 32.7364 53.4386 
 32.6428 53.4738 
@@ -23806,6 +24282,8 @@ Polygon
 35.5944 4.73157 
 35.6628 4.65855 
 35.6983 4.62056 
+NA # Z-Minimum
+NA # Z-Maximum
 51 # Number of Vertices
 62.0236 43.4856 
 62.1232 43.4942 
@@ -23910,6 +24388,8 @@ Polygon
 66.087 42.5986 
 66.0777 42.499 
 66.0708 42.4242 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 45.0222 41.2978 
 44.9229 41.2857 
@@ -23946,6 +24426,8 @@ Polygon
 43.6325 41.1284 
 43.5332 41.1163 
 43.4878 41.1108 
+NA # Z-Minimum
+NA # Z-Maximum
 38 # Number of Vertices
 20.0017 -24.7661 
 20.0016 -24.8661 
@@ -24024,6 +24506,8 @@ Polygon
 55.9973 44.8261 
 55.9973 44.9261 
 55.9972 45.0031 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 30.8008 51.9444 
 30.7667 51.8504 
@@ -24050,6 +24534,8 @@ Polygon
 21.4126 55.2296 
 21.3134 55.2427 
 21.2667 55.2489 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 27.5208 48.465 
 27.4234 48.4423 
@@ -24075,6 +24561,8 @@ Polygon
 29.0578 -2.57521 
 29.0381 -2.67326 
 29.025 -2.73861 
+NA # Z-Minimum
+NA # Z-Maximum
 3 # Number of Vertices
 -6.22417 10.2569 
 -6.22278 10.7214 
@@ -24097,6 +24585,8 @@ Polygon
 65.9846 54.6224 
 66.0832 54.6389 
 66.1081 54.6431 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 64.6039 54.3908 
 64.7025 54.4073 
@@ -24130,6 +24620,8 @@ Polygon
 115.185 4.7868 
 115.153 4.88134 
 115.146 4.9025 
+NA # Z-Minimum
+NA # Z-Maximum
 13 # Number of Vertices
 97.8803 9.52805 
 97.9526 9.59709 
@@ -24153,6 +24645,8 @@ Polygon
 2.37066 12.1759 
 2.37806 12.2403 
 2.83861 12.3958 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 75.3567 32.3042 
 75.2832 32.2364 
@@ -24170,6 +24664,8 @@ Polygon
 1.75584 42.5069 
 1.45805 42.5656 
 1.75389 42.5069 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 74.2011 43.2686 
 74.2965 43.2387 
@@ -24201,6 +24697,8 @@ Polygon
 33.0091 -18.257 
 33.0057 -18.3569 
 33.0039 -18.4114 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 22.7847 54.365 
 22.7597 54.4618 
@@ -24225,6 +24723,8 @@ Polygon
 27.6939 58.1711 
 27.6789 58.0722 
 27.6694 58.0097 
+NA # Z-Minimum
+NA # Z-Maximum
 18 # Number of Vertices
 70.47 55.2967 
 70.55 55.2367 
@@ -24256,6 +24756,8 @@ Polygon
 17.5352 7.9003 
 17.6249 7.9446 
 17.71 7.98666 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 31.7839 52.1081 
 31.6853 52.0917 
@@ -24301,6 +24803,8 @@ Polygon
 33.3421 21.9488 
 33.2455 21.9746 
 33.1911 21.9892 
+NA # Z-Minimum
+NA # Z-Maximum
 12 # Number of Vertices
 34.5256 1.11389 
 34.4745 1.02788 
@@ -24317,6 +24821,8 @@ Polygon
 2 # Number of Vertices
 34.3825 51.8433 
 34.2986 51.3689 
+NA # Z-Minimum
+NA # Z-Maximum
 37 # Number of Vertices
 3.52583 15.3592 
 3.42638 15.3488 
@@ -24391,6 +24897,8 @@ Polygon
 5.38909 13.8457 
 5.48499 13.8741 
 5.54528 13.8919 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 27.3711 57.5358 
 27.4244 57.6204 
@@ -24410,6 +24918,8 @@ Polygon
 31.2877 54.3972 
 31.2051 54.4536 
 31.1953 54.4603 
+NA # Z-Minimum
+NA # Z-Maximum
 31 # Number of Vertices
 24.2369 -17.4794 
 24.1387 -17.4979 
@@ -24445,6 +24955,8 @@ Polygon
 2 # Number of Vertices
 71.0325 40.1631 
 71.2331 39.8933 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 34.0047 0.236664 
 33.9982 0.136879 
@@ -24470,6 +24982,8 @@ Polygon
 -8.88098 12.0873 
 -8.80892 12.018 
 -8.79861 12.0081 
+NA # Z-Minimum
+NA # Z-Maximum
 39 # Number of Vertices
 4.24611 19.1467 
 4.34433 19.1654 
@@ -24513,6 +25027,8 @@ Polygon
 2 # Number of Vertices
 113.572 22.2039 
 113.573 22.2033 
+NA # Z-Minimum
+NA # Z-Maximum
 38 # Number of Vertices
 55.9969 45.0025 
 56.0945 45.0241 
@@ -24562,6 +25078,8 @@ Polygon
 -59.8706 8.21971 
 -59.8014 8.275 
 -59.9903 8.53528 
+NA # Z-Minimum
+NA # Z-Maximum
 120 # Number of Vertices
 51.9993 18.9993 
 52.0942 19.0309 
@@ -24693,6 +25211,8 @@ Polygon
 -6.10269 10.2883 
 -6.19972 10.2641 
 -6.22278 10.2583 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 68.7233 55.3683 
 68.8232 55.3642 
@@ -24723,6 +25243,8 @@ Polygon
 26.7623 55.7055 
 26.6644 55.6853 
 26.6142 55.675 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 27.35 55.8264 
 27.2521 55.8062 
@@ -24741,6 +25263,8 @@ Polygon
 -2.89046 5.20972 
 -2.92252 5.11501 
 -2.9275 5.10028 
+NA # Z-Minimum
+NA # Z-Maximum
 8 # Number of Vertices
 28.1678 56.1494 
 28.0832 56.096 
@@ -24759,6 +25283,8 @@ Polygon
 27.745 55.8825 
 27.6604 55.8291 
 27.6014 55.7919 
+NA # Z-Minimum
+NA # Z-Maximum
 11 # Number of Vertices
 60.9444 51.62 
 60.852 51.6582 
@@ -24784,6 +25310,8 @@ Polygon
 127.897 38.2978 
 127.997 38.3059 
 128.003 38.3064 
+NA # Z-Minimum
+NA # Z-Maximum
 10 # Number of Vertices
 13.1794 -5.85611 
 13.0823 -5.87991 
@@ -24822,6 +25350,8 @@ Polygon
 75.5913 54.0613 
 75.6807 54.1061 
 75.6906 54.1111 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 18.5406 3.07417 
 18.4962 2.98457 
@@ -24835,9 +25365,13 @@ Polygon
 2 # Number of Vertices
 107.783 21.6672 
 108.119 21.4492 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 29.2578 36.205 
 29.5958 36.0297 
+NA # Z-Minimum
+NA # Z-Maximum
 47 # Number of Vertices
 -13.1747 27.6669 
 -13.0747 27.6669 
@@ -24886,9 +25420,13 @@ Polygon
 -8.77472 27.6667 
 -8.67472 27.6667 
 -8.66666 27.6667 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 104.095 1.31111 
 103.603 1.27834 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 60.64 44.6053 
 60.7178 44.5424 
@@ -24917,6 +25455,8 @@ Polygon
 0.0811996 10.5355 
 0.00566864 10.601 
 0.00138855 10.6047 
+NA # Z-Minimum
+NA # Z-Maximum
 14 # Number of Vertices
 66.0717 42.4239 
 66.0292 42.0031 
@@ -24957,12 +25497,16 @@ Polygon
 79.2197 51.7971 
 79.2872 51.7234 
 79.3369 51.6692 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -67.4242 45.5947 
 -67.205 45.1839 
 2 # Number of Vertices
 -87.6956 13.8181 
 -87.8164 13.4053 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 1.20306 6.10056 
 1.1306 6.16947 
@@ -24976,12 +25520,16 @@ Polygon
 2 # Number of Vertices
 56.08 26.0656 
 56.27 25.6361 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 56.08 26.0656 
 56.27 25.6361 
 2 # Number of Vertices
 34.2678 31.2172 
 34.4903 31.5967 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 28.8783 48.0097 
 28.4608 48.0714 
@@ -24994,6 +25542,8 @@ Polygon
 14.7003 -23.1545 
 14.7317 -23.2397 
 14.4583 -23.1536 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 53.3567 51.5067 
 53.2569 51.5012 
@@ -25015,6 +25565,8 @@ Polygon
 67.7694 41.1846 
 67.8692 41.1905 
 67.9344 41.1944 
+NA # Z-Minimum
+NA # Z-Maximum
 18 # Number of Vertices
 8.41028 55.0864 
 8.50838 55.067 
@@ -25037,6 +25589,8 @@ Polygon
 2 # Number of Vertices
 42.2092 37.3197 
 42.3739 37.0597 
+NA # Z-Minimum
+NA # Z-Maximum
 9 # Number of Vertices
 63.9014 54.1978 
 63.9977 54.2246 
@@ -25057,12 +25611,16 @@ Polygon
 27.3014 -30.1706 
 27.349 -30.2585 
 27.3811 -30.3178 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 39.67 48.5881 
 39.9214 48.3675 
 2 # Number of Vertices
 29.5975 -1.38445 
 29.2328 -1.69278 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 27.0306 37.8394 
 26.9728 37.6486 
@@ -25078,6 +25636,8 @@ Polygon
 25.8285 -24.8622 
 25.8588 -24.7669 
 25.8675 -24.7397 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 -82.4206 43.0133 
 -82.4653 42.9239 
@@ -25089,6 +25649,8 @@ Polygon
 2 # Number of Vertices
 28.1225 36.4914 
 28.495 36.4692 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 70.5222 39.8875 
 70.5217 39.8883 
@@ -25100,12 +25662,16 @@ Polygon
 61.3222 51.4887 
 61.4167 51.4559 
 61.4967 51.4281 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 40.14 49.6006 
 40.0811 49.1839 
 2 # Number of Vertices
 128.003 38.3064 
 128.364 38.6211 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 70.7944 40.7247 
 70.7109 40.6697 
@@ -25163,12 +25729,16 @@ Polygon
 41.4543 -1.52345 
 41.5113 -1.60561 
 41.5575 -1.67222 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -13.6956 12.2933 
 -13.9711 12.1539 
 2 # Number of Vertices
 9.67667 42.9528 
 9.45167 43.1822 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 14.5544 12.8278 
 14.4661 12.8746 
@@ -25180,30 +25750,40 @@ Polygon
 2 # Number of Vertices
 -9.34444 12.25 
 -9.31111 12.5042 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 36.6942 45.4319 
 36.5308 45.1372 
 2 # Number of Vertices
 19.2956 39.8703 
 19.6628 39.9306 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 29.8958 46.5511 
 30.1336 46.4156 
 2 # Number of Vertices
 27.3061 36.7664 
 27.4342 36.5631 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -13.6936 12.2939 
 -13.7131 12.6758 
 2 # Number of Vertices
 12.4072 43.9161 
 12.4078 43.9136 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 27.0517 37.5047 
 27.1786 37.2517 
 2 # Number of Vertices
 9.59944 47.0642 
 9.53416 47.2742 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 106.47 11.8708 
 106.459 11.6647 
@@ -25215,12 +25795,16 @@ Polygon
 63.7257 54.1925 
 63.8256 54.195 
 63.9025 54.1969 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 34.6994 -12.0119 
 34.6994 -12.0114 
 2 # Number of Vertices
 -0.00222015 10.6083 
 -0.0019455 10.9181 
+NA # Z-Minimum
+NA # Z-Maximum
 16 # Number of Vertices
 41.9139 3.99 
 41.8513 3.91197 
@@ -25249,42 +25833,56 @@ Polygon
 32.0039 -26.1516 
 31.9853 -26.0534 
 31.9672 -25.9575 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 26.2192 38.3244 
 26.2983 38.1122 
 2 # Number of Vertices
 26.1186 39.3872 
 26.4447 39.3986 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 69.0969 40.2244 
 68.6419 40.1847 
 2 # Number of Vertices
 27.1514 37.0639 
 27.3547 36.93 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -87.3008 12.9867 
 -87.065 13 
 2 # Number of Vertices
 124.131 39.8292 
 124.371 40.0961 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 25.5889 40.0361 
 25.6761 39.8139 
 2 # Number of Vertices
 27.7297 36.6414 
 27.9133 36.6297 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 26.3531 38.7014 
 26.3058 38.4839 
 2 # Number of Vertices
 31.8656 54.0022 
 31.7636 53.8033 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 17.1664 48.0125 
 17.0647 48.1436 
 2 # Number of Vertices
 25.8503 40.4036 
 25.625 40.2544 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 26.4033 -24.6306 
 26.3055 -24.6514 
@@ -25294,23 +25892,29 @@ Polygon
 25.9143 -24.7348 
 25.8692 -24.7444 
 2 # Number of Vertices
-58.3378 51.1561 
+58.332078 51.1561 
 58.0022 51.085 
 2 # Number of Vertices
 27.8442 59.1597 
 28.1892 59.3525 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 1.99472 42.4611 
 1.99361 42.4622 
 2 # Number of Vertices
 68.1439 41.0514 
 67.9344 41.1944 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 70.5867 40.9994 
 70.5844 41.0011 
 2 # Number of Vertices
 126.807 38.0006 
 127 38.225 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 107.473 13.9336 
 107.463 13.7958 
@@ -25322,108 +25926,144 @@ Polygon
 126.298 37.741 
 126.201 37.7181 
 126.104 37.6953 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 26.6903 39.0756 
 26.5853 38.8806 
 2 # Number of Vertices
 -3.10361 5.08611 
 -2.88167 5.11417 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 9.82861 42.4864 
 9.79361 42.6628 
 2 # Number of Vertices
 27.5644 -30.4044 
 27.3786 -30.3172 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 126.689 37.8322 
 126.807 38.0006 
 2 # Number of Vertices
 45.5558 40.665 
 45.5567 40.6647 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 61.6803 51.2667 
 61.5 51.43 
 2 # Number of Vertices
 27.6014 55.7919 
 27.3508 55.8264 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 27.6014 55.7919 
 27.3508 55.8264 
 2 # Number of Vertices
 34.2986 51.3689 
 34.2097 51.2594 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 1.8025 6.28028 
 1.63583 6.21833 
 2 # Number of Vertices
 29.2553 -22.0631 
 29.3722 -22.1919 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 28.0158 59.4786 
 28.1892 59.3525 
 2 # Number of Vertices
 47.9533 30.0081 
 48.3217 29.9011 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -0.00527954 11.0986 
 -0.151108 11.1392 
 2 # Number of Vertices
 0.00250244 10.9642 
 0.000556946 11.0969 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 58.0011 51.0847 
 57.7944 51.12 
 2 # Number of Vertices
 9.03611 41.3414 
 9.39972 41.4106 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 7.39139 43.7294 
 7.44028 43.7575 
 2 # Number of Vertices
 51.1114 24.5558 
 51.2147 24.6203 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 45.2119 41.0056 
 45.2128 41.0042 
 2 # Number of Vertices
 -2.91472 35.2736 
 -2.94695 35.3292 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 8.68 47.6931 
 8.68083 47.6931 
 2 # Number of Vertices
 68.9872 40.1492 
 68.8636 40.1417 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 124.65 38.025 
 124.829 37.7586 
 2 # Number of Vertices
 -5.34583 35.8417 
 -5.39555 35.9158 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 35.2564 31.8081 
 35.2564 31.8075 
 2 # Number of Vertices
 124.743 37.9967 
 124.829 37.7586 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 34.975 29.5761 
 34.98 29.5461 
 2 # Number of Vertices
 27.7961 60.5456 
 27.4994 60.2553 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 26.0442 43.9044 
 26.0697 43.9292 
 2 # Number of Vertices
 125.638 37.6644 
 125.769 37.6569 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 -0.00111389 10.9283 
 -0.00111389 10.9608 
 2 # Number of Vertices
 -5.36389 36.1514 
 -5.38361 36.1514 
+NA # Z-Minimum
+NA # Z-Maximum
 2 # Number of Vertices
 124.65 38.025 
 124.743 37.9967 
@@ -25544,6 +26184,8 @@ Polygon
 18.3397 42.6363 
 18.42 42.5767 
 18.4613 42.5461 
+NA # Z-Minimum
+NA # Z-Maximum
 19 # Number of Vertices
 22.3738 42.3267 
 22.2761 42.3052 
@@ -25580,6 +26222,8 @@ Polygon
 20.2881 42.9695 
 20.3587 42.9319 
 20.0853 42.5632 
+NA # Z-Minimum
+NA # Z-Maximum
 17 # Number of Vertices
 18.8387 45.9074 
 18.9034 45.8311 
@@ -25637,6 +26281,8 @@ Polygon
 13.7403 45.4834 
 13.6403 45.4849 
 13.5904 45.4857 
+NA # Z-Minimum
+NA # Z-Maximum
 139 # Number of Vertices
 53.0894 16.6308 
 53.0476 16.7216 
@@ -25800,6 +26446,8 @@ Polygon
 36.62 34.1978 
 36.4572 34.6358 
 35.9808 34.6561 
+NA # Z-Minimum
+NA # Z-Maximum
 7 # Number of Vertices
 35.6232 33.2456 
 35.6269 33.1456 
@@ -25819,6 +26467,8 @@ Polygon
 35.4953 31.6923 
 35.4866 31.5927 
 35.4783 31.4976 
+NA # Z-Minimum
+NA # Z-Maximum
 75 # Number of Vertices
 42.395 12.465 
 42.3213 12.5326 
@@ -25922,6 +26572,8 @@ Polygon
 28.3237 45.6064 
 28.2627 45.5271 
 28.2051 45.4522 
+NA # Z-Minimum
+NA # Z-Maximum
 166 # Number of Vertices
 24.2578 8.67912 
 24.3029 8.76834 

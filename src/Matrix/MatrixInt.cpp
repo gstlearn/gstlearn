@@ -50,26 +50,26 @@ MatrixInt::~MatrixInt()
   _deallocate();
 }
 
-double MatrixInt::getValue(int irow, int icol) const
+int MatrixInt::getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);
   int rank = _getIndexToRank(irow,icol);
   return _rectMatrix[rank];
 }
 
-double MatrixInt::getValue(int irank) const
+int MatrixInt::getValue(int irank) const
 {
   _isRankValid(irank);
   return _rectMatrix[irank];
 }
 
-void MatrixInt::setValue(int irank, double value)
+void MatrixInt::setValue(int irank, int value)
 {
   _isRankValid(irank);
   _rectMatrix[irank] = value;
 }
 
-void MatrixInt::setValue(int irow, int icol, double value)
+void MatrixInt::setValue(int irow, int icol, int value)
 {
   _isIndexValid(irow, icol);
   int rank = _getIndexToRank(irow, icol);
@@ -159,7 +159,7 @@ VectorVectorInt MatrixInt::getMatrix() const
  * Note that this array is ALWAYS dimensioned to the total number
  * of elements in the matrix.
  * Kept for compatibility with old code where matrix contents was stored as
- * a double* array
+ * a int* array
  * @param values Input array (Dimension: nrow * ncol)
  * @param byCol true for Column major; false for Row Major
  */

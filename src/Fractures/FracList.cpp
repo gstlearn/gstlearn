@@ -273,7 +273,7 @@ VectorDouble FracList::_layersManage(const FracEnviron& envir,
   double var = stdev * stdev;
   double theta = var / mean;
   bool flag_rnd = var > 0.;
-  int k = (flag_rnd) ? (mean * mean) / var : 0.;
+  double k = (flag_rnd) ? (mean * mean) / var : 0.;
 
   /* Downwards */
 
@@ -1388,7 +1388,7 @@ void FracList::_welloutAdd(VectorDouble& wellout,
 {
   int nloc;
 
-  nloc = wellout.size() / NBYWOUT;
+  nloc = (int) wellout.size() / NBYWOUT;
   wellout.resize(NBYWOUT * (nloc+1));
 
   WELLOUT(nloc,0) = x; /* First coordinate */

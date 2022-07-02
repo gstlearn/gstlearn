@@ -352,7 +352,7 @@ bool BooleanObject::_isGrain(const Db* db, int iech)
 
 int BooleanObject::_getCoverageAtSample(const Db* db, int iech)
 {
-  return db->getVariable(iech,1);
+  return (int) db->getVariable(iech,1);
 }
 
 void BooleanObject::_updateCoverageAtSample(Db* db, int iech, int ival)

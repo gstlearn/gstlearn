@@ -44,6 +44,9 @@ public:
   double getYmax() const { return ut_vector_max(_y); }
   void addPoint(double x, double y);
 
+  void setX(const VectorDouble& x) { _x = x; }
+  void setY(const VectorDouble& y) { _y = y; }
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

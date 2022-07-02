@@ -49,7 +49,7 @@ SimuTurningBands::SimuTurningBands(int nbsimu, int nbtuba, const Model* model, i
     /* Allocate the structures for the seeds */
 
     int size = nvar * ncova * _nbtuba * nbsimu;
-    _seedBands.resize(size,0.);
+    _seedBands.resize(size,0);
 
     /* Allocate the structures for the directions */
 
@@ -951,7 +951,7 @@ void SimuTurningBands::_simulatePoint(Db *db,
                                  int icase,
                                  int shift)
 {
-  double vexp, phi, omega, tdeb, dt0, t0;
+  double vexp, tdeb, dt0, t0;
   int nt0;
   VectorDouble t;
   VectorDouble v0;
@@ -960,6 +960,8 @@ void SimuTurningBands::_simulatePoint(Db *db,
   VectorDouble tab;
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
+  double phi = 0.;
+  double omega = 0.;
 
   /* Initializations */
 

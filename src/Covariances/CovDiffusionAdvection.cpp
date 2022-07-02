@@ -161,7 +161,7 @@ void CovDiffusionAdvection::_computeSpatialTrace()
 
    VectorDouble coeffsL = _markovL->getMarkovCoeffs();
    VectorDouble coeffsR = _markovR->getMarkovCoeffs();
-   int degree = (coeffsL.size() + coeffsR.size() - 2);
+   int degree = ((int) coeffsL.size() + (int) coeffsR.size() - 2);
    VectorDouble coeffs;
    coeffs.resize(degree + 1,0.);
 

@@ -53,6 +53,8 @@ public:
   PolySet getClosedPolySet(int ipol) const;
   const VectorDouble& getX(int ipol) const { return _polysets[ipol].getX(); }
   const VectorDouble& getY(int ipol) const { return _polysets[ipol].getY(); }
+  void setX(int ipol, const VectorDouble& x) { return _polysets[ipol].setX(x); }
+  void setY(int ipol, const VectorDouble& y) { return _polysets[ipol].setY(y); }
 
   void getExtension(double *xmin,
                     double *xmax,

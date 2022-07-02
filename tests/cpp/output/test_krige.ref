@@ -109,19 +109,19 @@ Data Base Statistics
 5 - Name Xvalid.Var.estim - Locator z1
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -2.547
- Maximum value       =      2.795
- Mean value          =      0.008
- Standard Deviation  =      1.248
- Variance            =      1.558
+ Minimum value       =     -1.191
+ Maximum value       =      0.858
+ Mean value          =     -0.160
+ Standard Deviation  =      0.531
+ Variance            =      0.281
 6 - Name Xvalid.Var.stdev - Locator NA
  Nb of data          =        100
  Nb of active values =        100
- Minimum value       =     -0.511
- Maximum value       =      0.445
- Mean value          =      0.001
- Standard Deviation  =      0.222
- Variance            =      0.049
+ Minimum value       =      4.461
+ Maximum value       =      7.896
+ Mean value          =      5.938
+ Standard Deviation  =      0.977
+ Variance            =      0.955
 
 <----- Kriging in Moving Neighborhood ----->
 

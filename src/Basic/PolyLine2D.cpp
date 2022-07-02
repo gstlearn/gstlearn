@@ -93,23 +93,49 @@ PolyLine2D* PolyLine2D::createFromNF(const String& neutralFilename, bool verbose
   return line2D;
 }
 
+/**
+ * Serialization (by Point rather than by Coordinate)
+ * This is maintained for all classes using this interface for serialization
+ * @param os Output Stream
+ * @param verbose Verbose flag
+ * @return
+ */
 bool PolyLine2D::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   if (getNPoints() <= 0) return false;
   bool ret = true;
   ret = ret && _recordWrite<int>(os, "Number of Points", (int) _x.size());
-  ret = ret && _recordWriteVec<double>(os, "X-Coordinates of PolyLine2D", _x);
-  ret = ret && _recordWriteVec<double>(os, "Y-Coordinates of PolyLine2D", _y);
+
+  VectorDouble buffer(2);
+  for (int i = 0; i < (int) _x.size(); i++)
+  {
+    buffer[0] = _x[i];
+    buffer[1] = _y[i];
+    ret = ret && _recordWriteVec<double>(os, "", buffer);
+  }
   return ret;
 }
 
+/**
+ * Deserialization (by sample)
+ * @param is Input stream
+ * @param verbose Verbose flag
+ * @return
+ */
 bool PolyLine2D::_deserialize(std::istream& is, bool /*verbose*/)
 {
   int np;
   bool ret = true;
+  VectorDouble buffer(2);
   ret = ret && _recordRead<int>(is, "Number of Points", np);
-  ret = ret && _recordReadVec<double>(is, "X-Coordinates of PolyLine2D", _x, np);
-  ret = ret && _recordReadVec<double>(is, "Y-Coordinates of PolyLine2D", _y, np);
+  _x.resize(np);
+  _y.resize(np);
+  for (int i = 0; i < np; i++)
+  {
+    ret = ret && _recordReadVec<double>(is, "", buffer, 2);
+    _x[i] = buffer[0];
+    _y[i] = buffer[1];
+  }
   return ret;
 }
 

@@ -1,5 +1,4 @@
 # Regular Packages
-
 import numpy as np
 import sys
 import os
@@ -10,8 +9,11 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 # Parameters
+# This test does not make sense as a regression test.
+# Nevertheless it tells how to produce several figures simultaneously
+# Turn the relevant flags ON when used interactively
 
-draw_grid  = True
+draw_grid  = False
 draw_point = False
 
 # Create representation grid
@@ -38,9 +40,9 @@ if draw_grid:
 	ecr = 1
 	for i in range(2):
 		for j in range(2):
-			ax,im = gp.grid(grid,"Simu."+str(ecr),ax=axs[j,i],flagColorBar=False)
+			ax = gp.grid(grid,"Simu."+str(ecr),ax=axs[j,i],flagColorBar=False)
 			ecr = ecr + 1
-	cbar = fig.colorbar(im,ax=axs[0:,:],location='right',shrink=0.5)
+#	cbar = fig.colorbar(im,ax=axs[0:,:],location='right',shrink=0.5)
 	plt.show()
 
 # Representation of two figures on the Data

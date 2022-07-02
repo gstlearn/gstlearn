@@ -124,7 +124,7 @@ void SimuBoolean::_projectToGrid(DbGrid* dbout,
   for (int iobj = 0; iobj < _getNObjects(); iobj++)
   {
     _objlist[iobj]->projectToGrid(dbout, iptr_simu, iptr_rank,
-                                  boolparam.getFacies(), iobj + 1);
+                                  (int) boolparam.getFacies(), iobj + 1);
   }
   return;
 }

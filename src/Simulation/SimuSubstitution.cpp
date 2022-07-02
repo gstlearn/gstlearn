@@ -114,7 +114,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
 
         if (subparam.isLocal())
         {
-          double factor;
+          double factor = 0.;
           VectorDouble vector(3);
           if (subparam.getColfac() >= 0)
           {

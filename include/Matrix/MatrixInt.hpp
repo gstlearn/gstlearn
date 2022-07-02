@@ -35,10 +35,10 @@ public:
   virtual IClonable* clone() const override { return new MatrixInt(*this); };
 
   void   reset(int nrows, int ncols);
-  double getValue(int irow, int icol) const;
-  double getValue(int irank) const;
-  void   setValue(int rank, double value);
-  void   setValue(int irow, int icol, double value);
+  int    getValue(int irow, int icol) const;
+  int    getValue(int irank) const;
+  void   setValue(int rank, int value);
+  void   setValue(int irow, int icol, int value);
   int    getMatrixSize() const;
   int    size() const { return getMatrixSize(); }
   VectorInt getValues() const;

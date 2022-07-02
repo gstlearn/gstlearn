@@ -393,7 +393,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model *model,
  *****************************************************************************/
 void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
 {
-  int nfreq = freqs.size();
+  int nfreq = (int) freqs.size();
   double totpos = 0.;
   double totneg = 0.;
   for (int ifreq = 0; ifreq < nfreq; ifreq++)
@@ -430,7 +430,7 @@ void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
  *****************************************************************************/
 int SimuSpherical::_gdiscrete(VectorDouble& freqs)
 {
-  int nfreq = freqs.size();
+  int nfreq = (int) freqs.size();
   double u = law_uniform(0., 1.);
 
   double partvec = 0.;

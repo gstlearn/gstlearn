@@ -158,7 +158,7 @@ int FileVTK::writeInFile()
           if (FFFF(value))
             tab[icol][ecr] = (float) (TEST);
           else
-            tab[icol][ecr] = _factvar * value;
+            tab[icol][ecr] = (float) (_factvar * value);
           ecr++;
         }
     }
@@ -176,7 +176,7 @@ int FileVTK::writeInFile()
               if (FFFF(value))
                 tab[icol][ecr] = (float) (TEST);
               else
-                tab[icol][ecr] = _factvar * value;
+                tab[icol][ecr] = (float) (_factvar * value);
             }
             else
               tab[icol][ecr] = (float) (TEST);

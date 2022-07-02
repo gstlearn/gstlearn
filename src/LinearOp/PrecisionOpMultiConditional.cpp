@@ -290,22 +290,22 @@ void PrecisionOpMultiConditional::_allocate(int i) const
   {
     _work3.resize(sizes());
 
-    for(int i = 0; i<sizes();i++)
+    for(int j = 0; j<sizes(); j++)
     {
-      if(_work3[i].empty())
+      if(_work3[j].empty())
       {
-        _work3[i].resize(size(i));
+        _work3[j].resize(size(j));
       }
     }
   }
-  if (i ==2)
+  if (i == 2)
   {
     if(_workdata.empty())
     {
       _workdata.resize(_ndat);
     }
   }
-  if (i ==4)
+  if (i == 4)
   {
     if(_work1ter.empty())
     {

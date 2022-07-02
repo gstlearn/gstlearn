@@ -224,23 +224,23 @@ int main(int /*argc*/, char */*argv*/[])
   MRR.display();
   Vref = MRR.getDiagonal();
   V1 = MSP->getDiagonal();
-  print_vector("Main Diagonal",0,Vref.size(),Vref.data());
+  print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
-  print_vector("Second Diagonal Below",0,Vref.size(),Vref.data());
+  print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
-  print_vector("Third Diagonal Above",0,Vref.size(),Vref.data());
+  print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
-  print_vector("Third Row",0,Vref.size(),Vref.data());
+  print_vector("Third Row",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
-  print_vector("Fourth Column",0,Vref.size(),Vref.data());
+  print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
 
   /**

@@ -70,7 +70,7 @@ String ADriftElem::toString(const AStringFormat* /*strfmt*/) const
 bool ADriftElem::_deserialize(std::istream& is, bool /*verbose*/)
 {
   bool ret = true;
-  int type;
+  int type = 0;
   ret = ret && _recordRead<int>(is, "Drift Function", type);
   _type = EDrift::fromValue(type);
   _rankFex = 0;

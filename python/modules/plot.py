@@ -604,7 +604,7 @@ def point(db,
     if end_plot:
         plt.show()
 
-    return ax, im
+    return ax
 
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
@@ -728,7 +728,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     if end_plot:
         plt.show()
     
-    return ax, im
+    return ax
 
 def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
          xlim=None, ylim=None, norm=None,

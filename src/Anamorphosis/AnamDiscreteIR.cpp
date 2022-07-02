@@ -578,8 +578,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
         total *= prod * prod;
         for (int jvar = ivar + 1; jvar < ncleff; jvar++)
         {
-          double prod = db->getArray(iech, cols_std[jvar])
-              * getIRStatB(ivar + 1);
+          prod = db->getArray(iech, cols_std[jvar]) * getIRStatB(ivar + 1);
           total += prod * prod;
         }
         calest.setQstd(ivar, sqrt(total));

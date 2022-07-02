@@ -279,7 +279,7 @@ int Skin::init(bool verbose)
       /* The cell is eligible */
 
       nb_count++;
-      int local = 0.;
+      int local = 0;
       _dbgrid->rankToIndice(lec, indg);
       for (int dir = 0; dir < ndir[_ndim]; dir++)
       {
@@ -389,7 +389,7 @@ int Skin::unstack(int rank0, int ipos0)
 
   /* Update the neighboring cells */
 
-  int local = 0.;
+  int local = 0;
   _dbgrid->rankToIndice(ipos0, indg);
   for (int dir = 0; dir < ndir[_ndim]; dir++)
   {

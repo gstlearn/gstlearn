@@ -4353,7 +4353,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
         }
 
         // Check if the point 'ip' must be dropped
-        double proba = exp(-pow(dd, beta));
+        proba = exp(-pow(dd, beta));
         flag_drop = (law_uniform(0.,1.) < proba);
       }
     }

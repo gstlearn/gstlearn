@@ -854,7 +854,7 @@ VectorInt decodeGridSorting(const String& string,
 
   if (verbose)
   {
-    message("Decoding the sorting rule (%s) with nx = (", string);
+    message("Decoding the sorting rule (%s) with nx = (", string.c_str());
     for (int i = 0; i < ndim; i++)
       message(" %d", nx[i]);
     message(" )\n");
