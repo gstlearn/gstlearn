@@ -697,6 +697,7 @@ VectorDouble DbGrid::getOneSlice(const String& name,
 /**
  * Set all elements of a column (1-D) along a given space dimension
  * to a constant value
+ * @param name   Name of the target variable
  * @param idim   Rank of the Space dimension
  * @param rank   Rank of the target Column
  * @param value  Assigned value
