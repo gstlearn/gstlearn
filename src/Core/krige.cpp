@@ -47,13 +47,13 @@
 
 /*! \cond */
 #define NBYPAS 5
-#define VAR0(iv,jv)       (var0[(jv) + nvar * (iv)])
+#define VAR0(iv,jv)       (var0_global[(jv) + nvar * (iv)])
 #define LHS_C(i,j)        (lhs [(i) + nred * (j)])
 #define RHS_C(i,iv)       (rhs [(i) + nred * (iv)])
 #define DISC1(i,idim)     (KOPTION->disc1[(idim) * KOPTION->ntot + (i)])
 #define DISC2(i,idim)     (KOPTION->disc2[(idim) * KOPTION->ntot + (i)])
-#define LHS_EXP(i,j)      (lhs[(i) * neq + (j)])
-#define RHS_EXP(i)        (rhs[(i)])
+#define LHS_EXP(i,j)      (lhs_global[(i) * neq + (j)])
+#define RHS_EXP(i)        (rhs_global[(i)])
 #define COV_REF(iz)       (cov_ref[cov_radius + (iz)])
 #define SMEAN(i,isimu)    (smean[(isimu) * nfeq + (i)])
 #define IAD(ix,iy,iz,nn,ss) (((iz) + nn[2]) + ss[2] * (((iy) + nn[1]) + ss[1] * ((ix) + nn[0])))
@@ -81,10 +81,10 @@
 /*! \endcond */
 
 // TODO : remove all these static stuffs !
-static double *covtab, *covaux, *drftab, *fs, *fsf, *d1_1, *d1_2, *var0;
-static VectorDouble d1, d1_t;
-static double *lhs, *lhs_b, *rhs, *wgt, *zext, *zam1, *ff0, *varb;
-static int *flag;
+static double *covaux_global, *d1_1_global, *d1_2_global, *var0_global;
+static VectorDouble d1_global, d1_t_global;
+static double *lhs_global, *rhs_global, *wgt_global, *zam1_global;
+static int *flag_global;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
 static int IECH_OUT   = -1;
@@ -205,7 +205,7 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
     if (rel == nullptr) return (rel);
     for (i = j = 0; i < neq; i++)
     {
-      if (flag != NULL && flag[i])
+      if (flag_global != NULL && flag_global[i])
         rel[j++] = i + 1;
       else
         rel[j++] = i + 1;
@@ -370,7 +370,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
       /* Punctual support */
 
-      d1_1[idim] = 0.;
+      d1_1_global[idim] = 0.;
       st_data_discretize_dd(idim, jdim, it);
     }
     else
@@ -381,7 +381,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
       decal = -exts2 + dsize / 2.;
       do
       {
-        d1_1[idim] = decal;
+        d1_1_global[idim] = decal;
         st_data_discretize_dd(idim, jdim, it);
         decal = decal + dsize;
       }
@@ -401,7 +401,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
     {
       /* Punctual support */
 
-      d1_2[jdim] = 0.;
+      d1_2_global[jdim] = 0.;
       st_data_discretize_dd(idim, jdim, it);
     }
     else
@@ -412,7 +412,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
       decal = -exts2 + dsize / 2.;
       do
       {
-        d1_2[jdim] = decal;
+        d1_2_global[jdim] = decal;
         st_data_discretize_dd(idim, jdim, it);
         decal = decal + dsize;
       }
@@ -426,9 +426,9 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     it->ndtot++;
     for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t[i] = d1[i] + d1_1[i] + d1_2[i];
+      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
     st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t, covaux);
+           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
   }
 }
 
@@ -466,7 +466,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
       /* Punctual support */
 
-      d1_1[idim] = 0.;
+      d1_1_global[idim] = 0.;
       st_data_discretize_dg(idim, it);
     }
     else
@@ -478,7 +478,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
       do
       {
 
-        d1_1[idim] = decal;
+        d1_1_global[idim] = decal;
         st_data_discretize_dg(idim, it);
         decal = decal + dsize;
       }
@@ -492,9 +492,9 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
     it->ndtot++;
     for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t[i] = d1[i] + d1_1[i];
+      d1_t_global[i] = d1_global[i] + d1_1_global[i];
     st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t, covaux);
+           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
   }
 }
 
@@ -741,12 +741,11 @@ static int st_check_environment(int flag_in,
 static int st_model_manage(int mode, Model *model)
 
 {
-  int nvar, nbfl;
+  int nvar;
 
   /* Initializations */
 
   nvar = model->getVariableNumber();
-  nbfl = model->getDriftNumber();
 
   /* Dispatch */
 
@@ -756,31 +755,22 @@ static int st_model_manage(int mode, Model *model)
     /* Allocation */
 
     if (MODEL_INIT) return (1);
-    d1.resize(DBIN->getNDim());
-    d1_1 = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_1 == nullptr) return (1);
-    d1_2 = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_2 == nullptr) return (1);
-    d1_t.resize(DBIN->getNDim());
-    covtab = st_core(nvar, nvar);
-    if (covtab == nullptr) return (1);
-    covaux = st_core(nvar, nvar);
-    if (covaux == nullptr) return (1);
-    if (nbfl > 0)
-    {
-      drftab = st_core(nbfl, 1);
-      if (drftab == nullptr) return (1);
-    }
+    d1_global.resize(DBIN->getNDim());
+    d1_1_global = db_sample_alloc(DBIN, ELoc::X);
+    if (d1_1_global == nullptr) return (1);
+    d1_2_global = db_sample_alloc(DBIN, ELoc::X);
+    if (d1_2_global == nullptr) return (1);
+    d1_t_global.resize(DBIN->getNDim());
+    covaux_global = st_core(nvar, nvar);
+    if (covaux_global == nullptr) return (1);
     MODEL_INIT = 1;
   }
   else
   {
     if (!MODEL_INIT) return (1);
-    d1_1 = db_sample_free(d1_1);
-    d1_2 = db_sample_free(d1_2);
-    covtab = (double*) mem_free((char* ) covtab);
-    covaux = (double*) mem_free((char* ) covaux);
-    drftab = (double*) mem_free((char* ) drftab);
+    d1_1_global = db_sample_free(d1_1_global);
+    d1_2_global = db_sample_free(d1_2_global);
+    covaux_global = (double*) mem_free((char* ) covaux_global);
     MODEL_INIT = 0;
   }
   return (0);
@@ -823,36 +813,18 @@ static int st_krige_manage_basic(int mode,
     /* Allocation */
 
     if (KRIGE_INIT) return (1);
-    flag = st_icore(neqmax, 1);
-    if (flag == nullptr) return (1);
-    lhs = st_core(neqmax, neqmax);
-    if (lhs == nullptr) return (1);
-    lhs_b = st_core(neqmax, neqmax);
-    if (lhs_b == nullptr) return (1);
-    rhs = st_core(neqmax, nvar);
-    if (rhs == nullptr) return (1);
-    zext = st_core(neqmax, 1);
-    if (zext == nullptr) return (1);
-    zam1 = st_core(neqmax, 1);
-    if (zam1 == nullptr) return (1);
-    wgt = st_core(neqmax, nvar);
-    if (wgt == nullptr) return (1);
-    var0 = st_core(nvar, nvar);
-    if (var0 == nullptr) return (1);
-    if (FLAG_BAYES)
-    {
-      fsf = st_core(ncmax, ncmax);
-      if (fsf == nullptr) return (1);
-      varb = st_core(nvar, nvar);
-      if (varb == nullptr) return (1);
-      if (nfeq > 0)
-      {
-        fs = st_core(ncmax, nfeq);
-        if (fs == nullptr) return (1);
-        ff0 = st_core(nfeq, nvar);
-        if (ff0 == nullptr) return (1);
-      }
-    }
+    flag_global = st_icore(neqmax, 1);
+    if (flag_global == nullptr) return (1);
+    lhs_global = st_core(neqmax, neqmax);
+    if (lhs_global == nullptr) return (1);
+    rhs_global = st_core(neqmax, nvar);
+    if (rhs_global == nullptr) return (1);
+    zam1_global = st_core(neqmax, 1);
+    if (zam1_global == nullptr) return (1);
+    wgt_global = st_core(neqmax, nvar);
+    if (wgt_global == nullptr) return (1);
+    var0_global = st_core(nvar, nvar);
+    if (var0_global == nullptr) return (1);
     KRIGE_INIT = 1;
   }
   else
@@ -861,21 +833,12 @@ static int st_krige_manage_basic(int mode,
     /* Deallocation */
 
     if (!KRIGE_INIT) return (1);
-    flag = (int*) mem_free((char* ) flag);
-    lhs = (double*) mem_free((char* ) lhs);
-    lhs = (double*) mem_free((char* ) lhs);
-    lhs_b = (double*) mem_free((char* ) lhs_b);
-    rhs = (double*) mem_free((char* ) rhs);
-    zext = (double*) mem_free((char* ) zext);
-    zam1 = (double*) mem_free((char* ) zam1);
-    wgt = (double*) mem_free((char* ) wgt);
-    var0 = (double*) mem_free((char* ) var0);
-    if (FLAG_BAYES)
-    {
-      fs = (double*) mem_free((char* ) fs);
-      fsf = (double*) mem_free((char* ) fsf);
-      ff0 = (double*) mem_free((char* ) ff0);
-    }
+    flag_global = (int*) mem_free((char* ) flag_global);
+    lhs_global = (double*) mem_free((char* ) lhs_global);
+    rhs_global = (double*) mem_free((char* ) rhs_global);
+    zam1_global = (double*) mem_free((char* ) zam1_global);
+    wgt_global = (double*) mem_free((char* ) wgt_global);
+    var0_global = (double*) mem_free((char* ) var0_global);
     KRIGE_INIT = 0;
   }
   return (0);
@@ -1510,7 +1473,7 @@ static void krige_wgt_print(int status,
     tab_printi(NULL, ib + 1);
     value = (status == 0) ? wgt[iwgt] : TEST;
     tab_printg(NULL, value);
-    value = (status == 0) ? zam1[iwgt] : TEST;
+    value = (status == 0) ? zam1_global[iwgt] : TEST;
     tab_printg(NULL, value);
 
     message("\n");
@@ -3293,7 +3256,7 @@ int anakexp_f(DbGrid *db,
   error = 1;
   st_global_init(db, db);
   FLAG_EST = 1;
-  lhs = rhs = wgt = nullptr;
+  lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
   nvarin = db->getVariableNumber();
   nbefore_mem = nafter_mem = -1;
@@ -3345,7 +3308,7 @@ int anakexp_f(DbGrid *db,
   for (i = 0; i < nech; i++)
   {
     ranks[i] = i;
-    flag[i] = 1;
+    flag_global[i] = 1;
   }
 
   /* Get the limits of the area to be processed */
@@ -3387,11 +3350,12 @@ int anakexp_f(DbGrid *db,
       /* Establish the L.H.S. of the kriging system */
 
       st_lhs_exp(covdd, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
-      if (OptDbg::query(EDbg::KRIGING)) krige_lhs_print(nech, neq, neq, flag, lhs);
+      if (OptDbg::query(EDbg::KRIGING))
+        krige_lhs_print(nech, neq, neq, flag_global, lhs_global);
 
       /* Invert the kriging system */
 
-      if (matrix_invert(lhs, neq, IECH_OUT))
+      if (matrix_invert(lhs_global, neq, IECH_OUT))
       {
         status = 1;
         continue;
@@ -3401,16 +3365,16 @@ int anakexp_f(DbGrid *db,
 
       st_rhs_exp(covd0, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
       if (OptDbg::query(EDbg::KRIGING))
-        krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
+        krige_rhs_print(nvarin, nech, neq, neq, flag_global, rhs_global);
 
       /* Derive the kriging weights */
 
-      matrix_product(neq, neq, 1, lhs, rhs, wgt);
+      matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
     }
 
     /* Calculate the estimation */
 
-    result = st_estim_exp(db, wgt, nbefore, nafter);
+    result = st_estim_exp(db, wgt_global, nbefore, nafter);
     DBOUT->setArray(IECH_OUT, IPTR_EST, result);
     if (OptDbg::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
   }
@@ -3679,7 +3643,7 @@ static VectorInt st_neigh_find(DbGrid *db,
         if (FFFF(db->getVariable(locrank,0))) continue;
         NEI_CUR(ix,iy,iz) = locrank;
         nbgh_ranks.push_back(locrank);
-        flag[number] = 1;
+        flag_global[number] = 1;
         number++;
       }
 
@@ -3979,7 +3943,7 @@ int anakexp_3D(DbGrid *db,
   fildmp = nullptr;
   cov_tot = cov_res = nullptr;
   num_tot = nei_cur = nei_ref = nullptr;
-  lhs = rhs = wgt = nullptr;
+  lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
   nvarin = db->getVariableNumber();
   size_nei = 0;
@@ -4130,11 +4094,11 @@ int anakexp_3D(DbGrid *db,
           st_lhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur,
                         cov_tot, nugget);
           if (OptDbg::query(EDbg::KRIGING))
-            krige_lhs_print(nech, neq, neq, flag, lhs);
+            krige_lhs_print(nech, neq, neq, flag_global, lhs_global);
 
           /* Invert the kriging system */
 
-          if (matrix_invert(lhs, neq, IECH_OUT))
+          if (matrix_invert(lhs_global, neq, IECH_OUT))
           {
             status = 1;
             continue;
@@ -4144,16 +4108,16 @@ int anakexp_3D(DbGrid *db,
 
           st_rhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur, cov_res);
           if (OptDbg::query(EDbg::KRIGING))
-            krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
+            krige_rhs_print(nvarin, nech, neq, neq, flag_global, rhs_global);
 
           /* Derive the kriging weights */
 
-          matrix_product(neq, neq, 1, lhs, rhs, wgt);
+          matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
         }
 
         /* Calculate the estimation */
 
-        result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt);
+        result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt_global);
         DBOUT->setArray(IECH_OUT, IPTR_EST, result);
         if (OptDbg::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
       }
@@ -6118,9 +6082,9 @@ static double* st_calcul_covmat(const char *title,
       }
 
       for (int idim = 0; idim < db1->getNDim(); idim++)
-        d1[idim] = db1->getDistance1D(ii1, ii2, idim);
+        d1_global[idim] = db1->getDistance1D(ii1, ii2, idim);
 
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, &COVGEN(i1, i2));
+      model_calcul_cov(NULL,model, mode, 1, 1., d1_global, &COVGEN(i1, i2));
       i2++;
     }
     i1++;
@@ -6257,8 +6221,8 @@ static double* st_calcul_distmat(const char *title,
       dist = 0.;
       for (int idim = 0; idim < ndim; idim++)
       {
-        d1[idim] = db1->getDistance1D(ii1, iis, idim);
-        dist += d1[idim] * d1[idim];
+        d1_global[idim] = db1->getDistance1D(ii1, iis, idim);
+        dist += d1_global[idim] * d1_global[idim];
       }
 
       DISTGEN(i1,is) = 1. / pow(dist, power / 2.);

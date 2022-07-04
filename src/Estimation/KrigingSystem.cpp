@@ -2684,6 +2684,19 @@ bool KrigingSystem::_isCorrect()
     }
   }
 
+  /***************************************************/
+  /* Checking the Number of Covariances in the Model */
+  /***************************************************/
+
+  if (_model != nullptr)
+  {
+    if (_model->getCovaNumber() <= 0)
+    {
+      messerr("The Model should contain some Covariances defined before Kriging");
+      return false;
+    }
+  }
+
   /******************************************/
   /* Checking the Number of External Drifts */
   /******************************************/

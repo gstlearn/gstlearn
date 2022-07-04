@@ -123,7 +123,7 @@ if (verbose)
 
 ```{r}
 if (graphics)
-    axs = plot.varmod(myvario,title="Multi-Directional Variogram of Pb")
+    plot.varmod(myvario,title="Multi-Directional Variogram of Pb")
 ```
 
 Calculating the Variogram Map
@@ -143,18 +143,12 @@ if (graphics)
 
 Fitting a Model. We call the Automatic Fitting procedure providing the list of covariance functions to be tested.
 
-**
-Impossible to call *fit* as we need to pass a std::vector<ECov>
-**
-
 ```{r}
+vcovs = VectorEnumCovs()
+vcovs$push_back(ECov_EXPONENTIAL)
+vcovs$push_back(ECov_SPHERICAL)
 mymodel = Model_createFromDb(mydb)
-#err = mymodel$fit(myvario,c(ECov_EXPONENTIAL(),ECov_SPHERICAL()))
-```
-
-An artificial model is created on the fly
-```{r}
-mymodel$addCovFromParam(ECov_SPHERICAL(),range=10,sill=2)
+err = mymodel$fit(myvario,vcovs)
 ```
 
 Visualizing the resulting model, overlaid on the experimental variogram
@@ -174,8 +168,7 @@ constr = Constraints()
 paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
 constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
 opt = Option_AutoFit()
-#err = myModelConstrained$fit(myVarioOmni,c(ECov_SPHERICAL()),
-#                             FALSE,opt,constr)
+err = myModelConstrained$fit(myVarioOmni,vcovs,FALSE,opt,constr)
 myModelConstrained
 ```
 
@@ -258,7 +251,8 @@ if (graphics)
 
 # Estimating by Kriging
 
-We now perform the Estimation by Ordinary Kriging. The Neighborhood is changed into a Unique Neighborhood.
+We now perform the Estimation by Ordinary Kriging. 
+The Neighborhood is changed into a Unique Neighborhood.
 
 ```{r}
 mydb$setLocator("Pb",ELoc_Z())
@@ -287,17 +281,17 @@ if (graphics)
 We must first transform the Data into Gaussian
 
 ```{r}
-#myanamPb = AnamHermite(30)
-#myanamPb$fit(mydb)
-#if (verbose)
-#    myanamPb$display()
+myanamPb = AnamHermite(30)
+myanamPb$fit(mydb)
+if (verbose)
+    myanamPb$display()
 ```
 
 We can produce the Gaussian Anamorphosis graphically within its definition domain.
 
 ```{r, eval=FALSE}
-#if (graphics)
-#    ax = plot.anam(myanamPb)
+if (graphics)
+    ax = plot.anam(myanamPb)
 ```
 
 The next step consists in translating the target variable ('Pb') into its Gaussian transform

@@ -1,5 +1,5 @@
 library(ggplot2)
-library(gridExtra)
+library(ggpubr)
 
 get.colors <- function()
 {
@@ -81,9 +81,9 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
         {
           sill = vario$getVar(iv,jv)
           nlag = vario$getLagNumber(id)
-          sw = vario$getSwVec(iv,jv,id)
-          gg = vario$getGgVec(iv,jv,id)
-          hh = vario$getHhVec(iv,jv,id)
+          sw = vario$getSwVec(id,iv,jv)
+          gg = vario$getGgVec(id,iv,jv)
+          hh = vario$getHhVec(id,iv,jv)
           hmax = max(hh)
           gmax = max(abs(gg))
           if (abs(sill) > gmax) gmax = abs(sill)
@@ -136,8 +136,12 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
         g <- g + geom_hline(yintercept = sill, linetype = 'longdash')
         plot_lst[[index]] <- g
       }
-  all.plots <- marrangeGrob(plot_lst, nrow = ivarN, ncol = jvarN, top = title)
-  all.plots
+	p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
+	
+	if (title != "")
+		p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+		
+	p
 }
 
 # Function for plotting a point data base, with optional color and size variables

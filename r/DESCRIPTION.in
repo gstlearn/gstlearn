@@ -6,7 +6,8 @@ Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
     R (>= 3.6),
     ggplot2,
-    gridExtra
+    gridExtra,
+    ggpubr
 Description: @PROJECT_DESCRIPTION@
 License: GPL
 LazyLoad: yes
