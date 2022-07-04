@@ -15,7 +15,7 @@ class IClonable{};
 %include stl.i
 // Cast strings into native type of the target language
 %include std_string.i
-// Cast vectors of integers into native type of the target language
+// Cast vectors into native type of the target language
 %include std_vector.i
 
 //%include std_complex.i
