@@ -59,11 +59,10 @@ static Db* createLocalDb(int nech, int ndim, int nvar)
  * Creating internal Model
  * @param nvar    Number of variables
  * @param typecov 1 for Spherical + Nugget; 2 for Linear
- * @param typedrift 0 None, 1 Linear drift
  * @param typemean 1 for defining a constant Mean
  * @return
  */
-static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
+static Model* createModel(int nvar, int typecov, int typemean)
 {
   CovContext ctxt(nvar); // use default space
   Model* model = Model::create(ctxt);
@@ -82,21 +81,6 @@ static Model* createModel(int nvar, int typecov, int typedrift, int typemean)
     CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
     covs.addCov(&cova1);
     model->setCovList(&covs);
-  }
-
-  if (typedrift == 1)
-  {
-    Drift1 drift1 = Drift1(ctxt);
-    model->addDrift(&drift1);
-  }
-  else if (typedrift == 2)
-  {
-    Drift1 drift1 = Drift1(ctxt);
-    DriftX driftx = DriftX(ctxt);
-    DriftY drifty = DriftY(ctxt);
-    model->addDrift(&drift1);
-    model->addDrift(&driftx);
-    model->addDrift(&drifty);
   }
 
   if (typemean == 1)
@@ -149,7 +133,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display(&dbfmt);
 
   // Create the Model
-  Model* model = createModel(nvar, 2, 0, 1);
+  Model* model = createModel(nvar, 2, 1);
   model->display();
 
   // Creating a Moving Neighborhood
@@ -164,11 +148,16 @@ int main(int /*argc*/, char */*argv*/[])
   anam->display();
   data->display(&dbfmt);
 
-  // ====================== KD =============================================
+  // Parameters
 
-  message("\n<----- Test KD ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
   int nfactor = 3;
+  OptDbg::setReference(1);
+
+  // ====================== KD Point ========================================
+
+  message("\n<----- Test KD Point ----->\n");
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+
   // Estimate Hermite polynomials at Data locations
   (void) calculateHermiteFactors(data, nfactor);
 
@@ -176,8 +165,22 @@ int main(int /*argc*/, char */*argv*/[])
   model->addAnam(anam);
 
   // Perform the Disjunctive Kriging estimation
-  OptDbg::setReference(1);
-  dk(data, grid_res, model, neighM);
+  dk(data, grid_res, model, neighM, EKrigOpt::PONCTUAL, VectorInt());
+  grid_res->display(&dbfmtKriging);
+
+  // ====================== KD Block by Discretization=======================
+
+  message("\n<----- Test KD Block Discretization ----->\n");
+  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+
+  // Estimate Hermite polynomials at Data locations
+  (void) calculateHermiteFactors(data, nfactor);
+
+  // Attach the Anamorphosis to the Model (-> CovLMCAnamorphosis)
+  model->addAnam(anam);
+
+  // Perform the Disjunctive Kriging estimation
+  dk(data, grid_res, model, neighM, EKrigOpt::BLOCK, {5,5});
   grid_res->display(&dbfmtKriging);
 
   // ====================== Free pointers ==================================

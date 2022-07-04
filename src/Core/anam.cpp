@@ -678,7 +678,7 @@ static void st_correct_from_OK(Db *db,
                                int iech,
                                int att_est,
                                int att_std,
-                               int /*flag_OK*/,
+                               bool /*flag_OK*/,
                                double *krigest,
                                double *krigstd)
 {
@@ -701,7 +701,7 @@ static void st_correct_from_OK(Db *db,
  ** \param[in]  iptr_init    Initial pointer
  ** \param[in]  ncutmine     Number of cutoffs
  ** \param[in]  icut         Rank of the cutoff
- ** \param[in]  flag_est     1 for computing the Estimation
+ ** \param[in]  flag_est     true for computing the Estimation
  ** \param[in]  flag_std     1 for computing the St. Deviation
  **
  ** \param[out] iptr_est     Starting pointer for the Estimation
@@ -713,8 +713,8 @@ static void st_correct_from_OK(Db *db,
 static void st_get_starting_pointers(int iptr_init,
                                      int ncutmine,
                                      int icut,
-                                     int flag_est,
-                                     int flag_std,
+                                     bool flag_est,
+                                     bool flag_std,
                                      int *iptr_est,
                                      int *iptr_std)
 {
@@ -759,7 +759,7 @@ static void st_get_starting_pointers(int iptr_init,
 static void st_ce_get_vectors(Db *db,
                               int att_est,
                               int att_std,
-                              int flag_OK,
+                              bool flag_OK,
                               VectorDouble &krigest,
                               VectorDouble &krigstd)
 {
@@ -797,9 +797,9 @@ static int st_ce_compute_Z(Db *db,
                            const VectorDouble phis,
                            int att_est,
                            int att_std,
-                           int flag_OK,
-                           int flag_est,
-                           int flag_std,
+                           bool flag_OK,
+                           bool flag_est,
+                           bool flag_std,
                            int iptr_Z)
 
 {
@@ -910,9 +910,9 @@ static int st_ce_compute_T(int mode,
                            double *yc,
                            int att_est,
                            int att_std,
-                           int flag_OK,
-                           int flag_est,
-                           int flag_std,
+                           bool flag_OK,
+                           bool flag_est,
+                           bool flag_std,
                            int iptr_T)
 {
   VectorDouble krigest, krigstd, valest, valstd;
@@ -976,7 +976,7 @@ static int st_ce_compute_quant(Db *db,
                                double proba,
                                int att_est,
                                int att_std,
-                               int flag_OK,
+                               bool flag_OK,
                                int iptr_QUANT)
 {
   double krigest, krigstd;
@@ -1017,9 +1017,9 @@ static int st_ce_compute_Q(Db *db,
                            VectorDouble phis,
                            int att_est,
                            int att_std,
-                           int flag_OK,
-                           int flag_est,
-                           int flag_std,
+                           bool flag_OK,
+                           bool flag_est,
+                           bool flag_std,
                            int iptr_Q)
 {
   VectorDouble krigest, krigstd, valest, valstd;
@@ -1218,9 +1218,9 @@ int ce(Db *db,
        AAnam *anam,
        int att_est,
        int att_std,
-       int flag_est,
-       int flag_std,
-       int flag_OK,
+       bool flag_est,
+       bool flag_std,
+       bool flag_OK,
        const VectorDouble& cutmine,
        double proba,
        const VectorInt& codes,
@@ -1257,7 +1257,9 @@ int ce(Db *db,
 
   /* Analyzing the codes */
 
-  count = flag_est + flag_std;
+  count = 0;
+  if (flag_est) count++;
+  if (flag_std) count++;
   if (anam->codeAnalyze(verbose, codes, flag_est, flag_std, ncutmine, proba, 0,
                         qt_vars) <= 0) goto label_end;
   yc = st_ztoy_cutoffs(anam_hermite, cutmine);

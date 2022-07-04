@@ -88,8 +88,9 @@ static int *flag_global;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
 static int IECH_OUT   = -1;
-static int FLAG_EST, FLAG_STD, FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
-static int FLAG_BAYES, FLAG_PROF, FLAG_VARZ, FLAG_DGM;
+static int FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
+static bool FLAG_EST, FLAG_STD, FLAG_VARZ;
+static int FLAG_BAYES, FLAG_PROF, FLAG_DGM;
 static int IPTR_EST, IPTR_STD, IPTR_VARZ, IPTR_NBGH;
 static int *RANK_COLCOK;
 static Db *DBIN, *DBOUT;
@@ -232,10 +233,11 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
  *****************************************************************************/
 static void st_global_init(Db *dbin, Db *dbout)
 {
-  FLAG_STD = FLAG_EST = FLAG_WGT = FLAG_LTERM = FLAG_VARZ = 0;
+  FLAG_WGT = FLAG_LTERM = 0;
   FLAG_COLK = FLAG_BAYES = FLAG_PROF = FLAG_SIMU = FLAG_DGM = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
   IECH_OUT = 0;
+  FLAG_EST = FLAG_STD = FLAG_VARZ = false;
 
   /* Set the global variables */
 
@@ -1526,7 +1528,7 @@ static void st_store_nbgh(int status, int ntab, double *tab)
 static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
 {
   int ivar;
-  double value, estim, estval, esterr, sigma, trueval, sterr, stdev;
+  double value;
 
   /* Header */
 
@@ -1543,61 +1545,18 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
     if (flag_xvalid != 0)
     {
       message("Variable Z%-2d\n", ivar + 1);
-      if (FLAG_EST != 0)
-      {
-        trueval = (status == 0) ? DBIN->getVariable(IECH_OUT, ivar) : TEST;
-        estim = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
-
-        if (FLAG_EST > 0)
-        {
-          estval = (status == 0) ? estim + trueval : TEST;
-          esterr = (status == 0) ? estim : TEST;
-        }
-        else
-        {
-          estval = (status == 0) ? estim : TEST;
-          esterr = (status == 0) ? estim - trueval : TEST;
-        }
-
-        tab_printg(" - True value        = ", trueval);
-        message("\n");
-        tab_printg(" - Estimated value   = ", estval);
-        message("\n");
-        tab_printg(" - Estimation Error  = ", esterr);
-        message("\n");
-
-        if (FLAG_STD != 0)
-        {
-          stdev = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
-
-          if (FLAG_STD > 0)
-          {
-            sterr = stdev;
-            sigma = (status == 0) ? esterr / stdev : TEST;
-          }
-          else
-          {
-            sigma = stdev;
-            sterr = (status == 0) ? esterr / stdev : TEST;
-          }
-
-          tab_printg(" - Std. deviation    = ", sigma);
-          message("\n");
-          tab_printg(" - Normalized Error  = ", sterr);
-          message("\n");
-        }
-      }
+      message( "Printout for Cross-validation should not be performed anymore\n");
     }
     else
     {
       message("Variable Z%-2d\n", ivar + 1);
-      if (FLAG_EST != 0)
+      if (FLAG_EST)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
         tab_printg(" - Estimate  = ", value);
         message("\n");
       }
-      if (FLAG_STD != 0)
+      if (FLAG_STD)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
         tab_printg(" - Std. Dev. = ", value);
@@ -1606,7 +1565,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
         tab_printg(" - Cov(h=0)  = ", value);
         message("\n");
       }
-      if (FLAG_VARZ != 0)
+      if (FLAG_VARZ)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_VARZ + ivar) : TEST;
         tab_printg(" - Var(Z*)   = ", value);
@@ -1668,9 +1627,9 @@ int kriging(Db *dbin,
             Model *model,
             ANeighParam *neighparam,
             const EKrigOpt &calcul,
-            int flag_est,
-            int flag_std,
-            int flag_varz,
+            bool flag_est,
+            bool flag_std,
+            bool flag_varz,
             VectorInt ndisc,
             VectorInt rank_colcok,
             VectorVectorDouble matCL,
@@ -1693,17 +1652,17 @@ int kriging(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
   }
-  if (flag_varz != 0)
+  if (flag_varz)
   {
     iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_varz < 0) return 1;
@@ -1747,11 +1706,10 @@ int kriging(Db *dbin,
  ** \param[in]  model       Model structure
  ** \param[in]  neighparam  ANeighParam structure
  ** \param[in]  flag_kfold  1 if a code (K-FOLD) is used
- ** \param[in]  flag_est    Option for storing the estimation
+ ** \param[in]  flag_xvalid_est Option for storing the estimation
  **                         1: Z*-Z; -1: Z*
- ** \param[in]  flag_std    Option for storing the standard deviation
+ ** \param[in]  flag_xvalid_std Option for storing the standard deviation
  **                         1: (Z*-Z)/S; -1: S
- ** \param[in]  flag_varz   Option for storing the variance of estimator
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  namconv     Naming Convention
  **
@@ -1760,9 +1718,8 @@ int xvalid(Db *db,
            Model *model,
            ANeighParam *neighparam,
            int flag_kfold,
-           int flag_est,
-           int flag_std,
-           int flag_varz,
+           int flag_xvalid_est,
+           int flag_xvalid_std,
            VectorInt rank_colcok,
            const NamingConvention& namconv)
 {
@@ -1778,32 +1735,26 @@ int xvalid(Db *db,
 
   int iptr_est  = -1;
   int iptr_std  = -1;
-  int iptr_varz = -1;
   int nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_xvalid_est != 0)
   {
     iptr_est = db->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_xvalid_std != 0)
   {
     iptr_std = db->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
-  }
-  if (flag_varz != 0)
-  {
-    iptr_varz = db->addColumnsByConstant(nvar, 0.);
-    if (iptr_varz < 0) return 1;
   }
 
   /* Setting options */
 
   KrigingSystem ksys(db, db, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptXValid(true, flag_kfold, flag_est > 0, flag_std > 0)) return 1;
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.setKrigOptXValid(true, flag_kfold, flag_xvalid_est > 0, flag_xvalid_std > 0)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -1817,17 +1768,15 @@ int xvalid(Db *db,
 
   /* Set the error return flag */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_varz, "varz", 1,
-                              false);
-  if (flag_est > 0)
+  if (flag_xvalid_std > 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_std, "stderr", 1,
                                 false);
-  else
+  else if (flag_xvalid_std < 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_std, "stdev", 1,
                                 false);
-  if (flag_std > 0)
+  if (flag_xvalid_est > 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_est, "esterr");
-  else
+  else if (flag_xvalid_est < 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_est, "estim");
 
   return 0;
@@ -1854,9 +1803,9 @@ int krigdgm(Db *dbin,
             DbGrid *dbout,
             Model *model,
             ANeighParam *neighparam,
-            int flag_est,
-            int flag_std,
-            int flag_varz,
+            bool flag_est,
+            bool flag_std,
+            bool flag_varz,
             double rval,
             const NamingConvention& namconv)
  {
@@ -1881,17 +1830,17 @@ int krigdgm(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
   }
-  if (flag_varz != 0)
+  if (flag_varz)
   {
     iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_varz < 0) return 1;
@@ -1942,8 +1891,8 @@ int krigprof(Db *dbin,
              Db *dbout,
              Model *model,
              ANeighParam *neighparam,
-             int flag_est,
-             int flag_std,
+             bool flag_est,
+             bool flag_std,
              const NamingConvention& namconv)
 {
   // Preliminary checks
@@ -1962,12 +1911,12 @@ int krigprof(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
@@ -2021,8 +1970,8 @@ int kribayes(Db *dbin,
              ANeighParam *neighparam,
              const VectorDouble& prior_mean,
              const VectorDouble& prior_cov,
-             int flag_est,
-             int flag_std,
+             bool flag_est,
+             bool flag_std,
              const NamingConvention& namconv)
 {
   // Preliminary checks
@@ -2041,12 +1990,12 @@ int kribayes(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
@@ -3255,7 +3204,7 @@ int anakexp_f(DbGrid *db,
 
   error = 1;
   st_global_init(db, db);
-  FLAG_EST = 1;
+  FLAG_EST = true;
   lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
   nvarin = db->getVariableNumber();
@@ -3939,7 +3888,7 @@ int anakexp_3D(DbGrid *db,
 
   error = 1;
   st_global_init(db, db);
-  FLAG_EST = 1;
+  FLAG_EST = true;
   fildmp = nullptr;
   cov_tot = cov_res = nullptr;
   num_tot = nei_cur = nei_ref = nullptr;
@@ -4586,8 +4535,8 @@ int krigcell(Db *dbin,
              Db *dbout,
              Model *model,
              ANeighParam *neighparam,
-             int flag_est,
-             int flag_std,
+             bool flag_est,
+             bool flag_std,
              VectorInt ndisc,
              VectorInt rank_colcok,
              const NamingConvention& namconv)
@@ -4608,12 +4557,12 @@ int krigcell(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
@@ -5490,7 +5439,7 @@ int krigsampling_f(Db *dbin,
                    int *ranks1,
                    int nsize2,
                    int *ranks2,
-                   int flag_std,
+                   bool flag_std,
                    int verbose)
 {
   int *rutil, *rother, error, nvar, ntot, nutil, i, nech;
@@ -5505,7 +5454,7 @@ int krigsampling_f(Db *dbin,
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin, dbout);
-  FLAG_EST = 1;
+  FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model, NULL)) goto label_end;
   nvar = model->getVariableNumber();
@@ -5526,12 +5475,12 @@ int krigsampling_f(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (FLAG_EST)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
@@ -5570,7 +5519,7 @@ int krigsampling_f(Db *dbin,
   if (aux2 == nullptr) goto label_end;
   aux3 = (double*) mem_alloc(sizeof(double) * ntot, 0);
   if (aux3 == nullptr) goto label_end;
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     aux4 = (double*) mem_alloc(sizeof(double) * ntot, 0);
     if (aux4 == nullptr) goto label_end;
@@ -5600,7 +5549,7 @@ int krigsampling_f(Db *dbin,
     s = model_covmat_by_ranks(model, dbin, nutil, rutil, dbout, 1, &IECH_OUT,
                               -1, -1, 0, 1);
     if (s == nullptr) goto label_end;
-    if (FLAG_STD != 0)
+    if (FLAG_STD)
     {
       c00 = model_covmat_by_ranks(model, dbout, 1, &IECH_OUT, dbout, 1,
                                   &IECH_OUT, -1, -1, 0, 1);
@@ -5612,7 +5561,7 @@ int krigsampling_f(Db *dbin,
     estim += model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
-    if (FLAG_STD != 0)
+    if (FLAG_STD)
     {
       matrix_product(1, ntot, ntot, aux3, invsig, aux4);
       matrix_product(1, ntot, 1, aux3, aux4, &sigma);
@@ -5628,7 +5577,7 @@ int krigsampling_f(Db *dbin,
     {
       tab_printg(" - Estimate  = ", estim);
       message("\n");
-      if (FLAG_STD != 0)
+      if (FLAG_STD)
       {
         tab_printg(" - Std. Dev. = ", sigma);
         message("\n");
@@ -6635,8 +6584,8 @@ int inhomogeneous_kriging(Db *dbdat,
   error = nvar = 1;
   NeighUnique* neighU = NeighUnique::create(dbdat->getNDim(),false);
   st_global_init(dbdat, dbout);
-  FLAG_EST = 1;
-  FLAG_STD = 1;
+  FLAG_EST = true;
+  FLAG_STD = true;
   distps = distgs = prodgs = prodps = nullptr;
   covss = covpp = covgp = covgg = nullptr;
   lambda = data = driftp = driftg = nullptr;
@@ -6658,12 +6607,12 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (FLAG_EST)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
@@ -6958,8 +6907,8 @@ int dk(Db* dbin,
        ANeighParam *neighparam,
        const EKrigOpt &calcul,
        const VectorInt &ndisc,
-       int flag_est,
-       int flag_std,
+       bool flag_est,
+       bool flag_std,
        const NamingConvention& namconv)
 {
 
@@ -7032,13 +6981,13 @@ int dk(Db* dbin,
   /* Add the attributes for storing the results */
 
   int iptr_est  = -1;
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_est < 0) return 1;
   }
   int iptr_std  = -1;
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_std < 0) return 1;
@@ -7062,8 +7011,8 @@ int dk(Db* dbin,
 
     for (int iclass = 1; iclass <= nfactor; iclass++)
     {
-      int jptr_est = (flag_est != 0) ? iptr_est + iclass - 1 : -1;
-      int jptr_std = (flag_std != 0) ? iptr_std + iclass - 1 : -1;
+      int jptr_est = (flag_est) ? iptr_est + iclass - 1 : -1;
+      int jptr_std = (flag_std) ? iptr_std + iclass - 1 : -1;
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
       if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;

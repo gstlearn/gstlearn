@@ -2224,7 +2224,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 
 /**
  * Set the flag for performing Cross-Validation
- * @param flag_xvalid True if the Cross-Validation option is switche ON
+ * @param flag_xvalid True if the Cross-Validation option is switched ON
  * @param flag_kfold  True if the KFold option is switch ON
  * @param optionXValidEstim True for Z*-Z; False for Z*
  * @param optionXValidStdev True for (Z*-Z)/S; False for S

@@ -146,7 +146,7 @@ Data Base Statistics
  Standard Deviation  =      0.992
  Variance            =      0.985
 
-<----- Test KD ----->
+<----- Test KD Point ----->
 Processing Factor 1
 
 Target location
@@ -399,3 +399,257 @@ Data Base Statistics
  Mean value          =      0.816
  Standard Deviation  =      0.219
  Variance            =      0.048
+
+<----- Test KD Block Discretization ----->
+Processing Factor 1
+
+Target location
+---------------
+Sample #1 (from 2500)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+Data selected in neighborhood
+-----------------------------
+      Rank    Sample        x1        x2    Sector
+         1         5     6.187     8.440         1
+         2        14    -5.153    -8.621         1
+         3        23    -5.375    13.973         1
+         4        66     3.493   -13.034         1
+         5        90    -8.373    -7.036         1
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.299     0.536     0.268     0.278
+         2         2     0.299     1.000     0.243     0.643     0.866
+         3         3     0.536     0.243     1.000     0.113     0.279
+         4         4     0.268     0.643     0.113     1.000     0.520
+         5         5     0.278     0.866     0.279     0.520     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+      Rank      Flag         1
+         1         1     0.616
+         2         2     0.631
+         3         3     0.465
+         4         4     0.513
+         5         5     0.600
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     6.187     8.440     1.000     1.000    -0.280     0.384
+         2    -5.153    -8.621     1.000     1.000    -0.492     0.237
+         3    -5.375    13.973     1.000     1.000     0.308     0.137
+         4     3.493   -13.034     1.000     1.000    -0.960     0.154
+         5    -8.373    -7.036     1.000     1.000     1.307     0.170
+Sum of weights                                                   1.081
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =    -10.133
+ - Std. Dev. =      0.608
+ - Variance  =      0.369
+ - Cov(h=0)  =      1.000
+Processing Factor 2
+
+Target location
+---------------
+Sample #1 (from 2500)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.089     0.287     0.072     0.077
+         2         2     0.089     1.000     0.059     0.414     0.750
+         3         3     0.287     0.059     1.000     0.013     0.078
+         4         4     0.072     0.414     0.013     1.000     0.270
+         5         5     0.077     0.750     0.078     0.270     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+      Rank      Flag         1
+         1         1     0.380
+         2         2     0.398
+         3         3     0.216
+         4         4     0.263
+         5         5     0.360
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     6.187     8.440     1.000     1.000    -0.652     0.313
+         2    -5.153    -8.621     1.000     1.000    -0.536     0.216
+         3    -5.375    13.973     1.000     1.000    -0.640     0.101
+         4     3.493   -13.034     1.000     1.000    -0.056     0.114
+         5    -8.373    -7.036     1.000     1.000     0.500     0.135
+Sum of weights                                                   0.880
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =     14.491
+ - Std. Dev. =      0.833
+ - Variance  =      0.694
+ - Cov(h=0)  =      1.000
+Processing Factor 3
+
+Target location
+---------------
+Sample #1 (from 2500)
+Coordinate #1 = 0.000000
+Coordinate #2 = 0.000000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.027     0.154     0.019     0.022
+         2         2     0.027     1.000     0.014     0.266     0.649
+         3         3     0.154     0.014     1.000     0.001     0.022
+         4         4     0.019     0.266     0.001     1.000     0.140
+         5         5     0.022     0.649     0.022     0.140     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+      Rank      Flag         1
+         1         1     0.234
+         2         2     0.252
+         3         3     0.100
+         4         4     0.135
+         5         5     0.216
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     6.187     8.440     1.000     1.000     0.334     0.217
+         2    -5.153    -8.621     1.000     1.000     0.554     0.165
+         3    -5.375    13.973     1.000     1.000    -0.366     0.063
+         4     3.493   -13.034     1.000     1.000     0.815     0.074
+         5    -8.373    -7.036     1.000     1.000    -0.690     0.093
+Sum of weights                                                   0.611
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =     47.944
+ - Std. Dev. =      0.933
+ - Variance  =      0.871
+ - Cov(h=0)  =      1.000
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name KD.Hn.Hn.Y.Var.1.1.estim - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =   -111.140
+ Maximum value       =     58.519
+ Mean value          =      8.598
+ Standard Deviation  =     15.049
+ Variance            =    226.460
+5 - Name KD.Hn.Hn.Y.Var.1.2.estim - Locator z2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     -8.180
+ Maximum value       =    104.297
+ Mean value          =     65.857
+ Standard Deviation  =     18.243
+ Variance            =    332.819
+6 - Name KD.Hn.Hn.Y.Var.1.3.estim - Locator z3
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     46.351
+ Maximum value       =    117.824
+ Mean value          =     90.671
+ Standard Deviation  =     15.827
+ Variance            =    250.488
+7 - Name KD.Hn.Hn.Y.Var.1.1.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =      0.901
+ Mean value          =      0.598
+ Standard Deviation  =      0.157
+ Variance            =      0.025
+8 - Name KD.Hn.Hn.Y.Var.1.2.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =      0.994
+ Mean value          =      0.764
+ Standard Deviation  =      0.193
+ Variance            =      0.037
+9 - Name KD.Hn.Hn.Y.Var.1.3.stdev - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =      1.000
+ Mean value          =      0.817
+ Standard Deviation  =      0.217
+ Variance            =      0.047

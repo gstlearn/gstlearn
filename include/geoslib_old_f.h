@@ -1455,7 +1455,7 @@ GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                    int *ranks1,
                                    int nsize2,
                                    int *ranks2,
-                                   int flag_std,
+                                   bool flag_std,
                                    int verbose);
 GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
                                       Model *model,
