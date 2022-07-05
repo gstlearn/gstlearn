@@ -82,6 +82,15 @@ public:
    * @remark - FLAG_ARRAY:  for the extensive printout of the variables
    */
   void setParams(unsigned char params) { _params = params; }
+  void setFlags(bool flag_resume = true,
+                bool flag_vars = true,
+                bool flag_extend = false,
+                bool flag_stats = false,
+                bool flag_array = false,
+                bool flag_locator = false,
+                const VectorString& names = VectorString(),
+                const VectorInt& cols = VectorInt(),
+                bool useSel = true);
 
   bool matchResume()  const { return _matchFlag(FLAG_RESUME); }
   bool matchVars()    const { return _matchFlag(FLAG_VARS); }

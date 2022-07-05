@@ -39,8 +39,8 @@ err = mydb$setLocator("Y",ELoc_X(),1)
 err = mydb$setLocator("Zn",ELoc_Z())
 if (verbose)
 {
-  dbfmt = DbStringFormat()
-#  dbfmt$setParams(FLAG_RESUME | FLAG_EXTEND | FLAG_VARS) 
+  dbfmt = DbStringFormat(true)
+  dbfmt$setFlags(TRUE, TRUE, TRUE)
   mydb$display(dbfmt)
 }
 ```
