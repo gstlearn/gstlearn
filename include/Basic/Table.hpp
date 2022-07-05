@@ -37,7 +37,7 @@ public:
   int resetFromArray(const VectorVectorDouble& table);
 
   static Table* create(int nrows = 0, int ncols = 0);
-  static Table* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Table* createFromNF(const String& neutralFilename, bool verbose = true);
   static Table* createFromArray(const VectorVectorDouble& tabin);
 
   void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }

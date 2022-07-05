@@ -37,7 +37,7 @@ public:
                    int nrow_max = -1);
 
   static Polygons* create();
-  static Polygons* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Polygons* createFromNF(const String& neutralFilename, bool verbose = true);
   static Polygons* createFromCSV(const String& filename,
                                  const CSVformat& csv = CSVformat(),
                                  int verbose = false,

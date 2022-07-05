@@ -62,7 +62,7 @@ public:
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
                              double distcont = TEST);
-  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }

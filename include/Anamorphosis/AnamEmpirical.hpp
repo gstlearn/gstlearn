@@ -27,7 +27,7 @@ public:
 
   /// ASerializable Interface
   static AnamEmpirical* createFromNF(const String& neutralFilename,
-                                     bool verbose = false);
+                                     bool verbose = true);
 
   void reset(int ndisc,
              double pymin,

@@ -54,7 +54,7 @@ public:
   virtual bool mayChangeSampleNumber() const { return true; }
 
   static Db* createFromNF(const String& neutralFilename,
-                           bool verbose = false);
+                           bool verbose = true);
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::SAMPLE,
                        const VectorDouble& tab = VectorDouble(),

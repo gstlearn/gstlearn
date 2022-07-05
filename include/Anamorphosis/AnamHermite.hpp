@@ -41,7 +41,7 @@ public:
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
 
   /// ASerializable Interface
-  static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = false);
+  static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AnamContinuous Interface
   double RawToTransformValue(double z) const override;

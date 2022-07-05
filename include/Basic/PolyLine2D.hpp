@@ -28,7 +28,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static PolyLine2D* createFromNF(const String& neutralFilename,
-                              bool verbose = false);
+                              bool verbose = true);
   static PolyLine2D* create(const VectorDouble& x = VectorDouble(),
                         const VectorDouble& y = VectorDouble());
 

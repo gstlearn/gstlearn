@@ -30,8 +30,8 @@ public:
   ASerializable& operator=(const ASerializable& r);
   virtual ~ASerializable();
 
-  bool deserialize(std::istream& is, bool verbose = false);
-  bool serialize(std::ostream& os,bool verbose = false) const;
+  bool deserialize(std::istream& is, bool verbose = true);
+  bool serialize(std::ostream& os,bool verbose = true) const;
   bool dumpToNF(const String& neutralFilename, bool verbose = false) const;
 
   static String buildFileName(const String& filename, bool ensureDirExist = false);
@@ -248,7 +248,8 @@ bool ASerializable::_recordReadVec(std::istream& is,
 
   if (nvalues != (int) vec.size())
   {
-    messerr("Reading was expecting %d terms. %d found", nvalues,(int) vec.size());
+    messerr("Reading (%s) was expecting %d terms. %d found",
+            title.c_str(), nvalues,(int) vec.size());
     vec.clear();
     return false;
   }

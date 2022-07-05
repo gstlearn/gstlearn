@@ -36,7 +36,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static FracEnviron* createFromNF(const String& neutralFilename,
-                                   bool verbose = false);
+                                   bool verbose = true);
   static FracEnviron* create(double xmax = 0.,
                              double ymax = 0.,
                              double deltax = 0.,

@@ -3956,11 +3956,13 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of variables", ncol);
   ret = ret && _recordRead<int>(is, "Number of samples", nrow);
+  if (! ret) return ret;
   if (ncol > 0)
   {
     ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
+  if (! ret) return ret;
 
   for (int iech = 0; iech < nrow; iech++)
   {

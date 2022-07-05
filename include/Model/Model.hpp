@@ -72,7 +72,7 @@ public:
                                 const ASpace* space = nullptr,
                                 bool flagRange = true);
   static Model* createFromDb(const Db* db);
-  static Model* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Model* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);

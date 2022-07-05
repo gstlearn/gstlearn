@@ -29,7 +29,7 @@ public:
   virtual ~AnamDiscreteDD();
 
   /// ASerializable Interface
-  static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = false);
+  static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam::DISCRETE_DD; }

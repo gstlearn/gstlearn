@@ -33,7 +33,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
-  static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = false);
+  static AnamDiscreteIR* createFromNF(const String& neutralFilename, bool verbose = true);
 
   /// AAnam Interface
   const EAnam&  getType() const override { return EAnam::DISCRETE_IR; }

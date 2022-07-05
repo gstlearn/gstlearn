@@ -49,7 +49,7 @@ public:
                        Db* db = nullptr,
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
-  static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
   static Vario* computeFromDb(const VarioParam* varioparam,
                               Db* db,
                               const ECalcVario& calcul = ECalcVario::VARIOGRAM,

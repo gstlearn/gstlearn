@@ -30,7 +30,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static PolySet* create();
-  static PolySet* createFromNF(const String& neutralFilename, bool verbose);
+  static PolySet* createFromNF(const String& neutralFilename, bool verbose = true);
   const VectorDouble& getX() const { return PolyLine2D::getX(); }
   const VectorDouble& getY() const { return PolyLine2D::getY(); }
   double getX(int i) const { return PolyLine2D::getX(i); }

@@ -41,7 +41,7 @@ public:
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
 
   static MeshManifold* createFromNF(const String& neutralFilename,
-                                     bool verbose = false);
+                                     bool verbose = true);
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
   cs* getMeshToDb(const Db *db,

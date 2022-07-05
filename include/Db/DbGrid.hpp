@@ -55,7 +55,7 @@ public:
   bool mayChangeSampleNumber() const override { return false; }
 
   static DbGrid* createFromNF(const String& neutralFilename,
-                              bool verbose = false);
+                              bool verbose = true);
   int reset(const VectorInt& nx,
             const VectorDouble& dx = VectorDouble(),
             const VectorDouble& x0 = VectorDouble(),
