@@ -287,6 +287,7 @@ public:
           Option_VarioFit optvar = Option_VarioFit());
 
   double gofToVario(const Vario* vario);
+  std::vector<ECov> initCovList(const VectorInt & covranks);
 
 protected:
   /// Interface to ASerializable

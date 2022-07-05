@@ -11,6 +11,20 @@ rm(list=ls())
 library(gstlearn)
 ```
 
+```{r}
+a = VectorString()
+a$push_back("toto")
+a$push_back("titi")
+a[1]
+a[2]
+class(a)
+class(a[1])
+
+ECov_fromValue(2)$getDescr()
+ECov_fromValues(c(1,3,4))
+ECov_printAll()
+```
+
 Global variables
 
 ```{r}
@@ -39,7 +53,7 @@ err = mydb$setLocator("Y",ELoc_X(),1)
 err = mydb$setLocator("Zn",ELoc_Z())
 if (verbose)
 {
-  dbfmt = DbStringFormat(true)
+  dbfmt = DbStringFormat()
   dbfmt$setFlags(TRUE, TRUE, TRUE)
   mydb$display(dbfmt)
 }
@@ -144,11 +158,8 @@ if (graphics)
 Fitting a Model. We call the Automatic Fitting procedure providing the list of covariance functions to be tested.
 
 ```{r}
-vcovs = VectorEnumCovs()
-vcovs$push_back(ECov_EXPONENTIAL)
-vcovs$push_back(ECov_SPHERICAL)
 mymodel = Model_createFromDb(mydb)
-err = mymodel$fit(myvario,vcovs)
+err = mymodel$fit(myvario,ECov_fromValues(c(1,2)))
 ```
 
 Visualizing the resulting model, overlaid on the experimental variogram
@@ -168,7 +179,7 @@ constr = Constraints()
 paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
 constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
 opt = Option_AutoFit()
-err = myModelConstrained$fit(myVarioOmni,vcovs,FALSE,opt,constr)
+err = myModelConstrained$fit(myVarioOmni,covlist,FALSE,opt,constr)
 myModelConstrained
 ```
 
@@ -180,12 +191,6 @@ We can impose inequality constraints by using EConsType.LOWER or EConsType.UPPER
 mymodel$addDrift(Drift1(mymodel$getContext()))
 if (verbose)
     mymodel$display()
-```
-
-This paragraph has been added (unless fitting is corrected)
-
-```{r}
-mymodel$addCovFromParam(ECov_EXPONENTIAL(),sill=2,range=1.2)
 ```
 
 # Defining the Neighborhood
@@ -203,7 +208,8 @@ if (verbose)
 We must first create a Grid which covers the area of interest
 
 ```{r}
-mygrid = DbGrid_createCoveringDb(mydb,c(80,72),c(0.5,0.5),c(107.,481.),c(2,2))
+mygrid = DbGrid_createCoveringDb(mydb,c(80,72),c(0.5,0.5),
+                                 c(107.,481.),c(2,2))
 if (verbose)
     mygrid$display()
 ```
@@ -267,13 +273,13 @@ Visualizing the results
 ```{r}
 if (graphics)
     ax = plot.grid(mygrid,"Kriging.Pb.estim")
-    plot.point(mydb,"Pb",title="Estimate of Pb",ax=ax)
+    plot.point(mydb,"Pb",title="Estimate of Pb",padd=ax)
 ```
 
 ```{r}
 if (graphics)
     ax = plot.grid(mygrid,"Kriging.Pb.stdev")
-    plot.point(mydb,"Pb",title="St. Deviation of Pb",ax=ax)
+    plot.point(mydb,"Pb",title="St. Deviation of Pb",padd=ax)
 ```
 
 # Simulations
@@ -291,8 +297,118 @@ We can produce the Gaussian Anamorphosis graphically within its definition domai
 
 ```{r, eval=FALSE}
 if (graphics)
-    ax = plot.anam(myanamPb)
+    plot.anam(myanamPb)
 ```
 
 The next step consists in translating the target variable ('Pb') into its Gaussian transform
+
+```{r}
+mydb$setLocator("Pb",ELoc_Z())
+err = myanamPb$RawToGaussian(mydb)
+if (verbose)
+    mydb$display()
+```
+
+We quickly calculate experimental (omni-directional) variograms using the already defined directions.
+
+```{r}
+myvarioParam = VarioParam()
+mydir = DirParam(2,10,1.)
+myvarioParam$addDir(mydir)
+myVario = Vario(myvarioParam,mydb)
+err = myvario$compute(ECalcVario_VARIOGRAM())
+```
+
+We fit the model by automatic fit (with the constraints that the total sill be equal to 1).
+
+```{r}
+mymodelG = Model_createFromDb(mydb)
+err = mymodelG$fit(myvario,ECov_fromValues(c(1)))
+if (graphics)
+    plot.varmod(myvario,mymodelG,title="Model for Gaussian Pb")
+```
+
+We perform a set of 10 conditional simulations using the Turning Bands Method.
+
+```{r}
+err = simtub(mydb,mygrid,mymodel,myneigh,10)
+if (verbose)
+    mygrid$display()
+```
+
+Some statistics on the Conditional simulations in Gaussian scale
+
+** Still impossible due to use of VectorString **
+
+```{r}
+statOptions = VectorString()
+statOptions$push_back("mini")
+statOptions$push_back("maxi")
+statOptions$push_back("mean")
+statOptions$push_back("stdev")
+
+if (verbose)
+{
+  names = VectorString()
+  names$push_back("Simu.Y.*")
+  err = mygrid$statistics(names, statOptions)
+#  err = mygrid$statistics(names, statOptions, TRUE, TRUE,TRUE)
+}
+```
+
+We visualize a conditional simulation in Gaussian scale
+
+```{r}
+if (graphics)
+{
+    ax = plot.grid(mygrid,"Simu.Y.Pb.1")
+    plot.point(mydb,"Pb",title="One Simulation of Pb in Gaussian Scale",
+             padd=ax)
+}
+```
+
+We turn the Gaussian conditional simulations into Raw scale (using the Anamorphosis back transform) and get rid of the Gaussian conditional simulations.
+
+```{r}
+myanamPb$GaussianToRaw(mygrid,"Simu.Y.*")
+mygrid$deleteColumn("Simu.Y.*")
+if (verbose)
+    mygrid$display()
+```
+
+We calculate some statistics on the Conditional Simulations in Raw scale.
+
+```{r}
+if (verbose)
+{
+  names = VectorString()
+  names$push_back("Z.Simu.*")
+  err = mygrid$statistics(names, statOptions,TRUE,TRUE,TRUE)
+}
+```
+
+We visualize a Conditional Simulation in Raw Scale
+
+```{r}
+if (graphics)
+{
+  ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1")
+  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", 
+             padd=ax)
+}
+```
+
+Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
+
+```{r}
+names = VectorString()
+names$push_back("Z.Simu.*")
+statOptions = VectorString()
+statOptions$push_back("Mean")
+err = mygrid$statistics(names,statOptions,TRUE,FALSE,FALSE)
+if (verbose)
+    mygrid$display()
+```
+
+Displaying the average of the Conditional Simulations
 

@@ -867,7 +867,7 @@ def curve(data, icas=1, color='black',
     return ax
 
 def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, 
-       title=None, ax=None, figsize = None, end_plot=False, **plot_args):
+       title=None, ax=None, figsize = None, label='model', end_plot=False, **plot_args):
     """Plot Y against X.
     **plot_args : arguments passed to matplotlib.pyplot.plot"""
     
@@ -885,7 +885,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None,
         plot_args.setdefault('marker', 'o')
         ax.plot(xtab, ytab, **plot_args)
     else:
-        plot_args.setdefault('label', 'model')
+        plot_args.setdefault('label', label)
         #plot_args.setdefault('fmt', 'g-') # TODO : to be restored ? (doesn't work with python 3.9.2 / mpl 3.5.1)
         ax.plot(xtab, ytab, **plot_args)
     
@@ -1022,7 +1022,7 @@ def anam(anam, xlim=None, ylim=None,
     
     res = anam.sample()
     ax = XY(res.getY(), res.getZ(),
-            xlim=res.getAylim(), ylim=res.getAzlim(),title=title)
+            xlim=res.getAylim(), ylim=res.getAzlim(),label='Anamorphosis',title=title)
     
     if end_plot:
         plt.show()

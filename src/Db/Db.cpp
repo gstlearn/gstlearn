@@ -3838,6 +3838,23 @@ VectorDouble Db::statistics(const VectorString& names,
                          proba, vmin, vmax, title, namconv);
 }
 
+VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
+                                     const VectorString& opers,
+                                     bool flagIso,
+                                     bool flagVariableWise,
+                                     bool flagPrint,
+                                     double proba,
+                                     double vmin,
+                                     double vmax,
+                                     const String& title,
+                                     const NamingConvention& namconv)
+{
+  VectorInt iuids = getUIDsByLocator(locatorType);
+  if (iuids.empty()) return VectorDouble();
+  return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
+                         proba, vmin, vmax, title, namconv);
+}
+
 VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
                                       bool flagIso,
                                       bool flagPrint,

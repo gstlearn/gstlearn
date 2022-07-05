@@ -26,6 +26,7 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
+#include "Covariances/ECov.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Model/ANoStat.hpp"
@@ -1362,4 +1363,22 @@ double Model::_evalDriftCoef(const Db* db,
     drift += value * coef[ib];
   }
   return drift;
+}
+
+std::vector<ECov> Model::initCovList(const VectorInt & covranks)
+{
+  std::vector<ECov> list;
+
+  for (int i = 0; i < (int) covranks.size(); i++)
+  {
+    ECov ec = ECov::fromValue(covranks[i]);
+    if (ec == ECov::UNKNOWN)
+    {
+      ECov::printAll();
+      list.clear();
+      break;
+    }
+    list.push_back(ec);
+  }
+  return list;
 }

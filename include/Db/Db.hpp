@@ -546,6 +546,17 @@ public:
                           double proba = TEST,
                           const String& title = "",
                           const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsByLocator(const ELoc& locatorType,
+                                   const VectorString& opers = { "Mean" },
+                                   bool flagIso = true,
+                                   bool flagVariableWise = true,
+                                   bool flagPrint = true,
+                                   double vmin = TEST,
+                                   double vmax = TEST,
+                                   double proba = TEST,
+                                   const String& title = "",
+                                   const NamingConvention& namconv = NamingConvention("Stats"));
+
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool flagPrint = false,

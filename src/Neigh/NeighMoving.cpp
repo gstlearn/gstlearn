@@ -170,7 +170,8 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
   int flag_sector = 0;
   double dmax = 0.;
 
-  ret = _recordRead<int>(is, "NeighMovingborhood sector search", flag_sector);
+  ret = true;
+  ret = ret && _recordRead<int>(is, "NeighMovingborhood sector search", flag_sector);
   ret = ret && _recordRead<int>(is, "Minimum Number of samples", _nMini);
   ret = ret && _recordRead<int>(is, "Maximum Number of samples", _nMaxi);
   ret = ret && _recordRead<int>(is, "Optimum Number of samples per sector", _nSect);
@@ -181,7 +182,7 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
   {
     for (int idim = 0; ret && idim < ndim; idim++)
       ret = ret && _recordRead<double>(is, "Anisotropy Coefficient", nbgh_coeffs[idim]);
-    ret =ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
+    ret = ret && _recordRead<int>(is, "Flag for Anisotropy Rotation", flag_rotation);
     if (flag_rotation)
     {
       int lec = 0;

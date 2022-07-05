@@ -6,7 +6,7 @@
 
 suppressWarnings(suppressMessages(library(gstlearn)))
 
-# Testing main argument types
+# Testing direct argumet of main type
 
 argumentTestInt(12)
 argumentTestDouble(2.3)
@@ -14,8 +14,24 @@ argumentTestVectorInt(c(1,2,3))
 argumentTestVectorDouble(c(1.1, 2.2, 3.3))
 argumentTestString("my_String")
 argumentTestVectorString("my_String")
-#argumentTestVectorString(c("my_String1","my_String2","my_String3"))
-argumentTestVectorVectorInt(c( c(2,3),c(1, 5 ) ))
+argumentTestVectorString(c("my_String1","my_String2","my_String3"))
+argumentTestVectorVectorInt(c( c(2,3),c(1, 5) ))
+argumentTestVectorVectorDouble(c( c(2.,3.),c(1., 5 ) ))
+
+# Testing Vector arguments using external factory
+
+a = VectorString()
+a$push_back("toto")
+a$push_back("titi")
+argumentTestVectorString(a)
+
+a = VectorInt()
+a$push_back(12)
+argumentTestVectorInt(a)
+
+a = VectorDouble()
+a$push_back(12.)
+argumentTestVectorDouble(a)
 
 # Testing missing arguments
 

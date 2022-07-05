@@ -52,11 +52,14 @@ GSTLEARN_EXPORT void argumentTestDouble(double value);
 GSTLEARN_EXPORT void argumentTestVectorInt(const VectorInt& values);
 GSTLEARN_EXPORT void argumentTestVectorDouble(const VectorDouble& values);
 GSTLEARN_EXPORT void argumentTestVectorVectorInt(const VectorVectorInt& values);
+GSTLEARN_EXPORT void argumentTestVectorVectorDouble(const VectorVectorDouble& values);
 GSTLEARN_EXPORT void argumentTestString(const String& value);
 GSTLEARN_EXPORT void argumentTestVectorString(const VectorString& values);
 
 GSTLEARN_EXPORT void argumentTestIntOverload(int value);
 GSTLEARN_EXPORT void argumentTestIntOverload(const VectorInt& values);
+GSTLEARN_EXPORT void argumentTestDoubleOverload(double value);
+GSTLEARN_EXPORT void argumentTestDoubleOverload(const VectorDouble& values);
 GSTLEARN_EXPORT void argumentTestStringOverload(const String& value);
 GSTLEARN_EXPORT void argumentTestStringOverload(const VectorString& values);
 
@@ -64,3 +67,5 @@ GSTLEARN_EXPORT void argumentTestEnum(ETests value);
 
 GSTLEARN_EXPORT int argumentReturnInt(int value);
 GSTLEARN_EXPORT double argumentReturnDouble(double value);
+GSTLEARN_EXPORT VectorInt argumentReturnVectorInt(const VectorInt& values);
+GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values);

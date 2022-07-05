@@ -15,43 +15,83 @@
 
 ENUM_DEFINE(ENUM_TESTS)
 
-void _introduction(const String& title)
-{
-  message("Testing for %s : ",title.c_str());
-}
 void _endOfLine()
 {
   message("\n");
-}
-void _nextOfLine()
-{
-  message(" - ");
 }
 void _test()
 {
   message("NA ");
 }
+void _introduction(const String& title, bool end_of_line = false)
+{
+  message("Testing for %s : ",title.c_str());
+  if (end_of_line) _endOfLine();
+}
 
-void _printInt(int value, bool next = false)
+void _printInt(int value)
 {
   if (IFFFF(value))
    _test();
   else
-    message("%d",value);
-  if (next) _nextOfLine();
+    message("%d ",value);
 }
-void _printDouble(double value, bool next = false)
+
+void _printDouble(double value)
 {
   if (FFFF(value))
     _test();
   else
-    message("%lf",value);
-  if (next) _nextOfLine();
+    message("%lf ",value);
 }
-void _printString(const String& value, bool next = false)
+
+void _printString(const String& value)
 {
-  message("%s",value.c_str());
-  if (next) _nextOfLine();
+  message("%s ",value.c_str());
+}
+
+void _printVectorInt(const VectorInt& values)
+{
+  for (int i = 0; i < (int) values.size(); i++)
+    _printInt(values[i]);
+}
+
+void _printVectorDouble(const VectorDouble& values)
+{
+  for (int i = 0; i < (int) values.size(); i++)
+    _printDouble(values[i]);
+}
+
+void _printVectorString(const VectorString& values)
+{
+  for (int i = 0; i < (int) values.size(); i++)
+    _printString(values[i]);
+}
+
+void _printVectorVectorInt(const VectorVectorInt& values)
+{
+  for (int i = 0; i < (int) values.size(); i++)
+  {
+    for (int j = 0; j < (int) values[i].size(); j++)
+    {
+      message("[%d][%d] : ",j+1,i+1);
+      _printInt(values[i][j]);
+      _endOfLine();
+    }
+  }
+}
+
+void _printVectorVectorDouble(const VectorVectorDouble& values)
+{
+  for (int i = 0; i < (int) values.size(); i++)
+  {
+    for (int j = 0; j < (int) values[i].size(); j++)
+    {
+      message("[%d][%d] : ",j+1,i+1);
+      _printDouble(values[i][j]);
+      _endOfLine();
+    }
+  }
 }
 
 /**
@@ -79,16 +119,14 @@ void argumentTestDouble(double value)
 void argumentTestVectorInt(const VectorInt& values)
 {
   _introduction("VectorInt");
-  for (int i = 0; i < (int) values.size(); i++)
-    _printInt(values[i],true);
+  _printVectorInt(values);
   _endOfLine();
 }
 
 void argumentTestVectorDouble(const VectorDouble& values)
 {
   _introduction("VectorDouble");
-  for (int i = 0; i < (int) values.size(); i++)
-    _printDouble(values[i],true);
+  _printVectorDouble(values);
   _endOfLine();
 }
 
@@ -101,22 +139,22 @@ void argumentTestString(const String& value)
 
 void argumentTestVectorVectorInt(const VectorVectorInt& values)
 {
-  _introduction("VectorVectorInt");
-  message("Dimension First Level = %d\n",(int) values.size());
-  for (auto &e: values)
-  {
-    message("Dimension of Second Level = %d\n",(int) e.size());
-    for (auto &f: e)
-      _printInt(f, true);
-    _endOfLine();
-  }
+  _introduction("VectorVectorInt",true);
+  _printVectorVectorInt(values);
+  _endOfLine();
+}
+
+void argumentTestVectorVectorDouble(const VectorVectorDouble& values)
+{
+  _introduction("VectorVectorDouble",true);
+  _printVectorVectorDouble(values);
+  _endOfLine();
 }
 
 void argumentTestVectorString(const VectorString& values)
 {
   _introduction("VectorString");
-  for (int i = 0; i < (int) values.size(); i++)
-    _printString(values[i],true);
+  _printVectorString(values);
   _endOfLine();
 }
 
@@ -137,16 +175,28 @@ void argumentTestIntOverload(int value)
 void argumentTestIntOverload(const VectorInt& values)
 {
   _introduction("VectorInt (Overload)");
-  for (int i = 0; i < (int) values.size(); i++)
-    _printInt(values[i], true);
+  _printVectorInt(values);
+  _endOfLine();
+}
+
+void argumentTestDoubleOverload(double value)
+{
+  _introduction("Double (Overload)");
+  _printDouble(value);
+  _endOfLine();
+}
+
+void argumentTestDoubleOverload(const VectorDouble& values)
+{
+  _introduction("VectorDouble (Overload)");
+  _printVectorDouble(values);
   _endOfLine();
 }
 
 void argumentTestStringOverload(const VectorString& values)
 {
   _introduction("VectorString (Overload)");
-  for (int i = 0; i < (int) values.size(); i++)
-    _printString(values[i],true);
+  _printVectorString(values);
   _endOfLine();
 }
 
@@ -171,3 +221,18 @@ double argumentReturnDouble(double value)
   return value;
 }
 
+VectorInt argumentReturnVectorInt(const VectorInt& values)
+{
+  _introduction("VectorInt");
+  _printVectorInt(values);
+  _endOfLine();
+  return values;
+}
+
+GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values)
+{
+  _introduction("VectorDouble");
+  _printVectorDouble(values);
+  _endOfLine();
+  return values;
+}

@@ -29,7 +29,7 @@ plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, 
   }
 
   hh = seq(0, hmax, hmax/nh)
-  gg = model$sampleModel(hmax, nh, ivar, jvar, codir)
+  gg = model$sample(hmax, nh, ivar, jvar, codir)
   df = data.frame(cbind(hh,gg))
   
   if (length(padd) > 0)
@@ -106,17 +106,17 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             hh = seq(0, hmax, hmax/nh)
             nhh = length(hh)
             codir = vario$getCodir(id)
-            gg = model$sampleModel(hmax, nhh, iv, jv, codir)
+            gg = model$sample(hmax, nhh, iv, jv, codir)
             dfg = data.frame(cbind(hh,gg))
             g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1) 
 
             if (iv != jv)
             {
-              ggp = model$sampleModel(hmax, nhh, iv, jv, codir, 1)
+              ggp = model$sample(hmax, nhh, iv, jv, codir, 1)
               dfg = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfg, aes(x=hh,y=ggp), color=cols[id+1],
                         linetype = 'twodash') 
-              ggm = model$sampleModel(hmax, nhh, iv, jv, codir,-1)
+              ggm = model$sample(hmax, nhh, iv, jv, codir,-1)
               dfm = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfm, aes(x=hh,y=ggm), color=cols[id+1],
                         linetype = 'twodash') 
@@ -341,9 +341,10 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
   res = anam$sample(ndisc, aymin, aymax)
   valY = res$getY()
   valZ = res$getZ()
+  
   p = plot.XY(valY, valZ, join=TRUE, flagDiag = FALSE,
   		color=color, linetype=linetype, 
-	    xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
+	    xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
         padd=padd)
   p
 }
