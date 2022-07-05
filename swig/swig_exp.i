@@ -1,13 +1,5 @@
 %ignore *::operator=;
 
-%feature(director) AFunction;
-%module(directors="1") gstlearn
-%{
-#define SWIG_FILE_WITH_INIT
-// This is for numpy.i (see below). To be moved in python swig.
-%}
-
-
 // TODO: How to mask IClonable and clone method?
 class IClonable{};
 //%ignore *::clone;

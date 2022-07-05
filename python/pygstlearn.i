@@ -4,8 +4,6 @@
 %module(directors="1") gstlearn
 %feature(director) AFunction;
 
-
-
 %include stl.i
 %include std_complex.i
 
@@ -22,6 +20,11 @@
 #pragma SWIG nowarn=506
 
 /// TODO, include numpy.i ?
+//%include numpy.i
+//%{
+//#define SWIG_FILE_WITH_INIT
+// This is for numpy.i. To be moved in python swig.
+//%}
 
 %{
 #include <algorithm>
