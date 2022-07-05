@@ -20,6 +20,7 @@
 #include <string>
 #include <iomanip>
 #include <map>
+#include <vector>
 
 class GSTLEARN_EXPORT AEnum
 {
@@ -121,16 +122,20 @@ public:\
   NAME();\
   ~NAME();\
   NAME(const NAME&) = default;\
+  NAME(int value);\
+  NAME(const String& key);\
   NAME& operator=(const NAME&) = default;\
 \
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   static void printAll();\
-  \
+\
   static bool existsKey(const String& key);\
   static bool existsValue(int value);\
   static const NAME& fromKey(const String& key);\
   static const NAME& fromValue(int value);\
+  static std::vector<NAME> fromKeys(const VectorString& keys);\
+  static std::vector<NAME> fromValues(const VectorInt& values);\
 \
 private:\
   NAME(const String& key, int value, const String& descr);\
@@ -162,6 +167,16 @@ const NAME* NAME::_default = &NAME::DEFAULT;\
 \
 NAME::NAME()\
 : AEnum(*_default)\
+{\
+}\
+\
+NAME::NAME(int value)\
+: AEnum(fromValue(value))\
+{\
+}\
+\
+NAME::NAME(const String& key)\
+: AEnum(fromKey(key))\
 {\
 }\
 \
@@ -237,6 +252,22 @@ const NAME& NAME::fromValue(int value)\
     return (*(_map[value]));\
   std::cout << "Unknown value " << value << " for enum " << #NAME << std::endl;\
   return *_default;\
+}\
+\
+std::vector<NAME> NAME::fromKeys(const VectorString& keys)\
+{\
+  std::vector<NAME> vec;\
+  for (auto v : keys)\
+    vec.push_back(fromKey(v));\
+  return vec;\
+}\
+\
+std::vector<NAME> NAME::fromValues(const VectorInt& values)\
+{\
+  std::vector<NAME> vec;\
+  for (auto v : values)\
+    vec.push_back(fromValue(v));\
+  return vec;\
 }\
 \
 NAME::E ## NAME NAME::toEnum() const\

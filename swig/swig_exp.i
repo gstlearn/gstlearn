@@ -1,13 +1,5 @@
 %ignore *::operator=;
 
-%feature(director) AFunction;
-%module(directors="1") gstlearn
-%{
-#define SWIG_FILE_WITH_INIT
-// This is for numpy.i (see below). To be moved in python swig.
-%}
-
-
 // TODO: How to mask IClonable and clone method?
 class IClonable{};
 //%ignore *::clone;
@@ -15,7 +7,7 @@ class IClonable{};
 %include stl.i
 // Cast strings into native type of the target language
 %include std_string.i
-// Cast vectors of integers into native type of the target language
+// Cast vectors into native type of the target language
 %include std_vector.i
 
 //%include std_complex.i
