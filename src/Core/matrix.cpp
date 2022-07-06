@@ -547,11 +547,11 @@ void matrix_product_safe(int n1,
  **
  *****************************************************************************/
 int matrix_prod_norme(int transpose,
-                                      int n1,
-                                      int n2,
-                                      const double *v1,
-                                      const double *a,
-                                      double *w)
+                      int n1,
+                      int n2,
+                      const double *v1,
+                      const double *a,
+                      double *w)
 {
   int i1, j1, i2, j2, ecr, neq;
   double value, vala, vi;
@@ -823,12 +823,12 @@ int matrix_invert_copy(const double *a, int neq, double *b)
  **
  *****************************************************************************/
 int matrix_solve(int mode,
-                                 const double *a,
-                                 const double *b,
-                                 double *x,
-                                 int neq,
-                                 int nrhs,
-                                 int *pivot)
+                 const double *a,
+                 const double *b,
+                 double *x,
+                 int neq,
+                 int nrhs,
+                 int *pivot)
 {
   int i, loc_lhs, loc_rhs, error;
 
