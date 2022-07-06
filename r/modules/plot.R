@@ -38,7 +38,7 @@ plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, 
     p <- ggplot()
   
   plot(hh, gg, type="l")
-  p <- p + geom_line(data = df, aes(x=hh,y=gg)) + ggtitle(title)
+  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE) + ggtitle(title)
   p
 }
 
@@ -98,7 +98,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
-          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1]) 
+          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE) 
  
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -108,18 +108,18 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             codir = vario$getCodir(id)
             gg = model$sample(hmax, nhh, iv, jv, codir)
             dfg = data.frame(cbind(hh,gg))
-            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1) 
+            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
             if (iv != jv)
             {
               ggp = model$sample(hmax, nhh, iv, jv, codir, 1)
               dfg = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfg, aes(x=hh,y=ggp), color=cols[id+1],
-                        linetype = 'twodash') 
+                        linetype = 'twodash', na.rm=TRUE) 
               ggm = model$sample(hmax, nhh, iv, jv, codir,-1)
               dfm = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfm, aes(x=hh,y=ggm), color=cols[id+1],
-                        linetype = 'twodash') 
+                        linetype = 'twodash', na.rm=TRUE) 
             }
           } 
         } # End of loop on Directions
@@ -287,7 +287,7 @@ plot.curve <- function(data, color="black",
     p <- padd
   else
     p <- ggplot() 
-  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color)
+  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   p
 }
@@ -325,7 +325,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   
   if (join)
  	 p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), 
- 	 	linetype = linetype, color=color)
+ 	 	linetype = linetype, color=color, na.rm=TRUE)
   else 
     p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
     	shape=shape, color=color)

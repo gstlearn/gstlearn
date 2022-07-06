@@ -30,7 +30,7 @@ jobs:
 
     - name: Setup personal R libraries directory and install R packages dependencies
       # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
-      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'gridExtra'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
       
     - name: Install jupyter nbconvert dependency
       # TODO : Also install kernel for python3 ?

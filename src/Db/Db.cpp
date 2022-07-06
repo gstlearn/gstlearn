@@ -3714,9 +3714,9 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 /**
  * Return the monovariate statistics on variables given their UID
  * @param iuids              List of UID of the variables
- * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param opers              List of operations to be performed on the variables at each point.
  * @param flagIso  
- * @param flagVariableWise
+ * @param flagVariableWise   If False, the new variable is added to Db
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
  * @param proba              For 'quant': the quantile for this probability is calculated 
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
@@ -3726,25 +3726,10 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
- * @par List of operators available: 
- * num    : Number of defined values  
- * mean   : Mean over the defined values  
- * var    : Variance over the defined values  
- * stdv   : Standard Deviation over the defined values  
- * mini   : Minimum over the defined values  
- * maxi   : Maximum over the defined values  
- * sum    : Sum over the variables  
- * prop   : Proportion of values within [vmin;vmax]  
- * quant  : Quantile corresponding to given probability  
- * T      : Tonnage within [vmin;vmax]  
- * Q      : Metal quantity within [vmin;vmax]  
- * M      : Recovered mean within [vmin;vmax]  
- * B      : Conventional Benefit within [vmin;vmax]  
- 
  * @see statisticsMulti (multivariate statistics)
  */
 VectorDouble Db::statisticsByUID(const VectorInt& iuids,
-                                 const VectorString& opers,
+                                 const std::vector<EStatOption>& opers,
                                  bool flagIso,
                                  bool flagVariableWise,
                                  bool flagPrint,
@@ -3758,8 +3743,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 
   if (iuids.empty()) return stats;
 
-  VectorInt iopers = statsList(opers);
-  int noper = static_cast<int> (iopers.size());
+  int noper = static_cast<int> (opers.size());
   if (noper <= 0) return stats;
 
   // Add the variables for PointWise statistics
@@ -3768,21 +3752,24 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
     int iuidn = addColumnsByConstant(noper);
     if (iuidn < 0) return VectorDouble();
 
-    dbStatisticsVariables(this, iuids, iopers, iuidn, vmin, vmax, proba);
+    dbStatisticsVariables(this, iuids, opers, iuidn, vmin, vmax, proba);
 
     namconv.setNamesAndLocators(this, iuidn);
     for (int i = 0; i < noper; i++)
-      namconv.setNamesAndLocators(this, iuidn + i, opers[i]);
+    {
+      EStatOption oper = opers[i];
+      namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+    }
     return VectorDouble();
   }
   else
   {
-    stats = dbStatisticsMono(this, iuids, iopers, flagIso, proba, vmin, vmax);
+    stats = dbStatisticsMono(this, iuids, opers, flagIso, proba, vmin, vmax);
 
     if (flagPrint)
     {
       VectorString varnames = getNamesByUID(iuids);
-      messageFlush(statisticsMonoPrint(stats, iopers, varnames, title));
+      messageFlush(statisticsMonoPrint(stats, opers, varnames, title));
       return VectorDouble();
     }
   }
@@ -3792,7 +3779,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 /**
  * Return the monovariate statistics on variables given their names.
  * @param names              List of names of the variables
- * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param opers              List of operations to be performed on the variables at each point.
  * @param flagIso  
  * @param flagVariableWise
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -3804,25 +3791,10 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
- * @par List of operators available: 
- * num    : Number of defined values  
- * mean   : Mean over the defined values  
- * var    : Variance over the defined values  
- * stdv   : Standard Deviation over the defined values  
- * mini   : Minimum over the defined values  
- * maxi   : Maximum over the defined values  
- * sum    : Sum over the variables  
- * prop   : Proportion of values within [vmin;vmax]  
- * quant  : Quantile corresponding to given probability  
- * T      : Tonnage within [vmin;vmax]  
- * Q      : Metal quantity within [vmin;vmax]  
- * M      : Recovered mean within [vmin;vmax]  
- * B      : Conventional Benefit within [vmin;vmax]  
- 
  * @see statisticsMulti (multivariate statistics)
  */
 VectorDouble Db::statistics(const VectorString& names,
-                            const VectorString& opers,
+                            const std::vector<EStatOption>& opers,
                             bool flagIso,
                             bool flagVariableWise,
                             bool flagPrint,
@@ -3839,7 +3811,7 @@ VectorDouble Db::statistics(const VectorString& names,
 }
 
 VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
-                                     const VectorString& opers,
+                                     const std::vector<EStatOption>& opers,
                                      bool flagIso,
                                      bool flagVariableWise,
                                      bool flagPrint,

@@ -16,7 +16,7 @@ This package contains a modified copy of [findR.cmake](https://github.com/root-p
 2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
     * SWIG 4 or higher
-    * R 4 or higher with ggplot2 and gridExtra packages
+    * R 4 or higher with ggplot2 and ggpubr packages
     * RTools 4 for Windows user
 
 3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
@@ -94,7 +94,7 @@ Then, download and install the following tools:
 
 Finally, install the R required packages from an R command prompt:
 
-    install.packages(c("ggplot2", "gridExtra")
+    install.packages(c("ggplot2", "ggpubr")
 
 Notes:
 

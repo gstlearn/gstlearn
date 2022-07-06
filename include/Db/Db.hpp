@@ -17,6 +17,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 
+#include "../Stats/EStatOption.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -537,7 +538,7 @@ public:
 
   // Statistics
   VectorDouble statistics(const VectorString& names,
-                          const VectorString& opers = { "Mean" },
+                          const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                           bool flagIso = true,
                           bool flagVariableWise = true,
                           bool flagPrint = true,
@@ -547,7 +548,7 @@ public:
                           const String& title = "",
                           const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble statisticsByLocator(const ELoc& locatorType,
-                                   const VectorString& opers = { "Mean" },
+                                   const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                                    bool flagIso = true,
                                    bool flagVariableWise = true,
                                    bool flagPrint = true,
@@ -556,13 +557,12 @@ public:
                                    double proba = TEST,
                                    const String& title = "",
                                    const NamingConvention& namconv = NamingConvention("Stats"));
-
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
   VectorDouble statisticsByUID(const VectorInt& iuids,
-                               const VectorString& opers = { "Mean" },
+                               const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                                bool flagIso = true,
                                bool flagVariableWise = true,
                                bool flagPrint = true,

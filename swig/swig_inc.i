@@ -252,6 +252,7 @@
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
 #include "Stats/Selectivity.hpp"
+#include "Stats/EStatOption.hpp"
 
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"

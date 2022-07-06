@@ -54,93 +54,26 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
   return (value);
 }
 
-void _statList(void)
-{
-  messerr("List of operators available:");
-  messerr("num    : Number of defined values");
-  messerr("mean   : Mean over the defined values");
-  messerr("var    : Variance over the defined values");
-  messerr("stdv   : Standard Deviation over the defined values");
-  messerr("mini   : Minimum over the defined values");
-  messerr("maxi   : Maximum over the defined values");
-  messerr("sum    : Sum over the variables");
-  messerr("prop   : Proportion of values within [vmin;vmax]");
-  messerr("quant  : Quantile corresponding to given probability");
-  messerr("T      : Tonnage within [vmin;vmax]");
-  messerr("Q      : Metal quantity within [vmin;vmax]");
-  messerr("M      : Recovered mean within [vmin;vmax]");
-  messerr("B      : Conventional Benefit within [vmin;vmax]");
-}
-
-ENUM_STATS _statIdentify(const String &oper)
-{
-  if (matchKeyword(oper, "num", false)) return STAT_NUM;
-  if (matchKeyword(oper, "mean", false)) return STAT_MEAN;
-  if (matchKeyword(oper, "var", false)) return STAT_VAR;
-  if (matchKeyword(oper, "stdv", false)) return STAT_STDV;
-  if (matchKeyword(oper, "mini", false)) return STAT_MINI;
-  if (matchKeyword(oper, "maxi", false)) return STAT_MAXI;
-  if (matchKeyword(oper, "sum", false)) return STAT_SUM;
-  if (matchKeyword(oper, "prop", false)) return STAT_PROP;
-  if (matchKeyword(oper, "quant", false)) return STAT_QUANT;
-  if (matchKeyword(oper, "t", false)) return STAT_T;
-  if (matchKeyword(oper, "q", false)) return STAT_Q;
-  if (matchKeyword(oper, "m", false)) return STAT_M;
-  if (matchKeyword(oper, "b", false)) return STAT_B;
-  messerr("Invalid operator name (%s)", oper.c_str());
-  _statList();
-  return STAT_UNKNOWN;
-}
-
-String statsName(int ioper)
-{
-  if (ioper == STAT_NUM) return "Number";
-  if (ioper == STAT_MEAN) return "Mean";
-  if (ioper == STAT_VAR) return "Variance";
-  if (ioper == STAT_STDV) return "St. Dev.";
-  if (ioper == STAT_MINI) return "Minimum";
-  if (ioper == STAT_MAXI) return "Maximum";
-  if (ioper == STAT_SUM) return "Sum";
-  if (ioper == STAT_PROP) return "Proportion";
-  if (ioper == STAT_QUANT) return "Quantile";
-  if (ioper == STAT_T) return "Tonnage";
-  if (ioper == STAT_Q) return "Metal";
-  if (ioper == STAT_M) return "Grade";
-  if (ioper == STAT_B) return "Benefit";
-  return "Unknown";
-}
-
-VectorInt statsList(const VectorString &opers)
-{
-  int noper = static_cast<int>(opers.size());
-  VectorInt iopers(noper);
-  for (int i = 0; i < noper; i++)
-  {
-    iopers[i] = _statIdentify(opers[i]);
-    if (iopers[i] == STAT_UNKNOWN) return VectorInt();
-  }
-  return iopers;
-}
-
-VectorString statsNames(const VectorInt &iopers)
+VectorString statsNames(const std::vector<EStatOption>& opers)
 {
   VectorString names;
-  for (int i = 0; i < (int) iopers.size(); i++)
+  for (int i = 0; i < (int) opers.size(); i++)
   {
-    names.push_back(statsName(iopers[i]));
+    EStatOption oper = opers[i];
+    names.push_back(oper.getKey());
   }
   return names;
 }
 
 void dbStatisticsVariables(Db *db,
                            const VectorInt &iatts,
-                           const VectorInt &iopers,
+                           const std::vector<EStatOption>& opers,
                            int iattn,
                            double vmin,
                            double vmax,
                            double proba)
 {
-  int noper = static_cast<int>(iopers.size());
+  int noper = static_cast<int>(opers.size());
   if (noper <= 0) return;
   int natt = static_cast<int>(iatts.size());
   if (natt <= 0) return;
@@ -198,31 +131,31 @@ void dbStatisticsVariables(Db *db,
       double tab = TEST;
       if (neff > 0)
       {
-        if (iopers[i] == STAT_NUM)
+        if (opers[i] == EStatOption::NUM)
           tab = (double) neff;
-        else if (iopers[i] == STAT_MEAN)
+        else if (opers[i] == EStatOption::MEAN)
           tab = mean;
-        else if (iopers[i] == STAT_VAR)
+        else if (opers[i] == EStatOption::VAR)
           tab = var;
-        else if (iopers[i] == STAT_STDV)
+        else if (opers[i] == EStatOption::STDV)
           tab = stdv;
-        else if (iopers[i] == STAT_MINI)
+        else if (opers[i] == EStatOption::MINI)
           tab = mini;
-        else if (iopers[i] == STAT_MAXI)
+        else if (opers[i] == EStatOption::MAXI)
           tab = maxi;
-        else if (iopers[i] == STAT_SUM)
+        else if (opers[i] == EStatOption::SUM)
           tab = sum;
-        else if (iopers[i] == STAT_PROP)
+        else if (opers[i] == EStatOption::PROP)
           tab = (double) nperc / (double) neff;
-        else if (iopers[i] == STAT_QUANT)
+        else if (opers[i] == EStatOption::QUANT)
           tab = _getQuantile(local, neff, proba);
-        else if (iopers[i] == STAT_T)
+        else if (opers[i] == EStatOption::T)
           tab = (double) nperc / (double) neff;
-        else if (iopers[i] == STAT_Q)
+        else if (opers[i] == EStatOption::Q)
           tab = metal / (double) neff;
-        else if (iopers[i] == STAT_M)
+        else if (opers[i] == EStatOption::M)
           tab = (nperc > 0) ? metal / (double) nperc : TEST;
-        else if (iopers[i] == STAT_B)
+        else if (opers[i] == EStatOption::B)
           tab = (!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST;
         else
           return;
@@ -240,7 +173,7 @@ void dbStatisticsVariables(Db *db,
  **
  ** \param[in]  db         Db structure
  ** \param[in]  iatts      Vector of attribute ranks
- ** \param[in]  iopers     List of the operator ranks
+ ** \param[in]  opers      List of the operator ranks
  ** \param[in]  flagIso    Restrain statistics to isotopic samples
  ** \param[in]  proba      Probability value (between 0 and 1)
  ** \param[in]  vmin       Minimum threshold
@@ -249,13 +182,13 @@ void dbStatisticsVariables(Db *db,
  *****************************************************************************/
 VectorDouble dbStatisticsMono(Db *db,
                               const VectorInt &iatts,
-                              const VectorInt &iopers,
+                              const std::vector<EStatOption>& opers,
                               bool flagIso,
                               double proba,
                               double vmin,
                               double vmax)
 {
-  int noper = static_cast<int>(iopers.size());
+  int noper = static_cast<int>(opers.size());
   int natt = static_cast<int>(iatts.size());
   int nech = db->getSampleNumber();
 
@@ -325,40 +258,40 @@ VectorDouble dbStatisticsMono(Db *db,
 
     for (int i = 0; i < noper; i++)
     {
-      if (iopers[i] == STAT_NUM) tab.push_back((double) neff);
+      if (opers[i] == EStatOption::NUM) tab.push_back((double) neff);
       if (neff > 0)
       {
-        if (iopers[i] == STAT_MEAN) tab.push_back(mean);
-        if (iopers[i] == STAT_VAR) tab.push_back(var);
-        if (iopers[i] == STAT_STDV) tab.push_back(stdv);
-        if (iopers[i] == STAT_MINI) tab.push_back(mini);
-        if (iopers[i] == STAT_MAXI) tab.push_back(maxi);
-        if (iopers[i] == STAT_SUM) tab.push_back(sum);
-        if (iopers[i] == STAT_PROP)
+        if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
+        if (opers[i] == EStatOption::VAR) tab.push_back(var);
+        if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
+        if (opers[i] == EStatOption::MINI) tab.push_back(mini);
+        if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
+        if (opers[i] == EStatOption::SUM) tab.push_back(sum);
+        if (opers[i] == EStatOption::PROP)
           tab.push_back((double) nperc / (double) neff);
-        if (iopers[i] == STAT_QUANT)
+        if (opers[i] == EStatOption::QUANT)
           tab.push_back(_getQuantile(local, neff, proba));
-        if (iopers[i] == STAT_T) tab.push_back((double) nperc / (double) neff);
-        if (iopers[i] == STAT_Q) tab.push_back(metal / (double) neff);
-        if (iopers[i] == STAT_M)
+        if (opers[i] == EStatOption::T) tab.push_back((double) nperc / (double) neff);
+        if (opers[i] == EStatOption::Q) tab.push_back(metal / (double) neff);
+        if (opers[i] == EStatOption::M)
           tab.push_back((nperc > 0) ? metal / (double) nperc : TEST);
-        if (iopers[i] == STAT_B)
+        if (opers[i] == EStatOption::B)
           tab.push_back((!FFFF(vmin)) ? (metal - vmin) / (double) neff : TEST);
       }
       else
       {
-        if (iopers[i] == STAT_MEAN) tab.push_back(TEST);
-        if (iopers[i] == STAT_VAR) tab.push_back(TEST);
-        if (iopers[i] == STAT_STDV) tab.push_back(TEST);
-        if (iopers[i] == STAT_MINI) tab.push_back(TEST);
-        if (iopers[i] == STAT_MAXI) tab.push_back(TEST);
-        if (iopers[i] == STAT_SUM) tab.push_back(TEST);
-        if (iopers[i] == STAT_PROP) tab.push_back(TEST);
-        if (iopers[i] == STAT_QUANT) tab.push_back(TEST);
-        if (iopers[i] == STAT_T) tab.push_back(TEST);
-        if (iopers[i] == STAT_Q) tab.push_back(TEST);
-        if (iopers[i] == STAT_M) tab.push_back(TEST);
-        if (iopers[i] == STAT_B) tab.push_back(TEST);
+        if (opers[i] == EStatOption::MEAN) tab.push_back(TEST);
+        if (opers[i] == EStatOption::VAR) tab.push_back(TEST);
+        if (opers[i] == EStatOption::STDV) tab.push_back(TEST);
+        if (opers[i] == EStatOption::MINI) tab.push_back(TEST);
+        if (opers[i] == EStatOption::MAXI) tab.push_back(TEST);
+        if (opers[i] == EStatOption::SUM) tab.push_back(TEST);
+        if (opers[i] == EStatOption::PROP) tab.push_back(TEST);
+        if (opers[i] == EStatOption::QUANT) tab.push_back(TEST);
+        if (opers[i] == EStatOption::T) tab.push_back(TEST);
+        if (opers[i] == EStatOption::Q) tab.push_back(TEST);
+        if (opers[i] == EStatOption::M) tab.push_back(TEST);
+        if (opers[i] == EStatOption::B) tab.push_back(TEST);
       }
     }
   }
@@ -550,22 +483,22 @@ VectorDouble dbStatisticsMulti(Db *db, const VectorInt &iatts, bool flagIso)
  ** \return  Error Return code
  **
  ** \param[in]  stats       Array of statistics (organized by variable)
- ** \param[in]  iopers      List of the operator ranks
+ ** \param[in]  opers       List of the operator ranks
  ** \param[in]  varnames    List of variables
  ** \param[in]  title       Title for the printout (optional)
  **
  *****************************************************************************/
 String statisticsMonoPrint(const VectorDouble &stats,
-                                           const VectorInt &iopers,
-                                           const VectorString &varnames,
-                                           const String &title)
+                           const std::vector<EStatOption>& opers,
+                           const VectorString &varnames,
+                           const String &title)
 {
-  int noper = static_cast<int>(iopers.size());
+  int noper = static_cast<int>(opers.size());
   int natt = static_cast<int>(varnames.size());
   std::stringstream sstr;
 
   // Constitute the vector of row and column names
-  VectorString colnames = statsNames(iopers);
+  VectorString colnames = statsNames(opers);
 
   // Printout the matrix
   sstr << toMatrix(title, colnames, varnames, false, noper, natt, stats, true);

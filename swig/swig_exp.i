@@ -21,6 +21,7 @@ class IClonable{};
 %template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
 %template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
+%template(VectorEnumStatOpt)    std::vector< EStatOption >;    // Not a pointers list
 
 %template(VectorDir)            std::vector< DirParam >;  // Not a pointers list
 %template(VectorPolySet)        std::vector< PolySet >;
@@ -279,6 +280,7 @@ class IClonable{};
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
+%include Stats/EStatOption.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp

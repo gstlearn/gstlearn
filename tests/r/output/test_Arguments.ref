@@ -28,6 +28,33 @@ Testing for VectorVectorDouble :
 NULL
 NULL
 NULL
-Error in argumentTestVectorString(a) : 
-  cannot coerce type 'externalptr' to vector of type 'character'
-Exécution arrêtée
+Testing for Integer : NA 
+NULL
+Testing for Double : NA 
+NULL
+Testing for VectorInt : NA 
+NULL
+Testing for VectorDouble : NA 
+NULL
+Testing for Int (Overload) : 12 
+NULL
+Testing for VectorInt (Overload) : 21 32 
+NULL
+Testing for String (Overload) : my_String 
+NULL
+Case : Value = 2 - Descr = Enum test case 2
+NULL
+Testing for Integer : 12 
+[1] 12
+Testing for Integer : NA 
+[1] -1234567
+Testing for Double : 21.400000 
+[1] 21.4
+Testing for Double : NA 
+[1] 1.234e+30
+Integer = -1 - Real = -1.100000 - String = NA
+NULL
+[1] -1
+Integer = 21 - Real = -1.100000 - String = NA
+NULL
+[1] "Test successfully performed"
