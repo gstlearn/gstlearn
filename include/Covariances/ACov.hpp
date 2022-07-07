@@ -19,6 +19,9 @@
 #include "Covariances/CovCalcMode.hpp"
 #include "Space/SpacePoint.hpp"
 
+class Db;
+class DbGrid;
+
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
 public:
@@ -79,4 +82,40 @@ public:
                                const CovCalcMode& mode = CovCalcMode()) const;
   MatrixSquareGeneral evalIsoNvarIpas(double step,
                                       const CovCalcMode& mode = CovCalcMode()) const;
+
+  double evalCvv(const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode());
+  double evalCxv(const SpacePoint& p1,
+                 const VectorDouble& est,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angle = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode());
+  VectorDouble evalPointToDb(const SpacePoint& p1,
+                             const Db* db2,
+                             int ivar = 0,
+                             int jvar = 0,
+                             bool useSel = false,
+                             const CovCalcMode& mode = CovCalcMode());
+  double evalAverageDbToDb(const Db* db1,
+                           const Db* db2,
+                           int ivar = 0,
+                           int jvar = 0,
+                           const CovCalcMode& mode = CovCalcMode());
+  double evalAveragePointToDb(const SpacePoint& p1,
+                              const Db* db2,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode& mode = CovCalcMode());
+
+private:
+  DbGrid* _discretizeBlock(const VectorDouble& ext,
+                           const VectorInt& ndisc,
+                           const VectorDouble& angles = VectorDouble());
+  Db* _discretizeBlockRandom(const DbGrid* dbgrid);
 };

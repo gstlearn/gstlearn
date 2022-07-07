@@ -284,7 +284,7 @@ double CovLMCAnamorphosis::_evalDiscreteIR0(int /*ivar*/,
 
 int CovLMCAnamorphosis::setAnamIClass(int anam_iclass)
 {
-  if (! (anam_iclass == 0 || anam_iclass < _anam->getNFactor()))
+  if (! (anam_iclass == 0 || anam_iclass <= _anam->getNFactor()))
   {
     messerr("The rank of the active factor (%d) is incorrect", anam_iclass);
     messerr("It should lie between 1 and the number of factors (%d)", _anam->getNFactor() - 1);

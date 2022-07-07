@@ -6891,7 +6891,7 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
- ** \param[in]  ndisc      Discretization parameters (or NULL)
+ ** \param[in]  ndisc      Discretization parameters (or empty)
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
  ** \param[in]  namconv    Naming convention

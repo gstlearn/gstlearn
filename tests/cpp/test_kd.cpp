@@ -15,8 +15,11 @@
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Option_VarioFit.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Covariances/ECov.hpp"
 #include "Drifts/Drift1.hpp"
 #include "Drifts/DriftX.hpp"
 #include "Drifts/DriftY.hpp"
@@ -28,67 +31,10 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Variogram/Vario.hpp"
 
-static Db* createLocalDb(int nech, int ndim, int nvar)
-{
-  // Coordinates
-  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
-  // Variable
-  for (int ivar=0; ivar<nvar; ivar++)
-  {
-    VectorDouble tabvar = ut_vector_simulate_gaussian(nech);
-    tab.insert(tab.end(), tabvar.begin(), tabvar.end());
-  }
-
-  Db* data = Db::createFromSamples(nech,ELoadBy::COLUMN,tab);
-  data->setNameByUID(1,"x1");
-  data->setNameByUID(2,"x2");
-
-  data->setLocatorByUID(1,ELoc::X,0);
-  data->setLocatorByUID(2,ELoc::X,1);
-
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-    data->setNameByUID(3+ivar,"Var");
-    data->setLocatorByUID(3+ivar,ELoc::Z,ivar);
-  }
-  return data;
-}
-
-/**
- * Creating internal Model
- * @param nvar    Number of variables
- * @param typecov 1 for Spherical + Nugget; 2 for Linear
- * @param typemean 1 for defining a constant Mean
- * @return
- */
-static Model* createModel(int nvar, int typecov, int typemean)
-{
-  CovContext ctxt(nvar); // use default space
-  Model* model = Model::create(ctxt);
-  CovLMC covs(ctxt.getSpace());
-
-  if (typecov == 1)
-  {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 0.8, ctxt);
-    covs.addCov(&cova1);
-    CovAniso cova2(ECov::NUGGET, 0., 0., 0.2, ctxt);
-    covs.addCov(&cova2);
-    model->setCovList(&covs);
-  }
-  else if (typecov == 2)
-  {
-    CovAniso cova1(ECov::SPHERICAL, 40., 0., 1., ctxt);
-    covs.addCov(&cova1);
-    model->setCovList(&covs);
-  }
-
-  if (typemean == 1)
-  {
-    model->setMean(0, 123.);
-  }
-  return model;
-}
+#include <math.h>
 
 /****************************************************************************/
 /*!
@@ -99,99 +45,126 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
-
-  DbGrid* grid_res  = nullptr;
-  Db* data_res      = nullptr;
-  Model* model_res  = nullptr;
-  AnamHermite* anam = nullptr;
-  Global_Res gres;
-  Krigtest_Res ktest;
-  VectorDouble tab;
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
-  int nvar = 1;
   law_set_random_seed(32131);
 
-  setup_license("Demonstration");
   ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
-  DbStringFormat dbfmtXvalid(FLAG_STATS,{"Xvalid*"});
-  DbStringFormat dbfmtKriging(FLAG_STATS,{"Krig*"});
-  DbStringFormat dbfmtBayes(FLAG_STATS,{"Bayes*"});
-  DbStringFormat dbfmtSimu(FLAG_STATS,{"Sim*"});
 
-  // Generate the output grid
-  VectorInt nx = {50,50};
-  DbGrid* grid = DbGrid::create(nx);
-  grid->display();
+  // Generate initial grid
+  DbGrid* grd = DbGrid::create({100,100}, {0.01,0.01});
+  Model* model_init = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.);
+  (void) simtub(nullptr, grd, model_init);
+  grd->display();
+  grd->setName("Simu", "Y");
 
-  // Generate the data base
-  int nech = 100;
-  Db* data = createLocalDb(nech, ndim, nvar);
+  // Non-linear transform
+  double m_Z = 1.5;
+  double s_Z = 0.5;
+  VectorDouble Zval = grd->getColumn("Y");
+  for (int i = 0; i < (int) Zval.size(); i++)
+    Zval[i] = m_Z * exp(s_Z * Zval[i] - 0.5 * s_Z * s_Z);
+  grd->addColumns(Zval, "Z");
+  grd->display(&dbfmt);
+
+  // Data extraction
+  int np = 500;
+  Db* data = Db::createSamplingDb(grd, 0., np, {"x1","x2","Y","Z"});
+  data->setLocator("Z", ELoc::Z);
   data->display(&dbfmt);
 
-  // Create the Model
-  Model* model = createModel(nvar, 2, 1);
+  // Create grid of (single) Panel
+  double dx_P = 0.250;
+  double x0_P = 0.375;
+  DbGrid* panel = DbGrid::create({1,1}, {dx_P, dx_P}, {x0_P, x0_P});
+  panel->display();
+
+  // Discretization with blocs
+  int nx_B = 5;
+  double x0_B = x0_P + dx_P / nx_B / 2.;
+  double dx_B = dx_P / nx_B;
+  DbGrid* blocs = DbGrid::create({nx_B,nx_B}, {dx_B,dx_B}, {x0_B,x0_B});
+  blocs->display();
+
+  // ====================== Point Disjunctive Kriging =====================
+
+  // Gaussian Anamorphosis with 10 coefficients
+  AnamHermite* anam = AnamHermite::create(20);
+  anam->fit(data);
+  anam->display();
+
+  // Transform Data into Gaussian
+  (void) anam->RawToGaussian(data);
+  data->setName("Y.Z","Gauss.Z");
+  data->display();
+
+  // Calculate the variogram
+  VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
+  Vario* vario = Vario::computeFromDb(varioparam, data);
+  vario->display();
+
+  // Fitting the Model on the Gaussian transformed variable
+  Model* model = new Model(1, ndim);
+  Constraints constraints = Constraints();
+  constraints.setConstantSillValue(1.);
+  Option_VarioFit optvar = Option_VarioFit();
+  optvar.setAuthAniso(0);
+  (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, true,
+                     Option_AutoFit(), constraints, optvar);
   model->display();
+  // Attach the Anamorphosis
+  model->addAnam(anam);
+
+  // Computing the Point factors
+  int nfactor = 3;
+  (void) calculateHermiteFactors(data, nfactor);
+  data->display();
 
   // Creating a Moving Neighborhood
+  int nmini = 5;
   int nmaxi = 5;
-  NeighMoving* neighM = NeighMoving::create(ndim, false, nmaxi);
-  neighM->display();
+  double radius = 1.;
+  NeighMoving* neigh = NeighMoving::create(ndim, false, nmaxi, radius, nmini);
+  neigh->display();
 
-  // Create the Anamorphosis (and Gaussian Data)
-  anam = AnamHermite::create(20);
-  anam->fit(data->getColumn("Var"));
-  anam->RawToGaussian(data, ELoc::Z);
-  anam->display();
-  data->display(&dbfmt);
-
-  // Parameters
-
-  int nfactor = 3;
+  // Setting the trace
   OptDbg::setReference(1);
 
-  // ====================== KD Point ========================================
+  // Simple Point kriging over the blocks
+  (void) dk(data, blocs, model, neigh, EKrigOpt::PONCTUAL, VectorInt(),
+            true, true, NamingConvention("DK_Pts"));
+  blocs->display();
 
-  message("\n<----- Test KD Point ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  // Simple Block Kriging over the blocks
+  (void) dk(data, blocs, model, neigh, EKrigOpt::BLOCK, {5,5},
+            true, true, NamingConvention("DK_Blk"));
+  blocs->display();
 
-  // Estimate Hermite polynomials at Data locations
-  (void) calculateHermiteFactors(data, nfactor);
+  // Simple Block Kriging over the panel(s)
+  (void) dk(data, panel, model, neigh, EKrigOpt::BLOCK, {10,10},
+            true, true, NamingConvention("DB_BLK"));
 
-  // Attach the Anamorphosis to the Model (-> CovLMCAnamorphosis)
-  model->addAnam(anam);
+  // ====================== Block Disjunctive Kriging =====================
 
-  // Perform the Disjunctive Kriging estimation
-  dk(data, grid_res, model, neighM, EKrigOpt::PONCTUAL, VectorInt());
-  grid_res->display(&dbfmtKriging);
 
-  // ====================== KD Block by Discretization=======================
-
-  message("\n<----- Test KD Block Discretization ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
-
-  // Estimate Hermite polynomials at Data locations
-  (void) calculateHermiteFactors(data, nfactor);
-
-  // Attach the Anamorphosis to the Model (-> CovLMCAnamorphosis)
-  model->addAnam(anam);
-
-  // Perform the Disjunctive Kriging estimation
-  dk(data, grid_res, model, neighM, EKrigOpt::BLOCK, {5,5});
-  grid_res->display(&dbfmtKriging);
-
-  // ====================== Free pointers ==================================
-  if (neighM    != nullptr) delete neighM;
-  if (data      != nullptr) delete data;
-  if (data_res  != nullptr) delete data_res;
-  if (grid      != nullptr) delete grid;
-  if (grid_res  != nullptr) delete grid_res;
-  if (model     != nullptr) delete model;
-  if (model_res != nullptr) delete model_res;
-  if (anam      != nullptr) delete anam;
+//  // Modeling the block model (anamorphosis and variogram) using DGM2
+//    r <- sqrt(model.cvv(v.mesh = c(1,1) * dx_P / nx_B, model = mod_m, ndisc=10))
+//    anam.Blc <- anam.point2block(anam = anam.Pts, coeff = r)
+//    // il faut aussi definir le model gaussien des Gaussiennes de blocs \rho(v, v') !
+//  // ====================== Free pointers ==================================
+  if (data       != nullptr) delete data;
+  if (grd        != nullptr) delete grd;
+  if (model_init != nullptr) delete model_init;
+  if (panel      != nullptr) delete panel;
+  if (blocs      != nullptr) delete blocs;
+  if (anam       != nullptr) delete anam;
+  if (varioparam != nullptr) delete varioparam;
+  if (vario      != nullptr) delete vario;
+  if (model      != nullptr) delete model;
+  if (neigh      != nullptr) delete neigh;
 
   return (0);
 }
