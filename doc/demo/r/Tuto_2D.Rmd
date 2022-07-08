@@ -499,7 +499,8 @@ if (verbose)
 ```
 
 ```{r}
-plot.varmod(myvarioInd)
+if (graphics)
+    plot.varmod(myvarioInd)
 ```
 
 Then we build a categorical variable which gives the index of the class to which each sample belongs
