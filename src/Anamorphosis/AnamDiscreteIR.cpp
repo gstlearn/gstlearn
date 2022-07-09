@@ -19,11 +19,6 @@
 #include <math.h>
 
 #define RESIDUALS(icut,iech) (residuals[iech * ncut + icut])
-#define QT_EST    0
-#define QT_STD    1
-#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
-#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
-                                   QT_VARS(QT_STD,j) > 0)
 
 AnamDiscreteIR::AnamDiscreteIR(double rcoef)
     : AnamDiscrete(),
@@ -463,40 +458,31 @@ SelectivityGlobal AnamDiscreteIR::calculateSelectivity(bool flag_correct)
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
+ ** \param[in]  selectivity  Selecltivity structure
  ** \param[in]  cols_est     Array of columns for factor estimation
  ** \param[in]  cols_std     Array of columns for factor st. dev.
  ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
+ ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
+ ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
  **
  *****************************************************************************/
 int AnamDiscreteIR::factor2QT(Db *db,
-                              const VectorDouble& cutmine,
-                              double z_max,
-                              int flag_correct,
+                              const Selectivity* selectivity,
                               const VectorInt& cols_est,
                               const VectorInt& cols_std,
                               int iptr,
-                              const VectorInt& codes,
-                              VectorInt& qt_vars)
+                              double z_max,
+                              int flag_correct)
 {
   int nech = db->getSampleNumber();
   int nb_est = (int) cols_est.size();
   int nb_std = (int) cols_std.size();
   int ncleff = MAX(nb_est, nb_std);
-  int ncutmine = (int) cutmine.size();
+  int ncuts = selectivity->getNCuts();
 
   if (db == nullptr)
   {
     messerr("You must define a Db");
-    return 1;
-  }
-  if (nb_est <= 0 && nb_std <= 0)
-  {
-    messerr("The number of factors is zero");
     return 1;
   }
   int nvar = MAX(nb_est, nb_std);
@@ -507,14 +493,14 @@ int AnamDiscreteIR::factor2QT(Db *db,
             nvar, nmax);
     return 1;
   }
-  if (ncutmine <= 0) ncutmine = nmax;
+  if (ncuts <= 0) ncuts = nmax;
 
   /* Core allocation */
 
   SelectivityGlobal calest(nmax);
   SelectivityGlobal calcut;
-  if (ncutmine > 0)
-    calcut = SelectivityGlobal(ncutmine);
+  if (ncuts > 0)
+    calcut = SelectivityGlobal(ncuts);
 
   /* Calculate the Recovery Functions from the factors */
 
@@ -538,7 +524,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
     /* Tonnage: Standard Deviation */
 
-    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+    if (selectivity->isUsedStD(ESelectivity::T))
     {
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
@@ -551,7 +537,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
     /* Metal Quantity: Estimation */
 
-    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Q))
     {
       calest.setQest(ncleff-1, getIRStatZ(ncleff) * calest.getTest(ncleff-1));
       for (int ivar = ncleff - 2; ivar >= 0; ivar--)
@@ -564,7 +550,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
     /* Metal Quantity: Standard Deviation */
 
-    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Q))
     {
       for (int ivar = 0; ivar < ncleff; ivar++)
       {
@@ -589,7 +575,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
     /* Z: Estimation */
 
     double zestim = 0.;
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Z))
     {
       zestim = getIRStatZ(ncleff) * calest.getTest(ncleff-1);
       for (int ivar = 0; ivar < ncleff - 1; ivar++)
@@ -600,7 +586,7 @@ int AnamDiscreteIR::factor2QT(Db *db,
     /* Z: Standard Deviation */
 
     double zstdev = 0.;
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Z))
     {
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
@@ -614,16 +600,16 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
     /* Store the results */
 
-    if (ncutmine > 0)
+    if (ncuts > 0)
     {
-      _interpolateQTLocal(z_max, cutmine, calest, calcut);
+      _interpolateQTLocal(z_max, selectivity->getZcut(), calest, calcut);
       calcut.calculateBenefitAndGrade();
-      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calcut);
+      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calcut);
     }
     else
     {
       calest.calculateBenefitAndGrade();
-      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
+      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calest);
     }
   }
   return (0);

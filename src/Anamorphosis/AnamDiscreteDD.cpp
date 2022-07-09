@@ -29,12 +29,6 @@
 #define CQ(i,j)         (cq[(i)*nclass+(j)])
 #define CB(i,j)         (cb[(i)*nclass+(j)])
 
-#define QT_EST    0
-#define QT_STD    1
-#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
-#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
-                                   QT_VARS(QT_STD,j) > 0)
-
 AnamDiscreteDD::AnamDiscreteDD(double mu, double scoef)
     : AnamDiscrete(),
       _mu(mu),
@@ -809,42 +803,33 @@ SelectivityGlobal AnamDiscreteDD::calculateSelectivity(bool flag_correct)
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
+ ** \param[in]  zcuts        Array of the requested cutoffs
  ** \param[in]  cols_est     Array of columns for factor estimation
  ** \param[in]  cols_std     Array of columns for factor st. dev.
  ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
+ ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
+ ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
  **
  *****************************************************************************/
 int AnamDiscreteDD::factor2QT(Db *db,
-                              const VectorDouble& cutmine,
-                              double z_max,
-                              int flag_correct,
+                              const Selectivity* selectivity,
                               const VectorInt& cols_est,
                               const VectorInt& cols_std,
                               int iptr,
-                              const VectorInt& codes,
-                              VectorInt& qt_vars)
+                              double z_max,
+                              int flag_correct)
 {
   int nclass   = getNClass();
   int nech     = db->getSampleNumber();
   int nb_est   = (int) cols_est.size();
   int nb_std   = (int) cols_std.size();
-  int ncutmine = (int) cutmine.size();
+  int ncuts    = selectivity->getNCuts();
 
   /* Preliminary checks */
 
   if (db == nullptr)
   {
     messerr("You must define a Db");
-    return 1;
-  }
-  if (nb_est <= 0 && nb_std <= 0)
-  {
-    messerr("The number of factors is zero");
     return 1;
   }
   int nvar = MAX(nb_est, nb_std);
@@ -858,14 +843,14 @@ int AnamDiscreteDD::factor2QT(Db *db,
             nvar, nmax);
     return 1;
   }
-  if (ncutmine <= 0) ncutmine = nmax;
+  if (ncuts <= 0) ncuts = nmax;
 
   /* Core allocation */
 
   SelectivityGlobal calest(nmax);
   SelectivityGlobal calcut;
-  if (ncutmine > 0)
-    calcut = SelectivityGlobal(ncutmine);
+  if (ncuts > 0)
+    calcut = SelectivityGlobal(ncuts);
 
   /* Modeling the diffusion process */
 
@@ -902,7 +887,7 @@ int AnamDiscreteDD::factor2QT(Db *db,
 
     /* Tonnage: Standard Deviation */
 
-    if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+    if (selectivity->isUsedStD(ESelectivity::T))
     {
       for (int iclass = 0; iclass < nclass; iclass++)
       {
@@ -920,7 +905,7 @@ int AnamDiscreteDD::factor2QT(Db *db,
 
     /* Metal Quantity: Estimation */
 
-    if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Q))
     {
       calest.setQest(nclass-1, getDDStatZmoy(nclass - 1)
                      * calest.getTest(nclass - 1));
@@ -932,7 +917,7 @@ int AnamDiscreteDD::factor2QT(Db *db,
 
     /* Metal Quantity: Standard Deviation */
 
-    if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Q))
     {
       for (int iclass = 0; iclass < nclass; iclass++)
       {
@@ -951,7 +936,7 @@ int AnamDiscreteDD::factor2QT(Db *db,
     /* Z: Estimation */
 
     double zestim = 0.;
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Z))
     {
       zestim = getDDStatZmoy(nclass - 1) * calest.getTest(nclass-1);
       for (int iclass = 0; iclass < nclass - 1; iclass++)
@@ -962,7 +947,7 @@ int AnamDiscreteDD::factor2QT(Db *db,
     /* Z: Standard Deviation */
 
     double zstdev = 0.;
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Z))
     {
       double total = 0;
       for (int ivar = 0; ivar < nclass - 1; ivar++)
@@ -977,18 +962,16 @@ int AnamDiscreteDD::factor2QT(Db *db,
 
     /* Store the results */
 
-    if (ncutmine > 0)
+    if (ncuts > 0)
     {
-      _interpolateQTLocal(z_max, cutmine, calest, calcut);
+      _interpolateQTLocal(z_max, selectivity->getZcut(), calest, calcut);
       calcut.calculateBenefitAndGrade();
-      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
-                        calcut);
+      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calcut);
     }
     else
     {
       calest.calculateBenefitAndGrade();
-      recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev,
-                        calest);
+      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calest);
     }
   }
   return 0;

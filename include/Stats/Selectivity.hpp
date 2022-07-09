@@ -26,24 +26,26 @@ public:
   virtual ~Selectivity();
 
   static Selectivity* create(int ncut);
+  static Selectivity* create(const VectorDouble& zcut);
   static Selectivity* createByCodes(const std::vector<ESelectivity>& codes,
+                                    const VectorDouble& zcuts,
                                     bool flag_est,
                                     bool flag_std,
                                     bool flag_inter,
-                                    int ncut,
                                     double proba = TEST,
                                     bool verbose = false);
   static Selectivity* createByKeys(const VectorString& scodes,
+                                   const VectorDouble& zcuts,
                                    bool flag_est,
                                    bool flag_std,
                                    bool flag_inter,
-                                   int ncut,
                                    double proba = TEST,
                                    bool verbose = false);
 
   void   setZcut(int icut, double zcut);
   int    getNCuts() const { return _nCut; }
   double getZcut(int icut) const;
+  const VectorDouble& getZcut() const { return _Zcut; }
   int    getNQT() const { return ESelectivity::getSize(); }
   int    getVariableNumber() const;
 
@@ -53,6 +55,18 @@ public:
                         bool flag_inter,
                         double proba = TEST,
                         bool verbose = false);
+
+  bool isUsed(const ESelectivity& code) const;
+  bool isUsedEst(const ESelectivity& code) const;
+  bool isUsedStD(const ESelectivity& code) const;
+  bool isNeededT() const;
+  bool isNeededQ() const;
+  int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
+  int  getAddressQTStD(const ESelectivity& code, int iptr0, int rank=0) const;
+  int  getNumberQTEst(const ESelectivity& code) const { return _numberQTEst[code.getValue()]; }
+  int  getNumberQTStd(const ESelectivity& code) const { return _numberQTStd[code.getValue()]; }
+  const VectorInt getNumberQTEst() const { return _numberQTEst; }
+  const VectorInt getNumberQTStd() const { return _numberQTStd; }
 
 protected:
   bool _isValid(int icut) const;

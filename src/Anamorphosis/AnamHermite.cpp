@@ -29,12 +29,6 @@
 #define ANAM_YMAX  10.
 #define YPAS       0.1
 
-#define QT_EST    0
-#define QT_STD    1
-#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
-#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
-                                   QT_VARS(QT_STD,j) > 0)
-
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(),
       _flagBound(flagBound),
@@ -726,28 +720,23 @@ SelectivityGlobal AnamHermite::calculateSelectivity(const VectorDouble& zcut)
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  cutmine      Array of the requested cutoffs
+ ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  cols_est     Array of columns for factor estimation
  ** \param[in]  cols_std     Array of columns for factor st. dev.
  ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
  **
  *****************************************************************************/
 int AnamHermite::factor2QT(Db *db,
-                           const VectorDouble& cutmine,
+                           const Selectivity* selectivity,
                            const VectorInt& cols_est,
                            const VectorInt& cols_std,
-                           int iptr,
-                           const VectorInt& codes,
-                           VectorInt& qt_vars)
+                           int iptr)
 {
   setFlagBound(1);
   int nbpoly = getNbPoly();
-  bool need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) ||
-      QT_FLAG(ANAM_QT_M) || QT_FLAG(ANAM_QT_PROBA);
-  bool need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
-  int ncutmine = (int) cutmine.size();
+  bool need_T = selectivity->isNeededT();
+  bool need_Q = selectivity->isNeededQ();
+  int ncut = selectivity->getNCuts();
   int nb_est = (int) cols_est.size();
   int nb_std = (int) cols_std.size();
   int nvar = MAX(nb_est, nb_std);
@@ -757,11 +746,6 @@ int AnamHermite::factor2QT(Db *db,
   if (db == nullptr)
   {
     messerr("You must define a Db");
-    return 1;
-  }
-  if (nb_est <= 0 && nb_std <= 0)
-  {
-    messerr("The number of factors is zero");
     return 1;
   }
 
@@ -788,7 +772,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Z: Estimation */
 
     double zestim = 0.;
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Z))
     {
       double total = getPsiHn(0);
       for (int ivar = 0; ivar < nb_est; ivar++)
@@ -803,7 +787,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Z: Standard Deviation */
 
     double zstdev = 0.;
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Z))
     {
       double total = 0.;
       for (int ivar = 0; ivar < nb_std; ivar++)
@@ -817,16 +801,16 @@ int AnamHermite::factor2QT(Db *db,
 
     /* Loop on the cutoffs */
 
-    for (int icut = 0; icut < ncutmine; icut++)
+    for (int icut = 0; icut < ncut; icut++)
     {
-      double yc = RawToTransformValue(cutmine[icut]);
+      double yc = RawToTransformValue(selectivity->getZcut(icut));
       if (need_T)
       {
         VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);
 
         /* Tonnage estimation */
 
-        if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
+        if (selectivity->isUsedEst(ESelectivity::T))
         {
           double total = s_cc[0];
           for (int ivar = 0; ivar < nb_est; ivar++)
@@ -839,7 +823,7 @@ int AnamHermite::factor2QT(Db *db,
 
         /* Tonnage: Standard Deviation */
 
-        if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+        if (selectivity->isUsedStD(ESelectivity::T))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
@@ -857,7 +841,7 @@ int AnamHermite::factor2QT(Db *db,
 
         /* Metal Quantity: Estimation */
 
-        if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+        if (selectivity->isUsedEst(ESelectivity::Q))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_est; ivar++)
@@ -876,7 +860,7 @@ int AnamHermite::factor2QT(Db *db,
 
         /* Metal Quantity: Standard Deviation */
 
-        if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+        if (selectivity->isUsedStD(ESelectivity::Q))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
@@ -898,7 +882,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Storage */
 
     calest.calculateBenefitAndGrade();
-    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
+    recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calest);
   }
   return (0);
 }

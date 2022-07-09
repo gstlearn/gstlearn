@@ -24,13 +24,14 @@ public:
   SelectivityGlobal& operator= (const SelectivityGlobal &m);
   virtual ~SelectivityGlobal();
 
-  static SelectivityGlobal* createFromDb(const VectorDouble& zcuts, const Db* db);
+  static SelectivityGlobal* createFromDb(const VectorDouble& zcuts,
+                                         const Db* db);
   static SelectivityGlobal* createFromTab(const VectorDouble& zcuts,
-                                    const VectorDouble& tab,
-                                    const VectorDouble& weights = VectorDouble());
+                                          const VectorDouble& tab,
+                                          const VectorDouble& weights = VectorDouble());
   static SelectivityGlobal* createInterpolation(const VectorDouble& zcuts,
-                                          const SelectivityGlobal& calest,
-                                          bool verbose);
+                                                const SelectivityGlobal& calest,
+                                                bool verbose);
 
   void setBest(int iclass, double best);
   void setMest(int iclass, double mest);

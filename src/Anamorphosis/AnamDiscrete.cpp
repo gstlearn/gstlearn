@@ -311,14 +311,14 @@ void AnamDiscrete::setStats(const VectorDouble& stats)
  **  Interpolate the QT curves (Local estimation)
  **
  ** \param[in]  z_max    Maximum grade value (if defined)
- ** \param[in]  zcutmine Array of the requested cutoffs
+ ** \param[in]  zcuts    Array of the requested cutoffs
  ** \param[in]  calest   Selectivity
  **
  ** \param[out] calcut   Interpolated Selectivity
  **
  *****************************************************************************/
 void AnamDiscrete::_interpolateQTLocal(double z_max,
-                                       const VectorDouble& zcutmine,
+                                       const VectorDouble& zcuts,
                                        SelectivityGlobal& calest,
                                        SelectivityGlobal& calcut) const
 {
@@ -350,7 +350,7 @@ void AnamDiscrete::_interpolateQTLocal(double z_max,
 
   for (int icut = 0; icut < ncutmine; icut++)
   {
-    double zval = zcutmine[icut];
+    double zval = zcuts[icut];
     calcut.setZcut(icut, zval);
 
     /* Find interval [zz[iclass]; zz[iclass+1]] to which cutoffs belongs */

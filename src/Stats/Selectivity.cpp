@@ -56,24 +56,30 @@ Selectivity* Selectivity::create(int ncut)
   return selectivity;
 }
 
+Selectivity* Selectivity::create(const VectorDouble& zcut)
+{
+  Selectivity* selectivity = new Selectivity(zcut);
+  return selectivity;
+}
+
 Selectivity* Selectivity::createByCodes(const std::vector<ESelectivity>& codes,
+                                        const VectorDouble& zcuts,
                                         bool flag_est,
                                         bool flag_std,
                                         bool flag_inter,
-                                        int ncut,
                                         double proba,
                                         bool verbose)
 {
-  Selectivity* selectivity = new Selectivity(ncut);
+  Selectivity* selectivity = new Selectivity(zcuts);
   selectivity->defineRecoveries(codes, flag_est, flag_std, flag_inter, proba, verbose);
   return selectivity;
 }
 
 Selectivity* Selectivity::createByKeys(const VectorString& scodes,
+                                       const VectorDouble& zcuts,
                                        bool flag_est,
                                        bool flag_std,
                                        bool flag_inter,
-                                       int ncut,
                                        double proba,
                                        bool verbose)
 {
@@ -86,7 +92,7 @@ Selectivity* Selectivity::createByKeys(const VectorString& scodes,
     codes.push_back(code);
   }
 
-  Selectivity* selectivity = new Selectivity(ncut);
+  Selectivity* selectivity = new Selectivity(zcuts);
   selectivity->defineRecoveries(codes, flag_est, flag_std, flag_inter, proba, verbose);
   return selectivity;
 }
@@ -295,3 +301,60 @@ int Selectivity::getVariableNumber() const
   return ntotal;
 }
 
+bool Selectivity::isUsed(const ESelectivity& code) const
+{
+  if (code == ESelectivity::UNKNOWN) return false;
+  int key = code.getValue();
+  if (_numberQTEst[key] > 0) return true;
+  if (_numberQTStd[key] > 0) return true;
+  return false;
+}
+
+bool Selectivity::isUsedEst(const ESelectivity& code) const
+{
+  if (code == ESelectivity::UNKNOWN) return false;
+  int key = code.getValue();
+  if (_numberQTEst[key] > 0) return true;
+  return false;
+}
+
+bool Selectivity::isUsedStD(const ESelectivity& code) const
+{
+  if (code == ESelectivity::UNKNOWN) return false;
+  int key = code.getValue();
+  if (_numberQTStd[key] > 0) return true;
+  return false;
+}
+
+bool Selectivity::isNeededT() const
+{
+  if (isUsed(ESelectivity::T)) return true;
+  if (isUsed(ESelectivity::B)) return true;
+  if (isUsed(ESelectivity::M)) return true;
+  if (isUsed(ESelectivity::PROBA)) return true;
+  return false;
+}
+
+bool Selectivity::isNeededQ() const
+{
+  if (isUsed(ESelectivity::Q)) return true;
+  if (isUsed(ESelectivity::B)) return true;
+  if (isUsed(ESelectivity::M)) return true;
+  return false;
+}
+
+int Selectivity::getAddressQTEst(const ESelectivity& code, int iptr0, int rank) const
+{
+  if (code == ESelectivity::UNKNOWN) return -1;
+  int key = code.getValue();
+  if (rank < 0 || rank >= _numberQTEst[key]) return -1;
+  return (iptr0 + _rankQTEst[key] + rank);
+}
+
+int Selectivity::getAddressQTStD(const ESelectivity& code, int iptr0, int rank) const
+{
+  if (code == ESelectivity::UNKNOWN) return -1;
+  int key = code.getValue();
+  if (rank < 0 || rank >= _numberQTEst[key]) return -1;
+  return (iptr0 + _rankQTStd[key] + rank);
+}

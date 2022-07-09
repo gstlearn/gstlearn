@@ -82,15 +82,13 @@ public:
 
   SelectivityGlobal calculateSelectivity(bool flag_correct);
 
-  int factor2QT(Db *db,
-                const VectorDouble& cutmine,
-                double z_max,
-                int flag_correct,
-                const VectorInt& cols_est,
-                const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+    int factor2QT(Db *db,
+                  const Selectivity* selectivity,
+                  const VectorInt& cols_est,
+                  const VectorInt& cols_std,
+                  int iptr,
+                  double z_max,
+                  int flag_correct);
 
 protected:
   /// Interface for ASerializable

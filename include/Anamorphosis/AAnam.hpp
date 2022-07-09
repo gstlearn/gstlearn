@@ -22,6 +22,7 @@
 
 class Db;
 class SelectivityGlobal;
+class Selectivity;
 
 class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
 {
@@ -46,24 +47,18 @@ public:
 
   double invertVariance(double cvv);
   void recoveryLocal(Db *db,
-                      int iech0,
-                      int iptr,
-                      const VectorInt& codes,
-                      const VectorInt& qt_vars,
-                      double zestim,
-                      double zstdev,
-                      const SelectivityGlobal& calest);
-  int codeAnalyze(bool verbose,
-                  const VectorInt& codes,
-                  int nb_est,
-                  int nb_std,
-                  int ncut,
-                  double proba,
-                  int flag_inter,
-                  VectorInt& qt_vars) const;
+                     const Selectivity* selectivity,
+                     int iech0,
+                     int iptr,
+                     double zestim,
+                     double zstdev,
+                     const SelectivityGlobal& calest);
   int DbZToFactor(Db *db,
                   const VectorInt& ifacs,
                   const NamingConvention& namconv = NamingConvention("Factor"));
+
+  VectorDouble RawToTransformVec(const VectorDouble& z) const;
+  VectorDouble TransformToRawVec(const VectorDouble& z) const;
 
 protected:
   bool _isSampleSkipped(Db *db,

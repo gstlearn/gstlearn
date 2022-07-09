@@ -84,12 +84,10 @@ public:
   SelectivityGlobal calculateSelectivity(const VectorDouble& zcut);
 
   int factor2QT(Db *db,
-                const VectorDouble& cutmine,
+                const Selectivity* selectivity,
                 const VectorInt& cols_est,
                 const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+                int iptr);
 
 protected:
   /// Interface for ASerializable
