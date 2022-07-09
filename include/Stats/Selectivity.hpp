@@ -23,10 +23,13 @@ public:
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
 
-  static Selectivity* createFromDb(const VectorDouble& cuts, const Db* db);
-  static Selectivity* createFromTab(const VectorDouble& cuts,
+  static Selectivity* createFromDb(const VectorDouble& zcuts, const Db* db);
+  static Selectivity* createFromTab(const VectorDouble& zcuts,
                                     const VectorDouble& tab,
                                     const VectorDouble& weights = VectorDouble());
+  static Selectivity* createInterpolation(const VectorDouble& zcuts,
+                                          const Selectivity& calest,
+                                          bool verbose);
 
   void setBest(int iclass, double best);
   void setMest(int iclass, double mest);
@@ -36,7 +39,7 @@ public:
   void setTstd(int iclass, double tstd);
   void setZcut(int iclass, double zcut);
 
-  int    getNClass() const { return _nClass; }
+  int    getNCuts() const { return _nCuts; }
   double getBest(int iclass) const;
   double getMest(int iclass) const;
   double getQest(int iclass) const;
@@ -45,16 +48,25 @@ public:
   double getTstd(int iclass) const;
   double getZcut(int iclass) const;
 
-  VectorDouble& getTest() { return _Test; }
-  void calculateBenefitGrade();
+  void calculateBenefitAndGrade();
   void dumpGini();
   void correctTonnageOrder();
 
 private:
   bool _isValid(int iclass) const;
+  void _interpolateInterval(double zval,
+                            double zi0,
+                            double zi1,
+                            double ti0,
+                            double ti1,
+                            double qi0,
+                            double qi1,
+                            double *tval,
+                            double *qval,
+                            double tol = EPSILON3);
 
 private:
-  int _nClass;
+  int _nCuts;
   VectorDouble _Zcut;
   VectorDouble _Test;
   VectorDouble _Qest;

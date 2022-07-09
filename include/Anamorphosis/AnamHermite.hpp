@@ -38,7 +38,7 @@ public:
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
-  double getBlockVariance(double sval, double power = 1) const override;
+  double computeVariance(double sval) const override;
   int updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
@@ -75,7 +75,6 @@ public:
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
 
-  double calculateVarianceFromPsi(double chh) const;
   int    fit(const VectorDouble& tab,
              const VectorDouble& wt = VectorDouble());
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);

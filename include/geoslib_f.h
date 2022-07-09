@@ -254,14 +254,9 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /******************************/
 
 GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
-                                             int nclass,
                                              VectorDouble zcut,
                                              int flag_correct = 0,
                                              int verbose = 0);
-GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
-                                             double *zcut,
-                                             Selectivity& calest,
-                                             Selectivity& calcut);
 GSTLEARN_EXPORT int anamFactor2QT(Db *db,
                                   AAnam *anam,
                                   const VectorDouble& cutmine,

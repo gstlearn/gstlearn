@@ -282,7 +282,12 @@ double AnamHermite::TransformToRawValue(double y) const
   return(z);
 }
 
-double AnamHermite::calculateVarianceFromPsi(double chh) const
+/**
+ * Compute the Gaussian covariance from Raw covariance: Sum_n psi_n^2 C^n
+ * @param chh
+ * @return
+ */
+double AnamHermite::computeVariance(double chh) const
 {
   int nbpoly = getNbPoly();
   double rho = 1.;
@@ -298,7 +303,7 @@ double AnamHermite::calculateVarianceFromPsi(double chh) const
 void AnamHermite::calculateMeanAndVariance()
 {
   _mean = _psiHn[0];
-  _variance = calculateVarianceFromPsi(1.);
+  _variance = computeVariance(1.);
 }
 
 int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
@@ -656,18 +661,6 @@ VectorDouble AnamHermite::z2factor(double z, const VectorInt& ifacs) const
   return hermitePolynomials(z, 1., ifacs);
 }
 
-double AnamHermite::getBlockVariance(double sval, double power) const
-{
-  if (! allowChangeSupport()) return TEST;
-  double variance;
-  if (power == 1)
-    variance = calculateVarianceFromPsi(sval);
-  else
-    variance = calculateVarianceFromPsi(sval * sval);
-
-  return (variance);
-}
-
 int AnamHermite::updatePointToBlock(double r_coef)
 {
   if (! allowChangeSupport()) return 1;
@@ -720,7 +713,7 @@ Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
 
   /* Store the results */
 
-  calest.calculateBenefitGrade();
+  calest.calculateBenefitAndGrade();
 
   return calest;
 }
@@ -904,7 +897,7 @@ int AnamHermite::factor2QT(Db *db,
 
     /* Storage */
 
-    calest.calculateBenefitGrade();
+    calest.calculateBenefitAndGrade();
     recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
   }
   return (0);

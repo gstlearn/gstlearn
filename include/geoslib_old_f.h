@@ -889,9 +889,6 @@ GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
                                         double cvv,
                                         double coeff,
                                         double mu);
-GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
-                                     double krigstd,
-                                     const VectorDouble &phis);
 
 /*************************************/
 /* Prototyping the functions in db.c */

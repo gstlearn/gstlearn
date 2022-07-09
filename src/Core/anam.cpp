@@ -41,120 +41,6 @@
                                    QT_VARS(QT_STD,j) > 0)
 /*! \endcond */
 
-/*****************************************************************************/
-/*!
- **  Interpolate the QT within an interval
- **
- ** \param[in]  zval     Cutoff value
- ** \param[in]  zi0      Lower cutoff of the interval
- ** \param[in]  zi1      Upper cutoff of the interval
- ** \param[in]  ti0      Lower tonnage of the interval
- ** \param[in]  ti1      Upper tonnage of the interval
- ** \param[in]  qi0      Lower metal quantity of the interval
- ** \param[in]  qi1      Upper metal quantity of the interval
- **
- ** \param[out] tval     Tonnage for the current cutoff
- ** \param[out] qval     Metal quantity for the current cutoff
- **
- *****************************************************************************/
-static void st_interpolate_interval(double zval,
-                                    double zi0,
-                                    double zi1,
-                                    double ti0,
-                                    double ti1,
-                                    double qi0,
-                                    double qi1,
-                                    double *tval,
-                                    double *qval)
-{
-  double dzi, dti, u, aa0, zmoy;
-  static double tol = 1.e-3;
-
-  dzi = zi1 - zi0;
-  dti = ti1 - ti0;
-  zmoy = (qi1 - qi0) / (ti1 - ti0);
-  aa0 = (zi1 - zmoy) / (zmoy - zi0);
-
-  if (ABS(zval - zi0) < tol)
-  {
-    (*tval) = ti0;
-    (*qval) = qi0;
-    return;
-  }
-
-  if (ABS(zval - zi1) < tol)
-  {
-    (*tval) = ti1;
-    (*qval) = qi1;
-    return;
-  }
-
-  u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
-  (*qval) = (u <= 0.) ? qi0 :
-      qi0 + zi0 * ((*tval) - ti0)
-      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
-}
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT curves (Global estimation)
- **
- ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  calest   Selectivity
- **
- ** \param[out] calcut   Interpolated Selectivity
- **
- *****************************************************************************/
-static void st_interpolate_qt_global(double *zcutmine,
-                                     Selectivity& calest,
-                                     Selectivity& calcut)
-{
-  double tval, qval;
-
-  int nclass = calest.getNClass();
-  int ncutmine = calcut.getNClass();
-
-  for (int icut = 0; icut < ncutmine; icut++)
-  {
-    double zval = zcutmine[icut];
-    calcut.setZcut(icut, zval);
-
-    /* Find interval [zmoy[iclass]; zmoy[iclass+1]] to which cutoffs belongs */
-
-    int iclass = -1;
-    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
-    {
-      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass+1));
-      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass+1));
-      if (zval >= valmin && zval <= valmax) iclass = jclass;
-    }
-
-    if (iclass >= 0 && iclass < nclass)
-    {
-
-      /* Assuming that cutoffs belongs to the interval the class 'iclass' */
-
-      double zi0 = calest.getZcut(iclass);
-      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
-      double ti0 = calest.getTest(iclass);
-      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
-      double qi0 = calest.getQest(iclass);
-      double qi1 = calest.getQest(iclass + 1);
-      st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                              &tval, &qval);
-      calcut.setTest(icut, tval);
-      calcut.setQest(icut, qval);
-    }
-    else
-    {
-      calcut.setTest(icut, 0.);
-      calcut.setQest(icut, 0.);
-    }
-  }
-  return;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the theoretical grade tonnage value
@@ -162,7 +48,6 @@ static void st_interpolate_qt_global(double *zcutmine,
  ** \return  Array f results (Dimension: 7 * nclass)
  **
  ** \param[in] anam         AAnam structure to be updated
- ** \param[in] nclass       Number of classes
  ** \param[in] zcut         Array of cutoffs
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  ** \param[in] verbose      Verbose flag
@@ -172,12 +57,11 @@ static void st_interpolate_qt_global(double *zcutmine,
  **
  *****************************************************************************/
 Selectivity anam_selectivity(AAnam *anam,
-                             int nclass,
                              VectorDouble zcut,
                              int flag_correct,
                              int verbose)
 {
-  Selectivity calest(nclass);
+  Selectivity calest;
 
   /* Dispatch according to the anamorphosis */
 
@@ -189,25 +73,11 @@ Selectivity anam_selectivity(AAnam *anam,
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    if (nclass != anam_discrete_DD->getNClass())
-    {
-      messerr(
-          "Argument 'nclass' (%d) should be equal to the number of classes (%d)",
-          nclass, anam_discrete_DD->getNClass());
-      return calest;
-    }
     calest = anam_discrete_DD->calculateSelectivity(flag_correct);
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
     AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    if (nclass != anam_discrete_IR->getNClass())
-    {
-      messerr(
-          "Argument 'nclass' (%d) should be equal to the number of classes (%d)",
-          nclass, anam_discrete_IR->getNClass());
-      return calest;
-    }
     calest = anam_discrete_IR->calculateSelectivity(flag_correct);
   }
   else
@@ -265,7 +135,7 @@ int anam_point_to_block(AAnam *anam,
 
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -282,7 +152,7 @@ int anam_point_to_block(AAnam *anam,
       anam_discrete_DD->setMu(mu);
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -302,7 +172,7 @@ int anam_point_to_block(AAnam *anam,
     case EAnam::E_DISCRETE_IR:
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -424,27 +294,6 @@ int anamFactor2QT(Db *db,
   }
 
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Interpolate the Grade-Tonnage curves
- **
- ** \param[in] verbose  Verbose flag
- ** \param[in] zcutmine Array of cutoffs
- ** \param[in] calest   Selectivity
- **
- ** \param[out] calcut  Selectivity
- **
- *****************************************************************************/
-void selectivity_interpolate(int verbose,
-                             double *zcutmine,
-                             Selectivity& calest,
-                             Selectivity& calcut)
-{
-  st_interpolate_qt_global(zcutmine, calest, calcut);
-  calcut.calculateBenefitGrade();
-  if (verbose) calcut.dumpGini();
 }
 
 /*****************************************************************************/
@@ -625,7 +474,7 @@ int uc(Db *db,
       calest.setQest(icut, metal);
     }
 
-    calest.calculateBenefitGrade();
+    calest.calculateBenefitAndGrade();
     anam_hermite->recoveryLocal(db, iech, iptr, codes, qt_vars, TEST, TEST,
                       calest);
   }
@@ -830,58 +679,6 @@ static int st_ce_compute_Z(Db *db,
   }
 
   return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Conditional value and variance in the Gaussian Model
- **
- ** \return Error return code
- **
- ** \param[in]  krigest      Estimation value
- ** \param[in]  krigstd      Standard deviation of Estimation value
- ** \param[in]  phis         Array of the Polynomial expansion
- **
- *****************************************************************************/
-double ce_compute_Z2(double krigest, double krigstd, const VectorDouble &phis)
-{
-  VectorDouble dd;
-
-  /* Core allocation */
-
-  int nbpoly = static_cast<int>(phis.size());
-  dd.resize(nbpoly * nbpoly);
-
-  /* Loading the Conditional Expectation arrays */
-
-  message("calculating DD with nbpoly = %d\n", nbpoly);
-  for (int ih = 0; ih < nbpoly; ih++)
-    for (int jh = 0; jh < nbpoly; jh++)
-    {
-      DD(ih,jh) = (ih + jh >= nbpoly) ? 0 :
-                                (pow(-1., ih) * phis[ih + jh]
-                                 * sqrt(ut_cnp(ih + jh, jh)));
-    }
-
-  /* Loop on the samples */
-
-  double krigvar = krigstd * krigstd;
-  double krigrho = sqrt(1. - krigvar);
-  VectorDouble hh = hermitePolynomials(krigest / krigrho, 1., nbpoly);
-
-  /* Calculating conditional variance */
-
-  double valstd = 0.;
-  for (int ih = 1; ih < nbpoly; ih++)
-  {
-    double factor = 0.;
-    for (int jh = 0; jh < nbpoly; jh++)
-      factor += hh[jh] * pow(krigrho, (double) jh) * DD(ih, jh);
-    valstd += pow(krigvar, (double) ih) * factor * factor;
-  }
-  valstd = sqrt(valstd);
-
-  return valstd;
 }
 
 /*****************************************************************************/

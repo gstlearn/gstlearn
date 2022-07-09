@@ -5701,7 +5701,7 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
 
   /* Calculate the theoretical variance of Z */
 
-  varz = anam_hermite->calculateVarianceFromPsi(1.);
+  varz = anam_hermite->computeVariance(1.);
 
   /* Loop on the directions of the variogram */
 
@@ -5724,7 +5724,7 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
         return (error);
       }
 
-      cov_value = anam_hermite->calculateVarianceFromPsi(chh);
+      cov_value = anam_hermite->computeVariance(chh);
       vario->setGg(idir, 0, 0, ipas, varz - cov_value);
       vario->setHh(idir, 0, 0, ipas, (ipas + 1) * vario->getDPas(idir));
       vario->setSw(idir, 0, 0, ipas, 1.);

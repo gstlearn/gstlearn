@@ -324,8 +324,8 @@ void AnamDiscrete::_interpolateQTLocal(double z_max,
 {
   double tval, qval;
 
-  int nclass = calest.getNClass();
-  int ncutmine = calcut.getNClass();
+  int nclass = calest.getNCuts();
+  int ncutmine = calcut.getNCuts();
   VectorDouble zz(nclass + 2);
   VectorDouble TT(nclass + 2);
   VectorDouble QQ(nclass + 2);

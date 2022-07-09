@@ -253,6 +253,7 @@
 #include "Stats/PCAStringFormat.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Stats/EStatOption.hpp"
+#include "Stats/ESelectivity.hpp"
 
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"

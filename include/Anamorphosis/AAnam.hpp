@@ -37,14 +37,14 @@ public:
   virtual int          getNFactor() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double z, const VectorInt& nfact) const;
-  virtual double       getBlockVariance(double sval, double power = 1) const;
+  virtual double       computeVariance(double sval) const;
   virtual int          updatePointToBlock(double r_coef);
   virtual bool         allowChangeSupport() const { return false; }
   virtual bool         hasGaussian() const { return false; }
   virtual double       RawToTransformValue(double z) const;
   virtual double       TransformToRawValue(double y) const;
 
-  double calculateR(double cvv, double power);
+  double invertVariance(double cvv);
   void recoveryLocal(Db *db,
                       int iech0,
                       int iptr,

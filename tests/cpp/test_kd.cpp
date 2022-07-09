@@ -156,7 +156,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   model->setAnamIClass(0); // Z variable
   double cvv = model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles());
-  double r1 = anam->calculateR(cvv, 2.);
+  double r1 = sqrt(anam->invertVariance(cvv));
   message("Change of Support coefficient (DGM-1)= %lf\n", r1);
 
   // Update the Model with Block anamorphosis

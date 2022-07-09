@@ -39,7 +39,7 @@ public:
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return 0; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
-  double getBlockVariance(double sval, double power = 1) const override;
+  double computeVariance(double sval) const override;
   int  updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }

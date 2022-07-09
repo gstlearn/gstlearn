@@ -16,6 +16,8 @@
 #include "Basic/AException.hpp"
 #include "Stats/Selectivity.hpp"
 
+#include "math.h"
+
 #define QT_EST    0
 #define QT_STD    1
 #define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
@@ -61,10 +63,9 @@ VectorDouble AAnam::z2factor(double /*z*/, const VectorInt& /*nfact*/) const
  ** \return  Value for the change of support coefficient
  **
  ** \param[in]  cvv      Mean covariance value over a block
- ** \param[in]  power    Power of the change of support coefficient
  **
  *****************************************************************************/
-double AAnam::calculateR(double cvv, double power)
+double AAnam::invertVariance(double cvv)
 {
   if (! allowChangeSupport()) return TEST;
   double s0, s1, s2, var0, var1;
@@ -72,7 +73,7 @@ double AAnam::calculateR(double cvv, double power)
   static int niter_max = 1000;
 
   s1 = 0.;
-  var1 = getBlockVariance(s1, power);
+  var1 = computeVariance(s1);
 
   /* Dichotomy */
 
@@ -82,7 +83,7 @@ double AAnam::calculateR(double cvv, double power)
   {
     niter++;
     s0 = (s1 + s2) / 2.;
-    var0 = getBlockVariance(s0, power);
+    var0 = computeVariance(s0);
     converge = (ABS(var0 - cvv) < EPSILON8 || niter > niter_max);
     if ((var1 - cvv) * (var0 - cvv) < 0.)
     {
@@ -104,7 +105,7 @@ double AAnam::calculateR(double cvv, double power)
  ** \return Value of the block variance (as a function of support coefficient)
  **
  *****************************************************************************/
-double AAnam::getBlockVariance(double /*sval*/, double /*power*/) const
+double AAnam::computeVariance(double /*sval*/) const
 {
   messerr("This function is not programmed yet");
   return TEST;
@@ -199,7 +200,7 @@ void AAnam::recoveryLocal(Db *db,
                           const Selectivity& calest)
 {
   int jptr = iptr;
-  int nclass = calest.getNClass();
+  int nclass = calest.getNCuts();
   int ncode = (int) codes.size();
 
   /* Store the recovered grade */
@@ -275,23 +276,18 @@ void AAnam::recoveryLocal(Db *db,
  **
  *****************************************************************************/
 int AAnam::codeAnalyze(bool verbose,
-                        const VectorInt& codes,
-                        int nb_est,
-                        int nb_std,
-                        int ncut,
-                        double proba,
-                        int flag_inter,
-                        VectorInt& qt_vars) const
+                       const VectorInt& codes,
+                       int nb_est,
+                       int nb_std,
+                       int ncut,
+                       double proba,
+                       int flag_inter,
+                       VectorInt& qt_vars) const
 {
-  int ntotal, flag_est, flag_std;
-
-  /* Initializations */
-
   int ncode = (int) codes.size();
-  flag_est = nb_est > 0;
-  flag_std = nb_std > 0 && !flag_inter;
+  bool flag_est = nb_est > 0;
+  bool flag_std = nb_std > 0 && !flag_inter;
   for (int i = 0; i < 2 * ANAM_N_QT; i++) qt_vars[i] = 0;
-//  ut_sort_int(0, ncode, NULL, codes.data()); TODO: Is this really necessary ?
 
   // Optional printout (title)
 
@@ -384,7 +380,7 @@ int AAnam::codeAnalyze(bool verbose,
 
   /* Count the total number of variables */
 
-  ntotal = 0;
+  int ntotal = 0;
   for (int i = 0; i < 2; i++)
     for (int j = 0; j < ANAM_N_QT; j++)
       ntotal += QT_VARS(i, j);

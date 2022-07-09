@@ -506,7 +506,7 @@ int Vario::transformZToY(const AAnam *anam, double cvv)
     for (int i = 0; i < getLagNumber(idir); i++)
     {
       // TODO. GG must be a variogram of Zv -> Cv(h)
-      setGgByIndex(idir,i,1. - anamH->calculateR(cvv-getGgByIndex(idir, i), 1.));
+      setGgByIndex(idir,i,1. - anamH->invertVariance(cvv-getGgByIndex(idir, i)));
     }
   }
   return 0;
@@ -561,7 +561,7 @@ int Vario::transformYToZ(const AAnam *anam, const Model *model)
 
   /* Calculate the theoretical variance of Z */
 
-  double varz = anam_hermite->calculateVarianceFromPsi(1.);
+  double varz = anam_hermite->computeVariance(1.);
 
   /* Loop on the directions of the variogram */
 
@@ -588,7 +588,7 @@ int Vario::transformYToZ(const AAnam *anam, const Model *model)
         return 1;
       }
 
-      double cov = anam_hermite->calculateVarianceFromPsi(chh);
+      double cov = anam_hermite->computeVariance(chh);
       setGg(idir, 0, 0, ipas, varz - cov);
       setHh(idir, 0, 0, ipas, (ipas + 1) * getDPas(idir));
       setSw(idir, 0, 0, ipas, 1.);

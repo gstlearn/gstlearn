@@ -354,7 +354,7 @@ bool AnamDiscreteIR::_deserialize(std::istream& is, bool verbose)
   return ret;
 }
 
-double AnamDiscreteIR::getBlockVariance(double sval, double /*power*/) const
+double AnamDiscreteIR::computeVariance(double sval) const
 {
   if (! allowChangeSupport()) return TEST;
   int nclass = getNClass();
@@ -450,7 +450,7 @@ Selectivity AnamDiscreteIR::calculateSelectivity(bool flag_correct)
 
   /* Store the results */
 
-  calest.calculateBenefitGrade();
+  calest.calculateBenefitAndGrade();
 
   return calest;
 }
@@ -617,12 +617,12 @@ int AnamDiscreteIR::factor2QT(Db *db,
     if (ncutmine > 0)
     {
       _interpolateQTLocal(z_max, cutmine, calest, calcut);
-      calcut.calculateBenefitGrade();
+      calcut.calculateBenefitAndGrade();
       recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calcut);
     }
     else
     {
-      calest.calculateBenefitGrade();
+      calest.calculateBenefitAndGrade();
       recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
     }
   }

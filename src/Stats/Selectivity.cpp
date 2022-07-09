@@ -16,14 +16,14 @@
 #include <math.h>
 
 Selectivity::Selectivity(int nclass)
-  : _nClass(nclass)
-  , _Zcut(nclass)
-  , _Test(nclass)
-  , _Qest(nclass)
-  , _Best(nclass)
-  , _Mest(nclass)
-  , _Tstd(nclass)
-  , _Qstd(nclass)
+    : _nCuts(nclass),
+      _Zcut(nclass),
+      _Test(nclass),
+      _Qest(nclass),
+      _Best(nclass),
+      _Mest(nclass),
+      _Tstd(nclass),
+      _Qstd(nclass)
 {
   ut_vector_fill(_Zcut, TEST);
   ut_vector_fill(_Test, TEST);
@@ -35,14 +35,14 @@ Selectivity::Selectivity(int nclass)
 }
 
 Selectivity::Selectivity(const Selectivity &m)
-  : _nClass(m._nClass)
-  , _Zcut(m._Zcut)
-  , _Test(m._Test)
-  , _Qest(m._Qest)
-  , _Best(m._Best)
-  , _Mest(m._Mest)
-  , _Tstd(m._Tstd)
-  , _Qstd(m._Qstd)
+    : _nCuts(m._nCuts),
+      _Zcut(m._Zcut),
+      _Test(m._Test),
+      _Qest(m._Qest),
+      _Best(m._Best),
+      _Mest(m._Mest),
+      _Tstd(m._Tstd),
+      _Qstd(m._Qstd)
 {
 
 }
@@ -51,7 +51,7 @@ Selectivity& Selectivity::operator=(const Selectivity &m)
 {
   if (this != &m)
   {
-    _nClass = m._nClass;;
+    _nCuts = m._nCuts;;
     _Zcut = m._Zcut;
     _Test = m._Test;
     _Qest = m._Qest;
@@ -147,20 +147,20 @@ double Selectivity::getZcut(int iclass) const
 
 bool Selectivity::_isValid(int iclass) const
 {
-  if (iclass < 0 || iclass >= _nClass)
+  if (iclass < 0 || iclass >= _nCuts)
   {
-    mesArg("Selectivity Class", iclass, _nClass);
+    mesArg("Selectivity Class", iclass, _nCuts);
     return false;
   }
   return true;
 }
 
-Selectivity* Selectivity::createFromDb(const VectorDouble& cuts, const Db* db)
+Selectivity* Selectivity::createFromDb(const VectorDouble& zcuts, const Db* db)
 {
   Selectivity* calcul = nullptr;
-  if (cuts.empty())
+  if (zcuts.empty())
   {
-    messerr("You must define 'cuts'");
+    messerr("You must define 'zcuts'");
     return calcul;
   }
   if (db == nullptr)
@@ -179,17 +179,17 @@ Selectivity* Selectivity::createFromDb(const VectorDouble& cuts, const Db* db)
   VectorDouble tab = db->getColumnByLocator(ELoc::Z, 0, true);
   VectorDouble wtab;
   if (db->hasWeight())
-    tab = db->getColumnByLocator(ELoc::W, 0, true);
+    wtab = db->getColumnByLocator(ELoc::W, 0, true);
 
-  return createFromTab(cuts, tab, wtab);
+  return createFromTab(zcuts, tab, wtab);
 }
 
-Selectivity* Selectivity::createFromTab(const VectorDouble& cuts,
+Selectivity* Selectivity::createFromTab(const VectorDouble& zcuts,
                                         const VectorDouble& tab,
                                         const VectorDouble& weights)
 {
   Selectivity* calcul = nullptr;
-  if (cuts.empty())
+  if (zcuts.empty())
   {
     messerr("You must define 'cuts'");
     return calcul;
@@ -216,7 +216,7 @@ Selectivity* Selectivity::createFromTab(const VectorDouble& cuts,
 
   // Allocate the returned structrue
 
-  int nclass = (int) cuts.size();
+  int nclass = (int) zcuts.size();
   calcul = new Selectivity(nclass);
 
   // Perform calculations
@@ -224,7 +224,7 @@ Selectivity* Selectivity::createFromTab(const VectorDouble& cuts,
   double tonref = ut_vector_cumul(wtab);
   for (int iclass = 0; iclass < nclass; iclass++)
   {
-    double coupure = cuts[iclass];
+    double coupure = zcuts[iclass];
 
     double tonnage = 0.;
     double metal = 0.;
@@ -265,11 +265,11 @@ Selectivity* Selectivity::createFromTab(const VectorDouble& cuts,
  **  the conventional benefit and the average recovered grade
  **
  *****************************************************************************/
-void Selectivity::calculateBenefitGrade()
+void Selectivity::calculateBenefitAndGrade()
 {
   int iclass;
   double zval, tval, qval;
-  int nclass = getNClass();
+  int nclass = getNCuts();
 
   for (iclass = 0; iclass < nclass; iclass++)
   {
@@ -288,7 +288,7 @@ void Selectivity::calculateBenefitGrade()
  *****************************************************************************/
 void Selectivity::dumpGini()
 {
-  int nclass = getNClass();
+  int nclass = getNCuts();
 
   double gini = 1.;
   for (int iclass = 0; iclass < nclass - 1; iclass++)
@@ -307,7 +307,7 @@ void Selectivity::dumpGini()
  *****************************************************************************/
 void Selectivity::correctTonnageOrder()
 {
-  int nclass = getNClass();
+  int nclass = getNCuts();
   VectorDouble ta(nclass);
   VectorDouble tb(nclass);
 
@@ -328,3 +328,119 @@ void Selectivity::correctTonnageOrder()
   for (int iclass = 0; iclass < nclass; iclass++)
     setTest(iclass, 0.5 * (ta[iclass] + tb[iclass]));
 }
+
+/****************************************************************************/
+/*!
+ **  Interpolate the Grade-Tonnage curves
+ **
+ ** \param[in] zcuts    Array of cutoffs
+ ** \param[in] calest   Input Selectivity
+ ** \param[in] verbose  Verbose flag
+ **
+ *****************************************************************************/
+Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
+                                              const Selectivity& calest,
+                                              bool verbose)
+{
+  double tval, qval;
+
+  int nclass = calest.getNCuts();
+  int ncuts = (int) zcuts.size();
+
+  Selectivity* calcut = new Selectivity(ncuts);
+  for (int icut = 0; icut < ncuts; icut++)
+  {
+    double zval = zcuts[icut];
+    calcut->setZcut(icut, zval);
+
+    /* Find interval to which cutoffs belongs */
+
+    int iclass = -1;
+    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
+    {
+      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass + 1));
+      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass + 1));
+      if (zval >= valmin && zval <= valmax) iclass = jclass;
+    }
+
+    if (iclass >= 0 && iclass < nclass)
+    {
+
+      /* Assuming that cutoffs belongs to the interval the class 'iclass' */
+
+      double zi0 = calest.getZcut(iclass);
+      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
+      double ti0 = calest.getTest(iclass);
+      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
+      double qi0 = calest.getQest(iclass);
+      double qi1 = calest.getQest(iclass + 1);
+      calcut->_interpolateInterval(zval, zi0, zi1, ti0, ti1, qi0, qi1, &tval, &qval);
+      calcut->setTest(icut, tval);
+      calcut->setQest(icut, qval);
+    }
+    else
+    {
+      calcut->setTest(icut, 0.);
+      calcut->setQest(icut, 0.);
+    }
+  }
+
+  calcut->calculateBenefitAndGrade();
+  if (verbose) calcut->dumpGini();
+
+  return calcut;
+}
+
+/*****************************************************************************/
+/*!
+ **  Interpolate the QT within an interval
+ **
+ ** \param[in]  zval     Cutoff value
+ ** \param[in]  zi0      Lower cutoff of the interval
+ ** \param[in]  zi1      Upper cutoff of the interval
+ ** \param[in]  ti0      Lower tonnage of the interval
+ ** \param[in]  ti1      Upper tonnage of the interval
+ ** \param[in]  qi0      Lower metal quantity of the interval
+ ** \param[in]  qi1      Upper metal quantity of the interval
+ **
+ ** \param[out] tval     Tonnage for the current cutoff
+ ** \param[out] qval     Metal quantity for the current cutoff
+ **
+ *****************************************************************************/
+void Selectivity::_interpolateInterval(double zval,
+                                       double zi0,
+                                       double zi1,
+                                       double ti0,
+                                       double ti1,
+                                       double qi0,
+                                       double qi1,
+                                       double *tval,
+                                       double *qval,
+                                       double tol)
+{
+  double dzi = zi1 - zi0;
+  double dti = ti1 - ti0;
+  double zmoy = (qi1 - qi0) / (ti1 - ti0);
+  double aa0 = (zi1 - zmoy) / (zmoy - zi0);
+
+  if (ABS(zval - zi0) < tol)
+  {
+    (*tval) = ti0;
+    (*qval) = qi0;
+    return;
+  }
+
+  if (ABS(zval - zi1) < tol)
+  {
+    (*tval) = ti1;
+    (*qval) = qi1;
+    return;
+  }
+
+  double u = (zval - zi0) / dzi;
+  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
+  (*qval) = (u <= 0.) ? qi0 :
+      qi0 + zi0 * ((*tval) - ti0)
+      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
+}
+

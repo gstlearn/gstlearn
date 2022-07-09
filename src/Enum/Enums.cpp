@@ -33,6 +33,7 @@
 #include "Boolean/ETLaw.hpp"
 #include "Boolean/ETShape.hpp"
 #include "Stats/EStatOption.hpp"
+#include "Stats/ESelectivity.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -59,5 +60,5 @@ ENUM_DEFINE(ENUM_CONVDIR)
 ENUM_DEFINE(ENUM_TLAW)
 ENUM_DEFINE(ENUM_TSHAPE)
 ENUM_DEFINE(ENUM_STATOPTION)
-
+ENUM_DEFINE(ENUM_SELECTIVITY)
 
