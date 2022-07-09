@@ -12,11 +12,11 @@
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 
 #include <math.h>
+#include <Stats/SelectivityGlobal.hpp>
 
 #define EIGVEC(i,j)      eigvec[(i)*nclass+(j)]
 #define CHI(i,j)         chi[(i)*nclass+(j)]
@@ -767,10 +767,10 @@ void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
  ** \remark cutoffs.
  **
  *****************************************************************************/
-Selectivity AnamDiscreteDD::calculateSelectivity(bool flag_correct)
+SelectivityGlobal AnamDiscreteDD::calculateSelectivity(bool flag_correct)
 {
   int nclass = getNClass();
-  Selectivity calest(nclass);
+  SelectivityGlobal calest(nclass);
 
   /* Calculate the Grade-Tonnage curves */
 
@@ -862,10 +862,10 @@ int AnamDiscreteDD::factor2QT(Db *db,
 
   /* Core allocation */
 
-  Selectivity calest(nmax);
-  Selectivity calcut;
+  SelectivityGlobal calest(nmax);
+  SelectivityGlobal calcut;
   if (ncutmine > 0)
-    calcut = Selectivity(ncutmine);
+    calcut = SelectivityGlobal(ncutmine);
 
   /* Modeling the diffusion process */
 

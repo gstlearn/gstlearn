@@ -21,7 +21,7 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class Selectivity;
+class SelectivityGlobal;
 
 class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
 {
@@ -52,7 +52,7 @@ public:
                       const VectorInt& qt_vars,
                       double zestim,
                       double zstdev,
-                      const Selectivity& calest);
+                      const SelectivityGlobal& calest);
   int codeAnalyze(bool verbose,
                   const VectorInt& codes,
                   int nb_est,

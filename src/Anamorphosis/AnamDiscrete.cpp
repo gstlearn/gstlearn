@@ -9,12 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Anamorphosis/AnamDiscrete.hpp"
-#include "Stats/Selectivity.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "geoslib_f.h"
 
 #include <math.h>
+#include <Stats/SelectivityGlobal.hpp>
 
 #define ANAM_KD_NELEM 6
 
@@ -319,8 +319,8 @@ void AnamDiscrete::setStats(const VectorDouble& stats)
  *****************************************************************************/
 void AnamDiscrete::_interpolateQTLocal(double z_max,
                                        const VectorDouble& zcutmine,
-                                       Selectivity& calest,
-                                       Selectivity& calcut) const
+                                       SelectivityGlobal& calest,
+                                       SelectivityGlobal& calcut) const
 {
   double tval, qval;
 

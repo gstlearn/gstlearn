@@ -280,6 +280,7 @@ class IClonable{};
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
+%include Stats/SelectivityGlobal.hpp
 %include Stats/EStatOption.hpp
 %include Stats/ESelectivity.hpp
 

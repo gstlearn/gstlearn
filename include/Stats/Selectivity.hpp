@@ -12,66 +12,61 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
+#include "Stats/ESelectivity.hpp"
 
 class Db;
 
 class GSTLEARN_EXPORT Selectivity
 {
 public:
-  Selectivity(int nclass = 0);
+  Selectivity(int ncut);
+  Selectivity(const VectorDouble& zcuts);
   Selectivity(const Selectivity &m);
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
 
-  static Selectivity* createFromDb(const VectorDouble& zcuts, const Db* db);
-  static Selectivity* createFromTab(const VectorDouble& zcuts,
-                                    const VectorDouble& tab,
-                                    const VectorDouble& weights = VectorDouble());
-  static Selectivity* createInterpolation(const VectorDouble& zcuts,
-                                          const Selectivity& calest,
-                                          bool verbose);
+  static Selectivity* create(int ncut);
+  static Selectivity* createByCodes(const std::vector<ESelectivity>& codes,
+                                    bool flag_est,
+                                    bool flag_std,
+                                    bool flag_inter,
+                                    int ncut,
+                                    double proba = TEST,
+                                    bool verbose = false);
+  static Selectivity* createByKeys(const VectorString& scodes,
+                                   bool flag_est,
+                                   bool flag_std,
+                                   bool flag_inter,
+                                   int ncut,
+                                   double proba = TEST,
+                                   bool verbose = false);
 
-  void setBest(int iclass, double best);
-  void setMest(int iclass, double mest);
-  void setQest(int iclass, double qest);
-  void setQstd(int iclass, double qstd);
-  void setTest(int iclass, double test);
-  void setTstd(int iclass, double tstd);
-  void setZcut(int iclass, double zcut);
+  void   setZcut(int icut, double zcut);
+  int    getNCuts() const { return _nCut; }
+  double getZcut(int icut) const;
+  int    getNQT() const { return ESelectivity::getSize(); }
+  int    getVariableNumber() const;
 
-  int    getNCuts() const { return _nCuts; }
-  double getBest(int iclass) const;
-  double getMest(int iclass) const;
-  double getQest(int iclass) const;
-  double getQstd(int iclass) const;
-  double getTest(int iclass) const;
-  double getTstd(int iclass) const;
-  double getZcut(int iclass) const;
+  void defineRecoveries(const std::vector<ESelectivity>& codes,
+                        bool flag_est,
+                        bool flag_std,
+                        bool flag_inter,
+                        double proba = TEST,
+                        bool verbose = false);
 
-  void calculateBenefitAndGrade();
-  void dumpGini();
-  void correctTonnageOrder();
-
-private:
-  bool _isValid(int iclass) const;
-  void _interpolateInterval(double zval,
-                            double zi0,
-                            double zi1,
-                            double ti0,
-                            double ti1,
-                            double qi0,
-                            double qi1,
-                            double *tval,
-                            double *qval,
-                            double tol = EPSILON3);
+protected:
+  bool _isValid(int icut) const;
 
 private:
-  int _nCuts;
+  void _printQTvars(const char *title, int type, int number) const;
+  void _defineVariableRanks();
+
+private:
+  int _nCut;
   VectorDouble _Zcut;
-  VectorDouble _Test;
-  VectorDouble _Qest;
-  VectorDouble _Best;
-  VectorDouble _Mest;
-  VectorDouble _Tstd;
-  VectorDouble _Qstd;
+  VectorInt _numberQTEst;
+  VectorInt _numberQTStd;
+  VectorInt _rankQTEst;
+  VectorInt _rankQTStd;
+
 };

@@ -430,10 +430,10 @@ int AnamDiscreteIR::updatePointToBlock(double r_coef)
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  **
  *****************************************************************************/
-Selectivity AnamDiscreteIR::calculateSelectivity(bool flag_correct)
+SelectivityGlobal AnamDiscreteIR::calculateSelectivity(bool flag_correct)
 {
   int nclass = getNClass();
-  Selectivity calest(nclass);
+  SelectivityGlobal calest(nclass);
 
   /* Calculate the Grade-Tonnage curves */
 
@@ -511,10 +511,10 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
   /* Core allocation */
 
-  Selectivity calest(nmax);
-  Selectivity calcut;
+  SelectivityGlobal calest(nmax);
+  SelectivityGlobal calcut;
   if (ncutmine > 0)
-    calcut = Selectivity(ncutmine);
+    calcut = SelectivityGlobal(ncutmine);
 
   /* Calculate the Recovery Functions from the factors */
 

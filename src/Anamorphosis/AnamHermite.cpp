@@ -687,12 +687,12 @@ int AnamHermite::updatePointToBlock(double r_coef)
  **  Calculate the theoretical grade tonnage value (Gaussian case)
  **
  *****************************************************************************/
-Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
+SelectivityGlobal AnamHermite::calculateSelectivity(const VectorDouble& zcut)
 {
   int nbpoly = getNbPoly();
   setFlagBound(0);
   int ncut = (int) zcut.size();
-  Selectivity calest(ncut);
+  SelectivityGlobal calest(ncut);
 
   /* Loop on the cutoff values */
 
@@ -777,7 +777,7 @@ int AnamHermite::factor2QT(Db *db,
 
   /* Core allocation */
 
-  Selectivity calest(nmax);
+  SelectivityGlobal calest(nmax);
 
   /* Loop on the samples */
 

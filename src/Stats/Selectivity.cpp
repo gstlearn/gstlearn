@@ -8,41 +8,30 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Stats/Selectivity.hpp"
-#include "Db/Db.hpp"
-#include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/AStringable.hpp"
+#include "Basic/Utilities.hpp"
 
-#include <math.h>
+#include "Stats/Selectivity.hpp"
+#include "Stats/ESelectivity.hpp"
 
-Selectivity::Selectivity(int nclass)
-    : _nCuts(nclass),
-      _Zcut(nclass),
-      _Test(nclass),
-      _Qest(nclass),
-      _Best(nclass),
-      _Mest(nclass),
-      _Tstd(nclass),
-      _Qstd(nclass)
+Selectivity::Selectivity(int ncut)
+    : _nCut(ncut),
+      _Zcut(ncut)
 {
   ut_vector_fill(_Zcut, TEST);
-  ut_vector_fill(_Test, TEST);
-  ut_vector_fill(_Qest, TEST);
-  ut_vector_fill(_Best, TEST);
-  ut_vector_fill(_Mest, TEST);
-  ut_vector_fill(_Tstd, TEST);
-  ut_vector_fill(_Qstd, TEST);
+}
+
+Selectivity::Selectivity(const VectorDouble& zcuts)
+    : _nCut(0),
+      _Zcut(zcuts)
+{
+  _nCut = (int) _Zcut.size();
 }
 
 Selectivity::Selectivity(const Selectivity &m)
-    : _nCuts(m._nCuts),
-      _Zcut(m._Zcut),
-      _Test(m._Test),
-      _Qest(m._Qest),
-      _Best(m._Best),
-      _Mest(m._Mest),
-      _Tstd(m._Tstd),
-      _Qstd(m._Qstd)
+    : _nCut(m._nCut),
+      _Zcut(m._Zcut)
 {
 
 }
@@ -51,396 +40,258 @@ Selectivity& Selectivity::operator=(const Selectivity &m)
 {
   if (this != &m)
   {
-    _nCuts = m._nCuts;;
+    _nCut = m._nCut;
     _Zcut = m._Zcut;
-    _Test = m._Test;
-    _Qest = m._Qest;
-    _Best = m._Best;
-    _Mest = m._Mest;
-    _Tstd = m._Tstd;
-    _Qstd = m._Qstd;
   }
   return *this;
 }
 
 Selectivity::~Selectivity()
 {
-
-}
-void Selectivity::setBest(int iclass, double best)
-{
-  if (! _isValid(iclass)) return;
-  _Best[iclass] = best;
 }
 
-void Selectivity::setMest(int iclass, double mest)
+Selectivity* Selectivity::create(int ncut)
 {
-  if (! _isValid(iclass)) return;
-  _Mest[iclass] = mest;
+  Selectivity* selectivity = new Selectivity(ncut);
+  return selectivity;
 }
 
-void Selectivity::setQest(int iclass, double qest)
+Selectivity* Selectivity::createByCodes(const std::vector<ESelectivity>& codes,
+                                        bool flag_est,
+                                        bool flag_std,
+                                        bool flag_inter,
+                                        int ncut,
+                                        double proba,
+                                        bool verbose)
 {
-  if (! _isValid(iclass)) return;
-  _Qest[iclass] = qest;
+  Selectivity* selectivity = new Selectivity(ncut);
+  selectivity->defineRecoveries(codes, flag_est, flag_std, flag_inter, proba, verbose);
+  return selectivity;
 }
 
-void Selectivity::setQstd(int iclass, double qstd)
+Selectivity* Selectivity::createByKeys(const VectorString& scodes,
+                                       bool flag_est,
+                                       bool flag_std,
+                                       bool flag_inter,
+                                       int ncut,
+                                       double proba,
+                                       bool verbose)
 {
-  if (! _isValid(iclass)) return;
-  _Qstd[iclass] = qstd;
-}
+  std::vector<ESelectivity> codes;
 
-void Selectivity::setTest(int iclass, double test)
-{
-  if (! _isValid(iclass)) return;
-  _Test[iclass] = test;
-}
-
-void Selectivity::setTstd(int iclass, double tstd)
-{
-  if (! _isValid(iclass)) return;
-  _Tstd[iclass] = tstd;
-}
-
-void Selectivity::setZcut(int iclass, double zcut)
-{
-  if (! _isValid(iclass)) return;
-  _Zcut[iclass] = zcut;
-}
-
-double Selectivity::getBest(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Best[iclass];
-}
-double Selectivity::getMest(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Mest[iclass];
-}
-double Selectivity::getQest(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Qest[iclass];
-}
-double Selectivity::getQstd(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Qstd[iclass];
-}
-double Selectivity::getTest(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Test[iclass];
-}
-double Selectivity::getTstd(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Tstd[iclass];
-}
-double Selectivity::getZcut(int iclass) const
-{
-  if (! _isValid(iclass)) return(TEST);
-  return _Zcut[iclass];
-}
-
-bool Selectivity::_isValid(int iclass) const
-{
-  if (iclass < 0 || iclass >= _nCuts)
+  for (int i = 0; i < (int) scodes.size(); i++)
   {
-    mesArg("Selectivity Class", iclass, _nCuts);
+    ESelectivity code = ESelectivity::fromKey(scodes[i]);
+    if (code == ESelectivity::UNKNOWN) continue;
+    codes.push_back(code);
+  }
+
+  Selectivity* selectivity = new Selectivity(ncut);
+  selectivity->defineRecoveries(codes, flag_est, flag_std, flag_inter, proba, verbose);
+  return selectivity;
+}
+
+void Selectivity::setZcut(int icut, double zcut)
+{
+  if (! _isValid(icut)) return;
+  _Zcut[icut] = zcut;
+}
+
+double Selectivity::getZcut(int icut) const
+{
+  if (! _isValid(icut)) return(TEST);
+  return _Zcut[icut];
+}
+
+bool Selectivity::_isValid(int icut) const
+{
+  if (icut < 0 || icut >= getNCuts())
+  {
+    mesArg("Selectivity Class", icut, getNCuts());
     return false;
   }
   return true;
 }
 
-Selectivity* Selectivity::createFromDb(const VectorDouble& zcuts, const Db* db)
+/*****************************************************************************/
+/*!
+ **  Analyze the contents of the codes
+ **
+ ** \param[in]  codes        Array of selectivity codes
+ ** \param[in]  flag_est     True for estimation
+ ** \param[in]  flag_std     True for st. dev.
+ ** \param[in]  flag_inter   QT must be interpolated
+ ** \param[in]  proba        Probability value (or TEST)
+ ** \param[in]  verbose      Verbose flag
+ **
+ *****************************************************************************/
+void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
+                                   bool flag_est,
+                                   bool flag_std,
+                                   bool flag_inter,
+                                   double proba,
+                                   bool verbose)
 {
-  Selectivity* calcul = nullptr;
-  if (zcuts.empty())
+  int ncode = (int) codes.size();
+  if (flag_inter) flag_std = false;
+  _numberQTEst.resize(getNQT(), 0);
+  _numberQTStd.resize(getNQT(), 0);
+
+  // Optional printout (title)
+
+  if (verbose) mestitle(1, "List of options");
+
+  /* Check for the presence of other codes */
+
+  for (int icode = 0; icode < ncode; icode++)
   {
-    messerr("You must define 'zcuts'");
-    return calcul;
-  }
-  if (db == nullptr)
-  {
-    messerr("You must provide a valid 'Db'");
-    return calcul;
-  }
-  if (db->getVariableNumber() != 1)
-  {
-    messerr("The 'Db' must contain a single variable");
-    return calcul;
+    const ESelectivity& code = codes[icode];
+
+    int key = code.getValue();
+    switch (code.toEnum())
+    {
+      case ESelectivity::E_UNKNOWN:
+        break;
+
+      case ESelectivity::E_Z:
+        if (flag_est)
+        {
+          _numberQTEst[key] = 1;
+          if (verbose) _printQTvars("Average", 1, 1);
+        }
+        if (flag_std)
+        {
+          _numberQTStd[key] = 1;
+          if (verbose) _printQTvars("Average", 2, 1);
+        }
+        break;
+
+      case ESelectivity::E_T:
+        if (_nCut <= 0) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] =  _nCut;
+          if (verbose) _printQTvars("Tonnage", 1, _nCut);
+        }
+        if (flag_std)
+        {
+          _numberQTStd[key] = _nCut;
+          if (verbose) _printQTvars("Tonnage", 2, _nCut);
+        }
+        break;
+
+      case ESelectivity::E_Q:
+        if (_nCut <= 0) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] = _nCut;
+          if (verbose) _printQTvars("Metal Quantity", 1, _nCut);
+        }
+        if (flag_std)
+        {
+          _numberQTStd[key] = _nCut;
+          if (verbose) _printQTvars("Metal Quantity", 2, _nCut);
+        }
+        break;
+
+      case ESelectivity::E_B:
+        if (_nCut <= 0) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] = _nCut;
+          if (verbose) _printQTvars("Conventional Benefit", 1, _nCut);
+        }
+        break;
+
+      case ESelectivity::E_M:
+        if (_nCut <= 0) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] = _nCut;
+          if (verbose) _printQTvars("Average Metal", 1, _nCut);
+        }
+        break;
+
+      case ESelectivity::E_PROBA:
+        if (_nCut <= 0) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] = _nCut;
+          if (verbose) _printQTvars("Probability", 1, _nCut);
+        }
+        break;
+
+      case ESelectivity::E_QUANT:
+        if (FFFF(proba)) break;
+        if (flag_est)
+        {
+          _numberQTEst[key] = 1;
+          if (verbose) _printQTvars("Quantile", 1, 1);
+        }
+        break;
+    }
   }
 
-  // Extract the array of data and weights
+  /* Count the total number of variables */
 
-  VectorDouble tab = db->getColumnByLocator(ELoc::Z, 0, true);
-  VectorDouble wtab;
-  if (db->hasWeight())
-    wtab = db->getColumnByLocator(ELoc::W, 0, true);
-
-  return createFromTab(zcuts, tab, wtab);
-}
-
-Selectivity* Selectivity::createFromTab(const VectorDouble& zcuts,
-                                        const VectorDouble& tab,
-                                        const VectorDouble& weights)
-{
-  Selectivity* calcul = nullptr;
-  if (zcuts.empty())
+  int ntotal = getVariableNumber();
+  if (ntotal <= 0)
   {
-    messerr("You must define 'cuts'");
-    return calcul;
-  }
-  if (tab.empty())
-  {
-    messerr("You must provide a valid 'tab'");
-    return calcul;
-  }
-  int nech = (int) tab.size();
-  VectorDouble wtab = weights;
-  if (wtab.empty())
-  {
-    wtab.resize(nech,1);
+    messerr("The number of variables calculated is zero");
+    messerr("Check the recovery function (the number of cutoffs is %d)", _nCut);
   }
   else
-  {
-    if (nech != (int) wtab.size())
-    {
-      messerr("Arguments 'tab' and 'weights' should have same dimension");
-      return calcul;
-    }
-  }
-
-  // Allocate the returned structrue
-
-  int nclass = (int) zcuts.size();
-  calcul = new Selectivity(nclass);
-
-  // Perform calculations
-
-  double tonref = ut_vector_cumul(wtab);
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    double coupure = zcuts[iclass];
-
-    double tonnage = 0.;
-    double metal = 0.;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      double x = tab[iech];
-      double w = wtab[iech];
-      double indic = (x >= coupure);
-
-      tonnage += w * indic;
-      metal   += x * w * indic;
-    }
-
-    tonnage /= tonref;
-    metal   /= tonref;
-    double benefit = metal - tonnage * coupure;
-    double grade;
-    if (tonnage <= 0.)
-    {
-      grade = TEST;
-    }
-    else
-    {
-      grade = metal / tonnage;
-    }
-    calcul->setZcut(iclass, coupure);
-    calcul->setTest(iclass, tonnage);
-    calcul->setQest(iclass, metal);
-    calcul->setBest(iclass, benefit);
-    calcul->setMest(iclass, grade);
-  }
-  return calcul;
+    _defineVariableRanks();
 }
 
-/****************************************************************************/
-/*!
- **  From the cutoff, tonnage and metal quantity, derive
- **  the conventional benefit and the average recovered grade
- **
- *****************************************************************************/
-void Selectivity::calculateBenefitAndGrade()
+void Selectivity::_defineVariableRanks()
 {
-  int iclass;
-  double zval, tval, qval;
-  int nclass = getNCuts();
+  _rankQTEst.resize(getNQT(),-1);
+  _rankQTStd.resize(getNQT(),-1);
 
-  for (iclass = 0; iclass < nclass; iclass++)
+  int rank = 0;
+  for (int i = 0; i < getNQT(); i++)
   {
-    zval = getZcut(iclass);
-    tval = getTest(iclass);
-    qval = getQest(iclass);
-    setBest(iclass, qval - zval * tval);
-    setMest(iclass ,(ABS(tval) < EPSILON6) ? TEST : qval / tval);
+    if (_numberQTEst[i] > 0)
+    {
+      _rankQTEst[i] = rank;
+      rank += _numberQTEst[i];
+    }
+    if (_numberQTStd[i] > 0)
+    {
+      _rankQTStd[i] = rank;
+      rank += _numberQTStd[i];
+    }
   }
-}
-
-/****************************************************************************/
-/*!
- **  Calculate and print the Gini index
- **
- *****************************************************************************/
-void Selectivity::dumpGini()
-{
-  int nclass = getNCuts();
-
-  double gini = 1.;
-  for (int iclass = 0; iclass < nclass - 1; iclass++)
-    gini -= ((getTest(iclass)
-        - getTest(iclass + 1))
-             * (getQest(iclass) + getQest(iclass + 1)));
-
-  message("Gini calculated on %d classes\n", nclass);
-  message("Value of the Gini index = %lf\n", gini);
 }
 
 /*****************************************************************************/
 /*!
- **  Correct the order relationship for Tonnage
+ **  Print the contents of the qtvars structure
+ **
+ ** \param[in]  title        Title
+ ** \param[in]  type         1 for estimation; 2 for stdev
+ ** \param[in]  number       Number of cutoffs
  **
  *****************************************************************************/
-void Selectivity::correctTonnageOrder()
+void Selectivity::_printQTvars(const char *title, int type, int number) const
 {
-  int nclass = getNCuts();
-  VectorDouble ta(nclass);
-  VectorDouble tb(nclass);
-
-  for (int iclass = nclass - 1; iclass >= 0; iclass--)
-  {
-    double auxval = getTest(iclass);
-    if (iclass < nclass - 1) auxval = MAX(ta[iclass + 1], auxval);
-    ta[iclass] = MIN(1., MAX(0., auxval));
-  }
-
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    double auxval = getTest(iclass);
-    if (iclass > 0) auxval = MIN(tb[iclass - 1], auxval);
-    tb[iclass] = MAX(0., MIN(1., auxval));
-  }
-
-  for (int iclass = 0; iclass < nclass; iclass++)
-    setTest(iclass, 0.5 * (ta[iclass] + tb[iclass]));
+  message("- %s", title);
+  if (type == 1)
+    message(" (Estimation)");
+  else
+    message(" (St. Deviation)");
+  message(": %d\n", number);
 }
 
-/****************************************************************************/
-/*!
- **  Interpolate the Grade-Tonnage curves
- **
- ** \param[in] zcuts    Array of cutoffs
- ** \param[in] calest   Input Selectivity
- ** \param[in] verbose  Verbose flag
- **
- *****************************************************************************/
-Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
-                                              const Selectivity& calest,
-                                              bool verbose)
+int Selectivity::getVariableNumber() const
 {
-  double tval, qval;
-
-  int nclass = calest.getNCuts();
-  int ncuts = (int) zcuts.size();
-
-  Selectivity* calcut = new Selectivity(ncuts);
-  for (int icut = 0; icut < ncuts; icut++)
+  int ntotal = 0;
+  for (int i = 0; i < getNQT(); i++)
   {
-    double zval = zcuts[icut];
-    calcut->setZcut(icut, zval);
-
-    /* Find interval to which cutoffs belongs */
-
-    int iclass = -1;
-    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
-    {
-      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass + 1));
-      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass + 1));
-      if (zval >= valmin && zval <= valmax) iclass = jclass;
-    }
-
-    if (iclass >= 0 && iclass < nclass)
-    {
-
-      /* Assuming that cutoffs belongs to the interval the class 'iclass' */
-
-      double zi0 = calest.getZcut(iclass);
-      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
-      double ti0 = calest.getTest(iclass);
-      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
-      double qi0 = calest.getQest(iclass);
-      double qi1 = calest.getQest(iclass + 1);
-      calcut->_interpolateInterval(zval, zi0, zi1, ti0, ti1, qi0, qi1, &tval, &qval);
-      calcut->setTest(icut, tval);
-      calcut->setQest(icut, qval);
-    }
-    else
-    {
-      calcut->setTest(icut, 0.);
-      calcut->setQest(icut, 0.);
-    }
+    if (_numberQTEst[i]) ntotal += _numberQTEst[i];
+    if (_numberQTStd[i]) ntotal += _numberQTStd[i];
   }
-
-  calcut->calculateBenefitAndGrade();
-  if (verbose) calcut->dumpGini();
-
-  return calcut;
-}
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT within an interval
- **
- ** \param[in]  zval     Cutoff value
- ** \param[in]  zi0      Lower cutoff of the interval
- ** \param[in]  zi1      Upper cutoff of the interval
- ** \param[in]  ti0      Lower tonnage of the interval
- ** \param[in]  ti1      Upper tonnage of the interval
- ** \param[in]  qi0      Lower metal quantity of the interval
- ** \param[in]  qi1      Upper metal quantity of the interval
- **
- ** \param[out] tval     Tonnage for the current cutoff
- ** \param[out] qval     Metal quantity for the current cutoff
- **
- *****************************************************************************/
-void Selectivity::_interpolateInterval(double zval,
-                                       double zi0,
-                                       double zi1,
-                                       double ti0,
-                                       double ti1,
-                                       double qi0,
-                                       double qi1,
-                                       double *tval,
-                                       double *qval,
-                                       double tol)
-{
-  double dzi = zi1 - zi0;
-  double dti = ti1 - ti0;
-  double zmoy = (qi1 - qi0) / (ti1 - ti0);
-  double aa0 = (zi1 - zmoy) / (zmoy - zi0);
-
-  if (ABS(zval - zi0) < tol)
-  {
-    (*tval) = ti0;
-    (*qval) = qi0;
-    return;
-  }
-
-  if (ABS(zval - zi1) < tol)
-  {
-    (*tval) = ti1;
-    (*qval) = qi1;
-    return;
-  }
-
-  double u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
-  (*qval) = (u <= 0.) ? qi0 :
-      qi0 + zi0 * ((*tval) - ti0)
-      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
+  return ntotal;
 }
 

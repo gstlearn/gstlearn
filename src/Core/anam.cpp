@@ -18,12 +18,12 @@
 #include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
-#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
+#include <Stats/SelectivityGlobal.hpp>
 
 /*! \cond */
 #define EPS_TON    0.001
@@ -56,12 +56,12 @@
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-Selectivity anam_selectivity(AAnam *anam,
-                             VectorDouble zcut,
-                             int flag_correct,
-                             int verbose)
+SelectivityGlobal anam_selectivity(AAnam *anam,
+                                   VectorDouble zcut,
+                                   int flag_correct,
+                                   int verbose)
 {
-  Selectivity calest;
+  SelectivityGlobal calest;
 
   /* Dispatch according to the anamorphosis */
 
@@ -331,7 +331,7 @@ int uc(Db *db,
   double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
   VectorDouble psi_hn, hn;
   VectorVectorDouble phi_b_zc;
-  Selectivity calest;
+  SelectivityGlobal calest;
 
   /* Initializations */
 
@@ -400,7 +400,7 @@ int uc(Db *db,
 
   /* Core allocation */
 
-  calest = Selectivity(ncutmine);
+  calest = SelectivityGlobal(ncutmine);
 
   /* Transforming Point anamorphosis into Block Anamorphosis */
 

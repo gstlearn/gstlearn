@@ -15,10 +15,11 @@
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/EAnam.hpp"
+
+#include "../Stats/SelectivityGlobal.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Stats/PCA.hpp"
-#include "Stats/Selectivity.hpp"
 
 class GSTLEARN_EXPORT AnamDiscreteDD: public AnamDiscrete
 {
@@ -79,7 +80,7 @@ public:
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
-  Selectivity calculateSelectivity(bool flag_correct);
+  SelectivityGlobal calculateSelectivity(bool flag_correct);
 
   int factor2QT(Db *db,
                 const VectorDouble& cutmine,

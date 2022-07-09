@@ -11,12 +11,12 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
+#include "Stats/SelectivityGlobal.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
-#include "Stats/Selectivity.hpp"
 
-#include "math.h"
+#include <math.h>
 
 #define QT_EST    0
 #define QT_STD    1
@@ -197,7 +197,7 @@ void AAnam::recoveryLocal(Db *db,
                           const VectorInt& qt_vars,
                           double zestim,
                           double zstdev,
-                          const Selectivity& calest)
+                          const SelectivityGlobal& calest)
 {
   int jptr = iptr;
   int nclass = calest.getNCuts();

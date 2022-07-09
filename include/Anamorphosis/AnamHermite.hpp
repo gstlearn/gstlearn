@@ -14,8 +14,9 @@
 
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
+
+#include "../Stats/SelectivityGlobal.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Stats/Selectivity.hpp"
 
 class Db;
 
@@ -80,7 +81,7 @@ public:
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
-  Selectivity calculateSelectivity(const VectorDouble& zcut);
+  SelectivityGlobal calculateSelectivity(const VectorDouble& zcut);
 
   int factor2QT(Db *db,
                 const VectorDouble& cutmine,

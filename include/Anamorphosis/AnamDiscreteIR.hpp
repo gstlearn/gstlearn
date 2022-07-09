@@ -15,9 +15,10 @@
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/EAnam.hpp"
+
+#include "../Stats/SelectivityGlobal.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Stats/Selectivity.hpp"
 
 class Db;
 
@@ -60,7 +61,7 @@ public:
   double getRCoef() const { return _sCoef; }
   void   setRCoef(double rcoef) { _sCoef = rcoef; }
 
-  Selectivity calculateSelectivity(bool flag_correct);
+  SelectivityGlobal calculateSelectivity(bool flag_correct);
 
   int factor2QT(Db *db,
                 const VectorDouble& cutmine,

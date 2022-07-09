@@ -16,7 +16,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class Selectivity;
+class SelectivityGlobal;
 
 class GSTLEARN_EXPORT AnamDiscrete: public AAnam
 {
@@ -88,8 +88,8 @@ protected:
 
   void _interpolateQTLocal(double z_max,
                            const VectorDouble& zcutmine,
-                           Selectivity& calest,
-                           Selectivity& calcut) const;
+                           SelectivityGlobal& calest,
+                           SelectivityGlobal& calcut) const;
   void _interpolateInterval(double zval,
                             double zi0,
                             double zi1,

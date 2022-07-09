@@ -30,7 +30,7 @@
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
-#include "Stats/Selectivity.hpp"
+#include "Stats/SelectivityGlobal.hpp"
 #include "Variogram/DirParam.hpp"
 
 class Db;
@@ -253,7 +253,7 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
+GSTLEARN_EXPORT SelectivityGlobal anam_selectivity(AAnam *anam,
                                              VectorDouble zcut,
                                              int flag_correct = 0,
                                              int verbose = 0);
