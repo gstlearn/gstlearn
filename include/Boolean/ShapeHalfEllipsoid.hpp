@@ -31,7 +31,7 @@ public:
   ShapeHalfEllipsoid& operator=(const ShapeHalfEllipsoid &r);
   virtual ~ShapeHalfEllipsoid();
 
-  /// Interface for Iclonable
+  /// Interface for IClonable
   virtual IClonable* clone() const override { return new ShapeHalfEllipsoid(*this); };
 
   ETShape getType() const override { return ETShape::HALFELLIPSOID; }

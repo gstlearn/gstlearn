@@ -31,7 +31,7 @@ public:
   ShapeHalfParaboloid& operator=(const ShapeHalfParaboloid &r);
   virtual ~ShapeHalfParaboloid();
 
-  /// Interface for Iclonable
+  /// Interface for IClonable
   virtual IClonable* clone() const override { return new ShapeHalfParaboloid(*this); };
 
   ETShape getType() const override { return ETShape::HALFPARABOLOID; }

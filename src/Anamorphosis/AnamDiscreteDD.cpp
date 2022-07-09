@@ -57,6 +57,7 @@ AnamDiscreteDD& AnamDiscreteDD::operator=(const AnamDiscreteDD &m)
 {
   if (this != &m)
   {
+    AnamDiscrete::operator=(m);
     _mu = m._mu;
     _sCoef = m._sCoef;
     _maf = m._maf;

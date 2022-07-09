@@ -42,6 +42,7 @@ AnamDiscreteIR& AnamDiscreteIR::operator=(const AnamDiscreteIR &m)
 {
   if (this != &m)
   {
+    AnamDiscrete::operator=(m);
     _sCoef = m._sCoef;
   }
   return *this;

@@ -29,6 +29,9 @@ public:
   AnamDiscreteIR& operator= (const AnamDiscreteIR &m);
   virtual ~AnamDiscreteIR();
 
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new AnamDiscreteIR(*this); };
+
   /// Interface AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

@@ -15,26 +15,24 @@
 #include "geoslib_f.h"
 
 AnamContinuous::AnamContinuous()
-    :
-    AAnam(),
-    _az(),
-    _ay(),
-    _pz(),
-    _py(),
-    _mean(TEST),
-    _variance(TEST)
+    : AAnam(),
+      _az(),
+      _ay(),
+      _pz(),
+      _py(),
+      _mean(TEST),
+      _variance(TEST)
 {
 }
 
 AnamContinuous::AnamContinuous(const AnamContinuous &m)
-    :
-    AAnam(m),
-    _az(m._az),
-    _ay(m._ay),
-    _pz(m._pz),
-    _py(m._py),
-    _mean(m._mean),
-    _variance(m._variance)
+    : AAnam(m),
+      _az(m._az),
+      _ay(m._ay),
+      _pz(m._pz),
+      _py(m._py),
+      _mean(m._mean),
+      _variance(m._variance)
 {
 }
 
@@ -42,6 +40,7 @@ AnamContinuous& AnamContinuous::operator=(const AnamContinuous &m)
 {
   if (this != &m)
   {
+    AAnam::operator= (m);
     _az = m._az;
     _ay = m._ay;
     _pz = m._pz;

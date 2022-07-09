@@ -37,7 +37,6 @@
 
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(),
-      _nbPoly(nbpoly),
       _flagBound(flagBound),
       _rCoef(rCoef),
       _psiHn()
@@ -47,7 +46,6 @@ AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
 
 AnamHermite::AnamHermite(const AnamHermite &m)
     : AnamContinuous(m),
-      _nbPoly(m._nbPoly),
       _flagBound(m._flagBound),
       _rCoef(m._rCoef),
       _psiHn(m._psiHn)
@@ -59,7 +57,7 @@ AnamHermite& AnamHermite::operator=(const AnamHermite &m)
 {
   if (this != &m)
   {
-    _nbPoly = m._nbPoly;
+    AnamContinuous::operator=(m);
     _flagBound = m._flagBound;
     _rCoef = m._rCoef;
     _psiHn = m._psiHn;
@@ -75,13 +73,14 @@ AnamHermite::~AnamHermite()
 String AnamHermite::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  if (_nbPoly <= 0) return sstr.str();
+  int nbpoly = getNbPoly();
+  if (nbpoly <= 0) return sstr.str();
 
   sstr << toTitle(1,"Hermitian Anamorphosis");
 
   sstr << AnamContinuous::toString(strfmt);
 
-  sstr << "Number of Hermite polynomials = " << _nbPoly << std::endl;
+  sstr << "Number of Hermite polynomials = " << nbpoly << std::endl;
   if (_rCoef > 0. && _rCoef < 1.)
     sstr << "Change of Support Coefficient = " << _rCoef << std::endl;
   sstr << toVector("Normalized coefficients for Hermite polynomials",_psiHn);
@@ -112,8 +111,7 @@ AnamHermite* AnamHermite::create(int nbpoly, bool flagBound, double rCoef)
   return new AnamHermite(nbpoly, flagBound, rCoef);
 }
 
-void AnamHermite::reset(int nbpoly,
-                        double pymin,
+void AnamHermite::reset(double pymin,
                         double pzmin,
                         double pymax,
                         double pzmax,
@@ -124,7 +122,6 @@ void AnamHermite::reset(int nbpoly,
                         double r,
                         const VectorDouble &psi_hn)
 {
-  setNbPoly(nbpoly);
   setPsiHn(psi_hn);
   setRCoef(r);
   calculateMeanAndVariance();
@@ -139,7 +136,7 @@ double AnamHermite::RawToTransformValue(double z) const
 
   /* Initializations */
 
-  if (_nbPoly < 1) return(TEST);
+  if (getNbPoly() < 1) return(TEST);
 
   /* Check the bounds */
 
@@ -246,7 +243,7 @@ double AnamHermite::RawToTransformValue(double z) const
 double AnamHermite::TransformToRawValue(double y) const
 {
   double z;
-  if (_nbPoly < 1) return(TEST);
+  if (getNbPoly() < 1) return(TEST);
 
   /* Check the bounds */
 
@@ -287,9 +284,10 @@ double AnamHermite::TransformToRawValue(double y) const
 
 double AnamHermite::calculateVarianceFromPsi(double chh) const
 {
+  int nbpoly = getNbPoly();
   double rho = 1.;
   double var = 0.;
-  for (int ih = 1; ih < _nbPoly; ih++)
+  for (int ih = 1; ih < nbpoly; ih++)
   {
     rho *= chh;
     var += _psiHn[ih] * _psiHn[ih] * rho;
@@ -311,9 +309,11 @@ int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
 
   int nech = static_cast<int> (tab.size());
   if (nech <= 0) return 1;
+
+  int nbpoly = getNbPoly();
   zs.resize(nech+2);
   ys.resize(nech+2);
-  for (ih=0; ih<_nbPoly; ih++) _psiHn[ih] = 0.;
+  for (ih=0; ih<nbpoly; ih++) _psiHn[ih] = 0.;
 
   /* Sort the data by classes */
 
@@ -332,20 +332,20 @@ int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
 
   /* Calculate the Hermite coefficients */
 
-  h1 = hermitePolynomials(ys[0],1.,_nbPoly);
+  h1 = hermitePolynomials(ys[0],1.,nbpoly);
   Gy1 = 0.;
 
   for (icl=0 ; icl<ncl ; icl++)
   {
-    h2 = hermitePolynomials(ys[icl],1.,_nbPoly);
+    h2 = hermitePolynomials(ys[icl],1.,nbpoly);
 
     Gy2 = law_df_gaussian(ys[icl]);
 
-    for( ih=1 ; ih<_nbPoly ; ih++ )
+    for( ih=1 ; ih<nbpoly ; ih++ )
       _psiHn[ih] += zs[icl] * (h2[ih-1]*Gy2 - h1[ih-1]*Gy1) /sqrt((double) ih);
 
     Gy1 = Gy2;
-    for( ih=0 ; ih<_nbPoly ; ih++) h1[ih] = h2[ih];
+    for( ih=0 ; ih<nbpoly ; ih++) h1[ih] = h2[ih];
   }
 
   /* Ultimate calculations */
@@ -390,12 +390,6 @@ double AnamHermite::getPsiHn(int i) const
   return _psiHn[i];
 }
 
-void AnamHermite::setPsiHn(VectorDouble psi_hn)
-{
-  _psiHn = psi_hn;
-  _nbPoly = static_cast<int> (_psiHn.size());
-}
-
 void AnamHermite::setPsiHn(int i, double psi_hn)
 {
   if (! _isIndexValid(i)) return;
@@ -404,9 +398,10 @@ void AnamHermite::setPsiHn(int i, double psi_hn)
 
 bool AnamHermite::_isIndexValid(int i) const
 {
-  if (i < 0 || i >= _nbPoly)
+  int nbpoly = getNbPoly();
+  if (i < 0 || i >= nbpoly)
   {
-    mesArg("Hermite Polynomial Index",i,_nbPoly);
+    mesArg("Hermite Polynomial Index",i,nbpoly);
     return false;
   }
   return true;
@@ -530,10 +525,10 @@ void AnamHermite::_defineBounds(double pymin,
 }
 
 int AnamHermite::_data_sort(int nech,
-                             const VectorDouble& z,
-                             const VectorDouble& wt,
-                             VectorDouble& zs,
-                             VectorDouble& ys)
+                            const VectorDouble& z,
+                            const VectorDouble& wt,
+                            VectorDouble& zs,
+                            VectorDouble& ys)
 {
   double *tmp, sum, frc, eps, wgt;
   int    *ind,i,ncl,nval;
@@ -650,7 +645,6 @@ bool AnamHermite::_deserialize(std::istream& is, bool verbose)
 
   if (ret)
   {
-    setNbPoly(nbpoly);
     setRCoef(r);
     setPsiHn(hermite);
   }

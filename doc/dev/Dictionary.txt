@@ -62,3 +62,5 @@ flumy
 domaining
 armines
 db
+regularization
+regularized

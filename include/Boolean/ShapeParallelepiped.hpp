@@ -30,7 +30,7 @@ public:
   ShapeParallelepiped& operator=(const ShapeParallelepiped &r);
   virtual ~ShapeParallelepiped();
 
-  /// Interface for Iclonable
+  /// Interface for IClonable
   virtual IClonable* clone() const override { return new ShapeParallelepiped(*this); };
 
   ETShape getType() const override { return ETShape::PARALLELEPIPED; }

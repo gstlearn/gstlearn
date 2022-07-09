@@ -45,6 +45,7 @@ AnamDiscrete& AnamDiscrete::operator=(const AnamDiscrete &m)
 {
   if (this != &m)
   {
+    AAnam::operator= (m);
     _nCut = m._nCut;
     _nElem = m._nElem;
     _zCut = m._zCut;

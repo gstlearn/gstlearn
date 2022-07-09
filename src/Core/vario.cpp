@@ -5671,7 +5671,7 @@ int variogram_y2z(Vario *vario, AAnam *anam, Model *model)
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   if (anam_hermite->getRCoef() != 1.)
   {
-    messerr("This function is restricted to Punctual Anamoprhosis");
+    messerr("This function is restricted to Punctual Anamorphosis");
     return (error);
   }
   if (vario == nullptr) return (error);

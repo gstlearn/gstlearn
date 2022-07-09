@@ -29,6 +29,8 @@
 #include "Model/CovParamId.hpp"
 #include "Covariances/CovAniso.hpp"
 
+#include "Matrix/MatrixRectangular.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/IClonable.hpp"
@@ -120,6 +122,7 @@ public:
   int    getMinOrder() const { return _covaList->getMinOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() { return _covaList->getAnam(); }
+  void normalize(double sill) { _covaList->normalize(sill); }
 
   double eval0(int ivar,
                int jvar,
@@ -140,9 +143,9 @@ public:
     return _covaList->eval(ivar, jvar, p1, p2, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
-                                   const VectorDouble& dir,
-                                   const VectorDouble& center,
-                                   const CovCalcMode& mode) const
+                                   const VectorDouble& dir = VectorDouble(),
+                                   const VectorDouble& center = VectorDouble(),
+                                   const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
@@ -158,11 +161,88 @@ public:
   double evalIvarIpas(int ivar,
                       int jvar,
                       double step,
-                      const VectorDouble& dir,
-                      const VectorDouble& center,
-                      const CovCalcMode& mode) const
+                      const VectorDouble& dir = VectorDouble(),
+                      const VectorDouble& center = VectorDouble(),
+                      const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->evalIvarIpas(ivar, jvar, step, dir, center, mode);
+  }
+  double evalCvv(const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
+  }
+  double evalCvvShift(const VectorDouble& ext,
+                      const VectorInt& ndisc,
+                      const VectorDouble& shift,
+                      const VectorDouble& angles = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
+  }
+  MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCvvM(ext, ndisc, angles, mode);
+  }
+  double evalCxv(const SpacePoint& p1,
+                 const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCxv(p1, ext, ndisc, angles, ivar, jvar, mode);
+  }
+  MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
+                               const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCxvM(p1, ext, ndisc, angles, mode);
+  }
+  VectorDouble evalPointToDb(const SpacePoint& p1,
+                             const Db* db2,
+                             int ivar = 0,
+                             int jvar = 0,
+                             bool useSel = true,
+                             const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, mode);
+  }
+  double evalAverageDbToDb(const Db* db1,
+                           const Db* db2,
+                           int ivar = 0,
+                           int jvar = 0,
+                           const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
+  }
+  double evalAveragePointToDb(const SpacePoint& p1,
+                              const Db* db2,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
+  }
+  MatrixRectangular evalCovMatrix(const Db* db1,
+                                  const Db* db2 = nullptr,
+                                  int ivar = 0,
+                                  int jvar = 0,
+                                  const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCovMatrix(db1, db2, ivar, jvar, mode);
   }
 
   void setSill(int icov, int ivar, int jvar, double value);

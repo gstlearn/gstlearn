@@ -34,10 +34,13 @@ public:
   ADriftElem& operator= (const ADriftElem &r);
   virtual ~ADriftElem();
 
+  ///////////////////////////////////////////////////
+  /// IClonable Interface
   virtual IClonable* clone() const override = 0;
+  ///////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////
-  /// ASpaceObject AStringable
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
   ///////////////////////////////////////////////////
 

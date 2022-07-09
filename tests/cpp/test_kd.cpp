@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -55,24 +55,24 @@ int main(int /*argc*/, char */*argv*/[])
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate initial grid
-  DbGrid* grd = DbGrid::create({100,100}, {0.01,0.01});
+  DbGrid* grid = DbGrid::create({100,100}, {0.01,0.01});
   Model* model_init = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.);
-  (void) simtub(nullptr, grd, model_init);
-  grd->display();
-  grd->setName("Simu", "Y");
+  (void) simtub(nullptr, grid, model_init);
+  grid->display();
+  grid->setName("Simu", "Y");
 
   // Non-linear transform
   double m_Z = 1.5;
   double s_Z = 0.5;
-  VectorDouble Zval = grd->getColumn("Y");
+  VectorDouble Zval = grid->getColumn("Y");
   for (int i = 0; i < (int) Zval.size(); i++)
     Zval[i] = m_Z * exp(s_Z * Zval[i] - 0.5 * s_Z * s_Z);
-  grd->addColumns(Zval, "Z");
-  grd->display(&dbfmt);
+  grid->addColumns(Zval, "Z");
+  grid->display(&dbfmt);
 
   // Data extraction
   int np = 500;
-  Db* data = Db::createSamplingDb(grd, 0., np, {"x1","x2","Y","Z"});
+  Db* data = Db::createSamplingDb(grid, 0., np, {"x1","x2","Y","Z"});
   data->setLocator("Z", ELoc::Z);
   data->display(&dbfmt);
 
@@ -88,8 +88,6 @@ int main(int /*argc*/, char */*argv*/[])
   double dx_B = dx_P / nx_B;
   DbGrid* blocs = DbGrid::create({nx_B,nx_B}, {dx_B,dx_B}, {x0_B,x0_B});
   blocs->display();
-
-  // ====================== Point Disjunctive Kriging =====================
 
   // Gaussian Anamorphosis with 10 coefficients
   AnamHermite* anam = AnamHermite::create(20);
@@ -110,11 +108,10 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model = new Model(1, ndim);
   Constraints constraints = Constraints();
   constraints.setConstantSillValue(1.);
-  Option_VarioFit optvar = Option_VarioFit();
-  optvar.setAuthAniso(0);
   (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, true,
-                     Option_AutoFit(), constraints, optvar);
+                     Option_AutoFit(), constraints);
   model->display();
+
   // Attach the Anamorphosis
   model->addAnam(anam);
 
@@ -133,37 +130,122 @@ int main(int /*argc*/, char */*argv*/[])
   // Setting the trace
   OptDbg::setReference(1);
 
-  // Simple Point kriging over the blocks
+  // ====================== Point Disjunctive Kriging =====================
+
+  // Simple Point Kriging over the blocks
   (void) dk(data, blocs, model, neigh, EKrigOpt::PONCTUAL, VectorInt(),
             true, true, NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
-  (void) dk(data, blocs, model, neigh, EKrigOpt::BLOCK, {5,5},
+
+  VectorInt ndisc_B = {5,5};
+  (void) dk(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
             true, true, NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
-  (void) dk(data, panel, model, neigh, EKrigOpt::BLOCK, {10,10},
-            true, true, NamingConvention("DB_BLK"));
+  VectorInt ndisc_P = { 10,10};
+  (void) dk(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
+            true, true, NamingConvention("DK_Blk"));
+  panel->display();
 
-  // ====================== Block Disjunctive Kriging =====================
+  // ====================== Block Disjunctive Kriging (DGM-1) =====================
 
+  // Calculate the change of support coefficient
 
-//  // Modeling the block model (anamorphosis and variogram) using DGM2
-//    r <- sqrt(model.cvv(v.mesh = c(1,1) * dx_P / nx_B, model = mod_m, ndisc=10))
-//    anam.Blc <- anam.point2block(anam = anam.Pts, coeff = r)
-//    // il faut aussi definir le model gaussien des Gaussiennes de blocs \rho(v, v') !
-//  // ====================== Free pointers ==================================
+  model->setAnamIClass(0); // Z variable
+  double cvv = model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles());
+  double r1 = anam->calculateR(cvv, 2.);
+  message("Change of Support coefficient (DGM-1)= %lf\n", r1);
+
+  // Update the Model with Block anamorphosis
+  AnamHermite* anamb1 = dynamic_cast<AnamHermite*>(anam->clone());
+  anamb1->setRCoef(r1);
+
+  // Regularization of the point model by the block support
+  Vario* vario_b1_Z = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
+                                                 ndisc_B, blocs->getAngles());
+  Vario* vario_b1_Y = Vario::createTransformZToY(vario_b1_Z, anam, cvv);
+
+  // Fitting the regularized model on the point Gaussian variable
+  Model* model_b1_Y = new Model(1, ndim);
+  constraints.setConstantSillValue(1);
+  (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, true,
+                      Option_AutoFit(), constraints);
+  model_b1_Y->display();
+  model_b1_Y->addAnam(anamb1);
+
+  // Simple Point Kriging over the blocs(s) with Model with Change of Support
+  (void) dk(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
+            true, NamingConvention("DK_DGM1"));
+  blocs->display();
+
+  // Simple Point Kriging over the panel(s) with Model with Change of Support
+  (void) dk(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK, { nx_B, nx_B }, true,
+            true, NamingConvention("DK_DGM1"));
+  panel->display();
+
+  // ====================== Block Disjunctive Kriging (DGM-2) =====================
+
+  // Calculate the change of support coefficient
+  model->setAnamIClass(1); // Y Variable
+  double r2 = sqrt(model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles()));
+  message("Change of Support coefficient (DGM2)= %lf\n",r2);
+
+  // Regularization of the point model by the block support
+  Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
+                                                 ndisc_B, blocs->getAngles());
+
+  // Fitting the regularized model on the point Gaussian variable
+  Model* model_b2_Y = new Model(1, ndim);
+  constraints.setConstantSillValue(r2 * r2);
+  (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, true,
+                     Option_AutoFit(), constraints);
+  model_b2_Y->display();
+
+  // Normalization of the block model to a total sill equal to 1.0
+  model_b2_Y->normalize(1.0);
+
+  // Update the Model with Block anamorphosis
+  AnamHermite* anamb = dynamic_cast<AnamHermite*>(anam->clone());
+  anamb->setRCoef(r2);
+  model_b2_Y->addAnam(anamb);
+
+  // Simple Point Kriging over the blocs(s) with Model with Change of Support
+  (void) dk(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
+            true, NamingConvention("DK_DGM2"));
+  blocs->display();
+
+  // Simple Point Kriging over the panel(s) with Model with Change of Support
+  (void) dk(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK, {nx_B, nx_B},
+            true, true, NamingConvention("DK_DGM2"));
+  panel->display();
+
+  // ====================== Selectivity Function ==================================
+
+//  blocs->setLocator("Hn*", ELoc::Z);
+//  VectorDouble zcuts = {0., 0.5};
+//  anamb1->selectivity(blocs, {ESelectivity::T,ESelectivity::Q, ESelectivity::Z}, zcuts,
+//                      NamingConvention("DK_DGM2"))
+
+  // ====================== Free pointers ==================================
+
   if (data       != nullptr) delete data;
-  if (grd        != nullptr) delete grd;
+  if (grid       != nullptr) delete grid;
   if (model_init != nullptr) delete model_init;
+  if (model      != nullptr) delete model;
+  if (model_b1_Y != nullptr) delete model_b1_Y;
+  if (model_b2_Y != nullptr) delete model_b2_Y;
   if (panel      != nullptr) delete panel;
   if (blocs      != nullptr) delete blocs;
   if (anam       != nullptr) delete anam;
   if (varioparam != nullptr) delete varioparam;
   if (vario      != nullptr) delete vario;
-  if (model      != nullptr) delete model;
+  if (vario_b1_Z != nullptr) delete vario_b1_Z;
+  if (vario_b1_Y != nullptr) delete vario_b1_Y;
+  if (vario_b2_Y != nullptr) delete vario_b2_Y;
+
   if (neigh      != nullptr) delete neigh;
 
   return (0);

@@ -27,13 +27,16 @@ public:
   AnamHermite& operator= (const AnamHermite &m);
   virtual ~AnamHermite();
 
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new AnamHermite(*this); };
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam::HERMITIAN; }
   bool hasFactor() const override { return true; }
-  int getNFactor() const override { return _nbPoly; }
+  int getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
   double getBlockVariance(double sval, double power = 1) const override;
   int updatePointToBlock(double r_coef) override;
@@ -50,8 +53,7 @@ public:
 
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
 
-  void reset(int nbpoly,
-             double pymin,
+  void reset(double pymin,
              double pzmin,
              double pymax,
              double pzmax,
@@ -62,14 +64,13 @@ public:
              double r,
              const VectorDouble &psi_hn);
 
-  int    getNbPoly() const { return _nbPoly; }
+  int    getNbPoly() const { return (int) _psiHn.size(); }
   const  VectorDouble& getPsiHn() const { return _psiHn; }
   double getPsiHn(int i) const;
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }
 
-  void   setNbPoly(int nbPoly) { _nbPoly = nbPoly; };
-  void   setPsiHn(VectorDouble psi_hn);
+  void   setPsiHn(VectorDouble psi_hn) { _psiHn = psi_hn; }
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
@@ -113,7 +114,6 @@ private:
                  VectorDouble& ys);
 
 private:
-  int    _nbPoly;
   bool   _flagBound;
   double _rCoef;
   VectorDouble _psiHn;

@@ -81,6 +81,7 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
   MatrixSquareGeneral getTotalSill() const;
+  void normalize(double sill);
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////
