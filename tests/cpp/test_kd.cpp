@@ -224,6 +224,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Selectivity Function ==================================
 
+  blocs->display();
+  panel->display();
+
 //  blocs->setLocator("Hn*", ELoc::Z);
 //  VectorDouble zcuts = {0., 0.5};
 //  anamb1->selectivity(blocs, {ESelectivity::T,ESelectivity::Q, ESelectivity::Z}, zcuts,
