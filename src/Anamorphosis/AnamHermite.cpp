@@ -734,7 +734,6 @@ int AnamHermite::factor2Selectivity(Db *db,
   int ncut = selectivity->getNCuts();
   int nb_est = (int) names_est.size();
   int nb_std = (int) names_std.size();
-  int nfactor = MAX(nb_est, nb_std);
   VectorInt cols_est = db->getUIDs(names_est);
   VectorInt cols_std = db->getUIDs(names_std);
 
@@ -748,9 +747,10 @@ int AnamHermite::factor2Selectivity(Db *db,
 
   /* Get the number of initial cutoffs */
 
+  int nfactor = MAX(nb_est, nb_std);
   if (nfactor >= getNbPoly())
   {
-    messerr("Number of factors (%d) must be smaller than Number of classes (%d)",
+    messerr("Number of Factors (%d) must be smaller than Number of Hermite polynomials (%d)",
         nfactor, getNbPoly());
     return 1;
   }
