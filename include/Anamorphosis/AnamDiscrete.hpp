@@ -16,7 +16,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
-class SelectivityGlobal;
+class Selectivity;
 
 class GSTLEARN_EXPORT AnamDiscrete: public AAnam
 {
@@ -31,12 +31,12 @@ public:
 
   /// AAnam interface
   bool hasGaussian() const override { return false; }
+  int getNClass() const { return _nCut + 1; }
 
   /// Interface for AnamDiscrete
   virtual void calculateMeanAndVariance();
 
   int getNCut() const { return _nCut; }
-  int getNClass() const { return _nCut + 1; }
   int getNElem() const { return _nElem; }
   const VectorDouble& getZCut() const { return _zCut; }
   double getZCut(int i) const { return _zCut[i]; }
@@ -85,20 +85,6 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "AnamDiscrete"; }
-
-  void _interpolateQTLocal(double z_max,
-                           const VectorDouble& zcutmine,
-                           SelectivityGlobal& calest,
-                           SelectivityGlobal& calcut) const;
-  void _interpolateInterval(double zval,
-                            double zi0,
-                            double zi1,
-                            double ti0,
-                            double ti1,
-                            double qi0,
-                            double qi1,
-                            double *tval,
-                            double *qval) const;
 
   bool _isClassValid(int iclass) const;
   void _resize();

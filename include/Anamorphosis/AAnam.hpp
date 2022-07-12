@@ -21,7 +21,6 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class SelectivityGlobal;
 class Selectivity;
 
 class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
@@ -36,6 +35,7 @@ public:
   virtual const EAnam& getType() const = 0;
   virtual bool         hasFactor() const { return false; }
   virtual int          getNFactor() const { return 0; }
+  virtual int          getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double z, const VectorInt& nfact) const;
   virtual double       computeVariance(double sval) const;
@@ -46,13 +46,6 @@ public:
   virtual double       TransformToRawValue(double y) const;
 
   double invertVariance(double cvv);
-  void recoveryLocal(Db *db,
-                     const Selectivity* selectivity,
-                     int iech0,
-                     int iptr,
-                     double zestim,
-                     double zstdev,
-                     const SelectivityGlobal& calest);
   int DbZToFactor(Db *db,
                   const VectorInt& ifacs,
                   const NamingConvention& namconv = NamingConvention("Factor"));

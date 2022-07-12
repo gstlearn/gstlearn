@@ -99,6 +99,26 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
 }
 
 /**
+ * Naming given the set of output variable names
+ * @param dbout Pointer to the output Db
+ * @param iattout_start Starting attribute index
+ * @param names Vector of output variable names
+ * @param flagLocate True if the variable must be assigned the locator
+ */
+void NamingConvention::setNamesAndLocators(Db* dbout,
+                                           int iattout_start,
+                                           const VectorString& names,
+                                           bool flagLocate) const
+{
+  if (iattout_start < 0) return;
+  int nvar = static_cast<int> (names.size());
+
+  for (int ivar = 0; ivar < nvar; ivar++)
+    dbout->setNameByUID(iattout_start+ivar, names[ivar]);
+  setLocators(dbout, iattout_start, nvar, 1, flagLocate);
+}
+
+/**
  * Naming from one variable identified by its names
  * @param namin variable name in Input Db
  * @param dbout Pointer to the output Db

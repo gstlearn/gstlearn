@@ -11,10 +11,10 @@
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
+#include <Stats/Selectivity.hpp>
 #include "geoslib_f.h"
 
 #include <math.h>
-#include <Stats/SelectivityGlobal.hpp>
 
 #define ANAM_KD_NELEM 6
 
@@ -305,127 +305,3 @@ void AnamDiscrete::setStats(const VectorDouble& stats)
   }
   _stats.setValues(stats);
 }
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT curves (Local estimation)
- **
- ** \param[in]  z_max    Maximum grade value (if defined)
- ** \param[in]  zcuts    Array of the requested cutoffs
- ** \param[in]  calest   Selectivity
- **
- ** \param[out] calcut   Interpolated Selectivity
- **
- *****************************************************************************/
-void AnamDiscrete::_interpolateQTLocal(double z_max,
-                                       const VectorDouble& zcuts,
-                                       SelectivityGlobal& calest,
-                                       SelectivityGlobal& calcut) const
-{
-  double tval, qval;
-
-  int nclass = calest.getNCuts();
-  int ncutmine = calcut.getNCuts();
-  VectorDouble zz(nclass + 2);
-  VectorDouble TT(nclass + 2);
-  VectorDouble QQ(nclass + 2);
-
-  /* Load arrays */
-
-  int ncleff = 1;
-  TT[0] = QQ[0] = 0.;
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    int jclass = nclass - iclass - 1;
-    if (calest.getTest(jclass) <= TT[ncleff - 1]) continue;
-    TT[ncleff] = calest.getTest(jclass);
-    QQ[ncleff] = calest.getQest(jclass);
-    ncleff++;
-  }
-  zz[0] = z_max;
-  for (int iclass = 0; iclass < ncleff - 1; iclass++)
-    zz[iclass + 1] = (QQ[iclass + 2] - QQ[iclass]) / (TT[iclass + 2] - TT[iclass]);
-  zz[ncleff - 1] = 0.;
-  if (FFFF(z_max)) zz[0] = 2 * zz[1];
-
-  for (int icut = 0; icut < ncutmine; icut++)
-  {
-    double zval = zcuts[icut];
-    calcut.setZcut(icut, zval);
-
-    /* Find interval [zz[iclass]; zz[iclass+1]] to which cutoffs belongs */
-
-    int iclass = -1;
-    for (int jclass = 0; jclass < ncleff && iclass < 0; jclass++)
-      if ((zval - zz[jclass]) * (zval - zz[jclass + 1]) <= 0) iclass = jclass;
-
-    /* Assuming that cutoffs belongs to the interval the class 'iclass' */
-
-    double zi0 = zz[iclass];
-    double zi1 = (iclass + 1 > ncleff - 1) ? 0. : zz[iclass + 1];
-    double ti0 = TT[iclass];
-    double ti1 = (iclass + 1 > ncleff - 1) ? 0. : TT[iclass + 1];
-    double qi0 = QQ[iclass];
-    double qi1 = QQ[iclass + 1];
-    _interpolateInterval(zval, zi0, zi1, ti0, ti1, qi0, qi1, &tval, &qval);
-    calcut.setTest(icut, tval);
-    calcut.setQest(icut, qval);
-  }
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT within an interval
- **
- ** \param[in]  zval     Cutoff value
- ** \param[in]  zi0      Lower cutoff of the interval
- ** \param[in]  zi1      Upper cutoff of the interval
- ** \param[in]  ti0      Lower tonnage of the interval
- ** \param[in]  ti1      Upper tonnage of the interval
- ** \param[in]  qi0      Lower metal quantity of the interval
- ** \param[in]  qi1      Upper metal quantity of the interval
- **
- ** \param[out] tval     Tonnage for the current cutoff
- ** \param[out] qval     Metal quantity for the current cutoff
- **
- *****************************************************************************/
-void AnamDiscrete::_interpolateInterval(double zval,
-                                        double zi0,
-                                        double zi1,
-                                        double ti0,
-                                        double ti1,
-                                        double qi0,
-                                        double qi1,
-                                        double *tval,
-                                        double *qval) const
-{
-  double dzi, dti, u, aa0, zmoy;
-  static double tol = 1.e-3;
-
-  dzi = zi1 - zi0;
-  dti = ti1 - ti0;
-  zmoy = (qi1 - qi0) / (ti1 - ti0);
-  aa0 = (zi1 - zmoy) / (zmoy - zi0);
-
-  if (ABS(zval - zi0) < tol)
-  {
-    (*tval) = ti0;
-    (*qval) = qi0;
-    return;
-  }
-
-  if (ABS(zval - zi1) < tol)
-  {
-    (*tval) = ti1;
-    (*qval) = qi1;
-    return;
-  }
-
-  u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
-  (*qval) = (u <= 0.) ? qi0 :
-      qi0 + zi0 * ((*tval) - ti0)
-      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
-}
-

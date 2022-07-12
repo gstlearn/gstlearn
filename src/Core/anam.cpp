@@ -21,9 +21,9 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Stats/Selectivity.hpp"
 
 #include <math.h>
-#include <Stats/SelectivityGlobal.hpp>
 
 /*! \cond */
 #define EPS_TON    0.001
@@ -49,6 +49,7 @@
  **
  ** \param[in] anam         AAnam structure to be updated
  ** \param[in] zcut         Array of cutoffs
+ ** \param[in] z_max        Maximum cutoff for interpolation
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  ** \param[in] verbose      Verbose flag
  **
@@ -56,38 +57,40 @@
  ** \remark is defined by the number of cutoffs
  **
  *****************************************************************************/
-SelectivityGlobal anam_selectivity(AAnam *anam,
-                                   VectorDouble zcut,
-                                   int flag_correct,
-                                   int verbose)
+Selectivity anam_selectivity(AAnam *anam,
+                             VectorDouble zcut,
+                             double z_max,
+                             int flag_correct,
+                             int verbose)
 {
-  SelectivityGlobal calest;
+  Selectivity selectivity(zcut, z_max, flag_correct);
 
   /* Dispatch according to the anamorphosis */
 
   if (anam->getType() == EAnam::HERMITIAN)
   {
     AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    calest = anam_hermite->calculateSelectivity(zcut);
+    anam_hermite->globalSelectivity(&selectivity);
   }
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    calest = anam_discrete_DD->calculateSelectivity(flag_correct);
+    anam_discrete_DD->globalSelectivity(&selectivity);
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
     AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    calest = anam_discrete_IR->calculateSelectivity(flag_correct);
+    anam_discrete_IR->globalSelectivity(&selectivity);
   }
   else
   {
     messerr("This function is not programmed for this Anamorphosis");
-    return calest;
+    return selectivity;
   }
 
-  if (verbose) calest.dumpGini();
-  return calest;
+  if (verbose) selectivity.dumpGini();
+
+  return selectivity;
 }
 
 /*****************************************************************************/
@@ -206,27 +209,22 @@ int anam_point_to_block(AAnam *anam,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in]  verbose      Verbose flag
+ ** \param[in]  names_est    Array of variable names for factor estimation
+ ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int anamFactor2QT(Db *db,
-                  AAnam *anam,
-                  const Selectivity* selectivity,
-                  const VectorInt& cols_est,
-                  const VectorInt& cols_std,
-                  double z_max,
-                  int flag_correct)
+int anamFactor2Selectivity(Db *db,
+                           AAnam *anam,
+                           Selectivity* selectivity,
+                           const VectorString& names_est,
+                           const VectorString& names_std,
+                           const NamingConvention& namconv)
 {
   int iptr = -1;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  int nb_est = (int) cols_est.size();
-  int nb_std = (int) cols_std.size();
 
   /* Preliminary checks */
 
@@ -240,7 +238,7 @@ int anamFactor2QT(Db *db,
     messerr("You must define an Anamorphosis");
     return 1;
   }
-  if (nb_est <= 0 && nb_std <= 0)
+  if (names_est.empty() && names_std.empty())
   {
     messerr("The number of factors is zero");
     return 1;
@@ -263,23 +261,23 @@ int anamFactor2QT(Db *db,
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
-      anam_hermite->factor2QT(db, selectivity, cols_est, cols_std, iptr);
+      anam_hermite->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     case EAnam::E_DISCRETE_DD:
-      anam_discrete_DD->factor2QT(db, selectivity, cols_est, cols_std, iptr,
-                                  z_max, flag_correct);
+      anam_discrete_DD->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     case EAnam::E_DISCRETE_IR:
-      anam_discrete_IR->factor2QT(db, selectivity, cols_est, cols_std, iptr,
-                                  z_max, flag_correct);
+      anam_discrete_IR->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     default:
       messerr("This method is not programmed yet for this anamorphosis");
       return 1;
   }
+
+  namconv.setNamesAndLocators(db, iptr, selectivity->getVariableNames());
 
   return 0;
 }
@@ -295,17 +293,15 @@ int anamFactor2QT(Db *db,
  ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_var      Rank of the Variance of Kriging estimate
- ** \param[in]  zcuts        Array of the requested cutoffs
  ** \param[in]  var_bloc     Change of support coefficient
  ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
 int uc(Db *db,
        AAnam *anam,
-       const Selectivity* selectivity,
+       Selectivity* selectivity,
        int att_est,
        int att_var,
-       const VectorDouble& zcuts,
        double var_bloc,
        int verbose)
 {
@@ -314,7 +310,6 @@ int uc(Db *db,
   double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
   VectorDouble psi_hn, hn, ycuts;
   VectorVectorDouble phi_b_zc;
-  SelectivityGlobal calest;
 
   /* Initializations */
 
@@ -342,7 +337,7 @@ int uc(Db *db,
             anam_hermite->getVariance());
     goto label_end;
   }
-  if (zcuts.empty())
+  if (selectivity->getNCuts() <= 0)
   {
     messerr("You must define some cutoff values");
     goto label_end;
@@ -350,7 +345,7 @@ int uc(Db *db,
   nbpoly = anam_hermite->getNbPoly();
   mean = anam_hermite->getMean();
   variance = anam_hermite->getVariance();
-  ncuts = (int) zcuts.size();
+  ncuts = selectivity->getNCuts();
 
   /* Core allocation */
 
@@ -381,21 +376,15 @@ int uc(Db *db,
   iptr = db->addColumnsByConstant(nvarout, TEST);
   if (iptr < 0) goto label_end;
 
-  /* Core allocation */
-
-  calest = SelectivityGlobal(ncuts);
-
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
   if (anam_point_to_block(anam, 0, var_bloc, TEST, TEST)) goto label_end;
   r_coef = anam_hermite->getRCoef();
   varb = anam_hermite->getVariance();
 
-  /* Transform cutmine into gaussian equivalent */
+  /* Transform zcuts into gaussian equivalent */
 
-  ycuts = zcuts;
-  for (int icut = 0; icut < ncuts; icut++)
-    ycuts[icut] = anam_hermite->RawToTransformValue(zcuts[icut]);
+  ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
@@ -453,13 +442,13 @@ int uc(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      calest.setZcut(icut, yc);
-      calest.setTest(icut, ore);
-      calest.setQest(icut, metal);
+      selectivity->setZcut(icut, yc);
+      selectivity->setTest(icut, ore);
+      selectivity->setQest(icut, metal);
     }
 
-    calest.calculateBenefitAndGrade();
-    anam_hermite->recoveryLocal(db, selectivity, iech, iptr, TEST, TEST, calest);
+    selectivity->calculateBenefitAndGrade();
+    selectivity->storeInDb(db, iech, iptr, TEST, TEST);
   }
 
   /* Verbose printout (optional) */
@@ -619,7 +608,7 @@ static int st_ce_compute_Z(Db *db,
  ** \param[in]  mode         1 for T (Proba. above); 2 for Proba. below
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  selectivity  Selectivity structure
- ** \arams[in]  iptr0        Starting storage address
+ ** \param[in]  iptr0        Starting storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
  ** \param[in]  ycuts        Vector of Gaussian cutoffs
@@ -695,8 +684,8 @@ static int st_ce_compute_T(int mode,
  ** \param[in]  anam         Hermite anamorphosis
  ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  iptr0        Staring storage address
- ** \param[in]  proba        Probability threshold
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  att_est      Rank of the Kriging estimate
+ ** \param[in]  att_std      Rank of the Kriging St, Deviation
  ** \param[in]  proba        Probability threshold
  ** \param[in]  flag_OK      1 if kriging is performed with OK
  **
@@ -733,7 +722,7 @@ static int st_ce_compute_quant(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Hermite anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr         Starting storage address
+ ** \param[in]  iptr0        Starting storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
  ** \param[in]  ycuts        Array of the requested cutoffs (gaussian scale)
@@ -875,13 +864,13 @@ static int st_ce_compute_M(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  zcuts        Array of the requested cutoffs
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
  ** \param[in]  flag_est     1 for computing the Estimation
  ** \param[in]  flag_std     1 for computing the St. Deviation
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
  ** \param[in]  proba        Probability
+ ** \param[in]  nbsimu       Number of Simulation outcomes
  ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/

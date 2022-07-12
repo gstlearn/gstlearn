@@ -97,6 +97,8 @@ GSTLEARN_EXPORT String toDouble(double value,
 GSTLEARN_EXPORT String toInt(int value,
                              const EJustify& justify = EJustify::RIGHT);
 GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
+GSTLEARN_EXPORT VectorString toVectorDouble(const VectorDouble& values,
+                                            const EJustify& justify = EJustify::RIGHT);
 
 // Old-fashion printing formats
 GSTLEARN_EXPORT void tab_prints(const char* title,

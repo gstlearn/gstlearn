@@ -11,7 +11,7 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
-#include "Stats/SelectivityGlobal.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
@@ -176,82 +176,11 @@ bool AAnam::_isSampleSkipped(Db *db,
   return false;
 }
 
-/****************************************************************************/
-/*!
- **  Store the local results of the recovery
- **
- ** \param[in]  db          Db structure containing the factors (Z-locators)
- ** \param[in]  selectivity Selectivity structure
- ** \param[in]  iech0       Rank of the target sample
- ** \param[in]  iptr        Rank for storing the results
- ** \param[in]  zestim      Estimated grade
- ** \param[in]  zstdev      St. dev.
- ** \param[in]  calest      Selectivity
- **
- *****************************************************************************/
-void AAnam::recoveryLocal(Db *db,
-                          const Selectivity* selectivity,
-                          int iech0,
-                          int iptr,
-                          double zestim,
-                          double zstdev,
-                          const SelectivityGlobal& calest)
-{
-  int nclass = calest.getNCuts();
-
-  /* Store the recovered grade */
-
-  if (selectivity->isUsedEst(ESelectivity::Z))
-    db->setArray(iech0, selectivity->getAddressQTEst(ESelectivity::Z, iptr), zestim);
-  if (selectivity->isUsedStD(ESelectivity::Z))
-    db->setArray(iech0, selectivity->getAddressQTStD(ESelectivity::Z, iptr), zstdev);
-
-  /* Loop on the cutoff classes */
-
-  for (int iclass = 0; iclass < nclass; iclass++)
-  {
-    double tval = calest.getTest(iclass);
-    double qval = calest.getQest(iclass);
-    double bval = calest.getBest(iclass);
-    double mval = calest.getMest(iclass);
-    double tstd = calest.getTstd(iclass);
-    double qstd = calest.getQstd(iclass);
-
-    // Tonnage
-
-    if (selectivity->isUsedEst(ESelectivity::T))
-      db->setArray(iech0,
-                   selectivity->getAddressQTEst(ESelectivity::T, iptr, iclass), tval);
-    if (selectivity->isUsedStD(ESelectivity::T))
-      db->setArray(iech0,
-                   selectivity->getAddressQTStD(ESelectivity::T, iptr, iclass), tstd);
-
-    // Metal Quantity
-
-    if (selectivity->isUsedEst(ESelectivity::Q))
-      db->setArray(iech0,
-                   selectivity->getAddressQTEst(ESelectivity::Q, iptr, iclass), qval);
-    if (selectivity->isUsedStD(ESelectivity::Q))
-      db->setArray(iech0,
-                   selectivity->getAddressQTStD(ESelectivity::Q, iptr, iclass), qstd);
-
-    // Conventional Benefit
-    if (selectivity->isUsedEst(ESelectivity::B))
-      db->setArray(iech0,
-                   selectivity->getAddressQTEst(ESelectivity::B, iptr, iclass), bval);
-
-    // Average recovered Grade
-    if (selectivity->isUsedEst(ESelectivity::M))
-      db->setArray(iech0,
-                   selectivity->getAddressQTEst(ESelectivity::M, iptr, iclass), mval);
-  }
-}
-
 bool AAnam::_isNcutValid(int ncut) const
 {
   if (ncut <= 0)
   {
-    messerr("The computing option requires Cutoffs to be defiend");
+    messerr("The computing option requires Cutoffs to be defined");
     return false;
   }
   return true;

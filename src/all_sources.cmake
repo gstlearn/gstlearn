@@ -242,7 +242,6 @@ set(SRC
   Stats/PCA.cpp
   Stats/PCAStringFormat.cpp
   Stats/Selectivity.cpp
-  Stats/SelectivityGlobal.cpp
   Drifts/DriftX.cpp
   Drifts/DriftY.cpp
   Drifts/DriftX2Y.cpp

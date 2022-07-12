@@ -119,10 +119,8 @@ void AnamDiscreteIR::calculateMeanAndVariance()
   var = mean = 0.;
   for (int iclass = 0; iclass < nclass; iclass++)
   {
-    double zn = (iclass < nclass - 1) ? getIRStatR(iclass + 1) :
-                                        0.;
-    double tn = (iclass < nclass - 1) ? getIRStatT(iclass + 1) :
-                                        0.;
+    double zn = (iclass < nclass - 1) ? getIRStatR(iclass + 1) : 0.;
+    double tn = (iclass < nclass - 1) ? getIRStatT(iclass + 1) : 0.;
     var += getIRStatB(iclass) * getIRStatB(iclass) * zn;
     mean += getIRStatZ(iclass) * (getIRStatT(iclass) - tn);
   }
@@ -422,32 +420,47 @@ int AnamDiscreteIR::updatePointToBlock(double r_coef)
 /*!
  **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
  **
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- **
  *****************************************************************************/
-SelectivityGlobal AnamDiscreteIR::calculateSelectivity(bool flag_correct)
+void AnamDiscreteIR::globalSelectivity(Selectivity* selectivity)
 {
-  int nclass = getNClass();
-  SelectivityGlobal calest(nclass);
+  bool cutDefined = (selectivity->getNCuts() > 0);
+
+  /* Define the working Selectivity structure */
+
+  Selectivity* selloc;
+  if (cutDefined)
+    selloc = selectivity;
+  else
+  {
+    selloc = dynamic_cast<Selectivity*>(selectivity->clone());
+    selloc->resetCuts(getZCut());
+  }
+  int ncuts = selloc->getNCuts();
 
   /* Calculate the Grade-Tonnage curves */
 
-  for (int iclass = 0; iclass < nclass; iclass++)
+  for (int icut = 0; icut < ncuts; icut++)
   {
-    calest.setZcut(iclass, (iclass == 0) ? 0. : getZCut(iclass - 1));
-    calest.setTest(iclass, getIRStatT(iclass));
-    calest.setQest(iclass, getIRStatQ(iclass));
+    selloc->setZcut(icut, (icut == 0) ? 0. : getZCut(icut - 1));
+    selloc->setTest(icut, getIRStatT(icut));
+    selloc->setQest(icut, getIRStatQ(icut));
   }
 
   /* Correct order relationship */
 
-  if (flag_correct) calest.correctTonnageOrder();
+  selloc->correctTonnageOrder();
 
   /* Store the results */
 
-  calest.calculateBenefitAndGrade();
-
-  return calest;
+  if (cutDefined)
+  {
+    selectivity->interpolateSelectivity(selloc);
+    selectivity->calculateBenefitAndGrade();
+  }
+  else
+  {
+    selloc->calculateBenefitAndGrade();
+  }
 }
 
 /*****************************************************************************/
@@ -458,49 +471,49 @@ SelectivityGlobal AnamDiscreteIR::calculateSelectivity(bool flag_correct)
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  selectivity  Selecltivity structure
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  names_est    Array of variable names for factor estimation
+ ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
-int AnamDiscreteIR::factor2QT(Db *db,
-                              const Selectivity* selectivity,
-                              const VectorInt& cols_est,
-                              const VectorInt& cols_std,
-                              int iptr,
-                              double z_max,
-                              int flag_correct)
+int AnamDiscreteIR::factor2Selectivity(Db *db,
+                                       Selectivity* selectivity,
+                                       const VectorString& names_est,
+                                       const VectorString& names_std,
+                                       int iptr0)
 {
   int nech = db->getSampleNumber();
-  int nb_est = (int) cols_est.size();
-  int nb_std = (int) cols_std.size();
+  int nb_est = (int) names_est.size();
+  int nb_std = (int) names_std.size();
   int ncleff = MAX(nb_est, nb_std);
-  int ncuts = selectivity->getNCuts();
+  VectorInt cols_est = db->getUIDs(names_est);
+  VectorInt cols_std = db->getUIDs(names_std);
+  bool cutDefined = (selectivity->getNCuts() > 0);
 
   if (db == nullptr)
   {
     messerr("You must define a Db");
     return 1;
   }
-  int nvar = MAX(nb_est, nb_std);
-  int nmax = getNCut();
-  if (nvar > nmax)
+  int nfactor = MAX(nb_est, nb_std);
+  if (nfactor > getNClass())
   {
-    messerr("Number of factors (%d) must be smaller or equal to Number of cutoffs",
-            nvar, nmax);
+    messerr("Number of factors (%d) must be smaller or equal to Number of Classes",
+            nfactor, getNClass());
     return 1;
   }
-  if (ncuts <= 0) ncuts = nmax;
 
-  /* Core allocation */
+  /* Define the working Selectivity structure */
 
-  SelectivityGlobal calest(nmax);
-  SelectivityGlobal calcut;
-  if (ncuts > 0)
-    calcut = SelectivityGlobal(ncuts);
+  Selectivity* selloc;
+  if (cutDefined)
+    selloc = selectivity;
+  else
+  {
+    selloc = dynamic_cast<Selectivity*>(selectivity->clone());
+    selloc->resetCuts(getZCut());
+  }
 
   /* Calculate the Recovery Functions from the factors */
 
@@ -515,42 +528,42 @@ int AnamDiscreteIR::factor2QT(Db *db,
     {
       double value = db->getArray(iech, cols_est[ivar]);
       total += value;
-      calest.setTest(ivar, total * getIRStatT(ivar + 1));
+      selloc->setTest(ivar, total * getIRStatT(ivar + 1));
     }
 
     /* Correct order relationship */
 
-    if (flag_correct) calest.correctTonnageOrder();
+    selloc->correctTonnageOrder();
 
     /* Tonnage: Standard Deviation */
 
-    if (selectivity->isUsedStD(ESelectivity::T))
+    if (selloc->isUsedStD(ESelectivity::T))
     {
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
       {
         double value = db->getArray(iech, cols_std[ivar]);
         total += value * value;
-        calest.setTstd(ivar, sqrt(total) * getIRStatT(ivar + 1));
+        selloc->setTstd(ivar, sqrt(total) * getIRStatT(ivar + 1));
       }
     }
 
     /* Metal Quantity: Estimation */
 
-    if (selectivity->isUsedEst(ESelectivity::Q))
+    if (selloc->isUsedEst(ESelectivity::Q))
     {
-      calest.setQest(ncleff-1, getIRStatZ(ncleff) * calest.getTest(ncleff-1));
+      selloc->setQest(ncleff-1, getIRStatZ(ncleff) * selloc->getTest(ncleff-1));
       for (int ivar = ncleff - 2; ivar >= 0; ivar--)
       {
-        calest.setQest(ivar,
-                       calest.getQest(ivar+1) + getIRStatZ(ivar + 1)
-                       * (calest.getTest(ivar) - calest.getTest(ivar + 1)));
+        selloc->setQest(ivar,
+                       selloc->getQest(ivar+1) + getIRStatZ(ivar + 1)
+                       * (selloc->getTest(ivar) - selloc->getTest(ivar + 1)));
       }
     }
 
     /* Metal Quantity: Standard Deviation */
 
-    if (selectivity->isUsedStD(ESelectivity::Q))
+    if (selloc->isUsedStD(ESelectivity::Q))
     {
       for (int ivar = 0; ivar < ncleff; ivar++)
       {
@@ -568,25 +581,25 @@ int AnamDiscreteIR::factor2QT(Db *db,
           prod = db->getArray(iech, cols_std[jvar]) * getIRStatB(ivar + 1);
           total += prod * prod;
         }
-        calest.setQstd(ivar, sqrt(total));
+        selloc->setQstd(ivar, sqrt(total));
       }
     }
 
     /* Z: Estimation */
 
     double zestim = 0.;
-    if (selectivity->isUsedEst(ESelectivity::Z))
+    if (selloc->isUsedEst(ESelectivity::Z))
     {
-      zestim = getIRStatZ(ncleff) * calest.getTest(ncleff-1);
+      zestim = getIRStatZ(ncleff) * selloc->getTest(ncleff-1);
       for (int ivar = 0; ivar < ncleff - 1; ivar++)
         zestim += getIRStatZ(ivar + 1)
-            * (calest.getTest(ivar) - calest.getTest(ivar + 1));
+            * (selloc->getTest(ivar) - selloc->getTest(ivar + 1));
     }
 
     /* Z: Standard Deviation */
 
     double zstdev = 0.;
-    if (selectivity->isUsedStD(ESelectivity::Z))
+    if (selloc->isUsedStD(ESelectivity::Z))
     {
       total = 0.;
       for (int ivar = 0; ivar < ncleff; ivar++)
@@ -600,16 +613,16 @@ int AnamDiscreteIR::factor2QT(Db *db,
 
     /* Store the results */
 
-    if (ncuts > 0)
+    if (cutDefined)
     {
-      _interpolateQTLocal(z_max, selectivity->getZcut(), calest, calcut);
-      calcut.calculateBenefitAndGrade();
-      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calcut);
+      selectivity->interpolateSelectivity(selloc);
+      selectivity->calculateBenefitAndGrade();
+      selectivity->storeInDb(db, iech, iptr0, zestim, zstdev);
     }
     else
     {
-      calest.calculateBenefitAndGrade();
-      recoveryLocal(db, selectivity, iech, iptr, zestim, zstdev, calest);
+      selloc->calculateBenefitAndGrade();
+      selloc->storeInDb(db, iech, iptr0, zestim, zstdev);
     }
   }
   return (0);

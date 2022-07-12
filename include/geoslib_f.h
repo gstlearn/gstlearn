@@ -30,7 +30,7 @@
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
-#include "Stats/SelectivityGlobal.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
 
 class Db;
@@ -253,17 +253,18 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /* Functions for Anamorphosis */
 /******************************/
 
-GSTLEARN_EXPORT SelectivityGlobal anam_selectivity(AAnam *anam,
+GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
                                              VectorDouble zcut,
+                                             double z_max = TEST,
                                              int flag_correct = 0,
                                              int verbose = 0);
-GSTLEARN_EXPORT int anamFactor2QT(Db *db,
-                                  AAnam *anam,
-                                  const Selectivity* selectivity,
-                                  const VectorInt& cols_est,
-                                  const VectorInt& cols_std,
-                                  double z_max,
-                                  int flag_correct);
+GSTLEARN_EXPORT int anamFactor2Selectivity(Db *db,
+                                           AAnam *anam,
+                                           Selectivity* selectivity,
+                                           const VectorString& names_est,
+                                           const VectorString& names_std,
+                                           const NamingConvention& namconv = NamingConvention(
+                                               "QT"));
 GSTLEARN_EXPORT int calculateHermiteFactors(Db *db,
                                             int nfactor,
                                             const NamingConvention& namconv = NamingConvention("Hn"));
@@ -460,10 +461,9 @@ GSTLEARN_EXPORT int dk(Db* dbin,
                        const NamingConvention& namconv = NamingConvention("KD"));
 GSTLEARN_EXPORT int uc(Db *db,
                        AAnam *anam,
-                       const Selectivity* selectivity,
+                       Selectivity* selectivity,
                        int att_est,
                        int att_var,
-                       const VectorDouble& zcuts,
                        double var_bloc,
                        int verbose = false);
 GSTLEARN_EXPORT int ce(Db *db,
