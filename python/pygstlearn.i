@@ -144,6 +144,9 @@ void exit_f(void)
 %extend Table {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Selectivity {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

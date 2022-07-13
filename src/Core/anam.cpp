@@ -18,10 +18,10 @@
 #include "Variogram/Vario.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Polynomials/MonteCarlo.hpp"
-#include "Stats/Selectivity.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Stats/Selectivity.hpp"
 
 #include <math.h>
 
@@ -41,120 +41,6 @@
                                    QT_VARS(QT_STD,j) > 0)
 /*! \endcond */
 
-/*****************************************************************************/
-/*!
- **  Interpolate the QT within an interval
- **
- ** \param[in]  zval     Cutoff value
- ** \param[in]  zi0      Lower cutoff of the interval
- ** \param[in]  zi1      Upper cutoff of the interval
- ** \param[in]  ti0      Lower tonnage of the interval
- ** \param[in]  ti1      Upper tonnage of the interval
- ** \param[in]  qi0      Lower metal quantity of the interval
- ** \param[in]  qi1      Upper metal quantity of the interval
- **
- ** \param[out] tval     Tonnage for the current cutoff
- ** \param[out] qval     Metal quantity for the current cutoff
- **
- *****************************************************************************/
-static void st_interpolate_interval(double zval,
-                                    double zi0,
-                                    double zi1,
-                                    double ti0,
-                                    double ti1,
-                                    double qi0,
-                                    double qi1,
-                                    double *tval,
-                                    double *qval)
-{
-  double dzi, dti, u, aa0, zmoy;
-  static double tol = 1.e-3;
-
-  dzi = zi1 - zi0;
-  dti = ti1 - ti0;
-  zmoy = (qi1 - qi0) / (ti1 - ti0);
-  aa0 = (zi1 - zmoy) / (zmoy - zi0);
-
-  if (ABS(zval - zi0) < tol)
-  {
-    (*tval) = ti0;
-    (*qval) = qi0;
-    return;
-  }
-
-  if (ABS(zval - zi1) < tol)
-  {
-    (*tval) = ti1;
-    (*qval) = qi1;
-    return;
-  }
-
-  u = (zval - zi0) / dzi;
-  (*tval) = (u <= 0.) ? ti0 : ti0 + dti * pow(u, 1. / aa0);
-  (*qval) = (u <= 0.) ? qi0 :
-      qi0 + zi0 * ((*tval) - ti0)
-      + dzi * dti * pow(u, 1. + 1. / aa0) / (1. + aa0);
-}
-
-/*****************************************************************************/
-/*!
- **  Interpolate the QT curves (Global estimation)
- **
- ** \param[in]  zcutmine Array of the requested cutoffs
- ** \param[in]  calest   Selectivity
- **
- ** \param[out] calcut   Interpolated Selectivity
- **
- *****************************************************************************/
-static void st_interpolate_qt_global(double *zcutmine,
-                                     Selectivity& calest,
-                                     Selectivity& calcut)
-{
-  double tval, qval;
-
-  int nclass = calest.getNClass();
-  int ncutmine = calcut.getNClass();
-
-  for (int icut = 0; icut < ncutmine; icut++)
-  {
-    double zval = zcutmine[icut];
-    calcut.setZcut(icut, zval);
-
-    /* Find interval [zmoy[iclass]; zmoy[iclass+1]] to which cutoffs belongs */
-
-    int iclass = -1;
-    for (int jclass = 0; jclass < nclass - 1 && iclass < 0; jclass++)
-    {
-      double valmin = MIN(calest.getZcut(jclass), calest.getZcut(jclass+1));
-      double valmax = MAX(calest.getZcut(jclass), calest.getZcut(jclass+1));
-      if (zval >= valmin && zval <= valmax) iclass = jclass;
-    }
-
-    if (iclass >= 0 && iclass < nclass)
-    {
-
-      /* Assuming that cutoffs belongs to the interval the class 'iclass' */
-
-      double zi0 = calest.getZcut(iclass);
-      double zi1 = (iclass + 1 > nclass - 1) ? 0. : calest.getZcut(iclass + 1);
-      double ti0 = calest.getTest(iclass);
-      double ti1 = (iclass + 1 > nclass - 1) ? 0. : calest.getTest(iclass + 1);
-      double qi0 = calest.getQest(iclass);
-      double qi1 = calest.getQest(iclass + 1);
-      st_interpolate_interval(zval, zi0, zi1, ti0, ti1, qi0, qi1,
-                              &tval, &qval);
-      calcut.setTest(icut, tval);
-      calcut.setQest(icut, qval);
-    }
-    else
-    {
-      calcut.setTest(icut, 0.);
-      calcut.setQest(icut, 0.);
-    }
-  }
-  return;
-}
-
 /****************************************************************************/
 /*!
  **  Calculate the theoretical grade tonnage value
@@ -162,8 +48,8 @@ static void st_interpolate_qt_global(double *zcutmine,
  ** \return  Array f results (Dimension: 7 * nclass)
  **
  ** \param[in] anam         AAnam structure to be updated
- ** \param[in] nclass       Number of classes
  ** \param[in] zcut         Array of cutoffs
+ ** \param[in] z_max        Maximum cutoff for interpolation
  ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
  ** \param[in] verbose      Verbose flag
  **
@@ -172,52 +58,39 @@ static void st_interpolate_qt_global(double *zcutmine,
  **
  *****************************************************************************/
 Selectivity anam_selectivity(AAnam *anam,
-                             int nclass,
                              VectorDouble zcut,
+                             double z_max,
                              int flag_correct,
                              int verbose)
 {
-  Selectivity calest(nclass);
+  Selectivity selectivity(zcut, z_max, flag_correct);
 
   /* Dispatch according to the anamorphosis */
 
   if (anam->getType() == EAnam::HERMITIAN)
   {
     AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    calest = anam_hermite->calculateSelectivity(zcut);
+    anam_hermite->globalSelectivity(&selectivity);
   }
   else if (anam->getType() == EAnam::DISCRETE_DD)
   {
     AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    if (nclass != anam_discrete_DD->getNClass())
-    {
-      messerr(
-          "Argument 'nclass' (%d) should be equal to the number of classes (%d)",
-          nclass, anam_discrete_DD->getNClass());
-      return calest;
-    }
-    calest = anam_discrete_DD->calculateSelectivity(flag_correct);
+    anam_discrete_DD->globalSelectivity(&selectivity);
   }
   else if (anam->getType() == EAnam::DISCRETE_IR)
   {
     AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    if (nclass != anam_discrete_IR->getNClass())
-    {
-      messerr(
-          "Argument 'nclass' (%d) should be equal to the number of classes (%d)",
-          nclass, anam_discrete_IR->getNClass());
-      return calest;
-    }
-    calest = anam_discrete_IR->calculateSelectivity(flag_correct);
+    anam_discrete_IR->globalSelectivity(&selectivity);
   }
   else
   {
     messerr("This function is not programmed for this Anamorphosis");
-    return calest;
+    return selectivity;
   }
 
-  if (verbose) calest.dumpGini();
-  return calest;
+  if (verbose) selectivity.dumpGini();
+
+  return selectivity;
 }
 
 /*****************************************************************************/
@@ -265,7 +138,7 @@ int anam_point_to_block(AAnam *anam,
 
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -282,7 +155,7 @@ int anam_point_to_block(AAnam *anam,
       anam_discrete_DD->setMu(mu);
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -302,7 +175,7 @@ int anam_point_to_block(AAnam *anam,
     case EAnam::E_DISCRETE_IR:
       if (FFFF(coeff))
       {
-        r_coef = anam->calculateR(cvv, 2.);
+        r_coef = sqrt(anam->invertVariance(cvv));
         if (verbose)
         {
           mestitle(1, "Calculation of the Change of Support Coefficient");
@@ -335,39 +208,23 @@ int anam_point_to_block(AAnam *anam,
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  z_max        Maximum grade array (only for QT interpolation)
- ** \param[in]  flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  verbose      Verbose flag
- **
- ** \param[out] qt_vars      Array for storage (Dimension: 2*ANAM_N_QT)
- **
- ** \remark If the argument 'zcut' is provided, the recovery curves are
- ** \remark calculated for these cutoffs. Otherwise, they are calculated
- ** \remark for the estimated cutoffs in the discrete case
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  names_est    Array of variable names for factor estimation
+ ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
-int anamFactor2QT(Db *db,
-                  AAnam *anam,
-                  const VectorDouble& cutmine,
-                  double z_max,
-                  int flag_correct,
-                  const VectorInt& codes,
-                  const VectorInt& cols_est,
-                  const VectorInt& cols_std,
-                  VectorInt& qt_vars,
-                  bool verbose)
+int anamFactor2Selectivity(Db *db,
+                           AAnam *anam,
+                           Selectivity* selectivity,
+                           const VectorString& names_est,
+                           const VectorString& names_std,
+                           const NamingConvention& namconv)
 {
   int iptr = -1;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
   AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-  int nb_est = (int) cols_est.size();
-  int nb_std = (int) cols_std.size();
-  int ncutmine = (int) cutmine.size();
 
   /* Preliminary checks */
 
@@ -381,18 +238,18 @@ int anamFactor2QT(Db *db,
     messerr("You must define an Anamorphosis");
     return 1;
   }
-  if (nb_est <= 0 && nb_std <= 0)
+  if (names_est.empty() && names_std.empty())
   {
     messerr("The number of factors is zero");
     return 1;
   }
 
-  int flag_inter = 0;
-  if (anam->getType() == EAnam::DISCRETE_DD ||
-      anam->getType() == EAnam::DISCRETE_IR) flag_inter = 1;
-  int nvarout = anam->codeAnalyze(verbose, codes, nb_est, nb_std, ncutmine, TEST,
-                                  flag_inter, qt_vars);
-  if (nvarout <= 0) return 1;
+  int nvarout = selectivity->getVariableNumber();
+  if (nvarout <= 0)
+  {
+    messerr("No recovery function is defined");
+    return 1;
+  }
 
   /* Variable allocation */
 
@@ -404,18 +261,15 @@ int anamFactor2QT(Db *db,
   switch (anam->getType().toEnum())
   {
     case EAnam::E_HERMITIAN:
-      anam_hermite->factor2QT(db, cutmine, cols_est, cols_std, iptr, codes,
-                              qt_vars);
+      anam_hermite->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     case EAnam::E_DISCRETE_DD:
-      anam_discrete_DD->factor2QT(db, cutmine, z_max, flag_correct, cols_est,
-                                  cols_std, iptr, codes, qt_vars);
+      anam_discrete_DD->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     case EAnam::E_DISCRETE_IR:
-      anam_discrete_IR->factor2QT(db, cutmine, z_max, flag_correct, cols_est,
-                                  cols_std, iptr, codes, qt_vars);
+      anam_discrete_IR->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
       break;
 
     default:
@@ -423,28 +277,9 @@ int anamFactor2QT(Db *db,
       return 1;
   }
 
-  return 0;
-}
+  namconv.setNamesAndLocators(db, iptr, selectivity->getVariableNames());
 
-/****************************************************************************/
-/*!
- **  Interpolate the Grade-Tonnage curves
- **
- ** \param[in] verbose  Verbose flag
- ** \param[in] zcutmine Array of cutoffs
- ** \param[in] calest   Selectivity
- **
- ** \param[out] calcut  Selectivity
- **
- *****************************************************************************/
-void selectivity_interpolate(int verbose,
-                             double *zcutmine,
-                             Selectivity& calest,
-                             Selectivity& calcut)
-{
-  st_interpolate_qt_global(zcutmine, calest, calcut);
-  calcut.calculateBenefitGrade();
-  if (verbose) calcut.dumpGini();
+  return 0;
 }
 
 /*****************************************************************************/
@@ -455,34 +290,26 @@ void selectivity_interpolate(int verbose,
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_var      Rank of the Variance of Kriging estimate
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  proba        Probability
  ** \param[in]  var_bloc     Change of support coefficient
- ** \param[in]  codes        Array of codes for stored results
  ** \param[in]  verbose      Verbose option
- **
- ** \param[out]  qt_vars     Array of results
  **
  *****************************************************************************/
 int uc(Db *db,
        AAnam *anam,
+       Selectivity* selectivity,
        int att_est,
        int att_var,
-       VectorDouble& cutmine,
-       double proba,
        double var_bloc,
-       const VectorInt& codes,
-       int verbose,
-       VectorInt& qt_vars)
+       int verbose)
 {
-  int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout, ncutmine;
+  int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout, ncuts;
   double yc, sv, yv, ore, metal, mean, variance, varb, r_coef, zvstar, varv;
   double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
-  VectorDouble psi_hn, hn;
+  VectorDouble psi_hn, hn, ycuts;
   VectorVectorDouble phi_b_zc;
-  Selectivity calest;
 
   /* Initializations */
 
@@ -510,7 +337,7 @@ int uc(Db *db,
             anam_hermite->getVariance());
     goto label_end;
   }
-  if (cutmine.empty())
+  if (selectivity->getNCuts() <= 0)
   {
     messerr("You must define some cutoff values");
     goto label_end;
@@ -518,12 +345,12 @@ int uc(Db *db,
   nbpoly = anam_hermite->getNbPoly();
   mean = anam_hermite->getMean();
   variance = anam_hermite->getVariance();
-  ncutmine = (int) cutmine.size();
+  ncuts = selectivity->getNCuts();
 
   /* Core allocation */
 
   psi_hn.resize(nbpoly);
-  phi_b_zc.resize(ncutmine);
+  phi_b_zc.resize(ncuts);
 
   /* Memorize the punctual Hermite polynomials */
 
@@ -539,9 +366,9 @@ int uc(Db *db,
 
   /* Analyzing the codes */
 
-  nvarout = anam->codeAnalyze(verbose, codes, 1, 1, ncutmine, proba, 0, qt_vars);
+  nvarout = selectivity->getVariableNumber();
   if (nvarout <= 0) goto label_end;
-  if (QT_FLAG(ANAM_QT_Z))
+  if (selectivity->isUsed(ESelectivity::Z))
   {
     messerr("The recovery option 'Z' is not available in this function");
     goto label_end;
@@ -549,27 +376,22 @@ int uc(Db *db,
   iptr = db->addColumnsByConstant(nvarout, TEST);
   if (iptr < 0) goto label_end;
 
-  /* Core allocation */
-
-  calest = Selectivity(ncutmine);
-
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
   if (anam_point_to_block(anam, 0, var_bloc, TEST, TEST)) goto label_end;
   r_coef = anam_hermite->getRCoef();
   varb = anam_hermite->getVariance();
 
-  /* Transform cutmine into gaussian equivalent */
+  /* Transform zcuts into gaussian equivalent */
 
-  for (int icut = 0; icut < ncutmine; icut++)
-    cutmine[icut] = anam_hermite->RawToTransformValue(cutmine[icut]);
+  ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
-  for (int icut = 0; icut < ncutmine; icut++)
+  for (int icut = 0; icut < ncuts; icut++)
   {
-    hn = hermitePolynomials(cutmine[icut], 1., nbpoly);
-    phi_b_zc[icut] = hermiteCoefMetal(cutmine[icut], hn);
+    hn = hermitePolynomials(ycuts[icut], 1., nbpoly);
+    phi_b_zc[icut] = hermiteCoefMetal(ycuts[icut], hn);
   }
 
   /* Computing S and Y on panels */
@@ -601,9 +423,9 @@ int uc(Db *db,
 
     /* Loop on the cutoffs */
 
-    for (int icut = 0; icut < ncutmine; icut++)
+    for (int icut = 0; icut < ncuts; icut++)
     {
-      yc = cutmine[icut];
+      yc = ycuts[icut];
       ore = 1.
           - law_cdf_gaussian(
               (yc - yv * sv / r_coef) / sqrt(
@@ -620,14 +442,13 @@ int uc(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      calest.setZcut(icut, yc);
-      calest.setTest(icut, ore);
-      calest.setQest(icut, metal);
+      selectivity->setZcut(icut, yc);
+      selectivity->setTest(icut, ore);
+      selectivity->setQest(icut, metal);
     }
 
-    calest.calculateBenefitGrade();
-    anam_hermite->recoveryLocal(db, iech, iptr, codes, qt_vars, TEST, TEST,
-                      calest);
+    selectivity->calculateBenefitAndGrade();
+    selectivity->storeInDb(db, iech, iptr, TEST, TEST);
   }
 
   /* Verbose printout (optional) */
@@ -635,7 +456,7 @@ int uc(Db *db,
   if (verbose)
   {
     message("Uniform Conditioning on %d panels and %d cutoffs\n",
-            db->getSampleNumber(true), ncutmine);
+            db->getSampleNumber(true), ncuts);
     message("- Number of Polynomials = %d\n", nbpoly);
     message("- Mean                  = %lf\n", mean);
     message("- Punctual Variance     = %lf\n", variance);
@@ -695,56 +516,6 @@ static void st_correct_from_OK(Db *db,
 
 /*****************************************************************************/
 /*!
- **  Starting from the initial pointer, return the pointer for the estimation
- **  as well as the one for the standard deviation (if required)
- **
- ** \param[in]  iptr_init    Initial pointer
- ** \param[in]  ncutmine     Number of cutoffs
- ** \param[in]  icut         Rank of the cutoff
- ** \param[in]  flag_est     true for computing the Estimation
- ** \param[in]  flag_std     1 for computing the St. Deviation
- **
- ** \param[out] iptr_est     Starting pointer for the Estimation
- ** \param[out] iptr_std     Starting pointer for the St. Deviation
- **
- ** \remarks If not used the output pointers are set to -1
- **
- *****************************************************************************/
-static void st_get_starting_pointers(int iptr_init,
-                                     int ncutmine,
-                                     int icut,
-                                     bool flag_est,
-                                     bool flag_std,
-                                     int *iptr_est,
-                                     int *iptr_std)
-{
-  int iptr, ncut;
-
-  ncut = MAX(1, ncutmine);
-  iptr = iptr_init + icut;
-
-  if (flag_est)
-  {
-    *iptr_est = iptr;
-    iptr += ncut;
-  }
-  else
-  {
-    *iptr_est = -1;
-  }
-  if (flag_std)
-  {
-    *iptr_std = iptr;
-    iptr += ncut;
-  }
-  else
-  {
-    *iptr_std = -1;
-  }
-}
-
-/*****************************************************************************/
-/*!
  **  Prepare the vectors of estimation and st. dev.
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
@@ -764,7 +535,6 @@ static void st_ce_get_vectors(Db *db,
                               VectorDouble &krigstd)
 {
   int nech = db->getSampleNumber();
-
   krigest.resize(nech);
   krigstd.resize(nech);
   for (int iech = 0; iech < nech; iech++)
@@ -782,106 +552,51 @@ static void st_ce_get_vectors(Db *db,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  phis         Array of the Polynomial expansion
+ ** \param[in]  anam         Anamorphosis Hermite
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
  ** \param[in]  flag_OK      1 if kriging is performed with OK
- ** \param[in]  flag_est     Flag for calculation of the Estimation
- ** \param[in]  flag_std     Flag for calculation of the St. Deviation
- ** \param[in]  iptr_Z       Address of the Z variable
  **
  *****************************************************************************/
 static int st_ce_compute_Z(Db *db,
-                           int nbsimu,
-                           const VectorDouble phis,
+                           const AnamHermite* anam,
+                           const Selectivity* selectivity,
+                           int iptr0,
                            int att_est,
                            int att_std,
-                           bool flag_OK,
-                           bool flag_est,
-                           bool flag_std,
-                           int iptr_Z)
-
+                           int nbsimu,
+                           bool flag_OK)
 {
   VectorDouble krigest, krigstd, valest, valstd;
-  int iptr_est, iptr_std;
-
-  st_get_starting_pointers(iptr_Z, 1, 0, flag_est, flag_std, &iptr_est,
-                           &iptr_std);
 
   st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
 
   if (nbsimu <= 0)
   {
-    valest = hermiteCondExp(krigest, krigstd, phis);
-    valstd = hermiteCondStd(krigest, krigstd, phis);
+    valest = hermiteCondExp(krigest, krigstd, anam->getPsiHn());
+    valstd = hermiteCondStd(krigest, krigstd, anam->getPsiHn());
   }
   else
   {
-    valest = MCCondExp(krigest, krigstd, phis, nbsimu);
-    valstd = MCCondStd(krigest, krigstd, phis, nbsimu);
+    valest = MCCondExp(krigest, krigstd, anam->getPsiHn(), nbsimu);
+    valstd = MCCondStd(krigest, krigstd, anam->getPsiHn(), nbsimu);
   }
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (iptr_est >= 0) db->setArray(iech, iptr_est, valest[iech]);
-    if (iptr_std >= 0) db->setArray(iech, iptr_std, valstd[iech]);
+    if (selectivity->isUsedEst(ESelectivity::Z))
+      db->setArray(iech,
+                   selectivity->getAddressQTEst(ESelectivity::Z, iptr0), valest[iech]);
+    if (selectivity->isUsedStD(ESelectivity::Z))
+      db->setArray(iech,
+                   selectivity->getAddressQTStD(ESelectivity::Z, iptr0), valstd[iech]);
   }
 
   return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Conditional value and variance in the Gaussian Model
- **
- ** \return Error return code
- **
- ** \param[in]  krigest      Estimation value
- ** \param[in]  krigstd      Standard deviation of Estimation value
- ** \param[in]  phis         Array of the Polynomial expansion
- **
- *****************************************************************************/
-double ce_compute_Z2(double krigest, double krigstd, const VectorDouble &phis)
-{
-  VectorDouble dd;
-
-  /* Core allocation */
-
-  int nbpoly = static_cast<int>(phis.size());
-  dd.resize(nbpoly * nbpoly);
-
-  /* Loading the Conditional Expectation arrays */
-
-  message("calculating DD with nbpoly = %d\n", nbpoly);
-  for (int ih = 0; ih < nbpoly; ih++)
-    for (int jh = 0; jh < nbpoly; jh++)
-    {
-      DD(ih,jh) = (ih + jh >= nbpoly) ? 0 :
-                                (pow(-1., ih) * phis[ih + jh]
-                                 * sqrt(ut_cnp(ih + jh, jh)));
-    }
-
-  /* Loop on the samples */
-
-  double krigvar = krigstd * krigstd;
-  double krigrho = sqrt(1. - krigvar);
-  VectorDouble hh = hermitePolynomials(krigest / krigrho, 1., nbpoly);
-
-  /* Calculating conditional variance */
-
-  double valstd = 0.;
-  for (int ih = 1; ih < nbpoly; ih++)
-  {
-    double factor = 0.;
-    for (int jh = 0; jh < nbpoly; jh++)
-      factor += hh[jh] * pow(krigrho, (double) jh) * DD(ih, jh);
-    valstd += pow(krigvar, (double) ih) * factor * factor;
-  }
-  valstd = sqrt(valstd);
-
-  return valstd;
 }
 
 /*****************************************************************************/
@@ -892,64 +607,67 @@ double ce_compute_Z2(double krigest, double krigstd, const VectorDouble &phis)
  **
  ** \param[in]  mode         1 for T (Proba. above); 2 for Proba. below
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  yc           Array of the requested cutoffs (gaussian scale)
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  ycuts        Vector of Gaussian cutoffs
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
  ** \param[in]  flag_OK      1 if kriging is performed with OK
- ** \param[in]  flag_est     1 for computing the Estimation
- ** \param[in]  flag_std     1 for computing the St. Deviation
- ** \param[in]  iptr_T       Address of the T variable
  **
  *****************************************************************************/
 static int st_ce_compute_T(int mode,
                            Db *db,
-                           int ncutmine,
-                           int nbsimu,
-                           double *yc,
+                           const Selectivity* selectivity,
+                           int iptr0,
                            int att_est,
                            int att_std,
-                           bool flag_OK,
-                           bool flag_est,
-                           bool flag_std,
-                           int iptr_T)
+                           const VectorDouble& ycuts,
+                           int nbsimu,
+                           bool flag_OK)
 {
   VectorDouble krigest, krigstd, valest, valstd;
-  int iptr_est, iptr_std;
 
   /* Loop on the samples */
 
-  iptr_est = iptr_std = -1;
-  for (int icut = 0; icut < ncutmine; icut++)
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
   {
-    st_get_starting_pointers(iptr_T, ncutmine, icut, flag_est, flag_std,
-                             &iptr_est, &iptr_std);
-
     st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
 
     if (nbsimu <= 0)
     {
-      valest = hermiteIndicator(yc[icut], krigest, krigstd);
-      valstd = hermiteIndicatorStd(yc[icut], krigest, krigstd);
+      valest = hermiteIndicator(ycuts[icut], krigest, krigstd);
+      valstd = hermiteIndicatorStd(ycuts[icut], krigest, krigstd);
     }
     else
     {
-      valest = MCIndicator(yc[icut], krigest, krigstd, nbsimu);
-      valstd = MCIndicatorStd(yc[icut], krigest, krigstd, nbsimu);
+      valest = MCIndicator(ycuts[icut], krigest, krigstd, nbsimu);
+      valstd = MCIndicatorStd(ycuts[icut], krigest, krigstd, nbsimu);
     }
 
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (iptr_est >= 0)
+      if (mode == 1)
       {
-        if (mode == 1)
-          db->setArray(iech, iptr_est, valest[iech]);
-        else
-          db->setArray(iech, iptr_est, 1. - valest[iech]);
+        if (selectivity->isUsedEst(ESelectivity::T))
+          db->setArray(
+              iech,
+              selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut),
+              valest[iech]);
+        if (selectivity->isUsedStD(ESelectivity::T))
+           db->setArray(iech,
+                        selectivity->getAddressQTStD(ESelectivity::T, iptr0, icut),
+                        valstd[iech]);
       }
-      if (iptr_std >= 0) db->setArray(iech, iptr_std, valstd[iech]);
+      else
+      {
+        if (selectivity->isUsedEst(ESelectivity::PROBA))
+          db->setArray(
+              iech,
+              selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut),
+              1. - valest[iech]);
+      }
     }
   }
 
@@ -963,21 +681,23 @@ static int st_ce_compute_T(int mode,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         AAnam structure
- ** \param[in]  proba        Probability threshold
+ ** \param[in]  anam         Hermite anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Staring storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  att_std      Rank of the Kriging St, Deviation
+ ** \param[in]  proba        Probability threshold
  ** \param[in]  flag_OK      1 if kriging is performed with OK
- ** \param[in]  iptr_QUANT   Address of the Quantile
  **
  *****************************************************************************/
 static int st_ce_compute_quant(Db *db,
-                               AAnam *anam,
-                               double proba,
+                               const AnamHermite* anam,
+                               const Selectivity* selectivity,
+                               int iptr0,
                                int att_est,
                                int att_std,
-                               bool flag_OK,
-                               int iptr_QUANT)
+                               double proba,
+                               bool flag_OK)
 {
   double krigest, krigstd;
 
@@ -986,7 +706,9 @@ static int st_ce_compute_quant(Db *db,
     if (!db->isActive(iech)) continue;
     st_correct_from_OK(db, iech, att_est, att_std, flag_OK, &krigest, &krigstd);
     double y = krigest + krigstd * law_invcdf_gaussian(proba);
-    db->setArray(iech, iptr_QUANT, anam->TransformToRawValue(y));
+    db->setArray(iech,
+                 selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0),
+                 anam->TransformToRawValue(y));
   }
   return (0);
 }
@@ -998,62 +720,58 @@ static int st_ce_compute_quant(Db *db,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  yc           Array of the requested cutoffs (gaussian scale)
- ** \param[in]  phis         Array of the Polynomial expansion
+ ** \param[in]  anam         Hermite anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  ycuts        Array of the requested cutoffs (gaussian scale)
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
  ** \param[in]  flag_OK      1 if kriging is performed with OK
- ** \param[in]  flag_est     1 for computing the Estimation
- ** \param[in]  flag_std     1 for computing the St. Deviation
- ** \param[in]  iptr_Q       Address of the Q variable
  **
  *****************************************************************************/
 static int st_ce_compute_Q(Db *db,
-                           int ncutmine,
-                           int nbsimu,
-                           double *yc,
-                           VectorDouble phis,
+                           const AnamHermite* anam,
+                           const Selectivity* selectivity,
+                           int iptr0,
                            int att_est,
                            int att_std,
-                           bool flag_OK,
-                           bool flag_est,
-                           bool flag_std,
-                           int iptr_Q)
+                           const VectorDouble& ycuts,
+                           int nbsimu,
+                           bool flag_OK)
 {
   VectorDouble krigest, krigstd, valest, valstd;
-  int iptr_est, iptr_std;
 
   /* Loop on the cutoffs */
 
-  iptr_est = iptr_std = -1;
-  for (int icut = 0; icut < ncutmine; icut++)
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
   {
-    st_get_starting_pointers(iptr_Q, ncutmine, icut, flag_est, flag_std,
-                             &iptr_est, &iptr_std);
-
     st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
 
     if (nbsimu <= 0)
     {
-      valest = hermiteMetal(yc[icut], krigest, krigstd, phis);
-      valstd = hermiteMetalStd(yc[icut], krigest, krigstd, phis);
+      valest = hermiteMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn());
+      valstd = hermiteMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn());
     }
     else
     {
-      valest = MCMetal(yc[icut], krigest, krigstd, phis, nbsimu);
-      valstd = MCMetalStd(yc[icut], krigest, krigstd, phis, nbsimu);
+      valest = MCMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
+      valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
     }
 
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
-      if (iptr_est >= 0) db->setArray(iech, iptr_est, valest[iech]);
-      if (iptr_std >= 0) db->setArray(iech, iptr_std, valstd[iech]);
+      if (selectivity->isUsedEst(ESelectivity::Q))
+        db->setArray(iech,
+            selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut),
+            valest[iech]);
+      if (selectivity->isUsedStD(ESelectivity::Q))
+        db->setArray(iech,
+                     selectivity->getAddressQTStD(ESelectivity::Q, iptr0, icut),
+                     valstd[iech]);
     }
   }
-
   return (0);
 }
 
@@ -1064,44 +782,35 @@ static int st_ce_compute_Q(Db *db,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  count        Number of items (Estim + St. Dev.)
- ** \param[in]  iptr_T       Address of the Tonnage
- ** \param[in]  iptr_Q       Address of the Metal Quantity
- ** \param[in]  iptr_B       Address of the output quantity
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ ** \param[in]  ycuts        Array of the requested cutoffs
  **
  *****************************************************************************/
 static int st_ce_compute_B(Db *db,
-                           const VectorDouble& cutmine,
-                           int count,
-                           int iptr_T,
-                           int iptr_Q,
-                           int iptr_B)
+                           const Selectivity* selectivity,
+                           int iptr0,
+                           const VectorDouble& ycuts)
 {
   double t, q, b;
-  int jptr_T, jptr_Q, jptr_B;
 
   /* Loop on the samples */
 
-  int ncutmine = (int) cutmine.size();
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
 
     /* Loop on the cutoffs */
 
-    jptr_T = iptr_T;
-    jptr_Q = iptr_Q;
-    jptr_B = iptr_B;
-    for (int icut = 0; icut < ncutmine; icut++)
+    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
     {
-      t = db->getArray(iech, jptr_T);
-      q = db->getArray(iech, jptr_Q);
-      b = q - t * cutmine[icut];
-      db->setArray(iech, jptr_B, b);
-      jptr_T += count;
-      jptr_Q += count;
-      jptr_B++;
+      t = db->getArray(iech,
+                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
+      q = db->getArray(iech,
+                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
+      b = q - t * ycuts[icut];
+      db->setArray(iech,
+                   selectivity->getAddressQTEst(ESelectivity::B, iptr0, icut), b);
     }
   }
   return (0);
@@ -1114,22 +823,15 @@ static int st_ce_compute_B(Db *db,
  ** \return Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  ncutmine     Number of required cutoffs
- ** \param[in]  count        Number of items (Estim + St. Dev.)
- ** \param[in]  iptr_T       Address of the Tonnage
- ** \param[in]  iptr_Q       Address of the Metal Quantity
- ** \param[in]  iptr_M       Address of the output quantity
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
  **
  *****************************************************************************/
 static int st_ce_compute_M(Db *db,
-                           int ncutmine,
-                           int count,
-                           int iptr_T,
-                           int iptr_Q,
-                           int iptr_M)
+                           const Selectivity* selectivity,
+                           int iptr0)
 {
   double t, q, m;
-  int jptr_T, jptr_Q, jptr_M;
 
   /* Loop on the samples */
 
@@ -1139,57 +841,18 @@ static int st_ce_compute_M(Db *db,
 
     /* Loop on the cutoffs */
 
-    jptr_T = iptr_T;
-    jptr_Q = iptr_Q;
-    jptr_M = iptr_M;
-    for (int icut = 0; icut < ncutmine; icut++)
+    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
     {
-      t = db->getArray(iech, jptr_T);
-      q = db->getArray(iech, jptr_Q);
-      m = (t > EPSILON3) ? q / t :
-                           TEST;
-      db->setArray(iech, jptr_M, m);
-      jptr_T += count;
-      jptr_Q += count;
-      jptr_M++;
+      t = db->getArray(iech,
+                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
+      q = db->getArray(iech,
+                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
+      m = (t > EPSILON3) ? q / t : TEST;
+      db->setArray(iech,
+                   selectivity->getAddressQTEst(ESelectivity::M, iptr0, icut), m);
     }
   }
   return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Convert the set of Z-cutoffs into Y-cutoffs
- **
- ** \return  Pointer to the newly allocated vector of values
- **
- ** \param[in]  anam_hermite Point Hermite anamorphosis
- ** \param[in]  cutmine      Array of the requested cutoffs
- **
- ** \remarks The returned array must be freed by the calling function
- **
- *****************************************************************************/
-static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
-                               const VectorDouble& cutmine)
-{
-  double *yc;
-
-  // Initializations
-
-  yc = nullptr;
-  int ncutmine = (int) cutmine.size();
-  if (ncutmine < 0) return (yc);
-
-  // Core allocation
-
-  yc = (double*) mem_alloc(sizeof(double) * ncutmine, 0);
-  if (yc == nullptr) return (yc);
-
-  // Loop on the cutoff values
-
-  for (int icut = 0; icut < ncutmine; icut++)
-    yc[icut] = anam_hermite->RawToTransformValue(cutmine[icut]);
-  return (yc);
 }
 
 /*****************************************************************************/
@@ -1200,111 +863,52 @@ static double* st_ztoy_cutoffs(AnamHermite *anam_hermite,
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
  ** \param[in]  att_est      Rank of the Kriging estimate
  ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
  ** \param[in]  flag_est     1 for computing the Estimation
  ** \param[in]  flag_std     1 for computing the St. Deviation
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
- ** \param[in]  cutmine      Array of the requested cutoffs
  ** \param[in]  proba        Probability
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0 : Hermite)
+ ** \param[in]  nbsimu       Number of Simulation outcomes
  ** \param[in]  verbose      Verbose option
- **
- ** \param[out] qt_vars      Array for storage (Dimension: 2*ANAM_N_QT)
  **
  *****************************************************************************/
 int ce(Db *db,
        AAnam *anam,
+       const Selectivity* selectivity,
        int att_est,
        int att_std,
        bool flag_est,
        bool flag_std,
        bool flag_OK,
-       const VectorDouble& cutmine,
        double proba,
-       const VectorInt& codes,
        int nbsimu,
-       int verbose,
-       VectorInt& qt_vars)
+       int verbose)
 {
-  int error, nbpoly, iptr_Z, iptr_T, iptr_Q, iptr_B, iptr_M, need_T, need_Q,
-      ncode, count, ncutmine;
-  int iptr_est, iptr_std, iptr_PROBA, iptr_QUANT;
-  double *yc;
-
-  /* Initializations */
-
-  error = 1;
-  count = need_T = need_Q = 0;
-  iptr_Z = iptr_T = iptr_Q = iptr_B = iptr_M = iptr_PROBA = iptr_QUANT = -1;
-  yc = nullptr;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  ncode = (int) codes.size();
-  ncutmine = (int) cutmine.size();
+  int ncuts = selectivity->getNCuts();
 
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("The argument 'anam' must be Gaussian");
-    goto label_end;
+    return 1;
   }
-  if (ncode <= 0)
-  {
-    messerr("You must specify at least one Recovery Function");
-    goto label_end;
-  }
-  nbpoly = anam_hermite->getNbPoly();
+  int nbpoly = anam_hermite->getNbPoly();
 
   /* Analyzing the codes */
 
-  count = 0;
+  int count = 0;
   if (flag_est) count++;
   if (flag_std) count++;
-  if (anam->codeAnalyze(verbose, codes, flag_est, flag_std, ncutmine, proba, 0,
-                        qt_vars) <= 0) goto label_end;
-  yc = st_ztoy_cutoffs(anam_hermite, cutmine);
-  need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M) ||
-  QT_FLAG(ANAM_QT_PROBA);
-  need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
-  if (yc == nullptr) need_T = need_Q = 0;
+  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
+  int need_T = selectivity->isNeededT();
+  int nvarout = selectivity->getVariableNumber();
 
   /* Add the variables */
 
-  if (QT_FLAG(ANAM_QT_Z))
-  {
-    iptr_Z = db->addColumnsByConstant(count, TEST);
-    if (iptr_Z < 0) goto label_end;
-  }
-  if (need_T)
-  {
-    iptr_T = db->addColumnsByConstant(count * ncutmine, TEST);
-    if (iptr_T < 0) goto label_end;
-  }
-  if (need_Q)
-  {
-    iptr_Q = db->addColumnsByConstant(count * ncutmine, TEST);
-    if (iptr_Q < 0) goto label_end;
-  }
-  if (QT_FLAG(ANAM_QT_B) && need_T && need_Q)
-  {
-    iptr_B = db->addColumnsByConstant(ncutmine, TEST);
-    if (iptr_B < 0) goto label_end;
-  }
-  if (QT_FLAG(ANAM_QT_M) && need_T && need_Q)
-  {
-    iptr_M = db->addColumnsByConstant(ncutmine, TEST);
-    if (iptr_M < 0) goto label_end;
-  }
-  if (QT_FLAG(ANAM_QT_PROBA) && need_T)
-  {
-    iptr_PROBA = db->addColumnsByConstant(count * ncutmine, TEST);
-    if (iptr_PROBA < 0) goto label_end;
-  }
-  if (QT_FLAG(ANAM_QT_QUANT))
-  {
-    iptr_QUANT = db->addColumnsByConstant(1, TEST);
-    if (iptr_QUANT < 0) goto label_end;
-  }
+  int iptr = db->addColumnsByConstant(nvarout, TEST);
+  if (iptr < 0) return 1;
 
   /* Optional printout */
 
@@ -1318,79 +922,74 @@ int ce(Db *db,
     message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
     message(" Number of values                   : %6d\n",
             db->getSampleNumber(true));
-    message(" Number of cutoffs                  : %6d\n", ncutmine);
+    message(" Number of cutoffs                  : %6d\n", ncuts);
     if (nbsimu > 0)
       message(" Number of Monte-Carlo simulations  : %6d\n", nbsimu);
   }
 
   /* Computing the estimation */
 
-  if (QT_FLAG(ANAM_QT_Z))
+  const AnamHermite* anamH = dynamic_cast<const AnamHermite*>(anam);
+  if (selectivity->isUsed(ESelectivity::Z))
   {
-    if (st_ce_compute_Z(db, nbsimu, anam_hermite->getPsiHn(), att_est, att_std,
-                        flag_OK, flag_est, flag_std, iptr_Z)) goto label_end;
+    if (st_ce_compute_Z(db, anamH, selectivity, iptr, att_est, att_std,
+                        nbsimu, flag_OK)) return 1;
   }
 
   /* Compute Conditional Expectation for Tonnage */
 
-  if (need_T)
+  if (selectivity->isUsed(ESelectivity::T))
   {
-    if (st_ce_compute_T(1, db, ncutmine, nbsimu, yc, att_est, att_std, flag_OK,
-                        flag_est, flag_std, iptr_T)) goto label_end;
+    if (st_ce_compute_T(1, db, selectivity, iptr, att_est, att_std,
+                        ycuts, nbsimu, flag_OK)) return 1;
   }
 
   /* Compute Conditional Expectation for Metal Quantity */
 
-  if (QT_FLAG(ANAM_QT_Q) && need_Q)
+  if (selectivity->isUsed(ESelectivity::Q))
   {
-    if (st_ce_compute_Q(db, ncutmine, nbsimu, yc, anam_hermite->getPsiHn(),
-                        att_est, att_std, flag_OK, flag_est, flag_std, iptr_Q))
-      goto label_end;
+    if (st_ce_compute_Q(db, anamH, selectivity, iptr, att_est, att_std,
+                        ycuts, nbsimu, flag_OK)) return 1;
   }
 
   /* Compute Conditional Expectation for Conventional Benefit */
 
-  if (QT_FLAG(ANAM_QT_B) && need_T && need_Q)
+  if (selectivity->isUsed(ESelectivity::B))
   {
-    if (st_ce_compute_B(db, cutmine, count, iptr_T, iptr_Q, iptr_B))
-      goto label_end;
+    if (st_ce_compute_B(db, selectivity, iptr, ycuts)) return 1;
   }
 
   /* Compute Conditional Expectation for Average recoveable grade */
 
-  if (QT_FLAG(ANAM_QT_M) && need_T && need_Q)
+  if (selectivity->isUsed(ESelectivity::M))
   {
-    if (st_ce_compute_M(db, ncutmine, count, iptr_T, iptr_Q, iptr_M))
-      goto label_end;
+    if (st_ce_compute_M(db, selectivity, iptr)) return 1;
   }
 
   /* Compute Conditional Expectation for Tonnage */
 
-  if (QT_FLAG(ANAM_QT_PROBA) && need_T)
+  if (selectivity->isUsed(ESelectivity::PROBA) && need_T)
   {
-    if (st_ce_compute_T(2, db, ncutmine, nbsimu, yc, att_est, att_std, flag_OK,
-                        flag_est, flag_std, iptr_PROBA)) goto label_end;
+    if (st_ce_compute_T(2, db, selectivity, iptr, att_est, att_std,
+                        ycuts, nbsimu, flag_OK)) return 1;
   }
 
   /* Compute Conditional Expectation for Quantile */
 
-  if (QT_FLAG(ANAM_QT_QUANT))
+  if (selectivity->isUsed(ESelectivity::QUANT))
   {
-    st_get_starting_pointers(iptr_QUANT, ncutmine, 0, flag_est, flag_std,
-                             &iptr_est, &iptr_std);
-    if (st_ce_compute_quant(db, anam, proba, att_est, att_std, flag_OK,
-                            iptr_QUANT)) goto label_end;
+    if (st_ce_compute_quant(db, anamH, selectivity, iptr, att_est, att_std,
+                            proba, flag_OK)) return 1;
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: yc = (double*) mem_free((char* ) yc);
-  if (!QT_FLAG(ANAM_QT_T))
-    (void) db_attribute_del_mult(db, iptr_T, count * ncutmine);
-  if (!QT_FLAG(ANAM_QT_Q))
-    (void) db_attribute_del_mult(db, iptr_Q, count * ncutmine);
-  return (error);
+  if (! selectivity->isUsed(ESelectivity::T))
+    (void) db_attribute_del_mult(db,
+                                 selectivity->getAddressQTEst(ESelectivity::T, iptr),
+                                 selectivity->getNumberQTEst(ESelectivity::T));
+  if (! selectivity->isUsed(ESelectivity::Q))
+    (void) db_attribute_del_mult(db,
+                                 selectivity->getAddressQTEst(ESelectivity::Q, iptr),
+                                 selectivity->getNumberQTEst(ESelectivity::Q));
+  return 0;
 }
 

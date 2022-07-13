@@ -254,24 +254,17 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
 /******************************/
 
 GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
-                                             int nclass,
                                              VectorDouble zcut,
+                                             double z_max = TEST,
                                              int flag_correct = 0,
                                              int verbose = 0);
-GSTLEARN_EXPORT void selectivity_interpolate(int verbose,
-                                             double *zcut,
-                                             Selectivity& calest,
-                                             Selectivity& calcut);
-GSTLEARN_EXPORT int anamFactor2QT(Db *db,
-                                  AAnam *anam,
-                                  const VectorDouble& cutmine,
-                                  double z_max,
-                                  int flag_correct,
-                                  const VectorInt& codes,
-                                  const VectorInt& cols_est,
-                                  const VectorInt& cols_std,
-                                  VectorInt& qt_vars,
-                                  bool verbose = false);
+GSTLEARN_EXPORT int anamFactor2Selectivity(Db *db,
+                                           AAnam *anam,
+                                           Selectivity* selectivity,
+                                           const VectorString& names_est,
+                                           const VectorString& names_std,
+                                           const NamingConvention& namconv = NamingConvention(
+                                               "QT"));
 GSTLEARN_EXPORT int calculateHermiteFactors(Db *db,
                                             int nfactor,
                                             const NamingConvention& namconv = NamingConvention("Hn"));
@@ -468,27 +461,22 @@ GSTLEARN_EXPORT int dk(Db* dbin,
                        const NamingConvention& namconv = NamingConvention("KD"));
 GSTLEARN_EXPORT int uc(Db *db,
                        AAnam *anam,
+                       Selectivity* selectivity,
                        int att_est,
                        int att_var,
-                       VectorDouble& cutmine,
-                       double proba,
                        double var_bloc,
-                       const VectorInt& codes,
-                       int verbose,
-                       VectorInt& qt_vars);
+                       int verbose = false);
 GSTLEARN_EXPORT int ce(Db *db,
                        AAnam *anam,
+                       const Selectivity* selectivity,
                        int att_est,
                        int att_std,
                        bool flag_est,
                        bool flag_std,
                        bool flag_OK,
-                       const VectorDouble& cutmine,
                        double proba,
-                       const VectorInt& codes,
                        int nbsimu,
-                       int verbose,
-                       VectorInt& qt_vars);
+                       int verbose = false);
 GSTLEARN_EXPORT int simtub(Db *dbin,
                            Db *dbout,
                            Model *model,

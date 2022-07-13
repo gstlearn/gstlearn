@@ -6924,11 +6924,6 @@ int dk(Db* dbin,
     messerr("This application is limited to the monovariate Model case");
     return 1;
   }
-  if (ABS(model->getTotalSill(0,0) - 1.) > EPSILON3)
-  {
-    messerr("This option requires a Model with Total Sill equal to 1.");
-    return 1;
-  }
   if (! model->hasAnam())
   {
     messerr("Argument 'model' should has an Anamorphosis attached");
@@ -6951,16 +6946,13 @@ int dk(Db* dbin,
   // If change of support is defined through the anamorphosis,
   // the calculation option (EKrigOpt) should be set to PONCTUAL
   // in order to avoid additional block randomization
-  EKrigOpt calcul_loc = calcul;
-  if (flag_change_support) calcul_loc = EKrigOpt::PONCTUAL;
-  if (calcul_loc == EKrigOpt::BLOCK && ndisc.empty())
+  if (calcul == EKrigOpt::BLOCK && ndisc.empty())
   {
     messerr("For Block estimate, you must specify the discretization");
     return 1;
   }
 
-  // Centering the information
-  // TODO A Ameliorer
+  // Centering the information (onyl when a change of support is defined)
 
   if (flag_change_support)
   {
@@ -6999,7 +6991,7 @@ int dk(Db* dbin,
 
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
-  if (ksys.setKrigOptCalcul(calcul_loc, ndisc)) return 1;
+  if (ksys.setKrigOptCalcul(calcul, ndisc)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -7024,8 +7016,7 @@ int dk(Db* dbin,
   /* Set the error return flag */
 
   dbin->setLocatorsByUID(iuids, ELoc::Z);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_std, "stdev", 1,
-                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_std, "stdev", 1, false);
   namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_est, "estim");
 
   return 0;

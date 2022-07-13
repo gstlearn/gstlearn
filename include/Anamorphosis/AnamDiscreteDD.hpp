@@ -28,6 +28,9 @@ public:
   AnamDiscreteDD& operator= (const AnamDiscreteDD &m);
   virtual ~AnamDiscreteDD();
 
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new AnamDiscreteDD(*this); };
+
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = true);
 
@@ -36,7 +39,7 @@ public:
   bool hasFactor() const override { return true; }
   int getNFactor() const override { return 0; }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
-  double getBlockVariance(double sval, double power = 1) const override;
+  double computeVariance(double sval) const override;
   int  updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
@@ -76,17 +79,12 @@ public:
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
-  Selectivity calculateSelectivity(bool flag_correct);
-
-  int factor2QT(Db *db,
-                const VectorDouble& cutmine,
-                double z_max,
-                int flag_correct,
-                const VectorInt& cols_est,
-                const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+  void globalSelectivity(Selectivity* selectivity);
+  int factor2Selectivity(Db *db,
+                         Selectivity* selectivity,
+                         const VectorString& names_est,
+                         const VectorString& names_std,
+                         int iptr0);
 
 protected:
   /// Interface for ASerializable

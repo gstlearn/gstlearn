@@ -1180,6 +1180,14 @@ String toDouble(double value, const EJustify& justify)
   return sstr.str();
 }
 
+VectorString toVectorDouble(const VectorDouble& values, const EJustify& justify)
+{
+  VectorString strings;
+  for (int i = 0; i < (int) values.size(); i++)
+    strings.push_back(toDouble(values[i], justify));
+  return strings;
+}
+
 String toInt(int value, const EJustify& justify)
 {
   std::stringstream sstr;
@@ -1608,7 +1616,7 @@ void print_imatrix(const char *title,
     message("\n");
   }
 
-  /* Print the trailor */
+  /* Print the trailing part */
 
   if (nx != nx_util || ny != ny_util)
   {

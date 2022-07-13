@@ -2667,6 +2667,7 @@ VectorString Db::getNamesByColIdx(const VectorInt& icols) const
 VectorString Db::getNamesByUID(const VectorInt& iuids) const
 {
   VectorString namelist;
+  if (iuids.empty()) return namelist;
   int count = static_cast<int> (iuids.size());
   for (int i = 0; i < count; i++)
   {

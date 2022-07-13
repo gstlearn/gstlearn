@@ -10,26 +10,17 @@
 /******************************************************************************/
 #pragma once
 
-#include "gstlearn_export.hpp"
-#include "Covariances/ACovFunc.hpp"
+#include "Enum/AEnum.hpp"
 
-class CovContext;
+#define ENUM_SELECTIVITY ESelectivity, UNKNOWN, \
+                 UNKNOWN, -1, "Unknown Option", \
+                 Z,        0, "Grade", \
+                 T,        1, "Tonnage", \
+                 Q,        2, "Metal quantity", \
+                 B,        3, "Conventional Benefit", \
+                 M,        4, "Recovered mean", \
+                 PROBA,    5, "Probability to exceed Cutoff", \
+                 QUANT,    6, "Quantile"
 
-class GSTLEARN_EXPORT CovTriangle : public ACovFunc
-{
-public:
-  CovTriangle(const CovContext& ctx);
-  CovTriangle(const CovTriangle &r);
-  CovTriangle& operator= (const CovTriangle &r);
-  virtual ~CovTriangle();
-
-  unsigned int   getMaxNDim()   const  override { return 1; }
-
-  virtual String getFormula() const override { return String("Equation not yet implemented"); }
-  String         getCovName() const override { return "Triangle"; }
-  int            getMinOrder() const override { return -1; }
-
-protected:
-  double _evaluateCov(double h) const override;
-};
+ENUM_DECLARE(ENUM_SELECTIVITY)
 

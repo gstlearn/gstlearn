@@ -13,25 +13,28 @@
 #include "gstlearn_export.hpp"
 #include "Covariances/ACovFunc.hpp"
 
+// In Piecewise polynomial, positive definite and compactly supported
+// radial functions of minimal degree, by H. Wendland
+// Advances in Computational Mathematics, Vol. 4 (389-396), 1995
+// It corresponds to Wendland \psi_{2,0}
+
 class CovContext;
 
-class GSTLEARN_EXPORT CovP8 : public ACovFunc
+class GSTLEARN_EXPORT CovWendland0 : public ACovFunc
 {
 public:
-  CovP8(const CovContext& ctx);
-  CovP8(const CovP8 &r);
-  CovP8& operator= (const CovP8 &r);
-  virtual ~CovP8();
+  CovWendland0(const CovContext& ctx);
+  CovWendland0(const CovWendland0 &r);
+  CovWendland0& operator= (const CovWendland0 &r);
+  virtual ~CovWendland0();
 
   unsigned int getMaxNDim()   const  override { return 3; }
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
-  String         getCovName() const override { return "Order-8 Polynomial"; }
+  String         getCovName() const override { return "Wendland-2,0"; }
   int            getMinOrder() const override { return -1; }
-  virtual bool   hasCovDerivative() const override { return true; }
 
 protected:
-  double _evaluateCov(double h)  const override;
-  double _evaluateCovDerivate(int degree, double h) const override;
+  double _evaluateCov(double h) const override;
 };
 

@@ -13,10 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "Variogram/ECalcVario.hpp"
-
 #include "Variogram/VarioParam.hpp"
+
+#include "Covariances/CovCalcMode.hpp"
 
 #include "Basic/IClonable.hpp"
 #include "Basic/AStringable.hpp"
@@ -58,7 +58,17 @@ public:
                               bool verr_mode = false,
                               Model *model = nullptr,
                               bool verbose = false);
-
+  static Vario* createRegularizeFromModel(const Model* model,
+                                          const VarioParam* varioparam,
+                                          const VectorDouble& ext,
+                                          const VectorInt& ndisc,
+                                          const VectorDouble& angles);
+  static Vario* createTransformZToY(const Vario* varioZ,
+                                    const AAnam* anam,
+                                    double cvv);
+  static Vario* createTransformYToZ(const Vario* varioY,
+                                    const AAnam* anam,
+                                    const Model* model);
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
               bool asSymmetric = false);
@@ -190,7 +200,13 @@ public:
                    Model *model = nullptr,
                    bool verbose = false,
                    int nfacmax = -1);
-  int transformVarioZToY(AAnam *anam, double cvv);
+  int transformZToY(const AAnam *anam, double cvv);
+  int transformYToZ(const AAnam *anam, const Model *model);
+  int modelRegularize(const Model* model,
+                      const VectorDouble& ext,
+                      const VectorInt& ndisc,
+                      const VectorDouble& angles = VectorDouble(),
+                      const CovCalcMode& mode = CovCalcMode());
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }

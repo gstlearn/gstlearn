@@ -33,6 +33,7 @@ AnamUser& AnamUser::operator=(const AnamUser &m)
 {
   if (this != &m)
   {
+    AnamContinuous::operator=(m);
     _y2z_function = m._y2z_function;
     _z2y_function = m._z2y_function;
   }

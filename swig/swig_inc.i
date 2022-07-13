@@ -173,7 +173,6 @@
 #include "Covariances/CovLinear.hpp"
 #include "Covariances/CovNugget.hpp"
 #include "Covariances/CovMarkov.hpp"
-#include "Covariances/CovP8.hpp"
 #include "Covariances/CovPenta.hpp"
 #include "Covariances/CovPower.hpp"
 #include "Covariances/CovReg1D.hpp"
@@ -182,6 +181,7 @@
 #include "Covariances/CovStable.hpp"
 #include "Covariances/CovStorkey.hpp"
 #include "Covariances/CovTriangle.hpp"
+#include "Covariances/CovWendland0.hpp"
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/CovDiffusionAdvection.hpp"
@@ -253,6 +253,7 @@
 #include "Stats/PCAStringFormat.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Stats/EStatOption.hpp"
+#include "Stats/ESelectivity.hpp"
 
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleStringFormat.hpp"

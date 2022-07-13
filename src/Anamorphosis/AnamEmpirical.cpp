@@ -45,6 +45,7 @@ AnamEmpirical& AnamEmpirical::operator=(const AnamEmpirical &m)
 {
   if (this != &m)
   {
+    AnamContinuous::operator=(m);
     _nDisc = m._nDisc;
     _sigma2e = m._sigma2e;
     _tDisc = m._tDisc;

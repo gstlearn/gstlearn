@@ -28,6 +28,9 @@ public:
   AnamUser& operator= (const AnamUser &m);
   virtual ~AnamUser();
 
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new AnamUser(*this); };
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

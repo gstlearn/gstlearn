@@ -14,8 +14,8 @@
 
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Stats/Selectivity.hpp"
+#include "Basic/ASerializable.hpp"
 
 class Db;
 
@@ -27,18 +27,22 @@ public:
   AnamHermite& operator= (const AnamHermite &m);
   virtual ~AnamHermite();
 
+  /// IClonable Interface
+  virtual IClonable* clone() const override { return new AnamHermite(*this); };
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Interface AAnam
   const EAnam&  getType() const override { return EAnam::HERMITIAN; }
   bool hasFactor() const override { return true; }
-  int getNFactor() const override { return _nbPoly; }
+  int getNFactor() const override { return getNbPoly(); }
   VectorDouble z2factor(double z, const VectorInt& ifacs) const override;
-  double getBlockVariance(double sval, double power = 1) const override;
+  double computeVariance(double sval) const override;
   int updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
+  int getNClass() const override { return getNbPoly(); }
 
   /// ASerializable Interface
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = true);
@@ -50,8 +54,7 @@ public:
 
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
 
-  void reset(int nbpoly,
-             double pymin,
+  void reset(double pymin,
              double pzmin,
              double pymax,
              double pzmax,
@@ -62,33 +65,28 @@ public:
              double r,
              const VectorDouble &psi_hn);
 
-  int    getNbPoly() const { return _nbPoly; }
+  int    getNbPoly() const { return (int) _psiHn.size(); }
   const  VectorDouble& getPsiHn() const { return _psiHn; }
   double getPsiHn(int i) const;
   double getRCoef() const { return _rCoef; }
   bool   getFlagBound() const { return _flagBound; }
 
-  void   setNbPoly(int nbPoly) { _nbPoly = nbPoly; };
-  void   setPsiHn(VectorDouble psi_hn);
+  void   setPsiHn(VectorDouble psi_hn) { _psiHn = psi_hn; }
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
 
-  double calculateVarianceFromPsi(double chh) const;
   int    fit(const VectorDouble& tab,
              const VectorDouble& wt = VectorDouble());
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
-  Selectivity calculateSelectivity(const VectorDouble& zcut);
-
-  int factor2QT(Db *db,
-                const VectorDouble& cutmine,
-                const VectorInt& cols_est,
-                const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+  void globalSelectivity(Selectivity* selectivity);
+  int factor2Selectivity(Db *db,
+                         Selectivity* selectivity,
+                         const VectorString& names_est,
+                         const VectorString& names_std,
+                         int iptr0);
 
 protected:
   /// Interface for ASerializable
@@ -113,7 +111,6 @@ private:
                  VectorDouble& ys);
 
 private:
-  int    _nbPoly;
   bool   _flagBound;
   double _rCoef;
   VectorDouble _psiHn;

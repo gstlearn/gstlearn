@@ -21,6 +21,7 @@
 
 class Db;
 class DbGrid;
+class MatrixRectangular;
 
 class GSTLEARN_EXPORT ACov : public ASpaceObject
 {
@@ -88,34 +89,56 @@ public:
                  const VectorDouble& angles = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode());
+                 const CovCalcMode& mode = CovCalcMode()) const;
+  double evalCvvShift(const VectorDouble& ext,
+                      const VectorInt& ndisc,
+                      const VectorDouble& shift,
+                      const VectorDouble& angles = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode()) const;
   double evalCxv(const SpacePoint& p1,
-                 const VectorDouble& est,
+                 const VectorDouble& ext,
                  const VectorInt& ndisc,
-                 const VectorDouble& angle = VectorDouble(),
+                 const VectorDouble& angles = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
-                 const CovCalcMode& mode = CovCalcMode());
+                 const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
+                               const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode()) const;
   VectorDouble evalPointToDb(const SpacePoint& p1,
                              const Db* db2,
                              int ivar = 0,
                              int jvar = 0,
-                             bool useSel = false,
-                             const CovCalcMode& mode = CovCalcMode());
+                             bool useSel = true,
+                             const CovCalcMode& mode = CovCalcMode()) const;
   double evalAverageDbToDb(const Db* db1,
                            const Db* db2,
                            int ivar = 0,
                            int jvar = 0,
-                           const CovCalcMode& mode = CovCalcMode());
+                           const CovCalcMode& mode = CovCalcMode()) const;
   double evalAveragePointToDb(const SpacePoint& p1,
                               const Db* db2,
                               int ivar = 0,
                               int jvar = 0,
-                              const CovCalcMode& mode = CovCalcMode());
+                              const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixRectangular evalCovMatrix(const Db* db1,
+                                  const Db* db2 = nullptr,
+                                  int ivar = 0,
+                                  int jvar = 0,
+                                  const CovCalcMode& mode = CovCalcMode()) const;
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
                            const VectorInt& ndisc,
-                           const VectorDouble& angles = VectorDouble());
-  Db* _discretizeBlockRandom(const DbGrid* dbgrid);
+                           const VectorDouble& angles = VectorDouble(),
+                           const VectorDouble& x0 = VectorDouble()) const;
+  Db* _discretizeBlockRandom(const DbGrid* dbgrid) const;
 };

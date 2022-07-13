@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Covariances/ACov.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/AException.hpp"
@@ -232,7 +233,7 @@ double ACov::evalAverageDbToDb(const Db* db1,
                                const Db* db2,
                                int ivar,
                                int jvar,
-                               const CovCalcMode& mode)
+                               const CovCalcMode& mode) const
 {
   /* Loop on the first sample */
 
@@ -281,7 +282,7 @@ double ACov::evalAveragePointToDb(const SpacePoint& p1,
                                   const Db* db2,
                                   int ivar,
                                   int jvar,
-                                  const CovCalcMode& mode)
+                                  const CovCalcMode& mode) const
 {
   /* Loop on the first sample */
 
@@ -326,7 +327,7 @@ VectorDouble ACov::evalPointToDb(const SpacePoint& p1,
                                  int ivar,
                                  int jvar,
                                  bool useSel,
-                                 const CovCalcMode& mode)
+                                 const CovCalcMode& mode) const
 {
   VectorDouble values;
 
@@ -363,7 +364,7 @@ double ACov::evalCvv(const VectorDouble& ext,
                      const VectorDouble& angles,
                      int ivar,
                      int jvar,
-                     const CovCalcMode& mode)
+                     const CovCalcMode& mode) const
 {
   int ndim = getNDim();
   if (ndim != (int) ext.size())
@@ -390,6 +391,69 @@ double ACov::evalCvv(const VectorDouble& ext,
 }
 
 /**
+ * Average covariance between a block and the same block shifted
+ * @param ext    Vector of Block extensions
+ * @param ndisc  Vector of Block discretization
+ * @param angles Vector of rotation angles
+ * @param shift  Shift between the two blocks
+ * @param ivar   Rank of the first variable
+ * @param jvar   Rank of the second variable
+ * @param mode   CovCalcMode structure
+ * @return
+ */
+double ACov::evalCvvShift(const VectorDouble& ext,
+                          const VectorInt& ndisc,
+                          const VectorDouble& shift,
+                          const VectorDouble& angles,
+                          int ivar,
+                          int jvar,
+                          const CovCalcMode& mode) const
+{
+  int ndim = getNDim();
+  if (ndim != (int) ext.size())
+  {
+    messerr("Block Extension (%d) should have same dimension as the Model %d)",
+            (int) ext.size(),ndim);
+    return TEST;
+  }
+  if (ndim != (int) ndisc.size())
+  {
+    messerr("Discretization (%d) should have same dimension as the Model (%d)",
+            (int) ndisc.size(), ndim);
+    return TEST;
+  }
+  if (ndim != (int) shift.size())
+  {
+    messerr("Shift (%d) should have the same dimension as the Model (%d)",
+            (int) shift.size(), ndim);
+    return TEST;
+  }
+
+  DbGrid* dbgrid1 = _discretizeBlock(ext, ndisc, angles);
+  if (dbgrid1 == nullptr) return TEST;
+  DbGrid* dbgrid2 = _discretizeBlock(ext, ndisc, angles, shift);
+  if (dbgrid2 == nullptr) return TEST;
+
+  double total = evalAverageDbToDb(dbgrid1,  dbgrid2, ivar, jvar, mode);
+  delete dbgrid1;
+  delete dbgrid2;
+  return total;
+}
+
+MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
+                                   const VectorInt& ndisc,
+                                   const VectorDouble& angles,
+                                   const CovCalcMode& mode) const
+{
+  int nvar = getNVariables();
+  MatrixSquareGeneral mat(nvar);
+  for (int ivar=0; ivar<nvar; ivar++)
+    for (int jvar=0; jvar<nvar; jvar++)
+      mat.setValue(ivar, jvar, evalCvv(ext, ndisc, angles, ivar, jvar, mode));
+  return mat;
+}
+
+/**
  * Average covariance over a block
  * @param p1     Point location
  * @param ext    Vector of Block extensions
@@ -406,7 +470,7 @@ double ACov::evalCxv(const SpacePoint& p1,
                      const VectorDouble& angles,
                      int ivar,
                      int jvar,
-                     const CovCalcMode& mode)
+                     const CovCalcMode& mode) const
 {
   int ndim = getNDim();
   if (ndim != (int) ext.size())
@@ -431,27 +495,44 @@ double ACov::evalCxv(const SpacePoint& p1,
   return total;
 }
 
+MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
+                                   const VectorDouble& ext,
+                                   const VectorInt& ndisc,
+                                   const VectorDouble& angles,
+                                   const CovCalcMode& mode) const
+{
+  int nvar = getNVariables();
+  MatrixSquareGeneral mat(nvar);
+  for (int ivar=0; ivar<nvar; ivar++)
+    for (int jvar=0; jvar<nvar; jvar++)
+      mat.setValue(ivar, jvar, evalCxv(p1, ext, ndisc, angles, ivar, jvar, mode));
+  return mat;
+}
+
 /**
  * Creates the discretization grid
  * @param ext    Vecto of Block extensions
  * @param ndisc  Vector of Discretizations
  * @param angles Vector of rotation angles
+ * @param x0     Vector of Discretization origin
  * @return
  */
 DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
                                const VectorInt& ndisc,
-                               const VectorDouble& angles)
+                               const VectorDouble& angles,
+                               const VectorDouble& x0) const
 {
   int ndim = getNDim();
-  VectorDouble x0(ndim, 0.);
+  VectorDouble x0loc = x0;
+  if (x0loc.empty()) x0loc.resize(ndim,0.);
   VectorDouble dx(ndim, 0.);
   for (int idim = 0; idim < ndim; idim++)
     dx[idim] = ext[idim] / ndisc[idim];
-  DbGrid* dbgrid = DbGrid::create(ndisc, dx, x0, angles);
+  DbGrid* dbgrid = DbGrid::create(ndisc, dx, x0loc, angles);
   return dbgrid;
 }
 
-Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid)
+Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid) const
 {
   int ndim = getNDim();
   Db* db = Db::create();
@@ -466,4 +547,57 @@ Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid)
     db->addColumns(vec, names[idim], ELoc::X, idim);
   }
   return db;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the covariance matrix between two Dbs
+ **
+ ** \param[in]  db1   First Db
+ ** \param[in]  db2   Second Db (=db1 if absent)
+ ** \param[in]  ivar  Rank of the first variable (-1: all variables)
+ ** \param[in]  jvar  Rank of the second variable (-1: all variables)
+ ** \param[in]  mode  CovCalcMode structure
+ **
+ ** \remarks The returned matrix if dimension to nrows * ncols where
+ ** \remarks nrows is the number of active samples in db1
+ ** \remarks ncols is the number of active samples in db2
+ **
+ *****************************************************************************/
+MatrixRectangular ACov::evalCovMatrix(const Db* db1,
+                                      const Db* db2,
+                                      int ivar,
+                                      int jvar,
+                                      const CovCalcMode& mode) const
+{
+  if (db2 == nullptr) db2 = db1;
+  int nech1 = db1->getSampleNumber(true);
+  int nech2 = db2->getSampleNumber(true);
+  MatrixRectangular mat(nech1, nech2);
+
+  /* Loop on the first sample */
+
+  int jech1 = 0;
+  for (int iech1 = 0; iech1 < nech1; iech1++)
+  {
+    if (!db1->isActive(iech1)) continue;
+    SpacePoint p1(db1->getSampleCoordinates(iech1),getSpace());
+
+    /* Loop on the second sample */
+
+    int jech2 = 0;
+    for (int iech2 = 0; iech2 < nech2; iech2++)
+    {
+      if (!db2->isActive(iech2)) continue;
+      SpacePoint p2(db2->getSampleCoordinates(iech2),getSpace());
+
+      /* Loop on the dimension of the space */
+
+      double value = eval(ivar, jvar, p1, p2, mode);
+      mat.setValue(jech1, jech2, value);
+      jech2++;
+    }
+    jech1++;
+  }
+  return mat;
 }

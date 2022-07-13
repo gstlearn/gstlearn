@@ -198,7 +198,6 @@ class IClonable{};
 %include Covariances/CovGCspline.hpp
 %include Covariances/CovLinear.hpp
 %include Covariances/CovNugget.hpp
-%include Covariances/CovP8.hpp
 %include Covariances/CovPenta.hpp
 %include Covariances/CovPower.hpp
 %include Covariances/CovReg1D.hpp
@@ -207,6 +206,7 @@ class IClonable{};
 %include Covariances/CovStable.hpp
 %include Covariances/CovStorkey.hpp
 %include Covariances/CovTriangle.hpp
+%include Covariances/CovWendland0.hpp
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
@@ -281,6 +281,7 @@ class IClonable{};
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
 %include Stats/EStatOption.hpp
+%include Stats/ESelectivity.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp

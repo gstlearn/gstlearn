@@ -14,27 +14,28 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-// Enums
 #include "Covariances/ECov.hpp"
 #include "Covariances/ECalcMember.hpp"
+#include "Covariances/CovCalcMode.hpp"
+
 #include "Basic/EJustify.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-#include "Db/ELoc.hpp"
-#include "LithoRule/EProcessOper.hpp"
+
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Option_AutoFit.hpp"
+
+#include "Neigh/ENeigh.hpp"
+#include "Neigh/NeighWork.hpp"
+
+#include "Db/ELoc.hpp"
+#include "LithoRule/EProcessOper.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Drifts/EDrift.hpp"
-#include "Neigh/ENeigh.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Variogram/ECalcVario.hpp"
-
-// References
-#include "Covariances/CovCalcMode.hpp"
-#include "Model/Constraints.hpp"
-#include "Model/Option_AutoFit.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -857,9 +858,7 @@ GSTLEARN_EXPORT Model* model_combine(const Model *model1,
 GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model);
 GSTLEARN_EXPORT int model_regularize(Model *model,
                                      Vario *vario,
-                                     Db *db,
-                                     int opt_norm,
-                                     double nug_ratio);
+                                     DbGrid *dbgrid);
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
@@ -890,9 +889,6 @@ GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
                                         double cvv,
                                         double coeff,
                                         double mu);
-GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
-                                     double krigstd,
-                                     const VectorDouble &phis);
 
 /*************************************/
 /* Prototyping the functions in db.c */

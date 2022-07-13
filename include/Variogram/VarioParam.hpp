@@ -38,7 +38,7 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Interface to Iclonable
+  /// Interface to IClonable
   virtual IClonable* clone() const override { return new VarioParam(*this); };
 
   /// Shortcuts

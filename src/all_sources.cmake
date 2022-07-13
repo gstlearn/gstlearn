@@ -53,6 +53,8 @@ set(SRC
   Model/NoStatFunctional.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
+  Covariances/CovWendland0.cpp
+  Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
   Covariances/CovGradientFunctional.cpp
   Covariances/CovBesselK.cpp
@@ -77,7 +79,6 @@ set(SRC
   Covariances/CovGCspline.cpp
   Covariances/CovTriangle.cpp
   Covariances/CovCalcMode.cpp
-  Covariances/CovP8.cpp
   Covariances/CovContext.cpp
   Covariances/CovCosinus.cpp
   Covariances/CovCosExp.cpp
@@ -87,7 +88,6 @@ set(SRC
   Covariances/CovGradientNumerical.cpp
   Covariances/CovCubic.cpp
   Covariances/CovNugget.cpp
-  Covariances/CovWendland1.cpp
   Covariances/CovBesselJ.cpp
   Covariances/CovSpherical.cpp
   Covariances/CovCauchy.cpp

@@ -58,6 +58,9 @@ endif()
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
+# Deactivate a particular test (which is under construction)
+#list(FILTER TARGETS_EXE EXCLUDE REGEX "test_kd.*")
+
 # Run each registered executable
 foreach(TARGET_EXE ${TARGETS_EXE})
     # Run the test (and generate *.out in ${TEST_DST_DIR})
