@@ -291,119 +291,141 @@ int anamFactor2Selectivity(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_var      Rank of the Variance of Kriging estimate
- ** \param[in]  var_bloc     Change of support coefficient
+ ** \param[in]  name_est     Name of the Kriging estimate
+ ** \param[in]  name_var     Name of the Variance of Kriging estimate
+ ** \param[in]  cvv          Mean covariance over block
  ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
 int uc(Db *db,
        AAnam *anam,
        Selectivity* selectivity,
-       int att_est,
-       int att_var,
-       double var_bloc,
-       int verbose)
+       const String& name_est,
+       const String& name_var,
+       double cvv,
+       bool verbose)
 {
-  int error, nbpoly, iptr, iptr_sV, iptr_yV, nvarout, ncuts;
-  double yc, sv, yv, ore, metal, mean, variance, varb, r_coef, zvstar, varv;
-  double vv_min, vv_max, sv_min, sv_max, zv_min, zv_max, yv_min, yv_max;
-  VectorDouble psi_hn, hn, ycuts;
-  VectorVectorDouble phi_b_zc;
-
-  /* Initializations */
-
-  error = 1;
-  iptr = iptr_sV = iptr_yV = -1;
-  vv_min = zv_min = sv_min = yv_min =  1.e30;
-  vv_max = zv_max = sv_max = yv_max = -1.e30;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
 
   /* Preliminary checks */
 
-  if (db == nullptr) goto label_end;
-  if (anam == nullptr) goto label_end;
+  if (db == nullptr)
+  {
+    messerr("The argument 'db' must be provided");
+    return 1;
+  }
+  int col_est = db->getUID(name_est);
+  if (col_est <= 0)
+  {
+    messerr("The Estimation variable must be defined");
+    return 1;
+  }
+  int col_var = db->getUID(name_var);
+  if (col_var <= 0)
+  {
+    messerr("The Estimation Variance variable must be defined");
+    return 1;
+  }
+  if (anam == nullptr)
+  {
+    messerr("The argument 'anam'  must be provided");
+    return 1;
+  }
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("Uniform Conditioning is restricted to Hermitian Anamorphosis");
-    goto label_end;
+    return 1;
   }
-
-  if (anam_hermite->getVariance() <= var_bloc)
+  if (anam_hermite->getRCoef() != 1.)
   {
-    messerr("The coefficient of change of support (%lf)", var_bloc);
-    messerr("must be smaller than the variance (%lf)",
-            anam_hermite->getVariance());
-    goto label_end;
+    messerr("The anamorphosis must be a Point anamorphosis");
+    return 1;
   }
-  if (selectivity->getNCuts() <= 0)
+  int ncuts = selectivity->getNCuts();
+  if (ncuts <= 0)
   {
     messerr("You must define some cutoff values");
-    goto label_end;
+    return 1;
   }
-  nbpoly = anam_hermite->getNbPoly();
-  mean = anam_hermite->getMean();
-  variance = anam_hermite->getVariance();
-  ncuts = selectivity->getNCuts();
-
-  /* Core allocation */
-
-  psi_hn.resize(nbpoly);
-  phi_b_zc.resize(ncuts);
-
-  /* Memorize the punctual Hermite polynomials */
-
-  for (int ip = 0; ip < nbpoly; ip++)
-    psi_hn[ip] = anam_hermite->getPsiHn(ip);
-
-  /* Add variables for storage */
-
-  iptr_sV = db->addColumnsByConstant(1, TEST);
-  if (iptr_sV < 0) goto label_end;
-  iptr_yV = db->addColumnsByConstant(1, TEST);
-  if (iptr_yV < 0) goto label_end;
-
-  /* Analyzing the codes */
-
-  nvarout = selectivity->getVariableNumber();
-  if (nvarout <= 0) goto label_end;
+  int nvarout = selectivity->getVariableNumber();
+  if (nvarout <= 0)
+  {
+    messerr("Some Selectivity criterion must be defined");
+    return 1;
+  }
   if (selectivity->isUsed(ESelectivity::Z))
   {
     messerr("The recovery option 'Z' is not available in this function");
-    goto label_end;
+    return 1;
   }
-  iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) goto label_end;
+
+  int nbpoly = anam_hermite->getNbPoly();
+  double mean = anam_hermite->getMean();
+  double varp = anam_hermite->getVariance();
+
+  /* Core allocation */
+
+  VectorVectorDouble phi_b_zc(ncuts);
+
+  /* Memorize the punctual Hermite polynomials */
+
+  VectorDouble psi_hn = anam_hermite->getPsiHn();
+
+  /* Add variables for storage */
+
+  int iptr_sV = db->addColumnsByConstant(1, TEST);
+  if (iptr_sV < 0) return 1;
+  int iptr_yV = db->addColumnsByConstant(1, TEST);
+  if (iptr_yV < 0) return 1;
+  int iptr = db->addColumnsByConstant(nvarout, TEST);
+  if (iptr < 0) return 1;
 
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
-  if (anam_point_to_block(anam, 0, var_bloc, TEST, TEST)) goto label_end;
-  r_coef = anam_hermite->getRCoef();
-  varb = anam_hermite->getVariance();
+  // Calculate the change of support coefficient
+
+  double r_coef = sqrt(anam->invertVariance(cvv));
+  if (verbose)
+  {
+    mestitle(1, "Calculation of the Change of Support Coefficient");
+    message("Average Block covariance      = %lf\n", cvv);
+    message("Change of support coefficient = %lf\n", r_coef);
+  }
+  anam_hermite->setRCoef(r_coef);
+  double varb = anam_hermite->getVariance();
 
   /* Transform zcuts into gaussian equivalent */
 
-  ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
+  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
 
   /* Fill the array phi_b_zc */
 
   for (int icut = 0; icut < ncuts; icut++)
   {
-    hn = hermitePolynomials(ycuts[icut], 1., nbpoly);
+    VectorDouble hn = hermitePolynomials(ycuts[icut], 1., nbpoly);
     phi_b_zc[icut] = hermiteCoefMetal(ycuts[icut], hn);
   }
 
   /* Computing S and Y on panels */
+
+  double vv_min =  1.e30;
+  double zv_min =  1.e30;
+  double vv_max = -1.e30;
+  double zv_max = -1.e30;
+  double sv_min =  1.e30;
+  double yv_min =  1.e30;
+  double sv_max = -1.e30;
+  double yv_max = -1.e30;
 
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     anam_hermite->setPsiHn(psi_hn);
     anam_hermite->calculateMeanAndVariance();
-    zvstar = db->getArray(iech, att_est);
-    varv = db->getArray(iech, att_var);
-    if (anam_point_to_block(anam, 0, varv, TEST, TEST)) goto label_end;
+    double zvstar = db->getArray(iech, col_est);
+    double varv = db->getArray(iech, col_var);
+    if (anam_point_to_block(anam, 0, varv, TEST, TEST)) continue;
     db->setArray(iech, iptr_sV, anam_hermite->getRCoef());
     db->setArray(iech, iptr_yV, anam_hermite->RawToTransformValue(zvstar));
 
@@ -418,21 +440,21 @@ int uc(Db *db,
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
-    sv = db->getArray(iech, iptr_sV);
-    yv = db->getArray(iech, iptr_yV);
+    double sv = db->getArray(iech, iptr_sV);
+    double yv = db->getArray(iech, iptr_yV);
 
     /* Loop on the cutoffs */
 
     for (int icut = 0; icut < ncuts; icut++)
     {
-      yc = ycuts[icut];
-      ore = 1.
-          - law_cdf_gaussian(
+      double yc = ycuts[icut];
+      double ore = 1. - law_cdf_gaussian(
               (yc - yv * sv / r_coef) / sqrt(
                   1. - (sv / r_coef) * (sv / r_coef)));
-      hn = hermitePolynomials(yv, 1., nbpoly);
+      VectorDouble hn = hermitePolynomials(yv, 1., nbpoly);
       for (int ih = 0; ih < nbpoly; ih++)
         hn[ih] *= pow(sv / r_coef, (double) ih);
+      double metal;
       matrix_product(1, nbpoly, 1, hn.data(), phi_b_zc[icut].data(), &metal);
 
       if (sv < sv_min) sv_min = sv;
@@ -459,7 +481,7 @@ int uc(Db *db,
             db->getSampleNumber(true), ncuts);
     message("- Number of Polynomials = %d\n", nbpoly);
     message("- Mean                  = %lf\n", mean);
-    message("- Punctual Variance     = %lf\n", variance);
+    message("- Punctual Variance     = %lf\n", varp);
     message("- Block Variance        = %lf\n", varb);
     message("- Change of Support     = %lf\n", r_coef);
     message("- var_V in [%lf, %lf]\n", vv_min, vv_max);
@@ -468,14 +490,9 @@ int uc(Db *db,
     message("- Y_V   in [%lf, %lf]\n", yv_min, yv_max);
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
   if (iptr_sV >= 0) db->deleteColumnByUID(iptr_sV);
   if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -864,10 +881,8 @@ static int st_ce_compute_M(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- ** \param[in]  flag_est     1 for computing the Estimation
- ** \param[in]  flag_std     1 for computing the St. Deviation
+ ** \param[in]  name_est     Name of the Kriging estimate
+ ** \param[in]  name_std     Name of the Kriging St. deviation
  ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
  ** \param[in]  proba        Probability
  ** \param[in]  nbsimu       Number of Simulation outcomes
@@ -877,18 +892,32 @@ static int st_ce_compute_M(Db *db,
 int ce(Db *db,
        AAnam *anam,
        const Selectivity* selectivity,
-       int att_est,
-       int att_std,
-       bool flag_est,
-       bool flag_std,
+       const String& name_est,
+       const String& name_std,
        bool flag_OK,
        double proba,
        int nbsimu,
-       int verbose)
+       bool verbose)
 {
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   int ncuts = selectivity->getNCuts();
-
+  if (db == nullptr)
+  {
+    messerr("The argument 'db'  must be defined");
+    return 1;
+  }
+  int col_est = db->getUID(name_est);
+  if (col_est <= 0)
+  {
+    messerr("The Estimation variable must be defined");
+    return 1;
+  }
+  int col_std = db->getUID(name_std);
+  if (col_std <= 0)
+  {
+    messerr("The St. Deviation variable must be defined");
+    return 1;
+  }
   if (anam->getType() != EAnam::HERMITIAN)
   {
     messerr("The argument 'anam' must be Gaussian");
@@ -898,9 +927,6 @@ int ce(Db *db,
 
   /* Analyzing the codes */
 
-  int count = 0;
-  if (flag_est) count++;
-  if (flag_std) count++;
   VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
   int need_T = selectivity->isNeededT();
   int nvarout = selectivity->getVariableNumber();
@@ -932,7 +958,7 @@ int ce(Db *db,
   const AnamHermite* anamH = dynamic_cast<const AnamHermite*>(anam);
   if (selectivity->isUsed(ESelectivity::Z))
   {
-    if (st_ce_compute_Z(db, anamH, selectivity, iptr, att_est, att_std,
+    if (st_ce_compute_Z(db, anamH, selectivity, iptr, col_est, col_std,
                         nbsimu, flag_OK)) return 1;
   }
 
@@ -940,7 +966,7 @@ int ce(Db *db,
 
   if (selectivity->isUsed(ESelectivity::T))
   {
-    if (st_ce_compute_T(1, db, selectivity, iptr, att_est, att_std,
+    if (st_ce_compute_T(1, db, selectivity, iptr, col_est, col_std,
                         ycuts, nbsimu, flag_OK)) return 1;
   }
 
@@ -948,7 +974,7 @@ int ce(Db *db,
 
   if (selectivity->isUsed(ESelectivity::Q))
   {
-    if (st_ce_compute_Q(db, anamH, selectivity, iptr, att_est, att_std,
+    if (st_ce_compute_Q(db, anamH, selectivity, iptr, col_est, col_std,
                         ycuts, nbsimu, flag_OK)) return 1;
   }
 
@@ -970,7 +996,7 @@ int ce(Db *db,
 
   if (selectivity->isUsed(ESelectivity::PROBA) && need_T)
   {
-    if (st_ce_compute_T(2, db, selectivity, iptr, att_est, att_std,
+    if (st_ce_compute_T(2, db, selectivity, iptr, col_est, col_std,
                         ycuts, nbsimu, flag_OK)) return 1;
   }
 
@@ -978,7 +1004,7 @@ int ce(Db *db,
 
   if (selectivity->isUsed(ESelectivity::QUANT))
   {
-    if (st_ce_compute_quant(db, anamH, selectivity, iptr, att_est, att_std,
+    if (st_ce_compute_quant(db, anamH, selectivity, iptr, col_est, col_std,
                             proba, flag_OK)) return 1;
   }
 

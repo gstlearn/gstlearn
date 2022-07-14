@@ -11,7 +11,6 @@
 #include "geoslib_enum.h"
 #include "geoslib_old_f.h"
 
-#include "Stats/Selectivity.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
@@ -65,7 +64,7 @@ VectorDouble AAnam::z2factor(double /*z*/, const VectorInt& /*nfact*/) const
  ** \param[in]  cvv      Mean covariance value over a block
  **
  *****************************************************************************/
-double AAnam::invertVariance(double cvv)
+double AAnam::invertVariance(double cvv) const
 {
   if (! allowChangeSupport()) return TEST;
   double s0, s1, s2, var0, var1;

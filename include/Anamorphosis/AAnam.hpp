@@ -21,7 +21,6 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class Selectivity;
 
 class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
 {
@@ -45,11 +44,10 @@ public:
   virtual double       RawToTransformValue(double z) const;
   virtual double       TransformToRawValue(double y) const;
 
-  double invertVariance(double cvv);
+  double invertVariance(double cvv) const;
   int DbZToFactor(Db *db,
                   const VectorInt& ifacs,
                   const NamingConvention& namconv = NamingConvention("Factor"));
-
   VectorDouble RawToTransformVec(const VectorDouble& z) const;
   VectorDouble TransformToRawVec(const VectorDouble& z) const;
 
