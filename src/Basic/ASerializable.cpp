@@ -24,6 +24,7 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
+#include <wordexp.h>
 
 //#include <boost/filesystem.hpp>
 
@@ -94,7 +95,7 @@ bool ASerializable::_fileOpenWrite(const String& filename,
 {
   // Close the stream if opened
   if (os.is_open()) os.close();
-  // Build the multi-platform filename and open it
+  // Build the multi-platform filename
   String filepath = buildFileName(filename, true);
   // Open new stream
   os.open(filepath, std::ios::out | std::ios::trunc);
@@ -114,7 +115,7 @@ bool ASerializable::_fileOpenRead(const String& filename,
 {
   // Close the stream if opened
   if (is.is_open()) is.close();
-  // Build the multi-platform filename and open it
+  // Build the multi-platform filename
   String filepath = buildFileName(filename, true);
   // Open new stream
   is.open(filepath, std::ios::in);
@@ -224,7 +225,14 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
   }
   fileLocal += filename;
 
-  return fileLocal;
+  // Check the presence of tilde character
+  wordexp_t p;
+  wordexp(fileLocal.c_str(), &p, 0);
+
+  String filePath = p.we_wordv[p.we_offs];
+  wordfree(&p);
+
+  return filePath;
 }
 
 String ASerializable::getHomeDirectory(const String& sub)
