@@ -55,8 +55,8 @@ int main(int /*argc*/, char */*argv*/[])
   db1->display();
   
   // Serialize db1
-  (void) db1->dumpToNF("Neutral.Db.ascii",verbose);
-  (void) db1->dumpToNF("Neutral2.Db.ascii",verbose);
+  (void) db1->dumpToNF("Neutral.Db.ascii");
+  (void) db1->dumpToNF("Neutral2.Db.ascii");
 
   // Deserialize db2
   Db* db2 = Db::createFromNF("Neutral.Db.ascii",verbose);
@@ -64,7 +64,7 @@ int main(int /*argc*/, char */*argv*/[])
   delete db2;
   db2 = Db::createFromNF("Neutral2.Db.ascii",verbose);
   db2->display();
-  (void) db2->dumpToNF("Neutral22.Db.ascii",verbose);
+  (void) db2->dumpToNF("Neutral22.Db.ascii");
 
   // =======================
   // Checking Db (grid)
@@ -81,7 +81,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbg1->display();
 
   // Serialize dbg1
-  (void) dbg1->dumpToNF("Neutral.Dbg.ascii",verbose);
+  (void) dbg1->dumpToNF("Neutral.Dbg.ascii");
 
   // Deserialize dbg2
   Db* dbg2 = DbGrid::createFromNF("Neutral.Dbg.ascii",verbose);
@@ -100,7 +100,7 @@ int main(int /*argc*/, char */*argv*/[])
   poly1.display();
 
   // Serialize poly1
-  (void) poly1.dumpToNF("Neutral.Polygon.ascii",verbose);
+  (void) poly1.dumpToNF("Neutral.Polygon.ascii");
 
   // Deserialize poly2
   Polygons* poly2 = Polygons::createFromNF("Neutral.Polygon.ascii",verbose);
@@ -120,7 +120,7 @@ int main(int /*argc*/, char */*argv*/[])
   vario1.display();
 
   // Serialize vario1
-  (void) vario1.dumpToNF("Neutral.Vario.ascii",verbose);
+  (void) vario1.dumpToNF("Neutral.Vario.ascii");
 
   // Deserialize vario2
   Vario* vario2 = Vario::createFromNF("Neutral.Vario.ascii",verbose);
@@ -135,7 +135,7 @@ int main(int /*argc*/, char */*argv*/[])
   model1->display();
 
   // Serialize model1
-  (void) model1->dumpToNF("Neutral.Model.ascii",verbose);
+  (void) model1->dumpToNF("Neutral.Model.ascii");
 
   // Deserialize model2
   Model* model2 = Model::createFromNF("Neutral.Model.ascii",verbose);
@@ -156,7 +156,7 @@ int main(int /*argc*/, char */*argv*/[])
   table1->display();
 
   // Serialize table
-  (void) table1->dumpToNF("Neutral.Table.ascii",verbose);
+  (void) table1->dumpToNF("Neutral.Table.ascii");
 
   // Deserialize table1
   Table* table2 = Table::createFromNF("Neutral.Table.ascii",verbose);
@@ -170,7 +170,7 @@ int main(int /*argc*/, char */*argv*/[])
   rule->display();
 
   // Serialize
-  (void) rule->dumpToNF("Neutral.Rule.ascii",verbose);
+  (void) rule->dumpToNF("Neutral.Rule.ascii");
 
   // Deserialize
   Rule* rule2 = Rule::createFromNF("Neutral.Rule.ascii",verbose);
@@ -187,7 +187,7 @@ int main(int /*argc*/, char */*argv*/[])
   polyline->display();
 
   // Serialize
-  (void) polyline->dumpToNF("Neutral.Polyline.ascii", verbose);
+  (void) polyline->dumpToNF("Neutral.Polyline.ascii");
 
   // Deserialize
   PolyLine2D* polyline2 = PolyLine2D::createFromNF("Neutral.Polyline.ascii", verbose);

@@ -76,12 +76,12 @@ bool ASerializable::dumpToNF(const String& neutralFilename, bool verbose) const
 {
   std::ofstream os;
   bool ret = true;
-  if (_fileOpenWrite(neutralFilename, os, verbose))
+  if (_fileOpenWrite(neutralFilename, os, true))
   {
     ret = _serialize(os, verbose);
     if (! ret)
     {
-      if (verbose) messerr("Problem writing in the Neutral File.");
+      messerr("Problem writing in the Neutral File.");
     }
     os.close();
   }

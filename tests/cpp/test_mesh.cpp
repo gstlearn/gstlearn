@@ -117,7 +117,7 @@ int main(int /*argc*/, char */*argv*/[])
                                         apices,meshes,verbose);
   if (mesh == nullptr) return(1);
   mesh->display();
-  (void) mesh->dumpToNF("Standard.ascii",verbose);
+  (void) mesh->dumpToNF("Standard.ascii");
 
   AMesh* meshb = nullptr;
   if (flag_mesh)
@@ -129,7 +129,7 @@ int main(int /*argc*/, char */*argv*/[])
                                     apices, meshes, verbose);
     if (meshb == nullptr) return(1);
     meshb->display();
-    (void) meshb->dumpToNF("Standard.bis.ascii",verbose);
+    (void) meshb->dumpToNF("Standard.bis.ascii");
   }
 
   /* Instantiate the ShiftOp */
