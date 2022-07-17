@@ -220,7 +220,9 @@ int Db::resetFromOnePoint(const VectorDouble& tab, int flag_add_rank)
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
+  VectorDouble tabloc = tab;
+  if (tabloc.empty()) tabloc.resize(ndim,0.);
+  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   int jcol = 0;
   if (flag_add_rank) jcol++;

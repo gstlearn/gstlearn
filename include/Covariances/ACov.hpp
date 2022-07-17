@@ -105,6 +105,15 @@ public:
                  const VectorDouble& ext,
                  const VectorInt& ndisc,
                  const VectorDouble& angles = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode()) const;
+  double evalCxv(const Db* db,
+                 const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
                  const CovCalcMode& mode = CovCalcMode()) const;
@@ -112,6 +121,7 @@ public:
                                const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
+                               const VectorDouble& x0 = VectorDouble(),
                                const CovCalcMode& mode = CovCalcMode()) const;
   VectorDouble evalPointToDb(const SpacePoint& p1,
                              const Db* db2,
@@ -134,6 +144,29 @@ public:
                                   int ivar = 0,
                                   int jvar = 0,
                                   const CovCalcMode& mode = CovCalcMode()) const;
+
+  double extensionVariance(const Db* db,
+                           const VectorDouble& ext,
+                           const VectorInt& ndisc,
+                           const VectorDouble& angles = VectorDouble(),
+                           const VectorDouble& x0 = VectorDouble(),
+                           int ivar = 0,
+                           int jvar = 0) const;
+  double samplingDensityVariance(const Db* db,
+                                 const VectorDouble& ext,
+                                 const VectorInt& ndisc,
+                                 const VectorDouble& angles = VectorDouble(),
+                                 const VectorDouble& x0 = VectorDouble(),
+                                 int ivar = 0,
+                                 int jvar = 0) const;
+  double specificVolume(const Db *db,
+                        double mean,
+                        const VectorDouble &ext,
+                        const VectorInt &ndisc,
+                        const VectorDouble &angles = VectorDouble(),
+                        const VectorDouble &x0 = VectorDouble(),
+                        int ivar = 0,
+                        int jvar = 0) const;
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
