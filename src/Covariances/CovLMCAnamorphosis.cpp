@@ -181,38 +181,38 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
                                         const CovCalcMode& mode) const
 {
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
-  int iclass = getAnamIClass();
-  bool flag_support = anamH->isChangeSupportDefined();
-
-  double dist2 = getDistance(p1, p2);
 
   double rho = 1.;
-  if (dist2 > 0.)
+  if (getDistance(p1, p2) > 0.)
     rho = CovLMC::eval(ivar, jvar, p1, p2, mode);
-  if (flag_support) rho *= anamH->getRCoef();
+  double r = 1.;
+  if (anamH->isChangeSupportDefined()) r = anamH->getRCoef();
 
+  int iclass = getAnamIClass();
   if (iclass == 0)
   {
 
     // For the whole discretized variable
     double cov = 0.;
     double rhon = 1.;
+    double rn = 1.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       rhon *= rho;
+      rn *= r;
       double psin = anamH->getPsiHn(jclass);
       switch (mode.getMember().getValue())
       {
         case ECalcMember::E_LHS:
-          cov += psin * psin * rhon * rhon;
+          cov += psin * psin * rn * rn * rhon;
           break;
 
         case ECalcMember::E_RHS:
-          cov += psin * psin * rhon;
+          cov += psin * psin * rn * rhon;
           break;
 
         case ECalcMember::E_VAR:
-          cov += psin * psin;
+          cov += psin * psin * rhon;
           break;
       }
       return cov;
@@ -223,16 +223,17 @@ double CovLMCAnamorphosis::_evalHermite(int ivar,
 
     // For the given factor 'iclass'
     double rhon = pow(rho, (double) iclass);
+    double rn = pow(r, (double) iclass);
     switch (mode.getMember().getValue())
     {
       case ECalcMember::E_LHS:
-        return rhon * rhon;
+        return rn * rn * rhon;
 
       case ECalcMember::E_RHS:
-        return rhon;
+        return rn * rhon;
 
       case ECalcMember::E_VAR:
-        return 1;
+        return rhon;
     }
   }
   return TEST;
@@ -244,50 +245,24 @@ double CovLMCAnamorphosis::_evalHermite0(int /*ivar*/,
 {
   const AnamHermite *anamH = dynamic_cast<const AnamHermite*>(_anam);
   int iclass = getAnamIClass();
-  bool flag_support = anamH->isChangeSupportDefined();
 
-  double rho = 1.;
-  if (flag_support) rho *= anamH->getRCoef();
+  if (mode.getMember().getValue() != ECalcMember::E_LHS)
+    messageAbort("CovLMCAnamorphosis eval0");
 
   if (iclass == 0)
   {
     // For the whole discretized variables
     double cov = 0.;
-    double rhon = 1.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
-      rhon *= rho;
       double psin = anamH->getPsiHn(jclass);
-      switch (mode.getMember().getValue())
-      {
-        case ECalcMember::E_LHS:
-           cov += psin * psin * rhon * rhon;
-           break;
-
-         case ECalcMember::E_RHS:
-           cov += psin * psin * rhon;
-           break;
-
-         case ECalcMember::E_VAR:
-           cov += psin * psin;
-           break;
-      }
-      return cov;
+      cov += psin * psin;
     }
+    return cov;
   }
   else
   {
-    switch (mode.getMember().getValue())
-    {
-      case ECalcMember::E_LHS:
-         return 1.;
-
-      case ECalcMember::E_RHS:
-        return 1.;
-
-      case ECalcMember::E_VAR:
-        return 1.;
-    }
+    return 1.;
   }
   return TEST;
 }

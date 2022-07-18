@@ -356,11 +356,11 @@ Data Base Statistics
 7 - Name Kriging.Var.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      4.281
- Maximum value       =      7.028
- Mean value          =      5.646
- Standard Deviation  =      0.633
- Variance            =      0.401
+ Minimum value       =      2.342
+ Maximum value       =      6.045
+ Mean value          =      4.332
+ Standard Deviation  =      0.820
+ Variance            =      0.672
 
 <----- Block Kriging (variable size) ----->
 
@@ -380,11 +380,11 @@ Data Base Statistics
 7 - Name KrigCell.Var.stdev - Locator NA
  Nb of data          =       2500
  Nb of active values =       2500
- Minimum value       =      4.281
- Maximum value       =      7.028
- Mean value          =      5.646
- Standard Deviation  =      0.633
- Variance            =      0.401
+ Minimum value       =      2.342
+ Maximum value       =      6.045
+ Mean value          =      4.332
+ Standard Deviation  =      0.820
+ Variance            =      0.672
 
 Data Base Grid Characteristics
 ==============================
