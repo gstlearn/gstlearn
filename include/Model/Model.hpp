@@ -267,13 +267,13 @@ public:
     return _covaList->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
   }
   double specificVolume(const Db *db,
-                              double mean,
-                              const VectorDouble &ext,
-                              const VectorInt &ndisc,
-                              const VectorDouble &angles = VectorDouble(),
-                              const VectorDouble &x0 = VectorDouble(),
-                              int ivar = 0,
-                              int jvar = 0) const
+                        double mean,
+                        const VectorDouble &ext,
+                        const VectorInt &ndisc,
+                        const VectorDouble &angles = VectorDouble(),
+                        const VectorDouble &x0 = VectorDouble(),
+                        int ivar = 0,
+                        int jvar = 0) const
   {
     return _covaList->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
