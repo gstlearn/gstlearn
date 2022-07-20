@@ -76,6 +76,15 @@ int main(int /*argc*/, char */*argv*/[])
   data->setLocator("Z", ELoc::Z);
   data->display(&dbfmt);
 
+  Selectivity* selectivity =
+      Selectivity::createByCodes( { ESelectivity::Q, ESelectivity::T },
+                                  { 0., 0.5 }, true, true);
+
+  // Global experimental selectivity
+  data->display();
+  selectivity->calculateFromDb(data);
+  selectivity->display();
+
   // Create grid of (single) Panel
   double dx_P = 0.250;
   double x0_P = 0.375;
@@ -99,6 +108,10 @@ int main(int /*argc*/, char */*argv*/[])
   data->setName("Y.Z","Gauss.Z");
   data->display();
 
+  // Selectivity in the model
+  anam->globalSelectivity(selectivity);
+  selectivity->display();
+
   // Calculate the variogram
   VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
   Vario* vario = Vario::computeFromDb(varioparam, data);
@@ -108,7 +121,7 @@ int main(int /*argc*/, char */*argv*/[])
   Model* model = new Model(1, ndim);
   Constraints constraints = Constraints();
   constraints.setConstantSillValue(1.);
-  (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, true,
+  (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, false,
                      Option_AutoFit(), constraints);
   model->display();
 
@@ -160,8 +173,8 @@ int main(int /*argc*/, char */*argv*/[])
   message("Change of Support coefficient (DGM-1)= %lf\n", r1);
 
   // Update the Model with Block anamorphosis
-  AnamHermite* anamb1 = dynamic_cast<AnamHermite*>(anam->clone());
-  anamb1->setRCoef(r1);
+  AnamHermite* anam_b1 = dynamic_cast<AnamHermite*>(anam->clone());
+  anam_b1->setRCoef(r1);
 
   // Regularization of the point model by the block support
   Vario* vario_b1_Z = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
@@ -171,10 +184,10 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b1_Y = new Model(1, ndim);
   constraints.setConstantSillValue(1);
-  (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, true,
+  (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
                       Option_AutoFit(), constraints);
+  model_b1_Y->addAnam(anam_b1);
   model_b1_Y->display();
-  model_b1_Y->addAnam(anamb1);
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
   (void) dk(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
@@ -200,7 +213,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b2_Y = new Model(1, ndim);
   constraints.setConstantSillValue(r2 * r2);
-  (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, true,
+  (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
                      Option_AutoFit(), constraints);
   model_b2_Y->display();
 
@@ -208,9 +221,9 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->normalize(1.0);
 
   // Update the Model with Block anamorphosis
-  AnamHermite* anamb = dynamic_cast<AnamHermite*>(anam->clone());
-  anamb->setRCoef(r2);
-  model_b2_Y->addAnam(anamb);
+  AnamHermite* anam_b2 = dynamic_cast<AnamHermite*>(anam->clone());
+  anam_b2->setRCoef(r2);
+  model_b2_Y->addAnam(anam_b2);
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
   (void) dk(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
@@ -224,10 +237,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Selectivity Function ==================================
 
-//  blocs->setLocator("Hn*", ELoc::Z);
-//  VectorDouble zcuts = {0., 0.5};
-//  anamb1->selectivity(blocs, {ESelectivity::T,ESelectivity::Q, ESelectivity::Z}, zcuts,
-//                      NamingConvention("DK_DGM2"))
+  anamFactor2Selectivity(blocs, anam, selectivity,
+                         blocs->getNames("DK_Pts*estim"),blocs->getNames("DK_Pts*stdev"));
+  blocs->display();
 
   // ====================== Free pointers ==================================
 
@@ -240,6 +252,8 @@ int main(int /*argc*/, char */*argv*/[])
   if (panel      != nullptr) delete panel;
   if (blocs      != nullptr) delete blocs;
   if (anam       != nullptr) delete anam;
+  if (anam_b1    != nullptr) delete anam_b1;
+  if (anam_b2    != nullptr) delete anam_b2;
   if (varioparam != nullptr) delete varioparam;
   if (vario      != nullptr) delete vario;
   if (vario_b1_Z != nullptr) delete vario_b1_Z;

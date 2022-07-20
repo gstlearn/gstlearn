@@ -459,6 +459,7 @@ MatrixSquareGeneral ACov::evalCvvM(const VectorDouble& ext,
  * @param ext    Vector of Block extensions
  * @param ndisc  Vector of Block discretization
  * @param angles Vector of rotation angles
+ * @param x0     Vector for origin of block
  * @param ivar   Rank of the first variable
  * @param jvar   Rank of the second variable
  * @param mode   CovCalcMode structure
@@ -468,6 +469,7 @@ double ACov::evalCxv(const SpacePoint& p1,
                      const VectorDouble& ext,
                      const VectorInt& ndisc,
                      const VectorDouble& angles,
+                     const VectorDouble& x0,
                      int ivar,
                      int jvar,
                      const CovCalcMode& mode) const
@@ -487,9 +489,52 @@ double ACov::evalCxv(const SpacePoint& p1,
   }
 
   double total = TEST;
-  DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles);
+  DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
   if (dbgrid != nullptr)
     total = evalAveragePointToDb(p1, dbgrid, ivar, jvar, mode);
+  delete dbgrid;
+
+  return total;
+}
+
+double ACov::evalCxv(const Db* db,
+                     const VectorDouble& ext,
+                     const VectorInt& ndisc,
+                     const VectorDouble& angles,
+                     const VectorDouble& x0,
+                     int ivar,
+                     int jvar,
+                     const CovCalcMode& mode) const
+{
+  int ndim = getNDim();
+  if (db == nullptr)
+  {
+    messerr("Argument 'db' should be defined");
+    return TEST;
+  }
+  if (ndim != db->getNDim())
+  {
+    messerr("Db (%d) should have the seame dimension as the Model(%d)",
+            db->getNDim(), ndim);
+    return TEST;
+  }
+  if (ndim != (int) ext.size())
+  {
+    messerr("Block Extension (%d) should have same dimension as the Model %d)",
+            (int) ext.size(),ndim);
+    return TEST;
+  }
+  if (ndim != (int) ndisc.size())
+  {
+    messerr("Discretization (%d) should have same dimension as the Model (%d)",
+            (int) ndisc.size(), ndim);
+    return TEST;
+  }
+
+  double total = TEST;
+  DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
+  if (dbgrid != nullptr)
+    total = evalAverageDbToDb(db, dbgrid, ivar, jvar, mode);
   delete dbgrid;
 
   return total;
@@ -499,13 +544,14 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
                                    const VectorDouble& ext,
                                    const VectorInt& ndisc,
                                    const VectorDouble& angles,
+                                   const VectorDouble& x0,
                                    const CovCalcMode& mode) const
 {
   int nvar = getNVariables();
   MatrixSquareGeneral mat(nvar);
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
-      mat.setValue(ivar, jvar, evalCxv(p1, ext, ndisc, angles, ivar, jvar, mode));
+      mat.setValue(ivar, jvar, evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode));
   return mat;
 }
 
@@ -516,6 +562,9 @@ MatrixSquareGeneral ACov::evalCxvM(const SpacePoint& p1,
  * @param angles Vector of rotation angles
  * @param x0     Vector of Discretization origin
  * @return
+ *
+ * @remark If block origin is not defined, it is set so that the
+ * @remark center of the block is one the point (0,0)
  */
 DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
                                const VectorInt& ndisc,
@@ -524,7 +573,12 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 {
   int ndim = getNDim();
   VectorDouble x0loc = x0;
-  if (x0loc.empty()) x0loc.resize(ndim,0.);
+  if (x0loc.empty() || ndim != (int) x0loc.size() )
+  {
+    x0loc.resize(ndim);
+    for (int idim = 0; idim < ndim; idim++)
+      x0loc[idim] = -ext[idim] / 2.;
+  }
   VectorDouble dx(ndim, 0.);
   for (int idim = 0; idim < ndim; idim++)
     dx[idim] = ext[idim] / ndisc[idim];
@@ -600,4 +654,97 @@ MatrixRectangular ACov::evalCovMatrix(const Db* db1,
     jech1++;
   }
   return mat;
+}
+
+/**
+ * Variance of Extension of a set of points and the block
+ * @param db      Reference Data Base
+ * @param ext     Vector giving the extensions of the target block
+ * @param ndisc   Vector giving the discretization
+ * @param angles  Vector for the rotation angles of the block (optional)
+ * @param x0      Optional origin of the Block
+ * @param ivar    Rank of the first variable
+ * @param jvar    Rank of the second variable
+ * @return
+ */
+double ACov::extensionVariance(const Db* db,
+                               const VectorDouble &ext,
+                               const VectorInt &ndisc,
+                               const VectorDouble &angles,
+                               const VectorDouble& x0,
+                               int ivar,
+                               int jvar) const
+{
+  CovCalcMode mode = CovCalcMode();
+  mode.setAsVario(true);
+
+  double sigmaE = TEST;
+  DbGrid* dbgrid = _discretizeBlock(ext, ndisc, angles, x0);
+  if (dbgrid != nullptr)
+  {
+    double GxV = evalAverageDbToDb(db, dbgrid, ivar, jvar, mode);
+    double Gxx = evalAverageDbToDb(db, db, ivar, jvar, mode);
+    double GVV = evalAverageDbToDb(dbgrid, dbgrid, ivar, jvar, mode);
+    sigmaE = 2. * GxV - Gxx - GVV;
+  }
+  delete dbgrid;
+
+  return sigmaE;
+}
+
+/**
+ * Calculate the Sampling Density Variance
+ * @param db      Set of data points
+ * @param ext     Block extension
+ * @param ndisc   Discretization
+ * @param angles  Optional rotation angles for the Block
+ * @param x0      Optional origin of the block
+ * @param ivar    Rank of the first variable
+ * @param jvar    Rank of the second variable
+ * @return
+ */
+double ACov::samplingDensityVariance(const Db *db,
+                                     const VectorDouble &ext,
+                                     const VectorInt &ndisc,
+                                     const VectorDouble &angles,
+                                     const VectorDouble &x0,
+                                     int ivar,
+                                     int jvar) const
+{
+  double sigmaE = extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+  double maille = 1.;
+  int ndim = getNDim();
+  for (int idim = 0; idim < ndim; idim++)
+    maille *= ext[idim];
+  return sigmaE * maille;
+}
+
+/**
+ * Calculate the Specific Volume
+ * @param db     Set of data points
+ * @param mean   Value of the Mean
+ * @param ext    Target Block extension
+ * @param ndisc  Vector of discretization
+ * @param angles Optional rotation angle for block
+ * @param x0     Optional origin of the Block
+ * @param ivar   Rank of the first variable
+ * @param jvar   Rank of the second variable
+ * @return
+ */
+double ACov::specificVolume(const Db *db,
+                            double mean,
+                            const VectorDouble &ext,
+                            const VectorInt &ndisc,
+                            const VectorDouble &angles,
+                            const VectorDouble &x0,
+                            int ivar,
+                            int jvar) const
+{
+  if (FFFF(mean) || mean <= 0.)
+  {
+    messerr("Argiment 'mean'  must be defined and positive");
+    return TEST;
+  }
+  return samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar)
+      / (mean * mean);
 }

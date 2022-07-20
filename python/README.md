@@ -91,7 +91,7 @@ Execute the following commands:
 Notes:
 
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
-* According your Linux distribution you may have to replace pybind11 by the quoted string "pybind11[global]"
+* According your Linux distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"`
 
 ### MacOS:
 
@@ -106,7 +106,7 @@ Execute the following commands (Not tested):
 Notes:
 
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
-* According your MacOS distribution you may have to replace pybind11 by the quoted string "pybind11[global]"
+* According your MacOS distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"` 
 
 ### Windows:
 

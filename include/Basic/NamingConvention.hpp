@@ -41,6 +41,10 @@ public:
                            const String& suffix = String(),
                            int nitems = 1,
                            bool flagLocate = true) const;
+  void setNamesAndLocators(Db* dbout,
+                           int iattout_start,
+                           const VectorString& names,
+                           bool flagLocate = true) const;
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,

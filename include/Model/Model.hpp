@@ -197,19 +197,21 @@ public:
                  const VectorDouble& ext,
                  const VectorInt& ndisc,
                  const VectorDouble& angles = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
                  int ivar = 0,
                  int jvar = 0,
                  const CovCalcMode& mode = CovCalcMode())
   {
-    return _covaList->evalCxv(p1, ext, ndisc, angles, ivar, jvar, mode);
+    return _covaList->evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode);
   }
   MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
                                const VectorDouble& ext,
                                const VectorInt& ndisc,
                                const VectorDouble& angles = VectorDouble(),
+                               const VectorDouble& x0 = VectorDouble(),
                                const CovCalcMode& mode = CovCalcMode())
   {
-    return _covaList->evalCxvM(p1, ext, ndisc, angles, mode);
+    return _covaList->evalCxvM(p1, ext, ndisc, angles, x0, mode);
   }
   VectorDouble evalPointToDb(const SpacePoint& p1,
                              const Db* db2,
@@ -244,11 +246,42 @@ public:
   {
     return _covaList->evalCovMatrix(db1, db2, ivar, jvar, mode);
   }
-
+  double extensionVariance(const Db* db,
+                           const VectorDouble& ext,
+                           const VectorInt& ndisc,
+                           const VectorDouble& angles = VectorDouble(),
+                           const VectorDouble& x0 = VectorDouble(),
+                           int ivar = 0,
+                           int jvar = 0)
+  {
+    return _covaList->extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double samplingDensityVariance(const Db* db,
+                                 const VectorDouble& ext,
+                                 const VectorInt& ndisc,
+                                 const VectorDouble& angles = VectorDouble(),
+                                 const VectorDouble& x0 = VectorDouble(),
+                                 int ivar = 0,
+                                 int jvar = 0) const
+  {
+    return _covaList->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double specificVolume(const Db *db,
+                              double mean,
+                              const VectorDouble &ext,
+                              const VectorInt &ndisc,
+                              const VectorDouble &angles = VectorDouble(),
+                              const VectorDouble &x0 = VectorDouble(),
+                              int ivar = 0,
+                              int jvar = 0) const
+  {
+    return _covaList->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
+  }
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
   int  getAnamIClass() const { return _covaList->getAnamIClass(); }
+  int  getAnamNClass() const { return _covaList->getAnamNClass(); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////

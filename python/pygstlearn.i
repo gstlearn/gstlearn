@@ -144,6 +144,9 @@ void exit_f(void)
 %extend Table {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Selectivity {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class
@@ -372,6 +375,8 @@ import gstlearn.plot as gp
 setattr(gl.Db,"plot", gp.point)
 setattr(gl.Db,"plot_correlation", gp.correlation)
 setattr(gl.Db,"plot_hist", gp.hist)
+setattr(gl.Db,"color_plots", gp.color_plots)
+setattr(gl.Db,"size_plots", gp.size_plots)
 
 setattr(gl.DbGrid,"plot", gp.grid)
 setattr(gl.DbGrid,"plot_grids", gp.grids)

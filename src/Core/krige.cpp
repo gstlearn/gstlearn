@@ -6924,11 +6924,6 @@ int dk(Db* dbin,
     messerr("This application is limited to the monovariate Model case");
     return 1;
   }
-  if (ABS(model->getTotalSill(0,0) - 1.) > EPSILON3)
-  {
-    messerr("This option requires a Model with Total Sill equal to 1.");
-    return 1;
-  }
   if (! model->hasAnam())
   {
     messerr("Argument 'model' should has an Anamorphosis attached");

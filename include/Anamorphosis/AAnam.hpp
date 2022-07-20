@@ -21,7 +21,6 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
-class Selectivity;
 
 class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
 {
@@ -35,6 +34,7 @@ public:
   virtual const EAnam& getType() const = 0;
   virtual bool         hasFactor() const { return false; }
   virtual int          getNFactor() const { return 0; }
+  virtual int          getNClass() const { return 0; }
   virtual bool         isChangeSupportDefined() const = 0;
   virtual VectorDouble z2factor(double z, const VectorInt& nfact) const;
   virtual double       computeVariance(double sval) const;
@@ -44,26 +44,12 @@ public:
   virtual double       RawToTransformValue(double z) const;
   virtual double       TransformToRawValue(double y) const;
 
-  double invertVariance(double cvv);
-  void recoveryLocal(Db *db,
-                      int iech0,
-                      int iptr,
-                      const VectorInt& codes,
-                      const VectorInt& qt_vars,
-                      double zestim,
-                      double zstdev,
-                      const Selectivity& calest);
-  int codeAnalyze(bool verbose,
-                  const VectorInt& codes,
-                  int nb_est,
-                  int nb_std,
-                  int ncut,
-                  double proba,
-                  int flag_inter,
-                  VectorInt& qt_vars) const;
+  double invertVariance(double cvv) const;
   int DbZToFactor(Db *db,
                   const VectorInt& ifacs,
                   const NamingConvention& namconv = NamingConvention("Factor"));
+  VectorDouble RawToTransformVec(const VectorDouble& z) const;
+  VectorDouble TransformToRawVec(const VectorDouble& z) const;
 
 protected:
   bool _isSampleSkipped(Db *db,

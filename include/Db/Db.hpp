@@ -74,7 +74,8 @@ public:
                    int ndim = 2,
                    int seed = 321415,
                    int flag_add_rank = 1);
-  int resetFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  int resetFromOnePoint(const VectorDouble &tab = VectorDouble(),
+                        int flag_add_rank = 1);
   int resetSamplingDb(const Db* dbin,
                       double proportion = 0,
                       int number = 0,
@@ -104,7 +105,8 @@ public:
                            double range = 0.,
                            double beta = 0.,
                            int flag_add_rank = 1);
-  static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  static Db* createFromOnePoint(const VectorDouble &tab = VectorDouble(),
+                                int flag_add_rank = 1);
   static Db* createSamplingDb(const Db* dbin,
                               double proportion = 0,
                               int number = 0,

@@ -14,8 +14,8 @@
 
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Stats/Selectivity.hpp"
+#include "Basic/ASerializable.hpp"
 
 class Db;
 
@@ -42,6 +42,7 @@ public:
   int updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
+  int getNClass() const override { return getNbPoly(); }
 
   /// ASerializable Interface
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = true);
@@ -80,15 +81,12 @@ public:
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
-  Selectivity calculateSelectivity(const VectorDouble& zcut);
-
-  int factor2QT(Db *db,
-                const VectorDouble& cutmine,
-                const VectorInt& cols_est,
-                const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+  void globalSelectivity(Selectivity* selectivity);
+  int factor2Selectivity(Db *db,
+                         Selectivity* selectivity,
+                         const VectorString& names_est,
+                         const VectorString& names_std,
+                         int iptr0);
 
 protected:
   /// Interface for ASerializable

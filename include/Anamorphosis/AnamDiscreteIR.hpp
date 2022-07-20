@@ -15,9 +15,9 @@
 
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/EAnam.hpp"
+#include "Stats/Selectivity.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Stats/Selectivity.hpp"
 
 class Db;
 
@@ -60,17 +60,12 @@ public:
   double getRCoef() const { return _sCoef; }
   void   setRCoef(double rcoef) { _sCoef = rcoef; }
 
-  Selectivity calculateSelectivity(bool flag_correct);
-
-  int factor2QT(Db *db,
-                const VectorDouble& cutmine,
-                double z_max,
-                int flag_correct,
-                const VectorInt& cols_est,
-                const VectorInt& cols_std,
-                int iptr,
-                const VectorInt& codes,
-                VectorInt& qt_vars);
+  void globalSelectivity(Selectivity* selectivity);
+  int factor2Selectivity(Db *db,
+                         Selectivity* selectivity,
+                         const VectorString& names_est,
+                         const VectorString& names_std,
+                         int iptr0);
 
 protected:
   /// Interface for ASerializable

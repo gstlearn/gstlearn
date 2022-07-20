@@ -1800,15 +1800,15 @@ void meshes_2D_extended_domain(Db *dbout,
  **
  *****************************************************************************/
 int meshes_2D_write(const char *file_name,
-                                    const char *obj_name,
-                                    int verbose,
-                                    int ndim,
-                                    int ncode,
-                                    int ntri,
-                                    int npoints,
-                                    int *ntcode,
-                                    int *triangles,
-                                    double *points)
+                    const char *obj_name,
+                    int verbose,
+                    int ndim,
+                    int ncode,
+                    int ntri,
+                    int npoints,
+                    int *ntcode,
+                    int *triangles,
+                    double *points)
 {
   FILE *file;
   int i, itri, ntriloc;

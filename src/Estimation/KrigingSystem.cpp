@@ -619,7 +619,7 @@ void KrigingSystem::_covtabCalcul(const ECalcMember &member,
   // Evaluate the Model
 
   MatrixSquareGeneral mat;
-  bool flagSameData = (iech1 == iech2);
+  bool flagSameData = (iech1 == iech2 && iech1 > 0);
   if (flagSameData)
     mat = _model->eval0Nvar(mode);
   else

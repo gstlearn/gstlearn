@@ -19,6 +19,7 @@
 #include "Db/Db.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Stats/Selectivity.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -28,12 +29,6 @@
 #define ANAM_YMIN -10.
 #define ANAM_YMAX  10.
 #define YPAS       0.1
-
-#define QT_EST    0
-#define QT_STD    1
-#define QT_VARS(i,j)              (qt_vars[(i) + 2 * (j)])
-#define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
-                                   QT_VARS(QT_STD,j) > 0)
 
 AnamHermite::AnamHermite(int nbpoly, bool flagBound, double rCoef)
     : AnamContinuous(),
@@ -687,18 +682,17 @@ int AnamHermite::updatePointToBlock(double r_coef)
  **  Calculate the theoretical grade tonnage value (Gaussian case)
  **
  *****************************************************************************/
-Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
+void AnamHermite::globalSelectivity(Selectivity* selectivity)
 {
   int nbpoly = getNbPoly();
   setFlagBound(0);
-  int ncut = (int) zcut.size();
-  Selectivity calest(ncut);
+  int ncut = selectivity->getNCuts();
 
   /* Loop on the cutoff values */
 
-  for (int iclass = 0; iclass < ncut; iclass++)
+  for (int icut = 0; icut < ncut; icut++)
   {
-    double zval = zcut[iclass];
+    double zval = selectivity->getZcut(icut);
     double yval = RawToTransformValue(zval);
     double tval = 1. - law_cdf_gaussian(yval);
     double gval = law_df_gaussian(yval);
@@ -706,16 +700,11 @@ Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
     double qval = getPsiHn(0) * (1. - law_cdf_gaussian(yval));
     for (int ih = 1; ih < nbpoly; ih++)
       qval -= getPsiHn(ih) * hn[ih - 1] * gval / sqrt((double) ih);
-    calest.setTest(iclass, zval);
-    calest.setTest(iclass, tval);
-    calest.setQest(iclass, qval);
+    selectivity->setTest(icut, zval);
+    selectivity->setTest(icut, tval);
+    selectivity->setQest(icut, qval);
   }
-
-  /* Store the results */
-
-  calest.calculateBenefitAndGrade();
-
-  return calest;
+  selectivity->calculateBenefitAndGrade();
 }
 
 /*****************************************************************************/
@@ -726,31 +715,27 @@ Selectivity AnamHermite::calculateSelectivity(const VectorDouble& zcut)
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  cutmine      Array of the requested cutoffs
- ** \param[in]  cols_est     Array of columns for factor estimation
- ** \param[in]  cols_std     Array of columns for factor st. dev.
- ** \param[in]  iptr         Rank for storing the results
- ** \param[in]  codes        Array of codes for stored results
- ** \param[in]  qt_vars      Array of variables to be calculated
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  names_est    Array of names for factor estimation
+ ** \param[in]  names_std    Array of names for factor St. Dev.
+ ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
-int AnamHermite::factor2QT(Db *db,
-                           const VectorDouble& cutmine,
-                           const VectorInt& cols_est,
-                           const VectorInt& cols_std,
-                           int iptr,
-                           const VectorInt& codes,
-                           VectorInt& qt_vars)
+int AnamHermite::factor2Selectivity(Db *db,
+                                    Selectivity* selectivity,
+                                    const VectorString& names_est,
+                                    const VectorString& names_std,
+                                    int iptr0)
 {
   setFlagBound(1);
   int nbpoly = getNbPoly();
-  bool need_T = QT_FLAG(ANAM_QT_T) || QT_FLAG(ANAM_QT_B) ||
-      QT_FLAG(ANAM_QT_M) || QT_FLAG(ANAM_QT_PROBA);
-  bool need_Q = QT_FLAG(ANAM_QT_Q) || QT_FLAG(ANAM_QT_B) || QT_FLAG(ANAM_QT_M);
-  int ncutmine = (int) cutmine.size();
-  int nb_est = (int) cols_est.size();
-  int nb_std = (int) cols_std.size();
-  int nvar = MAX(nb_est, nb_std);
+  bool need_T = selectivity->isNeededT();
+  bool need_Q = selectivity->isNeededQ();
+  int ncut = selectivity->getNCuts();
+  int nb_est = (int) names_est.size();
+  int nb_std = (int) names_std.size();
+  VectorInt cols_est = db->getUIDs(names_est);
+  VectorInt cols_std = db->getUIDs(names_std);
 
   /* Preliminary checks */
 
@@ -759,25 +744,16 @@ int AnamHermite::factor2QT(Db *db,
     messerr("You must define a Db");
     return 1;
   }
-  if (nb_est <= 0 && nb_std <= 0)
-  {
-    messerr("The number of factors is zero");
-    return 1;
-  }
 
   /* Get the number of initial cutoffs */
 
-  int nmax = getNbPoly();
-  if (nvar >= nmax)
+  int nfactor = MAX(nb_est, nb_std);
+  if (nfactor >= getNbPoly())
   {
-    messerr("Number of factors (%d) must be smaller than Number of classes (%d)",
-        nvar, nmax);
+    messerr("Number of Factors (%d) must be smaller than Number of Hermite polynomials (%d)",
+        nfactor, getNbPoly());
     return 1;
   }
-
-  /* Core allocation */
-
-  Selectivity calest(nmax);
 
   /* Loop on the samples */
 
@@ -788,7 +764,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Z: Estimation */
 
     double zestim = 0.;
-    if (QT_VARS(QT_EST,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedEst(ESelectivity::Z))
     {
       double total = getPsiHn(0);
       for (int ivar = 0; ivar < nb_est; ivar++)
@@ -803,7 +779,7 @@ int AnamHermite::factor2QT(Db *db,
     /* Z: Standard Deviation */
 
     double zstdev = 0.;
-    if (QT_VARS(QT_STD,ANAM_QT_Z) > 0)
+    if (selectivity->isUsedStD(ESelectivity::Z))
     {
       double total = 0.;
       for (int ivar = 0; ivar < nb_std; ivar++)
@@ -817,16 +793,16 @@ int AnamHermite::factor2QT(Db *db,
 
     /* Loop on the cutoffs */
 
-    for (int icut = 0; icut < ncutmine; icut++)
+    for (int icut = 0; icut < ncut; icut++)
     {
-      double yc = RawToTransformValue(cutmine[icut]);
+      double yc = RawToTransformValue(selectivity->getZcut(icut));
       if (need_T)
       {
         VectorDouble s_cc = hermiteCoefIndicator(yc, nbpoly);
 
         /* Tonnage estimation */
 
-        if (QT_VARS(QT_EST,ANAM_QT_T) > 0)
+        if (selectivity->isUsedEst(ESelectivity::T))
         {
           double total = s_cc[0];
           for (int ivar = 0; ivar < nb_est; ivar++)
@@ -834,12 +810,12 @@ int AnamHermite::factor2QT(Db *db,
             double value = db->getArray(iech, cols_est[ivar]);
             total += s_cc[ivar + 1] * value;
           }
-          calest.setTest(icut, total);
+          selectivity->setTest(icut, total);
         }
 
         /* Tonnage: Standard Deviation */
 
-        if (QT_VARS(QT_STD,ANAM_QT_T) > 0)
+        if (selectivity->isUsedStD(ESelectivity::T))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
@@ -847,7 +823,7 @@ int AnamHermite::factor2QT(Db *db,
             double value = db->getArray(iech, cols_std[ivar]);
             total += s_cc[ivar + 1] * s_cc[ivar + 1] * value;
           }
-          calest.setTstd(icut, sqrt(total));
+          selectivity->setTstd(icut, sqrt(total));
         }
       }
 
@@ -857,7 +833,7 @@ int AnamHermite::factor2QT(Db *db,
 
         /* Metal Quantity: Estimation */
 
-        if (QT_VARS(QT_EST,ANAM_QT_Q) > 0)
+        if (selectivity->isUsedEst(ESelectivity::Q))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_est; ivar++)
@@ -871,12 +847,12 @@ int AnamHermite::factor2QT(Db *db,
             }
             total += fn * value;
           }
-          calest.setQest(icut, total);
+          selectivity->setQest(icut, total);
         }
 
         /* Metal Quantity: Standard Deviation */
 
-        if (QT_VARS(QT_STD,ANAM_QT_Q) > 0)
+        if (selectivity->isUsedStD(ESelectivity::Q))
         {
           double total = 0.;
           for (int ivar = 0; ivar < nb_std; ivar++)
@@ -890,15 +866,15 @@ int AnamHermite::factor2QT(Db *db,
             }
             total += fn * fn * value;
           }
-          calest.setQstd(icut, sqrt(total));
+          selectivity->setQstd(icut, sqrt(total));
         }
       }
     }
 
     /* Storage */
 
-    calest.calculateBenefitAndGrade();
-    recoveryLocal(db, iech, iptr, codes, qt_vars, zestim, zstdev, calest);
+    selectivity->calculateBenefitAndGrade();
+    selectivity->storeInDb(db, iech, iptr0, zestim, zstdev);
   }
   return (0);
 }
