@@ -1681,7 +1681,6 @@ void KrigingSystem::_variance0()
         _setVAR0(ivarCL,jvarCL,value);
       }
   }
-
   return;
 }
 

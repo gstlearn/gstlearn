@@ -25,46 +25,46 @@
 #include <algorithm>
 #include <set>
 
-NeighWork::NeighWork(const Db* dbin,
-                     const ANeighParam* neighparam)
-    : _dbin(),
-      _neighParam(),
-      _flagInitialized(false),
-      _flagIsUnchanged(false),
-      _movingInd(),
-      _movingIsect(),
-      _movingNsect(),
-      _movingX1(),
-      _movingX2(),
-      _movingDst(),
-      _flagSimu(false),
-      _dbout(nullptr),
-      _iechOut(-1),
-      _nbghMemo()
-
+NeighWork::NeighWork(const Db *dbin, const ANeighParam *neighparam)
+    :
+    _dbin(),
+    _neighParam(),
+    _flagInitialized(false),
+    _flagIsUnchanged(false),
+    _movingInd(),
+    _movingIsect(),
+    _movingNsect(),
+    _movingX1(),
+    _movingX2(),
+    _movingDst(),
+    _flagSimu(false),
+    _dbout(nullptr),
+    _iechOut(-1),
+    _nbghMemo()
 {
   initialize(dbin, neighparam);
 }
 
-NeighWork::NeighWork(const NeighWork& r)
-    : _dbin(r._dbin),
-      _neighParam(r._neighParam),
-      _flagInitialized(r._flagInitialized),
-      _flagIsUnchanged(r._flagIsUnchanged),
-      _movingInd(r._movingInd),
-      _movingIsect(r._movingIsect),
-      _movingNsect(r._movingNsect),
-      _movingX1(r._movingX1),
-      _movingX2(r._movingX2),
-      _movingDst(r._movingDst),
-      _flagSimu(r._flagSimu),
-      _dbout(r._dbout),
-      _iechOut(r._iechOut),
-      _nbghMemo(r._nbghMemo)
+NeighWork::NeighWork(const NeighWork &r)
+    :
+    _dbin(r._dbin),
+    _neighParam(r._neighParam),
+    _flagInitialized(r._flagInitialized),
+    _flagIsUnchanged(r._flagIsUnchanged),
+    _movingInd(r._movingInd),
+    _movingIsect(r._movingIsect),
+    _movingNsect(r._movingNsect),
+    _movingX1(r._movingX1),
+    _movingX2(r._movingX2),
+    _movingDst(r._movingDst),
+    _flagSimu(r._flagSimu),
+    _dbout(r._dbout),
+    _iechOut(r._iechOut),
+    _nbghMemo(r._nbghMemo)
 {
 }
 
-NeighWork& NeighWork::operator=(const NeighWork& r)
+NeighWork& NeighWork::operator=(const NeighWork &r)
 {
   if (this != &r)
   {
@@ -82,7 +82,7 @@ NeighWork& NeighWork::operator=(const NeighWork& r)
     _dbout = r._dbout;
     _iechOut = r._iechOut;
     _nbghMemo = r._nbghMemo;
-   }
+  }
   return *this;
 }
 
@@ -102,8 +102,7 @@ NeighWork::~NeighWork()
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-void NeighWork::initialize(const Db* dbin,
-                           const ANeighParam* neighparam)
+void NeighWork::initialize(const Db *dbin, const ANeighParam *neighparam)
 {
   if (neighparam == nullptr || dbin == nullptr) return;
   _neighParam = neighparam;

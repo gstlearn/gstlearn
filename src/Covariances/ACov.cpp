@@ -18,6 +18,8 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 
+#include <math.h>
+
 ACov::ACov(const ASpace* space)
 : ASpaceObject(space)
 {
@@ -712,10 +714,7 @@ double ACov::samplingDensityVariance(const Db *db,
                                      int jvar) const
 {
   double sigmaE = extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
-  double maille = 1.;
-  int ndim = getNDim();
-  for (int idim = 0; idim < ndim; idim++)
-    maille *= ext[idim];
+  double maille = _getVolume(ext);
   return sigmaE * maille;
 }
 
@@ -742,9 +741,81 @@ double ACov::specificVolume(const Db *db,
 {
   if (FFFF(mean) || mean <= 0.)
   {
-    messerr("Argiment 'mean'  must be defined and positive");
+    messerr("Argument 'mean'  must be defined and positive");
     return TEST;
   }
   return samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar)
       / (mean * mean);
+}
+
+/**
+ * Calculate the Coefficient of Variation
+ * @param db     Set of data points
+ * @param volume Specific production volume
+ * @param mean   Value of the Mean
+ * @param ext    Target Block extension
+ * @param ndisc  Vector of discretization
+ * @param angles Optional rotation angle for block
+ * @param x0     Optional origin of the Block
+ * @param ivar   Rank of the first variable
+ * @param jvar   Rank of the second variable
+ * @return
+ */
+double ACov::coefficientOfVariation(const Db *db,
+                                    double volume,
+                                    double mean,
+                                    const VectorDouble &ext,
+                                    const VectorInt &ndisc,
+                                    const VectorDouble &angles,
+                                    const VectorDouble &x0,
+                                    int ivar,
+                                    int jvar) const
+{
+  if (FFFF(mean) || mean <= 0.)
+  {
+    messerr("Argument 'mean'  must be defined and positive");
+    return TEST;
+  }
+  if (FFFF(volume) || volume <= 0.)
+  {
+    messerr("Argument 'volume'  must be defined and positive");
+    return TEST;
+  }
+  double V0 = specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
+  return sqrt(V0 / volume);
+}
+
+/**
+ * Derive the Specific volume for a given CoV
+ * @param db     Set of data points
+ * @param cov    Target Coefficient of Variation
+ * @param mean   Value of the Mean
+ * @param ext    Target Block extension
+ * @param ndisc  Vector of discretization
+ * @param angles Optional rotation angle for block
+ * @param x0     Optional origin of the Block
+ * @param ivar   Rank of the first variable
+ * @param jvar   Rank of the second variable
+ * @return
+ */
+double ACov::specificVolumeFromCoV(Db *db,
+                                   double cov,
+                                   double mean,
+                                   const VectorDouble &ext,
+                                   const VectorInt &ndisc,
+                                   const VectorDouble &angles,
+                                   const VectorDouble &x0,
+                                   int ivar,
+                                   int jvar) const
+{
+  double V0 = specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
+  return V0 / (cov * cov);
+}
+
+double ACov::_getVolume(const VectorDouble& ext) const
+{
+  double maille = 1.;
+  int ndim = getNDim();
+  for (int idim = 0; idim < ndim; idim++) maille *= ext[idim];
+  return maille;
 }
