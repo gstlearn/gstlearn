@@ -118,7 +118,7 @@ Download and install the following tools:
 
     python -m pip install "pybind11[global]" numpy matplotlib
     python -m pip install pypandoc geopandas jupyter
-  
+
 Notes:
 
 * The *Path* environment variable must be updated to make *swig.exe* (and *python.exe*) available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\swigwin-4.0.2* and *C:\\Python39* folder in the *Path* variable and restart Windows)
