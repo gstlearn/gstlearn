@@ -1692,8 +1692,7 @@ void KrigingSystem::_variance0()
  ** \param[in]  jvarCL  Rank of the auxiliary variable
  **
  *****************************************************************************/
-double KrigingSystem::_variance(int ivarCL,
-                                int jvarCL)
+double KrigingSystem::_variance(int ivarCL, int jvarCL)
 {
   int nvarCL = _getNVarCL();
 
@@ -2601,6 +2600,10 @@ int KrigingSystem::setKrigOptIclass(int index_class)
     return 1;
   }
   _model->setAnamIClass(index_class);
+
+  // Update C00 if the variance calculation is required
+  if (_flagStd) _variance0();
+
   return 0;
 }
 

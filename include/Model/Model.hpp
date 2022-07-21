@@ -95,7 +95,7 @@ public:
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
-  int    addAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
+  int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
