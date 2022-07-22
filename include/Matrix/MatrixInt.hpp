@@ -31,8 +31,9 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Clonable interface */
+  /*! Cloneable interface */
   virtual ICloneable* clone() const override { return new MatrixInt(*this); };
+  //IMPLEMENT_CLONING(MatrixInt)
 
   void   reset(int nrows, int ncols);
   int    getValue(int irow, int icol) const;

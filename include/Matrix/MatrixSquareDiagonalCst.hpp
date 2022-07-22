@@ -27,7 +27,7 @@ public:
   MatrixSquareDiagonalCst& operator= (const MatrixSquareDiagonalCst &r);
 	virtual ~MatrixSquareDiagonalCst();
 
-  /*! Clonable interface */
+  /*! Cloneable interface */
   virtual ICloneable* clone() const override { return new MatrixSquareDiagonalCst(*this); };
 
   /*! Say if the matrix must be symmetric */

@@ -11,9 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include <typeinfo>
+#include <assert.h>
 
-/// TODO : use covariant return type to prevent dynamic_cast: 
-// https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
 class GSTLEARN_EXPORT ICloneable
 {
 public:
@@ -22,3 +22,20 @@ public:
 
   virtual ICloneable* clone() const = 0;
 };
+
+// Thanks to here (macro way):
+// https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
+/* TODO : Not compliant with SWIG yet
+#define IMPLEMENT_CLONING( Class )                 \
+public:                                            \
+  virtual Class* virtualClone() const              \
+  {                                                \
+    assert( typeid( *this ) == typeid( Class ) );  \
+    return new Class( *this );                     \
+  }                                                \
+                                                   \
+  Class* clone() const                             \
+  {                                                \
+    return dynamic_cast<Class*>(virtualClone());   \
+  }
+*/

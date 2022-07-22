@@ -26,8 +26,9 @@ public:
   MatrixRectangular& operator= (const MatrixRectangular &r);
 	virtual ~MatrixRectangular();
 
-  /*! Clonable interface */
+  /*! Cloneable interface */
   virtual ICloneable* clone() const override { return new MatrixRectangular(*this); };
+  //IMPLEMENT_CLONING(MatrixRectangular)
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }
