@@ -511,13 +511,13 @@ int Model::addNoStat(const ANoStat *anostat)
 }
 
 /**
- * Adding an Anamorphosis information to the Model
+ * Defining an Anamorphosis information for the Model
  * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
  * @param strcnt Array of covariance description used for IR case
  * @return
  */
-int Model::addAnam(const AAnam* anam, const VectorInt& strcnt)
+int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
 {
   if (hasAnam())
   {

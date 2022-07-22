@@ -95,7 +95,7 @@ public:
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
-  int    addAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
+  int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
@@ -267,16 +267,41 @@ public:
     return _covaList->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
   }
   double specificVolume(const Db *db,
-                              double mean,
-                              const VectorDouble &ext,
-                              const VectorInt &ndisc,
-                              const VectorDouble &angles = VectorDouble(),
-                              const VectorDouble &x0 = VectorDouble(),
-                              int ivar = 0,
-                              int jvar = 0) const
+                        double mean,
+                        const VectorDouble &ext,
+                        const VectorInt &ndisc,
+                        const VectorDouble &angles = VectorDouble(),
+                        const VectorDouble &x0 = VectorDouble(),
+                        int ivar = 0,
+                        int jvar = 0) const
   {
     return _covaList->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
+  double coefficientOfVariation(const Db *db,
+                                double volume,
+                                double mean,
+                                const VectorDouble &ext,
+                                const VectorInt &ndisc,
+                                const VectorDouble &angles = VectorDouble(),
+                                const VectorDouble &x0 = VectorDouble(),
+                                int ivar = 0,
+                                int jvar = 0) const
+  {
+    return _covaList->coefficientOfVariation(db, volume, mean, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double specificVolumeFromCoV(Db *db,
+                               double cov,
+                               double mean,
+                               const VectorDouble &ext,
+                               const VectorInt &ndisc,
+                               const VectorDouble &angles = VectorDouble(),
+                               const VectorDouble &x0 = VectorDouble(),
+                               int ivar = 0,
+                               int jvar = 0) const
+  {
+    return _covaList->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
+  }
+
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }

@@ -356,9 +356,9 @@ Sum of weights                               0.621
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.675
- - Std. Dev. =      0.680
- - Variance  =      0.463
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.922
+ - Variance  =      0.851
+ - Cov(h=0)  =      1.000
 
 Processing Factor 2
 
@@ -412,9 +412,9 @@ Sum of weights                               0.200
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.159
- - Std. Dev. =      0.774
- - Variance  =      0.599
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.994
+ - Variance  =      0.987
+ - Cov(h=0)  =      1.000
 
 Processing Factor 3
 
@@ -468,9 +468,9 @@ Sum of weights                               0.054
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.028
- - Std. Dev. =      0.782
- - Variance  =      0.611
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      1.000
+ - Variance  =      0.999
+ - Cov(h=0)  =      1.000
 
 Data Base Grid Characteristics
 ==============================
@@ -562,9 +562,9 @@ Sum of weights                                                   0.634
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.690
- - Std. Dev. =      0.420
- - Variance  =      0.177
- - Cov(h=0)  =      0.331
+ - Std. Dev. =      0.622
+ - Variance  =      0.387
+ - Cov(h=0)  =      0.541
 
 Processing Factor 2
 
@@ -618,9 +618,9 @@ Sum of weights                                                   0.230
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.185
- - Std. Dev. =      0.561
- - Variance  =      0.314
- - Cov(h=0)  =      0.331
+ - Std. Dev. =      0.550
+ - Variance  =      0.303
+ - Cov(h=0)  =      0.320
 
 Processing Factor 3
 
@@ -674,9 +674,9 @@ Sum of weights                                                   0.077
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.041
- - Std. Dev. =      0.574
- - Variance  =      0.329
- - Cov(h=0)  =      0.331
+ - Std. Dev. =      0.450
+ - Variance  =      0.202
+ - Cov(h=0)  =      0.204
 
 Data Base Grid Characteristics
 ==============================
@@ -774,9 +774,9 @@ Sum of weights                                                   0.389
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.358
- - Std. Dev. =      0.132
- - Variance  =      0.017
- - Cov(h=0)  =      0.073
+ - Std. Dev. =      0.252
+ - Variance  =      0.064
+ - Cov(h=0)  =      0.119
 
 Processing Factor 2
 
@@ -830,9 +830,9 @@ Sum of weights                                                   0.153
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.066
- - Std. Dev. =      0.258
- - Variance  =      0.067
- - Cov(h=0)  =      0.073
+ - Std. Dev. =      0.168
+ - Variance  =      0.028
+ - Cov(h=0)  =      0.034
 
 Processing Factor 3
 
@@ -886,9 +886,9 @@ Sum of weights                                                   0.074
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.002
- - Std. Dev. =      0.267
- - Variance  =      0.072
- - Cov(h=0)  =      0.073
+ - Std. Dev. =      0.121
+ - Variance  =      0.015
+ - Cov(h=0)  =      0.016
 
 Data Base Grid Characteristics
 ==============================
@@ -1017,9 +1017,9 @@ Sum of weights                               0.134
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.070
- - Std. Dev. =      0.775
- - Variance  =      0.601
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.995
+ - Variance  =      0.989
+ - Cov(h=0)  =      1.000
 
 Processing Factor 2
 
@@ -1073,9 +1073,9 @@ Sum of weights                               0.016
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.001
- - Std. Dev. =      0.782
- - Variance  =      0.612
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      1.000
+ - Variance  =      1.000
+ - Cov(h=0)  =      1.000
 
 Processing Factor 3
 
@@ -1129,9 +1129,9 @@ Sum of weights                               0.002
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.000
- - Std. Dev. =      0.782
- - Variance  =      0.612
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      1.000
+ - Variance  =      1.000
+ - Cov(h=0)  =      1.000
 
 Data Base Grid Characteristics
 ==============================
@@ -1235,9 +1235,9 @@ Sum of weights                                                   0.082
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.061
- - Std. Dev. =      0.151
- - Variance  =      0.023
- - Cov(h=0)  =      0.027
+ - Std. Dev. =      0.200
+ - Variance  =      0.040
+ - Cov(h=0)  =      0.044
 
 Processing Factor 2
 
@@ -1291,9 +1291,9 @@ Sum of weights                                                   0.053
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.006
- - Std. Dev. =      0.161
- - Variance  =      0.026
- - Cov(h=0)  =      0.027
+ - Std. Dev. =      0.113
+ - Variance  =      0.013
+ - Cov(h=0)  =      0.014
 
 Processing Factor 3
 
@@ -1347,9 +1347,9 @@ Sum of weights                                                   0.048
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.008
- - Std. Dev. =      0.162
- - Variance  =      0.026
- - Cov(h=0)  =      0.027
+ - Std. Dev. =      0.081
+ - Variance  =      0.007
+ - Cov(h=0)  =      0.007
 
 Data Base Grid Characteristics
 ==============================
@@ -1464,9 +1464,9 @@ Sum of weights                               1.103
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.358
- - Std. Dev. =      0.000
- - Variance  =      0.000
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.503
+ - Variance  =      0.253
+ - Cov(h=0)  =      1.000
 
 Processing Factor 2
 
@@ -1520,9 +1520,9 @@ Sum of weights                               1.052
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.458
- - Std. Dev. =      0.343
- - Variance  =      0.118
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.711
+ - Variance  =      0.505
+ - Cov(h=0)  =      1.000
 
 Processing Factor 3
 
@@ -1576,9 +1576,9 @@ Sum of weights                               0.879
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.395
- - Std. Dev. =      0.561
- - Variance  =      0.315
- - Cov(h=0)  =      0.612
+ - Std. Dev. =      0.838
+ - Variance  =      0.702
+ - Cov(h=0)  =      1.000
 
 Data Base Grid Characteristics
 ==============================
@@ -1688,9 +1688,9 @@ Sum of weights                                                   0.651
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.215
- - Std. Dev. =      0.116
- - Variance  =      0.014
- - Cov(h=0)  =      0.247
+ - Std. Dev. =      0.412
+ - Variance  =      0.170
+ - Cov(h=0)  =      0.403
 
 Processing Factor 2
 
@@ -1744,9 +1744,9 @@ Sum of weights                                                   0.397
 Target Sample = 1
 Variable Z1 
  - Estimate  =     -0.235
- - Std. Dev. =      0.436
- - Variance  =      0.190
- - Cov(h=0)  =      0.247
+ - Std. Dev. =      0.377
+ - Variance  =      0.142
+ - Cov(h=0)  =      0.199
 
 Processing Factor 3
 
@@ -1800,9 +1800,9 @@ Sum of weights                                                   0.231
 Target Sample = 1
 Variable Z1 
  - Estimate  =      0.082
- - Std. Dev. =      0.482
- - Variance  =      0.232
- - Cov(h=0)  =      0.247
+ - Std. Dev. =      0.316
+ - Variance  =      0.100
+ - Cov(h=0)  =      0.114
 
 Data Base Grid Characteristics
 ==============================

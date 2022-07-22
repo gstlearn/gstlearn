@@ -126,7 +126,7 @@ int main(int /*argc*/, char */*argv*/[])
   model->display();
 
   // Attach the Anamorphosis
-  model->addAnam(anam);
+  model->setAnam(anam);
 
   // Computing the Point factors
   int nfactor = 3;
@@ -186,7 +186,7 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.setConstantSillValue(1);
   (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
                       Option_AutoFit(), constraints);
-  model_b1_Y->addAnam(anam_b1);
+  model_b1_Y->setAnam(anam_b1);
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
@@ -223,7 +223,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Update the Model with Block anamorphosis
   AnamHermite* anam_b2 = dynamic_cast<AnamHermite*>(anam->clone());
   anam_b2->setRCoef(r2);
-  model_b2_Y->addAnam(anam_b2);
+  model_b2_Y->setAnam(anam_b2);
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
   (void) dk(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,

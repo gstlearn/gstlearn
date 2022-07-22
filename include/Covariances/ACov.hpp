@@ -167,6 +167,24 @@ public:
                         const VectorDouble &x0 = VectorDouble(),
                         int ivar = 0,
                         int jvar = 0) const;
+  double coefficientOfVariation(const Db *db,
+                                double volume,
+                                double mean,
+                                const VectorDouble &ext,
+                                const VectorInt &ndisc,
+                                const VectorDouble &angles = VectorDouble(),
+                                const VectorDouble &x0 = VectorDouble(),
+                                int ivar = 0,
+                                int jvar = 0) const;
+  double specificVolumeFromCoV(Db *db,
+                               double cov,
+                               double mean,
+                               const VectorDouble &ext,
+                               const VectorInt &ndisc,
+                               const VectorDouble &angles = VectorDouble(),
+                               const VectorDouble &x0 = VectorDouble(),
+                               int ivar = 0,
+                               int jvar = 0) const;
 
 private:
   DbGrid* _discretizeBlock(const VectorDouble& ext,
@@ -174,4 +192,5 @@ private:
                            const VectorDouble& angles = VectorDouble(),
                            const VectorDouble& x0 = VectorDouble()) const;
   Db* _discretizeBlockRandom(const DbGrid* dbgrid) const;
+  double _getVolume(const VectorDouble& ext) const;
 };

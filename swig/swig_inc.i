@@ -72,7 +72,6 @@
 
 /*
 #include "Interfaces/geoslib_f_swig.h"
-#include "Interfaces/ACalculator.hpp"
 #include "Interfaces/AParam.hpp"
 #include "Interfaces/AVariable.hpp"
 #include "Interfaces/AVariableTemplate.hpp"
@@ -301,6 +300,8 @@
 
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
+
+#include "Calculators/ACalculator.hpp"
 
 #include "segy.h"
 

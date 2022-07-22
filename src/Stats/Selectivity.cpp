@@ -205,8 +205,8 @@ int Selectivity::calculateFromDb(const Db* db)
   return calculateFromArray(tab, wtab);
 }
 
-int Selectivity::calculateFromArray(const VectorDouble& tab,
-                                    const VectorDouble& weights)
+int Selectivity::calculateFromArray(const VectorDouble &tab,
+                                    const VectorDouble &weights)
 {
   if (getNCuts() <= 0)
   {
