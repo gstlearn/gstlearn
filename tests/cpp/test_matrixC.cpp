@@ -11,6 +11,7 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "Matrix/MatrixInt.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
@@ -50,6 +51,13 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
+
+  message("Matrix of integers\n");
+  MatrixInt mati(2,3);
+  mati.setValues({1, 2, 3, 4, 5, 6});
+  mati.display();
+  MatrixInt* mati2(dynamic_cast<MatrixInt*>(mati.clone()));
+  mati2->display();
 
   VectorDouble V1,V2,V3,Vref;
   law_set_random_seed(32432);
