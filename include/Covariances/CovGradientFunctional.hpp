@@ -14,7 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/ACovGradient.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
@@ -33,7 +33,7 @@ public:
   CovGradientFunctional& operator=(const CovGradientFunctional& r);
   virtual ~CovGradientFunctional();
 
-  virtual IClonable* clone() const override { return new CovGradientFunctional(*this); };
+  virtual ICloneable* clone() const override { return new CovGradientFunctional(*this); };
 
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,

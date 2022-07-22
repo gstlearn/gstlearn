@@ -28,7 +28,7 @@ public:
 	virtual ~MatrixSquareDiagonal();
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixSquareDiagonal(*this); };
+  virtual ICloneable* clone() const override { return new MatrixSquareDiagonal(*this); };
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

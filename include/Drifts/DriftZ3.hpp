@@ -21,7 +21,7 @@ public:
   DriftZ3& operator= (const DriftZ3 &r);
   virtual ~DriftZ3();
 
-  IClonable* clone() const override;
+  ICloneable* clone() const override;
 
   String getDriftSymbol() const override { return "z3"; }
   String getDriftName() const override { return "Drift Z^3"; }

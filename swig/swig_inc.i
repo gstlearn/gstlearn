@@ -1,5 +1,5 @@
 // Keep it here
-%nodefaultctor IClonable;
+%nodefaultctor ICloneable;
 
 %{
 #define SWIG_FILE_WITH_INIT

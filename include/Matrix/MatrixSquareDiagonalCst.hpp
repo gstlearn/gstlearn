@@ -28,7 +28,7 @@ public:
 	virtual ~MatrixSquareDiagonalCst();
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixSquareDiagonalCst(*this); };
+  virtual ICloneable* clone() const override { return new MatrixSquareDiagonalCst(*this); };
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return true; }

@@ -12,11 +12,13 @@
 
 #include "gstlearn_export.hpp"
 
-class GSTLEARN_EXPORT IClonable
+/// TODO : use covariant return type to prevent dynamic_cast: 
+// https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
+class GSTLEARN_EXPORT ICloneable
 {
 public:
-  IClonable() {};
-  virtual ~IClonable() {};
+  ICloneable() {};
+  virtual ~ICloneable() {};
 
-  virtual IClonable* clone() const = 0;
+  virtual ICloneable* clone() const = 0;
 };

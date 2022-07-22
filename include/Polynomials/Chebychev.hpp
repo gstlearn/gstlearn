@@ -2,7 +2,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
 
@@ -16,7 +16,7 @@ class GSTLEARN_EXPORT Chebychev: public APolynomial
 public:
   Chebychev();
   virtual ~Chebychev();
-  IClonable* clone() const override {return new Chebychev(*this);}
+  ICloneable* clone() const override {return new Chebychev(*this);}
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
   static Chebychev* createFromCoeffs(const VectorDouble coeffs);
   void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}

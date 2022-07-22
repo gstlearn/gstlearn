@@ -14,7 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/ACovGradient.hpp"
 #include "Covariances/CovContext.hpp"
 
@@ -32,7 +32,7 @@ public:
   CovGradientNumerical& operator=(const CovGradientNumerical& r);
   virtual ~CovGradientNumerical();
 
-  virtual IClonable* clone() const override { return new CovGradientNumerical(*this); };
+  virtual ICloneable* clone() const override { return new CovGradientNumerical(*this); };
 
   virtual double eval0(int ivar,
                        int jvar,

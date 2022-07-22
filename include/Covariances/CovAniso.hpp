@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Array.hpp"
@@ -24,7 +24,7 @@
 
 class Rotation;
 
-class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable, public ASerializable
+class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable, public ASerializable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -40,8 +40,8 @@ public:
   virtual ~CovAniso();
 
   ///////////////////////////////////////////////////
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new CovAniso(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new CovAniso(*this); };
   ///////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////

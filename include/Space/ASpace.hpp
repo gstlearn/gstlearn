@@ -14,12 +14,12 @@
 #include "Space/Space.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class SpacePoint;
 class Tensor;
 
-class GSTLEARN_EXPORT ASpace : public AStringable, public IClonable
+class GSTLEARN_EXPORT ASpace : public AStringable, public ICloneable
 {
 public:
   ASpace(unsigned int ndim);
@@ -29,7 +29,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual IClonable* clone() const override = 0;
+  virtual ICloneable* clone() const override = 0;
 
   /// Update the origin coordinates
   void setOrigin(const VectorDouble& origin);

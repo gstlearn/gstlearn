@@ -25,14 +25,14 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Polygons;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
  */
-class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable
 {
 public:
   Db();
@@ -44,8 +44,8 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new Db(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new Db(*this); };
 
   /// Interface for Db
   virtual bool isGrid() const { return false; }

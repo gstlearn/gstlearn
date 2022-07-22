@@ -27,7 +27,7 @@ public:
 	virtual ~MatrixRectangular();
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixRectangular(*this); };
+  virtual ICloneable* clone() const override { return new MatrixRectangular(*this); };
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }

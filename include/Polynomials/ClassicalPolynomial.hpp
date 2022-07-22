@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Polynomials/APolynomial.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/Vector.hpp"
 
 class ShiftOpCs;
@@ -24,7 +24,7 @@ public:
   ClassicalPolynomial();
   ClassicalPolynomial(const VectorDouble&);
   virtual ~ClassicalPolynomial();
-  virtual IClonable* clone() const override { return new ClassicalPolynomial(*this); }
+  virtual ICloneable* clone() const override { return new ClassicalPolynomial(*this); }
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
                    VectorDouble& out,int iapex,int igparam)const;

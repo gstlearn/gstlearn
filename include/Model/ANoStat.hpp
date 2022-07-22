@@ -21,7 +21,7 @@ class AMesh;
 class Model;
 class Db;
 
-class GSTLEARN_EXPORT ANoStat : public AStringable, public IClonable
+class GSTLEARN_EXPORT ANoStat : public AStringable, public ICloneable
 {
 public:
   ANoStat();
@@ -32,7 +32,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual IClonable* clone() const override = 0;
+  virtual ICloneable* clone() const override = 0;
 
   bool isNotEmpty() const { return ! _items.empty(); }
   bool isDefinedByCov(int igrf, int icov) const;

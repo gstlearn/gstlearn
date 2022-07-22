@@ -13,14 +13,14 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**
  * Rectangular matrices are stored by columns
  */
-class GSTLEARN_EXPORT MatrixInt : public AStringable, public IClonable {
+class GSTLEARN_EXPORT MatrixInt : public AStringable, public ICloneable {
 
 public:
   MatrixInt(int nrow = 0, int ncol = 0);
@@ -32,7 +32,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixInt(*this); };
+  virtual ICloneable* clone() const override { return new MatrixInt(*this); };
 
   void   reset(int nrows, int ncols);
   int    getValue(int irow, int icol) const;

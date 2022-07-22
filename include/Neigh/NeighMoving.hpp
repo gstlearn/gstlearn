@@ -18,7 +18,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
 
 class Db;
