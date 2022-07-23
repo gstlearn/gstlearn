@@ -11,7 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Simulation/ASimulation.hpp"
+
+#include "ACalcSimulation.hpp"
+
 #include "Db/DbGrid.hpp"
 #include "Basic/Vector.hpp"
 

@@ -51,6 +51,8 @@ set(SRC
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
+  Calculators/ACalculator.cpp
+  Calculators/ACalcInterpolator.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
@@ -280,7 +282,7 @@ set(SRC
   OutputFormat/FileVTK.cpp
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
-  Simulation/ASimulation.cpp
+  Simulation/ACalcSimulation.cpp
   Simulation/SimuTurningBands.cpp
   Simulation/TurningDirection.cpp
   Simulation/BooleanObject.cpp

@@ -8,24 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#pragma once
+#include "Simulation/ACalcSimulation.hpp"
+#include "Calculators/ACalcInterpolator.hpp"
 
-#include "gstlearn_export.hpp"
-
-class GSTLEARN_EXPORT ASimulation
+ACalcSimulation::ACalcSimulation(int nbsimu, int seed)
+    : ACalcInterpolator(),
+      _nbsimu(nbsimu),
+      _seed(seed)
 {
-public:
-  ASimulation(int nbimu, int seed = 4324324);
-  ASimulation(const ASimulation& r);
-  ASimulation& operator=(const ASimulation& r);
-  virtual ~ASimulation();
+}
 
-  int getSeed() const { return _seed; }
-  int getNbSimu() const { return _nbsimu; }
-  void setSeed(int seed) { _seed = seed; }
-  void setNbSimu(int nbsimu) { _nbsimu = nbsimu; }
+ACalcSimulation::~ACalcSimulation()
+{
+}
 
-private:
-  int _nbsimu;
-  int _seed;
-};

@@ -12,21 +12,33 @@
 
 #include "gstlearn_export.hpp"
 
-class GSTLEARN_EXPORT ACalculator
+#include "Calculators/ACalculator.hpp"
+#include "Db/Db.hpp"
+#include "Model/Model.hpp"
+#include "Neigh/ANeighParam.hpp"
+
+class ELoc;
+
+class GSTLEARN_EXPORT ACalcInterpolator: public ACalculator
 {
 public:
-  ACalculator();
-  ACalculator(const ACalculator &r) = delete;
-  ACalculator& operator=(const ACalculator &r) = delete;
-  virtual ~ACalculator();
+  ACalcInterpolator();
+  ACalcInterpolator(const ACalcInterpolator &r) = delete;
+  ACalcInterpolator& operator=(const ACalcInterpolator &r) = delete;
+  virtual ~ACalcInterpolator();
 
-  bool run();
+  void setDbin(Db* dbin) { _dbin = dbin; }
+  void setDbout(Db* dbout) { _dbout = dbout; }
+  void setModel(Model *model) { _model = model; }
+  void setNeighparam(ANeighParam *neighparam) { _neighparam = neighparam; }
 
 protected:
-  virtual bool _run() = 0;
+  virtual bool _check() const override;
+  int _expandInformation(int mode, const ELoc &locatorType);
 
-  virtual bool _check() const { return true; }
-  virtual bool _preprocess()  { return true; }
-  virtual bool _postprocess() { return true; }
-  virtual void _rollback() const { }
+private:
+  Db* _dbin;
+  Db* _dbout;
+  Model* _model;
+  ANeighParam* _neighparam;
 };

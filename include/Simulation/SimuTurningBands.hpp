@@ -11,7 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Simulation/ASimulation.hpp"
+
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningDirection.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Vector.hpp"
@@ -21,22 +22,23 @@
 class Model;
 class ANeighParam;
 
-class GSTLEARN_EXPORT SimuTurningBands : public ASimulation {
-
+class GSTLEARN_EXPORT SimuTurningBands : public ACalcSimulation
+{
 public:
   SimuTurningBands(int nbsimu = 0,
                    int nbtuba = 0,
-                   const Model* model = nullptr,
                    int seed = 4324324);
-  SimuTurningBands(const SimuTurningBands& r);
-  SimuTurningBands& operator=(const SimuTurningBands& r);
+  SimuTurningBands(const SimuTurningBands& r) = delete;
+  SimuTurningBands& operator=(const SimuTurningBands& r) = delete;
   virtual ~SimuTurningBands();
 
   int getNBtuba() const { return _nbtuba; }
   void setNBtuba(int nbtuba) { _nbtuba = nbtuba; }
+  int getNDirs() const { return (int) _codirs.size(); }
 
   int simulate(Db *dbin,
                Db *dbout,
+               const Model* model,
                ANeighParam *neighparam,
                int icase,
                int flag_bayes = false,
@@ -50,12 +52,17 @@ public:
                         Db *dbgrd,
                         Db *dbtgt,
                         Db *dbout,
+                        const Model* model,
                         double delta);
   void checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
 
   static bool isTurningBandsWorkable(const Model *model);
 
 private:
+  virtual bool _check() const override;
+  virtual bool _run() override;
+
+  bool _resize();
   void _simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
   void _simulateGrid(DbGrid *db, const VectorDouble& aic, int icase, int shift);;
   void _simulateNugget(Db *db, const VectorDouble& aic, int icase);
@@ -95,7 +102,6 @@ private:
 
   int _getNCova() const { return _model->getCovaNumber(); }
   int _getNVar() const { return _model->getVariableNumber(); }
-  int _getNBands() const { return (int) _codirs.size(); }
   int  _getAddressBand(int ivar, int is, int ib, int isimu);
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
   int  _getSeedBand(int ivar, int is, int ib, int isimu);

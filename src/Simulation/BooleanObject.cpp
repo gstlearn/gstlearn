@@ -8,11 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Simulation/BooleanObject.hpp"
-
 #include "Boolean/AShape.hpp"
 #include "Boolean/ModelBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Simulation/BooleanObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Vector.hpp"

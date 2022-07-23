@@ -508,7 +508,6 @@ int simtub(Db *dbin,
            int flag_check,
            const NamingConvention& namconv)
 {
-  SimuTurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
 
   /* Initializations */
@@ -538,12 +537,14 @@ int simtub(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
+  {
+    SimuTurningBands situba(nbsimu, nbtuba, seed);
+    if (situba.simulate(dbin, dbout, model, neighparam, 0)) goto label_end;
 
-  // Check the simulation at data location
+    // Check the simulation at data location
 
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  }
 
   /* Free the temporary variables */
 
@@ -657,7 +658,6 @@ int simdgm(Db *dbin,
            int nbtuba,
            int flag_check)
 {
-  SimuTurningBands situba;
   int flag_cond, nvar, error, iext, inostat, iptr;
 
   /* Initializations */
@@ -687,13 +687,15 @@ int simdgm(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = SimuTurningBands(nbsimu, nbtuba, model,seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(), VectorDouble(),
-                      false, false, true, rval)) goto label_end;
+  {
+    SimuTurningBands situba(nbsimu, nbtuba, seed);
+    if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
+                        VectorDouble(), false, false, true, rval)) goto label_end;
 
-  // Check the simulations at data locations
+    // Check the simulations at data locations
 
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  }
 
   /* Free the temporary variables */
 
@@ -744,7 +746,6 @@ int simbayes(Db *dbin,
              int flag_check,
              const NamingConvention& namconv)
 {
-  SimuTurningBands situba;
   int flag_cond, nvar, error, iptr_in, iptr_out;
 
   /* Initializations */
@@ -771,13 +772,15 @@ int simbayes(Db *dbin,
 
   // Processing the Turning Bands algorithm
 
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, true, dmean, dcov))
-    goto label_end;
+  {
+    SimuTurningBands situba(nbsimu, nbtuba, seed);
+    if (situba.simulate(dbin, dbout, model, neighparam, 0, true, dmean, dcov))
+      goto label_end;
 
-  // Check simulations at data locations
+    // Check simulations at data locations
 
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  }
 
   /* Free the temporary variables */
 
@@ -985,7 +988,6 @@ int simpgs(Db *dbin,
 {
   int iptr, icase, nfacies, flag_used[2];
   int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN, local_seed;
-  SimuTurningBands situba;
   Model *models[2];
   PropDef *propdef;
   std::vector<Model*> modvec;
@@ -1178,9 +1180,9 @@ int simpgs(Db *dbin,
   {
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
-    situba = SimuTurningBands(nbsimu, nbtuba, models[igrf], local_seed);
+    SimuTurningBands situba(nbsimu, nbtuba, local_seed);
     local_seed = 0;
-    if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
+    if (situba.simulate(dbin, dbout, models[igrf], neighparam, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
     if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[igrf]);
   }
@@ -1330,7 +1332,6 @@ int simbipgs(Db *dbin,
   Rule   *rules[2];
   Model  *models[2][2];
   std::vector<Model *> modvec[2];
-  SimuTurningBands situba;
   PropDef *propdef;
 
   /* Initializations */
@@ -1605,10 +1606,10 @@ int simbipgs(Db *dbin,
     {
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
-      situba = SimuTurningBands(nbsimu, nbtuba, models[ipgs][igrf], local_seed);
+      SimuTurningBands situba(nbsimu, nbtuba, local_seed);
       local_seed = 0;
-      if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
-                          VectorDouble(), true)) goto label_end;
+      if (situba.simulate(dbin, dbout, models[ipgs][igrf], neighparam, icase, false,
+                          VectorDouble(), VectorDouble(), true)) goto label_end;
       if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[ipgs][igrf]);
     }
 
@@ -2268,7 +2269,6 @@ int simmaxstable(Db *dbout,
                  int flag_rank,
                  int verbose)
 {
-  SimuTurningBands situba;
   double tpois, seuil;
   int error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
   static double seuil_ref = 5.;
@@ -2331,8 +2331,10 @@ int simmaxstable(Db *dbout,
 
     /* Processing the Turning Bands algorithm */
 
-    situba = SimuTurningBands(1, nbtuba, model, seed);
-    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
+    {
+      SimuTurningBands situba(1, nbtuba, seed);
+      if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
+    }
 
     /* Combine the newly simulated outcome to the background */
 
@@ -2509,8 +2511,10 @@ int simRI(Db *dbout,
 
     /* Simulation in the non-masked part of the grid */
 
-    situba = SimuTurningBands(1, nbtuba, model, seed);
-    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
+    {
+      SimuTurningBands situba(1, nbtuba, seed);
+      if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
+    }
 
     /* Look for the quantile */
 
@@ -2840,7 +2844,6 @@ int simcond(Db *dbin,
             int flag_cstd,
             int verbose)
 {
-  SimuTurningBands situba;
   PropDef *propdef;
   ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
@@ -2920,10 +2923,12 @@ int simcond(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(),
-                      VectorDouble(), false, true)) goto label_end;
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  {
+    SimuTurningBands situba(nbsimu, nbtuba, seed);
+    if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
+                        VectorDouble(), false, true)) goto label_end;
+    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  }
 
   /* Free the temporary variables not used anymore */
 
@@ -3369,7 +3374,7 @@ int fluid_propagation(DbGrid *dbgrid,
 
   // Launch the Simulator
 
-  SimuEden seden = SimuEden(1, seed);
+  SimuEden seden(1, seed);
   seden.simulate(dbgrid, ind_facies, ind_fluid, ind_perm, ind_poro,
                  nfacies, nfluids, niter,
                  iptr_fluid, iptr_date, iptr_stat_fluid, iptr_stat_cork,
@@ -3474,7 +3479,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
   }
   int ind_poro = dbgrid->getUID(name_poro);
 
-  SimuEden seden = SimuEden(1);
+  SimuEden seden(1);
   tab = seden.fluidExtract(dbgrid, ind_facies, ind_fluid, ind_poro, ind_date,
                            nfacies, nfluids, facies0, fluid0, ntime, time0,
                            dtime, verbose);

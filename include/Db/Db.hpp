@@ -515,6 +515,7 @@ public:
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenter(bool useSel = false) const;
+  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi);
 
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;

@@ -6152,19 +6152,17 @@ static int st_migrate(Db *db1,
                       int flag_fill,
                       int flag_inter)
 {
-  DbGrid* db1grid;
-  DbGrid* db2grid;
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
   {
-    db2grid = dynamic_cast<DbGrid*>(db2);
+    DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
 
     // To Grid
     if (db1->isGrid())
     {
-      db1grid = dynamic_cast<DbGrid*>(db1);
+      DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
 
       // Grid to Grid
       if (flag_fill)
@@ -6198,7 +6196,7 @@ static int st_migrate(Db *db1,
   }
   else if (db1->isGrid())
   {
-    db1grid = dynamic_cast<DbGrid*>(db1);
+    DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
 
     // Grid to Point
     if (flag_inter)

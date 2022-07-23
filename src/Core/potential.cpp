@@ -3276,7 +3276,6 @@ int potential_simulate(Db *dbiso,
       refpot;
   Pot_Env pot_env;
   Pot_Ext pot_ext;
-  SimuTurningBands situba_new;
   static int nring = 1;
 
   // Initialization
@@ -3383,9 +3382,11 @@ int potential_simulate(Db *dbiso,
 
   /* Processing the non-conditional simulation over the iso-values */
 
-  situba_new = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba_new.simulatePotential(dbiso, dbgrd, dbtgt, dbout, delta))
-    goto label_end;
+  {
+    SimuTurningBands situba_new(nbsimu, nbtuba, seed);
+    if (situba_new.simulatePotential(dbiso, dbgrd, dbtgt, dbout, model, delta))
+      goto label_end;
+  }
 
   // Core allocation
 

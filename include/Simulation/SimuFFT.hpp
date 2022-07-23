@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Plane.hpp"
 #include "Basic/Vector.hpp"
 
@@ -21,12 +22,12 @@ class SimuFFTParam;
 class DbGrid;
 class Model;
 
-class GSTLEARN_EXPORT SimuFFT: public ASimulation
+class GSTLEARN_EXPORT SimuFFT: public ACalcSimulation
 {
 public:
   SimuFFT(int nbsimu = 0, int seed = 4324324);
-  SimuFFT(const SimuFFT &r);
-  SimuFFT& operator=(const SimuFFT &r);
+  SimuFFT(const SimuFFT &r) = delete;
+  SimuFFT& operator=(const SimuFFT &r) = delete;
   virtual ~SimuFFT();
 
   int simulate(DbGrid *db,
@@ -41,6 +42,8 @@ public:
                                 bool verbose = false);
 
 private:
+  virtual bool _run() override;
+
   bool _isValid(Db *db, Model *model);
   void _alloc(DbGrid *db,
               Model *model,

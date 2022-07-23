@@ -11,19 +11,20 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 
 class SimuSphericalParam;
 class MeshSpherical;
 
-class GSTLEARN_EXPORT SimuSpherical: public ASimulation
+class GSTLEARN_EXPORT SimuSpherical: public ACalcSimulation
 {
 public:
   SimuSpherical(int nbsimu = 1, int seed = 4324324);
-  SimuSpherical(const SimuSpherical &r);
-  SimuSpherical& operator=(const SimuSpherical &r);
+  SimuSpherical(const SimuSpherical &r) = delete;
+  SimuSpherical& operator=(const SimuSpherical &r) = delete;
   virtual ~SimuSpherical();
 
   int simulate(DbGrid *db,
@@ -38,6 +39,8 @@ public:
                              bool verbose = false);
 
 private:
+  virtual bool _run() override;
+
   VectorDouble _spectrum_chentsov(const SimuSphericalParam& sphepar);
   VectorDouble _spectrum_exponential(Model *model, const SimuSphericalParam& sphepar);
   VectorDouble _spectrum_any(Model *model, const SimuSphericalParam& sphepar);

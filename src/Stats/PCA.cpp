@@ -309,7 +309,6 @@ int PCA::_pcaCalculate(const Db *db,
 /*!
  **  Fill the mean and variance arrays
  **
-
  ** \param[in] db          Db descriptor
  ** \param[in] isoFlag     Vector of active samples
  ** \param[in] verbose     Verbose flag
@@ -359,8 +358,7 @@ int PCA::_normalization(const Db *db,
     {
       mean[ivar] /= niso;
       sigma[ivar] = (sigma[ivar] / niso - mean[ivar] * mean[ivar]);
-      sigma[ivar] = (sigma[ivar] > 0) ? sqrt(sigma[ivar]) :
-                                        0.;
+      sigma[ivar] = (sigma[ivar] > 0) ? sqrt(sigma[ivar]) : 0.;
       if (sigma[ivar] <= 0.)
       {
         messerr("Error: Variable (%d) is constant", ivar + 1);

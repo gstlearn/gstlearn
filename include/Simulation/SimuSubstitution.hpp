@@ -11,21 +11,22 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Plane.hpp"
 
 class SimuSubstitutionParam;
 class Db;
 class DbGrid;
 
-class GSTLEARN_EXPORT SimuSubstitution: public ASimulation
+class GSTLEARN_EXPORT SimuSubstitution: public ACalcSimulation
 {
 public:
   SimuSubstitution(int nbsimu = 0, int seed = 4324324);
-  SimuSubstitution(const SimuSubstitution &r);
-  SimuSubstitution& operator=(const SimuSubstitution &r);
+  SimuSubstitution(const SimuSubstitution &r) = delete;
+  SimuSubstitution& operator=(const SimuSubstitution &r) = delete;
   virtual ~SimuSubstitution();
 
   int simulate(DbGrid *dbgrid,
@@ -34,6 +35,8 @@ public:
                bool verbose = false);
 
 private:
+  virtual bool _run() override;
+
   void _calculValue(int ip, double factor, const VectorDouble& vector);
   VectorDouble _transToProp(const SimuSubstitutionParam& subparam,
                             bool verbose = false,

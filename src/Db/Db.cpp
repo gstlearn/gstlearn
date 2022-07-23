@@ -1561,6 +1561,24 @@ double Db::getExtensionDiagonal(bool useSel) const
   return sqrt(total);
 }
 
+void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi)
+{
+  int ndim = getNDim();
+  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
+  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
+
+  /* Loop on the space dimension */
+
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, true);
+    double vmin = ut_vector_min(coor);
+    double vmax = ut_vector_max(coor);
+    if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
+    if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
+  }
+}
+
 /**
  * Return a Unit calculated for a Db (in a given Space dimension)
  * @param idim Rank of the Space dimension

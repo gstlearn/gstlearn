@@ -11,8 +11,8 @@
 #include "geoslib_d.h"
 #include "geoslib_old_f.h"
 
-#include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuEden.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Skin/Skin.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Basic/Law.hpp"
@@ -32,25 +32,9 @@
 static int invdir[6] = { 1, 0, 3, 2, 5, 4 };
 
 SimuEden::SimuEden(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
+    : ACalcSimulation(nbsimu, seed),
       AStringable()
 {
-}
-
-SimuEden::SimuEden(const SimuEden &r)
-    : ASimulation(r),
-      AStringable(r)
-{
-}
-
-SimuEden& SimuEden::operator=(const SimuEden &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    AStringable::operator =(r);
-  }
-  return *this;
 }
 
 SimuEden::~SimuEden()
@@ -1152,3 +1136,7 @@ int SimuEden::_countIsToBeFilled() const
   return count;
 }
 
+bool SimuEden::_run()
+{
+  return true;
+}

@@ -70,6 +70,12 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceShape.hpp"
 
+#include "Skin/ISkinFunctions.hpp"
+#include "Skin/Skin.hpp"
+
+#include "Calculators/ACalculator.hpp"
+#include "Calculators/ACalcInterpolator.hpp"
+
 /*
 #include "Interfaces/geoslib_f_swig.h"
 #include "Interfaces/AParam.hpp"
@@ -274,7 +280,7 @@
 #include "OutputFormat/GridZycor.hpp"
 
 #include "Polynomials/Chebychev.hpp"
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuTurningBands.hpp"
 #include "Simulation/TurningDirection.hpp"
 #include "Simulation/BooleanObject.hpp"
@@ -297,11 +303,6 @@
 #include "Fractures/FracFault.hpp"
 #include "Fractures/FracDesc.hpp"
 #include "Fractures/FracList.hpp"
-
-#include "Skin/ISkinFunctions.hpp"
-#include "Skin/Skin.hpp"
-
-#include "Calculators/ACalculator.hpp"
 
 #include "segy.h"
 

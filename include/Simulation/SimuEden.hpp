@@ -11,22 +11,23 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
 #include "Db/DbGrid.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Basic/AStringable.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 
 class Skin;
 class MatrixRectangular;
 
-class GSTLEARN_EXPORT SimuEden: public ASimulation, public AStringable, public ISkinFunctions
+class GSTLEARN_EXPORT SimuEden: public ACalcSimulation, public AStringable, public ISkinFunctions
 {
 public:
   SimuEden(int nbsimu = 0, int seed = 4324324);
-  SimuEden(const SimuEden &r);
-  SimuEden& operator=(const SimuEden &r);
+  SimuEden(const SimuEden &r) = delete;
+  SimuEden& operator=(const SimuEden &r) = delete;
   virtual ~SimuEden();
 
   /// Interface to AStringable
@@ -70,6 +71,8 @@ public:
                                  bool verbose = false);
 
 private:
+  virtual bool _run() override;
+
   bool _fluid_check(void);
   int  _getWT(int ifacies, int ifluid, int perm, int idir);
   int  _getFACIES(int iech) const;

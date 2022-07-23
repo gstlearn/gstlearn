@@ -101,6 +101,9 @@ class IClonable{};
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
 
+%include Calculators/ACalculator.hpp
+%include Calculators/ACalcInterpolator.hpp
+
 /*
 %include Interfaces/geoslib_f_swig.h
 %include Interfaces/AParam.hpp
@@ -301,7 +304,7 @@ class IClonable{};
 %include OutputFormat/GridXYZ.hpp
 %include OutputFormat/GridZycor.hpp
 
-%include Simulation/ASimulation.hpp
+%include Simulation/ACalcSimulation.hpp
 %include Simulation/SimuTurningBands.hpp
 %include Simulation/TurningDirection.hpp
 %include Simulation/BooleanObject.hpp
@@ -326,8 +329,6 @@ class IClonable{};
 %include Fractures/FracList.hpp
 
 %include Skin/Skin.hpp
-
-%include Calculators/ACalculator.hpp
 
 %include segy.h
 

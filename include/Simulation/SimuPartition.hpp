@@ -11,10 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
 #include "Basic/Plane.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 
 class SimuPartitionParam;
 class Db;
@@ -26,12 +27,12 @@ typedef struct
   double valsim;
 } Stack;
 
-class GSTLEARN_EXPORT SimuPartition: public ASimulation
+class GSTLEARN_EXPORT SimuPartition: public ACalcSimulation
 {
 public:
   SimuPartition(int nbsimu = 0, int seed = 4324324);
-  SimuPartition(const SimuPartition &r);
-  SimuPartition& operator=(const SimuPartition &r);
+  SimuPartition(const SimuPartition &r) = delete;
+  SimuPartition& operator=(const SimuPartition &r) = delete;
   virtual ~SimuPartition();
 
   int voronoi(DbGrid *dbgrid,
@@ -46,5 +47,7 @@ public:
               bool verbose = false);
 
 private:
+  virtual bool _run() override;
+
   double _stackSearch(const std::vector<Stack>& stacks, double valref);
 };

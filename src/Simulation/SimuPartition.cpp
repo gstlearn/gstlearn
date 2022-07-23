@@ -13,7 +13,7 @@
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Basic/Law.hpp"
@@ -23,22 +23,8 @@
 #define COOR(iech,idim)    (coor[(iech) * ndim + (idim)])
 
 SimuPartition::SimuPartition(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed)
+    : ACalcSimulation(nbsimu, seed)
 {
-}
-
-SimuPartition::SimuPartition(const SimuPartition &r)
-    : ASimulation(r)
-{
-}
-
-SimuPartition& SimuPartition::operator=(const SimuPartition &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-  }
-  return *this;
 }
 
 SimuPartition::~SimuPartition()
@@ -257,4 +243,9 @@ double SimuPartition::_stackSearch(const std::vector<Stack>& stacks,
     if (stacks[i].valref == valref) return stacks[i].valsim;
   }
   return TEST;
+}
+
+bool SimuPartition::_run()
+{
+  return true;
 }

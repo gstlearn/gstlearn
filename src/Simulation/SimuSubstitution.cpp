@@ -11,9 +11,9 @@
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuSubstitution.hpp"
 #include "Simulation/SimuSubstitutionParam.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
@@ -21,24 +21,8 @@
 #define TRANS(i,j)     (trans[(j) + nfacies * (i)])
 
 SimuSubstitution::SimuSubstitution(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed)
+    : ACalcSimulation(nbsimu, seed)
 {
-}
-
-SimuSubstitution::SimuSubstitution(const SimuSubstitution &r)
-    : ASimulation(r),
-      _planes(r._planes)
-{
-}
-
-SimuSubstitution& SimuSubstitution::operator=(const SimuSubstitution &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    _planes = r._planes;
-  }
-  return *this;
 }
 
 SimuSubstitution::~SimuSubstitution()
@@ -348,3 +332,7 @@ VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subpara
   return props;
 }
 
+bool SimuSubstitution::_run()
+{
+  return true;
+}
