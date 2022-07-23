@@ -1,7 +1,7 @@
 %ignore *::operator=;
 
-// TODO: How to mask IClonable and clone method?
-class IClonable{};
+// TODO: How to mask ICloneable and clone method?
+class ICloneable{};
 //%ignore *::clone;
 
 %include stl.i

@@ -33,8 +33,8 @@ public:
   ShapeHalfSinusoid& operator=(const ShapeHalfSinusoid &r);
   virtual ~ShapeHalfSinusoid();
 
-  /// Interface for IClonable
-  virtual IClonable* clone() const override { return new ShapeHalfSinusoid(*this); };
+  /// Interface for ICloneable
+  virtual ICloneable* clone() const override { return new ShapeHalfSinusoid(*this); };
 
   ETShape getType() const override { return ETShape::HALFSINUSOID; }
   int  getNParams() const override { return 6; }

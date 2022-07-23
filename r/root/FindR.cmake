@@ -15,6 +15,10 @@
 #  R_ROOT_DIR - As reported by R
 # Authors: Omar Andres Zapata Mesa 31/05/2013
 
+# Modified by Fabien Ors - 2022
+#
+# - Retrieve R version and display status message
+
 if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_FIND_APPBUNDLE "LAST")
 endif()
@@ -64,6 +68,7 @@ foreach(_cpt ${R_FIND_COMPONENTS})
     set(R_${_cpt}_FOUND 1)
   endif()
 
+  # TODO : This doesn't work under Windows, I guess.
   find_library(R_${_cpt}_LIBRARY
                lib${_cpt}.so lib${_cpt}.dylib
                HINTS ${_cpt_path}/lib)
@@ -84,3 +89,14 @@ endforeach()
 include(FindPackageHandleStandardArgs)
 find_package_handle_standard_args(R HANDLE_COMPONENTS REQUIRED_VARS R_EXECUTABLE R_INCLUDE_DIR R_LIBRARY)
 mark_as_advanced(R_FOUND R_EXECUTABLE R_INCLUDE_DIR R_LIBRARY)
+
+# Find the R version and dispay message
+execute_process(COMMAND ${R_EXECUTABLE} CMD BATCH --no-echo --no-timing ${CMAKE_CURRENT_SOURCE_DIR}/GetVersion.R ${CMAKE_CURRENT_BINARY_DIR}/GetVersion.Rout)
+execute_process(COMMAND ${CMAKE_COMMAND} -E cat ${CMAKE_CURRENT_BINARY_DIR}/GetVersion.Rout
+                ERROR_QUIET
+                OUTPUT_VARIABLE R_VERSION
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+message(STATUS "Found R: " ${R_LIBRARIES} " (found version \"" ${R_VERSION} "\")")
+
+

@@ -17,7 +17,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
 
 
@@ -26,7 +26,7 @@
 
 class Db;
 
-class GSTLEARN_EXPORT ADriftElem : public ADrift, public IClonable, public ASerializable
+class GSTLEARN_EXPORT ADriftElem : public ADrift, public ICloneable, public ASerializable
 {
 public:
   ADriftElem(const EDrift& type, const CovContext& ctxt, int rankFex = 0);
@@ -35,8 +35,8 @@ public:
   virtual ~ADriftElem();
 
   ///////////////////////////////////////////////////
-  /// IClonable Interface
-  virtual IClonable* clone() const override = 0;
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override = 0;
   ///////////////////////////////////////////////////
 
   ///////////////////////////////////////////////////

@@ -18,7 +18,7 @@
 
 #include "Covariances/CovCalcMode.hpp"
 
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -30,7 +30,7 @@ class AAnam;
 /**
  * Experimental Variogram (not only): TODO : to be improved
  */
-class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public ICloneable
 {
 public:
   Vario(const VarioParam* varioparam,
@@ -43,7 +43,7 @@ public:
 
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual IClonable* clone() const override { return new Vario(*this); };
+  virtual ICloneable* clone() const override { return new Vario(*this); };
 
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,

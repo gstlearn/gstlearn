@@ -41,7 +41,7 @@ Vario::Vario(const VarioParam* varioparam,
              const VectorDouble& vars)
     : AStringable(),
       ASerializable(),
-      IClonable(),
+      ICloneable(),
       _nVar(0),
       _varioparam(),
       _means(means),

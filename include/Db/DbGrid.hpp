@@ -24,7 +24,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Polygons;
 
@@ -44,8 +44,8 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new DbGrid(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new DbGrid(*this); };
 
   /// Db Interface
   inline bool isGrid() const override { return true; }

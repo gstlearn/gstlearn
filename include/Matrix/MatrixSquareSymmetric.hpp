@@ -30,8 +30,8 @@ public:
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
 	virtual ~MatrixSquareSymmetric();
 
-  /// Clonable interface
-  virtual IClonable* clone() const override { return new MatrixSquareSymmetric(*this); };
+  /// Cloneable interface
+  virtual ICloneable* clone() const override { return new MatrixSquareSymmetric(*this); };
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 

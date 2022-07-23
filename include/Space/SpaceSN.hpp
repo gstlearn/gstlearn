@@ -24,7 +24,7 @@ public:
   SpaceSN& operator=(const SpaceSN& r);
   virtual ~SpaceSN();
 
-  virtual IClonable* clone() const override { return new SpaceSN(*this); }
+  virtual ICloneable* clone() const override { return new SpaceSN(*this); }
 
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const override;

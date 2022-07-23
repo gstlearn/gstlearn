@@ -40,8 +40,8 @@ public:
   CovLMCAnamorphosis& operator= (const CovLMCAnamorphosis &r);
   virtual ~CovLMCAnamorphosis();
 
-  /// Interface from IClonable
-  virtual IClonable* clone() const override { return new CovLMCAnamorphosis(*this); };
+  /// Interface from ICloneable
+  virtual ICloneable* clone() const override { return new CovLMCAnamorphosis(*this); };
 
   /// Interface from ATringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

@@ -28,8 +28,8 @@ public:
   AnamDiscreteDD& operator= (const AnamDiscreteDD &m);
   virtual ~AnamDiscreteDD();
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new AnamDiscreteDD(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new AnamDiscreteDD(*this); };
 
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = true);

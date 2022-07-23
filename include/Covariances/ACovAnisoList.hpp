@@ -16,7 +16,7 @@
 // Enums
 #include "Covariances/ECov.hpp"
 
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -29,7 +29,7 @@ class CovContext;
 class AStringFormat;
 class AAnam;
 
-class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
+class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
 {
 public:
   ACovAnisoList(const ASpace* space = nullptr);
@@ -37,8 +37,8 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
-  /// Interface for IClonable
-  virtual IClonable* clone() const override = 0;
+  /// Interface for ICloneable
+  virtual ICloneable* clone() const override = 0;
 
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;

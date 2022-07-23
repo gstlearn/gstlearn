@@ -33,7 +33,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Model;
 class Db;
@@ -45,7 +45,7 @@ class ANoStat;
 class ADriftElem;
 
 /// TODO : Create AModel which inherits from ACov ?
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -58,8 +58,8 @@ public:
   /// Interface to AStringeable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Interface to IClonable
-  virtual IClonable* clone() const override { return new Model(*this); }
+  /// Interface to ICloneable
+  virtual ICloneable* clone() const override { return new Model(*this); }
 
   int resetFromDb(const Db* db);
 

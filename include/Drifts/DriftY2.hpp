@@ -21,7 +21,7 @@ public:
   DriftY2& operator= (const DriftY2 &r);
   virtual ~DriftY2();
 
-  IClonable* clone() const override;
+  ICloneable* clone() const override;
 
   String getDriftSymbol() const override { return "y2"; }
   String getDriftName() const override { return "Drift Y^2"; }

@@ -31,8 +31,8 @@ public:
   ShapeParaboloid& operator=(const ShapeParaboloid &r);
   virtual ~ShapeParaboloid();
 
-  /// Interface for IClonable
-  virtual IClonable* clone() const override { return new ShapeParaboloid(*this); };
+  /// Interface for ICloneable
+  virtual ICloneable* clone() const override { return new ShapeParaboloid(*this); };
 
   ETShape getType() const override { return ETShape::PARABOLOID; }
   int  getNParams() const override { return 4; }

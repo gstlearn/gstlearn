@@ -14,7 +14,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"

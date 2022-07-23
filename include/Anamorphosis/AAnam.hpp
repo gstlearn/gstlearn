@@ -17,12 +17,12 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;
 
-class GSTLEARN_EXPORT AAnam : public IClonable, public AStringable, public ASerializable
+class GSTLEARN_EXPORT AAnam : public ICloneable, public AStringable, public ASerializable
 {
 public:
   AAnam();

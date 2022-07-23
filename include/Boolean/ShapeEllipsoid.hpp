@@ -31,8 +31,8 @@ public:
   ShapeEllipsoid& operator=(const ShapeEllipsoid &r);
   virtual ~ShapeEllipsoid();
 
-  /// Interface for IClonable
-  virtual IClonable* clone() const override { return new ShapeEllipsoid(*this); };
+  /// Interface for ICloneable
+  virtual ICloneable* clone() const override { return new ShapeEllipsoid(*this); };
 
   ETShape getType() const override { return ETShape::ELLIPSOID; }
   int  getNParams() const override { return 4; }

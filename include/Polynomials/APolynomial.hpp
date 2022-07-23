@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/Vector.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
@@ -20,7 +20,7 @@
 #include <functional>
 
 class ALinearOpMulti;
-class GSTLEARN_EXPORT APolynomial: public AStringable, public IClonable
+class GSTLEARN_EXPORT APolynomial: public AStringable, public ICloneable
 {
 public:
   APolynomial();

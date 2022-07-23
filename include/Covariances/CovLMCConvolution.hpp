@@ -48,7 +48,7 @@ public:
   CovLMCConvolution& operator= (const CovLMCConvolution &r);
   virtual ~CovLMCConvolution();
 
-  virtual IClonable* clone() const override { return new CovLMCConvolution(*this); };
+  virtual ICloneable* clone() const override { return new CovLMCConvolution(*this); };
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual double eval0(int ivar,

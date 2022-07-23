@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
@@ -50,6 +51,21 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
+
+  message("Cloning Matrix of integers\n");
+  MatrixInt mati(2,3);
+  mati.setValues({1, 2, 3, 4, 5, 6});
+  mati.display();
+  MatrixInt* mati2(dynamic_cast<MatrixInt*>(mati.clone()));
+  mati2->display();
+
+  message("Cloning Matrix of doubles\n");
+  MatrixRectangular matd(2,3);
+  matd.setValues({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+  matd.display();
+  AMatrix* pmat = &matd;
+  MatrixRectangular* matd2(dynamic_cast<MatrixRectangular*>(pmat->clone())); // dynamic_cast cannot be avoided here
+  matd2->display();
 
   VectorDouble V1,V2,V3,Vref;
   law_set_random_seed(32432);

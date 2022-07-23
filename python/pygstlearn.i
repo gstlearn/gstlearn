@@ -264,10 +264,10 @@ def getitem(self,arg):
     db["var"] or db[:,"var"] extracts the variable named "var"
     db[5:10,(2,3)] extracts the rows 5 to 9 of the variables of index 2 and 3 (array of shape (5,2))
     db[gl.ELoc.Z] extracts all the variables located with Z.
-    """    
+    """
     nrows = getNrows(self)
         
-    selec_rows = has_row_selection(self, arg)   
+    selec_rows = has_row_selection(self, arg)
     if selec_rows:
         rows = arg[0]
         columns = arg[1]
@@ -278,7 +278,7 @@ def getitem(self,arg):
     # extract columns
     ColNames = findColumnNames(self, columns)
     nbvar = len(ColNames)
-    temp = np.array(self.getColumns(ColNames, self.useSel))        
+    temp = np.array(self.getColumns(ColNames, self.useSel))
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows

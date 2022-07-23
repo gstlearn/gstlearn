@@ -25,8 +25,8 @@ public:
   AnamEmpirical& operator= (const AnamEmpirical &m);
   virtual ~AnamEmpirical();
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new AnamEmpirical(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new AnamEmpirical(*this); };
 
   /// ASerializable Interface
   static AnamEmpirical* createFromNF(const String& neutralFilename,

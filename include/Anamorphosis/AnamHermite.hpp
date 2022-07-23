@@ -27,8 +27,8 @@ public:
   AnamHermite& operator= (const AnamHermite &m);
   virtual ~AnamHermite();
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new AnamHermite(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new AnamHermite(*this); };
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

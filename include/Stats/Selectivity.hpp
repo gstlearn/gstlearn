@@ -12,13 +12,13 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Stats/ESelectivity.hpp"
 
 class Db;
 
-class GSTLEARN_EXPORT Selectivity: public IClonable, public AStringable
+class GSTLEARN_EXPORT Selectivity: public ICloneable, public AStringable
 {
 public:
   Selectivity(int ncut = 0);
@@ -27,8 +27,8 @@ public:
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
 
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new Selectivity(*this); };
+  /// ICloneable Interface
+  virtual ICloneable* clone() const override { return new Selectivity(*this); };
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

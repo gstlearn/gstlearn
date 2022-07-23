@@ -15,13 +15,13 @@
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class ASpace;
 class SpacePoint;
 class Db;
 
-class GSTLEARN_EXPORT DriftList : public ADrift, public IClonable
+class GSTLEARN_EXPORT DriftList : public ADrift, public ICloneable
 {
 public:
   DriftList(const ASpace* space = nullptr);
@@ -29,8 +29,8 @@ public:
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
 
-  /// IClonable interface */
-  virtual IClonable* clone() const override { return new DriftList(*this); };
+  /// ICloneable interface */
+  virtual ICloneable* clone() const override { return new DriftList(*this); };
 
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;

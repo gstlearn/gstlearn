@@ -41,7 +41,7 @@ double DriftY::eval(const Db* db, int iech) const
   return db->getCoordinate(iech,1);
 }
 
-IClonable* DriftY::clone() const
+ICloneable* DriftY::clone() const
 {
   return new DriftY(*this);
 }
