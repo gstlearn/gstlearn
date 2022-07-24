@@ -29,6 +29,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {

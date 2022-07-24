@@ -23,6 +23,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************
 **

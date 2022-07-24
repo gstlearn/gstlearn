@@ -21,7 +21,12 @@ ACalcInterpolator::ACalcInterpolator()
       _dbin(nullptr),
       _dbout(nullptr),
       _model(nullptr),
-      _neighparam(nullptr)
+      _neighparam(nullptr),
+      _namconv(),
+      _listVariablePermDbIn(),
+      _listVariablePermDbOut(),
+      _listVariableTempDbIn(),
+      _listVariableTempDbOut()
 {
 }
 
@@ -157,26 +162,28 @@ bool ACalcInterpolator::_check() const
   if (_model != nullptr)
   {
     nfex = _model->getExternalDriftNumber();
-
-    if (_dbin != nullptr)
+    if (nfex > 0)
     {
-      if (_dbin->getExternalDriftNumber() != nfex)
+      if (_dbin != nullptr)
       {
-        messerr("The _model requires %d external drift(s)", nfex);
-        messerr("but the input Db refers to %d external drift variables",
-                _dbin->getExternalDriftNumber());
-        return false;
+        if (_dbin->getExternalDriftNumber() != nfex)
+        {
+          messerr("The _model requires %d external drift(s)", nfex);
+          messerr("but the input Db refers to %d external drift variables",
+                  _dbin->getExternalDriftNumber());
+          return false;
+        }
       }
-    }
 
-    if (_dbout != nullptr)
-    {
-      if (_dbout->getExternalDriftNumber() != nfex)
+      if (_dbout != nullptr)
       {
-        messerr("The _model requires %d external drift(s)", nfex);
-        messerr("but the output Db refers to %d external drift variables",
-                _dbout->getExternalDriftNumber());
-        return false;
+        if (_dbout->getExternalDriftNumber() != nfex)
+        {
+          messerr("The _model requires %d external drift(s)", nfex);
+          messerr("but the output Db refers to %d external drift variables",
+                  _dbout->getExternalDriftNumber());
+          return false;
+        }
       }
     }
   }
@@ -255,13 +262,137 @@ int ACalcInterpolator::_expandInformation(int mode, const ELoc &locatorType)
   if (mode > 0)
   {
     VectorDouble tab(nechin, 0.);
-    VectorInt iatt = dbgrid->getUIDsByLocator(locatorType);
-    if (migrateByAttribute(dbgrid, _dbin, iatt)) return 1;
+    VectorInt iatts = dbgrid->getUIDsByLocator(locatorType);
+    _storeInVariableList(1, 2, iatts);
+    if (migrateByAttribute(dbgrid, _dbin, iatts)) return 1;
   }
   else
   {
     _dbin->deleteColumnsByLocator(locatorType);
   }
-  return (0);
+  return 0;
 }
 
+/**
+ * Returns a pointer to the relevant Db and issue a message if not defined
+ * @param whichDb 1 for 'dbin'  and 2 for 'dbout'
+ * @return A pointer to the Db or nullptr
+ */
+Db* ACalcInterpolator::_whichDb(int whichDb)
+{
+  Db* db;
+  if (whichDb == 1)
+    db = _dbin;
+  else
+    db = _dbout;
+  if (db == nullptr)
+  {
+    messerr("Impossible to add variables in non-defined Db");
+  }
+  return db;
+}
+
+/**
+ * Store the IUID of the new variable in the relevant internal list
+ * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
+ * @param status  1 for variables to be stored; 2 for Temporary variable
+ * @param iuid    Vector of UIDs of the new variable
+ */
+void ACalcInterpolator::_storeInVariableList(int whichDb, int status, const VectorInt& iuids)
+{
+  int number = (int) iuids.size();
+  if (number <= 0) return;
+
+  if (whichDb == 1)
+  {
+    if (status == 1)
+    {
+      for (int i = 0; i < number; i++)
+        _listVariablePermDbIn.push_back(iuids[i]);
+    }
+    else
+    {
+      for (int i = 0; i < number; i++)
+        _listVariableTempDbIn.push_back(iuids[i]);
+    }
+  }
+  else
+  {
+    if (status == 1)
+    {
+      for (int i = 0; i < number; i++)
+        _listVariablePermDbOut.push_back(iuids[i]);
+    }
+    else
+    {
+      for (int i = 0; i < number; i++)
+        _listVariableTempDbOut.push_back(iuids[i]);
+    }
+  }
+}
+int ACalcInterpolator::_addVariableDb(int whichDb,
+                                      int status,
+                                      const ELoc &locatorType,
+                                      int number,
+                                      double valinit)
+{
+  Db* db = _whichDb(whichDb);
+  if (db == nullptr) return -1;
+  int iuid = db->addColumnsByConstant(number, valinit, String(), locatorType);
+  if (iuid < 0) return -1;
+  VectorInt iuids = ut_ivector_sequence(number, iuid);
+  _storeInVariableList(whichDb, status, iuids);
+  return iuid;
+}
+
+void ACalcInterpolator::_renameVariable(const ELoc &locatorType,
+                                        int nvar,
+                                        int iptr,
+                                        const String &name,
+                                        int count)
+{
+  _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbout, iptr, name, count);
+}
+
+void ACalcInterpolator::_cleanVariableDb(int status)
+{
+  // Dispatch
+
+  if (status == 1)
+  {
+    // In 'dbin'
+    if (!_listVariablePermDbIn.empty())
+    {
+      for (int i = 0; i < (int) _listVariablePermDbIn.size(); i++)
+        _dbin->deleteColumnByUID(_listVariablePermDbIn[i]);
+    }
+    _listVariablePermDbIn.clear();
+
+    // In 'dbout'
+    if (!_listVariablePermDbOut.empty())
+    {
+      for (int i = 0; i < (int) _listVariablePermDbOut.size(); i++)
+        _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
+    }
+    _listVariablePermDbOut.clear();
+  }
+  else
+  {
+    // In 'dbin'
+    if (!_listVariableTempDbIn.empty())
+    {
+      for (int i = 0; i < (int) _listVariableTempDbIn.size(); i++)
+        _dbin->deleteColumnByUID(_listVariableTempDbIn[i]);
+    }
+    _listVariableTempDbIn.clear();
+
+    // In 'dbout'
+    if (!_listVariableTempDbOut.empty())
+    {
+      for (int i = 0; i < (int) _listVariableTempDbOut.size(); i++)
+        _dbout->deleteColumnByUID(_listVariableTempDbOut[i]);
+    }
+    _listVariableTempDbOut.clear();
+  }
+
+}

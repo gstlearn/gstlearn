@@ -21,6 +21,7 @@
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 #include <iostream>
 #include <fstream>

@@ -22,15 +22,16 @@
 class Model;
 class ANeighParam;
 
-class GSTLEARN_EXPORT SimuTurningBands : public ACalcSimulation
+class GSTLEARN_EXPORT CalcSimuTurningBands : public ACalcSimulation
 {
 public:
-  SimuTurningBands(int nbsimu = 0,
+  CalcSimuTurningBands(int nbsimu = 0,
                    int nbtuba = 0,
+                   bool flag_check = false,
                    int seed = 4324324);
-  SimuTurningBands(const SimuTurningBands& r) = delete;
-  SimuTurningBands& operator=(const SimuTurningBands& r) = delete;
-  virtual ~SimuTurningBands();
+  CalcSimuTurningBands(const CalcSimuTurningBands& r) = delete;
+  CalcSimuTurningBands& operator=(const CalcSimuTurningBands& r) = delete;
+  virtual ~CalcSimuTurningBands();
 
   int getNBtuba() const { return _nbtuba; }
   void setNBtuba(int nbtuba) { _nbtuba = nbtuba; }
@@ -38,7 +39,7 @@ public:
 
   int simulate(Db *dbin,
                Db *dbout,
-               const Model* model,
+               Model* model,
                ANeighParam *neighparam,
                int icase,
                int flag_bayes = false,
@@ -52,15 +53,40 @@ public:
                         Db *dbgrd,
                         Db *dbtgt,
                         Db *dbout,
-                        const Model* model,
+                        Model* model,
                         double delta);
-  void checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
+
 
   static bool isTurningBandsWorkable(const Model *model);
 
+  const VectorDouble& getBayesCov() const { return _bayesCov; }
+  void setBayesCov(const VectorDouble &dcov) { _bayesCov = dcov; }
+  const VectorDouble& getBayesMean() const { return _bayesMean; }
+  void setBayesMean(const VectorDouble &dmean) { _bayesMean = dmean; }
+  bool isFlagCheck() const { return _flagCheck; }
+  void setFlagCheck(bool flag_check) { _flagCheck = flag_check; }
+  bool isFlagBayes() const { return _flagBayes; }
+  void setFlagBayes(bool flag_bayes) { _flagBayes = flag_bayes; }
+  bool isFlagDgm() const { return _flagDGM; }
+  void setFlagDgm(bool flag_dgm) { _flagDGM = flag_dgm; }
+  bool isFlagGibbs() const { return _flagGibbs; }
+  void setFlagGibbs(bool flag_gibbs) { _flagGibbs = flag_gibbs; }
+  bool isFlagPgs() const { return _flagPGS; }
+  void setFlagPgs(bool flag_pgs) { _flagPGS = flag_pgs; }
+  int getIcase() const { return _icase; }
+  void setIcase(int icase) { _icase = icase; }
+  int getNbtuba() const { return _nbtuba; }
+  void setNbtuba(int nbtuba) { _nbtuba = nbtuba; }
+  double getRCoeff() const { return _rCoeff; }
+  void setRCoeff(double r_coeff) { _rCoeff = r_coeff; }
+
+
 private:
   virtual bool _check() const override;
+  virtual bool _preprocess() override;
   virtual bool _run() override;
+  virtual bool _postprocess() override;
+  virtual void _rollback() override;
 
   bool _resize();
   void _simulatePoint(Db *db, const VectorDouble& aic, int icase, int shift);
@@ -80,6 +106,7 @@ private:
                             int icase,
                             bool flag_pgs = false,
                             bool flag_dgm = false);
+  void _checkGaussianData2Grid(Db *dbin, Db *dbout, Model *model) const;
 
   void _setCodirAng(int ibs, int idir, double value) { _codirs[ibs].setAng(idir, value); }
   void _setCodirTmin(int ibs, double value) { _codirs[ibs].setTmin(value); }
@@ -100,8 +127,9 @@ private:
   double _getCodirTmin(int ibs) const { return _codirs[ibs].getTmin(); }
   double _getCodirTmax(int ibs) const { return _codirs[ibs].getTmax(); }
 
-  int _getNCova() const { return _model->getCovaNumber(); }
-  int _getNVar() const { return _model->getVariableNumber(); }
+  int _getNCova() const { return getModel()->getCovaNumber(); }
+  int _getNVar() const { return getModel()->getVariableNumber(); }
+  int _getNDim()  const { return getModel()->getDimensionNumber(); }
   int  _getAddressBand(int ivar, int is, int ib, int isimu);
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
   int  _getSeedBand(int ivar, int is, int ib, int isimu);
@@ -170,10 +198,50 @@ private:
 
 private:
   int _nbtuba;
+  int _iattOut;
+  int _icase;
+  bool _flagCheck;
+  bool _flagBayes;
+  bool _flagPGS;
+  bool _flagGibbs;
+  bool _flagDGM;
+  VectorDouble _bayesMean;
+  VectorDouble _bayesCov;
+  double _rCoeff;
   int _npointSimulated;
   double _field;
   double _theta;
   VectorInt _seedBands;
   std::vector<TurningDirection> _codirs;
-  const Model* _model;
 };
+
+GSTLEARN_EXPORT int simtub(Db *dbin,
+                           Db *dbout,
+                           Model *model,
+                           ANeighParam *neighparam = nullptr,
+                           int nbsimu = 1,
+                           int seed = 43431,
+                           int nbtuba = 100,
+                           int flag_check = 0,
+                           const NamingConvention &namconv = NamingConvention("Simu"));
+GSTLEARN_EXPORT int simbayes(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             int nbsimu = 1,
+                             int seed = 132141,
+                             const VectorDouble& dmean = VectorDouble(),
+                             const VectorDouble& dcov = VectorDouble(),
+                             int nbtuba = 100,
+                             int flag_check = false,
+                             const NamingConvention& namconv = NamingConvention("SimBayes"));
+GSTLEARN_EXPORT int simdgm(Db *dbin,
+                           DbGrid *dbout,
+                           Model *model,
+                           ANeighParam *neighparam,
+                           double rval,
+                           int seed = 313,
+                           int nbsimu = 1,
+                           int nbtuba = 100,
+                           int flag_check = false,
+                           const NamingConvention& namconv = NamingConvention("SimDGM"));

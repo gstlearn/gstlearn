@@ -283,7 +283,7 @@ set(SRC
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
   Simulation/ACalcSimulation.cpp
-  Simulation/SimuTurningBands.cpp
+  Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningDirection.cpp
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp

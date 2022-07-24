@@ -17,6 +17,7 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 /**
  * This file is meant to test the External Format Read /Write operations

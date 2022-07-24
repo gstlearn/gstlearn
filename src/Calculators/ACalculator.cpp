@@ -38,13 +38,13 @@ bool ACalculator::run()
   }
   catch(const AException& e)
   {
-    messerr("Calculation has failed:",e.what());
+    messerr("Calculator has failed: %s",e.what());
     _rollback();
     return false;
   }
   catch(const std::exception& e)
   {
-    messerr("Calculation has failed:",e.what());
+    messerr("Calculator has failed: %s",e.what());
     _rollback();
     return false;
   }

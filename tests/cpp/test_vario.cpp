@@ -12,6 +12,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
+
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
@@ -23,6 +24,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/ECalcVario.hpp"
 #include <stdlib.h>
+#include "../../include/Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
 /*!

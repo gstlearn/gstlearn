@@ -38,7 +38,7 @@
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/SimuTurningBands.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
@@ -66,7 +66,6 @@
 
 /*! \endcond */
 
-static int FLAG_DGM;
 static double GIBBS_RHO, GIBBS_SQR;
 static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
 
@@ -77,7 +76,6 @@ static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
  *****************************************************************************/
 static void st_simulation_environment(void)
 {
-  FLAG_DGM = 0;
   GIBBS_RHO = 0.;
   GIBBS_SQR = 0.;
 }
@@ -478,90 +476,6 @@ static int st_check_simtub_environment(Db *dbin,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simtub(Db *dbin,
-           Db *dbout,
-           Model *model,
-           ANeighParam *neighparam,
-           int nbsimu,
-           int seed,
-           int nbtuba,
-           int flag_check,
-           const NamingConvention& namconv)
-{
-  int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr_in = iptr_out = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
-    goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0.,
-                                 &iptr_in)) goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0.,
-                               &iptr_out)) goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  {
-    SimuTurningBands situba(nbsimu, nbtuba, seed);
-    if (situba.simulate(dbin, dbout, model, neighparam, 0)) goto label_end;
-
-    // Check the simulation at data location
-
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-  }
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
-                              iptr_out, String(), nbsimu);
-
-  label_end:
-  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  return (error);
-}
-
 /*****************************************************************************/
 /*!
  **  Performs the boolean simulation
@@ -625,175 +539,6 @@ int simbool(Db* dbin,
   namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
                               false);
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional block simulation
- **  in the scope of the Discrete Gaussian Model
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db Grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  rval       Change of support coefficient
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simdgm(Db *dbin,
-           DbGrid *dbout,
-           Model *model,
-           ANeighParam *neighparam,
-           double rval,
-           int seed,
-           int nbsimu,
-           int nbtuba,
-           int flag_check)
-{
-  int flag_cond, nvar, error, iext, inostat, iptr;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat)) goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-  FLAG_DGM = 1;
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-      goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-    goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  {
-    SimuTurningBands situba(nbsimu, nbtuba, seed);
-    if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
-                        VectorDouble(), false, false, true, rval)) goto label_end;
-
-    // Check the simulations at data locations
-
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-  }
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **  with Bayesian Drift
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simbayes(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
-             int nbsimu,
-             int seed,
-             const VectorDouble& dmean,
-             const VectorDouble& dcov,
-             int nbtuba,
-             int flag_check,
-             const NamingConvention& namconv)
-{
-  int flag_cond, nvar, error, iptr_in, iptr_out;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr_in = iptr_out = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_in))
-      goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_out))
-    goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  {
-    SimuTurningBands situba(nbsimu, nbtuba, seed);
-    if (situba.simulate(dbin, dbout, model, neighparam, 0, true, dmean, dcov))
-      goto label_end;
-
-    // Check simulations at data locations
-
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-  }
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
-                              iptr_out, String(), nbsimu);
-
-  label_end:
-  return (error);
 }
 
 /****************************************************************************/
@@ -1180,11 +925,10 @@ int simpgs(Db *dbin,
   {
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
-    SimuTurningBands situba(nbsimu, nbtuba, local_seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
     local_seed = 0;
     if (situba.simulate(dbin, dbout, models[igrf], neighparam, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[igrf]);
   }
 
   /* Convert gaussian to facies at target point */
@@ -1606,11 +1350,10 @@ int simbipgs(Db *dbin,
     {
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
-      SimuTurningBands situba(nbsimu, nbtuba, local_seed);
+      CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
       local_seed = 0;
       if (situba.simulate(dbin, dbout, models[ipgs][igrf], neighparam, icase, false,
                           VectorDouble(), VectorDouble(), true)) goto label_end;
-      if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[ipgs][igrf]);
     }
 
     /* Convert gaussian to facies at target point */
@@ -2332,7 +2075,7 @@ int simmaxstable(Db *dbout,
     /* Processing the Turning Bands algorithm */
 
     {
-      SimuTurningBands situba(1, nbtuba, seed);
+      CalcSimuTurningBands situba(1, nbtuba, false, seed);
       if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
     }
 
@@ -2430,7 +2173,7 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  SimuTurningBands situba;
+  CalcSimuTurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 
@@ -2512,7 +2255,7 @@ int simRI(Db *dbout,
     /* Simulation in the non-masked part of the grid */
 
     {
-      SimuTurningBands situba(1, nbtuba, seed);
+      CalcSimuTurningBands situba(1, nbtuba, false, seed);
       if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
     }
 
@@ -2924,10 +2667,9 @@ int simcond(Db *dbin,
   /* Processing the Turning Bands algorithm */
 
   {
-    SimuTurningBands situba(nbsimu, nbtuba, seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
     if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
                         VectorDouble(), false, true)) goto label_end;
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
   }
 
   /* Free the temporary variables not used anymore */

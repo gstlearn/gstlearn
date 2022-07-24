@@ -14,6 +14,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Simulation/ACalcSimulation.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Basic/Law.hpp"

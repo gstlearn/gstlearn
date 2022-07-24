@@ -23,9 +23,10 @@
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include <Simulation/CalcSimuTurningBands.hpp>
+
 #include <math.h>
 #include <string.h>
-#include <Simulation/SimuTurningBands.hpp>
 
 /*! \cond */
 
@@ -3383,7 +3384,7 @@ int potential_simulate(Db *dbiso,
   /* Processing the non-conditional simulation over the iso-values */
 
   {
-    SimuTurningBands situba_new(nbsimu, nbtuba, seed);
+    CalcSimuTurningBands situba_new(nbsimu, nbtuba, seed);
     if (situba_new.simulatePotential(dbiso, dbgrd, dbtgt, dbout, model, delta))
       goto label_end;
   }

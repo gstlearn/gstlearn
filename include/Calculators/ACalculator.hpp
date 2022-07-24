@@ -28,5 +28,5 @@ protected:
   virtual bool _check() const { return true; }
   virtual bool _preprocess()  { return true; }
   virtual bool _postprocess() { return true; }
-  virtual void _rollback() const { }
+  virtual void _rollback() { }
 };

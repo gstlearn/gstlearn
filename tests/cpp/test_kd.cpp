@@ -33,6 +33,7 @@
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 #include <math.h>
 

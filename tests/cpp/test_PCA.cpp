@@ -23,6 +23,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 #include <stdlib.h>
 
 /****************************************************************************/
