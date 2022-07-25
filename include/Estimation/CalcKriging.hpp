@@ -33,6 +33,10 @@ public:
   void setRankColCok(const VectorInt &rankColCok) { _rankColCok = rankColCok; }
   void setFlagDgm(bool flagDgm) { _flagDGM = flagDgm; }
   void setRCoeff(double rCoeff) { _rCoeff = rCoeff; }
+  void setPriorCov(const VectorDouble &priorCov) { _priorCov = priorCov; }
+  void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
+  void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
+  void setFlagProf(bool flagProf) { _flagProf = flagProf; }
 
 private:
   virtual bool _check() override;
@@ -54,6 +58,12 @@ private:
 
   bool _flagDGM;
   double _rCoeff;
+
+  bool _flagBayes;
+  VectorDouble _priorMean;
+  VectorDouble _priorCov;
+
+  bool _flagProf;
 
   int _iptrEst;
   int _iptrStd;
@@ -81,3 +91,19 @@ GSTLEARN_EXPORT int krigdgm(Db *dbin,
                             bool flag_varz = false,
                             double rval = 1.,
                             const NamingConvention& namconv = NamingConvention("DGM"));
+GSTLEARN_EXPORT int kribayes(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             const VectorDouble& dmean = VectorDouble(),
+                             const VectorDouble& dcov = VectorDouble(),
+                             bool flag_est = true,
+                             bool flag_std = true,
+                             const NamingConvention& namconv = NamingConvention("Bayes"));
+GSTLEARN_EXPORT int krigprof(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             bool flag_est = true,
+                             bool flag_std = true,
+                             const NamingConvention& namconv = NamingConvention("KrigProf"));

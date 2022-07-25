@@ -28,6 +28,10 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _matCL(),
     _flagDGM(false),
     _rCoeff(1.),
+    _flagBayes(false),
+    _priorMean(),
+    _priorCov(),
+    _flagProf(false),
     _iptrEst(-1),
     _iptrStd(-1),
     _iptrVarZ(-1)
@@ -143,6 +147,14 @@ bool CalcKriging::_run()
   {
     if (ksys.setKrigOptDGM(true, _rCoeff)) return false;
   }
+  if (_flagBayes)
+  {
+    ksys.setKrigOptBayes(true, _priorMean, _priorCov);
+  }
+  if (_flagProf)
+  {
+    if (ksys.setKrigoptCode(true)) return false;
+  }
   if (! ksys.isReady()) return false;
 
   /* Loop on the targets to be processed */
@@ -242,6 +254,87 @@ int krigdgm(Db *dbin,
 
   krige.setFlagDgm(true);
   krige.setRCoeff(rval);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Estimation with Bayesian Drift
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  prior_mean Array giving the prior means for the drift terms
+ ** \param[in]  prior_cov  Array containing the prior covariance matrix
+ **                        for the drift terms
+ ** \param[in]  flag_est   Pointer for the storing the estimation
+ ** \param[in]  flag_std   Pointer for the storing the standard deviation
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int kribayes(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             const VectorDouble& prior_mean,
+             const VectorDouble& prior_cov,
+             bool flag_est,
+             bool flag_std,
+             const NamingConvention& namconv)
+{
+  CalcKriging krige(flag_est, flag_std, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagBayes(true);
+  krige.setPriorMean(prior_mean);
+  krige.setPriorCov(prior_cov);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Punctual Kriging based on profiles
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  flag_est   Option for the storing the estimation
+ ** \param[in]  flag_std   Option for the storing the standard deviation
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int krigprof(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             bool flag_est,
+             bool flag_std,
+             const NamingConvention& namconv)
+{
+  CalcKriging krige(flag_est, flag_std, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagProf(true);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
