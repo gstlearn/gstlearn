@@ -127,9 +127,6 @@ private:
   double _getCodirTmin(int ibs) const { return _codirs[ibs].getTmin(); }
   double _getCodirTmax(int ibs) const { return _codirs[ibs].getTmax(); }
 
-  int _getNCova() const { return getModel()->getCovaNumber(); }
-  int _getNVar() const { return getModel()->getVariableNumber(); }
-  int _getNDim()  const { return getModel()->getDimensionNumber(); }
   int  _getAddressBand(int ivar, int is, int ib, int isimu);
   void _setSeedBand(int ivar, int is, int ib, int isimu, int seed);
   int  _getSeedBand(int ivar, int is, int ib, int isimu);

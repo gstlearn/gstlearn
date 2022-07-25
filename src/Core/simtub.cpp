@@ -45,7 +45,7 @@
 #include "Simulation/SimuSubstitution.hpp"
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
-#include "Simulation/SimuPartition.hpp"
+#include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
@@ -2846,96 +2846,6 @@ int substitution(DbGrid *dbgrid,
 
   namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
 
-  return 0;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-int tessellation_poisson(DbGrid *dbgrid,
-                         Model *model,
-                         const SimuPartitionParam& parparam,
-                         int seed,
-                         int verbose,
-                         const NamingConvention& namconv)
-{
-  int ndim = dbgrid->getNDim();
-  if (!is_grid(dbgrid))
-  {
-    messerr("The output Db file must be a grid");
-    return 1;
-  }
-  if (!is_grid(dbgrid) || ndim > 3)
-  {
-    messerr(
-        "The Poisson Tesselation is available for Grid File with dimension <= 3");
-    return 1;
-  }
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, TEST);
-  if (iptr < 0) return 1;
-
-  SimuPartition simpart(1, seed);
-  if (simpart.poisson(dbgrid, model, parparam, iptr, verbose))
-    return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
-
-  return 0;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-int tessellation_voronoi(DbGrid *dbgrid,
-                         Model *model,
-                         const SimuPartitionParam& parparam,
-                         int seed,
-                         int verbose,
-                         const NamingConvention& namconv)
-{
-  int ndim = dbgrid->getNDim();
-  if (ndim > 3)
-  {
-    messerr(
-        "The Poisson Tesselation is available for Grid File with dimension <= 3");
-    return 1;
-  }
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, TEST);
-  if (iptr < 0) return 1;
-
-  SimuPartition simpart(1, seed);
-  if (simpart.voronoi(dbgrid, model, parparam, iptr, verbose))
-    return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
   return 0;
 }
 

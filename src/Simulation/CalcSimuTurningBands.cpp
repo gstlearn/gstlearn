@@ -2521,7 +2521,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
 
 bool CalcSimuTurningBands::_check() const
 {
-  if (! ACalcInterpolator::_check()) return false;
+  if (! ACalcSimulation::_check()) return false;
 
   if (! hasDbout())
   {
@@ -2545,7 +2545,7 @@ bool CalcSimuTurningBands::_check() const
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
-  if (getNbSimu() <= 0 || getNBtuba() <= 0)
+  if (getNBtuba() <= 0)
   {
     messerr("You must define 'nbsimu' and 'nbtuba'");
     return 1;

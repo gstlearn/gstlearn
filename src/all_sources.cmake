@@ -292,7 +292,7 @@ set(SRC
   Simulation/SimuSphericalParam.cpp
   Simulation/SimuSubstitution.cpp
   Simulation/SimuSubstitutionParam.cpp
-  Simulation/SimuPartition.cpp
+  Simulation/CalcSimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
   Simulation/SimuFFTParam.cpp
   Simulation/SimuFFT.cpp

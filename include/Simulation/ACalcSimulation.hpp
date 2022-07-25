@@ -27,6 +27,9 @@ public:
   void setSeed(int seed) { _seed = seed; }
   void setNbSimu(int nbsimu) { _nbsimu = nbsimu; }
 
+protected:
+  bool _check() const override;
+
 private:
   int _nbsimu;
   int _seed;

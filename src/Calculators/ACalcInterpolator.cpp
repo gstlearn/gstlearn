@@ -34,6 +34,59 @@ ACalcInterpolator::~ACalcInterpolator()
 {
 }
 
+int ACalcInterpolator::_getNDim() const
+{
+  int ndim = 0;
+  if (_dbin != nullptr)
+  {
+    if (ndim > 0)
+    {
+      if (ndim != _dbin->getNDim()) return -1;
+    }
+    else
+    {
+      ndim = _dbin->getNDim();
+    }
+  }
+
+  if (_dbout!= nullptr)
+  {
+    if (ndim > 0)
+    {
+      if (ndim != _dbout->getNDim()) return -1;
+    }
+    else
+    {
+      ndim = _dbout->getNDim();
+    }
+  }
+
+  if (_model != nullptr)
+  {
+    if (ndim > 0)
+    {
+      if (ndim != _model->getDimensionNumber()) return -1;
+    }
+    else
+    {
+      ndim = _model->getDimensionNumber();
+    }
+  }
+  return ndim;
+}
+
+int ACalcInterpolator::_getNCova() const
+{
+  if (_model == nullptr) return -1;
+  return getModel()->getCovaNumber();
+}
+
+int ACalcInterpolator::_getNVar() const
+{
+  if (_model == nullptr) return -1;
+  return getModel()->getVariableNumber();
+}
+
 bool ACalcInterpolator::_check() const
 {
   /**************************************************/

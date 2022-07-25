@@ -314,7 +314,7 @@ class ICloneable{};
 %include Simulation/SimuSphericalParam.hpp
 %include Simulation/SimuSubstitution.hpp
 %include Simulation/SimuSubstitutionParam.hpp
-%include Simulation/SimuPartition.hpp
+%include Simulation/CalcSimuPartition.hpp
 %include Simulation/SimuPartitionParam.hpp
 %include Simulation/SimuFFTParam.hpp
 %include Simulation/SimuFFT.hpp

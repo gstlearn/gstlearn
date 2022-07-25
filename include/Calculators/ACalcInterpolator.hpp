@@ -47,6 +47,10 @@ public:
 
 protected:
   virtual bool _check() const override;
+  int _getNDim() const;
+  int _getNCova() const;
+  int _getNVar() const;
+
   int _expandInformation(int mode, const ELoc &locatorType);
   int _addVariableDb(int whichDb,
                      int status,

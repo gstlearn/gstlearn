@@ -22,3 +22,15 @@ ACalcSimulation::~ACalcSimulation()
 {
 }
 
+bool ACalcSimulation::_check() const
+{
+  if (! ACalcInterpolator::_check()) return false;
+
+  if (getNbSimu() <= 0)
+  {
+    messerr("You must define 'nbsimu' and 'nbtuba'");
+    return false;
+  }
+  return true;
+}
+

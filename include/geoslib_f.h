@@ -536,20 +536,6 @@ GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          const SimuSphericalParam& sphepar,
                                          int seed = 54523,
                                          int verbose = false);
-GSTLEARN_EXPORT int tessellation_voronoi(DbGrid *dbgrid,
-                                         Model *model,
-                                         const SimuPartitionParam& parparam,
-                                         int seed = 43243,
-                                         int verbose = false,
-                                         const NamingConvention& namconv = NamingConvention(
-                                             "Voronoi"));
-GSTLEARN_EXPORT int tessellation_poisson(DbGrid *dbgrid,
-                                         Model *model,
-                                         const SimuPartitionParam& parparam,
-                                         int seed = 432432,
-                                         int verbose = false,
-                                         const NamingConvention& namconv = NamingConvention(
-                                             "Poisson"));
 GSTLEARN_EXPORT int simfft(DbGrid *db,
                            Model *model,
                            SimuFFTParam& param,
