@@ -26,6 +26,8 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _ndisc(),
     _rankColCok(),
     _matCL(),
+    _flagDGM(false),
+    _rCoeff(1.),
     _iptrEst(-1),
     _iptrStd(-1),
     _iptrVarZ(-1)
@@ -65,6 +67,11 @@ bool CalcKriging::_check()
     messerr("This tool cannot function with an IMAGE neighborhood");
     return 1;
   }
+  if (_flagDGM && ! getDbout()->isGrid())
+  {
+    messerr("For DGM option, the argument 'dbout'  should be a Grid");
+    return false;
+  }
   return true;
 }
 
@@ -83,8 +90,17 @@ bool CalcKriging::_preprocess()
   if (_flagVarZ)
   {
     _iptrVarZ = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNVar(), 0.);
-    if (_iptrVarZ < 0) return 1;
+    if (_iptrVarZ < 0) return false;
   }
+
+  // Centering the Data (for DGM)
+
+  if (_flagDGM)
+  {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    if (db_center_point_to_grid(getDbin(), dbgrid)) return false;
+  }
+
   return true;
 }
 
@@ -123,6 +139,10 @@ bool CalcKriging::_run()
   if (ksys.setKrigOptCalcul(_calcul, _ndisc)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
   if (ksys.setKrigOptMatCL(_matCL)) return false;
+  if (_flagDGM)
+  {
+    if (ksys.setKrigOptDGM(true, _rCoeff)) return false;
+  }
   if (! ksys.isReady()) return false;
 
   /* Loop on the targets to be processed */
@@ -185,3 +205,46 @@ int kriging(Db *dbin,
   int error = (krige.run()) ? 0 : 1;
   return error;
 }
+
+/****************************************************************************/
+/*!
+ **  Kriging in the Gaussian Discrete Model
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output DbGrid structure
+ ** \param[in]  model       Model structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  flag_est    Option for storing the estimation
+ ** \param[in]  flag_std    Option for storing the standard deviation
+ ** \param[in]  flag_varz   Option for storing the variance of the estimator
+ ** \param[in]  rval        Change of support coefficient
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int krigdgm(Db *dbin,
+            DbGrid *dbout,
+            Model *model,
+            ANeighParam *neighparam,
+            bool flag_est,
+            bool flag_std,
+            bool flag_varz,
+            double rval,
+            const NamingConvention& namconv)
+ {
+  CalcKriging krige(flag_est, flag_std, flag_varz);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagDgm(true);
+  krige.setRCoeff(rval);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+
