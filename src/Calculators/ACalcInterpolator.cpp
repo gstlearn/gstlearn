@@ -87,7 +87,7 @@ int ACalcInterpolator::_getNVar() const
   return getModel()->getVariableNumber();
 }
 
-bool ACalcInterpolator::_check() const
+bool ACalcInterpolator::_check()
 {
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
@@ -349,7 +349,7 @@ Db* ACalcInterpolator::_whichDb(int whichDb)
  * Store the IUID of the new variable in the relevant internal list
  * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
  * @param status  1 for variables to be stored; 2 for Temporary variable
- * @param iuid    Vector of UIDs of the new variable
+ * @param iuids   Vector of UIDs of the new variable
  */
 void ACalcInterpolator::_storeInVariableList(int whichDb, int status, const VectorInt& iuids)
 {

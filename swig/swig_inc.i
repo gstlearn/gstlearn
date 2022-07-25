@@ -288,7 +288,7 @@
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuSubstitution.hpp"
+#include "Simulation/CalcSimuSubstitution.hpp"
 #include "Simulation/SimuSubstitutionParam.hpp"
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
@@ -296,7 +296,7 @@
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
-#include "Simulation/SimuEden.hpp"
+#include "Simulation/CalcSimuEden.hpp"
 
 #include "Fractures/FracEnviron.hpp"
 #include "Fractures/FracFamily.hpp"

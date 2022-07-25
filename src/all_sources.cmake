@@ -290,7 +290,7 @@ set(SRC
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
-  Simulation/SimuSubstitution.cpp
+  Simulation/CalcSimuSubstitution.cpp
   Simulation/SimuSubstitutionParam.cpp
   Simulation/CalcSimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
@@ -298,7 +298,7 @@ set(SRC
   Simulation/SimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
-  Simulation/SimuEden.cpp
+  Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
 )

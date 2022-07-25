@@ -237,7 +237,7 @@ double CalcSimuPartition::_stackSearch(const std::vector<Stack>& stacks,
   return TEST;
 }
 
-bool CalcSimuPartition::_check() const
+bool CalcSimuPartition::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 

@@ -26,6 +26,7 @@
 #include "Basic/OptCustom.hpp"
 #include "Basic/Vector.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Simulation/CalcSimuEden.hpp"
 
 /****************************************************************************/
 /*!
@@ -82,8 +83,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorInt speeds = { sm, sm, sm, sm, sl, sl,
                        sh, sh, sh, sh, sl, sl,
                        sl, sl, sl, sl, sl, sl};
-  (void) fluid_propagation(grid,"Facies","Fluid","","",nfacies,nfluids,1,
-                           speeds);
+  (void) fluid_propagation(grid,"Facies","Fluid","","",nfacies,nfluids,1,speeds);
 
   grid->display(&dbfmt);
   (void) grid->dumpToNF("Grid.ascii");

@@ -42,7 +42,7 @@ public:
   void setVerbose(bool verbose) { _verbose = verbose; }
 
 private:
-  virtual bool _check() const override;
+  virtual bool _check() override;
   virtual bool _preprocess() override;
   virtual bool _run() override;
   virtual bool _postprocess() override;

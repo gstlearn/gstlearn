@@ -46,7 +46,7 @@ public:
   bool hasNeighParam() const { return _neighparam != nullptr; }
 
 protected:
-  virtual bool _check() const override;
+  virtual bool _check() override;
   int _getNDim() const;
   int _getNCova() const;
   int _getNVar() const;

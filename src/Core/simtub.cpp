@@ -42,15 +42,11 @@
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuSubstitution.hpp"
-#include "Simulation/SimuSubstitutionParam.hpp"
-#include "Simulation/SimuPartitionParam.hpp"
-#include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
-#include "Simulation/SimuEden.hpp"
+#include "Simulation/CalcSimuEden.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -2808,47 +2804,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   return simu;
 }
 
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using substitution method
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  subparam    SimuSubstitutionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int substitution(DbGrid *dbgrid,
-                 SimuSubstitutionParam& subparam,
-                 int seed,
-                 int verbose,
-                 const NamingConvention& namconv)
-{
-  if (!is_grid(dbgrid) || dbgrid->getNDim() > 3)
-  {
-    messerr("The substitution is available for Grid File with dimension <= 3");
-    return 1;
-  }
-  if (! subparam.isValid(verbose)) return 1;
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, 0.);
-  if (iptr < 0) return 1;
-
-  // Call the operational function
-
-  SimuSubstitution simsub(1,seed);
-  if (simsub.simulate(dbgrid, subparam, iptr, verbose)) return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
-
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Perform the non-conditional simulation by FFT method on a grid
@@ -2922,138 +2877,63 @@ DbGrid* simfine(DbGrid *dbin,
   return dbout;
 }
 
-/*****************************************************************************/
+/****************************************************************************/
 /*!
-**  Multivariate multiphase propagation into a set of components
-**  constrained by initial conditions and fluid densities
-**
-** \return  Error return code : 1 no fluid to propagate
-**
-** \param[in]  dbgrid        Db grid structure
-** \param[in]  name_facies   Name of the variable containing the Facies
-** \param[in]  name_fluid    Name of the variable containing the Fluid
-** \param[in]  name_perm     Name of the variable containing the Permeability
-** \param[in]  name_poro     Name of the variable containing the Porosity
-** \param[in]  nfacies       number of facies (facies 0 excluded)
-** \param[in]  nfluids       number of fluids
-** \param[in]  niter         Number of iterations
-** \param[in]  speeds        Array containing the travel speeds
-** \param[in]  show_fluid    1 for modifying the value of the cells to show
-** \li                       the initial valid fluid information
-** \li                       the cork (different from shale)
-** \param[in]  number_max    Maximum count of cells invaded (or TEST)
-** \param[in]  volume_max    Maximum volume invaded (or TEST)
-** \param[in]  seed          Seed for random number generator (or 0)
-** \param[in]  verbose       1 for a verbose option
-** \param[in]  namconv       Naming convention
-**
-** \remark  Directions are ordered as follows :
-** \remark  0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
-** \remark  The coding of the matrix is:
-** \remark              facies + nfacies * fluid
-** \remark  Facies: 0 (Shale), 1 to nfacies, -1 (Cork)
-** \remark  Fluids: 0 (undefined), 1 to nfluids, -1 (No Fluid)
-** \remark  Fluids should be ordered by increasing weight
-** \remark  A Permeability variable is a value (>=1) which divides
-** \remark  the velocities. This variable is optional.
-** \remark  A Porosity variable is a value (in [0,1]) which multiplies
-** \remark  the volumes. This variable is optional.
-** \remark  Volume_max represents the volumic part of the invaded area:
-** \remark  it is always <= number of cells invaded.
-**
-*****************************************************************************/
-int fluid_propagation(DbGrid *dbgrid,
-                      const String& name_facies,
-                      const String& name_fluid,
-                      const String& name_perm,
-                      const String& name_poro,
-                      int     nfacies,
-                      int     nfluids,
-                      int     niter,
-                      const VectorInt& speeds,
-                      bool    show_fluid,
-                      double  number_max,
-                      double  volume_max,
-                      int seed,
-                      bool verbose,
-                      const NamingConvention& namconv)
+ **  Check if the sample belongs to the time slice
+ **
+ ** \return  Rank of the time slice (or -1)
+ **
+ ** \param[in]  date     Date attached to a sample
+ ** \param[in]  ntime    Number of time intervals
+ ** \param[in]  time0    Origin of the first time interval
+ ** \param[in]  dtime    Time interval
+ **
+ *****************************************************************************/
+static int st_getTimeInterval(double date,
+                              int ntime,
+                              double time0,
+                              double dtime)
 {
-  if (! is_grid(dbgrid))
+  for (int itime = 0; itime < ntime; itime++)
   {
-    messerr("The Fluid Propagation is restricted to regular grid");
-    return 1;
+    double time_deb = time0 + dtime * itime;
+    double time_fin = time0 + dtime * (itime + 1);
+    if (date >= time_deb && date < time_fin) return (itime);
   }
-  if (dbgrid->getNDim() > 3)
-  {
-    messerr("Fluid propagation is limited to 3-D space (maximum)");
-    return 1;
-  }
-  int ind_facies = dbgrid->getUID(name_facies);
-  int ind_fluid  = dbgrid->getUID(name_fluid);
-  if (ind_facies < 0)
-  {
-    messerr("Variable 'Facies' must be provided");
-    return 1;
-  }
-  if (ind_fluid < 0)
-  {
-    messerr("Variable 'Fluid' must be provided");
-    return 1;
-  }
-  int ind_poro = -1;
-  if (! name_poro.empty()) ind_poro = dbgrid->getUID(name_poro);
-  int ind_perm = -1;
-  if (! name_perm.empty()) ind_perm = dbgrid->getUID(name_perm);
+  return (-1);
+}
 
-  /* Add the attributes for storing the results */
+static int st_getFACIES(const DbGrid* dbgrid, int nfacies, int indFacies, int iech)
+{
+  int ifacies = (int) dbgrid->getArray(iech, indFacies);
+  if (ifacies < 0 || ifacies > nfacies || IFFFF(ifacies)) ifacies = 0;
+  return (ifacies);
+}
 
-  int iptr_stat_fluid = -1;
-  int iptr_stat_cork = -1;
-  if (niter > 1)
-  {
-    iptr_stat_fluid = dbgrid->addColumnsByConstant(nfluids, 0.);
-    if (iptr_stat_fluid < 0) return 1;
-    iptr_stat_cork = dbgrid->addColumnsByConstant(1, 0.);
-    if (iptr_stat_cork < 0) return 1;
-  }
+static double st_getPORO(const DbGrid* dbgrid, int indPoro, int iech)
+{
+  if (indPoro <= 0) return (1);
+  double poro = dbgrid->getArray(iech, indPoro);
+  if (FFFF(poro) || poro < 0.) poro = 0.;
+  return (poro);
+}
 
-  /* Add the attributes for storing the Fluid and Data informations */
+static double st_getDATE(const DbGrid* dbgrid, int indDate, int iech)
+{
+  double date;
 
-  int iptr_fluid = dbgrid->addColumnsByConstant(1, 0.);
-  if (iptr_fluid < 0) return 1;
-  int iptr_date = dbgrid->addColumnsByConstant(1, TEST);
-  if (iptr_date < 0) return 1;
+  if (indDate <= 0) return (0);
+  date = dbgrid->getArray(iech, indDate);
+  if (FFFF(date)) return (0);
+  date = MAX(1., date);
+  return (date);
+}
 
-  // Launch the Simulator
-
-  SimuEden seden(1, seed);
-  seden.simulate(dbgrid, ind_facies, ind_fluid, ind_perm, ind_poro,
-                 nfacies, nfluids, niter,
-                 iptr_fluid, iptr_date, iptr_stat_fluid, iptr_stat_cork,
-                 speeds, verbose, show_fluid, number_max, volume_max);
-
-  // Free some variables
-
-  if (niter > 1)
-  {
-    if (iptr_fluid > 0) dbgrid->deleteColumnByUID(iptr_fluid);
-    iptr_fluid = -1;
-    if (iptr_date  > 0) dbgrid->deleteColumnByUID(iptr_date);
-    iptr_date = -1;
-  }
-
-  // Naming output variables
-
-  if (iptr_stat_fluid >= 0)
-    namconv.setNamesAndLocators(dbgrid, iptr_stat_fluid, "Stat_Fluid", niter);
-  if (iptr_stat_cork >= 0)
-    namconv.setNamesAndLocators(dbgrid, iptr_stat_cork, "Stat_Cork", niter);
-  if (iptr_fluid)
-    namconv.setNamesAndLocators(dbgrid, iptr_fluid, "Fluid");
-  if (iptr_date)
-    namconv.setNamesAndLocators(dbgrid, iptr_date, "Date");
-
-  return 0;
+static int st_getFLUID(const DbGrid* dbgrid, int nfluids, int indFluid, int iech)
+{
+  int ifluid = (int) dbgrid->getArray(iech, indFluid);
+  if (ifluid < 0 || ifluid > nfluids || IFFFF(ifluid)) ifluid = 0;
+  return (ifluid);
 }
 
 /*****************************************************************************/
@@ -3131,10 +3011,58 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
   }
   int ind_poro = dbgrid->getUID(name_poro);
 
-  SimuEden seden(1);
-  tab = seden.fluidExtract(dbgrid, ind_facies, ind_fluid, ind_poro, ind_date,
-                           nfacies, nfluids, facies0, fluid0, ntime, time0,
-                           dtime, verbose);
+  /* Initialize the array */
 
+  tab = MatrixRectangular(ntime, 4);
+  int nxyz    = dbgrid->getSampleNumber();
+  for (int itime = 0; itime < ntime; itime++)
+  {
+    tab.setValue(itime, 0, time0 + dtime * itime);
+    tab.setValue(itime, 1, time0 + dtime * (itime + 1));
+    tab.setValue(itime, 2, 0.);
+    tab.setValue(itime, 3, 0.);
+  }
+
+  /* Loop on the blocks */
+
+  double totnum = 0.;
+  double totvol = 0.;
+  double locnum = 0.;
+  double locvol = 0.;
+  double datmax = 0;
+  for (int iech = 0; iech < nxyz; iech++)
+  {
+
+    if (st_getFACIES(dbgrid, nfacies, ind_facies, iech) != facies0) continue;
+    if (st_getFLUID(dbgrid, nfluids, ind_fluid, iech) != fluid0) continue;
+    double volume = st_getPORO(dbgrid, ind_poro, iech);
+    double date = st_getDATE(dbgrid, ind_date, iech);
+    if (date > datmax) datmax = date;
+
+    totnum += 1;
+    totvol += volume;
+    int itime = st_getTimeInterval(date, ntime, time0, dtime);
+    if (itime < 0) continue;
+    locnum += 1;
+    locvol += volume;
+
+    tab.setValue(itime, 2, tab.getValue(itime, 2) + 1);
+    tab.setValue(itime, 3, tab.getValue(itime, 3) + volume);
+  }
+
+  /* Final printout */
+
+  if (verbose)
+  {
+    mestitle(1, "Extraction for Fluid(%d) and Facies(%d)", facies0, fluid0);
+    message("Time slices: From %lf to %lf by step of %lf\n",
+            time0, time0 + dtime * ntime, dtime);
+    message("Total Number of Cells               = %d\n", nxyz);
+    message("Maximum Date                        = %lf\n", datmax);
+    message("Total Number of Invaded Cells       = %lf\n", totnum);
+    message("Total Volume of Invaded Cells       = %lf\n", totvol);
+    message("Total Number of Cells in Time Slice = %lf\n", locnum);
+    message("Total Volume of Cells in Time Slice = %lf\n", locvol);
+  }
   return tab;
 }

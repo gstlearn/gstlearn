@@ -2207,7 +2207,6 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  dmean      Array giving the prior means for the drift terms
  ** \param[in]  dcov       Array containing the prior covariance matrix
  **                        for the drift terms
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
  ** \param[in]  flag_pgs   1 if called from PGS
  ** \param[in]  flag_gibbs 1 if called from Gibbs
  ** \param[in]  flag_dgm   1 if the Discrete Gaussian Model is used
@@ -2519,7 +2518,7 @@ void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
   return;
 }
 
-bool CalcSimuTurningBands::_check() const
+bool CalcSimuTurningBands::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 

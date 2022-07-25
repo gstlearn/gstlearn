@@ -22,7 +22,7 @@ ACalcSimulation::~ACalcSimulation()
 {
 }
 
-bool ACalcSimulation::_check() const
+bool ACalcSimulation::_check()
 {
   if (! ACalcInterpolator::_check()) return false;
 

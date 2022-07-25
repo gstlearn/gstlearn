@@ -28,7 +28,7 @@ public:
   void setNbSimu(int nbsimu) { _nbsimu = nbsimu; }
 
 protected:
-  bool _check() const override;
+  bool _check() override;
 
 private:
   int _nbsimu;

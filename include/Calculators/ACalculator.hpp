@@ -25,7 +25,7 @@ public:
 protected:
   virtual bool _run() = 0;
 
-  virtual bool _check() const { return true; }
+  virtual bool _check() { return true; }
   virtual bool _preprocess()  { return true; }
   virtual bool _postprocess() { return true; }
   virtual void _rollback() { }

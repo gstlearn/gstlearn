@@ -22,13 +22,18 @@
 class Skin;
 class MatrixRectangular;
 
-class GSTLEARN_EXPORT SimuEden: public ACalcSimulation, public AStringable, public ISkinFunctions
+class GSTLEARN_EXPORT CalcSimuEden: public ACalcSimulation, public AStringable, public ISkinFunctions
 {
 public:
-  SimuEden(int nbsimu = 0, int seed = 4324324);
-  SimuEden(const SimuEden &r) = delete;
-  SimuEden& operator=(const SimuEden &r) = delete;
-  virtual ~SimuEden();
+  CalcSimuEden(int nfacies = 0,
+           int nfluids = 0,
+           int niter = 1,
+           int nbsimu = 0,
+           int seed = 4324324,
+           bool verbose = false);
+  CalcSimuEden(const CalcSimuEden &r) = delete;
+  CalcSimuEden& operator=(const CalcSimuEden &r) = delete;
+  virtual ~CalcSimuEden();
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -38,41 +43,23 @@ public:
   int    isToBeFilled(int ipos) const override;
   double getWeight(int ipos, int idir) const override;
 
-  int simulate(DbGrid *dbgrid,
-               int ind_facies,
-               int ind_fluid,
-               int ind_perm,
-               int ind_poro,
-               int nfacies,
-               int nfluids,
-               int niter,
-               int iptr_fluid,
-               int iptr_date,
-               int iptr_stat_fluid,
-               int iptr_stat_cork,
-               const VectorInt& speeds,
-               bool verbose = false,
-               bool show_fluid = false,
-               double number_max = TEST,
-               double volume_max = TEST);
-  int getTimeInterval(double date, int ntime, double time0, double dtime);
-  MatrixRectangular fluidExtract(DbGrid* dbgrid,
-                                 int ind_facies,
-                                 int ind_fluid,
-                                 int ind_poro,
-                                 int ind_date,
-                                 int nfacies,
-                                 int nfluids,
-                                 int facies0,
-                                 int fluid0,
-                                 int ntime,
-                                 double time0,
-                                 double dtime,
-                                 bool verbose = false);
+  void setIndFacies(int indFacies) { _indFacies = indFacies; }
+  void setIndFluid(int indFluid) { _indFluid = indFluid; }
+  void setIndPerm(int indPerm) { _indPerm = indPerm; }
+  void setIndPoro(int indPoro) { _indPoro = indPoro; }
+  void setSpeeds(const VectorInt &speeds) { _speeds = speeds; }
+  void setNumberMax(double numberMax) { _numberMax = numberMax; }
+  void setShowFluid(bool showFluid) { _showFluid = showFluid; }
+  void setVolumeMax(double volumeMax) { _volumeMax = volumeMax; }
 
 private:
+  virtual bool _check() override;
+  virtual bool _preprocess() override;
   virtual bool _run() override;
+  virtual bool _postprocess() override;
+  virtual void _rollback() override;
 
+  bool _simulate();
   bool _fluid_check(void);
   int  _getWT(int ifacies, int ifluid, int perm, int idir);
   int  _getFACIES(int iech) const;
@@ -107,22 +94,43 @@ private:
   int  _countIsToBeFilled() const;
 
 private:
-  int _nxyz;
-  int _nfluids;
+  bool _verbose;
+  bool _showFluid;
+  int _iptrStatFluid;
+  int _iptrStatCork;
+  int _iptrFluid;
+  int _iptrDate;
+  int _niter;
   int _nfacies;
+  int _nfluids;
+  VectorInt _speeds;
+  double _numberMax;
+  double _volumeMax;
+
   int _indFacies;
   int _indFluid;
   int _indPerm;
   int _indPoro;
   int _indDate;
-  int _iptrFluid;
-  int _iptrStatFluid;
-  int _iptrStatCork;
-  int _iptrDate;
-  DbGrid* _dbgrid;
-  VectorInt _speeds;
 
+  int _nxyz;
   int _ncork;
-  VectorInt _number;
-  VectorDouble _volume;
+  VectorInt    _numbers;
+  VectorDouble _volumes;
 };
+
+GSTLEARN_EXPORT int fluid_propagation(DbGrid *dbgrid,
+                                      const String& name_facies,
+                                      const String& name_fluid,
+                                      const String& name_perm,
+                                      const String& name_poro,
+                                      int nfacies,
+                                      int nfluids,
+                                      int niter = 1,
+                                      const VectorInt& speeds = VectorInt(),
+                                      bool show_fluid = false,
+                                      double number_max = TEST,
+                                      double volume_max = TEST,
+                                      int seed = 321321,
+                                      bool verbose = false,
+                                      const NamingConvention& namconv = NamingConvention("Eden"));
