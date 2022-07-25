@@ -291,6 +291,7 @@ class ICloneable{};
 %include LithoRule/ERule.hpp
 
 %include Estimation/KrigingSystem.hpp
+%include Estimation/CalcKriging.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

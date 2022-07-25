@@ -17,6 +17,7 @@
 #include "API/SPDE.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 int main(int /*argc*/, char */*argv*/[])
 {

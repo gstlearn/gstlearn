@@ -30,6 +30,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {

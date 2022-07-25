@@ -49,7 +49,7 @@ protected:
   virtual bool _check() override;
   int _getNDim() const;
   int _getNCova() const;
-  int _getNVar() const;
+  virtual int _getNVar() const;
 
   int _expandInformation(int mode, const ELoc &locatorType);
   int _addVariableDb(int whichDb,

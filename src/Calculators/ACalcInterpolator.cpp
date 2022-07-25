@@ -78,13 +78,13 @@ int ACalcInterpolator::_getNDim() const
 int ACalcInterpolator::_getNCova() const
 {
   if (_model == nullptr) return -1;
-  return getModel()->getCovaNumber();
+  return _model->getCovaNumber();
 }
 
 int ACalcInterpolator::_getNVar() const
 {
   if (_model == nullptr) return -1;
-  return getModel()->getVariableNumber();
+  return _model->getVariableNumber();
 }
 
 bool ACalcInterpolator::_check()

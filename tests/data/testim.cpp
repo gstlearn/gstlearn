@@ -24,6 +24,7 @@
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************
 **

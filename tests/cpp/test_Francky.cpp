@@ -14,6 +14,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 #include <algorithm>
 #include <math.h>

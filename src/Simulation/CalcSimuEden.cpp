@@ -1038,7 +1038,6 @@ bool CalcSimuEden::_check()
 
 bool CalcSimuEden::_preprocess()
 {
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Add the attributes for storing the results */
 
