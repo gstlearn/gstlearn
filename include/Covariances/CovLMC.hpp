@@ -22,6 +22,7 @@ class GSTLEARN_EXPORT CovLMC : public ACovAnisoList
 public:
   CovLMC(const ASpace* space = nullptr);
   CovLMC(const CovLMC &r);
+  CovLMC(const ACovAnisoList &r);
   CovLMC& operator= (const CovLMC &r);
   virtual ~CovLMC();
 
