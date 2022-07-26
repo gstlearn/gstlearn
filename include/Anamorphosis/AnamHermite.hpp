@@ -28,7 +28,7 @@ public:
   virtual ~AnamHermite();
 
   /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new AnamHermite(*this); };
+  IMPLEMENT_CLONING(AnamHermite)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

@@ -32,10 +32,13 @@ public:
   CovParamId& operator=(const CovParamId &m);
   virtual ~CovParamId();
 
-  int init(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovParamId)
 
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual ICloneable* clone() const override { return new CovParamId(*this); };
+
+  int init(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
 
   const EConsElem& getType() const { return _elemType; }
   int getIGrf()  const { return _igrf; }

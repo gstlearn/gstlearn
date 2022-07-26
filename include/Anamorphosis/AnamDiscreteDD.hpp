@@ -29,7 +29,10 @@ public:
   virtual ~AnamDiscreteDD();
 
   /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new AnamDiscreteDD(*this); };
+  IMPLEMENT_CLONING(AnamDiscreteDD)
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface
   static AnamDiscreteDD* createFromNF(const String& neutralFilename, bool verbose = true);
@@ -46,9 +49,6 @@ public:
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
-
-  /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   VectorDouble factors_exp(bool verbose);
   VectorDouble factors_maf(bool verbose);

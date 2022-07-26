@@ -42,7 +42,3 @@ double DriftY2::eval(const Db* db, int iech) const
   return valy * valy;
 }
 
-ICloneable* DriftY2::clone() const
-{
-  return new DriftY2(*this);
-}

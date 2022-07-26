@@ -34,7 +34,7 @@ public:
   virtual ~ShapeHalfSinusoid();
 
   /// Interface for ICloneable
-  virtual ICloneable* clone() const override { return new ShapeHalfSinusoid(*this); };
+  IMPLEMENT_CLONING(ShapeHalfSinusoid)
 
   ETShape getType() const override { return ETShape::HALFSINUSOID; }
   int  getNParams() const override { return 6; }

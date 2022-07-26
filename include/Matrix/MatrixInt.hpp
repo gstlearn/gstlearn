@@ -28,12 +28,11 @@ public:
   MatrixInt& operator= (const MatrixInt &r);
 	virtual ~MatrixInt();
 
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixInt)
 
-  /*! Cloneable interface */
-  virtual ICloneable* clone() const override { return new MatrixInt(*this); };
-  //IMPLEMENT_CLONING(MatrixInt)
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void   reset(int nrows, int ncols);
   int    getValue(int irow, int icol) const;

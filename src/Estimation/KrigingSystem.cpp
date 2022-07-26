@@ -114,7 +114,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dboutUidToBeDeleted()
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
-  _modelInit = (Model*) model->clone();
+  _modelInit = model->clone();
 
   // Set the current Model to _modelInit
   _model = _modelInit;
@@ -2360,7 +2360,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 
     // Duplicate the Model and suppress any Drift component
 
-    _modelSimple = (Model*) _modelInit->clone();
+    _modelSimple = _modelInit->clone();
     _modelSimple->delAllDrifts();
   }
   _flagBayes = flag_bayes;

@@ -170,7 +170,7 @@ Vario* Vario::createTransformZToY(const Vario* varioZ,
                                   const AAnam* anam,
                                   double cvv)
 {
-  Vario* varioY = dynamic_cast<Vario*>(varioZ->clone());
+  Vario* varioY = varioZ->clone();
   if (varioY->transformZToY(anam, cvv))
   {
     messerr("Error when transforming Raw Variogram into Gaussian");
@@ -183,7 +183,7 @@ Vario* Vario::createTransformYToZ(const Vario* varioY,
                                   const AAnam* anam,
                                   const Model* model)
 {
-  Vario* varioZ = dynamic_cast<Vario*>(varioY->clone());
+  Vario* varioZ = varioY->clone();
   if (varioZ->transformYToZ(anam, model))
   {
     messerr("Error when transforming Gaussian Variogram into Raw");
@@ -538,6 +538,11 @@ int Vario::transformYToZ(const AAnam *anam, const Model *model)
     return 1;
   }
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam->clone());
+  if (anam_hermite == nullptr)
+  {
+    messerr("This function needs a Hermite Anamorphosis");
+    return 1;
+  }
   if (anam_hermite->getRCoef() != 1.)
   {
     messerr("This function is restricted to Punctual Anamorphosis");

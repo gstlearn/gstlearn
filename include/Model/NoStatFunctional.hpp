@@ -32,10 +32,11 @@ public:
   NoStatFunctional& operator=(const NoStatFunctional &m);
   virtual ~NoStatFunctional();
 
-  /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(NoStatFunctional)
 
-  virtual ICloneable* clone() const override { return new NoStatFunctional(*this); };
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int  attachToMesh(const AMesh* mesh, bool verbose = false) const override;
   int  attachToDb(Db* db, int icas, bool verbose = false) const override;

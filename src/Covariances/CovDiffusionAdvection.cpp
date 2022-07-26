@@ -25,15 +25,15 @@ CovDiffusionAdvection::CovDiffusionAdvection()
 }
 
 CovDiffusionAdvection::CovDiffusionAdvection(const CovDiffusionAdvection& r)
-:   _markovL((CovAniso*)r._markovL->clone())
-  , _markovR((CovAniso*)r._markovR->clone())
+:   _markovL(r._markovL->clone())
+  , _markovR(r._markovR->clone())
   , _scaleTime(r._scaleTime)
   , _vel(r._vel)
   , _sigma2(r._sigma2)
   , _ndim(r._ndim)
   , _globalCorrec(r._globalCorrec)
   , _spatialTrace(r._spatialTrace)
-  , _destroyMarkovL(true)
+  , _destroyMarkovL(true) /// TODO : Why not using r flags?
   , _destroyMarkovR(true)
   , _markovRdefined(r._markovRdefined)
   , _markovLdefined(r._markovLdefined)
@@ -46,15 +46,15 @@ CovDiffusionAdvection& CovDiffusionAdvection::operator=(const CovDiffusionAdvect
 {
   if (this != &r)
   {
-    _markovL        = (CovAniso*)r._markovL->clone();
-    _markovR        = (CovAniso*)r._markovR->clone();
+    _markovL        = r._markovL->clone();
+    _markovR        = r._markovR->clone();
     _scaleTime      = r._scaleTime;
     _vel            = r._vel;
     _sigma2         = r._sigma2;
     _ndim           = r._ndim;
     _globalCorrec   = r._globalCorrec;
-    _spatialTrace   = (CovAniso*)r._spatialTrace->clone();
-    _destroyMarkovL = true;
+    _spatialTrace   = r._spatialTrace->clone();
+    _destroyMarkovL = true; /// TODO : Why not using r flags?
     _destroyMarkovR = true;
     _markovRdefined = r._markovRdefined;
     _markovLdefined = r._markovLdefined;
@@ -69,9 +69,7 @@ CovDiffusionAdvection::~CovDiffusionAdvection()
     delete _markovL;
   if (_destroyMarkovR)
     delete _markovR;
-
 }
-
 
 
 CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,

@@ -30,7 +30,7 @@ Constraints::Constraints(const Constraints &m)
 {
   for (auto e: m._consItems)
   {
-    _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));
+    _consItems.push_back(e->clone());
   }
 }
 
@@ -43,7 +43,7 @@ Constraints& Constraints::operator=(const Constraints &m)
     _constantSills = m._constantSills;
     for (auto e: m._consItems)
     {
-      _consItems.push_back(dynamic_cast<ConsItem*>(e->clone()));
+      _consItems.push_back(e->clone());
     }
   }
   return *this;
@@ -57,7 +57,7 @@ Constraints::~Constraints()
 
 void Constraints::addItem(const ConsItem* item)
 {
-  _consItems.push_back(dynamic_cast<ConsItem*>(item->clone()));
+  _consItems.push_back(item->clone());
 }
 
 String Constraints::toString(const AStringFormat* strfmt) const

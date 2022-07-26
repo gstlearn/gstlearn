@@ -16,7 +16,10 @@ class GSTLEARN_EXPORT Chebychev: public APolynomial
 public:
   Chebychev();
   virtual ~Chebychev();
-  ICloneable* clone() const override {return new Chebychev(*this);}
+
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Chebychev)
+
   void init(int ncMax=10001,int nDisc=100,double a = 0.,double b=1.,bool verbose=false);
   static Chebychev* createFromCoeffs(const VectorDouble coeffs);
   void setCoeffs(const VectorDouble& coeffs){_coeffs = coeffs;}

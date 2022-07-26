@@ -37,9 +37,6 @@ public:
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
 
-  /// Interface for ICloneable
-  virtual ICloneable* clone() const override = 0;
-
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
 

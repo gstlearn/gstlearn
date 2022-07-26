@@ -29,8 +29,6 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual ICloneable* clone() const override = 0;
-
   /// Update the origin coordinates
   void setOrigin(const VectorDouble& origin);
 

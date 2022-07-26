@@ -35,9 +35,6 @@ public:
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// Interface for ICloneable
-  virtual ICloneable* clone() const override = 0;
-
   /// Interface for AShape
   virtual ETShape getType() const = 0;
   virtual int  getNParams() const = 0;

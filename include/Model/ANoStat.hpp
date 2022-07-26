@@ -32,8 +32,6 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  virtual ICloneable* clone() const override = 0;
-
   bool isNotEmpty() const { return ! _items.empty(); }
   bool isDefinedByCov(int igrf, int icov) const;
   bool isDefinedByType(int igrf, const EConsElem& type) const;

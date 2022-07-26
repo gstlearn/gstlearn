@@ -32,7 +32,7 @@ public:
   virtual ~ShapeHalfParaboloid();
 
   /// Interface for ICloneable
-  virtual ICloneable* clone() const override { return new ShapeHalfParaboloid(*this); };
+  IMPLEMENT_CLONING(ShapeHalfParaboloid)
 
   ETShape getType() const override { return ETShape::HALFPARABOLOID; }
   int  getNParams() const override { return 4; }

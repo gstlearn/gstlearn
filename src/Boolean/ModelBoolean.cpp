@@ -49,7 +49,7 @@ ModelBoolean::~ModelBoolean()
 
 void ModelBoolean::addToken(const AShape& token)
 {
-  _shapes.push_back((AShape*)token.clone());
+  _shapes.push_back(dynamic_cast<AShape*>(token.clone()));
 }
 
 /****************************************************************************/

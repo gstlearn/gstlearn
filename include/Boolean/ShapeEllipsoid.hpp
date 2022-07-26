@@ -32,7 +32,7 @@ public:
   virtual ~ShapeEllipsoid();
 
   /// Interface for ICloneable
-  virtual ICloneable* clone() const override { return new ShapeEllipsoid(*this); };
+  IMPLEMENT_CLONING(ShapeEllipsoid)
 
   ETShape getType() const override { return ETShape::ELLIPSOID; }
   int  getNParams() const override { return 4; }

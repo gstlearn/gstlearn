@@ -32,12 +32,15 @@ public:
   ConsItem& operator= (const ConsItem &m);
   virtual ~ConsItem();
 
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ConsItem)
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   int init(const CovParamId& paramid,
            const EConsType& type,
            double value = TEST);
-
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual ICloneable* clone() const override { return new ConsItem(*this); };
 
   // Pipe to the CovParamId class
   const EConsElem& getType() const { return _paramId.getType(); }

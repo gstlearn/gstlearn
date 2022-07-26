@@ -29,8 +29,8 @@ public:
   DriftList& operator= (const DriftList &r);
   virtual ~DriftList();
 
-  /// ICloneable interface */
-  virtual ICloneable* clone() const override { return new DriftList(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(DriftList)
 
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;

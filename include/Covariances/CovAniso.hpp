@@ -39,27 +39,18 @@ public:
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
 
-  ///////////////////////////////////////////////////
   /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new CovAniso(*this); };
-  ///////////////////////////////////////////////////
+  IMPLEMENT_CLONING(CovAniso)
 
-  ///////////////////////////////////////////////////
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ACov Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ACov Interface
   /**
    * Evaluate the covariance for a pair of variables and a zero distance
@@ -89,8 +80,6 @@ public:
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
-
-  ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }

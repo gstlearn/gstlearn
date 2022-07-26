@@ -35,11 +35,11 @@ public:
   virtual ~VarioParam();
 
 public:
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(VarioParam)
 
-  /// Interface to ICloneable
-  virtual ICloneable* clone() const override { return new VarioParam(*this); };
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
   static VarioParam* createOmniDirection(int ndim = 2,

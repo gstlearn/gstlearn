@@ -47,7 +47,10 @@ public:
   CovLMCTapering& operator= (const CovLMCTapering &r);
   virtual ~CovLMCTapering();
 
-  virtual ICloneable* clone() const override { return new CovLMCTapering(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovLMCTapering)
+
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual double eval0(int ivar,

@@ -34,7 +34,7 @@ ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
 {
   for (auto e: r._covs)
   {
-    _covs.push_back(dynamic_cast<CovAniso*>(e->clone()));
+    _covs.push_back(e->clone());
   }
 }
 
@@ -45,7 +45,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
     ACov::operator=(r);
     for (auto e: r._covs)
     {
-      _covs.push_back(dynamic_cast<CovAniso*>(e->clone()));
+      _covs.push_back(e->clone());
     }
     _filtered = r._filtered;
   }
@@ -79,7 +79,7 @@ void ACovAnisoList::addCov(const CovAniso* cov)
       return;
     }
   }
-  _covs.push_back(dynamic_cast<CovAniso*>(cov->clone()));
+  _covs.push_back(cov->clone());
   _filtered.push_back(false);
 }
 

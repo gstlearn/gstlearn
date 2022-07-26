@@ -55,11 +55,11 @@ public:
   virtual ~Model();
 
 public:
-  /// Interface to AStringeable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Model)
 
-  /// Interface to ICloneable
-  virtual ICloneable* clone() const override { return new Model(*this); }
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromDb(const Db* db);
 

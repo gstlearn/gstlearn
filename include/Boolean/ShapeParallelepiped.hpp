@@ -31,7 +31,7 @@ public:
   virtual ~ShapeParallelepiped();
 
   /// Interface for ICloneable
-  virtual ICloneable* clone() const override { return new ShapeParallelepiped(*this); };
+  IMPLEMENT_CLONING(ShapeParallelepiped)
 
   ETShape getType() const override { return ETShape::PARALLELEPIPED; }
   int  getNParams() const override { return 4; }

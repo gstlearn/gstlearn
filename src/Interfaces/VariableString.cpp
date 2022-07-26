@@ -58,14 +58,6 @@ VectorDouble VariableString::getValues() const
   return vals;
 }
 
-/**
- * Clone
- */
-VariableString* VariableString::clone() const
-{
-  return (new VariableString(*this));
-}
-
 #ifdef _USE_NETCDF
 /**
  *  Create a NcVar object, add it to a netCDF file, create an attribute

@@ -32,7 +32,8 @@ public:
   CovGradientNumerical& operator=(const CovGradientNumerical& r);
   virtual ~CovGradientNumerical();
 
-  virtual ICloneable* clone() const override { return new CovGradientNumerical(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovGradientNumerical)
 
   virtual double eval0(int ivar,
                        int jvar,

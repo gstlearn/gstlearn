@@ -25,5 +25,7 @@ public:
   CovLMC& operator= (const CovLMC &r);
   virtual ~CovLMC();
 
-  virtual ICloneable* clone() const override { return new CovLMC(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovLMC)
+
 };

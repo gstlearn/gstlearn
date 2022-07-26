@@ -30,9 +30,10 @@ public:
   MatrixSquareSymmetric& operator= (const MatrixSquareSymmetric &r);
 	virtual ~MatrixSquareSymmetric();
 
-  /// Cloneable interface
-  virtual ICloneable* clone() const override { return new MatrixSquareSymmetric(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixSquareSymmetric)
 
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Say if the matrix must be symmetric */

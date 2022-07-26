@@ -174,7 +174,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("Change of Support coefficient (DGM-1)= %lf\n", r1);
 
   // Update the Model with Block anamorphosis
-  AnamHermite* anam_b1 = dynamic_cast<AnamHermite*>(anam->clone());
+  AnamHermite* anam_b1 = anam->clone();
   anam_b1->setRCoef(r1);
 
   // Regularization of the point model by the block support
@@ -222,7 +222,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->normalize(1.0);
 
   // Update the Model with Block anamorphosis
-  AnamHermite* anam_b2 = dynamic_cast<AnamHermite*>(anam->clone());
+  AnamHermite* anam_b2 = anam->clone();
   anam_b2->setRCoef(r2);
   model_b2_Y->setAnam(anam_b2);
 

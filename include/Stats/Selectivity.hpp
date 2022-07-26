@@ -27,8 +27,8 @@ public:
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
 
-  /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new Selectivity(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Selectivity)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

@@ -42,7 +42,3 @@ double DriftX2::eval(const Db* db, int iech) const
   return valx * valx;
 }
 
-ICloneable* DriftX2::clone() const
-{
-  return new DriftX2(*this);
-}

@@ -29,7 +29,7 @@ public:
   virtual ~AnamUser();
 
   /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new AnamUser(*this); };
+  IMPLEMENT_CLONING(AnamUser)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;

@@ -102,7 +102,8 @@ if (MSVC)
   # Wrapper source is too big for MSVC !
   set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter -Wno-unused-variable -Wno-maybe-uninitialized") # Prevent some SWIG C++/R warnings
 else()
-  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+  #set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 endif()
 # Set some properties on SWIG target
 set_target_properties(r_build PROPERTIES

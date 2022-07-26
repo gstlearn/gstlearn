@@ -30,9 +30,9 @@ public:
   virtual ~AnamDiscreteIR();
 
   /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new AnamDiscreteIR(*this); };
+  IMPLEMENT_CLONING(AnamDiscreteIR)
 
-  /// Interface AStringable
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// ASerializable Interface

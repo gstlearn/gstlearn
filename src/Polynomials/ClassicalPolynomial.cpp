@@ -139,7 +139,7 @@ void ClassicalPolynomial::evalDerivOp(ShiftOpCs* shiftOp,
 {
   int n = static_cast<int> (in.size());
   int degree = static_cast<int> (getCoeffs().size());
-  ClassicalPolynomial* polycur = (ClassicalPolynomial*)this->clone();
+  ClassicalPolynomial* polycur = this->clone();
   VectorDouble work(n);
   VectorDouble work2(n);
   VectorDouble *swap1,*swap2,*swap3;

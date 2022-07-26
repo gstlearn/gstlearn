@@ -21,7 +21,8 @@ public:
   DriftF& operator= (const DriftF &r);
   virtual ~DriftF();
 
-  ICloneable* clone() const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(DriftF)
 
   String getDriftSymbol() const override { return "f"; }
   String getDriftName() const override { return "External Drift"; }

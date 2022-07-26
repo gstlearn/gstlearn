@@ -27,7 +27,8 @@ public:
   CovLMGradient& operator= (const CovLMGradient &r);
   virtual ~CovLMGradient();
 
-  virtual ICloneable* clone() const override { return new CovLMGradient(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovLMGradient)
 
   // Add an elementary covariance structure
   virtual void addCov(const CovAniso* cov) override;

@@ -42,8 +42,11 @@ public:
   virtual ~Vario();
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Vario)
+
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual ICloneable* clone() const override { return new Vario(*this); };
 
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,

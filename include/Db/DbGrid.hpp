@@ -40,12 +40,11 @@ public:
   virtual ~DbGrid();
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(DbGrid)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// ICloneable Interface
-  virtual ICloneable* clone() const override { return new DbGrid(*this); };
 
   /// Db Interface
   inline bool isGrid() const override { return true; }

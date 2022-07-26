@@ -769,7 +769,7 @@ void AnamDiscreteDD::globalSelectivity(Selectivity* selectivity)
     selloc = selectivity;
   else
   {
-    selloc = dynamic_cast<Selectivity*>(selectivity->clone());
+    selloc = selectivity->clone();
     selloc->resetCuts(getZCut());
   }
   int ncut = selloc->getNCuts();
@@ -864,7 +864,7 @@ int AnamDiscreteDD::factor2Selectivity(Db *db,
     selloc = selectivity;
   else
   {
-    selloc = dynamic_cast<Selectivity*>(selectivity->clone());
+    selloc = selectivity->clone();
     selloc->resetCuts(getZCut());
   }
 

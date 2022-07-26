@@ -27,8 +27,11 @@ public:
   MatrixSquareDiagonalCst& operator= (const MatrixSquareDiagonalCst &r);
 	virtual ~MatrixSquareDiagonalCst();
 
-  /*! Cloneable interface */
-  virtual ICloneable* clone() const override { return new MatrixSquareDiagonalCst(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixSquareDiagonalCst)
+
+	/// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return true; }
@@ -36,8 +39,6 @@ public:
   bool mustBeDiagonal() const override { return true; }
   /*! Say if the matrix must be diagonal constant */
   bool mustBeDiagCst() const override { return true; }
-
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /*! Transpose the matrix */
   void transposeInPlace() override;

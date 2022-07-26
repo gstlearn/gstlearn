@@ -33,7 +33,8 @@ public:
   CovGradientFunctional& operator=(const CovGradientFunctional& r);
   virtual ~CovGradientFunctional();
 
-  virtual ICloneable* clone() const override { return new CovGradientFunctional(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovGradientFunctional)
 
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,

@@ -28,7 +28,8 @@ class GSTLEARN_EXPORT VariableDouble : public AVariableTemplate<double>
     virtual ~VariableDouble();
     VariableDouble& operator=(const VariableDouble& ref);
 
-    virtual VariableDouble* clone() const override;
+    /// Cloneable interface
+    IMPLEMENT_CLONING(VariableDouble)
 
     VectorDouble            getValues() const override;
 

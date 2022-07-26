@@ -41,7 +41,3 @@ double Drift1::eval(const Db* /*db*/, int /*iech*/) const
   return 1;
 }
 
-ICloneable* Drift1::clone() const
-{
-  return new Drift1(*this);
-}

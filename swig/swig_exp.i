@@ -1,9 +1,5 @@
 %ignore *::operator=;
 
-// TODO: How to mask ICloneable and clone method?
-class ICloneable{};
-//%ignore *::clone;
-
 %include stl.i
 // Cast strings into native type of the target language
 %include std_string.i
@@ -31,6 +27,7 @@ class ICloneable{};
 // You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
 %include gstlearn_export.hpp
+%include Basic/ICloneable.hpp
 %include Basic/Vector.hpp
 %include csparse_d.h
 %include csparse_f.h
@@ -331,7 +328,7 @@ class ICloneable{};
 
 %include Skin/Skin.hpp
 
-%include segy.h
+//%include segy.h
 
 /*
 // Definition of AVariableTemplate for useful type

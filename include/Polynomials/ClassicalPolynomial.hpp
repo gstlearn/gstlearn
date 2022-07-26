@@ -24,7 +24,10 @@ public:
   ClassicalPolynomial();
   ClassicalPolynomial(const VectorDouble&);
   virtual ~ClassicalPolynomial();
-  virtual ICloneable* clone() const override { return new ClassicalPolynomial(*this); }
+
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ClassicalPolynomial)
+
   double eval(double x) const override;
   void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
                    VectorDouble& out,int iapex,int igparam)const;

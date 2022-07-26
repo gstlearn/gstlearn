@@ -21,7 +21,8 @@ public:
   DriftX& operator= (const DriftX &r);
   virtual ~DriftX();
 
-  ICloneable* clone() const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(DriftX)
 
   String getDriftSymbol() const override { return "x"; }
   String getDriftName() const override { return "Drift X"; }

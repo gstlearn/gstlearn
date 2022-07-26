@@ -666,7 +666,7 @@ void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric& hh,
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();
-  CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+  CovAniso* cova = covini->clone();
 
   if (_flagNoStatByHH)
   {
@@ -691,7 +691,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
 {
   int ndim = getNDim();
   const CovAniso* covini = _getCova();
-  CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+  CovAniso* cova = covini->clone();
 
   if (_flagNoStatByHH)
   {
@@ -747,7 +747,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     // Case where the derivation is performed on ranges and angles
 
     const CovAniso* covini = _getCova();
-    CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+    CovAniso* cova = covini->clone();
 
     const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
     VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
@@ -1574,7 +1574,7 @@ bool ShiftOpCs::_buildLambdaGrad(const AMesh *amesh)
   int ndim = getNDim();
   int nvertex = amesh->getNApices();
   const CovAniso* covini = _getCova();
-  CovAniso* cova = dynamic_cast<CovAniso*>(covini->clone());
+  CovAniso* cova = covini->clone();
 
   /* Core allocation */
 

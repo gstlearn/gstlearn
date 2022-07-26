@@ -74,7 +74,7 @@ Model::Model(const Model &m)
   if (m._covaList != nullptr)
     _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
   if (m._driftList != nullptr)
-    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+    _driftList = m._driftList->clone();
   if (m._noStat != nullptr)
     _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
 }
@@ -88,7 +88,7 @@ Model& Model::operator=(const Model &m)
     if (m._covaList != nullptr)
       _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
     if (m._driftList != nullptr)
-      _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+      _driftList = m._driftList->clone();
     if (m._noStat != nullptr)
       _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
@@ -344,7 +344,7 @@ void Model::setDriftList(const DriftList* driftlist)
 {
   if (driftlist == nullptr) return;
   if (_driftList != nullptr) delete _driftList;
-  _driftList = dynamic_cast<DriftList*>(driftlist->clone());
+  _driftList = driftlist->clone();
 }
 
 /**

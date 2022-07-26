@@ -114,7 +114,7 @@ Database::Database(const Database& src)
 {
   for (const auto& v : src._vars)
   {
-    _vars.push_back(v->clone());
+    _vars.push_back(dynamic_cast<AVariable*>(v->clone()));
   }
 }
 
@@ -146,8 +146,7 @@ Database& Database::operator=(const Database& ref)
     }
     for (const auto& new_v : ref._vars)
     {
-      _vars.push_back(new_v->clone());
-      ;
+      _vars.push_back(dynamic_cast<AVariable*>(new_v->clone()));
     }
   }
   return (*this);

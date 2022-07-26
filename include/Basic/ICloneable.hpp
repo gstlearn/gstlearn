@@ -14,6 +14,10 @@
 #include <typeinfo>
 #include <assert.h>
 
+/**
+ * Inherits from this interface to make your class cloneable.
+ * You must use IMPLEMENT_CLONING macro in concrete classes only.
+ */
 class GSTLEARN_EXPORT ICloneable
 {
 public:
@@ -25,17 +29,11 @@ public:
 
 // Thanks to here (macro way):
 // https://alfps.wordpress.com/2010/06/12/cppx-3-ways-to-mix-in-a-generic-cloning-implementation/
-/* TODO : Not compliant with SWIG yet
-#define IMPLEMENT_CLONING( Class )                 \
+#define IMPLEMENT_CLONING(Class)                   \
 public:                                            \
-  virtual Class* virtualClone() const              \
+  inline virtual Class* clone() const override     \
   {                                                \
-    assert( typeid( *this ) == typeid( Class ) );  \
-    return new Class( *this );                     \
-  }                                                \
-                                                   \
-  Class* clone() const                             \
-  {                                                \
-    return dynamic_cast<Class*>(virtualClone());   \
+    assert(typeid(*this) == typeid(Class));        \
+    return (new Class(*this));                     \
   }
-*/
+

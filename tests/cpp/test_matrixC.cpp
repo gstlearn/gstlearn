@@ -56,7 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixInt mati(2,3);
   mati.setValues({1, 2, 3, 4, 5, 6});
   mati.display();
-  MatrixInt* mati2(dynamic_cast<MatrixInt*>(mati.clone()));
+  MatrixInt* mati2(mati.clone()); // dynamic_cast no more needed
   mati2->display();
 
   message("Cloning Matrix of doubles\n");
@@ -87,13 +87,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
-  AMatrix* MRt = MR.transpose(); // Using clonable feature
+  AMatrix* MRt = MR.transpose(); // Using cloneable feature
   
   // Equivalent instruction using shortcut function
   //AMatrix* MRt = transpose(MR);
 
   // Still equivalent but in two lines
-  //AMatrix* MRt = MR.clone();
+  //AMatrix* MRt = dynamic_cast<AMAtrix*>(MR.clone());
   //MRt->transposeInPlace();
 
   // Still equivalent but with no more pointer
