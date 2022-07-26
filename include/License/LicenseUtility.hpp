@@ -3,13 +3,12 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include <vector>
-#include <string>
+#include "Basic/VectorT.hpp"
 
 class GSTLEARN_EXPORT LicenseUtility {
 
 public:
   static VectorString get_activation_code();
-  static std::string to_alpha_num(const unsigned char* src, int length);
+  static String to_alpha_num(const unsigned char* src, int length);
 } ;
 

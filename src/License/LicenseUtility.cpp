@@ -17,8 +17,8 @@
 //
 // Conversion from numeric to alphanumeric
 //
-std::string LicenseUtility::to_alpha_num(const unsigned char* src, 
-                                         int length) 
+String LicenseUtility::to_alpha_num(const unsigned char* src,
+                                    int length)
 {
   // Convert src into length characters in [1-9] and [A-N,P-Z] (excluding 'O')
   // 49 <=> '1'

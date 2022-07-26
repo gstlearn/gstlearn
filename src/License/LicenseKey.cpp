@@ -24,7 +24,7 @@
  * Define the default value of the target
  *
  ****************************************************************************/
-std::string LicenseKey::_targetName = "";
+String LicenseKey::_targetName = "";
 
 /****************************************************************************/
 /*!
@@ -40,7 +40,7 @@ FeatureList LicenseKey::_featureTable = FeatureList();
  * \param[in]  file  Path to the file
  *
  ****************************************************************************/
-std::string LicenseKey::firstLine(const std::string & file)
+String LicenseKey::firstLine(const String & file)
 {
   // Check if the file path is empty
   if (file.empty())
@@ -55,7 +55,7 @@ std::string LicenseKey::firstLine(const std::string & file)
   }
   
   // Load the first line
-  std::string str;
+  String str;
   if (! std::getline(fstream, str)) 
   {
     fstream.close();
@@ -73,9 +73,9 @@ std::string LicenseKey::firstLine(const std::string & file)
  * \param[in]  str String to be cleaned
  *
  ****************************************************************************/
-std::string LicenseKey::stringClean(const std::string str)
+String LicenseKey::stringClean(const String str)
 {
-  std::string key = str;
+  String key = str;
   if (key.empty()) return(key);
 
   // Suppress <CR>
@@ -163,7 +163,7 @@ void LicenseKey::messageLicenseInvalid(void)
  * \param[out] lic_key Registered license key 
  *
  ****************************************************************************/
-bool LicenseKey::checkLicense(std::string & lic_key)
+bool LicenseKey::checkLicense(String & lic_key)
 {
   // Check if the License Key is already defined (in the Registry)
   lic_key = readRegistry("LICKEY");
@@ -172,7 +172,7 @@ bool LicenseKey::checkLicense(std::string & lic_key)
 
   // Check if the filename is passed through the environment variable
   // named GSTLEARN_LICENSE
-  std::string lic_file1 = readEnvironVariable("GSTLEARN_LICENSE");
+  String lic_file1 = readEnvironVariable("GSTLEARN_LICENSE");
   if (checkLicenseFromFile(lic_file1, lic_key))
     return true;
 
@@ -190,12 +190,12 @@ bool LicenseKey::checkLicense(std::string & lic_key)
  * \param[in]  lic_key      License Key
  *
  ****************************************************************************/
-bool LicenseKey::checkLicenseFromKey(const std::string & lic_key)
+bool LicenseKey::checkLicenseFromKey(const String & lic_key)
 {
   md5_state_t state;
   md5_init(&state);
-  std::string left, right, comment, serial_number;
-  std::string version = "";
+  String left, right, comment, serial_number;
+  String version = "";
   bool flag_site = false;
   _featureTable.clear();
 
@@ -248,7 +248,7 @@ bool LicenseKey::checkLicenseFromKey(const std::string & lic_key)
   if (flag_site)
   {
     // Encrypt the License contents (no activation code)
-    std::string serial = encrypt(state);
+    String serial = encrypt(state);
     
     if (DEBUG) message("Serial tested: %s\n",serial.c_str());
     
@@ -269,11 +269,11 @@ bool LicenseKey::checkLicenseFromKey(const std::string & lic_key)
     while (it != all_codes.end()) 
     {
       state = state_ref;
-      std::string activation_code(*it);
+      String activation_code(*it);
       (void)appendActivationCode(activation_code,state);
 
       // Encrypt the License contents
-      std::string serial = encrypt(state);
+      String serial = encrypt(state);
 
       // Check serial number
       if (serial_number == serial) 
@@ -305,8 +305,8 @@ bool LicenseKey::checkLicenseFromKey(const std::string & lic_key)
  * \param[out] lic_key Registered license key 
  *
  ****************************************************************************/
-bool LicenseKey::checkLicenseFromFile(const std::string &lic_file,
-                                      std::string & lic_key)
+bool LicenseKey::checkLicenseFromFile(const String &lic_file,
+                                      String & lic_key)
 {
   // Check if the License File path is empty
   if (lic_file.empty())
@@ -338,9 +338,9 @@ bool LicenseKey::checkLicenseFromFile(const std::string &lic_file,
  * \param[in]  target       Target name
  *
  ****************************************************************************/
-bool LicenseKey::registerLicense(const std::string & target)
+bool LicenseKey::registerLicense(const String & target)
 {
-  std::string lic_key;
+  String lic_key;
 
   /* Let "RGeostats" or "Demonstration" connect without check */
 
@@ -378,8 +378,8 @@ bool LicenseKey::registerLicense(const std::string & target)
  * \param[in]  lic_key      License Key
  *
  ****************************************************************************/
-bool LicenseKey::registerLicenseFromKey(const std::string & target,
-                                        const std::string & lic_key)
+bool LicenseKey::registerLicenseFromKey(const String & target,
+                                        const String & lic_key)
 {
   // Check the License
   if (checkLicenseFromKey(lic_key))
@@ -422,15 +422,15 @@ bool LicenseKey::registerLicenseFromKey(const std::string & target,
  * \param[in]  lic_file     Path to the License File
  *
  ****************************************************************************/
-bool LicenseKey::registerLicenseFromFile(const std::string & target,
-                                         const std::string & lic_file)
+bool LicenseKey::registerLicenseFromFile(const String & target,
+                                         const String & lic_file)
 {
   // Check if the License File path is empty
   if (lic_file.empty())
     return false;
 
   // Read the contents of the License File
-  std::string lic_key = firstLine(lic_file);
+  String lic_key = firstLine(lic_file);
   if (lic_key.empty())
   {
     messerr("This License File doesn't exist: %s\n", lic_file.c_str());
@@ -454,9 +454,9 @@ bool LicenseKey::registerLicenseFromFile(const std::string & target,
  * \param[in]  activation_code  Activation Code
  *
  ****************************************************************************/
-bool LicenseKey::encodeLicenseFile(const std::string &features_file,
-                                   const std::string &license_file,
-                                   const std::string &activation_code)
+bool LicenseKey::encodeLicenseFile(const String &features_file,
+                                   const String &license_file,
+                                   const String &activation_code)
 {
   bool flag_site = false;
   std::ifstream feat_file(features_file.c_str(), std::ios::in);
@@ -479,7 +479,7 @@ bool LicenseKey::encodeLicenseFile(const std::string &features_file,
   lic_file << "Never edit this License File;";
 
   // Append the Features File contents
-  std::string left, right;
+  String left, right;
   while (std::getline(feat_file, left, ','))
   {
     if (left == "Site") flag_site = "true";
@@ -501,7 +501,7 @@ bool LicenseKey::encodeLicenseFile(const std::string &features_file,
     (void)appendActivationCode(activation_code,state);
   
   // Append serial number
-  std::string serial = encrypt(state);
+  String serial = encrypt(state);
   lic_file << serial << ";";
   if (DEBUG) message("Serial number: %s\n",serial.c_str());
 
@@ -519,8 +519,8 @@ bool LicenseKey::encodeLicenseFile(const std::string &features_file,
  * \param[in]  string        String to be encoded
  *
  ****************************************************************************/
-void LicenseKey::writeRegistry(const std::string &key,
-                               const std::string &string)
+void LicenseKey::writeRegistry(const String &key,
+                               const String &string)
 {
   RegistryUtility::set_value("gstlearn", key, string);
 }
@@ -534,9 +534,9 @@ void LicenseKey::writeRegistry(const std::string &key,
  * \param[in]  key          Name of the Key
  *
  ****************************************************************************/
-std::string LicenseKey::readRegistry(const std::string &key)
+String LicenseKey::readRegistry(const String &key)
 {
-  std::string string = RegistryUtility::get_value("gstlearn", key);
+  String string = RegistryUtility::get_value("gstlearn", key);
   return string;
 }
 
@@ -547,9 +547,9 @@ std::string LicenseKey::readRegistry(const std::string &key)
  *  Read from the Environment Variable GSTLEARN_LICENSE
  *
  ****************************************************************************/
-std::string LicenseKey::readEnvironVariable(const std::string& varname)
+String LicenseKey::readEnvironVariable(const String& varname)
 {
-  std::string string = RegistryUtility::get_environ(varname);
+  String string = RegistryUtility::get_environ(varname);
   return string;
 }
 
@@ -560,7 +560,7 @@ std::string LicenseKey::readEnvironVariable(const std::string& varname)
  * \param[in]  feature  Name of the feature
  *
  ****************************************************************************/
-bool LicenseKey::isAuthorized(const std::string& feature)
+bool LicenseKey::isAuthorized(const String& feature)
 {
   if (DEBUG) message("%s: Testing %s...", _targetName.c_str(), feature.c_str());
   if (_targetName == "Demonstration") return true;
@@ -606,10 +606,10 @@ bool LicenseKey::isAuthorized(const std::string& feature)
  * \param[in,out]  state    MD5 string in construction
  *
  ****************************************************************************/
-std::string LicenseKey::appendVersion(const std::string & version,
-                                      md5_state_t & state)
+String LicenseKey::appendVersion(const String & version,
+                                 md5_state_t & state)
 {
-  std::string pair  = "Version," + stringClean(version);
+  String pair  = "Version," + stringClean(version);
   if (DEBUG) message("Append Version: %s\n",pair.c_str());
   md5_append(&state, (const md5_byte_t*) pair.c_str(),
              static_cast<int> (pair.size()));
@@ -626,11 +626,11 @@ std::string LicenseKey::appendVersion(const std::string & version,
  * \param[in,out]  state     MD5 string in construction
  *
  ****************************************************************************/
-std::string LicenseKey::appendFeature(const std::string feature,
-                                      const std::string target,
-                                      md5_state_t & state)
+String LicenseKey::appendFeature(const String feature,
+                                 const String target,
+                                 md5_state_t & state)
 {
-  std::string pair = stringClean(feature) + "," + stringClean(target); 
+  String pair = stringClean(feature) + "," + stringClean(target);
   if (DEBUG) message("Append Feature: %s\n",pair.c_str());
   md5_append(&state, (const md5_byte_t*) pair.c_str(),
              static_cast<int> (pair.size()));
@@ -646,10 +646,10 @@ std::string LicenseKey::appendFeature(const std::string feature,
  * \param[in,out]  state        MD5 string in construction
  *
  ****************************************************************************/
-std::string LicenseKey::appendActivationCode(const std::string activation_code,
-                                             md5_state_t & state)
+String LicenseKey::appendActivationCode(const String activation_code,
+                                        md5_state_t & state)
 {
-  std::string code = stringClean(activation_code);
+  String code = stringClean(activation_code);
   if (DEBUG) message("Append Code: %s\n",code.c_str());
   md5_append(&state, (const md5_byte_t*) code.c_str(),
              static_cast<int> (code.size()));
@@ -663,7 +663,7 @@ std::string LicenseKey::appendActivationCode(const std::string activation_code,
  * \param[in]  version  Version
  *
  ****************************************************************************/
-bool LicenseKey::isValidVersion(const std::string &version)
+bool LicenseKey::isValidVersion(const String &version)
 {
   if (version.empty()) return true;
   if (atoi(version.c_str()) < GSTLEARN_VERSION)
@@ -681,10 +681,10 @@ bool LicenseKey::isValidVersion(const std::string &version)
  * \param[in,out]  state        MD5 string in construction
  *
  ****************************************************************************/
-std::string LicenseKey::encrypt(md5_state_t state)
+String LicenseKey::encrypt(md5_state_t state)
 
 {
-  std::string code;
+  String code;
   md5_state_t state_ref = state;
 
   md5_byte_t digest[16];

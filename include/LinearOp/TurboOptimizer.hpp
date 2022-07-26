@@ -11,9 +11,9 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Basic/VectorNumT.hpp"
 
 #include <string>
-#include <vector>
 
 #define TO_ndim 2
 #define TO_ncorner 3

@@ -75,7 +75,7 @@ protected:
   template <typename T>
   static bool _recordWriteVec(std::ostream& os,
                                const String& title,
-                               const std::vector<T>& vec);
+                               const VectorT<T>& vec);
 
   template <typename T>
   static bool _recordRead(std::istream& is,
@@ -83,9 +83,9 @@ protected:
                            T& val);
   template <typename T>
   static bool _recordReadVec(std::istream& is,
-                              const String& title,
-                              std::vector<T>& vec,
-                              int nvalues);
+                             const String& title,
+                             VectorT<T>& vec,
+                             int nvalues);
 
   static bool _onlyBlanks(char *string);
 
@@ -128,7 +128,7 @@ bool ASerializable::_recordWrite(std::ostream& os,
 template <typename T>
 bool ASerializable::_recordWriteVec(std::ostream& os,
                                     const String& title,
-                                    const std::vector<T>& vec)
+                                    const VectorT<T>& vec)
 {
   if (os.good())
   {
@@ -196,7 +196,7 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
 template <typename T>
 bool ASerializable::_recordReadVec(std::istream& is,
                                    const String& title,
-                                   std::vector<T>& vec,
+                                   VectorT<T>& vec,
                                    int nvalues)
 {
   vec.clear();

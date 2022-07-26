@@ -3963,8 +3963,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     if (ret)
     {
       // Concatenate values by samples
-      allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
-                                        std::make_move_iterator(values.end()));
+      allvalues.insert(allvalues.end(), values.begin(), values.end());
       nech++;
     }
   }

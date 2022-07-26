@@ -13,8 +13,8 @@
 #include "Basic/WarningMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
-#include <vector>
 #include <string>
+typedef std::string String;
 
 #define EPSILON1   1.e-1
 #define EPSILON2   1.e-2
@@ -65,13 +65,3 @@ DISABLE_WARNING_NOT_EXPORTED_FROM_DLL
 DISABLE_WARNING_BASE_NOT_EXPORTED_FROM_DLL
 #endif
 
-typedef std::string                String;
-typedef std::vector<double>        VectorDouble; /// TODO : Create a class (fill, sum, mean...)
-typedef std::vector<int>           VectorInt;
-typedef std::vector<bool>          VectorBool;
-typedef std::vector<float>         VectorFloat;
-typedef std::vector<unsigned char> VectorUChar;
-typedef std::vector<String>        VectorString;
-typedef std::vector<VectorDouble>  VectorVectorDouble;
-typedef std::vector<VectorInt>     VectorVectorInt;
-typedef std::vector<VectorFloat>   VectorVectorFloat;

@@ -13,9 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Basic/AException.hpp"
+#include "Basic/VectorT.hpp"
+#include "Basic/VectorNumT.hpp"
 
 #include <memory>
-#include <string>
 
 // TODO : add Namespace
 #define SPACES " \t\r\n"

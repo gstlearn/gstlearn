@@ -10,11 +10,12 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 # DEPENDENCIES
 
 # Look for Python3
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module)
+#set(CMAKE_FIND_DEBUG_MODE TRUE)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
 # Look for SWIG 4
 find_package(SWIG 4.0 REQUIRED)
-# TODO : If SWIG not found, fetch it from the web ?
+# TODO : If SWIG not found, fetch it from the web?
 include(${SWIG_USE_FILE})
 
 # Look for pybind11
@@ -62,9 +63,9 @@ set(SRC pygstlearn.i)
 
 # Generation folders
 if (CMAKE_CONFIGURATION_TYPES)
-  set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+  set(PYTHON_PACKAGE_ROOT_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
-  set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+  set(PYTHON_PACKAGE_ROOT_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif()
 set(PYTHON_PACKAGE_DESTINATION_FOLDER ${PYTHON_PACKAGE_ROOT_FOLDER}/${PYTHON_PACKAGE_NAME})
 # Location for SWIG target language code
@@ -95,7 +96,7 @@ set_property(SOURCE ${SRC} PROPERTY
 )
 
 # SWIG flags
-set(CMAKE_SWIG_FLAGS -py3 -keyword)
+set(CMAKE_SWIG_FLAGS -py3 -keyword -naturalvar)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
@@ -107,15 +108,23 @@ swig_add_library(
   SOURCES    ${SRC}
 )
 
-# Link to static library
-target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static)
+if (APPLE)
+  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default) 
+  set_target_properties(python_build PROPERTIES SUFFIX ".so")
+endif()
+
+# Link to static library and NumPy headers
+target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy)
+#target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
+set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+if ("${FLAVOR}" STREQUAL "Debug")
+  set(COMP_FLAGS "${COMP_FLAGS} -g")
+endif()
 if (MSVC)
   # Wrapper source is too big for MSVC !
-  set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE")
-else()
-  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+  set(COMP_FLAGS "${COMP_FLAGS} /bigobj")
 endif()
 
 # Set some properties on SWIG target
@@ -131,15 +140,10 @@ set_target_properties(python_build PROPERTIES
 # Find appropriate Python.h
 target_include_directories(python_build PRIVATE ${Python3_INCLUDE_DIRS})
 
-# Link to python's libraries (only for MSVC and MacOS - Release)
-if(MSVC)
-  target_link_libraries(python_build PRIVATE ${Python3_LIBRARIES})
-endif()
-
-if(APPLE)
-  target_link_libraries(python_build PRIVATE ${PYTHON_LIBRARIES})
-endif()
-
+# Link to python's libraries (needed for MSVC and MacOS)
+# Prefer using Python3::Module (which works for MacOS) in place of ${Python3_LIBRARIES}
+# https://gitlab.kitware.com/cmake/cmake/-/issues/17664
+target_link_libraries(python_build PRIVATE Python3::Module)
 
 # Link to pybind11 
 target_link_libraries(python_build PRIVATE pybind11::module) # TODO: use swig_link_library

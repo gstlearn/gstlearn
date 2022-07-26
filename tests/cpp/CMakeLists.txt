@@ -72,3 +72,5 @@ foreach(TARGET_EXE ${TARGETS_EXE})
     add_test(NAME ${TARGET_EXE}_cmp
              COMMAND git diff --no-index -w ${CMAKE_CURRENT_SOURCE_DIR}/output/${TARGET_EXE}.ref ${TEST_DST_DIR}/${TARGET_EXE}.out)
 endforeach(TARGET_EXE ${TARGETS_EXE})
+
+

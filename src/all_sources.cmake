@@ -144,18 +144,18 @@ set(SRC
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
-  Interfaces/VariableCategorical.cpp
-  Interfaces/VariableInt.cpp
-  Interfaces/VariableString.cpp
-  Interfaces/Category.cpp
-  Interfaces/ParamGrid.cpp
-  Interfaces/function.cpp
-  Interfaces/ParamCSV.cpp
-  Interfaces/Database.cpp
-  Interfaces/Dictionary.cpp
-  Interfaces/VariableBool.cpp
-  Interfaces/AVariable.cpp
-  Interfaces/VariableDouble.cpp
+#  Interfaces/VariableCategorical.cpp
+#  Interfaces/VariableInt.cpp
+#  Interfaces/VariableString.cpp
+#  Interfaces/Category.cpp
+#  Interfaces/ParamGrid.cpp
+#  Interfaces/function.cpp
+#  Interfaces/ParamCSV.cpp
+#  Interfaces/Database.cpp
+#  Interfaces/Dictionary.cpp
+#  Interfaces/VariableBool.cpp
+#  Interfaces/AVariable.cpp
+#  Interfaces/VariableDouble.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
@@ -215,6 +215,8 @@ set(SRC
   Basic/Array.cpp
   Basic/Geometry.cpp
   Basic/PolyLine2D.cpp
+  Basic/VectorNumT.cpp
+  Basic/VectorT.cpp
   Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp

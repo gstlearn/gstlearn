@@ -82,7 +82,8 @@ set_property(SOURCE ${SRC} PROPERTY
 )
 
 # SWIG flags
-#set(CMAKE_SWIG_FLAGS -debug-classes)
+#set(CMAKE_SWIG_FLAGS -debug-classes -naturalvar)
+set(CMAKE_SWIG_FLAGS -naturalvar)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
@@ -98,13 +99,12 @@ swig_add_library(
 target_link_libraries(r_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
-if (MSVC)
-  # Wrapper source is too big for MSVC !
-  set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter -Wno-unused-variable -Wno-maybe-uninitialized") # Prevent some SWIG C++/R warnings
-else()
-  #set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
-  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+#set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+if ("${FLAVOR}" STREQUAL "Debug")
+  set(COMP_FLAGS "${COMP_FLAGS} -g")
 endif()
+
 # Set some properties on SWIG target
 set_target_properties(r_build PROPERTIES
   # Do not build R package by default
@@ -115,17 +115,16 @@ set_target_properties(r_build PROPERTIES
   COMPILE_FLAGS ${COMP_FLAGS}
 )
 
+if (APPLE)
+  # To prevent 'library' from crashing under Mac (swig output suffix is .dynlib by default) 
+  set_target_properties(r_build PROPERTIES SUFFIX ".so")
+endif()
+
 # Find appropriate R.h
 target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})
 
-# Link to R's libraries (only for Windows - Release)
-if(WIN32)
-  target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
-endif()
-
-if(APPLE)
-  target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
-endif()
+# Link to R's libraries (needed for MSYS and MacOS)
+target_link_libraries(r_build PRIVATE ${R_LIBRARIES})
 
 # TODO : Build the R package (tarball)
 #add_custom_command(OUTPUT r_build_log.txt DEPENDS r_build 

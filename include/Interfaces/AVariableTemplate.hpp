@@ -26,7 +26,7 @@ class GSTLEARN_EXPORT AVariableTemplate : public AVariable
 
     AVariableTemplate() : AVariable(), _values() {}
     AVariableTemplate(const String& name) : AVariable(name), _values() {}
-    AVariableTemplate(const String& name, std::vector<T> values) : AVariable(name), _values(values) {}
+    AVariableTemplate(const String& name, VectorT<T> values) : AVariable(name), _values(values) {}
     AVariableTemplate(const AVariableTemplate& ref) : AVariable(ref), _values(ref._values) {}
     AVariableTemplate& operator=(const AVariableTemplate& ref)
     {

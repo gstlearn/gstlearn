@@ -13,6 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Basic/VectorNumT.hpp"
+
 /// TODO to be removed when VectorDouble will be OK
 GSTLEARN_EXPORT VectorInt ut_vector_int(int nval, int value = 0.);
 GSTLEARN_EXPORT VectorDouble ut_vector_double(int nval, double value = 0.);

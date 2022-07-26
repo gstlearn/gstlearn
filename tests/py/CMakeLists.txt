@@ -7,7 +7,7 @@ endif()
 # Using GLOB could be a bad idea (but use it for the tests)
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 
-# Look for Python3
+# Look for Python3 (needed here because Python3_EXECUTABLE not populated everywhere)
 find_package(Python3 REQUIRED)
 
 # With GLOB:
@@ -39,7 +39,7 @@ add_dependencies(check_py python_install)
 # Python script test runner path
 cmake_path(APPEND PROJECT_SOURCE_DIR python run_test.py
            OUTPUT_VARIABLE RUN_TEST_SCRIPT)
-           
+
 # Display test output in case of failure
 set(CTEST_OUTPUT_ON_FAILURE ON)
 
