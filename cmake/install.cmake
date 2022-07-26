@@ -7,11 +7,11 @@ include(GNUInstallDirs)
 # Setup the installation directory
 # https://stackoverflow.com/questions/39481958/setting-cmake-install-prefix-from-cmakelists-txt-file/39485990#39485990
 if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  if(DEFINED GSTLEARN_INSTALL_DIR) # Check for CMake variable first
-    set(CMAKE_INSTALL_PREFIX ${GSTLEARN_INSTALL_DIR} CACHE PATH "" FORCE)
+  if(DEFINED PROJECT_INSTALL_DIR) # Check for CMake variable first
+    set(CMAKE_INSTALL_PREFIX ${PROJECT_INSTALL_DIR} CACHE PATH "" FORCE)
   else()
-    if(DEFINED ENV{GSTLEARN_INSTALL_DIR}) # Check for environment variable then
-      set(CMAKE_INSTALL_PREFIX $ENV{GSTLEARN_INSTALL_DIR} CACHE PATH "" FORCE)
+    if(DEFINED ENV{PROJECT_INSTALL_DIR}) # Check for environment variable then
+      set(CMAKE_INSTALL_PREFIX $ENV{PROJECT_INSTALL_DIR} CACHE PATH "" FORCE)
     else()
       # Default installation folder
       set(CMAKE_INSTALL_PREFIX $ENV{HOME}/${PROJECT_NAME}_install CACHE PATH "" FORCE)

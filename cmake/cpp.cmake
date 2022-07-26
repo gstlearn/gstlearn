@@ -21,16 +21,22 @@ else()
 endif()
 
 # C++ code location
+set(INCLUDES 
+    ${PROJECT_SOURCE_DIR}/include)
+
 include(src/all_sources.cmake)
 set(SOURCES)
 foreach(CPP ${SRC})
   set(SOURCES ${SOURCES} ${PROJECT_SOURCE_DIR}/src/${CPP})
 endforeach(CPP ${SRC})
 
-# Generation folder
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+# Generation folder (into Release or Debug)
+if (NOT CMAKE_CONFIGURATION_TYPES)
+  # TODO : use cmake_path
+  set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+  set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+  set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+endif()
 
 # Change the name of the output file (to distinguish lib files under Windows)
 if (WIN32)
@@ -41,6 +47,7 @@ endif()
 find_package(Boost REQUIRED)
 # TODO : If Boost not found, fetch it from the web ?
 
+# Look for HDF5
 if (USE_HDF5)
   # Use static library for HDF5 under Windows (no more issue with DLL location)
   if (WIN32)
@@ -69,7 +76,7 @@ foreach(FLAVOR ${FLAVORS})
   # Include directories
   target_include_directories(${FLAVOR} PUBLIC
     # Add includes path for compiling the library
-    $<BUILD_INTERFACE: ${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE: ${INCLUDES}>
     # Add binary directory to find generated version.h and export.hpp
     $<BUILD_INTERFACE: ${PROJECT_BINARY_DIR}>
   )
@@ -92,11 +99,12 @@ foreach(FLAVOR ${FLAVORS})
   # Used by delaunay (On Windows, prevent the include sys/time.h (-DNO_TIMER))
   target_compile_definitions(${FLAVOR} PRIVATE NO_TIMER) 
   
-  # Link to boost
+  # Link to Boost
   # Target for header-only dependencies. (Boost include directory)
   # It should be PRIVATE if no headers of the gstlearn include boost files
   target_link_libraries(${FLAVOR} PUBLIC Boost::boost)
   
+  # Link to HDF5
   if (USE_HDF5)
     # Define _USE_HDF5 macro
     target_compile_definitions(${FLAVOR} PUBLIC _USE_HDF5) 
@@ -124,18 +132,27 @@ endforeach(FLAVOR ${FLAVORS})
 # Generate export header
 include(GenerateExportHeader)
 set(DISABLE_EXPORT_IF_SWIG "
- #ifdef SWIG
-  #undef ${PROJECT_NAME_UP}_EXPORT
-  #undef ${PROJECT_NAME_UP}_NO_EXPORT
-  #undef ${PROJECT_NAME_UP}_DEPRECATED
-  #undef ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
-  #undef ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
-  #define ${PROJECT_NAME_UP}_EXPORT
-  #define ${PROJECT_NAME_UP}_NO_EXPORT
-  #define ${PROJECT_NAME_UP}_DEPRECATED
-  #define ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
-  #define ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
-  #endif
+#ifdef SWIG
+#    undef ${PROJECT_NAME_UP}_EXPORT
+#    undef ${PROJECT_NAME_UP}_NO_EXPORT
+#    undef ${PROJECT_NAME_UP}_DEPRECATED
+#    undef ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
+#    undef ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
+#    define ${PROJECT_NAME_UP}_EXPORT
+#    define ${PROJECT_NAME_UP}_NO_EXPORT
+#    define ${PROJECT_NAME_UP}_DEPRECATED
+#    define ${PROJECT_NAME_UP}_DEPRECATED_EXPORT
+#    define ${PROJECT_NAME_UP}_DEPRECATED_NO_EXPORT
+#endif
+#ifdef ${PROJECT_NAME_UP}_STATIC_DEFINE
+#    define ${PROJECT_NAME_UP}_TEMPLATE_EXPORT
+#else
+#    ifdef shared_EXPORTS
+#        define ${PROJECT_NAME_UP}_TEMPLATE_EXPORT
+#    else
+#        define ${PROJECT_NAME_UP}_TEMPLATE_EXPORT extern
+#    endif
+#endif
 ")
 generate_export_header(shared
   BASE_NAME ${PROJECT_NAME}

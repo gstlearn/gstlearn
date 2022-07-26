@@ -29,6 +29,8 @@ class CovContext;
 class AStringFormat;
 class AAnam;
 
+
+// TODO : rename CovAnisoList (this is not an abstract class)
 class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
 {
 public:
