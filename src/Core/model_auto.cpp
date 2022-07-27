@@ -62,7 +62,7 @@
 #define AD(ivar,jvar)            (ivar) + nvar * (jvar)
 #define VARS(ivar,jvar)          vario->vars[(ivar) * vario->getNVar() + (jvar)]
 #define VECPRO(ivar,jvar)        vecpro[AD(ivar,jvar)]
-#define VARCHOL(ivar,jvar)       varchol[(ivar) * nvar + (jvar)]
+#define VARCHOL(ivar,jvar)       varchol[COMP_INDEX(ivar,jvar)]
 
 #define AA(icov,jcov)            aa[(icov) * ncova + (jcov)]
 #define CC(ivar,jvar)            cc[AD(ivar,jvar)]
