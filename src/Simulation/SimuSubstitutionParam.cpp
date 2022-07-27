@@ -223,9 +223,7 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
 void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
                                                bool verbose) const
 {
-  double total = 0.;
-  for (int i = 0; i < 3; i++)
-    total += vector[i] * vector[i];
+  double total = ut_vector_norm(vector);
   if (total <= 0.)
   {
     if (verbose)
@@ -236,7 +234,7 @@ void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
     vector[0] = 1.;
     total = 1.;
   }
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < (int) vector.size(); i++)
     vector[i] /= sqrt(total);
 }
 

@@ -23,7 +23,10 @@
 
 #define COOR(iech,idim)    (coor[(iech) * ndim + (idim)])
 
-CalcSimuPartition::CalcSimuPartition(int mode, int nbsimu, int seed, bool verbose)
+CalcSimuPartition::CalcSimuPartition(int mode,
+                                     int nbsimu,
+                                     int seed,
+                                     bool verbose)
     : ACalcSimulation(nbsimu, seed),
       _mode(mode),
       _verbose(verbose),
@@ -174,7 +177,7 @@ bool CalcSimuPartition::_poisson()
     for (int ip = 0; ip < np; ip++)
     {
       double prod = 0.;
-      for (int i = 0; i < 3; i++)
+      for (int i = 0; i < (int) cen.size(); i++)
         prod += planes[ip].getCoor(i) * cen[i];
       valtot += (prod + planes[ip].getIntercept() > 0) ?
           planes[ip].getRndval() : -planes[ip].getRndval();

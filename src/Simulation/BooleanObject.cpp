@@ -79,6 +79,13 @@ String BooleanObject::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
+void BooleanObject::setCenter(const VectorDouble& center)
+{
+  _center.resize(3,0.);
+  for (int idim = 0; idim < (int) center.size(); idim++)
+    _center[idim] = center[idim];
+}
+
 VectorDouble BooleanObject::getValues() const
 {
   VectorDouble tab;

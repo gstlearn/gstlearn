@@ -55,12 +55,13 @@ int GridIfpEn::writeInFile()
   int ncol = (int) _cols.size();
   int ndim = _dbgrid->getNDim();
   VectorInt nx = _dbgrid->getNXs();
+  VectorInt nxloc(3);
   VectorDouble angles = _dbgrid->getAngles();
   int ntot = 1;
   for (int idim = 0; idim < 3; idim++)
   {
-    nx[idim] = (idim < ndim) ? nx[idim] : 1;
-    ntot *= nx[idim];
+    nxloc[idim] = (idim < ndim) ? nx[idim] : 1;
+    ntot *= nxloc[idim];
   }
 
   /* Write the header */
@@ -77,11 +78,11 @@ int GridIfpEn::writeInFile()
   _writeLine( 0, "REPRESENTATION_CODE      # ASCII", 0, 0., NULL);
   _writeLine( 0, "##########################", 0, 0., NULL);
   _writeLine( 2, "ANGLE                    #", 0, angles[0], "# DEG");
-  _writeLine( 1, "ROW_COUNT                #", nx[1], 0., NULL);
-  _writeLine( 1, "COLUMN_COUNT             #", nx[0], 0., NULL);
+  _writeLine( 1, "ROW_COUNT                #", nxloc[1], 0., NULL);
+  _writeLine( 1, "COLUMN_COUNT             #", nxloc[0], 0., NULL);
   _writeLine( 2, "ROW_DISTANCE             #", 0, _dbgrid->getDX(1), "# m");
   _writeLine( 2, "COLUMN_DISTANCE          #", 0, _dbgrid->getDX(0), "# m");
-  _writeLine( 1, "LAYER_COUNT              #", nx[2], 0., NULL);
+  _writeLine( 1, "LAYER_COUNT              #", nxloc[2], 0., NULL);
   _writeLine( 2, "X_ORIGIN                 #", 0, _dbgrid->getX0(0), "# m");
   _writeLine( 2, "Y_ORIGIN                 #", 0, _dbgrid->getX0(1), "# m");
   _writeLine( 1, "FACIES_COUNT             #", ncol, 0., NULL);

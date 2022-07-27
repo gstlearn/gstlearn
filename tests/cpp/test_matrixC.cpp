@@ -57,6 +57,8 @@ int main(int /*argc*/, char */*argv*/[])
   mati.setValues({1, 2, 3, 4, 5, 6});
   mati.display();
   MatrixInt* mati2(mati.clone()); // dynamic_cast no more needed
+  // equivalent to
+  // MatrixInt* mati2 = mati.clone();
   mati2->display();
 
   message("Cloning Matrix of doubles\n");

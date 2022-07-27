@@ -21,21 +21,6 @@ gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
 gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ])
 gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
 
-# Testing Vector arguments using external factory
-
-#a = gl.VectorString()
-#a.push_back("toto")
-#a.push_back("titi")
-#gl.argumentTestVectorString(a)
-
-#a = gl.VectorInt()
-#a.push_back(12)
-#gl.argumentTestVectorInt(a)
-
-#a = gl.VectorDouble()
-#a.push_back(12.)
-#gl.argumentTestVectorDouble(a)
-
 # Testing missing arguments
 
 gl.argumentTestInt(gl.ITEST)

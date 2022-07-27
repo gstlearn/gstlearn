@@ -94,6 +94,10 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
     for (int idim = 0; idim < 3; idim++)
     {
       ap[idim] /= u;
+    }
+    // Check position of the Center (in its OWN space dimension)
+    for (int idim = 0; idim < (int) center.size(); idim++)
+    {
       d0 -= ap[idim] * center[idim];
     }
     if (d0 < 0)

@@ -94,7 +94,7 @@ bool CalcSimuSubstitution::_simulate()
       for (int ip = 0; ip < np; ip++)
       {
         double prod = 0.;
-        for (int i = 0; i < 3; i++)
+        for (int i = 0; i < (int) cen.size(); i++)
           prod += _planes[ip].getCoor(i) * cen[i];
 
         if (_subparam.isLocal())
@@ -237,7 +237,7 @@ void CalcSimuSubstitution::_calculValue(int ip,
 {
   int ival = ((2. * _planes[ip].getRndval()) > (1. + factor)) ? -1 : 1;
   double cossin = 0.;
-  for (int i = 0; i < 3; i++)
+  for (int i = 0; i < (int) vector.size(); i++)
     cossin += _planes[ip].getCoor(i) * vector[i];
   if (cossin < 0) ival = -ival;
   _planes[ip].setValue((double) ival);
@@ -344,7 +344,7 @@ bool CalcSimuSubstitution::_check()
   int ndim = _getNDim();
   if (ndim > 3)
   {
-    messerr("The Turning Band Method is not a relevant simulation model");
+    messerr("The Substitution Method is not a relevant simulation model");
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
