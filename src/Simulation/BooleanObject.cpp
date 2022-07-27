@@ -8,11 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Simulation/BooleanObject.hpp"
-
 #include "Boolean/AShape.hpp"
 #include "Boolean/ModelBoolean.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
+#include "Simulation/BooleanObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Vector.hpp"
@@ -352,7 +351,7 @@ bool BooleanObject::_isGrain(const Db* db, int iech)
 
 int BooleanObject::_getCoverageAtSample(const Db* db, int iech)
 {
-  return db->getVariable(iech,1);
+  return (int) db->getVariable(iech,1);
 }
 
 void BooleanObject::_updateCoverageAtSample(Db* db, int iech, int ival)

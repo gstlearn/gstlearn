@@ -27,8 +27,8 @@ public:
   MatrixSquareGeneral& operator= (const MatrixSquareGeneral &r);
 	virtual ~MatrixSquareGeneral();
 
-  /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixSquareGeneral(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixSquareGeneral)
 
   /*! Say if the matrix must be symmetric */
   bool mustBeSymmetric() const override { return false; }

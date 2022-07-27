@@ -14,27 +14,28 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-// Enums
 #include "Covariances/ECov.hpp"
 #include "Covariances/ECalcMember.hpp"
+#include "Covariances/CovCalcMode.hpp"
+
 #include "Basic/EJustify.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-#include "Db/ELoc.hpp"
-#include "LithoRule/EProcessOper.hpp"
+
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
+#include "Model/Constraints.hpp"
+#include "Model/Option_AutoFit.hpp"
+
+#include "Neigh/ENeigh.hpp"
+#include "Neigh/NeighWork.hpp"
+
+#include "Db/ELoc.hpp"
+#include "LithoRule/EProcessOper.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Drifts/EDrift.hpp"
-#include "Neigh/ENeigh.hpp"
-#include "Neigh/NeighWork.hpp"
 #include "Variogram/ECalcVario.hpp"
-
-// References
-#include "Covariances/CovCalcMode.hpp"
-#include "Model/Constraints.hpp"
-#include "Model/Option_AutoFit.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -517,34 +518,6 @@ GSTLEARN_EXPORT int ascii_option_defined(const char *file_name,
 /* Prototyping the functions in morpho.c */
 /*****************************************/
 
-GSTLEARN_EXPORT int fluid_propagation(DbGrid *dbgrid,
-                                      int verbose,
-                                      int seed,
-                                      int niter,
-                                      int ind_facies,
-                                      int ind_fluid,
-                                      int ind_perm,
-                                      int ind_poro,
-                                      int nfacies,
-                                      int nfluids,
-                                      int *speeds,
-                                      int flag_show,
-                                      double number_max,
-                                      double volume_max);
-GSTLEARN_EXPORT int fluid_extract(DbGrid *dbgrid,
-                                  int verbose,
-                                  int ind_date,
-                                  int ind_facies,
-                                  int ind_fluid,
-                                  int ind_poro,
-                                  int nfacies,
-                                  int nfluids,
-                                  int facies0,
-                                  int fluid0,
-                                  int ntime,
-                                  double time0,
-                                  double dtime,
-                                  double *tab);
 GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
                                 int ind_height,
                                 int ind_data,
@@ -885,9 +858,7 @@ GSTLEARN_EXPORT Model* model_combine(const Model *model1,
 GSTLEARN_EXPORT int model_get_nonugget_cova(Model *model);
 GSTLEARN_EXPORT int model_regularize(Model *model,
                                      Vario *vario,
-                                     Db *db,
-                                     int opt_norm,
-                                     double nug_ratio);
+                                     DbGrid *dbgrid);
 GSTLEARN_EXPORT double constraints_get(const Constraints &constraints,
                                        const EConsType &icase,
                                        int igrf,
@@ -918,9 +889,6 @@ GSTLEARN_EXPORT int anam_point_to_block(AAnam *anam,
                                         double cvv,
                                         double coeff,
                                         double mu);
-GSTLEARN_EXPORT double ce_compute_Z2(double krigest,
-                                     double krigstd,
-                                     const VectorDouble &phis);
 
 /*************************************/
 /* Prototyping the functions in db.c */
@@ -1483,7 +1451,7 @@ GSTLEARN_EXPORT int krigsampling_f(Db *dbin,
                                    int *ranks1,
                                    int nsize2,
                                    int *ranks2,
-                                   int flag_std,
+                                   bool flag_std,
                                    int verbose);
 GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
                                       Model *model,
@@ -1576,15 +1544,6 @@ GSTLEARN_EXPORT int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
 GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
                                                Db *db,
                                                const ELoc &locatorType);
-GSTLEARN_EXPORT int simdgm(Db *dbin,
-                           DbGrid *dbout,
-                           Model *model,
-                           ANeighParam *neighparam,
-                           double rval,
-                           int seed,
-                           int nbsimu,
-                           int nbtuba,
-                           int flag_check);
 GSTLEARN_EXPORT int simcond(Db *dbin,
                             Db *dbout,
                             Model *model,

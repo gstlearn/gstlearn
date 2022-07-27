@@ -29,6 +29,8 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
@@ -179,21 +181,21 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
-  data_res = dynamic_cast<Db*>(data->clone());
+  data_res = data->clone();
   xvalid(data_res, model, neighM, 0, -1, -1);
   data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Moving Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   kriging(data, grid_res, model, neighM);
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Declustering in Moving Neighborhood ----->\n");
-  data_res = dynamic_cast<Db*>(data->clone());
+  data_res = data->clone();
   declustering(data_res, model, 3, neighM, grid, VectorDouble(), {3,3}, false, true);
 
   message("\n<----- Kriging Test in Moving Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   ktest = krigtest(data, grid_res, model, neighM, 0);
   message("\nTesting KrigTest facility\n");
   message("- Space Dimension = %d\n",ktest.ndim);
@@ -203,31 +205,31 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
-  data_res = dynamic_cast<Db*>(data->clone());
+  data_res = data->clone();
   xvalid(data_res, model, neighU, 0, -1, -1);
   data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Unique Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   kriging(data, grid_res, model, neighU);
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Simulations in Unique Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   simtub(data, grid_res, model, neighU, 3, 12345);
   grid_res->display(&dbfmtSimu);
 
   message("\n<----- Bayesian Simulations in Unique Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   simbayes(data, grid_res, model, neighU, 3, 12345);
   grid_res->display(&dbfmtSimu);
 
   message("\n<----- Declustering in Unique Neighborhood ----->\n");
-  data_res = dynamic_cast<Db*>(data->clone());
+  data_res = data->clone();
   declustering(data_res, model, 2, neighU, nullptr, VectorDouble(), VectorInt(), false, true);
 
   message("\n<----- Global Estimate (Average) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   gres = global_arithmetic(data, grid_res, model, 0, true);
 
   message("\n<----- Global Estimate (Kriging) ----->\n");
@@ -235,12 +237,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Block Kriging case ===========================
   message("\n<----- Block Kriging (fixed size) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   kriging(data, grid_res, model, neighU, EKrigOpt::BLOCK, 1, 1, 0, {3,3});
   grid_res->display(&dbfmtKriging);
 
   message("\n<----- Block Kriging (variable size) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   krigcell(data, grid_res, model, neighU, 1, 1, {3,3});
   grid_res->display(&dbfmtKriging);
 
@@ -251,12 +253,12 @@ int main(int /*argc*/, char */*argv*/[])
   image->display();
 
   // Modify the Model (for filtering)
-  model_res = dynamic_cast<Model*>(model->clone());
+  model_res = model->clone();
   model_res->setCovaFiltered(1, true);
   model_res->display();
 
   message("\n<----- Image Filtering ----->\n");
-  image_res = dynamic_cast<DbGrid*>(image->clone());
+  image_res = image->clone();
   krimage(image_res, model_res, neighI);
   image_res->display(&dbfmtImage);
 
@@ -266,7 +268,7 @@ int main(int /*argc*/, char */*argv*/[])
   model->display();
 
   message("\n<----- Bayesian Kriging in Unique Neighborhood ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   OptDbg::define(EDbg::BAYES);
   kribayes(data, grid_res, model, neighU);
   OptDbg::undefine(EDbg::BAYES);
@@ -284,7 +286,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   message("\n---> Kriging in Place (checking Exact Interpolator)\n");
   OptDbg::setReference(1);
-  data_res = dynamic_cast<Db*>(data->clone());
+  data_res = data->clone();
   kriging(data_res, data_res, model, neighU);
   OptDbg::setReference(0);
 
@@ -298,7 +300,7 @@ int main(int /*argc*/, char */*argv*/[])
   data = createLocalDb(10, 2, 3);
 
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
   grid_res->addColumns(tab, "Constraints", ELoc::SUM);
   krigsum(data, grid_res, model, neighU, true);
@@ -318,7 +320,7 @@ int main(int /*argc*/, char */*argv*/[])
   data->display(&dbfmt);
 
   message("\n<----- Test Kriging Anamorphosed Gaussian ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   kriggam(data, grid_res, model, neighU, anam);
   grid_res->display(&dbfmtKriging);
 

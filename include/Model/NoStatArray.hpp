@@ -26,9 +26,11 @@ public:
   NoStatArray& operator=(const NoStatArray &m);
   virtual ~NoStatArray();
 
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(NoStatArray)
 
-  virtual IClonable* clone() const override { return new NoStatArray(*this); };
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   double getValue(int igrf, int icov, const EConsElem& type, int iv1, int iv2,
                   int icas, int rank) const override;

@@ -4,6 +4,7 @@
 #include "Basic/AException.hpp"
 
 #include <cmath>
+#include <complex>
 
 CovDiffusionAdvection::CovDiffusionAdvection()
 :   _markovL(nullptr)
@@ -24,15 +25,15 @@ CovDiffusionAdvection::CovDiffusionAdvection()
 }
 
 CovDiffusionAdvection::CovDiffusionAdvection(const CovDiffusionAdvection& r)
-:   _markovL((CovAniso*)r._markovL->clone())
-  , _markovR((CovAniso*)r._markovR->clone())
+:   _markovL(r._markovL->clone())
+  , _markovR(r._markovR->clone())
   , _scaleTime(r._scaleTime)
   , _vel(r._vel)
   , _sigma2(r._sigma2)
   , _ndim(r._ndim)
   , _globalCorrec(r._globalCorrec)
   , _spatialTrace(r._spatialTrace)
-  , _destroyMarkovL(true)
+  , _destroyMarkovL(true) /// TODO : Why not using r flags?
   , _destroyMarkovR(true)
   , _markovRdefined(r._markovRdefined)
   , _markovLdefined(r._markovLdefined)
@@ -45,15 +46,15 @@ CovDiffusionAdvection& CovDiffusionAdvection::operator=(const CovDiffusionAdvect
 {
   if (this != &r)
   {
-    _markovL        = (CovAniso*)r._markovL->clone();
-    _markovR        = (CovAniso*)r._markovR->clone();
+    _markovL        = r._markovL->clone();
+    _markovR        = r._markovR->clone();
     _scaleTime      = r._scaleTime;
     _vel            = r._vel;
     _sigma2         = r._sigma2;
     _ndim           = r._ndim;
     _globalCorrec   = r._globalCorrec;
-    _spatialTrace   = (CovAniso*)r._spatialTrace->clone();
-    _destroyMarkovL = true;
+    _spatialTrace   = r._spatialTrace->clone();
+    _destroyMarkovL = true; /// TODO : Why not using r flags?
     _destroyMarkovR = true;
     _markovRdefined = r._markovRdefined;
     _markovLdefined = r._markovLdefined;
@@ -68,9 +69,7 @@ CovDiffusionAdvection::~CovDiffusionAdvection()
     delete _markovL;
   if (_destroyMarkovR)
     delete _markovR;
-
 }
-
 
 
 CovDiffusionAdvection* CovDiffusionAdvection::create(CovAniso* markovL,
@@ -160,7 +159,7 @@ void CovDiffusionAdvection::_computeSpatialTrace()
 
    VectorDouble coeffsL = _markovL->getMarkovCoeffs();
    VectorDouble coeffsR = _markovR->getMarkovCoeffs();
-   int degree = (coeffsL.size() + coeffsR.size() - 2);
+   int degree = ((int) coeffsL.size() + (int) coeffsR.size() - 2);
    VectorDouble coeffs;
    coeffs.resize(degree + 1,0.);
 
@@ -195,7 +194,9 @@ std::complex<double> CovDiffusionAdvection::evalSpatialSpectrum(VectorDouble fre
   if (_markovRdefined)
     s2 = 1./(_markovR->evalSpectrum(freq));
 
-  std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
+  //std::complex<double> temp = _scaleTime * (-1i * velinner * time - abs(time * s1));
+  std::complex<double> a(-_scaleTime * abs(time * s1), -_scaleTime * velinner * time);
+  std::complex<double> temp = a;
 
   double ratio =  _sigma2 / (_globalCorrec * s1 * s2 );
   return ratio * exp(temp);

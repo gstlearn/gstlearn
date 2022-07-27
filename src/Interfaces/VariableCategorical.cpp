@@ -20,14 +20,6 @@ VariableCategorical::~VariableCategorical()
 {
 }
 
-/**
- * Clone
- */
-VariableCategorical* VariableCategorical::clone() const
-{
-  return(new VariableCategorical(*this));
-}
-
 void VariableCategorical::resize(int n, const Category& val)
 {
   if (_dico.hasCategory(val))

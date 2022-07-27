@@ -224,13 +224,13 @@ double ACovFunc::_evaluateCovOnSphere(double /*scale*/, int /*degree*/) const
 Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
 {
   N *= 2;
-  int ndim = hmax.size();
+  int ndim = (int) hmax.size();
   VectorInt nxs(ndim);
   for (int idim = 0; idim < ndim; idim++)
     nxs[idim] = N ;
   Array array(nxs);
 
-  int ntotal = pow(N, ndim);
+  int ntotal = (int) pow(N, ndim);
   VectorDouble a(ndim);
   double coeff = 0;
   double prod = 1.;
@@ -312,7 +312,7 @@ Array ACovFunc::_evalCovFFT(const VectorDouble& hmax, int N) const
 void ACovFunc::computeCorrec(int dim)
 {
   if (! hasSpectrum()) return;
-  int N = pow(2,8);
+  int N = (int) pow(2,8);
   VectorInt Nv(dim);
   VectorDouble hmax(dim);
   for (int idim = 0; idim<dim; idim++)

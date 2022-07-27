@@ -56,9 +56,8 @@ Limits::Limits(const VectorDouble& mini,
 
 /**
  * Create the limits from a list of bounds. Intervals are delimited between two given bounds: [z_i, z_(i+1)[
- * @param bounds    list of cutoffs used to create the limits. The number of limits is equal to the number of elements in the 'bounds' vector minus one. 
+ * @param bounds    List of cutoffs used to create the limits. The number of limits is equal to the number of elements in the 'bounds' vector minus one.
  * @param addFromZero When TRUE, add a class from 0 to bounds[0]
- * @return
  */
 Limits::Limits(const VectorDouble& bounds, bool addFromZero)
 {
@@ -116,6 +115,27 @@ Limits::~Limits()
 
 }
 
+Limits* Limits::create(const VectorDouble& mini,
+                       const VectorDouble& maxi,
+                       const VectorBool& incmini,
+                       const VectorBool& incmaxi)
+{
+  Limits* limits = new Limits(mini, maxi, incmini, incmaxi);
+  return limits;
+}
+
+Limits* Limits::create(const VectorDouble& bounds, bool addFromZero)
+{
+  Limits* limits = new Limits(bounds, addFromZero);
+  return limits;
+}
+
+Limits* Limits::create(int nclass)
+{
+  Limits* limits = new Limits(nclass);
+  return limits;
+}
+
 String Limits::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
@@ -171,13 +191,16 @@ bool Limits::isInside(double value) const
   return true;
 }
 
-int Limits::toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv)
+int Limits::toCategoryByAttribute(Db* db,
+                                  int iatt,
+                                  const NamingConvention& namconv)
 {
   return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
                       getLowerIncluded(), getUpperIncluded(), namconv);
 }
 
-int Limits::toCategory(Db* db, const String& name,
+int Limits::toCategory(Db* db,
+                       const String& name,
                        const NamingConvention& namconv)
 {
   int iatt = db->getUID(name);

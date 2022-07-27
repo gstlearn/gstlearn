@@ -40,10 +40,10 @@ public:
   CovLMCAnamorphosis& operator= (const CovLMCAnamorphosis &r);
   virtual ~CovLMCAnamorphosis();
 
-  /// Interface from IClonable
-  virtual IClonable* clone() const override { return new CovLMCAnamorphosis(*this); };
+  /// ICloneable interface
+  IMPLEMENT_CLONING(CovLMCAnamorphosis)
 
-  /// Interface from ATringable
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   virtual double eval0(int ivar,
@@ -61,6 +61,7 @@ public:
   const AAnam* getAnam() override { return _anam; }
   int setAnamIClass(int iclass) override;
   int getAnamIClass() const override { return _anamIClass; }
+  int getAnamNClass() const override { return _anam->getNClass(); }
 
   int init(const VectorInt& strcnt = VectorInt());
   const EAnam getAnamType() const;
@@ -85,7 +86,7 @@ private:
   double _evalHermite0(int ivar, int jvar, const CovCalcMode& mode) const;
   double _evalDiscreteDD0(int ivar, int jvar, const CovCalcMode& mode) const;
   double _evalDiscreteIR0(int ivar, int jvar, const CovCalcMode& mode) const;
-  CovCalcMode _transformCovCalcModeIR(const CovCalcMode& mode) const;
+  void _transformCovCalcModeIR(CovCalcMode& mode, int iclass) const;
 
 private:
   int    _anamIClass;         /* Target factor (-1: discretized grade) */

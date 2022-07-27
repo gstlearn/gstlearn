@@ -11,27 +11,26 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Covariances/ACovFunc.hpp"
 
-class CovContext;
+#include "Calculators/ACalcInterpolator.hpp"
 
-class GSTLEARN_EXPORT CovP8 : public ACovFunc
+class GSTLEARN_EXPORT ACalcSimulation: public ACalcInterpolator
 {
 public:
-  CovP8(const CovContext& ctx);
-  CovP8(const CovP8 &r);
-  CovP8& operator= (const CovP8 &r);
-  virtual ~CovP8();
+  ACalcSimulation(int nbimu, int seed = 4324324);
+  ACalcSimulation(const ACalcSimulation& r) = delete;
+  ACalcSimulation& operator=(const ACalcSimulation& r) = delete;
+  virtual ~ACalcSimulation();
 
-  unsigned int getMaxNDim()   const  override { return 3; }
-
-  virtual String getFormula() const override { return String("Equation not yet implemented"); }
-  String         getCovName() const override { return "Order-8 Polynomial"; }
-  int            getMinOrder() const override { return -1; }
-  virtual bool   hasCovDerivative() const override { return true; }
+  int getSeed() const { return _seed; }
+  int getNbSimu() const { return _nbsimu; }
+  void setSeed(int seed) { _seed = seed; }
+  void setNbSimu(int nbsimu) { _nbsimu = nbsimu; }
 
 protected:
-  double _evaluateCov(double h)  const override;
-  double _evaluateCovDerivate(int degree, double h) const override;
-};
+  bool _check() override;
 
+private:
+  int _nbsimu;
+  int _seed;
+};

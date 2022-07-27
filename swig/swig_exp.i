@@ -1,21 +1,9 @@
 %ignore *::operator=;
 
-%feature(director) AFunction;
-%module(directors="1") gstlearn
-%{
-#define SWIG_FILE_WITH_INIT
-// This is for numpy.i (see below). To be moved in python swig.
-%}
-
-
-// TODO: How to mask IClonable and clone method?
-class IClonable{};
-//%ignore *::clone;
-
 %include stl.i
 // Cast strings into native type of the target language
 %include std_string.i
-// Cast vectors of integers into native type of the target language
+// Cast vectors into native type of the target language
 %include std_vector.i
 
 //%include std_complex.i
@@ -25,26 +13,21 @@ class IClonable{};
 %template(VectorInt)            std::vector< int >;
 %template(VectorString)         std::vector< std::string >;
 %template(VectorBool)           std::vector< bool >;
-%template(VectorUChar)          std::vector< unsigned char >;
 %template(VectorVectorInt)      std::vector< std::vector< int > >;
 %template(VectorVectorDouble)   std::vector< std::vector< double > >;
 
 %template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
+%template(VectorEnumStatOpt)    std::vector< EStatOption >;    // Not a pointers list
 
-%template(VectorCTable)         std::vector<CTable*>;
-%template(VectorDir)            std::vector<DirParam>;  // Not a pointers list
-%template(VectorDirection)      std::vector<TurningDirection>;
-%template(VectorLocal_Split)    std::vector<Local_Split*>;
-%template(VectorPolySet)        std::vector<PolySet*>;
-%template(VectorQChol)          std::vector<QChol*>;
-%template(VectorSPDE_SS_Option) std::vector<SPDE_SS_Option*>;
-%template(VectorSubPlan)        std::vector<SubPlan*>;
-%template(VectorIntervals)      std::vector<Interval*>;
+%template(VectorDir)            std::vector< DirParam >;  // Not a pointers list
+%template(VectorPolySet)        std::vector< PolySet >;
+%template(VectorIntervals)      std::vector< Interval >; 
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
 %include gstlearn_export.hpp
+%include Basic/ICloneable.hpp
 %include Basic/Vector.hpp
 %include csparse_d.h
 %include csparse_f.h
@@ -111,9 +94,15 @@ class IClonable{};
 %include Space/SpacePoint.hpp
 %include Space/SpaceRN.hpp
 %include Space/SpaceShape.hpp
+
+%include Skin/ISkinFunctions.hpp
+%include Skin/Skin.hpp
+
+%include Calculators/ACalculator.hpp
+%include Calculators/ACalcInterpolator.hpp
+
 /*
 %include Interfaces/geoslib_f_swig.h
-%include Interfaces/ACalculator.hpp
 %include Interfaces/AParam.hpp
 %include Interfaces/AVariable.hpp
 %include Interfaces/AVariableTemplate.hpp
@@ -208,7 +197,6 @@ class IClonable{};
 %include Covariances/CovGCspline.hpp
 %include Covariances/CovLinear.hpp
 %include Covariances/CovNugget.hpp
-%include Covariances/CovP8.hpp
 %include Covariances/CovPenta.hpp
 %include Covariances/CovPower.hpp
 %include Covariances/CovReg1D.hpp
@@ -217,6 +205,7 @@ class IClonable{};
 %include Covariances/CovStable.hpp
 %include Covariances/CovStorkey.hpp
 %include Covariances/CovTriangle.hpp
+%include Covariances/CovWendland0.hpp
 %include Covariances/CovWendland1.hpp
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
@@ -290,6 +279,8 @@ class IClonable{};
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
+%include Stats/EStatOption.hpp
+%include Stats/ESelectivity.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp
@@ -297,6 +288,7 @@ class IClonable{};
 %include LithoRule/ERule.hpp
 
 %include Estimation/KrigingSystem.hpp
+%include Estimation/CalcKriging.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp
@@ -310,23 +302,23 @@ class IClonable{};
 %include OutputFormat/GridXYZ.hpp
 %include OutputFormat/GridZycor.hpp
 
-%include Simulation/ASimulation.hpp
-%include Simulation/SimuTurningBands.hpp
+%include Simulation/ACalcSimulation.hpp
+%include Simulation/CalcSimuTurningBands.hpp
 %include Simulation/TurningDirection.hpp
 %include Simulation/BooleanObject.hpp
 %include Simulation/SimuBoolean.hpp
 %include Simulation/SimuBooleanParam.hpp
 %include Simulation/SimuSpherical.hpp
 %include Simulation/SimuSphericalParam.hpp
-%include Simulation/SimuSubstitution.hpp
+%include Simulation/CalcSimuSubstitution.hpp
 %include Simulation/SimuSubstitutionParam.hpp
-%include Simulation/SimuPartition.hpp
+%include Simulation/CalcSimuPartition.hpp
 %include Simulation/SimuPartitionParam.hpp
 %include Simulation/SimuFFTParam.hpp
 %include Simulation/SimuFFT.hpp
 %include Simulation/SimuRefineParam.hpp
 %include Simulation/SimuRefine.hpp
-%include Simulation/SimuEden.hpp
+%include Simulation/CalcSimuEden.hpp
 
 %include Fractures/FracEnviron.hpp
 %include Fractures/FracFamily.hpp
@@ -334,10 +326,9 @@ class IClonable{};
 %include Fractures/FracDesc.hpp
 %include Fractures/FracList.hpp
 
-%include Skin/ISkinFuntions.hpp
 %include Skin/Skin.hpp
 
-%include segy.h
+//%include segy.h
 
 /*
 // Definition of AVariableTemplate for useful type

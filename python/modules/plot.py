@@ -274,15 +274,6 @@ def varioDir(vario, ivar=0, jvar=0,
     ndirUtil, ivarD = selectItems(ndir)
     cols = get_cmap(vario.getDirectionNumber(),cmap)
     
-    # xlim = [0,hmax]
-    # gmin = 0
-    # if ivar != jvar:
-    #     gmin = -gmax
-    # ylim = [gmin,gmax]
-        
-    # if ax is None:
-    #     fig, ax = newFigure(figsize, xlim, ylim)
-    # update_xylim(ax, xlim, ylim)
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
     
@@ -352,8 +343,6 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     if gmax is None:
         gmax = vario.getGmax(ivar, jvar, idir)
 
-    # xlim = [0, hmax]
-    # ylim = [0, gmax]
     ylimnodiag = [-gmax, gmax]
         
     ndir = vario.getDirectionNumber()
@@ -402,12 +391,12 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                           hmax=hmax, gmax=None, nh=nh,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
-    ax.autoscale(True)
-    
-    if vario.drawOnlyPositiveX(ivar, jvar):
-        ax.set_xlim(left=0)
-    if vario.drawOnlyPositiveY(ivar, jvar):
-        ax.set_ylim(bottom=0)
+            ax.autoscale(True)
+            
+            if vario.drawOnlyPositiveX(iv, jv):
+                ax.set_xlim(left=0)
+            if vario.drawOnlyPositiveY(iv, jv):
+                ax.set_ylim(bottom=0)
     
     if title is not None:
         plt.suptitle(title)
@@ -528,11 +517,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     
     drawDecor(ax, xlabel, ylabel, title)
     
-    ax.autoscale(True)
-#    if vario.drawOnlyPositiveX(ivar, jvar):
-#        ax.set_xlim(left=0)
-#    if vario.drawOnlyPositiveY(ivar, jvar):
-#        ax.set_ylim(bottom=0)
+    #ax.autoscale(True)
     
     if flagLegend:
         ax.legend()
@@ -547,7 +532,7 @@ def point(db,
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
-          title=None, ax=None, figsize = None, end_plot =False, **scatter_args):
+          title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
@@ -564,6 +549,8 @@ def point(db,
     cmap: Optional Color scale
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
+            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
@@ -574,9 +561,6 @@ def point(db,
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
-    else:
-        ax.set_xlim(xlim)
-        ax.set_ylim(ylim)
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
@@ -605,8 +589,9 @@ def point(db,
         sizval = size
 
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap, **scatter_args)
+
     ax.set_aspect(aspect)
-    
+        
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
     
@@ -622,6 +607,7 @@ def point(db,
         plt.show()
 
     return ax
+
 
 def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
@@ -673,6 +659,9 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' fits the data to the figure size,
+            or a float giving the ratio height/width of a 1 unit square of data. 'equal' (default) is 
+            same as aspect=1 and makes x and y axis with the same scale
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     title: Title given to the plot
@@ -734,7 +723,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
-    if flagColorBar:# and alpha > 0:
+    if flagColorBar:
         addColorbar(im, ax)
     
     if title is not None:
@@ -747,71 +736,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     return ax
 
-def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
-         xlim=None, ylim=None, norm=None,
-         title = None, axs=None, figsize = None, end_plot=False, **plot_args):
-    '''
-    Function for plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
-
-    dbgrid: Db, organized as a Grid, containing the variable to be plotted
-    names: Name of the variables to be represented (by default all the Z locators, or the last field)
-    usesel : Boolean to indicate if the selection has to be considered
-    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    norm: Optional norm. It can be either an instance of matplotlib.colors.Normalize when using a unique norm for 
-          all variables (e.g. matplotlib.colors.LogNorm()), or a class of matplotlib.colors.Normalize when using 
-          a type of normalization scaled independently for each variable (e.g. matplotlib.colors.LogNorm). 
-    xlim: Bounds defined along the first axis
-    ylim: Bounds defined along the second axis
-    title: Title given to the figure (each subplot is titled with the name of the variable represented)
-    axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
-    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
-    end_plot: Flag for closing the graphics
-    
-    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
-    '''
-    
-    if names is None:
-        names = dbgrid.getNamesByLocator(gl.ELoc.Z) # all Z locators
-        if names == () : # if no Z locator, choose the last field
-            names = dbgrid.getLastName()
-    else:
-        names = dbgrid.getNames(names)
-    names = np.atleast_1d(names)
-    
-    Nplots = len(names)
-    if Nplots == 1:
-        ax = grid(dbgrid, name=names[0], usesel=usesel, flagColorBar=flagColorBar, xlim=xlim, ylim=ylim, 
-                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
-        return ax
-    elif Nplots == 0:
-        print("There is no variable in the dbgrid corresponding to the name given.")
-        return None
-    
-    if axs is None:
-        nlines, ncols = shape_Nsubplots(Nplots)
-        fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
-    
-    if title is not None:
-        fig.suptitle(title)
-    
-    for i,ax in enumerate(axs.flat):
-        if i >= Nplots:
-            ax.set_visible(False)
-            continue;
-        
-        norm_i = None
-        if norm is not None:
-            if isinstance(norm, type): #independent norms for each subplot
-                norm_i = norm()
-            else: # a unique norm for all subplots
-                norm_i = norm
-            
-        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
-                 xlim=xlim, ylim=ylim, norm=norm_i, **plot_args)
-    if end_plot:
-        plt.show()
-        
-    return axs
 
 def hist_tab(val, xlab=None, ylab=None, 
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
@@ -884,7 +808,7 @@ def curve(data, icas=1, color='black',
     return ax
 
 def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, 
-       title=None, ax=None, figsize = None, end_plot=False, **plot_args):
+       title=None, ax=None, figsize = None, label='model', end_plot=False, **plot_args):
     """Plot Y against X.
     **plot_args : arguments passed to matplotlib.pyplot.plot"""
     
@@ -902,7 +826,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None,
         plot_args.setdefault('marker', 'o')
         ax.plot(xtab, ytab, **plot_args)
     else:
-        plot_args.setdefault('label', 'model')
+        plot_args.setdefault('label', label)
         #plot_args.setdefault('fmt', 'g-') # TODO : to be restored ? (doesn't work with python 3.9.2 / mpl 3.5.1)
         ax.plot(xtab, ytab, **plot_args)
     
@@ -978,10 +902,6 @@ def mesh(mesh,
     """
     
     if ax is None:
-        if xlim is not None:
-            plt.xlim(mesh.getExtrema(0))
-        if ylim is not None:
-            plt.ylim(mesh.getExtrema(1))
         fig, ax = newFigure(figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()
@@ -1043,7 +963,7 @@ def anam(anam, xlim=None, ylim=None,
     
     res = anam.sample()
     ax = XY(res.getY(), res.getZ(),
-            xlim=res.getAylim(), ylim=res.getAzlim(),title=title)
+            xlim=res.getAylim(), ylim=res.getAzlim(),label='Anamorphosis',title=title)
     
     if end_plot:
         plt.show()
@@ -1122,6 +1042,208 @@ def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
         
     else:
         print("Unknown type")
+
+
+### Plot several variables at once
+
+def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
+         xlim=None, ylim=None, norm=None,
+         title = None, axs=None, figsize = None, end_plot=False, **plot_args):
+    '''
+    Function for plotting several variables (referred by their names) informed in a grid Db in subplots (Nsubplots=Nvariables)
+
+    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    names: Name of the variables to be represented (by default all the Z locators, or the last field)
+    usesel : Boolean to indicate if the selection has to be considered
+    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' fits the data to the figure size,
+            or a float giving the ratio height/width of a 1 unit square of data. 'equal' (default) is 
+            same as aspect=1 and makes x and y axis with the same scale
+    norm: Optional norm. It can be either an instance of matplotlib.colors.Normalize when using a unique norm for 
+          all variables (e.g. matplotlib.colors.LogNorm()), or a class of matplotlib.colors.Normalize when using 
+          a type of normalization scaled independently for each variable (e.g. matplotlib.colors.LogNorm). 
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    title: Title given to the figure (each subplot is titled with the name of the variable represented)
+    axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
+    '''
+    
+    if names is None:
+        names = dbgrid.getNamesByLocator(gl.ELoc.Z) # all Z locators
+        if names == () : # if no Z locator, choose the last field
+            names = dbgrid.getLastName()
+    else:
+        names = dbgrid.getNames(names)
+    names = np.atleast_1d(names)
+    
+    Nplots = len(names)
+    if Nplots == 1:
+        ax = grid(dbgrid, name=names[0], usesel=usesel, flagColorBar=flagColorBar, aspect=aspect, xlim=xlim, ylim=ylim, 
+                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
+        return ax
+    elif Nplots == 0:
+        print("There is no variable in the dbgrid corresponding to the name given.")
+        return None
+    
+    if axs is None:
+        nlines, ncols = shape_Nsubplots(Nplots)
+        fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+    
+    if title is not None:
+        fig.suptitle(title)
+    
+    for i,ax in enumerate(axs.flat):
+        if i >= Nplots:
+            ax.set_visible(False)
+            continue;
+        
+        norm_i = None
+        if norm is not None:
+            if isinstance(norm, type): #independent norms for each subplot
+                norm_i = norm()
+            else: # a unique norm for all subplots
+                norm_i = norm
+            
+        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
+                 xlim=xlim, ylim=ylim, norm=norm_i, **plot_args)
+    if end_plot:
+        plt.show()
+        
+    return axs
+
+def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto',
+         xlim=None, ylim=None, size=20, cmap=None,
+         title = None, axs=None, figsize = None, end_plot=False, **plot_args):
+    '''
+    Function for plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables).
+    Variables are represented with color plots, i.e. each data point is represented with a color corresponding to the data value.
+
+    db: Db containing the variable to be plotted
+    names: Name of the variables to be represented (by default all the Z locators, or the last field)
+    usesel : Boolean to indicate if the selection has to be considered
+    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
+            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    size: Size of the data points (default 20)
+    cmap: Optional color scale
+    title: Title given to the figure (each subplot is titled with the name of the variable represented)
+    axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
+    '''
+    
+    if names is None:
+        names = db.getNamesByLocator(gl.ELoc.Z) # all Z locators
+        if names == () : # if no Z locator, choose the last field
+            names = db.getLastName()
+    else:
+        names = db.getNames(names)
+    names = np.atleast_1d(names)
+    
+    Nplots = len(names)
+    if Nplots == 1:
+        axs = point(db, color_name=names[0], usesel=usesel, flagColorBar=flagColorBar, xlim=xlim, ylim=ylim, 
+                   size=size, cmap=cmap, aspect=aspect,
+                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
+
+    elif Nplots == 0:
+        print("There is no variable in the dbgrid corresponding to the name given.")
+        axs = None
+    
+    else:
+        if axs is None:
+            nlines, ncols = shape_Nsubplots(Nplots)
+            fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+        
+        if title is not None:
+            fig.suptitle(title)
+        
+        for i,ax in enumerate(axs.flat):
+            if i >= Nplots:
+                ax.set_visible(False)
+                continue;
+            
+            point(db, color_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
+                     cmap=cmap, size=size, xlim=xlim, ylim=ylim, title=names[i], **plot_args)
+            
+        if end_plot:
+            plt.show()
+        
+    return axs
+
+def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto',
+               xlim=None, ylim=None, color='r', sizmin=20, sizmax=200,
+               title = None, axs=None, figsize = None, end_plot=False, **plot_args):
+    '''
+    Function for plotting several variables (referred by their names) informed in a Db in subplots (Nsubplots=Nvariables)
+    Variables are represented with size plots, i.e. each data point is represented with a size corresponding to the data value.
+
+    db: Db containing the variable to be plotted
+    names: Name of the variables to be represented (by default all the Z locators, or the last field)
+    usesel : Boolean to indicate if the selection has to be considered
+    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
+            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    color: Color of data points
+    sizmin: Size corresponding to the smallest value
+    sizmax: Size corresponding to the largest value
+    title: Title given to the figure (each subplot is titled with the name of the variable represented)
+    axs: References for the subplots within the figure: list or array (1D or 2D) containing at least Nvar Axes.
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh for every grid plots
+    '''
+    
+    if names is None:
+        names = db.getNamesByLocator(gl.ELoc.Z) # all Z locators
+        if names == () : # if no Z locator, choose the last field
+            names = db.getLastName()
+    else:
+        names = db.getNames(names)
+    names = np.atleast_1d(names)
+    
+    Nplots = len(names)
+    if Nplots == 1:
+        axs = point(db, size_name=names[0], usesel=usesel, flagColorBar=flagColorBar, xlim=xlim, ylim=ylim, 
+                   sizmin=sizmin, sizmax=sizmax, color=color, aspect=aspect,
+                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
+
+    elif Nplots == 0:
+        print("There is no variable in the dbgrid corresponding to the name given.")
+        axs = None
+    
+    else:
+        if axs is None:
+            nlines, ncols = shape_Nsubplots(Nplots)
+            fig, axs = newFigure(figsize, xlim, ylim, nx=nlines, ny=ncols, sharex=True, sharey=True)
+        
+        if title is not None:
+            fig.suptitle(title)
+        
+        for i,ax in enumerate(axs.flat):
+            if i >= Nplots:
+                ax.set_visible(False)
+                continue;
+            
+            point(db, size_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
+                     sizmin=sizmin, sizmax=sizmax, color=color, xlim=xlim, ylim=ylim, title=names[i], **plot_args)
+            
+        if end_plot:
+            plt.show()
+        
+    return axs
+
 
 
 # Select data on interactive figures with matplotlib

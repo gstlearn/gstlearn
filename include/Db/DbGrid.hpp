@@ -24,7 +24,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Polygons;
 
@@ -40,12 +40,11 @@ public:
   virtual ~DbGrid();
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(DbGrid)
 
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new DbGrid(*this); };
 
   /// Db Interface
   inline bool isGrid() const override { return true; }
@@ -55,7 +54,7 @@ public:
   bool mayChangeSampleNumber() const override { return false; }
 
   static DbGrid* createFromNF(const String& neutralFilename,
-                              bool verbose = false);
+                              bool verbose = true);
   int reset(const VectorInt& nx,
             const VectorDouble& dx = VectorDouble(),
             const VectorDouble& x0 = VectorDouble(),
@@ -168,6 +167,11 @@ public:
                            int posy,
                            const VectorInt& corner,
                            bool useSel = false) const;
+  int assignGridColumn(const String& name,
+                       int idim,
+                       int rank,
+                       double value,
+                       bool useSel = false);
 
 protected:
   /// Interface for ASerializable

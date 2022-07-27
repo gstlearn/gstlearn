@@ -8,31 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Simulation/ASimulation.hpp"
+#pragma once
 
+#include "Enum/AEnum.hpp"
 
-ASimulation::ASimulation(int nbsimu, int seed)
-    : _nbsimu(nbsimu),
-      _seed(seed)
-{
-}
+#define ENUM_SELECTIVITY ESelectivity, UNKNOWN, \
+                 UNKNOWN, -1, "Unknown Option", \
+                 Z,        0, "Grade", \
+                 T,        1, "Tonnage", \
+                 Q,        2, "Metal quantity", \
+                 B,        3, "Conventional Benefit", \
+                 M,        4, "Recovered mean", \
+                 PROBA,    5, "Probability to exceed Cutoff", \
+                 QUANT,    6, "Quantile"
 
-ASimulation::ASimulation(const ASimulation &r)
-  : _nbsimu(r._nbsimu),
-    _seed(r._seed)
-{
-}
+ENUM_DECLARE(ENUM_SELECTIVITY)
 
-ASimulation& ASimulation::operator=(const ASimulation &r)
-{
-  if (this != &r)
-  {
-    _nbsimu = r._nbsimu;
-    _seed = r._seed;
-  }
-  return *this;
-}
-
-ASimulation::~ASimulation()
-{
-}

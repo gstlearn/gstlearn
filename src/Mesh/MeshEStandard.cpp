@@ -1091,7 +1091,10 @@ int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
 
 bool MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim, napices, napexpermesh, nmeshes;
+  int ndim = 0;
+  int napices = 0;
+  int napexpermesh = 0;
+  int nmeshes = 0;
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);

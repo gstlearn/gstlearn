@@ -18,6 +18,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
+#include "Simulation/CalcSimuPartition.hpp"
 
 /****************************************************************************/
 /*!

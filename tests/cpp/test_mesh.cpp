@@ -102,8 +102,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   if (flag_grid)
   {
-    nx[0] = 1+ceil((extendmax[0] - extendmin[0] - cellsize[0]/2.)/cellsize[0]);
-    nx[1] = 1+ceil((extendmax[1] - extendmin[1] - cellsize[1]/2.)/cellsize[1]);
+    nx[0] = 1+(int) ceil((extendmax[0] - extendmin[0] - cellsize[0]/2.)/cellsize[0]);
+    nx[1] = 1+(int) ceil((extendmax[1] - extendmin[1] - cellsize[1]/2.)/cellsize[1]);
     dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
   }
 
@@ -117,9 +117,9 @@ int main(int /*argc*/, char */*argv*/[])
                                         apices,meshes,verbose);
   if (mesh == nullptr) return(1);
   mesh->display();
-  (void) mesh->dumpToNF("Standard.ascii",verbose);
+  (void) mesh->dumpToNF("Standard.ascii");
 
-  AMesh* meshb;
+  AMesh* meshb = nullptr;
   if (flag_mesh)
   {
     mesh->getElements(apices,meshes);
@@ -129,7 +129,7 @@ int main(int /*argc*/, char */*argv*/[])
                                     apices, meshes, verbose);
     if (meshb == nullptr) return(1);
     meshb->display();
-    (void) meshb->dumpToNF("Standard.bis.ascii",verbose);
+    (void) meshb->dumpToNF("Standard.bis.ascii");
   }
 
   /* Instantiate the ShiftOp */

@@ -668,12 +668,12 @@ int MeshETurbo::initFromCova(const CovAniso& cova,
 
 bool MeshETurbo::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int ndim;
+  int ndim = 0;
   VectorInt nx;
   VectorDouble dx;
   VectorDouble x0;
   VectorDouble rotmat;
-  int flag_polarized;
+  int flag_polarized = 0;
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);

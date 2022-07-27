@@ -34,7 +34,7 @@ ACovAnisoList::ACovAnisoList(const ACovAnisoList &r)
 {
   for (auto e: r._covs)
   {
-    _covs.push_back(dynamic_cast<CovAniso*>(e->clone()));
+    _covs.push_back(e->clone());
   }
 }
 
@@ -45,7 +45,7 @@ ACovAnisoList& ACovAnisoList::operator=(const ACovAnisoList &r)
     ACov::operator=(r);
     for (auto e: r._covs)
     {
-      _covs.push_back(dynamic_cast<CovAniso*>(e->clone()));
+      _covs.push_back(e->clone());
     }
     _filtered = r._filtered;
   }
@@ -79,7 +79,7 @@ void ACovAnisoList::addCov(const CovAniso* cov)
       return;
     }
   }
-  _covs.push_back(dynamic_cast<CovAniso*>(cov->clone()));
+  _covs.push_back(cov->clone());
   _filtered.push_back(false);
 }
 
@@ -360,8 +360,8 @@ double ACovAnisoList::getMaximumDistance() const
 }
 
 double ACovAnisoList::_getNormalizationFactor(int ivar,
-                                       int jvar,
-                                       const CovCalcMode& mode) const
+                                              int jvar,
+                                              const CovCalcMode& mode) const
 {
   double c00 = eval0(ivar, ivar, mode);
   if (c00 < 0 || FFFF(c00))
@@ -389,3 +389,22 @@ void ACovAnisoList::setAllFiltered(bool status)
   for (int i = 0; i < number; i++)
     _filtered[i] = status;
 }
+
+void ACovAnisoList::normalize(double sill)
+{
+  double cov = 0.;
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  {
+    cov += _covs[i]->eval0(0, 0);
+  }
+
+  if (cov <= 0. || cov == sill) return;
+  double ratio = sill / cov;
+
+  for (unsigned int i=0, n=getCovNumber(); i<n; i++)
+  {
+    CovAniso* cov = _covs[i];
+    cov->setSill(cov->getSill(0, 0) * ratio);
+  }
+}
+

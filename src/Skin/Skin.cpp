@@ -130,7 +130,6 @@ int Skin::_gridShift(const VectorInt& indg0, int dir)
  **
  ** \return  The absolute sample address
  **
- ** \param[in]  skin  Skin2 structure
  ** \param[in]  lec   Absolute grid index of the input grid node
  ** \param[in]  dir   Rank of the direction
  **
@@ -280,7 +279,7 @@ int Skin::init(bool verbose)
       /* The cell is eligible */
 
       nb_count++;
-      int local = 0.;
+      int local = 0;
       _dbgrid->rankToIndice(lec, indg);
       for (int dir = 0; dir < ndir[_ndim]; dir++)
       {
@@ -343,7 +342,7 @@ int Skin::remains(bool verbose)
  ** \param[out] ipos     Cell location
  **
  *****************************************************************************/
-void Skin::next(int *rank, int *ipos)
+void Skin::getNext(int *rank, int *ipos)
 {
   /* Draw a random cell */
 
@@ -390,7 +389,7 @@ int Skin::unstack(int rank0, int ipos0)
 
   /* Update the neighboring cells */
 
-  int local = 0.;
+  int local = 0;
   _dbgrid->rankToIndice(ipos0, indg);
   for (int dir = 0; dir < ndir[_ndim]; dir++)
   {
@@ -422,8 +421,6 @@ int Skin::unstack(int rank0, int ipos0)
 /*****************************************************************************/
 /*!
  **  Print the computing information concerning the skin algorithm
- **
- ** \param[in] skin    Skin structure
  **
  *****************************************************************************/
 void Skin::skinPrint()

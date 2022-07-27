@@ -198,7 +198,7 @@ PolySet Polygons::_extractFromTab(int ideb,
 
 bool Polygons::_deserialize(std::istream& is, bool verbose)
 {
-  int npol;
+  int npol = 0;
 
   // Clear previous contents
 
@@ -215,7 +215,10 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
   {
     PolySet polyset;
     ret = ret && polyset._deserialize(is, verbose);
-    if (ret) addPolySet(polyset);
+    if (ret)
+      addPolySet(polyset);
+    else
+      messerr("Error when reading Polyset #%d",ipol+1);
   }
   return ret;
 }

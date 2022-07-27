@@ -57,6 +57,11 @@
 ifndef USE_HDF5
   USE_HDF5 = 1
 endif
+ifeq ($(USE_HDF5), 1)
+  USE_HDF5 = ON
+ else
+  USE_HDF5 = OFF 
+endif
 
 ifeq ($(OS),Windows_NT)
   GENERATOR = -G"MSYS Makefiles"

@@ -23,6 +23,8 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+#include "Estimation/CalcKriging.hpp"
 
 /****************************************************************************
 **
@@ -208,8 +210,7 @@ int main(int argc, char *argv[])
         
         /* Cross-validation */
 
-        if (xvalid(dbin,new_model,neighparam,
-                   0,1,1,0)) messageAbort("xvalid");
+        if (xvalid(dbin,new_model,neighparam,0,1,0)) messageAbort("xvalid");
         db_print(dbin,1,0,1,1,1);
       }
       else

@@ -27,7 +27,7 @@ FracDesc::FracDesc(const FracDesc& r)
     : AStringable(r),
       _family(r._family),
       _orient(r._orient),
-      _x(r._y),
+      _x(r._x),
       _y(r._y)
 {
 }
@@ -39,7 +39,7 @@ FracDesc& FracDesc::operator=(const FracDesc& r)
     AStringable::operator=(r);
     _family = r._family;
     _orient = r._orient;
-    _x = r._y;
+    _x = r._x;
     _y = r._y;
   }
   return *this;
@@ -49,17 +49,22 @@ FracDesc::~FracDesc()
 {
 }
 
-String FracDesc::toString(const AStringFormat* /*strfmt*/) const
+String FracDesc::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
   if (getNPoint() <= 0) return sstr.str();
 
-  sstr << "Fracture: family=" << _family << ":" <<
-      getNPoint()-1 << " segment(s) - start at level #" << getYYF(0) << std::endl;
-  sstr << "     X           Y" << std::endl;
-  for (int j = 0; j < getNPoint(); j++)
-     sstr << " " << getXXF(j) << " " << getYYF(j) << std::endl;
+  sstr << "Fracture: family=" << _family+1 << " : " <<
+      getNPoint()-1 << " segment(s) starting at level #" << getYYF(0) << std::endl;
 
+  AStringFormat sf;
+  if (strfmt != nullptr) sf = *strfmt;
+  if (sf.getLevel() > 1)
+  {
+    sstr << "     X           Y" << std::endl;
+    for (int j = 0; j < getNPoint(); j++)
+      sstr << " " << getXXF(j) << " " << getYYF(j) << std::endl;
+  }
   return sstr.str();
 }
 

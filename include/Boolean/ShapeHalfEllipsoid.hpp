@@ -31,8 +31,8 @@ public:
   ShapeHalfEllipsoid& operator=(const ShapeHalfEllipsoid &r);
   virtual ~ShapeHalfEllipsoid();
 
-  /// Interface for Iclonable
-  virtual IClonable* clone() const override { return new ShapeHalfEllipsoid(*this); };
+  /// Interface for ICloneable
+  IMPLEMENT_CLONING(ShapeHalfEllipsoid)
 
   ETShape getType() const override { return ETShape::HALFELLIPSOID; }
   int  getNParams() const override { return 4; }

@@ -4,8 +4,6 @@
 %module(directors="1") gstlearn
 %feature(director) AFunction;
 
-
-
 %include stl.i
 %include std_complex.i
 
@@ -22,6 +20,11 @@
 #pragma SWIG nowarn=506
 
 /// TODO, include numpy.i ?
+//%include numpy.i
+//%{
+//#define SWIG_FILE_WITH_INIT
+// This is for numpy.i. To be moved in python swig.
+//%}
 
 %{
 #include <algorithm>
@@ -141,6 +144,9 @@ void exit_f(void)
 %extend Table {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Selectivity {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class
@@ -258,10 +264,10 @@ def getitem(self,arg):
     db["var"] or db[:,"var"] extracts the variable named "var"
     db[5:10,(2,3)] extracts the rows 5 to 9 of the variables of index 2 and 3 (array of shape (5,2))
     db[gl.ELoc.Z] extracts all the variables located with Z.
-    """    
+    """
     nrows = getNrows(self)
         
-    selec_rows = has_row_selection(self, arg)   
+    selec_rows = has_row_selection(self, arg)
     if selec_rows:
         rows = arg[0]
         columns = arg[1]
@@ -272,7 +278,7 @@ def getitem(self,arg):
     # extract columns
     ColNames = findColumnNames(self, columns)
     nbvar = len(ColNames)
-    temp = np.array(self.getColumns(ColNames, self.useSel))        
+    temp = np.array(self.getColumns(ColNames, self.useSel))
     temp = temp.reshape([nbvar,nrows]).T
             
     # extract rows
@@ -369,6 +375,8 @@ import gstlearn.plot as gp
 setattr(gl.Db,"plot", gp.point)
 setattr(gl.Db,"plot_correlation", gp.correlation)
 setattr(gl.Db,"plot_hist", gp.hist)
+setattr(gl.Db,"color_plots", gp.color_plots)
+setattr(gl.Db,"size_plots", gp.size_plots)
 
 setattr(gl.DbGrid,"plot", gp.grid)
 setattr(gl.DbGrid,"plot_grids", gp.grids)

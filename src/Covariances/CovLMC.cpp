@@ -21,6 +21,11 @@ CovLMC::CovLMC(const ASpace* space)
 {
 }
 
+CovLMC::CovLMC(const ACovAnisoList &r)
+    : ACovAnisoList(r)
+{
+}
+
 CovLMC::CovLMC(const CovLMC &r)
     : ACovAnisoList(r)
 {

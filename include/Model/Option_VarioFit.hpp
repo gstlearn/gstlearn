@@ -17,19 +17,6 @@
 
 class GSTLEARN_EXPORT Option_VarioFit : public AStringable
 {
-private:
-  int _flag_noreduce; /* Forbid discarding useless basic structures */
-  int _flag_check_bounds; /* Do not infer parameter when bounds are equal */
-  int _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
-  /* This is switch OFF when ANAM properties are defined */
-  int _auth_aniso; /* Authorize the anisotropy */
-  int _auth_rotation; /* Authorize the rotation of the anisotropy */
-  int _lock_samerot; /* Lock the anisotropy rotation for all str */
-  int _lock_rot2d; /* Lock the anisotropy rotation around Z only */
-  int _lock_no3d; /* Lock the parameters in 2-D */
-  int _lock_iso2d; /* Lock isotropy for 2-D */
-  int _keep_intstr; /* Keep at least one intrinsic structure */
-
  public:
   Option_VarioFit();
   Option_VarioFit(const Option_VarioFit &m);
@@ -37,24 +24,37 @@ private:
   virtual ~Option_VarioFit();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  int getAuthAniso() const { return _auth_aniso; }
-  void setAuthAniso(int authAniso) { _auth_aniso = authAniso; }
-  int getAuthRotation() const { return _auth_rotation; }
-  void setAuthRotation(int authRotation) { _auth_rotation = authRotation; }
-  int getFlagCheckBounds() const { return _flag_check_bounds; }
-  void setFlagCheckBounds(int flagCheckBounds) { _flag_check_bounds = flagCheckBounds; }
-  int getFlagGoulardUsed() const { return _flag_goulard_used; }
-  void setFlagGoulardUsed(int flagGoulardUsed) { _flag_goulard_used = flagGoulardUsed; }
-  int getFlagNoreduce() const { return _flag_noreduce; }
-  void setFlagNoreduce(int flagNoreduce) { _flag_noreduce = flagNoreduce; }
-  int getKeepIntstr() const { return _keep_intstr; }
-  void setKeepIntstr(int keepIntstr) { _keep_intstr = keepIntstr; }
-  int getLockIso2d() const { return _lock_iso2d; }
-  void setLockIso2d(int lockIso2d) { _lock_iso2d = lockIso2d; }
-  int getLockNo3d() const { return _lock_no3d; }
-  void setLockNo3d(int lockNo3d) { _lock_no3d = lockNo3d; }
-  int getLockRot2d() const { return _lock_rot2d; }
-  void setLockRot2d(int lockRot2d) { _lock_rot2d = lockRot2d; }
-  int getLockSamerot() const { return _lock_samerot; }
-  void setLockSamerot(int lockSamerot) { _lock_samerot = lockSamerot; }
+  bool getAuthAniso() const { return _auth_aniso; }
+  void setAuthAniso(bool authAniso) { _auth_aniso = authAniso; }
+  bool getAuthRotation() const { return _auth_rotation; }
+  void setAuthRotation(bool authRotation) { _auth_rotation = authRotation; }
+  bool getFlagCheckBounds() const { return _flag_check_bounds; }
+  void setFlagCheckBounds(bool flagCheckBounds) { _flag_check_bounds = flagCheckBounds; }
+  bool getFlagGoulardUsed() const { return _flag_goulard_used; }
+  void setFlagGoulardUsed(bool flagGoulardUsed) { _flag_goulard_used = flagGoulardUsed; }
+  bool getFlagNoreduce() const { return _flag_noreduce; }
+  void setFlagNoreduce(bool flagNoreduce) { _flag_noreduce = flagNoreduce; }
+  bool getKeepIntstr() const { return _keep_intstr; }
+  void setKeepIntstr(bool keepIntstr) { _keep_intstr = keepIntstr; }
+  bool getLockIso2d() const { return _lock_iso2d; }
+  void setLockIso2d(bool lockIso2d) { _lock_iso2d = lockIso2d; }
+  bool getLockNo3d() const { return _lock_no3d; }
+  void setLockNo3d(bool lockNo3d) { _lock_no3d = lockNo3d; }
+  bool getLockRot2d() const { return _lock_rot2d; }
+  void setLockRot2d(bool lockRot2d) { _lock_rot2d = lockRot2d; }
+  bool getLockSamerot() const { return _lock_samerot; }
+  void setLockSamerot(bool lockSamerot) { _lock_samerot = lockSamerot; }
+
+ private:
+   bool _flag_noreduce; /* Forbid discarding useless basic structures */
+   bool _flag_check_bounds; /* Do not infer parameter when bounds are equal */
+   bool _flag_goulard_used; /* 1 if Goulard must be used (for sills) */
+   /* This is switch OFF when ANAM properties are defined */
+   bool _auth_aniso; /* Authorize the anisotropy */
+   bool _auth_rotation; /* Authorize the rotation of the anisotropy */
+   bool _lock_samerot; /* Lock the anisotropy rotation for all str */
+   bool _lock_rot2d; /* Lock the anisotropy rotation around Z only */
+   bool _lock_no3d; /* Lock the parameters in 2-D */
+   bool _lock_iso2d; /* Lock isotropy for 2-D */
+   bool _keep_intstr; /* Keep at least one intrinsic structure */
 };

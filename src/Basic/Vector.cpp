@@ -196,7 +196,7 @@ int ut_ivector_max(const VectorInt &vec)
 int ut_ivector_min(const VectorInt &vec)
 {
   if (vec.size() <= 0) return 0;
-  double min = 10000000;
+  int min = 10000000;
   for (auto v : vec)
   {
     if (v < min) min = v;
@@ -490,7 +490,7 @@ void ut_vector_simulate_gaussian_inplace(VectorDouble& vect,
                                          double mean,
                                          double sigma)
 {
-  int n = vect.size();
+  int n = (int) vect.size();
   for (int i = 0; i < n; i++)
     vect[i] = mean + sigma * law_gaussian();
 

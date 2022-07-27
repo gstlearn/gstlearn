@@ -13,7 +13,7 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Basic/Law.hpp"
@@ -24,7 +24,7 @@
 #define U(ix,iy,iz)   (_u[IND(ix,iy,iz)])
 
 SimuFFT::SimuFFT(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
+    : ACalcSimulation(nbsimu, seed),
       _ndim(0),
       _nxyz(0),
       _nx(),
@@ -37,42 +37,6 @@ SimuFFT::SimuFFT(int nbsimu, int seed)
       _u(),
       _v()
 {
-}
-
-SimuFFT::SimuFFT(const SimuFFT &r)
-    : ASimulation(r),
-      _ndim(r._ndim),
-      _nxyz(r._nxyz),
-      _nx(r._nx),
-      _shift(r._shift),
-      _dims(r._dims),
-      _dim2(r._dim2),
-      _sizes_alloc(r._sizes_alloc),
-      _cmat(r._cmat),
-      _rnd(r._rnd),
-      _u(r._u),
-      _v(r._v)
-{
-}
-
-SimuFFT& SimuFFT::operator=(const SimuFFT &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    _ndim = r._ndim;
-    _nxyz = r._nxyz;
-    _nx = r._nx;
-    _shift = r._shift;
-    _dims = r._dims;
-    _dim2 = r._dim2;
-    _sizes_alloc = r._sizes_alloc;
-    _cmat = r._cmat;
-    _rnd = r._rnd;
-    _u = r._u;
-    _v = r._v;
-  }
-  return *this;
 }
 
 SimuFFT::~SimuFFT()
@@ -1267,3 +1231,7 @@ bool SimuFFT::_isValid(Db *db, Model *model)
   return true;
 }
 
+bool SimuFFT::_run()
+{
+  return true;
+}

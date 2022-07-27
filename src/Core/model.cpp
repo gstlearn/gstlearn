@@ -1993,29 +1993,22 @@ int model_get_nonugget_cova(Model *model)
  **
  ** \param[in]  model     Model structure
  ** \param[in]  vario     Vario structure
- ** \param[in]  db        Db discretization grid structure
+ ** \param[in]  dbgrid    Db discretization grid structure
  **
  *****************************************************************************/
-int model_regularize(Model *model,
-                     Vario *vario,
-                     Db *db,
-                     int /*opt_norm*/,
-                     double /*nug_ratio*/)
+int model_regularize(Model  *model,
+                     Vario  *vario,
+                     DbGrid *dbgrid)
 {
   CovCalcMode mode;
   if (st_check_model(model)) return 1;
-  if (st_check_environ(model, db)) return 1;
+  if (st_check_environ(model, dbgrid)) return 1;
   int ndim = model->getDimensionNumber();
   int nvar = model->getVariableNumber();
 
   /* Preliminary checks */
 
-  if (!is_grid(db))
-  {
-    messerr("This calculation facility is dedicated to grid architecture");
-    return 1;
-  }
-  int nech = db->getSampleNumber();
+  int nech = dbgrid->getSampleNumber();
   int norme = nech * nech;
   vario->setNVar(nvar);
   vario->internalVariableResize();
@@ -2034,7 +2027,7 @@ int model_regularize(Model *model,
     for (int jech = 0; jech < nech; jech++)
     {
       for (int idim = 0; idim < ndim; idim++)
-        dd[idim] = db->getDistance1D(iech, jech, idim);
+        dd[idim] = dbgrid->getDistance1D(iech, jech, idim);
       model_calcul_cov(NULL,model, mode, 0, 1, dd, c00tab.data());
     }
   st_covtab_rescale(nvar, norme, c00tab.data());
@@ -2062,8 +2055,8 @@ int model_regularize(Model *model,
         {
           for (int idim = 0; idim < ndim; idim++)
           {
-            double v1 = db->getCoordinate(iech, idim);
-            double v2 = db->getCoordinate(jech, idim)
+            double v1 = dbgrid->getCoordinate(iech, idim);
+            double v2 = dbgrid->getCoordinate(jech, idim)
                 + dist * vario->getCodir(idir, idim);
             dd[idim] = v1 - v2;
           }
@@ -2075,7 +2068,7 @@ int model_regularize(Model *model,
         for (int jvar = 0; jvar <= ivar; jvar++)
         {
           int iad = vario->getDirAddress(idir, ivar, jvar, ipas, false, 0);
-          vario->setGgByIndex(idir, iad, C00TAB(ivar,jvar)- COVTAB(ivar,jvar));
+          vario->setGgByIndex(idir, iad, C00TAB(ivar,jvar) - COVTAB(ivar,jvar));
           vario->setHhByIndex(idir, iad, dist);
           vario->setSwByIndex(idir, iad, 1);
         }

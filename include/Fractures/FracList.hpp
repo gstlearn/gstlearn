@@ -12,17 +12,18 @@
 
 #include "gstlearn_export.hpp"
 
-#include "FracDesc.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+
+#include "Fractures/FracDesc.hpp"
+#include "Fractures/FracEnviron.hpp"
 
 #define NPART 5
 #define NBYFRAC 7
 #define NBYWOUT 8
 
-class FracEnviron;
 class DbGrid;
 
 class GSTLEARN_EXPORT FracList: public AStringable
@@ -37,32 +38,31 @@ public:
   FracList& operator=(const FracList& r);
   virtual ~FracList();
 
+  /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int getNFracs() const { return (int) _descs.size(); }
 
-  int simulate(const FracEnviron* environ,
+  int simulate(const FracEnviron& envir,
                bool flag_sim_layer,
                bool flag_sim_fract,
                int seed,
                bool verbose,
-               int nlayers_in,
-               const VectorDouble& elevations);
+               const VectorDouble& elevations = VectorDouble());
+  void addDescription(const FracDesc& description = FracDesc());
+
   MatrixRectangular fractureExport() const;
   MatrixRectangular layinfoExport() const { return _layinfo; };
   static FracList* fractureImport(const VectorDouble& frac_segs,
                                   const VectorDouble& layinfo = VectorDouble(),
                                   int nfamilies = 0);
-
-  FracDesc& getDescs(int i) { return _descs[i]; }
-  void addDescription(const FracDesc& description = FracDesc()) { _descs.push_back(description); }
-
   int fractureToBlock(DbGrid *dbgrid,
                       double xmax,
                       VectorDouble& permtab,
                       double perm_mat,
                       double perm_bench,
-                      int ndisc);
+                      int ndisc = 1000.,
+                      const NamingConvention& namconv = NamingConvention("Fractures"));
   VectorDouble fractureToWell(int nval,
                               const VectorDouble& well,
                               double xmax,
@@ -76,26 +76,28 @@ public:
                           double val_fluid,
                           const VectorDouble& wellout,
                           int nval,
-                          int ndisc,
-                          bool verbose);
+                          int ndisc = 1000.,
+                          bool verbose = false);
   VectorDouble fractureExtractLength(int ifam, double cote, double dcote);
   VectorDouble fractureExtractDist(int ifam, double cote, double dcote);
 
-private:
-  int getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
-  void setMemLayer(int i, double value)             { _layinfo.setValue(i,0,value); }
-  void setMemTheta1(int i, int ifam, double value)  { _layinfo.setValue(i,getRank(ifam,0),value); }
-  void setMemTheta2(int i, int ifam, double value)  { _layinfo.setValue(i,getRank(ifam,1),value); }
-  void setMemPropsur(int i, int ifam, double value) { _layinfo.setValue(i,getRank(ifam,2),value); }
-  void setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,getRank(ifam,3),value); }
-  void setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,getRank(ifam,4),value); }
-  double getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
+  // Pipe for Class Description
+  void setFamily(int i, int ifam) { _descs[i].setFamily(ifam); }
+  void setOrient(int i, double orient) { _descs[i].setOrient(orient); }
+  void addPoint(int i, double xx, double yy) { _descs[i].addPoint(xx,yy); }
 
-  VectorDouble _layersManage(const FracEnviron& environ, double *y0);
-  VectorDouble _layersRead(int nlayers_in,
-                           const VectorDouble& elevations,
-                           double *y0);
-  void _manage(int mode);
+private:
+  int _getRank(int ifam, int shift) const { return (1 + ifam * NPART + shift); }
+  void _setMemLayer(int i, double value)             { _layinfo.setValue(i,0,value); }
+  void _setMemTheta1(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,0),value); }
+  void _setMemTheta2(int i, int ifam, double value)  { _layinfo.setValue(i,_getRank(ifam,1),value); }
+  void _setMemPropsur(int i, int ifam, double value) { _layinfo.setValue(i,_getRank(ifam,2),value); }
+  void _setMemFrac(int i, int ifam, double value)    { _layinfo.setValue(i,_getRank(ifam,3),value); }
+  void _setMemTotal(int i, int ifam, double value)   { _layinfo.setValue(i,_getRank(ifam,4),value); }
+  double _getMemLayer(int i)                         { return _layinfo.getValue(i,0); }
+
+  VectorDouble _layersManage(const FracEnviron& envir, double *y0);
+  VectorDouble _layersRead(const VectorDouble& elevations, double *y0);
   int _fracAdd(int ifrac,
                int ifam,
                double xx,
@@ -112,7 +114,7 @@ private:
                       double *ye);
   double _layerIntensity(const FracFamily& family,
                          double thick);
-  void _generateDensity(const FracEnviron& environ,
+  void _generateDensity(const FracEnviron& envir,
                         const FracFamily& family,
                         int ifam,
                         double cote,
@@ -129,16 +131,14 @@ private:
                           double cote,
                           double thick,
                           VectorDouble& denstab);
-  bool _sameFaultSide(const FracEnviron& environ, int ifault0, double x0);
+  bool _sameFaultSide(const FracEnviron& envir, int ifault0, double x0);
   double _densityUpdate(const FracFault& fault,
                         int side,
                         int ifam,
                         double cote,
                         double xx);
-  bool _densityCumulate(const char *title,
-                        bool flag_print,
-                        const VectorDouble& denstab,
-                        double *totdens);
+  double _densityCumulate(const VectorDouble& denstab);
+  bool _noRoomForMoreFracture(const VectorDouble& denstab) const;
   void _updateRepulsion(double x0, double range, VectorDouble& denstab);
   bool _fractureInterrupt(const FracFamily& family,
                           const FracDesc& desc,
@@ -146,7 +146,7 @@ private:
   double _faultAbscissae(const FracFault& fault, double cote);
   double _cubic(double h);
   double _fractureExtension(const FracDesc& desc, double cote, double dcote);
-  int _simulateFractures(const FracEnviron& environ,
+  int _simulateFractures(const FracEnviron& envir,
                          const FracFamily& family,
                          int ifam,
                          double cote,

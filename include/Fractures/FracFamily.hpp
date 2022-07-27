@@ -19,15 +19,15 @@ class GSTLEARN_EXPORT FracFamily: public AStringable, public ASerializable
 {
 public:
   FracFamily(double orient = 0.,
-         double dorient = 0.,
-         double theta0 = 0.,
-         double alpha = 0.,
-         double ratcst = 0.,
-         double prop1 = 0.,
-         double prop2 = 0.,
-         double aterm = 0.,
-         double bterm = 0.,
-         double range = 0.);
+             double dorient = 0.,
+             double theta0 = 0.,
+             double alpha = 0.,
+             double ratcst = 0.,
+             double prop1 = 0.,
+             double prop2 = 0.,
+             double aterm = 0.,
+             double bterm = 0.,
+             double range = 0.);
   FracFamily(const FracFamily& r);
   FracFamily& operator=(const FracFamily& r);
   virtual ~FracFamily();

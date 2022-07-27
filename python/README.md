@@ -91,6 +91,7 @@ Execute the following commands:
 Notes:
 
 * If your Linux distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* According your Linux distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"`
 
 ### MacOS:
 
@@ -105,6 +106,7 @@ Execute the following commands (Not tested):
 Notes:
 
 * If your MacOS distribution repository doesn't provide minimum required versions, please install the tools manually (see provider website)
+* According your MacOS distribution you may have to replace `pybind11` by the quoted string `"pybind11[global]"` 
 
 ### Windows:
 
@@ -114,9 +116,9 @@ Download and install the following tools:
 * SWIG 4+ [from here](http://www.swig.org/download.html) (extract the archive in a directory of yours, let's say *C:\\swigwin-4.0.2*, see Notes below)
 * Pybind11, numpy and matplolib python modules by running following instructions in a command prompt:
 
-    python -m pip install pybind11[global] numpy matplotlib
+    python -m pip install "pybind11[global]" numpy matplotlib
     python -m pip install pypandoc geopandas jupyter
-  
+
 Notes:
 
 * The *Path* environment variable must be updated to make *swig.exe* (and *python.exe*) available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\swigwin-4.0.2* and *C:\\Python39* folder in the *Path* variable and restart Windows)

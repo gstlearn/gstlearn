@@ -29,9 +29,11 @@
 #include "Model/CovParamId.hpp"
 #include "Covariances/CovAniso.hpp"
 
+#include "Matrix/MatrixRectangular.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Model;
 class Db;
@@ -43,7 +45,7 @@ class ANoStat;
 class ADriftElem;
 
 /// TODO : Create AModel which inherits from ACov ?
-class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
 {
 public:
   Model(const CovContext& ctxt = CovContext());
@@ -53,11 +55,11 @@ public:
   virtual ~Model();
 
 public:
-  /// Interface to AStringeable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Model)
 
-  /// Interface to IClonable
-  virtual IClonable* clone() const override { return new Model(*this); }
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   int resetFromDb(const Db* db);
 
@@ -72,7 +74,7 @@ public:
                                 const ASpace* space = nullptr,
                                 bool flagRange = true);
   static Model* createFromDb(const Db* db);
-  static Model* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Model* createFromNF(const String& neutralFilename, bool verbose = true);
 
   void   setCovList(const ACovAnisoList* covalist);
   void   addCov(const CovAniso* cov);
@@ -93,7 +95,7 @@ public:
   void   delDrift(int rank);
   void   delAllDrifts();
   int    addNoStat(const ANoStat* anostat);
-  int    addAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
+  int    setAnam(const AAnam* anam, const VectorInt& strcnt = VectorInt());
   bool   isFlagGradient() const;
   bool   isFlagGradientNumerical() const;
   bool   isFlagGradientFunctional() const;
@@ -120,6 +122,7 @@ public:
   int    getMinOrder() const { return _covaList->getMinOrder(); }
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() { return _covaList->getAnam(); }
+  void normalize(double sill) { _covaList->normalize(sill); }
 
   double eval0(int ivar,
                int jvar,
@@ -140,9 +143,9 @@ public:
     return _covaList->eval(ivar, jvar, p1, p2, mode);
   }
   MatrixSquareGeneral evalNvarIpas(double step,
-                                   const VectorDouble& dir,
-                                   const VectorDouble& center,
-                                   const CovCalcMode& mode) const
+                                   const VectorDouble& dir = VectorDouble(),
+                                   const VectorDouble& center = VectorDouble(),
+                                   const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
@@ -158,17 +161,152 @@ public:
   double evalIvarIpas(int ivar,
                       int jvar,
                       double step,
-                      const VectorDouble& dir,
-                      const VectorDouble& center,
-                      const CovCalcMode& mode) const
+                      const VectorDouble& dir = VectorDouble(),
+                      const VectorDouble& center = VectorDouble(),
+                      const CovCalcMode& mode = CovCalcMode()) const
   {
     return _covaList->evalIvarIpas(ivar, jvar, step, dir, center, mode);
+  }
+  double evalCvv(const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalCvv(ext, ndisc, angles, ivar, jvar, mode);
+  }
+  double evalCvvShift(const VectorDouble& ext,
+                      const VectorInt& ndisc,
+                      const VectorDouble& shift,
+                      const VectorDouble& angles = VectorDouble(),
+                      int ivar = 0,
+                      int jvar = 0,
+                      const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalCvvShift(ext, ndisc, shift, angles, ivar, jvar, mode);
+  }
+  MatrixSquareGeneral evalCvvM(const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCvvM(ext, ndisc, angles, mode);
+  }
+  double evalCxv(const SpacePoint& p1,
+                 const VectorDouble& ext,
+                 const VectorInt& ndisc,
+                 const VectorDouble& angles = VectorDouble(),
+                 const VectorDouble& x0 = VectorDouble(),
+                 int ivar = 0,
+                 int jvar = 0,
+                 const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCxv(p1, ext, ndisc, angles, x0, ivar, jvar, mode);
+  }
+  MatrixSquareGeneral evalCxvM(const SpacePoint& p1,
+                               const VectorDouble& ext,
+                               const VectorInt& ndisc,
+                               const VectorDouble& angles = VectorDouble(),
+                               const VectorDouble& x0 = VectorDouble(),
+                               const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCxvM(p1, ext, ndisc, angles, x0, mode);
+  }
+  VectorDouble evalPointToDb(const SpacePoint& p1,
+                             const Db* db2,
+                             int ivar = 0,
+                             int jvar = 0,
+                             bool useSel = true,
+                             const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalPointToDb(p1, db2, ivar, jvar, useSel, mode);
+  }
+  double evalAverageDbToDb(const Db* db1,
+                           const Db* db2,
+                           int ivar = 0,
+                           int jvar = 0,
+                           const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalAverageDbToDb(db1, db2, ivar, jvar, mode);
+  }
+  double evalAveragePointToDb(const SpacePoint& p1,
+                              const Db* db2,
+                              int ivar = 0,
+                              int jvar = 0,
+                              const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalAveragePointToDb(p1, db2, ivar, jvar, mode);
+  }
+  MatrixRectangular evalCovMatrix(const Db* db1,
+                                  const Db* db2 = nullptr,
+                                  int ivar = 0,
+                                  int jvar = 0,
+                                  const CovCalcMode& mode = CovCalcMode())
+  {
+    return _covaList->evalCovMatrix(db1, db2, ivar, jvar, mode);
+  }
+  double extensionVariance(const Db* db,
+                           const VectorDouble& ext,
+                           const VectorInt& ndisc,
+                           const VectorDouble& angles = VectorDouble(),
+                           const VectorDouble& x0 = VectorDouble(),
+                           int ivar = 0,
+                           int jvar = 0)
+  {
+    return _covaList->extensionVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double samplingDensityVariance(const Db* db,
+                                 const VectorDouble& ext,
+                                 const VectorInt& ndisc,
+                                 const VectorDouble& angles = VectorDouble(),
+                                 const VectorDouble& x0 = VectorDouble(),
+                                 int ivar = 0,
+                                 int jvar = 0) const
+  {
+    return _covaList->samplingDensityVariance(db, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double specificVolume(const Db *db,
+                        double mean,
+                        const VectorDouble &ext,
+                        const VectorInt &ndisc,
+                        const VectorDouble &angles = VectorDouble(),
+                        const VectorDouble &x0 = VectorDouble(),
+                        int ivar = 0,
+                        int jvar = 0) const
+  {
+    return _covaList->specificVolume(db, mean, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double coefficientOfVariation(const Db *db,
+                                double volume,
+                                double mean,
+                                const VectorDouble &ext,
+                                const VectorInt &ndisc,
+                                const VectorDouble &angles = VectorDouble(),
+                                const VectorDouble &x0 = VectorDouble(),
+                                int ivar = 0,
+                                int jvar = 0) const
+  {
+    return _covaList->coefficientOfVariation(db, volume, mean, ext, ndisc, angles, x0, ivar, jvar);
+  }
+  double specificVolumeFromCoV(Db *db,
+                               double cov,
+                               double mean,
+                               const VectorDouble &ext,
+                               const VectorInt &ndisc,
+                               const VectorDouble &angles = VectorDouble(),
+                               const VectorDouble &x0 = VectorDouble(),
+                               int ivar = 0,
+                               int jvar = 0) const
+  {
+    return _covaList->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
   int  setAnamIClass(int iclass) { return _covaList->setAnamIClass(iclass); }
   int  getAnamIClass() const { return _covaList->getAnamIClass(); }
+  int  getAnamNClass() const { return _covaList->getAnamNClass(); }
   /////////////////////////////////////////////////
 
   ////////////////////////////////////////////////
@@ -287,6 +425,7 @@ public:
           Option_VarioFit optvar = Option_VarioFit());
 
   double gofToVario(const Vario* vario);
+  std::vector<ECov> initCovList(const VectorInt & covranks);
 
 protected:
   /// Interface to ASerializable

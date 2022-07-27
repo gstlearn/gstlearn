@@ -13,16 +13,16 @@
 
 Option_VarioFit::Option_VarioFit()
     : AStringable(),
-      _flag_noreduce(0),
-      _flag_check_bounds(0),
-      _flag_goulard_used(1),
-      _auth_aniso(1),
-      _auth_rotation(1),
-      _lock_samerot(0),
-      _lock_rot2d(0),
-      _lock_no3d(0),
-      _lock_iso2d(0),
-      _keep_intstr(0)
+      _flag_noreduce(false),
+      _flag_check_bounds(false),
+      _flag_goulard_used(true),
+      _auth_aniso(true),
+      _auth_rotation(true),
+      _lock_samerot(false),
+      _lock_rot2d(false),
+      _lock_no3d(false),
+      _lock_iso2d(false),
+      _keep_intstr(false)
 {
 }
 

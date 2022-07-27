@@ -47,13 +47,13 @@
 
 /*! \cond */
 #define NBYPAS 5
-#define VAR0(iv,jv)       (var0[(jv) + nvar * (iv)])
+#define VAR0(iv,jv)       (var0_global[(jv) + nvar * (iv)])
 #define LHS_C(i,j)        (lhs [(i) + nred * (j)])
 #define RHS_C(i,iv)       (rhs [(i) + nred * (iv)])
 #define DISC1(i,idim)     (KOPTION->disc1[(idim) * KOPTION->ntot + (i)])
 #define DISC2(i,idim)     (KOPTION->disc2[(idim) * KOPTION->ntot + (i)])
-#define LHS_EXP(i,j)      (lhs[(i) * neq + (j)])
-#define RHS_EXP(i)        (rhs[(i)])
+#define LHS_EXP(i,j)      (lhs_global[(i) * neq + (j)])
+#define RHS_EXP(i)        (rhs_global[(i)])
 #define COV_REF(iz)       (cov_ref[cov_radius + (iz)])
 #define SMEAN(i,isimu)    (smean[(isimu) * nfeq + (i)])
 #define IAD(ix,iy,iz,nn,ss) (((iz) + nn[2]) + ss[2] * (((iy) + nn[1]) + ss[1] * ((ix) + nn[0])))
@@ -81,15 +81,16 @@
 /*! \endcond */
 
 // TODO : remove all these static stuffs !
-static double *covtab, *covaux, *drftab, *fs, *fsf, *d1_1, *d1_2, *var0;
-static VectorDouble d1, d1_t;
-static double *lhs, *lhs_b, *rhs, *wgt, *zext, *zam1, *ff0, *varb;
-static int *flag;
+static double *covaux_global, *d1_1_global, *d1_2_global, *var0_global;
+static VectorDouble d1_global, d1_t_global;
+static double *lhs_global, *rhs_global, *wgt_global, *zam1_global;
+static int *flag_global;
 static int KRIGE_INIT = 0;
 static int MODEL_INIT = 0;
 static int IECH_OUT   = -1;
-static int FLAG_EST, FLAG_STD, FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
-static int FLAG_BAYES, FLAG_PROF, FLAG_VARZ, FLAG_DGM;
+static int FLAG_WGT, FLAG_COLK, FLAG_SIMU, FLAG_LTERM;
+static bool FLAG_EST, FLAG_STD, FLAG_VARZ;
+static int FLAG_BAYES, FLAG_PROF, FLAG_DGM;
 static int IPTR_EST, IPTR_STD, IPTR_VARZ, IPTR_NBGH;
 static int *RANK_COLCOK;
 static Db *DBIN, *DBOUT;
@@ -205,7 +206,7 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
     if (rel == nullptr) return (rel);
     for (i = j = 0; i < neq; i++)
     {
-      if (flag != NULL && flag[i])
+      if (flag_global != NULL && flag_global[i])
         rel[j++] = i + 1;
       else
         rel[j++] = i + 1;
@@ -232,10 +233,11 @@ static int* st_relative_position_array(int mode, int neq, int *rel_arg)
  *****************************************************************************/
 static void st_global_init(Db *dbin, Db *dbout)
 {
-  FLAG_STD = FLAG_EST = FLAG_WGT = FLAG_LTERM = FLAG_VARZ = 0;
+  FLAG_WGT = FLAG_LTERM = 0;
   FLAG_COLK = FLAG_BAYES = FLAG_PROF = FLAG_SIMU = FLAG_DGM = 0;
   IPTR_EST = IPTR_STD = IPTR_VARZ = IPTR_NBGH = 0;
   IECH_OUT = 0;
+  FLAG_EST = FLAG_STD = FLAG_VARZ = false;
 
   /* Set the global variables */
 
@@ -370,7 +372,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
       /* Punctual support */
 
-      d1_1[idim] = 0.;
+      d1_1_global[idim] = 0.;
       st_data_discretize_dd(idim, jdim, it);
     }
     else
@@ -381,7 +383,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
       decal = -exts2 + dsize / 2.;
       do
       {
-        d1_1[idim] = decal;
+        d1_1_global[idim] = decal;
         st_data_discretize_dd(idim, jdim, it);
         decal = decal + dsize;
       }
@@ -401,7 +403,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
     {
       /* Punctual support */
 
-      d1_2[jdim] = 0.;
+      d1_2_global[jdim] = 0.;
       st_data_discretize_dd(idim, jdim, it);
     }
     else
@@ -412,7 +414,7 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
       decal = -exts2 + dsize / 2.;
       do
       {
-        d1_2[jdim] = decal;
+        d1_2_global[jdim] = decal;
         st_data_discretize_dd(idim, jdim, it);
         decal = decal + dsize;
       }
@@ -426,9 +428,9 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 
     it->ndtot++;
     for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t[i] = d1[i] + d1_1[i] + d1_2[i];
+      d1_t_global[i] = d1_global[i] + d1_1_global[i] + d1_2_global[i];
     st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t, covaux);
+           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
   }
 }
 
@@ -466,7 +468,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
       /* Punctual support */
 
-      d1_1[idim] = 0.;
+      d1_1_global[idim] = 0.;
       st_data_discretize_dg(idim, it);
     }
     else
@@ -478,7 +480,7 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
       do
       {
 
-        d1_1[idim] = decal;
+        d1_1_global[idim] = decal;
         st_data_discretize_dg(idim, it);
         decal = decal + dsize;
       }
@@ -492,9 +494,9 @@ static void st_data_discretize_dg(int idim, Disc_Structure *it)
 
     it->ndtot++;
     for (int i = 0; i < it->model->getDimensionNumber(); i++)
-      d1_t[i] = d1[i] + d1_1[i];
+      d1_t_global[i] = d1_global[i] + d1_1_global[i];
     st_cov(it->model, 0, it->nugget_opt, it->nostd, it->member, it->icov_r,
-           it->weight, it->rank1, it->rank2, d1_t, covaux);
+           it->weight, it->rank1, it->rank2, d1_t_global, covaux_global);
   }
 }
 
@@ -741,12 +743,11 @@ static int st_check_environment(int flag_in,
 static int st_model_manage(int mode, Model *model)
 
 {
-  int nvar, nbfl;
+  int nvar;
 
   /* Initializations */
 
   nvar = model->getVariableNumber();
-  nbfl = model->getDriftNumber();
 
   /* Dispatch */
 
@@ -756,31 +757,22 @@ static int st_model_manage(int mode, Model *model)
     /* Allocation */
 
     if (MODEL_INIT) return (1);
-    d1.resize(DBIN->getNDim());
-    d1_1 = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_1 == nullptr) return (1);
-    d1_2 = db_sample_alloc(DBIN, ELoc::X);
-    if (d1_2 == nullptr) return (1);
-    d1_t.resize(DBIN->getNDim());
-    covtab = st_core(nvar, nvar);
-    if (covtab == nullptr) return (1);
-    covaux = st_core(nvar, nvar);
-    if (covaux == nullptr) return (1);
-    if (nbfl > 0)
-    {
-      drftab = st_core(nbfl, 1);
-      if (drftab == nullptr) return (1);
-    }
+    d1_global.resize(DBIN->getNDim());
+    d1_1_global = db_sample_alloc(DBIN, ELoc::X);
+    if (d1_1_global == nullptr) return (1);
+    d1_2_global = db_sample_alloc(DBIN, ELoc::X);
+    if (d1_2_global == nullptr) return (1);
+    d1_t_global.resize(DBIN->getNDim());
+    covaux_global = st_core(nvar, nvar);
+    if (covaux_global == nullptr) return (1);
     MODEL_INIT = 1;
   }
   else
   {
     if (!MODEL_INIT) return (1);
-    d1_1 = db_sample_free(d1_1);
-    d1_2 = db_sample_free(d1_2);
-    covtab = (double*) mem_free((char* ) covtab);
-    covaux = (double*) mem_free((char* ) covaux);
-    drftab = (double*) mem_free((char* ) drftab);
+    d1_1_global = db_sample_free(d1_1_global);
+    d1_2_global = db_sample_free(d1_2_global);
+    covaux_global = (double*) mem_free((char* ) covaux_global);
     MODEL_INIT = 0;
   }
   return (0);
@@ -823,36 +815,18 @@ static int st_krige_manage_basic(int mode,
     /* Allocation */
 
     if (KRIGE_INIT) return (1);
-    flag = st_icore(neqmax, 1);
-    if (flag == nullptr) return (1);
-    lhs = st_core(neqmax, neqmax);
-    if (lhs == nullptr) return (1);
-    lhs_b = st_core(neqmax, neqmax);
-    if (lhs_b == nullptr) return (1);
-    rhs = st_core(neqmax, nvar);
-    if (rhs == nullptr) return (1);
-    zext = st_core(neqmax, 1);
-    if (zext == nullptr) return (1);
-    zam1 = st_core(neqmax, 1);
-    if (zam1 == nullptr) return (1);
-    wgt = st_core(neqmax, nvar);
-    if (wgt == nullptr) return (1);
-    var0 = st_core(nvar, nvar);
-    if (var0 == nullptr) return (1);
-    if (FLAG_BAYES)
-    {
-      fsf = st_core(ncmax, ncmax);
-      if (fsf == nullptr) return (1);
-      varb = st_core(nvar, nvar);
-      if (varb == nullptr) return (1);
-      if (nfeq > 0)
-      {
-        fs = st_core(ncmax, nfeq);
-        if (fs == nullptr) return (1);
-        ff0 = st_core(nfeq, nvar);
-        if (ff0 == nullptr) return (1);
-      }
-    }
+    flag_global = st_icore(neqmax, 1);
+    if (flag_global == nullptr) return (1);
+    lhs_global = st_core(neqmax, neqmax);
+    if (lhs_global == nullptr) return (1);
+    rhs_global = st_core(neqmax, nvar);
+    if (rhs_global == nullptr) return (1);
+    zam1_global = st_core(neqmax, 1);
+    if (zam1_global == nullptr) return (1);
+    wgt_global = st_core(neqmax, nvar);
+    if (wgt_global == nullptr) return (1);
+    var0_global = st_core(nvar, nvar);
+    if (var0_global == nullptr) return (1);
     KRIGE_INIT = 1;
   }
   else
@@ -861,21 +835,12 @@ static int st_krige_manage_basic(int mode,
     /* Deallocation */
 
     if (!KRIGE_INIT) return (1);
-    flag = (int*) mem_free((char* ) flag);
-    lhs = (double*) mem_free((char* ) lhs);
-    lhs = (double*) mem_free((char* ) lhs);
-    lhs_b = (double*) mem_free((char* ) lhs_b);
-    rhs = (double*) mem_free((char* ) rhs);
-    zext = (double*) mem_free((char* ) zext);
-    zam1 = (double*) mem_free((char* ) zam1);
-    wgt = (double*) mem_free((char* ) wgt);
-    var0 = (double*) mem_free((char* ) var0);
-    if (FLAG_BAYES)
-    {
-      fs = (double*) mem_free((char* ) fs);
-      fsf = (double*) mem_free((char* ) fsf);
-      ff0 = (double*) mem_free((char* ) ff0);
-    }
+    flag_global = (int*) mem_free((char* ) flag_global);
+    lhs_global = (double*) mem_free((char* ) lhs_global);
+    rhs_global = (double*) mem_free((char* ) rhs_global);
+    zam1_global = (double*) mem_free((char* ) zam1_global);
+    wgt_global = (double*) mem_free((char* ) wgt_global);
+    var0_global = (double*) mem_free((char* ) var0_global);
     KRIGE_INIT = 0;
   }
   return (0);
@@ -1510,7 +1475,7 @@ static void krige_wgt_print(int status,
     tab_printi(NULL, ib + 1);
     value = (status == 0) ? wgt[iwgt] : TEST;
     tab_printg(NULL, value);
-    value = (status == 0) ? zam1[iwgt] : TEST;
+    value = (status == 0) ? zam1_global[iwgt] : TEST;
     tab_printg(NULL, value);
 
     message("\n");
@@ -1563,7 +1528,7 @@ static void st_store_nbgh(int status, int ntab, double *tab)
 static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
 {
   int ivar;
-  double value, estim, estval, esterr, sigma, trueval, sterr, stdev;
+  double value;
 
   /* Header */
 
@@ -1580,61 +1545,18 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
     if (flag_xvalid != 0)
     {
       message("Variable Z%-2d\n", ivar + 1);
-      if (FLAG_EST != 0)
-      {
-        trueval = (status == 0) ? DBIN->getVariable(IECH_OUT, ivar) : TEST;
-        estim = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
-
-        if (FLAG_EST > 0)
-        {
-          estval = (status == 0) ? estim + trueval : TEST;
-          esterr = (status == 0) ? estim : TEST;
-        }
-        else
-        {
-          estval = (status == 0) ? estim : TEST;
-          esterr = (status == 0) ? estim - trueval : TEST;
-        }
-
-        tab_printg(" - True value        = ", trueval);
-        message("\n");
-        tab_printg(" - Estimated value   = ", estval);
-        message("\n");
-        tab_printg(" - Estimation Error  = ", esterr);
-        message("\n");
-
-        if (FLAG_STD != 0)
-        {
-          stdev = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
-
-          if (FLAG_STD > 0)
-          {
-            sterr = stdev;
-            sigma = (status == 0) ? esterr / stdev : TEST;
-          }
-          else
-          {
-            sigma = stdev;
-            sterr = (status == 0) ? esterr / stdev : TEST;
-          }
-
-          tab_printg(" - Std. deviation    = ", sigma);
-          message("\n");
-          tab_printg(" - Normalized Error  = ", sterr);
-          message("\n");
-        }
-      }
+      message( "Printout for Cross-validation should not be performed anymore\n");
     }
     else
     {
       message("Variable Z%-2d\n", ivar + 1);
-      if (FLAG_EST != 0)
+      if (FLAG_EST)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_EST + ivar) : TEST;
         tab_printg(" - Estimate  = ", value);
         message("\n");
       }
-      if (FLAG_STD != 0)
+      if (FLAG_STD)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_STD + ivar) : TEST;
         tab_printg(" - Std. Dev. = ", value);
@@ -1643,7 +1565,7 @@ static void st_result_kriging_print(int flag_xvalid, int nvar, int status)
         tab_printg(" - Cov(h=0)  = ", value);
         message("\n");
       }
-      if (FLAG_VARZ != 0)
+      if (FLAG_VARZ)
       {
         value = (status == 0) ? DBOUT->getArray(IECH_OUT, IPTR_VARZ + ivar) : TEST;
         tab_printg(" - Var(Z*)   = ", value);
@@ -1681,101 +1603,6 @@ static void st_res_nbgh_print(int status, double *tab)
 
 /****************************************************************************/
 /*!
- **  Standard Kriging
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output Db structure
- ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  calcul      Kriging calculation option (EKrigOpt)
- ** \param[in]  ndisc       Array giving the discretization counts
- ** \param[in]  flag_est    Option for storing the estimation
- ** \param[in]  flag_std    Option for storing the standard deviation
- ** \param[in]  flag_varz   Option for storing the variance of the estimator
- ** \param[in]  rank_colcok Option for running Collocated Cokriging
- ** \param[in]  matCL       Matrix of linear combination (or NULL)
- **                         (Dimension: nvarCL * model->getNVar())
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int kriging(Db *dbin,
-            Db *dbout,
-            Model *model,
-            ANeighParam *neighparam,
-            const EKrigOpt &calcul,
-            int flag_est,
-            int flag_std,
-            int flag_varz,
-            VectorInt ndisc,
-            VectorInt rank_colcok,
-            VectorVectorDouble matCL,
-            const NamingConvention& namconv)
-{
-  // Preliminary checks
-
-  if (neighparam->getType() == ENeigh::IMAGE)
-  {
-    messerr("This tool cannot function with an IMAGE neighborhood");
-    return 1;
-  }
-
-  // Initializations
-
-  int iptr_est  = -1;
-  int iptr_std  = -1;
-  int iptr_varz = -1;
-  int nvar = matCL.empty() ? model->getVariableNumber() : matCL.size();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_est != 0)
-  {
-    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_est < 0) return 1;
-  }
-  if (flag_std != 0)
-  {
-    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_std < 0) return 1;
-  }
-  if (flag_varz != 0)
-  {
-    iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_varz < 0) return 1;
-  }
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptCalcul(calcul, ndisc)) return 1;
-  if (ksys.setKrigOptColCok(rank_colcok)) return 1;
-  if (ksys.setKrigOptMatCL(matCL)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_varz, "varz", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Standard Cross-Validation
  **
  ** \return  Error return code
@@ -1784,11 +1611,10 @@ int kriging(Db *dbin,
  ** \param[in]  model       Model structure
  ** \param[in]  neighparam  ANeighParam structure
  ** \param[in]  flag_kfold  1 if a code (K-FOLD) is used
- ** \param[in]  flag_est    Option for storing the estimation
+ ** \param[in]  flag_xvalid_est Option for storing the estimation
  **                         1: Z*-Z; -1: Z*
- ** \param[in]  flag_std    Option for storing the standard deviation
+ ** \param[in]  flag_xvalid_std Option for storing the standard deviation
  **                         1: (Z*-Z)/S; -1: S
- ** \param[in]  flag_varz   Option for storing the variance of estimator
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  namconv     Naming Convention
  **
@@ -1797,9 +1623,8 @@ int xvalid(Db *db,
            Model *model,
            ANeighParam *neighparam,
            int flag_kfold,
-           int flag_est,
-           int flag_std,
-           int flag_varz,
+           int flag_xvalid_est,
+           int flag_xvalid_std,
            VectorInt rank_colcok,
            const NamingConvention& namconv)
 {
@@ -1815,32 +1640,26 @@ int xvalid(Db *db,
 
   int iptr_est  = -1;
   int iptr_std  = -1;
-  int iptr_varz = -1;
   int nvar = model->getVariableNumber();
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_xvalid_est != 0)
   {
     iptr_est = db->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_xvalid_std != 0)
   {
     iptr_std = db->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
-  }
-  if (flag_varz != 0)
-  {
-    iptr_varz = db->addColumnsByConstant(nvar, 0.);
-    if (iptr_varz < 0) return 1;
   }
 
   /* Setting options */
 
   KrigingSystem ksys(db, db, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptXValid(true, flag_kfold, flag_est > 0, flag_std > 0)) return 1;
+  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.setKrigOptXValid(true, flag_kfold, flag_xvalid_est > 0, flag_xvalid_std > 0)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -1854,261 +1673,16 @@ int xvalid(Db *db,
 
   /* Set the error return flag */
 
-  namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_varz, "varz", 1,
-                              false);
-  if (flag_est > 0)
+  if (flag_xvalid_std > 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_std, "stderr", 1,
                                 false);
-  else
+  else if (flag_xvalid_std < 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_std, "stdev", 1,
                                 false);
-  if (flag_std > 0)
+  if (flag_xvalid_est > 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_est, "esterr");
-  else
+  else if (flag_xvalid_est < 0)
     namconv.setNamesAndLocators(db, ELoc::Z, nvar, db, iptr_est, "estim");
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Kriging in the Gaussian Discrete Model
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin        Input Db structure
- ** \param[in]  dbout       Output DbGrid structure
- ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  flag_est    Option for storing the estimation
- ** \param[in]  flag_std    Option for storing the standard deviation
- ** \param[in]  flag_varz   Option for storing the variance of the estimator
- ** \param[in]  rval        Change of support coefficient
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int krigdgm(Db *dbin,
-            DbGrid *dbout,
-            Model *model,
-            ANeighParam *neighparam,
-            int flag_est,
-            int flag_std,
-            int flag_varz,
-            double rval,
-            const NamingConvention& namconv)
- {
-  // Preliminary checks
-
-  if (neighparam->getType() == ENeigh::IMAGE)
-  {
-    messerr("This tool cannot function with an IMAGE neighborhood");
-    return 1;
-  }
-
-  // Centering the Data
-
-  if (db_center_point_to_grid(dbin, dbout)) return 1;
-
-  // Initializations
-
-  int iptr_est  = -1;
-  int iptr_std  = -1;
-  int iptr_varz = -1;
-  int nvar = model->getVariableNumber();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_est != 0)
-  {
-    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_est < 0) return 1;
-  }
-  if (flag_std != 0)
-  {
-    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_std < 0) return 1;
-  }
-  if (flag_varz != 0)
-  {
-    iptr_varz = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_varz < 0) return 1;
-  }
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, iptr_varz)) return 1;
-  if (ksys.setKrigOptDGM(true, rval)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_varz, "varz", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Punctual Kriging based on profiles
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  flag_est   Option for the storing the estimation
- ** \param[in]  flag_std   Option for the storing the standard deviation
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int krigprof(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
-             int flag_est,
-             int flag_std,
-             const NamingConvention& namconv)
-{
-  // Preliminary checks
-
-  if (neighparam->getType() == ENeigh::IMAGE)
-  {
-    messerr("This tool cannot function with an IMAGE neighborhood");
-    return 1;
-  }
-
-  // Initializations
-
-  int iptr_est = -1;
-  int iptr_std = -1;
-  int nvar = model->getVariableNumber();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_est != 0)
-  {
-    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_est < 0) return 1;
-  }
-  if (flag_std != 0)
-  {
-    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_std < 0) return 1;
-  }
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
-  if (ksys.setKrigoptCode(true)) return 1;
-  if (!ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Estimation with Bayesian Drift
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  dbout      output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  prior_mean Array giving the prior means for the drift terms
- ** \param[in]  prior_cov  Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  flag_est   Pointer for the storing the estimation
- ** \param[in]  flag_std   Pointer for the storing the standard deviation
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int kribayes(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
-             const VectorDouble& prior_mean,
-             const VectorDouble& prior_cov,
-             int flag_est,
-             int flag_std,
-             const NamingConvention& namconv)
-{
-  // Preliminary checks
-
-  if (neighparam->getType() == ENeigh::IMAGE)
-  {
-    messerr("This tool cannot function with an IMAGE neighborhood");
-    return 1;
-  }
-
-  // Initializations
-
-  int iptr_est  = -1;
-  int iptr_std  = -1;
-  int nvar = model->getVariableNumber();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_est != 0)
-  {
-    iptr_est = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_est < 0) return 1;
-  }
-  if (flag_std != 0)
-  {
-    iptr_std = dbout->addColumnsByConstant(nvar, 0.);
-    if (iptr_std < 0) return 1;
-  }
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
-  if (ksys.setKrigOptBayes(true, prior_mean, prior_cov)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbout->getSampleNumber(); iech_out++)
-  {
-    mes_process("Kriging sample", dbout->getSampleNumber(), iech_out);
-    if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_std, "stdev", 1,
-                              false);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, nvar, dbout, iptr_est, "estim");
 
   return 0;
 }
@@ -3292,8 +2866,8 @@ int anakexp_f(DbGrid *db,
 
   error = 1;
   st_global_init(db, db);
-  FLAG_EST = 1;
-  lhs = rhs = wgt = nullptr;
+  FLAG_EST = true;
+  lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
   nvarin = db->getVariableNumber();
   nbefore_mem = nafter_mem = -1;
@@ -3345,7 +2919,7 @@ int anakexp_f(DbGrid *db,
   for (i = 0; i < nech; i++)
   {
     ranks[i] = i;
-    flag[i] = 1;
+    flag_global[i] = 1;
   }
 
   /* Get the limits of the area to be processed */
@@ -3387,11 +2961,12 @@ int anakexp_f(DbGrid *db,
       /* Establish the L.H.S. of the kriging system */
 
       st_lhs_exp(covdd, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
-      if (OptDbg::query(EDbg::KRIGING)) krige_lhs_print(nech, neq, neq, flag, lhs);
+      if (OptDbg::query(EDbg::KRIGING))
+        krige_lhs_print(nech, neq, neq, flag_global, lhs_global);
 
       /* Invert the kriging system */
 
-      if (matrix_invert(lhs, neq, IECH_OUT))
+      if (matrix_invert(lhs_global, neq, IECH_OUT))
       {
         status = 1;
         continue;
@@ -3401,16 +2976,16 @@ int anakexp_f(DbGrid *db,
 
       st_rhs_exp(covd0, cov_radius, flag_sym, nfeq, nbefore, nafter, neq);
       if (OptDbg::query(EDbg::KRIGING))
-        krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
+        krige_rhs_print(nvarin, nech, neq, neq, flag_global, rhs_global);
 
       /* Derive the kriging weights */
 
-      matrix_product(neq, neq, 1, lhs, rhs, wgt);
+      matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
     }
 
     /* Calculate the estimation */
 
-    result = st_estim_exp(db, wgt, nbefore, nafter);
+    result = st_estim_exp(db, wgt_global, nbefore, nafter);
     DBOUT->setArray(IECH_OUT, IPTR_EST, result);
     if (OptDbg::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
   }
@@ -3679,7 +3254,7 @@ static VectorInt st_neigh_find(DbGrid *db,
         if (FFFF(db->getVariable(locrank,0))) continue;
         NEI_CUR(ix,iy,iz) = locrank;
         nbgh_ranks.push_back(locrank);
-        flag[number] = 1;
+        flag_global[number] = 1;
         number++;
       }
 
@@ -3975,11 +3550,11 @@ int anakexp_3D(DbGrid *db,
 
   error = 1;
   st_global_init(db, db);
-  FLAG_EST = 1;
+  FLAG_EST = true;
   fildmp = nullptr;
   cov_tot = cov_res = nullptr;
   num_tot = nei_cur = nei_ref = nullptr;
-  lhs = rhs = wgt = nullptr;
+  lhs_global = rhs_global = wgt_global = nullptr;
   ndim = db->getNDim();
   nvarin = db->getVariableNumber();
   size_nei = 0;
@@ -4130,11 +3705,11 @@ int anakexp_3D(DbGrid *db,
           st_lhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur,
                         cov_tot, nugget);
           if (OptDbg::query(EDbg::KRIGING))
-            krige_lhs_print(nech, neq, neq, flag, lhs);
+            krige_lhs_print(nech, neq, neq, flag_global, lhs_global);
 
           /* Invert the kriging system */
 
-          if (matrix_invert(lhs, neq, IECH_OUT))
+          if (matrix_invert(lhs_global, neq, IECH_OUT))
           {
             status = 1;
             continue;
@@ -4144,16 +3719,16 @@ int anakexp_3D(DbGrid *db,
 
           st_rhs_exp_3D(nech, nfeq, nei_ss, nei_nn, cov_ss, cov_nn, nei_cur, cov_res);
           if (OptDbg::query(EDbg::KRIGING))
-            krige_rhs_print(nvarin, nech, neq, neq, flag, rhs);
+            krige_rhs_print(nvarin, nech, neq, neq, flag_global, rhs_global);
 
           /* Derive the kriging weights */
 
-          matrix_product(neq, neq, 1, lhs, rhs, wgt);
+          matrix_product(neq, neq, 1, lhs_global, rhs_global, wgt_global);
         }
 
         /* Calculate the estimation */
 
-        result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt);
+        result = st_estim_exp_3D(db, nei_ss, nei_nn, nei_cur, wgt_global);
         DBOUT->setArray(IECH_OUT, IPTR_EST, result);
         if (OptDbg::query(EDbg::RESULTS)) st_result_kriging_print(0, nvarin, status);
       }
@@ -4622,8 +4197,8 @@ int krigcell(Db *dbin,
              Db *dbout,
              Model *model,
              ANeighParam *neighparam,
-             int flag_est,
-             int flag_std,
+             bool flag_est,
+             bool flag_std,
              VectorInt ndisc,
              VectorInt rank_colcok,
              const NamingConvention& namconv)
@@ -4644,12 +4219,12 @@ int krigcell(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_est < 0) return 1;
   }
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbout->addColumnsByConstant(nvar, 0.);
     if (iptr_std < 0) return 1;
@@ -5526,7 +5101,7 @@ int krigsampling_f(Db *dbin,
                    int *ranks1,
                    int nsize2,
                    int *ranks2,
-                   int flag_std,
+                   bool flag_std,
                    int verbose)
 {
   int *rutil, *rother, error, nvar, ntot, nutil, i, nech;
@@ -5541,7 +5116,7 @@ int krigsampling_f(Db *dbin,
   tutil = invsig = data = datm = s = c00 = nullptr;
   aux1 = aux2 = aux3 = aux4 = nullptr;
   st_global_init(dbin, dbout);
-  FLAG_EST = 1;
+  FLAG_EST = true;
   FLAG_STD = flag_std;
   if (st_check_environment(1, 1, model, NULL)) goto label_end;
   nvar = model->getVariableNumber();
@@ -5562,12 +5137,12 @@ int krigsampling_f(Db *dbin,
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (FLAG_EST)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
@@ -5606,7 +5181,7 @@ int krigsampling_f(Db *dbin,
   if (aux2 == nullptr) goto label_end;
   aux3 = (double*) mem_alloc(sizeof(double) * ntot, 0);
   if (aux3 == nullptr) goto label_end;
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     aux4 = (double*) mem_alloc(sizeof(double) * ntot, 0);
     if (aux4 == nullptr) goto label_end;
@@ -5636,7 +5211,7 @@ int krigsampling_f(Db *dbin,
     s = model_covmat_by_ranks(model, dbin, nutil, rutil, dbout, 1, &IECH_OUT,
                               -1, -1, 0, 1);
     if (s == nullptr) goto label_end;
-    if (FLAG_STD != 0)
+    if (FLAG_STD)
     {
       c00 = model_covmat_by_ranks(model, dbout, 1, &IECH_OUT, dbout, 1,
                                   &IECH_OUT, -1, -1, 0, 1);
@@ -5648,7 +5223,7 @@ int krigsampling_f(Db *dbin,
     estim += model->getMean(0);
     DBOUT->setArray(IECH_OUT, IPTR_EST, estim);
 
-    if (FLAG_STD != 0)
+    if (FLAG_STD)
     {
       matrix_product(1, ntot, ntot, aux3, invsig, aux4);
       matrix_product(1, ntot, 1, aux3, aux4, &sigma);
@@ -5664,7 +5239,7 @@ int krigsampling_f(Db *dbin,
     {
       tab_printg(" - Estimate  = ", estim);
       message("\n");
-      if (FLAG_STD != 0)
+      if (FLAG_STD)
       {
         tab_printg(" - Std. Dev. = ", sigma);
         message("\n");
@@ -6118,9 +5693,9 @@ static double* st_calcul_covmat(const char *title,
       }
 
       for (int idim = 0; idim < db1->getNDim(); idim++)
-        d1[idim] = db1->getDistance1D(ii1, ii2, idim);
+        d1_global[idim] = db1->getDistance1D(ii1, ii2, idim);
 
-      model_calcul_cov(NULL,model, mode, 1, 1., d1, &COVGEN(i1, i2));
+      model_calcul_cov(NULL,model, mode, 1, 1., d1_global, &COVGEN(i1, i2));
       i2++;
     }
     i1++;
@@ -6257,8 +5832,8 @@ static double* st_calcul_distmat(const char *title,
       dist = 0.;
       for (int idim = 0; idim < ndim; idim++)
       {
-        d1[idim] = db1->getDistance1D(ii1, iis, idim);
-        dist += d1[idim] * d1[idim];
+        d1_global[idim] = db1->getDistance1D(ii1, iis, idim);
+        dist += d1_global[idim] * d1_global[idim];
       }
 
       DISTGEN(i1,is) = 1. / pow(dist, power / 2.);
@@ -6671,8 +6246,8 @@ int inhomogeneous_kriging(Db *dbdat,
   error = nvar = 1;
   NeighUnique* neighU = NeighUnique::create(dbdat->getNDim(),false);
   st_global_init(dbdat, dbout);
-  FLAG_EST = 1;
-  FLAG_STD = 1;
+  FLAG_EST = true;
+  FLAG_STD = true;
   distps = distgs = prodgs = prodps = nullptr;
   covss = covpp = covgp = covgg = nullptr;
   lambda = data = driftp = driftg = nullptr;
@@ -6694,12 +6269,12 @@ int inhomogeneous_kriging(Db *dbdat,
 
   /* Add the attributes for storing the results */
 
-  if (FLAG_EST != 0)
+  if (FLAG_EST)
   {
     IPTR_EST = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_EST < 0) goto label_end;
   }
-  if (FLAG_STD != 0)
+  if (FLAG_STD)
   {
     IPTR_STD = dbout->addColumnsByConstant(nvar, 0.);
     if (IPTR_STD < 0) goto label_end;
@@ -6978,7 +6553,7 @@ int krimage(DbGrid *dbgrid,
  ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  calcul     Type of estimate (from EKrigopt)
- ** \param[in]  ndisc      Discretization parameters (or NULL)
+ ** \param[in]  ndisc      Discretization parameters (or empty)
  ** \param[in]  flag_est   Option for the storing the estimation
  ** \param[in]  flag_std   Option for the storing the standard deviation
  ** \param[in]  namconv    Naming convention
@@ -6994,8 +6569,8 @@ int dk(Db* dbin,
        ANeighParam *neighparam,
        const EKrigOpt &calcul,
        const VectorInt &ndisc,
-       int flag_est,
-       int flag_std,
+       bool flag_est,
+       bool flag_std,
        const NamingConvention& namconv)
 {
 
@@ -7009,11 +6584,6 @@ int dk(Db* dbin,
   if (model->getVariableNumber() != 1)
   {
     messerr("This application is limited to the monovariate Model case");
-    return 1;
-  }
-  if (ABS(model->getTotalSill(0,0) - 1.) > EPSILON3)
-  {
-    messerr("This option requires a Model with Total Sill equal to 1.");
     return 1;
   }
   if (! model->hasAnam())
@@ -7038,16 +6608,13 @@ int dk(Db* dbin,
   // If change of support is defined through the anamorphosis,
   // the calculation option (EKrigOpt) should be set to PONCTUAL
   // in order to avoid additional block randomization
-  EKrigOpt calcul_loc = calcul;
-  if (flag_change_support) calcul_loc = EKrigOpt::PONCTUAL;
-  if (calcul_loc == EKrigOpt::BLOCK && ndisc.empty())
+  if (calcul == EKrigOpt::BLOCK && ndisc.empty())
   {
     messerr("For Block estimate, you must specify the discretization");
     return 1;
   }
 
-  // Centering the information
-  // TODO A Ameliorer
+  // Centering the information (onyl when a change of support is defined)
 
   if (flag_change_support)
   {
@@ -7068,13 +6635,13 @@ int dk(Db* dbin,
   /* Add the attributes for storing the results */
 
   int iptr_est  = -1;
-  if (flag_est != 0)
+  if (flag_est)
   {
     iptr_est = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_est < 0) return 1;
   }
   int iptr_std  = -1;
-  if (flag_std != 0)
+  if (flag_std)
   {
     iptr_std = dbgrid->addColumnsByConstant(nfactor, 0.);
     if (iptr_std < 0) return 1;
@@ -7086,7 +6653,7 @@ int dk(Db* dbin,
 
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
   if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
-  if (ksys.setKrigOptCalcul(calcul_loc, ndisc)) return 1;
+  if (ksys.setKrigOptCalcul(calcul, ndisc)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -7098,8 +6665,8 @@ int dk(Db* dbin,
 
     for (int iclass = 1; iclass <= nfactor; iclass++)
     {
-      int jptr_est = (flag_est != 0) ? iptr_est + iclass - 1 : -1;
-      int jptr_std = (flag_std != 0) ? iptr_std + iclass - 1 : -1;
+      int jptr_est = (flag_est) ? iptr_est + iclass - 1 : -1;
+      int jptr_std = (flag_std) ? iptr_std + iclass - 1 : -1;
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
       if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
@@ -7111,8 +6678,7 @@ int dk(Db* dbin,
   /* Set the error return flag */
 
   dbin->setLocatorsByUID(iuids, ELoc::Z);
-  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_std, "stdev", 1,
-                              false);
+  namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_std, "stdev", 1, false);
   namconv.setNamesAndLocators(dbin, ELoc::Z, -1, dbgrid, iptr_est, "estim");
 
   return 0;

@@ -18,7 +18,7 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Db;
 class Model;
@@ -40,7 +40,7 @@ public:
   int resetFromFaciesCount(int nfacies, double rho = 0.);
 
   static Rule* create(double rho = 0.);
-  static Rule* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Rule* createFromNF(const String& neutralFilename, bool verbose = true);
   static Rule* createFromNames(const VectorString& nodnames,double rho = 0.);
   static Rule* createFromCodes(const VectorInt& nodes,double rho = 0.);
   static Rule* createFromNumericalCoding(const VectorInt& n_type,

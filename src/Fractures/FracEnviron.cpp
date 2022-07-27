@@ -8,24 +8,22 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Fractures/FracEnviron.hpp"
+#include "Fractures/FracEnviron.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
 FracEnviron::FracEnviron(double xmax,
-                 double ymax,
-                 double deltax,
-                 double deltay,
-                 double xextend,
-                 double mean,
-                 double stdev)
+                         double ymax,
+                         double deltax,
+                         double deltay,
+                         double mean,
+                         double stdev)
   : AStringable(),
     ASerializable(),
     _xmax(xmax),
     _ymax(ymax),
     _deltax(deltax),
     _deltay(deltay),
-    _xextend(xextend),
     _mean(mean),
     _stdev(stdev),
     _families(),
@@ -40,7 +38,6 @@ FracEnviron::FracEnviron(const FracEnviron& r)
       _ymax(r._ymax),
       _deltax(r._deltax),
       _deltay(r._deltay),
-      _xextend(r._xextend),
       _mean(r._mean),
       _stdev(r._stdev),
       _families(r._families),
@@ -58,7 +55,6 @@ FracEnviron& FracEnviron::operator=(const FracEnviron& r)
     _ymax = r._ymax;
     _deltax = r._deltax;
     _deltay = r._deltay;
-    _xextend = r._xextend;
     _mean = r._mean;
     _stdev = r._stdev;
     _families = r._families;
@@ -79,62 +75,61 @@ FracEnviron::~FracEnviron()
  */
 FracEnviron* FracEnviron::createFromNF(const String& neutralFilename, bool verbose)
 {
-  FracEnviron* environ = nullptr;
+  FracEnviron* envir = nullptr;
   std::ifstream is;
-  environ = new FracEnviron;
+  envir = new FracEnviron();
   bool success = false;
-  if (environ->_fileOpenRead(neutralFilename, is, verbose))
+  if (envir->_fileOpenRead(neutralFilename, is, verbose))
   {
-    success =  environ->deserialize(is, verbose);
+    success =  envir->deserialize(is, verbose);
   }
   if (! success)
   {
-    delete environ;
-    environ = nullptr;
+    delete envir;
+    envir = nullptr;
   }
-  return environ;
+  return envir;
 }
 
 FracEnviron* FracEnviron::create(double xmax,
-                         double ymax,
-                         double deltax,
-                         double deltay,
-                         double xextend,
-                         double mean,
-                         double stdev)
+                                 double ymax,
+                                 double deltax,
+                                 double deltay,
+                                 double mean,
+                                 double stdev)
 {
-  return new FracEnviron(xmax, ymax, deltax, deltay, xextend, mean, stdev);
+  return new FracEnviron(xmax, ymax, deltax, deltay, mean, stdev);
 }
 
 String FracEnviron::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
 
-   /* General characteristics */
+  /* General characteristics */
 
-   sstr << toTitle(0, "Geometry");
-   sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
-   sstr << "Field extension (vertical)      = " << _ymax << std::endl;
-   sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
-   sstr << "Field dilation (vertical)       = " << _deltay << std::endl;
-   sstr << "Mean of thickness law           = " << _mean << std::endl;
-   sstr << "St. dev. of thickness law       = " << _stdev << std::endl;
-   sstr << "Number of families              = " << getNFamilies() << std::endl;
-   sstr << "Number of faults                = " << getNFaults() << std::endl;
+  sstr << toTitle(0, "Geometry");
+  sstr << "Field extension (horizontal)    = " << _xmax << std::endl;
+  sstr << "Field extension (vertical)      = " << _ymax << std::endl;
+  sstr << "Field dilation (horizontal)     = " << _deltax << std::endl;
+  sstr << "Field dilation (vertical)       = " << _deltay << std::endl;
+  sstr << "Mean of thickness law           = " << _mean << std::endl;
+  sstr << "St. dev. of thickness law       = " << _stdev << std::endl;
+  sstr << "Number of families              = " << getNFamilies() << std::endl;
+  sstr << "Number of faults                = " << getNFaults() << std::endl;
 
-   /* Loop on the families */
+  /* Loop on the families */
 
-  for (int j = 0; j < getNFamilies(); j++)
+  for (int i = 0; i < getNFamilies(); i++)
   {
-    sstr << toTitle(2, "Family #%d/%d", j + 1, getNFamilies());
-    sstr << _families[j].toString(strfmt);
+    sstr << toTitle(2, "Family #%d/%d", i + 1, getNFamilies());
+    sstr << _families[i].toString(strfmt);
   }
 
   /* Loop on the faults */
 
   for (int i = 0; i < getNFaults(); i++)
   {
-    mestitle(1, "Fault #%d/%d", i + 1, getNFaults());
+    sstr << toTitle(2, "Fault #%d/%d", i + 1, getNFaults());
     sstr << _faults[i].toString(strfmt);
   }
 
@@ -143,7 +138,8 @@ String FracEnviron::toString(const AStringFormat* strfmt) const
 
 bool FracEnviron::_deserialize(std::istream& is, bool verbose)
 {
-  int nfamilies, nfaults;
+  int nfamilies = 0;
+  int nfaults = 0;
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of families", nfamilies);
   ret = ret && _recordRead<int>(is, "Number of main faults", nfaults);
@@ -199,4 +195,9 @@ bool FracEnviron::_serialize(std::ostream& os, bool verbose) const
     ret = ret && fault.serialize(os, verbose);
   }
   return ret;
+}
+
+double FracEnviron::getXextend() const
+{
+  return _xmax + 2. * _deltax;
 }

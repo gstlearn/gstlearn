@@ -33,22 +33,20 @@
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/EProcessOper.hpp"
+#include "LithoRule/ERule.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
-#include "Simulation/SimuTurningBands.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Simulation/SimuSubstitution.hpp"
-#include "Simulation/SimuSubstitutionParam.hpp"
-#include "Simulation/SimuPartitionParam.hpp"
-#include "Simulation/SimuPartition.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
+#include "Simulation/CalcSimuEden.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -64,7 +62,6 @@
 
 /*! \endcond */
 
-static int FLAG_DGM;
 static double GIBBS_RHO, GIBBS_SQR;
 static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
 
@@ -75,7 +72,6 @@ static Modif_Categorical ModCat = { 0, { 0, 0 }, NULL, NULL };
  *****************************************************************************/
 static void st_simulation_environment(void)
 {
-  FLAG_DGM = 0;
   GIBBS_RHO = 0.;
   GIBBS_SQR = 0.;
 }
@@ -476,89 +472,6 @@ static int st_check_simtub_environment(Db *dbin,
   return 0;
 }
 
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simtub(Db *dbin,
-           Db *dbout,
-           Model *model,
-           ANeighParam *neighparam,
-           int nbsimu,
-           int seed,
-           int nbtuba,
-           int flag_check,
-           const NamingConvention& namconv)
-{
-  SimuTurningBands situba;
-  int flag_cond, nvar, error, iext, inostat, iptr_in, iptr_out;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr_in = iptr_out = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat))
-    goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0.,
-                                 &iptr_in)) goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0.,
-                               &iptr_out)) goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0)) goto label_end;
-
-  // Check the simulation at data location
-
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
-                              iptr_out, String(), nbsimu);
-
-  label_end:
-  (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  return (error);
-}
-
 /*****************************************************************************/
 /*!
  **  Performs the boolean simulation
@@ -622,173 +535,6 @@ int simbool(Db* dbin,
   namconv.setNamesAndLocators(dbin, ELoc::Z, 1, dbout, iptr_rank, "Rank", 1,
                               false);
   return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional block simulation
- **  in the scope of the Discrete Gaussian Model
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db Grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  rval       Change of support coefficient
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simdgm(Db *dbin,
-           DbGrid *dbout,
-           Model *model,
-           ANeighParam *neighparam,
-           double rval,
-           int seed,
-           int nbsimu,
-           int nbtuba,
-           int flag_check)
-{
-  SimuTurningBands situba;
-  int flag_cond, nvar, error, iext, inostat, iptr;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-  if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;
-  if (manage_external_info(1, ELoc::NOSTAT, dbin, dbout, &inostat)) goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-  FLAG_DGM = 1;
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-      goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0., &iptr))
-    goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  situba = SimuTurningBands(nbsimu, nbtuba, model,seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(), VectorDouble(),
-                      false, false, true, rval)) goto label_end;
-
-  // Check the simulations at data locations
-
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: (void) manage_external_info(-1, ELoc::F, dbin, dbout, &iext);
-  (void) manage_external_info(-1, ELoc::NOSTAT, dbin, dbout, &inostat);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Perform the conditional or non-conditional simulation
- **  with Bayesian Drift
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Input Db structure (optional)
- ** \param[in]  dbout      Output Db structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure (optional)
- ** \param[in]  nbsimu     Number of simulations
- ** \param[in]  seed       Seed for random number generator
- ** \param[in]  dmean      Array giving the prior means for the drift terms
- ** \param[in]  dcov       Array containing the prior covariance matrix
- **                        for the drift terms
- ** \param[in]  nbtuba     Number of turning bands
- ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
- ** \param[in]  namconv    Naming convention
- **
- ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
- ** \remark  be defined only for conditional simulations
- **
- *****************************************************************************/
-int simbayes(Db *dbin,
-             Db *dbout,
-             Model *model,
-             ANeighParam *neighparam,
-             int nbsimu,
-             int seed,
-             const VectorDouble& dmean,
-             const VectorDouble& dcov,
-             int nbtuba,
-             int flag_check,
-             const NamingConvention& namconv)
-{
-  SimuTurningBands situba;
-  int flag_cond, nvar, error, iptr_in, iptr_out;
-
-  /* Initializations */
-
-  error = 1;
-  nvar = model->getVariableNumber();
-  iptr_in = iptr_out = -1;
-  flag_cond = (dbin != nullptr);
-  if (st_check_simtub_environment(dbin, dbout, model, neighparam)) goto label_end;
-
-  /* Define the environment variables for printout */
-
-  st_simulation_environment();
-
-  /* Add the attributes for storing the results */
-
-  if (flag_cond)
-  {
-    if (db_locator_attribute_add(dbin, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_in))
-      goto label_end;
-  }
-  if (db_locator_attribute_add(dbout, ELoc::SIMU, nvar * nbsimu, 0, 0, &iptr_out))
-    goto label_end;
-
-  // Processing the Turning Bands algorithm
-
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, true, dmean, dcov))
-    goto label_end;
-
-  // Check simulations at data locations
-
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
-
-  /* Free the temporary variables */
-
-  if (flag_cond) dbin->deleteColumnsByLocator(ELoc::SIMU);
-
-  /* Set the error return flag */
-
-  error = 0;
-  namconv.setNamesAndLocators(dbin, ELoc::Z, model->getVariableNumber(), dbout,
-                              iptr_out, String(), nbsimu);
-
-  label_end:
-  return (error);
 }
 
 /****************************************************************************/
@@ -983,7 +729,6 @@ int simpgs(Db *dbin,
 {
   int iptr, icase, nfacies, flag_used[2];
   int iptr_RP, iptr_RF, iptr_DF, iptr_DN, iptr_RN, local_seed;
-  SimuTurningBands situba;
   Model *models[2];
   PropDef *propdef;
   std::vector<Model*> modvec;
@@ -1176,11 +921,10 @@ int simpgs(Db *dbin,
   {
     if (!flag_used[igrf]) continue;
     icase = get_rank_from_propdef(propdef, 0, igrf);
-    situba = SimuTurningBands(nbsimu, nbtuba, models[igrf], local_seed);
+    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
     local_seed = 0;
-    if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
+    if (situba.simulate(dbin, dbout, models[igrf], neighparam, icase, false, VectorDouble(),
                         VectorDouble(), true)) goto label_end;
-    if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[igrf]);
   }
 
   /* Convert gaussian to facies at target point */
@@ -1328,7 +1072,6 @@ int simbipgs(Db *dbin,
   Rule   *rules[2];
   Model  *models[2][2];
   std::vector<Model *> modvec[2];
-  SimuTurningBands situba;
   PropDef *propdef;
 
   /* Initializations */
@@ -1603,11 +1346,10 @@ int simbipgs(Db *dbin,
     {
       if (!flag_used[ipgs][igrf]) continue;
       icase = get_rank_from_propdef(propdef, ipgs, igrf);
-      situba = SimuTurningBands(nbsimu, nbtuba, models[ipgs][igrf], local_seed);
+      CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, local_seed);
       local_seed = 0;
-      if (situba.simulate(dbin, dbout, neighparam, icase, false, VectorDouble(),
-                          VectorDouble(), true)) goto label_end;
-      if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, models[ipgs][igrf]);
+      if (situba.simulate(dbin, dbout, models[ipgs][igrf], neighparam, icase, false,
+                          VectorDouble(), VectorDouble(), true)) goto label_end;
     }
 
     /* Convert gaussian to facies at target point */
@@ -2266,7 +2008,6 @@ int simmaxstable(Db *dbout,
                  int flag_rank,
                  int verbose)
 {
-  SimuTurningBands situba;
   double tpois, seuil;
   int error, iptrg, iptrv, iptrr, iptrs, niter, nleft, icov, last;
   static double seuil_ref = 5.;
@@ -2329,8 +2070,10 @@ int simmaxstable(Db *dbout,
 
     /* Processing the Turning Bands algorithm */
 
-    situba = SimuTurningBands(1, nbtuba, model, seed);
-    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
+    {
+      CalcSimuTurningBands situba(1, nbtuba, false, seed);
+      if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
+    }
 
     /* Combine the newly simulated outcome to the background */
 
@@ -2426,7 +2169,7 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  SimuTurningBands situba;
+  CalcSimuTurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 
@@ -2507,8 +2250,10 @@ int simRI(Db *dbout,
 
     /* Simulation in the non-masked part of the grid */
 
-    situba = SimuTurningBands(1, nbtuba, model, seed);
-    if (situba.simulate(nullptr, dbout, nullptr, 0)) goto label_end;
+    {
+      CalcSimuTurningBands situba(1, nbtuba, false, seed);
+      if (situba.simulate(nullptr, dbout, model, nullptr, 0)) goto label_end;
+    }
 
     /* Look for the quantile */
 
@@ -2838,7 +2583,6 @@ int simcond(Db *dbin,
             int flag_cstd,
             int verbose)
 {
-  SimuTurningBands situba;
   PropDef *propdef;
   ANeighParam *neighparam = nullptr;
   int nvar, error, iext, inostat, iptr, iptr_ce, iptr_cstd, ndim;
@@ -2918,10 +2662,11 @@ int simcond(Db *dbin,
 
   /* Processing the Turning Bands algorithm */
 
-  situba = SimuTurningBands(nbsimu, nbtuba, model, seed);
-  if (situba.simulate(dbin, dbout, neighparam, 0, false, VectorDouble(),
-                      VectorDouble(), false, true)) goto label_end;
-  if (flag_check) situba.checkGaussianData2Grid(dbin, dbout, model);
+  {
+    CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+    if (situba.simulate(dbin, dbout, model, neighparam, 0, false, VectorDouble(),
+                        VectorDouble(), false, true)) goto label_end;
+  }
 
   /* Free the temporary variables not used anymore */
 
@@ -3059,137 +2804,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   return simu;
 }
 
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using substitution method
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  subparam    SimuSubstitutionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int substitution(DbGrid *dbgrid,
-                 SimuSubstitutionParam& subparam,
-                 int seed,
-                 int verbose,
-                 const NamingConvention& namconv)
-{
-  if (!is_grid(dbgrid) || dbgrid->getNDim() > 3)
-  {
-    messerr("The substitution is available for Grid File with dimension <= 3");
-    return 1;
-  }
-  if (! subparam.isValid(verbose)) return 1;
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, 0.);
-  if (iptr < 0) return 1;
-
-  // Call the operational function
-
-  SimuSubstitution simsub(1,seed);
-  if (simsub.simulate(dbgrid, subparam, iptr, verbose)) return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
-
-  return 0;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Poisson Polyhedra Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-int tessellation_poisson(DbGrid *dbgrid,
-                         Model *model,
-                         const SimuPartitionParam& parparam,
-                         int seed,
-                         int verbose,
-                         const NamingConvention& namconv)
-{
-  int ndim = dbgrid->getNDim();
-  if (!is_grid(dbgrid))
-  {
-    messerr("The output Db file must be a grid");
-    return 1;
-  }
-  if (!is_grid(dbgrid) || ndim > 3)
-  {
-    messerr(
-        "The Poisson Tesselation is available for Grid File with dimension <= 3");
-    return 1;
-  }
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, TEST);
-  if (iptr < 0) return 1;
-
-  SimuPartition simpart(1, seed);
-  if (simpart.poisson(dbgrid, model, parparam, iptr, verbose))
-    return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
-
-  return 0;
-}
-
-/*****************************************************************************
- **
- ** Generate a simulation on a regular 3D grid using Voronoi Mosaic Model
- **
- ** \returns Error return code
- **
- ** \param[in]  dbgrid      Db structure (should be a grid)
- ** \param[in]  model       Model used for the valuation of tesselation
- ** \param[in]  parparam    SimuPartitionParam structure
- ** \param[in]  seed        Seed
- ** \param[in]  verbose     Verbose option
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
-int tessellation_voronoi(DbGrid *dbgrid,
-                         Model *model,
-                         const SimuPartitionParam& parparam,
-                         int seed,
-                         int verbose,
-                         const NamingConvention& namconv)
-{
-  int ndim = dbgrid->getNDim();
-  if (ndim > 3)
-  {
-    messerr(
-        "The Poisson Tesselation is available for Grid File with dimension <= 3");
-    return 1;
-  }
-
-  /* Add the attributes for storing the results */
-
-  int iptr = dbgrid->addColumnsByConstant(1, TEST);
-  if (iptr < 0) return 1;
-
-  SimuPartition simpart(1, seed);
-  if (simpart.voronoi(dbgrid, model, parparam, iptr, verbose))
-    return 1;
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::UNKNOWN, 1, dbgrid, iptr, "Simu");
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Perform the non-conditional simulation by FFT method on a grid
@@ -3263,3 +2877,192 @@ DbGrid* simfine(DbGrid *dbin,
   return dbout;
 }
 
+/****************************************************************************/
+/*!
+ **  Check if the sample belongs to the time slice
+ **
+ ** \return  Rank of the time slice (or -1)
+ **
+ ** \param[in]  date     Date attached to a sample
+ ** \param[in]  ntime    Number of time intervals
+ ** \param[in]  time0    Origin of the first time interval
+ ** \param[in]  dtime    Time interval
+ **
+ *****************************************************************************/
+static int st_getTimeInterval(double date,
+                              int ntime,
+                              double time0,
+                              double dtime)
+{
+  for (int itime = 0; itime < ntime; itime++)
+  {
+    double time_deb = time0 + dtime * itime;
+    double time_fin = time0 + dtime * (itime + 1);
+    if (date >= time_deb && date < time_fin) return (itime);
+  }
+  return (-1);
+}
+
+static int st_getFACIES(const DbGrid* dbgrid, int nfacies, int indFacies, int iech)
+{
+  int ifacies = (int) dbgrid->getArray(iech, indFacies);
+  if (ifacies < 0 || ifacies > nfacies || IFFFF(ifacies)) ifacies = 0;
+  return (ifacies);
+}
+
+static double st_getPORO(const DbGrid* dbgrid, int indPoro, int iech)
+{
+  if (indPoro <= 0) return (1);
+  double poro = dbgrid->getArray(iech, indPoro);
+  if (FFFF(poro) || poro < 0.) poro = 0.;
+  return (poro);
+}
+
+static double st_getDATE(const DbGrid* dbgrid, int indDate, int iech)
+{
+  double date;
+
+  if (indDate <= 0) return (0);
+  date = dbgrid->getArray(iech, indDate);
+  if (FFFF(date)) return (0);
+  date = MAX(1., date);
+  return (date);
+}
+
+static int st_getFLUID(const DbGrid* dbgrid, int nfluids, int indFluid, int iech)
+{
+  int ifluid = (int) dbgrid->getArray(iech, indFluid);
+  if (ifluid < 0 || ifluid > nfluids || IFFFF(ifluid)) ifluid = 0;
+  return (ifluid);
+}
+
+/*****************************************************************************/
+/*!
+**  Extract time charts from the fluid propagation block
+**
+** \return  The returned matrix
+**
+** \param[in]  dbgrid        Db grid structure
+** \param[in]  name_facies   Name of variable containing Facies
+** \param[in]  name_fluid    Name of variable containing Fluid
+** \param[in]  name_poro     Name of variable containing Porosity (optional)
+** \param[in]  name_date     Name of variable containing Date
+** \param[in]  nfacies       number of facies (facies 0 excluded)
+** \param[in]  nfluids       number of fluids
+** \param[in]  facies0       Value of the target facies
+** \param[in]  fluid0        Value of the target fluid
+** \param[in]  ntime         Number of Time intervals
+** \param[in]  time0         Starting time
+** \param[in]  dtime         Time interval
+** \param[in]  verbose       1 for a verbose option
+**
+*****************************************************************************/
+MatrixRectangular fluid_extract(DbGrid *dbgrid,
+                                const String& name_facies,
+                                const String& name_fluid,
+                                const String& name_poro,
+                                const String& name_date,
+                                int nfacies,
+                                int nfluids,
+                                int facies0,
+                                int fluid0,
+                                int ntime,
+                                double time0,
+                                double dtime,
+                                bool verbose)
+{
+  MatrixRectangular tab;
+  if (! is_grid(dbgrid))
+  {
+    messerr("The Fluid Propagation is restricted to regular grid");
+    return tab;
+  }
+  if (dbgrid->getNDim() > 3)
+  {
+    messerr("Fluid propagation is limited to 3-D space (maximum)");
+    return tab;
+  }
+  if (ntime < 0 || time0 < 0 || dtime <= 0)
+  {
+    messerr("Error in Time Interval Definition");
+    messerr("Origin=%lf - Step=%lf - Number=%d",time0,dtime,ntime);
+    return tab;
+  }
+
+  /* Define global variables */
+
+  int ind_facies = dbgrid->getUID(name_facies);
+  int ind_fluid  = dbgrid->getUID(name_fluid);
+  int ind_date   = dbgrid->getUID(name_date);
+  if (ind_facies < 0)
+  {
+    messerr("Variable 'Facies' must be provided");
+    return 1;
+  }
+  if (ind_fluid < 0)
+  {
+    messerr("Variable 'Fluid' must be provided");
+    return 1;
+  }
+  if (ind_date < 0)
+  {
+    messerr("Variable 'Date' must be provided");
+    return 1;
+  }
+  int ind_poro = dbgrid->getUID(name_poro);
+
+  /* Initialize the array */
+
+  tab = MatrixRectangular(ntime, 4);
+  int nxyz    = dbgrid->getSampleNumber();
+  for (int itime = 0; itime < ntime; itime++)
+  {
+    tab.setValue(itime, 0, time0 + dtime * itime);
+    tab.setValue(itime, 1, time0 + dtime * (itime + 1));
+    tab.setValue(itime, 2, 0.);
+    tab.setValue(itime, 3, 0.);
+  }
+
+  /* Loop on the blocks */
+
+  double totnum = 0.;
+  double totvol = 0.;
+  double locnum = 0.;
+  double locvol = 0.;
+  double datmax = 0;
+  for (int iech = 0; iech < nxyz; iech++)
+  {
+
+    if (st_getFACIES(dbgrid, nfacies, ind_facies, iech) != facies0) continue;
+    if (st_getFLUID(dbgrid, nfluids, ind_fluid, iech) != fluid0) continue;
+    double volume = st_getPORO(dbgrid, ind_poro, iech);
+    double date = st_getDATE(dbgrid, ind_date, iech);
+    if (date > datmax) datmax = date;
+
+    totnum += 1;
+    totvol += volume;
+    int itime = st_getTimeInterval(date, ntime, time0, dtime);
+    if (itime < 0) continue;
+    locnum += 1;
+    locvol += volume;
+
+    tab.setValue(itime, 2, tab.getValue(itime, 2) + 1);
+    tab.setValue(itime, 3, tab.getValue(itime, 3) + volume);
+  }
+
+  /* Final printout */
+
+  if (verbose)
+  {
+    mestitle(1, "Extraction for Fluid(%d) and Facies(%d)", facies0, fluid0);
+    message("Time slices: From %lf to %lf by step of %lf\n",
+            time0, time0 + dtime * ntime, dtime);
+    message("Total Number of Cells               = %d\n", nxyz);
+    message("Maximum Date                        = %lf\n", datmax);
+    message("Total Number of Invaded Cells       = %lf\n", totnum);
+    message("Total Volume of Invaded Cells       = %lf\n", totvol);
+    message("Total Number of Cells in Time Slice = %lf\n", locnum);
+    message("Total Volume of Cells in Time Slice = %lf\n", locvol);
+  }
+  return tab;
+}

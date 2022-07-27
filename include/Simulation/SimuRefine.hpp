@@ -11,26 +11,29 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
 #include "Model/Model.hpp"
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 
 class Db;
 class DbGrid;
 
-class GSTLEARN_EXPORT SimuRefine: public ASimulation
+class GSTLEARN_EXPORT SimuRefine: public ACalcSimulation
 {
 public:
   SimuRefine(int nbsimu = 0, int seed = 4324324);
-  SimuRefine(const SimuRefine &r);
-  SimuRefine& operator=(const SimuRefine &r);
+  SimuRefine(const SimuRefine &r) = delete;
+  SimuRefine& operator=(const SimuRefine &r) = delete;
   virtual ~SimuRefine();
 
   DbGrid* simulate(DbGrid *dbin, Model *model, const SimuRefineParam& param);
 
 private:
+  virtual bool _run() override;
+
   void _dim_1_to_2(DbGrid *db);
   void _dim_2_to_1(DbGrid *db);
   int _kriging_define();

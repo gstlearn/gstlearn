@@ -11,7 +11,7 @@
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Simulation/ASimulation.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuBoolean.hpp"
 #include "Simulation/BooleanObject.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
@@ -20,28 +20,10 @@
 #include <math.h>
 
 SimuBoolean::SimuBoolean(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
+    : ACalcSimulation(nbsimu, seed),
       AStringable(),
       _objlist()
 {
-}
-
-SimuBoolean::SimuBoolean(const SimuBoolean &r)
-    : ASimulation(r),
-      AStringable(r),
-     _objlist(r._objlist)
-{
-}
-
-SimuBoolean& SimuBoolean::operator=(const SimuBoolean &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    AStringable::operator =(r);
-    _objlist = r._objlist;
-  }
-  return *this;
 }
 
 SimuBoolean::~SimuBoolean()
@@ -124,7 +106,7 @@ void SimuBoolean::_projectToGrid(DbGrid* dbout,
   for (int iobj = 0; iobj < _getNObjects(); iobj++)
   {
     _objlist[iobj]->projectToGrid(dbout, iptr_simu, iptr_rank,
-                                  boolparam.getFacies(), iobj + 1);
+                                  (int) boolparam.getFacies(), iobj + 1);
   }
   return;
 }
@@ -439,4 +421,9 @@ VectorDouble SimuBoolean::extractObjects() const
     tabs.insert(tab.end(), tab.begin(), tab.end());
   }
   return tabs;
+}
+
+bool SimuBoolean::_run()
+{
+  return true;
 }

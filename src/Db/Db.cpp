@@ -220,7 +220,9 @@ int Db::resetFromOnePoint(const VectorDouble& tab, int flag_add_rank)
 
   // Load the coordinates
   VectorString names = generateMultipleNames("x", ndim);
-  _loadData(tab, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
+  VectorDouble tabloc = tab;
+  if (tabloc.empty()) tabloc.resize(ndim,0.);
+  _loadData(tabloc, names, VectorString(), ELoadBy::SAMPLE, flag_add_rank);
 
   int jcol = 0;
   if (flag_add_rank) jcol++;
@@ -1498,6 +1500,28 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   return ext;
 }
 
+VectorDouble Db::getCoorMinimum(bool useSel) const
+{
+  VectorDouble ext;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, useSel);
+    ext.push_back(ut_vector_min(coor));
+  }
+  return ext;
+}
+
+VectorDouble Db::getCoorMaximum(bool useSel) const
+{
+  VectorDouble ext;
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, useSel);
+    ext.push_back(ut_vector_max(coor));
+  }
+  return ext;
+}
+
 VectorDouble Db::getCenter(bool useSel) const
 {
   int ndim = getNDim();
@@ -1535,6 +1559,24 @@ double Db::getExtensionDiagonal(bool useSel) const
     total += delta * delta;
   }
   return sqrt(total);
+}
+
+void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi)
+{
+  int ndim = getNDim();
+  if (ndim != (int) mini.size()) mini.resize(ndim,TEST);
+  if (ndim != (int) maxi.size()) maxi.resize(ndim,TEST);
+
+  /* Loop on the space dimension */
+
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    VectorDouble coor = getCoordinates(idim, true);
+    double vmin = ut_vector_min(coor);
+    double vmax = ut_vector_max(coor);
+    if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
+    if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
+  }
 }
 
 /**
@@ -2645,6 +2687,7 @@ VectorString Db::getNamesByColIdx(const VectorInt& icols) const
 VectorString Db::getNamesByUID(const VectorInt& iuids) const
 {
   VectorString namelist;
+  if (iuids.empty()) return namelist;
   int count = static_cast<int> (iuids.size());
   for (int i = 0; i < count; i++)
   {
@@ -3692,9 +3735,9 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 /**
  * Return the monovariate statistics on variables given their UID
  * @param iuids              List of UID of the variables
- * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param opers              List of operations to be performed on the variables at each point.
  * @param flagIso  
- * @param flagVariableWise
+ * @param flagVariableWise   If False, the new variable is added to Db
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
  * @param proba              For 'quant': the quantile for this probability is calculated 
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
@@ -3704,25 +3747,10 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
- * @par List of operators available: 
- * num    : Number of defined values  
- * mean   : Mean over the defined values  
- * var    : Variance over the defined values  
- * stdv   : Standard Deviation over the defined values  
- * mini   : Minimum over the defined values  
- * maxi   : Maximum over the defined values  
- * sum    : Sum over the variables  
- * prop   : Proportion of values within [vmin;vmax]  
- * quant  : Quantile corresponding to given probability  
- * T      : Tonnage within [vmin;vmax]  
- * Q      : Metal quantity within [vmin;vmax]  
- * M      : Recovered mean within [vmin;vmax]  
- * B      : Conventional Benefit within [vmin;vmax]  
- 
  * @see statisticsMulti (multivariate statistics)
  */
 VectorDouble Db::statisticsByUID(const VectorInt& iuids,
-                                 const VectorString& opers,
+                                 const std::vector<EStatOption>& opers,
                                  bool flagIso,
                                  bool flagVariableWise,
                                  bool flagPrint,
@@ -3736,8 +3764,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 
   if (iuids.empty()) return stats;
 
-  VectorInt iopers = statsList(opers);
-  int noper = static_cast<int> (iopers.size());
+  int noper = static_cast<int> (opers.size());
   if (noper <= 0) return stats;
 
   // Add the variables for PointWise statistics
@@ -3746,21 +3773,24 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
     int iuidn = addColumnsByConstant(noper);
     if (iuidn < 0) return VectorDouble();
 
-    dbStatisticsVariables(this, iuids, iopers, iuidn, vmin, vmax, proba);
+    dbStatisticsVariables(this, iuids, opers, iuidn, vmin, vmax, proba);
 
     namconv.setNamesAndLocators(this, iuidn);
     for (int i = 0; i < noper; i++)
-      namconv.setNamesAndLocators(this, iuidn + i, opers[i]);
+    {
+      EStatOption oper = opers[i];
+      namconv.setNamesAndLocators(this, iuidn + i, oper.getKey());
+    }
     return VectorDouble();
   }
   else
   {
-    stats = dbStatisticsMono(this, iuids, iopers, flagIso, proba, vmin, vmax);
+    stats = dbStatisticsMono(this, iuids, opers, flagIso, proba, vmin, vmax);
 
     if (flagPrint)
     {
       VectorString varnames = getNamesByUID(iuids);
-      messageFlush(statisticsMonoPrint(stats, iopers, varnames, title));
+      messageFlush(statisticsMonoPrint(stats, opers, varnames, title));
       return VectorDouble();
     }
   }
@@ -3770,7 +3800,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 /**
  * Return the monovariate statistics on variables given their names.
  * @param names              List of names of the variables
- * @param opers              List of operations to be performed on the variables at each point. See below the list of possible inputs (the default is 'mean')
+ * @param opers              List of operations to be performed on the variables at each point.
  * @param flagIso  
  * @param flagVariableWise
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -3782,25 +3812,10 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
- * @par List of operators available: 
- * num    : Number of defined values  
- * mean   : Mean over the defined values  
- * var    : Variance over the defined values  
- * stdv   : Standard Deviation over the defined values  
- * mini   : Minimum over the defined values  
- * maxi   : Maximum over the defined values  
- * sum    : Sum over the variables  
- * prop   : Proportion of values within [vmin;vmax]  
- * quant  : Quantile corresponding to given probability  
- * T      : Tonnage within [vmin;vmax]  
- * Q      : Metal quantity within [vmin;vmax]  
- * M      : Recovered mean within [vmin;vmax]  
- * B      : Conventional Benefit within [vmin;vmax]  
- 
  * @see statisticsMulti (multivariate statistics)
  */
 VectorDouble Db::statistics(const VectorString& names,
-                            const VectorString& opers,
+                            const std::vector<EStatOption>& opers,
                             bool flagIso,
                             bool flagVariableWise,
                             bool flagPrint,
@@ -3811,6 +3826,23 @@ VectorDouble Db::statistics(const VectorString& names,
                             const NamingConvention& namconv)
 {
   VectorInt iuids = _ids(names, false);
+  if (iuids.empty()) return VectorDouble();
+  return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
+                         proba, vmin, vmax, title, namconv);
+}
+
+VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
+                                     const std::vector<EStatOption>& opers,
+                                     bool flagIso,
+                                     bool flagVariableWise,
+                                     bool flagPrint,
+                                     double proba,
+                                     double vmin,
+                                     double vmax,
+                                     const String& title,
+                                     const NamingConvention& namconv)
+{
+  VectorInt iuids = getUIDsByLocator(locatorType);
   if (iuids.empty()) return VectorDouble();
   return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
                          proba, vmin, vmax, title, namconv);
@@ -3917,11 +3949,13 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Number of variables", ncol);
   ret = ret && _recordRead<int>(is, "Number of samples", nrow);
+  if (! ret) return ret;
   if (ncol > 0)
   {
     ret = ret && _recordReadVec<String>(is, "Locators", locators, ncol);
     ret = ret && _recordReadVec<String>(is, "Names", names, ncol);
   }
+  if (! ret) return ret;
 
   for (int iech = 0; iech < nrow; iech++)
   {

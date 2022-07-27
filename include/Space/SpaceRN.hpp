@@ -25,7 +25,8 @@ public:
   SpaceRN& operator=(const SpaceRN& r);
   virtual ~SpaceRN();
 
-  virtual IClonable* clone() const override { return new SpaceRN(*this); }
+  /// ICloneable interface
+  IMPLEMENT_CLONING(SpaceRN)
 
   /// Return the concrete space type
   SpaceType getType() const override { return SPACE_RN; }

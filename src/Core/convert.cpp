@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
 #include "OutputFormat/GridEclipse.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
@@ -535,7 +536,12 @@ int csv_table_read(const String &filename,
   String na_string = csvfmt.getNaString();
 
   String line;
-  std::ifstream file(filename.c_str());
+  String filepath = ASerializable::buildFileName(filename, true);
+  // Open new stream
+  std::ifstream file;
+  file.open(filepath, std::ios::in);
+
+//  std::ifstream file(filename.c_str());
   if (!file.is_open())
   {
     messerr("Error when opening the CSV file %s for reading", filename.c_str());

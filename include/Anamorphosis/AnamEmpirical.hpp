@@ -25,9 +25,15 @@ public:
   AnamEmpirical& operator= (const AnamEmpirical &m);
   virtual ~AnamEmpirical();
 
+  /// ICloneable Interface
+  IMPLEMENT_CLONING(AnamEmpirical)
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   /// ASerializable Interface
   static AnamEmpirical* createFromNF(const String& neutralFilename,
-                                     bool verbose = false);
+                                     bool verbose = true);
 
   void reset(int ndisc,
              double pymin,
@@ -50,9 +56,6 @@ public:
   double  RawToTransformValue(double zz) const override;
   double  TransformToRawValue(double yy) const override;
   bool    isChangeSupportDefined() const override { return false; }
-
-  /// AStringable Interface
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   AnamEmpirical* create(int ndisc = 100, double sigma2e = TEST);
   int    getNDisc() const { return _nDisc; }

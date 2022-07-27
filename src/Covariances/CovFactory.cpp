@@ -36,7 +36,6 @@
 #include "Covariances/CovGCspline2.hpp"
 #include "Covariances/CovLinear.hpp"
 #include "Covariances/CovNugget.hpp"
-#include "Covariances/CovP8.hpp"
 #include "Covariances/CovPenta.hpp"
 #include "Covariances/CovPower.hpp"
 #include "Covariances/CovReg1D.hpp"
@@ -45,6 +44,7 @@
 #include "Covariances/CovStable.hpp"
 #include "Covariances/CovStorkey.hpp"
 #include "Covariances/CovTriangle.hpp"
+#include "Covariances/CovWendland0.hpp"
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/CovMarkov.hpp"
@@ -84,9 +84,9 @@ ACovFunc* CovFactory::createCovFunc(const ECov& type, const CovContext& ctxt)
     case ECov::E_REG1D:       return new CovReg1D(ctxt);
     case ECov::E_PENTA:       return new CovPenta(ctxt);
     case ECov::E_STORKEY:     return new CovStorkey(ctxt);
+    case ECov::E_WENDLAND0:   return new CovWendland0(ctxt);
     case ECov::E_WENDLAND1:   return new CovWendland1(ctxt);
     case ECov::E_WENDLAND2:   return new CovWendland2(ctxt);
-    case ECov::E_P8:          return new CovP8(ctxt);
     case ECov::E_MARKOV:      return new CovMarkov(ctxt);
     default: break;
   }
@@ -123,9 +123,9 @@ ACovFunc* CovFactory::duplicateCovFunc(const ACovFunc& cov)
     case ECov::E_PENTA:       return new CovPenta(      dynamic_cast<const CovPenta&>      (cov));
     case ECov::E_SPLINE2_GC:  return new CovGCspline2(  dynamic_cast<const CovGCspline2&>  (cov));
     case ECov::E_STORKEY:     return new CovStorkey(    dynamic_cast<const CovStorkey&>    (cov));
+    case ECov::E_WENDLAND0:   return new CovWendland0(  dynamic_cast<const CovWendland0&>  (cov));
     case ECov::E_WENDLAND1:   return new CovWendland1(  dynamic_cast<const CovWendland1&>  (cov));
     case ECov::E_WENDLAND2:   return new CovWendland2(  dynamic_cast<const CovWendland2&>  (cov));
-    case ECov::E_P8:          return new CovP8(         dynamic_cast<const CovP8&>         (cov));
     case ECov::E_MARKOV:      return new CovMarkov(     dynamic_cast<const CovMarkov&>     (cov));
     default: break;
   }

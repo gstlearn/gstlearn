@@ -23,8 +23,9 @@ public:
   VariableCategorical(const String& name, const Dictionary& dico);
   VariableCategorical(const VariableCategorical &ref);
   virtual ~VariableCategorical();
-   
-  virtual VariableCategorical* clone() const override;
+
+  /// Cloneable interface
+  IMPLEMENT_CLONING(VariableCategorical)
 
   virtual void resize(int n, const Category& val) override;
   VectorDouble getValues() const override;

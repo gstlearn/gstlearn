@@ -12,6 +12,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Matrix/AMatrix.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
@@ -51,6 +52,21 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
+  message("Cloning Matrix of integers\n");
+  MatrixInt mati(2,3);
+  mati.setValues({1, 2, 3, 4, 5, 6});
+  mati.display();
+  MatrixInt* mati2(mati.clone()); // dynamic_cast no more needed
+  mati2->display();
+
+  message("Cloning Matrix of doubles\n");
+  MatrixRectangular matd(2,3);
+  matd.setValues({1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+  matd.display();
+  AMatrix* pmat = &matd;
+  MatrixRectangular* matd2(dynamic_cast<MatrixRectangular*>(pmat->clone())); // dynamic_cast cannot be avoided here
+  matd2->display();
+
   VectorDouble V1,V2,V3,Vref;
   law_set_random_seed(32432);
   int nrow = 7; // For these tests, the matrix MUST be square (ncol = nrow)
@@ -71,13 +87,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // The symmetric matrix is obtained as t(MR) %*% MR -> M is symmetric
 
-  AMatrix* MRt = MR.transpose(); // Using clonable feature
+  AMatrix* MRt = MR.transpose(); // Using cloneable feature
   
   // Equivalent instruction using shortcut function
   //AMatrix* MRt = transpose(MR);
 
   // Still equivalent but in two lines
-  //AMatrix* MRt = MR.clone();
+  //AMatrix* MRt = dynamic_cast<AMAtrix*>(MR.clone());
   //MRt->transposeInPlace();
 
   // Still equivalent but with no more pointer
@@ -224,23 +240,23 @@ int main(int /*argc*/, char */*argv*/[])
   MRR.display();
   Vref = MRR.getDiagonal();
   V1 = MSP->getDiagonal();
-  print_vector("Main Diagonal",0,Vref.size(),Vref.data());
+  print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
-  print_vector("Second Diagonal Below",0,Vref.size(),Vref.data());
+  print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
-  print_vector("Third Diagonal Above",0,Vref.size(),Vref.data());
+  print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
-  print_vector("Third Row",0,Vref.size(),Vref.data());
+  print_vector("Third Row",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
-  print_vector("Fourth Column",0,Vref.size(),Vref.data());
+  print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
   message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
 
   /**

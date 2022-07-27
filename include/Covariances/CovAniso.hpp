@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Array.hpp"
@@ -24,7 +24,7 @@
 
 class Rotation;
 
-class GSTLEARN_EXPORT CovAniso: public ACov, public IClonable, public ASerializable
+class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable, public ASerializable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -39,27 +39,18 @@ public:
   CovAniso& operator=(const CovAniso& r);
   virtual ~CovAniso();
 
-  ///////////////////////////////////////////////////
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new CovAniso(*this); };
-  ///////////////////////////////////////////////////
+  /// ICloneable Interface
+  IMPLEMENT_CLONING(CovAniso)
 
-  ///////////////////////////////////////////////////
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ASpaceObject Interface
   virtual bool isConsistent(const ASpace* space) const override;
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ACov Interface
   virtual int getNVariables() const override { return _ctxt.getNVar(); }
-  ///////////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////
   /// ACov Interface
   /**
    * Evaluate the covariance for a pair of variables and a zero distance
@@ -89,8 +80,6 @@ public:
 
   virtual double evalCovOnSphere(double alpha, int degree, bool normalize = true) const override;
   virtual double evalSpectrum(const VectorDouble& freq, int ivar = 0, int jvar = 0) const override;
-
-  ///////////////////////////////////////////////////
 
   virtual double getIntegralRange(int ndisc, double hmax) const;
   virtual String getFormula() const { return _cova->getFormula(); }

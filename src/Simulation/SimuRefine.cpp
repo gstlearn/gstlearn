@@ -14,9 +14,9 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuRefine.hpp"
 #include "Simulation/SimuRefineParam.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
@@ -25,7 +25,7 @@
 #define RHS(i)   (rhs[(i)])
 
 SimuRefine::SimuRefine(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed),
+    : ACalcSimulation(nbsimu, seed),
       _param(),
       _model(nullptr),
       _ndim(0),
@@ -36,40 +36,6 @@ SimuRefine::SimuRefine(int nbsimu, int seed)
       _dx2(3),
       _x02(3)
 {
-}
-
-// All terms are not copie on purpose (they correspond to internal arrays)
-SimuRefine::SimuRefine(const SimuRefine &r)
-    : ASimulation(r),
-      _param(r._param),
-      _model(r._model),
-      _ndim(r._ndim),
-      _nx1(r._nx1),
-      _dx1(r._dx1),
-      _x01(r._x01),
-      _nx2(r._nx2),
-      _dx2(r._dx2),
-      _x02(r._x02)
-{
-}
-
-SimuRefine& SimuRefine::operator=(const SimuRefine &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    _param = r._param;
-    _model = r._model;
-    _ndim = r._ndim;
-    _nx1 = r._nx1;
-    _dx1 = r._dx1;
-    _x01 = r._x01;
-    _nx2 = r._nx2;
-    _dx2 = r._dx2;
-    _x02 = r._x02;
-
-  }
-  return *this;
 }
 
 SimuRefine::~SimuRefine()
@@ -573,3 +539,7 @@ void SimuRefine::_simulate_target(DbGrid *db,
   _write(db, iatt, ix0, iy0, iz0, value);
 }
 
+bool SimuRefine::_run()
+{
+  return true;
+}

@@ -36,7 +36,7 @@ public:
   int reset(int ndim = 2, bool flag_xvalid = false, double width = 0);
 
   static NeighBench* create(int ndim = 2, bool flag_xvalid = false, double width = 0);
-  static NeighBench* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::BENCH; }

@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/Vector.hpp"
 #include "Boolean/ShapeParameter.hpp"
 #include "Boolean/ETShape.hpp"
@@ -24,7 +24,7 @@ class BooleanObject;
 /**
  * Class defining the generic shape of the objects for Boolean Model
  */
-class GSTLEARN_EXPORT AShape: public AStringable, public IClonable
+class GSTLEARN_EXPORT AShape: public AStringable, public ICloneable
 {
 public:
   AShape();
@@ -34,9 +34,6 @@ public:
 
   /// Interface to AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// Interface for IClonable
-  virtual IClonable* clone() const override = 0;
 
   /// Interface for AShape
   virtual ETShape getType() const = 0;

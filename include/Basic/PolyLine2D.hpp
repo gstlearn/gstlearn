@@ -28,7 +28,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static PolyLine2D* createFromNF(const String& neutralFilename,
-                              bool verbose = false);
+                              bool verbose = true);
   static PolyLine2D* create(const VectorDouble& x = VectorDouble(),
                         const VectorDouble& y = VectorDouble());
 
@@ -43,6 +43,9 @@ public:
   double getXmax() const { return ut_vector_max(_x); }
   double getYmax() const { return ut_vector_max(_y); }
   void addPoint(double x, double y);
+
+  void setX(const VectorDouble& x) { _x = x; }
+  void setY(const VectorDouble& y) { _y = y; }
 
 protected:
   /// Interface for ASerializable

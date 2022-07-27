@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Interfaces/interface_d.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/ICloneable.hpp"
 
 #include <string>
 #include <vector>
@@ -26,7 +27,7 @@ class VariableBool;
 class VariableInt;
 class VariableString;
 
-class GSTLEARN_EXPORT AVariable : public AStringable
+class GSTLEARN_EXPORT AVariable : public AStringable, public ICloneable
 {
 public:
   AVariable();
@@ -35,7 +36,6 @@ public:
   virtual ~AVariable();
   AVariable& operator=(const AVariable& ref);
 
-  virtual AVariable* clone() const = 0; 
   virtual unsigned int getNValues() const = 0;
   virtual VectorDouble getValues() const = 0;
 

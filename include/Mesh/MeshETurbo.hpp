@@ -60,7 +60,7 @@ public:
   void   setMaskArrayFromDouble(double* array);
 
   static MeshETurbo* createFromNF(const String& neutralFilename,
-                                     bool verbose = false);
+                                     bool verbose = true);
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,

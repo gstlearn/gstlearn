@@ -1,5 +1,5 @@
 library(ggplot2)
-library(gridExtra)
+library(ggpubr)
 
 get.colors <- function()
 {
@@ -29,7 +29,7 @@ plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, 
   }
 
   hh = seq(0, hmax, hmax/nh)
-  gg = model$sampleModel(hmax, nh, ivar, jvar, codir)
+  gg = model$sample(hmax, nh, ivar, jvar, codir)
   df = data.frame(cbind(hh,gg))
   
   if (length(padd) > 0)
@@ -38,7 +38,7 @@ plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, 
     p <- ggplot()
   
   plot(hh, gg, type="l")
-  p <- p + geom_line(data = df, aes(x=hh,y=gg)) + ggtitle(title)
+  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE) + ggtitle(title)
   p
 }
 
@@ -81,9 +81,9 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
         {
           sill = vario$getVar(iv,jv)
           nlag = vario$getLagNumber(id)
-          sw = vario$getSwVec(iv,jv,id)
-          gg = vario$getGgVec(iv,jv,id)
-          hh = vario$getHhVec(iv,jv,id)
+          sw = vario$getSwVec(id,iv,jv)
+          gg = vario$getGgVec(id,iv,jv)
+          hh = vario$getHhVec(id,iv,jv)
           hmax = max(hh)
           gmax = max(abs(gg))
           if (abs(sill) > gmax) gmax = abs(sill)
@@ -98,7 +98,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
-          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1]) 
+          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE) 
  
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -106,20 +106,20 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
             hh = seq(0, hmax, hmax/nh)
             nhh = length(hh)
             codir = vario$getCodir(id)
-            gg = model$sampleModel(hmax, nhh, iv, jv, codir)
+            gg = model$sample(hmax, nhh, iv, jv, codir)
             dfg = data.frame(cbind(hh,gg))
-            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1) 
+            g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 
 
             if (iv != jv)
             {
-              ggp = model$sampleModel(hmax, nhh, iv, jv, codir, 1)
+              ggp = model$sample(hmax, nhh, iv, jv, codir, 1)
               dfg = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfg, aes(x=hh,y=ggp), color=cols[id+1],
-                        linetype = 'twodash') 
-              ggm = model$sampleModel(hmax, nhh, iv, jv, codir,-1)
+                        linetype = 'twodash', na.rm=TRUE) 
+              ggm = model$sample(hmax, nhh, iv, jv, codir,-1)
               dfm = data.frame(cbind(hh,ggp))
               g <- g + geom_line(data = dfm, aes(x=hh,y=ggm), color=cols[id+1],
-                        linetype = 'twodash') 
+                        linetype = 'twodash', na.rm=TRUE) 
             }
           } 
         } # End of loop on Directions
@@ -136,8 +136,12 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
         g <- g + geom_hline(yintercept = sill, linetype = 'longdash')
         plot_lst[[index]] <- g
       }
-  all.plots <- marrangeGrob(plot_lst, nrow = ivarN, ncol = jvarN, top = title)
-  all.plots
+	p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
+	
+	if (title != "")
+		p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+		
+	p
 }
 
 # Function for plotting a point data base, with optional color and size variables
@@ -283,7 +287,7 @@ plot.curve <- function(data, color="black",
     p <- padd
   else
     p <- ggplot() 
-  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color)
+  p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   p
 }
@@ -321,7 +325,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   
   if (join)
  	 p <- p + geom_line(data = rp, aes(x=xtab,y=ytab), 
- 	 	linetype = linetype, color=color)
+ 	 	linetype = linetype, color=color, na.rm=TRUE)
   else 
     p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
     	shape=shape, color=color)
@@ -337,9 +341,10 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
   res = anam$sample(ndisc, aymin, aymax)
   valY = res$getY()
   valZ = res$getZ()
+  
   p = plot.XY(valY, valZ, join=TRUE, flagDiag = FALSE,
   		color=color, linetype=linetype, 
-	    xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
+	    xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
         padd=padd)
   p
 }

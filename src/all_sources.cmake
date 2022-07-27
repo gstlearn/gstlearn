@@ -1,6 +1,11 @@
 # Why is cmake file GLOB evil?
 # https://stackoverflow.com/questions/32411963/why-is-cmake-file-glob-evil
 set(SRC
+  Fractures/FracEnviron.cpp
+  Fractures/FracFamily.cpp
+  Fractures/FracFault.cpp
+  Fractures/FracDesc.cpp
+  Fractures/FracList.cpp
   License/MD5Utility.cpp
   License/RegistryUtility.cpp
   License/MACAddressUtility.cpp
@@ -46,8 +51,12 @@ set(SRC
   Model/Option_VarioFit.cpp
   Model/Model.cpp
   Model/NoStatFunctional.cpp
+  Calculators/ACalculator.cpp
+  Calculators/ACalcInterpolator.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
+  Covariances/CovWendland0.cpp
+  Covariances/CovWendland1.cpp
   Covariances/CovWendland2.cpp
   Covariances/CovGradientFunctional.cpp
   Covariances/CovBesselK.cpp
@@ -72,7 +81,6 @@ set(SRC
   Covariances/CovGCspline.cpp
   Covariances/CovTriangle.cpp
   Covariances/CovCalcMode.cpp
-  Covariances/CovP8.cpp
   Covariances/CovContext.cpp
   Covariances/CovCosinus.cpp
   Covariances/CovCosExp.cpp
@@ -82,7 +90,6 @@ set(SRC
   Covariances/CovGradientNumerical.cpp
   Covariances/CovCubic.cpp
   Covariances/CovNugget.cpp
-  Covariances/CovWendland1.cpp
   Covariances/CovBesselJ.cpp
   Covariances/CovSpherical.cpp
   Covariances/CovCauchy.cpp
@@ -264,6 +271,7 @@ set(SRC
   Neigh/NeighBench.cpp
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
+  Estimation/CalcKriging.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp
@@ -275,28 +283,23 @@ set(SRC
   OutputFormat/FileVTK.cpp
   OutputFormat/FileLAS.cpp
   OutputFormat/GridF2G.cpp
-  Simulation/ASimulation.cpp
-  Simulation/SimuTurningBands.cpp
+  Simulation/ACalcSimulation.cpp
+  Simulation/CalcSimuTurningBands.cpp
   Simulation/TurningDirection.cpp
   Simulation/BooleanObject.cpp
   Simulation/SimuBoolean.cpp
   Simulation/SimuBooleanParam.cpp
   Simulation/SimuSpherical.cpp
   Simulation/SimuSphericalParam.cpp
-  Simulation/SimuSubstitution.cpp
+  Simulation/CalcSimuSubstitution.cpp
   Simulation/SimuSubstitutionParam.cpp
-  Simulation/SimuPartition.cpp
+  Simulation/CalcSimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
   Simulation/SimuFFTParam.cpp
   Simulation/SimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
-  Simulation/SimuEden.cpp
+  Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
-  Fractures/FracEnviron.cpp
-  Fractures/FracFamily.cpp
-  Fractures/FracFault.cpp
-  Fractures/FracDesc.cpp
-  Fractures/FracList.cpp
   Skin/Skin.cpp
 )

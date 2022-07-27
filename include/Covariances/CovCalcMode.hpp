@@ -40,7 +40,7 @@ public:
               int                flag_norm  = 0,
               int                flag_cov   = 1);
 
-  const ECalcMember&    getMember()              const { return _member; }
+  const ECalcMember&    getMember()           const { return _member; }
   bool                  getAsVario()          const { return _asVario; }
   bool                  getNormalized()       const { return _normalized; }
   bool                  isFilterNugget()      const { return _filterNugget; }

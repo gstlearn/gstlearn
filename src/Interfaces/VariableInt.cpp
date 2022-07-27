@@ -45,14 +45,6 @@ VectorDouble VariableInt::getValues() const
   return (res);
 }
 
-/**
- * Clone
- */
-VariableInt* VariableInt::clone() const
-{
-  return (new VariableInt(*this));
-}
-
 #ifdef _USE_NETCDF
 /**
  *  Create a NcVar object, add it to a netCDF file, create an attribute

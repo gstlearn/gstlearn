@@ -253,7 +253,7 @@ void Table::plot(int isimu) const
 {
   if (_stats.empty()) return;
   String filename = incrementStringVersion("TableStats",isimu+1);
-  (void) dumpToNF(filename,false);
+  (void) dumpToNF(filename);
 }
 
 bool Table::_isColValid(int icol) const

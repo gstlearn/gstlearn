@@ -11,10 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "geoslib_define.h"
 
+#include "Simulation/ACalcSimulation.hpp"
 #include "Boolean/ModelBoolean.hpp"
-#include "Simulation/ASimulation.hpp"
 #include "Basic/AStringable.hpp"
 
 class AShape;
@@ -23,12 +24,12 @@ class SimuBooleanParam;
 class DbGrid;
 class Db;
 
-class GSTLEARN_EXPORT SimuBoolean: public ASimulation, public AStringable
+class GSTLEARN_EXPORT SimuBoolean: public ACalcSimulation, public AStringable
 {
 public:
   SimuBoolean(int nbsimu = 0, int seed = 4324324);
-  SimuBoolean(const SimuBoolean &r);
-  SimuBoolean& operator=(const SimuBoolean &r);
+  SimuBoolean(const SimuBoolean &r) = delete;
+  SimuBoolean& operator=(const SimuBoolean &r) = delete;
   virtual ~SimuBoolean();
 
   /// Interface to AStringable
@@ -45,6 +46,8 @@ public:
   VectorDouble extractObjects() const;
 
 private:
+  virtual bool _run() override;
+
   void _clearAllObjects();
   int _getNObjects(int mode = 0) const;
   int _getRankUncovered(const Db* db, int rank);

@@ -99,6 +99,15 @@ String incrementStringVersion(const String &string,
   return ss.str();
 }
 
+String encodeString(const String& string,
+                    double value,
+                    const String& delim)
+{
+  std::stringstream ss;
+  ss << string << delim << value;
+  return ss.str();
+}
+
 String concatenateStrings(const String &delim,
                           const String &string1,
                           const String &string2,
@@ -854,7 +863,7 @@ VectorInt decodeGridSorting(const String& string,
 
   if (verbose)
   {
-    message("Decoding the sorting rule (%s) with nx = (", string);
+    message("Decoding the sorting rule (%s) with nx = (", string.c_str());
     for (int i = 0; i < ndim; i++)
       message(" %d", nx[i]);
     message(" )\n");

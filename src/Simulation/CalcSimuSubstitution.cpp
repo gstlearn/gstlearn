@@ -11,37 +11,25 @@
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Simulation/ASimulation.hpp"
-#include "Simulation/SimuSubstitution.hpp"
+#include "Simulation/CalcSimuSubstitution.hpp"
 #include "Simulation/SimuSubstitutionParam.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
 
 #define TRANS(i,j)     (trans[(j) + nfacies * (i)])
 
-SimuSubstitution::SimuSubstitution(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed)
+CalcSimuSubstitution::CalcSimuSubstitution(int nbsimu, int seed, bool verbose)
+    : ACalcSimulation(nbsimu, seed),
+      _verbose(verbose),
+      _iattOut(-1),
+      _subparam(),
+      _planes()
 {
 }
 
-SimuSubstitution::SimuSubstitution(const SimuSubstitution &r)
-    : ASimulation(r),
-      _planes(r._planes)
-{
-}
-
-SimuSubstitution& SimuSubstitution::operator=(const SimuSubstitution &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-    _planes = r._planes;
-  }
-  return *this;
-}
-
-SimuSubstitution::~SimuSubstitution()
+CalcSimuSubstitution::~CalcSimuSubstitution()
 {
 }
 
@@ -57,26 +45,23 @@ SimuSubstitution::~SimuSubstitution()
  ** \param[in]  verbose     Verbose option
  **
  *****************************************************************************/
-int SimuSubstitution::simulate(DbGrid *dbgrid,
-                               const SimuSubstitutionParam& subparam,
-                               int iptr,
-                               bool verbose)
+bool CalcSimuSubstitution::_simulate()
 {
-  law_set_random_seed(getSeed());
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   int np = 0;
 
   /***********************/
   /* Information process */
   /***********************/
 
-  if (subparam.isFlagDirect())
+  if (_subparam.isFlagDirect())
   {
 
     /* Calculate the number of planes */
 
     double diagonal = dbgrid->getExtensionDiagonal();
-    np = law_poisson(diagonal * subparam.getIntensity() * GV_PI);
-    if (np <= 0) return 1;
+    np = law_poisson(diagonal * _subparam.getIntensity() * GV_PI);
+    if (np <= 0) return false;
 
     /* Generate the Poisson planes */
 
@@ -86,14 +71,14 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
 
     for (int ip = 0; ip < np; ip++)
     {
-      if (! subparam.isFlagOrient())
+      if (! _subparam.isFlagOrient())
       {
         int ival = (_planes[ip].getRndval() > 0.5) ? -1 : 1;
         _planes[ip].setValue((double) ival);
       }
-      else if (! subparam.isLocal())
+      else if (! _subparam.isLocal())
       {
-        _calculValue(ip, subparam.getFactor(), subparam.getVector());
+        _calculValue(ip, _subparam.getFactor(), _subparam.getVector());
       }
     }
 
@@ -112,21 +97,21 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
         for (int i = 0; i < 3; i++)
           prod += _planes[ip].getCoor(i) * cen[i];
 
-        if (subparam.isLocal())
+        if (_subparam.isLocal())
         {
-          double factor;
+          double factor = 0.;
           VectorDouble vector(3);
-          if (subparam.getColfac() >= 0)
+          if (_subparam.getColfac() >= 0)
           {
-            factor = dbgrid->getArray(iech, subparam.getColfac());
-            subparam.isValidFactor(&factor);
+            factor = dbgrid->getArray(iech, _subparam.getColfac());
+            _subparam.isValidFactor(&factor);
           }
-          if (subparam.isAngleLocal())
+          if (_subparam.isAngleLocal())
           {
             for (int i = 0; i < 3; i++)
-              if (subparam.getColang(i) >= 0)
-                vector[i] = dbgrid->getArray(iech, subparam.getColang(i));
-            subparam.isValidOrientation(vector);
+              if (_subparam.getColang(i) >= 0)
+                vector[i] = dbgrid->getArray(iech, _subparam.getColang(i));
+            _subparam.isValidOrientation(vector);
           }
           _calculValue(ip, factor, vector);
         }
@@ -134,12 +119,12 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
         double valloc = _planes[ip].getValue() / 2.;
         valtot += (prod + _planes[ip].getIntercept() > 0) ? valloc : -valloc;
       }
-      dbgrid->setArray(iech, iptr, valtot);
+      dbgrid->setArray(iech, _iattOut, valtot);
     }
 
     /* Printout statistics on the information process */
 
-    if (verbose)
+    if (_verbose)
     {
       message("\n");
       message("Information Process:\n");
@@ -156,8 +141,8 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
   for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
   {
     if (!dbgrid->isActive(iech)) continue;
-    double value = (subparam.isFlagDirect()) ?
-        dbgrid->getArray(iech, iptr) : dbgrid->getVariable(iech, 0);
+    double value = (_subparam.isFlagDirect()) ?
+        dbgrid->getArray(iech, _iattOut) : dbgrid->getVariable(iech, 0);
     if (value < vmin) vmin = value;
     if (value > vmax) vmax = value;
   }
@@ -165,7 +150,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
   {
     messerr("No Direction Function has been coded");
     messerr("before the Coding Process takes place");
-    return 1;
+    return false;
   }
   np = (int) (vmax - vmin + 0.5);
 
@@ -173,17 +158,17 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
   /* Coding process */
   /******************/
 
-  int nstates = subparam.getNstates();
-  if (subparam.isFlagCoding())
+  int nstates = _subparam.getNstates();
+  if (_subparam.isFlagCoding())
   {
-    if (subparam.isFlagAuto()) nstates = np;
-    if (subparam.isFlagDirect() && nstates != np)
+    if (_subparam.isFlagAuto()) nstates = np;
+    if (_subparam.isFlagDirect() && nstates != np)
     {
       message("You have used the internal information process\n");
       message("The number of states should be equal to %d\n", np);
       message("Nevertheless, your choice prevails\n");
     }
-    VectorDouble props = _transToProp(subparam, verbose);
+    VectorDouble props = _transToProp(_subparam, _verbose);
     VectorInt status(nstates);
 
     /* Simulation of the initial state */
@@ -197,8 +182,8 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
 
     /* Simulation of the current state */
 
-    VectorDouble trans = subparam.getTrans();
-    int nfacies = subparam.getNfacies();
+    VectorDouble trans = _subparam.getTrans();
+    int nfacies = _subparam.getNfacies();
     for (int ip = 1; ip < nstates; ip++)
     {
       u = law_uniform(0., 1.);
@@ -218,17 +203,17 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
     for (int iech = 0; iech < dbgrid->getSampleNumber(); iech++)
     {
       if (!dbgrid->isActive(iech)) continue;
-      double value = (subparam.isFlagDirect()) ? dbgrid->getArray(iech, iptr) :
+      double value = (_subparam.isFlagDirect()) ? dbgrid->getArray(iech, _iattOut) :
           dbgrid->getVariable(iech, 0);
       int ival = (int) ((value - vmin) / (vmax - vmin) * nstates);
       if (ival < 0) ival = 0;
       if (ival >= nstates) ival = nstates - 1;
-      dbgrid->setArray(iech, iptr, 1 + status[ival]);
+      dbgrid->setArray(iech, _iattOut, 1 + status[ival]);
     }
 
     /* Printout statistics */
 
-    if (verbose)
+    if (_verbose)
     {
       message("\nCoding process: \n");
       message("Number of coded states     = %d \n", nstates);
@@ -236,8 +221,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
       message("Maximum information value  = %lf\n", vmax);
     }
   }
-
-  return 0;
+  return true;
 }
 
 /*****************************************************************************
@@ -247,7 +231,7 @@ int SimuSubstitution::simulate(DbGrid *dbgrid,
  ** \param[in,out]  ip      Rank of the Plane
  **
  *****************************************************************************/
-void SimuSubstitution::_calculValue(int ip,
+void CalcSimuSubstitution::_calculValue(int ip,
                                     double factor,
                                     const VectorDouble& vector)
 {
@@ -270,9 +254,9 @@ void SimuSubstitution::_calculValue(int ip,
  ** \param[in]  eps      Tolerance
  **
  *****************************************************************************/
-VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subparam,
-                                            bool verbose,
-                                            double eps)
+VectorDouble CalcSimuSubstitution::_transToProp(const SimuSubstitutionParam &subparam,
+                                                bool verbose,
+                                                double eps)
 {
   VectorDouble props;
   VectorDouble propold;
@@ -348,3 +332,81 @@ VectorDouble SimuSubstitution::_transToProp(const SimuSubstitutionParam& subpara
   return props;
 }
 
+bool CalcSimuSubstitution::_check()
+{
+  if (! ACalcSimulation::_check()) return false;
+
+  if (! hasDbout())
+  {
+    messerr("The argument 'dbout' must be defined");
+    return false;
+  }
+  int ndim = _getNDim();
+  if (ndim > 3)
+  {
+    messerr("The Turning Band Method is not a relevant simulation model");
+    messerr("for this Space Dimension (%d)", ndim);
+    return false;
+  }
+  if (! getDbout()->isGrid())
+  {
+    messerr("The argument 'dbout'  should be a grid");
+    return false;
+  }
+  if (! _subparam.isValid(_verbose)) return false;
+  return true;
+}
+
+bool CalcSimuSubstitution::_preprocess()
+{
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 1);
+    if (_iattOut < 0) return false;
+    return true;
+}
+
+bool CalcSimuSubstitution::_run()
+{
+  law_set_random_seed(getSeed());
+
+  return (_simulate());
+}
+
+bool CalcSimuSubstitution::_postprocess()
+{
+  _renameVariable(ELoc::Z, 1, _iattOut, String(), getNbSimu());
+  return true;
+}
+
+void CalcSimuSubstitution::_rollback()
+{
+  _cleanVariableDb(1);
+}
+
+/*****************************************************************************
+ **
+ ** Generate a simulation on a regular 3D grid using substitution method
+ **
+ ** \returns Error return code
+ **
+ ** \param[in]  dbgrid      Db structure (should be a grid)
+ ** \param[in]  subparam    SimuSubstitutionParam structure
+ ** \param[in]  seed        Seed
+ ** \param[in]  verbose     Verbose option
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int substitution(DbGrid *dbgrid,
+                 SimuSubstitutionParam& subparam,
+                 int seed,
+                 int verbose,
+                 const NamingConvention& namconv)
+{
+  CalcSimuSubstitution simsub(1, seed, verbose);
+  simsub.setDbout(dbgrid);
+  simsub.setNamingConvention(namconv);
+  simsub.setSubparam(subparam);
+
+  // Run the calculator
+  int error = (simsub.run()) ? 0 : 1;
+  return error;
+}

@@ -1837,7 +1837,7 @@ int db_grid_fill(DbGrid *dbgrid,
 
     /* Find the next cell to be processed */
 
-    skin->next(&rank, &ipos);
+    skin->getNext(&rank, &ipos);
 
     /* Find the neighborhood */
 
@@ -4353,7 +4353,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
         }
 
         // Check if the point 'ip' must be dropped
-        double proba = exp(-pow(dd, beta));
+        proba = exp(-pow(dd, beta));
         flag_drop = (law_uniform(0.,1.) < proba);
       }
     }
@@ -5210,7 +5210,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
     return (dbnew);
   }
 
-  if (db->isVariableNumberComparedTo(1,1))
+  if (! db->isVariableNumberComparedTo(1,1))
   {
     messerr("You should define some Z-variables in input 'db'");
     return (dbnew);
@@ -6152,19 +6152,17 @@ static int st_migrate(Db *db1,
                       int flag_fill,
                       int flag_inter)
 {
-  DbGrid* db1grid;
-  DbGrid* db2grid;
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
 
   if (db2->isGrid())
   {
-    db2grid = dynamic_cast<DbGrid*>(db2);
+    DbGrid* db2grid = dynamic_cast<DbGrid*>(db2);
 
     // To Grid
     if (db1->isGrid())
     {
-      db1grid = dynamic_cast<DbGrid*>(db1);
+      DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
 
       // Grid to Grid
       if (flag_fill)
@@ -6198,7 +6196,7 @@ static int st_migrate(Db *db1,
   }
   else if (db1->isGrid())
   {
-    db1grid = dynamic_cast<DbGrid*>(db1);
+    DbGrid* db1grid = dynamic_cast<DbGrid*>(db1);
 
     // Grid to Point
     if (flag_inter)

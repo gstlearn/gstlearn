@@ -28,6 +28,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
@@ -104,13 +105,13 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Simulation (turning bands) ====================
   message("\n<----- Simulation (Moving Neighborhood) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   simtub(data, grid_res, model, neighM, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Moving.ascii",verbose);
 
   message("\n<----- Simulation (Unique Neighborhood) ----->\n");
-  grid_res = dynamic_cast<DbGrid*>(grid->clone());
+  grid_res = grid->clone();
   simtub(data, grid_res, model, neighU, nbsimu);
   grid_res->display(&dbfmt);
   (void) grid_res->dumpToNF("Unique.ascii",verbose);

@@ -18,7 +18,7 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
 
 class Db;
@@ -62,7 +62,7 @@ public:
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
                              double distcont = TEST);
-  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
   const VectorDouble& getAnisoRotMats() const { return _anisoRotMat; }
@@ -104,7 +104,6 @@ private:
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
   double _radius;                /* Maximum isotropic distance */
-  bool   _flagContinuous;        /* true for continuous moving neighborhood */
   double _distCont;              /* Distance for continuous ANeighParamborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */

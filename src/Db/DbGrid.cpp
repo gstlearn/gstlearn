@@ -695,6 +695,45 @@ VectorDouble DbGrid::getOneSlice(const String& name,
 }
 
 /**
+ * Set all elements of a column (1-D) along a given space dimension
+ * to a constant value
+ * @param name   Name of the target variable
+ * @param idim   Rank of the Space dimension
+ * @param rank   Rank of the target Column
+ * @param value  Assigned value
+ * @param useSel Use the selection
+ */
+int DbGrid::assignGridColumn(const String& name,
+                             int idim,
+                             int rank,
+                             double value,
+                             bool useSel)
+{
+  if (idim < 0 || idim >= getNDim())
+  {
+    messerr("Argument 'idim'(%d) is incompatible with Grid dimension(%d)",
+            idim, getNDim());
+    return 1;
+  }
+  if (rank < 0 || rank >= getNX(idim))
+  {
+    messerr("Argument 'rank'(%d) is incompatible with number of cells(%d)",
+            rank, getNX(idim));
+    return 1;
+  }
+
+  _grid.iteratorInit();
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    VectorInt indices = _grid.iteratorNext();
+    if (indices[idim] != rank) continue;
+    if (useSel && ! isActive(iech)) continue;
+    setValue(name, iech, value);
+  }
+  return 0;
+}
+
+/**
  * Extracts a slice from a 3-D Grid
  * @param name   Name of the target variable
  * @param pos    Type of section: 0 for YoZ; 1 for XoZ and 2 for XoY

@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Model/CovParamId.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/EConsType.hpp"
@@ -22,7 +22,7 @@
  * - to define the constraints for the Model Automatic Fitting (authAssign true)
  * - to define the non-stationary parameters of a Model
  */
-class GSTLEARN_EXPORT ConsItem : public AStringable, public IClonable
+class GSTLEARN_EXPORT ConsItem : public AStringable, public ICloneable
 {
 public:
   ConsItem(const CovParamId& paramid,
@@ -32,12 +32,15 @@ public:
   ConsItem& operator= (const ConsItem &m);
   virtual ~ConsItem();
 
+  /// ICloneable interface
+  IMPLEMENT_CLONING(ConsItem)
+
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   int init(const CovParamId& paramid,
            const EConsType& type,
            double value = TEST);
-
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual IClonable* clone() const override { return new ConsItem(*this); };
 
   // Pipe to the CovParamId class
   const EConsElem& getType() const { return _paramId.getType(); }

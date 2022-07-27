@@ -14,9 +14,9 @@
 #include "Db/Db.hpp"
 #include "Mesh/MeshSpherical.hpp"
 #include "Model/Model.hpp"
-#include "Simulation/ASimulation.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
+#include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
@@ -27,22 +27,8 @@
 #define DISCRET(idisc)     (GV_PI * (0.5 + (idisc)) / ((double) ndisc))
 
 SimuSpherical::SimuSpherical(int nbsimu, int seed)
-    : ASimulation(nbsimu, seed)
+    : ACalcSimulation(nbsimu, seed)
 {
-}
-
-SimuSpherical::SimuSpherical(const SimuSpherical &r)
-    : ASimulation(r)
-{
-}
-
-SimuSpherical& SimuSpherical::operator=(const SimuSpherical &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator =(r);
-  }
-  return *this;
 }
 
 SimuSpherical::~SimuSpherical()
@@ -393,7 +379,7 @@ VectorDouble SimuSpherical::_spectrum_any(Model *model,
  *****************************************************************************/
 void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
 {
-  int nfreq = freqs.size();
+  int nfreq = (int) freqs.size();
   double totpos = 0.;
   double totneg = 0.;
   for (int ifreq = 0; ifreq < nfreq; ifreq++)
@@ -430,7 +416,7 @@ void SimuSpherical::_spectrum_normalize(int verbose, VectorDouble& freqs)
  *****************************************************************************/
 int SimuSpherical::_gdiscrete(VectorDouble& freqs)
 {
-  int nfreq = freqs.size();
+  int nfreq = (int) freqs.size();
   double u = law_uniform(0., 1.);
 
   double partvec = 0.;
@@ -489,3 +475,7 @@ int SimuSpherical::_check_degree_order(const SimuSphericalParam& sphepar,
   return (0);
 }
 
+bool SimuSpherical::_run()
+{
+  return true;
+}

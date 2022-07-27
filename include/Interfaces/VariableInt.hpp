@@ -27,8 +27,10 @@ class GSTLEARN_EXPORT VariableInt: public AVariableTemplate<int>
     VariableInt(const VariableInt& ref);
     virtual ~VariableInt();
     VariableInt& operator=(const VariableInt& ref);
-    
-    virtual VariableInt* clone() const override;
+
+    /// Cloneable interface
+    IMPLEMENT_CLONING(VariableInt)
+
     VectorDouble            getValues() const override;
     //bool                  isUndefined(int i) const override;
 

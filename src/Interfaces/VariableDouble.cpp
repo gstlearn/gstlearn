@@ -42,14 +42,6 @@ VectorDouble  VariableDouble::getValues() const
   return (_values);
 }
 
-/**
- * Clone
- */
-VariableDouble* VariableDouble::clone() const
-{
-  return (new VariableDouble(*this));
-}
-
 #ifdef _USE_NETCDF
 /**
  *

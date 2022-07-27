@@ -36,7 +36,7 @@ public:
 
   int reset(int ndim, bool flag_xvalid = false);
   static NeighUnique* create(int ndim, bool flag_xvalid = false);
-  static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = true);
 
 protected:
   /// Interface for ASerializable

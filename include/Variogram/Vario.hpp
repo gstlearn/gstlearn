@@ -13,12 +13,12 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
 #include "Variogram/ECalcVario.hpp"
-
 #include "Variogram/VarioParam.hpp"
 
-#include "Basic/IClonable.hpp"
+#include "Covariances/CovCalcMode.hpp"
+
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -30,7 +30,7 @@ class AAnam;
 /**
  * Experimental Variogram (not only): TODO : to be improved
  */
-class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Vario : public AStringable, public ASerializable, public ICloneable
 {
 public:
   Vario(const VarioParam* varioparam,
@@ -42,14 +42,17 @@ public:
   virtual ~Vario();
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Vario)
+
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-  virtual IClonable* clone() const override { return new Vario(*this); };
 
   static Vario* create(const VarioParam* varioparam,
                        Db* db = nullptr,
                        const VectorDouble& means = VectorDouble(),
                        const VectorDouble& vars = VectorDouble());
-  static Vario* createFromNF(const String& neutralFilename, bool verbose = false);
+  static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
   static Vario* computeFromDb(const VarioParam* varioparam,
                               Db* db,
                               const ECalcVario& calcul = ECalcVario::VARIOGRAM,
@@ -58,7 +61,17 @@ public:
                               bool verr_mode = false,
                               Model *model = nullptr,
                               bool verbose = false);
-
+  static Vario* createRegularizeFromModel(const Model* model,
+                                          const VarioParam* varioparam,
+                                          const VectorDouble& ext,
+                                          const VectorInt& ndisc,
+                                          const VectorDouble& angles);
+  static Vario* createTransformZToY(const Vario* varioZ,
+                                    const AAnam* anam,
+                                    double cvv);
+  static Vario* createTransformYToZ(const Vario* varioY,
+                                    const AAnam* anam,
+                                    const Model* model);
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
               bool asSymmetric = false);
@@ -190,7 +203,13 @@ public:
                    Model *model = nullptr,
                    bool verbose = false,
                    int nfacmax = -1);
-  int transformVarioZToY(AAnam *anam, double cvv);
+  int transformZToY(const AAnam *anam, double cvv);
+  int transformYToZ(const AAnam *anam, const Model *model);
+  int modelRegularize(const Model* model,
+                      const VectorDouble& ext,
+                      const VectorInt& ndisc,
+                      const VectorDouble& angles = VectorDouble(),
+                      const CovCalcMode& mode = CovCalcMode());
 
   // Pipe to the DirParam
   const DirParam& getDirParam(int idir) const { return _varioparam.getDirParam(idir); }

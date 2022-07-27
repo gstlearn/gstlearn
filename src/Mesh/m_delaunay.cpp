@@ -811,10 +811,7 @@ void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
  ** \remarks triangulateio structure
  **
  *****************************************************************************/
-int meshes_2D_from_points(int nech,
-                                          double *x,
-                                          double *y,
-                                          triangulateio *t)
+int meshes_2D_from_points(int nech, double *x, double *y, triangulateio *t)
 {
   int iech, error, ecr, ndim, nold;
 
@@ -865,10 +862,7 @@ int meshes_2D_from_points(int nech,
  ** \remark are stored in memory by row
  **
  *****************************************************************************/
-int meshes_2D_from_mem(int nseg,
-                                       int ncol,
-                                       int *segments,
-                                       triangulateio *t)
+int meshes_2D_from_mem(int nseg, int ncol, int *segments, triangulateio *t)
 {
   int i, j, error, ndim;
 
@@ -1027,10 +1021,10 @@ void meshes_2D_print(triangulateio *t, int brief)
  **
  *****************************************************************************/
 void meshes_2D_load_vertices(triangulateio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg)
+                             const char *name,
+                             int *ntab_arg,
+                             int *natt_arg,
+                             void **tab_arg)
 {
   double *rtab, *rfrom;
   int *itab, *ifrom, ntab, natt, type;
@@ -1806,15 +1800,15 @@ void meshes_2D_extended_domain(Db *dbout,
  **
  *****************************************************************************/
 int meshes_2D_write(const char *file_name,
-                                    const char *obj_name,
-                                    int verbose,
-                                    int ndim,
-                                    int ncode,
-                                    int ntri,
-                                    int npoints,
-                                    int *ntcode,
-                                    int *triangles,
-                                    double *points)
+                    const char *obj_name,
+                    int verbose,
+                    int ndim,
+                    int ncode,
+                    int ntri,
+                    int npoints,
+                    int *ntcode,
+                    int *triangles,
+                    double *points)
 {
   FILE *file;
   int i, itri, ntriloc;

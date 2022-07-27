@@ -27,7 +27,8 @@ class GSTLEARN_EXPORT VariableBool : public AVariableTemplate<bool>
     virtual ~VariableBool();
     VariableBool& operator= (const VariableBool& ref);
 
-    virtual VariableBool* clone() const override;
+    /// Cloneable interface
+    IMPLEMENT_CLONING(VariableBool)
 
     VectorDouble getValues() const override;
 

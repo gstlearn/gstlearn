@@ -16,7 +16,7 @@
 // Enums
 #include "Covariances/ECov.hpp"
 
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
@@ -29,16 +29,13 @@ class CovContext;
 class AStringFormat;
 class AAnam;
 
-class GSTLEARN_EXPORT ACovAnisoList : public ACov, public IClonable
+class GSTLEARN_EXPORT ACovAnisoList : public ACov, public ICloneable
 {
 public:
   ACovAnisoList(const ASpace* space = nullptr);
   ACovAnisoList(const ACovAnisoList &r);
   ACovAnisoList& operator= (const ACovAnisoList &r);
   virtual ~ACovAnisoList();
-
-  /// Interface for IClonable
-  virtual IClonable* clone() const override = 0;
 
   /// Interface for ASpaceObject
   virtual bool isConsistent(const ASpace* space) const override;
@@ -63,6 +60,7 @@ public:
   virtual const AAnam* getAnam() { return nullptr; }
   virtual int setAnamIClass(int /*iclass*/) { return 0; }
   virtual int getAnamIClass() const { return 0; }
+  virtual int getAnamNClass() const { return 0; }
 
   void addCovList(const ACovAnisoList* covs);
   // Remove an elementary covariance structure
@@ -81,6 +79,7 @@ public:
   double          getMaximumDistance() const;
   double          getTotalSill(int ivar, int jvar) const;
   MatrixSquareGeneral getTotalSill() const;
+  void normalize(double sill);
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////

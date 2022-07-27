@@ -691,12 +691,12 @@ VectorDouble HDF5format::getDataDoublePartial(int myrank) const
   {
     messerr("---> Problem in getDataDoublePartial. Operation aborted");
     EXCEPTION_PRINT_ERROR(error);
-    return { VectorDouble(1., -1.) };
+    return { VectorDouble(1, -1.) };
   }
 #else
   DECLARE_UNUSED(myrank);
 #endif
-  return { VectorDouble(1., -1.) };
+  return { VectorDouble(1, -1.) };
 }
 
 int HDF5format::writeDataDoublePartial(int myrank, const VectorDouble& data)

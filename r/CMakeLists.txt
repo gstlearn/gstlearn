@@ -47,7 +47,7 @@ include(${SWIG_USE_FILE})
 set(SRC rgstlearn.i)
 
 # Generation folders
-if (MSVC) # TODO: Prefer using GENERATOR_IS_MULTI_CONFIG
+if (CMAKE_CONFIGURATION_TYPES)
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
   set(R_PACKAGE_ROOT_FOLDER        ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
@@ -102,7 +102,8 @@ if (MSVC)
   # Wrapper source is too big for MSVC !
   set(COMP_FLAGS "/bigobj -D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter -Wno-unused-variable -Wno-maybe-uninitialized") # Prevent some SWIG C++/R warnings
 else()
-  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+  #set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+  set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
 endif()
 # Set some properties on SWIG target
 set_target_properties(r_build PROPERTIES

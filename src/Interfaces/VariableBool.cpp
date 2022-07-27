@@ -45,14 +45,6 @@ VectorDouble VariableBool::getValues() const
   return (res);
 }
 
-/**
- * Clone
- */
-VariableBool* VariableBool::clone() const
-{
-  return (new VariableBool(*this));
-}
-
 #ifdef _USE_NETCDF
 /**
  *

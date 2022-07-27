@@ -41,7 +41,3 @@ double DriftF::eval(const Db* db, int iech) const
   return db->getExternalDrift(iech,getRankFex());
 }
 
-IClonable* DriftF::clone() const
-{
-  return new DriftF(*this);
-}

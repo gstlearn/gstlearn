@@ -26,7 +26,7 @@ public:
   int gridShift(int lec, int dir);
   int init(bool verbose = false);
   int remains(bool verbose = false);
-  void next(int *rank, int *ipos);
+  void getNext(int *rank, int *ipos);
   int unstack(int rank0, int ipos0);
   void skinPrint();
 

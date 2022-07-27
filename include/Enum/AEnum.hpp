@@ -20,6 +20,7 @@
 #include <string>
 #include <iomanip>
 #include <map>
+#include <vector>
 
 class GSTLEARN_EXPORT AEnum
 {
@@ -94,7 +95,7 @@ class GSTLEARN_EXPORT NAME ## Iterator\
   friend class NAME;\
 \
   NAME ## Iterator() = delete;\
-  NAME ## Iterator(NAME ## Map& map);\
+  NAME ## Iterator(NAME ## Map* map);\
 public:\
   ~NAME ## Iterator() = default;\
   NAME ## Iterator(const NAME ## Iterator&) = default;\
@@ -111,7 +112,7 @@ public:\
 \
 private:\
   NAME ## Map::iterator _stditer;\
-  NAME ## Map&          _refmap;\
+  NAME ## Map*          _refmap;\
 };\
 \
 class GSTLEARN_EXPORT NAME : public AEnum\
@@ -121,16 +122,20 @@ public:\
   NAME();\
   ~NAME();\
   NAME(const NAME&) = default;\
+  NAME(int value);\
+  NAME(const String& key);\
   NAME& operator=(const NAME&) = default;\
 \
   static size_t getSize();\
   static NAME ## Iterator getIterator();\
   static void printAll();\
-  \
+\
   static bool existsKey(const String& key);\
   static bool existsValue(int value);\
   static const NAME& fromKey(const String& key);\
   static const NAME& fromValue(int value);\
+  static std::vector<NAME> fromKeys(const VectorString& keys);\
+  static std::vector<NAME> fromValues(const VectorInt& values);\
 \
 private:\
   NAME(const String& key, int value, const String& descr);\
@@ -156,12 +161,22 @@ public:\
 // ######################
 #define ENUM_DEFINE_(NAME, DEFAULT, ...)\
 NAME ## Map NAME::_map = NAME ## Map();\
-NAME ## Iterator NAME::_iterator = NAME ## Iterator(NAME::_map);\
+NAME ## Iterator NAME::_iterator = NAME ## Iterator(&NAME::_map);\
 \
 const NAME* NAME::_default = &NAME::DEFAULT;\
 \
 NAME::NAME()\
 : AEnum(*_default)\
+{\
+}\
+\
+NAME::NAME(int value)\
+: AEnum(fromValue(value))\
+{\
+}\
+\
+NAME::NAME(const String& key)\
+: AEnum(fromKey(key))\
 {\
 }\
 \
@@ -239,6 +254,22 @@ const NAME& NAME::fromValue(int value)\
   return *_default;\
 }\
 \
+std::vector<NAME> NAME::fromKeys(const VectorString& keys)\
+{\
+  std::vector<NAME> vec;\
+  for (auto v : keys)\
+    vec.push_back(fromKey(v));\
+  return vec;\
+}\
+\
+std::vector<NAME> NAME::fromValues(const VectorInt& values)\
+{\
+  std::vector<NAME> vec;\
+  for (auto v : values)\
+    vec.push_back(fromValue(v));\
+  return vec;\
+}\
+\
 NAME::E ## NAME NAME::toEnum() const\
 {\
   return static_cast<E ## NAME>(getValue());\
@@ -246,8 +277,8 @@ NAME::E ## NAME NAME::toEnum() const\
 \
 EXPAND(ENUM_IMPLS(NAME, __VA_ARGS__))\
 \
-NAME ## Iterator::NAME ## Iterator(NAME ## Map& map) \
-: _stditer(map.begin())\
+NAME ## Iterator::NAME ## Iterator(NAME ## Map* map) \
+: _stditer(map->begin())\
 , _refmap(map)\
 {\
 }\
@@ -259,7 +290,7 @@ const NAME& NAME ## Iterator::operator*() const\
 \
 bool NAME ## Iterator::hasNext() const\
 {\
-  return (_stditer != _refmap.end());\
+  return (_stditer != _refmap->end());\
 }\
 \
 const NAME& NAME ## Iterator::toNext()\
@@ -269,7 +300,7 @@ const NAME& NAME ## Iterator::toNext()\
 \
 const NAME& NAME ## Iterator::toFront()\
 {\
-  _stditer = _refmap.begin();\
+  _stditer = _refmap->begin();\
   return (*(_stditer->second));\
 }\
 \

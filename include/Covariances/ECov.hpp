@@ -39,9 +39,9 @@
                  PENTA,      21, "Pentamodel",\
                  SPLINE2_GC, 22, "Order-2 Spline",\
                  STORKEY,    23, "Storkey covariance in 1-D",\
-                 WENDLAND1,  24, "Wendland covariance (first type)",\
-                 WENDLAND2,  25, "Wendland covariance (second type)",\
-                 P8,         26, "Polynomial of degree 8",\
+                 WENDLAND0,  24, "Wendland covariance (2,0)",\
+                 WENDLAND1,  25, "Wendland covariance (3,1)",\
+                 WENDLAND2,  26, "Wendland covariance (4,2)",\
                  MARKOV,     27, "Markovian covariances"
 
 ENUM_DECLARE(ENUM_COV)

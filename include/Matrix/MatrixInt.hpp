@@ -13,14 +13,14 @@
 #pragma once
 
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**
  * Rectangular matrices are stored by columns
  */
-class GSTLEARN_EXPORT MatrixInt : public AStringable, public IClonable {
+class GSTLEARN_EXPORT MatrixInt : public AStringable, public ICloneable {
 
 public:
   MatrixInt(int nrow = 0, int ncol = 0);
@@ -28,17 +28,17 @@ public:
   MatrixInt& operator= (const MatrixInt &r);
 	virtual ~MatrixInt();
 
-  /// Interface to AStringable
+  /// ICloneable interface
+  IMPLEMENT_CLONING(MatrixInt)
+
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /*! Clonable interface */
-  virtual IClonable* clone() const override { return new MatrixInt(*this); };
-
   void   reset(int nrows, int ncols);
-  double getValue(int irow, int icol) const;
-  double getValue(int irank) const;
-  void   setValue(int rank, double value);
-  void   setValue(int irow, int icol, double value);
+  int    getValue(int irow, int icol) const;
+  int    getValue(int irank) const;
+  void   setValue(int rank, int value);
+  void   setValue(int irow, int icol, int value);
   int    getMatrixSize() const;
   int    size() const { return getMatrixSize(); }
   VectorInt getValues() const;

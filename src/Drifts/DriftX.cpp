@@ -41,7 +41,3 @@ double DriftX::eval(const Db* db, int iech) const
   return db->getCoordinate(iech,0);
 }
 
-IClonable* DriftX::clone() const
-{
-  return new DriftX(*this);
-}

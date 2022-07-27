@@ -11,7 +11,9 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
+#include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningDirection.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/AMatrix.hpp"
@@ -24,32 +26,56 @@
 #include "Db/DbGrid.hpp"
 
 #include <math.h>
-#include <Simulation/SimuTurningBands.hpp>
 
-SimuTurningBands::SimuTurningBands(int nbsimu, int nbtuba, const Model* model, int seed)
-    : ASimulation(nbsimu, seed),
+CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
+    : ACalcSimulation(nbsimu, seed),
       _nbtuba(nbtuba),
+      _iattOut(-1),
+      _icase(0),
+      _flagCheck(flag_check),
+      _flagBayes(false),
+      _flagPGS(false),
+      _flagGibbs(false),
+      _flagDGM(false),
+      _bayesMean(),
+      _bayesCov(),
+      _rCoeff(1.),
       _npointSimulated(0),
       _field(0.),
       _theta(0.),
       _seedBands(),
-      _codirs(),
-      _model(model)
+      _codirs()
 {
+}
+
+CalcSimuTurningBands::~CalcSimuTurningBands()
+{
+}
+
+bool CalcSimuTurningBands::_resize()
+{
+  int nbsimu = getNbSimu();
+  int nbtuba = getNBtuba();
+  if (nbtuba <= 0)
+  {
+    messerr(" The number of Turning Bands must be positive");
+    return false;
+  }
+
   _codirs.clear();
   _seedBands.clear();
 
   // The class is only partially defined
-  if (nbsimu > 0 && nbtuba > 0 && model != nullptr)
+  if (nbsimu > 0 && nbtuba > 0)
   {
     int nvar  = _getNVar();
     int ncova = _getNCova();
-    int ndim  = _model->getDimensionNumber();
+    int ndim  = _getNDim();
 
     /* Allocate the structures for the seeds */
 
     int size = nvar * ncova * _nbtuba * nbsimu;
-    _seedBands.resize(size,0.);
+    _seedBands.resize(size,0);
 
     /* Allocate the structures for the directions */
 
@@ -58,53 +84,24 @@ SimuTurningBands::SimuTurningBands(int nbsimu, int nbtuba, const Model* model, i
     for (int i = 0; i < nbands; i++)
       _codirs[i] = TurningDirection(ndim);
   }
+
+  return true;
 }
 
-SimuTurningBands::SimuTurningBands(const SimuTurningBands &r)
-    : ASimulation(r),
-      _nbtuba(r._nbtuba),
-      _npointSimulated(r._npointSimulated),
-      _field(r._field),
-      _theta(r._theta),
-      _seedBands(r._seedBands),
-      _codirs(r._codirs),
-      _model(r._model)
-{
-}
-
-SimuTurningBands& SimuTurningBands::operator=(const SimuTurningBands &r)
-{
-  if (this != &r)
-  {
-    ASimulation::operator=(r);
-    _nbtuba = r._nbtuba;
-    _npointSimulated = r._npointSimulated;
-    _field = r._field;
-    _theta = r._theta;
-    _seedBands = r._seedBands;
-    _codirs = r._codirs;
-    _model = r._model;
-  }
-  return *this;
-}
-
-SimuTurningBands::~SimuTurningBands()
-{
-}
-int SimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getAddressBand(int ivar, int is, int ib, int isimu)
 {
   int ncova = _getNCova();
   int nvar = _getNVar();
   return ivar+nvar*((is)+ncova*((ib)+_nbtuba*(isimu)));
 }
 
-void SimuTurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
+void CalcSimuTurningBands::_setSeedBand(int ivar, int is, int ib, int isimu, int seed)
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   _seedBands[iad] = seed;
 }
 
-int SimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
+int CalcSimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
 {
   int iad = _getAddressBand(ivar, is, ib, isimu);
   return _seedBands[iad];
@@ -119,18 +116,13 @@ int SimuTurningBands::_getSeedBand(int ivar, int is, int ib, int isimu)
  ** \param[in]  dbout   Db structure
  **
  *****************************************************************************/
-int SimuTurningBands::_generateDirections(const Db* dbout)
+int CalcSimuTurningBands::_generateDirections(const Db* dbout)
 {
-  if (_model == nullptr)
-  {
-    messerr("The 'model' must have been defined beforehand (calling 'init')");
-    return 1;
-  }
   double x[2];
-  int ndim = _model->getDimensionNumber();
-  int ncova = _model->getCovaNumber();
+  int ndim = _getNDim();
+  int ncova = _getNCova();
   int nbsimu = getNbSimu();
-  int nbands = _getNBands();
+  int nbands = getNDirs();
 
   /* Loop on the directions */
 
@@ -186,7 +178,7 @@ int SimuTurningBands::_generateDirections(const Db* dbout)
     for (int is = 0; is < ncova; is++)
       for (int ib = 0; ib < _nbtuba; ib++, ibs++)
       {
-        const CovAniso* cova = _model->getCova(is);
+        const CovAniso* cova = getModel()->getCova(is);
 
         // If the covariance has no Range (i.e. Nugget Effect), the rest is non-sense.
         // Nevertheless this code is maintained to ensure in order not to disorganize
@@ -259,12 +251,12 @@ int SimuTurningBands::_generateDirections(const Db* dbout)
  ** \param[in]  theta  Rotation angle
  **
  *****************************************************************************/
-void SimuTurningBands::_rotateDirections(double a[3], double theta)
+void CalcSimuTurningBands::_rotateDirections(double a[3], double theta)
 {
   double dirs[3];
   double ct = cos(theta);
   double st = sin(theta);
-  int nbands = _getNBands();
+  int nbands = getNDirs();
 
   /* Loop on the direction coefficients */
 
@@ -285,11 +277,11 @@ void SimuTurningBands::_rotateDirections(double a[3], double theta)
  ** \param[in]  db      Db structure
  **
  *****************************************************************************/
-void SimuTurningBands::_minmax(const Db *db)
+void CalcSimuTurningBands::_minmax(const Db *db)
 {
   double tt;
   if (db == nullptr) return;
-  int nbands = _getNBands();
+  int nbands = getNDirs();
 
   if (db->isGrid())
   {
@@ -352,7 +344,7 @@ void SimuTurningBands::_minmax(const Db *db)
  ** \remark    [nmini; nmaxi]
  **
  *****************************************************************************/
-void SimuTurningBands::_setDensity()
+void CalcSimuTurningBands::_setDensity()
 
 {
   int nmini = 5;
@@ -377,7 +369,7 @@ void SimuTurningBands::_setDensity()
  ** \return  The modified type
  **
  *****************************************************************************/
-ECov SimuTurningBands::_particularCase(const ECov &type, double param)
+ECov CalcSimuTurningBands::_particularCase(const ECov &type, double param)
 {
   static double eps = 1.e-7;
 
@@ -407,7 +399,7 @@ ECov SimuTurningBands::_particularCase(const ECov &type, double param)
  ** \return  Error return code : 1 for problem; 0 otherwise
  **
  *****************************************************************************/
-int SimuTurningBands::_initializeSeedBands()
+int CalcSimuTurningBands::_initializeSeedBands()
 {
   double tdeb, omega, phi, correc, correc0;
   VectorDouble v0;
@@ -433,11 +425,11 @@ int SimuTurningBands::_initializeSeedBands()
       for (int is = 0; is < ncova; is++)
         for (int ib = 0; ib < _nbtuba; ib++, ibs++)
         {
-          double tmin = _getCodirTmin(ibs);
-          double tmax = _getCodirTmax(ibs);
+          double tmin  = _getCodirTmin(ibs);
+          double tmax  = _getCodirTmax(ibs);
           double scale = _getCodirScale(ibs);
-          ECov type = _model->getCovaType(is);
-          double param = _model->getParam(is);
+          ECov type    = getModel()->getCovaType(is);
+          double param = getModel()->getParam(is);
           type = _particularCase(type, param);
           _setSeedBand(ivar, is, ib, isimu, law_get_random_seed());
 
@@ -534,10 +526,10 @@ int SimuTurningBands::_initializeSeedBands()
  ** \param[in]  eps   Epsilon value
  **
  *****************************************************************************/
-VectorDouble SimuTurningBands::_migration(double tmin,
-                                      double tmax,
-                                      double scale,
-                                      double eps)
+VectorDouble CalcSimuTurningBands::_migration(double tmin,
+                                          double tmax,
+                                          double scale,
+                                          double eps)
 {
   VectorDouble tab;
 
@@ -578,11 +570,10 @@ VectorDouble SimuTurningBands::_migration(double tmin,
  ** \param[out] start  initial time
  **
  *****************************************************************************/
-VectorDouble SimuTurningBands::_dilution(double tmin,
-                                     double tmax,
-                                     double mesh,
-                                     double *start)
-
+VectorDouble CalcSimuTurningBands::_dilution(double tmin,
+                                         double tmax,
+                                         double mesh,
+                                         double *start)
 {
   VectorDouble tab;
   int count = 0;
@@ -610,11 +601,11 @@ VectorDouble SimuTurningBands::_dilution(double tmin,
  ** \param[out] phi    uniform phase lying within [0,2 PI]
  **
  *****************************************************************************/
-void SimuTurningBands::_spectral(const ECov &type,
-                             double scale,
-                             double param,
-                             double *omega,
-                             double *phi)
+void CalcSimuTurningBands::_spectral(const ECov &type,
+                                 double scale,
+                                 double param,
+                                 double *omega,
+                                 double *phi)
 {
   double val, period;
   int i;
@@ -681,7 +672,7 @@ void SimuTurningBands::_spectral(const ECov &type,
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/
-double SimuTurningBands::_computeScale(double alpha, double scale)
+double CalcSimuTurningBands::_computeScale(double alpha, double scale)
 
 {
   double scale_out;
@@ -704,7 +695,7 @@ double SimuTurningBands::_computeScale(double alpha, double scale)
  ** \param[in]  scale       Scale parameter of the model
  **
  *****************************************************************************/
-double SimuTurningBands::_computeScaleKB(double param, double scale)
+double CalcSimuTurningBands::_computeScaleKB(double param, double scale)
 
 {
   return (scale * sqrt(law_beta1(param, 0.5 - param)));
@@ -735,13 +726,13 @@ double SimuTurningBands::_computeScaleKB(double param, double scale)
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void SimuTurningBands::_power1D(int ib,
-                            double scale,
-                            double alpha,
-                            double *omega,
-                            double *phi,
-                            double *theta_3,
-                            double *correc0)
+void CalcSimuTurningBands::_power1D(int ib,
+                                double scale,
+                                double alpha,
+                                double *omega,
+                                double *phi,
+                                double *theta_3,
+                                double *correc0)
 {
   double R, theta_1;
   static double twoPI, log3s2, log1s2, logap1, logap1s2, logap3s2, as2, coeff,
@@ -795,13 +786,13 @@ void SimuTurningBands::_power1D(int ib,
  **  \remark In Computational Geosciences 12:121-132
  **
  *****************************************************************************/
-void SimuTurningBands::_spline1D(int ib,
-                             double scale,
-                             int k,
-                             double *omega,
-                             double *phi,
-                             double *xi_3,
-                             double *correc0)
+void CalcSimuTurningBands::_spline1D(int ib,
+                                 double scale,
+                                 int k,
+                                 double *omega,
+                                 double *phi,
+                                 double *xi_3,
+                                 double *correc0)
 {
   double R;
   int twokm1;
@@ -846,11 +837,11 @@ void SimuTurningBands::_spline1D(int ib,
  ** \remark  This procedure allocates memory that should be freed
  **
  *****************************************************************************/
-void SimuTurningBands::_irfProcess(const ECov &type,
-                               const VectorDouble& t,
-                               VectorDouble& v0,
-                               VectorDouble& v1,
-                               VectorDouble& v2)
+void CalcSimuTurningBands::_irfProcess(const ECov &type,
+                                   const VectorDouble &t,
+                                   VectorDouble &v0,
+                                   VectorDouble &v1,
+                                   VectorDouble &v2)
 {
   double delta;
 
@@ -900,7 +891,7 @@ void SimuTurningBands::_irfProcess(const ECov &type,
  ** \remark  As a consequence the array "aic()" is not evaluated
  **
  *****************************************************************************/
-VectorDouble SimuTurningBands::_createAIC()
+VectorDouble CalcSimuTurningBands::_createAIC()
 {
   int ncova = _getNCova();
   int nvar  = _getNVar();
@@ -914,7 +905,7 @@ VectorDouble SimuTurningBands::_createAIC()
   for (int icov = 0; icov < ncova; icov++)
   {
     if (!is_matrix_definite_positive(
-        nvar, _model->getCova(icov)->getSill().getValues().data(),
+        nvar, getModel()->getCova(icov)->getSill().getValues().data(),
         valpro.data(), vecpro.data(), 0))
     {
       messerr("Warning: the model is not authorized");
@@ -946,12 +937,12 @@ VectorDouble SimuTurningBands::_createAIC()
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void SimuTurningBands::_simulatePoint(Db *db,
-                                 const VectorDouble& aic,
-                                 int icase,
-                                 int shift)
+void CalcSimuTurningBands::_simulatePoint(Db *db,
+                                      const VectorDouble &aic,
+                                      int icase,
+                                      int shift)
 {
-  double vexp, phi, omega, tdeb, dt0, t0;
+  double vexp, tdeb, dt0, t0;
   int nt0;
   VectorDouble t;
   VectorDouble v0;
@@ -960,6 +951,8 @@ void SimuTurningBands::_simulatePoint(Db *db,
   VectorDouble tab;
   static double vexp1 = 0.1;
   static double vexp2 = 0.1967708298;
+  double phi = 0.;
+  double omega = 0.;
 
   /* Initializations */
 
@@ -986,11 +979,11 @@ void SimuTurningBands::_simulatePoint(Db *db,
       for (int is = 0; is < ncova; is++)
         for (int ib = 0; ib < _nbtuba; ib++, ibs++)
         {
-          double tmin = _getCodirTmin(ibs);
-          double tmax = _getCodirTmax(ibs);
+          double tmin  = _getCodirTmin(ibs);
+          double tmax  = _getCodirTmax(ibs);
           double scale = _getCodirScale(ibs);
-          double param = _model->getParam(is);
-          ECov type = _model->getCovaType(is);
+          double param = getModel()->getParam(is);
+          ECov type    = getModel()->getCovaType(is);
           double correc = 1.;
           double correc0 = 0.;
           type = _particularCase(type, param);
@@ -1184,9 +1177,9 @@ void SimuTurningBands::_simulatePoint(Db *db,
  ** \remarks At the end, the simulated gradient is stored at first point
  **
  *****************************************************************************/
-void SimuTurningBands::_simulateGradient(Db *dbgrd,
-                                    const VectorDouble& aic,
-                                    double delta)
+void CalcSimuTurningBands::_simulateGradient(Db *dbgrd,
+                                         const VectorDouble &aic,
+                                         double delta)
 {
   int jsimu;
   int icase = 0;
@@ -1264,9 +1257,9 @@ void SimuTurningBands::_simulateGradient(Db *dbgrd,
  ** \remarks simulation outcome variables as for the gradients
  **
  *****************************************************************************/
-void SimuTurningBands::_simulateTangent(Db *dbtgt,
-                                   const VectorDouble& aic,
-                                   double delta)
+void CalcSimuTurningBands::_simulateTangent(Db *dbtgt,
+                                        const VectorDouble &aic,
+                                        double delta)
 {
   int icase = 0;
   int nvar = _getNVar();
@@ -1304,10 +1297,10 @@ void SimuTurningBands::_simulateTangent(Db *dbtgt,
  ** \param[in]  shift      Shift before writing the simulation result
  **
  *****************************************************************************/
-void SimuTurningBands::_simulateGrid(DbGrid *db,
-                                const VectorDouble& aic,
-                                int icase,
-                                int shift)
+void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
+                                     const VectorDouble &aic,
+                                     int icase,
+                                     int shift)
 {
   double vexp, phi, tdeb, omega, dt0, dt, t0, t0y, t0z;
   double cxp, sxp, cyp, syp, czp, szp, c0x, s0x, c0y, s0y, c0z, s0z, c1, s1;
@@ -1355,8 +1348,8 @@ void SimuTurningBands::_simulateGrid(DbGrid *db,
           double dzp = _getCodirDZP(ibs);
           double t00 = _getCodirT00(ibs);
           double scale = _getCodirScale(ibs);
-          ECov type = _model->getCovaType(is);
-          double param = _model->getParam(is);
+          ECov type = getModel()->getCovaType(is);
+          double param = getModel()->getParam(is);
           double correc = 1.;
           double correc0 = 0.;
           type = _particularCase(type, param);
@@ -1715,7 +1708,7 @@ void SimuTurningBands::_simulateGrid(DbGrid *db,
  ** \param[in]  t  Poisson point process
  **
  *****************************************************************************/
-int SimuTurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble& t)
+int CalcSimuTurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble& t)
 
 {
   int it, itp, itn;
@@ -1755,7 +1748,7 @@ int SimuTurningBands::_rankInPoisson(int def_rank, double t0, const VectorDouble
  ** \param[in]  scale scaling factor
  **
  *****************************************************************************/
-int SimuTurningBands::_rankRegular(double t0, double tdeb, double scale)
+int CalcSimuTurningBands::_rankRegular(double t0, double tdeb, double scale)
 
 {
   return ((int) ((t0 - tdeb) / scale));
@@ -1772,7 +1765,7 @@ int SimuTurningBands::_rankRegular(double t0, double tdeb, double scale)
  ** \param[in]  scale   Range of the model
  **
  *****************************************************************************/
-double SimuTurningBands::_irfCorrec(const ECov &type, double theta1, double scale)
+double CalcSimuTurningBands::_irfCorrec(const ECov &type, double theta1, double scale)
 {
   double correc;
 
@@ -1816,13 +1809,13 @@ double SimuTurningBands::_irfCorrec(const ECov &type, double theta1, double scal
  ** \param[in]  v2     Second integration of the Wiener-Levy process
  **
  *****************************************************************************/
-double SimuTurningBands::_irfProcessSample(const ECov &type,
-                                       int nt0,
-                                       double t0,
-                                       const VectorDouble& t,
-                                       const VectorDouble& v0,
-                                       const VectorDouble& v1,
-                                       const VectorDouble& v2)
+double CalcSimuTurningBands::_irfProcessSample(const ECov &type,
+                                           int nt0,
+                                           double t0,
+                                           const VectorDouble &t,
+                                           const VectorDouble &v0,
+                                           const VectorDouble &v1,
+                                           const VectorDouble &v2)
 {
   double value, delta;
 
@@ -1848,17 +1841,17 @@ double SimuTurningBands::_irfProcessSample(const ECov &type,
   return (TEST);
 }
 
-void SimuTurningBands::_getOmegaPhi(int ibs,
-                                double omega,
-                                double phi,
-                                double* cxp,
-                                double* sxp,
-                                double* cyp,
-                                double* syp,
-                                double* czp,
-                                double* szp,
-                                double* c0z,
-                                double* s0z)
+void CalcSimuTurningBands::_getOmegaPhi(int ibs,
+                                    double omega,
+                                    double phi,
+                                    double *cxp,
+                                    double *sxp,
+                                    double *cyp,
+                                    double *syp,
+                                    double *czp,
+                                    double *szp,
+                                    double *c0z,
+                                    double *s0z)
 {
   double dxp = _getCodirDXP(ibs);
   double dyp = _getCodirDYP(ibs);
@@ -1886,7 +1879,7 @@ void SimuTurningBands::_getOmegaPhi(int ibs,
  ** \param[in]  icase      Rank of PGS or GRF
  **
  *****************************************************************************/
-void SimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
+void CalcSimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icase)
 {
   int nech = db->getSampleNumber();
   int ncova = _getNCova();
@@ -1898,7 +1891,7 @@ void SimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icas
   bool flag_used = false;
   for (int is = 0; is < ncova && flag_used == 0; is++)
   {
-    if (_model->getCovaType(is) == ECov::NUGGET) flag_used = true;
+    if (getModel()->getCovaType(is) == ECov::NUGGET) flag_used = true;
   }
   if (!flag_used) return;
 
@@ -1909,7 +1902,7 @@ void SimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icas
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int is = 0; is < ncova; is++)
       {
-        ECov type = _model->getCovaType(is);
+        ECov type = getModel()->getCovaType(is);
 
         if (type != ECov::NUGGET) continue;
         law_set_random_seed(_getSeedBand(ivar, is, 0, isimu));
@@ -1929,10 +1922,10 @@ void SimuTurningBands::_simulateNugget(Db *db, const VectorDouble& aic, int icas
   return;
 }
 
-double SimuTurningBands::_getAIC(const VectorDouble& aic,
-                             int icov,
-                             int ivar,
-                             int jvar)
+double CalcSimuTurningBands::_getAIC(const VectorDouble &aic,
+                                 int icov,
+                                 int ivar,
+                                 int jvar)
 {
   int nvar = _getNVar();
   return aic[jvar + nvar * (ivar + nvar * icov)];
@@ -1951,12 +1944,12 @@ double SimuTurningBands::_getAIC(const VectorDouble& aic,
  ** \param[in]  r_coeff    Change of support coefficient
  **
  *****************************************************************************/
-void SimuTurningBands::_difference(Db *dbin,
-                              int icase,
-                              bool flag_pgs,
-                              bool flag_gibbs,
-                              bool flag_dgm,
-                              double r_coeff)
+void CalcSimuTurningBands::_difference(Db *dbin,
+                                   int icase,
+                                   bool flag_pgs,
+                                   bool flag_gibbs,
+                                   bool flag_dgm,
+                                   double r_coeff)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
@@ -2037,7 +2030,7 @@ void SimuTurningBands::_difference(Db *dbin,
  ** \param[in]  icase     Rank of PGS or GRF
  **
  *****************************************************************************/
-void SimuTurningBands::_meanCorrect(Db *dbout, int icase)
+void CalcSimuTurningBands::_meanCorrect(Db *dbout, int icase)
 {
   int nbsimu = getNbSimu();
   int nvar = _getNVar();
@@ -2058,7 +2051,7 @@ void SimuTurningBands::_meanCorrect(Db *dbout, int icase)
       {
         if (!dbout->isActive(iech)) continue;
         dbout->updSimvar(ELoc::SIMU, iech, isimu, ivar, icase, nbsimu,
-                         nvar, 0, _model->getMean(ivar));
+                         nvar, 0, getModel()->getMean(ivar));
       }
     }
   }
@@ -2082,11 +2075,11 @@ void SimuTurningBands::_meanCorrect(Db *dbout, int icase)
  ** \remarks within a cell
  **
  *****************************************************************************/
-void SimuTurningBands::_updateData2ToTarget(Db *dbin,
-                                       Db *dbout,
-                                       int icase,
-                                       bool flag_pgs,
-                                       bool flag_dgm)
+void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
+                                            Db *dbout,
+                                            int icase,
+                                            bool flag_pgs,
+                                            bool flag_dgm)
 {
   if (dbin->getSampleNumber() <= 0) return;
   if (flag_dgm) return;
@@ -2207,6 +2200,7 @@ void SimuTurningBands::_updateData2ToTarget(Db *dbin,
  **
  ** \param[in]  dbin       Input Db structure
  ** \param[in]  dbout      Output Db structure
+ ** \param[in]  model      Model structure
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  icase      Case for PGS or -1
  ** \param[in]  flag_bayes 1 if the Bayes option is switched ON
@@ -2219,8 +2213,9 @@ void SimuTurningBands::_updateData2ToTarget(Db *dbin,
  ** \param[in]  r_coeff    Change of Support ceofficient
  **
  *****************************************************************************/
-int SimuTurningBands::simulate(Db *dbin,
+int CalcSimuTurningBands::simulate(Db *dbin,
                                Db *dbout,
+                               Model* model,
                                ANeighParam *neighparam,
                                int icase,
                                int flag_bayes,
@@ -2231,76 +2226,96 @@ int SimuTurningBands::simulate(Db *dbin,
                                bool flag_dgm,
                                double r_coeff)
 {
-  int nbands = _getNBands();
-  if (_model == nullptr || nbands <= 0)
-  {
-    messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
-    return 1;
-  }
+  setDbin(dbin);
+  setDbout(dbout);
+  setModel(model);
+  setNeighparam(neighparam);
+  setIcase(icase);
+  setFlagBayes(flag_bayes);
+  setBayesMean(dmean);
+  setBayesCov(dcov);
+  setFlagPgs(flag_pgs);
+  setFlagGibbs(flag_gibbs);
+  setFlagDgm(flag_dgm);
+  setRCoeff(r_coeff);
+
+  if (! _run()) return 1;
+  return 0;
+}
+
+bool CalcSimuTurningBands::_run()
+{
   law_set_random_seed(getSeed());
-  bool flag_cond = (dbin != nullptr);
+  bool flag_cond = hasDbin();
   int nbsimu = getNbSimu();
 
   // Initializations
 
-  if (_generateDirections(dbout)) return 1;
-  _minmax(dbout);
-  _minmax(dbin);
-  if (_initializeSeedBands()) return 1;
+  if (! _resize()) return false;
+  if (_generateDirections(getDbout())) return false;
+  _minmax(getDbout());
+  _minmax(getDbin());
+  if (_initializeSeedBands()) return false;
 
   // Calculate the 'aic' array
 
   VectorDouble aic = _createAIC();
-  if (aic.empty()) return 1;
+  if (aic.empty()) return false;
 
   // Non conditional simulations on the data points
 
   if (flag_cond)
   {
-    _simulatePoint(dbin, aic, icase, 0);
+    _simulatePoint(getDbin(), aic, _icase, 0);
 
     // Calculate the simulated error
 
-    _difference(dbin, icase, flag_pgs, flag_gibbs, flag_dgm, r_coeff);
+    _difference(getDbin(), _icase, _flagPGS, _flagGibbs, _flagDGM, _rCoeff);
   }
 
   // Non conditional simulations on the grid
 
-  if (dbout->isGrid())
+  if (getDbout()->isGrid())
   {
-    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-    _simulateGrid(dbgrid, aic, icase, 0);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+    _simulateGrid(dbgrid, aic, _icase, 0);
   }
   else
   {
-    _simulatePoint(dbout, aic, icase, 0);
+    _simulatePoint(getDbout(), aic, _icase, 0);
   }
 
   /* Add the contribution of Nugget effect (optional) */
 
-  _simulateNugget(dbout, aic, icase);
+  _simulateNugget(getDbout(), aic, _icase);
 
   /* Conditional simulations */
 
   if (flag_cond)
   {
-    if (_krigsim(dbin, dbout, _model, neighparam, flag_bayes, dmean, dcov, icase,
-                 nbsimu, flag_dgm, r_coeff)) return 1;
+    if (_krigsim(getDbin(), getDbout(), getModel(), getNeighparam(),
+                 _flagBayes, _bayesMean, _bayesCov, _icase,
+                 nbsimu, _flagDGM, _rCoeff)) return 1;
   }
   else
   {
 
     /* In non-conditional case, correct for the mean */
 
-    _meanCorrect(dbout, icase);
+    _meanCorrect(getDbout(), _icase);
   }
 
   /* Copy value from data to coinciding grid node */
 
   if (flag_cond)
-    _updateData2ToTarget(dbin, dbout, icase, flag_pgs, flag_dgm);
+    _updateData2ToTarget(getDbin(), getDbout(), _icase, _flagPGS, _flagDGM);
 
-  return 0;
+  // Check the simulation at data location
+
+  if (_flagCheck)
+    _checkGaussianData2Grid(getDbin(), getDbout(), getModel());
+
+  return true;
 }
 
 /****************************************************************************/
@@ -2313,17 +2328,20 @@ int SimuTurningBands::simulate(Db *dbin,
  ** \param[in]  dbgrd     Gradient Db structure
  ** \param[in]  dbtgt     Tangent Db structure
  ** \param[in]  dbout     Output Db structure
+ ** \param[in]  model     Model structure
  ** \param[in]  delta     Value of the increment
  **
  *****************************************************************************/
-int SimuTurningBands::simulatePotential(Db *dbiso,
-                                    Db *dbgrd,
-                                    Db *dbtgt,
-                                    Db *dbout,
-                                    double delta)
+int CalcSimuTurningBands::simulatePotential(Db *dbiso,
+                                        Db *dbgrd,
+                                        Db *dbtgt,
+                                        Db *dbout,
+                                        Model* model,
+                                        double delta)
 {
-  int nbands = _getNBands();
-  if (_model == nullptr || nbands <= 0)
+  setDbout(dbout);
+  setModel(model);
+  if (getNbSimu() <= 0 || getNBtuba() <= 0)
   {
     messerr("You must define 'nbsimu', 'nbtuba' and the 'model' beforehand");
     return 1;
@@ -2393,7 +2411,7 @@ int SimuTurningBands::simulatePotential(Db *dbiso,
  ** \param[in]  model    Model structure
  **
  *****************************************************************************/
-bool SimuTurningBands::isTurningBandsWorkable(const Model *model)
+bool CalcSimuTurningBands::isTurningBandsWorkable(const Model *model)
 
 {
   bool workable = true;
@@ -2442,9 +2460,9 @@ bool SimuTurningBands::isTurningBandsWorkable(const Model *model)
  ** \remark Tests have only been produced for icase=0
  **
  *****************************************************************************/
-void SimuTurningBands::checkGaussianData2Grid(Db *dbin,
-                                          Db *dbout,
-                                          Model *model) const
+void CalcSimuTurningBands::_checkGaussianData2Grid(Db *dbin,
+                                               Db *dbout,
+                                               Model *model) const
 {
   if (dbin == nullptr) return;
   if (get_LOCATOR_NITEM(dbout,ELoc::SIMU) <= 0) return;
@@ -2498,5 +2516,232 @@ void SimuTurningBands::checkGaussianData2Grid(Db *dbin,
   }
   if (number <= 0) message("No problem found\n");
   return;
+}
+
+bool CalcSimuTurningBands::_check()
+{
+  if (! ACalcSimulation::_check()) return false;
+
+  if (! hasDbout())
+  {
+    messerr("The argument 'dbout' must be defined");
+    return false;
+  }
+  if (! hasModel())
+  {
+    messerr("The argument 'model' must be defined");
+    return false;
+  }
+  if (hasDbin() && ! hasNeighParam())
+  {
+    messerr("The argument 'neighparam' must be defined");
+    return false;
+  }
+  int ndim = _getNDim();
+  if (ndim > 3)
+  {
+    messerr("The Turning Band Method is not a relevant simulation model");
+    messerr("for this Space Dimension (%d)", ndim);
+    return false;
+  }
+  if (getNBtuba() <= 0)
+  {
+    messerr("You must define 'nbsimu' and 'nbtuba'");
+    return 1;
+  }
+  return true;
+}
+
+bool CalcSimuTurningBands::_preprocess()
+{
+    int nvar = _getNVar();
+    int nbsimu = getNbSimu();
+    bool flag_cond = (getDbin() != nullptr);
+
+    // Expand information amongst Db if necessary
+
+    if (_expandInformation(1, ELoc::F)) return false;
+    if (_expandInformation(1, ELoc::NOSTAT)) return false;
+
+    /* Add the attributes for storing the results */
+
+    if (flag_cond)
+    {
+      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, nvar*nbsimu);
+      if (iptr_in < 0) return false;
+    }
+
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, nvar*nbsimu);
+    if (_iattOut < 0) return false;
+
+    return true;
+}
+
+bool CalcSimuTurningBands::_postprocess()
+{
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
+  /* Set the error return flag */
+
+  _renameVariable(ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+
+  return true;
+}
+
+void CalcSimuTurningBands::_rollback()
+{
+  _cleanVariableDb(1);
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the conditional or non-conditional simulation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure (optional)
+ ** \param[in]  dbout      Output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  nbsimu     Number of simulations
+ ** \param[in]  seed       Seed for random number generator
+ ** \param[in]  nbtuba     Number of turning bands
+ ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
+ ** \param[in]  namconv    Naming convention
+ **
+ ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  be defined only for conditional simulations
+ **
+ *****************************************************************************/
+int simtub(Db *dbin,
+           Db *dbout,
+           Model *model,
+           ANeighParam *neighparam,
+           int nbsimu,
+           int seed,
+           int nbtuba,
+           int flag_check,
+           const NamingConvention &namconv)
+{
+  // Instantiate the Calculator
+  CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+
+  // Set the members of the Calculator
+  situba.setDbin(dbin);
+  situba.setDbout(dbout);
+  situba.setModel(model);
+  situba.setNeighparam(neighparam);
+  situba.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (situba.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the conditional or non-conditional simulation
+ **  with Bayesian Drift
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure (optional)
+ ** \param[in]  dbout      Output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  nbsimu     Number of simulations
+ ** \param[in]  seed       Seed for random number generator
+ ** \param[in]  dmean      Array giving the prior means for the drift terms
+ ** \param[in]  dcov       Array containing the prior covariance matrix
+ **                        for the drift terms
+ ** \param[in]  nbtuba     Number of turning bands
+ ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
+ ** \param[in]  namconv    Naming convention
+ **
+ ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  be defined only for conditional simulations
+ **
+ *****************************************************************************/
+int simbayes(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             int nbsimu,
+             int seed,
+             const VectorDouble& dmean,
+             const VectorDouble& dcov,
+             int nbtuba,
+             int flag_check,
+             const NamingConvention& namconv)
+{
+  // Instantiate the Calculator
+  CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+
+  // Set the members of the Calculator
+  situba.setDbin(dbin);
+  situba.setDbout(dbout);
+  situba.setModel(model);
+  situba.setNeighparam(neighparam);
+  situba.setNamingConvention(namconv);
+
+  situba.setFlagBayes(true);
+  situba.setBayesMean(dmean);
+  situba.setBayesCov(dcov);
+
+  // Run the calculator
+  int error = (situba.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the conditional or non-conditional block simulation
+ **  in the scope of the Discrete Gaussian Model
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       Input Db structure (optional)
+ ** \param[in]  dbout      Output Db Grid structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure (optional)
+ ** \param[in]  rval       Change of support coefficient
+ ** \param[in]  seed       Seed for random number generator
+ ** \param[in]  nbsimu     Number of simulations
+ ** \param[in]  nbtuba     Number of turning bands
+ ** \param[in]  flag_check 1 to check the proximity in Gaussian scale
+ ** \param[in]  namconv    Naming convention
+ **
+ ** \remark  The arguments 'dbout' and 'neigh' are optional: they must
+ ** \remark  be defined only for conditional simulations
+ **
+ *****************************************************************************/
+int simdgm(Db *dbin,
+           DbGrid *dbout,
+           Model *model,
+           ANeighParam *neighparam,
+           double rval,
+           int seed,
+           int nbsimu,
+           int nbtuba,
+           int flag_check,
+           const NamingConvention& namconv)
+{
+  // Instantiate the Calculator
+   CalcSimuTurningBands situba(nbsimu, nbtuba, flag_check, seed);
+
+   // Set the members of the Calculator
+   situba.setDbin(dbin);
+   situba.setDbout(dbout);
+   situba.setModel(model);
+   situba.setNeighparam(neighparam);
+   situba.setNamingConvention(namconv);
+
+   situba.setFlagDgm(true);
+   situba.setRCoeff(rval);
+
+   // Run the calculator
+   int error = (situba.run()) ? 0 : 1;
+   return error;
 }
 

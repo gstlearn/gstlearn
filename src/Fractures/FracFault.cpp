@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Fractures/FracFault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 
 #include <math.h>
-#include "../../include/Fractures/FracFault.hpp"
 
 FracFault::FracFault(double coord, double orient)
   : AStringable(),
@@ -61,8 +61,9 @@ FracFault::~FracFault()
 String FracFault::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
+
   sstr << "Location of the Fault           = " << _coord << std::endl;
-  sstr << "Fault orientation               = " << _orient << " (deg)" << std::endl;
+  sstr << "Fault orientation               = " << _orient << " (degree)" << std::endl;
 
   int number = (int) _thetal.size();
   for (int j = 0; j < number; j++)
@@ -91,9 +92,9 @@ double FracFault::faultAbscissae(double cote) const
 }
 
 void FracFault::addFaultPerFamily(double thetal,
-                              double thetar,
-                              double rangel,
-                              double ranger)
+                                  double thetar,
+                                  double rangel,
+                                  double ranger)
 {
   int nfam  = getNFamilies();
   _thetal.resize(nfam + 1);
@@ -109,8 +110,8 @@ void FracFault::addFaultPerFamily(double thetal,
 
 bool FracFault::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int nfam;
   bool ret = true;
+  int nfam = getNFamilies();
   ret = ret && _recordRead<double>(is, "Abscissa of the first Fault point", _coord);
   ret = ret && _recordRead<double>(is, "Fault orientation", _orient);
   ret = ret && _recordRead<int>   (is, "Number of Families", nfam);

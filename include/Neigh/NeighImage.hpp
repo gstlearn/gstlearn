@@ -37,7 +37,7 @@ public:
 
   int reset(int ndim, const VectorInt& image, int skip = 0);
   static NeighImage* create(int ndim, const VectorInt& image, int skip = 0);
-  static NeighImage* createFromNF(const String& neutralFilename, bool verbose = false);
+  static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
   int getSkip() const { return _skip; }
   const VectorInt& getImageRadius() const { return _imageRadius; }
   int getImageRadius(int idim) const { return _imageRadius[idim]; }

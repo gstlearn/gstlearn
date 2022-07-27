@@ -44,7 +44,7 @@ public:
   cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
 
   static MeshEStandard* createFromNF(const String& neutralFilename,
-                                     bool verbose = false);
+                                     bool verbose = true);
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
   void   getDuplicates(int verbose,

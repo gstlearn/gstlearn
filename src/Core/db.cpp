@@ -1066,8 +1066,6 @@ void db_print(Db *db,
  **  This calculation takes contents of arguments at input into account
  **  if 'flag_preserve' is true
  **
- ** \return  Error return code
- **
  ** \param[in]  db    Db structure
  **
  ** \param[out]  mini   Array containing the minimum

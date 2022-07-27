@@ -23,7 +23,7 @@ public:
   CovTriangle& operator= (const CovTriangle &r);
   virtual ~CovTriangle();
 
-  unsigned int getMaxNDim()   const  override { return 1; }
+  unsigned int   getMaxNDim()   const  override { return 1; }
 
   virtual String getFormula() const override { return String("Equation not yet implemented"); }
   String         getCovName() const override { return "Triangle"; }

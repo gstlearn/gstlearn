@@ -26,6 +26,7 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
+#include "Covariances/ECov.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Model/ANoStat.hpp"
@@ -73,7 +74,7 @@ Model::Model(const Model &m)
   if (m._covaList != nullptr)
     _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
   if (m._driftList != nullptr)
-    _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+    _driftList = m._driftList->clone();
   if (m._noStat != nullptr)
     _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
 }
@@ -87,7 +88,7 @@ Model& Model::operator=(const Model &m)
     if (m._covaList != nullptr)
       _covaList = dynamic_cast<ACovAnisoList*>(m._covaList->clone());
     if (m._driftList != nullptr)
-      _driftList = dynamic_cast<DriftList*>(m._driftList->clone());
+      _driftList = m._driftList->clone();
     if (m._noStat != nullptr)
       _noStat = dynamic_cast<ANoStat*>(m._noStat->clone());
     _ctxt = m._ctxt;
@@ -133,7 +134,7 @@ Model* Model::createFromParam(const ECov& type,
   if (! ranges.empty())
   {
     delete spaceloc;
-    spaceloc = new SpaceRN(ranges.size());
+    spaceloc = new SpaceRN((int) ranges.size());
   }
 
   CovContext ctxt = CovContext(nvar,spaceloc);
@@ -299,7 +300,7 @@ void Model::addCovFromParam(const ECov& type,
       messerr("Operation is cancelled");
       return;
     }
-    nvar = sqrt((int) sills.size());
+    nvar = sqrt((double) sills.size());
   }
 
   // Define the covariance
@@ -343,7 +344,7 @@ void Model::setDriftList(const DriftList* driftlist)
 {
   if (driftlist == nullptr) return;
   if (_driftList != nullptr) delete _driftList;
-  _driftList = dynamic_cast<DriftList*>(driftlist->clone());
+  _driftList = driftlist->clone();
 }
 
 /**
@@ -510,13 +511,13 @@ int Model::addNoStat(const ANoStat *anostat)
 }
 
 /**
- * Adding an Anamorphosis information to the Model
+ * Defining an Anamorphosis information for the Model
  * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
  * @param strcnt Array of covariance description used for IR case
  * @return
  */
-int Model::addAnam(const AAnam* anam, const VectorInt& strcnt)
+int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
 {
   if (hasAnam())
   {
@@ -1362,4 +1363,22 @@ double Model::_evalDriftCoef(const Db* db,
     drift += value * coef[ib];
   }
   return drift;
+}
+
+std::vector<ECov> Model::initCovList(const VectorInt & covranks)
+{
+  std::vector<ECov> list;
+
+  for (int i = 0; i < (int) covranks.size(); i++)
+  {
+    ECov ec = ECov::fromValue(covranks[i]);
+    if (ec == ECov::UNKNOWN)
+    {
+      ECov::printAll();
+      list.clear();
+      break;
+    }
+    list.push_back(ec);
+  }
+  return list;
 }

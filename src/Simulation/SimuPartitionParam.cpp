@@ -65,3 +65,4 @@ double SimuPartitionParam::getDilate(int idim) const
   if (_dilate.empty()) return 0.;
   return _dilate[idim];
 }
+

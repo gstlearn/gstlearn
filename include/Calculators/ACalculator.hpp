@@ -11,40 +11,22 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
 
-#include "Simulation/ASimulation.hpp"
-#include "Basic/Plane.hpp"
-
-class SimuPartitionParam;
-class Db;
-class DbGrid;
-
-typedef struct
-{
-  double valref;
-  double valsim;
-} Stack;
-
-class GSTLEARN_EXPORT SimuPartition: public ASimulation
+class GSTLEARN_EXPORT ACalculator
 {
 public:
-  SimuPartition(int nbsimu = 0, int seed = 4324324);
-  SimuPartition(const SimuPartition &r);
-  SimuPartition& operator=(const SimuPartition &r);
-  virtual ~SimuPartition();
+  ACalculator();
+  ACalculator(const ACalculator &r) = delete;
+  ACalculator& operator=(const ACalculator &r) = delete;
+  virtual ~ACalculator();
 
-  int voronoi(DbGrid *dbgrid,
-              Model *model,
-              const SimuPartitionParam& parparam,
-              int iptr,
-              bool verbose = false);
-  int poisson(DbGrid *dbgrid,
-              Model *model,
-              const SimuPartitionParam& parparam,
-              int iptr,
-              bool verbose = false);
+  bool run();
 
-private:
-  double _stackSearch(const std::vector<Stack>& stacks, double valref);
+protected:
+  virtual bool _run() = 0;
+
+  virtual bool _check() { return true; }
+  virtual bool _preprocess()  { return true; }
+  virtual bool _postprocess() { return true; }
+  virtual void _rollback() { }
 };

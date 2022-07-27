@@ -47,3 +47,34 @@ double CovWendland2::_evaluateCov(double h) const
   return (cov);
 }
 
+double CovWendland2::_evaluateCovDerivate(int degree, double h) const
+{
+  double h2, res;
+
+  res = 0.;
+  h2 = h * h;
+  if (h > 1) return res;
+
+  switch (degree)
+  {
+    case 1:
+      res = -h
+          * (56. - h2
+              * (840. - h * (2240. - h * (2520. - h * (1344. - h * 280.)))));
+      break;
+
+    case 2:
+      res = -56.
+          + h2 * (2520. - h * (8960. - h * (12600. - h * (8064. - h * 1960.))));
+      break;
+
+    case 3:
+      res = h * (5040. - h * (26880. - h * (50400. - h * (40320. - h * 11760.))));
+      break;
+
+    case 4:
+      res = 5040. - h * (53760. - h * (151200. - h * (161280. - h * 58800.)));
+      break;
+  }
+  return (res);
+}

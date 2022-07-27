@@ -23,7 +23,7 @@
 VarioParam::VarioParam(double scale,
                        const VectorDouble& dates)
   : AStringable()
-  , IClonable()
+  , ICloneable()
   , _scale(scale)
   , _dates(dates)
   , _dirparams()
@@ -32,7 +32,7 @@ VarioParam::VarioParam(double scale,
 
 VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
     : AStringable(),
-      IClonable(),
+      ICloneable(),
       _scale(),
       _dates(),
       _dirparams()

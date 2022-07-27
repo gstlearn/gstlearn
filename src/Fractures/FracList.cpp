@@ -9,22 +9,21 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-
 #include "Fractures/FracList.hpp"
 #include "Fractures/FracDesc.hpp"
+#include "Fractures/FracEnviron.hpp"
+#include "Fractures/FracFamily.hpp"
+#include "Fractures/FracFault.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Geometry.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/NamingConvention.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
-
-#include "../../include/Fractures/FracEnviron.hpp"
-#include "../../include/Fractures/FracFamily.hpp"
-#include "../../include/Fractures/FracFault.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw,i)          (well[2*(iw) + (i)])
@@ -90,6 +89,9 @@ FracList::~FracList()
 String FracList::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
+  if (getNFracs() <= 0) return sstr.str();
+
+  mestitle(0,"Fracture Description");
   sstr << "Current number of simulated fractures = " <<  getNFracs() << std::endl;
 
   /* Loop on the fractures */
@@ -104,31 +106,29 @@ String FracList::toString(const AStringFormat* strfmt) const
 /*!
  **  Simulate a set of fractures
  **
- ** \param[in]  environ        Environ structure
+ ** \param[in]  envir          Environ structure
  ** \param[in]  flag_sim_layer TRUE for simulating layers
  **                            FALSE if they are read
  ** \param[in]  flag_sim_fract TRUE for simulating the fractures
  **                            FALSE establish the layers and the main faults
- ** \param[in]  nlayers_in     Number of input layers (used if flag_sim_layer=F)
  ** \param[in]  elevations     Array of elevations (used if flag_sim_layer=F)
  ** \param[in]  seed           Seed for the random number generator
  ** \param[in]  verbose        Verbose option
  **
  *****************************************************************************/
-int FracList::simulate(const FracEnviron* environ,
+int FracList::simulate(const FracEnviron& envir,
                        bool flag_sim_layer,
                        bool flag_sim_fract,
                        int seed,
                        bool verbose,
-                       int nlayers_in,
                        const VectorDouble& elevations)
 {
-  _step = environ->getXextend() / _ndisc;
-  _xorigin = -environ->getDeltax();
+  _step = envir.getXextend() / _ndisc;
+  _xorigin = -envir.getDeltax();
   _verbose = verbose;
 
   double y0 = 0.;
-  int ninfos = 1 + environ->getNFamilies() * NPART;
+  int ninfos = 1 + envir.getNFamilies() * NPART;
   law_set_random_seed(seed);
 
   if (_verbose)
@@ -144,9 +144,9 @@ int FracList::simulate(const FracEnviron* environ,
 
   VectorDouble thicks;
   if (flag_sim_layer)
-    thicks = _layersManage(*environ, &y0);
+    thicks = _layersManage(envir, &y0);
   else
-    thicks = _layersRead(nlayers_in, elevations, &y0);
+    thicks = _layersRead(elevations, &y0);
   _nlayers = (int) thicks.size();
 
   /* Core allocation */
@@ -161,22 +161,22 @@ int FracList::simulate(const FracEnviron* environ,
   for (int ilayer = 0; ilayer < _nlayers; ilayer++)
   {
     double thick = thicks[ilayer];
-    setMemLayer(ilayer, cote);
+    _setMemLayer(ilayer, cote);
     cote += thick;
   }
-  setMemLayer(_nlayers, cote);
+  _setMemLayer(_nlayers, cote);
 
   /* Define the main faults */
 
-  for (int ifault = 0; ifault < environ->getNFaults(); ifault++)
+  for (int ifault = 0; ifault < envir.getNFaults(); ifault++)
   {
-    double angle = environ->getFault(ifault).getOrient();
+    double angle = envir.getFault(ifault).getOrient();
 
     /* Loop on the layers */
 
     int ifrac = -1;
     cote = y0;
-    double xx = environ->getFault(ifault).faultAbscissae(cote);
+    double xx = envir.getFault(ifault).faultAbscissae(cote);
     for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
       double thick = thicks[ilayer];
@@ -188,15 +188,15 @@ int FracList::simulate(const FracEnviron* environ,
   if (_verbose)
     message("Total number of main faults        = %d \n", getNFracs());
 
-  if (!flag_sim_fract) goto label_suite;
+  if (!flag_sim_fract) return 0;
 
   /* Loop on the different fault families */
 
-  for (int ifam = 0; ifam < environ->getNFamilies(); ifam++)
+  for (int ifam = 0; ifam < envir.getNFamilies(); ifam++)
   {
     if (_verbose)
-      mestitle(0, "Processing Family #%d/%d", ifam + 1, environ->getNFamilies());
-    const FracFamily& family = environ->getFamily(ifam);
+      mestitle(0, "Processing Family #%d/%d", ifam + 1, envir.getNFamilies());
+    const FracFamily& family = envir.getFamily(ifam);
 
     /* Loop on the layers */
 
@@ -218,7 +218,7 @@ int FracList::simulate(const FracEnviron* environ,
 
       /* Generate the density function */
 
-      _generateDensity(*environ, family, ifam, cote, denstab);
+      _generateDensity(envir, family, ifam, cote, denstab);
 
       /* Correct the density due to already existing faults */
 
@@ -232,23 +232,22 @@ int FracList::simulate(const FracEnviron* environ,
 
       double theta2 = _deriveIntensity(theta1, thetap, propsur);
 
-      /* Simulate the fractures abscissa */
+      /* Simulate the fractures within the layer */
 
-      int nfracs = _simulateFractures(*environ, family, ifam, cote, thick, theta2, denstab);
+      int nfracs = _simulateFractures(envir, family, ifam, cote, thick, theta2, denstab);
 
       /* Shift the ordinate */
 
       cote += thick;
       thetap = theta1;
-      setMemTheta1(ilayer,ifam,theta1);
-      setMemTheta2(ilayer,ifam,theta2);
-      setMemPropsur(ilayer,ifam,propsur);
-      setMemFrac(ilayer,ifam,(double) nfracs);
-      setMemTotal(ilayer,ifam,(double) getNFracs());
+      _setMemTheta1(ilayer,ifam,theta1);
+      _setMemTheta2(ilayer,ifam,theta2);
+      _setMemPropsur(ilayer,ifam,propsur);
+      _setMemFrac(ilayer,ifam,(double) nfracs);
+      _setMemTotal(ilayer,ifam,(double) getNFracs());
     }
   }
 
-  label_suite:
   return (0);
 }
 
@@ -258,32 +257,28 @@ int FracList::simulate(const FracEnviron* environ,
  **
  ** \return The vector of layer thicknesses
  **
- ** \param[in]  environ      Pointer to the Environ structure
- ** \param[in]  y0           Ordinate of the origin
+ ** \param[in]  envir      Pointer to the Environ structure
+ ** \param[in]  y0         Ordinate of the origin
  **
  ** \remarks The origin is calculated so that a layer edge is located at 0.
  **
  *****************************************************************************/
-VectorDouble FracList::_layersManage(const FracEnviron& environ,
+VectorDouble FracList::_layersManage(const FracEnviron& envir,
                                      double *y0)
 {
   VectorDouble thicks;
-  double thick_min = environ.getMean() / 10.;
-  double mean = environ.getMean();
-  double stdev = environ.getStdev();
+  double thick_min = envir.getMean() / 10.;
+  double mean = envir.getMean();
+  double stdev = envir.getStdev();
   double var = stdev * stdev;
   double theta = var / mean;
   bool flag_rnd = var > 0.;
-  int k = (flag_rnd) ? (mean * mean) / var : 0.;
-
-  /* Allocation */
-
-  int number = 0;
+  double k = (flag_rnd) ? (mean * mean) / var : 0.;
 
   /* Downwards */
 
   double total = 0.;
-  while (total < environ.getDeltay())
+  while (total < envir.getDeltay())
   {
     double thick = (flag_rnd) ? theta * law_gamma(k) : mean;
     if (thick < thick_min) continue;
@@ -295,7 +290,7 @@ VectorDouble FracList::_layersManage(const FracEnviron& environ,
   /* Upwards */
 
   total = 0.;
-  while (total < environ.getYmax())
+  while (total < envir.getYmax())
   {
     double thick = (flag_rnd) ? theta * law_gamma(k) : mean;
     if (thick < thick_min) continue;
@@ -310,6 +305,7 @@ VectorDouble FracList::_layersManage(const FracEnviron& environ,
 
   if (_verbose)
   {
+    int number = (int) thicks.size();
     mestitle(0, "Layer generation");
     message("Thickness law - Mean               = %lf\n", mean);
     message("Thickness law - St. Dev.           = %lf\n", stdev);
@@ -325,30 +321,28 @@ VectorDouble FracList::_layersManage(const FracEnviron& environ,
 /*!
  **  Read the series of layers
  **
- ** \param[in]  nlayers_in   Number of elevations to be read
  ** \param[in]  elevations   Array of elevations to be read
  **
  ** \param[out] y0           Ordinate of the origin
  **
  *****************************************************************************/
-VectorDouble FracList::_layersRead(int nlayers_in,
-                                   const VectorDouble& elevations,
-                                   double *y0)
+VectorDouble FracList::_layersRead(const VectorDouble& elevations, double *y0)
 {
   VectorDouble thicks;
 
   /* Initializations */
 
-  thicks.resize(nlayers_in - 1);
+  int nlayers = (int) elevations.size();
+  thicks.resize(nlayers - 1);
 
   double cote = elevations[0];
-  for (int i = 1; i < nlayers_in; i++)
+  for (int i = 1; i < nlayers; i++)
   {
     thicks[i - 1] = elevations[i] - cote;
     cote = elevations[i];
   }
   double cote_down = (*y0) = elevations[0];
-  double cote_up = elevations[nlayers_in - 1];
+  double cote_up = elevations[nlayers - 1];
 
   /* Optional information */
 
@@ -357,40 +351,10 @@ VectorDouble FracList::_layersRead(int nlayers_in,
     mestitle(0, "Layer (read)");
     message("Minimum simulated level            = %lf\n", cote_down);
     message("Maximum simulated level            = %lf\n", cote_up);
-    message("Number of layers                   = %d \n", nlayers_in);
+    message("Number of layers                   = %d \n", nlayers);
   }
 
   return thicks;
-}
-
-/****************************************************************************/
-/*!
- **  Manage the FracList structure
- **
- ** \return  Pointer to the FracList structure
- **
- ** \param[in]  mode         0 initialization; 1 allocation; -1 deallocation
- **
- *****************************************************************************/
-void FracList::_manage(int mode)
-{
-  int number = getNFracs();
-  switch (mode)
-  {
-    case 0:
-      _descs.clear();
-      break;
-
-    case 1:
-      _descs.resize(number + 1);
-      _descs[number] = FracDesc();
-      break;
-
-    case -1:
-      _descs.clear();
-      break;
-  }
-  return;
 }
 
 /****************************************************************************/
@@ -419,7 +383,7 @@ int FracList::_fracAdd(int ifrac,
 {
   if (ifrac < 0)
   {
-    _manage(1);
+    addDescription();
     ifrac = getNFracs() - 1;
   }
 
@@ -544,15 +508,15 @@ double FracList::_layerIntensity(const FracFamily& family, double thick)
 /*!
  **  Generate the density along the scene
  **
- ** \param[in]  environ     Environ structure
- ** \param[in]  family      Family structure
- ** \param[in]  ifam        Rank of the family
- ** \param[in]  cote        Ordinate of the fracture starting point
+ ** \param[in]  envir     Environ structure
+ ** \param[in]  family    Family structure
+ ** \param[in]  ifam      Rank of the family
+ ** \param[in]  cote      Ordinate of the fracture starting point
  **
- ** \param[out] denstab      Discretization density array
+ ** \param[out] denstab   Discretization density array
  **
  *****************************************************************************/
-void FracList::_generateDensity(const FracEnviron& environ,
+void FracList::_generateDensity(const FracEnviron& envir,
                                 const FracFamily& family,
                                 int ifam,
                                 double cote,
@@ -576,10 +540,10 @@ void FracList::_generateDensity(const FracEnviron& environ,
       /* Loop on the faults */
 
       double value = 0.;
-      for (int ifault = 0; ifault < environ.getNFaults(); ifault++)
+      for (int ifault = 0; ifault < envir.getNFaults(); ifault++)
       {
-        const FracFault& fault = environ.getFault(ifault);
-        if (! _sameFaultSide(environ, ifault, x0)) continue;
+        const FracFault& fault = envir.getFault(ifault);
+        if (! _sameFaultSide(envir, ifault, x0)) continue;
 
         /* Left side */
         value = MAX(value, _densityUpdate(fault, -1, ifam, cote, x0));
@@ -597,10 +561,8 @@ void FracList::_generateDensity(const FracEnviron& environ,
     denstab[idisc] = denstab[idisc] * (1. - ratcst) + (1. / _ndisc) * ratcst;
 
   if (_verbose)
-  {
-    double total;
-    (void) _densityCumulate("Main Fault         ", true, denstab, &total);
-  }
+    message("- Cumulated Distribution: Main Fault = %lf\n",
+            _densityCumulate(denstab));
 
   return;
 }
@@ -620,8 +582,6 @@ void FracList::_correctDensity(const FracFamily& family,
                                double cote,
                                VectorDouble& denstab)
 {
-  double total;
-
   /* Loop on the fractures */
 
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
@@ -642,7 +602,8 @@ void FracList::_correctDensity(const FracFamily& family,
   }
 
   if (_verbose)
-    (void) _densityCumulate("Previous families  ", true, denstab, &total);
+    message("- Cumulated Distribution: Previous families = %lf\n",
+            _densityCumulate(denstab));
 }
 
 /****************************************************************************/
@@ -708,7 +669,7 @@ double FracList::_extendFractures(const FracFamily& family,
     next++;
     double xx = desc.getXXF(npoint - 1);
     double xp;
-    (void) _fracAdd(ifrac, ifam, xx, cote, thick, angle, &xp);
+    (void) _fracAdd(ifrac, ifam+1, xx, cote, thick, angle, &xp);
 
     /* Update the density to account for repulsion */
 
@@ -720,8 +681,8 @@ double FracList::_extendFractures(const FracFamily& family,
   {
     message("Survival proportion               = %lf (%d from %d)\n", propsur,
             next, ntotal);
-    double total;
-    (void) _densityCumulate("After survival     ", true, denstab, &total);
+    message("- Cumulated Distribution: After survival = %lf\n",
+            _densityCumulate(denstab));
   }
   return (propsur);
 }
@@ -733,23 +694,23 @@ double FracList::_extendFractures(const FracFamily& family,
  **
  ** \return The discretized point is not separated by another fault
  **
- ** \param[in]  environ      Environ structure
- ** \param[in]  ifault0      Rank of the target fault
- ** \param[in]  x0           Location of the discretized point
+ ** \param[in]  envir      Environ structure
+ ** \param[in]  ifault0    Rank of the target fault
+ ** \param[in]  x0         Location of the discretized point
  **
  *****************************************************************************/
-bool FracList::_sameFaultSide(const FracEnviron& environ,
+bool FracList::_sameFaultSide(const FracEnviron& envir,
                               int ifault0,
                               double x0)
 {
   double x1, x2;
   int ifault;
 
-  x1 = environ.getFault(ifault0).getCoord();
-  for (ifault = 0; ifault < environ.getNFaults(); ifault++)
+  x1 = envir.getFault(ifault0).getCoord();
+  for (ifault = 0; ifault < envir.getNFaults(); ifault++)
   {
     if (ifault == ifault0) continue;
-    x2 = environ.getFault(ifault).getCoord();
+    x2 = envir.getFault(ifault).getCoord();
 
     if ((x0 - x2) * (x2 - x1) >= 0) return (0);
   }
@@ -803,36 +764,39 @@ double FracList::_densityUpdate(const FracFault& fault,
 /*!
  **  Calculate the cumulated density
  **
- ** \returns 1 if there is no more room for fractures
+ ** \returns Total cumulated density
  **
- ** \param[in]  title        Title of the printout
- ** \param[in]  flag_print   1 if the message must be printed
  ** \param[in]  denstab      Discretized density array
  **
- ** \param[out] totdens      Cumulated density
- **
  *****************************************************************************/
-bool FracList::_densityCumulate(const char *title,
-                               bool flag_print,
-                               const VectorDouble& denstab,
-                               double *totdens)
+double FracList::_densityCumulate(const VectorDouble& denstab)
 {
   double total = 0.;
   for (int idisc = 0; idisc < _ndisc; idisc++)
     total += denstab[idisc];
+  return total;
+}
 
-  (*totdens) = total;
+/****************************************************************************/
+/*!
+ **  Calculate the cumulated density
+ **
+ ** \returns True if there is no more room for fractures
+ **
+ ** \param[in]  denstab      Discretized density array
+ **
+ *****************************************************************************/
+bool FracList::_noRoomForMoreFracture(const VectorDouble& denstab) const
+{
+  double total = 0.;
+  for (int idisc = 0; idisc < _ndisc; idisc++)
+    total += denstab[idisc];
   bool flag_stop = (total <= _low1 * _ndisc);
 
-  if (_verbose)
+  if (_verbose && flag_stop)
   {
-    if (flag_stop)
-      message("Fracture simulation interrupted: no more room available\n");
-    else
-    {
-      if (flag_print)
-        message("- Cumulated Distribution: %s = %lf\n", title, total);
-    }
+    message("Fracture simulation interrupted: no more room available\n");
+    message("Total = %lf < low1(%lf) * _ndisc(%d)\n", total, _low1, _ndisc);
   }
   return (flag_stop);
 }
@@ -982,16 +946,16 @@ double FracList::_fractureExtension(const FracDesc& desc,
  **
  ** \return  Number of fracture created in this layer
  **
- ** \param[in]  environ      Environ structure
- ** \param[in]  family       Family structure
- ** \param[in]  ifam         Rank of the family
- ** \param[in]  cote         Ordinate of the fracture starting point
- ** \param[in]  thick        Thickness of the layer
- ** \param[in]  theta        Intensity of the layer
- ** \param[in]  denstab      Discretized density array
+ ** \param[in]  envir      Environ structure
+ ** \param[in]  family     Family structure
+ ** \param[in]  ifam       Rank of the family
+ ** \param[in]  cote       Ordinate of the fracture starting point
+ ** \param[in]  thick      Thickness of the layer
+ ** \param[in]  theta      Intensity of the layer
+ ** \param[in]  denstab    Discretized density array
  **
  *******************************************************************F**********/
-int FracList::_simulateFractures(const FracEnviron& environ,
+int FracList::_simulateFractures(const FracEnviron& envir,
                                  const FracFamily& family,
                                  int ifam,
                                  double cote,
@@ -1004,7 +968,7 @@ int FracList::_simulateFractures(const FracEnviron& environ,
 
   double orient = family.getOrient();
   double dorient = family.getDorient();
-  int nfracs = law_poisson(theta * environ.getXextend());
+  int nfracs = law_poisson(theta * envir.getXextend());
 
   /* Loop on the fractures to be simulated */
 
@@ -1014,7 +978,8 @@ int FracList::_simulateFractures(const FracEnviron& environ,
 
     /* Calculate cumulative density */
 
-    if (_densityCumulate("Fracture generation", false, denstab, &total)) break;
+    if (_noRoomForMoreFracture(denstab)) break;
+    total = _densityCumulate(denstab);
 
     /* Simulate the location along to the regionalized density */
 
@@ -1040,10 +1005,8 @@ int FracList::_simulateFractures(const FracEnviron& environ,
   }
 
   if (_verbose)
-  {
-    message("New Simulated fractures in Bench  = %d \n", neff);
-    message("Total count of fractures          = %d \n", getNFracs());
-  }
+    message("New Simulated fractures in Layer  = %d \n", neff);
+
   return (nfracs);
 }
 
@@ -1170,14 +1133,12 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
 
     if (flag_new || icur < 0)
     {
-      FracDesc desc = FracDesc();
-      frac_list->addDescription(desc);
+      frac_list->addDescription();
       icur = frac_list->getNFracs() - 1;
     }
-    FracDesc& desc = frac_list->getDescs(icur);
-    desc.setFamily(ifam);
-    desc.setOrient(orient);
-    desc.addPoint(xx, yy);
+    frac_list->setFamily(icur, ifam);
+    frac_list->setOrient(icur, orient);
+    frac_list->addPoint(icur, xx, yy);
   }
 
   // Loop on the layer informations
@@ -1189,6 +1150,11 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
       frac_list->_layinfo.setValue(i, layinfo[i]);
   }
   return (frac_list);
+}
+
+void FracList::addDescription(const FracDesc& description)
+{
+  _descs.push_back(description);
 }
 
 /****************************************************************************/
@@ -1203,6 +1169,7 @@ FracList* FracList::fractureImport(const VectorDouble& frac_segs,
  ** \param[in]  perm_mat     Permability for the matrix
  ** \param[in]  perm_bench   Permability along the bench edge
  ** \param[in]  ndisc        Number of discretization steps
+ ** \param[in]  namconv      Naming convention
  **
  *****************************************************************************/
 int FracList::fractureToBlock(DbGrid *dbgrid,
@@ -1210,7 +1177,8 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
                               VectorDouble& permtab,
                               double perm_mat,
                               double perm_bench,
-                              int ndisc)
+                              int ndisc,
+                              const NamingConvention& namconv)
 {
   if (dbgrid->getNDim() != 2)
   {
@@ -1234,7 +1202,7 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
   {
     for (int ilayer = 0; ilayer < _nlayers; ilayer++)
     {
-      double cote = getMemLayer(ilayer);
+      double cote = _getMemLayer(ilayer);
       _plungeSegment(dbgrid, iptr, delta, perm_bench, 0., cote, xmax, cote);
     }
   }
@@ -1244,17 +1212,24 @@ int FracList::fractureToBlock(DbGrid *dbgrid,
   for (int ifrac = 0; ifrac < getNFracs(); ifrac++)
   {
     FracDesc &desc = _descs[ifrac];
+    int ifam = desc.getFamily();
+    double perm = 0.;
+    if (ifam < (int) permtab.size()) perm = permtab[ifam];
+    if (perm <= 0.) continue;
 
     /* Loop on the segments */
 
     int npoint = desc.getNPoint();
     for (int ip = 0; ip < npoint - 1; ip++)
     {
+      int jp = ip + 1;
       _plungeSegment(dbgrid, iptr, delta, permtab[desc.getFamily()],
-                     desc.getXXF(ip), desc.getYYF(ip), desc.getXXF(ip + 1),
-                     desc.getYYF(ip + 1));
+                     desc.getXXF(ip), desc.getYYF(ip),
+                     desc.getXXF(jp), desc.getYYF(jp));
     }
   }
+
+  namconv.setNamesAndLocators(dbgrid, iptr);
   return 0;
 }
 
@@ -1296,8 +1271,7 @@ void FracList::_plungeSegment(DbGrid *dbgrid,
     coor[1] = y1 + deltay * i / number;
 
     int iech = dbgrid->coordinateToRank(coor);
-    if (iech < 0) continue;
-    dbgrid->updArray(iech, iptr, 5, value);
+    if (iech >= 0) dbgrid->updArray(iech, iptr, 5, value);
   }
 }
 
@@ -1414,7 +1388,7 @@ void FracList::_welloutAdd(VectorDouble& wellout,
 {
   int nloc;
 
-  nloc = wellout.size() / NBYWOUT;
+  nloc = (int) wellout.size() / NBYWOUT;
   wellout.resize(NBYWOUT * (nloc+1));
 
   WELLOUT(nloc,0) = x; /* First coordinate */

@@ -17,6 +17,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 
+#include "../Stats/EStatOption.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -24,14 +25,14 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 
 class Polygons;
 
 /**
  * Class containing a Data Set organized as a set of Isolated Points.
  */
-class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public IClonable
+class GSTLEARN_EXPORT Db: public AStringable, public ASerializable, public ICloneable
 {
 public:
   Db();
@@ -40,11 +41,11 @@ public:
   virtual ~Db();
 
 public:
+  /// ICloneable interface
+  IMPLEMENT_CLONING(Db)
+
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
-  /// IClonable Interface
-  virtual IClonable* clone() const override { return new Db(*this); };
 
   /// Interface for Db
   virtual bool isGrid() const { return false; }
@@ -54,7 +55,7 @@ public:
   virtual bool mayChangeSampleNumber() const { return true; }
 
   static Db* createFromNF(const String& neutralFilename,
-                           bool verbose = false);
+                           bool verbose = true);
   int resetFromSamples(int nech,
                        const ELoadBy& order = ELoadBy::SAMPLE,
                        const VectorDouble& tab = VectorDouble(),
@@ -73,7 +74,8 @@ public:
                    int ndim = 2,
                    int seed = 321415,
                    int flag_add_rank = 1);
-  int resetFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  int resetFromOnePoint(const VectorDouble &tab = VectorDouble(),
+                        int flag_add_rank = 1);
   int resetSamplingDb(const Db* dbin,
                       double proportion = 0,
                       int number = 0,
@@ -103,7 +105,8 @@ public:
                            double range = 0.,
                            double beta = 0.,
                            int flag_add_rank = 1);
-  static Db* createFromOnePoint(const VectorDouble& tab, int flag_add_rank = 1);
+  static Db* createFromOnePoint(const VectorDouble &tab = VectorDouble(),
+                                int flag_add_rank = 1);
   static Db* createSamplingDb(const Db* dbin,
                               double proportion = 0,
                               int number = 0,
@@ -506,10 +509,13 @@ public:
   void deleteColumnsByColIdx(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
+  VectorDouble getCoorMinimum(bool useSel = false) const;
+  VectorDouble getCoorMaximum(bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;
   double getExtensionDiagonal(bool useSel = false) const;
   double getCenter(int idim, bool useSel = false) const;
   VectorDouble getCenter(bool useSel = false) const;
+  void getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi);
 
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;
@@ -535,7 +541,7 @@ public:
 
   // Statistics
   VectorDouble statistics(const VectorString& names,
-                          const VectorString& opers = { "Mean" },
+                          const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                           bool flagIso = true,
                           bool flagVariableWise = true,
                           bool flagPrint = true,
@@ -544,12 +550,22 @@ public:
                           double proba = TEST,
                           const String& title = "",
                           const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsByLocator(const ELoc& locatorType,
+                                   const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                   bool flagIso = true,
+                                   bool flagVariableWise = true,
+                                   bool flagPrint = true,
+                                   double vmin = TEST,
+                                   double vmax = TEST,
+                                   double proba = TEST,
+                                   const String& title = "",
+                                   const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
                                bool flagPrint = false,
                                const String& title = "");
   VectorDouble statisticsByUID(const VectorInt& iuids,
-                               const VectorString& opers = { "Mean" },
+                               const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                                bool flagIso = true,
                                bool flagVariableWise = true,
                                bool flagPrint = true,

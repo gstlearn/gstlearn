@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/IClonable.hpp"
+#include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -23,7 +23,7 @@ class Model;
 /**
  * Experimental Variogram calculation parameters TODO : to be improved
  */
-class GSTLEARN_EXPORT VarioParam : public AStringable, public IClonable
+class GSTLEARN_EXPORT VarioParam : public AStringable, public ICloneable
 {
 public:
   VarioParam(double scale = 0.,
@@ -35,11 +35,11 @@ public:
   virtual ~VarioParam();
 
 public:
-  /// Interface to AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+  /// ICloneable interface
+  IMPLEMENT_CLONING(VarioParam)
 
-  /// Interface to Iclonable
-  virtual IClonable* clone() const override { return new VarioParam(*this); };
+  /// AStringable Interface
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
   static VarioParam* createOmniDirection(int ndim = 2,

@@ -431,8 +431,8 @@ void CovAniso::setMarkovCoeffsBySquaredPolynoms(VectorDouble coeffs1,
                                                 double eps)
 {
 
-  int size1 = coeffs1.size();
-  int size2 = coeffs2.size();
+  int size1 = (int) coeffs1.size();
+  int size2 = (int) coeffs2.size();
 
   int size = MAX(2 * size1 - 1, 2 * size2);
   VectorDouble coeffs;
@@ -937,9 +937,9 @@ bool CovAniso::_deserialize(std::istream& is, bool /*verbose*/)
   bool ret = true;
   int flag_aniso = 0;
   int flag_rotation = 0;
-  int type;
-  double range;
-  double param;
+  int type = 0;
+  double range = 0.;
+  double param = 0.;
   VectorDouble aniso_ranges;
   VectorDouble aniso_rotmat;
 
