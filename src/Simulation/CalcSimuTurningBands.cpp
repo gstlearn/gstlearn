@@ -70,7 +70,6 @@ bool CalcSimuTurningBands::_resize()
   {
     int nvar  = _getNVar();
     int ncova = _getNCova();
-    int ndim  = _getNDim();
 
     /* Allocate the structures for the seeds */
 
@@ -82,7 +81,7 @@ bool CalcSimuTurningBands::_resize()
     int nbands = nbsimu * _nbtuba * ncova;
     _codirs.resize(nbands);
     for (int i = 0; i < nbands; i++)
-      _codirs[i] = TurningDirection(ndim);
+      _codirs[i] = TurningDirection();
   }
 
   return true;
