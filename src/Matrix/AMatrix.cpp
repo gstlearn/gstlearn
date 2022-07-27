@@ -226,6 +226,28 @@ void AMatrix::reset(int nrows, int ncols, const VectorDouble& tab, bool sparse)
   }
 }
 
+void AMatrix::reset(const VectorVectorDouble& tab, bool flagByRow)
+{
+  if (flagByRow)
+  {
+    _nRows = (int) tab.size();
+    _nCols = (int) tab[0].size();
+    _allocate();
+    for (int icol = 0; icol < _nCols; icol++)
+      for (int irow = 0; irow < _nRows; irow++)
+        _setValue(irow, icol, tab[irow][icol]);
+  }
+  else
+  {
+    _nCols = (int) tab.size();
+    _nRows = (int) tab[0].size();
+    _allocate();
+    for (int icol = 0; icol < _nCols; icol++)
+      for (int irow = 0; irow < _nRows; irow++)
+        _setValue(irow, icol, tab[icol][irow]);
+  }
+}
+
 void AMatrix::fillRandom(int seed, double zeroPercent)
 {
   law_set_random_seed(seed);

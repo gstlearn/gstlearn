@@ -57,10 +57,25 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Generate initial grid
   DbGrid* grid = DbGrid::create({100,100}, {0.01,0.01});
+
+  // Create grid of (single) Panel
+  double dx_P = 0.250;
+  double x0_P = 0.375;
+  DbGrid* panel = DbGrid::create({1,1}, {dx_P, dx_P}, {x0_P, x0_P});
+  panel->display();
+
+  // Discretization with blocs
+  int nx_B = 5;
+  double x0_B = x0_P + dx_P / nx_B / 2.;
+  double dx_B = dx_P / nx_B;
+  DbGrid* blocs = DbGrid::create({nx_B,nx_B}, {dx_B,dx_B}, {x0_B,x0_B});
+  blocs->display();
+
+  // Simulation of the Data
   Model* model_init = Model::createFromParam(ECov::EXPONENTIAL, 0.1, 1.);
   (void) simtub(nullptr, grid, model_init);
-  grid->display();
   grid->setName("Simu", "Y");
+  grid->display();
 
   // Non-linear transform
   double m_Z = 1.5;
@@ -77,32 +92,20 @@ int main(int /*argc*/, char */*argv*/[])
   data->setLocator("Z", ELoc::Z);
   data->display(&dbfmt);
 
+  // Gaussian Anamorphosis with 10 coefficients
+  AnamHermite* anam = AnamHermite::create(20);
+  anam->fit(data);
+  anam->display();
+
+  // Selectivity
   Selectivity* selectivity =
       Selectivity::createByCodes( { ESelectivity::Q, ESelectivity::T },
                                   { 0., 0.5 }, true, true);
 
   // Global experimental selectivity
   data->display();
-  selectivity->calculateFromDb(data);
+  (void) selectivity->calculateFromDb(data);
   selectivity->display();
-
-  // Create grid of (single) Panel
-  double dx_P = 0.250;
-  double x0_P = 0.375;
-  DbGrid* panel = DbGrid::create({1,1}, {dx_P, dx_P}, {x0_P, x0_P});
-  panel->display();
-
-  // Discretization with blocs
-  int nx_B = 5;
-  double x0_B = x0_P + dx_P / nx_B / 2.;
-  double dx_B = dx_P / nx_B;
-  DbGrid* blocs = DbGrid::create({nx_B,nx_B}, {dx_B,dx_B}, {x0_B,x0_B});
-  blocs->display();
-
-  // Gaussian Anamorphosis with 10 coefficients
-  AnamHermite* anam = AnamHermite::create(20);
-  anam->fit(data);
-  anam->display();
 
   // Transform Data into Gaussian
   (void) anam->RawToGaussian(data);

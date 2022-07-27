@@ -17,16 +17,19 @@
 
 #include <math.h>
 
+#define NCOLS 6
+#define T_EST 0
+#define Q_EST 1
+#define B_EST 2
+#define M_EST 3
+#define T_STD 4
+#define Q_STD 5
+
 Selectivity::Selectivity(int ncut)
     : AStringable(),
       _nCut(ncut),
       _Zcut(ncut),
-      _Test(ncut),
-      _Qest(ncut),
-      _Best(ncut),
-      _Mest(ncut),
-      _Tstd(ncut),
-      _Qstd(ncut),
+      _stats(ncut, NCOLS),
       _zmax(TEST),
       _flagTonnageCorrect(false),
       _numberQTEst(),
@@ -36,25 +39,14 @@ Selectivity::Selectivity(int ncut)
 
 {
   ut_vector_fill(_Zcut, TEST);
-  ut_vector_fill(_Test, TEST);
-  ut_vector_fill(_Qest, TEST);
-  ut_vector_fill(_Best, TEST);
-  ut_vector_fill(_Mest, TEST);
-  ut_vector_fill(_Tstd, TEST);
-  ut_vector_fill(_Qstd, TEST);
-
+  _stats.fill(TEST);
 }
 
 Selectivity::Selectivity(const VectorDouble& zcuts, double zmax, bool flag_correct)
     : AStringable(),
       _nCut(0),
       _Zcut(zcuts),
-      _Test(),
-      _Qest(),
-      _Best(),
-      _Mest(),
-      _Tstd(),
-      _Qstd(),
+      _stats(),
       _zmax(zmax),
       _flagTonnageCorrect(flag_correct),
       _numberQTEst(),
@@ -63,24 +55,17 @@ Selectivity::Selectivity(const VectorDouble& zcuts, double zmax, bool flag_corre
       _rankQTStd()
 {
   _nCut = (int) _Zcut.size();
-  _Test.resize(_nCut, TEST);
-  _Qest.resize(_nCut, TEST);
-  _Best.resize(_nCut, TEST);
-  _Mest.resize(_nCut, TEST);
-  _Tstd.resize(_nCut, TEST);
-  _Qstd.resize(_nCut, TEST);
+  _stats.init(_nCut, NCOLS);
+  _stats.setColNames(_getAllNames());
+  _stats.setRowNames(toVectorDouble(_Zcut));
+  _stats.fill(TEST);
 }
 
 Selectivity::Selectivity(const Selectivity &m)
     : AStringable(m),
       _nCut(m._nCut),
       _Zcut(m._Zcut),
-      _Test(m._Test),
-      _Qest(m._Qest),
-      _Best(m._Best),
-      _Mest(m._Mest),
-      _Tstd(m._Tstd),
-      _Qstd(m._Qstd),
+      _stats(m._stats),
       _zmax(m._zmax),
       _flagTonnageCorrect(m._flagTonnageCorrect),
       _numberQTEst(m._numberQTEst),
@@ -98,12 +83,7 @@ Selectivity& Selectivity::operator=(const Selectivity &m)
     AStringable::operator=(m);
     _nCut = m._nCut;
     _Zcut = m._Zcut;
-    _Test = m._Test;
-    _Qest = m._Qest;
-    _Best = m._Best;
-    _Mest = m._Mest;
-    _Tstd = m._Tstd;
-    _Qstd = m._Qstd;
+    _stats = m._stats;
     _zmax = m._zmax;
     _flagTonnageCorrect = m._flagTonnageCorrect;
     _numberQTEst = m._numberQTEst;
@@ -169,12 +149,10 @@ void Selectivity::resetCuts(const VectorDouble& zcuts)
 {
   _nCut = (int) zcuts.size();
   _Zcut = zcuts;
-  _Test.resize(_nCut, TEST);
-  _Qest.resize(_nCut, TEST);
-  _Best.resize(_nCut, TEST);
-  _Mest.resize(_nCut, TEST);
-  _Tstd.resize(_nCut, TEST);
-  _Qstd.resize(_nCut, TEST);
+  _stats.init(_nCut, NCOLS);
+  _stats.setColNames(_getAllNames());
+  _stats.setRowNames(toVectorDouble(_Zcut));
+  _stats.fill(TEST);
 }
 
 int Selectivity::calculateFromDb(const Db* db)
@@ -345,78 +323,71 @@ void Selectivity::setZcut(int icut, double zcut)
   if (! _isValidCut(icut)) return;
   _Zcut[icut] = zcut;
 }
-
 double Selectivity::getZcut(int icut) const
 {
   if (! _isValidCut(icut)) return(TEST);
   return _Zcut[icut];
 }
-
 void Selectivity::setBest(int iclass, double best)
 {
   if (! _isValidCut(iclass)) return;
-  _Best[iclass] = best;
+  _stats.setValue(iclass, B_EST, best);
 }
-
 void Selectivity::setMest(int iclass, double mest)
 {
   if (! _isValidCut(iclass)) return;
-  _Mest[iclass] = mest;
+  _stats.setValue(iclass, M_EST, mest);
 }
 
 void Selectivity::setQest(int iclass, double qest)
 {
   if (! _isValidCut(iclass)) return;
-  _Qest[iclass] = qest;
+  _stats.setValue(iclass, Q_EST, qest);
 }
-
 void Selectivity::setQstd(int iclass, double qstd)
 {
   if (! _isValidCut(iclass)) return;
-  _Qstd[iclass] = qstd;
+  _stats.setValue(iclass, Q_STD, qstd);
 }
-
 void Selectivity::setTest(int iclass, double test)
 {
   if (! _isValidCut(iclass)) return;
-  _Test[iclass] = test;
+  _stats.setValue(iclass, T_EST, test);
 }
-
 void Selectivity::setTstd(int iclass, double tstd)
 {
   if (! _isValidCut(iclass)) return;
-  _Tstd[iclass] = tstd;
+  _stats.setValue(iclass, T_STD, tstd);
 }
-
 double Selectivity::getBest(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Best[iclass];
+  return _stats.getValue(iclass, B_EST);
 }
 double Selectivity::getMest(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Mest[iclass];
+  return _stats.getValue(iclass, M_EST);
 }
 double Selectivity::getQest(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Qest[iclass];
+  return _stats.getValue(iclass, Q_EST);
 }
 double Selectivity::getQstd(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Qstd[iclass];
+  return _stats.getValue(iclass, Q_STD);
 }
 double Selectivity::getTest(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Test[iclass];
+  return _stats.getValue(iclass, T_EST);
 }
 double Selectivity::getTstd(int iclass) const
 {
   if (! _isValidCut(iclass)) return(TEST);
-  return _Tstd[iclass];
+  return _stats.getValue(iclass, T_STD);
 }
 
 bool Selectivity::_isValidCut(int iclass) const
@@ -1041,23 +1012,7 @@ String Selectivity::toString(const AStringFormat* /*strfmt*/) const
   std::stringstream sstr;
   int ncut = getNCuts();
   if (ncut <= 0) return sstr.str();
-
-  VectorDouble tab;
-  for (int icut = 0; icut < ncut; icut++)
-  {
-    if (! _Test.empty()) tab.push_back(_Test[icut]);
-    if (! _Qest.empty()) tab.push_back(_Qest[icut]);
-    if (! _Best.empty()) tab.push_back(_Best[icut]);
-    if (! _Mest.empty()) tab.push_back(_Mest[icut]);
-    if (! _Tstd.empty()) tab.push_back(_Tstd[icut]);
-    if (! _Qstd.empty()) tab.push_back(_Qstd[icut]);
-  }
-
-  int ncol = (int) tab.size() / ncut;
-  VectorString colnames = _getAllNames();
-  VectorString rownames = toVectorDouble(_Zcut);
-  sstr << toMatrix("Selectivity Results",colnames,rownames,
-                   false, ncol, ncut, tab);
-
+  sstr << toTitle(0, "Selectivity Curves");
+  sstr << _stats.toString();
   return sstr.str();
 }

@@ -315,7 +315,7 @@ void GibbsMMulti::_tableStore(int mode, const cs* A)
       if (dist > distmax) continue;
 
       // Store the covariance cloud
-      table.resize(ecr+1, 2);
+      table.addRow();
       table.update(ecr, 0, dist);
       table.update(ecr, 1, value);
       ecr++;

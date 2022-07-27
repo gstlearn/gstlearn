@@ -115,6 +115,7 @@ public:
   void reset(int nrows, int ncols, double value, bool sparse = false);
   void reset(int nrows, int ncols, const double* tab, bool sparse = false);
   void reset(int nrows, int ncols, const VectorDouble& tab, bool sparse = false);
+  void reset(const VectorVectorDouble& tab, bool flagByRow=true);
 
   /*! Returns the sum of absolute difference between argument and this */
   double compare(const AMatrix& mat) const;

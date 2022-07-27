@@ -15,6 +15,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Stats/ESelectivity.hpp"
+#include "Basic/Table.hpp"
 
 class Db;
 
@@ -131,12 +132,7 @@ private:
 private:
   int _nCut;
   VectorDouble _Zcut;
-  VectorDouble _Test;
-  VectorDouble _Qest;
-  VectorDouble _Best;
-  VectorDouble _Mest;
-  VectorDouble _Tstd;
-  VectorDouble _Qstd;
+  Table _stats;
   double _zmax;
   bool   _flagTonnageCorrect;
   VectorInt _numberQTEst;

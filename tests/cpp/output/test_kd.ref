@@ -6,6 +6,52 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 1
+
+Grid characteristics:
+---------------------
+Origin :      0.375     0.375
+Mesh   :      0.250     0.250
+Number :          1         1
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :      0.400     0.400
+Mesh   :      0.050     0.050
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
 Number of Columns            = 4
 Maximum Number of UIDs       = 4
 Total number of samples      = 10000
@@ -21,7 +67,7 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = Simu - Locator = z1
+Column = 3 - Name = Y - Locator = z1
 
 Data Base Grid Characteristics
 ==============================
@@ -107,74 +153,6 @@ Data Base Statistics
  Standard Deviation  =      0.843
  Variance            =      0.711
 
-Data Base Characteristics
-=========================
-
-Data Base Summary
------------------
-File is organized as a set of isolated points
-Space dimension              = 2
-Number of Columns            = 4
-Maximum Number of UIDs       = 4
-Total number of samples      = 500
-
-Variables
----------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Y - Locator = NA
-Column = 3 - Name = Z - Locator = z1
-Selectivity Results
-                T-Est     Q-Est     B-Est     M-Est     T-Std     Q-Std
-     0.000      1.000     1.568     1.568     1.568       N/A       N/A
-     0.500      0.988     1.563     1.069     1.582       N/A       N/A
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 3
-Maximum Number of UIDs       = 3
-Total number of samples      = 1
-
-Grid characteristics:
----------------------
-Origin :      0.375     0.375
-Mesh   :      0.250     0.250
-Number :          1         1
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 3
-Maximum Number of UIDs       = 3
-Total number of samples      = 25
-
-Grid characteristics:
----------------------
-Origin :      0.400     0.400
-Mesh   :      0.050     0.050
-Number :          5         5
-
-Variables
----------
-Column = 0 - Name = rank - Locator = NA
-Column = 1 - Name = x1 - Locator = x1
-Column = 2 - Name = x2 - Locator = x2
-
 Hermitian Anamorphosis
 ----------------------
 Minimum absolute value for Y  = -2.8
@@ -201,6 +179,36 @@ Data Base Summary
 -----------------
 File is organized as a set of isolated points
 Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 500
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Y - Locator = NA
+Column = 3 - Name = Z - Locator = z1
+
+Selectivity Curves
+==================
+
+Table contents
+--------------
+- Number of Rows    = 2
+- Number of Columns = 6
+
+                T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
+     0.000      1.000      1.568      1.568      1.568        N/A        N/A
+     0.500      0.988      1.563      1.069      1.582        N/A        N/A
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
 Number of Columns            = 5
 Maximum Number of UIDs       = 5
 Total number of samples      = 500
@@ -212,10 +220,18 @@ Column = 1 - Name = x2 - Locator = x2
 Column = 2 - Name = Y - Locator = NA
 Column = 3 - Name = Z - Locator = NA
 Column = 4 - Name = Gauss.Z - Locator = z1
-Selectivity Results
-                T-Est     Q-Est     B-Est     M-Est     T-Std     Q-Std
-     0.000      1.000     1.568     1.568     1.568       N/A       N/A
-     0.500      0.988     1.563     1.069     1.582       N/A       N/A
+
+Selectivity Curves
+==================
+
+Table contents
+--------------
+- Number of Rows    = 2
+- Number of Columns = 6
+
+                T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
+     0.000      1.000      1.568      1.568      1.568        N/A        N/A
+     0.500      0.988      1.563      1.069      1.582        N/A        N/A
 
 Variogram characteristics
 =========================

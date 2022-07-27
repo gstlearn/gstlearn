@@ -152,7 +152,7 @@ int main(int /*argc*/, char */*argv*/[])
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = ut_vector_simulate_uniform(nrows);
-  Table* table1 = Table::createFromArray(table);
+  Table* table1 = Table::createFromArray(table, false);
   table1->display();
 
   // Serialize table

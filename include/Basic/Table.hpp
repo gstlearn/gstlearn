@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Matrix/MatrixRectangular.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
 
@@ -34,27 +35,32 @@ public:
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromArray(const VectorVectorDouble& table);
+  int resetFromArray(const VectorVectorDouble& table, bool flagByRow = true);
 
   static Table* create(int nrows = 0, int ncols = 0);
   static Table* createFromNF(const String& neutralFilename, bool verbose = true);
-  static Table* createFromArray(const VectorVectorDouble& tabin);
+  static Table* createFromArray(const VectorVectorDouble& tabin, bool flagByRow = true);
 
-  void init(int nrows, int ncols, bool zero = false) { resize(nrows, ncols, zero); }
-  bool isEmpty() const { return _stats.empty(); }
+  void init(int nrows, int ncols) { _tab.reset(nrows, ncols); }
+  bool isEmpty() const { return _tab.isEmpty(); }
   int getRowNumber() const;
   int getColNumber() const;
   VectorDouble getCol(int icol) const;
   VectorDouble getRow(int irow) const;
-  void clear() { _stats.clear(); }
-  void resize(int irow, int ncols, bool zero=false);
-  void update(int irow, int icol, double value)    { _stats[icol][irow] = value; }
-  void increment(int irow, int icol, double value) { _stats[icol][irow] += value; }
+  void addRow();
+  void update(int irow, int icol, double value);
+  void increment(int irow, int icol, double value);
   double getValue(int irow, int icol) const;
   void setValue(int irow, int icol, double value);
   VectorDouble getRange(int icol) const;
   VectorDouble getAllRange() const;
   void plot(int isimu) const;
+  void fill(double valinit = 0);
+
+  void setColNames(const VectorString &colNames) { _colNames = colNames; }
+  void setColName(int icol, const String& name);
+  void setRowNames(const VectorString &rowNames) { _rowNames = rowNames; }
+  void setRowName(int irow, const String& name);
 
 protected:
   /// Interface for ASerializable
@@ -67,5 +73,7 @@ private:
   bool _isRowValid(int irow) const;
 
 private:
-  VectorVectorDouble _stats;
+  MatrixRectangular _tab;
+  VectorString _rowNames;
+  VectorString _colNames;
 };
