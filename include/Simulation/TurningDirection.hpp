@@ -19,6 +19,10 @@
 
 class Db;
 
+/**
+ * Class for management of Directions used in Turning Band algorithm
+ * Remark: The 3-D definition is compulsory (even in 2-D)
+ */
 class GSTLEARN_EXPORT TurningDirection
 {
 public:
