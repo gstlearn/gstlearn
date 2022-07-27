@@ -122,7 +122,7 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   logPoly.setNcMax(1000);
   std::function<double(double)> f;
   f = [] (double val){return log(val);};
-  logPoly.fit(f,a,b,EPSILON4);
+  logPoly.fit(f,a,b,2*EPSILON4/(a+b));
 }
 
 double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const

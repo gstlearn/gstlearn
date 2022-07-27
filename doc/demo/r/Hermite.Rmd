@@ -19,7 +19,7 @@ OptCst_defineByKey("ASP",0)
 The objective of this document is to provide some guides for manipulation of Hermite polynomials.
 In praticular, it will give some hints for calculating of complex expressions (e.g. metal bove cutoff) and be double checked using a Monte Carlo approach.
 
-It will also demonstrate the quality of the polynomial expandsion for a gien known distribution of the data (i.e. lognormal).
+It will also demonstrate the quality of the polynomial expansion for a given known distribution of the data (i.e. lognormal).
 Finally it will serve in demonstrating the ability of representing any function through a Hermite polynomial expansion.
 
 # Part I
