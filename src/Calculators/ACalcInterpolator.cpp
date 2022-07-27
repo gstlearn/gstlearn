@@ -449,3 +449,44 @@ void ACalcInterpolator::_cleanVariableDb(int status)
   }
 
 }
+
+bool ACalcInterpolator::hasDbin(bool verbose) const
+{
+  if (_dbin == nullptr)
+  {
+    if (verbose)
+      messerr("The argument 'dbin' must be defined");
+    return false;
+  }
+  return true;
+}
+bool ACalcInterpolator::hasDbout(bool verbose) const
+{
+  if (_dbout == nullptr)
+  {
+    if (verbose)
+      messerr("The argument 'dbout' must be defined");
+    return false;
+  }
+  return true;
+}
+bool ACalcInterpolator::hasModel(bool verbose) const
+{
+  if (_model == nullptr)
+  {
+    if (verbose)
+      messerr("The argument 'model' must be defined");
+    return false;
+  }
+  return true;
+}
+bool ACalcInterpolator::hasNeighParam(bool verbose) const
+{
+  if (_neighparam == nullptr)
+  {
+    if (verbose)
+      messerr("The argument 'neighparam' must be defined");
+    return false;
+  }
+  return true;
+}

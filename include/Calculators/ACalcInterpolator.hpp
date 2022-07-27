@@ -40,10 +40,10 @@ public:
   Model* getModel() const { return _model; }
   ANeighParam* getNeighparam() const { return _neighparam; }
 
-  bool hasDbin() const { return _dbin != nullptr; }
-  bool hasDbout() const { return _dbout != nullptr; }
-  bool hasModel() const { return _model != nullptr; }
-  bool hasNeighParam() const { return _neighparam != nullptr; }
+  bool hasDbin(bool verbose = true) const;
+  bool hasDbout(bool verbose = true) const;
+  bool hasModel(bool verbose = true) const;
+  bool hasNeighParam(bool verbose = true) const;
 
 protected:
   virtual bool _check() override;

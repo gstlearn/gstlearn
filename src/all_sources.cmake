@@ -296,7 +296,7 @@ set(SRC
   Simulation/CalcSimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
   Simulation/SimuFFTParam.cpp
-  Simulation/SimuFFT.cpp
+  Simulation/CalcSimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
   Simulation/CalcSimuEden.cpp

@@ -14,18 +14,20 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
-#include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
+#include "../../include/Simulation/CalcSimuFFT.hpp"
 
 #define IND(ix,iy,iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
 #define U(ix,iy,iz)   (_u[IND(ix,iy,iz)])
 
-SimuFFT::SimuFFT(int nbsimu, int seed)
+CalcSimuFFT::CalcSimuFFT(int nbsimu, bool verbose, int seed)
     : ACalcSimulation(nbsimu, seed),
-      _ndim(0),
+      _iattOut(-1),
+      _verbose(verbose),
+      _param(),
       _nxyz(0),
       _nx(),
       _shift(),
@@ -39,31 +41,21 @@ SimuFFT::SimuFFT(int nbsimu, int seed)
 {
 }
 
-SimuFFT::~SimuFFT()
+CalcSimuFFT::~CalcSimuFFT()
 {
 }
 
-int SimuFFT::simulate(DbGrid *db,
-                      Model* model,
-                      const SimuFFTParam& param,
-                      int iptr,
-                      bool verbose)
+bool CalcSimuFFT::_simulate()
 {
-  /* Define the global variables */
-
-  law_set_random_seed(getSeed());
-
-  // Check validity of the context
-
-  if (! _isValid(db, model)) return 1;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Construction of the Simu_FFT structure and core allocation */
 
-  _alloc(db, model, param, verbose);
+  _alloc();
 
   /* Preparation of the FFT environment */
 
-  _prepar(db, model, param, true, verbose);
+  _prepar(true);
 
   /* Processing */
 
@@ -80,27 +72,21 @@ int SimuFFT::simulate(DbGrid *db,
 
     /* Perform the simulation */
 
-    _final(db, iptr + isimu);
+    _final(dbgrid, _iattOut + isimu);
   }
 
-  return 0;
+  return true;
 }
 
 /****************************************************************************/
 /*!
  **  Dimension the ST_FFT structure
  **
- ** \param[in]  db      Db structure
- ** \param[in]  model   Model structure
- ** \param[in]  param   SimuFFTParam structure
- ** \param[in]  verbose Verbosity flag
- **
  *****************************************************************************/
-void SimuFFT::_alloc(DbGrid *db,
-                            Model *model,
-                            const SimuFFTParam& param,
-                            bool verbose)
+void CalcSimuFFT::_alloc()
 {
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
+
   _nx.resize(3,0);
   _shift.resize(3,0);
   _dims.resize(3,0);
@@ -108,24 +94,24 @@ void SimuFFT::_alloc(DbGrid *db,
   _nxyz = 1;
   for (int i = 0; i < 3; i++)
   {
-    if (i < _ndim)
+    if (i < _getNDim())
     {
-      _nx[i] = db->getNX(i);
+      _nx[i] = dbgrid->getNX(i);
       _nxyz *= _nx[i];
     }
   }
 
   /* Dilate the grid */
 
-  _gridDilate(db, model, param, verbose);
+  _gridDilate();
 
   /* Determine the grid extension */
 
   for (int i = 0; i < 3; i++)
   {
-    if (i < _ndim)
+    if (i < _getNDim())
     {
-      int nval = _getOptimalEvenNumber(_shift[i] + db->getNX(i));
+      int nval = _getOptimalEvenNumber(_shift[i] + dbgrid->getNX(i));
       _dims[i] = nval;
       _dim2[i] = nval / 2;
     }
@@ -137,16 +123,16 @@ void SimuFFT::_alloc(DbGrid *db,
   }
 
   int total = 1;
-  for (int idim = 0; idim < _ndim; idim++)
+  for (int idim = 0; idim < _getNDim(); idim++)
     total *= _dims[idim];
   _sizes_alloc = total;
 
-  if (verbose)
+  if (_verbose)
   {
     message("Grid parameters after Optimal Dilation :\n");
-    if (_ndim >= 1) message("- Number of Nodes along X = %d\n", _dims[0]);
-    if (_ndim >= 2) message("- Number of Nodes along Y = %d\n", _dims[1]);
-    if (_ndim >= 3) message("- Number of Nodes along Z = %d\n", _dims[2]);
+    if (_getNDim() >= 1) message("- Number of Nodes along X = %d\n", _dims[0]);
+    if (_getNDim() >= 2) message("- Number of Nodes along Y = %d\n", _dims[1]);
+    if (_getNDim() >= 3) message("- Number of Nodes along Z = %d\n", _dims[2]);
     message("- Total count of grid nodes = %d\n", _sizes_alloc);
   }
 
@@ -169,7 +155,7 @@ void SimuFFT::_alloc(DbGrid *db,
  ** \param[in]  largeFactor Maximum value for a Factor
  **
  *****************************************************************************/
-int SimuFFT::_getOptimalEvenNumber(int number, int largeFactor)
+int CalcSimuFFT::_getOptimalEvenNumber(int number, int largeFactor)
 {
   int local = number;
   if ((local % 2) == 1) local++;
@@ -196,7 +182,7 @@ int SimuFFT::_getOptimalEvenNumber(int number, int largeFactor)
  ** \param[in]  number  number to be decomposed
  **
  *****************************************************************************/
-VectorInt SimuFFT::_getFactors(int number)
+VectorInt CalcSimuFFT::_getFactors(int number)
 {
   VectorInt factors;
   int local = number;
@@ -237,26 +223,19 @@ VectorInt SimuFFT::_getFactors(int number)
 /*!
  **  Calculates the grid extension in a given grid direction
  **
- ** \param[in]   db      Db structure
- ** \param[in]   model   Model structure
- ** \param[in]   param   SimuFFTParam structure
- ** \param[in]   verbose Verbosity flag
- **
  *****************************************************************************/
-void SimuFFT::_gridDilate(const DbGrid *db,
-                          Model *model,
-                          const SimuFFTParam& param,
-                          bool verbose)
+void CalcSimuFFT::_gridDilate()
 {
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
   VectorInt indg(3);
   VectorDouble xyz0(3);
   VectorVectorDouble xyz(3);
-  double percent = param.getPercent();
+  double percent = _param.getPercent();
 
   /* Origin of the grid */
 
   for (int i = 0; i < 3; i++) indg[i] = 0;
-  db->rankToCoordinate(db->indiceToRank(indg), xyz0);
+  dbgrid->rankToCoordinate(dbgrid->indiceToRank(indg), xyz0);
 
   /* Location of the elementary end point */
 
@@ -265,7 +244,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
     for (int j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
     xyz[i].resize(3);
-    db->rankToCoordinate(db->indiceToRank(indg), xyz[i]);
+    dbgrid->rankToCoordinate(dbgrid->indiceToRank(indg), xyz[i]);
   }
 
   /* Coordinates of the grid vector in the rotated space */
@@ -274,7 +253,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
     for (int i = 0; i < 3; i++)
     {
       xyz[j][i] -= xyz0[i];
-      if (j >= _ndim) xyz[j][i] = 0.;
+      if (j >= _getNDim()) xyz[j][i] = 0.;
     }
 
   /* Evaluate the count of elementary grid mesh (in each direction) */
@@ -291,7 +270,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
 
     /* Extension along X */
 
-    if (_ndim >= 1)
+    if (_getNDim() >= 1)
     {
       bool not_ok_dir = true;
       while (not_ok_dir)
@@ -299,7 +278,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
         bool correct = true;
         for (int idy = 0; idy < ndy && correct; idy++)
           for (int idz = 0; idz < ndz && correct; idz++)
-            correct = _checkCorrect(model, xyz, ndx, idy, idz, percent);
+            correct = _checkCorrect(xyz, ndx, idy, idz, percent);
 
         if (correct)
           not_ok_dir = false;
@@ -313,7 +292,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
 
     /* Extension along Y */
 
-    if (_ndim >= 2)
+    if (_getNDim() >= 2)
     {
       bool not_ok_dir = true;
       while (not_ok_dir)
@@ -321,7 +300,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
         bool correct = true;
         for (int idx = 0; idx < ndx && correct; idx++)
           for (int idz = 0; idz < ndz && correct; idz++)
-            correct = _checkCorrect(model, xyz, idx, ndy, idz, percent);
+            correct = _checkCorrect(xyz, idx, ndy, idz, percent);
 
         if (correct)
           not_ok_dir = false;
@@ -335,7 +314,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
 
     /* Extension along Z */
 
-    if (_ndim >= 3)
+    if (_getNDim() >= 3)
     {
       bool not_ok_dir = true;
       while (not_ok_dir)
@@ -343,7 +322,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
         bool correct = true;
         for (int idx = 0; idx < ndx && correct; idx++)
           for (int idy = 0; idy < ndy && correct; idy++)
-            correct = _checkCorrect(model, xyz, idx, idy, ndz, percent);
+            correct = _checkCorrect(xyz, idx, idy, ndz, percent);
 
         if (correct)
           not_ok_dir = false;
@@ -358,9 +337,9 @@ void SimuFFT::_gridDilate(const DbGrid *db,
 
   /* Ultimate corrections */
 
-  if (_ndim < 3) ndz = 0;
-  if (_ndim < 2) ndy = 0;
-  if (_ndim < 1) ndx = 0;
+  if (_getNDim() < 3) ndz = 0;
+  if (_getNDim() < 2) ndy = 0;
+  if (_getNDim() < 1) ndx = 0;
 
   /* Storing arguments */
 
@@ -370,12 +349,12 @@ void SimuFFT::_gridDilate(const DbGrid *db,
 
   /* Optional printout */
 
-  if (verbose)
+  if (_verbose)
   {
     message("Grid Dilation parameters :\n");
-    if (_ndim >= 1) message("- Number of Nodes along X = %d\n", ndx);
-    if (_ndim >= 2) message("- Number of Nodes along Y = %d\n", ndy);
-    if (_ndim >= 3) message("- Number of Nodes along Z = %d\n", ndz);
+    if (_getNDim() >= 1) message("- Number of Nodes along X = %d\n", ndx);
+    if (_getNDim() >= 2) message("- Number of Nodes along Y = %d\n", ndy);
+    if (_getNDim() >= 3) message("- Number of Nodes along Z = %d\n", ndz);
   }
 
   return;
@@ -386,7 +365,6 @@ void SimuFFT::_gridDilate(const DbGrid *db,
  **
  ** \return True if the grid node is below threshold; 0 otherwise
  **
- ** \param[in]   model   Model structure
  ** \param[in]   xyz     Grid increment
  ** \param[in]   ix      Grid index along X
  ** \param[in]   iy      Grid index along Y
@@ -395,8 +373,7 @@ void SimuFFT::_gridDilate(const DbGrid *db,
  **                      covariance is considered as small enough for dilation
  **
  *****************************************************************************/
-bool SimuFFT::_checkCorrect(Model *model,
-                            const VectorVectorDouble& xyz,
+bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
                             int ix,
                             int iy,
                             int iz,
@@ -409,7 +386,7 @@ bool SimuFFT::_checkCorrect(Model *model,
 
   for (int i = 0; i < 3; i++) d[i] = 0.;
   hh = ut_vector_norm(d);
-  (void) model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
+  (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
                         &hh, &refval);
 
   /* Calculate the distance */
@@ -420,7 +397,7 @@ bool SimuFFT::_checkCorrect(Model *model,
 
   /* Evaluate the covariance value */
 
-  (void) model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
+  (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
                         &hh, &value);
 
   if (value / refval > percent / 100) return false;
@@ -454,20 +431,11 @@ double st_norm(VectorDouble &incr)
 /*!
  **  Prepares the simulation on a grid using Discrete FFT
  **
- ** \param[in]  db              Db structure
- ** \param[in]  model           Model structure
- ** \param[in]  param           SimuFFTParam structure
  ** \param[in]  flag_amplitude  1 to convert into amplitude
- ** \param[in]  verbose         Verbosity flag
  ** \param[in]  eps             Tolerance
  **
  *****************************************************************************/
-void SimuFFT::_prepar(DbGrid *db,
-                      Model *model,
-                      const SimuFFTParam& param,
-                      bool flag_amplitude,
-                      bool verbose,
-                      double eps)
+void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
 {
   double value;
   VectorDouble del(3);
@@ -477,10 +445,11 @@ void SimuFFT::_prepar(DbGrid *db,
   VectorInt indg(3);
   VectorInt jnd(3);
   VectorVectorDouble xyz1(3);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Initializations */
 
-  int kbmax = (param.isFlagAliasing()) ? 1 : 0;
+  int kbmax = (_param.isFlagAliasing()) ? 1 : 0;
   VectorDouble cplx(_sizes_alloc);
   VectorDouble cply(_sizes_alloc);
 
@@ -496,19 +465,19 @@ void SimuFFT::_prepar(DbGrid *db,
     for (int j = 0; j < 3; j++)
       xyz1[i][j] = 0.;
   }
-  db->rankToCoordinate(db->indiceToRank(indg), xyz0);
+  dbgrid->rankToCoordinate(dbgrid->indiceToRank(indg), xyz0);
 
   for (int i = 0; i < 3; i++)
   {
     for (int j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
     xyz1[i].resize(3);
-    if (i < _ndim)
+    if (i < _getNDim())
     {
-      db->rankToCoordinate(db->indiceToRank(indg), xyz1[i]);
+      dbgrid->rankToCoordinate(dbgrid->indiceToRank(indg), xyz1[i]);
       for (int j = 0; j < 3; j++)
         xyz1[i][j] -= xyz0[j];
-      delta[i] = db->getDX(i) * db->getNX(i);
+      delta[i] = dbgrid->getDX(i) * dbgrid->getNX(i);
     }
     else
     {
@@ -525,9 +494,9 @@ void SimuFFT::_prepar(DbGrid *db,
 
     /* Local initializations */
 
-    int kb1 = (_ndim >= 1) ? kbound : 0;
-    int kb2 = (_ndim >= 2) ? kbound : 0;
-    int kb3 = (_ndim >= 3) ? kbound : 0;
+    int kb1 = (_getNDim() >= 1) ? kbound : 0;
+    int kb2 = (_getNDim() >= 2) ? kbound : 0;
+    int kb3 = (_getNDim() >= 3) ? kbound : 0;
     for (int i = 0; i < _sizes_alloc; i++)
       cplx[i] = cply[i] = 0.;
 
@@ -542,14 +511,14 @@ void SimuFFT::_prepar(DbGrid *db,
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
           hnorm = ut_vector_norm(del);
-          (void) model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0,
+          (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
                                 ECalcMember::LHS, 1, del, &hnorm, &value);
           scale += value;
         }
     for (int i = 0; i < 3; i++)
       del[i] = 0.;
     hnorm = ut_vector_norm(del);
-    (void) model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1,
+    (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1,
                           del, &hnorm, &value);
     double coeff = value / scale;
 
@@ -566,7 +535,7 @@ void SimuFFT::_prepar(DbGrid *db,
             double proj = 0.;
             for (int j = 0; j < 3; j++)
               proj += jnd[j] * xyz1[j][i];
-            xyz[i] = (i < _ndim) ? proj : 0.;
+            xyz[i] = (i < _getNDim()) ? proj : 0.;
           }
           for (int k1 = -kb1; k1 <= kb1; k1++)
             for (int k2 = -kb2; k2 <= kb2; k2++)
@@ -576,7 +545,7 @@ void SimuFFT::_prepar(DbGrid *db,
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
                 hnorm = st_norm(del);
-                (void) model_evaluate(model, 0, 0, -1, 0, 1, 0, 0, 0,
+                (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
                                       ECalcMember::LHS, 1, del, &hnorm, &value);
                 cplx[ecr] += coeff * value;
               }
@@ -584,7 +553,7 @@ void SimuFFT::_prepar(DbGrid *db,
 
     /* Perform the Fast Fourier Transform */
 
-    (void) fftn(_ndim, _dims.data(), cplx.data(), cply.data(), -1, 1.);
+    (void) fftn(_getNDim(), _dims.data(), cplx.data(), cply.data(), -1, 1.);
 
     /* Looking for negative terms */
 
@@ -624,10 +593,10 @@ void SimuFFT::_prepar(DbGrid *db,
 
     /* Printout statistics */
 
-    if (verbose)
+    if (_verbose)
     {
       message("Statistics on the Discrete Periodic Covariance\n");
-      if (param.isFlagAliasing())
+      if (_param.isFlagAliasing())
         message("- Anti-aliasing switched ON (Iteration=%d)\n", kbound + 1);
       else
         message("- Anti-aliasing switched OFF\n");
@@ -646,7 +615,7 @@ void SimuFFT::_prepar(DbGrid *db,
  **  Initiate a vector of random normal values
  **
  *****************************************************************************/
-void SimuFFT::_defineRandom()
+void CalcSimuFFT::_defineRandom()
 
 {
   for (int i = 0; i < _sizes_alloc; i++)
@@ -654,7 +623,7 @@ void SimuFFT::_defineRandom()
   for (int i = 0; i < _sizes_alloc; i++)
     _v[i] = _cmat[i] * law_gaussian();
 
-  switch (_ndim)
+  switch (_getNDim())
   {
     case 1:
       for (int ix = 0; ix < _dims[0]; ix += _dim2[0])
@@ -685,7 +654,7 @@ void SimuFFT::_defineRandom()
  ** \param[in]  iz    Cell location along Z
  **
  *****************************************************************************/
-void SimuFFT::_setVariance(int ix, int iy, int iz)
+void CalcSimuFFT::_setVariance(int ix, int iy, int iz)
 {
   int ind = IND(ix, iy, iz);
   _u[ind] *= sqrt(2.0);
@@ -697,12 +666,12 @@ void SimuFFT::_setVariance(int ix, int iy, int iz)
  **  Operate the symmetry
  **
  *****************************************************************************/
-void SimuFFT::_defineSymmetry(void)
+void CalcSimuFFT::_defineSymmetry(void)
 {
 
   /* Dispatch according to the space dimension */
 
-  switch (_ndim)
+  switch (_getNDim())
   {
     case 1:
       _defineSym1();
@@ -724,7 +693,7 @@ void SimuFFT::_defineSymmetry(void)
  **  Operate the symmetry for a 1-D space
  **
  *****************************************************************************/
-void SimuFFT::_defineSym1()
+void CalcSimuFFT::_defineSym1()
 
 {
   // A(1) and A(N1/2+1) are real
@@ -748,7 +717,7 @@ void SimuFFT::_defineSym1()
  ** \param[in]  iz0   fixed third index
  **
  *****************************************************************************/
-void SimuFFT::_defineSym2(int iz0)
+void CalcSimuFFT::_defineSym2(int iz0)
 {
   // A(1,1), A(N1/2,1), A(1,N2/2) and A(N1/2,N2/2) real
   for (int iy = 0; iy < _dims[1]; iy += _dim2[1])
@@ -799,7 +768,7 @@ void SimuFFT::_defineSym2(int iz0)
  **  Operate the symmetry for a 3-D space
  **
  *****************************************************************************/
-void SimuFFT::_defineSym3()
+void CalcSimuFFT::_defineSym3()
 
 {
   // For l=1 or N3/2+1, use the 2-D symmetry
@@ -920,7 +889,7 @@ void SimuFFT::_defineSym3()
  ** \param[in]  iz    Cell location along Z
  **
  *****************************************************************************/
-void SimuFFT::_setZero(int ix, int iy, int iz)
+void CalcSimuFFT::_setZero(int ix, int iy, int iz)
 {
   int ind = IND(ix, iy, iz);
   _v[ind] = 0.;
@@ -938,7 +907,7 @@ void SimuFFT::_setZero(int ix, int iy, int iz)
  ** \param[in]  jz    Target cell location along Z
  **
  *****************************************************************************/
-void SimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
+void CalcSimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
 {
   int ind1 = IND(ix, iy, iz);
   int ind2 = IND(jx, jy, jz);
@@ -954,9 +923,9 @@ void SimuFFT::_setConjugate(int ix, int iy, int iz, int jx, int jy, int jz)
  ** \param[in]  iad   address for writing the simulation
  **
  *****************************************************************************/
-void SimuFFT::_final(DbGrid *db, int iad)
+void CalcSimuFFT::_final(DbGrid *db, int iad)
 {
-  (void) fftn(_ndim, _dims.data(), _u.data(), _v.data(), 1, 1.);
+  (void) fftn(_getNDim(), _dims.data(), _u.data(), _v.data(), 1, 1.);
   int nx = MAX(_nx[0], 1);
   int ny = MAX(_nx[1], 1);
   int nz = MAX(_nx[2], 1);
@@ -979,58 +948,6 @@ void SimuFFT::_final(DbGrid *db, int iad)
 
 /****************************************************************************/
 /*!
- **  Calculate the change of support coefficients by FFT method
- **  in the lognormal case on a grid
- **
- ** \return  r^2 coefficients for the different logarithmic variances
- **
- ** \param[in]  db      Db structure
- ** \param[in]  model   Model structure
- ** \param[in]  param   SimuFFTParam structure
- ** \param[in]  sigma   Array of logarithmic variances
- ** \param[in]  verbose Verbosity flag
- **
- *****************************************************************************/
-VectorDouble SimuFFT::getChangeSupport(DbGrid *db,
-                                       Model *model,
-                                       const SimuFFTParam& param,
-                                       const VectorDouble& sigma,
-                                       bool verbose)
-{
-  // Check validity of the context
-
-  if (! _isValid(db, model)) return VectorDouble();
-
-  _alloc(db, model, param, verbose);
-
-  /* Preparation of the FFT environment */
-
-  _prepar(db, model, param, false, verbose);
-
-  /* Calculate the correlation matrix (possibly rescaled) */
-
-  (void) fftn(_ndim, _dims.data(), _cmat.data(), _rnd.data(), 1, 1.);
-
-  /* Loop on the different lognormal variances */
-
-  int nval = (int) sigma.size();
-  VectorDouble r2val;
-  if (nval > 0)
-  {
-    r2val.resize(nval,TEST);
-    for (int ival = 0; ival < nval; ival++)
-      r2val[ival] = _support(sigma[ival]);
-  }
-  else
-  {
-    r2val.resize(1,TEST);
-    r2val[0] = _support(TEST);
-  }
-  return r2val;
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the mean lognormal covariance over the block
  **
  ** \return  Mean lognormal covariance
@@ -1038,12 +955,12 @@ VectorDouble SimuFFT::getChangeSupport(DbGrid *db,
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support(double sigma)
+double CalcSimuFFT::_support(double sigma)
 {
   double value = 0.;
   if (sigma == 0.) return (TEST);
 
-  switch (_ndim)
+  switch (_getNDim())
   {
     case 1:
       value = _support1(sigma);
@@ -1061,7 +978,7 @@ double SimuFFT::_support(double sigma)
   /* Calculate the scale */
 
   double scale = 1.;
-  for (int idim = 0; idim < _ndim; idim++)
+  for (int idim = 0; idim < _getNDim(); idim++)
     scale *= (_nx[idim] * _nx[idim]);
   value /= scale;
 
@@ -1081,7 +998,7 @@ double SimuFFT::_support(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support1(double sigma)
+double CalcSimuFFT::_support1(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
@@ -1102,7 +1019,7 @@ double SimuFFT::_support1(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support2(double sigma)
+double CalcSimuFFT::_support2(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
@@ -1125,7 +1042,7 @@ double SimuFFT::_support2(double sigma)
  ** \param[in]  sigma  Logarithmic variance value
  **
  *****************************************************************************/
-double SimuFFT::_support3(double sigma)
+double CalcSimuFFT::_support3(double sigma)
 {
   double value = 0.;
   for (int ix = -_nx[0]; ix <= _nx[0]; ix++)
@@ -1153,85 +1070,156 @@ double SimuFFT::_support3(double sigma)
  ** \param[in]  iz     Index for the discretized covariance along Z
  **
  *****************************************************************************/
-double SimuFFT::_rhoSigma(double sigma, int ix, int iy, int iz)
+double CalcSimuFFT::_rhoSigma(double sigma, int ix, int iy, int iz)
 {
   double rho = _cmat[IND(ix, iy, iz)];
   if (!FFFF(sigma)) rho = exp(sigma * sigma * rho);
   return (rho);
 }
 
-/****************************************************************************/
-/*!
- **  Checks the environment for simulations
- **
- ** \return  Error return code
- **
- ** \param[in]  db     grid Db structure
- ** \param[in]  model  Model structure
- **
- *****************************************************************************/
-bool SimuFFT::_isValid(Db *db, Model *model)
+bool CalcSimuFFT::_check()
 {
-  _ndim = db->getNDim();
+  if (! ACalcSimulation::_check()) return false;
 
-  /**************************************************************/
-  /* Check if the Space dimension is compatible with the method */
-  /**************************************************************/
-
-  if (_ndim < 1 || _ndim > 3)
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
+  int ndim = _getNDim();
+  if (ndim < 1 || ndim > 3)
   {
     messerr("The FFT Method is not a relevant simulation model");
-    messerr("for this Space Dimension (%d)", _ndim);
+    messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
-
-  /**********************/
-  /* Checking the model */
-  /**********************/
-
-  if (model != nullptr)
+  if (! getDbout()->isGrid())
   {
-    if (model->getVariableNumber() != 1)
-    {
-      messerr("The FFT method is restricted to the monovariate case (%d)",
-              model->getVariableNumber());
-      return false;
-    }
-    if (model->getCovaNumber() <= 0)
-    {
-      messerr("The number of covariance must be positive");
-      return false;
-    }
-    if (model->getDimensionNumber() <= 0)
-    {
-      messerr("The Space Dimension must be positive = %d",
-              model->getDimensionNumber());
-      return false;
-    }
-    if (model->getDimensionNumber() != _ndim)
-    {
-      messerr("The Space Dimension of the Db structure (%d)", _ndim);
-      messerr("Does not correspond to the Space Dimension of the model (%d)",
-              model->getDimensionNumber());
-      return false;
-    }
+    messerr("The argument 'dbout' should be a grid");
+    return false;
   }
-
-  /********************/
-  /* Calculate the Db */
-  /********************/
-
-  VectorDouble db_mini(_ndim);
-  VectorDouble db_maxi(_ndim);
-  db_extension(db, db_mini, db_maxi);
-
-  if (model != nullptr)
-    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
-
+  if (_getNVar() != 1)
+  {
+    messerr(" The FFT method is limited to the Monovariate case");
+    return false;
+  }
   return true;
 }
 
-bool SimuFFT::_run()
+bool CalcSimuFFT::_preprocess()
 {
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 1);
+    if (_iattOut < 0) return false;
+    return true;
+}
+
+bool CalcSimuFFT::_run()
+{
+  law_set_random_seed(getSeed());
+
+  // Dispatch
+
+  return _simulate();
+}
+
+bool CalcSimuFFT::_postprocess()
+{
+  _renameVariable(ELoc::Z, 1, _iattOut, String(), getNbSimu());
   return true;
+}
+
+void CalcSimuFFT::_rollback()
+{
+  _cleanVariableDb(1);
+}
+
+VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
+{
+  // Allocation
+
+  _alloc();
+
+  /* Preparation of the FFT environment */
+
+  _prepar(true);
+
+  /* Calculate the correlation matrix (possibly rescaled) */
+
+  (void) fftn(_getNDim(), _dims.data(), _cmat.data(), _rnd.data(), 1, 1.);
+
+  /* Loop on the different lognormal variances */
+
+  int nval = (int) sigma.size();
+  VectorDouble r2val;
+  if (nval > 0)
+  {
+    r2val.resize(nval, TEST);
+    for (int ival = 0; ival < nval; ival++)
+      r2val[ival] = _support(sigma[ival]);
+  }
+  else
+  {
+    r2val.resize(1, TEST);
+    r2val[0] = _support(TEST);
+  }
+  return r2val;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform the non-conditional simulation by FFT method on a grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  model   Model structure
+ ** \param[in]  param   SimuFFTParam structure
+ ** \param[in]  nbsimu  Number of simulations
+ ** \param[in]  seed    Value of the seed
+ ** \param[in]  verbose Verbosity flag
+ ** \param[in]  namconv Naming Convention
+ **
+ *****************************************************************************/
+int simfft(DbGrid *db,
+           Model *model,
+           SimuFFTParam& param,
+           int nbsimu,
+           int seed,
+           int verbose,
+           const NamingConvention& namconv)
+{
+  CalcSimuFFT simfft(nbsimu, verbose, seed);
+  simfft.setDbout(db);
+  simfft.setModel(model);
+  simfft.setNamingConvention(namconv);
+  simfft.setParam(param);
+
+  int error = (simfft.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the change of support coefficients by FFT method
+ **  in the lognormal case on a grid
+ **
+ ** \return  r^2 coefficients for the different logarithmic variances
+ **
+ ** \param[in]  db      Db structure
+ ** \param[in]  model   Model structure
+ ** \param[in]  param   SimuFFTParam structure
+ ** \param[in]  sigma   Array of logarithmic variances
+ ** \param[in]  seed    Seed for random number generator
+ ** \param[in]  verbose Verbosity flag
+ **
+ *****************************************************************************/
+VectorDouble getChangeSupport(DbGrid *db,
+                              Model *model,
+                              const SimuFFTParam &param,
+                              const VectorDouble &sigma,
+                              int seed,
+                              bool verbose)
+{
+  CalcSimuFFT simfft(1, verbose, seed);
+  simfft.setDbout(db);
+  simfft.setModel(model);
+  simfft.setParam(param);
+  return simfft.changeSupport(sigma);
 }

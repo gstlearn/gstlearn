@@ -46,26 +46,10 @@ bool CalcKriging::_check()
 {
   if (! ACalcInterpolator::_check()) return false;
 
-  if (! hasDbin())
-  {
-    messerr("The argument 'dbin' must be defined");
-    return false;
-  }
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
-  if (! hasModel())
-  {
-    messerr("The argument 'model' must be defined");
-    return false;
-  }
-  if (! hasNeighParam())
-  {
-    messerr("The argument 'neighparam' must be defined");
-    return false;
-  }
+  if (! hasDbin()) return false;
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
+  if (! hasNeighParam()) return false;
   if (getNeighparam()->getType() == ENeigh::IMAGE)
   {
     messerr("This tool cannot function with an IMAGE neighborhood");

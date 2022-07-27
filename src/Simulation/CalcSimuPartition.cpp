@@ -241,26 +241,18 @@ bool CalcSimuPartition::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
-  if (! hasModel())
-  {
-    messerr("The argument 'model' must be defined");
-    return false;
-  }
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
   int ndim = _getNDim();
   if (ndim > 3)
   {
-    messerr("The Turning Band Method is not a relevant simulation model");
+    messerr("The Partition Method is not a relevant simulation model");
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
   if (! getDbout()->isGrid())
   {
-    messerr("The argument 'dbout'  should be a grid");
+    messerr("The argument 'dbout' should be a grid");
     return false;
   }
   if (_mode != 1 && _mode != 2)

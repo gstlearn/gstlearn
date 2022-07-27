@@ -22,51 +22,36 @@ class SimuFFTParam;
 class DbGrid;
 class Model;
 
-class GSTLEARN_EXPORT SimuFFT: public ACalcSimulation
+class GSTLEARN_EXPORT CalcSimuFFT: public ACalcSimulation
 {
 public:
-  SimuFFT(int nbsimu = 0, int seed = 4324324);
-  SimuFFT(const SimuFFT &r) = delete;
-  SimuFFT& operator=(const SimuFFT &r) = delete;
-  virtual ~SimuFFT();
+  CalcSimuFFT(int nbsimu = 0, bool verbose = false, int seed = 4324324);
+  CalcSimuFFT(const CalcSimuFFT &r) = delete;
+  CalcSimuFFT& operator=(const CalcSimuFFT &r) = delete;
+  virtual ~CalcSimuFFT();
 
-  int simulate(DbGrid *db,
-               Model* model,
-               const SimuFFTParam& param,
-               int iptr,
-               bool verbose = false);
-  VectorDouble getChangeSupport(DbGrid *db,
-                                Model *model,
-                                const SimuFFTParam& param,
-                                const VectorDouble& sigma = VectorDouble(),
-                                bool verbose = false);
+  void setParam(const SimuFFTParam &param) { _param = param; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
+  VectorDouble changeSupport(const VectorDouble &sigma);
 
 private:
+  virtual bool _check() override;
+  virtual bool _preprocess() override;
   virtual bool _run() override;
+  virtual bool _postprocess() override;
+  virtual void _rollback() override;
 
-  bool _isValid(Db *db, Model *model);
-  void _alloc(DbGrid *db,
-              Model *model,
-              const SimuFFTParam& param,
-              bool verbose = false);
+  bool _simulate();
+  void _alloc();
   int _getOptimalEvenNumber(int number, int largeFactor = 11);
   VectorInt _getFactors(int number);
-  void _gridDilate(const DbGrid *db,
-                   Model *model,
-                   const SimuFFTParam& param,
-                   bool verbose);
-  bool _checkCorrect(Model *model,
-                     const VectorVectorDouble& xyz,
+  void _gridDilate();
+  bool _checkCorrect(const VectorVectorDouble& xyz,
                      int ix,
                      int iy,
                      int iz,
                      double percent);
-  void _prepar(DbGrid *db,
-               Model *model,
-               const SimuFFTParam& param,
-               bool flag_amplitude,
-               bool verbose = false,
-               double eps = EPSILON5);
+  void _prepar(bool flag_amplitude, double eps = EPSILON5);
   void _defineRandom();
   void _setVariance(int ix, int iy, int iz);
   void _defineSymmetry(void);
@@ -83,7 +68,9 @@ private:
   double _rhoSigma(double sigma, int ix, int iy, int iz);
 
 private:
-  int _ndim;
+  int _iattOut;
+  bool _verbose;
+  SimuFFTParam _param;
   int _nxyz;
   VectorInt _nx;
   VectorInt _shift;
@@ -95,3 +82,17 @@ private:
   VectorDouble _u;
   VectorDouble _v;
 };
+
+GSTLEARN_EXPORT int simfft(DbGrid *db,
+                           Model *model,
+                           SimuFFTParam& param,
+                           int nbsimu = 1,
+                           int seed = 432431,
+                           int verbose = false,
+                           const NamingConvention& namconv = NamingConvention("FFT"));
+GSTLEARN_EXPORT VectorDouble getChangeSupport(DbGrid *db,
+                                              Model *model,
+                                              const SimuFFTParam &param,
+                                              const VectorDouble &sigma = VectorDouble(),
+                                              int seed = 14333,
+                                              bool verbose = false);

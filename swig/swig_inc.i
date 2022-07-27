@@ -295,7 +295,7 @@
 #include "Simulation/CalcSimuPartition.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
-#include "Simulation/SimuFFT.hpp"
+#include "Simulation/CalcSimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"

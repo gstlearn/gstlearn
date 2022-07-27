@@ -2245,7 +2245,7 @@ int CalcSimuTurningBands::simulate(Db *dbin,
 bool CalcSimuTurningBands::_run()
 {
   law_set_random_seed(getSeed());
-  bool flag_cond = hasDbin();
+  bool flag_cond = hasDbin(false);
   int nbsimu = getNbSimu();
 
   // Initializations
@@ -2521,20 +2521,11 @@ bool CalcSimuTurningBands::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
+  if (hasDbin(false))
   {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
-  if (! hasModel())
-  {
-    messerr("The argument 'model' must be defined");
-    return false;
-  }
-  if (hasDbin() && ! hasNeighParam())
-  {
-    messerr("The argument 'neighparam' must be defined");
-    return false;
+    if (! hasNeighParam()) return false;
   }
   int ndim = _getNDim();
   if (ndim > 3)

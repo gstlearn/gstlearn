@@ -494,13 +494,6 @@ GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          const SimuSphericalParam& sphepar,
                                          int seed = 54523,
                                          int verbose = false);
-GSTLEARN_EXPORT int simfft(DbGrid *db,
-                           Model *model,
-                           SimuFFTParam& param,
-                           int nbsimu = 1,
-                           int seed = 432431,
-                           int verbose = false,
-                           const NamingConvention& namconv = NamingConvention("FFT"));
 GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
                                 Model *model,
                                 const SimuRefineParam& param,

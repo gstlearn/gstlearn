@@ -336,11 +336,7 @@ bool CalcSimuSubstitution::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
+  if (! hasDbout()) return false;
   int ndim = _getNDim();
   if (ndim > 3)
   {
