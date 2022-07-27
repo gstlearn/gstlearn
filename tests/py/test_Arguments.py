@@ -5,6 +5,7 @@
 # Loading the packages
 
 import gstlearn as gl
+import numpy as np
 import os
 import sys
 
@@ -22,18 +23,18 @@ gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
 
 # Testing Vector arguments using external factory
 
-a = gl.VectorString()
-a.push_back("toto")
-a.push_back("titi")
-gl.argumentTestVectorString(a)
+#a = gl.VectorString()
+#a.push_back("toto")
+#a.push_back("titi")
+#gl.argumentTestVectorString(a)
 
-a = gl.VectorInt()
-a.push_back(12)
-gl.argumentTestVectorInt(a)
+#a = gl.VectorInt()
+#a.push_back(12)
+#gl.argumentTestVectorInt(a)
 
-a = gl.VectorDouble()
-a.push_back(12.)
-gl.argumentTestVectorDouble(a)
+#a = gl.VectorDouble()
+#a.push_back(12.)
+#gl.argumentTestVectorDouble(a)
 
 # Testing missing arguments
 
@@ -45,7 +46,8 @@ gl.argumentTestVectorDouble([gl.TEST])
 # Testing overloading of methods
 
 gl.argumentTestIntOverload(12)
-gl.argumentTestIntOverload([21, 32])
+#gl.argumentTestIntOverload([21, 32])
+gl.argumentTestIntOverload((21, 32))
 gl.argumentTestStringOverload("my_String")
 gl.argumentTestStringOverload(["my_String1","my_String2","my_String3"])
 

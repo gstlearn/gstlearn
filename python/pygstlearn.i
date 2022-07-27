@@ -28,18 +28,22 @@
   }
   template <> int convertToCpp(PyObject* obj, float& value)
   {
+    // TODO : Handle undefined or NA values
     return SWIG_AsVal_float(obj, &value);
   }
   template <> int convertToCpp(PyObject* obj, unsigned char& value)
   {
-    return SWIG_AsVal_unsigned_char(obj, &value);
+    // TODO : Handle undefined or NA values
+    return SWIG_AsVal_unsigned_SS_char(obj, &value);
   }
   template <> int convertToCpp(PyObject* obj, bool& value)
   {
+    // No undefined
     return SWIG_AsVal_bool(obj, &value);
   }
   template <> int convertToCpp(PyObject* obj, String& value)
   {
+    // No undefined
     return SWIG_AsVal_std_string(obj, &value);
   }
   

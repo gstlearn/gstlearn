@@ -17,9 +17,6 @@ Testing for Integer :  12
  [1][2] :  1.000000  
  [2][2] :  5.000000  
  
- Testing for VectorString :  toto  titi  
- Testing for VectorInt :  12  
- Testing for VectorDouble :  12.000000  
  Testing for Integer :  NA  
  Testing for Double :  NA  
  Testing for VectorInt :  NA  

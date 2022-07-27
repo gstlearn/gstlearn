@@ -17,7 +17,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
-NeighImage::NeighImage(int ndim, VectorInt radius, int skip)
+NeighImage::NeighImage(int ndim, const VectorInt& radius, int skip)
     : ANeighParam(ndim),
       _skip(skip),
       _imageRadius(radius)

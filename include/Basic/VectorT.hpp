@@ -203,7 +203,7 @@ void VectorT<T>::_detach()
   #endif
 #endif
 
-//typedef VectorT<bool> VectorBool;
+//typedef VectorT<bool> VectorBool; TODO : Build a real VectorBool
 // https://stackoverflow.com/a/61158013/3952924
 typedef VectorT<unsigned char> VectorBool;
 typedef VectorT<String> VectorString;

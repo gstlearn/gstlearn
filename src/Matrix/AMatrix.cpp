@@ -515,6 +515,7 @@ void AMatrix::fill(double value)
  * @param values Input array (Dimension: nrow * ncol)
  * @param byCol true for Column major; false for Row Major
  */
+#ifndef SWIG
 void AMatrix::setValues(const double* values, bool byCol)
 {
   if (_sparse)
@@ -548,7 +549,7 @@ void AMatrix::setValues(const double* values, bool byCol)
     _setValues(values, byCol);
   }
 }
-
+#endif
 /**
  * Filling the matrix with an array of values
  * Note that this array is ALWAYS dimensioned to the total number
@@ -569,9 +570,9 @@ void AMatrix::setValues(const VectorDouble& values, bool byCol)
   setValues(values.data(),byCol);
 }
 
-void AMatrix::setValues(const VectorInt irows,
-                        const VectorInt icols,
-                        const VectorDouble values)
+void AMatrix::setValues(const VectorInt& irows,
+                        const VectorInt& icols,
+                        const VectorDouble& values)
 {
   if (irows.size() != values.size() ||
       icols.size() != values.size())
@@ -681,6 +682,7 @@ void AMatrix::prodScalar(double v)
  * @param in Input vector
  * @param out Output vector obtained by multiplying 'in' by current Matrix
  */
+#ifndef SWIG
 void AMatrix::prodVector(const double *in, double *out) const
 {
   if (_sparse)
@@ -692,6 +694,7 @@ void AMatrix::prodVector(const double *in, double *out) const
     _prodVector(in, out);
   }
 }
+#endif
 
 void AMatrix::prodVector(const VectorDouble& in, VectorDouble& out) const
 {

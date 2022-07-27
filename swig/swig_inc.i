@@ -1,4 +1,6 @@
 
+%ignore *::operator=;
+
 %{
   #include "gstlearn_export.hpp"
   #include "geoslib_define.h"
@@ -7,12 +9,11 @@
   #include "geoslib_f.h"
   #include "geoslib_old_f.h"
   
-  #include "VectorT.hpp"
-  #include "VectorNumT.hpp"
-  
   #include "csparse_d.h"
   #include "csparse_f.h"
   
+  #include "Basic/VectorT.hpp"
+  #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
   #include "Basic/Vector.hpp"
   #include "Basic/AFunction.hpp"
@@ -279,7 +280,7 @@
   #include "OutputFormat/GridXYZ.hpp"
   #include "OutputFormat/GridZycor.hpp"
   
-  #include "Polynomials/Chebychev.hpp"GSTLEARN_TEMPLATE_EXPORT template class VectorT<VectorNumT<double> >;
+  #include "Polynomials/Chebychev.hpp"
   #include "Simulation/ACalcSimulation.hpp"
   #include "Simulation/CalcSimuTurningBands.hpp"
   #include "Simulation/TurningDirection.hpp"
@@ -319,9 +320,9 @@
 %include std_string.i
 %template(DoNotUseVectorIntStd)     std::vector< int >;
 %template(DoNotUseVectorDoubleStd)  std::vector< double >;
-%template(DoNotUseVectorIntStd)     std::vector< float >;
-%template(DoNotUseVectorIntStd)     std::vector< unsigned char >;
-//%template(DoNotUseVectorBoolStd)    std::vector< bool >;
+%template(DoNotUseVectorFloatStd)   std::vector< float >;
+%template(DoNotUseVectorUCharStd)   std::vector< unsigned char >;
+%template(DoNotUseVectorBoolStd)    std::vector< bool >;
 %template(DoNotUseVectorStringStd)  std::vector< std::string >; // Keep std::string here otherwise asptr fails!
 %template(DoNotUseVVectorIntStd)    std::vector< std::vector< int > >;
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;

@@ -25,7 +25,7 @@ class Db;
 class GSTLEARN_EXPORT NeighImage: public ANeighParam
 {
 public:
-  NeighImage(int ndim = 2, const VectorInt radius = VectorInt(), int skip = 0);
+  NeighImage(int ndim = 2, const VectorInt& radius = VectorInt(), int skip = 0);
   NeighImage(const NeighImage& r);
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
