@@ -12,12 +12,18 @@
 
 %fragment("ToCpp", "header")
 {
+
   template <typename Type> int convertToCpp(SEXP obj, Type& value);
   
   template <> int convertToCpp(SEXP obj, int& value)
   {
     // TODO : Handle undefined or NA values
     return SWIG_AsVal_int(obj, &value);
+  }
+  template <> int convertToCpp(SEXP obj, double& value)
+  {
+    // TODO : Handle undefined or NA values
+    return SWIG_AsVal_double(obj, &value);
   }
   template <> int convertToCpp(SEXP obj, float& value)
   {
@@ -33,11 +39,6 @@
   {
     return SWIG_AsVal_bool(obj, &value);
   }
-  template <> int convertToCpp(SEXP obj, double& value)
-  {
-    // TODO : Handle undefined or NA values
-    return SWIG_AsVal_double(obj, &value);
-  }
   template <> int convertToCpp(SEXP obj, String& value)
   {
     return SWIG_AsVal_std_string(obj, &value);
@@ -48,10 +49,10 @@
   SEXP getElem(SEXP obj, int i)
   {
     if (Rf_isInteger(obj))      return Rf_ScalarInteger(INTEGER(obj)[i]);
+    if (Rf_isReal(obj))         return Rf_ScalarReal(REAL(obj)[i]);
     if (Rf_isFloat(obj))        return Rf_ScalarFloat(FLOAT(obj)[i]);
     if (Rf_isUnsignedChar(obj)) return Rf_ScalarUnsignedChar(UCHAR(obj)[i]);
     if (Rf_isLogical(obj))      return Rf_ScalarLogical(LOGICAL(obj)[i]);
-    if (Rf_isReal(obj))         return Rf_ScalarReal(REAL(obj)[i]);
     if (Rf_isString(obj))       return Rf_ScalarString(STRING_ELT(obj, i));
     if (TYPEOF(obj) == VECSXP)  return VECTOR_ELT(obj, i);
     return SEXP();
@@ -125,6 +126,21 @@
   }
 }
 
+// Add numerical vector typecheck typemaps for dispatching functions
+%typemap(rtypecheck) const VectorInt&,    VectorInt,
+                     const VectorDouble&, VectorDouble,
+                     const VectorFloat&,  VectorFloat,
+                     const VectorUChar&,  VectorUChar,
+                     const VectorBool&,   VectorBool
+{
+  is.numeric($arg) && length($arg) >= 1
+}
+
+// Add string vector typecheck typemaps for dispatching functions
+%typemap(rtypecheck) const VectorString&, VectorString
+{
+  is.character($arg) && length($arg) >= 1
+}
 
 %fragment("FromCpp", "header")
 {
@@ -159,23 +175,23 @@
 }
 
 %typemap(scoerceout) int,           int*,           int&,
+                     double,        double*,        double&,
                      float,         float*,         float&
                      unsigned char, unsigned char*, unsigned char&
                      bool,          bool*,          bool&
-                     double,        double*,        double&
  %{    %}
 
 %typemap(scoerceout) VectorInt,    VectorInt*,    VectorInt&,
+                     VectorDouble, VectorDouble*, VectorDouble&,
                      VectorFloat,  VectorFloat*,  VectorFloat&,
                      VectorUChar,  VectorUChar*,  VectorUChar&,
                      VectorBool,   VectorBool*,   VectorBool&,
-                     VectorDouble, VectorDouble*, VectorDouble&,
                      VectorString, VectorString*, VectorString&
  %{    %}
 
 %typemap(scoerceout) VectorVectorInt,    VectorVectorInt*,    VectorVectorInt&,
-                     VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&,
-                     VectorVectorDouble, VectorVectorDouble*, VectorVectorDouble&
+                     VectorVectorDouble, VectorVectorDouble*, VectorVectorDouble&,
+                     VectorVectorFloat,  VectorVectorFloat*,  VectorVectorFloat&
  %{    %}
 
 //////////////////////////////////////////////////////////////

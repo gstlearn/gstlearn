@@ -13,6 +13,38 @@
 
 %fragment("ToCpp", "header")
 {
+  int isNumericVector(PyObject* obj)
+  {
+    if (PySequence_Check(obj) || PyArray_CheckExact(obj))
+    {
+      int size = (int)PySequence_Length(obj);
+      for (int i = 0; i < size; ++i)
+      {
+        PyObject* item = PySequence_GetItem(obj, i);
+        if (!PyNumber_Check(item))
+          return SWIG_TypeError;
+      }
+      return SWIG_OK;
+    }
+    return SWIG_TypeError;
+  }
+  int isStringVector(PyObject* obj)
+  {
+    if (PySequence_Check(obj) || PyArray_CheckExact(obj))
+    {
+      // TODO : PyString_Check doesn't return true ?
+      //int size = (int)PySequence_Length(obj);
+      //for (int i = 0; i < size; ++i)
+      //{
+      //  PyObject* item = PySequence_GetItem(obj, i);
+      //  if (!PyString_Check(item))
+      //    return SWIG_TypeError;
+      //}
+      return SWIG_OK;
+    }
+    return SWIG_TypeError;
+  }
+
   template <typename Type> int convertToCpp(PyObject* obj, Type& value);
   
   template <> int convertToCpp(PyObject* obj, int& value)
@@ -120,6 +152,22 @@
   }
 }
 
+// Add numerical vector typecheck typemaps for dispatching functions
+%typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY) const VectorInt&,    VectorInt,
+                                                                                         const VectorDouble&, VectorDouble
+                                                                                         const VectorFloat&,  VectorFloat
+                                                                                         const VectorUChar&,  VectorUChar
+                                                                                         const VectorBool&,   VectorBool
+{
+  $1 = SWIG_CheckState(isNumericVector($input));
+}
+
+// Add generic vector typecheck typemaps for dispatching functions
+%typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_STRING_ARRAY) const VectorString&, VectorString
+{
+  $1 = SWIG_CheckState(isStringVector($input));
+}
+
 // Include numpy interface for creating arrays
 
 %{
@@ -134,10 +182,10 @@
 {
   template <typename Type> NPY_TYPES numpyType();
   template <> NPY_TYPES numpyType<int>()           { return NPY_INT; }
+  template <> NPY_TYPES numpyType<double>()        { return NPY_DOUBLE; }
   template <> NPY_TYPES numpyType<float>()         { return NPY_FLOAT; }
   template <> NPY_TYPES numpyType<unsigned char>() { return NPY_UBYTE; }
   template <> NPY_TYPES numpyType<bool>()          { return NPY_BOOL; }
-  template <> NPY_TYPES numpyType<double>()        { return NPY_DOUBLE; }
   template <> NPY_TYPES numpyType<String>()        { return NPY_STRING; }
   
   template<typename Type> struct TypeHelper;
@@ -162,6 +210,11 @@
     // TODO : handle undefined or NA values
     return value;
   }
+  template <> double convertFromCpp(double value)
+  {
+    // TODO : handle undefined or NA values
+    return value;
+  }
   template <> float convertFromCpp(float value)
   {
     // TODO : handle undefined or NA values
@@ -175,11 +228,6 @@
   template <> bool convertFromCpp(bool value)
   {
     return value; // No special conversion provided
-  }
-  template <> double convertFromCpp(double value)
-  {
-    // TODO : handle undefined or NA values
-    return value;
   }
   template <> String convertFromCpp(String value)
   {
@@ -342,11 +390,23 @@ void exit_f(void)
   redefine_exit(exit_f);
 %}
 
-%extend std::vector<double> {
-  std::string __repr__() {  return ut_vector_string(*$self); }
+%extend VectorInt {
+  std::string __repr__() {  return $self->toString(); }
 }
-%extend std::vector<int> {
-  std::string __repr__() {  return ut_ivector_string(*$self); }
+%extend VectorDouble {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorFloat {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorUchar {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorBool {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend VectorString {
+  std::string __repr__() {  return $self->toString(); }
 }
 %extend SpacePoint {
   std::string __repr__() {  return $self->toString(); }
