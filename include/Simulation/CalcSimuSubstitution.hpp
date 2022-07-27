@@ -47,7 +47,7 @@ private:
 
 private:
   bool _verbose;
-  int _iattOut;
+  int  _iattOut;
   SimuSubstitutionParam _subparam;
   std::vector<Plane> _planes;
 };

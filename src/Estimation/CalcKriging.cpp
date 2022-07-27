@@ -32,6 +32,9 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _priorMean(),
     _priorCov(),
     _flagProf(false),
+    _flagSingleTarget(false),
+    _iechSingleTarget(-1),
+    _flagPerCell(false),
     _iptrEst(-1),
     _iptrStd(-1),
     _iptrVarZ(-1)
@@ -65,19 +68,22 @@ bool CalcKriging::_check()
 
 bool CalcKriging::_preprocess()
 {
+  int status = 1;
+  if (_flagSingleTarget) status = 2;
+
   if (_flagEst)
   {
-    _iptrEst = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrEst = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
     if (_iptrEst < 0) return false;
   }
   if (_flagStd)
   {
-    _iptrStd = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrStd = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
     if (_iptrStd < 0) return false;
   }
   if (_flagVarZ)
   {
-    _iptrVarZ = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
     if (_iptrVarZ < 0) return false;
   }
 
@@ -111,6 +117,25 @@ int CalcKriging::_getNVar() const
   int nvar = _matCL.empty() ? getModel()->getVariableNumber() : _matCL.size();
   return nvar;
 }
+
+void CalcKriging::_storeResultsForExport(const KrigingSystem& ksys)
+{
+  /* Extract relevant information */
+
+  _ktest.ndim = ksys.getNDim();
+  _ktest.nech = ksys.getNRed();
+  _ktest.nrhs = 1;
+  _ktest.neq  = ksys.getNeq();
+  _ktest.nbgh = ksys.getSampleIndices();
+  _ktest.xyz  = ksys.getSampleCoordinates();
+  _ktest.data = ksys.getSampleData();
+  _ktest.zam  = ksys.getZam();
+  _ktest.lhs  = ksys.getLHS();
+  _ktest.rhs  = ksys.getRHSC();
+  _ktest.wgt  = ksys.getWeights();
+  _ktest.var  = ksys.getVariance();
+}
+
 /****************************************************************************/
 /*!
  **  Standard Kriging
@@ -124,7 +149,7 @@ bool CalcKriging::_run()
 
   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeighparam());
   if (ksys.setKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
-  if (ksys.setKrigOptCalcul(_calcul, _ndisc)) return false;
+  if (ksys.setKrigOptCalcul(_calcul, _ndisc, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
   if (ksys.setKrigOptMatCL(_matCL)) return false;
   if (_flagDGM)
@@ -145,9 +170,22 @@ bool CalcKriging::_run()
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
-    mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
+    if (_flagSingleTarget)
+    {
+      if (iech_out != _iechSingleTarget) continue;
+    }
+    else
+    {
+      mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
+    }
     if (ksys.estimate(iech_out)) return false;
   }
+
+  // Store the results in an API structure (only if flagSingleTarget)
+
+  if (_flagSingleTarget)
+    _storeResultsForExport(ksys);
+
   return true;
 }
 
@@ -196,6 +234,50 @@ int kriging(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setRankColCok(rank_colcok);
   krige.setMatCl(matCL);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Standard Block Kriging with variable cell dimension
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  model       Model structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  ndisc       Array giving the discretization counts
+ ** \param[in]  flag_est    Option for the storing the estimation
+ ** \param[in]  flag_std    Option for the storing the standard deviation
+ ** \param[in]  rank_colcok Option for running Collocated Cokriging
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int krigcell(Db *dbin,
+             Db *dbout,
+             Model *model,
+             ANeighParam *neighparam,
+             bool flag_est,
+             bool flag_std,
+             VectorInt ndisc,
+             VectorInt rank_colcok,
+             const NamingConvention& namconv)
+{
+  CalcKriging krige(flag_est, flag_std, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setCalcul(EKrigOpt::BLOCK);
+  krige.setNdisc(ndisc);
+  krige.setRankColCok(rank_colcok);
+  krige.setFlagPerCell(true);
 
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
@@ -323,5 +405,44 @@ int krigprof(Db *dbin,
   // Run the calculator
   int error = (krige.run()) ? 0 : 1;
   return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Perform kriging and return the calculation elements
+ **
+ ** \return  A Krigtest_Res structure
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  iech0      Rank of the target sample
+ ** \param[in]  calcul     Kriging calculation option (EKrigOpt)
+ ** \param[in]  ndisc      Array giving the discretization counts
+ **
+ *****************************************************************************/
+Krigtest_Res krigtest(Db *dbin,
+                      Db *dbout,
+                      Model *model,
+                      ANeighParam *neighparam,
+                      int iech0,
+                      const EKrigOpt &calcul,
+                      VectorInt ndisc)
+{
+  CalcKriging krige(true, true, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+
+  krige.setCalcul(calcul);
+  krige.setNdisc(ndisc);
+  krige.setFlagSingleTarget(true);
+  krige.setIechSingleTarget(iech0);
+
+  (void) krige.run();
+
+  return krige.getKtest();
 }
 

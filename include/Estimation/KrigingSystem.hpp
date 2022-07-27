@@ -268,7 +268,7 @@ private:
   int _iechOut;
   int _nred;
 
-  /// Local arrays
+  /// Working arrays
   mutable bool _flagCheckAddress;
   mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;

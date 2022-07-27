@@ -53,9 +53,9 @@ private:
   double _stackSearch(const std::vector<Stack>& stacks, double valref);
 
 private:
-  int _mode;
+  int  _mode;
   bool _verbose;
-  int _iattOut;
+  int  _iattOut;
   SimuPartitionParam _parparam;
 };
 

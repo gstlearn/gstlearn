@@ -19,6 +19,7 @@
 #include "Model/Model.hpp"
 #include "Covariances/ECov.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/CalcSimuFFT.hpp"
 
 /****************************************************************************/
 /*!

@@ -18,6 +18,7 @@
 
 class Db;
 class DbGrid;
+class KrigingSystem;
 
 class GSTLEARN_EXPORT CalcKriging: public ACalcInterpolator
 {
@@ -37,6 +38,11 @@ public:
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
+  void setFlagSingleTarget(bool flagSingleTarget) { _flagSingleTarget = flagSingleTarget; }
+  void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
+  void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
+
+  Krigtest_Res getKtest() const { return _ktest; }
 
 private:
   virtual bool _check() override;
@@ -45,6 +51,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
   int _getNVar() const override;
+  void _storeResultsForExport(const KrigingSystem& ksys);
 
 private:
   bool _flagEst;
@@ -65,9 +72,16 @@ private:
 
   bool _flagProf;
 
+  bool _flagSingleTarget;
+  int _iechSingleTarget;
+
+  bool _flagPerCell;
+
   int _iptrEst;
   int _iptrStd;
   int _iptrVarZ;
+
+  Krigtest_Res _ktest;
 };
 
 GSTLEARN_EXPORT int kriging(Db *dbin,
@@ -82,6 +96,15 @@ GSTLEARN_EXPORT int kriging(Db *dbin,
                             VectorInt rank_colcok = VectorInt(),
                             VectorVectorDouble matCL = VectorVectorDouble(),
                             const NamingConvention& namconv = NamingConvention("Kriging"));
+GSTLEARN_EXPORT int krigcell(Db *dbin,
+                             Db *dbout,
+                             Model *model,
+                             ANeighParam *neighparam,
+                             bool flag_est,
+                             bool flag_std,
+                             VectorInt ndisc,
+                             VectorInt rank_colcok = VectorInt(),
+                             const NamingConvention& namconv = NamingConvention("KrigCell"));
 GSTLEARN_EXPORT int krigdgm(Db *dbin,
                             DbGrid *dbout,
                             Model *model,
@@ -107,3 +130,10 @@ GSTLEARN_EXPORT int krigprof(Db *dbin,
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("KrigProf"));
+GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
+                                      Db *dbout,
+                                      Model *model,
+                                      ANeighParam *neighparam,
+                                      int iech0,
+                                      const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
+                                      VectorInt ndisc = VectorInt());
