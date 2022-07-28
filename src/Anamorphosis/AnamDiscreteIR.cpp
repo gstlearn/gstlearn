@@ -421,7 +421,7 @@ int AnamDiscreteIR::updatePointToBlock(double r_coef)
  **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
  **
  *****************************************************************************/
-void AnamDiscreteIR::globalSelectivity(Selectivity* selectivity)
+void AnamDiscreteIR::_globalSelectivity(Selectivity* selectivity)
 {
   bool cutDefined = (selectivity->getNCuts() > 0);
 

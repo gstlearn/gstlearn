@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -104,17 +104,15 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Global experimental selectivity
   data->display();
-  (void) selectivity->calculateFromDb(data);
-  selectivity->display();
+  selectivity->eval(data).display();
+
+  // Selectivity in the model
+  selectivity->eval(anam).display();
 
   // Transform Data into Gaussian
   (void) anam->RawToGaussian(data);
   data->setName("Y.Z","Gauss.Z");
   data->display();
-
-  // Selectivity in the model
-  anam->globalSelectivity(selectivity);
-  selectivity->display();
 
   // Calculate the variogram
   VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);

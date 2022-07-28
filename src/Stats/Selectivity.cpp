@@ -11,7 +11,13 @@
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Anamorphosis/AAnam.hpp"
+#include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Polynomials/Hermite.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Stats/ESelectivity.hpp"
 
@@ -254,6 +260,50 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
     setMest(icut, grade);
   }
   return 0;
+}
+
+int Selectivity::calculateFromAnam(AAnam* anam)
+{
+  AnamHermite* anamH = dynamic_cast<AnamHermite*>(anam);
+  if (anamH != nullptr)
+  {
+    anamH->_globalSelectivity(this);
+    return 0;
+  }
+
+  AnamDiscreteDD* anamDD = dynamic_cast<AnamDiscreteDD*>(anam);
+  if (anamDD != nullptr)
+  {
+    anamDD->_globalSelectivity(this);
+    return 0;
+  }
+
+  AnamDiscreteIR* anamIR = dynamic_cast<AnamDiscreteIR*>(anam);
+  if (anamIR != nullptr)
+  {
+    anamIR->_globalSelectivity(this);
+    return 0;
+  }
+
+  messerr("Code not yet implemented for current anamorphosis");
+  return 1;
+}
+
+const Table& Selectivity::eval(const Db *db)
+{
+  (void) calculateFromDb(db);
+  return getStats();
+}
+const Table& Selectivity::eval(const VectorDouble &tab,
+                               const VectorDouble &weights)
+{
+  (void) calculateFromArray(tab, weights);
+  return getStats();
+}
+const Table& Selectivity::eval(AAnam* anam)
+{
+  (void) calculateFromAnam(anam);
+  return getStats();
 }
 
 /****************************************************************************/

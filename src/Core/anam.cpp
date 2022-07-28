@@ -66,28 +66,7 @@ Selectivity anam_selectivity(AAnam *anam,
 {
   Selectivity selectivity(zcut, z_max, flag_correct);
 
-  /* Dispatch according to the anamorphosis */
-
-  if (anam->getType() == EAnam::HERMITIAN)
-  {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    anam_hermite->globalSelectivity(&selectivity);
-  }
-  else if (anam->getType() == EAnam::DISCRETE_DD)
-  {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    anam_discrete_DD->globalSelectivity(&selectivity);
-  }
-  else if (anam->getType() == EAnam::DISCRETE_IR)
-  {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    anam_discrete_IR->globalSelectivity(&selectivity);
-  }
-  else
-  {
-    messerr("This function is not programmed for this Anamorphosis");
-    return selectivity;
-  }
+  if (selectivity.calculateFromAnam(anam)) return selectivity;
 
   if (verbose) selectivity.dumpGini();
 

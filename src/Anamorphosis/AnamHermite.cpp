@@ -682,7 +682,7 @@ int AnamHermite::updatePointToBlock(double r_coef)
  **  Calculate the theoretical grade tonnage value (Gaussian case)
  **
  *****************************************************************************/
-void AnamHermite::globalSelectivity(Selectivity* selectivity)
+void AnamHermite::_globalSelectivity(Selectivity* selectivity)
 {
   int nbpoly = getNbPoly();
   setFlagBound(0);

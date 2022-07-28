@@ -18,6 +18,7 @@
 #include "Basic/Table.hpp"
 
 class Db;
+class AAnam;
 
 class GSTLEARN_EXPORT Selectivity: public ICloneable, public AStringable
 {
@@ -57,6 +58,12 @@ public:
   int calculateFromDb(const Db* db);
   int calculateFromArray(const VectorDouble& tab,
                          const VectorDouble& weights = VectorDouble());
+  int calculateFromAnam(AAnam* anam);
+
+  const Table& eval(const Db *db);
+  const Table& eval(const VectorDouble &tab,
+                    const VectorDouble &weights = VectorDouble());
+  const Table& eval(AAnam* anam);
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return _nCut; }

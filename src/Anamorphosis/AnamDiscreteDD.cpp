@@ -758,7 +758,7 @@ void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
  ** \param[in] selectivity Selectivity structure to be filled
  **
  *****************************************************************************/
-void AnamDiscreteDD::globalSelectivity(Selectivity* selectivity)
+void AnamDiscreteDD::_globalSelectivity(Selectivity* selectivity)
 {
   bool cutDefined = (selectivity->getNCuts() > 0);
 

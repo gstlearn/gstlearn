@@ -60,7 +60,6 @@ public:
   double getRCoef() const { return _sCoef; }
   void   setRCoef(double rcoef) { _sCoef = rcoef; }
 
-  void globalSelectivity(Selectivity* selectivity);
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
                          const VectorString& names_est,
@@ -83,7 +82,10 @@ private:
                        double *T,
                        double *Q);
   double _getResidual(int iclass, double z) const;
+  void _globalSelectivity(Selectivity* selectivity);
 
 private:
   double _sCoef;
+
+  friend class Selectivity;
 };
