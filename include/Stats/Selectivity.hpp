@@ -109,6 +109,8 @@ public:
   bool isFlagTonnageCorrect() const { return _flagTonnageCorrect; }
   double getZmax() const { return _zmax; }
 
+  const Table& getStats() const { return _stats; }
+
 private:
   VectorString _getAllNames() const;
   void _printQTvars(const char *title, int type, int number) const;

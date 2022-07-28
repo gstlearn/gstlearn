@@ -1658,7 +1658,7 @@ int xvalid(Db *db,
   /* Setting options */
 
   KrigingSystem ksys(db, db, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptXValid(true, flag_kfold, flag_xvalid_est > 0, flag_xvalid_std > 0)) return 1;
   if (ksys.setKrigOptColCok(rank_colcok)) return 1;
   if (! ksys.isReady()) return 1;
@@ -1850,7 +1850,7 @@ int _krigsim(Db* dbin,
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
   if (ksys.setKrigOptFlagSimu(true, nbsimu, icase)) return 1;
-  if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptBayes(flag_bayes, dmean, dcov)) return 1;
   if (ksys.setKrigOptDGM(flag_dgm, r_coeff)) return 1;
   if (! ksys.isReady()) return 1;
@@ -3879,7 +3879,7 @@ int image_smoother(DbGrid *dbgrid,
   // Here ALL options are set, even if most of them could keep their default values
 
   KrigingSystem ksys(dbgrid, dbgrid, nullptr, neighI);
-  if (ksys.setKrigOptEstim(1, -1, -1)) return 1;
+  if (ksys.updKrigOptEstim(1, -1, -1)) return 1;
   if (ksys.setKrigOptImageSmooth(true, type, range)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -3952,7 +3952,7 @@ int krigsum(Db *dbin,
   dbin->clearLocators(ELoc::Z);
   dbin->setLocatorByUID(iuids[0], ELoc::Z);
   KrigingSystem ksys(dbin, dbout, model, neighU);
-  if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (ksys.setKrigOptFlagLTerm(true)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -3962,7 +3962,7 @@ int krigsum(Db *dbin,
   {
     dbin->clearLocators(ELoc::Z);
     dbin->setLocatorByUID(iuids[ivar], ELoc::Z);
-    if (ksys.setKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
+    if (ksys.updKrigOptEstim(iptr_est + ivar, -1, -1)) return 1;
     (void) gslSPrintf(string, "Kriging of variable #%d at sample", ivar + 1);
 
     /* Loop on the targets to be processed */
@@ -4072,7 +4072,7 @@ int kriggam(Db *dbin,
   /* Setting options */
 
   KrigingSystem ksys(dbin, dbout, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptAnamophosis(anam)) return 1;
   if (! ksys.isReady()) return 1;
 
@@ -6362,7 +6362,7 @@ int krimage(DbGrid *dbgrid,
   // Here ALL options are set, even if most of them could keep their default values
 
   KrigingSystem ksys(dbgrid, dbgrid, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, -1, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
   if (! ksys.isReady()) return 1;
 
   /* Loop on the targets to be processed */
@@ -6490,7 +6490,7 @@ int dk(Db* dbin,
   dbin->setLocatorByUID(iuids[0], ELoc::Z);
 
   KrigingSystem ksys(dbin, dbgrid, model, neighparam);
-  if (ksys.setKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
+  if (ksys.updKrigOptEstim(iptr_est, iptr_std, -1)) return 1;
   if (ksys.setKrigOptCalcul(calcul, ndisc)) return 1;
   if (ksys.setKrigOptFactorKriging(true)) return 1;
   if (! ksys.isReady()) return 1;
@@ -6507,8 +6507,8 @@ int dk(Db* dbin,
       int jptr_std = (flag_std) ? iptr_std + iclass - 1 : -1;
       dbin->clearLocators(ELoc::Z);
       dbin->setLocatorByUID(iuids[iclass - 1], ELoc::Z);
-      if (ksys.setKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-      if (ksys.setKrigOptIclass(iclass)) return 1;
+      if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
+      if (ksys.updKrigOptIclass(iclass)) return 1;
       if (ksys.estimate(iech_out)) return 1;
     }
   }

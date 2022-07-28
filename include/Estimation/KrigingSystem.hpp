@@ -36,7 +36,6 @@ public:
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
-  int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
                         bool flag_per_cell = false);
@@ -58,9 +57,12 @@ public:
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
   int  setKrigOptAnamophosis(AAnam* anam);
-  int  setKrigOptIclass(int index_class);
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
-  int  setKrigOptCheckAddress(bool flagCheckAddress);
+
+  // The subseauent methods do not require isReady() validation
+  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  updKrigOptIclass(int index_class);
+  int  updKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
   int  estimate(int iech_out);

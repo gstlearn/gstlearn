@@ -2111,7 +2111,7 @@ void KrigingSystem::_simulateDump(int status)
  * @return
  * @remark If a term must not be calculated, its UID must be negative
  */
-int KrigingSystem::setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
+int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 {
   _iptrEst = iptrEst;
   _iptrStd = iptrStd;
@@ -2128,6 +2128,7 @@ int KrigingSystem::setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 
 int KrigingSystem::setKrigOptDataWeights(int iptrWeights, bool flagSet)
 {
+  _isReady = false;
   int nvar = _getNVar();
   if (iptrWeights >= 0 && nvar > 1)
   {
@@ -2174,6 +2175,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
                                     const VectorInt& ndiscs,
                                     bool flag_per_cell)
 {
+  _isReady = false;
   int ndim = getNDim();
   _calcul = calcul;
   _flagPerCell = false;
@@ -2239,6 +2241,7 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
                                     bool optionXValidEstim,
                                     bool optionXValidStdev)
 {
+  _isReady = false;
   if (! flag_xvalid)
   {
     _neighParam->setFlagXvalid(false);
@@ -2286,6 +2289,7 @@ int KrigingSystem::setKrigOptColCok(const VectorInt& rank_colcok)
 {
   if (rank_colcok.empty()) return 0;
 
+  _isReady = false;
   _rankColCok = rank_colcok;
   int nvar = _getNVar();
 
@@ -2312,6 +2316,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
                                    const VectorDouble& prior_mean,
                                    const VectorDouble& prior_cov)
 {
+  _isReady = false;
   int nfeq = _getNFeq();
   if (flag_bayes)
   {
@@ -2376,6 +2381,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
 int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
 {
   if (matCL.empty()) return 0;
+  _isReady = false;
   int n1 = (int) matCL.size();
   int n2 = (int) matCL[0].size();
 
@@ -2408,6 +2414,7 @@ int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
  */
 int KrigingSystem::setKrigoptCode(bool flag_code)
 {
+  _isReady = false;
   if (flag_code)
   {
     if (! _dbin->hasCode() || _dbin->getVarianceErrorNumber() != 1)
@@ -2422,6 +2429,7 @@ int KrigingSystem::setKrigoptCode(bool flag_code)
 
 int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
 {
+  _isReady = false;
  _flagSimu = flagSimu;
  _nbsimu = nbsimu;
  _rankPGS = rankPGS;
@@ -2435,12 +2443,14 @@ int KrigingSystem::setKrigOptFlagSimu(bool flagSimu, int nbsimu, int rankPGS)
  */
 int KrigingSystem::setKrigOptSaveWeights(bool flag_save)
 {
+  _isReady = false;
   _flagKeypairWeights = flag_save;
   return 0;
 }
 
 int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
 {
+  _isReady = false;
   if (! flag_dgm)
   {
     _flagDGM = flag_dgm;
@@ -2482,6 +2492,7 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
  */
 int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double range)
 {
+  _isReady = false;
   int nvar = _getNVar();
   if (flag_smooth)
   {
@@ -2516,6 +2527,7 @@ int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double rang
 
 int KrigingSystem::setKrigOptFlagGlobal(bool flag_global)
 {
+  _isReady = false;
   if (flag_global)
   {
     if (! _dbout->isGrid())
@@ -2542,6 +2554,7 @@ int KrigingSystem::setKrigOptFlagGlobal(bool flag_global)
 
 int KrigingSystem::setKrigOptFlagLTerm(bool flag_lterm)
 {
+  _isReady = false;
   _flagLTerm = flag_lterm;
   return 0;
 }
@@ -2553,6 +2566,7 @@ int KrigingSystem::setKrigOptFlagLTerm(bool flag_lterm)
  */
 int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
 {
+  _isReady = false;
   int nvar = _getNVar();
   if (nvar != 1)
   {
@@ -2575,6 +2589,7 @@ int KrigingSystem::setKrigOptAnamophosis(AAnam* anam)
 
 int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
 {
+  _isReady = false;
   if (! flag_factor_kriging)
   {
     _flagFactorKriging = false;
@@ -2591,7 +2606,7 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   return 0;
 }
 
-int KrigingSystem::setKrigOptIclass(int index_class)
+int KrigingSystem::updKrigOptIclass(int index_class)
 {
   if (! _flagFactorKriging)
   {
@@ -2613,7 +2628,7 @@ int KrigingSystem::setKrigOptIclass(int index_class)
  * @remark When turned ON, this option slows the process.
  * @remark It should only be used for Debugging purposes.
  */
-int KrigingSystem::setKrigOptCheckAddress(bool flagCheckAddress)
+int KrigingSystem::updKrigOptCheckAddress(bool flagCheckAddress)
 {
   _flagCheckAddress = flagCheckAddress;
   return 0;

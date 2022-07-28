@@ -148,7 +148,7 @@ bool CalcKriging::_run()
   /* Setting options */
 
   KrigingSystem ksys(getDbin(), getDbout(), getModel(), getNeighparam());
-  if (ksys.setKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
+  if (ksys.updKrigOptEstim(_iptrEst, _iptrStd, _iptrVarZ)) return false;
   if (ksys.setKrigOptCalcul(_calcul, _ndisc, _flagPerCell)) return false;
   if (ksys.setKrigOptColCok(_rankColCok)) return false;
   if (ksys.setKrigOptMatCL(_matCL)) return false;
