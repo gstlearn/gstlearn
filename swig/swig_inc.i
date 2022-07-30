@@ -238,7 +238,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
 
-#include "Anamorphosis/CalcAnamTransfo.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"

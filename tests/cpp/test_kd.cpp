@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -168,11 +168,10 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Block Disjunctive Kriging (DGM-1) =====================
 
   // Calculate the change of support coefficient
-
   model->setAnamIClass(0); // Z variable
   double cvv = model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles());
   double r1 = sqrt(anam->invertVariance(cvv));
-  message("Change of Support coefficient (DGM-1)= %lf\n", r1);
+  message("Change of Support coefficient (DGM-1)= %6.3lf\n", r1);
 
   // Update the Model with Block anamorphosis
   AnamHermite* anam_b1 = anam->clone();
@@ -206,7 +205,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Calculate the change of support coefficient
   model->setAnamIClass(1); // Y Variable
   double r2 = sqrt(model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles()));
-  message("Change of Support coefficient (DGM2)= %lf\n",r2);
+  message("Change of Support coefficient (DGM2)= %6.3lf\n",r2);
 
   // Regularization of the point model by the block support
   Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),

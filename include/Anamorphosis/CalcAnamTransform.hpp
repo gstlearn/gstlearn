@@ -38,8 +38,6 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
 
-  int _getNVar() const;
-
 private:
   int _iatt;
   int _number;

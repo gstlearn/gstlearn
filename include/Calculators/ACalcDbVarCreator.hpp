@@ -30,7 +30,7 @@ public:
   void setDb(Db* db) { _db = db; }
   void setNamingConvention(const NamingConvention& namconv) { _namconv = namconv; }
 
-  Db* getDb() const { return _db; }
+  Db*  getDb() const { return _db; }
   bool hasDb(bool verbose = false) const;
 
 protected:

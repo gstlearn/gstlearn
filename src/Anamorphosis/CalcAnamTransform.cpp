@@ -68,7 +68,6 @@ bool CalcAnamTransform::_postprocess()
   return true;
 }
 
-
 void CalcAnamTransform::_rollback()
 {
   _cleanVariableDb(1);
