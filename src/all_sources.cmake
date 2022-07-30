@@ -53,6 +53,7 @@ set(SRC
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcInterpolator.cpp
+  Calculators/ACalcDbVarCreator.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
@@ -136,6 +137,7 @@ set(SRC
   Core/seismic.cpp
   Core/spde.cpp
   Core/dbtools.cpp
+  Anamorphosis/CalcAnamTransform.cpp
   Anamorphosis/AnamContinuous.cpp
   Anamorphosis/AnamDiscrete.cpp
   Anamorphosis/AnamDiscreteDD.cpp

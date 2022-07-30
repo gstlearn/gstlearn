@@ -100,6 +100,7 @@
 
 %include Calculators/ACalculator.hpp
 %include Calculators/ACalcInterpolator.hpp
+%include Calculators/ACalcDbVarCreator.hpp
 
 /*
 %include Interfaces/geoslib_f_swig.h
@@ -256,6 +257,7 @@
 %include Db/ELoadBy.hpp
 %include Db/ELoc.hpp
 
+%include Anamorphosis/CalcAnamTransform.hpp
 %include Anamorphosis/AAnam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp

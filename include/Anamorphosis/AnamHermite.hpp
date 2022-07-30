@@ -81,7 +81,6 @@ public:
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
-
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
                          const VectorString& names_est,
