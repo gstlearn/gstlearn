@@ -170,8 +170,6 @@ GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                     int flag_correl = 0,
                                     const String &title = String(),
                                     const String &radix = String());
-GSTLEARN_EXPORT int db_normal_score(Db *db,
-                                    const NamingConvention& namconv = NamingConvention("Gaussian"));
 
 /***************************/
 /* Functions for Variogram */
@@ -265,9 +263,6 @@ GSTLEARN_EXPORT int anamFactor2Selectivity(Db *db,
                                            const VectorString& names_std,
                                            const NamingConvention& namconv = NamingConvention(
                                                "QT"));
-GSTLEARN_EXPORT int calculateHermiteFactors(Db *db,
-                                            int nfactor,
-                                            const NamingConvention& namconv = NamingConvention("Hn"));
 
 /******************************/
 /* Functions for Neighborhood */

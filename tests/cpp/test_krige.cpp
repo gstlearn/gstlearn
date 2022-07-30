@@ -29,6 +29,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
 
@@ -315,7 +316,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Create the Gaussian
   anam = AnamHermite::create(20);
   anam->fit(data->getColumn("Var"));
-  anam->RawToGaussian(data, ELoc::Z);
+  (void) RawToGaussian(data, anam, ELoc::Z);
   anam->display();
   data->display(&dbfmt);
 

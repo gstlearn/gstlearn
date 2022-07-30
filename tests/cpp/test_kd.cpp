@@ -31,6 +31,7 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -109,20 +110,19 @@ int main(int /*argc*/, char */*argv*/[])
   // Selectivity in the model
   selectivity->eval(anam).display();
 
-  // Transform Data into Gaussian
-  (void) anam->RawToGaussian(data);
+  // Transform Data into Gaussian variable
+  (void) RawToGaussian(data, anam);
   data->setName("Y.Z","Gauss.Z");
   data->display();
 
-  // Calculate the variogram
+  // Calculate the variogram of the Gaussian variable
   VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
   Vario* vario = Vario::computeFromDb(varioparam, data);
   vario->display();
 
   // Fitting the Model on the Gaussian transformed variable
   Model* model = new Model(1, ndim);
-  Constraints constraints = Constraints();
-  constraints.setConstantSillValue(1.);
+  Constraints constraints = Constraints(1.);
   (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, false,
                      Option_AutoFit(), constraints);
   model->display();
@@ -132,7 +132,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Computing the Point factors
   int nfactor = 3;
-  (void) calculateHermiteFactors(data, nfactor);
+  (void) RawToFactor(data, anam, nfactor);
   data->display();
 
   // Creating a Moving Neighborhood
@@ -153,7 +153,6 @@ int main(int /*argc*/, char */*argv*/[])
   blocs->display();
 
   // Simple Block Kriging over the blocks
-
   VectorInt ndisc_B = {5,5};
   (void) dk(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
             true, true, NamingConvention("DK_Blk"));

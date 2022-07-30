@@ -4095,48 +4095,6 @@ int kriggam(Db *dbin,
 
 /****************************************************************************/
 /*!
- **  Calculate the Hermite polynomials at the data samples
- **
- ** \return  Error return code
- **
- ** \param[in]  db        Input Db structure (containing the factors)
- ** \param[in]  nfactor   Number of factors to be estimated (0: all)
- ** \param[in]  namconv   Naming convention
- **
- ** \remark At the end, the newly created variables are transformed into
- ** \remark Z locator variables for future steps
- **
- *****************************************************************************/
-int calculateHermiteFactors(Db *db,
-                            int nfactor,
-                            const NamingConvention& namconv)
-{
-  /* Create the new variables */
-
-  int iptr = db->addColumnsByConstant(nfactor, 0.);
-  if (iptr < 0) return 1;
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Calculate the factors */
-    VectorDouble hn = hermitePolynomials(db->getVariable(iech, 0), 1.,nfactor + 1);
-
-    /* Store the factors */
-    for (int ih = 0; ih < nfactor; ih++)
-      db->setArray(iech, iptr + ih, hn[ih + 1]);
-  }
-
-  namconv.setNamesAndLocators(db, ELoc::Z, 1, db, iptr, String(), nfactor);
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Perform the Neighborhood search
  **
  ** \return  Array of sample indices of the target neighbors
@@ -4224,7 +4182,8 @@ int* neigh_calc(Db *dbin,
 
   error = 0;
 
-  label_end: if (error) neigh_tab = (int*) mem_free((char* ) neigh_tab);
+label_end:
+  if (error) neigh_tab = (int *) mem_free((char* ) neigh_tab);
   dbout = db_delete(dbout);
   (void) st_model_manage(-1, model);
   (void) st_krige_manage(-1, model->getVariableNumber(), model, neighparam);

@@ -293,7 +293,7 @@ The next step consists in translating the target variable ('Pb') into its Gaussi
 
 ```{r}
 mydb$setLocator("Pb",ELoc_Z())
-err = myanamPb$RawToGaussian(mydb)
+err = RawToGaussian(mydb, myanamPb)
 if (verbose)
     mydb$display()
 ```
@@ -352,7 +352,7 @@ if (graphics)
 We turn the Gaussian conditional simulations into Raw scale (using the Anamorphosis back transform) and get rid of the Gaussian conditional simulations.
 
 ```{r}
-myanamPb$GaussianToRaw(mygrid,"Simu.Y.*")
+GaussianToRaw(mygrid,myanamPb,"Simu.Y.*")
 mygrid$deleteColumn("Simu.Y.*")
 if (verbose)
     mygrid$display()
@@ -424,7 +424,7 @@ We convert the raw data into its Gaussian equivalent
 
 ```{r}
 mydb$setLocator("Zn",ELoc_Z())
-err = myanamZn$RawToGaussian(mydb)
+err = RawToGaussian(mydb, myanamZn)
 if (verbose)
     mydb$display()
 ```
@@ -454,8 +454,8 @@ if (verbose)
 We back-transform each set of simulation outcomes using its own Gaussian Anamorphosis function. Finally we delete the Gaussian variables and ask for the statistics on the simulated variables in the Raw Scale.
 
 ```{r}
-err = myanamZn$GaussianToRaw(mygrid,"Simu.Y.Zn*")
-err = myanamPb$GaussianToRaw(mygrid,"Simu.Y.Pb*")
+err = GaussianToRaw(mygrid,myanamZn,"Simu.Y.Zn*")
+err = GaussianToRaw(mygrid,myanamPb,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
     err = mygrid$statisticsByLocator(ELoc_Z(),

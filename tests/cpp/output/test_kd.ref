@@ -294,9 +294,9 @@ Column = 1 - Name = x2 - Locator = x2
 Column = 2 - Name = Y - Locator = NA
 Column = 3 - Name = Z - Locator = NA
 Column = 4 - Name = Gauss.Z - Locator = NA
-Column = 5 - Name = Hn.Gauss.Z.1 - Locator = z1
-Column = 6 - Name = Hn.Gauss.Z.2 - Locator = z2
-Column = 7 - Name = Hn.Gauss.Z.3 - Locator = z3
+Column = 5 - Name = Factor.Gauss.Z.1 - Locator = z1
+Column = 6 - Name = Factor.Gauss.Z.2 - Locator = z2
+Column = 7 - Name = Factor.Gauss.Z.3 - Locator = z3
 
 Moving Neighborhood
 ===================
@@ -504,12 +504,12 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Pts.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 4 - Name = DK_Pts.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 5 - Name = DK_Pts.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 6 - Name = DK_Pts.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Pts.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Pts.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 4 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 5 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 6 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Processing Factor 1
 
@@ -710,18 +710,18 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Pts.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Pts.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Pts.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Pts.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Pts.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Pts.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 10 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 11 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 12 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 10 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 11 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 12 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Processing Factor 1
 
@@ -922,12 +922,12 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 4 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 5 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 6 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 Change of Support coefficient (DGM-1)=  0.712
 
 Model characteristics
@@ -1165,24 +1165,24 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Pts.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Pts.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Pts.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Pts.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Pts.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Pts.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 10 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 11 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 12 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 15 - Name = DK_DGM1.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 16 - Name = DK_DGM1.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 17 - Name = DK_DGM1.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 18 - Name = DK_DGM1.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 19 - Name = DK_DGM1.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 20 - Name = DK_DGM1.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 10 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 11 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 12 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 15 - Name = DK_DGM1.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 16 - Name = DK_DGM1.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 17 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 18 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 19 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 20 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Processing Factor 1
 
@@ -1383,18 +1383,18 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_DGM1.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 10 - Name = DK_DGM1.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 11 - Name = DK_DGM1.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 12 - Name = DK_DGM1.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_DGM1.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_DGM1.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_DGM1.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 10 - Name = DK_DGM1.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 11 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 12 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
 Change of Support coefficient (DGM2)=  0.739
 
 Model characteristics
@@ -1612,30 +1612,30 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Pts.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Pts.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Pts.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Pts.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Pts.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Pts.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 10 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 11 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 12 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 15 - Name = DK_DGM1.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_DGM1.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 17 - Name = DK_DGM1.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 18 - Name = DK_DGM1.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 19 - Name = DK_DGM1.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 20 - Name = DK_DGM1.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 21 - Name = DK_DGM2.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 22 - Name = DK_DGM2.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 23 - Name = DK_DGM2.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 24 - Name = DK_DGM2.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 25 - Name = DK_DGM2.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 26 - Name = DK_DGM2.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 10 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 11 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 12 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 15 - Name = DK_DGM1.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 16 - Name = DK_DGM1.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 17 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 18 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 19 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 20 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 21 - Name = DK_DGM2.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 22 - Name = DK_DGM2.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 23 - Name = DK_DGM2.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 24 - Name = DK_DGM2.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 25 - Name = DK_DGM2.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 26 - Name = DK_DGM2.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Processing Factor 1
 
@@ -1836,24 +1836,24 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_DGM1.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 10 - Name = DK_DGM1.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 11 - Name = DK_DGM1.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 12 - Name = DK_DGM1.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_DGM1.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_DGM1.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 15 - Name = DK_DGM2.Hn.Gauss.Z.1.estim - Locator = z1
-Column = 16 - Name = DK_DGM2.Hn.Gauss.Z.2.estim - Locator = z2
-Column = 17 - Name = DK_DGM2.Hn.Gauss.Z.3.estim - Locator = z3
-Column = 18 - Name = DK_DGM2.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 19 - Name = DK_DGM2.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 20 - Name = DK_DGM2.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_DGM1.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 10 - Name = DK_DGM1.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 11 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 12 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 15 - Name = DK_DGM2.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 16 - Name = DK_DGM2.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 17 - Name = DK_DGM2.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 18 - Name = DK_DGM2.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 19 - Name = DK_DGM2.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 20 - Name = DK_DGM2.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Data Base Grid Characteristics
 ==============================
@@ -1877,30 +1877,30 @@ Variables
 Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
-Column = 3 - Name = DK_Pts.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Pts.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 5 - Name = DK_Pts.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 6 - Name = DK_Pts.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 7 - Name = DK_Pts.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 8 - Name = DK_Pts.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 9 - Name = DK_Blk.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 10 - Name = DK_Blk.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 11 - Name = DK_Blk.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 12 - Name = DK_Blk.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 13 - Name = DK_Blk.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 14 - Name = DK_Blk.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 15 - Name = DK_DGM1.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_DGM1.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 17 - Name = DK_DGM1.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 18 - Name = DK_DGM1.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 19 - Name = DK_DGM1.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 20 - Name = DK_DGM1.Hn.Gauss.Z.3.stdev - Locator = NA
-Column = 21 - Name = DK_DGM2.Hn.Gauss.Z.1.estim - Locator = NA
-Column = 22 - Name = DK_DGM2.Hn.Gauss.Z.2.estim - Locator = NA
-Column = 23 - Name = DK_DGM2.Hn.Gauss.Z.3.estim - Locator = NA
-Column = 24 - Name = DK_DGM2.Hn.Gauss.Z.1.stdev - Locator = NA
-Column = 25 - Name = DK_DGM2.Hn.Gauss.Z.2.stdev - Locator = NA
-Column = 26 - Name = DK_DGM2.Hn.Gauss.Z.3.stdev - Locator = NA
+Column = 3 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 4 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 10 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 11 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 12 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 13 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 14 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 15 - Name = DK_DGM1.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 16 - Name = DK_DGM1.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 17 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 18 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 19 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 20 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 21 - Name = DK_DGM2.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 22 - Name = DK_DGM2.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 23 - Name = DK_DGM2.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 24 - Name = DK_DGM2.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 25 - Name = DK_DGM2.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 26 - Name = DK_DGM2.Factor.Gauss.Z.3.stdev - Locator = NA
 Column = 27 - Name = T-Est-0 - Locator = z1
 Column = 28 - Name = T-Est-0.5 - Locator = z2
 Column = 29 - Name = T-Std-0 - Locator = z3

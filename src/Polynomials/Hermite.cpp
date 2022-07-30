@@ -184,12 +184,12 @@ VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
   VectorDouble vec(nfact);
 
   int nbpoly = ut_ivector_max(ifacs);
-  VectorDouble poly = hermitePolynomials(y, r, nbpoly);
+  VectorDouble poly = hermitePolynomials(y, r, nbpoly+1);
 
   for (int ifac = 0; ifac < nfact; ifac++)
     vec[ifac] = poly[ifacs[ifac]];
 
-  return poly;
+  return vec;
 }
 
 /**

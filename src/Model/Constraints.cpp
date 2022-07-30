@@ -14,10 +14,10 @@
 
 #include <math.h>
 
-Constraints::Constraints()
+Constraints::Constraints(double constantSillValue, const VectorDouble& constantSills)
     : AStringable(),
-      _constantSillValue(TEST),
-      _constantSills(),
+      _constantSillValue(constantSillValue),
+      _constantSills(constantSills),
       _consItems()
 {
 }

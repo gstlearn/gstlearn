@@ -22,7 +22,7 @@ class ConsItem;
 class GSTLEARN_EXPORT Constraints : public AStringable
 {
 public:
-  Constraints();
+  Constraints(double constantSillValue = TEST, const VectorDouble& constantSills = VectorDouble());
   Constraints(const Constraints &m);
   Constraints& operator= (const Constraints &m);
   virtual ~Constraints();
