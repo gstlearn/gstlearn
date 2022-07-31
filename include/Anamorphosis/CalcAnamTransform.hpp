@@ -27,12 +27,17 @@ public:
   CalcAnamTransform& operator=(const CalcAnamTransform &r) = delete;
   virtual ~CalcAnamTransform();
 
-  void setIatt(int iatt) { _iatt = iatt; }
   void setAnam(AAnam *anam) { _anam = anam; }
   const AAnam* getAnam() const { return _anam; }
-  void setFlagNormalScore(bool flagNormalScore) { _flagNormalScore = flagNormalScore; }
+  void setFlagVars(bool flagVars) { _flagVars = flagVars; }
+  void setFlagToFactors(bool flagToFactors) { _flagToFactors = flagToFactors; }
+  void setFlagFromFactors(bool flagFromFactors) { _flagFromFactors = flagFromFactors; }
   void setFlagZToY(bool flagZToY) { _flagZToY = flagZToY; }
+  void setFlagNormalScore(bool flagNormalScore) { _flagNormalScore = flagNormalScore; }
   void setIfacs(const VectorInt &ifacs) { _ifacs = ifacs; }
+  void setIptrEst(const VectorInt& iptrEst) { _iptrEst = iptrEst; }
+  void setIptrStd(const VectorInt& iptrStd) { _iptrStd = iptrStd; }
+  void setSelectivity(Selectivity *selectivity) { _selectivity = selectivity; }
 
 private:
   virtual bool _check() override;
@@ -45,17 +50,25 @@ private:
   bool _YToZByHermite();
   bool _ZToYByNormalScore();
   bool _ZToFactors();
+  bool _FactorsToSelectivity();
 
   int _getNfact() const { return (int) _ifacs.size(); }
-  bool _toFactors() const { return (! _ifacs.empty()); }
+  int _getNSel() const { return _selectivity->getVariableNumber(); }
 
 private:
-  int _iatt;
-  int _number;
+  int _iattVar;
+  int _iattFac;
+  int _iattSel;
+  bool _flagVars;
+  bool _flagToFactors;
+  bool _flagFromFactors;
   bool _flagZToY;
   bool _flagNormalScore;
   VectorInt _ifacs;
+  VectorInt _iptrEst;
+  VectorInt _iptrStd;
   AAnam* _anam;
+  Selectivity* _selectivity;
 };
 
 GSTLEARN_EXPORT int RawToGaussian(Db* db,
@@ -94,3 +107,10 @@ GSTLEARN_EXPORT int RawToFactor(Db *db,
                                 const NamingConvention &namconv = NamingConvention(
                                     "Factor"));
 
+GSTLEARN_EXPORT int FactorToSelectivity(Db *db,
+                                        AAnam *anam,
+                                        Selectivity *selectivity,
+                                        const VectorString &names_est,
+                                        const VectorString &names_std,
+                                        const NamingConvention &namconv = NamingConvention(
+                                            "QT"));

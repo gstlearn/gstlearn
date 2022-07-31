@@ -237,8 +237,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Selectivity Function ==================================
 
-  anamFactor2Selectivity(blocs, anam, selectivity,
-                         blocs->getNames("DK_Pts*estim"),blocs->getNames("DK_Pts*stdev"));
+  FactorToSelectivity(blocs, anam, selectivity, blocs->getNames("DK_Pts*estim"),
+                      blocs->getNames("DK_Pts*stdev"));
   blocs->display();
 
   // ====================== Free pointers ==================================

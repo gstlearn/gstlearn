@@ -13,19 +13,30 @@
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/Table.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Anamorphosis/AnamDiscreteIR.hpp"
+#include "Anamorphosis/AnamDiscreteDD.hpp"
 
 #include <math.h>
 
 CalcAnamTransform::CalcAnamTransform(AAnam* anam)
     : ACalcDbVarCreator(),
-      _iatt(-1),
+      _iattVar(-1),
+      _iattFac(-1),
+      _iattSel(-1),
+      _flagVars(false),
+      _flagToFactors(false),
+      _flagFromFactors(false),
       _flagZToY(true),
       _flagNormalScore(false),
       _ifacs(),
-      _anam(anam)
+      _iptrEst(),
+      _iptrStd(),
+      _anam(anam),
+      _selectivity(nullptr)
 {
 }
 
@@ -49,7 +60,7 @@ bool CalcAnamTransform::_check()
     return false;
   }
 
-  if (! _toFactors())
+  if (_flagVars)
   {
     AnamContinuous* anamC = dynamic_cast<AnamContinuous*>(_anam);
     if (anamC == nullptr)
@@ -57,8 +68,10 @@ bool CalcAnamTransform::_check()
       messerr("The argument 'anam'  must be of type AnamContinuous");
       return false;
     }
+    return true;
   }
-  else
+
+  if (_flagToFactors)
   {
     if (number != 1)
     {
@@ -74,38 +87,78 @@ bool CalcAnamTransform::_check()
                 _ifacs[ifac], nmax);
         return false;
       }
+    return true;
   }
-  return true;
+
+  if (_flagFromFactors)
+  {
+    if (_iptrEst.empty() && _iptrStd.empty())
+    {
+      messerr("No factor is defined");
+      return false;
+    }
+    int nvarout = _selectivity->getVariableNumber();
+    if (nvarout <= 0)
+    {
+      messerr("No recovery function is defined");
+      return false;
+    }
+    return true;
+  }
+
+  messerr("No Transformation option has been defined");
+  return false;
 }
 
 bool CalcAnamTransform::_preprocess()
 {
-  if (! _toFactors())
+  if (_flagVars)
   {
     int nvar = _getNVar();
-    _iatt = getDb()->addColumnsByConstant(nvar);
-    if (_iatt < 0) return false;
+    _iattVar = getDb()->addColumnsByConstant(nvar);
+    if (_iattVar < 0) return false;
+    return true;
   }
-  else
+
+  if (_flagToFactors)
   {
     int nfact = _getNfact();
-    _iatt = getDb()->addColumnsByConstant(nfact);
-    if (_iatt < 0) return false;
+    _iattFac = getDb()->addColumnsByConstant(nfact);
+    if (_iattFac < 0) return false;
+    return true;
   }
-  return true;
+
+  if (_flagFromFactors)
+  {
+    int nvarout = _getNSel();
+    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    if (_iattSel < 0) return 1;
+    return true;
+  }
+  return false;
 }
 
 bool CalcAnamTransform::_postprocess()
 {
-  if (! _toFactors())
+  if (_flagVars)
   {
     int nvar = _getNVar();
-  _renameVariable(ELoc::Z, nvar, _iatt, String(), 1);
+    _renameVariable(ELoc::Z, nvar, _iattVar, String(), 1);
+    return true;
   }
-  else
+
+  if (_flagToFactors)
   {
     int nfact = _getNfact();
-  _renameVariable(ELoc::Z, 1, _iatt, String(), nfact);
+    _renameVariable(ELoc::Z, 1, _iattFac, String(), nfact);
+    return true;
+  }
+
+  if (_flagFromFactors)
+  {
+    int nsel = _getNSel();
+    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    return true;
   }
 
   return true;
@@ -118,7 +171,7 @@ void CalcAnamTransform::_rollback()
 
 bool CalcAnamTransform::_run()
 {
-  if (!_toFactors())
+  if (_flagVars)
   {
     if (_flagZToY)
     {
@@ -142,10 +195,19 @@ bool CalcAnamTransform::_run()
       // Transform from Gaussian to Raw
       if (_YToZByHermite()) return true;
     }
+    return false;
   }
-  else
+
+  if (_flagToFactors)
   {
     if (_ZToFactors()) return true;
+    return false;
+  }
+
+  if (_flagFromFactors)
+  {
+    if (_FactorsToSelectivity()) return true;
+    return false;
   }
   return false;
 }
@@ -204,7 +266,7 @@ bool CalcAnamTransform::_ZToYByNormalScore()
       wlocal += wt[jech];
       double z = wlocal / ((double) nech + 1.);
       double gaus = law_invcdf_gaussian(z);
-      getDb()->setArray(iech, _iatt + ivar, gaus);
+      getDb()->setArray(iech, _iattVar + ivar, gaus);
     }
   }
   return true;
@@ -220,7 +282,7 @@ bool CalcAnamTransform::_ZToYByHermite()
     VectorDouble z = getDb()->getColumnByLocator(ELoc::Z, ivar, true);
     if (z.size() <= 0) continue;
     VectorDouble y = anamC->RawToGaussianVector(z);
-    getDb()->setColumnByUID(y, _iatt + ivar, true);
+    getDb()->setColumnByUID(y, _iattVar + ivar, true);
   }
   return true;
 }
@@ -235,7 +297,7 @@ bool CalcAnamTransform::_YToZByHermite()
     VectorDouble y = getDb()->getColumnByLocator(ELoc::Z, ivar);
     if (y.size() <= 0) continue;
     VectorDouble z = anamC->GaussianToRawVector(y);
-    getDb()->setColumnByUID(z, _iatt + ivar, true);
+    getDb()->setColumnByUID(z, _iattVar + ivar, true);
   }
   return true;
 }
@@ -252,9 +314,41 @@ bool CalcAnamTransform::_ZToFactors()
     VectorDouble factors = _anam->z2factor(zval, _ifacs);
     if (factors.empty()) continue;
     for (int ifac = 0; ifac < nfact; ifac++)
-      getDb()->setArray(iech, _iatt + ifac, factors[ifac]);
+      getDb()->setArray(iech, _iattFac + ifac, factors[ifac]);
   }
   return true;
+}
+
+bool CalcAnamTransform::_FactorsToSelectivity()
+{
+  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(_anam);
+  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(_anam);
+
+  /* Dispatch according to the type of Anamorphosis */
+
+  switch (_anam->getType().toEnum())
+  {
+    case EAnam::E_HERMITIAN:
+      anam_hermite->factor2Selectivity(getDb(), _selectivity, _iptrEst,
+                                       _iptrStd, _iattSel);
+      return true;
+
+    case EAnam::E_DISCRETE_DD:
+      anam_discrete_DD->factor2Selectivity(getDb(), _selectivity, _iptrEst,
+                                           _iptrStd, _iattSel);
+      return true;
+
+    case EAnam::E_DISCRETE_IR:
+      anam_discrete_IR->factor2Selectivity(getDb(), _selectivity, _iptrEst,
+                                           _iptrStd, _iattSel);
+      return true;
+
+    default:
+      messerr("This method is not programmed yet for this anamorphosis");
+      return false;
+  }
+  return false;
 }
 
 int RawToGaussian(Db *db,
@@ -263,6 +357,7 @@ int RawToGaussian(Db *db,
                   const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
+  transfo.setFlagVars(true);
   transfo.setFlagZToY(true);
   transfo.setFlagNormalScore(false);
   transfo.setDb(db);
@@ -282,6 +377,7 @@ int RawToGaussian(Db *db,
   db->setLocator(name, ELoc::Z);
 
   CalcAnamTransform transfo(anam);
+  transfo.setFlagVars(true);
   transfo.setFlagZToY(true);
   transfo.setFlagNormalScore(false);
   transfo.setDb(db);
@@ -317,6 +413,7 @@ int GaussianToRaw(Db *db,
   db->setLocator(name, ELoc::Z);
 
   CalcAnamTransform transfo(anam);
+  transfo.setFlagVars(true);
   transfo.setFlagZToY(true);
   transfo.setFlagNormalScore(false);
   transfo.setDb(db);
@@ -342,6 +439,7 @@ int NormalScore(Db *db, const NamingConvention &namconv)
   AnamHermite anam = AnamHermite(1);
   CalcAnamTransform transfo(&anam);
   transfo.setDb(db);
+  transfo.setFlagVars(true);
   transfo.setFlagZToY(true);
   transfo.setFlagNormalScore(true);
   transfo.setNamingConvention(namconv);
@@ -358,6 +456,7 @@ int NormalScore(Db *db, const NamingConvention &namconv)
  ** \return  Error return code
  **
  ** \param[in]  db          Db structure
+ ** \param[in]  anam        Anamorphosis structure
  ** \param[in]  ifacs       Array of factor ranks
  ** \param[in]  namconv     Naming convention
  **
@@ -369,6 +468,7 @@ int RawToFactor(Db *db,
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
+  transfo.setFlagToFactors(true);
   transfo.setIfacs(ifacs);
   transfo.setNamingConvention(namconv);
 
@@ -384,6 +484,7 @@ int RawToFactor(Db *db,
  ** \return  Error return code
  **
  ** \param[in]  db          Db structure
+ ** \param[in]  anam        Anamorphosis structure
  ** \param[in]  nfactor     Number of first factors
  ** \param[in]  namconv     Naming convention
  **
@@ -395,8 +496,43 @@ int RawToFactor(Db *db,
 {
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
+  transfo.setFlagToFactors(true);
   VectorInt ifacs = ut_ivector_sequence(nfactor, 1);
   transfo.setIfacs(ifacs);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the recoveries (z,T,Q,m,B) starting from the factors
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  names_est    Array of variable names for factor estimation
+ ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  namconv      Naming convention
+ **
+ *****************************************************************************/
+int FactorToSelectivity(Db *db,
+                        AAnam *anam,
+                        Selectivity *selectivity,
+                        const VectorString &names_est,
+                        const VectorString &names_std,
+                        const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(anam);
+  transfo.setDb(db);
+  transfo.setSelectivity(selectivity);
+  transfo.setIptrEst(db->getUIDs(names_est));
+  transfo.setIptrStd(db->getUIDs(names_std));
+  transfo.setFlagFromFactors(true);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator

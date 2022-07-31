@@ -716,15 +716,15 @@ void AnamHermite::_globalSelectivity(Selectivity* selectivity)
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  names_est    Array of names for factor estimation
- ** \param[in]  names_std    Array of names for factor St. Dev.
+ ** \param[in]  cols_est     Array of UIDs for factor estimation
+ ** \param[in]  cols_std     Array of UIDs for factor St. Dev.
  ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
 int AnamHermite::factor2Selectivity(Db *db,
                                     Selectivity* selectivity,
-                                    const VectorString& names_est,
-                                    const VectorString& names_std,
+                                    const VectorInt& cols_est,
+                                    const VectorInt& cols_std,
                                     int iptr0)
 {
   setFlagBound(1);
@@ -732,10 +732,8 @@ int AnamHermite::factor2Selectivity(Db *db,
   bool need_T = selectivity->isNeededT();
   bool need_Q = selectivity->isNeededQ();
   int ncut = selectivity->getNCuts();
-  int nb_est = (int) names_est.size();
-  int nb_std = (int) names_std.size();
-  VectorInt cols_est = db->getUIDs(names_est);
-  VectorInt cols_std = db->getUIDs(names_std);
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
 
   /* Preliminary checks */
 

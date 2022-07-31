@@ -83,8 +83,8 @@ public:
 
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
-                         const VectorString& names_est,
-                         const VectorString& names_std,
+                         const VectorInt& cols_est,
+                         const VectorInt& cols_std,
                          int iptr0);
 
 protected:

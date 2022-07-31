@@ -256,13 +256,6 @@ GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
                                              double z_max = TEST,
                                              int flag_correct = 0,
                                              int verbose = 0);
-GSTLEARN_EXPORT int anamFactor2Selectivity(Db *db,
-                                           AAnam *anam,
-                                           Selectivity* selectivity,
-                                           const VectorString& names_est,
-                                           const VectorString& names_std,
-                                           const NamingConvention& namconv = NamingConvention(
-                                               "QT"));
 
 /******************************/
 /* Functions for Neighborhood */
