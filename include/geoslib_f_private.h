@@ -23,6 +23,8 @@ class cs;
 class Cheb_Elem;
 class Rule;
 class VarioParam;
+class AAnam;
+class Selectivity;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -141,4 +143,19 @@ int _db_category(Db *db,
                  const VectorBool &incmini = VectorBool(),
                  const VectorBool &incmaxi = VectorBool(),
                  const NamingConvention& namconv = NamingConvention("Category"));
+
+/***************************************/
+/* Prototyping the functions in anam.c */
+/***************************************/
+
+int _condExp(Db *db,
+             AAnam *anam,
+             const Selectivity *selectivity,
+             int iptr0,
+             int col_est,
+             int col_std,
+             bool flag_OK,
+             double proba,
+             int nbsimu,
+             bool verbose);
 

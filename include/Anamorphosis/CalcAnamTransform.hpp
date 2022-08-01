@@ -38,6 +38,11 @@ public:
   void setIptrEst(const VectorInt& iptrEst) { _iptrEst = iptrEst; }
   void setIptrStd(const VectorInt& iptrStd) { _iptrStd = iptrStd; }
   void setSelectivity(Selectivity *selectivity) { _selectivity = selectivity; }
+  void setFlagOk(bool flagOk) { _flagOK = flagOk; }
+  void setNbsimu(int nbsimu) { _nbsimu = nbsimu; }
+  void setProba(double proba) { _proba = proba; }
+  void setVerbose(bool verbose) { _verbose = verbose; }
+  void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
 
 private:
   virtual bool _check() override;
@@ -62,11 +67,16 @@ private:
   bool _flagVars;
   bool _flagToFactors;
   bool _flagFromFactors;
+  bool _flagCondExp;
   bool _flagZToY;
   bool _flagNormalScore;
   VectorInt _ifacs;
   VectorInt _iptrEst;
   VectorInt _iptrStd;
+  int _nbsimu;
+  bool _flagOK;
+  bool _verbose;
+  double _proba;
   AAnam* _anam;
   Selectivity* _selectivity;
 };
@@ -114,3 +124,14 @@ GSTLEARN_EXPORT int FactorToSelectivity(Db *db,
                                         const VectorString &names_std,
                                         const NamingConvention &namconv = NamingConvention(
                                             "QT"));
+GSTLEARN_EXPORT int ConditionalExpectation(Db *db,
+                                           AAnam *anam,
+                                           Selectivity *selectivity,
+                                           const String &name_est,
+                                           const String &name_std,
+                                           bool flag_OK,
+                                           double proba,
+                                           int nbsimu,
+                                           bool verbose = false,
+                                           const NamingConvention &namconv = NamingConvention(
+                                               "QT"));

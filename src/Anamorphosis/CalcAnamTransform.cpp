@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
@@ -30,11 +31,16 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _flagVars(false),
       _flagToFactors(false),
       _flagFromFactors(false),
+      _flagCondExp(false),
       _flagZToY(true),
       _flagNormalScore(false),
       _ifacs(),
       _iptrEst(),
       _iptrStd(),
+      _nbsimu(0),
+      _flagOK(false),
+      _verbose(false),
+      _proba(TEST),
       _anam(anam),
       _selectivity(nullptr)
 {
@@ -106,6 +112,32 @@ bool CalcAnamTransform::_check()
     return true;
   }
 
+  if (_flagCondExp)
+  {
+    if (_anam->getType() != EAnam::HERMITIAN)
+    {
+      messerr("Argument 'anam' should correspond to Hermite Anamorphosis");
+      return false;
+    }
+    if (_iptrEst.empty())
+    {
+      messerr("argument 'db' should contain an Estimate variable");
+      return false;
+    }
+    if (_iptrStd.empty())
+    {
+      messerr("argument 'db' should contain an St.Dev variable");
+      return false;
+    }
+    int nvarout = _selectivity->getVariableNumber();
+    if (nvarout <= 0)
+    {
+      messerr("No recovery function is defined");
+      return false;
+    }
+    return true;
+
+  }
   messerr("No Transformation option has been defined");
   return false;
 }
@@ -135,6 +167,15 @@ bool CalcAnamTransform::_preprocess()
     if (_iattSel < 0) return 1;
     return true;
   }
+
+  if (_flagCondExp)
+  {
+    int nvarout = _getNSel();
+    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    if (_iattSel < 0) return 1;
+    return true;
+  }
+
   return false;
 }
 
@@ -155,6 +196,13 @@ bool CalcAnamTransform::_postprocess()
   }
 
   if (_flagFromFactors)
+  {
+    int nsel = _getNSel();
+    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    return true;
+  }
+
+  if (_flagCondExp)
   {
     int nsel = _getNSel();
     _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
@@ -207,6 +255,14 @@ bool CalcAnamTransform::_run()
   if (_flagFromFactors)
   {
     if (_FactorsToSelectivity()) return true;
+    return false;
+  }
+
+  if (_flagCondExp)
+  {
+    if (_condExp(getDb(), _anam, _selectivity,
+                 _iattSel, _iptrEst[0], _iptrStd[0],
+                 _flagOK, _proba, _nbsimu, _verbose)) return true;
     return false;
   }
   return false;
@@ -533,6 +589,52 @@ int FactorToSelectivity(Db *db,
   transfo.setIptrEst(db->getUIDs(names_est));
   transfo.setIptrStd(db->getUIDs(names_std));
   transfo.setFlagFromFactors(true);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Conditional Expectation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  name_est     Name of the Kriging estimate
+ ** \param[in]  name_std     Name of the Kriging St. deviation
+ ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
+ ** \param[in]  proba        Probability
+ ** \param[in]  nbsimu       Number of Simulation outcomes
+ ** \param[in]  verbose      Verbose option
+ ** \param[in]  namconv      Naming convention
+ **
+ *****************************************************************************/
+int ConditionalExpectation(Db *db,
+                           AAnam *anam,
+                           Selectivity *selectivity,
+                           const String &name_est,
+                           const String &name_std,
+                           bool flag_OK,
+                           double proba,
+                           int nbsimu,
+                           bool verbose,
+                           const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(anam);
+  transfo.setDb(db);
+  transfo.setSelectivity(selectivity);
+  transfo.setIptrEst({db->getUID(name_est)});
+  transfo.setIptrStd({db->getUID(name_std)});
+  transfo.setFlagCondExp(true);
+  transfo.setFlagOk(flag_OK);
+  transfo.setNbsimu(nbsimu);
+  transfo.setProba(proba);
+  transfo.setVerbose(verbose);
   transfo.setNamingConvention(namconv);
 
   // Run the calculator
