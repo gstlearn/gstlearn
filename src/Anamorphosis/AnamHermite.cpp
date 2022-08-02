@@ -17,6 +17,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
+#include "Model/Model.hpp"
 #include "Covariances/ECalcMember.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Stats/Selectivity.hpp"
@@ -875,4 +876,40 @@ int AnamHermite::factor2Selectivity(Db *db,
     selectivity->storeInDb(db, iech, iptr0, zestim, zstdev);
   }
   return (0);
+}
+
+double AnamHermite::evalSupportCoefficient(int option,
+                                           Model *model,
+                                           const VectorDouble &dxs,
+                                           const VectorInt &ndisc,
+                                           const VectorDouble& angles,
+                                           bool verbose)
+{
+  // Dispatch
+
+  if (option == 1)
+  {
+
+    // DGM1 Method
+
+    model->setAnamIClass(0); // Z variable
+    double cvv = model->evalCvv(dxs, ndisc);
+    double r1  = sqrt(invertVariance(cvv));
+    if (verbose)
+      message("Change of Support coefficient (DGM-1) = %6.3lf\n", r1);
+    return r1;
+  }
+
+  if (option == 2)
+  {
+    model->setAnamIClass(1); // Y Variable
+    double cvv = model->evalCvv(dxs, ndisc);
+    double r2 = sqrt(cvv);
+    if (verbose)
+      message("Change of Support coefficient (DGM2) = %6.3lf\n",r2);
+    return r2;
+  }
+
+  messerr("The argument 'option'(%d) should be 1 or 2",option);
+  return TEST;
 }

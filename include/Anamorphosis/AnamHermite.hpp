@@ -18,6 +18,7 @@
 
 class Db;
 class Selectivity;
+class Model;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
@@ -86,6 +87,13 @@ public:
                          const VectorInt& cols_est,
                          const VectorInt& cols_std,
                          int iptr0);
+
+  double evalSupportCoefficient(int option,
+                                Model* model,
+                                const VectorDouble &dxs,
+                                const VectorInt &ndisc,
+                                const VectorDouble& angles = VectorDouble(),
+                                bool verbose = true);
 
 protected:
   /// Interface for ASerializable

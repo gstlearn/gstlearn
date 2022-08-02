@@ -928,7 +928,7 @@ Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
 Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
 Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
 Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
-Change of Support coefficient (DGM-1)=  0.712
+Change of Support coefficient (DGM-1) =  0.712
 
 Model characteristics
 =====================
@@ -959,7 +959,7 @@ Maximum practical value for Z = 7.05246
 Mean                          = 1.56826
 Variance                      = 0.709296
 Number of Hermite polynomials = 20
-Change of Support Coefficient = 0.712213
+Change of Support Coefficient = 0.712232
 Normalized coefficients for Hermite polynomials
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
      [  0,]     1.568    -0.782     0.292    -0.086     0.018     0.016    -0.033
@@ -977,11 +977,11 @@ Coordinate #2 = 0.400000
 Data selected in neighborhood
 -----------------------------
       Rank    Sample        x1        x2    Sector
-         1         7     0.350     0.400         1
-         2         9     0.350     0.400         1
-         3        23     0.350     0.400         1
-         4        25     0.350     0.400         1
-         5        36     0.350     0.400         1
+         1         4     0.350     0.400         1
+         2        17     0.350     0.400         1
+         3        18     0.350     0.400         1
+         4        27     0.350     0.400         1
+         5        29     0.350     0.400         1
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -1006,27 +1006,27 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
       Rank      Flag         1
-         1         1     0.081
-         2         2     0.081
-         3         3     0.081
-         4         4     0.081
-         5         5     0.081
+         1         1     0.082
+         2         2     0.082
+         3         3     0.082
+         4         4     0.082
+         5         5     0.082
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.350     0.400     0.151     0.027
-         2     0.350     0.400     0.303     0.027
-         3     0.350     0.400     1.940     0.027
-         4     0.350     0.400     0.729     0.027
-         5     0.350     0.400    -0.525     0.027
+         1     0.350     0.400    -0.262     0.027
+         2     0.350     0.400     1.300     0.027
+         3     0.350     0.400    -2.411     0.027
+         4     0.350     0.400     0.456     0.027
+         5     0.350     0.400     0.503     0.027
 Sum of weights                               0.135
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.070
+ - Estimate  =     -0.011
  - Std. Dev. =      0.995
  - Variance  =      0.989
  - Cov(h=0)  =      1.000
@@ -1071,18 +1071,18 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.350     0.400    -0.691     0.003
-         2     0.350     0.400    -0.642     0.003
-         3     0.350     0.400     1.953     0.003
-         4     0.350     0.400    -0.331     0.003
-         5     0.350     0.400    -0.512     0.003
+         1     0.350     0.400    -0.658     0.003
+         2     0.350     0.400     0.489     0.003
+         3     0.350     0.400     3.403     0.003
+         4     0.350     0.400    -0.560     0.003
+         5     0.350     0.400    -0.528     0.003
 Sum of weights                               0.016
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.001
+ - Estimate  =      0.007
  - Std. Dev. =      1.000
  - Variance  =      1.000
  - Cov(h=0)  =      1.000
@@ -1127,18 +1127,18 @@ Punctual Estimation
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.350     0.400    -0.183     0.000
-         2     0.350     0.400    -0.360     0.000
-         3     0.350     0.400     0.604     0.000
-         4     0.350     0.400    -0.735     0.000
-         5     0.350     0.400     0.584     0.000
+         1     0.350     0.400     0.314     0.000
+         2     0.350     0.400    -0.695     0.000
+         3     0.350     0.400    -2.768     0.000
+         4     0.350     0.400    -0.520     0.000
+         5     0.350     0.400    -0.564     0.000
 Sum of weights                               0.002
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.000
+ - Estimate  =     -0.002
  - Std. Dev. =      1.000
  - Variance  =      1.000
  - Cov(h=0)  =      1.000
@@ -1195,11 +1195,11 @@ Coordinate #2 = 0.375000
 Data selected in neighborhood
 -----------------------------
       Rank    Sample        x1        x2    Sector
-         1         9     0.325     0.375         1
-         2        10     0.325     0.375         1
+         1         2     0.325     0.375         1
+         2         5     0.325     0.375         1
          3        23     0.325     0.375         1
-         4        25     0.325     0.375         1
-         5        38     0.325     0.375         1
+         4        28     0.325     0.375         1
+         5        50     0.325     0.375         1
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -1233,18 +1233,18 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250     0.303     0.016
-         2     0.325     0.375     0.250     0.250    -0.394     0.016
+         1     0.325     0.375     0.250     0.250     0.444     0.016
+         2     0.325     0.375     0.250     0.250     1.989     0.016
          3     0.325     0.375     0.250     0.250     1.940     0.016
-         4     0.325     0.375     0.250     0.250     0.729     0.016
-         5     0.325     0.375     0.250     0.250     1.147     0.016
+         4     0.325     0.375     0.250     0.250    -1.064     0.016
+         5     0.325     0.375     0.250     0.250     0.531     0.016
 Sum of weights                                                   0.082
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.061
+ - Estimate  =      0.063
  - Std. Dev. =      0.200
  - Variance  =      0.040
  - Cov(h=0)  =      0.044
@@ -1289,18 +1289,18 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250    -0.642     0.011
-         2     0.325     0.375     0.250     0.250    -0.597     0.011
+         1     0.325     0.375     0.250     0.250    -0.568     0.011
+         2     0.325     0.375     0.250     0.250     2.092     0.011
          3     0.325     0.375     0.250     0.250     1.953     0.011
-         4     0.325     0.375     0.250     0.250    -0.331     0.011
-         5     0.325     0.375     0.250     0.250     0.222     0.011
+         4     0.325     0.375     0.250     0.250     0.093     0.011
+         5     0.325     0.375     0.250     0.250    -0.508     0.011
 Sum of weights                                                   0.053
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.006
+ - Estimate  =      0.033
  - Std. Dev. =      0.113
  - Variance  =      0.013
  - Cov(h=0)  =      0.014
@@ -1345,18 +1345,18 @@ Block Estimation : Discretization = 5 x 5
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250    -0.360     0.010
-         2     0.325     0.375     0.250     0.250     0.457     0.010
+         1     0.325     0.375     0.250     0.250    -0.508     0.010
+         2     0.325     0.375     0.250     0.250     0.778     0.010
          3     0.325     0.375     0.250     0.250     0.604     0.010
-         4     0.325     0.375     0.250     0.250    -0.735     0.010
-         5     0.325     0.375     0.250     0.250    -0.789     0.010
+         4     0.325     0.375     0.250     0.250     0.811     0.010
+         5     0.325     0.375     0.250     0.250    -0.589     0.010
 Sum of weights                                                   0.048
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.008
+ - Estimate  =      0.010
  - Std. Dev. =      0.081
  - Variance  =      0.007
  - Cov(h=0)  =      0.007
@@ -1395,7 +1395,7 @@ Column = 11 - Name = DK_DGM1.Factor.Gauss.Z.3.estim - Locator = z3
 Column = 12 - Name = DK_DGM1.Factor.Gauss.Z.1.stdev - Locator = NA
 Column = 13 - Name = DK_DGM1.Factor.Gauss.Z.2.stdev - Locator = NA
 Column = 14 - Name = DK_DGM1.Factor.Gauss.Z.3.stdev - Locator = NA
-Change of Support coefficient (DGM2)=  0.739
+Change of Support coefficient (DGM2) =  0.738
 
 Model characteristics
 =====================
@@ -1408,10 +1408,46 @@ Number of drift equation(s)  = 0
 Covariance Part
 ---------------
 Exponential
-- Sill         =      0.546
-- Range        =      0.380
-- Theo. Range  =      0.127
-Total Sill     =      0.546
+- Sill         =      1.000
+- Range        =      0.379
+- Theo. Range  =      0.126
+Total Sill     =      1.000
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.000
+- Range        =      0.379
+- Theo. Range  =      0.126
+Total Sill     =      0.709
+
+Hermitian Anamorphosis
+----------------------
+Minimum absolute value for Y  = -2.8
+Maximum absolute value for Y  = 3.1
+Minimum absolute value for Z  = 0.354599
+Maximum absolute value for Z  = 7.05246
+Minimum practical value for Y = -2.8
+Maximum practical value for Y = 3.1
+Minimum practical value for Z = 0.354599
+Maximum practical value for Z = 7.05246
+Mean                          = 1.56826
+Variance                      = 0.709296
+Number of Hermite polynomials = 20
+Change of Support Coefficient = 0.73817
+Normalized coefficients for Hermite polynomials
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     1.568    -0.782     0.292    -0.086     0.018     0.016    -0.033
+     [  7,]     0.025     0.001    -0.022     0.018     0.004    -0.019     0.011
+     [ 14,]     0.011    -0.016    -0.002     0.015    -0.005    -0.010
 
 Processing Factor 1
 
@@ -1424,10 +1460,10 @@ Coordinate #2 = 0.400000
 Data selected in neighborhood
 -----------------------------
       Rank    Sample        x1        x2    Sector
-         1        20     0.400     0.400         1
-         2        30     0.350     0.400         1
-         3        36     0.350     0.400         1
-         4        62     0.350     0.400         1
+         1         4     0.350     0.400         1
+         2        20     0.400     0.400         1
+         3        29     0.350     0.400         1
+         4        47     0.350     0.400         1
          5       201     0.400     0.400         1
 
 LHS of Kriging matrix (compressed)
@@ -1438,11 +1474,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.368     0.368     0.368     0.546
-         2         2     0.368     1.000     0.546     0.546     0.368
-         3         3     0.368     0.546     1.000     0.546     0.368
-         4         4     0.368     0.546     0.546     1.000     0.368
-         5         5     0.546     0.368     0.368     0.368     1.000
+         1         1     1.000     0.367     0.545     0.545     0.367
+         2         2     0.367     1.000     0.367     0.367     0.545
+         3         3     0.545     0.367     1.000     0.545     0.367
+         4         4     0.545     0.367     0.545     1.000     0.367
+         5         5     0.367     0.545     0.367     0.367     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1453,19 +1489,19 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
       Rank      Flag         1
-         1         1     0.739
-         2         2     0.498
-         3         3     0.498
-         4         4     0.498
-         5         5     0.739
+         1         1     0.497
+         2         2     0.738
+         3         3     0.497
+         4         4     0.497
+         5         5     0.738
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.400     0.400    -0.582     0.411
-         2     0.350     0.400    -0.545     0.094
-         3     0.350     0.400    -0.525     0.094
-         4     0.350     0.400     1.379     0.094
+         1     0.350     0.400    -0.262     0.093
+         2     0.400     0.400    -0.582     0.411
+         3     0.350     0.400     0.503     0.093
+         4     0.350     0.400     0.539     0.093
          5     0.400     0.400    -0.360     0.411
 Sum of weights                               1.103
 
@@ -1473,9 +1509,9 @@ Sum of weights                               1.103
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.358
- - Std. Dev. =      0.503
- - Variance  =      0.253
+ - Estimate  =     -0.314
+ - Std. Dev. =      0.504
+ - Variance  =      0.254
  - Cov(h=0)  =      1.000
 
 Processing Factor 2
@@ -1494,11 +1530,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.135     0.135     0.135     0.298
-         2         2     0.135     1.000     0.298     0.298     0.135
-         3         3     0.135     0.298     1.000     0.298     0.135
-         4         4     0.135     0.298     0.298     1.000     0.135
-         5         5     0.298     0.135     0.135     0.135     1.000
+         1         1     1.000     0.135     0.297     0.297     0.135
+         2         2     0.135     1.000     0.135     0.135     0.297
+         3         3     0.297     0.135     1.000     0.297     0.135
+         4         4     0.297     0.135     0.297     1.000     0.135
+         5         5     0.135     0.297     0.135     0.135     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1509,29 +1545,29 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
       Rank      Flag         1
-         1         1     0.546
-         2         2     0.248
-         3         3     0.248
-         4         4     0.248
-         5         5     0.546
+         1         1     0.247
+         2         2     0.545
+         3         3     0.247
+         4         4     0.247
+         5         5     0.545
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.400     0.400    -0.468     0.393
-         2     0.350     0.400    -0.497     0.089
-         3     0.350     0.400    -0.512     0.089
-         4     0.350     0.400     0.638     0.089
+         1     0.350     0.400    -0.658     0.089
+         2     0.400     0.400    -0.468     0.393
+         3     0.350     0.400    -0.528     0.089
+         4     0.350     0.400    -0.502     0.089
          5     0.400     0.400    -0.616     0.393
-Sum of weights                               1.052
+Sum of weights                               1.051
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.458
- - Std. Dev. =      0.711
- - Variance  =      0.505
+ - Estimate  =     -0.575
+ - Std. Dev. =      0.712
+ - Variance  =      0.506
  - Cov(h=0)  =      1.000
 
 Processing Factor 3
@@ -1550,11 +1586,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.050     0.050     0.050     0.162
-         2         2     0.050     1.000     0.162     0.162     0.050
-         3         3     0.050     0.162     1.000     0.162     0.050
-         4         4     0.050     0.162     0.162     1.000     0.050
-         5         5     0.162     0.050     0.050     0.050     1.000
+         1         1     1.000     0.049     0.162     0.162     0.049
+         2         2     0.049     1.000     0.049     0.049     0.162
+         3         3     0.162     0.049     1.000     0.162     0.049
+         4         4     0.162     0.049     0.162     1.000     0.049
+         5         5     0.049     0.162     0.049     0.049     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1565,29 +1601,29 @@ Number of right-hand sides  = 1
 Punctual Estimation
 
       Rank      Flag         1
-         1         1     0.403
-         2         2     0.124
-         3         3     0.124
-         4         4     0.124
-         5         5     0.403
+         1         1     0.123
+         2         2     0.402
+         3         3     0.123
+         4         4     0.123
+         5         5     0.402
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2      Data       Z1*
-         1     0.400     0.400     0.632     0.338
-         2     0.350     0.400     0.601     0.068
-         3     0.350     0.400     0.584     0.068
-         4     0.350     0.400    -0.618     0.068
+         1     0.350     0.400     0.314     0.068
+         2     0.400     0.400     0.632     0.338
+         3     0.350     0.400    -0.564     0.068
+         4     0.350     0.400    -0.596     0.068
          5     0.400     0.400     0.421     0.338
-Sum of weights                               0.880
+Sum of weights                               0.878
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.395
- - Std. Dev. =      0.838
- - Variance  =      0.702
+ - Estimate  =      0.298
+ - Std. Dev. =      0.839
+ - Variance  =      0.704
  - Cov(h=0)  =      1.000
 
 Data Base Grid Characteristics
@@ -1648,10 +1684,10 @@ Coordinate #2 = 0.375000
 Data selected in neighborhood
 -----------------------------
       Rank    Sample        x1        x2    Sector
-         1         8     0.325     0.375         1
+         1         2     0.325     0.375         1
          2        20     0.375     0.375         1
-         3        22     0.325     0.375         1
-         4        53     0.325     0.375         1
+         3        28     0.325     0.375         1
+         4        66     0.325     0.375         1
          5       201     0.375     0.375         1
 
 LHS of Kriging matrix (compressed)
@@ -1662,11 +1698,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.368     0.546     0.546     0.368
-         2         2     0.368     1.000     0.368     0.368     0.546
-         3         3     0.546     0.368     1.000     0.546     0.368
-         4         4     0.546     0.368     0.546     1.000     0.368
-         5         5     0.368     0.546     0.368     0.368     1.000
+         1         1     1.000     0.367     0.545     0.545     0.367
+         2         2     0.367     1.000     0.367     0.367     0.545
+         3         3     0.545     0.367     1.000     0.545     0.367
+         4         4     0.545     0.367     0.545     1.000     0.367
+         5         5     0.367     0.545     0.367     0.367     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1677,30 +1713,30 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
-         1         1     0.350
-         2         2     0.367
-         3         3     0.350
-         4         4     0.350
-         5         5     0.367
+         1         1     0.349
+         2         2     0.366
+         3         3     0.349
+         4         4     0.349
+         5         5     0.366
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250    -0.529     0.112
-         2     0.375     0.375     0.250     0.250    -0.582     0.158
-         3     0.325     0.375     0.250     0.250    -0.162     0.112
-         4     0.325     0.375     0.250     0.250     0.094     0.112
-         5     0.375     0.375     0.250     0.250    -0.360     0.158
-Sum of weights                                                   0.652
+         1     0.325     0.375     0.250     0.250     0.444     0.112
+         2     0.375     0.375     0.250     0.250    -0.582     0.157
+         3     0.325     0.375     0.250     0.250    -1.064     0.112
+         4     0.325     0.375     0.250     0.250     0.572     0.112
+         5     0.375     0.375     0.250     0.250    -0.360     0.157
+Sum of weights                                                   0.651
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.215
+ - Estimate  =     -0.154
  - Std. Dev. =      0.412
  - Variance  =      0.170
- - Cov(h=0)  =      0.404
+ - Cov(h=0)  =      0.403
 
 Processing Factor 2
 
@@ -1718,11 +1754,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.135     0.298     0.298     0.135
-         2         2     0.135     1.000     0.135     0.135     0.298
-         3         3     0.298     0.135     1.000     0.298     0.135
-         4         4     0.298     0.135     0.298     1.000     0.135
-         5         5     0.135     0.298     0.135     0.135     1.000
+         1         1     1.000     0.135     0.297     0.297     0.135
+         2         2     0.135     1.000     0.135     0.135     0.297
+         3         3     0.297     0.135     1.000     0.297     0.135
+         4         4     0.297     0.135     0.297     1.000     0.135
+         5         5     0.135     0.297     0.135     0.135     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1733,30 +1769,30 @@ Number of right-hand sides  = 1
 Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
-         1         1     0.139
-         2         2     0.148
-         3         3     0.139
-         4         4     0.139
-         5         5     0.148
+         1         1     0.138
+         2         2     0.147
+         3         3     0.138
+         4         4     0.138
+         5         5     0.147
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250    -0.509     0.072
+         1     0.325     0.375     0.250     0.250    -0.568     0.071
          2     0.375     0.375     0.250     0.250    -0.468     0.091
-         3     0.325     0.375     0.250     0.250    -0.689     0.072
-         4     0.325     0.375     0.250     0.250    -0.701     0.072
+         3     0.325     0.375     0.250     0.250     0.093     0.071
+         4     0.325     0.375     0.250     0.250    -0.476     0.071
          5     0.375     0.375     0.250     0.250    -0.616     0.091
-Sum of weights                                                   0.398
+Sum of weights                                                   0.396
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.235
+ - Estimate  =     -0.166
  - Std. Dev. =      0.377
  - Variance  =      0.142
- - Cov(h=0)  =      0.199
+ - Cov(h=0)  =      0.198
 
 Processing Factor 3
 
@@ -1774,11 +1810,11 @@ Reduced number of equations = 5
 
       Rank                   1         2         3         4         5
                 Flag         1         2         3         4         5
-         1         1     1.000     0.050     0.162     0.162     0.050
-         2         2     0.050     1.000     0.050     0.050     0.162
-         3         3     0.162     0.050     1.000     0.162     0.050
-         4         4     0.162     0.050     0.162     1.000     0.050
-         5         5     0.050     0.162     0.050     0.050     1.000
+         1         1     1.000     0.049     0.162     0.162     0.049
+         2         2     0.049     1.000     0.049     0.049     0.162
+         3         3     0.162     0.049     1.000     0.162     0.049
+         4         4     0.162     0.049     0.162     1.000     0.049
+         5         5     0.049     0.162     0.049     0.049     1.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -1790,29 +1826,29 @@ Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
          1         1     0.062
-         2         2     0.066
+         2         2     0.065
          3         3     0.062
          4         4     0.062
-         5         5     0.066
+         5         5     0.065
 
 (Co-) Kriging weights
 =====================
       Rank        x1        x2     Size1     Size2      Data       Z1*
-         1     0.325     0.375     0.250     0.250     0.587     0.043
+         1     0.325     0.375     0.250     0.250    -0.508     0.043
          2     0.375     0.375     0.250     0.250     0.632     0.051
-         3     0.325     0.375     0.250     0.250     0.196     0.043
-         4     0.325     0.375     0.250     0.250    -0.115     0.043
+         3     0.325     0.375     0.250     0.250     0.811     0.043
+         4     0.325     0.375     0.250     0.250    -0.624     0.043
          5     0.375     0.375     0.250     0.250     0.421     0.051
-Sum of weights                                                   0.231
+Sum of weights                                                   0.230
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.082
+ - Estimate  =      0.039
  - Std. Dev. =      0.316
  - Variance  =      0.100
- - Cov(h=0)  =      0.115
+ - Cov(h=0)  =      0.114
 
 Data Base Grid Characteristics
 ==============================

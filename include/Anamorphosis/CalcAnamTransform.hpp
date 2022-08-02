@@ -43,6 +43,8 @@ public:
   void setProba(double proba) { _proba = proba; }
   void setVerbose(bool verbose) { _verbose = verbose; }
   void setFlagCondExp(bool flagCondExp) { _flagCondExp = flagCondExp; }
+  void setFlagUniCond(bool flagUniCond) { _flagUniCond = flagUniCond; }
+  void setCvv(double cvv) { _cvv = cvv; }
 
 private:
   virtual bool _check() override;
@@ -60,6 +62,11 @@ private:
   int _getNfact() const { return (int) _ifacs.size(); }
   int _getNSel() const { return _selectivity->getVariableNumber(); }
 
+  bool _hasAnam(const EAnam& anamType = EAnam::UNKNOWN) const;
+  bool _hasInputVarDefined(int mode = 0) const;
+  bool _hasSelectivity() const;
+  bool _hasVariableNumber(bool equal1 = false) const;
+
 private:
   int _iattVar;
   int _iattFac;
@@ -68,6 +75,7 @@ private:
   bool _flagToFactors;
   bool _flagFromFactors;
   bool _flagCondExp;
+  bool _flagUniCond;
   bool _flagZToY;
   bool _flagNormalScore;
   VectorInt _ifacs;
@@ -77,6 +85,7 @@ private:
   bool _flagOK;
   bool _verbose;
   double _proba;
+  double _cvv;
   AAnam* _anam;
   Selectivity* _selectivity;
 };
@@ -129,9 +138,18 @@ GSTLEARN_EXPORT int ConditionalExpectation(Db *db,
                                            Selectivity *selectivity,
                                            const String &name_est,
                                            const String &name_std,
-                                           bool flag_OK,
-                                           double proba,
-                                           int nbsimu,
+                                           bool flag_OK = false,
+                                           double proba = TEST,
+                                           int nbsimu = 0,
                                            bool verbose = false,
                                            const NamingConvention &namconv = NamingConvention(
-                                               "QT"));
+                                               "CE"));
+GSTLEARN_EXPORT int UniformConditioning(Db *db,
+                                        AAnam *anam,
+                                        Selectivity *selectivity,
+                                        const String &names_est,
+                                        const String &names_std,
+                                        double cvv,
+                                        bool verbose = false,
+                                        const NamingConvention &namconv = NamingConvention(
+                                            "UC"));

@@ -32,6 +32,7 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _flagToFactors(false),
       _flagFromFactors(false),
       _flagCondExp(false),
+      _flagUniCond(false),
       _flagZToY(true),
       _flagNormalScore(false),
       _ifacs(),
@@ -41,6 +42,7 @@ CalcAnamTransform::CalcAnamTransform(AAnam* anam)
       _flagOK(false),
       _verbose(false),
       _proba(TEST),
+      _cvv(TEST),
       _anam(anam),
       _selectivity(nullptr)
 {
@@ -50,21 +52,84 @@ CalcAnamTransform::~CalcAnamTransform()
 {
 }
 
+bool CalcAnamTransform::_hasAnam(const EAnam& anamType) const
+{
+  if (_anam == nullptr)
+  {
+    messerr("The argument 'anam' must be defined");
+    return false;
+  }
+  if (anamType == EAnam::UNKNOWN) return true;
+  if (anamType != _anam->getType())
+  {
+    messerr("The argument 'anam'  should be of type");
+    return false;
+  }
+  return true;
+}
+
+bool CalcAnamTransform::_hasInputVarDefined(int mode) const
+{
+  if (_iptrEst.empty())
+  {
+    messerr("'db' should contain an Estimate variable");
+    return false;
+  }
+  if (_iptrStd.empty())
+  {
+    if (mode == 0)
+      messerr("'db' should contain an St.Dev of Estimation Error variable");
+    else
+      messerr("'db' should contain an Variance of Estimation Error variable");
+    return false;
+  }
+  return true;
+}
+
+bool CalcAnamTransform::_hasSelectivity() const
+{
+  int ncuts = _selectivity->getNCuts();
+  if (ncuts <= 0)
+  {
+    messerr("You must define some cutoff values");
+    return false;
+  }
+  int nvarout = _selectivity->getVariableNumber();
+  if (nvarout <= 0)
+  {
+    messerr("No recovery function is defined");
+    return false;
+  }
+  return true;
+}
+
+bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
+{
+  int number = getDb()->getLocatorNumber(ELoc::Z);
+  if (! equal1)
+  {
+    if (number <= 0)
+    {
+      messerr("The argument 'db'  must have some variable(s) defined");
+      return false;
+    }
+  }
+  else
+  {
+    if (number != 1)
+    {
+      messerr("The argument 'db'  must have a single variable defined");
+      return false;
+    }
+  }
+  return true;
+}
+
 bool CalcAnamTransform::_check()
 {
   if (! hasDb()) return false;
-
-  if (_anam == nullptr)
-  {
-    messerr("The argument 'anam'  must be defined");
-    return false;
-  }
-  int number = getDb()->getLocatorNumber(ELoc::Z);
-  if (number <= 0)
-  {
-    messerr("The argument 'db'  must have some variable(s) defined");
-    return false;
-  }
+  if (! _hasAnam()) return false;
+  if (! _hasVariableNumber()) return false;
 
   if (_flagVars)
   {
@@ -79,11 +144,7 @@ bool CalcAnamTransform::_check()
 
   if (_flagToFactors)
   {
-    if (number != 1)
-    {
-      messerr("The argument 'db' must contain a single variable");
-      return false;
-    }
+    if (! _hasVariableNumber(true)) return false;
     int nmax = _anam->getNFactor();
     int nfact = _getNfact();
     for (int ifac = 0; ifac < nfact; ifac++)
@@ -98,46 +159,38 @@ bool CalcAnamTransform::_check()
 
   if (_flagFromFactors)
   {
-    if (_iptrEst.empty() && _iptrStd.empty())
-    {
-      messerr("No factor is defined");
-      return false;
-    }
-    int nvarout = _selectivity->getVariableNumber();
-    if (nvarout <= 0)
-    {
-      messerr("No recovery function is defined");
-      return false;
-    }
+    if (! _hasInputVarDefined()) return false;
+    if (! _hasSelectivity()) return false;
     return true;
   }
 
   if (_flagCondExp)
   {
-    if (_anam->getType() != EAnam::HERMITIAN)
+    if (! _hasAnam(EAnam::HERMITIAN)) return false;
+    if (! _hasInputVarDefined()) return false;
+    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(_anam);
+    if (anam_hermite->getRCoef() != 1.)
     {
-      messerr("Argument 'anam' should correspond to Hermite Anamorphosis");
+      messerr("The anamorphosis must be a Point anamorphosis");
       return false;
     }
-    if (_iptrEst.empty())
+    if (! _hasSelectivity()) return false;
+    return true;
+  }
+
+  if (_flagUniCond)
+  {
+    if (! _hasAnam(EAnam::HERMITIAN)) return false;
+    if (! _hasInputVarDefined(1)) return false;
+    if (! _hasSelectivity()) return false;
+    if (_selectivity->isUsed(ESelectivity::Z))
     {
-      messerr("argument 'db' should contain an Estimate variable");
-      return false;
-    }
-    if (_iptrStd.empty())
-    {
-      messerr("argument 'db' should contain an St.Dev variable");
-      return false;
-    }
-    int nvarout = _selectivity->getVariableNumber();
-    if (nvarout <= 0)
-    {
-      messerr("No recovery function is defined");
+      messerr("The recovery option 'Z' is not available in this function");
       return false;
     }
     return true;
-
   }
+
   messerr("No Transformation option has been defined");
   return false;
 }
@@ -176,6 +229,14 @@ bool CalcAnamTransform::_preprocess()
     return true;
   }
 
+  if (_flagUniCond)
+  {
+    int nvarout = _getNSel();
+    _iattSel = getDb()->addColumnsByConstant(nvarout, TEST);
+    if (_iattSel < 0) return 1;
+    return true;
+  }
+
   return false;
 }
 
@@ -203,6 +264,13 @@ bool CalcAnamTransform::_postprocess()
   }
 
   if (_flagCondExp)
+  {
+    int nsel = _getNSel();
+    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    return true;
+  }
+
+  if (_flagUniCond)
   {
     int nsel = _getNSel();
     _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
@@ -260,11 +328,20 @@ bool CalcAnamTransform::_run()
 
   if (_flagCondExp)
   {
-    if (_condExp(getDb(), _anam, _selectivity,
+    if (_conditionalExpextation(getDb(), _anam, _selectivity,
                  _iattSel, _iptrEst[0], _iptrStd[0],
                  _flagOK, _proba, _nbsimu, _verbose)) return true;
     return false;
   }
+
+  if (_flagUniCond)
+  {
+    if (_uniformConditioning(getDb(), _anam, _selectivity,
+                             _iattSel, _iptrEst[0], _iptrStd[0],
+                             _cvv, _verbose)) return true;
+    return false;
+  }
+
   return false;
 }
 
@@ -642,3 +719,45 @@ int ConditionalExpectation(Db *db,
   return error;
 }
 
+/*****************************************************************************/
+/*!
+ **  Calculate the Uniform Conditioning
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  name_est     Name of the Kriging estimate
+ ** \param[in]  name_var     Name of the Variance of Kriging estimate
+ ** \param[in]  cvv          Mean covariance over block
+ ** \param[in]  verbose      Verbose option
+ ** \param[in]  namconv      Naming Convention
+ **
+ ** \remark We need the variance of Estimation Error... even if it will be
+ ** \remark temporarily stored in a member names iptrStd.
+ **
+ *****************************************************************************/
+int UniformConditioning(Db *db,
+                        AAnam *anam,
+                        Selectivity *selectivity,
+                        const String &name_est,
+                        const String &name_var,
+                        double cvv,
+                        bool verbose,
+                        const NamingConvention &namconv)
+{
+  CalcAnamTransform transfo(anam);
+  transfo.setDb(db);
+  transfo.setSelectivity(selectivity);
+  transfo.setIptrEst({db->getUID(name_est)});
+  transfo.setIptrStd({db->getUID(name_var)});
+  transfo.setFlagUniCond(true);
+  transfo.setCvv(cvv);
+  transfo.setVerbose(verbose);
+  transfo.setNamingConvention(namconv);
+
+  // Run the calculator
+  int error = (transfo.run()) ? 0 : 1;
+  return error;
+}

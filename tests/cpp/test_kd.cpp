@@ -47,7 +47,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -167,10 +167,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Block Disjunctive Kriging (DGM-1) =====================
 
   // Calculate the change of support coefficient
-  model->setAnamIClass(0); // Z variable
-  double cvv = model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles());
-  double r1 = sqrt(anam->invertVariance(cvv));
-  message("Change of Support coefficient (DGM-1)= %6.3lf\n", r1);
+  double r1 = anam->evalSupportCoefficient(1, model, blocs->getDXs(), ndisc_B);
 
   // Update the Model with Block anamorphosis
   AnamHermite* anam_b1 = anam->clone();
@@ -179,6 +176,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Regularization of the point model by the block support
   Vario* vario_b1_Z = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
                                                  ndisc_B, blocs->getAngles());
+  double cvv = model->evalCvv(blocs->getDXs(), ndisc_B);
   Vario* vario_b1_Y = Vario::createTransformZToY(vario_b1_Z, anam, cvv);
 
   // Fitting the regularized model on the point Gaussian variable
@@ -186,6 +184,8 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.setConstantSillValue(1);
   (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
                       Option_AutoFit(), constraints);
+
+  // Update the Model with Block Anamorphosis
   model_b1_Y->setAnam(anam_b1);
   model_b1_Y->display();
 
@@ -202,9 +202,11 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Block Disjunctive Kriging (DGM-2) =====================
 
   // Calculate the change of support coefficient
-  model->setAnamIClass(1); // Y Variable
-  double r2 = sqrt(model->evalCvv(blocs->getDXs(), ndisc_B, blocs->getAngles()));
-  message("Change of Support coefficient (DGM2)= %6.3lf\n",r2);
+  double r2 = anam->evalSupportCoefficient(2, model, blocs->getDXs(), ndisc_B);
+
+  // Update the Model with Block anamorphosis
+  AnamHermite* anam_b2 = anam->clone();
+  anam_b2->setRCoef(r2);
 
   // Regularization of the point model by the block support
   Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
@@ -215,15 +217,14 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.setConstantSillValue(r2 * r2);
   (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
                      Option_AutoFit(), constraints);
-  model_b2_Y->display();
 
   // Normalization of the block model to a total sill equal to 1.0
   model_b2_Y->normalize(1.0);
+  model_b2_Y->display();
 
   // Update the Model with Block anamorphosis
-  AnamHermite* anam_b2 = anam->clone();
-  anam_b2->setRCoef(r2);
   model_b2_Y->setAnam(anam_b2);
+  model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
   (void) dk(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
@@ -234,6 +235,12 @@ int main(int /*argc*/, char */*argv*/[])
   (void) dk(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK, {nx_B, nx_B},
             true, true, NamingConvention("DK_DGM2"));
   panel->display();
+
+  // ====================== Conditional Expectation =====================
+
+  blocs->display();
+//  (void) ConditionalExpectation(blocs, anam, selectivity,
+//                                "DK_PTS*estim", "DK_PTS*stdev");
 
   // ====================== Selectivity Function ==================================
 

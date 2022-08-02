@@ -394,13 +394,6 @@ GSTLEARN_EXPORT int dk(Db* dbin,
                        bool flag_est = true,
                        bool flag_std = true,
                        const NamingConvention& namconv = NamingConvention("KD"));
-GSTLEARN_EXPORT int uc(Db *db,
-                       AAnam *anam,
-                       Selectivity* selectivity,
-                       const String& names_est,
-                       const String& names_std,
-                       double cvv,
-                       bool verbose = false);
 GSTLEARN_EXPORT int simpgs(Db *dbin,
                            Db *dbout,
                            RuleProp *ruleprop,

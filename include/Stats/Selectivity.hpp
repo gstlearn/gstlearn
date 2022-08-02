@@ -66,7 +66,7 @@ public:
   const Table& eval(AAnam* anam);
 
   void   resetCuts(const VectorDouble& zcuts);
-  int    getNCuts() const { return _nCut; }
+  int    getNCuts() const { return (int) _Zcut.size(); }
   int    getNQT() const { return ESelectivity::getSize(); }
   int    getVariableNumber() const;
   VectorString getVariableNames() const;
@@ -139,7 +139,6 @@ private:
                     int mode) const;
 
 private:
-  int _nCut;
   VectorDouble _Zcut;
   Table _stats;
   double _zmax;

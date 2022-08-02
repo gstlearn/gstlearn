@@ -148,7 +148,7 @@ int _db_category(Db *db,
 /* Prototyping the functions in anam.c */
 /***************************************/
 
-int _condExp(Db *db,
+int _conditionalExpextation(Db *db,
              AAnam *anam,
              const Selectivity *selectivity,
              int iptr0,
@@ -157,5 +157,12 @@ int _condExp(Db *db,
              bool flag_OK,
              double proba,
              int nbsimu,
-             bool verbose);
-
+             bool verbose = false);
+int _uniformConditioning(Db *db,
+                         AAnam *anam,
+                         Selectivity *selectivity,
+                         int iptr0,
+                         int col_est,
+                         int col_var,
+                         double cvv,
+                         bool verbose = false);
