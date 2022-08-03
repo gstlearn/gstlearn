@@ -1,4 +1,4 @@
-== Naming Convention for Db in gstlearn
+== Name Convention for Db in gstlearn
 
 == Preamble
 
@@ -15,7 +15,7 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 ----<IPython.core.display.Javascript object>----
 
 This tutorial gives answers to the frequently asked question regarding
-the Naming Convention used for variables in a Data Base (Db) of gstlearn
+the Name Convention used for variables in a Data Base (Db) of gstlearn
 
 [source, ipython3]
 ----
@@ -97,7 +97,7 @@ The data base contains 3 fields, created automatically and respectively
 called _rank_, _x1_ and _x2_. Note that the last two fields are
 considered as coordinates (locator _x_).
 
-== Naming convention
+== Names
 
 We now add one new field (named _first_) where values are generated
 randomly (uniform drawn between 0 and 1). Note that, when adding this
@@ -794,3 +794,164 @@ the management of other fields
 We also recall that all numbering refer to indices (0 based numbering).
 This is the case for _(column) index_ as well as _locator index_ per
 locator type.
+
+== Naming Convention
+
+Usually, the methods which are designed to add variables in a Db can
+define some characteristics of the newly created variables using a
+standardized solution, known as the _NamingConvention_ facility.
+
+To illustrate this facility, we consider the function _toIndicator_ of
+the class _Limits_. This function stores the indicators of a set of
+classes (defined in _limits_) in the Db file. We concentrate on the
+variable _X-1_ which has outcomes varying from 10 to 14 (as demonstrated
+next).
+
+[source, ipython3]
+----
+gl.OptCst.define(gl.ECst.NTCOL,-1)
+dbfmt = gl.DbStringFormat(gl.FLAG_ARRAY)
+grid.display(dbfmt)
+----
+
+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Contents
+------------------
+                 rank        x2     first  second-1   first.1 first.1.1       X-1
+     [  0,]     1.000    20.000     0.269     0.748     0.489     0.736    10.000
+     [  1,]     2.000    20.000     0.245     0.590     0.353     0.253    11.000
+     [  2,]     3.000    20.000     0.702     0.923     0.084     0.536    12.000
+     [  3,]     4.000    20.000     0.707     0.867     0.818     0.308    13.000
+     [  4,]     5.000    20.000     0.262     0.987     0.857     0.330    14.000
+     [  5,]     6.000    21.000     0.558     0.591     0.954     0.681    10.000
+     [  6,]     7.000    21.000     0.626     0.107     0.166     0.538    11.000
+                  X-2      RANK
+     [  0,]    20.000     1.000
+     [  1,]    20.000     2.000
+     [  2,]    20.000     3.000
+     [  3,]    20.000     4.000
+     [  4,]    20.000     5.000
+     [  5,]    21.000     6.000
+     [  6,]    21.000     7.000
+(Ncols=9,Nrows=7[from 25])
+ ----
+
+We define a set of adjacent classes with bounds ranging from 10 to 14.
+
+[source, ipython3]
+----
+limits = gl.Limits([10, 11, 12, 13, 14])
+limits
+----
+
+
+----Bound( 1 ) : [ 10 ; 11 [
+Bound( 2 ) : [ 11 ; 12 [
+Bound( 3 ) : [ 12 ; 13 [
+Bound( 4 ) : [ 13 ; 14 [----
+
+We first run the function which uses the defaulted _NamingConvention_
+where the prefix is set to ``Indicator''. As a result, 4 new variables
+are added whose names are composed by concatenating _prefix_, _variable
+name_ and the qualifer _Class_ followed by the rank of the class.
+
+The resulting variables are of the form *Indicator.X-1.Class.1*
+
+[source, ipython3]
+----
+limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("Indicator"))
+grid
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 13
+Maximum Number of UIDs       = 14
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = NA
+Column = 4 - Name = first.1 - Locator = NA
+Column = 5 - Name = first.1.1 - Locator = NA
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+Column = 9 - Name = Indicator.X-1.Class.1 - Locator = z1
+Column = 10 - Name = Indicator.X-1.Class.2 - Locator = z2
+Column = 11 - Name = Indicator.X-1.Class.3 - Locator = z3
+Column = 12 - Name = Indicator.X-1.Class.4 - Locator = z4----
+
+In this second trial, we decide to suppress the prefix as well as the
+variable name
+
+[source, ipython3]
+----
+limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("",gl.ELoc.Z,False))
+grid
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 17
+Maximum Number of UIDs       = 18
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = NA
+Column = 4 - Name = first.1 - Locator = NA
+Column = 5 - Name = first.1.1 - Locator = NA
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+Column = 9 - Name = Indicator.X-1.Class.1 - Locator = NA
+Column = 10 - Name = Indicator.X-1.Class.2 - Locator = NA
+Column = 11 - Name = Indicator.X-1.Class.3 - Locator = NA
+Column = 12 - Name = Indicator.X-1.Class.4 - Locator = NA
+Column = 13 - Name = Class.1 - Locator = z1
+Column = 14 - Name = Class.2 - Locator = z2
+Column = 15 - Name = Class.3 - Locator = z3
+Column = 16 - Name = Class.4 - Locator = z4----
+
+[source, ipython3]
+----
+
+----

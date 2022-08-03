@@ -868,14 +868,20 @@ void Db::clearLocators(const ELoc& locatorType)
  * @param names        Vector if variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
+ *
  */
-void Db::setLocators(const VectorString& names,
-                    const ELoc& locatorType,
-                    int locatorIndex)
+void Db::setLocators(const VectorString &names,
+                     const ELoc &locatorType,
+                     int locatorIndex,
+                     bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
@@ -885,12 +891,19 @@ void Db::setLocators(const VectorString& names,
  * @param names Set of variable names
  * @param locatorType Locator Type
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
-void Db::setLocator(const String& names, const ELoc& locatorType, int locatorIndex)
+void Db::setLocator(const String &names,
+                    const ELoc &locatorType,
+                    int locatorIndex,
+                    bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
@@ -900,15 +913,23 @@ void Db::setLocator(const String& names, const ELoc& locatorType, int locatorInd
  * @param iuid          Index of the UID
  * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  * @remark: At this stage, no check is performed to see if items
  * @remark: are consecutive and all defined
  * @remark: This allow using this function in any order.
  */
-void Db::setLocatorByUID(int iuid, const ELoc& locatorType, int locatorIndex)
+void Db::setLocatorByUID(int iuid,
+                         const ELoc &locatorType,
+                         int locatorIndex,
+                         bool cleanSameLocator)
 {
   if (!isUIDValid(iuid)) return;
   if (!isLocatorTypeValid(locatorType, true)) return;
   if (locatorIndex < 0) return;
+
+  // Optional clean
+
+  if (cleanSameLocator) clearLocators(locatorType);
 
   /* Cancel any locator referring to this column */
 
@@ -942,12 +963,15 @@ void Db::setLocatorByUID(int iuid, const ELoc& locatorType, int locatorIndex)
   }
 }
 
-void Db::setLocatorByColIdx(int icol, const ELoc& locatorType, int locatorIndex)
+void Db::setLocatorByColIdx(int icol,
+                            const ELoc &locatorType,
+                            int locatorIndex,
+                            bool cleanSameLocator)
 {
   if (!isColIdxValid(icol)) return;
 
   int iuid = _getUIDByColIdx(icol);
-  setLocatorByUID(iuid, locatorType, locatorIndex);
+  setLocatorByUID(iuid, locatorType, locatorIndex, cleanSameLocator);
 }
 
 String Db::_getLocatorNameByColIdx(int icol) const
@@ -964,32 +988,43 @@ String Db::_getLocatorNameByColIdx(int icol) const
  * @param iuid          Index of the first UID
  * @param locatorType   Type of the Locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank of the first Locator index (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
 void Db::setLocatorsByUID(int number,
                           int iuid,
                           const ELoc& locatorType,
-                          int locatorIndex)
+                          int locatorIndex,
+                          bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (int i = 0; i < number; i++)
     setLocatorByUID(iuid+i, locatorType, locatorIndex + i);
 }
 
 void Db::setLocatorsByUID(const VectorInt& iuids,
                           const ELoc& locatorType,
-                          int locatorIndex)
+                          int locatorIndex,
+                          bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   int number = (int) iuids.size();
   for (int i = 0; i < number; i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
 
-
 void Db::setLocatorsByColIdx(const VectorInt& icols,
                               const ELoc& locatorType,
-                              int locatorIndex)
+                              int locatorIndex,
+                              bool cleanSameLocator)
 {
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (int icol = 0; icol < (int) icols.size(); icol++)
   {
     int iuid = _getUIDByColIdx(icol);
@@ -3801,8 +3836,8 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * Return the monovariate statistics on variables given their names.
  * @param names              List of names of the variables
  * @param opers              List of operations to be performed on the variables at each point.
- * @param flagIso  
- * @param flagVariableWise
+ * @param flagIso            If True, perform statistics on isotopic samples only
+ * @param flagVariableWise   If False, results are added to Db; otherwise they are produced in output vector
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
  * @param proba              For 'quant': the quantile for this probability is calculated
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in

@@ -15,64 +15,67 @@
 
 #include <string>
 
-NamingConvention::NamingConvention(String radix,
-                                   const ELoc& locatorOutType,
+NamingConvention::NamingConvention(String prefix,
+                                   const ELoc &locatorOutType,
+                                   bool flag_varname,
+                                   bool flag_qualifier,
                                    String delim,
-                                   bool flagvariter,
-                                   bool flagclean)
-    : _radix(radix),
+                                   bool cleanSameLocator)
+    : _prefix(prefix),
       _delim(delim),
+      _flagVarname(flag_varname),
+      _flagQualifier(flag_qualifier),
       _locatorOutType(locatorOutType),
-      _flagVarIter(flagvariter),
-      _flagClean(flagclean)
+      _cleanSameLocator(cleanSameLocator)
 {
-
 }
 
 NamingConvention::NamingConvention(const NamingConvention &m)
-    : _radix(m._radix),
+    : _prefix(m._prefix),
       _delim(m._delim),
+      _flagVarname(m._flagVarname),
+      _flagQualifier(m._flagQualifier),
       _locatorOutType(m._locatorOutType),
-      _flagVarIter(m._flagVarIter),
-      _flagClean(m._flagClean)
+      _cleanSameLocator(m._cleanSameLocator)
 {
-
 }
 
 NamingConvention& NamingConvention::operator=(const NamingConvention &m)
 {
   if (this != &m)
   {
-    _radix = m._radix;
+    _prefix = m._prefix;
     _locatorOutType = m._locatorOutType;
+    _flagVarname = m._flagVarname;
+    _flagQualifier = m._flagQualifier;
     _delim = m._delim;
-    _flagVarIter = m._flagVarIter;
-    _flagClean = m._flagClean;
+    _cleanSameLocator = m._cleanSameLocator;
   }
   return *this;
 }
 
 NamingConvention::~NamingConvention()
 {
-
 }
 
 /**
- * Naming from a set of variables identified by their names
+ * Naming a set of variables of 'dbout' identified by their names
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
-  _setNames(dbout, iattout_start, VectorString(), suffix, nitems);
-  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
+  _setNames(dbout, iattout_start, VectorString(), qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, 1, nitems);
 }
 
 /**
@@ -80,22 +83,25 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
  * @param names Vector of variable names in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const VectorString& names,
                                            Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   int nvar = static_cast<int> (names.size());
   if (nvar <= 0) return;
-  _setNames(dbout, iattout_start, names, suffix, nitems);
-  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
+
+  _setNames(dbout, iattout_start, names, qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, nvar, nitems);
 }
 
 /**
@@ -103,19 +109,21 @@ void NamingConvention::setNamesAndLocators(const VectorString& names,
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
  * @param names Vector of output variable names
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(Db* dbout,
                                            int iattout_start,
                                            const VectorString& names,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   int nvar = static_cast<int> (names.size());
 
   for (int ivar = 0; ivar < nvar; ivar++)
     dbout->setNameByUID(iattout_start+ivar, names[ivar]);
-  setLocators(dbout, iattout_start, nvar, 1, flagLocate);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, nvar, 1);
 }
 
 /**
@@ -123,22 +131,25 @@ void NamingConvention::setNamesAndLocators(Db* dbout,
  * @param namin variable name in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const String& namin,
                                            Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   VectorString names;
   names.push_back(namin);
-  _setNames(dbout, iattout_start, names, suffix, nitems);
-  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
+
+  _setNames(dbout, iattout_start, names, qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, 1, nitems);
 }
 
 /**
@@ -149,18 +160,18 @@ void NamingConvention::setNamesAndLocators(const String& namin,
  *             (if -1, all the items available for this locator are used)
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            const ELoc& locatorInType,
                                            int nvar,
                                            Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   VectorString names;
@@ -174,8 +185,11 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
     if (nvar < 0) nvar = 1;
   }
   if (nvar != static_cast<int>(names.size())) names.resize(nvar);
-  _setNames(dbout, iattout_start, names, suffix, nitems);
-  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
+
+  _setNames(dbout, iattout_start, names, qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, nvar, nitems);
 }
 
 /**
@@ -184,17 +198,17 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
  * @param iatts Vector of attribute indices of the variables in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            const VectorInt& iatts,
                                            Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   if (dbin == nullptr) return;
@@ -204,8 +218,11 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
   VectorString names;
   for (int ivar = 0; ivar < nvar; ivar++)
     names.push_back(dbin->getNameByUID(iatts[ivar]));
-  _setNames(dbout, iattout_start, names, suffix, nitems);
-  setLocators(dbout, iattout_start, nvar, nitems, flagLocate);
+
+  _setNames(dbout, iattout_start, names, qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, nvar, nitems);
  }
 
 /**
@@ -214,38 +231,39 @@ void NamingConvention::setNamesAndLocators(const Db *dbin,
  * @param iatt  Attribute index of the variables in Input Db
  * @param dbout Pointer to the output Db
  * @param iattout_start Starting attribute index
- * @param suffix Optional suffix
+ * @param qualifier Optional qualifier
  * @param nitems Number of items
- * @param flagLocate True if the variable must be assigned the locator
+ * @param flagSetLocator True if the variable must be assigned the locator
  */
 void NamingConvention::setNamesAndLocators(const Db *dbin,
                                            int iatt,
                                            Db* dbout,
                                            int iattout_start,
-                                           const String& suffix,
+                                           const String& qualifier,
                                            int nitems,
-                                           bool flagLocate) const
+                                           bool flagSetLocator) const
 {
   if (iattout_start < 0) return;
   if (dbin == nullptr) return;
 
   VectorString names;
   names.push_back(dbin->getNameByUID(iatt));
-  _setNames(dbout, iattout_start, names, suffix, nitems);
-  setLocators(dbout, iattout_start, 1, nitems, flagLocate);
+
+  _setNames(dbout, iattout_start, names, qualifier, nitems);
+
+  if (flagSetLocator)
+    setLocators(dbout, iattout_start, 1, nitems);
  }
 
 void NamingConvention::setLocators(Db *dbout,
                                    int iattout_start,
                                    int nvar,
-                                   int nitems,
-                                   bool flagLocate) const
+                                   int nitems) const
 {
-  if (! flagLocate) return;
   if (_locatorOutType == ELoc::UNKNOWN) return;
 
   // Erase already existing locators of the same Type
-  if (_flagClean)
+  if (_cleanSameLocator)
     dbout->clearLocators(_locatorOutType);
 
   // Set the locator for all variables
@@ -254,19 +272,19 @@ void NamingConvention::setLocators(Db *dbout,
 }
 
 /**
- * Defines the names given to the output variables
+ * Defines the names of the output variables. These variables are located
+ * in 'dbout'; they have consecutive UIDs, starting from 'iattout_start'
  *
  * @param dbout   Pointer to the output Db structure
  * @param iattout_start Rank of the first variable to be named
  * @param names Vector of Names (dimension: nvar) or String()
- * @param suffix Suffix provided to construct the names
+ * @param qualifier Optional qualifier
  * @param nitems Number of items to be renamed
- *
  */
 void NamingConvention::_setNames(Db *dbout,
                                  int iattout_start,
                                  const VectorString& names,
-                                 const String& suffix,
+                                 const String& qualifier,
                                  int nitems) const
 {
   int ecr = 0;
@@ -274,14 +292,27 @@ void NamingConvention::_setNames(Db *dbout,
 
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    String local;
-    if (static_cast<int>(names.size()) == nvar) local = names[ivar];
-    if (local.empty() && nvar > 1) local = std::to_string(ivar+1);
+    // Variable 'local' defined for each variable, is:
+    // - extracted from the array 'names' (if defined)
+    // - generated as the rank of the variable (if several)
+    String loc_varname;
+    if (_flagVarname)
+    {
+      if (static_cast<int>(names.size()) == nvar) loc_varname = names[ivar];
+      if (loc_varname.empty() && nvar > 1) loc_varname = std::to_string(ivar+1);
+    }
 
     for (int item = 0; item < nitems; item++)
     {
-      String locnum = (nitems <= 1) ? String() : std::to_string(item+1);
-      String name = concatenateStrings(_delim, _radix, local, suffix, locnum);
+      String loc_qualifier;
+      String loc_number;
+      if (_flagQualifier)
+      {
+        loc_qualifier = qualifier;
+        if (! loc_qualifier.empty() && nitems > 1) loc_number = std::to_string(item+1);
+      }
+      String name = concatenateStrings(_delim, _prefix,
+                                       loc_varname, loc_qualifier, loc_number);
       dbout->setNameByUID(iattout_start + ecr, name);
       ecr++;
     }

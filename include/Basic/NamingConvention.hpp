@@ -13,7 +13,6 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// WARNING: Make this include list as small as possible!
 #include "Db/ELoc.hpp"
 
 class Db;
@@ -21,80 +20,81 @@ class Db;
 class GSTLEARN_EXPORT NamingConvention
 {
 public:
-  NamingConvention(String radix = String(),
+  NamingConvention(String prefix = String(),
                    const ELoc& locatorOutType = ELoc::Z,
+                   bool flag_varname = true,
+                   bool flag_qualifier = true,
                    String delim = ".",
-                   bool flagvariter = true,
-                   bool flagclean = true);
+                   bool cleanSameLocator = true);
   NamingConvention(const NamingConvention &m);
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();
 
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
                            const VectorString& names,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(const Db *dbin,
                            const ELoc& locatorInType,
                            int nvar,
                            Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(const Db *dbin,
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
   void setNamesAndLocators(const Db *dbin,
                            int iatt,
                            Db* dbout,
                            int iattout_start,
-                           const String& suffix = String(),
+                           const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagLocate = true) const;
+                           bool flagSetLocator = true) const;
 
   void setDelim(const String& delim)    { _delim = delim; }
   void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
-  void setRadix(const String& radix)    { _radix = radix; }
-  void setFlagClean(bool flagClean)     { _flagClean = flagClean; }
-  void setFlagVarIter(bool flagVarIter) { _flagVarIter = flagVarIter; }
+  void setPrefix(const String& prefix)    { _prefix = prefix; }
+  void setFlagClean(bool cleanSameLocator) { _cleanSameLocator = cleanSameLocator; }
   void setLocators(Db *dbout,
                    int iattout_start,
                    int nvar,
-                   int nitems = 1,
-                   bool flagLocate = true) const;
+                   int nitems = 1) const;
+
 private:
   void _setNames(Db *dbout,
                  int iattout_start,
                  const VectorString& names,
-                 const String& suffix,
+                 const String& qualifier,
                  int nitems) const;
 
 private:
-  String   _radix;
-  String   _delim;
-  ELoc     _locatorOutType;
-  bool     _flagVarIter;
-  bool     _flagClean;
+  String _prefix;
+  String _delim;
+  bool   _flagVarname;
+  bool   _flagQualifier;
+  ELoc   _locatorOutType;
+  bool   _cleanSameLocator;
 };
