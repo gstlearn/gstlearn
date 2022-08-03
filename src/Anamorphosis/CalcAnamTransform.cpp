@@ -70,11 +70,22 @@ bool CalcAnamTransform::_hasAnam(const EAnam& anamType) const
 
 bool CalcAnamTransform::_hasInputVarDefined(int mode) const
 {
+  // Check that the vector is not empty
   if (_iptrEst.empty())
   {
     messerr("'db' should contain an Estimate variable");
     return false;
   }
+
+  // Check that the UID are valid
+  for (int i = 0; i < (int) _iptrEst.size(); i++)
+    if (_iptrEst[i] < 0)
+    {
+      messerr("An estimation variable is not correctly defined");
+      return false;
+    }
+
+  // Check that the vector is not empty
   if (_iptrStd.empty())
   {
     if (mode == 0)
@@ -83,6 +94,18 @@ bool CalcAnamTransform::_hasInputVarDefined(int mode) const
       messerr("'db' should contain an Variance of Estimation Error variable");
     return false;
   }
+
+  // Check that the UID are valid
+  for (int i = 0; i < (int) _iptrStd.size(); i++)
+    if (_iptrStd[i] < 0)
+    {
+      if (mode == 0)
+        messerr("A St. Dev. variable is not correctly defined");
+      else
+        messerr("A Variance variable is not correctly defined");
+      return false;
+    }
+
   return true;
 }
 
@@ -328,17 +351,17 @@ bool CalcAnamTransform::_run()
 
   if (_flagCondExp)
   {
-    if (_conditionalExpextation(getDb(), _anam, _selectivity,
-                 _iattSel, _iptrEst[0], _iptrStd[0],
-                 _flagOK, _proba, _nbsimu, _verbose)) return true;
+    if (!_conditionalExpextation(getDb(), _anam, _selectivity, _iattSel,
+                                _iptrEst[0], _iptrStd[0], _flagOK, _proba,
+                                _nbsimu, _verbose)) return true;
     return false;
   }
 
   if (_flagUniCond)
   {
-    if (_uniformConditioning(getDb(), _anam, _selectivity,
-                             _iattSel, _iptrEst[0], _iptrStd[0],
-                             _cvv, _verbose)) return true;
+    if (!_uniformConditioning(getDb(), _anam, _selectivity, _iattSel,
+                             _iptrEst[0], _iptrStd[0], _cvv, _verbose))
+      return true;
     return false;
   }
 

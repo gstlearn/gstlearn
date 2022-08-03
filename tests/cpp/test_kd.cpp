@@ -34,6 +34,8 @@
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
+#include "Estimation/CalcKriging.hpp"
+#include "Estimation/CalcFactorKriging.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include <math.h>
@@ -47,7 +49,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   // Global parameters
   int ndim = 2;
@@ -110,13 +112,24 @@ int main(int /*argc*/, char */*argv*/[])
   // Selectivity in the model
   selectivity->eval(anam).display();
 
+  // Define the variogram calculation parameters
+  VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
+
+  // Calculate the variogram of the raw variable
+  Vario* vario_raw = Vario::computeFromDb(varioparam, data);
+  vario_raw->display();
+
+  // Fitting the Model on the Raw variable
+  Model* model_raw = new Model(1, ndim);
+  (void) model_raw->fit(vario_raw);
+  model_raw->display();
+
   // Transform Data into Gaussian variable
   (void) RawToGaussian(data, anam);
   data->setName("Y.Z","Gauss.Z");
   data->display();
 
   // Calculate the variogram of the Gaussian variable
-  VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
   Vario* vario = Vario::computeFromDb(varioparam, data);
   vario->display();
 
@@ -127,6 +140,32 @@ int main(int /*argc*/, char */*argv*/[])
                      Option_AutoFit(), constraints);
   model->display();
 
+  // Creating a Moving Neighborhood
+  int nmini = 5;
+  int nmaxi = 5;
+  double radius = 1.;
+  NeighMoving* neigh = NeighMoving::create(ndim, false, nmaxi, radius, nmini);
+  neigh->display();
+
+  // ====================== Conditional Expectation =====================
+
+  // Estimating the Gaussian Variable on the nodes of the Blocks
+  data->display();
+  (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+                 true, true, false, VectorInt(), VectorInt(),
+                 VectorVectorDouble(), NamingConvention("G_PTS"));
+
+  // Calculating the Conditional Expectation
+  (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
+                                "G_PTS*stdev", false, TEST, 0, false,
+                                NamingConvention("PTS_Recovery"));
+  blocs->display();
+
+  // ====================== Point Disjunctive Kriging =====================
+
+  // Setting the trace
+  OptDbg::setReference(1);
+
   // Attach the Anamorphosis
   model->setAnam(anam);
 
@@ -135,34 +174,44 @@ int main(int /*argc*/, char */*argv*/[])
   (void) RawToFactor(data, anam, nfactor);
   data->display();
 
-  // Creating a Moving Neighborhood
-  int nmini = 5;
-  int nmaxi = 5;
-  double radius = 1.;
-  NeighMoving* neigh = NeighMoving::create(ndim, false, nmaxi, radius, nmini);
-  neigh->display();
-
-  // Setting the trace
-  OptDbg::setReference(1);
-
-  // ====================== Point Disjunctive Kriging =====================
-
   // Simple Point Kriging over the blocks
-  (void) dk(data, blocs, model, neigh, EKrigOpt::PONCTUAL, VectorInt(),
-            true, true, NamingConvention("DK_Pts"));
+  (void) DisjunctiveKriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+                            VectorInt(), true, true,
+                            NamingConvention("DK_Pts"));
   blocs->display();
 
   // Simple Block Kriging over the blocks
   VectorInt ndisc_B = {5,5};
-  (void) dk(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
-            true, true, NamingConvention("DK_Blk"));
+  (void) DisjunctiveKriging(data, blocs, model, neigh, EKrigOpt::BLOCK, ndisc_B,
+                            true, true, NamingConvention("DK_Blk"));
   blocs->display();
 
   // Simple Block Kriging over the panel(s)
   VectorInt ndisc_P = { 10,10};
-  (void) dk(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
-            true, true, NamingConvention("DK_Blk"));
+  (void) DisjunctiveKriging(data, panel, model, neigh, EKrigOpt::BLOCK, ndisc_P,
+                            true, true, NamingConvention("DK_Blk"));
   panel->display();
+
+  // ====================== Uniform Conditioning ==================================
+
+  // Calculate the Mean covariance over block
+  double cvv_Z = model_raw->evalCvv(blocs->getDXs(), ndisc_B);
+
+  // Perform the Point Kriging of the Raw Variable
+  data->clearLocators(ELoc::Z);
+  data->setLocator("Z",ELoc::Z);
+  data->display();
+  (void) kriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
+                 true, true, false, VectorInt(), VectorInt(),
+                 VectorVectorDouble(), NamingConvention("Z_PTS"));
+  blocs->display();
+
+  // Perform the Uniform Conditioning over Blocks
+  (void) UniformConditioning(blocs, anam, selectivity,
+                             "Z_PTS*estim", "Z_PTS*stdev", cvv_Z, false,
+                             NamingConvention("UC"));
+  blocs->display();
+  data->setLocator("Gauss.Z",ELoc::Z);
 
   // ====================== Block Disjunctive Kriging (DGM-1) =====================
 
@@ -190,13 +239,15 @@ int main(int /*argc*/, char */*argv*/[])
   model_b1_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) dk(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
-            true, NamingConvention("DK_DGM1"));
+  (void) DisjunctiveKriging(data, blocs, model_b1_Y, neigh, EKrigOpt::PONCTUAL,
+                            VectorInt(), true, true,
+                            NamingConvention("DK_DGM1"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) dk(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK, { nx_B, nx_B }, true,
-            true, NamingConvention("DK_DGM1"));
+  (void) DisjunctiveKriging(data, panel, model_b1_Y, neigh, EKrigOpt::BLOCK,
+                            { nx_B, nx_B }, true, true,
+                            NamingConvention("DK_DGM1"));
   panel->display();
 
   // ====================== Block Disjunctive Kriging (DGM-2) =====================
@@ -227,20 +278,16 @@ int main(int /*argc*/, char */*argv*/[])
   model_b2_Y->display();
 
   // Simple Point Kriging over the blocs(s) with Model with Change of Support
-  (void) dk(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL, VectorInt(), true,
-            true, NamingConvention("DK_DGM2"));
+  (void) DisjunctiveKriging(data, blocs, model_b2_Y, neigh, EKrigOpt::PONCTUAL,
+                            VectorInt(), true, true,
+                            NamingConvention("DK_DGM2"));
   blocs->display();
 
   // Simple Point Kriging over the panel(s) with Model with Change of Support
-  (void) dk(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK, {nx_B, nx_B},
-            true, true, NamingConvention("DK_DGM2"));
+  (void) DisjunctiveKriging(data, panel, model_b2_Y, neigh, EKrigOpt::BLOCK,
+                            { nx_B, nx_B }, true, true,
+                            NamingConvention("DK_DGM2"));
   panel->display();
-
-  // ====================== Conditional Expectation =====================
-
-  blocs->display();
-//  (void) ConditionalExpectation(blocs, anam, selectivity,
-//                                "DK_PTS*estim", "DK_PTS*stdev");
 
   // ====================== Selectivity Function ==================================
 

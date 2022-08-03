@@ -291,6 +291,7 @@
 
 %include Estimation/KrigingSystem.hpp
 %include Estimation/CalcKriging.hpp
+%include Estimation/CalcFactorKriging.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

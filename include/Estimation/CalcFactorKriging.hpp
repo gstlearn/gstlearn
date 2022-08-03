@@ -1,0 +1,67 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#pragma once
+
+#include "gstlearn_export.hpp"
+
+#include "geoslib_define.h"
+
+#include "Calculators/ACalcInterpolator.hpp"
+
+class Db;
+class DbGrid;
+class KrigingSystem;
+
+class GSTLEARN_EXPORT CalcFactorKriging: public ACalcInterpolator
+{
+public:
+  CalcFactorKriging(bool flag_est = true, bool flag_std = true);
+  CalcFactorKriging(const CalcFactorKriging &r) = delete;
+  CalcFactorKriging& operator=(const CalcFactorKriging &r) = delete;
+  virtual ~CalcFactorKriging();
+
+  void setCalcul(const EKrigOpt &calcul) { _calcul = calcul; }
+  void setNdisc(const VectorInt &ndisc) { _ndisc = ndisc; }
+  void setIuidFactors(const VectorInt &iuidFactors) { _iuidFactors = iuidFactors; }
+
+private:
+  virtual bool _check() override;
+  virtual bool _preprocess() override;
+  virtual bool _run() override;
+  virtual bool _postprocess() override;
+  virtual void _rollback() override;
+
+  int _getNFactors() const;
+  void _storeResultsForExport(const KrigingSystem& ksys);
+
+private:
+  bool _flagEst;
+  bool _flagStd;
+
+  EKrigOpt  _calcul;
+  VectorInt _ndisc;
+
+  int _iptrEst;
+  int _iptrStd;
+
+  VectorInt _iuidFactors;
+};
+
+GSTLEARN_EXPORT int DisjunctiveKriging(Db *dbin,
+                                       DbGrid *dbgrid,
+                                       Model *model,
+                                       ANeighParam *neighparam,
+                                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
+                                       const VectorInt &ndisc = VectorInt(),
+                                       bool flag_est = true,
+                                       bool flag_std = true,
+                                       const NamingConvention &namconv = NamingConvention(
+                                           "KD"));

@@ -45,6 +45,10 @@ public:
 
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
+  static MeshEStandard* createFromExternal(const MatrixRectangular& apices,
+                                           const MatrixInt& meshes,
+                                           bool verbose = false);
+
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
   void   getDuplicates(int verbose,

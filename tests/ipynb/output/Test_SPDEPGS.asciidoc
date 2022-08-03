@@ -1,7 +1,5 @@
-[[pluri-gaussian-2d]]
-= Pluri-Gaussian 2D
+== Pluri-Gaussian 2D
 
-[[preamble]]
 == 0. Preamble
 
 [source, javascript]
@@ -33,14 +31,14 @@ import gstlearn.plot as gp
 import os
 ----
 
-[[prepare-the-basic-gstlearn-objects]]
 == 1. Prepare the basic gstlearn objects
 
 Initial objects are located in a specific Directory which is defined in
 the next Container operation. Note that his operation will modify
 automatically all the names of the Files retreived using Serialize /
 Deserialize operation (not when reading using CSV). Also note that the
-Container name must be ended using a "/" (as its serves as a Directory).
+Container name must be ended using a ``/'' (as its serves as a
+Directory).
 
 [source, ipython3]
 ----
@@ -48,14 +46,13 @@ ndim = 2
 gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN,ndim)
 ----
 
-[[load-the-data-file]]
-=== Load the data file
+== Load the data file
 
 This Load is performed starting from a CSV file.
 
 [source, ipython3]
 ----
-dataDir = os.path.join(os.path.pardir,os.path.pardir,"doc","data","BRGM")
+dataDir = os.path.join(os.getenv('GSTLEARN_DATA'),"BRGM")
 datCat = pd.read_csv(os.path.join(dataDir,"Nitrates_LANU.csv"),sep=";")
 datCat.head()
 ----
@@ -73,8 +70,7 @@ datCat.head()
 |================================================
 ----
 
-[[loading-polygon-from-a-file]]
-=== Loading polygon from a file
+== Loading polygon from a file
 
 The polygon is created by deserializing the Neutral Polygon File
 (located in data Directory)
@@ -91,8 +87,7 @@ Polygons
 --------
 Number of Polygon Sets = 1----
 
-[[creation-of-the-gstlearn-data-base]]
-=== Creation of the gstlearn data base
+== Creation of the gstlearn data base
 
 [source, ipython3]
 ----
@@ -101,9 +96,7 @@ fields = ["X","Y","LANU"]
 dat[fields] = datCat[fields].values
 ----
 
-[[specification-of-the-role-of-each-variable-named-locators-in-gstlearn]]
-=== Specification of the role of each variable (named "locators" in
-gstlearn)
+== Specification of the role of each variable (named ``locators'' in gstlearn)
 
 [source, ipython3]
 ----
@@ -131,8 +124,7 @@ Column = 0 - Name = X - Locator = x1
 Column = 1 - Name = Y - Locator = x2
 Column = 2 - Name = LANU - Locator = z1----
 
-[[creation-of-the-output-grid]]
-=== Creation of the output grid
+== Creation of the output grid
 
 The output grid will contain 47 x 101 nodes. It is built to cover the
 data file plus an extension of 10000 x 10000.
@@ -146,8 +138,7 @@ Result.resetCoveringDb(dat,[47,101],[],[],[50000,50000])
 
 ----0----
 
-[[add-a-selection-mask-the-cells-outside-the-polygon]]
-=== Add a selection (mask the cells outside the polygon)
+== Add a selection (mask the cells outside the polygon)
 
 [source, ipython3]
 ----
@@ -160,14 +151,12 @@ ax = gp.polygon(poly,end_plot=True,linewidth=1,edgeColor="r",ax=ax)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_18_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_18_0.png)
 ----
 
-[[computation-of-the-proportions]]
 == 2. Computation of the proportions
 
-[[compute-global-proportions-for-information]]
-=== 2.1 Compute global proportions (for information)
+== 2.1 Compute global proportions (for information)
 
 [source, ipython3]
 ----
@@ -186,8 +175,7 @@ Proportion of facies 4 = 0.205204021289178
 Proportion of facies 5 = 0.006505026611472502
 ----
 
-[[compute-local-proportions]]
-=== 2.2 Compute local proportions
+== 2.2 Compute local proportions
 
 The next parts will be simplified in a future dedicated API
 
@@ -301,8 +289,7 @@ Data Base Statistics
  Variance            =      0.000
  ----
 
-[[display-the-results]]
-=== Display the results
+== Display the results
 
 [source, ipython3]
 ----
@@ -318,15 +305,15 @@ for i in range(ncat):
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_29_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_0.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_29_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_1.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_29_2.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_2.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_29_3.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_3.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_29_4.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_4.png)
 ----
 
 Creating the environment to infer the Rule. It uses a variogram
@@ -356,7 +343,7 @@ ax=gp.rule(ruleprop.getRule())
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_32_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_32_0.png)
 ----
 
 [source, ipython3]
@@ -558,7 +545,7 @@ if ngrf > 1:
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_42_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_42_0.png)
 ----
 
 In this paragraph, we compare the experimental indicator variogram to
@@ -586,7 +573,7 @@ axs=gp.varmod(varioindic2,axs=axs,linestyle='dashed')
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_46_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_46_0.png)
 ----
 
 [source, ipython3]
@@ -602,5 +589,5 @@ ax = gp.grid(Result,figsize=[10,10])
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEPGS_48_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_48_0.png)
 ----

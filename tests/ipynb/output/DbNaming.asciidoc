@@ -1,7 +1,5 @@
-[[naming-convention-for-db-in-gstlearn]]
-= Naming Convention for Db in gstlearn
+== Naming Convention for Db in gstlearn
 
-[[preamble]]
 == Preamble
 
 [source, javascript]
@@ -27,7 +25,6 @@ import os
 import sys
 ----
 
-[[prepare-the-environment]]
 == Prepare the Environment
 
 This paragraph defines the Space Dimension for the whole notebook. It
@@ -52,15 +49,14 @@ dbfmt = gl.DbStringFormat()
 dbfmt.setParams(gl.FLAG_LOCATOR)
 ----
 
-[[creating-a-data-file]]
 == Creating a data file
 
 A Data Base is created for experimentation. It is constructed as a
-regular Grid (named **grid**). The variable _nech_ will contain the
-number of samples within _grid_. The number of meshes is voluntarily
-limited. The mesh is square with dimension 1. The origin (lower left
-corner) is set to (10,20) in order to be able to distinguish coordinates
-along first and second axes.
+regular Grid (named *grid*). The variable _nech_ will contain the number
+of samples within _grid_. The number of meshes is voluntarily limited.
+The mesh is square with dimension 1. The origin (lower left corner) is
+set to (10,20) in order to be able to distinguish coordinates along
+first and second axes.
 
 [source, ipython3]
 ----
@@ -101,7 +97,6 @@ The data base contains 3 fields, created automatically and respectively
 called _rank_, _x1_ and _x2_. Note that the last two fields are
 considered as coordinates (locator _x_).
 
-[[naming-convention]]
 == Naming convention
 
 We now add one new field (named _first_) where values are generated
@@ -110,7 +105,7 @@ new field, a value is returned which corresponds to the number of the
 newly created _attribute_.
 
 *Important remark: all numerical variables used to identify a field
-within a Db are considered as indices, i.e. they are numbered starting
+within a Db are considered as indices, i.e. they are numbered starting
 from 0*
 
 [source, ipython3]
@@ -127,7 +122,7 @@ Attribute corresponding to 'first' = 3
 
 We can double-check the attribute information by visiting the current
 contents of the _grid_ Db. We check that the field _first_ is the fourth
-(i.e. attribute #3).
+(i.e. attribute #3).
 
 [source, ipython3]
 ----
@@ -205,8 +200,8 @@ Column = 5 - Name = second-2 - Locator = z2
 Column = 6 - Name = second-3 - Locator = z3----
 
 Note that the newly created fields are automatically named using the
-provided string (_second_) as a radix: the variables are names
-*second-1", "second-2" and "second-3".
+provided string (_second_) as a radix: the variables names are
+``second-1'', ``second-2'' and ``second-3''.
 
 Let us now envisage renaming the variable _second-2_ into _first_.
 
@@ -285,7 +280,7 @@ Column = 4 - Name = second-1 - Locator = z1
 Column = 5 - Name = first.1 - Locator = z2
 Column = 6 - Name = first.1.1 - Locator = z3----
 
-The automatic renaming procedure has been applied (adding ".1")
+The automatic renaming procedure has been applied (adding ``.1'')
 iteratively until names are all different: the field is now called
 *first.1.1".
 
@@ -337,8 +332,7 @@ Column = 4 - Name = second-1 - Locator = z1
 Column = 5 - Name = first.1 - Locator = z2
 Column = 6 - Name = first.1.1 - Locator = z3----
 
-[[by-name]]
-=== By Name
+== By Name
 
 As an example, we access to the field named *first.1. For short, only
 the four first values are systematically printed.
@@ -354,9 +348,11 @@ grid.getColumn("first.1")[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-column-index]]
-=== By Column Index
-We recall that the index numbering starts from 0. Therefore field *first-1*  corresponds to the index 5.
+== By Column Index
+
+We recall that the index numbering starts from 0. Therefore field
+_first-1_ corresponds to the index 5.
+
 [source, ipython3]
 ----
 grid.getColumnByColIdx(5)[0:4]
@@ -368,8 +364,7 @@ grid.getColumnByColIdx(5)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-attribute-index]]
-=== By Attribute Index
+== By Attribute Index
 
 [source, ipython3]
 ----
@@ -382,8 +377,7 @@ grid.getColumnByUID(5)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-locator]]
-=== By Locator
+== By Locator
 
 We note that the target variable corresponds to the locator _z2_ which
 is the second one (index 1) or the Z-locator type.
@@ -399,7 +393,6 @@ grid.getColumnByLocator(gl.ELoc.Z,1)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[difference-between-column-and-attribute]]
 == Difference between Column and Attribute
 
 We need to recall the _attribute_ value returned when adding the fields:
@@ -442,7 +435,7 @@ List of locators
 
 We can see that the 7 existing fields currently correspond to the 7
 first columns of the Data Base _grid_. The second display gives the
-indices of the locators in use (_x__ and __z_) and the indices of the
+indices of the locators in use (_x_ and _z_) and the indices of the
 attributes corresponding to the ranks of the items for each locator
 type.
 
@@ -616,13 +609,11 @@ grid.getColumnByUID(1)
 
 ----()----
 
-[[remark-on-space-dimension]]
 == Remark on Space Dimension
 
 It might be considered as surprising to see that _grid_ is considered as
-a 2-D Grid while there is only *one* coordinate field (locator _x_).
-In order to avoid any missunderstanding, let us recall this important
-fact.
+a 2-D Grid while there is only *one* coordinate field (locator _x_). In
+order to avoid any missunderstanding, let us recall this important fact.
 
 The data base _grid_ is organized as a grid and for that sake, it
 contains a descrption of the grid organization. This organization is
@@ -632,7 +623,7 @@ considered as decoration: they will not be used in any internal
 operation.
 
 As an example this makes particular sense here as the contents of the
-variable _x2_, despite its locator rank _1_ (i.e. index 0) actually
+variable _x2_, despite its locator rank _1_ (i.e. index 0) actually
 contains the *second* coordinate of the samples, as demonstrated in the
 next line
 
@@ -670,7 +661,7 @@ grid.getColumnByLocator(gl.ELoc.X, 0)
 
 Note that at any time, the coordinate vectors can be regenerated. To
 avoid confusion, the newly generated coordinate fields are named using
-the radix "X" (uppercase). This feature is obviously only available in
+the radix ``X'' (uppercase). This feature is obviously only available in
 the case of a grid
 
 [source, ipython3]
@@ -785,7 +776,6 @@ Column = 6 - Name = X-1 - Locator = x1
 Column = 7 - Name = X-2 - Locator = x2
 Column = 8 - Name = RANK - Locator = NA----
 
-[[conclusion]]
 == Conclusion
 
 As a conclusion:
@@ -797,7 +787,7 @@ locator notion (type and index)
 * the use of (column) index is always valid. This index must be defined
 precisely when using the variable (it must be updated in case of
 addition or deletion of other variables)
-* the use of attribute is clever... but it must be used by expert who
+* the use of attribute is clever… but it must be used by expert who
 understands the process. It allows using fix values, independently of
 the management of other fields
 

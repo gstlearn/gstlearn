@@ -1,5 +1,4 @@
-[[demonstration-of-gstlearn-for-a-2-d-case-study]]
-= Demonstration of gstlearn for a 2-D case study
+== Demonstration of gstlearn for a 2-D case study
 
 [source, javascript]
 ----
@@ -12,7 +11,6 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 
 ----<IPython.core.display.Javascript object>----
 
-[[import-packages]]
 == Import packages
 
 [source, ipython3]
@@ -25,8 +23,7 @@ import gstlearn as gl
 import gstlearn.plot as gp
 ----
 
-[[create-a-lmc-model]]
-= Create a LMC Model
+== Create a LMC Model
 
 We create a Context for 1 variable in the 2-D space.
 
@@ -46,7 +43,7 @@ cova = gl.CovAniso(gl.ECov.EXPONENTIAL, 2, 0, 1.5, ctxt)
 covlmc.addCov(cova)
 ----
 
-Now a Model containing 'covs'
+Now a Model containing `covs'
 
 [source, ipython3]
 ----
@@ -80,11 +77,10 @@ ax = gp.model(mymodellmc, hmax = 2.5)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_Model_10_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_Model_10_0.png)
 ----
 
-[[tapering-model]]
-= Tapering Model
+== Tapering Model
 
 We now use the same list of covariances but add a Tapering function
 
@@ -130,11 +126,10 @@ ax = gp.model(mymodeltape, hmax = 2.5, ax=ax)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_Model_14_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_Model_14_0.png)
 ----
 
-[[convolution-model]]
-= Convolution Model
+== Convolution Model
 
 [source, ipython3]
 ----
@@ -180,5 +175,5 @@ ax = gp.model(mymodelconv, hmax = 2.5, ax=ax)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_Model_18_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_Model_18_0.png)
 ----

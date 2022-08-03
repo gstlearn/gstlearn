@@ -487,6 +487,15 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
   return mesh;
 }
 
+MeshEStandard* MeshEStandard::createFromExternal(const MatrixRectangular &apices,
+                                                 const MatrixInt &meshes,
+                                                 bool verbose)
+{
+  MeshEStandard* mesh = new MeshEStandard;
+  mesh->reset(apices, meshes, verbose);
+  return mesh;
+}
+
 /**
  * Returns the list of mesh vertex information
  * This List is organized as a single Vector of Double

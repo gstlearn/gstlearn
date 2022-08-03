@@ -1,5 +1,4 @@
-[[variogram-on-grid]]
-= Variogram on grid
+== Variogram on grid
 
 This file is meant to demonstrate the use of gstlearn by loading a numpy
 array, perform some calculations (including variogram) based on the grid
@@ -15,7 +14,6 @@ import gstlearn.plot as gp
 verbose = True
 ----
 
-[[define-an-array-in-python]]
 == Define an array in Python
 
 Here we define two numpy.arrays containing real values. They should be
@@ -42,7 +40,6 @@ if verbose:
   0.74398967  0.37966442  1.76399173]
 ----
 
-[[import-this-array-in-gstlearn]]
 == Import this array in gstlearn
 
 First of all, the global instruction for defining the default dimension
@@ -56,10 +53,10 @@ gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN, ndim)
 
 Then, the Grid file is created first (defining the origin, mesh size and
 count). Then each variable is added one by one, giving the name. Then,
-the 'Z' Locator is set for the two variables. Note that locators are
-entered simultaneously. Otherwise, "var1" will be assigned to locator
-"z1". Then, when adding "var2", it will be assigned in turn to "z1",
-erasing the locator previously assigned to "var1".
+the `Z' Locator is set for the two variables. Note that locators are
+entered simultaneously. Otherwise, ``var1'' will be assigned to locator
+``z1''. Then, when adding ``var2'', it will be assigned in turn to
+``z1'', erasing the locator previously assigned to ``var1''.
 
 [source, ipython3]
 ----
@@ -103,7 +100,6 @@ Column = 4 - Name = var2 - Locator = z2
 
 ----
 
-[[calculate-the-variogram-on-grid]]
 == Calculate the Variogram on Grid
 
 We now calculate the variogram on the grid specifying the parameters : 2
@@ -231,5 +227,5 @@ ax = gp.varmod(vario,None,ivar,jvar,idir)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_VarioGrid_17_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_VarioGrid_17_0.png)
 ----

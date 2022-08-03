@@ -94,7 +94,7 @@ Inverse Rotation Matrix
      [  1,]     0.985     0.174
  
 Turbo Meshing
--------------
+=============
 Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
@@ -147,7 +147,7 @@ Inverse Rotation Matrix
      [  1,]     0.985     0.174
  
 Turbo Meshing
--------------
+=============
 Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
@@ -200,7 +200,7 @@ ax = gp.grid(grid, ax=ax) # Initial grid
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Meshing_2_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Meshing_2_0.png)
 ----
 
 [source, ipython3]

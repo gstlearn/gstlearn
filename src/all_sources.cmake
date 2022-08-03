@@ -274,6 +274,7 @@ set(SRC
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
+  Estimation/CalcFactorKriging.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp
