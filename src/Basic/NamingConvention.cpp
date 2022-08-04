@@ -309,7 +309,7 @@ void NamingConvention::_setNames(Db *dbout,
       if (_flagQualifier)
       {
         loc_qualifier = qualifier;
-        if (! loc_qualifier.empty() && nitems > 1) loc_number = std::to_string(item+1);
+        if (nitems > 1) loc_number = std::to_string(item+1);
       }
       String name = concatenateStrings(_delim, _prefix,
                                        loc_varname, loc_qualifier, loc_number);
