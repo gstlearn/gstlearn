@@ -5,7 +5,26 @@
 // You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
 %include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
+
+// Export VectorXXX classes
+%include Basic/VectorT.hpp
+%include Basic/VectorNumT.hpp
+%template(VectorTInt)         VectorT< int >;
+%template(VectorTDouble)      VectorT< double >;
+%template(VectorString)       VectorT< String >;
+%template(VectorTFloat)       VectorT< float >;
+%template(VectorTUChar)       VectorT< UChar >;
+%template(VectorInt)          VectorNumT< int >;
+%template(VectorDouble)       VectorNumT< double >;
+%template(VectorFloat)        VectorNumT< float >;
+%template(VectorUChar)        VectorNumT< UChar >;
+%template(VectorVectorInt)    VectorT< VectorNumT< int > >;
+%template(VectorVectorDouble) VectorT< VectorNumT< double > >;
+%template(VectorVectorFloat)  VectorT< VectorNumT< float > >;
+
 %include Basic/ICloneable.hpp
+%include Basic/RepeatMacro.hpp
+%include Basic/RepeatMacroSwig.hpp
 
 %include csparse_d.h
 %include csparse_f.h
@@ -13,9 +32,6 @@
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
-
-%include Basic/RepeatMacro.hpp
-%include Basic/RepeatMacroSwig.hpp
 
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
@@ -36,6 +52,7 @@
 %include Basic/AFunction.hpp
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
+%include Basic/Law.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Basic/Table.hpp
@@ -46,6 +63,7 @@
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
 %include Basic/File.hpp
+%include Basic/Vector.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
 %include Basic/Array.hpp

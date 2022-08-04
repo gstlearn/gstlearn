@@ -170,7 +170,7 @@ int main(int /*argc*/, char */*argv*/[])
   MSS.addScalarDiag(addendum);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->addScalarDiag(addendum);
-//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.addScalarDiag(addendum);
   MSC.addScalarDiag(addendum);
@@ -190,7 +190,7 @@ int main(int /*argc*/, char */*argv*/[])
   MSS.prodScalar(multiply);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->prodScalar(multiply);
-//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.prodScalar(multiply);
   MSC.prodScalar(multiply);
@@ -225,7 +225,7 @@ int main(int /*argc*/, char */*argv*/[])
   MSS.linearCombination(cx,cy,MSS);
   message("Are results for MRR and MSS similar: %d\n",MRR.isSame(MSS));
   MSP->linearCombination(cx,cy,*MSP);
-//  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
+  message("Are results for MRR and MSP similar: %d\n",MRR.isSame(*MSP));
 
   MSD.linearCombination(cx,cy,MSD);
   MSC.linearCombination(cx,cy,MSC);

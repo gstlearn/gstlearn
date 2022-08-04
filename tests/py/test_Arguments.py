@@ -31,8 +31,9 @@ gl.argumentTestVectorDouble([gl.TEST])
 # Testing overloading of methods
 
 gl.argumentTestIntOverload(12)
-#gl.argumentTestIntOverload([21, 32])
 gl.argumentTestIntOverload((21, 32))
+gl.argumentTestDoubleOverload(2.)
+gl.argumentTestDoubleOverload((2., 3.))
 gl.argumentTestStringOverload("my_String")
 gl.argumentTestStringOverload(["my_String1","my_String2","my_String3"])
 

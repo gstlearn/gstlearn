@@ -60,126 +60,121 @@ Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, verbose)
 
 # Non conditionnal simulation
 
-vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
-result = gl.VectorDouble(np.empty_like(vect))
+vect = np.random.normal(size=Qsimu.getSize())
+result = gl.VectorDouble(np.empty_like(vect)) # Output argument
 Qsimu.eval(vect,result)
-workingDb.addColumns(result,"Simu",gl.ELoc.X)
+
+workingDb.addColumns(np.array(result.getVector()),"Simu",gl.ELoc.X) # On ne peut pas avoir le beurre et l'argent du beurre ;(
 
 if flagDraw:
-    gp.grid(workingDb,"Simu",end_plot=True)
+  gp.grid(workingDb,"Simu",end_plot=True)
 
-# Precisio matrix
+# Precision matrix
 
 Qkriging = gl.PrecisionOpCs(S, cova, gl.EPowerPT.ONE,False)
 Qtr = gl.csToTriplet(Qkriging.getQ())
-Qmat=sc.sparse.csc_matrix((np.array(Qtr.values), (np.array(Qtr.rows), np.array(Qtr.cols))))
+Qmat = sc.sparse.csc_matrix((np.array(Qtr.values), (np.array(Qtr.rows), np.array(Qtr.cols))))
 
 # Comparison between Q and the product: 2 ways
 
-xx=np.random.normal(size=Qkriging.getSize())
-vectxx = gl.VectorDouble(xx)
-
-y=Qmat@xx
-
-resultxx = gl.VectorDouble(np.empty_like(vectxx))
-
+vectxx = np.random.normal(size=Qkriging.getSize())
+resultxx = gl.VectorDouble(np.empty_like(vectxx)) # Output argument
 Qkriging.eval(vectxx,resultxx)
 
 if flagDraw:
-    plt.scatter(resultxx,y,s=1)
-    plt.show()
+  y = Qmat@xx
+  plt.scatter(resultxx,y,s=1)
+  plt.show()
 
 # Check inversion error
 
 Qtest = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSONE)
-resulttest = gl.VectorDouble(np.empty_like(vectxx))
-Qtest.eval(resultxx,resulttest)
+resulttest = gl.VectorDouble(np.empty_like(vectxx)) # Output argument
+Qtest.eval(np.array(resultxx.getVector()),resulttest)
 
 if flagDraw:
-    plt.scatter(resulttest,xx,s=1)
-    plt.show()
+  plt.scatter(np.array(resulttest.getVector()),vectxx,s=1)
+  plt.show()
 
 # Projection matrix (we use specific constructor)
 
 B = gl.ProjMatrix(dat,mesh)
-Btr=gl.csToTriplet(B.getAproj())
-Bmat=sc.sparse.csc_matrix((np.array(Btr.values), (np.array(Btr.rows), np.array(Btr.cols))),
-                          shape=(Btr.nrows,Btr.ncols))
+Btr = gl.csToTriplet(B.getAproj())
+Bmat = sc.sparse.csc_matrix((np.array(Btr.values), (np.array(Btr.rows), np.array(Btr.cols))),
+                            shape=(Btr.nrows,Btr.ncols))
 
 # Data generation
 
 size = dat.getSampleNumber()
-u=gl.VectorDouble(np.zeros(size))
-B.mesh2point(result,u)
-dat.addColumns(u,"Z",gl.ELoc.Z)
+u = gl.VectorDouble(np.zeros(size)) # Output argument
+B.mesh2point(np.array(result.getVector()),u)
+dat.addColumns(np.array(u.getVector()),"Z",gl.ELoc.Z)
 
 if flagDraw:
-    plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")
-    plt.show()
-    
-datVal =[i for i in u]
+  plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")
+  plt.show()
+
+datVal = [i for i in u]
 
 nug = 0.01
 WorkingMat = Qmat+1/nug * Bmat.T @ Bmat
 rhs = 1/nug * Bmat.T * datVal
-rhsvd = gl.VectorDouble(rhs)
 
 kriging = sc.sparse.linalg.cg(WorkingMat,rhs)[0] # TODO : plug here conjugate gradient
 
 iatt = workingDb.addColumns(kriging,"Kriging")
 
 if flagDraw:
-    gp.grid(workingDb,"Kriging",title="Kriging on Working Grid",end_plot=True)
-    plt.show()
+  gp.grid(workingDb,"Kriging",title="Kriging on Working Grid",end_plot=True)
+  plt.show()
 
 # Projection on the results grid
 
 Bresult = gl.ProjMatrix(resultDb,mesh)
-Bresulttr=gl.csToTriplet(Bresult.getAproj())
-Bresultmat=sc.sparse.csc_matrix((np.array(Bresulttr.values), (np.array(Bresulttr.rows), np.array(Bresulttr.cols))),
-                          shape=(Bresulttr.nrows,Bresulttr.ncols))
+Bresulttr = gl.csToTriplet(Bresult.getAproj())
+Bresultmat = sc.sparse.csc_matrix((np.array(Bresulttr.values), (np.array(Bresulttr.rows), np.array(Bresulttr.cols))),
+                                  shape=(Bresulttr.nrows,Bresulttr.ncols))
 
 iatt = resultDb.addColumns(Bresultmat@kriging,"Kriging")
 
 if flagDraw:
-    gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid",end_plot=True)
-    plt.show()
+  gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid",end_plot=True)
+  plt.show()
 
-vc = gl.VectorVectorDouble()
-vc.push_back(gl.VectorDouble(rhs))
+vc = [np.array(rhs)] # Argh... ça fait mal ça !
 resultvc = gl.VectorVectorDouble()
 resultvc.push_back(gl.VectorDouble(np.zeros_like(rhs)))
 
 # evalDirect test
 
-A=gl.PrecisionOpMultiConditional()
+A = gl.PrecisionOpMultiConditional()
 A.push_back(Qkriging,B)
 A.setVarianceData(nug)
 A.evalDirect(vc,resultvc)
 
-m=np.min(WorkingMat@rhs)
-M=np.max(WorkingMat@rhs)
+m = np.min(WorkingMat@rhs)
+M = np.max(WorkingMat@rhs)
 
 if flagDraw:
-    plt.scatter(WorkingMat@rhs,resultvc[0],s=1)
-    plt.plot([m,M],[m,M],c="r")
-    plt.show()
-    
-np.max(np.abs(WorkingMat@rhs-resultvc[0]))
+  plt.scatter(WorkingMat@rhs,resultvc[0],s=1)
+  plt.plot([m,M],[m,M],c="r")
+  plt.show()
+
+np.max(np.abs(WorkingMat@rhs-np.array(resultvc[0].getVector())))
 
 # evalInverse test
 
 A.evalInverse(vc,resultvc)
 
 if flagDraw:
-    plt.scatter(kriging,resultvc[0],s=1)
-    plt.show()
+  plt.scatter(kriging,resultvc[0],s=1)
+  plt.show()
 
-workingDb.addColumns(resultvc[0],"Kriging")
+workingDb.addColumns(np.array(resultvc[0].getVector()),"Kriging")
 
 if flagDraw:
-    gp.grid(workingDb,"Kriging",end_plot=True)
-    plt.show()
+  gp.grid(workingDb,"Kriging",end_plot=True)
+  plt.show()
 
 # Calculate log of Q matrix determinant 
 # 
@@ -202,14 +197,14 @@ Qlog = gl.PrecisionOp(S, cova, gl.EPowerPT.LOG)
 s = 0
 nsim = 100
 for i in range(nsim):
-    xx=np.array([1.  if i>0 else -1. for i in np.random.normal(size=Qkriging.getSize())])
-    xx=np.random.normal(size=Qkriging.getSize())
-    Qlog.eval(xx,result)
-    s+=np.sum(result*xx)
+  xx = np.array([1.  if i>0 else -1. for i in np.random.normal(size=Qkriging.getSize())])
+  xx = np.random.normal(size=Qkriging.getSize())
+  Qlog.eval(xx,result)
+  s += np.sum(np.array(result.getVector())*xx)
 
 resc = s/nsim
 
-v=np.sum(np.log(S.getLambdas()))
+v = np.sum(np.log(S.getLambdas()))
 
 print("Logdet approximation by using evalLog : ", round(resc+2*v, 5))
 

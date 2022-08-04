@@ -5,7 +5,6 @@
 // https://stackoverflow.com/a/26035360/3952924
 #%import "doc/documentation.i"
 
-
 //////////////////////////////////////////////////////////////
 //       Specific typemaps and fragments for R language     //
 //////////////////////////////////////////////////////////////
@@ -25,35 +24,46 @@
     // TODO : Handle undefined or NA values
     return SWIG_AsVal_double(obj, &value);
   }
+  template <> int convertToCpp(SEXP obj, String& value)
+  {
+    // TODO : Handle undefined or NA values
+    return SWIG_AsVal_std_string(obj, &value);
+  }
   template <> int convertToCpp(SEXP obj, float& value)
   {
     // TODO : Handle undefined or NA values
     return SWIG_AsVal_float(obj, &value);
   }
-  template <> int convertToCpp(SEXP obj, unsigned char& value)
+  template <> int convertToCpp(SEXP obj, UChar& value)
   {
     // TODO : Handle undefined or NA values
-    return SWIG_AsVal_unsigned_char(obj, &value);
+    int v = 0;
+    int myres = SWIG_AsVal_int(obj, &v);
+    if (v < 0 || v > 255)
+      myres = SWIG_TypeError;
+    else
+      value = static_cast<UChar>(v);
+    return myres;
   }
   template <> int convertToCpp(SEXP obj, bool& value)
   {
-    return SWIG_AsVal_bool(obj, &value);
+    int v = 0;
+    int myres = SWIG_AsVal_int(obj, &v);
+    if (v == 0)
+      value = false;
+    else
+      value = true;
+    return myres;
   }
-  template <> int convertToCpp(SEXP obj, String& value)
-  {
-    return SWIG_AsVal_std_string(obj, &value);
-  }
-
+  
   // Certainly not the most efficient way to convert vectors.
   // But at least, I can test each value for particular NAs
   SEXP getElem(SEXP obj, int i)
   {
     if (Rf_isInteger(obj))      return Rf_ScalarInteger(INTEGER(obj)[i]);
     if (Rf_isReal(obj))         return Rf_ScalarReal(REAL(obj)[i]);
-    if (Rf_isFloat(obj))        return Rf_ScalarFloat(FLOAT(obj)[i]);
-    if (Rf_isUnsignedChar(obj)) return Rf_ScalarUnsignedChar(UCHAR(obj)[i]);
-    if (Rf_isLogical(obj))      return Rf_ScalarLogical(LOGICAL(obj)[i]);
     if (Rf_isString(obj))       return Rf_ScalarString(STRING_ELT(obj, i));
+    if (Rf_isLogical(obj))      return Rf_ScalarLogical(LOGICAL(obj)[i]);
     if (TYPEOF(obj) == VECSXP)  return VECTOR_ELT(obj, i);
     return SEXP();
   }
@@ -126,21 +136,20 @@
   }
 }
 
-// Add numerical vector typecheck typemaps for dispatching functions
-%typemap(rtypecheck) const VectorInt&,    VectorInt,
-                     const VectorDouble&, VectorDouble,
-                     const VectorFloat&,  VectorFloat,
-                     const VectorUChar&,  VectorUChar,
-                     const VectorBool&,   VectorBool
-{
-  is.numeric($arg) && length($arg) >= 1
-}
-
-// Add string vector typecheck typemaps for dispatching functions
-%typemap(rtypecheck) const VectorString&, VectorString
-{
-  is.character($arg) && length($arg) >= 1
-}
+// Add typecheck typemaps for dispatching functions
+// TODO : rtypecheck doesn't take into account precedence. Vector with one item will be seen as a single scalar
+%typemap(rtypecheck, noblock=1) const int&, int                     { length($arg) == 1 && (is.integer($arg) || is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const double&, double               { length($arg) == 1 &&  is.numeric($arg) }
+%typemap(rtypecheck, noblock=1) const String&, String               { length($arg) == 1 &&  is.character($arg) }
+%typemap(rtypecheck, noblock=1) const float&, float                 { length($arg) == 1 &&  is.character($arg) }
+%typemap(rtypecheck, noblock=1) const UChar&, UChar { length($arg) == 1 && (is.integer($arg) || is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const bool&, bool                   { length($arg) == 1 &&  is.logical($arg) }
+%typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt         { length($arg)  > 1 && (is.integer($arg) || is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble   { length($arg)  > 1 &&  is.numeric($arg) }
+%typemap(rtypecheck, noblock=1) const VectorString&, VectorString   { length($arg)  > 1 &&  is.character($arg) }
+%typemap(rtypecheck, noblock=1) const VectorFloat&, VectorFloat     { length($arg)  > 1 &&  is.numeric($arg) }
+%typemap(rtypecheck, noblock=1) const VectorUChar&, VectorUChar     { length($arg)  > 1 && (is.integer($arg) || is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorBool&, VectorBool       { length($arg)  > 1 && is.logical($arg) }
 
 %fragment("FromCpp", "header")
 {
@@ -174,19 +183,19 @@
   }
 }
 
-%typemap(scoerceout) int,           int*,           int&,
-                     double,        double*,        double&,
-                     float,         float*,         float&
-                     unsigned char, unsigned char*, unsigned char&
-                     bool,          bool*,          bool&
+%typemap(scoerceout) int,    int*,    int&,
+                     double, double*, double&,
+                     float,  float*,  float&,
+                     UChar,  UChar*,  UChar&,
+                     bool,   bool*,   bool&
  %{    %}
 
 %typemap(scoerceout) VectorInt,    VectorInt*,    VectorInt&,
                      VectorDouble, VectorDouble*, VectorDouble&,
+                     VectorString, VectorString*, VectorString&,
                      VectorFloat,  VectorFloat*,  VectorFloat&,
                      VectorUChar,  VectorUChar*,  VectorUChar&,
-                     VectorBool,   VectorBool*,   VectorBool&,
-                     VectorString, VectorString*, VectorString&
+                     VectorBool,   VectorBool*,   VectorBool&
  %{    %}
 
 %typemap(scoerceout) VectorVectorInt,    VectorVectorInt*,    VectorVectorInt&,
@@ -267,3 +276,47 @@
 //       Add target language additional features below      //
 //////////////////////////////////////////////////////////////
 
+%insert(s)
+%{
+
+## Add operator [] to VectorXXX R class [1-based index] ##
+## ---------------------------------------------------- ##
+
+"getitem" <-
+function(x, i)
+{
+  idx = as.integer(i)
+  sapply(idx, function(n) {
+    if (n < 1 || n > x$length())
+      stop("Index out of range")
+    x$get(n-1)
+  })
+}
+"setitem" <-
+function(x, i, value)
+{
+  idx = as.integer(i)
+  sapply(1:length(i), function(n) {
+    if (i[n] < 1 || i[n] > x$length())
+      stop("Index out of range")
+    x$set(i[n]-1, value[n])
+  })
+  x
+}
+
+setMethod('[',   '_p_VectorTT_int_t',                  getitem)
+setMethod('[<-', '_p_VectorTT_int_t',                  setitem)
+setMethod('[',   '_p_VectorTT_double_t',               getitem)
+setMethod('[<-', '_p_VectorTT_double_t',               setitem)
+setMethod('[',   '_p_VectorTT_String_t',               getitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-', '_p_VectorTT_String_t',               setitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',   '_p_VectorNumTT_int_t',               getitem)
+setMethod('[<-', '_p_VectorNumTT_int_t',               setitem)
+setMethod('[',   '_p_VectorNumTT_double_t',            getitem)
+setMethod('[<-', '_p_VectorNumTT_double_t',            setitem)
+#setMethod('[',   '_p_VectorTT_VectorNumTT_int_t_t',    getitem) # TODO : VectorVectorXXX getitem doesn't work yet
+#setMethod('[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setitem) # TODO : VectorVectorXXX setitem doesn't work yet
+#setMethod('[',   '_p_VectorTT_VectorNumTT_double_t_t', getitem) # TODO : VectorVectorXXX getitem doesn't work yet
+#setMethod('[<-', '_p_VectorTT_VectorNumTT_double_t_t', setitem) # TODO : VectorVectorXXX setitem doesn't work yet
+
+%}

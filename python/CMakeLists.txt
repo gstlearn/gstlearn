@@ -115,10 +115,12 @@ endif()
 
 # Link to static library and NumPy headers
 target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static Python3::NumPy)
-#target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+if (MSVC)
+  set(COMP_FLAGS "${COMP_FLAGS} /wd4706 /wd4456 /wd4127") # SWIG generated code warnings
+endif()
 if ("${FLAVOR}" STREQUAL "Debug")
   set(COMP_FLAGS "${COMP_FLAGS} -g")
 endif()

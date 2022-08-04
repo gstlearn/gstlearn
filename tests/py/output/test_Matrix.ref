@@ -1,37 +1,183 @@
-Rotation Angles        =     30.000     0.000
-Direct Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866     0.500
-     [  1,]    -0.500     0.866
-Inverse Rotation Matrix
-               [,  0]    [,  1]
-     [  0,]     0.866    -0.500
-     [  1,]     0.500     0.866
- Rotation Angles        =     24.210    22.030    63.178
-Direct Rotation Matrix
+Cloning Matrix of integers
+- Number of rows    = 2
+- Number of columns = 3
                [,  0]    [,  1]    [,  2]
-     [  0,]     0.845     0.380    -0.375
-     [  1,]     0.120     0.549     0.827
-     [  2,]     0.520    -0.745     0.418
-Inverse Rotation Matrix
+     [  0,]         1         3         5
+     [  1,]         2         4         6
+- Number of rows    = 2
+- Number of columns = 3
                [,  0]    [,  1]    [,  2]
-     [  0,]     0.845     0.120     0.520
-     [  1,]     0.380     0.549    -0.745
-     [  2,]    -0.375     0.827     0.418
- [1, 0]
-(11.732050807568877, 19.0)
-         1         0
+     [  0,]         1         3         5
+     [  1,]         2         4         6
+Cloning  Matrix of doubles
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     3.000     5.000
+     [  1,]     2.000     4.000     6.000
+- Number of rows    = 2
+- Number of columns = 3
+               [,  0]    [,  1]    [,  2]
+     [  0,]     1.000     3.000     5.000
+     [  1,]     2.000     4.000     6.000
+Matrix M
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714     0.000     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980     0.000
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+Matrix MRR
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714     0.000     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980     0.000
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+Matrix MSG
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714     0.000     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980     0.000
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+Matrix MSS
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141                                                            
+     [  1,]    -0.145     4.048                                                  
+     [  2,]    -0.122    -1.184     6.055                                        
+     [  3,]     0.108    -1.113    -1.074     2.876                              
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672                    
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980          
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+Matrix MSP
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009         .
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427         .
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714         .     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427         .     0.464    -1.519     2.980         .
+     [  6,]         .         .     2.190     0.291    -0.038         .     1.561
 
-[0, 1]
-(11.0, 21.73205080756888)
-         0         1
+Matrix MSD
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     2.165                                                            
+     [  1,]               0.000                                                  
+     [  2,]                         0.000                                        
+     [  3,]                                   0.000                              
+     [  4,]                                             0.000                    
+     [  5,]                                                       0.000          
+     [  6,]                                                                 0.000
+Matrix MSC
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     2.165                                                            
+     [  1,]               2.165                                                  
+     [  2,]                         2.165                                        
+     [  3,]                                   2.165                              
+     [  4,]                                             2.165                    
+     [  5,]                                                       2.165          
+     [  6,]                                                                 2.165
 
-[0, 0]
-(10.0, 20.0)
-         0         0
+Adding a constant value to the diagonal of a matrix
+===================================================
+Are results for MRR and MSG similar: True
+Are results for MRR and MSS similar: True
+Are results for MRR and MSP similar: True
+Are results for MSD and MSC similar: True
 
-[2, 3]
-17
-         2         3
+Multiplying a Matrix by a constant
+==================================
+Are results for MRR and MSG similar: True
+Are results for MRR and MSS similar: True
+Are results for MRR and MSP similar: True
+Are results for MSD and MSC similar: True
 
+Adding a constant value to the whole matrix
+===========================================
+Are results for MRR and MSG similar: True
+Are results for MRR and MSS similar: True
+
+Linear combination of matrices
+==============================
+Are results for MRR and MSG similar: True
+Are results for MRR and MSS similar: True
+Are results for MRR and MSP similar: True
+Are results for MSD and MSC similar: True
+
+Extracting Vectors from Matrix
+==============================
+MRR and MSP matrices are used as Reference
+- Number of rows    = 7
+- Number of columns = 7
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.141    -0.145    -0.122     0.108    -0.328     0.009     0.000
+     [  1,]    -0.145     4.048    -1.184    -1.113    -0.340     0.427     0.000
+     [  2,]    -0.122    -1.184     6.055    -1.074     1.714     0.000     2.190
+     [  3,]     0.108    -1.113    -1.074     2.876    -1.879     0.464     0.291
+     [  4,]    -0.328    -0.340     1.714    -1.879     2.672    -1.519    -0.038
+     [  5,]     0.009     0.427     0.000     0.464    -1.519     2.980     0.000
+     [  6,]     0.000     0.000     2.190     0.291    -0.038     0.000     1.561
+Main Diagonal
+  0+     0.141158   4.047662   6.054832   2.875929   2.671586
+  5+     2.980262   1.561159
+Are results for MRR and MSP similar: True
+Second Diagonal Below
+  0+    -0.145453  -1.183866  -1.073989  -1.878681  -1.518527
+  5+     0.000000
+Are results for MRR and MSP similar: True
+Third Diagonal Above  -0.122428  -1.112926   1.713864   0.463587  -0.037555
+Are results for MRR and MSP similar: True
+Third Row
+  0+    -0.122428  -1.183866   6.054832  -1.073989   1.713864
+  5+     0.000000   2.189949
+Are results for MRR and MSP similar: True
+Fourth Column
+  0+     0.107959  -1.112926  -1.073989   2.875929  -1.878681
+  5+     0.463587   0.291285
+Are results for MRR and MSP similar: True
+
+Product of the matrix by a vector
+=================================
+Are results for MRR and MSG similar: True
+Are results for MRR and MSS similar: True
+Are results for MRR and MSP similar: True
+Are results for MSD and MSC similar: True
+
+Matrix Linear Solver
+====================
+Solve X from A*X=B. Compute A*X and compare with B
+Are results correct for MSS: True
+Are results correct for MSP: True
+Are results correct for MSD: True
+Are results correct for MSC: True
+
+Matrix Inversion
+================
+Calculate B=A^{-1}. Compute A*B and compare to Identity
+Are results correct for MSG: False
+Are results correct for MSS: False
+Are results correct for MSP: False
+Are results correct for MSD: False
+Are results correct for MSC: False
 Test successfully performed

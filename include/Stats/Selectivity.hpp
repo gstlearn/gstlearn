@@ -59,7 +59,7 @@ public:
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return _nCut; }
-  int    getNQT() const { return ESelectivity::getSize(); }
+  int    getNQT() const { return static_cast<int>(ESelectivity::getSize()); }
   int    getVariableNumber() const;
   VectorString getVariableNames() const;
 

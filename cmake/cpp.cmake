@@ -14,10 +14,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # https://cmake.org/cmake/help/latest/command/add_compile_options.html
 if (MSVC)
   # Warning level 4 (4 = maximum, 0 = none)
-  add_compile_options(/W4) 
+  add_compile_options(/W4 /wd4251 /wd4244) # Except those two warnings
 else()
   # Lots of warnings (-Wall = add some warnings, -Wextra = add a ton of warnings)
-  add_compile_options(-Wall -Wextra -Wno-deprecated-copy)
+  add_compile_options(-Wall -Wextra)
 endif()
 
 # C++ code location

@@ -2169,7 +2169,6 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  CalcSimuTurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 

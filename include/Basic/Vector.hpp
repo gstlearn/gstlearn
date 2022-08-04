@@ -49,10 +49,10 @@ GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_var(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_norm(const VectorDouble& vec);
-GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble& vec1,
-                                               const VectorDouble& vec2);
-GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble& vec1,
-                                                     const VectorDouble& vec2);
+GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble& veca, // Not vec1 because of swig !
+                                               const VectorDouble& vecb);
+GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble& veca,
+                                                     const VectorDouble& vecb);
 GSTLEARN_EXPORT bool ut_vector_constant(const VectorDouble& vect, double refval = TEST);
 GSTLEARN_EXPORT bool ut_ivector_constant(const VectorInt& vect, int refval = ITEST);
 GSTLEARN_EXPORT bool ut_vector_same(const VectorDouble& v1,
@@ -62,30 +62,30 @@ GSTLEARN_EXPORT bool ut_ivector_same(const VectorInt& v1, const VectorInt& v2);
 GSTLEARN_EXPORT void ut_vector_fill_inplace(VectorDouble &vec, double value);
 GSTLEARN_EXPORT void ut_vector_fill(VectorDouble& vec, double v, int size = 0);
 GSTLEARN_EXPORT void ut_ivector_fill(VectorInt& vec, int v, int size = 0);
-GSTLEARN_EXPORT VectorDouble ut_vector_concatenate(const VectorDouble& vec1,
-                                                   const VectorDouble& vec2);
-GSTLEARN_EXPORT VectorDouble ut_vector_add(const VectorDouble& vec1,
-                                           const VectorDouble& vec2);
+GSTLEARN_EXPORT VectorDouble ut_vector_concatenate(const VectorDouble& veca,
+                                                   const VectorDouble& vecb);
+GSTLEARN_EXPORT VectorDouble ut_vector_add(const VectorDouble& veca,
+                                           const VectorDouble& vecb);
 GSTLEARN_EXPORT void ut_vector_add_inplace(VectorDouble& dest,
                                            const VectorDouble& src);
-GSTLEARN_EXPORT VectorDouble ut_vector_subtract(const VectorDouble& vec1,
-                                                const VectorDouble& vec2);
+GSTLEARN_EXPORT VectorDouble ut_vector_subtract(const VectorDouble& veca,
+                                                const VectorDouble& vecb);
 GSTLEARN_EXPORT VectorDouble ut_vector_power(const VectorDouble& vec,
                                              double power);
-GSTLEARN_EXPORT void ut_vector_cumul(VectorDouble& vec1,
-                                     const VectorDouble& vec2,
+GSTLEARN_EXPORT void ut_vector_cumul(VectorDouble& veca,
+                                     const VectorDouble& vecb,
                                      double coeff);
 
 GSTLEARN_EXPORT std::pair<double,double> ut_vector_rangeVals(const VectorDouble& vec);
-GSTLEARN_EXPORT void ut_vector_copy(VectorDouble& vec1,
-                                    const VectorDouble& vec2);
+GSTLEARN_EXPORT void ut_vector_copy(VectorDouble& veca,
+                                    const VectorDouble& vecb);
 GSTLEARN_EXPORT void ut_vector_multiply_inplace(VectorDouble& vec, double v);
 GSTLEARN_EXPORT void ut_vector_divide_inplace(VectorDouble& vec, double v);
 GSTLEARN_EXPORT VectorDouble ut_vector_inverse(const VectorDouble& vec);
 
 GSTLEARN_EXPORT void ut_vector_addval(VectorDouble& vec, double v);
-GSTLEARN_EXPORT void ut_vector_sum(const VectorDouble& vec1,
-                                   const VectorDouble& vec2,
+GSTLEARN_EXPORT void ut_vector_sum(const VectorDouble& veca,
+                                   const VectorDouble& vecb,
                                    VectorDouble& res);
 GSTLEARN_EXPORT void ut_ivector_addval(VectorInt& vec, int v);
 GSTLEARN_EXPORT void ut_vector_divide_vec(VectorDouble& vec,
@@ -117,11 +117,6 @@ GSTLEARN_EXPORT VectorInt ut_ivector_sequence(int number, int ideb = 0);
 GSTLEARN_EXPORT VectorDouble ut_vector_sequence(double valFrom,
                                                 double valTo,
                                                 double valStep);
-
-GSTLEARN_EXPORT int ut_vector_size(const VectorInt& vec);
-GSTLEARN_EXPORT int ut_vector_size(const VectorDouble& vec);
-GSTLEARN_EXPORT int ut_vector_size(const VectorVectorInt& vec);
-GSTLEARN_EXPORT int ut_vector_size(const VectorVectorDouble& vec);
 
 GSTLEARN_EXPORT VectorInt ut_ivector_sort(const VectorInt& vecin, bool ascending = true);
 GSTLEARN_EXPORT VectorDouble ut_vector_sort(const VectorDouble& vecin, bool ascending = true);

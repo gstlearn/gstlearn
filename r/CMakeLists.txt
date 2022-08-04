@@ -99,8 +99,7 @@ swig_add_library(
 target_link_libraries(r_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
-#set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-cast-function-type -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
-set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE")
+set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-variable -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
 if ("${FLAVOR}" STREQUAL "Debug")
   set(COMP_FLAGS "${COMP_FLAGS} -g")
 endif()

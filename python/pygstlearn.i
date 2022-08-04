@@ -4,6 +4,9 @@
 
 // Note : Keep order in this file!
 
+// Swig for Python doesn't like our assignment operators 
+%ignore *::operator=;
+
 // https://stackoverflow.com/a/26035360/3952924
 %import "doc/documentation.i"
 
@@ -58,25 +61,36 @@
     // TODO : Handle undefined or NA values
     return SWIG_AsVal_double(obj, &value);
   }
+  template <> int convertToCpp(PyObject* obj, String& value)
+  {
+    // No undefined
+    return SWIG_AsVal_std_string(obj, &value);
+  }
   template <> int convertToCpp(PyObject* obj, float& value)
   {
     // TODO : Handle undefined or NA values
     return SWIG_AsVal_float(obj, &value);
   }
-  template <> int convertToCpp(PyObject* obj, unsigned char& value)
+  template <> int convertToCpp(PyObject* obj, UChar& value)
   {
     // TODO : Handle undefined or NA values
-    return SWIG_AsVal_unsigned_SS_char(obj, &value);
+    int v = 0;
+    int myres = SWIG_AsVal_int(obj, &v);
+    if (v < 0 || v > 255)
+      myres = SWIG_TypeError;
+    else
+      value = static_cast<UChar>(v);
+    return myres;
   }
   template <> int convertToCpp(PyObject* obj, bool& value)
   {
-    // No undefined
-    return SWIG_AsVal_bool(obj, &value);
-  }
-  template <> int convertToCpp(PyObject* obj, String& value)
-  {
-    // No undefined
-    return SWIG_AsVal_std_string(obj, &value);
+    int v = 0;
+    int myres = SWIG_AsVal_int(obj, &v);
+    if (v == 0)
+      value = false;
+    else
+      value = true;
+    return myres;
   }
   
   template <typename Vector>
@@ -152,11 +166,13 @@
   }
 }
 
+%typecheck(SWIG_TYPECHECK_UINT8) UChar {}
+
 // Add numerical vector typecheck typemaps for dispatching functions
 %typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY) const VectorInt&,    VectorInt,
-                                                                                         const VectorDouble&, VectorDouble
-                                                                                         const VectorFloat&,  VectorFloat
-                                                                                         const VectorUChar&,  VectorUChar
+                                                                                         const VectorDouble&, VectorDouble,
+                                                                                         const VectorFloat&,  VectorFloat,
+                                                                                         const VectorUChar&,  VectorUChar,
                                                                                          const VectorBool&,   VectorBool
 {
   $1 = SWIG_CheckState(isNumericVector($input));
@@ -181,28 +197,28 @@
 %fragment("FromCpp", "header")
 {
   template <typename Type> NPY_TYPES numpyType();
-  template <> NPY_TYPES numpyType<int>()           { return NPY_INT; }
-  template <> NPY_TYPES numpyType<double>()        { return NPY_DOUBLE; }
-  template <> NPY_TYPES numpyType<float>()         { return NPY_FLOAT; }
-  template <> NPY_TYPES numpyType<unsigned char>() { return NPY_UBYTE; }
-  template <> NPY_TYPES numpyType<bool>()          { return NPY_BOOL; }
-  template <> NPY_TYPES numpyType<String>()        { return NPY_STRING; }
+  template <> NPY_TYPES numpyType<int>()    { return NPY_INT; }
+  template <> NPY_TYPES numpyType<double>() { return NPY_DOUBLE; }
+  template <> NPY_TYPES numpyType<float>()  { return NPY_FLOAT; }
+  template <> NPY_TYPES numpyType<UChar>()  { return NPY_UBYTE; }
+  template <> NPY_TYPES numpyType<bool>()   { return NPY_BOOL; }
+  template <> NPY_TYPES numpyType<String>() { return NPY_STRING; }
   
   template<typename Type> struct TypeHelper;
-  template <> struct TypeHelper<int>           { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<double>        { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<float>         { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<unsigned char> { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<bool>          { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<String>        { static bool hasFixedSize() { return false; } };
+  template <> struct TypeHelper<int>    { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<UChar>  { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<bool>   { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <typename Type> bool hasFixedSize() { return TypeHelper<Type>::hasFixedSize(); }
   
   template <typename InputType> struct OutTraits; // Only used for fixed item size
   template <> struct OutTraits<int>           { using OutputType = int; };
   template <> struct OutTraits<double>        { using OutputType = double; };
   template <> struct OutTraits<float>         { using OutputType = float; };
-  template <> struct OutTraits<unsigned char> { using OutputType = unsigned char; };
-  template <> struct OutTraits<bool>         { using OutputType = bool; };
+  template <> struct OutTraits<UChar>         { using OutputType = UChar; };
+  template <> struct OutTraits<bool>          { using OutputType = bool; };
   template <> struct OutTraits<String>        { using OutputType = String; };
   template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(Type value);
   template <> int convertFromCpp(int value)
@@ -215,21 +231,21 @@
     // TODO : handle undefined or NA values
     return value;
   }
+  template <> String convertFromCpp(String value)
+  {
+    return value; // No special conversion provided
+  }
   template <> float convertFromCpp(float value)
   {
     // TODO : handle undefined or NA values
     return value;
   }
-  template <> unsigned char convertFromCpp(unsigned char value)
+  template <> UChar convertFromCpp(UChar value)
   {
     // TODO : handle undefined or NA values
     return value;
   }
   template <> bool convertFromCpp(bool value)
-  {
-    return value; // No special conversion provided
-  }
-  template <> String convertFromCpp(String value)
   {
     return value; // No special conversion provided
   }
@@ -316,8 +332,8 @@
       if(*obj != NULL)
       {
         myres = SWIG_OK;
-        const unsigned int size = vec.size();
-        for(unsigned int i = 0; i < size && SWIG_IsOK(myres); i++)
+        SizeType size2 = vec.size();
+        for(SizeType i = 0; i < size2 && SWIG_IsOK(myres); i++)
         {
           PyObject* tuple;
           myres = vectorFromCpp(&tuple, vec.at(i));
@@ -390,22 +406,47 @@ void exit_f(void)
   redefine_exit(exit_f);
 %}
 
-%extend VectorInt {
+// Do not use VectorInt here
+%extend VectorNumT<int> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorDouble {
+%extend VectorNumT<double> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorFloat {
+%extend VectorNumT<float> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorUchar {
+%extend VectorNumT<UChar> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorBool {
+%extend VectorNumT<bool> {
   std::string __repr__() {  return $self->toString(); }
 }
-%extend VectorString {
+%extend VectorT<int> {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend AMatrix {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend AMatrixSquare {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixInt {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixRectangular {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixSquareDiagonal {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixSquareDiagonalCst {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixSquareGeneral {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MatrixSquareSymmetric {
   std::string __repr__() {  return $self->toString(); }
 }
 %extend SpacePoint {
@@ -486,10 +527,38 @@ void exit_f(void)
 //////////////////////////////////////////////////////////////
 
 %pythoncode %{
-# Override operator [] for the Db class
-# Thanks to Nicolas Desassis:
+
 import gstlearn as gl
 import numpy as np
+
+## Add operator [] to VectorXXX R class [1-based index] ##
+## ---------------------------------------------------- ##
+
+def setitem(self, idx, item):
+  if idx < 0 or idx >= self.length():
+    raise IndexError("Index out or range")
+  self.set(idx,item)
+  
+def getitem(self, idx):
+  if idx < 0 or idx >= self.length():
+    raise IndexError("Index out or range")
+  return self.get(idx)
+
+setattr(gl.VectorDouble,      "__getitem__", getitem)
+setattr(gl.VectorDouble,      "__setitem__", setitem)
+setattr(gl.VectorInt,         "__getitem__", getitem)
+setattr(gl.VectorInt,         "__setitem__", setitem)
+setattr(gl.VectorString,      "__getitem__", getitem)
+setattr(gl.VectorString,      "__setitem__", setitem)
+setattr(gl.VectorVectorDouble,"__getitem__", getitem)
+setattr(gl.VectorVectorDouble,"__setitem__", setitem)
+setattr(gl.VectorVectorInt,   "__getitem__", getitem)
+setattr(gl.VectorVectorInt,   "__setitem__", setitem)
+
+
+## Override operator [] for the Db class ##
+## ------------------------------------- ##
+# Thanks to Nicolas Desassis:
 
 def is_list_type(mylist, types):
     """Check if an input is an iterable (tuple, list or numpy array) containing
@@ -579,7 +648,7 @@ def getNrows(self, useSel=None):
     nrows = self.getSampleNumber(useSel)
     return nrows
 
-def getitem(self,arg):
+def getdbitem(self,arg):
     """
     Extract data from a Db. Use Db[arg]
 
@@ -627,7 +696,7 @@ def getitem(self,arg):
 # If some of the names exist, the corresponding variables will be replaced 
 # and not added.
 
-def setitem(self,name,tab):
+def setdbitem(self,name,tab):
     
     # analyze input arguments
     selec_rows = has_row_selection(self, name)   
@@ -702,11 +771,14 @@ def setitem(self,name,tab):
 
 setattr(gl.Db,"useSel",False)    
     
-setattr(gl.Db,"__getitem__",getitem)
+setattr(gl.Db,"__getitem__",getdbitem)
 
-setattr(gl.Db,"__setitem__",setitem)
+setattr(gl.Db,"__setitem__",setdbitem)
 
-# Add plot functions as methods of the class
+
+## Add plot functions as methods of the class ##
+## ------------------------------------------ ##
+
 import gstlearn.plot as gp
 
 setattr(gl.Db,"plot", gp.point)

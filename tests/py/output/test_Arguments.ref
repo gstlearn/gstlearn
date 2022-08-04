@@ -23,6 +23,8 @@ Testing for Integer :  12
  Testing for VectorDouble :  NA  
  Testing for Int (Overload) :  12  
  Testing for VectorInt (Overload) :  21  32  
+ Testing for Double (Overload) :  2.000000  
+ Testing for VectorDouble (Overload) :  2.000000  3.000000 
  Testing for String (Overload) :  my_String  
  Testing for VectorString (Overload) :  my_String1  my_String2  my_String3  
  Case : Value = 2 - Descr = Enum test case 2

@@ -34,12 +34,12 @@ public:
   inline VectorT(const Vector& vec)                                   : _v(std::make_shared<Vector>(vec)) { }
   inline VectorT(size_type count, const T& value = T())               : _v(std::make_shared<Vector>(count, value)) { }
   inline VectorT(const T* first, const T* last)                       : _v(std::make_shared<Vector>()) { _v->assign(first, last); }
-  inline VectorT(const VectorT& other)                                : _v(other._v) { }
+  inline VectorT(const VectorT& other) = default;
 #ifndef SWIG
   inline VectorT(std::initializer_list<T> init)                       : _v(std::make_shared<Vector>(init)) { }
   inline VectorT(VectorT&& other)                                     { _v.swap(other._v); }
 #endif
-  inline ~VectorT()                                                   { }
+  inline ~VectorT() = default;
 
 #ifndef SWIG
   inline operator const Vector&() const                               { return *_v; }
@@ -62,11 +62,18 @@ public:
   inline bool operator >(const VectorT& other) const                  { return *_v  > *other._v; }
   inline bool operator>=(const VectorT& other) const                  { return *_v >= *other._v; }
 
-  inline const T& at(size_type pos) const                             { if (pos >= _v->size()) my_throw("VectorT<T>::at: index out of range");                    return _v->operator[](pos); }
+  // For SWIG users (size_type is not much appreciated)
+  inline const T& get(int pos) const;
+  inline void set(int pos, const T& v);
+  inline int length() const;
+
 #ifndef SWIG
-  inline T& operator[](size_type pos)                                 { if (pos >= _v->size()) my_throw("VectorT<T>::operator[]: index out of range"); _detach(); return _v->operator[](pos); }
-  inline const T& operator[](size_type pos) const                     { if (pos >= _v->size()) my_throw("VectorT<T>::operator[]: index out of range");            return _v->operator[](pos); }
+  inline const T& at(size_type pos) const;
+  inline T& at(size_type pos);
+  inline const T& operator[](size_type pos) const;
+  inline T& operator[](size_type pos);
 #endif
+
   inline T& front()                                                   { _detach(); return _v->front(); }
   inline const T& front() const                                       { return _v->front(); }
   inline T& back()                                                    { _detach(); return _v->back(); }
@@ -113,15 +120,14 @@ public:
   inline const_reverse_iterator crend() const                         { return _v->crend(); }
 
 #ifndef SWIG
-  inline VectorT& operator<<(const T& value)                          { _detach(); _v->push_back(value); return (*this); }
-  inline VectorT& operator<<(const VectorT<T>& v)                     { _detach(); reserve(size() + v.size()); std::for_each(v.cbegin(), v.cend(), [&](const T& value) { _v->push_back(value); }); return (*this); }
+  inline VectorT& operator<<(const T& value);
+  inline VectorT& operator<<(const VectorT<T>& v);
 #endif
 
   inline void swap(VectorT& other);
   inline bool contains(const T& value) const;
   inline void fill(const T& value, size_type size = -1);
   inline void assign(const T* first, const T* last);
-  inline void set(size_type i, const T& value);
 
   inline String toString() const;
 
@@ -131,6 +137,64 @@ protected:
 private:
   inline void _detach();
 };
+
+template <typename T>
+const T& VectorT<T>::get(int pos) const
+{
+  if (pos < 0 || pos >= length())
+    throw("VectorT<T>::get: index out of range");
+  return operator[](pos);
+}
+
+template <typename T>
+void VectorT<T>::set(int pos, const T& v)
+{
+  if (pos < 0 || pos >= length())
+    throw("VectorT<T>::set: index out of range");
+  _detach();
+  operator[](pos) = v;
+}
+template <typename T>
+int VectorT<T>::length() const
+{
+  return static_cast<int>(_v->size());
+}
+
+template <typename T>
+const T& VectorT<T>::at(size_type pos) const
+{
+  if (pos >= size())
+    throw("VectorT<T>::at: index out of range");
+  return operator[](pos);
+}
+
+template <typename T>
+T& VectorT<T>::at(size_type pos)
+{
+  if (pos >= size())
+    throw("VectorT<T>::at: index out of range");
+  _detach();
+  return operator[](pos);
+}
+
+#ifndef SWIG
+template <typename T>
+const T& VectorT<T>::operator[](size_type pos) const
+{
+  if (pos >= size())
+    throw("VectorT<T>::operator[]: index out of range");
+  return _v->operator[](pos);
+}
+
+template <typename T>
+T& VectorT<T>::operator[](size_type pos)
+{
+  if (pos >= size())
+    throw("VectorT<T>::operator[]: index out of range");
+  _detach();
+  return _v->operator[](pos);
+}
+#endif
 
 template <typename T>
 void VectorT<T>::swap(VectorT& other)
@@ -148,7 +212,7 @@ template <typename T>
 void VectorT<T>::fill(const T& value, size_type size)
 {
   _detach();
-  _v->resize(size);
+  resize(size);
   std::fill(begin(), end(), value);
 }
 
@@ -157,13 +221,6 @@ void VectorT<T>::assign(const T* first, const T* last)
 {
   _detach();
   _v->assign(first, last);
-}
-
-template <typename T>
-void VectorT<T>::set(size_type i, const T& value)
-{
-  _detach();
-  operator[](i) = value;
 }
 
 template <typename T>
@@ -189,23 +246,43 @@ void VectorT<T>::_detach()
   _v = std::make_shared<Vector>(*_v);
 }
 
+#ifndef SWIG
+template <typename T>
+VectorT<T>& VectorT<T>::operator<<(const T& value)
+{
+  _detach();
+  push_back(value);
+  return (*this);
+}
 
-// Force instantiation for VectorT (for windows export)
-#if defined(WIN32) || defined(_WIN32) || defined(WIN64) || defined(_WIN64)
+template <typename T>
+VectorT<T>& VectorT<T>::operator<<(const VectorT<T>& v)
+{
+  _detach();
+  reserve(size() + v.size());
+  std::for_each(v.cbegin(), v.cend(), [&](const T& value)
+                { push_back(value); });
+  return (*this);
+}
+#endif
+
+
+// Force instantiation for VectorT (for Windows MSVC export)
+#ifdef _MSC_VER
   // Do not export VectorXXX to SWIG (no more instantiation needed)
   #ifndef SWIG
     GSTLEARN_TEMPLATE_EXPORT template class VectorT<int>;
     GSTLEARN_TEMPLATE_EXPORT template class VectorT<double>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<float>;
-    GSTLEARN_TEMPLATE_EXPORT template class VectorT<unsigned char>;
-//    GSTLEARN_TEMPLATE_EXPORT template class VectorT<bool>;
     GSTLEARN_TEMPLATE_EXPORT template class VectorT<String>;
+    GSTLEARN_TEMPLATE_EXPORT template class VectorT<float>;
+    GSTLEARN_TEMPLATE_EXPORT template class VectorT<UChar>;
+//    GSTLEARN_TEMPLATE_EXPORT template class VectorT<bool>;
   #endif
 #endif
 
 //typedef VectorT<bool> VectorBool; TODO : Build a real VectorBool
 // https://stackoverflow.com/a/61158013/3952924
-typedef VectorT<unsigned char> VectorBool;
+typedef VectorT<UChar>  VectorBool; // Use UChar because std::vector of bool has a specific implementation
 typedef VectorT<String> VectorString;
 
 template <typename T>

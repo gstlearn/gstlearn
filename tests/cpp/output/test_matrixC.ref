@@ -102,25 +102,28 @@ Matrix MSC
 Adding a constant value to the diagonal of a matrix
 ===================================================
 Are results for MRR and MSG similar: 1
-Are results for MRR and MSS similar: 0
-Are results for MSD and MSC similar: 0
+Are results for MRR and MSS similar: 1
+Are results for MRR and MSP similar: 1
+Are results for MSD and MSC similar: 1
 
 Multiplying a Matrix by a constant
 ==================================
 Are results for MRR and MSG similar: 1
-Are results for MRR and MSS similar: 0
-Are results for MSD and MSC similar: 0
+Are results for MRR and MSS similar: 1
+Are results for MRR and MSP similar: 1
+Are results for MSD and MSC similar: 1
 
 Adding a constant value to the whole matrix
 ===========================================
 Are results for MRR and MSG similar: 1
-Are results for MRR and MSS similar: 0
+Are results for MRR and MSS similar: 1
 
 Linear combination of matrices
 ==============================
 Are results for MRR and MSG similar: 1
-Are results for MRR and MSS similar: 0
-Are results for MSD and MSC similar: 0
+Are results for MRR and MSS similar: 1
+Are results for MRR and MSP similar: 1
+Are results for MSD and MSC similar: 1
 
 Extracting Vectors from Matrix
 ==============================

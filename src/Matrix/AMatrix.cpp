@@ -143,10 +143,13 @@ bool AMatrix::isSame(const AMatrix& m, double eps)
 {
   if (! isSameSize(m)) return false;
 
-  for (int i = 0; i < _getMatrixSize(); i++)
-  {
-    if (ABS(getValue(i) - m.getValue(i)) > eps) return false;
-  }
+  int ncols = getNCols();
+  int nrows = getNRows();
+  for (int icol=0; icol<ncols; icol++)
+    for (int irow=0; irow<nrows; irow++)
+    {
+      if (ABS(getValue(irow, icol) - m.getValue(irow, icol)) > eps) return false;
+    }
   return true;
 }
 
@@ -698,6 +701,7 @@ void AMatrix::prodVector(const double *in, double *out) const
 
 void AMatrix::prodVector(const VectorDouble& in, VectorDouble& out) const
 {
+  // TODO : Check dimensions to avois SEGV
   prodVector(in.data(), out.data());
 }
 
