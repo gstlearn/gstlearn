@@ -252,7 +252,7 @@ print("Calculate B=A^{-1}. Compute A*B and compare to Identity")
 
 MSGref = MSG # Used to perform A*A-1 and check Identity
 
-# TODO : This doesn't work !!!
+# TODO : This doesn't work - no more identity !!!
 MSG.invert()
 Res = gl.prodMatrix(MSG, MSGref)
 #print(Res)

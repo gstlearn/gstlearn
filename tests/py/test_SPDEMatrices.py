@@ -64,26 +64,27 @@ vect = np.random.normal(size=Qsimu.getSize())
 result = gl.VectorDouble(np.empty_like(vect)) # Output argument
 Qsimu.eval(vect,result)
 
-workingDb.addColumns(np.array(result.getVector()),"Simu",gl.ELoc.X) # On ne peut pas avoir le beurre et l'argent du beurre ;(
+workingDb.addColumns(np.array(result.getVector()),"Simu",gl.ELoc.X) # TODO : Add to.nparray method to python class VectorXXX
 
-if flagDraw:
-  gp.grid(workingDb,"Simu",end_plot=True)
+#if flagDraw:
+#  gp.grid(workingDb,"Simu",end_plot=True)
 
 # Precision matrix
 
 Qkriging = gl.PrecisionOpCs(S, cova, gl.EPowerPT.ONE,False)
 Qtr = gl.csToTriplet(Qkriging.getQ())
-Qmat = sc.sparse.csc_matrix((np.array(Qtr.values), (np.array(Qtr.rows), np.array(Qtr.cols))))
+Qmat = sc.sparse.csc_matrix((Qtr.values, (Qtr.rows, Qtr.cols)))
 
 # Comparison between Q and the product: 2 ways
 
-vectxx = np.random.normal(size=Qkriging.getSize())
+xx = np.random.normal(size=Qkriging.getSize())
+vectxx = xx
 resultxx = gl.VectorDouble(np.empty_like(vectxx)) # Output argument
 Qkriging.eval(vectxx,resultxx)
 
 if flagDraw:
   y = Qmat@xx
-  plt.scatter(resultxx,y,s=1)
+  plt.scatter(np.array(resultxx.getVector()),y,s=1)
   plt.show()
 
 # Check inversion error
@@ -100,7 +101,7 @@ if flagDraw:
 
 B = gl.ProjMatrix(dat,mesh)
 Btr = gl.csToTriplet(B.getAproj())
-Bmat = sc.sparse.csc_matrix((np.array(Btr.values), (np.array(Btr.rows), np.array(Btr.cols))),
+Bmat = sc.sparse.csc_matrix((Btr.values, (Btr.rows, Btr.cols)),
                             shape=(Btr.nrows,Btr.ncols))
 
 # Data generation
@@ -132,7 +133,7 @@ if flagDraw:
 
 Bresult = gl.ProjMatrix(resultDb,mesh)
 Bresulttr = gl.csToTriplet(Bresult.getAproj())
-Bresultmat = sc.sparse.csc_matrix((np.array(Bresulttr.values), (np.array(Bresulttr.rows), np.array(Bresulttr.cols))),
+Bresultmat = sc.sparse.csc_matrix((Bresulttr.values, (Bresulttr.rows, Bresulttr.cols)),
                                   shape=(Bresulttr.nrows,Bresulttr.ncols))
 
 iatt = resultDb.addColumns(Bresultmat@kriging,"Kriging")
@@ -141,7 +142,7 @@ if flagDraw:
   gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid",end_plot=True)
   plt.show()
 
-vc = [np.array(rhs)] # Argh... ça fait mal ça !
+vc = [rhs]
 resultvc = gl.VectorVectorDouble()
 resultvc.push_back(gl.VectorDouble(np.zeros_like(rhs)))
 
@@ -156,7 +157,7 @@ m = np.min(WorkingMat@rhs)
 M = np.max(WorkingMat@rhs)
 
 if flagDraw:
-  plt.scatter(WorkingMat@rhs,resultvc[0],s=1)
+  plt.scatter(WorkingMat@rhs,np.array(resultvc[0].getVector()),s=1)
   plt.plot([m,M],[m,M],c="r")
   plt.show()
 
@@ -167,7 +168,7 @@ np.max(np.abs(WorkingMat@rhs-np.array(resultvc[0].getVector())))
 A.evalInverse(vc,resultvc)
 
 if flagDraw:
-  plt.scatter(kriging,resultvc[0],s=1)
+  plt.scatter(kriging,np.array(resultvc[0].getVector()),s=1)
   plt.show()
 
 workingDb.addColumns(np.array(resultvc[0].getVector()),"Kriging")

@@ -100,7 +100,7 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
             posx = 0
             posy = 1
         if corner is None:
-            corner = gl.ut_vector_int(db.getNDim(),0)
+            corner = np.zeros(db.getNDim(), dtype='object')
         tabx = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
         tabx = db.getColumn(name, usesel)

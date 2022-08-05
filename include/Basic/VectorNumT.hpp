@@ -50,8 +50,8 @@ public:
   inline bool isSame(const VectorNumT& v, double eps = 1.e-10) const;
 
   inline T sum() const;
-  inline T min() const;
-  inline T max() const;
+  inline T minimum() const;
+  inline T maximum() const;
   inline double mean() const;
   inline double norm() const;
 
@@ -89,23 +89,23 @@ T VectorNumT<T>::sum() const
 }
 
 template <typename T>
-T VectorNumT<T>::max() const
+T VectorNumT<T>::maximum() const  // Prevent using max and min keywords (Visual)
 {
   if (VectorNumT::size() <= 0) return 0;
-  T max = std::numeric_limits<T>::min();
+  T mymax = (std::numeric_limits<T>::min)(); // https://stackoverflow.com/a/27443191/3952924
   for (auto v : *VectorNumT::_v)
-    if (v > max) max = v;
-  return (max);
+    if (v > mymax) mymax = v;
+  return (mymax);
 }
 
 template <typename T>
-T VectorNumT<T>::min() const
+T VectorNumT<T>::minimum() const  // Prevent using max and min keywords (Visual)
 {
   if (VectorNumT::size() <= 0) return 0;
-  T min = std::numeric_limits<T>::max();
+  T mymin = (std::numeric_limits<T>::max)(); // https://stackoverflow.com/a/27443191/3952924
   for (auto v : *VectorNumT::_v)
-    if (v < min) min = v;
-  return (min);
+    if (v < mymin) mymin = v;
+  return (mymin);
 }
 
 template <typename T>

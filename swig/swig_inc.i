@@ -334,8 +334,6 @@
 // Note : Before including this file :
 //        - vectorToCpp, vectorVectorToCpp and convertToCpp 
 //          functions must be defined in ToCpp fragment
-//        - vectorFromCpp, vectorVectorFromCpp and convertFromCpp 
-//          functions must be defined in FromCpp fragment
 
 // Convert scalar arguments by value
 %typemap(in, fragment="ToCpp") int,
@@ -415,6 +413,10 @@
 
 ////////////////////////////////////////////////
 // Conversion C++ => Target language
+
+// Note : Before including this file :
+//        - vectorFromCpp, vectorVectorFromCpp and convertFromCpp 
+//          functions must be defined in FromCpp fragment
 
 %typemap(out, fragment="FromCpp") VectorInt, 
                                   VectorDouble,
