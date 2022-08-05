@@ -14,6 +14,7 @@
 %template(VectorString)       VectorT< String >;
 %template(VectorTFloat)       VectorT< float >;
 %template(VectorTUChar)       VectorT< UChar >;
+%template(VectorBool)         VectorT< UChar >; // See VectorT.hpp
 %template(VectorInt)          VectorNumT< int >;
 %template(VectorDouble)       VectorNumT< double >;
 %template(VectorFloat)        VectorNumT< float >;

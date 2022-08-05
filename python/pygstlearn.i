@@ -537,23 +537,31 @@ import numpy as np
 def setitem(self, idx, item):
   if idx < 0 or idx >= self.length():
     raise IndexError("Index out or range")
-  self.set(idx,item)
+  self.setAt(idx,item)
   
 def getitem(self, idx):
   if idx < 0 or idx >= self.length():
     raise IndexError("Index out or range")
-  return self.get(idx)
+  return self.getAt(idx)
 
-setattr(gl.VectorDouble,      "__getitem__", getitem)
-setattr(gl.VectorDouble,      "__setitem__", setitem)
-setattr(gl.VectorInt,         "__getitem__", getitem)
-setattr(gl.VectorInt,         "__setitem__", setitem)
-setattr(gl.VectorString,      "__getitem__", getitem)
-setattr(gl.VectorString,      "__setitem__", setitem)
-setattr(gl.VectorVectorDouble,"__getitem__", getitem)
-setattr(gl.VectorVectorDouble,"__setitem__", setitem)
-setattr(gl.VectorVectorInt,   "__getitem__", getitem)
-setattr(gl.VectorVectorInt,   "__setitem__", setitem)
+setattr(gl.VectorDouble,       "__getitem__", getitem)
+setattr(gl.VectorDouble,       "__setitem__", setitem)
+setattr(gl.VectorInt,          "__getitem__", getitem)
+setattr(gl.VectorInt,          "__setitem__", setitem)
+setattr(gl.VectorString,       "__getitem__", getitem)
+setattr(gl.VectorString,       "__setitem__", setitem)
+setattr(gl.VectorFloat,        "__getitem__", getitem)
+setattr(gl.VectorFloat,        "__setitem__", setitem)
+setattr(gl.VectorUChar,        "__getitem__", getitem)
+setattr(gl.VectorUChar,        "__setitem__", setitem)
+setattr(gl.VectorBool,         "__getitem__", getitem)
+setattr(gl.VectorBool,         "__setitem__", setitem)
+setattr(gl.VectorVectorDouble, "__getitem__", getitem)
+setattr(gl.VectorVectorDouble, "__setitem__", setitem)
+setattr(gl.VectorVectorInt,    "__getitem__", getitem)
+setattr(gl.VectorVectorInt,    "__setitem__", setitem)
+setattr(gl.VectorVectorFloat,  "__getitem__", getitem)
+setattr(gl.VectorVectorFloat,  "__setitem__", setitem)
 
 
 ## Override operator [] for the Db class ##

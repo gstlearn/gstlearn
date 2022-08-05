@@ -286,37 +286,58 @@
 function(x, i)
 {
   idx = as.integer(i)
-  sapply(idx, function(n) {
-    if (n < 1 || n > x$length())
-      stop("Index out of range")
-    x$get(n-1)
-  })
+  if (length(idx) > 1) {
+    sapply(idx, function(n) {
+      if (n < 1 || n > x$length())
+        stop("Index out of range")
+      x$getAt(n-1)
+    }) 
+  }
+  else {
+    x$getAt(idx-1)
+  }
 }
+
 "setitem" <-
 function(x, i, value)
 {
   idx = as.integer(i)
-  sapply(1:length(i), function(n) {
-    if (i[n] < 1 || i[n] > x$length())
-      stop("Index out of range")
-    x$set(i[n]-1, value[n])
-  })
+  if (length(idx) > 1) {
+    sapply(1:length(i), function(n) {
+      if (i[n] < 1 || i[n] > x$length())
+        stop("Index out of range")
+      x$setAt(i[n]-1, value[n])
+    })
+  }
+  else {
+    x$setAt(idx-1, value)
+  }
   x
 }
 
-setMethod('[',   '_p_VectorTT_int_t',                  getitem)
-setMethod('[<-', '_p_VectorTT_int_t',                  setitem)
-setMethod('[',   '_p_VectorTT_double_t',               getitem)
-setMethod('[<-', '_p_VectorTT_double_t',               setitem)
-setMethod('[',   '_p_VectorTT_String_t',               getitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[<-', '_p_VectorTT_String_t',               setitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[',   '_p_VectorNumTT_int_t',               getitem)
-setMethod('[<-', '_p_VectorNumTT_int_t',               setitem)
-setMethod('[',   '_p_VectorNumTT_double_t',            getitem)
-setMethod('[<-', '_p_VectorNumTT_double_t',            setitem)
-#setMethod('[',   '_p_VectorTT_VectorNumTT_int_t_t',    getitem) # TODO : VectorVectorXXX getitem doesn't work yet
-#setMethod('[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setitem) # TODO : VectorVectorXXX setitem doesn't work yet
-#setMethod('[',   '_p_VectorTT_VectorNumTT_double_t_t', getitem) # TODO : VectorVectorXXX getitem doesn't work yet
-#setMethod('[<-', '_p_VectorTT_VectorNumTT_double_t_t', setitem) # TODO : VectorVectorXXX setitem doesn't work yet
+setMethod('[',    '_p_VectorTT_int_t',                  getitem)
+setMethod('[<-',  '_p_VectorTT_int_t',                  setitem)
+setMethod('[',    '_p_VectorTT_double_t',               getitem)
+setMethod('[<-',  '_p_VectorTT_double_t',               setitem)
+setMethod('[',    '_p_VectorTT_String_t',               getitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-',  '_p_VectorTT_String_t',               setitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',    '_p_VectorTT_float_t',                getitem)
+setMethod('[<-',  '_p_VectorTT_float_t',                setitem)
+setMethod('[',    '_p_VectorTT_UChar_t',                getitem)
+setMethod('[<-',  '_p_VectorTT_UChar_t',                setitem)
+setMethod('[',    '_p_VectorNumTT_int_t',               getitem)
+setMethod('[<-',  '_p_VectorNumTT_int_t',               setitem)
+setMethod('[',    '_p_VectorNumTT_double_t',            getitem)
+setMethod('[<-',  '_p_VectorNumTT_double_t',            setitem)
+setMethod('[',    '_p_VectorNumTT_float_t',             getitem)
+setMethod('[<-',  '_p_VectorNumTT_float_t',             setitem)
+setMethod('[',    '_p_VectorNumTT_UChar_t',             getitem)
+setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setitem)
 
 %}

@@ -63,8 +63,8 @@ public:
   inline bool operator>=(const VectorT& other) const                  { return *_v >= *other._v; }
 
   // For SWIG users (size_type is not much appreciated)
-  inline const T& get(int pos) const;
-  inline void set(int pos, const T& v);
+  inline const T& getAt(int pos) const;
+  inline void setAt(int pos, const T& v);
   inline int length() const;
 
 #ifndef SWIG
@@ -139,7 +139,7 @@ private:
 };
 
 template <typename T>
-const T& VectorT<T>::get(int pos) const
+const T& VectorT<T>::getAt(int pos) const
 {
   if (pos < 0 || pos >= length())
     throw("VectorT<T>::get: index out of range");
@@ -147,7 +147,7 @@ const T& VectorT<T>::get(int pos) const
 }
 
 template <typename T>
-void VectorT<T>::set(int pos, const T& v)
+void VectorT<T>::setAt(int pos, const T& v)
 {
   if (pos < 0 || pos >= length())
     throw("VectorT<T>::set: index out of range");
