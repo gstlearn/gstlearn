@@ -47,6 +47,7 @@
 #include "Basic/Array.hpp"
 #include "Basic/Geometry.hpp"
 #include "Basic/PolyLine2D.hpp"
+#include "Basic/Law.hpp"
 
 #include "Faults/Faults.hpp"
 
@@ -64,7 +65,7 @@
 
 #include "Enum/EKrigOpt.hpp"
 
-#include "Space/Space.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpacePoint.hpp"

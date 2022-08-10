@@ -29,7 +29,7 @@ public:
   IMPLEMENT_CLONING(SpaceRN)
 
   /// Return the concrete space type
-  SpaceType getType() const override { return SPACE_RN; }
+  ESpaceType getType() const override { return ESpaceType::SPACE_RN; }
   /// Move the given space point by the given vector
   void move(SpacePoint& p1,
             const VectorDouble& vec) const override;

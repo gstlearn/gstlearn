@@ -21,9 +21,9 @@ class GSTLEARN_EXPORT NamingConvention
 {
 public:
   NamingConvention(String prefix = String(),
-                   const ELoc& locatorOutType = ELoc::Z,
                    bool flag_varname = true,
                    bool flag_qualifier = true,
+                   const ELoc& locatorOutType = ELoc::Z,
                    String delim = ".",
                    bool cleanSameLocator = true);
   NamingConvention(const NamingConvention &m);
@@ -82,6 +82,16 @@ public:
                    int iattout_start,
                    int nvar,
                    int nitems = 1) const;
+
+  bool isFlagQualifier() const
+  {
+    return _flagQualifier;
+  }
+
+  bool isFlagVarname() const
+  {
+    return _flagVarname;
+  }
 
 private:
   void _setNames(Db *dbout,

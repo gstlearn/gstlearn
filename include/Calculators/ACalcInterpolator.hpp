@@ -57,8 +57,7 @@ protected:
                      const ELoc &locatorType,
                      int number = 1,
                      double valinit = 0.);
-  void _renameVariable(const ELoc &locatorType,
-                       int nvar,
+  void _renameVariable(int nvar,
                        int iptr,
                        const String &name,
                        int count);

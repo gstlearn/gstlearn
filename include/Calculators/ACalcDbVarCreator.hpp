@@ -33,6 +33,11 @@ public:
   Db*  getDb() const { return _db; }
   bool hasDb(bool verbose = false) const;
 
+  const NamingConvention& getNamconv() const
+  {
+    return _namconv;
+  }
+
 protected:
   int _getNDim() const;
   int _getNVar() const;
@@ -41,8 +46,7 @@ protected:
                      const ELoc &locatorType,
                      int number = 1,
                      double valinit = 0.);
-  void _renameVariable(const ELoc &locatorType,
-                       int nvar,
+  void _renameVariable(int nvar,
                        int iptr,
                        const String &name,
                        int count);

@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Space/Space.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -64,7 +64,7 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Setup constants
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);

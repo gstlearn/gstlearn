@@ -101,9 +101,9 @@ bool CalcKriging::_preprocess()
 bool CalcKriging::_postprocess()
 {
   int nvar = _getNVar();
-  _renameVariable(ELoc::Z, nvar, _iptrVarZ, "varz", 1);
-  _renameVariable(ELoc::Z, nvar, _iptrStd, "stdev", 1);
-  _renameVariable(ELoc::Z, nvar, _iptrEst, "estim", 1);
+  _renameVariable(nvar, _iptrVarZ, "varz", 1);
+  _renameVariable(nvar, _iptrStd, "stdev", 1);
+  _renameVariable(nvar, _iptrEst, "estim", 1);
   return true;
 }
 
@@ -446,3 +446,14 @@ Krigtest_Res krigtest(Db *dbin,
   return krige.getKtest();
 }
 
+/**
+ * Dummy function inserted here to check VectorDouble argument.
+ * @param toto
+ * @return
+ */
+int krigingBidon(const VectorDouble& toto)
+{
+  if (! toto.empty()) ut_vector_display("mon titre", toto);
+  int error = 0;
+  return error;
+}

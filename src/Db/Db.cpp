@@ -368,7 +368,7 @@ int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
  * @param icol       Index of the target column
  * @param ret_locatorType Locator type
  * @param ret_locatorIndex Locator index (starting from 0)
- * @return true if the target variable has a ocator assigned and false otherwise
+ * @return true if the target variable has a locator assigned and false otherwise
  */
 bool Db::getLocatorByColIdx(int icol,
                             ELoc* ret_locatorType,

@@ -76,13 +76,12 @@ int ACalcDbVarCreator::_addVariableDb(int status,
   return iuid;
 }
 
-void ACalcDbVarCreator::_renameVariable(const ELoc &locatorType,
-                                        int nvar,
+void ACalcDbVarCreator::_renameVariable(int nvar,
                                         int iptr,
                                         const String &name,
                                         int count)
 {
-  _namconv.setNamesAndLocators(_db, locatorType, nvar, _db, iptr, name, count);
+  _namconv.setNamesAndLocators(_db, ELoc::Z, nvar, _db, iptr, name, count);
 }
 
 void ACalcDbVarCreator::_cleanVariableDb(int status)

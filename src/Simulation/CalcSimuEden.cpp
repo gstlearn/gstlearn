@@ -1065,13 +1065,13 @@ bool CalcSimuEden::_run()
 bool CalcSimuEden::_postprocess()
 {
   if (_iptrStatFluid >= 0)
-    _renameVariable(ELoc::Z, 1, _iptrStatFluid, "Stat_Fluid", _niter);
+    _renameVariable(1, _iptrStatFluid, "Stat_Fluid", _niter);
   if (_iptrStatCork >= 0)
-    _renameVariable(ELoc::Z, 1, _iptrStatCork, "Stat_Cork", _niter);
+    _renameVariable(1, _iptrStatCork, "Stat_Cork", _niter);
   if (_iptrFluid)
-    _renameVariable(ELoc::Z, 1, _iptrFluid, "Fluid", 1);
+    _renameVariable(1, _iptrFluid, "Fluid", 1);
   if (_iptrDate)
-    _renameVariable(ELoc::Z, 1, _iptrDate, "Date", 1);
+    _renameVariable(1, _iptrDate, "Date", 1);
   return true;
 }
 

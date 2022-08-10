@@ -16,9 +16,9 @@
 #include <string>
 
 NamingConvention::NamingConvention(String prefix,
-                                   const ELoc &locatorOutType,
                                    bool flag_varname,
                                    bool flag_qualifier,
+                                   const ELoc &locatorOutType,
                                    String delim,
                                    bool cleanSameLocator)
     : _prefix(prefix),

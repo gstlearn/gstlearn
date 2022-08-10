@@ -287,15 +287,15 @@ static int st_ce_Z(Db *db,
     valstd = MCCondStd(krigest, krigstd, anam->getPsiHn(), nbsimu);
   }
 
+  int iptrEst = selectivity->getAddressQTEst(ESelectivity::Z, iptr0);
+  int iptrStd = selectivity->getAddressQTStd(ESelectivity::Z, iptr0);
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     if (selectivity->isUsedEst(ESelectivity::Z))
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::Z, iptr0), valest[iech]);
+      db->setArray(iech, iptrEst, valest[iech]);
     if (selectivity->isUsedStD(ESelectivity::Z))
-      db->setArray(iech,
-                   selectivity->getAddressQTStD(ESelectivity::Z, iptr0), valstd[iech]);
+      db->setArray(iech, iptrStd, valstd[iech]);
   }
   return (0);
 }
@@ -346,28 +346,23 @@ static int st_ce_T(int mode,
       valstd = MCIndicatorStd(ycuts[icut], krigest, krigstd, nbsimu);
     }
 
+    int iptrEst = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrStd = selectivity->getAddressQTStd(ESelectivity::T, iptr0, icut);
+    int iptrProba = selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut);
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
       if (mode == 1)
       {
         if (selectivity->isUsedEst(ESelectivity::T))
-          db->setArray(
-              iech,
-              selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut),
-              valest[iech]);
+          db->setArray(iech, iptrEst, valest[iech]);
         if (selectivity->isUsedStD(ESelectivity::T))
-           db->setArray(iech,
-                        selectivity->getAddressQTStD(ESelectivity::T, iptr0, icut),
-                        valstd[iech]);
+          db->setArray(iech, iptrStd, valstd[iech]);
       }
       else
       {
         if (selectivity->isUsedEst(ESelectivity::PROBA))
-          db->setArray(
-              iech,
-              selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut),
-              1. - valest[iech]);
+          db->setArray(iech, iptrProba, 1. - valest[iech]);
       }
     }
   }
@@ -402,14 +397,14 @@ static int st_ce_quant(Db *db,
 {
   double krigest, krigstd;
 
+  int iptrQuant = selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0);
+
   for (int iech = 0; iech < db->getSampleNumber(); iech++)
   {
     if (!db->isActive(iech)) continue;
     st_correct_from_OK(db, iech, col_est, col_std, flag_OK, &krigest, &krigstd);
     double y = krigest + krigstd * law_invcdf_gaussian(proba);
-    db->setArray(iech,
-                 selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0),
-                 anam->TransformToRawValue(y));
+    db->setArray(iech, iptrQuant, anam->TransformToRawValue(y));
   }
   return (0);
 }
@@ -460,17 +455,15 @@ static int st_ce_Q(Db *db,
       valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
     }
 
+    int iptrEst = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrStd = selectivity->getAddressQTStd(ESelectivity::Q, iptr0, icut);
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
       if (selectivity->isUsedEst(ESelectivity::Q))
-        db->setArray(iech,
-            selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut),
-            valest[iech]);
+        db->setArray(iech, iptrEst, valest[iech]);
       if (selectivity->isUsedStD(ESelectivity::Q))
-        db->setArray(iech,
-                     selectivity->getAddressQTStD(ESelectivity::Q, iptr0, icut),
-                     valstd[iech]);
+        db->setArray(iech, iptrStd, valstd[iech]);
     }
   }
   return (0);
@@ -493,25 +486,25 @@ static int st_ce_B(Db *db,
                    int iptr0,
                    const VectorDouble &ycuts)
 {
-  double t, q, b;
+  double t, q;
 
-  /* Loop on the samples */
+  /* Loop on the cutoffs */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
   {
-    if (!db->isActive(iech)) continue;
+    int iptrT = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrQ = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrB = selectivity->getAddressQTEst(ESelectivity::B, iptr0, icut);
 
-    /* Loop on the cutoffs */
+    /* Loop on the samples */
 
-    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
-      t = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
-      q = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
-      b = q - t * ycuts[icut];
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::B, iptr0, icut), b);
+      if (!db->isActive(iech)) continue;
+
+      t = db->getArray(iech, iptrT);
+      q = db->getArray(iech, iptrQ);
+      db->setArray(iech, iptrB, q - t * ycuts[icut]);
     }
   }
   return (0);
@@ -530,25 +523,25 @@ static int st_ce_B(Db *db,
  *****************************************************************************/
 static int st_ce_M(Db *db, const Selectivity *selectivity, int iptr0)
 {
-  double t, q, m;
+  double t, q;
 
-  /* Loop on the samples */
+  /* Loop on the cutoffs */
 
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
   {
-    if (!db->isActive(iech)) continue;
+    int iptrT = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrQ = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrM = selectivity->getAddressQTEst(ESelectivity::M, iptr0, icut);
 
-    /* Loop on the cutoffs */
+    /* Loop on the samples */
 
-    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
-      t = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
-      q = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
-      m = (t > EPSILON3) ? q / t : TEST;
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::M, iptr0, icut), m);
+      if (!db->isActive(iech)) continue;
+
+      t = db->getArray(iech, iptrT);
+      q = db->getArray(iech, iptrQ);
+      db->setArray(iech, iptrM, (t > EPSILON3) ? q / t : TEST);
     }
   }
   return (0);
@@ -804,7 +797,6 @@ int _uniformConditioning(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      selectivity->setZcut(icut, yc);
       selectivity->setTest(icut, ore);
       selectivity->setQest(icut, metal);
     }

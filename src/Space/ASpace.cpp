@@ -41,7 +41,7 @@ ASpace::~ASpace()
 String ASpace::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "Space Type      = " << getType() << std::endl;
+  sstr << "Space Type      = " << getType().getKey() << std::endl;
   sstr << "Space Dimension = " << getNDim() << std::endl;
   return sstr.str();
 }

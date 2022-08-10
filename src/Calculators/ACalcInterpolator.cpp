@@ -398,13 +398,12 @@ int ACalcInterpolator::_addVariableDb(int whichDb,
   return iuid;
 }
 
-void ACalcInterpolator::_renameVariable(const ELoc &locatorType,
-                                        int nvar,
+void ACalcInterpolator::_renameVariable(int nvar,
                                         int iptr,
                                         const String &name,
                                         int count)
 {
-  _namconv.setNamesAndLocators(_dbin, locatorType, nvar, _dbout, iptr, name, count);
+  _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count);
 }
 
 void ACalcInterpolator::_cleanVariableDb(int status)

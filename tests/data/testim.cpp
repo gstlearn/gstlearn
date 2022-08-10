@@ -125,7 +125,7 @@ int main(int argc, char *argv[])
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN,dbin->getNDim());
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN,dbin->getNDim());
 
   /* Define the output grid file */
 

@@ -15,6 +15,7 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Stats/ESelectivity.hpp"
+#include "Matrix/MatrixInt.hpp"
 #include "Basic/Table.hpp"
 
 class Db;
@@ -24,7 +25,10 @@ class GSTLEARN_EXPORT Selectivity: public ICloneable, public AStringable
 {
 public:
   Selectivity(int ncut = 0);
-  Selectivity(const VectorDouble& zcuts, double zmax=TEST, bool flag_correct=false);
+  Selectivity(const VectorDouble &zcuts,
+              double zmax = TEST,
+              double proba = TEST,
+              bool flag_tonnage_correct = false);
   Selectivity(const Selectivity &m);
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
@@ -43,7 +47,7 @@ public:
                                     bool flag_std,
                                     double proba = TEST,
                                     bool verbose = false);
-  static Selectivity* createByKeys(const VectorString& scodes,
+  static Selectivity* createByKeys(const VectorString& keys,
                                    const VectorDouble& zcuts,
                                    bool flag_est,
                                    bool flag_std,
@@ -69,6 +73,8 @@ public:
   int    getNCuts() const { return (int) _Zcut.size(); }
   int    getNQT() const { return ESelectivity::getSize(); }
   int    getVariableNumber() const;
+  String getVariableName(const ESelectivity& code, int icut, int mode) const;
+  String getVariableName(int rank0) const;
   VectorString getVariableNames() const;
 
   void   setZcut(int icut, double zcut);
@@ -103,11 +109,11 @@ public:
   bool isNeededT() const;
   bool isNeededQ() const;
   int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getAddressQTStD(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getNumberQTEst(const ESelectivity& code) const { return _numberQTEst[code.getValue()]; }
-  int  getNumberQTStd(const ESelectivity& code) const { return _numberQTStd[code.getValue()]; }
-  const VectorInt getNumberQTEst() const { return _numberQTEst; }
-  const VectorInt getNumberQTStd() const { return _numberQTStd; }
+  int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
+  int  getNumberQTEst(const ESelectivity& code) const;
+  int  getNumberQTStd(const ESelectivity& code) const;
+  const VectorInt getNumberQTEst() const;
+  const VectorInt getNumberQTStd() const;
   void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev);
   void interpolateSelectivity(const Selectivity* selecin);
 
@@ -137,14 +143,14 @@ private:
   void _concatenate(VectorString& names,
                     const ESelectivity& code,
                     int mode) const;
+  bool _isMultiplied(const ESelectivity& code) const;
 
 private:
   VectorDouble _Zcut;
   Table _stats;
   double _zmax;
+  double _proba;
   bool   _flagTonnageCorrect;
-  VectorInt _numberQTEst;
-  VectorInt _numberQTStd;
-  VectorInt _rankQTEst;
-  VectorInt _rankQTStd;
+  MatrixInt _numberQT;
+  MatrixInt _rankQT;
 };

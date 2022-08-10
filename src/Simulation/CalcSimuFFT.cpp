@@ -1121,7 +1121,7 @@ bool CalcSimuFFT::_run()
 
 bool CalcSimuFFT::_postprocess()
 {
-  _renameVariable(ELoc::Z, 1, _iattOut, String(), getNbSimu());
+  _renameVariable(1, _iattOut, String(), getNbSimu());
   return true;
 }
 

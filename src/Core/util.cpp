@@ -211,7 +211,7 @@ void variety_define(int flag_sphere, double radius)
   VARIETY.flag_sphere = flag_sphere;
   VARIETY.radius = radius;
   if (flag_sphere)
-    ASpaceObject::defineDefaultSpace(SPACE_SN,2,radius);
+    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN,2,radius);
   return;
 }
 

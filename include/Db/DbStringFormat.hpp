@@ -17,15 +17,22 @@
 #include "geoslib_define.h"
 
 // Do not convert to AEnum (mask combination is not used as enum)
-typedef enum
-{
-  FLAG_RESUME = 1,    //!< Print the Db summary
-  FLAG_VARS = 2,      //!< Print the Field names
-  FLAG_EXTEND = 4,    //!< Print the Db extension
-  FLAG_STATS = 8,     //!< Print the variable statistics
-  FLAG_ARRAY = 16,    //!< Print the variable contents
-  FLAG_LOCATOR = 32,  //!< Print the locators
-} DISPLAY_PARAMS;
+//typedef enum
+//{
+//  FLAG_RESUME = 1,    //!< Print the Db summary
+//  FLAG_VARS = 2,      //!< Print the Field names
+//  FLAG_EXTEND = 4,    //!< Print the Db extension
+//  FLAG_STATS = 8,     //!< Print the variable statistics
+//  FLAG_ARRAY = 16,    //!< Print the variable contents
+//  FLAG_LOCATOR = 32,  //!< Print the locators
+//} DISPLAY_PARAMS;
+//
+ static unsigned char FLAG_RESUME = 1;  //!< Print the Db summary
+ static unsigned char FLAG_VARS = 2;   //!< Print the Field names
+ static unsigned char FLAG_EXTEND = 4; //!< Print the Db extension
+ static unsigned char FLAG_STATS = 8; //!< Print the variable statistics
+ static unsigned char FLAG_ARRAY = 16; //!< Print the variable contents
+ static unsigned char FLAG_LOCATOR = 32;  //!< Print the locators
 
 class GSTLEARN_EXPORT DbStringFormat: public AStringFormat
 {

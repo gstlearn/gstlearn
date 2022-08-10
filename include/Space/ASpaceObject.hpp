@@ -11,7 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Space/Space.hpp"
+
+#include "Space/ESpaceType.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 
@@ -41,7 +42,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// (Re)Defining the unique default global space
-  static void defineDefaultSpace(SpaceType type,
+  static void defineDefaultSpace(ESpaceType type,
                                  unsigned int ndim,
                                  double param = 0.);
   /// Return a clone of the unique default global space

@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -78,7 +78,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nbsimu = 3;
   setup_license("Demonstration");
   DbGrid* grid_res;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
 
   // Generate the output grid

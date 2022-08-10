@@ -9,19 +9,20 @@
 //%include std_complex.i
 
 // Keep order in the file
-%template(VectorDouble)         std::vector< double >;
-%template(VectorInt)            std::vector< int >;
-%template(VectorString)         std::vector< std::string >;
-%template(VectorBool)           std::vector< bool >;
-%template(VectorVectorInt)      std::vector< std::vector< int > >;
-%template(VectorVectorDouble)   std::vector< std::vector< double > >;
+%template(VectorDouble)          std::vector< double >;
+%template(VectorInt)             std::vector< int >;
+%template(VectorString)          std::vector< std::string >;
+%template(VectorBool)            std::vector< bool >;
+%template(VectorVectorInt)       std::vector< std::vector< int > >;
+%template(VectorVectorDouble)    std::vector< std::vector< double > >;
 
-%template(VectorEnumCovs)       std::vector< ECov >;    // Not a pointers list
-%template(VectorEnumStatOpt)    std::vector< EStatOption >;    // Not a pointers list
+%template(VectorEnumCovs)        std::vector< ECov >;    // Not a pointers list
+%template(VectorEnumStatOpt)     std::vector< EStatOption >;    // Not a pointers list
+%template(VectorEnumSelectivity) std::vector< ESelectivity >;    // Not a pointers list
 
-%template(VectorDir)            std::vector< DirParam >;  // Not a pointers list
-%template(VectorPolySet)        std::vector< PolySet >;
-%template(VectorIntervals)      std::vector< Interval >; 
+%template(VectorDir)             std::vector< DirParam >;  // Not a pointers list
+%template(VectorPolySet)         std::vector< PolySet >;
+%template(VectorIntervals)       std::vector< Interval >; 
 
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
@@ -73,6 +74,7 @@
 %include Basic/Array.hpp
 %include Basic/Geometry.hpp
 %include Basic/PolyLine2D.hpp
+%include Basic/Law.hpp
 
 %include Faults/Faults.hpp
 
@@ -88,7 +90,7 @@
 %include Boolean/ShapeHalfSinusoid.hpp
 %include Boolean/ModelBoolean.hpp
 
-%include Space/Space.hpp
+%include Space/ESpaceType.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp

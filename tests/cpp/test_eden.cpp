@@ -12,9 +12,9 @@
 // This test is meant to demonstrate the Eden Simulation
 // which also demonstrates the SKIN methodology
 
+#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid

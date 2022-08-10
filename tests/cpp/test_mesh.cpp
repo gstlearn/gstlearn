@@ -61,9 +61,9 @@ int main(int /*argc*/, char */*argv*/[])
   int verbose   = 1;
   int variety   = 0;  // 0 for Euclidean; 1 for Spherical
   if (variety == 0)
-    ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   else
-    ASpaceObject::defineDefaultSpace(SPACE_SN, 2, EARTH_RADIUS);
+    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN, 2, EARTH_RADIUS);
 
   /* Cleverness of the options */
 

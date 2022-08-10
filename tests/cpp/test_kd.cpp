@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -39,6 +38,7 @@
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include <math.h>
+#include "../../include/Space/ESpaceType.hpp"
 
 /****************************************************************************/
 /*!
@@ -55,7 +55,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate initial grid
@@ -158,7 +158,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Calculating the Conditional Expectation
   (void) ConditionalExpectation(blocs, anam, selectivity, "G_PTS*estim",
                                 "G_PTS*stdev", false, TEST, 0, false,
-                                NamingConvention("PTS_Recovery"));
+                                NamingConvention("PTS_Recovery",false));
   blocs->display();
 
   // ====================== Point Disjunctive Kriging =====================
@@ -209,7 +209,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform the Uniform Conditioning over Blocks
   (void) UniformConditioning(blocs, anam, selectivity,
                              "Z_PTS*estim", "Z_PTS*stdev", cvv_Z, false,
-                             NamingConvention("UC"));
+                             NamingConvention("UC",false));
   blocs->display();
   data->setLocator("Gauss.Z",ELoc::Z);
 
@@ -292,7 +292,8 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Selectivity Function ==================================
 
   FactorToSelectivity(blocs, anam, selectivity, blocs->getNames("DK_Pts*estim"),
-                      blocs->getNames("DK_Pts*stdev"));
+                      blocs->getNames("DK_Pts*stdev"),
+                      NamingConvention("QT",false));
   blocs->display();
 
   // ====================== Free pointers ==================================

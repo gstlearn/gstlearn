@@ -268,35 +268,38 @@ bool CalcAnamTransform::_postprocess()
   if (_flagVars)
   {
     int nvar = _getNVar();
-    _renameVariable(ELoc::Z, nvar, _iattVar, String(), 1);
+      _renameVariable(nvar, _iattVar, String(), 1);
     return true;
   }
 
   if (_flagToFactors)
   {
     int nfact = _getNfact();
-    _renameVariable(ELoc::Z, 1, _iattFac, String(), nfact);
+    _renameVariable(1, _iattFac, String(), nfact);
     return true;
   }
 
   if (_flagFromFactors)
   {
     int nsel = _getNSel();
-    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    for (int i = 0; i < nsel; i++)
+      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
     return true;
   }
 
   if (_flagCondExp)
   {
     int nsel = _getNSel();
-    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    for (int i = 0; i < nsel; i++)
+      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
     return true;
   }
 
   if (_flagUniCond)
   {
     int nsel = _getNSel();
-    _renameVariable(ELoc::Z, 1, _iattSel, String(), nsel);
+    for (int i = 0; i < nsel; i++)
+      _renameVariable(1, _iattSel+i, _selectivity->getVariableName(i), 1);
     return true;
   }
 

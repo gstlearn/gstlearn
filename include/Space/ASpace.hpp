@@ -11,7 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Space/Space.hpp"
+
+#include "ESpaceType.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
@@ -42,7 +44,7 @@ public:
   virtual bool isEqual(const ASpace* space) const;
 
   /// Return the concrete space type
-  virtual SpaceType getType() const = 0;
+  virtual ESpaceType getType() const = 0;
 
   /// Move the given space point by the given vector
   virtual void move(SpacePoint& p1,

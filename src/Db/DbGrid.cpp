@@ -350,6 +350,93 @@ DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
   return dbgrid;
 }
 
+DbGrid* DbGrid::createCoarse(DbGrid *dbin,
+                             const VectorInt &nmult,
+                             int flag_add_rank)
+{
+  DbGrid *dbgrid = new DbGrid;
+  int ndim = dbin->getNDim();
+
+  // Get the new grid characteristics
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
+
+  // Create the new grid
+  dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
+                  VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+
+  // Migrate all variables (except 'rank'  and coordinates
+  (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
+
+  return dbgrid;
+}
+
+DbGrid* DbGrid::createRefine(DbGrid *dbin,
+                             const VectorInt &nmult,
+                             int flag_add_rank)
+{
+  DbGrid *dbgrid = new DbGrid;
+  int ndim = dbin->getNDim();
+
+  // Get the new grid characteristics
+  VectorInt nx(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+  dbin->getGrid().divider(nmult, 1, nx, dx, x0);
+
+  // Create the new grid
+  dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
+                  VectorDouble(), VectorString(), VectorString(), flag_add_rank);
+
+  // Migrate all variables (except 'rank'  and coordinates
+  (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
+
+  return dbgrid;
+}
+
+bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
+{
+  ELoc locatorType;
+  int  locatorIndex;
+
+  // Constitute the list of Variables to be migrated
+
+  VectorInt icols;
+  for (int icol = 0; icol < dbin->getColumnNumber(); icol++)
+  {
+    // Skip the rank
+    if (flag_add_rank && icol == 0) continue;
+
+    // Skip the coordinates
+    String name = dbin->getNameByColIdx(icol);
+    if (dbin->getLocatorByColIdx(icol, &locatorType, &locatorIndex))
+    {
+      if (locatorType == ELoc::X) continue;
+    }
+    icols.push_back(icol);
+  }
+  int ncol = (int) icols.size();
+  if (ncol <= 0) return true;
+
+  // Migrate the variables
+  int icolOut = dbout->getColumnNumber();
+  if (migrateByAttribute(dbin, dbout, icols,
+                         0, VectorDouble(), true, true,
+                         NamingConvention(String()))) return false;
+
+  // Duplicate the locators
+  for (int icol = 0; icol < ncol; icol++)
+  {
+    if (dbin->getLocatorByColIdx(icols[icol], &locatorType, &locatorIndex))
+      dbout->setLocatorByColIdx(icolOut + icol, locatorType, locatorIndex);
+    else
+      dbout->setLocatorByColIdx(icolOut + icol, ELoc::UNKNOWN, 0);
+  }
+  return true;
+}
+
 /**
  * Paint the ndim columns starting from 'icol0' with grid coordinates
  * @param icol0 Starting column

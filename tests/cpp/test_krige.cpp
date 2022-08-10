@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -142,7 +142,7 @@ int main(int /*argc*/, char */*argv*/[])
   law_set_random_seed(32131);
 
   setup_license("Demonstration");
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
   DbStringFormat dbfmtXvalid(FLAG_STATS,{"Xvalid*"});
   DbStringFormat dbfmtKriging(FLAG_STATS,{"Krig*"});

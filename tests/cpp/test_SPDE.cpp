@@ -64,7 +64,7 @@ int main(int /*argc*/, char */*argv*/[])
   /* 1.b - Setup the license */
 
   if (setup_license("Demonstration")) goto label_end;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
 
   /* 1.c - Setup constants */
 

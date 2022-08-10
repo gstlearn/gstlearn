@@ -137,3 +137,6 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       int iech0,
                                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
                                       VectorInt ndisc = VectorInt());
+
+GSTLEARN_EXPORT int krigingBidon(const VectorDouble& toto);
+

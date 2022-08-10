@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -18,7 +19,6 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
 #include "Basic/File.hpp"
-#include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
@@ -305,7 +305,7 @@ int main(int /*argc*/, char */*argv*/[])
   ndim     = 2;
   nvar     = 1;
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
 

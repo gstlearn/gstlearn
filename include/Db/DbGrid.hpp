@@ -91,6 +91,13 @@ public:
                                    const VectorInt& nodes,
                                    const VectorDouble& dcell,
                                    int flag_add_rank = 1);
+  static DbGrid* createCoarse(DbGrid *dbin,
+                              const VectorInt &nmult,
+                              int flag_add_rank);
+  static DbGrid* createRefine(DbGrid *dbin,
+                              const VectorInt &nmult,
+                              int flag_add_rank);
+  static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
 
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
@@ -181,6 +188,7 @@ protected:
 
 private:
   void _createCoordinatesGrid(int icol0);
+
 
 private:
   Grid _grid;                //!< Grid characteristics
