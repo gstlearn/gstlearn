@@ -59,9 +59,9 @@ public:
   int  setKrigOptAnamophosis(AAnam* anam);
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
 
-  // The subseauent methods do not require isReady() validation
+  // The subsequent methods do not require isReady() validation
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int  updKrigOptIclass(int index_class);
+  int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptCheckAddress(bool flagCheckAddress);
 
   bool isReady();
@@ -246,6 +246,7 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
+  int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;

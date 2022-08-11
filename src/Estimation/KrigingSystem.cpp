@@ -89,6 +89,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _rDGM(1.),
       _flagFactorKriging(false),
+      _nclasses(0),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -1859,7 +1860,7 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)
-      message("\nProcessing Factor %d\n",_model->getAnamIClass());
+      message("\nProcessing Factor %d / %d\n",_model->getAnamIClass(), _nclasses);
 
     mestitle(1, "Target location");
     db_sample_print(_dbout, _iechOut, 1, 0, 0);
@@ -2606,7 +2607,7 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   return 0;
 }
 
-int KrigingSystem::updKrigOptIclass(int index_class)
+int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
 {
   if (! _flagFactorKriging)
   {
@@ -2615,6 +2616,7 @@ int KrigingSystem::updKrigOptIclass(int index_class)
     return 1;
   }
   _model->setAnamIClass(index_class);
+  _nclasses = nclasses;
 
   // Update C00 if the variance calculation is required
   if (_flagStd) _variance0();

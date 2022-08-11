@@ -117,11 +117,12 @@ bool CalcFactorKriging::_preprocess()
 
 bool CalcFactorKriging::_postprocess()
 {
+  getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
+
   int nfactor = _getNFactors();
   _renameVariable(nfactor, _iptrStd, "stdev", 1);
   _renameVariable(nfactor, _iptrEst, "estim", 1);
 
-  getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
   return true;
 }
 
@@ -132,7 +133,7 @@ void CalcFactorKriging::_rollback()
 
 int CalcFactorKriging::_getNFactors() const
 {
-  return getDbin()->getVariableNumber();
+  return (int) _iuidFactors.size();
 }
 
 /****************************************************************************/
@@ -164,7 +165,7 @@ bool CalcFactorKriging::_run()
       getDbin()->clearLocators(ELoc::Z);
       getDbin()->setLocatorByUID(_iuidFactors[iclass - 1], ELoc::Z);
       if (ksys.updKrigOptEstim(jptr_est, jptr_std, -1)) return 1;
-      if (ksys.updKrigOptIclass(iclass)) return 1;
+      if (ksys.updKrigOptIclass(iclass, _getNFactors())) return 1;
       if (ksys.estimate(iech_out)) return 1;
     }
   }
@@ -209,6 +210,7 @@ int DisjunctiveKriging(Db *dbin,
   krige.setNeighparam(neighparam);
   krige.setNamingConvention(namconv);
 
+  krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
   krige.setIuidFactors(dbin->getUIDsByLocator(ELoc::Z));
 

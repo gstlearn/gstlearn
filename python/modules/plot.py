@@ -671,7 +671,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    # define some default values (add them to hist_args if not already set)
+    # define some default values (add them to plot_args if not already set)
     clip_on = plot_args.setdefault('clip_on', True)
     shading = plot_args.setdefault('shading', 'nearest')
     
@@ -698,7 +698,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     data = getDefinedValues(dbgrid, name, posx, posy, corner, usesel, 
                             compress=False, asGrid=True)
-    data   = np.reshape(data, (ny,nx))
+    data = np.reshape(data, (ny,nx))
 
     tr = transform.Affine2D().rotate_deg_around(x0,y0,angles[0])
     trans_data = tr + ax.transData
@@ -719,7 +719,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     im.set_transform(trans_data)
     
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
-    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], "red", transform=trans_data)
+    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', transform=trans_data)
     
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
@@ -927,7 +927,7 @@ def mesh(mesh,
     return ax
 
 def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, asPoint = False,
-                diagLine = False, 
+                diagLine = False, flagAxisLabel = True,
                 xlab=None, ylab=None, title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the scatter plot between two variables contained in a Db'''
  
@@ -945,11 +945,16 @@ def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, as
     else:
         ax.hist2d(tabx, taby, bins, cmin=1)
 
-
     if diagLine:
         u=[np.min(tabx),np.min(taby)]
         v=[np.max(tabx),np.max(taby)]
         ax.plot(u,v,c="r")
+
+    if flagAxisLabel:
+        if xlab is None:
+            xlab = db.getNames(namex)[0]
+        if ylab is None:
+            ylab = db.getNames(namey)[0]
 
     drawDecor(ax, xlab=xlab, ylab=ylab, title=title)
     
