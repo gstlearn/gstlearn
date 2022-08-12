@@ -3,6 +3,7 @@ import matplotlib.patches    as ptc
 import matplotlib.transforms as transform
 import matplotlib.colors     as mcolors
 import numpy                 as np
+import numpy.ma              as ma
 import gstlearn              as gl
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 from numpy import shape
@@ -106,13 +107,15 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
         tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
     
-    if compress:
-        tabx = tabx[np.logical_not(np.isnan(tabx))]
-        
     if flagConvertNanToZero:
         tabx[tabx == gl.getTEST()] = 0
     else:
         tabx[tabx == gl.getTEST()] = np.nan
+        tabx = ma.array(tabx,mask=np.isnan(tabx))
+    
+    if compress:
+        tabx = tabx[np.logical_not(np.isnan(tabx))]
+        
     return tabx
 
 def getBiDefinedValues(db, name1, name2, usesel=True):
