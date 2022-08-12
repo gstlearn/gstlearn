@@ -1,0 +1,164 @@
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+#include "Basic/NamingConvention.hpp"
+#include "Db/DbGrid.hpp"
+#include "Db/Db.hpp"
+#include "Estimation/CalcSimpleInterpolation.hpp"
+
+CalcSimpleInterpolation::CalcSimpleInterpolation()
+    : ACalcInterpolator(),
+      _iattOut(-1),
+      _flagMovAve(false),
+      _flagInvDist(false),
+      _exponent(2.),
+      _flagExpand(true),
+      _dmax(TEST)
+{
+}
+
+CalcSimpleInterpolation::~CalcSimpleInterpolation()
+{
+}
+
+int CalcSimpleInterpolation::_getNVar() const
+{
+  return getDbin()->getVariableNumber();
+}
+
+bool CalcSimpleInterpolation::_check()
+{
+  if (! ACalcInterpolator::_check()) return false;
+
+  if (! hasDbin()) return false;
+  if (! hasDbout()) return false;
+
+  if (_getNVar() != 1)
+  {
+    messerr("These methods are restricted to the Monovariate case");
+    return false;
+  }
+
+  if (_flagMovAve)
+  {
+    if (! hasNeighParam()) return false;
+  }
+  return true;
+}
+
+bool CalcSimpleInterpolation::_preprocess()
+{
+  _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+  if (_iattOut < 0) return false;
+  return true;
+}
+
+bool CalcSimpleInterpolation::_postprocess()
+{
+  _renameVariable(1, _iattOut, String(), 1);
+  return true;
+}
+
+void CalcSimpleInterpolation::_rollback()
+{
+  _cleanVariableDb(1);
+}
+
+/****************************************************************************/
+/*!
+ **  Standard Kriging
+ **
+ ** \return  Error return code
+ **
+ *****************************************************************************/
+bool CalcSimpleInterpolation::_run()
+{
+  if (_flagMovAve)
+  {
+    if (movave(getDbin(), getDbout(), getNeighparam(), _iattOut))
+      return false;
+  }
+
+  if (_flagInvDist)
+  {
+    if (invdist(getDbin(), getDbout(), _iattOut, _exponent, _flagExpand, _dmax))
+      return false;
+  }
+
+  return true;
+}
+
+/****************************************************************************/
+/*!
+ **  Inverse distance estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  exponent    exponent of the inverse distance
+ ** \param[in]  flag_expand True for expansion option (if dbin is Grid)
+ ** \param[in]  dmax        Maximum search radius (if dbin is Points)
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+int inverseDistance(Db *dbin,
+                    Db *dbout,
+                    double exponent,
+                    bool flag_expand,
+                    double dmax,
+                    const NamingConvention &namconv)
+{
+  CalcSimpleInterpolation interpol;
+  interpol.setDbin(dbin);
+  interpol.setDbout(dbout);
+  interpol.setNamingConvention(namconv);
+
+  interpol.setFlagInvDist(true);
+  interpol.setExponent(exponent);
+  interpol.setFlagExpand(flag_expand);
+  interpol.setDmax(dmax);
+
+  // Run the calculator
+  int error = (interpol.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Inverse distance estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  namconv     Naming convention
+ **
+ *****************************************************************************/
+GSTLEARN_EXPORT int movingAverage(Db *dbin,
+                                  Db *dbout,
+                                  ANeighParam *neighparam,
+                                  const NamingConvention &namconv)
+{
+  CalcSimpleInterpolation interpol;
+  interpol.setDbin(dbin);
+  interpol.setDbout(dbout);
+  interpol.setNeighparam(neighparam);
+  interpol.setNamingConvention(namconv);
+
+  interpol.setFlagMovAve(true);
+
+  // Run the calculator
+  int error = (interpol.run()) ? 0 : 1;
+  return error;
+}
