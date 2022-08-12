@@ -20,9 +20,11 @@ CalcSimpleInterpolation::CalcSimpleInterpolation()
       _iattOut(-1),
       _flagMovAve(false),
       _flagInvDist(false),
+      _flagLstSqr(false),
       _exponent(2.),
       _flagExpand(true),
-      _dmax(TEST)
+      _dmax(TEST),
+      _order(0)
 {
 }
 
@@ -52,6 +54,11 @@ bool CalcSimpleInterpolation::_check()
   {
     if (! hasNeighParam()) return false;
   }
+  if (_flagLstSqr)
+  {
+    if (! hasNeighParam()) return false;
+  }
+
   return true;
 }
 
@@ -87,6 +94,12 @@ bool CalcSimpleInterpolation::_run()
     if (movave(getDbin(), getDbout(), getNeighparam(), _iattOut))
       return false;
   }
+
+  if (_flagLstSqr)
+   {
+     if (lstsqr(getDbin(), getDbout(), getNeighparam(), _iattOut, _order))
+       return false;
+   }
 
   if (_flagInvDist)
   {
@@ -162,3 +175,38 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
   int error = (interpol.run()) ? 0 : 1;
   return error;
 }
+
+/****************************************************************************/
+/*!
+ **  Polynomial estimation using Least Squares
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  order       Order of the polynomial
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int leastSquares(Db *dbin,
+                 Db *dbout,
+                 ANeighParam *neighparam,
+                 int order,
+                 const NamingConvention &namconv)
+{
+  CalcSimpleInterpolation interpol;
+  interpol.setDbin(dbin);
+  interpol.setDbout(dbout);
+  interpol.setNeighparam(neighparam);
+  interpol.setNamingConvention(namconv);
+
+  interpol.setFlagLstSqr(true);
+  interpol.setOrder(order);
+
+  // Run the calculator
+  int error = (interpol.run()) ? 0 : 1;
+  return error;
+
+}
+

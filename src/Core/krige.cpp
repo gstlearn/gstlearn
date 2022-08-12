@@ -37,6 +37,7 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECalcMember.hpp"
+#include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Anamorphosis/EAnam.hpp"
 
@@ -6345,6 +6346,90 @@ int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
 
      // Assign the result
      if (!FFFF(result)) result /= total;
+     dbout->setArray(iech, iptr, result);
+  }
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Polynomial estimation using Least Squares
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  iptr        Storage address
+ ** \param[in]  order       Order of the polynomial
+ **
+ *****************************************************************************/
+int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
+{
+  int ndim = dbin->getNDim();
+  NeighWork nbghw(dbin, neighparam);
+  VectorInt nbgh;
+  CovContext ctxt(1, ndim);
+  DriftList drft;
+  drft.setDriftIRF(order, 0, ctxt);
+  int ndrift = drft.getDriftNumber();
+  VectorDouble X(ndrift);
+  VectorDouble B(ndrift);
+  MatrixSquareSymmetric A(ndrift);
+
+  /* Loop on the targets to be processed */
+
+   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   {
+     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
+                 iech);
+     if (!dbout->isActive(iech)) continue;
+     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+     {
+       mestitle(1, "Target location");
+       db_sample_print(dbout, iech, 1, 0, 0);
+     }
+
+     // Find the neighborhood
+     nbgh = nbghw.select(dbout, iech);
+     int nSize = (int) nbgh.size();
+     if (nSize < ndrift)
+     {
+       dbout->setArray(iech, iptr, TEST);
+       continue;
+     }
+
+     // Evaluate the least square system
+     A.fill(0.);
+     for (int i = 0; i < ndrift; i++) B[i] = 0.;
+     for (int jech = 0; jech < nSize; jech++)
+     {
+       int jech1 = nbgh[jech];
+       double zval = dbin->getVariable(jech1, 0);
+       if (FFFF(zval)) continue;
+       VectorDouble Vdata = drft.getDriftVec(dbin, jech1);
+
+       // Double loop on the drift terms
+       for (int id1 = 0; id1 < ndrift; id1++)
+       {
+         B[id1] += zval * Vdata[id1];
+         for (int id2 = 0; id2 <= id1; id2++)
+         {
+           A.add(id1,  id2, Vdata[id1] * Vdata[id2]);
+         }
+       }
+     }
+
+     // Solve the system
+     if (A.solve(B, X) > 0) continue;
+
+     // Evaluate the vector of drift terms at target
+     VectorDouble Vtarget = drft.getDriftVec(dbout,  iech);
+
+     // Perform the estimation
+     double result = ut_vector_inner_product(X, Vtarget);
+
+     // Assign the result
      dbout->setArray(iech, iptr, result);
   }
   return 0;

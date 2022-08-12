@@ -30,11 +30,12 @@ public:
 
   void setFlagMovAve(bool flagMovAve) { _flagMovAve = flagMovAve; }
   void setFlagInvDist(bool flagInvDist) { _flagInvDist = flagInvDist; }
+  void setFlagLstSqr(bool flagLstSqr) { _flagLstSqr = flagLstSqr; }
 
   void setDmax(double dmax) { _dmax = dmax; }
   void setExponent(double exponent) { _exponent = exponent; }
   void setFlagExpand(bool flagExpand) { _flagExpand = flagExpand; }
-
+  void setOrder(int order) { _order = order; }
 
 private:
   virtual bool _check() override;
@@ -48,9 +49,11 @@ private:
   int _iattOut;
   bool   _flagMovAve;
   bool   _flagInvDist;
+  bool   _flagLstSqr;
   double _exponent;
   bool   _flagExpand;
   double _dmax;
+  int    _order;
 };
 
 GSTLEARN_EXPORT int inverseDistance(Db *dbin,
@@ -65,3 +68,10 @@ GSTLEARN_EXPORT int movingAverage(Db *dbin,
                                   ANeighParam *neighparam,
                                   const NamingConvention &namconv = NamingConvention(
                                       "MovAve"));
+GSTLEARN_EXPORT int leastSquares(Db *dbin,
+                                 Db *dbout,
+                                 ANeighParam *neighparam,
+                                 int order = 0,
+                                 const NamingConvention &namconv = NamingConvention(
+                                     "LstSqr"));
+
