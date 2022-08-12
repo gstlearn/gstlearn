@@ -16,7 +16,7 @@
 
 #include <math.h>
 
-static int NX[3], NXYZ, NRED, RADIUS[3];
+static int NDIM, NX[3], NXYZ, NRED, RADIUS[3];
 static int LARGE = 9999999;
 static unsigned char Offset[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
 static unsigned char Maskoff[] = { 127, 191, 223, 239, 247, 251, 253, 254 };
@@ -53,15 +53,10 @@ static unsigned char Maskoff[] = { 127, 191, 223, 239, 247, 251, 253, 254 };
  *****************************************************************************/
 void _st_morpho_image_size_define(const VectorInt &nx)
 {
-  int size;
-
-  size = static_cast<int>(nx.size());
-  NX[0] = (size > 0) ? nx[0] :
-                       1;
-  NX[1] = (size > 1) ? nx[1] :
-                       1;
-  NX[2] = (size > 2) ? nx[2] :
-                       1;
+  NDIM = static_cast<int>(nx.size());
+  NX[0] = (NDIM > 0) ? nx[0] : 1;
+  NX[1] = (NDIM > 1) ? nx[1] : 1;
+  NX[2] = (NDIM > 2) ? nx[2] : 1;
 
   NXYZ = NX[0] * NX[1] * NX[2];
   NRED = ((NXYZ - 8) / 8 + 1);
@@ -172,10 +167,8 @@ void morpho_duplicate(const VectorInt &nx,
                                       const VectorUChar &imagin,
                                       VectorUChar &imagout)
 {
-  int i;
-
   _st_morpho_image_size_define(nx);
-  for (i = 0; i < NRED; i++)
+  for (int i = 0; i < NRED; i++)
     imagout[i] = imagin[i];
 
   return;
@@ -459,7 +452,7 @@ VectorInt morpho_labelsize(const VectorInt &nx,
  **  Performs a morphological erosion
  **
  ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag
@@ -957,12 +950,12 @@ VectorUChar morpho_double2image(const VectorInt &nx,
  **
  *****************************************************************************/
 void morpho_image2double(const VectorInt &nx,
-                                         const VectorUChar &imagin,
-                                         int mode,
-                                         double grain,
-                                         double pore,
-                                         VectorDouble &tab,
-                                         bool verbose)
+                         const VectorUChar &imagin,
+                         int mode,
+                         double grain,
+                         double pore,
+                         VectorDouble &tab,
+                         bool verbose)
 {
   int ix, iy, iz;
   double value;
