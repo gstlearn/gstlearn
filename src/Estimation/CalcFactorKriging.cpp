@@ -12,8 +12,8 @@
 #include "geoslib_old_f.h"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcFactorKriging.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Estimation/CalcFactorKriging.hpp"
 #include "Anamorphosis/AAnam.hpp"
 
 CalcFactorKriging::CalcFactorKriging(bool flag_est, bool flag_std)

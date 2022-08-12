@@ -38,6 +38,8 @@
 #include "Simulation/CalcSimuTurningBands.hpp"
 
 #include <math.h>
+
+#include "../../include/Estimation/CalcSimpleInterpolation.hpp"
 #include "../../include/Space/ESpaceType.hpp"
 
 /****************************************************************************/

@@ -32,7 +32,6 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _priorMean(),
     _priorCov(),
     _flagProf(false),
-    _flagSingleTarget(false),
     _iechSingleTarget(-1),
     _flagPerCell(false),
     _iptrEst(-1),
@@ -69,7 +68,7 @@ bool CalcKriging::_check()
 bool CalcKriging::_preprocess()
 {
   int status = 1;
-  if (_flagSingleTarget) status = 2;
+  if (_iechSingleTarget >= 0) status = 2;
 
   if (_flagEst)
   {
@@ -170,7 +169,7 @@ bool CalcKriging::_run()
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
-    if (_flagSingleTarget)
+    if (_iechSingleTarget >= 0)
     {
       if (iech_out != _iechSingleTarget) continue;
     }
@@ -183,7 +182,7 @@ bool CalcKriging::_run()
 
   // Store the results in an API structure (only if flagSingleTarget)
 
-  if (_flagSingleTarget)
+  if (_iechSingleTarget >= 0)
     _storeResultsForExport(ksys);
 
   return true;
@@ -438,22 +437,9 @@ Krigtest_Res krigtest(Db *dbin,
 
   krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
-  krige.setFlagSingleTarget(true);
   krige.setIechSingleTarget(iech0);
 
   (void) krige.run();
 
   return krige.getKtest();
-}
-
-/**
- * Dummy function inserted here to check VectorDouble argument.
- * @param toto
- * @return
- */
-int krigingBidon(const VectorDouble& toto)
-{
-  if (! toto.empty()) ut_vector_display("mon titre", toto);
-  int error = 0;
-  return error;
 }

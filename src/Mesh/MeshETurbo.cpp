@@ -376,7 +376,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
     
     /* Calculate the grid indices */
 
-    if (_grid.coordinateToIndice(coor,indg0) != 0) 
+    if (_grid.coordinateToIndices(coor,indg0) != 0) 
     {
       messerr("Sample #%d does not belong to the meshing",jech+1);
       if (fatal) goto label_end;

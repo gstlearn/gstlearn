@@ -70,7 +70,7 @@ print(vec)
 if not gl.ut_vector_same(vec, [x0[0]+sqr3, x0[1]-1.]):
     sys.exit()
 
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndices(vec,new_indice)
 print(new_indice)
 if not gl.ut_ivector_same(indice, new_indice):
     sys.exit()
@@ -82,7 +82,7 @@ print(vec)
 if not gl.ut_vector_same(vec, [x0[0]+1, x0[1]+sqr3]):
     sys.exit()
 
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndices(vec,new_indice)
 print(new_indice)
 if not gl.ut_ivector_same(indice, new_indice):
     sys.exit()
@@ -94,7 +94,7 @@ print(vec)
 if not gl.ut_vector_same(vec,x0):
     sys.exit()
 
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndices(vec,new_indice)
 print(new_indice)
 if not gl.ut_ivector_same(indice, new_indice):
     sys.exit()

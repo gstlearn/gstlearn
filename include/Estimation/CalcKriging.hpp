@@ -38,7 +38,6 @@ public:
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
-  void setFlagSingleTarget(bool flagSingleTarget) { _flagSingleTarget = flagSingleTarget; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
 
@@ -51,6 +50,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
   int _getNVar() const override;
+
   void _storeResultsForExport(const KrigingSystem& ksys);
 
 private:
@@ -72,7 +72,6 @@ private:
 
   bool _flagProf;
 
-  bool _flagSingleTarget;
   int _iechSingleTarget;
 
   bool _flagPerCell;
@@ -137,6 +136,4 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       int iech0,
                                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
                                       VectorInt ndisc = VectorInt());
-
-GSTLEARN_EXPORT int krigingBidon(const VectorDouble& toto);
 

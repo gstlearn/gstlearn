@@ -275,6 +275,7 @@ set(SRC
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
   Estimation/CalcFactorKriging.cpp
+  Estimation/CalcSimpleInterpolation.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

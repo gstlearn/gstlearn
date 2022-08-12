@@ -2335,67 +2335,64 @@ int global_transitive(DbGrid *dbgrid,
  **
  ** \param[in]  dbin        Input Db
  ** \param[in]  dbout       Output Db
+ ** \param[in]  iptr        Storing address
  ** \param[in]  exponent    exponent of the inverse distance
  ** \param[in]  flag_expand 1 for expansion option
- **
- ** \param[out] indg        Working array
- ** \param[out] indref      Working array
- ** \param[out] coor        Working array
- ** \param[out] cooref      Working array
  **
  *****************************************************************************/
 static void st_grid_invdist(DbGrid* dbin,
                             Db* dbout,
+                            int iptr,
                             int exponent,
-                            int flag_expand,
-                            int *indg,
-                            int *indref,
-                            double *coor,
-                            double *cooref)
+                            int flag_expand)
 {
-  int idim, ndim, maxneigh, incorrect, ind, rank, iech_neigh;
-  double result, total, val_neigh, dist, wgt, dmin;
-
-  /* Initializations */
-
-  DBIN = dbin;
-  DBOUT = dbout;
-  ndim = dbin->getNDim();
-  maxneigh = (int) pow(2., (double) ndim);
+  int ndim = dbin->getNDim();
+  int maxneigh = (int) pow(2., (double) ndim);
+  double dmin;
   (void) db_extension_diag(dbout, &dmin);
   dmin /= 1.e5;
 
+  VectorDouble coor(ndim);
+  VectorDouble cooref(ndim);
+  VectorDouble percent(ndim);
+  VectorInt indg(ndim);
+  VectorInt indref(ndim);
+
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT = 0; IECH_OUT < dbout->getSampleNumber(); IECH_OUT++)
+  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                IECH_OUT);
-    if (!dbout->isActive(IECH_OUT)) continue;
+                iech);
+    if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0);
     }
 
     /* Find the grid index corresponding to the target */
 
-    for (idim = 0; idim < ndim; idim++)
-      cooref[idim] = dbout->getCoordinate(IECH_OUT, idim);
-    point_to_grid(dbin, cooref, flag_expand, indref);
+    dbout->getCoordinatesInPlace(iech, cooref);
+    if (dbin->coordinateToIndices(cooref, indref))
+    {
+      dbout->setArray(iech, iptr, TEST);
+      continue;
+    }
 
     /* Loop on the neighbors */
 
-    result = total = 0.;
-    for (rank = 0; rank < maxneigh; rank++)
+    double result = 0.;
+    double total = 0.;
+    for (int rank = 0; rank < maxneigh; rank++)
     {
-      for (idim = 0; idim < ndim; idim++)
+      for (int idim = 0; idim < ndim; idim++)
         indg[idim] = indref[idim];
 
       /* Decompose the neighborhood rank */
 
-      idim = 0;
-      ind = rank;
+      int idim = 0;
+      int ind = rank;
       while (ind > 0)
       {
         if (ind % 2 == 1) indg[idim] += 1;
@@ -2405,14 +2402,15 @@ static void st_grid_invdist(DbGrid* dbin,
 
       /* Check that the neighboring point lies within the grid */
 
-      for (idim = incorrect = 0; idim < ndim && incorrect == 0; idim++)
+      bool incorrect = false;
+      for (idim = 0; idim < ndim && !incorrect; idim++)
       {
         if (indg[idim] >= dbin->getNX(idim))
         {
           if (flag_expand)
             indg[idim]--;
           else
-            incorrect = 1;
+            incorrect = true;
         }
       }
 
@@ -2428,8 +2426,8 @@ static void st_grid_invdist(DbGrid* dbin,
 
         /* Check the value */
 
-        iech_neigh = db_index_grid_to_sample(dbin, indg);
-        val_neigh = dbin->getVariable(iech_neigh, 0);
+        int iech_neigh = dbin->indiceToRank(indg);
+        double val_neigh = dbin->getVariable(iech_neigh, 0);
         if (FFFF(val_neigh))
         {
           result = TEST;
@@ -2440,25 +2438,23 @@ static void st_grid_invdist(DbGrid* dbin,
 
           /* Calculate the distance from neighborhood to target */
 
-          dist = 0.;
-          grid_to_point(dbin, indg, NULL, coor);
-          dist = ut_distance(ndim, cooref, coor);
+          dbin->indicesToCoordinateInPlace(indg, coor, percent);
+          double dist = ut_distance(ndim, cooref.data(), coor.data());
           if (dist < dmin)
           {
             result = val_neigh;
             total = 1.;
             break;
           }
-          wgt = 1. / pow(dist, exponent);
+          double wgt = 1. / pow(dist, exponent);
           result += wgt * val_neigh;
           total += wgt;
         }
       }
     }
     if (!FFFF(result)) result /= total;
-    dbout->setArray(IECH_OUT, IPTR_EST, result);
+    dbout->setArray(iech, iptr, result);
   }
-
   return;
 }
 
@@ -2468,60 +2464,52 @@ static void st_grid_invdist(DbGrid* dbin,
  **
  ** \param[in]  dbin        Input Db
  ** \param[in]  dbout       Output Db
+ ** \param[in]  iptr        Storing address
  ** \param[in]  exponent    exponent of the inverse distance
  ** \param[in]  dmax        Maximum search radius (only used for Point Db)
- **
- ** \param[out] coor        Working array
- ** \param[out] cooref      Working array
  **
  *****************************************************************************/
 static void st_point_invdist(Db* dbin,
                              Db* dbout,
+                             int iptr,
                              int exponent,
-                             double dmax,
-                             double *coor,
-                             double *cooref)
+                             double dmax)
 {
-  int idim, iech_in, ndim;
-  double result, total, val_neigh, dist, wgt, dmin;
-
-  /* Initializations */
-
-  DBIN = dbin;
-  DBOUT = dbout;
-  ndim = dbin->getNDim();
+  int ndim = dbin->getNDim();
+  double dmin;
   (void) db_extension_diag(dbout, &dmin);
   dmin /= 1.e5;
+  VectorDouble coor(ndim);
+  VectorDouble cooref(ndim);
 
   /* Loop on the targets to be processed */
 
-  for (IECH_OUT = 0; IECH_OUT < dbout->getSampleNumber(); IECH_OUT++)
+  for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
-                IECH_OUT);
-    if (!dbout->isActive(IECH_OUT)) continue;
+                iech);
+    if (!dbout->isActive(iech)) continue;
     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
     {
       mestitle(1, "Target location");
-      db_sample_print(dbout, IECH_OUT, 1, 0, 0);
+      db_sample_print(dbout, iech, 1, 0, 0);
     }
-    for (idim = 0; idim < ndim; idim++)
-      cooref[idim] = dbout->getCoordinate(IECH_OUT, idim);
+    dbout->getCoordinatesInPlace(iech, cooref);
 
     /* Loop on the data points */
 
-    result = total = 0.;
-    for (iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
+    double result = 0.;
+    double total = 0.;
+    for (int iech_in = 0; iech_in < dbin->getSampleNumber(); iech_in++)
     {
       if (!dbin->isActive(iech_in)) continue;
-      for (idim = 0; idim < ndim; idim++)
-        coor[idim] = dbin->getCoordinate(iech_in, idim);
-      val_neigh = dbin->getVariable(iech_in, 0);
+      dbin->getCoordinatesInPlace(iech_in, coor);
+      double val_neigh = dbin->getVariable(iech_in, 0);
       if (FFFF(val_neigh)) continue;
 
       /* Check that the data point is a valid neighbor */
 
-      dist = ut_distance(ndim, coor, cooref);
+      double dist = ut_distance(ndim, coor.data(), cooref.data());
       if (!FFFF(dmax) && dist > dmax) continue;
 
       /* Process the new neighboring point */
@@ -2532,14 +2520,13 @@ static void st_point_invdist(Db* dbin,
         total = 1.;
         break;
       }
-      wgt = 1. / pow(dist, exponent);
+      double wgt = 1. / pow(dist, exponent);
       result += wgt * val_neigh;
       total += wgt;
     }
     if (!FFFF(result)) result /= total;
-    dbout->setArray(IECH_OUT, IPTR_EST, result);
+    dbout->setArray(iech, iptr, result);
   }
-
   return;
 }
 
@@ -2551,60 +2538,29 @@ static void st_point_invdist(Db* dbin,
  **
  ** \param[in]  dbin        Input Db structure
  ** \param[in]  dbout       Output Db structure
+ ** \param[in]  iptr        Storage address
  ** \param[in]  exponent    exponent of the inverse distance
  ** \param[in]  flag_expand 1 for expansion option
  ** \param[in]  dmax        Maximum search radius (used only for Points Db)
  **
  *****************************************************************************/
-int invdist_f(Db *dbin, Db *dbout, int exponent, int flag_expand, double dmax)
+int invdist(Db *dbin,
+            Db *dbout,
+            int iptr,
+            double exponent,
+            bool flag_expand,
+            double dmax)
 {
-  int *indg, *indref, error;
-  double *coor, *cooref;
-  DbGrid* dbgrid;
-
-  /* Initializations */
-
-  error = 1;
-  indg = indref = nullptr;
-  coor = cooref = nullptr;
-  st_global_init(dbin, dbout);
-  if (st_check_environment(1, 1, NULL, NULL)) goto label_end;
-
-  /* Add the attribute for storing the result */
-
-  IPTR_EST = dbout->addColumnsByConstant(1, 0.);
-  if (IPTR_EST < 0) goto label_end;
-  coor = db_sample_alloc(dbout, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  cooref = db_sample_alloc(dbout, ELoc::X);
-  if (cooref == nullptr) goto label_end;
-
-  if (!is_grid(dbin))
+  if (! dbin->isGrid())
   {
-    st_point_invdist(dbin, dbout, exponent, dmax, coor, cooref);
+    st_point_invdist(dbin, dbout, iptr, exponent, dmax);
   }
   else
   {
-    dbgrid = dynamic_cast<DbGrid*>(dbin);
-    indg = db_indg_alloc(dbgrid);
-    if (indg == nullptr) goto label_end;
-    indref = db_indg_alloc(dbgrid);
-    if (indref == nullptr) goto label_end;
-    st_grid_invdist(dbgrid, dbout, exponent, flag_expand, indg, indref, coor, cooref);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbin);
+    st_grid_invdist(dbgrid, dbout, iptr, exponent, flag_expand);
   }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: coor = db_sample_free(coor);
-  cooref = db_sample_free(cooref);
-  if (is_grid(DBIN))
-  {
-    indg = db_indg_free(indg);
-    indref = db_indg_free(indref);
-  }
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -6337,3 +6293,60 @@ int krimage(DbGrid *dbgrid,
 
   return 0;
 }
+
+/****************************************************************************/
+/*!
+ **  Inverse distance estimation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin        Input Db structure
+ ** \param[in]  dbout       Output Db structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  iptr        Storage address
+ **
+ *****************************************************************************/
+int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr)
+{
+  NeighWork nbghw(dbin, neighparam);
+  VectorInt nbgh;
+
+  /* Loop on the targets to be processed */
+
+   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
+   {
+     mes_process("Estimation by Inverse distance", dbout->getSampleNumber(),
+                 iech);
+     if (!dbout->isActive(iech)) continue;
+     if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
+     {
+       mestitle(1, "Target location");
+       db_sample_print(dbout, iech, 1, 0, 0);
+     }
+
+     // Find the neighborhood
+     nbgh = nbghw.select(dbout, iech);
+
+     // Perform the estimation
+     double total = 0.;
+     double result = 0.;
+     for (int i = 0; i < (int) nbgh.size(); i++)
+     {
+       double value = dbin->getVariable(nbgh[i],0);
+       if (FFFF(value))
+       {
+         result = TEST;
+         total = 1.;
+         break;
+       }
+       total += 1.;
+       result += value;
+     }
+
+     // Assign the result
+     if (!FFFF(result)) result /= total;
+     dbout->setArray(iech, iptr, result);
+  }
+  return 0;
+}
+

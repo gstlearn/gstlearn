@@ -489,3 +489,4 @@ bool ACalcInterpolator::hasNeighParam(bool verbose) const
   }
   return true;
 }
+
