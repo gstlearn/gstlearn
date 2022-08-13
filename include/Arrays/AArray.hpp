@@ -12,19 +12,30 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Arrays/Array.hpp"
+#include "Basic/AStringable.hpp"
 
-#include <math.h>
-#include <complex>
-#include <functional>
+class GSTLEARN_EXPORT AArray : public AStringable
+{
+public:
+  AArray(const VectorInt& ndims = VectorInt());
+  AArray(const AArray &m);
+  AArray& operator=(const AArray &m);
+  virtual ~AArray();
 
-GSTLEARN_EXPORT int FFTn(int ndim,
-                         const VectorInt& dims,
-                         VectorDouble& Re,
-                         VectorDouble& Im,
-                         int iSign = 1,
-                         double scaling = 1.);
-GSTLEARN_EXPORT Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
-                                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum);
-GSTLEARN_EXPORT Array evalCovFFTSpatial(const VectorDouble& hmax, int N,
-                                        std::function<double(const VectorDouble&)> funcSpectrum);
+  void init(const VectorInt& ndims);
+  int  indiceToRank(const VectorInt& indice) const;
+  VectorInt rankToIndice(int rank) const;
+  void rankToIndice(int rank, VectorInt& indices) const;
+
+  int getNDim() const { return (int) _ndims.size(); }
+  int getNPixels() const { return  ut_vector_prod(_ndims); }
+  const VectorInt& getNDims() const { return _ndims; }
+  VectorInt getNDimsExt(int ndimMax) const;
+  int getNDims(int idim) const;
+
+protected:
+  bool _isValidIndice(const VectorInt& indice) const;
+
+private:
+  VectorInt _ndims;
+};

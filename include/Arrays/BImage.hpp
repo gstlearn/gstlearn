@@ -11,36 +11,45 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Arrays/AArray.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT Array : public AStringable
+class GSTLEARN_EXPORT BImage : public AArray
 {
 public:
-  Array(const VectorInt& ndims = VectorInt());
-  Array(const Array &m);
-  Array& operator=(const Array &m);
-  virtual ~Array();
+  BImage(const VectorInt& ndims = VectorInt());
+  BImage(const BImage &m);
+  BImage& operator=(const BImage &m);
+  virtual ~BImage();
 
   /// Interface for AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void init(const VectorInt& ndims);
-  int  indiceToRank(const VectorInt& indice) const;
-  VectorInt rankToIndice(int rank) const;
-  void rankToIndice(int rank, VectorInt& indices) const;
-  double getValue(const VectorInt& indice) const;
-  void setValue(const VectorInt& indice, double value);
+  const VectorUChar& getValues() const { return _values; }
+  void setValues(const VectorUChar& values) { _values = values; }
 
-  const VectorInt& getNdims() const { return _ndims; }
-  const VectorDouble& getValues() const { return _values; }
-  void setValues(const VectorDouble& values) { _values = values; }
+  unsigned char getBImage (int i, int j, int k) const { return _values[_divide(i,j,k)]; }
+  unsigned char getOffset (int i, int j, int k) const;
+  unsigned char getMaskoff(int i, int j, int k) const;
+
+  unsigned char getValue(int i) const { return _values[i]; }
+  void setValue(int i, unsigned char c) { _values[i] = c; }
+
+  bool getValue(int i, int j, int k) const;
+  void setMaskoff(int i, int j, int k);
+  void setOffset(int i, int j, int k);
+
+  int getAllocSize() const;
+  bool isInside(int i, int j, int k) const;
+  int getAddress(int i, int j, int k) const;
 
 private:
   void _update();
-  bool _isValidIndice(const VectorInt& indice) const;
+  int _divide(int i, int j, int k) const { return getAddress(i,j,k) / 8; }
+  int _residu(int i, int j, int k) const { return getAddress(i,j,k) % 8; }
 
 private:
-  VectorInt _ndims;
-  VectorDouble _values;
+  VectorUChar _values;
 };

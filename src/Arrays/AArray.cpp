@@ -8,72 +8,47 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Array.hpp"
+#include "Arrays/AArray.hpp"
 #include "Basic/Vector.hpp"
 #include "geoslib_f.h"
 
-Array::Array(const VectorInt& ndims)
+AArray::AArray(const VectorInt& ndims)
     : AStringable(),
-      _ndims(ndims),
-      _values()
+      _ndims(ndims)
 {
-  _update();
 }
 
-Array::Array(const Array &r)
+AArray::AArray(const AArray &r)
     : AStringable(r),
-      _ndims(r._ndims),
-      _values(r._values)
+      _ndims(r._ndims)
 {
 
 }
 
-Array& Array::operator=(const Array &r)
+AArray& AArray::operator=(const AArray &r)
 {
   if (this != &r)
   {
     AStringable::operator=(r);
     _ndims = r._ndims;
-    _values = r._values;
   }
   return *this;
 }
 
-Array::~Array()
+AArray::~AArray()
 {
 
 }
 
-void Array::init(const VectorInt& ndims)
+void AArray::init(const VectorInt& ndims)
 {
   _ndims = ndims;
-  _update();
 }
 
-void Array::_update()
-{
-  int total = ut_vector_prod(_ndims);
-  _values.resize(total,0.);
-}
-
-String Array::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  if (_ndims.size() <= 0) return sstr.str();
-
-  sstr << "Array dimension = " << (int) _ndims.size() << std::endl;
-
-  for (int idim = 0; idim < (int) _ndims.size(); idim++)
-  {
-    sstr << "- Dimension #" << idim+1 << " : " << _ndims[idim] << std::endl;
-  }
-  return sstr.str();
-}
-
-int Array::indiceToRank(const VectorInt& indice) const
+int AArray::indiceToRank(const VectorInt& indice) const
 {
   if (! _isValidIndice(indice)) return ITEST;
-  int ndim = (int) _ndims.size();
+  int ndim = getNDim();
   int ival = indice[ndim-1];
   if (ival < 0 || ival >= _ndims[ndim-1])
     return(-1);
@@ -86,9 +61,9 @@ int Array::indiceToRank(const VectorInt& indice) const
   return ival;
 }
 
-void Array::rankToIndice(int rank, VectorInt& indices) const
+void AArray::rankToIndice(int rank, VectorInt& indices) const
 {
-  int ndim = (int) _ndims.size();
+  int ndim = getNDim();
 
   int nval = 1;
   for (int idim=0; idim<ndim; idim++) nval *= _ndims[idim];
@@ -101,21 +76,36 @@ void Array::rankToIndice(int rank, VectorInt& indices) const
   }
 }
 
-VectorInt Array::rankToIndice(int rank) const
+VectorInt AArray::rankToIndice(int rank) const
 {
-  int ndim = (int) _ndims.size();
+  int ndim = getNDim();
   VectorInt indices(ndim);
   rankToIndice(rank,indices);
   return indices;
 }
 
-bool Array::_isValidIndice(const VectorInt& indice) const
+int AArray::getNDims(int idim) const
 {
-  int ndim = (int) _ndims.size();
+  if (idim < getNDim())
+    return _ndims[idim];
+  else
+    return 1;
+}
+
+VectorInt AArray::getNDimsExt(int ndimMax) const
+{
+  VectorInt ndims = _ndims;
+  ndims.resize(ndimMax, 1);
+  return ndims;
+}
+
+bool AArray::_isValidIndice(const VectorInt& indice) const
+{
+  int ndim = getNDim();
   if ((int) indice.size() != ndim)
   {
     messerr("Argument 'indice' does not have the correct dimension (%d)",(int) indice.size());
-    messerr("It should match the Array dimension (%d)", ndim);
+    messerr("It should match the AArray dimension (%d)", ndim);
     return false;
   }
 
@@ -128,18 +118,4 @@ bool Array::_isValidIndice(const VectorInt& indice) const
     }
   }
   return true;
-}
-
-double Array::getValue(const VectorInt& indice) const
-{
-  if (! _isValidIndice(indice)) return TEST;
-  int iad = indiceToRank(indice);
-  return _values[iad];
-}
-
-void Array::setValue(const VectorInt& indice, double value)
-{
-  if (! _isValidIndice(indice)) return;
-  int iad = indiceToRank(indice);
-  _values[iad] = value;
 }

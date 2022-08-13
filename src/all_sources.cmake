@@ -214,9 +214,11 @@ set(SRC
   Basic/OptCustom.cpp
   Basic/Plane.cpp
   Basic/FFT.cpp
-  Basic/Array.cpp
   Basic/Geometry.cpp
   Basic/PolyLine2D.cpp
+  Arrays/AArray.cpp
+  Arrays/Array.cpp
+  Arrays/BImage.cpp
   Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp

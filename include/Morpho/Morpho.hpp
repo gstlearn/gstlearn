@@ -12,104 +12,84 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Arrays/BImage.hpp"
 
-GSTLEARN_EXPORT int morpho_image_size(const VectorInt &nx);
-GSTLEARN_EXPORT int morpho_count(const VectorInt &nx,
-                                 const VectorUChar &imagin);
-GSTLEARN_EXPORT VectorUChar morpho_image_manage(const VectorInt &nx);
-GSTLEARN_EXPORT void morpho_duplicate(const VectorInt &nx,
-                                      const VectorUChar &imagin,
-                                      VectorUChar &imagout);
-GSTLEARN_EXPORT int morpho_labelling(const VectorInt &nx,
-                                     int option,
+GSTLEARN_EXPORT int morpho_count(const BImage& imagin);
+GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
+GSTLEARN_EXPORT int morpho_labelling(int option,
                                      int flag_size,
-                                     const VectorUChar &imagin,
+                                     const BImage& imagin,
                                      double ccvoid,
                                      VectorDouble &compnum,
                                      bool verbose = false);
-GSTLEARN_EXPORT VectorDouble morpho_labelling(const VectorInt &nx,
-                                              int option,
+GSTLEARN_EXPORT VectorDouble morpho_labelling(int option,
                                               int flag_size,
-                                              const VectorUChar &imagin,
+                                              const BImage& imagin,
                                               double ccvoid,
                                               bool verbose = false);
-GSTLEARN_EXPORT VectorInt morpho_labelsize(const VectorInt &nx,
-                                           int option,
-                                           const VectorUChar &imagin);
-GSTLEARN_EXPORT void morpho_erosion(const VectorInt &nx,
-                                    int option,
+GSTLEARN_EXPORT VectorInt morpho_labelsize(int option,
+                                           const BImage& imagin);
+GSTLEARN_EXPORT void morpho_erosion(int option,
                                     const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout,
+                                    const BImage& imagin,
+                                    BImage& imagout,
                                     bool verbose = false);
-GSTLEARN_EXPORT void morpho_dilation(const VectorInt &nx,
-                                     int option,
+GSTLEARN_EXPORT void morpho_dilation(int option,
                                      const VectorInt &radius,
-                                     const VectorUChar &imagin,
-                                     VectorUChar &imagout,
+                                     const BImage& imagin,
+                                     BImage& imagout,
                                      bool verbose = false);
-GSTLEARN_EXPORT void morpho_intersection(const VectorInt &nx,
-                                         const VectorUChar &image1,
-                                         const VectorUChar &image2,
-                                         VectorUChar &imagout,
+GSTLEARN_EXPORT void morpho_intersection(const BImage& image1,
+                                         const BImage& image2,
+                                         BImage& imagout,
                                          bool verbose = false);
-GSTLEARN_EXPORT void morpho_union(const VectorInt &nx,
-                                  const VectorUChar &image1,
-                                  const VectorUChar &image2,
-                                  VectorUChar &imagout,
+GSTLEARN_EXPORT void morpho_union(const BImage& image1,
+                                  const BImage& image2,
+                                  BImage &imagout,
                                   bool verbose = false);
-GSTLEARN_EXPORT void morpho_opening(const VectorInt &nx,
-                                    int option,
+GSTLEARN_EXPORT void morpho_opening(int option,
                                     const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout);
-GSTLEARN_EXPORT void morpho_closing(const VectorInt &nx,
-                                    int option,
+                                    const BImage& imagin,
+                                    BImage& imagout);
+GSTLEARN_EXPORT void morpho_closing(int option,
                                     const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout);
-GSTLEARN_EXPORT void morpho_negation(const VectorInt &nx,
-                                     const VectorUChar &imagin,
-                                     VectorUChar &imagout,
+                                    const BImage& imagin,
+                                    BImage& imagout);
+GSTLEARN_EXPORT void morpho_negation(const BImage& imagin,
+                                     BImage& imagout,
                                      bool verbse = false);
 GSTLEARN_EXPORT void morpho_double2image(const VectorInt &nx,
                                          const VectorDouble &tab,
                                          double vmin,
                                          double vmax,
-                                         VectorUChar &imagout,
+                                         BImage& imagout,
                                          bool verbose = false);
-GSTLEARN_EXPORT VectorUChar morpho_double2image(const VectorInt &nx,
-                                                const VectorDouble &tab,
-                                                double vmin,
-                                                double vmax,
-                                                bool verbose = false);
-GSTLEARN_EXPORT void morpho_image2double(const VectorInt &nx,
-                                         const VectorUChar &imagin,
+GSTLEARN_EXPORT BImage morpho_double2image(const VectorInt &nx,
+                                           const VectorDouble &tab,
+                                           double vmin,
+                                           double vmax,
+                                           bool verbose = false);
+GSTLEARN_EXPORT void morpho_image2double(const BImage& imagin,
                                          int mode,
                                          double grain,
                                          double pore,
                                          VectorDouble &tab,
                                          bool verbose = false);
-GSTLEARN_EXPORT void morpho_distance(const VectorInt &nx,
-                                     int option,
+GSTLEARN_EXPORT void morpho_distance(int option,
                                      const VectorInt &radius,
                                      int flag_erode,
-                                     VectorUChar &imagin,
+                                     BImage& imagin,
                                      VectorDouble &dist);
 GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx,
                                   int radius,
                                   double *tab,
                                   double *tabout);
-GSTLEARN_EXPORT void bitmap_print(const VectorInt &nx,
-                                  const VectorUChar &imagin);
-GSTLEARN_EXPORT int bitmap_size(const VectorInt &nx);
-GSTLEARN_EXPORT int bitmap_get_value(const VectorInt &nx,
-                                     const VectorUChar &imagin,
+GSTLEARN_EXPORT void bitmap_print(const BImage& imagin);
+GSTLEARN_EXPORT int bitmap_get_value(const BImage& imagin,
                                      int ix,
                                      int iy,
                                      int iz);
-GSTLEARN_EXPORT void bitmap_set_value(const VectorInt &nx,
-                                      VectorUChar &imagout,
+GSTLEARN_EXPORT void bitmap_set_value(BImage& imagout,
                                       int ix,
                                       int iy,
                                       int iz,
