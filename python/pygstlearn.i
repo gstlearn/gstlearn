@@ -132,6 +132,9 @@ void exit_f(void)
 %extend Array {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend BImage {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend ProjMatrix {
   std::string __repr__() {  return $self->toString(); }
 }

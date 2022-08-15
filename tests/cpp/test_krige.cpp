@@ -180,6 +180,12 @@ int main(int /*argc*/, char */*argv*/[])
   NeighUnique* neighU = NeighUnique::create(ndim,false);
   neighU->display();
 
+  // ====================== Testing Neighborhood Storage ===========================
+  message("\n---> Testing Neighborhood storage\n");
+  grid_res = grid->clone();
+  test_neigh(data, grid_res, model, neighM);
+  grid_res->display(&dbfmtKriging);
+
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
   data_res = data->clone();

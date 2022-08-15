@@ -63,6 +63,7 @@ public:
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
   int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptCheckAddress(bool flagCheckAddress);
+  int  updKrigOptNeighOnly(int iptrNeigh);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -156,6 +157,7 @@ private:
   void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
+  void _neighCalcul(int status, const VectorDouble& tab);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL);
   void _variance0();
@@ -266,6 +268,10 @@ private:
 
   /// Option for saving the Weights using Keypair mechanism
   bool _flagKeypairWeights;
+
+  /// Option for Neighboring test
+  bool _flagNeighOnly;
+  int  _iptrNeigh;
 
   /// Local variables
   int _iechOut;

@@ -22,6 +22,9 @@ public:
   AArray& operator=(const AArray &m);
   virtual ~AArray();
 
+  /// Interface for AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   void init(const VectorInt& ndims);
   int  indiceToRank(const VectorInt& indice) const;
   VectorInt rankToIndice(int rank) const;

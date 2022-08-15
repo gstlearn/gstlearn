@@ -2972,7 +2972,8 @@ static int st_vmap_general(Db *db,
 
   /* Calculate a neighborhood (if radius > 0) */
 
-  neigh = gridcell_neigh(ndim, 1, radius, 0, 0, &nbmax);
+  neigh = gridcell_neigh(ndim, 1, radius, 0, 0);
+  nbmax = (int) neigh.size() / ndim;
 
   /* Calculate the VMAP half-extension */
 

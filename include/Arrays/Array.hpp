@@ -23,9 +23,6 @@ public:
   Array& operator=(const Array &m);
   virtual ~Array();
 
-  /// Interface for AStringable
-  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
-
   void init(const VectorInt& ndims);
   double getValue(const VectorInt& indice) const;
   void setValue(const VectorInt& indice, double value);

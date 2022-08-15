@@ -943,92 +943,6 @@ void morpho_distance(int option,
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Print an image stored as a bitmap
- **
- ** \param[in]  imagin  input image
- **
- *****************************************************************************/
-void bitmap_print(const BImage& imagin)
-{
-  /* Loop on the levels */
-
-  for (int iz = 0; iz < imagin.getNDims(2); iz++)
-  {
-    if (imagin.getNDims(2) > 1)
-      mestitle(2, "Level %d/%d", iz + 1, imagin.getNDims(2));
-    else
-      message("\n");
-
-    /* Loop on the cells of the layer */
-
-    message("     ");
-    for (int ix = 0; ix < imagin.getNDims(0); ix++)
-    {
-      int val = (ix + 1) % 10;
-      message("%d", val);
-    }
-    message("\n\n");
-
-    for (int ix = 0; ix < imagin.getNDims(0); ix++)
-    {
-      message(" %3d ", ix + 1);
-      for (int iy = 0; iy < imagin.getNDims(1); iy++)
-      {
-        int val = (imagin.getValue(ix,iy,iz) > 0) ? 1 : 0;
-        message("%d", val);
-      }
-      message("\n");
-    }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the value of a bit of a bitmap array
- **
- ** \return The value (0 or 1) of the target bit
- **
- ** \param[in]  imagin  Target IMAGE
- ** \param[in]  ix      Index of the bit along X
- ** \param[in]  iy      Index of the bit along Y
- ** \param[in]  iz      Index of the bit along Z
- **
- *****************************************************************************/
-int bitmap_get_value(const BImage& imagin,
-                     int ix,
-                     int iy,
-                     int iz)
-{
-  int retval = (imagin.getValue(ix,iy,iz) > 0) ? 1 : 0;
-  return (retval);
-}
-
-/*****************************************************************************/
-/*!
- **  Set the value of a bit of a bitmap array
- **
- ** \param[in]  imagout Target IMAGE
- ** \param[in]  ix      Index of the bit along X
- ** \param[in]  iy      Index of the bit along Y
- ** \param[in]  iz      Index of the bit along Z
- ** \param[in]  bitval  Value of the bit (0 or 1)
- **
- *****************************************************************************/
-void bitmap_set_value(BImage& imagout,
-                      int ix,
-                      int iy,
-                      int iz,
-                      int bitval)
-{
-  if (bitval > 0)
-    imagout.setOffset(ix,iy,iz);
-  else
-    imagout.setMaskoff(ix,iy,iz);
-  return;
-}
-
 /****************************************************************************/
 /*!
  **  Create the array of index shifts for a dilation by 'radius' of a
@@ -1042,8 +956,6 @@ void bitmap_set_value(BImage& imagout,
  ** \param[in]  flag_center 1 to omit the center
  ** \param[in]  verbose     Verbose flag
  **
- ** \param[out] nvois       Number of neighboring cells
- **
  ** \remarks  The resulting array has dimension: nvois * ndim
  **
  *****************************************************************************/
@@ -1051,20 +963,19 @@ VectorInt gridcell_neigh(int ndim,
                          int option,
                          int radius,
                          int flag_center,
-                         int verbose,
-                         int *nvois)
+                         bool verbose)
 {
   int *indg0, *indg1, ecr, flag_count, nech;
   VectorInt indret;
 
   /* Initializations */
 
-  (*nvois) = 0;
+  int nvois = 0;
   indg0 = indg1 = nullptr;
 
   /* Create the grid attributes */
 
-  VectorInt nx(ndim);
+  VectorInt    nx(ndim);
   VectorDouble x0(ndim);
   VectorDouble dx(ndim);
   for (int idim = 0; idim < ndim; idim++)
@@ -1111,15 +1022,15 @@ VectorInt gridcell_neigh(int ndim,
   /* Resizing the returned array */
 
   indret.resize(ecr);
-  (*nvois) = ecr / ndim;
+  nvois = ecr / ndim;
 
   /* Optional printout */
 
-  if (verbose && (*nvois) > 0)
+  if (verbose && nvois > 0)
   {
     ecr = 0;
-    message("Grid Dilation: %d samples\n", (*nvois));
-    for (int i = 0; i < (*nvois); i++)
+    message("Grid Dilation: %d samples\n", nvois);
+    for (int i = 0; i < nvois; i++)
     {
       message("  Neigh %3d:", i + 1);
       for (int idim = 0; idim < ndim; idim++)

@@ -45,6 +45,21 @@ void AArray::init(const VectorInt& ndims)
   _ndims = ndims;
 }
 
+String AArray::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  if (getNDim() <= 0) return sstr.str();
+
+  sstr << "Array dimension = " << getNDim() << std::endl;
+
+  for (int idim = 0; idim < getNDim(); idim++)
+  {
+    sstr << "- Dimension #" << idim+1 << " : " << getNDims(idim) << std::endl;
+  }
+  return sstr.str();
+}
+
+
 int AArray::indiceToRank(const VectorInt& indice) const
 {
   if (! _isValidIndice(indice)) return ITEST;

@@ -751,7 +751,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       break;
 
     default:
-      my_throw("Integral Range has been programmed for Space Dimension 1 to 3");
+      my_throw("Integral Range has only been programmed for Space Dimension 1 to 3");
   }
   return total;
 }

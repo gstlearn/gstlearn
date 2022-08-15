@@ -88,16 +88,46 @@ void BImage::setOffset(int i, int j, int k)
   _values[_divide(i, j, k)] |= getOffset(i, j, k);
 }
 
-String BImage::toString(const AStringFormat* /*strfmt*/) const
+String BImage::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
-  if (getNDim() <= 0) return sstr.str();
 
-  sstr << "BImage dimension = " << getNDim() << std::endl;
+  sstr << AArray::toString(strfmt);
 
-  for (int idim = 0; idim < getNDim(); idim++)
+  if (getNDim() <= 3)
   {
-    sstr << "- Dimension #" << idim+1 << " : " << getNDims(idim) << std::endl;
+
+    /* Loop on the levels */
+
+    for (int iz = 0; iz < getNDims(2); iz++)
+    {
+      if (getNDims(2) > 1)
+        sstr << toTitle(2, "Level %d/%d", iz + 1, getNDims(2));
+      else
+        sstr << std::endl;
+
+      /* Loop on the cells of the layer */
+
+      sstr << "  ";
+      for (int ix = 0; ix < getNDims(0); ix++)
+      {
+        int val = (ix + 1) % 10;
+        sstr << val;
+      }
+      sstr << std::endl;
+
+      for (int iy = 0; iy < getNDims(1); iy++)
+      {
+        int jy = getNDims(1) - iy - 1;
+        sstr << (iy + 1) % 10 << " ";
+        for (int ix = 0; ix < getNDims(0); ix++)
+        {
+          int val = (getValue(ix, jy, iz) > 0) ? 1 : 0;
+          sstr << val;
+        }
+        sstr << std::endl;
+      }
+    }
   }
   return sstr.str();
 }

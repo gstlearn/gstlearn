@@ -401,9 +401,10 @@ int ACalcInterpolator::_addVariableDb(int whichDb,
 void ACalcInterpolator::_renameVariable(int nvar,
                                         int iptr,
                                         const String &name,
-                                        int count)
+                                        int count,
+                                        bool flagSetLocator)
 {
-  _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count);
+  _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count, flagSetLocator);
 }
 
 void ACalcInterpolator::_cleanVariableDb(int status)

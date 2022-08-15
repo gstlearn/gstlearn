@@ -53,20 +53,6 @@ void Array::_update()
   _values.resize(total,0.);
 }
 
-String Array::toString(const AStringFormat* /*strfmt*/) const
-{
-  std::stringstream sstr;
-  if (getNDim() <= 0) return sstr.str();
-
-  sstr << "Array dimension = " << getNDim() << std::endl;
-
-  for (int idim = 0; idim < getNDim(); idim++)
-  {
-    sstr << "- Dimension #" << idim+1 << " : " << getNDims(idim) << std::endl;
-  }
-  return sstr.str();
-}
-
 double Array::getValue(const VectorInt& indice) const
 {
   if (! _isValidIndice(indice)) return TEST;

@@ -84,19 +84,8 @@ GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx,
                                   int radius,
                                   double *tab,
                                   double *tabout);
-GSTLEARN_EXPORT void bitmap_print(const BImage& imagin);
-GSTLEARN_EXPORT int bitmap_get_value(const BImage& imagin,
-                                     int ix,
-                                     int iy,
-                                     int iz);
-GSTLEARN_EXPORT void bitmap_set_value(BImage& imagout,
-                                      int ix,
-                                      int iy,
-                                      int iz,
-                                      int bitval);
 GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
                                          int option,
                                          int radius,
                                          int flag_center,
-                                         int verbose,
-                                         int *nvois);
+                                         bool verbose = false);
