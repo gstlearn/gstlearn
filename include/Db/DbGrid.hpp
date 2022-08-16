@@ -94,6 +94,7 @@ public:
   static DbGrid* createCoarse(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
+  DbGrid* coarsify(const VectorInt &nmult);
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
