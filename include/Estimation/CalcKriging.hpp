@@ -38,9 +38,15 @@ public:
   void setPriorMean(const VectorDouble &priorMean) { _priorMean = priorMean; }
   void setFlagBayes(bool flagBayes) { _flagBayes = flagBayes; }
   void setFlagProf(bool flagProf) { _flagProf = flagProf; }
-  void setFlagSingleTarget(bool flagSingleTarget) { _flagSingleTarget = flagSingleTarget; }
   void setIechSingleTarget(int iechSingleTarget) { _iechSingleTarget = iechSingleTarget; }
   void setFlagPerCell(bool flagPerCell) { _flagPerCell = flagPerCell; }
+  void setAnam(AAnam *anam) { _anam = anam; }
+  void setFlagGam(bool flagGam) { _flagGam = flagGam; }
+  void setFlagXvalidEst(int flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
+  void setFlagXvalidStd(int flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
+  void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
+  void setFlagKfold(int flag_kfold) { _flagKfold = flag_kfold; }
+  void setFlagNeighOnly(bool flagNeighOnly) { _flagNeighOnly = flagNeighOnly; }
 
   Krigtest_Res getKtest() const { return _ktest; }
 
@@ -51,6 +57,7 @@ private:
   virtual bool _postprocess() override;
   virtual void _rollback() override;
   int _getNVar() const override;
+
   void _storeResultsForExport(const KrigingSystem& ksys);
 
 private:
@@ -72,14 +79,25 @@ private:
 
   bool _flagProf;
 
-  bool _flagSingleTarget;
   int _iechSingleTarget;
 
   bool _flagPerCell;
 
+  bool _flagGam;
+  AAnam* _anam;
+
+  bool _flagXvalid;
+  int  _flagKfold;
+  int  _flagXvalidEst;
+  int  _flagXvalidStd;
+
+  bool _flagNeighOnly;
+  int  _nbNeigh;
+
   int _iptrEst;
   int _iptrStd;
   int _iptrVarZ;
+  int _iptrNeigh;
 
   Krigtest_Res _ktest;
 };
@@ -130,6 +148,12 @@ GSTLEARN_EXPORT int krigprof(Db *dbin,
                              bool flag_est = true,
                              bool flag_std = true,
                              const NamingConvention& namconv = NamingConvention("KrigProf"));
+GSTLEARN_EXPORT int kriggam(Db *dbin,
+                            Db *dbout,
+                            Model *model,
+                            ANeighParam *neighparam,
+                            AAnam *anam,
+                            const NamingConvention& namconv = NamingConvention("KrigGam"));
 GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       Db *dbout,
                                       Model *model,
@@ -137,6 +161,16 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       int iech0,
                                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
                                       VectorInt ndisc = VectorInt());
-
-GSTLEARN_EXPORT int krigingBidon(const VectorDouble& toto);
-
+GSTLEARN_EXPORT int xvalid(Db *db,
+                           Model *model,
+                           ANeighParam *neighparam,
+                           int flag_code = 0,
+                           int flag_xvalid_est = 1,
+                           int flag_xvalid_std = 1,
+                           VectorInt rank_colcok = VectorInt(),
+                           const NamingConvention& namconv = NamingConvention("Xvalid"));
+GSTLEARN_EXPORT int test_neigh(Db *dbin,
+                               Db *dbout,
+                               Model *model,
+                               ANeighParam *neighparam,
+                               const NamingConvention& namconv = NamingConvention("Neigh"));

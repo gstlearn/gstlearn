@@ -257,16 +257,6 @@ GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
                                              int flag_correct = 0,
                                              int verbose = 0);
 
-/******************************/
-/* Functions for Neighborhood */
-/******************************/
-
-GSTLEARN_EXPORT int test_neigh(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               ANeighParam *neighparam,
-                               const NamingConvention& namconv = NamingConvention("Neigh"));
-
 /**********************/
 /* Functions for SPDE */
 /**********************/
@@ -346,14 +336,6 @@ GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
                                    int type,
                                    double range,
                                    const NamingConvention& namconv = NamingConvention("Smoothing"));
-GSTLEARN_EXPORT int xvalid(Db *db,
-                           Model *model,
-                           ANeighParam *neighparam,
-                           int flag_code = 0,
-                           int flag_xvalid_est = 1,
-                           int flag_xvalid_std = 1,
-                           VectorInt rank_colcok = VectorInt(),
-                           const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
                                           Db *dbout,
                                           Model *model,
@@ -370,12 +352,6 @@ GSTLEARN_EXPORT int krigsum(Db *dbin,
                             NeighUnique* neighU,
                             bool flag_positive = false,
                             const NamingConvention& namconv = NamingConvention("KrigSum"));
-GSTLEARN_EXPORT int kriggam(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeighParam *neighparam,
-                            AAnam *anam,
-                            const NamingConvention& namconv = NamingConvention("KrigGam"));
 GSTLEARN_EXPORT int declustering(Db *db,
                                  Model *model,
                                  int method,

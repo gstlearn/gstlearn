@@ -1303,6 +1303,13 @@ void AMatrix::add(const AMatrix& tab, double value)
     }
 }
 
+void AMatrix::add(int irow, int icol, double value)
+{
+  double oldval = getValue(irow, icol);
+  if (FFFF(oldval)) return;
+  setValue(irow, icol, oldval + value);
+}
+
 void AMatrix::subtract(const AMatrix& tab, double value)
 {
   if (! isSameSize(tab))

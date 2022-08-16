@@ -147,6 +147,13 @@ public:
   {
     return _grid.coordinateToRank(coor,eps);
   }
+  int coordinateToIndices(const VectorDouble &coor,
+                          VectorInt &indices,
+                          double eps = EPSILON6) const
+  {
+    return _grid.coordinateToIndices(coor, indices, eps);
+  }
+
   int indiceToRank(const VectorInt& indice) const
   {
     return _grid.indiceToRank(indice);
@@ -161,6 +168,13 @@ public:
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent) const
+  {
+    _grid.indicesToCoordinateInPlace(indice, coor, percent);
+  }
+
   int getMirrorIndex(int idim, int ix) const
   {
     return _grid.getMirrorIndex(idim, ix);

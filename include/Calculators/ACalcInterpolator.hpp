@@ -60,7 +60,8 @@ protected:
   void _renameVariable(int nvar,
                        int iptr,
                        const String &name,
-                       int count);
+                       int count,
+                       bool flagSetLocator = true);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
   void _cleanVariableDb(int status);
 

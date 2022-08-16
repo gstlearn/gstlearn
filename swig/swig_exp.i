@@ -71,10 +71,13 @@
 %include Basic/File.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
-%include Basic/Array.hpp
 %include Basic/Geometry.hpp
 %include Basic/PolyLine2D.hpp
 %include Basic/Law.hpp
+
+%include Arrays/AArray.hpp
+%include Arrays/Array.hpp
+%include Arrays/BImage.hpp
 
 %include Faults/Faults.hpp
 
@@ -276,6 +279,7 @@
 %include Gibbs/GibbsUMulti.hpp
 
 %include Morpho/Morpho.hpp
+
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
 
@@ -294,6 +298,7 @@
 %include Estimation/KrigingSystem.hpp
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcFactorKriging.hpp
+%include Estimation/CalcSimpleInterpolation.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

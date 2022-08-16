@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Arrays/Array.hpp>
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Array.hpp"
 #include "Basic/FFT.hpp"
 
 #include "Space/ASpace.hpp"
@@ -751,7 +751,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       break;
 
     default:
-      my_throw("Integral Range has been programmed for Space Dimension 1 to 3");
+      my_throw("Integral Range has only been programmed for Space Dimension 1 to 3");
   }
   return total;
 }

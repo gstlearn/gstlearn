@@ -545,10 +545,10 @@ void Grid::rankToIndice(int rank, VectorInt& indice, bool minusOne) const
  * @param coor   Sample coordinates
  * @param indice Indices of the assigned grid node
  * @param eps    Epsilon to overpass roundoff problem
- * @return
+ * @return Error return code
  */
-int Grid::coordinateToIndice(const VectorDouble& coor,
-                              VectorInt& indice,
+int Grid::coordinateToIndices(const VectorDouble &coor,
+                              VectorInt &indice,
                               double eps) const
 {
   int ndim = _nDim;
@@ -584,7 +584,7 @@ int Grid::coordinateToRank(const VectorDouble& coor, double eps) const
 {
   int ndim = _nDim;
   VectorInt indice(ndim);
-  if (coordinateToIndice(coor,indice,eps)) return -1;
+  if (coordinateToIndices(coor,indice,eps)) return -1;
   return indiceToRank(indice);
 }
 

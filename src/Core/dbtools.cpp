@@ -4041,7 +4041,8 @@ int points_to_block(Db *dbpoint,
 
   /* Define the neighboring elements */
 
-  indret = gridcell_neigh(ndim, option, 1, 1, 0, &nvois);
+  indret = gridcell_neigh(ndim, option, 1, 1, 0);
+  nvois = (int) indret.size() / ndim;
 
   /* Loop on the grid nodes */
 

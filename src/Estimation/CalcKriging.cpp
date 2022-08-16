@@ -32,12 +32,20 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _priorMean(),
     _priorCov(),
     _flagProf(false),
-    _flagSingleTarget(false),
     _iechSingleTarget(-1),
     _flagPerCell(false),
+    _flagGam(false),
+    _anam(nullptr),
+    _flagXvalid(false),
+    _flagKfold(false),
+    _flagXvalidEst(0),
+    _flagXvalidStd(0),
+    _flagNeighOnly(false),
+    _nbNeigh(5),
     _iptrEst(-1),
     _iptrStd(-1),
-    _iptrVarZ(-1)
+    _iptrVarZ(-1),
+    _iptrNeigh(-1)
 {
 }
 
@@ -69,7 +77,7 @@ bool CalcKriging::_check()
 bool CalcKriging::_preprocess()
 {
   int status = 1;
-  if (_flagSingleTarget) status = 2;
+  if (_iechSingleTarget >= 0) status = 2;
 
   if (_flagEst)
   {
@@ -86,6 +94,11 @@ bool CalcKriging::_preprocess()
     _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
     if (_iptrVarZ < 0) return false;
   }
+  if (_flagNeighOnly)
+  {
+    _iptrNeigh = _addVariableDb(2, status, ELoc::UNKNOWN, _nbNeigh, 0.);
+    if (_iptrNeigh < 0) return false;
+  }
 
   // Centering the Data (for DGM)
 
@@ -101,9 +114,33 @@ bool CalcKriging::_preprocess()
 bool CalcKriging::_postprocess()
 {
   int nvar = _getNVar();
-  _renameVariable(nvar, _iptrVarZ, "varz", 1);
-  _renameVariable(nvar, _iptrStd, "stdev", 1);
-  _renameVariable(nvar, _iptrEst, "estim", 1);
+  if (_flagXvalid)
+  {
+    if (_flagXvalidStd > 0)
+      _renameVariable(nvar, _iptrStd, "stderr", 1, false);
+    else if (_flagXvalidStd < 0)
+      _renameVariable(nvar, _iptrStd, "stdev", 1, false);
+
+    if (_flagXvalidEst > 0)
+      _renameVariable(nvar, _iptrEst, "esterr", 1);
+    else if (_flagXvalidEst < 0)
+      _renameVariable(nvar, _iptrEst, "estim", 1);
+  }
+  else if (_flagNeighOnly)
+  {
+    _renameVariable(1, _iptrNeigh  , "Number", 1);
+    _renameVariable(1, _iptrNeigh+1, "MaxDist", 1);
+    _renameVariable(1, _iptrNeigh+2, "MinDist", 1);
+    _renameVariable(1, _iptrNeigh+3, "NbNESect", 1);
+    _renameVariable(1, _iptrNeigh+4, "NbCESect", 1);
+  }
+  else
+  {
+    _renameVariable(nvar, _iptrVarZ, "varz", 1);
+    _renameVariable(nvar, _iptrStd, "stdev", 1);
+    _renameVariable(nvar, _iptrEst, "estim", 1);
+  }
+
   return true;
 }
 
@@ -164,13 +201,26 @@ bool CalcKriging::_run()
   {
     if (ksys.setKrigoptCode(true)) return false;
   }
+  if (_flagGam)
+  {
+    if (ksys.setKrigOptAnamophosis(_anam)) return false;
+  }
+  if (_flagXvalid)
+  {
+    if (ksys.setKrigOptXValid(true, _flagKfold, _flagXvalidEst > 0, _flagXvalidStd > 0))
+      return false;
+  }
+  if (_flagNeighOnly)
+  {
+    if (ksys.updKrigOptNeighOnly(_iptrNeigh)) return false;
+  }
   if (! ksys.isReady()) return false;
 
   /* Loop on the targets to be processed */
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
-    if (_flagSingleTarget)
+    if (_iechSingleTarget >= 0)
     {
       if (iech_out != _iechSingleTarget) continue;
     }
@@ -183,7 +233,7 @@ bool CalcKriging::_run()
 
   // Store the results in an API structure (only if flagSingleTarget)
 
-  if (_flagSingleTarget)
+  if (_iechSingleTarget >= 0)
     _storeResultsForExport(ksys);
 
   return true;
@@ -438,7 +488,6 @@ Krigtest_Res krigtest(Db *dbin,
 
   krige.setCalcul(calcul);
   krige.setNdisc(ndisc);
-  krige.setFlagSingleTarget(true);
   krige.setIechSingleTarget(iech0);
 
   (void) krige.run();
@@ -446,14 +495,124 @@ Krigtest_Res krigtest(Db *dbin,
   return krige.getKtest();
 }
 
-/**
- * Dummy function inserted here to check VectorDouble argument.
- * @param toto
- * @return
- */
-int krigingBidon(const VectorDouble& toto)
+/****************************************************************************/
+/*!
+ **  Punctual Kriging in the Anamorphosed Gaussian Model
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  anam       AAnam structure
+ ** \param[in]  namconv    Naming convention
+ **
+ *****************************************************************************/
+int kriggam(Db *dbin,
+            Db *dbout,
+            Model *model,
+            ANeighParam *neighparam,
+            AAnam *anam,
+            const NamingConvention& namconv)
 {
-  if (! toto.empty()) ut_vector_display("mon titre", toto);
-  int error = 0;
+  CalcKriging krige(true, true, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagGam(true);
+  krige.setAnam(anam);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
   return error;
 }
+
+/****************************************************************************/
+/*!
+ **  Standard Cross-Validation
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db          Db structure
+ ** \param[in]  model       Model structure
+ ** \param[in]  neighparam  ANeighParam structure
+ ** \param[in]  flag_kfold  1 if a code (K-FOLD) is used
+ ** \param[in]  flag_xvalid_est Option for storing the estimation
+ **                         1: Z*-Z; -1: Z*
+ ** \param[in]  flag_xvalid_std Option for storing the standard deviation
+ **                         1: (Z*-Z)/S; -1: S
+ ** \param[in]  rank_colcok Option for running Collocated Cokriging
+ ** \param[in]  namconv     Naming Convention
+ **
+ *****************************************************************************/
+int xvalid(Db *db,
+           Model *model,
+           ANeighParam *neighparam,
+           int flag_kfold,
+           int flag_xvalid_est,
+           int flag_xvalid_std,
+           VectorInt rank_colcok,
+           const NamingConvention& namconv)
+{
+  CalcKriging krige(flag_xvalid_est != 0, flag_xvalid_std != 0, false);
+  krige.setDbin(db);
+  krige.setDbout(db);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagXvalid(true);
+  krige.setFlagXvalidEst(flag_xvalid_est);
+  krige.setFlagXvalidStd(flag_xvalid_std);
+  krige.setFlagKfold(flag_kfold);
+  krige.setRankColCok(rank_colcok);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Check the Neighborhood
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbin       input Db structure
+ ** \param[in]  dbout      output Db structure
+ ** \param[in]  model      Model structure (optional)
+ ** \param[in]  neighparam ANeighParam structure
+ ** \param[in]  namconv    Naming Convention
+ **
+ ** \remark This procedure creates the following arrays:
+ ** \remark 1 - The number of selected samples
+ ** \remark 2 - The maximum neighborhood distance
+ ** \remark 3 - The minimum neighborhood distance
+ ** \remark 4 - The number of non-empty sectors
+ ** \remark 5 - The number of consecutive empty sectors
+ **
+ *****************************************************************************/
+int test_neigh(Db *dbin,
+               Db *dbout,
+               Model *model,
+               ANeighParam *neighparam,
+               const NamingConvention &namconv)
+{
+  CalcKriging krige(false, false, false);
+  krige.setDbin(dbin);
+  krige.setDbout(dbout);
+  krige.setModel(model);
+  krige.setNeighparam(neighparam);
+  krige.setNamingConvention(namconv);
+
+  krige.setFlagNeighOnly(true);
+
+  // Run the calculator
+  int error = (krige.run()) ? 0 : 1;
+  return error;
+}
+

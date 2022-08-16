@@ -248,6 +248,18 @@ VectorDouble DriftList::getDrift(const Db* db, int ib, bool useSel) const
   return vec;
 }
 
+VectorDouble DriftList::getDriftVec(const Db* db, int iech) const
+{
+  int ndrift = getDriftNumber();
+  VectorDouble vec(ndrift);
+
+  for (int ib=0; ib<ndrift; ib++)
+  {
+    vec[ib] = _drifts[ib]->eval(db, iech);
+  }
+  return vec;
+}
+
 double DriftList::getDrift(const Db* db, int ib, int iech) const
 {
   if (! _isDriftIndexValid(ib)) return TEST;
@@ -265,6 +277,13 @@ VectorVectorDouble DriftList::getDrifts(const Db* db, bool useSel) const
   return vec;
 }
 
+/**
+ * Evaluate the Linear combination of drift terms at each sample of a Db
+ * @param db     Target Db
+ * @param coeffs Vector of coefficients (must have dimension of number of drift elements)
+ * @param useSel True if the selection must be taken into account
+ * @return
+ */
 VectorDouble DriftList::evalDrifts(const Db* db,
                                    const VectorDouble& coeffs,
                                    bool useSel) const

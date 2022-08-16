@@ -1461,11 +1461,18 @@ GSTLEARN_EXPORT int global_transitive(DbGrid *dbgrid,
                                       double *zest,
                                       double *cve,
                                       double *cvtrans);
-GSTLEARN_EXPORT int invdist_f(Db *dbin,
-                              Db *dbout,
-                              int exponent,
-                              int flag_expand,
-                              double dmax);
+GSTLEARN_EXPORT int invdist(Db *dbin,
+                            Db *dbout,
+                            int iptr,
+                            double exponent = 2.,
+                            bool flag_expand = true,
+                            double dmax = TEST);
+GSTLEARN_EXPORT int movave(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr);
+GSTLEARN_EXPORT int lstsqr(Db *dbin,
+                           Db *dbout,
+                           ANeighParam *neighparam,
+                           int iptr,
+                           int order);
 GSTLEARN_EXPORT int anakexp_f(DbGrid *db,
                               double *covdd,
                               double *covd0,

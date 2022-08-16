@@ -59,10 +59,11 @@ public:
   int  setKrigOptAnamophosis(AAnam* anam);
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
 
-  // The subseauent methods do not require isReady() validation
+  // The subsequent methods do not require isReady() validation
   int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
-  int  updKrigOptIclass(int index_class);
+  int  updKrigOptIclass(int index_class, int nclasses);
   int  updKrigOptCheckAddress(bool flagCheckAddress);
+  int  updKrigOptNeighOnly(int iptrNeigh);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -156,6 +157,7 @@ private:
   void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
+  void _neighCalcul(int status, const VectorDouble& tab);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL);
   void _variance0();
@@ -246,6 +248,7 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
+  int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;
@@ -265,6 +268,10 @@ private:
 
   /// Option for saving the Weights using Keypair mechanism
   bool _flagKeypairWeights;
+
+  /// Option for Neighboring test
+  bool _flagNeighOnly;
+  int  _iptrNeigh;
 
   /// Local variables
   int _iechOut;

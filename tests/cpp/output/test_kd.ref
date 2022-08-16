@@ -401,7 +401,7 @@ Column = 5 - Name = Factor.Gauss.Z.1 - Locator = z1
 Column = 6 - Name = Factor.Gauss.Z.2 - Locator = z2
 Column = 7 - Name = Factor.Gauss.Z.3 - Locator = z3
 
-Processing Factor 1
+Processing Factor 1 / 3
 
 Target location
 ---------------
@@ -466,6 +466,118 @@ Variable Z1
  - Variance  =      0.851
  - Cov(h=0)  =      1.000
 
+Processing Factor 2 / 3
+
+Target location
+---------------
+Sample #1 (from 25)
+Coordinate #1 = 0.400000
+Coordinate #2 = 0.400000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.004     0.033     0.106     0.046
+         2         2     0.004     1.000     0.007     0.002     0.020
+         3         3     0.033     0.007     1.000     0.006     0.199
+         4         4     0.106     0.002     0.006     1.000     0.010
+         5         5     0.046     0.020     0.199     0.010     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Punctual Estimation
+
+      Rank      Flag         1
+         1         1     0.069
+         2         2     0.024
+         3         3     0.024
+         4         4     0.038
+         5         5     0.083
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2      Data       Z1*
+         1     0.350     0.420    -0.693     0.062
+         2     0.450     0.340    -0.014     0.022
+         3     0.340     0.350     0.625     0.006
+         4     0.370     0.460    -0.083     0.031
+         5     0.370     0.360     2.578     0.078
+Sum of weights                               0.200
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =      0.159
+ - Std. Dev. =      0.994
+ - Variance  =      0.987
+ - Cov(h=0)  =      1.000
+
+Processing Factor 3 / 3
+
+Target location
+---------------
+Sample #1 (from 25)
+Coordinate #1 = 0.400000
+Coordinate #2 = 0.400000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.000     0.006     0.035     0.010
+         2         2     0.000     1.000     0.001     0.000     0.003
+         3         3     0.006     0.001     1.000     0.000     0.089
+         4         4     0.035     0.000     0.000     1.000     0.001
+         5         5     0.010     0.003     0.089     0.001     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Punctual Estimation
+
+      Rank      Flag         1
+         1         1     0.018
+         2         2     0.004
+         3         3     0.004
+         4         4     0.008
+         5         5     0.024
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2      Data       Z1*
+         1     0.350     0.420     0.173     0.018
+         2     0.450     0.340    -0.816     0.004
+         3     0.340     0.350    -0.625     0.002
+         4     0.370     0.460    -0.812     0.007
+         5     0.370     0.360     1.448     0.024
+Sum of weights                               0.053
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =      0.028
+ - Std. Dev. =      1.000
+ - Variance  =      0.999
+ - Cov(h=0)  =      1.000
+
 Data Base Grid Characteristics
 ==============================
 
@@ -473,8 +585,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 15
-Maximum Number of UIDs       = 15
+Number of Columns            = 19
+Maximum Number of UIDs       = 19
 Total number of samples      = 25
 
 Grid characteristics:
@@ -499,9 +611,13 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
 
-Processing Factor 1
+Processing Factor 1 / 3
 
 Target location
 ---------------
@@ -538,33 +654,145 @@ Number of active samples    = 5
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
-Punctual Estimation
+Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
-         1         1     0.264
-         2         2     0.155
-         3         3     0.155
-         4         4     0.196
-         5         5     0.288
+         1         1     0.268
+         2         2     0.159
+         3         3     0.159
+         4         4     0.201
+         5         5     0.293
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1     0.350     0.420    -0.142     0.172
-         2     0.450     0.340     0.990     0.107
-         3     0.340     0.350     1.373     0.007
-         4     0.370     0.460     0.939     0.112
-         5     0.370     0.360     2.155     0.222
-Sum of weights                               0.620
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.050     0.050    -0.142     0.174
+         2     0.450     0.340     0.050     0.050     0.990     0.111
+         3     0.340     0.350     0.050     0.050     1.373     0.009
+         4     0.370     0.460     0.050     0.050     0.939     0.116
+         5     0.370     0.360     0.050     0.050     2.155     0.224
+Sum of weights                                                   0.634
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.675
- - Std. Dev. =      0.923
- - Variance  =      0.851
- - Cov(h=0)  =      1.000
+ - Estimate  =      0.690
+ - Std. Dev. =      0.622
+ - Variance  =      0.387
+ - Cov(h=0)  =      0.541
+
+Processing Factor 2 / 3
+
+Target location
+---------------
+Sample #1 (from 25)
+Coordinate #1 = 0.400000
+Coordinate #2 = 0.400000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.004     0.033     0.106     0.046
+         2         2     0.004     1.000     0.007     0.002     0.020
+         3         3     0.033     0.007     1.000     0.006     0.199
+         4         4     0.106     0.002     0.006     1.000     0.010
+         5         5     0.046     0.020     0.199     0.010     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+      Rank      Flag         1
+         1         1     0.079
+         2         2     0.028
+         3         3     0.028
+         4         4     0.044
+         5         5     0.096
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.050     0.050    -0.693     0.071
+         2     0.450     0.340     0.050     0.050    -0.014     0.026
+         3     0.340     0.350     0.050     0.050     0.625     0.007
+         4     0.370     0.460     0.050     0.050    -0.083     0.036
+         5     0.370     0.360     0.050     0.050     2.578     0.090
+Sum of weights                                                   0.230
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =      0.185
+ - Std. Dev. =      0.550
+ - Variance  =      0.303
+ - Cov(h=0)  =      0.320
+
+Processing Factor 3 / 3
+
+Target location
+---------------
+Sample #1 (from 25)
+Coordinate #1 = 0.400000
+Coordinate #2 = 0.400000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.000     0.006     0.035     0.010
+         2         2     0.000     1.000     0.001     0.000     0.003
+         3         3     0.006     0.001     1.000     0.000     0.089
+         4         4     0.035     0.000     0.000     1.000     0.001
+         5         5     0.010     0.003     0.089     0.001     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 5 x 5
+
+      Rank      Flag         1
+         1         1     0.026
+         2         2     0.005
+         3         3     0.005
+         4         4     0.011
+         5         5     0.035
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.050     0.050     0.173     0.025
+         2     0.450     0.340     0.050     0.050    -0.816     0.005
+         3     0.340     0.350     0.050     0.050    -0.625     0.002
+         4     0.370     0.460     0.050     0.050    -0.812     0.010
+         5     0.370     0.360     0.050     0.050     1.448     0.035
+Sum of weights                                                   0.077
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =      0.041
+ - Std. Dev. =      0.450
+ - Variance  =      0.202
+ - Cov(h=0)  =      0.204
 
 Data Base Grid Characteristics
 ==============================
@@ -573,8 +801,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 17
-Maximum Number of UIDs       = 17
+Number of Columns            = 25
+Maximum Number of UIDs       = 25
 Total number of samples      = 25
 
 Grid characteristics:
@@ -599,11 +827,19 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 
-Processing Factor 1
+Processing Factor 1 / 3
 
 Target location
 ---------------
@@ -640,33 +876,145 @@ Number of active samples    = 5
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
-Punctual Estimation
+Block Estimation : Discretization = 10 x 10
 
       Rank      Flag         1
-         1         1     0.278
-         2         2     0.152
-         3         3     0.141
-         4         4     0.339
-         5         5     0.663
+         1         1     0.144
+         2         2     0.134
+         3         3     0.130
+         4         4     0.147
+         5         5     0.152
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1     0.350     0.420    -0.142     0.138
-         2     0.440     0.330     0.621     0.022
-         3     0.450     0.340     0.990     0.027
-         4     0.340     0.350     1.373     0.038
-         5     0.370     0.360     2.155     0.610
-Sum of weights                               0.835
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.250     0.250    -0.142     0.106
+         2     0.440     0.330     0.250     0.250     0.621     0.064
+         3     0.450     0.340     0.250     0.250     0.990     0.063
+         4     0.340     0.350     0.250     0.250     1.373     0.084
+         5     0.370     0.360     0.250     0.250     2.155     0.072
+Sum of weights                                                   0.389
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      1.387
- - Std. Dev. =      0.733
- - Variance  =      0.537
- - Cov(h=0)  =      1.000
+ - Estimate  =      0.358
+ - Std. Dev. =      0.252
+ - Variance  =      0.063
+ - Cov(h=0)  =      0.119
+
+Processing Factor 2 / 3
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.375000
+Coordinate #2 = 0.375000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.004     0.004     0.033     0.046
+         2         2     0.004     1.000     0.479     0.009     0.026
+         3         3     0.004     0.479     1.000     0.007     0.020
+         4         4     0.033     0.009     0.007     1.000     0.199
+         5         5     0.046     0.026     0.020     0.199     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 10 x 10
+
+      Rank      Flag         1
+         1         1     0.040
+         2         2     0.039
+         3         3     0.038
+         4         4     0.041
+         5         5     0.042
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.250     0.250    -0.693     0.037
+         2     0.440     0.330     0.250     0.250    -0.434     0.026
+         3     0.450     0.340     0.250     0.250    -0.014     0.024
+         4     0.340     0.350     0.250     0.250     0.625     0.033
+         5     0.370     0.360     0.250     0.250     2.578     0.032
+Sum of weights                                                   0.153
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =      0.066
+ - Std. Dev. =      0.168
+ - Variance  =      0.028
+ - Cov(h=0)  =      0.034
+
+Processing Factor 3 / 3
+
+Target location
+---------------
+Sample #1 (from 1)
+Coordinate #1 = 0.375000
+Coordinate #2 = 0.375000
+
+LHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+
+      Rank                   1         2         3         4         5
+                Flag         1         2         3         4         5
+         1         1     1.000     0.000     0.000     0.006     0.010
+         2         2     0.000     1.000     0.332     0.001     0.004
+         3         3     0.000     0.332     1.000     0.001     0.003
+         4         4     0.006     0.001     0.001     1.000     0.089
+         5         5     0.010     0.004     0.003     0.089     1.000
+
+RHS of Kriging matrix (compressed)
+==================================
+Number of active samples    = 5
+Total number of equations   = 5
+Reduced number of equations = 5
+Number of right-hand sides  = 1
+Block Estimation : Discretization = 10 x 10
+
+      Rank      Flag         1
+         1         1     0.017
+         2         2     0.017
+         3         3     0.017
+         4         4     0.017
+         5         5     0.018
+
+(Co-) Kriging weights
+=====================
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.350     0.420     0.250     0.250     0.173     0.016
+         2     0.440     0.330     0.250     0.250    -0.663     0.013
+         3     0.450     0.340     0.250     0.250    -0.816     0.012
+         4     0.340     0.350     0.250     0.250    -0.625     0.016
+         5     0.370     0.360     0.250     0.250     1.448     0.016
+Sum of weights                                                   0.074
+
+(Co-) Kriging results
+=====================
+Target Sample = 1
+Variable Z1 
+ - Estimate  =     -0.002
+ - Std. Dev. =      0.120
+ - Variance  =      0.015
+ - Cov(h=0)  =      0.016
 
 Data Base Grid Characteristics
 ==============================
@@ -675,8 +1023,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 5
-Maximum Number of UIDs       = 5
+Number of Columns            = 9
+Maximum Number of UIDs       = 9
 Total number of samples      = 1
 
 Grid characteristics:
@@ -691,7 +1039,11 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = z1
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = z2
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = z3
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
 
 Data Base Characteristics
 =========================
@@ -785,8 +1137,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 19
-Maximum Number of UIDs       = 19
+Number of Columns            = 27
+Maximum Number of UIDs       = 27
 Total number of samples      = 25
 
 Grid characteristics:
@@ -811,11 +1163,19 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = Z_PTS.Z.estim - Locator = z1
-Column = 18 - Name = Z_PTS.Z.stdev - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 25 - Name = Z_PTS.Z.estim - Locator = z1
+Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
 
 Data Base Grid Characteristics
 ==============================
@@ -824,8 +1184,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 27
-Maximum Number of UIDs       = 29
+Number of Columns            = 35
+Maximum Number of UIDs       = 37
 Total number of samples      = 25
 
 Grid characteristics:
@@ -850,19 +1210,27 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = Z_PTS.Z.estim - Locator = NA
-Column = 18 - Name = Z_PTS.Z.stdev - Locator = NA
-Column = 19 - Name = UC.T-Est-0 - Locator = NA
-Column = 20 - Name = UC.T-Est-0.5 - Locator = NA
-Column = 21 - Name = UC.T-Std-0 - Locator = NA
-Column = 22 - Name = UC.T-Std-0.5 - Locator = NA
-Column = 23 - Name = UC.Q-Est-0 - Locator = NA
-Column = 24 - Name = UC.Q-Est-0.5 - Locator = NA
-Column = 25 - Name = UC.Q-Std-0 - Locator = NA
-Column = 26 - Name = UC.Q-Std-0.5 - Locator = z1
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
+Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
+Column = 27 - Name = UC.T-Est-0 - Locator = NA
+Column = 28 - Name = UC.T-Est-0.5 - Locator = NA
+Column = 29 - Name = UC.T-Std-0 - Locator = NA
+Column = 30 - Name = UC.T-Std-0.5 - Locator = NA
+Column = 31 - Name = UC.Q-Est-0 - Locator = NA
+Column = 32 - Name = UC.Q-Est-0.5 - Locator = NA
+Column = 33 - Name = UC.Q-Std-0 - Locator = NA
+Column = 34 - Name = UC.Q-Std-0.5 - Locator = z1
 Change of Support coefficient (DGM-1) =  0.682
 
 Model characteristics
@@ -901,7 +1269,7 @@ Normalized coefficients for Hermite polynomials
      [  7,]     0.018     0.001    -0.014     0.011     0.002    -0.011     0.006
      [ 14,]     0.006    -0.008    -0.001     0.006    -0.002    -0.004
 
-Processing Factor 1
+Processing Factor 1 / 1
 
 Target location
 ---------------
@@ -973,8 +1341,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 29
-Maximum Number of UIDs       = 31
+Number of Columns            = 37
+Maximum Number of UIDs       = 39
 Total number of samples      = 25
 
 Grid characteristics:
@@ -999,23 +1367,31 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = Z_PTS.Z.estim - Locator = NA
-Column = 18 - Name = Z_PTS.Z.stdev - Locator = NA
-Column = 19 - Name = UC.T-Est-0 - Locator = NA
-Column = 20 - Name = UC.T-Est-0.5 - Locator = NA
-Column = 21 - Name = UC.T-Std-0 - Locator = NA
-Column = 22 - Name = UC.T-Std-0.5 - Locator = NA
-Column = 23 - Name = UC.Q-Est-0 - Locator = NA
-Column = 24 - Name = UC.Q-Est-0.5 - Locator = NA
-Column = 25 - Name = UC.Q-Std-0 - Locator = NA
-Column = 26 - Name = UC.Q-Std-0.5 - Locator = NA
-Column = 27 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
-Column = 28 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
+Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
+Column = 27 - Name = UC.T-Est-0 - Locator = NA
+Column = 28 - Name = UC.T-Est-0.5 - Locator = NA
+Column = 29 - Name = UC.T-Std-0 - Locator = NA
+Column = 30 - Name = UC.T-Std-0.5 - Locator = NA
+Column = 31 - Name = UC.Q-Est-0 - Locator = NA
+Column = 32 - Name = UC.Q-Est-0.5 - Locator = NA
+Column = 33 - Name = UC.Q-Std-0 - Locator = NA
+Column = 34 - Name = UC.Q-Std-0.5 - Locator = NA
+Column = 35 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
+Column = 36 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
 
-Processing Factor 1
+Processing Factor 1 / 1
 
 Target location
 ---------------
@@ -1052,33 +1428,33 @@ Number of active samples    = 5
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
-Punctual Estimation
+Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
-         1         1     0.062
-         2         2     0.062
-         3         3     0.062
-         4         4     0.062
-         5         5     0.062
+         1         1     0.043
+         2         2     0.043
+         3         3     0.043
+         4         4     0.043
+         5         5     0.043
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1     0.325     0.375    -0.444     0.022
-         2     0.325     0.375    -1.989     0.022
-         3     0.325     0.375    -1.940     0.022
-         4     0.325     0.375     1.064     0.022
-         5     0.325     0.375    -0.531     0.022
-Sum of weights                               0.109
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.325     0.375     0.250     0.250    -0.444     0.015
+         2     0.325     0.375     0.250     0.250    -1.989     0.015
+         3     0.325     0.375     0.250     0.250    -1.940     0.015
+         4     0.325     0.375     0.250     0.250     1.064     0.015
+         5     0.325     0.375     0.250     0.250    -0.531     0.015
+Sum of weights                                                   0.074
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =     -0.084
- - Std. Dev. =      0.997
- - Variance  =      0.993
- - Cov(h=0)  =      1.000
+ - Estimate  =     -0.057
+ - Std. Dev. =      0.185
+ - Variance  =      0.034
+ - Cov(h=0)  =      0.037
 
 Data Base Grid Characteristics
 ==============================
@@ -1087,8 +1463,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 7
-Maximum Number of UIDs       = 7
+Number of Columns            = 11
+Maximum Number of UIDs       = 11
 Total number of samples      = 1
 
 Grid characteristics:
@@ -1103,9 +1479,13 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 5 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
-Column = 6 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = z1
+Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
 Change of Support coefficient (DGM2) =  0.703
 
 Model characteristics
@@ -1160,7 +1540,7 @@ Normalized coefficients for Hermite polynomials
      [  7,]     0.018     0.001    -0.014     0.011     0.002    -0.011     0.006
      [ 14,]     0.006    -0.008    -0.001     0.006    -0.002    -0.004
 
-Processing Factor 1
+Processing Factor 1 / 1
 
 Target location
 ---------------
@@ -1232,8 +1612,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 31
-Maximum Number of UIDs       = 33
+Number of Columns            = 39
+Maximum Number of UIDs       = 41
 Total number of samples      = 25
 
 Grid characteristics:
@@ -1258,25 +1638,33 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = Z_PTS.Z.estim - Locator = NA
-Column = 18 - Name = Z_PTS.Z.stdev - Locator = NA
-Column = 19 - Name = UC.T-Est-0 - Locator = NA
-Column = 20 - Name = UC.T-Est-0.5 - Locator = NA
-Column = 21 - Name = UC.T-Std-0 - Locator = NA
-Column = 22 - Name = UC.T-Std-0.5 - Locator = NA
-Column = 23 - Name = UC.Q-Est-0 - Locator = NA
-Column = 24 - Name = UC.Q-Est-0.5 - Locator = NA
-Column = 25 - Name = UC.Q-Std-0 - Locator = NA
-Column = 26 - Name = UC.Q-Std-0.5 - Locator = NA
-Column = 27 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
-Column = 28 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Column = 29 - Name = DK_DGM2.Gauss.Z.estim - Locator = z1
-Column = 30 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
+Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
+Column = 27 - Name = UC.T-Est-0 - Locator = NA
+Column = 28 - Name = UC.T-Est-0.5 - Locator = NA
+Column = 29 - Name = UC.T-Std-0 - Locator = NA
+Column = 30 - Name = UC.T-Std-0.5 - Locator = NA
+Column = 31 - Name = UC.Q-Est-0 - Locator = NA
+Column = 32 - Name = UC.Q-Est-0.5 - Locator = NA
+Column = 33 - Name = UC.Q-Std-0 - Locator = NA
+Column = 34 - Name = UC.Q-Std-0.5 - Locator = NA
+Column = 35 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
+Column = 36 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
+Column = 37 - Name = DK_DGM2.Gauss.Z.estim - Locator = z1
+Column = 38 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
 
-Processing Factor 1
+Processing Factor 1 / 1
 
 Target location
 ---------------
@@ -1313,33 +1701,33 @@ Number of active samples    = 5
 Total number of equations   = 5
 Reduced number of equations = 5
 Number of right-hand sides  = 1
-Punctual Estimation
+Block Estimation : Discretization = 5 x 5
 
       Rank      Flag         1
-         1         1     0.473
-         2         2     0.703
-         3         3     0.473
-         4         4     0.473
-         5         5     0.703
+         1         1     0.333
+         2         2     0.349
+         3         3     0.333
+         4         4     0.333
+         5         5     0.349
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1     0.325     0.375    -0.444     0.104
-         2     0.375     0.375     0.582     0.401
-         3     0.325     0.375     1.064     0.104
-         4     0.325     0.375    -0.572     0.104
-         5     0.375     0.375     0.360     0.401
-Sum of weights                               1.114
+      Rank        x1        x2     Size1     Size2      Data       Z1*
+         1     0.325     0.375     0.250     0.250    -0.444     0.115
+         2     0.375     0.375     0.250     0.250     0.582     0.157
+         3     0.325     0.375     0.250     0.250     1.064     0.115
+         4     0.325     0.375     0.250     0.250    -0.572     0.115
+         5     0.375     0.375     0.250     0.250     0.360     0.157
+Sum of weights                                                   0.658
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.383
- - Std. Dev. =      0.537
- - Variance  =      0.289
- - Cov(h=0)  =      1.000
+ - Estimate  =      0.153
+ - Std. Dev. =      0.423
+ - Variance  =      0.179
+ - Cov(h=0)  =      0.403
 
 Data Base Grid Characteristics
 ==============================
@@ -1348,8 +1736,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 9
-Maximum Number of UIDs       = 9
+Number of Columns            = 13
+Maximum Number of UIDs       = 13
 Total number of samples      = 1
 
 Grid characteristics:
@@ -1364,11 +1752,15 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 4 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 5 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
-Column = 6 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Column = 7 - Name = DK_DGM2.Gauss.Z.estim - Locator = z1
-Column = 8 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
+Column = 4 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 5 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 6 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 7 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 8 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 9 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
+Column = 10 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
+Column = 11 - Name = DK_DGM2.Gauss.Z.estim - Locator = z1
+Column = 12 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
 
 Data Base Grid Characteristics
 ==============================
@@ -1377,8 +1769,8 @@ Data Base Summary
 -----------------
 File is organized as a regular grid
 Space dimension              = 2
-Number of Columns            = 39
-Maximum Number of UIDs       = 41
+Number of Columns            = 47
+Maximum Number of UIDs       = 49
 Total number of samples      = 25
 
 Grid characteristics:
@@ -1403,28 +1795,36 @@ Column = 10 - Name = PTS_Recovery.Q-Est-0.5 - Locator = NA
 Column = 11 - Name = PTS_Recovery.Q-Std-0 - Locator = NA
 Column = 12 - Name = PTS_Recovery.Q-Std-0.5 - Locator = NA
 Column = 13 - Name = DK_Pts.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 14 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 15 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
-Column = 16 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
-Column = 17 - Name = Z_PTS.Z.estim - Locator = NA
-Column = 18 - Name = Z_PTS.Z.stdev - Locator = NA
-Column = 19 - Name = UC.T-Est-0 - Locator = NA
-Column = 20 - Name = UC.T-Est-0.5 - Locator = NA
-Column = 21 - Name = UC.T-Std-0 - Locator = NA
-Column = 22 - Name = UC.T-Std-0.5 - Locator = NA
-Column = 23 - Name = UC.Q-Est-0 - Locator = NA
-Column = 24 - Name = UC.Q-Est-0.5 - Locator = NA
-Column = 25 - Name = UC.Q-Std-0 - Locator = NA
-Column = 26 - Name = UC.Q-Std-0.5 - Locator = NA
-Column = 27 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
-Column = 28 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
-Column = 29 - Name = DK_DGM2.Gauss.Z.estim - Locator = NA
-Column = 30 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
-Column = 31 - Name = QT.T-Est-0 - Locator = NA
-Column = 32 - Name = QT.T-Est-0.5 - Locator = NA
-Column = 33 - Name = QT.T-Std-0 - Locator = NA
-Column = 34 - Name = QT.T-Std-0.5 - Locator = NA
-Column = 35 - Name = QT.Q-Est-0 - Locator = NA
-Column = 36 - Name = QT.Q-Est-0.5 - Locator = NA
-Column = 37 - Name = QT.Q-Std-0 - Locator = NA
-Column = 38 - Name = QT.Q-Std-0.5 - Locator = z1
+Column = 14 - Name = DK_Pts.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 15 - Name = DK_Pts.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 16 - Name = DK_Pts.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 17 - Name = DK_Pts.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 18 - Name = DK_Pts.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 19 - Name = DK_Blk.Factor.Gauss.Z.1.estim - Locator = NA
+Column = 20 - Name = DK_Blk.Factor.Gauss.Z.2.estim - Locator = NA
+Column = 21 - Name = DK_Blk.Factor.Gauss.Z.3.estim - Locator = NA
+Column = 22 - Name = DK_Blk.Factor.Gauss.Z.1.stdev - Locator = NA
+Column = 23 - Name = DK_Blk.Factor.Gauss.Z.2.stdev - Locator = NA
+Column = 24 - Name = DK_Blk.Factor.Gauss.Z.3.stdev - Locator = NA
+Column = 25 - Name = Z_PTS.Z.estim - Locator = NA
+Column = 26 - Name = Z_PTS.Z.stdev - Locator = NA
+Column = 27 - Name = UC.T-Est-0 - Locator = NA
+Column = 28 - Name = UC.T-Est-0.5 - Locator = NA
+Column = 29 - Name = UC.T-Std-0 - Locator = NA
+Column = 30 - Name = UC.T-Std-0.5 - Locator = NA
+Column = 31 - Name = UC.Q-Est-0 - Locator = NA
+Column = 32 - Name = UC.Q-Est-0.5 - Locator = NA
+Column = 33 - Name = UC.Q-Std-0 - Locator = NA
+Column = 34 - Name = UC.Q-Std-0.5 - Locator = NA
+Column = 35 - Name = DK_DGM1.Gauss.Z.estim - Locator = NA
+Column = 36 - Name = DK_DGM1.Gauss.Z.stdev - Locator = NA
+Column = 37 - Name = DK_DGM2.Gauss.Z.estim - Locator = NA
+Column = 38 - Name = DK_DGM2.Gauss.Z.stdev - Locator = NA
+Column = 39 - Name = QT.T-Est-0 - Locator = NA
+Column = 40 - Name = QT.T-Est-0.5 - Locator = NA
+Column = 41 - Name = QT.T-Std-0 - Locator = NA
+Column = 42 - Name = QT.T-Std-0.5 - Locator = NA
+Column = 43 - Name = QT.Q-Est-0 - Locator = NA
+Column = 44 - Name = QT.Q-Est-0.5 - Locator = NA
+Column = 45 - Name = QT.Q-Std-0 - Locator = NA
+Column = 46 - Name = QT.Q-Std-0.5 - Locator = z1

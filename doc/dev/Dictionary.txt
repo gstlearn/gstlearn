@@ -64,3 +64,4 @@ armines
 db
 regularization
 regularized
+dicretization

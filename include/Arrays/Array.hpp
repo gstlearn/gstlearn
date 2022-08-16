@@ -11,20 +11,27 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Arrays/AArray.hpp"
 #include "Basic/Vector.hpp"
-#include "Arrays/Array.hpp"
+#include "Basic/AStringable.hpp"
 
-#include <math.h>
-#include <complex>
-#include <functional>
+class GSTLEARN_EXPORT Array : public AArray
+{
+public:
+  Array(const VectorInt& ndims = VectorInt());
+  Array(const Array &m);
+  Array& operator=(const Array &m);
+  virtual ~Array();
 
-GSTLEARN_EXPORT int FFTn(int ndim,
-                         const VectorInt& dims,
-                         VectorDouble& Re,
-                         VectorDouble& Im,
-                         int iSign = 1,
-                         double scaling = 1.);
-GSTLEARN_EXPORT Array evalCovFFTTimeSlice(const VectorDouble& hmax, double time, int N,
-                                          std::function<std::complex<double>(VectorDouble, double)> funcSpectrum);
-GSTLEARN_EXPORT Array evalCovFFTSpatial(const VectorDouble& hmax, int N,
-                                        std::function<double(const VectorDouble&)> funcSpectrum);
+  void init(const VectorInt& ndims);
+  double getValue(const VectorInt& indice) const;
+  void setValue(const VectorInt& indice, double value);
+  const VectorDouble& getValues() const { return _values; }
+  void setValues(const VectorDouble& values) { _values = values; }
+
+private:
+  void _update();
+
+private:
+  VectorDouble _values;
+};

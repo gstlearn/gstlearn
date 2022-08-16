@@ -2736,7 +2736,8 @@ int db_diffusion(DbGrid *dbgrid1,
 
   /* Allocate the neighboring displacement array */
 
-  nbgh = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose, &n_nbgh);
+  nbgh = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose);
+  n_nbgh = (int) nbgh.size() / ndim;
   valwrk = (double*) mem_alloc(sizeof(double) * n_nbgh, 0);
   if (valwrk == nullptr) goto label_end;
 

@@ -2,7 +2,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Array.hpp"
+#include "Arrays/Array.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include <complex>

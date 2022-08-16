@@ -67,6 +67,8 @@ public:
   VectorDouble getRow(int irow) const;
   /*! Extract a Column */
   VectorDouble getColumn(int icol) const;
+  /*! Add a value to a matrix term */
+  void add(int irow, int icol, double value);
   /*! Add a matrix to this */
   void add(const AMatrix& tab, double value = 1.);
   /*! Subtract a matrix to this */

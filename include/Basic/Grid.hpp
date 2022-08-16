@@ -87,9 +87,9 @@ public:
                                 const VectorDouble& percent = VectorDouble()) const;
   int     indiceToRank(const VectorInt& indice) const;
   void    rankToIndice(int node,VectorInt& indice, bool minusOne = false) const;
-  int     coordinateToIndice(const VectorDouble& coor,
-                             VectorInt& indice,
-                             double eps = EPSILON6) const;
+  int     coordinateToIndices(const VectorDouble &coor,
+                              VectorInt &indice,
+                              double eps = EPSILON6) const;
   int     coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const;
 
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }

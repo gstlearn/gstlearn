@@ -89,6 +89,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _flagDGM(false),
       _rDGM(1.),
       _flagFactorKriging(false),
+      _nclasses(0),
       _matCL(),
       _flagLTerm(false),
       _lterm(0.),
@@ -96,6 +97,8 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dbaux(),
       _flagSmooth(false),
       _flagKeypairWeights(false),
+      _flagNeighOnly(false),
+      _iptrNeigh(-1),
       _iechOut(-1),
       _nred(0),
       _flagCheckAddress(false),
@@ -1435,6 +1438,31 @@ void KrigingSystem::_estimateCalcul(int status)
   return;
 }
 
+void KrigingSystem::_neighCalcul(int status, const VectorDouble& tab)
+{
+  int ntab = (int) tab.size();
+  for (int i = 0; i < ntab; i++)
+  {
+
+    /* Store the parameter */
+
+    double value = (status == 0) ? tab[i] : TEST;
+    _dbout->setArray(_iechOut, _iptrNeigh + i, value);
+  }
+
+  if (OptDbg::query(EDbg::NBGH) && status == 0)
+  {
+    mestitle(0, "Neighborhood Parameters");
+
+    message("Number of selected samples          = %d\n", (int) tab[0]);
+    message("Maximum neighborhood distance       = %lf\n", tab[1]);
+    message("Minimum neighborhood distance       = %lf\n", tab[2]);
+    message("Number of non-empty sectors         = %d\n", (int) tab[3]);
+    message("Number of consecutive empty sectors = %d\n", (int) tab[4]);
+  }
+  return;
+}
+
 void KrigingSystem::_estimateCalculImage(int status)
 {
   if (! _flagEst) return;
@@ -1859,7 +1887,7 @@ int KrigingSystem::estimate(int iech_out)
   if (OptDbg::query(EDbg::KRIGING) || OptDbg::query(EDbg::NBGH) || OptDbg::query(EDbg::RESULTS))
   {
     if (_flagFactorKriging)
-      message("\nProcessing Factor %d\n",_model->getAnamIClass());
+      message("\nProcessing Factor %d / %d\n",_model->getAnamIClass(), _nclasses);
 
     mestitle(1, "Target location");
     db_sample_print(_dbout, _iechOut, 1, 0, 0);
@@ -1870,6 +1898,7 @@ int KrigingSystem::estimate(int iech_out)
   if (caseXvalidUnique) _neighParam->setFlagXvalid(false);
   _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
   status = (getNech() <= 0);
+  if (_flagNeighOnly) goto label_store;
 
   /* Establish the Kriging L.H.S. */
 
@@ -1921,7 +1950,15 @@ int KrigingSystem::estimate(int iech_out)
 
   if (_flagBayes) _bayesCorrectVariance();
 
-  if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
+  // Store the results in the output Db
+
+  if (_flagNeighOnly)
+  {
+    VectorDouble tab = _nbghWork.summary(_dbout, _iechOut, _rankColCok);
+    _neighCalcul(status, tab);
+
+  }
+  else if (_neighParam->getType().toEnum() == ENeigh::E_IMAGE)
   {
     // Image Neighborhood case
 
@@ -2123,6 +2160,19 @@ int KrigingSystem::updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ)
 
   _flagDataChanged = true;
 
+  return 0;
+}
+
+int KrigingSystem::updKrigOptNeighOnly(int iptrNeigh)
+{
+  _isReady = false;
+  if (iptrNeigh < 0)
+  {
+    messerr("UID for storing Neighborhood variable must be defined");
+    return 1;
+  }
+  _iptrNeigh = iptrNeigh;
+  _flagNeighOnly = true;
   return 0;
 }
 
@@ -2606,7 +2656,7 @@ int KrigingSystem::setKrigOptFactorKriging(bool flag_factor_kriging)
   return 0;
 }
 
-int KrigingSystem::updKrigOptIclass(int index_class)
+int KrigingSystem::updKrigOptIclass(int index_class, int nclasses)
 {
   if (! _flagFactorKriging)
   {
@@ -2615,6 +2665,7 @@ int KrigingSystem::updKrigOptIclass(int index_class)
     return 1;
   }
   _model->setAnamIClass(index_class);
+  _nclasses = nclasses;
 
   // Update C00 if the variance calculation is required
   if (_flagStd) _variance0();
