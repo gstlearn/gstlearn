@@ -47,7 +47,8 @@ protected:
                      const ELoc &locatorType,
                      int number = 1,
                      double valinit = 0.);
-  void _renameVariable(int nvar,
+  void _renameVariable(int whichDb,
+                       int nvar,
                        int iptr,
                        const String &name,
                        int count,

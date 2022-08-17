@@ -58,13 +58,25 @@ GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
                                             const VectorString &varnames = VectorString(),
                                             const String &title = "");
 
+GSTLEARN_EXPORT bool regressionCheck(Db *db1,
+                                     Db *db2,
+                                     int mode,
+                                     int icol0,
+                                     const VectorInt &icols);
 GSTLEARN_EXPORT ResRegr regression(Db *db1,
                                    Db *db2,
                                    int mode,
                                    int icol0,
                                    const VectorInt &icols,
-                                   bool flagCste = true,
-                                   bool storeResiduals = false,
+                                   bool flagCste,
                                    bool verbose = false);
-
+GSTLEARN_EXPORT bool regressionLoad(Db *db1,
+                                    Db *db2,
+                                    int iech,
+                                    int icol0,
+                                    const VectorInt &icols,
+                                    int mode,
+                                    int flagCste,
+                                    double *value,
+                                    VectorDouble &x);
 GSTLEARN_EXPORT void regrprint(const ResRegr& regr);

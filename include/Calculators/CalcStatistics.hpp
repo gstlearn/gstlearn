@@ -28,8 +28,14 @@ public:
   CalcStatistics& operator=(const CalcStatistics &r) = delete;
   virtual ~CalcStatistics();
 
+  void setFlagStats(bool flagStats) { _flagStats = flagStats; }
   void setRadius(int radius) { _radius = radius; }
   void setOper(const EStatOption &oper) { _oper = oper; }
+
+  void setFlagRegr(bool flagRegr) { _flagRegr = flagRegr; }
+  void setFlagCste(bool flagCste) { _flagCste = flagCste; }
+  void setNamaux(const VectorString &namaux) { _namaux = namaux; }
+  void setRegrMode(int regrMode) { _regrMode = regrMode; }
 
 private:
   virtual bool _check() override;
@@ -40,8 +46,15 @@ private:
 
 private:
   int    _iattOut;
+
+  bool _flagStats;
   EStatOption _oper;
   int _radius;
+
+  bool _flagRegr;
+  bool _flagCste;
+  int  _regrMode;
+  VectorString _namaux;
 };
 
 GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
@@ -50,3 +63,11 @@ GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
                                        int radius = 0,
                                        const NamingConvention &namconv = NamingConvention(
                                            "Stats"));
+GSTLEARN_EXPORT int dbRegression(Db *db1,
+                                 Db *db2,
+                                 int mode,
+                                 const String &name,
+                                 const VectorString &namaux,
+                                 bool flagCste = true,
+                                 const NamingConvention &namconv = NamingConvention(
+                                     "Regr"));

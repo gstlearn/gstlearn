@@ -1288,8 +1288,15 @@ GSTLEARN_EXPORT int stats_point_to_grid(DbGrid *dbgrid,
 GSTLEARN_EXPORT void calc_stats_grid(Db *db,
                                      DbGrid *dbgrid,
                                      const EStatOption &oper,
-                                     int iptr0,
-                                     int radius);
+                                     int radius,
+                                     int iptr0);
+GSTLEARN_EXPORT int calc_regression(Db *db1,
+                                    Db *db2,
+                                    int mode,
+                                    int icol0,
+                                    const VectorInt &icols,
+                                    bool flagCste,
+                                    int iptr0);
 GSTLEARN_EXPORT int db_stats(Db *db,
                              const String &oper,
                              const VectorInt &cols,

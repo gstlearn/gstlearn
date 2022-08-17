@@ -72,7 +72,7 @@ bool CalcSimpleInterpolation::_preprocess()
 
 bool CalcSimpleInterpolation::_postprocess()
 {
-  _renameVariable(1, _iattOut, String(), 1);
+  _renameVariable(2, 1, _iattOut, String(), 1);
   return true;
 }
 

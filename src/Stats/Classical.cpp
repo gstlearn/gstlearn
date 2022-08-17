@@ -532,15 +532,15 @@ String statisticsMultiPrint(const VectorDouble &stats,
   return sstr.str();
 }
 
-static bool _loadSampleValues(Db *db1,
-                              Db *db2,
-                              int iech,
-                              int icol0,
-                              const VectorInt& icols,
-                              int mode,
-                              int flagCste,
-                              double *value,
-                              VectorDouble &x)
+bool regressionLoad(Db *db1,
+                    Db *db2,
+                    int iech,
+                    int icol0,
+                    const VectorInt &icols,
+                    int mode,
+                    int flagCste,
+                    double *value,
+                    VectorDouble &x)
 {
   int ecr = 0;
   switch (mode)
@@ -567,6 +567,53 @@ static bool _loadSampleValues(Db *db1,
   return (FFFF(*value) || flagTest);
 }
 
+bool regressionCheck(Db *db1,
+                     Db *db2,
+                     int mode,
+                     int icol0,
+                     const VectorInt &icols)
+{
+  int ncol = (int) icols.size();
+  int nfex = db2->getExternalDriftNumber();
+
+  if (db1->getVariableNumber() != 1)
+  {
+    messerr("This method is restricted to the Monovariate case");
+    return false;
+  }
+
+  switch (mode)
+  {
+    case 0:
+      if (icol0 < 0 || icol0 >= db1->getColumnNumber())
+      {
+        messerr("The regression requires a valid target variable");
+        return false;
+      }
+      for (int icol = 0; icol < ncol; icol++)
+      {
+        if (icols[icol] < 0 || icols[icol] >= db2->getColumnNumber())
+        {
+          messerr("The regression requires a valid auxiliary variable (#%d)",
+                  icol + 1);
+          return false;
+        }
+      }
+      break;
+
+    case 1:
+      if (nfex <= 0)
+      {
+        messerr("The multivariate regression is designated");
+        messerr("as a function of several drift variables");
+        messerr("The Db contains %d drift variables", nfex);
+        return false;
+      }
+      break;
+  }
+  return true;
+}
+
 /****************************************************************************/
 /*!
  **  Evaluate the regression
@@ -581,17 +628,11 @@ static bool _loadSampleValues(Db *db1,
  ** \param[in]  icol0          Rank of the target variable
  ** \param[in]  icols          Vector of ranks of the explanatory variables
  ** \param[in]  flagCste       The constant is added as explanatory variable
- ** \param[in]  storeResiduals True if the residuals must be stored (db1)
  ** \param[in]  verbose        Verbose option
  **
  ** \remark  The flag_mode indicates the type of regression calculation:
  ** \remark  0 : V[icol] as a function of V[icols[i]]
  ** \remark  1 : Z1 as a function of the different Fi's
- **
- ** \remark  The Db structure has been modified: the last column of the Db1
- ** \remark  which has been added by this function, contains the value
- ** \remark  of the residuals at each datum (or TEST if the residual has not
- ** \remark  been calculated).
  **
  *****************************************************************************/
 ResRegr regression(Db *db1,
@@ -600,12 +641,10 @@ ResRegr regression(Db *db1,
                    int icol0,
                    const VectorInt& icols,
                    bool flagCste,
-                   bool storeResiduals,
                    bool verbose)
 {
   ResRegr regr;
 
-  int nvar = db1->getVariableNumber();
   int nfex = db2->getExternalDriftNumber();
   int nech = db1->getSampleNumber();
   int ncol = (int) icols.size();
@@ -624,36 +663,7 @@ ResRegr regression(Db *db1,
 
   /* Preliminary checks */
 
-  switch (mode)
-  {
-    case 0:
-      if (icol0 < 0 || icol0 >= db1->getColumnNumber())
-      {
-        messerr("The regression requires a valid target variable");
-        return regr;
-      }
-      for (int icol = 0; icol < ncol; icol++)
-      {
-        if (icols[icol] < 0 || icols[icol] >= db2->getColumnNumber())
-        {
-          messerr("The regression requires a valid auxiliary variable (#%d)",
-                  icol + 1);
-          return regr;
-        }
-      }
-      break;
-
-    case 1:
-      if (nvar != 1 || nfex <= 0)
-      {
-        messerr("The multivariate regression is designated for one variable");
-        messerr("as a function of several drift variables");
-        messerr("The Db contains %d variables and %d drift variables", nvar,
-                nfex);
-        return regr;
-      }
-      break;
-  }
+  if (! regressionCheck(db1, db2, mode, icol0, icols)) return regr;
 
   /* Core allocation */
 
@@ -674,8 +684,8 @@ ResRegr regression(Db *db1,
 
     /* Get the information for the current sample */
 
-    if (_loadSampleValues(db1, db2, iech, icol0, icols, mode, flagCste,
-                          &value, x)) continue;
+    if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, &value, x))
+      continue;
 
     prod += value * value;
     mean += value;
@@ -734,36 +744,6 @@ ResRegr regression(Db *db1,
     for (int i = 0; i < size; i++)
       message("Explanatory variable Aux.#%d - Coefficient = %lf\n", i + 1, x[i]);
     message("Variance of Residuals = %lf\n", regr.varres);
-  }
-
-  /* Store the regression error at sample points */
-
-  if (storeResiduals)
-  {
-    int iptr = db1->addColumnsByConstant(1, TEST);
-    if (iptr < 0) return regr;
-
-    for (int iech = 0; iech < nech; iech++)
-    {
-      if (db1->isActive(iech))
-      {
-        /* Get the information for the current sample */
-
-        if (_loadSampleValues(db1, db2, iech, icol0, icols, mode, flagCste,
-                              &value, x))
-        {
-          value = TEST;
-        }
-        else
-        {
-          double drift = 0.;
-          for (int i = 0; i < size; i++)
-            drift += x[i] * regr.coeffs[i];
-          value -= drift;
-        }
-      }
-      db1->setArray(iech, iptr, value);
-    }
   }
   return regr;
 }

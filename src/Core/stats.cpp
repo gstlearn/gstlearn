@@ -20,6 +20,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Stats/Classical.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -3204,15 +3205,15 @@ int stats_residuals(int verbose,
  ** \param[in]  db     Db for the points
  ** \param[in]  dbgrid Db for the grid
  ** \param[in]  oper   Name of the operator
- ** \param[in]  iptr   Storage address
  ** \param[in]  radius Neighborhood radius
+ ** \param[in]  iptr0  Storage address
  **
  *****************************************************************************/
 void calc_stats_grid(Db *db,
                      DbGrid *dbgrid,
                      const EStatOption &oper,
-                     int iptr0,
-                     int radius)
+                     int radius,
+                     int iptr0)
 {
   double value, mean, ratio;
 
@@ -3361,3 +3362,70 @@ void calc_stats_grid(Db *db,
   if (iptm > 0) dbgrid->deleteColumnByUID(iptm);
 }
 
+/****************************************************************************/
+/*!
+ **  Evaluate the regression
+ **
+ ** \return  Error return code
+ **
+ ** \param[in,out]  db1        Db descriptor (for target variable)
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  mode           Type of calculation
+ ** \li                        0 : standard multivariate case
+ ** \li                        1 : using external drifts
+ ** \param[in]  icol0          Rank of the target variable
+ ** \param[in]  icols          Vector of ranks of the explanatory variables
+ ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \param[in]  iptr0          Storing address
+ **
+ ** \remark  The flag_mode indicates the type of regression calculation:
+ ** \remark  0 : V[icol] as a function of V[icols[i]]
+ ** \remark  1 : Z1 as a function of the different Fi's
+ **
+ ** \remark  The Db1 structure is modified: the column (iptr0) of the Db1
+ ** \remark  is added by this function; it contains the value
+ ** \remark  of the residuals at each datum (or TEST if the residual has not
+ ** \remark  been calculated).
+ **
+ *****************************************************************************/
+int calc_regression(Db *db1,
+                    Db *db2,
+                    int mode,
+                    int icol0,
+                    const VectorInt &icols,
+                    bool flagCste,
+                    int iptr0)
+{
+  ResRegr regr;
+  regr = regression(db1, db2, mode, icol0, icols, flagCste);
+
+  /* Preliminary checks */
+
+  if (! regressionCheck(db1, db2, mode, icol0, icols)) return 1;
+
+  /* Store the regression error at sample points */
+
+  int size = (int) regr.coeffs.size();
+  double value;
+  VectorDouble x(size);
+
+  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  {
+    if (db1->isActive(iech))
+    {
+      /* Get the information for the current sample */
+
+      if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, &value, x))
+      {
+        value = TEST;
+      }
+      else
+      {
+        for (int i = 0; i < size; i++)
+          value -= x[i] * regr.coeffs[i];
+      }
+    }
+    db1->setArray(iech, iptr0, value);
+  }
+  return 0;
+}

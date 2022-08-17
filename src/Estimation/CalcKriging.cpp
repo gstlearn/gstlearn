@@ -117,28 +117,28 @@ bool CalcKriging::_postprocess()
   if (_flagXvalid)
   {
     if (_flagXvalidStd > 0)
-      _renameVariable(nvar, _iptrStd, "stderr", 1, false);
+      _renameVariable(2, nvar, _iptrStd, "stderr", 1, false);
     else if (_flagXvalidStd < 0)
-      _renameVariable(nvar, _iptrStd, "stdev", 1, false);
+      _renameVariable(2, nvar, _iptrStd, "stdev", 1, false);
 
     if (_flagXvalidEst > 0)
-      _renameVariable(nvar, _iptrEst, "esterr", 1);
+      _renameVariable(2, nvar, _iptrEst, "esterr", 1);
     else if (_flagXvalidEst < 0)
-      _renameVariable(nvar, _iptrEst, "estim", 1);
+      _renameVariable(2, nvar, _iptrEst, "estim", 1);
   }
   else if (_flagNeighOnly)
   {
-    _renameVariable(1, _iptrNeigh  , "Number", 1);
-    _renameVariable(1, _iptrNeigh+1, "MaxDist", 1);
-    _renameVariable(1, _iptrNeigh+2, "MinDist", 1);
-    _renameVariable(1, _iptrNeigh+3, "NbNESect", 1);
-    _renameVariable(1, _iptrNeigh+4, "NbCESect", 1);
+    _renameVariable(2, 1, _iptrNeigh  , "Number", 1);
+    _renameVariable(2, 1, _iptrNeigh+1, "MaxDist", 1);
+    _renameVariable(2, 1, _iptrNeigh+2, "MinDist", 1);
+    _renameVariable(2, 1, _iptrNeigh+3, "NbNESect", 1);
+    _renameVariable(2, 1, _iptrNeigh+4, "NbCESect", 1);
   }
   else
   {
-    _renameVariable(nvar, _iptrVarZ, "varz", 1);
-    _renameVariable(nvar, _iptrStd, "stdev", 1);
-    _renameVariable(nvar, _iptrEst, "estim", 1);
+    _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
+    _renameVariable(2, nvar, _iptrStd, "stdev", 1);
+    _renameVariable(2, nvar, _iptrEst, "estim", 1);
   }
 
   return true;

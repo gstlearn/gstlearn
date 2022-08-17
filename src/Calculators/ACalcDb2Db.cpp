@@ -216,13 +216,17 @@ int ACalcDb2Db::_addVariableDb(int whichDb,
   return iuid;
 }
 
-void ACalcDb2Db::_renameVariable(int nvar,
+void ACalcDb2Db::_renameVariable(int whichDb,
+                                 int nvar,
                                  int iptr,
                                  const String &name,
                                  int count,
                                  bool flagSetLocator)
 {
-  _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count, flagSetLocator);
+  if (whichDb == 1)
+    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbin, iptr, name, count, flagSetLocator);
+  else
+    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count, flagSetLocator);
 }
 
 void ACalcDb2Db::_cleanVariableDb(int status)
