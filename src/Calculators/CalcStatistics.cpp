@@ -12,16 +12,16 @@
 #include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
-#include "Calculators/ACalcDb2Db.hpp"
 #include "Calculators/CalcStatistics.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Db/ELoc.hpp"
 
 #include <math.h>
+#include "../../include/Calculators/ACalcDbToDb.hpp"
 
 CalcStatistics::CalcStatistics()
-    : ACalcDb2Db(),
+    : ACalcDbToDb(),
       _iattOut(-1),
       _flagStats(false),
       _oper(EStatOption::UNKNOWN),
@@ -39,7 +39,7 @@ CalcStatistics::~CalcStatistics()
 
 bool CalcStatistics::_check()
 {
-  if (! ACalcDb2Db::_check()) return false;
+  if (! ACalcDbToDb::_check()) return false;
 
   if (! hasDbin()) return false;
   if (! hasDbout()) return false;

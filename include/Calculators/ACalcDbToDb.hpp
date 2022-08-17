@@ -19,13 +19,13 @@
 
 class ELoc;
 
-class GSTLEARN_EXPORT ACalcDb2Db: public ACalculator
+class GSTLEARN_EXPORT ACalcDbToDb: public ACalculator
 {
 public:
-  ACalcDb2Db();
-  ACalcDb2Db(const ACalcDb2Db &r) = delete;
-  ACalcDb2Db& operator=(const ACalcDb2Db &r) = delete;
-  virtual ~ACalcDb2Db();
+  ACalcDbToDb();
+  ACalcDbToDb(const ACalcDbToDb &r) = delete;
+  ACalcDbToDb& operator=(const ACalcDbToDb &r) = delete;
+  virtual ~ACalcDbToDb();
 
   void setDbin(Db* dbin) { _dbin = dbin; }
   void setDbout(Db* dbout) { _dbout = dbout; }

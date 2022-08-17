@@ -12,7 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Calculators/ACalcDb2Db.hpp"
+#include "ACalcDbToDb.hpp"
+
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -20,7 +21,7 @@
 
 class ELoc;
 
-class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDb2Db
+class GSTLEARN_EXPORT ACalcInterpolator: public ACalcDbToDb
 {
 public:
   ACalcInterpolator();

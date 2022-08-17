@@ -149,9 +149,10 @@ public:
   }
   int coordinateToIndices(const VectorDouble &coor,
                           VectorInt &indices,
+                          bool centered = false,
                           double eps = EPSILON6) const
   {
-    return _grid.coordinateToIndices(coor, indices, eps);
+    return _grid.coordinateToIndices(coor, indices, centered, eps);
   }
 
   int indiceToRank(const VectorInt& indice) const

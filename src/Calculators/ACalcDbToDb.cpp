@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Calculators/ACalcDbToDb.hpp"
 #include "geoslib_f.h"
 
-#include "Calculators/ACalcDb2Db.hpp"
 #include "Db/Db.hpp"
 
-ACalcDb2Db::ACalcDb2Db()
+ACalcDbToDb::ACalcDbToDb()
     : ACalculator(),
       _dbin(nullptr),
       _dbout(nullptr),
@@ -25,11 +25,11 @@ ACalcDb2Db::ACalcDb2Db()
 {
 }
 
-ACalcDb2Db::~ACalcDb2Db()
+ACalcDbToDb::~ACalcDbToDb()
 {
 }
 
-int ACalcDb2Db::_getNDim() const
+int ACalcDbToDb::_getNDim() const
 {
   int ndim = 0;
   if (_dbin != nullptr)
@@ -58,7 +58,7 @@ int ACalcDb2Db::_getNDim() const
   return ndim;
 }
 
-int ACalcDb2Db::_getNVar() const
+int ACalcDbToDb::_getNVar() const
 {
   int nvar = 0;
   if (_dbin != nullptr)
@@ -75,7 +75,7 @@ int ACalcDb2Db::_getNVar() const
   return nvar;
 }
 
-bool ACalcDb2Db::_check()
+bool ACalcDbToDb::_check()
 {
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
@@ -149,7 +149,7 @@ bool ACalcDb2Db::_check()
  * @param whichDb 1 for 'dbin'  and 2 for 'dbout'
  * @return A pointer to the Db or nullptr
  */
-Db* ACalcDb2Db::_whichDb(int whichDb)
+Db* ACalcDbToDb::_whichDb(int whichDb)
 {
   Db* db;
   if (whichDb == 1)
@@ -169,7 +169,7 @@ Db* ACalcDb2Db::_whichDb(int whichDb)
  * @param status  1 for variables to be stored; 2 for Temporary variable
  * @param iuids   Vector of UIDs of the new variable
  */
-void ACalcDb2Db::_storeInVariableList(int whichDb, int status, const VectorInt& iuids)
+void ACalcDbToDb::_storeInVariableList(int whichDb, int status, const VectorInt& iuids)
 {
   int number = (int) iuids.size();
   if (number <= 0) return;
@@ -201,7 +201,7 @@ void ACalcDb2Db::_storeInVariableList(int whichDb, int status, const VectorInt& 
     }
   }
 }
-int ACalcDb2Db::_addVariableDb(int whichDb,
+int ACalcDbToDb::_addVariableDb(int whichDb,
                                int status,
                                const ELoc &locatorType,
                                int number,
@@ -216,7 +216,7 @@ int ACalcDb2Db::_addVariableDb(int whichDb,
   return iuid;
 }
 
-void ACalcDb2Db::_renameVariable(int whichDb,
+void ACalcDbToDb::_renameVariable(int whichDb,
                                  int nvar,
                                  int iptr,
                                  const String &name,
@@ -229,7 +229,7 @@ void ACalcDb2Db::_renameVariable(int whichDb,
     _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count, flagSetLocator);
 }
 
-void ACalcDb2Db::_cleanVariableDb(int status)
+void ACalcDbToDb::_cleanVariableDb(int status)
 {
   // Dispatch
 
@@ -272,7 +272,7 @@ void ACalcDb2Db::_cleanVariableDb(int status)
 
 }
 
-bool ACalcDb2Db::hasDbin(bool verbose) const
+bool ACalcDbToDb::hasDbin(bool verbose) const
 {
   if (_dbin == nullptr)
   {
@@ -282,7 +282,7 @@ bool ACalcDb2Db::hasDbin(bool verbose) const
   }
   return true;
 }
-bool ACalcDb2Db::hasDbout(bool verbose) const
+bool ACalcDbToDb::hasDbout(bool verbose) const
 {
   if (_dbout == nullptr)
   {
@@ -312,7 +312,7 @@ bool ACalcDb2Db::hasDbout(bool verbose) const
  ** \remark When called with mode=-1, the variables are deleted (by type)
  **
  *****************************************************************************/
-int ACalcDb2Db::_expandInformation(int mode, const ELoc &locatorType)
+int ACalcDbToDb::_expandInformation(int mode, const ELoc &locatorType)
 {
   if (_dbin == nullptr || _dbout == nullptr) return 0;
   int nechin = _dbin->getSampleNumber();

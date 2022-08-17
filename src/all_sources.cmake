@@ -52,7 +52,7 @@ set(SRC
   Model/Model.cpp
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
-  Calculators/ACalcDb2Db.cpp
+  Calculators/ACalcDbToDb.cpp
   Calculators/ACalcInterpolator.cpp
   Calculators/ACalcDbVarCreator.cpp
   Calculators/CalcStatistics.cpp

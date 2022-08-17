@@ -542,13 +542,15 @@ void Grid::rankToIndice(int rank, VectorInt& indice, bool minusOne) const
 
 /**
  * Find the grid node to which the current sample is assigned
- * @param coor   Sample coordinates
- * @param indice Indices of the assigned grid node
- * @param eps    Epsilon to overpass roundoff problem
+ * @param coor     Sample coordinates
+ * @param indice   Indices of the assigned grid node
+ * @param centered True for grid cell centered
+ * @param eps      Epsilon to over-pass roundoff problem
  * @return Error return code
  */
 int Grid::coordinateToIndices(const VectorDouble &coor,
                               VectorInt &indice,
+                              bool centered,
                               double eps) const
 {
   int ndim = _nDim;
@@ -573,7 +575,11 @@ int Grid::coordinateToIndices(const VectorDouble &coor,
 
   for (int idim=0; idim<ndim; idim++)
   {
-    int ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
+    int ix;
+    if (centered)
+      ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
+    else
+      ix = (int) floor(work2[idim] / _dx[idim] + eps);
     if (ix < 0 || ix >= _nx[idim]) return 1;
     indice[idim] = ix;
   }
@@ -584,7 +590,7 @@ int Grid::coordinateToRank(const VectorDouble& coor, double eps) const
 {
   int ndim = _nDim;
   VectorInt indice(ndim);
-  if (coordinateToIndices(coor,indice,eps)) return -1;
+  if (coordinateToIndices(coor,indice,false,eps)) return -1;
   return indiceToRank(indice);
 }
 

@@ -89,6 +89,7 @@ public:
   void    rankToIndice(int node,VectorInt& indice, bool minusOne = false) const;
   int     coordinateToIndices(const VectorDouble &coor,
                               VectorInt &indice,
+                              bool centered = false,
                               double eps = EPSILON6) const;
   int     coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const;
 

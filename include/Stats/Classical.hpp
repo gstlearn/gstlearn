@@ -32,7 +32,7 @@ GSTLEARN_EXPORT VectorString statsNames(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const std::vector<EStatOption>& opers,
-                                           int iattn,
+                                           int iptr0,
                                            double vmin = TEST,
                                            double vmax = TEST,
                                            double proba = TEST);

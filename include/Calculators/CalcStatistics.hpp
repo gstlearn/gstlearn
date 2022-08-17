@@ -12,15 +12,16 @@
 
 #include "gstlearn_export.hpp"
 
+#include "ACalcDbToDb.hpp"
+
 #include "geoslib_define.h"
 
-#include "Calculators/ACalcDb2Db.hpp"
 
 class Db;
 class DbGrid;
 class EStatOption;
 
-class GSTLEARN_EXPORT CalcStatistics: public ACalcDb2Db
+class GSTLEARN_EXPORT CalcStatistics: public ACalcDbToDb
 {
 public:
   CalcStatistics();

@@ -17,7 +17,7 @@
 #include "Neigh/ANeighParam.hpp"
 
 ACalcInterpolator::ACalcInterpolator()
-    : ACalcDb2Db(),
+    : ACalcDbToDb(),
       _model(nullptr),
       _neighparam(nullptr)
 {
@@ -29,7 +29,7 @@ ACalcInterpolator::~ACalcInterpolator()
 
 int ACalcInterpolator::_getNDim() const
 {
-  int ndim = ACalcDb2Db::_getNDim();
+  int ndim = ACalcDbToDb::_getNDim();
   if (_model != nullptr)
   {
     if (ndim > 0)
@@ -46,7 +46,7 @@ int ACalcInterpolator::_getNDim() const
 
 int ACalcInterpolator::_getNVar() const
 {
-  int nvar = ACalcDb2Db::_getNVar();
+  int nvar = ACalcDbToDb::_getNVar();
   if (_model != nullptr)
   {
     if (nvar > 0)
@@ -69,13 +69,13 @@ int ACalcInterpolator::_getNCova() const
 
 bool ACalcInterpolator::_check()
 {
-  if (! ACalcDb2Db::_check()) return false;
+  if (! ACalcDbToDb::_check()) return false;
 
   /**************************************************/
   /* Cross-checking the Space Dimension consistency */
   /**************************************************/
 
-  int ndim = ACalcDb2Db::_getNDim();
+  int ndim = ACalcDbToDb::_getNDim();
   if (_model != nullptr)
   {
     if (ndim > 0)
@@ -116,7 +116,7 @@ bool ACalcInterpolator::_check()
   /* Cross-Checking the Variable Number consistency */
   /**************************************************/
 
-  int nvar = ACalcDb2Db::_getNVar();
+  int nvar = ACalcDbToDb::_getNVar();
   if (_model != nullptr)
   {
     if (nvar > 0)

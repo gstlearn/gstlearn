@@ -69,7 +69,7 @@ VectorString statsNames(const std::vector<EStatOption>& opers)
 void dbStatisticsVariables(Db *db,
                            const VectorInt &iatts,
                            const std::vector<EStatOption>& opers,
-                           int iattn,
+                           int iptr0,
                            double vmin,
                            double vmax,
                            double proba)
@@ -161,7 +161,7 @@ void dbStatisticsVariables(Db *db,
         else
           return;
       }
-      db->setArray(iech, iattn + i, tab);
+      db->setArray(iech, iptr0 + i, tab);
     }
   }
 }
@@ -263,11 +263,11 @@ VectorDouble dbStatisticsMono(Db *db,
       if (neff > 0)
       {
         if (opers[i] == EStatOption::MEAN) tab.push_back(mean);
-        if (opers[i] == EStatOption::VAR) tab.push_back(var);
+        if (opers[i] == EStatOption::VAR)  tab.push_back(var);
         if (opers[i] == EStatOption::STDV) tab.push_back(stdv);
         if (opers[i] == EStatOption::MINI) tab.push_back(mini);
         if (opers[i] == EStatOption::MAXI) tab.push_back(maxi);
-        if (opers[i] == EStatOption::SUM) tab.push_back(sum);
+        if (opers[i] == EStatOption::SUM)  tab.push_back(sum);
         if (opers[i] == EStatOption::PROP)
           tab.push_back((double) nperc / (double) neff);
         if (opers[i] == EStatOption::QUANT)
@@ -386,7 +386,7 @@ double dbStatisticsIndicator(Db *db)
 
 /****************************************************************************/
 /*!
- **  Print the correlation matrix for a set of variables of a Db
+ ** Calculates the correlation matrix for a set of variables of a Db
  **
  ** \return  Error Return code
  **

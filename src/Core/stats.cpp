@@ -1033,14 +1033,12 @@ int stats_point_to_grid(DbGrid *dbgrid,
       if (flag_v1)
       {
         v1[i] = v1[i] / ratio - s1[i] * s1[i];
-        v1[i] = (v1[i] < 0.) ? 0. :
-                               sqrt(v1[i]);
+        v1[i] = (v1[i] < 0.) ? 0. : sqrt(v1[i]);
       }
       if (flag_v2)
       {
         v2[i] = v2[i] / ratio - s2[i] * s2[i];
-        v2[i] = (v2[i] < 0.) ? 0. :
-                               sqrt(v2[i]);
+        v2[i] = (v2[i] < 0.) ? 0. : sqrt(v2[i]);
       }
       if (flag_v12)
       {
@@ -3262,7 +3260,7 @@ void calc_stats_grid(Db *db,
 
       if (!db->isActive(iech)) continue;
       db->getCoordinatesInPlace(iech, coor);
-      if (dbgrid->coordinateToIndices(coor, indg0)) continue;
+      if (dbgrid->coordinateToIndices(coor, indg0, true)) continue;
       double value = db->getArray(iech, icol);
       if (FFFF(value)) continue;
 
