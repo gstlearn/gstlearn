@@ -15,6 +15,7 @@
 #include "Stats/Classical.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
+#include "Matrix/MatrixSquareSymmetric.hpp"
 
 #include <math.h>
 
@@ -529,4 +530,255 @@ String statisticsMultiPrint(const VectorDouble &stats,
                   stats, true);
 
   return sstr.str();
+}
+
+static bool _loadSampleValues(Db *db1,
+                              Db *db2,
+                              int iech,
+                              int icol0,
+                              const VectorInt& icols,
+                              int mode,
+                              int flagCste,
+                              double *value,
+                              VectorDouble &x)
+{
+  int ecr = 0;
+  switch (mode)
+  {
+    case 0:
+      *value = db1->getArray(iech, icol0);
+      if (flagCste) x[ecr++] = 1.;
+      for (int icol = 0; icol < (int) icols.size(); icol++)
+        x[ecr++] = db2->getArray(iech, icols[icol]);
+      break;
+
+    case 1:
+      int nfex = db2->getExternalDriftNumber();
+      *value = db1->getVariable(iech, 0);
+      if (flagCste) x[ecr++] = 1.;
+      for (int i = 0; i < nfex; i++)
+        x[ecr++] = db2->getExternalDrift(iech, i);
+      break;
+  }
+
+  bool flagTest = false;
+  for (int i = 0; i < (int) x.size() && !flagTest; i++)
+    flagTest = FFFF(x[i]);
+  return (FFFF(*value) || flagTest);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the regression
+ **
+ ** \return  Error return code
+ **
+ ** \param[in,out]  db1        Db descriptor (for target variable)
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  mode           Type of calculation
+ ** \li                        0 : standard multivariate case
+ ** \li                        1 : using external drifts
+ ** \param[in]  icol0          Rank of the target variable
+ ** \param[in]  icols          Vector of ranks of the explanatory variables
+ ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \param[in]  storeResiduals True if the residuals must be stored (db1)
+ ** \param[in]  verbose        Verbose option
+ **
+ ** \remark  The flag_mode indicates the type of regression calculation:
+ ** \remark  0 : V[icol] as a function of V[icols[i]]
+ ** \remark  1 : Z1 as a function of the different Fi's
+ **
+ ** \remark  The Db structure has been modified: the last column of the Db1
+ ** \remark  which has been added by this function, contains the value
+ ** \remark  of the residuals at each datum (or TEST if the residual has not
+ ** \remark  been calculated).
+ **
+ *****************************************************************************/
+ResRegr regression(Db *db1,
+                   Db *db2,
+                   int mode,
+                   int icol0,
+                   const VectorInt& icols,
+                   bool flagCste,
+                   bool storeResiduals,
+                   bool verbose)
+{
+  ResRegr regr;
+
+  int nvar = db1->getVariableNumber();
+  int nfex = db2->getExternalDriftNumber();
+  int nech = db1->getSampleNumber();
+  int ncol = (int) icols.size();
+  int size = 0;
+  switch (mode)
+  {
+    case 0:
+      size = ncol;
+      if (flagCste) size++;
+      break;
+    case 1:
+      size = nfex;
+      if (flagCste) size++;
+      break;
+  }
+
+  /* Preliminary checks */
+
+  switch (mode)
+  {
+    case 0:
+      if (icol0 < 0 || icol0 >= db1->getColumnNumber())
+      {
+        messerr("The regression requires a valid target variable");
+        return regr;
+      }
+      for (int icol = 0; icol < ncol; icol++)
+      {
+        if (icols[icol] < 0 || icols[icol] >= db2->getColumnNumber())
+        {
+          messerr("The regression requires a valid auxiliary variable (#%d)",
+                  icol + 1);
+          return regr;
+        }
+      }
+      break;
+
+    case 1:
+      if (nvar != 1 || nfex <= 0)
+      {
+        messerr("The multivariate regression is designated for one variable");
+        messerr("as a function of several drift variables");
+        messerr("The Db contains %d variables and %d drift variables", nvar,
+                nfex);
+        return regr;
+      }
+      break;
+  }
+
+  /* Core allocation */
+
+  VectorDouble x(size,0.);
+  VectorDouble b(size,0.);
+  MatrixSquareSymmetric a(size);
+
+  /* Loop on the samples */
+
+  int number = 0;
+  double prod = 0.;
+  double mean = 0.;
+  double value = 0.;
+
+  for (int iech=0; iech < nech; iech++)
+  {
+    if (! db1->isActive(iech)) continue;
+
+    /* Get the information for the current sample */
+
+    if (_loadSampleValues(db1, db2, iech, icol0, icols, mode, flagCste,
+                          &value, x)) continue;
+
+    prod += value * value;
+    mean += value;
+    number++;
+
+    /* Update the matrices */
+
+    for (int i = 0; i < size; i++)
+    {
+      b[i] += value * x[i];
+      for (int j=0; j<=i; j++)
+        a.setValue(i, j, a.getValue(i,j) + x[i] * x[j]);
+    }
+  }
+
+  if (number <= 0)
+  {
+    messerr("No sample found where variables are defined");
+    return regr;
+  }
+
+  /* Solve the regression system */
+
+  int pivot = a.solve(b, x);
+  if (pivot > 0)
+  {
+    messerr("Error during regression calculation: pivot %d is null", pivot);
+    return regr;
+  }
+
+  // Normalization
+  mean /= number;
+  regr.count = number;
+  regr.nvar = ncol;
+  regr.flagCste = flagCste;
+  regr.coeffs = x;
+  regr.variance = prod / number - mean * mean;
+
+  /* Calculate the residuals */
+
+  for (int i = 0; i < size; i++)
+  {
+    prod -= 2. * x[i] * b[i];
+    for (int j = 0; j < size; j++)
+      prod += x[i] * x[j] * a.getValue(i,j);
+  }
+  regr.varres = prod / number;
+
+  /************/
+  /* Printout */
+  /************/
+
+  if (verbose)
+  {
+    mestitle(1, "Linear regression:");
+    for (int i = 0; i < size; i++)
+      message("Explanatory variable Aux.#%d - Coefficient = %lf\n", i + 1, x[i]);
+    message("Variance of Residuals = %lf\n", regr.varres);
+  }
+
+  /* Store the regression error at sample points */
+
+  if (storeResiduals)
+  {
+    int iptr = db1->addColumnsByConstant(1, TEST);
+    if (iptr < 0) return regr;
+
+    for (int iech = 0; iech < nech; iech++)
+    {
+      if (db1->isActive(iech))
+      {
+        /* Get the information for the current sample */
+
+        if (_loadSampleValues(db1, db2, iech, icol0, icols, mode, flagCste,
+                              &value, x))
+        {
+          value = TEST;
+        }
+        else
+        {
+          double drift = 0.;
+          for (int i = 0; i < size; i++)
+            drift += x[i] * regr.coeffs[i];
+          value -= drift;
+        }
+      }
+      db1->setArray(iech, iptr, value);
+    }
+  }
+  return regr;
+}
+
+void regrprint(const ResRegr& regr)
+{
+  mestitle(1, "Linear Regression");
+  message("- Calculated on %d active values\n",regr.count);
+
+  int ecr = 0;
+  if (regr.flagCste)
+    message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
+  for (int ivar = 0; ivar < regr.nvar; ivar++)
+    message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
+
+  message("- Initial variance        = %lf\n",regr.variance);
+  message("- Variance of residuals   = %lf\n",regr.varres);
 }

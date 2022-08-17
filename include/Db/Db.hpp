@@ -566,10 +566,6 @@ public:
                                    double proba = TEST,
                                    const String& title = "",
                                    const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsMulti(const VectorString& names,
-                               bool flagIso = true,
-                               bool flagPrint = false,
-                               const String& title = "");
   VectorDouble statisticsByUID(const VectorInt& iuids,
                                const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                                bool flagIso = true,
@@ -580,6 +576,10 @@ public:
                                double vmax = TEST,
                                const String& title = "",
                                const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsMulti(const VectorString& names,
+                               bool flagIso = true,
+                               bool flagPrint = false,
+                               const String& title = "");
   VectorDouble statisticsMultiByUID(const VectorInt& iuids,
                                     bool flagIso = true,
                                     bool flagPrint = false,

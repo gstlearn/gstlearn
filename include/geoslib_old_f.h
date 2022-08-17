@@ -56,7 +56,9 @@ class NeighImage;
 class NeighUnique;
 class Polygons;
 class PCA;
-class Grid;class SimuRefineParam;
+class Grid;
+class SimuRefineParam;
+class EStatOption;
 
 class cs;
 class QChol;
@@ -1283,6 +1285,11 @@ GSTLEARN_EXPORT int stats_point_to_grid(DbGrid *dbgrid,
                                         int ncut,
                                         double *cuts,
                                         double *tab);
+GSTLEARN_EXPORT void calc_stats_grid(Db *db,
+                                     DbGrid *dbgrid,
+                                     const EStatOption &oper,
+                                     int iptr0,
+                                     int radius);
 GSTLEARN_EXPORT int db_stats(Db *db,
                              const String &oper,
                              const VectorInt &cols,

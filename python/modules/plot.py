@@ -118,12 +118,12 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
         
     return tabx
 
-def getBiDefinedValues(db, name1, name2, usesel=True):
-    tabx = db.getColumn(name1, usesel)
+def getBiDefinedValues(db1, name1, name2, db2, usesel=True):
+    tabx = db1.getColumn(name1, usesel)
     tabx = np.array(tabx).transpose()
     tabx[tabx == gl.getTEST()] = np.nan
     
-    taby = db.getColumn(name2, usesel)
+    taby = db2.getColumn(name2, usesel)
     taby = np.array(taby).transpose()
     taby[taby == gl.getTEST()] = np.nan
     
@@ -531,7 +531,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     return ax
 
 def point(db, 
-          color_name=None, size_name=None, usesel=True, 
+          color_name=None, size_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
@@ -541,6 +541,7 @@ def point(db,
     db: Db containing the variable to be plotted
     color_name: Name of the variable containing the color per sample
     size_name: Name of the variable containing the size per sample
+    label_name: Name of the variable containing the label per sample
     usesel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'color_name' is not defined)
     size: Constant size (used if 'size_name' is not defined)
@@ -593,6 +594,12 @@ def point(db,
 
     im = ax.scatter(x = tabx, y = taby, s = sizval, c = colval, cmap=cmap, **scatter_args)
 
+    if label_name is not None:
+        labval = getDefinedValues(db, label_name, 0, 1, None, usesel, 
+                                  compress=False, asGrid=False, flagConvertNanToZero=True)
+        for i in range(len(labval)):
+            ax.text(tabx[i], taby[i], round(labval[i],2))
+            
     ax.set_aspect(aspect)
         
     if flagColorBar and (color_name is not None):
@@ -722,7 +729,8 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     im.set_transform(trans_data)
     
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
-    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', transform=trans_data)
+    ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
+            transform=trans_data)
     
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
@@ -865,7 +873,8 @@ def rule(rule, proportions=[],
     return ax
 
 
-def table(table, icols, fmt='ok', xlim=None, ylim=None,
+def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
+          color0='b', linestyle0='-', marker0='', 
           title=None, ax=None, figsize=None, end_plot=False, **plot_args):
     '''
     Function for plotting the contents of a Table (argument 'tablr')
@@ -878,17 +887,24 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None,
         fig, ax = newFigure(figsize, xlim, ylim)
     
     if len(icols) == 1:
-        datay = table.getCol(int(icols[0]))
+        datay = table.getColumn(int(icols[0]))
         datax = [i for i in range(table.getRowNumber())]
     else:
-        datay = table.getCol(int(icols[0]))
-        datax = table.getCol(int(icols[1]))
+        datay = table.getColumn(int(icols[0]))
+        datax = table.getColumn(int(icols[1]))
+    
+    data = np.stack((np.array(datax), np.array(datay)))
+    data[data == gl.getTEST()] = np.nan
+    data = data[:, ~np.isnan(data).any(axis=0)]
     
     plot_args.setdefault('label', 'table')
-    ax.plot(datax, datay, fmt, **plot_args)
+    ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
+            **plot_args)
     
     drawDecor(ax, title=title)
-    ax.legend()
+    
+    if flagLegend:
+        ax.legend()
     
     if end_plot:
         plt.show()
@@ -929,19 +945,34 @@ def mesh(mesh,
 
     return ax
 
-def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, asPoint = False,
-                diagLine = False, flagAxisLabel = True,
+def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usesel=True, 
+                asPoint = False, flagAxisLabel = True,
+                diagLine=False, diagColor="black", diagLineStyle='-',
+                bissLine=False, bissColor="red", bissLineStyle='-',
+                regrLine=False, regrColor="blue", regrLineStyle='-',
                 xlab=None, ylab=None, title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the scatter plot between two variables contained in a Db'''
  
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
+        
+    if db2 is None:
+        db2 = db
    
-    tabx, taby = getBiDefinedValues(db, namex, namey, usesel)
+    if db.getSampleNumber() != db2.getSampleNumber():
+        print("Db and Db2 should have the same number of samples")
+        return None;
+
+    tabx, taby = getBiDefinedValues(db, namex, namey, db2, usesel)
     if len(tabx) == 0:
         return None
     if len(taby) == 0:
         return None
+    
+    xmin = np.min(tabx)
+    xmax = np.max(tabx)
+    ymin = np.min(taby)
+    ymax = np.max(taby)
     
     if asPoint:
         ax.scatter(tabx, taby)
@@ -949,10 +980,26 @@ def correlation(db, namex, namey, bins=50, xlim=None, ylim=None, usesel=True, as
         ax.hist2d(tabx, taby, bins, cmin=1)
 
     if diagLine:
-        u=[np.min(tabx),np.min(taby)]
-        v=[np.max(tabx),np.max(taby)]
-        ax.plot(u,v,c="r")
+        u=[xmin, xmax]
+        v=[ymin, ymax]
+        ax.plot(u,v,color=diagColor,linestyle=diagLineStyle)
+        
+    if bissLine:
+        bmin = min(xmin, ymin)
+        bmax = max(xmax, ymax)
+        u=[bmin, bmax]
+        ax.plot(u,u,color=bissColor,linestyle=bissLineStyle)
 
+    if regrLine:
+        icolx = db.getUID(namex)
+        icoly = db2.getUID(namey)
+        regr = gl.regression(db2, db, 0, icolx, [icoly], True)
+        a = regr.coeffs[0]
+        b = regr.coeffs[1]
+        u=[xmin, xmax]
+        v=[a+b*xmin, a+b*xmax]
+        ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
+        
     if flagAxisLabel:
         if xlab is None:
             xlab = db.getNames(namex)[0]

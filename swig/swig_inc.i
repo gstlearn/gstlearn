@@ -79,8 +79,10 @@
 #include "Skin/Skin.hpp"
 
 #include "Calculators/ACalculator.hpp"
+#include "Calculators/ACalcDb2Db.hpp"
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/ACalcDbVarCreator.hpp"
+#include "Calculators/CalcStatistics.hpp"
 
 /*
 #include "Interfaces/geoslib_f_swig.h"

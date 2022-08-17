@@ -1920,12 +1920,6 @@ int global_transitive(DbGrid *dbgrid,
         "The transitive global estimation is implemented for 1 variable only");
     goto label_end;
   }
-  if (!is_grid(dbgrid))
-  {
-    messerr(
-        "The transitive global estimation requires a Db organized as a grid");
-    goto label_end;
-  }
 
   /* Core allocation */
 

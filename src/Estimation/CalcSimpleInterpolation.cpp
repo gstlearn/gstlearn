@@ -10,10 +10,11 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Basic/NamingConvention.hpp"
+#include "Estimation/CalcSimpleInterpolation.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcSimpleInterpolation.hpp"
 
 CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),

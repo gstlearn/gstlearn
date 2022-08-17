@@ -23,13 +23,14 @@
 
 #include <math.h>
 
-#define NCOLS 6
-#define T_EST 0
-#define Q_EST 1
-#define B_EST 2
-#define M_EST 3
-#define T_STD 4
-#define Q_STD 5
+#define NCOLS 7
+#define Z_CUT 0
+#define T_EST 1
+#define Q_EST 2
+#define B_EST 3
+#define M_EST 4
+#define T_STD 5
+#define Q_STD 6
 
 Selectivity::Selectivity(int ncut)
     : AStringable(),
@@ -42,6 +43,7 @@ Selectivity::Selectivity(int ncut)
       _rankQT()
 {
   ut_vector_fill(_Zcut, TEST);
+  _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
 
@@ -59,8 +61,7 @@ Selectivity::Selectivity(const VectorDouble &zcuts,
       _rankQT()
 {
   _stats.init(getNCuts(), NCOLS);
-  _stats.setColNames(_getAllNames());
-  _stats.setRowNames(toVectorDouble(_Zcut));
+  _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
 
@@ -74,7 +75,6 @@ Selectivity::Selectivity(const Selectivity &m)
       _numberQT(m._numberQT),
       _rankQT(m._rankQT)
 {
-
 }
 
 Selectivity& Selectivity::operator=(const Selectivity &m)
@@ -82,9 +82,9 @@ Selectivity& Selectivity::operator=(const Selectivity &m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _Zcut = m._Zcut;
+    _Zcut  = m._Zcut;
     _stats = m._stats;
-    _zmax = m._zmax;
+    _zmax  = m._zmax;
     _proba = m._proba;
     _flagTonnageCorrect = m._flagTonnageCorrect;
     _numberQT = m._numberQT;
@@ -148,12 +148,11 @@ void Selectivity::resetCuts(const VectorDouble& zcuts)
 {
   _Zcut = zcuts;
   _stats.init(getNCuts(), NCOLS);
-  _stats.setColNames(_getAllNames());
-  _stats.setRowNames(toVectorDouble(_Zcut));
+  _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
 
-int Selectivity::calculateFromDb(const Db* db)
+int Selectivity::calculateFromDb(const Db* db, bool autoCuts)
 {
   if (getNCuts() <= 0)
   {
@@ -177,11 +176,12 @@ int Selectivity::calculateFromDb(const Db* db)
   if (db->hasWeight())
     wtab = db->getColumnByLocator(ELoc::W, 0, true);
 
-  return calculateFromArray(tab, wtab);
+  return calculateFromArray(tab, wtab, autoCuts);
 }
 
 int Selectivity::calculateFromArray(const VectorDouble &tab,
-                                    const VectorDouble &weights)
+                                    const VectorDouble &weights,
+                                    bool autoCuts)
 {
   if (getNCuts() <= 0)
   {
@@ -212,6 +212,11 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
   // Allocate the returned structure
 
   int ncut = getNCuts();
+
+  // Define the cutoffs (optional)
+
+  if (autoCuts)
+    _defineAutomaticCutoffs(tab);
 
   // Perform calculations
 
@@ -280,18 +285,19 @@ int Selectivity::calculateFromAnam(AAnam* anam)
   return 1;
 }
 
-const Table& Selectivity::eval(const Db *db)
+const Table Selectivity::eval(const Db *db, bool autoCuts)
 {
-  (void) calculateFromDb(db);
+  (void) calculateFromDb(db, autoCuts);
   return getStats();
 }
-const Table& Selectivity::eval(const VectorDouble &tab,
-                               const VectorDouble &weights)
+const Table Selectivity::eval(const VectorDouble &tab,
+                              const VectorDouble &weights,
+                              bool autoCuts)
 {
-  (void) calculateFromArray(tab, weights);
+  (void) calculateFromArray(tab, weights, autoCuts);
   return getStats();
 }
-const Table& Selectivity::eval(AAnam* anam)
+const Table Selectivity::eval(AAnam *anam)
 {
   (void) calculateFromAnam(anam);
   return getStats();
@@ -359,15 +365,16 @@ Selectivity* Selectivity::createInterpolation(const VectorDouble& zcuts,
   return selectivity;
 }
 
-void Selectivity::setZcut(int icut, double zcut)
+void Selectivity::setZcut(int iclass, double zcut)
 {
-  if (! _isValidCut(icut)) return;
-  _Zcut[icut] = zcut;
+  if (! _isValidCut(iclass)) return;
+  _stats.setValue(iclass, Z_CUT, zcut);
+  _Zcut[iclass] = zcut;
 }
-double Selectivity::getZcut(int icut) const
+double Selectivity::getZcut(int iclass) const
 {
-  if (! _isValidCut(icut)) return(TEST);
-  return _Zcut[icut];
+  if (! _isValidCut(iclass)) return(TEST);
+  return _Zcut[iclass];
 }
 void Selectivity::setBest(int iclass, double best)
 {
@@ -1084,6 +1091,7 @@ void Selectivity::interpolateSelectivity(const Selectivity* selecin)
 VectorString Selectivity::_getAllNames() const
 {
   VectorString names;
+  names.push_back("Z-Cut");
   names.push_back("T-Est");
   names.push_back("Q-Est");
   names.push_back("B-Est");
@@ -1121,4 +1129,19 @@ const VectorInt Selectivity::getNumberQTEst() const
 const VectorInt Selectivity::getNumberQTStd() const
 {
   return _numberQT.getValuesPerColumn(1);
+}
+
+void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
+{
+  double zmin = ut_vector_min(tab);
+  double zmax = ut_vector_max(tab) + eps;
+  int ncuts = getNCuts();
+
+  if (ncuts <= 1)
+  {
+    messerr("Automatic Cutoffs can only be calculated for more than 1 cutoff");
+    return;
+  }
+  for (int icut = 0; icut < ncuts; icut++)
+    _Zcut[icut] = zmin + (zmax - zmin) * (double) icut / ((double) (ncuts - 1));
 }

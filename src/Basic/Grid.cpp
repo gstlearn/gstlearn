@@ -573,7 +573,7 @@ int Grid::coordinateToIndices(const VectorDouble &coor,
 
   for (int idim=0; idim<ndim; idim++)
   {
-    int ix = (int) floor(work2[idim] / _dx[idim] + eps);
+    int ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
     if (ix < 0 || ix >= _nx[idim]) return 1;
     indice[idim] = ix;
   }

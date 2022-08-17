@@ -52,8 +52,10 @@ set(SRC
   Model/Model.cpp
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
+  Calculators/ACalcDb2Db.cpp
   Calculators/ACalcInterpolator.cpp
   Calculators/ACalcDbVarCreator.cpp
+  Calculators/CalcStatistics.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
