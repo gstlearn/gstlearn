@@ -350,6 +350,11 @@ DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
   return dbgrid;
 }
 
+DbGrid* DbGrid::coarsify(const VectorInt &nmult)
+{
+  return createCoarse(this,nmult,0);
+}
+
 DbGrid* DbGrid::createCoarse(DbGrid *dbin,
                              const VectorInt &nmult,
                              int flag_add_rank)
