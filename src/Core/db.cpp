@@ -1710,7 +1710,7 @@ Db* db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
+Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 {
   Db *db;
   int idim;

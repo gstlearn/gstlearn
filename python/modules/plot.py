@@ -186,7 +186,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     ax : axes where the variogram is represented
 
     """
-    color = plot_args.setdefault('color', 'black')
+    color = plot_args.setdefault('color', color0)
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -478,7 +478,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     ax : axes where the variogram is represented
 
     """
-    color = plot_args.setdefault('color', 'black')    
+    color = plot_args.setdefault('color', color0)    
     
     if codir is None:
         ndim = model.getDimensionNumber()
@@ -534,7 +534,7 @@ def point(db,
           color_name=None, size_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
-          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='auto',
+          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='equal',
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
@@ -748,16 +748,16 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     return ax
 
 
-def hist_tab(val, xlab=None, ylab=None, 
+def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red',
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
     '''Function for plotting the histogram of an array (argument 'val')
     
     hist_args : arguments passed to matplotlib.pyplot.hist'''
     
     # define some default values (add them to hist_args if not already set)
-    color     = hist_args.setdefault("color", "yellow")
-    edgecolor = hist_args.setdefault("edgecolor", "red")
-    bins      = hist_args.setdefault("bins", 30)
+    color     = hist_args.setdefault("color", color)
+    edgecolor = hist_args.setdefault("edgecolor", edgecolor)
+    bins      = hist_args.setdefault("bins", nbins)
     
     if ax is None:
         fig, ax = newFigure(figsize)
@@ -789,39 +789,83 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     
     return ax
 
-def curve(data, icas=1, color='black', 
+def curve(data, icas=1, color='black',flagLegend=False, label='curve',
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting the curve of an array (argument 'data')
-        icas=1 when 'data' represent the abscissa and 2 when 'data' represents the ordinate
+        if data is a tuple, it should contain x=data[0] and y=data[1]
+        othwise:
+        icas=1 when 'data' contains the abscissa and ordinates are regular
+        icas=2 when 'data' contains the ordinate and abscissa are regular
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
-    color = plot_args.setdefault('color', 'black')
-    label = plot_args.setdefault('label', 'model')
+    
+    if len(data) == 0:
+        return None
+    
+    color = plot_args.setdefault('color', color)
+    label = plot_args.setdefault('label', label)
     
     if ax is None:
         fig, ax = newFigure(figsize)
-        
-    nbpoint = len(data)
-    regular = [i for i in range(nbpoint)]
     
-    if icas == 1:
-        ax.plot(data, regular, **plot_args)
+    filetype = type(data).__name__
+    if filetype == "tuple":
+        ax.plot(data[0], data[1], **plot_args)
     else:
-        ax.plot(regular, data, **plot_args)
+        nbpoint = len(data)
+        regular = [i for i in range(nbpoint)]
+    
+        if icas == 1:
+            ax.plot(data, regular, **plot_args)
+        else:
+            ax.plot(regular, data, **plot_args)
     
     drawDecor(ax, title=title)
-    ax.legend()
+    
+    if flagLegend:
+        ax.legend()
         
     if end_plot:
         plt.show()
         
     return ax
 
-def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, 
-       title=None, ax=None, figsize = None, label='model', end_plot=False, **plot_args):
-    """Plot Y against X.
-    **plot_args : arguments passed to matplotlib.pyplot.plot"""
+def multisegments(center, data, color='black',flagLegend=False, label="segments",
+                  title=None, ax=None, figsize = None, end_plot=False, **plot_args):
+    '''
+    Function for plotting a set of segments joining 'center' to any of vertices
+    stored in 'data'.
+    **plot_args : arguments passed to matplotlib.pyplot.plot
+    '''
+    
+    if len(data) == 0:
+        return None
+    
+    color = plot_args.setdefault('color', color)
+    label = plot_args.setdefault('label', label)
+    
+    if ax is None:
+        fig, ax = newFigure(figsize)
+    
+    nseg = len(data[0])
+    
+    for iseg in range(nseg):
+        ax.plot([center[0],data[0][iseg]], [center[1],data[1][iseg]], **plot_args)
+    
+    drawDecor(ax, title=title)
+    
+    if flagLegend:
+        ax.legend()
+        
+    if end_plot:
+        plt.show()
+        
+    return ax
+
+def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False, 
+       color='blue', marker='o', markersize=10, linestyle='-',
+       title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
     
     if not len(ytab) == len(xtab):
         print("Arrays 'xtab' and 'ytab' should have same dimensions")
@@ -831,24 +875,45 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None,
         fig, ax = newFigure(figsize, xlim, ylim)
     
     if flagAsPoint:
-        plot_args.setdefault('label', 'point')
-        plot_args.setdefault('markersize', 10)
-        plot_args.setdefault('color', 'blue')
-        plot_args.setdefault('marker', 'o')
-        ax.plot(xtab, ytab, **plot_args)
+        plot_args.setdefault('markersize', markersize)
+        plot_args.setdefault('marker', marker)
     else:
-        plot_args.setdefault('label', label)
-        #plot_args.setdefault('fmt', 'g-') # TODO : to be restored ? (doesn't work with python 3.9.2 / mpl 3.5.1)
-        ax.plot(xtab, ytab, **plot_args)
-    
+        plot_args.setdefault('linestyle',linestyle)
+
+    plot_args.setdefault('label', label)
+    plot_args.setdefault('color', color)
+    ax.plot(xtab, ytab, **plot_args)
+            
     drawDecor(ax, title=title)
-    ax.legend()
+    
+    if flagLegend:
+        ax.legend()
     
     if end_plot:
         plt.show()
     
     return ax
 
+def sample(sample, xlim=None, ylim=None, color='black', marker='o', markersize=10,
+           flagLegend=False,
+           title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+    
+    ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
+            label=label, **plot_args)
+            
+    drawDecor(ax, title=title)
+    
+    if flagLegend:
+        ax.legend()
+    
+    if end_plot:
+        plt.show()
+
+    return ax
+    
 def rule(rule, proportions=[], 
          title=None, ax=None, figsize=None, end_plot=False):
     
@@ -874,7 +939,7 @@ def rule(rule, proportions=[],
 
 
 def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
-          color0='b', linestyle0='-', marker0='', 
+          color0='b', linestyle0='-', marker0='', label='table',
           title=None, ax=None, figsize=None, end_plot=False, **plot_args):
     '''
     Function for plotting the contents of a Table (argument 'tablr')
@@ -897,7 +962,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     data[data == gl.getTEST()] = np.nan
     data = data[:, ~np.isnan(data).any(axis=0)]
     
-    plot_args.setdefault('label', 'table')
+    plot_args.setdefault('label', label)
     ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
             **plot_args)
     
@@ -914,7 +979,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
 def mesh(mesh, 
          #color='r', size=20, sizmin=10, sizmax=200,#arguments not used ?
          flagEdge=True, flagFace=False,
-         xlim=None, ylim=None, 
+         xlim=None, ylim=None, facecolor="yellow", edgecolor="blue", linewidth=1,
          title=None, ax=None, figsize = None, end_plot =False, **plot_args):
     """
     **plot_args : arguments passed to matplotlib.pyplot.fill
@@ -930,12 +995,12 @@ def mesh(mesh,
             
 
     if flagFace:
-        plot_args.setdefault('facecolor', 'yellow')
+        plot_args.setdefault('facecolor', facecolor)
                 
     if flagEdge:
-        plot_args.setdefault('edgecolor', 'blue')
+        plot_args.setdefault('edgecolor', edgecolor)
 
-    plot_args.setdefault('linewidth', 1)
+    plot_args.setdefault('linewidth', linewidth)
     ax.fill(tabx, taby, **plot_args)
 
     drawDecor(ax, title=title)
@@ -1234,7 +1299,7 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto
         
     return axs
 
-def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto',
+def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='equal',
                xlim=None, ylim=None, color='r', sizmin=20, sizmax=200,
                title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''

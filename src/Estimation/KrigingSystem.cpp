@@ -3277,7 +3277,7 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
   /* Shift the origin */
 
   VectorDouble coor(ndim);
-  _dbaux->rankToCoordinate(nech/2, coor);
+  _dbaux->rankToCoordinateInPlace(nech/2, coor);
   for (int i=0; i<ndim; i++) _dbaux->setX0(i, _dbaux->getX0(i) - coor[i]);
   if (db_grid_define_coordinates(_dbaux)) return 1;
 

@@ -49,6 +49,7 @@ private:
   void _movingSelect(int nsel, VectorInt& ranks);
   void _display(const VectorInt& ranks);
   double _movingDist(Db *dbout, int iech_in, int iech_out);
+  bool _belongsToCell(Db* dbout, int iech, int iech_out);
   void _checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks);
   void _clearMemory();
   void _resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose);

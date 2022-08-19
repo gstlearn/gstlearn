@@ -872,16 +872,6 @@ GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
 GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 
-/****************************************/
-/* Prototyping the functions in neigh.c */
-/****************************************/
-
-GSTLEARN_EXPORT int* neigh_calc(Db *dbin,
-                                Model *model,
-                                ANeighParam *neighparam,
-                                double *target,
-                                int *nech_out);
-
 /***************************************/
 /* Prototyping the functions in anam.c */
 /***************************************/
@@ -977,7 +967,7 @@ GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
                                               int flag_add_rank);
 GSTLEARN_EXPORT DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
-GSTLEARN_EXPORT Db* db_create_from_target(double *target,
+GSTLEARN_EXPORT Db* db_create_from_target(const double *target,
                                           int ndim,
                                           int flag_add_rank);
 GSTLEARN_EXPORT void db_sample_print(Db *db,

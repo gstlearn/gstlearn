@@ -492,7 +492,7 @@ void morpho_erosion(int option,
 /*!
  **  Performs a morphological dilation
  **
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag

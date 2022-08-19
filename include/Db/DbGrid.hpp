@@ -143,29 +143,28 @@ public:
   {
     return _grid.getCoordinatesByCorner(icorner);
   }
-  int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
-  {
-    return _grid.coordinateToRank(coor,eps);
-  }
-  int coordinateToIndices(const VectorDouble &coor,
-                          VectorInt &indices,
-                          bool centered = false,
-                          double eps = EPSILON6) const
-  {
-    return _grid.coordinateToIndices(coor, indices, centered, eps);
-  }
+  int coordinateToRank(const VectorDouble &coor,
+                       bool centered = false,
+                       double eps = EPSILON6) const;
+  VectorInt coordinateToIndices(const VectorDouble &coor,
+                                bool centered,
+                                double eps) const;
+  int coordinateToIndicesInPlace(const VectorDouble &coor,
+                                 VectorInt &indices,
+                                 bool centered = false,
+                                 double eps = EPSILON6) const;
 
   int indiceToRank(const VectorInt& indice) const
   {
     return _grid.indiceToRank(indice);
   }
-  void rankToIndice(int node, VectorInt& indice, bool minusOne = false) const
+  void rankToIndice(int node, VectorInt& indices, bool minusOne = false) const
   {
-    _grid.rankToIndice(node,indice, minusOne);
+    _grid.rankToIndice(node,indices, minusOne);
   }
-  void rankToCoordinate(int rank,
-                        VectorDouble& coor,
-                        const VectorDouble& percent = VectorDouble()) const
+  void rankToCoordinateInPlace(int rank,
+                               VectorDouble &coor,
+                               const VectorDouble &percent = VectorDouble()) const
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
@@ -195,6 +194,8 @@ public:
                        int rank,
                        double value,
                        bool useSel = false);
+  VectorDouble getBlockExtensions(int iech) const;
+  VectorVectorDouble getCellEdges(int node = 0) const;
 
 protected:
   /// Interface for ASerializable

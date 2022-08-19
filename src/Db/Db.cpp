@@ -1292,9 +1292,8 @@ void Db::deleteColumnsByUID(const VectorInt& iuids)
  * Add the contents of the 'tab' as a Selection
  * @param tab Input array
  * @param name Name given to the newly created Selection variable
- * @return Rank of the newly created Column within the Data Base
  * @param combine How to combine with an already existing selection (see combineSelection() for details)
- *
+ * @return Rank of the newly created Column within the Data Base
  * @remark The Selection is set to True if tab is not zero and to False otherwise.
  * @remark If the dimension of 'tab' does not match the number of samples in the Db
  * @remark the action is cancelled (a message is issued)
@@ -1324,6 +1323,31 @@ int Db::addSelection(const VectorDouble& tab, const String& name, const String& 
       sel[iech] = (tab[iech] != 0.) ? 1. : 0.;
     }
   }
+
+  // Convert the input array into a selection (0 or 1)
+
+  combineSelection(sel, combine);
+  int iuid = addColumns(sel, name, ELoc::SEL);
+  return iuid;
+}
+
+/**
+ * Add a Selection by considering the input 'ranks' vector which give the ranks
+ * of the active samples (starting from 0)
+ * @param ranks   Vector of ranks of active samples
+ * @param name Name given to the newly created Selection variable
+ * @param combine How to combine with an already existing selection (see combineSelection() for details)
+ * @return
+ */
+int Db::addSelectionByRanks(const VectorInt &ranks,
+                            const String &name,
+                            const String &combine)
+{
+  int nech = getSampleNumber();
+  VectorDouble sel(nech, 0.);
+
+  for (int i = 0; i < (int) ranks.size(); i++)
+    sel[ranks[i]] = 1.;
 
   // Convert the input array into a selection (0 or 1)
 
@@ -1522,7 +1546,7 @@ void Db::deleteColumnsByLocator(const ELoc& locatorType)
 /**
  * Returns a Vector containing the minimum and maximum along a Space dimension
  * @param idim   Rank of the Space dimension
- * @param useSel true if the possible selection must be taken intao account
+ * @param useSel True if the possible selection must be taken intao account
  * @return
  */
 VectorDouble Db::getExtrema(int idim, bool useSel) const
@@ -1677,6 +1701,18 @@ double Db::getStdv(const String& name, bool useSel) const
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
   return ut_vector_stdv(tab);
+}
+
+double Db::getCorrelation(const String& name1, const String& name2, bool useSel) const
+{
+  VectorInt iuids;
+  iuids = _ids(name1, true);
+  if (iuids.empty()) return TEST;
+  VectorDouble tab1 = getColumnByUID(iuids[0], useSel);
+  iuids = _ids(name2, true);
+  if (iuids.empty()) return TEST;
+  VectorDouble tab2 = getColumnByUID(iuids[0], useSel);
+  return ut_vector_correlation(tab1, tab2);
 }
 
 int Db::getNDim() const

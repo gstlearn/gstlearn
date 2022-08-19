@@ -246,17 +246,44 @@ double ut_vector_var(const VectorDouble &vec)
     mean += v;
     number++;
   }
-  if (number > 0)
+  if (number <= 0) return TEST;
+  mean /= (double) number;
+  var = var / (double) number - mean * mean;
+  return var;
+}
+
+double ut_vector_correlation(const VectorDouble &vec1, const VectorDouble& vec2)
+{
+  if (vec1.size() <= 0 || vec2.size() <= 0 || vec1.size() != vec2.size()) return 0.;
+
+  double m1  = 0.;
+  double m2  = 0.;
+  double v11 = 0.;
+  double v22 = 0.;
+  double v12 = 0.;
+  int number = 0;
+  for (int i = 0; i < (int) vec1.size(); i++)
   {
-    mean /= (double) number;
-    var = var / (double) number - mean * mean;
+    double z1 = vec1[i];
+    double z2 = vec2[i];
+    if (FFFF(z1) || FFFF(z2)) continue;
+    v11 += z1 * z1;
+    v22 += z2 * z2;
+    v12 += z1 * z2;
+    m1 += z1;
+    m2 += z2;
+    number++;
   }
-  else
-  {
-    mean = TEST;
-    var = TEST;
-  }
-  return (var);
+  if (number <= 0) return TEST;
+  m1 /= (double) number;
+  m2 /= (double) number;
+  v11 = v11 / (double) number - m1 * m1;
+  v22 = v22 / (double) number - m2 * m2;
+  v12 = v12 / (double) number - m1 * m2;
+  if (v11 <= 0.) return TEST;
+  if (v22 <= 0.) return TEST;
+  double corr = v12 / sqrt(v11 * v22);
+  return corr;
 }
 
 double ut_vector_stdv(const VectorDouble &vec)

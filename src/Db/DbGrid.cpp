@@ -825,6 +825,28 @@ int DbGrid::assignGridColumn(const String& name,
   return 0;
 }
 
+int DbGrid::coordinateToRank(const VectorDouble &coor,
+                     bool centered,
+                     double eps) const
+{
+  return _grid.coordinateToRank(coor,centered,eps);
+}
+
+VectorInt DbGrid::coordinateToIndices(const VectorDouble &coor,
+                                      bool centered,
+                                      double eps) const
+{
+  return _grid.coordinateToIndices(coor, centered, eps);
+}
+
+int DbGrid::coordinateToIndicesInPlace(const VectorDouble &coor,
+                                       VectorInt &indices,
+                                       bool centered,
+                                       double eps) const
+{
+  return _grid.coordinateToIndicesInPlace(coor, indices, centered, eps);
+}
+
 /**
  * Extracts a slice from a 3-D Grid
  * @param name   Name of the target variable
@@ -965,3 +987,69 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
   return tab;
 }
 
+/**
+ * Return the VectorVectorDouble containing the borders of a cell
+ * @param node Target cell
+ * @return
+ */
+VectorVectorDouble DbGrid::getCellEdges(int node) const
+{
+  VectorVectorDouble coords(2);
+  coords[0].resize(5);
+  coords[1].resize(5);
+
+  int ndim = getNDim();
+  VectorInt icorner(ndim,0);
+  VectorDouble local;
+
+  // Get the extension of the target cell (possibly variable)
+  VectorDouble dxsPerCell = getBlockExtensions(node);
+
+  icorner[0] = -1;
+  icorner[1] = -1;
+  local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+  coords[0][0] = local[0];
+  coords[1][0] = local[1];
+
+  icorner[0] = -1;
+  icorner[1] = 1;
+  local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+  coords[0][1] = local[0];
+  coords[1][1] = local[1];
+
+  icorner[0] = 1;
+  icorner[1] = 1;
+  local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+  coords[0][2] = local[0];
+  coords[1][2] = local[1];
+
+  icorner[0] = 1;
+  icorner[1] = -1;
+  local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+  coords[0][3] = local[0];
+  coords[1][3] = local[1];
+
+  icorner[0] = -1;
+  icorner[1] = -1;
+  local = getGrid().getCellCoordinatesByCorner(node, icorner, dxsPerCell);
+  coords[0][4] = local[0];
+  coords[1][4] = local[1];
+
+  return coords;
+}
+
+VectorDouble DbGrid::getBlockExtensions(int iech) const
+{
+  int ndim = getNDim();
+
+  VectorDouble dxsPerCell = getDXs();
+  if (hasBlockExtension())
+  {
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      double value = getBlockExtension(iech, idim);
+      if (! FFFF(value)) dxsPerCell[idim] = value;
+    }
+  }
+  return dxsPerCell;
+}

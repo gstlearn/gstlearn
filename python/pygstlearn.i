@@ -153,6 +153,18 @@ void exit_f(void)
 %extend Limits {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend NeighMoving {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighUnique {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighImage {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighBench {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

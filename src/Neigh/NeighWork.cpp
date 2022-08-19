@@ -342,6 +342,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   double distmax = 0.;
   int nsel = 0;
+
   for (int iech = 0; iech < nech; iech++)
   {
 
@@ -360,16 +361,27 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
 
-    /* Calculate the distance between data and target */
+    // Force selection if the sample belongs to the block
 
-    double dist = _movingDist(dbout, iech, iech_out);
-    if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
-    if (dist > distmax) distmax = dist;
+    double dist;
+    if (neighM->getForceWithinBlock() && dbout->isGrid())
+    {
+      if (! _belongsToCell(dbout, iech, iech_out)) continue;
+      dist = _movingDist(dbout, iech, iech_out);
+    }
+    else
+    {
+      /* Calculate the distance between data and target */
 
-    /* Calculate the angular sector to which the sample belongs */
+      dist = _movingDist(dbout, iech, iech_out);
+      if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
+      if (dist > distmax) distmax = dist;
 
-    if (neighM->getFlagSector())
-      isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+      /* Calculate the angular sector to which the sample belongs */
+
+      if (neighM->getFlagSector())
+        isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+    }
 
     /* The sample may be selected */
 
@@ -392,7 +404,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (neighM->getFlagSector() && neighM->getNSMax() > 0)
+  if (!neighM->getForceWithinBlock() && neighM->getFlagSector() && neighM->getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < neighM->getNMini()) return 1;
@@ -508,6 +520,21 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   matrix_product(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
   dist = sqrt(dist);
   return dist;
+}
+
+bool NeighWork::_belongsToCell(Db* dbout, int iech, int iech_out)
+{
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  if (dbgrid == nullptr) return false;
+
+  // Get the coordinates of the sample
+  VectorDouble coor = _dbin->getSampleCoordinates(iech);
+
+  // Identify the dimensions of the cell
+  VectorDouble dxsPerCell = dbgrid->getBlockExtensions(iech_out);
+
+  // Check if the sample belongs to the cell
+  return dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
 }
 
 /****************************************************************************/

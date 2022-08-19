@@ -3260,7 +3260,7 @@ void calc_stats_grid(Db *db,
 
       if (!db->isActive(iech)) continue;
       db->getCoordinatesInPlace(iech, coor);
-      if (dbgrid->coordinateToIndices(coor, indg0, true)) continue;
+      if (dbgrid->coordinateToIndicesInPlace(coor, indg0, true)) continue;
       double value = db->getArray(iech, icol);
       if (FFFF(value)) continue;
 
