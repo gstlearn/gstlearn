@@ -221,6 +221,7 @@ set(SRC
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
+  Arrays/BImageStringFormat.cpp
   Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
@@ -280,6 +281,7 @@ set(SRC
   Estimation/CalcKriging.cpp
   Estimation/CalcFactorKriging.cpp
   Estimation/CalcSimpleInterpolation.cpp
+  Estimation/CalcImage.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

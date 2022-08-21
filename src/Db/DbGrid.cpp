@@ -28,6 +28,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
+#include "Estimation/CalcImage.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -376,6 +377,11 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   (void) migrateAllVariables(dbin, dbgrid, flag_add_rank);
 
   return dbgrid;
+}
+
+DbGrid* DbGrid::refine(const VectorInt &nmult)
+{
+  return createRefine(this,nmult,0);
 }
 
 DbGrid* DbGrid::createRefine(DbGrid *dbin,
@@ -1053,3 +1059,15 @@ VectorDouble DbGrid::getBlockExtensions(int iech) const
   }
   return dxsPerCell;
 }
+
+int DbGrid::dbMorpho(const EMorpho &oper,
+                     double vmin,
+                     double vmax,
+                     int option,
+                     const VectorInt &radius,
+                     bool verbose,
+                     const NamingConvention &namconv)
+{
+  return morpho(this, oper, vmin, vmax, option, radius, verbose, namconv);
+}
+

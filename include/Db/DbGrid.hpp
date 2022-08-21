@@ -13,10 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
-
+#include "Db/ELoadBy.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -27,6 +26,7 @@
 #include "Basic/ICloneable.hpp"
 
 class Polygons;
+class EMorpho;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -98,6 +98,7 @@ public:
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
+  DbGrid* refine(const VectorInt &nmult);
   static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
 
   inline const Grid& getGrid() const { return _grid; }
@@ -196,6 +197,14 @@ public:
                        bool useSel = false);
   VectorDouble getBlockExtensions(int iech) const;
   VectorVectorDouble getCellEdges(int node = 0) const;
+
+  int dbMorpho(const EMorpho &oper,
+               double vmin = 0.,
+               double vmax = 1.5,
+               int option = 0,
+               const VectorInt &radius = VectorInt(),
+               bool verbose = false,
+               const NamingConvention &namconv = NamingConvention("Morpho"));
 
 protected:
   /// Interface for ASerializable

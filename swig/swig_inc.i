@@ -51,6 +51,7 @@
 #include "Arrays/AArray.hpp"
 #include "Arrays/Array.hpp"
 #include "Arrays/BImage.hpp"
+#include "Arrays/BImageStringFormat.hpp"
 
 #include "Faults/Faults.hpp"
 
@@ -259,6 +260,7 @@
 #include "Gibbs/GibbsUMulti.hpp"
 
 #include "Morpho/Morpho.hpp"
+#include "Morpho/EMorpho.hpp"
 
 #include "Polygon/Polygons.hpp"
 #include "Polygon/PolySet.hpp"
@@ -279,6 +281,7 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcFactorKriging.hpp"
 #include "Estimation/CalcSimpleInterpolation.hpp"
+#include "Estimation/CalcImage.hpp"
 
 #include "OutputFormat/AOF.hpp"
 #include "OutputFormat/FileLAS.hpp"

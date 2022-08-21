@@ -14,7 +14,6 @@
 #include "geoslib_define.h"
 
 #include "Polynomials/Hermite.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -5882,52 +5881,6 @@ int inhomogeneous_kriging(Db *dbdat,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   delete neighU;
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Kriging (Factorial) a regular grid
- **
- ** \return  Error return code
- **
- ** \param[in]  dbgrid     input and output Db grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  namconv    Naming Convention
- **
- *****************************************************************************/
-int krimage(DbGrid *dbgrid,
-            Model *model,
-            NeighImage *neighparam,
-            const NamingConvention& namconv)
-{
-  int iptr_est  = 1;
-  int nvar = model->getVariableNumber();
-
-  /* Add the attributes for storing the results */
-
-  iptr_est = dbgrid->addColumnsByConstant(nvar, 0.);
-  if (iptr_est < 0) return 1;
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbgrid, dbgrid, model, neighparam);
-  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
-  {
-    mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
-     if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, nvar, dbgrid, iptr_est, "estim");
-
-  return 0;
 }
 
 /****************************************************************************/

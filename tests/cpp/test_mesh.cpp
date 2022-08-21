@@ -22,8 +22,8 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
@@ -32,6 +32,7 @@
 #include "Covariances/CovContext.hpp"
 
 #include <math.h>
+
 
 /*********************/
 /* Program principal */

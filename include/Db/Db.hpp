@@ -14,9 +14,9 @@
 #include "geoslib_d.h"
 
 // Enums
-#include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 
+#include "Db/ELoadBy.hpp"
 #include "../Stats/EStatOption.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"

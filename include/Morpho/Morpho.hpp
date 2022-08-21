@@ -13,6 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Arrays/BImage.hpp"
+#include "Db/DbGrid.hpp"
+#include "Morpho/EMorpho.hpp"
 
 GSTLEARN_EXPORT int morpho_count(const BImage& imagin);
 GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);
@@ -89,3 +91,12 @@ GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
                                          int radius,
                                          int flag_center,
                                          bool verbose = false);
+
+GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
+                                   int iptr0,
+                                   const EMorpho& oper,
+                                   double vmin = 0.,
+                                   double vmax = 1.5,
+                                   int option = 0,
+                                   const VectorInt& radius = VectorInt(),
+                                   bool verbose = false);

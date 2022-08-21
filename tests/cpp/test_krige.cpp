@@ -8,9 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+
+#include "Space/ESpaceType.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -32,6 +33,7 @@
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Estimation/CalcImage.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {

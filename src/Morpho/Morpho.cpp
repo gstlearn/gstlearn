@@ -12,9 +12,10 @@
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
+#include <Morpho/Morpho.hpp>
+#include <Morpho/EMorpho.hpp>
 
 #include <math.h>
-#include <Morpho/Morpho.hpp>
 
 static int RADIUS[3];
 static int LARGE = 9999999;
@@ -1118,4 +1119,82 @@ void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
     }
 
   return;
+}
+
+GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
+                                   int iptr0,
+                                   const EMorpho& oper,
+                                   double vmin,
+                                   double vmax,
+                                   int option,
+                                   const VectorInt& radius,
+                                   bool verbose)
+{
+  int ntotal = dbgrid->getSampleNumber();
+  VectorInt nxy = dbgrid->getNXs();
+
+  VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
+  BImage image2 = BImage(nxy);
+  BImage image = morpho_double2image(nxy,tabin,vmin,vmax);
+  VectorDouble tabout = VectorDouble(ntotal);
+
+  if (verbose)
+  {
+    message("Morphological operation = %s\n",oper.getDescr().c_str());
+    message("Initial image = %d/%d\n",morpho_count(image),ntotal);
+  }
+
+  bool alreadyLoaded = false;
+  if (oper == EMorpho::THRESH)
+  {
+    morpho_duplicate(image, image2);
+  }
+  else if (oper == EMorpho::NEGATION)
+  {
+    morpho_negation(image, image2);
+  }
+  else if (oper == EMorpho::EROSION)
+  {
+    morpho_erosion(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::DILATION)
+  {
+    morpho_dilation(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::OPEN)
+  {
+    morpho_opening(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::CLOSE)
+  {
+    morpho_closing(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::CC)
+  {
+    int ncomp = morpho_labelling(0, 0, image, TEST, tabout, verbose);
+    alreadyLoaded = true;
+    if (verbose)
+      message("Number of Connected Components = %d\n",ncomp);
+  }
+  else if (oper == EMorpho::CCSIZE)
+  {
+    int ncomp = morpho_labelling(0, 1, image, TEST, tabout, verbose);
+    alreadyLoaded = true;
+    if (verbose)
+      message("Number of Connected Components = %d\n",ncomp);
+  }
+  else
+  {
+    messerr("Not programmed yet\n");
+    return 1;
+  }
+
+  if (! alreadyLoaded)
+  {
+    if (verbose)
+      message("Resulting image = %d/%d\n",morpho_count(image2),ntotal);
+    morpho_image2double(image2, 0, 1., 0., tabout);
+  }
+  dbgrid->setColumnByUID(tabout, iptr0);
+  return 0;
 }
