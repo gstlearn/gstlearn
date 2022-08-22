@@ -61,9 +61,17 @@ bool DbStringFormat::_matchFlag(int flag) const
 }
 
 DbStringFormat* DbStringFormat::create(unsigned char params,
-                                       const VectorString& names,
-                                       const VectorInt& cols,
+                                       const VectorString &names,
+                                       const VectorInt &cols,
                                        bool useSel)
+{
+  return new DbStringFormat(params, names, cols, useSel);
+}
+
+DbStringFormat* DbStringFormat::createFromKeys(unsigned char params,
+                                               const VectorString &names,
+                                               const VectorInt &cols,
+                                               bool useSel)
 {
   return new DbStringFormat(params, names, cols, useSel);
 }
