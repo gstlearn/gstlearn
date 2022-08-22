@@ -1044,7 +1044,54 @@ VectorVectorDouble DbGrid::getCellEdges(int node) const
   return coords;
 }
 
-VectorDouble DbGrid::getBlockExtensions(int iech) const
+/**
+ * Return the VectorVectorDouble containing the borders of the grid
+ * @return
+ */
+VectorVectorDouble DbGrid::getGridEdges() const
+{
+  VectorVectorDouble coords(2);
+  coords[0].resize(5);
+  coords[1].resize(5);
+
+  int ndim = getNDim();
+  VectorInt icorner(ndim,0);
+  VectorDouble local;
+
+  icorner[0] = 0;
+  icorner[1] = 0;
+  local = getGrid().getCoordinatesByCorner(icorner);
+  coords[0][0] = local[0];
+  coords[1][0] = local[1];
+
+  icorner[0] = 0;
+  icorner[1] = 1;
+  local = getGrid().getCoordinatesByCorner(icorner);
+  coords[0][1] = local[0];
+  coords[1][1] = local[1];
+
+  icorner[0] = 1;
+  icorner[1] = 1;
+  local = getGrid().getCoordinatesByCorner(icorner);
+  coords[0][2] = local[0];
+  coords[1][2] = local[1];
+
+  icorner[0] = 1;
+  icorner[1] = 0;
+  local = getGrid().getCoordinatesByCorner(icorner);
+  coords[0][3] = local[0];
+  coords[1][3] = local[1];
+
+  icorner[0] = 0;
+  icorner[1] = 0;
+  local = getGrid().getCoordinatesByCorner(icorner);
+  coords[0][4] = local[0];
+  coords[1][4] = local[1];
+
+  return coords;
+}
+
+VectorDouble DbGrid::getBlockExtensions(int node) const
 {
   int ndim = getNDim();
 
@@ -1053,7 +1100,7 @@ VectorDouble DbGrid::getBlockExtensions(int iech) const
   {
     for (int idim = 0; idim < ndim; idim++)
     {
-      double value = getBlockExtension(iech, idim);
+      double value = getBlockExtension(node, idim);
       if (! FFFF(value)) dxsPerCell[idim] = value;
     }
   }

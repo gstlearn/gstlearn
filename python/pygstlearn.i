@@ -165,6 +165,9 @@ void exit_f(void)
 %extend NeighBench {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend MeshEStandard {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

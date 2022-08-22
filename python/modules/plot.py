@@ -989,19 +989,18 @@ def mesh(mesh,
         fig, ax = newFigure(figsize, xlim, ylim)   
 
     nmesh = mesh.getNMeshes()
-    for imesh in range(nmesh):
-        tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
-        taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
             
-
     if flagFace:
         plot_args.setdefault('facecolor', facecolor)
                 
     if flagEdge:
         plot_args.setdefault('edgecolor', edgecolor)
+        plot_args.setdefault('linewidth', linewidth)
 
-    plot_args.setdefault('linewidth', linewidth)
-    ax.fill(tabx, taby, **plot_args)
+    for imesh in range(nmesh):
+        tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
+        taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
+        ax.fill(tabx, taby, **plot_args)
 
     drawDecor(ax, title=title)
     

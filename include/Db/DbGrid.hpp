@@ -195,8 +195,9 @@ public:
                        int rank,
                        double value,
                        bool useSel = false);
-  VectorDouble getBlockExtensions(int iech) const;
+  VectorDouble getBlockExtensions(int node) const;
   VectorVectorDouble getCellEdges(int node = 0) const;
+  VectorVectorDouble getGridEdges() const;
 
   int dbMorpho(const EMorpho &oper,
                double vmin = 0.,
