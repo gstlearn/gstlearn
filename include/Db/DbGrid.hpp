@@ -201,7 +201,7 @@ public:
   VectorVectorDouble getGridEdges() const;
 
   int morpho(const EMorpho &oper,
-             double vmin = 0.,
+             double vmin = 0.5,
              double vmax = 1.5,
              int option = 0,
              const VectorInt &radius = VectorInt(),
