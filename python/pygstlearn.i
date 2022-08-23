@@ -168,6 +168,9 @@ void exit_f(void)
 %extend MeshEStandard {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend MeshETurbo {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 %pythoncode %{
 # Override operator [] for the Db class

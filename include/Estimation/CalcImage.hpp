@@ -37,6 +37,8 @@ public:
   void setVmin(double vmin) { _vmin = vmin; }
   void setVmax(double vmax) { _vmax = vmax; }
   void setVerbose(bool verbose) { _verbose = verbose; }
+  void setDistErode(bool distErode) { _distErode = distErode; }
+  void setNvarMorpho(int nvarMorpho) { _nvarMorpho = nvarMorpho; }
 
 private:
   virtual bool _check() override;
@@ -52,11 +54,13 @@ private:
   bool _flagFilter;
 
   bool _flagMorpho;
+  int  _nvarMorpho;
   EMorpho _oper;
   double _vmin;
   double _vmax;
   int _option;
   VectorInt _radius;
+  bool _distErode;
   bool _verbose;
 };
 
@@ -65,12 +69,13 @@ GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             NeighImage *neighparam,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
 
-GSTLEARN_EXPORT int morpho(DbGrid *dbgrid,
-                           const EMorpho &oper,
-                           double vmin = 0.,
-                           double vmax = 1.5,
-                           int option = 0,
-                           const VectorInt &radius = VectorInt(),
-                           bool verbose = false,
-                           const NamingConvention &namconv = NamingConvention(
-                               "Morpho"));
+GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
+                             const EMorpho &oper,
+                             double vmin = 0.,
+                             double vmax = 1.5,
+                             int option = 0,
+                             const VectorInt &radius = VectorInt(),
+                             bool dist_erode = false,
+                             bool verbose = false,
+                             const NamingConvention &namconv = NamingConvention(
+                                 "Morpho"));

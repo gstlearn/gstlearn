@@ -22,7 +22,7 @@
                      CLOSE,     6, "Closing (dilation then erosion) on the Binary Image", \
                      CC,        7, "Connected components (cells assigned Rank of CC)", \
                      CCSIZE,    8, "Connected components (cells assigned Volume of CC)", \
-                     DIST,      9, "Distance to the pore edge", \
+                     DISTANCE,  9, "Distance to the pore edge", \
                      ANGLE,    10, "Angle of the tangent to isovalues of a coloured image", \
                      GRADIENT, 11, "Gradient components"
 

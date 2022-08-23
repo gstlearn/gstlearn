@@ -309,6 +309,7 @@ VectorDouble AMesh::getCoordinatesPerMesh(int imesh, int idim, bool flagClose) c
 {
   VectorDouble vec;
   int ncorner = getNApexPerMesh();
+
   if (flagClose)
     vec.resize(ncorner+1);
   else
@@ -344,6 +345,16 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
     coords[idim] = getApexCoor(iapex, idim);
 }
 
+/**
+ * Returns the absolute meshing index, given the active mesh rank
+ * (This is interesting when some meshes can be masked)
+ * @param imesh Active mesh rank
+ * @return
+ */
+int AMesh::getAbsoluteMeshRank(int imesh) const
+{
+  return imesh;
+}
 
 /**
  * Fill the array of coordinates of all apices of a mesh in embedded space

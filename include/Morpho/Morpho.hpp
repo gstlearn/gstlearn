@@ -77,15 +77,18 @@ GSTLEARN_EXPORT void morpho_image2double(const BImage& imagin,
                                          double pore,
                                          VectorDouble &tab,
                                          bool verbose = false);
+
 GSTLEARN_EXPORT void morpho_distance(int option,
                                      const VectorInt &radius,
-                                     int flag_erode,
+                                     bool flag_dist_erode,
                                      BImage& imagin,
-                                     VectorDouble &dist);
-GSTLEARN_EXPORT void morpho_angle(const VectorInt &nx,
-                                  int radius,
-                                  double *tab,
-                                  double *tabout);
+                                     VectorDouble &dist,
+                                     bool verbose = false);
+GSTLEARN_EXPORT void morpho_angle2D(DbGrid *dbgrid,
+                                    const VectorInt &radius,
+                                    int iptr0);
+GSTLEARN_EXPORT void morpho_gradients(DbGrid *dbgrid, int iptr);
+
 GSTLEARN_EXPORT VectorInt gridcell_neigh(int ndim,
                                          int option,
                                          int radius,
@@ -99,4 +102,5 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
                                    double vmax = 1.5,
                                    int option = 0,
                                    const VectorInt& radius = VectorInt(),
+                                   bool dist_erode = false,
                                    bool verbose = false);

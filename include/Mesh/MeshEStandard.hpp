@@ -58,7 +58,7 @@ public:
                        int **dupl1,
                        int **dupl2) const;
   int resetFromDb(Db *dbin,
-                  Db *dbout,
+                  Db *dbout = nullptr,
                   const VectorDouble& dilate = VectorDouble(),
                   const String& triswitch = "Q",
                   bool verbose = false);
