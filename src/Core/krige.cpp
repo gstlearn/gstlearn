@@ -14,7 +14,6 @@
 #include "geoslib_define.h"
 
 #include "Polynomials/Hermite.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -1920,12 +1919,6 @@ int global_transitive(DbGrid *dbgrid,
         "The transitive global estimation is implemented for 1 variable only");
     goto label_end;
   }
-  if (!is_grid(dbgrid))
-  {
-    messerr(
-        "The transitive global estimation requires a Db organized as a grid");
-    goto label_end;
-  }
 
   /* Core allocation */
 
@@ -2037,8 +2030,7 @@ int global_transitive(DbGrid *dbgrid,
   if (flag_value)
   {
     *abundance = dsum;
-    *cvtrans = ((*sse) <= 0.) ? TEST :
-                                dsum / (*sse);
+    *cvtrans = ((*sse) <= 0.) ? TEST : dsum / (*sse);
   }
   else
   {
@@ -2130,7 +2122,7 @@ static void st_grid_invdist(DbGrid* dbin,
     /* Find the grid index corresponding to the target */
 
     dbout->getCoordinatesInPlace(iech, cooref);
-    if (dbin->coordinateToIndices(cooref, indref))
+    if (dbin->coordinateToIndicesInPlace(cooref, indref))
     {
       dbout->setArray(iech, iptr, TEST);
       continue;
@@ -2890,8 +2882,7 @@ static void st_calculate_covtot(DbGrid *db,
       {
         val1 = COV_TOT(ix, iy, iz);
         val2 = COV_TOT(-ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST :
-                                           (val1 + val2) / 2.;
+        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
         COV_TOT( ix,iy,iz)= COV_TOT(-ix,iy,iz) = val;
       }
 
@@ -2901,8 +2892,7 @@ static void st_calculate_covtot(DbGrid *db,
       {
         val1 = COV_TOT(ix, -iy, iz);
         val2 = COV_TOT(ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST :
-                                           (val1 + val2) / 2.;
+        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
         COV_TOT(ix, iy,iz)= COV_TOT(ix,-iy,iz) = val;
       }
 
@@ -2912,8 +2902,7 @@ static void st_calculate_covtot(DbGrid *db,
       {
         val1 = COV_TOT(ix, iy, -iz);
         val2 = COV_TOT(ix, iy, iz);
-        val = (FFFF(val1) || FFFF(val2)) ? TEST :
-                                           (val1 + val2) / 2.;
+        val = (FFFF(val1) || FFFF(val2)) ? TEST : (val1 + val2) / 2.;
         COV_TOT(ix,iy,-iz)= COV_TOT(ix,iy, iz) = val;
 }
 
@@ -3750,97 +3739,46 @@ int krigsum(Db *dbin,
 /*!
  **  Perform the Neighborhood search
  **
- ** \return  Array of sample indices of the target neighbors
+ ** \return  Vector of sample indices of the target neighbors
  **
- ** \param[in]  dbin       input Db structure
- ** \param[in]  model      Model structure
+ ** \param[in]  dbin       Input Db structure
+ ** \param[in]  dbout      Output Db structure
  ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  target     Target location
- **
- ** \param[out] nech_out  Number of samples in the neighborhood
- **
- ** \remarks The resulting array must be freed by the calling procedure
- **
- ** \remark The number of variables in the 'dbin' may be different from
- ** \remark the number of variables in the 'model´.
- ** \remark This happens when the monovariate model is applied systematically
- ** \remark to all variables (such as for DK).
- ** \remark Dbin is modified so as to keep only the first Z-locator
+ ** \param[in]  iech0      Rank of the target (in Dbout)
  **
  *****************************************************************************/
-int* neigh_calc(Db *dbin,
-                Model *model,
-                ANeighParam *neighparam,
-                double *target,
-                int *nech_out)
+VectorInt neigh_calc(Db* dbin,
+                     Db* dbout,
+                     ANeighParam *neighparam,
+                     int iech0)
 {
-  int *neigh_tab, i, error, status, nech, zloc;
-  Db *dbout;
   NeighWork nbghw;
-  VectorInt nbgh_ranks;
+  VectorInt neigh_tab;
 
-  /* Preliminary checks */
+  // Initializations
+  int ndim = dbin->getNDim();
+  int nvar = dbin->getVariableNumber();
+  if (nvar <= 0) nvar = 1;
 
-  neigh_tab = nullptr;
-  dbout = nullptr;
-  *nech_out = 0;
-  error = 1;
-
-  /* Create a temporary dummy Db which contains the target */
-
-  if (model == nullptr) goto label_end;
-  dbout = db_create_from_target(target, model->getDimensionNumber(), 1);
-  if (dbout == nullptr) goto label_end;
+  // Create a temporary model
+  Model model = Model(nvar, ndim);
+  model.addCovFromParam(ECov::NUGGET);
   st_global_init(dbin, dbout);
-
-  /* Modification of 'dbin' */
-
-  if (dbin != nullptr && dbin->getVariableNumber() != model->getVariableNumber()
-      && model->getVariableNumber() == 1)
-  {
-    zloc = dbin->getColIdxByLocator(ELoc::Z);
-    dbin->clearLocators(ELoc::Z);
-    dbin->setLocatorByUID(zloc, ELoc::Z);
-  }
-  if (st_check_environment(1, 1, model, neighparam)) goto label_end;
 
   /* Pre-calculations */
 
-  nbghw.initialize(DBIN, neighparam);
-  nbghw.setFlagSimu(FLAG_SIMU);
-  if (st_model_manage(1, model)) goto label_end;
-  if (st_krige_manage(1, model->getVariableNumber(), model, neighparam))
-    goto label_end;
+  nbghw.initialize(dbin, neighparam);
+  if (st_model_manage(1, &model)) goto label_end;
+  if (st_krige_manage(1, nvar, &model, neighparam)) goto label_end;
 
   /* Select the Neighborhood */
 
-  IECH_OUT = 0;
-  nbgh_ranks = nbghw.select(DBOUT,  IECH_OUT);
-  nech = (int) nbgh_ranks.size();
-  status = nbgh_ranks.empty();
-  if (status != 0)
-  {
-    messerr("Neighborhood search failed");
-    goto label_end;
-  }
-
-  /* Store the neighbor indices */
-
-  neigh_tab = (int*) mem_alloc(sizeof(int) * nech, 1);
-  for (i = 0; i < nech; i++)
-    neigh_tab[i] = nbgh_ranks[i] + 1;
-  *nech_out = nech;
-
-  /* Set the error return flag */
-
-  error = 0;
+  neigh_tab = nbghw.select(dbout,  iech0);
 
 label_end:
-  if (error) neigh_tab = (int *) mem_free((char* ) neigh_tab);
-  dbout = db_delete(dbout);
-  (void) st_model_manage(-1, model);
-  (void) st_krige_manage(-1, model->getVariableNumber(), model, neighparam);
-  return (neigh_tab);
+  (void) st_model_manage(-1, &model);
+  (void) st_krige_manage(-1, nvar, &model, neighparam);
+  return neigh_tab;
 }
 
 /****************************************************************************/
@@ -5943,52 +5881,6 @@ int inhomogeneous_kriging(Db *dbdat,
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   delete neighU;
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Kriging (Factorial) a regular grid
- **
- ** \return  Error return code
- **
- ** \param[in]  dbgrid     input and output Db grid structure
- ** \param[in]  model      Model structure
- ** \param[in]  neighparam ANeighParam structure
- ** \param[in]  namconv    Naming Convention
- **
- *****************************************************************************/
-int krimage(DbGrid *dbgrid,
-            Model *model,
-            NeighImage *neighparam,
-            const NamingConvention& namconv)
-{
-  int iptr_est  = 1;
-  int nvar = model->getVariableNumber();
-
-  /* Add the attributes for storing the results */
-
-  iptr_est = dbgrid->addColumnsByConstant(nvar, 0.);
-  if (iptr_est < 0) return 1;
-
-  /* Setting options */
-
-  KrigingSystem ksys(dbgrid, dbgrid, model, neighparam);
-  if (ksys.updKrigOptEstim(iptr_est, -1, -1)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
-  {
-    mes_process("Image filtering", dbgrid->getSampleNumber(), iech_out);
-     if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, nvar, dbgrid, iptr_est, "estim");
-
-  return 0;
 }
 
 /****************************************************************************/

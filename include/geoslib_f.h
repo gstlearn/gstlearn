@@ -17,8 +17,8 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/Constraints.hpp"
@@ -327,10 +327,6 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  int opt_code = 0,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", true, true, ELoc::SEL));
-GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
-                            Model *model,
-                            NeighImage *neighparam,
-                            const NamingConvention& namconv = NamingConvention("Filtering"));
 GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
                                    NeighImage *neighI,
                                    int type,
@@ -488,6 +484,15 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   bool flag_cstd,
                                   bool verbose,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
+
+/****************************************/
+/* Prototyping the functions in neigh.c */
+/****************************************/
+
+GSTLEARN_EXPORT VectorInt neigh_calc(Db *dbin,
+                                     Db *dbout,
+                                     ANeighParam *neighparam,
+                                     int iech0);
 
 /*****************/
 /* Various Tools */

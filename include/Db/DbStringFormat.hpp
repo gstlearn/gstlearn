@@ -45,10 +45,15 @@ public:
   DbStringFormat& operator=(const DbStringFormat& r);
   virtual ~DbStringFormat();
 
-  DbStringFormat* create(unsigned char params,
-                         const VectorString& names,
-                         const VectorInt& cols,
-                         bool useSel);
+  static DbStringFormat* create(unsigned char params = FLAG_RESUME | FLAG_VARS,
+                                const VectorString& names = VectorString(),
+                                const VectorInt& cols = VectorInt(),
+                                bool useSel = true);
+
+  DbStringFormat* createFromKeys(unsigned char params,
+                                 const VectorString &names,
+                                 const VectorInt &cols,
+                                 bool useSel);
 
   const VectorInt& getCols() const { return _cols; }
   bool getUseSel() const { return _useSel; }

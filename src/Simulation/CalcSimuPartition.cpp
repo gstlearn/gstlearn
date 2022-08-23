@@ -286,7 +286,7 @@ bool CalcSimuPartition::_run()
 
 bool CalcSimuPartition::_postprocess()
 {
-  _renameVariable(1, _iattOut, String(), getNbSimu());
+  _renameVariable(2, 1, _iattOut, String(), getNbSimu());
   return true;
 }
 

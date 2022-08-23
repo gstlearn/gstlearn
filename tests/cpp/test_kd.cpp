@@ -39,7 +39,7 @@
 
 #include <math.h>
 
-#include "../../include/Estimation/CalcSimpleInterpolation.hpp"
+#include "../../include/Calculators/CalcStatistics.hpp"
 #include "../../include/Space/ESpaceType.hpp"
 
 /****************************************************************************/

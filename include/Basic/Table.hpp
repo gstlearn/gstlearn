@@ -44,8 +44,8 @@ public:
   void init(int nrows, int ncols) { _tab.reset(nrows, ncols); }
   bool isEmpty() const { return _tab.isEmpty(); }
   int getRowNumber() const;
-  int getColNumber() const;
-  VectorDouble getCol(int icol) const;
+  int getColumnNumber() const;
+  VectorDouble getColumn(int icol) const;
   VectorDouble getRow(int irow) const;
   void addRow();
   void update(int irow, int icol, double value);
@@ -57,10 +57,15 @@ public:
   void plot(int isimu) const;
   void fill(double valinit = 0);
 
-  void setColNames(const VectorString &colNames) { _colNames = colNames; }
-  void setColName(int icol, const String& name);
+  void setColumnNames(const VectorString &colNames) { _colNames = colNames; }
+  void setColumnName(int icol, const String& name);
   void setRowNames(const VectorString &rowNames) { _rowNames = rowNames; }
   void setRowName(int irow, const String& name);
+
+  VectorString getColumnNames() const {  return _colNames; }
+  VectorString getRowNames() const {  return _rowNames; }
+  String getColumnName(int icol) const {  return _colNames[icol]; }
+  String getRowName(int irow) const {  return _rowNames[irow]; }
 
 protected:
   /// Interface for ASerializable

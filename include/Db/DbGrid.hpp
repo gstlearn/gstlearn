@@ -13,10 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
-
+#include "Db/ELoadBy.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -27,6 +26,7 @@
 #include "Basic/ICloneable.hpp"
 
 class Polygons;
+class EMorpho;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -98,6 +98,7 @@ public:
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
+  DbGrid* refine(const VectorInt &nmult);
   static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
 
   inline const Grid& getGrid() const { return _grid; }
@@ -143,28 +144,28 @@ public:
   {
     return _grid.getCoordinatesByCorner(icorner);
   }
-  int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
-  {
-    return _grid.coordinateToRank(coor,eps);
-  }
-  int coordinateToIndices(const VectorDouble &coor,
-                          VectorInt &indices,
-                          double eps = EPSILON6) const
-  {
-    return _grid.coordinateToIndices(coor, indices, eps);
-  }
+  int coordinateToRank(const VectorDouble &coor,
+                       bool centered = false,
+                       double eps = EPSILON6) const;
+  VectorInt coordinateToIndices(const VectorDouble &coor,
+                                bool centered,
+                                double eps) const;
+  int coordinateToIndicesInPlace(const VectorDouble &coor,
+                                 VectorInt &indices,
+                                 bool centered = false,
+                                 double eps = EPSILON6) const;
 
   int indiceToRank(const VectorInt& indice) const
   {
     return _grid.indiceToRank(indice);
   }
-  void rankToIndice(int node, VectorInt& indice, bool minusOne = false) const
+  void rankToIndice(int node, VectorInt& indices, bool minusOne = false) const
   {
-    _grid.rankToIndice(node,indice, minusOne);
+    _grid.rankToIndice(node,indices, minusOne);
   }
-  void rankToCoordinate(int rank,
-                        VectorDouble& coor,
-                        const VectorDouble& percent = VectorDouble()) const
+  void rankToCoordinateInPlace(int rank,
+                               VectorDouble &coor,
+                               const VectorDouble &percent = VectorDouble()) const
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
@@ -194,6 +195,17 @@ public:
                        int rank,
                        double value,
                        bool useSel = false);
+  VectorDouble getBlockExtensions(int node) const;
+  VectorVectorDouble getCellEdges(int node = 0) const;
+  VectorVectorDouble getGridEdges() const;
+
+  int dbMorpho(const EMorpho &oper,
+               double vmin = 0.,
+               double vmax = 1.5,
+               int option = 0,
+               const VectorInt &radius = VectorInt(),
+               bool verbose = false,
+               const NamingConvention &namconv = NamingConvention("Morpho"));
 
 protected:
   /// Interface for ASerializable

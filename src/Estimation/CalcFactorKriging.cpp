@@ -120,8 +120,8 @@ bool CalcFactorKriging::_postprocess()
   getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
 
   int nfactor = _getNFactors();
-  _renameVariable(nfactor, _iptrStd, "stdev", 1);
-  _renameVariable(nfactor, _iptrEst, "estim", 1);
+  _renameVariable(2, nfactor, _iptrStd, "stdev", 1);
+  _renameVariable(2, nfactor, _iptrEst, "estim", 1);
 
   return true;
 }

@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Arrays/BImage.hpp"
+#include "Arrays/BImageStringFormat.hpp"
 #include "Basic/Vector.hpp"
 #include "geoslib_f.h"
 
@@ -94,12 +95,38 @@ String BImage::toString(const AStringFormat* strfmt) const
 
   sstr << AArray::toString(strfmt);
 
+  const BImageStringFormat* bstrfmt = dynamic_cast<const BImageStringFormat*>(strfmt);
   if (getNDim() <= 3)
   {
+    // Default values
+
+    int izmin = 0;
+    int izmax = getNDims(2);
+    int iymin = 0;
+    int iymax = getNDims(1);
+    int ixmin = 0;
+    int ixmax = getNDims(0);
+    char zero = '0';
+    char one  = '1';
+    if (strfmt != nullptr)
+    {
+      izmin = bstrfmt->getIndMin(2);
+      iymin = bstrfmt->getIndMin(1);
+      ixmin = bstrfmt->getIndMin(0);
+      izmax = bstrfmt->getIndMax(2);
+      if (IFFFF(izmax)) izmax = getNDims(2);
+      iymax = bstrfmt->getIndMax(1);
+      if (IFFFF(iymax)) iymax = getNDims(1);
+      ixmax = bstrfmt->getIndMax(0);
+      if (IFFFF(ixmax)) ixmax = getNDims(0);
+
+      zero = bstrfmt->getCharZero();
+      one  = bstrfmt->getCharOne();
+    }
 
     /* Loop on the levels */
 
-    for (int iz = 0; iz < getNDims(2); iz++)
+    for (int iz = izmin; iz < izmax; iz++)
     {
       if (getNDims(2) > 1)
         sstr << toTitle(2, "Level %d/%d", iz + 1, getNDims(2));
@@ -109,21 +136,24 @@ String BImage::toString(const AStringFormat* strfmt) const
       /* Loop on the cells of the layer */
 
       sstr << "  ";
-      for (int ix = 0; ix < getNDims(0); ix++)
+      for (int ix = ixmin; ix < ixmax; ix++)
       {
         int val = (ix + 1) % 10;
         sstr << val;
       }
       sstr << std::endl;
 
-      for (int iy = 0; iy < getNDims(1); iy++)
+      for (int iy = iymin; iy < iymax; iy++)
       {
         int jy = getNDims(1) - iy - 1;
         sstr << (iy + 1) % 10 << " ";
-        for (int ix = 0; ix < getNDims(0); ix++)
+        for (int ix = ixmin; ix < ixmax; ix++)
         {
-          int val = (getValue(ix, jy, iz) > 0) ? 1 : 0;
-          sstr << val;
+          int val = getValue(ix, jy, iz);
+          if (val > 0)
+            sstr << one;
+          else
+            sstr << zero;
         }
         sstr << std::endl;
       }

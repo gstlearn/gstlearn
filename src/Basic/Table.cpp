@@ -102,18 +102,29 @@ int Table::getRowNumber() const
   return _tab.getNRows();
 }
 
-int Table::getColNumber() const
+int Table::getColumnNumber() const
 {
   if (isEmpty()) return 0;
   return _tab.getNCols();
 }
 
-VectorDouble Table::getCol(int icol) const
+/**
+ * Extract a Column from a Table, stripping the TEST values
+ * @param icol Rank of the target column
+ * @return
+ */
+VectorDouble Table::getColumn(int icol) const
 {
   if (! _isColValid(icol)) return VectorDouble();
-  return _tab.getColumn(icol);
+  VectorDouble vec = _tab.getColumn(icol);
+  return vec;
 }
 
+/**
+ * Extract a Row, stripping the TEST values
+ * @param irow Rank of the target row
+ * @return
+ */
 VectorDouble Table::getRow(int irow) const
 {
   if (! _isRowValid(irow)) return VectorDouble();
@@ -146,21 +157,21 @@ void Table::addRow()
 
 double Table::getValue(int irow, int icol) const
 {
-  if (icol < 0 || icol >= getColNumber()) return 0.;
+  if (icol < 0 || icol >= getColumnNumber()) return 0.;
   if (irow < 0 || irow >= getRowNumber()) return 0.;
   return _tab.getValue(irow, icol);
 }
 
 void Table::setValue(int irow, int icol, double value)
 {
-  if (icol < 0 || icol >= getColNumber()) return;
+  if (icol < 0 || icol >= getColumnNumber()) return;
   if (irow < 0 || irow >= getRowNumber()) return;
   _tab.setValue(irow, icol, value);
 }
 
 VectorDouble Table::getRange(int icol) const
 {
-  VectorDouble vec = getCol(icol);
+  VectorDouble vec = getColumn(icol);
   if (vec.empty()) return VectorDouble();
   VectorDouble limits(2);
   limits[0] = ut_vector_min(vec);
@@ -170,7 +181,7 @@ VectorDouble Table::getRange(int icol) const
 
 VectorDouble Table::getAllRange() const
 {
-  int ncols = getColNumber();
+  int ncols = getColumnNumber();
   VectorDouble limits(2);
   limits[0] =  1.e30;
   limits[1] = -1.e30;
@@ -186,14 +197,14 @@ VectorDouble Table::getAllRange() const
 bool Table::_serialize(std::ostream& os, bool /*verbose*/) const
 {
   bool ret = true;
-  ret = ret && _recordWrite<int>(os, "Number of Columns", getColNumber());
+  ret = ret && _recordWrite<int>(os, "Number of Columns", getColumnNumber());
   ret = ret && _recordWrite<int>(os, "Number of Rows", getRowNumber());
 
   /* Writing the tail of the file */
 
   for (int irow = 0; ret && irow < getRowNumber(); irow++)
   {
-    for (int icol = 0; ret && icol < getColNumber(); icol++)
+    for (int icol = 0; ret && icol < getColumnNumber(); icol++)
     {
       ret = ret && _recordWrite<double>(os, "", _tab.getValue(irow, icol));
     }
@@ -238,7 +249,7 @@ String Table::toString(const AStringFormat* /*strfmt*/) const
   if (_tab.isEmpty()) return sstr.str();
 
   sstr << toTitle(1, "Table contents");
-  int ncols = getColNumber();
+  int ncols = getColumnNumber();
   int nrows = getRowNumber();
   sstr << "- Number of Rows    = " << nrows << std::endl;
   sstr << "- Number of Columns = " << ncols << std::endl;
@@ -279,7 +290,7 @@ void Table::plot(int isimu) const
 
 bool Table::_isColValid(int icol) const
 {
-  int ncols = getColNumber();
+  int ncols = getColumnNumber();
   if (icol < 0 || icol >= ncols)
   {
     mesArg("Table Column", icol, ncols);
@@ -299,10 +310,10 @@ bool Table::_isRowValid(int irow) const
   return true;
 }
 
-void Table::setColName(int icol, const String& name)
+void Table::setColumnName(int icol, const String& name)
 {
   if (! _isColValid(icol)) return;
-  int ncols = getColNumber();
+  int ncols = getColumnNumber();
   if (_colNames.empty())
     _colNames.resize(ncols, "  ");
   _colNames[icol] = name;
@@ -320,6 +331,6 @@ void Table::setRowName(int irow, const String& name)
 void Table::fill(double valinit)
 {
   for (int irow = 0; irow < getRowNumber(); irow++)
-    for (int icol = 0; icol < getColNumber(); icol++)
+    for (int icol = 0; icol < getColumnNumber(); icol++)
       _tab.setValue(irow, icol, valinit);
 }

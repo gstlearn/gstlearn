@@ -10,8 +10,8 @@
 #include "Interfaces/Param.hpp"
 #include "Interfaces/ParamCSV.hpp"
 #include "Space/ASpace.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
 
 #include <cstddef>

@@ -56,7 +56,9 @@ class NeighImage;
 class NeighUnique;
 class Polygons;
 class PCA;
-class Grid;class SimuRefineParam;
+class Grid;
+class SimuRefineParam;
+class EStatOption;
 
 class cs;
 class QChol;
@@ -870,16 +872,6 @@ GSTLEARN_EXPORT void constraints_print(const Constraints &constraints);
 GSTLEARN_EXPORT int modify_constraints_on_sill(Constraints &constraints);
 GSTLEARN_EXPORT const CovInternal* get_external_covariance();
 
-/****************************************/
-/* Prototyping the functions in neigh.c */
-/****************************************/
-
-GSTLEARN_EXPORT int* neigh_calc(Db *dbin,
-                                Model *model,
-                                ANeighParam *neighparam,
-                                double *target,
-                                int *nech_out);
-
 /***************************************/
 /* Prototyping the functions in anam.c */
 /***************************************/
@@ -975,7 +967,7 @@ GSTLEARN_EXPORT DbGrid* db_create_grid_dilate(DbGrid *dbin,
                                               int flag_add_rank);
 GSTLEARN_EXPORT DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult);
 GSTLEARN_EXPORT int db_grid_define_coordinates(DbGrid *db);
-GSTLEARN_EXPORT Db* db_create_from_target(double *target,
+GSTLEARN_EXPORT Db* db_create_from_target(const double *target,
                                           int ndim,
                                           int flag_add_rank);
 GSTLEARN_EXPORT void db_sample_print(Db *db,
@@ -1283,6 +1275,18 @@ GSTLEARN_EXPORT int stats_point_to_grid(DbGrid *dbgrid,
                                         int ncut,
                                         double *cuts,
                                         double *tab);
+GSTLEARN_EXPORT void calc_stats_grid(Db *db,
+                                     DbGrid *dbgrid,
+                                     const EStatOption &oper,
+                                     int radius,
+                                     int iptr0);
+GSTLEARN_EXPORT int calc_regression(Db *db1,
+                                    Db *db2,
+                                    int mode,
+                                    int icol0,
+                                    const VectorInt &icols,
+                                    bool flagCste,
+                                    int iptr0);
 GSTLEARN_EXPORT int db_stats(Db *db,
                              const String &oper,
                              const VectorInt &cols,

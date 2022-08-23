@@ -59,15 +59,17 @@ public:
                                           const Selectivity& selecin,
                                           bool verbose);
 
-  int calculateFromDb(const Db* db);
+  int calculateFromDb(const Db* db, bool autoCuts = false);
   int calculateFromArray(const VectorDouble& tab,
-                         const VectorDouble& weights = VectorDouble());
+                         const VectorDouble& weights = VectorDouble(),
+                         bool autoCuts = false);
   int calculateFromAnam(AAnam* anam);
 
-  const Table& eval(const Db *db);
-  const Table& eval(const VectorDouble &tab,
-                    const VectorDouble &weights = VectorDouble());
-  const Table& eval(AAnam* anam);
+  const Table eval(const Db *db, bool autoCuts = false);
+  const Table eval(const VectorDouble &tab,
+                   const VectorDouble &weights = VectorDouble(),
+                   bool autoCuts = false);
+  const Table eval(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
   int    getNCuts() const { return (int) _Zcut.size(); }
@@ -122,7 +124,7 @@ public:
   bool isFlagTonnageCorrect() const { return _flagTonnageCorrect; }
   double getZmax() const { return _zmax; }
 
-  const Table& getStats() const { return _stats; }
+  const Table getStats() const { return _stats; }
 
 private:
   VectorString _getAllNames() const;
@@ -144,6 +146,7 @@ private:
                     const ESelectivity& code,
                     int mode) const;
   bool _isMultiplied(const ESelectivity& code) const;
+  void _defineAutomaticCutoffs(const VectorDouble& tab, double eps = EPSILON3);
 
 private:
   VectorDouble _Zcut;

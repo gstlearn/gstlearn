@@ -46,7 +46,7 @@ private:
   virtual int  _getNVar() const override;
 
 private:
-  int _iattOut;
+  int    _iattOut;
   bool   _flagMovAve;
   bool   _flagInvDist;
   bool   _flagLstSqr;

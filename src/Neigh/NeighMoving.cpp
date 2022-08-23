@@ -8,14 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_old_f.h"
+
 #include "Neigh/NeighMoving.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
+#include <math.h>
 
 NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
     : ANeighParam(ndim, flag_xvalid),
@@ -25,6 +28,7 @@ NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
       _nMaxi(0),
       _nSect(1),
       _nSMax(0),
+      _forceWithinBlock(false),
       _radius(0.),
       _distCont(TEST),
       _anisoCoeffs(),
@@ -40,6 +44,7 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _nMaxi(r._nMaxi),
       _nSect(r._nSect),
       _nSMax(r._nSMax),
+      _forceWithinBlock(r._forceWithinBlock),
       _radius(r._radius),
       _distCont(r._distCont),
       _anisoCoeffs(r._anisoCoeffs),
@@ -58,6 +63,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _nMaxi = r._nMaxi;
     _nSect = r._nSect;
     _nSMax = r._nSMax;
+    _forceWithinBlock = r._forceWithinBlock;
     _radius = r._radius;
     _distCont = r._distCont;
     _anisoCoeffs = r._anisoCoeffs;
@@ -107,6 +113,20 @@ int NeighMoving::reset(int ndim,
   return 0;
 }
 
+void NeighMoving::setForceWithinBlock(bool forceWithinBlock)
+{
+  _forceWithinBlock = forceWithinBlock;
+
+  // In the case of forcing data selection per cell, cancel the other options
+  if (_forceWithinBlock)
+  {
+    _flagAniso = false;
+    _flagRotation = false;
+    _nSect = 1;
+    _nSMax = ITEST;
+  }
+}
+
 String NeighMoving::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
@@ -119,30 +139,41 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
   if (_nMaxi > 0)
     sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
-  if (_nSect > 1)
-  {
-    sstr << "Number of angular sectors           = " << _nSect << std::endl;
-    if (_nSMax > 0)
-      sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
-  }
-  if (!FFFF(_radius))
-  {
-    if (!_flagAniso)
-    {
-      sstr << "Maximum horizontal distance         = " << _radius << std::endl;
-    }
-    else
-    {
-      VectorDouble ranges(ndim);
-      for (int idim = 0; idim < ndim; idim++)
-        ranges[idim] = _radius * _anisoCoeffs[idim];
-      sstr << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
-                       true, ndim, 1, ranges);
 
-      if (_flagRotation)
+  if (_forceWithinBlock)
+  {
+    sstr << "Force Selection of all samples withon target Block" << std::endl;
+  }
+  else
+  {
+    if (_nSect > 1)
+    {
+      sstr << "Number of angular sectors           = " << _nSect << std::endl;
+      if (_nSMax > 0)
+        sstr << "Maximum number of points per sector = " << _nSMax << std::endl;
+    }
+    if (!FFFF(_radius))
+    {
+      if (!_flagAniso)
       {
-        sstr << toMatrix("Anisotropy Rotation :", VectorString(), VectorString(),
-                         true, ndim, ndim, _anisoRotMat);
+        sstr << "Maximum horizontal distance         = " << _radius
+             << std::endl;
+      }
+      else
+      {
+        VectorDouble ranges(ndim);
+        for (int idim = 0; idim < ndim; idim++)
+          ranges[idim] = _radius * _anisoCoeffs[idim];
+        sstr
+            << toMatrix("Anisotropic Ranges :", VectorString(), VectorString(),
+                        true, ndim, 1, ranges);
+
+        if (_flagRotation)
+        {
+          sstr
+              << toMatrix("Anisotropy Rotation :", VectorString(),
+                          VectorString(), true, ndim, ndim, _anisoRotMat);
+        }
       }
     }
   }
@@ -310,7 +341,7 @@ NeighMoving* NeighMoving::createFromNF(const String& neutralFilename, bool verbo
 
 /**
  * Given a Db, returns the maximum number of samples per NeighMovingborhood
- * @param db Pointer to the taregt Db
+ * @param db Pointer to the target Db
  * @return
  */
 int NeighMoving::getMaxSampleNumber(const Db* /*db*/) const
@@ -323,3 +354,43 @@ bool NeighMoving::getFlagSector() const
   return (getNDim() > 1 && _nSect > 1);
 }
 
+// TODO: add the rotation and possible ellipse
+VectorVectorDouble NeighMoving::getEllipsoid(const VectorDouble& target, int count) const
+{
+  if (_forceWithinBlock) return VectorVectorDouble();
+  VectorVectorDouble coords(2);
+  coords[0].resize(count+1,0.);
+  coords[1].resize(count+1,0.);
+
+  for (int i = 0; i < count; i++)
+  {
+    double angle = 2. * i * GV_PI / count;
+    coords[0][i] = target[0] + _radius * cos(angle);
+    coords[1][i] = target[1] + _radius * sin(angle);
+  }
+
+  coords[0][count] = target[0] + _radius;
+  coords[1][count] = target[1];
+  return coords;
+}
+
+/**
+ * Generate the end-points of the sectors. By default, the extension is set to radius
+ * @param target Coordinates of the Target
+ * @return
+ */
+VectorVectorDouble NeighMoving::getSectors(const VectorDouble& target) const
+{
+  if (_forceWithinBlock) return VectorVectorDouble();
+  VectorVectorDouble coords(2);
+  coords[0].resize(_nSect,0.);
+  coords[1].resize(_nSect,0.);
+
+  for (int i = 0; i < _nSect; i++)
+  {
+    double angle = 2. * i * GV_PI / _nSect;
+    coords[0][i] = target[0] + _radius * cos(angle);
+    coords[1][i] = target[1] + _radius * sin(angle);
+  }
+  return coords;
+}

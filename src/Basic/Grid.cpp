@@ -348,7 +348,19 @@ double Grid::getCoordinate(int rank, int idim0, bool flag_rotate) const
   return (work2[idim0] + _x0[idim0]);
 }
 
-VectorDouble Grid::getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate) const
+/**
+ * Returns the coordinates of a grid node, defined by its indices
+ * @param indice       Vector of indices defining the target grid node
+ * @param flag_rotate  True if the grid rotation must be taken into account
+ * @param shift        Vector of shifts (dimension: ndim)
+ *                     0 : no shift; -1 : minus half a cell-width; +1 plus half a cell-width
+ * @param dxsPerCell   Vector of variable grid meshes (when provided)
+ * @return
+ */
+VectorDouble Grid::getCoordinatesByIndice(const VectorInt &indice,
+                                          bool flag_rotate,
+                                          const VectorInt& shift,
+                                          const VectorDouble& dxsPerCell) const
 {
   int ndim = getNDim();
   VectorDouble work1(ndim);
@@ -357,7 +369,14 @@ VectorDouble Grid::getCoordinatesByIndice(const VectorInt& indice, bool flag_rot
   /* Calculate the coordinates in the grid system */
 
   for (int idim = 0; idim < ndim; idim++)
+  {
     work1[idim] = indice[idim] * _dx[idim];
+    if (! shift.empty())
+    {
+      double ext = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+      work1[idim] += shift[idim] * ext / 2.;
+    }
+  }
 
   /* Process the grid rotation (if any) */
 
@@ -383,6 +402,23 @@ VectorDouble Grid::getCoordinatesByCorner(const VectorInt& icorner) const
   for (int idim = 0; idim < _nDim; idim++)
     if (icorner[idim] > 0) indice[idim] = _nx[idim]-1;
   return getCoordinatesByIndice(indice);
+}
+
+/**
+ * Returns the coordinates of a Grid cell corner
+ * @param node Rank of the Target cell
+ * @param shift        Vector of shifts (dimension: ndim)
+ *                     0 : no shift; -1 : minus half a cell-width; +1 plus half a cell-width
+ * @param dxsPerCell Vector of variable mesh extensions at target cell
+ * @return The coordinates of a cell corner (possibly shifted)
+ */
+VectorDouble Grid::getCellCoordinatesByCorner(int node,
+                                              const VectorInt& shift,
+                                              const VectorDouble& dxsPerCell) const
+{
+  VectorInt ranks;
+  rankToIndice(node, ranks);
+  return getCoordinatesByIndice(ranks, true, shift, dxsPerCell);
 }
 
 /**
@@ -459,6 +495,7 @@ void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
 {
   VectorDouble work1(_nDim);
   VectorDouble work2(_nDim);
+  coor.resize(_nDim);
 
   /* Calculate the coordinates in the grid system */
 
@@ -518,16 +555,17 @@ int Grid::indiceToRank(const VectorInt& indice) const
 /**
  *
  * @param rank Rank of the Node (in the meshing)
- * @param indice Indices of the node in the grid system
+ * @param indices Indices of the node in the grid system
  * @param minusOne Consider that the number of cells in each direction
  * should be reduced by one.
  *
  * \remarks: The number of nodes in the grid per direction
  * \remarks: must be adapted (subtracting 1) due to interval.
  */
-void Grid::rankToIndice(int rank, VectorInt& indice, bool minusOne) const
+void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
   int ndim = _nDim;
+  indices.resize(ndim);
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
   for (int idim=0; idim<ndim; idim++) nval *= (_nx[idim] - minus);
@@ -535,25 +573,37 @@ void Grid::rankToIndice(int rank, VectorInt& indice, bool minusOne) const
   for (int idim=ndim-1; idim>=0; idim--)
   {
     nval /= (_nx[idim] - minus);
-    indice[idim] = rank / nval;
-    rank -= indice[idim] * nval;
+    indices[idim] = rank / nval;
+    rank -= indices[idim] * nval;
   }
+}
+
+VectorInt Grid::coordinateToIndices(const VectorDouble &coor,
+                                    bool centered,
+                                    double eps) const
+{
+  VectorInt indices(_nDim);
+  if (coordinateToIndicesInPlace(coor, indices, centered, eps)) return VectorInt();
+  return indices;
 }
 
 /**
  * Find the grid node to which the current sample is assigned
- * @param coor   Sample coordinates
- * @param indice Indices of the assigned grid node
- * @param eps    Epsilon to overpass roundoff problem
+ * @param coor     Sample coordinates
+ * @param indice   Indices of the assigned grid node
+ * @param centered True for grid cell centered
+ * @param eps      Epsilon to over-pass roundoff problem
  * @return Error return code
  */
-int Grid::coordinateToIndices(const VectorDouble &coor,
-                              VectorInt &indice,
-                              double eps) const
+int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
+                                     VectorInt &indice,
+                                     bool centered,
+                                     double eps) const
 {
   int ndim = _nDim;
   VectorDouble work1(ndim);
   VectorDouble work2(ndim);
+  indice.resize(ndim);
 
   // Check if all coordinates are defined 
 
@@ -573,18 +623,22 @@ int Grid::coordinateToIndices(const VectorDouble &coor,
 
   for (int idim=0; idim<ndim; idim++)
   {
-    int ix = (int) floor(work2[idim] / _dx[idim] + eps);
+    int ix;
+    if (centered)
+      ix = (int) floor(work2[idim] / _dx[idim] + 0.5 + eps);
+    else
+      ix = (int) floor(work2[idim] / _dx[idim] + eps);
     if (ix < 0 || ix >= _nx[idim]) return 1;
     indice[idim] = ix;
   }
   return 0;
 }
 
-int Grid::coordinateToRank(const VectorDouble& coor, double eps) const
+int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) const
 {
   int ndim = _nDim;
   VectorInt indice(ndim);
-  if (coordinateToIndices(coor,indice,eps)) return -1;
+  if (coordinateToIndicesInPlace(coor,indice,centered,eps)) return -1;
   return indiceToRank(indice);
 }
 
@@ -1069,3 +1123,40 @@ int Grid::generateMirrorIndex(int nx, int ix)
   return (ix);
 }
 
+/**
+ * Find the grid node to which the current sample is assigned
+ * @param coor       Sample coordinates
+ * @param node       Rank of the grid node
+ * @param dxsPerCell When defined, vector of cell extension; otherwise use 8dx
+ * @return Error return code
+ */
+bool Grid::sampleBelongsToCell(const VectorDouble &coor,
+                               int node,
+                               const VectorDouble &dxsPerCell) const
+{
+  int ndim = _nDim;
+  VectorDouble work1(ndim);
+  VectorDouble work2(ndim);
+
+  // Shift by the origin
+  for (int idim = 0; idim < ndim; idim++)
+    work1[idim] = coor[idim] - _x0[idim];
+
+  // Perform the Inverse rotation
+  _rotation.rotateDirect(work1, work2);
+
+  // Indices of the grid node
+  VectorInt indices(ndim);
+  rankToIndice(node, indices);
+
+  // Calculate the indices
+
+  for (int idim=0; idim<ndim; idim++)
+  {
+    double dxloc = (dxsPerCell.empty()) ? _dx[idim] : dxsPerCell[idim];
+    double delta = work2[idim] - _dx[idim] * indices[idim];
+    if (delta < -dxloc/2. || delta > dxloc/2.) return false;
+  }
+
+  return true;
+}

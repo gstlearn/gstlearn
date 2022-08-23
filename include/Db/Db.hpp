@@ -14,9 +14,9 @@
 #include "geoslib_d.h"
 
 // Enums
-#include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 
+#include "Db/ELoadBy.hpp"
 #include "../Stats/EStatOption.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
@@ -186,12 +186,12 @@ public:
                            int locatorIndex = 0,
                            bool cleanSameLocator = false);
   void addColumnsByVVD(const VectorVectorDouble tab,
-                      const String& radix,
-                      const ELoc& locatorType,
-                      int locatorIndex,
-                      bool useSel,
-                      double valinit,
-                      int nvar);
+                       const String &radix,
+                       const ELoc &locatorType,
+                       int locatorIndex,
+                       bool useSel,
+                       double valinit,
+                       int nvar);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
                  const ELoc& locatorType = ELoc::UNKNOWN,
@@ -208,6 +208,9 @@ public:
   int addSelection(const VectorDouble& tab = VectorDouble(),
                    const String& name = "NewSel",
                    const String& combine = "set");
+  int addSelectionByRanks(const VectorInt &ranks,
+                          const String &name = "NewSel",
+                          const String &combine = "set");
   int addSelectionByLimit(const String& testvar,
                           const Limits& limits = Limits(),
                           const String& name = "NewSel",
@@ -528,6 +531,7 @@ public:
   double getMean(const String& name, bool useSel = false) const;
   double getVariance(const String& name, bool useSel = false) const;
   double getStdv(const String& name, bool useSel = false) const;
+  double getCorrelation(const String& name1, const String& name2,bool useSel = false) const;
 
   bool hasSameDimension(const Db* dbaux) const;
   bool hasLargerDimension(const Db* dbaux) const;
@@ -566,10 +570,6 @@ public:
                                    double proba = TEST,
                                    const String& title = "",
                                    const NamingConvention& namconv = NamingConvention("Stats"));
-  VectorDouble statisticsMulti(const VectorString& names,
-                               bool flagIso = true,
-                               bool flagPrint = false,
-                               const String& title = "");
   VectorDouble statisticsByUID(const VectorInt& iuids,
                                const std::vector<EStatOption>& opers = {EStatOption::MEAN},
                                bool flagIso = true,
@@ -580,6 +580,10 @@ public:
                                double vmax = TEST,
                                const String& title = "",
                                const NamingConvention& namconv = NamingConvention("Stats"));
+  VectorDouble statisticsMulti(const VectorString& names,
+                               bool flagIso = true,
+                               bool flagPrint = false,
+                               const String& title = "");
   VectorDouble statisticsMultiByUID(const VectorInt& iuids,
                                     bool flagIso = true,
                                     bool flagPrint = false,

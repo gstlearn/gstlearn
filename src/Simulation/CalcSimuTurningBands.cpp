@@ -2108,9 +2108,9 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     {
       if (!dbin->isActive(ip)) continue;
       dbin->getSampleCoordinates(ip, coor2);
-      int rank = dbgrid->coordinateToRank(coor2, eps);
+      int rank = dbgrid->coordinateToRank(coor2, false, eps);
       if (!dbgrid->isActive(rank)) continue;
-      dbgrid->rankToCoordinate(rank, coor1);
+      dbgrid->rankToCoordinateInPlace(rank, coor1);
 
       /* Get the distance to the target point */
 
@@ -2385,7 +2385,7 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
 
   /* Non conditional simulations on the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     _simulateGrid(dbgrid, aic, icase, 0);
@@ -2574,7 +2574,7 @@ bool CalcSimuTurningBands::_postprocess()
 
   /* Set the error return flag */
 
-  _renameVariable(_getNVar(), _iattOut, String(), getNbSimu());
+  _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());
 
   return true;
 }

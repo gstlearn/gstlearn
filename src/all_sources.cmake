@@ -52,8 +52,10 @@ set(SRC
   Model/Model.cpp
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
+  Calculators/ACalcDbToDb.cpp
   Calculators/ACalcInterpolator.cpp
   Calculators/ACalcDbVarCreator.cpp
+  Calculators/CalcStatistics.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
@@ -219,6 +221,7 @@ set(SRC
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp
+  Arrays/BImageStringFormat.cpp
   Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
@@ -278,6 +281,7 @@ set(SRC
   Estimation/CalcKriging.cpp
   Estimation/CalcFactorKriging.cpp
   Estimation/CalcSimpleInterpolation.cpp
+  Estimation/CalcImage.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp

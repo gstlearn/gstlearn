@@ -43,7 +43,7 @@ Directory).
 [source, ipython3]
 ----
 ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN,ndim)
+gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN,ndim)
 ----
 
 == Load the data file
@@ -234,7 +234,7 @@ Column = 7 - Name = Prop.5 - Locator = p5
 [source, ipython3]
 ----
 dbfmt = gl.DbStringFormat()
-dbfmt.setParams(gl.FLAG_STATS)
+dbfmt.setFlags(flag_stats=True)
 dbfmt.setNames(["Prop.*"])
 Result.display(dbfmt)
 ----
@@ -244,6 +244,21 @@ Result.display(dbfmt)
 
 Data Base Grid Characteristics
 ==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 8
+Total number of samples      = 4747
+Number of active samples     = 422
+
+Grid characteristics:
+---------------------
+Origin : 306764.2835218227.694
+Mesh   :   5749.747  4261.311
+Number :         47       101
 
 Data Base Statistics
 --------------------
@@ -287,6 +302,17 @@ Data Base Statistics
  Mean value          =      0.006
  Standard Deviation  =      0.007
  Variance            =      0.000
+
+Variables
+---------
+Column = 0 - Name = x1 - Locator = x1
+Column = 1 - Name = x2 - Locator = x2
+Column = 2 - Name = Polygon - Locator = sel
+Column = 3 - Name = Prop.1 - Locator = p1
+Column = 4 - Name = Prop.2 - Locator = p2
+Column = 5 - Name = Prop.3 - Locator = p3
+Column = 6 - Name = Prop.4 - Locator = p4
+Column = 7 - Name = Prop.5 - Locator = p5
  ----
 
 == Display the results

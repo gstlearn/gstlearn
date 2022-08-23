@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 
 # Parameters
-# This test does not make sense as a regression test.
+# This test does not make sense as a non-regression test.
 # Nevertheless it tells how to produce several figures simultaneously
 # Turn the relevant flags ON when used interactively
 

@@ -107,7 +107,7 @@ private:
                    int imesh,
                    double meshsize,
                    VectorDouble& weights) const;
-  void    _setContainer(VectorDouble& container,
+  void _setContainer(VectorDouble &container,
                      int imesh,
                      int idim,
                      double vmin,

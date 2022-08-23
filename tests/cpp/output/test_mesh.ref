@@ -30,28 +30,4 @@ Bounding Box Extension
 Dim #1 - Min:50 - Max:300
 Dim #2 - Min:0 - Max:200
 Dim #3 - Min:10 - Max:100
-List of Apices
-- Number of rows    = 1144
-- Number of columns = 3
-               [,  0]    [,  1]    [,  2]
-     [  0,]    50.000     0.000    10.000
-     [  1,]    58.660     5.000    10.000
-     [  2,]    67.321    10.000    10.000
-     [  3,]    75.981    15.000    10.000
-     [  4,]    84.641    20.000    10.000
-     [  5,]    93.301    25.000    10.000
-     [  6,]   101.962    30.000    10.000
-(Ncols=3,Nrows=7[from 1144])
-List of Meshes
-- Number of rows    = 4500
-- Number of columns = 4
-               [,  0]    [,  1]    [,  2]    [,  3]
-     [  0,]         0         1       287       313
-     [  1,]         0       286       287       313
-     [  2,]         0       286       312       313
-     [  3,]         0        26       312       313
-     [  4,]         0         1        27       313
-     [  5,]         0        26        27       313
-     [  6,]         1         2       288       314
-(Ncols=4,Nrows=7[from 4500])
 Test performed successfully

@@ -48,7 +48,7 @@ number is called and the Help of the Db class is displayed.
 [source, ipython3]
 ----
 ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN, ndim)
+gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN, ndim)
 ----
 
 Then, the Grid file is created first (defining the origin, mesh size and

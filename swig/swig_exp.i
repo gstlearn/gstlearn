@@ -78,6 +78,7 @@
 %include Arrays/AArray.hpp
 %include Arrays/Array.hpp
 %include Arrays/BImage.hpp
+%include Arrays/BImageStringFormat.hpp
 
 %include Faults/Faults.hpp
 
@@ -104,8 +105,10 @@
 %include Skin/Skin.hpp
 
 %include Calculators/ACalculator.hpp
+%include Calculators/ACalcDbToDb.hpp
 %include Calculators/ACalcInterpolator.hpp
 %include Calculators/ACalcDbVarCreator.hpp
+%include Calculators/CalcStatistics.hpp
 
 /*
 %include Interfaces/geoslib_f_swig.h
@@ -279,6 +282,7 @@
 %include Gibbs/GibbsUMulti.hpp
 
 %include Morpho/Morpho.hpp
+%include Morpho/EMorpho.hpp
 
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
@@ -299,6 +303,7 @@
 %include Estimation/CalcKriging.hpp
 %include Estimation/CalcFactorKriging.hpp
 %include Estimation/CalcSimpleInterpolation.hpp
+%include Estimation/CalcImage.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp

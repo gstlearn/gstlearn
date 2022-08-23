@@ -10,10 +10,11 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Basic/NamingConvention.hpp"
+#include "Estimation/CalcSimpleInterpolation.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Estimation/CalcSimpleInterpolation.hpp"
 
 CalcSimpleInterpolation::CalcSimpleInterpolation()
     : ACalcInterpolator(),
@@ -71,7 +72,7 @@ bool CalcSimpleInterpolation::_preprocess()
 
 bool CalcSimpleInterpolation::_postprocess()
 {
-  _renameVariable(1, _iattOut, String(), 1);
+  _renameVariable(2, 1, _iattOut, String(), 1);
   return true;
 }
 

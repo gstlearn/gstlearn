@@ -193,20 +193,20 @@ Column = 3 - Name = Z - Locator = z1
 Table contents
 --------------
 - Number of Rows    = 2
-- Number of Columns = 6
+- Number of Columns = 7
 
-                T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
-     0.000      1.000      1.568      1.568      1.568        N/A        N/A
-     0.500      0.988      1.563      1.069      1.582        N/A        N/A
+      Z-Cut      T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
+      0.000      1.000      1.568      1.568      1.568        N/A        N/A
+      0.500      0.988      1.563      1.069      1.582        N/A        N/A
 
 Table contents
 --------------
 - Number of Rows    = 2
-- Number of Columns = 6
+- Number of Columns = 7
 
-                T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
-     0.000      1.000      1.568      1.568      1.568        N/A        N/A
-     0.500      0.988      1.563      1.069      1.582        N/A        N/A
+      Z-Cut      T-Est      Q-Est      B-Est      M-Est      T-Std      Q-Std
+      0.000      1.000      1.568      1.568      1.568        N/A        N/A
+      0.500      0.988      1.563      1.069      1.582        N/A        N/A
 
 Variogram characteristics
 =========================
