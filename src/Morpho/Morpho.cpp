@@ -28,7 +28,6 @@ static int LARGE = 9999999;
 
 #define GRID_ADD(ix,iy,iz)  ((ix)+(NX[0]*((iy)+NX[1]*(iz))))
 #define TAB(i,j,k)          (tab[GRID_ADD(i,j,k)])
-#define TABOUT(i,j,k)       (tabout[GRID_ADD(i,j,k)])
 #define COMPNUM(i,j,k)      (compnum[GRID_ADD(i,j,k)])
 /*! \endcond */
 
@@ -893,17 +892,19 @@ void morpho_image2double(const BImage& imagin,
  **
  ** \param[in]  option     connectivity option (CROSS or BLOCK)
  ** \param[in]  radius     Radius of the structuring element (dimension = 3)
- ** \param[in]  flag_erode 1 Inflate the grain; 0 Reduce the grain
+ ** \param[in]  dist_erode 1 Inflate the grain; 0 Reduce the grain
  ** \param[in]  imagin     input image
+ ** \param[in]  verbose    Verbose flag
  **
  ** \param[out] dist       output array containing the distances
  **
  *****************************************************************************/
 void morpho_distance(int option,
                      const VectorInt &radius,
-                     int flag_erode,
+                     bool dist_erode,
                      BImage& imagin,
-                     VectorDouble &dist)
+                     VectorDouble &dist,
+                     bool verbose)
 {
   BImage imagout = imagin;
   int nxyz = imagin.getNPixels();
@@ -914,13 +915,20 @@ void morpho_distance(int option,
 
   /* Processing loop */
 
-  if (flag_erode)
+  int iter = 0;
+  if (dist_erode)
   {
     while (morpho_count(imagin) != 0)
     {
+      iter++;
       morpho_erosion(option, radius, imagin, imagout);
       morpho_duplicate(imagout, imagin);
       morpho_image2double(imagin, 1, 1, 0, dist);
+      if (verbose)
+      {
+        int count = morpho_count(imagin);
+        message("Iteration %d: Current (%d/%d)\n",iter,count,nxyz);
+      }
     }
   }
   else
@@ -928,10 +936,16 @@ void morpho_distance(int option,
     int incr = 0;
     while (morpho_count(imagin) != nxyz)
     {
+      iter++;
       incr++;
       morpho_dilation(option, radius, imagin, imagout);
       morpho_duplicate(imagout, imagin);
       morpho_image2double(imagin, -1, 1, 0, dist);
+      if (verbose)
+      {
+        int count = morpho_count(imagin);
+        message("Iteration %d: Current (%d/%d)\n",iter,count,nxyz);
+      }
     }
     morpho_image2double(imagin, 1, incr, 0, dist);
   }
@@ -1051,54 +1065,55 @@ VectorInt gridcell_neigh(int ndim,
 /*!
  **  Calculate the gradient orientations of a colored image
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  radius  Neighborhood dimension
- ** \param[in]  tab     input array (double)
- **
- ** \param[out] tabout  Output angle
+ ** \param[in]  dbgrid  Input Grid Db
+ ** \param[in]  radius  Radius of the structuring element
+ ** \param[in]  iptr0   iStorage address
  **
  *****************************************************************************/
-void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
+void morpho_angle2D(DbGrid* dbgrid,
+                    const VectorInt &radius,
+                    int iptr0)
 {
-  int ix, iy, iz, iiz, pivot, lec;
-  double xi, yi, zi, z0, a[3], b[2], x[2], result;
+  int iad;
+  int pivot = 0;
+  double a[3], b[2], x[2], result;
 
   /* Initializations */
 
-  VectorInt NX = nx;
-  if ((int) nx.size() != 2)
-  {
-    messerr("The function is programmed for the 2-D case only");
-    return;
-  }
+  VectorInt NX = dbgrid->getNXsExt(2);
+  _st_morpho_image_radius_define(radius);
+  int ndim = dbgrid->getNDim();
+  VectorInt indg(ndim);
+  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
   /* Processing */
 
-  iz = iiz = lec = 0;
-  for (int iiy = 0; iiy < nx[1]; iiy++)
-    for (int iix = 0; iix < nx[0]; iix++)
+  int iiz = 0;
+  for (int iiy = 0; iiy < NX[1]; iiy++)
+    for (int iix = 0; iix < NX[0]; iix++)
     {
-      TABOUT(iix,iiy,iiz) = TEST;
-
-      /* Collecting the neighborhood */
-
-      for (int i = 0; i < 3; i++)
-        a[i] = 0.;
+      for (int i = 0; i < 3; i++)  a[i] = 0.;
       for (int i = 0; i < 2; i++)
         b[i] = x[i] = 0.;
-      z0 = TAB(iix, iiy, iiz);
+      indg[0] = iix;
+      indg[1] = iiy;
+      iad = dbgrid->indiceToRank(indg);
+      double z0 = dbgrid->getArray(iad, iptrz);
       if (FFFF(z0)) continue;
 
-      for (int jx = -radius; jx <= radius; jx++)
-        for (int jy = -radius; jy <= radius; jy++)
+      for (int jx = -RADIUS[0]; jx <= RADIUS[0]; jx++)
+        for (int jy = -RADIUS[1]; jy <= RADIUS[1]; jy++)
         {
-          ix = iix + jx;
-          if (ix < 0 || ix >= nx[0]) continue;
-          iy = iiy + jy;
-          if (iy < 0 || iy >= nx[1]) continue;
-          xi = jx;
-          yi = jy;
-          zi = TAB(ix, iy, iz);
+          int ix = iix + jx;
+          if (ix < 0 || ix >= NX[0]) continue;
+          int iy = iiy + jy;
+          if (iy < 0 || iy >= NX[1]) continue;
+          indg[0] = ix;
+          indg[1] = iy;
+          iad = dbgrid->indiceToRank(indg);
+          double xi = dbgrid->getCoordinate(iad, 0);
+          double yi = dbgrid->getCoordinate(iad, 1);
+          double zi = dbgrid->getArray(iad, iptrz);
           if (FFFF(zi)) continue;
           zi -= z0;
           a[0] += xi * xi;
@@ -1115,10 +1130,89 @@ void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
         result += 360.;
       while (result > 180)
         result -= 360.;
-      TABOUT(iix,iiy,iiz) = result;
-    }
 
+      if (ndim >= 1) indg[0] = iix;
+      if (ndim >= 2) indg[1] = iiy;
+      if (ndim >= 3) indg[2] = iiz;
+      dbgrid->setArray(dbgrid->indiceToRank(indg), iptr0, result);
+    }
   return;
+}
+
+void morpho_gradients(DbGrid *dbgrid, int iptr)
+{
+  int j1, j2, number;
+
+  /* Preliminary check */
+
+  VectorInt NX = dbgrid->getNXsExt(3);
+  int ndim = dbgrid->getNDim();
+  VectorInt indg(ndim);
+  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
+
+  /* Calculate the Gradient components */
+
+  for (int ix = 0; ix < NX[0]; ix++)
+    for (int iy = 0; iy < NX[1]; iy++)
+      for (int iz = 0; iz < NX[2]; iz++)
+      {
+        for (int idim = 0; idim < ndim; idim++)
+        {
+          if (ndim >= 1) indg[0] = ix;
+          if (ndim >= 2) indg[1] = iy;
+          if (ndim >= 3) indg[2] = iz;
+
+          int nmax = dbgrid->getNX(idim);
+          double dinc = dbgrid->getDX(idim);
+
+          double v1 = 0.;
+          double v2 = 0.;
+          if (idim == 0)
+          {
+            j1 = (ix + 1 > nmax - 1) ? ix : ix + 1;
+            indg[0] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (ix - 1 < 0) ? ix : ix - 1;
+            indg[0] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (idim == 1)
+          {
+            j1 = (iy + 1 > nmax - 1) ? iy : iy + 1;
+            indg[1] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (iy - 1 < 0) ? iy : iy - 1;
+            indg[1] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (idim == 2)
+          {
+            j1 = (iz + 1 > nmax - 1) ? iz : iz + 1;
+            indg[2] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (iz - 1 < 0) ? iz : iz - 1;
+            indg[2] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (ndim >= 1) indg[0] = ix;
+          if (ndim >= 2) indg[1] = iy;
+          if (ndim >= 3) indg[2] = iz;
+          double delta = (v1 - v2) / (number * dinc);
+          dbgrid->setArray(dbgrid->indiceToRank(indg), iptr + idim, delta);
+        }
+      }
 }
 
 GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
@@ -1128,6 +1222,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
                                    double vmax,
                                    int option,
                                    const VectorInt& radius,
+                                   bool dist_erode,
                                    bool verbose)
 {
   int ntotal = dbgrid->getSampleNumber();
@@ -1145,6 +1240,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
   }
 
   bool alreadyLoaded = false;
+  bool alreadySaved = false;
   if (oper == EMorpho::THRESH)
   {
     morpho_duplicate(image, image2);
@@ -1183,6 +1279,23 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
     if (verbose)
       message("Number of Connected Components = %d\n",ncomp);
   }
+  else if (oper == EMorpho::DISTANCE)
+  {
+    morpho_distance(option,radius,dist_erode,image,tabout,verbose);
+    alreadyLoaded = true;
+  }
+  else if (oper == EMorpho::ANGLE)
+  {
+    morpho_angle2D(dbgrid,radius,iptr0);
+    alreadyLoaded = true;
+    alreadySaved = true;
+  }
+  else if (oper == EMorpho::GRADIENT)
+  {
+    morpho_gradients(dbgrid, iptr0);
+    alreadyLoaded = true;
+    alreadySaved = true;
+  }
   else
   {
     messerr("Not programmed yet\n");
@@ -1195,6 +1308,7 @@ GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
       message("Resulting image = %d/%d\n",morpho_count(image2),ntotal);
     morpho_image2double(image2, 0, 1., 0., tabout);
   }
-  dbgrid->setColumnByUID(tabout, iptr0);
+  if (! alreadySaved)
+    dbgrid->setColumnByUID(tabout, iptr0);
   return 0;
 }

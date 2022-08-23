@@ -17,12 +17,11 @@
 #include "Db/PtrGeos.hpp"
 
 #include "Db/ELoadBy.hpp"
-#include "../Stats/EStatOption.hpp"
+#include "Stats/EStatOption.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"

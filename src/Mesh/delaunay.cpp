@@ -17071,9 +17071,9 @@ struct behavior *b;
 
 #ifdef ANSI_DECLARATORS
 void triangulate(const char *triswitches,
-                                 struct triangulateio *in,
-                                 struct triangulateio *out,
-                                 struct triangulateio *vorout)
+                 struct triangulateio *in,
+                 struct triangulateio *out,
+                 struct triangulateio *vorout)
 #else /* not ANSI_DECLARATORS */
 void triangulate(triswitches, in, out, vorout)
 char *triswitches;

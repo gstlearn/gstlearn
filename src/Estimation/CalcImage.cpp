@@ -22,11 +22,13 @@ CalcImage::CalcImage()
       _iattOut(-1),
       _flagFilter(false),
       _flagMorpho(false),
+      _nvarMorpho(1),
       _oper(EMorpho::UNKNOWN),
       _vmin(0.5),
       _vmax(1.5),
       _option(0),
       _radius(),
+      _distErode(false),
       _verbose(false)
 {
 }
@@ -74,7 +76,12 @@ bool CalcImage::_check()
 
 bool CalcImage::_preprocess()
 {
-  _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+  if (_flagFilter)
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+
+  if (_flagMorpho)
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, _nvarMorpho, 0.);
+
   if (_iattOut < 0) return false;
   return true;
 }
@@ -85,7 +92,7 @@ bool CalcImage::_postprocess()
     _renameVariable(2, 1, _iattOut, String(), 1);
 
   if (_flagMorpho)
-    _renameVariable(2, 1, _iattOut, _oper.getKey(), 1);
+    _renameVariable(2, 1, _iattOut, _oper.getKey(), _nvarMorpho);
 
   return true;
 }
@@ -124,7 +131,7 @@ bool CalcImage::_run()
   if (_flagMorpho)
   {
     if (db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
-                       _verbose)) return false;
+                       _distErode, _verbose)) return false;
   }
   return true;
 }
@@ -170,17 +177,19 @@ int krimage(DbGrid *dbgrid,
  * @param option  Option
  * @param radius  Radius
  * @param verbose Verbose option
+ * @param dist_erode  True: Inflate the grain; False: Reduce the grain
  * @param namconv Naming convention
  * @return
  */
-GSTLEARN_EXPORT int morpho(DbGrid *dbgrid,
-                           const EMorpho &oper,
-                           double vmin,
-                           double vmax,
-                           int option,
-                           const VectorInt &radius,
-                           bool verbose,
-                           const NamingConvention &namconv)
+GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
+                             const EMorpho &oper,
+                             double vmin,
+                             double vmax,
+                             int option,
+                             const VectorInt &radius,
+                             bool dist_erode,
+                             bool verbose,
+                             const NamingConvention &namconv)
 {
   CalcImage image;
 
@@ -194,7 +203,13 @@ GSTLEARN_EXPORT int morpho(DbGrid *dbgrid,
   image.setVmax(vmax);
   image.setOption(option);
   image.setRadius(radius);
+  image.setDistErode(dist_erode);
   image.setVerbose(verbose);
+
+  // Particular case of the number of output variables
+  int nvar = 1;
+  if (oper == EMorpho::GRADIENT) nvar = dbgrid->getNDim();
+  image.setNvarMorpho(nvar);
 
   // Run the calculator
   int error = (image.run()) ? 0 : 1;

@@ -379,6 +379,13 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   return dbgrid;
 }
 
+VectorInt DbGrid::getNXsExt(int ndimMax) const
+{
+  VectorInt nxs = getNXs();
+  nxs.resize(ndimMax, 1);
+  return nxs;
+}
+
 DbGrid* DbGrid::refine(const VectorInt &nmult)
 {
   return createRefine(this,nmult,0);
@@ -1107,14 +1114,15 @@ VectorDouble DbGrid::getBlockExtensions(int node) const
   return dxsPerCell;
 }
 
-int DbGrid::dbMorpho(const EMorpho &oper,
-                     double vmin,
-                     double vmax,
-                     int option,
-                     const VectorInt &radius,
-                     bool verbose,
-                     const NamingConvention &namconv)
+int DbGrid::morpho(const EMorpho &oper,
+                   double vmin,
+                   double vmax,
+                   int option,
+                   const VectorInt &radius,
+                   bool dist_erode,
+                   bool verbose,
+                   const NamingConvention &namconv)
 {
-  return morpho(this, oper, vmin, vmax, option, radius, verbose, namconv);
+  return dbMorpho(this, oper, vmin, vmax, option, radius, dist_erode, verbose, namconv);
 }
 

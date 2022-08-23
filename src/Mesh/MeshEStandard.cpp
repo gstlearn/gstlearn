@@ -667,7 +667,7 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   meshes_2D_init(&vorout);
   
   /* Set the control points for the triangulation */
-  
+
   flag_defined = 0;
   if (dbout != nullptr)
   {

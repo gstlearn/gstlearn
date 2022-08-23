@@ -1560,8 +1560,7 @@ int meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
   for (int ix = 0; ix < nx - 1; ix++)
     for (int iy = 0; iy < ny - 1; iy++)
     {
-      ipol = ((ix + iy) % 2 == 1) ? 0 :
-                                    1;
+      ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
       for (int i = 0; i < 2; i++)
         if (st_load_triangle(dbgrid, &meshes[nmesh * ncorner], order, indg,
                              ix + MSS(2, ipol, i, 0, 0),
@@ -1703,10 +1702,10 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
  **
  *****************************************************************************/
 void meshes_2D_create(int verbose,
-                                      const String &triswitch,
-                                      triangulateio *in,
-                                      triangulateio *out,
-                                      triangulateio *vorout)
+                      const String &triswitch,
+                      triangulateio *in,
+                      triangulateio *out,
+                      triangulateio *vorout)
 {
   int ndim, ncorner, ncol, nrow;
   double *faults;

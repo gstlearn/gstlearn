@@ -619,7 +619,7 @@ def point(db,
     return ax
 
 
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', 
+def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
     '''Function to display a polygon
@@ -651,6 +651,8 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue',
         ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local, 
                  linewidth=linewidth, **fill_args)
         
+    ax.set_aspect(aspect)
+    
     if title is not None:
         ax.set_title(title)
         
@@ -894,7 +896,8 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
     
     return ax
 
-def sample(sample, xlim=None, ylim=None, color='black', marker='o', markersize=10,
+def sample(sample, xlim=None, ylim=None, aspect='equal',
+           color='black', marker='o', markersize=10,
            flagLegend=False,
            title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
     
@@ -904,6 +907,7 @@ def sample(sample, xlim=None, ylim=None, color='black', marker='o', markersize=1
     ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
             label=label, **plot_args)
             
+    ax.set_aspect(aspect)
     drawDecor(ax, title=title)
     
     if flagLegend:
@@ -977,8 +981,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     return ax
 
 def mesh(mesh, 
-         #color='r', size=20, sizmin=10, sizmax=200,#arguments not used ?
-         flagEdge=True, flagFace=False,
+         flagEdge=True, flagFace=False, flagApex=False, aspect='equal',
          xlim=None, ylim=None, facecolor="yellow", edgecolor="blue", linewidth=1,
          title=None, ax=None, figsize = None, end_plot =False, **plot_args):
     """
@@ -992,17 +995,22 @@ def mesh(mesh,
             
     if flagFace:
         plot_args.setdefault('facecolor', facecolor)
-                
+    else:
+        plot_args.setdefault('facecolor', "white")
+       
     if flagEdge:
-        plot_args.setdefault('edgecolor', edgecolor)
+        plot_args.setdefault('edgecolor', edgecolor) 
         plot_args.setdefault('linewidth', linewidth)
 
     for imesh in range(nmesh):
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
         ax.fill(tabx, taby, **plot_args)
+        if flagApex:
+            ax.scatter(tabx, taby, color='black')
 
     drawDecor(ax, title=title)
+    ax.set_aspect(aspect)
     
     if end_plot:
         plt.show()
