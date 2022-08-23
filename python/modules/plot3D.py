@@ -122,7 +122,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
 def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False):
     shape = list(grid.getNXs())
     shape.pop(section)
-    vect = grid.getSlice("Simu", section, rank, usesel)
+    vect = grid.getSlice(name, section, rank, usesel)
     x = np.array(vect[0]).reshape(shape)
     y = np.array(vect[1]).reshape(shape)
     z = np.array(vect[2]).reshape(shape)
