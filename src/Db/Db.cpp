@@ -1226,14 +1226,20 @@ void Db::setColumnByUID(const VectorDouble& tab, int iuid, bool useSel)
  * Note that, if the Column does not exist, this Column is added beforehand
  * @param tab    Array of values to be stored in the target Column
  * @param name   Name of the Column
+ * @param locatorType Locator type
+ * @param locatorIndex   Locator index (starting from 0)
  * @param useSel Should an already existing Selection be taken into account
+ *
+ * @remark: Arguments 'locatorType'  and 'locatorIndex' are only used
+ * @remark: for newly added variables
  */
-void Db::setColumn(const VectorDouble& tab, const String& name, bool useSel)
+void Db::setColumn(const VectorDouble& tab, const String& name,
+                   const ELoc& locatorType, int locatorIndex, bool useSel)
 {
   VectorInt iuids = _ids(name, true, false);
   if (iuids.empty())
   {
-    (void) addColumns(tab, name, ELoc::UNKNOWN, 0, useSel);
+    (void) addColumns(tab, name, locatorType, locatorIndex, useSel);
   }
   else
   {

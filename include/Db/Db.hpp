@@ -228,7 +228,11 @@ public:
   VectorInt getColIdxsByUID(const VectorInt iuids) const;
   VectorInt getColIdxsByLocator(const ELoc& locatorType) const;
 
-  void setColumn(const VectorDouble& tab, const String& name, bool useSel = false);
+  void setColumn(const VectorDouble &tab,
+                 const String &name,
+                 const ELoc &locatorType = ELoc::UNKNOWN,
+                 int locatorIndex = 0,
+                 bool useSel = false);
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
   void setColumnByUID(const VectorDouble& tab, int iuid, bool useSel = false);
   void setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel = false);
