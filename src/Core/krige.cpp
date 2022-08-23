@@ -3554,53 +3554,6 @@ int bayes_simulate(Model *model,
 
 /****************************************************************************/
 /*!
- **  Smooth a regular grid
- **
- ** \return  Error return code
- **
- ** \param[in]  dbgrid    input and output Db grid structure
- ** \param[in]  neighI    Neigh structure
- ** \param[in]  type      1 for Uniform; 2 for Gaussian
- ** \param[in]  range     Range (used for Gaussian only)
- ** \param[in]  namconv   Naming Convention
- **
- *****************************************************************************/
-int image_smoother(DbGrid *dbgrid,
-                   NeighImage *neighI,
-                   int type,
-                   double range,
-                   const NamingConvention& namconv)
-{
-  /* Add the attribute for storing the results */
-
-  int iptr_est = dbgrid->addColumnsByConstant(1, 0.);
-  if (iptr_est < 0) return 1;
-
-  /* Setting options */
-  // Here ALL options are set, even if most of them could keep their default values
-
-  KrigingSystem ksys(dbgrid, dbgrid, nullptr, neighI);
-  if (ksys.updKrigOptEstim(1, -1, -1)) return 1;
-  if (ksys.setKrigOptImageSmooth(true, type, range)) return 1;
-  if (! ksys.isReady()) return 1;
-
-  /* Loop on the targets to be processed */
-
-  for (int iech_out = 0; iech_out < dbgrid->getSampleNumber(); iech_out++)
-  {
-    mes_process("Image Smoothing", dbgrid->getSampleNumber(), iech_out);
-     if (ksys.estimate(iech_out)) return 1;
-  }
-
-  /* Set the error return flag */
-
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, 1, dbgrid, iptr_est, "estim");
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  Punctual Multivariate Kriging under a constraint
  **
  ** \return  Error return code
@@ -6023,3 +5976,93 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
   return 0;
 }
 
+/****************************************************************************/
+/*!
+**  Smooth a regular grid
+**
+** \param[in]  dbgrid    input and output Db grid structure
+** \param[in]  neigh     Neigh structure
+** \param[in]  type      1 for Uniform; 2 for Gaussian
+** \param[in]  range     Range (used for Gaussian only)
+** \param[in]  iptr0     Storage address
+**
+** \remarks Limited to the monovariate case
+**
+*****************************************************************************/
+void image_smoother(DbGrid *dbgrid,
+                    NeighImage *neigh,
+                    int type,
+                    double range,
+                    int iptr0)
+{
+  int ndim   = dbgrid->getNDim();
+  double r2  = (type == 1) ? 1. : range * range;
+
+  /* Core allocation */
+
+  VectorInt indg0(ndim);
+  VectorInt indgl(ndim);
+  VectorInt indn0(ndim);
+  VectorInt indnl(ndim);
+
+  /* Create the secondary grid for image processing */
+
+  VectorInt nx(ndim);
+  int nech = 1;
+  for (int idim=0; idim<ndim; idim++)
+  {
+    nx[idim] = 2 * neigh->getImageRadius(idim) + 1;
+    nech *= nx[idim];
+  }
+
+  law_set_random_seed(12345);
+  double seuil = 1. / neigh->getSkip();
+  VectorDouble tab(nech);
+  for (int iech = 0; iech < nech; iech++)
+    tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
+
+  DbGrid* dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(),
+                          dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
+                          { ELoc::Z.getKey() }, 1);
+
+  int nb_neigh = dbaux->getActiveSampleNumber();
+  dbaux->rankToIndice(nb_neigh/2, indn0);
+
+  /* Loop on the targets to be processed */
+
+  for (int iech_out=0; iech_out<dbgrid->getSampleNumber(); iech_out++)
+  {
+    if (! dbgrid->isActive(iech_out)) continue;
+    dbgrid->rankToIndice(iech_out, indg0);
+
+    /* Loop on the neighboring points */
+
+    double estim = 0.;
+    double total = 0.;
+    for (int iech=0; iech<nb_neigh; iech++)
+    {
+      if (FFFF(dbaux->getVariable(iech, 0))) continue;
+      dbaux->rankToIndice(iech, indnl);
+      double d2 = 0.;
+      for (int i=0; i<ndim; i++)
+      {
+        int idelta   = (indnl[i] - indn0[i]);
+        double delta = idelta * dbgrid->getDX(i);
+        d2      += delta * delta;
+        indgl[i] = indg0[i] + idelta;
+        indgl[i] = dbgrid->getMirrorIndex(i, indgl[i]);
+      }
+
+      int jech = dbgrid->indiceToRank(indgl);
+      double data = dbgrid->getVariable(jech, 0);
+      if (! FFFF(data))
+      {
+        double weight = (type == 1) ? 1. : exp(-d2 / r2);
+        estim += data * weight;
+        total += weight;
+      }
+    }
+    estim = (total <= 0.) ? TEST : estim / total;
+    dbgrid->setArray(iech_out, iptr0, estim);
+  }
+}

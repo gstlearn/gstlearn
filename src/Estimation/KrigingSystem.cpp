@@ -95,7 +95,6 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _lterm(0.),
       _flagAnam(false),
       _dbaux(),
-      _flagSmooth(false),
       _flagKeypairWeights(false),
       _flagNeighOnly(false),
       _iptrNeigh(-1),
@@ -117,7 +116,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _dboutUidToBeDeleted()
 {
   // _modelInit is a copy of the input model (const) to allow modifying it
-  _modelInit = model->clone();
+  if (model != nullptr) _modelInit = model->clone();
 
   // Set the current Model to _modelInit
   _model = _modelInit;
@@ -194,8 +193,26 @@ KrigingSystem::~KrigingSystem()
 
 int KrigingSystem::_getNVar() const
 {
-  if (_model == nullptr) return 0;
-  return _model->getVariableNumber();
+  int nvar = 0;
+  if (_model != nullptr)
+  {
+    if (nvar > 0 && nvar != _model->getVariableNumber())
+    {
+      messerr("Inconsistent number of Variables - Value is returned as 0");
+      return 0;
+    }
+    nvar = _model->getVariableNumber();
+  }
+  if (_dbin != nullptr)
+  {
+    if (nvar > 0 && nvar != _dbin->getVariableNumber())
+    {
+      messerr("Inconsistent number of Variables - Value is returned as 0");
+      return 0;
+    }
+    nvar = _dbin->getVariableNumber();
+  }
+  return nvar;
 }
 
 int KrigingSystem::_getNVarCL() const
@@ -1529,61 +1546,6 @@ void KrigingSystem::_estimateCalculImage(int status)
   return;
 }
 
-void KrigingSystem::_estimateCalculSmoothImage(int status)
-{
-  if (! _flagEst) return;
-
-  int ndim   = getNDim();
-  int nech   = getNech();
-  double r2  = _smoothRange * _smoothRange;
-  const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbout);
-
-  VectorInt indn0(ndim);
-  VectorInt indg0(ndim);
-  VectorInt indnl(ndim);
-  VectorInt indgl(ndim);
-
-  _dbaux->rankToIndice(_dbaux->getSampleNumber()/2, indn0);
-  dbgrid->rankToIndice(_iechOut, indg0);
-
-  /* Loop on the neighboring points */
-
-  double estim = 0.;
-  if (status == 0)
-  {
-    double total = 0.;
-    for (int iech = 0; iech < nech; iech++)
-    {
-      if (FFFF(_dbaux->getVariable(iech, 0))) continue;
-      _dbaux->rankToIndice(_nbgh[iech], indnl);
-
-      double d2 = 0.;
-      for (int idim = 0; idim < ndim; idim++)
-      {
-        int idelta = (indnl[idim] - indn0[idim]);
-        double delta = idelta * dbgrid->getDX(idim);
-        d2 += delta * delta;
-        indgl[idim] = indg0[idim] + idelta;
-        indgl[idim] = dbgrid->getMirrorIndex(idim, indgl[idim]);
-      }
-      int jech = dbgrid->indiceToRank(indgl);
-      double data = dbgrid->getVariable(jech, 0);
-      if (!FFFF(data))
-      {
-        double weight = (_smoothType == 1) ? 1. : exp(-d2 / r2);
-        estim += data * weight;
-        total += weight;
-      }
-    }
-    estim = (total <= 0.) ? TEST : estim / total;
-  }
-  else
-  {
-    estim = TEST;
-  }
-  _dbout->setArray(_iechOut, _iptrEst, estim);
-}
-
 void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
   int iech  = _iechOut;
@@ -1962,10 +1924,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     // Image Neighborhood case
 
-    if (_flagSmooth)
-      _estimateCalculSmoothImage(status);
-    else
-      _estimateCalculImage(status);
+    _estimateCalculImage(status);
   }
   else if (_neighParam->getType().toEnum() == ENeigh::E_UNIQUE)
   {
@@ -2530,48 +2489,6 @@ int KrigingSystem::setKrigOptDGM(bool flag_dgm, double rcoeff, double eps)
   }
   _flagDGM = flag_dgm;
   _rDGM = rcoeff;
-  return 0;
-}
-
-/**
- * In the case of Image Neighborhood, switch the Smoothing option
- * @param flag_smooth Switch of the Smoothing Image Option
- * @param type Smoothing kernel (1 for Uniform; 2 for Gaussian)
- * @param range Rank of the Gaussian Kernel
- * @return
- */
-int KrigingSystem::setKrigOptImageSmooth(bool flag_smooth, int type, double range)
-{
-  _isReady = false;
-  int nvar = _getNVar();
-  if (flag_smooth)
-  {
-    const NeighImage* neighI = dynamic_cast<const NeighImage*>(_neighParam);
-    if (neighI == nullptr)
-    {
-      messerr("This option requires an Image Neighborhood");
-      return 1;
-    }
-    if (nvar != 1)
-    {
-      messerr("This option only considers the Monovariate case");
-      return 1;
-    }
-    if (type != 1 && type != 2)
-    {
-      messerr("Type(%d) must be either 1 for Uniform or 2 for Gaussian",type);
-      return 1;
-    }
-    if (type == 2 && range <= 0.)
-    {
-      messerr("When Gaussian Kernel is chosen, 'range'(%lf) must be strictly positive",
-              range);
-      return 1;
-    }
-  }
-  _flagSmooth  = flag_smooth;
-  _smoothType  = type;
-  _smoothRange = range;
   return 0;
 }
 
@@ -3245,6 +3162,7 @@ void KrigingSystem::_checkAddress(const String& title,
     messageAbort("Error in %s: %s (%d) may not be larger or equal than %d",
                  title.c_str(),theme.c_str(),ival,nval);
 }
+
 bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 {
   if (!is_grid(_dbout)) return 1;

@@ -17,10 +17,11 @@ ConsItem::ConsItem(const CovParamId& paramid,
                    const EConsType& type,
                    double value)
     : AStringable(),
-      _paramId(paramid),
-      _type(type),
-      _value(value)
+      _paramId(),
+      _type(),
+      _value()
 {
+  (void) _init(paramid, type, value);
 }
 
 ConsItem::ConsItem(const ConsItem &m)
@@ -29,7 +30,6 @@ ConsItem::ConsItem(const ConsItem &m)
       _type(m._type),
       _value(m._value)
 {
-
 }
 
 ConsItem& ConsItem::operator=(const ConsItem &m)
@@ -49,7 +49,14 @@ ConsItem::~ConsItem()
 
 }
 
-int ConsItem::init(const CovParamId& paramid,
+ConsItem* ConsItem::create(const CovParamId &paramid,
+                           const EConsType &type,
+                           double value)
+{
+  return new ConsItem(paramid, type, value);
+}
+
+int ConsItem::_init(const CovParamId& paramid,
                    const EConsType& type,
                    double value)
 {

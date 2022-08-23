@@ -327,11 +327,6 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  int opt_code = 0,
                                  double tolcode = 0.,
                                  const NamingConvention& namconv = NamingConvention("Duplicate", true, true, ELoc::SEL));
-GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
-                                   NeighImage *neighI,
-                                   int type,
-                                   double range,
-                                   const NamingConvention& namconv = NamingConvention("Smoothing"));
 GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
                                           Db *dbout,
                                           Model *model,
@@ -342,6 +337,11 @@ GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
                                              Model *model,
                                              int ivar0 = 0,
                                              bool flag_verbose = false);
+GSTLEARN_EXPORT void image_smoother(DbGrid *dbgrid,
+                                    NeighImage *neigh,
+                                    int type,
+                                    double range,
+                                    int iptr0);
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,

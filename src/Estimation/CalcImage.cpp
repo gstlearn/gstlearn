@@ -29,7 +29,10 @@ CalcImage::CalcImage()
       _option(0),
       _radius(),
       _distErode(false),
-      _verbose(false)
+      _verbose(false),
+      _flagSmooth(false),
+      _smoothType(0),
+      _smoothRange(1.)
 {
 }
 
@@ -71,6 +74,20 @@ bool CalcImage::_check()
     }
   }
 
+  if (_flagSmooth)
+  {
+    if (_smoothType != 1 && _smoothType != 2)
+    {
+      messerr("Filtering 'type' should be 1 or 2");
+      return false;
+    }
+    if (_getNVar() != 1)
+    {
+      messerr("This method requires a single Variable to be defined in 'Db'");
+      return false;
+    }
+  }
+
   return true;
 }
 
@@ -81,6 +98,9 @@ bool CalcImage::_preprocess()
 
   if (_flagMorpho)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, _nvarMorpho, 0.);
+
+  if (_flagSmooth)
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
 
   if (_iattOut < 0) return false;
   return true;
@@ -93,6 +113,9 @@ bool CalcImage::_postprocess()
 
   if (_flagMorpho)
     _renameVariable(2, 1, _iattOut, _oper.getKey(), _nvarMorpho);
+
+  if (_flagSmooth)
+    _renameVariable(2, 1, _iattOut, String(), 1);
 
   return true;
 }
@@ -133,6 +156,13 @@ bool CalcImage::_run()
     if (db_morpho_calc(dbgrid, _iattOut, _oper, _vmin, _vmax, _option, _radius,
                        _distErode, _verbose)) return false;
   }
+
+  if (_flagSmooth)
+  {
+    NeighImage* neighI = dynamic_cast<NeighImage*>(getNeighparam());
+    image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
+  }
+
   return true;
 }
 
@@ -162,6 +192,41 @@ int krimage(DbGrid *dbgrid,
   image.setNamingConvention(namconv);
 
   image.setFlagFilter(true);
+
+  // Run the calculator
+  int error = (image.run()) ? 0 : 1;
+  return error;
+}
+
+/****************************************************************************/
+/*!
+ **  Smooth a regular grid
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbgrid     input and output Db grid structure
+ ** \param[in]  neighparam Neigh structure
+ ** \param[in]  type       1 for Uniform; 2 for Gaussian
+ ** \param[in]  range      Range (used for Gaussian only)
+ ** \param[in]  namconv    Naming Convention
+ **
+ *****************************************************************************/
+int dbSmoother(DbGrid *dbgrid,
+               NeighImage *neighparam,
+               int type,
+               double range,
+               const NamingConvention &namconv)
+{
+  CalcImage image;
+
+  image.setDbin(dbgrid);
+  image.setDbout(dbgrid);
+  image.setNeighparam(neighparam);
+  image.setNamingConvention(namconv);
+
+  image.setFlagSmooth(true);
+  image.setSmoothType(type);
+  image.setSmoothRange(range);
 
   // Run the calculator
   int error = (image.run()) ? 0 : 1;

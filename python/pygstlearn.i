@@ -383,7 +383,7 @@ def setitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = gl.TEST    
         VectD = np.double(tab_i)
-        self.setColumn(VectD, name, useSel)
+        self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 

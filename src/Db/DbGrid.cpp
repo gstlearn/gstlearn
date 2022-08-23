@@ -1126,3 +1126,10 @@ int DbGrid::morpho(const EMorpho &oper,
   return dbMorpho(this, oper, vmin, vmax, option, radius, dist_erode, verbose, namconv);
 }
 
+int DbGrid::smooth(NeighImage *neigh,
+                   int type,
+                   double range,
+                   const NamingConvention &namconv)
+{
+  return dbSmoother(this, neigh, type, range, namconv);
+}

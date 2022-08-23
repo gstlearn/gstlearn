@@ -53,7 +53,6 @@ public:
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double rcoeff, double eps = EPSILON6);
-  int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
   int  setKrigOptAnamophosis(AAnam* anam);
@@ -154,7 +153,6 @@ private:
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
-  void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
   void _neighCalcul(int status, const VectorDouble& tab);
@@ -262,9 +260,6 @@ private:
 
   /// Option for Estimation based on Image
   DbGrid* _dbaux;
-  bool _flagSmooth;
-  int  _smoothType;
-  double _smoothRange;
 
   /// Option for saving the Weights using Keypair mechanism
   bool _flagKeypairWeights;

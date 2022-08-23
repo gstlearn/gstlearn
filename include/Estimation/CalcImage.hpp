@@ -40,6 +40,10 @@ public:
   void setDistErode(bool distErode) { _distErode = distErode; }
   void setNvarMorpho(int nvarMorpho) { _nvarMorpho = nvarMorpho; }
 
+  void setFlagSmooth(bool flagSmooth) { _flagSmooth = flagSmooth; }
+  void setSmoothRange(double smoothRange) { _smoothRange = smoothRange; }
+  void setSmoothType(int smoothType) { _smoothType = smoothType; }
+
 private:
   virtual bool _check() override;
   virtual bool _preprocess() override;
@@ -62,6 +66,10 @@ private:
   VectorInt _radius;
   bool _distErode;
   bool _verbose;
+
+  bool _flagSmooth;
+  int  _smoothType;
+  double _smoothRange;
 };
 
 GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
@@ -79,3 +87,9 @@ GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              bool verbose = false,
                              const NamingConvention &namconv = NamingConvention(
                                  "Morpho"));
+GSTLEARN_EXPORT int dbSmoother(DbGrid *dbgrid,
+                               NeighImage *neighI,
+                               int type = 1,
+                               double range = 1.,
+                               const NamingConvention &namconv = NamingConvention(
+                                   "Smooth"));
