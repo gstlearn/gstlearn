@@ -2557,11 +2557,11 @@ bool CalcSimuTurningBands::_preprocess()
 
     if (flag_cond)
     {
-      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, nvar*nbsimu);
+      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar*nbsimu);
       if (iptr_in < 0) return false;
     }
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, nvar*nbsimu);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar*nbsimu);
     if (_iattOut < 0) return false;
 
     return true;

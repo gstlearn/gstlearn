@@ -104,12 +104,12 @@ bool CalcFactorKriging::_preprocess()
 
   if (_flagEst)
   {
-    _iptrEst = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNFactors(), 0.);
+    _iptrEst = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNFactors(), 0.);
     if (_iptrEst < 0) return false;
   }
   if (_flagStd)
   {
-    _iptrStd = _addVariableDb(2, 1, ELoc::UNKNOWN, _getNFactors(), 0.);
+    _iptrStd = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNFactors(), 0.);
     if (_iptrStd < 0) return false;
   }
   return true;
@@ -117,6 +117,9 @@ bool CalcFactorKriging::_preprocess()
 
 bool CalcFactorKriging::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   getDbin()->setLocatorsByUID(_iuidFactors, ELoc::Z);
 
   int nfactor = _getNFactors();

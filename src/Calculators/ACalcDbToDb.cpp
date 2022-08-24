@@ -204,12 +204,13 @@ void ACalcDbToDb::_storeInVariableList(int whichDb, int status, const VectorInt&
 int ACalcDbToDb::_addVariableDb(int whichDb,
                                int status,
                                const ELoc &locatorType,
+                               int locatorIndex,
                                int number,
                                double valinit)
 {
   Db* db = _whichDb(whichDb);
   if (db == nullptr) return -1;
-  int iuid = db->addColumnsByConstant(number, valinit, String(), locatorType);
+  int iuid = db->addColumnsByConstant(number, valinit, String(), locatorType, locatorIndex);
   if (iuid < 0) return -1;
   VectorInt iuids = ut_ivector_sequence(number, iuid);
   _storeInVariableList(whichDb, status, iuids);
@@ -247,7 +248,10 @@ void ACalcDbToDb::_cleanVariableDb(int status)
     if (!_listVariablePermDbOut.empty())
     {
       for (int i = 0; i < (int) _listVariablePermDbOut.size(); i++)
+      {
+        message("on detruit %d\n",_listVariablePermDbOut[i]);
         _dbout->deleteColumnByUID(_listVariablePermDbOut[i]);
+      }
     }
     _listVariablePermDbOut.clear();
   }
@@ -291,6 +295,42 @@ bool ACalcDbToDb::hasDbout(bool verbose) const
     return false;
   }
   return true;
+}
+
+bool ACalcDbToDb::isGridIn(bool verbose) const
+{
+  if (! hasDbin(false)) return false;
+  if (! _dbin->isGrid())
+  {
+    messerr("The argument 'dbin' should be a Grid File");
+    return false;
+  }
+  return true;
+}
+
+bool ACalcDbToDb::isGridOut(bool verbose) const
+{
+  if (! hasDbout(false)) return false;
+  if (! _dbout->isGrid())
+  {
+    messerr("The argument 'dbout' should be a Grid File");
+    return false;
+  }
+  return true;
+}
+
+DbGrid* ACalcDbToDb::getGridin() const
+{
+  if (! hasDbin(false)) return nullptr;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbin);
+  return dbgrid;
+}
+
+DbGrid* ACalcDbToDb::getGridout() const
+{
+  if (! hasDbout(false)) return nullptr;
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+  return dbgrid;
 }
 
 /*****************************************************************************/

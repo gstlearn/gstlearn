@@ -167,10 +167,10 @@ public:
                   const ELoc& locatorType = ELoc::UNKNOWN,
                   int locatorIndex = 0,
                   bool cleanSameLocator = false);
-  void setLocators(const VectorString& names,
-                    const ELoc& locatorType = ELoc::UNKNOWN,
-                    int locatorIndex = 0,
-                    bool cleanSameLocator = false);
+  void setLocators(const VectorString &names,
+                   const ELoc &locatorType = ELoc::UNKNOWN,
+                   int locatorIndex = 0,
+                   bool cleanSameLocator = false);
   void setLocatorsByUID(int number,
                         int iuid,
                         const ELoc& locatorType = ELoc::UNKNOWN,

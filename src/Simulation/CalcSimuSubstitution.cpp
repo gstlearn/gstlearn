@@ -355,7 +355,7 @@ bool CalcSimuSubstitution::_check()
 
 bool CalcSimuSubstitution::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 1);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
     if (_iattOut < 0) return false;
     return true;
 }
@@ -369,6 +369,9 @@ bool CalcSimuSubstitution::_run()
 
 bool CalcSimuSubstitution::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   _renameVariable(2, 1, _iattOut, String(), getNbSimu());
   return true;
 }

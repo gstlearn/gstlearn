@@ -81,22 +81,22 @@ bool CalcKriging::_preprocess()
 
   if (_flagEst)
   {
-    _iptrEst = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrEst = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), 0.);
     if (_iptrEst < 0) return false;
   }
   if (_flagStd)
   {
-    _iptrStd = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrStd = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), 0.);
     if (_iptrStd < 0) return false;
   }
   if (_flagVarZ)
   {
-    _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, _getNVar(), 0.);
+    _iptrVarZ = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _getNVar(), 0.);
     if (_iptrVarZ < 0) return false;
   }
   if (_flagNeighOnly)
   {
-    _iptrNeigh = _addVariableDb(2, status, ELoc::UNKNOWN, _nbNeigh, 0.);
+    _iptrNeigh = _addVariableDb(2, status, ELoc::UNKNOWN, 0, _nbNeigh, 0.);
     if (_iptrNeigh < 0) return false;
   }
 
@@ -113,6 +113,9 @@ bool CalcKriging::_preprocess()
 
 bool CalcKriging::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   int nvar = _getNVar();
   if (_flagXvalid)
   {

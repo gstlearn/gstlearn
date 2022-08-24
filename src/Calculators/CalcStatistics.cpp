@@ -80,10 +80,10 @@ bool CalcStatistics::_preprocess()
   int nvar = _getNVar();
 
   if (_flagStats)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, nvar, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
 
   if (_flagRegr)
-    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, nvar, 0.);
+    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, nvar, 0.);
 
   if (_iattOut < 0) return false;
   return true;
@@ -91,6 +91,9 @@ bool CalcStatistics::_preprocess()
 
 bool CalcStatistics::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   if (_flagStats)
     _renameVariable(2, 1, _iattOut, String(), 1);
 
@@ -169,6 +172,5 @@ int dbRegression(Db *db1,
   // Run the calculator
   int error = (stats.run()) ? 0 : 1;
   return error;
-
 }
 

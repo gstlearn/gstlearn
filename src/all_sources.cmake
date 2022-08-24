@@ -56,6 +56,7 @@ set(SRC
   Calculators/ACalcInterpolator.cpp
   Calculators/ACalcDbVarCreator.cpp
   Calculators/CalcStatistics.cpp
+  Calculators/CalcGridToGrid.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp

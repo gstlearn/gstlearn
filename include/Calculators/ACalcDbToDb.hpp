@@ -33,9 +33,13 @@ public:
 
   Db* getDbin() const { return _dbin; }
   Db* getDbout() const { return _dbout; }
+  DbGrid* getGridin() const;
+  DbGrid* getGridout() const;
 
   bool hasDbin(bool verbose = true) const;
   bool hasDbout(bool verbose = true) const;
+  bool isGridIn(bool verbose = true) const;
+  bool isGridOut(bool verbose = true) const;
 
 protected:
   virtual bool _check() override;
@@ -45,6 +49,7 @@ protected:
   int _addVariableDb(int whichDb,
                      int status,
                      const ELoc &locatorType,
+                     int locatorIndex = 0,
                      int number = 1,
                      double valinit = 0.);
   void _renameVariable(int whichDb,

@@ -65,11 +65,12 @@ void ACalcDbVarCreator::_storeInVariableList(int status, const VectorInt& iuids)
 
 int ACalcDbVarCreator::_addVariableDb(int status,
                                       const ELoc &locatorType,
+                                      int locatorIndex,
                                       int number,
                                       double valinit)
 {
   if (_db == nullptr) return -1;
-  int iuid = _db->addColumnsByConstant(number, valinit, String(), locatorType);
+  int iuid = _db->addColumnsByConstant(number, valinit, String(), locatorType, locatorIndex);
   if (iuid < 0) return -1;
   VectorInt iuids = ut_ivector_sequence(number, iuid);
   _storeInVariableList(status, iuids);

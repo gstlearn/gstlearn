@@ -94,13 +94,13 @@ bool CalcImage::_check()
 bool CalcImage::_preprocess()
 {
   if (_flagFilter)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
 
   if (_flagMorpho)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, _nvarMorpho, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _nvarMorpho, 0.);
 
   if (_flagSmooth)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
 
   if (_iattOut < 0) return false;
   return true;
@@ -108,6 +108,9 @@ bool CalcImage::_preprocess()
 
 bool CalcImage::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   if (_flagFilter)
     _renameVariable(2, 1, _iattOut, String(), 1);
 

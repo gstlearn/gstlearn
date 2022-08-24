@@ -265,6 +265,9 @@ bool CalcAnamTransform::_preprocess()
 
 bool CalcAnamTransform::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   if (_flagVars)
   {
     int nvar = _getNVar();

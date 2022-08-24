@@ -84,6 +84,7 @@
 #include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/ACalcDbVarCreator.hpp"
 #include "Calculators/CalcStatistics.hpp"
+#include "Calculators/CalcGridToGrid.hpp"
 
 /*
 #include "Interfaces/geoslib_f_swig.h"
