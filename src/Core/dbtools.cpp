@@ -35,6 +35,7 @@
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
+#include "csparse_f.h"
 
 #include <math.h>
 #include <string.h>
@@ -6430,6 +6431,7 @@ int db_proportion_estimate(Db *dbin,
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0), EPowerPT::ONE);
   ProjMatrix Aproj = ProjMatrix(dbin, &mesh);
+  cs_print_range("range dans Aproj", Aproj.getAproj());
 
   // Invoke the calculation
 
@@ -6439,8 +6441,7 @@ int db_proportion_estimate(Db *dbin,
   Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
-  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,
-                                         niter);
+  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,niter);
 
   // Loading the resulting results in the output 'dbout'
 

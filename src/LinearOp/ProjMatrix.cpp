@@ -181,16 +181,17 @@ int ProjMatrix::mesh2point(const VectorDouble& in, VectorDouble& out) const
 {
   if ((int) in.size() != _nApices)
   {
-    messerr("Mesh2Point: Error in the dimension of argument 'in'(%d). It should be (%d)",
+    messerr("mesh2point: Error in the dimension of argument 'in'(%d). It should be (%d)",
             in.size(),_nApices);
     return 1;
   }
   if ((int) out.size() != _nPoint)
   {
-    messerr("Mesh2Point: Error in the dimension of argument 'out'(%d). It should be (%d)",
+    messerr("mesh2point: Error in the dimension of argument 'out'(%d). It should be (%d)",
             out.size(),_nPoint);
     return 1;
   }
+
   cs_mulvec(_Aproj,_nPoint,in.data(),out.data());
   return 0;
 }

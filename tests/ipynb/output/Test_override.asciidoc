@@ -72,7 +72,7 @@ def setitem(self,name,tab):
                 u = gl.TEST
             vectD.push_back(u)
             
-        self.setColumn(vectD,names[j],useSel)
+        self.setColumn(vectD,names[j],gl.ELoc.UNKNOWN,0,useSel)
     
 #setattr(gl.Db,"useSel",False)
 

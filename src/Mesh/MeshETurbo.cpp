@@ -368,14 +368,14 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   int error    = 1;
   cs* Atriplet = nullptr;
   cs* A = nullptr;
-  double* rhs      = nullptr;
-  double* lambda   = nullptr;
   int ndim     = getNDim();
   int ncorner  = getNApexPerMesh();
   VectorInt indg0(ndim);
   VectorInt indgg(ndim);
   VectorInt indices(ncorner);
   VectorDouble coor(ndim);
+  VectorDouble rhs(ncorner);
+  VectorDouble lambda(ncorner);
 
   // Preliminary checks
 
@@ -385,10 +385,6 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   if (Atriplet == nullptr) goto label_end;
-  rhs    = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (rhs    == nullptr) goto label_end;
-  lambda = (double *) mem_alloc(sizeof(double) * ncorner,0);
-  if (lambda == nullptr) goto label_end;
 
   /* Optional title */
 
@@ -418,8 +414,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
     /* Optional printout */
 
     if (verbose)
-      message("Sample %4d in Mesh %4d :",jech+1,
-              _grid.indiceToRank(indg0)+1);
+      message("Sample %4d in Mesh %4d :",jech+1,_grid.indiceToRank(indg0)+1);
 
     /* Loop on the different meshes constituting the cell */
 
@@ -450,8 +445,7 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
   if (ip_max < getNApices() - 1 || iech < db->getSampleNumber(true) - 1)
   {
-    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1,
-                  getNApices() - 1, 0.)) goto label_end;
+    cs_force_dimension(Atriplet, db->getSampleNumber(true), getNApices());
   }
   
   /* Convert the triplet into a sparse matrix */
@@ -464,8 +458,6 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
 label_end:
   Atriplet  = cs_spfree(Atriplet);
-  rhs       = (double *) mem_free((char *) rhs);
-  lambda    = (double *) mem_free((char *) lambda);
   if (error) A = cs_spfree(A);
   return(A);
 }
@@ -543,8 +535,8 @@ int MeshETurbo::_addWeights(const int verbose,
                             VectorInt& indgg, // work array
                             const VectorDouble& coor,
                             VectorInt& indices,
-                            double *rhs,
-                            double *lambda) const
+                            VectorDouble& rhs,
+                            VectorDouble& lambda) const
 {
   int ndim    =  getNDim();
   int ncorner =  getNApexPerMesh();

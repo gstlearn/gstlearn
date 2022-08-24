@@ -3359,7 +3359,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       if (!cs_entry(Btriplet, iech, i, value)) goto label_end;
     }
     // Add a fictitious sample (zero value) as a dimension constraint
-    if (!cs_entry(Btriplet, ndata1[ivar] - 1, nvertex - 1, 0.)) goto label_end;
+    cs_force_dimension(Btriplet, ndata1[ivar], nvertex);
     BheteroD[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
     st_keypair_cs("HeteroD", BheteroD[ivar], st_get_current_icov() + 1,
@@ -3411,8 +3411,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
     }
 
     // Add a fictitious sample (zero value) as a dimension constraint
-    if (!cs_entry(Btriplet, ntarget1[ivar] - 1, nvertex - 1, 0.))
-      goto label_end;
+    cs_force_dimension(Btriplet, ntarget1[ivar], nvertex);
     BheteroT[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
     st_keypair_cs("HeteroT", BheteroT[ivar], st_get_current_icov() + 1,
@@ -9623,9 +9622,7 @@ cs *db_mesh_neigh(const Db *db,
   /* Add the extreme value to force dimension */
 
   if (ip_max < s_mesh->nvertex - 1)
-  {
-    if (!cs_entry(Atriplet, jech_max, s_mesh->nvertex - 1, 0.)) goto label_end;
-  }
+    cs_force_dimension(Atriplet, jech_max, s_mesh->nvertex);
 
   /* Core reallocation */
 

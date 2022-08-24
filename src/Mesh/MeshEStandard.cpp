@@ -448,13 +448,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   /* Add the extreme value to force dimension */
 
   if (ip_max < getNApices() - 1)
-  {
-    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1, getNApices() - 1, 0.))
-    {
-      Atriplet  = cs_spfree(Atriplet);
-      return nullptr;
-    }
-  }
+    cs_force_dimension(Atriplet, db->getSampleNumber(true), getNApices());
   
   /* Convert the triplet into a sparse matrix */
 

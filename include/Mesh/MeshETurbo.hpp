@@ -91,8 +91,8 @@ private:
                   VectorInt& indgg,
                   const VectorDouble& coor,
                   VectorInt& indices,
-                  double *rhs,
-                  double *lambda) const;
+                  VectorDouble& rhs,
+                  VectorDouble& lambda) const;
   void _deallocate();
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
   void _fromSelToMeshingMask(const VectorDouble& sel);

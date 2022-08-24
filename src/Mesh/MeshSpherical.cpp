@@ -357,11 +357,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
   if (ip_max < nvertex - 1)
   {
-    if (! cs_entry(Atriplet,iech_max,nvertex-1,0.))
-    {
-      Atriplet = cs_spfree(Atriplet);
-      return nullptr;
-    };
+    cs_force_dimension(Atriplet,iech_max,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */
