@@ -13,11 +13,13 @@
 #include "geoslib_old_f.h"
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Geometry.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -28,28 +30,31 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  //  StdoutRedirect sr(sfn.str());
 
-  // Generate the output grid
-  DbGrid* grid = DbGrid::create({100,100},{0,1},{1.1,1.2});
-  grid->display();
+  double dzoverdx = 0.5;
+  double dzoverdy = 0.2;
+  message("Gradients = %lf %lf\n", dzoverdx, dzoverdy);
 
-  Model* model = Model::createFromParam(ECov::CUBIC, 20., 3.);
-  model->display();
+  double angle = util_rotation_gradXYToAngle(dzoverdx, dzoverdy);
+  message("Rotation angle=%lf\n",angle);
 
-  (void) simtub(nullptr, grid, model, nullptr, 2);
-  grid->display();
+  VectorDouble axis = util_rotation_gradXYToAxes(dzoverdx, dzoverdy);
+  ut_vector_display("axis",axis);
 
-  DbGrid* grid1 = DbGrid::createFromGridExtend(*grid,{"Simu.1"},{"Simu.2"},{10},true);
-  grid1->display();
+  MatrixSquareGeneral rotmat = util_rotation_AxesAndAngleToMatrix(axis, angle);
+  rotmat.display();
 
-  DbGrid* grid2 = DbGrid::createFromGridShrink(*grid1, {1});
-  grid2->display();
+  VectorDouble angles = util_rotmatToEuler(rotmat);
+  ut_vector_display("angles",angles);
 
-  // Free the pointers
-  delete grid;
-  delete grid1;
-  delete model;
+  MatrixSquareGeneral rotmat2 = util_EulerToRotmat(angles);
+  rotmat2.display();
+
+  double diff = rotmat.compare(rotmat2);
+  message("\nDifference between two rotation matrices = %lg\n",diff);
+
+  ut_ivector_display("Rotation Convention",util_Convention("sxyz"));
 
   return (0);
 }

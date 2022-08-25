@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot);
 GSTLEARN_EXPORT void ut_rotation_sincos(double angle,
@@ -122,3 +123,17 @@ GSTLEARN_EXPORT void util_convert_sph2cart(double rlong,
                                            double *z,
                                            double radius_arg = 1.);
 
+GSTLEARN_EXPORT VectorDouble util_rotation_gradXYToAxes(double dzoverdx, double dzoverdy);
+GSTLEARN_EXPORT double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy);
+
+GSTLEARN_EXPORT MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
+                                                                       double angle);
+
+GSTLEARN_EXPORT VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &mat,
+                                                const VectorInt &hyp = VectorInt(),
+                                                double eps = EPSILON10);
+
+GSTLEARN_EXPORT MatrixSquareGeneral util_EulerToRotmat(const VectorDouble& angles,
+                                                       const VectorInt &hyp = VectorInt());
+
+GSTLEARN_EXPORT VectorInt util_Convention(const String& conv);

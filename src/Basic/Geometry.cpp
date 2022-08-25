@@ -1060,3 +1060,275 @@ void util_convert_sph2cart(double rlong,
   *y = radius * cosphi * sinthe;
   *z = radius * sinphi;
 }
+
+/**
+ * Calculate the angle to translate the gradients of a tilted plane
+ * (defined by the partial derivatives along X and Y) into the axis of the rotation angle
+ * @param dzoverdx Partial derivative along X
+ * @param dzoverdy Partial derivative along Y
+ */
+double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
+{
+  int ndim = 3;
+
+  // Vector orthogonal to the horizontal plane/ i.e. the vertical axis
+  VectorDouble vert = VectorDouble(3, 0.);
+  vert[ndim-1] = -1.;
+
+  // Vector orthogonal to the tilted plane
+  VectorDouble vort = VectorDouble(ndim);
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  double norme = ut_vector_norm(vort);
+  for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
+
+  // Cross product
+  VectorDouble axis(ndim,0.);
+  axis[0] =  vort[1];
+  axis[1] = -vort[0];
+  axis[2] = 0.;
+
+  // Norm of the cross product and dot product between ref and vort
+  double normcross = sqrt(ut_vector_inner_product(axis, axis));
+  double dot = ut_vector_inner_product(vert, vort);
+
+  // Rotation angle
+  double angle = atan2(normcross, dot);
+  return angle;
+}
+
+/**
+ * Calculate the rotation axis to translate the gradients of a tilted plane
+ * (defined by the partial derivatives along X and Y) into the axis of the normal
+ * @param dzoverdx Partial derivative along X
+ * @param dzoverdy Partial derivative along Y
+ */
+VectorDouble util_rotation_gradXYToAxes(double dzoverdx, double dzoverdy)
+{
+  int ndim = 3;
+  VectorDouble axis(ndim,0.);
+
+  // Vector orthogonal to the horizontal plane/ i.e. the vertical axis
+  VectorDouble vert = VectorDouble(3, 0.);
+  vert[ndim-1] = -1.;
+
+  // Vector orthogonal to the tilted plane
+  VectorDouble vort = VectorDouble(ndim);
+  vort[0] = dzoverdx;
+  vort[1] = dzoverdy;
+  vort[2] = -1.;
+  double norme = ut_vector_norm(vort);
+  for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
+
+  // Cross product
+  axis[0] =  vort[1];
+  axis[1] = -vort[0];
+  axis[2] = 0.;
+
+  // Norm of the cross product and dot product between ref and vort
+  double normcross = sqrt(ut_vector_inner_product(axis, axis));
+
+  // Rotation axis (normalized
+  for (int idim = 0; idim < ndim; idim++) axis[idim] /= normcross;
+  return axis;
+}
+
+MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
+                                                       double angle)
+{
+  int ndim = 3;
+
+  double c = cos(angle);
+  double s = sin(angle);
+  MatrixSquareGeneral M(ndim);
+  M.setValue(0, 0, axis[0] * axis[0] * (1 - c) + c);
+  M.setValue(0, 1, axis[0] * axis[1] * (1 - c) - axis[2] * s);
+  M.setValue(0, 2, axis[0] * axis[2] * (1 - c) + axis[1] * s);
+  M.setValue(1, 0, axis[1] * axis[0] * (1 - c) + axis[2] * s);
+  M.setValue(1, 1, axis[1] * axis[1] * (1 - c) + c);
+  M.setValue(1, 2, axis[1] * axis[2] * (1 - c) - axis[0] * s);
+  M.setValue(2, 0, axis[2] * axis[0] * (1 - c) - axis[1] * s);
+  M.setValue(2, 1, axis[2] * axis[1] * (1 - c) + axis[0] * s);
+  M.setValue(2, 2, axis[2] * axis[2] * (1 - c) + c);
+  return M;
+}
+
+/**
+ * Returns the Euler angles, starting from a rotation matrix
+ * @param mat Input matrix
+ * @return
+ *
+ * @remark The code is coming from the following reference (BSD license)
+ * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
+ */
+VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
+                                const VectorInt &hyp,
+                                double eps)
+{
+  VectorInt hyp_local = hyp;
+  hyp_local.resize(4, 0);
+  int firstaxis  = hyp_local[0];
+  int parity     = hyp_local[0];
+  int repetition = hyp_local[0];
+  int frame      = hyp_local[0];
+
+  VectorInt next_axis = {1, 2, 0, 1};
+  int i = firstaxis;
+  int j = next_axis[i+parity];
+  int k = next_axis[i-parity+1];
+
+  double ax, ay, az;
+
+  if (repetition)
+  {
+    double sy = sqrt(M.getValue(i, j)*M.getValue(i, j) + M.getValue(i, k)*M.getValue(i, k));
+    if (sy > eps)
+    {
+      ax = atan2( M.getValue(i, j),  M.getValue(i, k));
+      ay = atan2( sy,                M.getValue(i, i));
+      az = atan2( M.getValue(j, i), -M.getValue(k, i));
+    }
+    else
+    {
+      ax = atan2(-M.getValue(j, k),  M.getValue(j, j));
+      ay = atan2( sy,                M.getValue(i, i));
+      az = 0.0;
+    }
+  }
+  else
+  {
+    double cy = sqrt(M.getValue(i, i)*M.getValue(i, i) + M.getValue(j, i)*M.getValue(j, i));
+    if (cy > eps)
+    {
+      ax = atan2( M.getValue(k, j),  M.getValue(k, k));
+      ay = atan2(-M.getValue(k, i),  cy);
+      az = atan2( M.getValue(j, i),  M.getValue(i, i));
+    }
+    else
+    {
+      ax = atan2(-M.getValue(j, k),  M.getValue(j, j));
+      ay = atan2(-M.getValue(k, i),  cy);
+      az = 0.0;
+    }
+  }
+
+  if (parity)
+  {
+    ax = -ax;
+    ay = -ay;
+    az = -az;
+  }
+
+  if (frame)
+  {
+    ax = az;
+    az = ax;
+  }
+
+  VectorDouble angles = {ax, ay, az};
+  return angles;
+}
+
+MatrixSquareGeneral util_EulerToRotmat(const VectorDouble &angles,
+                                       const VectorInt &hyp)
+{
+  VectorInt hyp_local = hyp;
+  hyp_local.resize(4, 0);
+  int firstaxis  = hyp_local[0];
+  int parity     = hyp_local[0];
+  int repetition = hyp_local[0];
+  int frame      = hyp_local[0];
+
+  VectorInt next_axis = {1, 2, 0, 1};
+  int i = firstaxis;
+  int j = next_axis[i+parity];
+  int k = next_axis[i-parity+1];
+
+  int ndim = 3;
+  MatrixSquareGeneral M(ndim);
+
+  double ai = angles[0];
+  double aj = angles[1];
+  double ak = angles[2];
+  if (frame)
+  {
+    ai = ak;
+    ak = ai;
+  }
+  if (parity)
+  {
+    ai = -ai;
+    aj = -aj;
+    ak = -ak;
+  }
+
+  double si = sin(ai);
+  double sj = sin(aj);
+  double sk = sin(ak);
+  double ci = cos(ai);
+  double cj = cos(aj);
+  double ck = cos(ak);
+
+  double cc = ci * ck;
+  double cs = ci * sk;
+  double sc = si * ck;
+  double ss = si * sk;
+
+  if (repetition)
+  {
+    M.setValue(i, i, cj);
+    M.setValue(i, j, sj * si);
+    M.setValue(i, k, sj * ci);
+    M.setValue(j, i, sj * sk);
+    M.setValue(j, j, -cj * ss + cc);
+    M.setValue(j, k, -cj * cs - sc);
+    M.setValue(k, i, -sj * ck);
+    M.setValue(k, j, cj * sc + cs);
+    M.setValue(k, k, cj * cc - ss);
+  }
+  else
+  {
+    M.setValue(i, i, cj * ck);
+    M.setValue(i, j, sj * sc - cs);
+    M.setValue(i, k, sj * cc + ss);
+    M.setValue(j, i, cj * sk);
+    M.setValue(j, j, sj * ss + cc);
+    M.setValue(j, k, sj * cs - sc);
+    M.setValue(k, i, -sj);
+    M.setValue(k, j, cj * si);
+    M.setValue(k, k, cj * ci);
+  }
+  return M;
+}
+
+VectorInt util_Convention(const String& conv)
+{
+  VectorInt ret(4);
+
+  if (conv == "sxyz") ret = {0, 0, 0, 0};
+  if (conv == "sxyx") ret = {0, 0, 1, 0};
+  if (conv == "sxzy") ret = {0, 1, 0, 0};
+  if (conv == "sxzx") ret = {0, 1, 1, 0};
+  if (conv == "syzx") ret = {1, 0, 0, 0};
+  if (conv == "syzy") ret = {1, 0, 1, 0};
+  if (conv == "syxz") ret = {1, 1, 0, 0};
+  if (conv == "syxy") ret = {1, 1, 1, 0};
+  if (conv == "szxy") ret = {2, 0, 0, 0};
+  if (conv == "szxz") ret = {2, 0, 1, 0};
+  if (conv == "szyx") ret = {2, 1, 0, 0};
+  if (conv == "szyz") ret = {2, 1, 1, 0};
+  if (conv == "rzyx") ret = {0, 0, 0, 1};
+  if (conv == "rxyx") ret = {0, 0, 1, 1};
+  if (conv == "ryzx") ret = {0, 1, 0, 1};
+  if (conv == "rxzx") ret = {0, 1, 1, 1};
+  if (conv == "rxzy") ret = {1, 0, 0, 1};
+  if (conv == "ryzy") ret = {1, 0, 1, 1};
+  if (conv == "rzxy") ret = {1, 1, 0, 1};
+  if (conv == "ryxy") ret = {1, 1, 1, 1};
+  if (conv == "ryxz") ret = {2, 0, 0, 1};
+  if (conv == "rzxz") ret = {2, 0, 1, 1};
+  if (conv == "rxyz") ret = {2, 1, 0, 1};
+  if (conv == "rzyz") ret = {2, 1, 1, 1};
+  return ret;
+}
