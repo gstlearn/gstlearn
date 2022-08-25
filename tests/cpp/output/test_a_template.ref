@@ -1,0 +1,25 @@
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 4
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 240000
+
+Grid characteristics:
+---------------------
+Origin :     11.000    12.000    13.000    14.000
+Mesh   :      0.000     1.000     2.000     3.000
+Number :         10        20        30        40
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = x3 - Locator = x3
+Column = 4 - Name = x4 - Locator = x4

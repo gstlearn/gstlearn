@@ -379,6 +379,166 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   return dbgrid;
 }
 
+/**
+ * Create a new Grid, starting from an initial Grid, and extending its space dimensions
+ * A set of Top and Bottom variables is provided which serve in designing the
+ * Top and Bottom of the new coordinates.
+ * @param gridIn Initial
+ * @param tops   Vector of Variable names which define the Tops
+ * @param bots   Vector of Variable names which define the Bottoms
+ * @param nxnew  Vector giving the number of meshes for each additional space dimension
+ * @param verbose Verbose flag
+ * @param eps    Each new coordinate is calculated from the top to bottom extension
+ *               inflated by eps
+ * @return
+ */
+DbGrid* DbGrid::createFromGridExtend(const DbGrid &gridIn,
+                                     const VectorString& tops,
+                                     const VectorString& bots,
+                                     const VectorInt &nxnew,
+                                     bool verbose,
+                                     double eps)
+{
+  DbGrid *gridnew = new DbGrid;
+
+  int ncoor = (int) nxnew.size();
+  if (ncoor <= 0)
+  {
+    messerr("You must provide a non-empty vector of meshing dimensions");
+    return gridnew;
+  }
+  if (ncoor != (int) tops.size())
+  {
+    messerr("Arguments 'tops' and 'nxnew' should have the same dimension");
+    return gridnew;
+  }
+  if (ncoor != (int) bots.size())
+  {
+    messerr("Arguments 'bots' and 'nxnew' should have the same dimension");
+    return gridnew;
+  }
+
+  // Calculate extremes on new coordinates variables
+
+  VectorDouble mini(ncoor);
+  VectorDouble maxi(ncoor);
+  double coteB, coteT;
+  for (int icoor = 0; icoor < ncoor; icoor++)
+  {
+    coteB = gridIn.getMinimum(bots[icoor]);
+    coteT = gridIn.getMinimum(tops[icoor]);
+    if (FFFF(coteB) || FFFF(coteT))
+    {
+      messerr("The grid extension along variable (%d) is not possible",icoor+1);
+      messerr("The variable has no valid value available or all values are equal");
+      return gridnew;
+    }
+    mini[icoor] = MIN(coteB, coteT);
+
+    coteB = gridIn.getMaximum(bots[icoor]);
+    coteT = gridIn.getMaximum(tops[icoor]);
+    if (FFFF(coteB) || FFFF(coteT))
+    {
+      messerr("The grid extension along variable (%d) is not possible",icoor+1);
+      messerr("The variable has no valid value available or all values are equal");
+      return gridnew;
+    }
+    maxi[icoor] = MAX(coteB, coteT);
+
+    if (maxi[icoor] <= mini[icoor])
+    {
+      messerr("The grid extension along variable (%d) is not possible",icoor+1);
+      messerr("The variable has no valid value available or all values are equal");
+      return gridnew;
+    }
+    if (nxnew[icoor] < 2)
+    {
+      messerr("The number of meshes along new direction5%d) should be larger than 1",icoor+1);
+      return gridnew;
+    }
+
+    if (verbose)
+      message("Additional coordinate %d: Minimum = %lf - Maximum = %lf - Nstep = %d\n",
+              icoor+1, mini[icoor], maxi[icoor], nxnew[icoor]);
+
+  }
+
+  // Get the characteristics of Input Grid
+  int ndim = gridIn.getNDim();
+  VectorInt nx = gridIn.getNXs();
+  VectorDouble x0 = gridIn.getX0s();
+  VectorDouble dx = gridIn.getDXs();
+  VectorDouble angles = gridIn.getAngles();
+
+  // Extend the characteristics for the new file dimension
+  int ndimnew = ndim + ncoor;
+  nx.resize(ndimnew);
+  dx.resize(ndimnew);
+  x0.resize(ndimnew);
+  angles.resize(ndimnew);
+
+  for (int icoor = 0; icoor < ncoor; icoor++)
+  {
+    double delta = maxi[icoor] - mini[icoor];
+    nx[ndim + icoor] = nxnew[icoor];
+    x0[ndim + icoor] = mini[icoor] - delta * eps / 2.;
+    dx[ndim + icoor] = delta * (1. + eps) / nxnew[icoor];
+    angles[ndim + icoor] = 0.;
+  }
+
+  // Creating the new grid
+  gridnew = create(nx, dx, x0, angles);
+
+  return gridnew;
+}
+
+/**
+ * Create a new grid, from an Initial Grid, by suppressing a set of space dimensions
+ * @param gridIn       Initial grid
+ * @param deletedRanks Vector of indices of space dimensions to be suppressed
+ * @return
+ */
+DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
+                                     const VectorInt& deletedRanks)
+{
+  DbGrid* gridnew = new DbGrid();
+  int ndim = gridIn.getNDim();
+
+  for (int i = 0; i < (int) deletedRanks.size(); i++)
+  {
+    if (i < 0 || i >= ndim)
+    {
+      messerr("The dimension to be removed (%d) should lie within [0,%d[",
+              i+1, ndim);
+      return gridnew;
+    }
+  }
+  VectorInt ranks = deletedRanks;
+  std::unique(ranks.begin(), ranks.end());
+  std::sort(ranks.begin(), ranks.end());
+  std::reverse(ranks.begin(), ranks.end());
+
+  // Get the characteristics of Input Grid
+  VectorInt nx = gridIn.getNXs();
+  VectorDouble x0 = gridIn.getX0s();
+  VectorDouble dx = gridIn.getDXs();
+  VectorDouble angles = gridIn.getAngles();
+
+  // Suppress the dimensions of the grid
+  for (int i = 0; i < (int) ranks.size(); i++)
+  {
+    nx.erase(nx.begin()+ranks[i]);
+    dx.erase(dx.begin()+ranks[i]);
+    x0.erase(x0.begin()+ranks[i]);
+    angles.erase(angles.begin()+ranks[i]);
+  }
+
+  // Creating the new grid
+  gridnew = create(nx, dx, x0, angles);
+
+  return gridnew;
+}
+
 VectorInt DbGrid::getNXsExt(int ndimMax) const
 {
   VectorInt nxs = getNXs();

@@ -95,10 +95,19 @@ public:
   static DbGrid* createCoarse(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
-  DbGrid* coarsify(const VectorInt &nmult);
   static DbGrid* createRefine(DbGrid *dbin,
                               const VectorInt &nmult,
                               int flag_add_rank);
+  static DbGrid* createFromGridExtend(const DbGrid& gridIn,
+                                      const VectorString &tops,
+                                      const VectorString &bots,
+                                      const VectorInt &nxnew,
+                                      bool verbose = false,
+                                      double eps = EPSILON3);
+  static DbGrid* createFromGridShrink(const DbGrid& gridIn,
+                                      const VectorInt& deletedRanks);
+
+  DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);
   static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
 
