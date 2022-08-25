@@ -150,10 +150,10 @@ bool ACovFunc::hasInt2D() const
 }
  /**
   * Calculate covariance derivatives, i.e.
-  * Degree 1: C^1(r) / r
-  * degree 2: C^2(r)
-  * Degree 3: C^3(r)
-  * Degree 4: C^4(r)
+  * - Degree 1: C^1(r) / r
+  * - degree 2: C^2(r)
+  * - Degree 3: C^3(r)
+  * - Degree 4: C^4(r)
   * @param degree Level of derivation
   * @param h Normalized distance
   * @return

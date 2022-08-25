@@ -70,7 +70,7 @@ def shape_Nsubplots(N):
     ncols = np.ceil(N/nlines)
     return int(nlines), int(ncols)
 
-def drawDecor(ax=None, xlab=None, ylab=None, title=None):
+def drawDecor(ax=None, xlab=None, ylab=None, aspect=None, title=None, flagLegend=False):
     if ax is None:
         if xlab is not None:
             plt.xlabel(xlab)
@@ -85,6 +85,11 @@ def drawDecor(ax=None, xlab=None, ylab=None, title=None):
             ax.set_ylabel(ylab)
         if title is not None:
             ax.set_title(title)
+        if aspect is not None:
+            ax.set_aspect(aspect)
+        if flagLegend:
+            ax.legend()
+
     return
 
 def addColorbar(im, ax):
@@ -221,15 +226,12 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
             ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
                         textcoords = 'offset points', ha='center')
     
-    drawDecor(ax, xlabel, ylabel, title)
+    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
     
     if vario.drawOnlyPositiveX(ivar, jvar):
         ax.set_xlim(left=0)
     if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
-        
-    if flagLegend:
-        ax.legend()
         
     if end_plot:
         plt.show()
@@ -286,7 +288,7 @@ def varioDir(vario, ivar=0, jvar=0,
                   ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
-    drawDecor(ax, xlabel, ylabel, title)
+    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
     
     ax.autoscale(True)
     
@@ -295,9 +297,6 @@ def varioDir(vario, ivar=0, jvar=0,
     if vario.drawOnlyPositiveY(ivar, jvar):
         ax.set_ylim(bottom=0)
     
-    if flagLegend:
-        ax.legend()
-        
     if end_plot:
         plt.show()
         
@@ -306,7 +305,8 @@ def varioDir(vario, ivar=0, jvar=0,
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
            linestylem="dashed", color0='black', linestyle0="dotted",
            nh = 100, hmax = None, gmax = None, 
-           cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, **plot_args):
+           cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
+           **plot_args):
     """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
     
     Same as vario plus the possible model.
@@ -411,7 +411,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
 
 def vario(vario, ivar=-1, jvar=-1, idir=-1,
           color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-          cmap = None, flagLegend=False, title = None, axs = None, figsize = None, end_plot=False, **plot_args):
+          cmap = None, flagLegend=False, 
+          title = None, axs = None, figsize = None, end_plot=False, **plot_args):
     """Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
     
     Parameters
@@ -442,7 +443,8 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
     """
     axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, 
                  color0=color0, linestyle0=linestyle0, hmax=hmax, gmax=gmax, cmap=cmap, 
-                 flagLegend=flagLegend, title=title, axs=axs, figsize=figsize, end_plot=end_plot, **plot_args)
+                 flagLegend=flagLegend, title=title, axs=axs, figsize=figsize, 
+                 end_plot=end_plot, **plot_args)
     
     return axs
 
@@ -518,13 +520,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
-    drawDecor(ax, xlabel, ylabel, title)
+    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
     
-    #ax.autoscale(True)
-    
-    if flagLegend:
-        ax.legend()
-        
     if end_plot:
         plt.show()
 
@@ -553,8 +550,7 @@ def point(db,
     cmap: Optional Color scale
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
-            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
@@ -600,7 +596,7 @@ def point(db,
         for i in range(len(labval)):
             ax.text(tabx[i], taby[i], round(labval[i],2))
             
-    ax.set_aspect(aspect)
+    drawDecor(ax, title=title, aspect=aspect)
         
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
@@ -610,9 +606,6 @@ def point(db,
         # labels is the inverse transformation from marker sizes to variable values
         ax.legend(*im.legend_elements("sizes", num=5, color=cmap, func=labels))
          
-    if title is not None:
-        ax.set_title(title)
-    
     if end_plot:
         plt.show()
 
@@ -624,7 +617,8 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
     '''Function to display a polygon
     
-    **fill_args: arguments passed to ax.fill'''
+    **fill_args: arguments passed to ax.fill
+    '''
     
     if ax is None:
         fig, ax = newFigure(figsize)
@@ -648,13 +642,10 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
             if colorPerSet:
                 edgeColor_local = cols(ipol)
 
-        ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local, 
-                 linewidth=linewidth, **fill_args)
+        ax.fill(x, y, facecolor=faceColor_local, edgecolor=edgeColor_local,
+                linewidth=linewidth, **fill_args)
         
-    ax.set_aspect(aspect)
-    
-    if title is not None:
-        ax.set_title(title)
+    drawDecor(ax, title=title, aspect=aspect)
         
     if end_plot:
         plt.show()
@@ -662,8 +653,10 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
     return ax
         
 def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
-         xlim=None, ylim=None, posx=0, posy=1, corner=None,
-         title = None, ax=None, figsize = None, end_plot=False, **plot_args):
+         xlim=None, ylim=None, posx=0, posy=1, corner=None, 
+         flagIsoLine=False, levels=[0],
+         title = None, ax=None, figsize = None, end_plot=False, 
+         **plot_args):
     '''
     Function for plotting a variable (referred by its name) informed in a DbGrid
 
@@ -671,9 +664,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     name: Name of the variable to be represented (by default, the first Z locator, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' fits the data to the figure size,
-            or a float giving the ratio height/width of a 1 unit square of data. 'equal' (default) is 
-            same as aspect=1 and makes x and y axis with the same scale
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     title: Title given to the plot
@@ -683,7 +674,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
     '''
-    # define some default values (add them to plot_args if not already set)
     clip_on = plot_args.setdefault('clip_on', True)
     shading = plot_args.setdefault('shading', 'nearest')
     
@@ -726,23 +716,24 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
               " or 'flat' for cells with low-left corner in (x,y)")
 
     im = ax.pcolormesh(X, Y, data, **plot_args)
-    
-    ax.set_aspect(aspect)
     im.set_transform(trans_data)
     
+    if flagIsoLine:
+        ax.contour(X, Y, data, levels)
+        
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
             transform=trans_data)
     
     update_xylim(ax, xlim=xlim, ylim=ylim) 
     
+    if title is None:
+        title = dbgrid.getNames(name)[0]
+        
     if flagColorBar:
         addColorbar(im, ax)
     
-    if title is not None:
-        ax.set_title(title)
-    else:
-        ax.set_title(dbgrid.getNames(name)[0])
+    drawDecor(ax, title=title, aspect=aspect)
     
     if end_plot:
         plt.show()
@@ -754,9 +745,8 @@ def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
     '''Function for plotting the histogram of an array (argument 'val')
     
-    hist_args : arguments passed to matplotlib.pyplot.hist'''
-    
-    # define some default values (add them to hist_args if not already set)
+    hist_args : arguments passed to matplotlib.pyplot.hist
+    '''
     color     = hist_args.setdefault("color", color)
     edgecolor = hist_args.setdefault("edgecolor", edgecolor)
     bins      = hist_args.setdefault("bins", nbins)
@@ -801,13 +791,12 @@ def curve(data, icas=1, color='black',flagLegend=False, label='curve',
         icas=2 when 'data' contains the ordinate and abscissa are regular
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
-    
-    if len(data) == 0:
-        return None
-    
     color = plot_args.setdefault('color', color)
     label = plot_args.setdefault('label', label)
     
+    if len(data) == 0:
+        return None
+
     if ax is None:
         fig, ax = newFigure(figsize)
     
@@ -823,11 +812,8 @@ def curve(data, icas=1, color='black',flagLegend=False, label='curve',
         else:
             ax.plot(regular, data, **plot_args)
     
-    drawDecor(ax, title=title)
+    drawDecor(ax, title=title, flagLegend=flagLegend)
     
-    if flagLegend:
-        ax.legend()
-        
     if end_plot:
         plt.show()
         
@@ -840,12 +826,11 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
     stored in 'data'.
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
-    
-    if len(data) == 0:
-        return None
-    
     color = plot_args.setdefault('color', color)
     label = plot_args.setdefault('label', label)
+        
+    if len(data) == 0:
+        return None
     
     if ax is None:
         fig, ax = newFigure(figsize)
@@ -855,11 +840,8 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
     for iseg in range(nseg):
         ax.plot([center[0],data[0][iseg]], [center[1],data[1][iseg]], **plot_args)
     
-    drawDecor(ax, title=title)
+    drawDecor(ax, title=title, flagLegend=flagLegend)
     
-    if flagLegend:
-        ax.legend()
-        
     if end_plot:
         plt.show()
         
@@ -869,27 +851,24 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
        color='blue', marker='o', markersize=10, linestyle='-',
        title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
     
-    if not len(ytab) == len(xtab):
-        print("Arrays 'xtab' and 'ytab' should have same dimensions")
-        return None;
-    
-    if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)
-    
+    plot_args.setdefault('label', label)
+    plot_args.setdefault('color', color)
     if flagAsPoint:
         plot_args.setdefault('markersize', markersize)
         plot_args.setdefault('marker', marker)
     else:
         plot_args.setdefault('linestyle',linestyle)
 
-    plot_args.setdefault('label', label)
-    plot_args.setdefault('color', color)
+    if not len(ytab) == len(xtab):
+        print("Arrays 'xtab' and 'ytab' should have same dimensions")
+        return None;
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+
     ax.plot(xtab, ytab, **plot_args)
             
-    drawDecor(ax, title=title)
-    
-    if flagLegend:
-        ax.legend()
+    drawDecor(ax, title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -907,11 +886,7 @@ def sample(sample, xlim=None, ylim=None, aspect='equal',
     ax.plot(sample[0], sample[1], marker=marker, markersize=markersize, color=color,
             label=label, **plot_args)
             
-    ax.set_aspect(aspect)
-    drawDecor(ax, title=title)
-    
-    if flagLegend:
-        ax.legend()
+    drawDecor(ax, title=title, aspect=aspect, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -951,6 +926,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
         fmt designates [marker][line][color] information
     **plot_args
     '''
+    plot_args.setdefault('label', label)
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
@@ -965,15 +941,11 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     data = np.stack((np.array(datax), np.array(datay)))
     data[data == gl.getTEST()] = np.nan
     data = data[:, ~np.isnan(data).any(axis=0)]
-    
-    plot_args.setdefault('label', label)
+
     ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 
             **plot_args)
     
-    drawDecor(ax, title=title)
-    
-    if flagLegend:
-        ax.legend()
+    drawDecor(ax, title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -987,12 +959,6 @@ def mesh(mesh,
     """
     **plot_args : arguments passed to matplotlib.pyplot.fill
     """
-    
-    if ax is None:
-        fig, ax = newFigure(figsize, xlim, ylim)   
-
-    nmesh = mesh.getNMeshes()
-            
     if flagFace:
         plot_args.setdefault('facecolor', facecolor)
     else:
@@ -1002,6 +968,11 @@ def mesh(mesh,
         plot_args.setdefault('edgecolor', edgecolor) 
         plot_args.setdefault('linewidth', linewidth)
 
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)   
+
+    nmesh = mesh.getNMeshes()
+            
     for imesh in range(nmesh):
         tabx = mesh.getCoordinatesPerMesh(imesh, 0, True)
         taby = mesh.getCoordinatesPerMesh(imesh, 1, True)
@@ -1009,8 +980,7 @@ def mesh(mesh,
         if flagApex:
             ax.scatter(tabx, taby, color='black')
 
-    drawDecor(ax, title=title)
-    ax.set_aspect(aspect)
+    drawDecor(ax, title=title, aspect=aspect)
     
     if end_plot:
         plt.show()
@@ -1183,9 +1153,7 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal'
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' fits the data to the figure size,
-            or a float giving the ratio height/width of a 1 unit square of data. 'equal' (default) is 
-            same as aspect=1 and makes x and y axis with the same scale
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
     norm: Optional norm. It can be either an instance of matplotlib.colors.Normalize when using a unique norm for 
           all variables (e.g. matplotlib.colors.LogNorm()), or a class of matplotlib.colors.Normalize when using 
           a type of normalization scaled independently for each variable (e.g. matplotlib.colors.LogNorm). 
@@ -1209,8 +1177,9 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal'
     
     Nplots = len(names)
     if Nplots == 1:
-        ax = grid(dbgrid, name=names[0], usesel=usesel, flagColorBar=flagColorBar, aspect=aspect, xlim=xlim, ylim=ylim, 
-                 title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
+        ax = grid(dbgrid, names[0], usesel=usesel, flagColorBar=flagColorBar, 
+                  aspect=aspect, xlim=xlim, ylim=ylim, 
+                  title=title, ax=axs, figsize=figsize, end_plot=end_plot, **plot_args)
         return ax
     elif Nplots == 0:
         print("There is no variable in the dbgrid corresponding to the name given.")
@@ -1235,8 +1204,8 @@ def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal'
             else: # a unique norm for all subplots
                 norm_i = norm
             
-        grid(dbgrid, name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
-                 xlim=xlim, ylim=ylim, norm=norm_i, **plot_args)
+        grid(dbgrid, names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, 
+             aspect=aspect, xlim=xlim, ylim=ylim, norm=norm_i, **plot_args)
     if end_plot:
         plt.show()
         
@@ -1253,8 +1222,7 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
-            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
+    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale.
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     size: Size of the data points (default 20)
@@ -1298,8 +1266,9 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto
                 ax.set_visible(False)
                 continue;
             
-            point(db, color_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
-                     cmap=cmap, size=size, xlim=xlim, ylim=ylim, title=names[i], **plot_args)
+            point(db, color_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar,
+                  aspect=aspect, cmap=cmap, size=size, xlim=xlim, ylim=ylim, 
+                  title=names[i], **plot_args)
             
         if end_plot:
             plt.show()
@@ -1317,8 +1286,7 @@ def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='equal
     names: Name of the variables to be represented (by default all the Z locators, or the last field)
     usesel : Boolean to indicate if the selection has to be considered
     flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
-    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale. 'auto' (default) fits the data to the figure size,
-            or a float giving the ratio height/width of a 1 unit square of data. 'equal' is same as aspect=1.
+    aspect: Aspect ratio of the axes scaling, i.e. y/x-scale.
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     color: Color of data points
@@ -1363,8 +1331,9 @@ def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='equal
                 ax.set_visible(False)
                 continue;
             
-            point(db, size_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, aspect=aspect,
-                     sizmin=sizmin, sizmax=sizmax, color=color, xlim=xlim, ylim=ylim, title=names[i], **plot_args)
+            point(db, size_name=names[i], ax=ax, usesel=usesel, flagColorBar=flagColorBar, 
+                  aspect=aspect, sizmin=sizmin, sizmax=sizmax, color=color, 
+                  xlim=xlim, ylim=ylim, title=names[i], **plot_args)
             
         if end_plot:
             plt.show()

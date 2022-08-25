@@ -1156,7 +1156,9 @@ MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
 
 /**
  * Returns the Euler angles, starting from a rotation matrix
- * @param mat Input matrix
+ * @param M Input matrix
+ * @param hyp Rotation convention
+ * @param eps Tolerance
  * @return
  *
  * @remark The code is coming from the following reference (BSD license)
