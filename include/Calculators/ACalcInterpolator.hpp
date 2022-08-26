@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ACalcDbToDb.hpp"
-
+#include "Calculators/ACalcDbToDb.hpp"
+#include "Calculators/ACalculator.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Basic/NamingConvention.hpp"

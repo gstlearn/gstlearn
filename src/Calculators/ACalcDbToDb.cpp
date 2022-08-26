@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Calculators/CalcMigrate.hpp"
+
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -355,25 +355,25 @@ DbGrid* ACalcDbToDb::getGridout() const
  *****************************************************************************/
 int ACalcDbToDb::_expandInformation(int mode, const ELoc &locatorType)
 {
-  if (_dbin == nullptr || _dbout == nullptr) return 0;
-  int nechin = _dbin->getSampleNumber();
+  if (getDbin() == nullptr || getDbout() == nullptr) return 0;
+  int nechin = getDbin()->getSampleNumber();
   int ninfo;
-  if (_dbout->isGrid() && locatorType == ELoc::X)
-    ninfo = _dbout->getNDim();
+  if (getDbout()->isGrid() && locatorType == ELoc::X)
+    ninfo = getDbout()->getNDim();
   else
-    ninfo = _dbout->getFromLocatorNumber(locatorType);
+    ninfo = getDbout()->getFromLocatorNumber(locatorType);
   if (ninfo <= 0) return 0;
 
   /* Case when the Output Db is not a grid */
 
-  if (! _dbout->isGrid())
+  if (! getDbout()->isGrid())
   {
-    if (_dbin->getFromLocatorNumber(locatorType) == ninfo) return 0;
+    if (getDbin()->getFromLocatorNumber(locatorType) == ninfo) return 0;
     messerr("The Output Db is not a Grid file");
     messerr("The Input Db does not contain the correct number of External Drifts");
     return 1;
   }
-  DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
 
   /* Dispatch */
 
@@ -381,12 +381,15 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc &locatorType)
   {
     VectorDouble tab(nechin, 0.);
     VectorInt iatts = dbgrid->getUIDsByLocator(locatorType);
-    _storeInVariableList(1, 2, iatts);
-    if (migrateByAttribute(dbgrid, _dbin, iatts)) return 1;
+    if (! iatts.empty())
+    {
+      _storeInVariableList(1, 2, iatts);
+      if (migrateByAttribute(dbgrid, getDbin(), iatts)) return 1;
+    }
   }
   else
   {
-    _dbin->deleteColumnsByLocator(locatorType);
+    getDbin()->deleteColumnsByLocator(locatorType);
   }
   return 0;
 }

@@ -9,6 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
@@ -163,7 +164,7 @@ bool CalcImage::_run()
   if (_flagSmooth)
   {
     NeighImage* neighI = dynamic_cast<NeighImage*>(getNeighparam());
-    image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
+    _image_smoother(dbgrid, neighI, _smoothType, _smoothRange, _iattOut);
   }
 
   return true;

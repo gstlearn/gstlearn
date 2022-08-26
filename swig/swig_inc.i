@@ -81,9 +81,10 @@
 #include "Skin/Skin.hpp"
 
 #include "Calculators/ACalculator.hpp"
-#include "Calculators/ACalcDbToDb.hpp"
-#include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/ACalcDbVarCreator.hpp"
+#include "Calculators/ACalcDbToDb.hpp"
+#include "Calculators/CalcMigrate.hpp"
+#include "Calculators/ACalcInterpolator.hpp"
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/CalcGridToGrid.hpp"
 

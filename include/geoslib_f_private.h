@@ -25,6 +25,8 @@ class Rule;
 class VarioParam;
 class AAnam;
 class Selectivity;
+class DbGrid;
+class NeighImage;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -82,6 +84,11 @@ int _krigsim(Db* dbin,
              int nbsimu,
              bool flag_dgm,
              double r_coeff);
+void _image_smoother(DbGrid *dbgrid,
+                     NeighImage *neigh,
+                     int type,
+                     double range,
+                     int iptr0);
 
 /***************************************/
 /* Prototyping the functions in spde.c */
@@ -143,6 +150,16 @@ int _db_category(Db *db,
                  const VectorBool &incmini = VectorBool(),
                  const VectorBool &incmaxi = VectorBool(),
                  const NamingConvention& namconv = NamingConvention("Category"));
+int _migrate(Db *db1,
+             Db *db2,
+             int iatt1,
+             int iatt2,
+             int ldmax,
+             const VectorDouble &dmax,
+             int flag_fill,
+             int flag_inter);
+
+
 
 /***************************************/
 /* Prototyping the functions in anam.c */

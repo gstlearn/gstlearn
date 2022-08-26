@@ -180,6 +180,5 @@ int main(int /*argc*/, char */*argv*/[])
   
   if (flag_3) st_test_3();
   
-label_end:
   return(0);
 }

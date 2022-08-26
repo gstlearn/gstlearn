@@ -277,30 +277,6 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
 /* High-level Interface Functions */
 /**********************************/
 
-GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
-                                       Db *db2,
-                                       const VectorInt &iatts = VectorInt(),
-                                       int ldmax = 0,
-                                       const VectorDouble &dmax = VectorDouble(),
-                                       int flag_fill = false,
-                                       int flag_inter = false,
-                                       const NamingConvention& namconv = NamingConvention("Migrate"));
-GSTLEARN_EXPORT int migrate(Db *db1,
-                            Db *db2,
-                            const String &name,
-                            int ldmax = 0,
-                            const VectorDouble &dmax = VectorDouble(),
-                            int flag_fill = 0,
-                            int flag_inter = 0,
-                            const NamingConvention& namconv = NamingConvention("Migrate"));
-GSTLEARN_EXPORT int migrateByLocator(Db *db1,
-                                     Db *db2,
-                                     const ELoc &locatorType,
-                                     int ldmax = 0,
-                                     const VectorDouble &dmax = VectorDouble(),
-                                     int flag_fill = false,
-                                     int flag_inter = false,
-                                     const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                bool verbose = false,
@@ -337,11 +313,6 @@ GSTLEARN_EXPORT Global_Res global_arithmetic(Db *dbin,
                                              Model *model,
                                              int ivar0 = 0,
                                              bool flag_verbose = false);
-GSTLEARN_EXPORT void image_smoother(DbGrid *dbgrid,
-                                    NeighImage *neigh,
-                                    int type,
-                                    double range,
-                                    int iptr0);
 GSTLEARN_EXPORT int krigsum(Db *dbin,
                             Db *dbout,
                             Model *model,

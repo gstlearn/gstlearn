@@ -12,7 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Calculators/ACalcDbToDb.hpp"
+#include "ACalcDbToDb.hpp"
+
 #include "Db/DbGrid.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/Vector.hpp"

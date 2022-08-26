@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
@@ -30,6 +29,7 @@
 #include "Basic/GlobalEnvironment.hpp"
 #include "Stats/Classical.hpp"
 #include "Estimation/CalcImage.hpp"
+#include "Calculators/CalcMigrate.hpp"
 
 #include <algorithm>
 #include <functional>

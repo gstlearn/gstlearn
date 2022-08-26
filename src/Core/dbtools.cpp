@@ -2948,7 +2948,7 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
 
 /*****************************************************************************/
 /*!
- **  Migrates the samples of a Db to the center of blocks of a grid Db
+ **  Centers the samples of a Db to the center of blocks of a grid Db
  **
  ** \return  Error return code
  **
@@ -2958,7 +2958,7 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
  **
  ** \remark The argument 'eps_random' allows perturbating the centered
  ** \remark coordinate so that it does not lie exactly on the node.
- ** \remark This possibility makes sense in order to identify migrated data
+ ** \remark This possibility makes sense in order to identify centered data
  ** \remark from data actually located on the grid center (before migration)
  ** \remark The perturbation is calculated as DX(i) * eps
  **
@@ -2993,7 +2993,7 @@ int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
     int rank = db_grid->coordinateToRank(coor);
     db_grid->rankToCoordinateInPlace(rank, coor);
 
-    /* Randomize the migrated center */
+    /* Randomize the processed center */
 
     if (eps_random > 0)
       for (int idim = 0; idim < ndim; idim++)
@@ -3220,7 +3220,7 @@ static int st_get_closest_sample(Db *dbgrid,
 
 /*****************************************************************************/
 /*!
- **  Migrate a variable from the point structure
+ **  Expands a variable from the point structure
  **  into a variable in the grid structure
  **
  ** \return  Error return code
@@ -6146,14 +6146,14 @@ int db_grid1D_fill(DbGrid *dbgrid,
  ** \param[in]  flag_inter Interpolation
  **
  *****************************************************************************/
-static int st_migrate(Db *db1,
-                      Db *db2,
-                      int iatt1,
-                      int iatt2,
-                      int ldmax,
-                      const VectorDouble &dmax,
-                      int flag_fill,
-                      int flag_inter)
+int _migrate(Db *db1,
+             Db *db2,
+             int iatt1,
+             int iatt2,
+             int ldmax,
+             const VectorDouble &dmax,
+             int flag_fill,
+             int flag_inter)
 {
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
@@ -6223,157 +6223,6 @@ static int st_migrate(Db *db1,
   // Store the resulting array in the output Db
 
   db2->setColumnByUID(tab, iatt2);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Migrates a variable from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
- ** \param[in]  atts_arg   Array of attributes to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
- **                        1 for L1 and 2 for L2 distance
- ** \param[in]  dmax       Array of maximum distances (optional)
- ** \param[in]  flag_fill  Filling option
- ** \param[in]  flag_inter Interpolation
- ** \param[in]  namconv    Naming Convention
- **
- *****************************************************************************/
-int migrateByAttribute(Db *db1,
-                       Db *db2,
-                       const VectorInt &atts_arg,
-                       int ldmax,
-                       const VectorDouble &dmax,
-                       int flag_fill,
-                       int flag_inter,
-                       const NamingConvention &namconv)
-{
-  // CDesignate the input variables
-
-  VectorInt atts = atts_arg;
-  int ncol = static_cast<int>(atts.size());
-  if (atts.empty())
-  {
-    atts = db1->getAllUIDs();
-    ncol = static_cast<int>(atts.size());
-  }
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(ncol, TEST);
-
-  // Loop on the different variables obtained by various migrations
-
-  for (int i = 0; i < ncol; i++)
-  {
-    int iatt1 = atts[i];
-    int iatt2 = iatt0 + i;
-    if (st_migrate(db1, db2, iatt1, iatt2, ldmax, dmax, flag_fill, flag_inter))
-      return 1;
-  }
-
-  // Set the output variable names and locators
-  namconv.setNamesAndLocators(db1, atts, db2, iatt0);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Migrates a variable from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
- ** \param[in]  name       Name of the attribute to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
- **                        1 for L1 and 2 for L2 distance
- ** \param[in]  dmax       Array of maximum distances (optional)
- ** \param[in]  flag_fill  Filling option
- ** \param[in]  flag_inter Interpolation
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int migrate(Db *db1,
-            Db *db2,
-            const String &name,
-            int ldmax,
-            const VectorDouble &dmax,
-            int flag_fill,
-            int flag_inter,
-            const NamingConvention &namconv)
-{
-  int iatt = db1->getUID(name);
-  if (iatt < 0) return 1;
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(1, TEST);
-
-  // Perform the migration
-
-  if (st_migrate(db1, db2, iatt, iatt0, ldmax, dmax, flag_fill, flag_inter))
-    return 1;
-
-  // Set the output variable names and locators
-
-  namconv.setNamesAndLocators(name, db2, iatt0);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Migrates all z-locator variables from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1         Descriptor of the input Db
- ** \param[in]  db2         Descriptor of the output Db
- ** \param[in]  locatorType Locator Type
- ** \param[in]  ldmax       Type of distance for calculating maximum distance
- **                         1 for L1 and 2 for L2 distance
- ** \param[in]  dmax        Array of maximum distances (optional)
- ** \param[in]  flag_fill   Filling option
- ** \param[in]  flag_inter  Interpolation
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int migrateByLocator(Db *db1,
-                     Db *db2,
-                     const ELoc &locatorType,
-                     int ldmax,
-                     const VectorDouble &dmax,
-                     int flag_fill,
-                     int flag_inter,
-                     const NamingConvention &namconv)
-{
-  NamingConvention nc(namconv);
-
-  VectorString names = db1->getNamesByLocator(locatorType);
-  int natt = static_cast<int>(names.size());
-  if (natt <= 0) return 0;
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(natt, TEST);
-
-  // Loop on the different variables obtained by various migrations
-
-  for (int i = 0; i < natt; i++)
-  {
-    int iatt1 = db1->getUID(names[i]);
-    int iatt2 = iatt0 + i;
-    if (st_migrate(db1, db2, iatt1, iatt2, ldmax, dmax, flag_fill, flag_inter))
-      return 1;
-  }
-
-  // Set the output variable names and locators
-  nc.setLocatorOutType(locatorType);
-  nc.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
   return 0;
 }
 

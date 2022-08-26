@@ -5989,11 +5989,11 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
 ** \remarks Limited to the monovariate case
 **
 *****************************************************************************/
-void image_smoother(DbGrid *dbgrid,
-                    NeighImage *neigh,
-                    int type,
-                    double range,
-                    int iptr0)
+void _image_smoother(DbGrid *dbgrid,
+                     NeighImage *neigh,
+                     int type,
+                     double range,
+                     int iptr0)
 {
   int ndim   = dbgrid->getNDim();
   double r2  = (type == 1) ? 1. : range * range;

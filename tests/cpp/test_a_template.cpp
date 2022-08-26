@@ -12,6 +12,10 @@
 #include "Basic/File.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
+#include "Variogram/DirParam.hpp"
+#include "Variogram/VarioParam.hpp"
+#include "Variogram/Vario.hpp"
+#include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
@@ -29,21 +33,27 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
-  double dzoverdx = 0.5;
-  double dzoverdy = 0.2;
-  message("Gradients = %lf %lf\n", dzoverdx, dzoverdy);
+  int ndim = 1;
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
 
-  MatrixSquareGeneral rotmat = util_gradXYToRotmat(dzoverdx, dzoverdy);
-  rotmat.display();
+  int num_steps=16;
+  Db* mydb_real = new Db();
+  VectorDouble xvec = ut_vector_sequence(1., num_steps, 1.);
+  mydb_real->addColumns(xvec, "x", ELoc::X);
+  VectorDouble zvec = {0.77745871, 0.77786762, 0.80903279, 0.80464491, 0.73316259, 0.73454369, 0.83387421, 0.74832878, 0.65179765, 0.65792214, 0.6767367, 0.68796146, 0.69657135, 0.62711037, 0.55293927, 0.50427098};
+  mydb_real->addColumns(zvec, "z", ELoc::Z);
+  mydb_real->display();
 
-  VectorDouble angles = util_rotmatToEuler(rotmat);
-  ut_vector_display("angles",angles);
+  DirParam* mydir = new DirParam(1,20,1);
+  VarioParam* myVarioParamOmni = new VarioParam();
+  myVarioParamOmni->addDir(*mydir);
+  Vario* myVarioOmni = Vario::create(myVarioParamOmni,mydb_real);
+  myVarioOmni->compute(ECalcVario::VARIOGRAM);
+  myVarioOmni->display();
+  Model* mymodel = Model::createFromDb(mydb_real);
 
-  MatrixSquareGeneral rotmat2 = util_EulerToRotmat(angles);
-  rotmat2.display();
-
-  double diff = rotmat.compare(rotmat2);
-  message("\nDifference between two rotation matrices = %lg\n",diff);
+  (void) mymodel->fit(myVarioOmni,{ECov::EXPONENTIAL});
+  mymodel->display();
 
   return (0);
 }

@@ -60,8 +60,8 @@ protected:
                        int count,
                        bool flagSetLocator = true);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
-  void _cleanVariableDb(int status);
   int  _expandInformation(int mode, const ELoc &locatorType);
+  void _cleanVariableDb(int status);
   Db*  _whichDb(int whichDb);
 
 private:

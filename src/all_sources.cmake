@@ -53,6 +53,7 @@ set(SRC
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
   Calculators/ACalcDbToDb.cpp
+  Calculators/CalcMigrate.cpp
   Calculators/ACalcInterpolator.cpp
   Calculators/ACalcDbVarCreator.cpp
   Calculators/CalcStatistics.cpp

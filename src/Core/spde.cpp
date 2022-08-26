@@ -29,6 +29,7 @@
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
 #include "Geometry/Geometry.hpp"
+#include "Calculators/CalcMigrate.hpp"
 
 #include "csparse_f.h"
 #include "csparse_d.h"
