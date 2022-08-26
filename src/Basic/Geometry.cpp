@@ -13,6 +13,45 @@
 
 #define ROT(i,j)     (rot[(i) * ndim + (j)])
 
+static void _decodeConvRot(const ERotation &convrot,
+                           int *firstaxis,
+                           int *parity,
+                           int *repetition,
+                           int *frame)
+{
+  VectorInt ret(4);
+
+  if (convrot == ERotation::SXYZ) ret = {0, 0, 0, 0};
+  if (convrot == ERotation::SXYX) ret = {0, 0, 1, 0};
+  if (convrot == ERotation::SXZY) ret = {0, 1, 0, 0};
+  if (convrot == ERotation::SXZX) ret = {0, 1, 1, 0};
+  if (convrot == ERotation::SYZX) ret = {1, 0, 0, 0};
+  if (convrot == ERotation::SYZY) ret = {1, 0, 1, 0};
+  if (convrot == ERotation::SYXZ) ret = {1, 1, 0, 0};
+  if (convrot == ERotation::SYXY) ret = {1, 1, 1, 0};
+  if (convrot == ERotation::SZXY) ret = {2, 0, 0, 0};
+  if (convrot == ERotation::SZXZ) ret = {2, 0, 1, 0};
+  if (convrot == ERotation::SZYX) ret = {2, 1, 0, 0};
+  if (convrot == ERotation::SZYZ) ret = {2, 1, 1, 0};
+  if (convrot == ERotation::RZYX) ret = {0, 0, 0, 1};
+  if (convrot == ERotation::RXYX) ret = {0, 0, 1, 1};
+  if (convrot == ERotation::RYZX) ret = {0, 1, 0, 1};
+  if (convrot == ERotation::RXZX) ret = {0, 1, 1, 1};
+  if (convrot == ERotation::RXZY) ret = {1, 0, 0, 1};
+  if (convrot == ERotation::RYZY) ret = {1, 0, 1, 1};
+  if (convrot == ERotation::RZXY) ret = {1, 1, 0, 1};
+  if (convrot == ERotation::RYXY) ret = {1, 1, 1, 1};
+  if (convrot == ERotation::RYXZ) ret = {2, 0, 0, 1};
+  if (convrot == ERotation::RZXZ) ret = {2, 0, 1, 1};
+  if (convrot == ERotation::RXYZ) ret = {2, 1, 0, 1};
+  if (convrot == ERotation::RZYZ) ret = {2, 1, 1, 1};
+
+  *firstaxis  = ret[0];
+  *parity     = ret[1];
+  *repetition = ret[2];
+  *frame      = ret[3];
+}
+
 /****************************************************************************/
 /*!
  **  Calculates the trigonometric features
@@ -1099,12 +1138,12 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
 }
 
 /**
- * Calculate the rotation axis to translate the gradients of a tilted plane
- * (defined by the partial derivatives along X and Y) into the axis of the normal
+ * Calculate the rotation matrix starting from the partial derivatives along X and Y
+ * of a tilted plane
  * @param dzoverdx Partial derivative along X
  * @param dzoverdy Partial derivative along Y
  */
-VectorDouble util_rotation_gradXYToAxes(double dzoverdx, double dzoverdy)
+MatrixSquareGeneral util_gradXYToRotmat(double dzoverdx, double dzoverdy)
 {
   int ndim = 3;
   VectorDouble axis(ndim,0.);
@@ -1128,19 +1167,16 @@ VectorDouble util_rotation_gradXYToAxes(double dzoverdx, double dzoverdy)
 
   // Norm of the cross product and dot product between ref and vort
   double normcross = sqrt(ut_vector_inner_product(axis, axis));
+  double dot = ut_vector_inner_product(vert, vort);
 
   // Rotation axis (normalized
   for (int idim = 0; idim < ndim; idim++) axis[idim] /= normcross;
-  return axis;
-}
 
-MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
-                                                       double angle)
-{
-  int ndim = 3;
-
+  // Rotation angle
+  double angle = atan2(normcross, dot);
   double c = cos(angle);
   double s = sin(angle);
+
   MatrixSquareGeneral M(ndim);
   M.setValue(0, 0, axis[0] * axis[0] * (1 - c) + c);
   M.setValue(0, 1, axis[0] * axis[1] * (1 - c) - axis[2] * s);
@@ -1157,7 +1193,7 @@ MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
 /**
  * Returns the Euler angles, starting from a rotation matrix
  * @param M Input matrix
- * @param hyp Rotation convention
+ * @param convrot Rotation convention
  * @param eps Tolerance
  * @return
  *
@@ -1165,15 +1201,11 @@ MatrixSquareGeneral util_rotation_AxesAndAngleToMatrix(const VectorDouble &axis,
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
 VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
-                                const VectorInt &hyp,
+                                const ERotation &convrot,
                                 double eps)
 {
-  VectorInt hyp_local = hyp;
-  hyp_local.resize(4, 0);
-  int firstaxis  = hyp_local[0];
-  int parity     = hyp_local[0];
-  int repetition = hyp_local[0];
-  int frame      = hyp_local[0];
+  int firstaxis, parity, repetition, frame;
+  _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
 
   VectorInt next_axis = {1, 2, 0, 1};
   int i = firstaxis;
@@ -1233,14 +1265,10 @@ VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
 }
 
 MatrixSquareGeneral util_EulerToRotmat(const VectorDouble &angles,
-                                       const VectorInt &hyp)
+                                       const ERotation& convrot)
 {
-  VectorInt hyp_local = hyp;
-  hyp_local.resize(4, 0);
-  int firstaxis  = hyp_local[0];
-  int parity     = hyp_local[0];
-  int repetition = hyp_local[0];
-  int frame      = hyp_local[0];
+  int firstaxis, parity, repetition, frame;
+  _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
 
   VectorInt next_axis = {1, 2, 0, 1};
   int i = firstaxis;
@@ -1279,58 +1307,28 @@ MatrixSquareGeneral util_EulerToRotmat(const VectorDouble &angles,
 
   if (repetition)
   {
-    M.setValue(i, i, cj);
-    M.setValue(i, j, sj * si);
-    M.setValue(i, k, sj * ci);
-    M.setValue(j, i, sj * sk);
+    M.setValue(i, i,  cj);
+    M.setValue(i, j,  sj * si);
+    M.setValue(i, k,  sj * ci);
+    M.setValue(j, i,  sj * sk);
     M.setValue(j, j, -cj * ss + cc);
     M.setValue(j, k, -cj * cs - sc);
     M.setValue(k, i, -sj * ck);
-    M.setValue(k, j, cj * sc + cs);
-    M.setValue(k, k, cj * cc - ss);
+    M.setValue(k, j,  cj * sc + cs);
+    M.setValue(k, k,  cj * cc - ss);
   }
   else
   {
-    M.setValue(i, i, cj * ck);
-    M.setValue(i, j, sj * sc - cs);
-    M.setValue(i, k, sj * cc + ss);
-    M.setValue(j, i, cj * sk);
-    M.setValue(j, j, sj * ss + cc);
-    M.setValue(j, k, sj * cs - sc);
+    M.setValue(i, i,  cj * ck);
+    M.setValue(i, j,  sj * sc - cs);
+    M.setValue(i, k,  sj * cc + ss);
+    M.setValue(j, i,  cj * sk);
+    M.setValue(j, j,  sj * ss + cc);
+    M.setValue(j, k,  sj * cs - sc);
     M.setValue(k, i, -sj);
-    M.setValue(k, j, cj * si);
-    M.setValue(k, k, cj * ci);
+    M.setValue(k, j,  cj * si);
+    M.setValue(k, k,  cj * ci);
   }
   return M;
 }
 
-VectorInt util_Convention(const String& conv)
-{
-  VectorInt ret(4);
-
-  if (conv == "sxyz") ret = {0, 0, 0, 0};
-  if (conv == "sxyx") ret = {0, 0, 1, 0};
-  if (conv == "sxzy") ret = {0, 1, 0, 0};
-  if (conv == "sxzx") ret = {0, 1, 1, 0};
-  if (conv == "syzx") ret = {1, 0, 0, 0};
-  if (conv == "syzy") ret = {1, 0, 1, 0};
-  if (conv == "syxz") ret = {1, 1, 0, 0};
-  if (conv == "syxy") ret = {1, 1, 1, 0};
-  if (conv == "szxy") ret = {2, 0, 0, 0};
-  if (conv == "szxz") ret = {2, 0, 1, 0};
-  if (conv == "szyx") ret = {2, 1, 0, 0};
-  if (conv == "szyz") ret = {2, 1, 1, 0};
-  if (conv == "rzyx") ret = {0, 0, 0, 1};
-  if (conv == "rxyx") ret = {0, 0, 1, 1};
-  if (conv == "ryzx") ret = {0, 1, 0, 1};
-  if (conv == "rxzx") ret = {0, 1, 1, 1};
-  if (conv == "rxzy") ret = {1, 0, 0, 1};
-  if (conv == "ryzy") ret = {1, 0, 1, 1};
-  if (conv == "rzxy") ret = {1, 1, 0, 1};
-  if (conv == "ryxy") ret = {1, 1, 1, 1};
-  if (conv == "ryxz") ret = {2, 0, 0, 1};
-  if (conv == "rzxz") ret = {2, 0, 1, 1};
-  if (conv == "rxyz") ret = {2, 1, 0, 1};
-  if (conv == "rzyz") ret = {2, 1, 1, 1};
-  return ret;
-}

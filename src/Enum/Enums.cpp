@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "Basic/ECst.hpp"
 #include "Basic/EDbg.hpp"
+#include "Basic/ERotation.hpp"
 #include "Space/ESpaceType.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoc.hpp"
@@ -65,3 +66,4 @@ ENUM_DEFINE(ENUM_STATOPTION)
 ENUM_DEFINE(ENUM_SELECTIVITY)
 ENUM_DEFINE(ENUM_SPACETYPE)
 ENUM_DEFINE(ENUM_MORPHO)
+ENUM_DEFINE(ENUM_ROTATION)
