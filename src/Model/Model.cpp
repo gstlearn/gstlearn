@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
+
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
@@ -17,7 +21,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Geometry.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMGradient.hpp"
@@ -33,9 +36,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 

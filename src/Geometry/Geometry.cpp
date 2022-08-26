@@ -4,10 +4,11 @@
  *  Created on: 22 juil. 2021
  *      Author: drenard
  */
-
 #include "geoslib_f.h"
+
+#include "Geometry/Geometry.hpp"
+#include "Geometry/ERotation.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Geometry.hpp"
 
 #include <math.h>
 
@@ -1263,6 +1264,16 @@ VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
   VectorDouble angles = {ax, ay, az};
   return angles;
 }
+
+/**
+ * Returns the Rotation matrix, starting from the Euler angles
+ * @param angles Ordered list of Euler angles
+ * @param convrot Rotation convention
+ * @return
+ *
+ * @remark The code is coming from the following reference (BSD license)
+ * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
+ */
 
 MatrixSquareGeneral util_EulerToRotmat(const VectorDouble &angles,
                                        const ERotation& convrot)

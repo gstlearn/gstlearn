@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Basic/ERotation.hpp"
+#include "Geometry/ERotation.hpp"
 
 GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot);
 GSTLEARN_EXPORT void ut_rotation_sincos(double angle,
@@ -110,7 +110,7 @@ GSTLEARN_EXPORT int is_in_spherical_triangle_optimized(const double *coor,
 GSTLEARN_EXPORT VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                                         const VectorDouble& latitude,
                                                         double dilate = 1.,
-                                                        double radius_arg = 1.);
+                                                        double radirotation_us_arg = 1.);
 GSTLEARN_EXPORT void util_convert_cart2sph(double x,
                                            double y,
                                            double z,

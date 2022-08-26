@@ -4,7 +4,7 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Geometry.hpp"
+#include "Geometry/Geometry.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
 : ASpace(ndim),

@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
@@ -24,10 +25,11 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Geometry.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
+#include "Geometry/Geometry.hpp"
+
 #include "csparse_f.h"
 #include "csparse_d.h"
 

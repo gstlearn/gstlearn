@@ -10,14 +10,16 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Geometry.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/Geometry.hpp"
+
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical()

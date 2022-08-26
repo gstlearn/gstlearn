@@ -217,8 +217,8 @@ set(SRC
   Basic/OptCustom.cpp
   Basic/Plane.cpp
   Basic/FFT.cpp
-  Basic/Geometry.cpp
   Basic/PolyLine2D.cpp
+  Geometry/Geometry.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp

@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+
 #include "LithoRule/Rule.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
@@ -18,10 +19,10 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <complex>
 #include <cmath>

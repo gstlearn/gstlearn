@@ -10,6 +10,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -30,11 +31,11 @@
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
+#include "Geometry/Geometry.hpp"
 #include "csparse_f.h"
 
 #include <math.h>

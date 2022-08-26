@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/ECst.hpp"
 #include "Basic/EDbg.hpp"
-#include "Basic/ERotation.hpp"
+#include "Geometry/ERotation.hpp"
 #include "Space/ESpaceType.hpp"
 #include "Neigh/ENeigh.hpp"
 #include "Db/ELoc.hpp"

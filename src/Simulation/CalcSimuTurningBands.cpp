@@ -20,10 +20,10 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 

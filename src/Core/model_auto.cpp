@@ -17,7 +17,6 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Geometry.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -29,6 +28,7 @@
 #include "Db/Db.hpp"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/EAnam.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 

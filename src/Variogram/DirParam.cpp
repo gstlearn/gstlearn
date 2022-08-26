@@ -10,11 +10,12 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Geometry.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 

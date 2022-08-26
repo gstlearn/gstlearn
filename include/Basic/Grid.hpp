@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "Basic/Rotation.hpp"
+#include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 

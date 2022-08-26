@@ -11,15 +11,16 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Geometry.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Geometry/Geometry.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
@@ -36,13 +37,7 @@ int main(int /*argc*/, char */*argv*/[])
   double dzoverdy = 0.2;
   message("Gradients = %lf %lf\n", dzoverdx, dzoverdy);
 
-  double angle = util_rotation_gradXYToAngle(dzoverdx, dzoverdy);
-  message("Rotation angle=%lf\n",angle);
-
-  VectorDouble axis = util_rotation_gradXYToAxes(dzoverdx, dzoverdy);
-  ut_vector_display("axis",axis);
-
-  MatrixSquareGeneral rotmat = util_rotation_AxesAndAngleToMatrix(axis, angle);
+  MatrixSquareGeneral rotmat = util_gradXYToRotmat(dzoverdx, dzoverdy);
   rotmat.display();
 
   VectorDouble angles = util_rotmatToEuler(rotmat);
@@ -53,8 +48,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   double diff = rotmat.compare(rotmat2);
   message("\nDifference between two rotation matrices = %lg\n",diff);
-
-  ut_ivector_display("Rotation Convention",util_Convention("sxyz"));
 
   return (0);
 }

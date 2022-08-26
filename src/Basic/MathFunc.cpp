@@ -14,12 +14,13 @@
 
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/WarningMacro.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
+
 
 DISABLE_WARNING_PUSH
 

@@ -22,7 +22,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/AStringFormat.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Rotation.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/String.hpp"
@@ -44,9 +43,11 @@
 #include "Basic/Limits.hpp"
 #include "Basic/Plane.hpp"
 #include "Basic/FFT.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/PolyLine2D.hpp"
 #include "Basic/Law.hpp"
+
+#include "Geometry/Geometry.hpp"
+#include "Geometry/Rotation.hpp"
 
 #include "Arrays/AArray.hpp"
 #include "Arrays/Array.hpp"

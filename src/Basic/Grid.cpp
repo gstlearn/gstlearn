@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "Basic/Rotation.hpp"
+#include "Geometry/Rotation.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Grid.hpp"
