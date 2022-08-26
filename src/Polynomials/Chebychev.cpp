@@ -8,14 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
 #include "Basic/Vector.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "csparse_f.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
+
 #include <math.h>
 #include <functional>
 

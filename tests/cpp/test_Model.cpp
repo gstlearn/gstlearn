@@ -1,3 +1,6 @@
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
+
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -5,15 +8,13 @@
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!

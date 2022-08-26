@@ -3,8 +3,6 @@
 #include "Basic/Tensor.hpp"
 #include "Basic/Vector.hpp"
 
-#include "geoslib_f.h"
-
 SpaceRN::SpaceRN(unsigned int ndim)
  : ASpace(ndim)
 {

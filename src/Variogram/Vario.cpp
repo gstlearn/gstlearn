@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
+#include "geoslib_f_private.h"
+
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -23,10 +27,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Space/SpacePoint.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_define.h"
-#include "geoslib_f_private.h"
 
 /**
  * Build a Vario object by calculating the experimental variogram

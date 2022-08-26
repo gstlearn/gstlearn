@@ -8,10 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Covariances/ACovFunc.hpp"
-
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
+
+#include "Covariances/ACovFunc.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/FFT.hpp"

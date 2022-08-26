@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"

@@ -9,10 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovCalcMode.hpp"
-
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
 
 CovCalcMode::CovCalcMode(const ECalcMember& member,
                          bool asVario,

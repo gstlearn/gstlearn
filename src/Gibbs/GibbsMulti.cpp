@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Gibbs/GibbsMulti.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"

@@ -8,12 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Basic/PolyLine2D.hpp>
 #include "Polygon/PolySet.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
+#include "Basic/PolyLine2D.hpp"
 
 PolySet::PolySet(const VectorDouble& x,
                  const VectorDouble& y,

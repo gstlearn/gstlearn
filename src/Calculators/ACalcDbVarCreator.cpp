@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Calculators/ACalcDbVarCreator.hpp"
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"

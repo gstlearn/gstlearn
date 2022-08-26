@@ -8,17 +8,18 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/CalcSimuFFT.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
-#include "../../include/Simulation/CalcSimuFFT.hpp"
+
 
 #define IND(ix,iy,iz) ((iz) + _dims[2] * ((iy) + _dims[1] * (ix)))
 #define U(ix,iy,iz)   (_u[IND(ix,iy,iz)])

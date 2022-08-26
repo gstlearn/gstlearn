@@ -112,7 +112,7 @@
 /*    have questions.                                                        */
 /*                                                                           */
 /*****************************************************************************/
-#include "geoslib_f.h"
+#include "Basic/AStringable.hpp"
 
 #ifdef CPU86
 #include <float.h>

@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
+#include "geoslib_enum.h"
+
 #include "Gibbs/GibbsMultiMono.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
@@ -16,10 +20,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_old_f.h"
-#include "geoslib_f.h"
-#include "geoslib_define.h"
-#include "geoslib_enum.h"
 
 #include <math.h>
 

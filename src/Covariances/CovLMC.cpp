@@ -9,12 +9,10 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovLMC.hpp"
-
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "geoslib_f.h"
 
 CovLMC::CovLMC(const ASpace* space)
     : ACovAnisoList(space)

@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Model/Tapering.hpp"
 #include "Covariances/ECov.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 #include <math.h>
 

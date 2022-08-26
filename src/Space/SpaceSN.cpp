@@ -1,7 +1,5 @@
 #include "Space/SpaceSN.hpp"
 #include "Space/SpacePoint.hpp"
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Geometry/Geometry.hpp"

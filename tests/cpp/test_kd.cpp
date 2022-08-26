@@ -9,8 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_d.h"
-#include "geoslib_f.h"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -36,11 +37,9 @@
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/CalcFactorKriging.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+#include "Calculators/CalcStatistics.hpp"
 
 #include <math.h>
-
-#include "../../include/Calculators/CalcStatistics.hpp"
-#include "../../include/Space/ESpaceType.hpp"
 
 /****************************************************************************/
 /*!

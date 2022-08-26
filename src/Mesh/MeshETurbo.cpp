@@ -8,9 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <Geometry/Rotation.hpp>
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/AMesh.hpp"
@@ -22,6 +21,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Grid.hpp"
+#include "Geometry/Rotation.hpp"
 #include "csparse_f.h"
 
 #include <math.h>

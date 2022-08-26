@@ -1,8 +1,6 @@
 #include "Space/ASpace.hpp"
 #include "Space/SpacePoint.hpp"
 
-#include "geoslib_f.h"
-
 #include <iostream>
 
 ASpace::ASpace(unsigned int ndim)

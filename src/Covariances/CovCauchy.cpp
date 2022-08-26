@@ -9,11 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovCauchy.hpp"
+#include "Covariances/CovContext.hpp"
 
 #include "math.h"
-
-#include "Covariances/CovContext.hpp"
-#include "geoslib_f.h"
 
 CovCauchy::CovCauchy(const CovContext& ctxt)
 : ACovFunc(ECov::CAUCHY, ctxt)

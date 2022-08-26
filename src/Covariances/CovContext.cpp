@@ -9,14 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovContext.hpp"
-
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/Vector.hpp"
 #include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
 
 /**
  * Create a covariances context giving the number dimensions of a predefined space RN

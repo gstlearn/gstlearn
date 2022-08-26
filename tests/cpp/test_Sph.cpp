@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/String.hpp"
@@ -168,10 +167,6 @@ int main(int /*argc*/, char */*argv*/[])
   int flag_1 = 1;
   int flag_2 = 1;
   int flag_3 = 1;
-  
-  /* 1.b - Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
 
   /* 1.c - Setup constants */
 

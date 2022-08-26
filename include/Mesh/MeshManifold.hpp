@@ -15,6 +15,7 @@
 #include "gstlearn_export.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
+#include "Basic/ASerializable.hpp"
 
 /**
  * Meshing defined in 3D for a 2D manifold

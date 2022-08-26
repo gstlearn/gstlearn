@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/Interval.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
 
 Interval::Interval(double vmin, double vmax, bool mininc, bool maxinc)
     : AStringable(),

@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Estimation/KrigingSystem.hpp"
-
 #include "geoslib_old_f.h"
 #include "geoslib_f.h"
 
@@ -35,6 +33,7 @@
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Estimation/KrigingSystem.hpp"
 
 #include <math.h>
 

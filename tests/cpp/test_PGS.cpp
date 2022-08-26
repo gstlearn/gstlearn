@@ -12,6 +12,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
+
 #include "Variogram/Vario.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"

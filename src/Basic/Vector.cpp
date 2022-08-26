@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/Vector.hpp"
@@ -16,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <string.h>
 #include <algorithm>

@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_enum.h"
+
 #include "Space/ASpaceObject.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
@@ -21,9 +24,6 @@
 #include "Covariances/ECalcMember.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Stats/Selectivity.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include <math.h>
 

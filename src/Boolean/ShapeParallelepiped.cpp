@@ -9,8 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Boolean/ShapeParallelepiped.hpp"
-
-#include "../../include/Simulation/BooleanObject.hpp"
+#include "Simulation/BooleanObject.hpp"
 
 ShapeParallelepiped::ShapeParallelepiped(double proportion,
                                          double xext,

@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Estimation/KrigingSystem.hpp"

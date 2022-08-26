@@ -8,14 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Neigh/ANeighParam.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 ANeighParam::ANeighParam(int ndim, bool flag_xvalid)
     : AStringable(),

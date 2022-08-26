@@ -8,22 +8,22 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Space/ESpaceType.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
+
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"

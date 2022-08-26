@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
@@ -17,8 +19,6 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
 
 VarioParam::VarioParam(double scale,
                        const VectorDouble& dates)

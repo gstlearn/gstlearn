@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 MatrixSquareSymmetric::MatrixSquareSymmetric(int nrow, bool sparse)
 : AMatrixSquare(nrow, sparse)

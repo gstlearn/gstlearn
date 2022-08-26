@@ -8,9 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Basic/Utilities.hpp"
+#include "Basic/Vector.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/String.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/ADriftElem.hpp"
-
 #include "Drifts/Drift1.hpp"
 #include "Drifts/DriftF.hpp"
 #include "Drifts/DriftX.hpp"
@@ -28,14 +31,7 @@
 #include "Drifts/DriftZ2.hpp"
 #include "Drifts/DriftZ3.hpp"
 
-#include "geoslib_f.h"
-
 #include <iostream>
-
-#include "Basic/Utilities.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/String.hpp"
 
 ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt)
 {

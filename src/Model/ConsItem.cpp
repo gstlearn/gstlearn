@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Model/ConsItem.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Model/ConsItem.hpp"
+#include "Basic/Utilities.hpp"
 
 ConsItem::ConsItem(const CovParamId& paramid,
                    const EConsType& type,

@@ -12,6 +12,7 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
+
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -33,7 +34,6 @@
 #include <algorithm>
 #include <functional>
 #include <math.h>
-
 
 DbGrid::DbGrid()
     : Db(),

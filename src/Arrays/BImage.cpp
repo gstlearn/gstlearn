@@ -11,7 +11,7 @@
 #include "Arrays/BImage.hpp"
 #include "Arrays/BImageStringFormat.hpp"
 #include "Basic/Vector.hpp"
-#include "geoslib_f.h"
+#include "Basic/Utilities.hpp"
 
 BImage::BImage(const VectorInt& ndims)
     : AArray(ndims),

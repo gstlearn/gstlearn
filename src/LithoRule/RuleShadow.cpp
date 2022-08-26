@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_enum.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
@@ -19,9 +22,6 @@
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_enum.h"
 
 #include <sstream>
 #include <math.h>

@@ -1,5 +1,5 @@
 #include "geoslib_old_f.h"
-#include "geoslib_f.h"
+
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
@@ -13,6 +13,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/ECov.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 #include <algorithm>
 #include <math.h>
@@ -63,9 +64,6 @@ double spirale(VectorDouble pos)
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  if (setup_license("Demonstration"))
-    my_throw("Problem with license check");
-
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";

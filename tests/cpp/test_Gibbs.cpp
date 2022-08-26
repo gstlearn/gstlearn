@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
@@ -24,6 +23,7 @@
 #include "Db/ELoadBy.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"

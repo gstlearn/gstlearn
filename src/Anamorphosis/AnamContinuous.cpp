@@ -12,7 +12,6 @@
 #include "Db/Db.hpp"
 #include "Basic/String.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "geoslib_f.h"
 
 AnamContinuous::AnamContinuous()
     : AAnam(),

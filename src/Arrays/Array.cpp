@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Arrays/Array.hpp"
 #include "Basic/Vector.hpp"
-#include "geoslib_f.h"
 
 Array::Array(const VectorInt& ndims)
     : AArray(ndims),

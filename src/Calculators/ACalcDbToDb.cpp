@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Calculators/ACalcDbToDb.hpp"
 #include "geoslib_f.h"
 
+#include "Calculators/ACalcDbToDb.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 
 ACalcDbToDb::ACalcDbToDb()
     : ACalculator(),
@@ -202,11 +203,11 @@ void ACalcDbToDb::_storeInVariableList(int whichDb, int status, const VectorInt&
   }
 }
 int ACalcDbToDb::_addVariableDb(int whichDb,
-                               int status,
-                               const ELoc &locatorType,
-                               int locatorIndex,
-                               int number,
-                               double valinit)
+                                int status,
+                                const ELoc &locatorType,
+                                int locatorIndex,
+                                int number,
+                                double valinit)
 {
   Db* db = _whichDb(whichDb);
   if (db == nullptr) return -1;

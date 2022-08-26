@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Db/Db.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>

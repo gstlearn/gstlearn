@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
@@ -19,8 +21,6 @@
 #include "Db/Db.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "csparse_f.h"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 #include <math.h>
 

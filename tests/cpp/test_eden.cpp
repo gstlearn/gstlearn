@@ -12,10 +12,10 @@
 // This test is meant to demonstrate the Eden Simulation
 // which also demonstrates the SKIN methodology
 
-#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
-#include "geoslib_f.h"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"

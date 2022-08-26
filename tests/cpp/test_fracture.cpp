@@ -11,11 +11,12 @@
 
 // This test is meant to demonstrate the fracture Simulation
 
-#include "../../include/Space/ESpaceType.hpp"
 #include "geoslib_d.h"
-#include "geoslib_f.h"
+
+#include "Space/ESpaceType.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"

@@ -23,8 +23,9 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/ECalcVario.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+
 #include <stdlib.h>
-#include "../../include/Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
 /*!

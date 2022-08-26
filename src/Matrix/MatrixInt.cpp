@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 #include "csparse_d.h"
 
 MatrixInt::MatrixInt(int nrows, int ncols)

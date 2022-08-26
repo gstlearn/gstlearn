@@ -25,7 +25,6 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/EAnam.hpp"
-#include "geoslib_f.h"
 
 #include <math.h>
 

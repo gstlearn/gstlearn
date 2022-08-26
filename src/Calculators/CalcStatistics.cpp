@@ -8,17 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Basic/NamingConvention.hpp"
 #include "Calculators/CalcStatistics.hpp"
+#include "Calculators/ACalcDbToDb.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 #include "Db/ELoc.hpp"
 
 #include <math.h>
-#include "../../include/Calculators/ACalcDbToDb.hpp"
 
 CalcStatistics::CalcStatistics()
     : ACalcDbToDb(),

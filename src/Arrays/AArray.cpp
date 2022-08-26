@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Arrays/AArray.hpp"
 #include "Basic/Vector.hpp"
-#include "geoslib_f.h"
 
 AArray::AArray(const VectorInt& ndims)
     : AStringable(),
@@ -22,7 +21,6 @@ AArray::AArray(const AArray &r)
     : AStringable(r),
       _ndims(r._ndims)
 {
-
 }
 
 AArray& AArray::operator=(const AArray &r)

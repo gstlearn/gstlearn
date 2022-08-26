@@ -1,3 +1,6 @@
+#include "geoslib_f_private.h"
+#include "geoslib_old_f.h"
+
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/OptCst.hpp"
@@ -15,10 +18,6 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Stats/PCA.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
-
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
-#include "geoslib_old_f.h"
 
 /****************************************************************************/
 /*!

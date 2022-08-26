@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Variogram/DirParam.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Geometry/Geometry.hpp"

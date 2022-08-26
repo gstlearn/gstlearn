@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+#include "geoslib_f.h"
+
 #include <Arrays/Array.hpp>
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
@@ -16,10 +19,7 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/FFT.hpp"
-
 #include "Space/ASpace.hpp"
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
 
 #include <math.h>
 #include <functional>
