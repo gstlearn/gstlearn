@@ -14,6 +14,7 @@
 #include "Db/Db.hpp"
 #include "Estimation/CalcKriging.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Basic/OptDbg.hpp"
 
 #include <math.h>
 
@@ -226,12 +227,20 @@ bool CalcKriging::_run()
     if (_iechSingleTarget >= 0)
     {
       if (iech_out != _iechSingleTarget) continue;
+      OptDbg::defineAll();
     }
     else
     {
       mes_process("Kriging sample", getDbout()->getSampleNumber(), iech_out);
     }
-    if (ksys.estimate(iech_out)) return false;
+
+    bool error = ksys.estimate(iech_out);
+
+    if (_iechSingleTarget >= 0)
+    {
+      OptDbg::undefineAll();
+    }
+    if (error) return false;
   }
 
   // Store the results in an API structure (only if flagSingleTarget)
@@ -473,6 +482,8 @@ int krigprof(Db *dbin,
  ** \param[in]  iech0      Rank of the target sample
  ** \param[in]  calcul     Kriging calculation option (EKrigOpt)
  ** \param[in]  ndisc      Array giving the discretization counts
+ ** \param[in]  forceDebug When TRUE, the full debugging flag is switched ON
+ **                        (the current status is reset after the run)
  **
  *****************************************************************************/
 Krigtest_Res krigtest(Db *dbin,
@@ -481,7 +492,8 @@ Krigtest_Res krigtest(Db *dbin,
                       ANeighParam *neighparam,
                       int iech0,
                       const EKrigOpt &calcul,
-                      VectorInt ndisc)
+                      VectorInt ndisc,
+                      bool forceDebug)
 {
   CalcKriging krige(true, true, false);
   krige.setDbin(dbin);
@@ -493,7 +505,10 @@ Krigtest_Res krigtest(Db *dbin,
   krige.setNdisc(ndisc);
   krige.setIechSingleTarget(iech0);
 
+  int memo = OptDbg::getReference();
+  if (forceDebug) OptDbg::setReference(iech0);
   (void) krige.run();
+  OptDbg::setReference(memo);
 
   return krige.getKtest();
 }

@@ -104,7 +104,10 @@ Model::~Model()
 
 int Model::resetFromDb(const Db *db)
 {
-  _ctxt = CovContext(db);
+  int ndim = db->getNDim();
+  int nvar = db->getVariableNumber();
+  SpaceRN space = SpaceRN(ndim);
+  _ctxt = CovContext(nvar, &space);
   _create();
   return 0;
 }

@@ -160,7 +160,8 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
                                       ANeighParam *neighparam,
                                       int iech0,
                                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
-                                      VectorInt ndisc = VectorInt());
+                                      VectorInt ndisc = VectorInt(),
+                                      bool forceDebug = true);
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,

@@ -407,11 +407,11 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < neighM->getNMini()) return 1;
+
+    /* Select the first data samples */
+
+    _movingSelect(nsel, ranks);
   }
-
-  /* Select the first data samples */
-
-  _movingSelect(nsel, ranks);
 
   return 0;
 }

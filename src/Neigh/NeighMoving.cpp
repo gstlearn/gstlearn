@@ -136,15 +136,16 @@ String NeighMoving::toString(const AStringFormat* strfmt) const
 
   if (_nMini > 0)
     sstr << "Minimum number of samples           = " << _nMini << std::endl;
-  if (_nMaxi > 0)
-    sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
 
   if (_forceWithinBlock)
   {
-    sstr << "Force Selection of all samples withon target Block" << std::endl;
+    sstr << "Force Selection of all samples within target Block" << std::endl;
   }
   else
   {
+    if (_nMaxi > 0)
+      sstr << "Maximum number of samples           = " << _nMaxi << std::endl;
+
     if (_nSect > 1)
     {
       sstr << "Number of angular sectors           = " << _nSect << std::endl;

@@ -1229,7 +1229,7 @@ void KrigingSystem::_wgtDump(int status)
           if (! _flagPerCell)
             tab_printg(NULL, dbgrid->getDX(idim));
           else
-            tab_printg(NULL, _dbin->getBlockExtension(_nbgh[iech], idim));
+            tab_printg(NULL, dbgrid->getBlockExtension(_nbgh[iech], idim));
       }
       if (_rankPGS < 0)
         tab_printg(NULL, _getIvar(_nbgh[iech], jvarCL));
@@ -2189,26 +2189,21 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   _flagPerCell = false;
   if (_calcul == EKrigOpt::BLOCK)
   {
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
+    if (dbgrid == nullptr)
+    {
+      messerr("Block Estimation is only possible for Grid '_dbout'");
+      return 1;
+    }
+
     if (flag_per_cell)
     {
-      if (_dbout->getBlockExtensionNumber() != ndim)
-      {
-        messerr("Block Calculation with a Variable Grid size is not possible");
-        messerr("The number of Block Extension variables (%d) in '_dbout'",
-                _dbout->getBlockExtensionNumber());
-        messerr("should be equal to Space Dimension (%d)",ndim);
-        return 1;
-       }
       _flagPerCell = true;
     }
-    else
+    NeighMoving* neighM = dynamic_cast<NeighMoving*>(_neighParam);
+    if (neighM != nullptr)
     {
-      DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
-      if (dbgrid == nullptr)
-      {
-        messerr("Block Estimation is only possible for Grid '_dbout'");
-        return 1;
-      }
+      _flagPerCell = neighM->getForceWithinBlock();
     }
 
     // Discretization is stored

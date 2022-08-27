@@ -1163,9 +1163,11 @@ VectorVectorDouble DbGrid::getSlice(const String& name,
 /**
  * Return the VectorVectorDouble containing the borders of a cell
  * @param node Target cell
+ * @param forceGridMesh When TRUE, returns the edges of the standard grid mesh
+ *                      even if a variable block extension is defined
  * @return
  */
-VectorVectorDouble DbGrid::getCellEdges(int node) const
+VectorVectorDouble DbGrid::getCellEdges(int node, bool forceGridMesh) const
 {
   VectorVectorDouble coords(2);
   coords[0].resize(5);
@@ -1176,7 +1178,11 @@ VectorVectorDouble DbGrid::getCellEdges(int node) const
   VectorDouble local;
 
   // Get the extension of the target cell (possibly variable)
-  VectorDouble dxsPerCell = getBlockExtensions(node);
+  VectorDouble dxsPerCell;
+  if (forceGridMesh)
+    dxsPerCell = getDXs();
+  else
+    dxsPerCell = getBlockExtensions(node);
 
   icorner[0] = -1;
   icorner[1] = -1;

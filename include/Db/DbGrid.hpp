@@ -207,7 +207,7 @@ public:
                        double value,
                        bool useSel = false);
   VectorDouble getBlockExtensions(int node) const;
-  VectorVectorDouble getCellEdges(int node = 0) const;
+  VectorVectorDouble getCellEdges(int node = 0, bool forceGridMesh = false) const;
   VectorVectorDouble getGridEdges() const;
 
   int morpho(const EMorpho &oper,

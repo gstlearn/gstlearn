@@ -1230,7 +1230,7 @@ void tab_prints(const char *title,
                 int ncol,
                 const EJustify &justify)
 {
-  int taille = (int) OptCst::query(ECst::NTCAR) * ncol;
+  int taille = (1 + (int) OptCst::query(ECst::NTCAR)) * ncol;
   int size = static_cast<int>(strlen(string));
   int neff = MIN(taille, size);
   int nrst = taille - neff;

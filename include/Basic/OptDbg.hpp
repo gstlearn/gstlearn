@@ -34,6 +34,7 @@ public:
   static void setIndex(int cur_index) { _currentIndex = cur_index; }
   static bool isReferenceDefined() { return _reference >= 0; }
   static void setReference(int index) { _reference = index; }
+  static int  getReference() { return _reference; }
   static bool force();
 
 private:
