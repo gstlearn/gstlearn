@@ -403,13 +403,16 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (!neighM->getForceWithinBlock() && neighM->getFlagSector() && neighM->getNSMax() > 0)
+  if (! neighM->getForceWithinBlock() && neighM->getFlagSector() && neighM->getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < neighM->getNMini()) return 1;
+  }
 
-    /* Select the first data samples */
+    /* Select the first data samples (skipped if forcing all samples in block) */
 
+  if (! neighM->getForceWithinBlock())
+  {
     _movingSelect(nsel, ranks);
   }
 

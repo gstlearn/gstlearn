@@ -23,9 +23,7 @@
  * @param space        Space definition
  * @param field        Maximum field distance (used for covariances having no sill)
  */
-CovContext::CovContext(int nvar,
-                       const ASpace* space,
-                       double field)
+CovContext::CovContext(int nvar, const ASpace *space, double field)
 
     : ASpaceObject(space),
       _nVar(nvar),
@@ -48,8 +46,8 @@ CovContext::CovContext(int nvar,
 CovContext::CovContext(int nvar,
                        int ndim,
                        double field,
-                       const VectorDouble& mean,
-                       const VectorDouble& covar0)
+                       const VectorDouble &mean,
+                       const VectorDouble &covar0)
     : ASpaceObject(SpaceRN(ndim)),
       _nVar(nvar),
       _field(field),
@@ -74,8 +72,7 @@ CovContext::CovContext(const Db *db, const ASpace* space)
   _update();
 }
 
-CovContext::CovContext(const Vario* vario,
-                       const ASpace* space)
+CovContext::CovContext(const Vario *vario, const ASpace *space)
     : ASpaceObject(space),
       _nVar(0),
       _field(1.),

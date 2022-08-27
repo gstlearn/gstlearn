@@ -224,7 +224,7 @@ bool CalcKriging::_run()
 
   for (int iech_out = 0; iech_out < getDbout()->getSampleNumber(); iech_out++)
   {
-    if (_iechSingleTarget >= 0)
+    if (_iechSingleTarget > 0)
     {
       if (iech_out != _iechSingleTarget) continue;
       OptDbg::defineAll();
@@ -236,7 +236,7 @@ bool CalcKriging::_run()
 
     bool error = ksys.estimate(iech_out);
 
-    if (_iechSingleTarget >= 0)
+    if (_iechSingleTarget > 0)
     {
       OptDbg::undefineAll();
     }

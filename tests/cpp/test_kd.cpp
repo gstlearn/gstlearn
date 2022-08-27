@@ -179,6 +179,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) DisjunctiveKriging(data, blocs, model, neigh, EKrigOpt::PONCTUAL,
                             VectorInt(), true, true,
                             NamingConvention("DK_Pts"));
+
   blocs->display();
 
   // Simple Block Kriging over the blocks
