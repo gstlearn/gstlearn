@@ -293,7 +293,7 @@ The next step consists in translating the target variable ('Pb') into its Gaussi
 
 ```{r}
 mydb$setLocator("Pb",ELoc_Z())
-err = RawToGaussian(mydb, myanamPb)
+err = RawToGaussianByLocator(mydb, myanamPb)
 if (verbose)
     mydb$display()
 ```
@@ -424,7 +424,7 @@ We convert the raw data into its Gaussian equivalent
 
 ```{r}
 mydb$setLocator("Zn",ELoc_Z())
-err = RawToGaussian(mydb, myanamZn)
+err = RawToGaussianByLocator(mydb, myanamZn)
 if (verbose)
     mydb$display()
 ```

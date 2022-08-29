@@ -90,7 +90,7 @@ private:
   Selectivity* _selectivity;
 };
 
-GSTLEARN_EXPORT int RawToGaussian(Db* db,
+GSTLEARN_EXPORT int RawToGaussianByLocator(Db* db,
                                   AAnam* anam,
                                   const ELoc &locatorType = ELoc::Z,
                                   const NamingConvention &namconv = NamingConvention(
@@ -103,7 +103,7 @@ GSTLEARN_EXPORT int RawToGaussian(Db *db,
 GSTLEARN_EXPORT int NormalScore(Db *db,
                                 const NamingConvention &namconv = NamingConvention(
                                     "Gaussian"));
-GSTLEARN_EXPORT int GaussianToRaw(Db *db,
+GSTLEARN_EXPORT int GaussianToRawByLocator(Db *db,
                                   AAnam *anam,
                                   const ELoc &locatorType = ELoc::Z,
                                   const NamingConvention &namconv = NamingConvention(

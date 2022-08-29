@@ -118,6 +118,11 @@ Model* Model::create(const CovContext& ctxt)
   return new Model(ctxt);
 }
 
+Model* Model::createFromEnvironment(int nvar, int ndim)
+{
+  return new Model(nvar, ndim);
+}
+
 Model* Model::createFromParam(const ECov& type,
                               double range,
                               double sill,

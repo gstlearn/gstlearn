@@ -64,6 +64,7 @@ public:
   int resetFromDb(const Db* db);
 
   static Model* create(const CovContext& ctxt = CovContext());
+  static Model* createFromEnvironment(int nvar, int ndim = 2);
   static Model* createFromParam(const ECov& type,
                                 double range = 1.,
                                 double sill = 1.,

@@ -4161,6 +4161,24 @@ int Db::getFaciesNumber(void) const
   return nfac;
 }
 
+VectorBool Db::getMaskArray() const
+{
+  int nech = getSampleNumber();
+  VectorBool status(nech);
+  for (int iech = 0; iech < nech; iech++)
+    status[iech] = isActive(iech);
+  return status;
+}
+
+VectorInt Db::getActiveRanks() const
+{
+  int nech = getSampleNumber();
+  VectorInt ranks;
+  for (int iech = 0; iech < nech; iech++)
+    if (isActive(iech)) ranks.push_back(iech);
+  return ranks;
+}
+
 /****************************************************************************/
 /*!
 **  Return the vector of ordered samples by increasing coordinate along X

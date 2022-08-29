@@ -26,9 +26,9 @@ class GSTLEARN_EXPORT CalcSimuTurningBands : public ACalcSimulation
 {
 public:
   CalcSimuTurningBands(int nbsimu = 0,
-                   int nbtuba = 0,
-                   bool flag_check = false,
-                   int seed = 4324324);
+                       int nbtuba = 0,
+                       bool flag_check = false,
+                       int seed = 4324324);
   CalcSimuTurningBands(const CalcSimuTurningBands& r) = delete;
   CalcSimuTurningBands& operator=(const CalcSimuTurningBands& r) = delete;
   virtual ~CalcSimuTurningBands();

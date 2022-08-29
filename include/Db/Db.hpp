@@ -107,7 +107,7 @@ public:
   static Db* createFromOnePoint(const VectorDouble &tab = VectorDouble(),
                                 int flag_add_rank = 1);
   static Db* createSamplingDb(const Db* dbin,
-                              double proportion = 0,
+                              double proportion = 0.,
                               int number = 0,
                               const VectorString& names = VectorString(),
                               int seed = 23241,
@@ -488,6 +488,9 @@ public:
   bool isActiveAndDefined(int iech, int item) const;
   int  getActiveAndDefinedNumber(int item) const;
   int  getActiveAndDefinedNumber(const String& name) const;
+  VectorBool getMaskArray() const;
+  VectorInt getActiveRanks() const;
+
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;
 

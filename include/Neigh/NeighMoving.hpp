@@ -53,8 +53,8 @@ public:
             double distcont = TEST);
 
   static NeighMoving* create(int ndim,
-                             bool flag_xvalid,
-                             int nmaxi,
+                             bool flag_xvalid = false,
+                             int nmaxi = 1000,
                              double radius = TEST,
                              int nmini = 1,
                              int nsect = 1,

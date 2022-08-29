@@ -324,7 +324,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Create the Gaussian
   anam = AnamHermite::create(20);
   anam->fit(data->getColumn("Var"));
-  (void) RawToGaussian(data, anam, ELoc::Z);
+  (void) RawToGaussianByLocator(data, anam, ELoc::Z);
   anam->display();
   data->display(&dbfmt);
 

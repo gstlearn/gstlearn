@@ -126,7 +126,7 @@ int main(int /*argc*/, char */*argv*/[])
   model_raw->display();
 
   // Transform Data into Gaussian variable
-  (void) RawToGaussian(data, anam);
+  (void) RawToGaussianByLocator(data, anam);
   data->setName("Y.Z","Gauss.Z");
   data->display();
 

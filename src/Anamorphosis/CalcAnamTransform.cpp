@@ -513,7 +513,7 @@ bool CalcAnamTransform::_FactorsToSelectivity()
   return false;
 }
 
-int RawToGaussian(Db *db,
+int RawToGaussianByLocator(Db *db,
                   AAnam* anam,
                   const ELoc &locatorType,
                   const NamingConvention &namconv)
@@ -550,7 +550,7 @@ int RawToGaussian(Db *db,
   return error;
 }
 
-int GaussianToRaw(Db *db,
+int GaussianToRawByLocator(Db *db,
                   AAnam *anam,
                   const ELoc &locatorType,
                   const NamingConvention &namconv)

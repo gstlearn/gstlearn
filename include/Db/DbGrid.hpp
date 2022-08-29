@@ -66,7 +66,7 @@ public:
             const VectorString& locatorNames = VectorString(),
             int flag_add_rank = 1);
   int resetCoveringDb(Db* db,
-                      const VectorInt& nodes,
+                      const VectorInt& nodes = VectorInt(),
                       const VectorDouble& dcell = VectorDouble(),
                       const VectorDouble& origin = VectorDouble(),
                       const VectorDouble& margin = VectorDouble());
