@@ -1,3 +1,4 @@
+/******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
 /* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
@@ -515,8 +516,8 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
   if (!db_gridin->hasLargerDimension(db_gridout)) goto label_end;
   ndim_min = MIN(db_gridin->getNDim(), db_gridout->getNDim());
   ndim_max = MAX(db_gridin->getNDim(), db_gridout->getNDim());
-  if (!is_grid(db_gridin)) goto label_end;
-  if (!is_grid(db_gridout)) goto label_end;
+  if (! db_gridin->isGrid()) goto label_end;
+  if (! db_gridout->isGrid()) goto label_end;
 
   /* Core allocation */
 
@@ -728,8 +729,16 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
                                   VectorDouble &tab)
 {
   if (!db_gridin->hasLargerDimension(db_gridout)) return 1;
-  if (!is_grid(db_gridin, true)) return 1;
-  if (!is_grid(db_gridout, true)) return 1;
+  if (!db_gridin->isGrid())
+  {
+    messerr("The 'db_gridin' file should be a Grid Db");
+    return 1;
+  }
+  if (!db_gridout->isGrid())
+  {
+    messerr("The 'db_gridout' file should be a Grid Db");
+    return 1;
+  }
   int ndim_min = MIN(db_gridin->getNDim(), db_gridout->getNDim());
   int ndim_max = MAX(db_gridin->getNDim(), db_gridout->getNDim());
 
@@ -1777,7 +1786,7 @@ int db_grid_fill(DbGrid *dbgrid,
 
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function is limited to Grid Db");
     return (1);
@@ -2836,7 +2845,7 @@ int manage_external_info(int mode,
 
   /* Case when the Output Db is not a grid */
 
-  if (!is_grid(dbout))
+  if (! dbout->isGrid())
   {
     if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return (0);
     messerr("The Output Db is not a Grid file");
@@ -3831,7 +3840,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   /* Preliminary checks */
 
-  if (dbin->getNDim() != 2 || !is_grid(dbin))
+  if (dbin->getNDim() != 2 || ! dbin->isGrid())
   {
     messerr("This function is restricted to 2-D Input Grid Db");
     goto label_end;
@@ -4237,7 +4246,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires a DbGrid data base");
     return tab;
   }
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function requires the Db organized as a grid");
     return tab;
@@ -4520,7 +4529,7 @@ int db_gradient_components(DbGrid *dbgrid)
   iptrz = iptr = -1;
   indg = nullptr;
   ndim = dbgrid->getNDim();
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("The Db should be organized as a Grid");
     goto label_end;
@@ -5018,7 +5027,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
 
   /* Preliminary checks */
 
-  if (!is_grid(db) || db->getNDim() != 3) goto label_end;
+  if (! db->isGrid() || db->getNDim() != 3) goto label_end;
 
   /* Loop on the 2-D grid cells */
 
@@ -5135,7 +5144,8 @@ Db* db_extract(Db *db, int *ranks)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, natt, ELoadBy::SAMPLE, 1, tab);
+  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, tab, VectorString(),
+                                  VectorString(), 1);
   if (dbnew == nullptr) goto label_end;
 
   // Delete the unnecessary variables 
@@ -5189,7 +5199,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function requires 'dbgrid' to correspond to a Grid");
     return (dbnew);
@@ -5331,7 +5341,8 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, size, ELoadBy::SAMPLE, 0, wecr);
+  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, wecr, VectorString(),
+                                 VectorString(), 0);
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
@@ -5874,7 +5885,8 @@ Db* db_point_init(int nech,
   /* Allocate the main structure */
 
   number = (int) tab.size() / ndim;
-  db = db_create_point(number, ndim, ELoadBy::SAMPLE, flag_add_rank, tab);
+  db = Db::createFromSamples(number, ELoadBy::SAMPLE, tab, VectorString(),
+                                 VectorString(), flag_add_rank);
 
   /* Set the locators */
 
@@ -6052,7 +6064,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
 {
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function is limited to Grid Db");
     return (1);

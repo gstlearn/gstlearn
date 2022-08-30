@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Space/ASpaceObject.hpp"
 #include "Model/ConsItem.hpp"
 #include "Basic/Utilities.hpp"
 
@@ -66,8 +67,7 @@ int ConsItem::_init(const CovParamId& paramid,
   _value = value;
 
   // Check to avoid rotation of a Model defined on the sphere
-  int flag_sphere;
-  variety_query(&flag_sphere);
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (flag_sphere && type == EConsElem::ANGLE)
   {
     messerr("When working on the Sphere Geometry");

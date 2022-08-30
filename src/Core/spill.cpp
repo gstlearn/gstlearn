@@ -7,11 +7,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 
@@ -721,7 +721,7 @@ int spill_point(DbGrid *dbgrid,
 
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("The Fluid Propagation is restricted to regular grid");
     return (1);

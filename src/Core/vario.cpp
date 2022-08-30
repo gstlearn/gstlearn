@@ -2418,7 +2418,7 @@ static int st_variogen_grid_calcul(DbGrid *db, Vario *vario)
     messerr("This calculation requires a generalized variogram definition");
     return (1);
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to grid architecture");
     return (1);
@@ -2483,7 +2483,7 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
     messerr("This calculation requires a generalized variogram definition");
     return (1);
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to line architecture");
     return (1);
@@ -2920,7 +2920,7 @@ static int st_vmap_general(Db *db,
   if (db == nullptr) return (1);
   if (dbmap == nullptr) return (1);
 
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");
@@ -3088,12 +3088,12 @@ static int st_vmap_grid(DbGrid *dbgrid,
   if (dbgrid == nullptr) return (1);
   if (dbmap == nullptr) return (1);
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This Variogram Map is defined for Grid Data Base only");
     return (1);
   }
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");
@@ -3365,7 +3365,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
             vario->getVariableNumber());
     goto label_end;
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to grid architecture");
     goto label_end;
@@ -5097,12 +5097,12 @@ static int st_vmap_grid_fft(DbGrid *dbgrid,
     messerr("Variogram, Covariance (centered or not) or Covariogram");
     return (1);
   }
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This Variogram Map is defined for Grid Data Base only");
     return (1);
   }
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");

@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Geometry/Geometry.hpp"
 
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);

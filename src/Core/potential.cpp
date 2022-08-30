@@ -2841,9 +2841,9 @@ static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
 
   /* Creating the data grid */
 
-  pot_ext->db = db_create_grid(dbout->isGridRotated(), pot_ext->ndim, 0,
-                               ELoadBy::COLUMN, 1, nx, x0, dbout->getDXs(),
-                               dbout->getAngles());
+  pot_ext->db = DbGrid::create(nx, dbout->getDXs(), x0, dbout->getAngles(),
+                               ELoadBy::COLUMN, VectorDouble(),
+                               VectorString(), VectorString(), 1);
   if (pot_ext->db == nullptr) goto label_end;
   pot_ext->nfull = nech;
 
@@ -3103,7 +3103,7 @@ int potential_kriging(Db *dbiso,
       messerr("Check your output file");
       goto label_end;
     }
-    if (!is_grid(dbout))
+    if (! dbout->isGrid())
     {
       messerr("The External Drift requires an Output Grid File");
       goto label_end;
@@ -3351,7 +3351,7 @@ int potential_simulate(Db *dbiso,
       messerr("Check your output file");
       goto label_end;
     }
-    if (!is_grid(dbout))
+    if (! dbout->isGrid())
     {
       messerr("The External Drift requires an Output Grid File");
       goto label_end;

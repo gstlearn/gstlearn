@@ -108,7 +108,7 @@ swig_add_library(
 )
 
 # Link to static library
-target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::static)
+target_link_libraries(python_build PUBLIC ${PROJECT_NAME}::shared)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
 if (MSVC)
@@ -125,7 +125,7 @@ set_target_properties(python_build PROPERTIES
   # Modify the generated library name
   OUTPUT_NAME ${PROJECT_NAME}
   # Compiler flags for the SWIG library
-  COMPILE_FLAGS ${COMP_FLAGS}
+#  COMPILE_FLAGS ${COMP_FLAGS}
 )
 
 # Find appropriate Python.h

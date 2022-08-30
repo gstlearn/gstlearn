@@ -1001,7 +1001,9 @@ VectorInt gridcell_neigh(int ndim,
     x0[idim] = 0.;
   }
 
-  DbGrid* grid = db_create_grid(0, ndim, 0, ELoadBy::SAMPLE, 1, nx, x0, dx);
+  DbGrid* grid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::SAMPLE,
+                                VectorDouble(), VectorString(),
+                                VectorString(), 1);
 
   /* (Maximum) core allocation */
 

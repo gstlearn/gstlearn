@@ -15,6 +15,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
@@ -34,6 +35,7 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
+  DbStringFormat dbfmt;
 
   DbGrid      *dbgrid;
   Model       *model = nullptr;
@@ -71,7 +73,8 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Create the 2-D grid output file
 
-  dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
+  dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
+                          VectorDouble(), VectorString(), VectorString(), 1);
   if (dbgrid == nullptr) goto label_end;
   if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
                                &iptr)) goto label_end;
@@ -96,7 +99,9 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Print statistics on the results
 
-  db_print(dbgrid,1,1,1,1);
+
+  dbfmt.setFlags(true, true, true, true, true);
+  dbgrid->display(&dbfmt);
   
 label_end:
   dbgrid   = db_delete(dbgrid);

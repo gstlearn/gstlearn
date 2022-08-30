@@ -15,6 +15,7 @@
 
 #include "Polynomials/Hermite.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Model/CovInternal.hpp"
@@ -664,7 +665,7 @@ static int st_check_environment(int flag_in,
 
       if (flag_in && DBIN->getExternalDriftNumber() != nfex)
       {
-        if (!(flag_out && is_grid(DBOUT)))
+        if (!(flag_out && DBOUT->isGrid()))
         {
           messerr("The Model requires %d external drift(s)", model_nfex(model));
           messerr("but the input Db refers to %d external drift variables",
@@ -712,7 +713,7 @@ static int st_check_environment(int flag_in,
               ndim);
       goto label_end;
     }
-    if (neighparam->getType() == ENeigh::IMAGE && (!flag_out || !is_grid(DBOUT)))
+    if (neighparam->getType() == ENeigh::IMAGE && (!flag_out || ! DBOUT->isGrid()))
     {
       messerr(
           "The Image neighborhood can only be used when the output Db is a grid");
@@ -1087,7 +1088,7 @@ int krige_koption_manage(int mode,
 
         /* Preliminary checks */
 
-        if (flag_check && !is_grid(DBOUT))
+        if (flag_check && ! DBOUT->isGrid())
         {
           messerr("Discretization is not allowed if the Target is not a Grid");
           goto label_dealloc;
@@ -2584,7 +2585,7 @@ int anakexp_f(DbGrid *db,
 
   /* Preliminary checks */
 
-  if (ndim != 1 || !is_grid(db))
+  if (ndim != 1 || ! db->isGrid())
   {
     messerr("This procedure is limited to 1-D grid");
     goto label_end;
@@ -3267,7 +3268,7 @@ int anakexp_3D(DbGrid *db,
 
   /* Preliminary checks */
 
-  if (ndim != 3 || !is_grid(db))
+  if (ndim != 3 || ! db->isGrid())
   {
     messerr("This procedure is limited to 3-D grid");
     goto label_end;

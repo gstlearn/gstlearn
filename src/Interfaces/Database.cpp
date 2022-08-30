@@ -13,6 +13,7 @@
 #include "Db/ELoc.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 
 #include <cstddef>
 #include <algorithm>
@@ -48,7 +49,7 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
       _vars(),
       _roles()
 {
-  Db* db;
+  Db* db = nullptr;
   int ncol_arg;
   int nrow_arg;
   VectorString names;
@@ -66,7 +67,7 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
     return;
   }
 
-  db = db_create_point(nrow_arg, ncol_arg, ELoadBy::SAMPLE, 0, tab);
+//  db = db_create_point(nrow_arg, ncol_arg, ELoadBy::SAMPLE, 0, tab);
 
   // fill attribute _vars
   int i = 0;
@@ -507,13 +508,14 @@ std::multimap<ERoles, String>::const_iterator Database::getItRole(const String& 
 }
 
 /**
- *  Use For Debug, call function db_print from geoslib
+ *  Use For Debug
  */
 
 void Database::display_old() const
 {
-
-  db_print(toGeoslib(), 1, 1, 1, 1, 1);
+  DbStringFormat dbfmt;
+  dbfmt.setFlags(true, true, true, true, true);
+  toGeoslib()->display(&dbfmt);
 
 }
 
@@ -644,12 +646,15 @@ Db* Database::toGeoslib() const
   if (!_isGrid)
   {
     int nrow = _vars[0]->getValues().size();
-    res = db_create_point(nrow, _vars.size(), ELoadBy::COLUMN, 1, v);
+    res = Db::createFromSamples(nrow, ELoadBy::COLUMN, v, VectorString(),
+                                   VectorString(), 1);
+
   }
   else
   {
-    res = db_create_grid(0, 2, 0, ELoadBy::COLUMN, 1, _pgrid.getNx(),
-                         _pgrid.getX0(), _pgrid.getDx());
+    res = DbGrid::create(_pgrid.getNx(), _pgrid.getDx(), _pgrid.getX0(),
+                         VectorDouble(), ELoadBy::COLUMN, VectorDouble(),
+                         VectorString(), VectorString(), 1);
     //:TODO:Add VariableAuto with generator on the fly
   }
   // add name

@@ -50,12 +50,6 @@ class MeshSpherical;
 class SimuSubstitutionParam;
 class SimuRefineParam;
 
-/*************************/
-/* Functions for License */
-/*************************/
-
-GSTLEARN_EXPORT int setup_license(const char *target_name);
-
 /***********************/
 /* Functions for Basic */
 /***********************/
@@ -65,16 +59,6 @@ GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
-
-/****************************************/
-/* Prototyping the functions in variety */
-/****************************************/
-
-GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = EARTH_RADIUS);
-GSTLEARN_EXPORT void variety_query(int *flag_sphere);
-GSTLEARN_EXPORT void variety_print(void);
-GSTLEARN_EXPORT void variety_toggle(int mode);
-GSTLEARN_EXPORT void variety_get_characteristics(double *radius);
 
 /*********************/
 /* Functions for CSV */
@@ -92,70 +76,12 @@ GSTLEARN_EXPORT void csv_print_double(double value);
 /* Functions for Data Base */
 /***************************/
 
-GSTLEARN_EXPORT Db* db_create_point(int nech,
-                                    int ncol = 0,
-                                    const ELoadBy &order = ELoadBy::COLUMN,
-                                    int flag_add_rank = 0,
-                                    const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_generic(int ndim,
-                                               int ncol,
-                                               const ELoadBy &order,
-                                               int flag_add_rank,
-                                               const VectorInt &nx,
-                                               const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid(int flag_g_rot,
-                                       int ndim,
-                                       int nvar,
-                                       const ELoadBy &order,
-                                       int flag_add_rank,
-                                       const VectorInt &nx,
-                                       const VectorDouble &x0,
-                                       const VectorDouble &dx,
-                                       const VectorDouble &angles = VectorDouble(),
-                                       const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_2D(int flag_rot,
-                                          int ncol,
-                                          const ELoadBy &order,
-                                          int flag_add_rank,
-                                          int nx,
-                                          int ny,
-                                          double x0 = 0.,
-                                          double y0 = 0.,
-                                          double dx = 1.,
-                                          double dy = 1.,
-                                          double angle = 0.,
-                                          const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_3D(int flag_rot,
-                                          int ncol,
-                                          const ELoadBy &order,
-                                          int flag_add_rank,
-                                          int nx,
-                                          int ny,
-                                          int nz,
-                                          double x0 = 0.,
-                                          double y0 = 0.,
-                                          double z0 = 0.,
-                                          double dx = 1.,
-                                          double dy = 1.,
-                                          double dz = 1.,
-                                          double angle_z = 0.,
-                                          double angle_y = 0.,
-                                          double angle_x = 0.,
-                                          const VectorDouble &tab = VectorDouble());
 GSTLEARN_EXPORT VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim);
 GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
                                               int iatt,
                                               bool verbose = false);
 GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
                                                         const String &pattern);
-GSTLEARN_EXPORT void db_print(Db *db,
-                              int flag_resume = 1,
-                              int flag_vars = 1,
-                              int flag_extend = 0,
-                              int flag_stats = 0,
-                              int flag_array = 0,
-                              int nrank = 0,
-                              int *ranks = NULL);
 GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                     const VectorInt &iatts = VectorInt(),
                                     const VectorString &opers = VectorString(),
@@ -438,13 +364,13 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            int niter = 100,
                                            bool verbose = false,
                                            const NamingConvention& namconv = NamingConvention("Prop", true, true, ELoc::P));
-GSTLEARN_EXPORT int gibbs_sampler(Db *db,
+GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   Model *model,
                                   ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
-                                  int nboot,
-                                  int niter,
+                                  int gibbs_nburn,
+                                  int gibbs_niter,
                                   bool flag_norm,
                                   bool flag_multi_mono,
                                   bool flag_propagation,
@@ -453,7 +379,7 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   double percent,
                                   bool flag_ce,
                                   bool flag_cstd,
-                                  bool verbose,
+                                  bool verbose = false,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
 
 /****************************************/

@@ -26,6 +26,7 @@
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Geometry/Geometry.hpp"

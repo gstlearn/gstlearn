@@ -62,3 +62,11 @@ VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
 {
   return ut_vector_subtract(p1.getCoord(), p2.getCoord());
 }
+
+String SpaceRN::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  sstr << "Space Type      = " << getType().getKey() << std::endl;
+  sstr << "Space Dimension = " << getNDim() << std::endl;
+  return sstr.str();
+}

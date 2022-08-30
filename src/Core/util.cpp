@@ -22,6 +22,8 @@
 #include "Basic/PolyLine2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/ASpace.hpp"
+#include "Space/SpaceSN.hpp"
 #include "Geometry/Geometry.hpp"
 
 #include <complex>
@@ -51,12 +53,6 @@ typedef struct
 
 typedef struct
 {
-  int flag_sphere;
-  double radius;
-} Variety_Environ;
-
-typedef struct
-{
   int curech;
   int ndim;
   int *nx;
@@ -66,7 +62,6 @@ typedef struct
 } Dim_Loop;
 
 static Projec_Environ PROJEC = { 0 };
-static Variety_Environ VARIETY = { 0, 0. };
 static int KEYPAIR_NTAB = 0;
 static Keypair *KEYPAIR_TABS = NULL;
 static int DISTANCE_NDIM = 0;
@@ -99,56 +94,17 @@ void projec_toggle(int mode)
     projec_actif = 0;
   else if (mode == -1) projec_actif = 1 - projec_actif;
 
-  /* Check that no Variety is defined */
+  /* Check that the current space is RN */
 
-  if (VARIETY.flag_sphere && projec_actif)
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+  if (flag_sphere && projec_actif)
   {
     messerr("Error when toggling a Projection ON");
     messerr(
-        "Definition of a Projection is incompatible with working on a Variety");
-    messerr(
-        "Cancel the (spherical) Variety first and define the Projection again");
+        "Definition of a Projection is incompatible with working on a Sphere");
   }
   else
     PROJEC.actif = projec_actif;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Toggle the status of the Variety flag
- **
- ** \param[in]  mode Toggle of the Variety flag
- ** \li               0   : Switch the flag OFF
- ** \li               1   : Switch the flag ON
- ** \li              else : Toggle the flag
- **
- *****************************************************************************/
-void variety_toggle(int mode)
-{
-  int variety_actif;
-
-  /* Process the toggling */
-
-  variety_actif = VARIETY.flag_sphere;
-  if (mode == 1)
-    variety_actif = 1;
-  else if (mode == 0)
-    variety_actif = 0;
-  else if (mode == -1) variety_actif = 1 - variety_actif;
-
-  /* Check that no Variety is defined */
-
-  if (PROJEC.actif && variety_actif)
-  {
-    messerr("Error when toggling a Spherical Variety ON");
-    messerr(
-        "Definition of a Variety is incompatible with working on a Projection");
-    messerr("Cancel the Projection first and define the Variety again");
-  }
-  else
-    VARIETY.flag_sphere = variety_actif;
 
   return;
 }
@@ -182,81 +138,6 @@ void projec_print(void)
   else
     message("Projection is switched OFF\n");
   message("Use 'projec.define' to modify previous values\n");
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Define the Variety characteristics
- **
- ** \param[in]  flag_sphere  1 if the Spherical Variety must be used
- ** \param[in]  radius       Radius of the Sphere
- **
- *****************************************************************************/
-void variety_define(int flag_sphere, double radius)
-{
-  int projec_actif;
-
-  /* Check that no Projection is defined */
-
-  projec_query(&projec_actif);
-  if (IFFFF(flag_sphere)) flag_sphere = 0;
-  if (flag_sphere && projec_actif)
-  {
-    messerr("Error when defining a Variety");
-    messerr("The definition of a Variety is incompatible with Projections");
-    messerr("Cancel the Projection first and define the Variety again");
-    return;
-  }
-
-  VARIETY.flag_sphere = flag_sphere;
-  VARIETY.radius = radius;
-  if (flag_sphere)
-    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN,2,radius);
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the Variety presence
- **
- ** \param[out]  flag_sphere 1 if the Spherical coordinates must be used
- **
- *****************************************************************************/
-void variety_query(int *flag_sphere)
-
-{
-  *flag_sphere = VARIETY.flag_sphere;
-
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Returns the Variety characteristics
- **
- ** \param[out]  radius  Radius of the Sphere for the Spherical System
- **
- *****************************************************************************/
-void variety_get_characteristics(double *radius)
-
-{
-  *radius = VARIETY.radius;
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Print the characteristics of the Variety
- **
- *****************************************************************************/
-void variety_print(void)
-
-{
-  if (!VARIETY.flag_sphere) return;
-  mestitle(1, "Parameters for Variety Definition");
-  message("The Spherical Variety is defined\n");
-  message("- Radius of the Sphere = %lf\n", VARIETY.radius);
   return;
 }
 
@@ -1310,18 +1191,19 @@ double distance_points_to_polyline(double ap,
  *****************************************************************************/
 double ut_distance(int ndim, double *tab1, double *tab2)
 {
-  double distance, R, v1, v2, delta;
-  int flag_sphere;
+  double distance, v1, v2, delta;
 
   distance = 0.;
-  variety_query(&flag_sphere);
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   if (flag_sphere)
   {
     /* Case of the spherical coordinates */
     /* Longitude = 1st coord; Latitude = 2nd coord (in degrees) */
 
-    variety_get_characteristics(&R);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    double R = spaceSn->getRadius();
     distance = ut_geodetic_angular_distance(tab1[0], tab1[1], tab2[0], tab2[1], R);
   }
   else

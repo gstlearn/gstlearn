@@ -75,6 +75,9 @@ void exit_f(void)
 %extend std::vector<int> {
   std::string __repr__() {  return ut_ivector_string(*$self); }
 }
+%extend ASpace {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend SpacePoint {
   std::string __repr__() {  return $self->toString(); }
 }

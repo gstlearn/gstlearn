@@ -6,6 +6,7 @@
 #include "Interfaces/geoslib_f_swig.h"
 #include "Interfaces/VariableDouble.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighUnique.hpp"
 
@@ -108,6 +109,7 @@ VectorDouble affiche(Db *db)
 
 void my_db_print(Db *db)
 {
-  db_print(db, 1, 1, 1, 1, 1);
-
+  DbStringFormat dbfmt;
+  dbfmt.setFlags(true, true, true, true, true);
+  db->display(&dbfmt);
 }

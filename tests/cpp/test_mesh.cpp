@@ -105,7 +105,10 @@ int main(int /*argc*/, char */*argv*/[])
   {
     nx[0] = 1+(int) ceil((extendmax[0] - extendmin[0] - cellsize[0]/2.)/cellsize[0]);
     nx[1] = 1+(int) ceil((extendmax[1] - extendmin[1] - cellsize[1]/2.)/cellsize[1]);
-    dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
+    dbgrid = DbGrid::create(nx, cellsize, extendmin, VectorDouble(),
+                            ELoadBy::COLUMN, VectorDouble(),
+                            VectorString(), VectorString(), 1);
+
   }
 
   /* Instantiate the Meshing */

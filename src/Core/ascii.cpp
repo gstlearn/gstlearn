@@ -559,7 +559,8 @@ Db* db_read_csv(const char *file_name,
 
   /* Creating the Db */
 
-  db = db_create_point(nrow, ncol, ELoadBy::SAMPLE, flag_add_rank, tab);
+  db = Db::createFromSamples(nrow, ELoadBy::SAMPLE, tab, VectorString(),
+                                 VectorString(), flag_add_rank);
   if (db == nullptr) goto label_end;
 
   /* Loading the names */

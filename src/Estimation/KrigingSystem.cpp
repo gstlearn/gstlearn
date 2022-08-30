@@ -3159,7 +3159,7 @@ void KrigingSystem::_checkAddress(const String& title,
 
 bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
 {
-  if (!is_grid(_dbout)) return 1;
+  if (! _dbout->isGrid()) return 1;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
   int ndim = getNDim();
   double seuil = 1. / neighI->getSkip();

@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Variogram/Vario.hpp"
 #include "Basic/Utilities.hpp"
@@ -2083,7 +2082,7 @@ int multilayers_kriging(Db *dbin,
     goto label_end;
   }
   if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
-  if (!flag_same && !is_grid(dbout))
+  if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;
@@ -2852,7 +2851,7 @@ int multilayers_get_prior(Db *dbin,
     goto label_end;
   }
   if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
-  if (!flag_same && !is_grid(dbout))
+  if (!flag_same && ! dbout->isGrid())
   {
     messerr("If Input and Output are different, Output should be a Grid Db");
     goto label_end;

@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
@@ -234,7 +233,7 @@ int spatial(Db *db,
   /* Initializations */
 
   top = bot = sum = 0.;
-  maille = (is_grid(db)) ? db_grid_maille(db) :
+  maille = (db->isGrid()) ? db_grid_maille(db) :
                            1.;
 
   /* Loop on the samples */

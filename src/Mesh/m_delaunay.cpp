@@ -300,7 +300,7 @@ Vercoloc* vercoloc_manage(int verbose,
 
     // Allocation
 
-    if (is_grid(dbout))
+    if (dbout->isGrid())
     {
       indg = db_indg_alloc(dbout);
       if (indg == nullptr) goto label_end;
@@ -326,7 +326,7 @@ Vercoloc* vercoloc_manage(int verbose,
         coor_in[idim] = dbin->getCoordinate(iech, idim);
 
       iclose = -1;
-      if (is_grid(dbout) && !dbout->hasSelection())
+      if (dbout->isGrid() && !dbout->hasSelection())
       {
 
         /* Case where the output file is a Grid File */
@@ -1766,7 +1766,7 @@ void meshes_2D_extended_domain(Db *dbout,
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);
@@ -3016,7 +3016,7 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);
@@ -3673,7 +3673,7 @@ void meshes_1D_extended_domain(Db *dbout, const double *gext, segmentio *t)
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);

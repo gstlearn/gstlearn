@@ -56,10 +56,6 @@ int main(int argc, char *argv[])
 
   StdoutRedirect sr("Result.out");
 
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
-
   /* Setup constants */
 
   OptDbg::reset();

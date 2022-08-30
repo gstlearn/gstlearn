@@ -48,6 +48,10 @@ public:
   /// Return a clone of the unique default global space
   static const ASpace* cloneDefaultSpace();
 
+  static ESpaceType getDefaultSpaceType();
+  static int getDefaultSpaceDimension();
+  static const ASpace* getDefaultSpace();
+
 public:
   /// Accessor to the current object space context
   const ASpace* getSpace() const { return _space; }

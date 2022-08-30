@@ -30,6 +30,7 @@
 #include "Mesh/tetgen.h"
 #include "Geometry/Geometry.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Space/SpaceSN.hpp"
 
 #include "csparse_f.h"
 #include "csparse_d.h"
@@ -1712,15 +1713,16 @@ static void st_compute_hh()
  *****************************************************************************/
 static void st_calcul_init(int ndim)
 {
-  variety_query(&Calcul.flag_sphere);
-
+  Calcul.flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   Calcul.sqdeth = 0.;
   Calcul.correc = 0.;
   Calcul.R = 0.;
   Calcul.hh.resize(ndim * ndim, 0.);
   if (Calcul.flag_sphere)
   {
-    variety_get_characteristics(&Calcul.R);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    Calcul.R = spaceSn->getRadius();
     Calcul.srot.resize(2, 0.);
   }
   Calcul.vv.resize(ndim, 0.);
@@ -2847,7 +2849,7 @@ double* _spde_get_mesh_dimension(MeshEStandard *amesh)
   int ndim = amesh->getNDim();
   int nmesh = amesh->getNMeshes();
   int ncorner = amesh->getNApexPerMesh();
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   /* Core allocation */
 
@@ -3592,7 +3594,7 @@ cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
   Gtriplet = cs_spalloc(0, 0, 1, 1, 1);
   model = st_get_model();
   if (Gtriplet == nullptr) goto label_end;
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
 
@@ -6362,7 +6364,7 @@ static int st_load_all_meshes(Db *dbin,
   ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
   if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   // Manage the mask 
 
@@ -6398,9 +6400,9 @@ static int st_load_all_meshes(Db *dbin,
     dbloc = NULL;
     if (!flag_force)
     {
-      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && is_grid(dbout)))
+      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && dbout->isGrid()))
         dbloc = dbout;
-      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && is_grid(dbin)))
+      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && dbin->isGrid()))
         dbloc = dbin;
     }
     dbgrid = dynamic_cast<DbGrid*>(dbloc);
@@ -7225,7 +7227,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble &gext)
 
   if (S_DECIDE.flag_gibbs) message("- Gibbs iterations\n");
 
-  if (is_grid(dbout) && !gext.empty())
+  if (dbout->isGrid() && !gext.empty())
   {
     message("- The resulting Grid is dilated: %lf", gext[0]);
     for (int idim = 1; idim < dbout->getNDim(); idim++)
@@ -9376,7 +9378,8 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   /* Create the output Db */
 
-  db = db_create_point(number, natt, ELoadBy::SAMPLE, 0, tab);
+  db = Db::createFromSamples(number, ELoadBy::SAMPLE, tab, VectorString(),
+                                 VectorString(), 0);
   if (db == nullptr) goto label_end;
 
   // Assigning names to the variables (not pointers yet)
@@ -9520,7 +9523,7 @@ cs *db_mesh_neigh(const Db *db,
   Atriplet = A = nullptr;
   ncorner = s_mesh->ncorner;
   nech = db->getSampleNumber();
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (flag_sphere)
   {
     messerr("The function 'db_mesh_neigh' is not programmed on sphere");
@@ -10400,7 +10403,7 @@ int m2d_gibbs_spde(Db *dbin,
             dbin->getIntervalNumber());
     goto label_end;
   }
-  if (!is_grid(dbout))
+  if (! dbout->isGrid())
   {
     messerr("This application is restricted to a Grid output Db");
     goto label_end;

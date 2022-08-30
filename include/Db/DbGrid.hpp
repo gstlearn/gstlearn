@@ -106,6 +106,16 @@ public:
                                       double eps = EPSILON3);
   static DbGrid* createFromGridShrink(const DbGrid& gridIn,
                                       const VectorInt& deletedRanks);
+  static DbGrid* createGrid2D(const ELoadBy &order,
+                              int nx,
+                              int ny,
+                              double x0 = 0.,
+                              double y0 = 0.,
+                              double dx = 1.,
+                              double dy = 1.,
+                              double angle = 0.,
+                              int flag_add_rank = 1,
+                              const VectorDouble &tab = VectorDouble());
 
   DbGrid* coarsify(const VectorInt &nmult);
   DbGrid* refine(const VectorInt &nmult);

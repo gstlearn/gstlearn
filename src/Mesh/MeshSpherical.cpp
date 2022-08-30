@@ -17,6 +17,7 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/Geometry.hpp"
 
@@ -410,12 +411,14 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   /* The Variety is defined in the Global Environment */
   /* The required radius is set to the radius of Earth (6371m) */
 
-  int variety_sphere;
   double r;
-  variety_query(&variety_sphere);
+  int variety_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+
   if (variety_sphere == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
   else
   {
@@ -429,12 +432,13 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
 
 void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 {
-  int variety_sphere;
   double r;
-  variety_query(&variety_sphere);
+  int variety_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (variety_sphere == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
   else
   {

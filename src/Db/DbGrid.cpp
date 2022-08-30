@@ -1299,3 +1299,54 @@ int DbGrid::smooth(NeighImage *neigh,
 {
   return dbSmoother(this, neigh, type, range, namconv);
 }
+
+/****************************************************************************/
+/*!
+ **  Create a 2-D Db structure
+ **
+ ** \return  Pointer to the newly created 2-D Db grid structure
+ **
+ ** \param[in]  order     Manner in which values in tab are ordered
+ **                       (ELoadBy)
+ ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
+ **
+ ** \param[in]  nx        Number of grid nodes along X
+ ** \param[in]  ny        Number of grid nodes along Y
+ ** \param[in]  x0        Grid origin along X
+ ** \param[in]  y0        Grid origin along Y
+ ** \param[in]  dx        Grid mesh along X
+ ** \param[in]  dy        Grid mesh along Y
+ ** \param[in]  angle     Rotation angle
+ ** \param[in]  tab       Array containing the data
+ **
+ *****************************************************************************/
+DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
+                             int nx,
+                             int ny,
+                             double x0,
+                             double y0,
+                             double dx,
+                             double dy,
+                             double angle,
+                             int flag_add_rank,
+                             const VectorDouble &tab)
+{
+  VectorInt nn(2);
+  VectorDouble xx(2);
+  VectorDouble dd(2);
+  VectorDouble angles(2);
+
+  nn[0] = nx;
+  nn[1] = ny;
+  dd[0] = dx;
+  dd[1] = dy;
+  xx[0] = x0;
+  xx[1] = y0;
+  angles[0] = angle;
+  angles[1] = 0.;
+
+  DbGrid *db = DbGrid::create(nn, dd, xx, angles, order, tab, VectorString(),
+                              VectorString(), flag_add_rank);
+
+  return db;
+}

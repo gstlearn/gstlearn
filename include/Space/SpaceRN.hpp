@@ -28,6 +28,8 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceRN)
 
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::SPACE_RN; }
   /// Move the given space point by the given vector

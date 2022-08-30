@@ -28,6 +28,8 @@
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
+#include "Space/SpaceSN.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include <math.h>
 
@@ -1535,7 +1537,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double r = 1.;
   if( amesh->getVariety() == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
 
   /* Load global matrices */

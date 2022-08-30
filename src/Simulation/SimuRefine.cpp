@@ -86,8 +86,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     nx2.resize(_ndim);
     x02.resize(_ndim);
     dx2.resize(_ndim);
-    db2 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, nx2, x02, dx2,
-                         dbin->getGrid().getRotAngles());
+    db2 = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
+                         ELoadBy::SAMPLE, VectorDouble(),
+                         VectorString(), VectorString(), 1);
     int iatt2 = db2->addColumnsByConstant(1, TEST);
 
     /* Establish the Kriging system */
@@ -117,8 +118,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     nx1.resize(_ndim);
     x01.resize(_ndim);
     dx1.resize(_ndim);
-    db1 = db_create_grid(0, _ndim, 1, ELoadBy::SAMPLE, 1, nx1, x01, dx1,
-                         dbin->getGrid().getRotAngles());
+    db1 = DbGrid::create(nx1, dx1, x01, dbin->getGrid().getRotAngles(),
+                         ELoadBy::SAMPLE, VectorDouble(),
+                         VectorString(), VectorString(), 1);
     iatt1 = db1->addColumnsByConstant(1, TEST);
 
     /* Truncate the output grid for next step */

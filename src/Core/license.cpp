@@ -8,30 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "License/LicenseKey.hpp"
-
-/****************************************************************************/
-/*!
- *  Check if the Library gstlearn is authorized and setup the License Id.
- *
- * \return Error return code (error = 1)
- *
- * \param[in]  target_name   Target Name
- *
- * \remarks The License File must have been defined beforehand. 
- * \remarks This may be done using register_license_file() where
- * \remarks the License File is checked
- * \remarks The name of the License File can also be passed using the
- * \remarks Environment Variable GSTLEARN_LICENSE (on LINUX system only)
- *
- ****************************************************************************/
-int setup_license(const char *target_name)
-{
-  if (! LicenseKey::registerLicense(target_name)) return(1);
-  return(0);
-}
 
 /****************************************************************************/
 /*!

@@ -104,6 +104,27 @@ const ASpace* ASpaceObject::cloneDefaultSpace()
   return (dynamic_cast<const ASpace*>(_defaultSpace->clone()));
 }
 
+ESpaceType ASpaceObject::getDefaultSpaceType()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace->getType();
+}
+
+int ASpaceObject::getDefaultSpaceDimension()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace->getNDim();
+}
+
+const ASpace* ASpaceObject::getDefaultSpace()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace;
+}
+
 VectorDouble ASpaceObject::getUnitaryVector() const
 {
   VectorDouble uni;

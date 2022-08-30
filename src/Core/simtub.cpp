@@ -40,6 +40,7 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
@@ -417,7 +418,7 @@ static int st_check_simtub_environment(Db *dbin,
     }
 
     nfex = model_nfex(model);
-    if (flag_cond && nfex != 0 && !is_grid(dbout)
+    if (flag_cond && nfex != 0 && ! dbout->isGrid()
         && dbin->getExternalDriftNumber() != nfex)
     {
       messerr("The Model requires %d external drift(s)", model_nfex(model));
@@ -1577,13 +1578,13 @@ int gibbs_sampler(Db *dbin,
                   bool flag_norm,
                   bool flag_multi_mono,
                   bool flag_propagation,
-                  bool /*flag_sym_neigh*/,
+                  bool flag_sym_neigh,
                   int gibbs_optstats,
                   double percent,
                   bool flag_ce,
                   bool flag_cstd,
                   bool verbose,
-                  const NamingConvention& namconv)
+                  const NamingConvention &namconv)
 {
   int error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
   PropDef *propdef;
@@ -1804,7 +1805,7 @@ int simtub_constraints(Db *dbin,
 
   /* Preliminary check */
 
-  flag_grid = is_grid(dbout);
+  flag_grid = dbout->isGrid();
   ndim = dbout->getNDim();
   nech = dbout->getSampleNumber();
   tab.resize(dbout->getSampleNumber());
@@ -2730,7 +2731,7 @@ int simsph(DbGrid *db,
 
   /* Preliminary checks */
 
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
@@ -2781,9 +2782,8 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
                          int verbose)
 {
   VectorDouble simu;
-  int flag_sphere;
 
-  variety_query(&flag_sphere);
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
@@ -2936,7 +2936,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                 bool verbose)
 {
   MatrixRectangular tab;
-  if (! is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("The Fluid Propagation is restricted to regular grid");
     return tab;

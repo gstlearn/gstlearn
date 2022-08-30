@@ -22,6 +22,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
   Rule      *rule[2];
   Option_VarioFit options;
   RuleStringFormat rulefmt;
+  DbStringFormat dbfmt;
   double  total;
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
@@ -73,10 +75,6 @@ int main(int argc, char *argv[])
 
   StdoutRedirect sr("Result.out");
 
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
-
   /* Setup constants */
 
   OptDbg::reset();
@@ -97,7 +95,8 @@ int main(int argc, char *argv[])
   dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
-  db_print(dbin,1,0,1,1,1);
+  dbfmt.setFlags(true, false, true, true, true);
+  dbin->display(&dbfmt);
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
@@ -210,7 +209,8 @@ int main(int argc, char *argv[])
                    model[0][0],model[0][1],model[1][0],model[1][1],
                    neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
-    db_print(dbout,1,0,1,1,1);
+    dbfmt.setFlags(true, false, true, true, true);
+    dbout->display(&dbfmt);
   }
 
   /* Serialization of results (for visual check) */

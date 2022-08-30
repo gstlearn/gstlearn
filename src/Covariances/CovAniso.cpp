@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_f_private.h"
-#include "geoslib_f.h"
 
 #include <Arrays/Array.hpp>
 #include "Covariances/CovAniso.hpp"
@@ -20,6 +19,8 @@
 #include "Basic/Vector.hpp"
 #include "Basic/FFT.hpp"
 #include "Space/ASpace.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Space/SpaceSN.hpp"
 
 #include <math.h>
 #include <functional>
@@ -403,8 +404,9 @@ double CovAniso::eval(int ivar,
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
-  double radius;
-  variety_get_characteristics(&radius);
+  const ASpace* space = ASpaceObject::getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  double radius = spaceSn->getRadius();
   double scale = getScale() / radius;
   double sill = getSill(0, 0);
 

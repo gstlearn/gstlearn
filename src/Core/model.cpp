@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_enum.h"
+#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
@@ -40,6 +40,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "csparse_f.h"
 
 #include <math.h>

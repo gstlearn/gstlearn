@@ -5,10 +5,11 @@
  *      Author: drenard
  */
 #include "geoslib_f.h"
-
 #include "Geometry/Geometry.hpp"
 #include "Geometry/ERotation.hpp"
 #include "Basic/Utilities.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Space/SpaceSN.hpp"
 
 #include <math.h>
 
@@ -985,7 +986,12 @@ VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
                                         double radius_arg)
 {
   double radius = radius_arg;
-  if (FFFF(radius)) variety_get_characteristics(&radius);
+  if (FFFF(radius))
+  {
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    radius = spaceSn->getRadius();
+  }
   radius *= dilate;
 
   VectorVectorDouble tab;
@@ -1042,7 +1048,12 @@ void util_convert_cart2sph(double x,
                            double radius_arg)
 {
   double radius = radius_arg;
-  if (FFFF(radius)) variety_get_characteristics(&radius);
+  if (FFFF(radius))
+  {
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    radius = spaceSn->getRadius();
+  }
 
   double loc_long, loc_lat;
 
@@ -1083,9 +1094,15 @@ void util_convert_sph2cart(double rlong,
                            double *y,
                            double *z,
                            double radius_arg)
+// TODO A mettre dans SpaceSN
 {
   double radius = radius_arg;
-  if (FFFF(radius)) variety_get_characteristics(&radius);
+  if (FFFF(radius))
+  {
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    radius = spaceSn->getRadius();
+  }
 
   double phi, theta, sinphi, cosphi, sinthe, costhe;
 

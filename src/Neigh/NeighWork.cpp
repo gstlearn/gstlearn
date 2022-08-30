@@ -818,7 +818,7 @@ bool NeighWork::_isSameTargetBench(const Db* dbout,
 
   bool flagSame = true;
   int ndim = dbout->getNDim();
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     int nval = 1;

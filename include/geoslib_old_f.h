@@ -1029,7 +1029,6 @@ GSTLEARN_EXPORT void set_LOCATOR_ITEM(Db *db,
                                       double value);
 GSTLEARN_EXPORT int db_get_rank_absolute_to_relative(Db *db, int iech0);
 GSTLEARN_EXPORT int db_get_rank_relative_to_absolute(Db *db, int iech0);
-GSTLEARN_EXPORT int is_grid(const Db *db, bool verbose = false);
 GSTLEARN_EXPORT int is_grid_multiple(DbGrid *db1, DbGrid *db2);
 GSTLEARN_EXPORT int db_grid_copy_params(DbGrid *dbin, int mode, DbGrid *dbout);
 GSTLEARN_EXPORT DbGrid* db_grid_reduce(DbGrid *db_grid,
