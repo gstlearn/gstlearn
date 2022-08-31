@@ -1058,7 +1058,7 @@ VectorInt gridcell_neigh(int ndim,
   }
 
   label_end:
-  grid = db_delete(grid);
+  if (grid != nullptr) delete grid;
   indg0 = db_indg_free(indg0);
   indg1 = db_indg_free(indg1);
   return (indret);

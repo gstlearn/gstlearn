@@ -83,8 +83,7 @@ Database::Database(const ParamCSV &pcsv, const ASpace* space)
     (*_vars[i]).setName(names[i]);
     i++;
   }
-
-  db_delete(db);
+  delete db;
 }
 
 /**

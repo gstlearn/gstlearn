@@ -132,8 +132,8 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Cleaning structures
 
-  db    = db_delete(db);
-  model = model_free(model);
+  delete db;
+  delete model;
   delete neighparam;
   return(0);
 }

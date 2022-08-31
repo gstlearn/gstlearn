@@ -225,7 +225,8 @@ int main(int argc, char *argv[])
                     1,1,0)) messageAbort("kriging");
         dbfmt.setFlags(true, false, true, true, true);
         dbout->display(&dbfmt);
-        dbout = db_delete(dbout);
+        delete dbout;
+        dbout = nullptr;
       }
     }
   }
@@ -233,11 +234,11 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  dbin  = db_delete(dbin);
-  dbout = db_delete(dbout);
-  vario = variogram_delete(vario);
-  model = model_free(model);
-  new_model = model_free(new_model);
+  delete dbin;
+  delete dbout;
+  delete model;
+  delete new_model;
   delete neighparam;
+  delete vario;
   return(0);
 }

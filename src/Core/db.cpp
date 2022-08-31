@@ -1217,29 +1217,6 @@ int db_attribute_range(const Db *db,
 
 /****************************************************************************/
 /*!
- **  Deletes the Db structure
- **
- ** \param[in]  db Db structure
- **
- *****************************************************************************/
-Db* db_delete(Db *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-DbGrid* db_delete(DbGrid *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-/****************************************************************************/
-/*!
  **  Define the coordinates in a Grid structure
  **
  ** \return Error return code

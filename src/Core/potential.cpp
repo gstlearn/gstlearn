@@ -2870,9 +2870,9 @@ static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
 
   label_end: if (error)
   {
-    pot_ext->db = db_delete(pot_ext->db);
-    pot_ext->data = (double*) mem_free((char* ) pot_ext->data);
-    pot_ext->weight = (double*) mem_free((char* ) pot_ext->weight);
+    if (pot_ext->db != nullptr) delete pot_ext->db;
+    if (pot_ext->data != nullptr) delete pot_ext->data;
+    if (pot_ext->weight != nullptr) delete pot_ext->weight;
   }
   return (error);
 }
@@ -2973,8 +2973,10 @@ static int st_pot_ext_manage(int mode,
       return (0);
 
     case -1: /* Deletion */
-      pot_ext->db = db_delete(pot_ext->db);
-      pot_ext->model = model_free(pot_ext->model);
+      delete pot_ext->db;
+      pot_ext->db = nullptr;
+      delete pot_ext->model;
+      pot_ext->model = nullptr;
       pot_ext->indg = db_indg_free(pot_ext->indg);
       pot_ext->indg0 = db_indg_free(pot_ext->indg0);
       pot_ext->data = (double*) mem_free((char* ) pot_ext->data);
