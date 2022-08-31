@@ -2574,6 +2574,11 @@ bool CalcSimuTurningBands::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
+  // Clean variables created for Expansion
+
+  if (_expandInformation(-1, ELoc::F)) return false;
+  if (_expandInformation(-1, ELoc::NOSTAT)) return false;
+
   /* Set the error return flag */
 
   _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());

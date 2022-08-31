@@ -12,6 +12,7 @@
 
 #include "Enum/AEnum.hpp"
 
+// TODO Synv with PtrGeos
 #define ENUM_LOC ELoc, UNKNOWN, \
                  UNKNOWN, -1, "Unknown locator", \
                  X,        0, "Coordinate", \

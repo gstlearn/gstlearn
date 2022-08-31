@@ -376,7 +376,9 @@ DbGrid* ACalcDbToDb::getGridout() const
 int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
 {
   if (getDbin() == nullptr || getDbout() == nullptr) return 0;
-  int nechin = getDbin()->getSampleNumber();
+
+  // Check the number of fields to be expanded
+
   int ninfo;
   if (getDbout()->isGrid() && locatorType == ELoc::X)
     ninfo = getDbout()->getNDim();
@@ -384,14 +386,17 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
     ninfo = getDbout()->getFromLocatorNumber(locatorType);
   if (ninfo <= 0) return 0;
 
+  // Check the corresponding number of variables in the Input File
+
+  int ninfoIn = getDbin()->getFromLocatorNumber(locatorType);
+  if (ninfo == ninfoIn) return 0;
+
   /* Case when the Output Db is not a grid */
 
   if (!getDbout()->isGrid())
   {
-    if (getDbin()->getFromLocatorNumber(locatorType) == ninfo) return 0;
     messerr("The Output Db is not a Grid file");
-    messerr(
-        "The Input Db does not contain the correct number of External Drifts");
+    messerr("The Input Db does not contain the correct number of External Drifts");
     return 1;
   }
   DbGrid *dbgrid = dynamic_cast<DbGrid*>(getDbout());
@@ -400,13 +405,7 @@ int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
 
   if (mode > 0)
   {
-    VectorDouble tab(nechin, 0.);
-    VectorInt iatts = dbgrid->getUIDsByLocator(locatorType);
-    if (!iatts.empty())
-    {
-      _storeInVariableList(1, 2, iatts);
-      if (migrateByAttribute(dbgrid, getDbin(), iatts)) return 1;
-    }
+    if (migrateByLocator(dbgrid, getDbin(), locatorType)) return 1;
   }
   else
   {

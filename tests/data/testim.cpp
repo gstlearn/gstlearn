@@ -130,6 +130,7 @@ int main(int argc, char *argv[])
 
   ascii_filename("Grid",0,0,filename);
   dbout = DbGrid::createFromNF(filename,verbose);
+//  if (dbout != nullptr) dbout->display(&dbfmt);
 
   /* Define the variogram */
 

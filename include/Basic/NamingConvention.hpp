@@ -25,7 +25,7 @@ public:
                    bool flag_qualifier = true,
                    const ELoc& locatorOutType = ELoc::Z,
                    String delim = ".",
-                   bool cleanSameLocator = false);
+                   bool cleanSameLocator = true);
   NamingConvention(const NamingConvention &m);
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();

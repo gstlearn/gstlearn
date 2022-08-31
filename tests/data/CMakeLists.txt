@@ -67,9 +67,10 @@ foreach(TARGET_EXE ${TARGETS_EXE})
         add_test(NAME ${DIR_NAME}
                  COMMAND ${TARGET_EXE} ${TEST_SRC_DIR}
                  WORKING_DIRECTORY ${TEST_DST_DIR})
-        # Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+  		# Compare the output result (diff output is shown when CTEST_OUTPUT_ON_FAILURE=1)
+  		# Use git diff (cross-platform) with no-index (no need to have files under git control) and ignore whitespaces (-w)
         add_test(NAME ${DIR_NAME}_cmp
-                 COMMAND git diff -w ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
+                 COMMAND git diff --no-index -w ${TEST_SRC_DIR}/Result.ref ${TEST_DST_DIR}/Result.out
                  WORKING_DIRECTORY ${TEST_DST_DIR})
     endforeach(TEST_SRC_DIR ${TEST_SRC_DIRS})
 endforeach(TARGET_EXE ${TARGETS_EXE})

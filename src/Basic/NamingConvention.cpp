@@ -279,7 +279,8 @@ void NamingConvention::setLocators(Db *dbout,
   if (_locatorOutType == ELoc::UNKNOWN) return;
 
   // Erase already existing locators of the same Type
-  if (_cleanSameLocator)
+  // (this is only done if you are not precisely adding higher order version for given locator)
+  if (_cleanSameLocator && locatorShift == 0)
     dbout->clearLocators(_locatorOutType);
 
   // Set the locator for all variables

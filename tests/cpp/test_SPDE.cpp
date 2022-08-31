@@ -42,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
   SPDE_Option  s_option;
   CovContext   ctxt;
   const char triswitch[] = "nqQ";
-  int verbose, seed, ndim, iptr, nsimu;
+  int verbose, seed, ndim, nsimu;
   double diag,range,param;
   VectorInt nx = { 400, 300 };
   VectorDouble dx = { 1., 1. };
