@@ -61,12 +61,12 @@ bool CalcStatistics::_check()
   {
     if (_getNVar() != 1)
     {
-      messerr("This method reauires a single variable in 'Dbin'");
+      messerr("This method requires a single variable in 'Dbin'");
       return false;
     }
     if (! _flagCste && _namaux.empty())
     {
-      messerr("This method reauires Explanatory variables and/or constant term");
+      messerr("This method requires Explanatory variables and/or constant term");
       return false;
     }
   }
@@ -153,7 +153,6 @@ int dbStatisticsOnGrid(Db *db,
 int dbRegression(Db *db1,
                  Db *db2,
                  int mode,
-                 const String &name,
                  const VectorString &namaux,
                  bool flagCste,
                  const NamingConvention &namconv)

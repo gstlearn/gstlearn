@@ -124,7 +124,7 @@ bool PolyLine2D::_serialize(std::ostream& os, bool /*verbose*/) const
  */
 bool PolyLine2D::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int np;
+  int np = 0;
   bool ret = true;
   VectorDouble buffer(2);
   ret = ret && _recordRead<int>(is, "Number of Points", np);

@@ -62,7 +62,7 @@ void ACalcDbVarCreator::_storeInVariableList(int status, const VectorInt& iuids)
 }
 
 int ACalcDbVarCreator::_addVariableDb(int status,
-                                      const ELoc &locatorType,
+                                      const ELoc& locatorType,
                                       int locatorIndex,
                                       int number,
                                       double valinit)

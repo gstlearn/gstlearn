@@ -392,14 +392,14 @@ void ACovAnisoList::setAllFiltered(bool status)
 
 void ACovAnisoList::normalize(double sill)
 {
-  double cov = 0.;
+  double covval = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
-    cov += _covs[i]->eval0(0, 0);
+    covval += _covs[i]->eval0(0, 0);
   }
 
-  if (cov <= 0. || cov == sill) return;
-  double ratio = sill / cov;
+  if (covval <= 0. || covval == sill) return;
+  double ratio = sill / covval;
 
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {

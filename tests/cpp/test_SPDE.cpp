@@ -42,7 +42,7 @@ int main(int /*argc*/, char */*argv*/[])
   SPDE_Option  s_option;
   CovContext   ctxt;
   const char triswitch[] = "nqQ";
-  int verbose, seed, ndim, iptr, nsimu;
+  int verbose, seed, ndim, nsimu;
   double diag,range,param;
   VectorInt nx = { 400, 300 };
   VectorDouble dx = { 1., 1. };
@@ -76,9 +76,6 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
                           VectorDouble(), VectorString(), VectorString(), 1);
   if (dbgrid == nullptr) goto label_end;
-  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
-                               &iptr)) goto label_end;
-  if (db_grid_define_coordinates(dbgrid)) goto label_end;
   if (db_extension_diag(dbgrid,&diag)) goto label_end;
     
   // Model 

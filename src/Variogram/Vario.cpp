@@ -192,6 +192,16 @@ Vario* Vario::createTransformYToZ(const Vario* varioY,
   return varioZ;
 }
 
+Vario* Vario::createReduce(const Vario *varioIn,
+                           const VectorInt &varcols,
+                           const VectorInt &dircols,
+                           bool asSymmetric)
+{
+  Vario* varioOut = varioIn->clone();
+  varioOut->reduce(varcols, dircols, asSymmetric);
+  return varioOut;
+}
+
 int Vario::compute(const ECalcVario &calcul,
                    bool flag_gen,
                    bool flag_sample,

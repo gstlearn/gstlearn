@@ -1170,6 +1170,7 @@ void morpho_gradients(DbGrid *dbgrid, int iptr)
 
           double v1 = 0.;
           double v2 = 0.;
+          number = 0;
           if (idim == 0)
           {
             j1 = (ix + 1 > nmax - 1) ? ix : ix + 1;

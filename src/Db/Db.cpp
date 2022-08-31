@@ -872,7 +872,7 @@ void Db::clearLocators(const ELoc& locatorType)
  *
  */
 void Db::setLocators(const VectorString &names,
-                     const ELoc &locatorType,
+                     const ELoc& locatorType,
                      int locatorIndex,
                      bool cleanSameLocator)
 {
@@ -894,7 +894,7 @@ void Db::setLocators(const VectorString &names,
  * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
 void Db::setLocator(const String &names,
-                    const ELoc &locatorType,
+                    const ELoc& locatorType,
                     int locatorIndex,
                     bool cleanSameLocator)
 {
@@ -919,7 +919,7 @@ void Db::setLocator(const String &names,
  * @remark: This allow using this function in any order.
  */
 void Db::setLocatorByUID(int iuid,
-                         const ELoc &locatorType,
+                         const ELoc& locatorType,
                          int locatorIndex,
                          bool cleanSameLocator)
 {
@@ -964,7 +964,7 @@ void Db::setLocatorByUID(int iuid,
 }
 
 void Db::setLocatorByColIdx(int icol,
-                            const ELoc &locatorType,
+                            const ELoc& locatorType,
                             int locatorIndex,
                             bool cleanSameLocator)
 {

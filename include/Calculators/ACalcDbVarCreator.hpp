@@ -43,7 +43,7 @@ protected:
   int _getNVar() const;
 
   int _addVariableDb(int status,
-                     const ELoc &locatorType,
+                     const ELoc& locatorType,
                      int locatorIndex = 0,
                      int number = 1,
                      double valinit = 0.);

@@ -201,7 +201,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
+int db_vector_get(Db *db, const ELoc& locatorType, int item, double *tab)
 {
   int iatt = db->getUIDByLocator(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -238,7 +238,7 @@ int db_selection_get(const Db *db, int item, double *tab)
  **
  *****************************************************************************/
 int db_vector_put(Db *db,
-                  const ELoc &locatorType,
+                  const ELoc& locatorType,
                   int locatorIndex,
                   double *tab)
 {
@@ -258,7 +258,7 @@ int db_vector_put(Db *db,
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
+int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
@@ -277,7 +277,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int exist_LOCATOR(Db *db, const ELoc &locatorType)
+int exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -297,7 +297,7 @@ int exist_LOCATOR(Db *db, const ELoc &locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
+double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int item, int iech)
 {
   return db->getFromLocator(locatorType, iech, item);
 }
@@ -316,7 +316,7 @@ double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
  **
  *****************************************************************************/
 void set_LOCATOR_ITEM(Db *db,
-                      const ELoc &locatorType,
+                      const ELoc& locatorType,
                       int item,
                       int iech,
                       double value)
@@ -492,7 +492,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
+int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
 {
   int iatt = db->getUIDByLocator(locatorType, item);
   return (iatt);
@@ -527,7 +527,7 @@ double* db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-double* db_sample_alloc(const Db *db, const ELoc &locatorType)
+double* db_sample_alloc(const Db *db, const ELoc& locatorType)
 {
   double *tab;
   int size;
@@ -558,7 +558,7 @@ double* db_sample_alloc(const Db *db, const ELoc &locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
+int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab)
 {
   if (!isLocatorTypeValid(locatorType)) return (1);
 
@@ -1704,7 +1704,7 @@ int db_grid_match(DbGrid *db1, DbGrid *db2)
  **
  *****************************************************************************/
 int db_locator_attribute_add(Db *db,
-                             const ELoc &locatorType,
+                             const ELoc& locatorType,
                              int number,
                              int r_tem,
                              double valinit,

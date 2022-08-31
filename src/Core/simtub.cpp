@@ -282,7 +282,7 @@ void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
  *****************************************************************************/
 void check_mandatory_attribute(const char *method,
                                Db *db,
-                               const ELoc &locatorType)
+                               const ELoc& locatorType)
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory",method,locatorType.getValue());
@@ -1445,7 +1445,7 @@ label_end:
  **
  *****************************************************************************/
 int db_simulations_to_ce(Db *db,
-                         const ELoc &locatorType,
+                         const ELoc& locatorType,
                          int nbsimu,
                          int nvar,
                          int *iptr_ce_arg,
@@ -1557,6 +1557,7 @@ int db_simulations_to_ce(Db *db,
  ** \param[in]  flag_norm   1 if the Model must be normalized
  ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
  ** \param[in]  flag_propagation 1 for the propagation algorithm
+ ** \param[in]  flag_sym_neigh 1 for performing symmetry of neighborhood search
  ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
  ** \param[in]  percent     Amount of nugget effect added to too continuous
  **                         model (expressed in percentage of total variance)
@@ -2170,7 +2171,6 @@ int simRI(Db *dbout,
           int nbtuba,
           int verbose)
 {
-  CalcSimuTurningBands situba;
   double *pres, *pton, *sort, cumul, simval, proba, seuil;
   int icut, error, iptrg, iptrs, nech, iech, count, total;
 

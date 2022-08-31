@@ -124,8 +124,6 @@ int main(int argc, char *argv[])
     ascii_filename("Rule",i,0,filename);
     rule[i] = Rule::createFromNF(filename,verbose);
     if (rule[i] == nullptr) continue;
-    rule[i]->display();
-
     npgs++;
     rule[i]->display();
     nfac[i] = rule[i]->getFaciesNumber();

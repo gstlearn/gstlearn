@@ -52,6 +52,7 @@ public:
   virtual double getUnit(int idim = 0) const;
   virtual int getNDim() const;
   virtual bool mayChangeSampleNumber() const { return true; }
+  virtual void resetDims(int ncol, int nech);
 
   static Db* createFromNF(const String& neutralFilename,
                            bool verbose = true);
@@ -150,7 +151,6 @@ public:
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
 
-  void resetDims(int ncol, int nech);
 
   // Locator and UID methods
 
@@ -186,7 +186,7 @@ public:
                            bool cleanSameLocator = false);
   void addColumnsByVVD(const VectorVectorDouble tab,
                        const String &radix,
-                       const ELoc &locatorType,
+                       const ELoc& locatorType,
                        int locatorIndex,
                        bool useSel,
                        double valinit,
@@ -230,7 +230,7 @@ public:
 
   void setColumn(const VectorDouble &tab,
                  const String &name,
-                 const ELoc &locatorType = ELoc::UNKNOWN,
+                 const ELoc& locatorType = ELoc::UNKNOWN,
                  int locatorIndex = 0,
                  bool useSel = false);
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);

@@ -175,7 +175,7 @@ bool CalcSimuSubstitution::_simulate()
 
     double u = law_uniform(0., 1.);
     double w0 = 0.;
-    double ie = 0;
+    int ie = 0;
     while (w0 < u)
       w0 += props[ie++];
     status[0] = ie - 1;

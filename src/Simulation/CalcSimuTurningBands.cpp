@@ -1327,6 +1327,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   /* Core allocation */
 
   tab.resize(nech, 0.);
+  omega = 0.;
+  phi = 0.;
 
   /*****************************/
   /* Performing the simulation */
@@ -1841,16 +1843,16 @@ double CalcSimuTurningBands::_irfProcessSample(const ECov &type,
 }
 
 void CalcSimuTurningBands::_getOmegaPhi(int ibs,
-                                    double omega,
-                                    double phi,
-                                    double *cxp,
-                                    double *sxp,
-                                    double *cyp,
-                                    double *syp,
-                                    double *czp,
-                                    double *szp,
-                                    double *c0z,
-                                    double *s0z)
+                                        double omega,
+                                        double phi,
+                                        double *cxp,
+                                        double *sxp,
+                                        double *cyp,
+                                        double *syp,
+                                        double *czp,
+                                        double *szp,
+                                        double *c0z,
+                                        double *s0z)
 {
   double dxp = _getCodirDXP(ibs);
   double dyp = _getCodirDYP(ibs);
@@ -2571,6 +2573,11 @@ bool CalcSimuTurningBands::_postprocess()
 {
   /* Free the temporary variables */
   _cleanVariableDb(2);
+
+  // Clean variables created for Expansion
+
+  if (_expandInformation(-1, ELoc::F)) return false;
+  if (_expandInformation(-1, ELoc::NOSTAT)) return false;
 
   /* Set the error return flag */
 

@@ -286,7 +286,7 @@ int Skin::init(bool verbose)
         int ecr = _gridShift(indg, dir);
         if (IFFFF(ecr)) continue;
         if (! _skf->isAlreadyFilled(ecr)) continue;
-        local += _skf->getWeight(ecr, invdir[dir]);
+        local += (int) _skf->getWeight(ecr, invdir[dir]);
       }
       if (local > 0.)
       {
@@ -399,7 +399,7 @@ int Skin::unstack(int rank0, int ipos0)
     /* Discard the neighboring cell if it cannot filled */
 
     if (! _skf->isToBeFilled(ecr)) continue;
-    local = _skf->getWeight(ipos0, dir);
+    local = (int) _skf->getWeight(ipos0, dir);
     int rank = _cellAlreadyFilled(ecr);
     if (rank < 0)
     {

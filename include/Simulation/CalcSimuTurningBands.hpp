@@ -80,7 +80,6 @@ public:
   double getRCoeff() const { return _rCoeff; }
   void setRCoeff(double r_coeff) { _rCoeff = r_coeff; }
 
-
 private:
   virtual bool _check() override;
   virtual bool _preprocess() override;

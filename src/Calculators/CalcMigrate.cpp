@@ -26,7 +26,9 @@ CalcMigrate::CalcMigrate()
       _ldmax(1),
       _dmax(),
       _flagFill(false),
-      _flagInter(false)
+      _flagInter(false),
+      _flagLocate(false),
+      _locatorType(ELoc::Z)
 {
 }
 
@@ -68,7 +70,13 @@ bool CalcMigrate::_postprocess()
   _cleanVariableDb(2);
 
   int nvar = _getNVar();
-  _renameVariable(1, 1, _iattOut, String(), nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    _renameVariable(2, 1, _iattOut+ivar, _identifyVariable(_iuids[ivar]), 1, ! _flagLocate, ivar);
+  }
+
+  if (_flagLocate)
+    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType);
 
   return true;
 }
@@ -153,6 +161,49 @@ int migrate(Db *db1,
 
 /*****************************************************************************/
 /*!
+ **  Migrates a set of variables from one Db to another one
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  db1        Descriptor of the input Db
+ ** \param[in]  db2        Descriptor of the output Db
+ ** \param[in]  names      Name of the attribute to be migrated
+ ** \param[in]  ldmax      Type of distance for calculating maximum distance
+ **                        1 for L1 and 2 for L2 distance
+ ** \param[in]  dmax       Array of maximum distances (optional)
+ ** \param[in]  flag_fill  Filling option
+ ** \param[in]  flag_inter Interpolation
+ ** \param[in]  namconv    Naming convention
+ **
+ *****************************************************************************/
+int migrateVariables(Db *db1,
+                     Db *db2,
+                     const VectorString &names,
+                     int ldmax,
+                     const VectorDouble &dmax,
+                     int flag_fill,
+                     int flag_inter,
+                     const NamingConvention &namconv)
+{
+  CalcMigrate migrate;
+  migrate.setDbin(db1);
+  migrate.setDbout(db2);
+  migrate.setNamingConvention(namconv);
+
+  VectorInt iuids = db1->getUIDs(names);
+  migrate.setIuids(iuids);
+  migrate.setLdmax(ldmax);
+  migrate.setDmax(dmax);
+  migrate.setFlagFill(flag_fill);
+  migrate.setFlagInter(flag_inter);
+
+  // Run the calculator
+  int error = (migrate.run()) ? 0 : 1;
+  return error;
+}
+
+/*****************************************************************************/
+/*!
  **  Migrates a variable from one Db to another one
  **
  ** \return  Error return code
@@ -211,10 +262,12 @@ int migrateByAttribute(Db *db1,
  ** \param[in]  flag_inter  Interpolation
  ** \param[in]  namconv     Naming convention
  **
+ ** \remark The output variable receive the same locator as the input variables
+ **
  *****************************************************************************/
 int migrateByLocator(Db *db1,
                      Db *db2,
-                     const ELoc &locatorType,
+                     const ELoc& locatorType,
                      int ldmax,
                      const VectorDouble &dmax,
                      int flag_fill,
@@ -233,6 +286,8 @@ int migrateByLocator(Db *db1,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagLocate(true);
+  migrate.setLocatorType(locatorType);
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;

@@ -43,7 +43,7 @@ class GSTLEARN_EXPORT AVariableTemplate : public AVariable
     {
     }
 
-    unsigned int getNValues() const override { return _values.size(); }
+    unsigned int getNValues() const override { return (unsigned int) _values.size(); }
 
     //bool isUndefined(int i) const { return getUndef<T>() == getValueAsType(i); }
     virtual void resize(int n, const T& val) { _values.resize(n, val); }

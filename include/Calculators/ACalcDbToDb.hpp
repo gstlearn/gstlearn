@@ -49,7 +49,7 @@ protected:
 
   int _addVariableDb(int whichDb,
                      int status,
-                     const ELoc &locatorType,
+                     const ELoc& locatorType,
                      int locatorIndex = 0,
                      int number = 1,
                      double valinit = 0.);
@@ -58,11 +58,13 @@ protected:
                        int iptr,
                        const String &name,
                        int count,
-                       bool flagSetLocator = true);
+                       bool flagSetLocator = true,
+                       int shift = 0);
   void _storeInVariableList(int whichDb, int status, const VectorInt& iuids);
-  int  _expandInformation(int mode, const ELoc &locatorType);
+  int  _expandInformation(int mode, const ELoc& locatorType);
   void _cleanVariableDb(int status);
   Db*  _whichDb(int whichDb);
+  String _identifyVariable(int iuid) const;
 
 private:
   Db* _dbin;

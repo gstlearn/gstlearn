@@ -34,6 +34,8 @@ public:
   void setFlagInter(bool flagInter) { _flagInter = flagInter; }
   void setLdmax(int ldmax) { _ldmax = ldmax; }
   void setIuids(const VectorInt &iuids) { _iuids = iuids; }
+  void setFlagLocate(bool flagLocate) { _flagLocate = flagLocate; }
+  void setLocatorType(const ELoc &locatorType) { _locatorType = locatorType; }
 
 private:
   virtual bool _check() override;
@@ -51,16 +53,28 @@ private:
   VectorDouble _dmax;
   bool _flagFill;
   bool _flagInter;
+
+  bool _flagLocate;
+  ELoc _locatorType;
 };
 
 GSTLEARN_EXPORT int migrate(Db *db1,
                             Db *db2,
-                            const String &name,
+                            const String& name,
                             int ldmax = 1,
                             const VectorDouble &dmax = VectorDouble(),
                             int flag_fill = 0,
                             int flag_inter = 0,
                             const NamingConvention& namconv = NamingConvention("Migrate"));
+GSTLEARN_EXPORT int migrateVariables(Db *db1,
+                                     Db *db2,
+                                     const VectorString &names,
+                                     int ldmax = 1,
+                                     const VectorDouble &dmax = VectorDouble(),
+                                     int flag_fill = 0,
+                                     int flag_inter = 0,
+                                     const NamingConvention &namconv = NamingConvention(
+                                         "Migrate"));
 GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
                                        Db *db2,
                                        const VectorInt &iatts = VectorInt(),
@@ -71,7 +85,7 @@ GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
                                        const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int migrateByLocator(Db *db1,
                                      Db *db2,
-                                     const ELoc &locatorType,
+                                     const ELoc& locatorType,
                                      int ldmax = 1,
                                      const VectorDouble &dmax = VectorDouble(),
                                      int flag_fill = false,

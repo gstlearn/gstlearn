@@ -43,37 +43,6 @@
                                    QT_VARS(QT_STD,j) > 0)
 /*! \endcond */
 
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value
- **
- ** \return  Array f results (Dimension: 7 * nclass)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] zcut         Array of cutoffs
- ** \param[in] z_max        Maximum cutoff for interpolation
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbose flag
- **
- ** \remark In the case of Discrete Anamorphosis, the number of classes
- ** \remark is defined by the number of cutoffs
- **
- *****************************************************************************/
-Selectivity anam_selectivity(AAnam *anam,
-                             VectorDouble zcut,
-                             double z_max,
-                             int flag_correct,
-                             int verbose)
-{
-  Selectivity selectivity(zcut, z_max, flag_correct);
-
-  if (selectivity.calculateFromAnam(anam)) return selectivity;
-
-  if (verbose) selectivity.dumpGini();
-
-  return selectivity;
-}
-
 /*****************************************************************************/
 /*!
  **  Transform a point anamorphosis into a block anamorphosis

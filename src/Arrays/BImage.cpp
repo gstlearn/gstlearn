@@ -51,7 +51,7 @@ void BImage::init(const VectorInt& ndims)
 void BImage::_update()
 {
   int nchar = getAllocSize();
-  _values.resize(nchar, 0.);
+  _values.resize(nchar, 0);
 }
 
 int BImage::getAllocSize() const

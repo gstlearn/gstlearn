@@ -2702,7 +2702,7 @@ void ut_trace_discretize(int nseg,
  **
  *****************************************************************************/
 void ut_trace_sample(Db *db,
-                     const ELoc &ptype,
+                     const ELoc& ptype,
                      int np,
                      double *xp,
                      double *yp,
@@ -2829,7 +2829,7 @@ void ut_trace_sample(Db *db,
  **
  *****************************************************************************/
 int manage_external_info(int mode,
-                         const ELoc &locatorType,
+                         const ELoc& locatorType,
                          Db *dbin,
                          Db *dbout,
                          int *istart)
@@ -6293,7 +6293,6 @@ int db_proportion_estimate(Db *dbin,
   ShiftOpCs S = ShiftOpCs(&mesh, model, dbout);
   PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0), EPowerPT::ONE);
   ProjMatrix Aproj = ProjMatrix(dbin, &mesh);
-  cs_print_range("range dans Aproj", Aproj.getAproj());
 
   // Invoke the calculation
 
