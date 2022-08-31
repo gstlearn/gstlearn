@@ -4414,7 +4414,7 @@ static void st_vario_varchol_manage(const Vario *vario,
         AUX(ivar,jvar)= (ivar == jvar);
         (void) matrix_cholesky_decompose(aux.data(),varchol.data(),nvar);
       }
-  model_nugget = model_free(model_nugget);
+  delete model_nugget;
   return;
 }
 

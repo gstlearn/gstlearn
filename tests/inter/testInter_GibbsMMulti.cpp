@@ -150,6 +150,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Cleaning structures
 
   gibbs.cleanup();
-  db    = db_delete(db);
+  delete db;
   return(0);
 }

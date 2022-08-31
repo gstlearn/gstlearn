@@ -101,7 +101,7 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid->display(&dbfmt);
   
 label_end:
-  dbgrid   = db_delete(dbgrid);
-  model    = model_free(model);
+  delete dbgrid;
+  delete model;
   return(0);
 }

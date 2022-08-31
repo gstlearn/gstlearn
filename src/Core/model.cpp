@@ -321,25 +321,6 @@ void model_calcul_drift(Model *model,
 
 /****************************************************************************/
 /*!
- **  Deallocate the Model structure
- **
- ** \return  Pointer to the freed structure
- **
- ** \param[in]  model Model to be freed
- **
- *****************************************************************************/
-Model* model_free(Model *model)
-
-{
-  /* Initializations */
-
-  if (model == nullptr) return (model);
-  delete model;
-  return (NULL);
-}
-
-/****************************************************************************/
-/*!
  **  Check if the non-stationary Model has a given non-stationary parameter
  **
  ** \return  1 if the given non-stationary parameter is defined; 0 otherwise

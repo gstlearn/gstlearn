@@ -144,9 +144,9 @@ int main(int argc, char *argv[])
 /* Core deallocation */
 
 label_end:
-  model = model_free(model);
-  dbout = db_delete(dbout);
-  vario = variogram_delete(vario);
-  delete [] filename;
+  delete model;
+  delete dbout;
+  delete filename;
+  delete vario;
   return(0);
 }

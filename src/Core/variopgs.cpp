@@ -5072,7 +5072,7 @@ Vario* model_pgs(Db *db,
     CTABLES = ct_tables_manage(-1, 0, 1, 200, 100, -1., 1., CTABLES);
   st_manage_pgs(-1, &local_pgs, db, rule, vario, varioind, new_model, propdef,
                 flag_stat, 0, 1, ngrf, nfacies, vario->getCalcul());
-  new_model = model_free(new_model);
+  delete new_model;
   (void) st_vario_pgs_variable(-1, ngrf, nfacies, 0, 1, db, propdef, rule);
   propdef = proportion_manage(-1, 1, flag_stat, ngrf, 0, nfacies, 0, db, dbprop,
                               propcst, propdef);

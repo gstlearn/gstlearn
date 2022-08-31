@@ -2530,19 +2530,6 @@ void vardir_print(Vario *vario, int idir, int verbose)
 
 /****************************************************************************/
 /*!
- **  Print the experimental variograms
- **
- ** \param[in]  vario     Vario structure
- **
- *****************************************************************************/
-void variogram_print(const Vario *vario)
-{
-  if (vario != nullptr)
-    messageFlush(vario->toString());
-}
-
-/****************************************************************************/
-/*!
  **  Estimate the coefficients of the global drift
  **
  ** \return Error return code
@@ -3461,23 +3448,6 @@ int variogram_direction_add(VarioParam *varioparam,
                                tolcode, breaks, codir, grincr);
   varioparam->addDir(dirparam);
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Free the Vario structure
- **
- ** \return  Pointer to the freed Vario structure
- **
- ** \param[in]  vario Vario structure to be freed
- **
- *****************************************************************************/
-Vario* variogram_delete(Vario *vario)
-{
-  if (vario == nullptr) return (vario);
-  delete vario;
-  vario = nullptr;
-  return (vario);
 }
 
 /****************************************************************************/

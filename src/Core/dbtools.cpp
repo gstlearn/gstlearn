@@ -5161,7 +5161,10 @@ Db* db_extract(Db *db, int *ranks)
   error = 0;
 
   label_end: iatts = (int*) mem_free((char* ) iatts);
-  if (error) dbnew = db_delete(db);
+  if (error)
+  {
+    if (dbnew != nullptr) delete dbnew;
+  }
   return (dbnew);
 }
 

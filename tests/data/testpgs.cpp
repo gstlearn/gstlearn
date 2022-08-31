@@ -155,7 +155,7 @@ int main(int argc, char *argv[])
       
       vario->attachDb(dbin);
       vario->computeByKey("vg");
-      variogram_print(vario);
+      vario->display();
       ascii_filename("Vario",0,1,filename);
       if (! vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");
@@ -220,13 +220,13 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  dbin   = db_delete(dbin);
-  dbout  = db_delete(dbout);
+  delete dbin;
+  delete dbout;
   for (i=0; i<2; i++)
   {
     rule[i] = rule_free(rule[i]);
     for (j=0; j<2; j++)
-      model[i][j] = model_free(model[i][j]);
+      delete model[i][j];
   }
   delete ruleprop;
   delete neighU;
