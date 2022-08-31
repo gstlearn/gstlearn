@@ -1,6 +1,6 @@
 if(CMAKE_CONFIGURATION_TYPES)
   # Currently these tests cannot run under Visual
-  # TODO : make data non-reg tests available under Visual ($<CONFIG> for output directoryu)
+  # TODO : make data non-reg tests available under Visual ($<CONFIG> for output directory)
   return()
 endif()
 
@@ -21,6 +21,14 @@ endif()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${GLOBAL_DST_DIR})
 
+# Define the prepare target to copy C++ library in test directory under windows
+if (WIN32)
+  # Need to copy C++ shared library to tests directory
+  add_custom_target(prepare_data
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
+  )
+endif()
+
 # Compile each test executable
 set(TARGETS_EXE "")
 foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
@@ -32,6 +40,10 @@ foreach(TEST_SOURCE_FILE ${TEST_SOURCES})
     add_executable(${TEST_NAME} EXCLUDE_FROM_ALL ${TEST_SOURCE_FILE})
     # Link each test to shared library
     target_link_libraries(${TEST_NAME} PRIVATE ${PROJECT_NAME}::shared)
+    # Trigger the prepare target each time a test is compiled
+    if (WIN32)
+      add_dependencies(${TEST_NAME} prepare_data)
+    endif()
     # Trigger the build of the test with the target build_tests
     add_dependencies(build_tests ${TEST_NAME})
 endforeach(TEST_SOURCE_FILE ${TEST_SOURCES})
@@ -75,14 +87,6 @@ foreach(TARGET_EXE ${TARGETS_EXE})
 endforeach(TARGET_EXE ${TARGETS_EXE})
 
  # Look parent CMakeLists for MY_CTEST_COMMAND definition
-if (WIN32)
-  # Need to copy C++ shared library to tests directory
-  add_custom_target(check_data
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different $<TARGET_FILE:${PROJECT_NAME}::shared> ${GLOBAL_DST_DIR}
-    COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
-  )
-else()
-  add_custom_target(check_data
-    COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
-  )
-endif()
+add_custom_target(check_data
+  COMMAND ${MY_CTEST_COMMAND} DEPENDS ${TARGETS_EXE}
+)
