@@ -131,12 +131,8 @@ data file plus an extension of 10000 x 10000.
 
 [source, ipython3]
 ----
-Result = gl.DbGrid()
-Result.resetCoveringDb(dat,[47,101],[],[],[50000,50000])
+Result = gl.DbGrid.createCoveringDb(dat,[47,101],[],[],[50000,50000])
 ----
-
-
-----0----
 
 == Add a selection (mask the cells outside the polygon)
 
@@ -144,7 +140,7 @@ Result.resetCoveringDb(dat,[47,101],[],[],[50000,50000])
 ----
 gl.db_polygon(Result,poly)
 ax = gp.grid(Result,name="Polygon*",usesel=False,flagColorBar=False,figsize=[10,10],
-            title="Initial information")
+             title="Initial information")
 ax = gp.point(dat,"LANU",size=2,ax=ax)
 ax = gp.polygon(poly,end_plot=True,linewidth=1,edgeColor="r",ax=ax)
 ----
@@ -184,7 +180,7 @@ The next parts will be simplified in a future dedicated API
 [source, ipython3]
 ----
 model = gl.Model.createFromDb(Result)
-cova = gl.CovAniso(gl.ECov.BESSEL_K,50000.,2.,1.,model.getContext()) 
+cova = gl.CovAniso.createIsotropic(model.getContext(),gl.ECov.BESSEL_K,range=50000.,param=2.,sill=1.,) 
 model.addCov(cova)
 ----
 
@@ -192,44 +188,6 @@ model.addCov(cova)
 ----
 err = gl.db_proportion_estimate(dat,Result,model)
 ----
-
-[source, ipython3]
-----
-Result.display()
-----
-
-
-----
-
-Data Base Grid Characteristics
-==============================
-
-Data Base Summary
------------------
-File is organized as a regular grid
-Space dimension              = 2
-Number of Columns            = 8
-Maximum Number of UIDs       = 8
-Total number of samples      = 4747
-Number of active samples     = 422
-
-Grid characteristics:
----------------------
-Origin : 306764.2835218227.694
-Mesh   :   5749.747  4261.311
-Number :         47       101
-
-Variables
----------
-Column = 0 - Name = x1 - Locator = x1
-Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Polygon - Locator = sel
-Column = 3 - Name = Prop.1 - Locator = p1
-Column = 4 - Name = Prop.2 - Locator = p2
-Column = 5 - Name = Prop.3 - Locator = p3
-Column = 6 - Name = Prop.4 - Locator = p4
-Column = 7 - Name = Prop.5 - Locator = p5
- ----
 
 [source, ipython3]
 ----
@@ -331,15 +289,15 @@ for i in range(ncat):
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_28_0.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_28_1.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_2.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_28_2.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_3.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_28_3.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_29_4.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_28_4.png)
 ----
 
 Creating the environment to infer the Rule. It uses a variogram
@@ -347,9 +305,8 @@ calculated over very few lags close to the origin.
 
 [source, ipython3]
 ----
-nlag = 2
 varioParam = gl.VarioParam()
-dirparam = gl.DirParam(ndim, nlag, 100);
+dirparam = gl.DirParam.create(ndim=ndim, npas = 2, dpas=100)
 varioParam.addDir(dirparam);
 ruleprop = gl.RuleProp.createFromDb(Result);
 ruleprop.fit(dat, varioParam, 1);
@@ -369,13 +326,12 @@ ax=gp.rule(ruleprop.getRule())
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_32_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_31_0.png)
 ----
 
 [source, ipython3]
 ----
-nlag = 19;
-dirparam = gl.DirParam(ndim, nlag, 1000);
+dirparam = gl.DirParam.create(ndim=ndim, npas = 19, dpas=1000)
 covparam = gl.VarioParam();
 covparam.addDir(dirparam);
 cov = gl.variogram_pgs(dat,covparam,ruleprop);
@@ -452,8 +408,7 @@ We extract the experimental variograms of each GRF.
 
 [source, ipython3]
 ----
-vario1 = gl.Vario(cov)
-vario1.reduce([0],gl.VectorInt(),True)
+vario1 = gl.Vario.createReduce(cov,[0],gl.VectorInt(),True)
 if ngrf > 1:
     vario2 = gl.Vario(cov)
     vario2.reduce([1],gl.VectorInt(),True)
@@ -556,14 +511,6 @@ fitted model.
 
 [source, ipython3]
 ----
-vario1.getVar(0,0)
-----
-
-
-----1.0----
-
-[source, ipython3]
-----
 ax=gp.varmod(vario1,modelPGS1)
 if ngrf > 1:
     ax=gp.varmod(vario2,modelPGS2)
@@ -571,7 +518,7 @@ if ngrf > 1:
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_42_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_40_0.png)
 ----
 
 In this paragraph, we compare the experimental indicator variogram to
@@ -579,7 +526,7 @@ the one derived from the Model of the underlying GRFs.
 
 [source, ipython3]
 ----
-dirparamindic = gl.DirParam(ndim, nlag, 1000)
+dirparamindic = gl.DirParam.create(ndim=ndim, npas=19, dpas=1000)
 varioparamindic = gl.VarioParam()
 varioparamindic.addDir(dirparamindic)
 varioindic = gl.Vario(varioparamindic,dat)
@@ -599,7 +546,7 @@ axs=gp.varmod(varioindic2,axs=axs,linestyle='dashed')
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_46_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_44_0.png)
 ----
 
 [source, ipython3]
@@ -615,5 +562,5 @@ ax = gp.grid(Result,figsize=[10,10])
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_48_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEPGS_46_0.png)
 ----

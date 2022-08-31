@@ -2230,7 +2230,7 @@ static void st_gibbs(int igrf,
 static void st_save_result(Vertype *vertype,
                            double *z,
                            Db *dbout,
-                           const ELoc &locatorType,
+                           const ELoc& locatorType,
                            int iatt_simu)
 {
   int iech, lec, ecr;
@@ -9033,7 +9033,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
     if (numb > 0)
     {
-      mean /= numb;
+      mean   /= numb;
       ffmean /= numb;
       stdv = stdv / numb - mean * mean;
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;

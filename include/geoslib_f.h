@@ -173,16 +173,6 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const Model *model1,
                                  const Model *model2 = nullptr);
 
-/******************************/
-/* Functions for Anamorphosis */
-/******************************/
-
-GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
-                                             VectorDouble zcut,
-                                             double z_max = TEST,
-                                             int flag_correct = 0,
-                                             int verbose = 0);
-
 /**********************/
 /* Functions for SPDE */
 /**********************/

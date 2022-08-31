@@ -76,9 +76,6 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
                           VectorDouble(), VectorString(), VectorString(), 1);
   if (dbgrid == nullptr) goto label_end;
-  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
-                               &iptr)) goto label_end;
-  if (db_grid_define_coordinates(dbgrid)) goto label_end;
   if (db_extension_diag(dbgrid,&diag)) goto label_end;
     
   // Model 

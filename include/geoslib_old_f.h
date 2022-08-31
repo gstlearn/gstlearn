@@ -180,7 +180,7 @@ GSTLEARN_EXPORT void ut_trace_discretize(int nseg,
                                          double **del_arg,
                                          double *dist_arg);
 GSTLEARN_EXPORT void ut_trace_sample(Db *db,
-                                     const ELoc &ptype,
+                                     const ELoc& ptype,
                                      int np,
                                      double *xp,
                                      double *yp,
@@ -893,20 +893,20 @@ GSTLEARN_EXPORT VectorInt grid_iterator_next(Grid *grid);
 GSTLEARN_EXPORT int* db_indg_alloc(const Db *db);
 GSTLEARN_EXPORT int* db_indg_free(int *indice);
 GSTLEARN_EXPORT double* db_sample_free(double *tab);
-GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc &locatorType);
+GSTLEARN_EXPORT double* db_sample_alloc(const Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT int db_sample_load(Db *db,
-                                   const ELoc &locatorType,
+                                   const ELoc& locatorType,
                                    int iech,
                                    double *tab);
 GSTLEARN_EXPORT double* db_vector_free(double *tab);
 GSTLEARN_EXPORT double* db_vector_alloc(const Db *db);
 GSTLEARN_EXPORT int db_selection_get(const Db *db, int item, double *tab);
 GSTLEARN_EXPORT int db_vector_get(Db *db,
-                                  const ELoc &locatorType,
+                                  const ELoc& locatorType,
                                   int locatorIndex,
                                   double *tab);
 GSTLEARN_EXPORT int db_vector_put(Db *db,
-                                  const ELoc &locatorType,
+                                  const ELoc& locatorType,
                                   int locatorIndex,
                                   double *tab);
 GSTLEARN_EXPORT int db_vector_get_att_sel_compress(Db *db,
@@ -926,7 +926,7 @@ GSTLEARN_EXPORT void db_attribute_init(Db *db,
                                        double valinit);
 GSTLEARN_EXPORT void db_attribute_copy(Db *db, int iatt_in, int iatt_out);
 GSTLEARN_EXPORT int db_attribute_identify(const Db *db,
-                                          const ELoc &locatorType,
+                                          const ELoc& locatorType,
                                           int locatorIndex);
 GSTLEARN_EXPORT int db_sample_get_att(Db *db,
                                       int iech,
@@ -939,7 +939,7 @@ GSTLEARN_EXPORT void db_sample_put_att(Db *db,
                                        int iatt,
                                        double *tab);
 GSTLEARN_EXPORT int db_locator_attribute_add(Db *db,
-                                             const ELoc &locatorType,
+                                             const ELoc& locatorType,
                                              int number,
                                              int r_tem,
                                              double valinit,
@@ -1016,14 +1016,14 @@ GSTLEARN_EXPORT void set_grid_value(DbGrid *dbgrid,
                                     int iy,
                                     int iz,
                                     double value);
-GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType);
-GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc &locatorType);
+GSTLEARN_EXPORT int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType);
+GSTLEARN_EXPORT int exist_LOCATOR(Db *db, const ELoc& locatorType);
 GSTLEARN_EXPORT double get_LOCATOR_ITEM(Db *db,
-                                        const ELoc &locatorType,
+                                        const ELoc& locatorType,
                                         int locatorIndex,
                                         int iech);
 GSTLEARN_EXPORT void set_LOCATOR_ITEM(Db *db,
-                                      const ELoc &locatorType,
+                                      const ELoc& locatorType,
                                       int locatorIndex,
                                       int iech,
                                       double value);
@@ -1146,7 +1146,7 @@ GSTLEARN_EXPORT int db_streamline(DbGrid *dbgrid,
                                   int *npline_loc,
                                   double **line_loc);
 GSTLEARN_EXPORT int manage_external_info(int mode,
-                                         const ELoc &locatorType,
+                                         const ELoc& locatorType,
                                          Db *dbin,
                                          Db *dbout,
                                          int *istart);
@@ -1553,7 +1553,7 @@ GSTLEARN_EXPORT void simu_func_categorical_scale(Db *db,
 GSTLEARN_EXPORT int get_rank_from_propdef(PropDef *propdef, int ipgs, int igrf);
 GSTLEARN_EXPORT void check_mandatory_attribute(const char *method,
                                                Db *db,
-                                               const ELoc &locatorType);
+                                               const ELoc& locatorType);
 GSTLEARN_EXPORT int simcond(Db *dbin,
                             Db *dbout,
                             Model *model,
@@ -1602,7 +1602,7 @@ GSTLEARN_EXPORT int simtub_constraints(Db *dbin,
                                                          double percent,
                                                          VectorDouble &tab));
 GSTLEARN_EXPORT int db_simulations_to_ce(Db *db,
-                                         const ELoc &locatorType,
+                                         const ELoc& locatorType,
                                          int nbsimu,
                                          int nvar,
                                          int *iptr_ce_arg,

@@ -165,6 +165,11 @@ Db* ACalcDbToDb::_whichDb(int whichDb)
   return db;
 }
 
+String ACalcDbToDb::_identifyVariable(int iuid) const
+{
+  return _dbin->getNameByUID(iuid);
+}
+
 /**
  * Store the IUID of the new variable in the relevant internal list
  * @param whichDb 1 for variable in 'dbin'; 2 for variable in 'dbout'
@@ -207,7 +212,7 @@ void ACalcDbToDb::_storeInVariableList(int whichDb,
 }
 int ACalcDbToDb::_addVariableDb(int whichDb,
                                 int status,
-                                const ELoc &locatorType,
+                                const ELoc& locatorType,
                                 int locatorIndex,
                                 int number,
                                 double valinit)
@@ -222,19 +227,30 @@ int ACalcDbToDb::_addVariableDb(int whichDb,
   return iuid;
 }
 
+/**
+ * Define the characteristics of the variables created by a Db2Db Calculator
+ * @param whichDb 1 if the variable belongs to 'dbin'; 2 if it belongs to 'dbout'
+ * @param nvar    Naming should be constructed from 'nvar' variables fron 'dbin'
+ * @param iptr    IUID of the (first) variable to be renamed
+ * @param name    Name which will serve as 'qualifier' (when provided)
+ * @param count   Number of variable named from the same basic name (using version number)
+ * @param flagSetLocator True if the locator must be defined
+ * @param locatorShift Shift to calculate the rank of the locator currently defined
+ */
 void ACalcDbToDb::_renameVariable(int whichDb,
                                   int nvar,
                                   int iptr,
                                   const String &name,
                                   int count,
-                                  bool flagSetLocator)
+                                  bool flagSetLocator,
+                                  int locatorShift)
 {
   if (whichDb == 1)
     _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbin, iptr, name, count,
-                                 flagSetLocator);
+                                 flagSetLocator, locatorShift);
   else
     _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name,
-                                 count, flagSetLocator);
+                                 count, flagSetLocator, locatorShift);
 }
 
 void ACalcDbToDb::_cleanVariableDb(int status)
@@ -307,7 +323,7 @@ bool ACalcDbToDb::isGridIn(bool verbose) const
   if (!hasDbin(false)) return false;
   if (!_dbin->isGrid())
   {
-    messerr("The argument 'dbin' should be a Grid File");
+    if (verbose) messerr("The argument 'dbin' should be a Grid File");
     return false;
   }
   return true;
@@ -318,7 +334,7 @@ bool ACalcDbToDb::isGridOut(bool verbose) const
   if (!hasDbout(false)) return false;
   if (!_dbout->isGrid())
   {
-    messerr("The argument 'dbout' should be a Grid File");
+    if (verbose) messerr("The argument 'dbout' should be a Grid File");
     return false;
   }
   return true;
@@ -357,7 +373,7 @@ DbGrid* ACalcDbToDb::getGridout() const
  ** \remark When called with mode=-1, the variables are deleted (by type)
  **
  *****************************************************************************/
-int ACalcDbToDb::_expandInformation(int mode, const ELoc &locatorType)
+int ACalcDbToDb::_expandInformation(int mode, const ELoc& locatorType)
 {
   if (getDbin() == nullptr || getDbout() == nullptr) return 0;
   int nechin = getDbin()->getSampleNumber();

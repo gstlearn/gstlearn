@@ -97,12 +97,12 @@ mnt = gl.Db()
 names = MNT.columns.to_list()
 mnt[names] = np.array(MNT[names])
 mnt.setLocators(["Longitude","Latitude"],gl.ELoc.X)
+----
 
-grid = gl.DbGrid()
-#Est-ce qu'on ne pourrait pas migrer toutes les variables (en option) dès l'appel à resetCoveringDb?
-grid.resetCoveringDb(mnt,nodes = [81,137])
-gl.migrate(mnt,grid,"Elevation",namconv=gl.NamingConvention(""))
-gl.migrate(mnt,grid,"inshore",namconv = gl.NamingConvention(""))
+[source, ipython3]
+----
+grid = gl.DbGrid.createCoveringDb(mnt, nodes=[81,137])
+gl.migrateVariables(mnt,grid,["Elevation","inshore"],namconv = gl.NamingConvention(""))
 grid.setLocator("Elevation",gl.ELoc.F)
 grid.setLocator("inshore",gl.ELoc.SEL)
 gp.grid(grid,"Elevation")
@@ -115,7 +115,7 @@ grid["inshore"] = u
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_5_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_6_0.png)
 ----
 
 [source, ipython3]
@@ -134,7 +134,7 @@ ax=gp.vario(vario)
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_6_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_7_0.png)
 ----
 
 [source, ipython3]
@@ -172,7 +172,7 @@ ax = gp.varmod(vario,model,title="Vario of the residuals")
 ----
 Goulard option is switched OFF due to presence of Sills in Constraints
  
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_7_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_8_1.png)
 ----
 
 [source, ipython3]
@@ -224,7 +224,7 @@ if len(coeffs)>1:
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_11_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_12_0.png)
 ----
 
 [source, ipython3]
@@ -321,9 +321,9 @@ ax = gp.grid(grid,"*estim")
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_17_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_0.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_17_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_1.png)
 ----
 
 [source, ipython3]
@@ -334,7 +334,7 @@ ax = gp.correlation(grid,"*estim","spde*", diagLine=True)
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_0.png)
 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_1.png)
 ----

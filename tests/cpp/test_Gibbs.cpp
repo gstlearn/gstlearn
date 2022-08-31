@@ -274,7 +274,7 @@ int main(int /*argc*/, char */*argv*/[])
   int    flag_print =     0;
   bool   flag_save  =  true;
   const char triswitch[] = "nqQ";
-  int     verbose, seed, ndim, nvar, iptr, nvertex, ncolor;
+  int     verbose, seed, ndim, nvar, nvertex, ncolor;
   int    *colors, *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
@@ -320,8 +320,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
                           VectorDouble(), VectorString(), VectorString(), 1);
-  db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,&iptr);
-  db_grid_define_coordinates(dbgrid);
   db_extension_diag(dbgrid,&diag);
   CovContext ctxt(nvar,ndim,diag);
     

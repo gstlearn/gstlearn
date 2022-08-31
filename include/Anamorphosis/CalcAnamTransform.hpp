@@ -92,7 +92,7 @@ private:
 
 GSTLEARN_EXPORT int RawToGaussianByLocator(Db* db,
                                   AAnam* anam,
-                                  const ELoc &locatorType = ELoc::Z,
+                                  const ELoc& locatorType = ELoc::Z,
                                   const NamingConvention &namconv = NamingConvention(
                                       "Y"));
 GSTLEARN_EXPORT int RawToGaussian(Db *db,
@@ -105,7 +105,7 @@ GSTLEARN_EXPORT int NormalScore(Db *db,
                                     "Gaussian"));
 GSTLEARN_EXPORT int GaussianToRawByLocator(Db *db,
                                   AAnam *anam,
-                                  const ELoc &locatorType = ELoc::Z,
+                                  const ELoc& locatorType = ELoc::Z,
                                   const NamingConvention &namconv = NamingConvention(
                                       "Z"));
 

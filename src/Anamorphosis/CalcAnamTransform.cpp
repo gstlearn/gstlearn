@@ -271,7 +271,7 @@ bool CalcAnamTransform::_postprocess()
   if (_flagVars)
   {
     int nvar = _getNVar();
-      _renameVariable(nvar, _iattVar, String(), 1);
+    _renameVariable(nvar, _iattVar, String(), 1);
     return true;
   }
 
@@ -514,9 +514,9 @@ bool CalcAnamTransform::_FactorsToSelectivity()
 }
 
 int RawToGaussianByLocator(Db *db,
-                  AAnam* anam,
-                  const ELoc &locatorType,
-                  const NamingConvention &namconv)
+                           AAnam *anam,
+                           const ELoc& locatorType,
+                           const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setFlagVars(true);
@@ -552,7 +552,7 @@ int RawToGaussian(Db *db,
 
 int GaussianToRawByLocator(Db *db,
                   AAnam *anam,
-                  const ELoc &locatorType,
+                  const ELoc& locatorType,
                   const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);

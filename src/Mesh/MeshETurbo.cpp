@@ -244,6 +244,10 @@ void MeshETurbo::_fromSelToMeshingMask(const VectorDouble& sel)
   // If no selection is defined on the grid, the vector of Meshing Mask is cancelled
   if (sel.empty()) return;
 
+  // This method is cancelled as it does not function correctly (DR on 30/08/2002)
+  bool flag_renard = true;
+  if (flag_renard) return;
+
   // The Meshing Mask vector must be created
 
   int ndim = getNDim();

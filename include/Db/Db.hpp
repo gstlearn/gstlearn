@@ -186,7 +186,7 @@ public:
                            bool cleanSameLocator = false);
   void addColumnsByVVD(const VectorVectorDouble tab,
                        const String &radix,
-                       const ELoc &locatorType,
+                       const ELoc& locatorType,
                        int locatorIndex,
                        bool useSel,
                        double valinit,
@@ -230,7 +230,7 @@ public:
 
   void setColumn(const VectorDouble &tab,
                  const String &name,
-                 const ELoc &locatorType = ELoc::UNKNOWN,
+                 const ELoc& locatorType = ELoc::UNKNOWN,
                  int locatorIndex = 0,
                  bool useSel = false);
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);

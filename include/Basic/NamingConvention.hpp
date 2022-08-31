@@ -25,7 +25,7 @@ public:
                    bool flag_qualifier = true,
                    const ELoc& locatorOutType = ELoc::Z,
                    String delim = ".",
-                   bool cleanSameLocator = true);
+                   bool cleanSameLocator = false);
   NamingConvention(const NamingConvention &m);
   NamingConvention& operator=(const NamingConvention &m);
   virtual ~NamingConvention();
@@ -34,23 +34,27 @@ public:
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(const VectorString& names,
                            Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(Db* dbout,
                            int iattout_start,
                            const VectorString& names,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(const String& namin,
                            Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
                            const ELoc& locatorInType,
                            int nvar,
@@ -58,21 +62,24 @@ public:
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
                            const VectorInt& iatts,
                            Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
   void setNamesAndLocators(const Db *dbin,
                            int iatt,
                            Db* dbout,
                            int iattout_start,
                            const String& qualifier = String(),
                            int nitems = 1,
-                           bool flagSetLocator = true) const;
+                           bool flagSetLocator = true,
+                           int locatorShift = 0) const;
 
   void setDelim(const String& delim)    { _delim = delim; }
   void setLocatorOutType(const ELoc& l) { _locatorOutType = l; }
@@ -81,7 +88,8 @@ public:
   void setLocators(Db *dbout,
                    int iattout_start,
                    int nvar,
-                   int nitems = 1) const;
+                   int nitems = 1,
+                   int locatorShift = 0) const;
 
   bool isFlagQualifier() const { return _flagQualifier; }
   bool isFlagVarname() const { return _flagVarname; }
