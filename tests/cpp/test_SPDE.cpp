@@ -63,7 +63,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble sill{1.};
   VectorDouble gext{ 2*79.8, 2*79.8 };
 
-  /* 1.b - Setup the license */
+  /* 1.b - Setup the default space */
 
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
 
