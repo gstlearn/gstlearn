@@ -2092,7 +2092,7 @@ int global_transitive(DbGrid *dbgrid,
 static void st_grid_invdist(DbGrid* dbin,
                             Db* dbout,
                             int iptr,
-                            int exponent,
+                            double exponent,
                             int flag_expand)
 {
   int ndim = dbin->getNDim();
@@ -2221,7 +2221,7 @@ static void st_grid_invdist(DbGrid* dbin,
 static void st_point_invdist(Db* dbin,
                              Db* dbout,
                              int iptr,
-                             int exponent,
+                             double exponent,
                              double dmax)
 {
   int ndim = dbin->getNDim();

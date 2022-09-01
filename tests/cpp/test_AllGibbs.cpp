@@ -14,7 +14,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -132,8 +131,8 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Cleaning structures
 
-  db    = db_delete(db);
-  model = model_free(model);
+  delete db;
+  delete model;
   delete neighparam;
   return(0);
 }

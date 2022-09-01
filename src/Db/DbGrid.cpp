@@ -119,11 +119,11 @@ int DbGrid::reset(const VectorInt& nx,
     nech *= nx[idim];
   int ntab = (tab.empty()) ? 0 : (int) (tab.size() / nech);
   int ncol = ndim + ntab + flag_add_rank;
-  resetDims(ncol, nech);
 
   // Create the grid
 
   if (gridDefine(nx, dx, x0, angles)) return 1;
+  resetDims(ncol, nech);
 
   // Load the data
 
@@ -211,11 +211,10 @@ int DbGrid::resetCoveringDb(const Db* db,
     nech *= nxloc;
   }
 
-  resetDims(ndim,nech);
-
   // Create the grid
 
   if (gridDefine(nx, dx, x0)) return 1;
+  resetDims(ndim,nech);
 
   /// Load the data
 
@@ -277,13 +276,12 @@ int DbGrid::resetFromPolygon(Polygons* polygon,
     dx_tab.push_back(dx);
     nech *= nx;
   }
-
   int ncol = ndim + flag_add_rank;
-  resetDims(ncol, nech);
 
   // Create the grid
 
   if (gridDefine(nx_tab, dx_tab, x0_tab)) return 1;
+  resetDims(ncol, nech);
 
   /// Load the data
 
@@ -515,7 +513,7 @@ DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
     }
   }
   VectorInt ranks = deletedRanks;
-  std::unique(ranks.begin(), ranks.end());
+  (void) std::unique(ranks.begin(), ranks.end());
   std::sort(ranks.begin(), ranks.end());
   std::reverse(ranks.begin(), ranks.end());
 
@@ -723,6 +721,17 @@ int DbGrid::getNDim() const
   return (_grid.getNDim());
 }
 
+/**
+ * Set dimension
+ * @param ncol Number of columns (= variables)
+ * @param nech Number of samples (ignore in case of Grid)
+ */
+void DbGrid::resetDims(int ncol, int /*nech*/)
+{
+  int nech = _grid.getNTotal();
+  Db::resetDims(ncol, nech);
+}
+
 bool DbGrid::_deserialize(std::istream& is, bool verbose)
 {
   int ndim = 0;
@@ -757,10 +766,10 @@ bool DbGrid::_deserialize(std::istream& is, bool verbose)
     ret = ret && _recordRead<double>(is, "Grid Angles", angles[idim]);
   }
 
-  ret && Db::_deserialize(is, verbose);
-
-  // Create the Grid coordinates
+  // Create the Grid characteristics
   (void) gridDefine(nx, dx, x0, angles);
+
+  ret && Db::_deserialize(is, verbose);
 
   return ret;
 }

@@ -424,9 +424,9 @@ int main(int /*argc*/, char */*argv*/[])
   
 label_end:
   for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree(Qcols[icol]);
-  dbgrid   = db_delete(dbgrid);
-  model1   = model_free(model1);
-  model2   = model_free(model2);
+  delete dbgrid;
+  delete model1;
+  delete model2;
   colors   = (int    *) mem_free((char *) colors);
   ind      = (int    *) mem_free((char *) ind);
   z        = (double *) mem_free((char *) z);

@@ -349,7 +349,7 @@ double CovLMCAnamorphosis::_evalDiscreteDD0(int /*ivar*/,
   {
     // Structure for the whole discretized variable
 
-    double cov = 0.;
+    cov = 0.;
     for (int jclass = 1; jclass < getAnamNClass(); jclass++)
     {
       double csi = anamDD->getDDStatCnorm(iclass);

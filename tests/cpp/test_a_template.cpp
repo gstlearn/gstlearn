@@ -32,14 +32,16 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
 
-  Db* temperatures = Db::createFromNF("/home/drenard/project_gstlearn/gstlearn/doc/data/Scotland/temperatures.ascii");
+  String filename = ASerializable::getTestData("Scotland","temperatures.ascii");
+  Db* temperatures = Db::createFromNF(filename);
   temperatures->display();
 
-  Db* mnt = Db::createFromCSV("/home/drenard/project_gstlearn/gstlearn/doc/data/Scotland/Scotland_Elevations.csv");
+  filename = ASerializable::getTestData("Scotland","Scotland_Elevations.csv");
+  Db* mnt = Db::createFromCSV(filename);
   mnt->setLocators({"Longitude","Latitude"},ELoc::X);
   mnt->display();
 

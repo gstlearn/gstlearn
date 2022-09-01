@@ -110,7 +110,7 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 
     /* Create the new input file (for next step) */
 
-    if (db1 != dbin) db1 = db_delete(db1);
+    if (db1 != dbin) delete db1;
     _dim_2_to_1(db2);
     VectorInt nx1 = _nx1;
     VectorDouble x01 = _x01;
@@ -129,7 +129,7 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 
     /* Delete the output file */
 
-    db2 = db_delete(db2);
+    delete db2;
   }
 
   return db1;

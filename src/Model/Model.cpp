@@ -310,7 +310,7 @@ void Model::addCovFromParam(const ECov& type,
       messerr("Operation is cancelled");
       return;
     }
-    nvar = sqrt((double) sills.size());
+    nvar = (int) sqrt((double) sills.size());
   }
 
   // Define the covariance

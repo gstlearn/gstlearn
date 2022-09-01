@@ -57,7 +57,13 @@ bool TimeUtility::convert_to_tm(const std::string& date,
 
 void TimeUtility::get_current_date(struct tm* timeinfo) {
   time_t cur = time(NULL);
-  struct tm* cur_time = localtime(&cur);
+  struct tm* cur_time;
+
+#ifdef _WIN32
+  locatime_s(cur_time, &cur);
+#else
+  cur_time = localtime(&cur);
+#endif
   memcpy(timeinfo, cur_time, sizeof(struct tm));
 }
 

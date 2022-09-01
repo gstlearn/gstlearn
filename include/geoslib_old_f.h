@@ -539,7 +539,6 @@ GSTLEARN_EXPORT int spill_point(DbGrid *dbgrid,
 
 GSTLEARN_EXPORT void vario_fix_codir(int ndim, VectorDouble &codir);
 
-GSTLEARN_EXPORT Vario* variogram_delete(Vario *vario);
 GSTLEARN_EXPORT int variogram_maximum_dist1D_reached(Db *db,
                                                      int iech,
                                                      int jech,
@@ -689,7 +688,6 @@ GSTLEARN_EXPORT void model_calcul_drift(Model *model,
                                         const Db *db,
                                         int iech,
                                         double *drftab);
-GSTLEARN_EXPORT Model* model_free(Model *model);
 GSTLEARN_EXPORT void model_nostat_update(CovInternal *covint, Model *model);
 GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    const ECov &type,
@@ -949,8 +947,6 @@ GSTLEARN_EXPORT void db_locators_correct(VectorString &strings,
                                          int flag_locnew);
 GSTLEARN_EXPORT int db_coorvec_put(Db *db, int idim, double *tab);
 GSTLEARN_EXPORT int db_coorvec_get(const Db *db, int idim, double *tab);
-GSTLEARN_EXPORT Db* db_delete(Db* db);
-GSTLEARN_EXPORT DbGrid* db_delete(DbGrid* db);
 GSTLEARN_EXPORT int db_grid_match(DbGrid *db1, DbGrid *db2);
 GSTLEARN_EXPORT int db_is_isotropic(const Db *db, int iech, double *data);
 GSTLEARN_EXPORT void db_grid_print(Db *db);

@@ -26,7 +26,9 @@ CalcMigrate::CalcMigrate()
       _ldmax(1),
       _dmax(),
       _flagFill(false),
-      _flagInter(false)
+      _flagInter(false),
+      _flagLocate(false),
+      _locatorType(ELoc::Z)
 {
 }
 
@@ -70,8 +72,11 @@ bool CalcMigrate::_postprocess()
   int nvar = _getNVar();
   for (int ivar = 0; ivar < nvar; ivar++)
   {
-    _renameVariable(2, 1, _iattOut+ivar, _identifyVariable(_iuids[ivar]), 1, true, ivar);
+    _renameVariable(2, 1, _iattOut+ivar, _identifyVariable(_iuids[ivar]), 1, ! _flagLocate, ivar);
   }
+
+  if (_flagLocate)
+    getDbout()->setLocatorsByUID(nvar, _iattOut, _locatorType);
 
   return true;
 }
@@ -257,6 +262,8 @@ int migrateByAttribute(Db *db1,
  ** \param[in]  flag_inter  Interpolation
  ** \param[in]  namconv     Naming convention
  **
+ ** \remark The output variable receive the same locator as the input variables
+ **
  *****************************************************************************/
 int migrateByLocator(Db *db1,
                      Db *db2,
@@ -279,6 +286,8 @@ int migrateByLocator(Db *db1,
   migrate.setDmax(dmax);
   migrate.setFlagFill(flag_fill);
   migrate.setFlagInter(flag_inter);
+  migrate.setFlagLocate(true);
+  migrate.setLocatorType(locatorType);
 
   // Run the calculator
   int error = (migrate.run()) ? 0 : 1;

@@ -1217,29 +1217,6 @@ int db_attribute_range(const Db *db,
 
 /****************************************************************************/
 /*!
- **  Deletes the Db structure
- **
- ** \param[in]  db Db structure
- **
- *****************************************************************************/
-Db* db_delete(Db *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-DbGrid* db_delete(DbGrid *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-/****************************************************************************/
-/*!
  **  Define the coordinates in a Grid structure
  **
  ** \return Error return code
@@ -3048,7 +3025,7 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3083,7 +3060,7 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3119,7 +3096,7 @@ DbGrid* db_create_grid_dilate(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return (dbout);
 }

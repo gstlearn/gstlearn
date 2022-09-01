@@ -23,7 +23,7 @@ typedef struct
   char COMMENT[STRING_LENGTH]; /* Meaning */
 } Def_Locator;
 
-// TODO : DEF_LOCATOR static table refactoring
+// TODO : DEF_LOCATOR static table refactoring. Sync with ELoc
 static Def_Locator DEF_LOCATOR[] = { { "x",       0, "Coordinate" },
                                      { "z",       0, "Variable" },
                                      { "v",       0, "Variance of measurement error" },
@@ -51,7 +51,8 @@ static Def_Locator DEF_LOCATOR[] = { { "x",       0, "Coordinate" },
                                      { "gausfac", 0, "Gaussian value for Facies" },
                                      { "date",    1, "Date" },
                                      { "rklow",   0, "Disc. rank for Lower bound" },
-                                     { "rkup",    0, "Disc. rank for Upper bound" }
+                                     { "rkup",    0, "Disc. rank for Upper bound" },
+                                     { "sum",     0, "Constraints on the sum" }
   };
 
 void PtrGeos::clear()

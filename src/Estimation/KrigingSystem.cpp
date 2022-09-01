@@ -2219,7 +2219,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
   }
   else
   {
-    _ndiscs.empty();
+    _ndiscs.clear();
     _ndiscNumber = 0;
   }
   return 0;

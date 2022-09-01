@@ -97,7 +97,7 @@ bool CalcFactorKriging::_preprocess()
       // Center the information in sub-blocks when the output grid defines panels
       DbGrid* dbsmu = db_create_grid_divider(dbgrid, _ndisc, 1);
       int error = db_center_point_to_grid(getDbin(), dbsmu);
-      dbsmu = db_delete(dbsmu);
+      delete dbsmu;
       if (error) return false;
     }
   }

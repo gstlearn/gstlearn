@@ -254,6 +254,7 @@ int Grid::getNX(int idim) const
 
 int Grid::getNTotal() const
 {
+  if (_nDim <= 0) return 0;
   int ntotal = 1;
   for (int idim=0; idim<_nDim; idim++) 
     ntotal *= _nx[idim];

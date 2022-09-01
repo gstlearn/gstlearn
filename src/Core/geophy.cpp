@@ -405,18 +405,18 @@ static void error(int flag)
 /*-------------------------------------------------Time_3d()----------------*/
 
 int time_3db(double *HS,
-                             double *T,
-                             int NX,
-                             int NY,
-                             int NZ,
-                             int BX,
-                             int BY,
-                             int BZ,
-                             double XS,
-                             double YS,
-                             double ZS,
-                             double HS_EPS_INIT,
-                             int MSG)
+             double *T,
+             int NX,
+             int NY,
+             int NZ,
+             int BX,
+             int BY,
+             int BZ,
+             double XS,
+             double YS,
+             double ZS,
+             double HS_EPS_INIT,
+             int MSG)
 {
   int signal;
 
@@ -454,9 +454,7 @@ T[0][0][0]=%g",*HS,*T);
   bx = BX;
   by = BY;
   bz = BZ;
-  if ((bx * by * bz != bx && bx * by * bz != by && bx * by * bz != bz) || bx
-      * by * bz
-                                                                          <= 0)
+  if ((bx * by * bz != bx && bx * by * bz != by && bx * by * bz != bz) || bx * by * bz <= 0)
   {
     error(ERR_BOX);
     return ERR_BOX;

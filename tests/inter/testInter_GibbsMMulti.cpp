@@ -15,7 +15,6 @@
 
 #include "Space/ESpaceType.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -150,6 +149,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Cleaning structures
 
   gibbs.cleanup();
-  db    = db_delete(db);
+  delete db;
   return(0);
 }

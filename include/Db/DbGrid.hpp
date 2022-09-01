@@ -53,6 +53,7 @@ public:
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
+  void resetDims(int ncol, int nech) override;
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);

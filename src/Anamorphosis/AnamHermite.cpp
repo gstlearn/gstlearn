@@ -893,7 +893,7 @@ double AnamHermite::evalSupportCoefficient(int option,
     // DGM1 Method
 
     model->setAnamIClass(0); // Z variable
-    double cvv = model->evalCvv(dxs, ndisc);
+    double cvv = model->evalCvv(dxs, ndisc, angles);
     double r1  = sqrt(invertVariance(cvv));
     if (verbose)
       message("Change of Support coefficient (DGM-1) = %6.3lf\n", r1);
@@ -903,7 +903,7 @@ double AnamHermite::evalSupportCoefficient(int option,
   if (option == 2)
   {
     model->setAnamIClass(1); // Y Variable
-    double cvv = model->evalCvv(dxs, ndisc);
+    double cvv = model->evalCvv(dxs, ndisc, angles);
     double r2 = sqrt(cvv);
     if (verbose)
       message("Change of Support coefficient (DGM2) = %6.3lf\n",r2);

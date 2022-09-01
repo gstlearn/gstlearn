@@ -3261,7 +3261,7 @@ void calc_stats_grid(Db *db,
       if (!db->isActive(iech)) continue;
       db->getCoordinatesInPlace(iech, coor);
       if (dbgrid->coordinateToIndicesInPlace(coor, indg0, true)) continue;
-      double value = db->getArray(iech, icol);
+      value = db->getArray(iech, icol);
       if (FFFF(value)) continue;
 
       /* Loop on the neighboring cells */
@@ -3404,7 +3404,7 @@ int calc_regression(Db *db1,
   /* Store the regression error at sample points */
 
   int size = (int) regr.coeffs.size();
-  double value;
+  double value = 0;
   VectorDouble x(size);
 
   for (int iech = 0; iech < db1->getSampleNumber(); iech++)

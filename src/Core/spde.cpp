@@ -9413,7 +9413,12 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: if (error) db = db_delete(db);
+  label_end:
+  if (error)
+  {
+    if (db != nullptr) delete db;
+    db = nullptr;
+  }
   return (db);
 }
 

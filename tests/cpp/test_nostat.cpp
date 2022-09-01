@@ -1,4 +1,3 @@
-#include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"

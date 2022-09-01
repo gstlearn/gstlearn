@@ -34,6 +34,8 @@ public:
   void setFlagInter(bool flagInter) { _flagInter = flagInter; }
   void setLdmax(int ldmax) { _ldmax = ldmax; }
   void setIuids(const VectorInt &iuids) { _iuids = iuids; }
+  void setFlagLocate(bool flagLocate) { _flagLocate = flagLocate; }
+  void setLocatorType(const ELoc &locatorType) { _locatorType = locatorType; }
 
 private:
   virtual bool _check() override;
@@ -51,6 +53,9 @@ private:
   VectorDouble _dmax;
   bool _flagFill;
   bool _flagInter;
+
+  bool _flagLocate;
+  ELoc _locatorType;
 };
 
 GSTLEARN_EXPORT int migrate(Db *db1,

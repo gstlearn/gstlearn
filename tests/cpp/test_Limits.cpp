@@ -1,7 +1,6 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
-#include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
