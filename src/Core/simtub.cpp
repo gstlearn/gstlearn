@@ -1557,7 +1557,6 @@ int db_simulations_to_ce(Db *db,
  ** \param[in]  flag_norm   1 if the Model must be normalized
  ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
  ** \param[in]  flag_propagation 1 for the propagation algorithm
- ** \param[in]  flag_sym_neigh 1 for performing symmetry of neighborhood search
  ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
  ** \param[in]  percent     Amount of nugget effect added to too continuous
  **                         model (expressed in percentage of total variance)
