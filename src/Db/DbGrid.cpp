@@ -159,7 +159,7 @@ int DbGrid::reset(const VectorInt& nx,
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
-int DbGrid::resetCoveringDb(Db* db,
+int DbGrid::resetCoveringDb(const Db* db,
                             const VectorInt& nodes,
                             const VectorDouble& dcell,
                             const VectorDouble& origin,
@@ -320,7 +320,7 @@ DbGrid* DbGrid::create(const VectorInt& nx,
   return dbgrid;
 }
 
-DbGrid* DbGrid::createCoveringDb(Db* db,
+DbGrid* DbGrid::createCoveringDb(const Db* db,
                                  const VectorInt& nodes,
                                  const VectorDouble& dcell,
                                  const VectorDouble& origin,
@@ -336,6 +336,7 @@ DbGrid* DbGrid::createCoveringDb(Db* db,
   return dbgrid;
 
 }
+
 DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
                                   const VectorInt& nodes,
                                   const VectorDouble& dcell,

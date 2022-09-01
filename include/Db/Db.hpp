@@ -26,6 +26,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 
+class DbGrid;
 class Polygons;
 
 /**
@@ -120,6 +121,11 @@ public:
                               double range = 0.,
                               double beta = 0.,
                               int flag_add_rank = 1);
+
+  DbGrid* coveringDb(const VectorInt& nodes = VectorInt(),
+                     const VectorDouble& dcell = VectorDouble(),
+                     const VectorDouble& origin = VectorDouble(),
+                     const VectorDouble& margin = VectorDouble()) const;
 
   const VectorDouble& getArrays() const { return _array; }
 
