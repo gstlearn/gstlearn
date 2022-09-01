@@ -1579,7 +1579,7 @@ int gibbs_sampler(Db *dbin,
                   bool flag_norm,
                   bool flag_multi_mono,
                   bool flag_propagation,
-                  bool flag_sym_neigh,
+                  bool /*flag_sym_neigh*/,
                   int gibbs_optstats,
                   double percent,
                   bool flag_ce,
@@ -1704,10 +1704,11 @@ int gibbs_sampler(Db *dbin,
   namconv.setNamesAndLocators(dbin, ELoc::UNKNOWN, nvar, dbin, iptr, String(),
                               nbsimu);
 
-  label_end: propdef = proportion_manage(-1, 0, 1, 1, 0,
-                                         model->getVariableNumber(), 0, dbin,
-                                         NULL,
-                                         VectorDouble(), propdef);
+label_end:
+  propdef = proportion_manage(-1, 0, 1, 1, 0, model->getVariableNumber(), 0,
+                              dbin,
+                              NULL,
+                              VectorDouble(), propdef);
   return (error);
 }
 

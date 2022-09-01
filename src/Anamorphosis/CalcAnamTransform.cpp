@@ -510,12 +510,17 @@ bool CalcAnamTransform::_FactorsToSelectivity()
       messerr("This method is not programmed yet for this anamorphosis");
       return false;
   }
-  return false;
 }
 
+/**
+ * Process the variable(s) stored with locator Z
+ * @param db      Db structure
+ * @param anam    AAnam structure
+ * @param namconv Naming Convention
+ * @return
+ */
 int RawToGaussianByLocator(Db *db,
                            AAnam *anam,
-                           const ELoc& locatorType,
                            const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
@@ -551,9 +556,8 @@ int RawToGaussian(Db *db,
 }
 
 int GaussianToRawByLocator(Db *db,
-                  AAnam *anam,
-                  const ELoc& locatorType,
-                  const NamingConvention &namconv)
+                           AAnam *anam,
+                           const NamingConvention &namconv)
 {
   CalcAnamTransform transfo(anam);
   transfo.setFlagZToY(true);

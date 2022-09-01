@@ -3025,7 +3025,7 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3060,7 +3060,7 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3096,7 +3096,7 @@ DbGrid* db_create_grid_dilate(DbGrid *dbin,
   /* Create the new grid */
 
   dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
-                         VectorDouble(), VectorString(), VectorString(), 0);
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return (dbout);
 }

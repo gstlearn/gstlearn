@@ -14,7 +14,6 @@
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"

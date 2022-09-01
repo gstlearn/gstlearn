@@ -15,7 +15,6 @@
 
 #include "Space/ESpaceType.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"

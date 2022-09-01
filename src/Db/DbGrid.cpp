@@ -512,7 +512,7 @@ DbGrid* DbGrid::createFromGridShrink(const DbGrid &gridIn,
     }
   }
   VectorInt ranks = deletedRanks;
-  std::unique(ranks.begin(), ranks.end());
+  (void) std::unique(ranks.begin(), ranks.end());
   std::sort(ranks.begin(), ranks.end());
   std::reverse(ranks.begin(), ranks.end());
 

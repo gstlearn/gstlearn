@@ -1485,7 +1485,7 @@ int* ut_split_into_two(int ncolor, int flag_half, int verbose, int *nposs)
 char* convert(const std::string &s)
 {
   char *pc = new char[s.size() + 1];
-  std::strcpy(pc, s.c_str());
+  (void) gslStrcpy(pc, s.c_str());
   return pc;
 }
 

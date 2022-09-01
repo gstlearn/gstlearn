@@ -1,7 +1,6 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
-#include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"

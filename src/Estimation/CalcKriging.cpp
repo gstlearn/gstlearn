@@ -155,7 +155,7 @@ void CalcKriging::_rollback()
 
 int CalcKriging::_getNVar() const
 {
-  int nvar = _matCL.empty() ? getModel()->getVariableNumber() : _matCL.size();
+  int nvar = _matCL.empty() ? getModel()->getVariableNumber() : (int) _matCL.size();
   return nvar;
 }
 
