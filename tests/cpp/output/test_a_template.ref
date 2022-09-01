@@ -81,5 +81,5 @@ Variables
 ---------
 Column = 0 - Name = x1 - Locator = x1
 Column = 1 - Name = x2 - Locator = x2
-Column = 2 - Name = Migrate.Elevation - Locator = NA
+Column = 2 - Name = Migrate.Elevation - Locator = z1
 Column = 3 - Name = Migrate.inshore - Locator = z2
