@@ -70,12 +70,6 @@ class tetgenio;
 GSTLEARN_EXPORT void acknowledge_gstlearn(void);
 GSTLEARN_EXPORT void inquire_gstlearn(char **release, char **date);
 
-/******************************************/
-/* Prototyping the functions in license.c */
-/******************************************/
-GSTLEARN_EXPORT int register_license_file(const char *file_name,
-                                          const char *target_name);
-
 /***************************************/
 /* Prototyping the functions in pile.c */
 /***************************************/

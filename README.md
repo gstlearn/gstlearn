@@ -38,6 +38,8 @@ For compiling and installing *gstlearn* C++ Library, the following tools must be
   * Windows:
     * Microsoft Visual Studio C++ 14 or higher
     * MinGW 7 or higher (we propose the one provided with RTools)
+  * MacOS (not tested):
+    * Clang 12 or higher
 * Boost header files
 * Doxygen [Optional] 1.8.3 or higher
 * HDF5 [Optional] C & C++ library and header files 1.8 or higher
