@@ -54,7 +54,7 @@ public:
   void setTrans(const VectorDouble& trans) { _trans = trans; }
   const VectorDouble& getVector() const { return _vector; }
   void setVector(const VectorDouble& vector) { _vector = vector; }
-  int getColang(int idim) const { return _colang[idim]; }
+  int getColang(int idim) const;
   double getVector(int idim) const { return _vector[idim]; }
 
   bool isValid(bool verbose = false);
