@@ -351,7 +351,7 @@ void AMesh::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
  * @param imesh Active mesh rank
  * @return
  */
-int AMesh::getAbsoluteMeshRank(int imesh) const
+int AMesh::getMeshIndexActiveToAbsolute(int imesh) const
 {
   return imesh;
 }

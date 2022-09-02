@@ -4170,30 +4170,6 @@ VectorBool Db::getMaskArray() const
   return status;
 }
 
-VectorInt Db::getListActiveToAbsolute() const
-{
-  int nech = getSampleNumber();
-  VectorInt ranks;
-  for (int iech = 0; iech < nech; iech++)
-    if (isActive(iech)) ranks.push_back(iech);
-  return ranks;
-}
-
-std::map<int, int> Db::getMapAbsoluteToActive() const
-{
-  std::map<int, int> map;
-  int nech = getSampleNumber();
-  int irel = 0;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (! isActive(iech)) continue;
-    map[iech] = irel;
-    irel++;
-  }
-  return map;
-
-}
-
 /****************************************************************************/
 /*!
 **  Return the vector of ordered samples by increasing coordinate along X

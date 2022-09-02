@@ -489,8 +489,6 @@ public:
   int  getActiveAndDefinedNumber(int item) const;
   int  getActiveAndDefinedNumber(const String& name) const;
   VectorBool getMaskArray() const;
-  VectorInt getListActiveToAbsolute() const;
-  std::map<int, int> getMapAbsoluteToActive() const;
 
   VectorInt getSortArray() const;
   double getCosineToDirection(int iech1, int iech2, const VectorDouble& codir) const;

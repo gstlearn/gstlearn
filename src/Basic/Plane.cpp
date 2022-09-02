@@ -122,3 +122,9 @@ double Plane::getCoor(int idim) const
   else
     return 0.;
 }
+
+void Plane::setCoor(int idim, double value)
+{
+  if (idim < (int) _coor.size())
+    _coor[idim] = value;
+}

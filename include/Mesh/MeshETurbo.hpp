@@ -49,7 +49,6 @@ public:
   int     getNApices() const override;
   int     getNMeshes() const override;
   int     getApex(int imesh, int rank) const override;
-  int     getAbsoluteMeshRank(int imesh) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
@@ -82,6 +81,8 @@ public:
   const Grid& getGrid() const { return _grid; }
 
 private:
+  int  _getMeshIndexActiveToAbsolute(int iact) const;
+  int  _getGridIndexAbsoluteToActive(int iabs);
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;
@@ -98,7 +99,6 @@ private:
   void _fromSelToMeshingMask(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
   bool _isMaskDefined() const { return (! _meshActiveToAbsolute.empty()); }
-  int  _fromActiveToAbsolute(int imesh) const;
 
 protected:
   /// Interface for ASerializable

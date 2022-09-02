@@ -35,7 +35,7 @@ public:
   void setRndval(double rndval) { _rndval = rndval; }
   double getValue() const { return _value; }
   void setValue(double value) { _value = value; }
-  void setCoor(int idim, double value) { _coor[idim] = value; }
+  void setCoor(int idim, double value);
   double getCoor(int idim) const;
 
   static std::vector<Plane> poissonPlanesGenerate(DbGrid *dbgrid, int np);
