@@ -97,7 +97,7 @@ private:
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
   void _fromSelToMeshingMask(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
-  bool _isMaskDefined() const { return (! _rankActiveMesh.empty()); }
+  bool _isMaskDefined() const { return (! _meshActiveToAbsolute.empty()); }
   int  _fromActiveToAbsolute(int imesh) const;
 
 protected:
@@ -110,5 +110,6 @@ private:
   Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
-  VectorInt _rankActiveMesh;
+  VectorInt _meshActiveToAbsolute;
+  std::map<int, int> _gridAbsoluteToActive;
 };
