@@ -1,6 +1,17 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.29
+==============
+- Fix windows compilation
+- Source cleanup (License and Interface folders removed)
+- CMake procedure improvement
+
+Release 0.1.28
+==============
+- New calculators for all top level functions
+- New demo scripts (kd, kriging, etc...)
+
 Release 0.1.27
 ==============
 - Fractures network

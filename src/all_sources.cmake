@@ -143,18 +143,6 @@ set(SRC
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
-  Interfaces/VariableCategorical.cpp
-  Interfaces/VariableInt.cpp
-  Interfaces/VariableString.cpp
-  Interfaces/Category.cpp
-  Interfaces/ParamGrid.cpp
-  Interfaces/function.cpp
-  Interfaces/ParamCSV.cpp
-  Interfaces/Database.cpp
-  Interfaces/Dictionary.cpp
-  Interfaces/VariableBool.cpp
-  Interfaces/AVariable.cpp
-  Interfaces/VariableDouble.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp

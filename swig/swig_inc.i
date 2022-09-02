@@ -88,25 +88,6 @@
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/CalcGridToGrid.hpp"
 
-/*
-#include "Interfaces/geoslib_f_swig.h"
-#include "Interfaces/AParam.hpp"
-#include "Interfaces/AVariable.hpp"
-#include "Interfaces/AVariableTemplate.hpp"
-#include "Interfaces/Category.hpp"
-#include "Interfaces/Database.hpp"
-#include "Interfaces/Dictionary.hpp"
-#include "Interfaces/interface_d.hpp"
-#include "Interfaces/ParamCSV.hpp"
-#include "Interfaces/ParamGrid.hpp"
-#include "Interfaces/Param.hpp"
-#include "Interfaces/VariableBool.hpp"
-#include "Interfaces/VariableCategorical.hpp"
-#include "Interfaces/VariableDouble.hpp"
-#include "Interfaces/VariableInt.hpp"
-#include "Interfaces/VariableString.hpp"
-*/
-
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshEStandard.hpp"
