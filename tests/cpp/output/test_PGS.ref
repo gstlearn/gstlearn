@@ -361,36 +361,6 @@ For variable 1
         17 18068.000     0.447     1.073
         18 17948.000     0.474     1.052
 
-Statistics for the Minimization Foxleg procedure
-------------------------------------------------
-- Number of experimental values = 19
-- Number of parameters          = 3
-- Number of iterations          = 40/1000 
-- Value of minimized function   = 0.000119069
-- Initial increment value       = 1
-- Current increment value       = 4.0736e-06
-- Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 2089.61
-- Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 1e-06
-
-Suppressing the unnecessary basic structures
-============================================
-Structure 'Exponential' in model #1 is suppressed
-
-Statistics for the Minimization Foxleg procedure
-------------------------------------------------
-- Number of experimental values = 19
-- Number of parameters          = 2
-- Number of iterations          = 18/1000 
-- Value of minimized function   = 0.000119069
-- Initial increment value       = 1
-- Current increment value       = 3.8147e-06
-- Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 10286.6
-- Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 1e-06
-
 Model characteristics
 =====================
 Space dimension              = 2
@@ -406,19 +376,6 @@ K-Bessel (Third Parameter = 99.9048)
 - Range        =      0.145
 - Theo. Range  =      0.004
 Total Sill     =      1.000
-
-Statistics for the Minimization Foxleg procedure
-------------------------------------------------
-- Number of experimental values = 19
-- Number of parameters          = 3
-- Number of iterations          = 39/1000 
-- Value of minimized function   = 5.99387e-05
-- Initial increment value       = 1
-- Current increment value       = 2.71574e-06
-- Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 1518.75
-- Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 1e-06
 
 Model characteristics
 =====================
