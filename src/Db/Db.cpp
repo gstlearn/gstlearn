@@ -4170,15 +4170,6 @@ VectorBool Db::getMaskArray() const
   return status;
 }
 
-VectorInt Db::getActiveRanks() const
-{
-  int nech = getSampleNumber();
-  VectorInt ranks;
-  for (int iech = 0; iech < nech; iech++)
-    if (isActive(iech)) ranks.push_back(iech);
-  return ranks;
-}
-
 /****************************************************************************/
 /*!
 **  Return the vector of ordered samples by increasing coordinate along X

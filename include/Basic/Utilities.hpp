@@ -58,8 +58,7 @@ public:
 template <typename T> inline T    getNAValue()     { return ValueNA<T>::getNA(); }
 template <typename T> inline bool isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
 
-// Other Utiity functions
-
+// Other Utility functions
 
 GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff);
 GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value);
@@ -104,3 +103,5 @@ GSTLEARN_EXPORT double* ut_pascal(int ndim);
 GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
 
+GSTLEARN_EXPORT VectorInt getListActiveToAbsolute(const VectorDouble &sel);
+GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToActive(const VectorDouble &sel);

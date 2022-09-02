@@ -57,7 +57,7 @@ public:
   virtual int getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
-  virtual int getAbsoluteMeshRank(int imesh) const;
+  virtual int getMeshIndexActiveToAbsolute(int imesh) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
