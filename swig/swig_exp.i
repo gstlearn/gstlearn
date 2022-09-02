@@ -346,22 +346,6 @@
 
 %include Skin/Skin.hpp
 
-//%include segy.h
-
-/*
-// Definition of AVariableTemplate for useful type
-%template(AVariableInt) AVariableTemplate<int>;
-%template(AVariableDouble) AVariableTemplate<double>;
-%template(AVariableBool) AVariableTemplate<bool>;
-%template(AVariableString) AVariableTemplate<String>;
-
-// THEN include our class that inherited AVariableTemplate<T>
-%include Interfaces/VariableInt.hpp
-%include Interfaces/VariableDouble.hpp
-%include Interfaces/VariableBool.hpp
-%include Interfaces/VariableString.hpp
-*/
-
 /// https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
 %feature("director");
 // For suppressing SWIG warning for overloaded methods
