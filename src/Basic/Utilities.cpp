@@ -1333,7 +1333,7 @@ VectorInt getListActiveToAbsolute(const VectorDouble& sel)
 }
 
 /**
- * Returns the map such that MAP[iabs] = iactive.
+ * Returns the map such that MAP[iabs] = iact.
  * A sample is active if its 'sel' value is equal to 1
  * @param sel Vector giving the status of all samples (Dimension: absolute)
  * @return
@@ -1345,7 +1345,8 @@ std::map<int, int> getMapAbsoluteToActive(const VectorDouble& sel)
   int iact = 0;
   for (int iabs = 0; iabs < nech; iabs++)
   {
-    if (! sel[iabs] == 0) map[iabs] = iact++;
+    if (! sel[iabs] == 0)
+      map[iabs] = iact++;
   }
   return map;
 }

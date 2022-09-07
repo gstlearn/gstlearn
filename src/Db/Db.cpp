@@ -1127,13 +1127,13 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
  * @remark of samples provided in 'tab' must match the number of active samples
  * @return Rank of the first UID
  */
-int Db::addColumns(const VectorDouble& tab,
-                  const String& radix,
-                  const ELoc& locatorType,
-                  int locatorIndex,
-                  bool useSel,
-                  double valinit,
-                  int nvar)
+int Db::addColumns(const VectorDouble &tab,
+                   const String &radix,
+                   const ELoc &locatorType,
+                   int locatorIndex,
+                   bool useSel,
+                   double valinit,
+                   int nvar)
 {
   // Particular case where the Db is empty.
   // Set its dimension to the number of samples of the input array 'tab'

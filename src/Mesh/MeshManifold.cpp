@@ -83,15 +83,16 @@ String MeshManifold::toString(const AStringFormat* strfmt) const
 
 /****************************************************************************/
 /*!
-** Returns the rank of the Apex 'rank' of the Mesh 'imesh'
+** Returns the rank of the Apex 'rank' of the Mesh 'imesh'bool /*inAbsolute*/
 **
 ** \returns The rank of the target  apex
 **
 ** \param[in]  imesh    Rank of the Mesh (from 0 to _nMeshes-1))
 ** \param[in]  rank     Rank of the Apex within a Mesh (from 0 to _nApices-1)
+** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshManifold::getApex(int imesh, int rank) const
+int MeshManifold::getApex(int imesh, int rank, bool /*inAbsolute*/) const
 {
   return _meshes.getValue(imesh, rank) - 1;
 }

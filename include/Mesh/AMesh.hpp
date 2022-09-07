@@ -41,7 +41,7 @@ public:
   /*! Returns the number of meshes */
   virtual int getNMeshes() const = 0;
   /*! Returns the rank of apex 'rank' for mesh 'imesh' */
-  virtual int getApex(int imesh, int rank) const = 0;
+  virtual int getApex(int imesh, int rank, bool inAbsolute = true) const = 0;
   /*! Returns coordinate 'idim' of apex 'rank' of mesh 'imesh' */
   virtual double getCoor(int imesh, int rank, int idim) const = 0;
   /*! Returns coordinate 'idim' of apex 'i' */
@@ -50,14 +50,12 @@ public:
   virtual double getMeshSize(int imesh) const = 0;
   /*! Returns the Sparse Matrix for projecting a Mesh to a Db */
   virtual cs* getMeshToDb(const Db *db,
-                          bool fatal = false,
                           bool verbose = false) const = 0;
   /*! Returns the space variety */
-  virtual int getVariety() const { return 0; }
-  virtual int getEmbeddedNDim() const { return _nDim; }
+  virtual int  getVariety() const { return 0; }
+  virtual int  getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
-  virtual int getMeshIndexActiveToAbsolute(int imesh) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }

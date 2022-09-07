@@ -275,9 +275,10 @@ int MeshEStandard::resetOldStyle(int                 ndim,
 **
 ** \param[in]  imesh    Rank of Mesh (from 0 to _nMeshes-1))
 ** \param[in]  rank     Rank of Apex within a Mesh (from 0 to _nApexPerMesh)
+** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshEStandard::getApex(int imesh, int rank) const
+int MeshEStandard::getApex(int imesh, int rank, bool /*inAbsolute*/) const
 {
   return _meshes.getValue(imesh,rank);
 }
@@ -362,11 +363,10 @@ void MeshEStandard::getDuplicates(int   verbose,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
-** \param[in]  fatal     Error type when point does not belong to Meshing
 ** \param[in]  verbose   Verbose flag
 **
 *****************************************************************************/
-cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
+cs* MeshEStandard::getMeshToDb(const Db *db, bool verbose) const
 {
   cs* Atriplet      = nullptr;
   cs* A             = nullptr;
@@ -395,6 +395,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   int imesh0 = 0;
   int ip_max = 0;
   int iech = 0;
+  int nout = 0;
   for (int jech=0; jech<db->getSampleNumber(); jech++)
   {
     if (! db->isActive(jech)) continue;
@@ -433,14 +434,9 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
 
     if (found < 0)
     {
-      messerr("Point %d does not belong to any mesh",jech+1);
-      for (int idim=0; idim<ndim; idim++)
-        messerr(" Coordinate #%d = %lf",idim+1,coor[idim]);
-      if (fatal)
-      {
-         Atriplet  = cs_spfree(Atriplet);
-         return nullptr;
-      }
+      nout++;
+      if (verbose)
+        messerr("Point %d does not belong to any mesh",jech+1);
     }
     iech++;
   }
@@ -452,6 +448,9 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   
   /* Convert the triplet into a sparse matrix */
 
+  if (nout > 0)
+    messerr("%d / %d samples which do not belong to the Meshing",
+            nout, db->getSampleNumber(true));
   A = cs_triplet(Atriplet);
   Atriplet  = cs_spfree(Atriplet);
   return(A);
