@@ -295,7 +295,6 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
   int nmeshes    = getNMeshes();
   int nvertex    = getNApices();
   int ncorner    = getNApexPerMesh();
-  int ndim       = getNDim();
 
   // Preliminary checks 
 

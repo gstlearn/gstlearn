@@ -372,7 +372,6 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool verbose) const
   cs* A             = nullptr;
   int nmeshes       = getNMeshes();
   int ncorner       = getNApexPerMesh();
-  int ndim          = getNDim();
 
   // Preliminary checks 
 
