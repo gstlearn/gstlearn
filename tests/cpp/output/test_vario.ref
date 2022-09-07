@@ -169,36 +169,6 @@ For variable 1
         19  8866.000     0.475     0.825
 Maximum Variogram Value = 1.039433
 
-Statistics for the Minimization Foxleg procedure
-------------------------------------------------
-- Number of experimental values = 40
-- Number of parameters          = 5
-- Number of iterations          = 1000/1000 
-- Value of minimized function   = 0.000255184
-- Initial increment value       = 1
-- Current increment value       = 1
-- Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 9.99093e+07
-- Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 8.59413e-07
-
-Suppressing the unnecessary basic structures
-============================================
-Structure 'K-Bessel' in model #1 is suppressed
-
-Statistics for the Minimization Foxleg procedure
-------------------------------------------------
-- Number of experimental values = 40
-- Number of parameters          = 2
-- Number of iterations          = 5/1000 
-- Value of minimized function   = 0.000170307
-- Initial increment value       = 1
-- Current increment value       = 1
-- Increment Stopping Criterion  = 1e-05
-- Stopping Value                = 0.207301
-- Stopping Criterion            = 1e-06
-- Stopping Criterion (scaled)   = 8.59413e-07
-
 Model characteristics
 =====================
 Space dimension              = 2
