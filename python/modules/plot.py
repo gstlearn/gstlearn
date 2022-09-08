@@ -110,19 +110,15 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
         tabx = tabx[np.logical_not(np.isnan(tabx))]
         
     if flagConvertNanToZero:
-        tabx[tabx == gl.getTEST()] = 0
-    else:
-        tabx[tabx == gl.getTEST()] = np.nan
+        tabx[np.isnan(tabx)] = 0
     return tabx
 
 def getBiDefinedValues(db, name1, name2, usesel=True):
     tabx = db.getColumn(name1, usesel)
     tabx = np.array(tabx).transpose()
-    tabx[tabx == gl.getTEST()] = np.nan
     
     taby = db.getColumn(name2, usesel)
     taby = np.array(taby).transpose()
-    taby[taby == gl.getTEST()] = np.nan
     
     sel  = np.logical_not(np.logical_or(np.isnan(tabx), np.isnan(taby)))
     tabx = tabx[sel]

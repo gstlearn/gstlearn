@@ -24,7 +24,6 @@ def getitem(self,name):
         nrows = self.getSampleNumber()
         
     temp = temp.reshape([nbvar,nrows]).T
-    temp[temp == gl.TEST] = None
     return temp
 
 # This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
@@ -69,7 +68,7 @@ def setitem(self,name,tab):
         for i in range(nrows):       
             u = np.double(temptab[i,j])
             if u is None : 
-                u = gl.TEST
+                u = np.nan
             vectD.push_back(u)
             
         self.setColumn(vectD,names[j],useSel)

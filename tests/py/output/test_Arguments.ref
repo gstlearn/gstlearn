@@ -31,11 +31,11 @@ Testing for Integer :  12
  Testing for Integer :  12  
  12
 Testing for Integer :  NA  
- -1234567
+ nan
 Testing for Double :  21.400000  
  21.4
 Testing for Double :  NA  
- 1.234e+30
+ nan
 Integer = -1 - Real = -1.100000 - String = NA
  Integer = 2 - Real = -1.100000 - String = NA
  Test successfully performed

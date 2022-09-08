@@ -23,10 +23,10 @@ gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
 
 # Testing missing arguments
 
-gl.argumentTestInt(gl.ITEST)
-gl.argumentTestDouble(gl.TEST)
-gl.argumentTestVectorInt([gl.ITEST])
-gl.argumentTestVectorDouble([gl.TEST])
+gl.argumentTestInt(np.nan)
+gl.argumentTestDouble(np.nan)
+gl.argumentTestVectorInt([np.nan])
+gl.argumentTestVectorDouble([np.nan])
 
 # Testing overloading of methods
 
@@ -44,9 +44,9 @@ gl.argumentTestEnum(gl.ETests.CASE2)
 # Testing Returning arguments
 
 print(gl.argumentReturnInt(12))
-print(gl.argumentReturnInt(gl.ITEST))
+print("nan") if (gl.isNaN(gl.argumentReturnInt(np.nan))) else print("oups") # No NaN value for integers so use isNaN
 print(gl.argumentReturnDouble(21.4))
-print(gl.argumentReturnDouble(gl.TEST))
+print(gl.argumentReturnDouble(np.nan))
 
 # Testing assessors to the elements of a class
 

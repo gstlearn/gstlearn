@@ -24,61 +24,74 @@
   
   template <> int convertToCpp(SEXP obj, int& value)
   {
-    int myres = SWIG_AsVal_int(obj, &value);
-    //std::cout << "convertToCpp(int): value=" << value << std::endl;
-    if (!SWIG_IsOK(myres))
+    int myres = SWIG_TypeError;
+    if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
     {
-      // No error if integers are out of range (SWIG_OverflowError)
-      if (myres == SWIG_OverflowError)
-      {
-        myres = SWIG_OK;
-        value = getNAValue<int>();
-      }
-    }
-    else
-    {
-      // In R language, integer NA value is -2^31
-      if (value == std::numeric_limits<int>::min())
-      {
-        value = getNAValue<int>();
-      }
+      myres = SWIG_AsVal_int(obj, &value);
+      //std::cout << "convertToCpp(int): value=" << value << std::endl;
+      if (SWIG_IsOK(myres) && value == R_NaInt) // NA, NaN, Inf or out of bounds value becomes NA
+        value = getNA<int>();
     }
     return myres;
   }
   template <> int convertToCpp(SEXP obj, double& value)
   {
-    int myres = SWIG_AsVal_double(obj, &value);
-    //std::cout << "convertToCpp(double): value=" << value << std::endl;
-    if (SWIG_IsOK(myres) && !isnan(value) && !isinf(value))
-      return myres;
-    value = getNAValue<double>();
+    int myres = SWIG_TypeError;
+    if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
+    {
+       myres = SWIG_AsVal_double(obj, &value);
+      //std::cout << "convertToCpp(double): value=" << value << std::endl;
+      if (SWIG_IsOK(myres) && !R_finite(value)) // NA, NaN, Inf or out of bounds value becomes NA
+        value = getNA<double>();
+    }
     return myres; 
   }
   template <> int convertToCpp(SEXP obj, String& value)
   {
-    int myres = SWIG_AsVal_std_string(obj, &value);
-    //std::cout << "convertToCpp(String): value=" << value << std::endl;
-    // No undefined
+    int myres = SWIG_TypeError;
+    if (Rf_length(obj) > 0) // Prevent NULL value from being accepted
+    {
+      myres = SWIG_AsVal_std_string(obj, &value);
+      //std::cout << "convertToCpp(String): value=" << value << std::endl;
+      // No undefined
+    }
     return myres;
   }
   template <> int convertToCpp(SEXP obj, float& value)
   {
-    int myres = SWIG_AsVal_float(obj, &value);
-    //std::cout << "convertToCpp(float): value=" << value << std::endl;
-    if (SWIG_IsOK(myres) && !isnan(value) && !isinf(value))
-      return myres;
-    value = getNAValue<float>();
+    int myres = SWIG_TypeError;
+    if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
+    {
+       myres = SWIG_AsVal_float(obj, &value);
+      //std::cout << "convertToCpp(float): value=" << value << std::endl;
+      if (SWIG_IsOK(myres) && !R_finite(value)) // NA, NaN, Inf or out of bounds value becomes NA
+        value = getNA<float>();
+    }
     return myres; 
   }
   template <> int convertToCpp(SEXP obj, UChar& value)
   {
-    int v = 0;
-    int myres = SWIG_AsVal_int(obj, &v);
-    //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
-    if (v < 0 || v > 255)
-      myres = SWIG_OverflowError;
-    else
-      value = static_cast<UChar>(v);
+    int myres = SWIG_TypeError;
+    if (Rf_length(obj) > 0) // Prevent NULL value from becoming NA
+    {
+      int v = 0;
+      myres = SWIG_AsVal_int(obj, &v);
+      //std::cout << "convertToCpp(int): value=" << v << std::endl;
+      if (myres == SWIG_OverflowError || 
+          v < std::numeric_limits<UChar>::min() ||
+          v > std::numeric_limits<UChar>::max()) // Out of bound value is error (no NA for UChar)
+      {
+        myres = SWIG_OverflowError;
+      }
+      else if (!SWIG_IsOK(myres) || v == R_NaInt) // NA, NaN or Inf is error (no NA for UChar)
+      {
+        myres = SWIG_TypeError;
+      }
+      else
+      {
+        value = static_cast<UChar>(v);
+      }
+    }
     return myres;
   }
   template <> int convertToCpp(SEXP obj, bool& value)
@@ -93,8 +106,8 @@
     return myres;
   }
   
-  // Certainly not the most efficient way to convert vectors.
-  // But at least, I can test each value for particular NAs
+  // Certainly not the most efficient way to convert vectors,
+  // but at least, I can test each value for particular NAs
   SEXP getElem(SEXP obj, int i)
   {
     if (Rf_isInteger(obj))      return Rf_ScalarInteger(INTEGER(obj)[i]);
@@ -137,6 +150,7 @@
           vec.push_back(value);
       }
     }
+    // else length = 0, empty vector
     return myres;
   }
 
@@ -203,14 +217,14 @@
   {
     //std::cout << "convertFromCpp(int): value=" << value << std::endl;
     if (isNA<int>(value))
-      return std::numeric_limits<int>::min();
+      return R_NaInt;
     return value;
   }
   template <> double convertFromCpp(const double& value)
   {
     //std::cout << "convertFromCpp(double): value=" << value << std::endl;
     if (isNA<double>(value))
-      return NAN;
+      return R_NaReal;
     return value;
   }
   template <> String convertFromCpp(const String& value)
@@ -222,7 +236,7 @@
   {
     //std::cout << "convertFromCpp(float): value=" << value << std::endl;
     if (isNA<float>(value))
-      return NAN;
+      return R_NaReal;
     return value;
   }
   template <> UChar convertFromCpp(const UChar& value)

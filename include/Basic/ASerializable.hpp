@@ -175,10 +175,10 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
     if (word == STRING_NA)
     {
       // Get NA value
-      val = getNAValue<T>();
+      val = getNA<T>();
     }
     else
-		{
+    {
       // Decode the line
       std::stringstream sstr(word);
       sstr >> val;
@@ -234,7 +234,7 @@ bool ASerializable::_recordReadVec(std::istream& is,
       if (word == STRING_NA)
       {
         // Get NA value
-        val = getNAValue<T>();
+        val = getNA<T>();
       }
       else
       {

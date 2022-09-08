@@ -31,9 +31,12 @@ typedef unsigned char UChar;
 
 #define EPSGRAD    1.e-5
 
+// No need to this stuff through SWIG (using target language NAs)
+#ifndef SWIG
 #define TEST      1.234e30
 #define TEST_COMP 1.000e30
 #define ITEST    -1234567
+#endif
 
 #define ASCII_TEST    -999.
 

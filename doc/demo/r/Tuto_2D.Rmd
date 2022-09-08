@@ -474,7 +474,7 @@ We compare the initial variable 'Pb' with a set of disjoint intervals. The 'Pb' 
 We first build the indicators for each class.
 
 ```{r}
-limits = Limits(c(getTEST(), 4., 6., getTEST()))
+limits = Limits(c(NA, 4., 6., NA))
 if (verbose)
     limits$display()
 ```
