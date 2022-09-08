@@ -42,37 +42,23 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
 //  StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-
-  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
-  dat->display();
-
-  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
-  model->display();
-
-  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
-  Result->display();
-
-  VectorDouble propGlob = dbStatisticsFacies(dat);
-  int ncat = (int) propGlob.size();
-  for (int i = 0; i < ncat; i++)
-    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
-
-  (void) db_proportion_estimate(dat,Result,model);
-
-//  MeshETurbo* mesh = MeshETurbo::createFromGrid(grid);
-//  mesh->display();
+//  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
 //
-//  ShiftOpCs S = ShiftOpCs(mesh, model, grid);
-//  ut_vector_display_range("TildeC", S.getTildeC());
-//  ut_vector_display_range("Lambda", S.getLambdas());
-//  cs_print_dim("S", S.getS());
-//  cs_print_range("S", S.getS());
+//  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
+//  dat->display();
 //
-//  PrecisionOp Qprop = PrecisionOp(&S, model->getCova(0), EPowerPT::ONE);
-//  ProjMatrix Aproj = ProjMatrix(dat, mesh);
-//  cs_print_dim("AProj", Aproj.getAproj());
-//  cs_print_range("AProj", Aproj.getAproj());
+//  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
+//  model->display();
+//
+//  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
+//  Result->display();
+//
+//  VectorDouble propGlob = dbStatisticsFacies(dat);
+//  int ncat = (int) propGlob.size();
+//  for (int i = 0; i < ncat; i++)
+//    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
+//
+//  (void) db_proportion_estimate(dat,Result,model);
 
   return (0);
 }
