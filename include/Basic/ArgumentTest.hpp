@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Enum/AEnum.hpp"
+#include "Basic/Utilities.hpp"
 
 #define ENUM_TESTS ETests, CASE0,\
                    CASE0 , 0, "Enum test case 0",\
@@ -29,7 +30,7 @@ public:
   double rval;
   String sval;
 
-  argClass(int iival = -1, double rrval = -1.1, String ssval = "NA")
+  argClass(int iival = -1, double rrval = -1.1, String ssval = STRING_NA)
       : ival(iival),
         rval(rrval),
         sval(ssval)

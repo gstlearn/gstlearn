@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "Basic/Rotation.hpp"
+#include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
@@ -67,8 +67,14 @@ public:
   void    copyParams(int mode, const Grid& gridaux);
   double  getCoordinate(int rank, int idim, bool flag_rotate=true) const;
   VectorDouble getCoordinatesByRank(int rank, bool flag_rotate=true) const;
-  VectorDouble getCoordinatesByIndice(const VectorInt& indice, bool flag_rotate=true) const;
+  VectorDouble getCoordinatesByIndice(const VectorInt &indice,
+                                      bool flag_rotate = true,
+                                      const VectorInt& shift = VectorInt(),
+                                      const VectorDouble& dxsPerCell = VectorDouble()) const;
   VectorDouble getCoordinatesByCorner(const VectorInt& icorner) const;
+  VectorDouble getCellCoordinatesByCorner(int node,
+                                          const VectorInt& shift = VectorInt(),
+                                          const VectorDouble& dxsPerCell = VectorDouble()) const;
   double indiceToCoordinate(int idim0,
                             const VectorInt& indice,
                             const VectorDouble& percent = VectorDouble()) const;
@@ -86,12 +92,20 @@ public:
                                 VectorDouble& coor,
                                 const VectorDouble& percent = VectorDouble()) const;
   int     indiceToRank(const VectorInt& indice) const;
-  void    rankToIndice(int node,VectorInt& indice, bool minusOne = false) const;
-  int     coordinateToIndice(const VectorDouble& coor,
-                             VectorInt& indice,
-                             double eps = EPSILON6) const;
-  int     coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const;
-
+  void    rankToIndice(int node,VectorInt& indices, bool minusOne = false) const;
+  VectorInt coordinateToIndices(const VectorDouble &coor,
+                                bool centered = false,
+                                double eps = EPSILON6) const;
+  int coordinateToIndicesInPlace(const VectorDouble &coor,
+                                 VectorInt &indice,
+                                 bool centered = false,
+                                 double eps = EPSILON6) const;
+  int coordinateToRank(const VectorDouble &coor,
+                       bool centered = false,
+                       double eps = EPSILON6) const;
+  bool sampleBelongsToCell(const VectorDouble &coor,
+                           int node,
+                           const VectorDouble &dxsPerCell) const;
   const VectorDouble    getRotAngles() const { return _rotation.getAngles(); }
   const VectorDouble    getRotMat() const { return _rotation.getMatrixDirect().getValues(); }
   double getRotAngle(int idim) const { return _rotation.getAngle(idim); }

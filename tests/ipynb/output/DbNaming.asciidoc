@@ -1,7 +1,5 @@
-[[naming-convention-for-db-in-gstlearn]]
-= Naming Convention for Db in gstlearn
+== Name Convention for Db in gstlearn
 
-[[preamble]]
 == Preamble
 
 [source, javascript]
@@ -17,7 +15,7 @@ IPython.OutputArea.prototype._should_scroll = function(lines) {
 ----<IPython.core.display.Javascript object>----
 
 This tutorial gives answers to the frequently asked question regarding
-the Naming Convention used for variables in a Data Base (Db) of gstlearn
+the Name Convention used for variables in a Data Base (Db) of gstlearn
 
 [source, ipython3]
 ----
@@ -27,7 +25,6 @@ import os
 import sys
 ----
 
-[[prepare-the-environment]]
 == Prepare the Environment
 
 This paragraph defines the Space Dimension for the whole notebook. It
@@ -37,7 +34,7 @@ saved as Neutral Files.
 [source, ipython3]
 ----
 ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN,ndim)
+gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN,ndim)
 
 gl.ASerializable.setContainerName(True)
 gl.ASerializable.setPrefixName("DbTest-");
@@ -49,18 +46,17 @@ attribute manipulation. It will be used later in the notebook.
 [source, ipython3]
 ----
 dbfmt = gl.DbStringFormat()
-dbfmt.setParams(gl.FLAG_LOCATOR)
+dbfmt.setFlags(flag_locator=True)
 ----
 
-[[creating-a-data-file]]
 == Creating a data file
 
 A Data Base is created for experimentation. It is constructed as a
-regular Grid (named **grid**). The variable _nech_ will contain the
-number of samples within _grid_. The number of meshes is voluntarily
-limited. The mesh is square with dimension 1. The origin (lower left
-corner) is set to (10,20) in order to be able to distinguish coordinates
-along first and second axes.
+regular Grid (named *grid*). The variable _nech_ will contain the number
+of samples within _grid_. The number of meshes is voluntarily limited.
+The mesh is square with dimension 1. The origin (lower left corner) is
+set to (10,20) in order to be able to distinguish coordinates along
+first and second axes.
 
 [source, ipython3]
 ----
@@ -101,8 +97,7 @@ The data base contains 3 fields, created automatically and respectively
 called _rank_, _x1_ and _x2_. Note that the last two fields are
 considered as coordinates (locator _x_).
 
-[[naming-convention]]
-== Naming convention
+== Names
 
 We now add one new field (named _first_) where values are generated
 randomly (uniform drawn between 0 and 1). Note that, when adding this
@@ -110,7 +105,7 @@ new field, a value is returned which corresponds to the number of the
 newly created _attribute_.
 
 *Important remark: all numerical variables used to identify a field
-within a Db are considered as indices, i.e. they are numbered starting
+within a Db are considered as indices, i.e. they are numbered starting
 from 0*
 
 [source, ipython3]
@@ -127,7 +122,7 @@ Attribute corresponding to 'first' = 3
 
 We can double-check the attribute information by visiting the current
 contents of the _grid_ Db. We check that the field _first_ is the fourth
-(i.e. attribute #3).
+(i.e. attribute #3).
 
 [source, ipython3]
 ----
@@ -205,8 +200,8 @@ Column = 5 - Name = second-2 - Locator = z2
 Column = 6 - Name = second-3 - Locator = z3----
 
 Note that the newly created fields are automatically named using the
-provided string (_second_) as a radix: the variables are names
-*second-1", "second-2" and "second-3".
+provided string (_second_) as a radix: the variables names are
+``second-1'', ``second-2'' and ``second-3''.
 
 Let us now envisage renaming the variable _second-2_ into _first_.
 
@@ -285,7 +280,7 @@ Column = 4 - Name = second-1 - Locator = z1
 Column = 5 - Name = first.1 - Locator = z2
 Column = 6 - Name = first.1.1 - Locator = z3----
 
-The automatic renaming procedure has been applied (adding ".1")
+The automatic renaming procedure has been applied (adding ``.1'')
 iteratively until names are all different: the field is now called
 *first.1.1".
 
@@ -337,8 +332,7 @@ Column = 4 - Name = second-1 - Locator = z1
 Column = 5 - Name = first.1 - Locator = z2
 Column = 6 - Name = first.1.1 - Locator = z3----
 
-[[by-name]]
-=== By Name
+== By Name
 
 As an example, we access to the field named *first.1. For short, only
 the four first values are systematically printed.
@@ -354,9 +348,11 @@ grid.getColumn("first.1")[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-column-index]]
-=== By Column Index
-We recall that the index numbering starts from 0. Therefore field *first-1*  corresponds to the index 5.
+== By Column Index
+
+We recall that the index numbering starts from 0. Therefore field
+_first-1_ corresponds to the index 5.
+
 [source, ipython3]
 ----
 grid.getColumnByColIdx(5)[0:4]
@@ -368,8 +364,7 @@ grid.getColumnByColIdx(5)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-attribute-index]]
-=== By Attribute Index
+== By Attribute Index
 
 [source, ipython3]
 ----
@@ -382,8 +377,7 @@ grid.getColumnByUID(5)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[by-locator]]
-=== By Locator
+== By Locator
 
 We note that the target variable corresponds to the locator _z2_ which
 is the second one (index 1) or the Z-locator type.
@@ -399,7 +393,6 @@ grid.getColumnByLocator(gl.ELoc.Z,1)[0:4]
  0.08397793237543762,
  0.8176828994209496)----
 
-[[difference-between-column-and-attribute]]
 == Difference between Column and Attribute
 
 We need to recall the _attribute_ value returned when adding the fields:
@@ -422,6 +415,30 @@ grid.display(dbfmt)
 Data Base Grid Characteristics
 ==============================
 
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = first - Locator = NA
+Column = 4 - Name = second-1 - Locator = z1
+Column = 5 - Name = first.1 - Locator = z2
+Column = 6 - Name = first.1.1 - Locator = z3
+
 List of unsorted UIDs
 ---------------------
 Maximum number of positions = 7
@@ -442,7 +459,7 @@ List of locators
 
 We can see that the 7 existing fields currently correspond to the 7
 first columns of the Data Base _grid_. The second display gives the
-indices of the locators in use (_x__ and __z_) and the indices of the
+indices of the locators in use (_x_ and _z_) and the indices of the
 attributes corresponding to the ranks of the items for each locator
 type.
 
@@ -539,6 +556,29 @@ grid.display(dbfmt)
 Data Base Grid Characteristics
 ==============================
 
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 7
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = x1
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = z1
+Column = 4 - Name = first.1 - Locator = z2
+Column = 5 - Name = first.1.1 - Locator = z3
+
 List of unsorted UIDs
 ---------------------
 Maximum number of positions = 7
@@ -616,13 +656,11 @@ grid.getColumnByUID(1)
 
 ----()----
 
-[[remark-on-space-dimension]]
 == Remark on Space Dimension
 
 It might be considered as surprising to see that _grid_ is considered as
-a 2-D Grid while there is only *one* coordinate field (locator _x_).
-In order to avoid any missunderstanding, let us recall this important
-fact.
+a 2-D Grid while there is only *one* coordinate field (locator _x_). In
+order to avoid any missunderstanding, let us recall this important fact.
 
 The data base _grid_ is organized as a grid and for that sake, it
 contains a descrption of the grid organization. This organization is
@@ -632,7 +670,7 @@ considered as decoration: they will not be used in any internal
 operation.
 
 As an example this makes particular sense here as the contents of the
-variable _x2_, despite its locator rank _1_ (i.e. index 0) actually
+variable _x2_, despite its locator rank _1_ (i.e. index 0) actually
 contains the *second* coordinate of the samples, as demonstrated in the
 next line
 
@@ -670,7 +708,7 @@ grid.getColumnByLocator(gl.ELoc.X, 0)
 
 Note that at any time, the coordinate vectors can be regenerated. To
 avoid confusion, the newly generated coordinate fields are named using
-the radix "X" (uppercase). This feature is obviously only available in
+the radix ``X'' (uppercase). This feature is obviously only available in
 the case of a grid
 
 [source, ipython3]
@@ -785,7 +823,6 @@ Column = 6 - Name = X-1 - Locator = x1
 Column = 7 - Name = X-2 - Locator = x2
 Column = 8 - Name = RANK - Locator = NA----
 
-[[conclusion]]
 == Conclusion
 
 As a conclusion:
@@ -797,10 +834,198 @@ locator notion (type and index)
 * the use of (column) index is always valid. This index must be defined
 precisely when using the variable (it must be updated in case of
 addition or deletion of other variables)
-* the use of attribute is clever... but it must be used by expert who
+* the use of attribute is clever… but it must be used by expert who
 understands the process. It allows using fix values, independently of
 the management of other fields
 
 We also recall that all numbering refer to indices (0 based numbering).
 This is the case for _(column) index_ as well as _locator index_ per
 locator type.
+
+== Naming Convention
+
+Usually, the methods which are designed to add variables in a Db can
+define some characteristics of the newly created variables using a
+standardized solution, known as the _NamingConvention_ facility.
+
+To illustrate this facility, we consider the function _toIndicator_ of
+the class _Limits_. This function stores the indicators of a set of
+classes (defined in _limits_) in the Db file. We concentrate on the
+variable _X-1_ which has outcomes varying from 10 to 14 (as demonstrated
+next).
+
+[source, ipython3]
+----
+gl.OptCst.define(gl.ECst.NTCOL,-1)
+dbfmt = gl.DbStringFormat()
+dbfmt.setFlags(flag_array=True)
+grid.display(dbfmt)
+----
+
+
+----
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 10
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Data Base Contents
+------------------
+                 rank        x2     first  second-1   first.1 first.1.1       X-1
+     [  0,]     1.000    20.000     0.269     0.748     0.489     0.736    10.000
+     [  1,]     2.000    20.000     0.245     0.590     0.353     0.253    11.000
+     [  2,]     3.000    20.000     0.702     0.923     0.084     0.536    12.000
+     [  3,]     4.000    20.000     0.707     0.867     0.818     0.308    13.000
+     [  4,]     5.000    20.000     0.262     0.987     0.857     0.330    14.000
+     [  5,]     6.000    21.000     0.558     0.591     0.954     0.681    10.000
+     [  6,]     7.000    21.000     0.626     0.107     0.166     0.538    11.000
+                  X-2      RANK
+     [  0,]    20.000     1.000
+     [  1,]    20.000     2.000
+     [  2,]    20.000     3.000
+     [  3,]    20.000     4.000
+     [  4,]    20.000     5.000
+     [  5,]    21.000     6.000
+     [  6,]    21.000     7.000
+(Ncols=9,Nrows=7[from 25])
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = z1
+Column = 4 - Name = first.1 - Locator = z2
+Column = 5 - Name = first.1.1 - Locator = z3
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+ ----
+
+We define a set of adjacent classes with bounds ranging from 10 to 14.
+
+[source, ipython3]
+----
+limits = gl.Limits([10, 11, 12, 13, 14])
+limits
+----
+
+
+----Bound( 1 ) : [ 10 ; 11 [
+Bound( 2 ) : [ 11 ; 12 [
+Bound( 3 ) : [ 12 ; 13 [
+Bound( 4 ) : [ 13 ; 14 [----
+
+We first run the function which uses the defaulted _NamingConvention_
+where the prefix is set to ``Indicator''. As a result, 4 new variables
+are added whose names are composed by concatenating _prefix_, _variable
+name_ and the qualifer _Class_ followed by the rank of the class.
+
+The resulting variables are of the form *Indicator.X-1.Class.1*
+
+[source, ipython3]
+----
+limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("Indicator"))
+grid
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 13
+Maximum Number of UIDs       = 14
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = NA
+Column = 4 - Name = first.1 - Locator = NA
+Column = 5 - Name = first.1.1 - Locator = NA
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+Column = 9 - Name = Indicator.X-1.Class.1 - Locator = z1
+Column = 10 - Name = Indicator.X-1.Class.2 - Locator = z2
+Column = 11 - Name = Indicator.X-1.Class.3 - Locator = z3
+Column = 12 - Name = Indicator.X-1.Class.4 - Locator = z4----
+
+In this second trial, we decide to suppress the prefix as well as the
+variable name
+
+[source, ipython3]
+----
+limits.toIndicator(grid,"X-1",namconv=gl.NamingConvention("",False))
+grid
+----
+
+
+----
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 17
+Maximum Number of UIDs       = 18
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = NA
+Column = 4 - Name = first.1 - Locator = NA
+Column = 5 - Name = first.1.1 - Locator = NA
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+Column = 9 - Name = Indicator.X-1.Class.1 - Locator = NA
+Column = 10 - Name = Indicator.X-1.Class.2 - Locator = NA
+Column = 11 - Name = Indicator.X-1.Class.3 - Locator = NA
+Column = 12 - Name = Indicator.X-1.Class.4 - Locator = NA
+Column = 13 - Name = Class.1 - Locator = z1
+Column = 14 - Name = Class.2 - Locator = z2
+Column = 15 - Name = Class.3 - Locator = z3
+Column = 16 - Name = Class.4 - Locator = z4----
+
+[source, ipython3]
+----
+
+----

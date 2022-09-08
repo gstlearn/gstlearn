@@ -567,6 +567,9 @@ void exit_f(void)
 %extend MatrixSquareSymmetric {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend ASpace {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend SpacePoint {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -624,6 +627,9 @@ void exit_f(void)
 %extend Array {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend BImage {
+  std::string __repr__() {  return $self->toString(); }
+}
 %extend ProjMatrix {
   std::string __repr__() {  return $self->toString(); }
 }
@@ -637,6 +643,27 @@ void exit_f(void)
   std::string __repr__() {  return $self->toString(); }
 }
 %extend Selectivity {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend Limits {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighMoving {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighUnique {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighImage {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend NeighBench {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MeshEStandard {
+  std::string __repr__() {  return $self->toString(); }
+}
+%extend MeshETurbo {
   std::string __repr__() {  return $self->toString(); }
 }
 
@@ -905,7 +932,7 @@ def setdbitem(self,name,tab):
         
         tab_i[np.isnan(tab_i)] = np.nan
         VectD = np.double(tab_i)
-        self.setColumn(VectD, name, useSel)
+        self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 

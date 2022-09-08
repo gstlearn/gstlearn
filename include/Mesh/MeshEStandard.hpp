@@ -45,6 +45,10 @@ public:
 
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
+  static MeshEStandard* createFromExternal(const MatrixRectangular& apices,
+                                           const MatrixInt& meshes,
+                                           bool verbose = false);
+
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
   void   getDuplicates(int verbose,
@@ -54,7 +58,7 @@ public:
                        int **dupl1,
                        int **dupl2) const;
   int resetFromDb(Db *dbin,
-                  Db *dbout,
+                  Db *dbout = nullptr,
                   const VectorDouble& dilate = VectorDouble(),
                   const String& triswitch = "Q",
                   bool verbose = false);
@@ -103,7 +107,7 @@ private:
                    int imesh,
                    double meshsize,
                    VectorDouble& weights) const;
-  void    _setContainer(VectorDouble& container,
+  void _setContainer(VectorDouble &container,
                      int imesh,
                      int idim,
                      double vmin,

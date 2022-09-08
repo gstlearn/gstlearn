@@ -14,7 +14,7 @@ import gstlearn.plot as gp
 
 [source, ipython3]
 ----
-dataDir = os.path.join(os.path.pardir,os.path.pardir,"doc","data","Scotland")
+dataDir = os.path.join(os.getenv('GSTLEARN_DATA'),"Scotland")
 ----
 
 [source, ipython3]
@@ -97,12 +97,12 @@ mnt = gl.Db()
 names = MNT.columns.to_list()
 mnt[names] = np.array(MNT[names])
 mnt.setLocators(["Longitude","Latitude"],gl.ELoc.X)
+----
 
-grid = gl.DbGrid()
-#Est-ce qu'on ne pourrait pas migrer toutes les variables (en option) dès l'appel à resetCoveringDb?
-grid.resetCoveringDb(mnt,nodes = [81,137])
-gl.migrate(mnt,grid,"Elevation",namconv=gl.NamingConvention(""))
-gl.migrate(mnt,grid,"inshore",namconv = gl.NamingConvention(""))
+[source, ipython3]
+----
+grid = gl.DbGrid.createCoveringDb(mnt, nodes=[81,137])
+gl.migrateVariables(mnt,grid,["Elevation","inshore"],namconv = gl.NamingConvention(""))
 grid.setLocator("Elevation",gl.ELoc.F)
 grid.setLocator("inshore",gl.ELoc.SEL)
 gp.grid(grid,"Elevation")
@@ -115,7 +115,7 @@ grid["inshore"] = u
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_5_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_6_0.png)
 ----
 
 [source, ipython3]
@@ -134,7 +134,7 @@ ax=gp.vario(vario)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_6_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_7_0.png)
 ----
 
 [source, ipython3]
@@ -172,7 +172,7 @@ ax = gp.varmod(vario,model,title="Vario of the residuals")
 ----
 Goulard option is switched OFF due to presence of Sills in Constraints
  
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_7_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_8_1.png)
 ----
 
 [source, ipython3]
@@ -224,7 +224,7 @@ if len(coeffs)>1:
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_11_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_12_0.png)
 ----
 
 [source, ipython3]
@@ -259,19 +259,18 @@ External Drift - Rank=0----
 
 [source, ipython3]
 ----
-fileM = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","model.ascii")
+fileM = os.path.join(dataDir,"model.ascii")
 model.dumpToNF(fileM)
-fileG = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","grid.ascii")
+fileG = os.path.join(dataDir,"grid.ascii")
 grid.dumpToNF(fileG)
-fileT = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","temperatures.ascii")
+fileT = os.path.join(dataDir,"temperatures.ascii")
 temperatures.dumpToNF(fileT)
-fileV = os.path.join("/home","ndesassis","gstlearn","gstlearn","doc","data","Scotland","vario.ascii")
+fileV = os.path.join(dataDir,"vario.ascii")
 vario.dumpToNF(fileV)
-#gl.Model.createFromNF(fileM)
-#gl.Db.createFromNF(fileG)
-#gl.Db.createFromNF(fileT)
-#gl.Vario.createFromNF(fileV)
 ----
+
+
+----True----
 
 [source, ipython3]
 ----
@@ -322,9 +321,9 @@ ax = gp.grid(grid,"*estim")
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_17_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_0.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_17_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_18_1.png)
 ----
 
 [source, ipython3]
@@ -335,7 +334,7 @@ ax = gp.correlation(grid,"*estim","spde*", diagLine=True)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_18_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_0.png)
 
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_SPDEDrift_18_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_1.png)
 ----

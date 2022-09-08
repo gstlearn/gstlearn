@@ -32,8 +32,8 @@ Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA
  Modified by ARMINES-MINES Paris (2022)
 */
 
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
@@ -1057,6 +1057,12 @@ int cs_entry(cs *T, int i, int j, double x)
   T->m = CS_MAX(T->m, i + 1);
   T->n = CS_MAX(T->n, j + 1);
   return (1);
+}
+
+void cs_force_dimension(cs *T, int nrow, int ncol)
+{
+  T->m = nrow;
+  T->n = ncol;
 }
 
 /* compute the etree of A (using triu(A), or A'A without forming A'A */
@@ -2796,9 +2802,7 @@ cs* cs_arrays_to_sparse(int n,
   }
   if (row_max < nrow - 1 || col_max < ncol - 1)
   {
-    /* Add a fictitious entry to ensure the dimension of the sparse matrix */
-
-    if (!cs_entry(Qtriplet, nrow - 1, ncol - 1, 0.)) goto label_end;
+    cs_force_dimension(Qtriplet, nrow, ncol);
   }
   Q = cs_triplet(Qtriplet);
   if (Q == nullptr) goto label_end;
@@ -3008,16 +3012,8 @@ int cs_get_ncell(const cs *A)
 
 void cs_print_dim(const char *title, const cs *A)
 {
-  cs *AT;
-  int n1, n2;
-
-  n1 = n2 = 0;
   if (A == nullptr) return;
-  n1 = A->n;
-  AT = cs_transpose(A, 1);
-  if (AT != nullptr) n2 = AT->n;
-  message("%s: Nrow=%d Ncol=%d\n", title, n2, n1);
-  if (AT != nullptr) AT = cs_spfree(AT);
+  message("%s: Nrow=%d Ncol=%d\n", title, A->m, A->n);
 }
 
 String toStringDim(const String &title, const cs *A)

@@ -15,6 +15,16 @@
 #include "Basic/NamingConvention.hpp"
 #include "Stats/EStatOption.hpp"
 
+typedef struct
+{
+  int count;
+  int nvar;
+  bool flagCste;
+  VectorDouble coeffs;
+  double variance;
+  double varres;
+} ResRegr;
+
 class Db;
 
 GSTLEARN_EXPORT VectorString statsNames(const std::vector<EStatOption>& opers);
@@ -22,7 +32,7 @@ GSTLEARN_EXPORT VectorString statsNames(const std::vector<EStatOption>& opers);
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const std::vector<EStatOption>& opers,
-                                           int iattn,
+                                           int iptr0,
                                            double vmin = TEST,
                                            double vmax = TEST,
                                            double proba = TEST);
@@ -48,3 +58,25 @@ GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
                                             const VectorString &varnames = VectorString(),
                                             const String &title = "");
 
+GSTLEARN_EXPORT bool regressionCheck(Db *db1,
+                                     Db *db2,
+                                     int mode,
+                                     int icol0,
+                                     const VectorInt &icols);
+GSTLEARN_EXPORT ResRegr regression(Db *db1,
+                                   Db *db2,
+                                   int mode,
+                                   int icol0,
+                                   const VectorInt &icols,
+                                   bool flagCste,
+                                   bool verbose = false);
+GSTLEARN_EXPORT bool regressionLoad(Db *db1,
+                                    Db *db2,
+                                    int iech,
+                                    int icol0,
+                                    const VectorInt &icols,
+                                    int mode,
+                                    int flagCste,
+                                    double *value,
+                                    VectorDouble &x);
+GSTLEARN_EXPORT void regrprint(const ResRegr& regr);

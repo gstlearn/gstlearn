@@ -8,6 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+#include "geoslib_define.h"
+#include "geoslib_f_private.h"
+
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -23,10 +27,6 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/EAnam.hpp"
 #include "Space/SpacePoint.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
-#include "geoslib_define.h"
-#include "geoslib_f_private.h"
 
 /**
  * Build a Vario object by calculating the experimental variogram
@@ -190,6 +190,16 @@ Vario* Vario::createTransformYToZ(const Vario* varioY,
     return nullptr;
   }
   return varioZ;
+}
+
+Vario* Vario::createReduce(const Vario *varioIn,
+                           const VectorInt &varcols,
+                           const VectorInt &dircols,
+                           bool asSymmetric)
+{
+  Vario* varioOut = varioIn->clone();
+  varioOut->reduce(varcols, dircols, asSymmetric);
+  return varioOut;
 }
 
 int Vario::compute(const ECalcVario &calcul,

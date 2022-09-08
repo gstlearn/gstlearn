@@ -17,7 +17,6 @@
 #include "Basic/EJustify.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
-#include "Basic/Geometry.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -27,8 +26,10 @@
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Anamorphosis/EAnam.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 
@@ -4413,7 +4414,7 @@ static void st_vario_varchol_manage(const Vario *vario,
         AUX(ivar,jvar)= (ivar == jvar);
         (void) matrix_cholesky_decompose(aux.data(),varchol.data(),nvar);
       }
-  model_nugget = model_free(model_nugget);
+  delete model_nugget;
   return;
 }
 

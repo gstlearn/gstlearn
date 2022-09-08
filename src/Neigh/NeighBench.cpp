@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Neigh/NeighBench.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 NeighBench::NeighBench(int ndim, bool flag_xvalid, double width)
     : ANeighParam(ndim, flag_xvalid),

@@ -14,7 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "geoslib_f.h"
+
 #include <math.h>
 
 #define ANAM_YMIN -10.

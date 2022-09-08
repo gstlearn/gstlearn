@@ -10,12 +10,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <LinearOp/OptimCostBinary.hpp>
-#include <LinearOp/OptimCostColored.hpp>
+#include "LinearOp/OptimCostBinary.hpp"
+#include "LinearOp/OptimCostColored.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_d.h"
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
 
 OptimCostColored::OptimCostColored() 

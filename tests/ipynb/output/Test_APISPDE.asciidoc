@@ -46,32 +46,8 @@ spirale(workingDbc,plot=True);
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_2_0.png)
-array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
-        130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
-        105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
-        141.34019175,  136.97493401,  131.7602997 ,  125.53767779,
-        118.17859011,  109.65382406,  100.12467166,   90.        ,
-        152.30052719,  149.03624347,  145.0079798 ,  139.96974073,
-        133.60281897,  125.53767779,  115.46334506,  103.39249775,
-         90.        ,   76.60750225,  158.19859051,  154.98310652,
-        150.75117366,  145.0079798 ,  136.97493401,  125.53767779,
-        109.65382406,   90.        ,   70.34617594,   54.46232221,
-        166.86597769,  164.35775354,  160.70995378,  154.98310652,
-        145.0079798 ,  125.53767779,   90.        ,   54.46232221,
-         34.9920202 ,   25.01689348,    0.        ,    0.        ,
-          0.        ,    0.        ,    0.        ,    0.        ,
-          0.        ,    0.        ,    0.        ,    0.        ,
-       -160.70995378, -154.98310652, -145.0079798 , -125.53767779,
-        -90.        ,  -54.46232221,  -34.9920202 ,  -25.01689348,
-        -19.29004622,  -15.64224646, -136.97493401, -125.53767779,
-       -109.65382406,  -90.        ,  -70.34617594,  -54.46232221,
-        -43.02506599,  -34.9920202 ,  -29.24882634,  -25.01689348,
-       -115.46334506, -103.39249775,  -90.        ,  -76.60750225,
-        -64.53665494,  -54.46232221,  -46.39718103,  -40.03025927,
-        -34.9920202 ,  -30.96375653, -100.12467166,  -90.        ,
-        -79.87532834,  -70.34617594,  -61.82140989,  -54.46232221,
-        -48.2397003 ,  -43.02506599,  -38.65980825,  -34.9920202 ])----
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_APISPDE_2_0.png)
+----
 
 [source, ipython3]
 ----
@@ -138,13 +114,19 @@ mesh = gl.MeshETurbo(workingDb)
 [source, ipython3]
 ----
 NoStat = gl.NoStatArray(["A"], resultDb)
-#err = model.addNoStat(NoStat)
+err = model.addNoStat(NoStat)
 ----
 
 [source, ipython3]
 ----
 S = gl.ShiftOpCs(mesh, model, resultDb)
 ----
+
+
+----
+For Non-Stationary Parameter (1), there are some undefined values (201)
+ They have been replaced by its average value (24.214913)
+ ----
 
 [source, ipython3]
 ----
@@ -153,10 +135,10 @@ Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, False)
 
 [source, ipython3]
 ----
-vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
-result = gl.VectorDouble(np.empty_like(vect))
+vect = np.random.normal(size=Qsimu.getSize())
+result = gl.VectorDouble(np.zeros(Qsimu.getSize()))
 Qsimu.eval(vect,result)
-workingDb.addColumns(result,"Simu",gl.ELoc.X)
+workingDb.addColumns(result.getVector(),"Simu",gl.ELoc.X)
 
 gp.grid(workingDb,"Simu")
 spirale(workingDbc,plot=True);
@@ -164,32 +146,8 @@ spirale(workingDbc,plot=True);
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_10_0.png)
-array([ 145.0079798 ,  142.12501635,  138.81407483,  135.        ,
-        130.60129465,  125.53767779,  119.7448813 ,  113.19859051,
-        105.9453959 ,   98.13010235,  148.1092082 ,  145.0079798 ,
-        141.34019175,  136.97493401,  131.7602997 ,  125.53767779,
-        118.17859011,  109.65382406,  100.12467166,   90.        ,
-        152.30052719,  149.03624347,  145.0079798 ,  139.96974073,
-        133.60281897,  125.53767779,  115.46334506,  103.39249775,
-         90.        ,   76.60750225,  158.19859051,  154.98310652,
-        150.75117366,  145.0079798 ,  136.97493401,  125.53767779,
-        109.65382406,   90.        ,   70.34617594,   54.46232221,
-        166.86597769,  164.35775354,  160.70995378,  154.98310652,
-        145.0079798 ,  125.53767779,   90.        ,   54.46232221,
-         34.9920202 ,   25.01689348,    0.        ,    0.        ,
-          0.        ,    0.        ,    0.        ,    0.        ,
-          0.        ,    0.        ,    0.        ,    0.        ,
-       -160.70995378, -154.98310652, -145.0079798 , -125.53767779,
-        -90.        ,  -54.46232221,  -34.9920202 ,  -25.01689348,
-        -19.29004622,  -15.64224646, -136.97493401, -125.53767779,
-       -109.65382406,  -90.        ,  -70.34617594,  -54.46232221,
-        -43.02506599,  -34.9920202 ,  -29.24882634,  -25.01689348,
-       -115.46334506, -103.39249775,  -90.        ,  -76.60750225,
-        -64.53665494,  -54.46232221,  -46.39718103,  -40.03025927,
-        -34.9920202 ,  -30.96375653, -100.12467166,  -90.        ,
-        -79.87532834,  -70.34617594,  -61.82140989,  -54.46232221,
-        -48.2397003 ,  -43.02506599,  -38.65980825,  -34.9920202 ])----
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_APISPDE_10_0.png)
+----
 
 [source, ipython3]
 ----
@@ -227,6 +185,12 @@ Column = 2 - Name = z - Locator = z1----
 spde = gl.SPDE(model,resultDb,data,gl.ESPDECalcMode.SIMUNONCOND)
 ----
 
+
+----
+For Non-Stationary Parameter (1), there are some undefined values (4320)
+ They have been replaced by its average value (25.552219)
+ ----
+
 [source, ipython3]
 ----
 spde.compute()
@@ -244,5 +208,5 @@ ax=gp.grid(workingDb,'*simu')
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Test_APISPDE_15_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_APISPDE_15_0.png)
 ----

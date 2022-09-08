@@ -10,8 +10,6 @@
 /******************************************************************************/
 #include "Anamorphosis/AnamUser.hpp"
 
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
 
 AnamUser::AnamUser()

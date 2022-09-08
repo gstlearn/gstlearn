@@ -835,7 +835,7 @@ its Gaussian transform
 [source, ipython3]
 ----
 mydb.setLocator("Pb",gl.ELoc.Z)
-err = myanamPb.RawToGaussian(mydb)
+err = RawToGaussian(mydb, myanamPb)
 if verbose:
     mydb.display()
 ----
@@ -992,7 +992,7 @@ simulations.
 
 [source, ipython3]
 ----
-myanamPb.GaussianToRaw(mygrid,"Simu.Y.*")
+GaussianToRaw(mygrid,myanamPb,"Simu.Y.*")
 mygrid.deleteColumn("Simu.Y.*")
 if verbose:
     mygrid.display()
@@ -1204,7 +1204,7 @@ We convert the raw data into its Gaussian equivalent
 [source, ipython3]
 ----
 mydb.setLocator("Zn",gl.ELoc.Z)
-err = myanamZn.RawToGaussian(mydb)
+err = RawToGaussian(mydb, myanamZn)
 if verbose:
     mydb.display()
 ----
@@ -1327,8 +1327,8 @@ for the statistics on the simulated variables in the Raw Scale.
 
 [source, ipython3]
 ----
-err = myanamZn.GaussianToRaw(mygrid,"Simu.Y.Zn*")
-err = myanamPb.GaussianToRaw(mygrid,"Simu.Y.Pb*")
+err = GaussianToRaw(mygrid,myanamZn,"Simu.Y.Zn*")
+err = GaussianToRaw(mygrid,myanamPb,"Simu.Y.Pb*")
 mygrid.deleteColumn("Simu.Y*")
 if verbose:
     err = mygrid.statistics(["Z.Simu.*"],["mini","maxi","mean","stdv"],True,True,True)

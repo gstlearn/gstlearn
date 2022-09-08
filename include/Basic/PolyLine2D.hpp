@@ -27,10 +27,10 @@ public:
   /// Interface of AStringable
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  static PolyLine2D* createFromNF(const String& neutralFilename,
-                              bool verbose = true);
-  static PolyLine2D* create(const VectorDouble& x = VectorDouble(),
-                        const VectorDouble& y = VectorDouble());
+  static PolyLine2D* createFromNF(const String &neutralFilename,
+                                  bool verbose = true);
+  static PolyLine2D* create(const VectorDouble &x = VectorDouble(),
+                            const VectorDouble &y = VectorDouble());
 
   int getNPoints() const { return (int) _x.size(); }
   void init(const VectorDouble& x, const VectorDouble& y);

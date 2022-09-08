@@ -10,14 +10,14 @@
 /******************************************************************************/
 #include "Model/Constraints.hpp"
 #include "Model/ConsItem.hpp"
-#include "geoslib_f.h"
+#include "Basic/Utilities.hpp"
 
 #include <math.h>
 
-Constraints::Constraints()
+Constraints::Constraints(double constantSillValue, const VectorDouble& constantSills)
     : AStringable(),
-      _constantSillValue(TEST),
-      _constantSills(),
+      _constantSillValue(constantSillValue),
+      _constantSills(constantSills),
       _consItems()
 {
 }

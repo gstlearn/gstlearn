@@ -14,10 +14,11 @@
 
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/EAnam.hpp"
-#include "Stats/Selectivity.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;
+class Selectivity;
+class Model;
 
 class GSTLEARN_EXPORT AnamHermite: public AnamContinuous
 {
@@ -81,12 +82,18 @@ public:
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 
-  void globalSelectivity(Selectivity* selectivity);
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
-                         const VectorString& names_est,
-                         const VectorString& names_std,
+                         const VectorInt& cols_est,
+                         const VectorInt& cols_std,
                          int iptr0);
+
+  double evalSupportCoefficient(int option,
+                                Model* model,
+                                const VectorDouble &dxs,
+                                const VectorInt &ndisc,
+                                const VectorDouble& angles = VectorDouble(),
+                                bool verbose = true);
 
 protected:
   /// Interface for ASerializable
@@ -109,9 +116,12 @@ private:
                  const VectorDouble& wt,
                  VectorDouble& zs,
                  VectorDouble& ys);
+  void _globalSelectivity(Selectivity* selectivity);
 
 private:
   bool   _flagBound;
   double _rCoef;
   VectorDouble _psiHn;
+
+  friend class Selectivity;
 };

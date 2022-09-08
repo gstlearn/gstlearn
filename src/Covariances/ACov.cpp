@@ -588,11 +588,12 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
   return dbgrid;
 }
 
-Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid) const
+Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 {
   int ndim = getNDim();
   Db* db = Db::create();
   VectorString names = generateMultipleNames("x",ndim);
+  law_set_random_seed(seed);
 
   for (int idim = 0; idim < ndim; idim++)
   {

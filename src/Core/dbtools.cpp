@@ -1,3 +1,4 @@
+/******************************************************************************/
 /* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
 /*                                                                            */
 /* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
@@ -10,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -30,11 +32,12 @@
 #include "Basic/Law.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
+#include "Geometry/Geometry.hpp"
+#include "csparse_f.h"
 
 #include <math.h>
 #include <string.h>
@@ -513,8 +516,8 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
   if (!db_gridin->hasLargerDimension(db_gridout)) goto label_end;
   ndim_min = MIN(db_gridin->getNDim(), db_gridout->getNDim());
   ndim_max = MAX(db_gridin->getNDim(), db_gridout->getNDim());
-  if (!is_grid(db_gridin)) goto label_end;
-  if (!is_grid(db_gridout)) goto label_end;
+  if (! db_gridin->isGrid()) goto label_end;
+  if (! db_gridout->isGrid()) goto label_end;
 
   /* Core allocation */
 
@@ -526,7 +529,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
     dist[jech] = 1.e30;
 
   // Initialize 'coor' as the first target sample
-  db_gridout->rankToCoordinate(0, coor);
+  db_gridout->rankToCoordinateInPlace(0, coor);
 
   /* Loop on the input grid nodes */
 
@@ -537,7 +540,7 @@ static int st_migrate_grid_to_grid(DbGrid *db_gridin,
 
     /* Get the coordinates of the node from the input grid node */
 
-    db_gridin->rankToCoordinate(iech, coor);
+    db_gridin->rankToCoordinateInPlace(iech, coor);
 
     /* Locate in the output grid */
 
@@ -726,8 +729,16 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
                                   VectorDouble &tab)
 {
   if (!db_gridin->hasLargerDimension(db_gridout)) return 1;
-  if (!is_grid(db_gridin, true)) return 1;
-  if (!is_grid(db_gridout, true)) return 1;
+  if (!db_gridin->isGrid())
+  {
+    messerr("The 'db_gridin' file should be a Grid Db");
+    return 1;
+  }
+  if (!db_gridout->isGrid())
+  {
+    messerr("The 'db_gridout' file should be a Grid Db");
+    return 1;
+  }
   int ndim_min = MIN(db_gridin->getNDim(), db_gridout->getNDim());
   int ndim_max = MAX(db_gridin->getNDim(), db_gridout->getNDim());
 
@@ -745,7 +756,7 @@ static int st_expand_grid_to_grid(DbGrid *db_gridin,
   {
     if (!db_gridout->isActive(iech)) continue;
 
-    db_gridout->rankToCoordinate(iech, coor);
+    db_gridout->rankToCoordinateInPlace(iech, coor);
     int jech = db_gridin->coordinateToRank(coor);
     if (jech < 0) continue;
 
@@ -1775,7 +1786,7 @@ int db_grid_fill(DbGrid *dbgrid,
 
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function is limited to Grid Db");
     return (1);
@@ -2691,7 +2702,7 @@ void ut_trace_discretize(int nseg,
  **
  *****************************************************************************/
 void ut_trace_sample(Db *db,
-                     const ELoc &ptype,
+                     const ELoc& ptype,
                      int np,
                      double *xp,
                      double *yp,
@@ -2818,7 +2829,7 @@ void ut_trace_sample(Db *db,
  **
  *****************************************************************************/
 int manage_external_info(int mode,
-                         const ELoc &locatorType,
+                         const ELoc& locatorType,
                          Db *dbin,
                          Db *dbout,
                          int *istart)
@@ -2834,7 +2845,7 @@ int manage_external_info(int mode,
 
   /* Case when the Output Db is not a grid */
 
-  if (!is_grid(dbout))
+  if (! dbout->isGrid())
   {
     if (get_LOCATOR_NITEM(dbin, locatorType) == ninfo) return (0);
     messerr("The Output Db is not a Grid file");
@@ -2946,7 +2957,7 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
 
 /*****************************************************************************/
 /*!
- **  Migrates the samples of a Db to the center of blocks of a grid Db
+ **  Centers the samples of a Db to the center of blocks of a grid Db
  **
  ** \return  Error return code
  **
@@ -2956,7 +2967,7 @@ int manage_nostat_info(int mode, Model *model, Db *dbin, Db *dbout)
  **
  ** \remark The argument 'eps_random' allows perturbating the centered
  ** \remark coordinate so that it does not lie exactly on the node.
- ** \remark This possibility makes sense in order to identify migrated data
+ ** \remark This possibility makes sense in order to identify centered data
  ** \remark from data actually located on the grid center (before migration)
  ** \remark The perturbation is calculated as DX(i) * eps
  **
@@ -2989,9 +3000,9 @@ int db_center_point_to_grid(Db *db_point, DbGrid *db_grid, double eps_random)
     /* Get the indices of the grid node */
 
     int rank = db_grid->coordinateToRank(coor);
-    db_grid->rankToCoordinate(rank, coor);
+    db_grid->rankToCoordinateInPlace(rank, coor);
 
-    /* Randomize the migrated center */
+    /* Randomize the processed center */
 
     if (eps_random > 0)
       for (int idim = 0; idim < ndim; idim++)
@@ -3218,7 +3229,7 @@ static int st_get_closest_sample(Db *dbgrid,
 
 /*****************************************************************************/
 /*!
- **  Migrate a variable from the point structure
+ **  Expands a variable from the point structure
  **  into a variable in the grid structure
  **
  ** \return  Error return code
@@ -3829,7 +3840,7 @@ int db_fold_polyline(DbGrid *dbin,
 
   /* Preliminary checks */
 
-  if (dbin->getNDim() != 2 || !is_grid(dbin))
+  if (dbin->getNDim() != 2 || ! dbin->isGrid())
   {
     messerr("This function is restricted to 2-D Input Grid Db");
     goto label_end;
@@ -4041,7 +4052,8 @@ int points_to_block(Db *dbpoint,
 
   /* Define the neighboring elements */
 
-  indret = gridcell_neigh(ndim, option, 1, 1, 0, &nvois);
+  indret = gridcell_neigh(ndim, option, 1, 1, 0);
+  nvois = (int) indret.size() / ndim;
 
   /* Loop on the grid nodes */
 
@@ -4234,7 +4246,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
     messerr("This function requires a DbGrid data base");
     return tab;
   }
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function requires the Db organized as a grid");
     return tab;
@@ -4307,7 +4319,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
     // Draw the point within the elected cell
 
-    dbgrid->rankToCoordinate(indip, coor);
+    dbgrid->rankToCoordinateInPlace(indip, coor);
     for (int idim = 0; idim < ndim; idim++)
       coor[idim] += law_uniform(0., dbgrid->getDX(idim));
     if (flag_region)
@@ -4517,7 +4529,7 @@ int db_gradient_components(DbGrid *dbgrid)
   iptrz = iptr = -1;
   indg = nullptr;
   ndim = dbgrid->getNDim();
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("The Db should be organized as a Grid");
     goto label_end;
@@ -5015,7 +5027,7 @@ int db_smooth_vpc(DbGrid *db, int width, double range)
 
   /* Preliminary checks */
 
-  if (!is_grid(db) || db->getNDim() != 3) goto label_end;
+  if (! db->isGrid() || db->getNDim() != 3) goto label_end;
 
   /* Loop on the 2-D grid cells */
 
@@ -5132,7 +5144,8 @@ Db* db_extract(Db *db, int *ranks)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, natt, ELoadBy::SAMPLE, 1, tab);
+  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, tab, VectorString(),
+                                  VectorString(), 1);
   if (dbnew == nullptr) goto label_end;
 
   // Delete the unnecessary variables 
@@ -5148,7 +5161,10 @@ Db* db_extract(Db *db, int *ranks)
   error = 0;
 
   label_end: iatts = (int*) mem_free((char* ) iatts);
-  if (error) dbnew = db_delete(db);
+  if (error)
+  {
+    if (dbnew != nullptr) delete dbnew;
+  }
   return (dbnew);
 }
 
@@ -5186,7 +5202,7 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function requires 'dbgrid' to correspond to a Grid");
     return (dbnew);
@@ -5328,7 +5344,8 @@ Db* db_regularize(Db *db, DbGrid *dbgrid, int flag_center)
 
   // Create the new db
 
-  dbnew = db_create_point(nech, size, ELoadBy::SAMPLE, 0, wecr);
+  dbnew = Db::createFromSamples(nech, ELoadBy::SAMPLE, wecr, VectorString(),
+                                 VectorString(), 0);
   if (dbnew == nullptr) goto label_end;
 
   ecr = 0;
@@ -5871,7 +5888,8 @@ Db* db_point_init(int nech,
   /* Allocate the main structure */
 
   number = (int) tab.size() / ndim;
-  db = db_create_point(number, ndim, ELoadBy::SAMPLE, flag_add_rank, tab);
+  db = Db::createFromSamples(number, ELoadBy::SAMPLE, tab, VectorString(),
+                                 VectorString(), flag_add_rank);
 
   /* Set the locators */
 
@@ -6049,7 +6067,7 @@ int db_grid1D_fill(DbGrid *dbgrid,
 {
   /* Preliminary checks */
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This function is limited to Grid Db");
     return (1);
@@ -6143,14 +6161,14 @@ int db_grid1D_fill(DbGrid *dbgrid,
  ** \param[in]  flag_inter Interpolation
  **
  *****************************************************************************/
-static int st_migrate(Db *db1,
-                      Db *db2,
-                      int iatt1,
-                      int iatt2,
-                      int ldmax,
-                      const VectorDouble &dmax,
-                      int flag_fill,
-                      int flag_inter)
+int _migrate(Db *db1,
+             Db *db2,
+             int iatt1,
+             int iatt2,
+             int ldmax,
+             const VectorDouble &dmax,
+             int flag_fill,
+             int flag_inter)
 {
   int size = db2->getSampleNumber();
   VectorDouble tab(size, TEST);
@@ -6223,157 +6241,6 @@ static int st_migrate(Db *db1,
   return 0;
 }
 
-/*****************************************************************************/
-/*!
- **  Migrates a variable from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
- ** \param[in]  atts_arg   Array of attributes to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
- **                        1 for L1 and 2 for L2 distance
- ** \param[in]  dmax       Array of maximum distances (optional)
- ** \param[in]  flag_fill  Filling option
- ** \param[in]  flag_inter Interpolation
- ** \param[in]  namconv    Naming Convention
- **
- *****************************************************************************/
-int migrateByAttribute(Db *db1,
-                       Db *db2,
-                       const VectorInt &atts_arg,
-                       int ldmax,
-                       const VectorDouble &dmax,
-                       int flag_fill,
-                       int flag_inter,
-                       const NamingConvention &namconv)
-{
-  // CDesignate the input variables
-
-  VectorInt atts = atts_arg;
-  int ncol = static_cast<int>(atts.size());
-  if (atts.empty())
-  {
-    atts = db1->getAllUIDs();
-    ncol = static_cast<int>(atts.size());
-  }
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(ncol, TEST);
-
-  // Loop on the different variables obtained by various migrations
-
-  for (int i = 0; i < ncol; i++)
-  {
-    int iatt1 = atts[i];
-    int iatt2 = iatt0 + i;
-    if (st_migrate(db1, db2, iatt1, iatt2, ldmax, dmax, flag_fill, flag_inter))
-      return 1;
-  }
-
-  // Set the output variable names and locators
-  namconv.setNamesAndLocators(db1, atts, db2, iatt0);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Migrates a variable from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1        Descriptor of the input Db
- ** \param[in]  db2        Descriptor of the output Db
- ** \param[in]  name       Name of the attribute to be migrated
- ** \param[in]  ldmax      Type of distance for calculating maximum distance
- **                        1 for L1 and 2 for L2 distance
- ** \param[in]  dmax       Array of maximum distances (optional)
- ** \param[in]  flag_fill  Filling option
- ** \param[in]  flag_inter Interpolation
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int migrate(Db *db1,
-            Db *db2,
-            const String &name,
-            int ldmax,
-            const VectorDouble &dmax,
-            int flag_fill,
-            int flag_inter,
-            const NamingConvention &namconv)
-{
-  int iatt = db1->getUID(name);
-  if (iatt < 0) return 1;
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(1, TEST);
-
-  // Perform the migration
-
-  if (st_migrate(db1, db2, iatt, iatt0, ldmax, dmax, flag_fill, flag_inter))
-    return 1;
-
-  // Set the output variable names and locators
-
-  namconv.setNamesAndLocators(name, db2, iatt0);
-  return 0;
-}
-
-/*****************************************************************************/
-/*!
- **  Migrates all z-locator variables from one Db to another one
- **
- ** \return  Error return code
- **
- ** \param[in]  db1         Descriptor of the input Db
- ** \param[in]  db2         Descriptor of the output Db
- ** \param[in]  locatorType Locator Type
- ** \param[in]  ldmax       Type of distance for calculating maximum distance
- **                         1 for L1 and 2 for L2 distance
- ** \param[in]  dmax        Array of maximum distances (optional)
- ** \param[in]  flag_fill   Filling option
- ** \param[in]  flag_inter  Interpolation
- ** \param[in]  namconv     Naming convention
- **
- *****************************************************************************/
-int migrateByLocator(Db *db1,
-                     Db *db2,
-                     const ELoc &locatorType,
-                     int ldmax,
-                     const VectorDouble &dmax,
-                     int flag_fill,
-                     int flag_inter,
-                     const NamingConvention &namconv)
-{
-  NamingConvention nc(namconv);
-
-  VectorString names = db1->getNamesByLocator(locatorType);
-  int natt = static_cast<int>(names.size());
-  if (natt <= 0) return 0;
-
-  // Create the output variables
-
-  int iatt0 = db2->addColumnsByConstant(natt, TEST);
-
-  // Loop on the different variables obtained by various migrations
-
-  for (int i = 0; i < natt; i++)
-  {
-    int iatt1 = db1->getUID(names[i]);
-    int iatt2 = iatt0 + i;
-    if (st_migrate(db1, db2, iatt1, iatt2, ldmax, dmax, flag_fill, flag_inter))
-      return 1;
-  }
-
-  // Set the output variable names and locators
-  nc.setLocatorOutType(locatorType);
-  nc.setNamesAndLocators(db1, locatorType, -1, db2, iatt0);
-  return 0;
-}
-
 /****************************************************************************/
 /*!
  **  Standard Kriging
@@ -6438,8 +6305,7 @@ int db_proportion_estimate(Db *dbin,
   Oc.setCGParams(200, 1.e-10);
 
   VectorDouble facies = dbin->getColumnByLocator(ELoc::Z);
-  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,
-                                         niter);
+  VectorVectorDouble props = Oc.minimize(facies, splits, propGlob, verbose,niter);
 
   // Loading the resulting results in the output 'dbout'
 
@@ -6452,91 +6318,6 @@ int db_proportion_estimate(Db *dbin,
                                 concatenateStrings("-", toString(i + 1)));
   }
   namconv.setLocators(dbout, iptr0, 1, ncat);
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Transform the target variable inti Gaussian by Normal Score
- **
- ** \return  Error return code
- **
- ** \param[in]  db         Db Structure
- ** \param[in]  namconv    Naming convention
- **
- *****************************************************************************/
-int db_normal_score(Db *db, const NamingConvention &namconv)
-{
-  if (db == nullptr)
-  {
-    messerr("You must define a Db");
-    return 1;
-  }
-  if (db->getVariableNumber() != 1)
-  {
-    messerr("You must have a single variable defined in the 'Db'");
-    return 1;
-  }
-  int nech = db->getSampleNumber();
-
-  // Adding a new variable
-
-  VectorDouble data = db->getColumnByLocator(ELoc::Z);
-  VectorDouble wt;
-  if (db->hasWeight())
-    wt = db->getColumnByLocator(ELoc::W);
-  else
-    wt.resize(nech, 1.);
-
-  // Check that all weights are positive
-
-  double wtotal = 0.;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    bool defined = false;
-    if (db->isActive(iech) && !FFFF(data[iech]))
-    {
-      defined = true;
-      if (wt[iech] < 0.)
-      {
-        messerr("The weight of sample (%d) is negative (%lf)",iech+1,wt[iech]);
-        return 1;
-      }
-      wtotal += wt[iech];
-    }
-    if (! defined) data[iech] = TEST;
-  }
-  if (wtotal <= 0.)
-  {
-    messerr("The sum of the weights is not positive");
-    return 1;
-  }
-
-  // Create the resulting variable
-  VectorDouble gaus(nech);
-
-  // Get the list of indices sorted by increasing values of data
-
-  VectorInt idx = ut_vector_sort_indices(data);
-
-  // Loop on the samples
-
-  double wlocal = 0.;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    int jech = idx[iech];
-    wlocal += wt[jech];
-    double z = wlocal / ((double) nech + 1.);
-    gaus[jech] = law_invcdf_gaussian(z);
-  }
-
-  // Create the output variable
-
-  int iatt = db->addColumns(gaus);
-
-  // Setting the output variable
-  namconv.setNamesAndLocators(db, iatt);
 
   return 0;
 }

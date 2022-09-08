@@ -391,7 +391,7 @@ int NoStatArray::_informField(int ipar,
 
   // Migrate the information from Db onto the Vertex locations
 
-  if (is_grid(_dbnostat))
+  if (_dbnostat->isGrid())
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(_dbnostat);
     if (migrate_grid_to_coor(dbgrid, iatt, nech, coor[0], coor[1], coor[2],

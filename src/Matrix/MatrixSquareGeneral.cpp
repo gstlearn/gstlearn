@@ -8,11 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Matrix/MatrixSquareGeneral.hpp"
-#include "Basic/AException.hpp"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Basic/AException.hpp"
 
 MatrixSquareGeneral::MatrixSquareGeneral(int nrow, bool sparse)
   : AMatrixSquare(nrow, sparse)

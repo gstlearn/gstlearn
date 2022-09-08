@@ -24,7 +24,9 @@
 #include <stdarg.h>
 #include <regex>
 #include <fstream>
+#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
 #include <wordexp.h>
+#endif
 
 //#include <boost/filesystem.hpp>
 
@@ -227,12 +229,14 @@ String ASerializable::buildFileName(const String& filename, bool ensureDirExist)
 
   String filePath = fileLocal;
 
+#if !defined(WIN32) && !defined(_WIN32) && !defined(WIN64) && !defined(_WIN64)
   // Check the presence of tilde character
   wordexp_t p;
   wordexp(fileLocal.c_str(), &p, 0);
 
   filePath = p.we_wordv[p.we_offs];
   wordfree(&p);
+#endif
 
   return filePath;
 }

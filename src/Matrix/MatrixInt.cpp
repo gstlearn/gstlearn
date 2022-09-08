@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 #include "csparse_d.h"
 
 MatrixInt::MatrixInt(int nrows, int ncols)
@@ -86,6 +86,13 @@ void MatrixInt::transposeInPlace()
   setNRows(temp);
 }
 
+void MatrixInt::fill(int value)
+{
+  int size = getMatrixSize();
+  for (int i = 0; i < size; i++)
+    _rectMatrix[i] = value;
+}
+
 void MatrixInt::_deallocate()
 {
 
@@ -136,6 +143,28 @@ VectorInt MatrixInt::getValues() const
       int value = getValue(irow,icol);
       vect.push_back(value);
     }
+  return vect;
+}
+
+VectorInt MatrixInt::getValuesPerRow(int irow) const
+{
+  VectorInt vect;
+  for (int icol = 0; icol < _nCols; icol++)
+  {
+    int value = getValue(irow,icol);
+    vect.push_back(value);
+  }
+  return vect;
+}
+
+VectorInt MatrixInt::getValuesPerColumn(int icol) const
+{
+  VectorInt vect;
+  for (int irow = 0; irow < _nRows; irow++)
+  {
+    int value = getValue(irow,icol);
+    vect.push_back(value);
+  }
   return vect;
 }
 

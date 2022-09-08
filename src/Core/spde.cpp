@@ -11,6 +11,7 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
 #include "Matrix/MatrixFactory.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Model/NoStatArray.hpp"
@@ -24,10 +25,13 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Geometry.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
+#include "Geometry/Geometry.hpp"
+#include "Calculators/CalcMigrate.hpp"
+#include "Space/SpaceSN.hpp"
+
 #include "csparse_f.h"
 #include "csparse_d.h"
 
@@ -1709,15 +1713,16 @@ static void st_compute_hh()
  *****************************************************************************/
 static void st_calcul_init(int ndim)
 {
-  variety_query(&Calcul.flag_sphere);
-
+  Calcul.flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   Calcul.sqdeth = 0.;
   Calcul.correc = 0.;
   Calcul.R = 0.;
   Calcul.hh.resize(ndim * ndim, 0.);
   if (Calcul.flag_sphere)
   {
-    variety_get_characteristics(&Calcul.R);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    Calcul.R = spaceSn->getRadius();
     Calcul.srot.resize(2, 0.);
   }
   Calcul.vv.resize(ndim, 0.);
@@ -2225,7 +2230,7 @@ static void st_gibbs(int igrf,
 static void st_save_result(Vertype *vertype,
                            double *z,
                            Db *dbout,
-                           const ELoc &locatorType,
+                           const ELoc& locatorType,
                            int iatt_simu)
 {
   int iech, lec, ecr;
@@ -2844,7 +2849,7 @@ double* _spde_get_mesh_dimension(MeshEStandard *amesh)
   int ndim = amesh->getNDim();
   int nmesh = amesh->getNMeshes();
   int ncorner = amesh->getNApexPerMesh();
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   /* Core allocation */
 
@@ -3359,7 +3364,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
       if (!cs_entry(Btriplet, iech, i, value)) goto label_end;
     }
     // Add a fictitious sample (zero value) as a dimension constraint
-    if (!cs_entry(Btriplet, ndata1[ivar] - 1, nvertex - 1, 0.)) goto label_end;
+    cs_force_dimension(Btriplet, ndata1[ivar], nvertex);
     BheteroD[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
     st_keypair_cs("HeteroD", BheteroD[ivar], st_get_current_icov() + 1,
@@ -3411,8 +3416,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
     }
 
     // Add a fictitious sample (zero value) as a dimension constraint
-    if (!cs_entry(Btriplet, ntarget1[ivar] - 1, nvertex - 1, 0.))
-      goto label_end;
+    cs_force_dimension(Btriplet, ntarget1[ivar], nvertex);
     BheteroT[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
     st_keypair_cs("HeteroT", BheteroT[ivar], st_get_current_icov() + 1,
@@ -3590,7 +3594,7 @@ cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
   Gtriplet = cs_spalloc(0, 0, 1, 1, 1);
   model = st_get_model();
   if (Gtriplet == nullptr) goto label_end;
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   flag_nostat = model->isNoStat();
   if (!flag_nostat) st_calcul_update();
 
@@ -6360,7 +6364,7 @@ static int st_load_all_meshes(Db *dbin,
   ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
   if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   // Manage the mask 
 
@@ -6396,9 +6400,9 @@ static int st_load_all_meshes(Db *dbin,
     dbloc = NULL;
     if (!flag_force)
     {
-      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && is_grid(dbout)))
+      if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && dbout->isGrid()))
         dbloc = dbout;
-      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && is_grid(dbin)))
+      if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && dbin->isGrid()))
         dbloc = dbin;
     }
     dbgrid = dynamic_cast<DbGrid*>(dbloc);
@@ -7223,7 +7227,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble &gext)
 
   if (S_DECIDE.flag_gibbs) message("- Gibbs iterations\n");
 
-  if (is_grid(dbout) && !gext.empty())
+  if (dbout->isGrid() && !gext.empty())
   {
     message("- The resulting Grid is dilated: %lf", gext[0]);
     for (int idim = 1; idim < dbout->getNDim(); idim++)
@@ -9029,7 +9033,7 @@ static int st_m2d_drift_fitting(M2D_Environ *m2denv,
 
     if (numb > 0)
     {
-      mean /= numb;
+      mean   /= numb;
       ffmean /= numb;
       stdv = stdv / numb - mean * mean;
       stdv = (stdv > 0) ? sqrt(stdv) : 0.;
@@ -9374,7 +9378,8 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   /* Create the output Db */
 
-  db = db_create_point(number, natt, ELoadBy::SAMPLE, 0, tab);
+  db = Db::createFromSamples(number, ELoadBy::SAMPLE, tab, VectorString(),
+                                 VectorString(), 0);
   if (db == nullptr) goto label_end;
 
   // Assigning names to the variables (not pointers yet)
@@ -9408,7 +9413,12 @@ static Db* st_m2d_create_constraints(M2D_Environ *m2denv,
 
   error = 0;
 
-  label_end: if (error) db = db_delete(db);
+  label_end:
+  if (error)
+  {
+    if (db != nullptr) delete db;
+    db = nullptr;
+  }
   return (db);
 }
 
@@ -9518,7 +9528,7 @@ cs *db_mesh_neigh(const Db *db,
   Atriplet = A = nullptr;
   ncorner = s_mesh->ncorner;
   nech = db->getSampleNumber();
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (flag_sphere)
   {
     messerr("The function 'db_mesh_neigh' is not programmed on sphere");
@@ -9623,9 +9633,7 @@ cs *db_mesh_neigh(const Db *db,
   /* Add the extreme value to force dimension */
 
   if (ip_max < s_mesh->nvertex - 1)
-  {
-    if (!cs_entry(Atriplet, jech_max, s_mesh->nvertex - 1, 0.)) goto label_end;
-  }
+    cs_force_dimension(Atriplet, jech_max, s_mesh->nvertex);
 
   /* Core reallocation */
 
@@ -10400,7 +10408,7 @@ int m2d_gibbs_spde(Db *dbin,
             dbin->getIntervalNumber());
     goto label_end;
   }
-  if (!is_grid(dbout))
+  if (! dbout->isGrid())
   {
     messerr("This application is restricted to a Grid output Db");
     goto label_end;

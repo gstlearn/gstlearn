@@ -85,7 +85,7 @@ endif
 
 ifdef N_PROC
   ifeq ($(OS),Windows_NT)
-    # Otherwise, undefined reference when compiling (don't know why)
+    # Otherwise, tons of undefined references when compiling (don't know why)
     N_PROC_OPT = -j1
   else
     N_PROC_OPT = -j$(N_PROC)

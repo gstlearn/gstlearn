@@ -10,9 +10,11 @@
 /******************************************************************************/
 #include "Basic/ECst.hpp"
 #include "Basic/EDbg.hpp"
+#include "Geometry/ERotation.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Neigh/ENeigh.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/ELoc.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Drifts/EDrift.hpp"
 #include "Model/EModelProperty.hpp"
 #include "Model/EConsElem.hpp"
@@ -34,6 +36,7 @@
 #include "Boolean/ETShape.hpp"
 #include "Stats/EStatOption.hpp"
 #include "Stats/ESelectivity.hpp"
+#include "Morpho/EMorpho.hpp"
 
 ENUM_DEFINE(ENUM_LOAD_BY)
 ENUM_DEFINE(ENUM_NEIGH)
@@ -61,4 +64,6 @@ ENUM_DEFINE(ENUM_TLAW)
 ENUM_DEFINE(ENUM_TSHAPE)
 ENUM_DEFINE(ENUM_STATOPTION)
 ENUM_DEFINE(ENUM_SELECTIVITY)
-
+ENUM_DEFINE(ENUM_SPACETYPE)
+ENUM_DEFINE(ENUM_MORPHO)
+ENUM_DEFINE(ENUM_ROTATION)

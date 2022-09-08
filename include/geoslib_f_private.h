@@ -23,6 +23,10 @@ class cs;
 class Cheb_Elem;
 class Rule;
 class VarioParam;
+class AAnam;
+class Selectivity;
+class DbGrid;
+class NeighImage;
 
 /*************************************/
 /* Prototyping the functions in io.c */
@@ -80,6 +84,11 @@ int _krigsim(Db* dbin,
              int nbsimu,
              bool flag_dgm,
              double r_coeff);
+void _image_smoother(DbGrid *dbgrid,
+                     NeighImage *neigh,
+                     int type,
+                     double range,
+                     int iptr0);
 
 /***************************************/
 /* Prototyping the functions in spde.c */
@@ -111,7 +120,7 @@ Rule* _rule_auto(Db *db,
 int _db_rule(Db *db,
              const RuleProp *ruleprop,
              Model *model = nullptr,
-             const NamingConvention& namconv = NamingConvention("Facies",
+             const NamingConvention& namconv = NamingConvention("Facies", true, true,
                                                          ELoc::FACIES));
 int _db_bounds(Db *db,
                const RuleProp *ruleprop,
@@ -141,4 +150,36 @@ int _db_category(Db *db,
                  const VectorBool &incmini = VectorBool(),
                  const VectorBool &incmaxi = VectorBool(),
                  const NamingConvention& namconv = NamingConvention("Category"));
+int _migrate(Db *db1,
+             Db *db2,
+             int iatt1,
+             int iatt2,
+             int ldmax,
+             const VectorDouble &dmax,
+             int flag_fill,
+             int flag_inter);
 
+
+
+/***************************************/
+/* Prototyping the functions in anam.c */
+/***************************************/
+
+int _conditionalExpextation(Db *db,
+             AAnam *anam,
+             const Selectivity *selectivity,
+             int iptr0,
+             int col_est,
+             int col_std,
+             bool flag_OK,
+             double proba,
+             int nbsimu,
+             bool verbose = false);
+int _uniformConditioning(Db *db,
+                         AAnam *anam,
+                         Selectivity *selectivity,
+                         int iptr0,
+                         int col_est,
+                         int col_var,
+                         double cvv,
+                         bool verbose = false);

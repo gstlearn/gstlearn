@@ -56,10 +56,6 @@ int main(int argc, char *argv[])
 
   StdoutRedirect sr("Result.out");
 
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
-
   /* Setup constants */
 
   OptDbg::reset();
@@ -98,7 +94,7 @@ int main(int argc, char *argv[])
 
   // Define and store the Space
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN,model->getDimensionNumber());
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN,model->getDimensionNumber());
 
   /* Perform the non-conditional Simulation */
   
@@ -148,9 +144,9 @@ int main(int argc, char *argv[])
 /* Core deallocation */
 
 label_end:
-  model = model_free(model);
-  dbout = db_delete(dbout);
-  vario = variogram_delete(vario);
-  delete [] filename;
+  delete model;
+  delete dbout;
+  delete filename;
+  delete vario;
   return(0);
 }

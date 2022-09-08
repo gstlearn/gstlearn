@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Rotation.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
+#include "Geometry/Rotation.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 
 class GSTLEARN_EXPORT Tensor : public AStringable/// TODO : public ASpaceObject
 {

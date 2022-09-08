@@ -40,16 +40,17 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/SimuBoolean.hpp"
+#include "Simulation/SimuBooleanParam.hpp"
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
 #include "Simulation/SimuFFTParam.hpp"
-#include "Simulation/SimuFFT.hpp"
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 
 #include <math.h>
 #include <string.h>
+#include <Simulation/CalcSimuFFT.hpp>
 
 /*! \cond */
 #define DATA   0
@@ -281,7 +282,7 @@ void simu_func_categorical_scale(Db *db, int verbose, int nbsimu)
  *****************************************************************************/
 void check_mandatory_attribute(const char *method,
                                Db *db,
-                               const ELoc &locatorType)
+                               const ELoc& locatorType)
 {
   if (get_LOCATOR_NITEM(db,locatorType) <= 0)
     messageAbort("%s : Attributes %d are mandatory",method,locatorType.getValue());
@@ -417,7 +418,7 @@ static int st_check_simtub_environment(Db *dbin,
     }
 
     nfex = model_nfex(model);
-    if (flag_cond && nfex != 0 && !is_grid(dbout)
+    if (flag_cond && nfex != 0 && ! dbout->isGrid()
         && dbin->getExternalDriftNumber() != nfex)
     {
       messerr("The Model requires %d external drift(s)", model_nfex(model));
@@ -1444,7 +1445,7 @@ label_end:
  **
  *****************************************************************************/
 int db_simulations_to_ce(Db *db,
-                         const ELoc &locatorType,
+                         const ELoc& locatorType,
                          int nbsimu,
                          int nvar,
                          int *iptr_ce_arg,
@@ -1583,7 +1584,7 @@ int gibbs_sampler(Db *dbin,
                   bool flag_ce,
                   bool flag_cstd,
                   bool verbose,
-                  const NamingConvention& namconv)
+                  const NamingConvention &namconv)
 {
   int error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
   PropDef *propdef;
@@ -1702,10 +1703,11 @@ int gibbs_sampler(Db *dbin,
   namconv.setNamesAndLocators(dbin, ELoc::UNKNOWN, nvar, dbin, iptr, String(),
                               nbsimu);
 
-  label_end: propdef = proportion_manage(-1, 0, 1, 1, 0,
-                                         model->getVariableNumber(), 0, dbin,
-                                         NULL,
-                                         VectorDouble(), propdef);
+label_end:
+  propdef = proportion_manage(-1, 0, 1, 1, 0, model->getVariableNumber(), 0,
+                              dbin,
+                              NULL,
+                              VectorDouble(), propdef);
   return (error);
 }
 
@@ -1804,7 +1806,7 @@ int simtub_constraints(Db *dbin,
 
   /* Preliminary check */
 
-  flag_grid = is_grid(dbout);
+  flag_grid = dbout->isGrid();
   ndim = dbout->getNDim();
   nech = dbout->getSampleNumber();
   tab.resize(dbout->getSampleNumber());
@@ -2729,7 +2731,7 @@ int simsph(DbGrid *db,
 
   /* Preliminary checks */
 
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
@@ -2780,9 +2782,8 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
                          int verbose)
 {
   VectorDouble simu;
-  int flag_sphere;
 
-  variety_query(&flag_sphere);
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (!flag_sphere)
   {
     messerr("The Spherical Simulation is restricted to Spherical coordinates");
@@ -2801,42 +2802,6 @@ VectorDouble simsph_mesh(MeshSpherical *mesh,
   simu = simsphe.simulate_mesh(mesh, model, sphepar, verbose);
 
   return simu;
-}
-
-/****************************************************************************/
-/*!
- **  Perform the non-conditional simulation by FFT method on a grid
- **
- ** \return  Error return code
- **
- ** \param[in]  db      Db structure
- ** \param[in]  model   Model structure
- ** \param[in]  param   SimuFFTParam structure
- ** \param[in]  nbsimu  Number of simulations
- ** \param[in]  seed    Value of the seed
- ** \param[in]  verbose Verbosity flag
- ** \param[in]  namconv Naming Convention
- **
- *****************************************************************************/
-int simfft(DbGrid *db,
-           Model *model,
-           SimuFFTParam& param,
-           int nbsimu,
-           int seed,
-           int verbose,
-           const NamingConvention& namconv)
-{
-
-  /* Add the attributes for storing the results in the data base */
-
-  int iptr = db->addColumnsByConstant(nbsimu, 0.);
-
-  SimuFFT simufft(nbsimu, seed);
-  if (simufft.simulate(db, model, param, iptr, verbose)) return 1;
-
-  namconv.setNamesAndLocators(db, ELoc::UNKNOWN, 1, db, iptr, "Simu");
-
-  return 0;
 }
 
 /****************************************************************************/
@@ -2971,7 +2936,7 @@ MatrixRectangular fluid_extract(DbGrid *dbgrid,
                                 bool verbose)
 {
   MatrixRectangular tab;
-  if (! is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("The Fluid Propagation is restricted to regular grid");
     return tab;

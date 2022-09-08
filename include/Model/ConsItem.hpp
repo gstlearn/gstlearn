@@ -38,9 +38,9 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int init(const CovParamId& paramid,
-           const EConsType& type,
-           double value = TEST);
+  static ConsItem* create(const CovParamId &paramid,
+                          const EConsType &type = EConsType::DEFAULT,
+                          double value = 0.);
 
   // Pipe to the CovParamId class
   const EConsElem& getType() const { return _paramId.getType(); }
@@ -82,6 +82,10 @@ public:
                          const EConsType& type = EConsType::DEFAULT,
                          double value = 0.);
 
+private:
+  int _init(const CovParamId &paramid,
+            const EConsType &type,
+            double value = TEST);
 
 private:
   CovParamId _paramId;

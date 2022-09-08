@@ -37,7 +37,7 @@ public:
              const VectorDouble& rotmat = VectorDouble(),
              bool flag_polarized = true,
              int verbose = 0);
-  MeshETurbo(const DbGrid* db, int verbose = 0);
+  MeshETurbo(const DbGrid* dbgrid, int verbose = 0);
   MeshETurbo(const MeshETurbo &m);
   MeshETurbo& operator=(const MeshETurbo &r);
   virtual ~MeshETurbo();
@@ -56,8 +56,6 @@ public:
                       bool verbose = false) const override;
 
   void   setPolarized(bool flag) { _isPolarized = flag; }
-  void   setMaskArrayFromInt(int* array);
-  void   setMaskArrayFromDouble(double* array);
 
   static MeshETurbo* createFromNF(const String& neutralFilename,
                                      bool verbose = true);
@@ -71,6 +69,7 @@ public:
                    const VectorDouble& dx = VectorDouble(),
                    const VectorDouble& x0 = VectorDouble(),
                    const VectorDouble& rotmat = VectorDouble(),
+                   const VectorDouble& sel = VectorDouble(),
                    bool flag_polarized = true,
                    int verbose = 0);
   int initFromCova(const CovAniso& cova,
@@ -79,10 +78,11 @@ public:
                    int nbExt = 0,
                    bool useSel = true,
                    int verbose = 0);
-  bool isNodeMasked(int iabs) const;
   const Grid& getGrid() const { return _grid; }
 
 private:
+  int  _getMeshIndexActiveToAbsolute(int iact) const;
+  int  _getGridIndexAbsoluteToActive(int iabs);
   int  _defineGrid(const VectorDouble& cellsize);
   void _setNumberElementPerCell();
   int  _getPolarized(VectorInt indg) const;
@@ -92,10 +92,13 @@ private:
                   VectorInt& indgg,
                   const VectorDouble& coor,
                   VectorInt& indices,
-                  double *rhs,
-                  double *lambda) const;
+                  VectorDouble& rhs,
+                  VectorDouble& lambda) const;
   void _deallocate();
   void _fromMeshToIndex(int imesh, int *node, int *icas) const;
+  void _fromSelToMeshingMask(const VectorDouble& sel);
+  int  _nmeshInCompleteGrid() const;
+  bool _isMaskDefined() const { return (! _meshActiveToAbsolute.empty()); }
 
 protected:
   /// Interface for ASerializable
@@ -107,6 +110,6 @@ private:
   Grid  _grid;
   int   _nPerCell;
   bool  _isPolarized;
-  bool  _isMaskDefined;
-  bool* _maskGrid;
+  VectorInt _meshActiveToAbsolute;
+  std::map<int, int> _gridAbsoluteToActive;
 };

@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "Basic/Tensor.hpp"
 
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
 
 #include "Matrix/MatrixSquareDiagonal.hpp"

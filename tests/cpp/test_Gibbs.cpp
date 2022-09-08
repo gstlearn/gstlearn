@@ -18,12 +18,12 @@
 #include "Basic/OptCst.hpp"
 #include "Basic/ECst.hpp"
 #include "Basic/File.hpp"
-#include "Space/Space.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
@@ -274,7 +274,7 @@ int main(int /*argc*/, char */*argv*/[])
   int    flag_print =     0;
   bool   flag_save  =  true;
   const char triswitch[] = "nqQ";
-  int     verbose, seed, ndim, nvar, iptr, nvertex, ncolor;
+  int     verbose, seed, ndim, nvar, nvertex, ncolor;
   int    *colors, *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
@@ -305,7 +305,7 @@ int main(int /*argc*/, char */*argv*/[])
   ndim     = 2;
   nvar     = 1;
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
 
@@ -318,9 +318,8 @@ int main(int /*argc*/, char */*argv*/[])
   
   // 2-D grid output file
 
-  dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
-  db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,&iptr);
-  db_grid_define_coordinates(dbgrid);
+  dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
+                          VectorDouble(), VectorString(), VectorString(), 1);
   db_extension_diag(dbgrid,&diag);
   CovContext ctxt(nvar,ndim,diag);
     
@@ -425,9 +424,9 @@ int main(int /*argc*/, char */*argv*/[])
   
 label_end:
   for (int icol=0; icol<ncolor; icol++) Qcols[icol] = cs_spfree(Qcols[icol]);
-  dbgrid   = db_delete(dbgrid);
-  model1   = model_free(model1);
-  model2   = model_free(model2);
+  delete dbgrid;
+  delete model1;
+  delete model2;
   colors   = (int    *) mem_free((char *) colors);
   ind      = (int    *) mem_free((char *) ind);
   z        = (double *) mem_free((char *) z);

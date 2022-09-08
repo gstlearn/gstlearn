@@ -9,8 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -37,8 +37,7 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
-  setup_license("Demonstration");
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Convert-");
 

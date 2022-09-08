@@ -8,14 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Rotation.hpp"
+#include "geoslib_old_f.h"
+
+#include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 Rotation::Rotation(unsigned int ndim)
   : AStringable(),

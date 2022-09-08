@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Array.hpp"
+#include "Arrays/Array.hpp"
 
 #include <math.h>
 #include <complex>

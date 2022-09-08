@@ -13,10 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Db/ELoadBy.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
-
+#include "Db/ELoadBy.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -27,6 +26,8 @@
 #include "Basic/ICloneable.hpp"
 
 class Polygons;
+class EMorpho;
+class NeighImage;
 
 /**
  * Class containing a Data Set organized as a regular Grid
@@ -52,6 +53,7 @@ public:
   double getUnit(int idim = 0) const override;
   int getNDim() const override;
   bool mayChangeSampleNumber() const override { return false; }
+  void resetDims(int ncol, int nech) override;
 
   static DbGrid* createFromNF(const String& neutralFilename,
                               bool verbose = true);
@@ -65,7 +67,7 @@ public:
             const VectorString& locatorNames = VectorString(),
             int flag_add_rank = 1);
   int resetCoveringDb(Db* db,
-                      const VectorInt& nodes,
+                      const VectorInt& nodes = VectorInt(),
                       const VectorDouble& dcell = VectorDouble(),
                       const VectorDouble& origin = VectorDouble(),
                       const VectorDouble& margin = VectorDouble());
@@ -91,6 +93,34 @@ public:
                                    const VectorInt& nodes,
                                    const VectorDouble& dcell,
                                    int flag_add_rank = 1);
+  static DbGrid* createCoarse(DbGrid *dbin,
+                              const VectorInt &nmult,
+                              int flag_add_rank);
+  static DbGrid* createRefine(DbGrid *dbin,
+                              const VectorInt &nmult,
+                              int flag_add_rank);
+  static DbGrid* createFromGridExtend(const DbGrid& gridIn,
+                                      const VectorString &tops,
+                                      const VectorString &bots,
+                                      const VectorInt &nxnew,
+                                      bool verbose = false,
+                                      double eps = EPSILON3);
+  static DbGrid* createFromGridShrink(const DbGrid& gridIn,
+                                      const VectorInt& deletedRanks);
+  static DbGrid* createGrid2D(const ELoadBy &order,
+                              int nx,
+                              int ny,
+                              double x0 = 0.,
+                              double y0 = 0.,
+                              double dx = 1.,
+                              double dy = 1.,
+                              double angle = 0.,
+                              int flag_add_rank = 1,
+                              const VectorDouble &tab = VectorDouble());
+
+  DbGrid* coarsify(const VectorInt &nmult);
+  DbGrid* refine(const VectorInt &nmult);
+  static bool migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank);
 
   inline const Grid& getGrid() const { return _grid; }
   void generateCoordinates(const String& radix = "x");
@@ -120,6 +150,7 @@ public:
 
   int  getNX(int idim) const { return _grid.getNX(idim); }
   VectorInt getNXs() const { return _grid.getNXs(); }
+  VectorInt getNXsExt(int ndimMax) const;
   double getDX(int idim) const { return _grid.getDX(idim); }
   VectorDouble getDXs() const { return _grid.getDXs(); }
   double getX0(int idim) const { return _grid.getX0(idim); }
@@ -135,24 +166,38 @@ public:
   {
     return _grid.getCoordinatesByCorner(icorner);
   }
-  int coordinateToRank(const VectorDouble& coor, double eps = EPSILON6) const
-  {
-    return _grid.coordinateToRank(coor,eps);
-  }
+  int coordinateToRank(const VectorDouble &coor,
+                       bool centered = false,
+                       double eps = EPSILON6) const;
+  VectorInt coordinateToIndices(const VectorDouble &coor,
+                                bool centered,
+                                double eps) const;
+  int coordinateToIndicesInPlace(const VectorDouble &coor,
+                                 VectorInt &indices,
+                                 bool centered = false,
+                                 double eps = EPSILON6) const;
+
   int indiceToRank(const VectorInt& indice) const
   {
     return _grid.indiceToRank(indice);
   }
-  void rankToIndice(int node, VectorInt& indice, bool minusOne = false) const
+  void rankToIndice(int node, VectorInt& indices, bool minusOne = false) const
   {
-    _grid.rankToIndice(node,indice, minusOne);
+    _grid.rankToIndice(node,indices, minusOne);
   }
-  void rankToCoordinate(int rank,
-                        VectorDouble& coor,
-                        const VectorDouble& percent = VectorDouble()) const
+  void rankToCoordinateInPlace(int rank,
+                               VectorDouble &coor,
+                               const VectorDouble &percent = VectorDouble()) const
   {
     _grid.rankToCoordinatesInPlace(rank, coor, percent);
   }
+  void indicesToCoordinateInPlace(const VectorInt& indice,
+                                  VectorDouble& coor,
+                                  const VectorDouble& percent) const
+  {
+    _grid.indicesToCoordinateInPlace(indice, coor, percent);
+  }
+
   int getMirrorIndex(int idim, int ix) const
   {
     return _grid.getMirrorIndex(idim, ix);
@@ -172,6 +217,22 @@ public:
                        int rank,
                        double value,
                        bool useSel = false);
+  VectorDouble getBlockExtensions(int node) const;
+  VectorVectorDouble getCellEdges(int node = 0, bool forceGridMesh = false) const;
+  VectorVectorDouble getGridEdges() const;
+
+  int morpho(const EMorpho &oper,
+             double vmin = 0.5,
+             double vmax = 1.5,
+             int option = 0,
+             const VectorInt &radius = VectorInt(),
+             bool dist_erode = false,
+             bool verbose = false,
+             const NamingConvention &namconv = NamingConvention("Morpho"));
+  int smooth(NeighImage *neigh,
+             int type = 1,
+             double range = 1.,
+             const NamingConvention &namconv = NamingConvention("Smooth"));
 
 protected:
   /// Interface for ASerializable
@@ -181,6 +242,7 @@ protected:
 
 private:
   void _createCoordinatesGrid(int icol0);
+
 
 private:
   Grid _grid;                //!< Grid characteristics

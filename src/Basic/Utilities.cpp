@@ -1320,3 +1320,37 @@ void ut_shuffle_array(int nrow, int ncol, double *tab)
   newtab = (double*) mem_free((char* ) newtab);
 }
 
+/**
+ * Returns the list of absolute indices for the only active samples
+ * A sample is active if its 'sel' value is equal to 1
+ * @param sel Vector giving the status of all samples (Dimension: absolute)
+ * @return
+ */
+VectorInt getListActiveToAbsolute(const VectorDouble& sel)
+{
+  int nech = (int) sel.size();
+  VectorInt ranks;
+  for (int iabs = 0; iabs < nech; iabs++)
+  {
+    if (sel[iabs]) ranks.push_back(iabs);
+  }
+  return ranks;
+}
+
+/**
+ * Returns the map such that MAP[iabs] = iactive.
+ * A sample is active if its 'sel' value is equal to 1
+ * @param sel Vector giving the status of all samples (Dimension: absolute)
+ * @return
+ */
+std::map<int, int> getMapAbsoluteToActive(const VectorDouble& sel)
+{
+  std::map<int, int> map;
+  int nech = (int) sel.size();
+  int iact = 0;
+  for (int iabs = 0; iabs < nech; iabs++)
+  {
+    if (! sel[iabs] == 0) map[iabs] = iact++;
+  }
+  return map;
+}

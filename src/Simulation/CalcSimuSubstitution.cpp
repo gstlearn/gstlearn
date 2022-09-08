@@ -175,7 +175,7 @@ bool CalcSimuSubstitution::_simulate()
 
     double u = law_uniform(0., 1.);
     double w0 = 0.;
-    double ie = 0;
+    int ie = 0;
     while (w0 < u)
       w0 += props[ie++];
     status[0] = ie - 1;
@@ -336,11 +336,7 @@ bool CalcSimuSubstitution::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
+  if (! hasDbout()) return false;
   int ndim = _getNDim();
   if (ndim > 3)
   {
@@ -359,7 +355,7 @@ bool CalcSimuSubstitution::_check()
 
 bool CalcSimuSubstitution::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 1);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
     if (_iattOut < 0) return false;
     return true;
 }
@@ -373,7 +369,10 @@ bool CalcSimuSubstitution::_run()
 
 bool CalcSimuSubstitution::_postprocess()
 {
-  _renameVariable(ELoc::Z, 1, _iattOut, String(), getNbSimu());
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
+  _renameVariable(2, 1, _iattOut, String(), getNbSimu());
   return true;
 }
 

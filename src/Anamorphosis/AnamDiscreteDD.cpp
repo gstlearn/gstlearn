@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Db/Db.hpp"
 #include "Stats/Selectivity.hpp"
 
 #include <math.h>
@@ -758,7 +758,7 @@ void AnamDiscreteDD::_blockAnamorphosis(const VectorDouble& chi)
  ** \param[in] selectivity Selectivity structure to be filled
  **
  *****************************************************************************/
-void AnamDiscreteDD::globalSelectivity(Selectivity* selectivity)
+void AnamDiscreteDD::_globalSelectivity(Selectivity* selectivity)
 {
   bool cutDefined = (selectivity->getNCuts() > 0);
 
@@ -818,24 +818,22 @@ void AnamDiscreteDD::globalSelectivity(Selectivity* selectivity)
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  names_est    Array of names for factor estimation
- ** \param[in]  names_std    Array of names for factor st. dev.
+ ** \param[in]  cols_est     Array of UIDs for factor estimation
+ ** \param[in]  cols_std     Array of UIDs for factor st. dev.
  ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
 int AnamDiscreteDD::factor2Selectivity(Db *db,
                                        Selectivity* selectivity,
-                                       const VectorString& names_est,
-                                       const VectorString& names_std,
+                                       const VectorInt& cols_est,
+                                       const VectorInt& cols_std,
                                        int iptr0)
 {
   int nclass   = getNClass();
   int nech     = db->getSampleNumber();
-  int nb_est   = (int) names_est.size();
-  int nb_std   = (int) names_std.size();
+  int nb_est   = (int) cols_est.size();
+  int nb_std   = (int) cols_std.size();
   int ncleff   = MAX(nb_est, nb_std);
-  VectorInt cols_est = db->getUIDs(names_est);
-  VectorInt cols_std = db->getUIDs(names_std);
   bool cutDefined = (selectivity->getNCuts() > 0);
 
   /* Preliminary checks */

@@ -2418,7 +2418,7 @@ static int st_variogen_grid_calcul(DbGrid *db, Vario *vario)
     messerr("This calculation requires a generalized variogram definition");
     return (1);
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to grid architecture");
     return (1);
@@ -2483,7 +2483,7 @@ static int st_variogen_line_calcul(Db *db, Vario *vario)
     messerr("This calculation requires a generalized variogram definition");
     return (1);
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to line architecture");
     return (1);
@@ -2526,19 +2526,6 @@ void vardir_print(Vario *vario, int idir, int verbose)
   if (verbose)
     message(vario->getDirParam(idir).toString().c_str());
   return;
-}
-
-/****************************************************************************/
-/*!
- **  Print the experimental variograms
- **
- ** \param[in]  vario     Vario structure
- **
- *****************************************************************************/
-void variogram_print(const Vario *vario)
-{
-  if (vario != nullptr)
-    messageFlush(vario->toString());
 }
 
 /****************************************************************************/
@@ -2920,7 +2907,7 @@ static int st_vmap_general(Db *db,
   if (db == nullptr) return (1);
   if (dbmap == nullptr) return (1);
 
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");
@@ -2972,7 +2959,8 @@ static int st_vmap_general(Db *db,
 
   /* Calculate a neighborhood (if radius > 0) */
 
-  neigh = gridcell_neigh(ndim, 1, radius, 0, 0, &nbmax);
+  neigh = gridcell_neigh(ndim, 1, radius, 0, 0);
+  nbmax = (int) neigh.size() / ndim;
 
   /* Calculate the VMAP half-extension */
 
@@ -3087,12 +3075,12 @@ static int st_vmap_grid(DbGrid *dbgrid,
   if (dbgrid == nullptr) return (1);
   if (dbmap == nullptr) return (1);
 
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This Variogram Map is defined for Grid Data Base only");
     return (1);
   }
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");
@@ -3364,7 +3352,7 @@ static int st_variogrid_calcul(DbGrid *db, Vario *vario)
             vario->getVariableNumber());
     goto label_end;
   }
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("This calculation facility is dedicated to grid architecture");
     goto label_end;
@@ -3460,23 +3448,6 @@ int variogram_direction_add(VarioParam *varioparam,
                                tolcode, breaks, codir, grincr);
   varioparam->addDir(dirparam);
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Free the Vario structure
- **
- ** \return  Pointer to the freed Vario structure
- **
- ** \param[in]  vario Vario structure to be freed
- **
- *****************************************************************************/
-Vario* variogram_delete(Vario *vario)
-{
-  if (vario == nullptr) return (vario);
-  delete vario;
-  vario = nullptr;
-  return (vario);
 }
 
 /****************************************************************************/
@@ -5096,12 +5067,12 @@ static int st_vmap_grid_fft(DbGrid *dbgrid,
     messerr("Variogram, Covariance (centered or not) or Covariogram");
     return (1);
   }
-  if (!is_grid(dbgrid))
+  if (! dbgrid->isGrid())
   {
     messerr("This Variogram Map is defined for Grid Data Base only");
     return (1);
   }
-  if (!is_grid(dbmap))
+  if (! dbmap->isGrid())
   {
     messerr("This feature requires a Grid Data Base");
     messerr("to store the Variogram Maps");

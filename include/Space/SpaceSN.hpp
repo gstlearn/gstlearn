@@ -27,11 +27,13 @@ public:
   /// ICloneable interface
   IMPLEMENT_CLONING(SpaceSN)
 
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
   /// Return true if the given space is equal to me
   virtual bool isEqual(const ASpace* space) const override;
 
   /// Return the concrete space type
-  SpaceType getType() const override { return SPACE_SN; }
+  ESpaceType getType() const override { return ESpaceType::SPACE_SN; }
 
   /// Move the given space point by the given vector
   void move(SpacePoint& p1,
@@ -52,6 +54,8 @@ public:
   /// Return the increment vector between two space points for the current space context
   VectorDouble getIncrement(const SpacePoint& p1,
                             const SpacePoint& p2) const override;
+
+  double getRadius() const { return _radius; }
 
 private:
   /// Sphere radius

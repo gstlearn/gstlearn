@@ -11,6 +11,8 @@
 #include "Db/PtrGeos.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
+
 #include "geoslib_enum.h"
 
 #include <string.h>
@@ -23,7 +25,7 @@ typedef struct
   char COMMENT[STRING_LENGTH]; /* Meaning */
 } Def_Locator;
 
-// TODO : DEF_LOCATOR static table refactoring
+// TODO : DEF_LOCATOR static table refactoring. Sync with ELoc
 static Def_Locator DEF_LOCATOR[] = { { "x",       0, "Coordinate" },
                                      { "z",       0, "Variable" },
                                      { "v",       0, "Variance of measurement error" },
@@ -51,7 +53,8 @@ static Def_Locator DEF_LOCATOR[] = { { "x",       0, "Coordinate" },
                                      { "gausfac", 0, "Gaussian value for Facies" },
                                      { "date",    1, "Date" },
                                      { "rklow",   0, "Disc. rank for Lower bound" },
-                                     { "rkup",    0, "Disc. rank for Upper bound" }
+                                     { "rkup",    0, "Disc. rank for Upper bound" },
+                                     { "sum",     0, "Constraints on the sum" }
   };
 
 void PtrGeos::clear()
@@ -99,11 +102,11 @@ String getLocatorName(const ELoc& locatorType, int locatorIndex)
   std::stringstream sstr;
   if (locatorType == ELoc::UNKNOWN)
   {
-    sstr << "NA";
+    sstr << STRING_NA;
   }
   else if (! isLocatorTypeValid(locatorType))
   {
-    sstr << "NA";
+    sstr << STRING_NA;
   }
   else
   {
@@ -200,7 +203,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
   if (! mult && inum > 1)
   {
     // The locator has an index larger than 1 but the Locator should be Unique. Error
-    string = "NA";
+    string = STRING_NA;
     return 1;
   }
 

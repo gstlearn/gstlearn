@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Neigh/NeighWork.hpp"
@@ -342,6 +341,7 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   double distmax = 0.;
   int nsel = 0;
+
   for (int iech = 0; iech < nech; iech++)
   {
 
@@ -360,16 +360,27 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
 
-    /* Calculate the distance between data and target */
+    // Force selection if the sample belongs to the block
 
-    double dist = _movingDist(dbout, iech, iech_out);
-    if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
-    if (dist > distmax) distmax = dist;
+    double dist;
+    if (neighM->getForceWithinBlock() && dbout->isGrid())
+    {
+      if (! _belongsToCell(dbout, iech, iech_out)) continue;
+      dist = _movingDist(dbout, iech, iech_out);
+    }
+    else
+    {
+      /* Calculate the distance between data and target */
 
-    /* Calculate the angular sector to which the sample belongs */
+      dist = _movingDist(dbout, iech, iech_out);
+      if (! FFFF(neighM->getRadius()) && dist > neighM->getRadius()) continue;
+      if (dist > distmax) distmax = dist;
 
-    if (neighM->getFlagSector())
-      isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+      /* Calculate the angular sector to which the sample belongs */
+
+      if (neighM->getFlagSector())
+        isect = _movingSectorDefine(_movingX1[0], _movingX1[1]);
+    }
 
     /* The sample may be selected */
 
@@ -392,15 +403,18 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
 
   /* For each angular sector, select the first sample up to the maximum */
 
-  if (neighM->getFlagSector() && neighM->getNSMax() > 0)
+  if (! neighM->getForceWithinBlock() && neighM->getFlagSector() && neighM->getNSMax() > 0)
   {
     _movingSectorNsmax(nsel, ranks);
     if (nsel < neighM->getNMini()) return 1;
   }
 
-  /* Select the first data samples */
+    /* Select the first data samples (skipped if forcing all samples in block) */
 
-  _movingSelect(nsel, ranks);
+  if (! neighM->getForceWithinBlock())
+  {
+    _movingSelect(nsel, ranks);
+  }
 
   return 0;
 }
@@ -508,6 +522,21 @@ double NeighWork::_movingDist(Db *dbout, int iech_in, int iech_out)
   matrix_product(1, ndim, 1, _movingX1.data(), _movingX1.data(), &dist);
   dist = sqrt(dist);
   return dist;
+}
+
+bool NeighWork::_belongsToCell(Db* dbout, int iech, int iech_out)
+{
+  DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
+  if (dbgrid == nullptr) return false;
+
+  // Get the coordinates of the sample
+  VectorDouble coor = _dbin->getSampleCoordinates(iech);
+
+  // Identify the dimensions of the cell
+  VectorDouble dxsPerCell = dbgrid->getBlockExtensions(iech_out);
+
+  // Check if the sample belongs to the cell
+  return dbgrid->getGrid().sampleBelongsToCell(coor, iech_out, dxsPerCell);
 }
 
 /****************************************************************************/
@@ -789,7 +818,7 @@ bool NeighWork::_isSameTargetBench(const Db* dbout,
 
   bool flagSame = true;
   int ndim = dbout->getNDim();
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     const DbGrid* dbgrid = dynamic_cast<const DbGrid*>(dbout);
     int nval = 1;
@@ -888,7 +917,7 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
  **
  ** \param[in]  dbout         output Db structure
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- ** \param[in]  rankColCok    Vector of Colcok information (optional)
+ ** \param[in]  rankColCok    Vector of ColCok information (optional)
  **
  *****************************************************************************/
 VectorDouble NeighWork::summary(Db *dbout,
@@ -939,9 +968,19 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   number = 0;
   int n_empty = 0;
-  for (int isect = 0; isect < 2 * neighM->getNSect(); isect++)
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
   {
     if (_movingNsect[isect] > 0)
+      n_empty = 0;
+    else
+    {
+      n_empty++;
+      if (n_empty > number) number = n_empty;
+    }
+  }
+  if (neighM->getNSect() > 0)
+  {
+    if(_movingNsect[0] > 0)
       n_empty = 0;
     else
     {

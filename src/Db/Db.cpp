@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
+
 #include "Db/Db.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -368,7 +368,7 @@ int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
  * @param icol       Index of the target column
  * @param ret_locatorType Locator type
  * @param ret_locatorIndex Locator index (starting from 0)
- * @return true if the target variable has a ocator assigned and false otherwise
+ * @return true if the target variable has a locator assigned and false otherwise
  */
 bool Db::getLocatorByColIdx(int icol,
                             ELoc* ret_locatorType,
@@ -868,14 +868,20 @@ void Db::clearLocators(const ELoc& locatorType)
  * @param names        Vector if variable names
  * @param locatorType  Locator type (include ELoc::UNKNOWN)
  * @param locatorIndex Starting locator rank (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
+ *
  */
-void Db::setLocators(const VectorString& names,
-                    const ELoc& locatorType,
-                    int locatorIndex)
+void Db::setLocators(const VectorString &names,
+                     const ELoc& locatorType,
+                     int locatorIndex,
+                     bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
@@ -885,12 +891,19 @@ void Db::setLocators(const VectorString& names,
  * @param names Set of variable names
  * @param locatorType Locator Type
  * @param locatorIndex Locator Index (for the first variable) (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
-void Db::setLocator(const String& names, const ELoc& locatorType, int locatorIndex)
+void Db::setLocator(const String &names,
+                    const ELoc& locatorType,
+                    int locatorIndex,
+                    bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (unsigned int i = 0; i < iuids.size(); i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
@@ -900,15 +913,23 @@ void Db::setLocator(const String& names, const ELoc& locatorType, int locatorInd
  * @param iuid          Index of the UID
  * @param locatorType   Type of locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank in the Locator (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  * @remark: At this stage, no check is performed to see if items
  * @remark: are consecutive and all defined
  * @remark: This allow using this function in any order.
  */
-void Db::setLocatorByUID(int iuid, const ELoc& locatorType, int locatorIndex)
+void Db::setLocatorByUID(int iuid,
+                         const ELoc& locatorType,
+                         int locatorIndex,
+                         bool cleanSameLocator)
 {
   if (!isUIDValid(iuid)) return;
   if (!isLocatorTypeValid(locatorType, true)) return;
   if (locatorIndex < 0) return;
+
+  // Optional clean
+
+  if (cleanSameLocator) clearLocators(locatorType);
 
   /* Cancel any locator referring to this column */
 
@@ -942,12 +963,15 @@ void Db::setLocatorByUID(int iuid, const ELoc& locatorType, int locatorIndex)
   }
 }
 
-void Db::setLocatorByColIdx(int icol, const ELoc& locatorType, int locatorIndex)
+void Db::setLocatorByColIdx(int icol,
+                            const ELoc& locatorType,
+                            int locatorIndex,
+                            bool cleanSameLocator)
 {
   if (!isColIdxValid(icol)) return;
 
   int iuid = _getUIDByColIdx(icol);
-  setLocatorByUID(iuid, locatorType, locatorIndex);
+  setLocatorByUID(iuid, locatorType, locatorIndex, cleanSameLocator);
 }
 
 String Db::_getLocatorNameByColIdx(int icol) const
@@ -964,32 +988,43 @@ String Db::_getLocatorNameByColIdx(int icol) const
  * @param iuid          Index of the first UID
  * @param locatorType   Type of the Locator (include ELoc::UNKNOWN)
  * @param locatorIndex  Rank of the first Locator index (starting from 0)
+ * @param cleanSameLocator When TRUE, clean variables with same locator beforehand
  */
 void Db::setLocatorsByUID(int number,
                           int iuid,
                           const ELoc& locatorType,
-                          int locatorIndex)
+                          int locatorIndex,
+                          bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (int i = 0; i < number; i++)
     setLocatorByUID(iuid+i, locatorType, locatorIndex + i);
 }
 
 void Db::setLocatorsByUID(const VectorInt& iuids,
                           const ELoc& locatorType,
-                          int locatorIndex)
+                          int locatorIndex,
+                          bool cleanSameLocator)
 {
   if (!isLocatorTypeValid(locatorType, true)) return;
+
+  if (cleanSameLocator) clearLocators(locatorType);
+
   int number = (int) iuids.size();
   for (int i = 0; i < number; i++)
     setLocatorByUID(iuids[i], locatorType, locatorIndex + i);
 }
 
-
 void Db::setLocatorsByColIdx(const VectorInt& icols,
                               const ELoc& locatorType,
-                              int locatorIndex)
+                              int locatorIndex,
+                              bool cleanSameLocator)
 {
+  if (cleanSameLocator) clearLocators(locatorType);
+
   for (int icol = 0; icol < (int) icols.size(); icol++)
   {
     int iuid = _getUIDByColIdx(icol);
@@ -1191,14 +1226,20 @@ void Db::setColumnByUID(const VectorDouble& tab, int iuid, bool useSel)
  * Note that, if the Column does not exist, this Column is added beforehand
  * @param tab    Array of values to be stored in the target Column
  * @param name   Name of the Column
+ * @param locatorType Locator type
+ * @param locatorIndex   Locator index (starting from 0)
  * @param useSel Should an already existing Selection be taken into account
+ *
+ * @remark: Arguments 'locatorType'  and 'locatorIndex' are only used
+ * @remark: for newly added variables
  */
-void Db::setColumn(const VectorDouble& tab, const String& name, bool useSel)
+void Db::setColumn(const VectorDouble& tab, const String& name,
+                   const ELoc& locatorType, int locatorIndex, bool useSel)
 {
   VectorInt iuids = _ids(name, true, false);
   if (iuids.empty())
   {
-    (void) addColumns(tab, name, ELoc::UNKNOWN, 0, useSel);
+    (void) addColumns(tab, name, locatorType, locatorIndex, useSel);
   }
   else
   {
@@ -1257,9 +1298,8 @@ void Db::deleteColumnsByUID(const VectorInt& iuids)
  * Add the contents of the 'tab' as a Selection
  * @param tab Input array
  * @param name Name given to the newly created Selection variable
- * @return Rank of the newly created Column within the Data Base
  * @param combine How to combine with an already existing selection (see combineSelection() for details)
- *
+ * @return Rank of the newly created Column within the Data Base
  * @remark The Selection is set to True if tab is not zero and to False otherwise.
  * @remark If the dimension of 'tab' does not match the number of samples in the Db
  * @remark the action is cancelled (a message is issued)
@@ -1289,6 +1329,31 @@ int Db::addSelection(const VectorDouble& tab, const String& name, const String& 
       sel[iech] = (tab[iech] != 0.) ? 1. : 0.;
     }
   }
+
+  // Convert the input array into a selection (0 or 1)
+
+  combineSelection(sel, combine);
+  int iuid = addColumns(sel, name, ELoc::SEL);
+  return iuid;
+}
+
+/**
+ * Add a Selection by considering the input 'ranks' vector which give the ranks
+ * of the active samples (starting from 0)
+ * @param ranks   Vector of ranks of active samples
+ * @param name Name given to the newly created Selection variable
+ * @param combine How to combine with an already existing selection (see combineSelection() for details)
+ * @return
+ */
+int Db::addSelectionByRanks(const VectorInt &ranks,
+                            const String &name,
+                            const String &combine)
+{
+  int nech = getSampleNumber();
+  VectorDouble sel(nech, 0.);
+
+  for (int i = 0; i < (int) ranks.size(); i++)
+    sel[ranks[i]] = 1.;
 
   // Convert the input array into a selection (0 or 1)
 
@@ -1487,7 +1552,7 @@ void Db::deleteColumnsByLocator(const ELoc& locatorType)
 /**
  * Returns a Vector containing the minimum and maximum along a Space dimension
  * @param idim   Rank of the Space dimension
- * @param useSel true if the possible selection must be taken intao account
+ * @param useSel True if the possible selection must be taken intao account
  * @return
  */
 VectorDouble Db::getExtrema(int idim, bool useSel) const
@@ -1642,6 +1707,18 @@ double Db::getStdv(const String& name, bool useSel) const
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
   return ut_vector_stdv(tab);
+}
+
+double Db::getCorrelation(const String& name1, const String& name2, bool useSel) const
+{
+  VectorInt iuids;
+  iuids = _ids(name1, true);
+  if (iuids.empty()) return TEST;
+  VectorDouble tab1 = getColumnByUID(iuids[0], useSel);
+  iuids = _ids(name2, true);
+  if (iuids.empty()) return TEST;
+  VectorDouble tab2 = getColumnByUID(iuids[0], useSel);
+  return ut_vector_correlation(tab1, tab2);
 }
 
 int Db::getNDim() const
@@ -3801,8 +3878,8 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * Return the monovariate statistics on variables given their names.
  * @param names              List of names of the variables
  * @param opers              List of operations to be performed on the variables at each point.
- * @param flagIso  
- * @param flagVariableWise
+ * @param flagIso            If True, perform statistics on isotopic samples only
+ * @param flagVariableWise   If False, results are added to Db; otherwise they are produced in output vector
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
  * @param proba              For 'quant': the quantile for this probability is calculated
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
@@ -4081,6 +4158,15 @@ int Db::getFaciesNumber(void) const
     if (ifac > nfac) nfac = ifac;
   }
   return nfac;
+}
+
+VectorBool Db::getMaskArray() const
+{
+  int nech = getSampleNumber();
+  VectorBool status(nech);
+  for (int iech = 0; iech < nech; iech++)
+    status[iech] = isActive(iech);
+  return status;
 }
 
 /****************************************************************************/

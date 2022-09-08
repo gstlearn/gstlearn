@@ -15,6 +15,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
@@ -34,13 +35,14 @@ int main(int /*argc*/, char */*argv*/[])
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
+  DbStringFormat dbfmt;
 
   DbGrid      *dbgrid;
   Model       *model = nullptr;
   SPDE_Option  s_option;
   CovContext   ctxt;
   const char triswitch[] = "nqQ";
-  int verbose, seed, ndim, iptr, nsimu;
+  int verbose, seed, ndim, nsimu;
   double diag,range,param;
   VectorInt nx = { 400, 300 };
   VectorDouble dx = { 1., 1. };
@@ -61,10 +63,9 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble sill{1.};
   VectorDouble gext{ 2*79.8, 2*79.8 };
 
-  /* 1.b - Setup the license */
+  /* 1.b - Setup the default space */
 
-  if (setup_license("Demonstration")) goto label_end;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
 
   /* 1.c - Setup constants */
 
@@ -72,11 +73,9 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Create the 2-D grid output file
 
-  dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,x0,dx);
+  dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
+                          VectorDouble(), VectorString(), VectorString(), 1);
   if (dbgrid == nullptr) goto label_end;
-  if (db_locator_attribute_add(dbgrid,ELoc::X,ndim,0,0.,
-                               &iptr)) goto label_end;
-  if (db_grid_define_coordinates(dbgrid)) goto label_end;
   if (db_extension_diag(dbgrid,&diag)) goto label_end;
     
   // Model 
@@ -97,10 +96,12 @@ int main(int /*argc*/, char */*argv*/[])
   
   // Print statistics on the results
 
-  db_print(dbgrid,1,1,1,1);
+
+  dbfmt.setFlags(true, true, true, true, true);
+  dbgrid->display(&dbfmt);
   
 label_end:
-  dbgrid   = db_delete(dbgrid);
-  model    = model_free(model);
+  delete dbgrid;
+  delete model;
   return(0);
 }

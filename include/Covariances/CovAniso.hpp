@@ -15,12 +15,12 @@
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
-#include "Basic/Array.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
+#include "Arrays/Array.hpp"
 
 class Rotation;
 

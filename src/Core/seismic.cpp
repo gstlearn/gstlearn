@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
 #include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
@@ -551,7 +551,7 @@ int seismic_z2t_grid(int verbose,
 
   /* Initializations */
 
-  if (!is_grid(db_z))
+  if (! db_z->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
     return (1);
@@ -630,7 +630,7 @@ int seismic_t2z_grid(int verbose,
 
   /* Initializations */
 
-  if (!is_grid(db_t))
+  if (! db_t->isGrid())
   {
     messerr("This procedure requires an input Grid Db");
     return (1);
@@ -3096,7 +3096,7 @@ int seismic_estimate_XZ(DbGrid *db,
 
   /* Check that the grid is XZ */
 
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("The Db structure must be a Grid Db");
     return (1);
@@ -3361,7 +3361,7 @@ int seismic_simulate_XZ(DbGrid *db,
 
   /* Check that the grid is XZ */
 
-  if (!is_grid(db))
+  if (! db->isGrid())
   {
     messerr("The Db structure must be a Grid Db");
     return (1);

@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Polynomials/Hermite.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 #include <math.h>
 
@@ -184,12 +184,12 @@ VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
   VectorDouble vec(nfact);
 
   int nbpoly = ut_ivector_max(ifacs);
-  VectorDouble poly = hermitePolynomials(y, r, nbpoly);
+  VectorDouble poly = hermitePolynomials(y, r, nbpoly+1);
 
   for (int ifac = 0; ifac < nfact; ifac++)
     vec[ifac] = poly[ifacs[ifac]];
 
-  return poly;
+  return vec;
 }
 
 /**

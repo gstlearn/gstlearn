@@ -23,8 +23,9 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/ECalcVario.hpp"
+#include "Simulation/CalcSimuTurningBands.hpp"
+
 #include <stdlib.h>
-#include "../../include/Simulation/CalcSimuTurningBands.hpp"
 
 /****************************************************************************/
 /*!
@@ -40,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   int error = 1;
   int ndim = 2;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples
@@ -86,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
   std::vector<ECov> covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  model.fit(&variop,covas,true);
+  model.fit(&variop,covas,false);
   model.display();
 
   // ===============

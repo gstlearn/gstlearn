@@ -12,7 +12,6 @@
 #include "Db/Db.hpp"
 #include "Basic/Utilities.hpp"
 
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
@@ -421,7 +420,7 @@ int AnamDiscreteIR::updatePointToBlock(double r_coef)
  **  Calculate the theoretical grade tonnage value (Discrete Indicator Residuals)
  **
  *****************************************************************************/
-void AnamDiscreteIR::globalSelectivity(Selectivity* selectivity)
+void AnamDiscreteIR::_globalSelectivity(Selectivity* selectivity)
 {
   bool cutDefined = (selectivity->getNCuts() > 0);
 
@@ -472,23 +471,21 @@ void AnamDiscreteIR::globalSelectivity(Selectivity* selectivity)
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  names_est    Array of variable names for factor estimation
- ** \param[in]  names_std    Array of variable names for factor St. Dev.
+ ** \param[in]  cols_est     Array of UIDs for factor estimation
+ ** \param[in]  cols_std     Array of UIDs for factor St. Dev.
  ** \param[in]  iptr0        Rank for storing the results
  **
  *****************************************************************************/
 int AnamDiscreteIR::factor2Selectivity(Db *db,
                                        Selectivity* selectivity,
-                                       const VectorString& names_est,
-                                       const VectorString& names_std,
+                                       const VectorInt& cols_est,
+                                       const VectorInt& cols_std,
                                        int iptr0)
 {
   int nech = db->getSampleNumber();
-  int nb_est = (int) names_est.size();
-  int nb_std = (int) names_std.size();
+  int nb_est = (int) cols_est.size();
+  int nb_std = (int) cols_std.size();
   int ncleff = MAX(nb_est, nb_std);
-  VectorInt cols_est = db->getUIDs(names_est);
-  VectorInt cols_std = db->getUIDs(names_std);
   bool cutDefined = (selectivity->getNCuts() > 0);
 
   if (db == nullptr)

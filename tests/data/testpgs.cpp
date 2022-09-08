@@ -22,6 +22,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -45,6 +46,7 @@ int main(int argc, char *argv[])
   Rule      *rule[2];
   Option_VarioFit options;
   RuleStringFormat rulefmt;
+  DbStringFormat dbfmt;
   double  total;
   int     i,j,lec,nbsimu,seed,nbtuba,npgs,ntot,nfac[2];
   int     flag_vario,flag_grid,iatt_z,iatt_ind,ifac,nclass;
@@ -73,10 +75,6 @@ int main(int argc, char *argv[])
 
   StdoutRedirect sr("Result.out");
 
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
-
   /* Setup constants */
 
   OptDbg::reset();
@@ -97,11 +95,12 @@ int main(int argc, char *argv[])
   dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
   iatt_z = db_attribute_identify(dbin,ELoc::Z,0);
-  db_print(dbin,1,0,1,1,1);
+  dbfmt.setFlags(true, false, true, true, true);
+  dbin->display(&dbfmt);
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN,dbin->getNDim());
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN,dbin->getNDim());
 
   /* Define the variogram (optional) */
   
@@ -125,8 +124,6 @@ int main(int argc, char *argv[])
     ascii_filename("Rule",i,0,filename);
     rule[i] = Rule::createFromNF(filename,verbose);
     if (rule[i] == nullptr) continue;
-    rule[i]->display();
-
     npgs++;
     rule[i]->display();
     nfac[i] = rule[i]->getFaciesNumber();
@@ -158,7 +155,7 @@ int main(int argc, char *argv[])
       
       vario->attachDb(dbin);
       vario->computeByKey("vg");
-      variogram_print(vario);
+      vario->display();
       ascii_filename("Vario",0,1,filename);
       if (! vario->dumpToNF(filename,verbose))
         messageAbort("ascii_vario_write");
@@ -210,7 +207,8 @@ int main(int argc, char *argv[])
                    model[0][0],model[0][1],model[1][0],model[1][1],
                    neighU,nbsimu,seed,0,0,0,0,nbtuba,nboot,niter,1)) goto label_end;
     }
-    db_print(dbout,1,0,1,1,1);
+    dbfmt.setFlags(true, false, true, true, true);
+    dbout->display(&dbfmt);
   }
 
   /* Serialization of results (for visual check) */
@@ -222,13 +220,13 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  dbin   = db_delete(dbin);
-  dbout  = db_delete(dbout);
+  delete dbin;
+  delete dbout;
   for (i=0; i<2; i++)
   {
     rule[i] = rule_free(rule[i]);
     for (j=0; j<2; j++)
-      model[i][j] = model_free(model[i][j]);
+      delete model[i][j];
   }
   delete ruleprop;
   delete neighU;

@@ -13,6 +13,7 @@
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/Vario.hpp"
 #include "Neigh/ANeighParam.hpp"
@@ -81,6 +82,7 @@ int main(int argc, char *argv[])
   ANeighParam *neighparam;
   Option_AutoFit mauto;
   Constraints constraints;
+  DbStringFormat dbfmt;
   int        nbsimu,seed,nbtuba;
   static int    nboot   = 10;
   static int    niter   = 10;
@@ -97,10 +99,6 @@ int main(int argc, char *argv[])
   /* Standard output redirection to file */
 
   StdoutRedirect sr("Result.out");
-
-  /* Setup the license */
-
-  if (setup_license("Demonstration")) goto label_end;
 
   /* Setup constants */
 
@@ -121,16 +119,18 @@ int main(int argc, char *argv[])
   ascii_filename("Data",0,0,filename);
   dbin = Db::createFromNF(filename,verbose);
   if (dbin == nullptr) goto label_end;
-  db_print(dbin,1,0,1,1,1);
+  dbfmt.setFlags(true, false, true, true, true);
+  dbin->display(&dbfmt);
 
   /* Define the Default Space according to the Dimension of the Input Db */
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN,dbin->getNDim());
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN,dbin->getNDim());
 
   /* Define the output grid file */
 
   ascii_filename("Grid",0,0,filename);
   dbout = DbGrid::createFromNF(filename,verbose);
+//  if (dbout != nullptr) dbout->display(&dbfmt);
 
   /* Define the variogram */
 
@@ -201,7 +201,8 @@ int main(int argc, char *argv[])
 
       if (simtub(dbin,dbout,new_model,neighparam,nbsimu,seed,nbtuba,0))
         messageAbort("Simulations");
-      db_print(dbout,1,0,1,1,1);
+      dbfmt.setFlags(true, false, true, true, true);
+      dbout->display(&dbfmt);
     }
     else
     {
@@ -211,7 +212,8 @@ int main(int argc, char *argv[])
         /* Cross-validation */
 
         if (xvalid(dbin,new_model,neighparam,0,1,0)) messageAbort("xvalid");
-        db_print(dbin,1,0,1,1,1);
+        dbfmt.setFlags(true, false, true, true, true);
+        dbin->display(&dbfmt);
       }
       else
       {
@@ -221,8 +223,10 @@ int main(int argc, char *argv[])
         if (dbout == nullptr) goto label_end;
         if (kriging(dbin,dbout,new_model,neighparam,EKrigOpt::PONCTUAL,
                     1,1,0)) messageAbort("kriging");
-        db_print(dbout,1,0,1,1,1);
-        dbout = db_delete(dbout);
+        dbfmt.setFlags(true, false, true, true, true);
+        dbout->display(&dbfmt);
+        delete dbout;
+        dbout = nullptr;
       }
     }
   }
@@ -230,11 +234,11 @@ int main(int argc, char *argv[])
   /* Core deallocation */
 
 label_end:
-  dbin  = db_delete(dbin);
-  dbout = db_delete(dbout);
-  vario = variogram_delete(vario);
-  model = model_free(model);
-  new_model = model_free(new_model);
+  delete dbin;
+  delete dbout;
+  delete model;
+  delete new_model;
   delete neighparam;
+  delete vario;
   return(0);
 }

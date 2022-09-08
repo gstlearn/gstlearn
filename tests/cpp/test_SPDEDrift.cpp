@@ -1,6 +1,3 @@
-#include "geoslib_f.h"
-
-#include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
@@ -58,7 +55,7 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.addItem(&consParam);
 
   Option_AutoFit opt;
-  OptDbg::define(EDbg::CONVERGE);
+  //OptDbg::define(EDbg::CONVERGE);
   (void) model->fit(vario,structs,false,opt,constraints);
   model->display();
 

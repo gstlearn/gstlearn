@@ -72,6 +72,10 @@ public:
   static Vario* createTransformYToZ(const Vario* varioY,
                                     const AAnam* anam,
                                     const Model* model);
+  static Vario* createReduce(const Vario *varioIn,
+                             const VectorInt &varcols,
+                             const VectorInt &dircols,
+                             bool asSymmetric = false);
   void reduce(const VectorInt& varcols,
               const VectorInt& dircols,
               bool asSymmetric = false);

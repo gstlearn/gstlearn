@@ -8,8 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Polygon/Polygons.hpp"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
 #include "Db/Db.hpp"
@@ -18,6 +16,7 @@
 #include "Basic/ASerializable.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/AException.hpp"
+#include "Polygon/Polygons.hpp"
 
 Polygons::Polygons()
   : _polysets()

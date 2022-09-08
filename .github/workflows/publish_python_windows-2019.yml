@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Manual'     
+        description: 'Manual'
         required: false
         default: ''  
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  PROG_ROOT : C:\hostedtoolcache\windows   
+  PROG_ROOT : C:\hostedtoolcache\windows
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
   HDF5_ROOT : hdf5 #do not use "." in the name 
@@ -27,9 +27,10 @@ jobs:
     runs-on: windows-2019
     strategy :
       matrix:
-       # Installed software : https://github.com/actions/virtual-environments/blob/main/images/win/Windows2019-Readme.md
+       # TODO: to be regularly updated according available pythons on windows-latest
+       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
        python: 
-          - ["cp310","3.10.5"]
+          - ["cp310","3.10.6"]
           - ["cp39","3.9.13"]
           - ["cp38","3.8.10"]
           - ["cp37","3.7.9"]
@@ -63,7 +64,7 @@ jobs:
  
     - name : Modify PATH #to avoid a warning at cmake configuration
       run : |
-        echo "${{env.PYTHONPATH}}" >> $GITHUB_PATH        
+        echo "${{env.PYTHONPATH}}" >> $GITHUB_PATH
 
 #####################################################################################################
 # HDF5 download and install
@@ -127,7 +128,6 @@ jobs:
 
     - name : Library compilation
       run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release
-#-j 2
 
 ########################################################################################################
 # Build and upload wheel
@@ -141,11 +141,4 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
         TWINE_REPOSITORY: testpypi
-
-
-
-   
-
-
-   
 

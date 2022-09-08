@@ -15,14 +15,20 @@
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Stats/ESelectivity.hpp"
+#include "Matrix/MatrixInt.hpp"
+#include "Basic/Table.hpp"
 
 class Db;
+class AAnam;
 
 class GSTLEARN_EXPORT Selectivity: public ICloneable, public AStringable
 {
 public:
   Selectivity(int ncut = 0);
-  Selectivity(const VectorDouble& zcuts, double zmax=TEST, bool flag_correct=false);
+  Selectivity(const VectorDouble &zcuts,
+              double zmax = TEST,
+              double proba = TEST,
+              bool flag_tonnage_correct = false);
   Selectivity(const Selectivity &m);
   Selectivity& operator= (const Selectivity &m);
   virtual ~Selectivity();
@@ -41,7 +47,7 @@ public:
                                     bool flag_std,
                                     double proba = TEST,
                                     bool verbose = false);
-  static Selectivity* createByKeys(const VectorString& scodes,
+  static Selectivity* createByKeys(const VectorString& keys,
                                    const VectorDouble& zcuts,
                                    bool flag_est,
                                    bool flag_std,
@@ -53,14 +59,24 @@ public:
                                           const Selectivity& selecin,
                                           bool verbose);
 
-  int calculateFromDb(const Db* db);
+  int calculateFromDb(const Db* db, bool autoCuts = false);
   int calculateFromArray(const VectorDouble& tab,
-                         const VectorDouble& weights = VectorDouble());
+                         const VectorDouble& weights = VectorDouble(),
+                         bool autoCuts = false);
+  int calculateFromAnam(AAnam* anam);
+
+  const Table eval(const Db *db, bool autoCuts = false);
+  const Table eval(const VectorDouble &tab,
+                   const VectorDouble &weights = VectorDouble(),
+                   bool autoCuts = false);
+  const Table eval(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
-  int    getNCuts() const { return _nCut; }
+  int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
   int    getNQT() const { return static_cast<int>(ESelectivity::getSize()); }
   int    getVariableNumber() const;
+  String getVariableName(const ESelectivity& code, int icut, int mode) const;
+  String getVariableName(int rank0) const;
   VectorString getVariableNames() const;
 
   void   setZcut(int icut, double zcut);
@@ -95,11 +111,11 @@ public:
   bool isNeededT() const;
   bool isNeededQ() const;
   int  getAddressQTEst(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getAddressQTStD(const ESelectivity& code, int iptr0, int rank=0) const;
-  int  getNumberQTEst(const ESelectivity& code) const { return _numberQTEst[code.getValue()]; }
-  int  getNumberQTStd(const ESelectivity& code) const { return _numberQTStd[code.getValue()]; }
-  const VectorInt getNumberQTEst() const { return _numberQTEst; }
-  const VectorInt getNumberQTStd() const { return _numberQTStd; }
+  int  getAddressQTStd(const ESelectivity& code, int iptr0, int rank=0) const;
+  int  getNumberQTEst(const ESelectivity& code) const;
+  int  getNumberQTStd(const ESelectivity& code) const;
+  const VectorInt getNumberQTEst() const;
+  const VectorInt getNumberQTStd() const;
   void storeInDb(Db *db, int iech0, int iptr, double zestim, double zstdev);
   void interpolateSelectivity(const Selectivity* selecin);
 
@@ -107,6 +123,8 @@ public:
   void setZmax(double zmax) { _zmax = zmax; }
   bool isFlagTonnageCorrect() const { return _flagTonnageCorrect; }
   double getZmax() const { return _zmax; }
+
+  const Table getStats() const { return _stats; }
 
 private:
   VectorString _getAllNames() const;
@@ -127,20 +145,15 @@ private:
   void _concatenate(VectorString& names,
                     const ESelectivity& code,
                     int mode) const;
+  bool _isMultiplied(const ESelectivity& code) const;
+  void _defineAutomaticCutoffs(const VectorDouble& tab, double eps = EPSILON3);
 
 private:
-  int _nCut;
   VectorDouble _Zcut;
-  VectorDouble _Test;
-  VectorDouble _Qest;
-  VectorDouble _Best;
-  VectorDouble _Mest;
-  VectorDouble _Tstd;
-  VectorDouble _Qstd;
+  Table _stats;
   double _zmax;
+  double _proba;
   bool   _flagTonnageCorrect;
-  VectorInt _numberQTEst;
-  VectorInt _numberQTStd;
-  VectorInt _rankQTEst;
-  VectorInt _rankQTStd;
+  MatrixInt _numberQT;
+  MatrixInt _rankQT;
 };

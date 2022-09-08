@@ -191,6 +191,6 @@ private:
                            const VectorInt& ndisc,
                            const VectorDouble& angles = VectorDouble(),
                            const VectorDouble& x0 = VectorDouble()) const;
-  Db* _discretizeBlockRandom(const DbGrid* dbgrid) const;
+  Db* _discretizeBlockRandom(const DbGrid* dbgrid, int seed = 34131) const;
   double _getVolume(const VectorDouble& ext) const;
 };

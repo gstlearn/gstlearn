@@ -49,6 +49,8 @@ GSTLEARN_EXPORT double ut_vector_mean(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_var(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_stdv(const VectorDouble& vec);
 GSTLEARN_EXPORT double ut_vector_norm(const VectorDouble& vec);
+GSTLEARN_EXPORT double ut_vector_correlation(const VectorDouble &veca,
+                                             const VectorDouble& vecb);
 GSTLEARN_EXPORT double ut_vector_inner_product(const VectorDouble& veca, // Not vec1 because of swig !
                                                const VectorDouble& vecb);
 GSTLEARN_EXPORT VectorDouble ut_vector_cross_product(const VectorDouble& veca,

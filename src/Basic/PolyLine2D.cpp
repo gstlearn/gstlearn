@@ -8,9 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/PolyLine2D.hpp"
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
+
+#include "Basic/PolyLine2D.hpp"
 
 PolyLine2D::PolyLine2D(const VectorDouble& x,
                const VectorDouble& y)
@@ -124,7 +124,7 @@ bool PolyLine2D::_serialize(std::ostream& os, bool /*verbose*/) const
  */
 bool PolyLine2D::_deserialize(std::istream& is, bool /*verbose*/)
 {
-  int np;
+  int np = 0;
   bool ret = true;
   VectorDouble buffer(2);
   ret = ret && _recordRead<int>(is, "Number of Points", np);

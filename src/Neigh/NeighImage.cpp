@@ -8,14 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Neigh/NeighImage.hpp"
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 NeighImage::NeighImage(int ndim, const VectorInt& radius, int skip)
     : ANeighParam(ndim),

@@ -32,7 +32,7 @@ GSTLEARN_EXPORT cs*     cs_diag(VectorDouble diag);
 GSTLEARN_EXPORT double  cs_norm (const cs *A) ;
 GSTLEARN_EXPORT int     cs_print (const cs *A, int brief) ;
 GSTLEARN_EXPORT void    cs_print_only(const char *title, const cs *A,int nlimit);
-GSTLEARN_EXPORT void    cs_print_nice (const char *title,const cs *A, int maxrow, int maxcol);
+GSTLEARN_EXPORT void    cs_print_nice (const char *title,const cs *A, int maxrow=-1, int maxcol=-1);
 GSTLEARN_EXPORT cs     *cs_load (FILE *f) ;
 GSTLEARN_EXPORT double *cs_col_sumrow(const cs *A,int *ncol,int *nrow);
 GSTLEARN_EXPORT double  cs_maxsumabscol(const cs *A);
@@ -147,6 +147,8 @@ GSTLEARN_EXPORT void    cs_set_value(const cs *A,int row, int col, double value)
 GSTLEARN_EXPORT double* cs_toArray(const cs *A);
 GSTLEARN_EXPORT cs*     cs_strip(cs *A, double eps, int hypothesis = 3, bool verbose = false);
 GSTLEARN_EXPORT int     cs_nnz(const cs* A);
+
+GSTLEARN_EXPORT void cs_force_dimension(cs *T, int nrow, int ncol);
 
 // Qchol operations
 GSTLEARN_EXPORT int qchol_cholesky(int verbose,QChol *QC);

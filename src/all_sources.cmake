@@ -6,12 +6,6 @@ set(SRC
   Fractures/FracFault.cpp
   Fractures/FracDesc.cpp
   Fractures/FracList.cpp
-  License/MD5Utility.cpp
-  License/RegistryUtility.cpp
-  License/MACAddressUtility.cpp
-  License/TimeUtility.cpp
-  License/LicenseUtility.cpp
-  License/LicenseKey.cpp
   Matrix/MatrixRectangular.cpp
   Matrix/AMatrix.cpp
   Matrix/MatrixSquareSymmetric.cpp
@@ -52,7 +46,12 @@ set(SRC
   Model/Model.cpp
   Model/NoStatFunctional.cpp
   Calculators/ACalculator.cpp
+  Calculators/ACalcDbToDb.cpp
+  Calculators/CalcMigrate.cpp
   Calculators/ACalcInterpolator.cpp
+  Calculators/ACalcDbVarCreator.cpp
+  Calculators/CalcStatistics.cpp
+  Calculators/CalcGridToGrid.cpp
   Covariances/CovGaussian.cpp
   Covariances/CovLinear.cpp
   Covariances/CovWendland0.cpp
@@ -102,7 +101,6 @@ set(SRC
   Core/surface.cpp
   Core/math.cpp
   Core/stats.cpp
-  Core/license.cpp
   Core/spatial.cpp
   Core/csparse.cpp
   Core/sphtriangle.cpp
@@ -136,6 +134,7 @@ set(SRC
   Core/seismic.cpp
   Core/spde.cpp
   Core/dbtools.cpp
+  Anamorphosis/CalcAnamTransform.cpp
   Anamorphosis/AnamContinuous.cpp
   Anamorphosis/AnamDiscrete.cpp
   Anamorphosis/AnamDiscreteDD.cpp
@@ -144,18 +143,6 @@ set(SRC
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
-#  Interfaces/VariableCategorical.cpp
-#  Interfaces/VariableInt.cpp
-#  Interfaces/VariableString.cpp
-#  Interfaces/Category.cpp
-#  Interfaces/ParamGrid.cpp
-#  Interfaces/function.cpp
-#  Interfaces/ParamCSV.cpp
-#  Interfaces/Database.cpp
-#  Interfaces/Dictionary.cpp
-#  Interfaces/VariableBool.cpp
-#  Interfaces/AVariable.cpp
-#  Interfaces/VariableDouble.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp
@@ -212,11 +199,14 @@ set(SRC
   Basic/OptCustom.cpp
   Basic/Plane.cpp
   Basic/FFT.cpp
-  Basic/Array.cpp
-  Basic/Geometry.cpp
   Basic/PolyLine2D.cpp
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
+  Geometry/Geometry.cpp
+  Arrays/AArray.cpp
+  Arrays/Array.cpp
+  Arrays/BImage.cpp
+  Arrays/BImageStringFormat.cpp
   Faults/Faults.cpp
   Boolean/ShapeParameter.cpp
   Boolean/AShape.cpp
@@ -274,6 +264,9 @@ set(SRC
   Neigh/NeighWork.cpp
   Estimation/KrigingSystem.cpp
   Estimation/CalcKriging.cpp
+  Estimation/CalcFactorKriging.cpp
+  Estimation/CalcSimpleInterpolation.cpp
+  Estimation/CalcImage.cpp
   OutputFormat/AOF.cpp
   OutputFormat/GridIfpEn.cpp
   OutputFormat/GridEclipse.cpp
@@ -298,7 +291,7 @@ set(SRC
   Simulation/CalcSimuPartition.cpp
   Simulation/SimuPartitionParam.cpp
   Simulation/SimuFFTParam.cpp
-  Simulation/SimuFFT.cpp
+  Simulation/CalcSimuFFT.cpp
   Simulation/SimuRefineParam.cpp
   Simulation/SimuRefine.cpp
   Simulation/CalcSimuEden.cpp

@@ -8,15 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Covariances/CovLMGradient.hpp"
-
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Covariances/CovLMGradient.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
-#include "geoslib_f.h"
 
 CovLMGradient::CovLMGradient(const ASpace* space)
 : ACovAnisoList(space)

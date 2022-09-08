@@ -17,8 +17,8 @@
 #include "Enum/EKrigOpt.hpp"
 #include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Db/DbGrid.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Model/EConsElem.hpp"
 #include "Model/Constraints.hpp"
@@ -50,12 +50,6 @@ class MeshSpherical;
 class SimuSubstitutionParam;
 class SimuRefineParam;
 
-/*************************/
-/* Functions for License */
-/*************************/
-
-GSTLEARN_EXPORT int setup_license(const char *target_name);
-
 /***********************/
 /* Functions for Basic */
 /***********************/
@@ -65,16 +59,6 @@ GSTLEARN_EXPORT VectorDouble util_set_array_double(int ntab,
 GSTLEARN_EXPORT VectorInt util_set_array_integer(int ntab, const int *itab);
 GSTLEARN_EXPORT VectorString util_set_array_char(int ntab, char **names);
 GSTLEARN_EXPORT std::vector<char*> util_vs_to_vs(VectorString vs);
-
-/****************************************/
-/* Prototyping the functions in variety */
-/****************************************/
-
-GSTLEARN_EXPORT void variety_define(int flag_sphere, double radius = EARTH_RADIUS);
-GSTLEARN_EXPORT void variety_query(int *flag_sphere);
-GSTLEARN_EXPORT void variety_print(void);
-GSTLEARN_EXPORT void variety_toggle(int mode);
-GSTLEARN_EXPORT void variety_get_characteristics(double *radius);
 
 /*********************/
 /* Functions for CSV */
@@ -92,70 +76,12 @@ GSTLEARN_EXPORT void csv_print_double(double value);
 /* Functions for Data Base */
 /***************************/
 
-GSTLEARN_EXPORT Db* db_create_point(int nech,
-                                    int ncol = 0,
-                                    const ELoadBy &order = ELoadBy::COLUMN,
-                                    int flag_add_rank = 0,
-                                    const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_generic(int ndim,
-                                               int ncol,
-                                               const ELoadBy &order,
-                                               int flag_add_rank,
-                                               const VectorInt &nx,
-                                               const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid(int flag_g_rot,
-                                       int ndim,
-                                       int nvar,
-                                       const ELoadBy &order,
-                                       int flag_add_rank,
-                                       const VectorInt &nx,
-                                       const VectorDouble &x0,
-                                       const VectorDouble &dx,
-                                       const VectorDouble &angles = VectorDouble(),
-                                       const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_2D(int flag_rot,
-                                          int ncol,
-                                          const ELoadBy &order,
-                                          int flag_add_rank,
-                                          int nx,
-                                          int ny,
-                                          double x0 = 0.,
-                                          double y0 = 0.,
-                                          double dx = 1.,
-                                          double dy = 1.,
-                                          double angle = 0.,
-                                          const VectorDouble &tab = VectorDouble());
-GSTLEARN_EXPORT DbGrid* db_create_grid_3D(int flag_rot,
-                                          int ncol,
-                                          const ELoadBy &order,
-                                          int flag_add_rank,
-                                          int nx,
-                                          int ny,
-                                          int nz,
-                                          double x0 = 0.,
-                                          double y0 = 0.,
-                                          double z0 = 0.,
-                                          double dx = 1.,
-                                          double dy = 1.,
-                                          double dz = 1.,
-                                          double angle_z = 0.,
-                                          double angle_y = 0.,
-                                          double angle_x = 0.,
-                                          const VectorDouble &tab = VectorDouble());
 GSTLEARN_EXPORT VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim);
 GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
                                               int iatt,
                                               bool verbose = false);
 GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
                                                         const String &pattern);
-GSTLEARN_EXPORT void db_print(Db *db,
-                              int flag_resume = 1,
-                              int flag_vars = 1,
-                              int flag_extend = 0,
-                              int flag_stats = 0,
-                              int flag_array = 0,
-                              int nrank = 0,
-                              int *ranks = NULL);
 GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                     const VectorInt &iatts = VectorInt(),
                                     const VectorString &opers = VectorString(),
@@ -170,8 +96,6 @@ GSTLEARN_EXPORT void db_stats_print(const Db *db,
                                     int flag_correl = 0,
                                     const String &title = String(),
                                     const String &radix = String());
-GSTLEARN_EXPORT int db_normal_score(Db *db,
-                                    const NamingConvention& namconv = NamingConvention("Gaussian"));
 
 /***************************/
 /* Functions for Variogram */
@@ -201,7 +125,6 @@ GSTLEARN_EXPORT DbGrid* db_variogram_cloud(Db *db,
                                            int lagnb = 100,
                                            int varnb = 100,
                                            const NamingConvention& namconv = NamingConvention("Cloud"));
-GSTLEARN_EXPORT void variogram_print(const Vario *vario);
 GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      const VarioParam *varioparam,
                                      const RuleProp *ruleprop,
@@ -249,36 +172,6 @@ GSTLEARN_EXPORT Vario* model_pgs(Db *db,
                                  const Model *model1,
                                  const Model *model2 = nullptr);
 
-/******************************/
-/* Functions for Anamorphosis */
-/******************************/
-
-GSTLEARN_EXPORT Selectivity anam_selectivity(AAnam *anam,
-                                             VectorDouble zcut,
-                                             double z_max = TEST,
-                                             int flag_correct = 0,
-                                             int verbose = 0);
-GSTLEARN_EXPORT int anamFactor2Selectivity(Db *db,
-                                           AAnam *anam,
-                                           Selectivity* selectivity,
-                                           const VectorString& names_est,
-                                           const VectorString& names_std,
-                                           const NamingConvention& namconv = NamingConvention(
-                                               "QT"));
-GSTLEARN_EXPORT int calculateHermiteFactors(Db *db,
-                                            int nfactor,
-                                            const NamingConvention& namconv = NamingConvention("Hn"));
-
-/******************************/
-/* Functions for Neighborhood */
-/******************************/
-
-GSTLEARN_EXPORT int test_neigh(Db *dbin,
-                               Db *dbout,
-                               Model *model,
-                               ANeighParam *neighparam,
-                               const NamingConvention& namconv = NamingConvention("Neigh"));
-
 /**********************/
 /* Functions for SPDE */
 /**********************/
@@ -299,40 +192,16 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
 /* High-level Interface Functions */
 /**********************************/
 
-GSTLEARN_EXPORT int migrateByAttribute(Db *db1,
-                                       Db *db2,
-                                       const VectorInt &iatts = VectorInt(),
-                                       int ldmax = 0,
-                                       const VectorDouble &dmax = VectorDouble(),
-                                       int flag_fill = false,
-                                       int flag_inter = false,
-                                       const NamingConvention& namconv = NamingConvention("Migrate"));
-GSTLEARN_EXPORT int migrate(Db *db1,
-                            Db *db2,
-                            const String &name,
-                            int ldmax = 0,
-                            const VectorDouble &dmax = VectorDouble(),
-                            int flag_fill = 0,
-                            int flag_inter = 0,
-                            const NamingConvention& namconv = NamingConvention("Migrate"));
-GSTLEARN_EXPORT int migrateByLocator(Db *db1,
-                                     Db *db2,
-                                     const ELoc &locatorType,
-                                     int ldmax = 0,
-                                     const VectorDouble &dmax = VectorDouble(),
-                                     int flag_fill = false,
-                                     int flag_inter = false,
-                                     const NamingConvention& namconv = NamingConvention("Migrate"));
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
                                bool verbose = false,
-                               const NamingConvention& namconv = NamingConvention("Hull", ELoc::SEL));
+                               const NamingConvention& namconv = NamingConvention("Hull", true, true, ELoc::SEL));
 GSTLEARN_EXPORT void db_polygon(Db *db,
                                 Polygons *polygon,
                                 int flag_sel = 0,
                                 int flag_period = 0,
                                 int flag_nested = 0,
-                                const NamingConvention& namconv = NamingConvention("Polygon", ELoc::SEL));
+                                const NamingConvention& namconv = NamingConvention("Polygon", true, true, ELoc::SEL));
 GSTLEARN_EXPORT int db_grid_fill(DbGrid *dbgrid,
                                  int mode = 0,
                                  int seed = 34243,
@@ -348,40 +217,7 @@ GSTLEARN_EXPORT int db_duplicate(Db *db,
                                  double *dist = nullptr,
                                  int opt_code = 0,
                                  double tolcode = 0.,
-                                 const NamingConvention& namconv = NamingConvention("Duplicate", ELoc::SEL));
-GSTLEARN_EXPORT int krigcell(Db *dbin,
-                             Db *dbout,
-                             Model *model,
-                             ANeighParam *neighparam,
-                             bool flag_est,
-                             bool flag_std,
-                             VectorInt ndisc,
-                             VectorInt rank_colcok = VectorInt(),
-                             const NamingConvention& namconv = NamingConvention("KrigCell"));
-GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
-                            Model *model,
-                            NeighImage *neighparam,
-                            const NamingConvention& namconv = NamingConvention("Filtering"));
-GSTLEARN_EXPORT int image_smoother(DbGrid *dbgrid,
-                                   NeighImage *neighI,
-                                   int type,
-                                   double range,
-                                   const NamingConvention& namconv = NamingConvention("Smoothing"));
-GSTLEARN_EXPORT int xvalid(Db *db,
-                           Model *model,
-                           ANeighParam *neighparam,
-                           int flag_code = 0,
-                           int flag_xvalid_est = 1,
-                           int flag_xvalid_std = 1,
-                           VectorInt rank_colcok = VectorInt(),
-                           const NamingConvention& namconv = NamingConvention("Xvalid"));
-GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
-                                      Db *dbout,
-                                      Model *model,
-                                      ANeighParam *neighparam,
-                                      int iech0,
-                                      const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
-                                      VectorInt ndisc = VectorInt());
+                                 const NamingConvention& namconv = NamingConvention("Duplicate", true, true, ELoc::SEL));
 GSTLEARN_EXPORT Global_Res global_kriging(Db *dbin,
                                           Db *dbout,
                                           Model *model,
@@ -398,12 +234,6 @@ GSTLEARN_EXPORT int krigsum(Db *dbin,
                             NeighUnique* neighU,
                             bool flag_positive = false,
                             const NamingConvention& namconv = NamingConvention("KrigSum"));
-GSTLEARN_EXPORT int kriggam(Db *dbin,
-                            Db *dbout,
-                            Model *model,
-                            ANeighParam *neighparam,
-                            AAnam *anam,
-                            const NamingConvention& namconv = NamingConvention("KrigGam"));
 GSTLEARN_EXPORT int declustering(Db *db,
                                  Model *model,
                                  int method,
@@ -413,31 +243,6 @@ GSTLEARN_EXPORT int declustering(Db *db,
                                  const VectorInt& ndisc = VectorInt(),
                                  int flag_sel = false,
                                  bool verbose = false);
-GSTLEARN_EXPORT int dk(Db* dbin,
-                       DbGrid* dbgrid,
-                       Model* model,
-                       ANeighParam* neighparam,
-                       const EKrigOpt &calcul = EKrigOpt::PONCTUAL,
-                       const VectorInt &ndisc = VectorInt(),
-                       bool flag_est = true,
-                       bool flag_std = true,
-                       const NamingConvention& namconv = NamingConvention("KD"));
-GSTLEARN_EXPORT int uc(Db *db,
-                       AAnam *anam,
-                       Selectivity* selectivity,
-                       const String& names_est,
-                       const String& names_std,
-                       double cvv,
-                       bool verbose = false);
-GSTLEARN_EXPORT int ce(Db *db,
-                       AAnam *anam,
-                       const Selectivity* selectivity,
-                       const String& name_est,
-                       const String& name_std,
-                       bool flag_OK,
-                       double proba,
-                       int nbsimu,
-                       bool verbose = false);
 GSTLEARN_EXPORT int simpgs(Db *dbin,
                            Db *dbout,
                            RuleProp *ruleprop,
@@ -454,7 +259,7 @@ GSTLEARN_EXPORT int simpgs(Db *dbin,
                            int nboot = 10,
                            int niter = 100,
                            double percent = 5.,
-                           const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
+                           const NamingConvention& namconv = NamingConvention("Facies", true, true, ELoc::FACIES));
 GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              Db *dbout,
                              RuleProp *ruleprop,
@@ -473,7 +278,7 @@ GSTLEARN_EXPORT int simbipgs(Db *dbin,
                              int nboot = 10,
                              int niter = 100,
                              double percent = 5.,
-                             const NamingConvention& namconv = NamingConvention("Facies", ELoc::FACIES));
+                             const NamingConvention& namconv = NamingConvention("Facies", true, true, ELoc::FACIES));
 GSTLEARN_EXPORT int simbool(Db *dbin,
                             DbGrid *dbout,
                             ModelBoolean *tokens,
@@ -494,13 +299,6 @@ GSTLEARN_EXPORT VectorDouble simsph_mesh(MeshSpherical *mesh,
                                          const SimuSphericalParam& sphepar,
                                          int seed = 54523,
                                          int verbose = false);
-GSTLEARN_EXPORT int simfft(DbGrid *db,
-                           Model *model,
-                           SimuFFTParam& param,
-                           int nbsimu = 1,
-                           int seed = 432431,
-                           int verbose = false,
-                           const NamingConvention& namconv = NamingConvention("FFT"));
 GSTLEARN_EXPORT DbGrid* simfine(DbGrid *dbin,
                                 Model *model,
                                 const SimuRefineParam& param,
@@ -554,14 +352,14 @@ GSTLEARN_EXPORT int db_proportion_estimate(Db *dbin,
                                            Model *model,
                                            int niter = 100,
                                            bool verbose = false,
-                                           const NamingConvention& namconv = NamingConvention("Prop", ELoc::P));
-GSTLEARN_EXPORT int gibbs_sampler(Db *db,
+                                           const NamingConvention& namconv = NamingConvention("Prop", true, true, ELoc::P));
+GSTLEARN_EXPORT int gibbs_sampler(Db *dbin,
                                   Model *model,
                                   ANeighParam *neighparam,
                                   int nbsimu,
                                   int seed,
-                                  int nboot,
-                                  int niter,
+                                  int gibbs_nburn,
+                                  int gibbs_niter,
                                   bool flag_norm,
                                   bool flag_multi_mono,
                                   bool flag_propagation,
@@ -570,8 +368,17 @@ GSTLEARN_EXPORT int gibbs_sampler(Db *db,
                                   double percent,
                                   bool flag_ce,
                                   bool flag_cstd,
-                                  bool verbose,
+                                  bool verbose = false,
                                   const NamingConvention& namconv = NamingConvention("Gibbs"));
+
+/****************************************/
+/* Prototyping the functions in neigh.c */
+/****************************************/
+
+GSTLEARN_EXPORT VectorInt neigh_calc(Db *dbin,
+                                     Db *dbout,
+                                     ANeighParam *neighparam,
+                                     int iech0);
 
 /*****************/
 /* Various Tools */

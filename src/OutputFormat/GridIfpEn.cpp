@@ -51,17 +51,13 @@ int GridIfpEn::writeInFile()
   if (_fileWriteOpen()) return 1;
 
   // Preliminary calculations
-
   int ncol = (int) _cols.size();
-  int ndim = _dbgrid->getNDim();
-  VectorInt nx = _dbgrid->getNXs();
-  VectorInt nxloc(3);
+  VectorInt nx = _dbgrid->getNXsExt(3);
   VectorDouble angles = _dbgrid->getAngles();
   int ntot = 1;
   for (int idim = 0; idim < 3; idim++)
   {
-    nxloc[idim] = (idim < ndim) ? nx[idim] : 1;
-    ntot *= nxloc[idim];
+    ntot *= nx[idim];
   }
 
   /* Write the header */
@@ -78,11 +74,11 @@ int GridIfpEn::writeInFile()
   _writeLine( 0, "REPRESENTATION_CODE      # ASCII", 0, 0., NULL);
   _writeLine( 0, "##########################", 0, 0., NULL);
   _writeLine( 2, "ANGLE                    #", 0, angles[0], "# DEG");
-  _writeLine( 1, "ROW_COUNT                #", nxloc[1], 0., NULL);
-  _writeLine( 1, "COLUMN_COUNT             #", nxloc[0], 0., NULL);
+  _writeLine( 1, "ROW_COUNT                #", nx[1], 0., NULL);
+  _writeLine( 1, "COLUMN_COUNT             #", nx[0], 0., NULL);
   _writeLine( 2, "ROW_DISTANCE             #", 0, _dbgrid->getDX(1), "# m");
   _writeLine( 2, "COLUMN_DISTANCE          #", 0, _dbgrid->getDX(0), "# m");
-  _writeLine( 1, "LAYER_COUNT              #", nxloc[2], 0., NULL);
+  _writeLine( 1, "LAYER_COUNT              #", nx[2], 0., NULL);
   _writeLine( 2, "X_ORIGIN                 #", 0, _dbgrid->getX0(0), "# m");
   _writeLine( 2, "Y_ORIGIN                 #", 0, _dbgrid->getX0(1), "# m");
   _writeLine( 1, "FACIES_COUNT             #", ncol, 0., NULL);
@@ -123,34 +119,43 @@ void GridIfpEn::_writeLine(int mode,
                           double valrel,
                           const char *combis)
 {
-  char line[100];
+  std::stringstream sstr;
+
+  //char line[1000];
 
   /* Initialize the string */
 
-  (void) gslStrcpy(line, "");
+  //(void) gslStrcpy(line, "");
 
   /* Comment */
 
-  if (comment != NULL) (void) gslSPrintf(&line[strlen(line)], "%s", comment);
+  if (comment != NULL)
+    //(void) gslSPrintf(&line[strlen(line)], "%s", comment);
+    sstr << comment;
 
   /* Encoding the value */
 
   if (mode == 1)
   {
-    (void) gslSPrintf(&line[strlen(line)], " %d", valint);
+    // (void) gslSPrintf(&line[strlen(line)], " %d", valint);
+    sstr << " " << valint;
   }
   else if (mode == 2)
   {
-    (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
+    // (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
+    sstr << " " << valrel;
   }
 
   /* Secondary comment */
 
-  if (combis != NULL) (void) gslSPrintf(&line[strlen(line)], " %s", combis);
+  if (combis != NULL)
+    //(void) gslSPrintf(&line[strlen(line)], " %s", combis);
+    sstr << " " << combis;
 
   /* Print the line */
 
-  fprintf(_file, "%s\n", line);
+  //fprintf(_file, "%s\n", line);
+  fprintf(_file, "%s\n", sstr.str().c_str());
 }
 
 DbGrid* GridIfpEn::readGridFromFile()

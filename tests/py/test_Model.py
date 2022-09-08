@@ -8,7 +8,7 @@ import numpy as np
 # Define the global Space
 ndim = 2
 nvar = 1
-gl.ASpaceObject.defineDefaultSpace(gl.SPACE_RN, ndim);
+gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN, ndim);
 
 # Create a Model with 1 variable in the 2-D Space
 model = gl.Model(nvar)

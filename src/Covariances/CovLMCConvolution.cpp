@@ -8,17 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Covariances/CovLMCConvolution.hpp"
-
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
+#include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/EConvType.hpp"
 #include "Covariances/EConvDir.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "geoslib_f.h"
 
 #include <math.h>
 

@@ -17,7 +17,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "geoslib_f.h"
+
 #include <math.h>
 
 ACovAnisoList::ACovAnisoList(const ASpace* space)
@@ -392,14 +392,14 @@ void ACovAnisoList::setAllFiltered(bool status)
 
 void ACovAnisoList::normalize(double sill)
 {
-  double dcov = 0.;
+  double covval = 0.;
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {
-    dcov += _covs[i]->eval0(0, 0);
+    covval += _covs[i]->eval0(0, 0);
   }
 
-  if (dcov <= 0. || dcov == sill) return;
-  double ratio = sill / dcov;
+  if (covval <= 0. || covval == sill) return;
+  double ratio = sill / covval;
 
   for (unsigned int i=0, n=getCovNumber(); i<n; i++)
   {

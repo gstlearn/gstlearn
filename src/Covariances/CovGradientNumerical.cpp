@@ -8,17 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Covariances/CovGradientNumerical.hpp"
-
-#include "geoslib_f.h"
 #include "geoslib_f_private.h"
+
+#include "Covariances/CovFactory.hpp"
+#include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include <math.h>
 
-#include "Covariances/CovFactory.hpp"
+#include <math.h>
 
 #define TR(i,j)                (Tr[(i) * 3 + (j)])
 

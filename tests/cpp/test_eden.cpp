@@ -13,9 +13,9 @@
 // which also demonstrates the SKIN methodology
 
 #include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "Space/Space.hpp"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid

@@ -7,7 +7,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -18,6 +17,7 @@
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/RuleShadow.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 
@@ -969,7 +969,7 @@ PropDef* proportion_manage(int mode,
     propdef = new PropDef;
     propdef->case_facies = flag_facies;
     propdef->case_stat = flag_stat;
-    propdef->case_prop_interp = (dbprop != nullptr && is_grid(dbprop));
+    propdef->case_prop_interp = (dbprop != nullptr && dbprop->isGrid());
     propdef->ngrf[0] = ngrf1;
     propdef->ngrf[1] = ngrf2;
     propdef->nfac[0] = nfac1;

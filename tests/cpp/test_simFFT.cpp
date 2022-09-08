@@ -9,9 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_d.h"
-#include "geoslib_f.h"
-#include "Space/Space.hpp"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -19,6 +19,7 @@
 #include "Model/Model.hpp"
 #include "Covariances/ECov.hpp"
 #include "Simulation/SimuFFTParam.hpp"
+#include "Simulation/CalcSimuFFT.hpp"
 
 /****************************************************************************/
 /*!
@@ -40,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   int seed = 3322;
   int nxcell = 100;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
 
   // Generate the output grid
   VectorInt nx = {nxcell,nxcell};

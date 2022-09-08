@@ -53,8 +53,8 @@ public:
             double distcont = TEST);
 
   static NeighMoving* create(int ndim,
-                             bool flag_xvalid,
-                             int nmaxi,
+                             bool flag_xvalid = false,
+                             int nmaxi = 1000,
                              double radius = TEST,
                              int nmini = 1,
                              int nsect = 1,
@@ -76,6 +76,7 @@ public:
   int getNSMax() const { return _nSMax; }
   double getRadius() const { return _radius; }
   double getDistCont() const { return _distCont; }
+  bool   getForceWithinBlock() const { return _forceWithinBlock; }
 
   void setAnisoCoeffs(const VectorDouble& anisoCoeffs) { _anisoCoeffs = anisoCoeffs; }
   void setAnisoCoeff(int idim, double value);
@@ -89,6 +90,9 @@ public:
   void setNSMax(int nsmax) { _nSMax = nsmax; }
   void setRadius(double radius) { _radius = radius; }
   void setDistCont(double distCont) { _distCont = distCont; }
+  void setForceWithinBlock(bool forceWithinBlock);
+  VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
+  VectorVectorDouble getSectors(const VectorDouble& target) const;
 
 protected:
   /// Interface for ASerializable
@@ -103,8 +107,9 @@ private:
   int _nMaxi;                    /* Maximum number of points in neigh. */
   int _nSect;                    /* Number of 2-D angular sectors */
   int _nSMax;                    /* Maximum number of points per 2-D sector */
+  bool _forceWithinBlock;        /* Select all samples within a Block */
   double _radius;                /* Maximum isotropic distance */
   double _distCont;              /* Distance for continuous ANeighParamborhood */
-  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for MOVING neigh. */
+  VectorDouble _anisoCoeffs;     /* Anisotropy ratio for moving neighborhood */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
 };

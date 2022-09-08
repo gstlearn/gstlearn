@@ -11,7 +11,7 @@
 #include "Covariances/CovBesselJ.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Basic/MathFunc.hpp"
-#include "geoslib_f.h"
+
 #include <math.h>
 
 #define MAXTAB 100

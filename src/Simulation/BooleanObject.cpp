@@ -269,7 +269,7 @@ bool BooleanObject::_checkIntensity(const DbGrid* dbout,
    }
    else
    {
-     int iech = dbout->coordinateToRank(coor, eps);
+     int iech = dbout->coordinateToRank(coor, false, eps);
      theta = dbout->getProportion(iech, 0);
    }
    return (law_uniform(0., 1.) > theta);

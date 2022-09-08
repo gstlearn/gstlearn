@@ -45,9 +45,6 @@ public:
   virtual double       TransformToRawValue(double y) const;
 
   double invertVariance(double cvv) const;
-  int DbZToFactor(Db *db,
-                  const VectorInt& ifacs,
-                  const NamingConvention& namconv = NamingConvention("Factor"));
   VectorDouble RawToTransformVec(const VectorDouble& z) const;
   VectorDouble TransformToRawVec(const VectorDouble& z) const;
 

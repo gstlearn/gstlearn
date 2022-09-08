@@ -10,14 +10,17 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Mesh/MeshSpherical.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Geometry.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/Geometry.hpp"
+
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical()
@@ -357,11 +360,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
   if (ip_max < nvertex - 1)
   {
-    if (! cs_entry(Atriplet,iech_max,nvertex-1,0.))
-    {
-      Atriplet = cs_spfree(Atriplet);
-      return nullptr;
-    };
+    cs_force_dimension(Atriplet,iech_max,nvertex);
   }
   
   /* Convert the triplet into a sparse matrix */
@@ -412,12 +411,14 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   /* The Variety is defined in the Global Environment */
   /* The required radius is set to the radius of Earth (6371m) */
 
-  int variety_sphere;
   double r;
-  variety_query(&variety_sphere);
+  int variety_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+
   if (variety_sphere == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
   else
   {
@@ -431,12 +432,13 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
 
 void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
 {
-  int variety_sphere;
   double r;
-  variety_query(&variety_sphere);
+  int variety_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (variety_sphere == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
   else
   {

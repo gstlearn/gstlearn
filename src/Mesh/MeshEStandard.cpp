@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshEStandard.hpp"
@@ -448,13 +448,7 @@ cs* MeshEStandard::getMeshToDb(const Db *db, bool fatal, bool verbose) const
   /* Add the extreme value to force dimension */
 
   if (ip_max < getNApices() - 1)
-  {
-    if (!cs_entry(Atriplet, db->getSampleNumber(true) - 1, getNApices() - 1, 0.))
-    {
-      Atriplet  = cs_spfree(Atriplet);
-      return nullptr;
-    }
-  }
+    cs_force_dimension(Atriplet, db->getSampleNumber(true), getNApices());
   
   /* Convert the triplet into a sparse matrix */
 
@@ -484,6 +478,15 @@ MeshEStandard* MeshEStandard::createFromNF(const String& neutralFilename, bool v
     delete mesh;
     mesh = nullptr;
   }
+  return mesh;
+}
+
+MeshEStandard* MeshEStandard::createFromExternal(const MatrixRectangular &apices,
+                                                 const MatrixInt &meshes,
+                                                 bool verbose)
+{
+  MeshEStandard* mesh = new MeshEStandard;
+  mesh->reset(apices, meshes, verbose);
   return mesh;
 }
 
@@ -658,7 +661,7 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   meshes_2D_init(&vorout);
   
   /* Set the control points for the triangulation */
-  
+
   flag_defined = 0;
   if (dbout != nullptr)
   {

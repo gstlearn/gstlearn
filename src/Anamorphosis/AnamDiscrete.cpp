@@ -12,7 +12,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include <Stats/Selectivity.hpp>
-#include "geoslib_f.h"
 
 #include <math.h>
 

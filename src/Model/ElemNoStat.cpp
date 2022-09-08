@@ -8,10 +8,10 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_enum.h"
+
 #include "Model/ElemNostat.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_enum.h"
-#include "geoslib_f.h"
 
 ElemNostat::ElemNostat()
     : AStringable(),

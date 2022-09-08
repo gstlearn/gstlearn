@@ -10,62 +10,27 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
-#include "Morpho/Morpho.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
+#include <Morpho/Morpho.hpp>
+#include <Morpho/EMorpho.hpp>
 
 #include <math.h>
 
-static int NX[3], NXYZ, NRED, RADIUS[3];
+static int RADIUS[3];
 static int LARGE = 9999999;
-static unsigned char Offset[] = { 128, 64, 32, 16, 8, 4, 2, 1 };
-static unsigned char Maskoff[] = { 127, 191, 223, 239, 247, 251, 253, 254 };
 
 /*! \cond */
 #define CROSS 0
 #define BLOCK 1
-#define GRID_ADD(ix,iy,iz)  ((ix)+(NX[0]*((iy)+NX[1]*(iz))))
-#define IN_GRID(ix,iy,iz)    (ix>=0 && ix<NX[0] &&  \
-                              iy>=0 && iy<NX[1] &&  \
-                              iz>=0 && iz<NX[2])
-#define DIVIDE(i,j,k)       (GRID_ADD(i,j,k) / 8)
-#define RESIDU(i,j,k)       (GRID_ADD(i,j,k) % 8)
-#define OFFSET(i,j,k)       (Offset [RESIDU(i,j,k)])
-#define MASKOFF(i,j,k)      (Maskoff[RESIDU(i,j,k)])
-#define IMAGIN(i,j,k)       (imagin [DIVIDE(i,j,k)])
-#define IMAGOUT(i,j,k)      (imagout[DIVIDE(i,j,k)])
-#define IMAGTMP(i,j,k)      (imagtmp[DIVIDE(i,j,k)])
-#define VALIN(ix,iy,iz)     (IMAGIN (ix,iy,iz) & OFFSET(ix,iy,iz))
-#define VALTMP(ix,iy,iz)    (IMAGTMP(ix,iy,iz) & OFFSET(ix,iy,iz))
-#define IMAGES(ix,iy,iz)    ((option == BLOCK) ? VALTMP(ix,iy,iz) : VALIN(ix,iy,iz))
 
+#define IMAGES(ix,iy,iz) ((option == BLOCK) ? imagtmp.getValue(ix,iy,iz) : imagin.getValue(ix,iy,iz))
+
+#define GRID_ADD(ix,iy,iz)  ((ix)+(NX[0]*((iy)+NX[1]*(iz))))
 #define TAB(i,j,k)          (tab[GRID_ADD(i,j,k)])
-#define TABOUT(i,j,k)       (tabout[GRID_ADD(i,j,k)])
 #define COMPNUM(i,j,k)      (compnum[GRID_ADD(i,j,k)])
 /*! \endcond */
-
-/*****************************************************************************/
-/*!
- **  Defines the image size (global variables)
- **
- ** \param[in]  nx     Number of grid meshes
- **
- *****************************************************************************/
-void _st_morpho_image_size_define(const VectorInt &nx)
-{
-  int size;
-
-  size = static_cast<int>(nx.size());
-  NX[0] = (size > 0) ? nx[0] :
-                       1;
-  NX[1] = (size > 1) ? nx[1] :
-                       1;
-  NX[2] = (size > 2) ? nx[2] :
-                       1;
-
-  NXYZ = NX[0] * NX[1] * NX[2];
-  NRED = ((NXYZ - 8) / 8 + 1);
-}
 
 /*****************************************************************************/
 /*!
@@ -77,12 +42,9 @@ void _st_morpho_image_size_define(const VectorInt &nx)
 void _st_morpho_image_radius_define(const VectorInt &radius)
 {
   int size = static_cast<int>(radius.size());
-  RADIUS[0] = (size > 0) ? radius[0] :
-                           0;
-  RADIUS[1] = (size > 1) ? radius[1] :
-                           0;
-  RADIUS[2] = (size > 2) ? radius[2] :
-                           0;
+  RADIUS[0] = (size > 0) ? radius[0] : 0;
+  RADIUS[1] = (size > 1) ? radius[1] : 0;
+  RADIUS[2] = (size > 2) ? radius[2] : 0;
 }
 
 /*****************************************************************************/
@@ -103,7 +65,7 @@ int _st_morpho_label_size(const VectorDouble &compnum,
                           VectorInt &sizes)
 {
   int total = 0;
-  for (int i = 0; i < NXYZ; i++)
+  for (int i = 0; i < (int) compnum.size(); i++)
   {
     int val = (int) compnum[i];
     if (val > 0 && val <= nbcomp)
@@ -128,13 +90,12 @@ void _st_morpho_label_order(VectorDouble &compnum,
                             const VectorInt &order,
                             int nbcomp)
 {
-  int i, j, val, found;
-
-  for (i = 0; i < NXYZ; i++)
+  for (int i = 0; i < (int) compnum.size(); i++)
   {
-    val = (int) compnum[i];
+    int val = (int) compnum[i];
     if (val <= 0) continue;
-    for (j = nbcomp - 1, found = -1; j >= 0 && found < 0; j--)
+    int found = -1;
+    for (int j = nbcomp - 1; j >= 0 && found < 0; j--)
       if (val == order[j]) found = j;
     if (found < 0) messageAbort("st_morpho_label_order");
     compnum[i] = nbcomp - found;
@@ -144,41 +105,16 @@ void _st_morpho_label_order(VectorDouble &compnum,
 
 /*****************************************************************************/
 /*!
- **  Returns the dimension of an image
- **
- ** \return  Dimension of an image (integer)
- **
- ** \param[out]  nx     Number of grid meshes (dimension = 3)
- **
- *****************************************************************************/
-int morpho_image_size(const VectorInt &nx)
-
-{
-  _st_morpho_image_size_define(nx);
-  return (NRED);
-}
-
-/*****************************************************************************/
-/*!
  **  Copy the input image into the output image
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  imagin  input image
  **
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_duplicate(const VectorInt &nx,
-                                      const VectorUChar &imagin,
-                                      VectorUChar &imagout)
+void morpho_duplicate(const BImage &imagin, BImage &imagout)
 {
-  int i;
-
-  _st_morpho_image_size_define(nx);
-  for (i = 0; i < NRED; i++)
-    imagout[i] = imagin[i];
-
-  return;
+  imagout = imagin;
 }
 
 /*****************************************************************************/
@@ -187,7 +123,6 @@ void morpho_duplicate(const VectorInt &nx,
  **
  ** \return  Number of connected components
  **
- ** \param[in]  nx        Number of grid meshes (dimension = 3)
  ** \param[in]  option    connectivity option (CROSS or BLOCK)
  ** \param[in]  flag_size 1 if cell contains volume of connected component
  **                       0 if cell contains rank of connected component
@@ -202,13 +137,12 @@ void morpho_duplicate(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-int morpho_labelling(const VectorInt &nx,
-                                     int option,
-                                     int flag_size,
-                                     const VectorUChar &imagin,
-                                     double ccvoid,
-                                     VectorDouble &compnum,
-                                     bool verbose)
+int morpho_labelling(int option,
+                     int flag_size,
+                     const BImage &imagin,
+                     double ccvoid,
+                     VectorDouble &compnum,
+                     bool verbose)
 {
   int jx, jy, jz, total, count, ref, iad, local, part_grain;
   int i, size, nbtest, nbcomp, ix, iy, iz, icomp, ival, itest, il, jcomp[26];
@@ -244,16 +178,17 @@ int morpho_labelling(const VectorInt &nx,
 
   /* Initializations */
 
-  _st_morpho_image_size_define(nx);
   nbtest = ndel[option];
   nbcomp = total = 0;
+  VectorInt NX = imagin.getNDimsExt(3);
 
   /* Attempt to allocate the initial quantum */
 
-  size = MIN(quantum, NXYZ);
+  int nxyz = imagin.getNPixels();
+  size = MIN(quantum, nxyz);
   list_array.resize(size);
-  for (i = 0; i < NXYZ; i++)
-    compnum[i] = 0.;
+  compnum.resize(nxyz);
+  for (i = 0; i < nxyz; i++) compnum[i] = 0.;
 
   /* Numbering the connected components */
 
@@ -261,7 +196,7 @@ int morpho_labelling(const VectorInt &nx,
     for (iy = 0; iy < NX[1]; iy++)
       for (ix = 0; ix < NX[0]; ix++)
       {
-        if (VALIN(ix, iy, iz))
+        if (imagin.getValue(ix, iy, iz))
         {
           icomp = LARGE;
           for (itest = 0; itest < nbtest; itest++)
@@ -270,7 +205,7 @@ int morpho_labelling(const VectorInt &nx,
             jx = ix + id[itest][0];
             jy = iy + id[itest][1];
             jz = iz + id[itest][2];
-            if (IN_GRID(jx, jy, jz))
+            if (imagin.isInside(jx, jy, jz))
             {
               ival = (int) COMPNUM(jx, jy, jz);
               if (ival > 0)
@@ -318,9 +253,9 @@ int morpho_labelling(const VectorInt &nx,
 
   /* Update the planes */
 
-  for (iz = 0; iz < NX[2]; iz++)
-    for (iy = 0; iy < NX[1]; iy++)
-      for (ix = 0; ix < NX[0]; ix++)
+  for (iz = 0; iz < imagin.getNDims(2); iz++)
+    for (iy = 0; iy < imagin.getNDims(1); iy++)
+      for (ix = 0; ix < imagin.getNDims(0); ix++)
       {
         iad = (int) COMPNUM(ix, iy, iz);
         if (iad != 0)
@@ -341,14 +276,15 @@ int morpho_labelling(const VectorInt &nx,
     ut_sort_int(1, nbcomp, order.data(), sizes.data());
     _st_morpho_label_order(compnum, order, nbcomp);
 
-    if (flag_size) for (i = 0; i < NXYZ; i++)
-    {
-      if (FFFF(compnum[i])) continue;
-      ival = (int) compnum[i];
-      compnum[i] = sizes[ival - 1];
-    }
+    if (flag_size)
+      for (i = 0; i < nxyz; i++)
+      {
+        if (FFFF(compnum[i])) continue;
+        ival = (int) compnum[i];
+        compnum[i] = sizes[ival - 1];
+      }
 
-    for (i = 0; i < NXYZ; i++)
+    for (i = 0; i < nxyz; i++)
       if (FFFF(compnum[i])) compnum[i] = ccvoid;
   }
 
@@ -386,7 +322,6 @@ int morpho_labelling(const VectorInt &nx,
               100. * part_grain / total);
     }
   }
-
   return nbcomp;
 }
 
@@ -396,7 +331,6 @@ int morpho_labelling(const VectorInt &nx,
  **
  ** \return  The array of connected components newly created
  **
- ** \param[in]  nx        Number of grid meshes (dimension = 3)
  ** \param[in]  option    connectivity option (CROSS or BLOCK)
  ** \param[in]  flag_size 1 if cell contains volume of connected component
  **                       0 if cell contains rank of connected component
@@ -409,16 +343,15 @@ int morpho_labelling(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-VectorDouble morpho_labelling(const VectorInt &nx,
-                                              int option,
-                                              int flag_size,
-                                              const VectorUChar &imagin,
-                                              double ccvoid,
-                                              bool verbose)
+VectorDouble morpho_labelling(int option,
+                              int flag_size,
+                              const BImage& imagin,
+                              double ccvoid,
+                              bool verbose)
 {
-  _st_morpho_image_size_define(nx);
-  VectorDouble compnum(NXYZ);
-  (void) morpho_labelling(nx, option, flag_size, imagin, ccvoid, compnum,
+  int nxyz = imagin.getNPixels();
+  VectorDouble compnum(nxyz);
+  (void) morpho_labelling(option, flag_size, imagin, ccvoid, compnum,
                           verbose);
   return compnum;
 }
@@ -429,7 +362,6 @@ VectorDouble morpho_labelling(const VectorInt &nx,
  **
  ** \return  Vector of sizes
  **
- ** \param[in]  nx        Number of grid meshes (dimension = 3)
  ** \param[in]  option    connectivity option (CROSS or BLOCK)
  ** \param[in]  imagin    input image
  **
@@ -437,15 +369,13 @@ VectorDouble morpho_labelling(const VectorInt &nx,
  ** \remark  is issued for displaying the component sizes
  **
  *****************************************************************************/
-VectorInt morpho_labelsize(const VectorInt &nx,
-                                           int option,
-                                           const VectorUChar &imagin)
+VectorInt morpho_labelsize(int option, const BImage& imagin)
 {
   VectorInt sizes;
 
-  _st_morpho_image_size_define(nx);
-  VectorDouble compnum(NXYZ);
-  int nbcomp = morpho_labelling(nx, option, 0, imagin, TEST, compnum);
+  int nxyz = imagin.getNPixels();
+  VectorDouble compnum(nxyz);
+  int nbcomp = morpho_labelling(option, 0, imagin, TEST, compnum);
   if (nbcomp > 0)
   {
     sizes.resize(nbcomp, 0);
@@ -458,8 +388,7 @@ VectorInt morpho_labelsize(const VectorInt &nx,
 /*!
  **  Performs a morphological erosion
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS r BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag
@@ -467,46 +396,43 @@ VectorInt morpho_labelsize(const VectorInt &nx,
  ** \param[out] imagout Output image
  **
  *****************************************************************************/
-void morpho_erosion(const VectorInt &nx,
-                                    int option,
-                                    const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout,
-                                    bool verbose)
+void morpho_erosion(int option,
+                    const VectorInt &radius,
+                    const BImage& imagin,
+                    BImage& imagout,
+                    bool verbose)
 {
-  VectorUChar imagtmp;
+  BImage imagtmp;
   int ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
 
   /* Initializations */
 
-  _st_morpho_image_size_define(nx);
   _st_morpho_image_radius_define(radius);
   nbin = 0;
-  if (verbose) nbin = morpho_count(nx, imagin);
+  if (verbose) nbin = morpho_count(imagin);
 
   /* Copy the input image into the temporary image */
 
-  if (option == BLOCK) imagtmp = morpho_image_manage(nx);
-  morpho_duplicate(nx, imagin, imagout);
+  imagout = imagin;
 
   /* Process the structuring element along Z */
 
   if (RADIUS[2] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (iz = 0; iz < NX[2]; iz++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (iz = 0; iz < imagin.getNDims(2); iz++)
     {
-      nz1 = MIN(NX[2] - 1, MAX(0,iz-RADIUS[2]));
-      nz2 = MIN(NX[2] - 1, MAX(0,iz+RADIUS[2]));
-      for (iy = 0; iy < NX[1]; iy++)
-        for (ix = 0; ix < NX[0]; ix++)
-          if (!IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+      nz1 = MIN(imagin.getNDims(2) - 1, MAX(0,iz-RADIUS[2]));
+      nz2 = MIN(imagin.getNDims(2) - 1, MAX(0,iz+RADIUS[2]));
+      for (iy = 0; iy < imagin.getNDims(1); iy++)
+        for (ix = 0; ix < imagin.getNDims(0); ix++)
+          if (! IMAGES(ix, iy, iz))
+            imagout.setMaskoff(ix, iy, iz);
           else
             for (jz = nz1; jz <= nz2; jz++)
               if (!IMAGES(ix, iy, jz))
               {
-                IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+                imagout.setMaskoff(ix,  iy,  iz);
                 break;
               }
     }
@@ -516,20 +442,20 @@ void morpho_erosion(const VectorInt &nx,
 
   if (RADIUS[1] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (iy = 0; iy < NX[1]; iy++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (iy = 0; iy < imagin.getNDims(1); iy++)
     {
-      ny1 = MIN(NX[1] - 1, MAX(0,iy-RADIUS[1]));
-      ny2 = MIN(NX[1] - 1, MAX(0,iy+RADIUS[1]));
-      for (iz = 0; iz < NX[2]; iz++)
-        for (ix = 0; ix < NX[0]; ix++)
+      ny1 = MIN(imagin.getNDims(1) - 1, MAX(0,iy-RADIUS[1]));
+      ny2 = MIN(imagin.getNDims(1) - 1, MAX(0,iy+RADIUS[1]));
+      for (iz = 0; iz < imagin.getNDims(2); iz++)
+        for (ix = 0; ix < imagin.getNDims(0); ix++)
           if (!IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+            imagout.setMaskoff(ix,iy,iz);
           else
             for (jy = ny1; jy <= ny2; jy++)
               if (!IMAGES(ix, jy, iz))
               {
-                IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+                imagout.setMaskoff(ix,iy,iz);
                 break;
               }
     }
@@ -539,26 +465,26 @@ void morpho_erosion(const VectorInt &nx,
 
   if (RADIUS[0] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (ix = 0; ix < NX[0]; ix++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (ix = 0; ix < imagin.getNDims(0); ix++)
     {
-      nx1 = MIN(NX[0] - 1, MAX(0,ix-RADIUS[0]));
-      nx2 = MIN(NX[0] - 1, MAX(0,ix+RADIUS[0]));
-      for (iz = 0; iz < NX[2]; iz++)
-        for (iy = 0; iy < NX[1]; iy++)
+      nx1 = MIN(imagin.getNDims(0) - 1, MAX(0,ix-RADIUS[0]));
+      nx2 = MIN(imagin.getNDims(0) - 1, MAX(0,ix+RADIUS[0]));
+      for (iz = 0; iz < imagin.getNDims(2); iz++)
+        for (iy = 0; iy < imagin.getNDims(1); iy++)
           if (!IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+            imagout.setMaskoff(ix,iy,iz);
           else
             for (jx = nx1; jx <= nx2; jx++)
               if (!IMAGES(jx, iy, iz))
               {
-                IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
+                imagout.setMaskoff(ix,iy,iz);
                 break;
               }
     }
   }
 
-  if (verbose) message("Erosion: %d -> %d\n", nbin, morpho_count(nx, imagout));
+  if (verbose) message("Erosion: %d -> %d\n", nbin, morpho_count(imagout));
 
   return;
 }
@@ -567,8 +493,7 @@ void morpho_erosion(const VectorInt &nx,
 /*!
  **  Performs a morphological dilation
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
+ ** \param[in]  option  Option of the structuring element (CROSS or BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag
@@ -576,46 +501,43 @@ void morpho_erosion(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_dilation(const VectorInt &nx,
-                                     int option,
-                                     const VectorInt &radius,
-                                     const VectorUChar &imagin,
-                                     VectorUChar &imagout,
-                                     bool verbose)
+void morpho_dilation(int option,
+                     const VectorInt &radius,
+                     const BImage& imagin,
+                     BImage& imagout,
+                     bool verbose)
 {
-  VectorUChar imagtmp;
+  BImage imagtmp;
   int ix, iy, iz, jx, jy, jz, nx1, nx2, ny1, ny2, nz1, nz2, nbin;
 
   /* Initializations */
 
-  _st_morpho_image_size_define(nx);
   _st_morpho_image_radius_define(radius);
   nbin = 0;
-  if (verbose) nbin = morpho_count(nx, imagin);
+  if (verbose) nbin = morpho_count(imagin);
 
   /* Copy the input image into the temporary image */
 
-  if (option == BLOCK) imagtmp = morpho_image_manage(nx);
-  morpho_duplicate(nx, imagin, imagout);
+  imagout = imagin;
 
   /* Process the structuring element along Z */
 
   if (RADIUS[2] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (iz = 0; iz < NX[2]; iz++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (iz = 0; iz < imagin.getNDims(2); iz++)
     {
-      nz1 = MIN(NX[2] - 1, MAX(0,iz-RADIUS[2]));
-      nz2 = MIN(NX[2] - 1, MAX(0,iz+RADIUS[2]));
-      for (iy = 0; iy < NX[1]; iy++)
-        for (ix = 0; ix < NX[0]; ix++)
+      nz1 = MIN(imagin.getNDims(2) - 1, MAX(0,iz-RADIUS[2]));
+      nz2 = MIN(imagin.getNDims(2) - 1, MAX(0,iz+RADIUS[2]));
+      for (iy = 0; iy < imagin.getNDims(1); iy++)
+        for (ix = 0; ix < imagin.getNDims(0); ix++)
           if (IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+            imagout.setOffset(ix,iy,iz);
           else
             for (jz = nz1; jz <= nz2; jz++)
               if (IMAGES(ix, iy, jz))
               {
-                IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+                imagout.setOffset(ix,iy,iz);
                 break;
               }
     }
@@ -625,20 +547,20 @@ void morpho_dilation(const VectorInt &nx,
 
   if (RADIUS[1] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (iy = 0; iy < NX[1]; iy++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (iy = 0; iy < imagin.getNDims(1); iy++)
     {
-      ny1 = MIN(NX[1] - 1, MAX(0,iy-RADIUS[1]));
-      ny2 = MIN(NX[1] - 1, MAX(0,iy+RADIUS[1]));
-      for (iz = 0; iz < NX[2]; iz++)
-        for (ix = 0; ix < NX[0]; ix++)
+      ny1 = MIN(imagin.getNDims(1) - 1, MAX(0,iy-RADIUS[1]));
+      ny2 = MIN(imagin.getNDims(1) - 1, MAX(0,iy+RADIUS[1]));
+      for (iz = 0; iz < imagin.getNDims(2); iz++)
+        for (ix = 0; ix < imagin.getNDims(0); ix++)
           if (IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+            imagout.setOffset(ix,iy,iz);
           else
             for (jy = ny1; jy <= ny2; jy++)
               if (IMAGES(ix, jy, iz))
               {
-                IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+                imagout.setOffset(ix,iy,iz);
                 break;
               }
     }
@@ -648,26 +570,26 @@ void morpho_dilation(const VectorInt &nx,
 
   if (RADIUS[0] != 0)
   {
-    if (option == BLOCK) morpho_duplicate(nx, imagout, imagtmp);
-    for (ix = 0; ix < NX[0]; ix++)
+    if (option == BLOCK) imagtmp = imagout;
+    for (ix = 0; ix < imagin.getNDims(0); ix++)
     {
-      nx1 = MIN(NX[0] - 1, MAX(0,ix-RADIUS[0]));
-      nx2 = MIN(NX[0] - 1, MAX(0,ix+RADIUS[0]));
-      for (iz = 0; iz < NX[2]; iz++)
-        for (iy = 0; iy < NX[1]; iy++)
+      nx1 = MIN(imagin.getNDims(0) - 1, MAX(0,ix-RADIUS[0]));
+      nx2 = MIN(imagin.getNDims(0) - 1, MAX(0,ix+RADIUS[0]));
+      for (iz = 0; iz < imagin.getNDims(2); iz++)
+        for (iy = 0; iy < imagin.getNDims(1); iy++)
           if (IMAGES(ix, iy, iz))
-            IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+            imagout.setOffset(ix,iy,iz);
           else
             for (jx = nx1; jx <= nx2; jx++)
               if (IMAGES(jx, iy, iz))
               {
-                IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
+                imagout.setOffset(ix,iy,iz);
                 break;
               }
     }
   }
 
-  if (verbose) message("Dilation: %d -> %d\n", nbin, morpho_count(nx, imagout));
+  if (verbose) message("Dilation: %d -> %d\n", nbin, morpho_count(imagout));
 
   return;
 }
@@ -676,7 +598,6 @@ void morpho_dilation(const VectorInt &nx,
 /*!
  **  Performs the intersection of two binary images
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  image1  first input image
  ** \param[in]  image2  second input image
  ** \param[in]  verbose Verbose flag
@@ -684,29 +605,26 @@ void morpho_dilation(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_intersection(const VectorInt &nx,
-                                         const VectorUChar &image1,
-                                         const VectorUChar &image2,
-                                         VectorUChar &imagout,
-                                         bool verbose)
+void morpho_intersection(const BImage& image1,
+                         const BImage& image2,
+                         BImage& imagout,
+                         bool verbose)
 {
-  int i, nbin1, nbin2;
-
-  nbin1 = nbin2 = 0;
-  _st_morpho_image_size_define(nx);
+  int nbin1 = 0;
+  int nbin2 = 0;
 
   if (verbose)
   {
-    nbin1 = morpho_count(nx, image1);
-    nbin2 = morpho_count(nx, image2);
+    nbin1 = morpho_count(image1);
+    nbin2 = morpho_count(image2);
   }
 
-  for (i = 0; i < NRED; i++)
-    imagout[i] = image1[i] & image2[i];
+  for (int i = 0; i < image1.getAllocSize(); i++)
+    imagout.setValue(i, image1.getValue(i) & image2.getValue(i));
 
   if (verbose)
     message("Intersection : %d and %d -> %d\n", nbin1, nbin2,
-            morpho_count(nx, imagout));
+            morpho_count(imagout));
 
   return;
 }
@@ -715,7 +633,6 @@ void morpho_intersection(const VectorInt &nx,
 /*!
  **  Performs the union of two binary images
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  image1  first input image
  ** \param[in]  image2  second input image
  ** \param[in]  verbose Verbosity flag
@@ -723,29 +640,26 @@ void morpho_intersection(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_union(const VectorInt &nx,
-                                  const VectorUChar &image1,
-                                  const VectorUChar &image2,
-                                  VectorUChar &imagout,
-                                  bool verbose)
+void morpho_union(const BImage& image1,
+                  const BImage& image2,
+                  BImage& imagout,
+                  bool verbose)
 {
-  int i, nbin1, nbin2;
-
-  nbin1 = nbin2 = 0;
-  _st_morpho_image_size_define(nx);
+  int nbin1 = 0;
+  int nbin2 = 0;
 
   if (verbose)
   {
-    nbin1 = morpho_count(nx, image1);
-    nbin2 = morpho_count(nx, image2);
+    nbin1 = morpho_count(image1);
+    nbin2 = morpho_count(image2);
   }
 
-  for (i = 0; i < NRED; i++)
-    imagout[i] = image1[i] | image2[i];
+  for (int i = 0; i < image1.getAllocSize(); i++)
+    imagout.setValue(i, image1.getValue(i) | image2.getValue(i));
 
   if (verbose)
     message("Union: %d and %d -> %d\n", nbin1, nbin2,
-            morpho_count(nx, imagout));
+            morpho_count(imagout));
 
   return;
 }
@@ -754,29 +668,24 @@ void morpho_union(const VectorInt &nx,
 /*!
  **  Performs the negation of a binary image
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  verbose Verbose flag
  **
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_negation(const VectorInt &nx,
-                                     const VectorUChar &imagin,
-                                     VectorUChar &imagout,
-                                     bool verbose)
+void morpho_negation(const BImage& imagin,
+                     BImage& imagout,
+                     bool verbose)
 {
-  int i, nbin;
+  int nbin = 0;
 
-  nbin = 0;
-  _st_morpho_image_size_define(nx);
+  if (verbose) nbin = morpho_count(imagin);
 
-  if (verbose) nbin = morpho_count(nx, imagin);
+  for (int i = 0; i < imagin.getAllocSize(); i++)
+    imagout.setValue(i, ~imagin.getValue(i));
 
-  for (i = 0; i < NRED; i++)
-    imagout[i] = ~imagin[i];
-
-  if (verbose) message("Negation: %d -> %d\n", nbin, morpho_count(nx, imagout));
+  if (verbose) message("Negation: %d -> %d\n", nbin, morpho_count(imagout));
 
   return;
 }
@@ -787,22 +696,16 @@ void morpho_negation(const VectorInt &nx,
  **
  ** \return  Number of pixels
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  imagin  input image
  **
  *****************************************************************************/
-int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
+int morpho_count(const BImage& imagin)
 {
-  int ix, iy, iz, ncount;
-
-  _st_morpho_image_size_define(nx);
-
-  ncount = 0;
-  for (iz = 0; iz < NX[2]; iz++)
-    for (iy = 0; iy < NX[1]; iy++)
-      for (ix = 0; ix < NX[0]; ix++)
-        if (VALIN(ix, iy, iz)) ncount++;
-
+  int ncount = 0;
+  for (int iz = 0; iz < imagin.getNDims(2); iz++)
+    for (int iy = 0; iy < imagin.getNDims(1); iy++)
+      for (int ix = 0; ix < imagin.getNDims(0); ix++)
+        if (imagin.getValue(ix, iy, iz)) ncount++;
   return (ncount);
 }
 
@@ -810,7 +713,6 @@ int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
 /*!
  **  Performs a morphological opening
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
@@ -818,17 +720,16 @@ int morpho_count(const VectorInt &nx, const VectorUChar &imagin)
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_opening(const VectorInt &nx,
-                                    int option,
-                                    const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout)
+void morpho_opening(int option,
+                    const VectorInt &radius,
+                    const BImage& imagin,
+                    BImage& imagout)
 {
-  VectorUChar imagtmp = morpho_image_manage(nx);
+  BImage imagtmp = imagin;
 
-  morpho_erosion(nx, option, radius, imagin, imagtmp);
+  morpho_erosion(option, radius, imagin, imagtmp);
 
-  morpho_dilation(nx, option, radius, imagtmp, imagout);
+  morpho_dilation(option, radius, imagtmp, imagout);
 
   return;
 }
@@ -837,7 +738,6 @@ void morpho_opening(const VectorInt &nx,
 /*!
  **  Performs a morphological closing
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  option  Option of the structuring element (CROSS pr BLOCK)
  ** \param[in]  radius  Radius of the structuring element (dimension = 3)
  ** \param[in]  imagin  input image
@@ -845,17 +745,16 @@ void morpho_opening(const VectorInt &nx,
  ** \param[out] imagout output image
  **
  *****************************************************************************/
-void morpho_closing(const VectorInt &nx,
-                                    int option,
-                                    const VectorInt &radius,
-                                    const VectorUChar &imagin,
-                                    VectorUChar &imagout)
+void morpho_closing(int option,
+                    const VectorInt &radius,
+                    const BImage& imagin,
+                    BImage& imagout)
 {
-  VectorUChar imagtmp = morpho_image_manage(nx);
+  BImage imagtmp = imagin;
 
-  morpho_dilation(nx, option, radius, imagin, imagtmp);
+  morpho_dilation(option, radius, imagin, imagtmp);
 
-  morpho_erosion(nx, option, radius, imagtmp, imagout);
+  morpho_erosion(option, radius, imagtmp, imagout);
 
   return;
 }
@@ -874,43 +773,41 @@ void morpho_closing(const VectorInt &nx,
  **
  *****************************************************************************/
 void morpho_double2image(const VectorInt &nx,
-                                         const VectorDouble &tab,
-                                         double vmin,
-                                         double vmax,
-                                         VectorUChar &imagout,
-                                         bool verbose)
+                         const VectorDouble &tab,
+                         double vmin,
+                         double vmax,
+                         BImage& imagout,
+                         bool verbose)
 {
-  int ix, iy, iz, ind;
-  unsigned char mot;
-  double val, result;
-
-  _st_morpho_image_size_define(nx);
-  imagout.clear();
-  mot = 0;
-  ind = 0;
-  for (iz = 0; iz < NX[2]; iz++)
-    for (iy = 0; iy < NX[1]; iy++)
-      for (ix = 0; ix < NX[0]; ix++)
+  imagout.init(nx);
+  VectorInt NX = imagout.getNDimsExt(3);
+  unsigned char mot = 0;
+  int ind = 0;
+  int ecr = 0;
+  for (int iz = 0; iz < imagout.getNDims(2); iz++)
+    for (int iy = 0; iy < imagout.getNDims(1); iy++)
+      for (int ix = 0; ix < imagout.getNDims(0); ix++)
       {
         ind++;
-        val = TAB(ix, iy, iz);
-        result = 1.;
+        double val = TAB(ix, iy, iz);
+        double result = 1.;
         if (FFFF(val)) result = 0.;
         if (!FFFF(vmin) && val < vmin) result = 0.;
         if (!FFFF(vmax) && val >= vmax) result = 0.;
         mot = (mot << 1) + (unsigned char) result;
         if (ind == 8)
         {
-          imagout.push_back(mot);
+          imagout.setValue(ecr, mot);
           mot = 0;
           ind = 0;
+          ecr++;
         }
       }
 
-  if (ind != 0) imagout.push_back(mot << (8 - ind));
+  if (ind != 0) imagout.setValue(ecr, (mot << (8 - ind)));
 
   if (verbose)
-    message("Translation: %d  / %d\n", morpho_count(nx, imagout), NXYZ);
+    message("Translation: %d  / %d\n", morpho_count(imagout), imagout.getNPixels());
 
   return;
 }
@@ -928,13 +825,13 @@ void morpho_double2image(const VectorInt &nx,
  ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
-VectorUChar morpho_double2image(const VectorInt &nx,
-                                                const VectorDouble &tab,
-                                                double vmin,
-                                                double vmax,
-                                                bool verbose)
+BImage morpho_double2image(const VectorInt &nx,
+                           const VectorDouble &tab,
+                           double vmin,
+                           double vmax,
+                           bool verbose)
 {
-  VectorUChar imagout = morpho_image_manage(nx);
+  BImage imagout(nx);
   morpho_double2image(nx, tab, vmin, vmax, imagout, verbose);
   return imagout;
 }
@@ -943,7 +840,6 @@ VectorUChar morpho_double2image(const VectorInt &nx,
 /*!
  **  Converts an image into an array (double)
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
  ** \param[in]  imagin  input image
  ** \param[in]  mode    grain/pore assignment
  ** \li                  0 : if the value is assigned to tab()
@@ -956,28 +852,23 @@ VectorUChar morpho_double2image(const VectorInt &nx,
  ** \param[out] tab    output array (double)
  **
  *****************************************************************************/
-void morpho_image2double(const VectorInt &nx,
-                                         const VectorUChar &imagin,
-                                         int mode,
-                                         double grain,
-                                         double pore,
-                                         VectorDouble &tab,
-                                         bool verbose)
+void morpho_image2double(const BImage& imagin,
+                         int mode,
+                         double grain,
+                         double pore,
+                         VectorDouble &tab,
+                         bool verbose)
 {
-  int ix, iy, iz;
-  double value;
-
-  _st_morpho_image_size_define(nx);
-
+  VectorInt NX = imagin.getNDimsExt(3);
+  int nxyz = imagin.getNPixels();
   if (verbose)
-    message("Translation: %d / %d\n", morpho_count(nx, imagin), NXYZ);
+    message("Translation: %d / %d\n", morpho_count(imagin), nxyz);
 
-  for (iz = 0; iz < NX[2]; iz++)
-    for (iy = 0; iy < NX[1]; iy++)
-      for (ix = 0; ix < NX[0]; ix++)
+  for (int iz = 0; iz < imagin.getNDims(2); iz++)
+    for (int iy = 0; iy < imagin.getNDims(1); iy++)
+      for (int ix = 0; ix < imagin.getNDims(0); ix++)
       {
-        value = VALIN(ix,iy,iz) ? grain :
-                                  pore;
+        double value = imagin.getValue(ix,iy,iz) ? grain : pore;
         switch (mode)
         {
           case 0:
@@ -1000,178 +891,71 @@ void morpho_image2double(const VectorInt &nx,
 /*!
  **  Compute the distance for the grain to the edge
  **
- ** \param[in]  nx         Number of grid meshes (dimension = 3)
  ** \param[in]  option     connectivity option (CROSS or BLOCK)
  ** \param[in]  radius     Radius of the structuring element (dimension = 3)
- ** \param[in]  flag_erode 1 Inflate the grain; 0 Reduce the grain
+ ** \param[in]  dist_erode 1 Inflate the grain; 0 Reduce the grain
  ** \param[in]  imagin     input image
+ ** \param[in]  verbose    Verbose flag
  **
  ** \param[out] dist       output array containing the distances
  **
  *****************************************************************************/
-void morpho_distance(const VectorInt &nx,
-                                     int option,
-                                     const VectorInt &radius,
-                                     int flag_erode,
-                                     VectorUChar &imagin,
-                                     VectorDouble &dist)
+void morpho_distance(int option,
+                     const VectorInt &radius,
+                     bool dist_erode,
+                     BImage& imagin,
+                     VectorDouble &dist,
+                     bool verbose)
 {
-  int i, incr;
-
-  /* Allocate a temporary image */
-
-  VectorUChar imagout = morpho_image_manage(nx);
+  BImage imagout = imagin;
+  int nxyz = imagin.getNPixels();
 
   /* Copy the initial image in the distance array */
 
-  morpho_image2double(nx, imagin, 0, 1, 0, dist);
+  morpho_image2double(imagin, 0, 1, 0, dist);
 
   /* Processing loop */
 
-  if (flag_erode)
+  int iter = 0;
+  if (dist_erode)
   {
-    while (morpho_count(nx, imagin) != 0)
+    while (morpho_count(imagin) != 0)
     {
-      morpho_erosion(nx, option, radius, imagin, imagout);
-      morpho_duplicate(nx, imagout, imagin);
-      morpho_image2double(nx, imagin, 1, 1, 0, dist);
+      iter++;
+      morpho_erosion(option, radius, imagin, imagout);
+      morpho_duplicate(imagout, imagin);
+      morpho_image2double(imagin, 1, 1, 0, dist);
+      if (verbose)
+      {
+        int count = morpho_count(imagin);
+        message("Iteration %d: Current (%d/%d)\n",iter,count,nxyz);
+      }
     }
   }
   else
   {
-    incr = 0;
-    while (morpho_count(nx, imagin) != NXYZ)
+    int incr = 0;
+    while (morpho_count(imagin) != nxyz)
     {
+      iter++;
       incr++;
-      morpho_dilation(nx, option, radius, imagin, imagout);
-      morpho_duplicate(nx, imagout, imagin);
-      morpho_image2double(nx, imagin, -1, 1, 0, dist);
+      morpho_dilation(option, radius, imagin, imagout);
+      morpho_duplicate(imagout, imagin);
+      morpho_image2double(imagin, -1, 1, 0, dist);
+      if (verbose)
+      {
+        int count = morpho_count(imagin);
+        message("Iteration %d: Current (%d/%d)\n",iter,count,nxyz);
+      }
     }
-    morpho_image2double(nx, imagin, 1, incr, 0, dist);
+    morpho_image2double(imagin, 1, incr, 0, dist);
   }
 
   /* Turn the distance to a positive value */
 
-  for (i = 0; i < NXYZ; i++)
+  for (int i = 0; i < nxyz; i++)
     dist[i] = ABS(dist[i]);
 
-  return;
-}
-
-/*****************************************************************************/
-/*!
- **  Print an image stored as a bitmap
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  imagin  input image
- **
- *****************************************************************************/
-void bitmap_print(const VectorInt &nx, const VectorUChar &imagin)
-{
-  int ix, iy, iz;
-  unsigned char val;
-
-  /* Initializations */
-
-  _st_morpho_image_size_define(nx);
-
-  /* Loop on the levels */
-
-  for (iz = 0; iz < nx[2]; iz++)
-  {
-    if (nx[2] > 1)
-      mestitle(2, "Level %d/%d", iz + 1, nx[2]);
-    else
-      message("\n");
-
-    /* Loop on the cells of the layer */
-
-    message("     ");
-    for (ix = 0; ix < nx[0]; ix++)
-    {
-      val = (ix + 1) % 10;
-      message("%d", val);
-    }
-    message("\n\n");
-
-    for (ix = 0; ix < nx[0]; ix++)
-    {
-      message(" %3d ", ix + 1);
-      for (iy = 0; iy < nx[1]; iy++)
-      {
-        val = (VALIN(ix,iy,iz) > 0) ? 1 :
-                                      0;
-        message("%d", val);
-      }
-      message("\n");
-    }
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the size of an IMAGE
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- **
- *****************************************************************************/
-int bitmap_size(const VectorInt &nx)
-{
-  _st_morpho_image_size_define(nx);
-  return (NRED);
-}
-
-/*****************************************************************************/
-/*!
- **  Returns the value of a bit of a bitmap array
- **
- ** \return The value (0 or 1) of the target bit
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  imagin  Target IMAGE
- ** \param[in]  ix      Index of the bit along X
- ** \param[in]  iy      Index of the bit along Y
- ** \param[in]  iz      Index of the bit along Z
- **
- *****************************************************************************/
-int bitmap_get_value(const VectorInt &nx,
-                     const VectorUChar &imagin,
-                     int ix,
-                     int iy,
-                     int iz)
-{
-  _st_morpho_image_size_define(nx);
-
-  int retval = (VALIN(ix,iy,iz) > 0) ? 1 :
-                                       0;
-  return (retval);
-}
-
-/*****************************************************************************/
-/*!
- **  Set the value of a bit of a bitmap array
- **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  ix      Index of the bit along X
- ** \param[in]  iy      Index of the bit along Y
- ** \param[in]  iz      Index of the bit along Z
- ** \param[in]  imagout Target IMAGE
- ** \param[in]  bitval  Value of the bit (0 or 1)
- **
- *****************************************************************************/
-void bitmap_set_value(const VectorInt &nx,
-                                      VectorUChar &imagout,
-                                      int ix,
-                                      int iy,
-                                      int iz,
-                                      int bitval)
-{
-  _st_morpho_image_size_define(nx);
-
-  if (bitval > 0)
-    IMAGOUT(ix,iy,iz) |= OFFSET(ix, iy, iz);
-  else
-    IMAGOUT(ix,iy,iz) &= MASKOFF(ix, iy, iz);
   return;
 }
 
@@ -1188,8 +972,6 @@ void bitmap_set_value(const VectorInt &nx,
  ** \param[in]  flag_center 1 to omit the center
  ** \param[in]  verbose     Verbose flag
  **
- ** \param[out] nvois       Number of neighboring cells
- **
  ** \remarks  The resulting array has dimension: nvois * ndim
  **
  *****************************************************************************/
@@ -1197,25 +979,21 @@ VectorInt gridcell_neigh(int ndim,
                          int option,
                          int radius,
                          int flag_center,
-                         int verbose,
-                         int *nvois)
+                         bool verbose)
 {
   int *indg0, *indg1, ecr, flag_count, nech;
-  DbGrid *grid;
-  VectorInt nx, indret;
-  VectorDouble x0;
-  VectorDouble dx;
+  VectorInt indret;
 
   /* Initializations */
 
-  (*nvois) = 0;
+  int nvois = 0;
   indg0 = indg1 = nullptr;
 
   /* Create the grid attributes */
 
-  nx.resize(ndim);
-  x0.resize(ndim);
-  dx.resize(ndim);
+  VectorInt    nx(ndim);
+  VectorDouble x0(ndim);
+  VectorDouble dx(ndim);
   for (int idim = 0; idim < ndim; idim++)
   {
     dx[idim] = 1.;
@@ -1223,7 +1001,9 @@ VectorInt gridcell_neigh(int ndim,
     x0[idim] = 0.;
   }
 
-  grid = db_create_grid(0, ndim, 0, ELoadBy::SAMPLE, 1, nx, x0, dx);
+  DbGrid* grid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::SAMPLE,
+                                VectorDouble(), VectorString(),
+                                VectorString(), 1);
 
   /* (Maximum) core allocation */
 
@@ -1260,15 +1040,15 @@ VectorInt gridcell_neigh(int ndim,
   /* Resizing the returned array */
 
   indret.resize(ecr);
-  (*nvois) = ecr / ndim;
+  nvois = ecr / ndim;
 
   /* Optional printout */
 
-  if (verbose && (*nvois) > 0)
+  if (verbose && nvois > 0)
   {
     ecr = 0;
-    message("Grid Dilation: %d samples\n", (*nvois));
-    for (int i = 0; i < (*nvois); i++)
+    message("Grid Dilation: %d samples\n", nvois);
+    for (int i = 0; i < nvois; i++)
     {
       message("  Neigh %3d:", i + 1);
       for (int idim = 0; idim < ndim; idim++)
@@ -1277,7 +1057,8 @@ VectorInt gridcell_neigh(int ndim,
     }
   }
 
-  label_end: grid = db_delete(grid);
+  label_end:
+  if (grid != nullptr) delete grid;
   indg0 = db_indg_free(indg0);
   indg1 = db_indg_free(indg1);
   return (indret);
@@ -1287,54 +1068,55 @@ VectorInt gridcell_neigh(int ndim,
 /*!
  **  Calculate the gradient orientations of a colored image
  **
- ** \param[in]  nx      Number of grid meshes (dimension = 3)
- ** \param[in]  radius  Neighborhood dimension
- ** \param[in]  tab     input array (double)
- **
- ** \param[out] tabout  Output angle
+ ** \param[in]  dbgrid  Input Grid Db
+ ** \param[in]  radius  Radius of the structuring element
+ ** \param[in]  iptr0   iStorage address
  **
  *****************************************************************************/
-void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
+void morpho_angle2D(DbGrid* dbgrid,
+                    const VectorInt &radius,
+                    int iptr0)
 {
-  int ix, iy, iz, iiz, pivot, lec;
-  double xi, yi, zi, z0, a[3], b[2], x[2], result;
+  int iad;
+  int pivot = 0;
+  double a[3], b[2], x[2], result;
 
   /* Initializations */
 
-  _st_morpho_image_size_define(nx);
-  if (NX[2] > 1)
-  {
-    messerr("The function is programmed for the 2-D case only");
-    return;
-  }
+  VectorInt NX = dbgrid->getNXsExt(2);
+  _st_morpho_image_radius_define(radius);
+  int ndim = dbgrid->getNDim();
+  VectorInt indg(ndim);
+  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
   /* Processing */
 
-  iz = iiz = lec = 0;
+  int iiz = 0;
   for (int iiy = 0; iiy < NX[1]; iiy++)
     for (int iix = 0; iix < NX[0]; iix++)
     {
-      TABOUT(iix,iiy,iiz) = TEST;
-
-      /* Collecting the neighborhood */
-
-      for (int i = 0; i < 3; i++)
-        a[i] = 0.;
+      for (int i = 0; i < 3; i++)  a[i] = 0.;
       for (int i = 0; i < 2; i++)
         b[i] = x[i] = 0.;
-      z0 = TAB(iix, iiy, iiz);
+      indg[0] = iix;
+      indg[1] = iiy;
+      iad = dbgrid->indiceToRank(indg);
+      double z0 = dbgrid->getArray(iad, iptrz);
       if (FFFF(z0)) continue;
 
-      for (int jx = -radius; jx <= radius; jx++)
-        for (int jy = -radius; jy <= radius; jy++)
+      for (int jx = -RADIUS[0]; jx <= RADIUS[0]; jx++)
+        for (int jy = -RADIUS[1]; jy <= RADIUS[1]; jy++)
         {
-          ix = iix + jx;
+          int ix = iix + jx;
           if (ix < 0 || ix >= NX[0]) continue;
-          iy = iiy + jy;
+          int iy = iiy + jy;
           if (iy < 0 || iy >= NX[1]) continue;
-          xi = jx;
-          yi = jy;
-          zi = TAB(ix, iy, iz);
+          indg[0] = ix;
+          indg[1] = iy;
+          iad = dbgrid->indiceToRank(indg);
+          double xi = dbgrid->getCoordinate(iad, 0);
+          double yi = dbgrid->getCoordinate(iad, 1);
+          double zi = dbgrid->getArray(iad, iptrz);
           if (FFFF(zi)) continue;
           zi -= z0;
           a[0] += xi * xi;
@@ -1351,30 +1133,186 @@ void morpho_angle(const VectorInt &nx, int radius, double *tab, double *tabout)
         result += 360.;
       while (result > 180)
         result -= 360.;
-      TABOUT(iix,iiy,iiz) = result;
-    }
 
+      if (ndim >= 1) indg[0] = iix;
+      if (ndim >= 2) indg[1] = iiy;
+      if (ndim >= 3) indg[2] = iiz;
+      dbgrid->setArray(dbgrid->indiceToRank(indg), iptr0, result);
+    }
   return;
 }
 
-/*****************************************************************************/
-/*!
- **  Manage core for an image
- **
- ** \return  Newly allocated image
- **
- ** \param[in]  nx     Number of grid meshes (dimension = 3)
- **
- *****************************************************************************/
-VectorUChar morpho_image_manage(const VectorInt &nx)
+void morpho_gradients(DbGrid *dbgrid, int iptr)
 {
-  _st_morpho_image_size_define(nx);
+  int j1, j2, number;
 
-  VectorUChar imagout = VectorUChar(NRED);
+  /* Preliminary check */
 
-  for (int i = 0; i < NRED; i++)
-    imagout[i] = 0;
+  VectorInt NX = dbgrid->getNXsExt(3);
+  int ndim = dbgrid->getNDim();
+  VectorInt indg(ndim);
+  int iptrz = dbgrid->getColIdxByLocator(ELoc::Z);
 
-  return (imagout);
+  /* Calculate the Gradient components */
+
+  for (int ix = 0; ix < NX[0]; ix++)
+    for (int iy = 0; iy < NX[1]; iy++)
+      for (int iz = 0; iz < NX[2]; iz++)
+      {
+        for (int idim = 0; idim < ndim; idim++)
+        {
+          if (ndim >= 1) indg[0] = ix;
+          if (ndim >= 2) indg[1] = iy;
+          if (ndim >= 3) indg[2] = iz;
+
+          int nmax = dbgrid->getNX(idim);
+          double dinc = dbgrid->getDX(idim);
+
+          double v1 = 0.;
+          double v2 = 0.;
+          number = 0;
+          if (idim == 0)
+          {
+            j1 = (ix + 1 > nmax - 1) ? ix : ix + 1;
+            indg[0] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (ix - 1 < 0) ? ix : ix - 1;
+            indg[0] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (idim == 1)
+          {
+            j1 = (iy + 1 > nmax - 1) ? iy : iy + 1;
+            indg[1] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (iy - 1 < 0) ? iy : iy - 1;
+            indg[1] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (idim == 2)
+          {
+            j1 = (iz + 1 > nmax - 1) ? iz : iz + 1;
+            indg[2] = j1;
+            v1 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v1)) continue;
+            j2 = (iz - 1 < 0) ? iz : iz - 1;
+            indg[2] = j2;
+            v2 = dbgrid->getArray(dbgrid->indiceToRank(indg), iptrz);
+            if (FFFF(v2)) continue;
+            number = j1 - j2;
+          }
+
+          if (ndim >= 1) indg[0] = ix;
+          if (ndim >= 2) indg[1] = iy;
+          if (ndim >= 3) indg[2] = iz;
+          double delta = (v1 - v2) / (number * dinc);
+          dbgrid->setArray(dbgrid->indiceToRank(indg), iptr + idim, delta);
+        }
+      }
 }
 
+GSTLEARN_EXPORT int db_morpho_calc(DbGrid *dbgrid,
+                                   int iptr0,
+                                   const EMorpho& oper,
+                                   double vmin,
+                                   double vmax,
+                                   int option,
+                                   const VectorInt& radius,
+                                   bool dist_erode,
+                                   bool verbose)
+{
+  int ntotal = dbgrid->getSampleNumber();
+  VectorInt nxy = dbgrid->getNXs();
+
+  VectorDouble tabin = dbgrid->getColumnByLocator(ELoc::Z);
+  BImage image2 = BImage(nxy);
+  BImage image = morpho_double2image(nxy,tabin,vmin,vmax);
+  VectorDouble tabout = VectorDouble(ntotal);
+
+  if (verbose)
+  {
+    message("Morphological operation = %s\n",oper.getDescr().c_str());
+    message("Initial image = %d/%d\n",morpho_count(image),ntotal);
+  }
+
+  bool alreadyLoaded = false;
+  bool alreadySaved = false;
+  if (oper == EMorpho::THRESH)
+  {
+    morpho_duplicate(image, image2);
+  }
+  else if (oper == EMorpho::NEGATION)
+  {
+    morpho_negation(image, image2);
+  }
+  else if (oper == EMorpho::EROSION)
+  {
+    morpho_erosion(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::DILATION)
+  {
+    morpho_dilation(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::OPEN)
+  {
+    morpho_opening(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::CLOSE)
+  {
+    morpho_closing(option, radius, image, image2);
+  }
+  else if (oper == EMorpho::CC)
+  {
+    int ncomp = morpho_labelling(0, 0, image, TEST, tabout, verbose);
+    alreadyLoaded = true;
+    if (verbose)
+      message("Number of Connected Components = %d\n",ncomp);
+  }
+  else if (oper == EMorpho::CCSIZE)
+  {
+    int ncomp = morpho_labelling(0, 1, image, TEST, tabout, verbose);
+    alreadyLoaded = true;
+    if (verbose)
+      message("Number of Connected Components = %d\n",ncomp);
+  }
+  else if (oper == EMorpho::DISTANCE)
+  {
+    morpho_distance(option,radius,dist_erode,image,tabout,verbose);
+    alreadyLoaded = true;
+  }
+  else if (oper == EMorpho::ANGLE)
+  {
+    morpho_angle2D(dbgrid,radius,iptr0);
+    alreadyLoaded = true;
+    alreadySaved = true;
+  }
+  else if (oper == EMorpho::GRADIENT)
+  {
+    morpho_gradients(dbgrid, iptr0);
+    alreadyLoaded = true;
+    alreadySaved = true;
+  }
+  else
+  {
+    messerr("Not programmed yet\n");
+    return 1;
+  }
+
+  if (! alreadyLoaded)
+  {
+    if (verbose)
+      message("Resulting image = %d/%d\n",morpho_count(image2),ntotal);
+    morpho_image2double(image2, 0, 1., 0., tabout);
+  }
+  if (! alreadySaved)
+    dbgrid->setColumnByUID(tabout, iptr0);
+  return 0;
+}

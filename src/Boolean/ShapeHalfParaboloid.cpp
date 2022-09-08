@@ -9,8 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Boolean/ShapeHalfParaboloid.hpp"
-
-#include "../../include/Simulation/BooleanObject.hpp"
+#include "Simulation/BooleanObject.hpp"
 
 ShapeHalfParaboloid::ShapeHalfParaboloid(double proportion,
                                          double xext,

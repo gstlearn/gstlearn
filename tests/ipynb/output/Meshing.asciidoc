@@ -94,7 +94,7 @@ Inverse Rotation Matrix
      [  1,]     0.985     0.174
  
 Turbo Meshing
--------------
+=============
 Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
@@ -106,30 +106,6 @@ Bounding Box Extension
 ----------------------
 Dim #1 - Min:25.387 - Max:38.387
 Dim #2 - Min:10.4851 - Max:27.9851
-List of Apices
-- Number of rows    = 504
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]    25.387    10.485
-     [  1,]    25.561    11.470
-     [  2,]    25.734    12.455
-     [  3,]    25.908    13.439
-     [  4,]    26.082    14.424
-     [  5,]    26.255    15.409
-     [  6,]    26.429    16.394
-(Ncols=2,Nrows=7[from 504])
-List of Meshes
-- Number of rows    = 910
-- Number of columns = 3
-               [,  0]    [,  1]    [,  2]
-     [  0,]         0         1        15
-     [  1,]         0        14        15
-     [  2,]         1         2        15
-     [  3,]        15         2        16
-     [  4,]         2         3        17
-     [  5,]         2        16        17
-     [  6,]         3         4        17
-(Ncols=3,Nrows=7[from 910])
  
 Grid characteristics:
 ---------------------
@@ -147,7 +123,7 @@ Inverse Rotation Matrix
      [  1,]     0.985     0.174
  
 Turbo Meshing
--------------
+=============
 Diamond construction is activated
 Euclidean Geometry
 Space Dimension           = 2
@@ -159,30 +135,6 @@ Bounding Box Extension
 ----------------------
 Dim #1 - Min:25.387 - Max:38.387
 Dim #2 - Min:10.4851 - Max:27.9851
-List of Apices
-- Number of rows    = 504
-- Number of columns = 2
-               [,  0]    [,  1]
-     [  0,]    25.387    10.485
-     [  1,]    25.561    11.470
-     [  2,]    25.734    12.455
-     [  3,]    25.908    13.439
-     [  4,]    26.082    14.424
-     [  5,]    26.255    15.409
-     [  6,]    26.429    16.394
-(Ncols=2,Nrows=7[from 504])
-List of Meshes
-- Number of rows    = 910
-- Number of columns = 3
-               [,  0]    [,  1]    [,  2]
-     [  0,]         0         1        15
-     [  1,]         0        14        15
-     [  2,]         1         2        15
-     [  3,]        15         2        16
-     [  4,]         2         3        17
-     [  5,]         2        16        17
-     [  6,]         3         4        17
-(Ncols=3,Nrows=7[from 910])
  ----
 
 [source, ipython3]
@@ -200,7 +152,7 @@ ax = gp.grid(grid, ax=ax) # Initial grid
 
 
 ----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/output/Meshing_2_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Meshing_2_0.png)
 ----
 
 [source, ipython3]

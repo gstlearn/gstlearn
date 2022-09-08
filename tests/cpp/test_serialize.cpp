@@ -8,16 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "../../include/Basic/PolyLine2D.hpp"
 #include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Model/Model.hpp"
 #include "Basic/Table.hpp"
 #include "Basic/File.hpp"
+#include "Basic/PolyLine2D.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -152,7 +153,7 @@ int main(int /*argc*/, char */*argv*/[])
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
     table[icol] = ut_vector_simulate_uniform(nrows);
-  Table* table1 = Table::createFromArray(table);
+  Table* table1 = Table::createFromArray(table, false);
   table1->display();
 
   // Serialize table

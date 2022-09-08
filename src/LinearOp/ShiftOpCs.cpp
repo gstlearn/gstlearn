@@ -28,6 +28,8 @@
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Model/Model.hpp"
+#include "Space/SpaceSN.hpp"
+#include "Space/ASpaceObject.hpp"
 
 #include <math.h>
 
@@ -890,11 +892,22 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
   return 0;
 }
 
-cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab)
+/**
+ * Transform the Map into a square cparse matrix
+ * @param tab   Input Map
+ * @param nmax  Dimension of the matrix (if provided)
+ * @return
+ *
+ * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
+ * @remark has the full dimension (by adding a fictitious value equal to eps)
+ */
+cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab, int nmax)
 {
   std::map<std::pair<int, int>, double>::iterator it;
 
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  int ip0_max = -1;
+  int ip1_max = -1;
 
   it = tab.begin();
   while (it != tab.end())
@@ -902,8 +915,15 @@ cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab)
     int ip0 = it->first.first;
     int ip1 = it->first.second;
     if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
+    if (ip0 > ip0_max) ip0_max = ip0;
+    if (ip1 > ip1_max) ip1_max = ip1;
     it++;
   }
+
+  // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
+
+  if (nmax > 0)
+    cs_force_dimension(Striplet, nmax, nmax);
 
   /* Optional printout */
 
@@ -1030,8 +1050,7 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildS(const AMesh *amesh,
-                       double tol)
+int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
 {
   std::map<std::pair<int, int>, double> tab;
 
@@ -1113,9 +1132,10 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
+  int napices = amesh->getNApices();
 
   _TildeC.clear();
-  _TildeC.resize(amesh->getNApices(), 0.);
+  _TildeC.resize(napices, 0.);
 
   // Initialize the arrays
 
@@ -1250,7 +1270,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   }
 
   _S = cs_spfree(_S);
-  _S = _BuildSfromMap(tab);
+  _S = _BuildSfromMap(tab, napices);
   if (_S == nullptr) goto label_end;
 
   /* Set the error return code */
@@ -1517,7 +1537,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double r = 1.;
   if( amesh->getVariety() == 1)
   {
-    variety_get_characteristics(&r);
+    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    r = spaceSn->getRadius();
   }
 
   /* Load global matrices */

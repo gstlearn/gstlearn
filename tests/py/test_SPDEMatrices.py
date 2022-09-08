@@ -61,7 +61,7 @@ Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, verbose)
 # Non conditionnal simulation
 
 vect = np.random.normal(size=Qsimu.getSize())
-result = gl.VectorDouble(np.empty_like(vect)) # Output argument
+result = gl.VectorDouble(np.zeros(Qsimu.getSize())) # Output argument
 Qsimu.eval(vect,result)
 
 workingDb.addColumns(np.array(result.getVector()),"Simu",gl.ELoc.X) # TODO : Add to.nparray method to python class VectorXXX
@@ -79,7 +79,7 @@ Qmat = sc.sparse.csc_matrix((Qtr.values, (Qtr.rows, Qtr.cols)))
 
 xx = np.random.normal(size=Qkriging.getSize())
 vectxx = xx
-resultxx = gl.VectorDouble(np.empty_like(vectxx)) # Output argument
+resultxx = gl.VectorDouble(np.zeros(Qkriging.getSize())) # Output argument
 Qkriging.eval(vectxx,resultxx)
 
 if flagDraw:
@@ -90,7 +90,7 @@ if flagDraw:
 # Check inversion error
 
 Qtest = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSONE)
-resulttest = gl.VectorDouble(np.empty_like(vectxx)) # Output argument
+resulttest = gl.VectorDouble(np.zeros(Qkriging.getSize())) # Output argument
 Qtest.eval(np.array(resultxx.getVector()),resulttest)
 
 if flagDraw:
@@ -108,8 +108,8 @@ Bmat = sc.sparse.csc_matrix((Btr.values, (Btr.rows, Btr.cols)),
 
 size = dat.getSampleNumber()
 u = gl.VectorDouble(np.zeros(size)) # Output argument
-B.mesh2point(np.array(result.getVector()),u)
-dat.addColumns(np.array(u.getVector()),"Z",gl.ELoc.Z)
+B.mesh2point(result.getVector(),u)
+dat.addColumns(u.getVector(),"Z",gl.ELoc.Z)
 
 if flagDraw:
   plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")

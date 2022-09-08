@@ -223,7 +223,10 @@ bool SimuSubstitutionParam::_isIrreductibility(bool verbose)
 void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
                                                bool verbose) const
 {
-  double total = ut_vector_norm(vector);
+  int ndim = (int) vector.size();
+  double total = 0.;
+  for (int i = 0; i < ndim; i++)
+    total += vector[i] * vector[i];
   if (total <= 0.)
   {
     if (verbose)
@@ -234,7 +237,7 @@ void SimuSubstitutionParam::isValidOrientation(VectorDouble& vector,
     vector[0] = 1.;
     total = 1.;
   }
-  for (int i = 0; i < (int) vector.size(); i++)
+  for (int i = 0; i < ndim; i++)
     vector[i] /= sqrt(total);
 }
 
@@ -282,8 +285,7 @@ bool SimuSubstitutionParam::isLocal() const
   return isAngleLocal() || _colfac >= 0;
 }
 
-bool SimuSubstitutionParam::_isValidTransition(bool verbose,
-                                               double eps)
+bool SimuSubstitutionParam::_isValidTransition(bool verbose,double eps)
 {
   if ((int) _trans.size() != _nfacies * _nfacies) return false;
 
@@ -303,4 +305,12 @@ bool SimuSubstitutionParam::_isValidTransition(bool verbose,
     }
   }
   return true;
+}
+
+int SimuSubstitutionParam::getColang(int idim) const
+{
+  if (idim < (int) _colang.size())
+    return _colang[idim];
+  else
+    return 0.;
 }

@@ -9,11 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovFactory.hpp"
-#include "geoslib_f.h"
-
-#include <iostream>
-#include <cctype>
-
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Vector.hpp"
@@ -48,6 +43,9 @@
 #include "Covariances/CovWendland1.hpp"
 #include "Covariances/CovWendland2.hpp"
 #include "Covariances/CovMarkov.hpp"
+
+#include <iostream>
+#include <cctype>
 
 bool _isValid(ACovFunc* cova, const CovContext& ctxt)
 {

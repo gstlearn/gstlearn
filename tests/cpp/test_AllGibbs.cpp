@@ -8,22 +8,21 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+#include "geoslib_f.h"
+
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Space/Space.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -64,7 +63,7 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Setup constants
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);
@@ -132,8 +131,8 @@ int main(int /*argc*/, char * /*argv*/[])
 
   // Cleaning structures
 
-  db    = db_delete(db);
-  model = model_free(model);
+  delete db;
+  delete model;
   delete neighparam;
   return(0);
 }

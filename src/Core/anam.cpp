@@ -7,9 +7,10 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_enum.h"
+#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
@@ -41,58 +42,6 @@
 #define QT_FLAG(j)                (QT_VARS(QT_EST,j) > 0 || \
                                    QT_VARS(QT_STD,j) > 0)
 /*! \endcond */
-
-/****************************************************************************/
-/*!
- **  Calculate the theoretical grade tonnage value
- **
- ** \return  Array f results (Dimension: 7 * nclass)
- **
- ** \param[in] anam         AAnam structure to be updated
- ** \param[in] zcut         Array of cutoffs
- ** \param[in] z_max        Maximum cutoff for interpolation
- ** \param[in] flag_correct 1 if Tonnage order relationship must be corrected
- ** \param[in] verbose      Verbose flag
- **
- ** \remark In the case of Discrete Anamorphosis, the number of classes
- ** \remark is defined by the number of cutoffs
- **
- *****************************************************************************/
-Selectivity anam_selectivity(AAnam *anam,
-                             VectorDouble zcut,
-                             double z_max,
-                             int flag_correct,
-                             int verbose)
-{
-  Selectivity selectivity(zcut, z_max, flag_correct);
-
-  /* Dispatch according to the anamorphosis */
-
-  if (anam->getType() == EAnam::HERMITIAN)
-  {
-    AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-    anam_hermite->globalSelectivity(&selectivity);
-  }
-  else if (anam->getType() == EAnam::DISCRETE_DD)
-  {
-    AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-    anam_discrete_DD->globalSelectivity(&selectivity);
-  }
-  else if (anam->getType() == EAnam::DISCRETE_IR)
-  {
-    AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
-    anam_discrete_IR->globalSelectivity(&selectivity);
-  }
-  else
-  {
-    messerr("This function is not programmed for this Anamorphosis");
-    return selectivity;
-  }
-
-  if (verbose) selectivity.dumpGini();
-
-  return selectivity;
-}
 
 /*****************************************************************************/
 /*!
@@ -203,83 +152,488 @@ int anam_point_to_block(AAnam *anam,
 
 /*****************************************************************************/
 /*!
- **  Calculate the recoveries (z,T,Q,m,B) starting from the factors
+ **  Correct the estimation and st. deviation of estimation if KO
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  iech         Rank of the sample
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ **
+ ** \param[out] krigest      Kriging estimation
+ ** \param[out] krigstd      Standard deviation of the estimation error
+ **
+ ** \remarks In SK: krigstd returns the standard deviation of the estimation error
+ ** \remarks In OK: krigstd reads the square root of the estimation variance
+ ** \remarks and returns the standard deviation
+ **
+ *****************************************************************************/
+static void st_correct_from_OK(Db *db,
+                               int iech,
+                               int col_est,
+                               int col_std,
+                               bool /*flag_OK*/,
+                               double *krigest,
+                               double *krigstd)
+{
+  *krigest = db->getArray(iech, col_est);
+  *krigstd = db->getArray(iech, col_std);
+
+//  if (flag_OK)
+//  {
+//    double var2 = 1. - (*krigstd) * (*krigstd);
+//    double stdv = sqrt(var2);
+//    *krigstd  = stdv;
+//  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Prepare the vectors of estimation and st. dev.
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  flag_OK      1 if kriging is performed with OK
+ **
+ ** \param[out] krigest      Vector of estamations
+ ** \param[out] krigstd      Vector of standard deviation
+ **
+ *****************************************************************************/
+static void st_ce_get_vectors(Db *db,
+                              int col_est,
+                              int col_std,
+                              bool flag_OK,
+                              VectorDouble &krigest,
+                              VectorDouble &krigstd)
+{
+  int nech = db->getSampleNumber();
+  krigest.resize(nech);
+  krigstd.resize(nech);
+  for (int iech = 0; iech < nech; iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    st_correct_from_OK(db, iech, col_est, col_std, flag_OK, &krigest[iech],
+                       &krigstd[iech]);
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Conditional value and variance in the Gaussian Model
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Anamorphosis Hermite
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
+ ** \param[in]  flag_OK      1 if kriging is performed with OK
+ **
+ *****************************************************************************/
+static int st_ce_Z(Db *db,
+                   const AnamHermite *anam,
+                   const Selectivity *selectivity,
+                   int iptr0,
+                   int col_est,
+                   int col_std,
+                   int nbsimu,
+                   bool flag_OK)
+{
+  VectorDouble krigest, krigstd, valest, valstd;
+
+  st_ce_get_vectors(db, col_est, col_std, flag_OK, krigest, krigstd);
+
+  if (nbsimu <= 0)
+  {
+    valest = hermiteCondExp(krigest, krigstd, anam->getPsiHn());
+    valstd = hermiteCondStd(krigest, krigstd, anam->getPsiHn());
+  }
+  else
+  {
+    valest = MCCondExp(krigest, krigstd, anam->getPsiHn(), nbsimu);
+    valstd = MCCondStd(krigest, krigstd, anam->getPsiHn(), nbsimu);
+  }
+
+  int iptrEst = selectivity->getAddressQTEst(ESelectivity::Z, iptr0);
+  int iptrStd = selectivity->getAddressQTStd(ESelectivity::Z, iptr0);
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    if (selectivity->isUsedEst(ESelectivity::Z))
+      db->setArray(iech, iptrEst, valest[iech]);
+    if (selectivity->isUsedStD(ESelectivity::Z))
+      db->setArray(iech, iptrStd, valstd[iech]);
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Tonnage by Conditional Expectation
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  mode         1 for T (Proba. above); 2 for Proba. below
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  ycuts        Vector of Gaussian cutoffs
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
+ ** \param[in]  flag_OK      1 if kriging is performed with OK
+ **
+ *****************************************************************************/
+static int st_ce_T(int mode,
+                   Db *db,
+                   const Selectivity *selectivity,
+                   int iptr0,
+                   int col_est,
+                   int col_std,
+                   const VectorDouble &ycuts,
+                   int nbsimu,
+                   bool flag_OK)
+{
+  VectorDouble krigest, krigstd, valest, valstd;
+
+  /* Loop on the samples */
+
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+  {
+    st_ce_get_vectors(db, col_est, col_std, flag_OK, krigest, krigstd);
+
+    if (nbsimu <= 0)
+    {
+      valest = hermiteIndicator(ycuts[icut], krigest, krigstd);
+      valstd = hermiteIndicatorStd(ycuts[icut], krigest, krigstd);
+    }
+    else
+    {
+      valest = MCIndicator(ycuts[icut], krigest, krigstd, nbsimu);
+      valstd = MCIndicatorStd(ycuts[icut], krigest, krigstd, nbsimu);
+    }
+
+    int iptrEst = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrStd = selectivity->getAddressQTStd(ESelectivity::T, iptr0, icut);
+    int iptrProba = selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut);
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      if (mode == 1)
+      {
+        if (selectivity->isUsedEst(ESelectivity::T))
+          db->setArray(iech, iptrEst, valest[iech]);
+        if (selectivity->isUsedStD(ESelectivity::T))
+          db->setArray(iech, iptrStd, valstd[iech]);
+      }
+      else
+      {
+        if (selectivity->isUsedEst(ESelectivity::PROBA))
+          db->setArray(iech, iptrProba, 1. - valest[iech]);
+      }
+    }
+  }
+
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Quantile by Conditional Expectation
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Hermite anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Staring storage address
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the Kriging St, Deviation
+ ** \param[in]  proba        Probability threshold
+ ** \param[in]  flag_OK      1 if kriging is performed with OK
+ **
+ *****************************************************************************/
+static int st_ce_quant(Db *db,
+                       const AnamHermite *anam,
+                       const Selectivity *selectivity,
+                       int iptr0,
+                       int col_est,
+                       int col_std,
+                       double proba,
+                       bool flag_OK)
+{
+  double krigest, krigstd;
+
+  int iptrQuant = selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0);
+
+  for (int iech = 0; iech < db->getSampleNumber(); iech++)
+  {
+    if (!db->isActive(iech)) continue;
+    st_correct_from_OK(db, iech, col_est, col_std, flag_OK, &krigest, &krigstd);
+    double y = krigest + krigstd * law_invcdf_gaussian(proba);
+    db->setArray(iech, iptrQuant, anam->TransformToRawValue(y));
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Metal Quantity by Conditional Expectation
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  anam         Hermite anamorphosis
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ ** \param[in]  col_est      Rank of the Kriging estimate
+ ** \param[in]  col_std      Rank of the St, Deviation of Kriging estimate
+ ** \param[in]  ycuts        Array of the requested cutoffs (gaussian scale)
+ ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
+ ** \param[in]  flag_OK      1 if kriging is performed with OK
+ **
+ *****************************************************************************/
+static int st_ce_Q(Db *db,
+                   const AnamHermite *anam,
+                   const Selectivity *selectivity,
+                   int iptr0,
+                   int col_est,
+                   int col_std,
+                   const VectorDouble &ycuts,
+                   int nbsimu,
+                   bool flag_OK)
+{
+  VectorDouble krigest, krigstd, valest, valstd;
+
+  /* Loop on the cutoffs */
+
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+  {
+    st_ce_get_vectors(db, col_est, col_std, flag_OK, krigest, krigstd);
+
+    if (nbsimu <= 0)
+    {
+      valest = hermiteMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn());
+      valstd = hermiteMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn());
+    }
+    else
+    {
+      valest = MCMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
+      valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
+    }
+
+    int iptrEst = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrStd = selectivity->getAddressQTStd(ESelectivity::Q, iptr0, icut);
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (!db->isActive(iech)) continue;
+      if (selectivity->isUsedEst(ESelectivity::Q))
+        db->setArray(iech, iptrEst, valest[iech]);
+      if (selectivity->isUsedStD(ESelectivity::Q))
+        db->setArray(iech, iptrStd, valstd[iech]);
+    }
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Conventional Benefit by Conditional Expectation
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ ** \param[in]  ycuts        Array of the requested cutoffs
+ **
+ *****************************************************************************/
+static int st_ce_B(Db *db,
+                   const Selectivity *selectivity,
+                   int iptr0,
+                   const VectorDouble &ycuts)
+{
+  double t, q;
+
+  /* Loop on the cutoffs */
+
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+  {
+    int iptrT = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrQ = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrB = selectivity->getAddressQTEst(ESelectivity::B, iptr0, icut);
+
+    /* Loop on the samples */
+
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (!db->isActive(iech)) continue;
+
+      t = db->getArray(iech, iptrT);
+      q = db->getArray(iech, iptrQ);
+      db->setArray(iech, iptrB, q - t * ycuts[icut]);
+    }
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Average Grade by Conditional Expectation
+ **
+ ** \return Error return code
+ **
+ ** \param[in]  db           Db structure containing the factors (Z-locators)
+ ** \param[in]  selectivity  Selectivity structure
+ ** \param[in]  iptr0        Starting storage address
+ **
+ *****************************************************************************/
+static int st_ce_M(Db *db, const Selectivity *selectivity, int iptr0)
+{
+  double t, q;
+
+  /* Loop on the cutoffs */
+
+  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
+  {
+    int iptrT = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
+    int iptrQ = selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut);
+    int iptrM = selectivity->getAddressQTEst(ESelectivity::M, iptr0, icut);
+
+    /* Loop on the samples */
+
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+      if (!db->isActive(iech)) continue;
+
+      t = db->getArray(iech, iptrT);
+      q = db->getArray(iech, iptrQ);
+      db->setArray(iech, iptrM, (t > EPSILON3) ? q / t : TEST);
+    }
+  }
+  return (0);
+}
+
+/*****************************************************************************/
+/*!
+ **  Calculate the Conditional Expectation
  **
  ** \return  Error return code
  **
  ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
+ ** \param[in]  anam         Anamorphosis structure
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  names_est    Array of variable names for factor estimation
- ** \param[in]  names_std    Array of variable names for factor St. Dev.
- ** \param[in]  namconv      Naming convention
+ ** \param[in]  iptr0        Rank of the pointer for storage
+ ** \param[in]  col_est      Rank of variable containing Kriging estimate
+ ** \param[in]  col_std      Rank of Variable containing Kriging St. deviation
+ ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
+ ** \param[in]  proba        Probability
+ ** \param[in]  nbsimu       Number of Simulation outcomes
+ ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
-int anamFactor2Selectivity(Db *db,
-                           AAnam *anam,
-                           Selectivity* selectivity,
-                           const VectorString& names_est,
-                           const VectorString& names_std,
-                           const NamingConvention& namconv)
+int _conditionalExpextation(Db *db,
+                            AAnam *anam,
+                            const Selectivity *selectivity,
+                            int iptr0,
+                            int col_est,
+                            int col_std,
+                            bool flag_OK,
+                            double proba,
+                            int nbsimu,
+                            bool verbose)
 {
-  int iptr = -1;
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  AnamDiscreteDD *anam_discrete_DD = dynamic_cast<AnamDiscreteDD*>(anam);
-  AnamDiscreteIR *anam_discrete_IR = dynamic_cast<AnamDiscreteIR*>(anam);
+  int ncuts = selectivity->getNCuts();
+  int nbpoly = anam_hermite->getNbPoly();
 
-  /* Preliminary checks */
+  /* Analyzing the codes */
 
-  if (db == nullptr)
-  {
-    messerr("You must define a Db");
-    return 1;
-  }
-  if (anam == nullptr)
-  {
-    messerr("You must define an Anamorphosis");
-    return 1;
-  }
-  if (names_est.empty() && names_std.empty())
-  {
-    messerr("The number of factors is zero");
-    return 1;
-  }
+  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
+  int need_T = selectivity->isNeededT();
 
-  int nvarout = selectivity->getVariableNumber();
-  if (nvarout <= 0)
+  /* Optional printout */
+
+  if (verbose)
   {
-    messerr("No recovery function is defined");
-    return 1;
+    if (nbsimu > 0)
+      message(
+          "Conditional expectation under the gaussian model (Monte-Carlo)\n");
+    else
+      message("Conditional expectation under the gaussian model (Hermite)\n");
+    message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
+    message(" Number of values                   : %6d\n",
+            db->getSampleNumber(true));
+    message(" Number of cutoffs                  : %6d\n", ncuts);
+    if (nbsimu > 0)
+      message(" Number of Monte-Carlo simulations  : %6d\n", nbsimu);
   }
 
-  /* Variable allocation */
+  /* Computing the estimation */
 
-  iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) return 1;
-
-  /* Dispatch according to the type of Anamorphosis */
-
-  switch (anam->getType().toEnum())
+  if (selectivity->isUsed(ESelectivity::Z))
   {
-    case EAnam::E_HERMITIAN:
-      anam_hermite->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
-      break;
-
-    case EAnam::E_DISCRETE_DD:
-      anam_discrete_DD->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
-      break;
-
-    case EAnam::E_DISCRETE_IR:
-      anam_discrete_IR->factor2Selectivity(db, selectivity, names_est, names_std, iptr);
-      break;
-
-    default:
-      messerr("This method is not programmed yet for this anamorphosis");
-      return 1;
+    if (st_ce_Z(db, anam_hermite, selectivity, iptr0, col_est, col_std, nbsimu,
+                flag_OK)) return 1;
   }
 
-  namconv.setNamesAndLocators(db, iptr, selectivity->getVariableNames());
+  /* Compute Conditional Expectation for Tonnage */
 
+  if (selectivity->isUsed(ESelectivity::T))
+  {
+    if (st_ce_T(1, db, selectivity, iptr0, col_est, col_std, ycuts, nbsimu,
+                flag_OK)) return 1;
+  }
+
+  /* Compute Conditional Expectation for Metal Quantity */
+
+  if (selectivity->isUsed(ESelectivity::Q))
+  {
+    if (st_ce_Q(db, anam_hermite, selectivity, iptr0, col_est, col_std, ycuts,
+                nbsimu, flag_OK)) return 1;
+  }
+
+  /* Compute Conditional Expectation for Conventional Benefit */
+
+  if (selectivity->isUsed(ESelectivity::B))
+  {
+    if (st_ce_B(db, selectivity, iptr0, ycuts)) return 1;
+  }
+
+  /* Compute Conditional Expectation for Average recoveable grade */
+
+  if (selectivity->isUsed(ESelectivity::M))
+  {
+    if (st_ce_M(db, selectivity, iptr0)) return 1;
+  }
+
+  /* Compute Conditional Expectation for Tonnage */
+
+  if (selectivity->isUsed(ESelectivity::PROBA) && need_T)
+  {
+    if (st_ce_T(2, db, selectivity, iptr0, col_est, col_std, ycuts, nbsimu,
+                flag_OK)) return 1;
+  }
+
+  /* Compute Conditional Expectation for Quantile */
+
+  if (selectivity->isUsed(ESelectivity::QUANT))
+  {
+    if (st_ce_quant(db, anam_hermite, selectivity, iptr0, col_est, col_std,
+                    proba, flag_OK)) return 1;
+  }
+
+  if (! selectivity->isUsed(ESelectivity::T))
+    (void) db_attribute_del_mult(db,
+                                 selectivity->getAddressQTEst(ESelectivity::T, iptr0),
+                                 selectivity->getNumberQTEst(ESelectivity::T));
+  if (! selectivity->isUsed(ESelectivity::Q))
+    (void) db_attribute_del_mult(db,
+                                 selectivity->getAddressQTEst(ESelectivity::Q, iptr0),
+                                 selectivity->getNumberQTEst(ESelectivity::Q));
   return 0;
 }
 
@@ -292,78 +646,28 @@ int anamFactor2Selectivity(Db *db,
  ** \param[in]  db           Db structure containing the factors (Z-locators)
  ** \param[in]  anam         Point anamorphosis
  ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  name_est     Name of the Kriging estimate
- ** \param[in]  name_var     Name of the Variance of Kriging estimate
+ ** \param[in]  iptr0        Pointer for storage
+ ** \param[in]  col_est      Rank of variable containing Kriging estimate
+ ** \param[in]  col_var      Rank of Variable containing Variance of Kriging estimate
  ** \param[in]  cvv          Mean covariance over block
  ** \param[in]  verbose      Verbose option
  **
  *****************************************************************************/
-int uc(Db *db,
-       AAnam *anam,
-       Selectivity* selectivity,
-       const String& name_est,
-       const String& name_var,
-       double cvv,
-       bool verbose)
+int _uniformConditioning(Db *db,
+                         AAnam *anam,
+                         Selectivity *selectivity,
+                         int iptr0,
+                         int col_est,
+                         int col_var,
+                         double cvv,
+                         bool verbose)
 {
   AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
   anam_hermite->setFlagBound(1);
-
-  /* Preliminary checks */
-
-  if (db == nullptr)
-  {
-    messerr("The argument 'db' must be provided");
-    return 1;
-  }
-  int col_est = db->getUID(name_est);
-  if (col_est <= 0)
-  {
-    messerr("The Estimation variable must be defined");
-    return 1;
-  }
-  int col_var = db->getUID(name_var);
-  if (col_var <= 0)
-  {
-    messerr("The Estimation Variance variable must be defined");
-    return 1;
-  }
-  if (anam == nullptr)
-  {
-    messerr("The argument 'anam'  must be provided");
-    return 1;
-  }
-  if (anam->getType() != EAnam::HERMITIAN)
-  {
-    messerr("Uniform Conditioning is restricted to Hermitian Anamorphosis");
-    return 1;
-  }
-  if (anam_hermite->getRCoef() != 1.)
-  {
-    messerr("The anamorphosis must be a Point anamorphosis");
-    return 1;
-  }
-  int ncuts = selectivity->getNCuts();
-  if (ncuts <= 0)
-  {
-    messerr("You must define some cutoff values");
-    return 1;
-  }
-  int nvarout = selectivity->getVariableNumber();
-  if (nvarout <= 0)
-  {
-    messerr("Some Selectivity criterion must be defined");
-    return 1;
-  }
-  if (selectivity->isUsed(ESelectivity::Z))
-  {
-    messerr("The recovery option 'Z' is not available in this function");
-    return 1;
-  }
-
-  int nbpoly = anam_hermite->getNbPoly();
+  int nbpoly  = anam_hermite->getNbPoly();
   double mean = anam_hermite->getMean();
   double varp = anam_hermite->getVariance();
+  int ncuts = selectivity->getNCuts();
 
   /* Core allocation */
 
@@ -379,8 +683,6 @@ int uc(Db *db,
   if (iptr_sV < 0) return 1;
   int iptr_yV = db->addColumnsByConstant(1, TEST);
   if (iptr_yV < 0) return 1;
-  int iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) return 1;
 
   /* Transforming Point anamorphosis into Block Anamorphosis */
 
@@ -465,13 +767,12 @@ int uc(Db *db,
 
       /* Storing the grade-tonnage functions */
 
-      selectivity->setZcut(icut, yc);
       selectivity->setTest(icut, ore);
       selectivity->setQest(icut, metal);
     }
 
     selectivity->calculateBenefitAndGrade();
-    selectivity->storeInDb(db, iech, iptr, TEST, TEST);
+    selectivity->storeInDb(db, iech, iptr0, TEST, TEST);
   }
 
   /* Verbose printout (optional) */
@@ -495,528 +796,3 @@ int uc(Db *db,
   if (iptr_yV >= 0) db->deleteColumnByUID(iptr_yV);
   return 0;
 }
-
-/*****************************************************************************/
-/*!
- **  Correct the estimation and st. deviation of estimation if KO
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  iech         Rank of the sample
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- **
- ** \param[out] krigest      Kriging estimation
- ** \param[out] krigstd      Standard deviation of the estimation error
- **
- ** \remarks In SK: krigstd returns the standard deviation of the estimation error
- ** \remarks In OK: krigstd reads the square root of the estimation variance
- ** \remarks and returns the standard deviation
- **
- *****************************************************************************/
-static void st_correct_from_OK(Db *db,
-                               int iech,
-                               int att_est,
-                               int att_std,
-                               bool /*flag_OK*/,
-                               double *krigest,
-                               double *krigstd)
-{
-  *krigest = db->getArray(iech, att_est);
-  *krigstd = db->getArray(iech, att_std);
-
-//  if (flag_OK)
-//  {
-//    double var2 = 1. - (*krigstd) * (*krigstd);
-//    double stdv = sqrt(var2);
-//    *krigstd  = stdv;
-//  }
-}
-
-/*****************************************************************************/
-/*!
- **  Prepare the vectors of estimation and st. dev.
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- ** \param[in]  flag_OK      1 if kriging is performed with OK
- **
- ** \param[out] krigest      Vector of estamations
- ** \param[out] krigstd      Vector of standard deviation
- **
- *****************************************************************************/
-static void st_ce_get_vectors(Db *db,
-                              int att_est,
-                              int att_std,
-                              bool flag_OK,
-                              VectorDouble &krigest,
-                              VectorDouble &krigstd)
-{
-  int nech = db->getSampleNumber();
-  krigest.resize(nech);
-  krigstd.resize(nech);
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    st_correct_from_OK(db, iech, att_est, att_std, flag_OK, &krigest[iech],
-                       &krigstd[iech]);
-  }
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Conditional value and variance in the Gaussian Model
- **
- ** \return Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Anamorphosis Hermite
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Starting storage address
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  flag_OK      1 if kriging is performed with OK
- **
- *****************************************************************************/
-static int st_ce_compute_Z(Db *db,
-                           const AnamHermite* anam,
-                           const Selectivity* selectivity,
-                           int iptr0,
-                           int att_est,
-                           int att_std,
-                           int nbsimu,
-                           bool flag_OK)
-{
-  VectorDouble krigest, krigstd, valest, valstd;
-
-  st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
-
-  if (nbsimu <= 0)
-  {
-    valest = hermiteCondExp(krigest, krigstd, anam->getPsiHn());
-    valstd = hermiteCondStd(krigest, krigstd, anam->getPsiHn());
-  }
-  else
-  {
-    valest = MCCondExp(krigest, krigstd, anam->getPsiHn(), nbsimu);
-    valstd = MCCondStd(krigest, krigstd, anam->getPsiHn(), nbsimu);
-  }
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (selectivity->isUsedEst(ESelectivity::Z))
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::Z, iptr0), valest[iech]);
-    if (selectivity->isUsedStD(ESelectivity::Z))
-      db->setArray(iech,
-                   selectivity->getAddressQTStD(ESelectivity::Z, iptr0), valstd[iech]);
-  }
-
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Tonnage by Conditional Expectation
- **
- ** \return Error return code
- **
- ** \param[in]  mode         1 for T (Proba. above); 2 for Proba. below
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Starting storage address
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- ** \param[in]  ycuts        Vector of Gaussian cutoffs
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  flag_OK      1 if kriging is performed with OK
- **
- *****************************************************************************/
-static int st_ce_compute_T(int mode,
-                           Db *db,
-                           const Selectivity* selectivity,
-                           int iptr0,
-                           int att_est,
-                           int att_std,
-                           const VectorDouble& ycuts,
-                           int nbsimu,
-                           bool flag_OK)
-{
-  VectorDouble krigest, krigstd, valest, valstd;
-
-  /* Loop on the samples */
-
-  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
-  {
-    st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
-
-    if (nbsimu <= 0)
-    {
-      valest = hermiteIndicator(ycuts[icut], krigest, krigstd);
-      valstd = hermiteIndicatorStd(ycuts[icut], krigest, krigstd);
-    }
-    else
-    {
-      valest = MCIndicator(ycuts[icut], krigest, krigstd, nbsimu);
-      valstd = MCIndicatorStd(ycuts[icut], krigest, krigstd, nbsimu);
-    }
-
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
-    {
-      if (!db->isActive(iech)) continue;
-      if (mode == 1)
-      {
-        if (selectivity->isUsedEst(ESelectivity::T))
-          db->setArray(
-              iech,
-              selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut),
-              valest[iech]);
-        if (selectivity->isUsedStD(ESelectivity::T))
-           db->setArray(iech,
-                        selectivity->getAddressQTStD(ESelectivity::T, iptr0, icut),
-                        valstd[iech]);
-      }
-      else
-      {
-        if (selectivity->isUsedEst(ESelectivity::PROBA))
-          db->setArray(
-              iech,
-              selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut),
-              1. - valest[iech]);
-      }
-    }
-  }
-
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Quantile by Conditional Expectation
- **
- ** \return Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Hermite anamorphosis
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Staring storage address
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the Kriging St, Deviation
- ** \param[in]  proba        Probability threshold
- ** \param[in]  flag_OK      1 if kriging is performed with OK
- **
- *****************************************************************************/
-static int st_ce_compute_quant(Db *db,
-                               const AnamHermite* anam,
-                               const Selectivity* selectivity,
-                               int iptr0,
-                               int att_est,
-                               int att_std,
-                               double proba,
-                               bool flag_OK)
-{
-  double krigest, krigstd;
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    st_correct_from_OK(db, iech, att_est, att_std, flag_OK, &krigest, &krigstd);
-    double y = krigest + krigstd * law_invcdf_gaussian(proba);
-    db->setArray(iech,
-                 selectivity->getAddressQTEst(ESelectivity::QUANT, iptr0),
-                 anam->TransformToRawValue(y));
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Metal Quantity by Conditional Expectation
- **
- ** \return Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Hermite anamorphosis
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Starting storage address
- ** \param[in]  att_est      Rank of the Kriging estimate
- ** \param[in]  att_std      Rank of the St, Deviation of Kriging estimate
- ** \param[in]  ycuts        Array of the requested cutoffs (gaussian scale)
- ** \param[in]  nbsimu       Number of Monte Carlo simulations (0: Hermite)
- ** \param[in]  flag_OK      1 if kriging is performed with OK
- **
- *****************************************************************************/
-static int st_ce_compute_Q(Db *db,
-                           const AnamHermite* anam,
-                           const Selectivity* selectivity,
-                           int iptr0,
-                           int att_est,
-                           int att_std,
-                           const VectorDouble& ycuts,
-                           int nbsimu,
-                           bool flag_OK)
-{
-  VectorDouble krigest, krigstd, valest, valstd;
-
-  /* Loop on the cutoffs */
-
-  for (int icut = 0; icut < selectivity->getNCuts(); icut++)
-  {
-    st_ce_get_vectors(db, att_est, att_std, flag_OK, krigest, krigstd);
-
-    if (nbsimu <= 0)
-    {
-      valest = hermiteMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn());
-      valstd = hermiteMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn());
-    }
-    else
-    {
-      valest = MCMetal(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
-      valstd = MCMetalStd(ycuts[icut], krigest, krigstd, anam->getPsiHn(), nbsimu);
-    }
-
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
-    {
-      if (!db->isActive(iech)) continue;
-      if (selectivity->isUsedEst(ESelectivity::Q))
-        db->setArray(iech,
-            selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut),
-            valest[iech]);
-      if (selectivity->isUsedStD(ESelectivity::Q))
-        db->setArray(iech,
-                     selectivity->getAddressQTStD(ESelectivity::Q, iptr0, icut),
-                     valstd[iech]);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Conventional Benefit by Conditional Expectation
- **
- ** \return Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Starting storage address
- ** \param[in]  ycuts        Array of the requested cutoffs
- **
- *****************************************************************************/
-static int st_ce_compute_B(Db *db,
-                           const Selectivity* selectivity,
-                           int iptr0,
-                           const VectorDouble& ycuts)
-{
-  double t, q, b;
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Loop on the cutoffs */
-
-    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
-    {
-      t = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
-      q = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
-      b = q - t * ycuts[icut];
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::B, iptr0, icut), b);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Average Grade by Conditional Expectation
- **
- ** \return Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  iptr0        Starting storage address
- **
- *****************************************************************************/
-static int st_ce_compute_M(Db *db,
-                           const Selectivity* selectivity,
-                           int iptr0)
-{
-  double t, q, m;
-
-  /* Loop on the samples */
-
-  for (int iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Loop on the cutoffs */
-
-    for (int icut = 0; icut < selectivity->getNCuts(); icut++)
-    {
-      t = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut));
-      q = db->getArray(iech,
-                       selectivity->getAddressQTEst(ESelectivity::Q, iptr0, icut));
-      m = (t > EPSILON3) ? q / t : TEST;
-      db->setArray(iech,
-                   selectivity->getAddressQTEst(ESelectivity::M, iptr0, icut), m);
-    }
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
- **  Calculate the Conditional Expectation
- **
- ** \return  Error return code
- **
- ** \param[in]  db           Db structure containing the factors (Z-locators)
- ** \param[in]  anam         Point anamorphosis
- ** \param[in]  selectivity  Selectivity structure
- ** \param[in]  name_est     Name of the Kriging estimate
- ** \param[in]  name_std     Name of the Kriging St. deviation
- ** \param[in]  flag_OK      1 if kriging has ben performed in Ordinary Kriging
- ** \param[in]  proba        Probability
- ** \param[in]  nbsimu       Number of Simulation outcomes
- ** \param[in]  verbose      Verbose option
- **
- *****************************************************************************/
-int ce(Db *db,
-       AAnam *anam,
-       const Selectivity* selectivity,
-       const String& name_est,
-       const String& name_std,
-       bool flag_OK,
-       double proba,
-       int nbsimu,
-       bool verbose)
-{
-  AnamHermite *anam_hermite = dynamic_cast<AnamHermite*>(anam);
-  int ncuts = selectivity->getNCuts();
-  if (db == nullptr)
-  {
-    messerr("The argument 'db'  must be defined");
-    return 1;
-  }
-  int col_est = db->getUID(name_est);
-  if (col_est <= 0)
-  {
-    messerr("The Estimation variable must be defined");
-    return 1;
-  }
-  int col_std = db->getUID(name_std);
-  if (col_std <= 0)
-  {
-    messerr("The St. Deviation variable must be defined");
-    return 1;
-  }
-  if (anam->getType() != EAnam::HERMITIAN)
-  {
-    messerr("The argument 'anam' must be Gaussian");
-    return 1;
-  }
-  int nbpoly = anam_hermite->getNbPoly();
-
-  /* Analyzing the codes */
-
-  VectorDouble ycuts = anam_hermite->RawToTransformVec(selectivity->getZcut());
-  int need_T = selectivity->isNeededT();
-  int nvarout = selectivity->getVariableNumber();
-
-  /* Add the variables */
-
-  int iptr = db->addColumnsByConstant(nvarout, TEST);
-  if (iptr < 0) return 1;
-
-  /* Optional printout */
-
-  if (verbose)
-  {
-    if (nbsimu > 0)
-      message(
-          "Conditional expectation under the gaussian model (Monte-Carlo)\n");
-    else
-      message("Conditional expectation under the gaussian model (Hermite)\n");
-    message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
-    message(" Number of values                   : %6d\n",
-            db->getSampleNumber(true));
-    message(" Number of cutoffs                  : %6d\n", ncuts);
-    if (nbsimu > 0)
-      message(" Number of Monte-Carlo simulations  : %6d\n", nbsimu);
-  }
-
-  /* Computing the estimation */
-
-  const AnamHermite* anamH = dynamic_cast<const AnamHermite*>(anam);
-  if (selectivity->isUsed(ESelectivity::Z))
-  {
-    if (st_ce_compute_Z(db, anamH, selectivity, iptr, col_est, col_std,
-                        nbsimu, flag_OK)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Tonnage */
-
-  if (selectivity->isUsed(ESelectivity::T))
-  {
-    if (st_ce_compute_T(1, db, selectivity, iptr, col_est, col_std,
-                        ycuts, nbsimu, flag_OK)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Metal Quantity */
-
-  if (selectivity->isUsed(ESelectivity::Q))
-  {
-    if (st_ce_compute_Q(db, anamH, selectivity, iptr, col_est, col_std,
-                        ycuts, nbsimu, flag_OK)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Conventional Benefit */
-
-  if (selectivity->isUsed(ESelectivity::B))
-  {
-    if (st_ce_compute_B(db, selectivity, iptr, ycuts)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Average recoveable grade */
-
-  if (selectivity->isUsed(ESelectivity::M))
-  {
-    if (st_ce_compute_M(db, selectivity, iptr)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Tonnage */
-
-  if (selectivity->isUsed(ESelectivity::PROBA) && need_T)
-  {
-    if (st_ce_compute_T(2, db, selectivity, iptr, col_est, col_std,
-                        ycuts, nbsimu, flag_OK)) return 1;
-  }
-
-  /* Compute Conditional Expectation for Quantile */
-
-  if (selectivity->isUsed(ESelectivity::QUANT))
-  {
-    if (st_ce_compute_quant(db, anamH, selectivity, iptr, col_est, col_std,
-                            proba, flag_OK)) return 1;
-  }
-
-  if (! selectivity->isUsed(ESelectivity::T))
-    (void) db_attribute_del_mult(db,
-                                 selectivity->getAddressQTEst(ESelectivity::T, iptr),
-                                 selectivity->getNumberQTEst(ESelectivity::T));
-  if (! selectivity->isUsed(ESelectivity::Q))
-    (void) db_attribute_del_mult(db,
-                                 selectivity->getAddressQTEst(ESelectivity::Q, iptr),
-                                 selectivity->getNumberQTEst(ESelectivity::Q));
-  return 0;
-}
-

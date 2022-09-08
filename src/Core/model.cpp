@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_enum.h"
+#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
@@ -40,6 +40,7 @@
 #include "Basic/Law.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbGrid.hpp"
 #include "csparse_f.h"
 
 #include <math.h>
@@ -316,25 +317,6 @@ void model_calcul_drift(Model *model,
   for (int il = 0; il < (int) drft.size(); il++)
     drftab[il] = drft[il];
   return;
-}
-
-/****************************************************************************/
-/*!
- **  Deallocate the Model structure
- **
- ** \return  Pointer to the freed structure
- **
- ** \param[in]  model Model to be freed
- **
- *****************************************************************************/
-Model* model_free(Model *model)
-
-{
-  /* Initializations */
-
-  if (model == nullptr) return (model);
-  delete model;
-  return (NULL);
 }
 
 /****************************************************************************/

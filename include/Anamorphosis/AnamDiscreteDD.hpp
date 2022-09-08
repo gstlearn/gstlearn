@@ -79,11 +79,10 @@ public:
   void setPcaF2Z(VectorDouble pcaf2z) { _maf.setPcaF2Z(pcaf2z); }
   void setI2Chi(const VectorDouble& i2Chi) { _i2Chi = i2Chi; }
 
-  void globalSelectivity(Selectivity* selectivity);
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,
-                         const VectorString& names_est,
-                         const VectorString& names_std,
+                         const VectorInt& cols_est,
+                         const VectorInt& cols_std,
                          int iptr0);
 
 protected:
@@ -101,10 +100,13 @@ private:
                           VectorDouble& eigval);
   void _lambdaToMul();
   void _blockAnamorphosis(const VectorDouble& chi);
+  void _globalSelectivity(Selectivity* selectivity);
 
 private:
   double _mu;
   double _sCoef;
   PCA    _maf;
   VectorDouble _i2Chi;
+
+  friend class Selectivity;
 };

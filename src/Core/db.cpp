@@ -10,6 +10,8 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Space/ASpaceObject.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -199,7 +201,7 @@ static int st_vector_put_col(Db *db, int icol, const double *tab)
  ** \param[out]  tab   Array of values
  **
  *****************************************************************************/
-int db_vector_get(Db *db, const ELoc &locatorType, int item, double *tab)
+int db_vector_get(Db *db, const ELoc& locatorType, int item, double *tab)
 {
   int iatt = db->getUIDByLocator(locatorType, item);
   if (st_vector_get_att(db, iatt, tab)) return (1);
@@ -236,7 +238,7 @@ int db_selection_get(const Db *db, int item, double *tab)
  **
  *****************************************************************************/
 int db_vector_put(Db *db,
-                  const ELoc &locatorType,
+                  const ELoc& locatorType,
                   int locatorIndex,
                   double *tab)
 {
@@ -244,74 +246,6 @@ int db_vector_put(Db *db,
   if (!db->isColIdxValid(icol)) return (1);
   if (st_vector_put_col(db, icol, tab)) return (1);
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Load the data from the input array
- **
- ** \param[in]  db     Db structure
- ** \param[in]  order  Manner in which values in tab are ordered
- **                    (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
- ** \param[in]  tab    Array containing the data
- *****************************************************************************/
-static void st_load_data(Db *db,
-                         const ELoadBy &order,
-                         int flag_add_rank,
-                         const VectorDouble &tab)
-{
-  // Preliminary check
-
-  if (db->getColumnNumber() <= 0) return;
-  int jcol = 0;
-
-  // Add the rank (optional)
-
-  if (flag_add_rank)
-  {
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
-      db->setByColIdx(iech, jcol, iech + 1);
-
-    db_name_set(db, jcol, "rank");
-    jcol++;
-  }
-
-  // Add the input array 'tab' (if provided)
-
-  if (tab.empty()) return;
-  int ntab = (flag_add_rank) ? db->getColumnNumber() - 1 : db->getColumnNumber();
-  int ecr = 0;
-  for (int icol = 0; icol < ntab; icol++)
-  {
-    for (int iech = 0; iech < db->getSampleNumber(); iech++, ecr++)
-    {
-      if (order == ELoadBy::SAMPLE)
-        db->setByColIdx(iech, jcol, tab[icol + ntab * iech]);
-      else
-        db->setByColIdx(iech, jcol, tab[ecr]);
-    }
-    jcol++;
-  }
-  return;
-}
-
-/****************************************************************************/
-/*!
- **  Checks if the Db corresponds to a Grid organization
- **
- ** \return  1 if the Db exists and is a grid
- **
- ** \param[in]  db      Db structure
- ** \param[in]  verbose Verbose flag
- **
- *****************************************************************************/
-int is_grid(const Db *db, bool verbose)
-{
-  if (db == nullptr) return (0);
-  if (db->isGrid()) return 1;
-  if (verbose) messerr("The file should be a Grid Db");
-  return 0;
 }
 
 /****************************************************************************/
@@ -324,7 +258,7 @@ int is_grid(const Db *db, bool verbose)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
+int get_LOCATOR_NITEM(const Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   if (db->isGrid() && locatorType == ELoc::X)
@@ -343,7 +277,7 @@ int get_LOCATOR_NITEM(const Db *db, const ELoc &locatorType)
  ** \param[in]  locatorType Rank of the pointer (ELoc)
  **
  *****************************************************************************/
-int exist_LOCATOR(Db *db, const ELoc &locatorType)
+int exist_LOCATOR(Db *db, const ELoc& locatorType)
 {
   if (db == nullptr) return (0);
   return (db->getFromLocatorNumber(locatorType) > 0);
@@ -363,7 +297,7 @@ int exist_LOCATOR(Db *db, const ELoc &locatorType)
  ** \remark  For efficiency reason, argument validity is not tested
  **
  *****************************************************************************/
-double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
+double get_LOCATOR_ITEM(Db *db, const ELoc& locatorType, int item, int iech)
 {
   return db->getFromLocator(locatorType, iech, item);
 }
@@ -382,7 +316,7 @@ double get_LOCATOR_ITEM(Db *db, const ELoc &locatorType, int item, int iech)
  **
  *****************************************************************************/
 void set_LOCATOR_ITEM(Db *db,
-                      const ELoc &locatorType,
+                      const ELoc& locatorType,
                       int item,
                       int iech,
                       double value)
@@ -558,7 +492,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
  ** \param[in]  item   Rank of the attribute in the pointer
  **
  *****************************************************************************/
-int db_attribute_identify(const Db *db, const ELoc &locatorType, int item)
+int db_attribute_identify(const Db *db, const ELoc& locatorType, int item)
 {
   int iatt = db->getUIDByLocator(locatorType, item);
   return (iatt);
@@ -593,7 +527,7 @@ double* db_sample_free(double *tab)
  ** \remark  A fatal error occurs if the core allocation fails.
  **
  *****************************************************************************/
-double* db_sample_alloc(const Db *db, const ELoc &locatorType)
+double* db_sample_alloc(const Db *db, const ELoc& locatorType)
 {
   double *tab;
   int size;
@@ -624,7 +558,7 @@ double* db_sample_alloc(const Db *db, const ELoc &locatorType)
  ** This method is not documented on purpose. It should remain private
  **
  *****************************************************************************/
-int db_sample_load(Db *db, const ELoc &locatorType, int iech, double *tab)
+int db_sample_load(Db *db, const ELoc& locatorType, int iech, double *tab)
 {
   if (!isLocatorTypeValid(locatorType)) return (1);
 
@@ -1020,48 +954,6 @@ void db_sample_print(Db *db,
 
 /****************************************************************************/
 /*!
- **  Print the characteristics of the Db structure
- **
- ** \param[in]  db            Db structure
- ** \param[in]  flag_resume   1 if the summary must be printed
- ** \param[in]  flag_vars     1 if the list of variables must be displayed
- ** \param[in]  flag_extend   1 if the extension must be displayed
- ** \param[in]  flag_stats    1 if the statistics must be displayed
- **                           2 if integer statistics must be displayed
- ** \param[in]  flag_array    1 if the array contents must be displayed
- ** \param[in]  nrank         Number of selected attributes (<=0 for all)
- ** \param[in]  ranks         Array of field ranks to be printed
- **
- *****************************************************************************/
-void db_print(Db *db,
-              int flag_resume,
-              int flag_vars,
-              int flag_extend,
-              int flag_stats,
-              int flag_array,
-              int nrank,
-              int* ranks)
-{
-  /* Preliminary check */
-
-  if (db == nullptr) return;
-
-  /* Print the Pointer descriptors */
-
-  unsigned char params = 0;
-  if (flag_resume) params |= FLAG_RESUME;
-  if (flag_vars)   params |= FLAG_VARS;
-  if (flag_extend) params |= FLAG_EXTEND;
-  if (flag_stats)  params |= FLAG_STATS;
-  if (flag_array)  params |= FLAG_ARRAY;
-  DbStringFormat dbfmt(params);
-  dbfmt.setCols(ut_ivector_set(ranks, nrank));
-  db->display(&dbfmt);
-  return;
-}
-
-/****************************************************************************/
-/*!
  **  Returns the extension of the field along each axis
  **  This calculation takes contents of arguments at input into account
  **  if 'flag_preserve' is true
@@ -1191,7 +1083,7 @@ int db_extension_diag(const Db *db, double *diag)
     if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
-  variety_query(&flag_sphere);
+  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   /* Calculate the field extension */
 
@@ -1325,29 +1217,6 @@ int db_attribute_range(const Db *db,
 
 /****************************************************************************/
 /*!
- **  Deletes the Db structure
- **
- ** \param[in]  db Db structure
- **
- *****************************************************************************/
-Db* db_delete(Db *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-DbGrid* db_delete(DbGrid *db)
-
-{
-  if (db == nullptr) return (db);
-  delete db;
-  return nullptr;
-}
-
-/****************************************************************************/
-/*!
  **  Define the coordinates in a Grid structure
  **
  ** \return Error return code
@@ -1412,295 +1281,6 @@ int db_grid_define_coordinates(DbGrid *db)
 
 /****************************************************************************/
 /*!
- **  Create a Db according to a grid structure
- **
- ** \return  Pointer to the newly created Db grid structure
- **
- ** \param[in]  flag_rot  1 if the grid is rotated
- ** \param[in]  natt      Number of attributes
- ** \param[in]  order     Manner in which values in tab are ordered.
- **                       (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
- ** \param[in]  nx        Array of number of grid nodes
- ** \param[in]  x0        Array of grid origin coordinates
- ** \param[in]  dx        Array of grid mesh
- ** \param[in]  angles    Rotation angles (Natural to Projected)
- ** \param[in]  tab       Array containing the data
- **
- *****************************************************************************/
-DbGrid* db_create_grid(int flag_rot,
-                       int /*ndim*/,
-                       int natt,
-                       const ELoadBy &order,
-                       int flag_add_rank,
-                       const VectorInt &nx,
-                       const VectorDouble &x0,
-                       const VectorDouble &dx,
-                       const VectorDouble &angles,
-                       const VectorDouble &tab)
-{
-  DbGrid *db = new DbGrid;
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-
-  /* Allocate the main structure */
-
-  db->resetDims(natt + flag_add_rank, ut_vector_prod(nx));
-
-  /* Dimension the data arrays */
-
-  if (flag_rot)
-    error = db->gridDefine(nx, dx, x0, angles);
-  else
-    error = db->gridDefine(nx, dx, x0);
-
-  /* Load the data */
-
-  if (!error) st_load_data(db, order, flag_add_rank, tab);
-
-  /* Remove the newly created Db if problem occurred */
-
-  if (error)
-  {
-    delete db;
-    db = nullptr;
-  }
-  return (db);
-}
-
-/****************************************************************************/
-/*!
- **  Create a Db according to a (restricted) grid structure
- **
- ** \return  Pointer to the newly created Db grid structure
- **
- ** \param[in]  ndim      Space dimension
- ** \param[in]  natt      Number of attributes
- ** \param[in]  order     Manner in which values in tab are ordered
- **                       (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
- ** \param[in]  nx        Array of number of grid nodes
- ** \param[in]  tab       Array containing the data
- **
- *****************************************************************************/
-DbGrid* db_create_grid_generic(int ndim,
-                               int natt,
-                               const ELoadBy &order,
-                               int flag_add_rank,
-                               const VectorInt &nx,
-                               const VectorDouble &tab)
-{
-  // Initializations
-
-  int error = 1;
-  int nech = 1;
-
-  /* Calculate the number of samples */
-
-  for (int idim = 0; idim < ndim; idim++)
-    nech *= nx[idim];
-
-  /* Allocate the main structure */
-
-  DbGrid *db = new DbGrid;
-  db->resetDims(natt, nech);
-
-  /* Dimension the data arrays */
-
-  error = db->gridDefine(nx);
-
-  /* Load the data */
-
-  if (!error) st_load_data(db, order, flag_add_rank, tab);
-
-  /* Remove the newly created Db if problem occurred */
-
-  if (error)
-  {
-    delete db;
-    db = nullptr;
-  }
-  return (db);
-}
-
-/****************************************************************************/
-/*!
- **  Create a 2-D Db structure
- **
- ** \return  Pointer to the newly created 2-D Db grid structure
- **
- ** \param[in]  flag_rot  1 if the grid is rotated
- ** \param[in]  natt      Number of attributes
- ** \param[in]  order     Manner in which values in tab are ordered
- **                       (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
- **
- ** \param[in]  nx        Number of grid nodes along X
- ** \param[in]  ny        Number of grid nodes along Y
- ** \param[in]  x0        Grid origin along X
- ** \param[in]  y0        Grid origin along Y
- ** \param[in]  dx        Grid mesh along X
- ** \param[in]  dy        Grid mesh along Y
- ** \param[in]  angle     Rotation angle
- ** \param[in]  tab       Array containing the data
- **
- *****************************************************************************/
-DbGrid* db_create_grid_2D(int flag_rot,
-                          int natt,
-                          const ELoadBy &order,
-                          int flag_add_rank,
-                          int nx,
-                          int ny,
-                          double x0,
-                          double y0,
-                          double dx,
-                          double dy,
-                          double angle,
-                          const VectorDouble &tab)
-{
-  DbGrid *db;
-  VectorInt nn;
-  VectorDouble xx, dd, angles;
-
-  /* Initializations */
-
-  nn.resize(2);
-  xx.resize(2);
-  dd.resize(2);
-  angles.resize(2);
-
-  nn[0] = nx;
-  nn[1] = ny;
-  dd[0] = dx;
-  dd[1] = dy;
-  xx[0] = x0;
-  xx[1] = y0;
-  angles[0] = angle;
-  angles[1] = 0.;
-
-  /* Create the Db */
-
-  db = db_create_grid(flag_rot, 2, natt, order, flag_add_rank, nn, xx, dd,
-                      angles, tab);
-
-  return db;
-}
-
-/****************************************************************************/
-/*!
- **  Create a 3-D Db structure
- **
- ** \return  Pointer to the newly created 3-D Db grid structure
- **
- ** \param[in]  flag_rot  1 if the grid is rotated
- ** \param[in]  natt      Number of attributes
- ** \param[in]  order     Manner in which values in tab are ordered
- **                       (ELoadBy)
- ** \param[in]  flag_add_rank 1 to add 'rank' as a supplementary field
- ** \param[in]  nx        Number of grid nodes along X
- ** \param[in]  ny        Number of grid nodes along Y
- ** \param[in]  nz        Number of grid nodes along Z
- ** \param[in]  x0        Grid origin along X
- ** \param[in]  y0        Grid origin along Y
- ** \param[in]  z0        Grid origin along Z
- ** \param[in]  dx        Grid mesh along X
- ** \param[in]  dy        Grid mesh along Y
- ** \param[in]  dz        Grid mesh along Z
- ** \param[in]  angle_z   Rotation angle around OZ
- ** \param[in]  angle_y   Rotation angle around OY
- ** \param[in]  angle_x   Rotation angle around OX
- ** \param[in]  tab       Array containing the data
- **
- *****************************************************************************/
-DbGrid* db_create_grid_3D(int flag_rot,
-                          int natt,
-                          const ELoadBy &order,
-                          int flag_add_rank,
-                          int nx,
-                          int ny,
-                          int nz,
-                          double x0,
-                          double y0,
-                          double z0,
-                          double dx,
-                          double dy,
-                          double dz,
-                          double angle_z,
-                          double angle_y,
-                          double angle_x,
-                          const VectorDouble &tab)
-{
-  DbGrid *db;
-  VectorInt nn;
-  VectorDouble xx, dd, angles;
-
-  /* Initializations */
-
-  nn.resize(3);
-  xx.resize(3);
-  dd.resize(3);
-  angles.resize(3);
-
-  nn[0] = nx;
-  nn[1] = ny;
-  nn[2] = nz;
-  dd[0] = dx;
-  dd[1] = dy;
-  dd[2] = dz;
-  xx[0] = x0;
-  xx[1] = y0;
-  xx[2] = z0;
-  angles[0] = angle_z;
-  angles[1] = angle_y;
-  angles[2] = angle_x;
-
-  /* Create the Db */
-
-  db = db_create_grid(flag_rot, 3, natt, order, flag_add_rank, nn, xx, dd,
-                      angles, tab);
-
-  return db;
-}
-
-/****************************************************************************/
-/*!
- **  Create a Db according to a point organization
- **
- ** \return  Pointer to the newly created Db point structure
- **
- ** \param[in]  nech   Number of samples
- ** \param[in]  natt   Number of attributes
- ** \param[in]  order  manner in which values in tab are ordered
- ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
- ** \param[in]  tab    Array containing the data
- **
- *****************************************************************************/
-Db* db_create_point(int nech,
-                    int natt,
-                    const ELoadBy &order,
-                    int flag_add_rank,
-                    const VectorDouble &tab)
-{
-  /* Allocate the main structure */
-
-  Db *db = new (Db);
-
-  db->resetDims(natt + flag_add_rank, nech);
-
-  /* Load the data */
-
-  st_load_data(db, order, flag_add_rank, tab);
-
-  /* Set the error return code */
-
-  return (db);
-}
-
-/****************************************************************************/
-/*!
  **  Create a Db containing a single target
  **
  ** \return  Pointer to the newly created Db point structure
@@ -1710,7 +1290,7 @@ Db* db_create_point(int nech,
  ** \param[in]  flag_add_rank 1 to add the 'rank' as first column
  **
  *****************************************************************************/
-Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
+Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
 {
   Db *db;
   int idim;
@@ -1721,7 +1301,7 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
 
   /* Create a Db with point organization */
 
-  db = db_create_point(1, 0, ELoadBy::SAMPLE, flag_add_rank);
+  db = Db::createFromOnePoint(VectorDouble(), flag_add_rank);
 
   /* Add the coordinates */
 
@@ -1751,7 +1331,7 @@ Db* db_create_from_target(double *target, int ndim, int flag_add_rank)
  *****************************************************************************/
 String db_name_get_by_att(const Db *db, int iatt)
 {
-  static char na_string[3] = "NA";
+  static char na_string[3] = STRING_NA;
   int icol = db->getColIdxByUID(iatt);
   if (!db->isColIdxValid(icol)) return (na_string);
   return (db->getNameByColIdx(icol));
@@ -1769,7 +1349,7 @@ String db_name_get_by_att(const Db *db, int iatt)
  *****************************************************************************/
 String db_name_get_by_col(Db *db, int icol)
 {
-  static char na_string[3] = "NA";
+  static char na_string[3] = STRING_NA;
   if (!db->isColIdxValid(icol)) return (na_string);
   return (db->getNameByColIdx(icol));
 }
@@ -2101,7 +1681,7 @@ int db_grid_match(DbGrid *db1, DbGrid *db2)
  **
  *****************************************************************************/
 int db_locator_attribute_add(Db *db,
-                             const ELoc &locatorType,
+                             const ELoc& locatorType,
                              int number,
                              int r_tem,
                              double valinit,
@@ -2242,7 +1822,7 @@ int db_grid_copy_dilate(DbGrid *db1,
   /* Check that the grids are compatible */
 
   if (!db1->hasSameDimension(db2)) goto label_end;
-  if (!is_grid(db1) || !is_grid(db2))
+  if (! db1->isGrid() || ! db2->isGrid())
   {
     messerr("The function 'db_grid_copy_dilate' requires two grid Dbs");
     goto label_end;
@@ -2456,7 +2036,7 @@ int point_to_bench(const DbGrid *db, double *coor, int flag_outside, int *indb)
 
   /* Check that the grid is defined in 3-D (or more) space */
 
-  if (!is_grid(db) || ndim <= 2) return (-2);
+  if (! db->isGrid() || ndim <= 2) return (-2);
 
   /* Check if all coordinates are defined */
 
@@ -3444,8 +3024,8 @@ DbGrid* db_create_grid_multiple(DbGrid *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
-                         flag_add_rank, nx, x0, dx, dbin->getAngles());
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3479,8 +3059,8 @@ DbGrid* db_create_grid_divider(DbGrid *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
-                         flag_add_rank, nx, x0, dx, dbin->getAngles());
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return dbout;
 }
@@ -3515,8 +3095,8 @@ DbGrid* db_create_grid_dilate(DbGrid *dbin,
 
   /* Create the new grid */
 
-  dbout = db_create_grid(dbin->isGridRotated(), ndim, 0, ELoadBy::COLUMN,
-                         flag_add_rank, nx, x0, dx, dbin->getAngles());
+  dbout = DbGrid::create(nx, dx, x0, dbin->getAngles(), ELoadBy::COLUMN,
+                         VectorDouble(), VectorString(), VectorString(), flag_add_rank);
 
   return (dbout);
 }
@@ -3841,7 +3421,6 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
   double *coor, value, retval;
   VectorInt nx;
   VectorDouble x0;
-  static int flag_add_rank = 1;
 
   // Initializations */
 
@@ -3935,9 +3514,9 @@ DbGrid* db_grid_reduce(DbGrid *db_grid,
   grid_to_point(db_grid, indmin, NULL, coor);
   nx.assign(indmax, indmax + ndim);
   x0.assign(coor, coor + ndim);
-  ss_grid = db_create_grid(db_grid->isGridRotated(), db_grid->getNDim(), 0,
-                           ELoadBy::COLUMN, flag_add_rank, nx, x0,
-                           db_grid->getDXs(), db_grid->getAngles());
+  ss_grid = DbGrid::create(nx, db_grid->getDXs(), x0, db_grid->getAngles(),
+                           ELoadBy::COLUMN, VectorDouble(),
+                           VectorString(), VectorString(), 0);
 
   // Create the selection (optional)
 
@@ -4355,7 +3934,7 @@ VectorDouble db_get_grid_axis(DbGrid *dbgrid, int idim)
   VectorDouble vect;
 
   if (dbgrid == nullptr) return (vect);
-  if (! is_grid(dbgrid)) return (vect);
+  if (! dbgrid->isGrid()) return (vect);
   if (idim < 0 || idim >= dbgrid->getNDim()) return (vect);
 
   int nvect = dbgrid->getNX(idim);

@@ -8,17 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -300,7 +300,7 @@ Vercoloc* vercoloc_manage(int verbose,
 
     // Allocation
 
-    if (is_grid(dbout))
+    if (dbout->isGrid())
     {
       indg = db_indg_alloc(dbout);
       if (indg == nullptr) goto label_end;
@@ -326,7 +326,7 @@ Vercoloc* vercoloc_manage(int verbose,
         coor_in[idim] = dbin->getCoordinate(iech, idim);
 
       iclose = -1;
-      if (is_grid(dbout) && !dbout->hasSelection())
+      if (dbout->isGrid() && !dbout->hasSelection())
       {
 
         /* Case where the output file is a Grid File */
@@ -1560,8 +1560,7 @@ int meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
   for (int ix = 0; ix < nx - 1; ix++)
     for (int iy = 0; iy < ny - 1; iy++)
     {
-      ipol = ((ix + iy) % 2 == 1) ? 0 :
-                                    1;
+      ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
       for (int i = 0; i < 2; i++)
         if (st_load_triangle(dbgrid, &meshes[nmesh * ncorner], order, indg,
                              ix + MSS(2, ipol, i, 0, 0),
@@ -1703,10 +1702,10 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
  **
  *****************************************************************************/
 void meshes_2D_create(int verbose,
-                                      const String &triswitch,
-                                      triangulateio *in,
-                                      triangulateio *out,
-                                      triangulateio *vorout)
+                      const String &triswitch,
+                      triangulateio *in,
+                      triangulateio *out,
+                      triangulateio *vorout)
 {
   int ndim, ncorner, ncol, nrow;
   double *faults;
@@ -1767,7 +1766,7 @@ void meshes_2D_extended_domain(Db *dbout,
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);
@@ -3017,7 +3016,7 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);
@@ -3674,7 +3673,7 @@ void meshes_1D_extended_domain(Db *dbout, const double *gext, segmentio *t)
 
   /* Dilate the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     ext = st_extend_grid(dbgrid, gext, &number);

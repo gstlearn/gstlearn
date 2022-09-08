@@ -12,6 +12,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
+
 #include "Variogram/Vario.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -42,7 +43,7 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("PGS-");
   int error = 0;
   int ndim  = 2;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   CovContext ctxt(1,2,1.);
 
   // Prepare the Discrete process with Discretized Option
@@ -132,13 +133,13 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.setConstantSillValue(1.);
 
   std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  modelPGS1.fit(&vario1,covs,true,option,constraints);
+  modelPGS1.fit(&vario1,covs,false,option,constraints);
   modelPGS1.display();
 
   (void) vario1.dumpToNF("variopgs1.ascii");
   (void) modelPGS1.dumpToNF("modelfitpgs1.ascii");
 
-  modelPGS2.fit(&vario2,covs,true,option,constraints);
+  modelPGS2.fit(&vario2,covs,false,option,constraints);
   modelPGS2.display();
 
   (void) vario2.dumpToNF("variopgs2.ascii");

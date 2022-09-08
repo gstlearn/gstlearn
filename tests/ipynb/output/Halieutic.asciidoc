@@ -10,15 +10,15 @@ import os
 ----
 
 Le jeu de données du groupe de travail CIEM WGACEGG: densités
-acoustiques (NASC) d'anchois et de sardine par unité d'échantillonnage
+acoustiques (NASC) d’anchois et de sardine par unité d’échantillonnage
 de 1 mille nautique de long, observées au printemps 2018 et 2021.
 
 Description des colonnes : - survey : campagne - year : année - time :
 date/heure enregistrement donnée - x : longitude en ° décimal WGS84 - y
 : latitude en ° décimal WGS84 - NASC : densité acoustique en m2.MN-2 -
-sp : espèce anchois = "ENGR-ENC" - sardine ="SARD-PIL"
+sp : espèce anchois = ``ENGR-ENC'' - sardine =``SARD-PIL''
 
-Pour plus d'infos sur l'origine de ces données : Doray, M., Van Der
+Pour plus d’infos sur l’origine de ces données : Doray, M., Van Der
 Kooij, J., Boyra, G. (Eds.), 2021. ICES Survey Protocols - Manual for
 acoustic surveys coordinated under the ICES Working Group on Acoustic
 and Egg Surveys for Small Pelagic Fish (WGACEGG).
@@ -28,7 +28,7 @@ Lecture du fichier de données
 
 [source, ipython3]
 ----
-dataDir = os.path.join(os.path.pardir,os.path.pardir,"doc","data","halieutic")
+dataDir = os.path.join(os.getenv('GSTLEARN_DATA'),"halieutic")
 rawDat = pd.read_csv(os.path.join(dataDir,"AC-SPRING-IBBB-NASC_ANE-PIL_2018-2021.csv"),sep=";")
 rawDat.head()
 ----
@@ -109,5 +109,5 @@ ax = gp.polygon(poly,ax = ax)
 
 
 ----
-![png](/home/fors/Projets/gstlearn/gstlearn/build/tests/ipynb/Release/output/Halieutic_13_0.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Halieutic_13_0.png)
 ----

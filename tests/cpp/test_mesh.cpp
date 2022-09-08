@@ -22,8 +22,8 @@
 #include "Matrix/MatrixInt.hpp"
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
+#include "Db/ELoadBy.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
@@ -32,6 +32,7 @@
 #include "Covariances/CovContext.hpp"
 
 #include <math.h>
+
 
 /*********************/
 /* Program principal */
@@ -61,9 +62,9 @@ int main(int /*argc*/, char */*argv*/[])
   int verbose   = 1;
   int variety   = 0;  // 0 for Euclidean; 1 for Spherical
   if (variety == 0)
-    ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   else
-    ASpaceObject::defineDefaultSpace(SPACE_SN, 2, EARTH_RADIUS);
+    ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN, 2, EARTH_RADIUS);
 
   /* Cleverness of the options */
 
@@ -104,7 +105,10 @@ int main(int /*argc*/, char */*argv*/[])
   {
     nx[0] = 1+(int) ceil((extendmax[0] - extendmin[0] - cellsize[0]/2.)/cellsize[0]);
     nx[1] = 1+(int) ceil((extendmax[1] - extendmin[1] - cellsize[1]/2.)/cellsize[1]);
-    dbgrid = db_create_grid(0,ndim,0,ELoadBy::COLUMN,1,nx,extendmin,cellsize);
+    dbgrid = DbGrid::create(nx, cellsize, extendmin, VectorDouble(),
+                            ELoadBy::COLUMN, VectorDouble(),
+                            VectorString(), VectorString(), 1);
+
   }
 
   /* Instantiate the Meshing */

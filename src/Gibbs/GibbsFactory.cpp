@@ -18,7 +18,6 @@
 #include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
 
 GibbsFactory::GibbsFactory()
 {

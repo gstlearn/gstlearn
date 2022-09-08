@@ -9,14 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Covariances/CovLMCTapering.hpp"
-
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/ETape.hpp"
-#include "geoslib_f.h"
 
 #include <math.h>
 

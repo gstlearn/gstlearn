@@ -42,11 +42,14 @@ public:
   int    getMatrixSize() const;
   int    size() const { return getMatrixSize(); }
   VectorInt getValues() const;
+  VectorInt getValuesPerRow(int irow) const;
+  VectorInt getValuesPerColumn(int icol) const;
   VectorVectorInt getMatrix() const;
   void   setValues(const VectorInt& values, bool byCol = true);
   void   setValues(const int* values, bool byCol = true);
   void   transposeInPlace();
   bool   empty() const { return _nRows <= 0 || _nCols <= 0; }
+  void   fill(int value);
 
   int getNCols() const { return _nCols; }
   void setNCols(int cols) { _nCols = cols; }

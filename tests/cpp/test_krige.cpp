@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
+
+#include "Space/ESpaceType.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -29,8 +30,10 @@
 #include "Neigh/NeighMoving.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
+#include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Estimation/CalcKriging.hpp"
+#include "Estimation/CalcImage.hpp"
 
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
@@ -140,8 +143,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nvar = 1;
   law_set_random_seed(32131);
 
-  setup_license("Demonstration");
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
   DbStringFormat dbfmtXvalid(FLAG_STATS,{"Xvalid*"});
   DbStringFormat dbfmtKriging(FLAG_STATS,{"Krig*"});
@@ -178,6 +180,12 @@ int main(int /*argc*/, char */*argv*/[])
   // Unique Neighborhood
   NeighUnique* neighU = NeighUnique::create(ndim,false);
   neighU->display();
+
+  // ====================== Testing Neighborhood Storage ===========================
+  message("\n---> Testing Neighborhood storage\n");
+  grid_res = grid->clone();
+  test_neigh(data, grid_res, model, neighM);
+  grid_res->display(&dbfmtKriging);
 
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
@@ -315,7 +323,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Create the Gaussian
   anam = AnamHermite::create(20);
   anam->fit(data->getColumn("Var"));
-  anam->RawToGaussian(data, ELoc::Z);
+  (void) RawToGaussianByLocator(data, anam);
   anam->display();
   data->display(&dbfmt);
 

@@ -1,10 +1,8 @@
 #include "Space/SpaceSN.hpp"
 #include "Space/SpacePoint.hpp"
-#include "geoslib_f.h"
-
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Geometry.hpp"
+#include "Geometry/Geometry.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
 : ASpace(ndim),
@@ -82,4 +80,12 @@ VectorDouble SpaceSN::getIncrement(const SpacePoint& p1,
   return ut_vector_subtract(p1.getCoord(), p2.getCoord());
 }
 
+String SpaceSN::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  sstr << "Space Type      = " << getType().getKey() << std::endl;
+  sstr << "Space Dimension = " << getNDim() << std::endl;
+  sstr << "Sphere Radius   = " << _radius << std::endl;
+  return sstr.str();
+}
 

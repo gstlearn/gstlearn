@@ -12,7 +12,6 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
 
 Faults::Faults()
   : AStringable(),

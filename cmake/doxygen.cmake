@@ -7,9 +7,7 @@ set(DOXYGEN_PROJECT_BRIEF "Geostatistics & Machine Learning toolbox")
 set(DOXYGEN_MULTILINE_CPP_IS_BRIEF YES)
 set(DOXYGEN_EXTRACT_ALL YES)
 set(DOXYGEN_WARN_NO_PARAMDOC YES)
-set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/src/License
-                    ${CMAKE_SOURCE_DIR}/include/License
-                    ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
+set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_f_private.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_d_private.h)
 set(DOXYGEN_VERBATIM_HEADERS NO)

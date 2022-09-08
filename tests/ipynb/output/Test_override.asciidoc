@@ -11,11 +11,7 @@ def getitem(self,name):
         temp = np.array(self.getColumns([name],self.useSel))
         nbvar = len(self.getNames([name]))
     elif type(name) == list :
-        nbvar = len(name)
-        names = gl.VectorString(nbvar)
-        for i in range(nbvar):
-            names[i] = name[i]
-        temp = np.array(self.getColumns(names,self.useSel))
+        temp = np.array(self.getColumns(name,self.useSel))
         
         
     if self.useSel:
@@ -71,7 +67,7 @@ def setitem(self,name,tab):
                 u = np.nan
             vectD.push_back(u)
             
-        self.setColumn(vectD,names[j],useSel)
+        self.setColumn(vectD.getVector(),names[j],gl.ELoc.UNKNOWN,0,useSel)
     
 #setattr(gl.Db,"useSel",False)
 
@@ -80,8 +76,7 @@ def setitem(self,name,tab):
 #setattr(gl.Db,"__setitem__",setitem)
 ----
 
-[[example]]
-= Example
+== Example
 
 [source, ipython3]
 ----
@@ -114,7 +109,6 @@ Column = 0 - Name = rank - Locator = NA
 Column = 1 - Name = x1 - Locator = x1
 Column = 2 - Name = x2 - Locator = x2----
 
-[[create-a-new-variable]]
 == Create a new variable
 
 [source, ipython3]
@@ -128,7 +122,6 @@ x
 
 ----array([-1.0856306 ,  0.99734545,  0.2829785 , -1.50629471])----
 
-[[get-a-variable]]
 == Get a variable
 
 [source, ipython3]
@@ -142,7 +135,6 @@ a["var1"]
        [ 0.2829785 ],
        [-1.50629471]])----
 
-[[replace-an-existing-variable]]
 == Replace an existing variable
 
 [source, ipython3]
@@ -161,7 +153,6 @@ a["var1"]
        [-2.42667924],
        [-0.42891263]])----
 
-[[use-regexp-for-get]]
 == Use regexp for get
 
 [source, ipython3]
@@ -208,7 +199,6 @@ a["var*"]
        [-2.42667924, -0.67888615],
        [-0.42891263, -0.09470897]])----
 
-[[use-regexp-for-replacing-several-variables]]
 == Use regexp for replacing several variables
 
 [source, ipython3]
@@ -227,8 +217,7 @@ a["var*"]
        [0., 0.],
        [0., 0.]])----
 
-[[create-several-variables-with-one-name]]
-= Create several variables with one name
+== Create several variables with one name
 
 [source, ipython3]
 ----
@@ -303,7 +292,6 @@ a["newvar*"]
        [ 1.0040539 ,  0.3861864 ,  0.73736858],
        [ 1.49073203, -0.93583387,  1.17582904]])----
 
-[[add-tab-to-a-newly-created-db-and-provide-several-names]]
 == Add tab to a newly created db (and provide several names)
 
 [source, ipython3]

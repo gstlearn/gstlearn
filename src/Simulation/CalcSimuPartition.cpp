@@ -8,8 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Boolean/AShape.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
@@ -244,26 +244,18 @@ bool CalcSimuPartition::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
-  if (! hasModel())
-  {
-    messerr("The argument 'model' must be defined");
-    return false;
-  }
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
   int ndim = _getNDim();
   if (ndim > 3)
   {
-    messerr("The Turning Band Method is not a relevant simulation model");
+    messerr("The Partition Method is not a relevant simulation model");
     messerr("for this Space Dimension (%d)", ndim);
     return false;
   }
   if (! getDbout()->isGrid())
   {
-    messerr("The argument 'dbout'  should be a grid");
+    messerr("The argument 'dbout' should be a grid");
     return false;
   }
   if (_mode != 1 && _mode != 2)
@@ -278,7 +270,7 @@ bool CalcSimuPartition::_check()
 
 bool CalcSimuPartition::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 1);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
     if (_iattOut < 0) return false;
     return true;
 }
@@ -297,7 +289,10 @@ bool CalcSimuPartition::_run()
 
 bool CalcSimuPartition::_postprocess()
 {
-  _renameVariable(ELoc::Z, 1, _iattOut, String(), getNbSimu());
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
+  _renameVariable(2, 1, _iattOut, String(), getNbSimu());
   return true;
 }
 

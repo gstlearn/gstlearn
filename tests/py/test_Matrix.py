@@ -85,7 +85,6 @@ print("Matrix MSD")
 MSD.display()
 
 # Creating a Constant Diagonal Matrix
-
 MSC = gl.MatrixSquareDiagonalCst()
 D = MSC
 D.reset(nrow,ncol,cst)

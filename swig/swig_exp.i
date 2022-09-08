@@ -42,7 +42,6 @@
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
 %include Basic/NamingConvention.hpp
-%include Basic/Rotation.hpp
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp
 %include Basic/String.hpp
@@ -53,7 +52,6 @@
 %include Basic/AFunction.hpp
 %include Basic/AFunctional.hpp
 %include Basic/FunctionalSpirale.hpp
-%include Basic/Law.hpp
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Basic/Table.hpp
@@ -67,9 +65,16 @@
 %include Basic/Vector.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
-%include Basic/Array.hpp
-%include Basic/Geometry.hpp
 %include Basic/PolyLine2D.hpp
+%include Basic/Law.hpp
+
+%include Geometry/Geometry.hpp
+%include Geometry/Rotation.hpp
+
+%include Arrays/AArray.hpp
+%include Arrays/Array.hpp
+%include Arrays/BImage.hpp
+%include Arrays/BImageStringFormat.hpp
 
 %include Faults/Faults.hpp
 
@@ -85,7 +90,7 @@
 %include Boolean/ShapeHalfSinusoid.hpp
 %include Boolean/ModelBoolean.hpp
 
-%include Space/Space.hpp
+%include Space/ESpaceType.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
@@ -96,7 +101,12 @@
 %include Skin/Skin.hpp
 
 %include Calculators/ACalculator.hpp
+%include Calculators/ACalcDbVarCreator.hpp
+%include Calculators/ACalcDbToDb.hpp
+%include Calculators/CalcMigrate.hpp
 %include Calculators/ACalcInterpolator.hpp
+%include Calculators/CalcStatistics.hpp
+%include Calculators/CalcGridToGrid.hpp
 
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp
@@ -240,6 +250,7 @@
 %include Db/ELoadBy.hpp
 %include Db/ELoc.hpp
 
+%include Anamorphosis/CalcAnamTransform.hpp
 %include Anamorphosis/AAnam.hpp
 %include Anamorphosis/AnamContinuous.hpp
 %include Anamorphosis/AnamDiscrete.hpp
@@ -256,6 +267,8 @@
 %include Gibbs/GibbsUMulti.hpp
 
 %include Morpho/Morpho.hpp
+%include Morpho/EMorpho.hpp
+
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
 
@@ -273,6 +286,9 @@
 
 %include Estimation/KrigingSystem.hpp
 %include Estimation/CalcKriging.hpp
+%include Estimation/CalcFactorKriging.hpp
+%include Estimation/CalcSimpleInterpolation.hpp
+%include Estimation/CalcImage.hpp
 
 %include OutputFormat/AOF.hpp
 %include OutputFormat/FileLAS.hpp
@@ -299,7 +315,7 @@
 %include Simulation/CalcSimuPartition.hpp
 %include Simulation/SimuPartitionParam.hpp
 %include Simulation/SimuFFTParam.hpp
-%include Simulation/SimuFFT.hpp
+%include Simulation/CalcSimuFFT.hpp
 %include Simulation/SimuRefineParam.hpp
 %include Simulation/SimuRefine.hpp
 %include Simulation/CalcSimuEden.hpp

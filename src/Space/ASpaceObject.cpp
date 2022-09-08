@@ -3,7 +3,6 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Basic/Tensor.hpp"
-
 #include "Basic/AException.hpp"
 
 #include <iostream>
@@ -71,21 +70,21 @@ String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
  * @param ndim Number of dimension
  * @param param Optional space parameter
  */
-void ASpaceObject::defineDefaultSpace(SpaceType type,
+void ASpaceObject::defineDefaultSpace(ESpaceType type,
                                       unsigned int ndim,
                                       double param)
 {
   if (nullptr != _defaultSpace)
     delete _defaultSpace;
 
-  switch (type)
+  switch (type.getValue())
   {
-    case SPACE_SN:
+    case ESpaceType::E_SPACE_SN:
     {
       _defaultSpace = new SpaceSN(ndim, param);
       break;
     }
-    case SPACE_RN:
+    case ESpaceType::E_SPACE_RN:
     {
       _defaultSpace = new SpaceRN(ndim);
       break;
@@ -100,9 +99,30 @@ void ASpaceObject::defineDefaultSpace(SpaceType type,
 const ASpace* ASpaceObject::cloneDefaultSpace()
 {
   if (nullptr == _defaultSpace)
-    defineDefaultSpace(SPACE_RN, 2);
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
 
   return (dynamic_cast<const ASpace*>(_defaultSpace->clone()));
+}
+
+ESpaceType ASpaceObject::getDefaultSpaceType()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace->getType();
+}
+
+int ASpaceObject::getDefaultSpaceDimension()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace->getNDim();
+}
+
+const ASpace* ASpaceObject::getDefaultSpace()
+{
+  if (nullptr == _defaultSpace)
+    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  return _defaultSpace;
 }
 
 VectorDouble ASpaceObject::getUnitaryVector() const

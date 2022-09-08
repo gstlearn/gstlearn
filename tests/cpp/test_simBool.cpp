@@ -10,8 +10,9 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 #include "geoslib_f.h"
-#include "Space/Space.hpp"
+
 #include "Space/ASpaceObject.hpp"
+#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -79,7 +80,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nech = 100;
   VectorDouble coormin(ndim);
   VectorDouble coormax(ndim);
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid

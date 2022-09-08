@@ -8,19 +8,22 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Model/ConsItem.hpp"
-#include "Basic/Utilities.hpp"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Space/ASpaceObject.hpp"
+#include "Model/ConsItem.hpp"
+#include "Basic/Utilities.hpp"
 
 ConsItem::ConsItem(const CovParamId& paramid,
                    const EConsType& type,
                    double value)
     : AStringable(),
-      _paramId(paramid),
-      _type(type),
-      _value(value)
+      _paramId(),
+      _type(),
+      _value()
 {
+  (void) _init(paramid, type, value);
 }
 
 ConsItem::ConsItem(const ConsItem &m)
@@ -29,7 +32,6 @@ ConsItem::ConsItem(const ConsItem &m)
       _type(m._type),
       _value(m._value)
 {
-
 }
 
 ConsItem& ConsItem::operator=(const ConsItem &m)
@@ -49,7 +51,14 @@ ConsItem::~ConsItem()
 
 }
 
-int ConsItem::init(const CovParamId& paramid,
+ConsItem* ConsItem::create(const CovParamId &paramid,
+                           const EConsType &type,
+                           double value)
+{
+  return new ConsItem(paramid, type, value);
+}
+
+int ConsItem::_init(const CovParamId& paramid,
                    const EConsType& type,
                    double value)
 {
@@ -58,8 +67,7 @@ int ConsItem::init(const CovParamId& paramid,
   _value = value;
 
   // Check to avoid rotation of a Model defined on the sphere
-  int flag_sphere;
-  variety_query(&flag_sphere);
+  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (flag_sphere && type == EConsElem::ANGLE)
   {
     messerr("When working on the Sphere Geometry");

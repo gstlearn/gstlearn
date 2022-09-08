@@ -8,14 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_f.h"
-
 #include "Gibbs/GibbsMulti.hpp"
 #include "Gibbs/AGibbs.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/Utilities.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
@@ -209,7 +208,7 @@ int GibbsMulti::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
           message("%lf",vmin);
         message(";");
         if (FFFF(vmax))
-         message("NA");
+         message(STRING_NA);
         else
           message("%lf",vmax);
         message("]\n");

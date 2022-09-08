@@ -11,7 +11,6 @@
 /* This file is meant to demonstrate the PCA feature                 */
 /*                                                                            */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
@@ -24,6 +23,7 @@
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
+
 #include <stdlib.h>
 
 /****************************************************************************/
@@ -44,7 +44,7 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   CovContext ctxt(nvar,ndim);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples

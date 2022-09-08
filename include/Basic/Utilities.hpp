@@ -12,8 +12,11 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Basic/VectorNumT.hpp"
+#include <map>
 #include <cmath>
 #include <math.h>
+
 
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);
@@ -33,64 +36,22 @@ GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int>
 GSTLEARN_EXPORT double getTEST();  // TODO getNA<double>
 GSTLEARN_EXPORT int    getITEST(); // TODO getNA<int>
 
-#define DOUBLE_NA TEST
-#define INT_NA    ITEST
-#define STRING_NA "NA"    // TODO search for this string and replace
-#define FLOAT_NA  TEST    // 1.234e30 is ok for 4 bytes
+#define DOUBLE_NA  TEST
+#define    INT_NA  ITEST
+#define STRING_NA  "NA"
+#define  FLOAT_NA  static_cast<float>(TEST)   // 1.234e30 is ok for 4 bytes but needs a cast for Windows
 
-template<typename T> class ValueNA;
+template <typename T> inline T getNA();
+template <> inline double getNA() { return DOUBLE_NA; }
+template <> inline int    getNA() { return INT_NA; }
+template <> inline String getNA() { return STRING_NA; }
+template <> inline float  getNA() { return FLOAT_NA; }
 
-// Define NA value for double
-template <> class ValueNA<double>
-{
-public:
-  static inline double getNA() { return DOUBLE_NA; }
-};
-
-// Define NA value for int
-template <> class ValueNA<int>
-{
-public:
-  static inline int getNA() { return INT_NA; }
-};
-
-// Define NA value for String
-template <> class ValueNA<String>
-{
-public:
-  static inline String getNA() { return STRING_NA; }
-};
-
-// Define NA value for float
-template <> class ValueNA<float>
-{
-public:
-  static inline float getNA() { return FLOAT_NA; }
-};
-
-template <typename T> inline T getNA()
-{
-  return ValueNA<T>::getNA();
-}
 template <typename T> inline bool isNA(const T& v);
-template <> inline bool isNA(const double& v)
-{
-  return (std::isnan(v) || std::isinf(v) ||
-          v == getNA<double>());
-}
-template <> inline bool isNA(const int& v)
-{
-  return (v == getNA<int>());
-}
-template <> inline bool isNA(const String& v)
-{
-  return (v == getNA<String>());
-}
-template <> inline bool isNA(const float& v)
-{
-  return (std::isnan(v) || std::isinf(v) ||
-          v == getNA<float>());
-}
+template <> inline bool isNA(const double& v) { return (v == getNA<double>() || std::isnan(v) || std::isinf(v)); }
+template <> inline bool isNA(const int& v)    { return (v == getNA<int>()); }
+template <> inline bool isNA(const String& v) { return (v == getNA<String>()); }
+template <> inline bool isNA(const float& v)  { return (v == getNA<float>()  || std::isnan(v) || std::isinf(v)); }
 
 #endif // SWIG
 
@@ -139,3 +100,5 @@ GSTLEARN_EXPORT double* ut_pascal(int ndim);
 GSTLEARN_EXPORT int* ut_combinations(int n, int maxk, int *ncomb);
 GSTLEARN_EXPORT void ut_shuffle_array(int nrow, int ncol, double *tab);
 
+GSTLEARN_EXPORT VectorInt getListActiveToAbsolute(const VectorDouble &sel);
+GSTLEARN_EXPORT std::map<int, int> getMapAbsoluteToActive(const VectorDouble &sel);

@@ -1004,11 +1004,7 @@ bool CalcSimuEden::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
-  {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
+  if (! hasDbout()) return false;
   int ndim = _getNDim();
   if (ndim > 3)
   {
@@ -1043,17 +1039,17 @@ bool CalcSimuEden::_preprocess()
 
   if (_niter > 1)
   {
-    _iptrStatFluid = _addVariableDb(2, 1, ELoc::UNKNOWN, _nfluids, 0.);
+    _iptrStatFluid = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _nfluids, 0.);
     if (_iptrStatFluid < 0) return false;
-    _iptrStatCork = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+    _iptrStatCork = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
     if (_iptrStatCork < 0) return false;
   }
 
   /* Add the attributes for storing the Fluid and Data informations */
 
-  _iptrFluid = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, 0.);
+  _iptrFluid = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
   if (_iptrFluid < 0) return false;
-  _iptrDate = _addVariableDb(2, 1, ELoc::UNKNOWN, 1, TEST);
+  _iptrDate = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, TEST);
   if (_iptrDate < 0) return false;
 
   return true;
@@ -1068,14 +1064,17 @@ bool CalcSimuEden::_run()
 
 bool CalcSimuEden::_postprocess()
 {
+  /* Free the temporary variables */
+  _cleanVariableDb(2);
+
   if (_iptrStatFluid >= 0)
-    _renameVariable(ELoc::Z, 1, _iptrStatFluid, "Stat_Fluid", _niter);
+    _renameVariable(2, 1, _iptrStatFluid, "Stat_Fluid", _niter);
   if (_iptrStatCork >= 0)
-    _renameVariable(ELoc::Z, 1, _iptrStatCork, "Stat_Cork", _niter);
+    _renameVariable(2, 1, _iptrStatCork, "Stat_Cork", _niter);
   if (_iptrFluid)
-    _renameVariable(ELoc::Z, 1, _iptrFluid, "Fluid", 1);
+    _renameVariable(2, 1, _iptrFluid, "Fluid", 1);
   if (_iptrDate)
-    _renameVariable(ELoc::Z, 1, _iptrDate, "Date", 1);
+    _renameVariable(2, 1, _iptrDate, "Date", 1);
   return true;
 }
 

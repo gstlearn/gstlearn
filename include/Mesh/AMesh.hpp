@@ -57,6 +57,7 @@ public:
   virtual int getEmbeddedNDim() const { return _nDim; }
   virtual void getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const;
   virtual void getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const;
+  virtual int getMeshIndexActiveToAbsolute(int imesh) const;
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
@@ -78,7 +79,7 @@ public:
   VectorDouble getMeshSizes() const;
 
   /*! Print the list of meshes and apices */
-  void printMeshes(int imesh) const;
+  void printMeshes(int imesh0) const;
   /*! Convert from New Mesh into Old Mesh */
   SPDE_Mesh* _convertToOldMesh(AMesh* a_mesh) const;
   /*! Returns Vector of Apex coordinates for space index */

@@ -100,7 +100,7 @@ int main()
   double lambda = 4.6;
   number = 100000; // Use larger sample for convergence
   tab.resize(number,0.);
-  int ndec = OptCst::query(ECst::NTDEC);
+  int ndec = (int) OptCst::query(ECst::NTDEC);
   OptCst::define(ECst::NTDEC, 4);
   message("\nPoisson Distribution: lambda=%lf\n",lambda);
   law_set_old_style(true);

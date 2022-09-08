@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "OutputFormat/FileVTK.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
@@ -135,7 +136,7 @@ int FileVTK::writeInFile()
       if (! _db->isActive(iech)) continue;
       for (int idim = 0; idim < 3; idim++)
       {
-        double fact = 1.;
+        int fact = 1;
         if (idim == 0) fact = _factx;
         if (idim == 1) fact = _facty;
         if (idim == 2) fact = _factz;

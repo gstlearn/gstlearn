@@ -8,9 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "geoslib_d.h"
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
 #include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Matrix/MatrixRectangular.hpp"

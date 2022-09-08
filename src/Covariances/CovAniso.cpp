@@ -8,18 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f_private.h"
+
+#include <Arrays/Array.hpp>
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
-#include "Basic/Array.hpp"
 #include "Basic/FFT.hpp"
-
 #include "Space/ASpace.hpp"
-#include "geoslib_f.h"
-#include "geoslib_f_private.h"
+#include "Space/ASpaceObject.hpp"
+#include "Space/SpaceSN.hpp"
 
 #include <math.h>
 #include <functional>
@@ -403,8 +404,9 @@ double CovAniso::eval(int ivar,
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
-  double radius;
-  variety_get_characteristics(&radius);
+  const ASpace* space = ASpaceObject::getDefaultSpace();
+  const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  double radius = spaceSn->getRadius();
   double scale = getScale() / radius;
   double sill = getSill(0, 0);
 
@@ -751,7 +753,7 @@ double CovAniso::getIntegralRange(int ndisc, double hmax) const
       break;
 
     default:
-      my_throw("Integral Range has been programmed for Space Dimension 1 to 3");
+      my_throw("Integral Range has only been programmed for Space Dimension 1 to 3");
   }
   return total;
 }

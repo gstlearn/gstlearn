@@ -15,7 +15,7 @@
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ECov.hpp"
-#include "Basic/Array.hpp"
+#include "Arrays/Array.hpp"
 
 /* Covariance basic function for normalized sill and distance:
  * Positive definite function

@@ -20,6 +20,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Stats/Classical.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -112,7 +113,7 @@ static int st_oper_exists(const VectorString &opers, const String &refe)
  ** \param[in]  flag_multi  1 if multivariate operator is authorized
  ** \param[in]  flag_indic  1 if indicator ("plus","minus","zero") is authorized
  ** \param[in]  flag_sum    1 if sum of variable is authorized
- ** \param[in]  flag_median 1 if median is quathorized
+ ** \param[in]  flag_median 1 if median is authorized
  ** \param[in]  flag_qt     1 if QT ("ore","metal") is authorized
  **
  ** \remarks If an error occurred, the message is printed
@@ -133,9 +134,9 @@ static int st_oper_check(const String &oper,
 
   /* Monovariate check */
 
-  if (oper == "num") valid = 1;
+  if (oper == "num")  valid = 1;
   if (oper == "mean") valid = 1;
-  if (oper == "var") valid = 1;
+  if (oper == "var")  valid = 1;
   if (oper == "corr") valid = 1;
   if (oper == "stdv") valid = 1;
   if (oper == "mini") valid = 1;
@@ -260,11 +261,11 @@ static int st_oper_check(const String &oper,
  **
  *****************************************************************************/
 int db_stats(Db *db,
-                             const String &oper,
-                             const VectorInt &cols,
-                             int flag_mono,
-                             int flag_verbose,
-                             double *result)
+             const String &oper,
+             const VectorInt &cols,
+             int flag_mono,
+             int flag_verbose,
+             double *result)
 {
   int i, iech, nech, icol, jcol, icol1, jcol1, icol2, jcol2, iad, ncol2;
   int error, nx, ny, ncol;
@@ -406,9 +407,7 @@ int db_stats(Db *db,
         if (oper == "corr")
         {
           v12[iad] =
-              (v1[iad] > 0 && v2[iad] > 0) ? v12[iad] / sqrt(
-                                                 v1[iad] * v2[iad]) :
-                                             0.;
+              (v1[iad] > 0 && v2[iad] > 0) ? v12[iad] / sqrt(v1[iad] * v2[iad]) : 0.;
         }
       }
     }
@@ -1034,14 +1033,12 @@ int stats_point_to_grid(DbGrid *dbgrid,
       if (flag_v1)
       {
         v1[i] = v1[i] / ratio - s1[i] * s1[i];
-        v1[i] = (v1[i] < 0.) ? 0. :
-                               sqrt(v1[i]);
+        v1[i] = (v1[i] < 0.) ? 0. : sqrt(v1[i]);
       }
       if (flag_v2)
       {
         v2[i] = v2[i] / ratio - s2[i] * s2[i];
-        v2[i] = (v2[i] < 0.) ? 0. :
-                               sqrt(v2[i]);
+        v2[i] = (v2[i] < 0.) ? 0. : sqrt(v2[i]);
       }
       if (flag_v12)
       {
@@ -2736,7 +2733,8 @@ int db_diffusion(DbGrid *dbgrid1,
 
   /* Allocate the neighboring displacement array */
 
-  nbgh = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose, &n_nbgh);
+  nbgh = gridcell_neigh(ndim, opt_morpho, 1, opt_center, verbose);
+  n_nbgh = (int) nbgh.size() / ndim;
   valwrk = (double*) mem_alloc(sizeof(double) * n_nbgh, 0);
   if (valwrk == nullptr) goto label_end;
 
@@ -3032,15 +3030,15 @@ void db_stats_print(const Db *db,
     else
     {
       if (st_oper_exists(opers, "mini"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "maxi"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "mean"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "stdv"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "var"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
     }
     message("\n");
   }
@@ -3197,3 +3195,235 @@ int stats_residuals(int verbose,
   return (0);
 }
 
+/****************************************************************************/
+/*!
+ **  Calculates the monovariate statistics of each Z-variable
+ **  within cells of a grid
+ **
+ ** \param[in]  db     Db for the points
+ ** \param[in]  dbgrid Db for the grid
+ ** \param[in]  oper   Name of the operator
+ ** \param[in]  radius Neighborhood radius
+ ** \param[in]  iptr0  Storage address
+ **
+ *****************************************************************************/
+void calc_stats_grid(Db *db,
+                     DbGrid *dbgrid,
+                     const EStatOption &oper,
+                     int radius,
+                     int iptr0)
+{
+  double value, mean, ratio;
+
+  int nxyz = dbgrid->getSampleNumber();
+  int ndim = dbgrid->getNDim();
+  int count = (int) pow(2. * radius + 1., (double) ndim);
+  int nvar  = db->getVariableNumber();
+
+  /* Create and initialize the new attributes */
+
+  double valdef = 0.;
+  if (oper == EStatOption::MINI) valdef = +1.e30;
+  if (oper == EStatOption::MAXI) valdef = -1.e30;
+
+  /* Create the attributes */
+
+  int iptn = -1;
+  int iptm = -1;
+  if (oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
+    iptn = dbgrid->addColumnsByConstant(1, 0.);
+  if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+    iptm = dbgrid->addColumnsByConstant(1, 0.);
+
+  /* Loop on the variables */
+
+  VectorDouble coor(ndim);
+  VectorInt indg0(ndim);
+  VectorInt indg(ndim);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+
+    /* Create the output attribute */
+
+    int icol = db->getUIDByLocator(ELoc::Z, ivar);
+    int iptr = iptr0 + ivar;
+    if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
+    if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
+    db_attribute_init(dbgrid, 1, iptr, valdef);
+
+    /* Loop on the samples */
+
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
+    {
+
+      /* Read a sample */
+
+      if (!db->isActive(iech)) continue;
+      db->getCoordinatesInPlace(iech, coor);
+      if (dbgrid->coordinateToIndicesInPlace(coor, indg0, true)) continue;
+      value = db->getArray(iech, icol);
+      if (FFFF(value)) continue;
+
+      /* Loop on the neighboring cells */
+
+      for (int ic = 0; ic < count; ic++)
+      {
+        st_get_neighboring_cell(ndim, radius, ic, indg0.data(), indg.data());
+        int iad = dbgrid->indiceToRank(indg);
+        if (iad < 0 || iad >= nxyz) continue;
+
+        if (oper == EStatOption::NUM)
+        {
+          dbgrid->updArray(iad, iptr, 0, 1.);
+        }
+        else if (oper == EStatOption::MEAN)
+        {
+          dbgrid->updArray(iad, iptn, 0, 1.);
+          dbgrid->updArray(iad, iptr, 0, value);
+        }
+        else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+        {
+          dbgrid->updArray(iad, iptn, 0, 1.);
+          dbgrid->updArray(iad, iptm, 0, value);
+          dbgrid->updArray(iad, iptr, 0, value * value);
+        }
+        else if (oper == EStatOption::MINI)
+        {
+          if (value < dbgrid->getArray(iad, iptr))
+            dbgrid->setArray(iad, iptr, value);
+        }
+        else if (oper == EStatOption::MAXI)
+        {
+          if (value > dbgrid->getArray(iad, iptr))
+            dbgrid->setArray(iad, iptr, value);
+        }
+        else
+        {
+          value = 0.;
+        }
+      }
+    }
+
+    /* Normalization */
+
+    if (oper == EStatOption::MEAN)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        ratio = dbgrid->getArray(i, iptn);
+        if (ratio <= 0.)
+          dbgrid->setArray(i, iptr, TEST);
+        else
+          dbgrid->updArray(i, iptr, 3, ratio);
+      }
+    }
+    else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        ratio = dbgrid->getArray(i, iptn);
+        if (ratio <= 0.)
+          dbgrid->setArray(i, iptr, TEST);
+        else
+        {
+          mean = dbgrid->getArray(i, iptm) / ratio;
+          value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
+          if (value < 0) value = 0.;
+          if (oper == EStatOption::VAR)
+            dbgrid->setArray(i, iptr, value);
+          else
+            dbgrid->setArray(i, iptr, sqrt(value));
+        }
+      }
+    }
+    else if (oper == EStatOption::MINI)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        value = dbgrid->getArray(i, iptr);
+        if (value == 1.e30) dbgrid->setArray(i, iptr, TEST);
+      }
+    }
+    else if (oper == EStatOption::MAXI)
+    {
+      for (int i = 0; i < nxyz; i++)
+      {
+        value = dbgrid->getArray(i, iptr);
+        if (value == -1.e30) dbgrid->setArray(i, iptr, TEST);
+      }
+    }
+  }
+
+  /* Delete auxiliary attributes for local calculations */
+
+  if (iptn > 0) dbgrid->deleteColumnByUID(iptn);
+  if (iptm > 0) dbgrid->deleteColumnByUID(iptm);
+}
+
+/****************************************************************************/
+/*!
+ **  Evaluate the regression
+ **
+ ** \return  Error return code
+ **
+ ** \param[in,out]  db1        Db descriptor (for target variable)
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  mode           Type of calculation
+ ** \li                        0 : standard multivariate case
+ ** \li                        1 : using external drifts
+ ** \param[in]  icol0          Rank of the target variable
+ ** \param[in]  icols          Vector of ranks of the explanatory variables
+ ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \param[in]  iptr0          Storing address
+ **
+ ** \remark  The flag_mode indicates the type of regression calculation:
+ ** \remark  0 : V[icol] as a function of V[icols[i]]
+ ** \remark  1 : Z1 as a function of the different Fi's
+ **
+ ** \remark  The Db1 structure is modified: the column (iptr0) of the Db1
+ ** \remark  is added by this function; it contains the value
+ ** \remark  of the residuals at each datum (or TEST if the residual has not
+ ** \remark  been calculated).
+ **
+ *****************************************************************************/
+int calc_regression(Db *db1,
+                    Db *db2,
+                    int mode,
+                    int icol0,
+                    const VectorInt &icols,
+                    bool flagCste,
+                    int iptr0)
+{
+  ResRegr regr;
+  regr = regression(db1, db2, mode, icol0, icols, flagCste);
+
+  /* Preliminary checks */
+
+  if (! regressionCheck(db1, db2, mode, icol0, icols)) return 1;
+
+  /* Store the regression error at sample points */
+
+  int size = (int) regr.coeffs.size();
+  double value = 0;
+  VectorDouble x(size);
+
+  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  {
+    if (db1->isActive(iech))
+    {
+      /* Get the information for the current sample */
+
+      if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, &value, x))
+      {
+        value = TEST;
+      }
+      else
+      {
+        for (int i = 0; i < size; i++)
+          value -= x[i] * regr.coeffs[i];
+      }
+    }
+    db1->setArray(iech, iptr0, value);
+  }
+  return 0;
+}

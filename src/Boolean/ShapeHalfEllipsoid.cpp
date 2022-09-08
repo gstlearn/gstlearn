@@ -9,8 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Boolean/ShapeHalfEllipsoid.hpp"
-
-#include "../../include/Simulation/BooleanObject.hpp"
+#include "Simulation/BooleanObject.hpp"
 
 ShapeHalfEllipsoid::ShapeHalfEllipsoid(double proportion,
                                        double xext,

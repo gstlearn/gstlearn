@@ -15,7 +15,6 @@
 /* Human Genome Center, Institute of Medical Science, University of Tokyo,    */
 /* 4-6-1 Shirokanedai, Minato-ku, Tokyo 108-8639, Japan.                      */
 /******************************************************************************/
-#include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "Basic/Law.hpp"
 

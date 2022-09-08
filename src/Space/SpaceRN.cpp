@@ -3,8 +3,6 @@
 #include "Basic/Tensor.hpp"
 #include "Basic/Vector.hpp"
 
-#include "geoslib_f.h"
-
 SpaceRN::SpaceRN(unsigned int ndim)
  : ASpace(ndim)
 {
@@ -63,4 +61,12 @@ VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
                                    const SpacePoint& p2) const
 {
   return ut_vector_subtract(p1.getCoord(), p2.getCoord());
+}
+
+String SpaceRN::toString(const AStringFormat* /*strfmt*/) const
+{
+  std::stringstream sstr;
+  sstr << "Space Type      = " << getType().getKey() << std::endl;
+  sstr << "Space Dimension = " << getNDim() << std::endl;
+  return sstr.str();
 }

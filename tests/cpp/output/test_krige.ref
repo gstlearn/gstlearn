@@ -99,6 +99,94 @@ Unique Neighborhood
 ===================
 Space dimension = 2
 
+---> Testing Neighborhood storage
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Statistics
+--------------------
+1 - Name rank - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =   2500.000
+ Mean value          =   1250.500
+ Standard Deviation  =    721.688
+ Variance            = 520833.250
+2 - Name x1 - Locator x1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+3 - Name x2 - Locator x2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =     49.000
+ Mean value          =     24.500
+ Standard Deviation  =     14.431
+ Variance            =    208.250
+4 - Name Extend-1 - Locator dblk1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+5 - Name Extend-2 - Locator dblk2
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+6 - Name Neigh.Var.Number - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     25.000
+ Maximum value       =     25.000
+ Mean value          =     25.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+7 - Name Neigh.Var.MaxDist - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =     32.125
+ Maximum value       =     61.456
+ Mean value          =     46.799
+ Standard Deviation  =      6.612
+ Variance            =     43.718
+8 - Name Neigh.Var.MinDist - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.130
+ Maximum value       =     21.624
+ Mean value          =      8.075
+ Standard Deviation  =      4.596
+ Variance            =     21.120
+9 - Name Neigh.Var.NbNESect - Locator NA
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      1.000
+ Maximum value       =      1.000
+ Mean value          =      1.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+10 - Name Neigh.Var.NbCESect - Locator z1
+ Nb of data          =       2500
+ Nb of active values =       2500
+ Minimum value       =      0.000
+ Maximum value       =      0.000
+ Mean value          =      0.000
+ Standard Deviation  =      0.000
+ Variance            =      0.000
+
 <----- Cross-Validation in Moving Neighborhood ----->
 
 Data Base Characteristics
@@ -171,10 +259,10 @@ Testing KrigTest facility
 - Number of Kriging System equations = 26
 - Neighboring Sample Indices
                [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
-     [  0,]         4         7        13        19        22        24        27
-     [  7,]        29        30        38        40        43        50        54
-     [ 14,]        55        63        65        77        80        81        86
-     [ 21,]        87        89        93        94
+     [  0,]         2         4         6         7        12        21        24
+     [  7,]        27        28        34        36        37        38        44
+     [ 14,]        45        49        54        70        72        75        78
+     [ 21,]        80        81        95        98
 
 <----- Cross-Validation in Unique Neighborhood ----->
 
@@ -439,7 +527,7 @@ Data Base Grid Characteristics
 
 Data Base Statistics
 --------------------
-5 - Name Filtering.Simu.estim - Locator z1
+5 - Name Filtering.Simu - Locator z1
  Nb of data          =       2500
  Nb of active values =       2500
  Minimum value       =    114.917
@@ -469,10 +557,10 @@ Universality Condition
 
 Bayesian Drift coefficients
 ===========================
-Prior Mean      0.000
-Prior Variance-Covariance      1.000
-Posterior Mean      0.000
-Posterior Variance-Covariance      0.997
+Prior Mean       0.000
+Prior Variance-Covariance       1.000
+Posterior Mean       0.000
+Posterior Variance-Covariance       0.997
 
 
 Data Base Grid Characteristics
@@ -526,11 +614,11 @@ Coordinate #2 = -91.175069
 
 Data selected in neighborhood
 -----------------------------
-      Rank    Sample        x1        x2
-         1         1   -76.742   -91.175
-         2         2   -13.950    66.211
-         3         3    49.233   -33.151
-         4         4    61.757   -64.957
+       Rank     Sample         x1         x2
+          1          1    -76.742    -91.175
+          2          2    -13.950     66.211
+          3          3     49.233    -33.151
+          4          4     61.757    -64.957
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -538,13 +626,13 @@ Number of active samples    = 4
 Total number of equations   = 5
 Reduced number of equations = 5
 
-      Rank                   1         2         3         4         5
-                Flag         1         2         3         4         5
-         1         1   329.314   159.864   190.618   188.356     1.000
-         2         2   159.864   329.314   211.564   177.866     1.000
-         3         3   190.618   211.564   329.314   295.132     1.000
-         4         4   188.356   177.866   295.132   329.314     1.000
-         5         5     1.000     1.000     1.000     1.000     0.000
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1    329.314    159.864    190.618    188.356      1.000
+          2          2    159.864    329.314    211.564    177.866      1.000
+          3          3    190.618    211.564    329.314    295.132      1.000
+          4          4    188.356    177.866    295.132    329.314      1.000
+          5          5      1.000      1.000      1.000      1.000      0.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -554,35 +642,35 @@ Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
-      Rank      Flag         1
-         1         1   329.314
-         2         2   159.864
-         3         3   190.618
-         4         4   188.356
-         5         5     1.000
+       Rank       Flag          1
+          1          1    329.314
+          2          2    159.864
+          3          3    190.618
+          4          4    188.356
+          5          5      1.000
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1   -76.742   -91.175     0.400     1.000
-         2   -13.950    66.211     0.301     0.000
-         3    49.233   -33.151     1.658     0.000
-         4    61.757   -64.957     0.235     0.000
-Sum of weights                               1.000
+       Rank         x1         x2       Data        Z1*
+          1    -76.742    -91.175      0.400      1.000
+          2    -13.950     66.211      0.301      0.000
+          3     49.233    -33.151      1.658      0.000
+          4     61.757    -64.957      0.235      0.000
+Sum of weights                                    1.000
 
 Drift coefficients
 ==================
-      Rank  Lagrange     Coeff
-         1     0.000     0.241
+       Rank   Lagrange      Coeff
+          1      0.000      0.241
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.400
- - Std. Dev. =      0.000
- - Variance  =      0.000
- - Cov(h=0)  =    329.314
+ - Estimate  =       0.400
+ - Std. Dev. =       0.000
+ - Variance  =       0.000
+ - Cov(h=0)  =     329.314
 
 ---> Kriging in general
 
@@ -594,11 +682,11 @@ Coordinate #2 = 0.000000
 
 Data selected in neighborhood
 -----------------------------
-      Rank    Sample        x1        x2
-         1         1   -76.742   -91.175
-         2         2   -13.950    66.211
-         3         3    49.233   -33.151
-         4         4    61.757   -64.957
+       Rank     Sample         x1         x2
+          1          1    -76.742    -91.175
+          2          2    -13.950     66.211
+          3          3     49.233    -33.151
+          4          4     61.757    -64.957
 
 LHS of Kriging matrix (compressed)
 ==================================
@@ -606,13 +694,13 @@ Number of active samples    = 4
 Total number of equations   = 5
 Reduced number of equations = 5
 
-      Rank                   1         2         3         4         5
-                Flag         1         2         3         4         5
-         1         1   329.314   159.864   190.618   188.356     1.000
-         2         2   159.864   329.314   211.564   177.866     1.000
-         3         3   190.618   211.564   329.314   295.132     1.000
-         4         4   188.356   177.866   295.132   329.314     1.000
-         5         5     1.000     1.000     1.000     1.000     0.000
+       Rank                     1          2          3          4          5
+                  Flag          1          2          3          4          5
+          1          1    329.314    159.864    190.618    188.356      1.000
+          2          2    159.864    329.314    211.564    177.866      1.000
+          3          3    190.618    211.564    329.314    295.132      1.000
+          4          4    188.356    177.866    295.132    329.314      1.000
+          5          5      1.000      1.000      1.000      1.000      0.000
 
 RHS of Kriging matrix (compressed)
 ==================================
@@ -622,35 +710,35 @@ Reduced number of equations = 5
 Number of right-hand sides  = 1
 Punctual Estimation
 
-      Rank      Flag         1
-         1         1   210.141
-         2         2   261.649
-         3         3   269.959
-         4         4   239.685
-         5         5     1.000
+       Rank       Flag          1
+          1          1    210.141
+          2          2    261.649
+          3          3    269.959
+          4          4    239.685
+          5          5      1.000
 
 (Co-) Kriging weights
 =====================
-      Rank        x1        x2      Data       Z1*
-         1   -76.742   -91.175     0.400     0.159
-         2   -13.950    66.211     0.301     0.406
-         3    49.233   -33.151     1.658     0.455
-         4    61.757   -64.957     0.235    -0.020
-Sum of weights                               1.000
+       Rank         x1         x2       Data        Z1*
+          1    -76.742    -91.175      0.400      0.159
+          2    -13.950     66.211      0.301      0.406
+          3     49.233    -33.151      1.658      0.455
+          4     61.757    -64.957      0.235     -0.020
+Sum of weights                                    1.000
 
 Drift coefficients
 ==================
-      Rank  Lagrange     Coeff
-         1     9.855     0.241
+       Rank   Lagrange      Coeff
+          1      9.855      0.241
 
 (Co-) Kriging results
 =====================
 Target Sample = 1
 Variable Z1 
- - Estimate  =      0.935
- - Std. Dev. =      7.861
- - Variance  =     61.797
- - Cov(h=0)  =    329.314
+ - Estimate  =       0.935
+ - Std. Dev. =       7.861
+ - Variance  =      61.797
+ - Cov(h=0)  =     329.314
 
 <----- Test Kriging Multiple Variables under Constraints ----->
 

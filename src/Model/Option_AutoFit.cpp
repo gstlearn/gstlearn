@@ -11,7 +11,6 @@
 #include "Model/Option_AutoFit.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "geoslib_f.h"
 
 Option_AutoFit::Option_AutoFit()
     : AStringable(),

@@ -20,10 +20,10 @@
 #include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
-#include "Basic/Geometry.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Geometry/Geometry.hpp"
 
 #include <math.h>
 
@@ -1327,6 +1327,8 @@ void CalcSimuTurningBands::_simulateGrid(DbGrid *db,
   /* Core allocation */
 
   tab.resize(nech, 0.);
+  omega = 0.;
+  phi = 0.;
 
   /*****************************/
   /* Performing the simulation */
@@ -1841,16 +1843,16 @@ double CalcSimuTurningBands::_irfProcessSample(const ECov &type,
 }
 
 void CalcSimuTurningBands::_getOmegaPhi(int ibs,
-                                    double omega,
-                                    double phi,
-                                    double *cxp,
-                                    double *sxp,
-                                    double *cyp,
-                                    double *syp,
-                                    double *czp,
-                                    double *szp,
-                                    double *c0z,
-                                    double *s0z)
+                                        double omega,
+                                        double phi,
+                                        double *cxp,
+                                        double *sxp,
+                                        double *cyp,
+                                        double *syp,
+                                        double *czp,
+                                        double *szp,
+                                        double *c0z,
+                                        double *s0z)
 {
   double dxp = _getCodirDXP(ibs);
   double dyp = _getCodirDYP(ibs);
@@ -2108,9 +2110,9 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
     {
       if (!dbin->isActive(ip)) continue;
       dbin->getSampleCoordinates(ip, coor2);
-      int rank = dbgrid->coordinateToRank(coor2, eps);
+      int rank = dbgrid->coordinateToRank(coor2, false, eps);
       if (!dbgrid->isActive(rank)) continue;
-      dbgrid->rankToCoordinate(rank, coor1);
+      dbgrid->rankToCoordinateInPlace(rank, coor1);
 
       /* Get the distance to the target point */
 
@@ -2245,7 +2247,7 @@ int CalcSimuTurningBands::simulate(Db *dbin,
 bool CalcSimuTurningBands::_run()
 {
   law_set_random_seed(getSeed());
-  bool flag_cond = hasDbin();
+  bool flag_cond = hasDbin(false);
   int nbsimu = getNbSimu();
 
   // Initializations
@@ -2385,7 +2387,7 @@ int CalcSimuTurningBands::simulatePotential(Db *dbiso,
 
   /* Non conditional simulations on the grid */
 
-  if (is_grid(dbout))
+  if (dbout->isGrid())
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
     _simulateGrid(dbgrid, aic, icase, 0);
@@ -2521,20 +2523,11 @@ bool CalcSimuTurningBands::_check()
 {
   if (! ACalcSimulation::_check()) return false;
 
-  if (! hasDbout())
+  if (! hasDbout()) return false;
+  if (! hasModel()) return false;
+  if (hasDbin(false))
   {
-    messerr("The argument 'dbout' must be defined");
-    return false;
-  }
-  if (! hasModel())
-  {
-    messerr("The argument 'model' must be defined");
-    return false;
-  }
-  if (hasDbin() && ! hasNeighParam())
-  {
-    messerr("The argument 'neighparam' must be defined");
-    return false;
+    if (! hasNeighParam()) return false;
   }
   int ndim = _getNDim();
   if (ndim > 3)
@@ -2566,11 +2559,11 @@ bool CalcSimuTurningBands::_preprocess()
 
     if (flag_cond)
     {
-      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, nvar*nbsimu);
+      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar*nbsimu);
       if (iptr_in < 0) return false;
     }
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, nvar*nbsimu);
+    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar*nbsimu);
     if (_iattOut < 0) return false;
 
     return true;
@@ -2581,9 +2574,14 @@ bool CalcSimuTurningBands::_postprocess()
   /* Free the temporary variables */
   _cleanVariableDb(2);
 
+  // Clean variables created for Expansion
+
+  if (_expandInformation(-1, ELoc::F)) return false;
+  if (_expandInformation(-1, ELoc::NOSTAT)) return false;
+
   /* Set the error return flag */
 
-  _renameVariable(ELoc::Z, _getNVar(), _iattOut, String(), getNbSimu());
+  _renameVariable(2, _getNVar(), _iattOut, String(), getNbSimu());
 
   return true;
 }

@@ -12,13 +12,13 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
+
+#include "Space/ESpaceType.hpp"
 #include "Basic/Law.hpp"
-#include "Space/Space.hpp"
+#include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Basic/AException.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
 #include "Variogram/Vario.hpp"
@@ -72,7 +72,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Setup constants
 
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AllGibbs-");
   law_set_random_seed(seed);
@@ -149,6 +149,6 @@ int main(int /*argc*/, char */*argv*/[])
   // Cleaning structures
 
   gibbs.cleanup();
-  db    = db_delete(db);
+  delete db;
   return(0);
 }

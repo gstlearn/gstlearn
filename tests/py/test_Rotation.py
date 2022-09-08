@@ -1,13 +1,17 @@
+# Preamble
+
 import numpy as np
 import sys
 import os
 import gstlearn as gl
-import gstlearn.plot as gp
 
-# Instantiation of a 2-D Rotation of 30 degrees
-# Angles are defined in a trigonometric system: counterclockwise from East
+# Constants
 
 sqr3 = np.sqrt(3)
+
+# Instanciation of a 2-D Rotation of 30 degrees
+# Angles are defined in a trigonometric system: counterclockwise from East
+
 ndim = 2
 rot = gl.Rotation(ndim)
 rot.setAngles([30,0])
@@ -70,9 +74,9 @@ new_indice = gl.VectorInt(len(vec))
 if not gl.ut_vector_same(vec, [x0[0]+sqr3, x0[1]-1.]):
   print("Error: vec different from [x0[0]+sqr3, x0[1]-1.]")
 
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, np.array(new_indice.getVector(), dtype='object')): # Trop la classe !!
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 indice = [0,1]
@@ -83,9 +87,9 @@ if not gl.ut_vector_same(vec, [x0[0]+1, x0[1]+sqr3]):
   print("Error: vec different from [x0[0]+1, x0[1]+sqr3]")
 
 new_indice = gl.VectorInt(len(vec))
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, np.array(new_indice.getVector(), dtype='object')):
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 indice = [0,0]
@@ -95,9 +99,9 @@ print(vec)
 if not gl.ut_vector_same(vec,x0):
   print("Error: vec different from x0")
 
-err = pgrid.coordinateToIndice(vec,new_indice)
+err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, np.array(new_indice.getVector(), dtype='object')):
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 # Translate Grid rank into Grid indices, and backwards

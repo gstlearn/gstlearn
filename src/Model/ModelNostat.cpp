@@ -8,12 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Model/ModelNostat.hpp"
 #include "Model/ElemNostat.hpp"
 #include "Basic/Utilities.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 
 ModelNostat::ModelNostat()
     : AStringable(),

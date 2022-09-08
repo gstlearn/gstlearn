@@ -75,18 +75,6 @@ public:
 
   VectorDouble RawToGaussianVector(const VectorDouble &z) const;
   VectorDouble GaussianToRawVector(const VectorDouble &y) const;
-  int RawToGaussian(Db *db,
-                    const String &name,
-                    const NamingConvention &namconv = NamingConvention("Y"));
-  int GaussianToRaw(Db *db,
-                    const String &name,
-                    const NamingConvention &namconv = NamingConvention("Z"));
-  int RawToGaussian(Db *db,
-                    const ELoc &locatorType = ELoc::Z,
-                    const NamingConvention &namconv = NamingConvention("Y"));
-  int GaussianToRaw(Db *db,
-                    const ELoc &locatorType = ELoc::Z,
-                    const NamingConvention &namconv = NamingConvention("Z"));
 
   AnamContinuousFit sample(int ndisc = 100,
                            double aymin = -10,

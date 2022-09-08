@@ -11,7 +11,6 @@
 #include "Matrix/MatrixSquareDiagonal.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
 
 MatrixSquareDiagonal::MatrixSquareDiagonal(int nrows, bool sparse)
   : AMatrixSquare(nrows, sparse)

@@ -13,6 +13,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include "geoslib_f.h"
+
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Covariances/ECov.hpp"
@@ -45,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   int error = 0;
   int ndim = 2;
   int nbsimu = 2;
-  ASpaceObject::defineDefaultSpace(SPACE_RN, ndim);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   CovContext ctxt(1,2,1.); // use default space
   DbStringFormat dbfmt;
 

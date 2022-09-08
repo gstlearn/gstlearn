@@ -11,7 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Space/Space.hpp"
+
+#include "ESpaceType.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
@@ -42,15 +44,14 @@ public:
   virtual bool isEqual(const ASpace* space) const;
 
   /// Return the concrete space type
-  virtual SpaceType getType() const = 0;
+  virtual ESpaceType getType() const = 0;
 
   /// Move the given space point by the given vector
-  virtual void move(SpacePoint& p1,
-                    const VectorDouble& vec) const = 0;
+  virtual void move(SpacePoint& p1, const VectorDouble& vec) const = 0;
 
   /// Return the distance between two space points
-  virtual double getDistance(const SpacePoint& p1,
-                             const SpacePoint& p2) const = 0;
+  virtual double getDistance(const SpacePoint &p1,
+                             const SpacePoint &p2) const = 0;
 
   /// Return the distance between two space points with the given tensor
   virtual double getDistance(const SpacePoint& p1,

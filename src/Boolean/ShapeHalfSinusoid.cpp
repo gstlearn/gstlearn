@@ -9,9 +9,9 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Boolean/ShapeHalfSinusoid.hpp"
-#include <math.h>
+#include "Simulation/BooleanObject.hpp"
 
-#include "../../include/Simulation/BooleanObject.hpp"
+#include <math.h>
 
 ShapeHalfSinusoid::ShapeHalfSinusoid(double proportion,
                                      double period,

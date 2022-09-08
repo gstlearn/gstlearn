@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_old_f.h"
+
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/AMatrix.hpp"
 #include "Basic/AException.hpp"
-#include "geoslib_f.h"
-#include "geoslib_old_f.h"
 #include "csparse_d.h"
 
 MatrixRectangular::MatrixRectangular(int nrows, int ncols, bool sparse)

@@ -36,7 +36,6 @@ public:
   KrigingSystem& operator=(const KrigingSystem &m) = delete;
   virtual ~KrigingSystem();
 
-  int  setKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
   int  setKrigOptCalcul(const EKrigOpt& calcul,
                         const VectorInt& ndiscs = VectorInt(),
                         bool flag_per_cell = false);
@@ -54,13 +53,16 @@ public:
   int  setKrigOptFlagSimu(bool flagSimu, int nbsimu = 0, int rankPGS = -1);
   int  setKrigOptSaveWeights(bool flag_save);
   int  setKrigOptDGM(bool flag_dgm, double rcoeff, double eps = EPSILON6);
-  int  setKrigOptImageSmooth(bool flag_smooth, int type = 1, double range = 0.);
   int  setKrigOptFlagGlobal(bool flag_global);
   int  setKrigOptFlagLTerm(bool flag_lterm);
   int  setKrigOptAnamophosis(AAnam* anam);
-  int  setKrigOptIclass(int index_class);
   int  setKrigOptFactorKriging(bool flag_factor_kriging);
-  int  setKrigOptCheckAddress(bool flagCheckAddress);
+
+  // The subsequent methods do not require isReady() validation
+  int  updKrigOptEstim(int iptrEst, int iptrStd, int iptrVarZ);
+  int  updKrigOptIclass(int index_class, int nclasses);
+  int  updKrigOptCheckAddress(bool flagCheckAddress);
+  int  updKrigOptNeighOnly(int iptrNeigh);
 
   bool isReady();
   int  estimate(int iech_out);
@@ -151,9 +153,9 @@ private:
   int  _prepar();
   void _estimateCalcul(int status);
   void _estimateCalculImage(int status);
-  void _estimateCalculSmoothImage(int status);
   void _estimateCalculXvalidUnique(int status);
   void _simulateCalcul(int status);
+  void _neighCalcul(int status, const VectorDouble& tab);
   double _estimateVarZ(int ivarCL, int jvarCL);
   double _variance(int ivarCL, int jvarCL);
   void _variance0();
@@ -244,6 +246,7 @@ private:
 
   /// Option for (Disjunctive) Kriging of Factor
   bool _flagFactorKriging;
+  int _nclasses;
 
   /// Option for Estimating the Linear Combination of Variables
   VectorVectorDouble _matCL;
@@ -257,18 +260,19 @@ private:
 
   /// Option for Estimation based on Image
   DbGrid* _dbaux;
-  bool _flagSmooth;
-  int  _smoothType;
-  double _smoothRange;
 
   /// Option for saving the Weights using Keypair mechanism
   bool _flagKeypairWeights;
+
+  /// Option for Neighboring test
+  bool _flagNeighOnly;
+  int  _iptrNeigh;
 
   /// Local variables
   int _iechOut;
   int _nred;
 
-  /// Local arrays
+  /// Working arrays
   mutable bool _flagCheckAddress;
   mutable NeighWork    _nbghWork;
   mutable VectorInt    _nbgh;

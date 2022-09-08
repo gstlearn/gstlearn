@@ -14,7 +14,6 @@
 #include "Mesh/MeshFactory.hpp"
 #include "Mesh/MeshSpherical.hpp"
 #include "Db/Db.hpp"
-#include "geoslib_f.h"
 
 MeshFactory::MeshFactory()
 {
