@@ -33,6 +33,7 @@
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
+ * It will be compiled but not run (not diffed)
  */
 int main(int /*argc*/, char */*argv*/[])
 
@@ -42,23 +43,23 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
 //  StdoutRedirect sr(sfn.str());
 
-//  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-//
-//  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
-//  dat->display();
-//
-//  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
-//  model->display();
-//
-//  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
-//  Result->display();
-//
-//  VectorDouble propGlob = dbStatisticsFacies(dat);
-//  int ncat = (int) propGlob.size();
-//  for (int i = 0; i < ncat; i++)
-//    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
-//
-//  (void) db_proportion_estimate(dat,Result,model);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+
+  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
+  dat->display();
+
+  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
+  model->display();
+
+  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
+  Result->display();
+
+  VectorDouble propGlob = dbStatisticsFacies(dat);
+  int ncat = (int) propGlob.size();
+  for (int i = 0; i < ncat; i++)
+    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
+
+  (void) db_proportion_estimate(dat,Result,model);
 
   return (0);
 }
