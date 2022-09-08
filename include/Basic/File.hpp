@@ -37,7 +37,7 @@ public:
   void stop();
 
 private:
-#ifdef _WIN32
+#if defined(_WIN32) || defined(_WIN64)
   // HANDLE _old_stdout;
   void* _old_stdout;
 #else

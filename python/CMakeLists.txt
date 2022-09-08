@@ -63,9 +63,9 @@ set(SRC pygstlearn.i)
 
 # Generation folders
 if (CMAKE_CONFIGURATION_TYPES)
-  set(PYTHON_PACKAGE_ROOT_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
+  set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/$<CONFIG>)
 else()
-  set(PYTHON_PACKAGE_ROOT_FOLDER ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
+  set(PYTHON_PACKAGE_ROOT_FOLDER      ${CMAKE_CURRENT_BINARY_DIR}/${CMAKE_BUILD_TYPE})
 endif()
 set(PYTHON_PACKAGE_DESTINATION_FOLDER ${PYTHON_PACKAGE_ROOT_FOLDER}/${PYTHON_PACKAGE_NAME})
 # Location for SWIG target language code
@@ -80,7 +80,7 @@ set_source_files_properties(${SRC} PROPERTIES
   # Swig wrapper will be regenerated if C++ headers are changed
   # https://stackoverflow.com/a/70375654/3952924 (CMake 3.20 minimum)
   USE_SWIG_DEPENDENCIES TRUE
-  # gstlearn C++ headers will be found by %import directive
+  # gstlearn C++ headers will be found by %import swig directive
   USE_TARGET_INCLUDE_DIRECTORIES TRUE
   # Python package name will be the name of the installed folder (no module)
   SWIG_MODULE_NAME __init__
@@ -96,7 +96,7 @@ set_property(SOURCE ${SRC} PROPERTY
 )
 
 # SWIG flags
-set(CMAKE_SWIG_FLAGS -py3 -keyword -naturalvar)
+set(CMAKE_SWIG_FLAGS -py3 -keyword) # Use -keyword option to activate kwargs
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 

@@ -16,7 +16,7 @@ gl.argumentTestDouble(2.3)
 gl.argumentTestVectorInt([1,2,3])
 gl.argumentTestVectorDouble([1.1, 2.2, 3.3])
 gl.argumentTestString("my_String")
-gl.argumentTestVectorString("my_String")  # Should be corrected
+gl.argumentTestVectorString("my_String")  # The String is decomposed (cannot be fixed)
 gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
 gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ])
 gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])

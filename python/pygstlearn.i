@@ -1,4 +1,4 @@
-%module(directors="1") gstlearn
+%module(directors="1") gstlearn // TODO : configure this using CMake configure_file
 
 %feature(director) AFunction; // TODO : director for AFunction
 
@@ -13,6 +13,42 @@
 //////////////////////////////////////////////////////////////
 //    Specific typemaps and fragments for Python language   //
 //////////////////////////////////////////////////////////////
+
+%begin %{
+// For converting NumPy integers to C++ integers
+// https://github.com/swig/swig/issues/888
+#define SWIG_PYTHON_CAST_MODE
+// For isnan
+#include <cmath>
+// For isinf
+#include <math.h>
+// For cout
+#include <iostream>
+
+// Numpy default integer type is different according the OS
+// The NA value for integers is tested differently
+// Remind that there is no standard NaN for integers in python (cannot use std::numeric_limits<double>::quiet_NaN())
+// But numpy converts np.nan in signed int64/32 minimum (-2^63 on Linux / -2^31 on Windows)
+// All integers in C++ are 32 bits so :
+//   - all integers outside from ]-2^31, 2^31] are NA (Linux)
+//   - all integers equal to -2^31 are NA (Windows)
+    
+// Try by executing this:
+// type(np.asarray(np.array([1]), dtype=int)[0])
+// np.asarray(np.array([1, np.NaN, 3]), dtype=int)
+
+#if defined(_WIN32) || defined(_WIN64)
+  #define NPY_INT_IN_TYPE    NPY_INT32
+  #define NPY_INT_OUT_TYPE   int
+  #define NPY_INT_NA         std::numeric_limits<NPY_INT_OUT_TYPE>::min()
+  #define NPY_INT_IS_NA(r,v) v == NPY_INT_NA
+#else
+  #define NPY_INT_IN_TYPE    NPY_INT64
+  #define NPY_INT_OUT_TYPE   int64_t
+  #define NPY_INT_NA         std::numeric_limits<NPY_INT_OUT_TYPE>::min()
+  #define NPY_INT_IS_NA(r,v) r == SWIG_OverflowError
+#endif
+%}
 
 %fragment("ToCpp", "header")
 {
@@ -35,14 +71,13 @@
   {
     if (PySequence_Check(obj) || PyArray_CheckExact(obj))
     {
-      // TODO : PyString_Check doesn't return true ?
-      //int size = (int)PySequence_Length(obj);
-      //for (int i = 0; i < size; ++i)
-      //{
-      //  PyObject* item = PySequence_GetItem(obj, i);
-      //  if (!PyString_Check(item))
-      //    return SWIG_TypeError;
-      //}
+      int size = (int)PySequence_Length(obj);
+      for (int i = 0; i < size; ++i)
+      {
+        PyObject* item = PySequence_GetItem(obj, i);
+        if (!PyUnicode_Check(item))
+          return SWIG_TypeError;
+      }
       return SWIG_OK;
     }
     return SWIG_TypeError;
@@ -52,32 +87,47 @@
   
   template <> int convertToCpp(PyObject* obj, int& value)
   {
-    // TODO : Handle undefined or NA values
-    // TODO : SWIG_AsVal_int fails when PyObject is a NumPy Array item!
-    return SWIG_AsVal_int(obj, &value);
+    int myres = SWIG_AsVal_int(obj, &value);
+    //std::cout << "convertToCpp(int): value=" << value << std::endl;
+    if (NPY_INT_IS_NA(myres, value))
+    {
+      myres = SWIG_OK;
+      value = getNAValue<int>();
+    }
+    return myres;
   }
   template <> int convertToCpp(PyObject* obj, double& value)
   {
-    // TODO : Handle undefined or NA values
-    return SWIG_AsVal_double(obj, &value);
+    int myres = SWIG_AsVal_double(obj, &value);
+    //std::cout << "convertToCpp(double): value=" << value << std::endl;
+    if (SWIG_IsOK(myres) && !isnan(value) && !isinf(value))
+      return myres;
+    value = getNAValue<double>();
+    return myres; 
   }
   template <> int convertToCpp(PyObject* obj, String& value)
   {
+    int myres = SWIG_AsVal_std_string(obj, &value);
+    //std::cout << "convertToCpp(String): value=" << value << std::endl;
     // No undefined
-    return SWIG_AsVal_std_string(obj, &value);
+    return myres;
   }
   template <> int convertToCpp(PyObject* obj, float& value)
   {
-    // TODO : Handle undefined or NA values
-    return SWIG_AsVal_float(obj, &value);
+    int myres = SWIG_AsVal_float(obj, &value);
+    //std::cout << "convertToCpp(float): value=" << value << std::endl;
+    if (SWIG_IsOK(myres) && !isnan(value) && !isinf(value))
+      return myres;
+    value = getNAValue<float>();
+    return myres; 
   }
   template <> int convertToCpp(PyObject* obj, UChar& value)
   {
-    // TODO : Handle undefined or NA values
     int v = 0;
     int myres = SWIG_AsVal_int(obj, &v);
+    //std::cout << "convertToCpp(UChar): value=" << v << std::endl;
     if (v < 0 || v > 255)
-      myres = SWIG_TypeError;
+      myres = SWIG_OverflowError;
     else
       value = static_cast<UChar>(v);
     return myres;
@@ -86,6 +136,7 @@
   {
     int v = 0;
     int myres = SWIG_AsVal_int(obj, &v);
+    //std::cout << "convertToCpp(bool): value=" << v << std::endl;
     if (v == 0)
       value = false;
     else
@@ -197,57 +248,96 @@
 %fragment("FromCpp", "header")
 {
   template <typename Type> NPY_TYPES numpyType();
-  template <> NPY_TYPES numpyType<int>()    { return NPY_INT; }
+  // Integers in NumPy are all 64 bits by default
+  template <> NPY_TYPES numpyType<int>()    { return NPY_INT_IN_TYPE; }
   template <> NPY_TYPES numpyType<double>() { return NPY_DOUBLE; }
+  template <> NPY_TYPES numpyType<String>() { return NPY_STRING; }
   template <> NPY_TYPES numpyType<float>()  { return NPY_FLOAT; }
   template <> NPY_TYPES numpyType<UChar>()  { return NPY_UBYTE; }
   template <> NPY_TYPES numpyType<bool>()   { return NPY_BOOL; }
-  template <> NPY_TYPES numpyType<String>() { return NPY_STRING; }
   
   template<typename Type> struct TypeHelper;
   template <> struct TypeHelper<int>    { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<double> { static bool hasFixedSize() { return true; } };
+  template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <> struct TypeHelper<float>  { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<UChar>  { static bool hasFixedSize() { return true; } };
   template <> struct TypeHelper<bool>   { static bool hasFixedSize() { return true; } };
-  template <> struct TypeHelper<String> { static bool hasFixedSize() { return false; } };
   template <typename Type> bool hasFixedSize() { return TypeHelper<Type>::hasFixedSize(); }
   
   template <typename InputType> struct OutTraits; // Only used for fixed item size
-  template <> struct OutTraits<int>           { using OutputType = int; };
-  template <> struct OutTraits<double>        { using OutputType = double; };
-  template <> struct OutTraits<float>         { using OutputType = float; };
-  template <> struct OutTraits<UChar>         { using OutputType = UChar; };
-  template <> struct OutTraits<bool>          { using OutputType = bool; };
-  template <> struct OutTraits<String>        { using OutputType = String; };
-  template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(Type value);
-  template <> int convertFromCpp(int value)
+  template <> struct OutTraits<int>     { using OutputType = NPY_INT_OUT_TYPE; };
+  template <> struct OutTraits<double>  { using OutputType = double; };
+  template <> struct OutTraits<String>  { using OutputType = const char*; };
+  template <> struct OutTraits<float>   { using OutputType = float; };
+  template <> struct OutTraits<UChar>   { using OutputType = UChar; };
+  template <> struct OutTraits<bool>    { using OutputType = bool; };
+  
+  template <typename Type> typename OutTraits<Type>::OutputType convertFromCpp(const Type& value);
+  template <> NPY_INT_OUT_TYPE convertFromCpp(const int& value)
   {
-    // TODO : handle undefined or NA values
+    //std::cout << "convertFromCpp(int): value=" << value << std::endl;
+    NPY_INT_OUT_TYPE vres = static_cast<NPY_INT_OUT_TYPE>(value);
+    if (isNA<int>(value))
+      vres = NPY_INT_NA;
+    return vres;
+  }
+  template <> double convertFromCpp(const double& value)
+  {
+    //std::cout << "convertFromCpp(double): value=" << value << std::endl;
+    if (isNA<double>(value))
+      return std::numeric_limits<double>::quiet_NaN();
     return value;
   }
-  template <> double convertFromCpp(double value)
+  template <> const char* convertFromCpp(const String& value)
   {
-    // TODO : handle undefined or NA values
+    //std::cout << "convertFromCpp(String): value=" << value << std::endl;
+    return value.c_str(); // No special conversion provided
+  }
+  template <> float convertFromCpp(const float& value)
+  {
+    //std::cout << "convertFromCpp(float): value=" << value << std::endl;
+    if (isNA<float>(value))
+    {
+      return static_cast<float>(std::nan(""));
+    }
     return value;
   }
-  template <> String convertFromCpp(String value)
+  template <> UChar convertFromCpp(const UChar& value)
   {
+    //std::cout << "convertFromCpp(UChar): value=" << value << std::endl;
     return value; // No special conversion provided
   }
-  template <> float convertFromCpp(float value)
+  template <> bool convertFromCpp(const bool& value)
   {
-    // TODO : handle undefined or NA values
-    return value;
-  }
-  template <> UChar convertFromCpp(UChar value)
-  {
-    // TODO : handle undefined or NA values
-    return value;
-  }
-  template <> bool convertFromCpp(bool value)
-  {
+    //std::cout << "convertFromCpp(bool): value=" << value << std::endl;
     return value; // No special conversion provided
+  }
+  
+  template <typename Type> PyObject* objectFromCpp(const Type& value);
+  template <> PyObject* objectFromCpp(const int& value)
+  {
+    return PyLong_FromLongLong(convertFromCpp(value));
+  }
+  template <> PyObject* objectFromCpp(const double& value)
+  {
+    return PyFloat_FromDouble(convertFromCpp(value));
+  }
+  template <> PyObject* objectFromCpp(const String& value)
+  {
+    return PyUnicode_FromString(convertFromCpp(value));
+  }
+  template <> PyObject* objectFromCpp(const float& value)
+  {
+    return PyFloat_FromDouble(static_cast<double>(convertFromCpp(value)));
+  }
+  template <> PyObject* objectFromCpp(const UChar& value)
+  {
+    return PyLong_FromLongLong(static_cast<long long>(convertFromCpp(value)));
+  }
+  template <> PyObject* objectFromCpp(const bool& value)
+  {
+    return PyBool_FromLong(static_cast<long>(convertFromCpp(value)));
   }
   
   template <typename Vector>
@@ -274,7 +364,7 @@
         myres = SWIG_OK;
       }
     }
-    else // Convert to a tuple
+    else // Convert to a tuple using standard std_vector
     {
       *obj = swig::from(vec.getVector());
       myres = (*obj) == NULL ? SWIG_TypeError : SWIG_OK;

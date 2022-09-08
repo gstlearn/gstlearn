@@ -885,6 +885,7 @@ void ut_facies_statistics(int nech,
 
   if (facmax < facmin || number <= 0)
   {
+    *nval = 0;
     *mini = *maxi = ITEST;
   }
   else

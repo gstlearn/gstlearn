@@ -15,7 +15,7 @@ include(root/FindR.cmake)
 
 # Look for SWIG 4
 find_package(SWIG 4.0 REQUIRED)
-# TODO : If SWIG not found, fetch it from the web
+# TODO : If SWIG not found, fetch it from the web?
 include(${SWIG_USE_FILE})
 
 ######################################  
@@ -82,8 +82,9 @@ set_property(SOURCE ${SRC} PROPERTY
 )
 
 # SWIG flags
-#set(CMAKE_SWIG_FLAGS -debug-classes -naturalvar)
-set(CMAKE_SWIG_FLAGS -naturalvar)
+#set(CMAKE_SWIG_FLAGS -debug-classes)
+#set(CMAKE_SWIG_FLAGS -debug-tmsearch)
+set(CMAKE_SWIG_FLAGS)
 # Note: Cannot use -doxygen feature because all documentation is in C++ body files
 # Note: Use -E option for seeing SWIG preprocessor output
 
@@ -95,11 +96,16 @@ swig_add_library(
   SOURCES    ${SRC}
 )
 
+if (APPLE)
+  # To prevent 'import' from crashing under Mac (swig output suffix is .dynlib by default) 
+  set_target_properties(r_build PROPERTIES SUFFIX ".so")
+endif()
+
 # Link to static library
 target_link_libraries(r_build PUBLIC ${PROJECT_NAME}::static)
 
 # Transmit the fact that we are linking to static ${PROJECT_NAME} library
-set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-variable -Wno-unused-parameter") # Prevent some SWIG C++/R warnings
+set(COMP_FLAGS "-D${PROJECT_NAME_UP}_STATIC_DEFINE -Wno-unused-parameter -Wno-free-nonheap-object") # Prevent some SWIG C++/R warnings
 if ("${FLAVOR}" STREQUAL "Debug")
   set(COMP_FLAGS "${COMP_FLAGS} -g")
 endif()
@@ -113,11 +119,6 @@ set_target_properties(r_build PROPERTIES
   # Compiler flags for the SWIG library
   COMPILE_FLAGS ${COMP_FLAGS}
 )
-
-if (APPLE)
-  # To prevent 'library' from crashing under Mac (swig output suffix is .dynlib by default) 
-  set_target_properties(r_build PROPERTIES SUFFIX ".so")
-endif()
 
 # Find appropriate R.h
 target_include_directories(r_build PRIVATE ${R_INCLUDE_DIRS})

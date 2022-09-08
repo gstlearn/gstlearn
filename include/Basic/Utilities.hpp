@@ -19,7 +19,7 @@ GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);
 GSTLEARN_EXPORT bool   isOdd(int number);
 GSTLEARN_EXPORT bool   isEven(int number);
 GSTLEARN_EXPORT int    FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int.
+GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int>
 GSTLEARN_EXPORT double getTEST();  // TODO getNAValue<double>
 GSTLEARN_EXPORT int    getITEST(); // TODO getNAValue<int>
 GSTLEARN_EXPORT double getMin(double val1, double val2);
@@ -27,6 +27,7 @@ GSTLEARN_EXPORT double getMax(double val1, double val2);
 GSTLEARN_EXPORT double ut_deg2rad(double angle);
 GSTLEARN_EXPORT double ut_rad2deg(double angle);
 
+#define FLOAT_NA  TEST // 1.234e30 is ok for 4 bytes
 #define DOUBLE_NA TEST
 #define INT_NA    ITEST
 #define STRING_NA "NA"    // TODO search for this string and replace
@@ -54,11 +55,17 @@ public:
   static inline String getNA() { return STRING_NA; }
 };
 
+// Define NA value for float
+template <> class ValueNA<float>
+{
+public:
+  static inline float getNA() { return FLOAT_NA; }
+};
+
 template <typename T> inline T    getNAValue()     { return ValueNA<T>::getNA(); }
 template <typename T> inline bool isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
 
-// Other Utiity functions
-
+// Other Utility functions
 
 GSTLEARN_EXPORT void ut_tab_unique(int ntab, double *tab, int *neff);
 GSTLEARN_EXPORT void ut_sort_double(int safe, int nech, int *ind, double *value);
