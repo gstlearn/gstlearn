@@ -14,7 +14,7 @@ if (NOT USE_HDF5)
 endif()
 
 # Exclude one test from output comparison
-# set(EXCLUDE_FROM_DIFF "test_a_template")
+set(EXCLUDE_FROM_DIFF "test_a_template")
 
 # Generation folder
 if (CMAKE_CONFIGURATION_TYPES)

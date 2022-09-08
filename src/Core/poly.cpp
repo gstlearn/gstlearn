@@ -317,8 +317,8 @@ static void _polygonHullPrintout(const VectorInt& index)
  **
  ** \return  Error returned code
  **
- ** \param[in]  db    descriptor of the Db serving for convex hull calculation
- ** \param[in]  verbose Verbose flag
+ ** \param[in]  x    Vector of X coordinates
+ ** \param[in]  y    Vector of Y coordinates
  **
  *****************************************************************************/
 VectorInt _polygonHull(const VectorDouble& x, const VectorDouble& y)
@@ -391,6 +391,7 @@ VectorInt _polygonHull(const VectorDouble& x, const VectorDouble& y)
  * @param ext Dilation distance
  * @param x   Vector of X-coordinates or initial samples
  * @param y   Vector of Y-coordinates of initial samples
+ * @param nsect Number of discretization points for dilation
  */
 static void _polygonExtend(double ext,
                            VectorDouble& x,
