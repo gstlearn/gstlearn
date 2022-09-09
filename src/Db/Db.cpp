@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Db/DbGrid.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
@@ -1284,6 +1285,14 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
 
   for (unsigned int i = 0; i < v.size(); i++)
     deleteColumnByColIdx(v[i]);
+}
+
+DbGrid* Db::coveringDb(const VectorInt& nodes,
+                             const VectorDouble& dcell,
+                             const VectorDouble& origin,
+                             const VectorDouble& margin) const
+{
+   return DbGrid::createCoveringDb(this,nodes,dcell,origin,margin);
 }
 
 void Db::deleteColumnsByUID(const VectorInt& iuids)

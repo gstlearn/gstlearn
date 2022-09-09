@@ -31,7 +31,6 @@ jobs:
        - os  : macos-11
          TAG : "macosx_11_0_arm64"
        python : 
-      #  - ["7","cp37"]
         - ["8","cp38"]
         - ["9","cp39"]
         - ["10","cp310"]
@@ -50,6 +49,14 @@ jobs:
    
     - name : set Python exe
       run : echo "PYTHON3=${{env.PYTHONPATH}}/python3">> $GITHUB_ENV
+
+####################################################################################################
+# Install wheel and twine
+
+    - name : Install wheel and twine
+      run: |
+       ${{env.PYTHON3}} -m pip install wheel
+       ${{env.PYTHON3}} -m pip install twine 
 
 
 ####################################################################################################
@@ -100,14 +107,6 @@ jobs:
     - name : Build python package
       run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- -j 3
  
-####################################################################################################
-# Install wheel and twine
-
-    - name : Install wheel and twine
-      run: |
-       ${{env.PYTHON3}} -m pip install wheel
-       ${{env.PYTHON3}} -m pip install twine 
-
 ####################################################################################################
 # Build and upload wheel
 
