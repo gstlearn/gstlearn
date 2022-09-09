@@ -45,24 +45,13 @@ Polygons::~Polygons()
 {
 }
 
-/**
- * Calculate the Polygon as the convex hull of the active samples of a Db
- * @param db
- */
-int Polygons::resetFromDb(const Db* db)
+int Polygons::resetFromDb(const Db* db, double dilate, bool verbose)
 {
   if (db == nullptr) return 1;
 
-  // Clear previous contents
-  _polysets.clear();
-
-  // Calculate the hull
-  VectorDouble x;
-  VectorDouble y;
-  if (polygon_hull(db, x, y)) return 1;
-
-  PolySet polyset = PolySet(x, y, TEST, TEST);
-  addPolySet(polyset);
+  Polygons* polygons = polygon_hull(db, dilate, verbose);
+  *this = *polygons;
+  delete polygons;
 
   return 0;
 }

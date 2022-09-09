@@ -281,11 +281,10 @@ void MeshSpherical::getDuplicates(Db   *dbin,
 ** \return A Sparse matrix (cs structure)
 **
 ** \param[in]  db        Db structure
-** \param[in]  fatal     Error type when point does not belong to Meshing
 ** \param[in]  verbose   Verbosity flag
 **
 *****************************************************************************/
-cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
+cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
 {
   bool flag_approx = true;
  
@@ -296,7 +295,6 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
   int nmeshes    = getNMeshes();
   int nvertex    = getNApices();
   int ncorner    = getNApexPerMesh();
-  int ndim       = getNDim();
 
   // Preliminary checks 
 
@@ -313,6 +311,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
   int ip_max = 0;
   int iech_max = 0;
+  int nout = 0;
   for (int iech=0; iech<db->getSampleNumber(); iech++)
   {
     if (! db->isActive(iech)) continue;
@@ -345,14 +344,9 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 
     if (found < 0)
     {
-      messerr("Point %d does not belong to any mesh",iech+1);
-      for (int idim=0; idim<ndim; idim++)
-        messerr(" Coordinate #%d = %lf",idim+1,coorLongLat[idim]);
-      if (fatal)
-      {
-        Atriplet = cs_spfree(Atriplet);
-        return nullptr;
-      }
+      nout++;
+      if (verbose)
+        messerr("Point %d does not belong to any mesh",iech+1);
     }
   }
   
@@ -365,6 +359,9 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
   
   /* Convert the triplet into a sparse matrix */
 
+  if (nout > 0)
+    messerr("%d / %d samples which do not belong to the Meshing",
+            nout, db->getSampleNumber(true));
   A = cs_triplet(Atriplet);
   Atriplet = cs_spfree(Atriplet);
   return(A);
@@ -378,9 +375,10 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool fatal, bool /*verbose*/) const
 **
 ** \param[in]  imesh    Rank of the Mesh (from 0 to _nMeshes-1))
 ** \param[in]  rank     Rank of the Apex within a Mesh (from 0 to _nApices-1)
+** \param[in]  inAbsolute TRUE to return the absolute index (otherwise relative)
 **
 *****************************************************************************/
-int MeshSpherical::getApex(int imesh, int rank) const
+int MeshSpherical::getApex(int imesh, int rank, bool /*inAbsolute*/) const
 {
   return _meshes.getValue(imesh,rank) - 1;
 }

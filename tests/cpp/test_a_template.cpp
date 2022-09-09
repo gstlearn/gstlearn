@@ -8,6 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "csparse_f.h"
+
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -22,9 +25,15 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Geometry/Geometry.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Mesh/MeshETurbo.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "Stats/Classical.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
+ * It will be compiled but not run (not diffed)
  */
 int main(int /*argc*/, char */*argv*/[])
 
@@ -32,24 +41,25 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
 
-  String filename = ASerializable::getTestData("Scotland","temperatures.ascii");
-  Db* temperatures = Db::createFromNF(filename);
-  temperatures->display();
+  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
+  dat->display();
 
-  filename = ASerializable::getTestData("Scotland","Scotland_Elevations.csv");
-  Db* mnt = Db::createFromCSV(filename);
-  mnt->setLocators({"Longitude","Latitude"},ELoc::X);
-  mnt->display();
+  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
+  model->display();
 
-  DbGrid* grid = DbGrid::createCoveringDb(mnt, {81,137});
-  grid->display();
+  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
+  Result->display();
 
-  (void) migrateVariables(mnt,grid,{"Elevation","inshore"});
-  grid->display();
+  VectorDouble propGlob = dbStatisticsFacies(dat);
+  int ncat = (int) propGlob.size();
+  for (int i = 0; i < ncat; i++)
+    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
+
+  (void) db_proportion_estimate(dat,Result,model);
 
   return (0);
 }

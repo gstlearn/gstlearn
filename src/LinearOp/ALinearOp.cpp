@@ -67,18 +67,18 @@ void ALinearOp::evalInverse(const VectorDouble& in,
   int n = getSize();
   if (n <= 0) my_throw("ALinearOp size not defined. Call setSize before");
 
-	VectorDouble z    = VectorDouble(n);
-	VectorDouble r    = VectorDouble(n);
-	VectorDouble temp = VectorDouble(n);
-	VectorDouble p    = VectorDouble(n);
+  VectorDouble z    = VectorDouble(n);
+  VectorDouble r    = VectorDouble(n);
+  VectorDouble temp = VectorDouble(n);
+  VectorDouble p    = VectorDouble(n);
 
-	if (! _x0.empty())
+  if (! _x0.empty())
     for (int i=0; i<n; i++) out[i] = _x0[i];
   else
     for (int i=0; i<n; i++) out[i] = 0.;
 
   evalDirect(out,temp);
-	for(int i=0; i<n; i++) r[i] = in[i] - temp[i];
+  for(int i=0; i<n; i++) r[i] = in[i] - temp[i];
   
   if (_precondStatus == 0)
     for (int i=0; i<n; i++) z[i] = r[i];
@@ -88,19 +88,19 @@ void ALinearOp::evalInverse(const VectorDouble& in,
     _precond->evalDirect(r,z);
   double critold = _prod(r, z);
 
-	for (int i=0; i<n; i++) p[i] = z[i];
+  for (int i=0; i<n; i++) p[i] = z[i];
 
   int niter = 0;
-	while(niter < _nIterMax && _prod(r,r) > _eps)
-	{
+  while(niter < _nIterMax && _prod(r,r) > _eps)
+  {
     niter++;
-		evalDirect(p,temp);
-		double alpha = _prod(r,z) / _prod(temp,p);
+    evalDirect(p,temp);
+    double alpha = _prod(r,z) / _prod(temp,p);
 
-		for(int i=0; i<n; i++)
+    for(int i=0; i<n; i++)
     {
-			out[i] += alpha * p[i];
-			r[i]   -= alpha * temp[i];
+      out[i] += alpha * p[i];
+      r[i]   -= alpha * temp[i];
     }
     if (_precondStatus == 0)
       for (int i=0; i<n; i++) z[i] = r[i];
@@ -110,12 +110,12 @@ void ALinearOp::evalInverse(const VectorDouble& in,
       _precond->evalDirect(r,z);
 
     double critnew = _prod(r, z);
-		double beta    = critnew / critold;
+    double beta    = critnew / critold;
 
-		for(int i=0; i<n; i++)
-			p[i] = z[i] + beta * p[i];
-		critold = critnew;
-	}
+    for(int i=0; i<n; i++)
+      p[i] = z[i] + beta * p[i];
+    critold = critnew;
+  }
 
   if (OptDbg::query(EDbg::CONVERGE))
   {

@@ -17,6 +17,8 @@
 #include "LithoRule/Rule.hpp"
 #include "csparse_d.h"
 
+#include <math.h>
+
 /****************************************************************************/
 /*!
  **  Create the Polygons structure
@@ -300,16 +302,135 @@ double polygon_surface(Polygons *polygon)
   return polygon->getSurface();
 }
 
+static void _polygonHullPrintout(const VectorInt& index)
+{
+  mestitle(1,"Polygon Hull");
+  message("Rank of the Active Samples included in the Convex Hull\n");
+  for (int i = 0; i < (int) index.size(); i++)
+    message(" %d",index[i]+1);
+  message("\n");
+}
+
 /*****************************************************************************/
 /*!
  **  Create a polygon from the convex hull of active samples
  **
  ** \return  Error returned code
  **
- ** \param[in]  db    descriptor of the Db serving for convex hull calculation
+ ** \param[in]  x    Vector of X coordinates
+ ** \param[in]  y    Vector of Y coordinates
  **
  *****************************************************************************/
-Polygons* polygon_hull(const Db *db)
+VectorInt _polygonHull(const VectorDouble& x, const VectorDouble& y)
+{
+  int number = (int) x.size();
+  VectorInt index(number + 1);
+
+  /* Calculate the center of gravity and the leftmost point */
+
+  int rank = 0;
+  int np = 0;
+  double xg = 0.;
+  double yg = 0.;
+  for (int i = 0; i < number; i++)
+  {
+    xg += x[i];
+    yg += y[i];
+    if (x[i] < x[rank]) rank = i;
+  }
+  xg /= number;
+  yg /= number;
+  index[0] = rank;
+  np++;
+
+  /* Implicit loop for finding the other points of the convex hull */
+
+  for (;;)
+  {
+    double x2, x3, y2, y3;
+    double x1 = x[index[np - 1]];
+    double y1 = y[index[np - 1]];
+    double x21 = xg - x1;
+    double y21 = yg - y1;
+
+    for (int i = 0; i < number; i++)
+    {
+      if ((x[i] - x1) * y21 - (y[i] - y1) * x21 <= 0.) continue;
+      x21 = x[i] - x1;
+      y21 = y[i] - y1;
+      rank = i;
+    }
+    if (rank == index[0]) goto label_cont;
+
+    /* Discard the previous point if on the line joining the current point */
+    /* to the one before the previous one */
+
+    if (np > 1)
+    {
+      x1 = x[rank];
+      y1 = y[rank];
+      x2 = x[index[np - 1]];
+      y2 = y[index[np - 1]];
+      x3 = x[index[np - 2]];
+      y3 = y[index[np - 2]];
+      if (ABS((x2-x3)*(y1-y3) - (x1-x3)*(y2-y3)) < EPSILON6) np--;
+    }
+    index[np] = rank;
+    np++;
+  }
+
+  label_cont:
+  index[np++] = index[0];
+  index.resize(np);
+
+  return index;
+}
+
+/**
+ * Create a set of fictitious samples obtained by dilating the initial ones
+ * @param ext Dilation distance
+ * @param x   Vector of X-coordinates or initial samples
+ * @param y   Vector of Y-coordinates of initial samples
+ * @param nsect Number of discretization points for dilation
+ */
+static void _polygonExtend(double ext,
+                           VectorDouble& x,
+                           VectorDouble& y,
+                           int nsect = 16)
+{
+  int ninit = (int) x.size();
+
+  x.resize(nsect * ninit);
+  y.resize(nsect * ninit);
+
+  for (int j = 0; j < ninit; j++)
+  {
+    int i = ninit - j - 1;
+    double x0 = x[i];
+    double y0 = y[i];
+
+    int iad = i * nsect;
+    for (int k = 0; k < nsect; k++)
+    {
+      double angle = 2. * GV_PI * k / (double) nsect;
+      x[iad + k] = x0 + ext * cos(angle);
+      y[iad + k] = y0 + ext * sin(angle);
+    }
+  }
+}
+
+/*****************************************************************************/
+/*!
+ **  Create a polygon from the convex hull of active samples
+ **
+ ** \return  Error returned code
+ **
+ ** \param[in]  db      descriptor of the Db serving for convex hull calculation
+ ** \param[in]  dilate  Radius of the dilation
+ ** \param[in]  verbose Verbose flag
+ **
+ *****************************************************************************/
+Polygons* polygon_hull(const Db *db, double dilate, bool verbose)
 
 {
   Polygons *polygons = nullptr;
@@ -328,183 +449,54 @@ Polygons* polygon_hull(const Db *db)
     return polygons;
   }
 
-  /* Core allocation */
-  VectorInt index(number + 1);
+  // Load the vector of coordinates (of active samples)
 
-  /* Calculate the center of gravity and the leftmost point */
+  VectorDouble xinit = db->getColumnByLocator(ELoc::X, 0, true);
+  VectorDouble yinit = db->getColumnByLocator(ELoc::X, 1, true);
 
-  int rank = 0;
-  int np = 0;
-  double xg = 0.;
-  double yg = 0.;
-  for (int i = 0; i < number; i++)
-  {
-    if (!db->isActive(i)) continue;
-    xg += db->getCoordinate(i, 0);
-    yg += db->getCoordinate(i, 1);
-    if (db->getCoordinate(i, 0) < db->getCoordinate(rank, 0)) rank = i;
-  }
-  xg /= number;
-  yg /= number;
-  index[0] = rank;
-  np++;
+  // Calculate the indices that are retained in the convex hull
 
-  /* Implicit loop for finding the other points of the convex hull */
+  VectorInt index = _polygonHull(xinit, yinit);
 
-  for (;;)
-  {
-    double x2, x3, y2, y3;
-    double x1 = db->getCoordinate(index[np - 1], 0);
-    double y1 = db->getCoordinate(index[np - 1], 1);
-    double x21 = xg - x1;
-    double y21 = yg - y1;
+  // Optional printout
 
-    for (int i = 0; i < number; i++)
-    {
-      if (!db->isActive(i)) continue;
-      if ((db->getCoordinate(i, 0) - x1) * y21 - (db->getCoordinate(i, 1) - y1)
-          * x21
-          <= 0.) continue;
-      x21 = db->getCoordinate(i, 0) - x1;
-      y21 = db->getCoordinate(i, 1) - y1;
-      rank = i;
-    }
-    if (rank == index[0]) goto label_cont;
-
-    /* Discard the previous point if on the line joining the current point */
-    /* to the one before the previous one */
-
-    if (np > 1)
-    {
-      x1 = db->getCoordinate(rank, 0);
-      y1 = db->getCoordinate(rank, 1);
-      x2 = db->getCoordinate(index[np - 1], 0);
-      y2 = db->getCoordinate(index[np - 1], 1);
-      x3 = db->getCoordinate(index[np - 2], 0);
-      y3 = db->getCoordinate(index[np - 2], 1);
-      if (ABS((x2-x3)*(y1-y3) - (x1-x3)*(y2-y3)) < EPSILON6) np--;
-    }
-    index[np] = rank;
-    np++;
-  }
-
-  label_cont: index[np++] = index[0];
-  index.resize(np);
+  if (verbose) _polygonHullPrintout(index);
 
   /* Create the polygons */
 
+  int np = (int) index.size();
+  VectorDouble xret(np);
+  VectorDouble yret(np);
+  for (int i = 0; i < np; i++)
+  {
+    xret[i] = xinit[index[i]];
+    yret[i] = yinit[index[i]];
+  }
+
+  // Extend to dilated hull (optional)
+
+  if (dilate > 0.)
+  {
+    xinit = xret;
+    yinit = yret;
+    _polygonExtend(dilate, xinit, yinit);
+    index = _polygonHull(xinit, yinit);
+
+    np = (int) index.size();
+    xret.resize(np);
+    yret.resize(np);
+    for (int i = 0; i < np; i++)
+    {
+      xret[i] = xinit[index[i]];
+      yret[i] = yinit[index[i]];
+    }
+  }
+
+  // Load the information within the polygon structure
+
   polygons = polygon_create();
   if (polygons == nullptr) return polygons;
+  polygons = polygon_add(polygons, xret, yret, TEST, TEST);
 
-  VectorDouble x(np);
-  VectorDouble y(np);
-  for (int i = 0; i < np; i++)
-  {
-    x[i] = db->getCoordinate(index[i], 0);
-    y[i] = db->getCoordinate(index[i], 1);
-  }
-  polygons = polygon_add(polygons, x, y, TEST, TEST);
   return polygons;
-}
-
-/*****************************************************************************/
-/*!
- **  Fill the arrays 'x' and 'y' with the coordinates of the polygon
- **  obtained as the convex hull of the active samples of 'db'.
- **
- ** \return  Error returned code
- **
- ** \param[in]  db    descriptor of the Db serving for convex hull calculation
- **
- ** \param[out] x     Array of first coordinates
- ** \param[out] y     Array of second coordinates
- **
- *****************************************************************************/
-int polygon_hull(const Db *db, VectorDouble &x, VectorDouble &y)
-{
-  /* Preliminary check */
-
-  if (db->getNDim() < 2)
-  {
-    messerr("The input Db must be contain at least 2 coordinates");
-    return 1;
-  }
-  int number = db->getSampleNumber();
-  if (number <= 0)
-  {
-    messerr("No active data in the input Db. Convex Hull impossible");
-    return 1;
-  }
-
-  /* Core allocation */
-  VectorInt index(number + 1);
-
-  /* Calculate the center of gravity and the leftmost point */
-
-  int rank = 0;
-  int np = 0;
-  double xg = 0.;
-  double yg = 0.;
-  for (int i = 0; i < number; i++)
-  {
-    if (!db->isActive(i)) continue;
-    xg += db->getCoordinate(i, 0);
-    yg += db->getCoordinate(i, 1);
-    if (db->getCoordinate(i, 0) < db->getCoordinate(rank, 0)) rank = i;
-  }
-  xg /= number;
-  yg /= number;
-  index[0] = rank;
-  np++;
-
-  /* Implicit loop for finding the other points of the convex hull */
-
-  for (;;)
-  {
-    double x2, x3, y2, y3;
-    double x1 = db->getCoordinate(index[np - 1], 0);
-    double y1 = db->getCoordinate(index[np - 1], 1);
-    double x21 = xg - x1;
-    double y21 = yg - y1;
-
-    for (int i = 0; i < number; i++)
-    {
-      if (!db->isActive(i)) continue;
-      if ((db->getCoordinate(i, 0) - x1) * y21 - (db->getCoordinate(i, 1) - y1)
-          * x21
-          <= 0.) continue;
-      x21 = db->getCoordinate(i, 0) - x1;
-      y21 = db->getCoordinate(i, 1) - y1;
-      rank = i;
-    }
-    if (rank == index[0]) goto label_cont;
-
-    /* Discard the previous point if on the line joining the current point */
-    /* to the one before the previous one */
-
-    if (np > 1)
-    {
-      x1 = db->getCoordinate(rank, 0);
-      y1 = db->getCoordinate(rank, 1);
-      x2 = db->getCoordinate(index[np - 1], 0);
-      y2 = db->getCoordinate(index[np - 1], 1);
-      x3 = db->getCoordinate(index[np - 2], 0);
-      y3 = db->getCoordinate(index[np - 2], 1);
-      if (ABS((x2-x3)*(y1-y3) - (x1-x3)*(y2-y3)) < EPSILON6) np--;
-    }
-    index[np] = rank;
-    np++;
-  }
-
-  label_cont: index[np++] = index[0];
-  index.resize(np);
-
-  x.resize(np);
-  y.resize(np);
-  for (int i = 0; i < np; i++)
-  {
-    x[i] = db->getCoordinate(index[i], 0);
-    y[i] = db->getCoordinate(index[i], 1);
-  }
-  return 0;
 }

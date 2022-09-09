@@ -70,12 +70,6 @@ class tetgenio;
 GSTLEARN_EXPORT void acknowledge_gstlearn(void);
 GSTLEARN_EXPORT void inquire_gstlearn(char **release, char **date);
 
-/******************************************/
-/* Prototyping the functions in license.c */
-/******************************************/
-GSTLEARN_EXPORT int register_license_file(const char *file_name,
-                                          const char *target_name);
-
 /***************************************/
 /* Prototyping the functions in pile.c */
 /***************************************/
@@ -1786,10 +1780,9 @@ GSTLEARN_EXPORT void polygon_extension(Polygons *polygon,
                                        double *ymin,
                                        double *ymax);
 GSTLEARN_EXPORT double polygon_surface(Polygons *polygon);
-GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db);
-GSTLEARN_EXPORT int polygon_hull(const Db *db,
-                                 VectorDouble &x,
-                                 VectorDouble &y);
+GSTLEARN_EXPORT Polygons* polygon_hull(const Db *db,
+                                       double dilate = 0.,
+                                       bool verbose = false);
 
 /*******************************************/
 /* Prototyping the functions in variopgs.c */

@@ -51,15 +51,12 @@ int GridIfpEn::writeInFile()
   if (_fileWriteOpen()) return 1;
 
   // Preliminary calculations
-
   int ncol = (int) _cols.size();
-  int ndim = _dbgrid->getNDim();
-  VectorInt nx = _dbgrid->getNXs();
+  VectorInt nx = _dbgrid->getNXsExt(3);
   VectorDouble angles = _dbgrid->getAngles();
   int ntot = 1;
   for (int idim = 0; idim < 3; idim++)
   {
-    nx[idim] = (idim < ndim) ? nx[idim] : 1;
     ntot *= nx[idim];
   }
 
@@ -122,34 +119,43 @@ void GridIfpEn::_writeLine(int mode,
                           double valrel,
                           const char *combis)
 {
-  char line[100];
+  std::stringstream sstr;
+
+  //char line[1000];
 
   /* Initialize the string */
 
-  (void) gslStrcpy(line, "");
+  //(void) gslStrcpy(line, "");
 
   /* Comment */
 
-  if (comment != NULL) (void) gslSPrintf(&line[strlen(line)], "%s", comment);
+  if (comment != NULL)
+    //(void) gslSPrintf(&line[strlen(line)], "%s", comment);
+    sstr << comment;
 
   /* Encoding the value */
 
   if (mode == 1)
   {
-    (void) gslSPrintf(&line[strlen(line)], " %d", valint);
+    // (void) gslSPrintf(&line[strlen(line)], " %d", valint);
+    sstr << " " << valint;
   }
   else if (mode == 2)
   {
-    (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
+    // (void) gslSPrintf(&line[strlen(line)], " %lf", valrel);
+    sstr << " " << valrel;
   }
 
   /* Secondary comment */
 
-  if (combis != NULL) (void) gslSPrintf(&line[strlen(line)], " %s", combis);
+  if (combis != NULL)
+    //(void) gslSPrintf(&line[strlen(line)], " %s", combis);
+    sstr << " " << combis;
 
   /* Print the line */
 
-  fprintf(_file, "%s\n", line);
+  //fprintf(_file, "%s\n", line);
+  fprintf(_file, "%s\n", sstr.str().c_str());
 }
 
 DbGrid* GridIfpEn::readGridFromFile()

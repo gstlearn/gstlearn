@@ -194,6 +194,7 @@ GSTLEARN_EXPORT int spde_chebychev_operate(cs *S,
 
 GSTLEARN_EXPORT int db_selhull(Db *db1,
                                Db *db2,
+                               double dilate = 0.,
                                bool verbose = false,
                                const NamingConvention& namconv = NamingConvention("Hull", true, true, ELoc::SEL));
 GSTLEARN_EXPORT void db_polygon(Db *db,

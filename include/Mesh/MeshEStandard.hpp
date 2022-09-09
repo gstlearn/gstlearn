@@ -37,11 +37,11 @@ public:
   /// Interface for AMesh
   int     getNApices() const override;
   int     getNMeshes() const override;
-  int     getApex(int imesh, int rank) const override;
+  int     getApex(int imesh, int rank, bool inAbsolute = true) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   double  getMeshSize(int imesh) const override;
-  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
+  cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
 
   static MeshEStandard* createFromNF(const String& neutralFilename,
                                      bool verbose = true);

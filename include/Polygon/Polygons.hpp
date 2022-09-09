@@ -29,7 +29,7 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int resetFromDb(const Db* db);
+  int resetFromDb(const Db* db, double dilate=0., bool verbose=false);
   int resetFromCSV(const String& filename,
                    const CSVformat& csv,
                    int verbose = false,

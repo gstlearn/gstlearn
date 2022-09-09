@@ -75,6 +75,7 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
   double ap[3];
 
   VectorDouble center = dbgrid->getCenter();
+  center.resize(3,0.);
   double diagonal = dbgrid->getExtensionDiagonal();
   std::vector<Plane> planes;
   planes.resize(np);
@@ -114,3 +115,16 @@ std::vector<Plane> Plane::poissonPlanesGenerate(DbGrid *dbgrid, int np)
   return planes;
 }
 
+double Plane::getCoor(int idim) const
+{
+  if (idim < (int) _coor.size())
+    return _coor[idim];
+  else
+    return 0.;
+}
+
+void Plane::setCoor(int idim, double value)
+{
+  if (idim < (int) _coor.size())
+    _coor[idim] = value;
+}

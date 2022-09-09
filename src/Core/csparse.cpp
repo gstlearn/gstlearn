@@ -1061,6 +1061,12 @@ int cs_entry(cs *T, int i, int j, double x)
 
 void cs_force_dimension(cs *T, int nrow, int ncol)
 {
+  if (T->m > nrow)
+    messageAbort("Forcing CS dimension: NRows current(%d) is larger then forecast(%d)",
+                 T->m, nrow);
+  if (T->m > nrow)
+    messageAbort("Forcing CS dimension: NCols current(%d) is larger then forecast(%d)",
+                 T->n, ncol);
   T->m = nrow;
   T->n = ncol;
 }

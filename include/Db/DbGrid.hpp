@@ -65,7 +65,8 @@ public:
             const VectorDouble& tab = VectorDouble(),
             const VectorString& names = VectorString(),
             const VectorString& locatorNames = VectorString(),
-            int flag_add_rank = 1);
+            int flag_add_rank = 1,
+            bool flag_add_coordinates = true);
   int resetCoveringDb(const Db* db,
                       const VectorInt& nodes = VectorInt(),
                       const VectorDouble& dcell = VectorDouble(),
@@ -75,6 +76,7 @@ public:
                        const VectorInt& nodes,
                        const VectorDouble& dcell,
                        int flag_add_rank);
+
   static DbGrid* create(const VectorInt& nx,
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
@@ -83,7 +85,8 @@ public:
                         const VectorDouble& tab = VectorDouble(),
                         const VectorString& names = VectorString(),
                         const VectorString& locatorNames = VectorString(),
-                        int flag_add_rank = 1);
+                        int flag_add_rank = 1,
+                        bool flag_add_coordinates = true);
   static DbGrid* createCoveringDb(const Db* dbin,
                                   const VectorInt& nodes = VectorInt(),
                                   const VectorDouble& dcell = VectorDouble(),
