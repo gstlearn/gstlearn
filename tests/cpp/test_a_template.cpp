@@ -41,25 +41,32 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  //  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
 
-  Db* dat = Db::createFromNF("/home/drenard/a/dat.ascii");
-  dat->display();
+  Model* model = Model::createFromParam(ECov::CUBIC,20,2);
 
-  Model* model = Model::createFromNF("/home/drenard/a/model.ascii");
-  model->display();
+  int nech = 30;
+  Db* data = Db::createFromBox(nech, {0,0}, {100,100});
+  simtub(nullptr,data, model);
+  data->setName(data->getLastName(), "data");
+  data->display();
 
-  DbGrid* Result = DbGrid::createFromNF("/home/drenard/a/Result.ascii");
-  Result->display();
+  DbGrid* grid = DbGrid::create({100,100});
+  grid->display();
 
-  VectorDouble propGlob = dbStatisticsFacies(dat);
-  int ncat = (int) propGlob.size();
-  for (int i = 0; i < ncat; i++)
-    message("Proportion of facies %d = %lf\n",i+1,propGlob[i]);
+  NeighUnique* neighU = NeighUnique::create(2);
+  neighU->display();
 
-  (void) db_proportion_estimate(dat,Result,model);
+  (void) simtub(data, grid, model, neighU, 10);
+  grid->display();
+
+  (void) grid->statistics({"Simu*"}, { EStatOption::QUANT }, true, false, false,
+                          0.2, TEST, TEST);
+  DbStringFormat dbfmt;
+  dbfmt.setFlags(true, true, false, true, false, false, {"*QUANT"});
+  grid->display(&dbfmt);
 
   return (0);
 }

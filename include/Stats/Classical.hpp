@@ -33,9 +33,9 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
                                            const std::vector<EStatOption>& opers,
                                            int iptr0,
+                                           double proba = TEST,
                                            double vmin = TEST,
-                                           double vmax = TEST,
-                                           double proba = TEST);
+                                           double vmax = TEST);
 
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorInt &iatts,

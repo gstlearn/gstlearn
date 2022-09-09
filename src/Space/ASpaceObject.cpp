@@ -1,3 +1,5 @@
+#include "geoslib_define.h"
+
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceRN.hpp"
@@ -81,6 +83,8 @@ void ASpaceObject::defineDefaultSpace(ESpaceType type,
   {
     case ESpaceType::E_SPACE_SN:
     {
+      ndim = 2;
+      if (param <= 0.) param = EARTH_RADIUS;
       _defaultSpace = new SpaceSN(ndim, param);
       break;
     }

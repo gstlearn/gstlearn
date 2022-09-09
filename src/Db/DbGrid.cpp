@@ -154,7 +154,6 @@ int DbGrid::reset(const VectorInt& nx,
     _defineDefaultLocators(number, locatorNames);
   }
 
-  message("add coordinate = %d\n",flag_add_coordinates);
   return 0;
 }
 

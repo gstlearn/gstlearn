@@ -178,12 +178,7 @@ static int st_locate_coor_on_grid(int np,
                                   double *tab)
 {
   int iech, iad, number;
-  VectorDouble coor(3);
-
-  /* Initializations */
-
-  for (int idim = 0; idim < 3; idim++)
-    coor[idim] = 0.;
+  VectorDouble coor(3,0.);
 
   /* Loop on the point samples */
 
