@@ -77,6 +77,8 @@ int AArray::indiceToRank(const VectorInt& indice) const
 void AArray::rankToIndice(int rank, VectorInt& indices) const
 {
   int ndim = getNDim();
+  if ((int)indices.size() != ndim)
+    my_throw("Argument indices should have the correct size");
 
   int nval = 1;
   for (int idim=0; idim<ndim; idim++) nval *= _ndims[idim];

@@ -72,7 +72,7 @@ elif filetype == "Vario":
     
 elif filetype == "Model":
     model = gl.Model.createFromNF(filename,False)
-    gp.modelElem(model,end_plot=True)
+    gp.model(model,end_plot=True)
     
 elif filetype == "Rule":
     rule = gl.Rule.createFromNF(filename,False)

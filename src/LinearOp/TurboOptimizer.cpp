@@ -200,6 +200,8 @@ int TurboOptimizer::_MSS(int icas, int icorn, int idim0) const
 
 void TurboOptimizer::_rankToIndice(int rank, VectorInt& indice, bool minusOne) const
 {
+  if ((int)indice.size() < 2)
+    my_throw("Argument indice should have the correct size");
   int nval = minusOne? (_ny - 1) : _ny;
   indice[1] = rank / nval;
   rank -= indice[1] * nval;
@@ -239,7 +241,7 @@ double TurboOptimizer::_indiceToCoordinate(int idim0,
 double TurboOptimizer::_getCoor(int node, int idim0) const
 {
   VectorInt indice(TO_ndim);
-  _rankToIndice(node, indice,false);
+  _rankToIndice(node, indice, false);
   return _indiceToCoordinate(idim0, indice);
 }
 
@@ -834,6 +836,8 @@ int TurboOptimizer::_coordinateToIndice(double x,
                                         double y,
                                         VectorInt& indice) const
 {
+  if ((int)indice.size() < 2)
+    my_throw("Argument indice should have the correct size");
   int ix = (int) floor((x - _x0) / _dx);
   if (ix < 0 || ix >= _nx) return 1;
   indice[0] = ix;
