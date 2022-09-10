@@ -3,8 +3,8 @@ title: "Tutorial 2D"
 author: "D. Renard"
 date: "25 juin 2022"
 output:
-  pdf_document: default
   html_document: default
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -148,6 +148,7 @@ Fitting a Model. We call the Automatic Fitting procedure providing the list of c
 ```{r}
 mymodel = Model_createFromDb(mydb)
 err = mymodel$fit(myvario,ECov_fromValues(c(1,2)))
+#err = mymodel$fit(myvario,c(ECov_NUGGET(), ECov_EXPONENTIAL()))
 ```
 
 Visualizing the resulting model, overlaid on the experimental variogram
@@ -184,7 +185,7 @@ if (verbose)
 
 # Defining the Neighborhood
 
-We initiate a Neigborhood (Moving with a small number of samples for Demonstration)
+We initiate a Neighborhood (Moving with a small number of samples for Demonstration)
 
 ```{r}
 myneigh = NeighMoving_create(ndim=2,flag_xvalid=FALSE,nmaxi=6,radius=10)
@@ -279,7 +280,7 @@ We must first transform the Data into Gaussian
 myanamPb = AnamHermite(30)
 myanamPb$fit(mydb)
 if (verbose)
-    myanamPb$display()
+    myanamPb
 ```
 
 We can produce the Gaussian Anamorphosis graphically within its definition domain.
@@ -331,11 +332,9 @@ Some statistics on the Conditional simulations in Gaussian scale
 
 ```{r}
 if (verbose)
-{
   err = mygrid$statisticsByLocator(ELoc_Z(),
                                    EStatOption_fromValues(c(4,5,1,3)),
                                    TRUE, TRUE, TRUE)
-}
 ```
 
 We visualize a conditional simulation in Gaussian scale
@@ -377,8 +376,7 @@ We visualize a Conditional Simulation in Raw Scale
 if (graphics)
 {
   ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1")
-  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", 
-             padd=ax)
+  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", padd=ax)
 }
 ```
 
@@ -410,7 +408,7 @@ mydb$setLocator("Zn",ELoc_Z())
 myanamZn = AnamHermite(30)
 myanamZn$fit(mydb)
 if (verbose)
-    myanamZn$display()
+    myanamZn
 ```
 
 ```{r}
@@ -458,9 +456,9 @@ err = GaussianToRaw(mygrid,myanamZn,"Simu.Y.Zn*")
 err = GaussianToRaw(mygrid,myanamPb,"Simu.Y.Pb*")
 mygrid$deleteColumn("Simu.Y*")
 if (verbose)
-    err = mygrid$statisticsByLocator(ELoc_Z(),
-                      EStatOption_fromValues(c(4,5,1,3)), 
-                      TRUE, TRUE, TRUE)
+  err = mygrid$statisticsByLocator(ELoc_Z(),
+                                   EStatOption_fromValues(c(4,5,1,3)), 
+                                   flagIso=TRUE, flagVariableWise=TRUE, flagPrint=TRUE)
 ```
 
 # Categorical Variable¶
@@ -509,7 +507,7 @@ Then we build a categorical variable which gives the index of the class to which
 err = limits$toCategory(mydb,"Pb")
 if (verbose)
     dbfmt = DbStringFormat()
-    dbfmt$setFlags(FALSE, FALSE, FALSE, TRUE)
+    dbfmt$setFlags(flag_resume=FALSE, flag_vars=FALSE, flag_extend=FALSE, flag_stats=TRUE)
     dbfmt$setNames("Category*")
     dbfmt$setMode(2)
     mydb$display(dbfmt)
