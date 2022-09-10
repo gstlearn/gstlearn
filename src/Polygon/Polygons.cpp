@@ -204,7 +204,10 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
     PolySet polyset;
     ret = ret && polyset._deserialize(is, verbose);
     if (ret)
+    {
       addPolySet(polyset);
+      if (verbose) message("Polyset #%d - Number of vertices = %d\n",ipol+1, polyset.getNPoints());
+    }
     else
       messerr("Error when reading Polyset #%d",ipol+1);
   }

@@ -2,7 +2,7 @@ Polygon
 541 # Number of Polygons
 NA # Z-Minimum
 NA # Z-Maximum
-26 # Number of Vertices
+26 # Number of Points
 -180 68.9938 
 -179.998 68.9929 
 -175.257 67.6588 
@@ -31,7 +31,7 @@ NA # Z-Maximum
 -180 65.0845 
 NA # Z-Minimum
 NA # Z-Maximum
-1003 # Number of Vertices
+1003 # Number of Points
 180 65.0845 
 179.525 64.7946 
 175.143 64.7224 
@@ -1037,7 +1037,7 @@ NA # Z-Maximum
 180 68.9938 
 NA # Z-Minimum
 NA # Z-Maximum
-221 # Number of Vertices
+221 # Number of Points
 31.9192 31.5312 
 32.2845 31.2328 
 32.5587 29.9351 
@@ -1261,7 +1261,7 @@ NA # Z-Maximum
 31.9192 31.5312 
 NA # Z-Minimum
 NA # Z-Maximum
-667 # Number of Vertices
+667 # Number of Points
 -81.0826 8.80839 
 -79.9095 9.35944 
 -79.8751 9.32034 
@@ -1931,7 +1931,7 @@ NA # Z-Maximum
 -81.0826 8.80839 
 NA # Z-Minimum
 NA # Z-Maximum
-311 # Number of Vertices
+311 # Number of Points
 -73.3617 -53.0004 
 -73.3626 -53 
 -72.8909 -52.5017 
@@ -2245,7 +2245,7 @@ NA # Z-Maximum
 -73.3617 -53.0004 
 NA # Z-Minimum
 NA # Z-Maximum
-170 # Number of Vertices
+170 # Number of Points
 146.23 -38.6971 
 146.276 -39 
 145.372 -38.5396 
@@ -2418,7 +2418,7 @@ NA # Z-Maximum
 146.23 -38.6971 
 NA # Z-Minimum
 NA # Z-Maximum
-292 # Number of Vertices
+292 # Number of Points
 -44.6993 59.995 
 -44.4683 60.5387 
 -45.1759 60.1292 
@@ -2713,7 +2713,7 @@ NA # Z-Maximum
 -44.6993 59.995 
 NA # Z-Minimum
 NA # Z-Maximum
-75 # Number of Vertices
+75 # Number of Points
 150 -10.0879 
 150.005 -10.0879 
 150.877 -10.23 
@@ -2791,7 +2791,7 @@ NA # Z-Maximum
 150 -10.0879 
 NA # Z-Minimum
 NA # Z-Maximum
-60 # Number of Vertices
+60 # Number of Points
 115 -4.01458 
 114.998 -4.01628 
 114.595 -4.1675 
@@ -2854,7 +2854,7 @@ NA # Z-Maximum
 115 -4.01458 
 NA # Z-Minimum
 NA # Z-Maximum
-35 # Number of Vertices
+35 # Number of Points
 44.9991 -25.4871 
 44.9983 -25.4871 
 44.0271 -25 
@@ -2892,7 +2892,7 @@ NA # Z-Maximum
 44.9991 -25.4871 
 NA # Z-Minimum
 NA # Z-Maximum
-152 # Number of Vertices
+152 # Number of Points
 -65.9991 61.9549 
 -65.9984 61.9537 
 -71.6411 63.1333 
@@ -3047,7 +3047,7 @@ NA # Z-Maximum
 -65.9991 61.9549 
 NA # Z-Minimum
 NA # Z-Maximum
-36 # Number of Vertices
+36 # Number of Points
 103.999 -5.32545 
 103.998 -5.32458 
 101.581 -3.20422 
@@ -3086,7 +3086,7 @@ NA # Z-Maximum
 103.999 -5.32545 
 NA # Z-Minimum
 NA # Z-Maximum
-48 # Number of Vertices
+48 # Number of Points
 136 33.7104 
 135.998 33.7083 
 135.753 33.4362 
@@ -3137,7 +3137,7 @@ NA # Z-Maximum
 136 33.7104 
 NA # Z-Minimum
 NA # Z-Maximum
-41 # Number of Vertices
+41 # Number of Points
 -113.554 68.9991 
 -113.556 69 
 -116.501 69.4075 
@@ -3181,7 +3181,7 @@ NA # Z-Maximum
 -113.554 68.9991 
 NA # Z-Minimum
 NA # Z-Maximum
-60 # Number of Vertices
+60 # Number of Points
 0 50.7879 
 -0.00499725 50.7879 
 -3.47669 50.6871 
@@ -3244,7 +3244,7 @@ NA # Z-Maximum
 0 50.7879 
 NA # Z-Minimum
 NA # Z-Maximum
-93 # Number of Vertices
+93 # Number of Points
 -77.0881 83.1256 
 -77 83.1295 
 -66.3563 82.9352 
@@ -3340,7 +3340,7 @@ NA # Z-Maximum
 -77.0881 83.1256 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 119.478 -5.00044 
 119.478 -5 
 119.51 -3.55586 
@@ -3383,7 +3383,7 @@ NA # Z-Maximum
 119.478 -5.00044 
 NA # Z-Minimum
 NA # Z-Maximum
-28 # Number of Vertices
+28 # Number of Points
 170 -46.2554 
 169.998 -46.2575 
 169.01 -46.6788 
@@ -3414,7 +3414,7 @@ NA # Z-Maximum
 170 -46.2554 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 114 -8.59045 
 113.998 -8.59211 
 110.707 -8.20211 
@@ -3436,7 +3436,7 @@ NA # Z-Maximum
 114 -8.59045 
 NA # Z-Minimum
 NA # Z-Maximum
-35 # Number of Vertices
+35 # Number of Points
 174.937 -41.0029 
 174.941 -41 
 175.058 -39.9392 
@@ -3474,7 +3474,7 @@ NA # Z-Maximum
 174.937 -41.0029 
 NA # Z-Minimum
 NA # Z-Maximum
-48 # Number of Vertices
+48 # Number of Points
 -55.2016 46.9989 
 -55.2017 46.9983 
 -55.9911 46.9534 
@@ -3525,7 +3525,7 @@ NA # Z-Maximum
 -55.2016 46.9989 
 NA # Z-Minimum
 NA # Z-Maximum
-23 # Number of Vertices
+23 # Number of Points
 -75 19.9155 
 -75.0001 19.9155 
 -77.7375 19.842 
@@ -3551,7 +3551,7 @@ NA # Z-Maximum
 -75 19.9155 
 NA # Z-Minimum
 NA # Z-Maximum
-33 # Number of Vertices
+33 # Number of Points
 123.999 12.9679 
 123.999 12.9675 
 123.318 13.0079 
@@ -3587,7 +3587,7 @@ NA # Z-Maximum
 123.999 12.9679 
 NA # Z-Minimum
 NA # Z-Maximum
-34 # Number of Vertices
+34 # Number of Points
 -17 63.7937 
 -16.9993 63.7933 
 -18.7334 63.3904 
@@ -3624,7 +3624,7 @@ NA # Z-Maximum
 -17 63.7937 
 NA # Z-Minimum
 NA # Z-Maximum
-30 # Number of Vertices
+30 # Number of Points
 125 5.85875 
 124.999 5.85956 
 124.058 6.38081 
@@ -3657,7 +3657,7 @@ NA # Z-Maximum
 125 5.85875 
 NA # Z-Minimum
 NA # Z-Maximum
-28 # Number of Vertices
+28 # Number of Points
 -8 51.8587 
 -8.00166 51.8579 
 -9.77502 51.4446 
@@ -3688,7 +3688,7 @@ NA # Z-Maximum
 -8 51.8587 
 NA # Z-Minimum
 NA # Z-Maximum
-20 # Number of Vertices
+20 # Number of Points
 143.259 41.9991 
 143.259 41.9983 
 141.67 42.6495 
@@ -3711,7 +3711,7 @@ NA # Z-Maximum
 143.259 41.9991 
 NA # Z-Minimum
 NA # Z-Maximum
-18 # Number of Vertices
+18 # Number of Points
 142 45.9688 
 141.999 45.97 
 142.254 51.1234 
@@ -3732,7 +3732,7 @@ NA # Z-Maximum
 142 45.9688 
 NA # Z-Minimum
 NA # Z-Maximum
-20 # Number of Vertices
+20 # Number of Points
 -71.1504 17.9983 
 -71.1513 17.9975 
 -71.4258 17.6012 
@@ -3755,7 +3755,7 @@ NA # Z-Maximum
 -71.1504 17.9983 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 -120.334 71.9981 
 -120.346 71.9959 
 -120.632 71.4921 
@@ -3771,7 +3771,7 @@ NA # Z-Maximum
 -120.334 71.9981 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 80.2575 5.99711 
 80.2546 6 
 79.6954 8.1975 
@@ -3786,7 +3786,7 @@ NA # Z-Maximum
 80.2575 5.99711 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 145.999 -43.3304 
 146 -43.3304 
 145.255 -42.6241 
@@ -3804,7 +3804,7 @@ NA # Z-Maximum
 145.999 -43.3304 
 NA # Z-Minimum
 NA # Z-Maximum
-28 # Number of Vertices
+28 # Number of Points
 -92.1665 74.9923 
 -92.1698 75 
 -93.0909 76.3622 
@@ -3835,7 +3835,7 @@ NA # Z-Maximum
 -92.1665 74.9923 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 -66.7242 -55.0025 
 -66.7242 -55 
 -71.9592 -54.6242 
@@ -3857,7 +3857,7 @@ NA # Z-Maximum
 -66.7242 -55.0025 
 NA # Z-Minimum
 NA # Z-Maximum
-24 # Number of Vertices
+24 # Number of Points
 58.2574 73.9996 
 58.2549 73.9996 
 57.4975 74.1929 
@@ -3884,7 +3884,7 @@ NA # Z-Maximum
 58.2574 73.9996 
 NA # Z-Minimum
 NA # Z-Maximum
-16 # Number of Vertices
+16 # Number of Points
 -81 63.4375 
 -81.0081 63.4356 
 -82.4941 63.6572 
@@ -3903,7 +3903,7 @@ NA # Z-Maximum
 -81 63.4375 
 NA # Z-Minimum
 NA # Z-Maximum
-26 # Number of Vertices
+26 # Number of Points
 -115.56 74.9946 
 -115.568 74.9934 
 -117.664 75.2521 
@@ -3932,7 +3932,7 @@ NA # Z-Maximum
 -115.56 74.9946 
 NA # Z-Minimum
 NA # Z-Maximum
-26 # Number of Vertices
+26 # Number of Points
 -94.197 78.9981 
 -94.1939 79 
 -90.3333 79.2438 
@@ -3961,7 +3961,7 @@ NA # Z-Maximum
 -94.197 78.9981 
 NA # Z-Minimum
 NA # Z-Maximum
-25 # Number of Vertices
+25 # Number of Points
 15.4382 77 
 13.9149 77.5242 
 16.0999 77.4596 
@@ -3989,7 +3989,7 @@ NA # Z-Maximum
 15.4382 77 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 -50.7764 -0.782967 
 -50.3392 -0.0962524 
 -48.3896 -0.282532 
@@ -4001,7 +4001,7 @@ NA # Z-Maximum
 -50.7764 -0.782967 
 NA # Z-Minimum
 NA # Z-Maximum
-16 # Number of Vertices
+16 # Number of Points
 130.669 30.9991 
 130.798 31.6996 
 130.587 31.1554 
@@ -4020,7 +4020,7 @@ NA # Z-Maximum
 130.669 30.9991 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 120.864 21.9996 
 120.863 21.9996 
 120.03 23.0758 
@@ -4030,7 +4030,7 @@ NA # Z-Maximum
 120.864 21.9996 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 151.053 -6.00169 
 151.053 -6.005 
 149.607 -6.29292 
@@ -4048,7 +4048,7 @@ NA # Z-Maximum
 151.053 -6.00169 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 -85 71.2809 
 -85.0033 71.2809 
 -86.9838 71.2153 
@@ -4061,7 +4061,7 @@ NA # Z-Maximum
 -85 71.2809 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 108.999 18.3604 
 108.997 18.3604 
 108.631 19.2683 
@@ -4073,7 +4073,7 @@ NA # Z-Maximum
 108.999 18.3604 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 -97 71.7499 
 -97.0038 71.7464 
 -98.1824 71.6456 
@@ -4093,7 +4093,7 @@ NA # Z-Maximum
 -97 71.7499 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 53.9975 70.7371 
 53.9861 70.7409 
 53.5013 71.5434 
@@ -4111,7 +4111,7 @@ NA # Z-Maximum
 53.9975 70.7371 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 -125.673 48.9996 
 -125.672 49 
 -127.095 50.1463 
@@ -4126,7 +4126,7 @@ NA # Z-Maximum
 -125.673 48.9996 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 124 -10.2779 
 123.997 -10.2779 
 123.455 -10.36 
@@ -4136,7 +4136,7 @@ NA # Z-Maximum
 124 -10.2779 
 NA # Z-Minimum
 NA # Z-Maximum
-6 # Number of Vertices
+6 # Number of Points
 14.9992 36.7012 
 14.9975 36.7012 
 12.6583 37.5654 
@@ -4145,7 +4145,7 @@ NA # Z-Maximum
 14.9992 36.7012 
 NA # Z-Minimum
 NA # Z-Maximum
-8 # Number of Vertices
+8 # Number of Points
 -95 71.982 
 -95.0169 71.9804 
 -95.2909 73.9931 
@@ -4156,7 +4156,7 @@ NA # Z-Maximum
 -95 71.982 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 8.45123 38.9974 
 8.45125 38.995 
 8.17622 40.9383 
@@ -4166,7 +4166,7 @@ NA # Z-Maximum
 8.45123 38.9974 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 137.994 74.845 
 137.994 74.8466 
 136.988 75.585 
@@ -4180,7 +4180,7 @@ NA # Z-Maximum
 137.994 74.845 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 132.999 32.9833 
 132.999 32.979 
 132.631 32.7612 
@@ -4196,7 +4196,7 @@ NA # Z-Maximum
 132.999 32.9833 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 128 -0.303001 
 128 -0.305031 
 128.443 -0.91375 
@@ -4213,7 +4213,7 @@ NA # Z-Maximum
 128 -0.303001 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 127.999 -3.07125 
 128 -3.07125 
 129.041 -2.78794 
@@ -4226,7 +4226,7 @@ NA # Z-Maximum
 127.999 -3.07125 
 NA # Z-Minimum
 NA # Z-Maximum
-5 # Number of Vertices
+5 # Number of Points
 167 -22.3432 
 166.997 -22.3438 
 164.944 -21.3613 
@@ -4234,7 +4234,7 @@ NA # Z-Maximum
 167 -22.3432 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 -100.017 74.9874 
 -100.056 74.9864 
 -100.779 75.3551 
@@ -4251,7 +4251,7 @@ NA # Z-Maximum
 -100.017 74.9874 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 -117 77.4387 
 -117 77.4398 
 -115.351 77.3142 
@@ -4264,7 +4264,7 @@ NA # Z-Maximum
 -117 77.4387 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 117 -9.09509 
 117 -9.09422 
 116.748 -8.65753 
@@ -4276,7 +4276,7 @@ NA # Z-Maximum
 117 -9.09509 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 95.9898 78.9771 
 95.9833 78.9771 
 92.8615 79.5575 
@@ -4288,7 +4288,7 @@ NA # Z-Maximum
 95.9898 78.9771 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 27 79.9446 
 27.0049 79.9433 
 23.6566 79.1813 
@@ -4305,7 +4305,7 @@ NA # Z-Maximum
 27 79.9446 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 123 -8.33792 
 122.999 -8.33789 
 121.651 -8.91378 
@@ -4317,7 +4317,7 @@ NA # Z-Maximum
 123 -8.33792 
 NA # Z-Minimum
 NA # Z-Maximum
-6 # Number of Vertices
+6 # Number of Points
 -99.0059 68.9172 
 -99.0103 68.9168 
 -97.9594 69.9041 
@@ -4326,7 +4326,7 @@ NA # Z-Maximum
 -99.0059 68.9172 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 123.216 9.99958 
 123.215 9.99958 
 123.311 9.3025 
@@ -4338,7 +4338,7 @@ NA # Z-Maximum
 123.216 9.99958 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 125.008 11.3045 
 125.043 11.7516 
 124.279 12.5846 
@@ -4348,7 +4348,7 @@ NA # Z-Maximum
 125.008 11.3045 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 138 -8.39381 
 137.999 -8.39291 
 137.615 -8.38839 
@@ -4358,7 +4358,7 @@ NA # Z-Maximum
 138 -8.39381 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 106.692 -3.00136 
 106.692 -3.00217 
 105.947 -2.80959 
@@ -4371,7 +4371,7 @@ NA # Z-Maximum
 106.692 -3.00136 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 118 8.88372 
 117.999 8.88458 
 117.174 8.34247 
@@ -4384,7 +4384,7 @@ NA # Z-Maximum
 118 8.88372 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 121.997 10.4404 
 121.996 10.4395 
 121.883 11.9021 
@@ -4394,7 +4394,7 @@ NA # Z-Maximum
 121.997 10.4404 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 -99 77.9047 
 -98.9929 77.9033 
 -102.774 78.3965 
@@ -4406,7 +4406,7 @@ NA # Z-Maximum
 -99 77.9047 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 100.325 77.995 
 100.316 77.9929 
 102.476 79.4145 
@@ -4416,7 +4416,7 @@ NA # Z-Maximum
 100.325 77.995 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 -80.1328 72.9989 
 -80.1312 73 
 -80.8121 73.7543 
@@ -4426,7 +4426,7 @@ NA # Z-Maximum
 -80.1328 72.9989 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 -77 17.8438 
 -77.0004 17.8441 
 -77.74 17.8537 
@@ -4436,7 +4436,7 @@ NA # Z-Maximum
 -77 17.8438 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 120 -10.0496 
 119.999 -10.0484 
 118.945 -9.51503 
@@ -4446,7 +4446,7 @@ NA # Z-Maximum
 120 -10.0496 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 -59.8463 45.9983 
 -59.8463 45.9941 
 -61.2925 45.5479 
@@ -4459,7 +4459,7 @@ NA # Z-Maximum
 -59.8463 45.9983 
 NA # Z-Minimum
 NA # Z-Maximum
-6 # Number of Vertices
+6 # Number of Points
 178.647 -18.0009 
 178.647 -18.0051 
 177.898 -18.2771 
@@ -4468,7 +4468,7 @@ NA # Z-Maximum
 178.647 -18.0009 
 NA # Z-Minimum
 NA # Z-Maximum
-5 # Number of Vertices
+5 # Number of Points
 -155.787 18.9982 
 -155.788 19 
 -155.853 20.2728 
@@ -4476,7 +4476,7 @@ NA # Z-Maximum
 -155.787 18.9982 
 NA # Z-Minimum
 NA # Z-Maximum
-46 # Number of Vertices
+46 # Number of Points
 49.3517 39.3214 
 49.4881 40.1506 
 50.3589 40.3703 
@@ -4525,7 +4525,7 @@ NA # Z-Maximum
 49.3517 39.3214 
 NA # Z-Minimum
 NA # Z-Maximum
-49 # Number of Vertices
+49 # Number of Points
 -86.2292 42.9997 
 -86.6203 41.9122 
 -87.3978 41.6372 
@@ -4577,7 +4577,7 @@ NA # Z-Maximum
 -86.2292 42.9997 
 NA # Z-Minimum
 NA # Z-Maximum
-23 # Number of Vertices
+23 # Number of Points
 31.6133 -2.04556 
 32.0181 -0.0500031 
 32.6508 0.291107 
@@ -4603,7 +4603,7 @@ NA # Z-Maximum
 31.6133 -2.04556 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 61.4519 44.7356 
 60.7269 44.0189 
 61.0161 43.6294 
@@ -4625,7 +4625,7 @@ NA # Z-Maximum
 61.4519 44.7356 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 29.0456 -4.30917 
 29.3108 -3.34583 
 29.9489 -5.82056 
@@ -4639,7 +4639,7 @@ NA # Z-Maximum
 29.0456 -4.30917 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 109.486 55.7244 
 109.965 55.6719 
 109.56 54.1431 
@@ -4656,7 +4656,7 @@ NA # Z-Maximum
 109.486 55.7244 
 NA # Z-Minimum
 NA # Z-Maximum
-20 # Number of Vertices
+20 # Number of Points
 -123.492 65.1633 
 -122.14 65.7839 
 -122.786 65.9664 
@@ -4679,7 +4679,7 @@ NA # Z-Maximum
 -123.492 65.1633 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 -115.022 60.8878 
 -117.684 61.3025 
 -115.961 61.1725 
@@ -4701,7 +4701,7 @@ NA # Z-Maximum
 -115.022 60.8878 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 33.9283 -9.69972 
 34.0436 -9.48473 
 34.5047 -9.975 
@@ -4715,7 +4715,7 @@ NA # Z-Maximum
 33.9283 -9.69972 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 -81.6547 42.4781 
 -80.1006 42.5431 
 -80.4494 42.6233 
@@ -4731,7 +4731,7 @@ NA # Z-Maximum
 -81.6547 42.4781 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 -98.4353 53.0467 
 -99.2158 53.33 
 -98.9083 53.8789 
@@ -4749,7 +4749,7 @@ NA # Z-Maximum
 -98.4353 53.0467 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 -75.8122 44.5025 
 -76.3636 44.1214 
 -76.1911 43.5781 
@@ -4763,7 +4763,7 @@ NA # Z-Maximum
 -75.8122 44.5025 
 NA # Z-Minimum
 NA # Z-Maximum
-5 # Number of Vertices
+5 # Number of Points
 30.9419 61.7292 
 32.9556 60.6508 
 31.4106 59.8992 
@@ -4771,7 +4771,7 @@ NA # Z-Maximum
 30.9419 61.7292 
 NA # Z-Minimum
 NA # Z-Maximum
-920 # Number of Vertices
+920 # Number of Points
 79.0039 33.7717 
 78.9367 33.4075 
 78.942 33.5074 
@@ -5694,7 +5694,7 @@ NA # Z-Maximum
 107.978 49.9458 
 NA # Z-Minimum
 NA # Z-Maximum
-444 # Number of Vertices
+444 # Number of Points
 -69.4997 -17.5053 
 -69.4658 -17.5993 
 -69.4318 -17.6934 
@@ -6141,7 +6141,7 @@ NA # Z-Maximum
 -71.9122 -51.9978 
 NA # Z-Minimum
 NA # Z-Maximum
-316 # Number of Vertices
+316 # Number of Points
 28.8989 -8.48139 
 28.8429 -8.56425 
 28.7869 -8.6471 
@@ -6460,7 +6460,7 @@ NA # Z-Maximum
 13.1814 -5.85667 
 NA # Z-Minimum
 NA # Z-Maximum
-314 # Number of Vertices
+314 # Number of Points
 61.6097 25.1931 
 61.6329 25.2903 
 61.6561 25.3876 
@@ -6777,7 +6777,7 @@ NA # Z-Maximum
 74.9136 37.2392 
 NA # Z-Minimum
 NA # Z-Maximum
-120 # Number of Vertices
+120 # Number of Points
 12.0936 50.3228 
 12.1911 50.3448 
 12.2887 50.3669 
@@ -6900,7 +6900,7 @@ NA # Z-Maximum
 22.5581 49.0783 
 NA # Z-Minimum
 NA # Z-Maximum
-172 # Number of Vertices
+172 # Number of Points
 13.7211 46.5275 
 13.8198 46.5111 
 13.9184 46.4947 
@@ -7075,7 +7075,7 @@ NA # Z-Maximum
 28.5831 43.7478 
 NA # Z-Minimum
 NA # Z-Maximum
-304 # Number of Vertices
+304 # Number of Points
 22.8778 10.9217 
 22.9378 10.8417 
 22.9978 10.7617 
@@ -7382,7 +7382,7 @@ NA # Z-Maximum
 39.2042 -4.67083 
 NA # Z-Minimum
 NA # Z-Maximum
-187 # Number of Vertices
+187 # Number of Points
 89.1364 21.6281 
 89.1269 21.7276 
 89.1175 21.8272 
@@ -7572,7 +7572,7 @@ NA # Z-Maximum
 92.2014 21.1408 
 NA # Z-Minimum
 NA # Z-Maximum
-398 # Number of Vertices
+398 # Number of Points
 38.5983 17.9928 
 38.5208 17.9297 
 38.4432 17.8665 
@@ -7973,7 +7973,7 @@ NA # Z-Maximum
 43.2542 11.4769 
 NA # Z-Minimum
 NA # Z-Maximum
-128 # Number of Vertices
+128 # Number of Points
 34.9617 29.3608 
 35.0605 29.3455 
 35.1593 29.3302 
@@ -8104,7 +8104,7 @@ NA # Z-Maximum
 35.6441 32.69 
 NA # Z-Minimum
 NA # Z-Maximum
-100 # Number of Vertices
+100 # Number of Points
 101.148 21.5714 
 101.282 21.1803 
 101.382 21.1728 
@@ -8207,7 +8207,7 @@ NA # Z-Maximum
 107.786 21.6672 
 NA # Z-Minimum
 NA # Z-Maximum
-192 # Number of Vertices
+192 # Number of Points
 -78.8097 1.43777 
 -78.7291 1.37856 
 -78.6486 1.31934 
@@ -8402,7 +8402,7 @@ NA # Z-Maximum
 -69.2086 0.616112 
 NA # Z-Minimum
 NA # Z-Maximum
-94 # Number of Vertices
+94 # Number of Points
 7.58889 47.585 
 7.63091 47.6757 
 7.67294 47.7665 
@@ -8499,7 +8499,7 @@ NA # Z-Maximum
 6.40889 53.6075 
 NA # Z-Minimum
 NA # Z-Maximum
-228 # Number of Vertices
+228 # Number of Points
 5.54361 13.8906 
 5.63873 13.8597 
 5.73386 13.8288 
@@ -8730,7 +8730,7 @@ NA # Z-Maximum
 8.51778 4.68166 
 NA # Z-Minimum
 NA # Z-Maximum
-401 # Number of Vertices
+401 # Number of Points
 25.1514 31.6469 
 25.1228 31.5511 
 25.0942 31.4553 
@@ -9134,7 +9134,7 @@ NA # Z-Maximum
 11.5261 33.1725 
 NA # Z-Minimum
 NA # Z-Maximum
-243 # Number of Vertices
+243 # Number of Points
 87.8431 49.1706 
 87.9367 49.2057 
 88.0303 49.2408 
@@ -9380,7 +9380,7 @@ NA # Z-Maximum
 107.984 49.9436 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 38.4903 -11.4153 
 38.3932 -11.3912 
 38.2962 -11.3671 
@@ -9423,7 +9423,7 @@ NA # Z-Maximum
 34.9518 -11.5326 
 NA # Z-Minimum
 NA # Z-Maximum
-217 # Number of Vertices
+217 # Number of Points
 34.9518 -11.5326 
 34.9462 -11.5333 
 34.847 -11.5465 
@@ -9641,12 +9641,14 @@ NA # Z-Maximum
 34.917 -11.4327 
 34.9499 -11.5272 
 34.9518 -11.5326 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 34.9518 -11.5326 
 34.9631 -11.565 
 NA # Z-Minimum
 NA # Z-Maximum
-195 # Number of Vertices
+195 # Number of Points
 -67.7006 -10.6919 
 -67.62 -10.6327 
 -67.5395 -10.5734 
@@ -9842,7 +9844,9 @@ NA # Z-Maximum
 -58.0967 -19.9943 
 -58.1303 -20.0885 
 -58.1589 -20.1686 
-204 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+204 # Number of Points
 74.5689 37.0256 
 74.4707 37.0067 
 74.3725 36.9879 
@@ -10049,7 +10053,7 @@ NA # Z-Maximum
 60.8692 29.8611 
 NA # Z-Minimum
 NA # Z-Maximum
-127 # Number of Vertices
+127 # Number of Points
 20.2617 46.1181 
 20.3598 46.1371 
 20.458 46.1561 
@@ -10177,7 +10181,9 @@ NA # Z-Maximum
 29.5255 45.2434 
 29.6229 45.2206 
 29.66 45.2119 
-158 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+158 # Number of Points
 -70.0353 -4.34722 
 -70.1317 -4.32067 
 -70.2281 -4.29412 
@@ -10338,7 +10344,7 @@ NA # Z-Maximum
 -67.7033 -10.6947 
 NA # Z-Minimum
 NA # Z-Maximum
-139 # Number of Vertices
+139 # Number of Points
 98.7442 10.345 
 98.7968 10.43 
 98.8494 10.515 
@@ -10478,7 +10484,9 @@ NA # Z-Maximum
 99.9534 20.3553 
 100.053 20.3487 
 100.092 20.3461 
-158 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+158 # Number of Points
 78.9367 33.4053 
 79.0026 33.3301 
 79.0685 33.2549 
@@ -10639,7 +10647,7 @@ NA # Z-Maximum
 86.9481 26.5328 
 NA # Z-Minimum
 NA # Z-Maximum
-93 # Number of Vertices
+93 # Number of Points
 -92.2469 14.5483 
 -92.2148 14.643 
 -92.1827 14.7377 
@@ -10733,7 +10741,9 @@ NA # Z-Maximum
 -89.2166 15.9204 
 -89.2178 15.8897 
 -88.9108 15.8936 
-97 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+97 # Number of Points
 7.53222 43.7886 
 7.67278 44.1828 
 7.57562 44.2065 
@@ -10833,7 +10843,7 @@ NA # Z-Maximum
 9.56694 47.5406 
 NA # Z-Minimum
 NA # Z-Maximum
-138 # Number of Vertices
+138 # Number of Points
 94.6289 29.3278 
 94.7222 29.2918 
 94.8155 29.2558 
@@ -10972,7 +10982,9 @@ NA # Z-Maximum
 92.7428 22.0466 
 92.6521 22.0046 
 92.6036 21.9822 
-247 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+247 # Number of Points
 -117.123 32.5356 
 -117.023 32.5431 
 -116.923 32.5507 
@@ -11222,7 +11234,7 @@ NA # Z-Maximum
 -97.14 25.9664 
 NA # Z-Minimum
 NA # Z-Maximum
-148 # Number of Vertices
+148 # Number of Points
 11.3403 2.17 
 11.4402 2.17503 
 11.54 2.18005 
@@ -11371,7 +11383,9 @@ NA # Z-Maximum
 11.2365 -3.81053 
 11.1714 -3.88643 
 11.1397 -3.92333 
-145 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+145 # Number of Points
 44.7972 39.6486 
 44.7027 39.616 
 44.6082 39.5833 
@@ -11519,7 +11533,7 @@ NA # Z-Maximum
 48.7447 29.8533 
 NA # Z-Minimum
 NA # Z-Maximum
-290 # Number of Vertices
+290 # Number of Points
 -17.0525 20.765 
 -17.0354 20.8635 
 -17.0183 20.9621 
@@ -11810,7 +11824,9 @@ NA # Z-Maximum
 -2.0699 34.9836 
 -2.15057 35.0427 
 -2.20944 35.0858 
-122 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+122 # Number of Points
 -60.1094 5.23222 
 -60.1148 5.13236 
 -60.1201 5.0325 
@@ -11935,7 +11951,7 @@ NA # Z-Maximum
 -57.2489 5.48556 
 NA # Z-Minimum
 NA # Z-Maximum
-172 # Number of Vertices
+172 # Number of Points
 23.9994 19.4997 
 23.9994 19.3997 
 23.9994 19.2997 
@@ -12108,7 +12124,9 @@ NA # Z-Maximum
 17.8902 7.99666 
 17.7904 7.99043 
 17.7081 7.98528 
-118 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+118 # Number of Points
 22.1514 48.4119 
 22.229 48.475 
 22.3067 48.538 
@@ -12229,7 +12247,7 @@ NA # Z-Maximum
 19.6019 54.4767 
 NA # Z-Minimum
 NA # Z-Maximum
-71 # Number of Vertices
+71 # Number of Points
 103.09 18.1372 
 103.305 18.4211 
 103.404 18.4075 
@@ -12301,7 +12319,9 @@ NA # Z-Maximum
 106.095 13.9206 
 105.998 14.3672 
 106.334 14.445 
-88 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+88 # Number of Points
 -8.75139 41.9636 
 -8.65141 41.9654 
 -8.55142 41.9672 
@@ -12392,7 +12412,7 @@ NA # Z-Maximum
 -7.41306 37.1883 
 NA # Z-Minimum
 NA # Z-Maximum
-82 # Number of Vertices
+82 # Number of Points
 9.73111 47.5367 
 9.81714 47.4857 
 9.90318 47.4348 
@@ -12475,7 +12495,9 @@ NA # Z-Maximum
 12.18 50.1875 
 12.1261 50.2718 
 12.0933 50.3231 
-111 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+111 # Number of Points
 97.3481 28.2233 
 97.5622 28.5492 
 97.6482 28.4982 
@@ -12589,7 +12611,7 @@ NA # Z-Maximum
 99.9656 22.0486 
 NA # Z-Minimum
 NA # Z-Maximum
-41 # Number of Vertices
+41 # Number of Points
 -83.1317 14.9931 
 -83.228 14.9663 
 -83.3243 14.9395 
@@ -12631,7 +12653,9 @@ NA # Z-Maximum
 -86.7611 13.7528 
 -86.695 13.2969 
 -87.0631 13 
-112 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+112 # Number of Points
 27.4547 5.01722 
 27.3565 5.03593 
 27.2583 5.05463 
@@ -12746,7 +12770,7 @@ NA # Z-Maximum
 18.625 3.47889 
 NA # Z-Minimum
 NA # Z-Maximum
-127 # Number of Vertices
+127 # Number of Points
 18.2247 2.42389 
 18.2078 2.32534 
 18.1908 2.22679 
@@ -12874,7 +12898,9 @@ NA # Z-Maximum
 12.1564 -4.9051 
 12.0798 -4.96938 
 12.0264 -5.01417 
-113 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+113 # Number of Points
 109.647 2.07056 
 109.67 1.61305 
 109.746 1.54796 
@@ -12990,7 +13016,7 @@ NA # Z-Maximum
 117.9 4.17667 
 NA # Z-Minimum
 NA # Z-Maximum
-43 # Number of Vertices
+43 # Number of Points
 86.9461 26.5317 
 87.0451 26.5171 
 87.144 26.5026 
@@ -13034,7 +13060,9 @@ NA # Z-Maximum
 88.8754 27.464 
 88.9106 27.3704 
 88.926 27.3293 
-82 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+82 # Number of Points
 88.926 27.3293 
 88.9458 27.2768 
 88.981 27.1832 
@@ -13119,10 +13147,12 @@ NA # Z-Maximum
 88.926 27.3293 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 88.926 27.3293 
 88.9167 27.3208 
-134 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+134 # Number of Points
 119.103 49.9906 
 119.165 50.0691 
 119.227 50.1477 
@@ -13259,7 +13289,7 @@ NA # Z-Maximum
 127.585 50.2083 
 NA # Z-Minimum
 NA # Z-Maximum
-65 # Number of Vertices
+65 # Number of Points
 102.139 22.3975 
 102.198 22.3165 
 102.257 22.2355 
@@ -13325,7 +13355,9 @@ NA # Z-Maximum
 104.145 19.6801 
 104.046 19.6937 
 104.041 19.6944 
-133 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+133 # Number of Points
 74.5889 31.5964 
 74.6077 31.4982 
 74.6265 31.4 
@@ -13461,7 +13493,7 @@ NA # Z-Maximum
 69.2283 24.2692 
 NA # Z-Minimum
 NA # Z-Maximum
-359 # Number of Vertices
+359 # Number of Points
 -124.754 48.5011 
 -124.655 48.4865 
 -124.556 48.4718 
@@ -13821,7 +13853,9 @@ NA # Z-Maximum
 -90.5801 48.1234 
 -90.4811 48.1088 
 -90.3947 48.0961 
-78 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+78 # Number of Points
 16.1111 46.8692 
 16.5106 47.0067 
 16.5019 47.1063 
@@ -13902,7 +13936,7 @@ NA # Z-Maximum
 22.8947 47.9536 
 NA # Z-Minimum
 NA # Z-Maximum
-69 # Number of Vertices
+69 # Number of Points
 20.9831 40.8561 
 21.0807 40.8774 
 21.1785 40.8988 
@@ -13972,7 +14006,9 @@ NA # Z-Maximum
 26.157 40.8525 
 26.0885 40.7796 
 26.0469 40.7353 
-100 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+100 # Number of Points
 15.5019 7.52944 
 15.4429 7.44876 
 15.3838 7.36807 
@@ -14075,7 +14111,7 @@ NA # Z-Maximum
 13.2953 2.16361 
 NA # Z-Minimum
 NA # Z-Maximum
-164 # Number of Vertices
+164 # Number of Points
 -82.6547 42.55 
 -82.7261 42.48 
 -82.7975 42.41 
@@ -14240,7 +14276,9 @@ NA # Z-Maximum
 -70.3591 45.9733 
 -70.3014 46.055 
 -70.2536 46.1225 
-79 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+79 # Number of Points
 -2.68639 9.48194 
 -2.76163 9.54782 
 -2.83686 9.6137 
@@ -14322,7 +14360,7 @@ NA # Z-Maximum
 -3.44056 13.2756 
 NA # Z-Minimum
 NA # Z-Maximum
-55 # Number of Vertices
+55 # Number of Points
 102.916 11.6356 
 102.887 11.7314 
 102.859 11.8272 
@@ -14378,7 +14416,9 @@ NA # Z-Maximum
 105.08 14.3492 
 105.18 14.3502 
 105.211 14.3506 
-120 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+120 # Number of Points
 -71.3253 11.8531 
 -71.41 11.7999 
 -71.4947 11.7468 
@@ -14501,7 +14541,7 @@ NA # Z-Maximum
 -67.4544 6.19305 
 NA # Z-Minimum
 NA # Z-Maximum
-64 # Number of Vertices
+64 # Number of Points
 7.04 45.9322 
 6.98577 46.0162 
 6.93155 46.1003 
@@ -14566,7 +14606,9 @@ NA # Z-Maximum
 9.53986 47.5793 
 9.63724 47.5566 
 9.72833 47.5353 
-73 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+73 # Number of Points
 42.2072 37.3217 
 42.1096 37.3001 
 42.0119 37.2785 
@@ -14642,7 +14684,7 @@ NA # Z-Maximum
 35.9228 35.9267 
 NA # Z-Minimum
 NA # Z-Maximum
-88 # Number of Vertices
+88 # Number of Points
 130.604 42.4194 
 130.528 42.4838 
 130.451 42.5481 
@@ -14731,7 +14773,9 @@ NA # Z-Maximum
 124.485 40.1488 
 124.396 40.1048 
 124.372 40.0931 
-96 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+96 # Number of Points
 134.741 48.2675 
 134.695 48.1787 
 134.649 48.0899 
@@ -14830,7 +14874,7 @@ NA # Z-Maximum
 130.691 42.2956 
 NA # Z-Minimum
 NA # Z-Maximum
-51 # Number of Vertices
+51 # Number of Points
 19.9272 39.8447 
 20.2644 39.6692 
 20.3262 39.7478 
@@ -14882,7 +14926,9 @@ NA # Z-Maximum
 19.4116 41.9692 
 19.377 41.8754 
 19.3678 41.8506 
-42 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+42 # Number of Points
 104.039 19.6925 
 103.879 19.2936 
 103.97 19.2511 
@@ -14927,7 +14973,7 @@ NA # Z-Maximum
 106.587 16.6272 
 NA # Z-Minimum
 NA # Z-Maximum
-91 # Number of Vertices
+91 # Number of Points
 -69.5678 -10.9511 
 -69.5178 -11.0378 
 -69.4679 -11.1244 
@@ -15019,7 +15065,9 @@ NA # Z-Maximum
 -70.3073 -18.3101 
 -70.4005 -18.3464 
 -70.4047 -18.3481 
-201 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+201 # Number of Points
 20.5861 69.0575 
 20.5192 68.9832 
 20.4523 68.9089 
@@ -15223,7 +15271,7 @@ NA # Z-Maximum
 10.7575 58.9136 
 NA # Z-Minimum
 NA # Z-Maximum
-75 # Number of Vertices
+75 # Number of Points
 -53.8358 -27.1717 
 -53.9236 -27.2196 
 -54.0113 -27.2676 
@@ -15299,7 +15347,9 @@ NA # Z-Maximum
 -58.1697 -32.3301 
 -58.1936 -32.4272 
 -58.1992 -32.45 
-21 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+21 # Number of Points
 34.2175 31.3225 
 34.2525 31.2288 
 34.2875 31.1351 
@@ -15323,7 +15373,7 @@ NA # Z-Maximum
 34.9039 29.4855 
 NA # Z-Minimum
 NA # Z-Maximum
-247 # Number of Vertices
+247 # Number of Points
 -130.608 54.7078 
 -130.534 54.7748 
 -130.46 54.8418 
@@ -15571,7 +15621,9 @@ NA # Z-Maximum
 -141.003 69.5075 
 -141.003 69.6075 
 -141.003 69.6456 
-92 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+92 # Number of Points
 61.2783 35.6053 
 61.2668 35.7046 
 61.2553 35.8039 
@@ -15666,7 +15718,7 @@ NA # Z-Maximum
 53.9019 37.3511 
 NA # Z-Minimum
 NA # Z-Maximum
-86 # Number of Vertices
+86 # Number of Points
 -75.2819 -0.10778 
 -75.6283 -0.111115 
 -75.5849 -0.20118 
@@ -15753,7 +15805,9 @@ NA # Z-Maximum
 -80.0434 -4.34242 
 -80.1272 -4.28799 
 -80.1353 -4.28278 
-143 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+143 # Number of Points
 28.0108 70.0672 
 27.9124 70.0497 
 27.8139 70.0321 
@@ -15899,7 +15953,7 @@ NA # Z-Maximum
 24.1356 65.5133 
 NA # Z-Minimum
 NA # Z-Maximum
-23 # Number of Vertices
+23 # Number of Points
 18.851 49.518 
 18.7606 49.4753 
 18.6701 49.4326 
@@ -15923,7 +15977,9 @@ NA # Z-Maximum
 17.0423 48.6644 
 16.9519 48.6217 
 16.942 48.617 
-68 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+68 # Number of Points
 -56.4694 1.94444 
 -56.3699 1.93539 
 -56.2703 1.92634 
@@ -15994,7 +16050,7 @@ NA # Z-Maximum
 -51.6828 4.035 
 NA # Z-Minimum
 NA # Z-Maximum
-64 # Number of Vertices
+64 # Number of Points
 29.215 -3.33694 
 29.2335 -3.43523 
 29.2519 -3.53351 
@@ -16059,7 +16115,9 @@ NA # Z-Maximum
 29.1835 -3.19164 
 29.2042 -3.28947 
 29.2136 -3.33361 
-79 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+79 # Number of Points
 -56.4889 -22.0856 
 -56.3966 -22.124 
 -56.3043 -22.1625 
@@ -16141,7 +16199,7 @@ NA # Z-Maximum
 -55.7844 -27.4342 
 NA # Z-Minimum
 NA # Z-Maximum
-106 # Number of Vertices
+106 # Number of Points
 -67.1825 -22.8206 
 -67.1148 -22.747 
 -67.0471 -22.6734 
@@ -16248,7 +16306,9 @@ NA # Z-Maximum
 -59.597 -24.3078 
 -59.5027 -24.3409 
 -59.4808 -24.3486 
-90 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+90 # Number of Points
 127.586 50.2031 
 127.622 50.1097 
 127.658 50.0163 
@@ -16341,7 +16401,7 @@ NA # Z-Maximum
 134.735 48.2664 
 NA # Z-Minimum
 NA # Z-Maximum
-72 # Number of Vertices
+72 # Number of Points
 -64.6419 4.22195 
 -64.6094 4.12738 
 -64.5769 4.03281 
@@ -16414,7 +16474,9 @@ NA # Z-Maximum
 -66.7708 1.13746 
 -66.8472 1.20194 
 -66.8719 1.22278 
-78 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+78 # Number of Points
 61.3844 41.2344 
 61.2851 41.2461 
 61.1858 41.2578 
@@ -16495,7 +16557,7 @@ NA # Z-Maximum
 55.9997 41.3261 
 NA # Z-Minimum
 NA # Z-Maximum
-105 # Number of Vertices
+105 # Number of Points
 25.2633 -17.8014 
 25.3629 -17.8103 
 25.4625 -17.8191 
@@ -16601,7 +16663,9 @@ NA # Z-Maximum
 33.0687 -14.0625 
 33.1639 -14.0319 
 33.2242 -14.0125 
-48 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+48 # Number of Points
 6.36222 49.46 
 6.26236 49.4652 
 6.16249 49.4704 
@@ -16652,7 +16716,7 @@ NA # Z-Maximum
 2.54166 51.0911 
 NA # Z-Minimum
 NA # Z-Maximum
-103 # Number of Vertices
+103 # Number of Points
 21.3806 -18.0144 
 21.2809 -18.0064 
 21.1812 -17.9984 
@@ -16756,7 +16820,9 @@ NA # Z-Maximum
 11.8969 -17.229 
 11.7984 -17.2463 
 11.7697 -17.2514 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 100.58 20.1553 
 100.566 20.0563 
 100.551 19.9574 
@@ -16797,7 +16863,7 @@ NA # Z-Maximum
 101.23 17.5275 
 NA # Z-Minimum
 NA # Z-Maximum
-39 # Number of Vertices
+39 # Number of Points
 106.459 11.67 
 106.359 11.6615 
 106.259 11.6531 
@@ -16837,7 +16903,9 @@ NA # Z-Maximum
 104.559 10.5137 
 104.481 10.4506 
 104.447 10.4222 
-77 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+77 # Number of Points
 77.8214 35.5003 
 77.7466 35.4339 
 77.6719 35.3674 
@@ -16917,7 +16985,7 @@ NA # Z-Maximum
 75.3547 32.3031 
 NA # Z-Minimum
 NA # Z-Maximum
-113 # Number of Vertices
+113 # Number of Points
 -90.3894 48.0972 
 -90.2901 48.0859 
 -90.1907 48.0746 
@@ -17031,7 +17099,9 @@ NA # Z-Maximum
 -82.3576 43.1399 
 -82.4031 43.0509 
 -82.4208 43.0161 
-69 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+69 # Number of Points
 -53.38 -33.7458 
 -53.4024 -33.6484 
 -53.4248 -33.5509 
@@ -17103,7 +17173,7 @@ NA # Z-Maximum
 -57.6078 -30.185 
 NA # Z-Minimum
 NA # Z-Maximum
-42 # Number of Vertices
+42 # Number of Points
 13.7172 45.5981 
 13.6741 45.6883 
 13.631 45.7785 
@@ -17146,7 +17216,9 @@ NA # Z-Maximum
 10.6029 46.8853 
 10.5038 46.8723 
 10.4719 46.8681 
-48 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+48 # Number of Points
 41.5319 41.5239 
 41.6318 41.5284 
 41.7317 41.533 
@@ -17197,7 +17269,7 @@ NA # Z-Maximum
 44.8142 39.6328 
 NA # Z-Minimum
 NA # Z-Maximum
-96 # Number of Vertices
+96 # Number of Points
 28.9594 69.0506 
 28.9301 68.9549 
 28.9008 68.8593 
@@ -17294,7 +17366,9 @@ NA # Z-Maximum
 31.4118 63.0033 
 31.5004 62.957 
 31.5819 62.9144 
-57 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+57 # Number of Points
 -12.0581 14.7247 
 -12.1348 14.7889 
 -12.2114 14.8531 
@@ -17354,7 +17428,7 @@ NA # Z-Maximum
 -16.5428 16.0608 
 NA # Z-Minimum
 NA # Z-Maximum
-100 # Number of Vertices
+100 # Number of Points
 3.52361 15.3572 
 3.5783 15.4409 
 3.633 15.5247 
@@ -17455,7 +17529,9 @@ NA # Z-Maximum
 0.141541 21.7098 
 0.0648575 21.774 
 0.0155563 21.8153 
-84 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+84 # Number of Points
 25.0022 21.9997 
 25.1022 21.9997 
 25.2022 21.9997 
@@ -17542,7 +17618,7 @@ NA # Z-Maximum
 33.1842 21.9989 
 NA # Z-Minimum
 NA # Z-Maximum
-27 # Number of Vertices
+27 # Number of Points
 106.589 16.6286 
 106.674 16.5754 
 106.758 16.5222 
@@ -17570,7 +17646,9 @@ NA # Z-Maximum
 107.593 14.8841 
 107.568 14.7874 
 107.546 14.7053 
-73 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+73 # Number of Points
 -12.0819 13.7081 
 -12.012 13.6366 
 -11.9421 13.565 
@@ -17646,7 +17724,7 @@ NA # Z-Maximum
 -16.7172 12.3233 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 22.9347 41.3414 
 22.9245 41.4409 
 22.9143 41.5403 
@@ -17687,7 +17765,9 @@ NA # Z-Maximum
 22.6066 44.1315 
 22.6683 44.2101 
 22.6811 44.2264 
-70 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+70 # Number of Points
 81.5994 50.7361 
 81.6984 50.7503 
 81.7974 50.7645 
@@ -17760,7 +17840,7 @@ NA # Z-Maximum
 87.3494 49.0922 
 NA # Z-Minimum
 NA # Z-Maximum
-60 # Number of Vertices
+60 # Number of Points
 25.5856 -25.6217 
 25.488 -25.6438 
 25.3905 -25.6659 
@@ -17821,7 +17901,9 @@ NA # Z-Maximum
 20.8789 -26.8585 
 20.7808 -26.8779 
 20.6903 -26.8958 
-33 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+33 # Number of Points
 14.8283 50.8658 
 14.809 50.964 
 14.7897 51.0621 
@@ -17857,68 +17939,7 @@ NA # Z-Maximum
 14.2256 53.9286 
 NA # Z-Minimum
 NA # Z-Maximum
-60 # Number of Vertices
-21.0539 56.0781 
-21.1487 56.11 
-21.2434 56.1419 
-21.3382 56.1739 
-21.433 56.2058 
-21.5277 56.2377 
-21.6225 56.2696 
-21.7173 56.3015 
-21.812 56.3335 
-21.9068 56.3654 
-22.0016 56.3973 
-22.0672 56.4194 
-22.1672 56.4205 
-22.2672 56.4216 
-22.3672 56.4227 
-22.4672 56.4238 
-22.5672 56.4249 
-22.6672 56.426 
-22.7672 56.4271 
-22.8671 56.4282 
-22.9671 56.4293 
-23.0671 56.4304 
-23.1671 56.4315 
-23.2671 56.4326 
-23.3671 56.4337 
-23.4671 56.4348 
-23.5671 56.4359 
-23.6671 56.437 
-23.7671 56.4381 
-23.8671 56.4392 
-23.9671 56.4403 
-24.0671 56.4414 
-24.1671 56.4425 
-24.2671 56.4436 
-24.3671 56.4447 
-24.4671 56.4458 
-24.567 56.4469 
-24.667 56.448 
-24.767 56.4491 
-24.867 56.4502 
-24.8997 56.4506 
-24.9908 56.4094 
-25.0819 56.3682 
-25.173 56.327 
-25.2641 56.2857 
-25.3553 56.2445 
-25.4464 56.2033 
-25.5375 56.1621 
-25.6286 56.1209 
-25.7197 56.0797 
-25.8108 56.0385 
-25.9019 55.9972 
-25.993 55.956 
-26.0842 55.9148 
-26.1753 55.8736 
-26.2664 55.8324 
-26.3575 55.7912 
-26.4486 55.7499 
-26.5397 55.7087 
-26.6136 55.6753 
-60 # Number of Vertices
+60 # Number of Points
 21.0539 56.0781 
 21.1487 56.11 
 21.2434 56.1419 
@@ -17981,7 +18002,70 @@ NA # Z-Maximum
 26.6136 55.6753 
 NA # Z-Minimum
 NA # Z-Maximum
-47 # Number of Vertices
+60 # Number of Points
+21.0539 56.0781 
+21.1487 56.11 
+21.2434 56.1419 
+21.3382 56.1739 
+21.433 56.2058 
+21.5277 56.2377 
+21.6225 56.2696 
+21.7173 56.3015 
+21.812 56.3335 
+21.9068 56.3654 
+22.0016 56.3973 
+22.0672 56.4194 
+22.1672 56.4205 
+22.2672 56.4216 
+22.3672 56.4227 
+22.4672 56.4238 
+22.5672 56.4249 
+22.6672 56.426 
+22.7672 56.4271 
+22.8671 56.4282 
+22.9671 56.4293 
+23.0671 56.4304 
+23.1671 56.4315 
+23.2671 56.4326 
+23.3671 56.4337 
+23.4671 56.4348 
+23.5671 56.4359 
+23.6671 56.437 
+23.7671 56.4381 
+23.8671 56.4392 
+23.9671 56.4403 
+24.0671 56.4414 
+24.1671 56.4425 
+24.2671 56.4436 
+24.3671 56.4447 
+24.4671 56.4458 
+24.567 56.4469 
+24.667 56.448 
+24.767 56.4491 
+24.867 56.4502 
+24.8997 56.4506 
+24.9908 56.4094 
+25.0819 56.3682 
+25.173 56.327 
+25.2641 56.2857 
+25.3553 56.2445 
+25.4464 56.2033 
+25.5375 56.1621 
+25.6286 56.1209 
+25.7197 56.0797 
+25.8108 56.0385 
+25.9019 55.9972 
+25.993 55.956 
+26.0842 55.9148 
+26.1753 55.8736 
+26.2664 55.8324 
+26.3575 55.7912 
+26.4486 55.7499 
+26.5397 55.7087 
+26.6136 55.6753 
+NA # Z-Minimum
+NA # Z-Maximum
+47 # Number of Points
 -60.7294 5.20583 
 -60.5797 4.94667 
 -60.6486 4.87421 
@@ -18029,7 +18113,9 @@ NA # Z-Maximum
 -64.4667 4.15727 
 -64.5604 4.19238 
 -64.6392 4.22195 
-74 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+74 # Number of Points
 60.0256 52.0008 
 60.1206 52.0321 
 60.2155 52.0634 
@@ -18106,7 +18192,7 @@ NA # Z-Maximum
 63.3258 54.1825 
 NA # Z-Minimum
 NA # Z-Maximum
-84 # Number of Vertices
+84 # Number of Points
 9.53722 30.2339 
 9.51221 30.3307 
 9.48721 30.4275 
@@ -18191,7 +18277,9 @@ NA # Z-Maximum
 8.54756 36.867 
 8.62035 36.9356 
 8.62889 36.9436 
-61 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+61 # Number of Points
 44.7947 39.6506 
 44.8808 39.5997 
 44.9669 39.5488 
@@ -18255,7 +18343,7 @@ NA # Z-Maximum
 48.8844 38.4453 
 NA # Z-Minimum
 NA # Z-Maximum
-45 # Number of Vertices
+45 # Number of Points
 -8.79639 12.0081 
 -8.73978 11.9256 
 -8.68318 11.8432 
@@ -18301,7 +18389,9 @@ NA # Z-Maximum
 -7.67555 8.53284 
 -7.65701 8.43458 
 -7.64639 8.37833 
-97 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+97 # Number of Points
 23.4753 -17.6256 
 23.404 -17.5554 
 23.3327 -17.4853 
@@ -18401,7 +18491,7 @@ NA # Z-Maximum
 23.9869 -10.8714 
 NA # Z-Minimum
 NA # Z-Maximum
-125 # Number of Vertices
+125 # Number of Points
 23.2894 -17.9989 
 23.1904 -18.0126 
 23.0913 -18.0264 
@@ -18527,7 +18617,9 @@ NA # Z-Maximum
 20.691 -26.7632 
 20.6921 -26.8632 
 20.6925 -26.8967 
-62 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+62 # Number of Points
 29.4261 -4.44945 
 29.4328 -4.54922 
 29.4395 -4.64899 
@@ -18592,7 +18684,7 @@ NA # Z-Maximum
 28.8969 -8.47916 
 NA # Z-Minimum
 NA # Z-Maximum
-24 # Number of Vertices
+24 # Number of Points
 100.894 21.6828 
 101.162 21.5306 
 101.095 21.4564 
@@ -18617,7 +18709,9 @@ NA # Z-Maximum
 100.464 20.2034 
 100.557 20.1671 
 100.581 20.1578 
-41 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+41 # Number of Points
 13.8336 48.7733 
 13.9312 48.7517 
 14.0289 48.7301 
@@ -18661,7 +18755,7 @@ NA # Z-Maximum
 17.0681 48.1442 
 NA # Z-Minimum
 NA # Z-Maximum
-42 # Number of Vertices
+42 # Number of Points
 -8.46917 7.56 
 -8.4371 7.46528 
 -8.40504 7.37056 
@@ -18704,7 +18798,9 @@ NA # Z-Maximum
 -7.51145 4.5479 
 -7.51813 4.44812 
 -7.52444 4.35361 
-66 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+66 # Number of Points
 141.004 -2.60542 
 141.004 -2.70542 
 141.004 -2.80542 
@@ -18773,7 +18869,7 @@ NA # Z-Maximum
 141.007 -9.10149 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 0.380554 10.2733 
 0.360756 10.1753 
 0.340958 10.0773 
@@ -18814,7 +18910,9 @@ NA # Z-Maximum
 0.677994 6.70876 
 0.682655 6.60887 
 0.683609 6.58833 
-32 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+32 # Number of Points
 35.1083 31.8328 
 35.0643 31.743 
 35.0204 31.6532 
@@ -18849,7 +18947,7 @@ NA # Z-Maximum
 34.9619 29.5511 
 NA # Z-Minimum
 NA # Z-Maximum
-48 # Number of Vertices
+48 # Number of Points
 -59.6381 -24.2486 
 -59.5513 -24.2983 
 -59.4645 -24.348 
@@ -18898,7 +18996,9 @@ NA # Z-Maximum
 -58.5389 -27.1831 
 -58.5881 -27.2701 
 -58.6022 -27.295 
-52 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+52 # Number of Points
 24.2392 -17.4783 
 24.3383 -17.4916 
 24.4374 -17.5049 
@@ -18953,7 +19053,7 @@ NA # Z-Maximum
 27.7156 -20.51 
 NA # Z-Minimum
 NA # Z-Maximum
-33 # Number of Vertices
+33 # Number of Points
 -7.25306 55.0706 
 -7.33501 55.0132 
 -7.41695 54.9559 
@@ -18987,7 +19087,9 @@ NA # Z-Maximum
 -6.38498 54.1206 
 -6.28654 54.103 
 -6.26694 54.0994 
-17 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+17 # Number of Points
 -82.5644 9.56861 
 -82.9347 9.47166 
 -82.932 9.3717 
@@ -19007,7 +19109,7 @@ NA # Z-Maximum
 -82.8961 8.02917 
 NA # Z-Minimum
 NA # Z-Maximum
-31 # Number of Vertices
+31 # Number of Points
 6.01167 50.7567 
 5.93176 50.8168 
 5.85184 50.8769 
@@ -19039,7 +19141,9 @@ NA # Z-Maximum
 3.54488 51.3844 
 3.44511 51.3776 
 3.37056 51.3725 
-58 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+58 # Number of Points
 16.8181 7.54361 
 16.5644 7.87334 
 16.4693 7.84239 
@@ -19100,7 +19204,7 @@ NA # Z-Maximum
 15.6828 9.99 
 NA # Z-Minimum
 NA # Z-Maximum
-28 # Number of Vertices
+28 # Number of Points
 107.461 13.7961 
 107.467 13.6963 
 107.473 13.5965 
@@ -19129,7 +19233,9 @@ NA # Z-Maximum
 106.636 11.9434 
 106.544 11.9024 
 106.471 11.8694 
-54 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+54 # Number of Points
 2.84361 12.3936 
 2.91718 12.3259 
 2.99075 12.2582 
@@ -19186,7 +19292,7 @@ NA # Z-Maximum
 2.68195 7.89361 
 NA # Z-Minimum
 NA # Z-Maximum
-64 # Number of Vertices
+64 # Number of Points
 -16.5611 13.59 
 -16.4623 13.6057 
 -16.3636 13.6213 
@@ -19251,7 +19357,9 @@ NA # Z-Maximum
 -16.6372 13.0976 
 -16.7322 13.0665 
 -16.7486 13.0611 
-22 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+22 # Number of Points
 -77.3667 8.675 
 -77.3379 8.57923 
 -77.3091 8.48347 
@@ -19276,7 +19384,7 @@ NA # Z-Maximum
 -77.8897 7.22889 
 NA # Z-Minimum
 NA # Z-Maximum
-91 # Number of Vertices
+91 # Number of Points
 -62.6397 -22.2392 
 -62.607 -22.1447 
 -62.5743 -22.0502 
@@ -19368,7 +19476,9 @@ NA # Z-Maximum
 -57.9627 -21.9612 
 -57.9775 -22.0601 
 -57.9819 -22.0897 
-26 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+26 # Number of Points
 101.228 17.5303 
 101.306 17.5926 
 101.384 17.6549 
@@ -19397,7 +19507,7 @@ NA # Z-Maximum
 103.091 18.1392 
 NA # Z-Minimum
 NA # Z-Maximum
-46 # Number of Vertices
+46 # Number of Points
 19.9964 -28.4222 
 19.9114 -28.475 
 19.8265 -28.5278 
@@ -19444,7 +19554,9 @@ NA # Z-Maximum
 16.6301 -28.4435 
 16.5579 -28.5126 
 16.4878 -28.5797 
-76 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+76 # Number of Points
 -5.495 15.4975 
 -5.59486 15.5029 
 -5.69471 15.5083 
@@ -19523,42 +19635,7 @@ NA # Z-Maximum
 -12.0567 14.7261 
 NA # Z-Minimum
 NA # Z-Maximum
-34 # Number of Vertices
-26.1608 54.9772 
-26.118 54.8868 
-26.0752 54.7964 
-26.0325 54.706 
-25.9897 54.6156 
-25.9469 54.5253 
-25.9041 54.4349 
-25.8614 54.3445 
-25.8186 54.2541 
-25.7758 54.1637 
-25.7717 54.155 
-25.6721 54.1459 
-25.5725 54.1368 
-25.4729 54.1277 
-25.3734 54.1186 
-25.2738 54.1095 
-25.1742 54.1004 
-25.0746 54.0913 
-24.975 54.0822 
-24.8754 54.0731 
-24.7758 54.064 
-24.6763 54.0549 
-24.5767 54.0458 
-24.4771 54.0367 
-24.3775 54.0276 
-24.2779 54.0185 
-24.1783 54.0094 
-24.0788 54.0003 
-23.9792 53.9912 
-23.8796 53.9821 
-23.78 53.973 
-23.6804 53.9639 
-23.5808 53.9548 
-23.5042 53.9478 
-34 # Number of Vertices
+34 # Number of Points
 26.1608 54.9772 
 26.118 54.8868 
 26.0752 54.7964 
@@ -19595,63 +19672,44 @@ NA # Z-Maximum
 23.5042 53.9478 
 NA # Z-Minimum
 NA # Z-Maximum
-55 # Number of Vertices
-66.5358 37.3656 
-66.5525 37.4642 
-66.5692 37.5628 
-66.586 37.6614 
-66.6027 37.76 
-66.6194 37.8586 
-66.6361 37.9572 
-66.6439 38.0031 
-66.5538 38.0466 
-66.4638 38.09 
-66.3737 38.1335 
-66.2836 38.1769 
-66.1936 38.2204 
-66.1035 38.2639 
-66.0135 38.3073 
-65.9234 38.3508 
-65.8333 38.3942 
-65.7433 38.4377 
-65.6532 38.4811 
-65.5631 38.5246 
-65.4731 38.5681 
-65.383 38.6115 
-65.293 38.655 
-65.2029 38.6984 
-65.1128 38.7419 
-65.0228 38.7854 
-64.9327 38.8288 
-64.8426 38.8723 
-64.7526 38.9157 
-64.6625 38.9592 
-64.5724 39.0027 
-64.4824 39.0461 
-64.3923 39.0896 
-64.3023 39.133 
-64.2122 39.1765 
-64.1221 39.2199 
-64.0321 39.2634 
-63.942 39.3069 
-63.8519 39.3503 
-63.7619 39.3938 
-63.6718 39.4372 
-63.5818 39.4807 
-63.4917 39.5242 
-63.4016 39.5676 
-63.3116 39.6111 
-63.2215 39.6545 
-63.1314 39.698 
-63.0414 39.7414 
-62.9513 39.7849 
-62.8613 39.8284 
-62.7712 39.8718 
-62.6811 39.9153 
-62.5911 39.9587 
-62.501 40.0022 
-62.4411 40.0311 
-55 # Number of Vertices
+34 # Number of Points
+26.1608 54.9772 
+26.118 54.8868 
+26.0752 54.7964 
+26.0325 54.706 
+25.9897 54.6156 
+25.9469 54.5253 
+25.9041 54.4349 
+25.8614 54.3445 
+25.8186 54.2541 
+25.7758 54.1637 
+25.7717 54.155 
+25.6721 54.1459 
+25.5725 54.1368 
+25.4729 54.1277 
+25.3734 54.1186 
+25.2738 54.1095 
+25.1742 54.1004 
+25.0746 54.0913 
+24.975 54.0822 
+24.8754 54.0731 
+24.7758 54.064 
+24.6763 54.0549 
+24.5767 54.0458 
+24.4771 54.0367 
+24.3775 54.0276 
+24.2779 54.0185 
+24.1783 54.0094 
+24.0788 54.0003 
+23.9792 53.9912 
+23.8796 53.9821 
+23.78 53.973 
+23.6804 53.9639 
+23.5808 53.9548 
+23.5042 53.9478 
+NA # Z-Minimum
+NA # Z-Maximum
+55 # Number of Points
 66.5358 37.3656 
 66.5525 37.4642 
 66.5692 37.5628 
@@ -19709,7 +19767,65 @@ NA # Z-Maximum
 62.4411 40.0311 
 NA # Z-Minimum
 NA # Z-Maximum
-56 # Number of Vertices
+55 # Number of Points
+66.5358 37.3656 
+66.5525 37.4642 
+66.5692 37.5628 
+66.586 37.6614 
+66.6027 37.76 
+66.6194 37.8586 
+66.6361 37.9572 
+66.6439 38.0031 
+66.5538 38.0466 
+66.4638 38.09 
+66.3737 38.1335 
+66.2836 38.1769 
+66.1936 38.2204 
+66.1035 38.2639 
+66.0135 38.3073 
+65.9234 38.3508 
+65.8333 38.3942 
+65.7433 38.4377 
+65.6532 38.4811 
+65.5631 38.5246 
+65.4731 38.5681 
+65.383 38.6115 
+65.293 38.655 
+65.2029 38.6984 
+65.1128 38.7419 
+65.0228 38.7854 
+64.9327 38.8288 
+64.8426 38.8723 
+64.7526 38.9157 
+64.6625 38.9592 
+64.5724 39.0027 
+64.4824 39.0461 
+64.3923 39.0896 
+64.3023 39.133 
+64.2122 39.1765 
+64.1221 39.2199 
+64.0321 39.2634 
+63.942 39.3069 
+63.8519 39.3503 
+63.7619 39.3938 
+63.6718 39.4372 
+63.5818 39.4807 
+63.4917 39.5242 
+63.4016 39.5676 
+63.3116 39.6111 
+63.2215 39.6545 
+63.1314 39.698 
+63.0414 39.7414 
+62.9513 39.7849 
+62.8613 39.8284 
+62.7712 39.8718 
+62.6811 39.9153 
+62.5911 39.9587 
+62.501 40.0022 
+62.4411 40.0311 
+NA # Z-Minimum
+NA # Z-Maximum
+56 # Number of Points
 35.9383 4.61945 
 35.8383 4.61884 
 35.7383 4.61823 
@@ -19766,7 +19882,9 @@ NA # Z-Maximum
 31.2302 3.78033 
 31.1767 3.79528 
 30.8594 3.49111 
-49 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+49 # Number of Points
 50.7733 51.7692 
 50.6844 51.7235 
 50.5954 51.6777 
@@ -19818,7 +19936,7 @@ NA # Z-Maximum
 47.4439 50.375 
 NA # Z-Minimum
 NA # Z-Maximum
-47 # Number of Vertices
+47 # Number of Points
 -13.3011 9.03555 
 -13.2307 9.10659 
 -13.1603 9.17763 
@@ -19866,7 +19984,9 @@ NA # Z-Maximum
 -10.6699 8.46504 
 -10.6863 8.36639 
 -10.7014 8.27528 
-42 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+42 # Number of Points
 26.4011 -24.6319 
 26.4562 -24.5485 
 26.5112 -24.465 
@@ -19911,7 +20031,7 @@ NA # Z-Maximum
 29.3767 -22.1922 
 NA # Z-Minimum
 NA # Z-Maximum
-35 # Number of Vertices
+35 # Number of Points
 46.5394 38.8781 
 46.5397 38.9781 
 46.54 39.0781 
@@ -19947,7 +20067,9 @@ NA # Z-Maximum
 45.1255 41.1858 
 45.0581 41.2596 
 45.0225 41.2986 
-42 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+42 # Number of Points
 72.1942 41.0042 
 72.1269 41.0781 
 72.0595 41.1521 
@@ -19992,7 +20114,7 @@ NA # Z-Maximum
 70.9694 42.2528 
 NA # Z-Minimum
 NA # Z-Maximum
-45 # Number of Vertices
+45 # Number of Points
 -60.1103 5.22667 
 -60.2102 5.22292 
 -60.3101 5.21917 
@@ -20038,7 +20160,9 @@ NA # Z-Maximum
 -60.6934 7.5001 
 -60.7197 7.52889 
 -60.3372 7.84666 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 99.4622 6.42139 
 99.5622 6.42113 
 99.6622 6.42088 
@@ -20079,7 +20203,7 @@ NA # Z-Maximum
 102.096 6.23473 
 NA # Z-Minimum
 NA # Z-Maximum
-42 # Number of Vertices
+42 # Number of Points
 70.3469 40.4303 
 70.4448 40.4099 
 70.5427 40.3895 
@@ -20122,7 +20246,9 @@ NA # Z-Maximum
 72.3868 40.9703 
 72.2885 40.9887 
 72.1956 41.0061 
-35 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+35 # Number of Points
 35.3064 50.9594 
 35.3543 50.8716 
 35.4023 50.7839 
@@ -20160,7 +20286,7 @@ NA # Z-Maximum
 38.0242 49.9033 
 NA # Z-Minimum
 NA # Z-Maximum
-38 # Number of Vertices
+38 # Number of Points
 33.9975 4.22278 
 34.0454 4.13501 
 34.0933 4.04724 
@@ -20199,7 +20325,9 @@ NA # Z-Maximum
 34.6109 1.21136 
 34.5462 1.13516 
 34.5269 1.1125 
-160 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+160 # Number of Points
 -5.49667 15.4983 
 -5.47754 15.5965 
 -5.45842 15.6946 
@@ -20362,7 +20490,7 @@ NA # Z-Maximum
 -8.66639 27.2903 
 NA # Z-Minimum
 NA # Z-Maximum
-41 # Number of Vertices
+41 # Number of Points
 -54.6036 2.32944 
 -54.5562 2.41749 
 -54.5088 2.50554 
@@ -20404,7 +20532,9 @@ NA # Z-Maximum
 -54.0221 5.66963 
 -53.9706 5.7553 
 -53.9647 5.765 
-106 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+106 # Number of Points
 13.6253 13.7172 
 13.6047 13.8151 
 13.5841 13.9129 
@@ -20513,7 +20643,7 @@ NA # Z-Maximum
 14.9986 23.0011 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 18.5392 3.07555 
 18.529 3.17504 
 18.5189 3.27452 
@@ -20554,7 +20684,9 @@ NA # Z-Maximum
 16.2717 2.40524 
 16.2385 2.31089 
 16.2072 2.22166 
-21 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+21 # Number of Points
 -85.7317 11.0631 
 -85.6335 11.0439 
 -85.5354 11.0247 
@@ -20578,12 +20710,14 @@ NA # Z-Maximum
 -83.6453 10.925 
 NA # Z-Minimum
 NA # Z-Maximum
-4 # Number of Vertices
+4 # Number of Points
 35.6441 32.69 
 35.5528 32.3939 
 35.08 32.4706 
 35.0006 31.9867 
-28 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+28 # Number of Points
 42.3567 37.1078 
 42.441 37.1616 
 42.5253 37.2153 
@@ -20614,7 +20748,7 @@ NA # Z-Maximum
 44.7883 37.1486 
 NA # Z-Minimum
 NA # Z-Maximum
-42 # Number of Vertices
+42 # Number of Points
 70.9694 42.2533 
 71.1758 42.6947 
 71.2736 42.7156 
@@ -20657,7 +20791,9 @@ NA # Z-Maximum
 74.0524 43.2132 
 74.1461 43.2481 
 74.2011 43.2686 
-50 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+50 # Number of Points
 75.6761 42.8064 
 75.7761 42.8061 
 75.8761 42.8059 
@@ -20710,7 +20846,7 @@ NA # Z-Maximum
 80.2336 42.1964 
 NA # Z-Minimum
 NA # Z-Maximum
-34 # Number of Vertices
+34 # Number of Points
 70.9822 40.245 
 70.8846 40.2231 
 70.787 40.2013 
@@ -20745,7 +20881,9 @@ NA # Z-Maximum
 70.5319 39.5086 
 70.6319 39.5078 
 70.6739 39.5075 
-20 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+20 # Number of Points
 -87.6953 13.8186 
 -87.7952 13.8232 
 -87.8951 13.8278 
@@ -20768,7 +20906,7 @@ NA # Z-Maximum
 -89.3475 14.4314 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 27.5683 -30.4044 
 27.6585 -30.4478 
 27.7486 -30.4911 
@@ -20809,7 +20947,9 @@ NA # Z-Maximum
 28.8073 -28.7176 
 28.7353 -28.6482 
 28.6992 -28.6133 
-28 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+28 # Number of Points
 -7.64778 8.38028 
 -7.74716 8.39138 
 -7.84654 8.40249 
@@ -20840,7 +20980,7 @@ NA # Z-Maximum
 -9.30472 7.41666 
 NA # Z-Minimum
 NA # Z-Maximum
-35 # Number of Vertices
+35 # Number of Points
 55.1992 22.6997 
 55.2203 22.7975 
 55.2414 22.8952 
@@ -20876,7 +21016,9 @@ NA # Z-Maximum
 56.2015 24.9487 
 56.2999 24.9663 
 56.3731 24.9794 
-41 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+41 # Number of Points
 57.7944 51.12 
 57.4819 50.8647 
 57.3843 50.8864 
@@ -20920,7 +21062,7 @@ NA # Z-Maximum
 54.5203 50.5283 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 68.1439 41.0514 
 68.0156 40.8139 
 68.1104 40.7821 
@@ -20961,7 +21103,9 @@ NA # Z-Maximum
 70.8757 42.21 
 70.9667 42.2516 
 70.9694 42.2528 
-34 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+34 # Number of Points
 15.6794 9.99222 
 15.6081 10.0623 
 15.5368 10.1324 
@@ -20998,7 +21142,7 @@ NA # Z-Maximum
 14.5567 12.8297 
 NA # Z-Minimum
 NA # Z-Maximum
-41 # Number of Vertices
+41 # Number of Points
 -67.4536 6.19305 
 -67.4785 6.0962 
 -67.5034 5.99935 
@@ -21040,7 +21184,9 @@ NA # Z-Maximum
 -67.7636 2.88156 
 -67.8312 2.80785 
 -67.8456 2.79222 
-48 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+48 # Number of Points
 9.80972 2.345 
 9.90907 2.33356 
 10.0084 2.32212 
@@ -21091,7 +21237,7 @@ NA # Z-Maximum
 9.54278 0.975555 
 NA # Z-Minimum
 NA # Z-Maximum
-38 # Number of Vertices
+38 # Number of Points
 91.6608 27.765 
 91.7602 27.7764 
 91.8595 27.7877 
@@ -21130,7 +21276,9 @@ NA # Z-Maximum
 94.4829 29.2538 
 94.5726 29.2981 
 94.6314 29.3272 
-80 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+80 # Number of Points
 81.0247 30.1964 
 81.1238 30.2098 
 81.2229 30.2233 
@@ -21213,7 +21361,7 @@ NA # Z-Maximum
 88.1494 27.8644 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 29.8958 46.5511 
 29.8386 46.6331 
 29.7814 46.7151 
@@ -21233,7 +21381,9 @@ NA # Z-Maximum
 28.9805 47.8634 
 28.9233 47.9455 
 28.8783 48.01 
-30 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+30 # Number of Points
 31.7839 52.1081 
 31.8831 52.1207 
 31.9823 52.1333 
@@ -21266,7 +21416,7 @@ NA # Z-Maximum
 34.3833 51.8439 
 NA # Z-Minimum
 NA # Z-Maximum
-79 # Number of Vertices
+79 # Number of Points
 31.3003 -22.4181 
 31.3334 -22.5124 
 31.3665 -22.6068 
@@ -21346,7 +21496,9 @@ NA # Z-Maximum
 32.7063 -26.8387 
 32.8062 -26.843 
 32.8914 -26.8467 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 -66.8744 1.22472 
 -66.9258 1.31055 
 -66.9771 1.39637 
@@ -21387,7 +21539,7 @@ NA # Z-Maximum
 -69.8422 1.71445 
 NA # Z-Minimum
 NA # Z-Maximum
-34 # Number of Vertices
+34 # Number of Points
 27.3711 57.5358 
 27.2744 57.5613 
 27.1777 57.5869 
@@ -21422,7 +21574,9 @@ NA # Z-Maximum
 24.4155 57.8934 
 24.3178 57.8721 
 24.3117 57.8708 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 -9.30278 7.41805 
 -9.33961 7.51102 
 -9.37646 7.60399 
@@ -21449,38 +21603,7 @@ NA # Z-Maximum
 -10.7 8.27389 
 NA # Z-Minimum
 NA # Z-Maximum
-30 # Number of Vertices
-30.9256 55.6031 
-30.8275 55.6225 
-30.7294 55.642 
-30.6313 55.6614 
-30.5332 55.6808 
-30.4351 55.7003 
-30.337 55.7197 
-30.2389 55.7391 
-30.1408 55.7586 
-30.0428 55.778 
-29.9447 55.7974 
-29.8466 55.8168 
-29.7485 55.8363 
-29.6504 55.8557 
-29.5523 55.8751 
-29.4542 55.8946 
-29.3561 55.914 
-29.258 55.9334 
-29.1599 55.9529 
-29.0618 55.9723 
-28.9637 55.9917 
-28.8656 56.0112 
-28.7675 56.0306 
-28.6694 56.05 
-28.5714 56.0695 
-28.4733 56.0889 
-28.3752 56.1083 
-28.2771 56.1278 
-28.179 56.1472 
-28.1678 56.1494 
-30 # Number of Vertices
+30 # Number of Points
 30.9256 55.6031 
 30.8275 55.6225 
 30.7294 55.642 
@@ -21513,45 +21636,40 @@ NA # Z-Maximum
 28.1678 56.1494 
 NA # Z-Minimum
 NA # Z-Maximum
-37 # Number of Vertices
-46.4517 41.8967 
-46.3669 41.9498 
-46.2822 42.0028 
-46.1974 42.0559 
-46.1126 42.1089 
-46.0279 42.162 
-45.9431 42.215 
-45.8583 42.2681 
-45.7736 42.3211 
-45.6888 42.3742 
-45.604 42.4272 
-45.5193 42.4803 
-45.4345 42.5333 
-45.3497 42.5864 
-45.265 42.6394 
-45.1802 42.6925 
-45.1589 42.7058 
-45.0597 42.6935 
-44.9604 42.6813 
-44.8612 42.669 
-44.7619 42.6568 
-44.6627 42.6445 
-44.5634 42.6322 
-44.4642 42.62 
-44.3649 42.6077 
-44.2657 42.5954 
-44.1664 42.5832 
-44.0672 42.5709 
-43.968 42.5586 
-43.9611 42.5578 
-43.8754 42.6093 
-43.7897 42.6609 
-43.704 42.7124 
-43.6183 42.7639 
-43.5326 42.8154 
-43.4469 42.867 
-43.3933 42.8992 
-37 # Number of Vertices
+30 # Number of Points
+30.9256 55.6031 
+30.8275 55.6225 
+30.7294 55.642 
+30.6313 55.6614 
+30.5332 55.6808 
+30.4351 55.7003 
+30.337 55.7197 
+30.2389 55.7391 
+30.1408 55.7586 
+30.0428 55.778 
+29.9447 55.7974 
+29.8466 55.8168 
+29.7485 55.8363 
+29.6504 55.8557 
+29.5523 55.8751 
+29.4542 55.8946 
+29.3561 55.914 
+29.258 55.9334 
+29.1599 55.9529 
+29.0618 55.9723 
+28.9637 55.9917 
+28.8656 56.0112 
+28.7675 56.0306 
+28.6694 56.05 
+28.5714 56.0695 
+28.4733 56.0889 
+28.3752 56.1083 
+28.2771 56.1278 
+28.179 56.1472 
+28.1678 56.1494 
+NA # Z-Minimum
+NA # Z-Maximum
+37 # Number of Points
 46.4517 41.8967 
 46.3669 41.9498 
 46.2822 42.0028 
@@ -21591,7 +21709,7 @@ NA # Z-Maximum
 43.3933 42.8992 
 NA # Z-Minimum
 NA # Z-Maximum
-37 # Number of Vertices
+37 # Number of Points
 46.4517 41.8967 
 46.3669 41.9498 
 46.2822 42.0028 
@@ -21629,7 +21747,49 @@ NA # Z-Maximum
 43.5326 42.8154 
 43.4469 42.867 
 43.3933 42.8992 
-53 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+37 # Number of Points
+46.4517 41.8967 
+46.3669 41.9498 
+46.2822 42.0028 
+46.1974 42.0559 
+46.1126 42.1089 
+46.0279 42.162 
+45.9431 42.215 
+45.8583 42.2681 
+45.7736 42.3211 
+45.6888 42.3742 
+45.604 42.4272 
+45.5193 42.4803 
+45.4345 42.5333 
+45.3497 42.5864 
+45.265 42.6394 
+45.1802 42.6925 
+45.1589 42.7058 
+45.0597 42.6935 
+44.9604 42.6813 
+44.8612 42.669 
+44.7619 42.6568 
+44.6627 42.6445 
+44.5634 42.6322 
+44.4642 42.62 
+44.3649 42.6077 
+44.2657 42.5954 
+44.1664 42.5832 
+44.0672 42.5709 
+43.968 42.5586 
+43.9611 42.5578 
+43.8754 42.6093 
+43.7897 42.6609 
+43.704 42.7124 
+43.6183 42.7639 
+43.5326 42.8154 
+43.4469 42.867 
+43.3933 42.8992 
+NA # Z-Minimum
+NA # Z-Maximum
+53 # Number of Points
 0.917778 10.9958 
 0.895554 10.8983 
 0.873337 10.8008 
@@ -21685,7 +21845,7 @@ NA # Z-Maximum
 1.8 6.28083 
 NA # Z-Minimum
 NA # Z-Maximum
-42 # Number of Vertices
+42 # Number of Points
 61.6781 51.2647 
 61.6288 51.1777 
 61.5795 51.0907 
@@ -21728,7 +21888,9 @@ NA # Z-Maximum
 58.4964 51.0663 
 58.4093 51.1153 
 58.3367 51.1561 
-50 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+50 # Number of Points
 48.4203 28.5453 
 48.3203 28.5444 
 48.2203 28.5435 
@@ -21781,7 +21943,7 @@ NA # Z-Maximum
 43.999 29.4605 
 NA # Z-Minimum
 NA # Z-Maximum
-36 # Number of Vertices
+36 # Number of Points
 32.4919 -21.345 
 32.4933 -21.245 
 32.4947 -21.145 
@@ -21818,7 +21980,9 @@ NA # Z-Maximum
 32.9435 -18.5082 
 32.9923 -18.4209 
 33.0014 -18.4047 
-47 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+47 # Number of Points
 0.229164 15.0019 
 0.250343 14.9042 
 0.271523 14.8065 
@@ -21868,7 +22032,7 @@ NA # Z-Maximum
 2.39833 11.8953 
 NA # Z-Minimum
 NA # Z-Maximum
-36 # Number of Vertices
+36 # Number of Points
 30.4139 -15.6336 
 30.4228 -16.0092 
 30.5192 -16.0355 
@@ -21905,7 +22069,9 @@ NA # Z-Maximum
 33.031 -17.2062 
 33.0408 -17.3057 
 33.0447 -17.3461 
-41 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+41 # Number of Points
 47.1353 48.2486 
 47.1503 47.8061 
 47.2466 47.7793 
@@ -21949,7 +22115,7 @@ NA # Z-Maximum
 49.2228 46.3456 
 NA # Z-Minimum
 NA # Z-Maximum
-34 # Number of Vertices
+34 # Number of Points
 70.6739 39.5075 
 70.7729 39.5214 
 70.872 39.5352 
@@ -21984,7 +22150,9 @@ NA # Z-Maximum
 73.5262 39.4322 
 73.6245 39.4506 
 73.67 39.4592 
-43 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+43 # Number of Points
 56.0008 41.3275 
 55.9011 41.32 
 55.8014 41.3125 
@@ -22030,7 +22198,7 @@ NA # Z-Maximum
 52.4389 41.7422 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 106.332 14.445 
 106.43 14.4263 
 106.529 14.4076 
@@ -22046,7 +22214,9 @@ NA # Z-Maximum
 107.385 14.5992 
 107.469 14.6542 
 107.549 14.7069 
-20 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+20 # Number of Points
 27.5125 51.6303 
 27.6116 51.6166 
 27.7106 51.6028 
@@ -22069,7 +22239,7 @@ NA # Z-Maximum
 29.3539 51.375 
 NA # Z-Minimum
 NA # Z-Maximum
-20 # Number of Vertices
+20 # Number of Points
 -0.000274658 42.71 
 -0.093483 42.7462 
 -0.186699 42.7824 
@@ -22090,7 +22260,9 @@ NA # Z-Maximum
 -1.58482 43.3258 
 -1.67803 43.362 
 -1.76861 43.3972 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 -54.5983 -25.5736 
 -54.4994 -25.5881 
 -54.4004 -25.6026 
@@ -22117,7 +22289,7 @@ NA # Z-Maximum
 -53.8358 -27.1717 
 NA # Z-Minimum
 NA # Z-Maximum
-31 # Number of Vertices
+31 # Number of Points
 67.3667 39.2942 
 67.4596 39.2573 
 67.5526 39.2203 
@@ -22149,7 +22321,9 @@ NA # Z-Maximum
 67.8708 37.3375 
 67.8194 37.2517 
 67.78 37.1858 
-23 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+23 # Number of Points
 38.0244 49.9042 
 38.1234 49.8901 
 38.2224 49.876 
@@ -22175,44 +22349,7 @@ NA # Z-Maximum
 40.1272 49.605 
 NA # Z-Minimum
 NA # Z-Maximum
-36 # Number of Vertices
-43.3933 42.8992 
-43.296 42.9224 
-43.1988 42.9456 
-43.1015 42.9689 
-43.0042 42.9921 
-42.907 43.0153 
-42.8097 43.0385 
-42.7124 43.0617 
-42.6152 43.085 
-42.5179 43.1082 
-42.4206 43.1314 
-42.3234 43.1546 
-42.2261 43.1778 
-42.1288 43.2011 
-42.0316 43.2243 
-41.9343 43.2475 
-41.837 43.2707 
-41.7398 43.2939 
-41.6425 43.3172 
-41.5452 43.3404 
-41.448 43.3636 
-41.3507 43.3868 
-41.2534 43.41 
-41.1562 43.4333 
-41.0589 43.4565 
-40.9616 43.4797 
-40.8644 43.5029 
-40.7671 43.5261 
-40.6847 43.5458 
-40.5869 43.525 
-40.4891 43.5042 
-40.3913 43.4834 
-40.2935 43.4626 
-40.1956 43.4418 
-40.0978 43.421 
-40.0072 43.4017 
-36 # Number of Vertices
+36 # Number of Points
 43.3933 42.8992 
 43.296 42.9224 
 43.1988 42.9456 
@@ -22251,7 +22388,46 @@ NA # Z-Maximum
 40.0072 43.4017 
 NA # Z-Minimum
 NA # Z-Maximum
-26 # Number of Vertices
+36 # Number of Points
+43.3933 42.8992 
+43.296 42.9224 
+43.1988 42.9456 
+43.1015 42.9689 
+43.0042 42.9921 
+42.907 43.0153 
+42.8097 43.0385 
+42.7124 43.0617 
+42.6152 43.085 
+42.5179 43.1082 
+42.4206 43.1314 
+42.3234 43.1546 
+42.2261 43.1778 
+42.1288 43.2011 
+42.0316 43.2243 
+41.9343 43.2475 
+41.837 43.2707 
+41.7398 43.2939 
+41.6425 43.3172 
+41.5452 43.3404 
+41.448 43.3636 
+41.3507 43.3868 
+41.2534 43.41 
+41.1562 43.4333 
+41.0589 43.4565 
+40.9616 43.4797 
+40.8644 43.5029 
+40.7671 43.5261 
+40.6847 43.5458 
+40.5869 43.525 
+40.4891 43.5042 
+40.3913 43.4834 
+40.2935 43.4626 
+40.1956 43.4418 
+40.0978 43.421 
+40.0072 43.4017 
+NA # Z-Minimum
+NA # Z-Maximum
+26 # Number of Points
 30.7692 -8.19305 
 30.8565 -8.24183 
 30.9438 -8.2906 
@@ -22278,7 +22454,9 @@ NA # Z-Maximum
 32.777 -9.3149 
 32.8643 -9.36367 
 32.9403 -9.40611 
-26 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+26 # Number of Points
 45.0222 41.2978 
 45.1209 41.2815 
 45.2195 41.2652 
@@ -22307,7 +22485,7 @@ NA # Z-Maximum
 46.4508 41.8958 
 NA # Z-Minimum
 NA # Z-Maximum
-46 # Number of Vertices
+46 # Number of Points
 31.5867 62.9125 
 31.5019 62.8594 
 31.4172 62.8063 
@@ -22354,7 +22532,9 @@ NA # Z-Maximum
 27.9425 60.63 
 27.8577 60.5769 
 27.8108 60.5475 
-17 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+17 # Number of Points
 28.1658 56.1511 
 28.116 56.2378 
 28.0663 56.3246 
@@ -22374,7 +22554,7 @@ NA # Z-Maximum
 27.3711 57.5364 
 NA # Z-Minimum
 NA # Z-Maximum
-30 # Number of Vertices
+30 # Number of Points
 -58.6008 -27.2964 
 -58.5009 -27.3012 
 -58.4011 -27.3061 
@@ -22405,7 +22585,9 @@ NA # Z-Maximum
 -55.904 -27.4269 
 -55.8041 -27.4318 
 -55.7889 -27.4325 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 -2.83167 11.0042 
 -2.82063 10.9048 
 -2.80959 10.8054 
@@ -22432,7 +22614,7 @@ NA # Z-Maximum
 -2.58472 8.78083 
 NA # Z-Minimum
 NA # Z-Maximum
-25 # Number of Vertices
+25 # Number of Points
 23.2936 -17.9994 
 23.3488 -18.0828 
 23.4041 -18.1662 
@@ -22458,7 +22640,9 @@ NA # Z-Maximum
 25.0924 -17.8698 
 25.1847 -17.8313 
 25.2653 -17.7978 
-19 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+19 # Number of Points
 28.0131 41.9822 
 27.9137 41.9932 
 27.8143 42.0042 
@@ -22480,7 +22664,7 @@ NA # Z-Maximum
 26.3578 41.7125 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 69.0978 40.2244 
 69.1449 40.3126 
 69.1919 40.4008 
@@ -22500,7 +22684,9 @@ NA # Z-Maximum
 70.4216 41.045 
 70.4306 41.0503 
 70.7958 40.7258 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 -89.1508 15.0736 
 -89.1947 14.9838 
 -89.2386 14.8939 
@@ -22513,7 +22699,7 @@ NA # Z-Maximum
 -89.5411 14.2744 
 NA # Z-Minimum
 NA # Z-Maximum
-27 # Number of Vertices
+27 # Number of Points
 27.7125 -20.5075 
 27.74 -20.6036 
 27.7676 -20.6998 
@@ -22541,7 +22727,9 @@ NA # Z-Maximum
 29.129 -22.0142 
 29.2218 -22.0515 
 29.2567 -22.0656 
-41 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+41 # Number of Points
 27.9281 70.0883 
 28.0229 70.0565 
 28.1177 70.0247 
@@ -22585,7 +22773,7 @@ NA # Z-Maximum
 30.8569 69.7936 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 -87.7431 18.1728 
 -87.8348 18.2126 
 -87.9265 18.2524 
@@ -22605,7 +22793,9 @@ NA # Z-Maximum
 -89.0362 17.9237 
 -89.1071 17.8532 
 -89.1417 17.8189 
-33 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+33 # Number of Points
 79.3369 51.6692 
 79.4 51.5916 
 79.463 51.514 
@@ -22641,7 +22831,7 @@ NA # Z-Maximum
 81.5994 50.7361 
 NA # Z-Minimum
 NA # Z-Maximum
-27 # Number of Vertices
+27 # Number of Points
 46.4519 41.8972 
 46.5401 41.8502 
 46.6284 41.8031 
@@ -22669,7 +22859,9 @@ NA # Z-Maximum
 48.4751 41.7515 
 48.5538 41.8132 
 48.5856 41.8381 
-29 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+29 # Number of Points
 2.31639 11.6786 
 2.21935 11.6544 
 2.12232 11.6303 
@@ -22701,7 +22893,7 @@ NA # Z-Maximum
 0.0152817 11.1058 
 NA # Z-Minimum
 NA # Z-Maximum
-59 # Number of Vertices
+59 # Number of Points
 38.795 33.3753 
 38.8854 33.418 
 38.9758 33.4608 
@@ -22761,7 +22953,9 @@ NA # Z-Maximum
 42.212 36.9559 
 42.2958 37.0105 
 42.3747 37.0619 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 29.3744 -22.1911 
 29.4738 -22.2027 
 29.5731 -22.2143 
@@ -22802,7 +22996,7 @@ NA # Z-Maximum
 32.4892 -21.3472 
 NA # Z-Minimum
 NA # Z-Maximum
-58 # Number of Vertices
+58 # Number of Points
 39.3019 32.2361 
 39.3939 32.1969 
 39.4859 32.1577 
@@ -22861,7 +23055,9 @@ NA # Z-Maximum
 43.5979 29.6821 
 43.5911 29.6039 
 43.9992 29.4594 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 -15.0122 10.9581 
 -14.9614 11.0442 
 -14.9106 11.1303 
@@ -22888,7 +23084,7 @@ NA # Z-Maximum
 -13.9678 12.1553 
 NA # Z-Minimum
 NA # Z-Maximum
-18 # Number of Vertices
+18 # Number of Points
 -71.7533 19.7058 
 -71.755 19.6059 
 -71.7566 19.5059 
@@ -22907,7 +23103,9 @@ NA # Z-Maximum
 -71.7779 18.206 
 -71.7795 18.106 
 -71.7806 18.0422 
-43 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+43 # Number of Points
 71.0642 54.1919 
 71.1641 54.1869 
 71.264 54.1819 
@@ -22953,7 +23151,7 @@ NA # Z-Maximum
 73.4372 53.4361 
 NA # Z-Minimum
 NA # Z-Maximum
-39 # Number of Vertices
+39 # Number of Points
 42.9431 11.0031 
 42.8431 11.0012 
 42.7431 10.9994 
@@ -22993,7 +23191,9 @@ NA # Z-Maximum
 42.9389 12.6592 
 43.0355 12.6852 
 43.1233 12.7089 
-19 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+19 # Number of Points
 67.3661 39.2936 
 67.7097 39.6258 
 67.8093 39.6173 
@@ -23015,7 +23215,7 @@ NA # Z-Maximum
 68.9872 40.1492 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 31.1989 54.4608 
 31.1756 54.5581 
 31.1524 54.6553 
@@ -23029,7 +23229,9 @@ NA # Z-Maximum
 30.9662 55.4333 
 30.9429 55.5306 
 30.9256 55.6031 
-23 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+23 # Number of Points
 38.4928 -11.4161 
 38.5829 -11.3727 
 38.6729 -11.3293 
@@ -23055,7 +23257,7 @@ NA # Z-Maximum
 40.4364 -10.4794 
 NA # Z-Minimum
 NA # Z-Maximum
-29 # Number of Vertices
+29 # Number of Points
 -68.8878 47.1881 
 -68.7921 47.2171 
 -68.6964 47.2462 
@@ -23085,7 +23287,9 @@ NA # Z-Maximum
 -67.7989 45.7703 
 -67.7992 45.7011 
 -67.43 45.5933 
-20 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+20 # Number of Points
 -6.64694 10.6647 
 -6.70107 10.5806 
 -6.75518 10.4965 
@@ -23108,7 +23312,7 @@ NA # Z-Maximum
 -7.97472 10.1658 
 NA # Z-Minimum
 NA # Z-Maximum
-22 # Number of Vertices
+22 # Number of Points
 28.7014 -28.6142 
 28.6059 -28.6437 
 28.5103 -28.6733 
@@ -23131,7 +23335,9 @@ NA # Z-Maximum
 27.1111 -29.5436 
 27.0402 -29.6141 
 27.0125 -29.6417 
-21 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+21 # Number of Points
 25.5467 51.9225 
 25.4487 51.9028 
 25.3506 51.883 
@@ -23155,7 +23361,7 @@ NA # Z-Maximum
 23.6028 51.5311 
 NA # Z-Minimum
 NA # Z-Maximum
-22 # Number of Vertices
+22 # Number of Points
 -67.855 2.79 
 -67.7693 2.73855 
 -67.6835 2.6871 
@@ -23178,7 +23384,9 @@ NA # Z-Maximum
 -66.9038 1.33105 
 -66.8776 1.23456 
 -66.8742 1.22195 
-21 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+21 # Number of Points
 -10.2664 8.48805 
 -10.328 8.40931 
 -10.3897 8.33056 
@@ -23202,12 +23410,14 @@ NA # Z-Maximum
 -11.4886 6.92639 
 NA # Z-Minimum
 NA # Z-Maximum
-4 # Number of Vertices
+4 # Number of Points
 104.444 10.4239 
 104.086 10.1681 
 103.841 10.4019 
 103.897 10.0319 
-15 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+15 # Number of Points
 -80.1311 -4.28083 
 -80.4778 -4.42805 
 -80.4265 -4.3422 
@@ -23225,7 +23435,7 @@ NA # Z-Maximum
 -80.3689 -3.36945 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 114.095 4.59028 
 114.164 4.51801 
 114.233 4.44573 
@@ -23245,7 +23455,9 @@ NA # Z-Maximum
 114.958 4.75362 
 114.997 4.84545 
 115.019 4.89584 
-16 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+16 # Number of Points
 1.48583 42.6022 
 1.38609 42.6094 
 1.28635 42.6166 
@@ -23264,7 +23476,7 @@ NA # Z-Maximum
 0.00527954 42.7092 
 NA # Z-Minimum
 NA # Z-Maximum
-8 # Number of Vertices
+8 # Number of Points
 6.13306 50.1267 
 6.08434 50.0393 
 6.03563 49.952 
@@ -23273,7 +23485,9 @@ NA # Z-Maximum
 5.88949 49.69 
 5.84078 49.6027 
 5.80861 49.545 
-30 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+30 # Number of Points
 66.1083 54.645 
 66.2071 54.6601 
 66.306 54.6753 
@@ -23306,7 +23520,7 @@ NA # Z-Maximum
 68.7269 55.3672 
 NA # Z-Minimum
 NA # Z-Maximum
-21 # Number of Vertices
+21 # Number of Points
 25.5481 51.9208 
 25.647 51.9062 
 25.7459 51.8915 
@@ -23328,7 +23542,9 @@ NA # Z-Maximum
 27.3287 51.6575 
 27.4277 51.6428 
 27.5125 51.6303 
-12 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+12 # Number of Points
 31.3764 53.1211 
 31.4137 53.0283 
 31.451 52.9355 
@@ -23343,7 +23559,7 @@ NA # Z-Maximum
 31.7839 52.1081 
 NA # Z-Minimum
 NA # Z-Maximum
-21 # Number of Vertices
+21 # Number of Points
 44.775 39.7056 
 44.874 39.6914 
 44.973 39.6771 
@@ -23365,7 +23581,9 @@ NA # Z-Maximum
 46.1308 38.9335 
 46.1764 38.8445 
 46.1778 38.8419 
-16 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+16 # Number of Points
 -56.4864 -22.0825 
 -56.5864 -22.0829 
 -56.6864 -22.0834 
@@ -23384,7 +23602,7 @@ NA # Z-Maximum
 -57.9828 -22.0892 
 NA # Z-Minimum
 NA # Z-Maximum
-20 # Number of Vertices
+20 # Number of Points
 52.5831 51.4644 
 52.3469 51.7811 
 52.2571 51.737 
@@ -23405,7 +23623,9 @@ NA # Z-Maximum
 50.9259 51.7162 
 50.8314 51.7489 
 50.7722 51.7694 
-16 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+16 # Number of Points
 3.20834 42.4347 
 3.10846 42.4397 
 3.00858 42.4447 
@@ -23424,7 +23644,7 @@ NA # Z-Maximum
 1.75584 42.5069 
 NA # Z-Minimum
 NA # Z-Maximum
-37 # Number of Vertices
+37 # Number of Points
 -2.58139 8.78 
 -2.56551 8.68127 
 -2.54964 8.58253 
@@ -23462,7 +23682,9 @@ NA # Z-Maximum
 -2.82043 5.70796 
 -2.77755 5.61762 
 -2.76444 5.59 
-15 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+15 # Number of Points
 39.0394 47.8669 
 39.1393 47.862 
 39.2392 47.8572 
@@ -23480,7 +23702,7 @@ NA # Z-Maximum
 39.9214 48.3675 
 NA # Z-Minimum
 NA # Z-Maximum
-40 # Number of Vertices
+40 # Number of Points
 -3.43889 13.2764 
 -3.36987 13.3488 
 -3.30086 13.4211 
@@ -23521,7 +23743,9 @@ NA # Z-Maximum
 -0.118843 15.0131 
 -0.0196686 15.0003 
 -0.00694275 14.9986 
-30 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+30 # Number of Points
 47.4464 50.3769 
 47.4029 50.2869 
 47.3594 50.1968 
@@ -23554,7 +23778,7 @@ NA # Z-Maximum
 47.1353 48.2486 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 32.7372 53.4389 
 32.6398 53.4162 
 32.5424 53.3934 
@@ -23570,7 +23794,9 @@ NA # Z-Maximum
 31.5686 53.166 
 31.4713 53.1433 
 31.3764 53.1211 
-28 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+28 # Number of Points
 116.709 49.8294 
 116.806 49.8028 
 116.902 49.7762 
@@ -23601,7 +23827,7 @@ NA # Z-Maximum
 119.096 49.9894 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 -58.1997 -32.4539 
 -58.2034 -32.5538 
 -58.2071 -32.6537 
@@ -23621,7 +23847,9 @@ NA # Z-Maximum
 -58.2589 -34.0528 
 -58.2626 -34.1527 
 -58.2633 -34.1736 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 -89.5222 14.2272 
 -89.5988 14.1629 
 -89.6754 14.0987 
@@ -23633,7 +23861,7 @@ NA # Z-Maximum
 -90.0956 13.7461 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 39.0392 47.8683 
 38.9458 47.8327 
 38.8523 47.797 
@@ -23649,7 +23877,9 @@ NA # Z-Maximum
 38.257 47.21 
 38.2364 47.1121 
 38.2358 47.1094 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 26.6125 55.6747 
 26.8197 55.2811 
 26.7289 55.2392 
@@ -23662,7 +23892,7 @@ NA # Z-Maximum
 26.1608 54.9772 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 26.6125 55.6747 
 26.8197 55.2811 
 26.7289 55.2392 
@@ -23673,7 +23903,9 @@ NA # Z-Maximum
 26.2749 55.0298 
 26.1841 54.9879 
 26.1608 54.9772 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 39.6694 48.5881 
 39.7263 48.6703 
 39.7832 48.7525 
@@ -23685,7 +23917,7 @@ NA # Z-Maximum
 40.0819 49.1839 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 -10.6544 11.8958 
 -10.3289 12.2242 
 -10.2289 12.227 
@@ -23698,7 +23930,9 @@ NA # Z-Maximum
 -9.52921 12.2467 
 -9.42924 12.2495 
 -9.3425 12.2519 
-20 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+20 # Number of Points
 62.4419 40.0308 
 62.3966 40.12 
 62.3514 40.2091 
@@ -23721,7 +23955,7 @@ NA # Z-Maximum
 61.3858 41.2356 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 13.0922 -4.63361 
 13.0089 -4.68889 
 12.9256 -4.74416 
@@ -23739,7 +23973,9 @@ NA # Z-Maximum
 12.5195 -5.64842 
 12.5267 -5.72417 
 12.2006 -5.77972 
-19 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+19 # Number of Points
 -70.2531 46.1197 
 -70.1928 46.1995 
 -70.1325 46.2793 
@@ -23761,7 +23997,7 @@ NA # Z-Maximum
 -68.8922 47.1878 
 NA # Z-Minimum
 NA # Z-Maximum
-36 # Number of Vertices
+36 # Number of Points
 75.6914 54.1103 
 75.7873 54.1387 
 75.8831 54.1671 
@@ -23798,7 +24034,9 @@ NA # Z-Maximum
 77.6814 53.4064 
 77.7706 53.3613 
 77.8011 53.3458 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 -68.6183 -52.6436 
 -68.6192 -52.7436 
 -68.6201 -52.8436 
@@ -23825,7 +24063,7 @@ NA # Z-Maximum
 -68.6383 -54.8858 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 69.2308 24.2694 
 68.7533 24.3211 
 68.6857 24.2475 
@@ -23838,7 +24076,9 @@ NA # Z-Maximum
 68.2121 23.732 
 68.1445 23.6583 
 68.1353 23.6483 
-16 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+16 # Number of Points
 113.863 22.4614 
 113.959 22.4882 
 114.055 22.515 
@@ -23857,7 +24097,7 @@ NA # Z-Maximum
 113.861 22.4594 
 NA # Z-Minimum
 NA # Z-Maximum
-37 # Number of Vertices
+37 # Number of Points
 -71.9172 -51.9956 
 -71.8178 -52.0065 
 -71.7184 -52.0173 
@@ -23895,7 +24135,9 @@ NA # Z-Maximum
 -68.5375 -52.366 
 -68.4381 -52.3769 
 -68.4278 -52.3781 
-12 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+12 # Number of Points
 27.5208 48.465 
 27.613 48.4264 
 27.7053 48.3878 
@@ -23910,7 +24152,7 @@ NA # Z-Maximum
 28.4608 48.0714 
 NA # Z-Minimum
 NA # Z-Maximum
-21 # Number of Vertices
+21 # Number of Points
 47.9469 30.0142 
 47.8469 30.0143 
 47.7469 30.0145 
@@ -23932,7 +24174,9 @@ NA # Z-Maximum
 46.6046 29.1905 
 46.548 29.108 
 46.5456 29.1044 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 107.545 14.7081 
 107.536 14.6085 
 107.527 14.5089 
@@ -23944,7 +24188,7 @@ NA # Z-Maximum
 107.474 13.9297 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 -89.1508 15.0736 
 -89.0687 15.1307 
 -88.9866 15.1878 
@@ -23958,7 +24202,9 @@ NA # Z-Maximum
 -88.3298 15.6445 
 -88.2477 15.7015 
 -88.2147 15.7244 
-13 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+13 # Number of Points
 34.2097 51.2594 
 34.3062 51.233 
 34.4026 51.2066 
@@ -23974,7 +24220,7 @@ NA # Z-Maximum
 35.3058 50.9594 
 NA # Z-Minimum
 NA # Z-Maximum
-54 # Number of Vertices
+54 # Number of Points
 7.44473 20.8464 
 7.53088 20.8972 
 7.61703 20.9479 
@@ -24029,7 +24275,9 @@ NA # Z-Maximum
 11.8387 23.4353 
 11.9249 23.4861 
 11.9853 23.5217 
-13 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+13 # Number of Points
 30.5739 -2.39806 
 30.8942 -2.07611 
 30.8567 -1.98341 
@@ -24045,7 +24293,7 @@ NA # Z-Maximum
 30.4836 -1.06139 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 29.3539 51.375 
 29.4534 51.3648 
 29.5529 51.3547 
@@ -24060,14 +24308,16 @@ NA # Z-Maximum
 30.4482 51.2631 
 30.5477 51.253 
 30.5494 51.2528 
-4 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+4 # Number of Points
 -11.3731 12.4078 
 -11.3197 12.0253 
 -10.9289 12.2244 
 -10.6525 11.8939 
 NA # Z-Minimum
 NA # Z-Maximum
-30 # Number of Vertices
+30 # Number of Points
 -0.00222015 11.1094 
 -0.10215 11.1056 
 -0.20208 11.1018 
@@ -24098,7 +24348,9 @@ NA # Z-Maximum
 -2.70026 11.0065 
 -2.80019 11.0027 
 -2.83444 11.0014 
-17 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+17 # Number of Points
 2.71889 6.36472 
 2.71661 6.4647 
 2.71432 6.56467 
@@ -24118,7 +24370,7 @@ NA # Z-Maximum
 2.68389 7.89555 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 54.5236 50.5286 
 54.447 50.5928 
 54.3703 50.6571 
@@ -24136,7 +24388,9 @@ NA # Z-Maximum
 53.4507 51.4279 
 53.374 51.4922 
 53.3567 51.5067 
-59 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+59 # Number of Points
 -4.80611 25.0003 
 -4.72268 24.9452 
 -4.63924 24.89 
@@ -24198,7 +24452,7 @@ NA # Z-Maximum
 -0.000831604 21.8253 
 NA # Z-Minimum
 NA # Z-Maximum
-15 # Number of Vertices
+15 # Number of Points
 -69.8431 1.71361 
 -69.8429 1.61361 
 -69.8428 1.51361 
@@ -24214,7 +24468,9 @@ NA # Z-Maximum
 -69.3427 1.04137 
 -69.27 1.03833 
 -69.2086 0.618889 
-8 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+8 # Number of Points
 99.9681 22.0503 
 100.005 21.9573 
 100.042 21.8643 
@@ -24225,7 +24481,7 @@ NA # Z-Maximum
 100.213 21.4328 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 -12.2447 14.7642 
 -12.2293 14.6654 
 -12.2138 14.5666 
@@ -24238,7 +24494,9 @@ NA # Z-Maximum
 -12.1057 13.875 
 -12.0902 13.7762 
 -12.0797 13.7089 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 100.89 21.6853 
 100.796 21.6505 
 100.703 21.6156 
@@ -24250,7 +24508,7 @@ NA # Z-Maximum
 100.216 21.4347 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 32.7364 53.4386 
 32.6428 53.4738 
 32.5492 53.509 
@@ -24263,7 +24521,9 @@ NA # Z-Maximum
 31.894 53.7553 
 31.8004 53.7905 
 31.7633 53.8044 
-18 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+18 # Number of Points
 34.3783 4.60111 
 34.4696 4.64201 
 34.5608 4.6829 
@@ -24284,59 +24544,7 @@ NA # Z-Maximum
 35.6983 4.62056 
 NA # Z-Minimum
 NA # Z-Maximum
-51 # Number of Vertices
-62.0236 43.4856 
-62.1232 43.4942 
-62.2229 43.5029 
-62.3225 43.5115 
-62.4221 43.5202 
-62.5217 43.5288 
-62.6214 43.5374 
-62.721 43.5461 
-62.8206 43.5547 
-62.9202 43.5634 
-63.0199 43.572 
-63.1195 43.5807 
-63.2191 43.5893 
-63.3187 43.5979 
-63.4184 43.6066 
-63.518 43.6152 
-63.6176 43.6239 
-63.7172 43.6325 
-63.8169 43.6411 
-63.9165 43.6498 
-64.0161 43.6584 
-64.1157 43.6671 
-64.2154 43.6757 
-64.315 43.6843 
-64.4146 43.693 
-64.5143 43.7016 
-64.6139 43.7103 
-64.7135 43.7189 
-64.8131 43.7275 
-64.9128 43.7362 
-64.9314 43.7378 
-65.0033 43.6683 
-65.0752 43.5988 
-65.1471 43.5293 
-65.219 43.4598 
-65.2909 43.3903 
-65.3628 43.3208 
-65.4348 43.2514 
-65.5067 43.1819 
-65.5786 43.1124 
-65.6505 43.0429 
-65.7224 42.9734 
-65.7943 42.9039 
-65.8219 42.8772 
-66.1239 42.9969 
-66.1147 42.8973 
-66.1054 42.7978 
-66.0962 42.6982 
-66.087 42.5986 
-66.0777 42.499 
-66.0708 42.4242 
-51 # Number of Vertices
+51 # Number of Points
 62.0236 43.4856 
 62.1232 43.4942 
 62.2229 43.5029 
@@ -24390,25 +24598,61 @@ NA # Z-Maximum
 66.0708 42.4242 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
-45.0222 41.2978 
-44.9229 41.2857 
-44.8237 41.2736 
-44.7244 41.2615 
-44.6251 41.2494 
-44.5259 41.2373 
-44.4266 41.2252 
-44.3273 41.2131 
-44.2281 41.201 
-44.1288 41.1889 
-44.0295 41.1768 
-43.9303 41.1647 
-43.831 41.1526 
-43.7318 41.1405 
-43.6325 41.1284 
-43.5332 41.1163 
-43.4878 41.1108 
-17 # Number of Vertices
+51 # Number of Points
+62.0236 43.4856 
+62.1232 43.4942 
+62.2229 43.5029 
+62.3225 43.5115 
+62.4221 43.5202 
+62.5217 43.5288 
+62.6214 43.5374 
+62.721 43.5461 
+62.8206 43.5547 
+62.9202 43.5634 
+63.0199 43.572 
+63.1195 43.5807 
+63.2191 43.5893 
+63.3187 43.5979 
+63.4184 43.6066 
+63.518 43.6152 
+63.6176 43.6239 
+63.7172 43.6325 
+63.8169 43.6411 
+63.9165 43.6498 
+64.0161 43.6584 
+64.1157 43.6671 
+64.2154 43.6757 
+64.315 43.6843 
+64.4146 43.693 
+64.5143 43.7016 
+64.6139 43.7103 
+64.7135 43.7189 
+64.8131 43.7275 
+64.9128 43.7362 
+64.9314 43.7378 
+65.0033 43.6683 
+65.0752 43.5988 
+65.1471 43.5293 
+65.219 43.4598 
+65.2909 43.3903 
+65.3628 43.3208 
+65.4348 43.2514 
+65.5067 43.1819 
+65.5786 43.1124 
+65.6505 43.0429 
+65.7224 42.9734 
+65.7943 42.9039 
+65.8219 42.8772 
+66.1239 42.9969 
+66.1147 42.8973 
+66.1054 42.7978 
+66.0962 42.6982 
+66.087 42.5986 
+66.0777 42.499 
+66.0708 42.4242 
+NA # Z-Minimum
+NA # Z-Maximum
+17 # Number of Points
 45.0222 41.2978 
 44.9229 41.2857 
 44.8237 41.2736 
@@ -24428,7 +24672,27 @@ NA # Z-Maximum
 43.4878 41.1108 
 NA # Z-Minimum
 NA # Z-Maximum
-38 # Number of Vertices
+17 # Number of Points
+45.0222 41.2978 
+44.9229 41.2857 
+44.8237 41.2736 
+44.7244 41.2615 
+44.6251 41.2494 
+44.5259 41.2373 
+44.4266 41.2252 
+44.3273 41.2131 
+44.2281 41.201 
+44.1288 41.1889 
+44.0295 41.1768 
+43.9303 41.1647 
+43.831 41.1526 
+43.7318 41.1405 
+43.6325 41.1284 
+43.5332 41.1163 
+43.4878 41.1108 
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 20.0017 -24.7661 
 20.0016 -24.8661 
 20.0015 -24.9661 
@@ -24467,7 +24731,9 @@ NA # Z-Maximum
 19.9982 -28.2661 
 19.9981 -28.3661 
 19.9981 -28.4256 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 55.9997 41.3261 
 55.9996 41.4261 
 55.9996 41.5261 
@@ -24508,7 +24774,7 @@ NA # Z-Maximum
 55.9972 45.0031 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 30.8008 51.9444 
 30.7667 51.8504 
 30.7327 51.7564 
@@ -24518,7 +24784,9 @@ NA # Z-Maximum
 30.5964 51.3803 
 30.5623 51.2863 
 30.5503 51.2531 
-15 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+15 # Number of Points
 22.6022 55.0722 
 22.5031 55.0853 
 22.4039 55.0984 
@@ -24536,7 +24804,7 @@ NA # Z-Maximum
 21.2667 55.2489 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 27.5208 48.465 
 27.4234 48.4423 
 27.326 48.4196 
@@ -24548,7 +24816,9 @@ NA # Z-Maximum
 26.7417 48.2835 
 26.6443 48.2608 
 26.635 48.2586 
-12 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+12 # Number of Points
 29.2347 -1.69278 
 29.2151 -1.79082 
 29.1954 -1.88887 
@@ -24563,11 +24833,13 @@ NA # Z-Maximum
 29.025 -2.73861 
 NA # Z-Minimum
 NA # Z-Maximum
-3 # Number of Vertices
+3 # Number of Points
 -6.22417 10.2569 
 -6.22278 10.7214 
 -6.645 10.6669 
-17 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+17 # Number of Points
 64.6039 54.3908 
 64.7025 54.4073 
 64.8011 54.4239 
@@ -24587,7 +24859,7 @@ NA # Z-Maximum
 66.1081 54.6431 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 64.6039 54.3908 
 64.7025 54.4073 
 64.8011 54.4239 
@@ -24605,7 +24877,9 @@ NA # Z-Maximum
 65.9846 54.6224 
 66.0832 54.6389 
 66.1081 54.6431 
-14 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+14 # Number of Points
 115.028 4.81917 
 115.082 4.73472 
 115.135 4.65027 
@@ -24622,7 +24896,7 @@ NA # Z-Maximum
 115.146 4.9025 
 NA # Z-Minimum
 NA # Z-Maximum
-13 # Number of Vertices
+13 # Number of Points
 97.8803 9.52805 
 97.9526 9.59709 
 98.025 9.66613 
@@ -24636,7 +24910,9 @@ NA # Z-Maximum
 98.6037 10.2184 
 98.6761 10.2875 
 98.7436 10.3519 
-8 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+8 # Number of Points
 2.31361 11.6792 
 2.32502 11.7785 
 2.33643 11.8779 
@@ -24647,7 +24923,7 @@ NA # Z-Maximum
 2.83861 12.3958 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 75.3567 32.3042 
 75.2832 32.2364 
 75.2096 32.1686 
@@ -24660,13 +24936,15 @@ NA # Z-Maximum
 74.6951 31.694 
 74.6216 31.6262 
 74.5922 31.5992 
-3 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+3 # Number of Points
 1.75584 42.5069 
 1.45805 42.5656 
 1.75389 42.5069 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 74.2011 43.2686 
 74.2965 43.2387 
 74.392 43.2088 
@@ -24684,7 +24962,9 @@ NA # Z-Maximum
 75.537 42.85 
 75.6325 42.8201 
 75.6761 42.8064 
-12 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+12 # Number of Points
 33.0397 -17.3575 
 33.0363 -17.4574 
 33.0329 -17.5574 
@@ -24699,7 +24979,7 @@ NA # Z-Maximum
 33.0039 -18.4114 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 22.7847 54.365 
 22.7597 54.4618 
 22.7347 54.5587 
@@ -24709,7 +24989,9 @@ NA # Z-Maximum
 22.6347 54.946 
 22.6097 55.0428 
 22.6022 55.0719 
-13 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+13 # Number of Points
 27.8442 59.1597 
 27.8292 59.0608 
 27.8141 58.962 
@@ -24725,7 +25007,7 @@ NA # Z-Maximum
 27.6694 58.0097 
 NA # Z-Minimum
 NA # Z-Maximum
-18 # Number of Vertices
+18 # Number of Points
 70.47 55.2967 
 70.55 55.2367 
 70.63 55.1767 
@@ -24744,7 +25026,9 @@ NA # Z-Maximum
 71.1213 54.3226 
 71.0819 54.2307 
 71.0658 54.1931 
-11 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+11 # Number of Points
 16.8181 7.54583 
 16.9077 7.59014 
 16.9974 7.63445 
@@ -24758,7 +25042,7 @@ NA # Z-Maximum
 17.71 7.98666 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+11 # Number of Points
 31.7839 52.1081 
 31.6853 52.0917 
 31.5866 52.0752 
@@ -24770,7 +25054,9 @@ NA # Z-Maximum
 30.9948 51.9767 
 30.8961 51.9603 
 30.8008 51.9444 
-32 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+32 # Number of Points
 35.6225 23.1261 
 35.5462 23.0615 
 35.4699 22.9969 
@@ -24805,7 +25091,7 @@ NA # Z-Maximum
 33.1911 21.9892 
 NA # Z-Minimum
 NA # Z-Maximum
-12 # Number of Vertices
+12 # Number of Points
 34.5256 1.11389 
 34.4745 1.02788 
 34.4235 0.941864 
@@ -24818,12 +25104,14 @@ NA # Z-Maximum
 34.0665 0.339783 
 34.0155 0.253769 
 34.0042 0.234718 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 34.3825 51.8433 
 34.2986 51.3689 
 NA # Z-Minimum
 NA # Z-Maximum
-37 # Number of Vertices
+37 # Number of Points
 3.52583 15.3592 
 3.42638 15.3488 
 3.32691 15.3384 
@@ -24861,7 +25149,9 @@ NA # Z-Maximum
 0.144234 15.0059 
 0.0447769 14.9955 
 0.0108337 14.9919 
-35 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+35 # Number of Points
 3.60445 11.6939 
 3.63333 11.7896 
 3.66222 11.8854 
@@ -24899,7 +25189,7 @@ NA # Z-Maximum
 5.54528 13.8919 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 27.3711 57.5358 
 27.4244 57.6204 
 27.4778 57.705 
@@ -24907,7 +25197,9 @@ NA # Z-Maximum
 27.5845 57.8741 
 27.6378 57.9587 
 27.67 58.0097 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 31.8656 54.0022 
 31.783 54.0586 
 31.7005 54.1151 
@@ -24920,7 +25212,7 @@ NA # Z-Maximum
 31.1953 54.4603 
 NA # Z-Minimum
 NA # Z-Maximum
-31 # Number of Vertices
+31 # Number of Points
 24.2369 -17.4794 
 24.1387 -17.4979 
 24.0404 -17.5163 
@@ -24952,12 +25244,14 @@ NA # Z-Maximum
 21.4849 -17.9953 
 21.3866 -18.0137 
 21.3736 -18.0161 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 71.0325 40.1631 
 71.2331 39.8933 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 34.0047 0.236664 
 33.9982 0.136879 
 33.9917 0.0370941 
@@ -24972,7 +25266,9 @@ NA # Z-Maximum
 33.933 -0.860992 
 33.9265 -0.960785 
 33.9239 -1.00111 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 -9.31333 12.5033 
 -9.24127 12.434 
 -9.16921 12.3647 
@@ -24984,7 +25280,7 @@ NA # Z-Maximum
 -8.79861 12.0081 
 NA # Z-Minimum
 NA # Z-Maximum
-39 # Number of Vertices
+39 # Number of Points
 4.24611 19.1467 
 4.34433 19.1654 
 4.44255 19.1842 
@@ -25024,12 +25320,14 @@ NA # Z-Maximum
 7.33072 20.748 
 7.40663 20.8131 
 7.45222 20.8522 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 113.572 22.2039 
 113.573 22.2033 
 NA # Z-Minimum
 NA # Z-Maximum
-38 # Number of Vertices
+38 # Number of Points
 55.9969 45.0025 
 56.0945 45.0241 
 56.1922 45.0457 
@@ -25068,7 +25366,9 @@ NA # Z-Maximum
 59.2932 45.2296 
 59.3836 45.1869 
 59.4578 45.1519 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 -60.3394 7.84528 
 -60.2613 7.90768 
 -60.1832 7.97009 
@@ -25080,7 +25380,7 @@ NA # Z-Maximum
 -59.9903 8.53528 
 NA # Z-Minimum
 NA # Z-Maximum
-120 # Number of Vertices
+120 # Number of Points
 51.9993 18.9993 
 52.0942 19.0309 
 52.189 19.0626 
@@ -25201,7 +25501,9 @@ NA # Z-Maximum
 50.9565 24.6288 
 50.8845 24.6981 
 50.8317 24.7489 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 -5.52055 10.4336 
 -5.61758 10.4094 
 -5.7146 10.3852 
@@ -25213,7 +25515,7 @@ NA # Z-Maximum
 -6.22278 10.2583 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 68.7233 55.3683 
 68.8232 55.3642 
 68.9231 55.3602 
@@ -25233,7 +25535,9 @@ NA # Z-Maximum
 70.322 55.3032 
 70.4219 55.2992 
 70.4703 55.2972 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 27.35 55.8264 
 27.2521 55.8062 
 27.1541 55.7861 
@@ -25245,7 +25549,7 @@ NA # Z-Maximum
 26.6142 55.675 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 27.35 55.8264 
 27.2521 55.8062 
 27.1541 55.7861 
@@ -25255,7 +25559,9 @@ NA # Z-Maximum
 26.7623 55.7055 
 26.6644 55.6853 
 26.6142 55.675 
-7 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+7 # Number of Points
 -2.76222 5.58861 
 -2.79428 5.49389 
 -2.82634 5.39917 
@@ -25265,16 +25571,7 @@ NA # Z-Maximum
 -2.9275 5.10028 
 NA # Z-Minimum
 NA # Z-Maximum
-8 # Number of Vertices
-28.1678 56.1494 
-28.0832 56.096 
-27.9987 56.0426 
-27.9141 55.9893 
-27.8295 55.9359 
-27.745 55.8825 
-27.6604 55.8291 
-27.6014 55.7919 
-8 # Number of Vertices
+8 # Number of Points
 28.1678 56.1494 
 28.0832 56.096 
 27.9987 56.0426 
@@ -25285,7 +25582,18 @@ NA # Z-Maximum
 27.6014 55.7919 
 NA # Z-Minimum
 NA # Z-Maximum
-11 # Number of Vertices
+8 # Number of Points
+28.1678 56.1494 
+28.0832 56.096 
+27.9987 56.0426 
+27.9141 55.9893 
+27.8295 55.9359 
+27.745 55.8825 
+27.6604 55.8291 
+27.6014 55.7919 
+NA # Z-Minimum
+NA # Z-Maximum
+11 # Number of Points
 60.9444 51.62 
 60.852 51.6582 
 60.7596 51.6965 
@@ -25297,7 +25605,9 @@ NA # Z-Maximum
 60.2052 51.926 
 60.1128 51.9642 
 60.0244 52.0008 
-12 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+12 # Number of Points
 127 38.225 
 127.1 38.2331 
 127.199 38.2412 
@@ -25312,7 +25622,7 @@ NA # Z-Maximum
 128.003 38.3064 
 NA # Z-Minimum
 NA # Z-Maximum
-10 # Number of Vertices
+10 # Number of Points
 13.1794 -5.85611 
 13.0823 -5.87991 
 12.9852 -5.90372 
@@ -25323,7 +25633,9 @@ NA # Z-Maximum
 12.4996 -6.02272 
 12.4024 -6.04652 
 12.3781 -6.0525 
-26 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+26 # Number of Points
 73.4372 53.4361 
 73.5371 53.4404 
 73.637 53.4447 
@@ -25352,7 +25664,7 @@ NA # Z-Maximum
 75.6906 54.1111 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 18.5406 3.07417 
 18.4962 2.98457 
 18.4518 2.89496 
@@ -25362,17 +25674,19 @@ NA # Z-Maximum
 18.2742 2.53654 
 18.2298 2.44695 
 18.22 2.42722 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 107.783 21.6672 
 108.119 21.4492 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 29.2578 36.205 
 29.5958 36.0297 
 NA # Z-Minimum
 NA # Z-Maximum
-47 # Number of Vertices
+47 # Number of Points
 -13.1747 27.6669 
 -13.0747 27.6669 
 -12.9747 27.6669 
@@ -25422,12 +25736,12 @@ NA # Z-Maximum
 -8.66666 27.6667 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 104.095 1.31111 
 103.603 1.27834 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 60.64 44.6053 
 60.7178 44.5424 
 60.7955 44.4795 
@@ -25447,7 +25761,9 @@ NA # Z-Maximum
 61.8841 43.5992 
 61.9618 43.5363 
 62.0239 43.4861 
-7 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+7 # Number of Points
 0.383331 10.2733 
 0.3078 10.3389 
 0.232269 10.4044 
@@ -25457,7 +25773,7 @@ NA # Z-Maximum
 0.00138855 10.6047 
 NA # Z-Minimum
 NA # Z-Maximum
-14 # Number of Vertices
+14 # Number of Points
 66.0717 42.4239 
 66.0292 42.0031 
 66.5264 42.0031 
@@ -25472,7 +25788,9 @@ NA # Z-Maximum
 67.0084 41.243 
 67.0619 41.1586 
 67.0714 41.1436 
-24 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+24 # Number of Points
 77.8008 53.3453 
 77.8684 53.2716 
 77.9359 53.1979 
@@ -25499,15 +25817,17 @@ NA # Z-Maximum
 79.3369 51.6692 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -67.4242 45.5947 
 -67.205 45.1839 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -87.6956 13.8181 
 -87.8164 13.4053 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 1.20306 6.10056 
 1.1306 6.16947 
 1.05814 6.23839 
@@ -25517,23 +25837,29 @@ NA # Z-Maximum
 0.768303 6.51406 
 0.695839 6.58298 
 0.685837 6.5925 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 56.08 26.0656 
 56.27 25.6361 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 56.08 26.0656 
 56.27 25.6361 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 34.2678 31.2172 
 34.4903 31.5967 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 28.8783 48.0097 
 28.4608 48.0714 
-8 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+8 # Number of Points
 14.5275 -22.6853 
 14.5621 -22.7791 
 14.5966 -22.873 
@@ -25544,7 +25870,7 @@ NA # Z-Maximum
 14.4583 -23.1536 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 53.3567 51.5067 
 53.2569 51.5012 
 53.157 51.4958 
@@ -25554,7 +25880,9 @@ NA # Z-Maximum
 52.7576 51.4739 
 52.6577 51.4685 
 52.5831 51.4644 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 67.0706 41.1433 
 67.1704 41.1492 
 67.2703 41.1551 
@@ -25567,7 +25895,7 @@ NA # Z-Maximum
 67.9344 41.1944 
 NA # Z-Minimum
 NA # Z-Maximum
-18 # Number of Vertices
+18 # Number of Points
 8.41028 55.0864 
 8.50838 55.067 
 8.60648 55.0476 
@@ -25586,12 +25914,14 @@ NA # Z-Maximum
 9.88177 54.7953 
 9.97987 54.7759 
 10.0308 54.7658 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 42.2092 37.3197 
 42.3739 37.0597 
 NA # Z-Minimum
 NA # Z-Maximum
-9 # Number of Vertices
+9 # Number of Points
 63.9014 54.1978 
 63.9977 54.2246 
 64.0941 54.2514 
@@ -25601,7 +25931,9 @@ NA # Z-Maximum
 64.4795 54.3585 
 64.5758 54.3853 
 64.6019 54.3925 
-9 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+9 # Number of Points
 27.0156 -29.6431 
 27.0632 -29.731 
 27.1108 -29.8189 
@@ -25613,18 +25945,22 @@ NA # Z-Maximum
 27.3811 -30.3178 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 39.67 48.5881 
 39.9214 48.3675 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 29.5975 -1.38445 
 29.2328 -1.69278 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 27.0306 37.8394 
 26.9728 37.6486 
-11 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+11 # Number of Points
 25.5856 -25.6244 
 25.6159 -25.5292 
 25.6463 -25.4339 
@@ -25638,7 +25974,7 @@ NA # Z-Maximum
 25.8675 -24.7397 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 -82.4206 43.0133 
 -82.4653 42.9239 
 -82.51 42.8344 
@@ -25646,15 +25982,19 @@ NA # Z-Maximum
 -82.5994 42.6555 
 -82.6441 42.5661 
 -82.65 42.5542 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 28.1225 36.4914 
 28.495 36.4692 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 70.5222 39.8875 
 70.5217 39.8883 
-7 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+7 # Number of Points
 60.9444 51.62 
 61.0389 51.5872 
 61.1333 51.5544 
@@ -25664,15 +26004,17 @@ NA # Z-Maximum
 61.4967 51.4281 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 40.14 49.6006 
 40.0811 49.1839 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 128.003 38.3064 
 128.364 38.6211 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 70.7944 40.7247 
 70.7109 40.6697 
 70.6274 40.6147 
@@ -25680,7 +26022,9 @@ NA # Z-Maximum
 70.4603 40.5047 
 70.3768 40.4497 
 70.3464 40.4297 
-48 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+48 # Number of Points
 40.9886 2.82083 
 40.9889 2.72083 
 40.9891 2.62083 
@@ -25731,15 +26075,17 @@ NA # Z-Maximum
 41.5575 -1.67222 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -13.6956 12.2933 
 -13.9711 12.1539 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 9.67667 42.9528 
 9.45167 43.1822 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 14.5544 12.8278 
 14.4661 12.8746 
 14.3777 12.9213 
@@ -25747,47 +26093,59 @@ NA # Z-Maximum
 14.2009 13.0149 
 14.1125 13.0617 
 14.0747 13.0817 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -9.34444 12.25 
 -9.31111 12.5042 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 36.6942 45.4319 
 36.5308 45.1372 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 19.2956 39.8703 
 19.6628 39.9306 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 29.8958 46.5511 
 30.1336 46.4156 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.3061 36.7664 
 27.4342 36.5631 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -13.6936 12.2939 
 -13.7131 12.6758 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 12.4072 43.9161 
 12.4078 43.9136 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 27.0517 37.5047 
 27.1786 37.2517 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 9.59944 47.0642 
 9.53416 47.2742 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 106.47 11.8708 
 106.459 11.6647 
-7 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+7 # Number of Points
 63.3258 54.1825 
 63.4258 54.185 
 63.5257 54.1875 
@@ -25797,15 +26155,17 @@ NA # Z-Maximum
 63.9025 54.1969 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 34.6994 -12.0119 
 34.6994 -12.0114 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -0.00222015 10.6083 
 -0.0019455 10.9181 
 NA # Z-Minimum
 NA # Z-Maximum
-16 # Number of Vertices
+16 # Number of Points
 41.9139 3.99 
 41.8513 3.91197 
 41.7888 3.83394 
@@ -25822,7 +26182,9 @@ NA # Z-Maximum
 41.1009 2.97561 
 41.0383 2.89758 
 40.9864 2.83278 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 32.1339 -26.8394 
 32.1153 -26.7412 
 32.0968 -26.6429 
@@ -25835,55 +26197,67 @@ NA # Z-Maximum
 31.9672 -25.9575 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 26.2192 38.3244 
 26.2983 38.1122 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 26.1186 39.3872 
 26.4447 39.3986 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 69.0969 40.2244 
 68.6419 40.1847 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.1514 37.0639 
 27.3547 36.93 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -87.3008 12.9867 
 -87.065 13 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 124.131 39.8292 
 124.371 40.0961 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 25.5889 40.0361 
 25.6761 39.8139 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.7297 36.6414 
 27.9133 36.6297 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 26.3531 38.7014 
 26.3058 38.4839 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 31.8656 54.0022 
 31.7636 53.8033 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 17.1664 48.0125 
 17.0647 48.1436 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 25.8503 40.4036 
 25.625 40.2544 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 26.4033 -24.6306 
 26.3055 -24.6514 
 26.2077 -24.6723 
@@ -25891,34 +26265,44 @@ NA # Z-Maximum
 26.0121 -24.714 
 25.9143 -24.7348 
 25.8692 -24.7444 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 58.332078 51.1561 
 58.0022 51.085 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.8442 59.1597 
 28.1892 59.3525 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 1.99472 42.4611 
 1.99361 42.4622 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 68.1439 41.0514 
 67.9344 41.1944 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 70.5867 40.9994 
 70.5844 41.0011 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 126.807 38.0006 
 127 38.225 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 107.473 13.9336 
 107.463 13.7958 
-7 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+7 # Number of Points
 126.687 37.8328 
 126.59 37.8098 
 126.493 37.7869 
@@ -25928,146 +26312,182 @@ NA # Z-Maximum
 126.104 37.6953 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 26.6903 39.0756 
 26.5853 38.8806 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -3.10361 5.08611 
 -2.88167 5.11417 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 9.82861 42.4864 
 9.79361 42.6628 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.5644 -30.4044 
 27.3786 -30.3172 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 126.689 37.8322 
 126.807 38.0006 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 45.5558 40.665 
 45.5567 40.6647 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 61.6803 51.2667 
 61.5 51.43 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.6014 55.7919 
 27.3508 55.8264 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 27.6014 55.7919 
 27.3508 55.8264 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 34.2986 51.3689 
 34.2097 51.2594 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 1.8025 6.28028 
 1.63583 6.21833 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 29.2553 -22.0631 
 29.3722 -22.1919 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 28.0158 59.4786 
 28.1892 59.3525 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 47.9533 30.0081 
 48.3217 29.9011 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -0.00527954 11.0986 
 -0.151108 11.1392 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 0.00250244 10.9642 
 0.000556946 11.0969 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 58.0011 51.0847 
 57.7944 51.12 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 9.03611 41.3414 
 9.39972 41.4106 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 7.39139 43.7294 
 7.44028 43.7575 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 51.1114 24.5558 
 51.2147 24.6203 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 45.2119 41.0056 
 45.2128 41.0042 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -2.91472 35.2736 
 -2.94695 35.3292 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 8.68 47.6931 
 8.68083 47.6931 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 68.9872 40.1492 
 68.8636 40.1417 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 124.65 38.025 
 124.829 37.7586 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -5.34583 35.8417 
 -5.39555 35.9158 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 35.2564 31.8081 
 35.2564 31.8075 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 124.743 37.9967 
 124.829 37.7586 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 34.975 29.5761 
 34.98 29.5461 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 27.7961 60.5456 
 27.4994 60.2553 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 26.0442 43.9044 
 26.0697 43.9292 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 125.638 37.6644 
 125.769 37.6569 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 -0.00111389 10.9283 
 -0.00111389 10.9608 
-2 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+2 # Number of Points
 -5.36389 36.1514 
 -5.38361 36.1514 
 NA # Z-Minimum
 NA # Z-Maximum
-2 # Number of Vertices
+2 # Number of Points
 124.65 38.025 
 124.743 37.9967 
-116 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+116 # Number of Points
 18.4613 42.5461 
 18.5061 42.6355 
 18.5508 42.725 
@@ -26186,7 +26606,7 @@ NA # Z-Maximum
 18.4613 42.5461 
 NA # Z-Minimum
 NA # Z-Maximum
-19 # Number of Vertices
+19 # Number of Points
 22.3738 42.3267 
 22.2761 42.3052 
 22.1785 42.2837 
@@ -26206,7 +26626,9 @@ NA # Z-Maximum
 20.8112 41.9829 
 20.7135 41.9614 
 20.6266 41.9423 
-15 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+15 # Number of Points
 19.2295 43.5346 
 19.3177 43.4875 
 19.4059 43.4404 
@@ -26224,7 +26646,7 @@ NA # Z-Maximum
 20.0853 42.5632 
 NA # Z-Minimum
 NA # Z-Maximum
-17 # Number of Vertices
+17 # Number of Points
 18.8387 45.9074 
 18.9034 45.8311 
 18.968 45.7548 
@@ -26242,7 +26664,9 @@ NA # Z-Maximum
 19.109 44.9704 
 19.0295 44.9097 
 18.9555 44.8531 
-38 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+38 # Number of Points
 16.6061 46.4772 
 16.5101 46.4493 
 16.414 46.4214 
@@ -26283,7 +26707,7 @@ NA # Z-Maximum
 13.5904 45.4857 
 NA # Z-Minimum
 NA # Z-Maximum
-139 # Number of Vertices
+139 # Number of Points
 53.0894 16.6308 
 53.0476 16.7216 
 53.0058 16.8125 
@@ -26423,7 +26847,9 @@ NA # Z-Maximum
 42.8579 16.4748 
 42.8096 16.3873 
 42.8044 16.3778 
-22 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+22 # Number of Points
 35.1003 33.0946 
 35.1812 33.1534 
 35.2621 33.2121 
@@ -26448,7 +26874,7 @@ NA # Z-Maximum
 35.9808 34.6561 
 NA # Z-Minimum
 NA # Z-Maximum
-7 # Number of Vertices
+7 # Number of Points
 35.6232 33.2456 
 35.6269 33.1456 
 35.6307 33.0457 
@@ -26456,7 +26882,9 @@ NA # Z-Maximum
 35.6382 32.8459 
 35.642 32.7459 
 35.6441 32.69 
-10 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+10 # Number of Points
 35.556 32.3897 
 35.5473 32.2901 
 35.5386 32.1904 
@@ -26469,7 +26897,7 @@ NA # Z-Maximum
 35.4783 31.4976 
 NA # Z-Minimum
 NA # Z-Maximum
-75 # Number of Vertices
+75 # Number of Points
 42.395 12.465 
 42.3213 12.5326 
 42.2476 12.6002 
@@ -26545,7 +26973,9 @@ NA # Z-Maximum
 36.7305 14.3038 
 36.6333 14.2799 
 36.5452 14.2581 
-26 # Number of Vertices
+NA # Z-Minimum
+NA # Z-Maximum
+26 # Number of Points
 30.1338 46.4166 
 30.0339 46.422 
 29.9341 46.4274 
@@ -26574,7 +27004,7 @@ NA # Z-Maximum
 28.2051 45.4522 
 NA # Z-Minimum
 NA # Z-Maximum
-166 # Number of Vertices
+166 # Number of Points
 24.2578 8.67912 
 24.3029 8.76834 
 24.3481 8.85756 

@@ -13,6 +13,7 @@
 
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/DirParam.hpp"
@@ -30,10 +31,11 @@
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Stats/Classical.hpp"
+#include "Polygon/Polygons.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
- * It will be compiled but not run (not diffed)
+ * It will be compiled but not run nor diff'ed.
  */
 int main(int /*argc*/, char */*argv*/[])
 
@@ -43,30 +45,11 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   //  StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN);
 
-  Model* model = Model::createFromParam(ECov::CUBIC,20,2);
-
-  int nech = 30;
-  Db* data = Db::createFromBox(nech, {0,0}, {100,100});
-  simtub(nullptr,data, model);
-  data->setName(data->getLastName(), "data");
-  data->display();
-
-  DbGrid* grid = DbGrid::create({100,100});
-  grid->display();
-
-  NeighUnique* neighU = NeighUnique::create(2);
-  neighU->display();
-
-  (void) simtub(data, grid, model, neighU, 10);
-  grid->display();
-
-  (void) grid->statistics({"Simu*"}, { EStatOption::QUANT }, true, false, false,
-                          0.2, TEST, TEST);
-  DbStringFormat dbfmt;
-  dbfmt.setFlags(true, true, false, true, false, false, {"*QUANT"});
-  grid->display(&dbfmt);
+  String filename = "/home/drenard/project_gstlearn/gstlearn/doc/data/boundaries/world.poly";
+  Polygons* polygons = Polygons::createFromNF(filename, true);
+  polygons->display();
 
   return (0);
 }

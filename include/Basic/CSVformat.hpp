@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
+#include "Basic/AStringable.hpp"
 
-class GSTLEARN_EXPORT CSVformat
+class GSTLEARN_EXPORT CSVformat: public AStringable
 {
 public:
   CSVformat(int flagHeader = true,
@@ -24,6 +25,9 @@ public:
   CSVformat(const CSVformat &r);
   CSVformat& operator=(const CSVformat &r);
   virtual ~CSVformat();
+
+  /// Interface to AStringable
+  virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   char  getCharDec()         const { return _charDec; }
   char  getCharSep()         const { return _charSep; }

@@ -1349,7 +1349,6 @@ GSTLEARN_EXPORT int db_grid_write_XYZ(const char *filename, DbGrid *db, int icol
 GSTLEARN_EXPORT int db_write_vtk(const char *filename,
                                  DbGrid *db,
                                  const VectorInt &cols);
-
 GSTLEARN_EXPORT int db_grid_write_bmp(const char *filename,
                                       DbGrid *db,
                                       int icol,
