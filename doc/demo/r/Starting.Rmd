@@ -3,6 +3,8 @@ title: "Starting gstlearn with R"
 author: "gstlearn Team"
 date: "May 2022"
 output: pdf_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup,echo=FALSE}

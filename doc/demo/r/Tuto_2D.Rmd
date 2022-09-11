@@ -3,8 +3,8 @@ title: "Tutorial 2D"
 author: "D. Renard"
 date: "25 juin 2022"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -25,24 +25,16 @@ OptCst_define(ECst_NTCOL(),6)
 
 The data are stored in a CSV format in the file called Pollution.dat
 
-**
-At this stage:
-- it is not possible to pass the list of variable names *c("X","Y")*.
-- to pass the FLAGS for *DbStringFormat* (they are not an ENUM)
-**
-
 ```{r}
-dataDir = "../../data/Pollution"
-filepath = paste(dataDir,"Pollution.dat",sep="/")
+filepath = paste(Sys.getenv('GSTLEARN_DATA'),"Pollution","Pollution.dat",sep="/")
 
 mydb = Db_createFromCSV(filepath,CSVformat())
-err = mydb$setLocator("X",ELoc_X(),0)
-err = mydb$setLocator("Y",ELoc_X(),1)
+err = mydb$setLocators(c("X","Y"),ELoc_X())
 err = mydb$setLocator("Zn",ELoc_Z())
 if (verbose)
 {
   dbfmt = DbStringFormat()
-  dbfmt$setFlags(TRUE, TRUE, TRUE)
+  dbfmt$setFlags(flag_resume=TRUE, flag_vars=TRUE, flag_extend=TRUE)
   mydb$display(dbfmt)
 }
 ```
