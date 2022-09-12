@@ -235,6 +235,7 @@ int migrateByAttribute(Db *db1,
 
   VectorInt iuids = atts;
   if (iuids.empty()) iuids = db1->getAllUIDs();
+
   migrate.setIuids(iuids);
   migrate.setLdmax(ldmax);
   migrate.setDmax(dmax);

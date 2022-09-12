@@ -159,8 +159,6 @@ int _migrate(Db *db1,
              int flag_fill,
              int flag_inter);
 
-
-
 /***************************************/
 /* Prototyping the functions in anam.c */
 /***************************************/

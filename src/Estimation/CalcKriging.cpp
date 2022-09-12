@@ -77,6 +77,8 @@ bool CalcKriging::_check()
 
 bool CalcKriging::_preprocess()
 {
+  if (!ACalcInterpolator::_preprocess()) return false;
+
   int status = 1;
   if (_iechSingleTarget >= 0) status = 2;
 

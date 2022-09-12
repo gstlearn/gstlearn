@@ -309,7 +309,7 @@ VectorInt Db::getColIdxsByUID(const VectorInt iuids) const
   return cols;
 }
 
-int Db::_getUIDByColIdx(int icol) const
+int Db::getUIDByColIdx(int icol) const
 {
   if (!isColIdxValid(icol)) return -1;
   for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
@@ -359,7 +359,7 @@ int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  int iuid = _getUIDByColIdx(icol);
+  int iuid = getUIDByColIdx(icol);
   return _findUIDInLocator(locatorType, iuid);
 }
 
@@ -970,7 +970,7 @@ void Db::setLocatorByColIdx(int icol,
 {
   if (!isColIdxValid(icol)) return;
 
-  int iuid = _getUIDByColIdx(icol);
+  int iuid = getUIDByColIdx(icol);
   setLocatorByUID(iuid, locatorType, locatorIndex, cleanSameLocator);
 }
 
@@ -1027,7 +1027,7 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
 
   for (int icol = 0; icol < (int) icols.size(); icol++)
   {
-    int iuid = _getUIDByColIdx(icol);
+    int iuid = getUIDByColIdx(icol);
     setLocatorByUID(iuid, locatorType, locatorIndex + icol);
   }
 }
@@ -1044,11 +1044,11 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
  * @return Rank of the first UID
  */
 int Db::addColumnsByConstant(int nadd,
-                            double valinit,
-                            const String& radix,
-                            const ELoc& locatorType,
-                            int locatorIndex,
-                            int nechInit)
+                             double valinit,
+                             const String &radix,
+                             const ELoc &locatorType,
+                             int locatorIndex,
+                             int nechInit)
 {
   int ncol = _ncol;
   int nmax = getUIDMaxNumber();
@@ -3643,7 +3643,7 @@ int Db::getUID(const String& name) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return -1;
   int icol = getColIdxByUID(iuids[0]);
-  return _getUIDByColIdx(icol);
+  return getUIDByColIdx(icol);
 }
 
 /**
@@ -3658,7 +3658,7 @@ VectorInt Db::_getUIDsBasic(const VectorString& names) const
   for (unsigned int i = 0; i < names.size(); i++)
   {
     int icol = getRankInList(_colNames, names[i]);
-    iuids[i] = _getUIDByColIdx(icol);
+    iuids[i] = getUIDByColIdx(icol);
   }
   return iuids;
 }
@@ -3682,6 +3682,14 @@ VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
   iuids.resize(number);
   for (int i = 0; i < number; i++)
     iuids[i] = getUIDByLocator(locatorType, i);
+  return iuids;
+}
+
+VectorInt Db::getUIDsByColIdx(const VectorInt& icols) const
+{
+  VectorInt iuids;
+  for (int i = 0; i < icols.size(); i++)
+    iuids.push_back(getUIDByColIdx(icols[i]));
   return iuids;
 }
 

@@ -143,22 +143,15 @@ bool ACalcInterpolator::_check()
     nfex = _model->getExternalDriftNumber();
     if (nfex > 0)
     {
-      if (hasDbin(false))
-      {
-        if (getDbin()->getExternalDriftNumber() != nfex)
-        {
-          messerr("The _model requires %d external drift(s)", nfex);
-          messerr("but the input Db refers to %d external drift variables",
-                  getDbin()->getExternalDriftNumber());
-          return false;
-        }
-      }
+      // No check needs to be performed on the Input file as
+      // the possibly missing variables will be expanded from the Output File
+      // during the preprocessing step
 
       if (hasDbout(false))
       {
         if (getDbout()->getExternalDriftNumber() != nfex)
         {
-          messerr("The _model requires %d external drift(s)", nfex);
+          messerr("The model requires %d external drift(s)", nfex);
           messerr("but the output Db refers to %d external drift variables",
                   getDbout()->getExternalDriftNumber());
           return false;
@@ -192,6 +185,16 @@ bool ACalcInterpolator::_check()
     if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi);
     _model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
   }
+  return true;
+}
+
+bool ACalcInterpolator::_preprocess()
+{
+  // Expand information amongst Db if necessary
+
+  if (_expandInformation(1, ELoc::F)) return false;
+  if (_expandInformation(1, ELoc::NOSTAT)) return false;
+
   return true;
 }
 

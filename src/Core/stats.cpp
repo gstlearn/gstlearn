@@ -3064,12 +3064,12 @@ void db_stats_print(const Db *db,
 }
 
 void db_stats_print(const Db *db,
-                                    const VectorString &names,
-                                    const VectorString &opers,
-                                    int flag_iso,
-                                    int flag_correl,
-                                    const String &title,
-                                    const String &radix)
+                    const VectorString &names,
+                    const VectorString &opers,
+                    int flag_iso,
+                    int flag_correl,
+                    const String &title,
+                    const String &radix)
 {
   VectorInt iatts = db->getUIDs(names);
   if (iatts.size() <= 0) return;

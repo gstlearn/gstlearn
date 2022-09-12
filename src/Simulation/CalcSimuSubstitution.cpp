@@ -355,9 +355,11 @@ bool CalcSimuSubstitution::_check()
 
 bool CalcSimuSubstitution::_preprocess()
 {
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
-    if (_iattOut < 0) return false;
-    return true;
+  if (!ACalcInterpolator::_check()) return false;
+
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, 1);
+  if (_iattOut < 0) return false;
+  return true;
 }
 
 bool CalcSimuSubstitution::_run()
