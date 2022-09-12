@@ -178,12 +178,7 @@ static int st_locate_coor_on_grid(int np,
                                   double *tab)
 {
   int iech, iad, number;
-  VectorDouble coor(3);
-
-  /* Initializations */
-
-  for (int idim = 0; idim < 3; idim++)
-    coor[idim] = 0.;
+  VectorDouble coor(3,0.);
 
   /* Loop on the point samples */
 
@@ -2237,13 +2232,18 @@ int _db_indicator(Db *db,
  **
  ** \param[in]  db1     descriptor of the Db serving for convex hull calculation
  ** \param[in]  db2     descriptor of the Db where the mask must be performed
+ ** \param[in]  dilate  Radius of the dilation
  ** \param[in]  verbose Verbose flag
  ** \param[in]  namconv Naming convention
  **
  ** \remark The Naming Convention locator Type is overwritten to ELoc::SEL
  **
  *****************************************************************************/
-int db_selhull(Db *db1, Db *db2, bool verbose, const NamingConvention &namconv)
+int db_selhull(Db *db1,
+               Db *db2,
+               double dilate,
+               bool verbose,
+               const NamingConvention &namconv)
 {
   Polygons *polygons = nullptr;
 
@@ -2253,7 +2253,7 @@ int db_selhull(Db *db1, Db *db2, bool verbose, const NamingConvention &namconv)
 
   /* Create the polygon as the convex hull of first Db */
 
-  polygons = polygon_hull(db1);
+  polygons = polygon_hull(db1, dilate, verbose);
   if (polygons == nullptr) return 1;
 
   /* Loop on the samples of the second Db */
@@ -6312,7 +6312,7 @@ int db_proportion_estimate(Db *dbin,
   int iptr0 = -1;
   for (int i = 0; i < ncat; i++)
   {
-    int iptr = dbout->addColumns(props[i]);
+    int iptr = dbout->addColumns(props[i],String(),ELoc::UNKNOWN,0,true);
     if (i == 0) iptr0 = iptr;
     namconv.setNamesAndLocators(nullptr, ELoc::UNKNOWN, -1, dbout, iptr,
                                 concatenateStrings("-", toString(i + 1)));

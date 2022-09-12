@@ -7104,7 +7104,7 @@ int spde_prepar(Db *dbin,
       {
         if ((S_DECIDE.flag_several && !flag_AQ_defined) || !S_DECIDE.flag_mesh_dbin)
         {
-          Matelem.Aproj = amesh->getMeshToDb(dbin, false, false);
+          Matelem.Aproj = amesh->getMeshToDb(dbin, false);
           if (Matelem.Aproj == nullptr) goto label_end;
           st_keypair_cs("Aproj", Matelem.Aproj, icov + 1, 0, 0, 0, 0);
         }
@@ -10649,7 +10649,7 @@ int m2d_gibbs_spde(Db *dbin,
 
       /* Store the conditional simulation on the grid */
 
-      Bproj = amesh.getMeshToDb(dbout, false, false);
+      Bproj = amesh.getMeshToDb(dbout, false);
       if (Bproj == nullptr) goto label_end;
       gwork = (double*) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
       if (gwork == nullptr) goto label_end;

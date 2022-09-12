@@ -34,7 +34,7 @@ public:
   /// Interface to AMesh
   int     getNApices() const override;
   int     getNMeshes() const override;
-  int     getApex(int imesh, int rank) const override;
+  int     getApex(int imesh, int rank, bool inAbsolute = true) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   int     getEmbeddedNDim() const override { return 3; }

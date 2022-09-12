@@ -70,9 +70,9 @@ void dbStatisticsVariables(Db *db,
                            const VectorInt &iatts,
                            const std::vector<EStatOption>& opers,
                            int iptr0,
+                           double proba,
                            double vmin,
-                           double vmax,
-                           double proba)
+                           double vmax)
 {
   int noper = static_cast<int>(opers.size());
   if (noper <= 0) return;

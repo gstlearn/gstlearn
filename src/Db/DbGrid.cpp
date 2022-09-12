@@ -100,6 +100,7 @@ String DbGrid::toString(const AStringFormat* strfmt) const
  * @param names         Variable names (size = nvar)
  * @param locatorNames  Locators for each variable (size = nvar)
  * @param flag_add_rank If 1, add an automatic rank variable
+ * @param flag_add_coordinates If TRUE, add the grid coordinates
  */
 int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& dx,
@@ -109,7 +110,8 @@ int DbGrid::reset(const VectorInt& nx,
                   const VectorDouble& tab,
                   const VectorString& names,
                   const VectorString& locatorNames,
-                  int flag_add_rank)
+                  int flag_add_rank,
+                  bool flag_add_coordinates)
 {
   _clear();
 
@@ -118,7 +120,10 @@ int DbGrid::reset(const VectorInt& nx,
   for (int idim = 0; idim < ndim; idim++)
     nech *= nx[idim];
   int ntab = (tab.empty()) ? 0 : (int) (tab.size() / nech);
-  int ncol = ndim + ntab + flag_add_rank;
+  int number = 0;
+  if (flag_add_rank) number += 1;
+  if (flag_add_coordinates) number += ndim;
+  int ncol = number + ntab;
 
   // Create the grid
 
@@ -127,23 +132,27 @@ int DbGrid::reset(const VectorInt& nx,
 
   // Load the data
 
-  _loadData(tab, names, locatorNames, order, ndim + flag_add_rank);
+  _loadData(tab, names, locatorNames, order, number);
 
   // Additional fields
 
   if (flag_add_rank) _createRank(0);
-  _createCoordinatesGrid(flag_add_rank);
+
+  if (flag_add_coordinates) _createCoordinatesGrid(flag_add_rank);
 
   // Create the names (for the remaining variables)
 
-  _defineDefaultNames(flag_add_rank + ndim, names);
+  _defineDefaultNames(number, names);
 
   // Create the locators
 
-  int jcol = 0;
-  if (flag_add_rank) jcol++;
-  setLocatorsByUID(ndim, jcol, ELoc::X);
-  _defineDefaultLocators(flag_add_rank + ndim, locatorNames);
+  if (flag_add_coordinates)
+  {
+    int jcol = 0;
+    if (flag_add_rank) jcol++;
+    setLocatorsByUID(ndim, jcol, ELoc::X);
+    _defineDefaultLocators(number, locatorNames);
+  }
 
   return 0;
 }
@@ -159,7 +168,7 @@ int DbGrid::reset(const VectorInt& nx,
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
-int DbGrid::resetCoveringDb(Db* db,
+int DbGrid::resetCoveringDb(const Db* db,
                             const VectorInt& nodes,
                             const VectorDouble& dcell,
                             const VectorDouble& origin,
@@ -305,11 +314,12 @@ DbGrid* DbGrid::create(const VectorInt& nx,
                        const VectorDouble& tab,
                        const VectorString& names,
                        const VectorString& locatorNames,
-                       int flag_add_rank)
+                       int flag_add_rank,
+                       bool flag_add_coordinates)
 {
   DbGrid* dbgrid = new DbGrid;
   if (dbgrid->reset(nx, dx, x0, angles, order, tab, names, locatorNames,
-                    flag_add_rank))
+                    flag_add_rank, flag_add_coordinates))
   {
     messerr("Error when creating DbGrid from Grid");
     delete dbgrid;
@@ -318,7 +328,7 @@ DbGrid* DbGrid::create(const VectorInt& nx,
   return dbgrid;
 }
 
-DbGrid* DbGrid::createCoveringDb(Db* db,
+DbGrid* DbGrid::createCoveringDb(const Db* db,
                                  const VectorInt& nodes,
                                  const VectorDouble& dcell,
                                  const VectorDouble& origin,
@@ -334,6 +344,7 @@ DbGrid* DbGrid::createCoveringDb(Db* db,
   return dbgrid;
 
 }
+
 DbGrid* DbGrid::createFromPolygon(Polygons* polygon,
                                   const VectorInt& nodes,
                                   const VectorDouble& dcell,
@@ -599,7 +610,7 @@ bool DbGrid::migrateAllVariables(Db *dbin, Db *dbout, int flag_add_rank)
   // Migrate the variables
   int icolOut = dbout->getColumnNumber();
   if (migrateByAttribute(dbin, dbout, icols,
-                         0, VectorDouble(), true, true,
+                         2, VectorDouble(), true, true,
                          NamingConvention(String()))) return false;
 
   // Duplicate the locators

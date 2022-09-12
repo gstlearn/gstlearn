@@ -45,24 +45,13 @@ Polygons::~Polygons()
 {
 }
 
-/**
- * Calculate the Polygon as the convex hull of the active samples of a Db
- * @param db
- */
-int Polygons::resetFromDb(const Db* db)
+int Polygons::resetFromDb(const Db* db, double dilate, bool verbose)
 {
   if (db == nullptr) return 1;
 
-  // Clear previous contents
-  _polysets.clear();
-
-  // Calculate the hull
-  VectorDouble x;
-  VectorDouble y;
-  if (polygon_hull(db, x, y)) return 1;
-
-  PolySet polyset = PolySet(x, y, TEST, TEST);
-  addPolySet(polyset);
+  Polygons* polygons = polygon_hull(db, dilate, verbose);
+  *this = *polygons;
+  delete polygons;
 
   return 0;
 }
@@ -215,7 +204,10 @@ bool Polygons::_deserialize(std::istream& is, bool verbose)
     PolySet polyset;
     ret = ret && polyset._deserialize(is, verbose);
     if (ret)
+    {
       addPolySet(polyset);
+      if (verbose) message("Polyset #%d - Number of vertices = %d\n",ipol+1, polyset.getNPoints());
+    }
     else
       messerr("Error when reading Polyset #%d",ipol+1);
   }

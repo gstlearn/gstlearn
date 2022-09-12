@@ -128,6 +128,11 @@ bool PolyLine2D::_deserialize(std::istream& is, bool /*verbose*/)
   bool ret = true;
   VectorDouble buffer(2);
   ret = ret && _recordRead<int>(is, "Number of Points", np);
+  if (np < 0)
+  {
+    messerr("Something wrong in your file: the Number of Points read is equal to %d",np);
+    return false;
+  }
   _x.resize(np);
   _y.resize(np);
   for (int i = 0; i < np; i++)

@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Db/DbStringFormat.hpp"
+#include "Db/DbGrid.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
@@ -1127,13 +1128,13 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
  * @remark of samples provided in 'tab' must match the number of active samples
  * @return Rank of the first UID
  */
-int Db::addColumns(const VectorDouble& tab,
-                  const String& radix,
-                  const ELoc& locatorType,
-                  int locatorIndex,
-                  bool useSel,
-                  double valinit,
-                  int nvar)
+int Db::addColumns(const VectorDouble &tab,
+                   const String &radix,
+                   const ELoc &locatorType,
+                   int locatorIndex,
+                   bool useSel,
+                   double valinit,
+                   int nvar)
 {
   // Particular case where the Db is empty.
   // Set its dimension to the number of samples of the input array 'tab'
@@ -1284,6 +1285,14 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
 
   for (unsigned int i = 0; i < v.size(); i++)
     deleteColumnByColIdx(v[i]);
+}
+
+DbGrid* Db::coveringDb(const VectorInt& nodes,
+                             const VectorDouble& dcell,
+                             const VectorDouble& origin,
+                             const VectorDouble& margin) const
+{
+   return DbGrid::createCoveringDb(this,nodes,dcell,origin,margin);
 }
 
 void Db::deleteColumnsByUID(const VectorInt& iuids)
@@ -3858,7 +3867,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
     int iuidn = addColumnsByConstant(noper);
     if (iuidn < 0) return VectorDouble();
 
-    dbStatisticsVariables(this, iuids, opers, iuidn, vmin, vmax, proba);
+    dbStatisticsVariables(this, iuids, opers, iuidn, proba, vmin, vmax);
 
     namconv.setNamesAndLocators(this, iuidn);
     for (int i = 0; i < noper; i++)

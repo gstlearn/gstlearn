@@ -166,9 +166,12 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
       word = trim(word);
       if (!word.empty())
       {
-        if (word == STRING_NA) break;   // We found NA
-        else if (word[0] != '#') break; // We found something
-        else std::getline(is, word);    // We found comment, eat all the line
+        if (word == STRING_NA)
+          break;   // We found NA
+        else if (word[0] != '#')
+          break; // We found something
+        else
+          std::getline(is, word);    // We found comment, eat all the line
       }
     }
 

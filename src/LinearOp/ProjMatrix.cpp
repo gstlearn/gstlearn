@@ -115,7 +115,7 @@ int ProjMatrix::resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose)
 {
   MeshEStandard amesh;
   amesh.convertFromOldMesh(s_mesh, 0);
-  _Aproj = amesh.getMeshToDb(db, false, verbose);
+  _Aproj = amesh.getMeshToDb(db, verbose);
   if (_Aproj == nullptr) return 1;
   _nPoint = db->getSampleNumber(true);
   _nApices = s_mesh->nmesh;

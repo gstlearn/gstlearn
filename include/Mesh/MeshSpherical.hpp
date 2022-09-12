@@ -35,7 +35,7 @@ public:
   int     getNApices() const override;
   int     getNMeshes() const override;
   double  getMeshSize(int imesh) const override;
-  int     getApex(int imesh, int rank) const override;
+  int     getApex(int imesh, int rank, bool inAbsolute = true) const override;
   double  getCoor(int imesh, int rank, int idim) const override;
   double  getApexCoor(int i, int idim) const override;
   int     getEmbeddedNDim() const override { return 3; }
@@ -47,7 +47,7 @@ public:
 
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
-  cs*     getMeshToDb(const Db *db, bool fatal = false, bool verbose = false) const override;
+  cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
   int     getVariety() const { return 1; }
 
   VectorVectorInt getMeshes() const {return _meshes.getMatrix();}

@@ -119,17 +119,19 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
               )
     return boundaries
 
-def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False):
+def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, cmin = None, cmax = None):
     shape = list(grid.getNXs())
     shape.pop(section)
     vect = grid.getSlice(name, section, rank, usesel)
     x = np.array(vect[0]).reshape(shape)
     y = np.array(vect[1]).reshape(shape)
     z = np.array(vect[2]).reshape(shape)
-    values = np.array(vect[3]).reshape(shape)
+    values = np.array(vect[3])
+    values[np.where(values == gl.TEST)[0]] = None
+    values = values.reshape(shape)
     
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
-                    coloraxis='coloraxis')
+                    coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
 def Equator(ndisc = 360, color='black', width=3, dilate=1.):

@@ -608,7 +608,6 @@ int csv_table_read(const String &filename,
           tab.push_back(TEST);
         else
           tab.push_back(toDouble(word, char_dec));
-
         ncol2++;
         if (ncol_max > 0 && ncol2 >= ncol_max) break;
         if (ncol > 0 && ncol2 >= ncol) break;

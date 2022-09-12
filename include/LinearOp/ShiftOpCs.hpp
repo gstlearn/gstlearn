@@ -117,7 +117,6 @@ private:
   bool _isVelocity();
   const CovAniso* _getCova();
 
-  int  _buildS(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSVel(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSVariety(const AMesh *amesh, double tol = EPSILON10);
   int  _buildSSphere(const AMesh *amesh, double tol = EPSILON10);

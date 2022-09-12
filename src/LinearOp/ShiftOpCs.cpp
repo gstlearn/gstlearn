@@ -1045,79 +1045,6 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
 }
 
 /**
- * Calculate the private member "_S" directly from the Mesh
- * @param amesh Description of the Mesh (New class)
- * @param tol Tolerance beyond which elements are not stored in S matrix
- * @return Error return code
- */
-int ShiftOpCs::_buildS(const AMesh *amesh, double tol)
-{
-  std::map<std::pair<int, int>, double> tab;
-
-  int error = 1;
-  int ndim = getNDim();
-  int ncorner = amesh->getNApexPerMesh();
-
-  // Initialize the arrays
-
-  MatrixSquareSymmetric hh(ndim);
-  MatrixSquareGeneral matu(ncorner);
-  MatrixSquareGeneral mat(ncorner);
-  MatrixRectangular matw(ndim, ncorner);
-
-  // Define the global HH matrix
-
-  int igrf = _getIgrf();
-  int icov = _getIcov();
-  if (_isGlobalHH(igrf, icov))
-    _loadHHByApex(amesh, hh, 0);
-
-  /* Loop on the meshes */
-
-  for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
-  {
-    OptDbg::setIndex(imesh + 1);
-    double meshSize = amesh->getMeshSize(imesh);
-
-    // Case of Euclidean geometry
-
-    if (_preparMatrices(amesh, imesh, matu, matw))
-    my_throw("Problem in matrix inversion");
-
-    // Non stationary case
-
-    if (_isNoStat())
-    {
-      const ANoStat* nostat = _getModel()->getNoStat();
-      if (nostat->isDefinedforAnisotropy(igrf, icov))
-        _loadHHPerMesh(amesh, hh, imesh);
-    }
-    mat.normMatrix(hh, matw);
-
-    for (int j0 = 0; j0 < ncorner; j0++)
-      for (int j1 = 0; j1 < ncorner; j1++)
-      {
-        int ip0 = amesh->getApex(imesh, j0);
-        int ip1 = amesh->getApex(imesh, j1);
-        double vald = mat.getValue(j0, j1) * meshSize;
-        _mapUpdate(tab, ip0, ip1, vald, tol);
-      }
-  }
-
-  _S = cs_spfree(_S);
-  _S = _BuildSfromMap(tab);
-  if (_S == nullptr) goto label_end;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-  if (error) _S = cs_spfree(_S);
-  return error;
-}
-
-/**
  * Calculate the private member "_S" directly from the Mesh on a Variety in 3-D space
  * @param amesh Description of the Mesh (New class)
  * @param tol Tolerance beyond which elements are not stored in S matrix
@@ -1146,6 +1073,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   MatrixSquareGeneral matMs(ndim);
   MatrixSquareSymmetric matPinvHPt(ncorner-1);
   double detMtM = 0.;
+
   // Define the global matrices
 
   int igrf = _getIgrf();
@@ -1159,7 +1087,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
   if (! _isNoStat())
     _loadAux(srot, EConsElem::SPHEROT, 0);
 
-  /* Loop on the meshes */
+  /* Loop on the active meshes */
 
   VectorVectorDouble coords = amesh->getEmbeddedCoordinatesPerMesh();
   for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
@@ -1175,17 +1103,15 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       {
         _loadHHPerMesh(amesh, hh, imesh);
         dethh = 1./hh.determinant();
-
       }
       if (nostat->isDefined(igrf, icov, EConsElem::SPHEROT, -1, -1))
         _loadAuxPerMesh(amesh, srot, EConsElem::SPHEROT, imesh);
     }
 
-    // Load M matrix [ndim, ncorner-1]
+    // Load M matrix
     amesh->getEmbeddedCoordinatesPerMesh(imesh, coords);
 
     MatrixRectangular matM(ndim, ncorner-1);
-
     for (int icorn = 0; icorn < ncorner-1; icorn++)
     {
       for (int idim = 0; idim < ndim; idim++)
@@ -1245,26 +1171,23 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
     {
       // Update TildeC
 
-      int ip0 = amesh->getApex(imesh, j0);
+      int ip0 = amesh->getApex(imesh, j0, false);
       _TildeC[ip0] += ratio / 6.;
 
       double s = 0.;
       for (int j1 = 0; j1 < ncorner-1; j1++)
       {
-        int ip1 = amesh->getApex(imesh, j1);
+        int ip1 = amesh->getApex(imesh, j1, false);
         double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
         s += vald;
         _mapUpdate(tab, ip0, ip1, vald, tol);
       }
-      int j1 = ncorner - 1;
-      int ip1 = amesh->getApex(imesh, j1);
+      int ip1 = amesh->getApex(imesh, ncorner - 1, false);
       _mapUpdate(tab, ip0, ip1, -s, tol);
       _mapUpdate(tab, ip1, ip0, -s, tol);
       S += s;
     }
-    int j0 = ncorner-1;
-
-    int ip0 = amesh->getApex(imesh, j0);
+    int ip0 = amesh->getApex(imesh, ncorner - 1, false);
     _TildeC[ip0] += ratio / 6.;
     _mapUpdate(tab, ip0, ip0, S, tol);
   }

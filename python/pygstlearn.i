@@ -690,6 +690,9 @@ void exit_f(void)
 %extend MeshETurbo {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend CSVformat {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

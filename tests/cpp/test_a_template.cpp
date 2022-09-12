@@ -8,8 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "geoslib_f.h"
+#include "csparse_f.h"
+
 #include "Db/Db.hpp"
 #include "Basic/File.hpp"
+#include "Basic/CSVformat.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/DirParam.hpp"
@@ -22,9 +26,16 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Geometry/Geometry.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Mesh/MeshETurbo.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
+#include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ProjMatrix.hpp"
+#include "Stats/Classical.hpp"
+#include "Polygon/Polygons.hpp"
 
 /**
  * This file is meant to perform any test that needs to be coded for a quick trial
+ * It will be compiled but not run nor diff'ed.
  */
 int main(int /*argc*/, char */*argv*/[])
 
@@ -32,40 +43,13 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+  //  StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, 2);
+  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN);
 
-  String filename = ASerializable::getTestData("Scotland","temperatures.ascii");
-  Db* temperatures = Db::createFromNF(filename);
-  temperatures->display();
-
-  int nx = 50;
-  double x0 = 0;
-  double dx = 1;
-  DbGrid* dbTarget = DbGrid::create(nx={nx+1,nx+1},x0={x0,x0},dx={dx,dx});
-  dbTarget->display();
-//  dbTarget = db.locate(dbTarget,2:3,"x")
-
-//  nObs = 5
-//  set.seed(99)
-//  coordObs = cbind(sample(seq(nx),nObs,replace=F),sample(seq(nx),nObs,replace=F))
-//  valObs = rnorm(nObs)
-//  dbObs = db.create(cbind(coordObs,valObs))
-//  dbObs = db.locate(dbObs,2:3,"x")
-//  dbObs = db.locate(dbObs,4,"z")
-//  plot(dbObs,pos.legend=1,title="Observations")
-//
-//  filename = ASerializable::getTestData("Scotland","Scotland_Elevations.csv");
-//  Db* mnt = Db::createFromCSV(filename);
-//  mnt->setLocators({"Longitude","Latitude"},ELoc::X);
-//  mnt->display();
-//
-//  DbGrid* grid = DbGrid::createCoveringDb(mnt, {81,137});
-//  grid->display();
-//
-//  (void) migrateVariables(mnt,grid,{"Elevation","inshore"});
-//  grid->display();
+  String filename = "/home/drenard/project_gstlearn/gstlearn/doc/data/boundaries/world.poly";
+  Polygons* polygons = Polygons::createFromNF(filename, true);
+  polygons->display();
 
   return (0);
 }

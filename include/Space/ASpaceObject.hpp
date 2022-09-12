@@ -43,7 +43,7 @@ public:
 
   /// (Re)Defining the unique default global space
   static void defineDefaultSpace(ESpaceType type,
-                                 unsigned int ndim,
+                                 unsigned int ndim = 0,
                                  double param = 0.);
   /// Return a clone of the unique default global space
   static const ASpace* cloneDefaultSpace();
