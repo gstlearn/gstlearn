@@ -204,7 +204,7 @@ public:
                  int locatorIndex = 0,
                  bool useSel = false,
                  double valinit = 0.,
-                 int nvar = 0);
+                 int nvar = 1);
   int addColumnsByConstant(int nadd,
                            double valinit = 0.,
                            const String& radix = "New",

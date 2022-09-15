@@ -238,6 +238,7 @@ void CalcSimuFFT::_gridDilate()
   for (int i = 0; i < 3; i++) indg[i] = 0;
   dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz0);
   xyz0.resize(3, 0.);
+  xyz.resize(3);
 
   /* Location of the elementary end point */
 
@@ -245,8 +246,8 @@ void CalcSimuFFT::_gridDilate()
   {
     for (int j = 0; j < 3; j++) indg[j] = 0;
     indg[i] = 1;
-    dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz[i]);
     xyz[i].resize(3);
+    dbgrid->rankToCoordinateInPlace(dbgrid->indiceToRank(indg), xyz[i]);
   }
 
   /* Coordinates of the grid vector in the rotated space */
