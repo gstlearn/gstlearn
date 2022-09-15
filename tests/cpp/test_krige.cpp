@@ -190,7 +190,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Moving Neighborhood case ===========================
   message("\n<----- Cross-Validation in Moving Neighborhood ----->\n");
   data_res = data->clone();
-  xvalid(data_res, model, neighM, 0, -1, -1);
+  xvalid(data_res, model, neighM, 0, -1, -1, 0);
   data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Moving Neighborhood ----->\n");
@@ -214,7 +214,7 @@ int main(int /*argc*/, char */*argv*/[])
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
   data_res = data->clone();
-  xvalid(data_res, model, neighU, 0, -1, -1);
+  xvalid(data_res, model, neighU, 0, -1, -1, 0);
   data_res->display(&dbfmtXvalid);
 
   message("\n<----- Kriging in Unique Neighborhood ----->\n");

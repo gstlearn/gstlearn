@@ -41,6 +41,7 @@ CalcKriging::CalcKriging(bool flag_est, bool flag_std, bool flag_varZ)
     _flagKfold(false),
     _flagXvalidEst(0),
     _flagXvalidStd(0),
+    _flagXvalidVarZ(0),
     _flagNeighOnly(false),
     _nbNeigh(5),
     _iptrEst(-1),
@@ -131,6 +132,9 @@ bool CalcKriging::_postprocess()
       _renameVariable(2, nvar, _iptrEst, "esterr", 1);
     else if (_flagXvalidEst < 0)
       _renameVariable(2, nvar, _iptrEst, "estim", 1);
+
+    if (_flagXvalidVarZ != 0)
+      _renameVariable(2, nvar, _iptrVarZ, "varz", 1);
   }
   else if (_flagNeighOnly)
   {
@@ -213,7 +217,8 @@ bool CalcKriging::_run()
   }
   if (_flagXvalid)
   {
-    if (ksys.setKrigOptXValid(true, _flagKfold, _flagXvalidEst > 0, _flagXvalidStd > 0))
+    if (ksys.setKrigOptXValid(true, _flagKfold, _flagXvalidEst > 0,
+                              _flagXvalidStd > 0, _flagXvalidVarZ != 0))
       return false;
   }
   if (_flagNeighOnly)
@@ -566,6 +571,7 @@ int kriggam(Db *dbin,
  **                         1: Z*-Z; -1: Z*
  ** \param[in]  flag_xvalid_std Option for storing the standard deviation
  **                         1: (Z*-Z)/S; -1: S
+ ** \param[in]  flag_xvalid_varz Option for storing the variance of the estimator
  ** \param[in]  rank_colcok Option for running Collocated Cokriging
  ** \param[in]  namconv     Naming Convention
  **
@@ -576,10 +582,13 @@ int xvalid(Db *db,
            int flag_kfold,
            int flag_xvalid_est,
            int flag_xvalid_std,
+           int flag_xvalid_varz,
            VectorInt rank_colcok,
            const NamingConvention& namconv)
 {
-  CalcKriging krige(flag_xvalid_est != 0, flag_xvalid_std != 0, false);
+  CalcKriging krige(flag_xvalid_est != 0,
+                    flag_xvalid_std != 0,
+                    flag_xvalid_varz != 0);
   krige.setDbin(db);
   krige.setDbout(db);
   krige.setModel(model);
@@ -589,6 +598,7 @@ int xvalid(Db *db,
   krige.setFlagXvalid(true);
   krige.setFlagXvalidEst(flag_xvalid_est);
   krige.setFlagXvalidStd(flag_xvalid_std);
+  krige.setFlagXvalidVarZ(flag_xvalid_varz);
   krige.setFlagKfold(flag_kfold);
   krige.setRankColCok(rank_colcok);
 

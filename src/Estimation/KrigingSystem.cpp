@@ -76,6 +76,7 @@ KrigingSystem::KrigingSystem(Db* dbin,
       _disc2(),
       _xvalidEstim(true),
       _xvalidStdev(true),
+      _xvalidVarZ(false),
       _rankColCok(),
       _flagBayes(false),
       _priorMean(),
@@ -1577,6 +1578,11 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
       if (_xvalidStdev) stdv = value / stdv;
       _dbin->setArray(iech, _iptrStd, stdv);
     }
+    if (_flagVarZ)
+    {
+      // TODO Do something
+      _dbin->setArray(iech, _iptrVarZ, TEST);
+    }
   }
 }
 
@@ -2231,6 +2237,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
  * @param flag_kfold  True if the KFold option is switch ON
  * @param optionXValidEstim True for Z*-Z; False for Z*
  * @param optionXValidStdev True for (Z*-Z)/S; False for S
+ * @param optionXValidVarZ  True for Var(Z*)
  * @return
  *
  * @remark The KFold option requires a Code to be assigned to each Datum
@@ -2242,7 +2249,8 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
 int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
                                     bool flag_kfold,
                                     bool optionXValidEstim,
-                                    bool optionXValidStdev)
+                                    bool optionXValidStdev,
+                                    bool optionXValidVarZ)
 {
   _isReady = false;
   if (! flag_xvalid)
@@ -2267,6 +2275,7 @@ int KrigingSystem::setKrigOptXValid(bool flag_xvalid,
   }
   _xvalidEstim = optionXValidEstim;
   _xvalidStdev = optionXValidStdev;
+  _xvalidVarZ  = optionXValidVarZ;
   return 0;
 }
 

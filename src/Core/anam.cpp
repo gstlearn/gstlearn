@@ -318,7 +318,7 @@ static int st_ce_T(int mode,
 
     int iptrEst = selectivity->getAddressQTEst(ESelectivity::T, iptr0, icut);
     int iptrStd = selectivity->getAddressQTStd(ESelectivity::T, iptr0, icut);
-    int iptrProba = selectivity->getAddressQTEst(ESelectivity::PROBA, iptr0, icut);
+    int iptrProba = selectivity->getAddressQTEst(ESelectivity::PROP, iptr0, icut);
     for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
       if (!db->isActive(iech)) continue;
@@ -331,7 +331,7 @@ static int st_ce_T(int mode,
       }
       else
       {
-        if (selectivity->isUsedEst(ESelectivity::PROBA))
+        if (selectivity->isUsedEst(ESelectivity::PROP))
           db->setArray(iech, iptrProba, 1. - valest[iech]);
       }
     }
@@ -612,7 +612,7 @@ int _conditionalExpextation(Db *db,
 
   /* Compute Conditional Expectation for Tonnage */
 
-  if (selectivity->isUsed(ESelectivity::PROBA) && need_T)
+  if (selectivity->isUsed(ESelectivity::PROP) && need_T)
   {
     if (st_ce_T(2, db, selectivity, iptr0, col_est, col_std, ycuts, nbsimu,
                 flag_OK)) return 1;

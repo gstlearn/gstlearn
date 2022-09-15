@@ -19,7 +19,7 @@
                  Q,        2, "Metal quantity", \
                  B,        3, "Conventional Benefit", \
                  M,        4, "Recovered mean", \
-                 PROBA,    5, "Probability to exceed Cutoff", \
+                 PROP,     5, "Probability to exceed Cutoff", \
                  QUANT,    6, "Quantile"
 
 ENUM_DECLARE(ENUM_SELECTIVITY)

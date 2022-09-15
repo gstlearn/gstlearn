@@ -123,6 +123,7 @@ public:
   void setZmax(double zmax) { _zmax = zmax; }
   bool isFlagTonnageCorrect() const { return _flagTonnageCorrect; }
   double getZmax() const { return _zmax; }
+  bool isOnlyZDefined() const { return _flagOnlyZDefined; }
 
   const Table getStats() const { return _stats; }
 
@@ -156,4 +157,5 @@ private:
   bool   _flagTonnageCorrect;
   MatrixInt _numberQT;
   MatrixInt _rankQT;
+  bool _flagOnlyZDefined;
 };

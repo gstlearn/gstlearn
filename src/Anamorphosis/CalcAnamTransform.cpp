@@ -112,7 +112,7 @@ bool CalcAnamTransform::_hasInputVarDefined(int mode) const
 bool CalcAnamTransform::_hasSelectivity() const
 {
   int ncuts = _selectivity->getNCuts();
-  if (ncuts <= 0)
+  if (ncuts <= 0 && ! _selectivity->isOnlyZDefined())
   {
     messerr("You must define some cutoff values");
     return false;

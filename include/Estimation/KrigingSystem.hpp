@@ -42,7 +42,8 @@ public:
   int  setKrigOptXValid(bool flag_xvalid,
                         bool flag_kfold,
                         bool optionXValidEstim = false,
-                        bool optionXValidStdev = false);
+                        bool optionXValidStdev = false,
+                        bool optionXValidVarZ = false);
   int  setKrigOptColCok(const VectorInt& rank_colcok);
   int  setKrigOptBayes(bool flag_bayes,
                        const VectorDouble& prior_mean,
@@ -227,6 +228,7 @@ private:
   /// Option for Cross_validation
   bool _xvalidEstim;
   bool _xvalidStdev;
+  bool _xvalidVarZ;
 
   /// Option for Colocation
   VectorInt _rankColCok;
