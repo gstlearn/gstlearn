@@ -175,6 +175,7 @@ private:
   void   _bayesPreSimulate();
   void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
+  int    _getFlagAddress(int iech0, int ivar0);
 
 private:
   // Aggregated classes

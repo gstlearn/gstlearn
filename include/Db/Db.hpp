@@ -153,6 +153,7 @@ public:
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getActiveSampleRank(int iech) const;
+  int getActiveAndDefinedSampleRank(int iech, int item=0) const;
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
@@ -203,7 +204,7 @@ public:
                  int locatorIndex = 0,
                  bool useSel = false,
                  double valinit = 0.,
-                 int nvar = 1);
+                 int nvar = 0);
   int addColumnsByConstant(int nadd,
                            double valinit = 0.,
                            const String& radix = "New",

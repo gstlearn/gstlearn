@@ -194,6 +194,8 @@ int PCA::dbZ2F(Db* db,
 
   // Core allocation
 
+  toVector("fdsfds", _mean);
+  toVector("z2f", _Z2F);
   VectorDouble data(nvar);
   VectorDouble mean(nvar);
   VectorDouble sigma(nvar);

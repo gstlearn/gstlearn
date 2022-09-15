@@ -1124,9 +1124,12 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
  * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
  *
+ * @return Rank of the first UID
+ *
  * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
  * @remark of samples provided in 'tab' must match the number of active samples
- * @return Rank of the first UID
+ * @remark When a vector 'tab' is provided, the number of variables 'nvar'
+ * @remark is calculated as its size divided by the number of samples in the grid.
  */
 int Db::addColumns(const VectorDouble &tab,
                    const String &radix,
@@ -1142,6 +1145,7 @@ int Db::addColumns(const VectorDouble &tab,
 
   // Check dimensions
   int nech = getSampleNumber(useSel);
+  if (nvar <= 0) nvar = (int) tab.size() / nech;
   if ((int) tab.size() != nvar * nech)
   {
     messerr("Db::addColumns : Incompatibility between dimension of 'tab' (%d)", tab.size());
@@ -2198,6 +2202,26 @@ int Db::getActiveSampleRank(int iech) const
   for (int i = 0; i < nech; i++)
   {
     if (! isActive(i)) continue;
+    if (iech == jech) return i;
+    jech++;
+  }
+  return -1;
+}
+
+/**
+ * Return the absolute rank of a sample where the variable 'item' is defined
+ * from its relative rank
+ * @param iech Relative rank
+ * @return
+ */
+int Db::getActiveAndDefinedSampleRank(int iech, int item) const
+{
+  int nech = getSampleNumber(false);
+  int jech = 0;
+  for (int i = 0; i < nech; i++)
+  {
+    if (! isActive(i)) continue;
+    if (FFFF(getVariable(i, item))) continue;
     if (iech == jech) return i;
     jech++;
   }
@@ -3697,7 +3721,7 @@ VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
 VectorInt Db::getUIDsByColIdx(const VectorInt& icols) const
 {
   VectorInt iuids;
-  for (int i = 0; i < icols.size(); i++)
+  for (int i = 0; i < (int) icols.size(); i++)
     iuids.push_back(getUIDByColIdx(icols[i]));
   return iuids;
 }

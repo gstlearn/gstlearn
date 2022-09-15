@@ -23,7 +23,7 @@ class ELoc;
 class GSTLEARN_EXPORT ACalcDbToDb: public ACalculator
 {
 public:
-  ACalcDbToDb();
+  ACalcDbToDb(bool mustShareSameSpaceDimension = true);
   ACalcDbToDb(const ACalcDbToDb &r) = delete;
   ACalcDbToDb& operator=(const ACalcDbToDb &r) = delete;
   virtual ~ACalcDbToDb();
@@ -31,6 +31,10 @@ public:
   void setDbin(Db* dbin) { _dbin = dbin; }
   void setDbout(Db* dbout) { _dbout = dbout; }
   void setNamingConvention(const NamingConvention& namconv) { _namconv = namconv; }
+  void setMustShareSpaceDimension(bool mustShareSpaceDimension)
+  {
+    _mustShareSpaceDimension = mustShareSpaceDimension;
+  }
 
   Db* getDbin() const { return _dbin; }
   Db* getDbout() const { return _dbout; }
@@ -67,6 +71,11 @@ protected:
   String _identifyVariable(int iuid) const;
 
 private:
+  bool _checkSpaceDimension();
+  bool _checkVariableNumber();
+
+private:
+  bool _mustShareSpaceDimension;
   Db* _dbin;
   Db* _dbout;
   NamingConvention _namconv;

@@ -94,8 +94,9 @@ bool CalcImage::_check()
 
 bool CalcImage::_preprocess()
 {
+  int nvar = _getNVar();
   if (_flagFilter)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, 1, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
 
   if (_flagMorpho)
     _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _nvarMorpho, 0.);

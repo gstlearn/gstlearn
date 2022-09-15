@@ -280,7 +280,7 @@ static int st_migrate_grid_to_point(DbGrid *db_grid,
 {
   if (!db_grid->hasLargerDimension(db_point)) return 1;
   int ndim_min = MIN(db_grid->getNDim(), db_point->getNDim());
-  int ndim_max = MIN(db_grid->getNDim(), db_point->getNDim());
+  int ndim_max = MAX(db_grid->getNDim(), db_point->getNDim());
   VectorDouble dvect(ndim_max);
   VectorDouble coor(ndim_max);
 
@@ -412,7 +412,7 @@ static int st_migrate_point_to_grid(Db *db_point,
 
   if (!db_point->hasLargerDimension(db_grid)) goto label_end;
   ndim_min = MIN(db_point->getNDim(), db_grid->getNDim());
-  ndim_max = MIN(db_point->getNDim(), db_grid->getNDim());
+  ndim_max = MAX(db_point->getNDim(), db_grid->getNDim());
 
   /* Core allocation */
 

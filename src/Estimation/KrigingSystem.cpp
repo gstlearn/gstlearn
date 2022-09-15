@@ -1548,9 +1548,10 @@ void KrigingSystem::_estimateCalculImage(int status)
 void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
 {
   int iech  = _iechOut;
-  int iiech = _dbin->getActiveSampleRank(_iechOut);
+  int iiech = _getFlagAddress(iech, 0);
 
-  if (! _dbin->isActive(iech)) return;
+  // Do not process as this sample is either masked or its variable undefined
+  if (iiech < 0) return;
 
   double trueval = _dbin->getVariable(iech, 0);
   if (! FFFF(trueval))
@@ -1561,11 +1562,10 @@ void KrigingSystem::_estimateCalculXvalidUnique(int /*status*/)
     /* Perform the estimation */
 
     double value = (_xvalidEstim) ? -trueval : 0.;
-    int jjech = 0;
     for (int jech = 0; jech < _dbin->getSampleNumber(); jech++)
     {
-      if (! _dbin->isActive(jech)) continue;
-      if (FFFF(_dbin->getVariable(jech, 0))) continue;
+      int jjech = _getFlagAddress(jech, 0);
+      if (jjech < 0) continue;
       if (iiech != jjech)
         value -= _getLHSINV(iiech,0,jjech,0) * variance * _dbin->getVariable(jech, 0);
       jjech++;
@@ -1860,6 +1860,7 @@ int KrigingSystem::estimate(int iech_out)
   _nbgh = _nbghWork.select(_dbout,_iechOut,_rankColCok);
   status = (getNech() <= 0);
   if (_flagNeighOnly) goto label_store;
+  if (status) goto label_store;
 
   /* Establish the Kriging L.H.S. */
 
@@ -1869,7 +1870,6 @@ int KrigingSystem::estimate(int iech_out)
     if (_flagBayes) _model = _modelSimple;
     status = _prepar();
     if (_flagBayes) _model = _modelInit;
-    if (status) goto label_store;
   }
 
   // Establish the pre-calculation involving the data information
@@ -3162,6 +3162,7 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
   if (! _dbout->isGrid()) return 1;
   DbGrid* dbgrid = dynamic_cast<DbGrid*>(_dbout);
   int ndim = getNDim();
+  int nvar = _getNVar();
   double seuil = 1. / neighI->getSkip();
 
   /* Core allocation */
@@ -3174,17 +3175,21 @@ bool KrigingSystem::_prepareForImage(const NeighImage* neighI)
     nech *= nx[i];
   }
 
-  law_set_random_seed(12345); // TOTO to be suppressed when in KrigingSystem
-  VectorDouble tab(nech);
+  law_set_random_seed(12345); // TODO to be suppressed when in KrigingSystem
+  VectorBool sel(nech);
   for (int iech = 0; iech < nech; iech++)
-    tab[iech] = (law_uniform(0., 1.) < seuil) ? 0. : TEST;
+     sel[iech] = (law_uniform(0., 1.) < seuil) ? true : false;
+
+  VectorDouble tab(nech * nvar);
+  int iecr = 0;
+    for (int ivar = 0; ivar < nvar; ivar++)
+      for (int iech = 0; iech < nech; iech++)
+        tab[iecr++] = (sel[iech]) ? 0. : TEST;
 
   /* Create the grid */
 
-  int flag_add_rank = 1;
-  _dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(),
-                          dbgrid->getAngles(), ELoadBy::COLUMN, tab, { "test" },
-                          { ELoc::Z.getKey() }, flag_add_rank);
+  _dbaux = DbGrid::create(nx, dbgrid->getDXs(), dbgrid->getX0s(), dbgrid->getAngles());
+  _dbaux->addColumns(tab, "Test", ELoc::Z);
 
   /* Shift the origin */
 
@@ -3613,3 +3618,24 @@ void KrigingSystem::_transformGaussianToRaw()
   double condvar = hermiteCondStdElement(est, std, anam_hermite->getPsiHn());
   _dbout->setArray(_iechOut, _iptrStd, condvar);
 }
+
+int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
+{
+  int nvar = _getNVar();
+
+  int rank = 0;
+  for (int ivar = 0; ivar < nvar; ivar++)
+    for (int iech = 0; iech < (int) _dbin->getSampleNumber(); iech++)
+    {
+      bool found = (ivar == ivar0 && iech == iech0);
+      if (!_dbin->isActive(iech) || !_dbin->isIsotopic(iech))
+      {
+        if (found) return -1;
+        continue;
+      }
+      if (found) return rank;
+      rank++;
+    }
+  return rank;
+}
+

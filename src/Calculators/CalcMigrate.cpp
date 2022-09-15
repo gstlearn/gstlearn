@@ -20,7 +20,7 @@
 #include <math.h>
 
 CalcMigrate::CalcMigrate()
-    : ACalcDbToDb(),
+    : ACalcDbToDb(false),
       _iattOut(-1),
       _iuids(),
       _ldmax(1),

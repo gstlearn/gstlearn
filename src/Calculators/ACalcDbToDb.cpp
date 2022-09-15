@@ -14,8 +14,9 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
-ACalcDbToDb::ACalcDbToDb()
+ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
     : ACalculator(),
+      _mustShareSpaceDimension(mustShareSameSpaceDimension),
       _dbin(nullptr),
       _dbout(nullptr),
       _namconv(),
@@ -32,31 +33,16 @@ ACalcDbToDb::~ACalcDbToDb()
 
 int ACalcDbToDb::_getNDim() const
 {
-  int ndim = 0;
   if (_dbin != nullptr)
   {
-    if (ndim > 0)
-    {
-      if (ndim != _dbin->getNDim()) return -1;
-    }
-    else
-    {
-      ndim = _dbin->getNDim();
-    }
+    return _dbin->getNDim();
   }
 
   if (_dbout != nullptr)
   {
-    if (ndim > 0)
-    {
-      if (ndim != _dbout->getNDim()) return -1;
-    }
-    else
-    {
-      ndim = _dbout->getNDim();
-    }
+    return _dbout->getNDim();
   }
-  return ndim;
+  return -1;
 }
 
 int ACalcDbToDb::_getNVar() const
@@ -76,53 +62,55 @@ int ACalcDbToDb::_getNVar() const
   return nvar;
 }
 
-bool ACalcDbToDb::_check()
+bool ACalcDbToDb::_checkSpaceDimension()
 {
-  /**************************************************/
-  /* Cross-checking the Space Dimension consistency */
-  /**************************************************/
-
-  int ndim = 0;
-  if (_dbin != nullptr)
-  {
-    if (ndim > 0)
-    {
-      if (ndim != _dbin->getNDim())
-      {
-        messerr("Inconsistent Space dimension:");
-        messerr("- Current dimension = %d", ndim);
-        messerr("- Space Dimension of 'dbin' = %d", _dbin->getNDim());
-        return false;
-      }
-    }
-    else
-    {
-      ndim = _dbin->getNDim();
-    }
-  }
-
-  if (_dbout != nullptr)
-  {
-    if (ndim > 0)
-    {
-      if (ndim != _dbout->getNDim())
-      {
-        messerr("Inconsistent Space dimension:");
-        messerr("- Current dimension = %d", ndim);
-        messerr("- Space Dimension of 'dbout' = %d", _dbout->getNDim());
-        return false;
-      }
-    }
-    else
-    {
-      ndim = _dbout->getNDim();
-    }
-  }
+  if (! _mustShareSpaceDimension) return true;
 
   /**************************************************/
-  /* Cross-Checking the Variable Number consistency */
-  /**************************************************/
+   /* Cross-checking the Space Dimension consistency */
+   /**************************************************/
 
+   int ndim = 0;
+   if (_dbin != nullptr)
+   {
+     if (ndim > 0)
+     {
+       if (ndim != _dbin->getNDim())
+       {
+         messerr("Inconsistent Space dimension:");
+         messerr("- Current dimension = %d", ndim);
+         messerr("- Space Dimension of 'dbin' = %d", _dbin->getNDim());
+         return false;
+       }
+     }
+     else
+     {
+       ndim = _dbin->getNDim();
+     }
+   }
+
+   if (_dbout != nullptr)
+   {
+     if (ndim > 0)
+     {
+       if (ndim != _dbout->getNDim())
+       {
+         messerr("Inconsistent Space dimension:");
+         messerr("- Current dimension = %d", ndim);
+         messerr("- Space Dimension of 'dbout' = %d", _dbout->getNDim());
+         return false;
+       }
+     }
+     else
+     {
+       ndim = _dbout->getNDim();
+     }
+   }
+   return true;
+}
+
+bool ACalcDbToDb::_checkVariableNumber()
+{
   int nvar = 0;
   if (_dbin != nullptr)
   {
@@ -142,6 +130,22 @@ bool ACalcDbToDb::_check()
       nvar = _dbin->getVariableNumber();
     }
   }
+  return true;
+}
+
+bool ACalcDbToDb::_check()
+{
+  /**************************************************/
+  /* Cross-checking the Space Dimension consistency */
+  /**************************************************/
+
+  if (! _checkSpaceDimension()) return false;
+
+  /**************************************************/
+  /* Cross-Checking the Variable Number consistency */
+  /**************************************************/
+
+  if (! _checkVariableNumber()) return false;
 
   return true;
 }
