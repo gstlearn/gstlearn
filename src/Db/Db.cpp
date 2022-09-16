@@ -1145,7 +1145,7 @@ int Db::addColumns(const VectorDouble &tab,
 
   // Check dimensions
   int nech = getSampleNumber(useSel);
-  if (nvar <= 0) nvar = (int) tab.size() / nech;
+  nvar = (int) tab.size() / nech;
   if ((int) tab.size() != nvar * nech)
   {
     messerr("Db::addColumns : Incompatibility between dimension of 'tab' (%d)", tab.size());
