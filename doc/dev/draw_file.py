@@ -26,12 +26,16 @@ if nargs < 2:
     print("- ranks: list of ranks")
     exit()
 filename = args[1]
+fileaux = ""
+if nargs > 2:
+    fileaux = args[2]
 ranks = args[2:nargs]
 
 # Get the Type of the File and stop if returned empty (file not found)
 filetype = gl.ASerializable.getFileIdentity(filename)
 if filetype == "":
     exit()
+filetaux = gl.ASerializable.getFileIdentity(fileaux)
 
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
@@ -68,11 +72,21 @@ elif filetype == "DbGrid":
     
 elif filetype == "Vario":
     vario = gl.Vario.createFromNF(filename,False)
-    gp.vario(vario,end_plot=True)
+    
+    if filetaux == "Model":
+        model = gl.Model.createFromNF(fileaux,False)
+        gp.varmod(vario, model, end_plot=True)
+    else:
+        gp.vario(vario,end_plot=True)
     
 elif filetype == "Model":
     model = gl.Model.createFromNF(filename,False)
-    gp.model(model,end_plot=True)
+    
+    if filetaux == "Vario":
+            vario = gl.Vario.createFromNF(fileaux,False)
+            gp.varmod(vario, model, end_plot=True)
+    else:
+        gp.model(model,end_plot=True)
     
 elif filetype == "Rule":
     rule = gl.Rule.createFromNF(filename,False)
@@ -86,6 +100,6 @@ elif filetype == "Table":
 elif filetype == "Polygon":
     poly = gl.Polygons.createFromNF(filename,False)
     gp.polygon(poly,colorPerSet=True,flagFace=True,end_plot=True)
-        
+       
 else:
     print("Unknown type")

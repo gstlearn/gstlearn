@@ -16,7 +16,7 @@ import gstlearn.plot as myplot
 
 workingDbc = gl.DbGrid.create([10,10],[10,10])
 
-# Create working grid
+# Create working grid
 
 resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
 

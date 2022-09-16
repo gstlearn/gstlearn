@@ -134,12 +134,12 @@ int main(int argc, char *argv[])
   
   // produce the Goodness-of-fit score
 
-  gof = model->gofToVario(vario);
+  gof = model->gofToVario(vario, false);
 
   if (gof > gofThresh)
-    message("Goodness-of-Fit (as a percentage of the Sill) may demonstrate an issue: %5.2lf\n",gof);
+    message("Goodness-of-Fit (as a percentage of the Variance) may demonstrate an issue: %5.2lf\n",gof);
   else
-    message("Goodness-of-Fit (<%5.2lf percent of the Sill): AutoFit is a success\n",gofThresh);
+    message("Goodness-of-Fit (<%5.2lf percent of the Variance): AutoFit is a success\n",gofThresh);
 
 /* Core deallocation */
 

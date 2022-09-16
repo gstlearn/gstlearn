@@ -46,10 +46,21 @@ int main(int /*argc*/, char */*argv*/[])
   //  StdoutRedirect sr(sfn.str());
 
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN);
+  String filename;
 
-  String filename = "/home/drenard/project_gstlearn/gstlearn/doc/data/boundaries/world.poly";
-  Polygons* polygons = Polygons::createFromNF(filename, true);
-  polygons->display();
+  filename = "/home/drenard/project_gstlearn/gstlearn/tests/data/Var20/Vario.dat";
+  Vario* vario = Vario::createFromNF(filename);
+
+  filename = "/home/drenard/project_gstlearn/gstlearn/tests/data/Var20/Model.ref";
+  Model* model1 = Model::createFromNF(filename);
+  double gof1 = model1->gofToVario(vario);
+
+  filename = "/home/drenard/project_gstlearn/gstlearn/build/tests/data/Debug/Var20/Model.out";
+  Model* model2 = Model::createFromNF(filename);
+  double gof2 = model2->gofToVario(vario);
+
+  message("gof Ref = %lf\n",gof1);
+  message("gof New = %lf\n",gof2);
 
   return (0);
 }

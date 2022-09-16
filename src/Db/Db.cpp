@@ -2212,6 +2212,7 @@ int Db::getActiveSampleRank(int iech) const
  * Return the absolute rank of a sample where the variable 'item' is defined
  * from its relative rank
  * @param iech Relative rank
+ * @param item Rank of the item
  * @return
  */
 int Db::getActiveAndDefinedSampleRank(int iech, int item) const

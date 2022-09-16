@@ -10,6 +10,5 @@ Vario
 0 0.000000 # Code selection: Option - Tolerance
 0.010000 # Lag value
 0.5000000 # Tolerance on distance
-90.000000 # Tolerance on angle
-1.000000 0.000000 # Direction coefficients
+1 # Grid Definition
 1.000000 0.000000 # Direction increments on grid

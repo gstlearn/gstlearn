@@ -39,7 +39,7 @@ public:
   static String getHomeDirectory(const String& sub = "");
   static String getWorkingDirectory();
   static String getTestData(const String& subdir, const String& filename);
-  static String getFileIdentity(const String& filename);
+  static String getFileIdentity(const String& filename, bool verbose = false);
   static void setContainerName(bool useDefault,
                                const String& containerName = String(),
                                bool verbose = false);
@@ -233,6 +233,10 @@ bool ASerializable::_recordReadVec(std::istream& is,
       }
       word = trim(word);
       if (word.empty()) continue;
+
+      if (word[0] == '#')
+        break; // We found a comment
+
       T val;
       if (word == STRING_NA)
       {

@@ -310,12 +310,12 @@ String ASerializable::getTestData(const String& subdir, const String& filename)
   return sstr.str();
 }
 
-String ASerializable::getFileIdentity(const String& filename)
+String ASerializable::getFileIdentity(const String& filename, bool verbose)
 {
   // Preliminary check
   if (filename.empty())
   {
-    messerr("The Neutral File Name cannot be left empty");
+    if (verbose) messerr("The Neutral File Name cannot be left empty");
     return String();
   }
 
@@ -323,7 +323,7 @@ String ASerializable::getFileIdentity(const String& filename)
   std::ifstream file(filename);
   if (!file.is_open())
   {
-    messerr("Could not open the Neutral File %s", filename.c_str());
+    if (verbose) messerr("Could not open the Neutral File %s", filename.c_str());
     return String();
   }
 

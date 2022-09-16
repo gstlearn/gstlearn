@@ -702,7 +702,7 @@ static void st_mauto_rescale(int nvar,
 
   total = 0.;
   for (int ivar = 0; ivar < nvar; ivar++)
-    total += VARCHOL(ivar,ivar)* VARCHOL(ivar,ivar);
+    total += VARCHOL(ivar,ivar) * VARCHOL(ivar,ivar);
   mauto.setTolred(mauto.getTolstop() * total / nvar);
   return;
 }
