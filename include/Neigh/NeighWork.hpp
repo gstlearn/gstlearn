@@ -65,7 +65,7 @@ private:
                            int iech_out,
                            VectorInt& ranks,
                            bool verbose = false);
-  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks);
+  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks, int iech_out);
 
 private:
   const Db* _dbin;

@@ -230,7 +230,7 @@ VectorInt NeighWork::select(Db *dbout,
 
   // Update in case of Colocated option
 
-  _updateColCok(rankColCok, ranks);
+  _updateColCok(rankColCok, ranks, iech_out);
   return ranks;
 }
 
@@ -745,7 +745,9 @@ void NeighWork::_display(const VectorInt& ranks)
   return;
 }
 
-void NeighWork::_checkUnchanged(const Db* dbout, int iech_out, const VectorInt& ranks)
+void NeighWork::_checkUnchanged(const Db *dbout,
+                                int iech_out,
+                                const VectorInt &ranks)
 {
   VectorInt rsorted = ranks;
   if (ranks.size() > 0)
@@ -876,9 +878,12 @@ void NeighWork::_resetFromMemory(bool flagSame, VectorInt& ranks, bool verbose)
  * it value is conventionally set to -1.
  * @param rankColCok Vector of Colocated Variables
  * @param ranks      Vector of samples already selected
+ * @param iech_out   Rank of the targt site (in dbout)
  * @return
  */
-void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
+void NeighWork::_updateColCok(const VectorInt &rankColCok,
+                              VectorInt &ranks,
+                              int iech_out)
 {
   if (rankColCok.empty()) return;
   int nvarin = (int) rankColCok.size();
@@ -889,7 +894,7 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
   {
     int jvar = rankColCok[ivar];
     if (jvar < 0) continue;
-    if (!FFFF(_dbout->getArray(_iechOut, jvar))) found = true;
+    if (!FFFF(_dbout->getArray(iech_out, jvar))) found = true;
   }
   if (! found) return;
 
@@ -897,7 +902,8 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
   int nsel = (int) ranks.size();
   for (int iech = 0; iech < nsel; iech++)
   {
-    if (distance_inter(_dbin, _dbout, ranks[iech], _iechOut, NULL) <= 0.) return;
+    if (distance_inter(_dbin, _dbout, ranks[iech], iech_out, NULL) <= 0.)
+      return;
   }
 
   /* Add the target */
