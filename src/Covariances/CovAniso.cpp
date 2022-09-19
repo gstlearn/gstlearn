@@ -97,6 +97,11 @@ CovAniso::CovAniso(const CovAniso &r)
 {
 }
 
+CovAniso::~CovAniso()
+{
+  delete _cova;
+}
+
 CovAniso& CovAniso::operator=(const CovAniso &r)
 {
   if (this != &r)
@@ -119,10 +124,6 @@ void CovAniso::_computeCorrec()
 void CovAniso::computeMarkovCoeffs()
 {
   _cova->computeMarkovCoeffs(getNDim());
-}
-CovAniso::~CovAniso()
-{
-  delete _cova;
 }
 
 void CovAniso::setContext(const CovContext &ctxt)

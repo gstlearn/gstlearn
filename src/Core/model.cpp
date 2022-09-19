@@ -468,7 +468,9 @@ double cova_get_scale_factor(const ECov &type, double param)
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
-  return cova->getScadef();
+  double scadef = cova->getScadef();
+  delete cova;
+  return scadef;
 }
 
 /*****************************************************************************/
@@ -1759,6 +1761,7 @@ void model_cova_characteristics(const ECov &type,
   *flag_rotation = ((*flag_aniso) && (*max_ndim < 0 || *max_ndim > 1));
   *scale = cov->getScadef();
   *parmax = cov->getParMax();
+  delete cov;
   return;
 }
 
