@@ -949,6 +949,7 @@ int KrigingSystem::_lhsInvert()
 
   if (matrix_invert(_lhsinv.data(), _nred, -1))
   {
+    messerr("When estimating Target Site #%d",_iechOut+1);
     messerr("The Kriging Matrix (%d,%d) is singular", _nred, _nred);
     messerr("One of the usual reason is the presence of duplicates");
     return 1;
