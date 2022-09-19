@@ -903,6 +903,7 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
   /* Add the target */
 
   ranks.push_back(-1);
+  _flagIsUnchanged = false;
   return;
 }
 
