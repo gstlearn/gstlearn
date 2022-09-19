@@ -903,6 +903,7 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
   /* Add the target */
 
   ranks.push_back(-1);
+  _flagIsUnchanged = false;
   return;
 }
 
@@ -917,7 +918,7 @@ void NeighWork::_updateColCok(const VectorInt& rankColCok, VectorInt& ranks)
  **
  ** \param[in]  dbout         output Db structure
  ** \param[in]  iech_out      Valid Rank of the sample in the output Db
- ** \param[in]  rankColCok    Vector of Colcok information (optional)
+ ** \param[in]  rankColCok    Vector of ColCok information (optional)
  **
  *****************************************************************************/
 VectorDouble NeighWork::summary(Db *dbout,
@@ -968,9 +969,19 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   number = 0;
   int n_empty = 0;
-  for (int isect = 0; isect < 2 * neighM->getNSect(); isect++)
+  for (int isect = 0; isect < neighM->getNSect(); isect++)
   {
     if (_movingNsect[isect] > 0)
+      n_empty = 0;
+    else
+    {
+      n_empty++;
+      if (n_empty > number) number = n_empty;
+    }
+  }
+  if (neighM->getNSect() > 0)
+  {
+    if(_movingNsect[0] > 0)
       n_empty = 0;
     else
     {

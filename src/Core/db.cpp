@@ -1331,7 +1331,7 @@ Db* db_create_from_target(const double *target, int ndim, int flag_add_rank)
  *****************************************************************************/
 String db_name_get_by_att(const Db *db, int iatt)
 {
-  static char na_string[3] = "NA";
+  static char na_string[3] = STRING_NA;
   int icol = db->getColIdxByUID(iatt);
   if (!db->isColIdxValid(icol)) return (na_string);
   return (db->getNameByColIdx(icol));
@@ -1349,7 +1349,7 @@ String db_name_get_by_att(const Db *db, int iatt)
  *****************************************************************************/
 String db_name_get_by_col(Db *db, int icol)
 {
-  static char na_string[3] = "NA";
+  static char na_string[3] = STRING_NA;
   if (!db->isColIdxValid(icol)) return (na_string);
   return (db->getNameByColIdx(icol));
 }

@@ -35,10 +35,10 @@ a = VectorDouble()
 
 # Testing missing arguments
 
-argumentTestInt(getITEST())
-argumentTestDouble(getTEST())
-argumentTestVectorInt(c(getITEST()))
-argumentTestVectorDouble(c(getTEST()))
+argumentTestInt(NA)
+argumentTestDouble(NA)
+argumentTestVectorInt(c(NA))
+argumentTestVectorDouble(c(NA))
 
 # Testing overloading of methods
 
@@ -54,9 +54,9 @@ argumentTestEnum(ETests_CASE2())
 # Testing Returning arguments
 
 print(argumentReturnInt(12))
-print(argumentReturnInt(getITEST()))
+print(argumentReturnInt(NA))
 print(argumentReturnDouble(21.4))
-print(argumentReturnDouble(getTEST()))
+print(argumentReturnDouble(NA))
 
 # Testing assessors (instead of relevant functions) to access the elements of a class
 

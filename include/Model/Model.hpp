@@ -425,7 +425,7 @@ public:
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit());
 
-  double gofToVario(const Vario* vario);
+  double gofToVario(const Vario* vario, bool verbose = true);
   std::vector<ECov> initCovList(const VectorInt & covranks);
 
 protected:

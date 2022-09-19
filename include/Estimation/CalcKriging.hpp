@@ -44,6 +44,7 @@ public:
   void setFlagGam(bool flagGam) { _flagGam = flagGam; }
   void setFlagXvalidEst(int flagXvalidEst) { _flagXvalidEst = flagXvalidEst; }
   void setFlagXvalidStd(int flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
+  void setFlagXvalidVarZ(int flagXvalidVarZ) { _flagXvalidVarZ = flagXvalidVarZ; }
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
   void setFlagKfold(int flag_kfold) { _flagKfold = flag_kfold; }
   void setFlagNeighOnly(bool flagNeighOnly) { _flagNeighOnly = flagNeighOnly; }
@@ -90,6 +91,7 @@ private:
   int  _flagKfold;
   int  _flagXvalidEst;
   int  _flagXvalidStd;
+  int  _flagXvalidVarZ;
 
   bool _flagNeighOnly;
   int  _nbNeigh;
@@ -168,6 +170,7 @@ GSTLEARN_EXPORT int xvalid(Db *db,
                            int flag_code = 0,
                            int flag_xvalid_est = 1,
                            int flag_xvalid_std = 1,
+                           int flag_xvalid_varz = 0,
                            VectorInt rank_colcok = VectorInt(),
                            const NamingConvention& namconv = NamingConvention("Xvalid"));
 GSTLEARN_EXPORT int test_neigh(Db *dbin,

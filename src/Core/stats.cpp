@@ -3030,15 +3030,15 @@ void db_stats_print(const Db *db,
     else
     {
       if (st_oper_exists(opers, "mini"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "maxi"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "mean"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "stdv"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
       if (st_oper_exists(opers, "var"))
-        tab_prints(NULL, "NA");
+        tab_prints(NULL, STRING_NA);
     }
     message("\n");
   }
@@ -3064,12 +3064,12 @@ void db_stats_print(const Db *db,
 }
 
 void db_stats_print(const Db *db,
-                                    const VectorString &names,
-                                    const VectorString &opers,
-                                    int flag_iso,
-                                    int flag_correl,
-                                    const String &title,
-                                    const String &radix)
+                    const VectorString &names,
+                    const VectorString &opers,
+                    int flag_iso,
+                    int flag_correl,
+                    const String &title,
+                    const String &radix)
 {
   VectorInt iatts = db->getUIDs(names);
   if (iatts.size() <= 0) return;

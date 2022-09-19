@@ -591,7 +591,8 @@ DbGrid* ACov::_discretizeBlock(const VectorDouble& ext,
 Db* ACov::_discretizeBlockRandom(const DbGrid* dbgrid, int seed) const
 {
   int ndim = getNDim();
-  Db* db = Db::create();
+  int nech = dbgrid->getSampleNumber();
+  Db* db = Db::createFromSamples(nech);
   VectorString names = generateMultipleNames("x",ndim);
   law_set_random_seed(seed);
 

@@ -46,8 +46,7 @@ private:
   VectorDouble _spectrum_any(Model *model, const SimuSphericalParam& sphepar);
   void _spectrum_normalize(int verbose, VectorDouble& freqs);
   int _gdiscrete(VectorDouble& freqs);
-  int _check_degree_order(const SimuSphericalParam& sphepar,
-                          const VectorDouble& freqs,
+  int _check_degree_order(const VectorDouble& freqs,
                           VectorInt& degree,
                           VectorInt& order,
                           int verbose);

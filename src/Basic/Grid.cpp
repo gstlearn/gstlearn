@@ -457,8 +457,8 @@ VectorDouble Grid::getCoordinatesByRank(int rank, bool flag_rotate) const
 }
 
 double Grid::indiceToCoordinate(int idim0,
-                                 const VectorInt& indice,
-                                 const VectorDouble& percent) const
+                                const VectorInt& indice,
+                                const VectorDouble& percent) const
 {
   VectorDouble work1(_nDim);
   VectorDouble work2(_nDim);
@@ -493,9 +493,11 @@ void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
                                       VectorDouble& coor,
                                       const VectorDouble& percent) const
 {
+  if ((int)coor.size() < _nDim)
+    my_throw("Argument coor should have the correct size");
+
   VectorDouble work1(_nDim);
   VectorDouble work2(_nDim);
-  coor.resize(_nDim);
 
   /* Calculate the coordinates in the grid system */
 
@@ -518,14 +520,14 @@ void Grid::indicesToCoordinateInPlace(const VectorInt& indice,
 
 double Grid::rankToCoordinate(int idim0, int rank, const VectorDouble& percent) const
 {
-  VectorInt indice;
+  VectorInt indice(_nDim);
   rankToIndice(rank, indice);
   return indiceToCoordinate(idim0, indice, percent);
 }
 
 VectorDouble Grid::rankToCoordinates(int rank, const VectorDouble& percent) const
 {
-  VectorInt indice;
+  VectorInt indice(_nDim);
   rankToIndice(rank, indice);
   return indicesToCoordinate(indice,percent);
 }
@@ -564,8 +566,9 @@ int Grid::indiceToRank(const VectorInt& indice) const
  */
 void Grid::rankToIndice(int rank, VectorInt& indices, bool minusOne) const
 {
+  if ((int)indices.size() < _nDim)
+    my_throw("Argument indices should have the correct size");
   int ndim = _nDim;
-  indices.resize(ndim);
   int minus = (minusOne) ? 1 : 0;
   int nval = 1;
   for (int idim=0; idim<ndim; idim++) nval *= (_nx[idim] - minus);
@@ -600,10 +603,12 @@ int Grid::coordinateToIndicesInPlace(const VectorDouble &coor,
                                      bool centered,
                                      double eps) const
 {
+  if ((int)indice.size() != _nDim)
+    my_throw("Argument indice should have the correct size");
+
   int ndim = _nDim;
   VectorDouble work1(ndim);
   VectorDouble work2(ndim);
-  indice.resize(ndim);
 
   // Check if all coordinates are defined 
 

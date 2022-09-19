@@ -77,6 +77,8 @@ double getMax(double val1, double val2)
   return (MAX(val1, val2));
 }
 
+#ifndef SWIG
+
 double getTEST()
 {
   return TEST;
@@ -101,7 +103,7 @@ int FFFF(double value)
   int rep;
 
   rep = 0;
-  if (std::isnan(value)) rep = 1;
+  if (std::isnan(value)) rep = 1; // TODO : what about std::isinf ?
   if (value > TEST_COMP) rep = 1;
 
   return (rep);
@@ -125,6 +127,8 @@ int IFFFF(int value)
 
   return (rep);
 }
+
+#endif //SWIG
 
 /*****************************************************************************/
 /*!
@@ -885,6 +889,7 @@ void ut_facies_statistics(int nech,
 
   if (facmax < facmin || number <= 0)
   {
+    *nval = 0;
     *mini = *maxi = ITEST;
   }
   else

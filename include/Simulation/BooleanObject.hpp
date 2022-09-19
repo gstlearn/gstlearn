@@ -35,7 +35,7 @@ public:
   void setMode(int mode) { _mode = mode; }
   void setOrientation(double orientation) { _orientation = orientation; }
   void setCenter(int idim, double value) { _center[idim] = value; }
-  void setCenter(const VectorDouble& center) { _center = center; }
+  void setCenter(const VectorDouble& center);
   void setExtension(int idim, double value) { _extension[idim] = value; }
   void setValue(int rank, double value) { _values[rank] = value; }
 

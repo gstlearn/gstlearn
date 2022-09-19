@@ -231,7 +231,7 @@ int GibbsMultiMono::checkGibbs(const VectorVectorDouble& y, int isimu, int ipgs)
           message("%lf",vmin);
         message(";");
         if (FFFF(vmax))
-         message("NA");
+         message(STRING_NA);
         else
           message("%lf",vmax);
         message("]\n");

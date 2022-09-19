@@ -34,3 +34,9 @@ bool ACalcSimulation::_check()
   return true;
 }
 
+bool ACalcSimulation::_preprocess()
+{
+  if (!ACalcInterpolator::_preprocess()) return false;
+
+  return true;
+}

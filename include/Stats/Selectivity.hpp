@@ -72,8 +72,8 @@ public:
   const Table eval(AAnam *anam);
 
   void   resetCuts(const VectorDouble& zcuts);
-  int    getNCuts() const { return (int) _Zcut.size(); }
-  int    getNQT() const { return (int) ESelectivity::getSize(); }
+  int    getNCuts() const { return static_cast<int>(_Zcut.size()); }
+  int    getNQT() const { return static_cast<int>(ESelectivity::getSize()); }
   int    getVariableNumber() const;
   String getVariableName(const ESelectivity& code, int icut, int mode) const;
   String getVariableName(int rank0) const;
@@ -123,6 +123,7 @@ public:
   void setZmax(double zmax) { _zmax = zmax; }
   bool isFlagTonnageCorrect() const { return _flagTonnageCorrect; }
   double getZmax() const { return _zmax; }
+  bool isOnlyZDefined() const { return _flagOnlyZDefined; }
 
   const Table getStats() const { return _stats; }
 
@@ -156,4 +157,5 @@ private:
   bool   _flagTonnageCorrect;
   MatrixInt _numberQT;
   MatrixInt _rankQT;
+  bool _flagOnlyZDefined;
 };

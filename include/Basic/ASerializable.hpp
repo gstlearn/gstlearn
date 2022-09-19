@@ -39,7 +39,7 @@ public:
   static String getHomeDirectory(const String& sub = "");
   static String getWorkingDirectory();
   static String getTestData(const String& subdir, const String& filename);
-  static String getFileIdentity(const String& filename);
+  static String getFileIdentity(const String& filename, bool verbose = false);
   static void setContainerName(bool useDefault,
                                const String& containerName = String(),
                                bool verbose = false);
@@ -75,7 +75,7 @@ protected:
   template <typename T>
   static bool _recordWriteVec(std::ostream& os,
                                const String& title,
-                               const std::vector<T>& vec);
+                               const VectorT<T>& vec);
 
   template <typename T>
   static bool _recordRead(std::istream& is,
@@ -83,9 +83,9 @@ protected:
                            T& val);
   template <typename T>
   static bool _recordReadVec(std::istream& is,
-                              const String& title,
-                              std::vector<T>& vec,
-                              int nvalues);
+                             const String& title,
+                             VectorT<T>& vec,
+                             int nvalues);
 
   static bool _onlyBlanks(char *string);
 
@@ -128,7 +128,7 @@ bool ASerializable::_recordWrite(std::ostream& os,
 template <typename T>
 bool ASerializable::_recordWriteVec(std::ostream& os,
                                     const String& title,
-                                    const std::vector<T>& vec)
+                                    const VectorT<T>& vec)
 {
   if (os.good())
   {
@@ -178,10 +178,10 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
     if (word == STRING_NA)
     {
       // Get NA value
-      val = getNAValue<T>();
+      val = getNA<T>();
     }
     else
-		{
+    {
       // Decode the line
       std::stringstream sstr(word);
       sstr >> val;
@@ -199,7 +199,7 @@ bool ASerializable::_recordRead(std::istream& is, const String& title, T& val)
 template <typename T>
 bool ASerializable::_recordReadVec(std::istream& is,
                                    const String& title,
-                                   std::vector<T>& vec,
+                                   VectorT<T>& vec,
                                    int nvalues)
 {
   vec.clear();
@@ -233,11 +233,15 @@ bool ASerializable::_recordReadVec(std::istream& is,
       }
       word = trim(word);
       if (word.empty()) continue;
+
+      if (word[0] == '#')
+        break; // We found a comment
+
       T val;
       if (word == STRING_NA)
       {
         // Get NA value
-        val = getNAValue<T>();
+        val = getNA<T>();
       }
       else
       {

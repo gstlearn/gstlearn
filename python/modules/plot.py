@@ -106,16 +106,15 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
             posx = 0
             posy = 1
         if corner is None:
-            corner = gl.ut_vector_int(db.getNDim(),0)
+            corner = np.zeros(db.getNDim())
         tabx = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
         tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
-    
+
     if flagConvertNanToZero:
-        tabx[tabx == gl.getTEST()] = 0
+        tabx[np.isnan(tabx)] = 0
     else:
-        tabx[tabx == gl.getTEST()] = np.nan
         tabx = ma.array(tabx,mask=np.isnan(tabx))
     
     if compress:
@@ -126,11 +125,9 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
 def getBiDefinedValues(db1, name1, name2, db2, usesel=True):
     tabx = db1.getColumn(name1, usesel)
     tabx = np.array(tabx).transpose()
-    tabx[tabx == gl.getTEST()] = np.nan
     
     taby = db2.getColumn(name2, usesel)
     taby = np.array(taby).transpose()
-    taby[taby == gl.getTEST()] = np.nan
     
     sel  = np.logical_not(np.logical_or(np.isnan(tabx), np.isnan(taby)))
     tabx = tabx[sel]
@@ -865,7 +862,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
-
+        
     ax.plot(xtab, ytab, **plot_args)
             
     drawDecor(ax, title=title, flagLegend=flagLegend)
@@ -939,7 +936,6 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
         datax = table.getColumn(int(icols[1]))
     
     data = np.stack((np.array(datax), np.array(datay)))
-    data[data == gl.getTEST()] = np.nan
     data = data[:, ~np.isnan(data).any(axis=0)]
 
     ax.plot(data[0,:], data[1,:], color=color0, linestyle=linestyle0, marker=marker0, 

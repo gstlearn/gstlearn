@@ -1231,11 +1231,14 @@ void Model::covMatrix(VectorDouble& covmat,
 /**
  * Evaluate the Goodness-of_fit of the Model on the Experimental Variogram
  * It is expressed as the average departure between Model and Variogram
- * scaled to the sill
+ * scaled to the variance.
+ * As this variance may be poorly calculated (< gmax / 5), it may be replaced
+ * by the largest value (gmax) divided by 2 (highly non_stationary cases).
  * @param vario Experimental variogram
+ * @param verbose Verbose flag
  * @return Value for the Goodness-of_fit (as percentage of the total sill)
  */
-double Model::gofToVario(const Vario* vario)
+double Model::gofToVario(const Vario* vario, bool verbose)
 {
   int nvar = getVariableNumber();
   int ndir = vario->getDirectionNumber();
@@ -1247,7 +1250,15 @@ double Model::gofToVario(const Vario* vario)
   for (int ivar = 0; ivar < nvar; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
     {
-      double sill = getTotalSill(ivar, jvar);
+      double varij  = vario->getVar(ivar, jvar);
+      double varmax = vario->getGmax(ivar, jvar);
+      // Modify the normalization as variance seems not consistent
+      if (ABS(varij) < varmax / 5)
+      {
+        if (verbose)
+          messerr("Variance seems erroneous. It is replaced by Gmax / 2.");
+        varij = varmax / 2.;
+      }
 
       // Loop on the variogram directions
 
@@ -1258,6 +1269,7 @@ double Model::gofToVario(const Vario* vario)
         // Read information from Experimental Variogram
 
         VectorDouble codir = vario->getCodir(idir);
+        VectorDouble sw = vario->getSwVec(idir, ivar, jvar);
         VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
         VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
 
@@ -1271,16 +1283,19 @@ double Model::gofToVario(const Vario* vario)
         // Evaluate the score
 
         double totpas = 0;
+        double scale = 0.;
         for (int ipas = 0; ipas < npas; ipas++)
         {
-          double ecart = gexp[ipas] - gmod[ipas];
-          totpas += ecart * ecart;
+          if (sw[ipas] <= 0 || hh[ipas] <= 0.) continue;
+          double ecart = sw[ipas] * ABS(gexp[ipas] - gmod[ipas]) / hh[ipas];
+          totpas += ecart;
+          scale  += sw[ipas] / hh[ipas];
         }
-        totpas  = sqrt(totpas) / (double) npas;
+        totpas  = totpas / scale;
         totdir += totpas;
       }
       totdir /= (double) ndir;
-      totdir /= sill;
+      totdir /= varij;
       total  += ABS(totdir);
     }
   total = 100. * total / (double) (nvar * nvar);

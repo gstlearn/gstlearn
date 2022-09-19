@@ -75,7 +75,6 @@ RuleShift::~RuleShift()
 int RuleShift::resetFromNodes(const VectorInt& nodes, const VectorDouble& shift)
 {
   _shift = shift;
-
   setModeRule(ERule::SHIFT);
   setMainNodeFromNodNames(nodes);
   return 0;
@@ -131,20 +130,22 @@ bool RuleShift::_deserialize(std::istream& is, bool /*verbose*/)
 
 bool RuleShift::_serialize(std::ostream& os, bool /*verbose*/) const
 {
-  double slope = (FFFF(_slope)) ? 0. : _slope;
+  double slope  = (FFFF(_slope)) ? 0. : _slope;
   double shdown = (FFFF(_shDown)) ? 0. : _shDown;
   double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+  VectorDouble shiftloc = _shift;
+  shiftloc.resize(3);
 
   bool ret = true;
 
   ret = ret && Rule::_serialize(os);
 
-  ret = ret && _recordWrite<double>(os, "", slope);
-  ret = ret && _recordWrite<double>(os, "", shdown);
-  ret = ret && _recordWrite<double>(os, "Parameters for Shadow option", shdsup);
-  ret = ret && _recordWrite<double>(os, "", _shift[0]);
-  ret = ret && _recordWrite<double>(os, "", _shift[1]);
-  ret = ret && _recordWrite<double>(os, "Parameters for Shift option", _shift[2]);
+  ret = ret && _recordWrite<double>(os, "Slope for Shadow Rule", slope);
+  ret = ret && _recordWrite<double>(os, "Lower Threshold for Shadow Rule", shdown);
+  ret = ret && _recordWrite<double>(os, "Upper Threshold for Shadow Rule", shdsup);
+  ret = ret && _recordWrite<double>(os, "Shift along first direction", shiftloc[0]);
+  ret = ret && _recordWrite<double>(os, "Shift along second direction", shiftloc[1]);
+  ret = ret && _recordWrite<double>(os, "Shift along third direction", shiftloc[2]);
   return ret;
 }
 

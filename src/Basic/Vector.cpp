@@ -252,9 +252,9 @@ double ut_vector_var(const VectorDouble &vec)
   return var;
 }
 
-double ut_vector_correlation(const VectorDouble &vec1, const VectorDouble& vec2)
+double ut_vector_correlation(const VectorDouble &veca, const VectorDouble& vecb)
 {
-  if (vec1.size() <= 0 || vec2.size() <= 0 || vec1.size() != vec2.size()) return 0.;
+  if (veca.size() <= 0 || vecb.size() <= 0 || veca.size() != vecb.size()) return 0.;
 
   double m1  = 0.;
   double m2  = 0.;
@@ -262,10 +262,10 @@ double ut_vector_correlation(const VectorDouble &vec1, const VectorDouble& vec2)
   double v22 = 0.;
   double v12 = 0.;
   int number = 0;
-  for (int i = 0; i < (int) vec1.size(); i++)
+  for (int i = 0; i < (int) veca.size(); i++)
   {
-    double z1 = vec1[i];
-    double z2 = vec2[i];
+    double z1 = veca[i];
+    double z2 = vecb[i];
     if (FFFF(z1) || FFFF(z2)) continue;
     v11 += z1 * z1;
     v22 += z2 * z2;
@@ -295,14 +295,14 @@ double ut_vector_stdv(const VectorDouble &vec)
     return TEST;
 }
 
-double ut_vector_inner_product(const VectorDouble &vec1,
-                               const VectorDouble &vec2)
+double ut_vector_inner_product(const VectorDouble &veca,
+                               const VectorDouble &vecb)
 {
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
   double prod = 0.;
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    prod += vec1.at(i) * vec2.at(i);
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    prod += veca.at(i) * vecb.at(i);
   return prod;
 }
 
@@ -314,19 +314,19 @@ double ut_vector_norm(const VectorDouble &vec)
 
 /**
  * Cross product (limited to 3D)
- * @param vec1 First vector
- * @param vec2 Second Vector
+ * @param veca First vector
+ * @param vecb Second Vector
  * @return
  */
-VectorDouble ut_vector_cross_product(const VectorDouble &vec1,
-                                     const VectorDouble &vec2)
+VectorDouble ut_vector_cross_product(const VectorDouble &veca,
+                                     const VectorDouble &vecb)
 {
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
   VectorDouble res;
-  res.push_back(vec1[1] * vec2[2] - vec1[2] * vec2[1]);
-  res.push_back(vec1[2] * vec2[0] - vec1[0] * vec2[2]);
-  res.push_back(vec1[0] * vec2[1] - vec1[1] * vec2[0]);
+  res.push_back(veca[1] * vecb[2] - veca[2] * vecb[1]);
+  res.push_back(veca[2] * vecb[0] - veca[0] * vecb[2]);
+  res.push_back(veca[0] * vecb[1] - veca[1] * vecb[0]);
   return res;
 }
 
@@ -393,27 +393,27 @@ void ut_ivector_fill(VectorInt &vec, int value, int size)
   std::fill(vec.begin(), vec.end(), value);
 }
 
-VectorDouble ut_vector_concatenate(const VectorDouble& vec1,
-                                   const VectorDouble& vec2)
+VectorDouble ut_vector_concatenate(const VectorDouble& veca,
+                                   const VectorDouble& vecb)
 {
-  VectorDouble res = vec1;
-  for (auto &e: vec2)
+  VectorDouble res = veca;
+  for (auto &e: vecb)
     res.push_back(e);
   return res;
 }
 
-VectorDouble ut_vector_add(const VectorDouble &vec1, const VectorDouble &vec2)
+VectorDouble ut_vector_add(const VectorDouble &veca, const VectorDouble &vecb)
 {
   VectorDouble res;
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    res.push_back(vec1.at(i) + vec2.at(i));
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    res.push_back(veca.at(i) + vecb.at(i));
   return res;
 }
 
 /**
- * Performs: vec1 += vec2
+ * Performs: veca += vecb
  * @param dest Input/Output vector
  * @param src Auxiliary vector
  */
@@ -427,19 +427,19 @@ void ut_vector_add_inplace(VectorDouble &dest, const VectorDouble &src)
 }
 
 /**
- * Return a vector containing vec2 - vec1
- * @param vec1 Input Vector
- * @param vec2 Input Vector
+ * Return a vector containing vecb - veca
+ * @param veca Input Vector
+ * @param vecb Input Vector
  * @return
  */
-VectorDouble ut_vector_subtract(const VectorDouble &vec1,
-                                const VectorDouble &vec2)
+VectorDouble ut_vector_subtract(const VectorDouble &veca,
+                                const VectorDouble &vecb)
 {
   VectorDouble res;
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    res.push_back(vec2.at(i) - vec1.at(i));
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    res.push_back(vecb.at(i) - veca.at(i));
   return res;
 }
 
@@ -474,35 +474,35 @@ VectorDouble ut_vector_simulate_bernoulli(int n, double proba, double vone, doub
   return vec;
 }
 /**
- * Performs: vec1 -= vec2
- * @param vec1 Input/Output vector
- * @param vec2 Auxiliary vector
+ * Performs: veca -= vecb
+ * @param veca Input/Output vector
+ * @param vecb Auxiliary vector
  */
-void ut_vector_subtract_inplace(VectorDouble &vec1, const VectorDouble &vec2)
+void ut_vector_subtract_inplace(VectorDouble &veca, const VectorDouble &vecb)
 {
   VectorDouble res;
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    vec1[i] -= vec2[i];
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    veca[i] -= vecb[i];
 }
 
-void ut_vector_sum(const VectorDouble &vec1,
-                   const VectorDouble &vec2,
+void ut_vector_sum(const VectorDouble &veca,
+                   const VectorDouble &vecb,
                    VectorDouble &res)
 {
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   {
     my_throw("Wrong size");
   }
-  int n = (int) vec1.size();
+  int n = (int) veca.size();
   if ((int) res.size() != n)
   {
     res.resize(n);
   }
   for (int i = 0; i < n; i++)
   {
-    res[i] = vec1[i] + vec2[i];
+    res[i] = veca[i] + vecb[i];
   }
 }
 
@@ -561,20 +561,20 @@ VectorInt ut_vector_sample(int ntotal, double proportion, int number, int seed)
   return ranks;
 }
 
-void ut_vector_cumul(VectorDouble &vec1, const VectorDouble &vec2, double coeff)
+void ut_vector_cumul(VectorDouble &veca, const VectorDouble &vecb, double coeff)
 {
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    vec1[i] += coeff * vec2[i];
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    veca[i] += coeff * vecb[i];
 }
 
-void ut_vector_copy(VectorDouble &vec1, const VectorDouble &vec2)
+void ut_vector_copy(VectorDouble &veca, const VectorDouble &vecb)
 {
-  if (vec1.size() != vec2.size())
+  if (veca.size() != vecb.size())
   my_throw("Wrong size");
-  for (int i = 0, n = static_cast<int>(vec1.size()); i < n; i++)
-    vec1[i] = vec2[i];
+  for (int i = 0, n = static_cast<int>(veca.size()); i < n; i++)
+    veca[i] = vecb[i];
 }
 
 void ut_vector_multiply_inplace(VectorDouble &vec, double v)
@@ -684,30 +684,6 @@ VectorDouble ut_vector_sequence(double valFrom, double valTo, double valStep)
   return vec;
 }
 
-int ut_vector_size(const VectorInt &vec)
-{
-  if (vec.empty()) return 0;
-  int size = sizeof(VectorInt) + (sizeof(int) * (int) vec.size());
-  return size;
-}
-
-int ut_vector_size(const VectorDouble &vec)
-{
-  if (vec.empty()) return 0;
-  int size = sizeof(VectorDouble) + (sizeof(double) * (int) vec.size());
-  return size;
-}
-
-int ut_vector_size(const VectorVectorInt &vec)
-{
-  int size = 0;
-  if (vec.empty()) return size;
-  for (auto i = 0; i != (int) vec.size(); i++)
-    size += sizeof(VectorInt) + (sizeof(int) * (int) vec[i].size());
-  return size;
-
-}
-
 std::pair<double,double> ut_vector_rangeVals(const VectorDouble& vec)
 {
   std::pair<double,double> res(vec[0],vec[0]);
@@ -717,14 +693,6 @@ std::pair<double,double> ut_vector_rangeVals(const VectorDouble& vec)
     res.second = MAX(res.second,vec[i]);
   }
   return res;
-}
-int ut_vector_size(const VectorVectorDouble &vec)
-{
-  int size = 0;
-  if (vec.empty()) return size;
-  for (auto i = 0; i != (int) vec.size(); i++)
-    size += sizeof(VectorDouble) + (sizeof(double) * (int) vec[i].size());
-  return size;
 }
 
 VectorInt ut_ivector_set(int* values, int number)

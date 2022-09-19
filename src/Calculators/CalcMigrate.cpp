@@ -20,7 +20,7 @@
 #include <math.h>
 
 CalcMigrate::CalcMigrate()
-    : ACalcDbToDb(),
+    : ACalcDbToDb(false),
       _iattOut(-1),
       _iuids(),
       _ldmax(1),
@@ -235,6 +235,7 @@ int migrateByAttribute(Db *db1,
 
   VectorInt iuids = atts;
   if (iuids.empty()) iuids = db1->getAllUIDs();
+
   migrate.setIuids(iuids);
   migrate.setLdmax(ldmax);
   migrate.setDmax(dmax);

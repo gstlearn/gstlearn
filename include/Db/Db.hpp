@@ -153,6 +153,7 @@ public:
   int getSampleNumber(bool useSel = false) const;
   int getActiveSampleNumber() const;
   int getActiveSampleRank(int iech) const;
+  int getActiveAndDefinedSampleRank(int iech, int item=0) const;
 
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
@@ -307,10 +308,12 @@ public:
   bool isUIDDefined(int iuid) const;
 
   int getUID(const String &name) const;
+  int getUIDByColIdx(int icol) const;
   int getUIDByLocator(const ELoc& locatorType, int locatorIndex=0) const;
 
   VectorInt getUIDs(const VectorString& names) const;
   VectorInt getUIDsByLocator(const ELoc& locatorType) const;
+  VectorInt getUIDsByColIdx(const VectorInt& icols) const;
   VectorInt getAllUIDs() const;
 
   int getFaciesNumber(void) const;
@@ -649,7 +652,7 @@ private:
   VectorInt _getUIDsBasic(const VectorString& names) const;
 
   int _getLastColumn(int number = 0) const;
-  int _getUIDByColIdx(int icol) const;
+
   int _findColumnInLocator(const ELoc& locatorType, int icol) const;
   int _findUIDInLocator(const ELoc& locatorType, int iuid) const;
   String _getLocatorNameByColIdx(int icol) const;

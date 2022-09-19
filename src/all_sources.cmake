@@ -200,6 +200,8 @@ set(SRC
   Basic/Plane.cpp
   Basic/FFT.cpp
   Basic/PolyLine2D.cpp
+  Basic/VectorNumT.cpp
+  Basic/VectorT.cpp
   Geometry/Geometry.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp

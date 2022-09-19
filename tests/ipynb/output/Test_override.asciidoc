@@ -11,11 +11,7 @@ def getitem(self,name):
         temp = np.array(self.getColumns([name],self.useSel))
         nbvar = len(self.getNames([name]))
     elif type(name) == list :
-        nbvar = len(name)
-        names = gl.VectorString(nbvar)
-        for i in range(nbvar):
-            names[i] = name[i]
-        temp = np.array(self.getColumns(names,self.useSel))
+        temp = np.array(self.getColumns(name,self.useSel))
         
         
     if self.useSel:
@@ -24,7 +20,6 @@ def getitem(self,name):
         nrows = self.getSampleNumber()
         
     temp = temp.reshape([nbvar,nrows]).T
-    temp[temp == gl.TEST] = None
     return temp
 
 # This function will add a set of vectors (as a numpy array) to a db. If some of the names exist, the
@@ -69,10 +64,10 @@ def setitem(self,name,tab):
         for i in range(nrows):       
             u = np.double(temptab[i,j])
             if u is None : 
-                u = gl.TEST
+                u = np.nan
             vectD.push_back(u)
             
-        self.setColumn(vectD,names[j],gl.ELoc.UNKNOWN,0,useSel)
+        self.setColumn(vectD.getVector(),names[j],gl.ELoc.UNKNOWN,0,useSel)
     
 #setattr(gl.Db,"useSel",False)
 

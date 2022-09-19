@@ -408,10 +408,10 @@ We extract the experimental variograms of each GRF.
 
 [source, ipython3]
 ----
-vario1 = gl.Vario.createReduce(cov,[0],gl.VectorInt(),True)
+vario1 = gl.Vario.createReduce(cov,[0],[],True)
 if ngrf > 1:
     vario2 = gl.Vario(cov)
-    vario2.reduce([1],gl.VectorInt(),True)
+    vario2.reduce([1],[],True)
 ----
 
 [source, ipython3]

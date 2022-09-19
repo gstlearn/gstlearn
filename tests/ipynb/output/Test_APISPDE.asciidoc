@@ -135,10 +135,10 @@ Qsimu = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSHALF, False)
 
 [source, ipython3]
 ----
-vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
-result = gl.VectorDouble(np.empty_like(vect))
+vect = np.random.normal(size=Qsimu.getSize())
+result = gl.VectorDouble(np.zeros(Qsimu.getSize()))
 Qsimu.eval(vect,result)
-workingDb.addColumns(result,"Simu",gl.ELoc.X)
+workingDb.addColumns(result.getVector(),"Simu",gl.ELoc.X)
 
 gp.grid(workingDb,"Simu")
 spirale(workingDbc,plot=True);

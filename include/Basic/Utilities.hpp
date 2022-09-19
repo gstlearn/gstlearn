@@ -12,51 +12,48 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "Geometry/Geometry.hpp"
+#include "Basic/VectorNumT.hpp"
+#include <map>
+#include <cmath>
+#include <math.h>
+
 
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);
 GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);
 GSTLEARN_EXPORT bool   isOdd(int number);
 GSTLEARN_EXPORT bool   isEven(int number);
-GSTLEARN_EXPORT int    FFFF(double value); // TODO isNA<double>
-GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int.
-GSTLEARN_EXPORT double getTEST();  // TODO getNAValue<double>
-GSTLEARN_EXPORT int    getITEST(); // TODO getNAValue<int>
 GSTLEARN_EXPORT double getMin(double val1, double val2);
 GSTLEARN_EXPORT double getMax(double val1, double val2);
 GSTLEARN_EXPORT double ut_deg2rad(double angle);
 GSTLEARN_EXPORT double ut_rad2deg(double angle);
 
-#define DOUBLE_NA TEST
-#define INT_NA    ITEST
-#define STRING_NA "NA"    // TODO search for this string and replace
+// No need this stuff through SWIG (because we use target language NAs)
+#ifndef SWIG
 
-template<typename T> class ValueNA;
+GSTLEARN_EXPORT int    FFFF(double value); // TODO isNA<double>
+GSTLEARN_EXPORT int    IFFFF(int value);   // TODO isNA<int>
+GSTLEARN_EXPORT double getTEST();  // TODO getNA<double>
+GSTLEARN_EXPORT int    getITEST(); // TODO getNA<int>
 
-// Define NA value for double
-template <> class ValueNA<double>
-{
-public:
-  static inline double getNA() { return DOUBLE_NA; }
-};
+#define DOUBLE_NA  TEST
+#define    INT_NA  ITEST
+#define STRING_NA  "NA"
+#define  FLOAT_NA  static_cast<float>(TEST)   // 1.234e30 is ok for 4 bytes but needs a cast for Windows
 
-// Define NA value for int
-template <> class ValueNA<int>
-{
-public:
-    static inline int getNA() { return INT_NA; }
-};
+template <typename T> inline T getNA();
+template <> inline double getNA() { return DOUBLE_NA; }
+template <> inline int    getNA() { return INT_NA; }
+template <> inline String getNA() { return STRING_NA; }
+template <> inline float  getNA() { return FLOAT_NA; }
 
-// Define NA value for String
-template <> class ValueNA<String>
-{
-public:
-  static inline String getNA() { return STRING_NA; }
-};
+template <typename T> inline bool isNA(const T& v);
+template <> inline bool isNA(const double& v) { return (v == getNA<double>() || std::isnan(v) || std::isinf(v)); }
+template <> inline bool isNA(const int& v)    { return (v == getNA<int>()); }
+template <> inline bool isNA(const String& v) { return (v == getNA<String>()); }
+template <> inline bool isNA(const float& v)  { return (v == getNA<float>()  || std::isnan(v) || std::isinf(v)); }
 
-template <typename T> inline T    getNAValue()     { return ValueNA<T>::getNA(); }
-template <typename T> inline bool isNA(const T& v) { return (v == ValueNA<T>::getNA()); }
+#endif // SWIG
 
 // Other Utility functions
 

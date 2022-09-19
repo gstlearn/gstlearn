@@ -47,11 +47,11 @@ NULL
 Testing for Integer : 12 
 [1] 12
 Testing for Integer : NA 
-[1] -1234567
+[1] NA
 Testing for Double : 21.400000 
 [1] 21.4
 Testing for Double : NA 
-[1] 1.234e+30
+[1] NA
 Integer = -1 - Real = -1.100000 - String = NA
 NULL
 [1] -1

@@ -1729,22 +1729,14 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
 
       // Direction definition
 
-      codir.resize(ndim);
       ret = ret && _recordRead<double>(is, "Tolerance on Direction", tolang);
-      for (int idim = 0; ret && idim < ndim; idim++)
-      {
-        ret = ret && _recordRead<double>(is, "Direction vector", codir[idim]);
-      }
+      ret = ret && _recordReadVec<double>(is, "Direction vector", codir, ndim);
     }
     else
     {
       // Grid definition
 
-      grincr.resize(ndim);
-      for (int idim = 0; ret && idim < ndim; idim++)
-      {
-        ret = ret && _recordRead<int>(is, "Grid Increment", grincr[idim]);
-      }
+      ret = ret && _recordReadVec<int>(is, "Grid Increment", grincr, ndim);
     }
     if (! ret) return ret;
 

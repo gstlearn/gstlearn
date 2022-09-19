@@ -138,7 +138,6 @@ def getitem(self,arg):
             
     # extract rows
     temp = temp[rows,]
-    temp[temp == gl.TEST] = np.nan
     return temp
         
 # This function will add a set of vectors (as a numpy array) to a db. 
@@ -200,7 +199,8 @@ def setitem(self,name,tab):
             useSel = self.useSel
             if len(ExistingNames) == 0: # create new variable
                 nrows_tot = getNrows(self, useSel)
-                tab_i = np.ones(nrows_tot)*gl.TEST # NaNs outside of target rows
+                tab_i = np.empty(nrows_tot)
+                tab_i.fill(np.nan) # NaNs outside of target rows
             elif len(ExistingNames) == 1: # modify existing variable
                 tab_i = self[name]
                 
@@ -212,13 +212,13 @@ def setitem(self,name,tab):
             tab_i = np.empty(nrows)
             tab_i[:] = tab[:,i]
         
-        tab_i[np.isnan(tab_i)] = gl.TEST    
+        tab_i[np.isnan(tab_i)] = np.nan
         VectD = np.double(tab_i)
         self.setColumn(VectD, name, gl.ELoc.UNKNOWN, 0, useSel)
         
     return
 
-setattr(gl.Db,"useSel",False)    
+setattr(gl.Db,"useSel",False)
     
 setattr(gl.Db,"__getitem__",getitem)
 

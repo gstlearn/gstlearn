@@ -147,10 +147,10 @@ Simulation non-conditionnelle
 
 [source, ipython3]
 ----
-vect = gl.VectorDouble(np.random.normal(size=Qsimu.getSize()))
-result = gl.VectorDouble(np.empty_like(vect))
+vect = np.random.normal(size=Qsimu.getSize())
+result = gl.VectorDouble(np.zeros(Qsimu.getSize()))
 Qsimu.eval(vect,result)
-workingDb.addColumns(result,"Simu",gl.ELoc.X)
+workingDb.addColumns(result.getVector(),"Simu",gl.ELoc.X)
 
 ax = gp.grid(workingDb,"Simu")
 ----
@@ -185,7 +185,7 @@ y=Qmat@xx
 
 [source, ipython3]
 ----
-resultxx = gl.VectorDouble(np.empty_like(vectxx))
+resultxx = gl.VectorDouble(np.zeros(Qkriging.getSize()))
 Qkriging.eval(vectxx,resultxx)
 ----
 
@@ -206,7 +206,7 @@ plt.show()
 [source, ipython3]
 ----
 Qtest = gl.PrecisionOp(S, cova, gl.EPowerPT.MINUSONE)
-resulttest = gl.VectorDouble(np.empty_like(vectxx))
+resulttest = gl.VectorDouble(np.zeros(Qkriging.getSize()))
 Qtest.eval(resultxx,resulttest)
 plt.scatter(resulttest,xx,s=1)
 plt.show()
@@ -226,7 +226,7 @@ Comparaison de latexmath:[$Q^{-1}x$] et latexmath:[$Q^{-1/2}Q^{-1/2}x$]
 ----
 xx=np.random.normal(size=Qkriging.getSize())
 vectxx = gl.VectorDouble(xx)
-resultxx2 = gl.VectorDouble(np.empty_like(vectxx))
+resultxx2 = gl.VectorDouble(np.zeros(Qkriging.getSize()))
 
 #Méthode 1
 Qsimu.eval(xx,vectxx)
@@ -261,7 +261,7 @@ Génération des données
 size = dat.getSampleNumber()
 u=gl.VectorDouble(np.zeros(size))
 B.mesh2point(result,u)
-dat.addColumns(u,"Z",gl.ELoc.Z)
+dat.addColumns(u.getVector(),"Z",gl.ELoc.Z)
 plt.scatter(coords[:,0],coords[:,1],s=.5,c=dat.getColumn("Z"),marker="s")
 plt.show()
 datVal =[i for i in u]
@@ -277,7 +277,6 @@ datVal =[i for i in u]
 nug = 0.01
 WorkingMat = Qmat+1/nug * Bmat.T @ Bmat
 rhs = 1/nug * Bmat.T * datVal
-rhsvd = gl.VectorDouble(rhs)
 ----
 
 [source, ipython3]
@@ -327,8 +326,7 @@ ax = gp.grid(resultDb,"Kriging",title="Kriging on Resulting Grid")
 
 [source, ipython3]
 ----
-vc = gl.VectorVectorDouble()
-vc.push_back(gl.VectorDouble(rhs))
+vc = [rhs]
 resultvc = gl.VectorVectorDouble()
 resultvc.push_back(gl.VectorDouble(np.zeros_like(rhs)))
 ----
@@ -475,8 +473,8 @@ class prodBlock():
         self.t1 = gl.VectorDouble(np.zeros(self.nvertex))
         self.t2 = gl.VectorDouble(np.zeros(self.ndata))
     def _matvec(self,v):
-        v1 = gl.VectorDouble(v[0:self.nvertex])
-        v2 = gl.VectorDouble(v[self.nvertex:(self.nvertex+self.ndata)])
+        v1 = v[0:self.nvertex]
+        v2 = v[self.nvertex:(self.nvertex+self.ndata)]
         self.Q.eval(v1,self.r1)
         self.P.point2mesh(v2,self.t1)
         for i in range(self.r1.size()):
@@ -486,18 +484,16 @@ class prodBlock():
             self.r2[i]-=self.nugget * v2[i]
         return np.concatenate([np.array(self.r1),np.array(self.r2)])
     def _precond(self,v):
-        v1 = gl.VectorDouble(v[0:self.nvertex])
+        v1 = v[0:self.nvertex]
         v2 =v[self.nvertex:(self.nvertex+self.ndata)]
         self.Qinv.eval(v1,self.r1)
         return np.concatenate([np.array(self.r1),v2])
     def _precondDirect(self,v):
-        v1 = gl.VectorDouble(v)
-        self.Qinv.eval(v1,self.r1)
+        self.Qinv.eval(v,self.r1)
         return np.array(self.r1)
     def _direct(self,v):
-        v1 = gl.VectorDouble(v)
-        self.Q.eval(v1,self.r1)
-        self.P.mesh2point(v1,self.t2)
+        self.Q.eval(v,self.r1)
+        self.P.mesh2point(v,self.t2)
         self.P.point2mesh(self.t2,self.t1)
         for i in range(self.r1.size()):
             self.r1[i]+=1/self.nugget*self.t1[i]

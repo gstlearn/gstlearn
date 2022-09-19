@@ -17,7 +17,7 @@
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
-NeighImage::NeighImage(int ndim, VectorInt radius, int skip)
+NeighImage::NeighImage(int ndim, const VectorInt& radius, int skip)
     : ANeighParam(ndim),
       _skip(skip),
       _imageRadius(radius)

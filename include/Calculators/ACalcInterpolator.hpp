@@ -40,6 +40,7 @@ public:
 
 protected:
   virtual bool _check() override;
+  virtual bool _preprocess() override;
   virtual int _getNDim() const override;
   virtual int _getNVar() const override;
   virtual int _getNCova() const;

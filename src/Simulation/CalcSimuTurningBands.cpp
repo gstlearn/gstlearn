@@ -2546,27 +2546,23 @@ bool CalcSimuTurningBands::_check()
 
 bool CalcSimuTurningBands::_preprocess()
 {
-    int nvar = _getNVar();
-    int nbsimu = getNbSimu();
-    bool flag_cond = (getDbin() != nullptr);
+  if (!ACalcSimulation::_preprocess()) return false;
 
-    // Expand information amongst Db if necessary
+  int nvar = _getNVar();
+  int nbsimu = getNbSimu();
 
-    if (_expandInformation(1, ELoc::F)) return false;
-    if (_expandInformation(1, ELoc::NOSTAT)) return false;
+  /* Add the attributes for storing the results */
 
-    /* Add the attributes for storing the results */
+  if (getDbin() != nullptr)
+  {
+    int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar * nbsimu);
+    if (iptr_in < 0) return false;
+  }
 
-    if (flag_cond)
-    {
-      int iptr_in = _addVariableDb(1, 2, ELoc::SIMU, 0, nvar*nbsimu);
-      if (iptr_in < 0) return false;
-    }
+  _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar * nbsimu);
+  if (_iattOut < 0) return false;
 
-    _iattOut = _addVariableDb(2, 1, ELoc::SIMU, 0, nvar*nbsimu);
-    if (_iattOut < 0) return false;
-
-    return true;
+  return true;
 }
 
 bool CalcSimuTurningBands::_postprocess()

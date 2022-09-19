@@ -1330,8 +1330,7 @@ int foxleg_f(int ndat,
 
   ITERATION = 0;
   flag_moved = 1;
-  flag_cont = (mauto.getMaxiter() <= 0) ? 0 :
-                                          1;
+  flag_cont = (mauto.getMaxiter() <= 0) ? 0 : 1;
   while (flag_cont)
   {
     ITERATION++;

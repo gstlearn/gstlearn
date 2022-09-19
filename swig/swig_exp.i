@@ -1,44 +1,38 @@
-%ignore *::operator=;
+// Sensitive file ! Keep Order
 
-%include stl.i
-// Cast strings into native type of the target language
-%include std_string.i
-// Cast vectors into native type of the target language
-%include std_vector.i
-
-//%include std_complex.i
-
-// Keep order in the file
-%template(VectorDouble)          std::vector< double >;
-%template(VectorInt)             std::vector< int >;
-%template(VectorString)          std::vector< std::string >;
-%template(VectorBool)            std::vector< bool >;
-%template(VectorVectorInt)       std::vector< std::vector< int > >;
-%template(VectorVectorDouble)    std::vector< std::vector< double > >;
-
-%template(VectorEnumCovs)        std::vector< ECov >;    // Not a pointers list
-%template(VectorEnumStatOpt)     std::vector< EStatOption >;    // Not a pointers list
-%template(VectorEnumSelectivity) std::vector< ESelectivity >;    // Not a pointers list
-
-%template(VectorDir)             std::vector< DirParam >;  // Not a pointers list
-%template(VectorPolySet)         std::vector< PolySet >;
-%template(VectorIntervals)       std::vector< Interval >; 
-
+// Global files to be wrapped from C++ library
 // Remind that swig %include doesn't follow #include inclusion.
 // You must cite below each single header file that you want to export!
 // Put low level headers in first positions (otherwise Syntax error in input(1).)
-%include gstlearn_export.hpp
+%include gstlearn_export.hpp // Do not forget this file in priority (for SWIG preprocessor)
+
+// Export VectorXXX classes
+%include Basic/VectorT.hpp
+%include Basic/VectorNumT.hpp
+%template(VectorTInt)         VectorT< int >;
+%template(VectorTDouble)      VectorT< double >;
+%template(VectorString)       VectorT< String >;
+%template(VectorTFloat)       VectorT< float >;
+%template(VectorTUChar)       VectorT< UChar >;
+%template(VectorBool)         VectorT< UChar >; // See VectorT.hpp
+%template(VectorInt)          VectorNumT< int >;
+%template(VectorDouble)       VectorNumT< double >;
+%template(VectorFloat)        VectorNumT< float >;
+%template(VectorUChar)        VectorNumT< UChar >;
+%template(VectorVectorInt)    VectorT< VectorNumT< int > >;
+%template(VectorVectorDouble) VectorT< VectorNumT< double > >;
+%template(VectorVectorFloat)  VectorT< VectorNumT< float > >;
+
 %include Basic/ICloneable.hpp
-%include Basic/Vector.hpp
+%include Basic/RepeatMacro.hpp
+%include Basic/RepeatMacroSwig.hpp
+
 %include csparse_d.h
 %include csparse_f.h
 %include geoslib_define.h
 %include geoslib_enum.h
 %include geoslib_d.h
 %include geoslib_f.h
-
-%include Basic/RepeatMacro.hpp
-%include Basic/RepeatMacroSwig.hpp
 
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
@@ -68,6 +62,7 @@
 %include Basic/EDbg.hpp
 %include Basic/ECst.hpp
 %include Basic/File.hpp
+%include Basic/Vector.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
 %include Basic/PolyLine2D.hpp
@@ -113,19 +108,6 @@
 %include Calculators/CalcStatistics.hpp
 %include Calculators/CalcGridToGrid.hpp
 
-/*
-%include Interfaces/geoslib_f_swig.h
-%include Interfaces/AParam.hpp
-%include Interfaces/AVariable.hpp
-%include Interfaces/AVariableTemplate.hpp
-%include Interfaces/Category.hpp
-%include Interfaces/Database.hpp
-%include Interfaces/Dictionary.hpp
-%include Interfaces/interface_d.hpp
-%include Interfaces/ParamCSV.hpp
-%include Interfaces/ParamGrid.hpp
-%include Interfaces/Param.hpp
-*/
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp
 %include Mesh/MeshEStandard.hpp
@@ -346,7 +328,7 @@
 
 %include Skin/Skin.hpp
 
-/// https://blog.mbedded.ninja/programming/languages/python/python-swig-bindings-from-cplusplus/
-%feature("director");
-// For suppressing SWIG warning for overloaded methods
+// For suppressing SWIG warning due to -keyword option (if used)
+#pragma SWIG nowarn=511
+#pragma SWIG nowarn=506
 #pragma SWIG nowarn=509

@@ -159,7 +159,6 @@ plot.point <- function(db, color_name=NA, size_name=NA,
   if (! is.na(color_name))
   {
     colval  = Db_getColumn(db,color_name,TRUE)
-    colval[colval == getTEST()] = NA
   }
   else
   {
@@ -171,7 +170,6 @@ plot.point <- function(db, color_name=NA, size_name=NA,
   if (! is.na(size_name))
   {
     sizval  = Db_getColumn(db,size_name,TRUE)
-    sizval[sizval == getTEST()] = NA
     m = min(abs(sizval))
     M = max(abs(sizval))
     sizval = (sizmax * (abs(sizval) - m) / (M-m) + sizmin) / reduction
@@ -230,7 +228,6 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
   x = dbgrid$getColumnByLocator(ELoc_X(),0)
   y = dbgrid$getColumnByLocator(ELoc_X(),1)
   data = Db_getColumn(dbgrid, name)
-  data[data == getTEST()] = NA
   df = data.frame(x,y,data)
 
   if (length(padd) > 0)

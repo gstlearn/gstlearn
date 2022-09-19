@@ -25,3 +25,4 @@ doc/demo/.Rhistory
 doc/demo/.RData
 .*~
 .metadata
+*.out

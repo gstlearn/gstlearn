@@ -76,7 +76,7 @@ def Scatter(x, y, z, mode='lines', color='black', width=1,
 def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, 
                     m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
                     dilate=1):
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
     meshing = scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, color=color, width=width,
                       m_symbol=m_symbol, m_color=m_color, m_line=m_line, m_size=m_size, m_width=m_width)
     return meshing
@@ -90,7 +90,7 @@ def Line(x, y, z, color='black', width=1):
     return line
     
 def LineOnSphere(long, lat, color='black', width=1, dilate=1.):
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
     return line
 
@@ -102,7 +102,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
     for i in range(poly.getPolySetNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
-        tab = np.array(gl.util_convert_longlat(a, b,dilate,gl.TEST))
+        tab = np.array(gl.util_convert_longlat(a, b,dilate,np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -150,7 +150,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.):
         lat = (np.arange(0,ndisc+1) - ndisc / 2.) * 180. / ndisc
         long = np.zeros(ndisc+1)
         long.fill(i * angle)
-        tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+        tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -174,7 +174,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
         long = np.arange(0,ndisc+1) * 360. / ndisc
         lat  = np.zeros(ndisc+1)
         lat.fill((i - number/2) * angle)
-        tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+        tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -192,7 +192,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
 def Pole(sizeref = 1000, dilate=1.3):
     long = np.zeros(1)
     lat = np.ones(1) * 90
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
     pole = go.Cone(
         u=[0],v=[0],w=[1],
         x=tab[0,:],y=tab[1,:],z=tab[2,:],
@@ -207,7 +207,7 @@ def PolarAxis(color='black', width=3, dilate=1.2):
     lat = np.zeros(2)
     lat[0] = -90.
     lat[1] = 90.
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, gl.TEST))
+    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
     
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
 

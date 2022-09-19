@@ -137,7 +137,9 @@ public:
   /*! Multiply each matrix component by a value */
   virtual void prodScalar(double v);
   /*! Product of the Matrix by a vector (on its right) */
+#ifndef SWIG
   void prodVector(const double *in,double *out) const;
+#endif
   void prodVector(const VectorDouble& in, VectorDouble& out) const;
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec);
@@ -175,11 +177,13 @@ public:
   /*! Set all the values of the Matrix at once */
   void fill(double value);
   void fillRandom(int seed = 432432, double zeroPercent = 0.1);
+#ifndef SWIG
   void setValues(const double* values, bool byCol=true);
+#endif
   void setValues(const VectorDouble& values, bool byCol=true);
-  void setValues(const VectorInt irows,
-                 const VectorInt icols,
-                 const VectorDouble values);
+  void setValues(const VectorInt& irows,
+                 const VectorInt& icols,
+                 const VectorDouble& values);
 
 #ifndef SWIG
   /*! Get value operator override */

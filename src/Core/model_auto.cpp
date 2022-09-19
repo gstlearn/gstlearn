@@ -63,7 +63,7 @@
 #define AD(ivar,jvar)            (ivar) + nvar * (jvar)
 #define VARS(ivar,jvar)          vario->vars[(ivar) * vario->getNVar() + (jvar)]
 #define VECPRO(ivar,jvar)        vecpro[AD(ivar,jvar)]
-#define VARCHOL(ivar,jvar)       varchol[(ivar) * nvar + (jvar)]
+#define VARCHOL(ivar,jvar)       varchol[COMP_INDEX(ivar,jvar)]
 
 #define AA(icov,jcov)            aa[(icov) * ncova + (jcov)]
 #define CC(ivar,jvar)            cc[AD(ivar,jvar)]
@@ -702,7 +702,7 @@ static void st_mauto_rescale(int nvar,
 
   total = 0.;
   for (int ivar = 0; ivar < nvar; ivar++)
-    total += VARCHOL(ivar,ivar)* VARCHOL(ivar,ivar);
+    total += VARCHOL(ivar,ivar) * VARCHOL(ivar,ivar);
   mauto.setTolred(mauto.getTolstop() * total / nvar);
   return;
 }

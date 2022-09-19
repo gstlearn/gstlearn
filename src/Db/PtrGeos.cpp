@@ -11,6 +11,8 @@
 #include "Db/PtrGeos.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
+#include "Basic/Utilities.hpp"
+
 #include "geoslib_enum.h"
 
 #include <string.h>
@@ -100,11 +102,11 @@ String getLocatorName(const ELoc& locatorType, int locatorIndex)
   std::stringstream sstr;
   if (locatorType == ELoc::UNKNOWN)
   {
-    sstr << "NA";
+    sstr << STRING_NA;
   }
   else if (! isLocatorTypeValid(locatorType))
   {
-    sstr << "NA";
+    sstr << STRING_NA;
   }
   else
   {
@@ -201,7 +203,7 @@ int locatorIdentify(String string, ELoc* ret_locatorType, int* ret_item, int* re
   if (! mult && inum > 1)
   {
     // The locator has an index larger than 1 but the Locator should be Unique. Error
-    string = "NA";
+    string = STRING_NA;
     return 1;
   }
 

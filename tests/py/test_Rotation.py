@@ -19,19 +19,20 @@ rot.display()
 
 # Define a 2-D vector 
 
-vec1 = vec1ref = gl.VectorDouble([2.,0.])
+vec1 = vec1ref = [2.,0.]
 vec1
-vec2 = gl.VectorDouble(ndim)
-
+vec2 = gl.VectorDouble(len(vec1))
 rot.rotateDirect(vec1,vec2)
 vec2
-if not gl.ut_vector_same(vec2,[sqr3, -1.]):
-    sys.exit()
+if not gl.ut_vector_same(np.array(vec2.getVector()),[sqr3, -1.]):
+  print("Error: vec2 different from [sqr3, -1.]")
 
-rot.rotateInverse(vec2,vec1)
+vec1 = gl.VectorDouble(vec2)
+rot.rotateInverse(np.array(vec2.getVector()),vec1)
 vec1
-if not gl.ut_vector_same(vec1,vec1ref):
-    sys.exit()
+if not gl.ut_vector_same(np.array(vec1.getVector()),vec1ref):
+  print("Error: vec1 different from vec1ref")
+
 
 # Same exercise in 3-D
 
@@ -41,17 +42,17 @@ angles = gl.ut_vector_simulate_uniform(ndim,0.,90.)
 rot.setAngles(angles)
 rot.display()
 
-vec2 = gl.VectorDouble(ndim)
-vec1 = vec1ref = gl.VectorDouble(gl.ut_vector_simulate_uniform(ndim))
+vec1 = vec1ref = gl.ut_vector_simulate_uniform(ndim)
 vec1
-
+vec2 = gl.VectorDouble(len(vec1))
 rot.rotateDirect(vec1,vec2)
 vec2
 
-rot.rotateInverse(vec2,vec1)
+vec1 = gl.VectorDouble(vec2.size())
+rot.rotateInverse(np.array(vec2.getVector()),vec1)
 vec1
-if not gl.ut_vector_same(vec1,vec1ref):
-    sys.exit()
+if not gl.ut_vector_same(np.array(vec1.getVector()),vec1ref):
+  print("Error: vec1 different from vec1ref")
 
 # Locate a point in a rotated grid
 
@@ -63,45 +64,45 @@ angles = [-30, 0.]
 grid = gl.DbGrid.create(nx,dx,x0,angles)
 pgrid = grid.getGrid()    # Pointer to the grid information of the Db
 
-# Prepare a vector of integer for retrieving integer information
-new_indice = gl.VectorInt(ndim)
-
 # Translate grid indices to coordinates and backwards
 indice = [1,0]
 print(indice)
 vec = pgrid.indicesToCoordinate(indice)
 print(vec)
+# Prepare a vector of integer for retrieving integer information
+new_indice = gl.VectorInt(len(vec))
 if not gl.ut_vector_same(vec, [x0[0]+sqr3, x0[1]-1.]):
-    sys.exit()
+  print("Error: vec different from [x0[0]+sqr3, x0[1]-1.]")
 
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, new_indice):
-    sys.exit()
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
+  print("Error: indice different from new_indice")
 
 indice = [0,1]
 print(indice)
 vec = pgrid.indicesToCoordinate(indice)
 print(vec)
 if not gl.ut_vector_same(vec, [x0[0]+1, x0[1]+sqr3]):
-    sys.exit()
+  print("Error: vec different from [x0[0]+1, x0[1]+sqr3]")
 
+new_indice = gl.VectorInt(len(vec))
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, new_indice):
-    sys.exit()
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
+  print("Error: indice different from new_indice")
 
 indice = [0,0]
 print(indice)
 vec = pgrid.indicesToCoordinate(indice)
 print(vec)
 if not gl.ut_vector_same(vec,x0):
-    sys.exit()
+  print("Error: vec different from x0")
 
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.ut_ivector_same(indice, new_indice):
-    sys.exit()
+if not gl.ut_ivector_same(indice, np.array(new_indice.getVector())):
+  print("Error: indice different from new_indice")
 
 # Translate Grid rank into Grid indices, and backwards
 
@@ -110,6 +111,6 @@ print(indice)
 rank = pgrid.indiceToRank(indice)
 print(rank)
 pgrid.rankToIndice(rank,new_indice)
-print(new_indice)
+print(np.array(new_indice.getVector()))
 
 print("Test successfully performed")

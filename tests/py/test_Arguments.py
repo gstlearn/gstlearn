@@ -5,6 +5,7 @@
 # Loading the packages
 
 import gstlearn as gl
+import numpy as np
 import os
 import sys
 
@@ -15,37 +16,24 @@ gl.argumentTestDouble(2.3)
 gl.argumentTestVectorInt([1,2,3])
 gl.argumentTestVectorDouble([1.1, 2.2, 3.3])
 gl.argumentTestString("my_String")
-gl.argumentTestVectorString("my_String")  # Should be corrected
+gl.argumentTestVectorString("my_String")  # The String is decomposed (cannot be fixed)
 gl.argumentTestVectorString(["my_String1","my_String2","my_String3"])
 gl.argumentTestVectorVectorInt([ [2,3],[1, 5 ] ])
 gl.argumentTestVectorVectorDouble([ [2.,3.], [1., 5 ] ])
 
-# Testing Vector arguments using external factory
-
-a = gl.VectorString()
-a.push_back("toto")
-a.push_back("titi")
-gl.argumentTestVectorString(a)
-
-a = gl.VectorInt()
-a.push_back(12)
-gl.argumentTestVectorInt(a)
-
-a = gl.VectorDouble()
-a.push_back(12.)
-gl.argumentTestVectorDouble(a)
-
 # Testing missing arguments
 
-gl.argumentTestInt(gl.ITEST)
-gl.argumentTestDouble(gl.TEST)
-gl.argumentTestVectorInt([gl.ITEST])
-gl.argumentTestVectorDouble([gl.TEST])
+gl.argumentTestInt(np.nan)
+gl.argumentTestDouble(np.nan)
+gl.argumentTestVectorInt([np.nan])
+gl.argumentTestVectorDouble([np.nan])
 
 # Testing overloading of methods
 
 gl.argumentTestIntOverload(12)
-gl.argumentTestIntOverload([21, 32])
+gl.argumentTestIntOverload((21, 32))
+gl.argumentTestDoubleOverload(2.)
+gl.argumentTestDoubleOverload((2., 3.))
 gl.argumentTestStringOverload("my_String")
 gl.argumentTestStringOverload(["my_String1","my_String2","my_String3"])
 
@@ -56,9 +44,9 @@ gl.argumentTestEnum(gl.ETests.CASE2)
 # Testing Returning arguments
 
 print(gl.argumentReturnInt(12))
-print(gl.argumentReturnInt(gl.ITEST))
+print("nan") if (gl.isNaN(gl.argumentReturnInt(np.nan))) else print("oups") # No NaN value for integers so use isNaN
 print(gl.argumentReturnDouble(21.4))
-print(gl.argumentReturnDouble(gl.TEST))
+print(gl.argumentReturnDouble(np.nan))
 
 # Testing assessors to the elements of a class
 

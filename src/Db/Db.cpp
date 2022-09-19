@@ -310,7 +310,7 @@ VectorInt Db::getColIdxsByUID(const VectorInt iuids) const
   return cols;
 }
 
-int Db::_getUIDByColIdx(int icol) const
+int Db::getUIDByColIdx(int icol) const
 {
   if (!isColIdxValid(icol)) return -1;
   for (int iuid = 0; iuid < getUIDMaxNumber(); iuid++)
@@ -360,7 +360,7 @@ int Db::_findUIDInLocator(const ELoc& locatorType, int iuid) const
 int Db::_findColumnInLocator(const ELoc& locatorType, int icol) const
 {
   if (!isLocatorTypeValid(locatorType)) return -1;
-  int iuid = _getUIDByColIdx(icol);
+  int iuid = getUIDByColIdx(icol);
   return _findUIDInLocator(locatorType, iuid);
 }
 
@@ -971,7 +971,7 @@ void Db::setLocatorByColIdx(int icol,
 {
   if (!isColIdxValid(icol)) return;
 
-  int iuid = _getUIDByColIdx(icol);
+  int iuid = getUIDByColIdx(icol);
   setLocatorByUID(iuid, locatorType, locatorIndex, cleanSameLocator);
 }
 
@@ -1028,7 +1028,7 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
 
   for (int icol = 0; icol < (int) icols.size(); icol++)
   {
-    int iuid = _getUIDByColIdx(icol);
+    int iuid = getUIDByColIdx(icol);
     setLocatorByUID(iuid, locatorType, locatorIndex + icol);
   }
 }
@@ -1045,11 +1045,11 @@ void Db::setLocatorsByColIdx(const VectorInt& icols,
  * @return Rank of the first UID
  */
 int Db::addColumnsByConstant(int nadd,
-                            double valinit,
-                            const String& radix,
-                            const ELoc& locatorType,
-                            int locatorIndex,
-                            int nechInit)
+                             double valinit,
+                             const String &radix,
+                             const ELoc &locatorType,
+                             int locatorIndex,
+                             int nechInit)
 {
   int ncol = _ncol;
   int nmax = getUIDMaxNumber();
@@ -1124,9 +1124,12 @@ void Db::addColumnsByVVD(const VectorVectorDouble tab,
  * @param valinit initial value (for unselected samples)
  * @param nvar   Number of variables loaded
  *
+ * @return Rank of the first UID
+ *
  * @remark When 'useSel' is used, you must have a Selection already defined. Then the number
  * @remark of samples provided in 'tab' must match the number of active samples
- * @return Rank of the first UID
+ * @remark When a vector 'tab' is provided, the number of variables 'nvar'
+ * @remark is calculated as its size divided by the number of samples in the grid.
  */
 int Db::addColumns(const VectorDouble &tab,
                    const String &radix,
@@ -1142,6 +1145,7 @@ int Db::addColumns(const VectorDouble &tab,
 
   // Check dimensions
   int nech = getSampleNumber(useSel);
+  nvar = (int) tab.size() / nech;
   if ((int) tab.size() != nvar * nech)
   {
     messerr("Db::addColumns : Incompatibility between dimension of 'tab' (%d)", tab.size());
@@ -2198,6 +2202,27 @@ int Db::getActiveSampleRank(int iech) const
   for (int i = 0; i < nech; i++)
   {
     if (! isActive(i)) continue;
+    if (iech == jech) return i;
+    jech++;
+  }
+  return -1;
+}
+
+/**
+ * Return the absolute rank of a sample where the variable 'item' is defined
+ * from its relative rank
+ * @param iech Relative rank
+ * @param item Rank of the item
+ * @return
+ */
+int Db::getActiveAndDefinedSampleRank(int iech, int item) const
+{
+  int nech = getSampleNumber(false);
+  int jech = 0;
+  for (int i = 0; i < nech; i++)
+  {
+    if (! isActive(i)) continue;
+    if (FFFF(getVariable(i, item))) continue;
     if (iech == jech) return i;
     jech++;
   }
@@ -3652,7 +3677,7 @@ int Db::getUID(const String& name) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return -1;
   int icol = getColIdxByUID(iuids[0]);
-  return _getUIDByColIdx(icol);
+  return getUIDByColIdx(icol);
 }
 
 /**
@@ -3667,7 +3692,7 @@ VectorInt Db::_getUIDsBasic(const VectorString& names) const
   for (unsigned int i = 0; i < names.size(); i++)
   {
     int icol = getRankInList(_colNames, names[i]);
-    iuids[i] = _getUIDByColIdx(icol);
+    iuids[i] = getUIDByColIdx(icol);
   }
   return iuids;
 }
@@ -3691,6 +3716,14 @@ VectorInt Db::getUIDsByLocator(const ELoc& locatorType) const
   iuids.resize(number);
   for (int i = 0; i < number; i++)
     iuids[i] = getUIDByLocator(locatorType, i);
+  return iuids;
+}
+
+VectorInt Db::getUIDsByColIdx(const VectorInt& icols) const
+{
+  VectorInt iuids;
+  for (int i = 0; i < (int) icols.size(); i++)
+    iuids.push_back(getUIDByColIdx(icols[i]));
   return iuids;
 }
 
@@ -4049,8 +4082,7 @@ bool Db::_deserialize(std::istream& is, bool /*verbose*/)
     if (ret)
     {
       // Concatenate values by samples
-      allvalues.insert(allvalues.end(), std::make_move_iterator(values.begin()),
-                                        std::make_move_iterator(values.end()));
+      allvalues.insert(allvalues.end(), values.begin(), values.end());
       nech++;
     }
   }

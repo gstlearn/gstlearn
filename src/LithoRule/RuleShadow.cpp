@@ -126,6 +126,8 @@ bool RuleShadow::_serialize(std::ostream& os, bool /*verbose*/) const
   double slope = (FFFF(_slope)) ? 0. : _slope;
   double shdown = (FFFF(_shDown)) ? 0. : _shDown;
   double shdsup = (FFFF(_shDsup)) ? 0. : _shDsup;
+  VectorDouble shiftloc = _shift;
+  shiftloc.resize(3);
 
   bool ret = true;
 
@@ -134,9 +136,9 @@ bool RuleShadow::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWrite<double>(os, "", slope);
   ret = ret && _recordWrite<double>(os, "", shdown);
   ret = ret && _recordWrite<double>(os, "Parameters for Shadow option", shdsup);
-  ret = ret && _recordWrite<double>(os, "", _shift[0]);
-  ret = ret && _recordWrite<double>(os, "", _shift[1]);
-  ret = ret && _recordWrite<double>(os, "Parameters for Shift option", _shift[2]);
+  ret = ret && _recordWrite<double>(os, "", shiftloc[0]);
+  ret = ret && _recordWrite<double>(os, "", shiftloc[1]);
+  ret = ret && _recordWrite<double>(os, "Parameters for Shift option", shiftloc[2]);
   return ret;
 }
 

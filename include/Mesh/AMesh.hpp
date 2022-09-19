@@ -96,6 +96,7 @@ public:
 
   VectorDouble getDistances(int iapex0, const VectorInt& japices = VectorInt());
 
+  /// TODO : replace by VectorVectorInt ?
   std::vector<VectorInt> getNeighborhoodPerMesh() const;
   std::vector<VectorInt> getNeighborhoodPerApex() const;
   void dumpNeighborhood(std::vector<VectorInt>& Vmesh);

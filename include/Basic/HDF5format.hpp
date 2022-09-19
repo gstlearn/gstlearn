@@ -80,9 +80,11 @@ public:
   template<typename T>
   void writeData(const T&);
   template<typename T>
-  void writeData(const std::vector<T>&);
+  void writeData(const VectorT<T>&);
   template<typename T>
-  void writeData(const std::vector<std::vector<T> >&);
+  void writeData(const VectorNumT<T>&);
+  template<typename T>
+  void writeData(const VectorT<VectorNumT<T> >&);
 
   int getDataInt() const;
   float getDataFloat() const;
@@ -208,7 +210,7 @@ void HDF5format::writeData(const T &data)
 }
 
 template<typename T>
-void HDF5format::writeData(const std::vector<T> &data)
+void HDF5format::writeData(const VectorT<T> &data)
 {
 #ifdef _USE_HDF5
   H5::Exception::dontPrint();
@@ -223,7 +225,22 @@ void HDF5format::writeData(const std::vector<T> &data)
  }
 
 template<typename T>
-void HDF5format::writeData(const std::vector<std::vector<T> > &data)
+void HDF5format::writeData(const VectorNumT<T> &data)
+{
+#ifdef _USE_HDF5
+  H5::Exception::dontPrint();
+  size_t npts = data.size();
+  auto *a = new T[npts];
+  char* myh5type = (char*) (typeid(a[0]).name());
+  for (size_t i = 0; i < npts; ++i)
+    a[i] = data[i];
+  _writeAll(myh5type, (void*) a);
+  delete[] a;
+#endif
+ }
+
+template<typename T>
+void HDF5format::writeData(const VectorT<VectorNumT<T> > &data)
 {
 #ifdef _USE_HDF5
   H5::Exception::dontPrint();

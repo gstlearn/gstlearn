@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "geoslib_define.h"
+#include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT CSVformat: public AStringable
@@ -21,7 +21,7 @@ public:
             int nSkip = 0,
             char charSep = ',',
             char charDec = '.',
-            const String& naString = "NA");
+            const String& naString = STRING_NA);
   CSVformat(const CSVformat &r);
   CSVformat& operator=(const CSVformat &r);
   virtual ~CSVformat();
@@ -45,7 +45,7 @@ public:
                           int nSkip = 0,
                           char charSep = ',',
                           char charDec = '.',
-                          const String& naString = "NA");
+                          const String& naString = STRING_NA);
 
 private:
   int _flagHeader;

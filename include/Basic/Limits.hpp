@@ -11,6 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+#include "Basic/VectorT.hpp"
 #include "Basic/Interval.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/NamingConvention.hpp"

@@ -40,7 +40,8 @@ Selectivity::Selectivity(int ncut)
       _proba(TEST),
       _flagTonnageCorrect(false),
       _numberQT(),
-      _rankQT()
+      _rankQT(),
+      _flagOnlyZDefined(false)
 {
   ut_vector_fill(_Zcut, TEST);
   _stats.setColumnNames(_getAllNames());
@@ -58,7 +59,8 @@ Selectivity::Selectivity(const VectorDouble &zcuts,
       _proba(proba),
       _flagTonnageCorrect(flag_tonnage_correct),
       _numberQT(),
-      _rankQT()
+      _rankQT(),
+      _flagOnlyZDefined(false)
 {
   _stats.init(getNCuts(), NCOLS);
   _stats.setColumnNames(_getAllNames());
@@ -73,7 +75,8 @@ Selectivity::Selectivity(const Selectivity &m)
       _proba(m._proba),
       _flagTonnageCorrect(m._flagTonnageCorrect),
       _numberQT(m._numberQT),
-      _rankQT(m._rankQT)
+      _rankQT(m._rankQT),
+      _flagOnlyZDefined(m._flagOnlyZDefined)
 {
 }
 
@@ -89,6 +92,7 @@ Selectivity& Selectivity::operator=(const Selectivity &m)
     _flagTonnageCorrect = m._flagTonnageCorrect;
     _numberQT = m._numberQT;
     _rankQT = m._rankQT;
+    _flagOnlyZDefined = m._flagOnlyZDefined;
   }
   return *this;
 }
@@ -476,6 +480,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
 
   /* Check for the presence of other codes */
 
+  _flagOnlyZDefined = false;
   for (int icode = 0; icode < ncode; icode++)
   {
     const ESelectivity& code = codes[icode];
@@ -497,6 +502,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
           _numberQT.setValue(key, 1, 1);
           if (verbose) _printQTvars("Average", 2, 1);
         }
+        _flagOnlyZDefined = true;
         break;
 
       case ESelectivity::E_T:
@@ -545,7 +551,7 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
         }
         break;
 
-      case ESelectivity::E_PROBA:
+      case ESelectivity::E_PROP:
         if (getNCuts() <= 0) break;
         if (flag_est)
         {
@@ -564,6 +570,9 @@ void Selectivity::defineRecoveries(const std::vector<ESelectivity>& codes,
         break;
     }
   }
+  if (ncode > 1) _flagOnlyZDefined = false;
+
+  // Check that only Metal is required (then cutoffs are not necessary)
 
   /* Count the total number of variables */
 
@@ -602,7 +611,7 @@ bool Selectivity::_isMultiplied(const ESelectivity& code) const
 {
   if (code == ESelectivity::UNKNOWN ||
       code == ESelectivity::Z       ||
-      code == ESelectivity::PROBA   ||
+      code == ESelectivity::PROP    ||
       code == ESelectivity::QUANT)
     return false;
   else
@@ -677,7 +686,7 @@ String Selectivity::getVariableName(const ESelectivity& code, int icut, int mode
         return(encodeString("M-Std", _Zcut[icut]));
       break;
 
-    case ESelectivity::E_PROBA:
+    case ESelectivity::E_PROP:
       if (mode == 0)
         return("Proba-Est");
       else
@@ -760,6 +769,7 @@ bool Selectivity::_isRecoveryDefined() const
   }
   return true;
 }
+
 int Selectivity::getVariableNumber() const
 {
   int ntotal = 0;
@@ -804,7 +814,7 @@ bool Selectivity::isNeededT() const
   if (isUsed(ESelectivity::T)) return true;
   if (isUsed(ESelectivity::B)) return true;
   if (isUsed(ESelectivity::M)) return true;
-  if (isUsed(ESelectivity::PROBA)) return true;
+  if (isUsed(ESelectivity::PROP)) return true;
   return false;
 }
 

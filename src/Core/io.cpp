@@ -963,7 +963,7 @@ int _lire_int(const char *question,
   }
   else
   {
-    if (!strcmp(BUFFER, "NA")) return (ITEST);
+    if (!strcmp(BUFFER, STRING_NA)) return (ITEST);
     rep = atoi(BUFFER);
   }
 
@@ -1045,7 +1045,7 @@ double _lire_double(const char *question,
   }
   else
   {
-    if (!strcmp(BUFFER, "NA")) return (TEST);
+    if (!strcmp(BUFFER, STRING_NA)) return (TEST);
     rep = atof(BUFFER);
   }
 
@@ -1192,12 +1192,12 @@ void print_range(const char *title, int ntab, double *tab, double *sel)
   message("  ");
 
   if (FFFF(mini))
-    message("NA");
+    message(STRING_NA);
   else
     message("%lf", mini);
   message(" ; ");
   if (FFFF(maxi))
-    message("NA");
+    message(STRING_NA);
   else
     message("%lf", maxi);
   message(" (%d/%d)\n", nvalid, ntab);
