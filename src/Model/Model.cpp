@@ -862,19 +862,19 @@ VectorDouble Model::sample(double hmax,
  *
  * @param vario       Experimental variogram to be fitted
  * @param types       Vector of ECov integer values
- * @param verbose     Verbose option
- * @param mauto       Special parameters for Automatic fitting procedure
  * @param constraints Set of Constraints
  * @param optvar      Set of options
+ * @param mauto       Special parameters for Automatic fitting procedure
+ * @param verbose     Verbose option
  *
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
                              const std::vector<ECov> &types,
-                             bool verbose,
-                             Option_AutoFit mauto,
                              const Constraints &constraints,
-                             Option_VarioFit optvar)
+                             Option_VarioFit optvar,
+                             Option_AutoFit mauto,
+                             bool verbose)
 {
   if (vario == nullptr) return 1;
 
@@ -895,23 +895,23 @@ int Model::fitFromCovIndices(Vario *vario,
 }
 
 /**
- * Automatic Fitting procedure
+ * Automatic Fitting procedure from an experimental Variogram
  *
  * @param vario       Experimental variogram to be fitted
  * @param types       Vector of ECov
- * @param verbose     Verbose option
- * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
  * @param constraints Set of Constraints
  * @param optvar      Set of options
+ * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
+ * @param verbose     Verbose option
  *
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
                const std::vector<ECov> &types,
-               bool verbose,
-               Option_AutoFit mauto,
                const Constraints &constraints,
-               Option_VarioFit optvar)
+               Option_VarioFit optvar,
+               Option_AutoFit mauto,
+               bool verbose)
 {
   if (vario == nullptr) return 1;
 
@@ -928,6 +928,41 @@ int Model::fit(Vario *vario,
     addCov(&cov);
   }
   return model_auto_fit(vario, this, verbose, mauto, constraints, optvar);
+}
+
+/**
+ * Automatic Fitting procedure from A Variogram Map stored on a DbGrid
+ *
+ * @param dbmap       DbGrid containing the Variogram Map
+ * @param types       Vector of ECov
+ * @param constraints Set of Constraints
+ * @param optvar      Set of options
+ * @param mauto       Special parameters for Automatic fitting procedure (instance of Option_AutoFit), for exemple wmode (type of weighting function)
+ * @param verbose     Verbose option
+ *
+ * @return 0 if no error, 1 otherwise
+ */
+int Model::fitFromVMap(DbGrid *dbmap,
+                       const std::vector<ECov> &types,
+                       const Constraints &constraints,
+                       Option_VarioFit optvar,
+                       Option_AutoFit mauto,
+                       bool verbose)
+{
+  if (dbmap == nullptr) return 1;
+
+  // Clean out possible covariances in the existing model
+
+  delAllCovas();
+
+  // Add the relevant covariances
+
+  for (int is = 0; is < (int) types.size(); is++)
+  {
+    CovAniso cov = CovAniso(types[is], _ctxt);
+    addCov(&cov);
+  }
+  return vmap_auto_fit(dbmap, this, verbose, mauto, constraints, optvar);
 }
 
 bool Model::_deserialize(std::istream& is, bool /*verbose*/)

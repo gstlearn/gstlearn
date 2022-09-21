@@ -111,6 +111,19 @@ double ACov::evalIvarIpas(int ivar,
   return eval(ivar, jvar, p1, p2, mode); // pure virtual method
 }
 
+double ACov::evalIvarIpas(int ivar,
+                          int jvar,
+                          const VectorDouble& dincr,
+                          const CovCalcMode& mode) const
+{
+  // Define the point in the ACov space (center will be checked)
+  SpacePoint p1(VectorDouble(),getSpace());
+  SpacePoint p2(VectorDouble(),getSpace());
+  p2.move(dincr);
+  return eval(ivar, jvar, p1, p2, mode); // pure virtual method
+}
+
+
 /**
  * Covariance vector from a given point (center) in a given direction (dir * steps)
  * for a pair of variables and a set of steps
@@ -154,6 +167,17 @@ MatrixSquareGeneral ACov::evalNvarIpas(double step,
   for (int ivar=0; ivar<nvar; ivar++)
     for (int jvar=0; jvar<nvar; jvar++)
       mat.setValue(ivar, jvar, evalIvarIpas(ivar, jvar, step, dir, center, mode));
+  return mat;
+}
+
+MatrixSquareGeneral ACov::evalNvarIpas(const VectorDouble& dincr,
+                                       const CovCalcMode& mode) const
+{
+  int nvar = getNVariables();
+  MatrixSquareGeneral mat(nvar);
+  for (int ivar=0; ivar<nvar; ivar++)
+    for (int jvar=0; jvar<nvar; jvar++)
+      mat.setValue(ivar, jvar, evalIvarIpas(ivar, jvar, dincr, mode));
   return mat;
 }
 

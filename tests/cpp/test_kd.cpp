@@ -137,8 +137,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the Model on the Gaussian transformed variable
   Model* model = new Model(1, ndim);
   Constraints constraints = Constraints(1.);
-  (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, false,
-                     Option_AutoFit(), constraints);
+  (void) model->fit(vario, {ECov::EXPONENTIAL, ECov::EXPONENTIAL}, constraints);
   model->display();
 
   // Creating a Moving Neighborhood
@@ -233,8 +232,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b1_Y = new Model(1, ndim);
   constraints.setConstantSillValue(1);
-  (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
-                      Option_AutoFit(), constraints);
+  (void) model_b1_Y->fit(vario_b1_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, constraints);
 
   // Update the Model with Block Anamorphosis
   model_b1_Y->setAnam(anam_b1);
@@ -268,8 +266,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b2_Y = new Model(1, ndim);
   constraints.setConstantSillValue(r2 * r2);
-  (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, false,
-                     Option_AutoFit(), constraints);
+  (void) model_b2_Y->fit(vario_b2_Y, { ECov::CUBIC, ECov::EXPONENTIAL }, constraints);
 
   // Normalization of the block model to a total sill equal to 1.0
   model_b2_Y->normalize(1.0);

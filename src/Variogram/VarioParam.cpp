@@ -126,12 +126,12 @@ VarioParam* VarioParam::createOmniDirection(int ndim,
 }
 
 VarioParam* VarioParam::createMultiple(int ndim,
-                           int ndir,
-                           int npas,
-                           double dpas,
-                           double toldis,
-                           double scale,
-                           const VectorDouble& dates)
+                                       int ndir,
+                                       int npas,
+                                       double dpas,
+                                       double toldis,
+                                       double scale,
+                                       const VectorDouble &dates)
 {
   std::vector<DirParam> dirs = DirParam::createMultiple(ndim, ndir, npas, dpas,
                                                         toldis);

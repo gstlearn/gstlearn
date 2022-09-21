@@ -150,6 +150,11 @@ public:
   {
     return _covaList->evalNvarIpas(step, dir, center, mode);
   }
+  MatrixSquareGeneral evalNvarIpas(const VectorDouble& dincr,
+                                   const CovCalcMode& mode = CovCalcMode()) const
+  {
+    return _covaList->evalNvarIpas(dincr, mode);
+  }
   VectorDouble evalIvarNpas(int ivar,
                             int jvar,
                             const VectorDouble& vec_step,
@@ -414,16 +419,23 @@ public:
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
                         const std::vector<ECov> &types = {ECov::EXPONENTIAL},
-                        bool verbose = false,
-                        Option_AutoFit mauto = Option_AutoFit(),
                         const Constraints& constraints = Constraints(),
-                        Option_VarioFit optvar = Option_VarioFit());
+                        Option_VarioFit optvar = Option_VarioFit(),
+                        Option_AutoFit mauto = Option_AutoFit(),
+                        bool verbose = false);
   int fit(Vario *vario,
           const std::vector<ECov>& types = {ECov::SPHERICAL},
-          bool verbose = false,
-          Option_AutoFit mauto = Option_AutoFit(),
           const Constraints& constraints = Constraints(),
-          Option_VarioFit optvar = Option_VarioFit());
+          Option_VarioFit optvar = Option_VarioFit(),
+          Option_AutoFit mauto = Option_AutoFit(),
+          bool verbose = false);
+
+  int fitFromVMap(DbGrid *dbmap,
+                  const std::vector<ECov> &types = { ECov::SPHERICAL },
+                  const Constraints &constraints = Constraints(),
+                  Option_VarioFit optvar = Option_VarioFit(),
+                  Option_AutoFit mauto = Option_AutoFit(),
+                  bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
   std::vector<ECov> initCovList(const VectorInt & covranks);

@@ -416,7 +416,7 @@ int db_write_csv(Db *db,
   int ndim = db->getNDim();
   int nech = db->getSampleNumber();
   int nvar = db->getVariableNumber();
-  int flag_header = csvfmt.getFlagHeader();
+  bool flag_header = csvfmt.getFlagHeader();
 
   // Count the number of items per line
 
@@ -530,7 +530,7 @@ int csv_table_read(const String &filename,
                    VectorString &names,
                    VectorDouble &tab)
 {
-  int flag_header = csvfmt.getFlagHeader();
+  bool flag_header = csvfmt.getFlagHeader();
   int nskip = csvfmt.getNSkip();
   char char_sep = csvfmt.getCharSep();
   char char_dec = csvfmt.getCharDec();

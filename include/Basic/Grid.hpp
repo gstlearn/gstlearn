@@ -103,6 +103,7 @@ public:
   int coordinateToRank(const VectorDouble &coor,
                        bool centered = false,
                        double eps = EPSILON6) const;
+  VectorInt getCenterIndices() const;
   bool sampleBelongsToCell(const VectorDouble &coor,
                            int node,
                            const VectorDouble &dxsPerCell) const;

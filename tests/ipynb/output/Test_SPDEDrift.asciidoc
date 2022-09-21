@@ -170,9 +170,7 @@ ax = gp.varmod(vario,model,title="Vario of the residuals")
 
 
 ----
-Goulard option is switched OFF due to presence of Sills in Constraints
- 
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_8_1.png)
+![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_8_0.png)
 ----
 
 [source, ipython3]
@@ -337,4 +335,9 @@ ax = gp.correlation(grid,"*estim","spde*", diagLine=True)
 ![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_0.png)
 
 ![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_SPDEDrift_19_1.png)
+----
+
+[source, ipython3]
+----
+
 ----

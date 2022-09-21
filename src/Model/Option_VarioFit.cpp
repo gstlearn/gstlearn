@@ -11,17 +11,23 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Basic/AStringable.hpp"
 
-Option_VarioFit::Option_VarioFit()
+Option_VarioFit::Option_VarioFit(bool flag_noreduce,
+                                 bool auth_aniso,
+                                 bool auth_rotation,
+                                 bool lock_samerot,
+                                 bool lock_rot2d,
+                                 bool lock_no3d,
+                                 bool lock_iso2d)
     : AStringable(),
-      _flag_noreduce(false),
+      _flag_noreduce(flag_noreduce),
       _flag_check_bounds(false),
       _flag_goulard_used(true),
-      _auth_aniso(true),
-      _auth_rotation(true),
-      _lock_samerot(false),
-      _lock_rot2d(false),
-      _lock_no3d(false),
-      _lock_iso2d(false),
+      _auth_aniso(auth_aniso),
+      _auth_rotation(auth_rotation),
+      _lock_samerot(lock_samerot),
+      _lock_rot2d(lock_rot2d),
+      _lock_no3d(lock_no3d),
+      _lock_iso2d(lock_iso2d),
       _keep_intstr(false)
 {
 }

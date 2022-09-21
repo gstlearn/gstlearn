@@ -41,6 +41,13 @@ public:
   static ConsItem* create(const CovParamId &paramid,
                           const EConsType &type = EConsType::DEFAULT,
                           double value = 0.);
+  static ConsItem* createFromParamId(int icov = 0,
+                                     const EConsElem& elem = EConsElem::UNKNOWN,
+                                     const EConsType &type = EConsType::DEFAULT,
+                                     double value = 0.,
+                                     int igrf = 0,
+                                     int iv1 = 0,
+                                     int iv2 = 0);
 
   // Pipe to the CovParamId class
   const EConsElem& getType() const { return _paramId.getType(); }

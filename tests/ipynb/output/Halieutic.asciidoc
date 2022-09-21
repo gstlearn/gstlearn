@@ -111,3 +111,8 @@ ax = gp.polygon(poly,ax = ax)
 ----
 ![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Halieutic_13_0.png)
 ----
+
+[source, ipython3]
+----
+
+----

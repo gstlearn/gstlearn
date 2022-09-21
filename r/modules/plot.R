@@ -19,23 +19,24 @@ decor <- function(p, xlab = xlab, ylab = ylab, title = title)
 
 # Function for representing a Model
 
-plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, padd=NULL)
+plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
+		title="", nh=100, padd=NULL)
 {
-  if (is.na(codir))
+  if (is.null(codir))
   {
     ndim = model$getDimensionNumber()
     codir = rep(0,ndim)
     codir[1] = 1
   }
 
-  hh = seq(0, hmax, hmax/nh)
-  gg = model$sample(hmax, nh, ivar, jvar, codir)
-  df = data.frame(cbind(hh,gg))
-  
   if (length(padd) > 0)
     p = padd
   else
     p <- ggplot()
+  
+  hh = seq(from=0, to=hmax, length.out=nh)
+  gg = model$sample(hmax, nh, ivar, jvar, codir)
+  df = data.frame(cbind(hh,gg))
   
   plot(hh, gg, type="l")
   p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE) + ggtitle(title)
@@ -45,7 +46,10 @@ plot.model <- function(model, hmax, codir=NA, ivar=0, jvar=0, title="", nh=100, 
 # Function for representing the Experimental Variogram together with the Model (optional)
 
 plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
-                        nh=100, title="", ...)
+                        nh=100, draw_psize=FALSE, draw_plabels=FALSE, 
+                        color_psize="black", ratio_psize=3,
+                        color_plabel="black", size_plabel=2, nudge_y=0.1,
+                        title="", ...)
 {
   ndir = vario$getDirectionNumber()
   nvar = vario$getVariableNumber()
@@ -98,8 +102,17 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                 
           # Plotting the experimental variogram
           df = data.frame(cbind(hh,gg))
-          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE) 
- 
+          g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
+          
+          if (draw_psize)
+         	 g <- g + geom_point(data = df, aes(x=hh, y=gg, size=sw/ratio_psize), 
+         	 	color=color_psize, show.legend=FALSE)
+         	 
+          if (draw_plabels)
+          	 g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
+          	 	color=color_plabel, size=size_plabel, nudge_y=nudge_y, show.legend=FALSE, 
+          	 	check_overlap=TRUE)
+ 	
           # Plotting the Model (optional)
           if (! is.null(model))
           {
@@ -146,7 +159,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 
 # Function for plotting a point data base, with optional color and size variables
 
-plot.point <- function(db, color_name=NA, size_name=NA,
+plot.point <- function(db, color_name=NULL, size_name=NULL,
               col0='red', cex0=0.2, sizmin=10, sizmax=200, asp=1, pch0=19, 
               xlab="", ylab="", title="", padd = NULL, ...) 
 {    
@@ -156,7 +169,7 @@ plot.point <- function(db, color_name=NA, size_name=NA,
   np   = length(tabx)
     
   # Color of symbol
-  if (! is.na(color_name))
+  if (! is.null(color_name))
   {
     colval  = Db_getColumn(db,color_name,TRUE)
   }
@@ -167,7 +180,7 @@ plot.point <- function(db, color_name=NA, size_name=NA,
 
   # Size of symbol
   reduction = 100
-  if (! is.na(size_name))
+  if (! is.null(size_name))
   {
     sizval  = Db_getColumn(db,size_name,TRUE)
     m = min(abs(sizval))
@@ -217,7 +230,7 @@ plot.polygon <- function(poly, title="")
         
 # Function for plotting a variable (referred by its name) informed in a grid Db
 
-plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
+plot.grid <- function(dbgrid, name=NULL, xlab="", ylab="", title = "", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
@@ -227,6 +240,14 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
 
   x = dbgrid$getColumnByLocator(ELoc_X(),0)
   y = dbgrid$getColumnByLocator(ELoc_X(),1)
+  
+  if (is.null(name))
+  {
+  	if (dbgrid$getLocatorNumber(ELoc_Z()) > 0) 
+		name = dbgrid$getNameByLocator(ELoc_Z())
+	else
+		name = dbgrid$getLastName()
+  }
   data = Db_getColumn(dbgrid, name)
   df = data.frame(x,y,data)
 
@@ -234,6 +255,7 @@ plot.grid <- function(dbgrid, name, xlab="", ylab="", title = "", padd=NULL)
    p <- padd
   else
    p <- ggplot()
+   
   p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data)) + 
        scale_fill_viridis_c(option = "inferno", na.value = 'white')
        
@@ -253,6 +275,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
     p <- padd
   else
     p <- ggplot() 
+    
   p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill) 
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   p
@@ -267,6 +290,7 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
     p <- padd
   else
     p <- ggplot() 
+    
   p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   p
@@ -284,6 +308,7 @@ plot.curve <- function(data, color="black",
     p <- padd
   else
     p <- ggplot() 
+    
   p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   p
@@ -363,10 +388,10 @@ plot.correlation <- function(db1, name1, name2, db2, flagDiag = FALSE,
 }
 
 # Representing a Lithotype rule
-plot.rule <- function(rule, proportions=NA, xlab="", ylab="", title="", padd=NULL)
+plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=NULL)
 {
   nrect = rule$getFaciesNumber()
-  if (! is.na(proportions)) 
+  if (! is.null(proportions)) 
     rule$setProportions(proportions)
   else
     rule$setProportions()
@@ -387,6 +412,7 @@ plot.rule <- function(rule, proportions=NA, xlab="", ylab="", title="", padd=NUL
     p <- padd
   else
     p <- ggplot() 
+    
   p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
                                     ymin = ymin, ymax = ymax, fill = colors))
   

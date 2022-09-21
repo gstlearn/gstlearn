@@ -18,7 +18,13 @@
 class GSTLEARN_EXPORT Option_VarioFit : public AStringable
 {
  public:
-  Option_VarioFit();
+  Option_VarioFit(bool flag_noreduce = false,
+                  bool auth_aniso = true,
+                  bool auth_rotation = true,
+                  bool lock_samerot = false,
+                  bool lock_rot2d = false,
+                  bool lock_no3d = false,
+                  bool lock_iso2d = false);
   Option_VarioFit(const Option_VarioFit &m);
   Option_VarioFit& operator= (const Option_VarioFit &m);
   virtual ~Option_VarioFit();

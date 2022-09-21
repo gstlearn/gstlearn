@@ -62,7 +62,11 @@ public:
                       double step,
                       const VectorDouble& dir,
                       const VectorDouble& center = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode()) const;
+                      const CovCalcMode& mode = CovCalcMode()) const;;
+  double evalIvarIpas(int ivar,
+                      int jvar,
+                      const VectorDouble &dincr,
+                      const CovCalcMode &mode) const;
   VectorDouble evalIvarNpas(int ivar,
                             int jvar,
                             const VectorDouble& vec_step,
@@ -73,6 +77,8 @@ public:
                                    const VectorDouble& dir,
                                    const VectorDouble& center = VectorDouble(),
                                    const CovCalcMode& mode = CovCalcMode()) const;
+  MatrixSquareGeneral evalNvarIpas(const VectorDouble &dincr,
+                                   const CovCalcMode &mode) const;
   double evalIsoIvarIpas(int ivar,
                          int jvar,
                          double step,
