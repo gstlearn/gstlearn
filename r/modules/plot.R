@@ -6,7 +6,7 @@ get.colors <- function()
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
 }
 
-decor <- function(p, xlab = xlab, ylab = ylab, title = title)
+decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 {
   if (xlab != "")
 	  p <- p + labs(x = xlab)
@@ -14,6 +14,8 @@ decor <- function(p, xlab = xlab, ylab = ylab, title = title)
 	  p <- p + labs(y = ylab)
   if (title != "")
 	  p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+  if (! is.null(asp))
+  	  p <- p + coord_fixed(ratio = asp)
   p
 }
 
@@ -39,7 +41,10 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
   df = data.frame(cbind(hh,gg))
   
   plot(hh, gg, type="l")
-  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE) + ggtitle(title)
+  p <- p + geom_line(data = df, aes(x=hh,y=gg), na.rm=TRUE)
+  
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=as, title = title)
+  
   p
 }
 
@@ -151,9 +156,8 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
       }
 	p = ggarrange(plotlist=plot_lst, nrow=ivarN, ncol = jvarN)
 	
-	if (title != "")
-		p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
-		
+	p <- decor(p, title = title)
+	
 	p
 }
 
@@ -183,8 +187,8 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   if (! is.null(size_name))
   {
     sizval  = Db_getColumn(db,size_name,TRUE)
-    m = min(abs(sizval))
-    M = max(abs(sizval))
+    m = min(abs(sizval),na.rm=TRUE)
+    M = max(abs(sizval),na.rm=TRUE)
     sizval = (sizmax * (abs(sizval) - m) / (M-m) + sizmin) / reduction
   }
   else
@@ -198,17 +202,17 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
     p = padd
   else
     p <- ggplot()
-  p <- p + geom_point(data=df,aes(x=tabx,y=taby,size=sizval,color=colval))
+  p <- p + geom_point(data=df,aes(x=tabx,y=taby,size=sizval,color=colval),na.rm=TRUE)
 
   p <- p + theme(legend.position = "none")
   
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
   p
 }
 
 # Function to display a polygon (not tested)
 
-plot.polygon <- function(poly, title="")
+plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
 {    
   npol = poly$getPolySetNumber()
   cols = get.colors()
@@ -218,19 +222,27 @@ plot.polygon <- function(poly, title="")
     id = ids,
     value = cols[ids]
   )
-    
+   
+  if (length(padd) > 0)
+   p <- padd
+  else
+   p <- ggplot()
+  
   for (ipol in 1:npol)
   {
     x = poly$getX(ipol)
     y = poly$getY(ipol)
-    plt.fill(x, y, color)
+    p <- p + plt.fill(x, y, color)
   }  
-  ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
+  
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p
 }
         
 # Function for plotting a variable (referred by its name) informed in a grid Db
 
-plot.grid <- function(dbgrid, name=NULL, xlab="", ylab="", title = "", padd=NULL)
+plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
+			xlab="", ylab="", title="", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
@@ -252,14 +264,14 @@ plot.grid <- function(dbgrid, name=NULL, xlab="", ylab="", title = "", padd=NULL
   df = data.frame(x,y,data)
 
   if (length(padd) > 0)
-   p <- padd
+  	p <- padd
   else
-   p <- ggplot()
+   	p <- ggplot()
    
   p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data)) + 
-       scale_fill_viridis_c(option = "inferno", na.value = 'white')
+       scale_fill_viridis_c(option = "inferno", na.value = color_NA)
        
-  p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   p
 }
 
@@ -292,13 +304,14 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
     p <- ggplot() 
     
   p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
+
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+
   p
 }
 
 # Function for plotting a curve of regularly sampled values
-plot.curve <- function(data, color="black",
-    xlab="", ylab="", title="", padd=NULL)
+plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NULL)
 {
   nbpoint = length(data)
   absc = seq(1,nbpoint)
@@ -310,7 +323,9 @@ plot.curve <- function(data, color="black",
     p <- ggplot() 
     
   p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
+  
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  
   p
 }
 
@@ -353,6 +368,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
     	shape=shape, color=color)
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  
   p
 }
 
@@ -417,6 +433,7 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
                                     ymin = ymin, ymax = ymax, fill = colors))
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  
   p
 }
  

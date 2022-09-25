@@ -32,3 +32,16 @@ model = Model()
 err = model$fit(varioexp, types=ECov_fromValues(c(1,2,3,4)))
 # Le swig attend: _p_std__vectorT_ECov_std__allocatorT_ECov_t_t"
 # et on lui transmet un: list
+
+grid = DbGrid::create([10,10], [0.1,0.1])
+neigh = NeighUnique()
+# Probleme lie a l'impossibilite de nommer les arguments
+err = kriging(dat, grid, model, neigh)
+
+# Ce qui ne fonctionne pas
+# err = kriging(dat, grid, model, neigh, namconv=NamingConvention("OK"))
+#
+# Correlativement, placer tous les arguments en utilisant les valeurs par defaut
+# err = kriging(dat, grid, model, neigh, TRUE, TRUE, FALSE,
+# VectorInt(), VectorInt(), VectorVectorDouble(), NamingConvention("OK"))
+

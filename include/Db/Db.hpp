@@ -532,6 +532,7 @@ public:
   void deleteColumnsByColIdx(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
+  VectorVectorDouble getExtremas(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
   VectorDouble getCoorMaximum(bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;

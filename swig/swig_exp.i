@@ -27,6 +27,8 @@
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 
+%include Basic/NamingConvention.hpp
+
 %include csparse_d.h
 %include csparse_f.h
 %include geoslib_define.h
@@ -41,7 +43,7 @@
 %include Basic/AStringable.hpp
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
-%include Basic/NamingConvention.hpp
+
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp
 %include Basic/String.hpp
