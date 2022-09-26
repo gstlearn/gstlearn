@@ -54,9 +54,8 @@ int main(int /*argc*/, char */*argv*/[])
   constraints.addItem(&consNug);
   constraints.addItem(&consParam);
 
-  Option_AutoFit opt;
   //OptDbg::define(EDbg::CONVERGE);
-  (void) model->fit(vario,structs,false,opt,constraints);
+  (void) model->fit(vario,structs,constraints);
   model->display();
 
   NeighUnique* neighU = NeighUnique::create(ndim, false);

@@ -41,7 +41,17 @@
 %include Basic/AStringable.hpp
 %include Basic/AStringFormat.hpp
 %include Basic/ASerializable.hpp
+
 %include Basic/NamingConvention.hpp
+
+%include Calculators/ACalculator.hpp
+%include Calculators/ACalcDbVarCreator.hpp
+%include Calculators/ACalcDbToDb.hpp
+%include Calculators/CalcMigrate.hpp
+%include Calculators/ACalcInterpolator.hpp
+%include Calculators/CalcStatistics.hpp
+%include Calculators/CalcGridToGrid.hpp
+
 %include Basic/Tensor.hpp
 %include Basic/Grid.hpp
 %include Basic/String.hpp
@@ -99,14 +109,6 @@
 
 %include Skin/ISkinFunctions.hpp
 %include Skin/Skin.hpp
-
-%include Calculators/ACalculator.hpp
-%include Calculators/ACalcDbVarCreator.hpp
-%include Calculators/ACalcDbToDb.hpp
-%include Calculators/CalcMigrate.hpp
-%include Calculators/ACalcInterpolator.hpp
-%include Calculators/CalcStatistics.hpp
-%include Calculators/CalcGridToGrid.hpp
 
 %include Mesh/AMesh.hpp
 %include Mesh/MeshFactory.hpp

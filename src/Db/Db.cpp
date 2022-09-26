@@ -1578,6 +1578,14 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   return ext;
 }
 
+VectorVectorDouble Db::getExtremas(bool useSel) const
+{
+  VectorVectorDouble exts;
+  for (int idim = 0; idim < getNDim(); idim++)
+    exts.push_back(getExtrema(idim, useSel));
+  return exts;
+}
+
 VectorDouble Db::getCoorMinimum(bool useSel) const
 {
   VectorDouble ext;
@@ -3142,10 +3150,10 @@ VectorDouble Db::getSelection(void) const
 VectorDouble Db::getColumnByColIdx(int icol, bool useSel) const
 {
   int nech = getSampleNumber();
-  VectorDouble tab, sel;
-  if (!isColIdxValid(icol)) return tab;
+  if (!isColIdxValid(icol)) return VectorDouble();
 
-  tab.resize(nech, TEST);
+  VectorDouble tab(nech, TEST);
+  VectorDouble sel;
   if (useSel) sel = getSelection();
 
   int ecr = 0;

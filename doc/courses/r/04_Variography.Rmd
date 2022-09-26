@@ -1,0 +1,241 @@
+---
+title: "Variography"
+author: "gstlearn Team"
+fontsize: 8pt
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fig_height: 5
+    fig_width: 8
+    theme: Boadilla
+  ioslides_presentation: default
+theme: Boadilla
+colortheme: beaver
+---
+
+\frametitle{Preamble}
+
+In this preamble, we load the **gstlearn** library and clean the workspace. 
+
+```{r Preamble, include=FALSE}
+library(gstlearn)
+rm(list=ls())
+knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
+```
+
+
+Then the necessary data set is downloaded and named **dat**: the target variable is **January_temp**
+
+```{r Loading_Data}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+  'Scotland_Temperatures.NF',sep="/")
+dat = Db_createFromNF(fileNF)
+```
+
+---
+
+\frametitle{Experimental Variograms}
+
+\begin{itemize}
+
+\item Data is a \alert{regionalized} variable
+
+$$z_i = z(x_i)$$
+
+\item The experimental variogram is a (dicrete) function:
+
+$$\gamma(h)=\frac{1}{2N(h)}\sum_{i=1}^{N(h)}[z(x_i+h)-z(x_i)]^2$$
+
+where $N(h)$ is the number of pairs of points distant by $h$
+
+\end{itemize}
+
+---
+
+\frametitle {Variogram Cloud}
+
+
+```{r Variogram_Cloud}
+varioParamOmni = VarioParam_createOmniDirection(2, 100)
+grid.cloud = db_variogram_cloud(dat, varioParamOmni)
+grid.cloud$display()
+plot.grid(grid.cloud, name="Cloud.January*")
+```
+
+---
+
+\frametitle {Experimental Variogram}
+
+We calculate the omni-directional variogram of the temperatures.
+
+```{r Experimental_Variogram}
+varioParamOmni = VarioParam_createOmniDirection(2, 40, 10)
+varioexp = Vario(varioParamOmni, dat)
+err = varioexp$compute()
+```
+
+
+Print the variogram contents
+```{r Print_Experimental_Variogram,eval=FALSE}
+varioexp
+```
+
+---
+
+\frametitle {Experimental Variogram}
+
+Plot the omni-directional variogram
+
+```{r Plot_Experimental_Variogram}
+plot.varmod(varioexp)
+```
+
+---
+
+\frametitle {Experimental Variogram}
+
+```{r Plot_Experimental_Variogram_continued}
+plot.varmod(varioexp,draw_psize=TRUE, draw_plabels=TRUE, ratio_psize=3)
+```
+
+---
+
+\frametitle {Automatic Model Fitting}
+
+```{r Variogram_Model}
+fitmod = Model()
+err = fitmod$fit(varioexp)
+plot.varmod(varioexp, fitmod)
+```
+
+---
+
+\frametitle {Automatic Model Fitting}
+
+```{r Variogram_Model_Print}
+fitmod
+```
+
+---
+
+\frametitle {List of Basic structures}
+
+```{r Basic_Structures}
+ECov_printAll()
+```
+
+---
+
+\frametitle {Automatic Fitting (with given basic structures)}
+
+```{r Model_Fitting_List1}
+err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)))
+plot.varmod(varioexp, fitmod)
+```
+
+---
+
+\frametitle {Automatic Fitting (with given basic structures)}
+
+```{r Model_Fitting_List2}
+fitmod
+```
+
+---
+
+\frametitle{Model Fitting with Inequality constraints}
+
+```{r Model_Fitting_Inequality_1}
+constraints = Constraints()
+err = constraints$addItemFromParamId(EConsElem_RANGE(),1,0,0,EConsType_UPPER(),20.)
+err = constraints$addItemFromParamId(EConsElem_SILL(),1,0,0,EConsType_LOWER(),0.03)
+err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)), constraints, Option_VarioFit(TRUE))
+plot.varmod(varioexp, fitmod)
+```
+
+---
+
+\frametitle{Model Fitting with Inequality constraints}
+
+```{r Model_Fitting_Inequality_2}
+fitmod
+```
+
+---
+
+\frametitle{Model Fitting with Equality constraints}
+
+```{r Model_Fitting_Equality_1}
+constraints = Constraints()
+err = constraints$addItemFromParamId(EConsElem_RANGE(),1,0,0,EConsType_EQUAL(),1000.)
+err = constraints$addItemFromParamId(EConsElem_SILL(),1,0,0,EConsType_EQUAL(),0.4)
+err = fitmod$fit(varioexp, types=ECov_fromValues(c(0,4,2)), constraints, Option_VarioFit(TRUE))
+plot.varmod(varioexp, fitmod)
+```
+
+---
+
+\frametitle{Model Fitting with Equality constraints}
+
+```{r Model_Fitting_Equality_2}
+fitmod
+```
+
+---
+
+\frametitle{Directional Variograms}
+
+```{r Directional_Variograms}
+varioParamMulti = VarioParam_createMultiple(2, 4, 15, 15.)
+vario.4dir = Vario(varioParamMulti, dat)
+err = vario.4dir$compute()
+plot.varmod(vario.4dir)
+```
+
+---
+
+\frametitle{Directional Variograms}
+
+```{r Directional_Variograms_Fitting}
+model.4dir = Model()
+err = model.4dir$fit(vario.4dir,types=ECov_fromValues(c(0,4,2)))
+plot.varmod(vario.4dir, model.4dir)
+```
+
+---
+
+\frametitle{Calculating Variogram Map}
+
+```{r Variogram_Map}
+grid.vmap = db_vmap_compute(dat, ECalcVario_VARIOGRAM())
+plot.grid(grid.vmap)
+```
+
+---
+
+\frametitle{Automatic Model Fitting from Variogram Map}
+
+```{r Fitting_Variogram_Map_Fit}
+modelVM = Model()
+err = modelVM$fitFromVMap(grid.vmap, ECov_fromValues(c(0,4,2)))
+modelVM
+```
+
+---
+
+\frametitle{Automatic Model Fitting from Variogram Map}
+
+```{r Fitting_Variogram_Map_Draw}
+err = dbgrid_model(grid.vmap, modelVM)
+plot.grid(grid.vmap)
+```
+
+---
+
+\frametitle{Compare Directional Variograms and Variogram Map}
+
+
+```{r Compare_Directional_Variograms_and_Variogram_Map}
+plot.varmod(vario.4dir, modelVM)
+```
+

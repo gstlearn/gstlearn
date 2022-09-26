@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-// WARNING: Make this include list as small as possible!
 #include "Basic/AStringable.hpp"
+#include "Model/EConsElem.hpp"
+#include "Model/EConsType.hpp"
 
 #include <vector>
 
@@ -27,8 +28,15 @@ public:
   Constraints& operator= (const Constraints &m);
   virtual ~Constraints();
 
-  void addItem(const ConsItem* item);
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  void addItem(const ConsItem* item);
+  void addItemFromParamId(const EConsElem &elem = EConsElem::UNKNOWN,
+                          int icov = 0,
+                          int iv1 = 0,
+                          int iv2 = 0,
+                          const EConsType &type = EConsType::DEFAULT,
+                          double value = 0.);
 
   int isDefined() const { return _consItems.size() > 0; }
   int isDefinedForSill() const;

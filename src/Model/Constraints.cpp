@@ -60,6 +60,17 @@ void Constraints::addItem(const ConsItem* item)
   _consItems.push_back(item->clone());
 }
 
+void Constraints::addItemFromParamId(const EConsElem &elem,
+                                     int icov,
+                                     int iv1,
+                                     int iv2,
+                                     const EConsType &type,
+                                     double value)
+{
+  ConsItem* item = ConsItem::createFromParamId(icov, elem, type, value, 0, iv1, iv2);
+  _consItems.push_back(item);
+}
+
 String Constraints::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;

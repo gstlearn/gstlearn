@@ -647,6 +647,14 @@ int Grid::coordinateToRank(const VectorDouble& coor, bool centered, double eps) 
   return indiceToRank(indice);
 }
 
+VectorInt Grid::getCenterIndices() const
+{
+  VectorInt indices(_nDim);
+  for (int idim = 0; idim < _nDim; idim++)
+    indices[idim] = (_nx[idim] - 1) / 2;
+  return indices;
+}
+
 bool Grid::_isSpaceDimensionValid(int idim) const
 {
   if (idim < 0 || idim >= _nDim)

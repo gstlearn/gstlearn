@@ -70,3 +70,12 @@ GSTLEARN_EXPORT int argumentReturnInt(int value);
 GSTLEARN_EXPORT double argumentReturnDouble(double value);
 GSTLEARN_EXPORT VectorInt argumentReturnVectorInt(const VectorInt& values);
 GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& values);
+
+GSTLEARN_EXPORT void argumentDefTestInt(int argInt = 2);
+GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl = 2.);
+GSTLEARN_EXPORT void argumentDefTestStr(String argstr = "Default String");
+GSTLEARN_EXPORT void argumentDefTestVInt(VectorInt argVInt = VectorInt());
+GSTLEARN_EXPORT void argumentDefTestVDbl(VectorDouble argdVDbl = VectorDouble());
+GSTLEARN_EXPORT void argumentDefTestVString(VectorString argVString = VectorString());
+GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt = VectorVectorInt());
+GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl = VectorVectorDouble());

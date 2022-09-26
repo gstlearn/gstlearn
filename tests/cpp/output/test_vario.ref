@@ -168,22 +168,28 @@ For variable 1
         18  8811.000     0.450     0.876
         19  8866.000     0.475     0.825
 Maximum Variogram Value = 1.039433
+Due to the tolerance (5.000000 (percent)), no basic structure would be left
+No structure is discarded
 
 Model characteristics
 =====================
 Space dimension              = 2
 Number of variable(s)        = 1
-Number of basic structure(s) = 1
+Number of basic structure(s) = 2
 Number of drift function(s)  = 0
 Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
+K-Bessel (Third Parameter = 1)
+- Sill         =      0.000
+- Range        =      0.119
+- Theo. Range  =      0.034
 Exponential
-- Sill         =      1.007
-- Ranges       =      0.254     0.302
-- Theo. Ranges =      0.085     0.101
-Total Sill     =      1.007
+- Sill         =      0.000
+- Range        =      0.238
+- Theo. Range  =      0.079
+Total Sill     =      0.000
 
 Variogram characteristics
 =========================

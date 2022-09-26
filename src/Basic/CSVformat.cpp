@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/CSVformat.hpp"
 
-CSVformat::CSVformat(int flagHeader,
+CSVformat::CSVformat(bool flagHeader,
                      int nSkip,
                      char charSep,
                      char charDec,
@@ -52,7 +52,7 @@ CSVformat::~CSVformat()
 {
 }
 
-CSVformat* CSVformat::create(int flagHeader,
+CSVformat* CSVformat::create(bool flagHeader,
                              int nSkip,
                              char charSep,
                              char charDec,

@@ -179,7 +179,10 @@ public:
                                  VectorInt &indices,
                                  bool centered = false,
                                  double eps = EPSILON6) const;
-
+  VectorInt getCenterIndices() const
+  {
+    return _grid.getCenterIndices();
+  }
   int indiceToRank(const VectorInt& indice) const
   {
     return _grid.indiceToRank(indice);
@@ -245,7 +248,6 @@ protected:
 
 private:
   void _createCoordinatesGrid(int icol0);
-
 
 private:
   Grid _grid;                //!< Grid characteristics

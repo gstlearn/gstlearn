@@ -17,7 +17,7 @@
 class GSTLEARN_EXPORT CSVformat: public AStringable
 {
 public:
-  CSVformat(int flagHeader = true,
+  CSVformat(bool flagHeader = true,
             int nSkip = 0,
             char charSep = ',',
             char charDec = '.',
@@ -31,24 +31,24 @@ public:
 
   char  getCharDec()         const { return _charDec; }
   char  getCharSep()         const { return _charSep; }
-  int   getFlagHeader()      const { return _flagHeader; }
+  bool  getFlagHeader()      const { return _flagHeader; }
   const String getNaString() const { return _naString; }
   int   getNSkip()           const { return _nSkip; }
 
-  void  setFlagHeader(int flagHeader)       { _flagHeader = flagHeader; }
+  void  setFlagHeader(bool flagHeader)      { _flagHeader = flagHeader; }
   void  setCharDec(char charDec)            { _charDec    = charDec;    }
   void  setCharSep(char charSep)            { _charSep    = charSep;    }
   void  setNaString(const String& naString) { _naString   = naString;   }
   void  setNSkip(int nskip)                 { _nSkip      = nskip;      }
 
-  static CSVformat *create(int flagHeader = true,
+  static CSVformat *create(bool flagHeader = true,
                           int nSkip = 0,
                           char charSep = ',',
                           char charDec = '.',
                           const String& naString = STRING_NA);
 
 private:
-  int _flagHeader;
+  bool _flagHeader;
   int _nSkip;
   char _charSep;
   char _charDec;

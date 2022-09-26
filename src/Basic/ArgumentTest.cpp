@@ -29,6 +29,11 @@ void _introduction(const String& title, bool end_of_line = false)
   if (end_of_line) _endOfLine();
 }
 
+void _printEmpty()
+{
+  message("Found an ampty argument. This is correct\n");
+}
+
 void _printInt(int value)
 {
   if (IFFFF(value))
@@ -235,4 +240,55 @@ GSTLEARN_EXPORT VectorDouble argumentReturnVectorDouble(const VectorDouble& valu
   _printVectorDouble(values);
   _endOfLine();
   return values;
+}
+
+GSTLEARN_EXPORT void argumentDefTestInt(int argInt)
+{
+  _introduction("Integer");
+  _printInt(argInt);
+  _endOfLine();
+}
+
+GSTLEARN_EXPORT void argumentDefTestDbl(double argDbl)
+{
+  _introduction("Double");
+   _printDouble(argDbl);
+   _endOfLine();
+}
+
+GSTLEARN_EXPORT void argumentDefTestStr(String argstr)
+{
+  _introduction("String");
+   _printString(argstr);
+   _endOfLine();
+}
+
+GSTLEARN_EXPORT void argumentDefTestVInt(VectorInt argVInt)
+{
+  _introduction("Vector Int");
+  if (argVInt.empty()) _printEmpty();
+}
+
+GSTLEARN_EXPORT void argumentDefTestVDbl(VectorDouble argVDbl)
+{
+  _introduction("Vector Double");
+  if (argVDbl.empty()) _printEmpty();
+}
+
+GSTLEARN_EXPORT void argumentDefTestVString(VectorString argVString)
+{
+  _introduction("Vector String");
+  if (argVString.empty()) _printEmpty();
+}
+
+GSTLEARN_EXPORT void argumentDefTestVVDbl(VectorVectorDouble argVVDbl)
+{
+  _introduction("Vector Vector Double");
+  if (argVVDbl.empty() || argVVDbl[0].empty()) _printEmpty();
+}
+
+GSTLEARN_EXPORT void argumentDefTestVVInt(VectorVectorInt argVVInt)
+{
+  _introduction("Vector Vector Int");
+  if (argVVInt.empty() || argVVInt[0].empty()) _printEmpty();
 }

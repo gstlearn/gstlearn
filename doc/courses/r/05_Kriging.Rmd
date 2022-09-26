@@ -1,0 +1,248 @@
+---
+title: "Kriging with RGeostats"
+author: "gstlearn Team"
+fontsize: 8pt
+output:
+  beamer_presentation:
+    colortheme: beaver
+    fig_height: 5
+    fig_width: 8
+    theme: Boadilla
+  ioslides_presentation: default
+theme: Boadilla
+colortheme: beaver
+---
+
+\frametitle{Preamble}
+
+In this preamble, we load the **gstlearn** library, clean the workspace.
+
+```{r loading_library,include=FALSE, fig.show='hide'}
+library(gstlearn)
+rm(list=ls())
+knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
+```
+
+Then we download the data base **dat**.
+
+```{r Loading_Data}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
+  'Scotland_Temperatures.NF',sep="/")
+dat = Db_createFromNF(fileNF)
+```
+
+Calculate:
+
+- the experimental variogram **vario.2dir**
+- the fitted model **fitmod**
+
+```{r Preamble,message=FALSE, fig.show='hide'}
+varioParamMulti = VarioParam_createMultiple(2, 2, 15, 15.)
+vario.2dir = Vario(varioParamMulti, dat)
+err = vario.2dir$compute()
+plot.varmod(vario.2dir)
+
+fitmod = Model()
+err = fitmod$fit(vario.2dir,types=ECov_fromValues(c(0,1,3)))
+plot.varmod(vario.2dir, fitmod)
+```
+
+---
+
+\frametitle{Preparing the Environment}
+
+Define the Unique Neighborhood *creation**unique.neigh**:
+
+```{r Neighborhood}
+unique.neigh = NeighUnique(ndim = 2)
+```
+
+\pause
+
+Get some statistics on the Data:
+
+```{r Statistics_on_Data}
+dat$getExtremas()
+```
+
+---
+
+\frametitle{Ordinary Kriging}
+
+Create the Target grid:
+
+```{r Creating_Grid}
+grid = DbGrid_create(x0=c(65,530),dx=c(5,5),nx=c(81,137))
+```
+
+
+```{r Ordinary_Kriging}
+err = kriging(dat,grid,fitmod,unique.neigh,EKrigOpt_PONCTUAL(),TRUE,TRUE,FALSE,
+              c(),c(),c(),NamingConvention("OK"))
+#grid$display()
+```
+
+---
+
+\frametitle{Ordinary Kriging Estimation}
+
+```{r Plot_Ordinary_Kriging}
+plot.grid(grid)
+```
+
+---
+
+
+```{r}
+fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland','Scotland_Elevations.NF', sep="/")
+grid = DbGrid_createFromNF(fileNF)
+grid
+```
+
+\frametitle{Ordinary Kriging with selection Estimation}
+
+```{r Ordinary_Kriging_with_Selection}
+err = kriging(dat,grid,fitmod,unique.neigh)
+ax = plot.grid(grid)
+plot.point(dat,size_name="January_temp",padd=ax)
+```
+
+---
+
+\frametitle{Ordinary Kriging - Standard Deviation}
+
+```{r Ordinary_Kriging_St_Dev}
+plot(db.grid,name="OK*stdev",pos.legend=1,title="")
+plot(dat,add=T)
+```
+
+--- 
+
+\frametitle{Simple kriging - Estimation}
+
+```{r Simple_Kriging_Estimation}
+db.grid = kriging(dat,db.grid,model=fitmod,unique.neigh,uc="",radix="SK",mean=20)
+plot(db.grid,pos.legend=1,title="")
+plot(dat,add=T)
+```
+
+---
+
+\frametitle{Simple kriging - Standard Deviation}
+
+```{r Simple_Kriging_St_Dev}
+plot(db.grid,name="SK*stdev",pos.legend=1,title="Standard Deviation")
+plot(dat,add=T)
+```
+
+---
+
+\frametitle{Comparing Ordinary and Simple Kriging - Estimations}
+
+```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
+correlation(db.grid,name1="OK*estim",name2="SK*estim",
+            flag.iso = T,flag.diag = T,asp = 0, 
+            title="", xlab="Ordinary Kriging", ylab="Simple Kriging")
+```
+
+---
+
+\frametitle{Comparing Ordinary and Simple Kriging - St. Dev.}
+
+```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
+correlation(db.grid,name1 = "OK*stdev",name2="SK*stdev",
+            flag.iso = T,flag.diag = T, asp = 0, 
+            title="", xlab="Ordinary Kriging", ylab="Simple Kriging")
+```
+
+---
+
+\frametitle{Cross-validation}
+
+
+```{r Cross_Validation}
+res.cv=xvalid(dat,fitmod,unique.neigh)
+res.cv
+```
+
+---
+
+\frametitle{Cross-validation - Histogram of Errors}
+
+```{r Cross_Validation_Errors}
+hist(res.cv[,"*esterr*"],breaks=30,col="blue",xlab="X-validation Errors",main="")
+```
+ 
+---
+ 
+\frametitle{Cross-validation - Histogram of Standardized Errors}
+
+```{r}
+hist(res.cv[,"*stderr*"],breaks=30,col="blue",xlab="Standardized Errors",main="")
+```
+
+---
+ 
+\frametitle{Cross-validation Scores}
+
+```{r}
+mean(res.cv[,"*esterr*"],na.rm=T)
+mean(res.cv[,"*esterr*"]^2,na.rm=T)
+mean(res.cv[,"*stderr*"]^2,na.rm=T)
+```
+
+---
+
+\frametitle{Cross-validation Errors}
+
+```{r Cross_Validation_Errors_Display}
+plot(db.grid,name="inshore",title="")
+plot(res.cv,add=T,pos.legend=1)
+```
+
+---
+
+\frametitle{Cross-validation Errors (absolute value)}
+
+```{r Cross_Validation_Absolute_Error}
+plot(db.grid,name="inshore",title="")
+plot(res.cv,flag.abs=T,add=T,pos.legend=1)
+```
+
+---
+
+\frametitle{Ordinary Kriging}
+\framesubtitle{Moving Neighborhood}
+
+Interactive mode 
+```{r, eval=FALSE}
+moving.neigh=neigh.input()
+# Answers 2 1 1 n n 1000000
+```
+
+Equivalent script:
+```{r}
+moving.neigh = neigh.create(nmini=1,nmaxi=1,radius=1000000)
+```
+
+---
+
+\frametitle{Ordinary Kriging (Moving Neighborhood)}
+
+```{r Ordinary_Kriging_in_Moving_Neighborhood}
+rg.load("Exdemo_Scotland_Elevations","db.grid2",flag.overwrite=T)
+db.grid2=kriging(dat,db.grid2,model=fitmod,moving.neigh)
+plot(db.grid2,pos.legend=1,title="")
+plot(dat,add=T)
+```
+
+---
+
+\frametitle{Ordinary Kriging (Small Neighborhood)}
+
+```{r Ordinary_Kriging_with_Small_Neighborhood}
+moving.neigh2=neigh.create(nmini=1,nmaxi=10,radius=20)
+db.grid2=kriging(dat,db.grid2,model=fitmod,moving.neigh2)
+plot(db.grid2,pos.legend=1,title="")
+plot(dat,add=T)
+```

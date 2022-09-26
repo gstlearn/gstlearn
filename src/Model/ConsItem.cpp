@@ -13,6 +13,7 @@
 
 #include "Space/ASpaceObject.hpp"
 #include "Model/ConsItem.hpp"
+#include "Model/EConsElem.hpp"
 #include "Basic/Utilities.hpp"
 
 ConsItem::ConsItem(const CovParamId& paramid,
@@ -55,6 +56,18 @@ ConsItem* ConsItem::create(const CovParamId &paramid,
                            const EConsType &type,
                            double value)
 {
+  return new ConsItem(paramid, type, value);
+}
+
+ConsItem* ConsItem::createFromParamId(int icov,
+                                      const EConsElem &elem,
+                                      const EConsType &type,
+                                      double value,
+                                      int igrf,
+                                      int iv1,
+                                      int iv2)
+{
+  CovParamId paramid(igrf, icov, elem, iv1, iv2);
   return new ConsItem(paramid, type, value);
 }
 

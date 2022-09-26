@@ -76,6 +76,20 @@ DbStringFormat* DbStringFormat::createFromKeys(unsigned char params,
   return new DbStringFormat(params, names, cols, useSel);
 }
 
+DbStringFormat* DbStringFormat::createFromFlags(bool flag_resume,
+                                                bool flag_vars,
+                                                bool flag_extend,
+                                                bool flag_stats,
+                                                bool flag_array,
+                                                bool flag_locator,
+                                                bool useSel)
+{
+  DbStringFormat *dbfmt = new DbStringFormat();
+  dbfmt->setFlags(flag_resume, flag_vars, flag_extend, flag_stats, flag_array,
+                  flag_locator, VectorString(), VectorInt(), useSel);
+  return dbfmt;
+}
+
 void DbStringFormat::setFlags(bool flag_resume,
                               bool flag_vars,
                               bool flag_extend,

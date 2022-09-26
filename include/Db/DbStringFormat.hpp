@@ -50,10 +50,18 @@ public:
                                 const VectorInt& cols = VectorInt(),
                                 bool useSel = true);
 
-  DbStringFormat* createFromKeys(unsigned char params,
-                                 const VectorString &names,
-                                 const VectorInt &cols,
-                                 bool useSel);
+  static DbStringFormat* createFromKeys(unsigned char params,
+                                        const VectorString &names,
+                                        const VectorInt &cols,
+                                        bool useSel);
+
+  static DbStringFormat* createFromFlags(bool flag_resume = true,
+                                         bool flag_vars = true,
+                                         bool flag_extend = false,
+                                         bool flag_stats = false,
+                                         bool flag_array = false,
+                                         bool flag_locator = false,
+                                         bool useSel = true);
 
   const VectorInt& getCols() const { return _cols; }
   bool getUseSel() const { return _useSel; }

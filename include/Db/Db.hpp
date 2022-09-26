@@ -158,7 +158,6 @@ public:
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
 
-
   // Locator and UID methods
 
   void clearLocators(const ELoc& locatorType);
@@ -532,6 +531,7 @@ public:
   void deleteColumnsByColIdx(const VectorInt& icols);
 
   VectorDouble getExtrema(int idim, bool useSel = false) const;
+  VectorVectorDouble getExtremas(bool useSel = false) const;
   VectorDouble getCoorMinimum(bool useSel = false) const;
   VectorDouble getCoorMaximum(bool useSel = false) const;
   double getExtension(int idim, bool useSel = false) const;

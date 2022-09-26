@@ -128,18 +128,17 @@ int main(int /*argc*/, char */*argv*/[])
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model modelPGS1(ctxt);
   Model modelPGS2(ctxt);
-  Option_AutoFit option = Option_AutoFit();
   Constraints constraints = Constraints();
   constraints.setConstantSillValue(1.);
 
   std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
-  modelPGS1.fit(&vario1,covs,false,option,constraints);
+  modelPGS1.fit(&vario1,covs,constraints);
   modelPGS1.display();
 
   (void) vario1.dumpToNF("variopgs1.ascii");
   (void) modelPGS1.dumpToNF("modelfitpgs1.ascii");
 
-  modelPGS2.fit(&vario2,covs,false,option,constraints);
+  modelPGS2.fit(&vario2,covs,constraints);
   modelPGS2.display();
 
   (void) vario2.dumpToNF("variopgs2.ascii");

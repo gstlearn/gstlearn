@@ -48,19 +48,10 @@ int main(int /*argc*/, char */*argv*/[])
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN);
   String filename;
 
-  filename = "/home/drenard/project_gstlearn/gstlearn/tests/data/Var20/Vario.dat";
-  Vario* vario = Vario::createFromNF(filename);
-
-  filename = "/home/drenard/project_gstlearn/gstlearn/tests/data/Var20/Model.ref";
-  Model* model1 = Model::createFromNF(filename);
-  double gof1 = model1->gofToVario(vario);
-
-  filename = "/home/drenard/project_gstlearn/gstlearn/build/tests/data/Debug/Var20/Model.out";
-  Model* model2 = Model::createFromNF(filename);
-  double gof2 = model2->gofToVario(vario);
-
-  message("gof Ref = %lf\n",gof1);
-  message("gof New = %lf\n",gof2);
+  filename = "/home/drenard/project_gstlearn/gstlearn/doc/data/Scotland/Scotland_Elevations.csv";
+  CSVformat csvfmt(true);
+  Db* db = Db::createFromCSV(filename, csvfmt);
+  db->display();
 
   return (0);
 }

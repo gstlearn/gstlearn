@@ -144,12 +144,7 @@ static void st_modify_optvar_for_anam(Model* model, Option_VarioFit &optvar)
   {
     const EAnam anamtype = covanam->getAnamType();
     if (anamtype != EAnam::HERMITIAN && optvar.getFlagGoulardUsed())
-    {
-      message("Goulard option is switched OFF");
-      message(
-          "due to presence of ANAM Properties (type != EAnam::HERMITIAN)\n");
       optvar.setFlagGoulardUsed(0);
-    }
   }
 }
 
@@ -4006,8 +4001,6 @@ static int st_alter_model_optvar(const Vario *vario,
 
   if (constraints.isDefinedForSill() && optvar.getFlagGoulardUsed())
   {
-    message(
-        "Goulard option is switched OFF due to presence of Sills in Constraints\n");
     if (modify_constraints_on_sill(constraints)) return (1);
     optvar.setFlagGoulardUsed(0);
   }
@@ -4053,8 +4046,6 @@ static int st_alter_vmap_optvar(const Db *dbmap,
 
   if (constraints.isDefinedForSill() && optvar.getFlagGoulardUsed())
   {
-    message(
-        "Goulard option is switched OFF due to presence of Sills in Constraints\n");
     optvar.setFlagGoulardUsed(0);
     if (modify_constraints_on_sill(constraints)) return (1);
   }

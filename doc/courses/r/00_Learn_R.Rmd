@@ -1,0 +1,248 @@
+---
+title: "gstlearn"
+author: "Didier RENARD,  Nicolas DESASSIS"
+output: pdf_document
+---
+
+```{r setup,echo=FALSE}
+library(knitr)
+```
+
+# Introduction
+
+**gstlearn** is a package developed by the Geostatistical Team of Mines ParisTech.
+It contains several well established geostatistical functions and methods and some prototypes based on ongoing research.
+
+# Loading RGeostats
+
+In each R session, you must load the **gstlearn** library
+
+```{r Load library, include=FALSE}
+library(gstlearn)
+```
+
+# R used as a pocket calculator
+
+```{r Calculator-1}
+1+3
+exp(log(sqrt(2^2)))
+```
+
+## Assignments
+
+```{r Assignments, message=FALSE}
+a = 1
+b <- 3
+a + b
+d = a + b
+d
+d = 7
+d
+```
+
+## Working directory
+
+```{r Working directory}
+getwd()
+ls()
+rm(d)
+ls()
+```
+
+## Quit
+
+```{r Quit,eval=FALSE}
+q()
+```
+
+Save the workspace (y).
+
+The content of your session is saved in the file **.Rdata** (with the **.Rhistory**) of your working directory. 
+
+*Caution*: these files are hidden.
+
+To continue, you must relaunch R (and load RGeostats again).
+
+## Classes in R
+
+```{r Classes}
+b <- 3
+class(b)
+col = "blue"
+class(col)
+reponse=FALSE
+class(reponse)
+```
+
+## Booleans
+
+```{r Boolean-1}
+a = 1
+a < 2
+comp = a < 2
+comp
+comp & reponse
+comp | reponse
+!comp
+```
+
+
+```{r Boolean-2}
+a = 1
+a == 1
+a != 1
+a > 1
+a >= 1
+```
+
+## Vectors
+
+```{r Vectors-1}
+x = c(1,9,2,9,4,5)
+x
+class(x)
+x[1]
+x[c(1,3)]
+x[-2]
+2:5*3
+```
+
+
+```{r Vectors-2}
+x = c(1,9,2,9,4,5)
+x[2:5]
+selection = x > 2
+selection
+x[selection]
+```
+
+Length of a vector
+
+```{r}
+length(x)
+```
+
+## Matrices
+
+```{r Matrices}
+M = matrix(1:20,nrow=4,ncol=5)
+M[2,1]
+M[2,1]=3
+M[2,1]
+M[,1]
+M[2,]
+dim(M)
+```
+
+## Data frame
+
+```{r Data Frames-1}
+data = data.frame(M)
+class(data)
+data[,3]
+names(data)
+names(data) = c("A","B","C","D","E")
+data
+```
+
+
+```{r Data Frames-2}
+data
+data$C
+data[data$A>1,]
+```
+
+## Data Frame from a File
+
+Download the ASCII file called *Scotland_Temperatures.csv* and store it on your disk in the current working directory. For now on, the reference files are stored on disk at an address referenced by the Environment variable *GSTLEARN_DATA*.
+
+
+
+```{r Data Frame from File, eval=FALSE}
+getwd()
+filename = paste(Sys.getenv('GSTLEARN_DATA'),"Scotland",
+                 "Scotland_Temperatures.csv",sep="/")
+temperatures = read.csv(filename,header=TRUE,na="MISS")
+class(temperatures)
+names(temperatures)
+```
+
+## Some functions
+
+```{r Functions-1}
+rnorm(3)
+x=c(3,4,7,4,2)
+x
+sort(x)
+unique(x)
+```
+
+
+```{r Functions-2}
+x=c(3,4,7,4,2)
+sum(x)
+mean(x)
+var(x)
+sd(x)
+```
+
+## Help of Functions
+
+Search for help on the function **image**.
+
+```{r Help,eval=FALSE}
+?image
+```
+
+To get some help on a class :
+
+```{r Help on Class,eval=FALSE}
+class?matrix
+```
+
+## Some functions of interest
+
+Function **outer**
+
+```{r}
+A = c(2,4,10)
+B = c(3,7)
+outer(A,B,"-")
+outer(A,B,"*")
+```
+
+## Loops
+
+Dimension and initialize a vector: **numeric** 
+
+Loop from 1 to 10: store loop index in a vector; then print the vector
+
+```{r}
+tab = numeric(10)
+for (i in 1:10)
+{
+  tab[i] = i
+}
+print(tab)
+```
+
+## Create your own function
+
+Generate a linear transform of the input argument
+
+```{r}
+my.func = function(x,a=2,b=4)
+{
+  y = a * x + b
+  y
+}
+```
+
+Play my function
+
+```{r}
+x = seq(0,20)
+y = my.func(x)
+plot(x,y,main="Plotting my function")
+```
+

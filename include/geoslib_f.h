@@ -32,6 +32,7 @@
 #include "Simulation/SimuFFTParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Variogram/ECalcVario.hpp"
 
 class Db;
 class Vario;
@@ -41,7 +42,6 @@ class AAnam;
 class ANeighParam;
 class Polygons;
 class RuleProp;
-class ECalcVario;
 class PCA;
 class ModelBoolean;
 class SimuBooleanParam;
@@ -132,17 +132,20 @@ GSTLEARN_EXPORT Vario* variogram_pgs(Db *db,
                                      int opt_correl = 2);
 GSTLEARN_EXPORT int vmap_compute(Db *db,
                                  DbGrid *dbmap,
-                                 const ECalcVario &calcul_type, // = ECalcVario::UNDEFINED,
+                                 const ECalcVario &calcul_type = ECalcVario::VARIOGRAM,
                                  int radius = 0,
                                  bool flag_FFT = true,
                                  const NamingConvention& namconv = NamingConvention("VMAP"));
 GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
-                                        const ECalcVario &calcul_type,
+                                        const ECalcVario &calcul_type = ECalcVario::VARIOGRAM,
                                         const VectorInt& nxx = VectorInt(),
                                         const VectorDouble& dxx = VectorDouble(),
                                         int radius = 0.,
                                         bool flag_FFT = true,
                                         const NamingConvention& namconv = NamingConvention("VMAP"));
+GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
+                                 Model *model,
+                                 const NamingConvention &namconv = NamingConvention("VMAP"));
 
 /***********************/
 /* Functions for Model */

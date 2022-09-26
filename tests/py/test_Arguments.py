@@ -56,4 +56,19 @@ myClass.ival
 myClass.ival = 2
 myClass.display()
 
+gl.argumentDefTestInt()
+gl.argumentDefTestDbl()
+gl.argumentDefTestStr()
+gl.argumentDefTestVInt()
+gl.argumentDefTestVDbl()
+gl.argumentDefTestVString()
+gl.argumentDefTestVVInt()
+gl.argumentDefTestVVDbl()
+
+gl.argumentDefTestVInt([])
+gl.argumentDefTestVDbl([])
+gl.argumentDefTestVString([])
+gl.argumentDefTestVVInt([])
+gl.argumentDefTestVVDbl([])
+
 print("Test successfully performed")
