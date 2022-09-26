@@ -77,8 +77,9 @@ grid = DbGrid_create(x0=c(65,530),dx=c(5,5),nx=c(81,137))
 
 
 ```{r Ordinary_Kriging}
-err = kriging(dat,grid,fitmod,unique.neigh)
-grid$display()
+err = kriging(dat,grid,fitmod,unique.neigh,EKrigOpt_PONCTUAL(),TRUE,TRUE,FALSE,
+              c(),c(),c(),NamingConvention("OK"))
+#grid$display()
 ```
 
 ---

@@ -158,7 +158,6 @@ public:
   VectorString expandNameList(const VectorString& names) const;
   VectorString expandNameList(const String& names) const;
 
-
   // Locator and UID methods
 
   void clearLocators(const ELoc& locatorType);

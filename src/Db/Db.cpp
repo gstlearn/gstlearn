@@ -3150,10 +3150,10 @@ VectorDouble Db::getSelection(void) const
 VectorDouble Db::getColumnByColIdx(int icol, bool useSel) const
 {
   int nech = getSampleNumber();
-  VectorDouble tab, sel;
-  if (!isColIdxValid(icol)) return tab;
+  if (!isColIdxValid(icol)) return VectorDouble();
 
-  tab.resize(nech, TEST);
+  VectorDouble tab(nech, TEST);
+  VectorDouble sel;
   if (useSel) sel = getSelection();
 
   int ecr = 0;

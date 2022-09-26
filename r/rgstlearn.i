@@ -219,12 +219,14 @@
 %typemap(rtypecheck, noblock=1) const float&, float               { length($arg) == 1 &&  is.character($arg) }
 %typemap(rtypecheck, noblock=1) const UChar&, UChar               { length($arg) == 1 && (is.integer($arg) || is.numeric($arg)) }
 %typemap(rtypecheck, noblock=1) const bool&, bool                 { length($arg) == 1 &&  is.logical($arg) }
-%typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt       { length($arg)  > 1 && (is.integer($arg) || is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble { length($arg)  > 1 &&  is.numeric($arg) }
-%typemap(rtypecheck, noblock=1) const VectorString&, VectorString { length($arg)  > 1 &&  is.character($arg) }
-%typemap(rtypecheck, noblock=1) const VectorFloat&, VectorFloat   { length($arg)  > 1 &&  is.numeric($arg) }
-%typemap(rtypecheck, noblock=1) const VectorUChar&, VectorUChar   { length($arg)  > 1 && (is.integer($arg) || is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorBool&, VectorBool     { length($arg)  > 1 && is.logical($arg) }
+%typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt       { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorString&, VectorString { length($arg) == 0 || (length($arg)  > 1 &&  is.character($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorFloat&, VectorFloat   { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorUChar&, VectorUChar   { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorBool&, VectorBool     { length($arg) == 0 || (length($arg)  > 1 && is.logical($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorVectorInt&, VectorVectorInt       { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
 
 %fragment("FromCpp", "header")
 {  
