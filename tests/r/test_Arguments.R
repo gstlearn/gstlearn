@@ -23,15 +23,15 @@ argumentTestVectorVectorDouble(c( c(2.,3.),c(1., 5 ) ))
 a = VectorString()
 a$push_back("toto")
 a$push_back("titi")
-#argumentTestVectorString(a)      Ne fonctionne pas
+argumentTestVectorString(a)
 
 a = VectorInt()
 #a$push_back(12)
 #argumentTestVectorInt(a)
 
 a = VectorDouble()
-#a$push_back(12.)
-#argumentTestVectorDouble(a)
+a$push_back(12.)
+argumentTestVectorDouble(a)
 
 # Testing missing arguments
 
@@ -45,7 +45,7 @@ argumentTestVectorDouble(c(NA))
 argumentTestIntOverload(12)
 argumentTestIntOverload(c(21, 32))
 argumentTestStringOverload("my_String")
-#argumentTestStringOverload(c("my_String1","my_String2","String3"))
+argumentTestStringOverload(c("my_String1","my_String2","String3"))
 
 # Testing ENUM
 
@@ -66,4 +66,19 @@ myClass$ival
 myClass$ival = 21
 myClass$display()
 
-print("Test successfully performed")
+# Testing usage of default values
+
+argumentDefTestInt()
+argumentDefTestDbl()
+argumentDefTestStr()
+argumentDefTestVInt()
+argumentDefTestVDbl()
+argumentDefTestVString()
+argumentDefTestVVDbl()
+
+# Specifying empty argument explicitely
+
+argumentDefTestVInt(c())
+argumentDefTestVDbl(c())
+argumentDefTestVString(c())
+argumentDefTestVVDbl(c())

@@ -110,8 +110,8 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           g <- g + geom_line(data = df, aes(x=hh,y=gg), color=cols[id+1], na.rm=TRUE)
           
           if (draw_psize)
-         	 g <- g + geom_point(data = df, aes(x=hh, y=gg, size=sw/ratio_psize), 
-         	 	color=color_psize, show.legend=FALSE)
+         	 g <- g + geom_point(data = df, aes(x=hh, y=gg), 
+         	 	size=sw/ratio_psize, color=color_psize, show.legend=FALSE)
          	 
           if (draw_plabels)
           	 g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
@@ -166,7 +166,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 plot.point <- function(db, color_name=NULL, size_name=NULL,
               col0='red', cex0=0.2, sizmin=10, sizmax=200, asp=1, pch0=19, 
               xlab="", ylab="", title="", padd = NULL, ...) 
-{    
+{  
   # Extracting coordinates
   tabx = db$getCoordinates(0,TRUE)
   taby = db$getCoordinates(1,TRUE)
@@ -202,10 +202,10 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
     p = padd
   else
     p <- ggplot()
-  p <- p + geom_point(data=df,aes(x=tabx,y=taby,size=sizval,color=colval),na.rm=TRUE)
+    
+  p <- p + geom_point(data=df,aes(x=tabx,y=taby),
+  		size=sizval,color=colval,na.rm=TRUE, show.legend=FALSE)
 
-  p <- p + theme(legend.position = "none")
-  
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
   p
 }
@@ -262,7 +262,7 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   }
   data = Db_getColumn(dbgrid, name)
   df = data.frame(x,y,data)
-
+  
   if (length(padd) > 0)
   	p <- padd
   else
