@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ESelectivity.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
-#include "Stats/ESelectivity.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Basic/Table.hpp"
 

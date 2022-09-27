@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ESelectivity.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
@@ -19,7 +21,6 @@
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Stats/Selectivity.hpp"
-#include "Stats/ESelectivity.hpp"
 
 #include <math.h>
 

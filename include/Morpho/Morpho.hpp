@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EMorpho.hpp"
+
 #include "geoslib_define.h"
 #include "Arrays/BImage.hpp"
 #include "Db/DbGrid.hpp"
-#include "Morpho/EMorpho.hpp"
 
 GSTLEARN_EXPORT int morpho_count(const BImage& imagin);
 GSTLEARN_EXPORT void morpho_duplicate(const BImage &imagin, BImage &imagout);

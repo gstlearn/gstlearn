@@ -8,14 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/EConvDir.hpp"
+#include "Enum/EConvType.hpp"
+
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/EConvType.hpp"
-#include "Covariances/EConvDir.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 #include <math.h>

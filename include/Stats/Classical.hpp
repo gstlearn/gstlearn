@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EStatOption.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Stats/EStatOption.hpp"
 
 typedef struct
 {

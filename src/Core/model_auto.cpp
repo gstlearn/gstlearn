@@ -11,10 +11,12 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/EAnam.hpp"
+#include "Enum/EJustify.hpp"
+
 #include "Basic/AException.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/EJustify.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
@@ -28,7 +30,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Geometry/Geometry.hpp"
 
 #include <math.h>

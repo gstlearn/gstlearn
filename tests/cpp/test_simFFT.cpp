@@ -10,14 +10,15 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
+
 #include "Space/ASpaceObject.hpp"
-#include "Space/ESpaceType.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/ECov.hpp"
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 

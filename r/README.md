@@ -5,6 +5,17 @@ Copyright (c) MINES Paris / PSL University
 
 ## References
 
+The R *gstlearn* package is a cross-platform R Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+Copyright (c) MINES Paris / PSL University
+
+All *gstlearn* outputs can be ploted using *ggplot* package.
+
+Some tutorials (RMarkdown) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) directory.
+
+Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory.
+
+## References
+
 The R *gstlearn* package is a R wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
 This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).
@@ -68,7 +79,12 @@ This package has been successfully tested with Ubuntu 16/18/20 LTS and Windows 1
 
 Execute the following commands:
 
+    sudo apt install swig
     sudo apt install r-base
+    
+Finally, install the R required packages from an R command prompt (as sudo):
+
+    install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
@@ -78,6 +94,7 @@ Notes:
 
 Execute the following commands (Not tested):
 
+    brew install swig
     brew install r
 
 Notes:
@@ -94,7 +111,7 @@ Then, download and install the following tools:
 
 Finally, install the R required packages from an R command prompt:
 
-    install.packages(c("ggplot2", "ggpubr")
+    install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
@@ -116,5 +133,5 @@ The classes and functions documentation is provided with the gstlearn package as
 
 ## License
 
-MIT
+GPL
 2022 Team gstlearn

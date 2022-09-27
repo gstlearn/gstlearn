@@ -11,12 +11,13 @@
 #include "geoslib_d.h"
 #include "geoslib_f.h"
 
+#include "Enum/ELoadBy.hpp"
+#include "Enum/ESpaceType.hpp"
+
 #include "Space/ASpaceObject.hpp"
-#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Vector.hpp"

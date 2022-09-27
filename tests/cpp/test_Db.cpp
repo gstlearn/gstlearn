@@ -1,9 +1,11 @@
+
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/ECst.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/ECst.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"

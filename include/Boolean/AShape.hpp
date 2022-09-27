@@ -12,12 +12,13 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/ETLaw.hpp"
+#include "Enum/ETShape.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Vector.hpp"
 #include "Boolean/ShapeParameter.hpp"
-#include "Boolean/ETShape.hpp"
-#include "Boolean/ETLaw.hpp"
 
 class BooleanObject;
 

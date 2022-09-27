@@ -13,7 +13,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 
-#include "Space/ESpaceType.hpp"
+#include "Enum/ESpaceType.hpp"
+
 #include "Basic/Law.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/CovContext.hpp"

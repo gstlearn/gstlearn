@@ -13,9 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Neigh/ENeigh.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Enum/ENeigh.hpp"
 
+#include "Neigh/ANeighParam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"

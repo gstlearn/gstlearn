@@ -11,11 +11,13 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EConsElem.hpp"
+#include "Enum/EConsType.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Model/CovParamId.hpp"
-#include "Model/EConsElem.hpp"
-#include "Model/EConsType.hpp"
 
 /**
  * This class is used:

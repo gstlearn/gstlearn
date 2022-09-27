@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Db/ELoc.hpp"
+#include "Enum/ELoc.hpp"
 
 class Db;
 

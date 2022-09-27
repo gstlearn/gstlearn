@@ -8,10 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/EDrift.hpp"
+
 #include "Drifts/DriftY3.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Db/Db.hpp"
-#include "Drifts/EDrift.hpp"
 
 DriftY3::DriftY3(const CovContext& ctxt)
     : ADriftElem(EDrift::Y3, ctxt)

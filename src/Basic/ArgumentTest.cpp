@@ -31,7 +31,7 @@ void _introduction(const String& title, bool end_of_line = false)
 
 void _printEmpty()
 {
-  message("Found an ampty argument. This is correct\n");
+  message("Found an empty argument. This is correct\n");
 }
 
 void _printInt(int value)

@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EConsElem.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "Model/EConsElem.hpp"
 
 class GSTLEARN_EXPORT ElemNostat: public AStringable
 {

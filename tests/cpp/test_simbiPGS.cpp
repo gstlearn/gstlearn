@@ -14,9 +14,10 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 
+#include "Enum/ECov.hpp"
+
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Variogram/Vario.hpp"

@@ -10,9 +10,10 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Enum/ECov.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Model/Tapering.hpp"
-#include "Covariances/ECov.hpp"
 
 #include <math.h>
 

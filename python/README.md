@@ -1,13 +1,13 @@
 ## Overview
 
-The Python *gstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
+The Python *gstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
 Copyright (c) MINES Paris / PSL University
 
 If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib* (see [modules](https://github.com/gstlearn/gstlearn/tree/main/python/modules) directory).
 
-Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/python/demo) directory.
+Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/python) directory.
 
-Some tests (Python Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/python/tests) directory.
+Some tests (Python Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/py) directory.
   
 ## References
 
@@ -23,7 +23,7 @@ This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig)
 
     * SWIG 4 or higher
     * Python 3 or higher with *pip*, *numpy*, *pybind11* and *matplotlib* modules installed
-    * Optionnaly, following Python modules can also be installed [optional]: *pypandoc*, *geopandas*, *jupyter*
+    * Optionnaly, following Python modules can also be installed: *pypandoc*, *geopandas*, *jupyter*
 
 3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
 
@@ -33,7 +33,7 @@ Note:
   
 ## Installation
   
-  These instructions will compile and install the Python package in your usual Python site-packages directory:
+These instructions will compile and install the Python package in your usual Python site-packages directory:
   
 ### Microsoft Visual Studio, XCode, ...
 
@@ -144,5 +144,5 @@ The classes and functions documentation is provided with the gstlearn package as
 
 ## License
 
-MIT
+BSD
 2022 Team gstlearn

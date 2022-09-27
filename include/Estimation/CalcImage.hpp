@@ -11,11 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-
 #include "geoslib_define.h"
 
+#include "Enum/EMorpho.hpp"
+
 #include "Calculators/ACalcInterpolator.hpp"
-#include "Morpho/EMorpho.hpp"
 
 class DbGrid;
 class ANeighParam;

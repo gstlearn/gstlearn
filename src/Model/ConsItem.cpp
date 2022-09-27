@@ -11,9 +11,10 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/EConsElem.hpp"
+
 #include "Space/ASpaceObject.hpp"
 #include "Model/ConsItem.hpp"
-#include "Model/EConsElem.hpp"
 #include "Basic/Utilities.hpp"
 
 ConsItem::ConsItem(const CovParamId& paramid,

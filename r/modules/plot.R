@@ -15,7 +15,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
   if (title != "")
 	  p <- p + ggtitle(title) + theme(plot.title = element_text(hjust = 0.5))
   if (! is.null(asp))
-  	  p <- p + coord_fixed(ratio = asp)
+  	  suppressWarnings(suppressMessages(p <- p + coord_fixed(ratio = asp)))
   p
 }
 
@@ -111,12 +111,13 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           
           if (draw_psize)
          	 g <- g + geom_point(data = df, aes(x=hh, y=gg), 
-         	 	size=sw/ratio_psize, color=color_psize, show.legend=FALSE)
+         	 	size=sw/ratio_psize, color=color_psize, 
+         	 	na.rm=TRUE, show.legend=FALSE)
          	 
           if (draw_plabels)
           	 g <- g + geom_text(data = df, aes(x=hh, y=gg, label=as.character(sw)),
-          	 	color=color_plabel, size=size_plabel, nudge_y=nudge_y, show.legend=FALSE, 
-          	 	check_overlap=TRUE)
+          	 	color=color_plabel, size=size_plabel, nudge_y=nudge_y, 
+          	 	show.legend=FALSE, check_overlap=TRUE)
  	
           # Plotting the Model (optional)
           if (! is.null(model))
@@ -164,7 +165,8 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 # Function for plotting a point data base, with optional color and size variables
 
 plot.point <- function(db, color_name=NULL, size_name=NULL,
-              col0='red', cex0=0.2, sizmin=10, sizmax=200, asp=1, pch0=19, 
+              col0='red', cex0=0.2, sizmin=10, sizmax=100, asp=1, pch0=19, 
+              flagAbsSize = FALSE, show.legend=FALSE,
               xlab="", ylab="", title="", padd = NULL, ...) 
 {  
   # Extracting coordinates
@@ -187,9 +189,10 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   if (! is.null(size_name))
   {
     sizval  = Db_getColumn(db,size_name,TRUE)
-    m = min(abs(sizval),na.rm=TRUE)
-    M = max(abs(sizval),na.rm=TRUE)
-    sizval = (sizmax * (abs(sizval) - m) / (M-m) + sizmin) / reduction
+    if (flagAbsSize) sizval = abs(sizval)
+    m = min(sizval,na.rm=TRUE)
+    M = max(sizval,na.rm=TRUE)
+    sizval = (sizmax * (sizval - m) / (M-m) + sizmin) / reduction
   }
   else
   {
@@ -203,10 +206,11 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   else
     p <- ggplot()
     
-  p <- p + geom_point(data=df,aes(x=tabx,y=taby),
-  		size=sizval,color=colval,na.rm=TRUE, show.legend=FALSE)
-
+  p <- p + geom_point(data=df, aes(x=tabx,y=taby),
+  		color=colval,size=sizval,na.rm=TRUE, show.legend=show.legend)
+  		
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
+  
   p
 }
 
@@ -242,7 +246,7 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
 # Function for plotting a variable (referred by its name) informed in a grid Db
 
 plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
-			xlab="", ylab="", title="", padd=NULL)
+			show.legend=TRUE, xlab="", ylab="", title="", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
@@ -268,7 +272,8 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   else
    	p <- ggplot()
    
-  p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data)) + 
+  p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data), 
+  			show.legend=show.legend) + 
        scale_fill_viridis_c(option = "inferno", na.value = color_NA)
        
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
@@ -288,8 +293,11 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
   else
     p <- ggplot() 
     
-  p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill) 
+  p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
+  						  na.rm=TRUE) 
+  
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
+  
   p
 }
 
@@ -331,9 +339,10 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NUL
 
 # Function for representing a line between points provided as arguments
 plot.XY <-function(xtab, ytab, join=TRUE,
-	color="black", linetype="solid", shape=20,
-	flagDiag = FALSE, diag_color = "red", diag_line = "solid",
-	xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
+	               color="black", linetype="solid", shape=20,
+	               flagDiag = FALSE, 
+	               diag_color = "red", diag_line = "solid",
+	               xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
 {    
   if (length(ytab) != length(xtab))
   {
@@ -354,10 +363,10 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   
   if (flagDiag)
   {
-  	u = min(xtab, ytab)
-  	v = max(xtab, ytab)
+  	u = min(xtab, ytab, na.rm=TRUE)
+  	v = max(xtab, ytab, na.rm=TRUE)
   	p <- p + geom_segment(aes(x=u,y=u,xend=v,yend=v),
-  		linetype = diag_line, color = diag_color)
+  		linetype = diag_line, color = diag_color, na.rm=TRUE)
   }
   
   if (join)
@@ -365,7 +374,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
  	 	linetype = linetype, color=color, na.rm=TRUE)
   else 
     p <- p + geom_point(data = rp, aes(x=xtab,y=ytab), 
-    	shape=shape, color=color)
+    	shape=shape, color=color, na.rm=TRUE)
   
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
   
@@ -381,25 +390,26 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
   valZ = res$getZ()
   
   p = plot.XY(valY, valZ, join=TRUE, flagDiag = FALSE,
-  		color=color, linetype=linetype, 
-	    xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
-        padd=padd)
+  		      color=color, linetype=linetype, 
+	          xlim=res$getAylim(), ylim=res$getAzlim(), xlab=xlab, ylab=ylab, title=title, 
+              padd=padd)
   p
 }
 
-plot.correlation <- function(db1, name1, name2, db2, flagDiag = FALSE,
-  color="black", linetype = "solid",
-  diag_color = "red", diag_line = "dashed",
-  xlim="", ylim="", xlab="", ylab="", title="", 
-  padd=NULL)
+plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
+		color="black", linetype = "solid",
+ 		diag_color = "red", diag_line = "solid",
+ 		xlim="", ylim="", xlab="", ylab="", title="", 
+  		padd=NULL)
 {
+  if (is.null(db2)) db2 = db1
   val1 = Db_getColumn(db1,name1)
   val2 = Db_getColumn(db2,name2)
   p = plot.XY(val1, val2, join=FALSE, flagDiag=flagDiag, 
-  		color=color, linetype = linetype, 
-  		diag_color = diag_color, diag_line = diag_line,
-     	xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
-    	padd=padd)
+  		      color=color, linetype = linetype, 
+  		      diag_color = diag_color, diag_line = diag_line,
+     	      xlim=xlim, ylim=ylim, xlab=xlab, ylab=ylab, title=title, 
+    	      padd=padd)
   p 
 }
 

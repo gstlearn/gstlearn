@@ -8,13 +8,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ETape.hpp"
+
 #include "Covariances/CovLMCTapering.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
-#include "Covariances/ETape.hpp"
 
 #include <math.h>
 

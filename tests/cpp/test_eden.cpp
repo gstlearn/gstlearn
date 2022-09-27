@@ -14,12 +14,13 @@
 
 #include "geoslib_d.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
+
 #include "Space/ASpaceObject.hpp"
-#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/ECov.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"

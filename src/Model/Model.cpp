@@ -12,6 +12,9 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/EModelProperty.hpp"
+
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
@@ -29,12 +32,10 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
-#include "Covariances/ECov.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Model/EModelProperty.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/Geometry.hpp"
 

@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EDrift.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Drifts/EDrift.hpp"
 
 class ADriftElem;
 

@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "ESpaceType.hpp"
+#include "Enum/ESpaceType.hpp"
 
 #include "Basic/AStringable.hpp"
 #include "Basic/Vector.hpp"

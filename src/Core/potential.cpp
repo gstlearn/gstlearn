@@ -10,6 +10,9 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Enum/EDrift.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -17,7 +20,6 @@
 #include "Basic/OptDbg.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMGradient.hpp"
-#include "Drifts/EDrift.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

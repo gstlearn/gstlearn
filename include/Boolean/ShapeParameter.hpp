@@ -12,9 +12,10 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/ETLaw.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
-#include "Boolean/ETLaw.hpp"
 
 // TODO Will be replaced by future class"Law" or "Distribution" which does not
 // actually exist

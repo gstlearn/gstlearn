@@ -10,9 +10,13 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Enum/EJustify.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/EDrift.hpp"
+
 #include "Variogram/Vario.hpp"
 #include "Variogram/VarioParam.hpp"
-#include "Variogram/ECalcVario.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Polynomials/Hermite.hpp"
@@ -20,13 +24,11 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Drifts/EDrift.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
 
