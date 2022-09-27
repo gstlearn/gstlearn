@@ -127,7 +127,7 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, cmin = None, cm
     y = np.array(vect[1]).reshape(shape)
     z = np.array(vect[2]).reshape(shape)
     values = np.array(vect[3])
-    values[np.where(values == gl.TEST)[0]] = None
+#    values[np.where(values == gl.TEST)[0]] = None
     values = values.reshape(shape)
     
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
