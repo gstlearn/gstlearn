@@ -11,12 +11,14 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"

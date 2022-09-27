@@ -13,7 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Neigh/ENeigh.hpp"
+#include "Enum/ENeigh.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 

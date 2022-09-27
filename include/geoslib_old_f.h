@@ -10,32 +10,32 @@
 /******************************************************************************/
 #pragma once
 
-// WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
+#include "Enum/EAnam.hpp"
+#include "Enum/EJustify.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/ELoc.hpp"
+#include "Enum/EDrift.hpp"
+#include "Enum/EProcessOper.hpp"
+#include "Enum/EConsElem.hpp"
+#include "Enum/EConsType.hpp"
+#include "Enum/ENeigh.hpp"
+
 #include "Covariances/CovCalcMode.hpp"
 
-#include "Basic/EJustify.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 
-#include "Model/EConsElem.hpp"
-#include "Model/EConsType.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 
-#include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
 
-#include "Db/ELoc.hpp"
-#include "LithoRule/EProcessOper.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Basic/PolyLine2D.hpp"
-#include "Drifts/EDrift.hpp"
-#include "Variogram/ECalcVario.hpp"
 
 class AAnam;
 class AnamDiscreteDD;

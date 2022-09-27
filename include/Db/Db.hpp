@@ -13,11 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-// Enums
-#include "Db/PtrGeos.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/EStatOption.hpp"
 
-#include "Db/ELoadBy.hpp"
-#include "Stats/EStatOption.hpp"
+#include "Db/PtrGeos.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"

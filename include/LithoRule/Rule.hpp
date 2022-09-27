@@ -11,10 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "LithoRule/Node.hpp"
-#include "LithoRule/ERule.hpp"
-#include "RuleStringFormat.hpp"
 
+#include "Enum/ERule.hpp"
+
+#include "LithoRule/Node.hpp"
+#include "RuleStringFormat.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"

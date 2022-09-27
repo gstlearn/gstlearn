@@ -10,8 +10,9 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 
+#include "Enum/ESpaceType.hpp"
+
 #include "Space/ASpaceObject.hpp"
-#include "Space/ESpaceType.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

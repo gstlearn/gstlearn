@@ -11,8 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
-#include "Covariances/ECov.hpp"
 
 class CovAniso;
 class ACovFunc;

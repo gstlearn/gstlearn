@@ -11,6 +11,9 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
+#include "csparse_f.h"
+
+#include "Enum/EJustify.hpp"
 
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -30,14 +33,12 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
 #include "Geometry/Geometry.hpp"
-#include "csparse_f.h"
 
 #include <math.h>
 #include <string.h>

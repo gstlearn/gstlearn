@@ -11,10 +11,11 @@
 #include "geoslib_d.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/ECst.hpp"
+
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/ECst.hpp"
 #include "Basic/File.hpp"
 #include "Geometry/Geometry.hpp"
 

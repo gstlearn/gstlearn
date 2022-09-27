@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/EAnam.hpp"
+
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Basic/ASerializable.hpp"
 
 class Db;

@@ -10,11 +10,13 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Enum/EJustify.hpp"
+
 #include "Morpho/Morpho.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"

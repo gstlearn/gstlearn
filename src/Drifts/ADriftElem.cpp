@@ -10,11 +10,12 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
+#include "Enum/EDrift.hpp"
+
 #include "Drifts/ADriftElem.hpp"
 #include "Drifts/DriftFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Drifts/EDrift.hpp"
 
 ADriftElem::ADriftElem(const EDrift& type,
                        const CovContext& ctxt,

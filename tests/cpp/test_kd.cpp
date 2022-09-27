@@ -10,8 +10,10 @@
 /******************************************************************************/
 #include "geoslib_d.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/ESpaceType.hpp"
+
 #include "Space/ASpaceObject.hpp"
-#include "Space/ESpaceType.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Model/Model.hpp"
@@ -19,7 +21,6 @@
 #include "Model/Option_VarioFit.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/ECov.hpp"
 #include "Drifts/Drift1.hpp"
 #include "Drifts/DriftX.hpp"
 #include "Drifts/DriftY.hpp"

@@ -13,16 +13,17 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/EDrift.hpp"
+#include "Enum/EConsElem.hpp"
+#include "Enum/EModelProperty.hpp"
+
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 
-#include "Drifts/EDrift.hpp"
 #include "Drifts/DriftList.hpp"
 
-#include "Model/EModelProperty.hpp"
-#include "Model/EConsElem.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"

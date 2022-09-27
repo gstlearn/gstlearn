@@ -11,13 +11,15 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Covariances/ACov.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"

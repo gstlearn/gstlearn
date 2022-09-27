@@ -12,9 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
-// WARNING: Make this include list as small as possible!
+#include "Enum/ECalcMember.hpp"
+
 #include "Basic/AStringable.hpp"
-#include "Covariances/ECalcMember.hpp"
 
 class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {

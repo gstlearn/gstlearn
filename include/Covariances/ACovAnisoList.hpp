@@ -13,11 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-// Enums
-#include "Covariances/ECov.hpp"
+#include "Enum/ECov.hpp"
 
 #include "Basic/ICloneable.hpp"
-
 #include "Covariances/ACov.hpp"
 #include "Covariances/CovCalcMode.hpp"
 

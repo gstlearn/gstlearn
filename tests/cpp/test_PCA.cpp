@@ -8,16 +8,17 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /*                                                                            */
-/* This file is meant to demonstrate the PCA feature                 */
+/* This file is meant to demonstrate the PCA feature                          */
 /*                                                                            */
 /******************************************************************************/
+#include "Enum/ECov.hpp"
+
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Stats/PCA.hpp"

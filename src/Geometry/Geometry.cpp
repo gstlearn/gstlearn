@@ -5,8 +5,10 @@
  *      Author: drenard
  */
 #include "geoslib_f.h"
+
+#include "Enum/ERotation.hpp"
+
 #include "Geometry/Geometry.hpp"
-#include "Geometry/ERotation.hpp"
 #include "Basic/Utilities.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"

@@ -11,15 +11,16 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EDrift.hpp"
+
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
-#include "Drifts/EDrift.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/CovContext.hpp"
-
 
 /* Elementary Drift function
  * */

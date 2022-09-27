@@ -12,8 +12,9 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/ECst.hpp"
+
 #include <map>
-#include "ECst.hpp"
 
 /**
  * Operate the list of Constant options

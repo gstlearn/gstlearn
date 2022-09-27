@@ -11,7 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "LithoRule/EProcessOper.hpp"
+
+#include "Enum/EProcessOper.hpp"
 
 class Db;
 class DbGrid;

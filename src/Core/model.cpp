@@ -11,9 +11,11 @@
 #include "geoslib_enum.h"
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
+
+#include "Enum/EDrift.hpp"
+
 #include "Drifts/DriftFactory.hpp"
 #include "Drifts/DriftList.hpp"
-#include "Drifts/EDrift.hpp"
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Basic/AException.hpp"

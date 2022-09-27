@@ -15,12 +15,14 @@
 #include "geoslib_d.h"
 
 #include "Enum/EKrigOpt.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/EConsElem.hpp"
+
 #include "Basic/CSVformat.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Model/EConsElem.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
@@ -32,7 +34,6 @@
 #include "Simulation/SimuFFTParam.hpp"
 #include "Stats/Selectivity.hpp"
 #include "Variogram/DirParam.hpp"
-#include "Variogram/ECalcVario.hpp"
 
 class Db;
 class Vario;

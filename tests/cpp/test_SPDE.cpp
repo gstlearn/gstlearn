@@ -12,15 +12,16 @@
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/ELoadBy.hpp"
+
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Model/Model.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ECov.hpp"
 
 #define VERBOSE 0
 

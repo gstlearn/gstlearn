@@ -13,6 +13,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EPowerPT.hpp"
+
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -20,7 +23,6 @@
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
 #include "Model/ANoStat.hpp"
-#include "LinearOp/EPowerPT.hpp"
 
 #include <map>
 

@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Enum/ERotation.hpp"
+
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Geometry/ERotation.hpp"
 
 GSTLEARN_EXPORT void ut_rotation_init(int ndim, double *rot);
 GSTLEARN_EXPORT void ut_rotation_sincos(double angle,

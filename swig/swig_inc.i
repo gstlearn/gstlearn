@@ -9,6 +9,33 @@
   
   #include "csparse_d.h"
   #include "csparse_f.h"
+
+  #include "Enum/AEnum.hpp"
+  #include "Enum/EKrigOpt.hpp"
+  #include "Enum/ESPDECalcMode.hpp"
+  #include "Enum/EAnam.hpp"
+  #include "Enum/ECst.hpp"
+  #include "Enum/EDbg.hpp"
+  #include "Enum/ETLaw.hpp"
+  #include "Enum/ETShape.hpp"
+  #include "Enum/EConvDir.hpp"
+  #include "Enum/ECalcVario.hpp"
+  #include "Enum/EConvType.hpp"
+  #include "Enum/ECov.hpp"
+  #include "Enum/ETape.hpp"
+  #include "Enum/ELoadBy.hpp"
+  #include "Enum/ELoc.hpp"
+  #include "Enum/EDrift.hpp"
+  #include "Enum/EPowerPT.hpp"
+  #include "Enum/ERule.hpp"
+  #include "Enum/EConsElem.hpp"
+  #include "Enum/EConsType.hpp"
+  #include "Enum/EModelProperty.hpp"
+  #include "Enum/EMorpho.hpp"
+  #include "Enum/ENeigh.hpp"
+  #include "Enum/ESpaceType.hpp"
+  #include "Enum/ESelectivity.hpp"
+  #include "Enum/EStatOption.hpp"
   
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
@@ -34,8 +61,6 @@
   #include "Basic/OptDbg.hpp"
   #include "Basic/OptCst.hpp"
   #include "Basic/OptCustom.hpp"
-  #include "Basic/EDbg.hpp"
-  #include "Basic/ECst.hpp"
   #include "Basic/File.hpp"
   #include "Basic/Limits.hpp"
   #include "Basic/Plane.hpp"
@@ -53,8 +78,6 @@
   
   #include "Faults/Faults.hpp"
   
-  #include "Boolean/ETLaw.hpp"
-  #include "Boolean/ETShape.hpp"
   #include "Boolean/ShapeParameter.hpp"
   #include "Boolean/AShape.hpp"
   #include "Boolean/ShapeParallelepiped.hpp"
@@ -65,9 +88,6 @@
   #include "Boolean/ShapeHalfSinusoid.hpp"
   #include "Boolean/ModelBoolean.hpp"
   
-  #include "Enum/EKrigOpt.hpp"
-  
-  #include "Space/ESpaceType.hpp"
   #include "Space/ASpace.hpp"
   #include "Space/ASpaceObject.hpp"
   #include "Space/SpacePoint.hpp"
@@ -91,8 +111,6 @@
   #include "Mesh/MeshETurbo.hpp"
   #include "Mesh/MeshSpherical.hpp"
   
-  #include "Enum/AEnum.hpp"
-  
   #include "Polynomials/APolynomial.hpp"
   #include "Polynomials/ClassicalPolynomial.hpp"
   #include "Polynomials/Hermite.hpp"
@@ -110,20 +128,17 @@
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
-  #include "LinearOp/EPowerPT.hpp"
   
   #include "Neigh/ANeighParam.hpp"
   #include "Neigh/NeighUnique.hpp"
   #include "Neigh/NeighImage.hpp"
   #include "Neigh/NeighMoving.hpp"
   #include "Neigh/NeighBench.hpp"
-  #include "Neigh/ENeigh.hpp"
   #include "Neigh/NeighWork.hpp"
   
   #include "Variogram/VarioParam.hpp"
   #include "Variogram/Vario.hpp"
   #include "Variogram/DirParam.hpp"
-  #include "Variogram/ECalcVario.hpp"
   
   #include "Model/Model.hpp"
   #include "Model/ANoStat.hpp"
@@ -134,9 +149,6 @@
   #include "Model/Constraints.hpp"
   #include "Model/ConsItem.hpp"
   #include "Model/CovParamId.hpp"
-  #include "Model/EModelProperty.hpp"
-  #include "Model/EConsElem.hpp"
-  #include "Model/EConsType.hpp"
   #include "Model/CovParamId.hpp"
   
   #include "Covariances/ACov.hpp"
@@ -180,10 +192,6 @@
   #include "Covariances/CovWendland1.hpp"
   #include "Covariances/CovWendland2.hpp"
   #include "Covariances/CovDiffusionAdvection.hpp"
-  #include "Covariances/ECov.hpp"
-  #include "Covariances/ETape.hpp"
-  #include "Covariances/EConvType.hpp"
-  #include "Covariances/EConvDir.hpp"
   
   #include "Drifts/ADrift.hpp"
   #include "Drifts/ADriftElem.hpp"
@@ -205,7 +213,6 @@
   #include "Drifts/DriftZ.hpp"
   #include "Drifts/DriftZ2.hpp"
   #include "Drifts/DriftZ3.hpp"
-  #include "Drifts/EDrift.hpp"
   
   #include "Matrix/AMatrix.hpp"
   #include "Matrix/AMatrixSquare.hpp"
@@ -218,13 +225,10 @@
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
-  #include "API/ESPDECalcMode.hpp"
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"
   #include "Db/DbStringFormat.hpp"
-  #include "Db/ELoadBy.hpp"
-  #include "Db/ELoc.hpp"
   
   #include "Anamorphosis/CalcAnamTransform.hpp"
   #include "Anamorphosis/AAnam.hpp"
@@ -235,13 +239,11 @@
   #include "Anamorphosis/AnamEmpirical.hpp"
   #include "Anamorphosis/AnamDiscreteDD.hpp"
   #include "Anamorphosis/AnamDiscreteIR.hpp"
-  #include "Anamorphosis/EAnam.hpp"
   
   #include "Gibbs/GibbsMMulti.hpp"
   #include "Gibbs/GibbsUMulti.hpp"
   
   #include "Morpho/Morpho.hpp"
-  #include "Morpho/EMorpho.hpp"
   
   #include "Polygon/Polygons.hpp"
   #include "Polygon/PolySet.hpp"
@@ -250,13 +252,10 @@
   #include "Stats/PCA.hpp"
   #include "Stats/PCAStringFormat.hpp"
   #include "Stats/Selectivity.hpp"
-  #include "Stats/EStatOption.hpp"
-  #include "Stats/ESelectivity.hpp"
   
   #include "LithoRule/Rule.hpp"
   #include "LithoRule/RuleStringFormat.hpp"
   #include "LithoRule/RuleProp.hpp"
-  #include "LithoRule/ERule.hpp"
   
   #include "Estimation/KrigingSystem.hpp"
   #include "Estimation/CalcKriging.hpp"

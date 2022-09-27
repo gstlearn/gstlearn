@@ -8,17 +8,19 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ECst.hpp"
+
 #include "Basic/OptCst.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/ECst.hpp"
 
 #include <algorithm>
 #include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <map>
+
 /* This doesn't work with MinGw / G++ 8.3
 std::map<const ECst, double> OptCst::_cst =
  {{ ECst::NTCAR,  10. },

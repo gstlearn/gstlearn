@@ -11,13 +11,14 @@
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
+#include "Enum/ERule.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
 #include "LithoRule/RuleShift.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
-#include "LithoRule/ERule.hpp"
 #include "Model/Model.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"

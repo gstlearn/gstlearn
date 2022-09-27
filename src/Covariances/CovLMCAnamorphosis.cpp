@@ -8,6 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/EAnam.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/EConvDir.hpp"
+#include "Enum/EConvType.hpp"
+
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
 #include "Model/Model.hpp"
@@ -16,15 +21,11 @@
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovCalcMode.hpp"
-#include "Covariances/EConvType.hpp"
-#include "Covariances/EConvDir.hpp"
-#include "Covariances/ECalcMember.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamDiscrete.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
-#include "Anamorphosis/EAnam.hpp"
 
 #include <math.h>
 

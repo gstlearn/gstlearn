@@ -8,12 +8,15 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include <cmath>
 #include "geoslib_d.h"
 #include "geoslib_old_f.h"
+
+#include "Enum/EDbg.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/EDbg.hpp"
+
+#include <cmath>
 
 #define LSTACK    1000
 #define MINI        10

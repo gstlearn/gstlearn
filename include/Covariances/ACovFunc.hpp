@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ECov.hpp"
 #include "Arrays/Array.hpp"
 
 /* Covariance basic function for normalized sill and distance:

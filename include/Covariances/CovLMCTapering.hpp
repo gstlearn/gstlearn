@@ -10,9 +10,10 @@
 /******************************************************************************/
 #pragma once
 
+#include "Enum/ETape.hpp"
+
 #include "gstlearn_export.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/ETape.hpp"
 
 class ASpace;
 class SpacePoint;

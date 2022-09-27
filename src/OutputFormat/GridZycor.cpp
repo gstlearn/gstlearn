@@ -10,11 +10,12 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
+#include "Enum/ELoadBy.hpp"
+
 #include "OutputFormat/GridZycor.hpp"
 #include "OutputFormat/AOF.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
 

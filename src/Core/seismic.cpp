@@ -10,11 +10,13 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include "Enum/EJustify.hpp"
+
 #include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Model/Model.hpp"
-#include "Basic/EJustify.hpp"
 #include "Basic/File.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"

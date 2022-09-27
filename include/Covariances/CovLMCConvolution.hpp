@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EConvDir.hpp"
+#include "Enum/EConvType.hpp"
+
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/EConvType.hpp"
-#include "Covariances/EConvDir.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 class ASpace;

@@ -11,9 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EConsElem.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Model/EConsElem.hpp"
 
 /**
  * This class is used:

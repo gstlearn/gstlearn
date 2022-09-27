@@ -13,11 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Variogram/ECalcVario.hpp"
+#include "Enum/ECalcVario.hpp"
+
 #include "Variogram/VarioParam.hpp"
-
 #include "Covariances/CovCalcMode.hpp"
-
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"

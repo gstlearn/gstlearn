@@ -13,6 +13,9 @@
 #include "geoslib_old_f.h"
 #include "csparse_f.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/ELoadBy.hpp"
+
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshEStandard.hpp"
@@ -23,12 +26,10 @@
 #include "Mesh/MeshFactory.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Space/ASpaceObject.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/File.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/CovContext.hpp"
 
 #include <math.h>
