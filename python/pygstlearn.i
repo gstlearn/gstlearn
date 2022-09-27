@@ -222,6 +222,7 @@
           vec.push_back(value);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 
@@ -260,6 +261,7 @@
           vvec.push_back(vec);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 }

@@ -38,4 +38,17 @@ Testing for Double :  NA
  nan
 Integer = -1 - Real = -1.100000 - String = NA
  Integer = 2 - Real = -1.100000 - String = NA
+ Testing for Integer :  2  
+ Testing for Double :  2.000000  
+ Testing for String :  Default String  
+ Testing for Vector Int :  Found an empty argument. This is correct
+ Testing for Vector Double :  Found an empty argument. This is correct
+ Testing for Vector String :  Found an empty argument. This is correct
+ Testing for Vector Vector Int :  Found an empty argument. This is correct
+ Testing for Vector Vector Double :  Found an empty argument. This is correct
+ Testing for Vector Int :  Found an empty argument. This is correct
+ Testing for Vector Double :  Found an empty argument. This is correct
+ Testing for Vector String :  Found an empty argument. This is correct
+ Testing for Vector Vector Int :  Found an empty argument. This is correct
+ Testing for Vector Vector Double :  Found an empty argument. This is correct
  Test successfully performed
