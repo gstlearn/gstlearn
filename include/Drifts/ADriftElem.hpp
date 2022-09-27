@@ -29,7 +29,9 @@ class Db;
 class GSTLEARN_EXPORT ADriftElem : public ADrift, public ICloneable, public ASerializable
 {
 public:
-  ADriftElem(const EDrift& type, const CovContext& ctxt, int rankFex = 0);
+  ADriftElem(const EDrift &type,
+             const CovContext &ctxt = CovContext(),
+             int rankFex = 0);
   ADriftElem(const ADriftElem &r);
   ADriftElem& operator= (const ADriftElem &r);
   virtual ~ADriftElem();

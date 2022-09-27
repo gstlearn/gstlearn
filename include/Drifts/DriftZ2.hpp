@@ -16,7 +16,7 @@
 class GSTLEARN_EXPORT DriftZ2 : public ADriftElem
 {
 public:
-  DriftZ2(const CovContext& ctxt);
+  DriftZ2(const CovContext& ctxt = CovContext());
   DriftZ2(const DriftZ2 &r);
   DriftZ2& operator= (const DriftZ2 &r);
   virtual ~DriftZ2();
