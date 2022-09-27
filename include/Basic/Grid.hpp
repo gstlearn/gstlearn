@@ -26,12 +26,12 @@ class GSTLEARN_EXPORT Grid : public AStringable
 
 public:
   Grid(int ndim = 0,
-        const VectorInt& nx    = VectorInt(),
-        const VectorDouble& x0 = VectorDouble(),
-        const VectorDouble& dx = VectorDouble());
+       const VectorInt &nx = VectorInt(),
+       const VectorDouble &x0 = VectorDouble(),
+       const VectorDouble &dx = VectorDouble());
   Grid(const Grid &r);
-  Grid& operator= (const Grid &r);
-	virtual ~Grid();
+  Grid& operator=(const Grid &r);
+  virtual ~Grid();
 
 public:
   static VectorInt generateGridIndices(const VectorInt& nx,
