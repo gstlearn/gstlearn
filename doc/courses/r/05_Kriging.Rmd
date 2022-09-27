@@ -1,5 +1,5 @@
 ---
-title: "Kriging with RGeostats"
+title: "Kriging with gstlearn"
 author: "gstlearn Team"
 fontsize: 8pt
 output:
@@ -13,14 +13,20 @@ theme: Boadilla
 colortheme: beaver
 ---
 
+```{r setup,include=FALSE, fig.show='hide'}
+knitr::opts_chunk$set(fig.width=5, fig.height=4, 
+                      out.height="70%", out.width="70%",
+                      fig.align = "center") 
+```
+
+
 \frametitle{Preamble}
 
 In this preamble, we load the **gstlearn** library, clean the workspace.
 
-```{r loading_library,include=FALSE, fig.show='hide'}
+```{r loading_library, message=FALSE}
 library(gstlearn)
 rm(list=ls())
-knitr::opts_chunk$set(fig.width=3.5, fig.height=2.5, fig.align = "center") 
 ```
 
 Then we download the data base **dat**.
@@ -31,35 +37,38 @@ fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland',
 dat = Db_createFromNF(fileNF)
 ```
 
-Calculate:
-
-- the experimental variogram **vario.2dir**
-- the fitted model **fitmod**
+Calculate the experimental variogram **vario2dir** (in 2 directions)
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
 varioParamMulti = VarioParam_createMultiple(2, 2, 15, 15.)
-vario.2dir = Vario(varioParamMulti, dat)
-err = vario.2dir$compute()
-plot.varmod(vario.2dir)
+vario2dir = Vario(varioParamMulti, dat)
+err = vario2dir$compute()
+```
 
-fitmod = Model()
-err = fitmod$fit(vario.2dir,types=ECov_fromValues(c(0,1,3)))
-plot.varmod(vario.2dir, fitmod)
+---
+
+\frametitle{Experimental Variogram and fitted Model}
+
+Calculate the fitted model **fitmodOK** (add the Universality Condition)
+
+```{r Fitting_Model}
+fitmodOK = Model()
+err = fitmodOK$fit(vario2dir,types=ECov_fromValues(c(0,1,3)))
+err = fitmodOK$addDrift(Drift1())
+plot.varmod(vario2dir, fitmodOK)
 ```
 
 ---
 
 \frametitle{Preparing the Environment}
 
-Define the Unique Neighborhood *creation**unique.neigh**:
+Define the Unique Neighborhood **unique.neigh**:
 
 ```{r Neighborhood}
 unique.neigh = NeighUnique(ndim = 2)
 ```
 
-\pause
-
-Get some statistics on the Data:
+Get the extension of the Data:
 
 ```{r Statistics_on_Data}
 dat$getExtremas()
@@ -67,19 +76,29 @@ dat$getExtremas()
 
 ---
 
-\frametitle{Ordinary Kriging}
+\frametitle{Creating the Grid}
 
-Create the Target grid:
+Create the Target file **grid**:
 
 ```{r Creating_Grid}
-grid = DbGrid_create(x0=c(65,530),dx=c(5,5),nx=c(81,137))
+grid = DbGrid_create(x0=c(65,535),dx=c(4.94, 4.96),nx=c(81,137))
+dbfmt = DbStringFormat_createFromFlags(flag_resume=FALSE, flag_vars=TRUE,
+                                       flag_extend=TRUE, flag_stats=FALSE,
+                                       flag_array=FALSE)
+grid$display(dbfmt)
 ```
 
 
+---
+
+\frametitle{Ordinary Kriging}
+
 ```{r Ordinary_Kriging}
-err = kriging(dat,grid,fitmod,unique.neigh,EKrigOpt_PONCTUAL(),TRUE,TRUE,FALSE,
-              c(),c(),c(),NamingConvention("OK"))
-#grid$display()
+err = kriging(dat,grid,fitmodOK,unique.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("OK"))
 ```
 
 ---
@@ -87,23 +106,40 @@ err = kriging(dat,grid,fitmod,unique.neigh,EKrigOpt_PONCTUAL(),TRUE,TRUE,FALSE,
 \frametitle{Ordinary Kriging Estimation}
 
 ```{r Plot_Ordinary_Kriging}
-plot.grid(grid)
+plot.grid(grid, title="Ordinary Kriging over whole Grid")
 ```
 
 ---
 
-
+\frametitle{Reading the Elevation Grid}
+  
 ```{r}
 fileNF = paste(Sys.getenv('GSTLEARN_DATA'),'Scotland','Scotland_Elevations.NF', sep="/")
 grid = DbGrid_createFromNF(fileNF)
-grid
+grid$display(dbfmt)
 ```
 
-\frametitle{Ordinary Kriging with selection Estimation}
+---
+
+\frametitle{Ordinary Kriging with selection}
+
+The output grid now contains the selection **inshore**. 
+Estimation is restricted to the active cells only.
 
 ```{r Ordinary_Kriging_with_Selection}
-err = kriging(dat,grid,fitmod,unique.neigh)
-ax = plot.grid(grid)
+err = kriging(dat,grid,fitmodOK,unique.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("OK"))
+```
+
+---
+
+\frametitle{Ordinary Kriging - Estimation}
+
+```{r Ordinary_Kriging_Estimation}
+ax = plot.grid(grid,name="OK*estim",title="Estimation by Ordinary Kriging")
 plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
@@ -112,8 +148,30 @@ plot.point(dat,size_name="January_temp",padd=ax)
 \frametitle{Ordinary Kriging - Standard Deviation}
 
 ```{r Ordinary_Kriging_St_Dev}
-plot(db.grid,name="OK*stdev",pos.legend=1,title="")
-plot(dat,add=T)
+ax = plot.grid(grid,name="OK*stdev",title="St. dev. by Ordinary Kriging")
+plot.point(dat,size_name="January_temp",padd=ax)
+```
+
+--- 
+
+\frametitle{Transforming the Model}
+
+The Model **fitmodOK** is first duplicated into **fitmodSK**. Then the Universality Condition is deleted.
+
+```{r Model_for_simple_kriging}
+fitmodSK = fitmodOK$clone()
+err = fitmodSK$delDrift(0)
+err = fitmodSK$setMean(0, 20.)
+```
+
+Simple Kriging is performed
+
+```{r Simple_Kriging}
+err = kriging(dat,grid,fitmodSK,unique.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("SK"))
 ```
 
 --- 
@@ -121,9 +179,8 @@ plot(dat,add=T)
 \frametitle{Simple kriging - Estimation}
 
 ```{r Simple_Kriging_Estimation}
-db.grid = kriging(dat,db.grid,model=fitmod,unique.neigh,uc="",radix="SK",mean=20)
-plot(db.grid,pos.legend=1,title="")
-plot(dat,add=T)
+ax = plot.grid(grid,name="SK*estim",title="Estimation by Simple Kriging")
+plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
 ---
@@ -131,8 +188,8 @@ plot(dat,add=T)
 \frametitle{Simple kriging - Standard Deviation}
 
 ```{r Simple_Kriging_St_Dev}
-plot(db.grid,name="SK*stdev",pos.legend=1,title="Standard Deviation")
-plot(dat,add=T)
+ax = plot.grid(grid,name="SK*stdev",title="St. dev. by Simple Kriging")
+plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
 ---
@@ -140,19 +197,19 @@ plot(dat,add=T)
 \frametitle{Comparing Ordinary and Simple Kriging - Estimations}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_Estimations,results="hide"}
-correlation(db.grid,name1="OK*estim",name2="SK*estim",
-            flag.iso = T,flag.diag = T,asp = 0, 
-            title="", xlab="Ordinary Kriging", ylab="Simple Kriging")
+plot.correlation(grid,name1="OK*estim",name2="SK*estim", flagDiag=TRUE,
+                 title="Estimation Simple vs. Ordinary", 
+                 xlab="Ordinary Kriging", ylab="Simple Kriging")
 ```
 
 ---
 
-\frametitle{Comparing Ordinary and Simple Kriging - St. Dev.}
+\frametitle{Comparing Ordinary and Simple Kriging - St. dev.}
 
 ```{r Comparing_Ordinary_and_Simple_Kriging_StDev,results="hide"}
-correlation(db.grid,name1 = "OK*stdev",name2="SK*stdev",
-            flag.iso = T,flag.diag = T, asp = 0, 
-            title="", xlab="Ordinary Kriging", ylab="Simple Kriging")
+plot.correlation(grid,name1 = "OK*stdev",name2="SK*stdev", flagDiag=TRUE, 
+                 title="St. dev. Simple vs. Ordinary", 
+                 xlab="Ordinary Kriging", ylab="Simple Kriging")
 ```
 
 ---
@@ -161,8 +218,12 @@ correlation(db.grid,name1 = "OK*stdev",name2="SK*stdev",
 
 
 ```{r Cross_Validation}
-res.cv=xvalid(dat,fitmod,unique.neigh)
-res.cv
+err = xvalid(dat,fitmodOK,unique.neigh, flag_code=FALSE, 
+             flag_xvalid_est=1, flag_xvalid_std=1, flag_xvalid_varz=0, 
+             rank_colcok=c(), 
+             namconv=NamingConvention("Xvalid", 
+                                      flag_varname=TRUE, flag_qualifier=TRUE,
+                                      locatorOutType=ELoc_UNKNOWN()))
 ```
 
 ---
@@ -170,7 +231,8 @@ res.cv
 \frametitle{Cross-validation - Histogram of Errors}
 
 ```{r Cross_Validation_Errors}
-hist(res.cv[,"*esterr*"],breaks=30,col="blue",xlab="X-validation Errors",main="")
+plot.hist(dat,name="*esterr*",nbins=30,fill="blue",xlab="Estimation Errors",
+          title="Cross-Validation")
 ```
  
 ---
@@ -178,7 +240,8 @@ hist(res.cv[,"*esterr*"],breaks=30,col="blue",xlab="X-validation Errors",main=""
 \frametitle{Cross-validation - Histogram of Standardized Errors}
 
 ```{r}
-hist(res.cv[,"*stderr*"],breaks=30,col="blue",xlab="Standardized Errors",main="")
+plot.hist(dat,name="*stderr*",nbins=30,fill="blue",xlab="Standardized Errors",
+          title="Cross-Validation")
 ```
 
 ---
@@ -186,63 +249,153 @@ hist(res.cv[,"*stderr*"],breaks=30,col="blue",xlab="Standardized Errors",main=""
 \frametitle{Cross-validation Scores}
 
 ```{r}
-mean(res.cv[,"*esterr*"],na.rm=T)
-mean(res.cv[,"*esterr*"]^2,na.rm=T)
-mean(res.cv[,"*stderr*"]^2,na.rm=T)
+mean(dat$getColumn("*esterr*"),na.rm=TRUE)
+mean(dat$getColumn("*esterr*")^2,na.rm=TRUE)
+mean(dat$getColumn("*stderr*")^2,na.rm=TRUE)
 ```
 
 ---
 
-\frametitle{Cross-validation Errors}
+\frametitle{Cross-validation}
 
 ```{r Cross_Validation_Errors_Display}
-plot(db.grid,name="inshore",title="")
-plot(res.cv,add=T,pos.legend=1)
+ax = plot.grid(grid,name="inshore",show.legend=FALSE)
+plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
+           title="Cross-Validation scores")
 ```
 
 ---
 
-\frametitle{Cross-validation Errors (absolute value)}
+\frametitle{Cross-validation}
 
 ```{r Cross_Validation_Absolute_Error}
-plot(db.grid,name="inshore",title="")
-plot(res.cv,flag.abs=T,add=T,pos.legend=1)
+ax = plot.grid(grid,name="inshore",show.legend=FALSE)
+plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
+           flagAbsSize=TRUE,title="Cross-Validation scores (abs. value)")
 ```
 
 ---
 
 \frametitle{Ordinary Kriging}
-\framesubtitle{Moving Neighborhood}
 
-Interactive mode 
-```{r, eval=FALSE}
-moving.neigh=neigh.input()
-# Answers 2 1 1 n n 1000000
+We design a small Moving Neighborhood **small.neigh** with only 1 sample per neighborhood.
+
+```{r}
+small.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+                                 nmini=1, nmaxi=1, radius=1000000)
 ```
 
-Equivalent script:
-```{r}
-moving.neigh = neigh.create(nmini=1,nmaxi=1,radius=1000000)
+We perform Ordinary Kriging 
+
+```{r Ordinary_Kriging_Small_Moving_Neighborhood}
+err = kriging(dat,grid,fitmodOK,small.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("Small"))
 ```
 
 ---
 
 \frametitle{Ordinary Kriging (Moving Neighborhood)}
 
-```{r Ordinary_Kriging_in_Moving_Neighborhood}
-rg.load("Exdemo_Scotland_Elevations","db.grid2",flag.overwrite=T)
-db.grid2=kriging(dat,db.grid2,model=fitmod,moving.neigh)
-plot(db.grid2,pos.legend=1,title="")
-plot(dat,add=T)
+
+```{r Ordinary_Kriging_Small_Moving_Neighborhood_Estimation}
+ax = plot.grid(grid,name="Small*estim",
+               title="Estimation by Ordinary Kriging (Small Moving Neigh.)")
+plot.point(dat,size_name="January_temp",padd=ax)
 ```
 
 ---
 
-\frametitle{Ordinary Kriging (Small Neighborhood)}
+\frametitle{Ordinary Kriging (Moving Neighborhood 1)}
 
-```{r Ordinary_Kriging_with_Small_Neighborhood}
-moving.neigh2=neigh.create(nmini=1,nmaxi=10,radius=20)
-db.grid2=kriging(dat,db.grid2,model=fitmod,moving.neigh2)
-plot(db.grid2,pos.legend=1,title="")
-plot(dat,add=T)
+Building a reasonable Moving Neighborhood, although with a limited extension (*radius*)
+
+```{r Reduced_Moving_Neighborhood}
+moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+                                  nmini=1, nmaxi=10, radius=20)
+```
+
+Running the Ordinary Kriging
+
+```{r Ordinary_Kriging_Large_Moving_Neighborhood}
+err = kriging(dat,grid,fitmodOK,moving.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("Reduced"))
+```
+
+---
+
+\frametitle{Ordinary Kriging (Moving Neighborhood 1)}
+
+```{r Ordinary_Kriging_Large_Moving_Neighborhood_Estimation}
+ax = plot.grid(grid,name="Reduced*estim",
+               title="Estimation by Ordinary Kriging (Reduced Moving Neigh.)")
+plot.point(dat,size_name="January_temp",padd=ax)
+```
+
+Lots of target sites are not estimated as no sample is found within the neighborhood.
+
+---
+
+\frametitle{Ordinary Kriging (Moving Neighborhood 2)}
+
+Building a reasonable Moving Neighborhood correctly tuned: 10 samples (maximum) selected in a radius of 150 around the target site.
+
+```{r Large_Moving_Neighborhood}
+moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+                                  nmini=1, nmaxi=10, radius=150)
+```
+
+Running the Ordinary Kriging
+
+```{r Ordinary_Kriging_Moving_Neighborhood}
+err = kriging(dat,grid,fitmodOK,moving.neigh,
+              calcul=EKrigOpt_PONCTUAL(),
+              flag_est=TRUE, flag_std=TRUE, flag_varz=FALSE,
+              ndisc=c(), rank_colcok=c(), matCL=c(),
+              namconv=NamingConvention("Moving"))
+```
+
+---
+
+\frametitle{Ordinary Kriging (Moving Neighborhood 2)}
+
+```{r Ordinary_Kriging_Moving_Neighborhood_Estimation}
+ax = plot.grid(grid,name="Moving*estim",
+               title="Estimation by Ordinary Kriging (Moving Neigh.)")
+plot.point(dat,size_name="January_temp",padd=ax)
+```
+
+---
+
+\frametitle{Ordinary Kriging (Moving Neighborhood 2)}
+
+```{r Ordinary_Kriging_Moving_Neighborhood_stdev}
+ax = plot.grid(grid,name="Moving*stdev",
+               title="St. dev. by Ordinary Kriging (Moving Neigh.)")
+plot.point(dat,size_name="January_temp",padd=ax)
+```
+
+---
+
+\frametitle{Comparing Unique and Moving Neighborhoods}
+
+```{r Comparing_unique_moving_estimation}
+plot.correlation(grid,name1 = "OK*estim",name2="Moving*estim", flagDiag=TRUE, 
+                 title="Unique vs. Moving Neighborhood", 
+                 xlab="Unique", ylab="Moving")
+```
+
+---
+
+\frametitle{Comparing Unique and Moving Neighborhoods}
+
+```{r Comparing_unique_moving_stdev}
+plot.correlation(grid,name1 = "OK*stdev",name2="Moving*stdev", flagDiag=TRUE, 
+                 title="Unique vs. Moving Neighborhood", 
+                 xlab="Unique", ylab="Moving")
 ```
