@@ -57,7 +57,8 @@ void BImage::_update()
 int BImage::getAllocSize() const
 {
   int npixels = getNPixels();
-  int nred = ((npixels - 8) / 8 + 1);
+  if (npixels <= 0) return 0;
+  int nred = ((npixels - 1) / 8 + 1);
   return nred;
 }
 
