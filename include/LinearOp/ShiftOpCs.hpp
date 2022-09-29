@@ -160,10 +160,16 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
-  cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab, int nmax = -1);
+  cs* _BuildSfromMap(std::vector<std::map<int, double>>& tab, int nmax = -1);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
-  void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
+  std::vector<std::map<int, double>> _mapCreate() const;
+  std::vector<std::vector<std::map<int, double>>> _mapVectorCreate() const;
+  void _mapUpdate(std::vector<std::map<int, double> >& tab,
+                             int ip0,
+                             int ip1,
+                             double value,
+                             double tol = EPSILON10) const;
   void _determineFlagNoStatByHH();
 private:
   VectorDouble _TildeC;

@@ -901,23 +901,25 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
  * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
  * @remark has the full dimension (by adding a fictitious value equal to eps)
  */
-cs* ShiftOpCs::_BuildSfromMap(std::map<std::pair<int, int>, double> &tab, int nmax)
+cs* ShiftOpCs::_BuildSfromMap(std::vector<std::map<int, double>> &tab, int nmax)
 {
-  std::map<std::pair<int, int>, double>::iterator it;
+  std::map<int, double>::iterator it;
 
   cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
   int ip0_max = -1;
   int ip1_max = -1;
 
-  it = tab.begin();
-  while (it != tab.end())
+  for (int ip0 = 0; ip0 < getSize(); ip0++)
   {
-    int ip0 = it->first.first;
-    int ip1 = it->first.second;
-    if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
-    if (ip0 > ip0_max) ip0_max = ip0;
-    if (ip1 > ip1_max) ip1_max = ip1;
-    it++;
+    it = tab[ip0].begin();
+    while (it != tab[ip0].end())
+    {
+      int ip1 = it->first;
+      if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
+      if (ip0 > ip0_max) ip0_max = ip0;
+      if (ip1 > ip1_max) ip1_max = ip1;
+      it++;
+    }
   }
 
   // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
@@ -948,7 +950,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();
-  std::vector<std::map<std::pair<int, int>, double> > Mtab(number);
+  auto Mtab = _mapVectorCreate();
 
   int error = 1;
   int ndim = getNDim();
@@ -1030,18 +1032,48 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   return error;
 }
 
-void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
+void ShiftOpCs::_mapUpdate(std::vector<std::map<int, double> >& tab,
                            int ip0,
                            int ip1,
                            double value,
-                           double tol)
+                           double tol) const
 {
-  std::pair<std::map<std::pair<int, int>, double>::iterator, bool> ret;
+
+//  std::pair<std::map<std::pair<int, int>, double>::iterator, bool> ret;
+//
+//   if (ABS(value) < tol) return;
+//   std::pair<int, int> key(ip0, ip1);
+//   ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
+//   if (!ret.second) ret.first->second += value;
+
+
+  std::pair<std::map<int,double>::iterator, bool> ret;
+
 
   if (ABS(value) < tol) return;
-  std::pair<int, int> key(ip0, ip1);
-  ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
+  ret = tab[ip0].insert(std::pair<int, double>(ip1, value));
   if (!ret.second) ret.first->second += value;
+}
+
+
+
+std::vector<std::map<int, double>> ShiftOpCs::_mapCreate() const
+{
+  int size = getSize();
+  std::vector<std::map<int, double>> tab(size);
+  return tab;
+}
+
+
+std::vector<std::vector<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
+{
+  int number = _nModelGradParam * getSize();
+  std::vector<std::vector<std::map<int, double>>> tab(number);
+  for(auto &e : tab)
+  {
+    e = _mapCreate();
+  }
+  return tab;
 }
 
 /**
@@ -1054,8 +1086,7 @@ void ShiftOpCs::_mapUpdate(std::map<std::pair<int, int>, double>& tab,
  */
 int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 {
-  std::map<std::pair<int, int>, double> tab;
-
+  auto tab = _mapCreate();
   int error = 1;
   int ndim = getNDim();
   int ncorner = amesh->getNApexPerMesh();
@@ -1213,7 +1244,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
 int ShiftOpCs::_buildSSphere(const AMesh *amesh,
                              double tol)
 {
-  std::map<std::pair<int, int>, double> tab;
+  auto tab = _mapCreate();
   double coeff[3][2];
 
   int error = 1;
@@ -1328,7 +1359,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
 int ShiftOpCs::_buildSVel(const AMesh *amesh,
                           double tol)
 {
-  std::map<std::pair<int, int>, double> tab;
+  auto tab = _mapCreate();
 
   int error = 1;
   int ndim = getNDim();
