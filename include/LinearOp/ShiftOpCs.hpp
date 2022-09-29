@@ -80,7 +80,7 @@ public:
                  const VectorDouble& Lambda,
                  Model* model,
                  bool verbose = false);
-  int getSize() const override { return _S->n; }
+  int getSize() const override { return _napices; }
   int getNDim() const { return _ndim; }
   int getNModelGradParam() const { return _nModelGradParam; }
   void prodTildeC(const VectorDouble& in,
@@ -185,4 +185,5 @@ private:
   int _igrf;
   int _icov;
   int _ndim;
+  int _napices;
 };

@@ -46,7 +46,8 @@ ShiftOpCs::ShiftOpCs()
       _model(nullptr),
       _igrf(0),
       _icov(0),
-      _ndim(0)
+      _ndim(0),
+      _napices(0)
 {
 }
 
@@ -68,7 +69,8 @@ ShiftOpCs::ShiftOpCs(const AMesh* amesh,
       _model(model),
       _igrf(0),
       _icov(0),
-      _ndim(amesh->getEmbeddedNDim())
+      _ndim(amesh->getEmbeddedNDim()),
+      _napices(amesh->getNApices())
 {
   (void) initFromMesh(amesh, model, dbout, igrf, icov, verbose);
 }
@@ -89,7 +91,8 @@ ShiftOpCs::ShiftOpCs(const cs* S,
       _model(model),
       _igrf(0),
       _icov(0),
-      _ndim(0)
+      _ndim(0),
+      _napices(S->n)
 {
   _variety = 0;
   (void) initFromCS(S, TildeC, Lambda, model, verbose);
@@ -107,7 +110,8 @@ ShiftOpCs::ShiftOpCs(const ShiftOpCs &shift)
       _model(nullptr),
       _igrf(0),
       _icov(0),
-      _ndim(shift.getNDim())
+      _ndim(0),
+      _napices(0)
 {
   _reallocate(shift);
 }
@@ -552,6 +556,7 @@ void ShiftOpCs::_reallocate(const ShiftOpCs& shift)
   _igrf = shift._igrf;
   _icov = shift._icov;
   _ndim = shift._ndim;
+  _napices = shift._napices;
 }
 
 cs* ShiftOpCs::getSGrad(int iapex, int igparam) const
