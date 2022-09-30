@@ -376,7 +376,7 @@
 //////////////////////////////////////////////////////////////
 
 // TODO: to be kept ?
-%rename(__getitem__) Db::operator[];
+%rename(__getVitem__) Db::operator[];
 
 %{
   #include <stdio.h>
@@ -438,7 +438,7 @@
 ## Add operator [] to VectorXXX R class [1-based index] ##
 ## ---------------------------------------------------- ##
 
-"getitem" <-
+"getVitem" <-
 function(x, i)
 {
   idx = as.integer(i)
@@ -454,7 +454,7 @@ function(x, i)
   }
 }
 
-"setitem" <-
+"setVitem" <-
 function(x, i, value)
 {
   idx = as.integer(i)
@@ -471,29 +471,114 @@ function(x, i, value)
   x
 }
 
-setMethod('[',    '_p_VectorTT_int_t',                  getitem)
-setMethod('[<-',  '_p_VectorTT_int_t',                  setitem)
-setMethod('[',    '_p_VectorTT_double_t',               getitem)
-setMethod('[<-',  '_p_VectorTT_double_t',               setitem)
-setMethod('[',    '_p_VectorTT_String_t',               getitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[<-',  '_p_VectorTT_String_t',               setitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[',    '_p_VectorTT_float_t',                getitem)
-setMethod('[<-',  '_p_VectorTT_float_t',                setitem)
-setMethod('[',    '_p_VectorTT_UChar_t',                getitem)
-setMethod('[<-',  '_p_VectorTT_UChar_t',                setitem)
-setMethod('[',    '_p_VectorNumTT_int_t',               getitem)
-setMethod('[<-',  '_p_VectorNumTT_int_t',               setitem)
-setMethod('[',    '_p_VectorNumTT_double_t',            getitem)
-setMethod('[<-',  '_p_VectorNumTT_double_t',            setitem)
-setMethod('[',    '_p_VectorNumTT_float_t',             getitem)
-setMethod('[<-',  '_p_VectorNumTT_float_t',             setitem)
-setMethod('[',    '_p_VectorNumTT_UChar_t',             getitem)
-setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setitem)
+## Add operator [] to Db R class ##
+## ----------------------------- ##
+
+"getDbitem" <-
+function (x,i,j,...,drop=TRUE)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+  
+  if (deparse(substitute(i)) != "") {
+    if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
+    if (is.numeric(i)) irow <- i
+  }
+  
+  if (deparse(substitute(j)) != "") {
+    if (is.numeric(j)) {
+      icol <- j
+    } else {
+      icol = grep(glob2rx(j),db$getAllNames())
+    }
+  }
+  
+  if (length(icol) <= 0 || length(irow) <= 0)
+  {
+  	messerr("The variable does not exist")
+  	messerr("This is not authorized in this function")
+  	stop()
+  }
+  if (! is.na(irow) && ! is.na(icol)) res <- db$getByColIdx(irow,icol)
+  if (! is.na(irow) &&   is.na(icol)) res <- db$getArrayBySample(irow)
+  if (  is.na(irow) && ! is.na(icol)) res <- db$getColumnByColIdx(icol)
+  if (  is.na(irow) &&   is.na(icol)) 
+  {
+  	res <- as.data.frame(matrix(db$getAllColumns(),nrow=nech, ncol=ncol))
+  	names(res) = db$getAllNames()
+  	row.names(res) = seq(from=0, length.out=nech)
+  }
+  res
+}
+
+"setDbitem" <-
+  function (x,i,j,...,value)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  
+  if (deparse(substitute(i)) != "") {
+    if (is.numeric(i) || is.logical(i)) irow <- i
+  }
+  
+  if (deparse(substitute(j)) != "") {
+    if (is.numeric(j) || is.logical(j)) {
+      icol <- j
+    } else {
+      icol = grep(glob2rx(j),db$getAllNames())
+    }
+  }
+  
+  if (length(icol) <= 0 || length(irow) <= 0)
+  {
+  	message("The variable does not exist. It is created\n")
+  	icol = db$addColumns(value)
+  	print(paste("creating from icol=",icol))
+  	db$display()
+  }
+  else
+  {
+	if (! is.na(irow) && ! is.na(icol)) db$setByColIdx(irow,icol,value)
+ 	if (! is.na(irow) &&   is.na(icol)) db$setArrayBySample(irow,value)
+ 	if (  is.na(irow) && ! is.na(icol)) db$setColumnByColIdx(value,icol)
+ 	if (  is.na(irow) &&   is.na(icol)) db$setAllColumns(value)
+  }
+  db
+}
+
+setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
+setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
+setMethod('[',    '_p_VectorTT_double_t',               getVitem)
+setMethod('[<-',  '_p_VectorTT_double_t',               setVitem)
+setMethod('[',    '_p_VectorTT_String_t',               getVitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-',  '_p_VectorTT_String_t',               setVitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',    '_p_VectorTT_float_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_float_t',                setVitem)
+setMethod('[',    '_p_VectorTT_UChar_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_UChar_t',                setVitem)
+setMethod('[',    '_p_VectorNumTT_int_t',               getVitem)
+setMethod('[<-',  '_p_VectorNumTT_int_t',               setVitem)
+setMethod('[',    '_p_VectorNumTT_double_t',            getVitem)
+setMethod('[<-',  '_p_VectorNumTT_double_t',            setVitem)
+setMethod('[',    '_p_VectorNumTT_float_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_float_t',             setVitem)
+setMethod('[',    '_p_VectorNumTT_UChar_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
+
+setMethod('[',    '_p_Db',               getDbitem)
+setMethod('[<-',  '_p_Db',               setDbitem)
+setMethod('[',    '_p_DbGrid',           getDbitem)
+setMethod('[<-',  '_p_DbGrid',           setDbitem)
 
 %}

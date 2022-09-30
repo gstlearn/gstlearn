@@ -340,6 +340,7 @@ public:
   void   updArray(int iech, int iuid, int oper, double value);
   VectorDouble getArray(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
+  void setArrayBySample(int iech, const VectorDouble& vec);
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
@@ -519,6 +520,7 @@ public:
   VectorDouble getColumnsByUIDRange(int iuid_beg,
                                     int iuid_end,
                                     bool useSel = false) const;
+  void setAllColumns(const VectorVectorDouble& tabs,bool useSel);
 
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);

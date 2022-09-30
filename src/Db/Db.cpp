@@ -628,6 +628,19 @@ VectorDouble Db::getArrayBySample(int iech) const
   return vals;
 }
 
+void Db::setArrayBySample(int iech, const VectorDouble& vec)
+{
+  VectorInt uids = getAllUIDs();
+  if ((int) uids.size() != (int) vec.size())
+  {
+    messerr("Dimension of 'vec'(%d) does not match number of columns(%)",
+            (int) vec.size(),(int) uids.size());
+    return;
+  }
+  for (int iuid = 0; iuid < (int) uids.size(); iuid++)
+    setArray(iech, uids[iuid], vec[iuid]);
+}
+
 void Db::updArray(int iech, int iuid, int oper, double value)
 {
   if (!isSampleIndexValid(iech)) return;
@@ -3588,6 +3601,13 @@ VectorDouble Db::getAllColumns(bool useSel) const
 {
   VectorInt iuids = getAllUIDs();
   return getColumnsByUID(iuids, useSel);
+}
+
+void Db::setAllColumns(const VectorVectorDouble& tabs,bool useSel)
+{
+  VectorInt iuids = getAllUIDs();
+  for (int iuid = 0; iuid < (int) iuids.size(); iuid++)
+    setColumnByUID(tabs[iuid], iuids[iuid], useSel);
 }
 
 VectorDouble Db::getColumns(const VectorString& names, bool useSel) const
