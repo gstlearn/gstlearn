@@ -224,7 +224,6 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
     p <- p + guides(size = FALSE)
   }
   		
-  		
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
   
   p
