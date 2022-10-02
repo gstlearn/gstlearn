@@ -1223,11 +1223,8 @@ void Db::setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bo
   for (int i = 0; i < (int) icols.size(); i++)
   {
     int icol = icols[i];
-    for (int j = 0; j < getSampleNumber(useSel); j++)
-      tabloc[j] = tabs[lec++];
-    ut_vector_display("tabloc",tabloc);
+    for (int j = 0; j < getSampleNumber(useSel); j++) tabloc[j] = tabs[lec++];
     setColumnByColIdx(tabloc, icol, useSel);
-    printf("done\n");
   }
 }
 
