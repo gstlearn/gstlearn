@@ -3068,7 +3068,7 @@ DbGrid* db_grid_sample(DbGrid *dbin, const VectorInt &nmult)
     /* Loop on the variables of the input grid */
 
     for (icol = 0; icol < ncol; icol++)
-      dbout->setByColIdx(iech, icol, dbin->getByColIdx(iad, icol));
+      dbout->setValueByColIdx(iech, icol, dbin->getValueByColIdx(iad, icol));
   }
 
   label_end: return (dbout);

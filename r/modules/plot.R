@@ -168,11 +168,12 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 }
 
 # Function for plotting a point data base, with optional color and size variables
-plot.point <- function(db, color_name=NULL, size_name=NULL,
-              color0='red', size0=0.2, 
+plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
+              color0='red', size0=0.2, color_label="black", nudge_y=0.1,
               sizmin=10, sizmax=100, flagAbsSize = FALSE, 
               show.legend.color=FALSE, name.legend.color="P-Color",
               show.legend.size =FALSE, name.legend.size ="P-Size",
+              show.legend.label=FALSE, name.legend.label="P-Label",
               asp=1, xlab="", ylab="", title="", padd = NULL, ...) 
 {  
   # Creating the necessary data frame
@@ -205,21 +206,42 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
     sizval = rep(size0,np)
   }
 
-  df = data.frame(tabx,taby,colval,sizval)
+  # Label of sylbols
+  if (! is.null(label_name))
+  {
+ 	label_round = 2
+    labval  = round(Db_getColumn(db,label_name,TRUE),label_round)
+  }
+  else
+  {
+    labval = NULL
+  }
+  df = data.frame(tabx,taby,colval,sizval,labval)
   
   p <- getFigure(padd)
      
   p <- p + geom_point(data=df, aes(x=tabx,y=taby,color=colval,size=sizval),
   		na.rm=TRUE)
-  		
+  
+  if (! is.null(label_name)) 
+  {
+ 	p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
+          	 	nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
+	if (show.legend.label) {
+	  p <- p + guides(label = guide_legend(title = name.legend.label))
+	} else {
+	  p <- p + guides(label = FALSE)
+	}
+  }
+  
   if (show.legend.color) {
-  	p <- p + guides(color = guide_legend(title = name.legend.color)
+  	p <- p + guides(color = guide_legend(title = name.legend.color))
   } else {
     p <- p + guides(color = FALSE)
   }
   	
   if (show.legend.size) {
-  	p <- p + guides(size = guide_legend(title = name.legend.size)
+  	p <- p + guides(size = guide_legend(title = name.legend.size))
   } else {
     p <- p + guides(size = FALSE)
   }
