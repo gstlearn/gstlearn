@@ -22,7 +22,35 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
 
 ProjConvolution::~ProjConvolution() { }
 
+/**
+ * Calculate the vector of grid index shifts
+ * This vector is calculated for the cell located in the center of the grid
+ * @return Vector of shifts
+ */
+VectorInt ProjConvolution::_getShiftVector() const
+{
+  int ndim = _gridPoint->getNDim();
+  int center = 1;
+  for (int idim = 0; idim < ndim; idim++)
+    center *= _gridPoint->getNX(idim);
+  center /= 2;
 
+  VectorInt indp(ndim);
+  VectorInt indm(ndim);
+  VectorInt shift(_getConvSize());
+
+  _gridPoint->rankToIndice(center, indp);
+  for (int idim = 0; idim < ndim; idim++)
+    indm[idim] = indp[idim];
+  for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
+  {
+    int j = i + _getHalfSize();
+    indm[ndim - 1] = indp[ndim - 1] + i;
+    int rankm = _gridPoint->indiceToRank(indm);
+    shift[j] = rankm - center;
+  }
+  return shift;
+}
 
 int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
                                 VectorDouble &valonvertex) const
@@ -47,30 +75,33 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
   int ndim = _gridPoint->getNDim();
   VectorInt indp(ndim);
   VectorInt indm(ndim);
+  VectorInt shift = _getShiftVector();
+
   for (int iechp = 0; iechp < (int) valonseismic.size(); iechp++)
   {
-    _gridPoint->rankToIndice(iechp, indp);
-
-    for (int idim = 0; idim < ndim; idim++)
-      indm[idim] = indp[idim];
-
-    indp[ndim-1] += _getHalfSize();
+//    _gridPoint->rankToIndice(iechp, indp);
+//
+//    for (int idim = 0; idim < ndim; idim++)
+//      indm[idim] = indp[idim];
+//
+//    indp[ndim-1] += _getHalfSize();
 
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
 
       // First value of the difference
-      indm[ndim-1] = indp[ndim-1] + i;
-      int rankm = _gridPoint->indiceToRank(indm);
+//      indm[ndim-1] = indp[ndim-1] + i;
+//      int rankm = _gridPoint->indiceToRank(indm);
+      int rankm = iechp + shift[j];
       if (rankm < 0)
       {
         //messerr("Error indexing for target iechp=%d\n",iechp);
         //ut_ivector_display("Indices in convolution (out of grid)", indm);
-        continue; // This is in order to avoid crash on next line
+        return 1;
       }
       double valm1 = valonseismic[iechp];
-      if( FFFF(valm1))
+      if (FFFF(valm1))
       {
         valonvertex[rankm] = TEST;
         break;
@@ -82,11 +113,10 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
 //      {
 //        //messerr("Error indexing for target iechp=%d\n",iechp);
 //        //ut_ivector_display("Indices in convolution (out of grid)", indm);
-//        continue; // This is in order to avoid crash on next line
+//        return 1;
 //      }
 //      double valm2 = valonvertex[rankm];
-
-      //double valm = (valm1 - valm2) * _convolution[j];
+//      double valm = (valm1 - valm2) * _convolution[j];
       double valm = valm1  * _convolution[j];
       valonvertex[rankm] = valm;
     }
@@ -113,28 +143,31 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   int ndim = _gridPoint->getNDim();
   VectorInt indp(ndim);
   VectorInt indm(ndim);
+  VectorInt shift = _getShiftVector();
+
   for (int iechp = 0; iechp < (int) valonseismic.size(); iechp++)
   {
-    _gridPoint->rankToIndice(iechp, indp);
-
-    for (int idim = 0; idim < ndim; idim++)
-      indm[idim] = indp[idim];
-
-    indp[ndim-1] += _getHalfSize();
-
+//    _gridPoint->rankToIndice(iechp, indp);
+//
+//    for (int idim = 0; idim < ndim; idim++)
+//      indm[idim] = indp[idim];
+//
+//    indp[ndim-1] += _getHalfSize();
+//
     double valp = 0;
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
 
-      // First value of the difference
-      indm[ndim-1] = indp[ndim-1] + i;
-      int rankm = _gridPoint->indiceToRank(indm);
+//      // First value of the difference
+//      indm[ndim-1] = indp[ndim-1] + i;
+//      int rankm = _gridPoint->indiceToRank(indm);
+      int rankm = iechp + shift[j];
       if (rankm < 0)
       {
         //messerr("Error indexing for target iechp=%d\n",iechp);
         //ut_ivector_display("Indices in convolution (out of grid)", indm);
-        continue; // This is in order to avoid crash on next line
+        return 1;
       }
       double valm1 = valonvertex[rankm];
       if( FFFF(valm1))
@@ -142,7 +175,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
         valp = TEST;
         break;
       }
-      // Second value of the difference
+//      Second value of the difference
 //      indm[ndim-1] += 1;
 //      rankm = _gridPoint->indiceToRank(indm);
 //      if (rankm < 0)

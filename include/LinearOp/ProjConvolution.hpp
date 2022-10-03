@@ -39,9 +39,10 @@ public:
 private:
   int _getConvSize() const { return (int) _convolution.size(); }
   int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
+  VectorInt _getShiftVector() const;
 
 private:
-  VectorDouble _convolution;
-  const DbGrid*        _gridPoint;
+  VectorDouble  _convolution;
+  const DbGrid* _gridPoint;
 };
 
