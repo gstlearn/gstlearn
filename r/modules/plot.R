@@ -30,7 +30,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
-		title="", nh=100, padd=NULL)
+                       title="", nh=100, padd=NULL)
 {
   if (is.null(codir))
   {
@@ -52,6 +52,7 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
   
   p
 }
+
 
 # Function for representing the Experimental Variogram together with the Model (optional)
 

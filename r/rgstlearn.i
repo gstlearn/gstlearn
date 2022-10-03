@@ -432,6 +432,9 @@
 %insert(s)
 %{
 
+# Add automatic display for all AStringable objects (see onAttach comment below)
+setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
+
 ##
 ## Add operator [] to VectorXXX R class [1-based index] ##
 ## ---------------------------------------------------- ##
@@ -523,8 +526,8 @@ function (x,i,j,...,drop=TRUE)
 
   if (nargs == 2) {
   
-  	# Case of both arguments are defined
-  	
+    # Case of both arguments are defined
+    
     if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
     if (is.numeric(i)) irow <- i
   
@@ -536,7 +539,7 @@ function (x,i,j,...,drop=TRUE)
     }
   } else if (nargs == 1) {
   
-  	# Case where only one argument in defined
+    # Case where only one argument in defined
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
@@ -559,24 +562,24 @@ function (x,i,j,...,drop=TRUE)
     
   if (length(icol) <= 0)
   {
-  	messerr("The variable does not exist")
-  	messerr("This is not authorized in this function")
-  	stop()
+    messerr("The variable does not exist")
+    messerr("This is not authorized in this function")
+    stop()
   } else {
-	if (! is.undef(irow) && ! is.undef(icol))
-	   res <- db$getValuesByColIdx(irow_dim,icol_dim)
- 	if (! is.undef(irow) &&   is.undef(icol))
-	   res <- db$getArrayBySample(irow_dim)
- 	if (  is.undef(irow) && ! is.undef(icol))
-	   res <- db$getColumnsByColIdx(icol_dim)
-	if (  is.undef(irow) &&   is.undef(icol))
-	   res <- db$getAllColumns()
-	if (nrow_dim > 1 && ncol_dim > 1)
-	{
-	  res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
-	  names(res) = col_names
-	  row.names(res) = row_names
-	}
+  if (! is.undef(irow) && ! is.undef(icol))
+     res <- db$getValuesByColIdx(irow_dim,icol_dim)
+   if (! is.undef(irow) &&   is.undef(icol))
+     res <- db$getArrayBySample(irow_dim)
+   if (  is.undef(irow) && ! is.undef(icol))
+     res <- db$getColumnsByColIdx(icol_dim)
+  if (  is.undef(irow) &&   is.undef(icol))
+     res <- db$getAllColumns()
+  if (nrow_dim > 1 && ncol_dim > 1)
+  {
+    res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+    names(res) = col_names
+    row.names(res) = row_names
+  }
   }
   res
 }
@@ -613,7 +616,7 @@ function (x,i,j,...,drop=TRUE)
     }
   } else if (nargs == 1) {
   
-  	# Only one argument is defined: it corresponds to the column
+    # Only one argument is defined: it corresponds to the column
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
@@ -638,23 +641,23 @@ function (x,i,j,...,drop=TRUE)
   if (length(icol) <= 0)
   {
   
- 	# Case of a new variable
+   # Case of a new variable
   
-  	icol = db$addColumns(value, new_names)
+    icol = db$addColumns(value, new_names)
   }
   else
   {
 
-  	# Case of already an existing variable: replacement
-  	
-	if (! is.undef(irow) && ! is.undef(icol))
-	  db$setValuesByColIdx(irow_dim,icol_dim,value)
- 	if (! is.undef(irow) &&   is.undef(icol))
-	  db$setArrayBySample(irow_dim,value)
- 	if (  is.undef(irow) && ! is.undef(icol))
-	  db$setColumnsByColIdx(value,icol_dim)
- 	if (  is.undef(irow) &&   is.undef(icol))
-	  db$setAllColumns(value)
+    # Case of already an existing variable: replacement
+    
+  if (! is.undef(irow) && ! is.undef(icol))
+    db$setValuesByColIdx(irow_dim,icol_dim,value)
+   if (! is.undef(irow) &&   is.undef(icol))
+    db$setArrayBySample(irow_dim,value)
+   if (  is.undef(irow) && ! is.undef(icol))
+    db$setColumnsByColIdx(value,icol_dim)
+   if (  is.undef(irow) &&   is.undef(icol))
+    db$setAllColumns(value)
   }
   db
 }
@@ -717,8 +720,8 @@ function (x,i,j,...,drop=TRUE)
 
   if (nargs == 2) {
   
-  	# Case of both arguments are defined
-  	
+    # Case of both arguments are defined
+    
     if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
     if (is.numeric(i)) irow <- i
   
@@ -730,7 +733,7 @@ function (x,i,j,...,drop=TRUE)
     }
   } else if (nargs == 1) {
   
-  	# Case where only one argument in defined
+    # Case where only one argument in defined
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
@@ -751,26 +754,25 @@ function (x,i,j,...,drop=TRUE)
   ncol_dim = length(icol_dim)
   nrow_dim = length(irow_dim)
     
-  if (length(icol) <= 0)
-  {
-  	messerr("The variable does not exist")
-  	messerr("This is not authorized in this function")
-  	stop()
+  if (length(icol) <= 0) {
+    messerr("The variable does not exist")
+    messerr("This is not authorized in this function")
+    stop()
   } else {
-	if (! is.undef(irow) && ! is.undef(icol))
-	   res <- db$getValuesByColIdx(irow_dim,icol_dim)
- 	if (! is.undef(irow) &&   is.undef(icol))
-	   res <- db$getArrayBySample(irow_dim)
- 	if (  is.undef(irow) && ! is.undef(icol))
-	   res <- db$getColumnsByColIdx(icol_dim)
-	if (  is.undef(irow) &&   is.undef(icol))
-	   res <- db$getAllColumns()
-	if (nrow_dim > 1 && ncol_dim > 1)
-	{
-	  res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
-	  names(res) = col_names
-	  row.names(res) = row_names
-	}
+    if (! is.undef(irow) && ! is.undef(icol))
+      res <- db$getValuesByColIdx(irow_dim,icol_dim)
+    if (! is.undef(irow) &&   is.undef(icol))
+      res <- db$getArrayBySample(irow_dim)
+    if (  is.undef(irow) && ! is.undef(icol))
+      res <- db$getColumnsByColIdx(icol_dim)
+    if (  is.undef(irow) &&   is.undef(icol))
+      res <- db$getAllColumns()
+    if (nrow_dim > 1 && ncol_dim > 1)
+    {
+      res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+      names(res) = col_names
+      row.names(res) = row_names
+    }
   }
   res
 }
@@ -807,7 +809,7 @@ function (x,i,j,...,drop=TRUE)
     }
   } else if (nargs == 1) {
   
-  	# Only one argument is defined: it corresponds to the column
+    # Only one argument is defined: it corresponds to the column
 
     if (flag_i_defined) k = i
     if (flag_j_defined) k = j
@@ -831,24 +833,21 @@ function (x,i,j,...,drop=TRUE)
 
   if (length(icol) <= 0)
   {
-  
- 	# Case of a new variable
-  
-  	icol = db$addColumns(value, new_names)
+    # Case of a new variable
+    icol = db$addColumns(value, new_names)
   }
   else
   {
-
-  	# Case of already an existing variable: replacement
-  	
-	if (! is.undef(irow) && ! is.undef(icol))
-	  db$setValuesByColIdx(irow_dim,icol_dim,value)
- 	if (! is.undef(irow) &&   is.undef(icol))
-	  db$setArrayBySample(irow_dim,value)
- 	if (  is.undef(irow) && ! is.undef(icol))
-	  db$setColumnsByColIdx(value,icol_dim)
- 	if (  is.undef(irow) &&   is.undef(icol))
-	  db$setAllColumns(value)
+    # Case of already an existing variable: replacement
+    
+    if (! is.undef(irow) && ! is.undef(icol))
+      db$setValuesByColIdx(irow_dim,icol_dim,value)
+    if (! is.undef(irow) &&   is.undef(icol))
+      db$setArrayBySample(irow_dim,value)
+    if (  is.undef(irow) && ! is.undef(icol))
+      db$setColumnsByColIdx(value,icol_dim)
+    if (  is.undef(irow) &&   is.undef(icol))
+      db$setAllColumns(value)
   }
   db
 }
