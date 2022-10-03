@@ -24,7 +24,8 @@ class GSTLEARN_EXPORT ProjConvolution: public IProjMatrix
 {
 
 public:
-  ProjConvolution(const VectorDouble& convolution = VectorDouble(), const DbGrid* seismicOut = nullptr);
+  ProjConvolution(const VectorDouble &convolution = VectorDouble(),
+                  const DbGrid *grid_point = nullptr);
   ProjConvolution(const ProjConvolution &m)= delete;
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution() { }
@@ -36,7 +37,11 @@ public:
   int getPointNumber() const override;
 
 private:
+  int _getConvSize() const { return (int) _convolution.size(); }
+  int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
+
+private:
   VectorDouble _convolution;
-  MeshETurbo   _meshOut;
+  Grid*        _gridPoint;
 };
 

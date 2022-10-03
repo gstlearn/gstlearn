@@ -6,6 +6,15 @@ get.colors <- function()
   c("blue", "red", "green", "brown", "orange", "purple", "yellow")
 }
 
+getFigure <- function(padd = NULL)
+{
+  if (length(padd) > 0)
+  	p <- padd
+  else
+   	p <- ggplot()
+  p
+}
+
 decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 {
   if (xlab != "")
@@ -20,7 +29,6 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 }
 
 # Function for representing a Model
-
 plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
 		title="", nh=100, padd=NULL)
 {
@@ -31,10 +39,7 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
     codir[1] = 1
   }
 
-  if (length(padd) > 0)
-    p = padd
-  else
-    p <- ggplot()
+  p <- getFigure(padd)
   
   hh = seq(from=0, to=hmax, length.out=nh)
   gg = model$sample(hmax, nh, ivar, jvar, codir)
@@ -163,16 +168,18 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 }
 
 # Function for plotting a point data base, with optional color and size variables
-
-plot.point <- function(db, color_name=NULL, size_name=NULL,
-              col0='red', cex0=0.2, sizmin=10, sizmax=100, asp=1, pch0=19, 
-              flagAbsSize = FALSE, show.legend=FALSE,
-              xlab="", ylab="", title="", padd = NULL, ...) 
+plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
+              color0='red', size0=0.2, color_label="black", nudge_y=0.1,
+              sizmin=10, sizmax=100, flagAbsSize = FALSE, 
+              show.legend.color=FALSE, name.legend.color="P-Color",
+              show.legend.size =FALSE, name.legend.size ="P-Size",
+              show.legend.label=FALSE, name.legend.label="P-Label",
+              asp=1, xlab="", ylab="", title="", padd = NULL, ...) 
 {  
-  # Extracting coordinates
+  # Creating the necessary data frame
+  np   = db$getSampleNumber(TRUE)
   tabx = db$getCoordinates(0,TRUE)
   taby = db$getCoordinates(1,TRUE)
-  np   = length(tabx)
     
   # Color of symbol
   if (! is.null(color_name))
@@ -181,7 +188,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   }
   else
   {
-    colval = rep(col0,np)
+    colval = rep(color0,np)
   }
 
   # Size of symbol
@@ -196,18 +203,48 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   }
   else
   {
-    sizval = rep(cex0,np)
+    sizval = rep(size0,np)
   }
 
-  df = data.frame(tabx,taby,colval,sizval)
-  
-  if (length(padd) > 0)
-    p = padd
+  # Label of sylbols
+  if (! is.null(label_name))
+  {
+ 	label_round = 2
+    labval  = round(Db_getColumn(db,label_name,TRUE),label_round)
+  }
   else
-    p <- ggplot()
-    
-  p <- p + geom_point(data=df, aes(x=tabx,y=taby),
-  		color=colval,size=sizval,na.rm=TRUE, show.legend=show.legend)
+  {
+    labval = NULL
+  }
+  df = data.frame(tabx,taby,colval,sizval,labval)
+  
+  p <- getFigure(padd)
+     
+  p <- p + geom_point(data=df, aes(x=tabx,y=taby,color=colval,size=sizval),
+  		na.rm=TRUE)
+  
+  if (! is.null(label_name)) 
+  {
+ 	p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
+          	 	nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
+	if (show.legend.label) {
+	  p <- p + guides(label = guide_legend(title = name.legend.label))
+	} else {
+	  p <- p + guides(label = FALSE)
+	}
+  }
+  
+  if (show.legend.color) {
+  	p <- p + guides(color = guide_legend(title = name.legend.color))
+  } else {
+    p <- p + guides(color = FALSE)
+  }
+  	
+  if (show.legend.size) {
+  	p <- p + guides(size = guide_legend(title = name.legend.size))
+  } else {
+    p <- p + guides(size = FALSE)
+  }
   		
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
   
@@ -215,7 +252,6 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
 }
 
 # Function to display a polygon (not tested)
-
 plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
 {    
   npol = poly$getPolySetNumber()
@@ -227,10 +263,7 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
     value = cols[ids]
   )
    
-  if (length(padd) > 0)
-   p <- padd
-  else
-   p <- ggplot()
+  p <- getFigure(padd)
   
   for (ipol in 1:npol)
   {
@@ -244,9 +277,9 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
 }
         
 # Function for plotting a variable (referred by its name) informed in a grid Db
-
 plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
-			show.legend=TRUE, xlab="", ylab="", title="", padd=NULL)
+			show.legend=TRUE, name_legend="G-Fill",
+			xlab="", ylab="", title="", padd=NULL)
 {
   if (! dbgrid$isGrid())
   {
@@ -254,6 +287,7 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
     return
   }
 
+  # Building the necessary data frame
   x = dbgrid$getColumnByLocator(ELoc_X(),0)
   y = dbgrid$getColumnByLocator(ELoc_X(),1)
   
@@ -267,32 +301,31 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   data = Db_getColumn(dbgrid, name)
   df = data.frame(x,y,data)
   
-  if (length(padd) > 0)
-  	p <- padd
-  else
-   	p <- ggplot()
+  p <- getFigure(padd)
    
   p <- p + geom_raster(data = df, aes(x = x, y = y, fill = data), 
   			show.legend=show.legend) + 
        scale_fill_viridis_c(option = "inferno", na.value = color_NA)
+       
+  if (show.legend) {
+  	p <- p + guides(fill = guide_legend(title=name_legend))
+  } else {
+  	p <- p + guides(fill = FALSE)
+  }
        
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   p
 }
 
 # Function for plotting the histogram of a variable
-
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
             xlab="", ylab="", title="", padd = NULL)
 {    
   val  = Db_getColumn(db,name)
   rp = data.frame(val)
     
-  if (length(padd) > 0)
-    p <- padd
-  else
-    p <- ggplot() 
-    
+  p <- getFigure(padd)
+     
   p <- p + geom_histogram(data=rp, aes(x=val), bins=nbins, color=col, fill=fill,
   						  na.rm=TRUE) 
   
@@ -306,11 +339,8 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
 {
   rp = data.frame(val)
   
-  if (length(padd) > 0)
-    p <- padd
-  else
-    p <- ggplot() 
-    
+  p <- getFigure(padd)
+     
   p <- p + geom_histogram(data = rp, aes(x=val), bins=nbins, color='grey', fill='yellow') 
 
   p <- decor(p, xlab = xlab, ylab = ylab, title = title)
@@ -325,10 +355,7 @@ plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NUL
   absc = seq(1,nbpoint)
   rp = data.frame(absc,data)
   
-  if (length(padd) > 0)
-    p <- padd
-  else
-    p <- ggplot() 
+  p <- getFigure(padd)
     
   p <- p + geom_line(data = rp, aes(x=absc,y=data), color=color, na.rm=TRUE)
   
@@ -351,11 +378,8 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   }
   rp = data.frame(xtab, ytab)
 
-  if (length(padd) > 0)
-    p <- padd
-  else
-    p <- ggplot() 
-    
+  p <- getFigure(padd)
+     
   if (is.numeric(xlim) && length(xlim) == 2)
     p <- p + scale_x_continuous(limits = xlim, expand = c(0,0))
   if (is.numeric(ylim) && length(ylim) == 2)
@@ -381,6 +405,7 @@ plot.XY <-function(xtab, ytab, join=TRUE,
   p
 }
 
+# Function for representing an anamorphosis
 plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10, 
     color="black", linetype="solid",
     xlim="", ylim="", xlab="Y", ylab="Z", title="", padd=NULL)
@@ -396,6 +421,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
   p
 }
 
+# Function for representing a scatter plot
 plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
 		color="black", linetype = "solid",
  		diag_color = "red", diag_line = "solid",
@@ -434,11 +460,8 @@ plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=N
     df$ymax[ifac] = rect[4]
   }
   
-  if (length(padd) > 0)
-    p <- padd
-  else
-    p <- ggplot() 
-    
+  p <- getFigure(padd)
+     
   p <- p + geom_rect(data = df, aes(xmin = xmin, xmax = xmax, 
                                     ymin = ymin, ymax = ymax, fill = colors))
   
