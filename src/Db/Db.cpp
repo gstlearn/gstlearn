@@ -1200,13 +1200,32 @@ void Db::setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel)
       value = TEST;
       if (!useSel) lec++;
     }
-    setByColIdx(iech, icol, value);
+    setValueByColIdx(iech, icol, value);
   }
 }
 
 void Db::setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel)
 {
   setColumnByColIdxOldStyle(tab.data(), icol, useSel);
+}
+
+void Db::setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bool useSel)
+{
+  int nech = getSampleNumber(useSel);
+  if ((int) icols.size() * nech != (int) tabs.size())
+  {
+    messerr("Dimensions of 'icols'(%d), 'nech'(%d) and 'tabs'(%d) are inconsistent",
+            (int) icols.size(), nech, (int) tabs.size());
+    return;
+  }
+  int lec = 0;
+  VectorDouble tabloc(nech);
+  for (int i = 0; i < (int) icols.size(); i++)
+  {
+    int icol = icols[i];
+    for (int j = 0; j < getSampleNumber(useSel); j++) tabloc[j] = tabs[lec++];
+    setColumnByColIdx(tabloc, icol, useSel);
+  }
 }
 
 void Db::setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel)
@@ -1826,17 +1845,89 @@ void Db::switchLocator(const ELoc& locatorType_in, const ELoc& locatorType_out)
   p_in.clear();
 }
 
-double Db::getByColIdx(int iech, int icol) const
+double Db::getValueByColIdx(int iech, int icol) const
 {
   if (!isColIdxValid(icol)) return TEST;
   return (_array[_getAddress(iech, icol)]);
 }
 
-void Db::setByColIdx(int iech, int icol, double value)
+VectorDouble Db::getValuesByColIdx(const VectorInt &iechs,
+                                   const VectorInt &icols,
+                                   bool bySample) const
+{
+  VectorDouble vec;
+
+  if (bySample)
+  {
+    for (int j = 0; j < (int) iechs.size(); j++)
+      for (int i = 0; i < (int) icols.size(); i++)
+      {
+        int iech = iechs[j];
+        int icol = icols[i];
+        if (!isColIdxValid(icol)) return VectorDouble();
+        if (!isSampleIndexValid(iech)) return VectorDouble();
+        vec.push_back(getValueByColIdx(iech, icol));
+      }
+  }
+  else
+  {
+    for (int i = 0; i < (int) icols.size(); i++)
+      for (int j = 0; j < (int) iechs.size(); j++)
+      {
+        int iech = iechs[j];
+        int icol = icols[i];
+        if (!isColIdxValid(icol)) return VectorDouble();
+        if (!isSampleIndexValid(iech)) return VectorDouble();
+        vec.push_back(getValueByColIdx(iech, icol));
+      }
+  }
+  return vec;
+}
+
+void Db::setValueByColIdx(int iech, int icol, double value)
 {
   if (!isColIdxValid(icol)) return;
   if (!isSampleIndexValid(iech)) return;
   _array[_getAddress(iech, icol)] = value;
+}
+
+void Db::setValuesByColIdx(const VectorInt &iechs,
+                           const VectorInt &icols,
+                           const VectorDouble &values,
+                           bool bySample)
+{
+  if ((int) icols.size() * (int) iechs.size() != (int) values.size())
+  {
+    messerr("Dimensions of 'icols'(%d), 'iechs'(%d) and 'values'(%d) are inconsistent",
+            (int) icols.size(), (int) iechs.size(), (int) values.size());
+    return ;
+  }
+
+  int lec = 0;
+  if (bySample)
+  {
+    for (int j = 0; j < (int) iechs.size(); j++)
+      for (int i = 0; i < (int) icols.size(); i++)
+      {
+        int icol = icols[i];
+        int iech = iechs[j];
+        if (!isColIdxValid(icol)) return;
+        if (!isSampleIndexValid(iech)) return;
+        _array[_getAddress(iech, icol)] = values[lec++];
+      }
+  }
+  else
+  {
+    for (int i = 0; i < (int) icols.size(); i++)
+      for (int j = 0; j < (int) iechs.size(); j++)
+      {
+        int icol = icols[i];
+        int iech = iechs[j];
+        if (!isColIdxValid(icol)) return;
+        if (!isSampleIndexValid(iech)) return;
+        _array[_getAddress(iech, icol)] = values[lec++];
+      }
+  }
 }
 
 int Db::getVariableNumber() const
@@ -2297,7 +2388,7 @@ VectorDouble Db::getWeight(bool useSel) const
   {
     if (useSel && !sel.empty() && sel[iech] == 0) continue;
     if (icol >= 0)
-      tab[ecr] = getByColIdx(iech, icol);
+      tab[ecr] = getValueByColIdx(iech, icol);
     else
       tab[ecr] = 1.;
     ecr++;
@@ -2811,8 +2902,11 @@ VectorString Db::getNamesByLocator(const ELoc& locatorType) const
 VectorString Db::getNamesByColIdx(const VectorInt& icols) const
 {
   VectorString namelist;
-  for (int icol = 0; icol < (int) icols.size(); icol++)
+  for (int i = 0; i < (int) icols.size(); i++)
+  {
+    int icol = icols[i];
     namelist.push_back(_colNames[icol]);
+  }
   return namelist;
 }
 
@@ -3150,7 +3244,7 @@ VectorDouble Db::getSelection(void) const
 
   tab.resize(nech);
   for (int iech = 0; iech < nech; iech++)
-    tab[iech] = getByColIdx(iech, icol);
+    tab[iech] = getValueByColIdx(iech, icol);
   return tab;
 }
 
@@ -3175,7 +3269,7 @@ VectorDouble Db::getColumnByColIdx(int icol, bool useSel) const
     bool defined = true;
     if (useSel && !sel.empty()) defined = (sel[iech] == 1);
     if (!defined) continue;
-    tab[ecr] = getByColIdx(iech, icol);
+    tab[ecr] = getValueByColIdx(iech, icol);
     ecr++;
   }
   tab.resize(ecr);
@@ -3787,9 +3881,9 @@ void Db::_loadData(const VectorDouble& tab,
     for (int iech = 0; iech < _nech; iech++, ecr++)
     {
       if (order == ELoadBy::SAMPLE)
-        setByColIdx(iech, jcol, tab[icol + ntab * iech]);
+        setValueByColIdx(iech, jcol, tab[icol + ntab * iech]);
       else
-        setByColIdx(iech, jcol, tab[ecr]);
+        setValueByColIdx(iech, jcol, tab[ecr]);
     }
   }
 
@@ -4155,7 +4249,7 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
   if (flag_add_rank)
   {
     for (int iech = 0; iech < getSampleNumber(); iech++)
-      setByColIdx(iech, jcol, iech + 1);
+      setValueByColIdx(iech, jcol, iech + 1);
     setNameByUID(jcol, "rank");
     jcol++;
   }
@@ -4170,9 +4264,9 @@ void Db::_loadData(const ELoadBy& order, int flag_add_rank, const VectorDouble& 
     for (int iech = 0; iech < getSampleNumber(); iech++, ecr++)
     {
       if (order == ELoadBy::SAMPLE)
-        setByColIdx(iech, jcol, tab[icol + ntab * iech]);
+        setValueByColIdx(iech, jcol, tab[icol + ntab * iech]);
       else
-        setByColIdx(iech, jcol, tab[ecr]);
+        setValueByColIdx(iech, jcol, tab[ecr]);
     }
     jcol++;
   }
@@ -4370,7 +4464,7 @@ int Db::resetSamplingDb(const Db* dbin,
   {
     int jcol = dbin->getColIdx(namloc[icol]);
     for (int iech = 0; iech < _nech; iech++)
-      values[iech] = dbin->getByColIdx(ranks[iech],jcol);
+      values[iech] = dbin->getValueByColIdx(ranks[iech],jcol);
     setColumnByColIdx(values, icol);
   }
 

@@ -107,6 +107,9 @@ public:
                        bool centered = false,
                        double eps = EPSILON6) const;
   VectorInt getCenterIndices() const;
+  VectorInt generateGridIndices(const String &string,
+                                bool startFromZero = true,
+                                bool verbose = false);
   bool sampleBelongsToCell(const VectorDouble &coor,
                            int node,
                            const VectorDouble &dxsPerCell) const;

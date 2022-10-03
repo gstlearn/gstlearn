@@ -1,7 +1,7 @@
 ## Overview
 
 *gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
-Copyright (c) MINES Paris / PSL University
+Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
 
@@ -24,6 +24,8 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
+
+The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
 ## Requirements
 

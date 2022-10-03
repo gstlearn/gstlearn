@@ -1,7 +1,7 @@
 ## Overview
 
 The R *gstlearn* package is a cross-platform R Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to R users **all famous Geostatistical methodologies** developped and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
-Copyright (c) MINES Paris / PSL University
+Copyright (c) MINES PARIS / PSL University
 
 ## References
 
@@ -13,6 +13,8 @@ All *gstlearn* outputs can be ploted using *ggplot* package.
 Some tutorials (RMarkdown) are provided in the [demo](https://github.com/gstlearn/gstlearn/tree/main/doc/demo/r) directory.
 
 Some tests (R Scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/r) directory.
+
+The *gstlearn* R package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
 ## References
 

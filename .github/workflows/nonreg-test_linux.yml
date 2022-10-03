@@ -30,28 +30,16 @@ jobs:
 
     - name: Setup personal R libraries directory and install R packages dependencies
       # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
-      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://pbil.univ-lyon1.fr/CRAN')"
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
       
-    - name: Install jupyter nbconvert dependency
-      # TODO : Also install kernel for python3 ?
-      run: python3 -m pip install nbconvert
+    #- name: Install jupyter nbconvert dependency
+    #  # TODO : Also install kernel for python3 ?
+    #  run: python3 -m pip install nbconvert
       
     - name: Configure CMake
-      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
+      # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as gcc.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
       run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
-
-    #- name: Build the C++ shared library and tests executables
-    #  # -j 16 option seems having no effect on Gitub Action
-    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target build_tests -- -j 8
-
-    #- name: Install python module
-    #  # Install the python module (not done automatically when running ctest)
-    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target python_install -- -j 8
-
-    #- name: Install R package
-    #  # Install the R package (not done automatically when running ctest)
-    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target r_install -- -j 8
 
     - name: Execute non-regression tests
       run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}} --target check

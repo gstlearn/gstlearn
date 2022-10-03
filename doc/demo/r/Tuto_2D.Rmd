@@ -36,7 +36,6 @@ At this stage:
 ```{r}
 dataDir = "../../data/Pollution"
 filepath = paste(dataDir,"Pollution.dat",sep="/")
-
 mydb = Db_createFromCSV(filepath,CSVformat())
 err = mydb$setLocator("X",ELoc_X(),0)
 err = mydb$setLocator("Y",ELoc_X(),1)
@@ -168,9 +167,7 @@ myModelConstrained = Model_createFromDb(mydb)
 constr = Constraints()
 paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
 constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
-opt = Option_AutoFit()
-err = myModelConstrained$fit(myVarioOmni,ECov_fromValues(c(1,2)),
-                             FALSE,opt,constr)
+err = myModelConstrained$fit(myVarioOmni,ECov_fromValues(c(1,2)),constr)
 myModelConstrained
 ```
 
@@ -281,7 +278,7 @@ We must first transform the Data into Gaussian
 myanamPb = AnamHermite(30)
 myanamPb$fit(mydb)
 if (verbose)
-    myanamPb$display()
+    myanamPb
 ```
 
 We can produce the Gaussian Anamorphosis graphically within its definition domain.
@@ -412,7 +409,7 @@ mydb$setLocator("Zn",ELoc_Z())
 myanamZn = AnamHermite(30)
 myanamZn$fit(mydb)
 if (verbose)
-    myanamZn$display()
+    myanamZn
 ```
 
 ```{r}
@@ -476,7 +473,7 @@ We compare the initial variable 'Pb' with a set of disjoint intervals. The 'Pb' 
 We first build the indicators for each class.
 
 ```{r}
-limits = Limits(c(getTEST(), 4., 6., getTEST()))
+limits = Limits(c(NA, 4., 6., NA))
 if (verbose)
     limits$display()
 ```

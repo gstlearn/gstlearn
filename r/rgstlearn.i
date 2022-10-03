@@ -375,9 +375,6 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
-// TODO: to be kept ?
-%rename(__getVitem__) Db::operator[];
-
 %{
   #include <stdio.h>
   
@@ -435,6 +432,10 @@
 %insert(s)
 %{
 
+# Add automatic display for all AStringable objects (see onAttach comment below)
+setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
+
+##
 ## Add operator [] to VectorXXX R class [1-based index] ##
 ## ---------------------------------------------------- ##
 
@@ -471,8 +472,42 @@ function(x, i, value)
   x
 }
 
+setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
+setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
+setMethod('[',    '_p_VectorTT_double_t',               getVitem)
+setMethod('[<-',  '_p_VectorTT_double_t',               setVitem)
+setMethod('[',    '_p_VectorTT_String_t',               getVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-',  '_p_VectorTT_String_t',               setVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',    '_p_VectorTT_float_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_float_t',                setVitem)
+setMethod('[',    '_p_VectorTT_UChar_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_UChar_t',                setVitem)
+setMethod('[',    '_p_VectorNumTT_int_t',               getVitem)
+setMethod('[<-',  '_p_VectorNumTT_int_t',               setVitem)
+setMethod('[',    '_p_VectorNumTT_double_t',            getVitem)
+setMethod('[<-',  '_p_VectorNumTT_double_t',            setVitem)
+setMethod('[',    '_p_VectorNumTT_float_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_float_t',             setVitem)
+setMethod('[',    '_p_VectorNumTT_UChar_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
+
+##
 ## Add operator [] to Db R class ##
 ## ----------------------------- ##
+
+"is.undef" <- function(x)
+{
+  if (length(x) <= 0) return(TRUE)
+  if (length(x) > 1) return(FALSE)
+  if (is.na(x)) return(TRUE)
+  return(FALSE) 
+}
 
 "getDbitem" <-
 function (x,i,j,...,drop=TRUE)
@@ -480,37 +515,71 @@ function (x,i,j,...,drop=TRUE)
   db   <- x
   irow <- NA
   icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
   
   nech = db$getSampleNumber()
   ncol = db$getColumnNumber()
+
+  if (nargs == 2) {
   
-  if (deparse(substitute(i)) != "") {
+    # Case of both arguments are defined
+    
     if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
     if (is.numeric(i)) irow <- i
-  }
   
-  if (deparse(substitute(j)) != "") {
     if (is.numeric(j)) {
       icol <- j
     } else {
-      icol = grep(glob2rx(j),db$getAllNames())
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+    }
+  } else if (nargs == 1) {
+  
+    # Case where only one argument in defined
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
     }
   }
-  
-  if (length(icol) <= 0 || length(irow) <= 0)
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+    
+  if (length(icol) <= 0)
   {
-  	messerr("The variable does not exist")
-  	messerr("This is not authorized in this function")
-  	stop()
+    messerr("The variable does not exist")
+    messerr("This is not authorized in this function")
+    stop()
+  } else {
+  if (! is.undef(irow) && ! is.undef(icol))
+     res <- db$getValuesByColIdx(irow_dim,icol_dim)
+   if (! is.undef(irow) &&   is.undef(icol))
+     res <- db$getArrayBySample(irow_dim)
+   if (  is.undef(irow) && ! is.undef(icol))
+     res <- db$getColumnsByColIdx(icol_dim)
+  if (  is.undef(irow) &&   is.undef(icol))
+     res <- db$getAllColumns()
+  if (nrow_dim > 1 && ncol_dim > 1)
+  {
+    res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+    names(res) = col_names
+    row.names(res) = row_names
   }
-  if (! is.na(irow) && ! is.na(icol)) res <- db$getByColIdx(irow,icol)
-  if (! is.na(irow) &&   is.na(icol)) res <- db$getArrayBySample(irow)
-  if (  is.na(irow) && ! is.na(icol)) res <- db$getColumnByColIdx(icol)
-  if (  is.na(irow) &&   is.na(icol)) 
-  {
-  	res <- as.data.frame(matrix(db$getAllColumns(),nrow=nech, ncol=ncol))
-  	names(res) = db$getAllNames()
-  	row.names(res) = seq(from=0, length.out=nech)
   }
   res
 }
@@ -521,36 +590,82 @@ function (x,i,j,...,drop=TRUE)
   db   <- x
   irow <- NA
   icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
+
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+  value = as.numeric(unlist(value))
+
+  new_names = "New"
+  if (nargs == 2) {
   
-  if (deparse(substitute(i)) != "") {
+    # Both arguments are defined
+    
     if (is.numeric(i) || is.logical(i)) irow <- i
-  }
   
-  if (deparse(substitute(j)) != "") {
     if (is.numeric(j) || is.logical(j)) {
       icol <- j
     } else {
-      icol = grep(glob2rx(j),db$getAllNames())
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = j
+    }
+  } else if (nargs == 1) {
+  
+    # Only one argument is defined: it corresponds to the column
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = k
     }
   }
-  
-  if (length(icol) <= 0 || length(irow) <= 0)
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+
+  if (length(icol) <= 0)
   {
-  	message("The variable does not exist. It is created\n")
-  	icol = db$addColumns(value)
-  	print(paste("creating from icol=",icol))
-  	db$display()
+  
+   # Case of a new variable
+  
+    icol = db$addColumns(value, new_names)
   }
   else
   {
-	if (! is.na(irow) && ! is.na(icol)) db$setByColIdx(irow,icol,value)
- 	if (! is.na(irow) &&   is.na(icol)) db$setArrayBySample(irow,value)
- 	if (  is.na(irow) && ! is.na(icol)) db$setColumnByColIdx(value,icol)
- 	if (  is.na(irow) &&   is.na(icol)) db$setAllColumns(value)
+
+    # Case of already an existing variable: replacement
+    
+  if (! is.undef(irow) && ! is.undef(icol))
+    db$setValuesByColIdx(irow_dim,icol_dim,value)
+   if (! is.undef(irow) &&   is.undef(icol))
+    db$setArrayBySample(irow_dim,value)
+   if (  is.undef(irow) && ! is.undef(icol))
+    db$setColumnsByColIdx(value,icol_dim)
+   if (  is.undef(irow) &&   is.undef(icol))
+    db$setAllColumns(value)
   }
   db
 }
 
+setMethod('[',    '_p_Db',               getDbitem)
+setMethod('[<-',  '_p_Db',               setDbitem)
+setMethod('[',    '_p_DbGrid',           getDbitem)
+setMethod('[<-',  '_p_DbGrid',           setDbitem)
 setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
 setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
 setMethod('[',    '_p_VectorTT_double_t',               getVitem)
@@ -575,6 +690,167 @@ setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getVitem)
 setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setVitem)
 setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
 setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
+
+##
+## Add operator [] to Db R class ##
+## ----------------------------- ##
+
+"is.undef" <- function(x)
+{
+  if (length(x) <= 0) return(TRUE)
+  if (length(x) > 1) return(FALSE)
+  if (is.na(x)) return(TRUE)
+  return(FALSE) 
+}
+
+"getDbitem" <-
+function (x,i,j,...,drop=TRUE)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
+  
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+
+  if (nargs == 2) {
+  
+    # Case of both arguments are defined
+    
+    if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
+    if (is.numeric(i)) irow <- i
+  
+    if (is.numeric(j)) {
+      icol <- j
+    } else {
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+    }
+  } else if (nargs == 1) {
+  
+    # Case where only one argument in defined
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+    }
+  }
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+    
+  if (length(icol) <= 0) {
+    messerr("The variable does not exist")
+    messerr("This is not authorized in this function")
+    stop()
+  } else {
+    if (! is.undef(irow) && ! is.undef(icol))
+      res <- db$getValuesByColIdx(irow_dim,icol_dim)
+    if (! is.undef(irow) &&   is.undef(icol))
+      res <- db$getArrayBySample(irow_dim)
+    if (  is.undef(irow) && ! is.undef(icol))
+      res <- db$getColumnsByColIdx(icol_dim)
+    if (  is.undef(irow) &&   is.undef(icol))
+      res <- db$getAllColumns()
+    if (nrow_dim > 1 && ncol_dim > 1)
+    {
+      res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+      names(res) = col_names
+      row.names(res) = row_names
+    }
+  }
+  res
+}
+
+"setDbitem" <-
+  function (x,i,j,...,value)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
+
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+  value = as.numeric(unlist(value))
+
+  new_names = "New"
+  if (nargs == 2) {
+  
+    # Both arguments are defined
+    
+    if (is.numeric(i) || is.logical(i)) irow <- i
+  
+    if (is.numeric(j) || is.logical(j)) {
+      icol <- j
+    } else {
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = j
+    }
+  } else if (nargs == 1) {
+  
+    # Only one argument is defined: it corresponds to the column
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = k
+    }
+  }
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+
+  if (length(icol) <= 0)
+  {
+    # Case of a new variable
+    icol = db$addColumns(value, new_names)
+  }
+  else
+  {
+    # Case of already an existing variable: replacement
+    
+    if (! is.undef(irow) && ! is.undef(icol))
+      db$setValuesByColIdx(irow_dim,icol_dim,value)
+    if (! is.undef(irow) &&   is.undef(icol))
+      db$setArrayBySample(irow_dim,value)
+    if (  is.undef(irow) && ! is.undef(icol))
+      db$setColumnsByColIdx(value,icol_dim)
+    if (  is.undef(irow) &&   is.undef(icol))
+      db$setAllColumns(value)
+  }
+  db
+}
 
 setMethod('[',    '_p_Db',               getDbitem)
 setMethod('[<-',  '_p_Db',               setDbitem)

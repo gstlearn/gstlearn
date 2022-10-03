@@ -30,7 +30,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 
 # Function for representing a Model
 plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
-		title="", nh=100, padd=NULL)
+                       title="", nh=100, padd=NULL)
 {
   if (is.null(codir))
   {
@@ -52,6 +52,8 @@ plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0,
   
   p
 }
+setMethod("plot", signature(x="_p_Model"), function(x,y="missing",...) plot.model(x,...))
+
 
 # Function for representing the Experimental Variogram together with the Model (optional)
 
@@ -166,13 +168,15 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
 	
 	p
 }
+setMethod("plot", signature(x="_p_Vario"), function(x,y,...) plot.varmod(x,...))
 
 # Function for plotting a point data base, with optional color and size variables
-plot.point <- function(db, color_name=NULL, size_name=NULL,
-              color0='red', size0=0.2, 
+plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
+              color0='red', size0=0.2, color_label="black", nudge_y=0.1,
               sizmin=10, sizmax=100, flagAbsSize = FALSE, 
               show.legend.color=FALSE, name.legend.color="P-Color",
               show.legend.size =FALSE, name.legend.size ="P-Size",
+              show.legend.label=FALSE, name.legend.label="P-Label",
               asp=1, xlab="", ylab="", title="", padd = NULL, ...) 
 {  
   # Creating the necessary data frame
@@ -205,23 +209,44 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
     sizval = rep(size0,np)
   }
 
-  df = data.frame(tabx,taby,colval,sizval)
+  # Label of sylbols
+  if (! is.null(label_name))
+  {
+ 	label_round = 2
+    labval  = round(Db_getColumn(db,label_name,TRUE),label_round)
+  }
+  else
+  {
+    labval = rep(0,np)
+  }
+  df = data.frame(tabx,taby,colval,sizval,labval)
   
   p <- getFigure(padd)
      
   p <- p + geom_point(data=df, aes(x=tabx,y=taby,color=colval,size=sizval),
   		na.rm=TRUE)
-  		
+  
+  if (! is.null(label_name)) 
+  {
+ 	p <- p + geom_text(data = df, aes(x=x, y=y, label=as.character(labval)),
+          	 	nudge_y=nudge_y, color=color_label, check_overlap=TRUE)
+	if (show.legend.label) {
+	  p <- p + guides(label = guide_legend(title = name.legend.label))
+	} else {
+	  p <- p + guides(label = "none")
+	}
+  }
+  
   if (show.legend.color) {
-  	p <- p + guides(color = guide_legend(title = name.legend.color)
+  	p <- p + guides(color = guide_legend(title = name.legend.color))
   } else {
-    p <- p + guides(color = FALSE)
+    p <- p + guides(color = "none")
   }
   	
   if (show.legend.size) {
-  	p <- p + guides(size = guide_legend(title = name.legend.size)
+  	p <- p + guides(size = guide_legend(title = name.legend.size))
   } else {
-    p <- p + guides(size = FALSE)
+    p <- p + guides(size = "none")
   }
   		
   p <- decor(p, xlab = xlab, ylab = ylab, asp = asp, title = title)
@@ -229,31 +254,6 @@ plot.point <- function(db, color_name=NULL, size_name=NULL,
   p
 }
 
-# Function to display a polygon (not tested)
-plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
-{    
-  npol = poly$getPolySetNumber()
-  cols = get.colors()
-  
-  ids = seq(1,npol)
-  values = data.frame(
-    id = ids,
-    value = cols[ids]
-  )
-   
-  p <- getFigure(padd)
-  
-  for (ipol in 1:npol)
-  {
-    x = poly$getX(ipol)
-    y = poly$getY(ipol)
-    p <- p + plt.fill(x, y, color)
-  }  
-  
-  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
-  p
-}
-        
 # Function for plotting a variable (referred by its name) informed in a grid Db
 plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
 			show.legend=TRUE, name_legend="G-Fill",
@@ -288,13 +288,50 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
   if (show.legend) {
   	p <- p + guides(fill = guide_legend(title=name_legend))
   } else {
-  	p <- p + guides(fill = FALSE)
+  	p <- p + guides(fill = "none")
   }
        
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   p
 }
 
+plot.db <- function(db, padd=NULL, ...)
+{
+	if (db$isGrid())
+		p = plot.grid(db, padd=padd, ...)
+	else
+		p = plot.point(db, padd=padd, ...)
+	p
+}
+
+setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
+
+# Function to display a polygon (not tested)
+plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
+{    
+  npol = poly$getPolySetNumber()
+  cols = get.colors()
+  
+  ids = seq(1,npol)
+  values = data.frame(
+    id = ids,
+    value = cols[ids]
+  )
+   
+  p <- getFigure(padd)
+  
+  for (ipol in 1:npol)
+  {
+    x = poly$getX(ipol)
+    y = poly$getY(ipol)
+    p <- p + plt.fill(x, y, color)
+  }  
+  
+  p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
+  p
+}
+setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+        
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
             xlab="", ylab="", title="", padd = NULL)

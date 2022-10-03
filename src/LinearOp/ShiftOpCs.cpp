@@ -232,6 +232,7 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
   _setIgrf(igrf);
   _setIcov(icov);
   _variety = amesh->getVariety();
+  _napices = amesh->getNApices();
   try
   {
     if (verbose) message(">>> Using the new calculation module <<<\n");
@@ -1425,7 +1426,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
 }
 
 /**
- * Calculate _TildeC directly from the Mesh (Dimension: _NApices)
+ * Calculate _TildeC directly from the Mesh (Dimension: _napices)
  * @param amesh Description of the Mesh (New class)
  * @param units Array of sizes for all meshes
  * @return Error return code
@@ -1472,7 +1473,7 @@ int ShiftOpCs::_buildTildeC(const AMesh *amesh, const VectorDouble& units)
 }
 
 /**
- * Construct the _Lambda vector (Dimension: _NApices)
+ * Construct the _Lambda vector (Dimension: _napices)
  * @param amesh Description of the Mesh (New class)
  * @return
  */
@@ -1537,7 +1538,7 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
 }
 
 /**
- * Construct the _Lambda vector (Dimension: _NApices)
+ * Construct the _Lambda vector (Dimension: _napices)
  * @param amesh Description of the Mesh (New class)
  * @return
  */

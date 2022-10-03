@@ -1,7 +1,7 @@
 ## Overview
 
 The Python *gstlearn* package is a cross-platform Python Package wrapping the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn). It offers to Python users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/)!<br/>
-Copyright (c) MINES Paris / PSL University
+Copyright (c) MINES PARIS / PSL University
 
 If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module which is based on *matplotlib* (see [modules](https://github.com/gstlearn/gstlearn/tree/main/python/modules) directory).
 
@@ -14,6 +14,8 @@ Some tests (Python Scripts) are available in the [tests](https://github.com/gstl
 The Python *gstlearn* package is a Python wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
 This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *doc* folder).
+
+The *gstlearn* python package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
 ## Requirements
 

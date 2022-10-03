@@ -473,7 +473,7 @@ int db_write_csv(Db *db,
     if (flag_allcol)
     {
       for (int rank = 0; rank < ncol; rank++)
-        csv_print_double(db->getByColIdx(iech, rank));
+        csv_print_double(db->getValueByColIdx(iech, rank));
     }
     else
     {

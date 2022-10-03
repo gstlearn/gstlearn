@@ -241,6 +241,7 @@ public:
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
   void setColumnByUID(const VectorDouble& tab, int iuid, bool useSel = false);
   void setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel = false);
+  void setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bool useSel = false);
   void setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByUID(int iuid_in, int iuid_out);
 
@@ -349,9 +350,15 @@ public:
                         int locatorIndex,
                         double value);
 
-  double getByColIdx(int iech, int icol) const;
-  void   setByColIdx(int iech, int icol, double value);
-
+  double getValueByColIdx(int iech, int icol) const;
+  VectorDouble getValuesByColIdx(const VectorInt &iechs,
+                                 const VectorInt &icols,
+                                 bool bySample = false) const;
+  void   setValueByColIdx(int iech, int icol, double value);
+  void   setValuesByColIdx(const VectorInt &iechs,
+                           const VectorInt &icols,
+                           const VectorDouble &values,
+                           bool bySample = false);
   int    getVariableNumber() const;
   bool   hasVariable() const;
   double getVariable(int iech, int item) const;
