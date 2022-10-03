@@ -305,7 +305,6 @@ plot.db <- function(db, padd=NULL, ...)
 	p
 }
 
-setMethod('$', '_p_Limits', function(x, name)
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)
@@ -332,7 +331,7 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
   p <- decor(p, xlab = xlab, ylab = ylab, asp=asp, title = title)
   p
 }
-setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
+#setMethod("plot", signature(x="_p_Polygons"), function(x,y=missing,...) plot.polygon(x,...))
         
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
