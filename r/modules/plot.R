@@ -219,6 +219,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
   {
     labval = rep(0,np)
   }
+  
   df = data.frame(tabx,taby,colval,sizval,labval)
   
   p <- getFigure(padd)
@@ -304,6 +305,7 @@ plot.db <- function(db, padd=NULL, ...)
 	p
 }
 
+setMethod('$', '_p_Limits', function(x, name)
 setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd,...))
 
 # Function to display a polygon (not tested)

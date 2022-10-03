@@ -202,7 +202,7 @@ Direction #1
 ------------
 Number of lags              = 20
 Calculation lag             =      0.010
-Tolerance on distance       =      0.000 (Percent of the lag value)
+Tolerance on distance       =     50.000 (Percent of the lag value)
 Grid Direction coefficients =          1         0
 
 For variable 1
@@ -231,7 +231,7 @@ Direction #2
 ------------
 Number of lags              = 20
 Calculation lag             =      0.010
-Tolerance on distance       =      0.000 (Percent of the lag value)
+Tolerance on distance       =     50.000 (Percent of the lag value)
 Grid Direction coefficients =          0         1
 
 For variable 1
