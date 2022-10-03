@@ -37,7 +37,6 @@ public:
            const VectorDouble& breaks = VectorDouble(),
            const VectorDouble& codir  = VectorDouble(),
            const VectorInt& grincr    = VectorInt());
-  DirParam(int ndim, int npas, const VectorInt& grincr);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();

@@ -51,26 +51,6 @@ DirParam::DirParam(int ndim,
   _completeDefinition();
 }
 
-DirParam::DirParam(int ndim, int npas, const VectorInt& grincr)
-    : AStringable(),
-      _ndim(ndim),
-      _nPas(npas),
-      _optionCode(0),
-      _idate(0),
-      _definedForGrid(false),
-      _dPas(TEST),
-      _bench(0.),
-      _cylRad(0.),
-      _tolDist(0.),
-      _tolAngle(0.),
-      _tolCode(0.),
-      _breaks(),
-      _codir(),
-      _grincr(grincr)
-{
-  _completeDefinition();
-}
-
 DirParam::DirParam(const DirParam& r)
     : AStringable(r),
       _ndim(r._ndim),
@@ -393,8 +373,8 @@ std::vector<DirParam> DirParam::createMultipleFromGrid(int ndim, int npas)
   {
     ut_ivector_fill(grincr, 0);
     grincr[idir] = 1;
-    DirParam dirparam = DirParam(ndim, npas, grincr);
-    dirs.push_back(dirparam);
+    DirParam* dirparam = DirParam::createFromGrid(ndim, npas, grincr);
+    dirs.push_back(*dirparam);
   }
   return dirs;
 }
