@@ -128,6 +128,7 @@
   #include "LinearOp/IOptimCost.hpp"
   #include "LinearOp/OptimCostBinary.hpp"
   #include "LinearOp/OptimCostColored.hpp"
+  #include "LinearOp/ProjConvolution.hpp"
   
   #include "Neigh/ANeighParam.hpp"
   #include "Neigh/NeighUnique.hpp"

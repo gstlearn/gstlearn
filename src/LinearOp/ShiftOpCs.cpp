@@ -1044,16 +1044,7 @@ void ShiftOpCs::_mapUpdate(std::vector<std::map<int, double> >& tab,
                            double tol) const
 {
 
-//  std::pair<std::map<std::pair<int, int>, double>::iterator, bool> ret;
-//
-//   if (ABS(value) < tol) return;
-//   std::pair<int, int> key(ip0, ip1);
-//   ret = tab.insert(std::pair<std::pair<int, int>, double>(key, value));
-//   if (!ret.second) ret.first->second += value;
-
-
   std::pair<std::map<int,double>::iterator, bool> ret;
-
 
   if (ABS(value) < tol) return;
   ret = tab[ip0].insert(std::pair<int, double>(ip1, value));

@@ -28,7 +28,7 @@ public:
                   const DbGrid *grid_point = nullptr);
   ProjConvolution(const ProjConvolution &m)= delete;
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
-  virtual ~ProjConvolution() { }
+  virtual ~ProjConvolution();
 
   int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
   int mesh2point(const VectorDouble& valonvertex, VectorDouble& valonseismic) const override;
@@ -42,6 +42,6 @@ private:
 
 private:
   VectorDouble _convolution;
-  Grid*        _gridPoint;
+  const DbGrid*        _gridPoint;
 };
 
