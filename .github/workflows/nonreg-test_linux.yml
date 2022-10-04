@@ -2,12 +2,12 @@ name: CMake
 
 on:
   # Deactivate the workflow
-  #push:
-  #  branches-ignore:
-  #    - '**'
-  # Activate the workflow
   push:
-    branches: [ main ]
+    branches-ignore:
+      - '**'
+  # Activate the workflow
+  #push:
+  #  branches: [ main ]
   pull_request:
     branches: [ main ]
 
