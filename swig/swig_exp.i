@@ -254,7 +254,6 @@
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
 
-
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
 %include Db/DbStringFormat.hpp
@@ -331,6 +330,8 @@
 %include Fractures/FracList.hpp
 
 %include Skin/Skin.hpp
+
+%include segy.h
 
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511
