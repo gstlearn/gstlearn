@@ -44,5 +44,6 @@ private:
 private:
   VectorDouble  _convolution;
   const DbGrid* _gridPoint;
+  mutable cs* _Aproj; // Stockage temporaire de la matrice creuse de Projection
 };
 

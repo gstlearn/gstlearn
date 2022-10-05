@@ -10,13 +10,14 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #include "LinearOp/ProjConvolution.hpp"
+#include "csparse_f.h"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point)
- : _convolution(convolution)
- , _gridPoint(grid_point)
+    : _convolution(convolution),
+      _gridPoint(grid_point),
+      _Aproj(nullptr)
 {
 }
 
@@ -40,14 +41,16 @@ VectorInt ProjConvolution::_getShiftVector() const
   VectorInt shift(_getConvSize());
 
   _gridPoint->rankToIndice(center, indp);
-  for (int idim = 0; idim < ndim; idim++)
-    indm[idim] = indp[idim];
+  for (int idim = 0; idim < ndim; idim++) indm[idim] = indp[idim];
+
+  // Shift the index of last coordinate by the shift of the grid
+  indp[ndim - 1] += _getHalfSize();
+
   for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
   {
-    int j = i + _getHalfSize();
     indm[ndim - 1] = indp[ndim - 1] + i;
-    int rankm = _gridPoint->indiceToRank(indm);
-    shift[j] = rankm - center;
+    int id = _gridPoint->indiceToRank(indm);
+    shift[i + _getHalfSize()] = id - center;
   }
   return shift;
 }
@@ -72,55 +75,35 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
   for (auto &e : valonvertex)
      e = 0.;
 
-  int ndim = _gridPoint->getNDim();
-  VectorInt indp(ndim);
-  VectorInt indm(ndim);
   VectorInt shift = _getShiftVector();
 
-  for (int iechp = 0; iechp < (int) valonseismic.size(); iechp++)
+  for (int is = 0; is < (int) valonseismic.size(); is++)
   {
-//    _gridPoint->rankToIndice(iechp, indp);
-//
-//    for (int idim = 0; idim < ndim; idim++)
-//      indm[idim] = indp[idim];
-//
-//    indp[ndim-1] += _getHalfSize();
-
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
+      int id = is + shift[j];
+      if (id < 0) return 1;
 
-      // First value of the difference
-//      indm[ndim-1] = indp[ndim-1] + i;
-//      int rankm = _gridPoint->indiceToRank(indm);
-      int rankm = iechp + shift[j];
-      if (rankm < 0)
-      {
-        //messerr("Error indexing for target iechp=%d\n",iechp);
-        //ut_ivector_display("Indices in convolution (out of grid)", indm);
-        return 1;
-      }
-      double valm1 = valonseismic[iechp];
+      double valm1 = valonseismic[is];
       if (FFFF(valm1))
       {
-        valonvertex[rankm] = TEST;
+        valonvertex[id] = TEST;
         break;
       }
-      // Second value of the difference
-//      indm[ndim-1] += 1;
-//      rankm = _gridPoint->indiceToRank(indm);
-//      if (rankm < 0)
-//      {
-//        //messerr("Error indexing for target iechp=%d\n",iechp);
-//        //ut_ivector_display("Indices in convolution (out of grid)", indm);
-//        return 1;
-//      }
-//      double valm2 = valonvertex[rankm];
-//      double valm = (valm1 - valm2) * _convolution[j];
-      double valm = valm1  * _convolution[j];
-      valonvertex[rankm] = valm;
+      double valm = valm1 * _convolution[j];
+      valonvertex[id] += valm;
     }
   }
+
+  VectorDouble valcheck = valonvertex;
+  cs_tmulvec(_Aproj,(int) valcheck.size(),valonseismic.data(),valcheck.data());
+
+  // Compare the outputs
+
+  valcheck.subtract(valonvertex);
+  message("Point2Mesh: norme de la difference = %lf\n",valcheck.norm());
+
   return 0;
 }
 
@@ -140,65 +123,52 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     return 1;
   }
 
-  int ndim = _gridPoint->getNDim();
-  VectorInt indp(ndim);
-  VectorInt indm(ndim);
+  cs* Atriplet;
+  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+
   VectorInt shift = _getShiftVector();
 
-  for (int iechp = 0; iechp < (int) valonseismic.size(); iechp++)
+  for (int is = 0; is < (int) valonseismic.size(); is++)
   {
-//    _gridPoint->rankToIndice(iechp, indp);
-//
-//    for (int idim = 0; idim < ndim; idim++)
-//      indm[idim] = indp[idim];
-//
-//    indp[ndim-1] += _getHalfSize();
-//
     double valp = 0;
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
+      int id = is + shift[j];
+      if (id < 0) return 1;
 
-//      // First value of the difference
-//      indm[ndim-1] = indp[ndim-1] + i;
-//      int rankm = _gridPoint->indiceToRank(indm);
-      int rankm = iechp + shift[j];
-      if (rankm < 0)
-      {
-        //messerr("Error indexing for target iechp=%d\n",iechp);
-        //ut_ivector_display("Indices in convolution (out of grid)", indm);
-        return 1;
-      }
-      double valm1 = valonvertex[rankm];
+      (void) cs_entry(Atriplet,is,id,_convolution[j]);
+
+      double valm1 = valonvertex[id];
       if( FFFF(valm1))
       {
         valp = TEST;
         break;
       }
-//      Second value of the difference
-//      indm[ndim-1] += 1;
-//      rankm = _gridPoint->indiceToRank(indm);
-//      if (rankm < 0)
-//      {
-//        //messerr("Error indexing for target iechp=%d\n",iechp);
-//        //ut_ivector_display("Indices in convolution (out of grid)", indm);
-//        continue; // This is in order to avoid crash on next line
-//      }
-//      double valm2 = valonvertex[rankm];
-
-      //double valm = (valm1 - valm2) * _convolution[j];
       double valm = valm1  * _convolution[j];
       valp += valm;
     }
-    valonseismic[iechp] = valp;
+    valonseismic[is] = valp;
   }
+
+  VectorDouble valcheck = valonseismic;
+  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+  _Aproj = cs_triplet(Atriplet);
+  Atriplet  = cs_spfree(Atriplet);
+  cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
+
+  // Compare the outputs
+
+  valcheck.subtract(valonseismic);
+  message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+
   return 0;
 }
 
 int ProjConvolution::getApexNumber() const
 {
   VectorInt nxs = _gridPoint->getNXs();
-  nxs[_gridPoint->getNDim() - 1]+= _getConvSize();
+  nxs[_gridPoint->getNDim() - 1] += (_getConvSize() - 1);
   return ut_vector_prod(nxs);
 }
 
