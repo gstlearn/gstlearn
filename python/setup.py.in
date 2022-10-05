@@ -46,5 +46,6 @@ setup(
     install_requires=[
         "numpy",
         "matplotlib",
+        "pybind11",
     ],
 )
