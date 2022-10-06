@@ -22,6 +22,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
 
 #include <map>
@@ -160,12 +161,12 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
-  cs* _BuildSfromMap(std::vector<std::map<int, double>>& tab, int nmax = -1);
+  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab, int nmax = -1);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
-  std::vector<std::map<int, double>> _mapCreate() const;
-  std::vector<std::vector<std::map<int, double>>> _mapVectorCreate() const;
-  void _mapUpdate(std::vector<std::map<int, double> >& tab,
+  VectorT<std::map<int, double>> _mapCreate() const;
+  VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
+  void _mapUpdate(VectorT<std::map<int, double> >& tab,
                              int ip0,
                              int ip1,
                              double value,
@@ -176,7 +177,7 @@ private:
   VectorDouble _Lambda;
   cs* _S;
   int _nModelGradParam;
-  std::vector<cs *> _SGrad;
+  VectorT<cs *> _SGrad;
   VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
   int _variety;

@@ -143,10 +143,7 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
                                bool flagAdvection,
                                bool verbose)
 {
-  double* units;
-
-  int error = 0;
-  units = (double *) nullptr;
+  double* units = (double *) nullptr;
   _setModel(model);
 
   try
@@ -195,15 +192,21 @@ int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
     if (!flagAdvection) cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
   }
 
-  catch (const char * str)
+  catch(const AException& e)
   {
-    error = 1;
-    std::cout << str << std::endl;
+    messerr("initFromOldMesh has failed: %s",e.what());
+    _reset();
+    return 1;
+  }
+  catch(const std::exception& e)
+  {
+    messerr("initFromOldMesh has failed: %s",e.what());
+    _reset();
+    return 1;
   }
 
   units = (double *) mem_free((char * ) units);
-  if (error) _reset();
-  return error;
+  return 0;
 }
 
 /**
@@ -227,7 +230,6 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
 {
   // Initializations
 
-  int error = 0;
   _setModel(model);
   _setIgrf(igrf);
   _setIcov(icov);
@@ -301,14 +303,20 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
       cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
   }
 
-  catch (const char * str)
+  catch(const AException& e)
   {
-    error = 1;
-    std::cout << str << std::endl;
+    messerr("initFromMesh has failed: %s",e.what());
+    _reset();
+    return 1;
+  }
+  catch(const std::exception& e)
+  {
+    messerr("initFromMesh has failed: %s",e.what());
+    _reset();
+    return 1;
   }
 
-  if (error) _reset();
-  return error;
+  return 0;
 }
 
 /**
@@ -332,7 +340,6 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
 {
   // Initializations
 
-  int error = 0;
   _setModel(model);
   _setIgrf(igrf);
   _setIcov(icov);
@@ -367,14 +374,20 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
       my_throw("Problem when buildLambdaGrad");
   }
 
-  catch (const char * str)
+  catch(const AException& e)
   {
-    error = 1;
-    std::cout << str << std::endl;
+    messerr("initGradFromMesh has failed: %s",e.what());
+    _reset();
+    return 1;
+  }
+  catch(const std::exception& e)
+  {
+    messerr("initGradFromMesh has failed: %s",e.what());
+    _reset();
+    return 1;
   }
 
-  if (error) _reset();
-  return error;
+  return 0;
 }
 
 /**
@@ -394,7 +407,6 @@ int ShiftOpCs::initFromCS(const cs* S,
 {
   // Initializations
 
-  int error = 0;
   _setModel(model);
 
   try
@@ -417,13 +429,17 @@ int ShiftOpCs::initFromCS(const cs* S,
     if (_S == nullptr) my_throw("Problem when duplicating S sparse matrix");
   }
 
-  catch (const char * str)
+  catch(const AException& e)
   {
-    error = 1;
-    std::cout << str << std::endl;
+    messerr("initFromCS has failed: %s",e.what());
+    return 1;
   }
-
-  return error;
+  catch(const std::exception& e)
+  {
+    messerr("initFromCS has failed: %s",e.what());
+    return 1;
+  }
+  return 0;
 }
 
 /****************************************************************************/
@@ -907,7 +923,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
  * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
  * @remark has the full dimension (by adding a fictitious value equal to eps)
  */
-cs* ShiftOpCs::_BuildSfromMap(std::vector<std::map<int, double>> &tab, int nmax)
+cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
 {
   std::map<int, double>::iterator it;
 
@@ -917,6 +933,7 @@ cs* ShiftOpCs::_BuildSfromMap(std::vector<std::map<int, double>> &tab, int nmax)
 
   for (int ip0 = 0; ip0 < getSize(); ip0++)
   {
+    if (ip0 < 0 || ip0 > (int) tab.size()) my_throw("_BuildSfromMap");
     it = tab[ip0].begin();
     while (it != tab[ip0].end())
     {
@@ -1010,6 +1027,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;
+            if (iad < 0 || iad >= (int) Mtab.size()) my_throw("_buildSGrad");
             _mapUpdate(Mtab[iad], ip0, ip1, vald, tol);
           }
         }
@@ -1038,37 +1056,36 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh,
   return error;
 }
 
-void ShiftOpCs::_mapUpdate(std::vector<std::map<int, double> >& tab,
+void ShiftOpCs::_mapUpdate(VectorT<std::map<int, double> >& tab,
                            int ip0,
                            int ip1,
                            double value,
                            double tol) const
 {
-
   std::pair<std::map<int,double>::iterator, bool> ret;
 
   if (ABS(value) < tol) return;
+  if (ip0 >= (int) tab.size()) my_throw("_mapUpdate");
   ret = tab[ip0].insert(std::pair<int, double>(ip1, value));
   if (!ret.second) ret.first->second += value;
 }
 
-
-
-std::vector<std::map<int, double>> ShiftOpCs::_mapCreate() const
+VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
 {
   int size = getSize();
-  std::vector<std::map<int, double>> tab(size);
+  if (size <= 0) my_throw("_mapCreate");
+  VectorT<std::map<int, double>> tab(size);
   return tab;
 }
 
-
-std::vector<std::vector<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
+VectorT<VectorT<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
 {
   int number = _nModelGradParam * getSize();
-  std::vector<std::vector<std::map<int, double>>> tab(number);
-  for(auto &e : tab)
+  if (number <= 0) my_throw("_mapVectorCreate");
+  VectorT<VectorT<std::map<int, double>>> tab;
+  for (int i = 0; i < number; i++)
   {
-    e = _mapCreate();
+    tab.push_back(_mapCreate());
   }
   return tab;
 }
