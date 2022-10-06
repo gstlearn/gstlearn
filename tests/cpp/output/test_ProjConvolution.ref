@@ -1,0 +1,6 @@
+Convolution
+               [,  0]    [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
+     [  0,]     0.012     0.032     0.070     0.122     0.170     0.190     0.170
+     [  7,]     0.122     0.070     0.032     0.012
+Mesh2point: norme de la difference = 0.000000
+Point2Mesh: norme de la difference = 0.000000
