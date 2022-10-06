@@ -1,6 +1,15 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
+Release 0.1.30
+==============
+- New import / export procedures for vectors in Python and R:
+  - handle NA values (no more need of TEST and ITEST in your scripts)
+  - accept 1 element (in Python and R) when a function wait for a vector
+  - build numpy.array or R vectors
+- New class: ProjConvolution
+- Fix collocated co-kriging
+
 Release 0.1.29
 ==============
 - Fix windows compilation
