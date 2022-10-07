@@ -5,11 +5,16 @@ on:
   #push:
   #  branches-ignore:
   #    - '**'
-  # Activate the workflow
-  push:
-    branches: [ main ]
+  # Activate the workflow at each push on main branch
+  #push:
+  #  branches: [ main ]
+  # Activate the workflow at each pull request on main branch
   pull_request:
     branches: [ main ]
+  # Activate the workflow every day at 18:30 UTC = for Paris 19:30 (summer) or 20:30 (winter)
+  schedule:
+    # * is a special character in YAML so you have to quote this string
+    - cron:  '30 18 * * *'
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
