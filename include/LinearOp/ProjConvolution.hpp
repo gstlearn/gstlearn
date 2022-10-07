@@ -39,11 +39,13 @@ public:
 private:
   int _getConvSize() const { return (int) _convolution.size(); }
   int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
-  VectorInt _getShiftVector() const;
+  void _constructShiftVector();
+  int  _constructAprojCS();
 
 private:
   VectorDouble  _convolution;
   const DbGrid* _gridPoint;
-  mutable cs* _Aproj; // Stockage temporaire de la matrice creuse de Projection
+  VectorInt     _shiftVector;
+  mutable cs*   _Aproj; // Stockage temporaire de la matrice creuse de Projection
 };
 
