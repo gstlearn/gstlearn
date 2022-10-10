@@ -25,7 +25,10 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
   _constructAprojCS();
 }
 
-ProjConvolution::~ProjConvolution() { }
+ProjConvolution::~ProjConvolution()
+{
+  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+}
 
 /**
  * Calculate the Aproj sparse matrix.
@@ -38,7 +41,6 @@ int ProjConvolution::_constructAprojCS()
   cs* Atriplet;
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
   if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
-
   for (int is = 0; is < getPointNumber(); is++)
   {
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
@@ -50,10 +52,9 @@ int ProjConvolution::_constructAprojCS()
       (void) cs_entry(Atriplet,is,id,_convolution[j]);
     }
   }
-
-  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
   _Aproj = cs_triplet(Atriplet);
   Atriplet  = cs_spfree(Atriplet);
+  return 0;
 }
 
 /**

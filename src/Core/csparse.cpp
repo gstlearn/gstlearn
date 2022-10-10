@@ -3019,7 +3019,7 @@ int cs_get_ncell(const cs *A)
 void cs_print_dim(const char *title, const cs *A)
 {
   if (A == nullptr) return;
-  message("%s: Nrow=%d Ncol=%d\n", title, A->m, A->n);
+  message("%s: Nrow=%d Ncol=%d NNZ=%d\n", title, A->m, A->n, A->nzmax);
 }
 
 String toStringDim(const String &title, const cs *A)

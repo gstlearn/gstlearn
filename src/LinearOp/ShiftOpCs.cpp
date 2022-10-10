@@ -916,7 +916,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
 
 /**
  * Transform the Map into a square cparse matrix
- * @param tab   Input Map
+ * @param tab   Vector of Input Maps
  * @param nmax  Dimension of the matrix (if provided)
  * @return
  *
@@ -954,9 +954,49 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
 
   cs* S = cs_triplet(Striplet);
   if (S == nullptr) return nullptr;
-
   Striplet = cs_spfree(Striplet);
 
+  return S;
+}
+
+/**
+ * Transform the Map into a square cparse matrix
+ * @param tab   Vector of Input Maps
+ * @param nmax  Dimension of the matrix (if provided)
+ * @return
+ *
+ * @remark When 'nmax' is provided, make sure that the resulting sparse matrix
+ * @remark has the full dimension (by adding a fictitious value equal to eps)
+ */
+cs* ShiftOpCs::_BuildVecSfromMap(std::map<std::pair<int, int>, double> &tab,
+                                 int nmax)
+{
+  std::map<std::pair<int,int>, double>::iterator it;
+  cs* Striplet = cs_spalloc(0, 0, 1, 1, 1);
+  int ip0_max = -1;
+  int ip1_max = -1;
+
+  it = tab.begin();
+  while (it != tab.end())
+  {
+    int ip0 = it->first.first;
+    int ip1 = it->first.second;
+    if (!cs_entry(Striplet, ip0, ip1, it->second)) return nullptr;
+    if (ip0 > ip0_max) ip0_max = ip0;
+    if (ip1 > ip1_max) ip1_max = ip1;
+    it++;
+  }
+
+  // Add the fictitious value at maximum sparse matrix dimension (if 'nmax' provided)
+
+  if (nmax > 0)
+    cs_force_dimension(Striplet, nmax, nmax);
+
+  /* Optional printout */
+
+  cs* S = cs_triplet(Striplet);
+  if (S == nullptr) return nullptr;
+  Striplet = cs_spfree(Striplet);
   return S;
 }
 
@@ -968,7 +1008,6 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
  */
 int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
-  // Store the number of derivation parameters for the model as member
   const CovAniso* cova = _getCova();
   _nModelGradParam = cova->getGradParamNumber();
   int number = _nModelGradParam * getSize();
@@ -1008,29 +1047,27 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 
     // Loop on the derivative terms
 
-    for (int j2 = 0; j2 < ncorner; j2++)
+    for (int igparam = 0; igparam < ngparam; igparam++)
     {
-      int igp0 = amesh->getApex(imesh, j2);
-      for (int igparam = 0; igparam < ngparam; igparam++)
+      for (int j2 = 0; j2 < ncorner; j2++)
       {
-        int iad = getSGradAddress(igp0, igparam);
-
-        // Loop on apices of the current mesh
-
+        int ip2 = amesh->getApex(imesh, j2);
         for (int j0 = 0; j0 < ncorner; j0++)
+        {
+          int ip0 = amesh->getApex(imesh, j0);
           for (int j1 = 0; j1 < ncorner; j1++)
           {
-            int ip0 = amesh->getApex(imesh, j0);
             int ip1 = amesh->getApex(imesh, j1);
-            _loadHHGradPerMesh(hh, amesh, igp0, igparam);
+            _loadHHGradPerMesh(hh, amesh, ip2, igparam);
             mat.normMatrix(hh, matw);
 
             double vald = mat.getValue(j0, j1) * meshSize;
-            if (iad < 0 || iad >= (int) Mtab.size()) my_throw("_buildSGrad");
-            _mapUpdate(Mtab[iad], ip0, ip1, vald, tol);
+            int iad = getSize() * igparam + ip2;
+            _mapVecUpdate(Mtab[iad], ip0, ip1, vald, tol);
           }
         }
       }
+    }
   }
 
   // Construct the SGrad member
@@ -1038,8 +1075,7 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   _SGrad.resize(number);
   for (int i = 0; i < (int) Mtab.size(); i++)
   {
-    _SGrad[i] = cs_spfree(_SGrad[i]);
-    _SGrad[i] = _BuildSfromMap(Mtab[i]);
+    _SGrad[i] = _BuildVecSfromMap(Mtab[i]);
     if (_SGrad[i] == nullptr) goto label_end;
     cs_matvecnorm_inplace(_SGrad[i], _TildeC.data(), 2);
   }
@@ -1049,14 +1085,11 @@ int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
   error = 0;
 
   label_end:
-  if (error)
-    for (int i = 0; i < (int) _SGrad.size(); i++)
-    _SGrad[i] = cs_spfree(_SGrad[i]);
+  if (error) _resetGrad();
   return error;
 }
 
-void ShiftOpCs::_mapUpdate(VectorT<std::map<int, double> >& tab,
-                           int ip0,
+void ShiftOpCs::_mapUpdate(std::map<int, double>& tab,
                            int ip1,
                            double value,
                            double tol) const
@@ -1064,8 +1097,21 @@ void ShiftOpCs::_mapUpdate(VectorT<std::map<int, double> >& tab,
   std::pair<std::map<int,double>::iterator, bool> ret;
 
   if (ABS(value) < tol) return;
-  if (ip0 >= (int) tab.size()) my_throw("_mapUpdate");
-  ret = tab[ip0].insert(std::pair<int, double>(ip1, value));
+  ret = tab.insert(std::pair<int, double>(ip1, value));
+  if (!ret.second) ret.first->second += value;
+}
+
+void ShiftOpCs::_mapVecUpdate(std::map<std::pair<int, int>, double>&tab,
+                              int ip0,
+                              int ip1,
+                              double value,
+                              double tol) const
+{
+  std::pair<std::map<std::pair<int,int>,double>::iterator, bool> ret;
+
+  if (ABS(value) < tol) return;
+  std::pair<int, int> pair = std::pair<int,int>(ip0, ip1);
+  ret = tab.insert(std::pair<std::pair<int,int>, double>(pair, value));
   if (!ret.second) ret.first->second += value;
 }
 
@@ -1077,14 +1123,15 @@ VectorT<std::map<int, double>> ShiftOpCs::_mapCreate() const
   return tab;
 }
 
-VectorT<VectorT<std::map<int, double>>> ShiftOpCs::_mapVectorCreate() const
+VectorT<std::map<std::pair<int, int>, double>> ShiftOpCs::_mapVectorCreate() const
 {
   int number = _nModelGradParam * getSize();
   if (number <= 0) my_throw("_mapVectorCreate");
-  VectorT<VectorT<std::map<int, double>>> tab;
+  VectorT<std::map<std::pair<int, int>, double>> tab;
   for (int i = 0; i < number; i++)
   {
-    tab.push_back(_mapCreate());
+    std::map<std::pair<int, int>, double> maploc;
+    tab.push_back(maploc);
   }
   return tab;
 }
@@ -1224,16 +1271,16 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
         int ip1 = amesh->getApex(imesh, j1, false);
         double vald = matPinvHPt.getValue(j0, j1) * ratio / 2.;
         s += vald;
-        _mapUpdate(tab, ip0, ip1, vald, tol);
+        _mapUpdate(tab[ip0], ip1, vald, tol);
       }
       int ip1 = amesh->getApex(imesh, ncorner - 1, false);
-      _mapUpdate(tab, ip0, ip1, -s, tol);
-      _mapUpdate(tab, ip1, ip0, -s, tol);
+      _mapUpdate(tab[ip0], ip1, -s, tol);
+      _mapUpdate(tab[ip1], ip0, -s, tol);
       S += s;
     }
     int ip0 = amesh->getApex(imesh, ncorner - 1, false);
     _TildeC[ip0] += ratio / 6.;
-    _mapUpdate(tab, ip0, ip0, S, tol);
+    _mapUpdate(tab[ip0], ip0, S, tol);
   }
 
   _S = cs_spfree(_S);
@@ -1347,7 +1394,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
         int ip0 = amesh->getApex(imesh, j0);
         int ip1 = amesh->getApex(imesh, j1);
         double vald = (_isVelocity()) ? matv[j1] : mat.getValue(j0, j1);
-        _mapUpdate(tab, ip0, ip1, vald * amesh->getMeshSize(imesh), tol);
+        _mapUpdate(tab[ip0], ip1, vald * amesh->getMeshSize(imesh), tol);
       }
   }
 
@@ -1424,7 +1471,7 @@ int ShiftOpCs::_buildSVel(const AMesh *amesh,
         int ip0 = amesh->getApex(imesh, j0);
         int ip1 = amesh->getApex(imesh, j1);
         double vald = matv[j1] * meshSize;
-        _mapUpdate(tab, ip0, ip1, vald, tol);
+        _mapUpdate(tab[ip0], ip1, vald, tol);
       }
   }
 

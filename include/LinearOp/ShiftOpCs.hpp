@@ -162,15 +162,22 @@ private:
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
   cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab, int nmax = -1);
+  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab,
+                        int nmax = -1);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
   VectorT<std::map<int, double>> _mapCreate() const;
-  VectorT<VectorT<std::map<int, double>>> _mapVectorCreate() const;
-  void _mapUpdate(VectorT<std::map<int, double> >& tab,
-                             int ip0,
-                             int ip1,
-                             double value,
-                             double tol = EPSILON10) const;
+  VectorT<std::map<std::pair<int, int>, double>> _mapVectorCreate() const;
+  void _mapUpdate(std::map<int, double>& tab,
+                  int ip1,
+                  double value,
+                  double tol = EPSILON10) const;
+  void _mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
+                     int ip2,
+                     int ip1,
+                     double value,
+                     double tol = EPSILON10) const;
+
   void _determineFlagNoStatByHH();
 private:
   VectorDouble _TildeC;

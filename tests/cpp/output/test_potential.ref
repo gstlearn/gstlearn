@@ -1,0 +1,270 @@
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 4
+Maximum Number of UIDs       = 4
+Total number of samples      = 10
+
+Data Base Contents
+------------------
+                 rank         x         y       iso
+     [  0,]     1.000     7.000     6.000     1.000
+     [  1,]     2.000     5.000     6.000     1.000
+     [  2,]     3.000     6.000     5.000     1.000
+     [  3,]     4.000     3.000     6.000     2.000
+     [  4,]     5.000     7.000     7.000     2.000
+     [  5,]     6.000     8.000     3.000     2.000
+     [  6,]     7.000     8.000     1.000     3.000
+(Ncols=4,Nrows=7[from 10])
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = iso - Locator = layer
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 3
+
+Data Base Contents
+------------------
+                 rank         x         y        gx        gy
+     [  0,]     1.000     1.000     6.000     1.000     0.000
+     [  1,]     2.000     9.000     2.000    -1.000     1.000
+     [  2,]     3.000     7.000     8.000     0.000    -1.000
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = gx - Locator = g1
+Column = 4 - Name = gy - Locator = g2
+
+Data Base Characteristics
+=========================
+
+Data Base Summary
+-----------------
+File is organized as a set of isolated points
+Space dimension              = 2
+Number of Columns            = 5
+Maximum Number of UIDs       = 5
+Total number of samples      = 2
+
+Data Base Contents
+------------------
+                 rank         x         y        tx        ty
+     [  0,]     1.000     3.000     7.000     1.000     0.000
+     [  1,]     2.000     9.000     7.000     0.500    -0.500
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x - Locator = x1
+Column = 2 - Name = y - Locator = x2
+Column = 3 - Name = tx - Locator = tangent1
+Column = 4 - Name = ty - Locator = tangent2
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 3
+Maximum Number of UIDs       = 3
+Total number of samples      = 10201
+
+Grid characteristics:
+---------------------
+Origin :      0.000     0.000
+Mesh   :      0.100     0.100
+Number :        101       101
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+
+Iso-Potential information
+=========================
+Iso- 1/  0: Coor=( 7.000000 6.000000)
+Iso- 1/  1: Coor=( 5.000000 6.000000)
+Iso- 1/  2: Coor=( 6.000000 5.000000)
+Iso- 2/  0: Coor=( 3.000000 6.000000)
+Iso- 2/  1: Coor=( 7.000000 7.000000)
+Iso- 2/  2: Coor=( 8.000000 3.000000)
+Iso- 3/  0: Coor=( 8.000000 1.000000)
+Iso- 3/  1: Coor=( 7.000000 9.000000)
+Iso- 3/  2: Coor=( 10.000000 5.000000)
+Iso- 3/  3: Coor=( 3.000000 1.000000)
+
+Gradient information
+====================
+Gradient-1: Coor=( 1.000000 6.000000) - Grad=( 1.000000 0.000000)
+Gradient-2: Coor=( 9.000000 2.000000) - Grad=( -1.000000 1.000000)
+Gradient-3: Coor=( 7.000000 8.000000) - Grad=( 0.000000 -1.000000)
+
+Tangent information
+===================
+Tangent-1: Coor=( 3.000000 7.000000) - Tangent=( 1.000000 0.000000)
+Tangent-2: Coor=( 9.000000 7.000000) - Tangent=( 0.500000 -0.500000)
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Cubic
+- Sill         =      1.000
+- Range        =      3.000
+Total Sill     =      1.000
+
+Environment summary
+===================
+Space dimension         = 2
+Number of Iso-Potential = 3
+Number of Gradients     = 3
+Number of Tangents      = 2
+Number of Isovalues     = 10
+Order of the drift      = 0
+Number of Drifts        = 0
+Number of Ext. Drifts   = 0
+Number of Equations     = 15
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in Locator Index (2). Argument should lie within [0,2[
+Problem in the identification of Locator 21
+Error in Column Index (-1). Argument should lie within [0,5[
+Error in matrix inversion : Pivot #1 is null
