@@ -966,8 +966,7 @@ cs* ShiftOpCs::_BuildSfromMap(VectorT<std::map<int, double>> &tab, int nmax)
  * @param tol Tolerance beyond which elements are not stored in S matrix
  * @return Error return code
  */
-int ShiftOpCs::_buildSGrad(const AMesh *amesh,
-                           double tol)
+int ShiftOpCs::_buildSGrad(const AMesh *amesh, double tol)
 {
   // Store the number of derivation parameters for the model as member
   const CovAniso* cova = _getCova();

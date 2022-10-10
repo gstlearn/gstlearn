@@ -1409,6 +1409,8 @@ GSTLEARN_EXPORT int csv_table_read(const String &filename,
 /****************************************/
 
 GSTLEARN_EXPORT int is_flag_data_disc_defined(void);
+GSTLEARN_EXPORT void set_DBIN(Db* dbin);
+GSTLEARN_EXPORT void set_DBOUT(Db* dbout);
 GSTLEARN_EXPORT int krige_koption_manage(int mode,
                                          int flag_check,
                                          const EKrigOpt &calcul,
