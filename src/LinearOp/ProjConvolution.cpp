@@ -123,8 +123,8 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     return 1;
   }
 
-  cs* Atriplet;
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  //cs* Atriplet;
+  //Atriplet = cs_spalloc(0, 0, 1, 1, 1);
 
   VectorInt shift = _getShiftVector();
 
@@ -137,7 +137,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
       int id = is + shift[j];
       if (id < 0) return 1;
 
-      (void) cs_entry(Atriplet,is,id,_convolution[j]);
+    //  (void) cs_entry(Atriplet,is,id,_convolution[j]);
 
       double valm1 = valonvertex[id];
       if( FFFF(valm1))
@@ -151,16 +151,16 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     valonseismic[is] = valp;
   }
 
-  VectorDouble valcheck = valonseismic;
-  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
-  _Aproj = cs_triplet(Atriplet);
-  Atriplet  = cs_spfree(Atriplet);
-  cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
-
-  // Compare the outputs
-
-  valcheck.subtract(valonseismic);
-  message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+//  VectorDouble valcheck = valonseismic;
+//  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+//  _Aproj = cs_triplet(Atriplet);
+//  Atriplet  = cs_spfree(Atriplet);
+//  cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
+//
+//  // Compare the outputs
+//
+//  valcheck.subtract(valonseismic);
+//  message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
 
   return 0;
 }
