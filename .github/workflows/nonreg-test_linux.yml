@@ -1,4 +1,4 @@
-name: CMake
+name: Non-reg tests Linux - nightly
 
 on:
   # Deactivate the workflow
