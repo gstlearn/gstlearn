@@ -1,4 +1,4 @@
-name: Non-reg tests Linux - nightly
+name: nightly_tests_ubuntu-latest
 
 on:
   # Deactivate the workflow
