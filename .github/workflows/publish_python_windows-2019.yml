@@ -1,4 +1,4 @@
-name: publish_python_windows-2019
+name: publish_python_windows-latest
 
 on:
   workflow_dispatch:
@@ -6,71 +6,47 @@ on:
       logLevel:
         description: 'Manual'
         required: false
-        default: ''  
+        default: ''
+
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  PROG_ROOT : C:\hostedtoolcache\windows
+  BUILD_PLAT: win_amd64
+  COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
+
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  HDF5_ROOT : hdf5 #do not use "." in the name 
+  HDF5_ROOT : hdf5 #do not use "." in the name
   HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
   HDF5_VERSION : hdf5-1.12.1
   DOXYGEN_ROOT : Doxygen
   DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
-  COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
-  PYTHON3_PREF : C:\hostedtoolcache\windows\Python
-  PYTHON3_SUFF : x86
+  
 jobs:
    
   build:
-    runs-on: windows-2019
+    runs-on: windows-latest
     strategy :
-      matrix:
-       # TODO: to be regularly updated according available pythons on windows-latest
-       # https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners#preinstalled-software
-       python: 
-          - ["cp310","3.10.7"]
-          - ["cp39","3.9.13"]
-          - ["cp38","3.8.10"]
-          - ["cp37","3.7.9"]
-       windows-type :
-          - ["win_amd64", "x64"]
-          - ["win32","x86"]
+     matrix:
+       python: ["3.7","3.8","3.9","3.10"]
    
     steps:
-    - name : Dir
-      run : |
-        cd ${{env.PYTHON3_PREF}}
-        dir
-        cd ${{matrix.python[1]}}
-        dir 
-        cd x86
-        dir
-        cd lib
-        dir
-        
     - uses: actions/checkout@v2
 
-#####################################################################################################
-# Create variables to setup python version and modify PATH
+    - name: Setup Python Version
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{matrix.python}}
 
-    - name : Create PYTHONPATH
-      run : |
-        echo ("PYTHONPATH=${{ env.PYTHON3_PREF }}\${{ matrix.python[1] }}\${{ matrix.windows-type[1] }}")>> $env:GITHUB_ENV
-      
-    - name : Setup python.exe 
-      run : echo ("PYTHON3=${{env.PYTHONPATH}}\python3.exe") >> $env:GITHUB_ENV
- 
-    - name : Modify PATH #to avoid a warning at cmake configuration
-      run : |
-        echo "${{env.PYTHONPATH}}" >> $GITHUB_PATH
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install numpy twine wheel pybind11
 
 #####################################################################################################
 # HDF5 download and install
 
 #    - name : Download and install HDF5
-#      # | offers the possibility to run several command in 1 run (take care to indentation)
 #      run: | 
 #        mkdir ${{env.HDF5_ROOT}}
 #        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.zip ${{env.HDF5_URL}}	
@@ -85,7 +61,7 @@ jobs:
 ########################################################################################################
 # Doxygen download and unzip
 
-    - name : Download and install Doxygen  
+    - name : Download and install Doxygen
       run: |
         mkdir ${{env.DOXYGEN_ROOT}}
         cd ${{env.DOXYGEN_ROOT}}
@@ -95,9 +71,9 @@ jobs:
         7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
 
 ########################################################################################################
-# Boost .h download and unzip
+# Boost headers download and unzip
 
-    - name : Download and uncompressed Boost
+    - name : Download and uncompressed Boost headers
       run: |
         mkdir ${{env.BOOST_ROOT}}
         curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
@@ -106,28 +82,17 @@ jobs:
         cd ${{env.BOOST_ROOT}} && cp -r boost_*/* .
    
 ########################################################################################################
-# Configuration to prepare compilation  
+# Configuration to prepare compilation
 
     - name : Configure Cmake
-      run : |
-       cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
-     
- #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
-
-   
-########################################################################################################
-# Installation of wheel (to build wheel) and twine (to upload package on pypi)
-    - name : Install wheel and twine
-      run: |
-       ${{env.PYTHON3}} -m pip install wheel
-       ${{env.PYTHON3}} -m pip install twine 
+      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF                 -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
+           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
 
 ########################################################################################################
-# Compilation (gstlearn and python package
+# Compilation (gstlearn and python package)
 
-
-    - name : Library compilation
-      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release
+    - name : Python package compilation
+      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config ${{env.BUILD_TYPE}} -- -j 3
 
 ########################################################################################################
 # Build and upload wheel
@@ -135,8 +100,10 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python}}[0] --plat-name=${{matrix.windows-type[0]}}
-        ${{env.PYTHON3}} -m twine upload dist\* 
+        # Note: wheel must be declared pure (see setup.py)
+        python setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
+        python -m twine upload dist\*
+
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}

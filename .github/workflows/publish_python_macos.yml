@@ -4,13 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       logLevel:
-        description: 'Manual'     
+        description: 'Manual'
         required: false
-        default: ''  
+        default: ''
+
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  PYTHON3 : python3
+
   HDF5_ROOT : hdf5 #do not use "." in the name 
   PROG_ROOT : '/Users/runner/work/'
   HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1.tar.gz/?wpdmdl=15722"
@@ -23,6 +24,7 @@ jobs:
     runs-on: ${{matrix.os}}
     strategy :
       matrix:
+       python: ["3.7","3.8","3.9","3.10"]
        os : [macos-10.15,macos-11]
        include :
        - os :  macos-10.15
@@ -30,39 +32,24 @@ jobs:
 
        - os  : macos-11
          TAG : "macosx_11_0_arm64"
-       python : 
-        - ["8","cp38"]
-        - ["9","cp39"]
-        - ["10","cp310"]
 
     steps:
     - uses: actions/checkout@v2
 
-####################################################################################################
-# Handle python version
+    - name: Setup Python Version
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{matrix.python}}
 
-    - name : set Python name
-      run : echo "PYTHONNAME=python@3.${{matrix.python[0]}}">> $GITHUB_ENV
-
-    - name : PYTHONPATH
-      run : echo "PYTHONPATH=/usr/local/opt/${{env.PYTHONNAME}}/bin" >> $GITHUB_ENV
-   
-    - name : set Python exe
-      run : echo "PYTHON3=${{env.PYTHONPATH}}/python3">> $GITHUB_ENV
-
-####################################################################################################
-# Install wheel and twine
-
-    - name : Install wheel and twine
+    - name: Install Python dependencies
       run: |
-       ${{env.PYTHON3}} -m pip install wheel
-       ${{env.PYTHON3}} -m pip install twine 
-
+        python -m pip install --upgrade pip
+        python -m pip install numpy twine wheel pybind11
 
 ####################################################################################################
 # Doxygen
 
-    - name : Download and install Doxygen  
+    - name : Download and install Doxygen
       run: brew install doxygen ${{env.PYTHON}}
 
 ####################################################################################################
@@ -87,7 +74,7 @@ jobs:
 ####################################################################################################
 # Boost
 
-    - name : Download and uncompressed Boost
+    - name : Download and uncompressed Boost headers
       run: |
         mkdir ${{env.BOOST_ROOT}}
         curl --progress-bar --location --output ${{env.BOOST_ROOT}}/download.tar.bz2 ${{env.BOOST_URL}}
@@ -99,13 +86,14 @@ jobs:
 # Configure compilation
 
     - name : Configure Cmake
-      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}  -DCMAKE_C_FLAGS="-DH5_USE_110_API"  -DPython3_ROOT_DIR=${{env.PYTHONPATH}} 
+      # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
 
 ####################################################################################################
 # Compile library and build python package
 
     - name : Build python package
-      run : cmake --build ${{env.BUILD_DIR}} --target python_install --config Release -- -j 3
+      run : cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
  
 ####################################################################################################
 # Build and upload wheel
@@ -113,8 +101,8 @@ jobs:
     - name : Build and upload wheel
       run: |
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
-        ${{env.PYTHON3}} setup.py bdist_wheel --python-tag=${{matrix.python[1]}} --plat-name=${{matrix.TAG}}
-        ${{env.PYTHON3}} -m twine upload dist/*
+        python setup.py bdist_wheel --plat-name=${{matrix.TAG}}
+        python -m twine upload dist/*
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
