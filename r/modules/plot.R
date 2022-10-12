@@ -1,8 +1,10 @@
-if (!requireNamespace("ggplot2", quietly = TRUE)) {
-  warning("The ggplot2 package must be installed to use R plots functionality")
-}
-if (!requireNamespace("ggpubr", quietly = TRUE)) {
-  warning("The ggpubr package must be installed to use R plots functionality")
+ensure_dependencies <- function() {
+  if (!requireNamespace("ggplot2", quietly = TRUE)) {
+    stop("The ggplot2 package must be installed to use R plots functionality")
+  }
+  if (!requireNamespace("ggpubr", quietly = TRUE)) {
+    stop("The ggpubr package must be installed to use R plots functionality")
+  }
 }
 
 get.colors <- function()
@@ -12,6 +14,7 @@ get.colors <- function()
 
 getFigure <- function(padd = NULL)
 {
+  ensure_dependencies()
   if (length(padd) > 0)
     p <- padd
   else
@@ -21,6 +24,7 @@ getFigure <- function(padd = NULL)
 
 decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 {
+  ensure_dependencies()
   if (xlab != "")
     p <- p + labs(x = xlab)
   if (ylab != "")
@@ -36,6 +40,7 @@ decor <- function(p, xlab = "", ylab = "", asp = NULL, title = "")
 plot.model <- function(model, hmax, codir=NULL, ivar=0, jvar=0, 
                        title="", nh=100, padd=NULL)
 {
+  ensure_dependencies()
   if (is.null(codir))
   {
     ndim = model$getDimensionNumber()
@@ -67,6 +72,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
                         color_plabel="black", size_plabel=2, nudge_y=0.1,
                         title="", ...)
 {
+  ensure_dependencies()
   ndir = vario$getDirectionNumber()
   nvar = vario$getVariableNumber()
   cols = get.colors()
@@ -183,6 +189,7 @@ plot.point <- function(db, color_name=NULL, size_name=NULL, label_name=NULL,
               show.legend.label=FALSE, name.legend.label="P-Label",
               asp=1, xlab="", ylab="", title="", padd = NULL, ...) 
 {  
+  ensure_dependencies()
   # Creating the necessary data frame
   np   = db$getSampleNumber(TRUE)
   tabx = db$getCoordinates(0,TRUE)
@@ -264,6 +271,7 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
       show.legend=TRUE, name_legend="G-Fill",
       xlab="", ylab="", title="", padd=NULL)
 {
+  ensure_dependencies()
   if (! dbgrid$isGrid())
   {
     cat("This function is restricted to Grid Db and cannot be used here")
@@ -302,6 +310,7 @@ plot.grid <- function(dbgrid, name=NULL, color_NA = "white", asp=1,
 
 plot.db <- function(db, padd=NULL, ...)
 {
+  ensure_dependencies()
   if (db$isGrid())
     p = plot.grid(db, padd=padd, ...)
   else
@@ -313,7 +322,8 @@ setMethod("plot", signature(x="_p_Db"), function(x,padd=NULL,...) plot.db(x,padd
 
 # Function to display a polygon (not tested)
 plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
-{    
+{
+  ensure_dependencies()
   npol = poly$getPolySetNumber()
   cols = get.colors()
   
@@ -340,7 +350,8 @@ plot.polygon <- function(poly, xlab="", ylab="", title="", padd = NULL)
 # Function for plotting the histogram of a variable
 plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
                       xlab="", ylab="", title="", padd = NULL)
-{    
+{
+  ensure_dependencies()
   val  = Db_getColumn(db,name)
   rp = data.frame(val)
     
@@ -357,6 +368,7 @@ plot.hist <- function(db, name, nbins=30, col='grey', fill='yellow',
 # Function for plotting histogram for a table of values
 plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
 {
+  ensure_dependencies()
   rp = data.frame(val)
   
   p <- getFigure(padd)
@@ -371,6 +383,7 @@ plot.hist_tab <- function(val, nbins=30, xlab="", ylab="", title="", padd=FALSE)
 # Function for plotting a curve of regularly sampled values
 plot.curve <- function(data, color="black", xlab="", ylab="", title="", padd=NULL)
 {
+  ensure_dependencies()
   nbpoint = length(data)
   absc = seq(1,nbpoint)
   rp = data.frame(absc,data)
@@ -390,7 +403,8 @@ plot.XY <-function(xtab, ytab, join=TRUE,
                    flagDiag = FALSE, 
                    diag_color = "red", diag_line = "solid",
                    xlim="", ylim="", xlab="", ylab="", title="", padd=NULL)
-{    
+{
+  ensure_dependencies()
   if (length(ytab) != length(xtab))
   {
     cat("Arrays 'xtab' and 'ytab' should have same dimensions")
@@ -430,6 +444,7 @@ plot.anam <- function(anam, ndisc=100, aymin=-10, aymax=10,
                       color="black", linetype="solid",
                       xlim="", ylim="", xlab="Y", ylab="Z", title="", padd=NULL)
 {
+  ensure_dependencies()
   res = anam$sample(ndisc, aymin, aymax)
   valY = res$getY()
   valZ = res$getZ()
@@ -448,6 +463,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
                              xlim="", ylim="", xlab="", ylab="", title="", 
                              padd=NULL)
 {
+  ensure_dependencies()
   if (is.null(db2)) db2 = db1
   val1 = Db_getColumn(db1,name1)
   val2 = Db_getColumn(db2,name2)
@@ -462,6 +478,7 @@ plot.correlation <- function(db1, name1, name2, db2=NULL, flagDiag = FALSE,
 # Representing a Lithotype rule
 plot.rule <- function(rule, proportions=NULL, xlab="", ylab="", title="", padd=NULL)
 {
+  ensure_dependencies()
   nrect = rule$getFaciesNumber()
   if (! is.null(proportions)) 
     rule$setProportions(proportions)

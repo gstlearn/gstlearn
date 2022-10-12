@@ -1,0 +1,168 @@
+Number of sample = 25
+Attribute corresponding to 'first' = 3
+Attribute corresponding to the first variable named 'second-x' = 4
+
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 7
+Maximum Number of UIDs       = 7
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x1 - Locator = x1
+Column = 2 - Name = x2 - Locator = x2
+Column = 3 - Name = first - Locator = NA
+Column = 4 - Name = second-1 - Locator = z1
+Column = 5 - Name = first.1 - Locator = z2
+Column = 6 - Name = first.1.1 - Locator = z3
+
+List of unsorted UIDs
+---------------------
+Maximum number of positions = 7
+Number of Columns           = 7
+UID = 0 1 2 3 4 5 6 
+
+
+List of locators
+----------------
+1 - Locator: x
+- Attributes = 1 2 
+- Columns    = 1 2 
+2 - Locator: z
+- Attributes = 4 5 6 
+- Columns    = 4 5 6 
+
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 6
+Maximum Number of UIDs       = 7
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = x1
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = z1
+Column = 4 - Name = first.1 - Locator = z2
+Column = 5 - Name = first.1.1 - Locator = z3
+
+List of unsorted UIDs
+---------------------
+Maximum number of positions = 7
+Number of Columns           = 6
+UID = 0 -1 1 2 3 4 5 
+
+
+List of locators
+----------------
+1 - Locator: x
+- Attributes = 2 
+- Columns    = 1 
+2 - Locator: z
+- Attributes = 4 5 6 
+- Columns    = 3 4 5 
+
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 8
+Maximum Number of UIDs       = 9
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = z1
+Column = 4 - Name = first.1 - Locator = z2
+Column = 5 - Name = first.1.1 - Locator = z3
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+ 
+Data Base Grid Characteristics
+==============================
+
+Data Base Summary
+-----------------
+File is organized as a regular grid
+Space dimension              = 2
+Number of Columns            = 9
+Maximum Number of UIDs       = 10
+Total number of samples      = 25
+
+Grid characteristics:
+---------------------
+Origin :     10.000    20.000
+Mesh   :      1.000     1.000
+Number :          5         5
+
+Data Base Contents
+------------------
+                 rank        x2     first  second-1   first.1 first.1.1       X-1
+     [  0,]     1.000    20.000     0.269     0.748     0.489     0.736    10.000
+     [  1,]     2.000    20.000     0.245     0.590     0.353     0.253    11.000
+     [  2,]     3.000    20.000     0.702     0.923     0.084     0.536    12.000
+     [  3,]     4.000    20.000     0.707     0.867     0.818     0.308    13.000
+     [  4,]     5.000    20.000     0.262     0.987     0.857     0.330    14.000
+     [  5,]     6.000    21.000     0.558     0.591     0.954     0.681    10.000
+     [  6,]     7.000    21.000     0.626     0.107     0.166     0.538    11.000
+                  X-2      RANK
+     [  0,]    20.000     1.000
+     [  1,]    20.000     2.000
+     [  2,]    20.000     3.000
+     [  3,]    20.000     4.000
+     [  4,]    20.000     5.000
+     [  5,]    21.000     6.000
+     [  6,]    21.000     7.000
+(Ncols=9,Nrows=7[from 25])
+
+Variables
+---------
+Column = 0 - Name = rank - Locator = NA
+Column = 1 - Name = x2 - Locator = NA
+Column = 2 - Name = first - Locator = NA
+Column = 3 - Name = second-1 - Locator = z1
+Column = 4 - Name = first.1 - Locator = z2
+Column = 5 - Name = first.1.1 - Locator = z3
+Column = 6 - Name = X-1 - Locator = x1
+Column = 7 - Name = X-2 - Locator = x2
+Column = 8 - Name = RANK - Locator = NA
+ 
