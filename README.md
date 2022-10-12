@@ -228,5 +228,5 @@ The documentation is then available by opening the following HTML file with your
 ---
 
 ## License
-MIT
+BSD
 2022 Team gstlearn
