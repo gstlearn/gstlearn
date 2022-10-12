@@ -58,7 +58,7 @@ jobs:
     - name : HDF5
       run : |
         mkdir ${{env.HDF5_ROOT}}
-        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}	
+        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}
         7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
         7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
         ls
@@ -87,7 +87,7 @@ jobs:
 
     - name : Configure Cmake
       # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
-      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
 
 ####################################################################################################
 # Compile library and build python package

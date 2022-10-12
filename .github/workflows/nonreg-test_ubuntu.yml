@@ -44,7 +44,7 @@ jobs:
 #      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile & Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
 
     - name: Configure CMake
-      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON  -DBUILD_R=ON
 
     - name: Compile, install packages and execute non-regression tests
       run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check

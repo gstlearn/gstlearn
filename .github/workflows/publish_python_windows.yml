@@ -85,8 +85,8 @@ jobs:
 # Configuration to prepare compilation
 
     - name : Configure Cmake
-      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF                 -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
-           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}"
+      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF                 -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
+           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
 
 ########################################################################################################
 # Compilation (gstlearn and python package)
