@@ -1,8 +1,3 @@
-#
-# This file is meant to test the reading of various types of arguments
-# in Python
-#
-
 import numpy as np
 import sys
 import os
