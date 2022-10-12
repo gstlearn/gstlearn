@@ -15,6 +15,13 @@ on:
   schedule:
     # * is a special character in YAML so you have to quote this string
     - cron:  '30 18 * * *'
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
