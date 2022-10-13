@@ -33,7 +33,10 @@ public:
 public:                                            \
   inline virtual Class* clone() const override     \
   {                                                \
+    static_assert(                                 \
+      ! std::is_abstract<Class>::value,            \
+      "Class cannot be cloned as it is abstract"   \
+    );                                             \
     assert(typeid(*this) == typeid(Class));        \
     return (new Class(*this));                     \
   }
-
