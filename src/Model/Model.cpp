@@ -896,7 +896,7 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
-                             const VectorT<ECov> &types,
+                             const std::vector<ECov> &types,
                              const Constraints &constraints,
                              Option_VarioFit optvar,
                              Option_AutoFit mauto,
@@ -933,7 +933,7 @@ int Model::fitFromCovIndices(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
-               const VectorT<ECov> &types,
+               const std::vector<ECov> &types,
                const Constraints &constraints,
                Option_VarioFit optvar,
                Option_AutoFit mauto,
@@ -969,7 +969,7 @@ int Model::fit(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromVMap(DbGrid *dbmap,
-                       const VectorT<ECov> &types,
+                       const std::vector<ECov> &types,
                        const Constraints &constraints,
                        Option_VarioFit optvar,
                        Option_AutoFit mauto,
@@ -1451,9 +1451,9 @@ double Model::_evalDriftCoef(const Db* db,
   return drift;
 }
 
-VectorT<ECov> Model::initCovList(const VectorInt & covranks)
+std::vector<ECov> Model::initCovList(const VectorInt & covranks)
 {
-  VectorT<ECov> list;
+  std::vector<ECov> list;
 
   for (int i = 0; i < (int) covranks.size(); i++)
   {

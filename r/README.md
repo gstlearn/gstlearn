@@ -23,7 +23,7 @@ The *gstlearn* R package is a derivative work based on the *swigex* project: [ht
 2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
     * SWIG 4 or higher
-    * R 4 or higher with ggplot2 and ggpubr packages
+    * R 4 or higher with ggplot2 and ggpubr packages (only for plotting)
     * RTools 4 for Windows user
 
 3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
@@ -89,7 +89,7 @@ Execute the following commands:
     sudo apt install swig
     sudo apt install r-base
     
-Finally, install the R required packages from an R command prompt (as sudo):
+Finally, install the R required packages from an R command prompt (as sudo) (if you need to plot gstlearn output):
 
     install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
@@ -103,6 +103,10 @@ Execute the following commands (Not tested):
 
     brew install swig
     brew install r
+    
+Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
+
+    install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
@@ -116,7 +120,7 @@ Then, download and install the following tools:
 
 * SWIG 4+ [from here](http://www.swig.org/download.html) (extract the archive in a directory of yours, let's say *C:\\swigwin-4.0.2*, see Notes below)
 
-Finally, install the R required packages from an R command prompt:
+Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
 
     install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 

@@ -1,3 +1,7 @@
+if(NOT BUILD_DOXYGEN)
+  return()
+endif()
+
 # TODO : Do not regenerate doxymentation if nothing has changed in the source code
 find_package(Doxygen REQUIRED)
 
