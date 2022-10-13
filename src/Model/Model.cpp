@@ -522,6 +522,26 @@ int Model::addNoStat(const ANoStat *anostat)
 }
 
 /**
+ * Switch to a Model dedicated to Gradients
+ * (transforms it from CovLMC to CovLMGradient)
+ */
+void Model::switchToGradient()
+{
+  // If the Model is already dedicated to Gradient: do nothing
+  if (isFlagGradient()) return;
+
+  // If no covariance has been defined yet: do nothing
+  if (_covaList == nullptr)
+  {
+    _covaList = new CovLMGradient(_ctxt.getSpace());
+  }
+  else
+  {
+    _covaList = new CovLMGradient(*_covaList);
+  }
+}
+
+/**
  * Defining an Anamorphosis information for the Model
  * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
@@ -530,9 +550,14 @@ int Model::addNoStat(const ANoStat *anostat)
  */
 int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
 {
+  if (anam == nullptr)
+  {
+    messerr("You must define 'anam' beforehand");
+    return 1;
+  }
   if (hasAnam())
   {
-    // ACovAnisoList is already a covLmcAnamorphosis, simply update the anamorphosis
+    // ACovAnisoList is already a covLMCAnamorphosis, simply update the anamorphosis
     CovLMCAnamorphosis* cov = dynamic_cast<CovLMCAnamorphosis*>(_covaList);
     if (cov == nullptr)
     {
@@ -552,7 +577,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     }
 
     // Initiate a new CovLMCAnamorphosis class
-    CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(cov, anam, strcnt);
+    CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
     // Delete the current ACovAnisoList structure
     delete _covaList;

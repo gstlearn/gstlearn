@@ -28,5 +28,4 @@ public:
 
   /// ICloneable interface
   IMPLEMENT_CLONING(CovLMC)
-
 };

@@ -34,6 +34,7 @@ class GSTLEARN_EXPORT ACovGradient: public CovAniso
 public:
   ACovGradient(const ECov& type, const CovContext& ctxt);
   ACovGradient(const ACovGradient& r);
+  ACovGradient(const CovAniso& r);
   ACovGradient& operator=(const ACovGradient& r);
   virtual ~ACovGradient();
 
@@ -41,7 +42,7 @@ public:
                                  const SpacePoint& p2,
                                  double& covVal,
                                  VectorDouble& covGp,
-                                 VectorDouble& covGg,
+                                 VectorDouble& covGG,
                                  const CovCalcMode& mode = CovCalcMode(),
                                  bool flagGrad = false) const = 0;
 };

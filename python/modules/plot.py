@@ -105,9 +105,14 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
         if db.getNDim() == 2:
             posx = 0
             posy = 1
+            
         if corner is None:
             corner = np.zeros(db.getNDim())
-        tabx = db.getOneSlice(name, posx, posy, corner, usesel)
+        
+        if db.getNDim() == 1:
+            tabx = db.getColumn(name, usesel)
+        else:
+            tabx = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
         tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
@@ -737,6 +742,59 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     return ax
 
+def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
+         xlim=None, ylim=None,
+         color='black',flagLegend=False, label='curve',
+         title = None, ax=None, figsize = None, end_plot=False, 
+         **plot_args):
+    '''
+    Function for plotting a variable (referred by its name) informed in a DbGrid
+
+    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    usesel : Boolean to indicate if the selection has to be considered
+    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
+    '''
+    if dbgrid.getNDim() != 1:
+        print("This function is dedicated to 1-D Grid")
+        return None
+    
+    if not(dbgrid.isGrid()):
+        print("This function is dedicated to Grid Db and cannot be used here")
+        return None
+    
+    if name is None:
+        if dbgrid.getVariableNumber() > 0:
+            name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
+        else : # if no Z locator, choose the last field
+            name = dbgrid.getLastName()
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+        
+    x0 = dbgrid.getX0(0)
+    nx = dbgrid.getNX(0)
+    dx = dbgrid.getDX(0)
+    
+    data = getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
+                            compress=False, asGrid=True)
+#    data = np.reshape(data, (nx))
+
+    curve(data, icas=2, color=color, flagLegend=flagLegend, 
+          label=label,
+          title=title, ax=ax, figsize = figsize, end_plot=end_plot,
+          **plot_args)
+
+    return ax
 
 def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red',
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):

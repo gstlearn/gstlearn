@@ -34,7 +34,7 @@ public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const CovLMC* lmc,
+  CovLMCAnamorphosis(const CovLMC& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);

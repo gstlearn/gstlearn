@@ -15,7 +15,7 @@
 
 #include <math.h>
 
-#define TR(i,j) (Tr[ndim * (i) + (j)])
+#define TR(i,j) (Tr[3 * (i) + (j)])
 
 CovGradientFunctional::CovGradientFunctional(const ECov& type,
                                              const CovContext& ctxt)
@@ -24,6 +24,11 @@ CovGradientFunctional::CovGradientFunctional(const ECov& type,
 }
 
 CovGradientFunctional::CovGradientFunctional(const CovGradientFunctional &r)
+    : ACovGradient(r)
+{
+}
+
+CovGradientFunctional::CovGradientFunctional(const CovAniso &r)
     : ACovGradient(r)
 {
 }
@@ -55,8 +60,8 @@ void CovGradientFunctional::_calculateTrTtr(const VectorDouble& d,
 {
   int ndim = getContext().getNDim();
 
-  VectorDouble Tr(9, 0.);
   VectorDouble h(3,0.);
+  VectorDouble Tr(9, 0.);
 
   ut_vector_fill(u, 0.);
   ut_vector_fill(trttr, 0.);
@@ -108,7 +113,7 @@ void CovGradientFunctional::_calculateTrTtr(const VectorDouble& d,
  * @param p2     Second point of the increment
  * @param covVal Covariance value
  * @param covGp  Covariance <G[i](x0+x,y0+y,z0+z), P(x0,y0,z0)> (dim=3)
- * @param covGg  Covariance <G[i](x0+x,y0+y,z0+z), G[j](x0,y0,z0)> (dim=3)
+ * @param covGG  Covariance <G[i](x0+x,y0+y,z0+z), G[j](x0,y0,z0)> (dim=3)
  * @param mode   CovCalcMode structure
  * @param flagGrad true if the Gradient must be calculated
  *
@@ -120,16 +125,18 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
                                               const SpacePoint& p2,
                                               double& covVal,
                                               VectorDouble& covGp,
-                                              VectorDouble& covGg,
+                                              VectorDouble& covGG,
                                               const CovCalcMode& /*mode*/,
                                               bool flagGrad) const
 {
-  VectorDouble trttr(9),u(3);
+  VectorDouble d(3),trttr(9),u(3);
 
   // Calculate the isotropic distance
 
   double h = getSpace()->getDistance(p1, p2, getAniso());
   VectorDouble d1 = ut_vector_subtract(p1.getCoord(), p2.getCoord());
+  for (int i=0; i < 3; i++)
+    d[i] = (i < (int) d1.size()) ? d1[i] : 0.;
 
   //  Calculate the covariance
 
@@ -137,7 +144,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
   covVal += covar;
   if (getCova()->getType() == ECov::NUGGET) return;
 
-  _calculateTrTtr(d1, u, trttr);
+  _calculateTrTtr(d, u, trttr);
   double dcovsr = getSill(0,0) * getCova()->evalCovDerivative(1,h);
 
   //  Case where distance is null
@@ -147,7 +154,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
     if (flagGrad)
     {
       for (int i = 0; i < 9; i++)
-        covGg[i] -= dcovsr * trttr[i];
+        covGG[i] -= dcovsr * trttr[i];
     }
   }
   else
@@ -176,8 +183,8 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
         for (int i = 0; i < 3; i++)
           for (int j = 0; j < 3; j++)
           {
-            covGg[ecr] += a * u[i] * u[j];
-            if (i == j) covGg[ecr] -= b;
+            covGG[ecr] += a * u[i] * u[j];
+            if (i == j) covGG[ecr] -= b;
             ecr++;
           }
       }
@@ -190,7 +197,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
         for (int i = 0; i < 3; i++)
           for (int j = 0; j < 3; j++)
           {
-            covGg[ecr] += a * u[i] * u[j] - dcovsr * trttr[ecr];
+            covGG[ecr] += a * u[i] * u[j] - dcovsr * trttr[ecr];
             ecr++;
           }
       }

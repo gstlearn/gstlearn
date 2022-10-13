@@ -33,25 +33,10 @@
 /*! \cond */
 
 #define DRF(il)          (TAB_DRF[il])
-#define GRX(i)           ((pot_env->ndim < 1) ? -1 : (i)         )
-#define GRY(i)           ((pot_env->ndim < 2) ? -1 : (i) +   pot_env->ngrd)
-#define GRZ(i)           ((pot_env->ndim < 3) ? -1 : (i) + 2*pot_env->ngrd)
-#define TGT(i)           (pot_env->start_tgt + (i))
-#define ISC(ic,i)        (pot_env->start_iso +                          \
-                          pot_env->ptr_per_layer[ic] + (i) - (ic) - 1)
-#define EXT(iext)        (pot_env->start_ext + (iext))
-#define IAD_GRD(ig)      (pot_env->rank_grd[ig])
-#define IAD_TGT(it)      (pot_env->rank_tgt[it])
-#define IAD_ISO(ic,i)    (pot_env->rank_iso[pot_env->ptr_per_layer[ic] + (i)])
 #define MAT(i,j)         (mat[(i) * nequa + (j)])
 #define B(isol,i)        (b[(isol) * number + (i)])
 #define POTVAL(isimu,il) (potval[(isimu) * pot_env->nlayers + (il)])
 #define POTSIM(isimu,il) (potsim[(isimu) * nlayers + (il)])
-#define TGT_COO(it,i)    (dbtgt->getCoordinate(IAD_TGT(it),i))
-#define TGT_VAL(it,i)    (dbtgt->getTangent(IAD_TGT(it),i))
-#define GRD_COO(ig,i)    (dbgrd->getCoordinate(IAD_GRD(ig),i))
-#define GRD_VAL(ig,i)    (dbgrd->getGradient(IAD_GRD(ig),i))
-#define ISO_COO(ic,j,i)  (dbiso->getCoordinate(IAD_ISO(ic,j),i))
 #define ZDUALS(isimu,i)  (zduals[(isimu) * nequa + (i)])
 
 typedef struct
@@ -74,11 +59,15 @@ typedef struct
   int start_tgt; /* Address of the first tangent */
   int start_drf; /* Address of the first drift */
   int start_ext; /* Address of the first external drift */
-  int *nb_per_layer; /* Array of counts of samples per layer */
-  int *ptr_per_layer; /* Array of ptr per layer */
-  int *rank_iso; /* Array of ranks for Iso-potential */
-  int *rank_grd; /* Array of ranks for Gradients */
-  int *rank_tgt; /* Array of ranks for Tangents */
+  VectorInt nb_per_layer; /* Array of counts of samples per layer */
+  VectorInt ptr_per_layer; /* Array of ptr per layer */
+  VectorInt rank_iso; /* Array of ranks for Iso-potential */
+  VectorInt rank_grd; /* Array of ranks for Gradients */
+  VectorInt rank_tgt; /* Array of ranks for Tangents */
+  int  opt_part;
+  bool flag_pot;
+  bool flag_grad;
+  bool flag_trans;
 } Pot_Env;
 
 typedef struct
@@ -96,66 +85,594 @@ typedef struct
 } Pot_Ext;
 
 static int TAB_DRF[9];
-static int VERBOSE = 0;
-static char STRING[STRING_LENGTH];
+static bool VERBOSE = false;
+static Pot_Env* POTENV = nullptr;
+static Pot_Ext* POTEXT = nullptr;
+static Db* DBISO = nullptr;
+static Db* DBGRD = nullptr;
+static Db* DBTGT = nullptr;
 
 /*! \endcond */
+
+static void st_potenv_define(Pot_Env* pot_env,
+                             Pot_Ext* pot_ext,
+                             Db* dbiso,
+                             Db* dbgrd,
+                             Db* dbtgt,
+                             Db* dbout)
+{
+  POTENV = pot_env;
+  POTEXT = pot_ext;
+  DBISO = dbiso;
+  DBGRD = dbgrd;
+  DBTGT = dbtgt;
+
+  set_DBIN(dbiso);
+  set_DBOUT(dbout);
+
+  pot_env->ndim = dbiso->getNDim();
+}
+
+static int GRX(int i)
+{
+  if (POTENV->ndim < 1)
+    return -1;
+  else
+    return i;
+}
+static int GRY(int i)
+{
+  if (POTENV->ndim < 2)
+    return -1;
+  else
+    return i + POTENV->ngrd;
+}
+static int GRZ(int i)
+{
+  if (POTENV->ndim < 3)
+    return -1;
+  else
+    return i + 2 * POTENV->ngrd;
+}
+static int TGT(int i)
+{
+  return POTENV->start_tgt + i;
+}
+static int ISC(int ic,int i)
+{
+  return POTENV->start_iso + POTENV->ptr_per_layer[ic] + (i) - (ic) - 1;
+}
+static int IAD_GRD(int ig)
+{
+  return POTENV->rank_grd[ig];
+}
+static void set_IAD_GRD(int ig, int value)
+{
+  POTENV->rank_grd[ig] = value;
+}
+static int IAD_TGT(int it)
+{
+  return POTENV->rank_tgt[it];
+}
+static void set_IAD_TGT(int it, int value)
+{
+  POTENV->rank_tgt[it] = value;
+}
+static double IAD_ISO(int ic,int i)
+{
+  return POTENV->rank_iso[POTENV->ptr_per_layer[ic] + (i)];
+}
+static double TGT_COO(int it,int i)
+{
+  return DBTGT->getCoordinate(IAD_TGT(it),i);
+}
+static double TGT_VAL(int it,int idim)
+{
+  if (idim >= POTENV->ndim) return TEST;
+  return DBTGT->getTangent(IAD_TGT(it),idim);
+}
+static double GRD_COO(int ig,int idim)
+{
+  if (idim >= POTENV->ndim) return TEST;
+  return DBGRD->getCoordinate(IAD_GRD(ig),idim);
+}
+static double GRD_VAL(int ig,int idim)
+{
+  if (idim >= POTENV->ndim) return TEST;
+  return DBGRD->getGradient(IAD_GRD(ig),idim);
+}
+static double ISO_COO(int ic,int j,int idim)
+{
+  if (idim >= POTENV->ndim) return TEST;
+  return DBISO->getCoordinate(IAD_ISO(ic,j),idim);
+}
+static int EXT(int iext)
+{
+  return POTENV->start_ext + (iext);
+}
+
+/****************************************************************************/
+/*!
+ **  Cehck if the Model can be used for Potentials
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  model      Model structure
+ **
+ *****************************************************************************/
+static int st_model_invalid(Model *model)
+
+{
+  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  {
+    ECov type = model->getCovaType(icov);
+    if (type != ECov::GAUSSIAN && type != ECov::CUBIC
+        && type != ECov::SPLINE2_GC && type != ECov::NUGGET)
+    {
+      messerr("The Model is invalid for Potential calculations");
+      messerr("It may only contain:");
+      messerr("- Cubic covariance");
+      messerr("- Gaussian covariance");
+      messerr("- Duchon Spline generalized covariance");
+      messerr("An additional nugget effect can also be considered");
+      return (1);
+    }
+    if (type == ECov::SPLINE2_GC && model->getMaximumOrder() < 2)
+    {
+      messerr("The Model includes Second Order Spline Generalized Covariance");
+      messerr("This requires a second order drift");
+      return (1);
+    }
+  }
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Calculate the covariance and the derivatives
+ **
+ ** \param[in] model     Model structure
+ ** \param[in] flag_grad True if the Gradients must be calculated
+ ** \param[in] dx        Increment along X
+ ** \param[in] dy        Increment along Y
+ ** \param[in] dz        Increment along Z
+ **
+ ** \param[out] covar    Covariance of potential
+ ** \param[out] covGp    Covariance between potential and gradient
+ ** \param[out] covGG    Covariance between gradient and gradient
+ **
+ *****************************************************************************/
+static void st_cov(Model* model,
+                   bool flag_grad,
+                   double dx,
+                   double dy,
+                   double dz,
+                   double& covar,
+                   VectorDouble& covGp,
+                   VectorDouble& covGG)
+{
+  int ndim = model->getDimensionNumber();
+  VectorDouble vec(ndim);
+  if (ndim >= 1) vec[0] = dx;
+  if (ndim >= 2) vec[1] = dy;
+  if (ndim >= 3) vec[2] = dz;
+
+  model->evalZAndGradients(vec, covar, covGp, covGG, CovCalcMode(), flag_grad);
+
+  return;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the neighborhood data Db file
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbout      Output Db structure
+ **
+ ** \param[out] pot_ext     Pot_Ext structure
+ **
+ *****************************************************************************/
+static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
+{
+  int error, nech;
+  VectorInt nx;
+  VectorDouble x0;
+
+  /* Initializations */
+
+  error = 1;
+  nech = 0;
+
+  /* Core allocation */
+
+  nx.resize(pot_ext->ndim);
+  x0.resize(pot_ext->ndim);
+
+  /* Creating the attributes from the output grid */
+
+  nech = 1;
+  for (int idim = 0; idim < pot_ext->ndim; idim++)
+  {
+    nx[idim] = 2 * pot_ext->nring + 1;
+    x0[idim] = -dbout->getDX(idim) * pot_ext->nring;
+    nech *= nx[idim];
+  }
+
+  /* Creating the data grid */
+
+  pot_ext->db = DbGrid::create(nx, dbout->getDXs(), x0, dbout->getAngles(),
+                               ELoadBy::COLUMN, VectorDouble(),
+                               VectorString(), VectorString(), 1);
+  if (pot_ext->db == nullptr) goto label_end;
+  pot_ext->nfull = nech;
+
+  /* Add the selection */
+
+  pot_ext->db->addColumnsByConstant(1, 0., String(), ELoc::SEL);
+
+  /* Complementary core allocation */
+
+  pot_ext->data = (double*) mem_alloc(sizeof(double) * nech, 0);
+  if (pot_ext->data == nullptr) goto label_end;
+  pot_ext->weight = (double*) mem_alloc(sizeof(double) * nech * 4, 0);
+  if (pot_ext->weight == nullptr) goto label_end;
+  pot_ext->indg0 = (int*) mem_alloc(sizeof(int) * 3, 0);
+  if (pot_ext->indg0 == nullptr) goto label_end;
+  pot_ext->indg = (int*) mem_alloc(sizeof(int) * 3, 0);
+  if (pot_ext->indg == nullptr) goto label_end;
+
+  /* Set the error return code */
+
+  error = 0;
+
+  /* Returning arguments */
+
+  label_end: if (error)
+  {
+    if (pot_ext->db != nullptr) delete pot_ext->db;
+    if (pot_ext->data != nullptr) delete pot_ext->data;
+    if (pot_ext->weight != nullptr) delete pot_ext->weight;
+  }
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Establish the Model
+ **
+ ** \return  Error return code
+ **
+ ** \param[out] pot_ext     Pot_Ext structure
+ **
+ *****************************************************************************/
+static int st_extdrift_create_model(Pot_Ext *pot_ext)
+{
+  double sill = 1.;
+
+  /* Creating the model */
+
+  CovContext ctxt = CovContext(1, pot_ext->ndim, 1.);
+  pot_ext->model = new Model(ctxt);
+  if (pot_ext->model == nullptr) return 1;
+
+  // Covariance part
+  CovLMGradient covs(ctxt.getSpace());
+  CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
+  covs.addCov(&cov);
+  pot_ext->model->setCovList(&covs);
+
+  // Drift part
+  DriftList drifts(ctxt.getSpace());
+  drifts.setFlagLinked(true);
+  pot_ext->model->setDriftList(&drifts);
+
+  return 0;
+}
+
+/****************************************************************************/
+/*!
+ **  Establish kriging system
+ **
+ ** \return  Error return code
+ **
+ ** \param[out] pot_ext    Pot_Ext structure
+ ** \param[out] number     Matrix dimension
+ ** \param[out] a          LHS matrix
+ ** \param[out] b          RHS matrix
+ ** \param[out] wgt        Matrix of weights
+ **
+ *****************************************************************************/
+static int st_extdrift_solve(Pot_Ext *pot_ext,
+                             int number,
+                             double *a,
+                             double *b,
+                             double *wgt)
+{
+  int ecr;
+  double covar = 0.;
+  VectorDouble covGp(3, 0.);
+  VectorDouble covGG(9, 0.);
+
+  /* Establish the kriging matrix */
+
+  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, 0, 1, a);
+
+  /* Establish the Right-Hand side */
+
+  ecr = 0;
+  for (int iech = 0; iech < pot_ext->nfull; iech++)
+  {
+    if (!pot_ext->db->isActive(iech)) continue;
+    st_cov(pot_ext->model, 1,
+           pot_ext->db->getCoordinate(iech, 0),
+           pot_ext->db->getCoordinate(iech, 1),
+           pot_ext->db->getCoordinate(iech, 2),
+           covar, covGp, covGG);
+    B(0,ecr) = covar;
+    B(1,ecr) = -covGp[0];
+    B(2,ecr) = -covGp[1];
+    B(3,ecr) = -covGp[2];
+    ecr++;
+  }
+
+  /* Perform the inversion and store the weights */
+
+  if (matrix_invert(a, number, 0)) return (1);
+  matrix_product(number, number, 4, a, b, wgt);
+
+  return (0);
+}
+
+/****************************************************************************/
+/*!
+ **  Establish kriging system for calculating Gradient on External Drift
+ **
+ ** \return  Error return code
+ **
+ ** \param[in]  dbout      Output Db structure
+ **
+ ** \param[out] pot_ext    Pot_Ext structure
+ **
+ *****************************************************************************/
+static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
+{
+  int number, error;
+  double *a, *b;
+
+  /* Initializations */
+
+  error = 1;
+  a = b = nullptr;
+
+  /* Creating the Db for neighborhood */
+
+  if (st_extdrift_create_db(dbout, pot_ext)) goto label_end;
+  number = pot_ext->nfull;
+
+  /* Creating the model */
+
+  if (st_extdrift_create_model(pot_ext)) goto label_end;
+
+  /* Core allocation */
+
+  a = (double*) mem_alloc(sizeof(double) * number * number, 0);
+  if (a == nullptr) goto label_end;
+  b = (double*) mem_alloc(sizeof(double) * number * 4, 0);
+  if (b == nullptr) goto label_end;
+
+  /* Solve the kriging system */
+
+  if (st_extdrift_solve(pot_ext, number, a, b, pot_ext->weight)) goto label_end;
+
+  /* Set the error return code */
+
+  error = 0;
+
+  label_end:
+
+  /* Core deallocation */
+
+  a = (double*) mem_free((char* ) a);
+  b = (double*) mem_free((char* ) b);
+  return (error);
+}
+
+/****************************************************************************/
+/*!
+ **  Manage the Pot_Ext structure
+ **
+ ** \param[in]  mode      1 for allocation; 0 for save; -1 for deallocation
+ ** \param[in]  pot_ext   Pot_Ext structure to be managed
+ ** \param[in]  nring     Number of rings used for Ext. Drift calculations
+ ** \param[in]  range     Range of the structure
+ ** \param[in]  dbout     Output Db structure
+ **
+ *****************************************************************************/
+static int st_potext_manage(int mode,
+                            Pot_Ext *pot_ext,
+                            int nring,
+                            double range,
+                            DbGrid *dbout)
+{
+  /* Dispatch */
+
+  switch (mode)
+  {
+    case 0: /* Initialization */
+      pot_ext->ndim = 0;
+      pot_ext->nring = 0;
+      pot_ext->nfull = 0;
+      pot_ext->range = 0.;
+      pot_ext->db = nullptr;
+      pot_ext->model = nullptr;
+      pot_ext->indg = nullptr;
+      pot_ext->indg0 = nullptr;
+      pot_ext->data = nullptr;
+      pot_ext->weight = nullptr;
+      return (0);
+
+    case 1: /* Allocation */
+      pot_ext->ndim = dbout->getNDim();
+      pot_ext->nring = nring;
+      pot_ext->range = range;
+      if (st_extdrift_calc_init(dbout, pot_ext)) return (1);
+      return (0);
+
+    case -1: /* Deletion */
+      delete pot_ext->db;
+      pot_ext->db = nullptr;
+      delete pot_ext->model;
+      pot_ext->model = nullptr;
+      pot_ext->indg = db_indg_free(pot_ext->indg);
+      pot_ext->indg0 = db_indg_free(pot_ext->indg0);
+      pot_ext->data = (double*) mem_free((char* ) pot_ext->data);
+      pot_ext->weight = (double*) mem_free((char* ) pot_ext->weight);
+      return (0);
+  }
+  return (1);
+}
+
+bool st_potenv_valid(Pot_Env* pot_env,
+                     Pot_Ext* pot_ext,
+                     Db *dbiso,
+                     Db *dbgrd,
+                     Db *dbtgt,
+                     DbGrid* dbout,
+                     Model *model,
+                     ANeighParam *neighparam)
+{
+  static int nring = 1;
+
+  if (pot_env->ndim > 3)
+  {
+    messerr("The input Db must be defined in Space with dimension < 3");
+    return false;
+  }
+  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env->ndim)
+  {
+    messerr("The Gradient and Data Db must share the same space dimension");
+    return false;
+  }
+  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env->ndim)
+  {
+    messerr("The Tangent and Data Db must share the same space dimension");
+    return false;
+  }
+  if (model->getDimensionNumber() != pot_env->ndim)
+  {
+    messerr("The Model and Data Db must have the same space dimension");
+    return false;
+  }
+  if (dbout != NULL && dbout->getNDim() != pot_env->ndim)
+  {
+    messerr("The Db files 'dbin' and 'dbout' should have the same dimension");
+    return false;
+  }
+  if (st_model_invalid(model)) return false;
+  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
+  {
+    messerr("The input Db must contain a LAYER locator");
+    return false;
+  }
+  if (model->getVariableNumber() != 1)
+  {
+    messerr("The Model must be monovariate");
+    return false;
+  }
+  if (neighparam->getType() != ENeigh::UNIQUE)
+  {
+    messerr("This procedure is only available in Unique Neighborhood");
+    return false;
+  }
+
+  int next = model_nfex(model);
+  if (dbout != NULL && next != dbout->getExternalDriftNumber())
+  {
+    messerr("Inconsistency for External Drift between Model and Dbout");
+    return false;
+  }
+  if (dbout == NULL && next > 0)
+  {
+    messerr("Usage of External drift is forbidden without Output Grid");
+    return false;
+  }
+  if (next > 0)
+  {
+    if (next > 1)
+    {
+      messerr("This application cannot deal with more than 1 External Drift");
+      messerr("Check your output file");
+      return false;
+    }
+    if (! dbout->isGrid())
+    {
+      messerr("The External Drift requires an Output Grid File");
+      return false;
+    }
+    double range = 3. * MAX(dbout->getDX(0), dbout->getDX(1));
+    if (st_potext_manage(1, pot_ext, nring, range, dbout)) return false;
+  }
+
+  return true;
+}
 
 /****************************************************************************/
 /*!
  **  Manage the Pot_Env structure
  **
- ** \param[in]      mode       Operation (1: initialize; -1: free)
- ** \param[in]      verbose    Verbosity flag
  ** \param[in,out]  pot_env    Pot_env structure
+ ** \param[in]      flag_pot   True if the potential must be calculated
+ ** \param[in]      flag_grad  True if the gradients must be calculated
+ ** \param[in]      flag_trans True if the estimation result must be translated
+ **                            into layer number
+ ** \param[in]      opt_part   Option to exhibit only a part of estimation:
+ ** \li                        0 : the whole estimation
+ ** \li                        1 : the gradient contribution only
+ ** \li                        2 : the tangent contribution only
+ ** \li                        3 : the isovalues contribution only
+ ** \li                        4 : the drift contribution only
+ ** \li                        5 : the external drift contribution only
+ ** \param[in]      verbose    Verbosity flag
  **
  *****************************************************************************/
-static void st_pot_env_manage(int mode, int verbose, Pot_Env *pot_env)
+static void st_potenv_manage(Pot_Env *pot_env,
+                             bool flag_pot,
+                             bool flag_grad,
+                             bool flag_trans,
+                             int opt_part,
+                             bool verbose)
 {
-  /* Dispatch */
+  VERBOSE = verbose;
+  if (opt_part) flag_trans = false;
 
-  if (mode > 0)
-  {
-    // Initialization
-
-    VERBOSE = verbose;
-    pot_env->ndim = 0;
-    pot_env->niso = 0;
-    pot_env->nlayers = 0;
-    pot_env->ngrd = 0;
-    pot_env->ntgt = 0;
-    pot_env->next = 0;
-    pot_env->nequa = 0;
-    pot_env->order = 0;
-    pot_env->size_iso = 0;
-    pot_env->size_grd = 0;
-    pot_env->size_tgt = 0;
-    pot_env->size_drf = 0;
-    pot_env->size_ext = 0;
-    pot_env->start_iso = 0;
-    pot_env->start_grd = 0;
-    pot_env->start_tgt = 0;
-    pot_env->start_drf = 0;
-    pot_env->start_ext = 0;
-    pot_env->nb_per_layer = nullptr;
-    pot_env->ptr_per_layer = nullptr;
-    pot_env->rank_iso = nullptr;
-    pot_env->rank_grd = nullptr;
-    pot_env->rank_tgt = nullptr;
-  }
-  else
-  {
-
-    // Free
-
-    VERBOSE = -1;
-    pot_env->nb_per_layer = (int*) mem_free((char* ) pot_env->nb_per_layer);
-    pot_env->ptr_per_layer = (int*) mem_free((char* ) pot_env->ptr_per_layer);
-    pot_env->rank_iso = (int*) mem_free((char* ) pot_env->rank_iso);
-    pot_env->rank_grd = (int*) mem_free((char* ) pot_env->rank_grd);
-    pot_env->rank_tgt = (int*) mem_free((char* ) pot_env->rank_tgt);
-  }
-  return;
+  pot_env->ndim = 0;
+  pot_env->niso = 0;
+  pot_env->nlayers = 0;
+  pot_env->ngrd = 0;
+  pot_env->ntgt = 0;
+  pot_env->next = 0;
+  pot_env->nequa = 0;
+  pot_env->order = 0;
+  pot_env->size_iso = 0;
+  pot_env->size_grd = 0;
+  pot_env->size_tgt = 0;
+  pot_env->size_drf = 0;
+  pot_env->size_ext = 0;
+  pot_env->start_iso = 0;
+  pot_env->start_grd = 0;
+  pot_env->start_tgt = 0;
+  pot_env->start_drf = 0;
+  pot_env->start_ext = 0;
+  pot_env->nb_per_layer = VectorInt();
+  pot_env->ptr_per_layer = VectorInt();
+  pot_env->rank_iso = VectorInt();
+  pot_env->rank_grd = VectorInt();
+  pot_env->rank_tgt = VectorInt();
+  pot_env->flag_pot = flag_pot;
+  pot_env->flag_grad = flag_grad;
+  pot_env->flag_trans = flag_trans;
+  pot_env->opt_part = opt_part;
 }
 
 /****************************************************************************/
@@ -172,7 +689,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 
 {
   int *layval, *laycnt, error;
-  int i, ival, nech, nlayers, niso, size_iso, ipos, j, ecr, found;
+  int i, ival, nech, nlayers, niso, ipos, j, ecr, found;
   double value;
 
   // Initializations
@@ -180,7 +697,7 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
   if (dbiso == nullptr) return (0);
   error = 1;
   nech = dbiso->getSampleNumber();
-  nlayers = niso = size_iso = 0;
+  nlayers = niso = 0;
   layval = laycnt = nullptr;
 
   // Count the number of different iso-potential values 
@@ -230,12 +747,10 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
 
   // Core allocation 
 
-  pot_env->nb_per_layer = (int*) mem_alloc(sizeof(int) * nlayers, 0);
-  if (pot_env->nb_per_layer == nullptr) goto label_end;
-  pot_env->ptr_per_layer = (int*) mem_alloc(sizeof(int) * nlayers, 0);
-  if (pot_env->ptr_per_layer == nullptr) goto label_end;
-  pot_env->rank_iso = (int*) mem_alloc(sizeof(int) * niso, 0);
-  if (pot_env->rank_iso == nullptr) goto label_end;
+  pot_env->nb_per_layer.resize(nlayers);
+  pot_env->ptr_per_layer.resize(nlayers);
+  pot_env->rank_iso.resize(niso);
+  if (pot_env->rank_iso.empty()) goto label_end;
 
   // Set the final length and pointers 
 
@@ -270,23 +785,6 @@ static int st_update_isopot(Db *dbiso, Pot_Env *pot_env)
     goto label_end;
   }
 
-  /* Optional printout */
-
-  if (VERBOSE)
-  {
-    mestitle(0, "Iso-Potential information");
-    for (int ic = 0; ic < pot_env->nlayers; ic++)
-    {
-      for (j = 0; j < pot_env->nb_per_layer[ic]; j++)
-      {
-        message("Iso-%2d/%3d: Coor=(", ic + 1, j);
-        for (int idim = 0; idim < dbiso->getNDim(); idim++)
-          message(" %lf", ISO_COO(ic, j, idim));
-        message(")\n");
-      }
-    }
-  }
-
   // Set the error return code
 
   error = 0;
@@ -316,8 +814,7 @@ static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
 
   // Core allocation 
 
-  pot_env->rank_grd = (int*) mem_alloc(sizeof(int) * nech, 0);
-  if (pot_env->rank_grd == nullptr) return (1);
+  pot_env->rank_grd.resize(nech);
 
   // Loop on the gradients
 
@@ -328,13 +825,12 @@ static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
     for (int idim = 0; idim < pot_env->ndim && found == 0; idim++)
       if (FFFF(dbgrd->getGradient(iech, idim))) found = 1;
     if (found) continue;
-    IAD_GRD(ngrd++) = iech;
+    set_IAD_GRD(ngrd++,iech);
   }
 
   // Core reallocation
 
-  pot_env->rank_grd = (int*) mem_realloc((char* ) pot_env->rank_grd,
-                                         ngrd * sizeof(int), 0);
+  pot_env->rank_grd.resize(ngrd);
   pot_env->ngrd = ngrd;
   pot_env->size_grd = ngrd * pot_env->ndim;
 
@@ -342,23 +838,6 @@ static int st_update_gradient(Db *dbgrd, Pot_Env *pot_env)
   {
     messerr("The number of gradient informations cannot be null");
     return (1);
-  }
-
-  /* Optional printout */
-
-  if (VERBOSE)
-  {
-    mestitle(0, "Gradient information");
-    for (int ig = 0; ig < pot_env->ngrd; ig++)
-    {
-      message("Gradient-%d: Coor=(", ig + 1);
-      for (int idim = 0; idim < dbgrd->getNDim(); idim++)
-        message(" %lf", GRD_COO(ig, idim));
-      message(") - Grad=(");
-      for (int idim = 0; idim < dbgrd->getNDim(); idim++)
-        message(" %lf", GRD_VAL(ig, idim));
-      message(")\n");
-    }
   }
 
   return (0);
@@ -385,8 +864,7 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
 
   // Core allocation 
 
-  pot_env->rank_tgt = (int*) mem_alloc(sizeof(int) * nech, 0);
-  if (pot_env->rank_tgt == nullptr) return (1);
+  pot_env->rank_tgt.resize(nech);
 
   // Loop on the tangents
 
@@ -397,13 +875,12 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
     for (int idim = 0; idim < pot_env->ndim && found == 0; idim++)
       if (FFFF(dbtgt->getTangent(iech, idim))) found = 1;
     if (found) continue;
-    IAD_TGT(ntgt++) = iech;
+    set_IAD_TGT(ntgt++, iech);
   }
 
   // Core reallocation
 
-  pot_env->rank_tgt = (int*) mem_realloc((char* ) pot_env->rank_tgt,
-                                         ntgt * sizeof(int), 0);
+  pot_env->rank_tgt.resize(ntgt);
   pot_env->ntgt = ntgt;
   pot_env->size_tgt = ntgt;
 
@@ -445,10 +922,6 @@ static int st_update_model(Model *model, Pot_Env *pot_env)
   pot_env->order =  model->getMaximumOrder();
   pot_env->size_drf = nbfl;
   pot_env->next = pot_env->size_ext = model_nfex(model);
-
-  /* Optional printout */
-
-  if (VERBOSE) model->display();
 
   return (0);
 }
@@ -625,7 +1098,8 @@ static void set_lhs(double *lhs, int nequa, int i, int j, double value)
   if (i >= nequa || j >= nequa)
     messageAbort("Fatal error in set_lhs(%d,%d) with nequa=%d", i, j, nequa);
   lhs[(i) * nequa + (j)] = value;
-  if (i != j) lhs[(j) * nequa + (i)] = value;
+  if (i != j)
+    lhs[(j) * nequa + (i)] = value;
 }
 
 /****************************************************************************/
@@ -646,36 +1120,6 @@ static double get_lhs(double *lhs, int nequa, int i, int j)
   if (i >= nequa || j >= nequa)
     messageAbort("Fatal error in get_lhs(%d,%d) with nequa=%d", i, j, nequa);
   return (lhs[(i) * nequa + (j)]);
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the covariance and the derivatives
- **
- ** \param[in] dx        Increment along X
- ** \param[in] dy        Increment along Y
- ** \param[in] dz        Increment along Z
- **
- *****************************************************************************/
-static void st_cov(Model* /*model*/,
-                   int /*flag_grad*/,
-                   double dx,
-                   double dy,
-                   double dz,
-                   double* /*covar*/,
-                   double* /*covGp*/,
-                   double* /*covGG*/)
-{
-  VectorDouble vec(3);
-  vec[0] = dx;
-  vec[1] = dy;
-  vec[2] = dz;
-  VectorDouble ccovGp;
-  VectorDouble ccovGG;
-
-//  model->evalZAndGradients(vec, covar, ccovGp, ccovGG, CovCalcMode(), flag_grad);
-
-  return;
 }
 
 /****************************************************************************/
@@ -726,58 +1170,6 @@ static int st_extdrift_neigh(DbGrid *dbgrid, Pot_Ext *pot_ext)
 
 /****************************************************************************/
 /*!
- **  Establish kriging system
- **
- ** \return  Error return code
- **
- ** \param[out] pot_ext    Pot_Ext structure
- ** \param[out] number     Matrix dimension
- ** \param[out] a          LHS matrix
- ** \param[out] b          RHS matrix
- ** \param[out] wgt        Matrix of weights
- **
- *****************************************************************************/
-static int st_extdrift_solve(Pot_Ext *pot_ext,
-                             int number,
-                             double *a,
-                             double *b,
-                             double *wgt)
-{
-  int ecr;
-  double covar = 0.;
-  double covGp[3] = { 0., 0., 0. };
-  double covGG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-
-  /* Establish the kriging matrix */
-
-  model_covmat(pot_ext->model, pot_ext->db, pot_ext->db, -1, -1, 0, 1, a);
-
-  /* Establish the Right-Hand side */
-
-  ecr = 0;
-  for (int iech = 0; iech < pot_ext->nfull; iech++)
-  {
-    if (!pot_ext->db->isActive(iech)) continue;
-    st_cov(pot_ext->model, 1, pot_ext->db->getCoordinate(iech, 0),
-           pot_ext->db->getCoordinate(iech, 1),
-           pot_ext->db->getCoordinate(iech, 2), &covar, covGp, covGG);
-    B(0,ecr) = covar;
-    B(1,ecr) = -covGp[0];
-    B(2,ecr) = -covGp[1];
-    B(3,ecr) = -covGp[2];
-    ecr++;
-  }
-
-  /* Perform the inversion and store the weights */
-
-  if (matrix_invert(a, number, 0)) return (1);
-  matrix_product(number, number, 4, a, b, wgt);
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Calculate the external drift contribution
  **
  ** \return  Error return code (target not within the grid or target on the
@@ -801,7 +1193,7 @@ static int st_extdrift_eval(const char *target,
                             DbGrid *dbgrid,
                             Pot_Ext *pot_ext,
                             double *extval,
-                            double *extgrd)
+                            VectorDouble& extgrd)
 {
   double coor[3], result[4];
   int error;
@@ -832,25 +1224,13 @@ static int st_extdrift_eval(const char *target,
 
   error = 0;
 
-  label_end: if (error && VERBOSE)
+  label_end:
+  if (error && VERBOSE)
   {
     messerr("The External Drift cannot be estimated at %s point (%lf %lf %lf)",
             target, x0, y0, z0);
   }
   return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the coordinates of the point used for centering the drift functions
- **
- ** \param[out] center  Coordinates of the centering point
- **
- *****************************************************************************/
-static void st_get_center(double *center)
-{
-  for (int idim = 0; idim < 3; idim++)
-    center[idim] = 0.;
 }
 
 /****************************************************************************/
@@ -909,12 +1289,13 @@ static int st_build_lhs(Pot_Env *pot_env,
   int iext, nequa, ndim;
   double extval, extval1, extval2;
 
-  double covGp[3] = { 0., 0., 0. };
-  double covGG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-  double cov2Gp[3] = { 0., 0., 0. };
-  double cov2GG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-  double center[3] = { 0., 0., 0. };
-  double extgrd[3] = { 0., 0., 0. };
+  ndim = pot_env->ndim;
+  VectorDouble covGp(3, 0.);
+  VectorDouble covGG(9, 0.);
+  VectorDouble cov2Gp(3, 0.);
+  VectorDouble cov2GG(9, 0.);
+  VectorDouble center(3, 0.);
+  VectorDouble extgrd(3, 0.);
   double covar = 0.;
   double covar1 = 0.;
   double covar2 = 0.;
@@ -923,11 +1304,9 @@ static int st_build_lhs(Pot_Env *pot_env,
 
   // Blank out the cokriging matrix
 
-  ndim = pot_env->ndim;
   nequa = pot_env->nequa;
   for (int i = 0; i < nequa * nequa; i++)
     lhs[i] = 0.;
-  st_get_center(center);
 
   /******************************/
   /* PART RELATIVE TO GRADIENTS */
@@ -935,13 +1314,13 @@ static int st_build_lhs(Pot_Env *pot_env,
 
   for (int ig = 0; ig < pot_env->ngrd; ig++)
   {
-    for (int jg = 0; jg <= ig; jg++)
+    for (int jg = 0; jg < ig; jg++)
     {
       st_cov(model, 1,
-      GRD_COO(ig,0) - GRD_COO(jg, 0),
+             GRD_COO(ig,0) - GRD_COO(jg, 0),
              GRD_COO(ig,1) - GRD_COO(jg, 1),
              GRD_COO(ig,2) - GRD_COO(jg, 2),
-             &covar, covGp, covGG);
+             covar, covGp, covGG);
 
       set_lhs(lhs, nequa, GRX(ig), GRX(jg), covGG[0]);
       set_lhs(lhs, nequa, GRX(ig), GRY(jg), covGG[1]);
@@ -953,7 +1332,7 @@ static int st_build_lhs(Pot_Env *pot_env,
       set_lhs(lhs, nequa, GRZ(ig), GRY(jg), covGG[7]);
       set_lhs(lhs, nequa, GRZ(ig), GRZ(jg), covGG[8]);
     }
-    st_cov(model, 1, 0., 0., 0., &covar, covGp, covGG);
+    st_cov(model, 1, 0., 0., 0., covar, covGp, covGG);
     set_lhs(lhs, nequa, GRX(ig), GRX(ig), covGG[0] + nugget_grd);
     set_lhs(lhs, nequa, GRX(ig), GRY(ig), covGG[1]);
     set_lhs(lhs, nequa, GRX(ig), GRZ(ig), covGG[2]);
@@ -977,32 +1356,20 @@ static int st_build_lhs(Pot_Env *pot_env,
     for (int ig = 0; ig < pot_env->ngrd; ig++)
     {
       st_cov(model, 1,
-      TGT_COO(it,0) - GRD_COO(ig, 0),
+             TGT_COO(it,0) - GRD_COO(ig, 0),
              TGT_COO(it,1) - GRD_COO(ig, 1),
              TGT_COO(it,2) - GRD_COO(ig, 2),
-             &covar, covGp, covGG);
+             covar, covGp, covGG);
 
-      set_lhs(
-          lhs,
-          nequa,
-          TGT(it),
-          GRX(ig),
-          matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
-                    covGG[0], covGG[1], covGG[2]));
-      set_lhs(
-          lhs,
-          nequa,
-          TGT(it),
-          GRY(ig),
-          matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
-                    covGG[3], covGG[4], covGG[5]));
-      set_lhs(
-          lhs,
-          nequa,
-          TGT(it),
-          GRZ(ig),
-          matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
-                    covGG[6], covGG[7], covGG[8]));
+      set_lhs(lhs, nequa, TGT(it), GRX(ig),
+              matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
+                        covGG[0], covGG[1], covGG[2]));
+      set_lhs(lhs, nequa, TGT(it), GRY(ig),
+              matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
+                        covGG[3], covGG[4], covGG[5]));
+      set_lhs(lhs, nequa, TGT(it), GRZ(ig),
+              matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
+                        covGG[6], covGG[7], covGG[8]));
     }
 
     /* block diagonal tangents */
@@ -1010,27 +1377,20 @@ static int st_build_lhs(Pot_Env *pot_env,
     for (int jt = 0; jt < it; jt++)
     {
       st_cov(model, 1,
-      TGT_COO(it,0) - TGT_COO(jt, 0),
+             TGT_COO(it,0) - TGT_COO(jt, 0),
              TGT_COO(it,1) - TGT_COO(jt, 1),
              TGT_COO(it,2) - TGT_COO(jt, 2),
-             &covar, covGp, covGG);
+             covar, covGp, covGG);
 
-      set_lhs(
-          lhs,
-          nequa,
-          TGT(it),
-          TGT(jt),
-          matrix_UAV(ndim, covGG, TGT_VAL(it, 0), TGT_VAL(it, 1),
-                     TGT_VAL(it, 2), TGT_VAL(jt, 0), TGT_VAL(jt, 1),
-                     TGT_VAL(jt, 2)));
+      set_lhs(lhs, nequa, TGT(it), TGT(jt),
+          matrix_UAV(ndim, covGG.data(),
+                     TGT_VAL(it, 0), TGT_VAL(it, 1),TGT_VAL(it, 2),
+                     TGT_VAL(jt, 0), TGT_VAL(jt, 1),TGT_VAL(jt, 2)));
     }
-    st_cov(model, 1, 0., 0., 0., &covar, covGp, covGG);
-    set_lhs(
-        lhs,
-        nequa,
-        TGT(it),
-        TGT(it),
-        matrix_UAV(ndim, covGG, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
+    st_cov(model, 1, 0., 0., 0., covar, covGp, covGG);
+    set_lhs(lhs, nequa, TGT(it), TGT(it),
+        matrix_UAV(ndim, covGG.data(),
+                   TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                    TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2))
         + nugget_tgt);
   }
@@ -1049,15 +1409,15 @@ static int st_build_lhs(Pot_Env *pot_env,
       for (int ig = 0; ig < pot_env->ngrd; ig++)
       {
         st_cov(model, 1,
-        GRD_COO(ig,0) - ISO_COO(ic1, 0, 0),
+               GRD_COO(ig,0) - ISO_COO(ic1, 0, 0),
                GRD_COO(ig,1) - ISO_COO(ic1, 0, 1),
                GRD_COO(ig,2) - ISO_COO(ic1, 0, 2),
-               &covar, covGp, covGG);
+               covar, covGp, covGG);
         st_cov(model, 1,
-        GRD_COO(ig,0) - ISO_COO(ic1, j, 0),
+               GRD_COO(ig,0) - ISO_COO(ic1, j, 0),
                GRD_COO(ig,1) - ISO_COO(ic1, j, 1),
                GRD_COO(ig,2) - ISO_COO(ic1, j, 2),
-               &covar, cov2Gp, cov2GG);
+               covar, cov2Gp, cov2GG);
         set_lhs(lhs, nequa, ISC(ic1, j), GRX(ig), cov2Gp[0] - covGp[0]);
         set_lhs(lhs, nequa, ISC(ic1, j), GRY(ig), cov2Gp[1] - covGp[1]);
         set_lhs(lhs, nequa, ISC(ic1, j), GRZ(ig), cov2Gp[2] - covGp[2]);
@@ -1068,20 +1428,16 @@ static int st_build_lhs(Pot_Env *pot_env,
       for (int it = 0; it < pot_env->ntgt; it++)
       {
         st_cov(model, 1,
-        TGT_COO(it,0) - ISO_COO(ic1, 0, 0),
+               TGT_COO(it,0) - ISO_COO(ic1, 0, 0),
                TGT_COO(it,1) - ISO_COO(ic1, 0, 1),
                TGT_COO(it,2) - ISO_COO(ic1, 0, 2),
-               &covar, covGp, covGG);
+               covar, covGp, covGG);
         st_cov(model, 1,
-        TGT_COO(it,0) - ISO_COO(ic1, j, 0),
+               TGT_COO(it,0) - ISO_COO(ic1, j, 0),
                TGT_COO(it,1) - ISO_COO(ic1, j, 1),
                TGT_COO(it,2) - ISO_COO(ic1, j, 2),
-               &covar, cov2Gp, cov2GG);
-        set_lhs(
-            lhs,
-            nequa,
-            ISC(ic1, j),
-            TGT(it),
+               covar, cov2Gp, cov2GG);
+        set_lhs(lhs, nequa, ISC(ic1, j), TGT(it),
             matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                       cov2Gp[0] - covGp[0], cov2Gp[1] - covGp[1],
                       cov2Gp[2] - covGp[2]));
@@ -1094,25 +1450,25 @@ static int st_build_lhs(Pot_Env *pot_env,
         for (int j2 = 1; j2 < pot_env->nb_per_layer[ic2]; j2++)
         {
           st_cov(model, 0,
-          ISO_COO(ic2,j2,0) - ISO_COO(ic1, j, 0),
+                 ISO_COO(ic2,j2,0) - ISO_COO(ic1, j, 0),
                  ISO_COO(ic2,j2,1) - ISO_COO(ic1, j, 1),
                  ISO_COO(ic2,j2,2) - ISO_COO(ic1, j, 2),
-                 &covar1, covGp, covGG);
+                 covar1, covGp, covGG);
           st_cov(model, 0,
-          ISO_COO(ic2,j2,0) - ISO_COO(ic1, 0, 0),
+                 ISO_COO(ic2,j2,0) - ISO_COO(ic1, 0, 0),
                  ISO_COO(ic2,j2,1) - ISO_COO(ic1, 0, 1),
                  ISO_COO(ic2,j2,2) - ISO_COO(ic1, 0, 2),
-                 &covar2, covGp, covGG);
+                 covar2, covGp, covGG);
           st_cov(model, 0,
-          ISO_COO(ic2,0,0) - ISO_COO(ic1, j, 0),
+                 ISO_COO(ic2,0,0) - ISO_COO(ic1, j, 0),
                  ISO_COO(ic2,0,1) - ISO_COO(ic1, j, 1),
                  ISO_COO(ic2,0,2) - ISO_COO(ic1, j, 2),
-                 &covar3, covGp, covGG);
+                 covar3, covGp, covGG);
           st_cov(model, 0,
-          ISO_COO(ic2,0,0) - ISO_COO(ic1, 0, 0),
+                 ISO_COO(ic2,0,0) - ISO_COO(ic1, 0, 0),
                  ISO_COO(ic2,0,1) - ISO_COO(ic1, 0, 1),
                  ISO_COO(ic2,0,2) - ISO_COO(ic1, 0, 2),
-                 &covar4, covGp, covGG);
+                 covar4, covGp, covGG);
           set_lhs(lhs, nequa, ISC(ic1, j), ISC(ic2, j2),
                   covar1 - covar2 - covar3 + covar4);
         }
@@ -1182,8 +1538,9 @@ static int st_build_lhs(Pot_Env *pot_env,
 
     for (iext = 0; iext < pot_env->next; iext++)
     {
-      if (st_extdrift_eval("Gradient", GRD_COO(ig, 0), GRD_COO(ig, 1),
-                           GRD_COO(ig, 2), dbout, pot_ext, &extval, extgrd))
+      if (st_extdrift_eval("Gradient",
+                           GRD_COO(ig, 0), GRD_COO(ig, 1), GRD_COO(ig, 2),
+                           dbout, pot_ext, &extval, extgrd))
         return (1);
       set_lhs(lhs, nequa, EXT(iext), GRX(ig), extgrd[0]);
       set_lhs(lhs, nequa, EXT(iext), GRY(ig), extgrd[1]);
@@ -1234,11 +1591,7 @@ static int st_build_lhs(Pot_Env *pot_env,
       if (st_extdrift_eval("Tangent", TGT_COO(it, 0), TGT_COO(it, 1),
                            TGT_COO(it, 2), dbout, pot_ext, &extval, extgrd))
         return (1);
-      set_lhs(
-          lhs,
-          nequa,
-          EXT(iext),
-          TGT(it),
+      set_lhs(lhs, nequa, EXT(iext), TGT(it),
           matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                     extgrd[0], extgrd[1], extgrd[2]));
     }
@@ -1305,10 +1658,6 @@ static int st_build_lhs(Pot_Env *pot_env,
     }
   }
 
-  // Printout (optional) 
-
-  if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    krige_lhs_print(0, nequa, nequa, NULL, lhs);
   return (0);
 }
 
@@ -1332,8 +1681,7 @@ static void st_fill_dual(Pot_Env *pot_env, Db *dbgrd, double *zval)
 
   // Blank out the vector
 
-  for (int i = 0; i < nequa; i++)
-    zval[i] = 0.;
+  for (int i = 0; i < nequa; i++) zval[i] = 0.;
 
   for (int ig = 0; ig < pot_env->ngrd; ig++)
   {
@@ -1431,35 +1779,22 @@ static void st_fill_dual_simulation(Pot_Env *pot_env,
  **  Blank out part the R.H.S. according to 'flag.part'
  **
  ** \param[in]  pot_env       Pot_Env structure
- ** \param[in]  flag_grad     1 if the gradients must also be calculated
- ** \param[in]  flag_part     Option to exhibit the only a part of estimation:
- ** \li                       0 : the whole estimation
- ** \li                       1 : the gradient contribution only
- ** \li                       2 : the tangent contribution only
- ** \li                       3 : the isovalues contribution only
- ** \li                       4 : the drift contribution only
- ** \li                       5 : the external drift contribution only
  **
  ** \param[in,out] rhs        Array for the R.H.S.
  **
  *****************************************************************************/
 static void st_rhs_part(Pot_Env *pot_env,
-                        int flag_grad,
-                        int flag_part,
                         double *rhs)
 {
-  int nequa, ideb, ifin;
-
-  /* Initializations */
-
-  nequa = pot_env->nequa;
-  ideb = 0;
-  ifin = nequa;
-  if (flag_part == 0) return;
+  int nequa = pot_env->nequa;
+  int opt_part = pot_env->opt_part;
+  int ideb = 0;
+  int ifin = nequa;
+  if (opt_part == 0) return;
 
   /* Dispatch */
 
-  switch (flag_part)
+  switch (opt_part)
   {
     case 1: /* Reveal Gradient */
       ideb = pot_env->start_grd;
@@ -1493,8 +1828,9 @@ static void st_rhs_part(Pot_Env *pot_env,
   {
     if (i >= ideb && i < ifin) continue;
     set_rhs(rhs, nequa, i, 0, 0.);
-    if (flag_grad) for (int igrad = 1; igrad < 4; igrad++)
-      set_rhs(rhs, nequa, i, igrad, 0.);
+    if (pot_env->flag_grad)
+      for (int igrad = 1; igrad < 4; igrad++)
+        set_rhs(rhs, nequa, i, igrad, 0.);
   }
   return;
 }
@@ -1505,14 +1841,7 @@ static void st_rhs_part(Pot_Env *pot_env,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  flag_grad     1 if the gradients must also be calculated
- ** \param[in]  flag_part     Option to exhibit the only a part of estimation:
- ** \li                       0 : the whole estimation
- ** \li                       1 : the gradient contribution only
- ** \li                       2 : the tangent contribution only
- ** \li                       3 : the isovalues contribution only
- ** \li                       4 : the drift contribution only
- ** \li                       5 : the external drift contribution only
+ ** \param[in]  flag_grad     True if the gradients must also be calculated
  ** \param[in]  dbiso         Iso-potential Db structure
  ** \param[in]  dbgrd         Gradient Db structure
  ** \param[in]  dbtgt         Tangent Db structure (optional)
@@ -1525,36 +1854,35 @@ static void st_rhs_part(Pot_Env *pot_env,
  *****************************************************************************/
 static void st_build_rhs(Pot_Env *pot_env,
                          Pot_Ext *pot_ext,
-                         int flag_grad,
-                         int flag_part,
+                         bool flag_grad,
                          Db *dbiso,
                          Db *dbgrd,
                          Db *dbtgt,
                          DbGrid *dbgrid,
                          Model *model,
-                         double *coor,
+                         VectorDouble& coor,
                          double *rhs)
 {
   int nequa, nsol, ndim;
-  double extval, extgrd[3];
+  double extval;
 
   /* Initializations */
 
-  double covGp[3] = { 0., 0., 0. };
-  double covGG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-  double cov1Gp[3] = { 0., 0., 0. };
-  double cov1GG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
-  double center[3] = { 0., 0., 0. };
-  double ccor[3] = { 0., 0., 0. };
   double covar = 0.;
   double covar1 = 0.;
   ndim = pot_env->ndim;
   nequa = pot_env->nequa;
-  nsol = (flag_grad) ? 1 + pot_env->ndim :
-                       1;
+  nsol = (flag_grad) ? 1 + pot_env->ndim : 1;
+
+  VectorDouble covGp(3, 0);
+  VectorDouble covGG(9, 0.);
+  VectorDouble cov1Gp(3, 0.);
+  VectorDouble cov1GG(9, 0.);
+  VectorDouble center(3, 0.);
+  VectorDouble ccor(3, 0.);
+  VectorDouble extgrd(3, 0.);
   for (int i = 0; i < nequa * nsol; i++)
     rhs[i] = 0.;
-  st_get_center(center);
 
   /*******************/
   /* Covariance part */
@@ -1565,10 +1893,10 @@ static void st_build_rhs(Pot_Env *pot_env,
   for (int ig = 0; ig < pot_env->ngrd; ig++)
   {
     st_cov(model, flag_grad,
-    GRD_COO(ig,0) - coor[0],
+           GRD_COO(ig,0) - coor[0],
            GRD_COO(ig,1) - coor[1],
            GRD_COO(ig,2) - coor[2],
-           &covar, covGp, covGG);
+           covar, covGp, covGG);
     set_rhs(rhs, nequa, GRX(ig), 0, covGp[0]);
     set_rhs(rhs, nequa, GRY(ig), 0, covGp[1]);
     set_rhs(rhs, nequa, GRZ(ig), 0, covGp[2]);
@@ -1591,38 +1919,22 @@ static void st_build_rhs(Pot_Env *pot_env,
   for (int it = 0; it < pot_env->ntgt; it++)
   {
     st_cov(model, flag_grad,
-    TGT_COO(it,0) - coor[0],
+           TGT_COO(it,0) - coor[0],
            TGT_COO(it,1) - coor[1],
            TGT_COO(it,2) - coor[2],
-           &covar, covGp, covGG);
-    set_rhs(
-        rhs,
-        nequa,
-        TGT(it),
-        0,
+           covar, covGp, covGG);
+    set_rhs(rhs, nequa, TGT(it), 0,
         matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                   covGp[0], covGp[1], covGp[2]));
     if (flag_grad)
     {
-      set_rhs(
-          rhs,
-          nequa,
-          TGT(it),
-          1,
+      set_rhs(rhs, nequa, TGT(it), 1,
           matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                     covGG[0], covGG[1], covGG[2]));
-      set_rhs(
-          rhs,
-          nequa,
-          TGT(it),
-          2,
+      set_rhs(rhs, nequa, TGT(it), 2,
           matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                     covGG[3], covGG[4], covGG[5]));
-      set_rhs(
-          rhs,
-          nequa,
-          TGT(it),
-          3,
+      set_rhs(rhs, nequa, TGT(it), 3,
           matrix_UV(ndim, TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
                     covGG[6], covGG[7], covGG[8]));
     }
@@ -1635,15 +1947,15 @@ static void st_build_rhs(Pot_Env *pot_env,
     for (int j = 1; j < pot_env->nb_per_layer[ic]; j++)
     {
       st_cov(model, flag_grad,
-      ISO_COO(ic,j,0) - coor[0],
+             ISO_COO(ic,j,0) - coor[0],
              ISO_COO(ic,j,1) - coor[1],
              ISO_COO(ic,j,2) - coor[2],
-             &covar1, cov1Gp, cov1GG);
+             covar1, cov1Gp, cov1GG);
       st_cov(model, flag_grad,
-      ISO_COO(ic,0,0) - coor[0],
+             ISO_COO(ic,0,0) - coor[0],
              ISO_COO(ic,0,1) - coor[1],
              ISO_COO(ic,0,2) - coor[2],
-             &covar, covGp, covGG);
+             covar, covGp, covGG);
       set_rhs(rhs, nequa, ISC(ic, j), 0, covar1 - covar);
       if (flag_grad)
       {
@@ -1711,11 +2023,12 @@ static void st_build_rhs(Pot_Env *pot_env,
 
   // Blank out the R.H.S. according to masking option 
 
-  st_rhs_part(pot_env, flag_grad, flag_part, rhs);
+  st_rhs_part(pot_env, rhs);
 
   // Printout (optional) 
 
-  if (OptDbg::query(EDbg::KRIGING)) krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs);
+  if (OptDbg::query(EDbg::KRIGING))
+    krige_rhs_print(nsol, 0, nequa, nequa, NULL, rhs);
 
   return;
 }
@@ -1726,14 +2039,7 @@ static void st_build_rhs(Pot_Env *pot_env,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  flag_grad     1 if the gradients must also be calculated
- ** \param[in]  flag_part     Option to exhibit only a part of estimation:
- ** \li                       0 : the whole estimation
- ** \li                       1 : the gradient contribution only
- ** \li                       2 : the tangent contribution only
- ** \li                       3 : the isovalues contribution only
- ** \li                       4 : the drift contribution only
- ** \li                       5 : the external drift contribution only
+ ** \param[in]  flag_grad     True if the gradients must also be calculated
  ** \param[in]  dbiso         Iso-potential Db structure
  ** \param[in]  dbgrd         Gradient Db structure
  ** \param[in]  dbtgt         Tangent Db structure (optional)
@@ -1749,8 +2055,7 @@ static void st_build_rhs(Pot_Env *pot_env,
  *****************************************************************************/
 static void st_calc_point(Pot_Env *pot_env,
                           Pot_Ext *pot_ext,
-                          int flag_grad,
-                          int flag_part,
+                          bool flag_grad,
                           Db *dbiso,
                           Db *dbgrd,
                           Db *dbtgt,
@@ -1763,12 +2068,11 @@ static void st_calc_point(Pot_Env *pot_env,
                           double *result)
 {
   int nsol;
-  double coor[3];
+  VectorDouble coor(3,0.);
 
   /* Initializations */
 
-  nsol = (flag_grad) ? 1 + pot_env->ndim :
-                       1;
+  nsol = (flag_grad) ? 1 + pot_env->ndim : 1;
 
   /* Load the coordinates */
 
@@ -1785,13 +2089,12 @@ static void st_calc_point(Pot_Env *pot_env,
 
   /* Establish the R.H.S */
 
-  st_build_rhs(pot_env, pot_ext, flag_grad, flag_part, dbiso, dbgrd, dbtgt,
+  st_build_rhs(pot_env, pot_ext, flag_grad, dbiso, dbgrd, dbtgt,
                dbgrid, model, coor, rhs);
 
   /* Perform the estimation */
 
-  for (int i = 0; i < nsol; i++)
-    result[i] = TEST;
+  for (int i = 0; i < nsol; i++) result[i] = TEST;
   matrix_product(1, pot_env->nequa, nsol, zdual, rhs, result);
 
   // Printout (optional) 
@@ -1848,39 +2151,28 @@ static void st_potential_to_layer(Pot_Env *pot_env,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  flag_grad     1 if the gradients must also be calculated
- ** \param[in]  flag_trans    1 if the estimation result must be translated
- **                           into layer number
- ** \param[in]  flag_part     Option to exhibit only a part of estimation:
- ** \li                       0 : the whole estimation
- ** \li                       1 : the gradient contribution only
- ** \li                       2 : the tangent contribution only
- ** \li                       3 : the isovalues contribution only
- ** \li                       4 : the drift contribution only
- ** \li                       5 : the external drift contribution only
+ ** \param[in]  flag_grad     True if the gradients must also be calculated
  ** \param[in]  dbiso         Iso-potential Db structure
  ** \param[in]  dbgrd         Gradient Db structure
  ** \param[in]  dbtgt         Tangent Db structure (optional)
  ** \param[in]  dbout         Output Db structure
  ** \param[in]  model         Model structure
  ** \param[in]  refpot        Potential at Reference point
- ** \param[in]  zdualk        Dual vector (Dimension: nequa)
+ ** \param[in]  zdual         Dual vector (Dimension: nequa)
  ** \param[in]  rhs           R.H.S. vector (Dimension: nequa * 4)
  ** \param[in]  potval        Potential values at iso-potential samples
  **
  *****************************************************************************/
 static void st_estimate(Pot_Env *pot_env,
                         Pot_Ext *pot_ext,
-                        int flag_grad,
-                        int flag_trans,
-                        int flag_part,
+                        bool flag_grad,
                         Db *dbiso,
                         Db *dbgrd,
                         Db *dbtgt,
                         DbGrid *dbout,
                         Model *model,
                         double refpot,
-                        double *zdualk,
+                        double *zdual,
                         double *rhs,
                         double *potval)
 {
@@ -1888,15 +2180,14 @@ static void st_estimate(Pot_Env *pot_env,
 
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    mes_process("Potential Estimation on 3-D Grid", dbout->getSampleNumber(),
-                iech);
-    OptDbg::setIndex(iech + 1);
+    mes_process("Potential Estimation on Grid", dbout->getSampleNumber(),iech);
+    OptDbg::setIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
     // Perform the estimation
 
-    st_calc_point(pot_env, pot_ext, flag_grad, flag_part, dbiso, dbgrd, dbtgt,
-                  dbout, model, zdualk, rhs, dbout, iech, result);
+    st_calc_point(pot_env, pot_ext, flag_grad, dbiso, dbgrd, dbtgt,
+                  dbout, model, zdual, rhs, dbout, iech, result);
 
     // Center to the reference potential
 
@@ -1909,15 +2200,64 @@ static void st_estimate(Pot_Env *pot_env,
 
     // Translate from potential into layer
 
-    if (flag_trans) st_potential_to_layer(pot_env, 0, potval, result);
+    if (pot_env->flag_trans) st_potential_to_layer(pot_env, 0, potval, result);
 
     // Store the results
 
     dbout->setVariable(iech, 0, result[0]);
-    if (flag_grad) for (int idim = 0; idim < pot_env->ndim; idim++)
-      dbout->setGradient(iech, idim, result[idim + 1]);
+    if (flag_grad)
+      for (int idim = 0; idim < pot_env->ndim; idim++)
+        dbout->setGradient(iech, idim, result[idim + 1]);
   }
   OptDbg::setIndex(-1);
+  return;
+}
+
+static void st_estimate_data(Pot_Env *pot_env,
+                             Pot_Ext *pot_ext,
+                             Db *dbiso,
+                             Db *dbgrd,
+                             Db *dbtgt,
+                             DbGrid *dbout,
+                             Model *model,
+                             double refpot,
+                             double *zdual,
+                             double *rhs,
+                             Db *db_target,
+                             VectorInt& uid_pot,
+                             VectorInt& uid_grad)
+{
+  double result[4];
+  if (db_target == nullptr) return;
+
+  for (int iech = 0; iech < db_target->getSampleNumber(); iech++)
+  {
+    if (! db_target->isActive(iech)) continue;
+
+    // Perform the estimation
+
+    st_calc_point(pot_env, pot_ext, true,
+                  dbiso, dbgrd, dbtgt, dbout, model,
+                  zdual, rhs, db_target, iech, result);
+
+    // Center to the reference potential
+
+    if (! FFFF(refpot)) result[0] -= refpot;
+
+    // Store the results
+
+    if (! uid_pot.empty())
+    {
+      db_target->setArray(iech, uid_pot[0], result[0]);
+      db_target->setLocatorsByUID(uid_pot, ELoc::Z);
+    }
+    if (! uid_grad.empty())
+    {
+      for (int idim = 0; idim < pot_env->ndim; idim++)
+        db_target->setArray(iech, uid_grad[idim], result[idim + 1]);
+      db_target->setLocatorsByUID(uid_grad, ELoc::G);
+    }
+  }
   return;
 }
 
@@ -1937,7 +2277,7 @@ static void st_estimate(Pot_Env *pot_env,
  ** \param[in]  lhs_orig      Copy of the initial LHS (non inverted)
  ** \param[in]  lhs_aux       Working array for storing the new LHS
  ** \param[in]  rhs           Right-hand side
- ** \param[in]  zdualk        Dual vector (Dimension: nequa)
+ ** \param[in]  zdual         Dual vector (Dimension: nequa)
  **
  ** \param[out] dist_euc      Error converted into Euclidean distance
  ** \param[out] dist_geo      Error converted into along surface distance
@@ -1959,21 +2299,24 @@ static void st_dist_convert(Pot_Env *pot_env,
                             double *lhs_orig,
                             double *lhs_aux,
                             double *rhs,
-                            double *zdualk,
+                            double *zdual,
                             double *dist_euc,
                             double *dist_geo)
 {
-  double coor[3], coor0[3], deuc[3], dgeo[3], result[4], potval, delta;
+  double result[4], potval, delta;
   int nsol, nequa, neqm1, icol0;
   static int niter_max = 50;
   static double eps = 1.e-3;
 
+  VectorDouble coor(3, 0.);
+  VectorDouble coor0(3, 0.);
+  int ndim = pot_env->ndim;
   nequa = pot_env->nequa;
   neqm1 = nequa - 1;
-  nsol = 1 + pot_env->ndim;
+  nsol = 1 + ndim;
   icol0 = ISC(ic0, j0);
-  for (int idim = 0; idim < pot_env->ndim; idim++)
-    deuc[idim] = dgeo[idim] = 0.;
+  VectorDouble deuc(ndim, 0.);
+  VectorDouble dgeo(ndim, 0.);
 
   /* Update the L.H.S. by dropping the current data point */
 
@@ -1985,23 +2328,23 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   /* Calculate the dual system */
 
-  matrix_product(neqm1, neqm1, 1, lhs_aux, zval, zdualk);
+  matrix_product(neqm1, neqm1, 1, lhs_aux, zval, zdual);
 
   /* Evaluate the reference point */
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
-  st_build_rhs(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, 1, zdualk, rhs, &potval);
+  matrix_product(1, neqm1, 1, zdual, rhs, &potval);
 
   /* Evaluate the target point */
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
-  st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, nsol, zdualk, rhs, result);
+  matrix_product(1, neqm1, nsol, zdual, rhs, result);
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
@@ -2023,9 +2366,9 @@ static void st_dist_convert(Pot_Env *pot_env,
       coor[idim] -= delta;
       dgeo[idim] += delta * delta;
     }
-    st_build_rhs(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor, rhs);
+    st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-    matrix_product(1, neqm1, nsol, zdualk, rhs, result);
+    matrix_product(1, neqm1, nsol, zdual, rhs, result);
     if (OptDbg::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
@@ -2073,7 +2416,7 @@ static void st_dist_convert(Pot_Env *pot_env,
  ** \param[in]  lhs_orig       Copy of the Initial LHS
  ** \param[in]  lhs_aux        Working array for LHS
  ** \param[in]  rhs            Right-hand side
- ** \param[in]  zdualk         Dual vector (Dimension: nequa)
+ ** \param[in]  zdual          Dual vector (Dimension: nequa)
  **
  ** \remarks Arguments from 'zval' are only used to convert into distance
  **
@@ -2090,7 +2433,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 double *lhs_orig,
                                 double *lhs_aux,
                                 double *rhs,
-                                double *zdualk)
+                                double *zdual)
 {
   double result[4], variance, value, stats[4][2], stdev, dist_euc, dist_geo;
   int nequa, icol0, iech0, number, nitem;
@@ -2112,9 +2455,8 @@ static void st_xvalid_potential(Pot_Env *pot_env,
     for (int j = 1; j < pot_env->nb_per_layer[ic]; j++)
     {
       iech0 = IAD_ISO(ic, j);
-      mes_process("Potential Estimation on Iso-Potential %d of %d", j + 1,
-                  ic + 1);
-      OptDbg::setIndex(iech0 + 1);
+      mes_process("Potential Estimation on Iso-Potential %d of %d", j+1,ic+1);
+      OptDbg::setIndex(iech0);
 
       // Get the variance and the weights from the inverted L.H.S.
 
@@ -2138,7 +2480,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 
       if (flag_dist_conv)
         st_dist_convert(pot_env, pot_ext, dbiso, dbgrd, dbtgt, model, ic, j,
-                        zval, lhs_orig, lhs_aux, rhs, zdualk, &dist_geo,
+                        zval, lhs_orig, lhs_aux, rhs, zdual, &dist_geo,
                         &dist_euc);
 
       // Debugging option
@@ -2216,7 +2558,7 @@ static void st_xvalid_potential(Pot_Env *pot_env,
 /*!
  **  Amortize the conditional simulations
  **
- ** \param[in]  db            Db structure
+ ** \param[in]  dbout         Output Db structure
  ** \param[in]  iech          Rank of the sample
  ** \param[in]  dist_tempere  Distance for tempering simulations (or TEST)
  ** \param[in]  reskrige      Kriging result
@@ -2226,18 +2568,17 @@ static void st_xvalid_potential(Pot_Env *pot_env,
  ** \remarks This function does nothing if 'dist_tempere' is undefined
  **
  *****************************************************************************/
-static void st_tempere(Db *db,
+static void st_tempere(DbGrid *dbout,
                        int iech,
                        double dist_tempere,
                        double reskrige,
                        double *result)
 {
   double simerr, amortval, kdist;
-  int test;
+  static int test = 0;
 
   simerr = result[0] - reskrige;
-  kdist = db->getVariable(iech, 0);
-  test = (int) get_keypone("EssaiDR", 0.);
+  kdist = dbout->getVariable(iech, 0);
 
   switch (test)
   {
@@ -2270,7 +2611,7 @@ static void st_tempere(Db *db,
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
  ** \param[in]  dist_tempere  Distance for tempering simulations (or TEST)
- ** \param[in]  flag_trans    1 if the estimation result must be translated
+ ** \param[in]  flag_trans    True if the estimation result must be translated
  **                           into layer number
  ** \param[in]  nbsimu        Number of simulation
  ** \param[in]  dbiso         Iso-potential Db structure
@@ -2280,7 +2621,7 @@ static void st_tempere(Db *db,
  ** \param[in]  model         Model structure
  ** \param[in]  refpot        Potential at Reference point
  ** \param[in]  potsim        Potential simulated values at iso-potential samples
- ** \param[in]  zdualk        Dual estimated vector (Dimension: nequa)
+ ** \param[in]  zdual         Dual estimated vector (Dimension: nequa)
  ** \param[in]  zduals        Dual simulated vector (Dimension: nequa * nbsimu)
  ** \param[in]  rhs           R.H.S. vector (Dimension: nequa * 4)
  **
@@ -2288,7 +2629,7 @@ static void st_tempere(Db *db,
 static void st_simcond(Pot_Env *pot_env,
                        Pot_Ext *pot_ext,
                        double dist_tempere,
-                       int flag_trans,
+                       bool flag_trans,
                        int nbsimu,
                        Db *dbiso,
                        Db *dbgrd,
@@ -2297,7 +2638,7 @@ static void st_simcond(Pot_Env *pot_env,
                        Model *model,
                        double refpot,
                        double *potsim,
-                       double *zdualk,
+                       double *zdual,
                        double *zduals,
                        double *rhs)
 {
@@ -2308,9 +2649,8 @@ static void st_simcond(Pot_Env *pot_env,
   ndim = dbgrd->getNDim();
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
-    mes_process("Potential Simulation on 3-D Grid", dbout->getSampleNumber(),
-                iech);
-    OptDbg::setIndex(iech + 1);
+    mes_process("Potential Simulation on Grid", dbout->getSampleNumber(),iech);
+    OptDbg::setIndex(iech);
     if (!dbout->isActive(iech)) continue;
 
     if (!FFFF(dist_tempere))
@@ -2318,8 +2658,8 @@ static void st_simcond(Pot_Env *pot_env,
 
       // Perform the estimation
 
-      st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbout, model,
-                    zdualk, rhs, dbout, iech, resest);
+      st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbout, model,
+                    zdual, rhs, dbout, iech, resest);
 
       // Center to the reference potential
 
@@ -2331,7 +2671,7 @@ static void st_simcond(Pot_Env *pot_env,
 
       // Perform the estimation of the simulated error
 
-      st_calc_point(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, dbout, model,
+      st_calc_point(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, dbout, model,
                     &ZDUALS(isimu, 0), rhs, dbout, iech, result);
 
       // Convert into simulation error
@@ -2372,81 +2712,26 @@ static void st_simcond(Pot_Env *pot_env,
  **
  ** \param[in]  pot_env    Pot_env structure
  ** \param[in]  isimu      Rank of the simulation (or -1)
- ** \param[in]  iech       Sample rank
- ** \param[in]  layer      Layer code (or ITEST)
  ** \param[in]  result     Array of results
  ** \param[in]  tgtval     Value of the tangent (or TEST)
  **
  *****************************************************************************/
 static void st_print_result(Pot_Env *pot_env,
                             int isimu,
-                            int iech,
-                            int layer,
                             double *result,
                             double tgtval)
 {
   if (isimu >= 0) message("Simulation %2d - ", isimu + 1);
 
-  message("Sample %3d: Potential=%10.5lf", iech + 1, result[0]);
-  if (!IFFFF(layer)) message(" - Layer=%d", layer);
+  message(" - Pot* =%10.5lf", result[0]);
 
-  message(" - Gradient=");
+  message(" - Grad* =");
   for (int idim = 0; idim < pot_env->ndim; idim++)
     message(" %10.5lf", result[1 + idim]);
 
   if (!FFFF(tgtval)) message(" - Tangent= %10.5lf", tgtval);
 
   message("\n");
-}
-
-/****************************************************************************/
-/*!
- **  Manage the Printout / Saving option
- **
- ** \param[in]  mode      1 for allocation; 0 for save; -1 for deallocation
- ** \param[in]  radix     Radix for the storage
- ** \param[in]  db        Db structure to be printed or saved
- ** \param[in]  iech      Rank of the current point
- ** \param[in]  result    Array containing the results
- **
- *****************************************************************************/
-static void st_save_manage(int mode,
-                           const char *radix,
-                           Db *db,
-                           int iech,
-                           double *result)
-{
-  int nech, ndim;
-  static double *potval, *potgrd;
-
-  nech = db->getSampleNumber();
-  ndim = db->getNDim();
-
-  /* Dispatch */
-
-  if (mode == 1)
-  {
-    potval = (double*) mem_alloc(sizeof(double) * nech, 1);
-    potgrd = (double*) mem_alloc(sizeof(double) * nech * ndim, 1);
-  }
-
-  else if (mode == 0)
-  {
-    potval[iech] = result[0];
-    for (int idim = 0; idim < ndim; idim++)
-      potgrd[iech * ndim + idim] = result[1 + idim];
-  }
-  else
-  {
-    (void) gslSPrintf(STRING, "%s.pot", radix);
-    set_keypair(STRING, 1, nech, 1, potval);
-    (void) gslSPrintf(STRING, "%s.grd", radix);
-    set_keypair(STRING, 1, nech, ndim, potgrd);
-    potval = (double*) mem_free((char* ) potval);
-    potgrd = (double*) mem_free((char* ) potgrd);
-  }
-
-  return;
 }
 
 /****************************************************************************/
@@ -2480,56 +2765,49 @@ static void st_check_data(Pot_Env *pot_env,
                           double *zdual,
                           double *rhs)
 {
-  double result[4], tgte;
-  int layer;
-  static int flag_save = 1;
+  double result[4];
 
   /* Preliminary check */
 
-  if (!VERBOSE && !flag_save) return;
-  if (VERBOSE) mestitle(0, "Checking Exactness of Information reproduction");
+  if (VERBOSE) mestitle(0, "Information completed at Data Points");
 
   /* For the Iso-Potential file */
 
   if (dbiso != nullptr)
   {
     if (VERBOSE) mestitle(1, "Iso-Potential Information");
-    if (flag_save) st_save_manage(1, "Isopotential", dbiso, 0, NULL);
 
-    for (int iech = 0; iech < dbiso->getSampleNumber(); iech++)
+    int rank = 0;
+    for (int ic = 0; ic < pot_env->nlayers; ic++)
     {
-      OptDbg::setIndex(iech + 1);
-      if (!dbiso->isActive(iech)) continue;
-      st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
-                    zdual, rhs, dbiso, iech, result);
-
-      // Center to the reference potential
-
-      result[0] -= refpot;
-
-      // Save (optional)
-
-      if (flag_save) st_save_manage(0, "Isopotential", dbiso, iech, result);
-
-      // Printout (conditional) 
-
-      if (VERBOSE)
+      for (int j = 0; j < pot_env->nb_per_layer[ic]; j++, rank++)
       {
-        // Convert into simulation error
+        OptDbg::setIndex(rank);
+        int iech = dbiso->getActiveSampleRank(rank);
+        st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
+                      zdual, rhs, dbiso, iech, result);
+        result[0] -= refpot;
 
-        if (nbsimu > 0)
-          result[0] = (dbiso->getSimvar(ELoc::SIMU, iech, isimu, 0, 0, nbsimu,
-                                        1)
-                       - result[0]);
+        // Printout (conditional)
 
-        // Print the results
+        if (VERBOSE)
+        {
+          // Convert into simulation error
 
-        layer = (int) get_LOCATOR_ITEM(dbiso, ELoc::LAYER, 0, iech);
-        st_print_result(pot_env, isimu, iech, layer, result, TEST);
+          if (nbsimu > 0)
+            result[0] = dbiso->getSimvar(ELoc::SIMU,iech,isimu,0,0,nbsimu,1)
+                        - result[0];
+
+          // Print the results
+
+          message(" %d - %d - Coor =",ic+1, j+1);
+          for (int idim = 0; idim < pot_env->ndim; idim++)
+            message(" %lf", ISO_COO(ic, j, idim));
+          st_print_result(pot_env, isimu, result, TEST);
+        }
       }
+      OptDbg::setIndex(-1);
     }
-    if (flag_save) st_save_manage(-1, "Isopotential", dbiso, 0, NULL);
-    OptDbg::setIndex(-1);
   }
 
   /* For the Gradient file */
@@ -2537,18 +2815,15 @@ static void st_check_data(Pot_Env *pot_env,
   if (dbgrd != nullptr)
   {
     if (VERBOSE) mestitle(1, "Gradient Information");
-    if (flag_save) st_save_manage(1, "Gradient", dbgrd, 0, NULL);
 
-    for (int iech = 0; iech < dbgrd->getSampleNumber(); iech++)
+    for (int ig = 0; ig < pot_env->ngrd; ig++)
     {
-      OptDbg::setIndex(iech + 1);
-      if (!dbgrd->isActive(iech)) continue;
-      st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
+      OptDbg::setIndex(ig);
+      int iech = dbgrd->getActiveSampleRank(ig);
+      st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbgrd, iech, result);
 
-      // Save (optional)
-
-      if (flag_save) st_save_manage(0, "Gradient", dbgrd, iech, result);
+      // Printout (optional)
 
       if (VERBOSE)
       {
@@ -2566,10 +2841,12 @@ static void st_check_data(Pot_Env *pot_env,
 
         // Print the results
 
-        st_print_result(pot_env, isimu, iech, ITEST, result, TEST);
+        message(" %2d - Coor =", ig+1);
+        for (int idim = 0; idim < pot_env->ndim; idim++)
+          message(" %lf", GRD_COO(ig, idim));
+        st_print_result(pot_env, isimu, result, TEST);
       }
     }
-    if (flag_save) st_save_manage(-1, "Gradient", dbgrd, 0, NULL);
     OptDbg::setIndex(-1);
   }
 
@@ -2578,33 +2855,31 @@ static void st_check_data(Pot_Env *pot_env,
   if (dbtgt != nullptr)
   {
     if (VERBOSE) mestitle(1, "Tangent Information");
-    if (flag_save) st_save_manage(1, "Tangent", dbtgt, 0, NULL);
 
-    for (int iech = 0; iech < dbtgt->getSampleNumber(); iech++)
+    for (int it = 0; it < pot_env->ntgt; it++)
     {
-      OptDbg::setIndex(iech + 1);
+      OptDbg::setIndex(it);
+      int iech = dbtgt->getActiveSampleRank(it);
       if (!dbtgt->isActive(iech)) continue;
-      st_calc_point(pot_env, pot_ext, 1, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
+      st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbtgt, iech, result);
-
-      // Save (optional)
-
-      if (flag_save) st_save_manage(0, "Tangent", dbtgt, iech, result);
 
       // Printout (conditional) 
 
       if (VERBOSE)
       {
-        tgte = 0.;
+        double tgte = 0.;
         for (int idim = 0; idim < pot_env->ndim; idim++)
           tgte += result[1 + idim] * dbtgt->getTangent(iech, idim);
 
         // Print the results
 
-        st_print_result(pot_env, isimu, iech, ITEST, result, tgte);
+        message(" %2d - Coor =", it+1);
+        for (int idim = 0; idim < pot_env->ndim; idim++)
+          message(" %lf", TGT_COO(it, idim));
+        st_print_result(pot_env, isimu, result, tgte);
       }
     }
-    if (flag_save) st_save_manage(-1, "Tangent", dbtgt, 0, NULL);
     OptDbg::setIndex(-1);
   }
 
@@ -2643,11 +2918,11 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
 
   if (dbiso == nullptr) return (TEST);
 
-  // Calculate the reference values for isopotentials 
+  // Calculate the reference values for iso-potentials
 
   ic = 0;
   ip1 = IAD_ISO(ic, 0);
-  st_calc_point(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
+  st_calc_point(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
                 zdual, rhs, dbiso, ip1, result);
   return (result[0]);
 }
@@ -2670,12 +2945,6 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
  ** \param[in]  rhs           R.H.S. vector (Dimension: nequa * 4)
  **
  ** \param[out] potval        Array of Potential values
- **
- ** \remarks The Potential value for each layer is saved using:
- ** \remarks - in case of simulations
- ** \remarks    set.keypair("Potential.isimu",...)
- ** \remarks - in case of kriging
- ** \remarks    set.keypair("Potential",...
  **
  *****************************************************************************/
 static void st_evaluate_potval(Pot_Env *pot_env,
@@ -2702,7 +2971,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   for (int ic = 0; ic < pot_env->nlayers; ic++)
   {
     ip1 = IAD_ISO(ic, 0);
-    st_calc_point(pot_env, pot_ext, 0, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
+    st_calc_point(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, dbgrid, model,
                   zdual, rhs, dbiso, ip1, result);
 
     // Convert into simulation error
@@ -2720,14 +2989,6 @@ static void st_evaluate_potval(Pot_Env *pot_env,
     potval[ic] = result[0];
   }
 
-  // Save the result using the keypair mechanism
-
-  if (nbsimu > 0)
-    (void) gslSPrintf(STRING, "Potential.Simulation.%d", isimu + 1);
-  else
-    (void) gslStrcpy(STRING, "Potential.Estimation");
-  set_keypair(STRING, 1, pot_env->nlayers, 1, potval);
-
   // Sort them by ascending order 
 
   ut_sort_double(0, pot_env->nlayers, NULL, potval);
@@ -2735,257 +2996,33 @@ static void st_evaluate_potval(Pot_Env *pot_env,
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Cehck if the Model can be used for Potentials
- **
- ** \return  Error return code
- **
- ** \param[in]  model      Model structure
- **
- *****************************************************************************/
-static int st_model_invalid(Model *model)
-
+static void st_save_result_on_data(Pot_Env* pot_env,
+                                   Db* db,
+                                   int nvar,
+                                   double value,
+                                   const ELoc& loctype_pot,
+                                   const ELoc& loctype_grad,
+                                   VectorInt& uid_pot,
+                                   VectorInt& uid_grad)
 {
-  for (int icov = 0; icov < model->getCovaNumber(); icov++)
+  int uid;
+  uid_pot.clear();
+  uid_grad.clear();
+  if (db == nullptr) return;
+
+  if (pot_env->flag_pot)
   {
-    ECov type = model->getCovaType(icov);
-    if (type != ECov::GAUSSIAN && type != ECov::CUBIC
-        && type != ECov::SPLINE2_GC && type != ECov::NUGGET)
-    {
-      messerr("The Model is invalid for Potential calculations");
-      messerr("It may only contain:");
-      messerr("- Cubic covariance");
-      messerr("- Gaussian covariance");
-      messerr("- Duchon Spline generalized covariance");
-      messerr("An additional nugget effect can also be considered");
-      return (1);
-    }
-    if (type == ECov::SPLINE2_GC && model->getMaximumOrder() < 2)
-    {
-      messerr("The Model includes Second Order Spline Generalized Covariance");
-      messerr("This requires a second order drift");
-      return (1);
-    }
+    uid = db->addColumnsByConstant(nvar, value, "Potential",
+                                   loctype_pot);
+    uid_pot.push_back(uid);
   }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Establish the Model
- **
- ** \return  Error return code
- **
- ** \param[out] pot_ext     Pot_Ext structure
- **
- *****************************************************************************/
-static int st_extdrift_create_model(Pot_Ext *pot_ext)
-{
-  double sill = 1.;
-
-  /* Creating the model */
-
-  CovContext ctxt = CovContext(1, pot_ext->ndim, 1.);
-  pot_ext->model = new Model(ctxt);
-  if (pot_ext->model == nullptr) return 1;
-
-  // Covariance part
-  CovLMGradient covs(ctxt.getSpace());
-  CovAniso cov(ECov::CUBIC, pot_ext->range, 0., sill, ctxt);
-  covs.addCov(&cov);
-  pot_ext->model->setCovList(&covs);
-
-  // Drift part
-  DriftList drifts(ctxt.getSpace());
-  drifts.setFlagLinked(true);
-  pot_ext->model->setDriftList(&drifts);
-
-  return 0;
-}
-
-/****************************************************************************/
-/*!
- **  Establish the neighborhood data Db file
- **
- ** \return  Error return code
- **
- ** \param[in]  dbout      Output Db structure
- **
- ** \param[out] pot_ext     Pot_Ext structure
- **
- *****************************************************************************/
-static int st_extdrift_create_db(DbGrid *dbout, Pot_Ext *pot_ext)
-{
-  int error, nech;
-  VectorInt nx;
-  VectorDouble x0;
-
-  /* Initializations */
-
-  error = 1;
-  nech = 0;
-
-  /* Core allocation */
-
-  nx.resize(pot_ext->ndim);
-  x0.resize(pot_ext->ndim);
-
-  /* Creating the attributes from the output grid */
-
-  nech = 1;
-  for (int idim = 0; idim < pot_ext->ndim; idim++)
+  if (pot_env->flag_grad)
   {
-    nx[idim] = 2 * pot_ext->nring + 1;
-    x0[idim] = -dbout->getDX(idim) * pot_ext->nring;
-    nech *= nx[idim];
+    uid = db->addColumnsByConstant(nvar * pot_env->ndim, value, "Gradients",
+                                   loctype_grad);
+    for (int idim = 0; idim < pot_env->ndim; idim++)
+      uid_grad.push_back(uid + idim);
   }
-
-  /* Creating the data grid */
-
-  pot_ext->db = DbGrid::create(nx, dbout->getDXs(), x0, dbout->getAngles(),
-                               ELoadBy::COLUMN, VectorDouble(),
-                               VectorString(), VectorString(), 1);
-  if (pot_ext->db == nullptr) goto label_end;
-  pot_ext->nfull = nech;
-
-  /* Add the selection */
-
-  pot_ext->db->addColumnsByConstant(1, 0., String(), ELoc::SEL);
-
-  /* Complementary core allocation */
-
-  pot_ext->data = (double*) mem_alloc(sizeof(double) * nech, 0);
-  if (pot_ext->data == nullptr) goto label_end;
-  pot_ext->weight = (double*) mem_alloc(sizeof(double) * nech * 4, 0);
-  if (pot_ext->weight == nullptr) goto label_end;
-  pot_ext->indg0 = (int*) mem_alloc(sizeof(int) * 3, 0);
-  if (pot_ext->indg0 == nullptr) goto label_end;
-  pot_ext->indg = (int*) mem_alloc(sizeof(int) * 3, 0);
-  if (pot_ext->indg == nullptr) goto label_end;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  /* Returning arguments */
-
-  label_end: if (error)
-  {
-    if (pot_ext->db != nullptr) delete pot_ext->db;
-    if (pot_ext->data != nullptr) delete pot_ext->data;
-    if (pot_ext->weight != nullptr) delete pot_ext->weight;
-  }
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Establish kriging system for calculating Gradient on External Drift
- **
- ** \return  Error return code
- **
- ** \param[in]  dbout      Output Db structure
- **
- ** \param[out] pot_ext    Pot_Ext structure
- **
- *****************************************************************************/
-static int st_extdrift_calc_init(DbGrid *dbout, Pot_Ext *pot_ext)
-{
-  int number, error;
-  double *a, *b;
-
-  /* Initializations */
-
-  error = 1;
-  a = b = nullptr;
-
-  /* Creating the Db for neighborhood */
-
-  if (st_extdrift_create_db(dbout, pot_ext)) goto label_end;
-  number = pot_ext->nfull;
-
-  /* Creating the model */
-
-  if (st_extdrift_create_model(pot_ext)) goto label_end;
-
-  /* Core allocation */
-
-  a = (double*) mem_alloc(sizeof(double) * number * number, 0);
-  if (a == nullptr) goto label_end;
-  b = (double*) mem_alloc(sizeof(double) * number * 4, 0);
-  if (b == nullptr) goto label_end;
-
-  /* Solve the kriging system */
-
-  if (st_extdrift_solve(pot_ext, number, a, b, pot_ext->weight)) goto label_end;
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end:
-
-  /* Core deallocation */
-
-  a = (double*) mem_free((char* ) a);
-  b = (double*) mem_free((char* ) b);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Manage the Pot_Ext structure
- **
- ** \param[in]  mode      1 for allocation; 0 for save; -1 for deallocation
- ** \param[in]  pot_ext   Pot_Ext structure to be managed
- ** \param[in]  nring     Number of rings
- ** \param[in]  range     Range of the structure
- ** \param[in]  dbout     Output Db structure
- **
- *****************************************************************************/
-static int st_pot_ext_manage(int mode,
-                             Pot_Ext *pot_ext,
-                             int nring,
-                             double range,
-                             DbGrid *dbout)
-{
-  /* Dispatch */
-
-  switch (mode)
-  {
-    case 0: /* Initialization */
-      pot_ext->ndim = 0;
-      pot_ext->nring = 0;
-      pot_ext->nfull = 0;
-      pot_ext->range = 0.;
-      pot_ext->db = nullptr;
-      pot_ext->model = nullptr;
-      pot_ext->indg = nullptr;
-      pot_ext->indg0 = nullptr;
-      pot_ext->data = nullptr;
-      pot_ext->weight = nullptr;
-      return (0);
-
-    case 1: /* Allocation */
-      pot_ext->ndim = dbout->getNDim();
-      pot_ext->nring = nring;
-      pot_ext->range = range;
-      if (st_extdrift_calc_init(dbout, pot_ext)) return (1);
-      return (0);
-
-    case -1: /* Deletion */
-      delete pot_ext->db;
-      pot_ext->db = nullptr;
-      delete pot_ext->model;
-      pot_ext->model = nullptr;
-      pot_ext->indg = db_indg_free(pot_ext->indg);
-      pot_ext->indg0 = db_indg_free(pot_ext->indg0);
-      pot_ext->data = (double*) mem_free((char* ) pot_ext->data);
-      pot_ext->weight = (double*) mem_free((char* ) pot_ext->weight);
-      return (0);
-  }
-  return (1);
 }
 
 /****************************************************************************/
@@ -3002,10 +3039,13 @@ static int st_pot_ext_manage(int mode,
  ** \param[in]  neighparam ANeighParam structure
  ** \param[in]  nugget_grd Nugget effect for Gradients
  ** \param[in]  nugget_tgt Nugget effect for Tangents
- ** \param[in]  flag_grad  1 if the gradient must also be estimated
- ** \param[in]  flag_trans 1 if the estimation result must be translated
+ ** \param[in]  flag_pot   True if the Potential must be estimated
+ ** \param[in]  flag_grad  True if the gradient must also be estimated
+ ** \param[in]  flag_trans True if the estimation result must be translated
  **                        into layer number
- ** \param[in]  flag_part  Option to exhibit only a part of estimation:
+ ** \param[in]  flag_save_data True if the Potential / Gradient must be
+ **                        saved on any Information file
+ ** \param[in]  opt_part   Option to exhibit only a part of estimation:
  ** \li                       0 : the whole estimation
  ** \li                       1 : the gradient contribution only
  ** \li                       2 : the tangent contribution only
@@ -3027,96 +3067,36 @@ int potential_kriging(Db *dbiso,
                       ANeighParam *neighparam,
                       double nugget_grd,
                       double nugget_tgt,
-                      int flag_grad,
-                      int flag_trans,
-                      int flag_part,
-                      int verbose)
+                      bool flag_pot,
+                      bool flag_grad,
+                      bool flag_trans,
+                      bool flag_save_data,
+                      int opt_part,
+                      bool verbose)
 {
-  int error, nequa, nvar, next;
-  double *lhs, *zval, *zdualk, *rhs, *potval, range, refpot;
+  int error, nequa;
+  VectorInt uid_iso_pot, uid_iso_grad;
+  VectorInt uid_grd_pot, uid_grd_grad;
+  VectorInt uid_tgt_pot, uid_tgt_grad;
+  VectorInt uid_out_pot, uid_out_grad;
+  double *lhs, *zval, *zdual, *rhs, *potval, refpot;
   Pot_Env pot_env;
   Pot_Ext pot_ext;
-  static int nring = 1;
 
   // Initialization
 
   error = 1;
-  lhs = zval = zdualk = rhs = potval = nullptr;
-  st_pot_env_manage(1, verbose, &pot_env);
-  st_pot_ext_manage(0, &pot_ext, 0, 0., NULL);
-  set_DBIN(dbiso);
-  set_DBOUT(dbout);
+  lhs = zval = zdual = rhs = potval = nullptr;
+  st_potenv_manage(&pot_env, flag_pot, flag_grad, flag_trans, opt_part, verbose);
+  st_potext_manage(0, &pot_ext, 0, 0., NULL);
+  st_potenv_define(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout);
 
   // Preliminary checks
 
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  pot_env.ndim = dbiso->getNDim();
-  if (pot_env.ndim > 3)
-  {
-    messerr("The input Db must be defined in Space with dimension < 3");
-    goto label_end;
-  }
-  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
-  {
-    messerr("The Gradient and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
-  {
-    messerr("The Tangent and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (model->getDimensionNumber() != pot_env.ndim)
-  {
-    messerr("The Model and Data Db must have the same space dimension");
-    goto label_end;
-  }
-  if (dbout->getNDim() != pot_env.ndim)
-  {
-    messerr("The Db files 'dbin' and 'dbout' should have the same dimension");
-    goto label_end;
-  }
-  if (st_model_invalid(model)) goto label_end;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
-  {
-    messerr("The input Db must contain a LAYER locator");
-    goto label_end;
-  }
-  if (model->getVariableNumber() != 1)
-  {
-    messerr("The Model must be monovariate");
-    goto label_end;
-  }
-  if (neighparam->getType() != ENeigh::UNIQUE)
-  {
-    messerr("This procedure is only available in Unique Neighborhood");
-    goto label_end;
-  }
-  if (flag_part) flag_trans = 0;
-
-  next = model_nfex(model);
-  if (next != dbout->getExternalDriftNumber())
-  {
-    messerr("Inconsistency for External Drift between Model and Dbout");
-    goto label_end;
-  }
-  if (next > 0)
-  {
-    if (next > 1)
-    {
-      messerr("This application cannot deal with more than 1 External Drift");
-      messerr("Check your output file");
-      goto label_end;
-    }
-    if (! dbout->isGrid())
-    {
-      messerr("The External Drift requires an Output Grid File");
-      goto label_end;
-    }
-    range = 3. * MAX(dbout->getDX(0), dbout->getDX(1));
-    if (st_pot_ext_manage(1, &pot_ext, nring, range, dbout)) goto label_end;
-  }
+  if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+                       neighparam)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3128,10 +3108,17 @@ int potential_kriging(Db *dbiso,
 
   // Allocating the output variables
 
-  nvar = 1;
-  (void) dbout->addColumnsByConstant(nvar, TEST, String(), ELoc::Z);
-  if (flag_grad)
-    (void) dbout->addColumnsByConstant(pot_env.ndim, TEST, String(), ELoc::G);
+  st_save_result_on_data(&pot_env, dbout, 1, TEST, ELoc::Z, ELoc::G,
+                         uid_out_pot, uid_out_grad);
+  if (flag_save_data)
+  {
+    st_save_result_on_data(&pot_env, dbiso, 1, TEST, ELoc::UNKNOWN,
+                           ELoc::UNKNOWN, uid_iso_pot, uid_iso_grad);
+    st_save_result_on_data(&pot_env, dbgrd, 1, TEST, ELoc::UNKNOWN,
+                           ELoc::UNKNOWN, uid_grd_pot, uid_grd_grad);
+    st_save_result_on_data(&pot_env, dbtgt, 1, TEST, ELoc::UNKNOWN,
+                           ELoc::UNKNOWN, uid_tgt_pot, uid_tgt_grad);
+  }
 
   // Core allocation
 
@@ -3140,8 +3127,8 @@ int potential_kriging(Db *dbiso,
   if (lhs == nullptr) goto label_end;
   zval = (double*) mem_alloc(sizeof(double) * nequa, 0);
   if (zval == nullptr) goto label_end;
-  zdualk = (double*) mem_alloc(sizeof(double) * nequa, 0);
-  if (zdualk == nullptr) goto label_end;
+  zdual = (double*) mem_alloc(sizeof(double) * nequa, 0);
+  if (zdual == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * nequa * 4, 0);
   if (rhs == nullptr) goto label_end;
   potval = (double*) mem_alloc(sizeof(double) * pot_env.nlayers, 0);
@@ -3151,53 +3138,67 @@ int potential_kriging(Db *dbiso,
 
   if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
+  if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
+    krige_lhs_print(0, nequa, nequa, NULL, lhs);
 
   // Invert the matrix
 
   if (matrix_invert(lhs, nequa, -1)) goto label_end;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("Inverted LHS", 0, 1, nequa, nequa, NULL, lhs);
+    print_matrix("[LHS]-1", 0, 1, nequa, nequa, NULL, lhs);
 
   // Establish the data vector and get the dual form
 
   st_fill_dual(&pot_env, dbgrd, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
+  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
+    print_matrix("\n[Z] *%* [LHS]-1", 0, 1, 1, nequa, NULL, zdual);
 
   // Evaluate Potential at Reference point
 
   refpot = st_evaluate_refpot(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
-                              model, zdualk, rhs);
+                              model, zdual, rhs);
 
   // Check that the information is fulfilled correctly
 
-  st_check_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model, -1, 0,
-                refpot, zdualk, rhs);
+  if (VERBOSE)
+    st_check_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model, -1, 0,
+                  refpot, zdual, rhs);
 
   // Get the Potential value at the iso-potential samples
 
   st_evaluate_potval(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                     refpot, -1, 0, zdualk, rhs, potval);
+                     refpot, -1, 0, zdual, rhs, potval);
 
-  // Perform the estimation on the grid
+  // Perform the estimation
 
-  st_estimate(&pot_env, &pot_ext, flag_grad, flag_trans, flag_part, dbiso,
-              dbgrd, dbtgt, dbout, model, refpot, zdualk, rhs, potval);
+  st_estimate(&pot_env, &pot_ext, flag_grad, dbiso,
+              dbgrd, dbtgt, dbout, model, refpot, zdual, rhs, potval);
+  if (flag_save_data)
+  {
+    st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
+                     model, refpot, zdual, rhs,
+                     dbiso, uid_iso_pot, uid_iso_grad);
+    st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
+                     model, TEST, zdual, rhs,
+                     dbgrd, uid_grd_pot, uid_grd_grad);
+    st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
+                     model, TEST, zdual, rhs,
+                     dbtgt, uid_tgt_pot, uid_tgt_grad);
+  }
 
   // Set the error return code
 
   error = 0;
 
   label_end:
-  st_pot_env_manage(-1, verbose, &pot_env);
-  st_pot_ext_manage(-1, &pot_ext, 0, 0., NULL);
+  st_potext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
-  zdualk = (double*) mem_free((char* ) zdualk);
+  zdual = (double*) mem_free((char* ) zdual);
   rhs = (double*) mem_free((char* ) rhs);
   potval = (double*) mem_free((char* ) potval);
   return (error);
@@ -3253,7 +3254,7 @@ static int st_distance_to_isoline(DbGrid *dbout)
  ** \param[in]  nugget_grd   Nugget effect for Gradients
  ** \param[in]  nugget_tgt   Nugget effect for Tangents
  ** \param[in]  dist_tempere Distance for tempering simulations (or TEST)
- ** \param[in]  flag_trans   1 if the estimation result must be translated
+ ** \param[in]  flag_trans   True if the estimation result must be translated
  **                          into layer number
  ** \param[in]  seed         Seed for the random number generator
  ** \param[in]  nbsimu       Number of simulations
@@ -3272,25 +3273,28 @@ int potential_simulate(Db *dbiso,
                        double nugget_grd,
                        double nugget_tgt,
                        double dist_tempere,
-                       int flag_trans,
+                       bool flag_trans,
                        int seed,
                        int nbsimu,
                        int nbtuba,
-                       int verbose)
+                       bool verbose)
 {
-  int error, nequa, nlayers, next, flag_tempere;
-  double *lhs, *zval, *zduals, *zdualk, *rhs, *potsim, *potval, range, delta,
-      refpot;
+  int error, nequa, nlayers, flag_tempere;
+  double *lhs, *zval, *zduals, *zdual, *rhs, *potsim, *potval, delta, refpot;
   Pot_Env pot_env;
   Pot_Ext pot_ext;
-  static int nring = 1;
+  VectorInt uid_out_pot, uid_out_grad;
+  VectorInt uid_iso_pot, uid_iso_grad;
+  VectorInt uid_grd_pot, uid_grd_grad;
+  VectorInt uid_tgt_pot, uid_tgt_grad;
 
   // Initialization
 
   error = 1;
-  lhs = zval = zduals = zdualk = rhs = potsim = potval = nullptr;
-  st_pot_env_manage(1, verbose, &pot_env);
-  st_pot_ext_manage(0, &pot_ext, 0, 0., NULL);
+  lhs = zval = zduals = zdual = rhs = potsim = potval = nullptr;
+  st_potenv_manage(&pot_env, true, false, flag_trans, 0, verbose);
+  st_potext_manage(0, &pot_ext, 0, 0., NULL);
+  st_potenv_define(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout);
   law_set_random_seed(seed);
   flag_tempere = !FFFF(dist_tempere);
   refpot = 0.;
@@ -3299,72 +3303,11 @@ int potential_simulate(Db *dbiso,
 
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  pot_env.ndim = dbiso->getNDim();
   if (db_extension_diag(dbiso, &delta)) goto label_end;
   delta /= 1000.;
-  if (pot_env.ndim > 3)
-  {
-    messerr("The input Db must be defined in Space with dimension < 3");
-    goto label_end;
-  }
-  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
-  {
-    messerr("The Gradient and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
-  {
-    messerr("The Tangent and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (dbout->getNDim() != pot_env.ndim)
-  {
-    messerr("The Output and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (model->getDimensionNumber() != pot_env.ndim)
-  {
-    messerr("The Model and Data Db must have the same space dimension");
-    goto label_end;
-  }
-  if (st_model_invalid(model)) goto label_end;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
-  {
-    messerr("The input Db must contain a LAYER locator");
-    goto label_end;
-  }
-  if (model->getVariableNumber() != 1)
-  {
-    messerr("The Model must be monovariate");
-    goto label_end;
-  }
-  if (neighparam->getType() != ENeigh::UNIQUE)
-  {
-    messerr("This procedure is only available in Unique Neighborhood");
-    goto label_end;
-  }
-  next = model_nfex(model);
-  if (next != dbout->getExternalDriftNumber())
-  {
-    messerr("Inconsistency for External Drift between Model and Dbout");
-    goto label_end;
-  }
-  if (next > 0)
-  {
-    if (next > 1)
-    {
-      messerr("This application cannot deal with more than 1 External Drift");
-      messerr("Check your output file");
-      goto label_end;
-    }
-    if (! dbout->isGrid())
-    {
-      messerr("The External Drift requires an Output Grid File");
-      goto label_end;
-    }
-    range = 3. * MAX(dbout->getDX(0), dbout->getDX(1));
-    if (st_pot_ext_manage(1, &pot_ext, nring, range, dbout)) goto label_end;
-  }
+
+  if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+                       neighparam)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3377,15 +3320,16 @@ int potential_simulate(Db *dbiso,
 
   /* Add the attributes for storing the results */
 
-  dbiso->addColumnsByConstant(nbsimu, 0., String(), ELoc::SIMU);
-  if (dbgrd != nullptr)
-    (void) dbgrd->addColumnsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
-                            ELoc::SIMU);
-  if (dbtgt != nullptr)
-    (void) dbtgt->addColumnsByConstant(2 * nbsimu * pot_env.ndim, 0., String(),
-                            ELoc::SIMU);
-  (void) dbout->addColumnsByConstant(nbsimu, 0., String(), ELoc::SIMU);
-  if (flag_tempere) (void) dbout->addColumnsByConstant(1, TEST, String(), ELoc::Z);
+  st_save_result_on_data(&pot_env, dbout, nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+                         uid_out_pot, uid_out_grad);
+  st_save_result_on_data(&pot_env, dbiso, 2*nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+                         uid_iso_pot, uid_iso_grad);
+  st_save_result_on_data(&pot_env, dbgrd, 2*nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+                         uid_grd_pot, uid_grd_grad);
+  st_save_result_on_data(&pot_env, dbtgt, 2*nbsimu, 0., ELoc::SIMU, ELoc::UNKNOWN,
+                         uid_tgt_pot, uid_tgt_grad);
+  if (flag_tempere)
+    (void) dbout->addColumnsByConstant(1, TEST, String(), ELoc::Z);
 
   /* Processing the non-conditional simulation over the iso-values */
 
@@ -3412,8 +3356,8 @@ int potential_simulate(Db *dbiso,
   if (potval == nullptr) goto label_end;
   if (flag_tempere)
   {
-    zdualk = (double*) mem_alloc(sizeof(double) * nequa, 0);
-    if (zdualk == nullptr) goto label_end;
+    zdual = (double*) mem_alloc(sizeof(double) * nequa, 0);
+    if (zdual == nullptr) goto label_end;
   }
 
   // Establish the cokriging system
@@ -3435,24 +3379,26 @@ int potential_simulate(Db *dbiso,
     st_fill_dual(&pot_env, dbgrd, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-    matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
+    matrix_product(nequa, nequa, 1, lhs, zval, zdual);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-      print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
+      print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 
     // Evaluate Potential at Reference point
 
     refpot = st_evaluate_refpot(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
-                                model, zdualk, rhs);
+                                model, zdual, rhs);
 
     // Get the Estimated Potential value at the iso-potential samples
 
     st_evaluate_potval(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                       refpot, -1, 0, zdualk, rhs, potval);
+                       refpot, -1, 0, zdual, rhs, potval);
 
     // Perform the estimation 
 
-    st_estimate(&pot_env, &pot_ext, 0, 0, 0, dbiso, dbgrd, dbtgt, dbout, model,
-                refpot, zdualk, rhs, potval);
+    st_estimate(&pot_env, &pot_ext, 0, dbiso, dbgrd, dbtgt, dbout, model,
+                refpot, zdual, rhs, potval);
+
+    // Transform the Estimation variable into a distance to the isoline
     if (st_distance_to_isoline(dbout)) goto label_end;
   }
 
@@ -3490,19 +3436,18 @@ int potential_simulate(Db *dbiso,
   // Perform the conditional simulations on the grid
 
   st_simcond(&pot_env, &pot_ext, dist_tempere, flag_trans, nbsimu, dbiso, dbgrd,
-             dbtgt, dbout, model, refpot, potsim, zdualk, zduals, rhs);
+             dbtgt, dbout, model, refpot, potsim, zdual, zduals, rhs);
 
   // Set the error return code
 
   error = 0;
 
   label_end: if (flag_tempere) dbout->deleteColumnsByLocator(ELoc::Z);
-  st_pot_env_manage(-1, verbose, &pot_env);
-  st_pot_ext_manage(-1, &pot_ext, 0, 0., NULL);
+  st_potext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
-  zdualk = (double*) mem_free((char* ) zdualk);
+  zdual = (double*) mem_free((char* ) zdual);
   zduals = (double*) mem_free((char* ) zduals);
   rhs = (double*) mem_free((char* ) rhs);
   potval = (double*) mem_free((char* ) potval);
@@ -3535,71 +3480,27 @@ int potential_xvalid(Db *dbiso,
                      double nugget_grd,
                      double nugget_tgt,
                      int flag_dist_conv,
-                     int verbose)
+                     bool verbose)
 {
-  int error, nequa, next, nvar;
-  double *lhs, *zval, *zdualk, *rhs, *lhs_orig, *lhs_aux;
+  int error, nequa, nvar;
+  double *lhs, *zval, *zdual, *rhs, *lhs_orig, *lhs_aux;
   Pot_Env pot_env;
   Pot_Ext pot_ext;
 
   // Initialization
 
   error = 1;
-  lhs = zval = zdualk = rhs = lhs_orig = lhs_aux = nullptr;
-  st_pot_env_manage(1, verbose, &pot_env);
-  st_pot_ext_manage(0, &pot_ext, 0, 0., NULL);
+  lhs = zval = zdual = rhs = lhs_orig = lhs_aux = nullptr;
+  st_potenv_manage(&pot_env, true, false, false, 0, verbose);
+  st_potext_manage(0, &pot_ext, 0, 0., NULL);
+  st_potenv_define(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL);
 
   // Preliminary checks
 
   if (krige_koption_manage(1, 1, EKrigOpt::PONCTUAL, 1, VectorInt()))
     goto label_end;
-  pot_env.ndim = dbiso->getNDim();
-  if (pot_env.ndim > 3)
-  {
-    messerr("The input Db must be defined in Space with dimension < 3");
-    goto label_end;
-  }
-  if (dbgrd != nullptr && dbgrd->getNDim() != pot_env.ndim)
-  {
-    messerr("The Gradient and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (dbtgt != nullptr && dbtgt->getNDim() != pot_env.ndim)
-  {
-    messerr("The Tangent and Data Db must share the same space dimension");
-    goto label_end;
-  }
-  if (model->getDimensionNumber() != pot_env.ndim)
-  {
-    messerr("The Model and Data Db must have the same space dimension");
-    goto label_end;
-  }
-  if (st_model_invalid(model)) goto label_end;
-  if (!exist_LOCATOR(dbiso, ELoc::LAYER))
-  {
-    messerr("The input Db must contain a LAYER locator");
-    goto label_end;
-  }
-  if (model->getVariableNumber() != 1)
-  {
-    messerr("The Model must be monovariate");
-    goto label_end;
-  }
-  if (neighparam->getType() != ENeigh::UNIQUE)
-  {
-    messerr("This procedure is only available in Unique Neighborhood");
-    goto label_end;
-  }
-  next = model_nfex(model);
-  if (next > 0)
-  {
-    if (next > 1)
-    {
-      messerr("This application cannot deal with more than 1 External Drift");
-      messerr("Check your output file");
-      goto label_end;
-    }
-  }
+  if (!st_potenv_valid(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, NULL, model,
+                       neighparam)) goto label_end;
 
   // Count the gradients and the tangents
 
@@ -3622,8 +3523,8 @@ int potential_xvalid(Db *dbiso,
   if (lhs == nullptr) goto label_end;
   zval = (double*) mem_alloc(sizeof(double) * nequa, 0);
   if (zval == nullptr) goto label_end;
-  zdualk = (double*) mem_alloc(sizeof(double) * nequa, 0);
-  if (zdualk == nullptr) goto label_end;
+  zdual = (double*) mem_alloc(sizeof(double) * nequa, 0);
+  if (zdual == nullptr) goto label_end;
   rhs = (double*) mem_alloc(sizeof(double) * nequa * 4, 0);
   if (rhs == nullptr) goto label_end;
   if (flag_dist_conv)
@@ -3655,25 +3556,25 @@ int potential_xvalid(Db *dbiso,
   st_fill_dual(&pot_env, dbgrd, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
-  matrix_product(nequa, nequa, 1, lhs, zval, zdualk);
+  matrix_product(nequa, nequa, 1, lhs, zval, zdual);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
-    print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdualk);
+    print_matrix("\n[Z] *%* [A]-1", 0, 1, 1, nequa, NULL, zdual);
 
   /* Process the estimate at masked-off isovalues */
 
   st_xvalid_potential(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, model, lhs,
-                      flag_dist_conv, zval, lhs_orig, lhs_aux, rhs, zdualk);
+                      flag_dist_conv, zval, lhs_orig, lhs_aux, rhs, zdual);
 
   // Set the error return code
 
   error = 0;
 
-  label_end: st_pot_env_manage(-1, verbose, &pot_env);
-  st_pot_ext_manage(-1, &pot_ext, 0, 0., NULL);
+  label_end:
+  st_potext_manage(-1, &pot_ext, 0, 0., NULL);
   (void) krige_koption_manage(-1, 1, EKrigOpt::PONCTUAL, 1, VectorInt());
   lhs = (double*) mem_free((char* ) lhs);
   zval = (double*) mem_free((char* ) zval);
-  zdualk = (double*) mem_free((char* ) zdualk);
+  zdual = (double*) mem_free((char* ) zdual);
   rhs = (double*) mem_free((char* ) rhs);
   lhs_orig = (double*) mem_free((char* ) lhs_orig);
   lhs_aux = (double*) mem_free((char* ) lhs_aux);
@@ -3740,35 +3641,36 @@ static void st_print_type(int rank, int type)
  **
  *****************************************************************************/
 int potential_cov(Model *model,
-                                  int verbose,
-                                  int type1,
-                                  double *x10,
-                                  double *x1p,
-                                  double *tx1,
-                                  int type2,
-                                  double *x20,
-                                  double *x2p,
-                                  double *tx2,
-                                  int *n1,
-                                  int *n2,
-                                  double *covtab)
+                  bool verbose,
+                  int type1,
+                  double *x10,
+                  double *x1p,
+                  double *tx1,
+                  int type2,
+                  double *x20,
+                  double *x2p,
+                  double *tx2,
+                  int *n1,
+                  int *n2,
+                  double *covtab)
 
 {
   double dd[3] = { 0., 0., 0. };
-  double covGp[3] = { 0., 0., 0. };
-  double cov2Gp[3] = { 0., 0., 0. };
-  double covGG[9] = { 0., 0., 0., 0., 0., 0., 0., 0., 0. };
+  VectorDouble covGp(3, 0.);
+  VectorDouble cov2Gp(3, 0.);
+  VectorDouble covGG(9, 0.);
   double covar = 0;
   double covar1 = 0;
   double covar2 = 0;
   double covar3 = 0;
   double covar4 = 0;
-  int idim, jdim, ndim, ecr, lec, i;
+  int idim, jdim, ecr, lec, i;
 
   // Preliminary checks
 
+  VERBOSE = verbose;
   *n1 = *n2 = 0;
-  ndim = model->getDimensionNumber();
+  int ndim = model->getDimensionNumber();
   for (i = 0; i < ndim * ndim; i++)
     covtab[i] = TEST;
   for (i = 0; i < 3; i++)
@@ -3789,7 +3691,7 @@ int potential_cov(Model *model,
 
   /* Optional printout */
 
-  if (verbose)
+  if (VERBOSE)
   {
     st_print_type(1, type1);
     if (x10 != nullptr) print_matrix("x10", 0, 1, 1, ndim, NULL, x10);
@@ -3813,7 +3715,7 @@ int potential_cov(Model *model,
         case -1:                // 2-Gradient-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           ecr = lec = 0;
           for (idim = 0; idim < 3; idim++)
             for (jdim = 0; jdim < 3; jdim++, lec++)
@@ -3826,7 +3728,7 @@ int potential_cov(Model *model,
         case 2:                 // 2-Tangent
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
           {
             i = 3 * idim;
@@ -3839,10 +3741,10 @@ int potential_cov(Model *model,
         case 3:                 // 2-IsoPotential
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x20[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = cov2Gp[idim] - covGp[idim];
           *n2 = 1;
@@ -3851,7 +3753,7 @@ int potential_cov(Model *model,
         case -3:                 // 2-IsoPotential-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = cov2Gp[idim];
           *n2 = 1;
@@ -3867,11 +3769,12 @@ int potential_cov(Model *model,
         case -1:                // 2-Gradient-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
           {
             i = 3 * idim;
-            covtab[idim] = matrix_UV(ndim, tx1[0], tx1[1], tx1[2], covGG[i + 0],
+            covtab[idim] = matrix_UV(ndim,
+                                     tx1[0], tx1[1], tx1[2], covGG[i + 0],
                                      covGG[i + 1], covGG[i + 2]);
           }
           *n2 = ndim;
@@ -3880,19 +3783,20 @@ int potential_cov(Model *model,
         case 2:                 // 2-Tangent
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x2p[idim] - x1p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
-          covtab[0] = matrix_UAV(ndim, covGG, tx1[0], tx1[1], tx1[2], tx2[0],
-                                 tx2[1], tx2[2]);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
+          covtab[0] = matrix_UAV(ndim, covGG.data(),
+                                 tx1[0], tx1[1], tx1[2],
+                                 tx2[0], tx2[1], tx2[2]);
           *n2 = 1;
           break;
 
         case 3:                 // 2-IsoPotential
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x20[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           covtab[0] = matrix_UV(ndim, tx1[0], tx1[1], tx1[2],
                                 cov2Gp[0] - covGp[0], cov2Gp[1] - covGp[1],
                                 cov2Gp[2] - covGp[2]);
@@ -3902,7 +3806,7 @@ int potential_cov(Model *model,
         case -3:                 // 2-IsoPotential-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           covtab[0] = matrix_UV(ndim, tx1[0], tx1[1], tx1[2], cov2Gp[0],
                                 cov2Gp[1], cov2Gp[2]);
           *n2 = 1;
@@ -3918,10 +3822,10 @@ int potential_cov(Model *model,
         case -1:                 // 2-Gradient-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x10[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = covGp[idim] - cov2Gp[idim];
           *n2 = ndim;
@@ -3930,10 +3834,10 @@ int potential_cov(Model *model,
         case 2:                 // 2-Tangent
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x1p[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, covGp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x10[idim] - x2p[idim];
-          st_cov(model, 1, dd[0], dd[1], dd[2], &covar, cov2Gp, covGG);
+          st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           covtab[0] = matrix_UV(ndim, tx2[0], tx2[1], tx2[2],
                                 cov2Gp[0] - covGp[0], cov2Gp[1] - covGp[1],
                                 cov2Gp[2] - covGp[2]);
@@ -3943,16 +3847,16 @@ int potential_cov(Model *model,
         case 3:                 // 2-IsoPotential
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x2p[idim] - x1p[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar1, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar1, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x2p[idim] - x10[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar2, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar2, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x20[idim] - x1p[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar3, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar3, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x20[idim] - x10[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar4, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar4, covGp, covGG);
           covtab[0] = covar1 - covar2 - covar3 + covar4;
           *n2 = 1;
           break;
@@ -3960,10 +3864,10 @@ int potential_cov(Model *model,
         case -3:                 // 2-IsoPotential-Target
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x2p[idim] - x1p[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar1, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar1, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             dd[idim] = x2p[idim] - x10[idim];
-          st_cov(model, 0, dd[0], dd[1], dd[2], &covar2, covGp, covGG);
+          st_cov(model, 0, dd[0], dd[1], dd[2], covar2, covGp, covGG);
           covtab[0] = covar1 - covar2;
           *n2 = 1;
           break;
@@ -3973,7 +3877,7 @@ int potential_cov(Model *model,
 
   /* Printout (verbose option) */
 
-  if (verbose) print_matrix("Covariance", 0, 1, *n2, *n1, NULL, covtab);
+  if (VERBOSE) print_matrix("Covariance", 0, 1, *n2, *n1, NULL, covtab);
 
   return (0);
 }

@@ -40,10 +40,10 @@ CovLMCAnamorphosis::CovLMCAnamorphosis(const AAnam* anam,
   init(strcnt);
 }
 
-CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC* lmc,
+CovLMCAnamorphosis::CovLMCAnamorphosis(const CovLMC& lmc,
                                        const AAnam* anam,
                                        const VectorInt& strcnt)
-    : CovLMC(*lmc),
+    : CovLMC(lmc),
       _anamIClass(0),
       _anamStrCount(),
       _anam(anam)

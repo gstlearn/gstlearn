@@ -154,7 +154,7 @@ double CovGradientNumerical::_evalGradGrad(int ivar,
  * @param p2     Second point of the increment
  * @param covVal Covariance value
  * @param covGp  Covariance <G[i](x0+x,y0+y,z0+z), P(x0,y0,z0)> (dim=3)
- * @param covGg  Covariance <G[i](x0+x,y0+y,z0+z), G[j](x0,y0,z0)> (dim=3)
+ * @param covGG  Covariance <G[i](x0+x,y0+y,z0+z), G[j](x0,y0,z0)> (dim=3)
  * @param mode   CovCalcMode structure
  * @param flagGrad true if the Gradient must be calculated
  *
@@ -165,7 +165,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
                                              const SpacePoint& p2,
                                              double& covVal,
                                              VectorDouble& covGp,
-                                             VectorDouble& covGg,
+                                             VectorDouble& covGG,
                                              const CovCalcMode& mode,
                                              bool flagGrad) const
 {
@@ -187,7 +187,7 @@ void CovGradientNumerical::evalZAndGradients(const SpacePoint& p1,
     int ecr = 0;
     for (int i = 0; i < 3; i++)
       for (int j = 0; j < 3; j++)
-        covGg[ecr++] += _evalGradGrad(0, 0, i, j, p1, p2, mode);
+        covGG[ecr++] += _evalGradGrad(0, 0, i, j, p1, p2, mode);
   }
 }
 

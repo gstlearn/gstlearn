@@ -50,7 +50,7 @@ public:
                          const SpacePoint& p2,
                          double& covVal,
                          VectorDouble& covGp,
-                         VectorDouble& covGg,
+                         VectorDouble& covGG,
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const override;
 

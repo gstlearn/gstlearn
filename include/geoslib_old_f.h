@@ -1891,18 +1891,6 @@ GSTLEARN_EXPORT int potential_cov(Model *model,
                                   int *n1,
                                   int *n2,
                                   double *covtab);
-GSTLEARN_EXPORT int potential_kriging(Db *db,
-                                      Db *dbgrd,
-                                      Db *dbtgt,
-                                      DbGrid *dbout,
-                                      Model *model,
-                                      ANeighParam *neighparam,
-                                      double nugget_grd,
-                                      double nugget_tgt,
-                                      int flag_grad,
-                                      int flag_trans,
-                                      int flag_drift,
-                                      int verbose);
 GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
                                        Db *dbgrd,
                                        Db *dbtgt,
@@ -1916,7 +1904,7 @@ GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
                                        int seed,
                                        int nbsimu,
                                        int nbtuba,
-                                       int verbose);
+                                       bool verbose);
 GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
                                      Db *dbgrd,
                                      Db *dbtgt,
@@ -1925,7 +1913,7 @@ GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
                                      double nugget_grd,
                                      double nugget_tgt,
                                      int flag_dist_conv,
-                                     int verbose);
+                                     bool verbose);
 
 /*******************************************/
 /* Prototyping the functions in delaunay.c */

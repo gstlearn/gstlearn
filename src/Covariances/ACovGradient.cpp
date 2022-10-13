@@ -27,6 +27,11 @@ ACovGradient::ACovGradient(const ACovGradient &r)
 {
 }
 
+ACovGradient::ACovGradient(const CovAniso &r)
+    : CovAniso(r)
+{
+}
+
 ACovGradient& ACovGradient::operator=(const ACovGradient &r)
 {
   if (this != &r)
