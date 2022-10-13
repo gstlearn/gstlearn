@@ -4,10 +4,7 @@
 
 # This tutorial gives answers to the frequently asked question regarding the Name Convention used for variables in a Data Base (Db) of gstlearn 
 
-import numpy as np
 import gstlearn as gl
-import os
-import sys
 
 # ## Prepare the Environment
 # 

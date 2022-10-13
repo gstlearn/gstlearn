@@ -3,9 +3,6 @@
 # into a specific file (such as ArcGis)
 #
 
-import numpy as np
-import sys
-import os
 import gstlearn as gl
 
 # Create a grid: 60 by 40 meshes, with a square mesh of size 10

@@ -1,6 +1,4 @@
 import numpy as np
-import sys
-import os
 import gstlearn as gl
 
 def fa(x,y,a,b):

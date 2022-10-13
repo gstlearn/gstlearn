@@ -6,8 +6,6 @@
 
 import gstlearn as gl
 import numpy as np
-import os
-import sys
 
 # Testing main argument types
 

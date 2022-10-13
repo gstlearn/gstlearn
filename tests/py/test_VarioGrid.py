@@ -2,8 +2,6 @@
 
 # This file is meant to demonstrate the use of gstlearn by loading a numpy array, perform some calculations (including variogram) based on the grid organization and return the variogram output arrays to be used in Python
 
-import os
-import sys
 import numpy as np
 import gstlearn as gl
 

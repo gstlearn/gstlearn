@@ -3,8 +3,6 @@
 
 import gstlearn as gl
 import numpy as np
-import os
-import sys
 
 def is_list_type(mylist, types):
     """Check if an input is an iterable (tuple, list or numpy array) containing

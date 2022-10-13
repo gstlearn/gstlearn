@@ -1,9 +1,6 @@
 # This file is meant to demonstrate the construction of a Model
 #
 import gstlearn as gl
-import os
-import sys
-import numpy as np
 
 # Define the global Space
 ndim = 2
