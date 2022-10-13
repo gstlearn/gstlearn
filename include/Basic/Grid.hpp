@@ -13,13 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
-//#include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
-
-class GridOld;
-//class VectorInt;
-//class VectorDouble;
-class MatrixSquareGeneral;
+#include "Basic/VectorNumT.hpp"
 
 class GSTLEARN_EXPORT Grid : public AStringable
 {
@@ -148,8 +144,8 @@ public:
   int getMirrorIndex(int idim, int ix) const;
 
 private:
-  const MatrixSquareGeneral _getRotMat() const { return _rotation.getMatrixDirect(); }
-  const MatrixSquareGeneral _getRotInv() const { return _rotation.getMatrixInverse(); }
+  const MatrixSquareGeneral& _getRotMat() const { return _rotation.getMatrixDirect(); }
+  const MatrixSquareGeneral& _getRotInv() const { return _rotation.getMatrixInverse(); }
   void _allocate();
   void _recopy(const Grid &r);
   bool _isSpaceDimensionValid(int idim) const;
