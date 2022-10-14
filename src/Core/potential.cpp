@@ -1241,9 +1241,6 @@ static int st_extdrift_eval(const char *target,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
  ** \param[in]  dbout         Target Db structure (only used for external drift)
  ** \param[in]  model         Model structure
  ** \param[in]  nugget_grd    Nugget effect for Gradients
@@ -1277,9 +1274,6 @@ static int st_extdrift_eval(const char *target,
  *****************************************************************************/
 static int st_build_lhs(Pot_Env *pot_env,
                         Pot_Ext *pot_ext,
-                        Db *dbiso,
-                        Db *dbgrd,
-                        Db *dbtgt,
                         DbGrid *dbout,
                         Model *model,
                         double nugget_grd,
@@ -1666,12 +1660,11 @@ static int st_build_lhs(Pot_Env *pot_env,
  **  Establish the data vector
  **
  ** \param[in]  pot_env       Pot_Env structure
- ** \param[in]  dbgrd         Gradient Db structure
  **
  ** \param[out] zval          Data vector
  **
  *****************************************************************************/
-static void st_fill_dual(Pot_Env *pot_env, Db *dbgrd, double *zval)
+static void st_fill_dual(Pot_Env *pot_env, double *zval)
 {
   int nequa;
 
@@ -1842,9 +1835,6 @@ static void st_rhs_part(Pot_Env *pot_env,
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
  ** \param[in]  flag_grad     True if the gradients must also be calculated
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
  ** \param[in]  dbgrid        Output Grid Db structure (for External Drift)
  ** \param[in]  model         Model structure
  ** \param[in]  coor          Coordinates of the target
@@ -1855,9 +1845,6 @@ static void st_rhs_part(Pot_Env *pot_env,
 static void st_build_rhs(Pot_Env *pot_env,
                          Pot_Ext *pot_ext,
                          bool flag_grad,
-                         Db *dbiso,
-                         Db *dbgrd,
-                         Db *dbtgt,
                          DbGrid *dbgrid,
                          Model *model,
                          VectorDouble& coor,
@@ -2089,8 +2076,7 @@ static void st_calc_point(Pot_Env *pot_env,
 
   /* Establish the R.H.S */
 
-  st_build_rhs(pot_env, pot_ext, flag_grad, dbiso, dbgrd, dbtgt,
-               dbgrid, model, coor, rhs);
+  st_build_rhs(pot_env, pot_ext, flag_grad, dbgrid, model, coor, rhs);
 
   /* Perform the estimation */
 
@@ -2334,7 +2320,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
-  st_build_rhs(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, 1, zdual, rhs, &potval);
 
@@ -2342,7 +2328,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
-  st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, nsol, zdual, rhs, result);
   if (OptDbg::query(EDbg::CONVERGE))
@@ -2366,7 +2352,7 @@ static void st_dist_convert(Pot_Env *pot_env,
       coor[idim] -= delta;
       dgeo[idim] += delta * delta;
     }
-    st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor, rhs);
+    st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
     matrix_product(1, neqm1, nsol, zdual, rhs, result);
     if (OptDbg::query(EDbg::CONVERGE))
@@ -3136,7 +3122,7 @@ int potential_kriging(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+  if (st_build_lhs(&pot_env, &pot_ext, dbout, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     krige_lhs_print(0, nequa, nequa, NULL, lhs);
@@ -3149,7 +3135,7 @@ int potential_kriging(Db *dbiso,
 
   // Establish the data vector and get the dual form
 
-  st_fill_dual(&pot_env, dbgrd, zval);
+  st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdual);
@@ -3362,7 +3348,7 @@ int potential_simulate(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+  if (st_build_lhs(&pot_env, &pot_ext, dbout, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
 
   // Invert the matrix
@@ -3376,7 +3362,7 @@ int potential_simulate(Db *dbiso,
 
     // Establish the data vector and get the dual form
 
-    st_fill_dual(&pot_env, dbgrd, zval);
+    st_fill_dual(&pot_env, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
     matrix_product(nequa, nequa, 1, lhs, zval, zdual);
@@ -3537,7 +3523,7 @@ int potential_xvalid(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, nullptr, model,
+  if (st_build_lhs(&pot_env, &pot_ext, nullptr, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
 
   // Save the matrix (used for converting into distance)
@@ -3553,7 +3539,7 @@ int potential_xvalid(Db *dbiso,
 
   // Establish the data vector and get the dual form
 
-  st_fill_dual(&pot_env, dbgrd, zval);
+  st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdual);

@@ -381,7 +381,7 @@ DbGrid* ProjConvolution::getResolutionGrid() const
   VectorInt nxs(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  _gridPoint->getGrid().divider(_nmult, 1, nxs, dx, x0);
+  _gridPoint->getGrid().multiple(_nmult, 1, nxs, dx, x0);
 
   // Create the new grid
   DbGrid* dbgrid = DbGrid::create(nxs, dx, x0, _gridPoint->getAngles());
@@ -395,7 +395,7 @@ VectorInt ProjConvolution::_getNXResolutionGrid() const
   VectorInt nxs(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  _gridPoint->getGrid().divider(_nmult, 1, nxs, dx, x0);
+  _gridPoint->getGrid().multiple(_nmult, 1, nxs, dx, x0);
 
   // Correct the last dimension
   nxs[_gridPoint->getNDim() - 1] += (_getConvSize() - 1);
