@@ -26,6 +26,12 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
       _Aproj(nullptr)
 {
   int ndim = grid_point->getNDim();
+  if (ndim != 2 && ndim != 3)
+  {
+    messerr("ProjConvolution is limited to 2-D or 3-D case");
+    _nmult.clear();
+    return;
+  }
   _nmult.resize(ndim, 1);
   _nmult[ndim-1] = 1;
 
@@ -144,6 +150,11 @@ bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
   {
     messerr("Dimension of 'valonseismic'(%d) incorrect. If should be %d",
             (int) valonseismic.size(), getPointNumber());
+    return false;
+  }
+  if (_shiftVector.empty())
+  {
+    messerr("The PorjConvolution object has not been built correctly");
     return false;
   }
   return true;
