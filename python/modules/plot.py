@@ -790,11 +790,11 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal'
     nx = dbgrid.getNX(0)
     dx = dbgrid.getDX(0)
     
+    tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, usesel)
     data = getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
                             compress=False, asGrid=True)
-#    data = np.reshape(data, (nx))
 
-    curve(data, icas=2, color=color, flagLegend=flagLegend, 
+    curve(data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
           label=label,
           title=title, ax=ax, figsize = figsize, end_plot=end_plot,
           **plot_args)
@@ -830,7 +830,6 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     hist_args : arguments passed to matplotlib.pyplot.hist'''
     
     db.useSel = usesel
-    #val = db.getColumn(name)
     val = db[name]
     if len(val) == 0:
         return None
@@ -841,36 +840,49 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     
     return ax
 
-def curve(data, icas=1, color='black',flagLegend=False, label='curve',
+def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curve',
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting the curve of an array (argument 'data')
-        if data is a tuple, it should contain x=data[0] and y=data[1]
-        othwise:
-        icas=1 when 'data' contains the abscissa and ordinates are regular
-        icas=2 when 'data' contains the ordinate and abscissa are regular
+    Function for plotting the curve of an array (argument 'data1')
+        if data1 is a tuple, it should contain x=data1[0] and y=data1[1]
+        or
+        'data1' and 'data2' are provided
+        otherwise:
+        icas=1 when 'data1' contains the abscissa and ordinates are regular
+        icas=2 when 'data1' contains the ordinate and abscissa are regular
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
     color = plot_args.setdefault('color', color)
     label = plot_args.setdefault('label', label)
     
-    if len(data) == 0:
+    if len(data1) == 0:
         return None
 
     if ax is None:
         fig, ax = newFigure(figsize)
     
-    filetype = type(data).__name__
+    filetype = type(data1).__name__
     if filetype == "tuple":
-        ax.plot(data[0], data[1], **plot_args)
+        tabx = data1[0]
+        taby = data1[1]
     else:
-        nbpoint = len(data)
-        regular = [i for i in range(nbpoint)]
-    
-        if icas == 1:
-            ax.plot(data, regular, **plot_args)
+        nbpoint = len(data1)
+        if len(data2) != 0:
+            if len(data2) != nbpoint:
+                print("Arrays 'data1' and 'data2' should have same dimensions")
+                return None
+            tabx = data1
+            taby = data2
         else:
-            ax.plot(regular, data, **plot_args)
+            regular = [i for i in range(nbpoint)]
+            if icas == 1:
+                tabx = data1
+                taby = regular
+            else:
+                tabx = regular
+                taby = data1
+            
+    ax.plot(tabx, taby, **plot_args)
     
     drawDecor(ax, title=title, flagLegend=flagLegend)
     

@@ -3633,11 +3633,7 @@ static void st_print_type(int rank, int type)
  ** \param[in]  x2p        Coordinates of the second point
  ** \param[in]  tx2        Tangent values at the second point
  **
- ** \param[out] n1         Number of returned rows in "covtab"
- ** \param[out] n2         Number of returned columns in "covtab"
- ** \param[out] covtab     Array of returned values
- **
- ** \remarks The output array "covtab" must be dimensioned to ndim*ndim
+ ** \param[out] covtab     Array of returned values (dimensionned to ndim*ndim)
  **
  *****************************************************************************/
 int potential_cov(Model *model,
