@@ -79,7 +79,7 @@ protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
   virtual double _evaluateCov(double h) const = 0;
-  virtual double _evaluateCovDerivate(int degree, double h) const;
+  virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
 private:

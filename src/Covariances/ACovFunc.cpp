@@ -74,7 +74,7 @@ double ACovFunc::evalCov(double h) const
 }
 double ACovFunc::evalCovDerivative(int degree, double h) const
 {
-  return _evaluateCovDerivate(degree, h);
+  return _evaluateCovDerivative(degree, h);
 }
 
 double ACovFunc::evalCovOnSphere(double alpha, double scale, int degree) const
@@ -157,7 +157,7 @@ bool ACovFunc::hasInt2D() const
   * @param h Normalized distance
   * @return
   */
-double ACovFunc::_evaluateCovDerivate(int /*degree*/, double /*h*/) const
+double ACovFunc::_evaluateCovDerivative(int /*degree*/, double /*h*/) const
 {
   if (! hasCovDerivative())
   {

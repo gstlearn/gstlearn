@@ -54,7 +54,7 @@ if filetype == "Db":
         print("Number of Variable ranks should be 0, 1 or 2")
         exit()
     if flagDb:
-        gp.point(db, name, end_plot=True)
+        gp.point(db, name, title=name, end_plot=True)
     else:
         gp.correlation(db, nameX, nameY, end_plot=True)
             
@@ -68,7 +68,11 @@ elif filetype == "DbGrid":
     else:
         print("Number of Variable rank should be 0 or 1")
         exit()
-    gp.grid(dbgrid, name, end_plot=True)
+        
+    if dbgrid.getNDim() > 1:
+        gp.grid(dbgrid, name, title=name, end_plot=True)
+    else:
+        gp.grid1D(dbgrid, name, title=name, end_plot=True)
     
 elif filetype == "Vario":
     vario = gl.Vario.createFromNF(filename,False)

@@ -1,16 +1,7 @@
-#
-# This file is meant to test the reading of various types of arguments
-# in Python
-#
-
-import scipy as sc
-from scipy.sparse import *
-from scipy.sparse.linalg import *
 import numpy as np
 import sys
 import os
 import gstlearn as gl
-import gstlearn.plot as myplot
 
 # Create representation grid
 

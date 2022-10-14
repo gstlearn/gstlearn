@@ -27,10 +27,6 @@ endif()
 
 if (BUILD_PYTHON)
   add_subdirectory(py)
-  add_subdirectory(ipynb)
-  # TODO : create a python script and recover only the output
-  # TODO : ipynb non-reg not yet possible on github
-#  list(APPEND CHECK_DEP check_py check_ipynb) 
   list(APPEND CHECK_DEP check_py)
 endif()
 

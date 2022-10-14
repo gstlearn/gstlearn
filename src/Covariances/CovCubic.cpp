@@ -44,7 +44,7 @@ double CovCubic::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovCubic::_evaluateCovDerivate(int degree, double h) const
+double CovCubic::_evaluateCovDerivative(int degree, double h) const
 {
   double h2, res;
 

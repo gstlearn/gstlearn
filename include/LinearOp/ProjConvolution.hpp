@@ -15,7 +15,7 @@
 #include "IProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/Vector.hpp"
-
+#include "Matrix/MatrixRectangular.hpp"
 
 /**
  * Projection matrix for vertical convolution
@@ -25,7 +25,9 @@ class GSTLEARN_EXPORT ProjConvolution: public IProjMatrix
 
 public:
   ProjConvolution(const VectorDouble &convolution = VectorDouble(),
-                  const DbGrid *grid_point = nullptr);
+                  const DbGrid *grid_point = nullptr,
+                  const VectorInt& nmult = VectorInt(),
+                  bool useAProj = false);
   ProjConvolution(const ProjConvolution &m)= delete;
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
@@ -36,16 +38,26 @@ public:
   int getApexNumber() const override;
   int getPointNumber() const override;
 
+  DbGrid* getResolutionGrid() const;
+
 private:
   int _getConvSize() const { return (int) _convolution.size(); }
   int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
   void _constructShiftVector();
   int  _constructAprojCS();
+  void _constructWeights();
+  VectorInt _getNXResolutionGrid() const;
+  int _getNDim() const { return _gridPoint->getNDim(); }
+  int _getNMultProd() const { return ut_vector_prod(_nmult); }
+  bool _isVecDimCorrect(const VectorDouble &valonseismic,
+                        const VectorDouble &valonvertex) const;
 
 private:
   VectorDouble  _convolution;
   const DbGrid* _gridPoint;
+  VectorInt     _nmult; // Dimension of _gridPoint
   VectorInt     _shiftVector;
+  MatrixRectangular _weights;
   mutable cs*   _Aproj; // Stockage temporaire de la matrice creuse de Projection
 };
 

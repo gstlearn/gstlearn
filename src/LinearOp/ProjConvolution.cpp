@@ -11,24 +11,68 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
+#include "Basic/AStringable.hpp"
 #include "csparse_f.h"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
-                                 const DbGrid *grid_point)
+                                 const DbGrid *grid_point,
+                                 const VectorInt& nmult,
+                                 bool useAProj)
     : _convolution(convolution),
       _gridPoint(grid_point),
+      _nmult(nmult),
       _shiftVector(),
+      _weights(),
       _Aproj(nullptr)
 {
+  int ndim = grid_point->getNDim();
+  _nmult.resize(ndim, 1);
+  _nmult[ndim-1] = 1;
+
   _constructShiftVector();
 
-  _constructAprojCS();
+  _constructWeights();
+
+  if (useAProj) _constructAprojCS();
 }
 
 ProjConvolution::~ProjConvolution()
 {
   if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
 }
+
+void ProjConvolution::_constructWeights()
+{
+  int ndim = _getNDim();
+
+  if (ndim == 2)
+  {
+    _weights = MatrixRectangular(_nmult[0],1);
+    for (int ix = 0; ix < _nmult[0]; ix++)
+    {
+      double w1 = (double) ix / (double) _nmult[0];
+      _weights.setValue(ix, 0, w1);
+    }
+  }
+  else if (ndim == 3)
+  {
+    _weights = MatrixRectangular(_nmult[0], _nmult[1]);
+    for (int ix = 0; ix < _nmult[0]; ix++)
+    {
+      double w1 = (double) ix / (double) _nmult[0];
+      for (int iy = 0; iy < _nmult[1]; iy++)
+      {
+        double w2 = (double) ix / (double) _nmult[0];
+        _weights.setValue(ix, iy, w1 * w2);
+      }
+    }
+  }
+  else
+  {
+    messerr("Not Programmed");
+  }
+}
+
 
 /**
  * Calculate the Aproj sparse matrix.
@@ -87,42 +131,48 @@ void ProjConvolution::_constructShiftVector()
   }
 }
 
-int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
-                                VectorDouble &valonvertex) const
+bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
+                                       const VectorDouble &valonvertex) const
 {
-
   if ((int) valonvertex.size() != getApexNumber())
   {
     messerr("Dimension of 'valonvertex'(%d) incorrect. If should be %d",
             (int) valonvertex.size(), getApexNumber());
-    return 1;
+    return false;
   }
   if ((int) valonseismic.size() != getPointNumber())
   {
     messerr("Dimension of 'valonseismic'(%d) incorrect. If should be %d",
             (int) valonseismic.size(), getPointNumber());
-    return 1;
+    return false;
   }
+  return true;
+}
+
+int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
+                                VectorDouble &valonvertex) const
+{
+  if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
   for (auto &e : valonvertex)
      e = 0.;
 
-  for (int is = 0; is < (int) valonseismic.size(); is++)
+  int count = (int) valonseismic.size();
+  int size  = _getConvSize();
+  double valm = 0.;
+  int id = 0;
+  for (int is = 0; is < count; is++)
   {
-    for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
+    for (int j = 0; j < size; j++)
     {
-      int j = i + _getHalfSize();
-      int id = is + _shiftVector[j];
-      if (id < 0) return 1;
-
-      double valm1 = valonseismic[is];
-      if (FFFF(valm1))
+      id = is + _shiftVector[j];
+      valm = valonseismic[is];
+      if (FFFF(valm))
       {
         valonvertex[id] = TEST;
         break;
       }
-      double valm = valm1 * _convolution[j];
-      valonvertex[id] += valm;
+      valonvertex[id] += valm * _convolution[j];
     }
   }
 
@@ -142,36 +192,28 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
 int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
                                 VectorDouble &valonseismic) const
 {
-  if ((int) valonvertex.size() != getApexNumber())
-  {
-    messerr("Dimension of 'valonvertex'(%d) incorrect. If should be %d",
-            (int) valonvertex.size(), getApexNumber());
-    return 1;
-  }
-  if ((int) valonseismic.size() != getPointNumber())
-  {
-    messerr("Dimension of 'valonseismic'(%d) incorrect. If should be %d",
-            (int) valonseismic.size(), getPointNumber());
-    return 1;
-  }
+  if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
-  for (int is = 0; is < (int) valonseismic.size(); is++)
+  int count = (int) valonseismic.size();
+  int size  = _getConvSize();
+  double valp  = 0.;
+  double valm = 0.;
+  int id = 0;
+  for (int is = 0; is < count; is++)
   {
-    double valp = 0;
-    for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
+    valp = 0;
+    for (int j = 0; j < size; j++)
     {
-      int j = i + _getHalfSize();
-      int id = is + _shiftVector[j];
+      id = is + _shiftVector[j];
       if (id < 0) return 1;
 
-      double valm1 = valonvertex[id];
-      if( FFFF(valm1))
+      valm = valonvertex[id];
+      if( FFFF(valm))
       {
         valp = TEST;
         break;
       }
-      double valm = valm1  * _convolution[j];
-      valp += valm;
+      valp += valm * _convolution[j];
     }
     valonseismic[is] = valp;
   }
@@ -188,10 +230,37 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   return 0;
 }
 
+DbGrid* ProjConvolution::getResolutionGrid() const
+{
+  int ndim = _gridPoint->getNDim();
+
+  VectorInt nxs(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+  _gridPoint->getGrid().divider(_nmult, 1, nxs, dx, x0);
+
+  // Create the new grid
+  DbGrid* dbgrid = DbGrid::create(nxs, dx, x0, _gridPoint->getAngles());
+  return dbgrid;
+}
+
+VectorInt ProjConvolution::_getNXResolutionGrid() const
+{
+  int ndim = _gridPoint->getNDim();
+
+  VectorInt nxs(ndim);
+  VectorDouble dx(ndim);
+  VectorDouble x0(ndim);
+  _gridPoint->getGrid().divider(_nmult, 1, nxs, dx, x0);
+
+  // Correct the last dimension
+  nxs[_gridPoint->getNDim() - 1] += (_getConvSize() - 1);
+  return nxs;
+}
+
 int ProjConvolution::getApexNumber() const
 {
-  VectorInt nxs = _gridPoint->getNXs();
-  nxs[_gridPoint->getNDim() - 1] += (_getConvSize() - 1);
+  VectorInt nxs = _getNXResolutionGrid();
   return ut_vector_prod(nxs);
 }
 

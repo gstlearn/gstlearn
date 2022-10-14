@@ -21,6 +21,7 @@
 
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovLMGradient.hpp"
 
 #include "Drifts/DriftList.hpp"
 
@@ -103,6 +104,7 @@ public:
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
   CovAniso extractCova(int icov) const { return _covaList->extractCova(icov); }
+  void   switchToGradient();
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
@@ -308,6 +310,29 @@ public:
   {
     return _covaList->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
+  void evalZAndGradients(const SpacePoint& p1,
+                         const SpacePoint& p2,
+                         double& covVal,
+                         VectorDouble& covGp,
+                         VectorDouble& covGG,
+                         const CovCalcMode& mode = CovCalcMode(),
+                         bool flagGrad = false) const
+  {
+    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
+    if (covgrad != nullptr)
+      covgrad->evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
+  }
+  void evalZAndGradients(const VectorDouble& vec,
+                         double& covVal,
+                         VectorDouble& covGp,
+                         VectorDouble& covGG,
+                         const CovCalcMode& mode = CovCalcMode(),
+                         bool flagGrad = false) const
+  {
+    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
+    if (covgrad != nullptr)
+      covgrad->evalZAndGradients(vec, covVal, covGp, covGG, mode, flagGrad);
+  }
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
@@ -394,9 +419,11 @@ public:
 
   int getVariableNumber() const
   {
-    if (isFlagGradient())
-      return 3; // This strange number of variables is linked to the Gradient calculation
-    else
+    // TODO/ the strange next line have been commented out.
+    // There should be either validated or supressed
+//    if (isFlagGradient())
+//      return 3; // This strange number of variables is linked to the Gradient calculation
+//    else
       return _ctxt.getNVar();
   }
 
@@ -419,27 +446,27 @@ public:
 
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
-                        const VectorT<ECov> &types = {ECov::EXPONENTIAL},
+                        const std::vector<ECov> &types = {ECov::EXPONENTIAL},
                         const Constraints& constraints = Constraints(),
                         Option_VarioFit optvar = Option_VarioFit(),
                         Option_AutoFit mauto = Option_AutoFit(),
                         bool verbose = false);
   int fit(Vario *vario,
-          const VectorT<ECov>& types = {ECov::SPHERICAL},
+          const std::vector<ECov>& types = {ECov::SPHERICAL},
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit(),
           Option_AutoFit mauto = Option_AutoFit(),
           bool verbose = false);
 
   int fitFromVMap(DbGrid *dbmap,
-                  const VectorT<ECov> &types = { ECov::SPHERICAL },
+                  const std::vector<ECov> &types = { ECov::SPHERICAL },
                   const Constraints &constraints = Constraints(),
                   Option_VarioFit optvar = Option_VarioFit(),
                   Option_AutoFit mauto = Option_AutoFit(),
                   bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
-  VectorT<ECov> initCovList(const VectorInt & covranks);
+  std::vector<ECov> initCovList(const VectorInt & covranks);
 
 protected:
   /// Interface to ASerializable

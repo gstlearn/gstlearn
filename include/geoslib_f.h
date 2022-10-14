@@ -408,3 +408,21 @@ GSTLEARN_EXPORT int polygon_inside(double xx,
                                    int flag_nested,
                                    Polygons *polygon);
 
+/********************************************/
+/* Prototyping the functions in potential.c */
+/********************************************/
+
+GSTLEARN_EXPORT int potential_kriging(Db *db,
+                                      Db *dbgrd,
+                                      Db *dbtgt,
+                                      DbGrid *dbout,
+                                      Model *model,
+                                      ANeighParam *neighparam,
+                                      double nugget_grd = 0.,
+                                      double nugget_tgt = 0.,
+                                      bool flag_pot = true,
+                                      bool flag_grad = false,
+                                      bool flag_trans = false,
+                                      bool flag_save_data = false,
+                                      int opt_part = 0,
+                                      bool verbose = false);

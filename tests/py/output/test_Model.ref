@@ -109,4 +109,42 @@ Gaussian
 - Range        =      5.000
 - Theo. Range  =      2.889
 Total Sill     =      1.000
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.500
+- Range        =      2.000
+- Theo. Range  =      0.668
+Total Sill     =      1.500
+Tapering Function     = Storkey
+Tapering Scale        = 2
+ 
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Exponential
+- Sill         =      1.500
+- Range        =      2.000
+- Theo. Range  =      0.668
+Total Sill     =      1.062
+Convolution type      = Exponential
+Convolution direction = Along X
+Nb. discretization    = 10
+Convolution Scale     = 0.1
  Test successfully performed

@@ -32,6 +32,7 @@ class GSTLEARN_EXPORT CovGradientFunctional: public ACovGradient
 public:
   CovGradientFunctional(const ECov& type, const CovContext& ctxt);
   CovGradientFunctional(const CovGradientFunctional& r);
+  CovGradientFunctional(const CovAniso& r);
   CovGradientFunctional& operator=(const CovGradientFunctional& r);
   virtual ~CovGradientFunctional();
 
@@ -42,7 +43,7 @@ public:
                          const SpacePoint& p2,
                          double& covVal,
                          VectorDouble& covGp,
-                         VectorDouble& covGg,
+                         VectorDouble& covGG,
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const override;
 
