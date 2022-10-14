@@ -7,7 +7,6 @@
 /* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
 /*                                                                            */
 /* Created on: 9 avr. 2019 by N. Desassis                                     */
-/*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
@@ -22,7 +21,8 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
       _gridPoint(grid_point),
       _nmult(nmult),
       _shiftVector(),
-      _weights(),
+      _weightx(),
+      _weighty(),
       _Aproj(nullptr)
 {
   int ndim = grid_point->getNDim();
@@ -35,11 +35,11 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
   _nmult.resize(ndim, 1);
   _nmult[ndim-1] = 1;
 
-  _constructShiftVector();
+  _buildShiftVector();
 
-  _constructWeights();
+  _buildWeights();
 
-  if (useAProj) _constructAprojCS();
+  if (useAProj) _buildAprojCS();
 }
 
 ProjConvolution::~ProjConvolution()
@@ -47,36 +47,17 @@ ProjConvolution::~ProjConvolution()
   if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
 }
 
-void ProjConvolution::_constructWeights()
+void ProjConvolution::_buildWeights()
 {
-  int ndim = _getNDim();
+  _weightx.resize(_nmult[0]);
+  for (int ix = 0; ix < _nmult[0]; ix++)
+    _weightx[ix] = 1. - (double) ix / (double) _nmult[0];
 
-  if (ndim == 2)
-  {
-    _weights = MatrixRectangular(_nmult[0],1);
-    for (int ix = 0; ix < _nmult[0]; ix++)
-    {
-      double w1 = (double) ix / (double) _nmult[0];
-      _weights.setValue(ix, 0, w1);
-    }
-  }
-  else if (ndim == 3)
-  {
-    _weights = MatrixRectangular(_nmult[0], _nmult[1]);
-    for (int ix = 0; ix < _nmult[0]; ix++)
-    {
-      double w1 = 1. - (double) ix / (double) _nmult[0];
-      for (int iy = 0; iy < _nmult[1]; iy++)
-      {
-        double w2 = 1. - (double) ix / (double) _nmult[0];
-        _weights.setValue(ix, iy, w1 * w2);
-      }
-    }
-  }
-  else
-  {
-    messerr("Not Programmed");
-  }
+  if (_getNDim() <= 2) return;
+
+  _weighty.resize(_nmult[1]);
+  for (int iy = 0; iy < _nmult[1]; iy++)
+    _weighty[iy] = 1. - (double) iy / (double) _nmult[1];
 }
 
 
@@ -86,7 +67,7 @@ void ProjConvolution::_constructWeights()
  * It emulates mesh2point algorithm.
  * Note that this algorithm does not handle the presence of undefined values
  */
-int ProjConvolution::_constructAprojCS()
+int ProjConvolution::_buildAprojCS()
 {
   cs* Atriplet;
   Atriplet = cs_spalloc(0, 0, 1, 1, 1);
@@ -111,7 +92,7 @@ int ProjConvolution::_constructAprojCS()
  * Calculate the vector of grid index shifts
  * This vector is calculated for the cell located in the center of the grid
  */
-void ProjConvolution::_constructShiftVector()
+void ProjConvolution::_buildShiftVector()
 {
   int ndim = _gridPoint->getNDim();
   int center = 1;
@@ -205,16 +186,19 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
-  if (_getNMultProd() == 1)
+  if (_getNMultProd() == 1 && true)  // DR: modif pour provoquer le passage dans nouveau code
   {
+    message("on passe par le code reference\n");
     if (_mesh2pointRef(valonvertex, valonseismic)) return 1;
   }
   else if (_getNDim() == 2)
   {
+    message("on passe par le nouveau code a 2-D\n");
     if (_mesh2point2D(valonvertex, valonseismic)) return 1;
   }
   else
   {
+    message("on passe par le nouveau code a 3-D\n");
     if (_mesh2point3D(valonvertex, valonseismic)) return 1;
   }
 
@@ -230,37 +214,61 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   return 0;
 }
 
-void ProjConvolution::_getValues(const VectorInt& indices,
-                                 int vshift,
-                                 VectorInt& ranks) const
+void ProjConvolution::_getIndicesOnVertex(const VectorInt &inds,
+                                          int vshift,
+                                          VectorInt &indp) const
 {
-  VectorInt ind = indices;
-  ind[_getNDim()-1] += vshift;
-
-  int iad;
+  int ndim = _getNDim();
+  VectorInt ind = inds;
 
   // Lower-left corner
-  iad = _gridPoint->getGrid().indiceToRank(ind);
-  ranks[0] = iad;
+  indp[0] = _gridPoint->getGrid().indiceToRank(ind) + vshift;
+  ind[0] += 1;
+  indp[1] = _gridPoint->getGrid().indiceToRank(ind) + vshift;
 
+  if (ndim <= 2) return;
+
+  ind[1] += 1;
+  indp[2] = _gridPoint->getGrid().indiceToRank(ind) + vshift;
+  ind[0] -= 1;
+  indp[3] = _gridPoint->getGrid().indiceToRank(ind) + vshift;
+}
+
+void ProjConvolution::_getWeights(int ixm, int iym, VectorDouble& wgt) const
+{
+  double wx = _weightx[ixm];
+  if (_getNDim() == 2)
+  {
+    wgt[0] = wx;
+    wgt[1] = 1. - wx;
+  }
+  else
+  {
+    double wy = _weighty[iym];
+    wgt[0] = wx * wy;
+    wgt[1] = (1. - wx) * wy;
+    wgt[2] = (1. - wx) * ( 1. - wy);
+    wgt[3] = wx * (1. - wy);
+  }
 }
 
 int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
                                    VectorDouble &valonseismic) const
 {
   int size  = _getConvSize();
-  VectorInt indices(3);
-  VectorInt ranks(4);
+  VectorInt    indices(3);
+  VectorInt    ranks(4);
   VectorDouble wgt(4);
 
   // Loop on the nodes of the seismic grid
 
-  int is = 0;
-  int rkloc = 0;
+  int is      = 0;
+  int rloc    = 0;
   double valp = 0.;
   double valm = 0.;
   double wloc = 0.;
   double vloc = 0.;
+
   for (int iz = 0; iz < _gridPoint->getNX(2); iz++)
   {
     indices[2] = iz;
@@ -283,20 +291,19 @@ int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
             valp = 0;
             for (int j = 0; j < size; j++)
             {
-
               // Load the values of the neighborhood
-              _getValues(indices, _shiftVector[j], ranks);
+              _getIndicesOnVertex(indices, _shiftVector[j], ranks);
+              _getWeights(ixm, iym, wgt);
 
               // Derive the value of the 2-D center of gravity
-
               valm = 0.;
               for (int i = 0; i < 4; i++)
               {
-                wloc = _weights.getValue(ixm, iym);
-                rkloc = ranks[i];
-                if (wloc > 0. && rkloc >= 0)
+                wloc = wgt[i];
+                rloc = ranks[i];
+                if (wloc > 0. && rloc >= 0)
                 {
-                  vloc = valonvertex[rkloc];
+                  vloc = valonvertex[rloc];
                   if (FFFF(vloc))
                   {
                     valp = TEST;
@@ -305,6 +312,8 @@ int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
                   valm += vloc * wloc;
                 }
               }
+
+              // Add to the convolution
               valp += valm * _convolution[j];
             }
             valonseismic[is++] = valp;
@@ -319,28 +328,64 @@ int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
 int ProjConvolution::_mesh2point2D(const VectorDouble &valonvertex,
                                    VectorDouble &valonseismic) const
 {
-  int count = (int) valonseismic.size();
   int size  = _getConvSize();
-  double valp  = 0.;
-  double valm = 0.;
-  int id = 0;
-  for (int is = 0; is < count; is++)
-  {
-    valp = 0;
-    for (int j = 0; j < size; j++)
-    {
-      id = is + _shiftVector[j];
-      if (id < 0) return 1;
+  VectorInt    indices(2);
+  VectorInt    ranks(2);
+  VectorDouble wgt(2);
 
-      valm = valonvertex[id];
-      if( FFFF(valm))
+  // Loop on the nodes of the seismic grid
+
+  int is      = 0;
+  int rloc    = 0;
+  double valp = 0.;
+  double valm = 0.;
+  double wloc = 0.;
+  double vloc = 0.;
+
+  for (int iy = 0; iy < _gridPoint->getNX(1); iy++)
+  {
+    indices[1] = iy;
+    for (int ix = 0; ix < _gridPoint->getNX(0); ix++)
+    {
+      indices[0] = ix;
+      int nxmax = (ix < _gridPoint->getNX(0) - 1) ? _nmult[0] : 1;
+      for (int ixm = 0; ixm < nxmax; ixm++)
       {
-        valp = TEST;
-        break;
+        is = _gridPoint->getGrid().indiceToRank(indices);
+
+        // Loop on the convolution
+
+        valp = 0;
+        for (int j = 0; j < size; j++)
+        {
+          // Load the values of the neighborhood
+          _getIndicesOnVertex(indices, _shiftVector[j], ranks);
+          _getWeights(ixm, -1, wgt);
+
+          // Derive the value of the 2-D center of gravity
+          valm = 0.;
+          for (int i = 0; i < 2; i++)
+          {
+            wloc = wgt[i];
+            rloc = ranks[i];
+            if (wloc > 0. && rloc >= 0)
+            {
+              vloc = valonvertex[rloc];
+              if (FFFF(vloc))
+              {
+                valp = TEST;
+                break;
+              }
+              valm += vloc * wloc;
+            }
+          }
+
+          // Add to the convolution
+          valp += valm * _convolution[j];
+        }
+        valonseismic[is++] = valp;
       }
-      valp += valm * _convolution[j];
     }
-    valonseismic[is] = valp;
   }
   return 0;
 }
