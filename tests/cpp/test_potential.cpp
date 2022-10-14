@@ -38,7 +38,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Potential-");
@@ -91,9 +91,8 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Launch the Potential estimation
   (void) potential_kriging(dbiso, dbgrd, dbtgt, grid, model, neighU,
-                           0., 0., true, false, false, false, 0, false);
+                           0., 0., true, false, false, false, 0, true);
 
-  grid->display();
   (void) grid->dumpToNF("Grid2D.ascii");
 
   // ====================== Free pointers ==================================
@@ -139,15 +138,14 @@ int main(int /*argc*/, char */*argv*/[])
   neighU = NeighUnique::create(ndim);
 
   // Launch the Potential estimation
-  OptDbg::setReference(0);
+  // In case we would like to examine the calculation details,
+  // set the rank of the target node in the next line
+  OptDbg::setReference(-1);
   (void) potential_kriging(dbiso, dbgrd, nullptr, grid, model, neighU,
                            0., 0., true, true, false, true, 0, true);
   OptDbg::setReference(-1);
 
   // Visualize the results
-  dbiso->display();
-  dbgrd->display();
-  grid->display();
   (void) grid->dumpToNF("Grid1D.ascii");
 
   if (dbiso != nullptr) delete dbiso;
@@ -156,4 +154,3 @@ int main(int /*argc*/, char */*argv*/[])
 
   return (0);
 }
-

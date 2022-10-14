@@ -452,7 +452,8 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
 
 def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed',
           nh = 100, flagEnv = True, hmax = None, gmax = None, 
-          flagLabelDir=False, flagLegend=False, title=None, xlabel=None, ylabel=None, ax=None, 
+          flagLabelDir=False, flagLegend=False, asCov=False,
+          title=None, xlabel=None, ylabel=None, ax=None, 
           figsize = None, end_plot =False, **plot_args):
     """Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
     
@@ -472,6 +473,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     flagLabelDir : Flag to add the direction vector codir in the label of the line. 
                    The default label is "model" (default is False).
     flagLegend : Flag to display the axes legend (The default is False).
+    asCov : Present the Model as a Covariance (rather than as a Variogram)
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
@@ -500,7 +502,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         hmax = 1
             
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, 
+                      asCov=asCov, addZero=True)
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -517,9 +520,11 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
     
     if ivar != jvar and flagEnv:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, addZero=True)
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, 
+                           asCov = asCov, addZero=True)
         ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0, label="plus")
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, addZero=True)
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, 
+                           asCov = asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
     drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)

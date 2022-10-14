@@ -65,10 +65,10 @@ void ProjConvolution::_constructWeights()
     _weights = MatrixRectangular(_nmult[0], _nmult[1]);
     for (int ix = 0; ix < _nmult[0]; ix++)
     {
-      double w1 = (double) ix / (double) _nmult[0];
+      double w1 = 1. - (double) ix / (double) _nmult[0];
       for (int iy = 0; iy < _nmult[1]; iy++)
       {
-        double w2 = (double) ix / (double) _nmult[0];
+        double w2 = 1. - (double) ix / (double) _nmult[0];
         _weights.setValue(ix, iy, w1 * w2);
       }
     }
@@ -154,7 +154,7 @@ bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
   }
   if (_shiftVector.empty())
   {
-    messerr("The PorjConvolution object has not been built correctly");
+    messerr("The ProjConvolution object has not been built correctly");
     return false;
   }
   return true;
@@ -205,6 +205,120 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
+  if (_getNMultProd() == 1)
+  {
+    if (_mesh2pointRef(valonvertex, valonseismic)) return 1;
+  }
+  else if (_getNDim() == 2)
+  {
+    if (_mesh2point2D(valonvertex, valonseismic)) return 1;
+  }
+  else
+  {
+    if (_mesh2point3D(valonvertex, valonseismic)) return 1;
+  }
+
+  // Comparing with the Aproj method (if initiated)
+
+  if (_Aproj != nullptr)
+  {
+    VectorDouble valcheck = valonseismic;
+    cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
+    valcheck.subtract(valonseismic);
+    message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+  }
+  return 0;
+}
+
+void ProjConvolution::_getValues(const VectorInt& indices,
+                                 int vshift,
+                                 VectorInt& ranks) const
+{
+  VectorInt ind = indices;
+  ind[_getNDim()-1] += vshift;
+
+  int iad;
+
+  // Lower-left corner
+  iad = _gridPoint->getGrid().indiceToRank(ind);
+  ranks[0] = iad;
+
+}
+
+int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
+                                   VectorDouble &valonseismic) const
+{
+  int size  = _getConvSize();
+  VectorInt indices(3);
+  VectorInt ranks(4);
+  VectorDouble wgt(4);
+
+  // Loop on the nodes of the seismic grid
+
+  int is = 0;
+  int rkloc = 0;
+  double valp = 0.;
+  double valm = 0.;
+  double wloc = 0.;
+  double vloc = 0.;
+  for (int iz = 0; iz < _gridPoint->getNX(2); iz++)
+  {
+    indices[2] = iz;
+    for (int iy = 0; iy < _gridPoint->getNX(1); iy++)
+    {
+      indices[1] = iy;
+      int nymax = (iy < _gridPoint->getNX(1) - 1) ? _nmult[1] : 1;
+      for (int iym = 0; iym < nymax; iym++)
+      {
+        for (int ix = 0; ix < _gridPoint->getNX(0); ix++)
+        {
+          indices[0] = ix;
+          int nxmax = (ix < _gridPoint->getNX(0) - 1) ? _nmult[0] : 1;
+          for (int ixm = 0; ixm < nxmax; ixm++)
+          {
+            is = _gridPoint->getGrid().indiceToRank(indices);
+
+            // Loop on the convolution
+
+            valp = 0;
+            for (int j = 0; j < size; j++)
+            {
+
+              // Load the values of the neighborhood
+              _getValues(indices, _shiftVector[j], ranks);
+
+              // Derive the value of the 2-D center of gravity
+
+              valm = 0.;
+              for (int i = 0; i < 4; i++)
+              {
+                wloc = _weights.getValue(ixm, iym);
+                rkloc = ranks[i];
+                if (wloc > 0. && rkloc >= 0)
+                {
+                  vloc = valonvertex[rkloc];
+                  if (FFFF(vloc))
+                  {
+                    valp = TEST;
+                    break;
+                  }
+                  valm += vloc * wloc;
+                }
+              }
+              valp += valm * _convolution[j];
+            }
+            valonseismic[is++] = valp;
+          }
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+int ProjConvolution::_mesh2point2D(const VectorDouble &valonvertex,
+                                   VectorDouble &valonseismic) const
+{
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valp  = 0.;
@@ -228,15 +342,34 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     }
     valonseismic[is] = valp;
   }
+  return 0;
+}
 
-  // Comparing with the Aproj method (if initiated)
-
-  if (_Aproj != nullptr)
+int ProjConvolution::_mesh2pointRef(const VectorDouble &valonvertex,
+                                    VectorDouble &valonseismic) const
+{
+  int count = (int) valonseismic.size();
+  int size  = _getConvSize();
+  double valp  = 0.;
+  double valm = 0.;
+  int id = 0;
+  for (int is = 0; is < count; is++)
   {
-    VectorDouble valcheck = valonseismic;
-    cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
-    valcheck.subtract(valonseismic);
-    message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+    valp = 0;
+    for (int j = 0; j < size; j++)
+    {
+      id = is + _shiftVector[j];
+      if (id < 0) return 1;
+
+      valm = valonvertex[id];
+      if( FFFF(valm))
+      {
+        valp = TEST;
+        break;
+      }
+      valp += valm * _convolution[j];
+    }
+    valonseismic[is] = valp;
   }
   return 0;
 }

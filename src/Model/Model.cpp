@@ -842,6 +842,7 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
  * @param addZero Add the zero distance location
+ * @param asCov  Produce the result as a Covariance (rather than a Variogram)
  *
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
@@ -852,6 +853,7 @@ VectorDouble Model::sample(double hmax,
                            int jvar,
                            VectorDouble codir,
                            int nostd,
+                           bool asCov,
                            bool addZero)
 {
   VectorDouble hh, gg;

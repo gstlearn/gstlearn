@@ -51,6 +51,14 @@ private:
   int _getNMultProd() const { return ut_vector_prod(_nmult); }
   bool _isVecDimCorrect(const VectorDouble &valonseismic,
                         const VectorDouble &valonvertex) const;
+  void _getValues(const VectorInt &indices, int vshift, VectorInt &ranks) const;
+
+  int _mesh2pointRef(const VectorDouble &valonvertex,
+                     VectorDouble &valonseismic) const;
+  int _mesh2point2D(const VectorDouble &valonvertex,
+                    VectorDouble &valonseismic) const;
+  int _mesh2point3D(const VectorDouble &valonvertex,
+                    VectorDouble &valonseismic) const;
 
 private:
   VectorDouble  _convolution;
