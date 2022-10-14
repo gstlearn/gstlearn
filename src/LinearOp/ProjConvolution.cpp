@@ -17,18 +17,51 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point)
     : _convolution(convolution),
       _gridPoint(grid_point),
+      _shiftVector(),
       _Aproj(nullptr)
 {
+  _constructShiftVector();
+
+  _constructAprojCS();
 }
 
-ProjConvolution::~ProjConvolution() { }
+ProjConvolution::~ProjConvolution()
+{
+  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+}
+
+/**
+ * Calculate the Aproj sparse matrix.
+ * This method is kept for establishing time bench marks.
+ * It emulates mesh2point algorithm.
+ * Note that this algorithm does not handle the presence of undefined values
+ */
+int ProjConvolution::_constructAprojCS()
+{
+  cs* Atriplet;
+  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
+  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+  for (int is = 0; is < getPointNumber(); is++)
+  {
+    for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
+    {
+      int j = i + _getHalfSize();
+      int id = is + _shiftVector[j];
+      if (id < 0) return 1;
+
+      (void) cs_entry(Atriplet,is,id,_convolution[j]);
+    }
+  }
+  _Aproj = cs_triplet(Atriplet);
+  Atriplet  = cs_spfree(Atriplet);
+  return 0;
+}
 
 /**
  * Calculate the vector of grid index shifts
  * This vector is calculated for the cell located in the center of the grid
- * @return Vector of shifts
  */
-VectorInt ProjConvolution::_getShiftVector() const
+void ProjConvolution::_constructShiftVector()
 {
   int ndim = _gridPoint->getNDim();
   int center = 1;
@@ -38,7 +71,7 @@ VectorInt ProjConvolution::_getShiftVector() const
 
   VectorInt indp(ndim);
   VectorInt indm(ndim);
-  VectorInt shift(_getConvSize());
+  _shiftVector.resize(_getConvSize());
 
   _gridPoint->rankToIndice(center, indp);
   for (int idim = 0; idim < ndim; idim++) indm[idim] = indp[idim];
@@ -50,9 +83,8 @@ VectorInt ProjConvolution::_getShiftVector() const
   {
     indm[ndim - 1] = indp[ndim - 1] + i;
     int id = _gridPoint->indiceToRank(indm);
-    shift[i + _getHalfSize()] = id - center;
+    _shiftVector[i + _getHalfSize()] = id - center;
   }
-  return shift;
 }
 
 int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
@@ -75,14 +107,12 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
   for (auto &e : valonvertex)
      e = 0.;
 
-  VectorInt shift = _getShiftVector();
-
   for (int is = 0; is < (int) valonseismic.size(); is++)
   {
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
-      int id = is + shift[j];
+      int id = is + _shiftVector[j];
       if (id < 0) return 1;
 
       double valm1 = valonseismic[is];
@@ -96,13 +126,15 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
     }
   }
 
-  VectorDouble valcheck = valonvertex;
-  cs_tmulvec(_Aproj,(int) valcheck.size(),valonseismic.data(),valcheck.data());
+  // Comparing with the Aproj method (if initiated)
 
-  // Compare the outputs
-
-  valcheck.subtract(valonvertex);
-  message("Point2Mesh: norme de la difference = %lf\n",valcheck.norm());
+  if (_Aproj != nullptr)
+  {
+    VectorDouble valcheck = valonvertex;
+    cs_tmulvec(_Aproj,(int) valcheck.size(),valonseismic.data(),valcheck.data());
+    valcheck.subtract(valonvertex);
+    message("Point2Mesh: norme de la difference = %lf\n",valcheck.norm());
+  }
 
   return 0;
 }
@@ -123,21 +155,14 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     return 1;
   }
 
-  //cs* Atriplet;
-  //Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-
-  VectorInt shift = _getShiftVector();
-
   for (int is = 0; is < (int) valonseismic.size(); is++)
   {
     double valp = 0;
     for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
     {
       int j = i + _getHalfSize();
-      int id = is + shift[j];
+      int id = is + _shiftVector[j];
       if (id < 0) return 1;
-
-    //  (void) cs_entry(Atriplet,is,id,_convolution[j]);
 
       double valm1 = valonvertex[id];
       if( FFFF(valm1))
@@ -151,17 +176,15 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
     valonseismic[is] = valp;
   }
 
-//  VectorDouble valcheck = valonseismic;
-//  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
-//  _Aproj = cs_triplet(Atriplet);
-//  Atriplet  = cs_spfree(Atriplet);
-//  cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
-//
-//  // Compare the outputs
-//
-//  valcheck.subtract(valonseismic);
-//  message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+  // Comparing with the Aproj method (if initiated)
 
+  if (_Aproj != nullptr)
+  {
+    VectorDouble valcheck = valonseismic;
+    cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
+    valcheck.subtract(valonseismic);
+    message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
+  }
   return 0;
 }
 

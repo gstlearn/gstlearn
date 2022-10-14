@@ -419,27 +419,27 @@ public:
 
   // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
-                        const std::vector<ECov> &types = {ECov::EXPONENTIAL},
+                        const VectorT<ECov> &types = {ECov::EXPONENTIAL},
                         const Constraints& constraints = Constraints(),
                         Option_VarioFit optvar = Option_VarioFit(),
                         Option_AutoFit mauto = Option_AutoFit(),
                         bool verbose = false);
   int fit(Vario *vario,
-          const std::vector<ECov>& types = {ECov::SPHERICAL},
+          const VectorT<ECov>& types = {ECov::SPHERICAL},
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit(),
           Option_AutoFit mauto = Option_AutoFit(),
           bool verbose = false);
 
   int fitFromVMap(DbGrid *dbmap,
-                  const std::vector<ECov> &types = { ECov::SPHERICAL },
+                  const VectorT<ECov> &types = { ECov::SPHERICAL },
                   const Constraints &constraints = Constraints(),
                   Option_VarioFit optvar = Option_VarioFit(),
                   Option_AutoFit mauto = Option_AutoFit(),
                   bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
-  std::vector<ECov> initCovList(const VectorInt & covranks);
+  VectorT<ECov> initCovList(const VectorInt & covranks);
 
 protected:
   /// Interface to ASerializable

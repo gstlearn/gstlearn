@@ -441,6 +441,16 @@ int is_flag_data_disc_defined(void)
   return KOPTION->flag_data_disc;
 }
 
+void set_DBIN(Db* dbin)
+{
+  DBIN = dbin;
+}
+
+void set_DBOUT(Db* dbout)
+{
+  DBOUT = dbout;
+}
+
 /****************************************************************************/
 /*!
  **  Internal recursive function for calculating covariance between data

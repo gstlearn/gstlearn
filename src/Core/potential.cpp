@@ -3044,6 +3044,8 @@ int potential_kriging(Db *dbiso,
   lhs = zval = zdualk = rhs = potval = nullptr;
   st_pot_env_manage(1, verbose, &pot_env);
   st_pot_ext_manage(0, &pot_ext, 0, 0., NULL);
+  set_DBIN(dbiso);
+  set_DBOUT(dbout);
 
   // Preliminary checks
 

@@ -54,7 +54,6 @@ int main(int /*argc*/, char */*argv*/[])
   nx = VectorInt({nxval, ngrid_seismic});
   DbGrid* grid_seismic = DbGrid::create(nx);
 
-  ///////////////////////
   // Creating the Model
   Model* model = Model::createFromParam(ECov::SPHERICAL, 10.);
 
