@@ -12,9 +12,9 @@ on:
   pull_request:
     branches: [ main ]
   # Activate the workflow every day at 18:30 UTC = for Paris 19:30 (summer) or 20:30 (winter)
-  schedule:
+  #schedule:
     # * is a special character in YAML so you have to quote this string
-    - cron:  '30 18 * * *'
+  #  - cron:  '30 18 * * *'
   # Permit manual trigger
   workflow_dispatch:
     inputs:
