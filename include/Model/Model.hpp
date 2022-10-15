@@ -442,6 +442,7 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       int norder = 0,
+                      bool asCov = false,
                       bool addZero = false);
 
   // TODO : Remove Model::fit duplicate declaration

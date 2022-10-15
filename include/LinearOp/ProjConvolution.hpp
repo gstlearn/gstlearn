@@ -43,21 +43,33 @@ public:
 private:
   int _getConvSize() const { return (int) _convolution.size(); }
   int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
-  void _constructShiftVector();
-  int  _constructAprojCS();
-  void _constructWeights();
+  void _buildShiftVector();
+  int  _buildAprojCS();
+  void _buildWeights();
   VectorInt _getNXResolutionGrid() const;
   int _getNDim() const { return _gridPoint->getNDim(); }
   int _getNMultProd() const { return ut_vector_prod(_nmult); }
   bool _isVecDimCorrect(const VectorDouble &valonseismic,
                         const VectorDouble &valonvertex) const;
+  void _getIndicesOnVertex(const VectorInt &inds,
+                           int vshift,
+                           VectorInt &indp) const;
+  void _getWeights(int ixm, int iym, VectorDouble& wgt) const;
+
+  int _mesh2pointRef(const VectorDouble &valonvertex,
+                     VectorDouble &valonseismic) const;
+  int _mesh2point2D(const VectorDouble &valonvertex,
+                    VectorDouble &valonseismic) const;
+  int _mesh2point3D(const VectorDouble &valonvertex,
+                    VectorDouble &valonseismic) const;
 
 private:
   VectorDouble  _convolution;
   const DbGrid* _gridPoint;
   VectorInt     _nmult; // Dimension of _gridPoint
   VectorInt     _shiftVector;
-  MatrixRectangular _weights;
+  VectorDouble  _weightx;
+  VectorDouble  _weighty;
   mutable cs*   _Aproj; // Stockage temporaire de la matrice creuse de Projection
 };
 

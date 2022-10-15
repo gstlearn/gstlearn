@@ -20,7 +20,7 @@ int main(int /*argc*/, char */*argv*/[])
 {
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Convolution-");
@@ -62,7 +62,7 @@ int main(int /*argc*/, char */*argv*/[])
   int uid_in = grid_data->getLastUID();
 
   // Save the initial grid in a NF
-  (void) grid_data->dumpToNF("Initial_Grid.ascii");
+  (void) grid_data->dumpToNF("Initial.ascii");
 
   // Operate the convolution
   ProjConvolution Aproj(convolution, grid_seismic);
@@ -73,18 +73,18 @@ int main(int /*argc*/, char */*argv*/[])
   // Perform the convolution
   VectorDouble seismic = VectorDouble(grid_seismic->getSampleNumber());
   if (Aproj.mesh2point(data, seismic)) return 1;
-  grid_seismic->addColumns(seismic);
+  grid_seismic->addColumns(seismic,"Seismic",ELoc::Z);
 
   // Save the final grid in a NF
-  (void) grid_seismic->dumpToNF("Final_Grid.ascii");
+  (void) grid_seismic->dumpToNF("Seismic.ascii");
 
   // Perform convolution back-transform
   VectorDouble data2 = VectorDouble(grid_data->getSampleNumber());
   if (Aproj.point2mesh(seismic, data2)) return 1;
-  grid_data->addColumns(data2);
+  grid_data->addColumns(data2,"Data",ELoc::Z);
 
   // Save the final grid in a NF
-  (void) grid_data->dumpToNF("Final_Data.ascii");
+  (void) grid_data->dumpToNF("Point.ascii");
 
   delete grid_data;
   delete grid_seismic;

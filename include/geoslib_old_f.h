@@ -1875,46 +1875,6 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
                                           double **mean,
                                           double **vars);
 
-/********************************************/
-/* Prototyping the functions in potential.c */
-/********************************************/
-GSTLEARN_EXPORT int potential_cov(Model *model,
-                                  int verbose,
-                                  int type1,
-                                  double *x10,
-                                  double *x1p,
-                                  double *tx1,
-                                  int type2,
-                                  double *x20,
-                                  double *x2p,
-                                  double *tx2,
-                                  int *n1,
-                                  int *n2,
-                                  double *covtab);
-GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
-                                       Db *dbgrd,
-                                       Db *dbtgt,
-                                       DbGrid *dbout,
-                                       Model *model,
-                                       ANeighParam *neighparam,
-                                       double nugget_grd,
-                                       double nugget_tgt,
-                                       double dist_tempere,
-                                       int flag_trans,
-                                       int seed,
-                                       int nbsimu,
-                                       int nbtuba,
-                                       bool verbose);
-GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
-                                     Db *dbgrd,
-                                     Db *dbtgt,
-                                     Model *model,
-                                     ANeighParam *neighparam,
-                                     double nugget_grd,
-                                     double nugget_tgt,
-                                     int flag_dist_conv,
-                                     bool verbose);
-
 /*******************************************/
 /* Prototyping the functions in delaunay.c */
 /*******************************************/

@@ -928,11 +928,11 @@ void Grid::dilate(int mode,
  ** \param[out] x0    Array of grid origins
  **
  *****************************************************************************/
-void Grid::multiple(const VectorInt& nmult,
-                     int flag_cell,
-                     VectorInt& nx,
-                     VectorDouble& dx,
-                     VectorDouble& x0) const
+void Grid::multiple(const VectorInt &nmult,
+                    int flag_cell,
+                    VectorInt &nx,
+                    VectorDouble &dx,
+                    VectorDouble &x0) const
 {
   int ndim = _nDim;
   VectorInt indg(ndim);

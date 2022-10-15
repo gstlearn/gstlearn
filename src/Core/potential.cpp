@@ -1241,9 +1241,6 @@ static int st_extdrift_eval(const char *target,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
  ** \param[in]  dbout         Target Db structure (only used for external drift)
  ** \param[in]  model         Model structure
  ** \param[in]  nugget_grd    Nugget effect for Gradients
@@ -1277,9 +1274,6 @@ static int st_extdrift_eval(const char *target,
  *****************************************************************************/
 static int st_build_lhs(Pot_Env *pot_env,
                         Pot_Ext *pot_ext,
-                        Db *dbiso,
-                        Db *dbgrd,
-                        Db *dbtgt,
                         DbGrid *dbout,
                         Model *model,
                         double nugget_grd,
@@ -1666,12 +1660,11 @@ static int st_build_lhs(Pot_Env *pot_env,
  **  Establish the data vector
  **
  ** \param[in]  pot_env       Pot_Env structure
- ** \param[in]  dbgrd         Gradient Db structure
  **
  ** \param[out] zval          Data vector
  **
  *****************************************************************************/
-static void st_fill_dual(Pot_Env *pot_env, Db *dbgrd, double *zval)
+static void st_fill_dual(Pot_Env *pot_env, double *zval)
 {
   int nequa;
 
@@ -1842,9 +1835,6 @@ static void st_rhs_part(Pot_Env *pot_env,
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
  ** \param[in]  flag_grad     True if the gradients must also be calculated
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
  ** \param[in]  dbgrid        Output Grid Db structure (for External Drift)
  ** \param[in]  model         Model structure
  ** \param[in]  coor          Coordinates of the target
@@ -1855,9 +1845,6 @@ static void st_rhs_part(Pot_Env *pot_env,
 static void st_build_rhs(Pot_Env *pot_env,
                          Pot_Ext *pot_ext,
                          bool flag_grad,
-                         Db *dbiso,
-                         Db *dbgrd,
-                         Db *dbtgt,
                          DbGrid *dbgrid,
                          Model *model,
                          VectorDouble& coor,
@@ -2089,8 +2076,7 @@ static void st_calc_point(Pot_Env *pot_env,
 
   /* Establish the R.H.S */
 
-  st_build_rhs(pot_env, pot_ext, flag_grad, dbiso, dbgrd, dbtgt,
-               dbgrid, model, coor, rhs);
+  st_build_rhs(pot_env, pot_ext, flag_grad, dbgrid, model, coor, rhs);
 
   /* Perform the estimation */
 
@@ -2334,7 +2320,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = ISO_COO(ic0, 0, idim);
-  st_build_rhs(pot_env, pot_ext, 0, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 0, nullptr, model, coor0, rhs);
   matrix_manage(nequa, 1, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, 1, zdual, rhs, &potval);
 
@@ -2342,7 +2328,7 @@ static void st_dist_convert(Pot_Env *pot_env,
 
   for (int idim = 0; idim < pot_env->ndim; idim++)
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
-  st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor0, rhs);
+  st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
   matrix_product(1, neqm1, nsol, zdual, rhs, result);
   if (OptDbg::query(EDbg::CONVERGE))
@@ -2366,7 +2352,7 @@ static void st_dist_convert(Pot_Env *pot_env,
       coor[idim] -= delta;
       dgeo[idim] += delta * delta;
     }
-    st_build_rhs(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, nullptr, model, coor, rhs);
+    st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
     matrix_product(1, neqm1, nsol, zdual, rhs, result);
     if (OptDbg::query(EDbg::CONVERGE))
@@ -3136,7 +3122,7 @@ int potential_kriging(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+  if (st_build_lhs(&pot_env, &pot_ext, dbout, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     krige_lhs_print(0, nequa, nequa, NULL, lhs);
@@ -3149,7 +3135,7 @@ int potential_kriging(Db *dbiso,
 
   // Establish the data vector and get the dual form
 
-  st_fill_dual(&pot_env, dbgrd, zval);
+  st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdual);
@@ -3362,7 +3348,7 @@ int potential_simulate(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
+  if (st_build_lhs(&pot_env, &pot_ext, dbout, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
 
   // Invert the matrix
@@ -3376,7 +3362,7 @@ int potential_simulate(Db *dbiso,
 
     // Establish the data vector and get the dual form
 
-    st_fill_dual(&pot_env, dbgrd, zval);
+    st_fill_dual(&pot_env, zval);
     if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
       print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
     matrix_product(nequa, nequa, 1, lhs, zval, zdual);
@@ -3537,7 +3523,7 @@ int potential_xvalid(Db *dbiso,
 
   // Establish the cokriging system
 
-  if (st_build_lhs(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, nullptr, model,
+  if (st_build_lhs(&pot_env, &pot_ext, nullptr, model,
                    nugget_grd, nugget_tgt, lhs)) goto label_end;
 
   // Save the matrix (used for converting into distance)
@@ -3553,7 +3539,7 @@ int potential_xvalid(Db *dbiso,
 
   // Establish the data vector and get the dual form
 
-  st_fill_dual(&pot_env, dbgrd, zval);
+  st_fill_dual(&pot_env, zval);
   if (OptDbg::isReferenceDefined() || OptDbg::query(EDbg::KRIGING))
     print_matrix("\n[Z]", 0, 1, 1, nequa, NULL, zval);
   matrix_product(nequa, nequa, 1, lhs, zval, zdual);
@@ -3633,28 +3619,23 @@ static void st_print_type(int rank, int type)
  ** \param[in]  x2p        Coordinates of the second point
  ** \param[in]  tx2        Tangent values at the second point
  **
- ** \param[out] n1         Number of returned rows in "covtab"
- ** \param[out] n2         Number of returned columns in "covtab"
- ** \param[out] covtab     Array of returned values
- **
- ** \remarks The output array "covtab" must be dimensioned to ndim*ndim
+ ** \param[out] covtab     Array of returned values (dimensionned to ndim*ndim)
  **
  *****************************************************************************/
 int potential_cov(Model *model,
                   bool verbose,
                   int type1,
-                  double *x10,
-                  double *x1p,
-                  double *tx1,
+                  const VectorDouble& x10,
+                  const VectorDouble& x1p,
+                  const VectorDouble& tx1,
                   int type2,
-                  double *x20,
-                  double *x2p,
-                  double *tx2,
-                  int *n1,
-                  int *n2,
-                  double *covtab)
+                  const VectorDouble& x20,
+                  const VectorDouble& x2p,
+                  const VectorDouble& tx2,
+                  VectorDouble& covtab)
 
 {
+  int idim, jdim, ecr, lec, i;
   double dd[3] = { 0., 0., 0. };
   VectorDouble covGp(3, 0.);
   VectorDouble cov2Gp(3, 0.);
@@ -3664,17 +3645,12 @@ int potential_cov(Model *model,
   double covar2 = 0;
   double covar3 = 0;
   double covar4 = 0;
-  int idim, jdim, ecr, lec, i;
 
   // Preliminary checks
 
   VERBOSE = verbose;
-  *n1 = *n2 = 0;
   int ndim = model->getDimensionNumber();
-  for (i = 0; i < ndim * ndim; i++)
-    covtab[i] = TEST;
-  for (i = 0; i < 3; i++)
-    dd[i] = 0.;
+  covtab.resize(ndim * ndim, TEST);
 
   /* Preliminary checks */
 
@@ -3694,21 +3670,23 @@ int potential_cov(Model *model,
   if (VERBOSE)
   {
     st_print_type(1, type1);
-    if (x10 != nullptr) print_matrix("x10", 0, 1, 1, ndim, NULL, x10);
-    if (x1p != nullptr) print_matrix("x1p", 0, 1, 1, ndim, NULL, x1p);
-    if (tx1 != nullptr) print_matrix("tx1", 0, 1, 1, ndim, NULL, tx1);
+    if (! x10.empty()) print_matrix("x10", 0, 1, 1, ndim, NULL, x10.data());
+    if (! x1p.empty()) print_matrix("x1p", 0, 1, 1, ndim, NULL, x1p.data());
+    if (! tx1.empty()) print_matrix("tx1", 0, 1, 1, ndim, NULL, tx1.data());
     st_print_type(2, type2);
-    if (x20 != nullptr) print_matrix("x20", 0, 1, 1, ndim, NULL, x20);
-    if (x2p != nullptr) print_matrix("x2p", 0, 1, 1, ndim, NULL, x2p);
-    if (tx2 != nullptr) print_matrix("tx2", 0, 1, 1, ndim, NULL, tx2);
+    if (! x20.empty()) print_matrix("x20", 0, 1, 1, ndim, NULL, x20.data());
+    if (! x2p.empty()) print_matrix("x2p", 0, 1, 1, ndim, NULL, x2p.data());
+    if (! tx2.empty()) print_matrix("tx2", 0, 1, 1, ndim, NULL, tx2.data());
   }
 
   /* Dispatch */
 
+  int n1 = 1;
+  int n2 = 1;
   switch (type1)
   {
     case 1:                     // 1-Gradient
-      *n1 = ndim;
+      n1 = ndim;
       switch (type2)
       {
         case 1:                 // 2-Gradient
@@ -3722,7 +3700,7 @@ int potential_cov(Model *model,
             {
               if (idim < ndim && jdim < ndim) covtab[ecr++] = covGG[lec];
             }
-          *n2 = ndim;
+          n2 = ndim;
           break;
 
         case 2:                 // 2-Tangent
@@ -3735,7 +3713,7 @@ int potential_cov(Model *model,
             covtab[idim] = matrix_UV(ndim, tx2[0], tx2[1], tx2[2], covGG[i + 0],
                                      covGG[i + 1], covGG[i + 2]);
           }
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case 3:                 // 2-IsoPotential
@@ -3747,7 +3725,7 @@ int potential_cov(Model *model,
           st_cov(model, 1, dd[0], dd[1], dd[2], covar, covGp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = cov2Gp[idim] - covGp[idim];
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case -3:                 // 2-IsoPotential-Target
@@ -3756,13 +3734,13 @@ int potential_cov(Model *model,
           st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = cov2Gp[idim];
-          *n2 = 1;
+          n2 = 1;
           break;
       }
       break;
 
     case 2:                     // 1-Tangent
-      *n1 = 1;
+      n1 = 1;
       switch (type2)
       {
         case 1:                 // 2-Gradient
@@ -3777,7 +3755,7 @@ int potential_cov(Model *model,
                                      tx1[0], tx1[1], tx1[2], covGG[i + 0],
                                      covGG[i + 1], covGG[i + 2]);
           }
-          *n2 = ndim;
+          n2 = ndim;
           break;
 
         case 2:                 // 2-Tangent
@@ -3787,7 +3765,7 @@ int potential_cov(Model *model,
           covtab[0] = matrix_UAV(ndim, covGG.data(),
                                  tx1[0], tx1[1], tx1[2],
                                  tx2[0], tx2[1], tx2[2]);
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case 3:                 // 2-IsoPotential
@@ -3800,7 +3778,7 @@ int potential_cov(Model *model,
           covtab[0] = matrix_UV(ndim, tx1[0], tx1[1], tx1[2],
                                 cov2Gp[0] - covGp[0], cov2Gp[1] - covGp[1],
                                 cov2Gp[2] - covGp[2]);
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case -3:                 // 2-IsoPotential-Target
@@ -3809,13 +3787,13 @@ int potential_cov(Model *model,
           st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           covtab[0] = matrix_UV(ndim, tx1[0], tx1[1], tx1[2], cov2Gp[0],
                                 cov2Gp[1], cov2Gp[2]);
-          *n2 = 1;
+          n2 = 1;
           break;
       }
       break;
 
     case 3:                     // 1-IsoPotential
-      *n1 = 1;
+      n1 = 1;
       switch (type2)
       {
         case 1:                 // 2-Gradient
@@ -3828,7 +3806,7 @@ int potential_cov(Model *model,
           st_cov(model, 1, dd[0], dd[1], dd[2], covar, cov2Gp, covGG);
           for (idim = 0; idim < ndim; idim++)
             covtab[idim] = covGp[idim] - cov2Gp[idim];
-          *n2 = ndim;
+          n2 = ndim;
           break;
 
         case 2:                 // 2-Tangent
@@ -3841,7 +3819,7 @@ int potential_cov(Model *model,
           covtab[0] = matrix_UV(ndim, tx2[0], tx2[1], tx2[2],
                                 cov2Gp[0] - covGp[0], cov2Gp[1] - covGp[1],
                                 cov2Gp[2] - covGp[2]);
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case 3:                 // 2-IsoPotential
@@ -3858,7 +3836,7 @@ int potential_cov(Model *model,
             dd[idim] = x20[idim] - x10[idim];
           st_cov(model, 0, dd[0], dd[1], dd[2], covar4, covGp, covGG);
           covtab[0] = covar1 - covar2 - covar3 + covar4;
-          *n2 = 1;
+          n2 = 1;
           break;
 
         case -3:                 // 2-IsoPotential-Target
@@ -3869,7 +3847,7 @@ int potential_cov(Model *model,
             dd[idim] = x2p[idim] - x10[idim];
           st_cov(model, 0, dd[0], dd[1], dd[2], covar2, covGp, covGG);
           covtab[0] = covar1 - covar2;
-          *n2 = 1;
+          n2 = 1;
           break;
       }
       break;
@@ -3877,7 +3855,7 @@ int potential_cov(Model *model,
 
   /* Printout (verbose option) */
 
-  if (VERBOSE) print_matrix("Covariance", 0, 1, *n2, *n1, NULL, covtab);
+  if (VERBOSE) print_matrix("Covariance", 0, 1, n2, n1, NULL, covtab.data());
 
   return (0);
 }

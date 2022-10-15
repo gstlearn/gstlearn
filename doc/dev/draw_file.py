@@ -39,7 +39,8 @@ filetaux = gl.ASerializable.getFileIdentity(fileaux)
 
 if filetype == "Db":
     db = gl.Db.createFromNF(filename,False)
-    if invalid(ranks, db.getColumnNumber()): exit()
+    if invalid(ranks, db.getColumnNumber()): 
+        exit()
     if len(ranks) == 0:
         name = db.getLastName()
         flagDb = True
