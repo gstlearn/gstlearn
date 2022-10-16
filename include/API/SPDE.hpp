@@ -33,6 +33,7 @@ public:
             const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND,
             const AMesh* mesh = nullptr);
   void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
+  void computeLk() const;
   void computeKriging() const;
   void computeSimuNonCond(int nbsimus = 1, int seed = 131323) const;
   void computeSimuCond(int nbsimus = 1, int seed = 131323) const;
@@ -50,6 +51,8 @@ public:
   const PrecisionOpMultiConditional* getPrecisionKriging() const { return _precisionsKriging;}
   double computeQuad() const;
   const Db* getData() const {return  _data;}
+
+
 private:
   void _computeDriftCoeffs() const;
   void _purge();
@@ -65,9 +68,11 @@ private:
   bool _calculKriging() const
   {
     return ((_calcul == ESPDECalcMode::SIMUCOND
-          || _calcul == ESPDECalcMode::KRIGING)
+          || _calcul == ESPDECalcMode::KRIGING
+          || _calcul == ESPDECalcMode::LIKELIHOOD)
           && _data != nullptr);
   }
+  
 
 private:
   const Db*_data;
