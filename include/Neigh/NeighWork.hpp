@@ -65,7 +65,8 @@ private:
                            int iech_out,
                            VectorInt& ranks,
                            bool verbose = false);
-  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks, int iech_out);
+  void _updateColCok(const VectorInt& rankColCok, VectorInt& ranks, int iech_out);;
+  bool _hiddenByFault(Db* dbout, int iech, int iech_out) const;
 
 private:
   const Db* _dbin;

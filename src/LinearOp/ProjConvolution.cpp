@@ -188,17 +188,14 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 
   if (_getNMultProd() == 1 && true)  // DR: modif pour provoquer le passage dans nouveau code
   {
-    message("on passe par le code reference\n");
     if (_mesh2pointRef(valonvertex, valonseismic)) return 1;
   }
   else if (_getNDim() == 2)
   {
-    message("on passe par le nouveau code a 2-D\n");
     if (_mesh2point2D(valonvertex, valonseismic)) return 1;
   }
   else
   {
-    message("on passe par le nouveau code a 3-D\n");
     if (_mesh2point3D(valonvertex, valonseismic)) return 1;
   }
 
@@ -245,10 +242,10 @@ void ProjConvolution::_getWeights(int ixm, int iym, VectorDouble& wgt) const
   else
   {
     double wy = _weighty[iym];
-    wgt[0] = wx * wy;
+    wgt[0] = wx        * wy;
     wgt[1] = (1. - wx) * wy;
     wgt[2] = (1. - wx) * ( 1. - wy);
-    wgt[3] = wx * (1. - wy);
+    wgt[3] = wx        * (1. - wy);
   }
 }
 

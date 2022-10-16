@@ -15,6 +15,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
+#include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
 
 #include <math.h>
@@ -31,7 +32,8 @@ NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
       _radius(0.),
       _distCont(TEST),
       _anisoCoeffs(),
-      _anisoRotMat()
+      _anisoRotMat(),
+      _faults(nullptr)
 {
 }
 
@@ -47,7 +49,8 @@ NeighMoving::NeighMoving(const NeighMoving& r)
       _radius(r._radius),
       _distCont(r._distCont),
       _anisoCoeffs(r._anisoCoeffs),
-      _anisoRotMat(r._anisoRotMat)
+      _anisoRotMat(r._anisoRotMat),
+      _faults(r._faults)
 {
 }
 
@@ -67,6 +70,7 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
     _distCont = r._distCont;
     _anisoCoeffs = r._anisoCoeffs;
     _anisoRotMat = r._anisoRotMat;
+    _faults = r._faults;
    }
   return *this;
 }
@@ -84,7 +88,8 @@ int NeighMoving::reset(int ndim,
                        int nsmax,
                        VectorDouble coeffs,
                        VectorDouble angles,
-                       double distcont)
+                       double distcont,
+                       const Faults* faults)
 {
   setNDim(ndim);
   setFlagXvalid(flag_xvalid);
@@ -98,7 +103,7 @@ int NeighMoving::reset(int ndim,
 
   if (! coeffs.empty())
   {
-//    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
+    //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
     _flagAniso = 1;
     _anisoCoeffs = coeffs;
 
@@ -109,6 +114,10 @@ int NeighMoving::reset(int ndim,
       ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
     }
   }
+
+  // Attach the Faults (if defined)
+
+  _faults = faults;
   return 0;
 }
 
@@ -302,11 +311,12 @@ NeighMoving* NeighMoving::create(int ndim,
                                  int nsmax,
                                  VectorDouble coeffs,
                                  VectorDouble angles,
-                                 double distcont)
+                                 double distcont,
+                                 const Faults* faults)
 {
   NeighMoving* neighM = new NeighMoving;
   if (neighM->reset(ndim, flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                    coeffs, angles, distcont))
+                    coeffs, angles, distcont, faults))
   {
     messerr("Problem when creating Moving NeighMovingborhood");
     delete neighM;

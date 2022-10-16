@@ -392,7 +392,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                 if mymodel is not None:
                     codir = vario.getCodir(idirUtil)
                     model(mymodel, ivar=iv, jvar=jv, codir=codir, 
-                          color=cols(idirUtil), linestyle=linestylem, color0=color0, linestyle0=linestyle0, ax=ax,
+                          color=cols(idirUtil), linestyle=linestylem, 
+                          color0=color0, linestyle0=linestyle0, ax=ax,
                           hmax=hmax, gmax=None, nh=nh,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
@@ -535,16 +536,17 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     return ax
 
 def point(db, 
-          color_name=None, size_name=None, label_name=None, usesel=True, 
+          color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
-          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='equal',
+          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
     color_name: Name of the variable containing the color per sample
     size_name: Name of the variable containing the size per sample
+    elev1D_name: Name of the variable standing for Y coordinate in 1-D case
     label_name: Name of the variable containing the label per sample
     usesel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'color_name' is not defined)
@@ -571,7 +573,10 @@ def point(db,
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
-    taby = db.getCoordinates(1,usesel)
+    if db.getNDim() > 1:
+        taby = db.getCoordinates(1,usesel)
+    else:
+        taby = db.getColumn(elev1D_name, usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
         return
     
@@ -618,8 +623,95 @@ def point(db,
 
     return ax
 
+def gradient(db, elev1D_name=None, usesel=True, color='black', scale=20, 
+             xlim=None, ylim=None, aspect=None,
+             title=None, ax=None, figsize=None, end_plot=False):
+    '''Function for plotting a gradient data base
+    
+    db: Db containing the variable to be plotted
+    usesel : Boolean to indicate if the selection has to be considered
+    color: Constant color 
+    scale: Constant scale
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    '''
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
 
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
+    # Extracting coordinates
+    tabx  = db.getCoordinates(0,usesel)
+    if db.getNDim() > 1:
+        taby  = db.getCoordinates(1,usesel)
+    else:
+        taby = db.getColumn(elev1D_name, usesel)
+
+    if db.getNDim() > 1:
+        tabgx = db.getGradients(0,usesel)
+        tabgy = db.getGradients(1,usesel)
+    else:
+        tabgy = -db.getGradients(0,usesel)
+        tabgx = -np.ones(len(tabgy))
+
+    if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
+        return
+    
+    ax.quiver(tabx, taby, -tabgx, -tabgy, angles='xy', color=color, scale=scale)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+
+def tangent(db, usesel=True, color='black', scale=20, 
+            xlim=None, ylim=None, aspect=None,
+            title=None, ax=None, figsize=None, end_plot=False):
+    '''Function for plotting a tangent data base
+    
+    db: Db containing the variable to be plotted
+    usesel : Boolean to indicate if the selection has to be considered
+    color: Constant color 
+    scale: Constant scale
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    '''
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+
+    # Extracting coordinates
+    tabx  = db.getCoordinates(0,usesel)
+    taby  = db.getCoordinates(1,usesel)
+    tabtx = db.getTangents(0,usesel)
+    tabty = db.getTangents(1,usesel)
+
+    if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
+        return
+    
+    ax.quiver(tabx, taby, -tabtx, -tabty, color=color, scale=scale)
+    ax.quiver(tabx, taby,  tabtx,  tabty, color=color, scale=scale)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
     '''Function to display a polygon
@@ -659,9 +751,10 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
         
     return ax
         
-def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
+def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, posx=0, posy=1, corner=None, 
-         flagIsoLine=False, levels=[0],
+         levels=None, colorL='black', linestyleL = 'solid', 
+         flagRaster=True,
          title = None, ax=None, figsize = None, end_plot=False, 
          **plot_args):
     '''
@@ -722,11 +815,15 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
         print("The argument shading should be either 'nearest' for cells centered on (x,y)"
               " or 'flat' for cells with low-left corner in (x,y)")
 
-    im = ax.pcolormesh(X, Y, data, **plot_args)
-    im.set_transform(trans_data)
+    if flagRaster:
+        im = ax.pcolormesh(X, Y, data, **plot_args)
+        im.set_transform(trans_data)
+        
+        if flagColorBar:
+            addColorbar(im, ax)
     
-    if flagIsoLine:
-        ax.contour(X, Y, data, levels)
+    if levels is not None:
+        ax.contour(X, Y, data, levels, colors=colorL, linestyles=linestyleL)
         
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
@@ -737,9 +834,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     if title is None:
         title = dbgrid.getNames(name)[0]
         
-    if flagColorBar:
-        addColorbar(im, ax)
-    
     drawDecor(ax, title=title, aspect=aspect)
     
     if end_plot:
@@ -747,7 +841,7 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     return ax
 
-def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
+def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None,
          color='black',flagLegend=False, label='curve',
          title = None, ax=None, figsize = None, end_plot=False, 
@@ -947,7 +1041,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
     
     return ax
 
-def sample(sample, xlim=None, ylim=None, aspect='equal',
+def sample(sample, xlim=None, ylim=None, aspect=None,
            color='black', marker='o', markersize=10,
            flagLegend=False,
            title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
@@ -1024,7 +1118,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     return ax
 
 def mesh(mesh, 
-         flagEdge=True, flagFace=False, flagApex=False, aspect='equal',
+         flagEdge=True, flagFace=False, flagApex=False, aspect=None,
          xlim=None, ylim=None, facecolor="yellow", edgecolor="blue", linewidth=1,
          title=None, ax=None, figsize = None, end_plot =False, **plot_args):
     """
@@ -1214,7 +1308,7 @@ def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
 
 ### Plot several variables at once
 
-def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
+def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, norm=None,
          title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
@@ -1346,7 +1440,7 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto
         
     return axs
 
-def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='equal',
+def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
                xlim=None, ylim=None, color='r', sizmin=20, sizmax=200,
                title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''

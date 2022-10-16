@@ -396,11 +396,13 @@ public:
   int    getGradientNumber() const;
   bool   hasGradient() const;
   double getGradient(int iech, int item) const;
+  VectorDouble getGradients(int item, bool useSel = false) const;
   void   setGradient(int iech, int item, double value);
 
   int    getTangentNumber() const;
   bool   hasTangent() const;
   double getTangent(int iech, int item) const;
+  VectorDouble getTangents(int item, bool useSel = false) const;
   void   setTangent(int iech, int item, double value);
 
   int    getProportionNumber() const;

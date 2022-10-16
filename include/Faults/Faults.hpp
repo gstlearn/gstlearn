@@ -31,6 +31,9 @@ public:
   int getNFaults() const { return (int) _faults.size(); }
   void addFault(const PolyLine2D& fault);
 
+  std::vector<PolyLine2D> getFaults() const { return _faults; }
+  const PolyLine2D getFault(int ifault) const { return _faults[ifault]; }
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

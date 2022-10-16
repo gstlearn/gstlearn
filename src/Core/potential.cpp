@@ -884,22 +884,6 @@ static int st_update_tangent(Db *dbtgt, Pot_Env *pot_env)
   pot_env->ntgt = ntgt;
   pot_env->size_tgt = ntgt;
 
-  /* Optional printout */
-
-  if (VERBOSE)
-  {
-    mestitle(0, "Tangent information");
-    for (int it = 0; it < pot_env->ntgt; it++)
-    {
-      message("Tangent-%d: Coor=(", it + 1);
-      for (int idim = 0; idim < dbtgt->getNDim(); idim++)
-        message(" %lf", TGT_COO(it, idim));
-      message(") - Tangent=(");
-      for (int idim = 0; idim < dbtgt->getNDim(); idim++)
-        message(" %lf", TGT_VAL(it, idim));
-      message(")\n");
-    }
-  }
   return (0);
 }
 
@@ -1350,9 +1334,9 @@ static int st_build_lhs(Pot_Env *pot_env,
     for (int ig = 0; ig < pot_env->ngrd; ig++)
     {
       st_cov(model, 1,
-             TGT_COO(it,0) - GRD_COO(ig, 0),
-             TGT_COO(it,1) - GRD_COO(ig, 1),
-             TGT_COO(it,2) - GRD_COO(ig, 2),
+             TGT_COO(it, 0) - GRD_COO(ig, 0),
+             TGT_COO(it, 1) - GRD_COO(ig, 1),
+             TGT_COO(it, 2) - GRD_COO(ig, 2),
              covar, covGp, covGG);
 
       set_lhs(lhs, nequa, TGT(it), GRX(ig),
@@ -1378,8 +1362,8 @@ static int st_build_lhs(Pot_Env *pot_env,
 
       set_lhs(lhs, nequa, TGT(it), TGT(jt),
           matrix_UAV(ndim, covGG.data(),
-                     TGT_VAL(it, 0), TGT_VAL(it, 1),TGT_VAL(it, 2),
-                     TGT_VAL(jt, 0), TGT_VAL(jt, 1),TGT_VAL(jt, 2)));
+                     TGT_VAL(it, 0), TGT_VAL(it, 1), TGT_VAL(it, 2),
+                     TGT_VAL(jt, 0), TGT_VAL(jt, 1), TGT_VAL(jt, 2)));
     }
     st_cov(model, 1, 0., 0., 0., covar, covGp, covGG);
     set_lhs(lhs, nequa, TGT(it), TGT(it),
@@ -2228,7 +2212,7 @@ static void st_estimate_data(Pot_Env *pot_env,
 
     // Center to the reference potential
 
-    if (! FFFF(refpot)) result[0] -= refpot;
+    result[0] -= refpot;
 
     // Store the results
 
@@ -3168,10 +3152,10 @@ int potential_kriging(Db *dbiso,
                      model, refpot, zdual, rhs,
                      dbiso, uid_iso_pot, uid_iso_grad);
     st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
-                     model, TEST, zdual, rhs,
+                     model, refpot, zdual, rhs,
                      dbgrd, uid_grd_pot, uid_grd_grad);
     st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
-                     model, TEST, zdual, rhs,
+                     model, refpot, zdual, rhs,
                      dbtgt, uid_tgt_pot, uid_tgt_grad);
   }
 
