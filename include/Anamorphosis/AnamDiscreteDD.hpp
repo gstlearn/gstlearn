@@ -13,8 +13,9 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Enum/EAnam.hpp"
+
 #include "Anamorphosis/AnamDiscrete.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Stats/PCA.hpp"

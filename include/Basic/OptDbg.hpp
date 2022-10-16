@@ -12,7 +12,8 @@
 
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
-#include "EDbg.hpp"
+
+#include "Enum/EDbg.hpp"
 
 /**
  * Operate the list of active Debug options

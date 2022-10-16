@@ -13,9 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
+#include "Enum/EAnam.hpp"
+
 #include "Basic/ASerializable.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
-#include "Anamorphosis/EAnam.hpp"
 
 class GSTLEARN_EXPORT AnamEmpirical: public AnamContinuous
 {

@@ -8,6 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ENeigh.hpp"
+
 #include "Gibbs/GibbsFactory.hpp"
 #include "Gibbs/GibbsUMultiMono.hpp"
 #include "Gibbs/GibbsUMulti.hpp"
@@ -15,7 +17,6 @@
 #include "Gibbs/GibbsMMulti.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
-#include "Neigh/ENeigh.hpp"
 #include "Basic/AStringable.hpp"
 #include "Db/Db.hpp"
 

@@ -12,10 +12,9 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
-#include "Basic/EJustify.hpp"
-
 #include "geoslib_define.h"
-// Put it in the header because inherited objects will need it
+#include "Enum/EJustify.hpp"
+
 #include <sstream>
 
 class cs;

@@ -13,16 +13,18 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/EDrift.hpp"
+#include "Enum/EConsElem.hpp"
+#include "Enum/EModelProperty.hpp"
+
 #include "Covariances/CovContext.hpp"
 #include "Covariances/ACovAnisoList.hpp"
+#include "Covariances/CovLMGradient.hpp"
 
-#include "Drifts/EDrift.hpp"
 #include "Drifts/DriftList.hpp"
 
-#include "Model/EModelProperty.hpp"
-#include "Model/EConsElem.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Model/Option_VarioFit.hpp"
 #include "Model/Constraints.hpp"
@@ -102,6 +104,7 @@ public:
   bool   isFlagGradientFunctional() const;
   bool   isFlagLinked() const;
   CovAniso extractCova(int icov) const { return _covaList->extractCova(icov); }
+  void   switchToGradient();
 
   ////////////////////////////////////////////////
   /// TODO : to be removed (encapsulation of ACovAnisoList)
@@ -307,6 +310,29 @@ public:
   {
     return _covaList->specificVolumeFromCoV(db, cov, mean, ext, ndisc, angles, x0, ivar, jvar);
   }
+  void evalZAndGradients(const SpacePoint& p1,
+                         const SpacePoint& p2,
+                         double& covVal,
+                         VectorDouble& covGp,
+                         VectorDouble& covGG,
+                         const CovCalcMode& mode = CovCalcMode(),
+                         bool flagGrad = false) const
+  {
+    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
+    if (covgrad != nullptr)
+      covgrad->evalZAndGradients(p1, p2, covVal, covGp, covGG, mode, flagGrad);
+  }
+  void evalZAndGradients(const VectorDouble& vec,
+                         double& covVal,
+                         VectorDouble& covGp,
+                         VectorDouble& covGG,
+                         const CovCalcMode& mode = CovCalcMode(),
+                         bool flagGrad = false) const
+  {
+    CovLMGradient* covgrad = dynamic_cast<CovLMGradient *>(_covaList);
+    if (covgrad != nullptr)
+      covgrad->evalZAndGradients(vec, covVal, covGp, covGG, mode, flagGrad);
+  }
 
   void setSill(int icov, int ivar, int jvar, double value);
   void setCovaFiltered(int icov, bool filtered);
@@ -393,9 +419,11 @@ public:
 
   int getVariableNumber() const
   {
-    if (isFlagGradient())
-      return 3; // This strange number of variables is linked to the Gradient calculation
-    else
+    // TODO/ the strange next line have been commented out.
+    // There should be either validated or supressed
+//    if (isFlagGradient())
+//      return 3; // This strange number of variables is linked to the Gradient calculation
+//    else
       return _ctxt.getNVar();
   }
 
@@ -414,6 +442,7 @@ public:
                       int jvar = 0,
                       VectorDouble codir = VectorDouble(),
                       int norder = 0,
+                      bool asCov = false,
                       bool addZero = false);
 
   // TODO : Remove Model::fit duplicate declaration

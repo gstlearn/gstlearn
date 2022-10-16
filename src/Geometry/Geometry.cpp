@@ -5,8 +5,10 @@
  *      Author: drenard
  */
 #include "geoslib_f.h"
+
+#include "Enum/ERotation.hpp"
+
 #include "Geometry/Geometry.hpp"
-#include "Geometry/ERotation.hpp"
 #include "Basic/Utilities.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
@@ -719,7 +721,7 @@ double ut_geodetic_triangle_surface(double long1,
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-int is_in_spherical_triangle_optimized(const double *coor,
+int ut_is_in_spherical_triangle_optimized(const double *coor,
                                        double *ptsa,
                                        double *ptsb,
                                        double *ptsc,
@@ -799,16 +801,16 @@ int is_in_spherical_triangle_optimized(const double *coor,
  ** \param[out]   xint,yint  Coordinates of the intersection
  **
  *****************************************************************************/
-int segment_intersect(double xd1,
-                      double yd1,
-                      double xe1,
-                      double ye1,
-                      double xd2,
-                      double yd2,
-                      double xe2,
-                      double ye2,
-                      double *xint,
-                      double *yint)
+int ut_segment_intersect(double xd1,
+                         double yd1,
+                         double xe1,
+                         double ye1,
+                         double xd2,
+                         double yd2,
+                         double xe2,
+                         double ye2,
+                         double *xint,
+                         double *yint)
 {
   double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
 
@@ -894,6 +896,99 @@ int segment_intersect(double xd1,
 
 /****************************************************************************/
 /*!
+ **  Check if two 2-D segments intersect
+ **
+ ** \return True if there is an intersection; False otherwise
+ **
+ ** \param[in]  xd1,yd1     Starting point for the first segment
+ ** \param[in]  xe1,ye1     Ending point for the first segment
+ ** \param[in]  xd2,yd2     Starting point for the second segment
+ ** \param[in]  xe2,ye2     Ending point for the second segment
+ **
+ *****************************************************************************/
+bool ut_is_segment_intersect(double xd1,
+                        double yd1,
+                        double xe1,
+                        double ye1,
+                        double xd2,
+                        double yd2,
+                        double xe2,
+                        double ye2)
+{
+  double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
+
+  /* Preliminary check */
+
+  b1 = ye1 - yd1;
+  b2 = ye2 - yd2;
+
+  /* Case of two horizontal segments */
+
+  if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
+  {
+    if (ABS(ye1 - ye2) > EPSILON10) return false;
+    x1m = MIN(xd1, xe1);
+    x1M = MAX(xd1, xe1);
+    x2m = MIN(xd2, xe2);
+    x2M = MAX(xd2, xe2);
+    if (x1m > x2M || x2m > x1M) return false;
+    return true;
+  }
+
+  /* Case of the horizontal first segment */
+
+  if (ABS(b1) < EPSILON10)
+  {
+    y = ye1;
+    x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
+    if ((x - xd1) * (x - xe1) > 0) return false;
+    if ((y - yd1) * (y - ye1) > 0) return false;
+    if ((x - xd2) * (x - xe2) > 0) return false;
+    if ((y - yd2) * (y - ye2) > 0) return false;
+    return true;
+  }
+
+  /* Case of horizontal second segment */
+
+  if (ABS(b2) < EPSILON10)
+  {
+    y = ye2;
+    x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+    if ((x - xd1) * (x - xe1) > 0) return false;
+    if ((y - yd1) * (y - ye1) > 0) return false;
+    if ((x - xd2) * (x - xe2) > 0) return false;
+    if ((y - yd2) * (y - ye2) > 0) return false;
+    return true;
+  }
+
+  /* This operation is safe as end-point ordinates cannot be equal */
+
+  a1 = (xe1 - xd1) / b1;
+  a2 = (xe2 - xd2) / b2;
+
+  /* Skip the case of parallel segments */
+
+  if (ABS(a1 - a2) < EPSILON10) return false;
+  y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
+
+  /* Discard intersection if located outside the segment */
+
+  if (ABS(b1) > 0)
+  {
+    testval = (y - yd1) * (y - ye1);
+    if (testval > 0) return false;
+  }
+  if (ABS(b2) > 0)
+  {
+    testval = (y - yd2) * (y - ye2);
+    if (testval > 0) return false;
+  }
+
+  return true;
+}
+
+/****************************************************************************/
+/*!
  **  Is a point inside a spherical triangle
  **
  ** \return 1 if the point belongs to the spherical triangle; 0 otherwise
@@ -907,7 +1002,7 @@ int segment_intersect(double xd1,
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-int is_in_spherical_triangle(double *coor,
+int ut_is_in_spherical_triangle(double *coor,
                              double surface,
                              double *pts1,
                              double *pts2,
@@ -980,7 +1075,7 @@ void ut_rotation_direction(double ct, double st, double *a, double *codir)
  * @param radius_arg    Radius (if note defined, taken from variety definition)
  * @return
  */
-VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
+VectorVectorDouble ut_convert_longlat(const VectorDouble& longitude,
                                         const VectorDouble& latitude,
                                         double dilate,
                                         double radius_arg)
@@ -1040,7 +1135,7 @@ VectorVectorDouble util_convert_longlat(const VectorDouble& longitude,
  ** \param[out] rlat  Latitude (in degrees)
  **
  *****************************************************************************/
-void util_convert_cart2sph(double x,
+void ut_convert_cart2sph(double x,
                            double y,
                            double z,
                            double *rlong,
@@ -1088,7 +1183,7 @@ void util_convert_cart2sph(double x,
  ** \param[out] z     Third cartesian coordinate
  **
  *****************************************************************************/
-void util_convert_sph2cart(double rlong,
+void ut_convert_sph2cart(double rlong,
                            double rlat,
                            double *x,
                            double *y,
@@ -1161,7 +1256,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
  * @param dzoverdx Partial derivative along X
  * @param dzoverdy Partial derivative along Y
  */
-MatrixSquareGeneral util_gradXYToRotmat(double dzoverdx, double dzoverdy)
+MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
 {
   int ndim = 3;
   VectorDouble axis(ndim,0.);
@@ -1218,7 +1313,7 @@ MatrixSquareGeneral util_gradXYToRotmat(double dzoverdx, double dzoverdy)
  * @remark The code is coming from the following reference (BSD license)
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
-VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
+VectorDouble ut_rotmatToEuler(const MatrixSquareGeneral &M,
                                 const ERotation &convrot,
                                 double eps)
 {
@@ -1292,7 +1387,7 @@ VectorDouble util_rotmatToEuler(const MatrixSquareGeneral &M,
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
 
-MatrixSquareGeneral util_EulerToRotmat(const VectorDouble &angles,
+MatrixSquareGeneral ut_EulerToRotmat(const VectorDouble &angles,
                                        const ERotation& convrot)
 {
   int firstaxis, parity, repetition, frame;

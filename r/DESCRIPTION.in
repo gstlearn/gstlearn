@@ -4,7 +4,8 @@ Version: @PROJECT_VERSION@
 Date: @PROJET_DATE@
 Author: Team gstlearn <gstlearn@groupes.mines-paristech.fr>,
 Depends:
-    R (>= 3.6),
+    R (>= 3.6)
+Suggests:
     ggplot2,
     ggpubr
 Description: @PROJECT_DESCRIPTION@

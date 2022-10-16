@@ -13,6 +13,8 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 
+#include "Enum/ECov.hpp"
+
 #include "Variogram/Vario.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
@@ -23,7 +25,6 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 

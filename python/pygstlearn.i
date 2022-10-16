@@ -222,6 +222,7 @@
           vec.push_back(value);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 
@@ -260,6 +261,7 @@
           vvec.push_back(vec);
       }
     }
+    // else size is zero (empty vector)
     return myres;
   }
 }
@@ -972,33 +974,4 @@ setattr(gl.Db,"__getitem__",getdbitem)
 
 setattr(gl.Db,"__setitem__",setdbitem)
 
-
-## Add plot functions as methods of the class ##
-## ------------------------------------------ ##
-
-import gstlearn.plot as gp
-
-setattr(gl.Db,"plot", gp.point)
-setattr(gl.Db,"plot_correlation", gp.correlation)
-setattr(gl.Db,"plot_hist", gp.hist)
-setattr(gl.Db,"color_plots", gp.color_plots)
-setattr(gl.Db,"size_plots", gp.size_plots)
-
-setattr(gl.DbGrid,"plot", gp.grid)
-setattr(gl.DbGrid,"plot_grids", gp.grids)
-setattr(gl.DbGrid,"plot_point", gp.point)
-# plot_correlation and plot_hist are already inherited from the parent class Db
-
-setattr(gl.Vario,"plot", gp.vario)
-setattr(gl.Vario,"plot_varioElem", gp.varioElem)
-setattr(gl.Vario,"plot_varioDir", gp.varioDir)
-setattr(gl.Vario,"plot_varmod", gp.varmod)
-
-setattr(gl.Model,"plot", gp.model)
-
-setattr(gl.Rule,"plot", gp.rule)
-
-setattr(gl.Table,"plot", gp.table)
-
-setattr(gl.Polygons,"plot", gp.polygon)
 %}

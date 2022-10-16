@@ -475,7 +475,7 @@ int db_coorvec_put(Db *db, int idim, double *tab)
     {
       int icol = db->getColIdxByLocator(ELoc::X, idim);
       if (!db->isColIdxValid(icol)) return (1);
-      db->setByColIdx(iech, icol, tab[iech]);
+      db->setValueByColIdx(iech, icol, tab[iech]);
     }
   }
   return (0);

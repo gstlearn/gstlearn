@@ -928,11 +928,11 @@ void Grid::dilate(int mode,
  ** \param[out] x0    Array of grid origins
  **
  *****************************************************************************/
-void Grid::multiple(const VectorInt& nmult,
-                     int flag_cell,
-                     VectorInt& nx,
-                     VectorDouble& dx,
-                     VectorDouble& x0) const
+void Grid::multiple(const VectorInt &nmult,
+                    int flag_cell,
+                    VectorInt &nx,
+                    VectorDouble &dx,
+                    VectorDouble &x0) const
 {
   int ndim = _nDim;
   VectorInt indg(ndim);
@@ -1056,6 +1056,7 @@ int Grid::getMirrorIndex(int idim, int ix) const
 {
   return generateMirrorIndex(_nx[idim], ix);
 }
+
 /****************************************************************************/
 /*!
  **  Returns an array giving the ranks of the nodes (according to user's order)
@@ -1107,8 +1108,14 @@ VectorInt Grid::generateGridIndices(const VectorInt& nx,
     tab2[i] = dlp.tab[ind[i]];
     if (startFromZero) tab2[i] -= 1;
   }
-
   return (tab2);
+}
+
+VectorInt Grid::generateGridIndices(const String &string,
+                                    bool startFromZero,
+                                    bool verbose)
+{
+  return generateGridIndices(getNXs(), string, startFromZero, verbose);
 }
 
 /****************************************************************************/

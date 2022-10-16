@@ -11,9 +11,12 @@
 #include "geoslib_old_f.h"
 
 #include "Enum/EKrigOpt.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ELoc.hpp"
+#include "Enum/ENeigh.hpp"
+
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Db/ELoc.hpp"
 #include "Db/PtrGeos.hpp"
 #include "Model/Model.hpp"
 #include "Model/ANoStat.hpp"
@@ -22,13 +25,11 @@
 #include "Neigh/NeighImage.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighWork.hpp"
-#include "Neigh/ENeigh.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Covariances/ECalcMember.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -217,7 +218,7 @@ int KrigingSystem::_getNVar() const
 
 int KrigingSystem::_getNVarCL() const
 {
-  if (_matCL.empty())
+  if (_isMatCLempty())
     return _getNVar();
   else
     return (int) _matCL.size();
@@ -441,7 +442,7 @@ double KrigingSystem::_getVerr(int rank, int ivar) const
 double KrigingSystem::_getMean(int ivarCL) const
 {
   double value = 0.;
-  if (_matCL.empty())
+  if (_isMatCLempty())
   {
     value = _model->getMean(ivarCL);
   }
@@ -1025,7 +1026,7 @@ int KrigingSystem::_rhsCalcul()
 
     /* Storage */
 
-    if (_matCL.empty())
+    if (_isMatCLempty())
     {
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
@@ -1052,7 +1053,7 @@ int KrigingSystem::_rhsCalcul()
   for (int il = 0; il < nbfl; il++)
     if (FFFF(_drftab[il])) return 1;
 
-  if (_matCL.empty())
+  if (_isMatCLempty())
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int ib = 0; ib < nfeq; ib++)
@@ -1661,7 +1662,7 @@ void KrigingSystem::_variance0()
 
   /* Storage */
 
-  if (_matCL.empty())
+  if (_isMatCLempty())
   {
     for (int ivar = 0; ivar < nvar; ivar++)
       for (int jvar = 0; jvar < nvar; jvar++)
@@ -2395,7 +2396,7 @@ int KrigingSystem::setKrigOptBayes(bool flag_bayes,
  */
 int KrigingSystem::setKrigOptMatCL(const VectorVectorDouble& matCL)
 {
-  if (matCL.empty()) return 0;
+  if (_isMatCLempty()) return 0;
   _isReady = false;
   int n1 = (int) matCL.size();
   int n2 = (int) matCL[0].size();
@@ -3651,3 +3652,10 @@ int KrigingSystem::_getFlagAddress(int iech0, int ivar0)
   return rank;
 }
 
+bool KrigingSystem::_isMatCLempty() const
+{
+  if (_matCL.empty()) return true;
+  int size = (int) _matCL.size();
+  if (size == 1 && _matCL[0].empty()) return true;
+  return false;
+}

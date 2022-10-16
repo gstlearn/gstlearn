@@ -13,22 +13,25 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 #include "Geometry/Rotation.hpp"
-#include "Matrix/MatrixSquareGeneral.hpp"
+//#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AStringable.hpp"
 
 class GridOld;
+//class VectorInt;
+//class VectorDouble;
+class MatrixSquareGeneral;
 
 class GSTLEARN_EXPORT Grid : public AStringable
 {
 
 public:
   Grid(int ndim = 0,
-        const VectorInt& nx    = VectorInt(),
-        const VectorDouble& x0 = VectorDouble(),
-        const VectorDouble& dx = VectorDouble());
+       const VectorInt &nx = VectorInt(),
+       const VectorDouble &x0 = VectorDouble(),
+       const VectorDouble &dx = VectorDouble());
   Grid(const Grid &r);
-  Grid& operator= (const Grid &r);
-	virtual ~Grid();
+  Grid& operator=(const Grid &r);
+  virtual ~Grid();
 
 public:
   static VectorInt generateGridIndices(const VectorInt& nx,
@@ -104,6 +107,9 @@ public:
                        bool centered = false,
                        double eps = EPSILON6) const;
   VectorInt getCenterIndices() const;
+  VectorInt generateGridIndices(const String &string,
+                                bool startFromZero = true,
+                                bool verbose = false);
   bool sampleBelongsToCell(const VectorDouble &coor,
                            int node,
                            const VectorDouble &dxsPerCell) const;

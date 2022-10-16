@@ -12,15 +12,16 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Enum/EAnam.hpp"
+#include "Enum/EConvDir.hpp"
+#include "Enum/EConvType.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Covariances/CovLMC.hpp"
-#include "Covariances/EConvType.hpp"
-#include "Covariances/EConvDir.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamDiscreteDD.hpp"
 #include "Anamorphosis/AnamDiscreteIR.hpp"
-#include "Anamorphosis/EAnam.hpp"
 
 class ASpace;
 class SpacePoint;
@@ -33,7 +34,7 @@ public:
   CovLMCAnamorphosis(const AAnam* anam,
                      const VectorInt& strcnt = VectorInt(),
                      const ASpace* space = nullptr);
-  CovLMCAnamorphosis(const CovLMC* lmc,
+  CovLMCAnamorphosis(const CovLMC& lmc,
                      const AAnam* anam,
                      const VectorInt& strcnt);
   CovLMCAnamorphosis(const CovLMCAnamorphosis &r);

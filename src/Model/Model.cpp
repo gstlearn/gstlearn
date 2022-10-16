@@ -12,6 +12,9 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
+#include "Enum/ECov.hpp"
+#include "Enum/EModelProperty.hpp"
+
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
@@ -29,12 +32,10 @@
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Covariances/CovGradientFunctional.hpp"
-#include "Covariances/ECov.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Drifts/ADriftElem.hpp"
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Model/EModelProperty.hpp"
 #include "Db/Db.hpp"
 #include "Geometry/Geometry.hpp"
 
@@ -521,6 +522,26 @@ int Model::addNoStat(const ANoStat *anostat)
 }
 
 /**
+ * Switch to a Model dedicated to Gradients
+ * (transforms it from CovLMC to CovLMGradient)
+ */
+void Model::switchToGradient()
+{
+  // If the Model is already dedicated to Gradient: do nothing
+  if (isFlagGradient()) return;
+
+  // If no covariance has been defined yet: do nothing
+  if (_covaList == nullptr)
+  {
+    _covaList = new CovLMGradient(_ctxt.getSpace());
+  }
+  else
+  {
+    _covaList = new CovLMGradient(*_covaList);
+  }
+}
+
+/**
  * Defining an Anamorphosis information for the Model
  * (in fact, this is added to ACovAnisoList part and transforms it from CovLMC to CovLMCAnamorphosis
  * @param anam Pointer to the anamorphosis
@@ -529,9 +550,14 @@ int Model::addNoStat(const ANoStat *anostat)
  */
 int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
 {
+  if (anam == nullptr)
+  {
+    messerr("You must define 'anam' beforehand");
+    return 1;
+  }
   if (hasAnam())
   {
-    // ACovAnisoList is already a covLmcAnamorphosis, simply update the anamorphosis
+    // ACovAnisoList is already a covLMCAnamorphosis, simply update the anamorphosis
     CovLMCAnamorphosis* cov = dynamic_cast<CovLMCAnamorphosis*>(_covaList);
     if (cov == nullptr)
     {
@@ -551,7 +577,7 @@ int Model::setAnam(const AAnam* anam, const VectorInt& strcnt)
     }
 
     // Initiate a new CovLMCAnamorphosis class
-    CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(cov, anam, strcnt);
+    CovLMCAnamorphosis* newcov = new CovLMCAnamorphosis(*cov, anam, strcnt);
 
     // Delete the current ACovAnisoList structure
     delete _covaList;
@@ -816,6 +842,7 @@ VectorDouble Model::evalDrifts(const Db* db,
  * @param codir  Vector of direction coefficients
  * @param nostd  0 standard; +-1 corr. envelop; ITEST normalized
  * @param addZero Add the zero distance location
+ * @param asCov  Produce the result as a Covariance (rather than a Variogram)
  *
  * @return The array of variogram evaluated at discretized positions
  * @return Note that its dimension is 'nh' (if 'addZero' is false and 'nh+1' otherwise)
@@ -826,6 +853,7 @@ VectorDouble Model::sample(double hmax,
                            int jvar,
                            VectorDouble codir,
                            int nostd,
+                           bool asCov,
                            bool addZero)
 {
   VectorDouble hh, gg;

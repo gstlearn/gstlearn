@@ -145,26 +145,19 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
+    if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
 
     // Conversion
     int myres = SWIG_OK;
     int size = (int)Rf_length(obj);
-    if (size < 0)
-    {
-      // Not a vector (TODO : we never pass here)
-      ValueType value;
-      // Try to convert
-      myres = convertToCpp(obj, value);
-      if (SWIG_IsOK(myres))
-        vec.push_back(value);
-    }
-    else if (size > 0)
+    if (size > 0)
     {
       // Real vector
       vec.reserve(size);
       for (int i = 0; i < size && SWIG_IsOK(myres); i++)
       {
-        SEXP item = getElem(obj,i); // item could be NULL
+        SEXP item = getElem(obj,i); // item could be NULL or NIL
+        if (TYPEOF(item) == NILSXP) continue; // If NIL, no error
         ValueType value;
         myres = convertToCpp(item, value);
         if (SWIG_IsOK(myres))
@@ -184,11 +177,12 @@
     
     // Test argument
     if (obj == NULL) return SWIG_TypeError;
-      
+    if (TYPEOF(obj) == EXTPTRSXP) return SWIG_TypeError;
+
     // Conversion
     int myres = SWIG_OK;
     int size = (int)Rf_length(obj);
-    if (size <= 1)
+    if (size == 1)
     {
       // Not a vector (or a single value)
       InputVector vec;
@@ -208,25 +202,28 @@
           vvec.push_back(vec);
       }
     }
+    // else length = 0, empty vector
     return myres;
   }
 }
 
 // Add typecheck typemaps for dispatching functions
-%typemap(rtypecheck, noblock=1) const int&, int                   { length($arg) == 1 && (is.integer($arg) || is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const double&, double             { length($arg) == 1 &&  is.numeric($arg) }
-%typemap(rtypecheck, noblock=1) const String&, String             { length($arg) == 1 &&  is.character($arg) }
-%typemap(rtypecheck, noblock=1) const float&, float               { length($arg) == 1 &&  is.character($arg) }
-%typemap(rtypecheck, noblock=1) const UChar&, UChar               { length($arg) == 1 && (is.integer($arg) || is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const bool&, bool                 { length($arg) == 1 &&  is.logical($arg) }
-%typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt       { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
-%typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorString&, VectorString { length($arg) == 0 || (length($arg)  > 1 &&  is.character($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorFloat&, VectorFloat   { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorUChar&, VectorUChar   { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
-%typemap(rtypecheck, noblock=1) const VectorBool&, VectorBool     { length($arg) == 0 || (length($arg)  > 1 && is.logical($arg)) }
-%typemap(rtypecheck, noblock=1) const VectorVectorInt&, VectorVectorInt       { length($arg) == 0 || (length($arg)  > 1 && (is.integer($arg) || is.numeric($arg))) }
-%typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg)  > 1 &&  is.numeric($arg)) }
+%typemap(rtypecheck, noblock=1) const int&, int                               { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const double&, double                         { length($arg) == 1 &&  is.numeric(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const String&, String                         { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const float&, float                           { length($arg) == 1 &&  is.character(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const UChar&, UChar                           { length($arg) == 1 && (is.integer(unlist($arg)) || is.numeric(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const bool&, bool                             { length($arg) == 1 &&  is.logical(unlist($arg)) }
+%typemap(rtypecheck, noblock=1) const VectorInt&, VectorInt                   { length($arg) == 0 || (length($arg) > 0 && (is.integer(unlist($arg)) || is.numeric(unlist($arg)))) }
+%typemap(rtypecheck, noblock=1) const VectorDouble&, VectorDouble             { length($arg) == 0 || (length($arg) > 0 &&  is.numeric(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorString&, VectorString             { length($arg) == 0 || (length($arg) > 0 &&  is.character(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorFloat&, VectorFloat               { length($arg) == 0 || (length($arg) > 0 &&  is.numeric(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorUChar&, VectorUChar               { length($arg) == 0 || (length($arg) > 0 && (is.integer(unlist($arg)) || is.numeric(unlist($arg)))) }
+%typemap(rtypecheck, noblock=1) const VectorBool&, VectorBool                 { length($arg) == 0 || (length($arg) > 0 &&  is.logical(unlist($arg))) }
+%typemap(rtypecheck, noblock=1) const VectorVectorInt&, VectorVectorInt       { length($arg) == 0 || (length($arg) > 0 && 
+                                                                               (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && (is.integer(unlist($arg[[1]])) || is.numeric(unlist($arg[[1]])))))) }
+%typemap(rtypecheck, noblock=1) const VectorVectorDouble&, VectorVectorDouble { length($arg) == 0 || (length($arg) > 0 && 
+                                                                               (length($arg[[1]]) == 0 || (length($arg[[1]]) > 0 && is.numeric(unlist($arg[[1]]))))) }
 
 %fragment("FromCpp", "header")
 {  
@@ -378,9 +375,6 @@
 //                    Add C++ extension                     //
 //////////////////////////////////////////////////////////////
 
-// TODO: to be kept ?
-%rename(__getitem__) Db::operator[];
-
 %{
   #include <stdio.h>
   
@@ -438,10 +432,14 @@
 %insert(s)
 %{
 
+# Add automatic display for all AStringable objects (see onAttach comment below)
+setMethod(f = "show", signature = "_p_AStringable", definition = function(object){ AStringable_display(object) })
+
+##
 ## Add operator [] to VectorXXX R class [1-based index] ##
 ## ---------------------------------------------------- ##
 
-"getitem" <-
+"getVitem" <-
 function(x, i)
 {
   idx = as.integer(i)
@@ -457,7 +455,7 @@ function(x, i)
   }
 }
 
-"setitem" <-
+"setVitem" <-
 function(x, i, value)
 {
   idx = as.integer(i)
@@ -474,29 +472,198 @@ function(x, i, value)
   x
 }
 
-setMethod('[',    '_p_VectorTT_int_t',                  getitem)
-setMethod('[<-',  '_p_VectorTT_int_t',                  setitem)
-setMethod('[',    '_p_VectorTT_double_t',               getitem)
-setMethod('[<-',  '_p_VectorTT_double_t',               setitem)
-setMethod('[',    '_p_VectorTT_String_t',               getitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[<-',  '_p_VectorTT_String_t',               setitem) # TODO : Different from myfibo and don't know why (_p_VectorTT_std__string_t)
-setMethod('[',    '_p_VectorTT_float_t',                getitem)
-setMethod('[<-',  '_p_VectorTT_float_t',                setitem)
-setMethod('[',    '_p_VectorTT_UChar_t',                getitem)
-setMethod('[<-',  '_p_VectorTT_UChar_t',                setitem)
-setMethod('[',    '_p_VectorNumTT_int_t',               getitem)
-setMethod('[<-',  '_p_VectorNumTT_int_t',               setitem)
-setMethod('[',    '_p_VectorNumTT_double_t',            getitem)
-setMethod('[<-',  '_p_VectorNumTT_double_t',            setitem)
-setMethod('[',    '_p_VectorNumTT_float_t',             getitem)
-setMethod('[<-',  '_p_VectorNumTT_float_t',             setitem)
-setMethod('[',    '_p_VectorNumTT_UChar_t',             getitem)
-setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setitem)
-setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getitem)
-setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setitem)
+setMethod('[',    '_p_VectorTT_int_t',                  getVitem)
+setMethod('[<-',  '_p_VectorTT_int_t',                  setVitem)
+setMethod('[',    '_p_VectorTT_double_t',               getVitem)
+setMethod('[<-',  '_p_VectorTT_double_t',               setVitem)
+setMethod('[',    '_p_VectorTT_String_t',               getVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[<-',  '_p_VectorTT_String_t',               setVitem) # TODO : Different from swigex and don't know why (_p_VectorTT_std__string_t)
+setMethod('[',    '_p_VectorTT_float_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_float_t',                setVitem)
+setMethod('[',    '_p_VectorTT_UChar_t',                getVitem)
+setMethod('[<-',  '_p_VectorTT_UChar_t',                setVitem)
+setMethod('[',    '_p_VectorNumTT_int_t',               getVitem)
+setMethod('[<-',  '_p_VectorNumTT_int_t',               setVitem)
+setMethod('[',    '_p_VectorNumTT_double_t',            getVitem)
+setMethod('[<-',  '_p_VectorNumTT_double_t',            setVitem)
+setMethod('[',    '_p_VectorNumTT_float_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_float_t',             setVitem)
+setMethod('[',    '_p_VectorNumTT_UChar_t',             getVitem)
+setMethod('[<-',  '_p_VectorNumTT_UChar_t',             setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_int_t_t',    getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_int_t_t',    setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_double_t_t', getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_double_t_t', setVitem)
+setMethod('[[',   '_p_VectorTT_VectorNumTT_float_t_t',  getVitem)
+setMethod('[[<-', '_p_VectorTT_VectorNumTT_float_t_t',  setVitem)
 
+##
+## Add operator [] to Db R class ##
+## ----------------------------- ##
+
+"is.undef" <- function(x)
+{
+  if (length(x) <= 0) return(TRUE)
+  if (length(x) > 1) return(FALSE)
+  if (is.na(x)) return(TRUE)
+  return(FALSE) 
+}
+
+"getDbitem" <-
+function (x,i,j,...,drop=TRUE)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
+  
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+
+  if (nargs == 2) {
+  
+    # Case of both arguments are defined
+    
+    if (is.logical(i) & length(i)==nech) i=(1:nech)[i]
+    if (is.numeric(i)) irow <- i
+  
+    if (is.numeric(j)) {
+      icol <- j
+    } else {
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+    }
+  } else if (nargs == 1) {
+  
+    # Case where only one argument in defined
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+    }
+  }
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+    
+  if (length(icol) <= 0)
+  {
+    messerr("The variable does not exist")
+    messerr("This is not authorized in this function")
+    stop()
+  } else {
+  if (! is.undef(irow) && ! is.undef(icol))
+    res <- db$getValuesByColIdx(irow_dim,icol_dim)
+  if (! is.undef(irow) &&   is.undef(icol))
+    res <- db$getArrayBySample(irow_dim)
+  if (  is.undef(irow) && ! is.undef(icol))
+    res <- db$getColumnsByColIdx(icol_dim)
+  if (  is.undef(irow) &&   is.undef(icol))
+    res <- db$getAllColumns()
+  if (nrow_dim > 1 && ncol_dim > 1)
+  {
+    res <- as.data.frame(matrix(res, nrow=nrow_dim, ncol=ncol_dim))
+    names(res) = col_names
+    row.names(res) = row_names
+  }
+  }
+  res
+}
+
+"setDbitem" <-
+  function (x,i,j,...,value)
+{
+  db   <- x
+  irow <- NA
+  icol <- NA
+  flag_i_defined = (deparse(substitute(i)) != "")
+  flag_j_defined = (deparse(substitute(j)) != "")
+  nargs = 0
+  if (flag_i_defined) nargs = nargs + 1
+  if (flag_j_defined) nargs = nargs + 1
+
+  nech = db$getSampleNumber()
+  ncol = db$getColumnNumber()
+  value = as.numeric(unlist(value))
+
+  new_names = "New"
+  if (nargs == 2) {
+  
+    # Both arguments are defined
+    
+    if (is.numeric(i) || is.logical(i)) irow <- i
+  
+    if (is.numeric(j) || is.logical(j)) {
+      icol <- j
+    } else {
+      icol <- grep(paste(i,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = j
+    }
+  } else if (nargs == 1) {
+  
+    # Only one argument is defined: it corresponds to the column
+
+    if (flag_i_defined) k = i
+    if (flag_j_defined) k = j
+    if (is.numeric(k)) {
+      icol <- k
+    } else {
+      icol <- grep(paste(k,collapse="|"),db$getAllNames())
+      if (length(icol) > 0) icol = icol - 1
+      new_names = k
+    }
+  }
+
+  icol_dim = icol
+  irow_dim = irow
+  if (is.undef(irow)) irow_dim = seq(0, nech - 1)
+  if (is.undef(icol)) icol_dim = seq(0, ncol - 1)
+  col_names = db$getNamesByColIdx(icol_dim)
+  row_names = irow_dim
+  ncol_dim = length(icol_dim)
+  nrow_dim = length(irow_dim)
+
+  if (length(icol) <= 0)
+  {
+  
+    # Case of a new variable
+    
+    icol = db$addColumns(value, new_names)
+  }
+  else
+  {
+  
+    # Case of already an existing variable: replacement
+    
+    if (! is.undef(irow) && ! is.undef(icol))
+      db$setValuesByColIdx(irow_dim,icol_dim,value)
+    if (! is.undef(irow) &&   is.undef(icol))
+      db$setArrayBySample(irow_dim,value)
+    if (  is.undef(irow) && ! is.undef(icol))
+      db$setColumnsByColIdx(value,icol_dim)
+    if (  is.undef(irow) &&   is.undef(icol))
+      db$setAllColumns(value)
+  }
+  db
+}
+
+setMethod('[',    '_p_Db',               getDbitem)
+setMethod('[<-',  '_p_Db',               setDbitem)
+setMethod('[',    '_p_DbGrid',           getDbitem)
+setMethod('[<-',  '_p_DbGrid',           setDbitem)
 %}

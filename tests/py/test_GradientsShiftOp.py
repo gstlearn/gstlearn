@@ -1,22 +1,13 @@
-#
-# This file is meant to test the reading of various types of arguments
-# in Python
-#
-
-import scipy as sc
-from scipy.sparse import *
-from scipy.sparse.linalg import *
 import numpy as np
 import sys
 import os
 import gstlearn as gl
-import gstlearn.plot as myplot
 
 # Create representation grid
 
 workingDbc = gl.DbGrid.create([10,10],[10,10])
 
-# Create working grid
+# Create working grid
 
 resultDb = gl.DbGrid.create([200,200],[0.5,0.5]) 
 

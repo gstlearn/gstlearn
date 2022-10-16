@@ -3,7 +3,8 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "API/ESPDECalcMode.hpp"
+#include "Enum/ESPDECalcMode.hpp"
+
 #include "Basic/NamingConvention.hpp"
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 

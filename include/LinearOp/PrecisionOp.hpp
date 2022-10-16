@@ -13,9 +13,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EPowerPT.hpp"
+
 #include "Basic/Vector.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
-#include "LinearOp/EPowerPT.hpp"
 
 #include <map>
 

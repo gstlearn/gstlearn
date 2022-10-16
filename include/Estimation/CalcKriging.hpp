@@ -46,7 +46,7 @@ public:
   void setFlagXvalidStd(int flagXvalidStd) { _flagXvalidStd = flagXvalidStd; }
   void setFlagXvalidVarZ(int flagXvalidVarZ) { _flagXvalidVarZ = flagXvalidVarZ; }
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setFlagKfold(int flag_kfold) { _flagKfold = flag_kfold; }
+  void setFlagKfold(bool flag_kfold) { _flagKfold = flag_kfold; }
   void setFlagNeighOnly(bool flagNeighOnly) { _flagNeighOnly = flagNeighOnly; }
 
   Krigtest_Res getKtest() const { return _ktest; }
@@ -88,7 +88,7 @@ private:
   AAnam* _anam;
 
   bool _flagXvalid;
-  int  _flagKfold;
+  bool _flagKfold;
   int  _flagXvalidEst;
   int  _flagXvalidStd;
   int  _flagXvalidVarZ;
@@ -167,7 +167,7 @@ GSTLEARN_EXPORT Krigtest_Res krigtest(Db *dbin,
 GSTLEARN_EXPORT int xvalid(Db *db,
                            Model *model,
                            ANeighParam *neighparam,
-                           int flag_code = 0,
+                           bool flag_code = false,
                            int flag_xvalid_est = 1,
                            int flag_xvalid_std = 1,
                            int flag_xvalid_varz = 0,

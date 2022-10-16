@@ -47,7 +47,7 @@ double CovWendland2::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovWendland2::_evaluateCovDerivate(int degree, double h) const
+double CovWendland2::_evaluateCovDerivative(int degree, double h) const
 {
   double h2, res;
 

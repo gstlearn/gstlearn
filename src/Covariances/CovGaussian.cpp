@@ -47,7 +47,7 @@ double CovGaussian::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovGaussian::_evaluateCovDerivate(int degree, double h) const
+double CovGaussian::_evaluateCovDerivative(int degree, double h) const
 {
   if (h > MAX_EXP2) return (0.);
   double r2 = h * h;

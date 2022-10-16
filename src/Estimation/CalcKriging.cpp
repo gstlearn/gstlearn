@@ -566,7 +566,7 @@ int kriggam(Db *dbin,
  ** \param[in]  db          Db structure
  ** \param[in]  model       Model structure
  ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  flag_kfold  1 if a code (K-FOLD) is used
+ ** \param[in]  flag_kfold  True if a code (K-FOLD) is used
  ** \param[in]  flag_xvalid_est Option for storing the estimation
  **                         1: Z*-Z; -1: Z*
  ** \param[in]  flag_xvalid_std Option for storing the standard deviation
@@ -579,7 +579,7 @@ int kriggam(Db *dbin,
 int xvalid(Db *db,
            Model *model,
            ANeighParam *neighparam,
-           int flag_kfold,
+           bool flag_kfold,
            int flag_xvalid_est,
            int flag_xvalid_std,
            int flag_xvalid_varz,

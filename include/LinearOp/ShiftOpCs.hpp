@@ -13,14 +13,17 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/EPowerPT.hpp"
+
 #include "LinearOp/ALinearOp.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Vector.hpp"
+#include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
-#include "LinearOp/EPowerPT.hpp"
 
 #include <map>
 
@@ -78,7 +81,7 @@ public:
                  const VectorDouble& Lambda,
                  Model* model,
                  bool verbose = false);
-  int getSize() const override { return _S->n; }
+  int getSize() const override { return _napices; }
   int getNDim() const { return _ndim; }
   int getNModelGradParam() const { return _nModelGradParam; }
   void prodTildeC(const VectorDouble& in,
@@ -158,17 +161,30 @@ private:
                       int imesh,
                       MatrixSquareGeneral& matu,
                       MatrixRectangular& matw) const;
-  cs* _BuildSfromMap(std::map<std::pair<int, int>, double> &tab, int nmax = -1);
+  cs* _BuildSfromMap(VectorT<std::map<int, double>>& tab, int nmax = -1);
+  cs* _BuildVecSfromMap(std::map<std::pair<int, int>, double>& tab,
+                        int nmax = -1);
   void _updateCova(CovAniso* cova, int ip);
   void _updateHH(MatrixSquareSymmetric& hh, int ip);
-  void _mapUpdate(std::map<std::pair<int, int>, double>& tab, int ip1, int ip2, double vald, double tol=EPSILON10);
+  VectorT<std::map<int, double>> _mapCreate() const;
+  VectorT<std::map<std::pair<int, int>, double>> _mapVectorCreate() const;
+  void _mapUpdate(std::map<int, double>& tab,
+                  int ip1,
+                  double value,
+                  double tol = EPSILON10) const;
+  void _mapVecUpdate(std::map<std::pair<int, int>, double>& tab,
+                     int ip2,
+                     int ip1,
+                     double value,
+                     double tol = EPSILON10) const;
+
   void _determineFlagNoStatByHH();
 private:
   VectorDouble _TildeC;
   VectorDouble _Lambda;
   cs* _S;
   int _nModelGradParam;
-  std::vector<cs *> _SGrad;
+  VectorT<cs *> _SGrad;
   VectorVectorDouble _LambdaGrad;
   bool _flagNoStatByHH;
   int _variety;
@@ -177,4 +193,5 @@ private:
   int _igrf;
   int _icov;
   int _ndim;
+  int _napices;
 };

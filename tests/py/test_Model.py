@@ -22,7 +22,7 @@ model.addCovFromParam(gl.ECov.EXPONENTIAL, sill=2.3, ranges=[4.,7.])
 model.addCovFromParam(gl.ECov.CUBIC, sill=1.1, ranges=[3.1,2.1], angles=[10.,0.])
 # Adding drift components (1, x and y)
 model.setDrifts(["1","x","y"])
-                 
+
 model.display()
 
 # Adding Drift for Order_1 IRF with 2 External Drifts
@@ -39,5 +39,30 @@ model.display()
 model = gl.Model.createFromParam(gl.ECov.GAUSSIAN, range=5.)
 
 model.display()
+
+# Now we create a model with a tapering function
+
+# Using an explicit context
+ctxt = gl.CovContext(nvar, ndim)
+# And creating the specific CovLMCTapering object
+covtape = gl.CovLMCTapering(gl.ETape.STORKEY, 2., ctxt.getSpace())
+cova = gl.CovAniso(gl.ECov.EXPONENTIAL, 2, 0, 1.5, ctxt)
+covtape.addCov(cova)
+
+mymodeltape = gl.Model(ctxt)
+mymodeltape.setCovList(covtape)
+
+mymodeltape.display()
+
+# And the same for a convolution model
+
+covconv = gl.CovLMCConvolution(gl.EConvType.EXPONENTIAL, gl.EConvDir.X, 0.1, 10, ctxt.getSpace())
+cova = gl.CovAniso(gl.ECov.EXPONENTIAL, 2, 0, 1.5, ctxt)
+covconv.addCov(cova)
+
+mymodelconv = gl.Model(ctxt)
+mymodelconv.setCovList(covconv)
+
+mymodelconv.display()
 
 print("Test successfully performed")

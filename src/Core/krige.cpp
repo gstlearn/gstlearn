@@ -13,6 +13,9 @@
 #include "geoslib_f_private.h"
 #include "geoslib_define.h"
 
+#include "Enum/EAnam.hpp"
+#include "Enum/ECalcMember.hpp"
+
 #include "Polynomials/Hermite.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -36,10 +39,8 @@
 #include "Basic/OptCustom.hpp"
 #include "Covariances/CovLMCAnamorphosis.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ECalcMember.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
-#include "Anamorphosis/EAnam.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -438,6 +439,16 @@ static void st_data_discretize_dd(int idim, int jdim, Disc_Structure *it)
 int is_flag_data_disc_defined(void)
 {
   return KOPTION->flag_data_disc;
+}
+
+void set_DBIN(Db* dbin)
+{
+  DBIN = dbin;
+}
+
+void set_DBOUT(Db* dbout)
+{
+  DBOUT = dbout;
 }
 
 /****************************************************************************/

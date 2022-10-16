@@ -13,11 +13,10 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-// Enums
-#include "Db/PtrGeos.hpp"
+#include "Enum/ELoadBy.hpp"
+#include "Enum/EStatOption.hpp"
 
-#include "Db/ELoadBy.hpp"
-#include "Stats/EStatOption.hpp"
+#include "Db/PtrGeos.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
@@ -242,6 +241,7 @@ public:
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
   void setColumnByUID(const VectorDouble& tab, int iuid, bool useSel = false);
   void setColumnByColIdx(const VectorDouble& tab, int icol, bool useSel = false);
+  void setColumnsByColIdx(const VectorDouble& tabs, const VectorInt& icols, bool useSel = false);
   void setColumnByColIdxOldStyle(const double* tab, int icol, bool useSel = false);
   void duplicateColumnByUID(int iuid_in, int iuid_out);
 
@@ -341,6 +341,7 @@ public:
   void   updArray(int iech, int iuid, int oper, double value);
   VectorDouble getArray(int iuid, bool useSel = false) const;
   VectorDouble getArrayBySample(int iech) const;
+  void setArrayBySample(int iech, const VectorDouble& vec);
 
   int    getFromLocatorNumber(const ELoc& locatorType) const;
   double getFromLocator(const ELoc& locatorType, int iech, int locatorIndex=0) const;
@@ -349,9 +350,15 @@ public:
                         int locatorIndex,
                         double value);
 
-  double getByColIdx(int iech, int icol) const;
-  void   setByColIdx(int iech, int icol, double value);
-
+  double getValueByColIdx(int iech, int icol) const;
+  VectorDouble getValuesByColIdx(const VectorInt &iechs,
+                                 const VectorInt &icols,
+                                 bool bySample = false) const;
+  void   setValueByColIdx(int iech, int icol, double value);
+  void   setValuesByColIdx(const VectorInt &iechs,
+                           const VectorInt &icols,
+                           const VectorDouble &values,
+                           bool bySample = false);
   int    getVariableNumber() const;
   bool   hasVariable() const;
   double getVariable(int iech, int item) const;
@@ -389,11 +396,13 @@ public:
   int    getGradientNumber() const;
   bool   hasGradient() const;
   double getGradient(int iech, int item) const;
+  VectorDouble getGradients(int item, bool useSel = false) const;
   void   setGradient(int iech, int item, double value);
 
   int    getTangentNumber() const;
   bool   hasTangent() const;
   double getTangent(int iech, int item) const;
+  VectorDouble getTangents(int item, bool useSel = false) const;
   void   setTangent(int iech, int item, double value);
 
   int    getProportionNumber() const;
@@ -520,6 +529,7 @@ public:
   VectorDouble getColumnsByUIDRange(int iuid_beg,
                                     int iuid_end,
                                     bool useSel = false) const;
+  void setAllColumns(const VectorVectorDouble& tabs,bool useSel);
 
   void deleteColumn(const String& name);
   void deleteColumnByUID(int iuid_del);

@@ -10,32 +10,32 @@
 /******************************************************************************/
 #pragma once
 
-// WARNING: Make this include list as small as possible!
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
-#include "Covariances/ECov.hpp"
-#include "Covariances/ECalcMember.hpp"
+#include "Enum/EAnam.hpp"
+#include "Enum/EJustify.hpp"
+#include "Enum/ECalcMember.hpp"
+#include "Enum/ECalcVario.hpp"
+#include "Enum/ECov.hpp"
+#include "Enum/ELoc.hpp"
+#include "Enum/EDrift.hpp"
+#include "Enum/EProcessOper.hpp"
+#include "Enum/EConsElem.hpp"
+#include "Enum/EConsType.hpp"
+#include "Enum/ENeigh.hpp"
+
 #include "Covariances/CovCalcMode.hpp"
 
-#include "Basic/EJustify.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
 
-#include "Model/EConsElem.hpp"
-#include "Model/EConsType.hpp"
 #include "Model/Constraints.hpp"
 #include "Model/Option_AutoFit.hpp"
 
-#include "Neigh/ENeigh.hpp"
 #include "Neigh/NeighWork.hpp"
 
-#include "Db/ELoc.hpp"
-#include "LithoRule/EProcessOper.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Basic/PolyLine2D.hpp"
-#include "Drifts/EDrift.hpp"
-#include "Variogram/ECalcVario.hpp"
 
 class AAnam;
 class AnamDiscreteDD;
@@ -1409,6 +1409,8 @@ GSTLEARN_EXPORT int csv_table_read(const String &filename,
 /****************************************/
 
 GSTLEARN_EXPORT int is_flag_data_disc_defined(void);
+GSTLEARN_EXPORT void set_DBIN(Db* dbin);
+GSTLEARN_EXPORT void set_DBOUT(Db* dbout);
 GSTLEARN_EXPORT int krige_koption_manage(int mode,
                                          int flag_check,
                                          const EKrigOpt &calcul,
@@ -1872,58 +1874,6 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
                                           int *npar,
                                           double **mean,
                                           double **vars);
-
-/********************************************/
-/* Prototyping the functions in potential.c */
-/********************************************/
-GSTLEARN_EXPORT int potential_cov(Model *model,
-                                  int verbose,
-                                  int type1,
-                                  double *x10,
-                                  double *x1p,
-                                  double *tx1,
-                                  int type2,
-                                  double *x20,
-                                  double *x2p,
-                                  double *tx2,
-                                  int *n1,
-                                  int *n2,
-                                  double *covtab);
-GSTLEARN_EXPORT int potential_kriging(Db *db,
-                                      Db *dbgrd,
-                                      Db *dbtgt,
-                                      DbGrid *dbout,
-                                      Model *model,
-                                      ANeighParam *neighparam,
-                                      double nugget_grd,
-                                      double nugget_tgt,
-                                      int flag_grad,
-                                      int flag_trans,
-                                      int flag_drift,
-                                      int verbose);
-GSTLEARN_EXPORT int potential_simulate(Db *dbiso,
-                                       Db *dbgrd,
-                                       Db *dbtgt,
-                                       DbGrid *dbout,
-                                       Model *model,
-                                       ANeighParam *neighparam,
-                                       double nugget_grd,
-                                       double nugget_tgt,
-                                       double dist_tempere,
-                                       int flag_trans,
-                                       int seed,
-                                       int nbsimu,
-                                       int nbtuba,
-                                       int verbose);
-GSTLEARN_EXPORT int potential_xvalid(Db *dbiso,
-                                     Db *dbgrd,
-                                     Db *dbtgt,
-                                     Model *model,
-                                     ANeighParam *neighparam,
-                                     double nugget_grd,
-                                     double nugget_tgt,
-                                     int flag_dist_conv,
-                                     int verbose);
 
 /*******************************************/
 /* Prototyping the functions in delaunay.c */

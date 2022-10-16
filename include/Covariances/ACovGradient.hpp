@@ -11,12 +11,14 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Covariances/ACov.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovContext.hpp"
@@ -32,6 +34,7 @@ class GSTLEARN_EXPORT ACovGradient: public CovAniso
 public:
   ACovGradient(const ECov& type, const CovContext& ctxt);
   ACovGradient(const ACovGradient& r);
+  ACovGradient(const CovAniso& r);
   ACovGradient& operator=(const ACovGradient& r);
   virtual ~ACovGradient();
 
@@ -39,7 +42,7 @@ public:
                                  const SpacePoint& p2,
                                  double& covVal,
                                  VectorDouble& covGp,
-                                 VectorDouble& covGg,
+                                 VectorDouble& covGG,
                                  const CovCalcMode& mode = CovCalcMode(),
                                  bool flagGrad = false) const = 0;
 };

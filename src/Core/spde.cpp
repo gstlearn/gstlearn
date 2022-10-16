@@ -3466,7 +3466,7 @@ static void st_triangle_center(MeshEStandard *amesh,
     center[i] = 0.;
   for (int icorn = 0; icorn < ncorner; icorn++)
   {
-    util_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
+    ut_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
                           amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
                           &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)

@@ -8,9 +8,12 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
+
+#include "Enum/EAnam.hpp"
 
 #include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
@@ -25,7 +28,6 @@
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
-#include "Anamorphosis/EAnam.hpp"
 #include "Space/SpacePoint.hpp"
 
 /**

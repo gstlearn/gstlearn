@@ -1,0 +1,54 @@
+name: nightly_tests_ubuntu-latest
+
+on:
+  # Deactivate the workflow
+  #push:
+  #  branches-ignore:
+  #    - '**'
+  # Activate the workflow at each push on main branch
+  #push:
+  #  branches: [ main ]
+  # Activate the workflow at each pull request on main branch
+  pull_request:
+    branches: [ main ]
+  # Activate the workflow every day at 18:30 UTC = for Paris 19:30 (summer) or 20:30 (winter)
+  #schedule:
+    # * is a special character in YAML so you have to quote this string
+  #  - cron:  '30 18 * * *'
+  # Permit manual trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Manual'
+        required: false
+        default: ''
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+  BUILD_DIR : build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -yq libboost-all-dev libhdf5-dev python3-numpy python3-pybind11 python3-scipy r-base
+
+    - name: Setup personal R libraries directory
+      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
+      run: mkdir -p ~/r_libs & echo ".libPaths('~/r_libs')" > ~/.Rprofile
+      
+# Not needed for non regression tests (we gonna save minutes!!!)
+#    - name: Install R packages dependencies
+#      # Beware : ~/ is Linux only. For a potential windows a solution must be found yet
+#      run: Rscript -e "install.packages (c('ggplot2', 'ggpubr'), lib='~/r_libs', repos='https://cloud.r-project.org/')"
+
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}} -DBUILD_PYTHON=ON  -DBUILD_R=ON
+
+    - name: Compile, install packages and execute non-regression tests
+      run: cmake --build ${{github.workspace}}/${{env.BUILD_DIR}} --target check -- -j 3

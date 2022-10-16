@@ -11,6 +11,8 @@
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
+#include "Enum/ECalcMember.hpp"
+
 #include "Space/ASpaceObject.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
@@ -21,7 +23,6 @@
 #include "Basic/ASerializable.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
-#include "Covariances/ECalcMember.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Stats/Selectivity.hpp"
 

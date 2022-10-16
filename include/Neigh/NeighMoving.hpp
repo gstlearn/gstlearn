@@ -13,15 +13,16 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_define.h"
 
-#include "Neigh/ENeigh.hpp"
-#include "Neigh/ANeighParam.hpp"
+#include "Enum/ENeigh.hpp"
 
+#include "Neigh/ANeighParam.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/Utilities.hpp"
 
 class Db;
+class Faults;
 
 class GSTLEARN_EXPORT NeighMoving: public ANeighParam
 {
@@ -40,6 +41,7 @@ public:
   virtual bool getFlagContinuous() const override {
     return (! FFFF(_distCont) && _distCont < 1.);
   }
+  virtual bool hasFault() const override { return _faults != nullptr; }
 
   int reset(int ndim,
             bool flag_xvalid,
@@ -50,7 +52,8 @@ public:
             int nsmax = ITEST,
             VectorDouble coeffs = VectorDouble(),
             VectorDouble angles = VectorDouble(),
-            double distcont = TEST);
+            double distcont = TEST,
+            const Faults* faults = nullptr);
 
   static NeighMoving* create(int ndim,
                              bool flag_xvalid = false,
@@ -61,7 +64,10 @@ public:
                              int nsmax = ITEST,
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
-                             double distcont = TEST);
+                             double distcont = TEST,
+                             const Faults* faults = nullptr);
+  void addFaults(const Faults* faults) { _faults = faults; }
+
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);
   const VectorDouble& getAnisoCoeffs() const { return _anisoCoeffs; }
   double getAnisoCoeff(int i) const { return _anisoCoeffs[i]; }
@@ -94,6 +100,8 @@ public:
   VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
   VectorVectorDouble getSectors(const VectorDouble& target) const;
 
+  const Faults* getFaults() const { return _faults; }
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
@@ -112,4 +120,5 @@ private:
   double _distCont;              /* Distance for continuous ANeighParamborhood */
   VectorDouble _anisoCoeffs;     /* Anisotropy ratio for moving neighborhood */
   VectorDouble _anisoRotMat;     /* Anisotropy rotation matrix */
+  const Faults* _faults;
 };

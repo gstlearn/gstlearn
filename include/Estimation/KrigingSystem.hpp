@@ -177,6 +177,7 @@ private:
   void   _bayesCorrectVariance();
   void   _transformGaussianToRaw();
   int    _getFlagAddress(int iech0, int ivar0);
+  bool   _isMatCLempty() const;
 
 private:
   // Aggregated classes

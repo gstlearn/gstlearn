@@ -173,7 +173,7 @@ int FileVTK::writeInFile()
             int iad = ix + dims[0] * (iy + dims[1] * iz);
             if (_dbgrid->isActive(iad))
             {
-              double value = (float) (_dbgrid->getByColIdx(iad, _cols[icol]));
+              double value = (float) (_dbgrid->getValueByColIdx(iad, _cols[icol]));
               if (FFFF(value))
                 tab[icol][ecr] = (float) (TEST);
               else

@@ -1,7 +1,7 @@
 ## Overview
 
 *gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
-Copyright (c) MINES Paris / PSL University
+Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
 
@@ -24,6 +24,8 @@ The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library 
 The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
 When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
+
+The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
 ## Requirements
 
@@ -144,7 +146,7 @@ Download and install the following tools:
 
 * Git client [from here](https://gitforwindows.org) (Use default options during installation)
 * CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
-* Doxygen 1.8.3+ [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
+* Doxygen 1.8.3+ (optional) [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
 
 Notes:
 
@@ -157,7 +159,7 @@ Download and install the following tools:
 
 * Microsoft Visual Studio C++ 14+ [from here](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/)
 * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory for example)
-* HDF5 library [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
+* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
 
 #### MingGW (RTools)
 
@@ -171,7 +173,7 @@ Notes:
 * You must restart your computer after installing these requirements
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 
-Then, from a Windows command prompt, execute following instructions:
+Then, from a Windows command prompt, execute following instructions (hdf5 is optional):
 
     pacman -S mingw-w64-x86_64-hdf5
     pacman -S mingw-w64-x86_64-boost
@@ -184,10 +186,6 @@ To launch non-regression tests, execute the following command:
 
     cmake --build build --target build_tests
     cmake --build build --target check
-
-or for those who prefer a single command line
-
-    make check
 
 #### Microsoft Visual Studio, XCode, ...
 
@@ -230,5 +228,5 @@ The documentation is then available by opening the following HTML file with your
 ---
 
 ## License
-MIT
+BSD
 2022 Team gstlearn

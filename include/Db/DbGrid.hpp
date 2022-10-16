@@ -13,14 +13,14 @@
 #include "gstlearn_export.hpp"
 #include "geoslib_d.h"
 
+#include "Enum/ELoadBy.hpp"
+
 #include "Db/PtrGeos.hpp"
 #include "Db/Db.hpp"
-#include "Db/ELoadBy.hpp"
 #include "Basic/Grid.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Basic/CSVformat.hpp"
-
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"

@@ -23,7 +23,8 @@ class GSTLEARN_EXPORT CovLMGradient : public ACovAnisoList
 {
 public:
   CovLMGradient(const ASpace* space = nullptr);
-  CovLMGradient(const CovLMGradient &r);
+  CovLMGradient(const CovLMGradient& r);
+  CovLMGradient(const ACovAnisoList& r);
   CovLMGradient& operator= (const CovLMGradient &r);
   virtual ~CovLMGradient();
 
@@ -35,21 +36,21 @@ public:
 
   void evalZAndGradients(const SpacePoint& p1,
                          const SpacePoint& p2,
-                         double* covVal,
+                         double& covVal,
                          VectorDouble& covGp,
-                         VectorDouble& covGg,
+                         VectorDouble& covGG,
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const;
   void evalZAndGradients(const VectorDouble& vec,
-                         double* covVal,
+                         double& covVal,
                          VectorDouble& covGp,
-                         VectorDouble& covGg,
+                         VectorDouble& covGG,
                          const CovCalcMode& mode = CovCalcMode(),
                          bool flagGrad = false) const;
 
 private:
-  void _initGradients(double* covVal,
+  void _initGradients(double& covVal,
                       VectorDouble& covGp,
-                      VectorDouble& covGg,
+                      VectorDouble& covGG,
                       bool flagGrad) const;
 };

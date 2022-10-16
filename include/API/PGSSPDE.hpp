@@ -2,8 +2,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "API/ESPDECalcMode.hpp"
-#include "Covariances/ECalcMember.hpp"
+#include "Enum/ESPDECalcMode.hpp"
+#include "Enum/ECalcMember.hpp"
 
 #include <vector>
 

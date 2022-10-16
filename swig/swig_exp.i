@@ -36,6 +36,30 @@
 
 %include Enum/AEnum.hpp
 %include Enum/EKrigOpt.hpp
+%include Enum/ESPDECalcMode.hpp
+%include Enum/EAnam.hpp
+%include Enum/ECst.hpp
+%include Enum/EDbg.hpp
+%include Enum/ETLaw.hpp
+%include Enum/ETShape.hpp
+%include Enum/EConvDir.hpp
+%include Enum/ECalcVario.hpp
+%include Enum/EConvType.hpp
+%include Enum/ECov.hpp
+%include Enum/ETape.hpp
+%include Enum/ELoadBy.hpp
+%include Enum/ELoc.hpp
+%include Enum/EDrift.hpp
+%include Enum/EPowerPT.hpp
+%include Enum/ERule.hpp
+%include Enum/EConsElem.hpp
+%include Enum/EConsType.hpp
+%include Enum/EModelProperty.hpp
+%include Enum/EMorpho.hpp
+%include Enum/ENeigh.hpp
+%include Enum/ESpaceType.hpp
+%include Enum/ESelectivity.hpp
+%include Enum/EStatOption.hpp
 
 %include Basic/ArgumentTest.hpp
 %include Basic/AStringable.hpp
@@ -69,8 +93,6 @@
 %include Basic/OptDbg.hpp
 %include Basic/OptCst.hpp
 %include Basic/OptCustom.hpp
-%include Basic/EDbg.hpp
-%include Basic/ECst.hpp
 %include Basic/File.hpp
 %include Basic/Vector.hpp
 %include Basic/Plane.hpp
@@ -88,8 +110,6 @@
 
 %include Faults/Faults.hpp
 
-%include Boolean/ETLaw.hpp
-%include Boolean/ETShape.hpp
 %include Boolean/ShapeParameter.hpp
 %include Boolean/AShape.hpp
 %include Boolean/ShapeParallelepiped.hpp
@@ -100,7 +120,6 @@
 %include Boolean/ShapeHalfSinusoid.hpp
 %include Boolean/ModelBoolean.hpp
 
-%include Space/ESpaceType.hpp
 %include Space/ASpace.hpp
 %include Space/ASpaceObject.hpp
 %include Space/SpacePoint.hpp
@@ -131,10 +150,10 @@
 %include LinearOp/IProjMatrix.hpp
 %include LinearOp/ProjMatrix.hpp
 %include LinearOp/PrecisionOpMultiConditional.hpp
+%include LinearOp/ProjConvolution.hpp
 %include LinearOp/IOptimCost.hpp
 %include LinearOp/OptimCostBinary.hpp
 %include LinearOp/OptimCostColored.hpp
-%include LinearOp/EPowerPT.hpp
 
 %include Model/ANoStat.hpp
 %include Model/NoStatArray.hpp
@@ -145,14 +164,12 @@
 %include Neigh/NeighImage.hpp
 %include Neigh/NeighMoving.hpp
 %include Neigh/NeighBench.hpp
-%include Neigh/ENeigh.hpp
 %include Neigh/NeighWork.hpp
 
 %include Variogram/VarioParam.hpp
 %include Variogram/Vario.hpp
 %include Variogram/VarioParam.hpp
 %include Variogram/DirParam.hpp
-%include Variogram/ECalcVario.hpp
 
 %include Model/Model.hpp
 %include Model/Option_AutoFit.hpp
@@ -160,9 +177,6 @@
 %include Model/Constraints.hpp
 %include Model/ConsItem.hpp
 %include Model/CovParamId.hpp
-%include Model/EModelProperty.hpp
-%include Model/EConsElem.hpp
-%include Model/EConsType.hpp
 %include Model/CovParamId.hpp
 
 %include Covariances/ACov.hpp
@@ -206,10 +220,6 @@
 %include Covariances/CovWendland2.hpp
 %include Covariances/CovMarkov.hpp
 %include Covariances/CovDiffusionAdvection.hpp
-%include Covariances/ECov.hpp
-%include Covariances/ETape.hpp
-%include Covariances/EConvType.hpp
-%include Covariances/EConvDir.hpp
 
 %include Drifts/ADrift.hpp
 %include Drifts/ADriftElem.hpp
@@ -231,7 +241,6 @@
 %include Drifts/DriftZ.hpp
 %include Drifts/DriftZ2.hpp
 %include Drifts/DriftZ3.hpp
-%include Drifts/EDrift.hpp
 
 %include Matrix/AMatrix.hpp
 %include Matrix/AMatrixSquare.hpp
@@ -244,13 +253,10 @@
 
 %include API/SPDE.hpp
 %include API/PGSSPDE.hpp
-%include API/ESPDECalcMode.hpp
 
 %include Db/Db.hpp
 %include Db/DbGrid.hpp
 %include Db/DbStringFormat.hpp
-%include Db/ELoadBy.hpp
-%include Db/ELoc.hpp
 
 %include Anamorphosis/CalcAnamTransform.hpp
 %include Anamorphosis/AAnam.hpp
@@ -261,7 +267,6 @@
 %include Anamorphosis/AnamEmpirical.hpp
 %include Anamorphosis/AnamDiscreteDD.hpp
 %include Anamorphosis/AnamDiscreteIR.hpp
-%include Anamorphosis/EAnam.hpp
 
 %include Gibbs/AGibbs.hpp
 %include Gibbs/GibbsMulti.hpp
@@ -269,7 +274,6 @@
 %include Gibbs/GibbsUMulti.hpp
 
 %include Morpho/Morpho.hpp
-%include Morpho/EMorpho.hpp
 
 %include Polygon/Polygons.hpp
 %include Polygon/PolySet.hpp
@@ -278,13 +282,10 @@
 %include Stats/PCA.hpp
 %include Stats/PCAStringFormat.hpp
 %include Stats/Selectivity.hpp
-%include Stats/EStatOption.hpp
-%include Stats/ESelectivity.hpp
 
 %include LithoRule/Rule.hpp
 %include LithoRule/RuleStringFormat.hpp
 %include LithoRule/RuleProp.hpp
-%include LithoRule/ERule.hpp
 
 %include Estimation/KrigingSystem.hpp
 %include Estimation/CalcKriging.hpp
@@ -329,6 +330,8 @@
 %include Fractures/FracList.hpp
 
 %include Skin/Skin.hpp
+
+%include segy.h
 
 // For suppressing SWIG warning due to -keyword option (if used)
 #pragma SWIG nowarn=511

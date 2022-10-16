@@ -160,6 +160,7 @@ set(SRC
   LinearOp/OptimCostBinary.cpp
   LinearOp/PrecisionOpMultiConditional.cpp
   LinearOp/OptimCostColored.cpp
+  LinearOp/ProjConvolution.cpp
   Space/SpaceSN.cpp
   Space/SpaceRN.cpp
   Space/SpacePoint.cpp

@@ -10,9 +10,12 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
+
+#include "Enum/ECst.hpp"
+
 #include "Basic/Utilities.hpp"
 #include "Basic/OptCst.hpp"
-#include "Basic/ECst.hpp"
+
 #include <math.h>
 #include <cmath>
 

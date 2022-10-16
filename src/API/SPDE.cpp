@@ -1,7 +1,8 @@
+#include "Enum/ECov.hpp"
+
 #include "API/SPDE.hpp"
 #include "Model/ANoStat.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "Covariances/ECov.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"

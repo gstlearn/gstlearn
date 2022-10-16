@@ -1,77 +1,7 @@
-== Variogram on grid
-
-This file is meant to demonstrate the use of gstlearn by loading a numpy
-array, perform some calculations (including variogram) based on the grid
-organization and return the variogram output arrays to be used in Python
-
-[source, ipython3]
-----
-import os
-import sys
-import numpy as np
-import gstlearn as gl
-import gstlearn.plot as gp
-verbose = True
-----
-
-== Define an array in Python
-
-Here we define two numpy.arrays containing real values. They should be
-viewed as two variables defined on a regular 2-D grid
-
-[source, ipython3]
-----
-ndim = 2
-nx = 5
-ny = 3
-np.random.seed(123085)
-array1 = np.arange(0.,nx * ny).reshape(nx * ny)
-array2 = np.random.randn(nx * ny)
-if verbose:
-    print(array1)
-    print(array2)
-----
-
-
-----
 [ 0.  1.  2.  3.  4.  5.  6.  7.  8.  9. 10. 11. 12. 13. 14.]
 [-0.7557564   0.39557902 -0.74696358 -0.19330886  0.44301441 -0.35785915
  -0.3989405  -2.09852844 -0.58105041 -1.6923563  -1.67125865 -1.19059388
   0.74398967  0.37966442  1.76399173]
-----
-
-== Import this array in gstlearn
-
-First of all, the global instruction for defining the default dimension
-number is called and the Help of the Db class is displayed.
-
-[source, ipython3]
-----
-ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN, ndim)
-----
-
-Then, the Grid file is created first (defining the origin, mesh size and
-count). Then each variable is added one by one, giving the name. Then,
-the `Z' Locator is set for the two variables. Note that locators are
-entered simultaneously. Otherwise, ``var1'' will be assigned to locator
-``z1''. Then, when adding ``var2'', it will be assigned in turn to
-``z1'', erasing the locator previously assigned to ``var1''.
-
-[source, ipython3]
-----
-x0 = [1., 3.]
-dx = [2., 1.]
-grid = gl.DbGrid.create([nx,ny],dx,x0)
-ipt_z1 = grid.addColumns(array1, "var1")
-ipt_z2 = grid.addColumns(array2, "var2")
-grid.setLocators(["var1","var2"], gl.ELoc.Z)
-if verbose:
-    print(grid)
-----
-
-
-----
 
 Data Base Grid Characteristics
 ==============================
@@ -98,32 +28,6 @@ Column = 2 - Name = x2 - Locator = x2
 Column = 3 - Name = var1 - Locator = z1
 Column = 4 - Name = var2 - Locator = z2
 
-----
-
-== Calculate the Variogram on Grid
-
-We now calculate the variogram on the grid specifying the parameters : 2
-orthogonal directions with 5 lags of grid mesh size.
-
-[source, ipython3]
-----
-nvar = grid.getVariableNumber()
-variop = gl.VarioParam()
-npas = 5
-dir1 = gl.DirParam(ndim,npas,dx[0])
-dir1.setGrincr([1,0])
-dir2 = gl.DirParam(ndim,20,dx[1])
-dir2.setGrincr([0,1])
-variop.addDir(dir1)
-variop.addDir(dir2)
-vario = gl.Vario(variop,grid)
-err = vario.compute()
-if verbose:
-    print(vario)
-----
-
-
-----
 
 Variogram characteristics
 =========================
@@ -201,31 +105,3 @@ For variable 2
          6    18.000     6.109     0.966
          8     9.000     8.082     1.770
 
-----
-
-Extract the variogram items corresponding to the variable #1 and
-direction #2 as an example. Note that the variables and directions are
-numbered starting from 0
-
-[source, ipython3]
-----
-ivar = 0
-jvar = 0
-idir = 1
-sw = vario.getSwVec(idir,ivar,jvar)
-hh = vario.getHhVec(idir,ivar,jvar)
-gg = vario.getGgVec(idir,ivar,jvar)
-variance = vario.getVar(ivar,jvar)
-----
-
-We can also plot it using the plotting module functions
-
-[source, ipython3]
-----
-ax = gp.varmod(vario,None,ivar,jvar,idir)
-----
-
-
-----
-![png](/home/drenard/project_gstlearn/gstlearn/build/tests/ipynb/Release/Test_VarioGrid_17_0.png)
-----

@@ -13,12 +13,13 @@
 /******************************************************************************/
 #include "geoslib_f.h"
 
+#include "Enum/ECov.hpp"
+
 #include "Model/Model.hpp"
 #include "API/SPDE.hpp"
 #include "API/PGSSPDE.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
-#include "Covariances/ECov.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Basic/String.hpp"

@@ -105,9 +105,14 @@ def getDefinedValues(db, name, posx=0, posy=1, corner=None, usesel=True,
         if db.getNDim() == 2:
             posx = 0
             posy = 1
+            
         if corner is None:
             corner = np.zeros(db.getNDim())
-        tabx = db.getOneSlice(name, posx, posy, corner, usesel)
+        
+        if db.getNDim() == 1:
+            tabx = db.getColumn(name, usesel)
+        else:
+            tabx = db.getOneSlice(name, posx, posy, corner, usesel)
     else:
         tabx = db.getColumn(name, usesel)
     tabx = np.array(tabx).transpose()
@@ -387,7 +392,8 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                 if mymodel is not None:
                     codir = vario.getCodir(idirUtil)
                     model(mymodel, ivar=iv, jvar=jv, codir=codir, 
-                          color=cols(idirUtil), linestyle=linestylem, color0=color0, linestyle0=linestyle0, ax=ax,
+                          color=cols(idirUtil), linestyle=linestylem, 
+                          color0=color0, linestyle0=linestyle0, ax=ax,
                           hmax=hmax, gmax=None, nh=nh,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
@@ -447,7 +453,8 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
 
 def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed',
           nh = 100, flagEnv = True, hmax = None, gmax = None, 
-          flagLabelDir=False, flagLegend=False, title=None, xlabel=None, ylabel=None, ax=None, 
+          flagLabelDir=False, flagLegend=False, asCov=False,
+          title=None, xlabel=None, ylabel=None, ax=None, 
           figsize = None, end_plot =False, **plot_args):
     """Plot a single and unidirectional variogram model (one direction and fixed variable(s)).
     
@@ -467,6 +474,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     flagLabelDir : Flag to add the direction vector codir in the label of the line. 
                    The default label is "model" (default is False).
     flagLegend : Flag to display the axes legend (The default is False).
+    asCov : Present the Model as a Covariance (rather than as a Variogram)
     title : Optional title for the axes.
     ax : Reference for the plot within the figure. If None (default), it creates a new figure.
     figsize : (if ax is None) Sizes (width, height) of figure (in inches).
@@ -495,7 +503,8 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         hmax = 1
             
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, 
+                      asCov=asCov, addZero=True)
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -512,9 +521,11 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
     
     if ivar != jvar and flagEnv:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, addZero=True)
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, 
+                           asCov = asCov, addZero=True)
         ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0, label="plus")
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, addZero=True)
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, 
+                           asCov = asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
     drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
@@ -525,16 +536,17 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     return ax
 
 def point(db, 
-          color_name=None, size_name=None, label_name=None, usesel=True, 
+          color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
           xlim=None, ylim=None, directColor=False,
-          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect='equal',
+          cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
     db: Db containing the variable to be plotted
     color_name: Name of the variable containing the color per sample
     size_name: Name of the variable containing the size per sample
+    elev1D_name: Name of the variable standing for Y coordinate in 1-D case
     label_name: Name of the variable containing the label per sample
     usesel : Boolean to indicate if the selection has to be considered
     color: Constant color (used if 'color_name' is not defined)
@@ -561,7 +573,10 @@ def point(db,
 
     # Extracting coordinates
     tabx = db.getCoordinates(0,usesel)
-    taby = db.getCoordinates(1,usesel)
+    if db.getNDim() > 1:
+        taby = db.getCoordinates(1,usesel)
+    else:
+        taby = db.getColumn(elev1D_name, usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
         return
     
@@ -608,8 +623,95 @@ def point(db,
 
     return ax
 
+def gradient(db, elev1D_name=None, usesel=True, color='black', scale=20, 
+             xlim=None, ylim=None, aspect=None,
+             title=None, ax=None, figsize=None, end_plot=False):
+    '''Function for plotting a gradient data base
+    
+    db: Db containing the variable to be plotted
+    usesel : Boolean to indicate if the selection has to be considered
+    color: Constant color 
+    scale: Constant scale
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    '''
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
 
-def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
+    # Extracting coordinates
+    tabx  = db.getCoordinates(0,usesel)
+    if db.getNDim() > 1:
+        taby  = db.getCoordinates(1,usesel)
+    else:
+        taby = db.getColumn(elev1D_name, usesel)
+
+    if db.getNDim() > 1:
+        tabgx = db.getGradients(0,usesel)
+        tabgy = db.getGradients(1,usesel)
+    else:
+        tabgy = -db.getGradients(0,usesel)
+        tabgx = -np.ones(len(tabgy))
+
+    if len(tabx) <= 0 or len(taby) <= 0 or len(tabgx) <= 0 or len(tabgy) <= 0:
+        return
+    
+    ax.quiver(tabx, taby, -tabgx, -tabgy, angles='xy', color=color, scale=scale)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+
+def tangent(db, usesel=True, color='black', scale=20, 
+            xlim=None, ylim=None, aspect=None,
+            title=None, ax=None, figsize=None, end_plot=False):
+    '''Function for plotting a tangent data base
+    
+    db: Db containing the variable to be plotted
+    usesel : Boolean to indicate if the selection has to be considered
+    color: Constant color 
+    scale: Constant scale
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    '''
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+
+    # Extracting coordinates
+    tabx  = db.getCoordinates(0,usesel)
+    taby  = db.getCoordinates(1,usesel)
+    tabtx = db.getTangents(0,usesel)
+    tabty = db.getTangents(1,usesel)
+
+    if len(tabx) <= 0 or len(taby) <= 0 or len(tabtx) <= 0 or len(tabty) <= 0:
+        return
+    
+    ax.quiver(tabx, taby, -tabtx, -tabty, color=color, scale=scale)
+    ax.quiver(tabx, taby,  tabtx,  tabty, color=color, scale=scale)
+            
+    drawDecor(ax, title=title, aspect=aspect)
+        
+    if end_plot:
+        plt.show()
+
+    return ax
+
+def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect=None,
             colorPerSet = False, flagEdge=True, flagFace=False, linewidth=2,
             title= None, ax=None, figsize=None, end_plot=False, **fill_args):
     '''Function to display a polygon
@@ -649,9 +751,10 @@ def polygon(poly, faceColor='yellow', edgeColor = 'blue', aspect='equal',
         
     return ax
         
-def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
+def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, posx=0, posy=1, corner=None, 
-         flagIsoLine=False, levels=[0],
+         levels=None, colorL='black', linestyleL = 'solid', 
+         flagRaster=True,
          title = None, ax=None, figsize = None, end_plot=False, 
          **plot_args):
     '''
@@ -712,11 +815,15 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
         print("The argument shading should be either 'nearest' for cells centered on (x,y)"
               " or 'flat' for cells with low-left corner in (x,y)")
 
-    im = ax.pcolormesh(X, Y, data, **plot_args)
-    im.set_transform(trans_data)
+    if flagRaster:
+        im = ax.pcolormesh(X, Y, data, **plot_args)
+        im.set_transform(trans_data)
+        
+        if flagColorBar:
+            addColorbar(im, ax)
     
-    if flagIsoLine:
-        ax.contour(X, Y, data, levels)
+    if levels is not None:
+        ax.contour(X, Y, data, levels, colors=colorL, linestyles=linestyleL)
         
     x1, x2, y1, y2 = x0, X[-1], y0, Y[-1]
     ax.plot([x1, x2, x2, x1, x1], [y1, y1, y2, y2, y1], marker='', linestyle='', 
@@ -727,9 +834,6 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     if title is None:
         title = dbgrid.getNames(name)[0]
         
-    if flagColorBar:
-        addColorbar(im, ax)
-    
     drawDecor(ax, title=title, aspect=aspect)
     
     if end_plot:
@@ -737,6 +841,59 @@ def grid(dbgrid, name = None, usesel = True, flagColorBar=True, aspect='equal',
     
     return ax
 
+def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
+         xlim=None, ylim=None,
+         color='black',flagLegend=False, label='curve',
+         title = None, ax=None, figsize = None, end_plot=False, 
+         **plot_args):
+    '''
+    Function for plotting a variable (referred by its name) informed in a DbGrid
+
+    dbgrid: Db, organized as a Grid, containing the variable to be plotted
+    name: Name of the variable to be represented (by default, the first Z locator, or the last field)
+    usesel : Boolean to indicate if the selection has to be considered
+    flagColorBar: Flag for representing the Color Bar (not represented if alpha=0)
+    aspect: aspect ratio of the axes scaling, i.e. y/x-scale.
+    xlim: Bounds defined along the first axis
+    ylim: Bounds defined along the second axis
+    title: Title given to the plot
+    ax: Reference for the plot within the figure
+    figsize: (if ax is None) Sizes (width, height) of figure (in inches)
+    end_plot: Flag for closing the graphics
+    
+    **plot_args : arguments passed to matplotlib.pyplot.pcolormesh
+    '''
+    if dbgrid.getNDim() != 1:
+        print("This function is dedicated to 1-D Grid")
+        return None
+    
+    if not(dbgrid.isGrid()):
+        print("This function is dedicated to Grid Db and cannot be used here")
+        return None
+    
+    if name is None:
+        if dbgrid.getVariableNumber() > 0:
+            name = dbgrid.getNameByLocator(gl.ELoc.Z,0) # select locator z1, prints an error if no Z locator
+        else : # if no Z locator, choose the last field
+            name = dbgrid.getLastName()
+    
+    if ax is None:
+        fig, ax = newFigure(figsize, xlim, ylim)
+        
+    x0 = dbgrid.getX0(0)
+    nx = dbgrid.getNX(0)
+    dx = dbgrid.getDX(0)
+    
+    tabx = dbgrid.getColumnByLocator(gl.ELoc.X, 0, usesel)
+    data = getDefinedValues(dbgrid, name, 0, 1, None, usesel, 
+                            compress=False, asGrid=True)
+
+    curve(data1=tabx, data2=data, color=color, flagLegend=flagLegend, 
+          label=label,
+          title=title, ax=ax, figsize = figsize, end_plot=end_plot,
+          **plot_args)
+
+    return ax
 
 def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red',
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
@@ -767,7 +924,6 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     hist_args : arguments passed to matplotlib.pyplot.hist'''
     
     db.useSel = usesel
-    #val = db.getColumn(name)
     val = db[name]
     if len(val) == 0:
         return None
@@ -778,36 +934,49 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     
     return ax
 
-def curve(data, icas=1, color='black',flagLegend=False, label='curve',
+def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curve',
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
-    Function for plotting the curve of an array (argument 'data')
-        if data is a tuple, it should contain x=data[0] and y=data[1]
-        othwise:
-        icas=1 when 'data' contains the abscissa and ordinates are regular
-        icas=2 when 'data' contains the ordinate and abscissa are regular
+    Function for plotting the curve of an array (argument 'data1')
+        if data1 is a tuple, it should contain x=data1[0] and y=data1[1]
+        or
+        'data1' and 'data2' are provided
+        otherwise:
+        icas=1 when 'data1' contains the abscissa and ordinates are regular
+        icas=2 when 'data1' contains the ordinate and abscissa are regular
     **plot_args : arguments passed to matplotlib.pyplot.plot
     '''
     color = plot_args.setdefault('color', color)
     label = plot_args.setdefault('label', label)
     
-    if len(data) == 0:
+    if len(data1) == 0:
         return None
 
     if ax is None:
         fig, ax = newFigure(figsize)
     
-    filetype = type(data).__name__
+    filetype = type(data1).__name__
     if filetype == "tuple":
-        ax.plot(data[0], data[1], **plot_args)
+        tabx = data1[0]
+        taby = data1[1]
     else:
-        nbpoint = len(data)
-        regular = [i for i in range(nbpoint)]
-    
-        if icas == 1:
-            ax.plot(data, regular, **plot_args)
+        nbpoint = len(data1)
+        if len(data2) != 0:
+            if len(data2) != nbpoint:
+                print("Arrays 'data1' and 'data2' should have same dimensions")
+                return None
+            tabx = data1
+            taby = data2
         else:
-            ax.plot(regular, data, **plot_args)
+            regular = [i for i in range(nbpoint)]
+            if icas == 1:
+                tabx = data1
+                taby = regular
+            else:
+                tabx = regular
+                taby = data1
+            
+    ax.plot(tabx, taby, **plot_args)
     
     drawDecor(ax, title=title, flagLegend=flagLegend)
     
@@ -872,7 +1041,7 @@ def XY(xtab, ytab, flagAsPoint=False, xlim=None, ylim=None, flagLegend=False,
     
     return ax
 
-def sample(sample, xlim=None, ylim=None, aspect='equal',
+def sample(sample, xlim=None, ylim=None, aspect=None,
            color='black', marker='o', markersize=10,
            flagLegend=False,
            title=None, ax=None, figsize = None, label='data', end_plot=False, **plot_args):
@@ -949,7 +1118,7 @@ def table(table, icols, fmt='ok', xlim=None, ylim=None, flagLegend=False,
     return ax
 
 def mesh(mesh, 
-         flagEdge=True, flagFace=False, flagApex=False, aspect='equal',
+         flagEdge=True, flagFace=False, flagApex=False, aspect=None,
          xlim=None, ylim=None, facecolor="yellow", edgecolor="blue", linewidth=1,
          title=None, ax=None, figsize = None, end_plot =False, **plot_args):
     """
@@ -1139,7 +1308,7 @@ def plotFromNF(filename, name1=None, name2=None, ranks=None, **kwargs):
 
 ### Plot several variables at once
 
-def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect='equal',
+def grids(dbgrid, names = None, usesel = True, flagColorBar=True, aspect=None,
          xlim=None, ylim=None, norm=None,
          title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
@@ -1271,7 +1440,7 @@ def color_plots(db, names = None, usesel = True, flagColorBar=True, aspect='auto
         
     return axs
 
-def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect='equal',
+def size_plots(db, names = None, usesel = True, flagColorBar=True, aspect=None,
                xlim=None, ylim=None, color='r', sizmin=20, sizmax=200,
                title = None, axs=None, figsize = None, end_plot=False, **plot_args):
     '''
@@ -1546,4 +1715,31 @@ class PolygonSelection:
         self.mydb.deleteColumn("interactive_selection")
         
 
+## Add plot functions as methods of the class ##
+## ------------------------------------------ ##
 
+import gstlearn.plot as gp
+
+setattr(gl.Db,"plot", gp.point)
+setattr(gl.Db,"plot_correlation", gp.correlation)
+setattr(gl.Db,"plot_hist", gp.hist)
+setattr(gl.Db,"color_plots", gp.color_plots)
+setattr(gl.Db,"size_plots", gp.size_plots)
+
+setattr(gl.DbGrid,"plot", gp.grid)
+setattr(gl.DbGrid,"plot_grids", gp.grids)
+setattr(gl.DbGrid,"plot_point", gp.point)
+# plot_correlation and plot_hist are already inherited from the parent class Db
+
+setattr(gl.Vario,"plot", gp.vario)
+setattr(gl.Vario,"plot_varioElem", gp.varioElem)
+setattr(gl.Vario,"plot_varioDir", gp.varioDir)
+setattr(gl.Vario,"plot_varmod", gp.varmod)
+
+setattr(gl.Model,"plot", gp.model)
+
+setattr(gl.Rule,"plot", gp.rule)
+
+setattr(gl.Table,"plot", gp.table)
+
+setattr(gl.Polygons,"plot", gp.polygon)

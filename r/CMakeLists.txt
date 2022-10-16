@@ -54,6 +54,7 @@ else()
 endif()
 set(R_PACKAGE_DESTINATION_FOLDER   ${R_PACKAGE_ROOT_FOLDER}/${R_PACKAGE_NAME})
 set(R_PACKAGE_R_FOLDER             ${R_PACKAGE_DESTINATION_FOLDER}/R)
+set(R_PACKAGE_DATA_FOLDER          ${R_PACKAGE_DESTINATION_FOLDER}/data)
 set(R_PACKAGE_SRC_FOLDER           ${R_PACKAGE_DESTINATION_FOLDER}/src)
 
 # Location for SWIG target language code
@@ -169,6 +170,16 @@ foreach(MODULE ${MODULES})
     INPUT ${MODULE}
   )
 endforeach()
+
+# Copy datafolder to package *destination* folder for each configuration
+#file(GLOB DATASETS_RDA ${CMAKE_CURRENT_SOURCE_DIR}/data/*.rda)
+#foreach(DATASET_RDA ${DATASETS_RDA})
+#  cmake_path(GET DATASET_RDA FILENAME DATASET_RDA_NAME)
+#  file(COPY
+#    OUTPUT ${R_PACKAGE_DATA_FOLDER}/${DATASET_RDA_NAME}
+#    INPUT ${DATASET_RDA_NAME}
+#  )
+#endforeach()
 
 ######################################
 # INSTALLATION

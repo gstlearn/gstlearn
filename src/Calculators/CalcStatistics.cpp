@@ -10,12 +10,13 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
+#include "Enum/ELoc.hpp"
+
 #include "Basic/NamingConvention.hpp"
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Db/ELoc.hpp"
 
 #include <math.h>
 

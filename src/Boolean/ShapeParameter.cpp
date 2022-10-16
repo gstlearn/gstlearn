@@ -8,8 +8,9 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "Enum/ETLaw.hpp"
+
 #include "Boolean/ShapeParameter.hpp"
-#include "Boolean/ETLaw.hpp"
 #include "Basic/Law.hpp"
 
 ShapeParameter::ShapeParameter(ETLaw law, double value)

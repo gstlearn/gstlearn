@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "Enum/ECov.hpp"
+
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
-#include "Covariances/ECov.hpp"
 #include "Arrays/Array.hpp"
 
 /* Covariance basic function for normalized sill and distance:
@@ -77,7 +79,7 @@ protected:
   /// TODO : Gneiting (spatio-temporal covariance) :
   /// Change argument : double h becomes VectorDouble (number of sub-space)
   virtual double _evaluateCov(double h) const = 0;
-  virtual double _evaluateCovDerivate(int degree, double h) const;
+  virtual double _evaluateCovDerivative(int degree, double h) const;
   virtual double _evaluateCovOnSphere(double scale = 1., int degree = 50) const;
 
 private:

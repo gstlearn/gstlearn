@@ -49,7 +49,7 @@ double CovGCspline2::_evaluateCov(double h) const
   return (cov);
 }
 
-double CovGCspline2::_evaluateCovDerivate(int degree, double h) const
+double CovGCspline2::_evaluateCovDerivative(int degree, double h) const
 {
   double B = 1.;
   double C = (-7. - 2. * B) / 12.;
