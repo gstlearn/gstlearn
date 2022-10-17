@@ -2,6 +2,8 @@ import plotly.graph_objects as go
 import numpy                as np
 import gstlearn             as gl
 from numpy import pi
+from scipy.optimize._basinhopping import AdaptiveStepsize
+from matplotlib.animation import adjusted_figsize
 
 def getCscale():
     cscale = [
@@ -142,10 +144,10 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False,
     return slice
    
 def SurfaceOnDbGrid3D(grid, name, usesel=False,
-                      isomin=0, isomax=1, surface_count = 2):
+                      isomin=0, isomax=1, surface_count = 1, showLegend=False):
     
     if grid.getNDim() != 3:
-        print("This representaion is designed for 3-D Grid only")
+        print("This representation is designed for 3-D Grid only")
         return None
                       
     shape = list(grid.getNXs())
@@ -155,13 +157,46 @@ def SurfaceOnDbGrid3D(grid, name, usesel=False,
     z = grid.getCoordinates(2, usesel).reshape(shape)
     values = grid.getColumn( name, usesel).reshape(shape)
     
-    surfaces = go.Isosurface(x=x, y=y, z=z, value = values, 
+    surfaces = go.Isosurface(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
+                             value = values.flatten(), 
                              isomin = isomin, isomax = isomax,
-                             surface_count = surface_count,
-                             caps = dict(x_show=False, y_show=False)
-                            )
+                             surface_count = surface_count, colorscale='BlueRed',
+                             showscale = showLegend, 
+                             caps = dict(x_show=False, y_show=False))
     return surfaces
    
+def PointDb3D(db, color_name=None, size_name=None, usesel=False, 
+                color='black', size=3, opacity=1): 
+    if db.getNDim() != 3:
+        print("This representation is designed for 3-D Data Base only")
+        return None
+                      
+    x = db.getCoordinates(0, usesel)
+    y = db.getCoordinates(1, usesel)
+    z = db.getCoordinates(2, usesel)
+    
+    if color_name is not None:
+        colors = db.getColumn(color_name, usesel)
+    else:
+        colors = color
+    
+    if size_name is not None:
+        sizes = db.getColumn(size_name, usesel)
+    else:
+        sizes = size
+        
+    object = go.Scatter3d(x=x, y=y, z=z, mode='markers',
+                          marker = dict(
+                                     size = sizes,
+                                     color = colors,
+                                     colorscale ='Viridis',
+                                     opacity = opacity
+                                   )
+                          )
+    
+    return object
+
+
 def Equator(ndisc = 360, color='black', width=3, dilate=1.):
     long = np.arange(0,ndisc+1) * 360. / ndisc
     lat  = np.zeros(ndisc+1)

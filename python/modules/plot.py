@@ -1157,7 +1157,8 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
-                xlab=None, ylab=None, title = None, ax=None, figsize=None, end_plot=False):
+                xlab=None, ylab=None, aspect=None, 
+                title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the scatter plot between two variables contained in a Db'''
  
     if ax is None:
@@ -1213,7 +1214,7 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
         if ylab is None:
             ylab = db.getNames(namey)[0]
 
-    drawDecor(ax, xlab=xlab, ylab=ylab, title=title)
+    drawDecor(ax, xlab=xlab, ylab=ylab, title=title, aspect=aspect)
     
     if end_plot:
         plt.show()

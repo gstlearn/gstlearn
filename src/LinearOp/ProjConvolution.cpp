@@ -89,22 +89,26 @@ int ProjConvolution::_buildAprojCS()
 }
 
 /**
- * Calculate the vector of grid index shifts
+ * Calculate the vector of grid index shifts (in Point Grid)
  * This vector is calculated for the cell located in the center of the grid
  */
 void ProjConvolution::_buildShiftVector()
 {
+  // Creating the characteristics of the Point Grid
+
+  Grid grid = _getResolutionGridCharacteristics();
+
   int ndim = _gridSeismic->getNDim();
   int center = 1;
   for (int idim = 0; idim < ndim; idim++)
-    center *= _gridSeismic->getNX(idim);
+    center *= grid.getNX(idim);
   center /= 2;
 
   VectorInt indp(ndim);
   VectorInt indm(ndim);
   _shiftVector.resize(_getConvSize());
 
-  _gridSeismic->rankToIndice(center, indp);
+  grid.rankToIndice(center, indp);
   for (int idim = 0; idim < ndim; idim++) indm[idim] = indp[idim];
 
   // Shift the index of last coordinate by the shift of the grid
@@ -113,7 +117,7 @@ void ProjConvolution::_buildShiftVector()
   for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
   {
     indm[ndim - 1] = indp[ndim - 1] + i;
-    int id = _gridSeismic->indiceToRank(indm);
+    int id = grid.indiceToRank(indm);
     _shiftVector[i + _getHalfSize()] = id - center;
   }
 }
@@ -211,96 +215,73 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   return 0;
 }
 
-void ProjConvolution::_getIndicesOnVertex(const VectorInt &inds,
-                                          int vshift,
-                                          VectorInt &indp) const
-{
-  int ndim = _getNDim();
-  VectorInt ind = inds;
-
-  // Lower-left corner
-  indp[0] = _gridSeismic->getGrid().indiceToRank(ind) + vshift;
-  ind[0] += 1;
-  indp[1] = _gridSeismic->getGrid().indiceToRank(ind) + vshift;
-
-  if (ndim <= 2) return;
-
-  ind[1] += 1;
-  indp[2] = _gridSeismic->getGrid().indiceToRank(ind) + vshift;
-  ind[0] -= 1;
-  indp[3] = _gridSeismic->getGrid().indiceToRank(ind) + vshift;
-}
-
-void ProjConvolution::_getWeights(int ixm, int iym, VectorDouble& wgt) const
-{
-  double wx = _weightx[ixm];
-  if (_getNDim() == 2)
-  {
-    wgt[0] = wx;
-    wgt[1] = 1. - wx;
-  }
-  else
-  {
-    double wy = _weighty[iym];
-    wgt[0] = wx        * wy;
-    wgt[1] = (1. - wx) * wy;
-    wgt[2] = (1. - wx) * ( 1. - wy);
-    wgt[3] = wx        * (1. - wy);
-  }
-}
-
 int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
                                    VectorDouble &valonseismic) const
 {
   int size  = _getConvSize();
-  VectorInt    indices(3);
+  VectorInt    indp(3);
   VectorInt    ranks(4);
   VectorDouble wgt(4);
 
+  // Get the characteristics of the coarse grid
+
+  Grid grid = _getResolutionGridCharacteristics();
+
   // Loop on the nodes of the seismic grid
 
-  int is      = 0;
-  int rloc    = 0;
+  int ecrs    = 0;
+  int lecp    = 0;
+  int decale  = 0;
   double valp = 0.;
   double valm = 0.;
   double wloc = 0.;
   double vloc = 0.;
+  double wx   = 0.;
+  double wy   = 0.;
 
   for (int iz = 0; iz < _gridSeismic->getNX(2); iz++)
   {
-    indices[2] = iz;
-    for (int iy = 0; iy < _gridSeismic->getNX(1); iy++)
+    indp[2] = iz;
+    for (int iy = 0; iy < grid.getNX(1); iy++)
     {
-      indices[1] = iy;
-      int nymax = (iy < _gridSeismic->getNX(1) - 1) ? _nmult[1] : 1;
+      indp[1] = iy;
+      int nymax = (iy < grid.getNX(1) - 1) ? _nmult[1] : 1;
       for (int iym = 0; iym < nymax; iym++)
       {
-        for (int ix = 0; ix < _gridSeismic->getNX(0); ix++)
+        wy = _weighty[iym];
+        for (int ix = 0; ix < grid.getNX(0); ix++)
         {
-          indices[0] = ix;
-          int nxmax = (ix < _gridSeismic->getNX(0) - 1) ? _nmult[0] : 1;
+          indp[0] = ix;
+          int nxmax = (ix < grid.getNX(0) - 1) ? _nmult[0] : 1;
           for (int ixm = 0; ixm < nxmax; ixm++)
           {
-            is = _gridSeismic->getGrid().indiceToRank(indices);
+            wx = _weightx[ixm];
+
+            lecp = grid.indiceToRank(indp);
+            ranks[0] = lecp;
+            ranks[1] = lecp + 1;
+            ranks[2] = lecp + 1 + grid.getNX(0);
+            ranks[3] = lecp +     grid.getNX(0);
+
+            wgt[0] = wx        * wy;
+            wgt[1] = (1. - wx) * wy;
+            wgt[2] = (1. - wx) * (1. - wy);
+            wgt[3] = wx        * (1. - wy);
 
             // Loop on the convolution
-
             valp = 0;
             for (int j = 0; j < size; j++)
             {
-              // Load the values of the neighborhood
-              _getIndicesOnVertex(indices, _shiftVector[j], ranks);
-              _getWeights(ixm, iym, wgt);
 
               // Derive the value of the 2-D center of gravity
               valm = 0.;
+              decale = _shiftVector[j];
               for (int i = 0; i < 4; i++)
               {
                 wloc = wgt[i];
-                rloc = ranks[i];
-                if (wloc > 0. && rloc >= 0)
+                if (wloc > 0.)
                 {
-                  vloc = valonvertex[rloc];
+                  vloc = valonvertex[ranks[i] + decale];
                   if (FFFF(vloc))
                   {
                     valp = TEST;
@@ -313,7 +294,16 @@ int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
               // Add to the convolution
               valp += valm * _convolution[j];
             }
-            valonseismic[is++] = valp;
+
+            VectorInt indloc(3);
+            indloc[0] = ix * _nmult[0] + ixm;
+            indloc[1] = iy * _nmult[1] + iym;
+            indloc[2] = iz;
+            int lecs = _gridSeismic->getGrid().indiceToRank(indloc);
+//            if (lecs != ecrs)
+//              message("Erreur lecs=%d ecrs=%d\n",lecs,ecrs);
+//            valonseismic[ecrs++] = valp;
+            valonseismic[lecs] = valp;
           }
         }
       }
@@ -326,48 +316,58 @@ int ProjConvolution::_mesh2point2D(const VectorDouble &valonvertex,
                                    VectorDouble &valonseismic) const
 {
   int size  = _getConvSize();
-  VectorInt    indices(2);
+  VectorInt    indp(2);
   VectorInt    ranks(2);
   VectorDouble wgt(2);
 
+  // Get the characteristics of the coarse grid
+
+  Grid grid = _getResolutionGridCharacteristics();
+
   // Loop on the nodes of the seismic grid
 
-  int is      = 0;
-  int rloc    = 0;
+  int ecrs    = 0;
+  int lecp    = 0;
+  int decale  = 0;
   double valp = 0.;
   double valm = 0.;
   double wloc = 0.;
   double vloc = 0.;
+  double wx   = 0.;
 
   for (int iy = 0; iy < _gridSeismic->getNX(1); iy++)
   {
-    indices[1] = iy;
-    for (int ix = 0; ix < _gridSeismic->getNX(0); ix++)
+    indp[1] = iy;
+    for (int ix = 0; ix < grid.getNX(0); ix++)
     {
-      indices[0] = ix;
-      int nxmax = (ix < _gridSeismic->getNX(0) - 1) ? _nmult[0] : 1;
+      indp[0] = ix;
+      int nxmax = (ix < grid.getNX(0) - 1) ? _nmult[0] : 1;
       for (int ixm = 0; ixm < nxmax; ixm++)
       {
-        is = _gridSeismic->getGrid().indiceToRank(indices);
+        wx = _weightx[ixm];
+
+        lecp = grid.indiceToRank(indp);
+        ranks[0] = lecp;
+        ranks[1] = lecp + 1;
+
+        wgt[0] = wx;
+        wgt[1] = 1. - wx;
 
         // Loop on the convolution
 
         valp = 0;
         for (int j = 0; j < size; j++)
         {
-          // Load the values of the neighborhood
-          _getIndicesOnVertex(indices, _shiftVector[j], ranks);
-          _getWeights(ixm, -1, wgt);
 
           // Derive the value of the 2-D center of gravity
+          decale = _shiftVector[j];
           valm = 0.;
           for (int i = 0; i < 2; i++)
           {
             wloc = wgt[i];
-            rloc = ranks[i];
-            if (wloc > 0. && rloc >= 0)
+            if (wloc > 0.)
             {
-              vloc = valonvertex[rloc];
+              vloc = valonvertex[ranks[i] + decale];
               if (FFFF(vloc))
               {
                 valp = TEST;
@@ -380,7 +380,7 @@ int ProjConvolution::_mesh2point2D(const VectorDouble &valonvertex,
           // Add to the convolution
           valp += valm * _convolution[j];
         }
-        valonseismic[is++] = valp;
+        valonseismic[ecrs++] = valp;
       }
     }
   }
@@ -416,42 +416,40 @@ int ProjConvolution::_mesh2pointRef(const VectorDouble &valonvertex,
   return 0;
 }
 
-DbGrid* ProjConvolution::getResolutionGrid() const
+Grid ProjConvolution::_getResolutionGridCharacteristics() const
 {
   int ndim = _gridSeismic->getNDim();
 
   VectorInt nxs(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  _gridSeismic->getGrid().multiple(_nmult, 1, nxs, dx, x0);
+  _gridSeismic->getGrid().multiple(_nmult, 0, nxs, dx, x0);
 
   // Correct the last dimension
   nxs[ndim - 1] += (_getConvSize() - 1);
-  x0[ndim - 1] -= (_getConvSize() - 1) * dx[ndim - 1];
+  x0[ndim - 1]  -= (_getConvSize() - 1) * dx[ndim - 1];
+  Grid grid(ndim, nxs, x0, dx);
 
-  // Create the new grid
-  DbGrid* dbgrid = DbGrid::create(nxs, dx, x0, _gridSeismic->getAngles());
-  return dbgrid;
+  return grid;
 }
 
-VectorInt ProjConvolution::_getNXResolutionGrid() const
+DbGrid* ProjConvolution::getResolutionGrid() const
 {
-  int ndim = _gridSeismic->getNDim();
+  // Get the characteristics of the Point Grid
+  Grid grid = _getResolutionGridCharacteristics();
 
-  VectorInt nxs(ndim);
-  VectorDouble dx(ndim);
-  VectorDouble x0(ndim);
-  _gridSeismic->getGrid().multiple(_nmult, 1, nxs, dx, x0);
-
-  // Correct the last dimension
-  nxs[_gridSeismic->getNDim() - 1] += (_getConvSize() - 1);
-  return nxs;
+  // Create the new Point grid
+  DbGrid* dbgrid = DbGrid::create(grid.getNXs(),
+                                  grid.getDXs(),
+                                  grid.getX0s(),
+                                  _gridSeismic->getAngles());
+  return dbgrid;
 }
 
 int ProjConvolution::getApexNumber() const
 {
-  VectorInt nxs = _getNXResolutionGrid();
-  return ut_vector_prod(nxs);
+  Grid grid = _getResolutionGridCharacteristics();
+  return ut_vector_prod(grid.getNXs());
 }
 
 int ProjConvolution::getPointNumber() const
