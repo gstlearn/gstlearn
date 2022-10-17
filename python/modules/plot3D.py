@@ -3,22 +3,23 @@ import numpy                as np
 import gstlearn             as gl
 from numpy import pi
 
-
 def getCscale():
-    cscale = [[0.0, '#313695'],
- [0.07692307692307693, '#3a67af'],
- [0.15384615384615385, '#5994c5'],
- [0.23076923076923078, '#84bbd8'],
- [0.3076923076923077, '#afdbea'],
- [0.38461538461538464, '#d8eff5'],
- [0.46153846153846156, '#d6ffe1'],
- [0.5384615384615384, '#fef4ac'],
- [0.6153846153846154, '#fed987'],
- [0.6923076923076923, '#fdb264'],
- [0.7692307692307693, '#f78249'],
- [0.8461538461538461, '#e75435'],
- [0.9230769230769231, '#cc2727'],
- [1.0, '#a50026']]
+    cscale = [
+        [0.0, '#313695'],
+        [0.07692307692307693, '#3a67af'],
+        [0.15384615384615385, '#5994c5'],
+        [0.23076923076923078, '#84bbd8'],
+        [0.3076923076923077, '#afdbea'],
+        [0.38461538461538464, '#d8eff5'],
+        [0.46153846153846156, '#d6ffe1'],
+        [0.5384615384615384, '#fef4ac'],
+        [0.6153846153846154, '#fed987'],
+        [0.6923076923076923, '#fdb264'],
+        [0.7692307692307693, '#f78249'],
+        [0.8461538461538461, '#e75435'],
+        [0.9230769230769231, '#cc2727'],
+        [1.0, '#a50026']
+ ]
     return cscale
 
 def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', opacity=0.50):
@@ -119,7 +120,13 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
               )
     return boundaries
 
-def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, cmin = None, cmax = None):
+def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, 
+                    cmin = None, cmax = None):
+    
+    if grid.getNDim() != 3:
+        print("This representaion is designed for 3-D Grid only")
+        return None
+                      
     shape = list(grid.getNXs())
     shape.pop(section)
     vect = grid.getSlice(name, section, rank, usesel)
@@ -133,6 +140,27 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, cmin = None, cm
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
                     coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
+   
+def SurfaceOnDbGrid3D(grid, name, usesel=False,
+                      isomin=0, isomax=1, surface_count = 2):
+    
+    if grid.getNDim() != 3:
+        print("This representaion is designed for 3-D Grid only")
+        return None
+                      
+    shape = list(grid.getNXs())
+
+    x = grid.getCoordinates(0, usesel).reshape(shape)
+    y = grid.getCoordinates(1, usesel).reshape(shape)
+    z = grid.getCoordinates(2, usesel).reshape(shape)
+    values = grid.getColumn( name, usesel).reshape(shape)
+    
+    surfaces = go.Isosurface(x=x, y=y, z=z, value = values, 
+                             isomin = isomin, isomax = isomax,
+                             surface_count = surface_count,
+                             caps = dict(x_show=False, y_show=False)
+                            )
+    return surfaces
    
 def Equator(ndisc = 360, color='black', width=3, dilate=1.):
     long = np.arange(0,ndisc+1) * 360. / ndisc

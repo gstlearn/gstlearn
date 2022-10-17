@@ -1179,7 +1179,8 @@ static int st_extdrift_eval(const char *target,
                             double *extval,
                             VectorDouble& extgrd)
 {
-  double coor[3], result[4];
+  VectorDouble coor(3);
+  VectorDouble result(4);
   int error;
 
   error = 1;
@@ -1190,7 +1191,7 @@ static int st_extdrift_eval(const char *target,
 
   /* Find the location of the target within the external drift grid */
 
-  if (point_to_grid(dbgrid, coor, 0, pot_ext->indg0) < 0) goto label_end;
+  if (point_to_grid(dbgrid, coor.data(), 0, pot_ext->indg0) < 0) goto label_end;
 
   /* Find the neighborhood around the target grid node */
 
@@ -1198,7 +1199,8 @@ static int st_extdrift_eval(const char *target,
 
   /* Perform the estimation */
 
-  matrix_product(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight, result);
+  matrix_product(1, pot_ext->nfull, 4, pot_ext->data, pot_ext->weight,
+                 result.data());
 
   /* Retrieve the results */
 
@@ -2036,7 +2038,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           double *rhs,
                           Db *db_target,
                           int iech0,
-                          double *result)
+                          VectorDouble& result)
 {
   int nsol;
   VectorDouble coor(3,0.);
@@ -2065,13 +2067,13 @@ static void st_calc_point(Pot_Env *pot_env,
   /* Perform the estimation */
 
   for (int i = 0; i < nsol; i++) result[i] = TEST;
-  matrix_product(1, pot_env->nequa, nsol, zdual, rhs, result);
+  matrix_product(1, pot_env->nequa, nsol, zdual, rhs, result.data());
 
   // Printout (optional) 
 
   if (OptDbg::query(EDbg::KRIGING))
   {
-    print_matrix("Results", 0, 1, 1, nsol, NULL, result);
+    print_matrix("Results", 0, 1, 1, nsol, NULL, result.data());
     message("\n");
   }
 
@@ -2097,7 +2099,7 @@ static void st_calc_point(Pot_Env *pot_env,
 static void st_potential_to_layer(Pot_Env *pot_env,
                                   int isimu,
                                   double *potval,
-                                  double *result)
+                                  VectorDouble& result)
 {
   double minval, potref;
   int ilayer;
@@ -2133,20 +2135,20 @@ static void st_potential_to_layer(Pot_Env *pot_env,
  ** \param[in]  potval        Potential values at iso-potential samples
  **
  *****************************************************************************/
-static void st_estimate(Pot_Env *pot_env,
-                        Pot_Ext *pot_ext,
-                        bool flag_grad,
-                        Db *dbiso,
-                        Db *dbgrd,
-                        Db *dbtgt,
-                        DbGrid *dbout,
-                        Model *model,
-                        double refpot,
-                        double *zdual,
-                        double *rhs,
-                        double *potval)
+static void st_estimate_result(Pot_Env *pot_env,
+                               Pot_Ext *pot_ext,
+                               bool flag_grad,
+                               Db *dbiso,
+                               Db *dbgrd,
+                               Db *dbtgt,
+                               DbGrid *dbout,
+                               Model *model,
+                               double refpot,
+                               double *zdual,
+                               double *rhs,
+                               double *potval)
 {
-  double result[4];
+  VectorDouble result(4);
 
   for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
   {
@@ -2170,7 +2172,8 @@ static void st_estimate(Pot_Env *pot_env,
 
     // Translate from potential into layer
 
-    if (pot_env->flag_trans) st_potential_to_layer(pot_env, 0, potval, result);
+    if (pot_env->flag_trans)
+      st_potential_to_layer(pot_env, 0, potval, result);
 
     // Store the results
 
@@ -2197,7 +2200,7 @@ static void st_estimate_data(Pot_Env *pot_env,
                              VectorInt& uid_pot,
                              VectorInt& uid_grad)
 {
-  double result[4];
+  VectorDouble result(4);
   if (db_target == nullptr) return;
 
   for (int iech = 0; iech < db_target->getSampleNumber(); iech++)
@@ -2273,8 +2276,9 @@ static void st_dist_convert(Pot_Env *pot_env,
                             double *dist_euc,
                             double *dist_geo)
 {
-  double result[4], potval, delta;
+  double potval, delta;
   int nsol, nequa, neqm1, icol0;
+  VectorDouble result(4);
   static int niter_max = 50;
   static double eps = 1.e-3;
 
@@ -2314,7 +2318,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     coor0[idim] = coor[idim] = ISO_COO(ic0, j0, idim);
   st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor0, rhs);
   matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-  matrix_product(1, neqm1, nsol, zdual, rhs, result);
+  matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
   if (OptDbg::query(EDbg::CONVERGE))
   {
     message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, 0,
@@ -2338,7 +2342,7 @@ static void st_dist_convert(Pot_Env *pot_env,
     }
     st_build_rhs(pot_env, pot_ext, 1, nullptr, model, coor, rhs);
     matrix_manage(nequa, nsol, -1, 0, &icol0, NULL, rhs, rhs);
-    matrix_product(1, neqm1, nsol, zdual, rhs, result);
+    matrix_product(1, neqm1, nsol, zdual, rhs, result.data());
     if (OptDbg::query(EDbg::CONVERGE))
     {
       message("Sample:%2d/%2d Iter:%2d Potential:%lf", j0 + 1, ic0 + 1, iter,
@@ -2405,8 +2409,9 @@ static void st_xvalid_potential(Pot_Env *pot_env,
                                 double *rhs,
                                 double *zdual)
 {
-  double result[4], variance, value, stats[4][2], stdev, dist_euc, dist_geo;
+  double variance, value, stats[4][2], stdev, dist_euc, dist_geo;
   int nequa, icol0, iech0, number, nitem;
+  VectorDouble result(4);
 
   /* Initializations */
 
@@ -2542,7 +2547,7 @@ static void st_tempere(DbGrid *dbout,
                        int iech,
                        double dist_tempere,
                        double reskrige,
-                       double *result)
+                       VectorDouble& result)
 {
   double simerr, amortval, kdist;
   static int test = 0;
@@ -2612,7 +2617,7 @@ static void st_simcond(Pot_Env *pot_env,
                        double *zduals,
                        double *rhs)
 {
-  double resest[4], result[4];
+  VectorDouble resest(4), result(4);
   int nequa, ndim;
 
   nequa = pot_env->nequa;
@@ -2665,7 +2670,8 @@ static void st_simcond(Pot_Env *pot_env,
 
       // Translate from potential into layer
 
-      if (flag_trans) st_potential_to_layer(pot_env, isimu, potsim, result);
+      if (flag_trans)
+        st_potential_to_layer(pot_env, isimu, potsim, result);
 
       // Store the results
 
@@ -2735,7 +2741,7 @@ static void st_check_data(Pot_Env *pot_env,
                           double *zdual,
                           double *rhs)
 {
-  double result[4];
+  VectorDouble result(4);
 
   /* Preliminary check */
 
@@ -2773,7 +2779,7 @@ static void st_check_data(Pot_Env *pot_env,
           message(" %d - %d - Coor =",ic+1, j+1);
           for (int idim = 0; idim < pot_env->ndim; idim++)
             message(" %lf", ISO_COO(ic, j, idim));
-          st_print_result(pot_env, isimu, result, TEST);
+          st_print_result(pot_env, isimu, result.data(), TEST);
         }
       }
       OptDbg::setIndex(-1);
@@ -2814,7 +2820,7 @@ static void st_check_data(Pot_Env *pot_env,
         message(" %2d - Coor =", ig+1);
         for (int idim = 0; idim < pot_env->ndim; idim++)
           message(" %lf", GRD_COO(ig, idim));
-        st_print_result(pot_env, isimu, result, TEST);
+        st_print_result(pot_env, isimu, result.data(), TEST);
       }
     }
     OptDbg::setIndex(-1);
@@ -2847,7 +2853,7 @@ static void st_check_data(Pot_Env *pot_env,
         message(" %2d - Coor =", it+1);
         for (int idim = 0; idim < pot_env->ndim; idim++)
           message(" %lf", TGT_COO(it, idim));
-        st_print_result(pot_env, isimu, result, tgte);
+        st_print_result(pot_env, isimu, result.data(), tgte);
       }
     }
     OptDbg::setIndex(-1);
@@ -2883,7 +2889,7 @@ static double st_evaluate_refpot(Pot_Env *pot_env,
                                  double *zdual,
                                  double *rhs)
 {
-  double result[4];
+  VectorDouble result(4);
   int ip1, ic;
 
   if (dbiso == nullptr) return (TEST);
@@ -2931,7 +2937,7 @@ static void st_evaluate_potval(Pot_Env *pot_env,
                                double *rhs,
                                double *potval)
 {
-  double result[4];
+  VectorDouble result(4);
   int ip1;
 
   if (dbiso == nullptr) return;
@@ -3144,8 +3150,8 @@ int potential_kriging(Db *dbiso,
 
   // Perform the estimation
 
-  st_estimate(&pot_env, &pot_ext, flag_grad, dbiso,
-              dbgrd, dbtgt, dbout, model, refpot, zdual, rhs, potval);
+  st_estimate_result(&pot_env, &pot_ext, flag_grad, dbiso,
+                     dbgrd, dbtgt, dbout, model, refpot, zdual, rhs, potval);
   if (flag_save_data)
   {
     st_estimate_data(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
@@ -3365,8 +3371,8 @@ int potential_simulate(Db *dbiso,
 
     // Perform the estimation 
 
-    st_estimate(&pot_env, &pot_ext, 0, dbiso, dbgrd, dbtgt, dbout, model,
-                refpot, zdual, rhs, potval);
+    st_estimate_result(&pot_env, &pot_ext, 0, dbiso, dbgrd, dbtgt, dbout, model,
+                       refpot, zdual, rhs, potval);
 
     // Transform the Estimation variable into a distance to the isoline
     if (st_distance_to_isoline(dbout)) goto label_end;
