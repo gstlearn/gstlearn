@@ -2101,13 +2101,10 @@ static void st_potential_to_layer(Pot_Env *pot_env,
                                   double *potval,
                                   VectorDouble& result)
 {
-  double minval, potref;
-  int ilayer;
+  double minval = -1.e30;
+  double potref = POTVAL(isimu, 0);
 
-  minval = -1.e30;
-  potref = POTVAL(isimu, 0);
-
-  ilayer = -1;
+  int ilayer = -1;
   for (int i = 0; i < pot_env->nlayers && ilayer < 0; i++)
   {
     if (result[0] > minval && result[0] <= (POTVAL(isimu,i) - potref))
@@ -2798,6 +2795,7 @@ static void st_check_data(Pot_Env *pot_env,
       int iech = dbgrd->getActiveSampleRank(ig);
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbgrd, iech, result);
+      result[0] -= refpot;
 
       // Printout (optional)
 
@@ -2839,6 +2837,7 @@ static void st_check_data(Pot_Env *pot_env,
       if (!dbtgt->isActive(iech)) continue;
       st_calc_point(pot_env, pot_ext, 1, dbiso, dbgrd, dbtgt, dbgrid, model,
                     zdual, rhs, dbtgt, iech, result);
+      result[0] -= refpot;
 
       // Printout (conditional) 
 
@@ -3145,8 +3144,8 @@ int potential_kriging(Db *dbiso,
 
   // Get the Potential value at the iso-potential samples
 
-  st_evaluate_potval(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout, model,
-                     refpot, -1, 0, zdual, rhs, potval);
+  st_evaluate_potval(&pot_env, &pot_ext, dbiso, dbgrd, dbtgt, dbout,
+                     model, refpot, -1, 0, zdual, rhs, potval);
 
   // Perform the estimation
 

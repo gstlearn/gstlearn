@@ -41,20 +41,16 @@ public:
   DbGrid* getResolutionGrid() const;
 
 private:
-  int _getConvSize() const { return (int) _convolution.size(); }
-  int _getHalfSize() const { return (_getConvSize() - 1) / 2; }
+  int  _getConvSize() const { return (int) _convolution.size(); }
+  int  _getHalfSize() const { return (_getConvSize() - 1) / 2; }
   void _buildShiftVector();
   int  _buildAprojCS();
   void _buildWeights();
-  VectorInt _getNXResolutionGrid() const;
-  int _getNDim() const { return _gridSeismic->getNDim(); }
-  int _getNMultProd() const { return ut_vector_prod(_nmult); }
+  int  _getNDim() const { return _gridSeismic->getNDim(); }
+  int  _getNMultProd() const { return ut_vector_prod(_nmult); }
+  Grid _getResolutionGridCharacteristics() const;
   bool _isVecDimCorrect(const VectorDouble &valonseismic,
                         const VectorDouble &valonvertex) const;
-  void _getIndicesOnVertex(const VectorInt &inds,
-                           int vshift,
-                           VectorInt &indp) const;
-  void _getWeights(int ixm, int iym, VectorDouble& wgt) const;
 
   int _mesh2pointRef(const VectorDouble &valonvertex,
                      VectorDouble &valonseismic) const;

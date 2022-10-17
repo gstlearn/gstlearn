@@ -376,7 +376,7 @@ DbGrid* DbGrid::createCoarse(DbGrid *dbin,
   VectorInt nx(ndim);
   VectorDouble dx(ndim);
   VectorDouble x0(ndim);
-  dbin->getGrid().multiple(nmult, 1, nx, dx, x0);
+  dbin->getGrid().multiple(nmult, 0, nx, dx, x0);
 
   // Create the new grid
   dbgrid = create(nx, dx, x0, dbin->getAngles(), ELoadBy::SAMPLE,
