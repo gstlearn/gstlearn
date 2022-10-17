@@ -28,6 +28,8 @@ public:
                   VectorVectorDouble& out) const;
   virtual void evalInverse(const VectorVectorDouble& in,
                            VectorVectorDouble& out) const;
+  void initLk(const VectorVectorDouble& in,
+                           VectorVectorDouble& out) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
@@ -71,6 +73,8 @@ public:
   mutable VectorVectorDouble _temp;
   mutable VectorVectorDouble _p;
   mutable VectorVectorDouble _z;
+
+  void _initPublic() const;
 
 protected:
   void _init() const;
