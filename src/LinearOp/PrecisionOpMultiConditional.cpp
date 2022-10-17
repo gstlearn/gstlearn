@@ -119,7 +119,7 @@ std::pair<double,double> PrecisionOpMultiConditional::computeRangeEigenVal() con
   double b = ranges.second;
   logPoly.setA(a);
   logPoly.setB(b);
-  logPoly.setNcMax(1000);
+  logPoly.setNcMax(1500);
   std::function<double(double)> f;
   f = [] (double val){return log(val);};
   logPoly.fit(f,a,b,2*EPSILON4/(a+b));
@@ -129,6 +129,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
 {
   Chebychev logPoly;
   preparePoly(logPoly);
+  
   VectorVectorDouble gauss(_ncova);
   VectorVectorDouble out(_ncova);
   law_set_random_seed(seed);
@@ -153,7 +154,7 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
      val += innerProduct(gauss,_work3);
   }
 
- return val / nsimus;
+  return val / nsimus;
 
 }
 

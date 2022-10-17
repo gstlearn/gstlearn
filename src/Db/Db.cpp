@@ -2207,6 +2207,19 @@ double Db::getGradient(int iech, int item) const
   return getFromLocator(ELoc::G, iech, item);
 }
 
+VectorDouble Db::getGradients(int item, bool useSel) const
+{
+  if (!hasGradient()) return VectorDouble();
+  VectorDouble tab;
+
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    if (useSel && ! isActive(iech)) continue;
+    tab.push_back(getGradient(iech,item));
+  }
+  return tab;
+}
+
 void Db::setGradient(int iech, int item, double value)
 {
   setFromLocator(ELoc::G, iech, item, value);
@@ -2226,6 +2239,19 @@ double Db::getTangent(int iech, int item) const
 {
   if (!hasTangent()) return TEST;
   return getFromLocator(ELoc::TGTE, iech, item);
+}
+
+VectorDouble Db::getTangents(int item, bool useSel) const
+{
+  if (!hasTangent()) return VectorDouble();
+  VectorDouble tab;
+
+  for (int iech = 0; iech < getSampleNumber(); iech++)
+  {
+    if (useSel && ! isActive(iech)) continue;
+    tab.push_back(getTangent(iech,item));
+  }
+  return tab;
 }
 
 void Db::setTangent(int iech, int item, double value)

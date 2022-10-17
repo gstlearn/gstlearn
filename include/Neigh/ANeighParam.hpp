@@ -35,6 +35,7 @@ public:
   virtual int getMaxSampleNumber(const Db* db) const = 0;
   virtual ENeigh getType() const = 0;
   virtual bool getFlagContinuous() const { return false; }
+  virtual bool hasFault() const { return false; }
 
   int getNDim() const { return _nDim; }
   bool getFlagXvalid() const { return _flagXvalid; }
@@ -54,7 +55,7 @@ private:
   bool _isDimensionValid(int idim) const;
 
 private:
-  int _nDim;                     /* Space dimension */
-  bool _flagXvalid;              /* 1 to suppress the target */
-  bool _flagKFold;               /* 1 to perform a KFold Cross-validation */
+  int  _nDim;                    /* Space dimension */
+  bool _flagXvalid;              /* True to suppress the target */
+  bool _flagKFold;               /* True to perform a KFold Cross-validation */
 };

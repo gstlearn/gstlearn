@@ -195,6 +195,7 @@ void SPDE::init(Model* model,
       my_throw("SPDE is only implemented for Matérn covariances (BESSEL_K) and Markov (MARKOV)");
     }
   }
+
 //
 //  // Evaluation of the variance at data point (nugget + measurement error or minimum proportion of total sill)
   if (_calculKriging())
@@ -223,10 +224,20 @@ void SPDE::init(Model* model,
 }
 
 
+
+
+void SPDE::computeLk() const
+{
+  VectorVectorDouble rhs = _precisionsKriging->computeRhs(_workingData);
+  _precisionsKriging->initLk(rhs,_workKriging); // Same as evalInverse but with just one iteration
+}
+
+
 void SPDE::computeKriging() const
 {
   VectorVectorDouble rhs = _precisionsKriging->computeRhs(_workingData);
   _precisionsKriging->evalInverse(rhs,_workKriging);
+
 }
 
 void SPDE::computeSimuNonCond(int nbsimus, int seed) const
@@ -309,6 +320,10 @@ void SPDE::compute(int nbsimus, int seed)
   {
     computeSimuCond(nbsimus,seed);
   }
+  if (_calcul == ESPDECalcMode::LIKELIHOOD)
+  {
+    computeLk();
+  }
 }
 
 MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
@@ -348,7 +363,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
   VectorDouble temp(db->getSampleNumber(true));
   VectorDouble result(db->getSampleNumber(true),0.);
   String suffix;
-  if(_calcul == ESPDECalcMode::KRIGING)
+  if(_calcul == ESPDECalcMode::KRIGING || _calcul == ESPDECalcMode::LIKELIHOOD)
   {
     for(int i = 0 ; i< (int)_krigingMeshing.size(); i++)
     {

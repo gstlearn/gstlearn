@@ -47,7 +47,7 @@ private:
   int  _buildAprojCS();
   void _buildWeights();
   VectorInt _getNXResolutionGrid() const;
-  int _getNDim() const { return _gridPoint->getNDim(); }
+  int _getNDim() const { return _gridSeismic->getNDim(); }
   int _getNMultProd() const { return ut_vector_prod(_nmult); }
   bool _isVecDimCorrect(const VectorDouble &valonseismic,
                         const VectorDouble &valonvertex) const;
@@ -65,8 +65,8 @@ private:
 
 private:
   VectorDouble  _convolution;
-  const DbGrid* _gridPoint;
-  VectorInt     _nmult; // Dimension of _gridPoint
+  const DbGrid* _gridSeismic;
+  VectorInt     _nmult; // Dimension of _gridSeismic
   VectorInt     _shiftVector;
   VectorDouble  _weightx;
   VectorDouble  _weighty;

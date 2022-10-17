@@ -16,6 +16,7 @@
 #include "Neigh/NeighBench.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Faults/Faults.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
@@ -101,7 +102,8 @@ NeighWork::~NeighWork()
  ** \remarks on ELoc::SIMU rather than on ELoc::Z
  **
  *****************************************************************************/
-void NeighWork::initialize(const Db *dbin, const ANeighParam *neighparam)
+void NeighWork::initialize(const Db *dbin,
+                           const ANeighParam *neighparam)
 {
   if (neighparam == nullptr || dbin == nullptr) return;
   _neighParam = neighparam;
@@ -360,6 +362,13 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
 
+    // Inpresence of Faults, check that sample 'iech' is still elligible
+
+    if (_neighParam->hasFault())
+    {
+      if (_hiddenByFault(dbout, iech, iech_out)) continue;
+    }
+
     // Force selection if the sample belongs to the block
 
     double dist;
@@ -475,6 +484,38 @@ int NeighWork::_xvalid(Db *dbout, int iech_in, int iech_out, double eps)
     if (_dbin->getCode(iech_in) == dbout->getCode(iech_out)) return 1;
   }
   return 0;
+}
+
+bool NeighWork::_hiddenByFault(Db* dbout, int iech, int iech_out) const
+{
+  const NeighMoving* neighM = dynamic_cast<const NeighMoving*>(_neighParam);
+  if (neighM == nullptr) return false;
+
+  double xt1 = dbout->getCoordinate(iech_out, 0);
+  double yt1 = dbout->getCoordinate(iech_out, 1);
+  double xt2 = _dbin->getCoordinate(iech, 0);
+  double yt2 = _dbin->getCoordinate(iech, 1);
+
+  // Loop on the Fault polylines
+
+  const Faults* faults = neighM->getFaults();
+  for (int ifault = 0; ifault < faults->getNFaults(); ifault++)
+  {
+
+    const PolyLine2D fault = faults->getFault(ifault);
+
+    // Loop on the segments of the polyline
+
+    for (int ip = 0; ip< fault.getNPoints() - 1; ip++)
+    {
+      double x1 = fault.getX(ip);
+      double y1 = fault.getY(ip);
+      double x2 = fault.getX(ip + 1);
+      double y2 = fault.getY(ip + 1);
+      if (ut_is_segment_intersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2)) return true;
+    }
+  }
+  return false;
 }
 
 /****************************************************************************/

@@ -1688,7 +1688,7 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
   VectorDouble center(3, 0.);
   for (int icorn = 0; icorn < (int) amesh->getNApexPerMesh(); icorn++)
   {
-    util_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
+    ut_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
                           amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
                           &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)

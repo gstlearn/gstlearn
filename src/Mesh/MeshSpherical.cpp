@@ -422,10 +422,8 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   {
     r = EARTH_RADIUS;
   }
-  util_convert_sph2cart(getCoor(imesh, ic, 0)-180., getCoor(imesh, ic, 1),
-                        &coords[0], &coords[1], &coords[2],
-                        r);
-
+  ut_convert_sph2cart(getCoor(imesh, ic, 0) - 180., getCoor(imesh, ic, 1),
+                      &coords[0], &coords[1], &coords[2], r);
 }
 
 void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const
@@ -442,9 +440,8 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   {
     r = EARTH_RADIUS;
   }
-  util_convert_sph2cart(getApexCoor(iapex, 0)-180., getApexCoor(iapex, 1),
-                        &coords[0], &coords[1], &coords[2],
-                        r);
+  ut_convert_sph2cart(getApexCoor(iapex, 0) - 180., getApexCoor(iapex, 1),
+                      &coords[0], &coords[1], &coords[2], r);
 }
 
 /**
@@ -524,7 +521,7 @@ bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
 
   if (! flag_approx)
   {
-    return (is_in_spherical_triangle_optimized(coor.data(),
+    return (ut_is_in_spherical_triangle_optimized(coor.data(),
                                                corners[0].data(),
                                                corners[1].data(),
                                                corners[2].data(),

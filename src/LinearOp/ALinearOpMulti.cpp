@@ -66,6 +66,10 @@ void ALinearOpMulti::_init() const
   }
 }
 
+void ALinearOpMulti::_initPublic() const{
+  _init();
+};
+
 /*****************************************************************************/
 /*!
  **  Evaluate the product: 'out' = Q * 'in'
@@ -124,11 +128,11 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   }
   else
   {
-
     fillVal(out,0.);
     fillVal(_temp,0.); // temp = Ax0=0
     _copyVals(in,_r);   // r = b
   }
+
 
   if(_precondStatus)
   {
@@ -150,6 +154,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
  // std::cout<<"niter "<<_nIterMax<< " crit "<< crit << " eps "<< _eps<<std::endl;
   while(niter < _nIterMax && crit > _eps)
+  //while(niter < 1 && crit > _eps)
   {
     niter++;
     evalDirect(_p,_temp); //temp = Ap
@@ -188,6 +193,22 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   _timeCG   += time.getIntervalSeconds();
   _niterCG  += niter;
   _numberCG ++;
+
+}
+
+void ALinearOpMulti::initLk(const VectorVectorDouble& in,
+                                 VectorVectorDouble& out) const
+{
+  _init();
+  int n = sizes();
+  if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
+
+  fillVal(out,0.);
+  fillVal(_temp,0.); // temp = Ax0=0
+  _copyVals(in,_p); //p=r (=z)
+
+  evalDirect(_p,_temp); //temp = Ap
+
 }
 
 
