@@ -147,7 +147,7 @@ def SurfaceOnDbGrid3D(grid, name, usesel=False,
                       isomin=0, isomax=1, surface_count = 1, showLegend=False):
     
     if grid.getNDim() != 3:
-        print("This representaion is designed for 3-D Grid only")
+        print("This representation is designed for 3-D Grid only")
         return None
                       
     shape = list(grid.getNXs())
@@ -168,7 +168,7 @@ def SurfaceOnDbGrid3D(grid, name, usesel=False,
 def PointDb3D(db, color_name=None, size_name=None, usesel=False, 
                 color='black', size=3, opacity=1): 
     if db.getNDim() != 3:
-        print("This representaion is designed for 3-D Data Base only")
+        print("This representation is designed for 3-D Data Base only")
         return None
                       
     x = db.getCoordinates(0, usesel)
