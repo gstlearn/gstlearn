@@ -26,7 +26,9 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
       _shiftVector(),
       _gridSeis2D(nullptr),
       _gridRes2D(nullptr),
-      _AProjHoriz(nullptr)
+      _AProjHoriz(nullptr),
+      _workR(VectorDouble()),
+      _workS(VectorDouble())
 {
   int ndim = grid_point->getNDim();
   if (ndim != 2 && ndim != 3)
@@ -154,6 +156,37 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
+   int ndim  = _getNDim();
+
+   // Get the characteristics of the R-R grid
+   int slice_R = _gridRes2D->getSampleNumber();
+
+   // Get the characteristics of the R-S grid
+
+   VectorInt nxSS = _gridSeismic->getNXs();
+   nxSS.resize(ndim-1);
+   int slice_S = ut_vector_prod(nxSS);
+
+   int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
+
+   _workS.resize(nxRS_prod);
+
+   // Mesh barycenter on 'ndim-1' slices
+   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
+   {
+     const double* valSS =  &valonseismic.data()[iz * slice_S];
+     double* valRS = &_workS.data()[iz * slice_R];
+     cs_tmulvec(_AProjHoriz, slice_R, valSS, valRS);
+   }
+
+   _convolveT(_workS,valonvertex);
+   return 0;
+}
+
+void ProjConvolution::_convolveT(const VectorDouble &valonseismic,
+                                VectorDouble &valonvertex) const
+{
+
   for (auto &e : valonvertex)
      e = 0.;
 
@@ -175,7 +208,6 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
       valonvertex[id] += valm * _convolution[j];
     }
   }
-  return 0;
 }
 
 int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
@@ -195,15 +227,15 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   nxSS.resize(ndim-1);
   int slice_S = ut_vector_prod(nxSS);
 
-  VectorDouble work(nxRS_prod);
+  _workR.resize(nxRS_prod);
 
   // Convolution
-  _convolve(valonvertex, work);
+  _convolve(valonvertex, _workR);
 
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    const double* valRS = &work.data()[iz * slice_R];
+    const double* valRS = &_workR.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
     cs_mulvec(_AProjHoriz, slice_R, valRS, valSS);
   }
