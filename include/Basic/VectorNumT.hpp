@@ -36,7 +36,8 @@ public:
   inline VectorNumT()                                              : Parent() { }
   inline VectorNumT(const Vector& vec)                             : Parent(vec) { }
   inline VectorNumT(size_type count, const T& value = T())         : Parent(count, value) { }
-  inline VectorNumT(const T* first, const T* last)                 : Parent(first, last) { }
+  template< class InputIt >
+  inline VectorNumT(InputIt first, InputIt last)                   : Parent(first, last) { }
   inline VectorNumT(const VectorNumT& other) = default;
 #ifndef SWIG
   inline VectorNumT(std::initializer_list<T> init)                 : Parent(init) { }
