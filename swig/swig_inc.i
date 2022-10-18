@@ -1,3 +1,4 @@
+%feature(director) IProjMatrix;
 
 %{
   #include "gstlearn_export.hpp"
@@ -226,6 +227,7 @@
   
   #include "API/SPDE.hpp"
   #include "API/PGSSPDE.hpp"
+  #include "API/TestInheritance.hpp"
   
   #include "Db/Db.hpp"
   #include "Db/DbGrid.hpp"

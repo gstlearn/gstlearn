@@ -298,4 +298,5 @@ set(SRC
   Simulation/CalcSimuEden.cpp
   Basic/AFunction.cpp
   Skin/Skin.cpp
+  API/TestInheritance.cpp
 )
