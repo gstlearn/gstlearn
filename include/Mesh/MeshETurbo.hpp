@@ -66,6 +66,7 @@ public:
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
   static MeshETurbo* createFromGrid(const DbGrid* dbgrid, bool verbose = false);
+  static MeshETurbo* createFromGridInfo(const Grid* grid, bool verbose = false);
 
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,

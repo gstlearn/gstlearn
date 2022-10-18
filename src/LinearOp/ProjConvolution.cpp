@@ -11,80 +11,86 @@
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
+#include "Mesh/MeshETurbo.hpp"
+#include "LinearOp/ProjMatrix.hpp"
 #include "csparse_f.h"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
                                  const DbGrid *grid_point,
-                                 const VectorInt& nmult,
-                                 bool useAProj)
+                                 const VectorInt& nodeRes2D,
+                                 const VectorDouble& gext)
     : _convolution(convolution),
       _gridSeismic(grid_point),
-      _nmult(nmult),
+      _nodeRes2D(nodeRes2D),
+      _gext(gext),
       _shiftVector(),
-      _weightx(),
-      _weighty(),
-      _Aproj(nullptr)
+      _gridSeis2D(nullptr),
+      _gridRes2D(nullptr),
+      _AProjHoriz(nullptr)
 {
   int ndim = grid_point->getNDim();
   if (ndim != 2 && ndim != 3)
   {
     messerr("ProjConvolution is limited to 2-D or 3-D case");
-    _nmult.clear();
     return;
   }
-  _nmult.resize(ndim, 1);
-  _nmult[ndim-1] = 1;
+  if (grid_point->getGrid().isRotated())
+  {
+    messerr("ProjConvolution is not implemented for Rotated grids yet");
+    return;
+  }
+
+  _buildGridSeis2D();
+  _gridSeis2D->display();
+
+  if (_nodeRes2D.empty())
+    _nodeRes2D = _gridSeis2D->getNXs();
+
+  _buildGridRes2D();
+  _gridRes2D->display();
+
+  _buildAprojHoriz();
 
   _buildShiftVector();
-
-  _buildWeights();
-
-  if (useAProj) _buildAprojCS();
 }
 
 ProjConvolution::~ProjConvolution()
 {
-  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
+  delete _gridSeis2D;
+  delete _gridRes2D;
+  if (_AProjHoriz != nullptr) _AProjHoriz = cs_spfree(_AProjHoriz);
 }
 
-void ProjConvolution::_buildWeights()
+void ProjConvolution::_buildGridSeis2D()
 {
-  _weightx.resize(_nmult[0]);
-  for (int ix = 0; ix < _nmult[0]; ix++)
-    _weightx[ix] = 1. - (double) ix / (double) _nmult[0];
-
-  if (_getNDim() <= 2) return;
-
-  _weighty.resize(_nmult[1]);
-  for (int iy = 0; iy < _nmult[1]; iy++)
-    _weighty[iy] = 1. - (double) iy / (double) _nmult[1];
+  int ndim = _getNDim();
+  VectorInt nx_seis = _gridSeismic->getNXs();
+  nx_seis.resize(ndim-1);
+  VectorDouble dx_seis = _gridSeismic->getDXs();
+  dx_seis.resize(ndim-1);
+  VectorDouble x0_seis = _gridSeismic->getX0s();
+  x0_seis.resize(ndim-1);
+  _gridSeis2D = DbGrid::create(nx_seis,dx_seis,x0_seis);
 }
 
-
-/**
- * Calculate the Aproj sparse matrix.
- * This method is kept for establishing time bench marks.
- * It emulates mesh2point algorithm.
- * Note that this algorithm does not handle the presence of undefined values
- */
-int ProjConvolution::_buildAprojCS()
+void ProjConvolution::_buildGridRes2D()
 {
-  cs* Atriplet;
-  Atriplet = cs_spalloc(0, 0, 1, 1, 1);
-  if (_Aproj != nullptr) _Aproj = cs_spfree(_Aproj);
-  for (int is = 0; is < getPointNumber(); is++)
-  {
-    for (int i = -_getHalfSize(); i <= _getHalfSize(); i++)
-    {
-      int j = i + _getHalfSize();
-      int id = is + _shiftVector[j];
-      if (id < 0) return 1;
+  _gridRes2D = DbGrid::createCoveringDb(_gridSeis2D, _nodeRes2D,
+                                        VectorDouble(), VectorDouble(), _gext);
+}
 
-      (void) cs_entry(Atriplet,is,id,_convolution[j]);
-    }
-  }
-  _Aproj = cs_triplet(Atriplet);
-  Atriplet  = cs_spfree(Atriplet);
+int ProjConvolution::_buildAprojHoriz()
+{
+  // Create the Turbo Meshing on the Resolution 'ndim-1' grid
+  MeshETurbo* mesh = MeshETurbo::createFromGrid(_gridRes2D);
+
+  ProjMatrix* proj = ProjMatrix::create(_gridSeis2D, mesh, true);
+
+  _AProjHoriz = cs_duplicate(proj->getAproj());
+
+  delete mesh;
+  delete proj;
+
   return 0;
 }
 
@@ -96,7 +102,7 @@ void ProjConvolution::_buildShiftVector()
 {
   // Creating the characteristics of the Point Grid
 
-  Grid grid = _getResolutionGridCharacteristics();
+  Grid grid = _getGridCharacteristicsRR();
 
   int ndim = _gridSeismic->getNDim();
   int center = 1;
@@ -171,17 +177,6 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
       valonvertex[id] += valm * _convolution[j];
     }
   }
-
-  // Comparing with the Aproj method (if initiated)
-
-  if (_Aproj != nullptr)
-  {
-    VectorDouble valcheck = valonvertex;
-    cs_tmulvec(_Aproj,(int) valcheck.size(),valonseismic.data(),valcheck.data());
-    valcheck.subtract(valonvertex);
-    message("Point2Mesh: norme de la difference = %lf\n",valcheck.norm());
-  }
-
   return 0;
 }
 
@@ -190,205 +185,36 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 {
   if (! _isVecDimCorrect(valonseismic, valonvertex)) return 1;
 
-  if (_getNMultProd() == 1 && true)  // DR: modif pour provoquer le passage dans nouveau code
+  int ndim  = _getNDim();
+
+  // Get the characteristics of the R-R grid
+  int slice_RR = _gridRes2D->getSampleNumber();
+
+  // Get the characteristics of the R-S grid
+  int nxRS_prod = slice_RR * _gridSeismic->getNX(ndim-1);
+
+  VectorInt nxSS = _gridSeismic->getNXs();
+  nxSS.resize(ndim-1);
+  int slice_SS = ut_vector_prod(nxSS);
+
+  VectorDouble work(nxRS_prod);
+
+  // Convolution
+  _convolve(valonvertex, work);
+
+  // Mesh barycenter on 'ndim-1' slices
+  for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    if (_mesh2pointRef(valonvertex, valonseismic)) return 1;
-  }
-  else if (_getNDim() == 2)
-  {
-    if (_mesh2point2D(valonvertex, valonseismic)) return 1;
-  }
-  else
-  {
-    if (_mesh2point3D(valonvertex, valonseismic)) return 1;
+    const double* valRS = &work.data()[iz * slice_RR];
+    double* valSS = &valonseismic.data()[iz * slice_SS];
+    cs_mulvec(_AProjHoriz, slice_RR, valRS, valSS);
   }
 
-  // Comparing with the Aproj method (if initiated)
-
-  if (_Aproj != nullptr)
-  {
-    VectorDouble valcheck = valonseismic;
-    cs_mulvec(_Aproj,(int) valcheck.size(),valonvertex.data(),valcheck.data());
-    valcheck.subtract(valonseismic);
-    message("Mesh2point: norme de la difference = %lf\n",valcheck.norm());
-  }
   return 0;
 }
 
-int ProjConvolution::_mesh2point3D(const VectorDouble &valonvertex,
-                                   VectorDouble &valonseismic) const
-{
-  int size  = _getConvSize();
-  VectorInt    indp(3);
-  VectorInt    ranks(4);
-  VectorDouble wgt(4);
-
-  // Get the characteristics of the coarse grid
-
-  Grid grid = _getResolutionGridCharacteristics();
-
-  // Loop on the nodes of the seismic grid
-
-  int ecrs    = 0;
-  int lecp    = 0;
-  int decale  = 0;
-  double valp = 0.;
-  double valm = 0.;
-  double wloc = 0.;
-  double vloc = 0.;
-  double wx   = 0.;
-  double wy   = 0.;
-
-  for (int iz = 0; iz < _gridSeismic->getNX(2); iz++)
-  {
-    indp[2] = iz;
-    for (int iy = 0; iy < grid.getNX(1); iy++)
-    {
-      indp[1] = iy;
-      int nymax = (iy < grid.getNX(1) - 1) ? _nmult[1] : 1;
-      for (int iym = 0; iym < nymax; iym++)
-      {
-        wy = _weighty[iym];
-        for (int ix = 0; ix < grid.getNX(0); ix++)
-        {
-          indp[0] = ix;
-          int nxmax = (ix < grid.getNX(0) - 1) ? _nmult[0] : 1;
-          for (int ixm = 0; ixm < nxmax; ixm++)
-          {
-            wx = _weightx[ixm];
-
-            lecp = grid.indiceToRank(indp);
-            ranks[0] = lecp;
-            ranks[1] = lecp + 1;
-            ranks[2] = lecp + 1 + grid.getNX(0);
-            ranks[3] = lecp +     grid.getNX(0);
-
-            wgt[0] = wx        * wy;
-            wgt[1] = (1. - wx) * wy;
-            wgt[2] = (1. - wx) * (1. - wy);
-            wgt[3] = wx        * (1. - wy);
-
-            // Loop on the convolution
-            valp = 0;
-            for (int j = 0; j < size; j++)
-            {
-
-              // Derive the value of the 2-D center of gravity
-              valm = 0.;
-              decale = _shiftVector[j];
-              for (int i = 0; i < 4; i++)
-              {
-                wloc = wgt[i];
-                if (wloc > 0.)
-                {
-                  vloc = valonvertex[ranks[i] + decale];
-                  if (FFFF(vloc))
-                  {
-                    valp = TEST;
-                    break;
-                  }
-                  valm += vloc * wloc;
-                }
-              }
-
-              // Add to the convolution
-              valp += valm * _convolution[j];
-            }
-
-            VectorInt indloc(3);
-            indloc[0] = ix * _nmult[0] + ixm;
-            indloc[1] = iy * _nmult[1] + iym;
-            indloc[2] = iz;
-            int lecs = _gridSeismic->getGrid().indiceToRank(indloc);
-//            if (lecs != ecrs)
-//              message("Erreur lecs=%d ecrs=%d\n",lecs,ecrs);
-//            valonseismic[ecrs++] = valp;
-            valonseismic[lecs] = valp;
-          }
-        }
-      }
-    }
-  }
-  return 0;
-}
-
-int ProjConvolution::_mesh2point2D(const VectorDouble &valonvertex,
-                                   VectorDouble &valonseismic) const
-{
-  int size  = _getConvSize();
-  VectorInt    indp(2);
-  VectorInt    ranks(2);
-  VectorDouble wgt(2);
-
-  // Get the characteristics of the coarse grid
-
-  Grid grid = _getResolutionGridCharacteristics();
-
-  // Loop on the nodes of the seismic grid
-
-  int ecrs    = 0;
-  int lecp    = 0;
-  int decale  = 0;
-  double valp = 0.;
-  double valm = 0.;
-  double wloc = 0.;
-  double vloc = 0.;
-  double wx   = 0.;
-
-  for (int iy = 0; iy < _gridSeismic->getNX(1); iy++)
-  {
-    indp[1] = iy;
-    for (int ix = 0; ix < grid.getNX(0); ix++)
-    {
-      indp[0] = ix;
-      int nxmax = (ix < grid.getNX(0) - 1) ? _nmult[0] : 1;
-      for (int ixm = 0; ixm < nxmax; ixm++)
-      {
-        wx = _weightx[ixm];
-
-        lecp = grid.indiceToRank(indp);
-        ranks[0] = lecp;
-        ranks[1] = lecp + 1;
-
-        wgt[0] = wx;
-        wgt[1] = 1. - wx;
-
-        // Loop on the convolution
-
-        valp = 0;
-        for (int j = 0; j < size; j++)
-        {
-
-          // Derive the value of the 2-D center of gravity
-          decale = _shiftVector[j];
-          valm = 0.;
-          for (int i = 0; i < 2; i++)
-          {
-            wloc = wgt[i];
-            if (wloc > 0.)
-            {
-              vloc = valonvertex[ranks[i] + decale];
-              if (FFFF(vloc))
-              {
-                valp = TEST;
-                break;
-              }
-              valm += vloc * wloc;
-            }
-          }
-
-          // Add to the convolution
-          valp += valm * _convolution[j];
-        }
-        valonseismic[ecrs++] = valp;
-      }
-    }
-  }
-  return 0;
-}
-
-int ProjConvolution::_mesh2pointRef(const VectorDouble &valonvertex,
-                                    VectorDouble &valonseismic) const
+void ProjConvolution::_convolve(const VectorDouble &valonvertex,
+                                VectorDouble &valonseismic) const
 {
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
@@ -401,8 +227,6 @@ int ProjConvolution::_mesh2pointRef(const VectorDouble &valonvertex,
     for (int j = 0; j < size; j++)
     {
       id = is + _shiftVector[j];
-      if (id < 0) return 1;
-
       valm = valonvertex[id];
       if( FFFF(valm))
       {
@@ -413,21 +237,46 @@ int ProjConvolution::_mesh2pointRef(const VectorDouble &valonvertex,
     }
     valonseismic[is] = valp;
   }
-  return 0;
 }
 
-Grid ProjConvolution::_getResolutionGridCharacteristics() const
+Grid ProjConvolution::_getGridCharacteristicsRR(bool delLastDim) const
 {
   int ndim = _gridSeismic->getNDim();
 
-  VectorInt nxs(ndim);
-  VectorDouble dx(ndim);
-  VectorDouble x0(ndim);
-  _gridSeismic->getGrid().multiple(_nmult, 0, nxs, dx, x0);
+  VectorInt    nx = _gridRes2D->getNXs();
+  VectorDouble dx = _gridRes2D->getDXs();
+  VectorDouble x0 = _gridRes2D->getX0s();
+
+  if (! delLastDim)
+  {
+    nx.resize(ndim);
+    x0.resize(ndim);
+    dx.resize(ndim);
+    dx[ndim - 1]  = _gridSeismic->getDX(ndim - 1);
+    nx[ndim - 1] += (_getConvSize() - 1);
+    x0[ndim - 1] -= (_getConvSize() - 1) * dx[ndim - 1];
+  }
+  Grid grid(ndim, nx, x0, dx);
+
+  return grid;
+}
+
+/**
+ * Grid matching Resolution in 'ndim-1' and Seismic for 'ndim'
+ * @return
+ */
+Grid ProjConvolution::_getGridCharacteristicsRS() const
+{
+  int ndim = _gridSeismic->getNDim();
+
+  Grid gridRR = _getGridCharacteristicsRR();
+  VectorInt nxs   = gridRR.getNXs();
+  VectorDouble dx = gridRR.getDXs();
+  VectorDouble x0 = gridRR.getX0s();
 
   // Correct the last dimension
-  nxs[ndim - 1] += (_getConvSize() - 1);
-  x0[ndim - 1]  -= (_getConvSize() - 1) * dx[ndim - 1];
+  nxs[ndim - 1] = _gridSeismic->getNX(ndim - 1);
+  x0[ndim - 1]  = _gridSeismic->getX0(ndim - 1);
   Grid grid(ndim, nxs, x0, dx);
 
   return grid;
@@ -436,19 +285,18 @@ Grid ProjConvolution::_getResolutionGridCharacteristics() const
 DbGrid* ProjConvolution::getResolutionGrid() const
 {
   // Get the characteristics of the Point Grid
-  Grid grid = _getResolutionGridCharacteristics();
+  Grid grid = _getGridCharacteristicsRR();
 
   // Create the new Point grid
   DbGrid* dbgrid = DbGrid::create(grid.getNXs(),
                                   grid.getDXs(),
-                                  grid.getX0s(),
-                                  _gridSeismic->getAngles());
+                                  grid.getX0s());
   return dbgrid;
 }
 
 int ProjConvolution::getApexNumber() const
 {
-  Grid grid = _getResolutionGridCharacteristics();
+  Grid grid = _getGridCharacteristicsRR();
   return ut_vector_prod(grid.getNXs());
 }
 

@@ -393,6 +393,15 @@ MeshETurbo* MeshETurbo::createFromGrid(const DbGrid* dbgrid, bool verbose)
   return mesh;
 }
 
+MeshETurbo* MeshETurbo::createFromGridInfo(const Grid* grid, bool verbose)
+{
+  MeshETurbo* mesh = new MeshETurbo();
+  if (mesh->initFromGrid(grid->getNXs(), grid->getDXs(), grid->getX0s(),
+                         grid->getRotMat(), VectorDouble(), true, verbose))
+    return nullptr;
+  return mesh;
+}
+
 /****************************************************************************/
 /*!
 ** Create the meshing
@@ -622,7 +631,7 @@ void MeshETurbo::_setNumberElementPerCell()
  * @param coor   Coordinates of the targte point
  * @param indices Grid indices of the target (in active ranks)
  * @param lambda  Weights
- * @param verbose Verbosity flag
+ * @param verbose Verbose flag
  * @return
  *
  * @remark The function returns 1 if:
@@ -677,9 +686,12 @@ int MeshETurbo::_addWeights(int icas,
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
   {
-    if (lambda[icorner] < -EPSILON8) return 1;
+    if (lambda[icorner] < -EPSILON6) return 1;
     if (lambda[icorner] < 0) lambda[icorner] = 0.;
+    if (lambda[icorner] > 1 + EPSILON6) return 1;
+    if (lambda[icorner] > 1) lambda[icorner] = 1.;
   }
+
   // Optional printout
   if (verbose) 
   {
