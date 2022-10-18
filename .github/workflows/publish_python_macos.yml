@@ -19,7 +19,7 @@ env:
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
 
-jobs:   
+jobs:
   build:
     runs-on: ${{matrix.os}}
     strategy :
@@ -37,7 +37,7 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Setup Python Version
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{matrix.python}}
 
@@ -49,27 +49,27 @@ jobs:
 ####################################################################################################
 # Doxygen
 
-    - name : Download and install Doxygen
-      run: brew install doxygen ${{env.PYTHON}}
+#    - name : Download and install Doxygen
+#      run: brew install doxygen ${{env.PYTHON}}
 
 ####################################################################################################
 # HDF5
   
-    - name : HDF5
-      run : |
-        mkdir ${{env.HDF5_ROOT}}
-        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}
-        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
-        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
-        ls
-        cd ${{env.HDF5_ROOT}} 
-        ls
-        cd CMake-${{env.HDF5_VERSION}}
-        mkdir build
-        cd build
-        cmake -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
-        cmake --build . --target all --config Release -- -j 3
-        cmake --build . --target install --config Release
+#    - name : HDF5
+#      run : |
+#        mkdir ${{env.HDF5_ROOT}}
+#        curl --progress-bar --location --output ${{env.HDF5_ROOT}}/download.tar.gz ${{env.HDF5_URL}}
+#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar.gz -y -bd
+#        7z  -o${{env.HDF5_ROOT}} x ${{env.HDF5_ROOT}}/download.tar -y -bd
+#        ls
+#        cd ${{env.HDF5_ROOT}} 
+#        ls
+#        cd CMake-${{env.HDF5_VERSION}}
+#        mkdir build
+#        cd build
+#        cmake -DHDF5_GENERATE_HEADERS:BOOL=OFF -DBUILD_SHARED_LIBS:BOOL=OFF -DDEFAULT_API_VERSION:STRING=v110 -DCMAKE_BUILD_TYPE:STRING=Release -DHDF5_BUILD_FORTRAN:BOOL=OFF -DHDF5_BUILD_CPP_LIB:BOOL=ON -DHDF5_BUILD_JAVA:BOOL=OFF -DCMAKE_INSTALL_PREFIX:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DHDF5_ENABLE_SZIP_SUPPORT:BOOL=OFF -DHDF5_ENABLE_Z_LIB_SUPPORT:BOOL=OFF -DBUILD_TESTING:BOOL=OFF -DHDF5_BUILD_TOOLS:BOOL=OFF ../${{env.HDF5_VERSION}}
+#        cmake --build . --target all --config Release -- -j 3
+#        cmake --build . --target install --config Release
 
 ####################################################################################################
 # Boost
@@ -87,7 +87,8 @@ jobs:
 
     - name : Configure Cmake
       # Error locating python on MacOS : https://github.com/actions/setup-python/issues/121
-      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
+      run : cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DUSE_HDF5=OFF
+           #cmake -B${{env.BUILD_DIR}} -DCMAKE_BUILD_TYPE:STRING=${{env.BUILD_TYPE}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DPython3_ROOT_DIR="${{env.pythonLocation}}" -DBUILD_PYTHON=ON -DHDF5_ROOT:PATH=${{env.PROG_ROOT}}/${{env.HDF5_ROOT}}
 
 ####################################################################################################
 # Compile library and build python package
@@ -105,7 +106,7 @@ jobs:
         python -m twine upload dist/*
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_PASSWORD: ${{secrets.TWINE_TEST_TOKEN}}
         TWINE_REPOSITORY: testpypi
 
 

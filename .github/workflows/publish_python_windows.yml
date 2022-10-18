@@ -1,4 +1,4 @@
-name: publish_python_windows-latest
+name: publish_python_windows-2019
 
 on:
   workflow_dispatch:
@@ -11,32 +11,35 @@ on:
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
-  BUILD_PLAT: win_amd64
-  COMPILE_VERSION : '"Visual Studio 17 2022"' #Because cmake -G needs " "
+  COMPILE_VERSION : '"Visual Studio 16 2019"' #Because cmake -G needs " "
 
   BOOST_ROOT: boost
   BOOST_URL: https://sourceforge.net/projects/boost/files/boost/1.72.0/boost_1_72_0.tar.bz2/download
-  HDF5_ROOT : hdf5 #do not use "." in the name
-  HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
-  HDF5_VERSION : hdf5-1.12.1
-  DOXYGEN_ROOT : Doxygen
-  DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
+  #HDF5_ROOT : hdf5 #do not use "." in the name
+  #HDF5_URL : "https://www.hdfgroup.org/package/cmake-hdf5-1-12-1-zip/?wpdmdl=15723"
+  #HDF5_VERSION : hdf5-1.12.1
+  #DOXYGEN_ROOT : Doxygen
+  #DOXYGEN_URL : https://www.doxygen.nl/files/doxygen-1.9.3.windows.x64.bin.zip
   
 jobs:
-   
+
   build:
-    runs-on: windows-latest
-    strategy :
-     matrix:
-       python: ["3.7","3.8","3.9","3.10"]
-   
+    runs-on: windows-2019
+    strategy:
+      matrix:
+        python: ["3.7","3.8","3.9","3.10"]
+        arch:
+          - ["win_amd64", "x64", "x64"]
+          - ["win32",     "x86", "Win32"]
+
     steps:
     - uses: actions/checkout@v2
 
     - name: Setup Python Version
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{matrix.python}}
+        architecture: ${{matrix.arch[1]}}
 
     - name: Install Python dependencies
       run: |
@@ -61,14 +64,14 @@ jobs:
 ########################################################################################################
 # Doxygen download and unzip
 
-    - name : Download and install Doxygen
-      run: |
-        mkdir ${{env.DOXYGEN_ROOT}}
-        cd ${{env.DOXYGEN_ROOT}}
-        mkdir bin
-        cd .. 
-        curl --progress-bar --output ${{env.DOXYGEN_ROOT}}/download.zip ${{env.DOXYGEN_URL}}
-        7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
+#    - name : Download and install Doxygen
+#      run: |
+#        mkdir ${{env.DOXYGEN_ROOT}}
+#        cd ${{env.DOXYGEN_ROOT}}
+#        mkdir bin
+#        cd .. 
+#        curl --progress-bar --output ${{env.DOXYGEN_ROOT}}/download.zip ${{env.DOXYGEN_URL}}
+#        7z -o${{env.DOXYGEN_ROOT}}/bin x ${{env.DOXYGEN_ROOT}}/download.zip
 
 ########################################################################################################
 # Boost headers download and unzip
@@ -85,8 +88,8 @@ jobs:
 # Configuration to prepare compilation
 
     - name : Configure Cmake
-      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DUSE_HDF5=OFF                 -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
-           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -DBoost_ROOT=${{env.BOOST_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON
+      run : cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DUSE_HDF5=OFF
+           #cmake -B${{env.BUILD_DIR}} -G ${{env.COMPILE_VERSION}} -A ${{matrix.arch[2]}} -DPython3_ROOT_DIR="${{ env.pythonLocation }}" -DBUILD_PYTHON=ON -DBoost_ROOT=${{env.BOOST_ROOT}} -DHDF5_ROOT:${{env.HDF5_ROOT}} -DDoxygen_ROOT=${{env.DOXYGEN_ROOT}} 
 
 ########################################################################################################
 # Compilation (gstlearn and python package)
@@ -101,11 +104,11 @@ jobs:
       run: |
         cd ${{env.BUILD_DIR}}\python\${{env.BUILD_TYPE}}
         # Note: wheel must be declared pure (see setup.py)
-        python setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
+        python setup.py bdist_wheel --plat-name=${{matrix.arch[0]}}
         python -m twine upload dist\*
 
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_PASSWORD: ${{secrets.TWINE_TEST_TOKEN}}
         TWINE_REPOSITORY: testpypi
 
