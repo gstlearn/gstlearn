@@ -1738,6 +1738,14 @@ double Db::getMaximum(const String& name, bool useSel) const
   return ut_vector_max(tab);
 }
 
+VectorDouble Db::getRange(const String& name, bool useSel) const
+{
+  VectorDouble range(2);
+  range[0] = getMinimum(name, useSel);
+  range[1] = getMaximum(name, useSel);
+  return range;
+}
+
 double Db::getMean(const String& name, bool useSel) const
 {
   VectorInt iuids = _ids(name, true);

@@ -122,8 +122,8 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
               )
     return boundaries
 
-def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False, 
-                    cmin = None, cmax = None):
+def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False, 
+                  cmin = None, cmax = None):
     
     if grid.getNDim() != 3:
         print("This representaion is designed for 3-D Grid only")
@@ -143,8 +143,8 @@ def SliceOnDbGrid3D(grid, name, section=0, rank=0, usesel=False,
                     coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
-def SurfaceOnDbGrid3D(grid, name, usesel=False,
-                      isomin=0, isomax=1, surface_count = 1, showLegend=False):
+def SurfaceOnDbGrid(grid, name, usesel=False,
+                    isomin=0, isomax=1, surface_count = 1, showLegend=False):
     
     if grid.getNDim() != 3:
         print("This representation is designed for 3-D Grid only")
@@ -165,8 +165,8 @@ def SurfaceOnDbGrid3D(grid, name, usesel=False,
                              caps = dict(x_show=False, y_show=False))
     return surfaces
    
-def PointDb3D(db, color_name=None, size_name=None, usesel=False, 
-                color='black', size=3, opacity=1): 
+def PointDb(db, color_name=None, size_name=None, usesel=False, 
+            color='black', size=3, opacity=1): 
     if db.getNDim() != 3:
         print("This representation is designed for 3-D Data Base only")
         return None
@@ -186,11 +186,10 @@ def PointDb3D(db, color_name=None, size_name=None, usesel=False,
         sizes = size
         
     object = go.Scatter3d(x=x, y=y, z=z, mode='markers',
-                          marker = dict(
-                                     size = sizes,
-                                     color = colors,
-                                     colorscale ='Viridis',
-                                     opacity = opacity
+                          marker = dict(size = sizes,
+                                        color = colors,
+                                        colorscale ='Viridis',
+                                        opacity = opacity
                                    )
                           )
     

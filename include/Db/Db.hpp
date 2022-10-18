@@ -552,6 +552,7 @@ public:
 
   double getMinimum(const String& name, bool useSel = false) const;
   double getMaximum(const String& name, bool useSel = false) const;
+  VectorDouble getRange(const String& name, bool useSel = false) const;
   double getMean(const String& name, bool useSel = false) const;
   double getVariance(const String& name, bool useSel = false) const;
   double getStdv(const String& name, bool useSel = false) const;
