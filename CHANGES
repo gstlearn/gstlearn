@@ -1,9 +1,18 @@
 This file contains the logs between consecutive releases
 ********************************************************
 
-Release 0.1.31
+Release 0.1.33
 ==============
 
+
+Release 0.1.32
+==============
+- Update publishing workflows
+
+
+Release 0.1.31
+==============
+- New potential 1D and 2D jupyter notebook tutorials
 
 
 Release 0.1.30
