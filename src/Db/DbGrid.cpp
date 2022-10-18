@@ -162,9 +162,9 @@ int DbGrid::reset(const VectorInt& nx,
  *
  * @param db       Input Db from which the newly created Db is constructed
  * @param nodes    Vector of the expected number of grid nodes (default = 10)
- * @param dcell    Vector of the expected sizes for the grid meshes
- * @param origin   Vector of the expected origin of the grid
- * @param margin   Vector of the expected margins of the grid
+ * @param dcell    Vector of the expected sizes for the grid meshes (in distance)
+ * @param origin   Vector of the expected origin of the grid (in coordinate)
+ * @param margin   Vector of the expected margins of the grid (in distance)
  *
  * @remarks Arguments 'nodes' and 'dcell' are disjunctive. If both defined, 'dcell' prevails
  */
@@ -194,24 +194,19 @@ int DbGrid::resetCoveringDb(const Db* db,
     if (ndim == (int) origin.size()) x0loc = origin[idim];
     x0loc -= marge;
 
-    double ext = coor[1] - x0loc + 2. * marge;
-
-    int nxloc = 10;
-    double dxloc = ext / (double) nxloc;
+    double ext = coor[1] - x0loc + marge;
 
     // Constraints specified by the number of nodes
+    int nxloc = 10;
     if (ndim == (int) nodes.size())
-    {
       nxloc = nodes[idim];
-      dxloc = ext / (double) nxloc;
-    }
+    double dxloc = ext / ((double) nxloc - 1.);
 
     // Constraints specified by the cell sizes
     if (ndim == (int) dcell.size())
     {
       dxloc = dcell[idim];
-      nxloc = static_cast<int> (ext / dxloc) + 1;
-      ++nxloc; // one more node than intervals
+      nxloc = ceil((ext - dxloc / 2.) / dxloc) + 1;
     }
 
     nx[idim] = nxloc;

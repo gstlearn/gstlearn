@@ -271,7 +271,6 @@
 // Add numerical vector typecheck typemaps for dispatching functions
 %typemap(typecheck, noblock=1, fragment="ToCpp", precedence=SWIG_TYPECHECK_DOUBLE_ARRAY) const VectorInt&,    VectorInt,
                                                                                          const VectorDouble&, VectorDouble,
-                                                                                         const VectorFloat&,  VectorFloat,
                                                                                          const VectorUChar&,  VectorUChar,
                                                                                          const VectorBool&,   VectorBool
 {

@@ -35,7 +35,7 @@ public:
              const VectorDouble& dx = VectorDouble(),
              const VectorDouble& x0 = VectorDouble(),
              const VectorDouble& rotmat = VectorDouble(),
-             bool flag_polarized = true,
+             bool flag_polarized = false,
              bool verbose = false);
   MeshETurbo(const DbGrid* dbgrid, bool verbose = false);
   MeshETurbo(const MeshETurbo &m);
@@ -61,24 +61,25 @@ public:
                             const VectorDouble &dx = VectorDouble(),
                             const VectorDouble &x0 = VectorDouble(),
                             const VectorDouble &rotmat = VectorDouble(),
-                            bool flag_polarized = true,
+                            bool flag_polarized = false,
                             bool verbose = false);
   static MeshETurbo* createFromNF(const String &neutralFilename,
                                   bool verbose = true);
   static MeshETurbo* createFromGrid(const DbGrid* dbgrid, bool verbose = false);
+  static MeshETurbo* createFromGridInfo(const Grid* grid, bool verbose = false);
 
   int initFromExtend(const VectorDouble& extendmin,
                      const VectorDouble& extendmax,
                      const VectorDouble& cellsize,
                      const VectorDouble& rotmat = VectorDouble(),
-                     bool flag_polarized = true,
+                     bool flag_polarized = false,
                      bool verbose = false);
   int initFromGrid(const VectorInt& nx,
                    const VectorDouble& dx = VectorDouble(),
                    const VectorDouble& x0 = VectorDouble(),
                    const VectorDouble& rotmat = VectorDouble(),
                    const VectorDouble& sel = VectorDouble(),
-                   bool flag_polarized = true,
+                   bool flag_polarized = false,
                    bool verbose = false);
   int initFromCova(const CovAniso& cova,
                    const DbGrid* field,
@@ -96,7 +97,6 @@ private:
   int  _getPolarized(VectorInt indg) const;
   int  _addWeights(int icas,
                    const VectorInt &indg0,
-                   VectorInt &indgg,
                    const VectorDouble &coor,
                    VectorInt &indices,
                    VectorDouble &lambda,
@@ -105,6 +105,11 @@ private:
   void _getGridFromMesh(int imesh, int *node, int *icas) const;
   void _buildMaskInMeshing(const VectorDouble& sel);
   int  _nmeshInCompleteGrid() const;
+  bool _addElementToCS(cs *ATriplet,
+                       int iech,
+                       const VectorDouble &coor,
+                       const VectorInt &indg0,
+                       bool verbose) const;
   bool _isMaskDefined() const { return (_gridNactive > 0 || _meshNactive > 0); }
 
 protected:

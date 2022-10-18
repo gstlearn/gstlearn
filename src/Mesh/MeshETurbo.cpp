@@ -30,7 +30,7 @@ MeshETurbo::MeshETurbo()
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(true),
+      _isPolarized(false),
       _gridNactive(0),
       _meshNactive(0),
       _meshActiveToAbsolute(),
@@ -56,7 +56,7 @@ MeshETurbo::MeshETurbo(const DbGrid* dbgrid, bool verbose)
     : AMesh(),
       _grid(),
       _nPerCell(0),
-      _isPolarized(true)
+      _isPolarized(false)
 {
   if (!dbgrid->isGrid()) return;
   VectorDouble sel = dbgrid->getSelection();
@@ -393,6 +393,15 @@ MeshETurbo* MeshETurbo::createFromGrid(const DbGrid* dbgrid, bool verbose)
   return mesh;
 }
 
+MeshETurbo* MeshETurbo::createFromGridInfo(const Grid* grid, bool verbose)
+{
+  MeshETurbo* mesh = new MeshETurbo();
+  if (mesh->initFromGrid(grid->getNXs(), grid->getDXs(), grid->getX0s(),
+                         grid->getRotMat(), VectorDouble(), true, verbose))
+    return nullptr;
+  return mesh;
+}
+
 /****************************************************************************/
 /*!
 ** Create the meshing
@@ -436,6 +445,31 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
   return 0;
 }
 
+bool MeshETurbo::_addElementToCS(cs *Atriplet,
+                                 int iech,
+                                 const VectorDouble &coor,
+                                 const VectorInt &indg0,
+                                 bool verbose) const
+{
+  int ncorner = getNApexPerMesh();
+  VectorInt indices(ncorner);
+  VectorDouble lambda(ncorner);
+
+  for (int icas = 0; icas < _nPerCell; icas++)
+  {
+    if (_addWeights(icas, indg0, coor, indices, lambda, verbose) == 0)
+    {
+      for (int icorner = 0; icorner < ncorner; icorner++)
+      {
+        if (!cs_entry(Atriplet, iech, indices[icorner], lambda[icorner]))
+          return false;
+      }
+      return true;
+    }
+  }
+  return false;
+}
+
 /****************************************************************************/
 /*!
 ** Returns the Sparse Matrix used to project a Db onto the Meshing
@@ -458,7 +492,6 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
   int ndim     = getNDim();
   int ncorner  = getNApexPerMesh();
   VectorInt indg0(ndim);
-  VectorInt indgg(ndim);
   VectorInt indices(ncorner);
   VectorDouble coor(ndim);
   VectorDouble lambda(ncorner);
@@ -502,22 +535,26 @@ cs* MeshETurbo::getMeshToDb(const Db *db, bool verbose) const
     if (verbose)
       message("Sample %4d in Mesh %4d :",jech+1,_grid.indiceToRank(indg0)+1);
 
-    /* Loop on the different meshes constituting the cell */
+    // Loop on the different meshes constituting the cell
 
-    int found = -1;
-    for (int icas=0; icas<_nPerCell && found<0; icas++)
+    bool found = false;
+    found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
+
+    if (! found)
     {
-      if (_addWeights(icas,indg0,indgg,coor,indices,lambda,verbose) == 0)
+      // In the case the target coordinate is on the edge of the grid
+      // try to shift the point down by one node
+      bool flag_correct = false;
+      for (int idim = 0; idim < ndim; idim++)
       {
-        for (int icorner=0; icorner<ncorner; icorner++)
-        {
-          if (! cs_entry(Atriplet,iech,indices[icorner],lambda[icorner]))
-            goto label_end;
-        }
-        found = icas;
+        if (indg0[idim] != _grid.getNX(idim)-1) continue;
+        indg0[idim] -= 1;
+        flag_correct = true;
       }
+      if (flag_correct)
+        found = _addElementToCS(Atriplet, iech, coor, indg0, verbose);
     }
-    if (found < 0)
+    if (! found)
     {
       nout++;
       if (verbose)
@@ -618,11 +655,10 @@ void MeshETurbo::_setNumberElementPerCell()
  * Return the weights assigned to the corners
  * @param icas   Corner indication
  * @param indg0  Indices of the starting grid node
- * @param indgg  Working array for local grid nodes identification
  * @param coor   Coordinates of the targte point
  * @param indices Grid indices of the target (in active ranks)
  * @param lambda  Weights
- * @param verbose Verbosity flag
+ * @param verbose Verbose flag
  * @return
  *
  * @remark The function returns 1 if:
@@ -631,7 +667,6 @@ void MeshETurbo::_setNumberElementPerCell()
  */
 int MeshETurbo::_addWeights(int icas,
                             const VectorInt& indg0,
-                            VectorInt& indgg, // working array
                             const VectorDouble& coor,
                             VectorInt& indices, // Returned indices (active grid nodes)
                             VectorDouble& lambda,
@@ -642,6 +677,7 @@ int MeshETurbo::_addWeights(int icas,
   int ipol    = _getPolarized(indg0);
   MatrixSquareGeneral lhs;
   VectorDouble rhs(ncorner);
+  VectorInt indgg(ndim);
 
   // Build the LHS matrix
 
@@ -659,7 +695,7 @@ int MeshETurbo::_addWeights(int icas,
 
     // Update the LHS matrix
     for (int idim=0; idim<ndim; idim++)
-      lhs.setValue(icorner,idim,_grid.indiceToCoordinate(idim,indgg,VectorDouble()));
+      lhs.setValue(icorner,idim,_grid.indiceToCoordinate(idim,indgg));
     lhs.setValue(icorner,ndim,1.);
   }
 
@@ -677,9 +713,12 @@ int MeshETurbo::_addWeights(int icas,
   // Check that all weights are positive
   for (int icorner=0; icorner<ncorner; icorner++)
   {
-    if (lambda[icorner] < -EPSILON8) return 1;
+    if (lambda[icorner] < -EPSILON6) return 1;
     if (lambda[icorner] < 0) lambda[icorner] = 0.;
+    if (lambda[icorner] > 1 + EPSILON6) return 1;
+    if (lambda[icorner] > 1) lambda[icorner] = 1.;
   }
+
   // Optional printout
   if (verbose) 
   {

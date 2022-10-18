@@ -26,8 +26,8 @@ class GSTLEARN_EXPORT ProjConvolution: public IProjMatrix
 public:
   ProjConvolution(const VectorDouble &convolution = VectorDouble(),
                   const DbGrid *grid_point = nullptr,
-                  const VectorInt& nmult = VectorInt(),
-                  bool useAProj = false);
+                  const VectorInt& nodeRes2D = VectorInt(),
+                  const VectorDouble& gext = VectorDouble());
   ProjConvolution(const ProjConvolution &m)= delete;
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
@@ -43,29 +43,27 @@ public:
 private:
   int  _getConvSize() const { return (int) _convolution.size(); }
   int  _getHalfSize() const { return (_getConvSize() - 1) / 2; }
+  void _buildGridSeis2D();
+  void _buildGridRes2D();
   void _buildShiftVector();
-  int  _buildAprojCS();
-  void _buildWeights();
+  int  _buildAprojHoriz();
   int  _getNDim() const { return _gridSeismic->getNDim(); }
-  int  _getNMultProd() const { return ut_vector_prod(_nmult); }
-  Grid _getResolutionGridCharacteristics() const;
+  Grid _getGridCharacteristicsRR(bool delLastDim = false) const;
+  Grid _getGridCharacteristicsRS() const;
   bool _isVecDimCorrect(const VectorDouble &valonseismic,
                         const VectorDouble &valonvertex) const;
 
-  int _mesh2pointRef(const VectorDouble &valonvertex,
-                     VectorDouble &valonseismic) const;
-  int _mesh2point2D(const VectorDouble &valonvertex,
-                    VectorDouble &valonseismic) const;
-  int _mesh2point3D(const VectorDouble &valonvertex,
-                    VectorDouble &valonseismic) const;
+  void _convolve(const VectorDouble &valonvertex,
+                 VectorDouble &valonseismic) const;
 
 private:
   VectorDouble  _convolution;
   const DbGrid* _gridSeismic;
-  VectorInt     _nmult; // Dimension of _gridSeismic
+  VectorInt     _nodeRes2D;
+  VectorDouble  _gext;
   VectorInt     _shiftVector;
-  VectorDouble  _weightx;
-  VectorDouble  _weighty;
-  mutable cs*   _Aproj; // Stockage temporaire de la matrice creuse de Projection
+  DbGrid*       _gridSeis2D;
+  DbGrid*       _gridRes2D;
+  cs*           _AProjHoriz;
 };
 
