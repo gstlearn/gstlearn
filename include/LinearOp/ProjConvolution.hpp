@@ -55,15 +55,19 @@ private:
 
   void _convolve(const VectorDouble &valonvertex,
                  VectorDouble &valonseismic) const;
+  void _convolveT(const VectorDouble &valonseismic,
+                   VectorDouble &valonvertex) const;
 
 private:
-  VectorDouble  _convolution;
-  const DbGrid* _gridSeismic;
-  VectorInt     _nodeRes2D;
-  VectorDouble  _gext;
-  VectorInt     _shiftVector;
-  DbGrid*       _gridSeis2D;
-  DbGrid*       _gridRes2D;
-  cs*           _AProjHoriz;
+  VectorDouble         _convolution;
+  const DbGrid*        _gridSeismic;
+  VectorInt            _nodeRes2D;
+  VectorDouble         _gext;
+  VectorInt            _shiftVector;
+  DbGrid*              _gridSeis2D;
+  DbGrid*              _gridRes2D;
+  cs*                  _AProjHoriz;
+  mutable VectorDouble _workR;
+  mutable VectorDouble _workS;
 };
 
