@@ -67,7 +67,6 @@ private:
   DbGrid*              _gridSeis2D;
   DbGrid*              _gridRes2D;
   cs*                  _AProjHoriz;
-  mutable VectorDouble _workR;
-  mutable VectorDouble _workS;
+  mutable VectorDouble _work;
 };
 
