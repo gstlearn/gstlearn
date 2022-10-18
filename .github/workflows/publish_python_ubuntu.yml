@@ -6,13 +6,13 @@ on:
       logLevel:
         description: 'Manual'
         required: false
-        default: ''  
+        default: ''
 
 env:
   BUILD_TYPE: Release
   BUILD_DIR : build
   BUILD_PLAT: manylinux1_x86_64
-  
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -42,13 +42,13 @@ jobs:
         cmake --build ${{env.BUILD_DIR}} --target python_build -- -j 3
         cd ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}
         # Note: wheel must be declared pure (see setup.py)
-        python3 setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
+        python setup.py bdist_wheel --plat-name=${{env.BUILD_PLAT}}
      
     - name : Upload
       run : python -m twine upload ${{env.BUILD_DIR}}/python/${{env.BUILD_TYPE}}/dist/*
       env:
         TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.TWINE_TEST_TOKEN }}
+        TWINE_PASSWORD: ${{secrets.TWINE_TEST_TOKEN}}
         TWINE_REPOSITORY: testpypi
 
    
