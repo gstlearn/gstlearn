@@ -42,7 +42,7 @@ def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', opacity=
 
     return surface
     
-def Meshing(mesh, color='black', width=1):
+def Meshing(mesh, color='black', width=1, showlegend=False):
     xs = list()
     ys = list()
     zs = list()
@@ -56,48 +56,62 @@ def Meshing(mesh, color='black', width=1):
     ys = np.array(ys)
     zs = np.array(zs)
 
-    meshing = dict(type='scatter3d',x=xs, y=ys, z=zs, 
-                   mode='lines',
-                   line=dict(color=color, width=width)
+    meshing = dict(type='scatter3d',x=xs, y=ys, z=zs, mode='lines',
+                   line=dict(color=color, width=width),
+                   showlegend=showlegend
                    )
     return meshing
     
 def Scatter(x, y, z, mode='lines', color='black', width=1, 
-            m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2):
+            m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
+            showlegend=False):
     ''' 
     mode can be 'lines' or 'markers'
     '''
-    meshing = dict(type='scatter3d',x=x, y=y, z=z, 
-                   mode=mode,
+    meshing = dict(type='scatter3d',x=x, y=y, z=z, mode=mode,
                    marker_symbol=m_symbol,
-                   marker_line_color=m_line, marker_color=m_color, marker_line_width=m_width, 
-                   marker_size=m_size,
-                   line=dict(color=color, width=width)
+                   marker_line_color=m_line, marker_color=m_color, 
+                   marker_line_width=m_width, marker_size=m_size,
+                   line=dict(color=color, width=width),
+                   showlegend=showlegend
                    )
     return meshing
     
 def ScatterOnSphere(long, lat, mode='lines', color='black', width=1, 
-                    m_symbol = 'circle', m_color='black', m_line = 'black', m_size=15, m_width=2,
-                    dilate=1):
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
-    meshing = scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, color=color, width=width,
-                      m_symbol=m_symbol, m_color=m_color, m_line=m_line, m_size=m_size, m_width=m_width)
+                    m_symbol = 'circle', m_color='black', m_line = 'black', 
+                    m_size=15, m_width=2, dilate=1,
+                    showlegend=False):
+    
+    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    meshing = Scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, 
+                      color=color, width=width,
+                      m_symbol=m_symbol, m_color=m_color, m_line=m_line, 
+                      m_size=m_size, m_width=m_width,
+                      showlegend=showlegend)
+
     return meshing
 
-def Line(x, y, z, color='black', width=1):
-    line = dict(type='scatter3d',x=x, y=y, z=z, 
-                   mode='lines',
-                   line=dict(color=color, width=width),
-                   showlegend=False
-                   )
+def Line(x, y, z, color='black', width=1, 
+         showlegend=False):
+    
+    line = dict(type='scatter3d',x=x, y=y, z=z, mode='lines',
+                line=dict(color=color, width=width),
+                showlegend=showlegend
+                )
     return line
     
-def LineOnSphere(long, lat, color='black', width=1, dilate=1.):
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
-    line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
+def LineOnSphere(long, lat, color='black', width=1, dilate=1., 
+                 showlegend=False):
+    
+    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width,
+                showlegend=showlegend
+                )
+    
     return line
 
-def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
+def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1,
+                    showlegend=False):
     xs = list()
     ys = list()
     zs = list()
@@ -105,7 +119,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
     for i in range(poly.getPolySetNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
-        tab = np.array(gl.util_convert_longlat(a, b,dilate,np.nan))
+        tab = np.array(gl.ut_convert_longlat(a, b,dilate,np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -117,8 +131,9 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1):
     ys = np.array(ys)
     zs = np.array(zs)
 
-    boundaries=dict(type='scatter3d', x=xs, y=ys, z=zs,
-               mode='lines', line=dict(color=color, width=width)
+    boundaries=dict(type='scatter3d', x=xs, y=ys, z=zs, mode='lines', 
+                    line=dict(color=color, width=width),
+                    showlegend=showlegend
               )
     return boundaries
 
@@ -143,8 +158,8 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
                     coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
-def SurfaceOnDbGrid(grid, name, usesel=False,
-                    isomin=0, isomax=1, surface_count = 1, showLegend=False):
+def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, colorscale='BlueRed',
+                    isomin=0, isomax=1, surface_count = 1, showlegend=False):
     
     if grid.getNDim() != 3:
         print("This representation is designed for 3-D Grid only")
@@ -157,11 +172,13 @@ def SurfaceOnDbGrid(grid, name, usesel=False,
     z = grid.getCoordinates(2, usesel).reshape(shape)
     values = grid.getColumn( name, usesel).reshape(shape)
     
+    
     surfaces = go.Isosurface(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
                              value = values.flatten(), 
                              isomin = isomin, isomax = isomax,
-                             surface_count = surface_count, colorscale='BlueRed',
-                             showscale = showLegend, 
+                             surface_count = surface_count, 
+                             colorscale=colorscale,
+                             showscale = showlegend, 
                              caps = dict(x_show=False, y_show=False))
     return surfaces
    
@@ -192,14 +209,98 @@ def PointDb(db, color_name=None, size_name=None, usesel=False,
                                         opacity = opacity
                                    )
                           )
-    
     return object
 
+def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
+               size=2): 
+    if db.getNDim() != 3:
+        print("This representation is designed for 3-D Data Base only")
+        return None
+                      
+    x = db.getCoordinates(0, usesel)
+    y = db.getCoordinates(1, usesel)
+    z = db.getCoordinates(2, usesel)
+    
+    gx = db.getGradients(0, usesel)
+    gy = db.getGradients(1, usesel)
+    gz = db.getGradients(2, usesel)
+    
+    if len(gx) <= 0 or len(gy) <= 0 or len(gz) <= 0:
+        return
+    
+    objects = go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
+                      u=gx.flatten(), v=gy.flatten(), w=gz.flatten(),
+                      colorscale = colorscale, sizemode=sizemode,
+                      sizeref = size)
+    
+    return objects
 
-def Equator(ndisc = 360, color='black', width=3, dilate=1.):
+def GradientDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
+               size=2, showlegend=False): 
+    if db.getNDim() != 3:
+        print("This representation is designed for 3-D Data Base only")
+        return None
+                      
+    x = db.getCoordinates(0, usesel)
+    y = db.getCoordinates(1, usesel)
+    z = db.getCoordinates(2, usesel)
+    
+    gx = db.getGradients(0, usesel)
+    gy = db.getGradients(1, usesel)
+    gz = db.getGradients(2, usesel)
+    
+    if len(gx) <= 0 or len(gy) <= 0 or len(gz) <= 0:
+        print("Gradient components must be present")
+        return
+    
+    objects = go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
+                      u=gx.flatten(), v=gy.flatten(), w=gz.flatten(),
+                      colorscale = colorscale, sizemode=sizemode,
+                      sizeref = size, showlegend=showlegend)
+    
+    return objects
+
+def TangentDb(db, usesel=False, colorscale='Blues', sizemode='absolute',
+               size=2, showlegend=False): 
+    if db.getNDim() != 3:
+        print("This representation is designed for 3-D Data Base only")
+        return None
+                      
+    x = db.getCoordinates(0, usesel)
+    y = db.getCoordinates(1, usesel)
+    z = db.getCoordinates(2, usesel)
+    
+    tx = db.getTangents(0, usesel)
+    ty = db.getTangents(1, usesel)
+    tz = db.getTangents(2, usesel)
+    
+    x = np.concatenate((x, x)) 
+    y = np.concatenate((y, y)) 
+    z = np.concatenate((z, z)) 
+    
+    tx = np.concatenate((tx, -tx)) 
+    ty = np.concatenate((ty, -ty)) 
+    tz = np.concatenate((tz, -tz)) 
+    
+    if len(tx) <= 0 or len(ty) <= 0 or len(tz) <= 0:
+        print("Tangent components must be present")
+        return
+    
+    objects = go.Cone(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
+                      u=tx.flatten(), v=ty.flatten(), w=tz.flatten(),
+                      colorscale = colorscale, sizemode=sizemode, anchor='tail',
+                      sizeref = size, showlegend=showlegend)
+                    
+    return objects
+
+def Equator(ndisc = 360, color='black', width=3, dilate=1., showlegend=False):
+    
     long = np.arange(0,ndisc+1) * 360. / ndisc
     lat  = np.zeros(ndisc+1)
-    line = LineOnSphere(long, lat, color=color, width=width, dilate=dilate)
+    
+    line = LineOnSphere(long, lat, color=color, width=width, dilate=dilate,
+                        showlegend = showlegend)
+    
     return line
 
 def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.):
@@ -212,7 +313,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.):
         lat = (np.arange(0,ndisc+1) - ndisc / 2.) * 180. / ndisc
         long = np.zeros(ndisc+1)
         long.fill(i * angle)
-        tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
+        tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -236,7 +337,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
         long = np.arange(0,ndisc+1) * 360. / ndisc
         lat  = np.zeros(ndisc+1)
         lat.fill((i - number/2) * angle)
-        tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
+        tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -254,7 +355,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
 def Pole(sizeref = 1000, dilate=1.3):
     long = np.zeros(1)
     lat = np.ones(1) * 90
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
     pole = go.Cone(
         u=[0],v=[0],w=[1],
         x=tab[0,:],y=tab[1,:],z=tab[2,:],
@@ -265,11 +366,12 @@ def Pole(sizeref = 1000, dilate=1.3):
     return pole
 
 def PolarAxis(color='black', width=3, dilate=1.2):
+    
     long = np.zeros(2)
     lat = np.zeros(2)
     lat[0] = -90.
     lat[1] = 90.
-    tab = np.array(gl.util_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
     
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
 
