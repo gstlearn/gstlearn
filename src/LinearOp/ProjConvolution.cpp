@@ -41,13 +41,11 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
   }
 
   _buildGridSeis2D();
-  _gridSeis2D->display();
 
   if (_nodeRes2D.empty())
     _nodeRes2D = _gridSeis2D->getNXs();
 
   _buildGridRes2D();
-  _gridRes2D->display();
 
   _buildAprojHoriz();
 
@@ -84,7 +82,7 @@ int ProjConvolution::_buildAprojHoriz()
   // Create the Turbo Meshing on the Resolution 'ndim-1' grid
   MeshETurbo* mesh = MeshETurbo::createFromGrid(_gridRes2D);
 
-  ProjMatrix* proj = ProjMatrix::create(_gridSeis2D, mesh, true);
+  ProjMatrix* proj = ProjMatrix::create(_gridSeis2D, mesh);
 
   _AProjHoriz = cs_duplicate(proj->getAproj());
 
@@ -188,14 +186,14 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   int ndim  = _getNDim();
 
   // Get the characteristics of the R-R grid
-  int slice_RR = _gridRes2D->getSampleNumber();
+  int slice_R = _gridRes2D->getSampleNumber();
 
   // Get the characteristics of the R-S grid
-  int nxRS_prod = slice_RR * _gridSeismic->getNX(ndim-1);
+  int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
 
   VectorInt nxSS = _gridSeismic->getNXs();
   nxSS.resize(ndim-1);
-  int slice_SS = ut_vector_prod(nxSS);
+  int slice_S = ut_vector_prod(nxSS);
 
   VectorDouble work(nxRS_prod);
 
@@ -205,9 +203,9 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    const double* valRS = &work.data()[iz * slice_RR];
-    double* valSS = &valonseismic.data()[iz * slice_SS];
-    cs_mulvec(_AProjHoriz, slice_RR, valRS, valSS);
+    const double* valRS = &work.data()[iz * slice_R];
+    double* valSS = &valonseismic.data()[iz * slice_S];
+    cs_mulvec(_AProjHoriz, slice_R, valRS, valSS);
   }
 
   return 0;
@@ -252,9 +250,9 @@ Grid ProjConvolution::_getGridCharacteristicsRR(bool delLastDim) const
     nx.resize(ndim);
     x0.resize(ndim);
     dx.resize(ndim);
-    dx[ndim - 1]  = _gridSeismic->getDX(ndim - 1);
-    nx[ndim - 1] += (_getConvSize() - 1);
-    x0[ndim - 1] -= (_getConvSize() - 1) * dx[ndim - 1];
+    dx[ndim - 1] = _gridSeismic->getDX(ndim - 1);
+    nx[ndim - 1] = _gridSeismic->getNX(ndim - 1) + (_getConvSize()-1);
+    x0[ndim - 1] = _gridSeismic->getX0(ndim - 1) - (_getConvSize()-1) * dx[ndim-1];
   }
   Grid grid(ndim, nx, x0, dx);
 
