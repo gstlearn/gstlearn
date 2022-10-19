@@ -27,7 +27,7 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
       _gridSeis2D(nullptr),
       _gridRes2D(nullptr),
       _AProjHoriz(nullptr),
-      _work(VectorDouble())
+      _work()
 {
   int ndim = grid_point->getNDim();
   if (ndim != 2 && ndim != 3)

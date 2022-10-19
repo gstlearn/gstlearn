@@ -540,7 +540,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
 def point(db, 
           color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
           color='r', size=20, sizmin=10, sizmax=200, 
-          xlim=None, ylim=None, directColor=False,
+          xlim=None, ylim=None, directColor=False, flagAbsSize=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
@@ -558,6 +558,7 @@ def point(db,
     xlim: Bounds defined along the first axis
     ylim: Bounds defined along the second axis
     directColor: True if the value of the field directly indicates the Rank in the Color Scale
+    flagAbsSize: Represent the Absolute value in Size representation
     cmap: Optional Color scale
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
@@ -596,6 +597,9 @@ def point(db,
     if size_name is not None:
         sizval = getDefinedValues(db, size_name, 0, 1, None, usesel, 
                                   compress=False, asGrid=False, flagConvertNanToZero=True)
+        
+        if flagAbsSize:
+            sizval = np.absolute(sizval)
         m = np.nanmin(np.absolute(sizval))
         M = np.nanmax(np.absolute(sizval))
         sizval = (sizmax - sizmin) * (np.absolute(sizval) - m) / (M-m) + sizmin

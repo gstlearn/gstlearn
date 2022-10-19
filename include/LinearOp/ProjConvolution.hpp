@@ -40,6 +40,10 @@ public:
 
   DbGrid* getResolutionGrid() const;
 
+  const cs* getAProjHoriz() const { return _AProjHoriz; }
+  const VectorDouble& getConvolution() const { return _convolution; }
+  const VectorInt& getShiftVector() const { return _shiftVector; }
+
 private:
   int  _getConvSize() const { return (int) _convolution.size(); }
   int  _getHalfSize() const { return (_getConvSize() - 1) / 2; }
