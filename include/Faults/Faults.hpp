@@ -34,6 +34,8 @@ public:
   std::vector<PolyLine2D> getFaults() const { return _faults; }
   const PolyLine2D getFault(int ifault) const { return _faults[ifault]; }
 
+  bool isSplitByFault(double xt1,double yt1, double xt2, double yt2) const;
+
 protected:
   /// Interface for ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

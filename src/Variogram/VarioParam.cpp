@@ -21,21 +21,26 @@
 #include "Stats/Classical.hpp"
 
 VarioParam::VarioParam(double scale,
-                       const VectorDouble& dates)
+                       const VectorDouble& dates,
+                       const Faults* faults)
   : AStringable()
   , ICloneable()
   , _scale(scale)
   , _dates(dates)
   , _dirparams()
+  , _faults(faults)
 {
 }
 
-VarioParam::VarioParam(const VarioParam& VarioParam, const VectorInt& dircols)
+VarioParam::VarioParam(const VarioParam &VarioParam,
+                       const VectorInt &dircols,
+                       const Faults *faults)
     : AStringable(),
       ICloneable(),
       _scale(),
       _dates(),
-      _dirparams()
+      _dirparams(),
+      _faults(faults)
 {
     _scale = VarioParam.getScale();
     _dates = VarioParam.getDates();
@@ -50,7 +55,8 @@ VarioParam::VarioParam(const VarioParam& r)
     : AStringable(r),
       _scale(r._scale),
       _dates(r._dates),
-      _dirparams(r._dirparams)
+      _dirparams(r._dirparams),
+      _faults(r._faults)
 {
 }
 
@@ -62,6 +68,7 @@ VarioParam& VarioParam::operator=(const VarioParam& r)
     _scale = r._scale;
     _dates = r._dates;
     _dirparams  = r._dirparams;
+    _faults = r._faults;
   }
   return *this;
 }

@@ -907,13 +907,13 @@ int ut_segment_intersect(double xd1,
  **
  *****************************************************************************/
 bool ut_is_segment_intersect(double xd1,
-                        double yd1,
-                        double xe1,
-                        double ye1,
-                        double xd2,
-                        double yd2,
-                        double xe2,
-                        double ye2)
+                             double yd1,
+                             double xe1,
+                             double ye1,
+                             double xd2,
+                             double yd2,
+                             double xe2,
+                             double ye2)
 {
   double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
 

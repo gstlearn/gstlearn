@@ -1649,6 +1649,36 @@ static void st_variogram_calcul_internal(Db *db,
 
 /****************************************************************************/
 /*!
+ **  Check if a pair must be rejected or not due to Faulting
+ **
+ ** \return  True if the pair must be rejected
+ **
+ ** \param[in]  db     Db description
+ ** \param[in]  iech   Rank of the first sample
+ ** \param[in]  jech   Rank of the second sample
+ ** \param[in]  faults Pointer to Faults
+ **
+ *****************************************************************************/
+bool variogram_reject_fault(const Db *db,
+                            int iech,
+                            int jech,
+                            const Faults *faults)
+{
+  if (faults == nullptr) return 0;
+
+  // Faulting is not checked when space dimension is smaller than 2
+  if (db->getNDim() < 2) return 0;
+
+  double xt1 = db->getCoordinate(iech, 0);
+  double yt1 = db->getCoordinate(iech, 1);
+  double xt2 = db->getCoordinate(jech, 0);
+  double yt2 = db->getCoordinate(jech, 1);
+
+  return faults->isSplitByFault(xt1, yt1, xt2, yt2);
+}
+
+/****************************************************************************/
+/*!
  **  Check if a pair must be rejected or not
  **
  ** \return  1 if the pair must be rejected
@@ -1769,6 +1799,10 @@ static int st_variogram_calcul1(Db *db,
                                 vario->getDirParam(idir).getCylRad(),
                                 vario->getDirParam(idir).getCodir(), &ps))
         continue;
+
+      /* Check if the pair must be rejected due to faulting */
+
+      if (variogram_reject_fault(db, iech, jech, varioparam.getFaults())) continue;
 
       /* Get the rank of the lag */
 
@@ -1899,6 +1933,10 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
                                 dirparam.getCodir(), &ps)) continue;
+
+      /* Check if the pair must be rejected due to faulting */
+
+      if (variogram_reject_fault(db, iech, jech, varioparam.getFaults())) continue;
 
       /* Get the rank of the lag */
 
@@ -2143,6 +2181,10 @@ static int st_variogram_grid(DbGrid *db, Vario *vario, int idir)
       if (st_date_comparable(&varioparam, db, db, iech, jech,
                              dirparam.getIdate())) continue;
 
+      /* Check if the pair must be rejected due to faulting */
+
+      if (variogram_reject_fault(db, iech, jech, varioparam.getFaults())) continue;
+
       /* Evaluate the variogram */
 
       dist = ipas * dirparam.getDPas();
@@ -2196,6 +2238,7 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
   int iech, jech, nech, ipas, npas, iwgt, keep, nvar;
   double dist, dist0, value, zz, psmin, ps;
 
+  const VarioParam &varioparam = vario->getVarioParam();
   const DirParam &dirparam = vario->getDirParam(idir);
   psmin = _variogram_convert_angular_tolerance(dirparam.getTolAngle());
   nech = db->getSampleNumber();
@@ -2231,6 +2274,10 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
         /* Check if the next sample belongs to the same line (same code) */
 
         if (code_comparable(db, db, iech, jech, 1, 0)) break;
+
+        /* Check if the pair must be rejected due to faulting */
+
+        if (variogram_reject_fault(db, iech, jech, varioparam.getFaults())) continue;
 
         /* Evaluate the variogram */
 
@@ -2332,6 +2379,10 @@ static int st_variogen_grid(DbGrid *db, Vario *vario, int idir, int norder)
 
         if (st_date_comparable(&varioparam, db, db, iech, jech,
                                dirparam.getIdate())) continue;
+
+        /* Check if the pair must be rejected due to faulting */
+
+        if (variogram_reject_fault(db, iech, jech, varioparam.getFaults())) continue;
 
         /* Evaluate the variogram */
 
@@ -3158,11 +3209,11 @@ static int st_vmap_grid(DbGrid *dbgrid,
         ind0[idim] = delta + moitie;
       }
       if (flag_out) continue;
-      iech0 = db_index_grid_to_sample(dbmap, ind0);
 
       /* Evaluate the variogram map */
 
       DBMAP = dbmap;
+      iech0 = db_index_grid_to_sample(dbmap, ind0);
       st_variogram_evaluate(dbgrid, calcul_type, nvar, iech1, iech2, iech0, TEST,
                             0, st_vmap_set);
     }
@@ -3862,12 +3913,18 @@ static void st_variogram_cloud(const Db *db,
       if (st_date_comparable(varioparam, db, db, iech, jech,
                              dirparam.getIdate())) continue;
 
+
       /* Check if the pair must be kept */
 
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
                                 dirparam.getCodir(), &ps)) continue;
+
+      /* Check if the pair must be rejected due to faulting */
+
+      if (variogram_reject_fault(db, iech, jech, varioparam->getFaults())) continue;
+
       value = w1 * w2 * (z2 - z1) * (z2 - z1) / 2.;
       igrid = st_update_discretization_grid(dbgrid, dist, value);
       if (igrid < 0) continue;
@@ -6013,7 +6070,7 @@ int vmap_compute(Db *db,
   }
   else
   {
-    // case where Data are on a set of points
+    // Case where Data are on a set of points
 
     error = st_vmap_general(db, dbmap, calcul_type, radius, namconv);
   }

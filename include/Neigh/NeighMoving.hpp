@@ -41,7 +41,6 @@ public:
   virtual bool getFlagContinuous() const override {
     return (! FFFF(_distCont) && _distCont < 1.);
   }
-  virtual bool hasFault() const override { return _faults != nullptr; }
 
   int reset(int ndim,
             bool flag_xvalid,
@@ -100,6 +99,7 @@ public:
   VectorVectorDouble getEllipsoid(const VectorDouble& target, int count = 360) const;
   VectorVectorDouble getSectors(const VectorDouble& target) const;
 
+  bool hasFaults() const { return _faults != nullptr; }
   const Faults* getFaults() const { return _faults; }
 
 protected:

@@ -35,7 +35,6 @@ public:
   virtual int getMaxSampleNumber(const Db* db) const = 0;
   virtual ENeigh getType() const = 0;
   virtual bool getFlagContinuous() const { return false; }
-  virtual bool hasFault() const { return false; }
 
   int getNDim() const { return _nDim; }
   bool getFlagXvalid() const { return _flagXvalid; }
