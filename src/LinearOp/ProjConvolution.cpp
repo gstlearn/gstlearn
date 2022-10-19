@@ -27,8 +27,7 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
       _gridSeis2D(nullptr),
       _gridRes2D(nullptr),
       _AProjHoriz(nullptr),
-      _workR(VectorDouble()),
-      _workS(VectorDouble())
+      _work(VectorDouble())
 {
   int ndim = grid_point->getNDim();
   if (ndim != 2 && ndim != 3)
@@ -161,25 +160,26 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    // Get the characteristics of the R-R grid
    int slice_R = _gridRes2D->getSampleNumber();
 
-   // Get the characteristics of the R-S grid
+   int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
+
+   // Get the characteristics of the S-S grid
 
    VectorInt nxSS = _gridSeismic->getNXs();
    nxSS.resize(ndim-1);
    int slice_S = ut_vector_prod(nxSS);
 
-   int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
 
-   _workS.resize(nxRS_prod);
+   _work.resize(nxRS_prod);
 
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
    {
      const double* valSS =  &valonseismic.data()[iz * slice_S];
-     double* valRS = &_workS.data()[iz * slice_R];
+     double* valRS = &_work.data()[iz * slice_R];
      cs_tmulvec(_AProjHoriz, slice_R, valSS, valRS);
    }
 
-   _convolveT(_workS,valonvertex);
+   _convolveT(_work,valonvertex);
    return 0;
 }
 
@@ -227,15 +227,15 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   nxSS.resize(ndim-1);
   int slice_S = ut_vector_prod(nxSS);
 
-  _workR.resize(nxRS_prod);
+  _work.resize(nxRS_prod);
 
   // Convolution
-  _convolve(valonvertex, _workR);
+  _convolve(valonvertex, _work);
 
   // Mesh barycenter on 'ndim-1' slices
   for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
   {
-    const double* valRS = &_workR.data()[iz * slice_R];
+    const double* valRS = &_work.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
     cs_mulvec(_AProjHoriz, slice_R, valRS, valSS);
   }

@@ -21,7 +21,7 @@
 ALinearOpMulti::ALinearOpMulti()
 : _temp(VectorVectorDouble())
 , _p(VectorVectorDouble())
-, _nIterMax(10000)
+, _nIterMax(100)
 , _eps(1.e-12)
 , _precondStatus(false)
 , _userInitialValue(false)
@@ -129,7 +129,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
   else
   {
     fillVal(out,0.);
-    fillVal(_temp,0.); // temp = Ax0=0
+   // fillVal(_temp,0.); // temp = Ax0=0
     _copyVals(in,_r);   // r = b
   }
 
@@ -180,6 +180,8 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     //critnew = _prod(_r, _z);
     //std::cout<<"niter " << niter <<" crit "<< crit << " eps" << _eps << std::endl;
 
+
+    message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
     rsold = rsnew;
 
   }
