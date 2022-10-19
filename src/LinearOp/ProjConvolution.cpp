@@ -48,6 +48,8 @@ ProjConvolution::ProjConvolution(const VectorDouble &convolution,
 
   _buildGridRes2D();
 
+  _work.resize(_gridRes2D->getSampleNumber() * _gridSeismic->getNX(ndim-1));
+
   _buildAprojHoriz();
 
   _buildShiftVector();
@@ -74,8 +76,8 @@ void ProjConvolution::_buildGridSeis2D()
 
 void ProjConvolution::_buildGridRes2D()
 {
-  _gridRes2D = DbGrid::createCoveringDb(_gridSeis2D, _nodeRes2D,
-                                        VectorDouble(), VectorDouble(), _gext);
+  _gridRes2D = DbGrid::createCoveringDb(_gridSeis2D, _nodeRes2D, VectorDouble(),
+                                        VectorDouble(), _gext);
 }
 
 int ProjConvolution::_buildAprojHoriz()
@@ -150,6 +152,13 @@ bool ProjConvolution::_isVecDimCorrect(const VectorDouble &valonseismic,
   return true;
 }
 
+/**
+ * Apply the projection for a Seismic Grid Vector
+ * and store the result on a Coarse Grid vector
+ * @param valonseismic Input vector defined on the Seismic Grid
+ * @param valonvertex  Output vector defined on the Coarse Grid
+ * @return
+ */
 int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
                                 VectorDouble &valonvertex) const
 {
@@ -160,16 +169,8 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    // Get the characteristics of the R-R grid
    int slice_R = _gridRes2D->getSampleNumber();
 
-   int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
-
    // Get the characteristics of the S-S grid
-
-   VectorInt nxSS = _gridSeismic->getNXs();
-   nxSS.resize(ndim-1);
-   int slice_S = ut_vector_prod(nxSS);
-
-
-   _work.resize(nxRS_prod);
+   int slice_S = _gridSeis2D->getSampleNumber();
 
    // Mesh barycenter on 'ndim-1' slices
    for (int iz = 0; iz < _gridSeismic->getNX(ndim-1); iz++)
@@ -183,33 +184,13 @@ int ProjConvolution::point2mesh(const VectorDouble &valonseismic,
    return 0;
 }
 
-void ProjConvolution::_convolveT(const VectorDouble &valonseismic,
-                                VectorDouble &valonvertex) const
-{
-
-  for (auto &e : valonvertex)
-     e = 0.;
-
-  int count = (int) valonseismic.size();
-  int size  = _getConvSize();
-  double valm = 0.;
-  int id = 0;
-  for (int is = 0; is < count; is++)
-  {
-    for (int j = 0; j < size; j++)
-    {
-      id = is + _shiftVector[j];
-      valm = valonseismic[is];
-      if (FFFF(valm))
-      {
-        valonvertex[id] = TEST;
-        break;
-      }
-      valonvertex[id] += valm * _convolution[j];
-    }
-  }
-}
-
+/**
+ * Apply the Projection for a Coarse Grid vector
+ * and store the result in a Seismic Grid Vector
+ * @param valonvertex   Input vector defined on the Coarse Grid
+ * @param valonseismic  Output vector defined on the Seismic grid
+ * @return
+ */
 int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
                                 VectorDouble &valonseismic) const
 {
@@ -221,13 +202,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   int slice_R = _gridRes2D->getSampleNumber();
 
   // Get the characteristics of the R-S grid
-  int nxRS_prod = slice_R * _gridSeismic->getNX(ndim-1);
-
-  VectorInt nxSS = _gridSeismic->getNXs();
-  nxSS.resize(ndim-1);
-  int slice_S = ut_vector_prod(nxSS);
-
-  _work.resize(nxRS_prod);
+  int slice_S = _gridSeis2D->getSampleNumber();
 
   // Convolution
   _convolve(valonvertex, _work);
@@ -237,7 +212,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   {
     const double* valRS = &_work.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
-    cs_mulvec(_AProjHoriz, slice_R, valRS, valSS);
+    cs_mulvec(_AProjHoriz, slice_R, valRS, valSS); // DR: ca devrait etre slice_S d'apres moi
   }
 
   return 0;
@@ -246,6 +221,9 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 void ProjConvolution::_convolve(const VectorDouble &valonvertex,
                                 VectorDouble &valonseismic) const
 {
+  for (auto &e : valonseismic)
+     e = 0.;
+
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valp  = 0.;
@@ -266,6 +244,32 @@ void ProjConvolution::_convolve(const VectorDouble &valonvertex,
       valp += valm * _convolution[j];
     }
     valonseismic[is] = valp;
+  }
+}
+
+void ProjConvolution::_convolveT(const VectorDouble &valonseismic,
+                                 VectorDouble &valonvertex) const
+{
+  for (auto &e : valonvertex)
+     e = 0.;
+
+  int count = (int) valonseismic.size();
+  int size  = _getConvSize();
+  double valm = 0.;
+  int id = 0;
+  for (int is = 0; is < count; is++)
+  {
+    for (int j = 0; j < size; j++)
+    {
+      id = is + _shiftVector[j];
+      valm = valonseismic[is];
+      if (FFFF(valm))
+      {
+        valonvertex[id] = TEST;
+        break;
+      }
+      valonvertex[id] += valm * _convolution[j];
+    }
   }
 }
 
