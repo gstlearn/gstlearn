@@ -212,7 +212,7 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
   {
     const double* valRS = &_work.data()[iz * slice_R];
     double* valSS = &valonseismic.data()[iz * slice_S];
-    cs_mulvec(_AProjHoriz, slice_R, valRS, valSS); // DR: ca devrait etre slice_S d'apres moi
+    cs_mulvec(_AProjHoriz, slice_S, valRS, valSS); // DR: ca devrait etre slice_S d'apres moi
   }
 
   return 0;
