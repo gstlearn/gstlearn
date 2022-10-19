@@ -12,6 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Variogram/DirParam.hpp"
+#include "Faults/Faults.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
@@ -27,9 +28,11 @@ class GSTLEARN_EXPORT VarioParam : public AStringable, public ICloneable
 {
 public:
   VarioParam(double scale = 0.,
-             const VectorDouble& dates = VectorDouble());
+             const VectorDouble& dates = VectorDouble(),
+             const Faults* faults = nullptr);
   VarioParam(const VarioParam& VarioParam,
-             const VectorInt& rankdirs);
+             const VectorInt& rankdirs,
+             const Faults* faults = nullptr);
   VarioParam(const VarioParam& r);
   VarioParam& operator=(const VarioParam& r);
   virtual ~VarioParam();
@@ -91,6 +94,10 @@ public:
 
   String toStringMain(const AStringFormat* strfmt) const;
 
+  const Faults* getFaults() const { return _faults; }
+  bool hasFaults() const { return _faults != nullptr; }
+  void addFaults(const Faults* faults) { _faults = faults; }
+
 private:
   int  _getAddress(int ivar, int jvar) const;
   bool _isVariableValid(int ivar) const;
@@ -106,4 +113,5 @@ private:
   double                _scale;
   VectorDouble          _dates;
   std::vector<DirParam> _dirparams;
+  const Faults*         _faults;
 };

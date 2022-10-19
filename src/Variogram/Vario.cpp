@@ -231,8 +231,8 @@ int Vario::compute(const ECalcVario &calcul,
   if (internalVariableResize()) return 1;
   internalDirectionResize();
 
-  if (_variogram_compute(_db, this, flag_gen,
-                         flag_sample, verr_mode, model, verbose))
+  if (_variogram_compute(_db, this, flag_gen, flag_sample, verr_mode, model,
+                         verbose))
   {
     messerr("Error when calculating the Variogram");
     return 1;

@@ -59,6 +59,7 @@ class PCA;
 class Grid;
 class SimuRefineParam;
 class EStatOption;
+class Faults;
 
 class cs;
 class QChol;
@@ -574,6 +575,10 @@ GSTLEARN_EXPORT int variogram_reject_pair(const Db *db,
                                           double cylrad,
                                           const VectorDouble &codir,
                                           double *ps);
+GSTLEARN_EXPORT bool variogram_reject_fault(const Db *db,
+                                            int iech,
+                                            int jech,
+                                            const Faults *faults = nullptr);
 GSTLEARN_EXPORT void variogram_scale(Vario *vario, int idir);
 GSTLEARN_EXPORT int variogram_get_lag(Vario *vario,
                                       int idir,

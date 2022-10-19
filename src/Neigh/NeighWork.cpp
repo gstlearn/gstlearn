@@ -362,9 +362,9 @@ int NeighWork::_moving(Db *dbout, int iech_out, VectorInt& ranks, double eps)
       if (_xvalid(dbout, iech, iech_out)) continue;
     }
 
-    // Inpresence of Faults, check that sample 'iech' is still elligible
+    // In presence of Faults, check that sample 'iech' is still eligible
 
-    if (_neighParam->hasFault())
+    if (neighM->hasFaults())
     {
       if (_hiddenByFault(dbout, iech, iech_out)) continue;
     }
@@ -499,23 +499,9 @@ bool NeighWork::_hiddenByFault(Db* dbout, int iech, int iech_out) const
   // Loop on the Fault polylines
 
   const Faults* faults = neighM->getFaults();
-  for (int ifault = 0; ifault < faults->getNFaults(); ifault++)
-  {
+  if (faults == nullptr) return false;
 
-    const PolyLine2D fault = faults->getFault(ifault);
-
-    // Loop on the segments of the polyline
-
-    for (int ip = 0; ip< fault.getNPoints() - 1; ip++)
-    {
-      double x1 = fault.getX(ip);
-      double y1 = fault.getY(ip);
-      double x2 = fault.getX(ip + 1);
-      double y2 = fault.getY(ip + 1);
-      if (ut_is_segment_intersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2)) return true;
-    }
-  }
-  return false;
+  return faults->isSplitByFault(xt1, yt1, xt2, yt2);
 }
 
 /****************************************************************************/

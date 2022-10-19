@@ -242,8 +242,8 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
 
 def varioDir(vario, ivar=0, jvar=0,
              color0='black', linestyle0='dashed', hmax=None, gmax=None, 
-             cmap=None, flagLegend=False, title=None, xlabel=None, ylabel=None, label=None,
-             ax=None, figsize=None, 
+             show_pairs=False, cmap=None, flagLegend=False, title=None, 
+             xlabel=None, ylabel=None, label=None, ax=None, figsize=None, 
              end_plot=False, **plot_args):
     """Plot a single directional experimental variogram (all avalaible directions, for fixed variable(s)).
     
@@ -286,8 +286,10 @@ def varioDir(vario, ivar=0, jvar=0,
     
     for idirUtil in ndirUtil:
         flagLabelSill = idirUtil == 0
-        varioElem(vario, ivar=ivar, jvar=jvar, idir=idirUtil, color=cols(idirUtil), color0=color0, linestyle0=linestyle0, 
-                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, flagLabelSill=flagLabelSill, label=label,
+        varioElem(vario, ivar=ivar, jvar=jvar, idir=idirUtil, color=cols(idirUtil), 
+                  color0=color0, linestyle0=linestyle0, show_pairs=show_pairs,
+                  ax=ax, hmax=hmax, gmax=gmax, figsize=figsize, flagLabelDir=True, 
+                  flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
     drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
@@ -306,7 +308,7 @@ def varioDir(vario, ivar=0, jvar=0,
 
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
            linestylem="dashed", color0='black', linestyle0="dotted",
-           nh = 100, hmax = None, gmax = None, 
+           nh = 100, hmax = None, gmax = None, show_pairs=False,
            cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
            **plot_args):
     """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
@@ -384,7 +386,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
             for idirUtil in ndirUtil:
                 varioElem(vario, iv, jv, idirUtil, 
                           color=cols(idirUtil),
-                          color0=color0, linestyle0=linestyle0, 
+                          color0=color0, linestyle0=linestyle0, show_pairs=show_pairs,
                           ax=ax, hmax=hmax, gmax=None, 
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend, **plot_args)
 
@@ -1005,6 +1007,34 @@ def multisegments(center, data, color='black',flagLegend=False, label="segments"
     
     for iseg in range(nseg):
         ax.plot([center[0],data[0][iseg]], [center[1],data[1][iseg]], **plot_args)
+    
+    drawDecor(ax, title=title, flagLegend=flagLegend)
+    
+    if end_plot:
+        plt.show()
+        
+    return ax
+
+def fault(faults, color='black',flagLegend=False, label="segments",
+          title=None, ax=None, figsize = None, end_plot=False, **plot_args):
+    '''
+    Function for plotting a Fault system.
+    **plot_args : arguments passed to matplotlib.pyplot.plot
+    '''
+    color = plot_args.setdefault('color', color)
+    label = plot_args.setdefault('label', label)
+        
+    if ax is None:
+        fig, ax = newFigure(figsize)
+    
+    nfaults = faults.getNFaults()
+    for ifault in range(nfaults):
+
+        fault = faults.getFault(ifault);
+        npoints = fault.getNPoints() - 1
+        xtab = fault.getX()
+        ytab = fault.getY()
+        ax.plot(xtab, ytab, **plot_args)
     
     drawDecor(ax, title=title, flagLegend=flagLegend)
     
