@@ -211,7 +211,7 @@ void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVector
     ut_vector_add_inplace(_workdata,_work1);
   }
 
-  ut_vector_divide_vec(_workdata, _varianceData);
+   ut_vector_divide_vec(_workdata, _varianceData);
 
   for (int imod = 0; imod < sizes(); imod++)
   {

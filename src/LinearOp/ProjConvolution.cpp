@@ -246,6 +246,10 @@ int ProjConvolution::mesh2point(const VectorDouble &valonvertex,
 void ProjConvolution::_convolve(const VectorDouble &valonvertex,
                                 VectorDouble &valonseismic) const
 {
+
+  for (auto &e : valonseismic)
+     e = 0.;
+
   int count = (int) valonseismic.size();
   int size  = _getConvSize();
   double valp  = 0.;
