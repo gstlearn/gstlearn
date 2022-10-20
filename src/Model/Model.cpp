@@ -320,6 +320,7 @@ void Model::addCovFromParam(const ECov& type,
   _ctxt = CovContext(nvar, &space);
   CovAniso cov(type, _ctxt);
 
+  cov.setParam(param);
   if (! ranges.empty())
   {
     if (flagRange)
@@ -338,7 +339,7 @@ void Model::addCovFromParam(const ECov& type,
     cov.setSill(sills);
   else
     cov.setSill(sill);
-  cov.setParam(param);
+
   if (! angles.empty())
     cov.setAnisoAngles(angles);
   addCov(&cov);

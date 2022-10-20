@@ -197,25 +197,25 @@ void CovAniso::setRange(double range)
   setScale(range / scadef);
 }
 
-void CovAniso::setRanges(const VectorDouble &range)
+void CovAniso::setRanges(const VectorDouble &ranges)
 {
   if (!hasRange()) return;
-  if (range.size() != getNDim())
+  if (ranges.size() != getNDim())
   {
     message("Inconsistency on Space Dimension");
     return;
   }
-  for (unsigned int i = 0; i < range.size(); i++)
+  for (unsigned int i = 0; i < ranges.size(); i++)
   {
-    if (range[i] <= EPSILON20)
+    if (ranges[i] <= EPSILON20)
     {
       message("The range in Space dimension (%d) should not be too small", i);
     }
   }
+  VectorDouble scales = ranges;
   double scadef = _cova->getScadef();
-  VectorDouble scale = range;
-  ut_vector_divide_inplace(scale, scadef);
-  setScales(scale);
+  ut_vector_divide_inplace(scales, scadef);
+  setScales(scales);
 }
 
 void CovAniso::setRange(int idim, double range)
@@ -243,20 +243,20 @@ void CovAniso::setScale(double scale)
   _cova->setField(scadef * scale);
 }
 
-void CovAniso::setScales(const VectorDouble &scale)
+void CovAniso::setScales(const VectorDouble &scales)
 {
   if (!hasRange()) return;
-  for (unsigned int i = 0; i < scale.size(); i++)
+  for (unsigned int i = 0; i < scales.size(); i++)
   {
-    if (scale[i] <= EPSILON20)
+    if (scales[i] <= EPSILON20)
     {
       message("The scale in Space Dimension (%d) should not be too small", i);
       return;
     }
   }
-  _aniso.setRadiusVec(scale);
+  _aniso.setRadiusVec(scales);
   double scadef = _cova->getScadef();
-  _cova->setField(scadef * ut_vector_max(scale));
+  _cova->setField(scadef * ut_vector_max(scales));
 }
 
 void CovAniso::setScale(int idim, double scale)
@@ -794,8 +794,8 @@ double CovAniso::scale2range(const ECov &type, double scale, double param)
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
-  double factor = cova->getScadef();
-  return scale * factor;
+  double scadef = cova->getScadef();
+  return scale * scadef;
 }
 
 double CovAniso::range2scale(const ECov &type, double range, double param)
@@ -803,8 +803,8 @@ double CovAniso::range2scale(const ECov &type, double range, double param)
   CovContext ctxt = CovContext(1, 1);
   ACovFunc *cova = CovFactory::createCovFunc(type, ctxt);
   cova->setParam(param);
-  double factor = cova->getScadef();
-  return range / factor;
+  double scadef = cova->getScadef();
+  return range / scadef;
 }
 
 CovAniso* CovAniso::createIsotropic(const CovContext &ctxt,

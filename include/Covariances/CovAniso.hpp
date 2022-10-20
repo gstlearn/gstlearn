@@ -127,11 +127,11 @@ public:
   /// Practical range
   void setRange(double range); /// Make the covariance isotropic
   void setRange(int idim, double range);
-  void setRanges(const VectorDouble& range);
+  void setRanges(const VectorDouble& ranges);
 
   void setScale(double scale); /// Make the covariance isotropic
   void setScale(int idim, double scale);
-  void setScales(const VectorDouble& scale);
+  void setScales(const VectorDouble& scales);
 
   void setAnisoRotation(const Rotation& rot);
   void setAnisoRotation(const VectorDouble& rot);
