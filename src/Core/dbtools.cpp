@@ -1866,7 +1866,7 @@ int db_grid_fill(DbGrid *dbgrid,
   /* Set the error return code */
 
   error = 0;
-  namconv.setNamesAndLocators(dbgrid, ELoc::Z, -1, dbgrid, iatt_out);
+  namconv.setNamesAndLocators(dbgrid, {iatt_in}, dbgrid, iatt_out);
 
   label_end:
   delete skin;

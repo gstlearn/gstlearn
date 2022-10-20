@@ -76,7 +76,6 @@ GSTLEARN_EXPORT int krimage(DbGrid *dbgrid,
                             Model *model,
                             NeighImage *neighparam,
                             const NamingConvention& namconv = NamingConvention("Filtering"));
-
 GSTLEARN_EXPORT int dbMorpho(DbGrid *dbgrid,
                              const EMorpho &oper,
                              double vmin = 0.,

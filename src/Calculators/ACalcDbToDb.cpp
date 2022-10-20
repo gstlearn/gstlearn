@@ -253,8 +253,8 @@ void ACalcDbToDb::_renameVariable(int whichDb,
     _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbin, iptr, name, count,
                                  flagSetLocator, locatorShift);
   else
-    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name,
-                                 count, flagSetLocator, locatorShift);
+    _namconv.setNamesAndLocators(_dbin, ELoc::Z, nvar, _dbout, iptr, name, count,
+                                 flagSetLocator, locatorShift);
 }
 
 void ACalcDbToDb::_cleanVariableDb(int status)

@@ -167,6 +167,18 @@ void dbStatisticsVariables(Db *db,
   }
 }
 
+VectorDouble dbStatisticsMono(Db *db,
+                              const VectorString& names,
+                              const std::vector<EStatOption> &opers,
+                              bool flagIso,
+                              double proba,
+                              double vmin,
+                              double vmax)
+{
+  VectorInt iatts = db->getUIDs(names);
+  return dbStatisticsMono(db, iatts, opers, flagIso, proba, vmin, vmax);
+}
+
 /****************************************************************************/
 /*!
  **  A Matrix containing the monovariate statistics for the set of variables
