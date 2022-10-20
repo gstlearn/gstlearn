@@ -20,6 +20,7 @@
 class Db;
 class DbGrid;
 class EStatOption;
+class Model;
 
 class GSTLEARN_EXPORT CalcStatistics: public ACalcDbToDb
 {
@@ -35,8 +36,10 @@ public:
 
   void setFlagRegr(bool flagRegr) { _flagRegr = flagRegr; }
   void setFlagCste(bool flagCste) { _flagCste = flagCste; }
+  void setName0(const String &name0) { _name0 = name0; }
   void setNamaux(const VectorString &namaux) { _namaux = namaux; }
   void setRegrMode(int regrMode) { _regrMode = regrMode; }
+  void setModel(const Model* model) { _model = model; }
 
 private:
   virtual bool _check() override;
@@ -55,7 +58,9 @@ private:
   bool _flagRegr;
   bool _flagCste;
   int  _regrMode;
+  String _name0;
   VectorString _namaux;
+  const Model* _model;
 };
 
 GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
@@ -65,9 +70,11 @@ GSTLEARN_EXPORT int dbStatisticsOnGrid(Db *db,
                                        const NamingConvention &namconv = NamingConvention(
                                            "Stats"));
 GSTLEARN_EXPORT int dbRegression(Db *db1,
-                                 Db *db2,
-                                 int mode,
-                                 const VectorString &namaux,
+                                 const String& name0,
+                                 const VectorString& namaux,
+                                 int mode = 0,
                                  bool flagCste = true,
+                                 Db *db2 = nullptr,
+                                 const Model* model = nullptr,
                                  const NamingConvention &namconv = NamingConvention(
                                      "Regr"));

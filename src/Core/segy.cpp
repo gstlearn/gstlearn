@@ -1536,6 +1536,7 @@ SegYArg segy_array(const char *filesegy,
   double czbot = 0.;
   traceHead traceHead_ = st_traceHead_init();
   st_refstats_init(refstats, modif_high, modif_low, modif_scale);
+  segyarg.error = 1;
 
   // Preliminary checks
 
@@ -1625,6 +1626,7 @@ SegYArg segy_array(const char *filesegy,
 
     // Store the results
 
+    segyarg.error  = 0;
     segyarg.ndescr = SEGY_COUNT;
     VectorDouble descr(SEGY_COUNT);
     descr[SEGY_NUM]    = refstats.nbtrace;

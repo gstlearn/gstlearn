@@ -70,7 +70,9 @@ public:
           const VarioParam* varioparam,
           int ngrfmax = 1,
           bool verbose = false);
-  int gaussToCategory(Db* db, const NamingConvention& namconv = NamingConvention("Facies",true, true, ELoc::FACIES)) const;
+  int gaussToCategory(Db *db,
+                      const NamingConvention &namconv = NamingConvention(
+                          "Facies", true, true, true, ELoc::FACIES)) const;
   int categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
   int computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 

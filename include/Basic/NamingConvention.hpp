@@ -23,6 +23,7 @@ public:
   NamingConvention(String prefix = String(),
                    bool flag_varname = true,
                    bool flag_qualifier = true,
+                   bool flag_locator = true,
                    const ELoc& locatorOutType = ELoc::Z,
                    String delim = ".",
                    bool cleanSameLocator = true);
@@ -106,6 +107,7 @@ private:
   String _delim;
   bool   _flagVarname;
   bool   _flagQualifier;
+  bool   _flagLocator;
   ELoc   _locatorOutType;
   bool   _cleanSameLocator;
 };

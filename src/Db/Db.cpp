@@ -3844,11 +3844,14 @@ VectorInt Db::_getUIDsBasic(const VectorString& names) const
 {
   if (names.empty()) return VectorInt();
 
-  VectorInt iuids(names.size());
+  VectorInt iuids;
   for (unsigned int i = 0; i < names.size(); i++)
   {
     int icol = getRankInList(_colNames, names[i]);
-    iuids[i] = getUIDByColIdx(icol);
+    if (icol < 0) return VectorInt();
+    int iuid = getUIDByColIdx(icol);
+    if (iuid < 0) return VectorInt();
+    iuids.push_back(iuid);
   }
   return iuids;
 }
@@ -3856,10 +3859,7 @@ VectorInt Db::_getUIDsBasic(const VectorString& names) const
 VectorInt Db::getUIDs(const VectorString& names) const
 {
   if (names.empty()) return VectorInt();
-
-  VectorInt iuids(names.size());
-  for (unsigned int i = 0; i < names.size(); i++)
-    iuids[i] = getUID(names[i]);
+  VectorInt iuids = _ids(names, false);
   return iuids;
 }
 

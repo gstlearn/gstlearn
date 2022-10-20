@@ -16,6 +16,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
+#include "Model/Model.hpp"
 
 #include <math.h>
 
@@ -539,10 +540,14 @@ bool regressionLoad(Db *db1,
                     const VectorInt &icols,
                     int mode,
                     int flagCste,
+                    const Model* model,
                     double *value,
                     VectorDouble &x)
 {
-  int ecr = 0;
+  int nfex = 0;
+  int nbfl = 0;
+
+  int ecr  = 0;
   switch (mode)
   {
     case 0:
@@ -553,11 +558,18 @@ bool regressionLoad(Db *db1,
       break;
 
     case 1:
-      int nfex = db2->getExternalDriftNumber();
+      nfex = db2->getExternalDriftNumber();
       *value = db1->getVariable(iech, 0);
       if (flagCste) x[ecr++] = 1.;
       for (int i = 0; i < nfex; i++)
         x[ecr++] = db2->getExternalDrift(iech, i);
+      break;
+
+    case 2:
+      nbfl = model->getDriftNumber();
+      *value = db1->getVariable(iech, 0);
+      for (int i = 0; i < nbfl; i++)
+         x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
       break;
   }
 
@@ -568,31 +580,26 @@ bool regressionLoad(Db *db1,
 }
 
 bool regressionCheck(Db *db1,
-                     Db *db2,
-                     int mode,
                      int icol0,
-                     const VectorInt &icols)
+                     const VectorInt &icols,
+                     int mode,
+                     Db *db2,
+                     const Model* model)
 {
   int ncol = (int) icols.size();
   int nfex = db2->getExternalDriftNumber();
 
-  if (db1->getVariableNumber() != 1)
-  {
-    messerr("This method is restricted to the Monovariate case");
-    return false;
-  }
-
   switch (mode)
   {
     case 0:
-      if (icol0 < 0 || icol0 >= db1->getColumnNumber())
+      if (icol0 < 0 || icol0 >= db1->getUIDMaxNumber())
       {
         messerr("The regression requires a valid target variable");
         return false;
       }
       for (int icol = 0; icol < ncol; icol++)
       {
-        if (icols[icol] < 0 || icols[icol] >= db2->getColumnNumber())
+        if (icols[icol] < 0 || icols[icol] >= db2->getUIDMaxNumber())
         {
           messerr("The regression requires a valid auxiliary variable (#%d)",
                   icol + 1);
@@ -610,8 +617,38 @@ bool regressionCheck(Db *db1,
         return false;
       }
       break;
+
+    case 2:
+      if (model == nullptr)
+      {
+        messerr("Model should be defined");
+        return false;
+      }
+      if (model->getDriftNumber() <= 0)
+      {
+        messerr("The number of Drift equations in the Model should be positive");
+        return false;
+      }
   }
   return true;
+}
+
+ResRegr regression(Db *db1,
+                   const String &name0,
+                   const VectorString &names,
+                   int mode,
+                   bool flagCste,
+                   Db *db2,
+                   const Model *model,
+                   bool verbose)
+{
+  if (db1 == nullptr) return ResRegr();
+  if (db2 == nullptr) db2 = db1;
+
+  int icol0 = db1->getUID(name0);
+  VectorInt icols;
+  if (! names.empty()) icols = db2->getUIDs(names);
+  return regressionByUID(db1, icol0, icols, mode, flagCste, db2, model, verbose);
 }
 
 /****************************************************************************/
@@ -621,13 +658,16 @@ bool regressionCheck(Db *db1,
  ** \return  Error return code
  **
  ** \param[in,out]  db1        Db descriptor (for target variable)
- ** \param[in]  db2            Db descriptor (for auxiliary variables)
+
+ ** \param[in]  icol0          Rank of the target variable
+ ** \param[in]  icols          Vector of ranks of the explanatory variables
  ** \param[in]  mode           Type of calculation
  ** \li                        0 : standard multivariate case
  ** \li                        1 : using external drifts
- ** \param[in]  icol0          Rank of the target variable
- ** \param[in]  icols          Vector of ranks of the explanatory variables
+ ** \li                        2 : using standard drift functions (in 'model')
  ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  model          Model (only used for Drift functions if mode==2)
  ** \param[in]  verbose        Verbose option
  **
  ** \remark  The flag_mode indicates the type of regression calculation:
@@ -635,15 +675,19 @@ bool regressionCheck(Db *db1,
  ** \remark  1 : Z1 as a function of the different Fi's
  **
  *****************************************************************************/
-ResRegr regression(Db *db1,
-                   Db *db2,
-                   int mode,
-                   int icol0,
-                   const VectorInt& icols,
-                   bool flagCste,
-                   bool verbose)
+ResRegr regressionByUID(Db *db1,
+                        int icol0,
+                        const VectorInt &icols,
+                        int mode,
+                        bool flagCste,
+                        Db *db2,
+                        const Model *model,
+                        bool verbose)
 {
   ResRegr regr;
+
+  if (db1 == nullptr) return regr;
+  if (db2 == nullptr) db2 = db1;
 
   int nfex = db2->getExternalDriftNumber();
   int nech = db1->getSampleNumber();
@@ -659,11 +703,14 @@ ResRegr regression(Db *db1,
       size = nfex;
       if (flagCste) size++;
       break;
+    case 2:
+      size = model->getDriftNumber();
+      break;
   }
 
   /* Preliminary checks */
 
-  if (! regressionCheck(db1, db2, mode, icol0, icols)) return regr;
+  if (! regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
 
   /* Core allocation */
 
@@ -684,7 +731,7 @@ ResRegr regression(Db *db1,
 
     /* Get the information for the current sample */
 
-    if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, &value, x))
+    if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model, &value, x))
       continue;
 
     prod += value * value;
@@ -719,7 +766,7 @@ ResRegr regression(Db *db1,
   // Normalization
   mean /= number;
   regr.count = number;
-  regr.nvar = ncol;
+  regr.nvar = size;
   regr.flagCste = flagCste;
   regr.coeffs = x;
   regr.variance = prod / number - mean * mean;
@@ -740,10 +787,7 @@ ResRegr regression(Db *db1,
 
   if (verbose)
   {
-    mestitle(1, "Linear regression:");
-    for (int i = 0; i < size; i++)
-      message("Explanatory variable Aux.#%d - Coefficient = %lf\n", i + 1, x[i]);
-    message("Variance of Residuals = %lf\n", regr.varres);
+    regrprint(regr);
   }
   return regr;
 }
@@ -754,9 +798,12 @@ void regrprint(const ResRegr& regr)
   message("- Calculated on %d active values\n",regr.count);
 
   int ecr = 0;
+  int nvar = regr.nvar;
+  if (regr.flagCste) nvar--;
+
   if (regr.flagCste)
     message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
-  for (int ivar = 0; ivar < regr.nvar; ivar++)
+  for (int ivar = 0; ivar < nvar; ivar++)
     message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
 
   message("- Initial variance        = %lf\n",regr.variance);

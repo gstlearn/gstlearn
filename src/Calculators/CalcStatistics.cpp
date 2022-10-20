@@ -60,11 +60,6 @@ bool CalcStatistics::_check()
   }
   if (_flagRegr)
   {
-    if (_getNVar() != 1)
-    {
-      messerr("This method requires a single variable in 'Dbin'");
-      return false;
-    }
     if (! _flagCste && _namaux.empty())
     {
       messerr("This method requires Explanatory variables and/or constant term");
@@ -77,13 +72,11 @@ bool CalcStatistics::_check()
 
 bool CalcStatistics::_preprocess()
 {
-  int nvar = _getNVar();
-
   if (_flagStats)
-    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, nvar, 0.);
+    _iattOut = _addVariableDb(2, 1, ELoc::UNKNOWN, 0, _getNVar(), 0.);
 
   if (_flagRegr)
-    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, nvar, 0.);
+    _iattOut = _addVariableDb(1, 1, ELoc::UNKNOWN, 0, 1, 0.);
 
   if (_iattOut < 0) return false;
   return true;
@@ -124,9 +117,8 @@ bool CalcStatistics::_run()
 
   if (_flagRegr)
   {
-    int icol0 = getDbin()->getUIDByLocator(ELoc::Z, 0);
-    VectorInt icols = getDbout()->getUIDs(_namaux);
-    calc_regression(getDbin(), getDbout(), _regrMode, icol0, icols, _flagCste, _iattOut);
+    calc_regression(getDbin(), _name0, _namaux, _regrMode, _flagCste,
+                    getDbout(), _model, _iattOut);
   }
   return true;
 }
@@ -152,12 +144,16 @@ int dbStatisticsOnGrid(Db *db,
 }
 
 int dbRegression(Db *db1,
-                 Db *db2,
+                 const String& name0,
+                 const VectorString& namaux,
                  int mode,
-                 const VectorString &namaux,
                  bool flagCste,
+                 Db *db2,
+                 const Model* model,
                  const NamingConvention &namconv)
 {
+  if (db2 == nullptr) db2 = db1;
+
   CalcStatistics stats;
   stats.setDbin(db1);
   stats.setDbout(db2);
@@ -166,10 +162,11 @@ int dbRegression(Db *db1,
   stats.setFlagRegr(true);
   stats.setRegrMode(mode);
   stats.setFlagCste(flagCste);
+  stats.setName0(name0);
   stats.setNamaux(namaux);
+  stats.setModel(model);
 
   // Run the calculator
   int error = (stats.run()) ? 0 : 1;
   return error;
 }
-

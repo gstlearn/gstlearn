@@ -18,6 +18,7 @@
 NamingConvention::NamingConvention(String prefix,
                                    bool flag_varname,
                                    bool flag_qualifier,
+                                   bool flag_locator,
                                    const ELoc& locatorOutType,
                                    String delim,
                                    bool cleanSameLocator)
@@ -25,6 +26,7 @@ NamingConvention::NamingConvention(String prefix,
       _delim(delim),
       _flagVarname(flag_varname),
       _flagQualifier(flag_qualifier),
+      _flagLocator(flag_locator),
       _locatorOutType(locatorOutType),
       _cleanSameLocator(cleanSameLocator)
 {
@@ -35,6 +37,7 @@ NamingConvention::NamingConvention(const NamingConvention &m)
       _delim(m._delim),
       _flagVarname(m._flagVarname),
       _flagQualifier(m._flagQualifier),
+      _flagLocator(m._flagLocator),
       _locatorOutType(m._locatorOutType),
       _cleanSameLocator(m._cleanSameLocator)
 {
@@ -48,6 +51,7 @@ NamingConvention& NamingConvention::operator=(const NamingConvention &m)
     _locatorOutType = m._locatorOutType;
     _flagVarname = m._flagVarname;
     _flagQualifier = m._flagQualifier;
+    _flagLocator = m._flagLocator;
     _delim = m._delim;
     _cleanSameLocator = m._cleanSameLocator;
   }
@@ -276,7 +280,7 @@ void NamingConvention::setLocators(Db *dbout,
                                    int nitems,
                                    int locatorShift) const
 {
-  if (_locatorOutType == ELoc::UNKNOWN) return;
+  if (! _flagLocator || _locatorOutType == ELoc::UNKNOWN) return;
 
   // Erase already existing locators of the same Type
   // (this is only done if you are not precisely adding higher order version for given locator)

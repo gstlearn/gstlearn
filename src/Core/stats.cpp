@@ -3098,15 +3098,15 @@ void db_stats_print(const Db *db,
  **
  *****************************************************************************/
 int stats_residuals(int verbose,
-                                    int nech,
-                                    double *tab,
-                                    int ncut,
-                                    double *zcut,
-                                    int *nsorted,
-                                    double *mean,
-                                    double *residuals,
-                                    double *T,
-                                    double *Q)
+                    int nech,
+                    double *tab,
+                    int ncut,
+                    double *zcut,
+                    int *nsorted,
+                    double *mean,
+                    double *residuals,
+                    double *T,
+                    double *Q)
 {
   double value, moyenne;
   int iech, icut, jcut, nactive;
@@ -3369,13 +3369,15 @@ void calc_stats_grid(Db *db,
  ** \return  Error return code
  **
  ** \param[in,out]  db1        Db descriptor (for target variable)
- ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  name0          Name of the target variable
+ ** \param[in]  names          Vector of names of the explanatory variables
  ** \param[in]  mode           Type of calculation
  ** \li                        0 : standard multivariate case
  ** \li                        1 : using external drifts
- ** \param[in]  icol0          Rank of the target variable
- ** \param[in]  icols          Vector of ranks of the explanatory variables
- ** \param[in]  flagCste       The constant is added as explanatory variable
+ ** \li                        2 : using standard drift functions (mode==2)
+ ** \param[in]  flagCste       The constant is added as explanatory variable]
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  model          Model structure (used for mode==2)
  ** \param[in]  iptr0          Storing address
  **
  ** \remark  The flag_mode indicates the type of regression calculation:
@@ -3389,19 +3391,25 @@ void calc_stats_grid(Db *db,
  **
  *****************************************************************************/
 int calc_regression(Db *db1,
-                    Db *db2,
+                    const String& name0,
+                    const VectorString& names,
                     int mode,
-                    int icol0,
-                    const VectorInt &icols,
                     bool flagCste,
+                    Db *db2,
+                    const Model* model,
                     int iptr0)
 {
   ResRegr regr;
-  regr = regression(db1, db2, mode, icol0, icols, flagCste);
+  if (db2 == nullptr) db2 = db1;
+  int icol0 = db1->getUID(name0);
+  VectorInt icols;
+  if (! names.empty()) icols = db2->getUIDs(names);
+
+  regr = regressionByUID(db1, icol0, icols, mode, flagCste, db2, model);
 
   /* Preliminary checks */
 
-  if (! regressionCheck(db1, db2, mode, icol0, icols)) return 1;
+  if (! regressionCheck(db1, icol0, icols, mode, db2, model)) return 1;
 
   /* Store the regression error at sample points */
 
@@ -3415,7 +3423,7 @@ int calc_regression(Db *db1,
     {
       /* Get the information for the current sample */
 
-      if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, &value, x))
+      if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model, &value, x))
       {
         value = TEST;
       }

@@ -192,7 +192,10 @@ bool ACalcInterpolator::_preprocess()
 {
   // Expand information amongst Db if necessary
 
-  if (_expandInformation(1, ELoc::F)) return false;
+  if (_model->getExternalDriftNumber() > 0)
+  {
+    if (_expandInformation(1, ELoc::F)) return false;
+  }
   if (_expandInformation(1, ELoc::NOSTAT)) return false;
 
   return true;

@@ -70,19 +70,19 @@ def shape_Nsubplots(N):
     ncols = np.ceil(N/nlines)
     return int(nlines), int(ncols)
 
-def drawDecor(ax=None, xlab=None, ylab=None, aspect=None, title=None, flagLegend=False):
+def drawDecor(ax=None, xlabel=None, ylabel=None, aspect=None, title=None, flagLegend=False):
     if ax is None:
-        if xlab is not None:
-            plt.xlabel(xlab)
-        if ylab is not None:
-            plt.ylabel(ylab)
+        if xlabel is not None:
+            plt.xlabel(xlabel)
+        if ylabel is not None:
+            plt.ylabel(ylabel)
         if title is not None:
             plt.title(title)
     else:
-        if xlab is not None:
-            ax.set_xlabel(xlab)
-        if ylab is not None:
-            ax.set_ylabel(ylab)
+        if xlabel is not None:
+            ax.set_xlabel(xlabel)
+        if ylabel is not None:
+            ax.set_ylabel(ylabel)
         if title is not None:
             ax.set_title(title)
         if aspect is not None:
@@ -160,7 +160,7 @@ def update_xylim(ax, xlim=None, ylim=None):
             ax.set_ylim(top=ylim[1])
 
 def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black', 
-              linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
+              linestyle='solid', linestyle0='dashed', hmax=None, gmax=None, show_pairs = False,
               flagLabelDir=False, flagLegend=False, flagLabelSill=False,
               title=None, xlabel=None, ylabel=None, label=None,
               ax=None, figsize=None, end_plot = False, flagDrawVariance = True,
@@ -194,6 +194,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
 
     """
     color = plot_args.setdefault('color', color0)
+    linestyle = plot_args.setdefault('linestyle', linestyle)    
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -228,7 +229,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
             ax.annotate(str(int(pairs[i])), (hh[i],gg[i]), xytext=(0,5), xycoords = 'data',
                         textcoords = 'offset points', ha='center')
     
-    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
     
     if vario.drawOnlyPositiveX(ivar, jvar):
         ax.set_xlim(left=0)
@@ -292,7 +293,7 @@ def varioDir(vario, ivar=0, jvar=0,
                   flagLabelSill=flagLabelSill, label=label,
                   **plot_args)
         
-    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
     
     ax.autoscale(True)
     
@@ -307,7 +308,7 @@ def varioDir(vario, ivar=0, jvar=0,
     return ax
 
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
-           linestylem="dashed", color0='black', linestyle0="dotted",
+           linestyle='solid', linestylem="dashed", color0='black', linestyle0="dotted",
            nh = 100, hmax = None, gmax = None, show_pairs=False,
            cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
            **plot_args):
@@ -385,7 +386,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
             
             for idirUtil in ndirUtil:
                 varioElem(vario, iv, jv, idirUtil, 
-                          color=cols(idirUtil),
+                          color=cols(idirUtil), linestyle=linestyle,
                           color0=color0, linestyle0=linestyle0, show_pairs=show_pairs,
                           ax=ax, hmax=hmax, gmax=None, 
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend, **plot_args)
@@ -415,7 +416,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
     return axs
 
 def vario(vario, ivar=-1, jvar=-1, idir=-1,
-          color0='black', linestyle0='dashed', hmax=None, gmax=None, 
+          linestyle='solid', color0='black', linestyle0='dashed', hmax=None, gmax=None, 
           cmap = None, flagLegend=False, 
           title = None, axs = None, figsize = None, end_plot=False, **plot_args):
     """Plot experimental variogram(s) (can be multidirectional and multivariable or selected ones).
@@ -447,7 +448,8 @@ def vario(vario, ivar=-1, jvar=-1, idir=-1,
 
     """
     axs = varmod(vario, mymodel=None, ivar=ivar, jvar=jvar, idir=idir, 
-                 color0=color0, linestyle0=linestyle0, hmax=hmax, gmax=gmax, cmap=cmap, 
+                 linestyle=linestyle, color0=color0, linestyle0=linestyle0, 
+                 hmax=hmax, gmax=gmax, cmap=cmap, 
                  flagLegend=flagLegend, title=title, axs=axs, figsize=figsize, 
                  end_plot=end_plot, **plot_args)
     
@@ -530,7 +532,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
                            asCov = asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
-    drawDecor(ax, xlab=xlabel, ylab=ylabel, title=title, flagLegend=flagLegend)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -901,7 +903,7 @@ def grid1D(dbgrid, name = None, usesel = True, flagColorBar=True, aspect=None,
 
     return ax
 
-def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red',
+def hist_tab(val, xlabel=None, ylabel=None, nbins=30, color='yellow', edgecolor='red',
              title = None, ax = None, figsize=None, end_plot=False, **hist_args):
     '''Function for plotting the histogram of an array (argument 'val')
     
@@ -916,14 +918,14 @@ def hist_tab(val, xlab=None, ylab=None, nbins=30, color='yellow', edgecolor='red
         
     ax.hist(val, **hist_args)
     
-    drawDecor(ax, xlab=xlab, ylab=ylab, title=title)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title)
         
     if end_plot:
         plt.show()
         
     return ax
     
-def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
+def hist(db, name, xlabel=None, ylabel=None, title = None, ax=None,
          figsize=None, end_plot=False, usesel=True, **hist_args):
     '''Function for plotting the histogram of a variable contained in a Db
     
@@ -936,7 +938,7 @@ def hist(db, name, xlab=None, ylab=None, title = None, ax=None,
     
     if title is None:
         title = db.getNames(name)[0]
-    ax = hist_tab(val, title=title, xlab=xlab, ylab=ylab, ax=ax, figsize=figsize, end_plot=end_plot, **hist_args)
+    ax = hist_tab(val, title=title, xlabel=xlabel, ylabel=ylabel, ax=ax, figsize=figsize, end_plot=end_plot, **hist_args)
     
     return ax
 
@@ -1191,7 +1193,7 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
                 diagLine=False, diagColor="black", diagLineStyle='-',
                 bissLine=False, bissColor="red", bissLineStyle='-',
                 regrLine=False, regrColor="blue", regrLineStyle='-',
-                xlab=None, ylab=None, aspect=None, 
+                xlabel=None, ylabel=None, aspect=None, 
                 title = None, ax=None, figsize=None, end_plot=False):
     '''Function for plotting the scatter plot between two variables contained in a Db'''
  
@@ -1203,7 +1205,7 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
    
     if db.getSampleNumber() != db2.getSampleNumber():
         print("Db and Db2 should have the same number of samples")
-        return None;
+        return None
 
     tabx, taby = getBiDefinedValues(db, namex, namey, db2, usesel)
     if len(tabx) == 0:
@@ -1233,9 +1235,9 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
         ax.plot(u,u,color=bissColor,linestyle=bissLineStyle)
 
     if regrLine:
-        icolx = db.getUID(namex)
-        icoly = db2.getUID(namey)
-        regr = gl.regression(db2, db, 0, icolx, [icoly], True)
+        regr = gl.regression(db2, namey, [namex], flagCste=True)
+        if regr.nvar == 0:
+            return None
         a = regr.coeffs[0]
         b = regr.coeffs[1]
         u=[xmin, xmax]
@@ -1243,12 +1245,12 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
         ax.plot(u,v,color=regrColor,linestyle=regrLineStyle)
         
     if flagAxisLabel:
-        if xlab is None:
-            xlab = db.getNames(namex)[0]
-        if ylab is None:
-            ylab = db.getNames(namey)[0]
+        if xlabel is None:
+            xlabel = db.getNames(namex)[0]
+        if ylabel is None:
+            ylabel = db.getNames(namey)[0]
 
-    drawDecor(ax, xlab=xlab, ylab=ylab, title=title, aspect=aspect)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, aspect=aspect)
     
     if end_plot:
         plt.show()
@@ -1256,7 +1258,7 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
     return ax
 
 def anam(anam, xlim=None, ylim=None, 
-         xlab=None, ylab=None, title = None, ax=None, figsize=None, end_plot=False):
+         xlabel=None, ylabel=None, title = None, ax=None, figsize=None, end_plot=False):
     
     res = anam.sample()
     ax = XY(res.getY(), res.getZ(),

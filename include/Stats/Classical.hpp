@@ -61,16 +61,26 @@ GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
                                             const String &title = "");
 
 GSTLEARN_EXPORT bool regressionCheck(Db *db1,
-                                     Db *db2,
-                                     int mode,
                                      int icol0,
-                                     const VectorInt &icols);
+                                     const VectorInt &icols,
+                                     int mode,
+                                     Db *db2,
+                                     const Model* model = nullptr);
+GSTLEARN_EXPORT ResRegr regressionByUID(Db *db1,
+                                        int icol0,
+                                        const VectorInt &icols = VectorInt(),
+                                        int mode = 0,
+                                        bool flagCste = false,
+                                        Db *db2 = nullptr,
+                                        const Model *model = nullptr,
+                                        bool verbose = false);
 GSTLEARN_EXPORT ResRegr regression(Db *db1,
-                                   Db *db2,
-                                   int mode,
-                                   int icol0,
-                                   const VectorInt &icols,
-                                   bool flagCste,
+                                   const String& name0,
+                                   const VectorString& names = VectorString(),
+                                   int mode = 0,
+                                   bool flagCste = false,
+                                   Db *db2 = nullptr,
+                                   const Model *model = nullptr,
                                    bool verbose = false);
 GSTLEARN_EXPORT bool regressionLoad(Db *db1,
                                     Db *db2,
@@ -79,6 +89,7 @@ GSTLEARN_EXPORT bool regressionLoad(Db *db1,
                                     const VectorInt &icols,
                                     int mode,
                                     int flagCste,
+                                    const Model* model,
                                     double *value,
                                     VectorDouble &x);
 GSTLEARN_EXPORT void regrprint(const ResRegr& regr);

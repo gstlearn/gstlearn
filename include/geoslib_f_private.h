@@ -120,7 +120,7 @@ Rule* _rule_auto(Db *db,
 int _db_rule(Db *db,
              const RuleProp *ruleprop,
              Model *model = nullptr,
-             const NamingConvention& namconv = NamingConvention("Facies", true, true,
+             const NamingConvention& namconv = NamingConvention("Facies", true, true, true,
                                                          ELoc::FACIES));
 int _db_bounds(Db *db,
                const RuleProp *ruleprop,

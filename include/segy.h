@@ -151,6 +151,7 @@ struct traceHead
 
 struct SegYArg
 {
+  int error;
   int ndescr;
   int npertrace;
   int ntraces;
