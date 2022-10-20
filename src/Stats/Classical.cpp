@@ -520,15 +520,14 @@ String statisticsMonoPrint(const VectorDouble &stats,
  **
  *****************************************************************************/
 String statisticsMultiPrint(const VectorDouble &stats,
-                                            const VectorString &varnames,
-                                            const String &title)
+                            const VectorString &varnames,
+                            const String &title)
 {
   int natt = static_cast<int>(varnames.size());
   std::stringstream sstr;
 
-  sstr
-      << toMatrix(title, VectorString(), VectorString(), true, natt, natt,
-                  stats, true);
+  sstr << toMatrix(title, VectorString(), VectorString(), true, natt, natt,
+                   stats, true);
 
   return sstr.str();
 }
