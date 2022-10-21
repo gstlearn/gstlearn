@@ -27,7 +27,8 @@ jobs:
     runs-on: windows-2019
     strategy:
       matrix:
-        python: ["3.7","3.8","3.9","3.10"]
+        python: ["3.8","3.9","3.10"]
+        #python: ["3.7","3.8","3.9","3.10"]
         arch:
           - ["win_amd64", "x64", "x64"]
           - ["win32",     "x86", "Win32"]
