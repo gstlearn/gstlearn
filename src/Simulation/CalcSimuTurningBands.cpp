@@ -2111,7 +2111,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       if (!dbin->isActive(ip)) continue;
       dbin->getSampleCoordinates(ip, coor2);
       int rank = dbgrid->coordinateToRank(coor2, false, eps);
-      if (!dbgrid->isActive(rank)) continue;
+      if (rank < 0 || !dbgrid->isActive(rank)) continue;
       dbgrid->rankToCoordinateInPlace(rank, coor1);
 
       /* Get the distance to the target point */

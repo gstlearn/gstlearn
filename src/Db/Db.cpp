@@ -4008,9 +4008,9 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 }
 
 /**
- * Return the monovariate statistics on variables given their UID
+ * Return the monovariate statistics on variables given their UID, performed per point
  * @param iuids              List of UID of the variables
- * @param opers              List of operations to be performed on the variables at each point.
+ * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso  
  * @param flagVariableWise   If False, the new variable is added to Db
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -4073,9 +4073,9 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 }
 
 /**
- * Return the monovariate statistics on variables given their names.
+ * Return the monovariate statistics on variables given their names, performed per point.
  * @param names              List of names of the variables
- * @param opers              List of operations to be performed on the variables at each point.
+ * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso            If True, perform statistics on isotopic samples only
  * @param flagVariableWise   If False, results are added to Db; otherwise they are produced in output vector
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -4084,7 +4084,8 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
  * @param title              If flagPrint is True, the title of the printed statistics. 
  * @param namconv            Naming Convention
- * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
+ * @return If flagPrint is False, returns a vector containing the statistics.
+ * @return If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
  * @see statisticsMulti (multivariate statistics)
