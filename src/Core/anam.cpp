@@ -561,9 +561,9 @@ int _conditionalExpextation(Db *db,
   {
     if (nbsimu > 0)
       message(
-          "Conditional expectation under the gaussian model (Monte-Carlo)\n");
+          "Conditional expectation within Gaussian model (Monte-Carlo)\n");
     else
-      message("Conditional expectation under the gaussian model (Hermite)\n");
+      message("Conditional expectation within Gaussian model (Hermite)\n");
     message(" Max. degree of Hermite polynomials : %6d\n", nbpoly - 1);
     message(" Number of values                   : %6d\n",
             db->getSampleNumber(true));

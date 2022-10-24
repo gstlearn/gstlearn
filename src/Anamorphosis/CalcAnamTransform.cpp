@@ -150,7 +150,7 @@ bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
 
 bool CalcAnamTransform::_check()
 {
-  if (! hasDb()) return false;
+  if (!  hasDb()) return false;
   if (! _hasAnam()) return false;
   if (! _hasVariableNumber()) return false;
 

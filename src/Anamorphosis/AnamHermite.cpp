@@ -134,6 +134,7 @@ double AnamHermite::RawToTransformValue(double z) const
   /* Initializations */
 
   if (getNbPoly() < 1) return(TEST);
+  if (FFFF(z)) return TEST;
 
   /* Check the bounds */
 
@@ -241,6 +242,7 @@ double AnamHermite::TransformToRawValue(double y) const
 {
   double z;
   if (getNbPoly() < 1) return(TEST);
+  if (FFFF(y)) return TEST;
 
   /* Check the bounds */
 

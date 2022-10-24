@@ -20,6 +20,124 @@
 
 #include <math.h>
 
+bool _regressionCheck(Db *db1,
+                      int icol0,
+                      const VectorInt &icols,
+                      int mode,
+                      Db *db2,
+                      const Model *model)
+{
+  int ncol = (int) icols.size();
+  int nfex = db2->getExternalDriftNumber();
+
+  switch (mode)
+  {
+    case 0:
+      if (icol0 < 0 || icol0 >= db1->getUIDMaxNumber())
+      {
+        messerr("The regression requires a valid target variable");
+        return false;
+      }
+      for (int icol = 0; icol < ncol; icol++)
+      {
+        if (icols[icol] < 0 || icols[icol] >= db2->getUIDMaxNumber())
+        {
+          messerr("The regression requires a valid auxiliary variable (#%d)",
+                  icol + 1);
+          return false;
+        }
+      }
+      break;
+
+    case 1:
+      if (nfex <= 0)
+      {
+        messerr("The multivariate regression is designated");
+        messerr("as a function of several drift variables");
+        messerr("The Db contains %d drift variables", nfex);
+        return false;
+      }
+      break;
+
+    case 2:
+      if (model == nullptr)
+      {
+        messerr("Model should be defined");
+        return false;
+      }
+      if (model->getDriftNumber() <= 0)
+      {
+        messerr("The number of Drift equations in the Model should be positive");
+        return false;
+      }
+  }
+  return true;
+}
+
+bool _regressionLoad(Db *db1,
+                     Db *db2,
+                     int iech,
+                     int icol0,
+                     const VectorInt &icols,
+                     int mode,
+                     int flagCste,
+                     const Model *model,
+                     double *value,
+                     VectorDouble &x)
+{
+  int nfex = 0;
+  int nbfl = 0;
+
+  int ecr  = 0;
+  switch (mode)
+  {
+    case 0:
+      *value = db1->getArray(iech, icol0);
+      if (flagCste) x[ecr++] = 1.;
+      for (int icol = 0; icol < (int) icols.size(); icol++)
+        x[ecr++] = db2->getArray(iech, icols[icol]);
+      break;
+
+    case 1:
+      nfex = db2->getExternalDriftNumber();
+      *value = db1->getVariable(iech, 0);
+      if (flagCste) x[ecr++] = 1.;
+      for (int i = 0; i < nfex; i++)
+        x[ecr++] = db2->getExternalDrift(iech, i);
+      break;
+
+    case 2:
+      nbfl = model->getDriftNumber();
+      *value = db1->getVariable(iech, 0);
+      for (int i = 0; i < nbfl; i++)
+         x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
+      break;
+  }
+
+  bool flagTest = false;
+  for (int i = 0; i < (int) x.size() && !flagTest; i++)
+    flagTest = FFFF(x[i]);
+  return (FFFF(*value) || flagTest);
+}
+
+void _regrprint(const ResRegr& regr)
+{
+  mestitle(1, "Linear Regression");
+  message("- Calculated on %d active values\n",regr.count);
+
+  int ecr = 0;
+  int nvar = regr.nvar;
+  if (regr.flagCste) nvar--;
+
+  if (regr.flagCste)
+    message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
+  for (int ivar = 0; ivar < nvar; ivar++)
+    message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
+
+  message("- Initial variance        = %lf\n",regr.variance);
+  message("- Variance of residuals   = %lf\n",regr.varres);
+}
+
 /****************************************************************************/
 /*!
  **  Calculate the quantile which corresponds to a given probability
@@ -544,106 +662,6 @@ String statisticsMultiPrint(const VectorDouble &stats,
   return sstr.str();
 }
 
-bool regressionLoad(Db *db1,
-                    Db *db2,
-                    int iech,
-                    int icol0,
-                    const VectorInt &icols,
-                    int mode,
-                    int flagCste,
-                    const Model* model,
-                    double *value,
-                    VectorDouble &x)
-{
-  int nfex = 0;
-  int nbfl = 0;
-
-  int ecr  = 0;
-  switch (mode)
-  {
-    case 0:
-      *value = db1->getArray(iech, icol0);
-      if (flagCste) x[ecr++] = 1.;
-      for (int icol = 0; icol < (int) icols.size(); icol++)
-        x[ecr++] = db2->getArray(iech, icols[icol]);
-      break;
-
-    case 1:
-      nfex = db2->getExternalDriftNumber();
-      *value = db1->getVariable(iech, 0);
-      if (flagCste) x[ecr++] = 1.;
-      for (int i = 0; i < nfex; i++)
-        x[ecr++] = db2->getExternalDrift(iech, i);
-      break;
-
-    case 2:
-      nbfl = model->getDriftNumber();
-      *value = db1->getVariable(iech, 0);
-      for (int i = 0; i < nbfl; i++)
-         x[ecr++] = model->evalDrift(db2, iech, i, ECalcMember::LHS);
-      break;
-  }
-
-  bool flagTest = false;
-  for (int i = 0; i < (int) x.size() && !flagTest; i++)
-    flagTest = FFFF(x[i]);
-  return (FFFF(*value) || flagTest);
-}
-
-bool regressionCheck(Db *db1,
-                     int icol0,
-                     const VectorInt &icols,
-                     int mode,
-                     Db *db2,
-                     const Model* model)
-{
-  int ncol = (int) icols.size();
-  int nfex = db2->getExternalDriftNumber();
-
-  switch (mode)
-  {
-    case 0:
-      if (icol0 < 0 || icol0 >= db1->getUIDMaxNumber())
-      {
-        messerr("The regression requires a valid target variable");
-        return false;
-      }
-      for (int icol = 0; icol < ncol; icol++)
-      {
-        if (icols[icol] < 0 || icols[icol] >= db2->getUIDMaxNumber())
-        {
-          messerr("The regression requires a valid auxiliary variable (#%d)",
-                  icol + 1);
-          return false;
-        }
-      }
-      break;
-
-    case 1:
-      if (nfex <= 0)
-      {
-        messerr("The multivariate regression is designated");
-        messerr("as a function of several drift variables");
-        messerr("The Db contains %d drift variables", nfex);
-        return false;
-      }
-      break;
-
-    case 2:
-      if (model == nullptr)
-      {
-        messerr("Model should be defined");
-        return false;
-      }
-      if (model->getDriftNumber() <= 0)
-      {
-        messerr("The number of Drift equations in the Model should be positive");
-        return false;
-      }
-  }
-  return true;
-}
-
 ResRegr regression(Db *db1,
                    const String &name0,
                    const VectorString &names,
@@ -721,7 +739,7 @@ ResRegr regressionByUID(Db *db1,
 
   /* Preliminary checks */
 
-  if (! regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
+  if (! _regressionCheck(db1, icol0, icols, mode, db2, model)) return regr;
 
   /* Core allocation */
 
@@ -742,8 +760,8 @@ ResRegr regressionByUID(Db *db1,
 
     /* Get the information for the current sample */
 
-    if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model, &value, x))
-      continue;
+    if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
+                        &value, x)) continue;
 
     prod += value * value;
     mean += value;
@@ -798,25 +816,84 @@ ResRegr regressionByUID(Db *db1,
 
   if (verbose)
   {
-    regrprint(regr);
+    _regrprint(regr);
   }
   return regr;
 }
 
-void regrprint(const ResRegr& regr)
+/****************************************************************************/
+/*!
+ **  Evaluate the regression
+ **
+ ** \return  Error return code
+ **
+ ** \param[in,out]  db1        Db descriptor (for target variable)
+ ** \param[in]  iptr0          Storing address
+ ** \param[in]  name0          Name of the target variable
+ ** \param[in]  names          Vector of names of the explanatory variables
+ ** \param[in]  mode           Type of calculation
+ ** \li                        0 : standard multivariate case
+ ** \li                        1 : using external drifts
+ ** \li                        2 : using standard drift functions (mode==2)
+ ** \param[in]  flagCste       The constant is added as explanatory variable]
+ ** \param[in]  db2            Db descriptor (for auxiliary variables)
+ ** \param[in]  model          Model structure (used for mode==2)
+ **
+ ** \remark  The flag_mode indicates the type of regression calculation:
+ ** \remark  0 : V[icol] as a function of V[icols[i]]
+ ** \remark  1 : Z1 as a function of the different Fi's
+ **
+ ** \remark  The Db1 structure is modified: the column (iptr0) of the Db1
+ ** \remark  is added by this function; it contains the value
+ ** \remark  of the residuals at each datum (or TEST if the residual has not
+ ** \remark  been calculated).
+ **
+ *****************************************************************************/
+int regressionApply(Db *db1,
+                    int iptr0,
+                    const String& name0,
+                    const VectorString& names,
+                    int mode,
+                    bool flagCste,
+                    Db *db2,
+                    const Model* model)
 {
-  mestitle(1, "Linear Regression");
-  message("- Calculated on %d active values\n",regr.count);
+  ResRegr regr;
+  if (db2 == nullptr) db2 = db1;
+  int icol0 = db1->getUID(name0);
+  VectorInt icols;
+  if (! names.empty()) icols = db2->getUIDs(names);
 
-  int ecr = 0;
-  int nvar = regr.nvar;
-  if (regr.flagCste) nvar--;
+  regr = regressionByUID(db1, icol0, icols, mode, flagCste, db2, model);
 
-  if (regr.flagCste)
-    message("- Constant term           = %lf\n",regr.coeffs[ecr++]);
-  for (int ivar = 0; ivar < nvar; ivar++)
-    message("- Explanatory Variable #%d = %lf\n", ivar+1, regr.coeffs[ecr++]);
+  /* Preliminary checks */
 
-  message("- Initial variance        = %lf\n",regr.variance);
-  message("- Variance of residuals   = %lf\n",regr.varres);
+  if (! _regressionCheck(db1, icol0, icols, mode, db2, model)) return 1;
+
+  /* Store the regression error at sample points */
+
+  int size = (int) regr.coeffs.size();
+  double value = 0;
+  VectorDouble x(size);
+
+  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
+  {
+    if (db1->isActive(iech))
+    {
+      /* Get the information for the current sample */
+
+      if (_regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model,
+                          &value, x))
+      {
+        value = TEST;
+      }
+      else
+      {
+        for (int i = 0; i < size; i++)
+          value -= x[i] * regr.coeffs[i];
+      }
+    }
+    db1->setArray(iech, iptr0, value);
+  }
+  return 0;
 }

@@ -78,3 +78,12 @@ GSTLEARN_EXPORT int dbRegression(Db *db1,
                                  const Model* model = nullptr,
                                  const NamingConvention &namconv = NamingConvention(
                                      "Regr"));
+GSTLEARN_EXPORT int dbRegressionByColIdx(Db *db1,
+                                         int icol0,
+                                         const VectorInt &icols,
+                                         int mode = 0,
+                                         bool flagCste = true,
+                                         Db *db2 = nullptr,
+                                         const Model *model = nullptr,
+                                         const NamingConvention &namconv = NamingConvention(
+                                             "Regr"));

@@ -34,9 +34,10 @@ public:
   virtual ENeigh getType() const override { return ENeigh::UNIQUE; }
   virtual int getMaxSampleNumber(const Db* db) const override;
 
-  int reset(int ndim, bool flag_xvalid = false);
   static NeighUnique* create(int ndim, bool flag_xvalid = false);
   static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = true);
+
+  int reset(int ndim, bool flag_xvalid = false);
 
 protected:
   /// Interface for ASerializable

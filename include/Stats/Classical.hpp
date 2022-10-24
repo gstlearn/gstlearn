@@ -67,13 +67,6 @@ GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &tab,
 GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
                                             const VectorString &varnames = VectorString(),
                                             const String &title = "");
-
-GSTLEARN_EXPORT bool regressionCheck(Db *db1,
-                                     int icol0,
-                                     const VectorInt &icols,
-                                     int mode,
-                                     Db *db2,
-                                     const Model* model = nullptr);
 GSTLEARN_EXPORT ResRegr regressionByUID(Db *db1,
                                         int icol0,
                                         const VectorInt &icols = VectorInt(),
@@ -90,14 +83,11 @@ GSTLEARN_EXPORT ResRegr regression(Db *db1,
                                    Db *db2 = nullptr,
                                    const Model *model = nullptr,
                                    bool verbose = false);
-GSTLEARN_EXPORT bool regressionLoad(Db *db1,
-                                    Db *db2,
-                                    int iech,
-                                    int icol0,
-                                    const VectorInt &icols,
-                                    int mode,
-                                    int flagCste,
-                                    const Model* model,
-                                    double *value,
-                                    VectorDouble &x);
-GSTLEARN_EXPORT void regrprint(const ResRegr& regr);
+GSTLEARN_EXPORT int regressionApply(Db *db1,
+                                    int iptr0,
+                                    const String &name0,
+                                    const VectorString &names,
+                                    int mode = 0,
+                                    bool flagCste = false,
+                                    Db *db2 = nullptr,
+                                    const Model *model = nullptr);

@@ -942,7 +942,28 @@ def hist(db, name, xlabel=None, ylabel=None, title = None, ax=None,
     
     return ax
 
-def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curve',
+def sortedcurve(tabx, taby, color='black', flagLegend=False,
+                label='curve', xlabel=None, ylabel=None,
+                title=None, ax=None, figsize=None, end_plot=False, 
+                **plot_args):
+    '''
+    Function for plotting a set of points after they have been sorted in increasing X
+    '''
+        # Account for possible 'nan'  values
+    mask = np.logical_and(np.isfinite(tabx), np.isfinite(taby))
+    stabx = tabx[mask]
+    staby = taby[mask]
+    
+    # Indices of the sorted elements of stabx
+    indices = np.argsort(stabx)
+    ax = curve(stabx[indices], staby[indices], color=color, 
+          flagLegend=flagLegend, label=label, xlabel=xlabel, ylabel=ylabel,
+          title=title, ax=ax, figsize=figsize, end_plot=end_plot)
+    
+    return ax
+    
+def curve(data1, data2=None, icas=1, color='black',flagLegend=False, 
+          label='curve', xlabel=None, ylabel=None, 
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting the curve of an array (argument 'data1')
@@ -986,7 +1007,8 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curv
             
     ax.plot(tabx, taby, **plot_args)
     
-    drawDecor(ax, title=title, flagLegend=flagLegend)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, 
+              flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -1258,11 +1280,16 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
     return ax
 
 def anam(anam, xlim=None, ylim=None, 
-         xlabel=None, ylabel=None, title = None, ax=None, figsize=None, end_plot=False):
+         color='blue', linestyle='-', flagLegend=False,
+         xlabel=None, ylabel=None, title = None, ax=None, 
+         figsize=None, end_plot=False):
     
     res = anam.sample()
     ax = XY(res.getY(), res.getZ(),
-            xlim=res.getAylim(), ylim=res.getAzlim(),label='Anamorphosis',title=title)
+            xlim=res.getAylim(), ylim=res.getAzlim(),
+            flagLegend=flagLegend, color=color, linestyle=linestyle,
+            label='Anamorphosis', title=title,
+            ax=ax, figsize=figsize)
     
     if end_plot:
         plt.show()
