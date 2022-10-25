@@ -1890,8 +1890,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Create the output model */
 
-  double field = MAX(model1->getField(), model2->getField());
-
   VectorDouble mean(2);
   VectorDouble cova0(4);
   VectorDouble sill(4);
@@ -1903,8 +1901,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getDimensionNumber(),
-                               field, mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), mean, cova0);
 
   // Creating the new Model
   model = new Model(ctxt);

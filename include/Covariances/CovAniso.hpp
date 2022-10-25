@@ -215,7 +215,7 @@ private:
   double _getDetTensor() const;
 
 private:
-  CovContext      _ctxt;   /// Context (space, irfDegree, field, ...) // TODO : Really store a copy ?
+  CovContext      _ctxt;   /// Context (space, number of variables, ...) // TODO : Really store a copy ?
   ACovFunc*       _cova;   /// Covariance basic function
   MatrixSquareSymmetric    _sill;   /// Sill matrix (nvar x nvar)
   Tensor          _aniso;  /// Anisotropy parameters

@@ -67,7 +67,7 @@ protected:
   String _getNFName() const override { return "Drift"; }
 
 private:
-  CovContext  _ctxt;  /* Context (space, irfDegree, field, ...) */
+  CovContext  _ctxt;  /* Context (space, number of variables, ...) */
   EDrift _type;       /* Drift function type */
   int _rankFex;       /* Rank of the external drift */
 };

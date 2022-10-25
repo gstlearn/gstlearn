@@ -844,12 +844,13 @@ static void st_load_gg(const Vario *vario,
                        std::vector<StrExp> &strexps,
                        VectorDouble &gg)
 {
-  int idir, ecr, ipas, iad, jad, ivar, jvar, ijvar, nvar, idim, ipadir;
+  int idir, ecr, ipas, iad, jad, ivar, jvar, ijvar, idim, ipadir;
   double n1, n2, g1, g2, c00, dist;
 
   /* Initializations */
 
-  nvar = vario->getVariableNumber();
+  int nvar = vario->getVariableNumber();
+  int ndim = vario->getDimensionNumber();
 
   /* Load the Experimental conditions structure */
 
@@ -863,6 +864,7 @@ static void st_load_gg(const Vario *vario,
 
           /* Calculate the variogram value */
 
+          dist = 0.;
           GG(ijvar,ipadir)= TEST;
           if (vario->getFlagAsym())
           {
@@ -897,11 +899,14 @@ static void st_load_gg(const Vario *vario,
 
           if (! strexps.empty())
           {
+            int i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
+            if (! CORRECT(idir, i)) continue;
+
             strexps[ecr].ivar = ivar;
             strexps[ecr].jvar = jvar;
 
-            for (idim=0; idim<vario->getDimensionNumber(); idim++)
-            strexps[ecr].dd[idim] = dist * vario->getCodir(idir,idim);
+            for (idim=0; idim<ndim; idim++)
+              strexps[ecr].dd[idim] = dist * vario->getCodir(idir,idim);
             ecr++;
           }
         }

@@ -22,11 +22,9 @@ class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
   CovContext(int nvar = 1,
-             const ASpace* space = nullptr,
-             double field = 1);
+             const ASpace* space = nullptr);
   CovContext(int nvar,
              int ndim,
-             double field = 1,
              const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
   CovContext(const Db *db,
@@ -43,7 +41,7 @@ public:
   /// Indicate if I am consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
-  static CovContext* create(int nvar, int ndim, double field = 1.);
+  static CovContext* create(int nvar, int ndim);
 
   bool isEqual(const CovContext &r) const;
 
