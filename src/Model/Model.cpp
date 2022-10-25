@@ -881,7 +881,7 @@ VectorDouble Model::sample(double hmax,
   for (int i = 0; i < nh; i++)
     hh[ecr++] = hmax * (i+1) / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nhloc,
+  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, ECalcMember::LHS, nhloc,
                  codir, hh.data(), gg.data());
   return gg;
 }

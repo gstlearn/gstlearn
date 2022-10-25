@@ -871,19 +871,26 @@ static void st_load_gg(const Vario *vario,
             c00 = st_get_c00(vario,idir,ivar,jvar);
             n1 = vario->getSwByIndex(idir,iad);
             n2 = vario->getSwByIndex(idir,jad);
-            if (n1 + n2 <= 0) continue;
-            g1 = vario->getGgByIndex(idir,iad);
-            g2 = vario->getGgByIndex(idir,jad);
-            if (! CORRECT(idir,iad) || ! CORRECT(idir,jad)) continue;
-            GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
-            dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
+            if (n1 + n2 > 0)
+            {
+              g1 = vario->getGgByIndex(idir,iad);
+              g2 = vario->getGgByIndex(idir,jad);
+              if (CORRECT(idir,iad) && CORRECT(idir,jad))
+              {
+                GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
+                dist = (ABS(vario->getHhByIndex(idir,iad)) +
+                        ABS(vario->getHhByIndex(idir,jad))) / 2.;
+              }
+            }
           }
           else
           {
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
-            if (! CORRECT(idir,iad)) continue;
-            GG(ijvar,ipadir) = vario->getGgByIndex(idir,iad);
-            dist = ABS(vario->getHhByIndex(idir,iad));
+            if (CORRECT(idir,iad))
+            {
+              GG(ijvar,ipadir) = vario->getGgByIndex(idir,iad);
+              dist = ABS(vario->getHhByIndex(idir,iad));
+            }
           }
 
           /* Define the item of the StrExp array (if defined) */

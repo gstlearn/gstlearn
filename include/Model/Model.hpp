@@ -421,9 +421,10 @@ public:
   {
     // TODO/ the strange next line have been commented out.
     // There should be either validated or supressed
-//    if (isFlagGradient())
-//      return 3; // This strange number of variables is linked to the Gradient calculation
-//    else
+    //    if (isFlagGradient())
+    //      return 3; // This strange number of variables is linked to the Gradient calculation
+    //    else
+    // However, note used for Gradient (Functional type) in Potential
       return _ctxt.getNVar();
   }
 

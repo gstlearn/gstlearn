@@ -143,8 +143,7 @@ static double st_residuals(VectorDouble &param,
   msse = 0.;
   for (idat = 0; idat < NDAT; idat++)
   {
-    weight = (!tabwgt.empty()) ? tabwgt[idat] :
-                                 1.;
+    weight = (!tabwgt.empty()) ? tabwgt[idat] : 1.;
     value = weight * (tabmod[idat] - tabexp[idat]);
     msse += value * value;
     residuals[idat] = value;
@@ -1236,21 +1235,21 @@ static int st_check_param(VectorDouble &param,
  **
  *****************************************************************************/
 int foxleg_f(int ndat,
-                             int npar,
-                             int ncont,
-                             const VectorDouble &acont,
-                             VectorDouble &param,
-                             VectorDouble &lower,
-                             VectorDouble &upper,
-                             VectorDouble &scale,
-                             const Option_AutoFit &mauto,
-                             int flag_title,
-                             void (*func_evaluate)(int ndat,
-                                                   int npar,
-                                                   VectorDouble &param,
-                                                   VectorDouble &work),
-                             VectorDouble &tabexp,
-                             VectorDouble &tabwgt)
+             int npar,
+             int ncont,
+             const VectorDouble &acont,
+             VectorDouble &param,
+             VectorDouble &lower,
+             VectorDouble &upper,
+             VectorDouble &scale,
+             const Option_AutoFit &mauto,
+             int flag_title,
+             void (*func_evaluate)(int ndat,
+                                   int npar,
+                                   VectorDouble &param,
+                                   VectorDouble &work),
+             VectorDouble &tabexp,
+             VectorDouble &tabwgt)
 {
   int error, ipar, iparac, flag_cont, ipct, jpct, flag_moved;
   double mscur, ms0, msaux, rho, arret, delta, denom;

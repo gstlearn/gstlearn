@@ -309,7 +309,7 @@ def varioDir(vario, ivar=0, jvar=0,
 
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
            linestyle='solid', linestylem="dashed", color0='black', linestyle0="dotted",
-           nh = 100, hmax = None, gmax = None, show_pairs=False,
+           nh = 100, hmax = None, gmax = None, show_pairs=False, asCov=False,
            cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
            **plot_args):
     """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
@@ -397,7 +397,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
                     model(mymodel, ivar=iv, jvar=jv, codir=codir, 
                           color=cols(idirUtil), linestyle=linestylem, 
                           color0=color0, linestyle0=linestyle0, ax=ax,
-                          hmax=hmax, gmax=None, nh=nh,
+                          hmax=hmax, gmax=None, nh=nh, asCov=asCov,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
             ax.autoscale(True)
@@ -507,8 +507,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         hmax = 1
             
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, 
-                      asCov=asCov, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -525,11 +524,9 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
     
     if ivar != jvar and flagEnv:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, 
-                           asCov = asCov, addZero=True)
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0, label="plus")
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, 
-                           asCov = asCov, addZero=True)
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
     drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
@@ -541,7 +538,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
 
 def point(db, 
           color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
-          color='r', size=20, sizmin=10, sizmax=200, 
+          color='r', size=20, sizmin=10, sizmax=200, edgecolors=None,
           xlim=None, ylim=None, directColor=False, flagAbsSize=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
@@ -572,6 +569,8 @@ def point(db,
 
     **scatter_args : arguments passed to matplotllib.pyplot.scatter
     '''
+    
+    edgecolors = scatter_args.setdefault('edgecolors', edgecolors)
     
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
@@ -990,7 +989,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
         taby = data1[1]
     else:
         nbpoint = len(data1)
-        if len(data2) != 0:
+        if data2 is not None:
             if len(data2) != nbpoint:
                 print("Arrays 'data1' and 'data2' should have same dimensions")
                 return None
@@ -1117,15 +1116,16 @@ def sample(sample, xlim=None, ylim=None, aspect=None,
 
     return ax
     
-def rule(rule, proportions=[], 
-         title=None, ax=None, figsize=None, end_plot=False):
+def rule(rule, proportions=[],cmap=None, 
+         title=None, xlim=[-5,+5], ylim=[-5,+5], ax=None, figsize=None, end_plot=False):
     
     if ax is None:
-        fig, ax = newFigure(figsize, [-10.,10.], [-10.,10.])
+        fig, ax = newFigure(figsize, xlim=xlim, ylim=ylim)
         
     nfac = rule.getFaciesNumber()
     rule.setProportions(proportions)
-    cols = get_cmap(nfac)
+    
+    cols = get_cmap(nfac, cmap)
 
     for ifac in range(nfac):
         bds = rule.getThresh(ifac+1)

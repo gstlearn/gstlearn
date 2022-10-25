@@ -673,8 +673,7 @@ static void st_variogram_evaluate(Db *db,
   w1 = db->getWeight(iech1);
   w2 = db->getWeight(iech2);
   if (FFFF(w1) || FFFF(w2)) return;
-  orient = (dist > 0) ? 1 :
-                        -1;
+  orient = (dist > 0) ? 1 : -1;
   dist = ABS(dist);
 
   switch (calcul_type.toEnum())
@@ -1770,8 +1769,7 @@ static int st_variogram_calcul1(Db *db,
     if (!db->isActive(iech)) continue;
     if (FFFF(db->getWeight(iech))) continue;
 
-    ideb = (st_date_is_used(&varioparam, db, db)) ? 0 :
-                                                    iiech + 1;
+    ideb = (st_date_is_used(&varioparam, db, db)) ? 0 : iiech + 1;
     for (jjech = ideb; jjech < nech; jjech++)
     {
       jech = rindex[jjech];

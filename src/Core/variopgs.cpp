@@ -1162,8 +1162,7 @@ static int st_varcalc_from_vario_stat(Vario *vario,
 
         for (int jgrf = 0; jgrf <= igrf; jgrf++)
         {
-          varloc = (igrf == jgrf) ? result :
-                                    0.;
+          varloc = (igrf == jgrf) ? result : 0.;
           iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
           vario->setGgByIndex(idir, iad, varloc);
           iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
@@ -1263,8 +1262,7 @@ static void st_varcalc_uncorrelated_grf(Local_Pgs *local_pgs, int idir)
       trace_define(local_pgs, idir + 1, ipas + 1, 2 * igrf + 1, 1, &niter);
       for (jgrf = 0; jgrf <= igrf; jgrf++)
       {
-        varloc = (igrf == jgrf) ? result :
-                                  0.;
+        varloc = (igrf == jgrf) ? result : 0.;
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, 1);
         vario->setGgByIndex(idir, iad, varloc);
         iad = vario->getDirAddress(idir, igrf, jgrf, ipas, false, -1);
@@ -1942,9 +1940,9 @@ int vario_order_add(Vario_Order *vorder,
  **
  *****************************************************************************/
 void vario_order_print(Vario_Order *vorder,
-                                       int idir_target,
-                                       int ipas_target,
-                                       int verbose)
+                       int idir_target,
+                       int ipas_target,
+                       int verbose)
 {
   int i, j, ipas, idir, flag_first;
 
@@ -4578,21 +4576,21 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 1);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
-                                                       iech, jech, ifac, jfac,
-                                                       iconf, cov));
+                                                              iech, jech, ifac, jfac,
+                                                              iconf, cov));
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, -1);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
-                                                       jech, iech, ifac, jfac,
-                                                       iconf, cov));
+                                                              jech, iech, ifac, jfac,
+                                                              iconf, cov));
             }
             else
             {
               i = vario->getDirAddress(idir, ifac, jfac, ipas, false, 0);
               vario->setGgByIndex(idir,i,
                   vario->getGgByIndex(idir, i) + st_get_value(local_pgs, flag_ind,
-                                                       iech, jech, ifac, jfac,
-                                                       iconf, cov));
+                                                              iech, jech, ifac, jfac,
+                                                              iconf, cov));
             }
           }
       }
@@ -4615,7 +4613,7 @@ static int st_vario_indic_model_nostat(Local_Pgs *local_pgs)
  **  This operation considers (Sw, Hh, Gg) and replicates this information for
  **  all directions.
  **  Per direction, the information of the first simple input variogram is
- **  replicated to all simple and cross-variograms output variograms
+ **  replicated to all simple and cross-variograms outputs
  **
  ** \return  Error return code
  **
@@ -4650,16 +4648,14 @@ static int st_copy_swhh(const Vario *vario1,
 
   for (int idir = 0; idir < vario2->getDirectionNumber(); idir++)
   {
-    for (int ipas = 0; ipas < vario1->getLagTotalNumber(idir); ipas++)
+    for (int i = 0; i < vario1->getLagTotalNumber(idir); i++)
     {
-      int iad1 = vario1->getDirAddress(idir, 0, 0, ipas, false, 1);
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          int iad2 = vario2->getDirAddress(idir, ivar, jvar, ipas, false, 1);
-          if (flagSw) vario2->setSwByIndex(idir, iad2, vario1->getSwByIndex(idir, iad1));
-          if (flagHh) vario2->setHhByIndex(idir, iad2, ABS(vario1->getHhByIndex(idir, iad1)));
-          if (flagGg) vario2->setGgByIndex(idir, iad2, vario1->getGgByIndex(idir, iad1));
+          if (flagSw) vario2->setSwByIndex(idir, i, vario1->getSwByIndex(idir, i));
+          if (flagHh) vario2->setHhByIndex(idir, i, ABS(vario1->getHhByIndex(idir, i)));
+          if (flagGg) vario2->setGgByIndex(idir, i, vario1->getGgByIndex(idir, i));
         }
     }
   }
@@ -5172,7 +5168,7 @@ static int st_variogram_pgs_stat(Db *db,
 
 /****************************************************************************/
 /*!
- **  Calculate the gaussian variograms
+ **  Calculate the Gaussian variograms
  **
  ** \return  Error return code
  **
@@ -5187,10 +5183,10 @@ static int st_variogram_pgs_stat(Db *db,
  **
  *****************************************************************************/
 Vario* variogram_pgs(Db *db,
-                                     const VarioParam *varioparam,
-                                     const RuleProp *ruleprop,
-                                     int flag_rho,
-                                     int opt_correl)
+                     const VarioParam *varioparam,
+                     const RuleProp *ruleprop,
+                     int flag_rho,
+                     int opt_correl)
 {
   Vario *vario = nullptr;
   Vario *varioind = nullptr;

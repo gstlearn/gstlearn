@@ -298,12 +298,12 @@ void check_mandatory_attribute(const char *method,
  ** \return  1 if the field must be kept; 0 otherwise
  **
  ** \param[in]  flag_gaus  1 gaussian results; otherwise facies
- ** \param[in]  flag_modif 1 for facies proportion
+ ** \param[in]  flag_prop  1 for facies proportion
  ** \param[in]  file       DATA or RESULT
  ** \param[in]  type       0 for gaussian; 1 for facies; 2 for proportion
  **
  *****************************************************************************/
-static int st_keep(int flag_gaus, int flag_modif, int file, int type)
+static int st_keep(int flag_gaus, int flag_prop, int file, int type)
 {
   int keep;
 
@@ -324,15 +324,15 @@ static int st_keep(int flag_gaus, int flag_modif, int file, int type)
     switch (type)
     {
       case 0: /* Gaussian */
-        keep = (flag_gaus && !flag_modif);
+        keep = (flag_gaus && !flag_prop);
         break;
 
       case 1: /* Facies */
-        keep = (!flag_gaus && !flag_modif);
+        keep = (!flag_gaus && !flag_prop);
         break;
 
       case 2: /* Proportion */
-        keep = (flag_modif);
+        keep = (flag_prop);
         break;
     }
   }
@@ -693,7 +693,7 @@ static void st_init_gibbs_params(double rho)
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
- ** \param[in]  flag_modif  1 for facies proportion
+ ** \param[in]  flag_prop   1 for facies proportion
  ** \param[in]  flag_check  1 if the facies at data must be checked against
  **                         the closest simulated grid node
  ** \param[in]  flag_show   1 if the grid node which coincides with the data
@@ -721,7 +721,7 @@ int simpgs(Db *dbin,
            int nbsimu,
            int seed,
            int flag_gaus,
-           int flag_modif,
+           int flag_prop,
            int flag_check,
            int flag_show,
            int nbtuba,
@@ -745,8 +745,8 @@ int simpgs(Db *dbin,
   models[0] = model1;
   models[1] = model2;
   bool flag_cond = (dbin != nullptr);
-  iptr_RP = iptr_RF = iptr_DF = iptr_DN = iptr_RN = nfacies = 0;
-  iptr = -1;
+  iptr = iptr_RP = iptr_RF = iptr_DF = iptr_DN = iptr_RN = -1;
+  nfacies = 0;
   bool verbose = false;
 
   if (ruleprop == nullptr)
@@ -776,7 +776,7 @@ int simpgs(Db *dbin,
   }
 
   /* Output Db */
-  if (flag_modif && flag_gaus)
+  if (flag_prop && flag_gaus)
   {
     messerr(
         "Calculating the facies proportions is incompatible with storing the Gaussian values");
@@ -825,7 +825,7 @@ int simpgs(Db *dbin,
   nfacies = rule->getFaciesNumber();
 
   /* Storage of the facies proportions */
-  if (flag_modif)
+  if (flag_prop)
   {
     if (db_locator_attribute_add(dbout, ELoc::P, nfacies, 0, 0., &iptr_RP))
       goto label_end;
@@ -940,7 +940,7 @@ int simpgs(Db *dbin,
 
   /* Update facies proportions at target points */
 
-  if (flag_modif)
+  if (flag_prop)
   {
     for (int isimu = 0; isimu < nbsimu; isimu++)
       simu_func_categorical_update(dbout, 0, isimu, nbsimu);
@@ -959,19 +959,19 @@ int simpgs(Db *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS))
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS))
       dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
@@ -980,13 +980,13 @@ int simpgs(Db *dbin,
 
   if (dbin != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS))
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS))
       dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
@@ -1026,7 +1026,7 @@ int simpgs(Db *dbin,
  ** \param[in]  nbsimu      Number of simulations
  ** \param[in]  seed        Seed for random number generator
  ** \param[in]  flag_gaus   1 gaussian results; otherwise facies
- ** \param[in]  flag_modif  1 for facies proportion
+ ** \param[in]  flag_prop   1 for facies proportion
  ** \param[in]  flag_check  1 if the facies at data must be checked against
  **                         the closest simulated grid node
  ** \param[in]  flag_show   1 if the grid node which coincides with the data
@@ -1058,7 +1058,7 @@ int simbipgs(Db *dbin,
              int nbsimu,
              int seed,
              int flag_gaus,
-             int flag_modif,
+             int flag_prop,
              int flag_check,
              int flag_show,
              int nbtuba,
@@ -1137,7 +1137,7 @@ int simbipgs(Db *dbin,
   }
 
   /* Output Db */
-  if (flag_modif && flag_gaus)
+  if (flag_prop && flag_gaus)
   {
     messerr(
         "Calculating the facies proportions is incompatible with storing the Gaussian values");
@@ -1224,7 +1224,7 @@ int simbipgs(Db *dbin,
   /**********************/
 
   /* Storage of the proportions */
-  if (flag_modif)
+  if (flag_prop)
   {
     if (db_locator_attribute_add(dbout, ELoc::P, nfactot, 0, 0., &iptr_RP))
       goto label_end;
@@ -1362,7 +1362,7 @@ int simbipgs(Db *dbin,
 
     /* Update facies proportions at target points */
 
-    if (flag_modif)
+    if (flag_prop)
     {
       for (int isimu = 0; isimu < nbsimu; isimu++)
         simu_func_categorical_update(dbout, 0, isimu, nbsimu);
@@ -1382,19 +1382,19 @@ int simbipgs(Db *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nfactot, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS) && iptr_RN)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS) && iptr_RN)
       dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
@@ -1403,13 +1403,13 @@ int simbipgs(Db *dbin,
 
   if (dbin != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_GAUS) && iptr_DN)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS) && iptr_DN)
       dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_modif, DATA, TYPE_FACIES) && iptr_DF)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
@@ -2316,7 +2316,7 @@ int simRI(Db *dbout,
  ** \param[in]  triswitch   Meshing option
  ** \param[in]  gext        Array of domain dilation
  ** \param[in]  flag_gaus   1 if results must be gaussian; otherwise facies
- ** \param[in]  flag_modif  1 for facies proportion
+ ** \param[in]  flag_prop   1 for facies proportion
  ** \param[in]  flag_check  1 if the facies at data must be checked against
  **                         the closest simulated grid node
  ** \param[in]  flag_show   1 if the grid node which coincides with the data
@@ -2343,7 +2343,7 @@ int simpgs_spde(Db *dbin,
                 const String &triswitch,
                 const VectorDouble &gext,
                 int flag_gaus,
-                int flag_modif,
+                int flag_prop,
                 int flag_check,
                 int flag_show,
                 int nfacies,
@@ -2409,7 +2409,7 @@ int simpgs_spde(Db *dbin,
     messerr("'dbout' is compulsory");
     goto label_end;
   }
-  if (flag_modif && flag_gaus)
+  if (flag_prop && flag_gaus)
   {
     messerr(
         "Calculating the facies proportions is incompatible with storing the Gaussian values");
@@ -2438,7 +2438,7 @@ int simpgs_spde(Db *dbin,
     if (model_normalize(models[igrf], 1)) goto label_end;
   }
   if (spde_check(dbin, dbout, model1, model2, verbose, gext, 1, 1, 1, 0, 0, 1,
-                 flag_modif)) goto label_end;
+                 flag_prop)) goto label_end;
   s_option = spde_option_alloc();
   spde_option_update(s_option, triswitch);
 
@@ -2449,7 +2449,7 @@ int simpgs_spde(Db *dbin,
   /**********************/
 
   /* Storage of the facies proportions */
-  if (flag_modif)
+  if (flag_prop)
   {
     if (db_locator_attribute_add(dbout, ELoc::P, nfacies, 0, 0., &iptr_RP))
       goto label_end;
@@ -2525,13 +2525,13 @@ int simpgs_spde(Db *dbin,
   /* Free the temporary variables */
   /********************************/
 
-  if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_PROP) && iptr_RP)
+  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
     dbout->deleteColumnsByLocator(ELoc::P);
 
-  if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_FACIES) && iptr_RF)
+  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
     dbout->deleteColumnsByLocator(ELoc::FACIES);
 
-  if (!st_keep(flag_gaus, flag_modif, RESULT, TYPE_GAUS))
+  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS))
     dbout->deleteColumnsByLocator(ELoc::SIMU);
 
   dbin->deleteColumnsByLocator(ELoc::L);

@@ -203,6 +203,9 @@ public:
   {
     _grid.indicesToCoordinateInPlace(indice, coor, percent);
   }
+  VectorInt locateDataInGrid(const DbGrid *grid,
+                             const Db *data,
+                             const VectorInt &rankIn) const;
 
   int getMirrorIndex(int idim, int ix) const
   {

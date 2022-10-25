@@ -1014,8 +1014,8 @@ int DbGrid::assignGridColumn(const String& name,
 }
 
 int DbGrid::coordinateToRank(const VectorDouble &coor,
-                     bool centered,
-                     double eps) const
+                             bool centered,
+                             double eps) const
 {
   return _grid.coordinateToRank(coor,centered,eps);
 }
@@ -1364,4 +1364,20 @@ DbGrid* DbGrid::createGrid2D(const ELoadBy &order,
                               VectorString(), flag_add_rank);
 
   return db;
+}
+
+VectorInt DbGrid::locateDataInGrid(const DbGrid *grid,
+                                   const Db *data,
+                                   const VectorInt &rankIn) const
+{
+  VectorInt rankOut;
+
+  if (grid == nullptr || data == nullptr) return VectorInt();
+
+  for (int ip=0; ip<(int) rankIn.size(); ip++)
+  {
+    VectorDouble coor = data->getSampleCoordinates(rankIn[ip]);
+    rankOut.push_back(grid->coordinateToRank(coor));
+  }
+  return rankOut;
 }
