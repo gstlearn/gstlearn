@@ -470,6 +470,8 @@ public:
   double gofToVario(const Vario* vario, bool verbose = true);
   std::vector<ECov> initCovList(const VectorInt & covranks);
 
+  bool isValid() const;
+
 protected:
   /// Interface to ASerializable
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;

@@ -2689,6 +2689,12 @@ bool KrigingSystem::_isCorrect()
     }
   }
 
+  /**************************************/
+  /* Checking the Validity of the Model */
+  /**************************************/
+
+  if (! _model->isValid()) return false;
+
   /******************************************/
   /* Checking the Number of External Drifts */
   /******************************************/

@@ -46,8 +46,9 @@ public:
 
   int getDriftNumber() const { return static_cast<int>(_drifts.size()); }
 
-  // Add an elementary drift structure
-  void addDriftList(const DriftList* drifts);
+  // Set the list of drift functions
+  void setDriftList(const DriftList* drifts);
+  // Add one elementary drift structure
   void addDrift(const ADriftElem* drift);
   // Remove an elementary drift structure
   void delDrift(unsigned int i);
@@ -60,6 +61,8 @@ public:
   bool isFiltered(int i) const;
   void setFiltered(int i, bool filter);
   int  getDriftEquationNumber() const;
+
+  bool isValid() const;
 
   /// TODO : to be removed (encapsulation)
   ////////////////////////////////////////////////

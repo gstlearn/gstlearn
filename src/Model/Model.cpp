@@ -1471,3 +1471,25 @@ std::vector<ECov> Model::initCovList(const VectorInt & covranks)
   }
   return list;
 }
+
+bool Model::isValid() const
+{
+  // Covariances: there should be some defined
+  if (_covaList == nullptr)
+  {
+    messerr("Model is not valid: no covariance has been defined");
+    return false;
+  }
+  if (_covaList->getCovNumber() <= 0)
+  {
+    messerr("Model is not valid: no covariance has been defined");
+    return false;
+  }
+
+  // Drifts: there should be valid
+  if (_driftList != nullptr)
+  {
+    if (! _driftList->isValid()) return false;
+  }
+  return true;
+}
