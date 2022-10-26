@@ -1265,24 +1265,13 @@ GSTLEARN_EXPORT int db_stats(Db *db,
                              const VectorInt &cols,
                              int flag_mono,
                              int flag_verbose,
-                             double *resta);
+                             double *result);
 GSTLEARN_EXPORT int db_stats_grid(Db *db,
                                   DbGrid *dbgrid,
                                   const char *oper,
                                   int ncol,
                                   int *cols,
                                   int radius);
-GSTLEARN_EXPORT int stats_proportion(DbGrid *dbin,
-                                     DbGrid *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius);
-GSTLEARN_EXPORT int stats_transition(DbGrid *dbin,
-                                     DbGrid *dbout,
-                                     int pos,
-                                     int nfacies,
-                                     int radius,
-                                     int orient);
 GSTLEARN_EXPORT int stats_residuals(int verbose,
                                     int nech,
                                     double *tab,

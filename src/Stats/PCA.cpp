@@ -14,6 +14,7 @@
 
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
@@ -225,7 +226,7 @@ int PCA::dbZ2F(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Factors","Factor");
+    dbStatisticsPrint(db, cols, {}, 1, 1, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
@@ -271,7 +272,7 @@ int PCA::dbF2Z(Db* db,
   {
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Variables", "Variable");
+    dbStatisticsPrint(db, cols, {}, 1, 1, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */

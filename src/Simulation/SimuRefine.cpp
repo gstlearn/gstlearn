@@ -29,7 +29,6 @@ SimuRefine::SimuRefine(int nbsimu, int seed)
     : ACalcSimulation(nbsimu, seed),
       _param(),
       _model(nullptr),
-      _ndim(0),
       _nx1(3),
       _dx1(3),
       _x01(3),
@@ -63,9 +62,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
   db1 = db2 = nullptr;
   db1 = dbin;
   law_set_random_seed(getSeed());
-  _ndim = dbin->getNDim();
   _param = param;
   _model = model;
+  int ndim = _getNDim();
 
   /* Store information from the input grid */
 
@@ -83,9 +82,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     VectorInt nx2 = _nx2;
     VectorDouble x02 = _x02;
     VectorDouble dx2 = _dx2;
-    nx2.resize(_ndim);
-    x02.resize(_ndim);
-    dx2.resize(_ndim);
+    nx2.resize(ndim);
+    x02.resize(ndim);
+    dx2.resize(ndim);
     db2 = DbGrid::create(nx2, dx2, x02, dbin->getGrid().getRotAngles(),
                          ELoadBy::SAMPLE, VectorDouble(),
                          VectorString(), VectorString(), 1);
@@ -115,9 +114,9 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
     VectorInt nx1 = _nx1;
     VectorDouble x01 = _x01;
     VectorDouble dx1 = _dx1;
-    nx1.resize(_ndim);
-    x01.resize(_ndim);
-    dx1.resize(_ndim);
+    nx1.resize(ndim);
+    x01.resize(ndim);
+    dx1.resize(ndim);
     db1 = DbGrid::create(nx1, dx1, x01, dbin->getGrid().getRotAngles(),
                          ELoadBy::SAMPLE, VectorDouble(),
                          VectorString(), VectorString(), 1);
@@ -145,30 +144,31 @@ DbGrid* SimuRefine::simulate(DbGrid *dbin, Model* model, const SimuRefineParam& 
 void SimuRefine::_dim_1_to_2(DbGrid *db)
 
 {
+  int ndim = _getNDim();
 
   /* Input file */
 
-  _nx1[0] = (_ndim >= 1) ? db->getNX(0) : 1;
-  _nx1[1] = (_ndim >= 2) ? db->getNX(1) : 1;
-  _nx1[2] = (_ndim >= 3) ? db->getNX(2) : 1;
-  _dx1[0] = (_ndim >= 1) ? db->getDX(0) : 1.;
-  _dx1[1] = (_ndim >= 2) ? db->getDX(1) : 1.;
-  _dx1[2] = (_ndim >= 3) ? db->getDX(2) : 1.;
-  _x01[0] = (_ndim >= 1) ? db->getX0(0) : 0.;
-  _x01[1] = (_ndim >= 2) ? db->getX0(1) : 0.;
-  _x01[2] = (_ndim >= 3) ? db->getX0(2) : 0.;
+  _nx1[0] = (ndim >= 1) ? db->getNX(0) : 1;
+  _nx1[1] = (ndim >= 2) ? db->getNX(1) : 1;
+  _nx1[2] = (ndim >= 3) ? db->getNX(2) : 1;
+  _dx1[0] = (ndim >= 1) ? db->getDX(0) : 1.;
+  _dx1[1] = (ndim >= 2) ? db->getDX(1) : 1.;
+  _dx1[2] = (ndim >= 3) ? db->getDX(2) : 1.;
+  _x01[0] = (ndim >= 1) ? db->getX0(0) : 0.;
+  _x01[1] = (ndim >= 2) ? db->getX0(1) : 0.;
+  _x01[2] = (ndim >= 3) ? db->getX0(2) : 0.;
 
   /* Output file */
 
-  _nx2[0] = (_ndim >= 1) ? _nx1[0] * 2 + 1 : 1;
-  _nx2[1] = (_ndim >= 2) ? _nx1[1] * 2 + 1 : 1;
-  _nx2[2] = (_ndim >= 3) ? _nx1[2]         : 1;
-  _dx2[0] = (_ndim >= 1) ? _dx1[0] / 2.    : 1.;
-  _dx2[1] = (_ndim >= 2) ? _dx1[1] / 2.    : 1.;
-  _dx2[2] = (_ndim >= 3) ? _dx1[2]         : 1.;
-  _x02[0] = (_ndim >= 1) ? _x01[0] - _dx2[0] : 0.;
-  _x02[1] = (_ndim >= 2) ? _x01[1] - _dx2[1] : 0.;
-  _x02[2] = (_ndim >= 3) ? _x01[2]           : 0.;
+  _nx2[0] = (ndim >= 1) ? _nx1[0] * 2 + 1 : 1;
+  _nx2[1] = (ndim >= 2) ? _nx1[1] * 2 + 1 : 1;
+  _nx2[2] = (ndim >= 3) ? _nx1[2]         : 1;
+  _dx2[0] = (ndim >= 1) ? _dx1[0] / 2.    : 1.;
+  _dx2[1] = (ndim >= 2) ? _dx1[1] / 2.    : 1.;
+  _dx2[2] = (ndim >= 3) ? _dx1[2]         : 1.;
+  _x02[0] = (ndim >= 1) ? _x01[0] - _dx2[0] : 0.;
+  _x02[1] = (ndim >= 2) ? _x01[1] - _dx2[1] : 0.;
+  _x02[2] = (ndim >= 3) ? _x01[2]           : 0.;
 }
 
 /****************************************************************************/
@@ -181,30 +181,31 @@ void SimuRefine::_dim_1_to_2(DbGrid *db)
 void SimuRefine::_dim_2_to_1(DbGrid *db)
 
 {
+  int ndim = _getNDim();
 
   /* Input file */
 
-  _nx2[0] = (_ndim >= 1) ? db->getNX(0) : 1;
-  _nx2[1] = (_ndim >= 2) ? db->getNX(1) : 1;
-  _nx2[2] = (_ndim >= 3) ? db->getNX(2) : 1;
-  _dx2[0] = (_ndim >= 1) ? db->getDX(0) : 1.;
-  _dx2[1] = (_ndim >= 2) ? db->getDX(1) : 1.;
-  _dx2[2] = (_ndim >= 3) ? db->getDX(2) : 1.;
-  _x02[0] = (_ndim >= 1) ? db->getX0(0) : 0.;
-  _x02[1] = (_ndim >= 2) ? db->getX0(1) : 0.;
-  _x02[2] = (_ndim >= 3) ? db->getX0(2) : 0.;
+  _nx2[0] = (ndim >= 1) ? db->getNX(0) : 1;
+  _nx2[1] = (ndim >= 2) ? db->getNX(1) : 1;
+  _nx2[2] = (ndim >= 3) ? db->getNX(2) : 1;
+  _dx2[0] = (ndim >= 1) ? db->getDX(0) : 1.;
+  _dx2[1] = (ndim >= 2) ? db->getDX(1) : 1.;
+  _dx2[2] = (ndim >= 3) ? db->getDX(2) : 1.;
+  _x02[0] = (ndim >= 1) ? db->getX0(0) : 0.;
+  _x02[1] = (ndim >= 2) ? db->getX0(1) : 0.;
+  _x02[2] = (ndim >= 3) ? db->getX0(2) : 0.;
 
   /* Output file */
 
-  _nx1[0] = (_ndim >= 1) ? _nx2[0] - 2 : 1;
-  _nx1[1] = (_ndim >= 2) ? _nx2[1] - 2 : 1;
-  _nx1[2] = (_ndim >= 3) ? _nx2[2]     : 1;
-  _dx1[0] = (_ndim >= 1) ? _dx2[0]     : 1.;
-  _dx1[1] = (_ndim >= 2) ? _dx2[1]     : 1.;
-  _dx1[2] = (_ndim >= 3) ? _dx2[2]     : 1.;
-  _x01[0] = (_ndim >= 1) ? _x02[0] + _dx2[0] : 0.;
-  _x01[1] = (_ndim >= 2) ? _x02[1] + _dx2[1] : 0.;
-  _x01[2] = (_ndim >= 3) ? _x02[2]           : 0.;
+  _nx1[0] = (ndim >= 1) ? _nx2[0] - 2 : 1;
+  _nx1[1] = (ndim >= 2) ? _nx2[1] - 2 : 1;
+  _nx1[2] = (ndim >= 3) ? _nx2[2]     : 1;
+  _dx1[0] = (ndim >= 1) ? _dx2[0]     : 1.;
+  _dx1[1] = (ndim >= 2) ? _dx2[1]     : 1.;
+  _dx1[2] = (ndim >= 3) ? _dx2[2]     : 1.;
+  _x01[0] = (ndim >= 1) ? _x02[0] + _dx2[0] : 0.;
+  _x01[1] = (ndim >= 2) ? _x02[1] + _dx2[1] : 0.;
+  _x01[2] = (ndim >= 3) ? _x02[2]           : 0.;
 }
 
 /****************************************************************************/
@@ -312,20 +313,21 @@ double SimuRefine::_read(DbGrid *db,
                          int idy,
                          int idz)
 {
-  VectorInt ind(_ndim,0);
-  if (_ndim >= 1)
+  int ndim = _getNDim();
+  VectorInt ind(ndim,0);
+  if (ndim >= 1)
   {
     int ix = ix0 + idx;
     if (ix < 0 || ix >= db->getNX(0)) ix = ix0 - idx;
     ind[0] = ix;
   }
-  if (_ndim >= 2)
+  if (ndim >= 2)
   {
     int iy = iy0 + idy;
     if (iy < 0 || iy >= db->getNX(1)) iy = iy0 - idy;
     ind[1] = iy;
   }
-  if (_ndim >= 3)
+  if (ndim >= 3)
   {
     int iz = iz0 + idz;
     if (iz < 0 || iz >= db->getNX(2)) iz = iz0 - idz;
@@ -396,7 +398,8 @@ int SimuRefine::_kriging_solve(int type,
                                bool verbose)
 {
   int neq = (_param.isFlagSK()) ? nb : nb + 1;
-  VectorDouble d1(_ndim);
+  int ndim = _getNDim();
+  VectorDouble d1(ndim);
   VectorDouble lhs(36);
   VectorDouble rhs(6);
 
@@ -408,9 +411,9 @@ int SimuRefine::_kriging_solve(int type,
   for (int i = 0; i < nb; i++)
     for (int j = 0; j < nb; j++)
     {
-      if (_ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
-      if (_ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
-      if (_ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
+      if (ndim >= 1) d1[0] = _XYZN[0][type][i] - _XYZN[0][type][j];
+      if (ndim >= 2) d1[1] = _XYZN[1][type][i] - _XYZN[1][type][j];
+      if (ndim >= 3) d1[2] = _XYZN[2][type][i] - _XYZN[2][type][j];
       model_calcul_cov(NULL, _model, mode, 1, 1., d1, &LHS(i,j));
     }
 
@@ -418,9 +421,9 @@ int SimuRefine::_kriging_solve(int type,
 
   for (int i = 0; i < nb; i++)
   {
-    if (_ndim >= 1) d1[0] = _XYZN[0][type][i];
-    if (_ndim >= 2) d1[1] = _XYZN[1][type][i];
-    if (_ndim >= 3) d1[2] = _XYZN[2][type][i];
+    if (ndim >= 1) d1[0] = _XYZN[0][type][i];
+    if (ndim >= 2) d1[1] = _XYZN[1][type][i];
+    if (ndim >= 3) d1[2] = _XYZN[2][type][i];
     model_calcul_cov(NULL, _model, mode, 1, 1., d1, &RHS(i));
   }
 
@@ -450,7 +453,7 @@ int SimuRefine::_kriging_solve(int type,
   /* Calculate the variance */
 
   mode.setMember(ECalcMember::VAR);
-  for (int i = 0; i < _ndim; i++) d1[i] = 0.;
+  for (int i = 0; i < ndim; i++) d1[i] = 0.;
   double var[2];
   model_calcul_cov(NULL,_model, mode, 1, 1., d1, &var[0]);
   matrix_product(1, neq, 1, rhs.data(),_WGT[type][rank], &var[1]);
@@ -545,4 +548,12 @@ void SimuRefine::_simulate_target(DbGrid *db,
 bool SimuRefine::_run()
 {
   return true;
+}
+
+int SimuRefine::_getNDim() const
+{
+  if (_model != nullptr)
+    return _model->getDimensionNumber();
+  else
+    return 0;
 }

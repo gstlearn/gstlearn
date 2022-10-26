@@ -60,11 +60,11 @@ private:
                         int ix0,
                         int iy0,
                         int iz0);
+  int _getNDim() const;
 
 private:
   SimuRefineParam _param;
   Model* _model;
-  int _ndim;
   VectorInt _nx1;
   VectorDouble _dx1;
   VectorDouble _x01;

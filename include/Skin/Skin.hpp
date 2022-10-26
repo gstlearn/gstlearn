@@ -37,12 +37,12 @@ private:
   int    _cellAlreadyFilled(int ipos);
   void   _cellModify(int rank, double energy);
   int    _cellAdd(int ipos, double energy);
+  int    _getNDim() const;
 
 private:
   const ISkinFunctions* _skf;
   DbGrid* _dbgrid;
   int _nxyz;
-  int _ndim;
   int _nval;
   int _date;
   int _nvalMax;

@@ -187,14 +187,15 @@ bool DriftList::isValid() const
   {
     const EDrift typei = getType(il);
     int ranki = getRankFex(il);
+
     for (int jl=0; jl<il; jl++)
     {
-      const EDrift typej = getType(il);
+      const EDrift typej = getType(jl);
       int rankj = getRankFex(jl);
 
       if (typei == EDrift::F)
       {
-        if (typei == typej && ranki == rankj)
+        if (typei.getValue() == typej.getValue() && ranki == rankj)
         {
           messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
           return false;
@@ -202,7 +203,7 @@ bool DriftList::isValid() const
       }
       else
       {
-        if (typei == typej)
+        if (typei.getValue() == typej.getValue())
         {
           messerr("Set of drift functions is invalid: %d and %d are similar",il+1, jl+1);
           return false;

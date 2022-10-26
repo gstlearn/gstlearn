@@ -12,7 +12,6 @@ CovDiffusionAdvection::CovDiffusionAdvection()
   , _scaleTime(1.)
   , _vel(VectorDouble())
   , _sigma2(1.)
-  , _ndim(2)
   , _globalCorrec(1.)
   , _spatialTrace(nullptr)
   , _ctxt(CovContext())
@@ -30,7 +29,6 @@ CovDiffusionAdvection::CovDiffusionAdvection(const CovDiffusionAdvection& r)
   , _scaleTime(r._scaleTime)
   , _vel(r._vel)
   , _sigma2(r._sigma2)
-  , _ndim(r._ndim)
   , _globalCorrec(r._globalCorrec)
   , _spatialTrace(r._spatialTrace)
   , _destroyMarkovL(true) /// TODO : Why not using r flags?
@@ -51,7 +49,6 @@ CovDiffusionAdvection& CovDiffusionAdvection::operator=(const CovDiffusionAdvect
     _scaleTime      = r._scaleTime;
     _vel            = r._vel;
     _sigma2         = r._sigma2;
-    _ndim           = r._ndim;
     _globalCorrec   = r._globalCorrec;
     _spatialTrace   = r._spatialTrace->clone();
     _destroyMarkovL = true; /// TODO : Why not using r flags?
@@ -103,9 +100,9 @@ void CovDiffusionAdvection::_init()
   double correcL = 1.;
 
   _ctxt = cova->getContext();
-  _ndim = cova->getNDim();
+  int ndim = cova->getNDim();
 
-  VectorDouble temp(_ndim,1.);
+  VectorDouble temp(ndim,1.);
   if (_markovL == nullptr)
   {
 
