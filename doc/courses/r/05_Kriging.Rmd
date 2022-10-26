@@ -26,6 +26,8 @@ In this preamble, we load the **gstlearn** library, clean the workspace.
 
 ```{r loading_library, message=FALSE}
 library(gstlearn)
+library(ggplot2)
+library(ggpubr)
 rm(list=ls())
 ```
 
@@ -223,6 +225,7 @@ err = xvalid(dat,fitmodOK,unique.neigh, flag_code=FALSE,
              rank_colcok=c(), 
              namconv=NamingConvention("Xvalid", 
                                       flag_varname=TRUE, flag_qualifier=TRUE,
+                                      flag_locator=FALSE, 
                                       locatorOutType=ELoc_UNKNOWN()))
 ```
 
