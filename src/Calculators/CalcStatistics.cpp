@@ -115,7 +115,8 @@ bool CalcStatistics::_run()
   if (_flagStats)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    calc_stats_grid(getDbin(), dbgrid, _oper, _radius, _iattOut);
+    VectorInt cols = getDbin()->getColIdxsByLocator(ELoc::Z);
+    db_stats_grid(getDbin(), dbgrid, _oper, cols, _radius, _iattOut);
   }
 
   if (_flagRegr)

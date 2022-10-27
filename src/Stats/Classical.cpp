@@ -287,7 +287,7 @@ double _getQuantile(VectorDouble &tab, int ntab, double proba)
   return (value);
 }
 
-VectorString statsNames(const std::vector<EStatOption>& opers)
+VectorString statOptionToName(const std::vector<EStatOption>& opers)
 {
   VectorString names;
   for (int i = 0; i < (int) opers.size(); i++)
@@ -296,6 +296,18 @@ VectorString statsNames(const std::vector<EStatOption>& opers)
     names.push_back(oper.getKey());
   }
   return names;
+}
+
+std::vector<EStatOption> KeysToStatOptions(const VectorString& opers)
+{
+  std::vector<EStatOption> options;
+
+  for (int i = 0; i < (int) opers.size(); i++)
+  {
+    EStatOption opt = EStatOption::fromKey(opers[i]);
+    if (opt != EStatOption::UNKNOWN) options.push_back(opt);
+  }
+  return options;
 }
 
 void dbStatisticsVariables(Db *db,
@@ -749,11 +761,7 @@ String statisticsMonoPrint(const VectorDouble &stats,
   int natt = static_cast<int>(names.size());
   std::stringstream sstr;
 
-  // Constitute the vector of row and column names
-  VectorString colnames = statsNames(opers);
-
-  // Printout the matrix
-  sstr << toMatrix(title, colnames, names, false, noper, natt, stats, true);
+  sstr << toMatrix(title, statOptionToName(opers), names, false, noper, natt, stats, true);
 
   return sstr.str();
 }

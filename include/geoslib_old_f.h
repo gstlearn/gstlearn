@@ -1247,31 +1247,23 @@ GSTLEARN_EXPORT int db_polygon_distance(Db *db,
 /* Prototyping the functions in stats.c */
 /****************************************/
 
-GSTLEARN_EXPORT int stats_point_to_grid(DbGrid *dbgrid,
-                                        Db *db,
-                                        const char *oper,
-                                        int ivar,
-                                        int jvar,
-                                        int ncut,
-                                        double *cuts,
-                                        double *tab);
-GSTLEARN_EXPORT void calc_stats_grid(Db *db,
-                                     DbGrid *dbgrid,
-                                     const EStatOption &oper,
-                                     int radius,
-                                     int iptr0);
-GSTLEARN_EXPORT int db_stats(Db *db,
-                             const String &oper,
-                             const VectorInt &cols,
-                             int flag_mono,
-                             int flag_verbose,
-                             double *result);
+GSTLEARN_EXPORT VectorDouble stats_point_to_grid(DbGrid *dbgrid,
+                                                 Db *db,
+                                                 const EStatOption &oper,
+                                                 int ivar,
+                                                 int jvar,
+                                                 const VectorDouble &cuts = VectorDouble());
 GSTLEARN_EXPORT int db_stats_grid(Db *db,
                                   DbGrid *dbgrid,
-                                  const char *oper,
-                                  int ncol,
-                                  int *cols,
-                                  int radius);
+                                  const EStatOption& oper,
+                                  const VectorInt& cols,
+                                  int radius,
+                                  int iptr0);
+GSTLEARN_EXPORT VectorDouble db_stats(Db *db,
+                                      const EStatOption& oper,
+                                      const VectorInt &cols,
+                                      bool flagMono = true,
+                                      bool verbose = false);
 GSTLEARN_EXPORT int stats_residuals(int verbose,
                                     int nech,
                                     double *tab,

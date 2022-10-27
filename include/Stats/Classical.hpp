@@ -29,7 +29,8 @@ typedef struct
 
 class Db;
 
-GSTLEARN_EXPORT VectorString statsNames(const std::vector<EStatOption>& opers);
+GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
+GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
 
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
