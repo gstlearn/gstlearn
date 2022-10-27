@@ -101,7 +101,7 @@ int main(int /*argc*/, char * /*argv*/[])
   ANeighParam* neighparam = nullptr;
   if (flag_moving)
   {
-    neighparam = NeighMoving::create(ndim, false, nmaxi, nbgh_radius);
+    neighparam = NeighMoving::create(false, nmaxi, nbgh_radius);
     neighparam->display();
   }
 

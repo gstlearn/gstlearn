@@ -416,7 +416,7 @@ VectorDouble Grid::getCellCoordinatesByCorner(int node,
                                               const VectorInt& shift,
                                               const VectorDouble& dxsPerCell) const
 {
-  VectorInt ranks;
+  VectorInt ranks(_nDim);
   rankToIndice(node, ranks);
   return getCoordinatesByIndice(ranks, true, shift, dxsPerCell);
 }

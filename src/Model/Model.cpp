@@ -1023,7 +1023,8 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   if (! ret) return ret;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
-  _ctxt = CovContext(nvar, ndim, field);
+  _ctxt = CovContext(nvar, ndim);
+  _ctxt.setField(field);
   _clear();
   _create();
 

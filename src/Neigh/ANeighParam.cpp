@@ -17,10 +17,9 @@
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
-ANeighParam::ANeighParam(int ndim, bool flag_xvalid)
-    : AStringable(),
+ANeighParam::ANeighParam(bool flag_xvalid, const ASpace* space)
+    : ASpaceObject(space),
       ASerializable(),
-      _nDim(ndim),
       _flagXvalid(flag_xvalid),
       _flagKFold(false)
 {
@@ -30,9 +29,8 @@ ANeighParam& ANeighParam::operator=(const ANeighParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator=(r);
+    ASpaceObject::operator=(r);
     ASerializable::operator=(r);
-    _nDim = r._nDim;
     _flagXvalid = r._flagXvalid;
     _flagKFold = r._flagKFold;
    }
@@ -44,12 +42,16 @@ ANeighParam::~ANeighParam()
 }
 
 ANeighParam::ANeighParam(const ANeighParam& r)
-    : AStringable(r),
+    : ASpaceObject(r),
       ASerializable(r),
-      _nDim(r._nDim),
       _flagXvalid(r._flagXvalid),
       _flagKFold(r._flagKFold)
 {
+}
+
+bool ANeighParam::isConsistent(const ASpace* /*space*/) const
+{
+  return true;
 }
 
 String ANeighParam::toString(const AStringFormat* /*strfmt*/) const
@@ -99,10 +101,15 @@ bool ANeighParam::_serialize(std::ostream& os, bool /*verbose*/) const
 
 bool ANeighParam::_isDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= _nDim)
+  if (idim < 0 || idim >= (int) getNDim())
   {
-    messerr("Error in 'idim'(%d). It should lie within [0,%d[",idim,_nDim);
+    messerr("Error in 'idim'(%d). It should lie within [0,%d[",idim,getNDim());
     return false;
   }
   return true;
+}
+
+void ANeighParam::setNDim(int ndim)
+{
+
 }

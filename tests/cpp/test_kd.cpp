@@ -145,7 +145,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nmini = 5;
   int nmaxi = 5;
   double radius = 1.;
-  NeighMoving* neigh = NeighMoving::create(ndim, false, nmaxi, radius, nmini);
+  NeighMoving* neigh = NeighMoving::create(false, nmaxi, radius, nmini);
   neigh->display();
 
   // ====================== Conditional Expectation =====================

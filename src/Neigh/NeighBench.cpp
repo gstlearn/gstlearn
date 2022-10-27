@@ -15,8 +15,8 @@
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
-NeighBench::NeighBench(int ndim, bool flag_xvalid, double width)
-    : ANeighParam(ndim, flag_xvalid),
+NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace* space)
+    : ANeighParam(flag_xvalid, space),
       _width(width)
 {
 }
@@ -39,15 +39,6 @@ NeighBench& NeighBench::operator=(const NeighBench& r)
 
 NeighBench::~NeighBench()
 {
-}
-
-int NeighBench::reset(int ndim, bool flag_xvalid, double width)
-{
-  setNDim(ndim);
-  setFlagXvalid(flag_xvalid);
-
-  _width = width;
-  return 0;
 }
 
 String NeighBench::toString(const AStringFormat* strfmt) const
@@ -78,16 +69,9 @@ bool NeighBench::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighBench* NeighBench::create(int ndim, bool flag_xvalid, double width)
+NeighBench* NeighBench::create(bool flag_xvalid, double width, const ASpace* space)
 {
-  NeighBench* neighB = new NeighBench;
-  if (neighB->reset(ndim, flag_xvalid, width))
-  {
-    messerr("Problem when creating Moving NeighBenchborhood");
-    delete neighB;
-    neighB =  nullptr;
-  }
-  return neighB;
+  return new NeighBench(flag_xvalid, width, space);
 }
 
 /**

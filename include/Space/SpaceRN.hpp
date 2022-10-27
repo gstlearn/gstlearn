@@ -30,6 +30,8 @@ public:
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static SpaceRN* create(unsigned int ndim);
+
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::SPACE_RN; }
   /// Move the given space point by the given vector

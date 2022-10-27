@@ -17,16 +17,20 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Space/ASpaceObject.hpp"
 
 class Db;
 
-class GSTLEARN_EXPORT ANeighParam: public AStringable, public ASerializable
+class GSTLEARN_EXPORT ANeighParam: public ASpaceObject, public ASerializable
 {
 public:
-  ANeighParam(int ndim = 2, bool flag_xvalid = false);
+  ANeighParam(bool flag_xvalid = false, const ASpace* space = nullptr);
   ANeighParam(const ANeighParam& r);
   ANeighParam& operator=(const ANeighParam& r);
   virtual ~ANeighParam();
+
+  /// ASpaceObject Interface
+  virtual bool isConsistent(const ASpace* space) const override;
 
   // AStringable Interface overriding
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
@@ -36,12 +40,10 @@ public:
   virtual ENeigh getType() const = 0;
   virtual bool getFlagContinuous() const { return false; }
 
-  int getNDim() const { return _nDim; }
   bool getFlagXvalid() const { return _flagXvalid; }
   bool getFlagKFold() const { return _flagKFold; }
 
   void setFlagXvalid(bool flagXvalid) { _flagXvalid = flagXvalid; }
-  void setNDim(int dim) { _nDim = dim; }
   void setFlagKFold(bool flagKFold) { _flagKFold = flagKFold; }
 
 protected:
@@ -49,12 +51,12 @@ protected:
   virtual bool _deserialize(std::istream& is, bool verbose = false) override;
   virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
   String _getNFName() const override { return "ANeighParam"; }
+  void setNDim(int ndim);
 
 private:
   bool _isDimensionValid(int idim) const;
 
 private:
-  int  _nDim;                    /* Space dimension */
   bool _flagXvalid;              /* True to suppress the target */
   bool _flagKFold;               /* True to perform a KFold Cross-validation */
 };

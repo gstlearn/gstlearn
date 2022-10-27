@@ -67,7 +67,7 @@ plot.varmod(vario2dir, fitmodOK)
 Define the Unique Neighborhood **unique.neigh**:
 
 ```{r Neighborhood}
-unique.neigh = NeighUnique(ndim = 2)
+unique.neigh = NeighUnique()
 ```
 
 Get the extension of the Data:

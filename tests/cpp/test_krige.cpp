@@ -171,15 +171,15 @@ int main(int /*argc*/, char */*argv*/[])
   model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
+  NeighImage* neighI = NeighImage::create({2,2}, 2);
   neighI->display();
 
   // Creating a Moving Neighborhood
-  NeighMoving* neighM = NeighMoving::create(ndim, false, 25);
+  NeighMoving* neighM = NeighMoving::create(false, 25);
   neighM->display();
 
   // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim,false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // ====================== Testing Neighborhood Storage ===========================

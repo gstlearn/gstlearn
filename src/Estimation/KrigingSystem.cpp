@@ -35,6 +35,7 @@
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Space/SpaceRN.hpp"
 
 #include <math.h>
 
@@ -2645,12 +2646,12 @@ bool KrigingSystem::_isCorrect()
   }
   if (_neighParam != nullptr)
   {
-    if (ndim > 0 && ndim != _neighParam->getNDim())
+    if (ndim > 0 && ndim != (int)_neighParam->getNDim())
     {
       messerr("Incompatible Space Dimension of '_neighParam'");
       return false;
     }
-    ndim = _neighParam->getNDim();
+    ndim = (int)_neighParam->getNDim();
   }
 
   /****************************/
@@ -3237,7 +3238,7 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
 
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create(false, SpaceRN::create(ndim));
   _nbghWork.initialize(dbaux, neighU);
 
   _iechOut = dbaux->getSampleNumber() / 2;

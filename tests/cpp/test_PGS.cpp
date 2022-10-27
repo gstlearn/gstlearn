@@ -86,7 +86,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model2.dumpToNF("truemodel2.ascii");
 
   // Creating the Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // Creating the Rule

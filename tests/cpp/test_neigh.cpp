@@ -50,7 +50,7 @@ int main(int /*argc*/, char */*argv*/[])
   target->display();
 
   // Creating a Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // Initializing the Neighborhood search
@@ -71,7 +71,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating a Moving Neighborhood
   int nmaxi = 5;
   double radius = 30.;
-  NeighMoving* neighM = NeighMoving::create(ndim, false, nmaxi, radius);
+  NeighMoving* neighM = NeighMoving::create(false, nmaxi, radius);
   neighM->display();
 
   // Initializing the Neighborhood search

@@ -49,10 +49,11 @@
 #include "Simulation/SimuRefineParam.hpp"
 #include "Simulation/SimuRefine.hpp"
 #include "Simulation/CalcSimuEden.hpp"
+#include "Simulation/CalcSimuFFT.hpp"
+#include "Space/SpaceRN.hpp"
 
 #include <math.h>
 #include <string.h>
-#include <Simulation/CalcSimuFFT.hpp>
 
 /*! \cond */
 #define DATA   0
@@ -458,9 +459,9 @@ static int st_check_simtub_environment(Db *dbin,
 
   if (flag_cond && neighparam != nullptr)
   {
-    if (neighparam->getNDim() != ndim)
+    if (ndim != (int) neighparam->getNDim())
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", neighparam->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       return 1;
@@ -2600,7 +2601,7 @@ int simcond(Db *dbin,
 
   /* Preliminary checks */
 
-  neighparam = NeighUnique::create(ndim,false);
+  neighparam = NeighUnique::create(false, SpaceRN::create(ndim));
   law_set_random_seed(seed);
   if (st_check_simtub_environment(dbin, dbout, model, NULL)) goto label_end;
   if (manage_external_info(1, ELoc::F, dbin, dbout, &iext)) goto label_end;

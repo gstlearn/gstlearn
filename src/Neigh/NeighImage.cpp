@@ -17,8 +17,8 @@
 #include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
-NeighImage::NeighImage(int ndim, const VectorInt& radius, int skip)
-    : ANeighParam(ndim),
+NeighImage::NeighImage(const VectorInt& radius, int skip, const ASpace* space)
+    : ANeighParam(false, space),
       _skip(skip),
       _imageRadius(radius)
 {
@@ -46,20 +46,6 @@ NeighImage::~NeighImage()
 {
 }
 
-int NeighImage::reset(int ndim, const VectorInt& image, int skip)
-{
-  setNDim(ndim);
-  _skip = skip;
-
-  int radius = 1;
-  if (! image.empty()) radius = image[0];
-  if ((int) image.size() != ndim)
-    _imageRadius.resize(ndim,radius);
-  else
-    _imageRadius = image;
-  return 0;
-}
-
 String NeighImage::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
@@ -80,7 +66,7 @@ bool NeighImage::_deserialize(std::istream& is, bool verbose)
 
   ret = ret && ANeighParam::_deserialize(is, verbose);
   ret = ret && _recordRead<int>(is, "Skipping factor", _skip);
-  for (int idim = 0; ret && idim < getNDim(); idim++)
+  for (int idim = 0; ret && idim < (int) getNDim(); idim++)
   {
     double loc_radius = 0.;
     ret = ret && _recordRead<double>(is, "Image NeighImageborhood Radius",
@@ -96,22 +82,15 @@ bool NeighImage::_serialize(std::ostream& os, bool verbose) const
   bool ret = true;
   ret = ret && ANeighParam::_serialize(os, verbose);
   ret = ret && _recordWrite<int>(os, "", getSkip());
-  for (int idim = 0; ret && idim < getNDim(); idim++)
+  for (int idim = 0; ret && idim < (int) getNDim(); idim++)
     ret = ret && _recordWrite<double>(os, "", (double) getImageRadius(idim));
   ret = ret && _commentWrite(os, "Image NeighImageborhood parameters");
   return ret;
 }
 
-NeighImage* NeighImage::create(int ndim, const VectorInt& image, int skip)
+NeighImage* NeighImage::create(const VectorInt& image, int skip, const ASpace* space)
 {
-  NeighImage* neighI = new NeighImage;
-  if (neighI->reset(ndim, image, skip))
-  {
-    messerr("Problem when creating Image NeighImageborhood");
-    delete neighI;
-    neighI = nullptr;
-  }
-  return neighI;
+  return new NeighImage(image, skip, space);
 }
 
 /**
@@ -146,7 +125,7 @@ NeighImage* NeighImage::createFromNF(const String& neutralFilename, bool verbose
 int NeighImage::getMaxSampleNumber(const Db* /*db*/) const
 {
   int nmax = 1;
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (int idim = 0; idim < (int) getNDim(); idim++)
     nmax *= (2 * _imageRadius[idim] + 1);
   return nmax;
 }

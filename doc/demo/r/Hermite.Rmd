@@ -13,6 +13,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
+library(ggplot2)
 OptCst_defineByKey("ASP",0)
 ```
 

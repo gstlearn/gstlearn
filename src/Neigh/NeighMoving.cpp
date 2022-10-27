@@ -20,21 +20,48 @@
 
 #include <math.h>
 
-NeighMoving::NeighMoving(int ndim, bool flag_xvalid)
-    : ANeighParam(ndim, flag_xvalid),
+NeighMoving::NeighMoving(bool flag_xvalid,
+                         int nmaxi,
+                         double radius,
+                         int nmini,
+                         int nsect,
+                         int nsmax,
+                         VectorDouble coeffs,
+                         VectorDouble angles,
+                         double distcont,
+                         const Faults *faults,
+                         const ASpace *space)
+    : ANeighParam(flag_xvalid, space),
       _flagAniso(0),
       _flagRotation(0),
-      _nMini(1),
-      _nMaxi(0),
-      _nSect(1),
-      _nSMax(0),
+      _nMini(nmini),
+      _nMaxi(nmaxi),
+      _nSect(nsect),
+      _nSMax(nsmax),
       _forceWithinBlock(false),
-      _radius(0.),
-      _distCont(TEST),
+      _radius(radius),
+      _distCont(distcont),
       _anisoCoeffs(),
       _anisoRotMat(),
-      _faults(nullptr)
+      _faults(faults)
 {
+  _radius = radius;
+  _distCont = distcont;
+
+  if (! coeffs.empty())
+  {
+    //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
+    _flagAniso = 1;
+    _anisoCoeffs = coeffs;
+
+    if (! angles.empty())
+    {
+      int ndim = getNDim();
+      _flagRotation = (ut_vector_constant(angles, 0.)) ? 0 : 1;
+      _anisoRotMat.resize(ndim * ndim);
+      ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
+    }
+  }
 }
 
 NeighMoving::NeighMoving(const NeighMoving& r)
@@ -77,48 +104,6 @@ NeighMoving& NeighMoving::operator=(const NeighMoving& r)
 
 NeighMoving::~NeighMoving()
 {
-}
-
-int NeighMoving::reset(int ndim,
-                       bool flag_xvalid,
-                       int nmaxi,
-                       double radius,
-                       int nmini,
-                       int nsect,
-                       int nsmax,
-                       VectorDouble coeffs,
-                       VectorDouble angles,
-                       double distcont,
-                       const Faults* faults)
-{
-  setNDim(ndim);
-  setFlagXvalid(flag_xvalid);
-
-  _nMini = nmini;
-  _nMaxi = nmaxi;
-  _nSect = nsect;
-  _nSMax = nsmax;
-  _radius = radius;
-  _distCont = distcont;
-
-  if (! coeffs.empty())
-  {
-    //    _flagAniso = (ut_vector_constant(coeffs)) ? 0 : 1;
-    _flagAniso = 1;
-    _anisoCoeffs = coeffs;
-
-    if (! angles.empty())
-    {
-      _flagRotation = (ut_vector_constant(angles, 0.)) ? 0 : 1;
-      _anisoRotMat.resize(ndim * ndim);
-      ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
-    }
-  }
-
-  // Attach the Faults (if defined)
-
-  _faults = faults;
-  return 0;
 }
 
 void NeighMoving::setForceWithinBlock(bool forceWithinBlock)
@@ -245,9 +230,9 @@ bool NeighMoving::_deserialize(std::istream& is, bool verbose)
   if (getFlagAniso() && !nbgh_coeffs.empty())
   {
     setRadius(0.);
-    for (int i = 0; i < getNDim(); i++)
+    for (int i = 0; i < (int) getNDim(); i++)
       setRadius(MAX(getRadius(), nbgh_coeffs[i]));
-    for (int i = 0; i < getNDim(); i++)
+    for (int i = 0; i < (int) getNDim(); i++)
       setAnisoCoeff(i, nbgh_coeffs[i] / getRadius());
   }
   if (getFlagRotation() && !nbgh_rotmat.empty())
@@ -272,15 +257,15 @@ bool NeighMoving::_serialize(std::ostream& os, bool verbose) const
 
   if (getFlagAniso())
   {
-    for (int idim = 0; ret && idim < getNDim(); idim++)
+    for (int idim = 0; ret && idim < (int) getNDim(); idim++)
       ret = ret && _recordWrite<double>(os, "", getAnisoCoeff(idim));
     ret = ret && _commentWrite(os, "Anisotropy Coefficients");
     ret = ret && _recordWrite<int>(os, "Anisotropy Rotation Flag", getFlagRotation());
     if (getFlagRotation())
     {
       int ecr = 0;
-      for (int idim = 0; ret && idim < getNDim(); idim++)
-        for (int jdim = 0; ret && jdim < getNDim(); jdim++)
+      for (int idim = 0; ret && idim < (int) getNDim(); idim++)
+        for (int jdim = 0; ret && jdim < (int) getNDim(); jdim++)
           ret = ret && _recordWrite<double>(os, "", getAnisoRotMat(ecr++));
       ret = ret && _commentWrite(os, "Anisotropy Rotation Matrix");
     }
@@ -290,7 +275,7 @@ bool NeighMoving::_serialize(std::ostream& os, bool verbose) const
 
 void NeighMoving::setAnisoCoeff(int idim, double value)
 {
-  if ((int) _anisoCoeffs.size() != getNDim())
+  if (_anisoCoeffs.size() != getNDim())
     _anisoCoeffs.resize(getNDim(),1.);
   _anisoCoeffs[idim] = value;
 }
@@ -298,12 +283,11 @@ void NeighMoving::setAnisoCoeff(int idim, double value)
 void NeighMoving::anisoRescale()
 {
   if (FFFF(_radius)) return;
-  for (int idim = 0; idim < getNDim(); idim++)
+  for (int idim = 0; idim < (int) getNDim(); idim++)
     _anisoCoeffs[idim] /= _radius;
 }
 
-NeighMoving* NeighMoving::create(int ndim,
-                                 bool flag_xvalid,
+NeighMoving* NeighMoving::create(bool flag_xvalid,
                                  int nmaxi,
                                  double radius,
                                  int nmini,
@@ -312,17 +296,11 @@ NeighMoving* NeighMoving::create(int ndim,
                                  VectorDouble coeffs,
                                  VectorDouble angles,
                                  double distcont,
-                                 const Faults* faults)
+                                 const Faults* faults,
+                                 const ASpace* space)
 {
-  NeighMoving* neighM = new NeighMoving;
-  if (neighM->reset(ndim, flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
-                    coeffs, angles, distcont, faults))
-  {
-    messerr("Problem when creating Moving NeighMovingborhood");
-    delete neighM;
-    neighM = nullptr;
-  }
-  return neighM;
+  return new NeighMoving(flag_xvalid, nmaxi, radius, nmini, nsect, nsmax,
+                         coeffs, angles, distcont, faults, space);
 }
 
 /**

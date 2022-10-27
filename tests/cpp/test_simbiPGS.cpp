@@ -98,7 +98,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model4.dumpToNF("PGSmodel4.ascii");
 
   // Creating the Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // Creating the Rules

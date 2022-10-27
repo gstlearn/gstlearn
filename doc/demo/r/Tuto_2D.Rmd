@@ -13,6 +13,8 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 rm(list=ls())
 library(gstlearn)
+library(ggplot2)
+library(ggpubr)
 ```
 
 Global variables
@@ -183,10 +185,10 @@ if (verbose)
 
 # Defining the Neighborhood
 
-We initiate a Neigborhood (Moving with a small number of samples for Demonstration)
+We initiate a Neigbourhood (Moving with a small number of samples for Demonstration)
 
 ```{r}
-myneigh = NeighMoving_create(ndim=2,flag_xvalid=FALSE,nmaxi=6,radius=10)
+myneigh = NeighMoving_create(flag_xvalid=FALSE,nmaxi=6,radius=10)
 if (verbose)
     myneigh$display()
 ```
@@ -250,7 +252,7 @@ The Neighborhood is changed into a Unique Neighborhood.
 
 ```{r}
 mydb$setLocator("Pb",ELoc_Z())
-myneigh = NeighUnique_create(2)
+myneigh = NeighUnique_create()
 err = kriging(mydb,mygrid,mymodel,myneigh)
 if (verbose)
     mygrid$display()

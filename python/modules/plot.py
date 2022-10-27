@@ -987,6 +987,9 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
     if filetype == "tuple":
         tabx = data1[0]
         taby = data1[1]
+    elif filetype == "ndarray" and len(data1) == 2:
+        tabx = data1[0]
+        taby = data1[1]
     else:
         nbpoint = len(data1)
         if data2 is not None:
@@ -1003,7 +1006,7 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False,
             else:
                 tabx = regular
                 taby = data1
-            
+    
     ax.plot(tabx, taby, **plot_args)
     
     drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, 

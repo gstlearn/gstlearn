@@ -18,6 +18,7 @@ specified in order to use gstlearn package under R.
 
 ```{r}
 library(gstlearn)
+library(ggplot2)
 ```
 
 # Demonstration

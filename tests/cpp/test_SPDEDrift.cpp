@@ -58,7 +58,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model->fit(vario,structs,constraints);
   model->display();
 
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   ASerializable::setContainerName(true);

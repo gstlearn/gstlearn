@@ -96,7 +96,7 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != _neighparam->getNDim())
+      if (ndim != (int) _neighparam->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
@@ -106,7 +106,7 @@ bool ACalcInterpolator::_check()
     }
     else
     {
-      ndim = _neighparam->getNDim();
+      ndim = (int) _neighparam->getNDim();
     }
   }
 

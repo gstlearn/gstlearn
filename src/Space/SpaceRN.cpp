@@ -31,6 +31,11 @@ SpaceRN::~SpaceRN()
 {
 }
 
+SpaceRN* SpaceRN::create(unsigned int ndim)
+{
+  return new SpaceRN(ndim);
+}
+
 void SpaceRN::move(SpacePoint& p1,
                    const VectorDouble& vec) const
 {

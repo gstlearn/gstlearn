@@ -70,7 +70,7 @@ int main(int /*argc*/, char */*argv*/[])
   dat->addColumns(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  NeighUnique* neighU = NeighUnique::create(2,false);
+  NeighUnique* neighU = NeighUnique::create();
 
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);
