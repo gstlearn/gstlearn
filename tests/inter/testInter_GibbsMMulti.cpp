@@ -134,7 +134,7 @@ int main(int /*argc*/, char */*argv*/[])
   if (storeVario)
   {
     VarioParam varioparam;
-    std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(ndim, nlag);
+    std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(nlag);
     varioparam.addMultiDirs(dirparams);
     VectorString names = db->getNames("gausfac*");
     for (int isimu = 0; isimu < (int) names.size(); isimu++)

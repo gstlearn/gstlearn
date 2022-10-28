@@ -16,11 +16,11 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Geometry/Geometry.hpp"
+#include "Space/ASpace.hpp"
 
 #include <math.h>
 
-DirParam::DirParam(int ndim,
-                   int npas,
+DirParam::DirParam(int npas,
                    double dpas,
                    double toldis,
                    double tolang,
@@ -31,9 +31,9 @@ DirParam::DirParam(int ndim,
                    double tolcode,
                    const VectorDouble& breaks,
                    const VectorDouble& codir,
-                   const VectorInt& grincr)
-    : AStringable(),
-      _ndim(ndim),
+                   const VectorInt& grincr,
+                   const ASpace* space)
+    : ASpaceObject(space),
       _nPas(npas),
       _optionCode(opt_code),
       _idate(idate),
@@ -52,8 +52,7 @@ DirParam::DirParam(int ndim,
 }
 
 DirParam::DirParam(const DirParam& r)
-    : AStringable(r),
-      _ndim(r._ndim),
+    : ASpaceObject(r),
       _nPas(r._nPas),
       _optionCode(r._optionCode),
       _idate(r._idate),
@@ -74,8 +73,7 @@ DirParam& DirParam::operator=(const DirParam& r)
 {
   if (this != &r)
   {
-    AStringable::operator=(r);
-    _ndim = r._ndim;
+    ASpaceObject::operator=(r);
     _nPas = r._nPas;
     _optionCode = r._optionCode;
     _idate = r._idate;
@@ -97,8 +95,7 @@ DirParam::~DirParam()
 {
 }
 
-DirParam* DirParam::create(int ndim,
-                           int npas,
+DirParam* DirParam::create(int npas,
                            double dpas,
                            double toldis,
                            double tolang,
@@ -108,14 +105,14 @@ DirParam* DirParam::create(int ndim,
                            double cylrad,
                            double tolcode,
                            const VectorDouble& breaks,
-                           const VectorDouble& codir)
+                           const VectorDouble& codir,
+                           const ASpace* space)
 {
-  return new DirParam(ndim, npas, dpas, toldis, tolang, opt_code, idate,
-                      bench, cylrad, tolcode, breaks, codir, VectorInt());
+  return new DirParam(npas, dpas, toldis, tolang, opt_code, idate,
+                      bench, cylrad, tolcode, breaks, codir, VectorInt(), space);
 }
 
-DirParam* DirParam::createOmniDirection(int ndim,
-                                        int npas,
+DirParam* DirParam::createOmniDirection(int npas,
                                         double dpas,
                                         double toldis,
                                         int opt_code,
@@ -123,16 +120,19 @@ DirParam* DirParam::createOmniDirection(int ndim,
                                         double bench,
                                         double cylrad,
                                         double tolcode,
-                                        const VectorDouble& breaks)
+                                        const VectorDouble& breaks,
+                                        const ASpace* space)
 {
-  return new DirParam(ndim, npas, dpas, toldis, 90.1, opt_code, idate,
-                      bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt());
+  return new DirParam(npas, dpas, toldis, 90.1, opt_code, idate,
+                      bench, cylrad, tolcode, breaks, VectorDouble(), VectorInt(), space);
 }
 
-DirParam* DirParam::createFromGrid(int ndim, int npas, const VectorInt& grincr)
+DirParam* DirParam::createFromGrid(int npas,
+                                   const VectorInt &grincr,
+                                   const ASpace *space)
 {
-  return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0, TEST, TEST, 0.,
-                      VectorDouble(), VectorDouble(), grincr);
+  return new DirParam(npas, 0., 0.5, 90., 0, 0, TEST, TEST, 0.,
+                      VectorDouble(), VectorDouble(), grincr, space);
 }
 
 double DirParam::getBreak(int i) const
@@ -162,11 +162,13 @@ void DirParam::_completeDefinition()
     if (_breaks.size() < 2) _breaks.clear();
   }
 
+  int ndim = getNDim();
+
   bool flagPoint = true;
   if (_codir.empty())
   {
     flagPoint = false;
-    _codir.resize(_ndim,0.);
+    _codir.resize(ndim,0.);
     _codir[0] = 1.;
   }
 
@@ -174,7 +176,7 @@ void DirParam::_completeDefinition()
   if (_grincr.empty())
   {
     flagGrid = false;
-    _grincr.resize(_ndim,0);
+    _grincr.resize(ndim,0);
     _grincr[0] = 1;
   }
 
@@ -188,9 +190,9 @@ void DirParam::_completeDefinition()
 
 bool DirParam::isDimensionValid(int idim) const
 {
-  if (idim < 0 || idim >= getDimensionNumber())
+  if (idim < 0 || idim >= (int) getNDim())
   {
-    mesArg("Space Dimension",idim,getDimensionNumber());
+    mesArg("Space Dimension",idim,getNDim());
     return false;
   }
   return true;
@@ -216,7 +218,7 @@ void DirParam::setDPas(const DbGrid* db)
 {
   if (_grincr.empty()) return;
   double dpas = 0;
-  for (int idim = 0; idim < _ndim; idim++)
+  for (int idim = 0; idim < (int) getNDim(); idim++)
   {
     double delta = _grincr[idim] * db->getDX(idim);
     dpas += delta * delta;
@@ -242,10 +244,15 @@ double DirParam::getMaximumDistance() const
   return (maxdist);
 }
 
+bool DirParam::isConsistent(const ASpace* /*space*/) const
+{
+  return true;
+}
+
 String DirParam::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  int ndim = getDimensionNumber();
+  int ndim = getNDim();
 
   if (getLagNumber() > 0)
     sstr << "Number of lags              = " << getLagNumber() << std::endl;
@@ -311,12 +318,15 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-std::vector<DirParam> DirParam::createMultiple(int ndim,
-                                               int ndir,
+std::vector<DirParam> DirParam::createMultiple(int ndir,
                                                int npas,
                                                double dpas,
-                                               double toldis)
+                                               double toldis,
+                                               const ASpace* space)
 {
+  int ndim = getDefaultSpaceDimension();
+  if (space != nullptr) ndim = space->getNDim();
+
   VectorDouble angles = VectorDouble(1);
   VectorDouble codir  = VectorDouble(ndim);
   std::vector<DirParam> dirs;
@@ -324,16 +334,19 @@ std::vector<DirParam> DirParam::createMultiple(int ndim,
   {
     angles[0] = 180. * (double) idir / (double) ndir;
     (void) ut_angles_to_codir(ndim, 1, angles,codir);
-    DirParam dirparam = DirParam(ndim, npas, dpas, toldis);
-    dirparam.setTolAngle(90. / (double) ndir);
-    dirparam.setCodir(codir);
+    double tolang = 90. / (double) ndir;
+    DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
+                                 VectorDouble(), codir, VectorInt(), space);
     dirs.push_back(dirparam);
   }
   return dirs;
 }
 
-std::vector<DirParam> DirParam::createMultipleFromGrid(int ndim, int npas)
+std::vector<DirParam> DirParam::createMultipleFromGrid(int npas, const ASpace* space)
 {
+  int ndim = getDefaultSpaceDimension();
+  if (space != nullptr) ndim = space->getNDim();
+
   VectorInt grincr = VectorInt(ndim);
   std::vector<DirParam> dirs;
   int ndir = ndim;
@@ -341,7 +354,7 @@ std::vector<DirParam> DirParam::createMultipleFromGrid(int ndim, int npas)
   {
     ut_ivector_fill(grincr, 0);
     grincr[idir] = 1;
-    DirParam* dirparam = DirParam::createFromGrid(ndim, npas, grincr);
+    DirParam* dirparam = DirParam::createFromGrid(npas, grincr, space);
     dirs.push_back(*dirparam);
   }
   return dirs;

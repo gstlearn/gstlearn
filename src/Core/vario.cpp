@@ -3494,7 +3494,7 @@ int variogram_direction_add(VarioParam *varioparam,
                             const VectorInt &grincr)
 {
   if (varioparam == (VarioParam*) NULL) return (1);
-  DirParam dirparam = DirParam(varioparam->getDimensionNumber(), npas, dpas,
+  DirParam dirparam = DirParam(npas, dpas,
                                toldis, tolang, opt_code, idate, bench, cylrad,
                                tolcode, breaks, codir, grincr);
   varioparam->addDir(dirparam);

@@ -107,12 +107,12 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Design of several VarioParams
   int nlag1 = 19;
-  DirParam dirparam1 = DirParam(ndim, nlag1, 0.5 / nlag1);
+  DirParam dirparam1 = DirParam(nlag1, 0.5 / nlag1);
   VarioParam varioparam1;
   varioparam1.addDir(dirparam1);
 
   int nlag2 = 3;
-  DirParam dirparam2 = DirParam(ndim, nlag2, 0.1 );
+  DirParam dirparam2 = DirParam(nlag2, 0.1 );
   VarioParam varioparam2;
   varioparam2.addDir(dirparam2);
 

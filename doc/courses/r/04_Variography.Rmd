@@ -56,7 +56,7 @@ where $N(h)$ is the number of pairs of points distant by $h$
 
 
 ```{r Variogram_Cloud}
-varioParamOmni = VarioParam_createOmniDirection(2, 100)
+varioParamOmni = VarioParam_createOmniDirection(100)
 grid.cloud = db_variogram_cloud(dat, varioParamOmni)
 grid.cloud$display()
 plot.grid(grid.cloud, name="Cloud.January*")
@@ -69,7 +69,7 @@ plot.grid(grid.cloud, name="Cloud.January*")
 We calculate the omni-directional variogram of the temperatures.
 
 ```{r Experimental_Variogram}
-varioParamOmni = VarioParam_createOmniDirection(2, 40, 10)
+varioParamOmni = VarioParam_createOmniDirection(40, 10)
 varioexp = Vario(varioParamOmni, dat)
 err = varioexp$compute()
 ```
@@ -186,7 +186,7 @@ fitmod
 \frametitle{Directional Variograms}
 
 ```{r Directional_Variograms}
-varioParamMulti = VarioParam_createMultiple(2, 4, 15, 15.)
+varioParamMulti = VarioParam_createMultiple(4, 15, 15.)
 vario.4dir = Vario(varioParamMulti, dat)
 err = vario.4dir$compute()
 plot.varmod(vario.4dir)

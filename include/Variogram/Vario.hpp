@@ -222,14 +222,14 @@ public:
   double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
   int getDateNumber() const { return _varioparam.getDateNumber(); }
   double getScale() const { return _varioparam.getScale(); }
-  int getDimensionNumber() const { return getDirParam(0).getDimensionNumber(); }
+  int getDimensionNumber() const { return getDirParam(0).getNDim(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
   void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }
 
   int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
-  int getDimensionNumber(int idir) const { return getDirParam(idir).getDimensionNumber(); }
+  int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
   const VectorDouble& getCodir(int idir) const { return getDirParam(idir).getCodir(); }
   double getCodir(int idir, int idim) const { return getDirParam(idir).getCodir(idim); }
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }

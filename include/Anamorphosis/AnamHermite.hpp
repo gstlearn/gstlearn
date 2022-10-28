@@ -78,8 +78,7 @@ public:
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
 
-  int    fit(const VectorDouble& tab,
-             const VectorDouble& wt = VectorDouble());
+  int    fit(const VectorDouble &tab, const VectorDouble &wt = VectorDouble());
   int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
   int    fit(Db *db, const String& name);
 

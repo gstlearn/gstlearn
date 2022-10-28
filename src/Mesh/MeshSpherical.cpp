@@ -23,10 +23,10 @@
 
 #include "csparse_f.h"
 
-MeshSpherical::MeshSpherical()
+MeshSpherical::MeshSpherical(const MatrixRectangular& apices, const MatrixInt& meshes)
   : AMesh()
-  , _apices()
-  , _meshes()
+  , _apices(apices)
+  , _meshes(meshes)
 {
 }
 
@@ -114,7 +114,7 @@ String MeshSpherical::toString(const AStringFormat* strfmt) const
 ** \param[in]  verbose         Verbose flag
 **
 *****************************************************************************/
-int MeshSpherical::reset(Db* dbin,
+int MeshSpherical::resetFromDb(Db* dbin,
                          Db *dbout,
                          const String& triswitch,
                          int verbose)
@@ -232,6 +232,12 @@ MeshSpherical* MeshSpherical::createFromNF(const String& neutralFilename, bool v
     mesh = nullptr;
   }
   return mesh;
+}
+
+MeshSpherical* MeshSpherical::create(const MatrixRectangular &apices,
+                                     const MatrixInt &meshes)
+{
+  return new MeshSpherical(apices, meshes);
 }
 
 /****************************************************************************/

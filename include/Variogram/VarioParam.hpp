@@ -45,8 +45,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
-  static VarioParam* createOmniDirection(int ndim = 2,
-                                         int npas = 10,
+  static VarioParam* createOmniDirection(int npas = 10,
                                          double dpas = 1.,
                                          double toldis = 0.5,
                                          int opt_code = 0,
@@ -56,18 +55,19 @@ public:
                                          double tolcode = 0.,
                                          const VectorDouble& breaks = VectorDouble(),
                                          double scale = 0.,
-                                         const VectorDouble& dates = VectorDouble());
-  static VarioParam* createMultiple(int ndim,
-                                    int ndir,
+                                         const VectorDouble& dates = VectorDouble(),
+                                         const ASpace* space = nullptr);
+  static VarioParam* createMultiple(int ndir,
                                     int npas = 10,
                                     double dpas = 1.,
                                     double toldis = 0.5,
                                     double scale = 0.,
-                                    const VectorDouble& dates = VectorDouble());
-  static VarioParam* createMultipleFromGrid(int ndim,
-                                            int npas,
+                                    const VectorDouble& dates = VectorDouble(),
+                                    const ASpace* space = nullptr);
+  static VarioParam* createMultipleFromGrid(int npas,
                                             double scale = 0.,
-                                            const VectorDouble& dates = VectorDouble());
+                                            const VectorDouble& dates = VectorDouble(),
+                                            const ASpace* space = nullptr);
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);

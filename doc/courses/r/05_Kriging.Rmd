@@ -42,7 +42,7 @@ dat = Db_createFromNF(fileNF)
 Calculate the experimental variogram **vario2dir** (in 2 directions)
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
-varioParamMulti = VarioParam_createMultiple(2, 2, 15, 15.)
+varioParamMulti = VarioParam_createMultiple(2, 15, 15.)
 vario2dir = Vario(varioParamMulti, dat)
 err = vario2dir$compute()
 ```
@@ -225,8 +225,7 @@ err = xvalid(dat,fitmodOK,unique.neigh, flag_code=FALSE,
              rank_colcok=c(), 
              namconv=NamingConvention("Xvalid", 
                                       flag_varname=TRUE, flag_qualifier=TRUE,
-                                      flag_locator=FALSE, 
-                                      locatorOutType=ELoc_UNKNOWN()))
+                                      flag_locator=FALSE))
 ```
 
 ---

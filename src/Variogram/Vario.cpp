@@ -29,6 +29,7 @@
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/SpaceRN.hpp"
 
 /**
  * Build a Vario object by calculating the experimental variogram
@@ -1742,8 +1743,10 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
     }
     if (! ret) return ret;
 
-    DirParam dirparam = DirParam(ndim, npas, dpas, toldis, tolang, opt_code, 0,
-                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr);
+    SpaceRN space(ndim);
+    DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr,
+                                 &space);
     _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */
@@ -1812,14 +1815,14 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
     if (! dirparam.isDefinedForGrid())
     {
       ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
-      for (int idim = 0; idim < dirparam.getDimensionNumber() && ret; idim++)
+      for (int idim = 0; idim < dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
       ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (dirparam.isDefinedForGrid())
     {
-      for (int idim = 0; ret && idim < dirparam.getDimensionNumber() && ret; idim++)
+      for (int idim = 0; ret && idim < dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
     }

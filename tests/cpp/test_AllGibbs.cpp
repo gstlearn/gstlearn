@@ -117,7 +117,7 @@ int main(int /*argc*/, char * /*argv*/[])
   // Calculate a variogram on the samples
 
   VarioParam varioparam;
-  std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(ndim, nlag);
+  std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(nlag);
   varioparam.addMultiDirs(dirparams);
   Vario vario(&varioparam,db);
   VectorString names = db->getNames("Gibbs*");

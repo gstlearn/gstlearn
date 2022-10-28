@@ -111,8 +111,7 @@ bool VarioParam::_validDefinedFromGrid(const DirParam& dirparam) const
   return true;
 }
 
-VarioParam* VarioParam::createOmniDirection(int ndim,
-                                            int npas,
+VarioParam* VarioParam::createOmniDirection(int npas,
                                             double dpas,
                                             double toldis,
                                             int opt_code,
@@ -122,38 +121,39 @@ VarioParam* VarioParam::createOmniDirection(int ndim,
                                             double tolcode,
                                             const VectorDouble& breaks,
                                             double scale,
-                                            const VectorDouble& dates)
+                                            const VectorDouble& dates,
+                                            const ASpace* space)
 {
-  DirParam* dir = DirParam::createOmniDirection(ndim, npas, dpas, toldis,
+  DirParam* dir = DirParam::createOmniDirection(npas, dpas, toldis,
                                                 opt_code, idate, bench, cylrad,
-                                                tolcode, breaks);
+                                                tolcode, breaks, space);
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addDir(*dir);
   return varioparam;
 }
 
-VarioParam* VarioParam::createMultiple(int ndim,
-                                       int ndir,
+VarioParam* VarioParam::createMultiple(int ndir,
                                        int npas,
                                        double dpas,
                                        double toldis,
                                        double scale,
-                                       const VectorDouble &dates)
+                                       const VectorDouble &dates,
+                                       const ASpace* space)
 {
-  std::vector<DirParam> dirs = DirParam::createMultiple(ndim, ndir, npas, dpas,
-                                                        toldis);
+  std::vector<DirParam> dirs = DirParam::createMultiple(ndir, npas, dpas,
+                                                        toldis, space);
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addMultiDirs(dirs);
   return varioparam;
 }
 
-VarioParam* VarioParam::createMultipleFromGrid(int ndim,
-                                   int npas,
-                                   double scale,
-                                   const VectorDouble& dates)
+VarioParam* VarioParam::createMultipleFromGrid(int npas,
+                                               double scale,
+                                               const VectorDouble &dates,
+                                               const ASpace* space)
 {
-  std::vector<DirParam> dirs = DirParam::createMultipleFromGrid(ndim, npas);
+  std::vector<DirParam> dirs = DirParam::createMultipleFromGrid(npas, space);
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addMultiDirs(dirs);
@@ -295,5 +295,5 @@ void VarioParam::setGrincr(int idir, const VectorInt& grincr)
 int VarioParam::getDimensionNumber() const
 {
   if (getDirectionNumber() <= 0) return 0;
-  return _dirparams[0].getDimensionNumber();
+  return _dirparams[0].getNDim();
 }

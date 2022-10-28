@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
+#include "Space/ASpaceObject.hpp"
 #include "geoslib_define.h"
 
 class Db;
@@ -21,11 +22,10 @@ class DbGrid;
 /**
  * Experimental Variogram calculation direction parameters TODO : to be improved
  */
-class GSTLEARN_EXPORT DirParam : public AStringable // TODO : Should inherit from ASpaceObject
+class GSTLEARN_EXPORT DirParam : public ASpaceObject
 {
 public:
-  DirParam(int ndim = 2,
-           int npas = 10,
+  DirParam(int npas = 10,
            double dpas = 1.,
            double toldis = 0.5,
            double tolang = 90.,
@@ -36,13 +36,13 @@ public:
            double tolcode = 0.,
            const VectorDouble& breaks = VectorDouble(),
            const VectorDouble& codir  = VectorDouble(),
-           const VectorInt& grincr    = VectorInt());
+           const VectorInt& grincr    = VectorInt(),
+           const ASpace* space = nullptr);
   DirParam(const DirParam& r);
   DirParam& operator=(const DirParam& r);
   virtual ~DirParam();
 
-  static DirParam* create(int ndim = 2,
-                          int npas = 10,
+  static DirParam* create(int npas = 10,
                           double dpas = 1.,
                           double toldis = 0.5,
                           double tolang = 90.,
@@ -52,9 +52,9 @@ public:
                           double cylrad = TEST,
                           double tolcode = 0.,
                           const VectorDouble& breaks = VectorDouble(),
-                          const VectorDouble& codir = VectorDouble());
-  static DirParam* createOmniDirection(int ndim = 2,
-                                       int npas = 10,
+                          const VectorDouble& codir = VectorDouble(),
+                          const ASpace* space = nullptr);
+  static DirParam* createOmniDirection(int npas = 10,
                                        double dpas = 1.,
                                        double toldis = 0.5,
                                        int opt_code = 0,
@@ -62,20 +62,25 @@ public:
                                        double bench = TEST,
                                        double cylrad = TEST,
                                        double tolcode = 0.,
-                                       const VectorDouble& breaks = VectorDouble());
-  static DirParam* createFromGrid(int ndim = 2,
-                                  int npas = 10,
-                                  const VectorInt& grincr = VectorInt());
-  static std::vector<DirParam> createMultiple(int ndim,
-                                              int ndir,
+                                       const VectorDouble& breaks = VectorDouble(),
+                                       const ASpace* space = nullptr);
+  static DirParam* createFromGrid(int npas = 10,
+                                  const VectorInt& grincr = VectorInt(),
+                                  const ASpace* space = nullptr);
+  static std::vector<DirParam> createMultiple(int ndir,
                                               int npas = 10,
                                               double dpas = 1.,
-                                              double toldis = 0.5);
-  static std::vector<DirParam> createMultipleFromGrid(int ndim, int npas);
+                                              double toldis = 0.5,
+                                              const ASpace* space = nullptr);
+  static std::vector<DirParam> createMultipleFromGrid(int npas,
+                                                      const ASpace* space = nullptr);
 
 public:
+  /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  /// ASpaceObject Interface
+  virtual bool isConsistent(const ASpace* space) const override;
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
@@ -91,7 +96,6 @@ public:
   double getTolAngle() const { return _tolAngle; }
   double getTolCode() const { return _tolCode; }
   double getTolDist() const { return _tolDist; }
-  int    getDimensionNumber() const { return _ndim; }
 
   const  VectorInt& getGrincr() const { return _grincr; }
   int getGrincr(int i) const;
@@ -124,7 +128,6 @@ private:
   void _completeDefinition();
 
 private:
-  int    _ndim;  // TODO : Should be stored by ASpaceObject upper class
   int    _nPas;
   int    _optionCode;
   int    _idate;

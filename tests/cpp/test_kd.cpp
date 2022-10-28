@@ -115,7 +115,7 @@ int main(int /*argc*/, char */*argv*/[])
   selectivity->eval(anam).display();
 
   // Define the variogram calculation parameters
-  VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
+  VarioParam* varioparam = VarioParam::createOmniDirection(10, 0.025);
 
   // Calculate the variogram of the raw variable
   Vario* vario_raw = Vario::computeFromDb(varioparam, data);
