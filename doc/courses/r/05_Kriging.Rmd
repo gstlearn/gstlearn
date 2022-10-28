@@ -283,7 +283,7 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 We design a small Moving Neighborhood **small.neigh** with only 1 sample per neighborhood.
 
 ```{r}
-small.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+small.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                  nmini=1, nmaxi=1, radius=1000000)
 ```
 
@@ -315,7 +315,7 @@ plot.point(dat,size_name="January_temp",padd=ax)
 Building a reasonable Moving Neighborhood, although with a limited extension (*radius*)
 
 ```{r Reduced_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                   nmini=1, nmaxi=10, radius=20)
 ```
 
@@ -348,7 +348,7 @@ Lots of target sites are not estimated as no sample is found within the neighbor
 Building a reasonable Moving Neighborhood correctly tuned: 10 samples (maximum) selected in a radius of 150 around the target site.
 
 ```{r Large_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                   nmini=1, nmaxi=10, radius=150)
 ```
 
