@@ -25,7 +25,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   bool verbose = false;
   bool flagSPDE = true;
-  int ndim = 2;
   String filename;
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");

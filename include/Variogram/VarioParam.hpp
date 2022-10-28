@@ -64,7 +64,8 @@ public:
                                     double toldis = 0.5,
                                     double scale = 0.,
                                     const VectorDouble& dates = VectorDouble());
-  static VarioParam* createMultipleFromGrid(int ndim, int npas,
+  static VarioParam* createMultipleFromGrid(int ndim,
+                                            int npas,
                                             double scale = 0.,
                                             const VectorDouble& dates = VectorDouble());
 

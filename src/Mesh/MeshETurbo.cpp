@@ -255,7 +255,7 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
                              bool verbose)
 {
   int ndim = static_cast<int> (nx.size());
-  setNDim(ndim);
+  _setNDim(ndim);
 
   /* Create the internal (rotated) grid */
 
@@ -272,7 +272,7 @@ int MeshETurbo::initFromGrid(const VectorInt&    nx,
     extendmin[idim] = _grid.getX0(idim);
     extendmax[idim] = _grid.getX0(idim) + (_grid.getNX(idim) - 1) * _grid.getDX(idim);
   }
-  if (setExtend(extendmin,extendmax)) return(1);
+  if (_setExtend(extendmin,extendmax)) return(1);
 
   // Define the number of Elements per Cell
 
@@ -422,8 +422,8 @@ int MeshETurbo::initFromExtend(const VectorDouble &extendmin,
                                bool verbose)
 {
   int ndim = static_cast<int> (extendmin.size());
-  setNDim(ndim);
-  if (setExtend(extendmin,extendmax)) return(1);
+  _setNDim(ndim);
+  if (_setExtend(extendmin,extendmax)) return(1);
 
   /* Create the internal (rotated) grid */
 

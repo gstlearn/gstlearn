@@ -1781,7 +1781,8 @@ Global_Res global_kriging(Db *dbin,
 
   int ndim = dbin->getNDim();
   int nvar = model->getVariableNumber();
-  neighU = NeighUnique(false, SpaceRN::create(ndim));
+  SpaceRN space(ndim);
+  neighU = NeighUnique(false, &space);
 
   /* Setting options */
 
@@ -5598,7 +5599,8 @@ int inhomogeneous_kriging(Db *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  NeighUnique* neighU = NeighUnique::create(false, SpaceRN::create(dbdat->getNDim()));
+  SpaceRN space(dbdat->getNDim());
+  NeighUnique* neighU = NeighUnique::create(false, &space);
   st_global_init(dbdat, dbout);
   FLAG_EST = true;
   FLAG_STD = true;

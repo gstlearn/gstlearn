@@ -59,18 +59,15 @@ public:
 
   /*! Returns the space dimension */
   int getNDim() const { return _nDim; }
-  /*! Set the Space dimension */
-  void setNDim(int ndim) { _nDim = ndim; }
   /*! Returns the minimum of the Bounding box for a given space dimension */
   double getExtendMin(int idim) const { return _extendMin[idim]; }
   /*! Returns the maximum of the Bounding box for a given space dimension */
   double getExtendMax(int idim) const { return _extendMax[idim]; }
   /*! Returns the Vector of Extrema of the Bounding Box */
   VectorDouble getExtrema(int idim) const;
-  /*! Returns the set of apexes and meshes */
+  /*! Returns the list of apexes and meshes */
   void getElements(MatrixRectangular& apices, MatrixInt& meshes) const;
 
-  int  setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
   void getDuplicates(int verbose, Db *dbin, Db *dbout,
                      int *nbdupl,int **dupl1,int **dupl2) const;
   int  isCompatibleDb(const Db *db) const;
@@ -102,6 +99,8 @@ public:
   void dumpNeighborhood(std::vector<VectorInt>& Vmesh);
 
 protected:
+  void _setNDim(int ndim) { _nDim = ndim; }
+  int  _setExtend(const VectorDouble extendmin, const VectorDouble extendmax);
   bool _weightsInMesh(const VectorDouble& coor,
                       const VectorVectorDouble& corners,
                       double meshsize,

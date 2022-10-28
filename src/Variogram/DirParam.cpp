@@ -131,40 +131,8 @@ DirParam* DirParam::createOmniDirection(int ndim,
 
 DirParam* DirParam::createFromGrid(int ndim, int npas, const VectorInt& grincr)
 {
-  return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0,
-                      TEST, TEST, 0., VectorDouble(), VectorDouble(),
-                      grincr);
-}
-
-void DirParam::init(int ndim,
-                    int npas,
-                    double dpas,
-                    double toldis,
-                    double tolang,
-                    int opt_code,
-                    int idate,
-                    double bench,
-                    double cylrad,
-                    double tolcode,
-                    const VectorDouble& breaks,
-                    const VectorDouble& codir,
-                    const VectorInt& grincr)
-{
-  _ndim = ndim;
-  _nPas = npas;
-  _optionCode = opt_code;
-  _idate = idate;
-  _dPas = dpas;
-  _tolDist = toldis;
-  _tolAngle = tolang;
-  _bench = bench;
-  _cylRad = cylrad;
-  _tolCode = tolcode;
-  _breaks = breaks;
-  _codir  = codir;
-  _grincr = grincr;
-
-  _completeDefinition();
+  return new DirParam(ndim, npas, 0., 0.5, 90., 0, 0, TEST, TEST, 0.,
+                      VectorDouble(), VectorDouble(), grincr);
 }
 
 double DirParam::getBreak(int i) const

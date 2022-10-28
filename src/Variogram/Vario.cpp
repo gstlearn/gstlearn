@@ -1742,9 +1742,8 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
     }
     if (! ret) return ret;
 
-    DirParam dirparam = DirParam(ndim);
-    dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
-                  TEST, TEST, tolcode, VectorDouble(), codir, grincr);
+    DirParam dirparam = DirParam(ndim, npas, dpas, toldis, tolang, opt_code, 0,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr);
     _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */

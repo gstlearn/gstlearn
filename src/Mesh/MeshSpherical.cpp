@@ -134,7 +134,7 @@ int MeshSpherical::reset(Db* dbin,
 
   /* Define the environment */
 
-  setNDim(ndim_ref);
+  _setNDim(ndim_ref);
 
   /* Initialize the Meshing output structure */
   
@@ -489,7 +489,7 @@ void MeshSpherical::_defineBoundingBox(void)
   }
 
   // Store the Bounding Box extension
-  (void) setExtend(extendmin,extendmax);
+  (void) _setExtend(extendmin,extendmax);
 }
 
 /****************************************************************************/

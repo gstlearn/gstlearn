@@ -170,7 +170,7 @@ void MeshManifold::_defineBoundingBox(void)
   }
 
   // Store the Bounding Box extension
-  (void) setExtend(extendmin,extendmax);
+  (void) _setExtend(extendmin,extendmax);
 }
 
 int MeshManifold::_recopy(const MeshManifold &m)

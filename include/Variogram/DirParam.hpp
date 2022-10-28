@@ -76,19 +76,6 @@ public:
 public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  void init(int ndim,
-            int npas,
-            double dpas,
-            double toldis,
-            double tolang,
-            int opt_code = 0,
-            int idate = 0,
-            double bench = TEST,
-            double cylrad = TEST,
-            double tolcode = 0,
-            const VectorDouble& breaks = VectorDouble(),
-            const VectorDouble& codir  = VectorDouble(),
-            const VectorInt& grincr    = VectorInt());
 
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
