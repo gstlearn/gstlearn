@@ -246,7 +246,7 @@ def varioDir(vario, ivar=0, jvar=0,
              show_pairs=False, cmap=None, flagLegend=False, title=None, 
              xlabel=None, ylabel=None, label=None, ax=None, figsize=None, 
              end_plot=False, **plot_args):
-    """Plot a single directional experimental variogram (all avalaible directions, for fixed variable(s)).
+    """Plot a single directional experimental variogram (all available directions, for fixed variable(s)).
     
     Calls the function varioElem for each direction, and labels are automatically set with direction vectors.
     
@@ -541,6 +541,7 @@ def point(db,
           color='r', size=20, sizmin=10, sizmax=200, edgecolors=None,
           xlim=None, ylim=None, directColor=False, flagAbsSize=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
+          posX=0, posY=1, xlabel=None, ylabel=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
@@ -562,6 +563,8 @@ def point(db,
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
     aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    posX: rank of the first coordinate
+    posY: rank of the second coordinate
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
@@ -576,9 +579,9 @@ def point(db,
         fig, ax = newFigure(figsize, xlim, ylim)
 
     # Extracting coordinates
-    tabx = db.getCoordinates(0,usesel)
+    tabx = db.getCoordinates(posX,usesel)
     if db.getNDim() > 1:
-        taby = db.getCoordinates(1,usesel)
+        taby = db.getCoordinates(posY,usesel)
     else:
         taby = db.getColumn(elev1D_name, usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
@@ -615,7 +618,7 @@ def point(db,
         for i in range(len(labval)):
             ax.text(tabx[i], taby[i], round(labval[i],2))
             
-    drawDecor(ax, title=title, aspect=aspect)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, aspect=aspect)
         
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)

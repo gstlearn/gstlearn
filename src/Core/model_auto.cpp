@@ -4629,12 +4629,13 @@ int model_auto_fit(const Vario *vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (model->getDimensionNumber() > 3)
-  {
-    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
-            model->getDimensionNumber());
-    goto label_end;
-  }
+  // TODO: verifier si cette condition est reellement necessaire???
+//  if (model->getDimensionNumber() > 3)
+//  {
+//    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
+//            model->getDimensionNumber());
+//    goto label_end;
+//  }
   if (vario->getCalcul() == ECalcVario::MADOGRAM ||
       vario->getCalcul() == ECalcVario::RODOGRAM ||
       vario->getCalcul() == ECalcVario::GENERAL1 ||

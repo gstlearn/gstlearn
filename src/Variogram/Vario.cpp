@@ -1815,14 +1815,14 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
     if (! dirparam.isDefinedForGrid())
     {
       ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
-      for (int idim = 0; idim < dirparam.getNDim() && ret; idim++)
+      for (int idim = 0; idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
       ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (dirparam.isDefinedForGrid())
     {
-      for (int idim = 0; ret && idim < dirparam.getNDim() && ret; idim++)
+      for (int idim = 0; ret && idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
     }

@@ -68,6 +68,13 @@ public:
                                             double scale = 0.,
                                             const VectorDouble& dates = VectorDouble(),
                                             const ASpace* space = nullptr);
+  static VarioParam* createFromSpaceDimension(int npas = 10,
+                                              double dpas = 1.,
+                                              double toldis = 0.5,
+                                              double tolang = 45.,
+                                              double scale = 0.,
+                                              const VectorDouble &dates = VectorDouble(),
+                                              const ASpace *space = nullptr);
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);

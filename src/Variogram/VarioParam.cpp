@@ -19,6 +19,8 @@
 #include "Basic/AException.hpp"
 #include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
+#include "Space/ASpaceObject.hpp"
+#include "Space/ASpace.hpp"
 
 VarioParam::VarioParam(double scale,
                        const VectorDouble& dates,
@@ -157,6 +159,31 @@ VarioParam* VarioParam::createMultipleFromGrid(int npas,
   if (dirs.empty()) return nullptr;
   VarioParam* varioparam = new VarioParam(scale, dates);
   varioparam->addMultiDirs(dirs);
+  return varioparam;
+}
+
+VarioParam* VarioParam::createFromSpaceDimension(int npas,
+                                                 double dpas,
+                                                 double toldis,
+                                                 double tolang,
+                                                 double scale,
+                                                 const VectorDouble &dates,
+                                                 const ASpace *space)
+{
+  int ndim = ASpaceObject::getDefaultSpaceDimension();
+  if (space != nullptr) ndim = space->getNDim();
+
+  VarioParam* varioparam = new VarioParam(scale, dates);
+
+  for (int idim = 0; idim < ndim; idim++)
+  {
+    DirParam dirparam(npas, dpas, toldis, tolang);
+    VectorDouble codir(ndim,0.);
+    codir[idim] = 1.;
+    dirparam.setCodir(codir);
+
+    varioparam->addDir(dirparam);
+  }
   return varioparam;
 }
 

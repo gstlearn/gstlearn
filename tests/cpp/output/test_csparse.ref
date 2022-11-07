@@ -75,6 +75,12 @@ cs_transpose:
 [  5,]    0.2414    1.5396   -0.1978    0.8479   -0.3480 
 [  6,]   -0.1020    0.8228    0.3795   -0.2723   -0.3622 
 
+Filled matrix with several values per cell
+          [,  1]    [,  2]    [,  3]    [,  4]
+[  1,]  .         .         .         .        
+[  2,]  .           4.0000  .           2.0000 
+[  3,]  .           1.0000  .         .        
+
 
 Creating a Symmetric Matrix: B = A % t(A)
 .........................................
@@ -188,8 +194,8 @@ cs_lsolve_uptri:
        [5,]      1.590
 Should be:      -1.347     -0.987     -0.422      0.250      1.590
 
-Testing Extration from A (by ranges)
-....................................
+Testing Extraction from A (by ranges)
+.....................................
 Initial Matrix
           [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
 [  1,]   -0.0151    0.1341   -1.6265    0.2964    0.2414   -0.1020 
@@ -204,8 +210,8 @@ Extracted rows[from 2 length 2] and lines[from 3 length 3]
 [  2,]   -0.2160    2.3932   -0.1978 
 
 
-Testing Extration from A (by indices)
-.....................................
+Testing Extraction from A (by indices)
+......................................
 Initial Matrix
           [,  1]    [,  2]    [,  3]    [,  4]    [,  5]    [,  6]
 [  1,]   -0.0151    0.1341   -1.6265    0.2964    0.2414   -0.1020 

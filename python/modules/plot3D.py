@@ -183,14 +183,15 @@ def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, colorscale='BlueRed',
     return surfaces
    
 def PointDb(db, color_name=None, size_name=None, usesel=False, 
-            color='black', size=3, opacity=1): 
-    if db.getNDim() != 3:
+            color='black', size=3, opacity=1,
+            posX=0, posY=1, posZ=2): 
+    if db.getNDim() <= 3:
         print("This representation is designed for 3-D Data Base only")
         return None
                       
-    x = db.getCoordinates(0, usesel)
-    y = db.getCoordinates(1, usesel)
-    z = db.getCoordinates(2, usesel)
+    x = db.getCoordinates(posX, usesel)
+    y = db.getCoordinates(posY, usesel)
+    z = db.getCoordinates(posZ, usesel)
     
     if color_name is not None:
         colors = db.getColumn(color_name, usesel)
