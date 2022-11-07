@@ -34,7 +34,7 @@ ASpaceObject::ASpaceObject(const ASpaceObject& r)
   : AStringable(r),
     _space(nullptr)
 {
-  // TODO : Always duplicate! Memory Leaks
+  // Always duplicate
   _space = dynamic_cast<const ASpace*>(r._space->clone());
 }
 
@@ -46,7 +46,7 @@ ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
     // Delete the previous space
     if (nullptr != _space)
       delete _space;
-    // Clone the space of the object to be copied TODO : Memory Leaks
+    // Clone the space of the object to be copied
     _space = dynamic_cast<const ASpace*>(r._space->clone());
   }
   return *this;
@@ -54,6 +54,7 @@ ASpaceObject& ASpaceObject::operator=(const ASpaceObject& r)
 
 ASpaceObject::~ASpaceObject()
 {
+  // Always delete the space (always cloned before)
   delete _space;
 }
 
