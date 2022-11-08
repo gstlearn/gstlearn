@@ -21,7 +21,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-  StdoutRedirect sr(sfn.str());
+//  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AutoFit-");
@@ -73,17 +73,10 @@ int main(int /*argc*/, char */*argv*/[])
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
   mestitle(0,"Testing Model Fitting in 4-D");
 
-  // Defining a Model for simulating a data set
-  model = Model::createFromParam(ECov::CUBIC, 20.);
-  model->display();
-
   // Defining a Data Base
   db = Db::createFromBox(100, {0.,0.,0.,0.}, {100., 100., 100., 100.});
-  VectorDouble tab = ut_vector_simulate_gaussian(db->getActiveSampleNumber());
+  VectorDouble tab = ut_vector_simulate_gaussian(db->getActiveSampleNumber(), 0., 1.);
   db->addColumns(tab, "Var", ELoc::Z);
-
-  // Simulate a Gaussian Random Function on the Data Base
-  (void) simtub(nullptr, db, model);
 
   // Calculate the experimental variogram
   varioparam = VarioParam::createOmniDirection(10);
@@ -92,15 +85,15 @@ int main(int /*argc*/, char */*argv*/[])
   vario->display();
 
   // Fitting an omni-directional model
-//  model_fit = Model::createFromEnvironment(1, ndim);
-//  model_fit->fit(vario);
-//  model_fit->display();
+  model_fit = Model::createFromEnvironment(1, ndim);
+  model_fit->fit(vario, {ECov::NUGGET, ECov::GAUSSIAN, ECov::LINEAR});
+  model_fit->display();
 
   delete model;
   delete db;
   delete varioparam;
   delete vario;
-//  delete model_fit;
+  delete model_fit;
 
   return 0;
 }

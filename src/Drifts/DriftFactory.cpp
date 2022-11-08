@@ -109,7 +109,7 @@ void DriftFactory::displayList(const CovContext& ctxt)
  * Return the EDrift object from the given drift symbol.
  * The symbol must correspond to one of the getDriftSymbol().
  * If the symbol doesn't exists, this method returns EDrift::UNKNOWN
- * and display available drifts functions for the given context.
+ * and displays available drifts functions for the given context.
  *
  * @param symbol  Symbol of the required drift function
  * @param rank    Rank of the drift for the given symbol

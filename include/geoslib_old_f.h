@@ -684,9 +684,6 @@ GSTLEARN_EXPORT int model_add_cova(Model *model,
                                    const VectorDouble &aniso_rotmat,
                                    const VectorDouble &coreg,
                                    double ball_radius);
-GSTLEARN_EXPORT int model_add_drift(Model *model,
-                                    const EDrift &type,
-                                    int rank_fex);
 GSTLEARN_EXPORT int model_sample(Vario *vario,
                                  Model *model,
                                  int flag_norm,
@@ -1247,12 +1244,6 @@ GSTLEARN_EXPORT int db_polygon_distance(Db *db,
 /* Prototyping the functions in stats.c */
 /****************************************/
 
-GSTLEARN_EXPORT VectorDouble stats_point_to_grid(DbGrid *dbgrid,
-                                                 Db *db,
-                                                 const EStatOption &oper,
-                                                 int ivar,
-                                                 int jvar,
-                                                 const VectorDouble &cuts = VectorDouble());
 GSTLEARN_EXPORT int db_stats_grid(Db *db,
                                   DbGrid *dbgrid,
                                   const EStatOption& oper,

@@ -391,10 +391,10 @@ void Model::setDrifts(const VectorString &driftSymbols)
 
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
-    int rank = 0;
-    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank, _ctxt);
+    int rank_fex = 0;
+    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank_fex, _ctxt);
     ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt);
-    drift->setRankFex(rank);
+    drift->setRankFex(rank_fex);
     addDrift(drift);
   }
 }
