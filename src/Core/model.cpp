@@ -1367,8 +1367,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt);
-      newdrft->setRankFex(drft->getRankFex());
+      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt, drft->getRankFex());
       drifts.addDrift(newdrft);
       delete newdrft;
       drifts.setFiltered(il, model->isDriftFiltered(il));
