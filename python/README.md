@@ -128,7 +128,8 @@ Execute the following commands:
     sudo apt install python3
     sudo apt install python3-pip
     sudo apt install swig
-    python3 -m ensurepip --upgrade
+    sudo apt install jupyter
+    python3 -m ensurepip --upgrade [may be not needed]
     python3 -m pip install pybind11 numpy matplotlib
     python3 -m pip install pypandoc geopandas jupyter
 
