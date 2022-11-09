@@ -2,21 +2,6 @@
 Testing Model Fitting in 2-D
 ============================
 
-Model characteristics
-=====================
-Space dimension              = 2
-Number of variable(s)        = 1
-Number of basic structure(s) = 1
-Number of drift function(s)  = 0
-Number of drift equation(s)  = 0
-
-Covariance Part
----------------
-Cubic
-- Sill         =      1.000
-- Range        =     20.000
-Total Sill     =      1.000
-
 Variogram characteristics
 =========================
 Number of variable(s)       = 1
@@ -55,13 +40,39 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Spherical
-- Sill         =    837.780
-- Range        =  16328.281
-Total Sill     =    837.780
+Linear
+- Slope        =      0.077
 
 Testing Model Fitting in 4-D
 ============================
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 4
+Variance-Covariance Matrix     1.041
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000     0.000     0.000
+Direction angles (degrees)  =      0.000     0.000     0.000     0.000
+Tolerance on direction      =     90.100 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         9     2.000     8.824     3.196
+        11     1.000    10.864     1.191
+        13     2.000    12.733     0.913
+        14     1.000    13.993     3.640
+        15     7.000    14.995     0.737
+        16     2.000    16.090     0.052
+        17     3.000    17.013     1.019
+        18     4.000    18.065     1.240
+        19     3.000    19.263     0.809
 
 Model characteristics
 =====================
@@ -73,31 +84,8 @@ Number of drift equation(s)  = 0
 
 Covariance Part
 ---------------
-Cubic
-- Sill         =      1.000
-- Range        =     20.000
-Total Sill     =      1.000
-The Turning Band Method is not a relevant simulation model
-for this Space Dimension (4)
-Error: /home/drenard/project_gstlearn/gstlearn/src/Calculators/ACalculator.cpp@31: Check has failed. Calculation aborted
-Calculator has failed: /home/drenard/project_gstlearn/gstlearn/src/Calculators/ACalculator.cpp@31: Check has failed. Calculation aborted
-
-Variogram characteristics
-=========================
-Number of variable(s)       = 1
-Number of direction(s)      = 1
-Space dimension             = 4
-Variance-Covariance Matrix     1.041
-
-Direction #1
-------------
-Number of lags              = 10
-Direction coefficients      =      1.000     0.000     0.000     0.000
-Direction angles (degrees)  =      0.000     0.000     0.000     0.000
-Tolerance on direction      =     90.100 (degrees)
-Calculation lag             =      1.000
-Tolerance on distance       =     50.000 (Percent of the lag value)
-
-For variable 1
-      Rank    Npairs  Distance     Value
-         9     2.000     8.824     3.196
+Gaussian
+- Sill         =      1.282
+- Range        =      2.408
+- Theo. Range  =      1.391
+Total Sill     =      1.282
