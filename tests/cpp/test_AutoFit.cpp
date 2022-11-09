@@ -14,6 +14,7 @@
  ** Main Program
  **
  ** This test is meant to check the Automatic Model Fitting facility
+ ** for various Space Dimensions and various Calculation criteria.
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
