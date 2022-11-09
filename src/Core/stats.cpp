@@ -679,7 +679,7 @@ VectorDouble stats_point_to_grid(DbGrid *dbgrid,
                                  const EStatOption &oper,
                                  int iatt,
                                  int jatt,
-                                 VectorDouble &cuts)
+                                 const VectorDouble &cuts)
 {
   VectorDouble result;
   double z1 = 0.;

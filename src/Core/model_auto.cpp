@@ -3961,8 +3961,7 @@ static int st_alter_model_optvar(const Vario *vario,
   ndir = vario->getDirectionNumber();
   n_2d = n_3d = 0;
 
-  /* Calculate the number of directions in 2-D and 3-D */
-
+  /* 2-D case */
   if (ndim == 2)
   {
     n_2d = ndir;
@@ -3970,7 +3969,6 @@ static int st_alter_model_optvar(const Vario *vario,
   }
 
   /* 3-D case */
-
   if (ndim == 3)
   {
     for (idir = 0; idir < ndir; idir++)
@@ -3990,7 +3988,7 @@ static int st_alter_model_optvar(const Vario *vario,
   if (ndir <= 1 || ndim <= 1) optvar.setAuthAniso(0);
   if (ndir <= 1 || ndim <= 1) optvar.setAuthRotation(0);
 
-  if (n_3d <= 0) optvar.setLockNo3d(1);
+  if (ndim == 3 && n_3d <= 0) optvar.setLockNo3d(1);
   if (n_2d <= 1) optvar.setLockIso2d(1);
   if (optvar.getLockIso2d()) optvar.setAuthRotation(0);
   if (optvar.getLockNo3d()) optvar.setLockRot2d(1);
@@ -4118,8 +4116,7 @@ static int st_model_auto_count(const Vario *vario,
   ntot = 0;
   for (imod = 0; imod < 2; imod++)
   {
-    model = (imod == 0) ? model1 :
-                          model2;
+    model = (imod == 0) ? model1 : model2;
     if (model == nullptr) continue;
 
     /* Initializations */
@@ -4629,12 +4626,6 @@ int model_auto_fit(const Vario *vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (model->getDimensionNumber() > 3)
-  {
-    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
-            model->getDimensionNumber());
-    goto label_end;
-  }
   if (vario->getCalcul() == ECalcVario::MADOGRAM ||
       vario->getCalcul() == ECalcVario::RODOGRAM ||
       vario->getCalcul() == ECalcVario::GENERAL1 ||
@@ -5109,12 +5100,6 @@ int vmap_auto_fit(const DbGrid *dbmap,
   /* Preliminary checks */
 
   error = 1;
-  if (ndim > 3)
-  {
-    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
-            ndim);
-    goto label_end;
-  }
   nvar = model->getVariableNumber();
   if (nvar != dbmap->getVariableNumber())
   {

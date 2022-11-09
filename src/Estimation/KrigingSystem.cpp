@@ -1880,6 +1880,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (_flagBayes) _model = _modelSimple;
     status = _prepar();
+    if (status) goto label_store;
     if (_flagBayes) _model = _modelInit;
   }
 
