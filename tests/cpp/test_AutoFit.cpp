@@ -21,7 +21,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-//  StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("AutoFit-");
@@ -39,7 +39,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Defining a Model for simulating a data set
   Model* model = Model::createFromParam(ECov::CUBIC, 20.);
-  model->display();
 
   // Defining a Data Base
   Db* db = Db::createFromBox(100, {0.,0.}, {100., 100.});
@@ -52,11 +51,13 @@ int main(int /*argc*/, char */*argv*/[])
   Vario* vario = Vario::create(varioparam, db);
   vario->compute();
   vario->display();
+  vario->dumpToNF("Vario2D");
 
   // Fitting an omni-directional model
   Model* model_fit = Model::createFromEnvironment(1, ndim);
-  model_fit->fit(vario);
+  model_fit->fit(vario, {ECov::GAUSSIAN, ECov::LINEAR});
   model_fit->display();
+  model_fit->dumpToNF("Model2D");
 
   delete model;
   delete db;
@@ -79,17 +80,18 @@ int main(int /*argc*/, char */*argv*/[])
   db->addColumns(tab, "Var", ELoc::Z);
 
   // Calculate the experimental variogram
-  varioparam = VarioParam::createOmniDirection(10);
+  varioparam = VarioParam::createOmniDirection(20);
   vario = Vario::create(varioparam, db);
   vario->compute();
   vario->display();
+  vario->dumpToNF("Vario4D");
 
   // Fitting an omni-directional model
   model_fit = Model::createFromEnvironment(1, ndim);
-  model_fit->fit(vario, {ECov::NUGGET, ECov::GAUSSIAN, ECov::LINEAR});
+  model_fit->fit(vario, {ECov::GAUSSIAN, ECov::LINEAR});
   model_fit->display();
+  model_fit->dumpToNF("Model4D");
 
-  delete model;
   delete db;
   delete varioparam;
   delete vario;
