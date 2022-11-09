@@ -33,12 +33,13 @@
 
 #include <iostream>
 
-ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt)
+ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt, int rank_fex)
 {
+  ADriftElem* drift;
+
   switch(type.toEnum())
   {
     case EDrift::E_UC:  return new Drift1(ctxt);
-    case EDrift::E_F:   return new DriftF(ctxt);
     case EDrift::E_X:   return new DriftX(ctxt);
     case EDrift::E_X2:  return new DriftX2(ctxt);
     case EDrift::E_X2Y: return new DriftX2Y(ctxt);
@@ -53,6 +54,11 @@ ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& 
     case EDrift::E_Z:   return new DriftZ(ctxt);
     case EDrift::E_Z2:  return new DriftZ2(ctxt);
     case EDrift::E_Z3:  return new DriftZ3(ctxt);
+    case EDrift::E_F:
+      drift = new DriftF(ctxt);
+      drift->setRankFex(rank_fex);
+      return drift;
+
     default: break;
   }
   my_throw ("Drift function not yet implemented!");

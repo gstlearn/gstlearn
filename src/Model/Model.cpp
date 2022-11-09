@@ -393,8 +393,7 @@ void Model::setDrifts(const VectorString &driftSymbols)
   {
     int rank_fex = 0;
     EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank_fex, _ctxt);
-    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt);
-    drift->setRankFex(rank_fex);
+    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt, rank_fex);
     addDrift(drift);
   }
 }
@@ -1086,8 +1085,10 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   {
     ret = ret && _recordRead<int>(is, "Drift Function", type);
     EDrift dtype = EDrift::fromValue(type);
-    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
-    drift->setRankFex(0); // TODO : zero? really?
+    int rank_fex = 0;
+    if (dtype == EDrift::F)
+      ret = ret && _recordRead<int>(is, "External Drift rank", rank_fex);
+    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt, rank_fex);
     drifts.addDrift(drift);
     delete drift;
   }
@@ -1175,6 +1176,8 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   {
     const ADriftElem *drift = getDrift(ibfl);
     ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getType().getValue());
+    if (drift->getType() == EDrift::F)
+      ret = ret && _recordWrite<int>(os,"External Drift rank", drift->getRankFex());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */

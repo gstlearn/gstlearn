@@ -440,8 +440,7 @@ void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
     // Adding the external drift(s)
     for (int ifex = 0; ifex < nfex; ifex++)
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt);
-      drift->setRankFex(ifex);
+      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt, ifex);
       addDrift(drift);
     }
   }
