@@ -1919,6 +1919,8 @@ int KrigingSystem::estimate(int iech_out)
   /* Perform the final estimation */
 
   label_store:
+  // If status is not zero, cancel the current Neighborhood search status
+  if (status) _nbghWork.setIsChanged();
 
   // Correct the Variance in Bayesian case
 

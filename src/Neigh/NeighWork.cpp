@@ -805,7 +805,7 @@ void NeighWork::_clearMemory()
 {
   _dbout = nullptr;
   _iechOut = -1;
-  _nbghMemo = VectorInt();
+  _nbghMemo.clear();
 }
 
 /**
@@ -1025,3 +1025,9 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   return tab;
 }
+
+void NeighWork::setIsChanged()
+{
+  _flagIsUnchanged = false;
+  _nbghMemo.clear();
+};
