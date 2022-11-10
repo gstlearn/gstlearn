@@ -12,7 +12,7 @@
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
 
@@ -304,7 +304,7 @@ double ALinearOpMulti::innerProduct(const VectorVectorDouble& x,
   double s = 0.;
 
   for (int i = 0; i<(int)x.size();i++)
-    s+= ut_vector_inner_product(x[i],y[i]);
+    s+= VH::innerProduct(x[i],y[i]);
 
   return s;
 }
@@ -383,22 +383,14 @@ void ALinearOpMulti::addProdScalar(double val1,
 
 void ALinearOpMulti::fillVal(VectorVectorDouble& vect, double val) const
 {
-  for (auto &e : vect)
-  {
-    ut_vector_fill_inplace(e, val);
-  }
+  VH::fill(vect, val);
 }
 
 double ALinearOpMulti::max(const VectorVectorDouble& vect) const
 {
-  double val = ut_vector_max(vect[0]);
-
-  for (int i = 1; i < (int)vect.size(); i++)
-  {
-    val = MAX(val,  ut_vector_max(vect[i]));
-  }
-  return val;
+  return VH::maximum(vect);
 }
+
 void ALinearOpMulti::_updated()const
 {
   _initialized=false;

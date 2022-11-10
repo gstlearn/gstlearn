@@ -14,8 +14,6 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Vector.hpp"
-
 #include "Fractures/FracFault.hpp"
 #include "Fractures/FracFamily.hpp"
 

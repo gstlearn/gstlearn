@@ -13,7 +13,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include "Basic/Grid.hpp"

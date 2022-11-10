@@ -9,8 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/AFunctional.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
 
 AFunctional::AFunctional(int ndim)
     : _ndim(ndim)

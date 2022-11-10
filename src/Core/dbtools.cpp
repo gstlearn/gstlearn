@@ -34,6 +34,7 @@
 #include "Basic/String.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
@@ -4167,7 +4168,7 @@ static VectorDouble st_point_init_homogeneous(int number,
     messerr("This method requires 'coormin' and 'coormax' defined");
     return tab;
   }
-  VectorDouble extend = ut_vector_subtract(coormin, coormax);
+  VectorDouble extend = VH::subtract(coormin, coormax);
   int ndim = (int) coormin.size();
   VectorDouble coor(ndim);
   VectorDouble delta(ndim);
@@ -4195,7 +4196,7 @@ static VectorDouble st_point_init_homogeneous(int number,
       {
         for (int idim = 0; idim < ndim; idim++)
           delta[idim] = (tab[ndim * jp + idim] - coor[idim]) / range;
-        double dd = ut_vector_norm(delta);
+        double dd = VH::norm(delta);
         if (dd < ddmin) ddmin = dd;
       }
 
@@ -4350,7 +4351,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
         if (! flag_region)
         {
-          dd = ut_vector_norm(delta) / range;
+          dd = VH::norm(delta) / range;
         }
         else
         {
@@ -4362,7 +4363,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
           tensor.setRotationAngle(0,angle);
           tensor.setRadiusVec(radius);
           VectorDouble newdel = tensor.applyDirect(delta,2);
-          dd = ut_vector_norm(newdel);
+          dd = VH::norm(newdel);
         }
 
         // Check if the point 'ip' must be dropped

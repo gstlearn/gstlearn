@@ -17,6 +17,7 @@
 #include "Simulation/SimuFFTParam.hpp"
 #include "Simulation/CalcSimuFFT.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -388,7 +389,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
   /* Calculate the reference C(0) value */
 
   for (int i = 0; i < 3; i++) d[i] = 0.;
-  hh = ut_vector_norm(d);
+  hh = VH::norm(d);
   (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1, d,
                         &hh, &refval);
 
@@ -396,7 +397,7 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
 
   for (int i = 0; i < 3; i++)
     d[i] = ix * xyz[i][0] + iy * xyz[i][1] + iz * xyz[i][2];
-  hh = ut_vector_norm(d);
+  hh = VH::norm(d);
 
   /* Evaluate the covariance value */
 
@@ -405,29 +406,6 @@ bool CalcSimuFFT::_checkCorrect(const VectorVectorDouble& xyz,
 
   if (value / refval > percent / 100) return false;
   return true;
-}
-
-/****************************************************************************/
-/*!
- **  Calculate the norme of a vector
- **
- ** \return  Norm of the vector
- **
- ** \param[in]  incr  Increment vector
- **
- *****************************************************************************/
-double st_norm(VectorDouble &incr)
-
-{
-  ut_vector_norm(incr);
-  int i;
-  double value;
-
-  value = 0.;
-  for (i = 0; i < 3; i++)
-    value += incr[i] * incr[i];
-  value = sqrt(value);
-  return (value);
 }
 
 /****************************************************************************/
@@ -515,14 +493,14 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
           del[0] = k1 * delta[0];
           del[1] = k2 * delta[1];
           del[2] = k3 * delta[2];
-          hnorm = ut_vector_norm(del);
+          hnorm = VH::norm(del);
           (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
                                 ECalcMember::LHS, 1, del, &hnorm, &value);
           scale += value;
         }
     for (int i = 0; i < 3; i++)
       del[i] = 0.;
-    hnorm = ut_vector_norm(del);
+    hnorm = VH::norm(del);
     (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0, ECalcMember::LHS, 1,
                           del, &hnorm, &value);
     double coeff = value / scale;
@@ -549,7 +527,7 @@ void CalcSimuFFT::_prepar(bool flag_amplitude, double eps)
                 del[0] = xyz[0] + k1 * delta[0];
                 del[1] = xyz[1] + k2 * delta[1];
                 del[2] = xyz[2] + k3 * delta[2];
-                hnorm = st_norm(del);
+                hnorm = VH::norm(del);
                 (void) model_evaluate(getModel(), 0, 0, -1, 0, 1, 0, 0, 0,
                                       ECalcMember::LHS, 1, del, &hnorm, &value);
                 cplx[ecr] += coeff * value;

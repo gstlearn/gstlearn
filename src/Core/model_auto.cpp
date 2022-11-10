@@ -19,6 +19,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -2201,7 +2202,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
         break;
 
       case EConsElem::E_RANGE:
-        if (ivar == 0) ut_vector_fill(ranges, param[ntot]);
+        if (ivar == 0) VH::fill(ranges, param[ntot]);
         if (ivar < ndim) ranges[ivar] = param[ntot];
         break;
 

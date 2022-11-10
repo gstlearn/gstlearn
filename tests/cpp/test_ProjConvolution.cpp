@@ -1,4 +1,3 @@
-#include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -8,6 +7,7 @@
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "LinearOp/ProjConvolution.hpp"
 
@@ -48,7 +48,7 @@ int main(int /*argc*/, char */*argv*/[])
   }
   for (int i = 0; i < conv_dim; i++)
     convolution[i] /= total;
-  ut_vector_display("Convolution", convolution);
+  VH::display("Convolution", convolution);
 
   int ngrid_seismic = ngrid - (conv_dim - 1);
   nx = VectorInt({nxval, ngrid_seismic});

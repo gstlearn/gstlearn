@@ -4,7 +4,7 @@
 
 #include "Enum/ECst.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/Law.hpp"
@@ -65,18 +65,18 @@ int main(int /*argc*/, char */*argv*/[])
   int nech = grid->getSampleNumber();
 
   // First selection generated with Bernoulli (proba=0.6)
-  VectorDouble sel1 = ut_vector_simulate_bernoulli(nech, 0.6);
-  ut_vector_display("sel1", sel1);
+  VectorDouble sel1 = VH::simulateBernoulli(nech, 0.6);
+  VH::display("sel1", sel1);
   grid->addSelection(sel1, "Sel1");
 
   // Second selection generated with Bernoulli (proba=0.4) combined with previous one
-  VectorDouble sel2 = ut_vector_simulate_bernoulli(nech, 0.4);
-  ut_vector_display("sel2", sel2);
+  VectorDouble sel2 = VH::simulateBernoulli(nech, 0.4);
+  VH::display("sel2", sel2);
   grid->addSelection(sel2, "Sel2","and");
 
   // Retrieve resulting selection for check
   VectorDouble sel3 = grid->getSelection();
-  ut_vector_display("sel1 && sel2",sel3);
+  VH::display("sel1 && sel2",sel3);
 
   // Testing Filters on Db printout (only Statistics on the variables "Sel*")
   DbStringFormat dbfmt(FLAG_VARS | FLAG_STATS,{"Sel*"});

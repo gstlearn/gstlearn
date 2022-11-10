@@ -13,6 +13,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
+#include "Basic/VectorHelper.hpp"
 
 ACalcDbVarCreator::ACalcDbVarCreator()
     : ACalculator(),
@@ -70,7 +71,7 @@ int ACalcDbVarCreator::_addVariableDb(int status,
   if (_db == nullptr) return -1;
   int iuid = _db->addColumnsByConstant(number, valinit, String(), locatorType, locatorIndex);
   if (iuid < 0) return -1;
-  VectorInt iuids = ut_ivector_sequence(number, iuid);
+  VectorInt iuids = VH::sequence(number, iuid);
   _storeInVariableList(status, iuids);
   return iuid;
 }

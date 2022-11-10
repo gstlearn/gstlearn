@@ -14,6 +14,7 @@
 #include "LinearOp/OptimCostColored.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/VectorHelper.hpp"
 
 OptimCostColored::OptimCostColored() 
   : OptimCostBinary()
@@ -82,7 +83,7 @@ void OptimCostColored::reset(int                 nprop,
 {
   // Assignment of pointers
   _nprop  = nprop;
-  ut_vector_fill(_meanProps, 1./_nprop, _nprop);
+  VH::fill(_meanProps, 1./_nprop, _nprop);
   _splits = initSplit(_nprop);
   
   // Pass arguments to the OptimCostBinary class
@@ -282,12 +283,12 @@ void OptimCostColored::printSplits(const VectorVectorInt& splits) const
   if (splits.empty())
   {
     for (int level = 0; level < nlevel; level++)
-      ut_ivector_display(String(),_splits[level]);
+      VH::display(String(),_splits[level]);
   }
   else
   {
     for (int level = 0; level < nlevel; level++)
-      ut_ivector_display(String(),splits[level]);
+      VH::display(String(), splits[level]);
   }
 }
 

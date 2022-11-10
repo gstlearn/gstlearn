@@ -1,7 +1,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Arrays/Array.hpp"
 #include "Covariances/CovContext.hpp"
 

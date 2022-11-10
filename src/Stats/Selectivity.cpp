@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Enum/ESelectivity.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -44,7 +44,7 @@ Selectivity::Selectivity(int ncut)
       _rankQT(),
       _flagOnlyZDefined(false)
 {
-  ut_vector_fill(_Zcut, TEST);
+  VH::fill(_Zcut, TEST);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
@@ -225,7 +225,7 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
 
   // Perform calculations
 
-  double tonref = ut_vector_cumul(wtab);
+  double tonref = VH::cumul(wtab);
   for (int icut = 0; icut < ncut; icut++)
   {
     double coupure = getZcut(icut);
@@ -1144,8 +1144,8 @@ const VectorInt Selectivity::getNumberQTStd() const
 
 void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
 {
-  double zmin = ut_vector_min(tab);
-  double zmax = ut_vector_max(tab) + eps;
+  double zmin = VH::minimum(tab);
+  double zmax = VH::maximum(tab) + eps;
   int ncuts = getNCuts();
 
   if (ncuts <= 1)

@@ -13,7 +13,8 @@
 #include "gstlearn_export.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 
 class GSTLEARN_EXPORT PolyLine2D : public AStringable, public ASerializable
 {
@@ -38,10 +39,10 @@ public:
   const VectorDouble& getY() const { return _y; }
   double getX(int i) const { return _x[i]; }
   double getY(int i) const { return _y[i]; }
-  double getXmin() const { return ut_vector_min(_x); }
-  double getYmin() const { return ut_vector_min(_y); }
-  double getXmax() const { return ut_vector_max(_x); }
-  double getYmax() const { return ut_vector_max(_y); }
+  double getXmin() const { return VH::minimum(_x); }
+  double getYmin() const { return VH::minimum(_y); }
+  double getXmax() const { return VH::maximum(_x); }
+  double getYmax() const { return VH::maximum(_y); }
   void addPoint(double x, double y);
 
   void setX(const VectorDouble& x) { _x = x; }

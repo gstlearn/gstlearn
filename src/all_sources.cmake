@@ -180,7 +180,7 @@ set(SRC
   Basic/File.cpp
   Basic/HDF5format.cpp
   Basic/Memory.cpp
-  Basic/Vector.cpp
+  Basic/VectorHelper.cpp
   Basic/FunctionalSpirale.cpp
   Basic/Law.cpp
   Basic/Interval.cpp

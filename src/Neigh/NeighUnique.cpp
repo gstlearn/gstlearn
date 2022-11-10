@@ -13,7 +13,6 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
 NeighUnique::NeighUnique(bool flag_xvalid, const ASpace* space)

@@ -13,7 +13,8 @@
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 
@@ -134,7 +135,7 @@ int Rotation::setAngles(const VectorDouble& angles)
 void Rotation::setIdentity()
 {
   for (int idim = 0; idim < (int) _nDim; idim++)
-    ut_vector_fill(_angles,0.);
+    VH::fill(_angles,0.);
   _rotMat.setIdentity();
   _rotInv.setIdentity();
   _checkRot();

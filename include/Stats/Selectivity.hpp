@@ -14,7 +14,7 @@
 
 #include "Enum/ESelectivity.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Matrix/MatrixInt.hpp"

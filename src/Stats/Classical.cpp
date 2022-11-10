@@ -10,7 +10,6 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 
-#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Stats/Classical.hpp"

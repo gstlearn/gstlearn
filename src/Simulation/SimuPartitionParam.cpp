@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Simulation/SimuPartitionParam.hpp"
 

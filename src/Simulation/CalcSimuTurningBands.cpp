@@ -17,7 +17,6 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"

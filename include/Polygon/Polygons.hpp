@@ -11,8 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Polygon/PolySet.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/CSVformat.hpp"

@@ -17,7 +17,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Faults/Faults.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
 

@@ -11,7 +11,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
 #include "Covariances/ACovAnisoList.hpp"
 
 class ASpace;

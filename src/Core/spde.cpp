@@ -2915,10 +2915,10 @@ static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
     {
       nostat->updateModelByVertex(model, amesh->getApex(imesh0, ic));
       st_compute_hh();
-      ut_vector_cumul(hhtot, Calcul.hh, 1.);
+      VH::cumulate(hhtot, Calcul.hh);
     }
-    ut_vector_divide_inplace(hhtot, (double) ncorner);
-    ut_vector_copy(Calcul.hh, hhtot);
+    VH::divideConstant(hhtot, (double) ncorner);
+    VH::copy(Calcul.hh, hhtot);
     Calcul.sqdeth = sqrt(matrix_determinant(ndim, Calcul.hh.data()));
   }
 

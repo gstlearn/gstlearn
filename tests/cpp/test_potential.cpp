@@ -28,7 +28,6 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Basic/Vector.hpp"
 
 /****************************************************************************/
 /*!

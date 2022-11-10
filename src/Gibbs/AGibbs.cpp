@@ -14,6 +14,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
@@ -399,14 +400,14 @@ void AGibbs::updateStats(const VectorVectorDouble& y,
     // The mean
     jcol = _getColRankStats(ipgs, ivar, 0);
     double oldmean = _stats.getValue(iter-1, jcol);
-    double newmean = ut_vector_mean(y[icol]);
+    double newmean = VH::mean(y[icol]);
     result = (oldmean * oldw * amort + newmean) / neww;
     _stats.update(iter, jcol, result);
 
     // The standard deviation
     jcol = _getColRankStats(ipgs, ivar, 1);
     double oldvar = _stats.getValue(iter-1,jcol);
-    double newvar = ut_vector_var(y[icol]);
+    double newvar = VH::variance(y[icol]);
     result = (oldvar * oldw * amort + newvar) / neww;
     _stats.update(iter, jcol, result);
   }

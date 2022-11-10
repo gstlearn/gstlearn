@@ -10,6 +10,7 @@
 
 #include "Geometry/Geometry.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 
@@ -387,6 +388,14 @@ void ut_angles_from_codir(int ndim,
     angles[i] = ut_rad2deg(angles[i]);
 
   return;
+}
+
+VectorDouble ut_angles_from_codir_inplace(const VectorDouble& codir)
+{
+  int ndim = (int) codir.size();
+  VectorDouble angles(ndim);
+  ut_angles_from_codir(ndim, codir, angles);
+  return angles;
 }
 
 /****************************************************************************/
@@ -1232,7 +1241,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   vort[0] = dzoverdx;
   vort[1] = dzoverdy;
   vort[2] = -1.;
-  double norme = ut_vector_norm(vort);
+  double norme = VH::norm(vort);
   for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
 
   // Cross product
@@ -1242,8 +1251,8 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(ut_vector_inner_product(axis, axis));
-  double dot = ut_vector_inner_product(vert, vort);
+  double normcross = sqrt(VH::innerProduct(axis, axis));
+  double dot = VH::innerProduct(vert, vort);
 
   // Rotation angle
   double angle = atan2(normcross, dot);
@@ -1270,7 +1279,7 @@ MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
   vort[0] = dzoverdx;
   vort[1] = dzoverdy;
   vort[2] = -1.;
-  double norme = ut_vector_norm(vort);
+  double norme = VH::norm(vort);
   for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
 
   // Cross product
@@ -1279,8 +1288,8 @@ MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(ut_vector_inner_product(axis, axis));
-  double dot = ut_vector_inner_product(vert, vort);
+  double normcross = sqrt(VH::innerProduct(axis, axis));
+  double dot = VH::innerProduct(vert, vort);
 
   // Rotation axis (normalized
   for (int idim = 0; idim < ndim; idim++) axis[idim] /= normcross;

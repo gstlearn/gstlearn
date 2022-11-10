@@ -17,7 +17,6 @@
 #include "Simulation/SimuSpherical.hpp"
 #include "Simulation/SimuSphericalParam.hpp"
 #include "Simulation/ACalcSimulation.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 

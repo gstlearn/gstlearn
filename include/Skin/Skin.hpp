@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Skin/ISkinFunctions.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class GSTLEARN_EXPORT Skin
 {

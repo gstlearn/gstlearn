@@ -14,12 +14,13 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/AException.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LithoRule/RuleShadow.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/Node.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Law.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 
@@ -699,5 +700,5 @@ int RuleShadow::evaluateBounds(PropDef *propdef,
 
 void RuleShadow::_normalizeShift()
 {
-  if (!_shift.empty()) ut_vector_norm(_shift);
+  if (!_shift.empty()) VH::normalize(_shift);
 }

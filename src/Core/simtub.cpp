@@ -451,7 +451,7 @@ static int st_check_simtub_environment(Db *dbin,
     db_extension(dbin, db_mini, db_maxi, true);
 
   if (model != nullptr)
-    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    model->setField(VH::extensionDiagonal(db_mini, db_maxi));
 
   /*****************************/
   /* Checking the Neighborhood */

@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 #include "Variogram/DirParam.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 
 class Db;

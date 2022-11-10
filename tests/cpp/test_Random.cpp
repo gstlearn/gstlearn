@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Law.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
 #include "Basic/OptCst.hpp"
@@ -52,10 +52,10 @@ int main()
   message("\nUniform Distribution: mini=%lf maxi=%lf\n",mini,maxi);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  ut_vector_display_stats("Old Style", tab);
+  VH::displayStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  ut_vector_display_stats("New Style", tab);
+  VH::displayStats("New Style", tab);
 
   // Sampling Gaussian distribution
 
@@ -65,10 +65,10 @@ int main()
   message("\nNormal Distribution: mean=%lf sigma=%lf\n",mean,stdv);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_gaussian();
-  ut_vector_display_stats("Old Style", tab);
+  VH::displayStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_gaussian();
-  ut_vector_display_stats("New Style", tab);
+  VH::displayStats("New Style", tab);
 
   // Sampling Exponential distribution
 
@@ -77,10 +77,10 @@ int main()
   message("\nExponential Distribution: param=%lf\n",param);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
-  ut_vector_display_stats("Old Style", tab);
+  VH::displayStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_exponential(param);
-  ut_vector_display_stats("New Style", tab);
+  VH::displayStats("New Style", tab);
 
   // Sampling Gamma distribution
 
@@ -90,10 +90,10 @@ int main()
   message("\nGamma Distribution: alpha=%lf beta=%lf\n",alpha,beta);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
-  ut_vector_display_stats("Old Style", tab);
+  VH::displayStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = law_gamma(alpha,beta);
-  ut_vector_display_stats("New Style", tab);
+  VH::displayStats("New Style", tab);
 
   // Sampling Poisson distribution
 
@@ -105,10 +105,10 @@ int main()
   message("\nPoisson Distribution: lambda=%lf\n",lambda);
   law_set_old_style(true);
   for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
-  ut_vector_display_stats("Old Style", tab);
+  VH::displayStats("Old Style", tab);
   law_set_old_style(false);
   for (int i = 0; i < number; i++) tab[i] = (double) law_poisson(lambda);
-  ut_vector_display_stats("New Style", tab);
+  VH::displayStats("New Style", tab);
   OptCst::define(ECst::NTDEC, ndec);
 
   // Retrieve seed
@@ -126,11 +126,11 @@ int main()
   law_set_old_style(true);
   law_set_random_seed(seed);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  ut_vector_display("Old Style", tab);
+  VH::display("Old Style", tab);
   law_set_old_style(false);
   law_set_random_seed(seed);
   for (int i = 0; i < number; i++) tab[i] = law_uniform(mini,maxi);
-  ut_vector_display("New Style", tab);
+  VH::display("New Style", tab);
 
   return 0;
 }

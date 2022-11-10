@@ -14,8 +14,6 @@
 
 #include "Enum/ECov.hpp"
 
-#include "Basic/Vector.hpp"
-
 class CovAniso;
 class ACovFunc;
 class CovContext;

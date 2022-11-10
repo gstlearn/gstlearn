@@ -24,6 +24,7 @@
 #include "Covariances/CovLMC.hpp"
 #include "Basic/String.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LithoRule/Rule.hpp"
 #include "LithoRule/RuleProp.hpp"
 
@@ -94,7 +95,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 32432);
-  VectorDouble z = ut_vector_simulate_gaussian(ndata);
+  VectorDouble z = VH::simulateGaussian(ndata);
   dat->addColumns(z,"variable",ELoc::Z);
 
   PGSSPDE sCond(models,workingDbc,ruleprop,dat);

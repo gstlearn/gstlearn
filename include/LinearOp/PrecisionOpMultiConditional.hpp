@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "ALinearOpMulti.hpp"
 #include "PrecisionOp.hpp"
 #include "ProjMatrix.hpp"

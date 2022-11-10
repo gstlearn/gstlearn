@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Simulation/SimuBooleanParam.hpp"
-#include "Basic/Vector.hpp"
 
 SimuBooleanParam::SimuBooleanParam(int maxiter,
                                    double tmax,

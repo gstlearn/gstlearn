@@ -16,7 +16,6 @@
 
 #include "Drifts/ADrift.hpp"
 #include "Drifts/ADriftElem.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
 
 class ASpace;

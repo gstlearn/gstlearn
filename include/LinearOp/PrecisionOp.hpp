@@ -16,7 +16,7 @@
 
 #include "Enum/EPowerPT.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 
 #include <map>

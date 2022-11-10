@@ -16,7 +16,6 @@
 #include "Enum/EConvDir.hpp"
 #include "Enum/EConvType.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"

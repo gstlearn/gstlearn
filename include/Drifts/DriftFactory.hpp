@@ -14,7 +14,6 @@
 
 #include "Enum/EDrift.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Covariances/CovContext.hpp"
 
 class ADriftElem;

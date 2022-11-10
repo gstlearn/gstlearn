@@ -94,7 +94,7 @@
 %include Basic/OptCst.hpp
 %include Basic/OptCustom.hpp
 %include Basic/File.hpp
-%include Basic/Vector.hpp
+%include Basic/VectorHelper.hpp
 %include Basic/Plane.hpp
 %include Basic/FFT.hpp
 %include Basic/PolyLine2D.hpp

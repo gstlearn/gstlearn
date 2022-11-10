@@ -16,7 +16,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
 #include "Geometry/Geometry.hpp"

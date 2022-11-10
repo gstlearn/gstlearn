@@ -8,13 +8,13 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Basic/Tensor.hpp"
-
 #include "geoslib_f_private.h"
 
 #include "Matrix/MatrixSquareDiagonal.hpp"
+#include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 
 Tensor::Tensor(unsigned int ndim)
 :  AStringable(),
@@ -76,7 +76,7 @@ void Tensor::init(int ndim)
 String Tensor::toString(const AStringFormat* /*strfmt*/) const
 {
   std::stringstream sstr;
-  sstr << "Radius     = " << ut_vector_string(_radius) << std::endl;
+  sstr << "Radius     = " << VH::toString(_radius) << std::endl;
   if (!_rotation.isIdentity())
     sstr << _rotation.toString() << std::endl;
   return sstr.str();
@@ -86,7 +86,7 @@ void Tensor::setRadius(double radius)
 {
   if (ABS(radius) < EPSILON10)
     my_throw ("Ellipsoid radius cannot be null");
-  ut_vector_fill(_radius, radius, static_cast<int> (_radius.size()));
+  VH::fill(_radius, radius, static_cast<int> (_radius.size()));
   _isotropic = true;
   _fillTensors();
 }

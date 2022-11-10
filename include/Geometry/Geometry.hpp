@@ -48,6 +48,7 @@ GSTLEARN_EXPORT void ut_angles_to_codir(int ndim,
                                         int ndir,
                                         const VectorDouble &angles,
                                         VectorDouble &codir);
+GSTLEARN_EXPORT VectorDouble ut_angles_from_codir_inplace(const VectorDouble& codir);
 GSTLEARN_EXPORT int ut_rotation_check(double *rot, int ndim);
 GSTLEARN_EXPORT double distance_point_to_segment(double x0,
                                                  double y0,

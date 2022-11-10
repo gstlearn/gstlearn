@@ -12,8 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "../Simulation/BooleanObject.hpp"
-#include "Basic/Vector.hpp"
+#include "Simulation/BooleanObject.hpp"
 #include "Basic/AStringable.hpp"
 
 class AShape;

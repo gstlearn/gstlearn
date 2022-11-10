@@ -11,9 +11,10 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/Vector.hpp"
-#include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 
 /**
@@ -114,8 +115,8 @@ String CovContext::toString(const AStringFormat* strfmt) const
   sstr << "Nb Variables       = "       << _nVar << std::endl;
   if (! FFFF(_field))
     sstr << "Field Size         = "       << _field << std::endl;
-  sstr << "Mean(s)            = "       << ut_vector_string(_mean);
-  sstr << "Covariance (0)     = "       << ut_vector_string(_covar0);
+  sstr << "Mean(s)            = "       << VH::toString(_mean);
+  sstr << "Covariance (0)     = "       << VH::toString(_covar0);
   return sstr.str();
 }
 

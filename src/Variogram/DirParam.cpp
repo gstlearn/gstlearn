@@ -352,7 +352,7 @@ std::vector<DirParam> DirParam::createMultipleFromGrid(int npas, const ASpace* s
   int ndir = ndim;
   for (int idir = 0; idir < ndir; idir++)
   {
-    ut_ivector_fill(grincr, 0);
+    VH::fill(grincr, 0);
     grincr[idir] = 1;
     DirParam* dirparam = DirParam::createFromGrid(npas, grincr, space);
     dirs.push_back(*dirparam);

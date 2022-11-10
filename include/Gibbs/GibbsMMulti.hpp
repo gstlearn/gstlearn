@@ -11,8 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Gibbs/GibbsMulti.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/HDF5format.hpp"
 
 #include <vector>

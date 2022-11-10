@@ -14,7 +14,6 @@
 
 #include "Enum/ECov.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ICloneable.hpp"

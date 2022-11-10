@@ -13,7 +13,6 @@
 
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
@@ -313,7 +312,7 @@ Vercoloc* vercoloc_manage(int verbose,
     mini.resize(ndim);
     maxi.resize(ndim);
     db_extension(dbin, mini, maxi);
-    extend = ut_vector_subtract(mini, maxi);
+    extend = VH::subtract(mini, maxi);
 
     /* Look for duplicates */
 

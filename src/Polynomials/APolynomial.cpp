@@ -8,11 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "math.h"
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+
 #include "csparse_d.h"
+#include "math.h"
 
 #include <string>
 #include <algorithm>

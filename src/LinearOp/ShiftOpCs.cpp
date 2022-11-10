@@ -19,7 +19,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Mesh/MeshEStandard.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
@@ -703,7 +702,7 @@ void ShiftOpCs::_loadHHRegularByApex(MatrixSquareSymmetric& hh,
 
     // Calculate the current HH matrix (using local covariance parameters)
     const MatrixSquareGeneral& rotmat = cova->getAnisoInvMat();
-    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+    VectorDouble diag = VH::power(cova->getScales(), 2.);
     MatrixSquareSymmetric temp(ndim);
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
@@ -727,7 +726,7 @@ void ShiftOpCs::_loadHHVarietyByApex(MatrixSquareSymmetric& hh, int /*ip*/)
    // _updateCova(cova, ip);
 
     // Calculate the current HH matrix (using local covariance parameters)
-    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+    VectorDouble diag = VH::power(cova->getScales(), 2.);
 
     hh.fill(0.);
     for (int idim = 0; idim < ndim; idim++)
@@ -774,7 +773,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
     CovAniso* cova = covini->clone();
 
     const MatrixSquareGeneral& rotmat = cova->getAnisoRotMat();
-    VectorDouble diag = ut_vector_power(cova->getScales(), 2.);
+    VectorDouble diag = VH::power(cova->getScales(), 2.);
 
     // Locally update the covariance for non-stationarity (if necessary)
     _updateCova(cova, ip);
@@ -794,7 +793,7 @@ void ShiftOpCs::_loadHHGradByApex(MatrixSquareSymmetric& hh,
       CovAniso* dcova = cova;
       dcova->setAnisoAngle(ir, dcova->getAnisoAngles(ir) + 90.);
       const MatrixSquareGeneral& drotmat = dcova->getAnisoRotMat();
-      ut_vector_divide_inplace(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
+      VH::divideConstant(diag, 180. / GV_PI); // Necessary as angles are provided in degrees
       temp.setDiagonal(diag);
       hh.innerMatrix(temp, rotmat, drotmat);
     }
@@ -880,9 +879,9 @@ void ShiftOpCs::_loadAuxPerMesh(const AMesh* amesh,
   {
     int ip = amesh->getApex(imesh, rank);
     _loadAux(tabloc, type, ip);
-    ut_vector_add_inplace(tab, tabloc);
+    VH::addInPlace(tab, tabloc);
   }
-  ut_vector_divide_inplace(tab, (double) number);
+  VH::divideConstant(tab, (double) number);
 }
 
 int ShiftOpCs::_preparMatrices(const AMesh *amesh,
@@ -1694,8 +1693,8 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }
-  double ratio = ut_vector_norm(center);
-  ut_vector_divide_inplace(center, sqrt(ratio));
+  double ratio = VH::norm(center);
+  VH::divideConstant(center, sqrt(ratio));
 
   // Center gives the vector joining the origin to the center of triangle
   double phi    = srot[1] * GV_PI / 180.;
@@ -1712,16 +1711,16 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
   w.push_back(cosphi);
 
   // V1 = Center ^ w: first axis
-  VectorDouble v1 = ut_vector_cross_product(center, w);
-  ut_vector_norm(v1);
+  VectorDouble v1 = VH::crossProduct(center, w);
+  VH::normalize(v1);
 
   // V2 = Center ^ V1: second axis
-  VectorDouble v2 = ut_vector_cross_product(center, v1);
-  ut_vector_norm(v2);
+  VectorDouble v2 = VH::crossProduct(center, v1);
+  VH::normalize(v2);
 
   // Get the end points from Unit vectors
-  VectorDouble axe1 = ut_vector_add(center, v1);
-  VectorDouble axe2 = ut_vector_add(center, v2);
+  VectorDouble axe1 = VH::add(center, v1);
+  VectorDouble axe2 = VH::add(center, v2);
 
   /* Projection */
 

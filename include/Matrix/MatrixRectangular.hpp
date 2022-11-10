@@ -12,7 +12,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**

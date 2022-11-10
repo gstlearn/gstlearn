@@ -8,14 +8,11 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-#include "Model/NoStatFunctional.hpp"
-
-
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Model/ANoStat.hpp"
+#include "Model/NoStatFunctional.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/AMesh.hpp"
 

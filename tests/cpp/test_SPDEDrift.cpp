@@ -1,4 +1,3 @@
-#include "Basic/Vector.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"

@@ -11,8 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Space/ASpace.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class SpacePoint;
 class Tensor;

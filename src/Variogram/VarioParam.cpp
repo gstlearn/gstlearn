@@ -17,7 +17,6 @@
 #include "Basic/Limits.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include "Stats/Classical.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"

@@ -16,7 +16,6 @@
 #include "Fractures/FracFault.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
 
 class GSTLEARN_EXPORT FracDesc: public AStringable
 {

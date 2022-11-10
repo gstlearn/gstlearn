@@ -14,7 +14,7 @@
 
 #include "Enum/EStatOption.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
 typedef struct

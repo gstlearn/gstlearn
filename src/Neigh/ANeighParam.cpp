@@ -14,7 +14,6 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
 ANeighParam::ANeighParam(bool flag_xvalid, const ASpace* space)

@@ -14,7 +14,7 @@
 #include "Simulation/BooleanObject.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
@@ -72,8 +72,8 @@ String BooleanObject::toString(const AStringFormat* /*strfmt*/) const
   else
     sstr << "Secondary Object" << std::endl;
   sstr << "- Type        = " << _token->getType().getDescr() << std::endl;
-  sstr << "- Center      = " << ut_vector_string(_center);
-  sstr << "- Extension   = " << ut_vector_string(_extension);
+  sstr << "- Center      = " << VH::toString(_center);
+  sstr << "- Extension   = " << VH::toString(_extension);
   sstr << "- Orientation = " << _orientation << std::endl;
 
   return sstr.str();

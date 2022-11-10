@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ArgumentTest.hpp"
 
 ENUM_DEFINE(ENUM_TESTS)

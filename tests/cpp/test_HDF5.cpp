@@ -13,7 +13,7 @@
 #include "Basic/AStringable.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Timer.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 
 #include <stdlib.h>
@@ -558,17 +558,17 @@ int main (void)
 
     hdf5b.openDataSet("VectorVectorDouble");
     rvdval = hdf5b.getData();
-    ut_vector_display("Ensemble of VectorDouble",rvdval);
+    VH::display("Ensemble of VectorDouble",rvdval);
 
     int myrank = 3;
     message("Extract Vector #%d (add 100) and replace\n\n",myrank);
     VectorDouble rpdval = hdf5b.getDataDoublePartial(myrank);
-    ut_vector_addval(rpdval, 100.);
+    VH::addConstant(rpdval, 100.);
     hdf5b.writeDataDoublePartial(myrank, rpdval);
 
     // Extract the whole file and print it
     rvdval = hdf5b.getData();
-    ut_vector_display("Modified VectorVectorDouble",rvdval);
+    VH::display("Modified VectorVectorDouble",rvdval);
 
     // Delete the file
 
@@ -615,20 +615,20 @@ int main (void)
 
     // Extract the whole file and print it
     VectorVectorDouble rpvdval = hdf5c.getData();
-    ut_vector_display("Initial VectorDouble",rpvdval);
+    VH::display("Initial VectorDouble",rpvdval);
 
     // Extracting one VectorDouble (at a given row number). Modify it by adding 1000
 
     int myrank = 5;
     message("\nExtracting the rank #%d (then add 1000) and replace\n\n",myrank);
     VectorDouble rpdval = hdf5c.getDataDoublePartial(myrank);
-    ut_vector_addval(rpdval, 1000.);
+    VH::addConstant(rpdval, 1000.);
 
     hdf5c.writeDataDoublePartial(myrank, rpdval);
 
     // Extract the whole file and print it
     rpvdval = hdf5c.getData();
-    ut_vector_display("Modified VectorVectorDouble",rpvdval);
+    VH::display("Modified VectorVectorDouble",rpvdval);
 
     // Delete the file
 

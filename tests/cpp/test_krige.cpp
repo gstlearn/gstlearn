@@ -26,6 +26,7 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -39,11 +40,11 @@
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
+  VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
-    VectorDouble tabvar = ut_vector_simulate_gaussian(nech);
+    VectorDouble tabvar = VH::simulateGaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 
@@ -210,7 +211,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("- Space Dimension = %d\n",ktest.ndim);
   message("- Number of Neighbors = %d\n",ktest.nech);
   message("- Number of Kriging System equations = %d\n",ktest.neq);
-  ut_ivector_display("- Neighboring Sample Indices", ktest.nbgh);
+  VH::display("- Neighboring Sample Indices", ktest.nbgh);
 
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
@@ -310,7 +311,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   grid_res = grid->clone();
-  tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
+  tab = VH::simulateUniform(grid->getSampleNumber(), 10., 20.);
   grid_res->addColumns(tab, "Constraints", ELoc::SUM);
   krigsum(data, grid_res, model, neighU, true);
   grid_res->display(&dbfmtKriging);

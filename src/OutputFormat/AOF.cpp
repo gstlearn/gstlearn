@@ -11,8 +11,8 @@
 #include "OutputFormat/AOF.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Vector.hpp"
 #include "Db/DbGrid.hpp"
+
 #include <stdio.h>
 
 AOF::AOF(const String& filename, const Db* db)

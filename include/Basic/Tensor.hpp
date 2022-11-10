@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
@@ -66,4 +65,3 @@ private:
   Rotation        _rotation; /// Ellipsoid rotation
   bool            _isotropic;  /// True if the tensor is isotropic
 };
-

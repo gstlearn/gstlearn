@@ -41,7 +41,7 @@
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
-  #include "Basic/Vector.hpp"
+  #include "Basic/VectorHelper.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"

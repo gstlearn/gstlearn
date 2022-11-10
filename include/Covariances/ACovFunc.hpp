@@ -14,7 +14,6 @@
 
 #include "Enum/ECov.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"

@@ -183,7 +183,7 @@ bool ACalcInterpolator::_check()
     VectorDouble db_maxi(ndim, TEST);
     if (hasDbin(false))  getDbin()->getExtensionInPlace(db_mini, db_maxi);
     if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi);
-    _model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    _model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
   return true;
 }
