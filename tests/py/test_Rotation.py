@@ -30,18 +30,18 @@ if not gl.VH.isSame(np.array(vec2.getVector()),[sqr3, -1.]):
 vec1 = gl.VectorDouble(vec2)
 rot.rotateInverse(np.array(vec2.getVector()),vec1)
 vec1
-if not gl.VectorHelper.isSame(np.array(vec1.getVector()),vec1ref):
+if not gl.VH.isSame(np.array(vec1.getVector()),vec1ref):
   print("Error: vec1 different from vec1ref")
 
 # Same exercise in 3-D
 
 ndim = 3
 rot = gl.Rotation(ndim)
-angles = gl.VectorHelper.simulateUniform(ndim,0.,90.)
+angles = gl.VH.simulateUniform(ndim,0.,90.)
 rot.setAngles(angles)
 rot.display()
 
-vec1 = vec1ref = gl.VectorHelper.simulateUniform(ndim)
+vec1 = vec1ref = gl.VH.simulateUniform(ndim)
 vec1
 vec2 = gl.VectorDouble(len(vec1))
 rot.rotateDirect(vec1,vec2)
@@ -50,7 +50,7 @@ vec2
 vec1 = gl.VectorDouble(vec2.size())
 rot.rotateInverse(np.array(vec2.getVector()),vec1)
 vec1
-if not gl.VectorHelper.isSame(np.array(vec1.getVector()),vec1ref):
+if not gl.VH.isSame(np.array(vec1.getVector()),vec1ref):
   print("Error: vec1 different from vec1ref")
 
 # Locate a point in a rotated grid
@@ -70,37 +70,37 @@ vec = pgrid.indicesToCoordinate(indice)
 print(vec)
 # Prepare a vector of integer for retrieving integer information
 new_indice = gl.VectorInt(len(vec))
-if not gl.VectorHelper.isSame(vec, [x0[0]+sqr3, x0[1]-1.]):
+if not gl.VH.isSame(vec, [x0[0]+sqr3, x0[1]-1.]):
   print("Error: vec different from [x0[0]+sqr3, x0[1]-1.]")
 
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.VectorHelper.isSame(indice, np.array(new_indice.getVector())):
+if not gl.VH.isSame(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 indice = [0,1]
 print(indice)
 vec = pgrid.indicesToCoordinate(indice)
 print(vec)
-if not gl.VectorHelper.isSame(vec, [x0[0]+1, x0[1]+sqr3]):
+if not gl.VH.isSame(vec, [x0[0]+1, x0[1]+sqr3]):
   print("Error: vec different from [x0[0]+1, x0[1]+sqr3]")
 
 new_indice = gl.VectorInt(len(vec))
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.VectorHelper.isSame(indice, np.array(new_indice.getVector())):
+if not gl.VH.isSame(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 indice = [0,0]
 print(indice)
 vec = pgrid.indicesToCoordinate(indice)
 print(vec)
-if not gl.VectorHelper.isSame(vec,x0):
+if not gl.VH.isSame(vec,x0):
   print("Error: vec different from x0")
 
 err = pgrid.coordinateToIndicesInPlace(vec,new_indice)
 print(new_indice)
-if not gl.VectorHelper.isSame(indice, np.array(new_indice.getVector())):
+if not gl.VH.isSame(indice, np.array(new_indice.getVector())):
   print("Error: indice different from new_indice")
 
 # Translate Grid rank into Grid indices, and backwards

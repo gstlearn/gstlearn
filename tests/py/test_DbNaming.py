@@ -41,7 +41,7 @@ grid
 # 
 # **Important remark: all numerical variables used to identify a field within a Db are considered as indices, i.e. they are numbered starting from 0**
 
-tab = gl.VectorHelper.simulateUniform(nech)
+tab = gl.VH.simulateUniform(nech)
 iatt1 = grid.addColumns(tab,"first")
 print("Attribute corresponding to 'first' =",iatt1)
 
@@ -78,9 +78,9 @@ grid
 # 
 # In order to make the next paragrah more demonstrative, we change the contents of several fields
 
-grid.setColumn(gl.VectorHelper.simulateUniform(nech),"second-1")
-grid.setColumn(gl.VectorHelper.simulateUniform(nech),"first.1")
-grid.setColumn(gl.VectorHelper.simulateUniform(nech),"first.1.1")
+grid.setColumn(gl.VH.simulateUniform(nech),"second-1")
+grid.setColumn(gl.VH.simulateUniform(nech),"first.1")
+grid.setColumn(gl.VH.simulateUniform(nech),"first.1.1")
 
 grid
 
