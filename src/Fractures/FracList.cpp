@@ -21,9 +21,8 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
+#include "../../include/Geometry/GeometryHelper.hpp"
 
 #define FRACSEG(ifrac,i)    (frac_segs[NBYFRAC * (ifrac) + (i)])
 #define WELL(iw,i)          (well[2*(iw) + (i)])
@@ -440,7 +439,7 @@ void FracList::_checkFractureIntersect(double cote, int ifrac0)
 
     /* Perform the intersection between two segments */
 
-    if (ut_segment_intersect(xd1, yd1, xe1, ye1, xd2, yd2, xe2, ye2, &x, &y))
+    if (GH::segmentIntersect(xd1, yd1, xe1, ye1, xd2, yd2, xe2, ye2, &x, &y))
       continue;
 
     /* Update the end-point in case of intersection */
@@ -1341,7 +1340,7 @@ VectorDouble FracList::fractureToWell(int nval,
 
       for (int ip = 0; ip < npoint - 1; ip++)
       {
-        if (ut_segment_intersect(x1, y1, x2, y2, desc.getXXF(ip),
+        if (GH::segmentIntersect(x1, y1, x2, y2, desc.getXXF(ip),
                                  desc.getYYF(ip), desc.getXXF(ip + 1),
                                  desc.getYYF(ip + 1), &x, &y)) continue;
         if (y <= -_eps || x <= -_eps || x >= xmax + _eps) continue;

@@ -100,7 +100,7 @@
 %include Basic/PolyLine2D.hpp
 %include Basic/Law.hpp
 
-%include Geometry/Geometry.hpp
+%include Geometry/GeometryHelper.hpp
 %include Geometry/Rotation.hpp
 
 %include Arrays/AArray.hpp

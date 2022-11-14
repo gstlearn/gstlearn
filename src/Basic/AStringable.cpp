@@ -604,13 +604,13 @@ String toMatrix(const String& title,
  * @param flagOverride Override the printout limitations
  * @return
  */
-String toMatrixSymmetric(const String& title,
-                const VectorString& colnames,
-                const VectorString& rownames,
-                bool  bycol,
-                int   ncols,
-                const VectorDouble &tab,
-                bool  flagOverride)
+String toMatrixSymmetric(const String &title,
+                         const VectorString &colnames,
+                         const VectorString &rownames,
+                         bool bycol,
+                         int ncols,
+                         const VectorDouble &tab,
+                         bool flagOverride)
 {
   std::stringstream sstr;
   int nrows = ncols;

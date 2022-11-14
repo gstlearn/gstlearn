@@ -69,7 +69,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
     VectorDouble local = rotmat.getValues();
     if (! is_matrix_rotation(_nDim, local.data(), 1)) return 1;
     _rotMat.setValues(local);
-    ut_angles_from_rotation_matrix(local.data(), _nDim, _angles.data());
+    GH::rotationGetAngles(local, _angles);
     _directToInverse();
     _checkRot();
   }
@@ -103,7 +103,7 @@ int Rotation::setMatrixDirectOldStyle(const double* rotmat)
   {
     if (! is_matrix_rotation(_nDim, rotmat, 1)) return 1;
     _rotMat.setValues(rotmat);
-    ut_angles_from_rotation_matrix(rotmat, _nDim, _angles.data());
+    GH::rotationGetAngles(_nDim, rotmat, _angles.data());
     _directToInverse();
     _checkRot();
   }
@@ -124,7 +124,7 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);
-    ut_rotation_matrix(_nDim, _angles.data(), local.data());
+    GH::rotationInit(_nDim, _angles.data(), local.data());
     _rotMat.setValues(local);
     _directToInverse();
     _checkRot();
@@ -234,7 +234,7 @@ VectorDouble Rotation::setDirection(int ndim,
                                     double radius) const
 {
   VectorDouble codir(ndim);
-  (void) ut_angles_to_codir(ndim,1,angles,codir);
+  (void) GH::rotationGetDirection(ndim,1,angles,codir);
   if (radius != 1.)
     for (int idim = 0; idim < ndim; idim++) codir[idim] *= radius;
   return codir;

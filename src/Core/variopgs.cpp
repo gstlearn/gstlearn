@@ -4653,9 +4653,12 @@ static int st_copy_swhh(const Vario *vario1,
       for (int ivar = 0; ivar < nvar; ivar++)
         for (int jvar = 0; jvar < nvar; jvar++)
         {
-          if (flagSw) vario2->setSwByIndex(idir, i, vario1->getSwByIndex(idir, i));
-          if (flagHh) vario2->setHhByIndex(idir, i, ABS(vario1->getHhByIndex(idir, i)));
-          if (flagGg) vario2->setGgByIndex(idir, i, vario1->getGgByIndex(idir, i));
+          if (flagSw)
+            vario2->setSwByIndex(idir, i, vario1->getSwByIndex(idir, i));
+          if (flagHh)
+            vario2->setHhByIndex(idir, i, ABS(vario1->getHhByIndex(idir, i)));
+          if (flagGg)
+            vario2->setGgByIndex(idir, i, vario1->getGgByIndex(idir, i));
         }
     }
   }

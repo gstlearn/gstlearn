@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -31,8 +32,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 
 /*! \cond */
@@ -4673,8 +4672,7 @@ int model_auto_fit(const Vario *vario,
   variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
-  (void) ut_angles_from_codir(vario->getDimensionNumber(),
-                              vario->getCodir(0), angles);
+  (void) GH::rotationGetAngles(vario->getCodir(0), angles);
   st_vario_varchol_manage(vario, model, varchol);
 
   /* Scale the parameters in the mauto structure */

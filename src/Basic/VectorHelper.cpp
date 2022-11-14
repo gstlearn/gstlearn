@@ -16,14 +16,13 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <string.h>
 #include <algorithm>
 #include <iomanip>
 #include <ctime>
 #include <cstdlib>
 #include <math.h>
+#include "../../include/Geometry/GeometryHelper.hpp"
 
 VectorInt VectorHelper::initVInt(int nval, int value)
 {

@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -36,8 +37,6 @@
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 
 Model::Model(const CovContext &ctxt)
@@ -863,7 +862,7 @@ VectorDouble Model::sample(double hmax,
   if (codir.empty())
   {
     codir.resize(ndim);
-    (void) ut_angles_to_codir(ndim, 1, VectorDouble(), codir);
+    (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
   }
   int nhloc = (addZero) ? nh + 1: nh;
   hh.resize(nhloc);

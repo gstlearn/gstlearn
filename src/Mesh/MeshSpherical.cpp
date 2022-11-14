@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -18,8 +19,6 @@
 #include "Db/Db.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include "csparse_f.h"
 
 MeshSpherical::MeshSpherical(const MatrixRectangular& apices, const MatrixInt& meshes)
@@ -80,12 +79,9 @@ int MeshSpherical::getNMeshes() const
 *****************************************************************************/
 double MeshSpherical::getMeshSize(int imesh) const
 {
-  return ut_geodetic_triangle_surface(getCoor(imesh, 0, 0),
-                                      getCoor(imesh, 0, 1),
-                                      getCoor(imesh, 1, 0),
-                                      getCoor(imesh, 1, 1),
-                                      getCoor(imesh, 2, 0),
-                                      getCoor(imesh, 2, 1));
+  return GH::geodeticTriangleSurface(getCoor(imesh, 0, 0), getCoor(imesh, 0, 1),
+                                     getCoor(imesh, 1, 0), getCoor(imesh, 1, 1),
+                                     getCoor(imesh, 2, 0), getCoor(imesh, 2, 1));
 }
 
 /****************************************************************************/
@@ -427,7 +423,7 @@ void MeshSpherical::getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coor
   {
     r = EARTH_RADIUS;
   }
-  ut_convert_sph2cart(getCoor(imesh, ic, 0) - 180., getCoor(imesh, ic, 1),
+  GH::convertSph2Cart(getCoor(imesh, ic, 0) - 180., getCoor(imesh, ic, 1),
                       &coords[0], &coords[1], &coords[2], r);
 }
 
@@ -445,7 +441,7 @@ void MeshSpherical::getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) cons
   {
     r = EARTH_RADIUS;
   }
-  ut_convert_sph2cart(getApexCoor(iapex, 0) - 180., getApexCoor(iapex, 1),
+  GH::convertSph2Cart(getApexCoor(iapex, 0) - 180., getApexCoor(iapex, 1),
                       &coords[0], &coords[1], &coords[2], r);
 }
 
@@ -526,8 +522,7 @@ bool MeshSpherical::_coorInMesh(const VectorDouble& coor,
 
   if (! flag_approx)
   {
-    return (ut_is_in_spherical_triangle_optimized(coor.data(),
-                                               corners[0].data(),
+    return (GH::isInSphericalTriangleOptimized(coor.data(), corners[0].data(),
                                                corners[1].data(),
                                                corners[2].data(),
                                                weights.data()));

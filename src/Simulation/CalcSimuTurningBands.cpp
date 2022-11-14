@@ -22,9 +22,8 @@
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
+#include "../../include/Geometry/GeometryHelper.hpp"
 
 CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
     : ACalcSimulation(nbsimu, seed),
@@ -262,7 +261,7 @@ void CalcSimuTurningBands::_rotateDirections(double a[3], double theta)
   {
     for (int idir = 0; idir < 3; idir++)
       dirs[idir] = _getCodirAng(ibs, idir);
-    ut_rotation_direction(ct, st, a, dirs);
+    GH::rotationGetDirection(ct, st, a, dirs);
     for (int idir = 0; idir < 3; idir++)
       _setCodirAng(ibs, idir, dirs[idir]);
   }

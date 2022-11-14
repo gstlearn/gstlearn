@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
@@ -28,7 +29,6 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
-#include "Geometry/Geometry.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceSN.hpp"
 
@@ -2862,12 +2862,12 @@ double* _spde_get_mesh_dimension(MeshEStandard *amesh)
   {
     for (int imesh = 0; imesh < nmesh; imesh++)
     {
-      units[imesh] = ut_geodetic_triangle_surface(amesh->getCoor(imesh, 0, 0),
-                                                  amesh->getCoor(imesh, 0, 1),
-                                                  amesh->getCoor(imesh, 1, 0),
-                                                  amesh->getCoor(imesh, 1, 1),
-                                                  amesh->getCoor(imesh, 2, 0),
-                                                  amesh->getCoor(imesh, 2, 1));
+      units[imesh] = GH::geodeticTriangleSurface(amesh->getCoor(imesh, 0, 0),
+                                                 amesh->getCoor(imesh, 0, 1),
+                                                 amesh->getCoor(imesh, 1, 0),
+                                                 amesh->getCoor(imesh, 1, 1),
+                                                 amesh->getCoor(imesh, 2, 0),
+                                                 amesh->getCoor(imesh, 2, 1));
     }
   }
   else
@@ -3466,9 +3466,9 @@ static void st_triangle_center(MeshEStandard *amesh,
     center[i] = 0.;
   for (int icorn = 0; icorn < ncorner; icorn++)
   {
-    ut_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
-                          amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
-                          &xyz[icorn][1], &xyz[icorn][2]);
+    GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
+                        amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
+                        &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }

@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
@@ -39,8 +40,6 @@
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 #include <string.h>
 
@@ -3162,7 +3161,7 @@ static int st_get_closest_sample(Db *dbgrid,
     if (iatt_angle >= 0 && ndim >= 2)
     {
       angle = dbgrid->getArray(ig, iatt_angle);
-      ut_rotation_sincos(angle, &cosa, &sina);
+      GH::rotationGetSinCos(angle, &cosa, &sina);
       x = dvect[0];
       y = dvect[1];
       dvect[0] = x * cosa + y * sina;

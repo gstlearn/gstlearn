@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include "../../include/Geometry/GeometryHelper.hpp"
 #include "geoslib_f.h"
 #include "csparse_f.h"
 
@@ -24,7 +25,6 @@
 #include "Covariances/CovLMC.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
-#include "Geometry/Geometry.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ShiftOpCs.hpp"

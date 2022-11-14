@@ -426,6 +426,7 @@ int ShiftOpCs::initFromCS(const cs* S,
 
     _S = cs_duplicate(S);
     if (_S == nullptr) my_throw("Problem when duplicating S sparse matrix");
+    _napices = S->n;
   }
 
   catch(const AException& e)
@@ -1687,9 +1688,9 @@ void ShiftOpCs::_projectMesh(const AMesh *amesh,
   VectorDouble center(3, 0.);
   for (int icorn = 0; icorn < (int) amesh->getNApexPerMesh(); icorn++)
   {
-    ut_convert_sph2cart(amesh->getCoor(imesh, icorn, 0),
-                          amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
-                          &xyz[icorn][1], &xyz[icorn][2]);
+    GH::convertSph2Cart(amesh->getCoor(imesh, icorn, 0),
+                        amesh->getCoor(imesh, icorn, 1), &xyz[icorn][0],
+                        &xyz[icorn][1], &xyz[icorn][2]);
     for (int i = 0; i < 3; i++)
       center[i] += xyz[icorn][i];
   }

@@ -203,7 +203,7 @@ set(SRC
   Basic/PolyLine2D.cpp
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
-  Geometry/Geometry.cpp
+  Geometry/GeometryHelper.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp

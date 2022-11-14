@@ -1,8 +1,8 @@
+#include <Geometry/GeometryHelper.hpp>
 #include "Space/SpaceSN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
-#include "Geometry/Geometry.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
 : ASpace(ndim),
@@ -54,7 +54,7 @@ double SpaceSN::getDistance(const SpacePoint& p1,
   double lat1  = p1.getCoord(1);
   double long2 = p2.getCoord(0);
   double lat2  = p2.getCoord(1);
-  double dist = ut_geodetic_angular_distance(long1, lat1, long2, lat2, _radius);
+  double dist = GH::geodeticAngularDistance(long1, lat1, long2, lat2, _radius);
   return dist;
 }
 
