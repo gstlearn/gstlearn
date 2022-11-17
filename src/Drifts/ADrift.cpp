@@ -13,7 +13,7 @@
 #include "Db/Db.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 ADrift::ADrift(const ASpace* space)
 : ASpaceObject(space)

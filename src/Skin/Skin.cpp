@@ -12,7 +12,6 @@
 #include "Skin/Skin.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Vector.hpp"
 
 #include "math.h"
 

@@ -1,4 +1,7 @@
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -12,9 +15,6 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Mesh/AMesh.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/Law.hpp"
-#include "Basic/FunctionalSpirale.hpp"
-#include "Basic/File.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Mesh/MeshFactory.hpp"
 
@@ -80,7 +80,7 @@ int main(int /*argc*/, char */*argv*/[])
   ///////////////////////////
   // Simulation (Chebyshev)
   VectorDouble resultSimu;
-  VectorDouble tab = ut_vector_simulate_gaussian(mesh.getNApices());
+  VectorDouble tab = VH::simulateGaussian(mesh.getNApices());
 
   resultSimu.resize(tab.size());
   Qsimu.eval(tab,resultSimu);

@@ -13,7 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class GSTLEARN_EXPORT SimuRefineParam: public AStringable
 {

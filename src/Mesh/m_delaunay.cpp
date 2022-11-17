@@ -8,18 +8,16 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -313,7 +311,7 @@ Vercoloc* vercoloc_manage(int verbose,
     mini.resize(ndim);
     maxi.resize(ndim);
     db_extension(dbin, mini, maxi);
-    extend = ut_vector_subtract(mini, maxi);
+    extend = VH::subtract(mini, maxi);
 
     /* Look for duplicates */
 
@@ -1652,10 +1650,10 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
       for (int j2 = 1; j2 < nfaults && !skip; j2++)
       {
         j1 = j2 - 1;
-        skip += (ut_segment_intersect(POINTS(i1, 0), POINTS(i1, 1),
-                                   POINTS(i2, 0), POINTS(i2, 1),
-                                   FAULTS(j1, 0), FAULTS(j1, 1),
-                                   FAULTS(j2, 0), FAULTS(j2, 1), &xx, &yy)
+        skip += (GH::segmentIntersect(POINTS(i1, 0), POINTS(i1, 1),
+                                      POINTS(i2, 0), POINTS(i2, 1),
+                                      FAULTS(j1, 0), FAULTS(j1, 1),
+                                      FAULTS(j2, 0), FAULTS(j2, 1), &xx, &yy)
                  != 1);
       }
     }
@@ -2056,8 +2054,8 @@ int meshes_2D_sph_from_db(Db *db, int nb_mask, int *is_mask, SphTriangle *t)
   {
     if (!db->isActive(iech)) continue;
     if (st_is_masked(nb_mask, is_mask, iech)) continue;
-    ut_convert_sph2cart(db->getCoordinate(iech, 0),
-                          db->getCoordinate(iech, 1), &xx, &yy, &zz);
+    GH::convertSph2Cart(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
+                        &xx, &yy, &zz);
     t->sph_x[ecr] = xx;
     t->sph_y[ecr] = yy;
     t->sph_z[ecr] = zz;
@@ -2116,7 +2114,7 @@ int meshes_2D_sph_from_points(int nech,
 
   for (int iech = 0; iech < nech; iech++)
   {
-    ut_convert_sph2cart(x[iech], y[iech], &xx, &yy, &zz);
+    GH::convertSph2Cart(x[iech], y[iech], &xx, &yy, &zz);
     t->sph_x[ecr] = xx;
     t->sph_y[ecr] = yy;
     t->sph_z[ecr] = zz;
@@ -2281,8 +2279,7 @@ void meshes_2D_sph_print(SphTriangle *t, int brief)
     for (int i = 0; i < t->n_nodes; i++)
     {
       message("%3d", i + 1);
-      ut_convert_cart2sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong,
-                            &rlat);
+      GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
       message(" Cartesian=%8.3lf %8.3lf %8.3lf - Long-Lat=%8.3lf %8.3lf\n",
               t->sph_x[i], t->sph_y[i], t->sph_z[i], rlong, rlat);
     }
@@ -2459,8 +2456,7 @@ void meshes_2D_sph_load_vertices(SphTriangle *t,
     ecr = 0;
     for (int i = 0; i < ntab; i++)
     {
-      ut_convert_cart2sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong,
-                            &rlat);
+      GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
       rtab[ecr++] = rlong;
       rtab[ecr++] = rlat;
     }

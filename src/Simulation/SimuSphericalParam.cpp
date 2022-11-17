@@ -9,7 +9,6 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Simulation/SimuSphericalParam.hpp"
-#include "Basic/Vector.hpp"
 
 SimuSphericalParam::SimuSphericalParam(int special,
                                        int nbf,

@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 #include "Arrays/AArray.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT Array : public AArray

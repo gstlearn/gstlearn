@@ -17,7 +17,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Faults/Faults.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
 
@@ -806,7 +805,7 @@ void NeighWork::_clearMemory()
 {
   _dbout = nullptr;
   _iechOut = -1;
-  _nbghMemo = VectorInt();
+  _nbghMemo.clear();
 }
 
 /**
@@ -1026,3 +1025,9 @@ VectorDouble NeighWork::summary(Db *dbout,
 
   return tab;
 }
+
+void NeighWork::setIsChanged()
+{
+  _flagIsUnchanged = false;
+  _nbghMemo.clear();
+};

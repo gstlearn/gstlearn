@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
@@ -24,8 +25,6 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <complex>
 #include <cmath>
 #include <regex>
@@ -989,10 +988,9 @@ void distance_point_to_polyline(double x0,
   double dmin = 1.e30;
   for (int i = 0; i < nvert - 1; i++)
   {
-    dist = distance_point_to_segment(x0, y0,
-                                     polyline.getX(i), polyline.getY(i),
-                                     polyline.getX(i + 1), polyline.getY(i + 1),
-                                     &xx, &yy, &nint);
+    dist = GH::distancePointToSegment(x0, y0, polyline.getX(i),
+                                      polyline.getY(i), polyline.getX(i + 1),
+                                      polyline.getY(i + 1), &xx, &yy, &nint);
     if (ABS(dist) > dmin) continue;
     pldist->rank = i;
     pldist->coor[0] = xx;
@@ -1204,7 +1202,7 @@ double ut_distance(int ndim, double *tab1, double *tab2)
     const ASpace* space = ASpaceObject::getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
     double R = spaceSn->getRadius();
-    distance = ut_geodetic_angular_distance(tab1[0], tab1[1], tab2[0], tab2[1], R);
+    distance = GH::geodeticAngularDistance(tab1[0], tab1[1], tab2[0], tab2[1], R);
   }
   else
   {

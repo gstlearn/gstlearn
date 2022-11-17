@@ -17,9 +17,8 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/File.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
+#include "../../include/Geometry/GeometryHelper.hpp"
 
 #define VERBOSE 0
 #define INTER 0
@@ -52,7 +51,7 @@ static void st_test_1(void)
       if (gslScanf("%lf",&lat2)  == EOF) return;
     }
 
-    double angle = ut_geodetic_angular_distance(long1,lat1,long2,lat2);
+    double angle = GH::geodeticAngularDistance(long1,lat1,long2,lat2);
     message("Angle = %lf\n",deg(angle));
 
     if (! INTER) break;
@@ -93,7 +92,7 @@ static void st_test_2(void)
       if (gslScanf("%lf", &lat3) == EOF) return;
     }
 
-    ut_geodetic_angles(long1,lat1,long2,lat2,long3,lat3,
+    GH::geodeticAngles(long1,lat1,long2,lat2,long3,lat3,
                        &a,&b,&c,&A,&B,&C);
     message("a=%lf b=%lf c=%lf A=%lf B=%lf C=%lf\n",
            deg(a),deg(b),deg(c),deg(A),deg(B),deg(C));
@@ -101,13 +100,11 @@ static void st_test_2(void)
     rb = (sin(b) == 0.) ? 1. : sin(B) / sin(b);
     rc = (sin(c) == 0.) ? 1. : sin(C) / sin(c);
     message("ratio=%lf ratiob=%lf ratioc=%lf\n",ra,rb,rc);
-    perimeter = ut_geodetic_triangle_perimeter(long1,lat1,
-                                               long2,lat2,
-                                               long3,lat3);
+    perimeter = GH::geodeticTrianglePerimeter(long1, lat1, long2, lat2, long3,
+                                              lat3);
     message("Perimeter = %lf\n",deg(perimeter));
-    surface = ut_geodetic_triangle_surface(long1,lat1,
-                                           long2,lat2,
-                                           long3,lat3);
+    surface = GH::geodeticTriangleSurface(long1, lat1, long2, lat2, long3,
+                                          lat3);
     message("Surface = %lf\n",surface);
     
     if (! INTER) break;
@@ -144,8 +141,8 @@ static void st_test_3(void)
       x1 = dx * (double) (ix);
       x2 = dx * (double) (ix+1.);
 
-      s1 = ut_geodetic_triangle_surface(x1,y1,x2,y1,x1,y2);
-      s2 = ut_geodetic_triangle_surface(x2,y1,x1,y2,x2,y2);
+      s1 = GH::geodeticTriangleSurface(x1,y1,x2,y1,x1,y2);
+      s2 = GH::geodeticTriangleSurface(x2,y1,x1,y2,x2,y2);
       total += s1 + s2;
     }
   }

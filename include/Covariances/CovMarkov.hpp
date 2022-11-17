@@ -11,8 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Covariances/ACovFunc.hpp"
-#include "Basic/Vector.hpp"
 
 class CovContext;
 

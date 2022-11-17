@@ -25,6 +25,7 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -34,11 +35,11 @@
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_uniform(ndim * nech, 0., 50.);
+  VectorDouble tab = VH::simulateUniform(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
-    VectorDouble tabvar = ut_vector_simulate_gaussian(nech);
+    VectorDouble tabvar = VH::simulateGaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 

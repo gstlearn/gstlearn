@@ -12,6 +12,7 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
+#include "Basic/VectorHelper.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
 #include "Stats/Classical.hpp"
@@ -807,7 +808,7 @@ VectorDouble PCA::mafOfIndex() const
   // Calculate the probability of each interval
   VectorDouble w = _mean;
   int ncut = (int) _mean.size();
-  w.push_back(1 - ut_vector_cumul(_mean));
+  w.push_back(1 - VH::cumul(_mean));
   int nclass = (int) w.size();
 
   // Normalize the indicator of intervals
@@ -825,7 +826,7 @@ VectorDouble PCA::mafOfIndex() const
   VectorDouble local(nclass * ncut);
   matrix_product(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
 
-  VectorDouble maf_index = ut_vector_concatenate(ut_vector_double(nclass, 1.), local);
+  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
 
   return maf_index;
 }

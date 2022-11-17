@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_old_f.h"
 
 #include "Variogram/DirParam.hpp"
@@ -15,7 +16,6 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
-#include "Geometry/Geometry.hpp"
 #include "Space/ASpace.hpp"
 
 #include <math.h>
@@ -266,7 +266,7 @@ String DirParam::toString(const AStringFormat* /*strfmt*/) const
     if (ndim > 1)
     {
       VectorDouble angles(ndim);
-      (void) ut_angles_from_codir(ndim,_codir,angles);
+      (void) GH::rotationGetAngles(_codir,angles);
       sstr << toVector("Direction angles (degrees)  = ", angles);
     }
 
@@ -333,7 +333,7 @@ std::vector<DirParam> DirParam::createMultiple(int ndir,
   for (int idir = 0; idir < ndir; idir++)
   {
     angles[0] = 180. * (double) idir / (double) ndir;
-    (void) ut_angles_to_codir(ndim, 1, angles,codir);
+    (void) GH::rotationGetDirection(ndim, 1, angles,codir);
     double tolang = 90. / (double) ndir;
     DirParam dirparam = DirParam(npas, dpas, toldis, tolang, 0, 0, TEST, TEST, 0.,
                                  VectorDouble(), codir, VectorInt(), space);
@@ -352,7 +352,7 @@ std::vector<DirParam> DirParam::createMultipleFromGrid(int npas, const ASpace* s
   int ndir = ndim;
   for (int idir = 0; idir < ndir; idir++)
   {
-    ut_ivector_fill(grincr, 0);
+    VH::fill(grincr, 0);
     grincr[idir] = 1;
     DirParam* dirparam = DirParam::createFromGrid(npas, grincr, space);
     dirs.push_back(*dirparam);

@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -19,6 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -30,8 +32,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 
 /*! \cond */
@@ -2201,7 +2201,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
         break;
 
       case EConsElem::E_RANGE:
-        if (ivar == 0) ut_vector_fill(ranges, param[ntot]);
+        if (ivar == 0) VH::fill(ranges, param[ntot]);
         if (ivar < ndim) ranges[ivar] = param[ntot];
         break;
 
@@ -4672,8 +4672,7 @@ int model_auto_fit(const Vario *vario,
   variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
-  (void) ut_angles_from_codir(vario->getDimensionNumber(),
-                              vario->getCodir(0), angles);
+  (void) GH::rotationGetAngles(vario->getCodir(0), angles);
   st_vario_varchol_manage(vario, model, varchol);
 
   /* Scale the parameters in the mauto structure */

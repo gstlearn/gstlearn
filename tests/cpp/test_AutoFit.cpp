@@ -3,6 +3,7 @@
 
 #include "Basic/File.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Variogram/VarioParam.hpp"
@@ -14,6 +15,7 @@
  ** Main Program
  **
  ** This test is meant to check the Automatic Model Fitting facility
+ ** for various Space Dimensions and various Calculation criteria.
  **
  *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
@@ -76,7 +78,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Defining a Data Base
   db = Db::createFromBox(100, {0.,0.,0.,0.}, {100., 100., 100., 100.});
-  VectorDouble tab = ut_vector_simulate_gaussian(db->getActiveSampleNumber(), 0., 1.);
+  VectorDouble tab = VH::simulateGaussian(db->getActiveSampleNumber(), 0., 1.);
   db->addColumns(tab, "Var", ELoc::Z);
 
   // Calculate the experimental variogram

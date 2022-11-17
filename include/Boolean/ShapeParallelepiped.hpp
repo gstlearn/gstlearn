@@ -12,7 +12,6 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Boolean/AShape.hpp"
 #include "Boolean/ShapeParameter.hpp"
 

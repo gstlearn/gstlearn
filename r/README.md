@@ -58,7 +58,7 @@ or for those who prefer a single command line (see [shortcut Makefile](https://g
     ny = 30
     mygrid = DbGrid_create(c(nx,ny))
     # Add a uniform random field
-    var = ut_vector_simulate_uniform(nx * ny)
+    var = VH_simulateUniform(nx * ny)
     mygrid$addColumns(var, "var1")
     # Display the field
     plot.grid(mygrid, "var1")

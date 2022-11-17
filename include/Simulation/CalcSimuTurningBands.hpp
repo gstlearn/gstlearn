@@ -15,7 +15,7 @@
 #include "Simulation/ACalcSimulation.hpp"
 #include "Simulation/TurningDirection.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 #include "geoslib_define.h"
 

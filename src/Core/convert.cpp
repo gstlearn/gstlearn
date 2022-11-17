@@ -18,6 +18,7 @@
 #include "Basic/File.hpp"
 #include "Basic/String.hpp"
 #include "Basic/ASerializable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 #include "OutputFormat/GridEclipse.hpp"
 #include "OutputFormat/GridIfpEn.hpp"
@@ -118,9 +119,9 @@ int db_grid_write_bmp(const char *filename,
                       int high_green,
                       int high_blue)
 {
-  VectorInt reds = ut_ivector_set(red, ncolor);
-  VectorInt greens = ut_ivector_set(green, ncolor);
-  VectorInt blues = ut_ivector_set(blue, ncolor);
+  VectorInt reds = VH::initVInt(red, ncolor);
+  VectorInt greens = VH::initVInt(green, ncolor);
+  VectorInt blues = VH::initVInt(blue, ncolor);
 
   GridBmp aof(filename, db);
   aof.setCol(icol);

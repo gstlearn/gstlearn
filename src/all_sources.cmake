@@ -180,7 +180,7 @@ set(SRC
   Basic/File.cpp
   Basic/HDF5format.cpp
   Basic/Memory.cpp
-  Basic/Vector.cpp
+  Basic/VectorHelper.cpp
   Basic/FunctionalSpirale.cpp
   Basic/Law.cpp
   Basic/Interval.cpp
@@ -203,7 +203,7 @@ set(SRC
   Basic/PolyLine2D.cpp
   Basic/VectorNumT.cpp
   Basic/VectorT.cpp
-  Geometry/Geometry.cpp
+  Geometry/GeometryHelper.cpp
   Arrays/AArray.cpp
   Arrays/Array.cpp
   Arrays/BImage.cpp

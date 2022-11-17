@@ -12,7 +12,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
 /**

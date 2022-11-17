@@ -9,7 +9,8 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Faults/Faults.hpp"
-#include "Geometry/Geometry.hpp"
+
+#include "../../include/Geometry/GeometryHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/Utilities.hpp"
@@ -124,7 +125,7 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
       double y1 = fault.getY(ip);
       double x2 = fault.getX(ip + 1);
       double y2 = fault.getY(ip + 1);
-      if (ut_is_segment_intersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2))
+      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2))
         return true;
     }
   }

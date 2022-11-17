@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Variogram/DirParam.hpp"
 #include "Faults/Faults.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"

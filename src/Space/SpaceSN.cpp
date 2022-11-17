@@ -1,8 +1,8 @@
+#include <Geometry/GeometryHelper.hpp>
 #include "Space/SpaceSN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
-#include "Geometry/Geometry.hpp"
+#include "Basic/VectorHelper.hpp"
 
 SpaceSN::SpaceSN(unsigned int ndim, double radius)
 : ASpace(ndim),
@@ -44,7 +44,7 @@ void SpaceSN::move(SpacePoint& p1,
                    const VectorDouble& vec) const
 {
   /// TODO : SpaceSN::move
-  p1.setCoord(ut_vector_add(p1.getCoord(), vec));
+  p1.setCoord(VH::add(p1.getCoord(), vec));
 }
 
 double SpaceSN::getDistance(const SpacePoint& p1,
@@ -54,7 +54,7 @@ double SpaceSN::getDistance(const SpacePoint& p1,
   double lat1  = p1.getCoord(1);
   double long2 = p2.getCoord(0);
   double lat2  = p2.getCoord(1);
-  double dist = ut_geodetic_angular_distance(long1, lat1, long2, lat2, _radius);
+  double dist = GH::geodeticAngularDistance(long1, lat1, long2, lat2, _radius);
   return dist;
 }
 
@@ -77,7 +77,7 @@ VectorDouble SpaceSN::getIncrement(const SpacePoint& p1,
                                    const SpacePoint& p2) const
 {
   /// TODO : SpaceSN::getIncrement
-  return ut_vector_subtract(p1.getCoord(), p2.getCoord());
+  return VH::subtract(p1.getCoord(), p2.getCoord());
 }
 
 String SpaceSN::toString(const AStringFormat* /*strfmt*/) const

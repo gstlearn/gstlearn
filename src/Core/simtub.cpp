@@ -451,7 +451,7 @@ static int st_check_simtub_environment(Db *dbin,
     db_extension(dbin, db_mini, db_maxi, true);
 
   if (model != nullptr)
-    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    model->setField(VH::extensionDiagonal(db_mini, db_maxi));
 
   /*****************************/
   /* Checking the Neighborhood */
@@ -960,7 +960,7 @@ int simpgs(Db *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP >= 0)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
@@ -972,7 +972,7 @@ int simpgs(Db *dbin,
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF >= 0)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
@@ -987,7 +987,7 @@ int simpgs(Db *dbin,
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrf * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF >= 0)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
@@ -1383,19 +1383,19 @@ int simbipgs(Db *dbin,
 
   if (dbout != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP >= 0)
       dbout->deleteColumnsByLocator(ELoc::P);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RP, "Props",
                                   nfactot, false);
 
-    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS) && iptr_RN)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS) && iptr_RN >= 0)
       dbout->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
+    if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF >= 0)
       dbout->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbout, iptr_RF, String(),
@@ -1404,13 +1404,13 @@ int simbipgs(Db *dbin,
 
   if (dbin != nullptr)
   {
-    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS) && iptr_DN)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_GAUS) && iptr_DN >= 0)
       dbin->deleteColumnsByLocator(ELoc::SIMU);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DN, "Gaus",
                                   ngrftot * nbsimu, false);
 
-    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF)
+    if (!st_keep(flag_gaus, flag_prop, DATA, TYPE_FACIES) && iptr_DF >= 0)
       dbin->deleteColumnsByLocator(ELoc::FACIES);
     else
       namconv.setNamesAndLocators(NULL, ELoc::Z, -1, dbin, iptr_DF, String(),
@@ -2526,10 +2526,10 @@ int simpgs_spde(Db *dbin,
   /* Free the temporary variables */
   /********************************/
 
-  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP)
+  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_PROP) && iptr_RP >= 0)
     dbout->deleteColumnsByLocator(ELoc::P);
 
-  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF)
+  if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_FACIES) && iptr_RF >= 0)
     dbout->deleteColumnsByLocator(ELoc::FACIES);
 
   if (!st_keep(flag_gaus, flag_prop, RESULT, TYPE_GAUS))

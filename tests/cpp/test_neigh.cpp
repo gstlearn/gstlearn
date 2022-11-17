@@ -10,12 +10,12 @@
 /******************************************************************************/
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/File.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
 #include "Neigh/NeighWork.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/File.hpp"
 
 /****************************************************************************/
 /*!
@@ -41,7 +41,7 @@ int main(int /*argc*/, char */*argv*/[])
   VectorDouble coormin = {0.,0.};
   VectorDouble coormax = {100.,100.};
   Db* db = Db::createFromBox(nech, coormin, coormax, 12345);
-  VectorDouble tab = ut_vector_simulate_gaussian(nech);
+  VectorDouble tab = VH::simulateGaussian(nech);
   db->addColumns(tab, "Variable", ELoc::Z);
   db->display();
 
@@ -59,12 +59,12 @@ int main(int /*argc*/, char */*argv*/[])
   NeighWork nbghw(db,neighU);
 
   // Getting the Neighborhood for various target point
-  ut_ivector_display("For Target Point #0",
-                     nbghw.select(target, 0, VectorInt(), verbose));
+  VH::display("For Target Point #0",
+              nbghw.select(target, 0, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-  ut_ivector_display("For Target Point #1",
-                     nbghw.select(target, 1, VectorInt(), verbose));
+  VH::display("For Target Point #1",
+              nbghw.select(target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
   delete neighU;
@@ -80,20 +80,20 @@ int main(int /*argc*/, char */*argv*/[])
   nbghw = NeighWork(db,neighM);
 
   // Getting the Neighborhood for various target point
-  ut_ivector_display("For Target Point #0",
-                     nbghw.select(target, 0, VectorInt(), verbose));
+  VH::display("For Target Point #0",
+              nbghw.select(target, 0, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-  ut_ivector_display("For Target Point #1",
-                     nbghw.select(target, 1, VectorInt(), verbose));
+  VH::display("For Target Point #1",
+              nbghw.select(target, 1, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-  ut_ivector_display("For Target Point #2",
-                     nbghw.select(target, 2, VectorInt(), verbose));
+  VH::display("For Target Point #2",
+              nbghw.select(target, 2, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
-  ut_ivector_display("For Target Point #3",
-                     nbghw.select(target, 3, VectorInt(), verbose));
+  VH::display("For Target Point #3",
+              nbghw.select(target, 3, VectorInt(), verbose));
   message("Is neighborhood Unchanged since last call = %d\n",
           nbghw.isUnchanged());
 

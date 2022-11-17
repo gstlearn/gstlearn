@@ -1117,7 +1117,8 @@ void CalcSimuEden::_rollback()
 ** \remark  Fluids should be ordered by increasing weight
 ** \remark  A Permeability variable is a value (>=1) which divides
 ** \remark  the velocities. This variable is optional.
-** \remark  A Porosity variable is a value (in [0,1]) which multiplies//  StdoutRedirect sr(sfn.str());
+** \remark  A Porosity variable is a value (in [0,1]) which multiplies
+** \remark  the velocities. This variable is optional.
 **
 ** \remark  the volumes. This variable is optional.
 ** \remark  Volume_max represents the volumic part of the invaded area:

@@ -1,5 +1,3 @@
-#include "Basic/Vector.hpp"
-#include "Basic/Law.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
@@ -10,6 +8,8 @@
 #include "Model/NoStatFunctional.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LinearOp/PrecisionOp.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "Mesh/MeshETurbo.hpp"
@@ -76,7 +76,7 @@ int main(int /*argc*/, char */*argv*/[])
     rotmat.setValue(0,1,dirs[0][1]);
     rotmat.setValue(1,1,dirs[1][1]);
 
-    VectorDouble diag = ut_vector_power(cova.getScales(), 2.);
+    VectorDouble diag = VH::power(cova.getScales(), 2.);
     MatrixSquareSymmetric temp(2);
     temp.setDiagonal(diag);
     hh.normMatrix(temp, rotmat);
@@ -93,7 +93,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Inquiry the value of the Non-stationary parameters at a given sample
   int target = 1000;
   VectorDouble vect = workingDbc->getSampleLocators(ELoc::NOSTAT,target);
-  ut_vector_display("Non-stationary parameters at sample", vect);
+  VH::display("Non-stationary parameters at sample", vect);
 
   NoStatArray NoStat({"H1-1","H1-2","H2-2"},workingDbc);
   model.addNoStat(&NoStat);
@@ -104,7 +104,7 @@ int main(int /*argc*/, char */*argv*/[])
   PrecisionOp Qsimu(&S, &cova, EPowerPT::MINUSHALF, false);
 
   int nvertex = Qsimu.getSize();
-  VectorDouble vectnew = ut_vector_simulate_gaussian(nvertex);
+  VectorDouble vectnew = VH::simulateGaussian(nvertex);
 
   VectorDouble result(Qsimu.getSize());
   Qsimu.eval(vectnew,result);

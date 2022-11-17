@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Basic/AStringFormat.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 #include "geoslib_define.h"
 

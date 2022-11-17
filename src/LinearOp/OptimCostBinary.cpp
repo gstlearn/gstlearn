@@ -21,6 +21,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -184,7 +185,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
   if (verbose)
   {
     message("Mean proportion (provided as input) = %lf\n",_meanPropRaw);
-    ut_vector_display_stats("Proportions calculated on Data",indic);
+    VH::displayStats("Proportions calculated on Data",indic);
   }
 
   try 
@@ -260,7 +261,7 @@ VectorDouble OptimCostBinary::minimize(VectorDouble& indic,
 
     if (verbose)
     {
-      ut_vector_display_stats("Calculated Proportions",propfac);
+      VH::displayStats("Calculated Proportions",propfac);
     }
   }
 

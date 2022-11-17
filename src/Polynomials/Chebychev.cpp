@@ -12,7 +12,6 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
-#include "Basic/Vector.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "csparse_f.h"

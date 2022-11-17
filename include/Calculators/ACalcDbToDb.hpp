@@ -16,7 +16,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Vector.hpp"
 
 class ELoc;
 

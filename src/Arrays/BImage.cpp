@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Arrays/BImage.hpp"
 #include "Arrays/BImageStringFormat.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/Utilities.hpp"
 
 BImage::BImage(const VectorInt& ndims)

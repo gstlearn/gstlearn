@@ -12,7 +12,7 @@
 
 #include "Neigh/NeighBench.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Db/Db.hpp"
 
 NeighBench::NeighBench(bool flag_xvalid, double width, const ASpace* space)
@@ -115,7 +115,7 @@ int NeighBench::getMaxSampleNumber(const Db* db) const
   VectorDouble vec = db->getCoordinates(ndim-1, useSel);
 
   /* Sort the third coordinate vector */
-  VectorDouble tab = ut_vector_sort(vec, true);
+  VectorDouble tab = VH::sort(vec, true);
 
   /* Loop on the first point */
   nmax = 0;

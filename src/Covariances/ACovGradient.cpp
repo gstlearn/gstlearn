@@ -12,7 +12,7 @@
 
 #include "Covariances/ACovGradient.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Drifts/ADriftElem.hpp"
 
 #include <math.h>

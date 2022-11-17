@@ -16,7 +16,7 @@
 
 #include "LithoRule/Node.hpp"
 #include "RuleStringFormat.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/ICloneable.hpp"

@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Enum/AEnum.hpp"
 #include "Basic/Utilities.hpp"
 

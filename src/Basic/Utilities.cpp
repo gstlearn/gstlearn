@@ -968,24 +968,6 @@ void ut_classify(int nech,
   return;
 }
 
-/****************************************************************************/
-/*!
- **  Initialize a rotation matrix
- **
- ** \param[in]  ndim      Space dimension
- **
- ** \param[out] rot       Rotation matrix
- **
- *****************************************************************************/
-void ut_rotation_init(int ndim, double *rot)
-{
-  int i, j, ecr;
-
-  for (i = ecr = 0; i < ndim; i++)
-    for (j = 0; j < ndim; j++, ecr++)
-      rot[ecr] = (i == j);
-}
-
 /*****************************************************************************/
 /*!
  **  Calculate the median from a table of values

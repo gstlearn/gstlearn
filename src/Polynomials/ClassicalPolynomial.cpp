@@ -8,11 +8,8 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #include "Polynomials/ClassicalPolynomial.hpp"
-
-
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 
 #include "csparse_d.h"
@@ -232,6 +229,6 @@ void ClassicalPolynomial::evalDerivOpOptim(ShiftOpCs* shiftOp,
     cs_vecmult(S, (int) temp1.size(), out.data(), temp1.data());
     cs_vecmult(gradS, (int) temp2.size(),
                workpoly[i + 1].data(), temp2.data());
-    ut_vector_sum(temp1, temp2, out);
+    VH::addInPlace(temp1, temp2, out);
   }
 }

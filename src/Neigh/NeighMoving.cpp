@@ -14,7 +14,7 @@
 #include "Morpho/Morpho.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Faults/Faults.hpp"
 #include "Db/Db.hpp"
 
@@ -57,9 +57,9 @@ NeighMoving::NeighMoving(bool flag_xvalid,
     if (! angles.empty())
     {
       int ndim = getNDim();
-      _flagRotation = (ut_vector_constant(angles, 0.)) ? 0 : 1;
+      _flagRotation = (VH::isConstant(angles, 0.)) ? 0 : 1;
       _anisoRotMat.resize(ndim * ndim);
-      ut_rotation_matrix(ndim, angles.data(), _anisoRotMat.data());
+      GH::rotationInit(ndim, angles.data(), _anisoRotMat.data());
     }
   }
 }

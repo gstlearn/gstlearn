@@ -19,6 +19,7 @@
 #include "Basic/Table.hpp"
 #include "Basic/File.hpp"
 #include "Basic/PolyLine2D.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
@@ -49,9 +50,9 @@ int main(int /*argc*/, char */*argv*/[])
   bool verbose = false;
 
   Db* db1 = Db::createFromBox(nech,{0.,0.},{1.,1.}, 32432);
-  VectorDouble vec1 = ut_vector_simulate_gaussian(nech);
+  VectorDouble vec1 = VH::simulateGaussian(nech);
   db1->addColumns(vec1,"myvar1",ELoc::Z, 0);
-  VectorDouble vec2 = ut_vector_simulate_gaussian(nech);
+  VectorDouble vec2 = VH::simulateGaussian(nech);
   db1->addColumns(vec2,"myvar2");
   db1->display();
   
@@ -73,9 +74,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ===== Create the Grid Db
   DbGrid* dbg1 = DbGrid::create({12,10},{0.1,0.3},{0.2,0.4});
-  vec1 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
+  vec1 = VH::simulateGaussian(dbg1->getSampleNumber());
   dbg1->addColumns(vec1,"myvar1",ELoc::Z, 0);
-  vec2 = ut_vector_simulate_gaussian(dbg1->getSampleNumber());
+  vec2 = VH::simulateGaussian(dbg1->getSampleNumber());
   vec2[2] = TEST;
   vec2[5] = TEST;
   dbg1->addColumns(vec2,"myvar2",ELoc::Z, 1);
@@ -152,7 +153,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nrows = 10;
   table.resize(ncols);
   for (int icol = 0; icol < ncols; icol++)
-    table[icol] = ut_vector_simulate_uniform(nrows);
+    table[icol] = VH::simulateUniform(nrows);
   Table* table1 = Table::createFromArray(table, false);
   table1->display();
 
@@ -182,8 +183,8 @@ int main(int /*argc*/, char */*argv*/[])
   // ======================
 
   int npolyline = 100;
-  VectorDouble xpolyline = ut_vector_simulate_gaussian(npolyline);
-  VectorDouble ypolyline = ut_vector_simulate_gaussian(npolyline);
+  VectorDouble xpolyline = VH::simulateGaussian(npolyline);
+  VectorDouble ypolyline = VH::simulateGaussian(npolyline);
   PolyLine2D* polyline = new PolyLine2D(xpolyline, ypolyline);
   polyline->display();
 

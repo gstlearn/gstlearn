@@ -41,7 +41,7 @@
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
-  #include "Basic/Vector.hpp"
+  #include "Basic/VectorHelper.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"
@@ -69,7 +69,7 @@
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
   
-  #include "Geometry/Geometry.hpp"
+  #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
   
   #include "Arrays/AArray.hpp"

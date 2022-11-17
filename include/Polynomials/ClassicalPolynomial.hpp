@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Polynomials/APolynomial.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class ShiftOpCs;
 class ALinearOp;

@@ -15,7 +15,6 @@
 #include "Calculators/ACalculator.hpp"
 #include "Db/Db.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Vector.hpp"
 
 class ELoc;
 

@@ -1076,7 +1076,7 @@ VectorInt Grid::generateGridIndices(const VectorInt& nx,
                                     bool verbose)
 {
   int ndim = (int) nx.size();
-  int ncell = ut_vector_prod(nx);
+  int ncell = VH::product(nx);
 
   // Decode the string
 

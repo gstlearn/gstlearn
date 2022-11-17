@@ -12,16 +12,16 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/Law.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Law.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <math.h>
@@ -336,7 +336,7 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   int n = getSize();
   VectorDouble ei(n);
   VectorDouble result(n);
-  ut_vector_fill(ei,0.,n);
+  VH::fill(ei,0.,n);
   ei[imesh] = 1.;
   _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE,result,ei);
@@ -355,7 +355,7 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
   for(auto &e : vect)
   {
     e.resize(n);
-    whitenoise = ut_vector_simulate_gaussian(n);
+    whitenoise = VH::simulateGaussian(n);
     _evalPoly(EPowerPT::MINUSHALF,whitenoise,e);
   _shiftOp->prodLambda(e, e, EPowerPT::MINUSONE);
   }

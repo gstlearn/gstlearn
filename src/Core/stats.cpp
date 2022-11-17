@@ -14,7 +14,7 @@
 #include "Enum/EJustify.hpp"
 
 #include "Morpho/Morpho.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"

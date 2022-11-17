@@ -11,9 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
-#include "Basic/Vector.hpp"
 
 class GSTLEARN_EXPORT FracFault: public AStringable, public ASerializable
 {

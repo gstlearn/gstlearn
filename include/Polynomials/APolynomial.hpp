@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
 

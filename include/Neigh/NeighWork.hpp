@@ -33,7 +33,7 @@ public:
                    const VectorInt& rankColCok = VectorInt(),
                    bool verbose = false);
   bool isUnchanged() const { return _flagIsUnchanged; }
-  void setIsChanged() { _flagIsUnchanged = false; };
+  void setIsChanged();
   VectorDouble summary(Db *dbout,
                        int iech_out,
                        const VectorInt& rankColCok = VectorInt());

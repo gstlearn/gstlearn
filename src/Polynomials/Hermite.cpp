@@ -14,6 +14,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -183,7 +184,7 @@ VectorDouble hermitePolynomials(double y, double r, const VectorInt& ifacs)
   int nfact = (int) ifacs.size();
   VectorDouble vec(nfact);
 
-  int nbpoly = ut_ivector_max(ifacs);
+  int nbpoly = VH::maximum(ifacs);
   VectorDouble poly = hermitePolynomials(y, r, nbpoly+1);
 
   for (int ifac = 0; ifac < nfact; ifac++)

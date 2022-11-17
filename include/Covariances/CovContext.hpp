@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 
 class ASpace;
@@ -49,16 +48,13 @@ public:
   double              getField()        const { return _field; }
   const VectorDouble& getMean()         const { return _mean; }
   const VectorDouble& getCovar0()       const { return _covar0; }
-
   double getMean(int ivar) const;
   double getCovar0(int ivar, int jvar) const;
 
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
   void setField(double field)            { _field = field; }
-
   void setMean(const VectorDouble& mean);
   void setMean(int ivar, const double mean);
-
   void setCovar0(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 

@@ -13,7 +13,6 @@
 #include "geoslib_old_f.h"
 #include "LinearOp/ProjMatrix.hpp"
 #include "Mesh/AMesh.hpp"
-#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/MeshEStandard.hpp"
 #include "csparse_f.h"

@@ -14,7 +14,6 @@
 #include "Basic/AException.hpp"
 #include "LinearOp/PrecisionOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
-#include "Basic/Vector.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/AMesh.hpp"
 #include "csparse_d.h"

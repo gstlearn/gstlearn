@@ -11,10 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Db/DbGrid.hpp"
 #include "IProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 /**

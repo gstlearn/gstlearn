@@ -14,7 +14,6 @@
 
 #include "Enum/ETLaw.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
 // TODO Will be replaced by future class"Law" or "Distribution" which does not

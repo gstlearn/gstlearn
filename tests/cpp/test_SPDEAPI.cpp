@@ -1,15 +1,15 @@
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/Law.hpp"
+#include "Basic/FunctionalSpirale.hpp"
+#include "Basic/File.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbStringFormat.hpp"
 #include "Db/DbGrid.hpp"
-#include "Basic/Law.hpp"
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
-#include "Basic/FunctionalSpirale.hpp"
-#include "Basic/File.hpp"
 
 /****************************************************************************/
 /*!
@@ -55,7 +55,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating Data
   int ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 43246);
-  VectorDouble z = ut_vector_simulate_gaussian(ndata);
+  VectorDouble z = VH::simulateGaussian(ndata);
   dat->addColumns(z,"variable",ELoc::Z);
   dat->display();
 

@@ -11,7 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 
 class AMesh;
 class MatrixRectangular;

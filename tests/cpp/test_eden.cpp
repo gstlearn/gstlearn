@@ -25,7 +25,6 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Basic/Vector.hpp"
 #include "Simulation/CalcSimuTurningBands.hpp"
 #include "Simulation/CalcSimuEden.hpp"
 

@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "GeometryHelper.hpp"
+
 #include "geoslib_define.h"
 #include "Basic/AStringable.hpp"
 
-#include "Geometry/Geometry.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
 class GSTLEARN_EXPORT Rotation: public AStringable /// TODO : public ASpaceObject

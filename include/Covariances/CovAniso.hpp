@@ -14,7 +14,6 @@
 
 #include "Enum/ECov.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"

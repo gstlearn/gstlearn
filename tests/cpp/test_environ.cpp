@@ -6,7 +6,7 @@
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/File.hpp"
 
 int main(int /*argc*/, char **/*argv*/)
@@ -27,16 +27,16 @@ int main(int /*argc*/, char **/*argv*/)
   mestitle(0,"Checking 'OptCst' functionalities");
   OptCst::display();
 
-  VectorDouble vect = ut_vector_simulate_gaussian(20);
+  VectorDouble vect = VH::simulateGaussian(20);
   message("\n");
-  ut_vector_display("Vector Display (initial)", vect);
+  VH::display("Vector Display (initial)", vect);
 
   OptCst::define(ECst::NTCAR,  12.);
   OptCst::define(ECst::NTDEC,   4.);
   OptCst::define(ECst::NTBATCH, 6.);
   OptCst::display();
   message("\n");
-  ut_vector_display("Vector Display (modified)",vect);
+  VH::display("Vector Display (modified)",vect);
 
   // Management of OptCustom
   mestitle(0,"Checking 'OptCustom' functionalities");

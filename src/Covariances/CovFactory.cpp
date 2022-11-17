@@ -11,7 +11,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBesselJ.hpp"

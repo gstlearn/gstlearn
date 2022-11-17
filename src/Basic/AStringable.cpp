@@ -9,12 +9,12 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "geoslib_old_f.h"
-
-#include "Enum/EJustify.hpp"
 #include "csparse_d.h"
 
+#include "Enum/EJustify.hpp"
+
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/File.hpp"
@@ -604,13 +604,13 @@ String toMatrix(const String& title,
  * @param flagOverride Override the printout limitations
  * @return
  */
-String toMatrixSymmetric(const String& title,
-                const VectorString& colnames,
-                const VectorString& rownames,
-                bool  bycol,
-                int   ncols,
-                const VectorDouble &tab,
-                bool  flagOverride)
+String toMatrixSymmetric(const String &title,
+                         const VectorString &colnames,
+                         const VectorString &rownames,
+                         bool bycol,
+                         int ncols,
+                         const VectorDouble &tab,
+                         bool flagOverride)
 {
   std::stringstream sstr;
   int nrows = ncols;

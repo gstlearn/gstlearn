@@ -12,6 +12,7 @@
 /******************************************************************************/
 #include "LinearOp/PrecisionOpMultiConditional.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Polynomials/Chebychev.hpp"
 
@@ -147,11 +148,11 @@ double PrecisionOpMultiConditional::computeLogDetOp(int nsimus, int seed) const
   {
     for (auto &e : gauss)
     {
-      ut_vector_simulate_gaussian_inplace(e);
+      VH::simulateGaussianInPlace(e);
     }
 
-     logPoly.evalOp(this,gauss,_work3);
-     val += innerProduct(gauss,_work3);
+    logPoly.evalOp(this, gauss, _work3);
+    val += innerProduct(gauss, _work3);
   }
 
   return val / nsimus;
@@ -193,7 +194,7 @@ double PrecisionOpMultiConditional::computeTotalLogDet(int nsimus , int seed ) c
 double PrecisionOpMultiConditional::computeQuadratic(const VectorDouble& x) const
 {
   evalInvCov(x,_work1ter);
-  return ut_vector_inner_product(x,_work1ter);
+  return VH::innerProduct(x,_work1ter);
 }
 
 
@@ -208,10 +209,10 @@ void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVector
   for (int imod = 0; imod < sizes(); imod++)
   {
     _multiProjData[imod]->mesh2point(in[imod], _work1);
-    ut_vector_add_inplace(_workdata,_work1);
+    VH::addInPlace(_workdata,_work1);
   }
 
-   ut_vector_divide_vec(_workdata, _varianceData);
+   VH::divideInPlace(_workdata, _varianceData);
 
   for (int imod = 0; imod < sizes(); imod++)
   {
@@ -254,12 +255,12 @@ void PrecisionOpMultiConditional::simulateOnMeshing(const VectorDouble& gauss,Ve
 void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,
                                                                   VectorDouble& result) const
 {
-  ut_vector_fill(result,0.,_ndat);
+  VH::fill(result,0.,_ndat);
 
   for(int icov = 0; icov <  sizes(); icov++)
   {
     _multiProjData[icov]->mesh2point(simus[icov],_work1);
-    ut_vector_add_inplace(result,_work1);
+    VH::addInPlace(result,_work1);
   }
 
   for(int idat = 0; idat < _ndat; idat++)
@@ -361,11 +362,11 @@ VectorDouble PrecisionOpMultiConditional::computeCoeffs(const VectorDouble& Y, c
   for(int i = 0; i< xsize; i++)
   {
     evalInvCov(X[i],_work1ter);
-    XtInvSigmaZ[i] = ut_vector_inner_product(Y,_work1ter);
+    XtInvSigmaZ[i] = VH::innerProduct(Y,_work1ter);
 
     for(int j = i; j < xsize;j++)
     {
-      XtInvSigmaX.setValue(i,j,ut_vector_inner_product(X[j],_work1ter));
+      XtInvSigmaX.setValue(i,j, VH::innerProduct(X[j],_work1ter));
     }
   }
 

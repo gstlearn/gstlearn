@@ -13,6 +13,7 @@
 #include "Db/Db.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "geoslib_f_private.h"
 
 RuleProp::RuleProp()
@@ -157,7 +158,7 @@ String RuleProp::toString(const AStringFormat* strfmt) const
 
   // Constant proportions (Stationary case)
   if (_flagStat)
-    sstr << "Constant Proportions" << ut_vector_string(_propcst) << std::endl;
+    sstr << "Constant Proportions" << VH::toString(_propcst) << std::endl;
 
   // Db file (Non-Stationary case)
   if (! _flagStat)

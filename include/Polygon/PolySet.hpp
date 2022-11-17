@@ -12,8 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
-#include "../Basic/PolyLine2D.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/PolyLine2D.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT PolySet: public PolyLine2D

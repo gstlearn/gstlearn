@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Arrays/Array.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 Array::Array(const VectorInt& ndims)
     : AArray(ndims),

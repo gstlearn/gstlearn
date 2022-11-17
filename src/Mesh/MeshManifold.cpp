@@ -15,7 +15,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/ASerializable.hpp"
 #include "csparse_f.h"
 
