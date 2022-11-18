@@ -443,24 +443,24 @@ static int st_selection_per_code(Db *db, int icode, int iptr_sel)
  ** \param[in]  ndim         Space dimension
  ** \param[in]  ntri         Number of triangles
  ** \param[in]  npoints      Number of vertices
- ** \param[in]  triangles    Array on the triangle corners
- ** \param[in]  points       Array on the vertices coordinates
+ ** \param[in]  triloc       Array on the triangle corners
+ ** \param[in]  poiloc       Array on the vertices coordinates
  **
  ** \param[out] ntri_arg     Cumulated number of triangles
  ** \param[out] npoint_arg   Cumulated number of vertices
- ** \param[out] triangle_arg Cumulated array on the triangle corners
- ** \param[out] points_arg   Cumulated array on the 3-D vertices coordinates
+ ** \param[out] triangles    Cumulated array on the triangle corners
+ ** \param[out] points       Cumulated array on the 3-D vertices coordinates
  **
  *****************************************************************************/
 static int st_concatenate_arrays(int ndim,
                                  int ntri,
                                  int npoints,
-                                 VectorInt& triangles,
-                                 VectorDouble& points,
+                                 VectorInt& triloc,
+                                 VectorDouble& poiloc,
                                  int *ntri_arg,
                                  int *npoint_arg,
-                                 VectorInt& triangle_arg,
-                                 VectorDouble& points_arg)
+                                 VectorInt& triangles,
+                                 VectorDouble& points)
 {
   int ecr;
 
@@ -474,11 +474,11 @@ static int st_concatenate_arrays(int ndim,
   if (ntri > 0)
   {
     int newnum = ntloc + ntri;
-    triangle_arg.resize(3 * newnum, 0);
+    triangles.resize(3 * newnum, 0);
 
     ecr = ntloc * 3;
     for (int i = 0; i < ntri * 3; i++)
-      triangle_arg[ecr++] = triangles[i] + nploc;
+      triangles[ecr++] = triloc[i] + nploc;
 
     ntloc = newnum;
   }
@@ -488,11 +488,11 @@ static int st_concatenate_arrays(int ndim,
   if (npoints > 0)
   {
     int newnum = nploc + npoints;
-    points_arg.resize(ndim * newnum, 0);
+    points.resize(ndim * newnum, 0);
 
     ecr = nploc * ndim;
     for (int i = 0; i < npoints * ndim; i++)
-      points_arg[ecr++] = points[i];
+      points[ecr++] = poiloc[i];
 
     nploc = newnum;
   }
@@ -601,11 +601,11 @@ static int st_rectangle_surface(Surf_Def *surf_reference,
  ** \param[out] ntri_arg      Number of triangles
  ** \param[out] npoint_arg    Number of vertices
  ** \param[out] codesel       Selected code (if any)
- ** \param[out] ntcode_arg    Array for the number of triangles per code
- ** \param[out] triangles_arg Array on the triangle corners
- ** \param[out] points_arg    Array on the 3-D vertices coordinates
+ ** \param[out] ntcode        Array for the number of triangles per code
+ ** \param[out] triangles     Array on the triangle corners
+ ** \param[out] points        Array on the 3-D vertices coordinates
  **
- ** \remarks The returned arrays 'triangle_arg', 'coords_arg' and 'elev_arg'
+ ** \remarks The returned arrays 'triangle', 'points'
  ** \remarks must be freed by the calling function
  **
  *****************************************************************************/
@@ -618,9 +618,9 @@ int db_trisurf(Db *db,
                int *ntri_arg,
                int *npoint_arg,
                double *codesel,
-               int **ntcode_arg,
-               VectorInt& triangles_arg,
-               VectorDouble& points_arg)
+               VectorInt& ntcode,
+               VectorInt& triangles,
+               VectorDouble& points)
 {
   Surf_Def *surf_reference;
   int iptr_sel, iptr_init[3], iptr_proj[3], error;
@@ -634,7 +634,6 @@ int db_trisurf(Db *db,
   /* Initializations */
 
   error = 1;
-  *ntcode_arg = nullptr;
   ntricum = npoicum = *ncode_arg = *ntri_arg = *npoint_arg = 0;
   VERBOSE = verbose;
   ndim = db->getNDim();
@@ -684,8 +683,7 @@ int db_trisurf(Db *db,
 
   /* Core allocation */
 
-  (*ntcode_arg) = (int*) mem_alloc(sizeof(int) * ncode_eff, 0);
-  if ((*ntcode_arg) == nullptr) goto label_end;
+  ntcode.resize(ncode_eff, 0);
 
   /* Create the new variables */
 
@@ -756,7 +754,7 @@ int db_trisurf(Db *db,
     /* Concatenate the resulting arrays */
 
     if (st_concatenate_arrays(3, ntriloc, npoiloc, triloc, poiloc, &ntricum,
-                              &npoicum, triangles_arg, points_arg)) goto label_end;
+                              &npoicum, triangles, points)) goto label_end;
 
     /* Verbose output */
 
@@ -764,7 +762,7 @@ int db_trisurf(Db *db,
     message("- Count of triangles = %d\n", ntriloc);
 
     label_suite:
-    (*ntcode_arg)[jcode] = ntriloc;
+    ntcode[jcode] = ntriloc;
   }
 
   /* Set the error return code */

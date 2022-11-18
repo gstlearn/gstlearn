@@ -368,8 +368,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
   nold = t->numberofpoints;
   ecr = nold * ndim;
   t->pointlist = (double*) mem_realloc((char* ) t->pointlist,
-                                       sizeof(double) * (nold + neff) * ndim,
-                                       0);
+                                       sizeof(double) * (nold + neff) * ndim, 0);
   if (t->pointlist == nullptr) goto label_end;
 
   for (iech = 0; iech < nech; iech++)
@@ -388,8 +387,7 @@ int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
     nold = t->numberofholes;
     ecr = nold * ndim;
     t->holelist = (double*) mem_realloc((char* ) t->holelist,
-                                        sizeof(double) * (nold + nhole) * ndim,
-                                        0);
+                                        sizeof(double) * (nold + nhole) * ndim, 0);
     if (t->holelist == nullptr) goto label_end;
     for (iech = 0; iech < nech; iech++)
     {
@@ -492,16 +490,11 @@ static double* st_get_db_extension(Db *dbin, Db *dbout, int *nout)
  *****************************************************************************/
 void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
 {
-  double *ext;
-  int number;
-
-  /* Initializations */
-
-  number = 0;
+  int number = 0;
 
   /* Get the extension of the Dbs */
 
-  ext = st_get_db_extension(dbin, dbout, &number);
+  double* ext = st_get_db_extension(dbin, dbout, &number);
 
   /* Extend the triangulation */
 
@@ -528,20 +521,19 @@ void meshes_2D_default(Db *dbin, Db *dbout, triangulateio *t)
  *****************************************************************************/
 int meshes_2D_from_points(int nech, double *x, double *y, triangulateio *t)
 {
-  int iech, error, ecr, ndim, nold;
+  int iech, ecr, nold;
 
   /* Initializations */
 
-  error = 1;
-  ndim = 2;
+  int error = 1;
+  int ndim = 2;
 
   /* List of points */
 
   nold = t->numberofpoints;
   ecr = nold * ndim;
   t->pointlist = (double*) mem_realloc((char* ) t->pointlist,
-                                       sizeof(double) * (nold + nech) * ndim,
-                                       0);
+                                       sizeof(double) * (nold + nech) * ndim, 0);
   if (t->pointlist == nullptr) goto label_end;
   for (iech = 0; iech < nech; iech++)
   {
@@ -579,12 +571,8 @@ int meshes_2D_from_points(int nech, double *x, double *y, triangulateio *t)
  *****************************************************************************/
 int meshes_2D_from_mem(int nseg, int ncol, int *segments, triangulateio *t)
 {
-  int i, j, error, ndim;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = 2;
+  int error = 1;
+  int ndim = 2;
 
   /* List of segments */
 
@@ -596,9 +584,9 @@ int meshes_2D_from_mem(int nseg, int ncol, int *segments, triangulateio *t)
     if (t->segmentmarkerlist == nullptr) goto label_end;
   }
 
-  for (i = 0; i < nseg; i++)
+  for (int i = 0; i < nseg; i++)
   {
-    for (j = 0; j < ndim; j++)
+    for (int j = 0; j < ndim; j++)
       t->segmentlist[ndim * i + j] = segments[j * nseg + i];
     if (ncol > ndim) t->segmentmarkerlist[i] = segments[2 * nseg + i];
   }
@@ -626,9 +614,9 @@ int meshes_2D_from_mem(int nseg, int ncol, int *segments, triangulateio *t)
  *****************************************************************************/
 void meshes_2D_print(triangulateio *t, int brief)
 {
-  int ndim, i, j, lecp, leca, lecs, lech, lect, lecta, lecn;
+  int i, j, lecp, leca, lecs, lech, lect, lecta, lecn;
 
-  ndim = 2;
+  int ndim = 2;
 
   // List of vertices 
 
@@ -735,12 +723,12 @@ MeshEStandard* meshes_2D_load_vertices(triangulateio *t)
  ** \return 1 If the segment is valid because at least one vertex is active
  **
  ** \param[in] dbgrid      Db structure
+ ** \param[in] ipos        Position of newly created mesh information
  ** \param[in] ix1         Grid index along X for the vertex #1
  ** \param[in] ix2         Grid index along X for the vertex #2
  **
  ** \param[out] mesh       Array of triangle ranks (dimension = 3)
  ** \param[out] order      Array of relative ranks
- ** \param[out] indg       Array for grid indexation
  **
  ** \remarks The values in 'order' are the absolute indices (starting from 1),
  ** \remarks negative if the grid node is masked off
@@ -753,10 +741,10 @@ static int st_load_segment(DbGrid *dbgrid,
                            int ix1,
                            int ix2)
 {
-  int nactive, iech1, iech2, imask1, imask2;
+  int iech1, iech2, imask1, imask2;
   VectorInt indg(1);
 
-  nactive = 0;
+  int nactive = 0;
 
   indg[0] = ix1;
   iech1 = dbgrid->indiceToRank(indg);
@@ -785,6 +773,7 @@ static int st_load_segment(DbGrid *dbgrid,
  ** \return 1 If the triangle is valid because at least one vertex is active
  **
  ** \param[in] dbgrid      Db structure
+ ** \param[in] ipos        Position of newly created mesh information
  ** \param[in] ix1         Grid index along X for the vertex #1
  ** \param[in] iy1         Grid index along Y for the vertex #1
  ** \param[in] ix2         Grid index along X for the vertex #2
@@ -810,10 +799,10 @@ static int st_load_triangle(DbGrid *dbgrid,
                             int ix3,
                             int iy3)
 {
-  int nactive, iech1, iech2, iech3, imask1, imask2, imask3;
+  int iech1, iech2, iech3, imask1, imask2, imask3;
   VectorInt indg(2);
 
-  nactive = 0;
+  int nactive = 0;
 
   indg[0] = ix1;
   indg[1] = iy1;
@@ -854,6 +843,7 @@ static int st_load_triangle(DbGrid *dbgrid,
  ** \param[in] dbgrid      Db structure
  ** \param[in] mesh        Array of triangle ranks (dimension = 4)
  ** \param[in] order       Array of relative ranks
+ ** \param[in] ipos        Position of newly created mesh information
  ** \param[in] ix1         Grid index along X for the vertex #1
  ** \param[in] iy1         Grid index along Y for the vertex #1
  ** \param[in] iz1         Grid index along Z for the vertex #1
@@ -888,10 +878,10 @@ static int st_load_tetra(DbGrid *dbgrid,
                          int iy4,
                          int iz4)
 {
-  int nactive, iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
+  int iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
   VectorInt indg(3);
 
-  nactive = 0;
+  int nactive = 0;
 
   indg[0] = ix1;
   indg[1] = iy1;
@@ -1104,8 +1094,7 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
     for (int icorn = 0; icorn < ncorner && !skip; icorn++)
     {
       i1 = MESHES(imesh, icorn);
-      jcorn = (icorn + 1 == ncorner) ? 0 :
-                                       icorn + 1;
+      jcorn = (icorn + 1 == ncorner) ? 0 : icorn + 1;
       i2 = MESHES(imesh, jcorn);
 
       /* Loop on the faults vertices */
@@ -1116,8 +1105,7 @@ static void st_strip_triangles_intercepted_faults(triangulateio *t,
         skip += (GH::segmentIntersect(POINTS(i1, 0), POINTS(i1, 1),
                                       POINTS(i2, 0), POINTS(i2, 1),
                                       FAULTS(j1, 0), FAULTS(j1, 1),
-                                      FAULTS(j2, 0), FAULTS(j2, 1), &xx, &yy)
-                 != 1);
+                                      FAULTS(j2, 0), FAULTS(j2, 1), &xx, &yy) != 1);
       }
     }
     ranks[imesh] = skip;
@@ -1206,9 +1194,7 @@ void meshes_2D_create(int verbose,
  ** \param[in]  t          Triangulation environment
  **
  *****************************************************************************/
-void meshes_2D_extended_domain(Db *dbout,
-                               const double *gext,
-                               triangulateio *t)
+void meshes_2D_extended_domain(Db *dbout, const double *gext, triangulateio *t)
 {
   int number, flag_extend;
   double *ext;
@@ -1267,9 +1253,9 @@ int meshes_2D_write(const char *file_name,
                     int ncode,
                     int ntri,
                     int npoints,
-                    int *ntcode,
-                    int *triangles,
-                    double *points)
+                    const VectorInt& ntcode,
+                    const VectorInt& triangles,
+                    const VectorDouble& points)
 {
   FILE *file;
   int i, itri, ntriloc;
@@ -2035,11 +2021,11 @@ void meshes_3D_free(tetgenio *t)
  *****************************************************************************/
 void meshes_3D_print(tetgenio *t, int brief)
 {
-  int ndim, i, j, lecp, leca, lech, lect, lecta, lecn;
+  int i, j, lecp, leca, lech, lect, lecta, lecn;
 
   /* Initializations */
 
-  ndim = 3;
+  int ndim = 3;
 
   message("- Number of vertices   = %d\n", t->numberofpoints);
   message("- Number of attributes = %d\n", t->numberofpointattributes);
@@ -2345,10 +2331,10 @@ void meshes_3D_default(Db *dbin, Db *dbout, tetgenio *t)
  **
  *****************************************************************************/
 int meshes_3D_from_points(int nech,
-                                          double *x,
-                                          double *y,
-                                          double *z,
-                                          tetgenio *t)
+                          double *x,
+                          double *y,
+                          double *z,
+                          tetgenio *t)
 {
   int iech, error, ecr, ndim, nold;
 

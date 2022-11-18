@@ -1855,7 +1855,6 @@ GSTLEARN_EXPORT MeshEStandard* meshes_1D_load_vertices(segmentio *t);
 GSTLEARN_EXPORT void meshes_1D_extended_domain(Db *dbout,
                                                const double *gext,
                                                segmentio *t);
-
 GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t, int mode);
 GSTLEARN_EXPORT void meshes_2D_init(triangulateio *t);
 GSTLEARN_EXPORT int meshes_2D_from_db(Db *db,
@@ -1878,9 +1877,9 @@ GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     int ncode,
                                     int ntri,
                                     int npoints,
-                                    int *ntcode,
-                                    int *triangles,
-                                    double *points);
+                                    const VectorInt& ntcode,
+                                    const VectorInt& triangles,
+                                    const VectorDouble& points);
 GSTLEARN_EXPORT AMesh* meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid);
 GSTLEARN_EXPORT void meshes_2D_create(int verbose,
                                       const String &triswitches,
@@ -1997,7 +1996,6 @@ GSTLEARN_EXPORT int spde_process(Db *dbin,
                                  int gibbs_nburn,
                                  int gibbs_niter,
                                  int ngibbs_int);
-GSTLEARN_EXPORT AMesh* spde_mesh_delete(AMesh *amesh_old);
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov);
 GSTLEARN_EXPORT AMesh* spde_mesh_load(int verbose,
                                       Db *dbin,
@@ -2097,9 +2095,10 @@ GSTLEARN_EXPORT int db_trisurf(Db *db,
                                int *ntri_arg,
                                int *npoint_arg,
                                double *codesel,
-                               int **ntcode_arg,
-                               int **triangle_arg,
-                               double **points_arg);
+                               VectorInt &ntcode,
+                               VectorInt &triangles,
+                               VectorDouble &points);
+
 GSTLEARN_EXPORT CTables* ct_tables_manage(int mode,
                                           int verbose,
                                           int flag_cumul,

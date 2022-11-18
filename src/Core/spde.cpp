@@ -159,7 +159,7 @@ typedef struct
 
 static void (*SIMU_FUNC_TRANSF)(Db*, int, int, int) = NULL;
 static void (*SIMU_FUNC_UPDATE)(Db*, int, int, int) = NULL;
-static void (*SIMU_FUNC_SCALE)(Db*, int, int) = NULL;
+static void (*SIMU_FUNC_SCALE) (Db*, int, int) = NULL;
 
 /*! \endcond */
 static int DEBUG = 0;
@@ -266,60 +266,6 @@ SPDE_Option spde_option_alloc(void)
 
 /****************************************************************************/
 /*!
- **  Set the rank of the current GRF of the environment
- **
- ** \param[in]  igrf      Rank of the current GRF
- **
- *****************************************************************************/
-static void st_set_current_igrf(int igrf)
-{
-  SPDE_CURRENT_IGRF = igrf;
-}
-
-/****************************************************************************/
-/*!
- **  Set the rank of the current Covariance of the environment
- **
- ** \param[in]  icov      Rank of the current Covariance
- **
- *****************************************************************************/
-static void st_set_current_icov(int icov)
-{
-  SPDE_CURRENT_ICOV = icov;
-}
-
-/****************************************************************************/
-/*!
- **  Get the rank of the current GRF of the environment
- **
- *****************************************************************************/
-static int st_get_current_igrf(void)
-{
-  return (SPDE_CURRENT_IGRF);
-}
-
-/****************************************************************************/
-/*!
- **  Get the pointer to the current SPDE_SS_Environ structure
- **
- *****************************************************************************/
-static SPDE_SS_Environ* st_get_current_ssenv(void)
-{
-  return (MATGRF(st_get_current_igrf()));
-}
-
-/****************************************************************************/
-/*!
- **  Get the rank of the current COV of the environment
- **
- *****************************************************************************/
-static int st_get_current_icov(void)
-{
-  return (SPDE_CURRENT_ICOV);
-}
-
-/****************************************************************************/
-/*!
  **  Get the current value for triswitch parameter
  **
  ** \param[in]  s_option   SPDE_Option structure
@@ -327,7 +273,7 @@ static int st_get_current_icov(void)
  *****************************************************************************/
 static String st_get_current_triswitch(SPDE_Option &s_option)
 {
-  int rank_cov = st_get_current_icov();
+  int rank_cov = SPDE_CURRENT_ICOV;
   int noption = static_cast<int>(s_option.options.size());
   int rank = MIN(rank_cov, noption - 1);
   String triswitch = s_option.options[rank].triswitch;
@@ -339,22 +285,14 @@ static String st_get_current_triswitch(SPDE_Option &s_option)
  **  Get the pointer to the current SPDE_Matelem structure
  **
  ** \param[in] icov    Rank of the target Covariance (or -1)typedef struct
-{
-  int ndupl;
-  int *dupl_data;
-  int *dupl_dabs;
-  int *dupl_grid;
-} Vercoloc;
-
- **
  **
  *****************************************************************************/
 SPDE_Matelem& spde_get_current_matelem(int icov)
 {
   if (icov < 0)
-    return (st_get_current_ssenv()->Matelems[st_get_current_icov()]);
+    return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[SPDE_CURRENT_ICOV]);
   else
-    return (st_get_current_ssenv()->Matelems[icov]);
+    return (MATGRF(SPDE_CURRENT_IGRF)->Matelems[icov]);
 }
 
 /****************************************************************************/
@@ -380,10 +318,10 @@ static void st_title(int flag_igrf, int flag_icov, int rank, const char *title)
     (void) gslStrcpy(string_encode, "(");
     if (flag_igrf)
       (void) gslSPrintf(string_encode, "%s GRF:%d", string_encode,
-                        st_get_current_igrf() + 1);
+                        SPDE_CURRENT_IGRF + 1);
     if (flag_icov)
       (void) gslSPrintf(string_encode, "%s - COV:%d", string_encode,
-                        st_get_current_icov() + 1);
+                        SPDE_CURRENT_ICOV + 1);
     (void) gslSPrintf(string_encode, "%s ) %s", string_encode, title);
   }
   else
@@ -408,7 +346,7 @@ static void st_title(int flag_igrf, int flag_icov, int rank, const char *title)
  *****************************************************************************/
 static Model* st_get_model(void)
 {
-  return (st_get_current_ssenv()->model);
+  return (MATGRF(SPDE_CURRENT_IGRF)->model);
 }
 
 /****************************************************************************/
@@ -481,8 +419,7 @@ static cs_MGS* st_mgs_manage(int mode, cs_MGS *mgs)
     nmg = (int) get_keypone("Multigrid_nmg", 4);
     tolcg = get_keypone("Multigrid_tolcg", 1.e-7);
     tolnmg = get_keypone("Multigrid_tolnmg", 1.e-7);
-    cs_multigrid_params(mgs, flag_cg, type_coarse, ngc, nmg, ngs, tolcg,
-                        tolnmg);
+    cs_multigrid_params(mgs, flag_cg, type_coarse, ngc, nmg, ngs, tolcg, tolnmg);
   }
   else
   {
@@ -492,22 +429,6 @@ static cs_MGS* st_mgs_manage(int mode, cs_MGS *mgs)
     mgs = cs_multigrid_manage(mgs, -1, 0, 0);
   }
   return (mgs);
-}
-
-/****************************************************************************/
-/*!
- **  Manage the AMesh structure
- **
- ** \return  The newly allocated AMesh
- **
- ** \param[in]  amesh_old Pointer to AMesh to be deallocated
- **
- *****************************************************************************/
-AMesh* spde_mesh_delete(AMesh *amesh_old)
-{
-  if (amesh_old == nullptr) return (NULL);
-  delete amesh_old;
-  return nullptr;
 }
 
 /****************************************************************************/
@@ -551,10 +472,10 @@ void simu_define_func_scale(void (*st_simu_scale)(Db*, int, int))
 /*!
  **  Checks if there is a nugget component in the Model
  **
- ** \return 1 if a Nugget component is present; 0 otherwise
+ ** \return true if a Nugget component is present; false otherwise
  **
  *****************************************************************************/
-static int st_is_model_nugget(void)
+static bool st_is_model_nugget(void)
 {
   Model *model;
 
@@ -562,9 +483,9 @@ static int st_is_model_nugget(void)
 
   for (int is = 0; is < model->getCovaNumber(); is++)
   {
-    if (model->getCovaType(is) == ECov::NUGGET) return (1);
+    if (model->getCovaType(is) == ECov::NUGGET) return true;
   }
-  return (0);
+  return false;
 }
 
 /****************************************************************************/
@@ -600,7 +521,7 @@ static CovAniso* st_get_cova(void)
   int is0, jcov;
 
   model = st_get_model();
-  is0 = st_get_current_icov();
+  is0 = SPDE_CURRENT_ICOV;
 
   for (int icov = jcov = 0; icov < model->getCovaNumber(); icov++)
   {
@@ -614,30 +535,6 @@ static CovAniso* st_get_cova(void)
 
 /****************************************************************************/
 /*!
- **  Set the space dimension for the whole study
- **
- ** \param[in]  ndim   Space dimension
- **
- *****************************************************************************/
-static void st_set_ndim(int ndim)
-{
-  S_ENV.ndim = ndim;
-}
-
-/****************************************************************************/
-/*!
- **  Set the number of variables for the whole study
- **
- ** \param[in]  nvar   Number of variables
- **
- *****************************************************************************/
-static void st_set_nvar(int nvar)
-{
-  S_ENV.nvar = nvar;
-}
-
-/****************************************************************************/
-/*!
  **  Set the pointer to the model of the environment
  **
  ** \param[in]  model  Pointer to the Model structure
@@ -647,27 +544,7 @@ static void st_set_nvar(int nvar)
  *****************************************************************************/
 static void st_set_model(Model *model)
 {
-  st_get_current_ssenv()->model = model;
-}
-
-/****************************************************************************/
-/*!
- **  Return the space dimension of the environment
- **
- *****************************************************************************/
-static int st_get_ndim(void)
-{
-  return (S_ENV.ndim);
-}
-
-/****************************************************************************/
-/*!
- **  Return the number of variables of the environment
- **
- *****************************************************************************/
-static int st_get_nvar(void)
-{
-  return (S_ENV.nvar);
+  MATGRF(SPDE_CURRENT_IGRF)->model = model;
 }
 
 /****************************************************************************/
@@ -711,7 +588,7 @@ static void st_set_filnug(int flag_filnug)
  *****************************************************************************/
 static double st_get_isill(int icov, int ivar, int jvar)
 {
-  int nvar = st_get_nvar();
+  int nvar = S_ENV.nvar;
   const SPDE_Matelem &Maticov = spde_get_current_matelem(icov);
   double value = Maticov.Isill[(jvar) + nvar * (ivar)];
   return (value);
@@ -726,7 +603,7 @@ static void st_clean_Bhetero(void)
 {
   SPDE_SS_Environ *SS;
 
-  SS = st_get_current_ssenv();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
 
   /* Clean the vector of number of data / target per variable */
 
@@ -737,7 +614,7 @@ static void st_clean_Bhetero(void)
 
   if (SS->BheteroD != nullptr)
   {
-    for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+    for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
       SS->BheteroD[ivar] = cs_spfree(SS->BheteroD[ivar]);
     SS->BheteroD = (cs**) mem_free((char* ) SS->BheteroD);
   }
@@ -746,7 +623,7 @@ static void st_clean_Bhetero(void)
 
   if (SS->BheteroT != nullptr)
   {
-    for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+    for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
       SS->BheteroT[ivar] = cs_spfree(SS->BheteroT[ivar]);
     SS->BheteroT = (cs**) mem_free((char* ) SS->BheteroT);
   }
@@ -761,7 +638,7 @@ static void st_clean_Bnugget(void)
 {
   SPDE_SS_Environ *SS;
 
-  SS = st_get_current_ssenv();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
   if (SS->Bnugget != nullptr)
   {
     for (int i = 0; i < st_get_nvs2(); i++)
@@ -839,9 +716,7 @@ static void st_qchol_print(const char *title, QChol *QC)
  ** \remarks The Cholesky decomposition is performed (if possible)
  **
  *****************************************************************************/
-static cs* st_extract_Q_from_Q(cs *Q_in,
-                               int row_auth,
-                               int col_auth)
+static cs* st_extract_Q_from_Q(cs *Q_in, int row_auth, int col_auth)
 {
   int *rank_rows, *rank_cols, error;
   cs *Q = nullptr;
@@ -1090,14 +965,14 @@ static int st_get_ncova_max(void)
   int ncova, ncova_max, igrf_memo;
 
   ncova_max = 0;
-  igrf_memo = st_get_current_igrf();
+  igrf_memo = SPDE_CURRENT_IGRF;
   for (int igrf = 0; igrf < st_get_number_grf(); igrf++)
   {
-    st_set_current_igrf(igrf);
+    SPDE_CURRENT_IGRF = igrf;
     ncova = st_get_model()->getCovaNumber();
     if (ncova > ncova_max) ncova_max = ncova;
   }
-  st_set_current_igrf(igrf_memo);
+  SPDE_CURRENT_IGRF = igrf_memo;
   return (ncova_max);
 }
 
@@ -1132,7 +1007,6 @@ static int st_get_ncova(void)
  **
  *****************************************************************************/
 static int st_get_nvertex(int icov)
-
 {
   return (spde_get_current_matelem(icov).amesh->getNApices());
 }
@@ -1143,22 +1017,21 @@ static int st_get_nvertex(int icov)
  **
  *****************************************************************************/
 static int st_get_nvertex_max(void)
-
 {
   int nvertex, nvertex_max, igrf_memo;
 
   nvertex_max = 0;
-  igrf_memo = st_get_current_igrf();
+  igrf_memo = SPDE_CURRENT_IGRF;
   for (int igrf = 0; igrf < st_get_number_grf(); igrf++)
   {
-    st_set_current_igrf(igrf);
+    SPDE_CURRENT_IGRF = igrf;
     for (int icov = 0; icov < st_get_ncova(); icov++)
     {
       nvertex = st_get_nvertex(icov);
       if (nvertex > nvertex_max) nvertex_max = nvertex;
     }
   }
-  st_set_current_igrf(igrf_memo);
+  SPDE_CURRENT_IGRF = igrf_memo;
   return (nvertex_max);
 }
 
@@ -1225,7 +1098,7 @@ static double st_get_sill_total(int ivar, int jvar)
 
   for (int icov = 0; icov < st_get_ncova(); icov++)
   {
-    st_set_current_icov(icov);
+    SPDE_CURRENT_ICOV = icov;
     cova = st_get_cova();
     total += cova->getSill(ivar, jvar);
   }
@@ -1246,7 +1119,7 @@ static void st_keypair_array(const char *name, int iter, double *tab)
   int nvar, ncova, ncur;
 
   if (!FLAG_KEYPAIR) return;
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncova = st_get_ncova();
   ncur = st_get_nvertex_max();
 
@@ -1305,7 +1178,7 @@ static void st_print_all(const char *title)
 
   /* Initializations */
 
-  int ndim = st_get_ndim();
+  int ndim = S_ENV.ndim;
   CovAniso *cova = st_get_cova();
 
   /* Print the title */
@@ -1314,8 +1187,8 @@ static void st_print_all(const char *title)
 
   /* Global parameters */
 
-  message("Rank of the GRF       = %d\n", st_get_current_igrf() + 1);
-  message("Rank of the structure = %d\n", st_get_current_icov() + 1);
+  message("Rank of the GRF       = %d\n", SPDE_CURRENT_IGRF + 1);
+  message("Rank of the structure = %d\n", SPDE_CURRENT_ICOV + 1);
   message("Param                 = %lf\n", st_get_cova_param());
   message("Alpha                 = %lf\n", st_get_cova_param() + ndim / 2.);
   message("Total Sill            = %lf\n", st_get_sill_total(0, 0));
@@ -1349,14 +1222,13 @@ static void st_print_all(const char *title)
 static void st_compute_correc(void)
 
 {
-  int ndim = st_get_ndim();
+  int ndim = S_ENV.ndim;
   double param = st_get_cova_param();
   double value = spde_compute_correc(ndim, param);
   Calcul.correc = value;
 }
 
 double spde_compute_correc(int ndim, double param)
-
 {
   double g0, ndims2, gammap, gammaa, value;
 
@@ -1382,7 +1254,7 @@ static void st_compute_blin(void)
 
   /* Initializations */
 
-  int ndim = st_get_ndim();
+  int ndim = S_ENV.ndim;
   double param = st_get_cova_param();
   ndims2 = ((double) ndim) / 2.;
   alpha = param + ndims2;
@@ -1440,7 +1312,7 @@ static void st_compute_hh()
 
   /* Initializations */
 
-  int ndim = st_get_ndim();
+  int ndim = S_ENV.ndim;
   CovAniso *cova = st_get_cova();
   VectorDouble temp(ndim * ndim, 0.);
 
@@ -1485,7 +1357,7 @@ static void st_calcul_init(int ndim)
  *****************************************************************************/
 static void st_calcul_update(void)
 {
-  int ndim = st_get_ndim();
+  int ndim = S_ENV.ndim;
 
   // Check that the structure has already been initiated
 
@@ -1567,8 +1439,8 @@ int spde_attach_model(Model *model)
     messerr("The SPDE Methodology is implemented up to 3-D");
     return (1);
   }
-  st_set_ndim(ndim);
-  st_set_nvar(nvar);
+  S_ENV.ndim = ndim;
+  S_ENV.nvar = nvar;
   st_set_model(model);
 
   /* Checking the Model contents */
@@ -1608,7 +1480,7 @@ int spde_attach_model(Model *model)
   }
   /* Check incompatibility between non-stationary and multivariate */
 
-  if (st_get_nvar() > 1)
+  if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = st_get_model()->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
@@ -1617,7 +1489,6 @@ int spde_attach_model(Model *model)
       return (1);
     }
   }
-
   return (0);
 }
 
@@ -1688,8 +1559,8 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     messerr("The SPDE Methodology is implemented for 2-D or 3-D case only");
     return (1);
   }
-  st_set_ndim(ndim);
-  st_set_nvar(nvar);
+  S_ENV.ndim = ndim;
+  S_ENV.nvar = nvar;
   st_set_model(model);
 
   /* Checking the Model contents */
@@ -1747,7 +1618,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
 
   /* Check incompatibility between non-stationary and multivariate */
 
-  if (st_get_nvar() > 1)
+  if (S_ENV.nvar > 1)
   {
     const ANoStat *nostat = model->getNoStat();
     if (nostat != nullptr && nostat->isDefinedByType(-1, EConsElem::SILL))
@@ -1757,7 +1628,7 @@ static int st_check_model(const Db *dbin, const Db *dbout, Model *model)
     }
   }
 
-  if (st_get_ncova() > 1 || st_get_nvar() > 1 || st_is_model_nugget())
+  if (st_get_ncova() > 1 || S_ENV.nvar > 1 || st_is_model_nugget())
     S_DECIDE.flag_several = 1;
 
   return (0);
@@ -1785,7 +1656,7 @@ static int st_identify_nostat_param(int icov0,
 {
   const ANoStat *nostat = st_get_model()->getNoStat();
   if (nostat == nullptr) return -1;
-  int igrf0 = st_get_current_igrf();
+  int igrf0 = SPDE_CURRENT_IGRF;
   int ipar = nostat->getRank(igrf0, icov0, type0, ivar0, jvar0);
   return ipar;
 }
@@ -1984,7 +1855,7 @@ static void st_save_result(double *z,
   /* Loop on all the vertices */
 
   lec = ecr = 0;
-  for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+  for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
   {
     iech = 0;
     for (int i = 0; i < nech; i++, lec++)
@@ -2002,7 +1873,7 @@ static void st_save_result(double *z,
     message("(DEBUG) Save ");
     st_print_status(VT_OUTPUT);
     message("\n");
-    message("- Writing %d values (%d variable)\n", ecr, st_get_nvar());
+    message("- Writing %d values (%d variable)\n", ecr, S_ENV.nvar);
   }
 }
 
@@ -2023,7 +1894,7 @@ static void st_merge(int ncur, double *z, double *zperm)
   /* Loop on all the vertices */
 
   lec = ecr = 0;
-  for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+  for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
   {
     for (int i = 0; i < ncur; i++, ecr++)
     {
@@ -2060,7 +1931,7 @@ static void st_copy(int ncur, double *z, double *zperm)
   /* Loop on all the vertices */
 
   lec = ecr = 0;
-  for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+  for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
   {
     for (int i = 0; i < ncur; i++, ecr++)
     {
@@ -2365,8 +2236,7 @@ int spde_build_stdev(double *vcur)
   if (wZdiagp == nullptr) goto label_end;
   wLmunch = (int*) mem_alloc(sizeof(int) * nzmax, 0);
   if (wLmunch == nullptr) goto label_end;
-  for (int i = 0; i < nzmax; i++)
-    wz[i] = 0.;
+  for (int i = 0; i < nzmax; i++) wz[i] = 0.;
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
@@ -2472,9 +2342,9 @@ static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
 
   /* Initializations */
 
-  int ndim = st_get_ndim();
-  int igrf0 = st_get_current_igrf();
-  int icov0 = st_get_current_icov();
+  int ndim = S_ENV.ndim;
+  int igrf0 = SPDE_CURRENT_IGRF;
+  int icov0 = SPDE_CURRENT_ICOV;
   int ncorner = amesh->getNApexPerMesh();
 
   /* Update the Tensor 'hh' */
@@ -2543,10 +2413,10 @@ static int st_fill_Isill(void)
   /* Initializations */
 
   error = 1;
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   nvar2 = nvar * nvar;
   mcova = nullptr;
-  icov = st_get_current_icov();
+  icov = SPDE_CURRENT_ICOV;
   SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
@@ -2573,7 +2443,8 @@ static int st_fill_Isill(void)
 
   error = 0;
 
-  label_end: if (error) mcova = (double*) mem_free((char* ) mcova);
+  label_end:
+  if (error) mcova = (double*) mem_free((char* ) mcova);
   Matelem.Isill = mcova;
   return (error);
 }
@@ -2598,10 +2469,10 @@ static int st_fill_Csill(void)
 
   error = 1;
   model = st_get_model();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   nvs2 = nvar * (nvar + 1) / 2;
   mcova = nullptr;
-  icov = st_get_current_icov();
+  icov = SPDE_CURRENT_ICOV;
   SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
   /* Core allocation */
@@ -2623,7 +2494,8 @@ static int st_fill_Csill(void)
 
   error = 0;
 
-  label_end: if (error) mcova = (double*) mem_free((char* ) mcova);
+  label_end:
+  if (error) mcova = (double*) mem_free((char* ) mcova);
   Matelem.Csill = mcova;
   return (error);
 }
@@ -2787,9 +2659,10 @@ static int st_fill_Bnugget(Db *dbin)
 
   error = 0;
 
-  label_end: if (error) st_clean_Bnugget();
-  st_get_current_ssenv()->Bnugget = Bnugget;
-  st_get_current_ssenv()->ndata = ndata;
+  label_end:
+  if (error) st_clean_Bnugget();
+  MATGRF(SPDE_CURRENT_IGRF)->Bnugget = Bnugget;
+  MATGRF(SPDE_CURRENT_IGRF)->ndata = ndata;
   ind = (int*) mem_free((char* ) ind);
   local = (double*) mem_free((char* ) local);
   local0 = (double*) mem_free((char* ) local0);
@@ -2937,7 +2810,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
     cs_force_dimension(Btriplet, ndata1[ivar], nvertex);
     BheteroD[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
-    st_keypair_cs("HeteroD", BheteroD[ivar], st_get_current_icov() + 1,
+    st_keypair_cs("HeteroD", BheteroD[ivar], SPDE_CURRENT_ICOV + 1,
                   ivar + 1, 0, 0, 0);
   }
 
@@ -2989,7 +2862,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
     cs_force_dimension(Btriplet, ntarget1[ivar], nvertex);
     BheteroT[ivar] = cs_triplet(Btriplet);
     Btriplet = cs_spfree(Btriplet);
-    st_keypair_cs("HeteroT", BheteroT[ivar], st_get_current_icov() + 1,
+    st_keypair_cs("HeteroT", BheteroT[ivar], SPDE_CURRENT_ICOV + 1,
                   ivar + 1, 0, 0, 0);
   }
 
@@ -3002,11 +2875,11 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
 
   error = 0;
 
-  label_end: st_get_current_ssenv()->BheteroD = BheteroD;
-  st_get_current_ssenv()->BheteroT = BheteroT;
-  st_get_current_ssenv()->ndata = ndata;
-  st_get_current_ssenv()->ndata1 = ndata1;
-  st_get_current_ssenv()->ntarget1 = ntarget1;
+  label_end: MATGRF(SPDE_CURRENT_IGRF)->BheteroD = BheteroD;
+  MATGRF(SPDE_CURRENT_IGRF)->BheteroT = BheteroT;
+  MATGRF(SPDE_CURRENT_IGRF)->ndata = ndata;
+  MATGRF(SPDE_CURRENT_IGRF)->ndata1 = ndata1;
+  MATGRF(SPDE_CURRENT_IGRF)->ntarget1 = ntarget1;
   ranks = (int*) mem_free((char* ) ranks);
   if (error) st_clean_Bhetero();
   return (error);
@@ -3349,9 +3222,9 @@ VectorDouble _spde_fill_Lambda(Model *model,
 {
   const ANoStat *nostat = model->getNoStat();
   VectorDouble Lambda;
-  int igrf0 = st_get_current_igrf();
-  int icov0 = st_get_current_icov();
-  int ndim = st_get_ndim();
+  int igrf0 = SPDE_CURRENT_IGRF;
+  int icov0 = SPDE_CURRENT_ICOV;
+  int ndim = S_ENV.ndim;
   int nvertex = amesh->getNApices();
   double sill = st_get_cova_sill(0, 0);
 
@@ -3402,13 +3275,13 @@ static cs* st_extract_Q1_nugget(int row_var,
   SPDE_SS_Environ *SS;
   cs *B0;
 
-  SS = st_get_current_ssenv();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
   B0 = cs_duplicate(SS->Bnugget[st_get_rank(row_var, col_var)]);
   if (B0 != nullptr) *nrows = *ncols = B0->n;
 
   /* Keypair storage (optional) */
 
-  st_keypair_cs("ExtractNug", B0, st_get_current_icov() + 1, row_var + 1,
+  st_keypair_cs("ExtractNug", B0, SPDE_CURRENT_ICOV + 1, row_var + 1,
                 col_var + 1, 0, 0);
 
   return (B0);
@@ -3449,16 +3322,14 @@ static cs* st_extract_Q1_hetero(int row_var,
 
   error = 1;
   Q = Brow = Bcol = B1 = Bt = Qn = nullptr;
-  SS = st_get_current_ssenv();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
   SPDE_Matelem &Matelem1 = spde_get_current_matelem(0);
 
   /* Identify the operating matrices */
 
-  Brow = (row_oper == 1) ? SS->BheteroD[row_var] :
-                           SS->BheteroT[row_var];
+  Brow = (row_oper == 1) ? SS->BheteroD[row_var] : SS->BheteroT[row_var];
   if (Brow == nullptr) goto label_end;
-  Bcol = (col_oper == 1) ? SS->BheteroD[col_var] :
-                           SS->BheteroT[col_var];
+  Bcol = (col_oper == 1) ? SS->BheteroD[col_var] : SS->BheteroT[col_var];
   if (Bcol == nullptr) goto label_end;
   Bt = cs_transpose(Bcol, 1);
   if (Bt == nullptr) goto label_end;
@@ -3475,14 +3346,12 @@ static cs* st_extract_Q1_hetero(int row_var,
   /* Set the error return code */
 
   error = 0;
-  *nrows = (row_oper == 1) ? SS->ndata1[row_var] :
-                             SS->ntarget1[row_var];
-  *ncols = (col_oper == 1) ? SS->ndata1[col_var] :
-                             SS->ntarget1[col_var];
+  *nrows = (row_oper == 1) ? SS->ndata1[row_var] : SS->ntarget1[row_var];
+  *ncols = (col_oper == 1) ? SS->ndata1[col_var] : SS->ntarget1[col_var];
 
   /* Keypair storage (optional) */
 
-  st_keypair_cs("Extract", Q, st_get_current_icov() + 1, row_var + 1,
+  st_keypair_cs("Extract", Q, SPDE_CURRENT_ICOV + 1, row_var + 1,
                 col_var + 1, row_oper, col_oper);
 
   label_end: B1 = cs_spfree(B1);
@@ -3518,10 +3387,10 @@ static int st_build_QCov(SPDE_Matelem &Matelem)
 
   if (!S_DECIDE.flag_several) return (0);
   error = 1;
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   Bi = B0 = nullptr;
-  SS = st_get_current_ssenv();
-  icov0 = st_get_current_icov();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
+  icov0 = SPDE_CURRENT_ICOV;
 
   /* Core allocation */
 
@@ -3547,8 +3416,7 @@ static int st_build_QCov(SPDE_Matelem &Matelem)
       if (B0 == nullptr) goto label_end;
       Bi = cs_prod_norm(1, B0, Matelem.Aproj);
       if (Bi == nullptr) goto label_end;
-      QCov[ivar]->Q = cs_add(Matelem.QC->Q, Bi, st_get_isill(icov0, ivar, ivar),
-                             1.);
+      QCov[ivar]->Q = cs_add(Matelem.QC->Q, Bi, st_get_isill(icov0, ivar, ivar),1.);
       if (QCov[ivar]->Q == nullptr) goto label_end;
       Bi = cs_spfree(Bi);
       B0 = cs_spfree(B0);
@@ -3750,7 +3618,8 @@ static int st_build_Q(SPDE_Matelem &Matelem)
 
   error = 0;
 
-  label_end: if (error) QC = qchol_manage(-1, QC);
+  label_end:
+  if (error) QC = qchol_manage(-1, QC);
   return (error);
 }
 
@@ -3852,8 +3721,8 @@ static void st_load_data(AMesh *amesh,
   /* Initializations */
 
   nvertex = amesh->getNApices();
-  igrf = st_get_current_igrf();
-  nvar = (ivar0 >= 0) ? 1 : st_get_nvar();
+  igrf = SPDE_CURRENT_IGRF;
+  nvar = (ivar0 >= 0) ? 1 : S_ENV.nvar;
   MEM_DBIN = dbin;           // This horrible assignment is to allows
   MEM_DBOUT = dbout;         // passing information to Kriging sub-procedures
 
@@ -4375,9 +4244,9 @@ static int st_kriging_several_rhs(double *data,
   /* Initializations */
 
   error = 1;
-  SS = st_get_current_ssenv();
+  SS = MATGRF(SPDE_CURRENT_IGRF);
   ncova = st_get_ncova();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
   size = st_get_dimension();
   ndata = SS->ndata;
@@ -4524,7 +4393,7 @@ static int st_kriging_several_loop(int flag_crit,
 
   error = 1;
   ncova = st_get_ncova();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
   tAicov = Bf = B2 = B0 = Qicov = nullptr;
 
@@ -4721,7 +4590,7 @@ static int st_kriging_several_results(double *xcur, double *z)
 
   error = 1;
   ncova = st_get_ncova();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
   ranks = nullptr;
   valdat = TEST;
@@ -4860,7 +4729,7 @@ static int st_kriging_several(double *data,
     return (1);
   }
   ncova = st_get_ncova();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
   ss = 0.;
 
@@ -4950,7 +4819,7 @@ static int st_kriging(AMesh *amesh, double *data, double *zkrig)
   }
   error = 1;
   work = zkdat = rhs = nullptr;
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncova = st_get_ncova();
   ncur = st_get_nvertex_max();
   size = st_get_dimension();
@@ -5152,7 +5021,7 @@ static void st_matelem_manage(int mode)
 
 {
   int ncova = st_get_ncova();
-  SPDE_SS_Environ *SS = st_get_current_ssenv();
+  SPDE_SS_Environ *SS = MATGRF(SPDE_CURRENT_IGRF);
 
   /* Dispatch */
 
@@ -5187,7 +5056,7 @@ static void st_matelem_manage(int mode)
         Matelem.QC = qchol_manage(-1, Matelem.QC);
         if (Matelem.QCov != NULL)
         {
-          for (int ivar = 0; ivar < st_get_nvar(); ivar++)
+          for (int ivar = 0; ivar < S_ENV.nvar; ivar++)
             Matelem.QCov[ivar] = qchol_manage(-1, Matelem.QCov[ivar]);
         }
         Matelem.Isill = (double*) mem_free((char* ) Matelem.Isill);
@@ -5196,7 +5065,8 @@ static void st_matelem_manage(int mode)
         Matelem.mgs = st_mgs_manage(-1, Matelem.mgs);
         Matelem.s_cheb = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL,
                                           Matelem.s_cheb);
-        Matelem.amesh = spde_mesh_delete(Matelem.amesh);
+        if (Matelem.amesh != nullptr) delete Matelem.amesh;
+        Matelem.amesh = nullptr;
       }
       break;
   }
@@ -5223,7 +5093,7 @@ static int st_simulate(QChol *QC, double *zsnc)
 
   error = 1;
   ncur = st_get_nvertex_max();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncova = st_get_ncova();
   nvs2 = nvar * (nvar + 1) / 2;
   zloc = work = nullptr;
@@ -5241,7 +5111,7 @@ static int st_simulate(QChol *QC, double *zsnc)
 
   for (int icov = 0; icov < ncova; icov++)
   {
-    st_set_current_icov(icov);
+    SPDE_CURRENT_ICOV = icov;
     SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
 
     /* Loop on the variables */
@@ -5323,7 +5193,7 @@ int spde_process(Db *dbin,
   data = zcur = zkrig = zout = vcur = zsnc = zdat = nullptr;
   ndata = 0;
   ngrf = st_get_number_grf();
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
   ncur = st_get_nvertex_max();
 
   /* Title (optional) */
@@ -5365,7 +5235,7 @@ int spde_process(Db *dbin,
   if (S_DECIDE.flag_onechol && !flag_mult_data && !S_DECIDE.flag_gibbs
       && ngrf == 1)
   {
-    st_set_current_igrf(0);
+    SPDE_CURRENT_IGRF = 0;
     amesh = spde_get_current_matelem(-1).amesh;
     st_init_array(1, nvar, ncur, 1, zkrig);
     st_load_data(amesh, dbin, dbout, s_option, -1, data, zkrig);
@@ -5412,7 +5282,7 @@ int spde_process(Db *dbin,
       {
         if ((VERBOSE || DEBUG) && st_get_number_grf() > 1)
           message("GRF iteration #%d/%d\n", igrf + 1, ngrf);
-        st_set_current_igrf(igrf);
+        SPDE_CURRENT_IGRF = igrf;
         amesh = spde_get_current_matelem(-1).amesh;
 
         /* Conditional Simulation */
@@ -5981,7 +5851,7 @@ AMesh* spde_mesh_load(int verbose,
 
   if (amesh != nullptr)
   {
-    int icov0 = st_get_current_icov();
+    int icov0 = SPDE_CURRENT_ICOV;
     st_save_meshing_keypair(amesh, icov0);
   }
 
@@ -6034,7 +5904,8 @@ int spde_external_mesh_define(int mode,
   }
   else
   {
-    S_EXTERNAL_MESH[icov0] = spde_mesh_delete(S_EXTERNAL_MESH[icov0]);
+    if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
+    S_EXTERNAL_MESH[icov0] = nullptr;
   }
 
   return 0;
@@ -6089,7 +5960,8 @@ int spde_external_AQ_define(int mode,
   else
   {
     S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
-    S_EXTERNAL_MESH[icov0] = spde_mesh_delete(S_EXTERNAL_MESH[icov0]);
+    if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
+    S_EXTERNAL_MESH[icov0] = nullptr;
   }
 
   return 0;
@@ -6146,7 +6018,7 @@ int spde_prepar(Db *dbin,
                 const VectorDouble &gext,
                 SPDE_Option &s_option)
 {
-  st_calcul_init(st_get_ndim());
+  st_calcul_init(S_ENV.ndim);
 
   /* Title (optional) */
 
@@ -6156,7 +6028,7 @@ int spde_prepar(Db *dbin,
 
   for (int igrf = 0; igrf < st_get_number_grf(); igrf++)
   {
-    st_set_current_igrf(igrf);
+    SPDE_CURRENT_IGRF = igrf;
 
     /* Prepare the array of inverse of nugget sill matrices */
 
@@ -6169,7 +6041,7 @@ int spde_prepar(Db *dbin,
 
     for (int icov = 0; icov < st_get_ncova(); icov++)
     {
-      st_set_current_icov(icov);
+      SPDE_CURRENT_ICOV = icov;
       SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
       bool flag_AQ_defined = st_is_external_AQ_defined(icov);
 
@@ -6273,8 +6145,8 @@ int spde_prepar(Db *dbin,
     }
   }
 
-  st_set_current_igrf(0);
-  st_set_current_icov(0);
+  SPDE_CURRENT_IGRF = 0;
+  SPDE_CURRENT_ICOV = 0;
   return 0;
 }
 
@@ -6475,7 +6347,7 @@ void spde_free_all(void)
 {
   for (int igrf = 0; igrf < SPDE_MAX_NGRF; igrf++)
   {
-    st_set_current_igrf(igrf);
+    SPDE_CURRENT_IGRF = igrf;
     st_matelem_manage(-1);
     st_clean_Bnugget();
     st_clean_Bhetero();
@@ -6589,15 +6461,15 @@ int spde_check(const Db *dbin,
   {
     if (models[igrf] != nullptr)
     {
-      st_set_current_igrf(igrf);
+      SPDE_CURRENT_IGRF = igrf;
       if (st_check_model(dbin, dbout, models[igrf])) return (1);
-      st_calcul_init(st_get_ndim());
+      st_calcul_init(S_ENV.ndim);
       st_matelem_manage(1);
       ncova = st_get_ncova();
 
       for (int icov = 0; icov < ncova; icov++)
       {
-        st_set_current_icov(icov);
+        SPDE_CURRENT_ICOV = icov;
         st_calcul_update();
         if (VERBOSE) st_print_all("Model (Stationary) Parameters");
       }
@@ -6606,7 +6478,7 @@ int spde_check(const Db *dbin,
   }
   S_DECIDE.flag_Qchol = S_DECIDE.flag_Qchol
       || (S_DECIDE.flag_case == CASE_MATRICES && S_DECIDE.flag_std);
-  if (S_DECIDE.flag_std && st_get_nvar() > 1)
+  if (S_DECIDE.flag_std && S_ENV.nvar > 1)
   {
     messerr(
         "Calculation of Kriging Variance is incompatible with Multivariate");
@@ -6618,8 +6490,8 @@ int spde_check(const Db *dbin,
   if (verbose)
   {
     st_title(0, 0, 1, "Environment for SPDE processing");
-    message("Space Dimension          = %d\n", st_get_ndim());
-    message("Number of variables      = %d\n", st_get_nvar());
+    message("Space Dimension          = %d\n", S_ENV.ndim);
+    message("Number of variables      = %d\n", S_ENV.nvar);
     message("Presence of an input Db  = %d\n", S_DECIDE.flag_dbin);
     message("Presence of an output Db = %d\n", S_DECIDE.flag_dbout);
     message("Calculate estimation     = %d\n", S_DECIDE.flag_est);
@@ -6713,14 +6585,14 @@ int kriging2D_spde(Db *dbin,
   /* Prepare all material */
 
   if (spde_prepar(NULL, dbin, VectorDouble(), s_option)) goto label_end;
-  st_set_current_igrf(0);
+  SPDE_CURRENT_IGRF = 0;
   {
     SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
     amesh = Matelem.amesh;
 
     /* Core allocation */
 
-    nvar = st_get_nvar();
+    nvar = S_ENV.nvar;
     ncova = st_get_ncova_max();
     ndata = dbin->getSampleNumber(true);
     ncur = amesh->getNApices();
@@ -6829,7 +6701,7 @@ int spde_f(Db *dbin,
   simu_define_func_transf(NULL);
   simu_define_func_update(simu_func_continuous_update);
   simu_define_func_scale(simu_func_continuous_scale);
-  nvar = st_get_nvar();
+  nvar = S_ENV.nvar;
 
   /* Preliminary checks */
 
