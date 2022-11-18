@@ -46,6 +46,7 @@ class PropDef;
 class Rule;
 class RuleShadow;
 class MeshEStandard;
+class MeshSpherical;
 class CovInternal;
 class Db;
 class DbGrid;
@@ -60,6 +61,7 @@ class Grid;
 class SimuRefineParam;
 class EStatOption;
 class Faults;
+class AMesh;
 
 class cs;
 class QChol;
@@ -1835,47 +1837,21 @@ GSTLEARN_EXPORT int multilayers_get_prior(Db *dbin,
 /* Prototyping the functions in delaunay.c */
 /*******************************************/
 GSTLEARN_EXPORT int MSS(int idim, int ipol, int icas, int icorn, int icoor);
-GSTLEARN_EXPORT Vercoloc* vercoloc_manage(int verbose,
-                                          int mode,
-                                          Db *dbin,
-                                          Db *dbout,
-                                          int mesh_dbin,
-                                          Vercoloc *vercoloc);
-GSTLEARN_EXPORT Vercoloc* vercoloc_from_external(int ndupl,
-                                                 int *dupl_in,
-                                                 int *dupl_out);
-GSTLEARN_EXPORT Vertype* vertype_manage(int mode,
-                                        Vertype *vertype,
-                                        Vercoloc *vercoloc,
-                                        int nvertex);
-GSTLEARN_EXPORT int* vercoloc_get_dbin_indices(Vertype *vertype,
-                                               Vercoloc *vercoloc,
-                                               int *nbnodup);
 GSTLEARN_EXPORT void triangulate(const char *triswitches,
                                  struct triangulateio *in,
                                  struct triangulateio *out,
                                  struct triangulateio *vorout);
-
 GSTLEARN_EXPORT void meshes_1D_free(segmentio *t, int mode);
 GSTLEARN_EXPORT void meshes_1D_init(segmentio *t);
-GSTLEARN_EXPORT int meshes_1D_from_db(Db *db,
-                                      int nmask,
-                                      int *mask,
-                                      segmentio *t);
+GSTLEARN_EXPORT int meshes_1D_from_db(Db *db,segmentio *t);
 GSTLEARN_EXPORT int meshes_1D_from_points(int nech, double *x, segmentio *t);
 GSTLEARN_EXPORT void meshes_1D_default(Db *dbin, Db *dbout, segmentio *t);
 GSTLEARN_EXPORT void meshes_1D_print(segmentio *t, int brief);
-GSTLEARN_EXPORT int meshes_turbo_1D_grid_build(int verbose,
-                                               DbGrid *dbgrid,
-                                               SPDE_Mesh *s_mesh);
+GSTLEARN_EXPORT AMesh* meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid);
 GSTLEARN_EXPORT void meshes_1D_create(int verbose,
                                       struct segmentio *in,
                                       struct segmentio *out);
-GSTLEARN_EXPORT void meshes_1D_load_vertices(segmentio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg);
+GSTLEARN_EXPORT MeshEStandard* meshes_1D_load_vertices(segmentio *t);
 GSTLEARN_EXPORT void meshes_1D_extended_domain(Db *dbout,
                                                const double *gext,
                                                segmentio *t);
@@ -1884,8 +1860,6 @@ GSTLEARN_EXPORT void meshes_2D_free(triangulateio *t, int mode);
 GSTLEARN_EXPORT void meshes_2D_init(triangulateio *t);
 GSTLEARN_EXPORT int meshes_2D_from_db(Db *db,
                                       int use_code,
-                                      int nmask,
-                                      int *mask,
                                       triangulateio *t);
 GSTLEARN_EXPORT int meshes_2D_from_points(int nech,
                                           double *x,
@@ -1907,19 +1881,13 @@ GSTLEARN_EXPORT int meshes_2D_write(const char *file_name,
                                     int *ntcode,
                                     int *triangles,
                                     double *points);
-GSTLEARN_EXPORT int meshes_turbo_2D_grid_build(int verbose,
-                                               DbGrid *dbgrid,
-                                               SPDE_Mesh *s_mesh);
+GSTLEARN_EXPORT AMesh* meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid);
 GSTLEARN_EXPORT void meshes_2D_create(int verbose,
                                       const String &triswitches,
                                       struct triangulateio *in,
                                       struct triangulateio *out,
                                       struct triangulateio *vorout);
-GSTLEARN_EXPORT void meshes_2D_load_vertices(triangulateio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg);
+GSTLEARN_EXPORT MeshEStandard* meshes_2D_load_vertices(triangulateio *t);
 GSTLEARN_EXPORT void meshes_2D_extended_domain(Db *dbout,
                                                const double *gext,
                                                triangulateio *t);
@@ -1927,10 +1895,7 @@ GSTLEARN_EXPORT void meshes_3D_create(int verbose,
                                       const String &triswitch,
                                       tetgenio *in,
                                       tetgenio *out);
-GSTLEARN_EXPORT int meshes_3D_from_db(Db *db,
-                                      int nmask,
-                                      int *mask,
-                                      tetgenio *t);
+GSTLEARN_EXPORT int meshes_3D_from_db(Db *db,tetgenio *t);
 GSTLEARN_EXPORT int meshes_3D_from_points(int nech,
                                           double *x,
                                           double *y,
@@ -1941,14 +1906,8 @@ GSTLEARN_EXPORT void meshes_3D_free(tetgenio *t);
 GSTLEARN_EXPORT void meshes_3D_extended_domain(Db *dbout,
                                                const double *gext,
                                                tetgenio *t);
-GSTLEARN_EXPORT int meshes_turbo_3D_grid_build(int verbose,
-                                               DbGrid *dbgrid,
-                                               SPDE_Mesh *s_mesh);
-GSTLEARN_EXPORT void meshes_3D_load_vertices(tetgenio *t,
-                                             const char *name,
-                                             int *ntab_arg,
-                                             int *natt_arg,
-                                             void **tab_arg);
+GSTLEARN_EXPORT AMesh* meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid);
+GSTLEARN_EXPORT MeshEStandard* meshes_3D_load_vertices(tetgenio *t);
 GSTLEARN_EXPORT void meshes_3D_print(tetgenio *t, int brief);
 GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 int ncorner,
@@ -1957,10 +1916,7 @@ GSTLEARN_EXPORT void mesh_stats(int ndim,
                                 double *points);
 GSTLEARN_EXPORT void meshes_2D_sph_init(SphTriangle *t);
 GSTLEARN_EXPORT void meshes_2D_sph_free(SphTriangle *t, int mode);
-GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db *db,
-                                          int nmask,
-                                          int *mask,
-                                          SphTriangle *t);
+GSTLEARN_EXPORT int meshes_2D_sph_from_db(Db *db, SphTriangle *t);
 GSTLEARN_EXPORT int meshes_2D_sph_from_points(int nech,
                                               double *x,
                                               double *y,
@@ -1969,11 +1925,7 @@ GSTLEARN_EXPORT int meshes_2D_sph_from_auxiliary(const String &triswitch,
                                                  SphTriangle *t);
 GSTLEARN_EXPORT void meshes_2D_sph_print(SphTriangle *t, int brief);
 GSTLEARN_EXPORT int meshes_2D_sph_create(int verbose, SphTriangle *t);
-GSTLEARN_EXPORT void meshes_2D_sph_load_vertices(SphTriangle *t,
-                                                 const char *name,
-                                                 int *ntab_arg,
-                                                 int *natt_arg,
-                                                 void **tab_arg);
+GSTLEARN_EXPORT MeshEStandard* meshes_2D_sph_load_vertices(SphTriangle *t);
 GSTLEARN_EXPORT int trmesh_(int *n,
                             double *x,
                             double *y,
@@ -2045,15 +1997,14 @@ GSTLEARN_EXPORT int spde_process(Db *dbin,
                                  int gibbs_nburn,
                                  int gibbs_niter,
                                  int ngibbs_int);
-GSTLEARN_EXPORT SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old);
+GSTLEARN_EXPORT AMesh* spde_mesh_delete(AMesh *amesh_old);
 GSTLEARN_EXPORT SPDE_Matelem& spde_get_current_matelem(int icov);
-GSTLEARN_EXPORT int spde_mesh_load(SPDE_Mesh *s_mesh,
-                                   int verbose,
-                                   Db *dbin,
-                                   Db *dbout,
-                                   const VectorDouble &gext,
-                                   SPDE_Option &s_option);
-GSTLEARN_EXPORT void spde_mesh_assign(SPDE_Mesh *s_mesh,
+GSTLEARN_EXPORT AMesh* spde_mesh_load(int verbose,
+                                      Db *dbin,
+                                      Db *dbout,
+                                      const VectorDouble &gext,
+                                      SPDE_Option &s_option);
+GSTLEARN_EXPORT void spde_mesh_assign(AMesh *amesh,
                                       int ndim,
                                       int ncorner,
                                       int nvertex,
@@ -2116,17 +2067,16 @@ GSTLEARN_EXPORT int spde_external_AQ_define(int mode,
                                             int *dupl_out,
                                             cs *A,
                                             cs *Q);
-GSTLEARN_EXPORT int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0);
 GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    Model *model,
                                    SPDE_Option &s_option,
                                    int verbose,
-                                   int *ntri,
-                                   int *npoint,
-                                   int **triangles,
-                                   double **points);
+                                   int *nmeshes,
+                                   int *nvertex,
+                                   VectorInt& meshes,
+                                   VectorDouble& points);
 GSTLEARN_EXPORT cs* db_mesh_neigh(const Db *db,
-                                  SPDE_Mesh *s_mesh,
+                                  AMesh *amesh,
                                   double radius,
                                   int flag_exact,
                                   int verbose,

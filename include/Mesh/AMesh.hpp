@@ -20,7 +20,6 @@
 class MatrixRectangular;
 class MatrixInt;
 class Db;
-class SPDE_Mesh;
 
 class GSTLEARN_EXPORT AMesh : public AStringable, public ASerializable
 {
@@ -69,15 +68,11 @@ public:
   /*! Returns the list of apexes and meshes */
   void getElements(MatrixRectangular& apices, MatrixInt& meshes) const;
 
-  void getDuplicates(int verbose, Db *dbin, Db *dbout,
-                     int *nbdupl,int **dupl1,int **dupl2) const;
   int  isCompatibleDb(const Db *db) const;
   VectorDouble getMeshSizes() const;
 
   /*! Print the list of meshes and apices */
   void printMeshes(int imesh0) const;
-  /*! Convert from New Mesh into Old Mesh */
-  SPDE_Mesh* _convertToOldMesh(AMesh* a_mesh) const;
   /*! Returns Vector of Apex coordinates for space index */
   VectorDouble getCoordinates(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */

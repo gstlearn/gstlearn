@@ -46,6 +46,9 @@ public:
   bool isChangeSupportDefined() const override { return (_rCoef < 1.); }
   int getNClass() const override { return getNbPoly(); }
 
+  int fitFromArray(const VectorDouble &tab,
+                   const VectorDouble &wt = VectorDouble()) override;
+
   /// ASerializable Interface
   static AnamHermite* createFromNF(const String& neutralFilename, bool verbose = true);
 
@@ -53,6 +56,7 @@ public:
   double RawToTransformValue(double z) const override;
   double TransformToRawValue(double y) const override;
   void   calculateMeanAndVariance() override;
+
 
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
 
@@ -77,10 +81,6 @@ public:
   void   setFlagBound(bool flagBound) { _flagBound = flagBound; }
   void   setPsiHn(int i, double psi_hn);
   void   setRCoef(double r_coef) { _rCoef = r_coef; }
-
-  int    fit(const VectorDouble &tab, const VectorDouble &wt = VectorDouble());
-  int    fit(Db *db, const ELoc& locatorType = ELoc::Z);
-  int    fit(Db *db, const String& name);
 
   int factor2Selectivity(Db *db,
                          Selectivity* selectivity,

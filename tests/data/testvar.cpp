@@ -50,7 +50,6 @@ int main(int argc, char *argv[])
   model = (Model *) NULL;
   flag_norm_sill = 0;
   flag_goulard_used = 1;
-  double gofThresh = 2.;
 
   /* Standard output redirection to file */
 
@@ -137,11 +136,7 @@ int main(int argc, char *argv[])
   // produce the Goodness-of-fit score
 
   gof = model->gofToVario(vario, false);
-
-  if (gof > gofThresh)
-    message("Goodness-of-Fit (as a percentage of the Variance) may demonstrate an issue: %5.2lf\n",gof);
-  else
-    message("Goodness-of-Fit (<%5.2lf percent of the Variance): AutoFit is a success\n",gofThresh);
+  model->gofDisplay(gof, false);
 
 /* Core deallocation */
 

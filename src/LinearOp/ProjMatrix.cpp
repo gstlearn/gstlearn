@@ -110,21 +110,10 @@ int ProjMatrix::resetFromPoints(int npoint, int napices, const cs *aproj)
   return 0;
 }
 
-int ProjMatrix::resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose)
-{
-  MeshEStandard amesh;
-  amesh.convertFromOldMesh(s_mesh, 0);
-  _Aproj = amesh.getMeshToDb(db, verbose);
-  if (_Aproj == nullptr) return 1;
-  _nPoint = db->getSampleNumber(true);
-  _nApices = s_mesh->nmesh;
-  return 0;
-}
-
 /**
  * Returns the projection matrix of a set of points (contained in a Db) onto a meshing
  * @param db Db structure
- * @param s_mesh Meshing structure
+ * @param amesh Meshing structure
  * @param radius Neighborhood radius
  * @param flag_exact Type of test
  * @param verbose Verbose flag
@@ -140,20 +129,20 @@ int ProjMatrix::resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose)
  * @remarks if the smallest value between the Db et Mesh space dimensions.
  * @return
  */
-int ProjMatrix::resetFromDbByNeighOldStyle(const Db* db,
-                                            SPDE_Mesh* s_mesh,
-                                            double radius,
-                                            int flag_exact,
-                                            int verbose)
+int ProjMatrix::resetFromDbByNeigh(const Db *db,
+                                   AMesh *amesh,
+                                   double radius,
+                                   int flag_exact,
+                                   int verbose)
 {
   int nactive;
   int *ranks;
-  _Aproj   = db_mesh_neigh(db,s_mesh,radius,flag_exact,verbose,
-                           &nactive,&ranks);
+  _Aproj = db_mesh_neigh(db, amesh, radius, flag_exact, verbose, &nactive,
+                         &ranks);
   if (_Aproj == nullptr) return 1;
   if (ranks != nullptr) ranks = (int *) mem_free((char *) ranks);
   _nPoint  = nactive;
-  _nApices = s_mesh->nmesh;
+  _nApices = amesh->getNMeshes();
   return 0;
 }
 

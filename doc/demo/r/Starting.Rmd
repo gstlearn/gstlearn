@@ -34,7 +34,7 @@ ny = 30
 mygrid = DbGrid_create(c(nx,ny))
 
 # Add a uniform random field
-var = VH_simulateUniform(nx * ny)
+var = VectorHelper_simulateUniform(nx * ny)
 uid = mygrid$addColumns(var, "var1")
 
 # Display the current contents of the Data Base

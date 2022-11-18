@@ -40,6 +40,12 @@ public:
   /// AStringable Interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
+  static CovParamId* create(int igrf = 0,
+                            int icov = 0,
+                            const EConsElem &elem = EConsElem::UNKNOWN,
+                            int iv1 = 0,
+                            int iv2 = 0);
+
   int init(int igrf, int icov, const EConsElem& type, int iv1, int iv2);
 
   const EConsElem& getType() const { return _elemType; }

@@ -222,6 +222,11 @@ int Vario::compute(const ECalcVario &calcul,
     messerr("The 'db' must contain at least one variable defined");
     return 1;
   }
+  if (getDirectionNumber() <= 0)
+  {
+    messerr("The 'varioParam' argument must have some Direction defined");
+    return 1;
+  }
 
   // Preparation
 

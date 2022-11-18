@@ -99,7 +99,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Gaussian Anamorphosis with 10 coefficients
   AnamHermite* anam = AnamHermite::create(20);
-  anam->fit(data);
+  anam->fitFromLocator(data);
   anam->display();
 
   // Selectivity
@@ -262,7 +262,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Regularization of the point model by the block support
   Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
-                                                 ndisc_B, blocs->getAngles());
+                                                       ndisc_B, blocs->getAngles());
 
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b2_Y = new Model(1, ndim);

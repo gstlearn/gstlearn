@@ -671,16 +671,6 @@ bool DbGrid::isSameGridMesh(const DbGrid& dbaux) const
   return _grid.isSameMesh(dbaux.getGrid());
 }
 
-bool DbGrid::isSameGridMeshOldStyle(const DbGrid* dbaux) const
-{
-  if (! dbaux->isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  return _grid.isSameMesh(dbaux->getGrid());
-}
-
 bool DbGrid::isSameGridRotation(const DbGrid& dbaux) const
 {
   if (! dbaux.isGrid())
@@ -690,17 +680,6 @@ bool DbGrid::isSameGridRotation(const DbGrid& dbaux) const
   }
   if (! isGridRotated() && ! dbaux.isGridRotated()) return true;
   return _grid.isSameRotation(dbaux.getGrid());
-}
-
-bool DbGrid::isSameGridRotationOldStyle(const DbGrid* dbaux) const
-{
-  if (! dbaux->isGrid())
-  {
-    messerr("Both files should be organized as grids");
-    return false;
-  }
-  if (! isGridRotated() && ! dbaux->isGridRotated()) return true;
-  return _grid.isSameRotation(dbaux->getGrid());
 }
 
 bool DbGrid::isGridRotated() const

@@ -351,7 +351,7 @@ int main(int /*argc*/, char */*argv*/[])
     SPDE_Matelem& Matelem = spde_get_current_matelem(0);
     Q = Matelem.QC->Q;
     if (Q == (cs *) NULL) goto label_end;
-    nvertex = Matelem.s_mesh->nvertex;
+    nvertex = Matelem.amesh->getNApices();
   }
 
   // Create the color coding 

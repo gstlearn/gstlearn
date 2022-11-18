@@ -468,6 +468,8 @@ public:
                   bool verbose = false);
 
   double gofToVario(const Vario* vario, bool verbose = true);
+  void gofDisplay(double gof, bool byValue = true,
+                  const VectorDouble& thresholds = {2., 5., 10., 100});
   std::vector<ECov> initCovList(const VectorInt & covranks);
 
   bool isValid() const;

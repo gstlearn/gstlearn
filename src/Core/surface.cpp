@@ -348,7 +348,7 @@ static void st_transform_init2proj(Surf_Def *surf_reference,
  *****************************************************************************/
 static void st_transform_proj2init(Surf_Def *surf_reference,
                                    int npoint,
-                                   double *points)
+                                   VectorDouble& points)
 {
   double x, y, z, newx, newy, newz, mima_in[2][3], mima_out[2][3];
   int n, nundefs_in, nundefs_out;
@@ -455,37 +455,30 @@ static int st_selection_per_code(Db *db, int icode, int iptr_sel)
 static int st_concatenate_arrays(int ndim,
                                  int ntri,
                                  int npoints,
-                                 int *triangles,
-                                 double *points,
+                                 VectorInt& triangles,
+                                 VectorDouble& points,
                                  int *ntri_arg,
                                  int *npoint_arg,
-                                 int **triangle_arg,
-                                 double **points_arg)
+                                 VectorInt& triangle_arg,
+                                 VectorDouble& points_arg)
 {
-  int *tloc, ecr, newnum, nploc, ntloc;
-  double *ploc;
+  int ecr;
 
   /* Initial assignments */
 
-  ntloc = *ntri_arg;
-  nploc = *npoint_arg;
-  tloc = *triangle_arg;
-  ploc = *points_arg;
+  int ntloc = *ntri_arg;
+  int nploc = *npoint_arg;
 
   /* Concatenate the triangles */
 
   if (ntri > 0)
   {
-    newnum = ntloc + ntri;
-    if (tloc == nullptr)
-      tloc = (int*) mem_alloc(sizeof(int) * 3 * newnum, 0);
-    else
-      tloc = (int*) mem_realloc((char* ) tloc, sizeof(int) * 3 * newnum, 0);
-    if (tloc == nullptr) return (1);
+    int newnum = ntloc + ntri;
+    triangle_arg.resize(3 * newnum, 0);
 
     ecr = ntloc * 3;
     for (int i = 0; i < ntri * 3; i++)
-      tloc[ecr++] = triangles[i] + nploc;
+      triangle_arg[ecr++] = triangles[i] + nploc;
 
     ntloc = newnum;
   }
@@ -494,25 +487,18 @@ static int st_concatenate_arrays(int ndim,
 
   if (npoints > 0)
   {
-    newnum = nploc + npoints;
-    if (ploc == nullptr)
-      ploc = (double*) mem_alloc(sizeof(double) * ndim * newnum, 0);
-    else
-      ploc = (double*) mem_realloc((char* ) ploc,
-                                   sizeof(double) * ndim * newnum, 0);
-    if (ploc == nullptr) return (1);
+    int newnum = nploc + npoints;
+    points_arg.resize(ndim * newnum, 0);
 
     ecr = nploc * ndim;
     for (int i = 0; i < npoints * ndim; i++)
-      ploc[ecr++] = points[i];
+      points_arg[ecr++] = points[i];
 
     nploc = newnum;
   }
 
   /* Set the returned arguments */
 
-  *triangle_arg = tloc;
-  *points_arg = ploc;
   *ntri_arg = ntloc;
   *npoint_arg = nploc;
 
@@ -527,38 +513,30 @@ static int st_concatenate_arrays(int ndim,
  **
  ** \param[out] ntri_arg     Number of triangles generated
  ** \param[out] npoint_arg   Number of vertices
- ** \param[out] triangle_arg Array of triangulate vertex indices
- ** \param[out] points_arg   Array containing the 2-D vertices
+ ** \param[out] triangles    Array of triangulate vertex indices
+ ** \param[out] points       Array containing the 2-D vertices
  **
  *****************************************************************************/
 static int st_rectangle_surface(Surf_Def *surf_reference,
                                 int *ntri_arg,
                                 int *npoint_arg,
-                                int **triangle_arg,
-                                double **points_arg)
+                                VectorInt& triangles,
+                                VectorDouble& points)
 {
-  int *triangles, ncoord, ntri, error, ndim, ecr;
-  double *points;
+  int ecr;
   static double ratio = 1.5;
 
   /* Initializations */
 
-  error = 1;
-  ndim = 3;
-  ncoord = 5;
-  ntri = 4;
-  points = nullptr;
-  triangles = nullptr;
+  int ndim = 3;
+  int ncoord = 5;
+  int ntri = 4;
   *ntri_arg = *npoint_arg = 0;
-  *triangle_arg = nullptr;
-  *points_arg = nullptr;
 
   /* Core allocation */
 
-  triangles = (int*) mem_alloc(sizeof(int) * 3 * ntri, 0);
-  if (triangles == nullptr) goto label_end;
-  points = (double*) mem_alloc(sizeof(double) * ndim * ncoord, 0);
-  if (points == nullptr) goto label_end;
+  triangles.resize(3 * ntri, 0);
+  points.resize(ndim * ncoord, 0);
 
   /* Load the points */
 
@@ -604,18 +582,9 @@ static int st_rectangle_surface(Surf_Def *surf_reference,
 
   /* Set the error code */
 
-  error = 0;
   *ntri_arg = ntri;
   *npoint_arg = ncoord;
-  *triangle_arg = triangles;
-  *points_arg = points;
-
-  label_end: if (error)
-  {
-    triangles = (int*) mem_free((char* ) triangles);
-    points = (double*) mem_free((char* ) points);
-  }
-  return (error);
+  return 0;
 }
 
 /*****************************************************************************/
@@ -628,45 +597,43 @@ static int st_rectangle_surface(Surf_Def *surf_reference,
  ** \param[in]  icode0    Reference Code attributed to the Target Fault
  ** \param[in]  verbose   Verbose option
  **
- ** \param[out] ncode_arg    Number of different codes
- ** \param[out] ntri_arg     Number of triangles
- ** \param[out] npoint_arg   Number of vertices
- ** \param[out] codesel      Selected code (if any)
- ** \param[out] ntcode_arg   Array for the number of triangles per code
- ** \param[out] triangle_arg Array on the triangle corners
- ** \param[out] points_arg   Array on the 3-D vertices coordinates
+ ** \param[out] ncode_arg     Number of different codes
+ ** \param[out] ntri_arg      Number of triangles
+ ** \param[out] npoint_arg    Number of vertices
+ ** \param[out] codesel       Selected code (if any)
+ ** \param[out] ntcode_arg    Array for the number of triangles per code
+ ** \param[out] triangles_arg Array on the triangle corners
+ ** \param[out] points_arg    Array on the 3-D vertices coordinates
  **
  ** \remarks The returned arrays 'triangle_arg', 'coords_arg' and 'elev_arg'
  ** \remarks must be freed by the calling function
  **
  *****************************************************************************/
 int db_trisurf(Db *db,
-                               Model *model,
-                               const String &triswitch,
-                               int icode0,
-                               int verbose,
-                               int *ncode_arg,
-                               int *ntri_arg,
-                               int *npoint_arg,
-                               double *codesel,
-                               int **ntcode_arg,
-                               int **triangle_arg,
-                               double **points_arg)
+               Model *model,
+               const String &triswitch,
+               int icode0,
+               int verbose,
+               int *ncode_arg,
+               int *ntri_arg,
+               int *npoint_arg,
+               double *codesel,
+               int **ntcode_arg,
+               VectorInt& triangles_arg,
+               VectorDouble& points_arg)
 {
   Surf_Def *surf_reference;
-  int *triangles, *triloc, iptr_sel, iptr_init[3], iptr_proj[3], error;
-  int ndim, ntriloc, ntricum, npoicum, npoiloc, icode, ncodes, ncode_eff,
-      number;
+  int iptr_sel, iptr_init[3], iptr_proj[3], error;
+  int ndim, ntriloc, ntricum, npoicum, npoiloc, icode, ncodes, ncode_eff, number;
   int flag_rectangle_surface;
-  double *points, *poiloc;
   VectorDouble codetab;
   SPDE_Option s_option;
+  VectorInt triloc;
+  VectorDouble poiloc;
 
   /* Initializations */
 
   error = 1;
-  triangles = triloc = nullptr;
-  points = poiloc = nullptr;
   *ntcode_arg = nullptr;
   ntricum = npoicum = *ncode_arg = *ntri_arg = *npoint_arg = 0;
   VERBOSE = verbose;
@@ -746,8 +713,7 @@ int db_trisurf(Db *db,
     ntriloc = npoiloc = 0;
     if (db->hasCode())
     {
-      icode = (!IFFFF(icode0)) ? (int) codetab[icode0] :
-                                 (int) codetab[jcode];
+      icode = (!IFFFF(icode0)) ? (int) codetab[icode0] : (int) codetab[jcode];
       message("\nProcessing Fault for code %d\n", icode);
     }
     else
@@ -771,16 +737,16 @@ int db_trisurf(Db *db,
 
       /* Perform the estimation of the elevation (in the projected space) */
 
-      if (kriging2D_spde(db, model, s_option, 0, &ntriloc, &npoiloc, &triloc,
-                         &poiloc)) goto label_end;
+      if (kriging2D_spde(db, model, s_option, 0, &ntriloc, &npoiloc, triloc,
+                         poiloc)) goto label_end;
     }
     else
     {
 
       /* Generate the surface as the rectangle containing the fault */
 
-      if (st_rectangle_surface(surf_reference, &ntriloc, &npoiloc, &triloc,
-                               &poiloc)) goto label_end;
+      if (st_rectangle_surface(surf_reference, &ntriloc, &npoiloc, triloc,
+                               poiloc)) goto label_end;
     }
 
     /* Unproject the results */
@@ -790,27 +756,23 @@ int db_trisurf(Db *db,
     /* Concatenate the resulting arrays */
 
     if (st_concatenate_arrays(3, ntriloc, npoiloc, triloc, poiloc, &ntricum,
-                              &npoicum, &triangles, &points)) goto label_end;
+                              &npoicum, triangles_arg, points_arg)) goto label_end;
 
     /* Verbose output */
 
     message("- Count of samples   = %d\n", number);
     message("- Count of triangles = %d\n", ntriloc);
 
-    label_suite: (*ntcode_arg)[jcode] = ntriloc;
-    triloc = (int*) mem_free((char* ) triloc);
-    poiloc = (double*) mem_free((char* ) poiloc);
+    label_suite:
+    (*ntcode_arg)[jcode] = ntriloc;
   }
 
   /* Set the error return code */
 
   (*ncode_arg) = ncodes;
-  *triangle_arg = triangles;
-  *points_arg = points;
   *ntri_arg = ntricum;
   *npoint_arg = npoicum;
-  *codesel = (db->hasCode() && !IFFFF(icode0)) ? codetab[icode0] :
-                                                 TEST;
+  *codesel = (db->hasCode() && !IFFFF(icode0)) ? codetab[icode0] : TEST;
   error = 0;
 
   label_end:
@@ -818,8 +780,6 @@ int db_trisurf(Db *db,
   /* Free memory */
 
   surf_reference = st_reference_manage(-1, surf_reference);
-  triloc = (int*) mem_free((char* ) triloc);
-  poiloc = (double*) mem_free((char* ) poiloc);
 
   /* Delete new temporary variables */
 

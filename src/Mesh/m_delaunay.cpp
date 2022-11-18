@@ -18,6 +18,8 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Mesh/tetgen.h"
+#include "Mesh/MeshEStandard.hpp"
+
 #include <math.h>
 #include <string.h>
 #include <stdio.h>
@@ -33,8 +35,6 @@
 #define DEBUG 0
 
 /*! \endcond */
-
-static double TOLPERC = 1.e-3;
 
 /****************************************************************************/
 /*!
@@ -239,260 +239,6 @@ static double* st_extend_point(Db *db, const double *gext, int *nout)
   return (ext);
 }
 
-/****************************************************************************/
-/*!
- **  Manage the structure for pointing the duplicates between Input and Output.
- **  Check if samples of the Input File are collocated with samples of the
- **  Output File (organized as a Grid)
- **
- ** \return Pointer to the Vercoloc structure
- **
- ** \param[in]  verbose    Verbose flag
- ** \param[in]  mode       1 for allocation; -1 for deallocation
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure for the Output File
- ** \param[in]  mesh_dbin  0 if 'dbin' does not belong to the meshing
- ** \param[in]  vercoloc   Vercoloc structure
- **
- ** \remarks If 'dbin' does not belong to the meshing, then there will be
- ** \remarks no duplicate. No need to search for them.
- **
- *****************************************************************************/
-Vercoloc* vercoloc_manage(int verbose,
-                          int mode,
-                          Db *dbin,
-                          Db *dbout,
-                          int mesh_dbin,
-                          Vercoloc *vercoloc)
-{
-  int *indg, iclose, jclose, error, ndim, iiech, jjech, jech;
-  double *coor_in, *coor_out, part, d2, d2min;
-  VectorDouble mini;
-  VectorDouble maxi;
-  VectorDouble extend;
-
-  /* Initializations */
-
-  error = 1;
-  indg = nullptr;
-  coor_in = nullptr;
-  coor_out = nullptr;
-
-  /* Dispatch */
-
-  if (mode > 0)
-  {
-
-    /* Initializations */
-
-    vercoloc = (Vercoloc*) mem_alloc(sizeof(Vercoloc), 1);
-    vercoloc->ndupl = 0;
-    vercoloc->dupl_data = nullptr;
-    vercoloc->dupl_dabs = nullptr;
-    vercoloc->dupl_grid = nullptr;
-    if (dbin == nullptr || !mesh_dbin) return (vercoloc);
-
-    // Nothing to  do if 'dbout' is not defined
-
-    if (dbout == nullptr) return (vercoloc);
-
-    // Allocation
-
-    if (dbout->isGrid())
-    {
-      indg = db_indg_alloc(dbout);
-      if (indg == nullptr) goto label_end;
-    }
-    ndim = dbout->getNDim();
-    coor_in = db_sample_alloc(dbin, ELoc::X);
-    if (coor_in == nullptr) goto label_end;
-    coor_out = db_sample_alloc(dbout, ELoc::X);
-    if (coor_out == nullptr) goto label_end;
-    mini.resize(ndim);
-    maxi.resize(ndim);
-    db_extension(dbin, mini, maxi);
-    extend = VH::subtract(mini, maxi);
-
-    /* Look for duplicates */
-
-    iiech = -1;
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-      iiech++;
-      for (int idim = 0; idim < ndim; idim++)
-        coor_in[idim] = dbin->getCoordinate(iech, idim);
-
-      iclose = -1;
-      if (dbout->isGrid() && !dbout->hasSelection())
-      {
-
-        /* Case where the output file is a Grid File */
-
-        DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbout);
-        if (point_to_grid(dbgrid, coor_in, 0, indg) < 0) continue;
-        iclose = jclose = db_index_grid_to_sample(dbgrid, indg);
-        if (iclose < 0) continue;
-        if (!dbgrid->isActive(iclose)) continue;
-
-        /* Calculate the smallest relative distance */
-
-        d2 = 0.;
-        for (int idim = 0; idim < ndim; idim++)
-        {
-          part = (coor_in[idim] - dbgrid->getCoordinate(jclose, idim)) / extend[idim];
-          d2 += part * part;
-        }
-        d2min = d2;
-      }
-      else
-      {
-
-        /* Case where output file is Point File or Grid File with selection */
-
-        d2min = 1.e30;
-        jjech = 0;
-        for (jech = 0; jech < dbout->getSampleNumber(); jech++)
-        {
-          if (!dbout->isActive(jech)) continue;
-          for (int idim = 0; idim < ndim; idim++)
-            coor_out[idim] = dbout->getCoordinate(jech, idim);
-
-          /* Calculate the smallest relative distance */
-
-          d2 = 0.;
-          for (int idim = 0; idim < ndim; idim++)
-          {
-            part = (coor_in[idim] - coor_out[idim]) / extend[idim];
-            d2 += part * part;
-          }
-          if (d2 <= d2min)
-          {
-            d2min = d2;
-            iclose = jjech;
-            jclose = jech;
-          }
-          jjech++;
-        }
-      }
-      d2min = sqrt(d2min);
-      if (d2min > TOLPERC) continue;
-
-      /* Add the sample in the array of collocated samples */
-
-      vercoloc->ndupl++;
-      vercoloc->dupl_data = (int*) mem_realloc((char* ) vercoloc->dupl_data,
-                                               sizeof(int) * vercoloc->ndupl,
-                                               1);
-      vercoloc->dupl_dabs = (int*) mem_realloc((char* ) vercoloc->dupl_dabs,
-                                               sizeof(int) * vercoloc->ndupl,
-                                               1);
-      vercoloc->dupl_grid = (int*) mem_realloc((char* ) vercoloc->dupl_grid,
-
-      sizeof(int) * vercoloc->ndupl,
-                                               1);
-      // Absolute ranks in Db given by:
-      // - 'iech' in Dbin
-      // - 'jclose' in Dbout
-      vercoloc->dupl_data[vercoloc->ndupl - 1] = iiech;  // Relative rank
-      vercoloc->dupl_dabs[vercoloc->ndupl - 1] = iech;   // Absolute rank
-      vercoloc->dupl_grid[vercoloc->ndupl - 1] = iclose; // Rank within meshing
-
-      if (verbose || DEBUG)
-      {
-        if (vercoloc->ndupl == 1)
-        {
-          message("Looking for Data-Target duplicated information (< %lf)\n",
-                  TOLPERC);
-        }
-
-        if (DEBUG)
-        {
-          message("- Data  (%5d) = ", iech + 1);
-          for (int idim = 0; idim < ndim; idim++)
-            message(" %lf", dbin->getCoordinate(iech, idim));
-          message("\n");
-          message("  Target(%5d) = ", iclose + 1);
-          for (int idim = 0; idim < ndim; idim++)
-            message(" %lf", dbout->getCoordinate(jclose, idim));
-          message(" - Rel. Dist. = %lg", d2min);
-          message("\n");
-        }
-      }
-    }
-
-    /* Optional printout */
-
-    if (verbose)
-    {
-      if (vercoloc->ndupl > 0)
-        message("- Samples collocated on the grid = %d\n", vercoloc->ndupl);
-      else
-        message("- No collocation\n");
-    }
-  }
-  else
-  {
-
-    /* Deallocation */
-
-    if (vercoloc == nullptr) return (vercoloc);
-    vercoloc->dupl_data = (int*) mem_free((char* ) vercoloc->dupl_data);
-    vercoloc->dupl_dabs = (int*) mem_free((char* ) vercoloc->dupl_dabs);
-    vercoloc->dupl_grid = (int*) mem_free((char* ) vercoloc->dupl_grid);
-    vercoloc = (Vercoloc*) mem_free((char* ) vercoloc);
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) vercoloc = (Vercoloc*) mem_free((char* ) vercoloc);
-  indg = db_indg_free(indg);
-  coor_in = db_sample_free(coor_in);
-  coor_out = db_sample_free(coor_out);
-  return (vercoloc);
-}
-
-/****************************************************************************/
-/*!
- **  Manage the structure for pointing the duplicates between Input and Output
- **  defined from External Information
- **
- ** \return Pointer to the Vercoloc structure
- **
- ** \param[in]  ndupl      Number of duplicates
- ** \param[in]  dupl_in    Array of duplicate indices from Input Db
- ** \param[in]  dupl_out   Array of duplicate indices from Output Db
- **
- *****************************************************************************/
-Vercoloc* vercoloc_from_external(int ndupl, int *dupl_in, int *dupl_out)
-{
-  Vercoloc *vercoloc;
-
-  vercoloc = (Vercoloc*) mem_alloc(sizeof(Vercoloc), 1);
-  vercoloc->ndupl = 0;
-  vercoloc->dupl_data = nullptr;
-  vercoloc->dupl_dabs = nullptr;
-  vercoloc->dupl_grid = nullptr;
-
-  if (ndupl > 0)
-  {
-    vercoloc->dupl_data = (int*) mem_alloc(sizeof(int) * ndupl, 1);
-    vercoloc->dupl_dabs = (int*) mem_alloc(sizeof(int) * ndupl, 1);
-    vercoloc->dupl_grid = (int*) mem_alloc(sizeof(int) * ndupl, 1);
-
-    for (int i = 0; i < ndupl; i++)
-    {
-      vercoloc->dupl_data[i] = dupl_in[i];
-      vercoloc->dupl_dabs[i] = dupl_in[i];
-      vercoloc->dupl_grid[i] = dupl_out[i];
-    }
-    vercoloc->ndupl = ndupl;
-  }
-  return (vercoloc);
-}
-
 /*****************************************************************************/
 /*!
  **  Free the triangulateio structure
@@ -578,27 +324,6 @@ void meshes_2D_init(triangulateio *t)
 
 /*****************************************************************************/
 /*!
- **  Check if the current sample must be masked off
- **
- ** \return 1 if the sample must be masked off; 0 otherwise
- **
- ** \param[in]  nb_mask   Number of samples to be masked (optional)
- ** \param[in]  is_mask   Array of indices of the samples to be masked
- ** \param[in]  iech0     Rank of the sample (within the list of active ones)
- **
- *****************************************************************************/
-static int st_is_masked(int nb_mask, int *is_mask, int iech0)
-{
-  if (nb_mask <= 0 || is_mask == nullptr) return (0);
-  for (int i = 0; i < nb_mask; i++)
-  {
-    if (is_mask[i] == iech0) return (1);
-  }
-  return (0);
-}
-
-/*****************************************************************************/
-/*!
  **  Define the memory areas by reading information from Db
  **
  ** \return Error return code
@@ -606,8 +331,6 @@ static int st_is_masked(int nb_mask, int *is_mask, int iech0)
  ** \param[in]  db        Db structure where data are located
  ** \param[in]  use_code  1 if the code (if available) is used to distinguish
  **                       vertices and holes
- ** \param[in]  nb_mask   Number of samples to be masked (optional)
- ** \param[in]  is_mask   Array of indices of the samples to be masked
  ** \param[in]  t         Pointer to the triangulateio structure to be loaded
  **
  ** \remarks This function adds the vertices (and holes) to an existing
@@ -615,11 +338,7 @@ static int st_is_masked(int nb_mask, int *is_mask, int iech0)
  ** \remarks Only the first two coordinates are considered
  **
  *****************************************************************************/
-int meshes_2D_from_db(Db *db,
-                                      int use_code,
-                                      int nb_mask,
-                                      int *is_mask,
-                                      triangulateio *t)
+int meshes_2D_from_db(Db *db, int use_code, triangulateio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nhole, ncode, nold;
 
@@ -638,7 +357,6 @@ int meshes_2D_from_db(Db *db,
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
     if (use_code && ncode > 0 && db->getCode(iech) < 0)
       nhole++;
     else
@@ -657,7 +375,6 @@ int meshes_2D_from_db(Db *db,
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
     if (use_code && ncode > 0 && db->getCode(iech) < 0) continue;
     for (int idim = 0; idim < ndim; idim++)
       t->pointlist[ecr++] = db->getCoordinate(iech, idim);
@@ -1001,150 +718,14 @@ void meshes_2D_print(triangulateio *t, int brief)
  **  Load the contents of the triangulateio structure into arrays
  **
  ** \param[in]  t      Pointer to the triangulateio structure to be downloaded
- ** \param[in]  name   Name of the segment to be downloaded. It can be:
- ** \li                "Points" for the vertices coordinates
- ** \li                "Point_marker" for the markers at vertices
- ** \li                "Point_attribute" for the attribute list at vertices
- ** \li                "Segments" for the segments
- ** \li                "Segment_marker" for the markers at segments
- ** \li                "Holes" for the holes
- ** \li                "Triangles" for the corners of the triangles
- ** \li                "Triangle_attribute" for the attributes of the triangles
- ** \li                "Triangle_area" for the areas attached to the triangles
- ** \li                "Triangle_neigh" for the neighborhoods of  the triangles
- **
- ** \param[out] ntab_arg  First dimension of the returned array
- ** \param[out] natt_arg  Second dimension of the returned array
- ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-void meshes_2D_load_vertices(triangulateio *t,
-                             const char *name,
-                             int *ntab_arg,
-                             int *natt_arg,
-                             void **tab_arg)
+MeshEStandard* meshes_2D_load_vertices(triangulateio *t)
 {
-  double *rtab, *rfrom;
-  int *itab, *ifrom, ntab, natt, type;
-
-  /* Initializations */
-
-  (*ntab_arg) = (*natt_arg) = 0;
-  ntab = natt = type = 0;
-  itab = ifrom = nullptr;
-  rtab = rfrom = nullptr;
-  *tab_arg = (void*) NULL;
-
-  /* Dispatch */
-
-  if (!strcmp(name, "Points"))
-  {
-    if (t->pointlist == nullptr) return;
-    type = 1;
-    natt = 2;
-    ntab = t->numberofpoints;
-    rfrom = t->pointlist;
-  }
-
-  else if (!strcmp(name, "Point_marker"))
-  {
-    if (t->pointmarkerlist == nullptr) return;
-    type = 2;
-    ntab = t->numberofpoints;
-    ifrom = t->pointmarkerlist;
-  }
-
-  else if (!strcmp(name, "Point_attribute"))
-  {
-    if (t->pointattributelist == nullptr) return;
-    type = 1;
-    natt = t->numberofpointattributes;
-    ntab = t->numberofpoints;
-    rfrom = t->pointattributelist;
-  }
-
-  else if (!strcmp(name, "Segments"))
-  {
-    if (t->segmentlist == nullptr) return;
-    type = 2;
-    natt = 2;
-    ntab = t->numberofsegments;
-    ifrom = t->segmentlist;
-  }
-
-  else if (!strcmp(name, "Segment_marker"))
-  {
-    if (t->segmentmarkerlist == nullptr) return;
-    type = 2;
-    ntab = t->numberofsegments;
-    ifrom = t->segmentmarkerlist;
-  }
-
-  else if (!strcmp(name, "Holes"))
-  {
-    if (t->holelist == nullptr) return;
-    type = 1;
-    natt = 2;
-    ntab = t->numberofholes;
-    rfrom = t->holelist;
-  }
-
-  else if (!strcmp(name, "Triangles"))
-  {
-    if (t->trianglelist == nullptr) return;
-    type = 2;
-    natt = t->numberofcorners;
-    ntab = t->numberoftriangles;
-    ifrom = t->trianglelist;
-  }
-
-  else if (!strcmp(name, "Triangle_attribute"))
-  {
-    if (t->triangleattributelist == nullptr) return;
-    type = 1;
-    natt = t->numberoftriangleattributes;
-    ntab = t->numberoftriangles;
-    rfrom = t->triangleattributelist;
-  }
-
-  else if (!strcmp(name, "Triangle_area"))
-  {
-    if (t->trianglearealist == nullptr) return;
-    type = 1;
-    ntab = t->numberoftriangles;
-    rfrom = t->trianglearealist;
-  }
-
-  else if (!strcmp(name, "Triangle_neigh"))
-  {
-    if (t->neighborlist == nullptr) return;
-    type = 2;
-    natt = 3;
-    ntab = t->numberoftriangles;
-    ifrom = t->neighborlist;
-  }
-
-  /* Returning arguments */
-
-  *ntab_arg = ntab;
-  *natt_arg = natt;
-  if (type == 1)
-  {
-    rtab = (double*) mem_alloc(sizeof(double) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      rtab[i] = rfrom[i];
-    *tab_arg = (void*) rtab;
-  }
-  else if (type == 2)
-  {
-    itab = (int*) mem_alloc(sizeof(int) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      itab[i] = ifrom[i];
-    *tab_arg = (void*) itab;
-  }
-  else
-    messageAbort("Type unknown");
-  return;
+  MeshEStandard* amesh = new MeshEStandard();
+  amesh->reset(2, 3, t->numberofpoints, t->numberofsegments,
+                       t->pointlist, t->segmentlist);
+  return amesh;
 }
 
 /*****************************************************************************/
@@ -1166,34 +747,34 @@ void meshes_2D_load_vertices(triangulateio *t,
  **
  *****************************************************************************/
 static int st_load_segment(DbGrid *dbgrid,
-                           int *mesh,
-                           int *order,
-                           int *indg,
+                           VectorInt& mesh,
+                           VectorInt& order,
+                           int ipos,
                            int ix1,
                            int ix2)
 {
   int nactive, iech1, iech2, imask1, imask2;
+  VectorInt indg(1);
 
   nactive = 0;
 
   indg[0] = ix1;
-  iech1 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[0] = iech1;
+  iech1 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 0] = iech1;
   imask1 = dbgrid->isActive(iech1);
   nactive += imask1;
 
   indg[0] = ix2;
-  iech2 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[1] = iech2;
+  iech2 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 1] = iech2;
   imask2 = dbgrid->isActive(iech2);
   nactive += imask2;
 
   if (nactive <= 0) return (0);
 
-  order[iech1] = (imask1) ? 1 :
-                            -1;
-  order[iech2] = (imask2) ? 1 :
-                            -1;
+  order[iech1] = (imask1) ? 1 : -1;
+  order[iech2] = (imask2) ? 1 : -1;
+
   return (1);
 }
 
@@ -1213,16 +794,15 @@ static int st_load_segment(DbGrid *dbgrid,
  **
  ** \param[out] mesh       Array of triangle ranks (dimension = 3)
  ** \param[out] order      Array of relative ranks
- ** \param[out] indg       Array for grid indexation
  **
  ** \remarks The values in 'order' are the absolute indices (starting from 1),
  ** \remarks negative if the grid node is masked off
  **
  *****************************************************************************/
 static int st_load_triangle(DbGrid *dbgrid,
-                            int *mesh,
-                            int *order,
-                            int *indg,
+                            VectorInt& mesh,
+                            VectorInt& order,
+                            int ipos,
                             int ix1,
                             int iy1,
                             int ix2,
@@ -1231,38 +811,37 @@ static int st_load_triangle(DbGrid *dbgrid,
                             int iy3)
 {
   int nactive, iech1, iech2, iech3, imask1, imask2, imask3;
+  VectorInt indg(2);
 
   nactive = 0;
 
   indg[0] = ix1;
   indg[1] = iy1;
-  iech1 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[0] = iech1;
+  iech1 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 0] = iech1;
   imask1 = dbgrid->isActive(iech1);
   nactive += imask1;
 
   indg[0] = ix2;
   indg[1] = iy2;
-  iech2 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[1] = iech2;
+  iech2 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 1] = iech2;
   imask2 = dbgrid->isActive(iech2);
   nactive += imask2;
 
   indg[0] = ix3;
   indg[1] = iy3;
-  iech3 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[2] = iech3;
+  iech3 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 2] = iech3;
   imask3 = dbgrid->isActive(iech3);
   nactive += imask3;
 
   if (nactive <= 0) return (0);
 
-  order[iech1] = (imask1) ? 1 :
-                            -1;
-  order[iech2] = (imask2) ? 1 :
-                            -1;
-  order[iech3] = (imask3) ? 1 :
-                            -1;
+  order[iech1] = (imask1) ? 1 : -1;
+  order[iech2] = (imask2) ? 1 : -1;
+  order[iech3] = (imask3) ? 1 : -1;
+
   return (1);
 }
 
@@ -1275,7 +854,6 @@ static int st_load_triangle(DbGrid *dbgrid,
  ** \param[in] dbgrid      Db structure
  ** \param[in] mesh        Array of triangle ranks (dimension = 4)
  ** \param[in] order       Array of relative ranks
- ** \param[in] indg        Array for grid indexation
  ** \param[in] ix1         Grid index along X for the vertex #1
  ** \param[in] iy1         Grid index along Y for the vertex #1
  ** \param[in] iz1         Grid index along Z for the vertex #1
@@ -1294,9 +872,9 @@ static int st_load_triangle(DbGrid *dbgrid,
  **
  *****************************************************************************/
 static int st_load_tetra(DbGrid *dbgrid,
-                         int *mesh,
-                         int *order,
-                         int *indg,
+                         VectorInt& mesh,
+                         VectorInt& order,
+                         int ipos,
                          int ix1,
                          int iy1,
                          int iz1,
@@ -1311,117 +889,57 @@ static int st_load_tetra(DbGrid *dbgrid,
                          int iz4)
 {
   int nactive, iech1, iech2, iech3, iech4, imask1, imask2, imask3, imask4;
+  VectorInt indg(3);
 
   nactive = 0;
 
   indg[0] = ix1;
   indg[1] = iy1;
   indg[2] = iz1;
-  iech1 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[0] = iech1;
+  iech1 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 0] = iech1;
   imask1 = dbgrid->isActive(iech1);
   nactive += imask1;
 
   indg[0] = ix2;
   indg[1] = iy2;
   indg[2] = iz2;
-  iech2 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[1] = iech2;
+  iech2 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 1] = iech2;
   imask2 = dbgrid->isActive(iech2);
   nactive += imask1;
 
   indg[0] = ix3;
   indg[1] = iy3;
   indg[2] = iz3;
-  iech3 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[2] = iech3;
+  iech3 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 2] = iech3;
   imask3 = dbgrid->isActive(iech3);
   nactive += imask1;
 
   indg[0] = ix4;
   indg[1] = iy4;
   indg[2] = iz4;
-  iech4 = db_index_grid_to_sample(dbgrid, indg);
-  mesh[3] = iech4;
+  iech4 = dbgrid->indiceToRank(indg);
+  mesh[ipos + 3] = iech4;
   imask4 = dbgrid->isActive(iech4);
   nactive += imask1;
 
   if (nactive <= 0) return (0);
 
-  order[iech1] = (imask1) ? 1 :
-                            -1;
-  order[iech2] = (imask2) ? 1 :
-                            -1;
-  order[iech3] = (imask3) ? 1 :
-                            -1;
-  order[iech4] = (imask4) ? 1 :
-                            -1;
+  order[iech1] = (imask1) ? 1 : -1;
+  order[iech2] = (imask2) ? 1 : -1;
+  order[iech3] = (imask3) ? 1 : -1;
+  order[iech4] = (imask4) ? 1 : -1;
+
   return (1);
-}
-
-/*****************************************************************************/
-/*!
- **  Manages core for the regular meshing
- **
- ** \return Error return code
- **
- ** \param[in]  mode      1 for allocation; -1 for deallocation
- ** \param[in]  grid      Grid structure
- **
- ** \param[in,out] order_loc  Array of relative orders
- ** \param[in,out] ranks_loc  Array of ranks
- ** \param[in,out] indg_loc   Array of grid indices
- **
- *****************************************************************************/
-static int st_manage_regular_grid(int mode,
-                                  const Grid &grid,
-                                  int **order_loc,
-                                  int **ranks_loc,
-                                  int **indg_loc)
-{
-  int *order, *ranks, *indg, number, ndim;
-
-  /* Dispatch */
-  order = ranks = indg = NULL;
-  if (mode > 0)
-  {
-    ndim = grid.getNDim();
-    number = 1;
-    for (int idim = 0; idim < ndim; idim++)
-      number *= grid.getNX(idim);
-    order = (int*) mem_alloc(sizeof(int) * number, 0);
-    if (order == nullptr) return (1);
-    ranks = (int*) mem_alloc(sizeof(int) * number, 0);
-    if (ranks == nullptr) return (1);
-    indg = (int*) mem_alloc(sizeof(int) * ndim, 0);
-    if (indg == nullptr) return (1);
-
-    for (int i = 0; i < number; i++)
-    {
-      order[i] = ITEST;
-      ranks[i] = -1;
-    }
-  }
-  else
-  {
-    order = *order_loc;
-    ranks = *ranks_loc;
-    indg = *indg_loc;
-    ranks = (int*) mem_free((char* ) ranks);
-    order = (int*) mem_free((char* ) order);
-    indg = (int*) mem_free((char* ) indg);
-  }
-  *order_loc = order;
-  *ranks_loc = ranks;
-  *indg_loc = indg;
-  return (0);
 }
 
 /*****************************************************************************/
 /*!
  **  Perform the ultimate task for the regular grid
  **
- ** \return Error return code
+ ** \return Pointer to the newly created MeshEStandard structure
  **
  ** \param[in] dbgrid   Db structure
  ** \param[in] ndim     Space dimension
@@ -1429,41 +947,23 @@ static int st_manage_regular_grid(int mode,
  ** \param[in] ncorner  Number of corner per mesh
  ** \param[in] meshes   Initial array of meshes
  ** \param[in] order    Array of relative ranks
- ** \param[in] ranks    Array for grid indexation
- **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_ultimate_regular_grid(Db *dbgrid,
-                                    int ndim,
-                                    int nmesh,
-                                    int ncorner,
-                                    int *meshes,
-                                    int *order,
-                                    int *ranks,
-                                    SPDE_Mesh *s_mesh)
+static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
+                                               int ndim,
+                                               int nmesh,
+                                               int ncorner,
+                                               VectorInt& meshes,
+                                               VectorInt& order)
 {
-  double *points;
-  int nvertex, jech, number, error, local, nin, rank_in, rank_out;
+  /* Count the number of active vertices */
 
-  // Initializations
-
-  error = 1;
-  points = nullptr;
-  number = dbgrid->getSampleNumber();
-
-  // Rescale the meshing array
-
-  meshes = (int*) mem_realloc((char* ) meshes, sizeof(int) * nmesh * ncorner,
-                              0);
-  if (meshes == nullptr) goto label_end;
-
-  /* Count the number of actives vertices */
-
-  nvertex = nin = 0;
+  int number = dbgrid->getSampleNumber();
+  int nvertex = 0;
+  int nin = 0;
   for (int iech = 0; iech < number; iech++)
   {
-    local = order[iech];
+    int local = order[iech];
     if (IFFFF(local)) continue;
     if (local > 0) nin++;
     nvertex++;
@@ -1471,11 +971,12 @@ static int st_ultimate_regular_grid(Db *dbgrid,
 
   /* Define the addresses assigned to information */
 
-  rank_in = 0;
-  rank_out = nin;
+  int rank_in = 0;
+  int rank_out = nin;
+  VectorInt ranks(number);
   for (int iech = 0; iech < number; iech++)
   {
-    local = order[iech];
+    int local = order[iech];
     if (IFFFF(local)) continue;
     if (local > 0)
       ranks[iech] = rank_in++;
@@ -1485,13 +986,12 @@ static int st_ultimate_regular_grid(Db *dbgrid,
 
   /* Store the (active) vertices */
 
-  points = (double*) mem_alloc(sizeof(double) * nvertex * ndim, 0);
-  if (points == nullptr) goto label_end;
+  VectorDouble points(nvertex * ndim, 0);
   for (int iech = 0; iech < number; iech++)
   {
-    local = order[iech];
+    int local = order[iech];
     if (IFFFF(local)) continue;
-    jech = ranks[iech];
+    int jech = ranks[iech];
     for (int idim = 0; idim < ndim; idim++)
       points[jech * ndim + idim] = dbgrid->getCoordinate(iech, idim);
   }
@@ -1499,68 +999,48 @@ static int st_ultimate_regular_grid(Db *dbgrid,
   // Update the point ranks in the mesh */
 
   for (int i = 0; i < nmesh * ncorner; i++)
-    meshes[i] = ranks[meshes[i]] + 1;
+    meshes[i] = ranks[meshes[i]];
 
-  // Store the information in the returned SPDE_Mesh structure
+  // Store the information in the returned AMesh structure
 
-  s_mesh->ndim = ndim;
-  s_mesh->ncorner = ncorner;
-  s_mesh->nmesh = nmesh;
-  s_mesh->nvertex = nvertex;
-  s_mesh->meshes = meshes;
-  s_mesh->points = points;
+  MeshEStandard* amesh = new MeshEStandard();
+  amesh->reset(ndim, ncorner, points, meshes, false);
 
-  // Set the error return code 
-
-  error = 0;
-
-  label_end: if (error) points = (double*) mem_free((char* ) points);
-  return (error);
+  return amesh;
 }
 
 /*****************************************************************************/
 /*!
  **  Build the regular 2-D grid meshing
  **
- ** \return Error return code
+ ** \return Pointer to the newly created AMesh structure
  **
- ** \param[in]  verbose   Verbosity flag
+ ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-int meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
+AMesh* meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid)
 {
-  int nx, ny, ndim, ncorner, nmesh, error, number, ipol;
-  int *meshes, *order, *indg, *ranks;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = 2;
-  ncorner = 3;
-  order = meshes = indg = ranks = nullptr;
-  nx = dbgrid->getNX(0);
-  ny = dbgrid->getNX(1);
-  number = nx * ny;
+  int ndim = 2;
+  int ncorner = 3;
+  int nx = dbgrid->getNX(0);
+  int ny = dbgrid->getNX(1);
+  int number = nx * ny;
 
   /* Core allocation */
 
-  meshes = (int*) mem_alloc(sizeof(int) * number * ncorner * 2, 0);
-  if (meshes == nullptr) goto label_end;
-  if (st_manage_regular_grid(1, dbgrid->getGrid(), &order, &ranks, &indg))
-    goto label_end;
+  VectorInt meshes(number * ncorner * 2, 0);
+  VectorInt order(number, ITEST);
 
   /* Store the indices per mesh */
 
-  nmesh = 0;
+  int nmesh = 0;
   for (int ix = 0; ix < nx - 1; ix++)
     for (int iy = 0; iy < ny - 1; iy++)
     {
-      ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
+      int ipol = ((ix + iy) % 2 == 1) ? 0 : 1;
       for (int i = 0; i < 2; i++)
-        if (st_load_triangle(dbgrid, &meshes[nmesh * ncorner], order, indg,
+        if (st_load_triangle(dbgrid, meshes, order, nmesh*ncorner,
                              ix + MSS(2, ipol, i, 0, 0),
                              iy + MSS(2, ipol, i, 0, 1),
                              ix + MSS(2, ipol, i, 1, 0),
@@ -1569,32 +1049,15 @@ int meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
                              iy + MSS(2, ipol, i, 2, 1))) nmesh++;
     }
 
+  // Shrink the array (optional)
+
+  meshes.resize(nmesh * ncorner);
+
   // Perform the ultimate tasks 
 
-  if (st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order,
-                               ranks, s_mesh)) goto label_end;
+  AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
-  // Printout (optional) 
-
-  if (verbose)
-  {
-    message("Simplified Triangulation performed:\n");
-    message("- Number of vertices   = %d\n", s_mesh->nvertex);
-    message("- Number of attributes = %d\n", s_mesh->ndim);
-    message("- Number of triangles  = %d\n", s_mesh->nmesh);
-    message("- Number of corners    = %d\n", s_mesh->ncorner);
-    mesh_stats(s_mesh->ndim, s_mesh->ncorner, s_mesh->nmesh, s_mesh->meshes,
-               s_mesh->points);
-  }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: (void) st_manage_regular_grid(-1, dbgrid->getGrid(), &order,
-                                           &ranks, &indg);
-  if (error) meshes = (int*) mem_free((char* ) meshes);
-  return (error);
+  return amesh;
 }
 
 /*****************************************************************************/
@@ -1996,8 +1459,6 @@ void meshes_2D_sph_free(SphTriangle *t, int mode)
  **  Define the memory areas by reading information from Db
  **
  ** \param[in]  db        Db structure where data are located
- ** \param[in]  nb_mask   Number of samples to be masked (optional)
- ** \param[in]  is_mask   Array of indices of the samples to be masked
  ** \param[in]  t         Pointer to the SphTriangle structure to be loaded
  **
  ** \remarks This function adds vertices to an existing SphTriangle structure
@@ -2005,7 +1466,7 @@ void meshes_2D_sph_free(SphTriangle *t, int mode)
  ** \remarks (longitude,latitude) into 3-D coordinates
  **
  *****************************************************************************/
-int meshes_2D_sph_from_db(Db *db, int nb_mask, int *is_mask, SphTriangle *t)
+int meshes_2D_sph_from_db(Db *db, SphTriangle *t)
 {
   int error, nech, ndim, neff, nold, ecr;
   double xx, yy, zz;
@@ -2026,13 +1487,7 @@ int meshes_2D_sph_from_db(Db *db, int nb_mask, int *is_mask, SphTriangle *t)
 
   /* Count the number of active samples */
 
-  neff = 0;
-  for (int iech = 0; iech < nech; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
-    neff++;
-  }
+  neff = db->getActiveSampleNumber();
 
   /* Core allocation */
 
@@ -2053,7 +1508,6 @@ int meshes_2D_sph_from_db(Db *db, int nb_mask, int *is_mask, SphTriangle *t)
   for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
     GH::convertSph2Cart(db->getCoordinate(iech, 0), db->getCoordinate(iech, 1),
                         &xx, &yy, &zz);
     t->sph_x[ecr] = xx;
@@ -2414,94 +1868,50 @@ int meshes_2D_sph_create(int verbose, SphTriangle *t)
 /*!
  **  Load the contents of the SphTriangle structure into arrays
  **
- ** \param[in]  t      Pointer to the SphTriangle structure to be downloaded
- ** \param[in]  name   Name of the segment to be downloaded. It can be:
- ** \li                "Points" for the vertices coordinates
- ** \li                "Triangles" for the corners of the triangles
+ ** \return A Pointer to a MeshEStandard newly created structure
  **
- ** \param[out] ntab_arg  First dimension of the returned array
- ** \param[out] natt_arg  Second dimension of the returned array
- ** \param[out] tab_arg   Returned array
+ ** \param[in]  t      Pointer to the SphTriangle structure to be downloaded
  **
  *****************************************************************************/
-void meshes_2D_sph_load_vertices(SphTriangle *t,
-                                 const char *name,
-                                 int *ntab_arg,
-                                 int *natt_arg,
-                                 void **tab_arg)
+MeshEStandard* meshes_2D_sph_load_vertices(SphTriangle *t)
 {
-  int *ltri, *itab, nrow, nt, natt, ntab, ecr, lec, type, error;
-  double *rtab, rlong, rlat;
+  int ecr, lec, nt, error;
+  double rlong, rlat;
 
-  /* Initializations */
+  int natt = 2;
+  int ntab = t->n_nodes;
 
-  *ntab_arg = 0;
-  *natt_arg = 0;
-  *tab_arg = NULL;
-  if (t == (SphTriangle*) NULL || t->n_nodes <= 0 || t->sph_size <= 0) return;
-  type = ecr = lec = natt = ntab = 0;
-  ltri = itab = nullptr;
-  rtab = nullptr;
-
-  /* Retrieve information */
-
-  if (!strcmp(name, "Points"))
+  ecr = 0;
+  VectorDouble rtab(ntab * natt, 0);
+  for (int i = 0; i < ntab; i++)
   {
-    type = 1;
-    natt = 2;
-    ntab = t->n_nodes;
-    rtab = (double*) mem_alloc(sizeof(double) * ntab * natt, 0);
-    if (rtab == nullptr) goto label_end;
-
-    ecr = 0;
-    for (int i = 0; i < ntab; i++)
-    {
-      GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
-      rtab[ecr++] = rlong;
-      rtab[ecr++] = rlat;
-    }
+    GH::convertCart2Sph(t->sph_x[i], t->sph_y[i], t->sph_z[i], &rlong, &rlat);
+    rtab[ecr++] = rlong;
+    rtab[ecr++] = rlat;
   }
 
-  else if (!strcmp(name, "Triangles"))
+  ecr = 0;
+  lec = 0;
+  int nrow = 6;
+  VectorInt ltri(2 * nrow * t->n_nodes, 0);
+  (void) trlist_(&t->n_nodes, t->sph_list, t->sph_lptr, t->sph_lend, &nrow,
+                 &nt, ltri.data(), &error);
+  if (error) return nullptr;
+
+  natt = 3;
+  ntab = nt;
+  VectorInt itab(ntab * natt, 0);
+  for (int i = 0; i < ntab; i++)
   {
-    nrow = 6;
-    ltri = (int*) mem_alloc(sizeof(int) * 2 * nrow * t->n_nodes, 0);
-    if (ltri == nullptr) return;
-    (void) trlist_(&t->n_nodes, t->sph_list, t->sph_lptr, t->sph_lend, &nrow,
-                   &nt, ltri, &error);
-    if (error) goto label_end;
-    type = 2;
-    natt = 3;
-    ntab = nt;
-
-    itab = (int*) mem_alloc(sizeof(int) * ntab * natt, 0);
-    if (itab == nullptr) goto label_end;
-
-    for (int i = 0; i < ntab; i++)
-    {
-      for (int j = 0; j < natt; j++)
-        itab[ecr + j] = ltri[lec + j];
-      ecr += natt;
-      lec += nrow;
-    }
+    for (int j = 0; j < natt; j++)
+      itab[ecr + j] = ltri[lec + j];
+    ecr += natt;
+    lec += nrow;
   }
 
-  /* Returning arguments */
-
-  *ntab_arg = ntab;
-  *natt_arg = natt;
-  if (type == 1)
-    *tab_arg = (void*) rtab;
-  else if (type == 2)
-    *tab_arg = (void*) itab;
-  else
-    messageAbort("Type unknown");
-  return;
-
-  label_end: ltri = (int*) mem_free((char* ) ltri);
-  itab = (int*) mem_free((char* ) itab);
-  rtab = (double*) mem_free((char* ) rtab);
-  return;
+  MeshEStandard* amesh = new MeshEStandard();
+  amesh->reset(2, 3, t->n_nodes, nt, rtab.data(), itab.data());
+  return amesh;
 }
 
 /*****************************************************************************/
@@ -2839,16 +2249,13 @@ void meshes_3D_create(int verbose,
  **  Define the memory areas by reading information from Db
  **
  ** \param[in]  db        Db structure where data are located
- ** \param[in]  nb_mask   Number of samples to be masked (optional)
- ** \param[in]  is_mask   Array of indices of the samples to be masked
  ** \param[in]  t         Pointer to the tetgenio structure to be loaded
  **
- ** \remarks This function adds the vertices to an existing
- ** \remarks tetgenio structure
+ ** \remarks This function adds the vertices to an existing tetgenio structure
  ** \remarks Only the first three coordinates are considered
  **
  *****************************************************************************/
-int meshes_3D_from_db(Db *db, int nb_mask, int *is_mask, tetgenio *t)
+int meshes_3D_from_db(Db *db, tetgenio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nold;
 
@@ -2862,27 +2269,19 @@ int meshes_3D_from_db(Db *db, int nb_mask, int *is_mask, tetgenio *t)
 
   /* Count the number of active samples */
 
-  neff = 0;
-  for (iech = 0; iech < nech; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
-    neff++;
-  }
+  neff = db->getActiveSampleNumber();
 
   /* List of points */
 
   nold = t->numberofpoints;
   ecr = nold * ndim;
   t->pointlist = (double*) mem_realloc((char* ) t->pointlist,
-                                       sizeof(double) * (nold + neff) * ndim,
-                                       0);
+                                       sizeof(double) * (nold + neff) * ndim, 0);
   if (t->pointlist == nullptr) goto label_end;
 
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
     for (int idim = 0; idim < ndim; idim++)
       t->pointlist[ecr++] = db->getCoordinate(iech, idim);
   }
@@ -3033,120 +2432,52 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
 /*!
  **  Load the contents of the tetgenio structure into arrays
  **
- ** \param[in]  t      Pointer to the tetgenio structure to be downloaded
- ** \param[in]  name   Name of the item to be downloaded. It can be:
- ** \li                "Points" for the vertices coordinates
- ** \li                "Tetrahedra" for the tetrahedra
+ ** \return A pointer to the newly created AMesh
  **
- ** \param[out] ntab_arg  First dimension of the returned array
- ** \param[out] natt_arg  Second dimension of the returned array
- ** \param[out] tab_arg   Returned array
+ ** \param[in]  t      Pointer to the tetgenio structure to be downloaded
  **
  *****************************************************************************/
-void meshes_3D_load_vertices(tetgenio *t,
-                             const char *name,
-                             int *ntab_arg,
-                             int *natt_arg,
-                             void **tab_arg)
+MeshEStandard* meshes_3D_load_vertices(tetgenio *t)
 {
-  double *rtab, *rfrom;
-  int *itab, *ifrom, ntab, natt, type;
-
-  /* Initializations */
-
-  (*ntab_arg) = (*natt_arg) = 0;
-  ntab = natt = type = 0;
-  itab = ifrom = nullptr;
-  rtab = rfrom = nullptr;
-  *tab_arg = (void*) NULL;
-
-  /* Dispatch */
-
-  if (!strcmp(name, "Points"))
-  {
-    if (t->pointlist == nullptr) return;
-    type = 1;
-    natt = 3;
-    ntab = t->numberofpoints;
-    rfrom = t->pointlist;
-  }
-
-  else if (!strcmp(name, "Tetrahedra"))
-  {
-    if (t->tetrahedronlist == nullptr) return;
-    type = 2;
-    natt = t->numberofcorners;
-    ntab = t->numberoftetrahedra;
-    ifrom = t->tetrahedronlist;
-  }
-
-  /* Returning arguments */
-
-  *ntab_arg = ntab;
-  *natt_arg = natt;
-  if (type == 1)
-  {
-    rtab = (double*) mem_alloc(sizeof(double) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      rtab[i] = rfrom[i];
-    *tab_arg = (void*) rtab;
-  }
-  else if (type == 2)
-  {
-    itab = (int*) mem_alloc(sizeof(int) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      itab[i] = ifrom[i];
-    *tab_arg = (void*) itab;
-  }
-  else
-    messageAbort("Type unknown");
-  return;
+  MeshEStandard* amesh = new MeshEStandard();
+  amesh->reset(3, 4, t->numberofpoints, t->numberoftetrahedra,
+                       t->pointlist, t->tetrahedronlist);
+  return amesh;
 }
 
 /*****************************************************************************/
 /*!
  **  Build the regular 3-D grid meshing
  **
- ** \return Error return code
+ ** \return Pointer to the newly created AMesh structure
  **
- ** \param[in]  verbose   Verbosity flag
+ ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-int meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
+AMesh* meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid)
 {
-  int nx, ny, nz, ndim, ncorner, nmesh, error, number;
-  int *meshes, *order, *indg, *ranks;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = 3;
-  ncorner = 4;
-  order = meshes = indg = ranks = nullptr;
-  nx = dbgrid->getNX(0);
-  ny = dbgrid->getNX(1);
-  nz = dbgrid->getNX(2);
-  number = nx * ny * nz;
+  int ndim = 3;
+  int ncorner = 4;
+  int nx = dbgrid->getNX(0);
+  int ny = dbgrid->getNX(1);
+  int nz = dbgrid->getNX(2);
+  int number = nx * ny * nz;
 
   /* Core allocation */
 
-  meshes = (int*) mem_alloc(sizeof(int) * number * ncorner * 6, 0);
-  if (meshes == nullptr) goto label_end;
-  if (st_manage_regular_grid(1, dbgrid->getGrid(), &order, &ranks, &indg))
-    goto label_end;
+  VectorInt meshes(number * ncorner * 6, 0);
+  VectorInt order(number, ITEST);
 
   /* Store the indices per mesh */
 
-  nmesh = 0;
+  int nmesh = 0;
   for (int ix = 0; ix < nx - 1; ix++)
     for (int iy = 0; iy < ny - 1; iy++)
       for (int iz = 0; iz < nz - 1; iz++)
         for (int i = 0; i < 6; i++)
         {
-          if (st_load_tetra(dbgrid, &meshes[nmesh * ncorner], order, indg,
+          if (st_load_tetra(dbgrid, meshes, order, nmesh*ncorner,
                             ix + MSS(3, 0, i, 0, 0), iy + MSS(3, 0, i, 0, 1),
                             iz + MSS(3, 0, i, 0, 2), ix + MSS(3, 0, i, 1, 0),
                             iy + MSS(3, 0, i, 1, 1), iz + MSS(3, 0, i, 1, 2),
@@ -3156,32 +2487,15 @@ int meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
             nmesh++;
         }
 
+  // Shrink the array (optional)
+
+  meshes.resize(nmesh * ncorner);
+
   // Perform the ultimate tasks 
 
-  if (st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order,
-                               ranks, s_mesh)) goto label_end;
+  AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
-  // Printout (optional) 
-
-  if (verbose)
-  {
-    message("Simplified Tetrahedralization performed:\n");
-    message("- Number of vertices   = %d\n", s_mesh->nvertex);
-    message("- Number of attributes = %d\n", s_mesh->ndim);
-    message("- Number of tetrahedra = %d\n", s_mesh->nmesh);
-    message("- Number of corners    = %d\n", s_mesh->ncorner);
-    mesh_stats(s_mesh->ndim, s_mesh->ncorner, s_mesh->nmesh, s_mesh->meshes,
-               s_mesh->points);
-  }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: (void) st_manage_regular_grid(-1, dbgrid->getGrid(), &order,
-                                           &ranks, &indg);
-  if (error) meshes = (int*) mem_free((char* ) meshes);
-  return (error);
+  return amesh;
 }
 
 /*****************************************************************************/
@@ -3233,8 +2547,6 @@ void meshes_1D_init(segmentio *t)
  ** \return Error return code
  **
  ** \param[in]  db        Db structure where data are located
- ** \param[in]  nb_mask   Number of samples to be masked (optional)
- ** \param[in]  is_mask   Array of indices of the samples to be masked
  ** \param[in]  t         Pointer to the triangulateio structure to be loaded
  **
  ** \remarks This function adds the vertices to an existing
@@ -3242,7 +2554,7 @@ void meshes_1D_init(segmentio *t)
  ** \remarks Only the first coordinate is considered
  **
  *****************************************************************************/
-int meshes_1D_from_db(Db *db, int nb_mask, int *is_mask, segmentio *t)
+int meshes_1D_from_db(Db *db, segmentio *t)
 {
   int iech, nech, error, ecr, neff, ndim, nold;
 
@@ -3256,13 +2568,7 @@ int meshes_1D_from_db(Db *db, int nb_mask, int *is_mask, segmentio *t)
 
   /* Count the number of active samples */
 
-  neff = 0;
-  for (iech = 0; iech < nech; iech++)
-  {
-    if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
-    neff++;
-  }
+  neff = db->getActiveSampleNumber();
 
   /* List of points */
 
@@ -3276,7 +2582,6 @@ int meshes_1D_from_db(Db *db, int nb_mask, int *is_mask, segmentio *t)
   for (iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    if (st_is_masked(nb_mask, is_mask, iech)) continue;
     for (int idim = 0; idim < ndim; idim++)
       t->pointlist[ecr++] = db->getCoordinate(iech, idim);
   }
@@ -3432,144 +2737,57 @@ void meshes_1D_print(segmentio *t, int brief)
  **  Load the contents of the segmentio structure into arrays
  **
  ** \param[in]  t      Pointer to the segmentio structure to be downloaded
- ** \param[in]  name   Name of the segment to be downloaded. It can be:
- ** \li                "Points" for the vertices coordinates
- ** \li                "Segments" for the edges of the segments
- **
- ** \param[out] ntab_arg  First dimension of the returned array
- ** \param[out] natt_arg  Second dimension of the returned array
- ** \param[out] tab_arg   Returned array
  **
  *****************************************************************************/
-void meshes_1D_load_vertices(segmentio *t,
-                             const char *name,
-                             int *ntab_arg,
-                             int *natt_arg,
-                             void **tab_arg)
+MeshEStandard* meshes_1D_load_vertices(segmentio *t)
 {
-  double *rtab, *rfrom;
-  int *itab, *ifrom, ntab, natt, type;
-
-  /* Initializations */
-
-  (*ntab_arg) = (*natt_arg) = 0;
-  ntab = natt = type = 0;
-  itab = ifrom = nullptr;
-  rtab = rfrom = nullptr;
-  *tab_arg = (void*) NULL;
-
-  /* Dispatch */
-
-  if (!strcmp(name, "Points"))
-  {
-    if (t->pointlist == nullptr) return;
-    type = 1;
-    natt = 2;
-    ntab = t->numberofpoints;
-    rfrom = t->pointlist;
-  }
-
-  else if (!strcmp(name, "Segments"))
-  {
-    if (t->segmentlist == nullptr) return;
-    type = 2;
-    natt = t->numberofcorners;
-    ntab = t->numberofsegments;
-    ifrom = t->segmentlist;
-  }
-
-  /* Returning arguments */
-
-  *ntab_arg = ntab;
-  *natt_arg = natt;
-  if (type == 1)
-  {
-    rtab = (double*) mem_alloc(sizeof(double) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      rtab[i] = rfrom[i];
-    *tab_arg = (void*) rtab;
-  }
-  else if (type == 2)
-  {
-    itab = (int*) mem_alloc(sizeof(int) * ntab * natt, 1);
-    for (int i = 0; i < ntab * natt; i++)
-      itab[i] = ifrom[i];
-    *tab_arg = (void*) itab;
-  }
-  else
-    messageAbort("Type unknown");
-  return;
+  MeshEStandard* amesh = new MeshEStandard();
+  amesh->reset(1, 2, t->numberofpoints, t->numberofsegments,
+                       t->pointlist, t->segmentlist);
+  return amesh;
 }
 
 /*****************************************************************************/
 /*!
- **  Build the regular 1-D meshing
+ **  Build the regular meshing from a 1-D grid
  **
- ** \return Error return code
+ ** \return The newly created AMesh structure
  **
- ** \param[in]  verbose   Verbosity flag
+ ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-int meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
+AMesh* meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid)
 {
-  int nx, ndim, ncorner, nmesh, error, number;
-  int *meshes, *order, *indg, *ranks;
-
-  /* Initializations */
-
-  error = 1;
-  ndim = 1;
-  ncorner = 2;
-  order = meshes = indg = ranks = nullptr;
-  nx = dbgrid->getNX(0);
-  number = nx - 1;
+  int ndim = 1;
+  int ncorner = 2;
+  int nx = dbgrid->getNX(0);
+  int number = nx - 1;
 
   /* Core allocation */
 
-  meshes = (int*) mem_alloc(sizeof(int) * number * ncorner, 0);
-  if (meshes == nullptr) goto label_end;
-  if (st_manage_regular_grid(1, dbgrid->getGrid(), &order, &ranks, &indg))
-    goto label_end;
+  VectorInt meshes(number * ncorner, 0);
+  VectorInt order(number, ITEST);
 
   /* Store the indices per mesh */
 
-  nmesh = 0;
+  int nmesh = 0;
   for (int ix = 0; ix < nx - 1; ix++)
   {
-    if (st_load_segment(dbgrid, &meshes[nmesh * ncorner], order, indg,
+    if (st_load_segment(dbgrid, meshes, order, nmesh*ncorner,
                         ix + MSS(1, 0, 1, 0, 0), ix + MSS(1, 0, 1, 1, 0)))
       nmesh++;
   }
 
+  // Shrink the array (optional)
+
+  meshes.resize(nmesh * ncorner);
+
   // Perform the ultimate tasks 
 
-  if (st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order,
-                               ranks, s_mesh)) goto label_end;
+  AMesh* amesh = st_ultimate_regular_grid(dbgrid, ndim, nmesh, ncorner, meshes, order);
 
-  // Printout (optional) 
-
-  if (verbose)
-  {
-    message("Simplified Meshing performed:\n");
-    message("- Number of vertices   = %d\n", s_mesh->nvertex);
-    message("- Number of attributes = %d\n", s_mesh->ndim);
-    message("- Number of segments   = %d\n", s_mesh->nmesh);
-    message("- Number of corners    = %d\n", s_mesh->ncorner);
-    mesh_stats(s_mesh->ndim, s_mesh->ncorner, s_mesh->nmesh, s_mesh->meshes,
-               s_mesh->points);
-  }
-
-  // Set the error return code
-
-  error = 0;
-
-  label_end: (void) st_manage_regular_grid(-1, dbgrid->getGrid(), &order,
-                                           &ranks, &indg);
-  if (error) meshes = (int*) mem_free((char* ) meshes);
-  return (error);
+  return amesh;
 }
 
 /*****************************************************************************/
@@ -3581,9 +2799,7 @@ int meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid, SPDE_Mesh *s_mesh)
  ** \param[in]  out        segmentio structure for output
  **
  *****************************************************************************/
-void meshes_1D_create(int verbose,
-                                      segmentio *in,
-                                      segmentio *out)
+void meshes_1D_create(int verbose, segmentio *in, segmentio *out)
 {
   int *rank, ndim, ncorner, number, ecr;
 

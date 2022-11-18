@@ -140,9 +140,7 @@ public:
   void gridCopyParams(int mode, const Grid& gridaux);
   bool isSameGrid(const Grid& grid) const;
   bool isSameGridMesh(const DbGrid& dbaux) const;
-  bool isSameGridMeshOldStyle(const DbGrid* dbaux) const;
   bool isSameGridRotation(const DbGrid& dbaux) const;
-  bool isSameGridRotationOldStyle(const DbGrid* dbaux) const;
   bool isGridRotated() const;
 
   int  getNTotal() const { return _grid.getNTotal(); }

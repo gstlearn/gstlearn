@@ -59,6 +59,15 @@ CovParamId::~CovParamId()
 
 }
 
+CovParamId* CovParamId::create(int igrf,
+                               int icov,
+                               const EConsElem &elem,
+                               int iv1,
+                               int iv2)
+{
+  return new CovParamId(igrf, icov, elem, iv1, iv2);
+}
+
 int CovParamId::init(int igrf,
                      int icov,
                      const EConsElem& type,

@@ -51,6 +51,8 @@ public:
   /// AAnam Interface
   const EAnam& getType() const override { return EAnam::EMPIRICAL; }
   int getNFactor() const override { return _nDisc; }
+  int fitFromArray(const VectorDouble &tab,
+                   const VectorDouble &wt = VectorDouble()) override;
 
   /// AnamContinuous Interface
   void    calculateMeanAndVariance() override;
@@ -66,7 +68,6 @@ public:
 
   void   setNDisc(int ndisc);
   void   setTDisc(const VectorDouble& tdisc);
-  int    fit(const VectorDouble& tab);
   bool   isTDiscIndexValid(int i) const;
 
 protected:

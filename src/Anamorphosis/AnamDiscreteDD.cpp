@@ -151,7 +151,8 @@ void AnamDiscreteDD::calculateMeanAndVariance()
   setVariance(var);
 }
 
-int AnamDiscreteDD::fit(const VectorDouble& tab, bool verbose)
+int AnamDiscreteDD::fitFromArray(const VectorDouble& tab,
+                                 const VectorDouble& /*wt*/)
 {
   VectorDouble chi;
 
@@ -163,7 +164,7 @@ int AnamDiscreteDD::fit(const VectorDouble& tab, bool verbose)
 
   // Modeling the diffusion process
 
-  chi = factors_exp(verbose);
+  chi = factors_exp();
   if (chi.empty()) return 0;
 
   /* Invert the anamorphosis */

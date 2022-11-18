@@ -19,7 +19,6 @@
 #include "Mesh/tetgen.h"
 #include "csparse_f.h"
 
-
 MeshEStandard::MeshEStandard()
   : AMesh()
   , _apices()
@@ -151,42 +150,6 @@ int MeshEStandard::resetFromDb(Db* dbin,
   return(error);
 }
 
-/****************************************************************************/
-/*!
-** Create the meshing (from mesh information)
-**
-** \param[in]  apices          Matrix of Apices
-** \param[in]  meshes          Array of mesh indices
-** \param[in]  verbose         Verbose flag
-**
-*****************************************************************************/
-int MeshEStandard::reset(const MatrixRectangular& apices,
-                         const MatrixInt& meshes,
-                         bool verbose)
-{
-  int ndim = apices.getNCols();
-  _setNDim(ndim);
-
-  // Core allocation
-
-  _apices = apices;
-  _meshes = meshes;
-
-  // Check consistency
-
-  _checkConsistency();
-
-  // Define and store the Bounding Box extension
-
-  _defineBoundingBox();
-
-  // Optional printout
-  
-  if (verbose) messageFlush(toString());
-
-  return(0);
-}
-
 int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 {
   int ndim     = turbo.getNDim();
@@ -228,18 +191,58 @@ int MeshEStandard::resetFromTurbo(const MeshETurbo& turbo, bool verbose)
 /*!
 ** Create the meshing (from mesh information)
 **
+** \param[in]  apices          Matrix of Apices
+** \param[in]  meshes          Array of mesh indices
+** \param[in]  verbose         Verbose flag
+**
+*****************************************************************************/
+int MeshEStandard::reset(const MatrixRectangular& apices,
+                         const MatrixInt& meshes,
+                         bool verbose)
+{
+  int ndim = apices.getNCols();
+  _setNDim(ndim);
+
+  // Core allocation
+
+  _apices = apices;
+  _meshes = meshes;
+
+  // Check consistency
+
+  _checkConsistency();
+
+  // Define and store the Bounding Box extension
+
+  _defineBoundingBox();
+
+  // Optional printout
+
+  if (verbose) messageFlush(toString());
+
+  return(0);
+}
+
+/****************************************************************************/
+/*!
+** Create the meshing (from mesh information)
+**
 ** \param[in]  ndim            Space Dimension
 ** \param[in]  napexpermesh    Number of apices per mesh
 ** \param[in]  apices          Vector of Apex information
 ** \param[in]  meshes          Vector of mesh indices
+** \param[in]  byCol           true for Column major; false for Row Major
 ** \param[in]  verbose         Verbose flag
 **
+** \remark The argument 'byCol' concerns 'apices' and 'meshes'
+**
 *****************************************************************************/
-int MeshEStandard::resetOldStyle(int                 ndim,
-                                 int                 napexpermesh,
-                                 const VectorDouble& apices,
-                                 const VectorInt&    meshes,
-                                 bool                verbose)
+int MeshEStandard::reset(int ndim,
+                         int napexpermesh,
+                         const VectorDouble &apices,
+                         const VectorInt &meshes,
+                         bool byCol,
+                         bool verbose)
 {
   _setNDim(ndim);
   int npoints = static_cast<int> (apices.size()) / ndim;
@@ -248,9 +251,58 @@ int MeshEStandard::resetOldStyle(int                 ndim,
   // Core allocation
 
   _apices.reset(npoints,ndim);
-  _apices.setValues(apices);
+  _apices.setValues(apices, byCol);
   _meshes.reset(nmeshes,napexpermesh);
-  _meshes.setValues(meshes);
+  _meshes.setValues(meshes, byCol);
+
+  // Check consistency
+
+  _checkConsistency();
+
+  // Define and store the Bounding Box extension
+
+  _defineBoundingBox();
+
+  // Optional printout
+
+  if (verbose) messageFlush(toString());
+
+  return(0);
+}
+
+/****************************************************************************/
+/*!
+** Create the meshing
+**
+** \param[in]  ndim            Space Dimension
+** \param[in]  napexpermesh    Number of apices per mesh
+** \param[in]  npoints         Number of apices
+** \param[in]  nmeshes         Number of meshes
+** \param[in]  apices          Vector of Apex information
+** \param[in]  meshes          Vector of mesh indices
+** \param[in]  byCol           true for Column major; false for Row Major
+** \param[in]  verbose         Verbose flag
+**
+** \remark The argument 'byCol' concerns 'apices' and 'meshes'
+**
+*****************************************************************************/
+int MeshEStandard::reset(int ndim,
+                         int napexpermesh,
+                         int npoints,
+                         int nmeshes,
+                         const double *apices,
+                         const int *meshes,
+                         bool byCol,
+                         bool verbose)
+{
+  _setNDim(ndim);
+
+  // Core allocation
+
+  _apices.reset(npoints,ndim);
+  _apices.setValues(apices, byCol);
+  _meshes.reset(nmeshes,napexpermesh);
+  _meshes.setValues(meshes, byCol);
 
   // Check consistency
 
@@ -281,6 +333,11 @@ int MeshEStandard::resetOldStyle(int                 ndim,
 int MeshEStandard::getApex(int imesh, int rank, bool /*inAbsolute*/) const
 {
   return _meshes.getValue(imesh,rank);
+}
+
+void MeshEStandard::_setApex(int imesh, int rank, int value)
+{
+  _meshes.setValue(imesh,rank,value);
 }
 
 /****************************************************************************/
@@ -314,46 +371,6 @@ String MeshEStandard::toString(const AStringFormat* strfmt) const
   sstr << toTitle(0,"Standard Meshing");
   sstr << AMesh::toString(strfmt);
   return sstr.str();
-}
-
-/****************************************************************************/
-/*!
-** Returns the duplicate information (if any) 
-**
-** \param[in]  verbose         Verbose flag
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-**
-** \param[out]  nbdupl  Number of duplicates
-** \param[out]  dupl1   Array giving ranks of duplicate samples in Db1
-** \param[out]  dupl2   Array giving ranks of duplicate samples in Db2
-**
-*****************************************************************************/
-void MeshEStandard::getDuplicates(int   verbose,
-                                  Db   *dbin,
-                                  Db   *dbout,
-                                  int  *nbdupl,
-                                  int **dupl1,
-                                  int **dupl2) const
-{
-  Vercoloc *vercoloc;
-
-  // Initializations
-
-  *nbdupl = 0;
-  *dupl1 = nullptr;
-  *dupl2 = nullptr;
-  if (dbin == nullptr) return;
-  
-  // Look for duplicates
-
-  vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
-  *nbdupl = vercoloc->ndupl;
-  *dupl1  = (int *) mem_copy((char *) vercoloc->dupl_dabs,
-                             sizeof(int) * vercoloc->ndupl,1);
-  *dupl2  = (int *) mem_copy((char *) vercoloc->dupl_grid,
-                             sizeof(int) * vercoloc->ndupl,1);
-  vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
 }
 
 /****************************************************************************/
@@ -535,18 +552,7 @@ int MeshEStandard::_create1D(int                 ndim_ref,
                              Db*                 dbout,
                              const VectorDouble& dilate)
 {
-  int       error,ndim,ncorner,napices,nmeshes,flag_defined;
-  segmentio in,out;
-  Vercoloc *vercoloc;
-  double   *apices;
-  int      *meshes;
-
-  /* Initializations */
-
-  error    = 1;
-  vercoloc = nullptr;
-  apices = nullptr;
-  meshes = nullptr;
+  segmentio in, out;
 
   /* Initialize the Meshing structure */
   
@@ -555,19 +561,16 @@ int MeshEStandard::_create1D(int                 ndim_ref,
   
   /* Set the control points for the triangulation */
   
-  flag_defined = 0;
+  bool flag_defined = false;
   if (dbout != nullptr)
   {
-    if (meshes_1D_from_db(dbout,0,NULL,&in)) goto label_end;
-    flag_defined = 1;
+    if (meshes_1D_from_db(dbout,&in)) return 1;
+    flag_defined = true;
   }
   if (dbin != nullptr)
   {
-    vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
-    if (meshes_1D_from_db(dbin,vercoloc->ndupl,vercoloc->dupl_dabs,
-                          &in)) goto label_end;
-    vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-    flag_defined = 1;
+    if (meshes_1D_from_db(dbin,&in)) return 1;
+    flag_defined = true;
   }
   if (! flag_defined)
   {
@@ -584,40 +587,14 @@ int MeshEStandard::_create1D(int                 ndim_ref,
   
   meshes_1D_create(verbose,&in,&out);
   
-  /* Coordinates of the triangle vertices */
+  /* Create the final meshing */
   
-  meshes_1D_load_vertices(&out,"Points",&napices,&ndim,(void **) apices);
-  if (ndim != ndim_ref)
-  {
-    messerr("The space dimension (%d) is not correct. It should be (%d)",
-            ndim,ndim_ref);
-    goto label_end;
-  }
-  _apices.reset(napices, ndim);
-  _apices.setValues(apices, false);
-  
-  meshes_1D_load_vertices(&out,"Segments",&nmeshes,&ncorner,(void **) &meshes);
-  if (ncorner != getNApexPerMesh())
-  {
-    messerr("The number of Apices per Mesh (%d) is not correct (%d)",
-            ncorner,getNApexPerMesh());
-    goto label_end;
-  }
-  _meshes.reset(nmeshes, ncorner);
-  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
-  _meshes.setValues(meshes, false);
+  reset(1, 2, out.numberofpoints, out.numberofsegments, out.pointlist,
+                out.segmentlist);
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-  apices = (double *) mem_free((char *) apices);
-  meshes = (int    *) mem_free((char *) meshes);
   meshes_1D_free(&in,1);
   meshes_1D_free(&out,0);
-  return(error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -639,18 +616,7 @@ int MeshEStandard::_create2D(int                 ndim_ref,
                              const VectorDouble& dilate,
                              const char*         triswitch)
 {
-  int           error,napices,ndim,ncorner,nmeshes,flag_defined;
-  triangulateio in,out,vorout;
-  Vercoloc     *vercoloc;
-  double *apices;
-  int    *meshes;
-
-  /* Initializations */
-
-  error    = 1;
-  vercoloc = nullptr;
-  apices   = nullptr;
-  meshes   = nullptr;
+  triangulateio in, out, vorout;
 
   /* Initialize the Meshing structure */
   
@@ -660,19 +626,16 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   
   /* Set the control points for the triangulation */
 
-  flag_defined = 0;
+  bool flag_defined = false;
   if (dbout != nullptr)
   {
-    if (meshes_2D_from_db(dbout,1,0,NULL,&in)) goto label_end;
-    flag_defined = 1;
+    if (meshes_2D_from_db(dbout,1,&in)) return 1;
+    flag_defined = true;
   }
   if (dbin != nullptr)
   {
-    vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
-    if (meshes_2D_from_db(dbin,1,vercoloc->ndupl,vercoloc->dupl_dabs,
-                          &in)) goto label_end;
-    vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-    flag_defined = 1;
+    if (meshes_2D_from_db(dbin,1, &in)) return 1;
+    flag_defined = true;
   }
   if (! flag_defined)
   {
@@ -691,39 +654,13 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   
   /* Coordinates of the triangle vertices */
   
-  meshes_2D_load_vertices(&out,"Points",&napices,&ndim,(void **) &apices);
-  if (ndim != ndim_ref)
-  {
-    messerr("Space dimension (%d) is not correct (%d)",
-            ndim,ndim_ref);
-    goto label_end;
-  }
-  _apices.reset(napices, ndim);
-  _apices.setValues(apices, false);
-  
-  meshes_2D_load_vertices(&out,"Triangles",&nmeshes,&ncorner,(void **) &meshes);
-  if (ncorner != getNApexPerMesh())
-  {
-    messerr("Number of Apices per Mesh (%d) is not correct. It should be (%d)",
-            ncorner,getNApexPerMesh());
-    goto label_end;
-  }
-  _meshes.reset(nmeshes,ncorner);
-  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
-  _meshes.setValues(meshes, false);
+  reset(2, 3, out.numberofpoints, out.numberofsegments, out.pointlist,
+                out.segmentlist);
 
-  /* Set the error return code */
-
-  error = 0;
-
-label_end:
-  vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-  apices = (double *) mem_free((char *) apices);
-  meshes = (int    *) mem_free((char *) meshes);
   meshes_2D_free(&in,1);
   meshes_2D_free(&out,0);
   meshes_2D_free(&vorout,0);
-  return(error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -745,33 +682,20 @@ int MeshEStandard::_create3D(int                 ndim_ref,
                              const VectorDouble& dilate,
                              const char*         triswitch)
 {
-  int      *meshes,error,ndim,ncorner,napices,nmeshes,flag_defined;
-  double   *apices;
-  tetgenio  in,out;
-  Vercoloc *vercoloc;
-
-  /* Initializations */
-
-  error    = 1;
-  vercoloc = nullptr;
-  apices   = nullptr;
-  meshes   = nullptr;
+  tetgenio in, out;
 
   /* Set the control points for the tetrahedralization */
 
-  flag_defined = 0;
+  bool flag_defined = false;
   if (dbout != nullptr)
   {
-    if (meshes_3D_from_db(dbout,0,NULL,&in)) goto label_end;
-    flag_defined = 1;
+    if (meshes_3D_from_db(dbout,&in)) return 1;
+    flag_defined = true;
   }
   if (dbin != nullptr)
   {
-    vercoloc = vercoloc_manage(verbose,1,dbin,dbout,1,NULL);
-    if (meshes_3D_from_db(dbin,vercoloc->ndupl,vercoloc->dupl_dabs,
-                          &in)) goto label_end;
-    vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-    flag_defined = 1;
+    if (meshes_3D_from_db(dbin,&in)) return 1;
+    flag_defined = true;
   }
   if (! flag_defined)
     meshes_3D_default(dbin,dbout,&in);
@@ -787,38 +711,13 @@ int MeshEStandard::_create3D(int                 ndim_ref,
 
   /* Coordinates of the vertices */
 
-  meshes_3D_load_vertices(&out,"Points",&napices,&ndim,(void **) &apices);
-  if (ndim != ndim_ref)
-  {
-    messerr("The space dimension (%d) is not correct (%d)",
-            ndim,ndim_ref);
-    goto label_end;
-  }
-  _apices.reset(napices, ndim);
-  _apices.setValues(apices, false);
-  
-  meshes_3D_load_vertices(&out,"Tetrahedra",&nmeshes,&ncorner,(void **) &meshes);
-  if (ncorner != getNApexPerMesh())
-  {
-    messerr("The number of Apices per Mesh (%d) is not correct (%d)",
-            ncorner,getNApexPerMesh());
-    goto label_end;
-  }
-  _meshes.reset(nmeshes,ncorner);
-  for (int i = 0; i < nmeshes * ncorner; i++) meshes[i] -= 1;
-  _meshes.setValues(meshes, false);
+  reset(3, 4, out.numberofpoints, out.numberoftetrahedra, out.pointlist,
+                out.tetrahedronlist);
 
-  /* Set the error return code */
 
-  error = 0;
-
-label_end:
-  vercoloc = vercoloc_manage(verbose,-1,dbin,dbout,1,vercoloc);
-  apices   = (double *) mem_free((char *) apices);
-  meshes   = (int    *) mem_free((char *) meshes);
   meshes_3D_free(&in);
   meshes_3D_free(&out);
-  return(error);
+  return 0;
 }
 
 double MeshEStandard::getApexCoor(int i, int idim) const
@@ -1020,6 +919,49 @@ void MeshEStandard::_printContainers(const VectorDouble& container) const
   }
 }
 
+void MeshEStandard::printMeshListByCoordinates(int nline_max) const
+{
+  int ndim    = getNDim();
+  int nmesh   = getNMeshes();
+  int ncorner = getNApexPerMesh();
+
+  int iline = 0;
+  for (int imesh=0; imesh<nmesh; imesh++)
+  {
+    message("Mesh #%5d/%5d\n",imesh+1,nmesh);
+    for (int icorn=0; icorn<ncorner; icorn++)
+    {
+      message(" Apex %4d: ",getApex(imesh,icorn));
+      for (int idim=0; idim<ndim; idim++)
+        message(" %lf",getCoor(imesh,icorn,idim));
+      message("\n");
+
+      iline++;
+      if (nline_max > 0 && iline > nline_max) return;
+    }
+  }
+}
+
+void MeshEStandard::printMeshListByIndices(int nline_max) const
+{
+  int nmesh   = getNMeshes();
+  int ncorner = getNApexPerMesh();
+
+  int iline = 0;
+  for (int imesh=0; imesh<nmesh; imesh++)
+  {
+    message("Mesh #%d/%d: ",imesh+1,nmesh);
+    for (int icorn=0; icorn<ncorner; icorn++)
+    {
+      message(" %d",getApex(imesh,icorn));
+    }
+    message("\n");
+
+    iline++;
+    if (nline_max > 0 && iline > nline_max) return;
+  }
+}
+
 void MeshEStandard::_deallocate()
 {
 
@@ -1048,46 +990,6 @@ void MeshEStandard::_checkConsistency() const
       if (apex < 0 || apex >= getNApices())
         throw("Mesh indices are not compatible with the Points");
     }
-}
-
-/**
- * Convert the Meshing (Old class) into a meshing (New class)
- * @param s_mesh Meshing characteristics (Old class)
- * @param verbose Verbosity flag
- */
-int MeshEStandard::convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose)
-{
-  int lec;
-  int napices = s_mesh->nvertex;
-  int ndim    = s_mesh->ndim;
-  MatrixRectangular points(napices, ndim);
-  lec = 0;
-  for (int ip = 0; ip < napices; ip++)
-    for (int idim = 0 ; idim < ndim; idim++, lec++)
-    {
-      points.setValue(ip, idim, s_mesh->points[lec]);
-    }
-
-  // For safety, the minimum value of the array meshes is considered
-  // If equal to , the mesh numbering must be modified in order to start from 0
-  // This code is temporary and there to cope with different numberings
-
-  int nmeshes = s_mesh->nmesh;
-  int ncorner = s_mesh->ncorner;
-  int shift_min = 1000;
-  for (int i = 0; i < nmeshes * ncorner; i++)
-    if (s_mesh->meshes[i] < shift_min) shift_min = s_mesh->meshes[i];
-  if (shift_min != 0 && shift_min != 1)
-    throw("Wrong minimum shift: it should be 0 or 1");
-
-  MatrixInt meshes(nmeshes,ncorner);
-  lec = 0;
-  for (int imesh = 0; imesh < nmeshes; imesh++)
-    for (int ic = 0; ic < ncorner; ic++, lec++)
-      meshes.setValue(imesh, ic, s_mesh->meshes[lec] - shift_min);
-
-  int error = reset(points, meshes, verbose);
-  return error;
 }
 
 bool MeshEStandard::_deserialize(std::istream& is, bool /*verbose*/)
@@ -1133,3 +1035,40 @@ bool MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
   ret = ret && _recordWriteVec<int>(os, "Meshes", _meshes.getValues());
   return ret;
 }
+
+/**
+ * Validate Meshing, in particular when transiting from Old Meshing to New one
+ * @param verbose Verbose flag
+ *
+ * @remark For safety and considering the rank of Apices stored in 'meshes',
+ * @remark the minimum value is considered
+ * @remark If not equal to 0 or 1, a fatal error is issued
+ * @remark If equal to 1 (old style), values are decreased by 1.
+ */
+void MeshEStandard::validate(bool verbose)
+{
+  // For safety, the minimum value of the array meshes is considered
+  // If equal to , the mesh numbering must be modified in order to start from 0
+  // This code is temporary and there to cope with different numberings
+
+  int nmeshes = getNMeshes();
+  int ncorner = getNApexPerMesh();
+  int shift_min = 1000;
+  for (int imesh = 0; imesh < nmeshes; imesh++)
+    for (int ic = 0; ic < ncorner; ic++)
+    {
+      int ipos = getApex(imesh, ic);
+      if (ipos < shift_min) shift_min = ipos;
+    }
+
+  if (shift_min != 0 && shift_min != 1)
+    my_throw("Wrong minimum shift: it should be 0 or 1");
+
+  if (shift_min == 1)
+  {
+    for (int imesh = 0; imesh < nmeshes; imesh++)
+      for (int ic = 0; ic < ncorner; ic++)
+        _setApex(imesh, ic, getApex(imesh, ic) - shift_min);
+  }
+}
+

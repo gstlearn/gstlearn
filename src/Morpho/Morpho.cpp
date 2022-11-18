@@ -636,7 +636,7 @@ void morpho_intersection(const BImage& image1,
  **
  ** \param[in]  image1  first input image
  ** \param[in]  image2  second input image
- ** \param[in]  verbose Verbosity flag
+ ** \param[in]  verbose Verbose flag
  **
  ** \param[out] imagout output image
  **

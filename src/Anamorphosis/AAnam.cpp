@@ -234,3 +234,30 @@ VectorDouble AAnam::TransformToRawVec(const VectorDouble& y) const
     z[i] = TransformToRawValue(y[i]);
   return z;
 }
+
+int AAnam::fitFromLocator(Db *db, const ELoc& locatorType)
+{
+  int number = db->getLocatorNumber(locatorType);
+  if (number != 1)
+  {
+    messerr("The number of items for locator(%d) is %d. It should be 1",
+            locatorType.getValue(),number);
+    return 1;
+  }
+  VectorDouble tab = db->getColumnByLocator(locatorType,0,true);
+  VectorDouble wt;
+  if (db->hasWeight())
+    wt = db->getColumnByLocator(ELoc::W,0,true);
+
+  return fitFromArray(tab, wt);
+}
+
+int AAnam::fit(Db *db, const String& name)
+{
+  VectorDouble tab = db->getColumn(name,true);
+  VectorDouble wt;
+  if (db->hasWeight())
+    wt = db->getColumnByLocator(ELoc::W,0,true);
+
+  return fitFromArray(tab, wt);
+}

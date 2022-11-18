@@ -57,11 +57,6 @@ public:
 
   void _evalDirect(const VectorDouble& in, VectorDouble& out) const override;
 
-  int initFromOldMesh(SPDE_Mesh* s_mesh,
-                      Model* model,
-                      Db* dbout = nullptr,
-                      bool flagAdvection = false,
-                      bool verbose = false);
   int initFromMesh(const AMesh* amesh,
                    Model* model,
                    const Db* dbout = nullptr,

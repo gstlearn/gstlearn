@@ -10,6 +10,7 @@
 /******************************************************************************/
 #include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
+#include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 #include "geoslib_enum.h"
 
@@ -29,6 +30,7 @@
 #include "Db/Db.hpp"
 #include "Model/Model.hpp"
 #include "Mesh/tetgen.h"
+#include "Mesh/AMesh.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Space/SpaceSN.hpp"
 
@@ -59,8 +61,6 @@
 #define CASE_KRIGING  1
 #define CASE_SIMULATE 2
 
-#define OLD_MESHES(imesh,icorn) (s_mesh->meshes[(imesh)*s_mesh->ncorner+(icorn)]-1)
-#define POINTS(ip,idim)      (s_mesh->points[(ip) * s_mesh->ndim + (idim)])
 #define IADH(ndim,i,j)       (ndim * (i) + (j))
 #define TEMP(ndim,i,j)       (temp[IADH(ndim,i,j)])
 #define Z(ivar,nech,iech)    (z[(ivar) * nech + (iech)])
@@ -169,7 +169,7 @@ static double FACDIM[] = { 0., 1., 2., 6. };
 static int SPDE_CURRENT_IGRF = 0;
 static int SPDE_CURRENT_ICOV = 0;
 static Db *MEM_DBIN, *MEM_DBOUT;
-static SPDE_Mesh *S_EXTERNAL_MESH[3] = { NULL, NULL, NULL };
+static AMesh *S_EXTERNAL_MESH[3] = { NULL, NULL, NULL };
 static cs *S_EXTERNAL_Q[3] = { NULL, NULL, NULL };
 static cs *S_EXTERNAL_A[3] = { NULL, NULL, NULL };
 static SPDE_Environ S_ENV;
@@ -222,7 +222,7 @@ static void st_matelem_print(int icov)
   message("qsimu is defined:  %s\n", NOK[Matelem.qsimu != NULL]);
   message("mgs is defined:    %s\n", NOK[Matelem.mgs != NULL]);
   message("s_cheb is defined: %s\n", NOK[Matelem.s_cheb != NULL]);
-  message("s_mesh is defined: %s\n", NOK[Matelem.s_mesh != NULL]);
+  message("s_mesh is defined: %s\n", NOK[Matelem.amesh != NULL]);
 }
 
 /****************************************************************************/
@@ -338,7 +338,15 @@ static String st_get_current_triswitch(SPDE_Option &s_option)
 /*!
  **  Get the pointer to the current SPDE_Matelem structure
  **
- ** \param[in] icov    Rank of the target Covariance (or -1)
+ ** \param[in] icov    Rank of the target Covariance (or -1)typedef struct
+{
+  int ndupl;
+  int *dupl_data;
+  int *dupl_dabs;
+  int *dupl_grid;
+} Vercoloc;
+
+ **
  **
  *****************************************************************************/
 SPDE_Matelem& spde_get_current_matelem(int icov)
@@ -488,54 +496,18 @@ static cs_MGS* st_mgs_manage(int mode, cs_MGS *mgs)
 
 /****************************************************************************/
 /*!
- **  Manage the SPDE_Mesh structure
+ **  Manage the AMesh structure
  **
- ** \return  The newly allocated SPDE_Mesh
+ ** \return  The newly allocated AMesh
  **
- ** \param[in]  mode       1 for allocation; -1 for deallocation
- ** \param[in]  s_mesh_old Pointer to SPDE_Mesh to be deallocated
+ ** \param[in]  amesh_old Pointer to AMesh to be deallocated
  **
  *****************************************************************************/
-SPDE_Mesh* spde_mesh_manage(int mode, SPDE_Mesh *s_mesh_old)
+AMesh* spde_mesh_delete(AMesh *amesh_old)
 {
-  SPDE_Mesh *s_mesh;
-
-  /* Initializations */
-
-  s_mesh = nullptr;
-
-  /* Dispatch */
-
-  if (mode > 0)
-  {
-
-    /* Allocation */
-
-    s_mesh = (SPDE_Mesh*) mem_alloc(sizeof(SPDE_Mesh), 0);
-    if (s_mesh == nullptr) return (s_mesh);
-    s_mesh->ndim = 0;
-    s_mesh->ncorner = 0;
-    s_mesh->nmesh = 0;
-    s_mesh->nvertex = 0;
-    s_mesh->meshes = nullptr;
-    s_mesh->points = nullptr;
-    s_mesh->vercoloc = nullptr;
-    s_mesh->vertype = nullptr;
-  }
-  else
-  {
-
-    /* Deallocation */
-
-    if (s_mesh_old == nullptr) return (NULL);
-    s_mesh = s_mesh_old;
-    s_mesh->meshes = (int*) mem_free((char* ) s_mesh->meshes);
-    s_mesh->points = (double*) mem_free((char* ) s_mesh->points);
-    s_mesh->vertype = vertype_manage(-1, s_mesh->vertype, NULL, 0);
-    s_mesh->vercoloc = vercoloc_manage(0, -1, NULL, NULL, 0, s_mesh->vercoloc);
-    s_mesh = (SPDE_Mesh*) mem_free((char* ) s_mesh);
-  }
-  return (s_mesh);
+  if (amesh_old == nullptr) return (NULL);
+  delete amesh_old;
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -800,156 +772,6 @@ static void st_clean_Bnugget(void)
 
 /****************************************************************************/
 /*!
- **  Does the current sample correspond to a duplication
- **
- ** \return The rank of the joint sample (or -1 if no duplication)
- **
- ** \param[in]  vercoloc  Vercoloc structure
- ** \param[in]  mode      1 if the sample belongs to the Input Db
- **                       2 if the sample belongs to the Output Db
- ** \param[in]  iech      Rank of the sample
- **
- *****************************************************************************/
-static int st_is_duplicated(Vercoloc *vercoloc, int mode, int iech)
-{
-  if (vercoloc == nullptr || vercoloc->ndupl <= 0) return (-1);
-
-  if (mode == 1)
-  {
-
-    /* Sample belongs to the Input Db */
-
-    if (S_DECIDE.flag_mesh_dbin) for (int i = 0; i < vercoloc->ndupl; i++)
-      if (vercoloc->dupl_dabs[i] == iech) return (vercoloc->dupl_grid[i]);
-  }
-  else
-  {
-
-    /* Sample belongs to the Output Db */
-
-    if (S_DECIDE.flag_mesh_dbout) for (int i = 0; i < vercoloc->ndupl; i++)
-      if (vercoloc->dupl_grid[i] == iech) return (vercoloc->dupl_dabs[i]);
-  }
-  return (-1);
-}
-
-/****************************************************************************/
-/*!
- **  Returns the array of indices in the meshing corresponding to
- **  the input Db
- **
- ** \return The array of indices
- **
- ** \param[in]  vertype      Vertype structure
- ** \param[in]  vercoloc     Vercoloc structure
- **
- ** \param[out] nbnodup      Number of not duplicated samples
- **
- ** \remarks The Array allocated must be freed by the calling function
- ** \remarks The returned array is numbered starting from 1
- **
- *****************************************************************************/
-int* vercoloc_get_dbin_indices(Vertype *vertype,
-                               Vercoloc *vercoloc,
-                               int *nbnodup)
-{
-  int *indice, nech, pos, ndupl;
-
-  /* Initializations */
-
-  indice = nullptr;
-  ndupl = vercoloc->ndupl;
-  nech = (vertype->order == 1) ? vertype->nb1 :
-                                 vertype->nb2 + ndupl;
-  *nbnodup = nech - ndupl;
-
-  /* Core allocation */
-
-  indice = (int*) mem_alloc(sizeof(int) * nech, 0);
-  if (indice == nullptr) return (indice);
-  for (int i = 0; i < nech; i++)
-    indice[i] = 0;
-
-  /* Dispatch */
-
-  if (vertype->order == 1)
-  {
-
-    // If order==1, samples of Dbin come first in the meshing
-
-    for (int i = 0; i < nech; i++)
-      indice[i] = i + 1;
-  }
-  else
-  {
-
-    // If order==2, samples of Dbout come first in the meshing
-    // Therefore the samples (collocated to grid nodes) may come together
-    // with the Dbout samples; followed by the remaining samples
-
-    for (int i = 0; i < ndupl; i++)
-      indice[vercoloc->dupl_data[i]] = vercoloc->dupl_grid[i] + 1;
-
-    pos = vertype->nb1;
-    for (int i = 0; i < nech; i++)
-    {
-      if (indice[i] != 0) continue;
-      indice[i] = pos + 1;
-      pos++;
-    }
-  }
-  return (indice);
-}
-
-/****************************************************************************/
-/*!
- **  Print the Mesh information
- **
- ** \param[in]  s_mesh    SPDE_Mesh structure
- **
- *****************************************************************************/
-static void st_print_mesh(SPDE_Mesh *s_mesh)
-{
-  int ndim, nmesh, ncorner, nvertex;
-
-  /* Initializations */
-
-  ndim = s_mesh->ndim;
-  nmesh = s_mesh->nmesh;
-  ncorner = s_mesh->ncorner;
-  nvertex = s_mesh->nvertex;
-
-  // Title
-
-  mestitle(0, "Mesh Information");
-  message("Number of meshes   = %d\n", nmesh);
-  message("Number of vertices = %d\n", nvertex);
-  message("Space dimension    = %d\n", ndim);
-  message("Number of vertices per Mesh = %d\n", ncorner);
-
-  // List of Meshes
-  for (int imesh = 0; imesh < nmesh; imesh++)
-  {
-    message("Mesh #%5d :", imesh + 1);
-    for (int icorn = 0; icorn < ncorner; icorn++)
-      message(" %5d", OLD_MESHES(imesh,icorn) + 1);
-    message("\n");
-  }
-
-  message("\n");
-
-  // List of Vertices
-  for (int ip = 0; ip < nvertex; ip++)
-  {
-    message("Vertex #%5d : ", ip + 1);
-    for (int idim = 0; idim < ndim; idim++)
-      message(" %8.2lf", POINTS(ip, idim));
-    message("\n");
-  }
-}
-
-/****************************************************************************/
-/*!
  **  Encode the status of the variable
  **
  ** \param[in]  auth    Status option
@@ -1006,50 +828,11 @@ static void st_qchol_print(const char *title, QChol *QC)
 
 /****************************************************************************/
 /*!
- **  Check if the selection criterion is matched
- **
- ** \return  1 if the criterion is matched; 0 otherwise
- **
- ** \param[in]  vertype      Vertype value of the current sample
- ** \param[in]  vertype_auth Authorized vertype
- **
- *****************************************************************************/
-static int st_ok(int vertype, int vertype_auth)
-{
-  if (vertype & vertype_auth) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Return the count of samples belonging to a given type
- **
- ** \return  Number of samples of the target type of a given type
- **
- ** \param[in]  vertype      Vertype structure
- ** \param[in]  vertype_auth Authorized vertype
- **
- *****************************************************************************/
-static int st_count_vertype(Vertype *vertype, int vertype_auth)
-{
-  int number;
-
-  number = 0;
-  for (int i = 0; i < vertype->nvertex; i++)
-  {
-    if (st_ok(vertype->vt[i], vertype_auth)) number++;
-  }
-  return (number);
-}
-
-/****************************************************************************/
-/*!
  **  Construct the sparse matrix Q from another sparse matrix
  **
  ** \return The Q structure or NULL
  **
  ** \param[in]  Q_in      Input sparse matrix
- ** \param[in]  vertype   Vertype structure
  ** \param[in]  row_auth  Specification for rows extraction
  ** \param[in]  col_auth  Specification for columns extraction
  **
@@ -1057,34 +840,31 @@ static int st_count_vertype(Vertype *vertype, int vertype_auth)
  **
  *****************************************************************************/
 static cs* st_extract_Q_from_Q(cs *Q_in,
-                               Vertype *vertype,
                                int row_auth,
                                int col_auth)
 {
-  int *rank_rows, *rank_cols, error, ecr_row, ecr_col;
+  int *rank_rows, *rank_cols, error;
   cs *Q = nullptr;
 
   /* Initializations */
 
   error = 1;
   rank_rows = rank_cols = nullptr;
+  int n_in = Q_in->n;
 
   /* Core allocation */
 
-  rank_rows = (int*) mem_alloc(sizeof(int) * vertype->nvertex, 0);
+  rank_rows = (int*) mem_alloc(sizeof(int) * n_in, 0);
   if (rank_rows == nullptr) goto label_end;
-  rank_cols = (int*) mem_alloc(sizeof(int) * vertype->nvertex, 0);
+  rank_cols = (int*) mem_alloc(sizeof(int) * n_in, 0);
   if (rank_cols == nullptr) goto label_end;
 
   /* Fill the index vectors */
 
-  ecr_row = ecr_col = 0;
-  for (int i = 0; i < vertype->nvertex; i++)
+  for (int i = 0; i < n_in; i++)
   {
-    rank_rows[i] = (st_ok(vertype->vt[i], row_auth)) ? ecr_row++ :
-                                                       -1;
-    rank_cols[i] = (st_ok(vertype->vt[i], col_auth)) ? ecr_col++ :
-                                                       -1;
+    rank_rows[i] = i;
+    rank_cols[i] = i;
   }
 
   /* Extract the submatrix */
@@ -1096,7 +876,8 @@ static cs* st_extract_Q_from_Q(cs *Q_in,
 
   error = 0;
 
-  label_end: if (error) Q = cs_spfree(Q);
+  label_end:
+  if (error) Q = cs_spfree(Q);
   rank_rows = (int*) mem_free((char* ) rank_rows);
   rank_cols = (int*) mem_free((char* ) rank_cols);
   return (Q);
@@ -1110,14 +891,12 @@ static cs* st_extract_Q_from_Q(cs *Q_in,
  **
  ** \param[in]  title     Name of the QChol item
  ** \param[in]  QC_in     Input QChol structure
- ** \param[in]  vertype   Vertype structure
  ** \param[in]  row_auth  Specification for rows extraction
  ** \param[in]  col_auth  Specification for columns extraction
  **
  *****************************************************************************/
 static QChol* st_extract_QC_from_Q(const char *title,
                                    QChol *QC_in,
-                                   Vertype *vertype,
                                    int row_auth,
                                    int col_auth)
 {
@@ -1131,7 +910,7 @@ static QChol* st_extract_QC_from_Q(const char *title,
 
   /* Extract the submatrix */
 
-  QC->Q = st_extract_Q_from_Q(QC_in->Q, vertype, row_auth, col_auth);
+  QC->Q = st_extract_Q_from_Q(QC_in->Q, row_auth, col_auth);
   if (QC->Q == nullptr) goto label_end;
 
   /* Optional printout */
@@ -1154,34 +933,6 @@ static QChol* st_extract_QC_from_Q(const char *title,
 
 /****************************************************************************/
 /*!
- **  Print the contents of the Vertype structure
- **
- ** \param[in]  vertype    Vertype structure
- **
- *****************************************************************************/
-static void st_vertype_print(Vertype *vertype)
-
-{
-  if (vertype == nullptr) return;
-  st_title(0, 0, 1, "Vertices Designation");
-  message("- Total number      = %d\n", vertype->nvertex);
-  message("- Free              = %d\n", st_count_vertype(vertype, VT_FREE));
-  message("- Gibbs             = %d\n", st_count_vertype(vertype, VT_GIBBS));
-  message("- Hard              = %d\n", st_count_vertype(vertype, VT_HARD));
-  message("- From Input File   = %d\n", st_count_vertype(vertype, VT_INPUT));
-  message("- From Output File  = %d\n", st_count_vertype(vertype, VT_OUTPUT));
-  message("- Steiner Points    = %d\n", st_count_vertype(vertype, VT_OTHER));
-  message("- Gibbs Points      = %d\n", vertype->ngibbs);
-  if (vertype->order == 1)
-    message(
-        "Meshing order: 1) Input file, 2) Output file, 3) Steiner points\n");
-  else
-    message(
-        "Meshing order: 1) Output file, 2) Input file, 3) Steiner points\n");
-}
-
-/****************************************************************************/
-/*!
  **  Manage the QSimu structure
  **
  ** \return  Pointer to the QSimu structure
@@ -1189,11 +940,11 @@ static void st_vertype_print(Vertype *vertype)
  ** \param[in]  mode        Type of operation
  **                          1 : Allocation
  **                         -1 : Deallocation
- ** \param[in]  s_mesh      SPDE_Mesh structure
+ ** \param[in]  amesh       AMesh structure
  ** \param[in]  qsimu       QSimu structure
  **
  *****************************************************************************/
-static QSimu* st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
+static QSimu* st_qsimu_manage(int mode, AMesh *amesh, QSimu *qsimu)
 {
   int error;
 
@@ -1216,14 +967,13 @@ static QSimu* st_qsimu_manage(int mode, SPDE_Mesh *s_mesh, QSimu *qsimu)
       {
         qsimu->QCtt = st_extract_QC_from_Q("f_f",
                                            spde_get_current_matelem(-1).QC,
-                                           s_mesh->vertype, VT_FREE, VT_FREE);
+                                           VT_FREE, VT_FREE);
         if (qsimu->QCtt == nullptr) goto label_end;
         if (S_DECIDE.flag_mesh_dbin)
         {
           qsimu->QCtd = st_extract_QC_from_Q("f_gd",
                                              spde_get_current_matelem(-1).QC,
-                                             s_mesh->vertype, VT_FREE,
-                                             VT_GIBBS | VT_HARD);
+                                             VT_FREE, VT_GIBBS | VT_HARD);
           if (qsimu->QCtd == nullptr) goto label_end;
         }
       }
@@ -1384,7 +1134,7 @@ static int st_get_ncova(void)
 static int st_get_nvertex(int icov)
 
 {
-  return (spde_get_current_matelem(icov).s_mesh->nvertex);
+  return (spde_get_current_matelem(icov).amesh->getNApices());
 }
 
 /****************************************************************************/
@@ -2142,7 +1892,7 @@ static double st_simu_constraints(Db *db,
  **  Perform one iteration of the Gibbs sampler
  **
  ** \param[in]  igrf        Rank of the GRF
- ** \param[in]  vertype     Vertype structure
+ ** \param[in]  nout        Number of samples on which Gibbs should be run
  ** \param[in]  ngibbs_int  Number of internal Gibbs iterations
  ** \param[in]  iter0       Gibbs iteration rank (starting from 0)
  ** \param[in]  ngibbs_burn Number of iterations (Burning step)
@@ -2156,7 +1906,7 @@ static double st_simu_constraints(Db *db,
  **
  *****************************************************************************/
 static void st_gibbs(int igrf,
-                     Vertype *vertype,
+                     int nout,
                      int ngibbs_int,
                      int iter0,
                      int ngibbs_burn,
@@ -2183,10 +1933,11 @@ static void st_gibbs(int igrf,
   /* Loop on the Gibbs samples */
 
   for (int iter = 0; iter < niter; iter++)
-    for (int ig = 0; ig < vertype->ngibbs; ig++)
+    for (int ig = 0; ig < nout; ig++)
     {
       yk = 0.;
-      iech = vertype->r_g[ig];
+//      iech = vertype->r_g[ig];
+      iech = ig;
       for (p = Ap[iech]; p < Ap[iech + 1]; p++)
       {
         coeff = Ax[p];
@@ -2200,7 +1951,9 @@ static void st_gibbs(int igrf,
       }
       yk /= sk;
       sk = sqrt(1. / sk);
-      jg = vertype->r_abs[ig];
+//      jg = vertype->r_abs[ig];
+      jg = ig;
+
       if (jg > 0)
         zcur[iech] = st_simu_constraints(dbout, igrf, jg - 1, iter0,
                                          ngibbs_burn, yk, sk);
@@ -2208,32 +1961,25 @@ static void st_gibbs(int igrf,
         zcur[iech] = st_simu_constraints(dbin, igrf, -jg - 1, iter0,
                                          ngibbs_burn, yk, sk);
     }
-
-  if (DEBUG)
-  {
-    message("(DEBUG) Gibbs\n");
-    print_range("- Result", vertype->nvertex, zcur, NULL);
-  }
 }
 
 /****************************************************************************/
 /*!
  **  Copy an array into the Db
  **
- ** \param[in]  vertype      Vertype structure
  ** \param[in]  z            Array of values
  ** \param[in]  dbout        Output Db structure
- ** \param[in]  locatorType       Rank of the pointer
+ ** \param[in]  locatorType  Rank of the pointer
  ** \param[in]  iatt_simu    Pointer to the current simulation
  **
  *****************************************************************************/
-static void st_save_result(Vertype *vertype,
-                           double *z,
+static void st_save_result(double *z,
                            Db *dbout,
-                           const ELoc& locatorType,
+                           const ELoc &locatorType,
                            int iatt_simu)
 {
   int iech, lec, ecr;
+  int nech = dbout->getSampleNumber();
 
   /* Loop on all the vertices */
 
@@ -2241,9 +1987,9 @@ static void st_save_result(Vertype *vertype,
   for (int ivar = 0; ivar < st_get_nvar(); ivar++)
   {
     iech = 0;
-    for (int i = 0; i < vertype->nvertex; i++, lec++)
+    for (int i = 0; i < nech; i++, lec++)
     {
-      if (!st_ok(vertype->vt[i], VT_OUTPUT)) continue;
+      if (! dbout->isActive(i)) continue;
       while (!dbout->isActive(iech))
         iech++;
       set_LOCATOR_ITEM(dbout, locatorType, iatt_simu + ivar, iech, z[lec]);
@@ -2264,18 +2010,13 @@ static void st_save_result(Vertype *vertype,
 /*!
  **  Merge an auxiliary array into an permanent array
  **
- ** \param[in]  vertype      Vertype structure
- ** \param[in]  vertype_auth Authorized vertype
+ ** \param[in]  ncur         Number of elements per variable
  ** \param[in]  z            Array of values to be merged
- **                          (only the ones whose vertype matches vertype_auth)
  **
  ** \param[out] zperm        Fill permanent array
  **
  *****************************************************************************/
-static void st_merge(Vertype *vertype,
-                     int vertype_auth,
-                     double *z,
-                     double *zperm)
+static void st_merge(int ncur, double *z, double *zperm)
 {
   int ecr, lec;
 
@@ -2284,20 +2025,16 @@ static void st_merge(Vertype *vertype,
   lec = ecr = 0;
   for (int ivar = 0; ivar < st_get_nvar(); ivar++)
   {
-    for (int i = 0; i < vertype->nvertex; i++, ecr++)
+    for (int i = 0; i < ncur; i++, ecr++)
     {
-      if (st_ok(vertype->vt[i], vertype_auth))
-      {
-        zperm[ecr] = z[lec];
-        lec++;
-      }
+      zperm[ecr] = z[lec];
+      lec++;
     }
   }
 
   if (DEBUG)
   {
     message("(DEBUG) Merge ");
-    st_print_status(vertype_auth);
     message("\n");
     print_range("- From  ", lec, z, NULL);
     print_range("- To    ", ecr, zperm, NULL);
@@ -2308,8 +2045,7 @@ static void st_merge(Vertype *vertype,
 /*!
  **  Copy an auxiliary array into an permanent array
  **
- ** \param[in]  vertype      Vertype structure
- ** \param[in]  vertype_auth Authorized vertype
+ ** \param[in]  ncur         Number of elements per variable
  ** \param[in]  z            Array of values to be merged
  **
  ** \param[out] zperm        Permanent array
@@ -2317,10 +2053,7 @@ static void st_merge(Vertype *vertype,
  ** \remarks This operation takes place for all samples located within the Part
  **
  *****************************************************************************/
-static void st_copy(Vertype *vertype,
-                    int vertype_auth,
-                    double *z,
-                    double *zperm)
+static void st_copy(int ncur, double *z, double *zperm)
 {
   int ecr, lec;
 
@@ -2329,20 +2062,16 @@ static void st_copy(Vertype *vertype,
   lec = ecr = 0;
   for (int ivar = 0; ivar < st_get_nvar(); ivar++)
   {
-    for (int i = 0; i < vertype->nvertex; i++, ecr++)
+    for (int i = 0; i < ncur; i++, ecr++)
     {
-      if (vertype_auth == VT_NONE || st_ok(vertype->vt[i], vertype_auth))
-      {
-        zperm[ecr] = z[lec];
-        lec++;
-      }
+      zperm[ecr] = z[lec];
+      lec++;
     }
   }
 
   if (DEBUG)
   {
     message("(DEBUG) Copy ");
-    st_print_status(vertype_auth);
     message("\n");
     print_range("- From  ", lec, z, NULL);
     print_range("- To    ", ecr, zperm, NULL);
@@ -2441,16 +2170,14 @@ static void st_init_array(int ncova,
  **
  ** \return Error return code
  **
- ** \param[in]  vertype      Vertype structure
- ** \param[in]  vertype_auth Authorized vertype
+ ** \param[in]  ncur         Number of elements per variable
  ** \param[in]  zsnc         Permanent array
  ** \param[in]  data         Array of datas
  **
  ** \param[in]  zerr         Array of extracted values
  **
  *****************************************************************************/
-static int st_simu_subtract_data(Vertype *vertype,
-                                 int vertype_auth,
+static int st_simu_subtract_data(int ncur,
                                  double *zsnc,
                                  double *data,
                                  double *zerr)
@@ -2459,9 +2186,8 @@ static int st_simu_subtract_data(Vertype *vertype,
 
   /* Loop on all the vertices */
 
-  for (int i = ecr = 0; i < vertype->nvertex; i++)
+  for (int i = ecr = 0; i < ncur; i++)
   {
-    if (!st_ok(vertype->vt[i], vertype_auth)) continue;
     zerr[ecr] = data[ecr] - zsnc[i];
     ecr++;
   }
@@ -2473,158 +2199,6 @@ static int st_simu_subtract_data(Vertype *vertype,
   }
 
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Load the Vertype structure
- **
- ** \param[in]  vertype    Vertype structure
- ** \param[in]  vercoloc   Vercoloc structure
- ** \param[in]  dbin       Db structure for the conditioning data
- ** \param[in]  dbout      Db structure of the grid
- **
- *****************************************************************************/
-static void st_vertype_load(Vertype *vertype,
-                            Vercoloc *vercoloc,
-                            Db *dbin,
-                            Db *dbout,
-                            SPDE_Option& /*s_option*/)
-{
-  int ecr, ijoint, vertype_loc, ngibbs;
-
-  /* Initializations */
-
-  ecr = ngibbs = 0;
-  vertype->order = 2;
-  vertype->nb1 = 0;
-  vertype->nb2 = 0;
-
-  /* From the Output Db if present */
-
-  if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
-  {
-    for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
-    {
-      if (!dbout->isActive(iech)) continue;
-      vertype_loc = VT_FREE;
-      ijoint = st_is_duplicated(vercoloc, 2, iech);
-      if (ijoint < 0)
-      {
-        if (S_DECIDE.flag_gibbs && dbout->getIntervalNumber() > 0)
-          vertype_loc = VT_GIBBS;
-        else
-          vertype_loc = VT_FREE;
-      }
-      else
-      {
-        if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
-          vertype_loc = VT_GIBBS;
-        else if (S_DECIDE.flag_mesh_dbin) vertype_loc = VT_HARD | VT_INPUT;
-      }
-      if (vertype_loc == VT_GIBBS)
-      {
-        vertype->r_g[ngibbs] = ecr;
-        vertype->r_abs[ngibbs] = (ijoint < 0) ? iech + 1 :
-                                                -(ijoint + 1);
-        ngibbs++;
-      }
-      vertype->vt[ecr++] = VT_OUTPUT | vertype_loc;
-      vertype->nb1++;
-    }
-  }
-
-  /* Input file */
-
-  if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
-  {
-    for (int iech = 0; iech < dbin->getSampleNumber(); iech++)
-    {
-      if (!dbin->isActive(iech)) continue;
-      if (st_is_duplicated(vercoloc, 1, iech) >= 0) continue;
-      if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
-        vertype_loc = VT_GIBBS;
-      else
-        vertype_loc = VT_HARD;
-      if (vertype_loc == VT_GIBBS)
-      {
-        vertype->r_g[ngibbs] = ecr;
-        vertype->r_abs[ngibbs] = -(iech + 1);
-        ngibbs++;
-      }
-      vertype->vt[ecr++] = VT_INPUT | vertype_loc;
-      vertype->nb2++;
-    }
-  }
-  vertype->ngibbs = ngibbs;
-
-  /* Optional printout */
-
-  if (VERBOSE) st_vertype_print(vertype);
-}
-
-/****************************************************************************/
-/*!
- **  Manage the Vertype structure
- **
- ** \return  Pointer to the newly created array (or NULL if failure)
- **
- ** \param[in]  mode       Operation
- **                         1 : Create
- **                        -1 : Delete
- ** \param[in]  vertype    Vertype structure
- ** \param[in]  nvertex    Number of vertices
- **
- *****************************************************************************/
-Vertype *vertype_manage(int mode,
-                        Vertype *vertype,
-                        Vercoloc * /*vercoloc*/,
-                        int nvertex)
-{
-  int error, ngibbs;
-
-  /* Dispatch */
-
-  error = 1;
-  if (mode > 0)
-  {
-
-    /* Allocation */
-
-    vertype = (Vertype*) mem_alloc(sizeof(Vertype), 0);
-    if (vertype == nullptr) return (vertype);
-    vertype->nvertex = nvertex;
-    vertype->ngibbs = ngibbs = 0;
-    vertype->vt = nullptr;
-    vertype->r_g = nullptr;
-    vertype->r_abs = nullptr;
-    vertype->vt = (int*) mem_alloc(sizeof(int) * nvertex, 0);
-    if (vertype->vt == nullptr) goto label_end;
-    vertype->r_g = (int*) mem_alloc(sizeof(int) * nvertex, 0);
-    if (vertype->r_g == nullptr) goto label_end;
-    vertype->r_abs = (int*) mem_alloc(sizeof(int) * nvertex, 0);
-    if (vertype->r_abs == nullptr) goto label_end;
-    for (int i = 0; i < vertype->nvertex; i++)
-      vertype->vt[i] = VT_OTHER | VT_FREE;
-  }
-  else
-  {
-
-    /* Deallocation */
-
-    if (vertype == nullptr) return (vertype);
-    vertype->r_g = (int*) mem_free((char* ) vertype->r_g);
-    vertype->r_abs = (int*) mem_free((char* ) vertype->r_abs);
-    vertype->vt = (int*) mem_free((char* ) vertype->vt);
-    vertype = (Vertype*) mem_free((char* ) vertype);
-  }
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) vertype = vertype_manage(-1, vertype, NULL, 0);
-  return (vertype);
 }
 
 /****************************************************************************/
@@ -2750,13 +2324,11 @@ int spde_build_stdev(double *vcur)
   double *d2, *wz, *diag, *z;
   cs *Dinv, *LDinv, *TLDinv, *Pattern;
   QChol *QCtt;
-  SPDE_Mesh *s_mesh;
 
   /* Initializations */
 
   error = 1;
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
-  s_mesh = Matelem.s_mesh;
   QCtt = Matelem.qsimu->QCtt;
   wZdiagp = wLmunch = nullptr;
   d2 = wz = diag = z = nullptr;
@@ -2798,22 +2370,21 @@ int spde_build_stdev(double *vcur)
 
   if (sparseinv(ntarget, LDinv->p, LDinv->i, LDinv->x, d2, LDinv->p, LDinv->i,
                 LDinv->x, Pattern->p, Pattern->i, Pattern->x, wz, wZdiagp,
-                wLmunch)
-      == -1) goto label_end;
+                wLmunch) == -1) goto label_end;
 
   /* Extracting the diagonal of wz */
 
   diag = csd_extract_diag(Pattern, 1);
   cs_pvec(ntarget, QCtt->S->Pinv, diag, z);
   for (int iech = 0; iech < ntarget; iech++)
-    z[iech] = sqrt(z[iech]);
-  st_merge(s_mesh->vertype, VT_FREE, z, vcur);
+    vcur[iech] = sqrt(z[iech]);
 
   /* Set the error return code */
 
   error = 0;
 
-  label_end: wZdiagp = (int*) mem_free((char* ) wZdiagp);
+  label_end:
+  wZdiagp = (int*) mem_free((char* ) wZdiagp);
   wLmunch = (int*) mem_free((char* ) wLmunch);
   wz = (double*) mem_free((char* ) wz);
   d2 = (double*) mem_free((char* ) d2);
@@ -2837,7 +2408,7 @@ int spde_build_stdev(double *vcur)
  ** \remark The array returned by this function must be deallocated
  **
  *****************************************************************************/
-double* _spde_get_mesh_dimension(MeshEStandard *amesh)
+double* _spde_get_mesh_dimension(AMesh* amesh)
 
 {
   double *units, mat[9];
@@ -2893,7 +2464,7 @@ double* _spde_get_mesh_dimension(MeshEStandard *amesh)
  ** \param[in]  imesh0    Rank of the current mesh
  **
  *****************************************************************************/
-static void st_calcul_update_nostat(MeshEStandard *amesh, int imesh0)
+static void st_calcul_update_nostat(AMesh *amesh, int imesh0)
 
 {
   Model *model = st_get_model();
@@ -3232,12 +2803,14 @@ static int st_fill_Bnugget(Db *dbin)
  **
  ** \return An array of vertex identification (Dimension: nvertex) or NULL
  **
- ** \param[in]  s_mesh      SPDE_Mesh structure
+ ** \param[in]  amesh       AMesh structure
+ ** \param[in]  dbin        Db structure for input (optional)
+ ** \param[in]  dbout       Db structure for the output
  **
  ** \remarks The array ranks is filled as follows:
  ** \remarks - Its contents follows the mesh numbering
  ** \remarks - If positive, its value provides the rank of the data
- ** \remarks - If negative, its absolute valu provides the rank of the target
+ ** \remarks - If negative, its absolute value provides the rank of the target
  ** \remarks - If zero, theses are Steiner points
  ** \remarks Warning: Ranks are counted from 1
  **
@@ -3245,38 +2818,35 @@ static int st_fill_Bnugget(Db *dbin)
  ** \remarks Dimension: nvertex
  **
  *****************************************************************************/
-static int *st_get_vertex_ranks(SPDE_Mesh *s_mesh, Db * /*dbin*/, Db * /*dbout*/)
+static int *st_get_vertex_ranks(AMesh *amesh, Db* dbin, Db* dbout)
 {
-  Vertype *vertype;
-  int *ranks, nvertex, ndata, ngrid;
-
-  /* Initializations */
-
-  ranks = nullptr;
-  nvertex = s_mesh->nvertex;
-  vertype = s_mesh->vertype;
+  int nvertex = amesh->getNApices();
+  int n_in  = (dbin != nullptr) ? dbin->getActiveSampleNumber() : 0;
+  int n_out = dbout->getActiveSampleNumber();
+  if (nvertex < (n_in + n_out))
+    messageAbort("Nvertex(%d) must be larger than n_in(%d) + n_out(%d)",
+                 nvertex, n_in, n_out);
 
   /* Core allocation */
 
-  ranks = (int*) mem_alloc(sizeof(int) * nvertex, 0);
+  int* ranks = (int*) mem_alloc(sizeof(int) * nvertex, 0);
   if (ranks == nullptr) return (ranks);
+  for (int i = 0; i < nvertex; i++) ranks[i] = 0;
 
   /* Identify the vertices */
 
-  ndata = ngrid = 0;
-  for (int i = 0; i < nvertex; i++)
+  int ecr = 0;
+  if (dbin != nullptr)
+    for (int i = 0; i < dbin->getSampleNumber(); i++)
+    {
+      if (! dbin->isActive(i)) continue;
+      ranks[ecr++] = (i + 1);
+    }
+
+  for (int i = 0; i < dbout->getActiveSampleNumber(); i++)
   {
-    ranks[i] = 0;
-    if (vertype->vt[i] & VT_INPUT)
-    {
-      ranks[i] = (ndata + 1);
-      ndata++;
-    }
-    else if (vertype->vt[i] & VT_OUTPUT)
-    {
-      ranks[i] = -(ngrid + 1);
-      ngrid++;
-    }
+    if (! dbout->isActive(i)) continue;
+    ranks[ecr++] = -(i + 1);
   }
   return (ranks);
 }
@@ -3300,7 +2870,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   double value;
   Model *model;
   cs **BheteroD, **BheteroT, *Btriplet;
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
 
   /* Initializations */
 
@@ -3312,12 +2882,12 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
   Btriplet = nullptr;
   ranks = ndata1 = ntarget1 = nullptr;
   SPDE_Matelem &Mat1 = spde_get_current_matelem(0);
-  s_mesh = Mat1.s_mesh;
-  nvertex = s_mesh->nvertex;
+  amesh = Mat1.amesh;
+  nvertex = amesh->getNApices();
 
   /* Core allocation */
 
-  ranks = st_get_vertex_ranks(s_mesh, dbin, dbout);
+  ranks = st_get_vertex_ranks(amesh, dbin, dbout);
   if (ranks == nullptr) goto label_end;
 
   /* Define the sparse matrices */
@@ -3454,7 +3024,7 @@ static int st_fill_Bhetero(Db *dbin, Db *dbout)
  ** \param[out] xyz      Coordinate of the point (Dimension: 3x3)
  **
  *****************************************************************************/
-static void st_triangle_center(MeshEStandard *amesh,
+static void st_triangle_center(AMesh *amesh,
                                int ncorner,
                                int imesh,
                                double center[3],
@@ -3574,7 +3144,7 @@ static void st_tangent_calculate(double center[3],
  ** \param[in]  units     Array containing the mesh dimensions
  **
  *****************************************************************************/
-cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
+cs* _spde_fill_S(AMesh *amesh, Model *model, double *units)
 {
   double vald, mat[16], matu[16], matw[16], matinvw[16], mat1[16];
   double xyz[3][3], center[3], axes[2][3], matv[3], coeff[3][2];
@@ -3726,7 +3296,7 @@ cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units)
  ** \param[in]  units     Array containing the element units
  **
  *****************************************************************************/
-VectorDouble _spde_fill_TildeC(MeshEStandard *amesh, double *units)
+VectorDouble _spde_fill_TildeC(AMesh *amesh, double *units)
 {
   VectorDouble tildec, cumunit;
   int nvertex = amesh->getNApices();
@@ -3774,7 +3344,7 @@ VectorDouble _spde_fill_TildeC(MeshEStandard *amesh, double *units)
  **
  *****************************************************************************/
 VectorDouble _spde_fill_Lambda(Model *model,
-                               MeshEStandard *amesh,
+                               AMesh *amesh,
                                const VectorDouble &TildeC)
 {
   const ANoStat *nostat = model->getNoStat();
@@ -3787,8 +3357,7 @@ VectorDouble _spde_fill_Lambda(Model *model,
 
   /* Fill the array */
 
-  if (st_get_model()->isNoStat() && nostat->isDefinedforAnisotropy(igrf0,
-                                                                   icov0))
+  if (st_get_model()->isNoStat() && nostat->isDefinedforAnisotropy(igrf0,icov0))
   {
     for (int ip = 0; ip < nvertex; ip++)
     {
@@ -4210,28 +3779,27 @@ int spde_build_matrices(Model *model, int verbose)
   units = nullptr;
   VERBOSE = verbose;
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
-  MeshEStandard amesh;
-  amesh.convertFromOldMesh(Matelem.s_mesh, 0);
+  AMesh* amesh = Matelem.amesh;
 
   /* Calculate the units of the meshes */
 
-  units = _spde_get_mesh_dimension(&amesh);
+  units = _spde_get_mesh_dimension(amesh);
   if (units == nullptr) goto label_end;
 
   /* Fill S sparse matrix */
 
-  Matelem.S = _spde_fill_S(&amesh, model, units);
+  Matelem.S = _spde_fill_S(amesh, model, units);
   if (Matelem.S == nullptr) goto label_end;
   if (VERBOSE) message("Filling S Sparse Matrix performed successfully\n");
 
   /* Fill the TildeC vector */
 
-  tildec = _spde_fill_TildeC(&amesh, units);
+  tildec = _spde_fill_TildeC(amesh, units);
   if (VERBOSE) message("Filling TildeC Sparse Matrix performed successfully\n");
 
   /* Construct the matrix for the sill correction array */
 
-  Matelem.Lambda = _spde_fill_Lambda(model, &amesh, tildec);
+  Matelem.Lambda = _spde_fill_Lambda(model, amesh, tildec);
   if (VERBOSE) message("Filling Lambda Sparse Matrix performed successfully\n");
 
   /* Build the sparse matrix B */
@@ -4257,7 +3825,7 @@ int spde_build_matrices(Model *model, int verbose)
 /*!
  **  Load the data information within the complete output array
  **
- ** \param[in]  s_mesh      SPDE_Mesh structure
+ ** \param[in]  amesh       AMesh structure
  ** \param[in]  dbin        Db input structure
  ** \param[in]  dbout       Db output structure
  ** \param[in]  ivar0       Rank of the variable or -1
@@ -4270,7 +3838,7 @@ int spde_build_matrices(Model *model, int verbose)
  ** \remarks Otherwise the Z-variables must all be loaded
  **
  *****************************************************************************/
-static void st_load_data(SPDE_Mesh *s_mesh,
+static void st_load_data(AMesh *amesh,
                          Db *dbin,
                          Db *dbout,
                          SPDE_Option& /*s_option*/,
@@ -4278,19 +3846,16 @@ static void st_load_data(SPDE_Mesh *s_mesh,
                          double *data,
                          double *zcur)
 {
-  Vertype *vertype;
   double zloc;
-  int ecr, ijoint, ecrd, nvar, ivar, nvertex, igrf;
+  int ecr, ecrd, nvar, ivar, nvertex, igrf;
 
   /* Initializations */
 
-  vertype = s_mesh->vertype;
-  nvertex = vertype->nvertex;
+  nvertex = amesh->getNApices();
   igrf = st_get_current_igrf();
-  nvar = (ivar0 >= 0) ? 1 :
-                        st_get_nvar();
+  nvar = (ivar0 >= 0) ? 1 : st_get_nvar();
   MEM_DBIN = dbin;           // This horrible assignment is to allows
-  MEM_DBOUT = dbout;          // passing information to Kriging sub-procedures
+  MEM_DBOUT = dbout;         // passing information to Kriging sub-procedures
 
   /* Loop on the variables */
 
@@ -4298,8 +3863,7 @@ static void st_load_data(SPDE_Mesh *s_mesh,
   for (int jvar = 0; jvar < nvar; jvar++)
   {
     ecr = jvar * nvertex;
-    ivar = (ivar0 >= 0) ? ivar0 :
-                          jvar;
+    ivar = (ivar0 >= 0) ? ivar0 : jvar;
 
     /* From the Output Db if present */
 
@@ -4308,30 +3872,14 @@ static void st_load_data(SPDE_Mesh *s_mesh,
       for (int iech = 0; iech < dbout->getSampleNumber(); iech++)
       {
         if (!dbout->isActive(iech)) continue;
-        ijoint = st_is_duplicated(s_mesh->vercoloc, 2, iech);
-        if (ijoint < 0)
-        {
 
-          /* This target is not collocated to any Datum */
+        /* This target is not collocated to any Datum */
 
-          if (S_DECIDE.flag_gibbs && dbout->getIntervalNumber() > 0)
-            zloc = st_get_data_constraints(dbout, igrf, iech);
-          else
-            zloc = TEST;
-        }
+        if (S_DECIDE.flag_gibbs && dbout->getIntervalNumber() > 0)
+          zloc = st_get_data_constraints(dbout, igrf, iech);
         else
-        {
+          zloc = TEST;
 
-          /* This target is collocated to a Datum */
-
-          if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
-            zloc = st_get_data_constraints(dbin, igrf, ijoint);
-          else
-          {
-            zloc = dbin->getVariable(ijoint, ivar);
-            if (!S_DECIDE.flag_several) data[ecrd++] = zloc;
-          }
-        }
         if (S_DECIDE.flag_mesh_dbout)
         {
           if (!FFFF(zloc))
@@ -4357,12 +3905,6 @@ static void st_load_data(SPDE_Mesh *s_mesh,
       {
         if (!dbin->isActive(iech)) continue;
         if (S_DECIDE.flag_several) data[ecrd++] = dbin->getVariable(iech, ivar);
-
-        /* If collocated with a target, vertex has already been loaded */
-
-        if (st_is_duplicated(s_mesh->vercoloc, 1, iech) >= 0) continue;
-
-        /* No collocation */
 
         if (S_DECIDE.flag_gibbs && dbin->getIntervalNumber() > 0)
           zloc = st_get_data_constraints(dbin, igrf, iech);
@@ -4689,7 +4231,7 @@ static int st_simulate_chebychev(double *zsnc)
   error = 1;
   SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
   cheb_elem = Matelem.s_cheb;
-  nvertex = Matelem.s_mesh->nvertex;
+  nvertex = Matelem.amesh->getNApices();
   x = nullptr;
 
   /* Core allocation */
@@ -5173,7 +4715,7 @@ static int st_kriging_several_results(double *xcur, double *z)
 {
   int *ranks, ncova, nvar, ncur, error, flag_data, ecr, lec;
   double valdat, valsum;
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
 
   /* Initializations */
 
@@ -5183,12 +4725,12 @@ static int st_kriging_several_results(double *xcur, double *z)
   ncur = st_get_nvertex_max();
   ranks = nullptr;
   valdat = TEST;
-  s_mesh = spde_get_current_matelem(0).s_mesh;
+  amesh = spde_get_current_matelem(0).amesh;
   flag_data = 0;
 
   /* Sample designation */
 
-  ranks = st_get_vertex_ranks(s_mesh, MEM_DBIN, MEM_DBOUT);
+  ranks = st_get_vertex_ranks(amesh, MEM_DBIN, MEM_DBOUT);
   if (ranks == nullptr) goto label_end;
 
   /* Constitute the resulting vector */
@@ -5386,13 +4928,13 @@ static int st_kriging_several(double *data,
  **
  ** \return  Error return code
  **
- ** \param[in]  s_mesh      SPDE_Mesh structure
+ ** \param[in]  amesh       AMesh structure
  ** \param[in]  data        Vector of data
  **
  ** \param[out] zkrig       Output Array
  **
  *****************************************************************************/
-static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
+static int st_kriging(AMesh *amesh, double *data, double *zkrig)
 {
   double *work, *zkdat, *rhs;
   int error, ncur, size, ncova, nvar;
@@ -5431,12 +4973,12 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
   if (S_DECIDE.flag_several)
   {
     if (st_kriging_several(data, rhs, work, zkdat)) goto label_end;
-    st_copy(s_mesh->vertype, VT_NONE, zkdat, zkrig);
+    st_copy(ncur, zkdat, zkrig);
   }
   else
   {
     if (st_kriging_one(data, rhs, work, zkdat)) goto label_end;
-    st_merge(s_mesh->vertype, VT_FREE, zkdat, zkrig);
+    st_merge(ncur, zkdat, zkrig);
   }
 
   /* Set the error return code */
@@ -5456,7 +4998,7 @@ static int st_kriging(SPDE_Mesh *s_mesh, double *data, double *zkrig)
  ** \return  Error return code
  **
  ** \param[in]  mode       1 for allocation; -1 for deallocation
- ** \param[in]  verbose    Verbosity flag
+ ** \param[in]  verbose    Verbose flag
  ** \param[in]  power      Parameter passed to Chebychev function
  ** \param[in]  nblin      Number of blin coefficients
  ** \param[in]  blin       Array of coefficients for Linear combinaison
@@ -5632,7 +5174,7 @@ static void st_matelem_manage(int mode)
         Matelem.mgs = (cs_MGS*) NULL;
         if (S_DECIDE.flag_mgrid) Matelem.mgs = st_mgs_manage(1, NULL);
         Matelem.s_cheb = nullptr;
-        Matelem.s_mesh = nullptr;
+        Matelem.amesh = nullptr;
       }
       break;
 
@@ -5654,7 +5196,7 @@ static void st_matelem_manage(int mode)
         Matelem.mgs = st_mgs_manage(-1, Matelem.mgs);
         Matelem.s_cheb = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL,
                                           Matelem.s_cheb);
-        Matelem.s_mesh = spde_mesh_manage(-1, Matelem.s_mesh);
+        Matelem.amesh = spde_mesh_delete(Matelem.amesh);
       }
       break;
   }
@@ -5772,7 +5314,7 @@ int spde_process(Db *dbin,
   int flag_mult_data, ngrf, nv_krige;
   int ngibbs_total, ngtime, nvar;
   double *data, *zcur, *zkrig, *zout, *vcur, *zsnc, *zdat;
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
 
   /* Initializations */
 
@@ -5824,10 +5366,10 @@ int spde_process(Db *dbin,
       && ngrf == 1)
   {
     st_set_current_igrf(0);
-    s_mesh = spde_get_current_matelem(-1).s_mesh;
+    amesh = spde_get_current_matelem(-1).amesh;
     st_init_array(1, nvar, ncur, 1, zkrig);
-    st_load_data(s_mesh, dbin, dbout, s_option, -1, data, zkrig);
-    if (st_kriging(s_mesh, data, zkrig)) goto label_end;
+    st_load_data(amesh, dbin, dbout, s_option, -1, data, zkrig);
+    if (st_kriging(amesh, data, zkrig)) goto label_end;
   }
 
   if (S_DECIDE.flag_case == CASE_KRIGING)
@@ -5837,11 +5379,11 @@ int spde_process(Db *dbin,
 
     // Saving operation
     nv_krige = 0;
-    s_mesh = spde_get_current_matelem(-1).s_mesh;
+    amesh = spde_get_current_matelem(-1).amesh;
     if (S_DECIDE.flag_est)
-      st_save_result(s_mesh->vertype, zkrig, dbout, ELoc::Z, nv_krige++);
+      st_save_result(zkrig, dbout, ELoc::Z, nv_krige++);
     if (S_DECIDE.flag_std)
-      st_save_result(s_mesh->vertype, vcur, dbout, ELoc::Z, nv_krige++);
+      st_save_result(vcur, dbout, ELoc::Z, nv_krige++);
   }
   else if (S_DECIDE.flag_case == CASE_SIMULATE)
   {
@@ -5849,8 +5391,7 @@ int spde_process(Db *dbin,
     /* Simulations */
     /***************/
 
-    nbsimuw = (S_DECIDE.flag_modif) ? 1 :
-                                      nbsimu;
+    nbsimuw = (S_DECIDE.flag_modif) ? 1 : nbsimu;
 
     /***************************/
     /* Loop on the simulations */
@@ -5859,8 +5400,7 @@ int spde_process(Db *dbin,
     for (int isimu = 0; isimu < nbsimu; isimu++)
     {
       if (VERBOSE || DEBUG) message("Simulation #%d/%d\n", isimu + 1, nbsimu);
-      isimuw = (S_DECIDE.flag_modif) ? 0 :
-                                       isimu;
+      isimuw = (S_DECIDE.flag_modif) ? 0 : isimu;
       st_init_array(1, nvar, ncur, 1, zcur);
       if (S_DECIDE.flag_std) st_init_array(1, nvar, ncur, 0, vcur);
 
@@ -5873,7 +5413,7 @@ int spde_process(Db *dbin,
         if ((VERBOSE || DEBUG) && st_get_number_grf() > 1)
           message("GRF iteration #%d/%d\n", igrf + 1, ngrf);
         st_set_current_igrf(igrf);
-        s_mesh = spde_get_current_matelem(-1).s_mesh;
+        amesh = spde_get_current_matelem(-1).amesh;
 
         /* Conditional Simulation */
         /* Load the data set corresponding to the new variable */
@@ -5883,7 +5423,7 @@ int spde_process(Db *dbin,
           st_init_array(1, nvar, ncur, 1, zdat);
           ivar0 = (flag_mult_data) ? isimu :
                                      -1;
-          st_load_data(s_mesh, dbin, dbout, s_option, ivar0, data, zdat);
+          st_load_data(amesh, dbin, dbout, s_option, ivar0, data, zdat);
         }
 
         /***********************************************************/
@@ -5892,7 +5432,6 @@ int spde_process(Db *dbin,
 
         ngtime = 1;
         ngibbs_total = ngibbs_burn + ngibbs_iter;
-        if (s_mesh->vertype->ngibbs <= 0) ngibbs_total = 0;
         if (S_DECIDE.flag_gibbs) ngtime = MAX(1, ngibbs_total);
 
         for (int igtime = 0; igtime < ngtime; igtime++)
@@ -5911,11 +5450,10 @@ int spde_process(Db *dbin,
             if (S_DECIDE.flag_dbin)
             {
               // Calculate the simulation error
-              st_simu_subtract_data(s_mesh->vertype, VT_GIBBS | VT_HARD, zsnc,
-                                    data, zdat);
+              st_simu_subtract_data(ncur, zsnc, data, zdat);
 
               // Perform Conditional Kriging
-              if (st_kriging(s_mesh, zdat, zcur)) goto label_end;
+              if (st_kriging(amesh, zdat, zcur)) goto label_end;
 
               // Add the non-conditional simulation
               st_simu_add_vertices(ncur, zsnc, zcur);
@@ -5930,12 +5468,12 @@ int spde_process(Db *dbin,
             // Perform simulation of the residuals
             if (st_simulate(spde_get_current_matelem(-1).qsimu->QCtt, zout))
               goto label_end;
-            st_merge(s_mesh->vertype, VT_FREE, zout, zsnc);
+            st_merge(ncur, zout, zsnc);
 
             if (S_DECIDE.flag_gibbs)
             {
               // Perform Kriging of the Gibbsed Gaussian
-              if (st_kriging(s_mesh, data, zcur)) goto label_end;
+              if (st_kriging(amesh, data, zcur)) goto label_end;
 
               // Add the non-conditional simulation
               st_simu_add_vertices(ncur, zsnc, zcur);
@@ -5949,9 +5487,9 @@ int spde_process(Db *dbin,
 
           /* Gibbs iteration */
 
-          if (S_DECIDE.flag_gibbs && s_mesh->vertype->ngibbs > 0)
+          if (S_DECIDE.flag_gibbs)
           {
-            st_gibbs(igrf, s_mesh->vertype, ngibbs_int, igtime, ngibbs_burn,
+            st_gibbs(igrf, ncur, ngibbs_int, igtime, ngibbs_burn,
                      dbin, dbout, zcur);
           }
         }
@@ -5959,7 +5497,7 @@ int spde_process(Db *dbin,
         /* Saving operation */
 
         iatt_simu = dbout->getSimvarRank(isimuw, 0, igrf, nbsimuw, 1);
-        st_save_result(s_mesh->vertype, zcur, dbout, ELoc::SIMU, iatt_simu);
+        st_save_result(zcur, dbout, ELoc::SIMU, iatt_simu);
       }
 
       /* Perform the transformation */
@@ -5997,32 +5535,19 @@ int spde_process(Db *dbin,
 /*!
  **  Load the segments and vertex coordinates
  **
- ** \return  Error return code
+ ** \return  AMesh structure
  **
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
- ** \param[in]  nb_dupl    Number of samples to be masked (optional)
- ** \param[in]  is_dupl    Array of indices of the samples to be masked
- **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
  **
  *****************************************************************************/
-static int st_load_meshes_1D(int /*verbose*/,
-                             Db *dbin,
-                             Db *dbout,
-                             const VectorDouble &gext,
-                             int nb_dupl,
-                             int *is_dupl,
-                             SPDE_Option& /*s_option*/,
-                             SPDE_Mesh *s_mesh)
+static AMesh* st_load_meshes_1D(int /*verbose*/,
+                                Db *dbin,
+                                Db *dbout,
+                                const VectorDouble &gext)
 {
-  int error;
   segmentio in, out;
-
-  /* Initializations */
-
-  error = 1;
 
   /* Initialize the Meshing output structure */
 
@@ -6033,11 +5558,11 @@ static int st_load_meshes_1D(int /*verbose*/,
 
   if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
   {
-    if (meshes_1D_from_db(dbout, 0, NULL, &in)) goto label_end;
+    if (meshes_1D_from_db(dbout, &in)) return nullptr;
   }
   if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
   {
-    if (meshes_1D_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
+    if (meshes_1D_from_db(dbin, &in)) return nullptr;
   }
   if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) &&
       !(dbout != nullptr && S_DECIDE.flag_mesh_dbout))
@@ -6056,54 +5581,36 @@ static int st_load_meshes_1D(int /*verbose*/,
 
   meshes_1D_create(VERBOSE, &in, &out);
 
-  /* Coordinates of the triangle vertices */
+  /* Create the final meshing */
 
-  meshes_1D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void**) &s_mesh->points);
-
-  meshes_1D_load_vertices(&out, "Segments", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void**) &s_mesh->meshes);
+  AMesh* amesh = meshes_1D_load_vertices(&out);
 
   /* Set the error return code */
 
-  error = 0;
-
-  label_end: meshes_1D_free(&in, 1);
+  meshes_1D_free(&in, 1);
   meshes_1D_free(&out, 0);
-  return (error);
+  return amesh;
 }
 
 /****************************************************************************/
 /*!
  **  Load the triangles and vertex coordinates
  **
- ** \return  Error return code
+ ** \return  AMesh structure
  **
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
- ** \param[in]  nb_dupl    Number of samples to be masked (optional)
- ** \param[in]  is_dupl    Array of indices of the samples to be masked
  ** \param[in]  s_option   SPDE_Option structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-static int st_load_meshes_2D(int /*verbose*/,
-                             Db *dbin,
-                             Db *dbout,
-                             const VectorDouble &gext,
-                             int nb_dupl,
-                             int *is_dupl,
-                             SPDE_Option &s_option,
-                             SPDE_Mesh *s_mesh)
+static AMesh* st_load_meshes_2D(int /*verbose*/,
+                                Db *dbin,
+                                Db *dbout,
+                                const VectorDouble &gext,
+                                SPDE_Option &s_option)
 {
-  int error;
   triangulateio in, out, vorout;
-
-  /* Initializations */
-
-  error = 1;
 
   /* Initialize the Meshing output structure */
 
@@ -6115,11 +5622,11 @@ static int st_load_meshes_2D(int /*verbose*/,
 
   if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
   {
-    if (meshes_2D_from_db(dbout, 1, 0, NULL, &in)) goto label_end;
+    if (meshes_2D_from_db(dbout, 1, &in)) return nullptr;
   }
   if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
   {
-    if (meshes_2D_from_db(dbin, 1, nb_dupl, is_dupl, &in)) goto label_end;
+    if (meshes_2D_from_db(dbin, 1, &in)) return nullptr;
   }
   if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
       && S_DECIDE.flag_mesh_dbout))
@@ -6139,53 +5646,33 @@ static int st_load_meshes_2D(int /*verbose*/,
   meshes_2D_create(VERBOSE, st_get_current_triswitch(s_option), &in, &out,
                    &vorout);
 
-  /* Coordinates of the triangle vertices */
+  /* Create the final meshing */
 
-  meshes_2D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void**) &s_mesh->points);
+  AMesh* amesh = meshes_2D_load_vertices(&out);
 
-  meshes_2D_load_vertices(&out, "Triangles", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void**) &s_mesh->meshes);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: meshes_2D_free(&in, 1);
+  meshes_2D_free(&in, 1);
   meshes_2D_free(&out, 0);
   meshes_2D_free(&vorout, 0);
-  return (error);
+  return amesh;
 }
 
 /****************************************************************************/
 /*!
  **  Load the spherical triangles and vertex coordinates
  **
- ** \return  Error return code
+ ** \return  The newly created AMesh structure
  **
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
- ** \param[in]  nb_dupl    Number of samples to be masked (optional)
- ** \param[in]  is_dupl    Array of indices of the samples to be masked
  ** \param[in]  s_option   SPDE_Option structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-static int st_load_meshes_2D_sph(int /*verbose*/,
-                                 Db *dbin,
-                                 Db *dbout,
-                                 int nb_dupl,
-                                 int *is_dupl,
-                                 SPDE_Option &s_option,
-                                 SPDE_Mesh *s_mesh)
+static AMesh* st_load_meshes_2D_sph(int /*verbose*/,
+                                    Db *dbin,
+                                    Db *dbout,
+                                    SPDE_Option &s_option)
 {
-  int error;
   SphTriangle in;
-
-  /* Initializations */
-
-  error = 1;
 
   /* Initialize the Meshing output structure */
 
@@ -6195,79 +5682,60 @@ static int st_load_meshes_2D_sph(int /*verbose*/,
 
   if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
   {
-    if (meshes_2D_sph_from_db(dbout, 0, NULL, &in)) goto label_end;
+    if (meshes_2D_sph_from_db(dbout, &in)) return nullptr;
   }
   if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
   {
-    if (meshes_2D_sph_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
+    if (meshes_2D_sph_from_db(dbin, &in)) return nullptr;
   }
 
   /* Add auxiliary random points */
 
   if (meshes_2D_sph_from_auxiliary(st_get_current_triswitch(s_option), &in))
-    goto label_end;
+    return nullptr;
 
   /* Perform the triangulation */
 
-  if (meshes_2D_sph_create(VERBOSE, &in)) goto label_end;
+  if (meshes_2D_sph_create(VERBOSE, &in)) return nullptr;
 
-  /* Coordinates of the triangle vertices */
+  /* Final meshing */
 
-  meshes_2D_sph_load_vertices(&in, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                              (void**) &s_mesh->points);
+  AMesh* amesh = meshes_2D_sph_load_vertices(&in);
 
-  meshes_2D_sph_load_vertices(&in, "Triangles", &s_mesh->nmesh,
-                              &s_mesh->ncorner, (void**) &s_mesh->meshes);
+  meshes_2D_sph_free(&in, 0);
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: meshes_2D_sph_free(&in, 0);
-  return (error);
+  return amesh;
 }
 
 /****************************************************************************/
 /*!
  **  Load the tetrahedra and vertex coordinates
  **
- ** \return  Error return code
+ ** \return  Pointer to the newly created AMesh structure
  **
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
- ** \param[in]  nb_dupl    Number of samples to be masked (optional)
- ** \param[in]  is_dupl    Array of indices of the samples to be masked
  ** \param[in]  s_option   SPDE_Option structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  *****************************************************************************/
-static int st_load_meshes_3D(int /*verbose*/,
-                             Db *dbin,
-                             Db *dbout,
-                             const VectorDouble &gext,
-                             int nb_dupl,
-                             int *is_dupl,
-                             SPDE_Option &s_option,
-                             SPDE_Mesh *s_mesh)
+static AMesh* st_load_meshes_3D(int /*verbose*/,
+                                Db *dbin,
+                                Db *dbout,
+                                const VectorDouble &gext,
+                                SPDE_Option &s_option)
 {
-  int error;
   tetgenio in, out;
-
-  /* Initializations */
-
-  error = 1;
 
   /* Set the control points for the tetrahedralization */
 
   if (dbout != nullptr && S_DECIDE.flag_mesh_dbout)
   {
-    if (meshes_3D_from_db(dbout, 0, NULL, &in)) goto label_end;
+    if (meshes_3D_from_db(dbout, &in)) return nullptr;
   }
   if (dbin != nullptr && S_DECIDE.flag_mesh_dbin)
   {
-    if (meshes_3D_from_db(dbin, nb_dupl, is_dupl, &in)) goto label_end;
+    if (meshes_3D_from_db(dbin, &in)) return nullptr;
   }
   if (!(dbin != nullptr && S_DECIDE.flag_mesh_dbin) && !(dbout != nullptr
       && S_DECIDE.flag_mesh_dbout))
@@ -6286,72 +5754,62 @@ static int st_load_meshes_3D(int /*verbose*/,
 
   meshes_3D_create(VERBOSE, st_get_current_triswitch(s_option), &in, &out);
 
-  /* Coordinates of the vertices */
+  /* Final meshing */
 
-  meshes_3D_load_vertices(&out, "Points", &s_mesh->nvertex, &s_mesh->ndim,
-                          (void**) &s_mesh->points);
+  AMesh* amesh = meshes_3D_load_vertices(&out);
 
-  meshes_3D_load_vertices(&out, "Tetrahedra", &s_mesh->nmesh, &s_mesh->ncorner,
-                          (void**) &s_mesh->meshes);
-
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: meshes_3D_free(&in);
+  meshes_3D_free(&in);
   meshes_3D_free(&out);
-  return (error);
+  return amesh;
 }
 
 /****************************************************************************/
 /*!
  **  Save the meshing in keypair
  **
- ** \param[in]  s_mesh    SPDE_Mesh structure
+ ** \param[in]  amesh     AMesh structure
  ** \param[in]  icov0     Rank of the covariance corresponding to the Mesh
  **
  *****************************************************************************/
-static void st_save_meshing_keypair(SPDE_Mesh *s_mesh, int icov0)
+static void st_save_meshing_keypair(AMesh *amesh, int icov0)
 {
   int flag_save;
 
   flag_save = (int) get_keypone("Meshing_External_Save", 0);
   if (!flag_save) return;
 
+  MeshEStandard* ameshSt = dynamic_cast<MeshEStandard*>(amesh);
+  if (ameshSt == nullptr) return;
+
   (void) gslSPrintf(NAME, "Meshing_External_Points.%d", icov0 + 1);
-  set_keypair(NAME, 1, s_mesh->nvertex, s_mesh->ndim, s_mesh->points);
+  set_keypair(NAME, 1, ameshSt->getNApices(), ameshSt->getNDim(),
+              ameshSt->getPointList().data());
   (void) gslSPrintf(NAME, "Meshing_External_Meshes.%d", icov0 + 1);
-  set_keypair_int(NAME, 1, s_mesh->nmesh, s_mesh->ncorner, s_mesh->meshes);
+  set_keypair_int(NAME, 1, ameshSt->getNMeshes(), ameshSt->getNApexPerMesh(),
+                  ameshSt->getMeshList().data());
 }
 
 /****************************************************************************/
 /*!
  **  Load the meshes
  **
- ** \return  Error return code
+ ** \return  Pointer to the newly created AMesh structure
  **
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
  ** \param[in]  gext       Array of domain dilation
  ** \param[in]  s_option   SPDE_Option structure
  **
- ** \param[in,out]  s_mesh SPDE_Mesh structure
- **
  ** \remarks The option 'flag_force' forces to use the regular meshing rather
  ** \remarks than the Turbo one
  **
  *****************************************************************************/
-static int st_load_all_meshes(Db *dbin,
-                              Db *dbout,
-                              const VectorDouble &gext,
-                              SPDE_Option &s_option,
-                              SPDE_Mesh *s_mesh)
+static AMesh* st_load_all_meshes(Db *dbin,
+                                 Db *dbout,
+                                 const VectorDouble &gext,
+                                 SPDE_Option &s_option)
 {
-  int *is_dupl, ndim_loc, flag_sphere, nb_dupl, flag_force;
-  Db *dbloc;
-  DbGrid* dbgrid;
-
-  flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
+  bool flag_force = (int) get_keypone("Force_Regular_Meshing", 0);
   if (VERBOSE)
   {
     message("Generating the meshes\n");
@@ -6361,23 +5819,10 @@ static int st_load_all_meshes(Db *dbin,
       message("- Output targets do not participate to the Meshing\n");
   }
 
-  ndim_loc = 0;
+  int ndim_loc = 0;
   if (dbin != nullptr) ndim_loc = MAX(ndim_loc, dbin->getNDim());
   if (dbout != nullptr) ndim_loc = MAX(ndim_loc, dbout->getNDim());
-  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
-
-  // Manage the mask 
-
-  if (s_mesh->vercoloc != nullptr)
-  {
-    nb_dupl = s_mesh->vercoloc->ndupl;
-    is_dupl = s_mesh->vercoloc->dupl_dabs;
-  }
-  else
-  {
-    nb_dupl = 0;
-    is_dupl = nullptr;
-  }
+  bool flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
 
   // Processing
 
@@ -6386,8 +5831,7 @@ static int st_load_all_meshes(Db *dbin,
 
     /* Particular case of data on the sphere */
 
-    if (st_load_meshes_2D_sph(VERBOSE, dbin, dbout, nb_dupl, is_dupl, s_option,
-                              s_mesh)) return (1);
+    return st_load_meshes_2D_sph(VERBOSE, dbin, dbout, s_option);
   }
   else
   {
@@ -6397,7 +5841,7 @@ static int st_load_all_meshes(Db *dbin,
     /* Check that a single file must be meshed and that it corresponds */
     /* to a grid */
 
-    dbloc = NULL;
+    Db* dbloc = NULL;
     if (!flag_force)
     {
       if (((!S_DECIDE.flag_dbin || !S_DECIDE.flag_mesh_dbin) && dbout->isGrid()))
@@ -6405,7 +5849,7 @@ static int st_load_all_meshes(Db *dbin,
       if (((!S_DECIDE.flag_dbout || !S_DECIDE.flag_mesh_dbout) && dbin->isGrid()))
         dbloc = dbin;
     }
-    dbgrid = dynamic_cast<DbGrid*>(dbloc);
+    DbGrid* dbgrid = dynamic_cast<DbGrid*>(dbloc);
 
     if (dbloc != NULL)
     {
@@ -6415,15 +5859,15 @@ static int st_load_all_meshes(Db *dbin,
 
       if (ndim_loc == 1)
       {
-        if (meshes_turbo_1D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
+        return meshes_turbo_1D_grid_build(VERBOSE, dbgrid);
       }
       else if (ndim_loc == 2)
       {
-        if (meshes_turbo_2D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
+        return meshes_turbo_2D_grid_build(VERBOSE, dbgrid);
       }
       else if (ndim_loc == 3)
       {
-        if (meshes_turbo_3D_grid_build(VERBOSE, dbgrid, s_mesh)) return (1);
+        return meshes_turbo_3D_grid_build(VERBOSE, dbgrid);
       }
 
     }
@@ -6433,37 +5877,19 @@ static int st_load_all_meshes(Db *dbin,
 
       if (ndim_loc == 1)
       {
-        if (st_load_meshes_1D(VERBOSE, dbin, dbout, gext, nb_dupl, is_dupl,
-                              s_option, s_mesh)) return (1);
+        return st_load_meshes_1D(VERBOSE, dbin, dbout, gext);
       }
       else if (ndim_loc == 2)
       {
-        if (st_load_meshes_2D(VERBOSE, dbin, dbout, gext, nb_dupl, is_dupl,
-                              s_option, s_mesh)) return (1);
+        return st_load_meshes_2D(VERBOSE, dbin, dbout, gext, s_option);
       }
       else if (ndim_loc == 3)
       {
-        if (st_load_meshes_3D(VERBOSE, dbin, dbout, gext, nb_dupl, is_dupl,
-                              s_option, s_mesh)) return (1);
+        return st_load_meshes_3D(VERBOSE, dbin, dbout, gext, s_option);
       }
     }
   }
-  if (s_mesh->nvertex <= 0 || s_mesh->nmesh <= 0) return (1);
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Check if External Meshing has been defined for the current covariance
- **
- ** \return 1 if an external mesh has been defined; 0 otherwise
- **
- ** \param[in] icov0    Rank of the current Covariance
- **
- *****************************************************************************/
-static int st_is_external_mesh_defined(int icov0)
-{
-  return (S_EXTERNAL_MESH[icov0] != nullptr);
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -6483,67 +5909,7 @@ static int st_is_external_AQ_defined(int icov0)
 
 /****************************************************************************/
 /*!
- **  Copy the contents of the internal S_EXTERNAL_MESH into an output SPDE_Mesh
- **
- **  Error retur code
- **
- ** \param[in]  s_mesh   Output SPDE_Mesh
- ** \param[in]  icov0    Rank of the current Covariance
- **
- *****************************************************************************/
-int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
-{
-  int size;
-
-  if (S_EXTERNAL_MESH[icov0] == nullptr)
-  {
-    messerr("The Internal SPDE_Mesh must be allocated before using it");
-    return (1);
-  }
-  if (s_mesh == nullptr)
-  {
-    messerr("The output SPDE_Mesh must already exist");
-    return (1);
-  }
-
-  s_mesh->ndim = S_EXTERNAL_MESH[icov0]->ndim;
-  s_mesh->ncorner = S_EXTERNAL_MESH[icov0]->ncorner;
-  s_mesh->nvertex = S_EXTERNAL_MESH[icov0]->nvertex;
-  s_mesh->nmesh = S_EXTERNAL_MESH[icov0]->nmesh;
-
-  /* Copy the array 'points' */
-
-  s_mesh->points = (double*) mem_free((char* ) s_mesh->points);
-  size = S_EXTERNAL_MESH[icov0]->nvertex * S_EXTERNAL_MESH[icov0]->ndim;
-  s_mesh->points = (double*) mem_alloc(sizeof(double) * size, 0);
-  if (s_mesh->points == nullptr) return (1);
-  for (int i = 0; i < size; i++)
-    s_mesh->points[i] = S_EXTERNAL_MESH[icov0]->points[i];
-
-  /* Copy the array 'meshes' */
-
-  s_mesh->meshes = (int*) mem_free((char* ) s_mesh->meshes);
-  size = S_EXTERNAL_MESH[icov0]->nmesh * S_EXTERNAL_MESH[icov0]->ncorner;
-  s_mesh->meshes = (int*) mem_alloc(sizeof(double) * size, 0);
-  if (s_mesh->meshes == nullptr) return (1);
-  for (int i = 0; i < size; i++)
-    s_mesh->meshes[i] = S_EXTERNAL_MESH[icov0]->meshes[i];
-
-  if (S_EXTERNAL_MESH[icov0]->vertype != nullptr)
-  {
-    s_mesh->vertype = vertype_manage(1, NULL, NULL, s_mesh->nvertex);
-    if (s_mesh->vertype == nullptr) return (1);
-
-    for (int i = 0; i < S_EXTERNAL_MESH[icov0]->nvertex; i++)
-      s_mesh->vertype->vt[i] = S_EXTERNAL_MESH[icov0]->vertype->vt[i];
-  }
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Copy the contents of the internal S_EXTERNAL_AQ into an output SPDE_Mesh
+ **  Copy the contents of the internal S_EXTERNAL_AQ into an output Matelem
  **
  **  Error retur code
  **
@@ -6553,12 +5919,12 @@ int spde_external_mesh_copy(SPDE_Mesh *s_mesh, int icov0)
  *****************************************************************************/
 int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
 {
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
 
-  s_mesh = matelem.s_mesh;
+  amesh = matelem.amesh;
   if (S_EXTERNAL_MESH[icov0] == nullptr)
   {
-    messerr("The Internal SPDE_Mesh must be allocated before using it");
+    messerr("The Internal AMesh must be allocated before using it");
     return (1);
   }
   if (S_EXTERNAL_A[icov0] == nullptr)
@@ -6571,15 +5937,13 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
     messerr("The External Q must be allocated before using it");
     return (1);
   }
-  if (s_mesh == nullptr)
+  if (amesh == nullptr)
   {
-    messerr("The output SPDE_Mesh must already exist");
+    messerr("The output AMesh must already exist");
     return (1);
   }
 
-  s_mesh->ndim = S_EXTERNAL_MESH[icov0]->ndim;
-  s_mesh->nvertex = S_EXTERNAL_MESH[icov0]->nvertex;
-  s_mesh->nmesh = S_EXTERNAL_MESH[icov0]->nmesh;
+  amesh = S_EXTERNAL_MESH[icov0];
 
   /* Copy the sparse matrix 'QC' */
 
@@ -6587,25 +5951,15 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
   matelem.QC->Q = cs_duplicate(S_EXTERNAL_Q[icov0]);
   matelem.Aproj = cs_duplicate(S_EXTERNAL_A[icov0]);
 
-  if (S_EXTERNAL_MESH[icov0]->vertype != nullptr)
-  {
-    s_mesh->vertype = vertype_manage(1, NULL, NULL, s_mesh->nvertex);
-    if (s_mesh->vertype == nullptr) return (1);
-
-    for (int i = 0; i < S_EXTERNAL_MESH[icov0]->nvertex; i++)
-      s_mesh->vertype->vt[i] = S_EXTERNAL_MESH[icov0]->vertype->vt[i];
-  }
-
   return (0);
 }
 
 /****************************************************************************/
 /*!
- **  Load the SPDE_Mesh structure
+ **  Load the AMesh structure
  **
- ** \return  Error return code
+ ** \return  Pointer on the newly allocated AMesh
  **
- ** \param[in,out] s_mesh  Pointer to SPDE_Mesh to be loaded
  ** \param[in]  verbose    Verbose option
  ** \param[in]  dbin       Db structure for the conditioning data
  ** \param[in]  dbout      Db structure of the grid
@@ -6613,190 +5967,30 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
  ** \param[in]  s_option   SPDE_Option structure
  **
  *****************************************************************************/
-int spde_mesh_load(SPDE_Mesh *s_mesh,
-                   int verbose,
-                   Db *dbin,
-                   Db *dbout,
-                   const VectorDouble &gext,
-                   SPDE_Option &s_option)
+AMesh* spde_mesh_load(int verbose,
+                      Db *dbin,
+                      Db *dbout,
+                      const VectorDouble &gext,
+                      SPDE_Option &s_option)
 {
-  int icov0;
-
-  if (s_mesh == nullptr) return (0);
   VERBOSE = verbose;
-  icov0 = st_get_current_icov();
 
-  /* Load the meshes */
+  /* Load the meshing */
 
-  if (st_is_external_mesh_defined(icov0))
+  AMesh* amesh = st_load_all_meshes(dbin, dbout, gext, s_option);
+
+  if (amesh != nullptr)
   {
-    spde_external_mesh_copy(s_mesh, icov0);
+    int icov0 = st_get_current_icov();
+    st_save_meshing_keypair(amesh, icov0);
   }
-  else
-  {
 
-    /* Look for duplicates */
-
-    s_mesh->vercoloc = vercoloc_manage(verbose, 1, dbin, dbout,
-                                       S_DECIDE.flag_mesh_dbin, NULL);
-    if (s_mesh->vercoloc == nullptr) return (1);
-
-    /* Load the meshing */
-
-    if (st_load_all_meshes(dbin, dbout, gext, s_option, s_mesh)) return (1);
-
-    /* Manage the Vertype structure */
-
-    s_mesh->vertype = vertype_manage(1, NULL, s_mesh->vercoloc,
-                                     s_mesh->nvertex);
-    if (s_mesh->vertype == nullptr) return (1);
-
-    /* Load the vertex identification array */
-
-    st_vertype_load(s_mesh->vertype, s_mesh->vercoloc, dbin, dbout, s_option);
-  }
-  st_save_meshing_keypair(s_mesh, icov0);
-
-  return (0);
+  return amesh;
 }
 
 /****************************************************************************/
 /*!
- **  Find the index of a duplicate
- **
- ** \return Rank of the matching duplicate or -1
- **
- ** \param[in]  rank      Rank of the sample
- ** \param[in]  ndupl     Number of duplicates
- ** \param[in]  dupl      Array of duplicates
- **
- *****************************************************************************/
-static int st_find_in_duplicate(int rank, int ndupl, int *dupl)
-{
-  if (ndupl <= 0 || dupl == nullptr) return (-1);
-  if (!S_DECIDE.flag_mesh_dbin || !S_DECIDE.flag_mesh_dbout) return (-1);
-  for (int i = 0; i < ndupl; i++)
-  {
-    if (dupl[i] == rank) return (i);
-  }
-  return (-1);
-}
-
-/****************************************************************************/
-/*!
- **  Define the Vertype structure from External information
- **
- ** \param[in]  s_mesh    Pointer on the already existing SPDE_Mesh structure
- ** \param[in]  nvertex   Number of vertices
- ** \param[in]  nbin      Number of vertices dedicated to the Input File
- ** \param[in]  nbout     Number of vertices dedicated to the Output File
- ** \param[in]  ndupl     Number of duplicates
- ** \param[in]  order     1: dbin then dbout; 2: dbout then dbin
- ** \param[in]  dupl_in   Array of duplicates in dbin (Dimension: ndupl)
- ** \param[in]  dupl_out  Array of duplicates in dbout (Dimension: ndupl)
- **
- *****************************************************************************/
-static int st_external_vertype_define(SPDE_Mesh *s_mesh,
-                                      int nvertex,
-                                      int nbin,
-                                      int nbout,
-                                      int ndupl,
-                                      int order,
-                                      int *dupl_in,
-                                      int *dupl_out)
-{
-  int vertype_loc, ijoint, ecr;
-  Vertype *vertype;
-
-  /* Initializations */
-
-  s_mesh->vertype = vertype = vertype_manage(1, NULL, NULL, nvertex);
-  if (s_mesh->vertype == nullptr) return (1);
-  s_mesh->vercoloc = vercoloc_from_external(ndupl, dupl_in, dupl_out);
-  if (s_mesh->vercoloc == nullptr) return (1);
-  vertype->order = order;
-  vertype->nb1 = 0;
-  vertype->nb2 = 0;
-
-  /* Dispatch according to the order */
-
-  vertype_loc = VT_FREE;
-  ecr = 0;
-  if (order == 1)
-  {
-
-    /* Dbin followed by Dbout */
-
-    if (S_DECIDE.flag_mesh_dbin)
-    {
-      for (int i = 0; i < nbin; i++)
-      {
-        ijoint = st_find_in_duplicate(i, ndupl, dupl_in);
-        if (ijoint < 0)
-        {
-          vertype_loc = VT_HARD;
-        }
-        else
-        {
-          vertype_loc = VT_HARD | VT_OUTPUT;
-        }
-        vertype->vt[ecr++] = VT_INPUT | vertype_loc;
-        vertype->nb1++;
-      }
-    }
-
-    for (int i = 0; i < nbout; i++)
-    {
-      ijoint = st_find_in_duplicate(i, ndupl, dupl_out);
-      if (ijoint >= 0) continue;
-      vertype_loc = VT_FREE;
-      vertype->vt[ecr++] = VT_OUTPUT | vertype_loc;
-      vertype->nb2++;
-    }
-  }
-  else
-  {
-
-    /* Dbout followed by Dbin */
-
-    for (int i = 0; i < nbout; i++)
-    {
-      ijoint = st_find_in_duplicate(i, ndupl, dupl_out);
-      if (ijoint < 0)
-      {
-        vertype_loc = VT_FREE;
-      }
-      else if (S_DECIDE.flag_mesh_dbin)
-      {
-        vertype_loc = VT_HARD | VT_INPUT;
-      }
-      vertype->vt[ecr++] = VT_OUTPUT | vertype_loc;
-      vertype->nb1++;
-    }
-
-    if (S_DECIDE.flag_mesh_dbin)
-    {
-      for (int i = 0; i < nbin; i++)
-      {
-        ijoint = st_find_in_duplicate(i, ndupl, dupl_in);
-        if (ijoint >= 0) continue;
-        vertype_loc = VT_HARD;
-        vertype->vt[ecr++] = VT_INPUT | vertype_loc;
-        vertype->nb2++;
-      }
-    }
-  }
-
-  /* Optional printout */
-
-  if (VERBOSE) st_vertype_print(vertype);
-
-  return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Manage the contents of the External SPDE_Mesh structure used for
+ **  Manage the contents of the External AMesh structure used for
  **  storing external meshing information
  **
  ** \param[in]  mode      1 for storing; -1 for deallocating
@@ -6830,55 +6024,20 @@ int spde_external_mesh_define(int mode,
                               int *meshes,
                               double *points)
 {
-  int error, size;
-
-  /* Initializations */
-
-  error = 1;
-
-  /* Dispatch */
-
   if (mode > 0)
   {
-    S_EXTERNAL_MESH[icov0] = spde_mesh_manage(1, NULL);
-    if (S_EXTERNAL_MESH[icov0] == nullptr) return (1);
+    S_EXTERNAL_MESH[icov0] = nullptr;
 
-    S_EXTERNAL_MESH[icov0]->ndim = ndim;
-    S_EXTERNAL_MESH[icov0]->ncorner = ncorner;
-    S_EXTERNAL_MESH[icov0]->nvertex = nvertex;
-    S_EXTERNAL_MESH[icov0]->nmesh = nmesh;
-
-    size = nvertex * ndim;
-    S_EXTERNAL_MESH[icov0]->points = (double*) mem_alloc(sizeof(double) * size,
-                                                         0);
-    if (S_EXTERNAL_MESH[icov0]->points == nullptr) goto label_end;
-    for (int i = 0; i < size; i++)
-      S_EXTERNAL_MESH[icov0]->points[i] = points[i];
-
-    size = nmesh * ncorner;
-    S_EXTERNAL_MESH[icov0]->meshes = (int*) mem_alloc(sizeof(double) * size, 0);
-    if (S_EXTERNAL_MESH[icov0]->meshes == nullptr) goto label_end;
-    for (int i = 0; i < size; i++)
-      S_EXTERNAL_MESH[icov0]->meshes[i] = meshes[i];
-
-    if (st_external_vertype_define(S_EXTERNAL_MESH[icov0], nvertex, nbin, nbout,
-                                   ndupl, order, dupl_in, dupl_out))
-      goto label_end;
+    MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
+    if (mesh != nullptr)
+      mesh->reset(ndim, ncorner, nvertex, nmesh, points, meshes);
   }
   else
   {
-    S_EXTERNAL_MESH[icov0] = spde_mesh_manage(-1, S_EXTERNAL_MESH[icov0]);
+    S_EXTERNAL_MESH[icov0] = spde_mesh_delete(S_EXTERNAL_MESH[icov0]);
   }
 
-  /* Set the error retun code */
-
-  error = 0;
-
-  label_end: if (error)
-    spde_external_mesh_define(-1, icov0, ndim, ncorner, nvertex, nmesh, nbin,
-                              nbout, ndupl, order, dupl_in, dupl_out, meshes,
-                              points);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -6915,22 +6074,10 @@ int spde_external_AQ_define(int mode,
                             cs *A,
                             cs *Q)
 {
-  int error;
-
-  /* Initializations */
-
-  error = 1;
-
-  /* Dispatch */
-
   if (mode > 0)
   {
-    S_EXTERNAL_MESH[icov0] = spde_mesh_manage(1, NULL);
+    S_EXTERNAL_MESH[icov0] = nullptr;
     if (S_EXTERNAL_MESH[icov0] == nullptr) return (1);
-
-    S_EXTERNAL_MESH[icov0]->ndim = ndim;
-    S_EXTERNAL_MESH[icov0]->nvertex = nvertex;
-    S_EXTERNAL_MESH[icov0]->nmesh = nmesh;
 
     S_EXTERNAL_Q[icov0] = cs_duplicate(Q);
     if (S_EXTERNAL_Q[icov0] == nullptr) return (1);
@@ -6938,29 +6085,19 @@ int spde_external_AQ_define(int mode,
     S_EXTERNAL_A[icov0] = cs_duplicate(A);
     if (S_EXTERNAL_A[icov0] == nullptr) return (1);
 
-    if (st_external_vertype_define(S_EXTERNAL_MESH[icov0], nvertex, nbin, nbout,
-                                   ndupl, order, dupl_in, dupl_out))
-      goto label_end;
   }
   else
   {
     S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
-    S_EXTERNAL_MESH[icov0] = spde_mesh_manage(-1, S_EXTERNAL_MESH[icov0]);
+    S_EXTERNAL_MESH[icov0] = spde_mesh_delete(S_EXTERNAL_MESH[icov0]);
   }
 
-  /* Set the error retun code */
-
-  error = 0;
-
-  label_end: if (error)
-    spde_external_AQ_define(-1, icov0, ndim, nvertex, nmesh, nbin, nbout, ndupl,
-                            order, dupl_in, dupl_out, A, Q);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
 /*!
- **  Assign fields of the SPDE_Mesh structure which would have been calculated
+ **  Assign fields of the AMesh structure which would have been calculated
  **  elsewhere
  **
  ** \param[in]  ndim      Space dimension
@@ -6970,10 +6107,10 @@ int spde_external_AQ_define(int mode,
  ** \param[in]  meshes    Array containing the meshes
  ** \param[in]  points    Array containing the vertex coordinates
  **
- ** \param[in,out]  s_mesh   Pointer to SPDE_Mesh to be assigned
+ ** \param[in,out]  amesh   Pointer to AMesh to be assigned
  **
  *****************************************************************************/
-void spde_mesh_assign(SPDE_Mesh *s_mesh,
+void spde_mesh_assign(AMesh *amesh,
                       int ndim,
                       int ncorner,
                       int nvertex,
@@ -6982,27 +6119,14 @@ void spde_mesh_assign(SPDE_Mesh *s_mesh,
                       double *points,
                       int /*verbose*/)
 {
-  int number;
-  static int debug = 0;
+  static bool debug = false;
 
-  s_mesh->ndim = ndim;
-  s_mesh->ncorner = ncorner;
-  s_mesh->nvertex = nvertex;
-  s_mesh->nmesh = nmesh;
+  if (amesh != nullptr) delete amesh;
+  MeshEStandard* ameshSt = nullptr;
+  ameshSt->reset(ndim, ncorner, nvertex, nmesh, points, meshes);
+  amesh = dynamic_cast<AMesh*>(ameshSt);
 
-  // Arrays meshes and points must be copied in the OLD version
-  // as the input argument may be a VectorDouble (freed automatically)
-
-  number = nmesh * ncorner;
-  s_mesh->meshes = (int*) mem_alloc(sizeof(int) * number, 1);
-  for (int i = 0; i < number; i++)
-    s_mesh->meshes[i] = meshes[i];
-  number = ndim * nvertex;
-  s_mesh->points = (double*) mem_alloc(sizeof(double) * number, 1);
-  for (int i = 0; i < number; i++)
-    s_mesh->points[i] = points[i];
-
-  if (debug) st_print_mesh(s_mesh);
+  if (debug) amesh->display();
 }
 
 /****************************************************************************/
@@ -7022,11 +6146,6 @@ int spde_prepar(Db *dbin,
                 const VectorDouble &gext,
                 SPDE_Option &s_option)
 {
-  int error, nblin, flag_AQ_defined;
-
-  /* Initializations */
-
-  error = 1;
   st_calcul_init(st_get_ndim());
 
   /* Title (optional) */
@@ -7043,7 +6162,7 @@ int spde_prepar(Db *dbin,
 
     if (S_DECIDE.flag_dbin && S_DECIDE.flag_several && st_is_model_nugget())
     {
-      if (st_fill_Bnugget(dbin)) goto label_end;
+      if (st_fill_Bnugget(dbin)) return 1;
     }
 
     /* Loop on the covariances */
@@ -7052,42 +6171,32 @@ int spde_prepar(Db *dbin,
     {
       st_set_current_icov(icov);
       SPDE_Matelem &Matelem = spde_get_current_matelem(icov);
-      flag_AQ_defined = st_is_external_AQ_defined(icov);
+      bool flag_AQ_defined = st_is_external_AQ_defined(icov);
 
       /* Title (optional) */
 
       if (VERBOSE) st_title(1, 1, 1, "Preparing the Process");
 
-      /* Initialize the structures */
-
-      Matelem.s_mesh = spde_mesh_manage(1, NULL);
-      if (Matelem.s_mesh == nullptr) goto label_end;
-
-      /* Load the SPDE_Mesh structure */
+      /* Load the AMesh structure */
 
       if (!flag_AQ_defined)
       {
-        if (spde_mesh_load(Matelem.s_mesh, VERBOSE, dbin, dbout, gext,
-                           s_option)) goto label_end;
+        Matelem.amesh = spde_mesh_load(VERBOSE, dbin, dbout, gext, s_option);
+        if (Matelem.amesh == nullptr) return 1;
       }
-
-      // Locally convert from old to new Meshing
-
-      MeshEStandard *amesh = new MeshEStandard();
-      amesh->convertFromOldMesh(Matelem.s_mesh, 0);
 
       /* Load External Q (if any) */
 
       if (flag_AQ_defined)
       {
-        if (spde_external_AQ_copy(Matelem, icov)) goto label_end;
+        if (spde_external_AQ_copy(Matelem, icov)) return 1;
       }
 
       /* Prepare the array of sparse matrices (without nugget effect) */
 
       if (S_DECIDE.flag_dbin && S_DECIDE.flag_several && !st_is_model_nugget())
       {
-        if (st_fill_Bhetero(dbin, dbout)) goto label_end;
+        if (st_fill_Bhetero(dbin, dbout)) return 1;
       }
 
       /* Preparation in non-stationary case */
@@ -7095,7 +6204,7 @@ int spde_prepar(Db *dbin,
       if (st_get_model()->isNoStat() && !flag_AQ_defined)
       {
         const ANoStat *nostat = st_get_model()->getNoStat();
-        nostat->attachToMesh(amesh);
+        nostat->attachToMesh(Matelem.amesh);
       }
 
       /* Prepare the projection matrix */
@@ -7104,8 +6213,8 @@ int spde_prepar(Db *dbin,
       {
         if ((S_DECIDE.flag_several && !flag_AQ_defined) || !S_DECIDE.flag_mesh_dbin)
         {
-          Matelem.Aproj = amesh->getMeshToDb(dbin, false);
-          if (Matelem.Aproj == nullptr) goto label_end;
+          Matelem.Aproj = Matelem.amesh->getMeshToDb(dbin, false);
+          if (Matelem.Aproj == nullptr) return 1;
           st_keypair_cs("Aproj", Matelem.Aproj, icov + 1, 0, 0, 0, 0);
         }
       }
@@ -7114,28 +6223,28 @@ int spde_prepar(Db *dbin,
 
       if (S_DECIDE.flag_dbin && S_DECIDE.flag_several)
       {
-        if (st_fill_Isill()) goto label_end;
+        if (st_fill_Isill()) return 1;
       }
 
       /* Prepare the simulation environment per structure */
 
       if (S_DECIDE.flag_case == CASE_SIMULATE)
       {
-        if (st_fill_Csill()) goto label_end;
+        if (st_fill_Csill()) return 1;
       }
 
       /* Build all relevant matrices */
 
       if (!flag_AQ_defined)
       {
-        if (spde_build_matrices(st_get_model(), VERBOSE)) goto label_end;
+        if (spde_build_matrices(st_get_model(), VERBOSE)) return 1;
       }
 
       /* Build additional matrices */
 
       if (S_DECIDE.flag_Q && S_DECIDE.flag_dbin)
       {
-        if (st_build_QCov(Matelem)) goto label_end;
+        if (st_build_QCov(Matelem)) return 1;
       }
 
       /* Partially free the SP_Mat structure */
@@ -7144,18 +6253,18 @@ int spde_prepar(Db *dbin,
 
       /* Building simulation or Kriging environment */
 
-      Matelem.qsimu = st_qsimu_manage(1, Matelem.s_mesh, NULL);
-      if (Matelem.qsimu == nullptr) goto label_end;
+      Matelem.qsimu = st_qsimu_manage(1, Matelem.amesh, NULL);
+      if (Matelem.qsimu == nullptr) return 1;
 
       /* Prepare the Chebychev simulation environment */
 
       if (S_DECIDE.simu_cheb)
       {
-        nblin = static_cast<int>(Calcul.blin.size());
+        int nblin = static_cast<int>(Calcul.blin.size());
         Matelem.s_cheb = spde_cheb_manage(1, VERBOSE, -0.5, nblin,
                                           Calcul.blin.data(), Matelem.S,
                                           NULL);
-        if (Matelem.s_cheb == nullptr) goto label_end;
+        if (Matelem.s_cheb == nullptr) return 1;
       }
 
       /* Verbose output (optional) */
@@ -7164,13 +6273,9 @@ int spde_prepar(Db *dbin,
     }
   }
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: st_set_current_igrf(0);
+  st_set_current_igrf(0);
   st_set_current_icov(0);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -7242,7 +6347,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble &gext)
  **
  ** \returns 1 if the intersection is not empty; 0 otherwise
  **
- ** \param[in]  s_mesh    SPDE_Mesh structure
+ ** \param[in]  amesh     AMesh structure
  ** \param[in]  coor      Point coordinates (Dimension: ndim)
  ** \param[in]  caux      Working array (Dimension: ndim)
  ** \param[in]  ndim      Comon space dimension between coor and s_mesh
@@ -7252,7 +6357,7 @@ static void st_environ_print(const Db *dbout, const VectorDouble &gext)
  ** \remarks This function must not be called if on a sphere
  **
  *****************************************************************************/
-static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
+static bool is_in_mesh_neigh(AMesh *amesh,
                              double *coor,
                              double *caux,
                              int ndim,
@@ -7264,14 +6369,14 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
 
   /* Initializations */
 
-  ncorner = s_mesh->ncorner;
+  ncorner = amesh->getNApexPerMesh();
 
   /* Check that at least one mesh vertex belongs to the point neighborhood */
 
   for (int icorn = 0; icorn < ncorner; icorn++)
   {
     for (int idim = 0; idim < ndim; idim++)
-      caux[idim] = POINTS(OLD_MESHES(imesh,icorn), idim);
+      caux[idim] = amesh->getCoor(imesh, icorn, idim);
     if (ut_distance(ndim, coor, caux) <= radius) return (1);
   }
 
@@ -7286,9 +6391,8 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
       top = bot = 0.;
       for (int idim = 0; idim < ndim; idim++)
       {
-        delta = (POINTS(OLD_MESHES(imesh,jcorn), idim)
-            - POINTS(OLD_MESHES(imesh,icorn), idim));
-        top += delta * (POINTS(OLD_MESHES(imesh,icorn),idim) - coor[idim]);
+        delta = (amesh->getCoor(imesh, jcorn, idim) - amesh->getCoor(imesh, icorn, idim));
+        top += delta * (amesh->getCoor(imesh, icorn,idim) - coor[idim]);
         bot += delta * delta;
       }
       alpha = top / bot;
@@ -7301,8 +6405,8 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
 
       for (int idim = 0; idim < ndim; idim++)
       {
-        ref = POINTS(OLD_MESHES(imesh,icorn), idim);
-        caux[idim] = ref + alpha * (POINTS(OLD_MESHES(imesh,jcorn),idim) - ref);
+        ref = amesh->getCoor(imesh, icorn, idim);
+        caux[idim] = ref + alpha * (amesh->getCoor(imesh, jcorn, idim) - ref);
       }
 
       // Calculate the distance between the projection and the point
@@ -7321,37 +6425,29 @@ static bool is_in_mesh_neigh(SPDE_Mesh *s_mesh,
  **
  ** \return  Array of 3-D coordinates
  **
- ** \param[in]  s_mesh    SPDE_Mesh structure
+ ** \param[in]  amesh     AMesh structure
  ** \param[in]  zcur      Array of results
  **
- ** \param[out] np3d      Number of 3-D points
- **
  *****************************************************************************/
-static double* st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
+static VectorDouble st_get_coords_3D(AMesh *amesh, double *zcur)
 {
-  double *p3d, *points, value;
-  int error, ndim, np, nvertex;
+  int ndim = 3;
 
-  /* Initializations */
-
-  error = 1;
-  ndim = 3;
-  *np3d = 0;
-  p3d = nullptr;
-  nvertex = s_mesh->nvertex;
-  points = s_mesh->points;
+  VectorDouble points;
+  int nvertex = amesh->getNApices();
+  MeshEStandard* ameshSt = dynamic_cast<MeshEStandard*>(amesh);
+  if (ameshSt != nullptr) points = ameshSt->getPointList();
 
   /* Core allocation */
 
-  p3d = (double*) mem_alloc(sizeof(double) * ndim * nvertex, 0);
-  if (p3d == nullptr) goto label_end;
+  VectorDouble p3d(ndim * nvertex, 0);
 
   /* Load the array of 3-D coordinates */
 
-  np = 0;
+  int np = 0;
   for (int i = 0; i < nvertex; i++)
   {
-    value = zcur[i];
+    double value = zcur[i];
     if (FFFF(value)) continue;
     p3d[3 * np + 0] = points[2 * i + 0];
     p3d[3 * np + 1] = points[2 * i + 1];
@@ -7363,17 +6459,10 @@ static double* st_get_coords_3D(SPDE_Mesh *s_mesh, double *zcur, int *np3d)
 
   if (np != nvertex)
   {
-    p3d = (double*) mem_realloc((char* ) p3d, sizeof(double) * ndim * np, 0);
-    if (p3d == nullptr) goto label_end;
+    p3d.resize(ndim * np);
   }
-  *np3d = np;
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: if (error) p3d = (double*) mem_free((char* ) p3d);
-  return (p3d);
+  return p3d;
 }
 
 /****************************************************************************/
@@ -7587,20 +6676,19 @@ int kriging2D_spde(Db *dbin,
                    int verbose,
                    int *nmesh_arg,
                    int *nvertex_arg,
-                   int **meshes_arg,
-                   double **points_arg)
+                   VectorInt& meshes_arg,
+                   VectorDouble& points_arg)
 {
-  int error, ncur, size, ndata, nvar, ncova;
+  int error, ncur, ndata, nvar, ncova;
   double *zcur, *work, *data;
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
+  MeshEStandard* ameshSt;
 
   /* Initializations */
 
   error = 1;
   zcur = work = data = nullptr;
   *nmesh_arg = *nvertex_arg = 0;
-  *meshes_arg = nullptr;
-  *points_arg = nullptr;
 
   /* Preliminary checks */
 
@@ -7628,14 +6716,14 @@ int kriging2D_spde(Db *dbin,
   st_set_current_igrf(0);
   {
     SPDE_Matelem &Matelem = spde_get_current_matelem(-1);
-    s_mesh = Matelem.s_mesh;
+    amesh = Matelem.amesh;
 
     /* Core allocation */
 
     nvar = st_get_nvar();
     ncova = st_get_ncova_max();
     ndata = dbin->getSampleNumber(true);
-    ncur = s_mesh->nvertex;
+    ncur = amesh->getNApices();
     zcur = (double*) mem_alloc(sizeof(double) * ncur * nvar, 0);
     if (zcur == nullptr) goto label_end;
     work = (double*) mem_alloc(sizeof(double) * ncur, 0);
@@ -7646,7 +6734,7 @@ int kriging2D_spde(Db *dbin,
     /* Load the data */
 
     st_init_array(ncova, nvar, ncur, 1, zcur);
-    st_load_data(s_mesh, dbin, NULL, s_option, -1, data, zcur);
+    st_load_data(amesh, dbin, NULL, s_option, -1, data, zcur);
 
     /* for estimation */
 
@@ -7656,19 +6744,18 @@ int kriging2D_spde(Db *dbin,
     }
     else
     {
-      if (st_kriging(s_mesh, data, zcur)) goto label_end;
+      if (st_kriging(amesh, data, zcur)) goto label_end;
     }
   }
 
   /* Create the returned array */
 
-  *points_arg = st_get_coords_3D(s_mesh, zcur, nvertex_arg);
-  size = s_mesh->nmesh * s_mesh->ncorner;
-  *meshes_arg = (int*) mem_alloc(sizeof(int) * size, 0);
-  if (*meshes_arg == nullptr) goto label_end;
-  (void) memcpy((char*) *meshes_arg, (char*) s_mesh->meshes,
-                sizeof(int) * size);
-  *nmesh_arg = s_mesh->nmesh;
+  points_arg = st_get_coords_3D(amesh, zcur);
+  if (! points_arg.empty()) *nvertex_arg = (int) points_arg.size() / 3;
+
+  ameshSt = dynamic_cast<MeshEStandard*>(amesh);
+  if (ameshSt != nullptr) meshes_arg = ameshSt->getMeshList();
+  *nmesh_arg = amesh->getNMeshes();
 
   /* Cleaning procedure */
 
@@ -7678,7 +6765,8 @@ int kriging2D_spde(Db *dbin,
 
   error = 0;
 
-  label_end: zcur = (double*) mem_free((char* ) zcur);
+  label_end:
+  zcur = (double*) mem_free((char* ) zcur);
   work = (double*) mem_free((char* ) work);
   data = (double*) mem_free((char* ) data);
   return (error);
@@ -9485,7 +8573,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
  ** \return Pointer to the newly created sparse matrix (or NULL)
  **
  ** \param[in]  db         Db structure
- ** \param[in]  s_mesh     SPDE_Mesh structure
+ ** \param[in]  amesh      AMesh structure
  ** \param[in]  flag_exact Type of test for intersection (See remarks)
  ** \param[in]  radius     Neighborhood radius
  **
@@ -9507,7 +8595,7 @@ static QChol* st_derive_Qc(double s2, QChol *Qc, SPDE_Matelem &Matelem)
  **
  *****************************************************************************/
 cs *db_mesh_neigh(const Db *db,
-                  SPDE_Mesh *s_mesh,
+                  AMesh *amesh,
                   double radius,
                   int flag_exact,
                   int /*verbose*/,
@@ -9526,7 +8614,7 @@ cs *db_mesh_neigh(const Db *db,
   caux = nullptr;
   pts = nullptr;
   Atriplet = A = nullptr;
-  ncorner = s_mesh->ncorner;
+  ncorner = amesh->getNApexPerMesh();
   nech = db->getSampleNumber();
   flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
   if (flag_sphere)
@@ -9550,13 +8638,13 @@ cs *db_mesh_neigh(const Db *db,
   /* Core allocation */
 
   ndimd = db->getNDim();
-  ndimv = s_mesh->ndim;
+  ndimv = amesh->getNDim();
   ndim = MIN(ndimd, ndimv);
   coor = db_sample_alloc(db, ELoc::X);
   if (coor == nullptr) goto label_end;
   caux = db_sample_alloc(db, ELoc::X);
   if (caux == nullptr) goto label_end;
-  pts = (int*) mem_alloc(sizeof(int) * s_mesh->nvertex, 0);
+  pts = (int*) mem_alloc(sizeof(int) * amesh->getNApices(), 0);
   if (pts == nullptr) goto label_end;
 
   /* Loop on the samples */
@@ -9573,20 +8661,20 @@ cs *db_mesh_neigh(const Db *db,
 
     /* Blank out the array of hitting points */
 
-    for (ip = 0; ip < s_mesh->nvertex; ip++)
+    for (ip = 0; ip < amesh->getNApices(); ip++)
       pts[ip] = 0;
 
     /* Loop on the meshes */
 
-    for (int imesh = 0; imesh < s_mesh->nmesh; imesh++)
+    for (int imesh = 0; imesh < amesh->getNMeshes(); imesh++)
     {
       if (flag_exact)
       {
-        for (int icorn = 0; icorn < s_mesh->ncorner; icorn++)
+        for (int icorn = 0; icorn < amesh->getNApexPerMesh(); icorn++)
         {
-          ip = OLD_MESHES(imesh, icorn);
+          ip = amesh->getApex(imesh, icorn);
           for (int idim = 0; idim < ndim; idim++)
-            caux[idim] = POINTS(ip, idim);
+            caux[idim] = amesh->getApexCoor(ip, idim);
           if (ut_distance(ndim, coor, caux) <= radius)
           {
             pts[ip] = 1;
@@ -9596,14 +8684,14 @@ cs *db_mesh_neigh(const Db *db,
       }
       else
       {
-        if (!is_in_mesh_neigh(s_mesh, coor, caux, ndim, imesh, radius))
+        if (!is_in_mesh_neigh(amesh, coor, caux, ndim, imesh, radius))
           continue;
 
         /* The meshing element is in the neighborhood of the sample */
 
         for (int icorn = 0; icorn < ncorner; icorn++)
         {
-          ip = OLD_MESHES(imesh, icorn);
+          ip = amesh->getApex(imesh, icorn);
           pts[ip] = 1;
           if (ip > ip_max) ip_max = ip;
         }
@@ -9613,13 +8701,13 @@ cs *db_mesh_neigh(const Db *db,
     /* Count the number of vertices hit by the point neighborhood */
 
     total = 0.;
-    for (ip = 0; ip < s_mesh->nvertex; ip++)
+    for (ip = 0; ip < amesh->getNApices(); ip++)
       total += pts[ip];
     if (total <= 0.) continue;
 
     /* Add the active vertices to the triplet */
 
-    for (ip = 0; ip < s_mesh->nvertex; ip++)
+    for (ip = 0; ip < amesh->getNApices(); ip++)
     {
       if (pts[ip] <= 0) continue;
       if (ip > ip_max) ip_max = ip;
@@ -9632,8 +8720,8 @@ cs *db_mesh_neigh(const Db *db,
 
   /* Add the extreme value to force dimension */
 
-  if (ip_max < s_mesh->nvertex - 1)
-    cs_force_dimension(Atriplet, jech_max, s_mesh->nvertex);
+  if (ip_max < amesh->getNApices() - 1)
+    cs_force_dimension(Atriplet, jech_max, amesh->getNApices());
 
   /* Core reallocation */
 
@@ -10051,7 +9139,7 @@ static int st_global_gibbs(M2D_Environ *m2denv,
  ** \param[in]  m2denv      M2D_Environ structure
  ** \param[in]  dbc         Db structure containing the constraints
  ** \param[in]  nlayer      Number of layers
- ** \param[in]  verbose     Verbosity flag
+ ** \param[in]  verbose     Verbose flag
  ** \param[in]  ydat        Array of simulations on the data
  **
  ** \param[out] work        Array of tentative values (Dimension: nlayer)
@@ -10541,8 +9629,6 @@ int m2d_gibbs_spde(Db *dbin,
   if (spde_prepar(dbc, dbout, VectorDouble(), s_option)) goto label_end;
   {
     SPDE_Matelem &Matelem = spde_get_current_matelem(0);
-    MeshEStandard amesh;
-    amesh.convertFromOldMesh(Matelem.s_mesh, 0);
     nvertex = st_get_nvertex(0);
 
     /* Core allocation */
@@ -10649,7 +9735,7 @@ int m2d_gibbs_spde(Db *dbin,
 
       /* Store the conditional simulation on the grid */
 
-      Bproj = amesh.getMeshToDb(dbout, false);
+      Bproj = Matelem.amesh->getMeshToDb(dbout, false);
       if (Bproj == nullptr) goto label_end;
       gwork = (double*) mem_alloc(sizeof(double) * ngrid * nlayer, 0);
       if (gwork == nullptr) goto label_end;
