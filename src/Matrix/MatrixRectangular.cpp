@@ -69,9 +69,9 @@ void MatrixRectangular::_setValue(int irow, int icol, double value)
   _rectMatrix[rank] = value;
 }
 
-void MatrixRectangular::_prodVector(const double *in, double *out) const
+void MatrixRectangular::_prodVector(const double *inv, double *outv) const
 {
-  matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), in, out);
+  matrix_product_safe(getNRows(), getNCols(), 1, _rectMatrix.data(), inv, outv);
 }
 
 void MatrixRectangular::_transposeInPlace()

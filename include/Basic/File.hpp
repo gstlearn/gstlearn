@@ -56,7 +56,7 @@ private:
 
 // Skips the Byte Order Mark (BOM) that defines UTF-8 in some text files.
 //https://stackoverflow.com/a/17219495
-GSTLEARN_EXPORT void skipBOM(std::ifstream &in);
+GSTLEARN_EXPORT void skipBOM(std::ifstream &ins);
 GSTLEARN_EXPORT FILE* gslFopen(const char *path, const char* mode);
 GSTLEARN_EXPORT FILE* gslFopen(const String& path, const String& mode);
 GSTLEARN_EXPORT bool gslFileExist(const char *path, const char* mode);

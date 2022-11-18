@@ -21,7 +21,7 @@
 // TODO : add Namespace
 #define SPACES " \t\r\n"
 
-GSTLEARN_EXPORT void skipBOM(std::ifstream &in);
+GSTLEARN_EXPORT void skipBOM(std::ifstream &ins);
 
 GSTLEARN_EXPORT String toUpper(const String &string);
 GSTLEARN_EXPORT String toLower(const String &string);

@@ -202,7 +202,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     if label is None:
         label = "vario"
     if flagLabelDir:
-        label = "vario dir={}".format(np.round(vario.getCodir(idir),3))
+        label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
     
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
@@ -393,7 +393,7 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
 
                 # Plotting the Model (optional)
                 if mymodel is not None:
-                    codir = vario.getCodir(idirUtil)
+                    codir = vario.getCodirs(idirUtil)
                     model(mymodel, ivar=iv, jvar=jv, codir=codir, 
                           color=cols(idirUtil), linestyle=linestylem, 
                           color0=color0, linestyle0=linestyle0, ax=ax,

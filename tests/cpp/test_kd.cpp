@@ -99,7 +99,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Gaussian Anamorphosis with 10 coefficients
   AnamHermite* anam = AnamHermite::create(20);
-  anam->fit(data);
+  anam->fitFromLocator(data);
   anam->display();
 
   // Selectivity

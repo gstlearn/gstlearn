@@ -132,7 +132,7 @@ int main(int /*argc*/, char */*argv*/[])
   Constraints constraints = Constraints();
   constraints.setConstantSillValue(1.);
 
-  std::vector<ECov> covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  VectorECov covs {ECov::BESSEL_K, ECov::EXPONENTIAL};
   modelPGS1.fit(&vario1,covs,constraints);
   modelPGS1.display();
 

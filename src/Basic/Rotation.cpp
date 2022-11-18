@@ -159,20 +159,20 @@ String Rotation::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void Rotation::rotateDirect(const VectorDouble& in, VectorDouble& out) const
+void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (!_flagRot)
-    out = in;
+    outv = inv;
   else
-  _rotMat.prodVector(in, out);
+   _rotMat.prodVector(inv, outv);
 }
 
-void Rotation::rotateInverse(const VectorDouble& in, VectorDouble& out) const
+void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (!_flagRot)
-    out = in;
+    outv = inv;
   else
-    _rotInv.prodVector(in, out);
+    _rotInv.prodVector(inv, outv);
 }
 
 void Rotation::_recopy(const Rotation &r)

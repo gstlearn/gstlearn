@@ -34,8 +34,8 @@ public:
   void setNDisc(int nDisc){_nDisc=nDisc;}
   void setVerbose(bool verbose){_verbose = verbose;}
 
-  void evalOp(cs* Op,const VectorDouble& in, VectorDouble& out) const override;
-  void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const override;
+  void evalOp(cs* Op,const VectorDouble& inv, VectorDouble& outv) const override;
+  void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const override;
   double eval(double x) const override;
   int fit(std::function<double(double)> f,
           double a = 0.,

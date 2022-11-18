@@ -47,7 +47,7 @@ public:
   /// TODO : isPositiveDefinite
 
   /// Is the matrix symmetrical ?
-  bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
+  bool isSymmetric(bool printWhyNot = false) const override { return true; }
 
   void initMatTri(int nsize,double* tab);
   void normSingleMatrix(const AMatrix& x);
@@ -72,7 +72,7 @@ private:
   int    _getMatrixSize() const override;
   void   _allocate() override;
   void   _deallocate() override;
-  void   _prodVector(const double *in,double *out) const override;
+  void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 

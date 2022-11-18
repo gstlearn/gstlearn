@@ -198,7 +198,7 @@ double PrecisionOpMultiConditional::computeQuadratic(const VectorDouble& x) cons
 }
 
 
-void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVectorDouble& out) const
+void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& inv, VectorVectorDouble& outv) const
 {
 
   for(auto &e : _workdata)
@@ -208,7 +208,7 @@ void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVector
 
   for (int imod = 0; imod < sizes(); imod++)
   {
-    _multiProjData[imod]->mesh2point(in[imod], _work1);
+    _multiProjData[imod]->mesh2point(inv[imod], _work1);
     VH::addInPlace(_workdata,_work1);
   }
 
@@ -216,7 +216,7 @@ void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVector
 
   for (int imod = 0; imod < sizes(); imod++)
   {
-    _multiProjData[imod]->point2mesh(_workdata, out[imod]);
+    _multiProjData[imod]->point2mesh(_workdata, outv[imod]);
   }
 
 }
@@ -228,19 +228,19 @@ void PrecisionOpMultiConditional::AtA(const VectorVectorDouble& in, VectorVector
 ** nugget effect. Qi are the precision matrices associated to each structure and Ai
 ** are the projection matrices from the meshing vertices to the data locations.
 **
-** \param[in]  in     Array of input values
+** \param[in]  inv     Array of input values
 **
-** \param[out] out    Array of output values
+** \param[out] outv    Array of output values
 **
 *******************************************************************************/
-void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& in,
-                                              VectorVectorDouble& out) const
+void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& inv,
+                                              VectorVectorDouble& outv) const
 {
   _init();
-  AtA(in,_work2);
+  AtA(inv,_work2);
   for (int imod = 0; imod < sizes(); imod++)
-    _multiPrecisionOp[imod]->eval(in[imod], out[imod]);
-  sum(_work2,out, out);
+    _multiPrecisionOp[imod]->eval(inv[imod], outv[imod]);
+  sum(_work2,outv, outv);
 
 }
 
@@ -318,7 +318,7 @@ void PrecisionOpMultiConditional::_allocate(int i) const
 }
 
 
-void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDouble& result) const
+void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& inv, VectorDouble& result) const
 {
 
   _allocate(0);
@@ -329,7 +329,7 @@ void PrecisionOpMultiConditional::evalInvCov(const VectorDouble& in, VectorDoubl
 
   for(int idat = 0; idat < _ndat; idat++)
   {
-    result[idat] = in[idat]/_varianceData[idat];
+    result[idat] = inv[idat]/_varianceData[idat];
   }
 
   for(int icov = 0; icov < sizes(); icov++)

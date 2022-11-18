@@ -56,7 +56,7 @@ public:
                           const VectorDouble& codir = VectorDouble(),
                           const ASpace* space = nullptr);
   static DirParam* createOmniDirection(int npas = 10,
-                                       double dpas = 1.,
+                                       double dpas = 1., // TODO : translate
                                        double toldis = 0.5,
                                        int opt_code = 0,
                                        int idate = 0,
@@ -86,7 +86,7 @@ public:
   double getBench() const { return _bench; }
   const  VectorDouble& getBreaks() const { return _breaks; }
   double getBreak(int i) const;
-  const  VectorDouble& getCodir() const { return _codir; }
+  const  VectorDouble& getCodirs() const { return _codir; }
   double getCodir(int i) const;
   double getCylRad() const { return _cylRad; }
   double getDPas() const { return _dPas; }

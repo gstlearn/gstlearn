@@ -62,7 +62,7 @@ private:
   int _getNfact() const { return (int) _ifacs.size(); }
   int _getNSel() const { return _selectivity->getVariableNumber(); }
 
-  bool _hasAnam(const EAnam& anamType = EAnam::UNKNOWN) const;
+  bool _hasAnam(const EAnam& anamType = EAnam::fromKey("UNKNOWN")) const;
   bool _hasInputVarDefined(int mode = 0) const;
   bool _hasSelectivity() const;
   bool _hasVariableNumber(bool equal1 = false) const;
@@ -90,6 +90,7 @@ private:
   Selectivity* _selectivity;
 };
 
+// TODO : rename functions with a lower case at the beginning
 GSTLEARN_EXPORT int RawToGaussianByLocator(Db *db,
                                            AAnam *anam,
                                            const NamingConvention &namconv = NamingConvention(

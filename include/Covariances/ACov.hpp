@@ -62,7 +62,7 @@ public:
                       double step,
                       const VectorDouble& dir,
                       const VectorDouble& center = VectorDouble(),
-                      const CovCalcMode& mode = CovCalcMode()) const;;
+                      const CovCalcMode& mode = CovCalcMode()) const;
   double evalIvarIpas(int ivar,
                       int jvar,
                       const VectorDouble &dincr,

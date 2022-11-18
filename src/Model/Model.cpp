@@ -896,7 +896,7 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
-                             const std::vector<ECov> &types,
+                             const VectorECov &types,
                              const Constraints &constraints,
                              Option_VarioFit optvar,
                              Option_AutoFit mauto,
@@ -933,7 +933,7 @@ int Model::fitFromCovIndices(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
-               const std::vector<ECov> &types,
+               const VectorECov &types,
                const Constraints &constraints,
                Option_VarioFit optvar,
                Option_AutoFit mauto,
@@ -969,7 +969,7 @@ int Model::fit(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromVMap(DbGrid *dbmap,
-                       const std::vector<ECov> &types,
+                       const VectorECov &types,
                        const Constraints &constraints,
                        Option_VarioFit optvar,
                        Option_AutoFit mauto,
@@ -1334,7 +1334,7 @@ double Model::gofToVario(const Vario* vario, bool verbose)
 
         // Read information from Experimental Variogram
 
-        VectorDouble codir = vario->getCodir(idir);
+        VectorDouble codir = vario->getCodirs(idir);
         VectorDouble sw = vario->getSwVec(idir, ivar, jvar);
         VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
         VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
@@ -1456,9 +1456,9 @@ double Model::_evalDriftCoef(const Db* db,
   return drift;
 }
 
-std::vector<ECov> Model::initCovList(const VectorInt & covranks)
+VectorECov Model::initCovList(const VectorInt & covranks)
 {
-  std::vector<ECov> list;
+  VectorECov list;
 
   for (int i = 0; i < (int) covranks.size(); i++)
   {

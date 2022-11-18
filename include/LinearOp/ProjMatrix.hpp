@@ -42,8 +42,8 @@ public:
                                  double radius,
                                  int flag_exact = 0,
                                  int verbose = 0);
-  int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
-  int mesh2point(const VectorDouble& in, VectorDouble& out) const override;
+  int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
+  int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
   int getApexNumber() const override { return _nApices; }
   int getPointNumber() const override { return _nPoint; }
   const cs* getAproj() const { return _Aproj; }

@@ -20,7 +20,7 @@ public:
                                        CovAniso* markovR = nullptr,
                                        double scaleTime = 1.,
                                        VectorDouble vel = VectorDouble(2),
-                                       double _sigma2 = 1.);
+                                       double sigma2 = 1.);
 
   const CovAniso* getMarkovL() const { return _markovL; }
   void setMarkovL(const CovAniso *markovL) { _markovL = markovL; }

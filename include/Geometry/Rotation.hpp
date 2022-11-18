@@ -41,8 +41,8 @@ public:
   int setMatrixDirectOldStyle(const double* rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
-  void rotateDirect(const VectorDouble& in, VectorDouble& out) const;
-  void rotateInverse(const VectorDouble& in, VectorDouble& out) const;
+  void rotateDirect(const VectorDouble& inv, VectorDouble& outv) const;
+  void rotateInverse(const VectorDouble& inv, VectorDouble& outv) const;
   bool isIdentity() const { return !_flagRot; }
   bool isSame(const Rotation& rot) const;
 

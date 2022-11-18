@@ -29,7 +29,7 @@ public:
   static void rotationInit(int ndim, const double* angles, double* rot);
   static VectorDouble rotationInit(int ndim, const VectorDouble &angles);
   static MatrixSquareGeneral EulerToRotation(const VectorDouble &angles,
-                                             const ERotation &convrot = ERotation::SXYZ);
+                                             const ERotation &convrot = ERotation::fromKey("SXYZ"));
 
   static void rotationGetDirection(double ct, double st, double* a, double *codir);
   static void rotationGetDirection(int ndim,
@@ -43,7 +43,7 @@ public:
                                 VectorDouble &angles);
   static VectorDouble rotationGetAngles(const VectorDouble& codir);
   static VectorDouble rotationToEuler(const MatrixSquareGeneral &mat,
-                                      const ERotation &convrot = ERotation::SXYZ,
+                                      const ERotation &convrot = ERotation::fromKey("SXYZ"),
                                       double eps = EPSILON10);
 
   static bool rotationIsIdentity(int ndim, double* rot, double eps = EPSILON10);

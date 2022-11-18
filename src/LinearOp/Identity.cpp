@@ -25,21 +25,21 @@ Identity::~Identity()
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product (by the Identity) : 'out' = I * 'in' = 'in'
+**  Evaluate the product (by the Identity) : 'outv' = I * 'inv' = 'inv'
 **
-** \param[in]  in     Array of input values
+** \param[in]  inv     Array of input values
 **
-** \param[out] out    Array of output values
+** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void Identity::_evalDirect(const VectorDouble& in, VectorDouble& out) const
+void Identity::_evalDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
-	for(int i=0, n=_n; i<n; i++)
-		out[i] = in[i];
+  for(int i=0, n=_n; i<n; i++)
+    outv[i] = inv[i];
 }
 
-void Identity::evalInverse(const VectorDouble& in,
-                           VectorDouble& out) const
+void Identity::evalInverse(const VectorDouble& inv,
+                           VectorDouble& outv) const
 {
-  evalDirect(in,out);
+  evalDirect(inv,outv);
 }

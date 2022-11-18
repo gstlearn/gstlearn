@@ -30,7 +30,9 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const;
 
   virtual void display(const AStringFormat* strfmt = nullptr) const final;
+#ifndef SWIG // TODO : overload not available in SWIG 4.2.0b
   virtual void display(int level) const final;
+#endif
 };
 
 // Set of functions regarding the printout
@@ -90,37 +92,37 @@ GSTLEARN_EXPORT String toVector(const String& title,
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorString& tab);
 GSTLEARN_EXPORT String toStr(const String& string,
-                             const EJustify& justify = EJustify::RIGHT);
+                             const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toDouble(double value,
-                                const EJustify& justify = EJustify::RIGHT);
+                                const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toInt(int value,
-                             const EJustify& justify = EJustify::RIGHT);
+                             const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toInterval(double zmin, double zmax);
 GSTLEARN_EXPORT VectorString toVectorDouble(const VectorDouble& values,
-                                            const EJustify& justify = EJustify::RIGHT);
+                                            const EJustify& justify = EJustify::fromKey("RIGHT"));
 
 // Old-fashion printing formats
 GSTLEARN_EXPORT void tab_prints(const char* title,
                                 const char* string,
                                 int ncol = 1,
-                                const EJustify &justify = EJustify::RIGHT);
+                                const EJustify &justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT void tab_printg(const char *title,
                                 double value,
                                 int ncol = 1,
-                                const EJustify &justify = EJustify::RIGHT);
+                                const EJustify &justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT void tab_printd(const char *title,
                                 double value,
                                 int ncol = 1,
-                                const EJustify &justify = EJustify::RIGHT);
+                                const EJustify &justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT void tab_printi(const char *title,
                                 int value,
                                 int ncol = 1,
-                                const EJustify &justify = EJustify::RIGHT);
+                                const EJustify &justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT void tab_print_rc(const char *title,
                                   int mode,
                                   int value,
                                   int ncol = 1,
-                                  const EJustify &justify = EJustify::RIGHT);
+                                  const EJustify &justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT void tab_print_rowname(const char *string, int taille);
 GSTLEARN_EXPORT void print_matrix(const char *title,
                                   int flag_limit,

@@ -44,14 +44,6 @@ Testing for VectorInt : NA
 NULL
 Testing for VectorDouble : NA 
 NULL
-Testing for VectorInt (Overload) : 12 
-NULL
-Testing for VectorInt (Overload) : 21 32 
-NULL
-Testing for VectorString (Overload) : my_String 
-NULL
-Testing for VectorString (Overload) : my_String1 my_String2 String3 
-NULL
 Case : Value = 2 - Descr = Enum test case 2
 NULL
 Testing for Integer : 12 

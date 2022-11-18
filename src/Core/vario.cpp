@@ -1795,7 +1795,7 @@ static int st_variogram_calcul1(Db *db,
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 vario->getDirParam(idir).getBench(),
                                 vario->getDirParam(idir).getCylRad(),
-                                vario->getDirParam(idir).getCodir(), &ps))
+                                vario->getDirParam(idir).getCodirs(), &ps))
         continue;
 
       /* Check if the pair must be rejected due to faulting */
@@ -1930,7 +1930,7 @@ static int st_variogram_calcul2(Db *db, Vario *vario, int idir, int *rindex)
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Check if the pair must be rejected due to faulting */
 
@@ -2043,7 +2043,7 @@ static int st_variovect_calcul(Db *db,
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Get the rank of the lag */
 
@@ -2266,7 +2266,7 @@ static void st_variogen_line(Db *db, Vario *vario, int idir, int norder)
         dist = distance_intra(db, iech, jech, NULL);
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
-                                  dirparam.getCodir(), &ps)) continue;
+                                  dirparam.getCodirs(), &ps)) continue;
         if (iwgt == 1) dist0 = dist;
 
         /* Check if the next sample belongs to the same line (same code) */
@@ -3917,7 +3917,7 @@ static void st_variogram_cloud(const Db *db,
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Check if the pair must be rejected due to faulting */
 
@@ -4009,7 +4009,7 @@ void variogram_cloud_ident(Db *db, DbGrid *dbgrid, Vario *vario, Polygons *polyg
         dist = distance_intra(db, iech, jech, NULL);
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
-                                  dirparam.getCodir(), &ps)) continue;
+                                  dirparam.getCodirs(), &ps)) continue;
         value = w1 * w2 * (z2 - z1) * (z2 - z1) / 2.;
         igrid = st_update_discretization_grid(dbgrid, dist, value);
         if (igrid < 0) continue;
@@ -4105,7 +4105,7 @@ static void st_variogram_cloud_dim(Db *db,
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
       if (floor(dist / dirparam.getDPas() + 0.5) >= dirparam.getLagNumber())
         continue;
 
@@ -5114,7 +5114,7 @@ int geometry_compute(Db *db, Vario *vario, Vario_Order *vorder, int *npair)
         dist = distance_intra(db, iech, jech, NULL);
         if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                   dirparam.getBench(), dirparam.getCylRad(),
-                                  dirparam.getCodir(), &ps)) continue;
+                                  dirparam.getCodirs(), &ps)) continue;
 
         /* Get the rank of the lag */
 
@@ -5289,7 +5289,7 @@ int variogram_mlayers(Db *db, int *seltab, Vario *vario, Vario_Order *vorder)
             dist = distance_intra(db, iech, jech, NULL);
             if (variogram_reject_pair(db, iech, jech, ABS(dist), psmin,
                                       dirparam.getBench(), dirparam.getCylRad(),
-                                      dirparam.getCodir(), &ps)) continue;
+                                      dirparam.getCodirs(), &ps)) continue;
 
             /* Get the rank of the lag */
 

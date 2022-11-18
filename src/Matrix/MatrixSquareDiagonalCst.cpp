@@ -82,11 +82,11 @@ double MatrixSquareDiagonalCst::_determinant() const
   return deter;
 }
 
-void MatrixSquareDiagonalCst::_prodVector(const double *in, double *out) const
+void MatrixSquareDiagonalCst::_prodVector(const double *inv, double *outv) const
 {
   int nrow = getNRows();
   for (int irow = 0; irow < nrow; irow++)
-    out[irow] = in[irow] * _cstDiagMatrix;
+    outv[irow] = inv[irow] * _cstDiagMatrix;
 }
 
 void MatrixSquareDiagonalCst::transposeInPlace()

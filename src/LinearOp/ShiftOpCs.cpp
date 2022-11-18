@@ -520,12 +520,12 @@ void ShiftOpCs::prodLambda(const VectorDouble& x,
   }
 }
 
-void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& in,
-                                     VectorDouble& out,
+void ShiftOpCs::prodLambdaOnSqrtTildeC(const VectorDouble& inv,
+                                     VectorDouble& outv,
                                      double puis) const
 {
   for (int i = 0; i < getSize(); i++)
-    out[i] = in[i] * pow(_Lambda[i] / sqrt(_TildeC[i]), puis);
+    outv[i] = inv[i] * pow(_Lambda[i] / sqrt(_TildeC[i]), puis);
 }
 
 /****************************************************************************/

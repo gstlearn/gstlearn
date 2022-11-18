@@ -24,7 +24,7 @@ public:
                    bool flag_varname = true,
                    bool flag_qualifier = true,
                    bool flag_locator = true,
-                   const ELoc& locatorOutType = ELoc::Z,
+                   const ELoc& locatorOutType = ELoc::fromKey("Z"),
                    String delim = ".",
                    bool cleanSameLocator = true);
   NamingConvention(const NamingConvention &m);

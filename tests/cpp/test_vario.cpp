@@ -87,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  std::vector<ECov> covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  VectorECov covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
   model.fit(&variop,covas,false);
   model.display();
 
