@@ -94,7 +94,7 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
 
   if (ndim == 1)
   {
-    ival = S1D[ipol][icas][icorn][idim];
+    ival = S1D[0][0][icorn][0];
   }
   else if (ndim == 2)
   {
@@ -102,7 +102,7 @@ int MSS(int ndim, int ipol, int icas, int icorn, int idim)
   }
   else
   {
-    ival = S3D[ipol][icas][icorn][idim];
+    ival = S3D[0][icas][icorn][idim];
   }
   return (ival);
 }

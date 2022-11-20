@@ -26,8 +26,7 @@ public:
   void evalDirect(const VectorVectorDouble &in, VectorVectorDouble &out) const;
   virtual void evalInverse(const VectorVectorDouble &in,
                            VectorVectorDouble &out) const;
-  void initLk(const VectorVectorDouble& in,
-                           VectorVectorDouble& out) const;
+  void initLk(const VectorVectorDouble &in, VectorVectorDouble &out) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
@@ -40,7 +39,6 @@ public:
 
   /*! Print out the Conjugate Gradient statistics */
   void printStatCG() const;
-
 
   void _linearComb(double val1,
                    const VectorVectorDouble& in1,
@@ -86,12 +84,10 @@ private:
   bool                      _userInitialValue;
   const ALinearOpMulti*     _precond;
 
-
   // Work arrays
 
   mutable bool               _initialized;
   mutable VectorVectorDouble _r;
-
 
   // Environment parameters
 
