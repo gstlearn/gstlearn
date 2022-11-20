@@ -73,6 +73,8 @@ public:
 
   /*! Print the list of meshes and apices */
   void printMeshes(int imesh0) const;
+  void printMeshListByIndices(int nline_max) const;
+  void printMeshListByCoordinates(int nline_max) const;
   /*! Returns Vector of Apex coordinates for space index */
   VectorDouble getCoordinates(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */

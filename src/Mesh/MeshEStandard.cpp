@@ -919,49 +919,6 @@ void MeshEStandard::_printContainers(const VectorDouble& container) const
   }
 }
 
-void MeshEStandard::printMeshListByCoordinates(int nline_max) const
-{
-  int ndim    = getNDim();
-  int nmesh   = getNMeshes();
-  int ncorner = getNApexPerMesh();
-
-  int iline = 0;
-  for (int imesh=0; imesh<nmesh; imesh++)
-  {
-    message("Mesh #%5d/%5d\n",imesh+1,nmesh);
-    for (int icorn=0; icorn<ncorner; icorn++)
-    {
-      message(" Apex %4d: ",getApex(imesh,icorn));
-      for (int idim=0; idim<ndim; idim++)
-        message(" %lf",getCoor(imesh,icorn,idim));
-      message("\n");
-
-      iline++;
-      if (nline_max > 0 && iline > nline_max) return;
-    }
-  }
-}
-
-void MeshEStandard::printMeshListByIndices(int nline_max) const
-{
-  int nmesh   = getNMeshes();
-  int ncorner = getNApexPerMesh();
-
-  int iline = 0;
-  for (int imesh=0; imesh<nmesh; imesh++)
-  {
-    message("Mesh #%d/%d: ",imesh+1,nmesh);
-    for (int icorn=0; icorn<ncorner; icorn++)
-    {
-      message(" %d",getApex(imesh,icorn));
-    }
-    message("\n");
-
-    iline++;
-    if (nline_max > 0 && iline > nline_max) return;
-  }
-}
-
 void MeshEStandard::_deallocate()
 {
 

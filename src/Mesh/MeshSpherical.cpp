@@ -302,7 +302,7 @@ cs* MeshSpherical::getMeshToDb(const Db *db, bool verbose) const
 *****************************************************************************/
 int MeshSpherical::getApex(int imesh, int rank, bool /*inAbsolute*/) const
 {
-  return _meshes.getValue(imesh,rank) - 1;
+  return _meshes.getValue(imesh,rank);
 }
 
 /****************************************************************************/

@@ -711,8 +711,8 @@ void meshes_2D_print(triangulateio *t, int brief)
 MeshEStandard* meshes_2D_load_vertices(triangulateio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
-  amesh->reset(2, 3, t->numberofpoints, t->numberofsegments,
-                       t->pointlist, t->segmentlist);
+  amesh->reset(2, 3, t->numberofpoints, t->numberofsegments, t->pointlist,
+               t->segmentlist);
   return amesh;
 }
 
@@ -1890,13 +1890,14 @@ MeshEStandard* meshes_2D_sph_load_vertices(SphTriangle *t)
   for (int i = 0; i < ntab; i++)
   {
     for (int j = 0; j < natt; j++)
-      itab[ecr + j] = ltri[lec + j];
+      itab[ecr + j] = ltri[lec + j] - 1;
     ecr += natt;
     lec += nrow;
   }
 
   MeshEStandard* amesh = new MeshEStandard();
-  amesh->reset(2, 3, t->n_nodes, nt, rtab.data(), itab.data());
+  amesh->reset(2, 3, rtab, itab, false);
+
   return amesh;
 }
 
@@ -2426,8 +2427,8 @@ void meshes_3D_extended_domain(Db *dbout, const double *gext, tetgenio *t)
 MeshEStandard* meshes_3D_load_vertices(tetgenio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
-  amesh->reset(3, 4, t->numberofpoints, t->numberoftetrahedra,
-                       t->pointlist, t->tetrahedronlist);
+  amesh->reset(3, 4, t->numberofpoints, t->numberoftetrahedra, t->pointlist,
+               t->tetrahedronlist);
   return amesh;
 }
 
@@ -2728,8 +2729,8 @@ void meshes_1D_print(segmentio *t, int brief)
 MeshEStandard* meshes_1D_load_vertices(segmentio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
-  amesh->reset(1, 2, t->numberofpoints, t->numberofsegments,
-                       t->pointlist, t->segmentlist);
+  amesh->reset(1, 2, t->numberofpoints, t->numberofsegments, t->pointlist,
+               t->segmentlist);
   return amesh;
 }
 

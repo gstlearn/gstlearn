@@ -23,10 +23,9 @@ class GSTLEARN_EXPORT ALinearOpMulti {
 public:
   ALinearOpMulti();
   virtual ~ALinearOpMulti();
-  void evalDirect(const VectorVectorDouble& in,
-                  VectorVectorDouble& out) const;
-  virtual void evalInverse(const VectorVectorDouble& in,
-                           VectorVectorDouble& out) const;
+  void evalDirect(const VectorVectorDouble &in, VectorVectorDouble &out) const;
+  virtual void evalInverse(const VectorVectorDouble &in,
+                           VectorVectorDouble &out) const;
   void initLk(const VectorVectorDouble& in,
                            VectorVectorDouble& out) const;
   virtual int sizes() const = 0;

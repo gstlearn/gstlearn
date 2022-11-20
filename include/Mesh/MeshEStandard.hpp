@@ -79,8 +79,6 @@ public:
   const MatrixRectangular& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
   void validate(bool verbose);
-  void printMeshListByCoordinates(int nline_max = -1) const;
-  void printMeshListByIndices(int nline_max = -1) const;
 
 protected:
   /// Interface for ASerializable
