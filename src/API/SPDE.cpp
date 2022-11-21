@@ -250,7 +250,7 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
     for(int icov = 0; icov < (int)_simuMeshing.size();icov++)
     {
       gauss = ut_vector_simulate_gaussian(_simuMeshing[icov]->getNApices());
-      _precisionsSimu->simulateOnMeshing(gauss,_workingSimu);
+      _precisionsSimu->simulateOnMeshing(gauss,_workingSimu,icov);
     }
  }
 }

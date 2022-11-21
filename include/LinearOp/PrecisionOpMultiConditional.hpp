@@ -31,7 +31,7 @@ public:
   int  size(int i) const override { return _multiPrecisionOp[i]->getSize(); }
   VectorVectorDouble computeRhs(const VectorDouble& datVal) const;
   void computeRhsInPlace(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
-  void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const;
+  void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result,int icov = 0) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
   void evalInvCov(const VectorDouble& in, VectorDouble& result) const;
   std::pair<double,double> computeRangeEigenVal() const;
