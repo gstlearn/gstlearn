@@ -152,7 +152,7 @@ First, install R and RTools with Boost and HDF5 support by following [these inst
 
 Then, install "bison" GNU tool (from the GnuWin32 tools website):
 * Download Setup program here https://gnuwin32.sourceforge.net/packages/bison.htm (see Download section)
-* Execute the program and change the installation directory to `C:\local`
+* Execute the program and change the installation directory to `C:\<rtools/install/dir>\usr`
 
 Then, from a Windows command prompt, execute following instructions:
 
@@ -166,7 +166,7 @@ TODO : Work in progress : trying to mimick file:///home/fors/Projets/swig/Doc/Ma
     cd ~/swig_src
     git clone https://github.com/fabien-ors/swig.git
     cd swig
-    cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release -DBISON_EXECUTABLE:STRING="/c/local/bin/bison.exe"
+    cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release"
     cd build
     make
     make install
