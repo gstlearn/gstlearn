@@ -30,12 +30,12 @@ class GSTLEARN_EXPORT PrecisionOp {
 public:
   PrecisionOp(ShiftOpCs* shiftop = nullptr,
               const CovAniso* cova = nullptr,
-              const EPowerPT& power = EPowerPT::UNDEFINED,
+              const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
               bool verbose = false);
   PrecisionOp(const AMesh* mesh,
               Model* model,
               int igrf = 0,
-              const EPowerPT& power = EPowerPT::ONE,
+              const EPowerPT& power = EPowerPT::fromKey("ONE"),
               bool verbose = false);
   PrecisionOp(const PrecisionOp &pmat);
   PrecisionOp& operator=(const PrecisionOp &pmat);
@@ -45,10 +45,10 @@ public:
   virtual std::pair<double,double> getRangeEigenVal(int ndiscr = 100);
   int reset(const ShiftOpCs* shiftop,
             const CovAniso* cova = nullptr,
-            const EPowerPT& power = EPowerPT::UNDEFINED,
+            const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
             bool verbose = false);
 
-  void   eval(const VectorDouble& in, VectorDouble& out);
+  void   eval(const VectorDouble& inv, VectorDouble& outv);
 
   VectorDouble evalCov(int imesh);
   VectorVectorDouble simulate(int nbsimus = 1);
@@ -65,21 +65,21 @@ public:
   {
   };
 
-  virtual void evalDeriv(const VectorDouble& /*in*/,
-                         VectorDouble& /*out*/,
+  virtual void evalDeriv(const VectorDouble& /*inv*/,
+                         VectorDouble& /*outv*/,
                          int /*iapex*/,
                          int /*igparam*/)
   {
   };
 
-  virtual void evalDerivOptim(VectorDouble& /*out*/,
+  virtual void evalDerivOptim(VectorDouble& /*outv*/,
                               int /*iapex*/,
                               int /*igparam*/)
   {
   };
 
-//  virtual void evalDerivPoly(const VectorDouble& /*in*/,
-//                             VectorDouble& /*out*/,
+//  virtual void evalDerivPoly(const VectorDouble& /*inv*/,
+//                             VectorDouble& /*outv*/,
 //                             int /*iapex*/,
 //                             int /*igparam*/){};
 
@@ -100,7 +100,7 @@ private:
   int  _preparePoly(const EPowerPT& power,bool force = false);
   int  _prepareChebychev(const EPowerPT& power);
   int  _preparePrecisionPoly();
-  int  _evalPoly(const EPowerPT& power,const VectorDouble& in, VectorDouble& out);
+  int  _evalPoly(const EPowerPT& power,const VectorDouble& inv, VectorDouble& outv);
   void _purge();
 
 private:

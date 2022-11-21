@@ -103,27 +103,27 @@ int HessianOp::init(PrecisionOp*  pmat,
 
 /*****************************************************************************/
 /*!
-**  Operate the operation: 'out' = HESS * 'in'
+**  Operate the operation: 'outv' = HESS * 'inv'
 **
-** \param[in]  in       Array of input values
+** \param[in]  inv       Array of input values
 **
-** \param[out] out      Array of output values
+** \param[out] outv      Array of output values
 **
 *****************************************************************************/
-void HessianOp::_evalDirect(const VectorDouble& in,
-                            VectorDouble& out) const
+void HessianOp::_evalDirect(const VectorDouble& inv,
+                            VectorDouble& outv) const
 {
   if (! _isInitialized)
     my_throw("'HessianOp' must be initialized beforehand");
 
   // Contribution of the spatial structure
 
-  _pMat->eval(in,out);
+  _pMat->eval(inv,outv);
 
   // Contribution of the Data
 
   _projData->mesh2point(_lambda,_workp);
-  _projData->mesh2point(in,_workx);
+  _projData->mesh2point(inv,_workx);
 
   double denom,dl;
   for (int i=0; i<_projData->getPointNumber(); i++)
@@ -138,7 +138,7 @@ void HessianOp::_evalDirect(const VectorDouble& in,
     _workp[i] = (- _workp[i] * ratio + pow(ratio,2)) * _workx[i];
   }
   _projData->point2mesh(_workp, _workv);
-  for (int i=0; i<_projData->getApexNumber(); i++) out[i] += _workv[i];
+  for (int i=0; i<_projData->getApexNumber(); i++) outv[i] += _workv[i];
 
   // Contribution of Seismic (optional)
 
@@ -155,10 +155,10 @@ void HessianOp::_evalDirect(const VectorDouble& in,
     _projSeis->point2mesh(_works, _workv);
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      out[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * in[i];
+      outv[i] -= _lambda[i] * law_df_gaussian(_lambda[i]) * _workv[i] * inv[i];
 
     for (int i=0; i<_projSeis->getApexNumber(); i++)
-      _workv[i] = in[i] * law_df_gaussian(_lambda[i]);
+      _workv[i] = inv[i] * law_df_gaussian(_lambda[i]);
     _projSeis->mesh2point(_workv, _works);
     for (int i=0; i<_projSeis->getPointNumber(); i++)
       _works[i] *= _varSeis[i];
@@ -167,6 +167,6 @@ void HessianOp::_evalDirect(const VectorDouble& in,
       _workv[i] *= law_df_gaussian(_lambda[i]); // d2u
 
     for (int i=0; i<_projData->getApexNumber(); i++) 
-      out[i] += _workv[i];
+      outv[i] += _workv[i];
   }
 }

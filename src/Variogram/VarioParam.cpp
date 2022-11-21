@@ -263,10 +263,10 @@ int VarioParam::getLagNumber(int idir) const
   return _dirparams[idir].getLagNumber();
 }
 
-VectorDouble VarioParam::getCodir(int idir) const
+VectorDouble VarioParam::getCodirs(int idir) const
 {
   if (! _isDirectionValid(idir)) return VectorDouble();
-  return _dirparams[idir].getCodir();
+  return _dirparams[idir].getCodirs();
 }
 
 bool VarioParam::_isDirectionValid(int idir) const

@@ -328,13 +328,12 @@
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
-%template(VectorEnumCovs)        std::vector< ECov >;
-%template(VectorEnumStatOpt)     std::vector< EStatOption >;
-%template(VectorEnumSelectivity) std::vector< ESelectivity >;
-
-%template(VectorDir)             std::vector< DirParam >;
-%template(VectorPolySet)         std::vector< PolySet >;
-%template(VectorIntervals)       std::vector< Interval >; 
+%template(VectorECov)         std::vector< ECov >;
+%template(VectorEStatOption)  std::vector< EStatOption >;
+%template(VectorESelectivity) std::vector< ESelectivity >;
+%template(VectorDirParam)     std::vector< DirParam >;
+%template(VectorPolySet)      std::vector< PolySet >;
+%template(VectorInterval)     std::vector< Interval >; 
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

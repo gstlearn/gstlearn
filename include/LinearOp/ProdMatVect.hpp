@@ -27,7 +27,7 @@ public:
   }
 
 protected:
-  void _evalDirect(const VectorDouble& in, VectorDouble& out) const override;
+  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private :
   int     _nx;

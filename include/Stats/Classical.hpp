@@ -41,14 +41,14 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            double vmax = TEST);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorInt &iatts,
-                                              const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                              const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                               bool flagIso = true,
                                               double proba = TEST,
                                               double vmin = TEST,
                                               double vmax = TEST);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorString& names,
-                                              const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                              const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                               bool flagIso = true,
                                               double proba = TEST,
                                               double vmin = TEST,
@@ -61,14 +61,14 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
                                                bool flagIso = true);
 GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        const VectorInt &iatts = VectorInt(),
-                                       const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                       const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                        bool flagIso = false,
                                        bool flagCorrel = false,
                                        const String &title = String(),
                                        const String &radix = String());
 GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
                                        const VectorString &names,
-                                       const std::vector<EStatOption> &opers = { EStatOption::MEAN },
+                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys({"MEAN"}),
                                        bool flagIso = false,
                                        bool flagCorrel = false,
                                        const String &title = String(),
@@ -77,7 +77,7 @@ GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
 GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &tab,
-                                           const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                            const VectorString& names = VectorString(),
                                            const String &title = "");
 GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,

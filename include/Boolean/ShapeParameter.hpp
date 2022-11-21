@@ -21,7 +21,7 @@
 class GSTLEARN_EXPORT ShapeParameter: public AStringable
 {
 public:
-  ShapeParameter(ETLaw law = ETLaw::CONSTANT, double value = 0.);
+  ShapeParameter(ETLaw law = ETLaw::fromKey("CONSTANT"), double value = 0.);
   ShapeParameter(const ShapeParameter &r);
   ShapeParameter& operator=(const ShapeParameter &r);
   virtual ~ShapeParameter();

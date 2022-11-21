@@ -27,6 +27,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Mesh/MeshETurbo.hpp"
+#include "Mesh/MeshEStandard.hpp"
 #include "Mesh/MeshSpherical.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
@@ -52,21 +53,16 @@ int main(int /*argc*/, char */*argv*/[])
   ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN, radius);
   String filename;
 
-  MeshSpherical mesh = MeshSpherical();
-  mesh.resetFromDb(nullptr,nullptr,"-r3",false);
+  int nech = 40;
+  VectorDouble extendmin = {0,0};
+  VectorDouble extendmax = {150,100};
+  Db* data = Db::createFromBox(nech, extendmin, extendmax);
+  data->display();
 
-  Model* model = Model::createFromParam(ECov::BESSEL_K,1500,1);
-  ShiftOpCs S = ShiftOpCs(&mesh,model);
-  VectorDouble whitenoise = VH::simulateGaussian(mesh.getNApices());
-  VectorDouble result = VectorDouble(mesh.getNApices());
-  PrecisionOpCs Q = PrecisionOpCs(&S,model->getCova(0),EPowerPT::MINUSHALF);
-  Q.eval(whitenoise,result);
-
-  Db* db = Db::create();
-  VectorDouble X = mesh.getCoordinates(0);
-  VectorDouble Y = mesh.getCoordinates(1);
-  db->addColumns(X, "long", ELoc::X, 0);
-  db->addColumns(Y, "lat", ELoc::X, 1);
+  MeshEStandard mesh1 = MeshEStandard();
+  (void) mesh1.resetFromDb(data,nullptr);
+  mesh1.display();
+  mesh1.printMeshListByCoordinates(10);
 
   return (0);
 }

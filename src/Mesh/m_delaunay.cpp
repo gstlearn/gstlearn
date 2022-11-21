@@ -711,8 +711,8 @@ void meshes_2D_print(triangulateio *t, int brief)
 MeshEStandard* meshes_2D_load_vertices(triangulateio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
-  amesh->reset(2, 3, t->numberofpoints, t->numberofsegments, t->pointlist,
-               t->segmentlist);
+  amesh->reset(2, 3, t->numberofpoints, t->numberoftriangles, t->pointlist,
+               t->trianglelist);
   return amesh;
 }
 

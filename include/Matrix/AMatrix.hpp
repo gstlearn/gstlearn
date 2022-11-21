@@ -139,9 +139,9 @@ public:
   virtual void prodScalar(double v);
   /*! Product of the Matrix by a vector (on its right) */
 #ifndef SWIG
-  void prodVector(const double *in,double *out) const;
+  void prodVector(const double *inv,double *outv) const;
 #endif
-  void prodVector(const VectorDouble& in, VectorDouble& out) const;
+  void prodVector(const VectorDouble& inv, VectorDouble& outv) const;
   /*! Multiply a Matrix row-wise */
   void multiplyRow(const VectorDouble& vec);
   /*! Multiply a Matrix column-wise */
@@ -206,7 +206,7 @@ protected:
   virtual double  _getValue(int rank) const = 0;
   virtual double& _getValueRef(int irow, int icol) = 0;
   virtual void    _transposeInPlace() = 0;
-  virtual void    _prodVector(const double *in,double *out) const = 0;
+  virtual void    _prodVector(const double *inv,double *outv) const = 0;
   virtual int     _invert() = 0;
   virtual int     _solve(const VectorDouble& b, VectorDouble& x) const = 0;
   virtual double  _determinant() const = 0;

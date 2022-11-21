@@ -57,7 +57,6 @@ public:
   double TransformToRawValue(double y) const override;
   void   calculateMeanAndVariance() override;
 
-
   static AnamHermite* create(int nbpoly=0, bool flagBound=true, double rCoef=1.);
 
   void reset(double pymin,

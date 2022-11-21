@@ -72,7 +72,7 @@ public:
           bool verbose = false);
   int gaussToCategory(Db *db,
                       const NamingConvention &namconv = NamingConvention(
-                          "Facies", true, true, true, ELoc::FACIES)) const;
+                          "Facies", true, true, true, ELoc::fromKey("FACIES"))) const;
   int categoryToThresh(Db *db, const NamingConvention& namconv = NamingConvention("Bounds")) const;
   int computeAllThreshes(Db *db, const NamingConvention& namconv = NamingConvention("Thresh")) const;
 

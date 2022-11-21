@@ -13,9 +13,8 @@ set(PYTHON_PACKAGE_NAME ${PROJECT_NAME})
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development.Module NumPy)
 
-# Look for SWIG 4
+# Look for SWIG 4 [No need for customized swig]
 find_package(SWIG 4.0 REQUIRED)
-# TODO : If SWIG not found, fetch it from the web?
 include(${SWIG_USE_FILE})
 
 # Look for pybind11

@@ -704,27 +704,27 @@ void AMatrix::prodScalar(double v)
 
 /**
  *
- * @param in Input vector
- * @param out Output vector obtained by multiplying 'in' by current Matrix
+ * @param inv Input vector
+ * @param outv Output vector obtained by multiplying 'inv' by current Matrix
  */
 #ifndef SWIG
-void AMatrix::prodVector(const double *in, double *out) const
+void AMatrix::prodVector(const double *inv, double *outv) const
 {
   if (_sparse)
   {
-    cs_vecmult(_csMatrix, _nRows, in, out);
+    cs_vecmult(_csMatrix, _nRows, inv, outv);
   }
   else
   {
-    _prodVector(in, out);
+    _prodVector(inv, outv);
   }
 }
 #endif
 
-void AMatrix::prodVector(const VectorDouble& in, VectorDouble& out) const
+void AMatrix::prodVector(const VectorDouble& inv, VectorDouble& outv) const
 {
   // TODO : Check dimensions to avois SEGV
-  prodVector(in.data(), out.data());
+  prodVector(inv.data(), outv.data());
 }
 
 /**

@@ -30,14 +30,14 @@ public:
   IMPLEMENT_CLONING(ClassicalPolynomial)
 
   double eval(double x) const override;
-  void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& in,
-                   VectorDouble& out,int iapex,int igparam)const;
-  void evalOpTraining(cs* Op, const VectorDouble& in,VectorVectorDouble& store,VectorDouble& work) const override;
+  void evalDerivOp(ShiftOpCs* shiftOp,const VectorDouble& inv,
+                   VectorDouble& outv,int iapex,int igparam)const;
+  void evalOpTraining(cs* Op, const VectorDouble& inv,VectorVectorDouble& store,VectorDouble& work) const override;
   void evalDerivOpOptim(ShiftOpCs* shiftOp,VectorDouble& temp1,VectorDouble& temp2,
-                       VectorDouble& out,const VectorVectorDouble workpoly,int iapex,int igparam)const;
-  void evalOpCumul(cs* Op, const VectorDouble& in, VectorDouble& out) const ;
+                       VectorDouble& outv,const VectorVectorDouble workpoly,int iapex,int igparam)const;
+  void evalOpCumul(cs* Op, const VectorDouble& inv, VectorDouble& outv) const ;
   void evalOp(const ALinearOpMulti* /*Op*/,
-              const VectorVectorDouble& /*in*/,
-              VectorVectorDouble& /*out*/) const override { }
-  void evalOp(cs* Op, const VectorDouble& in, VectorDouble& out) const override;
+              const VectorVectorDouble& /*inv*/,
+              VectorVectorDouble& /*outv*/) const override { }
+  void evalOp(cs* Op, const VectorDouble& inv, VectorDouble& outv) const override;
 };

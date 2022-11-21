@@ -92,14 +92,14 @@ void MatrixSquareGeneral::_setValue(int irank, double value)
 }
 /**
  * Right product of this by in gives out
- * @param in  Input Vector
- * @param out Output Vector
+ * @param inv  Input Vector
+ * @param outv Output Vector
  */
-void MatrixSquareGeneral::_prodVector(const double *in, double *out) const
+void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
 {
   int nrow = getNRows();
   int ncol = getNCols();
-  matrix_product(nrow,ncol,1,_squareMatrix.data(),in,out);
+  matrix_product(nrow,ncol,1,_squareMatrix.data(),inv,outv);
 }
 
 void MatrixSquareGeneral::_transposeInPlace()

@@ -22,11 +22,15 @@ The *gstlearn* R package is a derivative work based on the *swigex* project: [ht
 
 2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
-    * SWIG 4 or higher
+    * SWIG 4.2.0 customized by Fabien Ors (https://github.com/fabien-ors/swig)
     * R 4 or higher with ggplot2 and ggpubr packages (only for plotting)
     * RTools 4 for Windows user
 
 3. Finally, the source code of [gstlearn repository must be cloned](https://github.com/gstlearn/gstlearn#get-the-sources)
+
+Note:
+
+* In a close future, the development tools above won't be needed any more (except R of course) and the gstlearn R package will be installed using install.packages function from a CRAN-like repo.
 
 
 ## Installation
@@ -40,13 +44,16 @@ or for those who prefer a single command line (see [shortcut Makefile](https://g
 
     make r_install
 
+
 ### Important Notes
 
 * Under Windows, using RTools is mandatory for compiling R packages
+* Under Windows, using RTools, you may need to add `-G "MSYS Makefiles"` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
-* You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
+* You may need to precise the location of Boost, SWIG or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
   * `-DBoost_ROOT=<path/to/boost>`
   * `-DHDF5_ROOT=<path/to/hdf5>`
+  * `-DSWIG_ROOT=<path/to/swig>`
 
 
 ## Usage
@@ -82,13 +89,29 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 
 This package has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested)
 
+Warning:
+
+* If you want to install the customized version of SWIG in a target folder of you own, you must add `-DCMAKE_INSTALL_PREFIX:PATH=<path/to/swig>` to cmake command below. In that case, do not forget to indicate the destination path in `SWIG_ROOT` variable (see [Installation section](#Installation)).
+
+
 ### Linux (Ubuntu):
 
-Execute the following commands:
+Execute the following command:
 
-    sudo apt install swig
     sudo apt install r-base
-    
+    sudo apt install bison pcre2-devel # For SWIG
+
+Compile and install SWIG 4.2.0 [customized] by executing following commands:
+
+    mkdir ~/swig_src
+    cd ~/swig_src
+    git clone https://github.com/fabien-ors/swig.git
+    cd swig
+    cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release
+    cd build
+    make
+    make install
+
 Finally, install the R required packages from an R command prompt (as sudo) (if you need to plot gstlearn output):
 
     install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
@@ -101,8 +124,19 @@ Notes:
 
 Execute the following commands (Not tested):
 
-    brew install swig
     brew install r
+    brew install bison pcre2-devel # For SWIG
+
+Compile and install SWIG 4.2.0 [customized] by executing following commands (not tested):
+
+    mkdir ~/swig_src
+    cd ~/swig_src
+    git clone https://github.com/fabien-ors/swig.git
+    cd swig
+    cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release
+    cd build
+    make
+    make install
     
 Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
 
@@ -116,17 +150,33 @@ Notes:
 
 First, install R and RTools with Boost and HDF5 support by following [these instructions](https://github.com/gstlearn/gstlearn#minggw-rtools).
 
-Then, download and install the following tools:
+Then, install "bison" GNU tool (from the GnuWin32 tools website):
+* Download Setup program here https://gnuwin32.sourceforge.net/packages/bison.htm (see Download section)
+* Execute the program and change the installation directory to `C:\local`
 
-* SWIG 4+ [from here](http://www.swig.org/download.html) (extract the archive in a directory of yours, let's say *C:\\swigwin-4.0.2*, see Notes below)
+Then, from a Windows command prompt, execute following instructions:
 
+    pacman -S mingw-w64-x86_64-pcre2
+    
+Compile and install SWIG 4.2.0 [customized] by executing following commands (not tested):
+
+TODO : Work in progress : trying to mimick file:///home/fors/Projets/swig/Doc/Manual/Windows.html but with no success :-/
+
+    mkdir ~/swig_src
+    cd ~/swig_src
+    git clone https://github.com/fabien-ors/swig.git
+    cd swig
+    cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release -DBISON_EXECUTABLE:STRING="/c/local/bin/bison.exe"
+    cd build
+    make
+    make install
+    
 Finally, install the R required packages from an R command prompt (if you need to plot gstlearn output):
 
     install.packages(c("ggplot2", "ggpubr"), repos="https://cloud.r-project.org")
 
 Notes:
 
-* The *Path* environment variable must be updated to make *swig.exe* available in the batch command line (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\swigwin-4.0.2* folder in the *Path* variable and restart Windows)
 * The Windows C++ Compiler must be RTools
 
 

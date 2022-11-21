@@ -3525,7 +3525,7 @@ static int st_variogram_geometry_pgs_calcul(Local_Pgs *local_pgs,
       dist = distance_intra(db, iech, jech, NULL);
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Get the rank of the lag */
 

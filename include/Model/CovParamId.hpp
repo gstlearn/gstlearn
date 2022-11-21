@@ -27,7 +27,7 @@ class GSTLEARN_EXPORT CovParamId : public AStringable, public ICloneable
 public:
   CovParamId(int igrf = 0,
              int icov = 0,
-             const EConsElem& elem = EConsElem::UNKNOWN,
+             const EConsElem& elem = EConsElem::fromKey("UNKNOWN"),
              int iv1 = 0,
              int iv2 = 0);
   CovParamId(const CovParamId &m);

@@ -88,7 +88,7 @@ public:
   const VectorDouble& getDates() const { return _dates; }
   double getDate(int idate, int icas) const;
   int getLagNumber(int idir) const;
-  VectorDouble getCodir(int idir = 0) const;
+  VectorDouble getCodirs(int idir = 0) const;
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
   int getDimensionNumber() const;

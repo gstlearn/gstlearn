@@ -186,5 +186,5 @@ Note : You may need to directly modify your site-packages folder by:
 
 ## License
 
-BSD
+MIT
 2022 Team gstlearn

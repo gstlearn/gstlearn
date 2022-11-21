@@ -146,41 +146,41 @@ int ProjMatrix::resetFromDbByNeigh(const Db *db,
   return 0;
 }
 
-int ProjMatrix::point2mesh(const VectorDouble& in, VectorDouble& out) const
+int ProjMatrix::point2mesh(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) in.size() != _nPoint)
+  if ((int) inv.size() != _nPoint)
   {
-    messerr("Point2mesh: Error in the dimension of argument 'in'(%d). It should be (%d)",
-            in.size(),_nPoint);
+    messerr("Point2mesh: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),_nPoint);
     return 1;
   }
-  if ((int) out.size() != _nApices)
+  if ((int) outv.size() != _nApices)
   {
-    messerr("Point2mesh: Error in the dimension of argument 'out'(%d). It should be (%d)",
-            out.size(),_nApices);
+    messerr("Point2mesh: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),_nApices);
     return 1;
   }
 
-  cs_tmulvec(_Aproj,(int) out.size(),in.data(),out.data());
+  cs_tmulvec(_Aproj,(int) outv.size(),inv.data(),outv.data());
   return 0;
 }
 
-int ProjMatrix::mesh2point(const VectorDouble& in, VectorDouble& out) const
+int ProjMatrix::mesh2point(const VectorDouble& inv, VectorDouble& outv) const
 {
-  if ((int) in.size() != _nApices)
+  if ((int) inv.size() != _nApices)
   {
-    messerr("mesh2point: Error in the dimension of argument 'in'(%d). It should be (%d)",
-            in.size(),_nApices);
+    messerr("mesh2point: Error in the dimension of argument 'inv'(%d). It should be (%d)",
+            inv.size(),_nApices);
     return 1;
   }
-  if ((int) out.size() != _nPoint)
+  if ((int) outv.size() != _nPoint)
   {
-    messerr("mesh2point: Error in the dimension of argument 'out'(%d). It should be (%d)",
-            out.size(),_nPoint);
+    messerr("mesh2point: Error in the dimension of argument 'outv'(%d). It should be (%d)",
+            outv.size(),_nPoint);
     return 1;
   }
 
-  cs_mulvec(_Aproj,_nPoint,in.data(),out.data());
+  cs_mulvec(_Aproj,_nPoint,inv.data(),outv.data());
   return 0;
 }
 

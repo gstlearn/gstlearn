@@ -19,7 +19,7 @@
 class GSTLEARN_EXPORT CovCalcMode : public AStringable
 {
 public:
-  CovCalcMode(const ECalcMember& member = ECalcMember::LHS,
+  CovCalcMode(const ECalcMember& member = ECalcMember::fromKey("LHS"),
               bool asVario = false,
               bool normalized = false,
               bool filterNugget = false,
@@ -33,7 +33,7 @@ public:
 
   bool isEqual(const CovCalcMode &r) const;
 
-  void update(const ECalcMember& member     = ECalcMember::LHS,
+  void update(const ECalcMember& member     = ECalcMember::fromKey("LHS"),
               int                nugget_opt = 0,
               int                nostd      = 0,
               int                icov_r     = -1,

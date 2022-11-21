@@ -54,7 +54,7 @@ public:
   static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
   static Vario* computeFromDb(const VarioParam* varioparam,
                               Db* db,
-                              const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+                              const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                               bool flag_gen = false,
                               bool flag_sample = false,
                               bool verr_mode = false,
@@ -193,13 +193,13 @@ public:
                         Model *model = nullptr,
                         bool verbose = false,
                         int nfacmax = -1);
-  int compute(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+  int compute(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
-  int computeIndic(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+  int computeIndic(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
@@ -230,7 +230,7 @@ public:
   int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
   int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
-  const VectorDouble& getCodir(int idir) const { return getDirParam(idir).getCodir(); }
+  const VectorDouble& getCodirs(int idir) const { return getDirParam(idir).getCodirs(); }
   double getCodir(int idir, int idim) const { return getDirParam(idir).getCodir(idim); }
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }

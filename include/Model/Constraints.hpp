@@ -32,11 +32,11 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   void addItem(const ConsItem* item);
-  void addItemFromParamId(const EConsElem &elem = EConsElem::UNKNOWN,
+  void addItemFromParamId(const EConsElem &elem = EConsElem::fromKey("UNKNOWN"),
                           int icov = 0,
                           int iv1 = 0,
                           int iv2 = 0,
-                          const EConsType &type = EConsType::DEFAULT,
+                          const EConsType &type = EConsType::fromKey("DEFAULT"),
                           double value = 0.);
 
   int isDefined() const { return _consItems.size() > 0; }

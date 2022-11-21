@@ -584,10 +584,10 @@ void AMesh::printMeshListByCoordinates(int nline_max) const
       for (int idim=0; idim<ndim; idim++)
         message(" %lf",getCoor(imesh,icorn,idim));
       message("\n");
-
-      iline++;
-      if (nline_max > 0 && iline > nline_max) return;
     }
+
+    iline++;
+    if (nline_max > 0 && iline >= nline_max) return;
   }
 }
 
@@ -601,13 +601,11 @@ void AMesh::printMeshListByIndices(int nline_max) const
   {
     message("Mesh #%d/%d: ",imesh+1,nmesh);
     for (int icorn=0; icorn<ncorner; icorn++)
-    {
       message(" %d",getApex(imesh,icorn));
-    }
     message("\n");
 
     iline++;
-    if (nline_max > 0 && iline > nline_max) return;
+    if (nline_max > 0 && iline >= nline_max) return;
   }
 }
 

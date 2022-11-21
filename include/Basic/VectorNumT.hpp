@@ -223,10 +223,10 @@ const VectorNumT<T>& VectorNumT<T>::divide(const T& v)
   #endif
 #endif
 
-typedef VectorNumT<int>              VectorInt;
-typedef VectorNumT<double>           VectorDouble;
-typedef VectorNumT<float>            VectorFloat;
-typedef VectorNumT<UChar>            VectorUChar; // Use typedef because swig doesn't like 'unsigned char' in two words
-typedef VectorT<VectorNumT<int> >    VectorVectorInt;
-typedef VectorT<VectorNumT<double> > VectorVectorDouble;
-typedef VectorT<VectorNumT<float> >  VectorVectorFloat;
+typedef VectorNumT<int>       VectorInt;
+typedef VectorNumT<double>    VectorDouble;
+typedef VectorNumT<float>     VectorFloat;
+typedef VectorNumT<UChar>     VectorUChar; // Use typedef because swig doesn't like 'unsigned char' in two words
+typedef VectorT<VectorInt>    VectorVectorInt;
+typedef VectorT<VectorDouble> VectorVectorDouble;
+typedef VectorT<VectorFloat>  VectorVectorFloat;

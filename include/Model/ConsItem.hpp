@@ -28,7 +28,7 @@ class GSTLEARN_EXPORT ConsItem : public AStringable, public ICloneable
 {
 public:
   ConsItem(const CovParamId& paramid,
-           const EConsType& type = EConsType::DEFAULT,
+           const EConsType& type = EConsType::fromKey("DEFAULT"),
            double value = 0.);
   ConsItem(const ConsItem &m);
   ConsItem& operator= (const ConsItem &m);
@@ -41,11 +41,11 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   static ConsItem* create(const CovParamId &paramid,
-                          const EConsType &type = EConsType::DEFAULT,
+                          const EConsType &type = EConsType::fromKey("DEFAULT"),
                           double value = 0.);
   static ConsItem* createFromParamId(int icov = 0,
-                                     const EConsElem& elem = EConsElem::UNKNOWN,
-                                     const EConsType &type = EConsType::DEFAULT,
+                                     const EConsElem& elem = EConsElem::fromKey("UNKNOWN"),
+                                     const EConsType &type = EConsType::fromKey("DEFAULT"),
                                      double value = 0.,
                                      int igrf = 0,
                                      int iv1 = 0,
@@ -84,11 +84,11 @@ public:
    * @remark Do not forget to delete object after usage
    * @return
    */
-  static ConsItem define(const EConsElem& elem = EConsElem::UNKNOWN,
+  static ConsItem define(const EConsElem& elem = EConsElem::fromKey("UNKNOWN"),
                          int icov = 0,
                          int iv1 = 0,
                          int iv2 = 0,
-                         const EConsType& type = EConsType::DEFAULT,
+                         const EConsType& type = EConsType::fromKey("DEFAULT"),
                          double value = 0.);
 
 private:

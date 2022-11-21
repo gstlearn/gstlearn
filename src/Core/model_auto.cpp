@@ -4672,7 +4672,7 @@ int model_auto_fit(const Vario *vario,
   variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
-  (void) GH::rotationGetAngles(vario->getCodir(0), angles);
+  (void) GH::rotationGetAngles(vario->getCodirs(0), angles);
   st_vario_varchol_manage(vario, model, varchol);
 
   /* Scale the parameters in the mauto structure */

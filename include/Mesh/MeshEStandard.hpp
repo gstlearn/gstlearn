@@ -78,7 +78,6 @@ public:
 
   const MatrixRectangular& getApices() const { return _apices; }
   const MatrixInt& getMeshes() const { return _meshes; }
-  void validate(bool verbose);
 
 protected:
   /// Interface for ASerializable
@@ -129,6 +128,7 @@ private:
   int  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;
   void _setApex(int imesh, int rank, int value);
+  void _validate();
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim

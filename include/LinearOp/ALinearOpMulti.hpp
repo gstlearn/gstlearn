@@ -23,10 +23,12 @@ class GSTLEARN_EXPORT ALinearOpMulti {
 public:
   ALinearOpMulti();
   virtual ~ALinearOpMulti();
-  void evalDirect(const VectorVectorDouble &in, VectorVectorDouble &out) const;
-  virtual void evalInverse(const VectorVectorDouble &in,
-                           VectorVectorDouble &out) const;
-  void initLk(const VectorVectorDouble &in, VectorVectorDouble &out) const;
+  void evalDirect(const VectorVectorDouble& inv,
+                  VectorVectorDouble& outv) const;
+  virtual void evalInverse(const VectorVectorDouble& inv,
+                           VectorVectorDouble& outv) const;
+  void initLk(const VectorVectorDouble& inv,
+                           VectorVectorDouble& outv) const;
   virtual int sizes() const = 0;
   virtual int size(int) const = 0;
 
@@ -40,19 +42,20 @@ public:
   /*! Print out the Conjugate Gradient statistics */
   void printStatCG() const;
 
+
   void _linearComb(double val1,
                    const VectorVectorDouble& in1,
                    double val2,
                    const VectorVectorDouble& in2,
-                   VectorVectorDouble& out) const;
+                   VectorVectorDouble& outv) const;
   void prodScalar(double val,
-                  const VectorVectorDouble& in,
-                  VectorVectorDouble& out) const;
+                  const VectorVectorDouble& inv,
+                  VectorVectorDouble& outv) const;
   void  addProdScalar(double val,
-                      const VectorVectorDouble& in,
-                      VectorVectorDouble& out) const;
-  void _copyVals(const VectorVectorDouble& in,
-                 VectorVectorDouble& out) const;
+                      const VectorVectorDouble& inv,
+                      VectorVectorDouble& outv) const;
+  void _copyVals(const VectorVectorDouble& inv,
+                 VectorVectorDouble& outv) const;
   void _updated() const;
   double innerProduct(const VectorDouble& x,const VectorDouble& y) const;
   double innerProduct(const VectorVectorDouble& x,
@@ -74,8 +77,8 @@ public:
 
 protected:
   void _init() const;
-  virtual void _evalDirect(const VectorVectorDouble& in,
-                           VectorVectorDouble& out) const = 0;
+  virtual void _evalDirect(const VectorVectorDouble& inv,
+                           VectorVectorDouble& outv) const = 0;
 
 private:
   int                       _nIterMax;
@@ -84,10 +87,12 @@ private:
   bool                      _userInitialValue;
   const ALinearOpMulti*     _precond;
 
+
   // Work arrays
 
   mutable bool               _initialized;
   mutable VectorVectorDouble _r;
+
 
   // Environment parameters
 

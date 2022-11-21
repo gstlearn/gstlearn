@@ -736,7 +736,7 @@ int PCA::_covarianceh(Db *db,
                           (int) dirparam.getTolCode())) continue;
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Update the variance-covariance matrix at distance h */
 

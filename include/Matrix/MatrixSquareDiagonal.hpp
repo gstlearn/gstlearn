@@ -40,9 +40,9 @@ public:
   /*! Indicate if the given indices are valid for the current matrix size */
   bool isValid(int irow, int icol, bool printWhyNot = false) const override;
   /*! does the matrix is symmetrical ? */
-  bool isSymmetric(bool /*printWhyNot*/ = false) const override { return true; }
+  bool isSymmetric(bool printWhyNot = false) const override { return true; }
   /*! Check if the (non empty) matrix is diagonal */
-  bool isDiagonal(bool /*printWhyNot*/ = false) const override { return true; }
+  bool isDiagonal(bool printWhyNot = false) const override { return true; }
 
   /*! Add a value to each matrix component */
   void addScalar(double v) override;
@@ -74,7 +74,7 @@ private:
   int    _getMatrixSize() const override;
   void   _allocate() override;
   void   _deallocate() override;
-  void   _prodVector(const double *in,double *out) const override;
+  void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;

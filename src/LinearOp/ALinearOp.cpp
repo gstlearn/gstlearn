@@ -32,18 +32,18 @@ ALinearOp::~ALinearOp()
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product: 'out' = Q * 'in'
+**  Evaluate the product: 'outv' = Q * 'inv'
 **
-** \param[in]  in     Array of input values
+** \param[in]  inv     Array of input values
 **
-** \param[out] out    Array of output values
+** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ALinearOp::evalDirect(const VectorDouble& in, VectorDouble& out) const
+void ALinearOp::evalDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
   try
   {
-    _evalDirect(in,out);
+    _evalDirect(inv,outv);
   }
   catch(const char * str)
   {
@@ -54,15 +54,15 @@ void ALinearOp::evalDirect(const VectorDouble& in, VectorDouble& out) const
 
 /*****************************************************************************/
 /*!
-**  Evaluate the product: 'out' = Q^{-1} * 'in'
+**  Evaluate the product: 'outv' = Q^{-1} * 'inv'
 **
-** \param[in]  in     Array of input values
+** \param[in]  inv     Array of input values
 **
-** \param[out] out    Array of output values
+** \param[out] outv    Array of output values
 **
 *****************************************************************************/
-void ALinearOp::evalInverse(const VectorDouble& in,
-                            VectorDouble& out) const
+void ALinearOp::evalInverse(const VectorDouble& inv,
+                            VectorDouble& outv) const
 {
   int n = getSize();
   if (n <= 0) my_throw("ALinearOp size not defined. Call setSize before");
@@ -73,12 +73,12 @@ void ALinearOp::evalInverse(const VectorDouble& in,
   VectorDouble p    = VectorDouble(n);
 
   if (! _x0.empty())
-    for (int i=0; i<n; i++) out[i] = _x0[i];
+    for (int i=0; i<n; i++) outv[i] = _x0[i];
   else
-    for (int i=0; i<n; i++) out[i] = 0.;
+    for (int i=0; i<n; i++) outv[i] = 0.;
 
-  evalDirect(out,temp);
-  for(int i=0; i<n; i++) r[i] = in[i] - temp[i];
+  evalDirect(outv,temp);
+  for(int i=0; i<n; i++) r[i] = inv[i] - temp[i];
   
   if (_precondStatus == 0)
     for (int i=0; i<n; i++) z[i] = r[i];
@@ -99,7 +99,7 @@ void ALinearOp::evalInverse(const VectorDouble& in,
 
     for(int i=0; i<n; i++)
     {
-      out[i] += alpha * p[i];
+      outv[i] += alpha * p[i];
       r[i]   -= alpha * temp[i];
     }
     if (_precondStatus == 0)

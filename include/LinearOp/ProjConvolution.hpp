@@ -33,7 +33,7 @@ public:
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
 
-  int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
+  int point2mesh(const VectorDouble& valonseismic, VectorDouble& valonvertex) const override;
   int mesh2point(const VectorDouble& valonvertex, VectorDouble& valonseismic) const override;
 
   int getApexNumber() const override;

@@ -11,6 +11,7 @@
 #pragma once
 
 #include "Basic/WarningMacro.hpp"
+#include "Basic/RepeatMacro.hpp"
 
 // WARNING: Make this include list as small as possible!
 #include <string>
@@ -31,12 +32,20 @@ typedef unsigned char UChar;
 
 #define EPSGRAD    1.e-5
 
+
+// Macro for preventing warning : unused variable.
+// To be used like: SYMBOL_UNSED(a, b, c)
+#define SYMBOL_UNSED_(x) (void)x;
+#define SYMBOL_UNSED(...) EXPAND(REPEAT(SYMBOL_UNSED_, __VA_ARGS__))
+
+
 // No need to this stuff through SWIG (using target language NAs)
-#ifndef SWIG
+// => Not really : Using customized SWIG 4.2.0b, TEST is often a default argument value!
+//#ifndef SWIG
 #define TEST      1.234e30
 #define TEST_COMP 1.000e30
 #define ITEST    -1234567
-#endif
+//#endif
 
 #define ASCII_TEST    -999.
 

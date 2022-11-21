@@ -115,9 +115,9 @@ void MatrixSquareSymmetric::initMatTri(int     nsize,
   for (int i=0; i<_getMatrixSize(); i++) _squareSymMatrix[i] = tab[i];
 }
 
-void MatrixSquareSymmetric::_prodVector(const double *in, double *out) const
+void MatrixSquareSymmetric::_prodVector(const double *inv, double *outv) const
 {
-  matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),in,out);
+  matrix_triangular_product(getNRows(),2,_squareSymMatrix.data(),inv,outv);
 }
 
 /**

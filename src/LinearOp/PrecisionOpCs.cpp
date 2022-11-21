@@ -126,7 +126,7 @@ void PrecisionOpCs::gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,V
   }
 }
 
-void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
+void PrecisionOpCs::evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam)
 {
   if (_work.empty()) _work.resize(getSize());
 
@@ -139,23 +139,23 @@ void PrecisionOpCs::evalDeriv(const VectorDouble& in, VectorDouble& out,int iape
 
   // Pre-processing
 
-    getShiftOp()->prodLambda(in, _work ,EPowerPT::ONE);
+    getShiftOp()->prodLambda(inv, _work ,EPowerPT::ONE);
 
   // Polynomial evaluation
 
 
     ((ClassicalPolynomial*)getPoly(getPower()))->evalDerivOp(getShiftOp(),
                                                              _work,
-                                                             out,
+                                                             outv,
                                                              iapex,
                                                              igparam);
 
     // Post-processing
 
-       getShiftOp()->prodLambda(out, out ,EPowerPT::ONE);
+       getShiftOp()->prodLambda(outv, outv ,EPowerPT::ONE);
 }
 
-void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
+void PrecisionOpCs::evalDerivOptim(VectorDouble& outv,
                                    int iapex,
                                    int igparam)
 {
@@ -171,15 +171,15 @@ void PrecisionOpCs::evalDerivOptim(VectorDouble& out,
 
 
   ((ClassicalPolynomial*) getPoly(getPower()))->evalDerivOpOptim(
-      getShiftOp(), _work,_work5,out,_workPoly, iapex, igparam);
+      getShiftOp(), _work,_work5,outv,_workPoly, iapex, igparam);
 
     // Post-processing
-       getShiftOp()->prodLambda(out, out ,EPowerPT::ONE);
+       getShiftOp()->prodLambda(outv, outv ,EPowerPT::ONE);
 
 }
 
 
-//void PrecisionOpCs::evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam)
+//void PrecisionOpCs::evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam)
 //{
 //
 //  if(getPower() == EPowerPT::ONE)

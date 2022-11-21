@@ -17,6 +17,8 @@
 #include "Basic/AException.hpp"
 #include "Db/Db.hpp"
 #include "Mesh/tetgen.h"
+#include "Basic/VectorHelper.hpp"
+
 #include "csparse_f.h"
 
 MeshEStandard::MeshEStandard()
@@ -303,6 +305,10 @@ int MeshEStandard::reset(int ndim,
   _apices.setValues(apices, byCol);
   _meshes.reset(nmeshes,napexpermesh);
   _meshes.setValues(meshes, byCol);
+
+  // Perform possible transform for compatibility
+
+  _validate();
 
   // Check consistency
 
@@ -654,8 +660,8 @@ int MeshEStandard::_create2D(int                 ndim_ref,
   
   /* Coordinates of the triangle vertices */
   
-  reset(2, 3, out.numberofpoints, out.numberofsegments, out.pointlist,
-                out.segmentlist);
+  reset(2, 3, out.numberofpoints, out.numberoftriangles, out.pointlist,
+        out.trianglelist, false);
 
   meshes_2D_free(&in,1);
   meshes_2D_free(&out,0);
@@ -945,7 +951,9 @@ void MeshEStandard::_checkConsistency() const
     {
       int apex = getApex(imesh, ic);
       if (apex < 0 || apex >= getNApices())
-        throw("Mesh indices are not compatible with the Points");
+      {
+        my_throw("Mesh indices are not compatible with the Points");
+      }
     }
 }
 
@@ -1002,7 +1010,7 @@ bool MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
  * @remark If not equal to 0 or 1, a fatal error is issued
  * @remark If equal to 1 (old style), values are decreased by 1.
  */
-void MeshEStandard::validate(bool verbose)
+void MeshEStandard::_validate()
 {
   // For safety, the minimum value of the array meshes is considered
   // If equal to , the mesh numbering must be modified in order to start from 0

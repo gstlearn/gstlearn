@@ -46,6 +46,8 @@ class Vario;
 class ANoStat;
 class ADriftElem;
 
+typedef std::vector<ECov> VectorECov;
+
 /// TODO : Create AModel which inherits from ACov ?
 class GSTLEARN_EXPORT Model : public AStringable, public ASerializable, public ICloneable
 {
@@ -367,10 +369,10 @@ public:
   double evalDrift(const Db* db,
                    int iech,
                    int il,
-                   const ECalcMember& member = ECalcMember::LHS) const;
+                   const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   VectorDouble evalDriftVec(const Db* db,
                             int iech,
-                            const ECalcMember& member = ECalcMember::LHS) const;
+                            const ECalcMember& member = ECalcMember::fromKey("LHS")) const;
   VectorDouble evalDrifts(const Db* db,
                           const VectorDouble& coeffs,
                           int ivar = 0,
@@ -420,7 +422,7 @@ public:
   int getVariableNumber() const
   {
     // TODO/ the strange next line have been commented out.
-    // There should be either validated or supressed
+    // There should be either validated or suppressed
     //    if (isFlagGradient())
     //      return 3; // This strange number of variables is linked to the Gradient calculation
     //    else
@@ -446,22 +448,21 @@ public:
                       bool asCov = false,
                       bool addZero = false);
 
-  // TODO : Remove Model::fit duplicate declaration
   int fitFromCovIndices(Vario *vario,
-                        const std::vector<ECov> &types = {ECov::EXPONENTIAL},
+                        const VectorECov &types = ECov::fromKeys({"EXPONENTIAL"}),
                         const Constraints& constraints = Constraints(),
                         Option_VarioFit optvar = Option_VarioFit(),
                         Option_AutoFit mauto = Option_AutoFit(),
                         bool verbose = false);
   int fit(Vario *vario,
-          const std::vector<ECov>& types = {ECov::SPHERICAL},
+          const VectorECov& types = ECov::fromKeys({"SPHERICAL"}),
           const Constraints& constraints = Constraints(),
           Option_VarioFit optvar = Option_VarioFit(),
           Option_AutoFit mauto = Option_AutoFit(),
           bool verbose = false);
 
   int fitFromVMap(DbGrid *dbmap,
-                  const std::vector<ECov> &types = { ECov::SPHERICAL },
+                  const VectorECov &types = ECov::fromKeys({"SPHERICAL"}),
                   const Constraints &constraints = Constraints(),
                   Option_VarioFit optvar = Option_VarioFit(),
                   Option_AutoFit mauto = Option_AutoFit(),
@@ -470,7 +471,7 @@ public:
   double gofToVario(const Vario* vario, bool verbose = true);
   void gofDisplay(double gof, bool byValue = true,
                   const VectorDouble& thresholds = {2., 5., 10., 100});
-  std::vector<ECov> initCovList(const VectorInt & covranks);
+  VectorECov initCovList(const VectorInt & covranks);
 
   bool isValid() const;
 
