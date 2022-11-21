@@ -244,12 +244,9 @@ void PrecisionOpMultiConditional::_evalDirect(const VectorVectorDouble& inv,
 
 }
 
-void PrecisionOpMultiConditional::simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result) const
+void PrecisionOpMultiConditional::simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result,int icov) const
 {
-  for(int icov=0;icov< sizes();icov++)
-  {
     _multiPrecisionOp[icov]->eval(gauss,result[icov]);
-  }
 }
 
 void PrecisionOpMultiConditional::simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,
