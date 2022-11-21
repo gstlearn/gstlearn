@@ -82,7 +82,7 @@ def ScatterOnSphere(long, lat, mode='lines', color='black', width=1,
                     m_size=15, m_width=2, dilate=1,
                     showlegend=False):
     
-    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
     meshing = Scatter(tab[0,:], tab[1,:], tab[2,:], mode=mode, 
                       color=color, width=width,
                       m_symbol=m_symbol, m_color=m_color, m_line=m_line, 
@@ -103,7 +103,7 @@ def Line(x, y, z, color='black', width=1,
 def LineOnSphere(long, lat, color='black', width=1, dilate=1., 
                  showlegend=False):
     
-    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width,
                 showlegend=showlegend
                 )
@@ -119,7 +119,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1,
     for i in range(poly.getPolySetNumber()):
         a = poly.getX(i)
         b = poly.getY(i)
-        tab = np.array(gl.ut_convert_longlat(a, b,dilate,np.nan))
+        tab = np.array(gl.GH.convertLongLat(a, b,dilate,np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -183,14 +183,15 @@ def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, colorscale='BlueRed',
     return surfaces
    
 def PointDb(db, color_name=None, size_name=None, usesel=False, 
-            color='black', size=3, opacity=1): 
-    if db.getNDim() != 3:
+            color='black', size=3, opacity=1,
+            posX=0, posY=1, posZ=2): 
+    if db.getNDim() < 3:
         print("This representation is designed for 3-D Data Base only")
         return None
                       
-    x = db.getCoordinates(0, usesel)
-    y = db.getCoordinates(1, usesel)
-    z = db.getCoordinates(2, usesel)
+    x = db.getCoordinates(posX, usesel)
+    y = db.getCoordinates(posY, usesel)
+    z = db.getCoordinates(posZ, usesel)
     
     if color_name is not None:
         colors = db.getColumn(color_name, usesel)
@@ -313,7 +314,7 @@ def Meridians(angle=10, ndisc=360, color = 'black', width=1, dilate=1.):
         lat = (np.arange(0,ndisc+1) - ndisc / 2.) * 180. / ndisc
         long = np.zeros(ndisc+1)
         long.fill(i * angle)
-        tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+        tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -337,7 +338,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
         long = np.arange(0,ndisc+1) * 360. / ndisc
         lat  = np.zeros(ndisc+1)
         lat.fill((i - number/2) * angle)
-        tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+        tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
         xp = tab[0,:]
         yp = tab[1,:]
         zp = tab[2,:]
@@ -355,7 +356,7 @@ def Parallels(angle = 10, ndisc=360, color='black', width=1, dilate=1.):
 def Pole(sizeref = 1000, dilate=1.3):
     long = np.zeros(1)
     lat = np.ones(1) * 90
-    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
     pole = go.Cone(
         u=[0],v=[0],w=[1],
         x=tab[0,:],y=tab[1,:],z=tab[2,:],
@@ -371,7 +372,7 @@ def PolarAxis(color='black', width=3, dilate=1.2):
     lat = np.zeros(2)
     lat[0] = -90.
     lat[1] = 90.
-    tab = np.array(gl.ut_convert_longlat(long, lat, dilate, np.nan))
+    tab = np.array(gl.GH.convertLongLat(long, lat, dilate, np.nan))
     
     line = Line(tab[0,:], tab[1,:], tab[2,:], color=color, width=width)
 

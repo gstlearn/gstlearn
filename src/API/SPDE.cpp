@@ -6,6 +6,7 @@
 #include "Mesh/MeshETurbo.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/NamingConvention.hpp"
 #include "Model/Model.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
@@ -211,8 +212,8 @@ void SPDE::init(Model* model,
     }
     else
     {
-      ut_vector_fill(varianceData, MAX(_nugget, 0.01 * totalSill),
-                     dat->getSampleNumber(true));
+      VH::fill(varianceData, MAX(_nugget, 0.01 * totalSill),
+               dat->getSampleNumber(true));
     }
 
     _precisionsKriging->setVarianceDataVector(varianceData);
@@ -249,8 +250,8 @@ void SPDE::computeSimuNonCond(int nbsimus, int seed) const
   {
     for(int icov = 0; icov < (int)_simuMeshing.size();icov++)
     {
-      gauss = ut_vector_simulate_gaussian(_simuMeshing[icov]->getNApices());
-      _precisionsSimu->simulateOnMeshing(gauss,_workingSimu,icov);
+      gauss = VH::simulateGaussian(_simuMeshing[icov]->getNApices());
+      _precisionsSimu->simulateOnMeshing(gauss,_workingSimu);
     }
  }
 }
@@ -260,8 +261,8 @@ void SPDE::computeSimuCond(int nbsimus, int seed) const
   computeSimuNonCond(nbsimus,seed);
   VectorDouble temp(_data->getSampleNumber(true));
   _precisionsSimu->simulateOnDataPointFromMeshings(_workingSimu,temp);
-  ut_vector_multiply_inplace(temp,-1.);
-  ut_vector_add_inplace(_workingData,temp);
+  VH::multiplyConstant(temp,-1.);
+  VH::addInPlace(_workingData,temp);
   computeKriging();
 }
 
@@ -340,7 +341,7 @@ MeshETurbo* SPDE::_createMeshing(const CovAniso & cova,
       extendMin.push_back(limits[0]);
       extendMax.push_back(limits[1]);
   }
-  VectorDouble cellSize(dim,ut_vector_min(cova.getRanges())/discr);
+  VectorDouble cellSize(dim,VH::minimum(cova.getRanges())/discr);
 
   VectorInt nx;
   VectorDouble dx;
@@ -369,7 +370,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     {
       ProjMatrix proj(db,_krigingMeshing[i]);
       proj.mesh2point(_workKriging[i],temp);
-      ut_vector_add_inplace(result,temp);
+      VH::addInPlace(result,temp);
     }
     suffix = "kriging";
   }
@@ -379,7 +380,7 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     {
       ProjMatrix proj(db,_simuMeshing[i]);
       proj.mesh2point(_workingSimu[i],temp);
-      ut_vector_add_inplace(result,temp);
+      VH::addInPlace(result,temp);
     }
     //TODO check variance
     for(int iech = 0 ; iech< (int)result.size(); iech++)
@@ -394,23 +395,21 @@ int SPDE::query(Db* db, const NamingConvention& namconv) const
     {
       ProjMatrix projSimu(db,_simuMeshing[i]);
       projSimu.mesh2point(_workingSimu[i],temp);
-      ut_vector_add_inplace(result,temp);
+      VH::addInPlace(result,temp);
       ProjMatrix projKriging(db,_krigingMeshing[i]);
       projKriging.mesh2point(_workKriging[i],temp);
-      ut_vector_add_inplace(result,temp);
+      VH::addInPlace(result,temp);
       // TODO add nugget
      }
       suffix = "condSimu";
   }
 
   temp = _model->evalDrifts(db,_driftCoeffs,ivar,useSel);
-  ut_vector_add_inplace(result,temp);
+  VH::addInPlace(result,temp);
   int iptr = db->addColumns(result,"SPDE",ELoc::Z,0,useSel,TEST);
   namconv.setNamesAndLocators(_data,ELoc::Z,1,db,iptr,suffix,1,true);
   return iptr;
 }
-
-
 
 double SPDE::computeLogDet(int nbsimus,int seed) const
 {

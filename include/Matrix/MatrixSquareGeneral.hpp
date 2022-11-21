@@ -12,7 +12,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrixSquare.hpp"
 
 /**
@@ -38,7 +39,7 @@ public:
   bool mustBeDiagCst() const override { return false; }
 
   /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool /*printWhyNot*/ = false) const override { return 1; }
+  bool isSquare(bool printWhyNot = false) const override { return 1; }
 
 protected:
 #ifndef SWIG
@@ -55,7 +56,7 @@ private:
   int    _getMatrixSize() const override;
   void   _allocate() override;
   void   _deallocate() override;
-  void   _prodVector(const double *in,double *out) const override;
+  void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
 

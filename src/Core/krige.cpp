@@ -41,6 +41,7 @@
 #include "Covariances/CovContext.hpp"
 #include "Drifts/DriftList.hpp"
 #include "Estimation/KrigingSystem.hpp"
+#include "Space/SpaceRN.hpp"
 
 #include <math.h>
 #include <string.h>
@@ -708,7 +709,7 @@ static int st_check_environment(int flag_in,
     if (flag_out)
       db_extension(DBOUT, db_mini, db_maxi, true);
 
-    model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
 
   /*****************************/
@@ -717,9 +718,9 @@ static int st_check_environment(int flag_in,
 
   if (neighparam != nullptr)
   {
-    if (neighparam->getNDim() != ndim)
+    if (ndim != (int) neighparam->getNDim())
     {
-      messerr("The Space Dimension of the Neighborhood (%d)", neighparam->getNDim());
+      messerr("The Space Dimension of the Neighborhood (%d)", (int) neighparam->getNDim());
       messerr("does not correspond to the Space Dimension of the first Db (%d)",
               ndim);
       goto label_end;
@@ -1780,7 +1781,8 @@ Global_Res global_kriging(Db *dbin,
 
   int ndim = dbin->getNDim();
   int nvar = model->getVariableNumber();
-  neighU = NeighUnique(ndim, false);
+  SpaceRN space(ndim);
+  neighU = NeighUnique(false, &space);
 
   /* Setting options */
 
@@ -1801,7 +1803,7 @@ Global_Res global_kriging(Db *dbin,
 
     VectorDouble rhs = ksys.getRHSC(ivar0);
     if (rhsCum.empty()) rhsCum.resize(rhs.size(),0.);
-    ut_vector_add_inplace(rhsCum, rhs);
+    VH::addInPlace(rhsCum, rhs);
     ng++;
   }
 
@@ -1818,7 +1820,7 @@ Global_Res global_kriging(Db *dbin,
 
   /* Load the scaled cumulated R.H.S. in the array rhs */
 
-  ut_vector_divide_inplace(rhsCum, (double) ng);
+  VH::divideConstant(rhsCum, (double) ng);
 
   /* Derive the kriging weights */
 
@@ -1830,8 +1832,8 @@ Global_Res global_kriging(Db *dbin,
 
   /* Perform the estimation */
 
-  double estim = ut_vector_inner_product(rhsCum, zam);
-  double stdv = cvv - ut_vector_inner_product(rhsCum, wgt);
+  double estim = VH::innerProduct(rhsCum, zam);
+  double stdv = cvv - VH::innerProduct(rhsCum, wgt);
   stdv = (stdv > 0) ? sqrt(stdv) : 0.;
   double cvgeo = (estim == 0. || FFFF(estim)) ? TEST : stdv / estim;
 
@@ -1859,9 +1861,7 @@ Global_Res global_kriging(Db *dbin,
     if (FFFF(estim))
       message("Estimation by kriging            = NA\n");
     else
-    {
       message("Estimation by kriging            = %lf\n", estim);
-    }
     message("Estimation St. Dev. of the mean  = %lf\n", stdv);
     if (FFFF(cvgeo))
       message("CVgeo                            = NA\n");
@@ -5597,7 +5597,8 @@ int inhomogeneous_kriging(Db *dbdat,
   /* Preliminary checks */
 
   error = nvar = 1;
-  NeighUnique* neighU = NeighUnique::create(dbdat->getNDim(),false);
+  SpaceRN space(dbdat->getNDim());
+  NeighUnique* neighU = NeighUnique::create(false, &space);
   st_global_init(dbdat, dbout);
   FLAG_EST = true;
   FLAG_STD = true;
@@ -5980,7 +5981,7 @@ int lstsqr(Db* dbin, Db* dbout, ANeighParam* neighparam, int iptr, int order)
      VectorDouble Vtarget = drft.getDriftVec(dbout,  iech);
 
      // Perform the estimation
-     double result = ut_vector_inner_product(X, Vtarget);
+     double result = VH::innerProduct(X, Vtarget);
 
      // Assign the result
      dbout->setArray(iech, iptr, result);

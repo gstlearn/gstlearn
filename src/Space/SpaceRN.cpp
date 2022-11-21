@@ -1,7 +1,7 @@
 #include "Space/SpaceRN.hpp"
 #include "Space/SpacePoint.hpp"
 #include "Basic/Tensor.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 
 SpaceRN::SpaceRN(unsigned int ndim)
  : ASpace(ndim)
@@ -31,36 +31,41 @@ SpaceRN::~SpaceRN()
 {
 }
 
+SpaceRN* SpaceRN::create(unsigned int ndim)
+{
+  return new SpaceRN(ndim);
+}
+
 void SpaceRN::move(SpacePoint& p1,
                    const VectorDouble& vec) const
 {
-  p1.setCoord(ut_vector_add(p1.getCoord(), vec));
+  p1.setCoord(VH::add(p1.getCoord(), vec));
 }
 
 double SpaceRN::getDistance(const SpacePoint& p1,
                             const SpacePoint& p2) const
 {
-  return ut_vector_norm(getIncrement(p1, p2));
+  return VH::norm(getIncrement(p1, p2));
 }
 
 double SpaceRN::getDistance(const SpacePoint& p1,
                             const SpacePoint& p2,
                             const Tensor& tensor) const
 {
-  return ut_vector_norm(tensor.applyInverse(getIncrement(p1, p2)));
+  return VH::norm(tensor.applyInverse(getIncrement(p1, p2)));
 }
 
 double SpaceRN::getFrequentialDistance(const SpacePoint& p1,
                                        const SpacePoint& p2,
                                        const Tensor& tensor) const
 {
-  return ut_vector_norm(tensor.applyDirect(getIncrement(p1, p2),0));
+  return VH::norm(tensor.applyDirect(getIncrement(p1, p2),0));
 }
 
 VectorDouble SpaceRN::getIncrement(const SpacePoint& p1,
                                    const SpacePoint& p2) const
 {
-  return ut_vector_subtract(p1.getCoord(), p2.getCoord());
+  return VH::subtract(p1.getCoord(), p2.getCoord());
 }
 
 String SpaceRN::toString(const AStringFormat* /*strfmt*/) const

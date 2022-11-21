@@ -17,7 +17,7 @@
 #include "Matrix/MatrixSquareDiagonalCst.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 
@@ -242,23 +242,23 @@ int main(int /*argc*/, char */*argv*/[])
   Vref = MRR.getDiagonal();
   V1 = MSP->getDiagonal();
   print_vector("Main Diagonal",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(1);
   V1 = MSP->getDiagonal(1);
   print_vector("Second Diagonal Below",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getDiagonal(-2);
   V1 = MSP->getDiagonal(-2);
   print_vector("Third Diagonal Above",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getRow(2);
   V1 = MSP->getRow(2);
   print_vector("Third Row",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
   Vref = MRR.getColumn(3);
   V1 = MSP->getColumn(3);
   print_vector("Fourth Column",0,(int) Vref.size(),Vref.data());
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V1));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V1));
 
   /**
    * Product of the matrix by a vector
@@ -270,15 +270,15 @@ int main(int /*argc*/, char */*argv*/[])
   Vref.resize(nrow,0.);
   MRR.prodVector(V1, Vref);
   MSG.prodVector(V1, V2);
-  message("Are results for MRR and MSG similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSG similar: %d\n",VH::isSame(Vref,V2));
   MSS.prodVector(V1, V2);
-  message("Are results for MRR and MSS similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSS similar: %d\n",VH::isSame(Vref,V2));
   MSP->prodVector(V1, V2);
-  message("Are results for MRR and MSP similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MRR and MSP similar: %d\n",VH::isSame(Vref,V2));
 
   MSD.prodVector(V1, Vref);
   MSC.prodVector(V1, V2);
-  message("Are results for MSD and MSC similar: %d\n",ut_vector_same(Vref,V2));
+  message("Are results for MSD and MSC similar: %d\n",VH::isSame(Vref,V2));
 
   /**
    * Linear solver
@@ -291,17 +291,17 @@ int main(int /*argc*/, char */*argv*/[])
 
   MSS.solve(V1, V2);
   MSS.prodVector(V2, V3);
-  message("Are results correct for MSS: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSS: %d\n",VH::isSame(V1,V3));
   MSP->solve(V1, V2);
   MSP->prodVector(V2, V3);
-  message("Are results correct for MSP: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSP: %d\n",VH::isSame(V1,V3));
 
   MSD.solve(V1, V2);
   MSD.prodVector(V2, V3);
-  message("Are results correct for MSD: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSD: %d\n",VH::isSame(V1,V3));
   MSC.solve(V1, V2);
   MSC.prodVector(V2, V3);
-  message("Are results correct for MSC: %d\n",ut_vector_same(V1,V3));
+  message("Are results correct for MSC: %d\n",VH::isSame(V1,V3));
 
   /**
    * Inversion

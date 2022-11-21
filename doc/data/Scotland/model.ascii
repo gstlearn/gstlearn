@@ -8,6 +8,7 @@ Model
 0 # Anisotropy Flag
 0 # Drift characteristics
 15 # Drift characteristics
+0 # External Drift Rank
 0.1 # Matrix of sills
 0.419739 # Matrix of sills
 1 # Var-Covar at origin

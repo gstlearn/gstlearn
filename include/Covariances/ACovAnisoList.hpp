@@ -72,7 +72,7 @@ public:
   // Filter all covariances
   void setAllFiltered(bool status);
 
-  int             getCovNumber() const;
+  int             getCovNumber() const { return (int) _covs.size(); }
   bool            isFiltered(unsigned int i) const;
   bool            hasRange() const;
   bool            isStationary() const;

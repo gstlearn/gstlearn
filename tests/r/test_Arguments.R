@@ -41,11 +41,11 @@ argumentTestVectorInt(c(NA))
 argumentTestVectorDouble(c(NA))
 
 # Testing overloading of methods
-
-argumentTestIntOverload(12)
-argumentTestIntOverload(c(21, 32))
-argumentTestStringOverload("my_String")
-argumentTestStringOverload(c("my_String1","my_String2","String3"))
+# TODO : No more possible with customized swig 4.2.0b
+#argumentTestIntOverload(12)
+#argumentTestIntOverload(c(21, 32))
+#argumentTestStringOverload("my_String")
+#argumentTestStringOverload(c("my_String1","my_String2","String3"))
 
 # Testing ENUM
 

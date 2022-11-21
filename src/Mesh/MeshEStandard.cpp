@@ -112,7 +112,7 @@ int MeshEStandard::resetFromDb(Db* dbin,
       my_throw("'dbin' and 'dbout' are both defined but with different 'ndim'");
     ndim = dbout->getNDim();
   }
-  setNDim(ndim);
+  _setNDim(ndim);
 
   // Preliminary checks 
 
@@ -165,7 +165,7 @@ int MeshEStandard::reset(const MatrixRectangular& apices,
                          bool verbose)
 {
   int ndim = apices.getNCols();
-  setNDim(ndim);
+  _setNDim(ndim);
 
   // Core allocation
 
@@ -241,7 +241,7 @@ int MeshEStandard::resetOldStyle(int                 ndim,
                                  const VectorInt&    meshes,
                                  bool                verbose)
 {
-  setNDim(ndim);
+  _setNDim(ndim);
   int npoints = static_cast<int> (apices.size()) / ndim;
   int nmeshes = static_cast<int> (meshes.size()) / napexpermesh;
 
@@ -863,7 +863,7 @@ void MeshEStandard::_defineBoundingBox(void)
   }
 
   // Store the Bounding Box extension
-  (void) setExtend(extendmin,extendmax);
+  (void) _setExtend(extendmin,extendmax);
 }
 
 /****************************************************************************/

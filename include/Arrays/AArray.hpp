@@ -11,7 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 
 class GSTLEARN_EXPORT AArray : public AStringable
@@ -31,7 +32,7 @@ public:
   void rankToIndice(int rank, VectorInt& indices) const;
 
   int getNDim() const { return (int) _ndims.size(); }
-  int getNPixels() const { return  ut_vector_prod(_ndims); }
+  int getNPixels() const { return  VH::product(_ndims); }
   const VectorInt& getNDims() const { return _ndims; }
   VectorInt getNDimsExt(int ndimMax) const;
   int getNDims(int idim) const;

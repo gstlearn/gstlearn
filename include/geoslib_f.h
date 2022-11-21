@@ -83,20 +83,6 @@ GSTLEARN_EXPORT VectorDouble db_get_attribute(Db *db,
                                               bool verbose = false);
 GSTLEARN_EXPORT VectorInt db_identify_variables_by_name(Db *db,
                                                         const String &pattern);
-GSTLEARN_EXPORT void db_stats_print(const Db *db,
-                                    const VectorInt &iatts = VectorInt(),
-                                    const VectorString &opers = VectorString(),
-                                    int flag_iso = 0,
-                                    int flag_correl = 0,
-                                    const String &title = String(),
-                                    const String &radix = String());
-GSTLEARN_EXPORT void db_stats_print(const Db *db,
-                                    const VectorString &names,
-                                    const VectorString &opers = VectorString(),
-                                    int flag_iso = 0,
-                                    int flag_correl = 0,
-                                    const String &title = String(),
-                                    const String &radix = String());
 
 /***************************/
 /* Functions for Variogram */
@@ -147,6 +133,17 @@ GSTLEARN_EXPORT DbGrid* db_vmap_compute(Db *db,
 GSTLEARN_EXPORT int dbgrid_model(DbGrid *dbgrid,
                                  Model *model,
                                  const NamingConvention &namconv = NamingConvention("VMAP"));
+
+/****************************/
+/* Functions for Statistics */
+/****************************/
+
+GSTLEARN_EXPORT VectorDouble stats_point_to_grid(DbGrid *dbgrid,
+                                                 Db *db,
+                                                 const EStatOption& oper,
+                                                 int iatt = 0,
+                                                 int jatt = 0,
+                                                 const VectorDouble &cuts = VectorDouble());
 
 /***********************/
 /* Functions for Model */

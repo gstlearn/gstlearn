@@ -12,7 +12,7 @@
 /******************************************************************************/
 #pragma once
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/AMatrix.hpp"
 
 /**
@@ -51,7 +51,7 @@ private:
   void   _transposeInPlace() override;
   void   _allocate() override;
   void   _deallocate() override;
-  void   _prodVector(const double *in,double *out) const override;
+  void   _prodVector(const double *inv,double *outv) const override;
   int    _invert() override;
   int    _solve(const VectorDouble& b, VectorDouble& x) const override;
   double _determinant() const override;

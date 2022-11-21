@@ -557,25 +557,20 @@ int kriggam(Db *dbin,
   return error;
 }
 
-/****************************************************************************/
-/*!
- **  Standard Cross-Validation
- **
- ** \return  Error return code
- **
- ** \param[in]  db          Db structure
- ** \param[in]  model       Model structure
- ** \param[in]  neighparam  ANeighParam structure
- ** \param[in]  flag_kfold  True if a code (K-FOLD) is used
- ** \param[in]  flag_xvalid_est Option for storing the estimation
- **                         1: Z*-Z; -1: Z*
- ** \param[in]  flag_xvalid_std Option for storing the standard deviation
- **                         1: (Z*-Z)/S; -1: S
- ** \param[in]  flag_xvalid_varz Option for storing the variance of the estimator
- ** \param[in]  rank_colcok Option for running Collocated Cokriging
- ** \param[in]  namconv     Naming Convention
- **
- *****************************************************************************/
+/**
+ * Standard Cross-Validation
+ *
+ * @param db Db structure
+ * @param model Model structure
+ * @param neighparam ANeighParam structure
+ * @param flag_kfold True if a code (K-FOLD) is used
+ * @param flag_xvalid_est Option for storing the estimation: 1 for Z*-Z; -1 for Z*
+ * @param flag_xvalid_std Option for storing the standard deviation: 1:for (Z*-Z)/S; -1 for S
+ * @param flag_xvalid_varz Option for storing the variance of the estimator
+ * @param rank_colcok Option for running Collocated Cokriging
+ * @param namconv Naming Convention
+ * @return Error return code
+ */
 int xvalid(Db *db,
            Model *model,
            ANeighParam *neighparam,

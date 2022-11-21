@@ -14,7 +14,7 @@
 #include "Enum/EJustify.hpp"
 
 #include "Morpho/Morpho.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
@@ -53,7 +53,7 @@ static int DEBUG = 0;
  ** \param[in,out]  tab   Array to be refactored
  **
  *****************************************************************************/
-static void st_refactor(int ncol, double *tab)
+static void st_refactor(int ncol, VectorDouble& tab)
 {
   int ix, iy;
 
@@ -73,7 +73,10 @@ static void st_refactor(int ncol, double *tab)
  ** \param[out]  tabout Array to be refactored
  **
  *****************************************************************************/
-static void st_copy_result(int nx, int ny, double *tabin, double *tabout)
+static void st_copy_result(int nx,
+                           int ny,
+                           const VectorDouble &tabin,
+                           VectorDouble &tabout)
 {
   int ix, iy, lec;
 
@@ -84,34 +87,11 @@ static void st_copy_result(int nx, int ny, double *tabin, double *tabout)
 
 /****************************************************************************/
 /*!
- **  Check the operator name is mentionned within a list
- **
- ** \return  1 if the operator is mentionned; 0 otherwise
- **
- ** \param[in]  opers Array of operators
- ** \param[in]  refe  Reference operator
- **
- ** \remarks If the array 'opers' if empty, any name is considered as valid
- **
- *****************************************************************************/
-static int st_oper_exists(const VectorString &opers, const String &refe)
-{
-  int noper = static_cast<int>(opers.size());
-  if (noper == 0) return (1);
-  for (int i = 0; i < noper; i++)
-  {
-    if (opers[i] == refe) return (1);
-  }
-  return (0);
-}
-
-/****************************************************************************/
-/*!
  **  Check the operator name
  **
  ** \return  1 if the operator is valid; 0 otherwise
  **
- ** \param[in]  oper Name of the operator
+ ** \param[in]  oper A EStatOption item
  ** \param[in]  flag_multi  1 if multivariate operator is authorized
  ** \param[in]  flag_indic  1 if indicator ("plus","minus","zero") is authorized
  ** \param[in]  flag_sum    1 if sum of variable is authorized
@@ -121,7 +101,7 @@ static int st_oper_exists(const VectorString &opers, const String &refe)
  ** \remarks If an error occurred, the message is printed
  **
  *****************************************************************************/
-static int st_oper_check(const String &oper,
+static int st_oper_check(const EStatOption& oper,
                          int flag_multi,
                          int flag_indic,
                          int flag_sum,
@@ -136,32 +116,32 @@ static int st_oper_check(const String &oper,
 
   /* Monovariate check */
 
-  if (oper == "num")  valid = 1;
-  if (oper == "mean") valid = 1;
-  if (oper == "var")  valid = 1;
-  if (oper == "corr") valid = 1;
-  if (oper == "stdv") valid = 1;
-  if (oper == "mini") valid = 1;
-  if (oper == "maxi") valid = 1;
+  if (oper == EStatOption::NUM)  valid = 1;
+  if (oper == EStatOption::MEAN) valid = 1;
+  if (oper == EStatOption::VAR)  valid = 1;
+  if (oper == EStatOption::CORR) valid = 1;
+  if (oper == EStatOption::STDV) valid = 1;
+  if (oper == EStatOption::MINI) valid = 1;
+  if (oper == EStatOption::MAXI) valid = 1;
   if (flag_sum)
   {
-    if (oper == "sum") valid = 1;
+    if (oper == EStatOption::SUM) valid = 1;
   }
   if (flag_median)
   {
-    if (oper == "med") valid = 1;
+    if (oper == EStatOption::MEDIAN) valid = 1;
   }
 
   /* Multivariate check */
 
   if (flag_multi)
   {
-    if (oper == "mean2") valid = 1;
-    if (oper == "var2") valid = 1;
-    if (oper == "stdv2") valid = 1;
+    if (oper == EStatOption::MEAN2) valid = 1;
+    if (oper == EStatOption::VAR2) valid = 1;
+    if (oper == EStatOption::STDV2) valid = 1;
     if (flag_sum)
     {
-      if (oper == "sum2") valid = 1;
+      if (oper == EStatOption::SUM2) valid = 1;
     }
   }
 
@@ -169,69 +149,20 @@ static int st_oper_check(const String &oper,
 
   if (flag_indic)
   {
-    if (oper == "plus") valid = 1;
-    if (oper == "moins") valid = 1;
-    if (oper == "zero") valid = 1;
+    if (oper == EStatOption::PLUS) valid = 1;
+    if (oper == EStatOption::MOINS) valid = 1;
+    if (oper == EStatOption::ZERO) valid = 1;
   }
 
   /* QT variables check */
 
   if (flag_qt)
   {
-    if (oper == "ore") valid = 1;
-    if (oper == "metal") valid = 1;
+    if (oper == EStatOption::ORE) valid = 1;
+    if (oper == EStatOption::METAL) valid = 1;
   }
 
-  if (!valid)
-  {
-    messerr("Invalid operator name: '%s'", oper.c_str());
-    messerr("The available operators are:");
-
-    /* Monovariate operators */
-
-    messerr("num   : Number of defined values");
-    messerr("mean  : Mean over the defined values");
-    messerr("var   : Variance over the defined values");
-    messerr("corr  : Correlation over the defined values");
-    messerr("stdv  : Standard Deviation over the defined values");
-    messerr("mini  : Minimum over the defined values");
-    messerr("maxi  : Maximum over the defined values");
-    if (flag_sum)
-    {
-      messerr("sum   : Sum of the defined values");
-    }
-
-    /* Multivariate operators */
-
-    if (flag_multi)
-    {
-      messerr("mean2 : Mean of the second variable");
-      messerr("sum2  : Sum of the second variable");
-      messerr("stdv2 : Standard deviation of the second variable");
-      messerr("var2  : Variance of the second variable");
-      if (flag_sum)
-      {
-        messerr("sum2  : Sum of the second variable");
-      }
-    }
-
-    /* Indicator variables */
-
-    if (flag_indic)
-    {
-      messerr("plus  : Number of positive samples");
-      messerr("moins : Number of negative samples");
-      messerr("zero  : Number of zero samples");
-    }
-
-    /* Qt variables */
-
-    if (flag_qt)
-    {
-      messerr("ore   : Tonnage quantity above each cutoff");
-      messerr("metal : Metal quantity above each cutoff");
-    }
-  }
+  if (!valid) messerr("Invalid operator");
 
   return (valid);
 }
@@ -240,92 +171,67 @@ static int st_oper_check(const String &oper,
 /*!
  **  Calculate the multivariate statistics between different variables of a Db
  **
- ** \return  Error Return code
+ ** \return  Resulting array (dimension; ncol if flag_mono or ncol*ncol)
  **
  ** \param[in]  db   Db structure
- ** \param[in]  oper Name of the operator
- ** \li              "num"   : Number of valid samples
- ** \li              "mean"  : Mean over the valid samples
- ** \li              "var"   : Variance over the valid samples
- ** \li              "corr"  : Correlation over the valid samples
- ** \li              "stdv"  : Standard Deviation over the valid samples
- ** \li              "mini"  : Minimum over the valid samples
- ** \li              "maxi"  : Maximum over the valid samples
- ** \li              "plus"  : Number of positive values
- ** \li              "moins" : Number of negative values
- ** \li              "zero"  : Number of zero values
+ ** \param[in]  oper A StatOption item
  ** \param[in]  cols Ranks of the variables
- ** \param[in]  flag_mono 1 for a monovariate output
- ** \param[in]  flag_verbose  1 for a verbose output
- **
- ** \param[out] result    Resulting array
- **                       (Dimension: ncol (if flag_mono) or ncol*ncol)
+ ** \param[in]  flagMono 1 for a monovariate output
+ ** \param[in]  verbose  1 for a verbose output
  **
  *****************************************************************************/
-int db_stats(Db *db,
-             const String &oper,
+VectorDouble db_stats(Db *db,
+             const EStatOption& oper,
              const VectorInt &cols,
-             int flag_mono,
-             int flag_verbose,
-             double *result)
+             bool flagMono,
+             bool verbose)
 {
-  int i, iech, nech, icol, jcol, icol1, jcol1, icol2, jcol2, iad, ncol2;
-  int error, nx, ny, ncol;
-  double *num, *m1, *m2, *v1, *v2, *v12, *mini, *maxi, *plus, *moins, *zero;
-  double val1, val2, weight;
+  VectorDouble result;
 
   /* Initializations */
-  error = 1;
-  nech = db->getSampleNumber();
-  ncol = static_cast<int>(cols.size());
-  ncol2 = ncol * ncol;
-  num = m1 = m2 = v1 = v2 = v12 = mini = maxi = nullptr;
-  plus = moins = zero = nullptr;
+
+  int nech = db->getSampleNumber();
+  int ncol = static_cast<int>(cols.size());
+  int ncol2 = ncol * ncol;
 
   /* Check that all variables are defined */
 
-  for (icol = 0; icol < ncol; icol++)
+  for (int icol = 0; icol < ncol; icol++)
   {
-    jcol = cols[icol];
+    int jcol = cols[icol];
     if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
-      goto label_end;
+      return result;
     }
   }
 
   /* Check the validity of the operator */
 
-  if (!st_oper_check(oper, 0, 1, 0, 0, 0)) goto label_end;
+  if (!st_oper_check(oper, 0, 1, 0, 0, 0)) return result;
 
   /* Core allocation */
 
-  num = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (num == nullptr) goto label_end;
-  m1 = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (m1 == nullptr) goto label_end;
-  m2 = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (m2 == nullptr) goto label_end;
-  v1 = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (v1 == nullptr) goto label_end;
-  v2 = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (v2 == nullptr) goto label_end;
-  v12 = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (v12 == nullptr) goto label_end;
-  mini = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (mini == nullptr) goto label_end;
-  maxi = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (maxi == nullptr) goto label_end;
-  plus = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (plus == nullptr) goto label_end;
-  moins = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (moins == nullptr) goto label_end;
-  zero = (double*) mem_alloc(sizeof(double) * ncol2, 0);
-  if (zero == nullptr) goto label_end;
+  if (flagMono)
+    result.resize(ncol);
+  else
+    result.resize(ncol2);
+
+  VectorDouble num(ncol2, 0.);
+  VectorDouble m1(ncol2, 0.);
+  VectorDouble m2(ncol2, 0.);
+  VectorDouble v1(ncol2, 0.);
+  VectorDouble v2(ncol2, 0.);
+  VectorDouble v12(ncol2, 0.);
+  VectorDouble mini(ncol2, 0.);
+  VectorDouble maxi(ncol2, 0.);
+  VectorDouble plus(ncol2, 0.);
+  VectorDouble moins(ncol2, 0.);
+  VectorDouble zero(ncol2, 0.);
 
   /* Initializations */
 
-  for (i = 0; i < ncol * ncol; i++)
+  for (int i = 0; i < ncol * ncol; i++)
   {
     num[i] = m1[i] = m2[i] = v1[i] = v2[i] = v12[i] = 0.;
     plus[i] = moins[i] = zero[i] = 0;
@@ -335,30 +241,30 @@ int db_stats(Db *db,
 
   /* Loop on the samples */
 
-  for (iech = 0; iech < nech; iech++)
+  for (int iech = 0; iech < nech; iech++)
   {
     if (!db->isActive(iech)) continue;
-    weight = db->getWeight(iech);
+    double weight = db->getWeight(iech);
 
     /* Loop on the first variable */
 
-    for (icol1 = 0; icol1 < ncol; icol1++)
+    for (int icol1 = 0; icol1 < ncol; icol1++)
     {
-      jcol1 = cols[icol1];
-      val1 = db->getArray(iech, jcol1);
+      int jcol1 = cols[icol1];
+      double val1 = db->getArray(iech, jcol1);
       if (FFFF(val1)) continue;
 
       /* Loop on the second variable */
 
-      for (icol2 = 0; icol2 < ncol; icol2++)
+      for (int icol2 = 0; icol2 < ncol; icol2++)
       {
-        jcol2 = cols[icol2];
-        val2 = db->getArray(iech, jcol2);
+        int jcol2 = cols[icol2];
+        double val2 = db->getArray(iech, jcol2);
         if (FFFF(val2)) continue;
 
         /* Update statistics */
 
-        iad = icol1 * ncol + icol2;
+        int iad = icol1 * ncol + icol2;
         num[iad] += weight;
         m1[iad] += weight * val1;
         m2[iad] += weight * val2;
@@ -374,12 +280,12 @@ int db_stats(Db *db,
     }
   }
 
-  /* Normation */
+  /* Normalization */
 
-  for (icol1 = 0; icol1 < ncol; icol1++)
-    for (icol2 = 0; icol2 < ncol; icol2++)
+  for (int icol1 = 0; icol1 < ncol; icol1++)
+    for (int icol2 = 0; icol2 < ncol; icol2++)
     {
-      iad = icol1 * ncol + icol2;
+      int iad = icol1 * ncol + icol2;
       if (num[iad] <= 0)
       {
         m1[iad] = TEST;
@@ -401,22 +307,22 @@ int db_stats(Db *db,
         v2[iad] = v2[iad] / num[iad] - m2[iad] * m2[iad];
         v12[iad] = v12[iad] / num[iad] - m1[iad] * m2[iad];
 
-        if (oper == "stdv")
+        if (oper == EStatOption::STDV)
         {
-          v12[iad] = (v12[iad] > 0) ? sqrt(v12[iad]) :
-                                      0.;
+          v12[iad] = (v12[iad] > 0) ? sqrt(v12[iad]) : 0.;
         }
-        if (oper == "corr")
+        if (oper == EStatOption::CORR)
         {
-          v12[iad] =
-              (v1[iad] > 0 && v2[iad] > 0) ? v12[iad] / sqrt(v1[iad] * v2[iad]) : 0.;
+          v12[iad] = (v1[iad] > 0 && v2[iad] > 0) ? v12[iad] / sqrt(v1[iad] * v2[iad]) : 0.;
         }
       }
     }
 
   /* Printout */
 
-  if (flag_mono)
+  int nx = 0;
+  int ny = 0;
+  if (flagMono)
   {
     nx = 1;
     ny = ncol;
@@ -438,75 +344,64 @@ int db_stats(Db *db,
 
   /* Optional printout */
 
-  if (flag_verbose)
+  if (verbose)
   {
     message("\n");
-    if (oper == "num")
+    if (oper == EStatOption::NUM)
       print_matrix("Matrix of Number of defined samples", 0, 1, nx, ny, NULL,
-                   num);
-    else if (oper == "mean")
-      print_matrix("Matrix of Variable Means", 0, 1, nx, ny, NULL, m1);
-    else if (oper == "var")
-      print_matrix("Matrix of Variable Variances", 0, 1, nx, ny, NULL, v12);
-    else if (oper == "corr")
-      print_matrix("Matrix of Variable Correlations", 0, 1, nx, ny, NULL, v12);
-    else if (oper == "stdv")
+                   num.data());
+    else if (oper == EStatOption::MEAN)
+      print_matrix("Matrix of Variable Means", 0, 1, nx, ny, NULL, m1.data());
+    else if (oper == EStatOption::VAR)
+      print_matrix("Matrix of Variable Variances", 0, 1, nx, ny, NULL, v12.data());
+    else if (oper == EStatOption::CORR)
+      print_matrix("Matrix of Variable Correlations", 0, 1, nx, ny, NULL, v12.data());
+    else if (oper == EStatOption::STDV)
       print_matrix("Matrix of Variable Standard Deviations", 0, 1, nx, ny, NULL,
-                   v12);
-    else if (oper == "mini")
-      print_matrix("Matrix of Variable Minima", 0, 1, nx, ny, NULL, mini);
-    else if (oper == "maxi")
-      print_matrix("Matrix of Variable Maxima", 0, 1, nx, ny, NULL, maxi);
-    else if (oper == "plus")
+                   v12.data());
+    else if (oper == EStatOption::MINI)
+      print_matrix("Matrix of Variable Minima", 0, 1, nx, ny, NULL, mini.data());
+    else if (oper == EStatOption::MAXI)
+      print_matrix("Matrix of Variable Maxima", 0, 1, nx, ny, NULL, maxi.data());
+    else if (oper == EStatOption::PLUS)
       print_matrix("Matrix of Number of positive samples", 0, 1, nx, ny, NULL,
-                   plus);
-    else if (oper == "moins")
+                   plus.data());
+    else if (oper == EStatOption::MOINS)
       print_matrix("Matrix of Number of negative samples", 0, 1, nx, ny, NULL,
-                   moins);
-    else if (oper == "zero")
+                   moins.data());
+    else if (oper == EStatOption::ZERO)
       print_matrix("Matrix of Number of zero samples", 0, 1, nx, ny, NULL,
-                   zero);
+                   zero.data());
     else
       messageAbort("This error should never happen");
   }
 
   /* Set the return array */
 
-  if (oper == "num")
+  if (oper == EStatOption::NUM)
     st_copy_result(nx, ny, num, result);
-  else if (oper == "mean")
+  else if (oper == EStatOption::MEAN)
     st_copy_result(nx, ny, m1, result);
-  else if (oper == "var")
+  else if (oper == EStatOption::VAR)
     st_copy_result(nx, ny, v12, result);
-  else if (oper == "corr")
+  else if (oper == EStatOption::CORR)
     st_copy_result(nx, ny, v12, result);
-  else if (oper == "stdv")
+  else if (oper == EStatOption::STDV)
     st_copy_result(nx, ny, v12, result);
-  else if (oper == "mini")
+  else if (oper == EStatOption::MINI)
     st_copy_result(nx, ny, mini, result);
-  else if (oper == "maxi")
+  else if (oper == EStatOption::MAXI)
     st_copy_result(nx, ny, maxi, result);
-  else if (oper == "plus")
+  else if (oper == EStatOption::PLUS)
     st_copy_result(nx, ny, plus, result);
-  else if (oper == "moins")
+  else if (oper == EStatOption::MOINS)
     st_copy_result(nx, ny, moins, result);
-  else if (oper == "zero")
+  else if (oper == EStatOption::ZERO)
     st_copy_result(nx, ny, zero, result);
   else
     messageAbort("This error should never happen");
 
-  /* Set the error return code */
-
-  error = 0;
-
-  label_end: num = (double*) mem_free((char* ) num);
-  m1 = (double*) mem_free((char* ) m1);
-  m2 = (double*) mem_free((char* ) m2);
-  v1 = (double*) mem_free((char* ) v1);
-  v2 = (double*) mem_free((char* ) v2);
-  v12 = (double*) mem_free((char* ) v12);
-
-  return (error);
+  return result;
 }
 
 /****************************************************************************/
@@ -524,12 +419,12 @@ int db_stats(Db *db,
 static void st_get_neighboring_cell(int ndim,
                                     int radius,
                                     int rank0,
-                                    int *indg0,
-                                    int *indg)
+                                    const VectorInt& indg0,
+                                    VectorInt& indg)
 {
   int nei1d, value, divid, count, reste, ratio, idim;
 
-  /* Initializtions */
+  /* Initializations */
 
   nei1d = 2 * radius + 1;
   count = (int) pow(nei1d, (double) ndim);
@@ -557,110 +452,88 @@ static void st_get_neighboring_cell(int ndim,
  **
  ** \param[in]  db     Db for the points
  ** \param[in]  dbgrid Db for the grid
- ** \param[in]  oper   Name of the operator
- ** \li                "num"   : Number of valid samples
- ** \li                "mean"  : Mean over the valid samples
- ** \li                "var"   : Variance over the valid samples
- ** \li                "stdv"  : Standard Deviation over the valid samples
- ** \li                "mini"  : Minimum over the valid samples
- ** \li                "maxi"  : Maximum over the valid samples
- ** \li                "med"   : Median over the valid samples
- ** \li                "plus"  : Number of positive values
- ** \li                "moins" : Number of negative values
- ** \li                "zero"  : Number of zero values
- ** \param[in]  ncol   Number of variables
+ ** \param[in]  oper   A EStatOption item
  ** \param[in]  cols   Ranks of the variables
  ** \param[in]  radius Neighborhood radius
+ ** \param[in]  iptr0  Storage address (first variable)
  **
  *****************************************************************************/
 int db_stats_grid(Db *db,
                   DbGrid *dbgrid,
-                  const char *oper,
-                  int ncol,
-                  int *cols,
-                  int radius)
+                  const EStatOption& oper,
+                  const VectorInt& cols,
+                  int radius,
+                  int iptr0)
 {
-  int icol, jcol, iptr, iptn, iptm, ndim, count;
-  int *indg, *indg0, nxyz, error, i, iad, iech, nmed;
-  double *coor, *medtab, ratio, value, mean, valdef;
-
-  /* Initializations */
-
-  error = 1;
-  iptm = iptn = 0;
-  indg = indg0 = nullptr;
-  coor = medtab = nullptr;
-  nxyz = dbgrid->getSampleNumber();
-  ndim = dbgrid->getNDim();
-  count = (int) pow(2. * radius + 1., (double) ndim);
+  int iptm = -1;
+  int iptn = -1;
+  int nxyz = dbgrid->getSampleNumber();
+  int ndim = dbgrid->getNDim();
+  int ncol = (int) cols.size();
+  int count = (int) pow(2. * radius + 1., (double) ndim);
 
   /* Check that all variables are defined */
 
-  for (icol = 0; icol < ncol; icol++)
+  for (int icol = 0; icol < ncol; icol++)
   {
-    jcol = cols[icol];
+    int jcol = cols[icol];
     if (!db->isColIdxValid(jcol))
     {
       messerr("Error: Variable %d is not defined", cols[icol]);
-      goto label_end;
+      return 1;
     }
   }
 
   /* Check the validity of the requested function */
 
-  if (!st_oper_check(oper, 0, 1, 0, 1, 0)) goto label_end;
+  if (!st_oper_check(oper, 0, 1, 0, 1, 0)) return 1;
 
   /* Create and initialize the new attributes */
 
-  valdef = 0.;
-  if (!strcmp(oper, "mini")) valdef = 1.e30;
-  if (!strcmp(oper, "maxi")) valdef = -1.e30;
+  double valdef = 0.;
+  if (oper == EStatOption::MINI) valdef = 1.e30;
+  if (oper == EStatOption::MAXI) valdef = -1.e30;
 
   /* Create the attributes */
 
-  if (!strcmp(oper, "mean") || !strcmp(oper, "var") || !strcmp(oper, "stdv"))
+  if (oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
     iptn = dbgrid->addColumnsByConstant(1, 0.);
-  if (!strcmp(oper, "var") || !strcmp(oper, "stdv"))
+  if (oper == EStatOption::VAR || oper == EStatOption::STDV)
     iptm = dbgrid->addColumnsByConstant(1, 0.);
 
   /* Core allocation */
 
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
-  indg0 = db_indg_alloc(dbgrid);
-  if (indg0 == nullptr) goto label_end;
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  if (!strcmp(oper, "med"))
-  {
-    medtab = db_sample_alloc(db, ELoc::X);
-    if (medtab == nullptr) goto label_end;
-  }
+  VectorDouble coor(ndim);
+  VectorInt indg0(ndim);
+  VectorInt indg(ndim);
+  VectorDouble medtab;
+  if (oper == EStatOption::MEDIAN) medtab.resize(ndim);
 
   /* Loop on the variables */
 
-  for (icol = 0; icol < ncol; icol++)
+  for (int icol = 0; icol < ncol; icol++)
   {
 
     /* Create the output attribute */
 
-    jcol = cols[icol];
-    iptr = dbgrid->addColumnsByConstant(1, valdef);
+    int jcol = cols[icol];
+    int iptr = iptr0 + icol;
     if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
     if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
+    db_attribute_init(dbgrid, 1, iptr, valdef);
 
     /* Loop on the samples */
 
-    nmed = 0;
-    for (iech = 0; iech < db->getSampleNumber(); iech++)
+    int nmed = 0;
+    for (int iech = 0; iech < db->getSampleNumber(); iech++)
     {
 
       /* Read a sample */
 
       if (!db->isActive(iech)) continue;
-      db_sample_load(db, ELoc::X, iech, coor);
-      if (point_to_grid(dbgrid, coor, 0, indg0) < 0) continue;
-      value = db->getArray(iech, jcol);
+      db->getCoordinatesInPlace(iech, coor);
+      if (dbgrid->getGrid().coordinateToIndicesInPlace(coor, indg0)) continue;
+      double value = db->getArray(iech, jcol);
       if (FFFF(value)) continue;
 
       /* Loop on the neighboring cells */
@@ -668,47 +541,47 @@ int db_stats_grid(Db *db,
       for (int ic = 0; ic < count; ic++)
       {
         st_get_neighboring_cell(ndim, radius, ic, indg0, indg);
-        iad = db_index_grid_to_sample(dbgrid, indg);
+        int iad = dbgrid->getGrid().indiceToRank(indg);
         if (iad < 0 || iad >= nxyz) continue;
 
-        if (!strcmp(oper, "num"))
+        if (oper == EStatOption::NUM)
         {
           dbgrid->updArray(iad, iptr, 0, 1.);
         }
-        else if (!strcmp(oper, "mean"))
+        else if (oper == EStatOption::MEAN)
         {
           dbgrid->updArray(iad, iptn, 0, 1.);
           dbgrid->updArray(iad, iptr, 0, value);
         }
-        else if (!strcmp(oper, "var") || !strcmp(oper, "stdv"))
+        else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
         {
           dbgrid->updArray(iad, iptn, 0, 1.);
           dbgrid->updArray(iad, iptm, 0, value);
           dbgrid->updArray(iad, iptr, 0, value * value);
         }
-        else if (!strcmp(oper, "mini"))
+        else if (oper == EStatOption::MINI)
         {
           if (value < dbgrid->getArray(iad, iptr))
             dbgrid->setArray(iad, iptr, value);
         }
-        else if (!strcmp(oper, "maxi"))
+        else if (oper == EStatOption::MAXI)
         {
           if (value > dbgrid->getArray(iad, iptr))
             dbgrid->setArray(iad, iptr, value);
         }
-        else if (!strcmp(oper, "med"))
+        else if (oper == EStatOption::MEDIAN)
         {
           medtab[nmed++] = value;
         }
-        else if (!strcmp(oper, "plus"))
+        else if (oper == EStatOption::PLUS)
         {
           if (value > 0.) dbgrid->updArray(iad, iptr, 0, 1.);
         }
-        else if (!strcmp(oper, "moins"))
+        else if (oper == EStatOption::MOINS)
         {
           if (value < 0.) dbgrid->updArray(iad, iptr, 0, 1.);
         }
-        else if (!strcmp(oper, "zero"))
+        else if (oper == EStatOption::ZERO)
         {
           if (value == 0.) dbgrid->updArray(iad, iptr, 0, 1.);
         }
@@ -719,83 +592,72 @@ int db_stats_grid(Db *db,
       }
     }
 
-    /* Normation */
+    /* Normalization */
 
-    if (!strcmp(oper, "mean"))
+    if (oper == EStatOption::MEAN)
     {
-      for (i = 0; i < nxyz; i++)
+      for (int i = 0; i < nxyz; i++)
       {
-        ratio = dbgrid->getArray(i, iptn);
+        double ratio = dbgrid->getArray(i, iptn);
         if (ratio <= 0.)
           dbgrid->setArray(i, iptr, TEST);
         else
           dbgrid->updArray(i, iptr, 3, ratio);
       }
     }
-    else if (!strcmp(oper, "var") || !strcmp(oper, "stdv"))
+    else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
     {
-      for (i = 0; i < nxyz; i++)
+      for (int i = 0; i < nxyz; i++)
       {
-        ratio = dbgrid->getArray(i, iptn);
+        double ratio = dbgrid->getArray(i, iptn);
         if (ratio <= 0.)
           dbgrid->setArray(i, iptr, TEST);
         else
         {
-          mean = dbgrid->getArray(i, iptm) / ratio;
-          value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
+          double mean = dbgrid->getArray(i, iptm) / ratio;
+          double value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
           if (value < 0) value = 0.;
-          if (!strcmp(oper, "var"))
+          if (oper == EStatOption::VAR)
             dbgrid->setArray(i, iptr, value);
           else
             dbgrid->setArray(i, iptr, sqrt(value));
         }
       }
     }
-    else if (!strcmp(oper, "med"))
+    else if (oper == EStatOption::MEDIAN)
     {
-      for (i = 0; i < nxyz; i++)
+      for (int i = 0; i < nxyz; i++)
       {
-        value = (nmed > 0) ? medtab[nmed / 2] :
-                             TEST;
+        double value = (nmed > 0) ? medtab[nmed / 2] : TEST;
         dbgrid->setArray(i, iptr, value);
       }
     }
-    else if (!strcmp(oper, "mini"))
+    else if (oper == EStatOption::MINI)
     {
-      for (i = 0; i < nxyz; i++)
+      for (int i = 0; i < nxyz; i++)
       {
-        value = dbgrid->getArray(i, iptr);
+        double value = dbgrid->getArray(i, iptr);
         if (value == 1.e30) dbgrid->setArray(i, iptr, TEST);
       }
     }
-    else if (!strcmp(oper, "maxi"))
+    else if (oper == EStatOption::MAXI)
     {
-      for (i = 0; i < nxyz; i++)
+      for (int i = 0; i < nxyz; i++)
       {
-        value = dbgrid->getArray(i, iptr);
+        double value = dbgrid->getArray(i, iptr);
         if (value == -1.e30) dbgrid->setArray(i, iptr, TEST);
       }
     }
   }
 
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end:
-
   /* Delete auxiliary attributes for local calculations */
 
-  if ((!strcmp(oper, "mean") || !strcmp(oper, "var") || !strcmp(oper, "stdv")) && iptn
-      > 0) dbgrid->deleteColumnByUID(iptn);
-  if ((!strcmp(oper, "var") || !strcmp(oper, "stdv")) && iptm > 0)
+  if ((oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
+      && iptn > 0) dbgrid->deleteColumnByUID(iptn);
+  if ((oper == EStatOption::VAR || oper == EStatOption::STDV) && iptm > 0)
     dbgrid->deleteColumnByUID(iptm);
 
-  indg = db_indg_free(indg);
-  indg0 = db_indg_free(indg0);
-  coor = db_sample_free(coor);
-  medtab = db_sample_free(medtab);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -806,158 +668,107 @@ int db_stats_grid(Db *db,
  **
  ** \param[in]  dbgrid     Db for the grid
  ** \param[in]  db         Db for the points
- ** \param[in]  oper       Name of the operation
- ** \li                     "num"   : number of active samples
- ** \li                     "mean"  : Mean of the first variable
- ** \li                     "sum"   : Sum of the first variable
- ** \li                     "std"   : Standard deviation of the first variable
- ** \li                     "var"   : Variance of the first variable
- ** \li                     "mean2" : Mean of the second variable
- ** \li                     "sum2"  : Sum of the second variable
- ** \li                     "std2"  : Standard deviation of the second variable
- ** \li                     "var2"  : Variance of the second variable
- ** \li                     "cov"   : Covariance between two variables
- ** \li                     "corr"  : Correlation between two variables
- ** \li                     "mini"  : Minimum of the first variable
- ** \li                     "maxi"  : Maximum of the first variable
- ** \li                     "ore"   : Tonnage quantity
- ** \li                     "metal" : Metal quantity
+ ** \param[in]  oper       A EStatOption item
  ** \param[in]  iatt       Rank of the first attribute
  ** \param[in]  jatt       Rank of the second attribute
- ** \param[in]  ncut       Number of cutoffs
  ** \param[in]  cuts       Array of cutoffs (optional)
  **
- ** \param[out]  tab       Output array (Dimension: 1 or ncut)
- **
  *****************************************************************************/
-int stats_point_to_grid(DbGrid *dbgrid,
-                        Db *db,
-                        const char *oper,
-                        int iatt,
-                        int jatt,
-                        int ncut,
-                        double *cuts,
-                        double *tab)
+VectorDouble stats_point_to_grid(DbGrid *dbgrid,
+                                 Db *db,
+                                 const EStatOption &oper,
+                                 int iatt,
+                                 int jatt,
+                                 const VectorDouble &cuts)
 {
-  int flag_s1, flag_v1, flag_s2, flag_v2, flag_v12, flag_mini, flag_maxi;
-  int *indg, nxyz, error, iad, flag1, flag2, flag_denorm, flag_q, flag_t;
-  double *coor, *nn, *s1, *s2, *v1, *v2, *v12, *mini, *maxi, *cutval, z1, z2,
-      ratio;
+  VectorDouble result;
+  double z1 = 0.;
+  double z2 = 0.;
+  int nxyz = dbgrid->getSampleNumber();
+  int ncut = (int) cuts.size();
+  int ndim = dbgrid->getNDim();
 
-  /* Initializations */
-
-  error = 1;
-  z1 = z2 = 0.;
-  nn = s1 = s2 = v1 = v2 = v12 = mini = maxi = cutval = nullptr;
-  indg = nullptr;
-  coor = nullptr;
-  nxyz = dbgrid->getSampleNumber();
-  flag1 = flag2 = flag_denorm = flag_q = flag_t = 0;
-  flag_s1 = flag_s2 = flag_v1 = flag_v2 = flag_v12 = flag_mini = flag_maxi = 0;
+  bool flag1 = false;
+  bool flag2 = false;
+  bool flag_denorm = false;
+  bool flag_q = false;
+  bool flag_t = false;
+  bool flag_s1 = false;
+  bool flag_s2 = false;
+  bool flag_v1 = false;
+  bool flag_v2 = false;
+  bool flag_v12 = false;
+  bool flag_mini = false;
+  bool flag_maxi =false;
 
   /* Check the operator validity */
 
-  if (!st_oper_check(oper, 1, 0, 1, 0, 1)) goto label_end;
+  if (!st_oper_check(oper, 1, 0, 1, 0, 1)) return result;
 
   /* Set the relevant flags */
 
-  if (!strcmp(oper, "num"))
+  if (oper == EStatOption::NUM)
     flag1 = 1;
-  else if (!strcmp(oper, "mean"))
+  else if (oper == EStatOption::MEAN)
     flag1 = flag_s1 = 1;
-  else if (!strcmp(oper, "sum"))
+  else if (oper == EStatOption::SUM)
     flag1 = flag_s1 = flag_denorm = 1;
-  else if (!strcmp(oper, "stdv"))
+  else if (oper == EStatOption::STDV)
     flag1 = flag_s1 = flag_v1 = 1;
-  else if (!strcmp(oper, "var"))
+  else if (oper == EStatOption::VAR)
     flag1 = flag_s1 = flag_v1 = 1;
-  else if (!strcmp(oper, "mean2"))
+  else if (oper == EStatOption::MEAN2)
     flag2 = flag_s2 = 1;
-  else if (!strcmp(oper, "sum2"))
+  else if (oper == EStatOption::SUM2)
     flag2 = flag_s2 = flag_denorm = 1;
-  else if (!strcmp(oper, "stdv2"))
+  else if (oper == EStatOption::STDV2)
     flag2 = flag_s2 = flag_v2 = 1;
-  else if (!strcmp(oper, "var2"))
+  else if (oper == EStatOption::VAR2)
     flag2 = flag_s2 = flag_v2 = 1;
-  else if (!strcmp(oper, "cov"))
+  else if (oper == EStatOption::COV)
     flag2 = flag_s1 = flag_s2 = flag_v12 = 1;
-  else if (!strcmp(oper, "corr"))
+  else if (oper == EStatOption::CORR)
     flag2 = flag_s1 = flag_s2 = flag_v1 = flag_v2 = flag_v12 = 1;
-  else if (!strcmp(oper, "mini"))
+  else if (oper == EStatOption::MINI)
     flag1 = flag_mini = 1;
-  else if (!strcmp(oper, "maxi"))
+  else if (oper == EStatOption::MAXI)
     flag1 = flag_maxi = 1;
-  else if (!strcmp(oper, "ore"))
+  else if (oper == EStatOption::ORE)
     flag1 = flag_t = 1;
-  else if (!strcmp(oper, "metal"))
+  else if (oper == EStatOption::METAL)
     flag1 = flag_q = 1;
   else
     return (1);
 
   /* Core allocation */
 
-  coor = db_sample_alloc(db, ELoc::X);
-  if (coor == nullptr) goto label_end;
-  indg = db_indg_alloc(dbgrid);
-  if (indg == nullptr) goto label_end;
-  nn = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-  if (nn == nullptr) goto label_end;
+  VectorDouble coor(ndim);
+  VectorInt indg(ndim);
+  VectorDouble nn(nxyz, 0.);
+  VectorDouble s1;
+  VectorDouble s2;
+  VectorDouble v1;
+  VectorDouble v2;
+  VectorDouble v12;
+  VectorDouble mini;
+  VectorDouble maxi;
+  VectorDouble cutval;
   if (flag_s1)
-  {
-    s1 = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (s1 == nullptr) goto label_end;
-  }
+    s1.resize(nxyz, 0.);
   if (flag_s2)
-  {
-    s2 = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (s2 == nullptr) goto label_end;
-  }
+    s2.resize(nxyz, 0.);
   if (flag_v1)
-  {
-    v1 = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (v1 == nullptr) goto label_end;
-  }
+    v1.resize(nxyz, 0.);
   if (flag_v2)
-  {
-    v2 = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (v2 == nullptr) goto label_end;
-  }
+    v2.resize(nxyz, 0.);
   if (flag_v12)
-  {
-    v12 = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (v12 == nullptr) goto label_end;
-  }
+    v12.resize(nxyz, 0.);
   if (flag_mini)
-  {
-    mini = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (mini == nullptr) goto label_end;
-  }
+    mini.resize(nxyz, TEST);
   if (flag_maxi)
-  {
-    maxi = (double*) mem_alloc(sizeof(double) * nxyz, 0);
-    if (maxi == nullptr) goto label_end;
-  }
+    maxi.resize(nxyz, TEST);
   if (flag_t || flag_q)
-  {
-    cutval = (double*) mem_alloc(sizeof(double) * nxyz * ncut, 0);
-    if (cutval == nullptr) goto label_end;
-  }
-
-  /* Array initializations */
-
-  for (int i = 0; i < nxyz; i++)
-  {
-    nn[i] = 0.;
-    if (flag_s1) s1[i] = 0.;
-    if (flag_s2) s2[i] = 0.;
-    if (flag_v1) v1[i] = 0.;
-    if (flag_v2) v2[i] = 0.;
-    if (flag_v12) v12[i] = 0.;
-    if (flag_mini) mini[i] = TEST;
-    if (flag_maxi) maxi[i] = TEST;
-    if (flag_t || flag_q) for (int icut = 0; icut < ncut; icut++)
-      cutval[icut + i * ncut] = 0;
-  }
+    cutval.resize(nxyz * ncut, 0.);
 
   /* Loop on the samples */
 
@@ -980,10 +791,8 @@ int stats_point_to_grid(DbGrid *dbgrid,
 
     /* Check the location of the data in the grid */
 
-    db_sample_load(db, ELoc::X, iech, coor);
-    if (point_to_grid(dbgrid, coor, 0, indg) < 0) continue;
-
-    iad = db_index_grid_to_sample(dbgrid, indg);
+    db->getCoordinatesInPlace(iech, coor);
+    int iad = dbgrid->getGrid().coordinateToRank(coor);
     if (iad < 0 || iad >= nxyz) continue;
     nn[iad]++;
     if (flag_s1) s1[iad] += z1;
@@ -1011,11 +820,11 @@ int stats_point_to_grid(DbGrid *dbgrid,
     }
   }
 
-  /* Normation */
+  /* Normalization */
 
   for (int i = 0; i < nxyz; i++)
   {
-    ratio = nn[i];
+    double ratio = nn[i];
     if (ratio <= 0)
     {
       if (flag_s1) s1[i] = TEST;
@@ -1063,383 +872,45 @@ int stats_point_to_grid(DbGrid *dbgrid,
 
   for (int i = 0; i < nxyz; i++)
   {
-    if (!strcmp(oper, "num"))
-      tab[i] = nn[i];
-    else if (!strcmp(oper, "mean"))
-      tab[i] = s1[i];
-    else if (!strcmp(oper, "sum"))
-      tab[i] = s1[i];
-    else if (!strcmp(oper, "stdv"))
-      tab[i] = v1[i];
-    else if (!strcmp(oper, "var"))
-      tab[i] = v1[i] * v1[i];
-    else if (!strcmp(oper, "mean2"))
-      tab[i] = s2[i];
-    else if (!strcmp(oper, "sum2"))
-      tab[i] = s2[i];
-    else if (!strcmp(oper, "stdv2"))
-      tab[i] = v2[i];
-    else if (!strcmp(oper, "var2"))
-      tab[i] = v2[i] * v2[i];
-    else if (!strcmp(oper, "cov"))
-      tab[i] = v12[i];
-    else if (!strcmp(oper, "corr"))
+    if (oper == EStatOption::NUM)
+      result[i] = nn[i];
+    else if (oper == EStatOption::MEAN)
+      result[i] = s1[i];
+    else if (oper == EStatOption::SUM)
+      result[i] = s1[i];
+    else if (oper == EStatOption::STDV)
+      result[i] = v1[i];
+    else if (oper == EStatOption::VAR)
+      result[i] = v1[i] * v1[i];
+    else if (oper == EStatOption::MEAN2)
+      result[i] = s2[i];
+    else if (oper == EStatOption::SUM2)
+      result[i] = s2[i];
+    else if (oper == EStatOption::STDV2)
+      result[i] = v2[i];
+    else if (oper == EStatOption::VAR2)
+      result[i] = v2[i] * v2[i];
+    else if (oper == EStatOption::COV)
+      result[i] = v12[i];
+    else if (oper == EStatOption::CORR)
     {
-      if (v1[i] > 0. && v2[i] > 0.) tab[i] = v12[i] / (v1[i] * v2[i]);
+      if (v1[i] > 0. && v2[i] > 0.) result[i] = v12[i] / (v1[i] * v2[i]);
     }
-    else if (!strcmp(oper, "mini"))
-      tab[i] = mini[i];
-    else if (!strcmp(oper, "maxi"))
-      tab[i] = maxi[i];
-    else if (!strcmp(oper, "ore"))
+    else if (oper == EStatOption::MINI)
+      result[i] = mini[i];
+    else if (oper == EStatOption::MAXI)
+      result[i] = maxi[i];
+    else if (oper == EStatOption::ORE)
       for (int icut = 0; icut < ncut; icut++)
-        tab[i + icut * nxyz] = cutval[icut + i * ncut];
-    else if (!strcmp(oper, "metal"))
+        result[i + icut * nxyz] = cutval[icut + i * ncut];
+    else if (oper == EStatOption::METAL)
       for (int icut = 0; icut < ncut; icut++)
-        tab[i + icut * nxyz] = cutval[icut + i * ncut];
+        result[i + icut * nxyz] = cutval[icut + i * ncut];
     else
-      goto label_end;
+      return result;
   }
 
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: indg = db_indg_free(indg);
-  coor = db_sample_free(coor);
-  nn = (double*) mem_free((char* ) nn);
-  s1 = (double*) mem_free((char* ) s1);
-  s2 = (double*) mem_free((char* ) s2);
-  v1 = (double*) mem_free((char* ) v1);
-  v2 = (double*) mem_free((char* ) v2);
-  v12 = (double*) mem_free((char* ) v12);
-  mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
-  cutval = (double*) mem_free((char* ) cutval);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Update the proportions
- **
- ** \param[in]  dbin       Db for the input grid
- ** \param[in]  indg       Array of grid indices
- ** \param[in]  nfacies    Number of facies
- **
- ** \param[out] prop       Array of proportions
- **
- *****************************************************************************/
-static void st_update_prop(DbGrid *dbin, int *indg, int nfacies, double *prop)
-{
-  int ifac;
-
-  ifac = (int) dbin->getVariable(db_index_grid_to_sample(dbin, indg), 0);
-  if (ifac < 1 || ifac > nfacies) return;
-  prop[ifac - 1] += 1.;
-}
-
-/****************************************************************************/
-/*!
- **  Update the transitions
- **
- ** \param[in]  dbin       DbGrid for the input grid
- ** \param[in]  pos        Rank of the montee axis
- ** \param[in]  indg       Array of grid indices
- ** \param[in]  nfacies    Number of facies
- ** \param[in]  orient     Orientation
- **
- ** \param[out] trans      Array of transitions
- **
- *****************************************************************************/
-static void st_update_trans(DbGrid *dbin,
-                            int pos,
-                            int *indg,
-                            int nfacies,
-                            int orient,
-                            double *trans)
-{
-  int ifac1, ifac2, jpos;
-
-  jpos = indg[pos] + orient;
-  if (jpos <= 0 || jpos >= dbin->getNX(pos)) return;
-  ifac1 = (int) dbin->getVariable(db_index_grid_to_sample(dbin, indg), 0);
-  indg[pos] += orient;
-  ifac2 = (int) dbin->getVariable(db_index_grid_to_sample(dbin, indg), 0);
-  indg[pos] -= orient;
-
-  if (ifac1 < 1 || ifac1 > nfacies || ifac2 < 1 || ifac2 > nfacies) return;
-
-  trans[(ifac1 - 1) * nfacies + (ifac2 - 1)] += 1.;
-}
-
-/****************************************************************************/
-/*!
- **  Scale the proportions and store the proportions
- **
- ** \param[in]  dbout      Db for the output grid
- ** \param[in]  iptr       Writing pointer
- ** \param[in]  iech       Rank of the target sample
- ** \param[in]  nitem      Number of items
- ** \param[in]  tab        Array of cumulative statistics
- **
- *****************************************************************************/
-static void st_scale_and_affect(Db *dbout,
-                                int iptr,
-                                int iech,
-                                int nitem,
-                                double *tab)
-{
-  int ifac;
-  double value, total;
-
-  total = 0.;
-  for (ifac = 0; ifac < nitem; ifac++)
-    total += tab[ifac];
-
-  for (ifac = 0; ifac < nitem; ifac++)
-  {
-    if (total <= 0.)
-      value = TEST;
-    else
-      value = tab[ifac] / total;
-    dbout->setArray(iech, iptr + ifac, value);
-  }
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the montee from a grid into a 1-D grid
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Db for the input grid
- ** \param[in]  dbout      Db for the output grid
- ** \param[in]  pos        Rank of the montee axis (starting from 0)
- ** \param[in]  nfacies    Number of facies
- ** \param[in]  radius     Radius of the neighborhood
- **
- *****************************************************************************/
-int stats_proportion(DbGrid *dbin,
-                     DbGrid *dbout,
-                     int pos,
-                     int nfacies,
-                     int radius)
-{
-  double *prop;
-  int *indg, ndim, ngrid, error, iptr, iech, ifac, aux1, aux2, bux1, bux2,
-      ishift, i1, i2;
-
-  /* Initializations */
-
-  error = 1;
-  indg = nullptr;
-  prop = nullptr;
-
-  /* Preliminary checks */
-
-  ndim = dbin->getNDim();
-  if (ndim != 2 && ndim != 3)
-  {
-    messerr("This function is limited to 2-D or 3-D input grids");
-    goto label_end;
-  }
-  if (pos < 0 || pos >= ndim)
-  {
-    messerr("The rank of the 'montee' axis should lie between 1 and %d", ndim);
-    goto label_end;
-  }
-  if (dbin->getNX(pos) != dbout->getNX(0) || dbin->getX0(pos) != dbout->getX0(0)
-      || dbin->getDX(pos) != dbout->getDX(0))
-  {
-    messerr("The 1-D output grid does not match input grid");
-    goto label_end;
-  }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
-
-  /* Core allocation */
-
-  ngrid = dbin->getNX(pos);
-  indg = db_indg_alloc(dbin);
-  prop = (double*) mem_alloc(sizeof(double) * nfacies, 0);
-  if (prop == nullptr) goto label_end;
-
-  /* Create the new variables in the output file */
-
-  iptr = dbout->addColumnsByConstant(nfacies, TEST);
-  if (iptr < 0) goto label_end;
-
-  /* Loop on the elements of the output grid */
-
-  for (iech = 0; iech < ngrid; iech++)
-  {
-    for (ifac = 0; ifac < nfacies; ifac++)
-      prop[ifac] = 0.;
-
-    if (ndim == 2)
-    {
-      aux1 = (pos + 1) % ndim;
-      for (ishift = -radius; ishift <= radius; ishift++)
-      {
-        indg[pos] = iech + ishift;
-        if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1 = 0; i1 < dbin->getNX(aux1); i1++)
-        {
-          indg[aux1] = i1;
-          st_update_prop(dbin, indg, nfacies, prop);
-        }
-        st_scale_and_affect(dbout, iptr, iech, nfacies, prop);
-      }
-    }
-    else
-    {
-      bux1 = (pos + 1) % ndim;
-      bux2 = (pos + 2) % ndim;
-      aux1 = MIN(bux1, bux2);
-      aux2 = MAX(bux1, bux2);
-      for (ishift = -radius; ishift <= radius; ishift++)
-      {
-        indg[pos] = iech + ishift;
-        if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1 = 0; i1 < dbin->getNX(aux1); i1++)
-          for (i2 = 0; i2 < dbin->getNX(aux2); i2++)
-          {
-            indg[aux1] = i1;
-            indg[aux2] = i2;
-            st_update_prop(dbin, indg, nfacies, prop);
-          }
-        st_scale_and_affect(dbout, iptr, iech, nfacies, prop);
-      }
-    }
-  }
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: prop = (double*) mem_free((char* ) prop);
-  indg = db_indg_free(indg);
-  return (error);
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the transition from a grid into a 1-D grid
- **
- ** \return  Error return code
- **
- ** \param[in]  dbin       Db for the input grid
- ** \param[in]  dbout      Db for the output grid
- ** \param[in]  pos        Rank of the montee axis (starting from 0)
- ** \param[in]  nfacies    Number of facies
- ** \param[in]  radius     Radius of the neighborhood
- ** \param[in]  orient     Orientation (+1 or -1)
- **
- *****************************************************************************/
-int stats_transition(DbGrid *dbin,
-                     DbGrid *dbout,
-                     int pos,
-                     int nfacies,
-                     int radius,
-                     int orient)
-{
-  double *trans;
-  int *indg;
-  int ndim, ngrid, error, iptr, iech, item, aux1, aux2, bux1, bux2, i1, i2,
-      ishift, nitem;
-
-  /* Initializations */
-
-  error = 1;
-  indg = nullptr;
-  trans = nullptr;
-
-  /* Preliminary checks */
-
-  ndim = dbin->getNDim();
-  if (ndim != 2 && ndim != 3)
-  {
-    messerr("This function is limited to 2-D or 3-D input grids");
-    goto label_end;
-  }
-  if (pos < 0 || pos >= ndim)
-  {
-    messerr("The rank of the 'montee' axis should lie between 1 and %d", ndim);
-    goto label_end;
-  }
-  if (dbin->getNX(pos) != dbout->getNX(0) || dbin->getX0(pos) != dbout->getX0(0)
-      || dbin->getDX(pos) != dbout->getDX(0))
-  {
-    messerr("The 1-D output grid does not match input grid");
-    goto label_end;
-  }
-  if (!dbin->isVariableNumberComparedTo(1)) goto label_end;
-
-  /* Core allocation */
-
-  ngrid = dbin->getNX(pos);
-  indg = db_indg_alloc(dbin);
-  nitem = nfacies * nfacies;
-  trans = (double*) mem_alloc(sizeof(double) * nitem, 0);
-  if (trans == nullptr) goto label_end;
-
-  /* Create the new variables in the output file */
-
-  iptr = dbout->addColumnsByConstant(nfacies * nfacies, TEST);
-  if (iptr < 0) goto label_end;
-
-  /* Loop on the elements of the output grid */
-
-  for (iech = 0; iech < ngrid; iech++)
-  {
-    indg[pos] = iech;
-    for (item = 0; item < nitem; item++)
-      trans[item] = 0.;
-
-    if (ndim == 2)
-    {
-      aux1 = (pos + 1) % ndim;
-      for (ishift = -radius; ishift <= radius; ishift++)
-      {
-        indg[pos] = iech + ishift;
-        if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1 = 0; i1 < dbin->getNX(aux1); i1++)
-        {
-          indg[aux1] = i1;
-          st_update_trans(dbin, pos, indg, nfacies, orient, trans);
-        }
-        st_scale_and_affect(dbout, iptr, iech, nitem, trans);
-      }
-    }
-    else
-    {
-      bux1 = (pos + 1) % ndim;
-      bux2 = (pos + 2) % ndim;
-      aux1 = MIN(bux1, bux2);
-      aux2 = MAX(bux1, bux2);
-      for (ishift = -radius; ishift <= radius; ishift++)
-      {
-        indg[pos] = iech + ishift;
-        if (indg[pos] < 0 || indg[pos] >= ngrid) continue;
-        for (i1 = 0; i1 < dbin->getNX(aux1); i1++)
-          for (i2 = 0; i2 < dbin->getNX(aux2); i2++)
-          {
-            indg[aux1] = i1;
-            indg[aux2] = i2;
-            st_update_trans(dbin, pos, indg, nfacies, orient, trans);
-          }
-        st_scale_and_affect(dbout, iptr, iech, nitem, trans);
-      }
-    }
-  }
-
-  /* Set the error return flag */
-
-  error = 0;
-
-  label_end: trans = (double*) mem_free((char* ) trans);
-  indg = db_indg_free(indg);
-  return (error);
+  return 0;
 }
 
 /****************************************************************************/
@@ -1462,7 +933,7 @@ int stats_transition(DbGrid *dbin,
  ** \param[out] numtab1   Array containing the sample count
  ** \param[out] valtab1   Array containing the sample value
  **
- ** \remarks  The array ind0, ixyz and nxyz are dimensionned to ndim
+ ** \remarks  The array ind0, ixyz and nxyz are dimensioned to ndim
  **
  *****************************************************************************/
 static double st_extract_subgrid(int verbose,
@@ -2817,269 +2288,6 @@ int db_diffusion(DbGrid *dbgrid1,
 
 /****************************************************************************/
 /*!
- **  Constitute the name of the row
- **
- ** \param[in]  radix       Radix for the different variables (optional)
- ** \param[in]  ncol        Number of variables
- ** \param[in]  icol        Rank of the variable
- ** \param[in]  name        Variables name
- ** \param[in]  string      String array
- **
- *****************************************************************************/
-static void st_get_rowname(const String &radix,
-                           int ncol,
-                           int icol,
-                           const String &name,
-                           char *string)
-{
-  if (!radix.empty())
-    (void) gslSPrintf(string, "%s-%d", radix.c_str(), icol + 1);
-  else if (!name.empty())
-    (void) gslSPrintf(string, "%s", name.c_str());
-  else if (ncol > 1)
-    (void) gslSPrintf(string, "Variable-%d", icol + 1);
-  else
-    (void) gslSPrintf(string, "Variable");
-}
-
-/****************************************************************************/
-/*!
- **  Print the multivariate statistics between different variables of a Db
- **
- ** \param[in]  db          Db structure
- ** \param[in]  iatts_arg   Ranks of the attributes (empty = all)
- ** \param[in]  flag_iso    Restrain statistics to isotopic samples
- ** \param[in]  flag_correl 1 if the correlations must be calculated
- ** \param[in]  title       Title for the printout (optional)
- ** \param[in]  radix       Radix for the different variables (optional)
- ** \param[in]  opers       Array of operators
- **
- *****************************************************************************/
-void db_stats_print(const Db *db,
-                    const VectorInt &iatts_arg,
-                    const VectorString &opers,
-                    int flag_iso,
-                    int flag_correl,
-                    const String &title,
-                    const String &radix)
-{
-  double *data, *mean, *var, *mini, *maxi, *cov, *num;
-  int iech, icol, jcol, numiso, ijcol, nundef, taille, noper, ncol;
-  char string[50];
-
-  /* Initializations */
-
-  data = mean = mini = maxi = var = cov = num = nullptr;
-  noper = static_cast<int>(opers.size());
-  VectorInt iatts = iatts_arg;
-  if (iatts.empty()) iatts = db->getAllUIDs();
-  ncol = static_cast<int>(iatts.size());
-
-  /* Preliminary checks */
-
-  if (noper > 0)
-  {
-    for (int i = 0; i < noper; i++)
-    {
-      if (!st_oper_check(opers[i], 0, 0, 0, 0, 0)) goto label_end;
-    }
-  }
-  if (flag_correl && ncol <= 1)
-    messerr("Correlation matrix will not be printed for a single variable");
-
-  /* Core allocation */
-
-  data = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (data == nullptr) goto label_end;
-  mean = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (mean == nullptr) goto label_end;
-  mini = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (mini == nullptr) goto label_end;
-  maxi = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (maxi == nullptr) goto label_end;
-  var = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (var == nullptr) goto label_end;
-  num = (double*) mem_alloc(sizeof(double) * ncol, 0);
-  if (num == nullptr) goto label_end;
-  if (flag_correl)
-  {
-    cov = (double*) mem_alloc(sizeof(double) * ncol * ncol, 0);
-    if (cov == nullptr) goto label_end;
-  }
-
-  /* Initializations */
-
-  numiso = 0;
-  for (icol = ijcol = 0; icol < ncol; icol++)
-  {
-    mean[icol] = var[icol] = num[icol] = 0.;
-    mini[icol] = 1.e30;
-    maxi[icol] = -1.e30;
-    if (flag_correl) for (jcol = 0; jcol < ncol; jcol++, ijcol++)
-      cov[ijcol] = 0.;
-  }
-
-  /* Loop on the samples */
-
-  for (iech = 0; iech < db->getSampleNumber(); iech++)
-  {
-    if (!db->isActive(iech)) continue;
-
-    /* Look for isotopic sample */
-
-    for (icol = nundef = 0; icol < ncol; icol++)
-    {
-      data[icol] = db->getArray(iech, iatts[icol]);
-      if (FFFF(data[icol])) nundef++;
-    }
-    if (flag_iso && nundef > 0) continue;
-
-    /* Calculate the 1-point statistics */
-
-    for (icol = 0; icol < ncol; icol++)
-    {
-      if (FFFF(data[icol])) continue;
-      num[icol] += 1.;
-      mean[icol] += data[icol];
-      var[icol] += data[icol] * data[icol];
-      if (data[icol] < mini[icol]) mini[icol] = data[icol];
-      if (data[icol] > maxi[icol]) maxi[icol] = data[icol];
-    }
-
-    if (nundef > 0) continue;
-    numiso++;
-    if (flag_correl) for (icol = ijcol = 0; icol < ncol; icol++)
-      for (jcol = 0; jcol < ncol; jcol++, ijcol++)
-        cov[ijcol] += data[icol] * data[jcol];
-  }
-
-  /* Normalization */
-
-  for (icol = 0; icol < ncol; icol++)
-  {
-    if (num[icol] > 0)
-    {
-      mean[icol] /= num[icol];
-      var[icol] /= num[icol];
-      var[icol] -= mean[icol] * mean[icol];
-      if (var[icol] <= 0) var[icol] = 0.;
-    }
-  }
-  if (numiso > 0 && flag_correl) for (icol = ijcol = 0; icol < ncol; icol++)
-    for (jcol = 0; jcol < ncol; jcol++, ijcol++)
-    {
-      cov[ijcol] /= numiso;
-      cov[ijcol] -= mean[icol] * mean[jcol];
-      cov[ijcol] /= sqrt(var[icol] * var[jcol]);
-    }
-
-  /************/
-  /* Printout */
-  /************/
-
-  if (!title.empty()) mestitle(1, title.c_str());
-
-  /* Calculate the maximum size of the variable */
-
-  taille = 0;
-  for (icol = 0; icol < ncol; icol++)
-  {
-    st_get_rowname(radix, ncol, icol, db_name_get_by_att(db, iatts[icol]),
-                   string);
-    taille = MAX(taille, (int ) strlen(string));
-  }
-
-  /* Print the header of the monovariate statistics */
-
-  tab_print_rowname(" ", taille);
-  if (st_oper_exists(opers, "num"))
-    tab_prints(NULL, "Number");
-  if (st_oper_exists(opers, "mini"))
-    tab_prints(NULL, "Minimum");
-  if (st_oper_exists(opers, "maxi"))
-    tab_prints(NULL, "Maximum");
-  if (st_oper_exists(opers, "mean"))
-    tab_prints(NULL, "Mean");
-  if (st_oper_exists(opers, "stdv"))
-    tab_prints(NULL, "St. Dev.");
-  if (st_oper_exists(opers, "var"))
-    tab_prints(NULL, "Variance");
-  message("\n");
-
-  /* Print the monovariate statistics */
-
-  for (icol = 0; icol < ncol; icol++)
-  {
-    st_get_rowname(radix, ncol, icol, db_name_get_by_att(db, iatts[icol]),
-                   string);
-    tab_print_rowname(string, taille);
-
-    if (st_oper_exists(opers, "num"))
-      tab_printi(NULL, (int) num[icol]);
-    if (num[icol] > 0)
-    {
-      if (st_oper_exists(opers, "mini"))
-        tab_printg(NULL, mini[icol]);
-      if (st_oper_exists(opers, "maxi"))
-        tab_printg(NULL, maxi[icol]);
-      if (st_oper_exists(opers, "mean"))
-        tab_printg(NULL, mean[icol]);
-      if (st_oper_exists(opers, "stdv"))
-        tab_printg(NULL, sqrt(var[icol]));
-      if (st_oper_exists(opers, "var"))
-        tab_printg(NULL, var[icol]);
-    }
-    else
-    {
-      if (st_oper_exists(opers, "mini"))
-        tab_prints(NULL, STRING_NA);
-      if (st_oper_exists(opers, "maxi"))
-        tab_prints(NULL, STRING_NA);
-      if (st_oper_exists(opers, "mean"))
-        tab_prints(NULL, STRING_NA);
-      if (st_oper_exists(opers, "stdv"))
-        tab_prints(NULL, STRING_NA);
-      if (st_oper_exists(opers, "var"))
-        tab_prints(NULL, STRING_NA);
-    }
-    message("\n");
-  }
-  message("\n");
-
-  /* Print the correlation matrix  and count of isotopic samples */
-
-  if (ncol > 1 && numiso > 0 && flag_correl)
-  {
-    message("Number of isotopic active samples = %d\n", numiso);
-    print_matrix("Correlation matrix", 0, 1, ncol, ncol, NULL, cov);
-    message("\n");
-  }
-
-  label_end: data = (double*) mem_free((char* ) data);
-  mean = (double*) mem_free((char* ) mean);
-  mini = (double*) mem_free((char* ) mini);
-  maxi = (double*) mem_free((char* ) maxi);
-  var = (double*) mem_free((char* ) var);
-  cov = (double*) mem_free((char* ) cov);
-  num = (double*) mem_free((char* ) num);
-  return;
-}
-
-void db_stats_print(const Db *db,
-                    const VectorString &names,
-                    const VectorString &opers,
-                    int flag_iso,
-                    int flag_correl,
-                    const String &title,
-                    const String &radix)
-{
-  VectorInt iatts = db->getUIDs(names);
-  if (iatts.size() <= 0) return;
-  db_stats_print(db, iatts, opers, flag_iso, flag_correl, title, radix);
-}
-
-/****************************************************************************/
-/*!
  **  Create residuals
  **
  ** \return  Error returned code
@@ -3195,245 +2403,4 @@ int stats_residuals(int verbose,
   (*nsorted) = nactive;
   (*mean) = moyenne;
   return (0);
-}
-
-/****************************************************************************/
-/*!
- **  Calculates the monovariate statistics of each Z-variable
- **  within cells of a grid
- **
- ** \param[in]  db     Db for the points
- ** \param[in]  dbgrid Db for the grid
- ** \param[in]  oper   Name of the operator
- ** \param[in]  radius Neighborhood radius
- ** \param[in]  iptr0  Storage address
- **
- *****************************************************************************/
-void calc_stats_grid(Db *db,
-                     DbGrid *dbgrid,
-                     const EStatOption &oper,
-                     int radius,
-                     int iptr0)
-{
-  double value, mean, ratio;
-
-  int nxyz = dbgrid->getSampleNumber();
-  int ndim = dbgrid->getNDim();
-  int count = (int) pow(2. * radius + 1., (double) ndim);
-  int nvar  = db->getVariableNumber();
-
-  /* Create and initialize the new attributes */
-
-  double valdef = 0.;
-  if (oper == EStatOption::MINI) valdef = +1.e30;
-  if (oper == EStatOption::MAXI) valdef = -1.e30;
-
-  /* Create the attributes */
-
-  int iptn = -1;
-  int iptm = -1;
-  if (oper == EStatOption::MEAN || oper == EStatOption::VAR || oper == EStatOption::STDV)
-    iptn = dbgrid->addColumnsByConstant(1, 0.);
-  if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-    iptm = dbgrid->addColumnsByConstant(1, 0.);
-
-  /* Loop on the variables */
-
-  VectorDouble coor(ndim);
-  VectorInt indg0(ndim);
-  VectorInt indg(ndim);
-  for (int ivar = 0; ivar < nvar; ivar++)
-  {
-
-    /* Create the output attribute */
-
-    int icol = db->getUIDByLocator(ELoc::Z, ivar);
-    int iptr = iptr0 + ivar;
-    if (iptn > 0) db_attribute_init(dbgrid, 1, iptn, 0.);
-    if (iptm > 0) db_attribute_init(dbgrid, 1, iptm, 0.);
-    db_attribute_init(dbgrid, 1, iptr, valdef);
-
-    /* Loop on the samples */
-
-    for (int iech = 0; iech < db->getSampleNumber(); iech++)
-    {
-
-      /* Read a sample */
-
-      if (!db->isActive(iech)) continue;
-      db->getCoordinatesInPlace(iech, coor);
-      if (dbgrid->coordinateToIndicesInPlace(coor, indg0, true)) continue;
-      value = db->getArray(iech, icol);
-      if (FFFF(value)) continue;
-
-      /* Loop on the neighboring cells */
-
-      for (int ic = 0; ic < count; ic++)
-      {
-        st_get_neighboring_cell(ndim, radius, ic, indg0.data(), indg.data());
-        int iad = dbgrid->indiceToRank(indg);
-        if (iad < 0 || iad >= nxyz) continue;
-
-        if (oper == EStatOption::NUM)
-        {
-          dbgrid->updArray(iad, iptr, 0, 1.);
-        }
-        else if (oper == EStatOption::MEAN)
-        {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptr, 0, value);
-        }
-        else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-        {
-          dbgrid->updArray(iad, iptn, 0, 1.);
-          dbgrid->updArray(iad, iptm, 0, value);
-          dbgrid->updArray(iad, iptr, 0, value * value);
-        }
-        else if (oper == EStatOption::MINI)
-        {
-          if (value < dbgrid->getArray(iad, iptr))
-            dbgrid->setArray(iad, iptr, value);
-        }
-        else if (oper == EStatOption::MAXI)
-        {
-          if (value > dbgrid->getArray(iad, iptr))
-            dbgrid->setArray(iad, iptr, value);
-        }
-        else
-        {
-          value = 0.;
-        }
-      }
-    }
-
-    /* Normalization */
-
-    if (oper == EStatOption::MEAN)
-    {
-      for (int i = 0; i < nxyz; i++)
-      {
-        ratio = dbgrid->getArray(i, iptn);
-        if (ratio <= 0.)
-          dbgrid->setArray(i, iptr, TEST);
-        else
-          dbgrid->updArray(i, iptr, 3, ratio);
-      }
-    }
-    else if (oper == EStatOption::VAR || oper == EStatOption::STDV)
-    {
-      for (int i = 0; i < nxyz; i++)
-      {
-        ratio = dbgrid->getArray(i, iptn);
-        if (ratio <= 0.)
-          dbgrid->setArray(i, iptr, TEST);
-        else
-        {
-          mean = dbgrid->getArray(i, iptm) / ratio;
-          value = dbgrid->getArray(i, iptr) / ratio - mean * mean;
-          if (value < 0) value = 0.;
-          if (oper == EStatOption::VAR)
-            dbgrid->setArray(i, iptr, value);
-          else
-            dbgrid->setArray(i, iptr, sqrt(value));
-        }
-      }
-    }
-    else if (oper == EStatOption::MINI)
-    {
-      for (int i = 0; i < nxyz; i++)
-      {
-        value = dbgrid->getArray(i, iptr);
-        if (value == 1.e30) dbgrid->setArray(i, iptr, TEST);
-      }
-    }
-    else if (oper == EStatOption::MAXI)
-    {
-      for (int i = 0; i < nxyz; i++)
-      {
-        value = dbgrid->getArray(i, iptr);
-        if (value == -1.e30) dbgrid->setArray(i, iptr, TEST);
-      }
-    }
-  }
-
-  /* Delete auxiliary attributes for local calculations */
-
-  if (iptn > 0) dbgrid->deleteColumnByUID(iptn);
-  if (iptm > 0) dbgrid->deleteColumnByUID(iptm);
-}
-
-/****************************************************************************/
-/*!
- **  Evaluate the regression
- **
- ** \return  Error return code
- **
- ** \param[in,out]  db1        Db descriptor (for target variable)
- ** \param[in]  name0          Name of the target variable
- ** \param[in]  names          Vector of names of the explanatory variables
- ** \param[in]  mode           Type of calculation
- ** \li                        0 : standard multivariate case
- ** \li                        1 : using external drifts
- ** \li                        2 : using standard drift functions (mode==2)
- ** \param[in]  flagCste       The constant is added as explanatory variable]
- ** \param[in]  db2            Db descriptor (for auxiliary variables)
- ** \param[in]  model          Model structure (used for mode==2)
- ** \param[in]  iptr0          Storing address
- **
- ** \remark  The flag_mode indicates the type of regression calculation:
- ** \remark  0 : V[icol] as a function of V[icols[i]]
- ** \remark  1 : Z1 as a function of the different Fi's
- **
- ** \remark  The Db1 structure is modified: the column (iptr0) of the Db1
- ** \remark  is added by this function; it contains the value
- ** \remark  of the residuals at each datum (or TEST if the residual has not
- ** \remark  been calculated).
- **
- *****************************************************************************/
-int calc_regression(Db *db1,
-                    const String& name0,
-                    const VectorString& names,
-                    int mode,
-                    bool flagCste,
-                    Db *db2,
-                    const Model* model,
-                    int iptr0)
-{
-  ResRegr regr;
-  if (db2 == nullptr) db2 = db1;
-  int icol0 = db1->getUID(name0);
-  VectorInt icols;
-  if (! names.empty()) icols = db2->getUIDs(names);
-
-  regr = regressionByUID(db1, icol0, icols, mode, flagCste, db2, model);
-
-  /* Preliminary checks */
-
-  if (! regressionCheck(db1, icol0, icols, mode, db2, model)) return 1;
-
-  /* Store the regression error at sample points */
-
-  int size = (int) regr.coeffs.size();
-  double value = 0;
-  VectorDouble x(size);
-
-  for (int iech = 0; iech < db1->getSampleNumber(); iech++)
-  {
-    if (db1->isActive(iech))
-    {
-      /* Get the information for the current sample */
-
-      if (regressionLoad(db1, db2, iech, icol0, icols, mode, flagCste, model, &value, x))
-      {
-        value = TEST;
-      }
-      else
-      {
-        for (int i = 0; i < size; i++)
-          value -= x[i] * regr.coeffs[i];
-      }
-    }
-    db1->setArray(iech, iptr0, value);
-  }
-  return 0;
 }

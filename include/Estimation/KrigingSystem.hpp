@@ -11,8 +11,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Neigh/NeighWork.hpp"
-#include "Basic/Vector.hpp"
 #include "Enum/EKrigOpt.hpp"
 
 class Db;

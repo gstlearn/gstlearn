@@ -12,16 +12,16 @@
 /******************************************************************************/
 #include "geoslib_old_f.h"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Basic/AException.hpp"
+#include "Basic/Law.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
 #include "Polynomials/APolynomial.hpp"
 #include "Polynomials/ClassicalPolynomial.hpp"
 #include "Polynomials/Chebychev.hpp"
-#include "Basic/Vector.hpp"
-#include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
-#include "LinearOp/ShiftOpCs.hpp"
 #include "Model/Model.hpp"
-#include "Basic/Law.hpp"
 #include "Mesh/AMesh.hpp"
 
 #include <math.h>
@@ -267,39 +267,39 @@ int PrecisionOp::reset(const ShiftOpCs* shiftop,
   return error;
 }
 
-void PrecisionOp::eval(const VectorDouble& in, VectorDouble& out)
+void PrecisionOp::eval(const VectorDouble& inv, VectorDouble& outv)
 {
-  const VectorDouble* inPtr = &in;
+  const VectorDouble* inPtr = &inv;
   if (_work.empty()) _work.resize(getSize());
 
   // Pre-processing
 
   if (_power == EPowerPT::ONE || _power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(in, _work,_power);
+    _shiftOp->prodLambda(inv, _work,_power);
     inPtr = &_work;
   }
 
   // Polynomial evaluation
 
-  if (_evalPoly(_power,*inPtr,out))
+  if (_evalPoly(_power,*inPtr,outv))
     my_throw("Computation in 'eval' interrupted due to problem in '_evalPoly'");
 
   // Post-processing
 
   if (_power == EPowerPT::ONE || _power == EPowerPT::MINUSONE)
   {
-    _shiftOp->prodLambda(out, out, _power);
+    _shiftOp->prodLambda(outv, outv, _power);
   }
   else if (_power == EPowerPT::MINUSHALF)
   {
-    _shiftOp->prodLambda(out, out, EPowerPT::MINUSONE);
+    _shiftOp->prodLambda(outv, outv, EPowerPT::MINUSONE);
   }
 }
 
 int PrecisionOp::_evalPoly(const EPowerPT& power,
-                           const VectorDouble& in,
-                           VectorDouble& out)
+                           const VectorDouble& inv,
+                           VectorDouble& outv)
 {
   if (_preparePoly(power)) return 1;
   if(getTraining())
@@ -311,21 +311,21 @@ int PrecisionOp::_evalPoly(const EPowerPT& power,
       _workPoly = VectorVectorDouble(degree);
       for(auto &e: _workPoly)
       {
-        e = VectorDouble(in.size());
+        e = VectorDouble(inv.size());
       }
     }
 
     if (_work5.empty()) _work5.resize(getSize());
-    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),in,_workPoly,_work5);
+    ((ClassicalPolynomial*)_polynomials[power])->evalOpTraining(_shiftOp->getS(),inv,_workPoly,_work5);
 
-    for(int i=0;i<(int)in.size();i++)
+    for(int i=0;i<(int)inv.size();i++)
     {
-      out[i] = _workPoly[0][i];
+      outv[i] = _workPoly[0][i];
     }
   }
   else
   {
-    _polynomials[power]->evalOp(_shiftOp->getS(),in,out);
+    _polynomials[power]->evalOp(_shiftOp->getS(),inv,outv);
   }
   return 0;
 }
@@ -336,7 +336,7 @@ VectorDouble PrecisionOp::evalCov(int imesh)
   int n = getSize();
   VectorDouble ei(n);
   VectorDouble result(n);
-  ut_vector_fill(ei,0.,n);
+  VH::fill(ei,0.,n);
   ei[imesh] = 1.;
   _shiftOp->prodLambda(ei,result,EPowerPT::MINUSONE);
   _evalPoly(EPowerPT::MINUSONE,result,ei);
@@ -355,7 +355,7 @@ VectorVectorDouble PrecisionOp::simulate(int nbsimus)
   for(auto &e : vect)
   {
     e.resize(n);
-    whitenoise = ut_vector_simulate_gaussian(n);
+    whitenoise = VH::simulateGaussian(n);
     _evalPoly(EPowerPT::MINUSHALF,whitenoise,e);
   _shiftOp->prodLambda(e, e, EPowerPT::MINUSONE);
   }

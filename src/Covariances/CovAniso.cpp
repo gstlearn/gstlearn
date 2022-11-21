@@ -10,13 +10,14 @@
 /******************************************************************************/
 #include "geoslib_f_private.h"
 
-#include <Arrays/Array.hpp>
+#include "Arrays/Array.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovFactory.hpp"
 #include "Covariances/CovGradientNumerical.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/FFT.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/ASpaceObject.hpp"
@@ -214,7 +215,7 @@ void CovAniso::setRanges(const VectorDouble &ranges)
   }
   VectorDouble scales = ranges;
   double scadef = _cova->getScadef();
-  ut_vector_divide_inplace(scales, scadef);
+  VH::divideConstant(scales, scadef);
   setScales(scales);
 }
 
@@ -256,7 +257,7 @@ void CovAniso::setScales(const VectorDouble &scales)
   }
   _aniso.setRadiusVec(scales);
   double scadef = _cova->getScadef();
-  _cova->setField(scadef * ut_vector_max(scales));
+  _cova->setField(scadef * VH::maximum(scales));
 }
 
 void CovAniso::setScale(int idim, double scale)
@@ -268,7 +269,7 @@ void CovAniso::setScale(int idim, double scale)
   }
   _aniso.setRadiusDir(idim, scale);
   double scadef = _cova->getScadef();
-  _cova->setField(scadef * ut_vector_max(_aniso.getRadius()));
+  _cova->setField(scadef * VH::maximum(_aniso.getRadius()));
 }
 
 void CovAniso::setAnisoRotation(const Rotation &rot)
@@ -634,7 +635,7 @@ VectorDouble CovAniso::getRanges() const
   VectorDouble range = getScales();
   double scadef = _cova->getScadef();
   if (!hasRange()) scadef = 0.;
-  ut_vector_multiply_inplace(range, scadef);
+  VH::multiplyConstant(range, scadef);
   return range;
 }
 
@@ -655,7 +656,7 @@ double CovAniso::getRange() const
   if (isIsotropic())
     return getRange(0);
   else
-    return ut_vector_max(getRanges());
+    return VH::maximum(getRanges());
 }
 
 double CovAniso::getScale() const
@@ -664,19 +665,19 @@ double CovAniso::getScale() const
   if (isIsotropic())
     return getScale(0);
   else
-    return ut_vector_max(getScales());
+    return VH::maximum(getScales());
 }
 
 const VectorDouble CovAniso::getAnisoCoeffs() const
 {
   VectorDouble coef = getRanges();
-  double max = ut_vector_max(coef);
+  double max = VH::maximum(coef);
   if (max < EPSILON10)
   {
     message("Range is null");
     return VectorDouble();
   }
-  ut_vector_divide_inplace(coef, max);
+  VH::divideConstant(coef, max);
   return coef;
 }
 

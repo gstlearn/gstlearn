@@ -19,6 +19,7 @@
 #include "Enum/ESpaceType.hpp"
 
 #include "Space/ASpaceObject.hpp"
+#include "Space/SpaceRN.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/DbStringFormat.hpp"
@@ -27,7 +28,6 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
-#include "Basic/Vector.hpp"
 
 /****************************************************************************/
 /*!
@@ -87,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
   model->switchToGradient();
 
   // Create the Neighborhood (unique)
-  NeighUnique* neighU = NeighUnique::create(ndim);
+  NeighUnique* neighU = NeighUnique::create();
 
   // Launch the Potential estimation
   (void) potential_kriging(dbiso, dbgrd, dbtgt, grid, model, neighU,
@@ -135,7 +135,8 @@ int main(int /*argc*/, char */*argv*/[])
   model->switchToGradient();
 
   // Create the Neighborhood (unique)
-  neighU = NeighUnique::create(ndim);
+  SpaceRN space(ndim);
+  neighU = NeighUnique::create(false, &space);
 
   // Launch the Potential estimation
   // In case we would like to examine the calculation details,

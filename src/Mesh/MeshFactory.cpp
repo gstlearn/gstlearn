@@ -109,7 +109,7 @@ AMesh* MeshFactory::createMesh(int variety,
       mestitle(0,"Spherical Meshing");
     }
     MeshSpherical* mesh = new MeshSpherical();
-    if (!mesh->reset(dbin, dbout, triswitch, verbose))
+    if (!mesh->resetFromDb(dbin, dbout, triswitch, verbose))
       return ((AMesh *) mesh);
   }
   else

@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Space/ASpaceObject.hpp"
 
 class ASpace;
@@ -22,11 +21,9 @@ class GSTLEARN_EXPORT CovContext : public ASpaceObject
 {
 public:
   CovContext(int nvar = 1,
-             const ASpace* space = nullptr,
-             double field = 1);
+             const ASpace* space = nullptr);
   CovContext(int nvar,
              int ndim,
-             double field = 1,
              const VectorDouble& mean = VectorDouble(),
              const VectorDouble& covar0 = VectorDouble());
   CovContext(const Db *db,
@@ -43,7 +40,7 @@ public:
   /// Indicate if I am consistent with the provided space
   virtual bool isConsistent(const ASpace* space) const override;
 
-  static CovContext* create(int nvar, int ndim, double field = 1.);
+  static CovContext* create(int nvar, int ndim);
 
   bool isEqual(const CovContext &r) const;
 
@@ -51,16 +48,13 @@ public:
   double              getField()        const { return _field; }
   const VectorDouble& getMean()         const { return _mean; }
   const VectorDouble& getCovar0()       const { return _covar0; }
-
   double getMean(int ivar) const;
   double getCovar0(int ivar, int jvar) const;
 
   void setNVar(int nvar)                 { _nVar = nvar; _update(); }
   void setField(double field)            { _field = field; }
-
   void setMean(const VectorDouble& mean);
   void setMean(int ivar, const double mean);
-
   void setCovar0(const VectorDouble& covar0);
   void setCovar0(int ivar, int jvar, double covar0);
 

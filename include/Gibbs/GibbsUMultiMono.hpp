@@ -11,9 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "GibbsMultiMono.hpp"
 #include "Gibbs/AGibbs.hpp"
-#include "Basic/Vector.hpp"
 
 class Db;
 class Model;

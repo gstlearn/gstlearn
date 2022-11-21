@@ -11,7 +11,8 @@
 #include "Basic/Table.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/AStringable.hpp"
@@ -174,8 +175,8 @@ VectorDouble Table::getRange(int icol) const
   VectorDouble vec = getColumn(icol);
   if (vec.empty()) return VectorDouble();
   VectorDouble limits(2);
-  limits[0] = ut_vector_min(vec);
-  limits[1] = ut_vector_max(vec);
+  limits[0] = VH::minimum(vec);
+  limits[1] = VH::maximum(vec);
   return limits;
 }
 

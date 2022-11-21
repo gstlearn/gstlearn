@@ -15,7 +15,6 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/ASerializable.hpp"
 #include "csparse_f.h"
 
@@ -170,7 +169,7 @@ void MeshManifold::_defineBoundingBox(void)
   }
 
   // Store the Bounding Box extension
-  (void) setExtend(extendmin,extendmax);
+  (void) _setExtend(extendmin,extendmax);
 }
 
 int MeshManifold::_recopy(const MeshManifold &m)

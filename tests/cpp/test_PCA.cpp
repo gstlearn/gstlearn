@@ -86,7 +86,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   mestitle(0,"Testing MAF");
   db->setLocator("Simu*", ELoc::Z);
-  DirParam dirparam = DirParam(2);
+  DirParam dirparam = DirParam();
   PCA maf = PCA(db, 0.1, 0.05, dirparam);
   maf.display();
 

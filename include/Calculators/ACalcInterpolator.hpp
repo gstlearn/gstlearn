@@ -17,7 +17,6 @@
 #include "Model/Model.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Vector.hpp"
 
 class ELoc;
 

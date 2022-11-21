@@ -25,16 +25,16 @@ class Db;
 class GSTLEARN_EXPORT NeighBench: public ANeighParam
 {
 public:
-  NeighBench(int ndim = 2, bool flag_xvalid = false, double width = 0.);
+  NeighBench(bool flag_xvalid = false, double width = 0., const ASpace* space = nullptr);
   NeighBench(const NeighBench& r);
   NeighBench& operator=(const NeighBench& r);
   virtual ~NeighBench();
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  int reset(int ndim = 2, bool flag_xvalid = false, double width = 0);
-
-  static NeighBench* create(int ndim = 2, bool flag_xvalid = false, double width = 0);
+  static NeighBench* create(bool flag_xvalid = false,
+                            double width = 0,
+                            const ASpace *space = nullptr);
   static NeighBench* createFromNF(const String& neutralFilename, bool verbose = true);
 
   virtual int getMaxSampleNumber(const Db* db) const override;

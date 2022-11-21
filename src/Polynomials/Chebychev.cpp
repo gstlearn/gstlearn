@@ -12,7 +12,6 @@
 
 #include "Basic/AException.hpp"
 #include "Basic/AFunction.hpp"
-#include "Basic/Vector.hpp"
 #include "Polynomials/Chebychev.hpp"
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "csparse_f.h"
@@ -216,7 +215,7 @@ void Chebychev::_fillCoeffs(std::function<double(double)> f,double a, double b)
 }
 
 
-void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const
+void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const
 {
   double v1 = 2. / (_b - _a);
   double v2 = -(_b + _a) / (_b - _a);
@@ -228,12 +227,12 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, Ve
   VectorVectorDouble* t0 = &Op->_p;
   VectorVectorDouble* swap;
 
-  Op->_copyVals(in,*tm2);
+  Op->_copyVals(inv,*tm2);
   // tm1 = v1 Op tm2 + v2 tm2
     Op->evalDirect(*tm2,*tm1);
     Op->_linearComb(v1,*tm1,v2,*tm2,*tm1);
 
-    Op->_linearComb(_coeffs[0],*tm2,_coeffs[1],*tm1,out);
+    Op->_linearComb(_coeffs[0],*tm2,_coeffs[1],*tm1,outv);
 
 
    /* Loop on the AChebychev polynomials */
@@ -251,8 +250,8 @@ void Chebychev::evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, Ve
 
       Op->diff(*tm2,*t0,*t0);
 
-      // out += coeff * y
-      Op->addProdScalar(_coeffs[ib],*t0,out);
+      // outv += coeff * y
+      Op->addProdScalar(_coeffs[ib],*t0,outv);
 
       // swap
       swap = tm2;

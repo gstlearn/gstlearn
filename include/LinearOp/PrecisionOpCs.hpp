@@ -29,7 +29,7 @@ class GSTLEARN_EXPORT PrecisionOpCs : public PrecisionOp
 public:
   PrecisionOpCs(ShiftOpCs* shiftop = nullptr,
                 const CovAniso* cova = nullptr,
-                const EPowerPT& power = EPowerPT::UNDEFINED,
+                const EPowerPT& power = EPowerPT::fromKey("UNDEFINED"),
                 bool verbose = false);
 
   PrecisionOpCs(AMesh* mesh,
@@ -39,9 +39,9 @@ public:
                 bool verbose);
 
 
-  void evalDeriv(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
-  void evalDerivOptim(VectorDouble& out,int iapex,int igparam) override;
-  //void evalDerivPoly(const VectorDouble& in, VectorDouble& out,int iapex,int igparam) override;
+  void evalDeriv(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
+  void evalDerivOptim(VectorDouble& outv,int iapex,int igparam) override;
+  //void evalDerivPoly(const VectorDouble& inv, VectorDouble& outv,int iapex,int igparam) override;
   void gradYQX(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   void gradYQXOptim(const VectorDouble & X, const VectorDouble &Y,VectorDouble& result) override;
   virtual ~PrecisionOpCs();

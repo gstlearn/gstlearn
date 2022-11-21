@@ -17,7 +17,6 @@
 
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Basic/Vector.hpp"
 #include "Boolean/ShapeParameter.hpp"
 
 class BooleanObject;

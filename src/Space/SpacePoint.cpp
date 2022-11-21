@@ -1,7 +1,7 @@
 #include "Space/SpacePoint.hpp"
 #include "Space/ASpace.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <iostream>
 #include <math.h>
@@ -60,7 +60,7 @@ SpacePoint::~SpacePoint()
 
 void SpacePoint::setCoord(double coord)
 {
-  ut_vector_fill(_coord, coord, static_cast<int> (_coord.size()));
+  VH::fill(_coord, coord, static_cast<int> (_coord.size()));
 }
 
 void SpacePoint::setCoord(const VectorDouble& coord)
@@ -93,7 +93,7 @@ VectorDouble SpacePoint::getIncrement(const SpacePoint& pt) const
 
 String SpacePoint::toString(const AStringFormat* /*strfmt*/) const
 {
-  return ut_vector_string(_coord);
+  return VH::toString(_coord);
 }
 
 /**

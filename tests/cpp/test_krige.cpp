@@ -26,6 +26,7 @@
 #include "Basic/File.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/OptCustom.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Neigh/ANeighParam.hpp"
 #include "Neigh/NeighUnique.hpp"
 #include "Neigh/NeighMoving.hpp"
@@ -39,11 +40,11 @@
 static Db* createLocalDb(int nech, int ndim, int nvar)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
+  VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
-    VectorDouble tabvar = ut_vector_simulate_gaussian(nech);
+    VectorDouble tabvar = VH::simulateGaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 
@@ -171,15 +172,15 @@ int main(int /*argc*/, char */*argv*/[])
   model->display();
 
   // Image Neighborhood
-  NeighImage* neighI = NeighImage::create(ndim, {2,2}, 2);
+  NeighImage* neighI = NeighImage::create({2,2}, 2);
   neighI->display();
 
   // Creating a Moving Neighborhood
-  NeighMoving* neighM = NeighMoving::create(ndim, false, 25);
+  NeighMoving* neighM = NeighMoving::create(false, 25);
   neighM->display();
 
   // Unique Neighborhood
-  NeighUnique* neighU = NeighUnique::create(ndim,false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   // ====================== Testing Neighborhood Storage ===========================
@@ -210,7 +211,7 @@ int main(int /*argc*/, char */*argv*/[])
   message("- Space Dimension = %d\n",ktest.ndim);
   message("- Number of Neighbors = %d\n",ktest.nech);
   message("- Number of Kriging System equations = %d\n",ktest.neq);
-  ut_ivector_display("- Neighboring Sample Indices", ktest.nbgh);
+  VH::display("- Neighboring Sample Indices", ktest.nbgh);
 
   // ====================== Unique Neighborhood case ===========================
   message("\n<----- Cross-Validation in Unique Neighborhood ----->\n");
@@ -310,7 +311,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   message("\n<----- Test Kriging Multiple Variables under Constraints ----->\n");
   grid_res = grid->clone();
-  tab = ut_vector_simulate_uniform(grid->getSampleNumber(), 10., 20.);
+  tab = VH::simulateUniform(grid->getSampleNumber(), 10., 20.);
   grid_res->addColumns(tab, "Constraints", ELoc::SUM);
   krigsum(data, grid_res, model, neighU, true);
   grid_res->display(&dbfmtKriging);
@@ -323,7 +324,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Create the Gaussian
   anam = AnamHermite::create(20);
-  anam->fit(data->getColumn("Var"));
+  anam->fitFromArray(data->getColumn("Var"));
   (void) RawToGaussianByLocator(data, anam);
   anam->display();
   data->display(&dbfmt);

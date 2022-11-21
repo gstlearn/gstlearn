@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
@@ -34,12 +35,11 @@
 #include "Basic/String.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Polygon/Polygons.hpp"
 #include "Skin/ISkinFunctions.hpp"
 #include "Skin/Skin.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 #include <string.h>
 
@@ -3161,7 +3161,7 @@ static int st_get_closest_sample(Db *dbgrid,
     if (iatt_angle >= 0 && ndim >= 2)
     {
       angle = dbgrid->getArray(ig, iatt_angle);
-      ut_rotation_sincos(angle, &cosa, &sina);
+      GH::rotationGetSinCos(angle, &cosa, &sina);
       x = dvect[0];
       y = dvect[1];
       dvect[0] = x * cosa + y * sina;
@@ -4167,7 +4167,7 @@ static VectorDouble st_point_init_homogeneous(int number,
     messerr("This method requires 'coormin' and 'coormax' defined");
     return tab;
   }
-  VectorDouble extend = ut_vector_subtract(coormin, coormax);
+  VectorDouble extend = VH::subtract(coormin, coormax);
   int ndim = (int) coormin.size();
   VectorDouble coor(ndim);
   VectorDouble delta(ndim);
@@ -4195,7 +4195,7 @@ static VectorDouble st_point_init_homogeneous(int number,
       {
         for (int idim = 0; idim < ndim; idim++)
           delta[idim] = (tab[ndim * jp + idim] - coor[idim]) / range;
-        double dd = ut_vector_norm(delta);
+        double dd = VH::norm(delta);
         if (dd < ddmin) ddmin = dd;
       }
 
@@ -4350,7 +4350,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
 
         if (! flag_region)
         {
-          dd = ut_vector_norm(delta) / range;
+          dd = VH::norm(delta) / range;
         }
         else
         {
@@ -4362,7 +4362,7 @@ static VectorDouble st_point_init_inhomogeneous(int number,
           tensor.setRotationAngle(0,angle);
           tensor.setRadiusVec(radius);
           VectorDouble newdel = tensor.applyDirect(delta,2);
-          dd = ut_vector_norm(newdel);
+          dd = VH::norm(newdel);
         }
 
         // Check if the point 'ip' must be dropped

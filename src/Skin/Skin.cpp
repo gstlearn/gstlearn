@@ -12,7 +12,6 @@
 #include "Skin/Skin.hpp"
 #include "Db/DbGrid.hpp"
 #include "Basic/Law.hpp"
-#include "Basic/Vector.hpp"
 
 #include "math.h"
 
@@ -31,7 +30,6 @@ Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
     : _skf(skf),
       _dbgrid(dbgrid),
       _nxyz(0),
-      _ndim(0),
       _nval(0),
       _date(0),
       _nvalMax(0),
@@ -41,17 +39,13 @@ Skin::Skin(const ISkinFunctions* skf, DbGrid* dbgrid)
       _energy()
 {
   if (dbgrid != nullptr)
-  {
     _nxyz = _dbgrid->getSampleNumber();
-    _ndim = _dbgrid->getNDim();
-  }
 }
 
 Skin::Skin(const Skin &r)
     : _skf(r._skf),
       _dbgrid(r._dbgrid),
       _nxyz(r._nxyz),
-      _ndim(r._ndim),
       _nval(r._nval),
       _date(r._date),
       _nvalMax(r._nvalMax),
@@ -69,7 +63,6 @@ Skin& Skin::operator=(const Skin &r)
     _skf = r._skf;
     _dbgrid = r._dbgrid;
     _nxyz = r._nxyz;
-    _ndim = r._ndim;
     _nval = r._nval;
     _date = r._date;
     _nvalMax = r._nvalMax;
@@ -113,10 +106,11 @@ double Skin::_getWeight(int ipos, int idir)
 int Skin::_gridShift(const VectorInt& indg0, int dir)
 {
   VectorInt indg = indg0;
+  int ndim = _getNDim();
 
   /* Shift the target grid node and check if it belongs to the grid */
 
-  for (int i = 0; i < _ndim; i++)
+  for (int i = 0; i < ndim; i++)
   {
     indg[i] = indg0[i] + id[dir][i];
     if (indg[i] < 0 || indg[i] >= _dbgrid->getNX(i)) return ITEST;
@@ -136,7 +130,8 @@ int Skin::_gridShift(const VectorInt& indg0, int dir)
  *****************************************************************************/
 int Skin::gridShift(int lec, int dir)
 {
-  VectorInt indg(_ndim);
+  int ndim = _getNDim();
+  VectorInt indg(ndim);
 
   /* Convert an absolute address into the grid indices */
 
@@ -242,12 +237,13 @@ int Skin::_cellAdd(int ipos, double energy)
  *****************************************************************************/
 int Skin::init(bool verbose)
 {
-  if (_skf == nullptr || _ndim <= 0)
+  int ndim = _getNDim();
+  if (_skf == nullptr || ndim <= 0)
   {
     messerr("SKF and DbGrid must be defined beforehand");
     return 1;
   }
-  VectorInt indg(_ndim);
+  VectorInt indg(ndim);
   int nb_mask = 0;
   int nb_count = 0;
   int nb_done = 0;
@@ -281,7 +277,7 @@ int Skin::init(bool verbose)
       nb_count++;
       int local = 0;
       _dbgrid->rankToIndice(lec, indg);
-      for (int dir = 0; dir < ndir[_ndim]; dir++)
+      for (int dir = 0; dir < ndir[ndim]; dir++)
       {
         int ecr = _gridShift(indg, dir);
         if (IFFFF(ecr)) continue;
@@ -380,7 +376,8 @@ void Skin::getNext(int *rank, int *ipos)
  *****************************************************************************/
 int Skin::unstack(int rank0, int ipos0)
 {
-  VectorInt indg(_ndim);
+  int ndim = _getNDim();
+  VectorInt indg(ndim);
 
   /* Suppress the current cell from the skin */
 
@@ -391,7 +388,7 @@ int Skin::unstack(int rank0, int ipos0)
 
   int local = 0;
   _dbgrid->rankToIndice(ipos0, indg);
-  for (int dir = 0; dir < ndir[_ndim]; dir++)
+  for (int dir = 0; dir < ndir[ndim]; dir++)
   {
     int ecr = _gridShift(indg, dir);
     if (IFFFF(ecr)) continue;
@@ -430,4 +427,12 @@ void Skin::skinPrint()
   message("- Maximum skin length           = %d\n", _nvalMax);
   message("- Maximum energy                = %lf\n", _totalMax);
   return;
+}
+
+int Skin::_getNDim() const
+{
+  if (_dbgrid != nullptr)
+    return _dbgrid->getNDim();
+  else
+    return 0;
 }

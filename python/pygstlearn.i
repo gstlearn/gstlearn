@@ -697,6 +697,9 @@ void exit_f(void)
 %extend PCA {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend Rule {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

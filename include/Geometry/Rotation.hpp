@@ -11,10 +11,12 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
+#include "GeometryHelper.hpp"
+
 #include "geoslib_define.h"
 #include "Basic/AStringable.hpp"
 
-#include "Geometry/Geometry.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 
 class GSTLEARN_EXPORT Rotation: public AStringable /// TODO : public ASpaceObject
@@ -39,8 +41,8 @@ public:
   int setMatrixDirectOldStyle(const double* rotmat);
   int setAngles(const VectorDouble& angles);
   void setIdentity();
-  void rotateDirect(const VectorDouble& in, VectorDouble& out) const;
-  void rotateInverse(const VectorDouble& in, VectorDouble& out) const;
+  void rotateDirect(const VectorDouble& inv, VectorDouble& outv) const;
+  void rotateInverse(const VectorDouble& inv, VectorDouble& outv) const;
   bool isIdentity() const { return !_flagRot; }
   bool isSame(const Rotation& rot) const;
 

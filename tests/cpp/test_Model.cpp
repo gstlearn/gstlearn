@@ -1,7 +1,6 @@
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
 
-#include "Basic/Vector.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMC.hpp"
 #include "Covariances/CovLMCTapering.hpp"
@@ -12,8 +11,10 @@
 #include "API/SPDE.hpp"
 #include "Model/Model.hpp"
 #include "Model/NoStatArray.hpp"
+#include "Drifts/DriftFactory.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Basic/File.hpp"
+#include "Basic/VectorHelper.hpp"
 
 /****************************************************************************/
 /*!
@@ -28,7 +29,7 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
-  ASerializable::setPrefixName("SPDEAPI-");
+  ASerializable::setPrefixName("Model-");
   int seed = 10355;
   int ndim = 2;
   int nvar = 1;
@@ -67,11 +68,11 @@ int main(int /*argc*/, char */*argv*/[])
   modellmc.covMatrix(result, workingDbc, nullptr, 0, 0, 0, 1);
 
   // Checking that the matrix (VectorDouble) has been correctly filled by asking for statistics
-  ut_vector_display_stats("\nStatistics on Covariance Matrix",result);
+  VH::displayStats("\nStatistics on Covariance Matrix",result);
 
   // Sample the Model at regular steps
   VectorDouble vec1 = modellmc.sample(3., 50);
-  ut_vector_display("\nModel sampled",vec1);
+  VH::display("\nModel sampled",vec1);
 
   /////////////////////////////
   // Creating the Tapered Model
@@ -86,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Sample the Tapered Model at regular steps
   VectorDouble vec2 = modeltape.sample(3., 50);
-  ut_vector_display("\nTapered Model",vec2);
+  VH::display("\nTapered Model",vec2);
 
   /////////////////////////////
   // Creating the Convoluted Model
@@ -98,10 +99,24 @@ int main(int /*argc*/, char */*argv*/[])
   Model modelconv = Model(ctxt);
   modelconv.setCovList(&covconv);
   modelconv.display();
-
   // Sample the Tapered Model at regular steps
   VectorDouble vec3 = modelconv.sample(3., 50);
-  ut_vector_display("\nConvoluted Model", vec3);
+  VH::display("\nConvoluted Model", vec3);
+
+  // Serialization of the Model
+  Model* modelS = Model::createFromEnvironment(1, 3);
+  modelS->addCovFromParam(ECov::CUBIC, 10., 12.);
+  modelS->addCovFromParam(ECov::SPHERICAL, TEST, 23., TEST, {2., 3., 4.}, VectorDouble(),
+                          {10., 20., 30.});
+  modelS->addDrift(DriftFactory::createDriftFunc(EDrift::UC));
+  modelS->addDrift(DriftFactory::createDriftFunc(EDrift::X));
+  modelS->addDrift(DriftFactory::createDriftFunc(EDrift::F, CovContext(), 0));
+  modelS->addDrift(DriftFactory::createDriftFunc(EDrift::F, CovContext(), 1));
+  modelS->display();
+  modelS->dumpToNF("Complex");
+
+  Model* modelSS = Model::createFromNF("Complex");
+  modelSS->display();
 
   delete workingDbc;
   return 0;

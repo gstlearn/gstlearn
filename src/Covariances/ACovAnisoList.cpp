@@ -211,11 +211,6 @@ String ACovAnisoList::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
-int ACovAnisoList::getCovNumber() const
-{
-  return static_cast<int> (_covs.size());
-}
-
 bool ACovAnisoList::isFiltered(unsigned int i) const
 {
   if (! _isCovarianceIndexValid(i)) return false;

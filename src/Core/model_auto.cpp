@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_old_f.h"
 
@@ -19,6 +20,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovLMCTapering.hpp"
 #include "Covariances/CovLMCConvolution.hpp"
@@ -30,8 +32,6 @@
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
 #include "Variogram/Vario.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 
 /*! \cond */
@@ -844,12 +844,13 @@ static void st_load_gg(const Vario *vario,
                        std::vector<StrExp> &strexps,
                        VectorDouble &gg)
 {
-  int idir, ecr, ipas, iad, jad, ivar, jvar, ijvar, nvar, idim, ipadir;
+  int idir, ecr, ipas, iad, jad, ivar, jvar, ijvar, idim, ipadir;
   double n1, n2, g1, g2, c00, dist;
 
   /* Initializations */
 
-  nvar = vario->getVariableNumber();
+  int nvar = vario->getVariableNumber();
+  int ndim = vario->getDimensionNumber();
 
   /* Load the Experimental conditions structure */
 
@@ -863,6 +864,7 @@ static void st_load_gg(const Vario *vario,
 
           /* Calculate the variogram value */
 
+          dist = 0.;
           GG(ijvar,ipadir)= TEST;
           if (vario->getFlagAsym())
           {
@@ -871,30 +873,40 @@ static void st_load_gg(const Vario *vario,
             c00 = st_get_c00(vario,idir,ivar,jvar);
             n1 = vario->getSwByIndex(idir,iad);
             n2 = vario->getSwByIndex(idir,jad);
-            if (n1 + n2 <= 0) continue;
-            g1 = vario->getGgByIndex(idir,iad);
-            g2 = vario->getGgByIndex(idir,jad);
-            if (! CORRECT(idir,iad) || ! CORRECT(idir,jad)) continue;
-            GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
-            dist = (ABS(vario->getHhByIndex(idir,iad)) + ABS(vario->getHhByIndex(idir,jad))) / 2.;
+            if (n1 + n2 > 0)
+            {
+              g1 = vario->getGgByIndex(idir,iad);
+              g2 = vario->getGgByIndex(idir,jad);
+              if (CORRECT(idir,iad) && CORRECT(idir,jad))
+              {
+                GG(ijvar,ipadir) = c00 - (n1 * g1 + n2 * g2) / (n1 + n2);
+                dist = (ABS(vario->getHhByIndex(idir,iad)) +
+                        ABS(vario->getHhByIndex(idir,jad))) / 2.;
+              }
+            }
           }
           else
           {
             iad = vario->getDirAddress(idir,ivar,jvar,ipas,false,1);
-            if (! CORRECT(idir,iad)) continue;
-            GG(ijvar,ipadir) = vario->getGgByIndex(idir,iad);
-            dist = ABS(vario->getHhByIndex(idir,iad));
+            if (CORRECT(idir,iad))
+            {
+              GG(ijvar,ipadir) = vario->getGgByIndex(idir,iad);
+              dist = ABS(vario->getHhByIndex(idir,iad));
+            }
           }
 
           /* Define the item of the StrExp array (if defined) */
 
           if (! strexps.empty())
           {
+            int i = vario->getDirAddress(idir, ivar, jvar, ipas, false, 1);
+            if (! CORRECT(idir, i)) continue;
+
             strexps[ecr].ivar = ivar;
             strexps[ecr].jvar = jvar;
 
-            for (idim=0; idim<vario->getDimensionNumber(); idim++)
-            strexps[ecr].dd[idim] = dist * vario->getCodir(idir,idim);
+            for (idim=0; idim<ndim; idim++)
+              strexps[ecr].dd[idim] = dist * vario->getCodir(idir,idim);
             ecr++;
           }
         }
@@ -2189,7 +2201,7 @@ static void st_model_auto_strmod_define(StrMod *strmod,
         break;
 
       case EConsElem::E_RANGE:
-        if (ivar == 0) ut_vector_fill(ranges, param[ntot]);
+        if (ivar == 0) VH::fill(ranges, param[ntot]);
         if (ivar < ndim) ranges[ivar] = param[ntot];
         break;
 
@@ -3949,8 +3961,7 @@ static int st_alter_model_optvar(const Vario *vario,
   ndir = vario->getDirectionNumber();
   n_2d = n_3d = 0;
 
-  /* Calculate the number of directions in 2-D and 3-D */
-
+  /* 2-D case */
   if (ndim == 2)
   {
     n_2d = ndir;
@@ -3958,7 +3969,6 @@ static int st_alter_model_optvar(const Vario *vario,
   }
 
   /* 3-D case */
-
   if (ndim == 3)
   {
     for (idir = 0; idir < ndir; idir++)
@@ -3978,7 +3988,7 @@ static int st_alter_model_optvar(const Vario *vario,
   if (ndir <= 1 || ndim <= 1) optvar.setAuthAniso(0);
   if (ndir <= 1 || ndim <= 1) optvar.setAuthRotation(0);
 
-  if (n_3d <= 0) optvar.setLockNo3d(1);
+  if (ndim == 3 && n_3d <= 0) optvar.setLockNo3d(1);
   if (n_2d <= 1) optvar.setLockIso2d(1);
   if (optvar.getLockIso2d()) optvar.setAuthRotation(0);
   if (optvar.getLockNo3d()) optvar.setLockRot2d(1);
@@ -4106,8 +4116,7 @@ static int st_model_auto_count(const Vario *vario,
   ntot = 0;
   for (imod = 0; imod < 2; imod++)
   {
-    model = (imod == 0) ? model1 :
-                          model2;
+    model = (imod == 0) ? model1 : model2;
     if (model == nullptr) continue;
 
     /* Initializations */
@@ -4617,12 +4626,6 @@ int model_auto_fit(const Vario *vario,
   if (vario->getCalcul() == ECalcVario::GENERAL1) norder = 1;
   if (vario->getCalcul() == ECalcVario::GENERAL2) norder = 2;
   if (vario->getCalcul() == ECalcVario::GENERAL3) norder = 3;
-  if (model->getDimensionNumber() > 3)
-  {
-    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
-            model->getDimensionNumber());
-    goto label_end;
-  }
   if (vario->getCalcul() == ECalcVario::MADOGRAM ||
       vario->getCalcul() == ECalcVario::RODOGRAM ||
       vario->getCalcul() == ECalcVario::GENERAL1 ||
@@ -4669,8 +4672,7 @@ int model_auto_fit(const Vario *vario,
   variogram_extension(vario, 0, 0, -1, 0, 1, TEST, TEST, TEST, TEST, &flag_hneg,
                       &flag_gneg, &c0, &hmin, &hmax, &gmin, &gmax);
   angles.resize(ndim);
-  (void) ut_angles_from_codir(vario->getDimensionNumber(),
-                              vario->getCodir(0), angles);
+  (void) GH::rotationGetAngles(vario->getCodirs(0), angles);
   st_vario_varchol_manage(vario, model, varchol);
 
   /* Scale the parameters in the mauto structure */
@@ -5097,12 +5099,6 @@ int vmap_auto_fit(const DbGrid *dbmap,
   /* Preliminary checks */
 
   error = 1;
-  if (ndim > 3)
-  {
-    messerr("Procedure cannot be used for space dimension (%d) larger than 3",
-            ndim);
-    goto label_end;
-  }
   nvar = model->getVariableNumber();
   if (nvar != dbmap->getVariableNumber())
   {

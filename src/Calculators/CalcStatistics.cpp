@@ -15,6 +15,7 @@
 #include "Basic/NamingConvention.hpp"
 #include "Calculators/CalcStatistics.hpp"
 #include "Calculators/ACalcDbToDb.hpp"
+#include "Stats/Classical.hpp"
 #include "Db/DbGrid.hpp"
 #include "Db/Db.hpp"
 
@@ -29,7 +30,9 @@ CalcStatistics::CalcStatistics()
       _flagRegr(false),
       _flagCste(false),
       _regrMode(0),
-      _namaux()
+      _name0(),
+      _namaux(),
+      _model(nullptr)
 {
 }
 
@@ -112,13 +115,14 @@ bool CalcStatistics::_run()
   if (_flagStats)
   {
     DbGrid* dbgrid = dynamic_cast<DbGrid*>(getDbout());
-    calc_stats_grid(getDbin(), dbgrid, _oper, _radius, _iattOut);
+    VectorInt cols = getDbin()->getColIdxsByLocator(ELoc::Z);
+    db_stats_grid(getDbin(), dbgrid, _oper, cols, _radius, _iattOut);
   }
 
   if (_flagRegr)
   {
-    calc_regression(getDbin(), _name0, _namaux, _regrMode, _flagCste,
-                    getDbout(), _model, _iattOut);
+    regressionApply(getDbin(), _iattOut, _name0, _namaux, _regrMode, _flagCste,
+                    getDbout(), _model);
   }
   return true;
 }
@@ -141,6 +145,24 @@ int dbStatisticsOnGrid(Db *db,
   // Run the calculator
   int error = (stats.run()) ? 0 : 1;
   return error;
+}
+
+int dbRegressionByColIdx(Db *db1,
+                         int icol0,
+                         const VectorInt &icols,
+                         int mode,
+                         bool flagCste,
+                         Db *db2,
+                         const Model *model,
+                         const NamingConvention &namconv)
+{
+  if (db1 == nullptr) return 1;
+  if (db2 == nullptr) db2 = db1;
+
+  String name0 = db1->getNameByColIdx(icol0);
+  VectorString namaux = db2->getNamesByColIdx(icols);
+
+  return dbRegression(db1, name0, namaux, mode, flagCste, db2, model, namconv);
 }
 
 int dbRegression(Db *db1,

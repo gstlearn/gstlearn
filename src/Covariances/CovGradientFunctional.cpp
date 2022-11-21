@@ -10,7 +10,8 @@
 /******************************************************************************/
 #include "Covariances/CovGradientFunctional.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Space/ASpace.hpp"
 
 #include <math.h>
@@ -63,8 +64,8 @@ void CovGradientFunctional::_calculateTrTtr(const VectorDouble& d,
   VectorDouble h(3,0.);
   VectorDouble Tr(9, 0.);
 
-  ut_vector_fill(u, 0.);
-  ut_vector_fill(trttr, 0.);
+  VH::fill(u, 0.);
+  VH::fill(trttr, 0.);
 
   // Matrix Tr = diag(coeffs) . R
 
@@ -134,7 +135,7 @@ void CovGradientFunctional::evalZAndGradients(const SpacePoint& p1,
   // Calculate the isotropic distance
 
   double h = getSpace()->getDistance(p1, p2, getAniso());
-  VectorDouble d1 = ut_vector_subtract(p1.getCoord(), p2.getCoord());
+  VectorDouble d1 = VH::subtract(p1.getCoord(), p2.getCoord());
   for (int i=0; i < 3; i++)
     d[i] = (i < (int) d1.size()) ? d1[i] : 0.;
 

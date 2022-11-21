@@ -17,15 +17,13 @@
 #include "Model/Model.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Matrix/AMatrix.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
+#include "../../include/Geometry/GeometryHelper.hpp"
 
 CalcSimuTurningBands::CalcSimuTurningBands(int nbsimu, int nbtuba, bool flag_check, int seed)
     : ACalcSimulation(nbsimu, seed),
@@ -263,7 +261,7 @@ void CalcSimuTurningBands::_rotateDirections(double a[3], double theta)
   {
     for (int idir = 0; idir < 3; idir++)
       dirs[idir] = _getCodirAng(ibs, idir);
-    ut_rotation_direction(ct, st, a, dirs);
+    GH::rotationGetDirection(ct, st, a, dirs);
     for (int idir = 0; idir < 3; idir++)
       _setCodirAng(ibs, idir, dirs[idir]);
   }
@@ -2111,7 +2109,7 @@ void CalcSimuTurningBands::_updateData2ToTarget(Db *dbin,
       if (!dbin->isActive(ip)) continue;
       dbin->getSampleCoordinates(ip, coor2);
       int rank = dbgrid->coordinateToRank(coor2, false, eps);
-      if (!dbgrid->isActive(rank)) continue;
+      if (rank < 0 || !dbgrid->isActive(rank)) continue;
       dbgrid->rankToCoordinateInPlace(rank, coor1);
 
       /* Get the distance to the target point */

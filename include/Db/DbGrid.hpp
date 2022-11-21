@@ -61,7 +61,7 @@ public:
             const VectorDouble& dx = VectorDouble(),
             const VectorDouble& x0 = VectorDouble(),
             const VectorDouble& angles = VectorDouble(),
-            const ELoadBy& order = ELoadBy::SAMPLE,
+            const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
             const VectorDouble& tab = VectorDouble(),
             const VectorString& names = VectorString(),
             const VectorString& locatorNames = VectorString(),
@@ -81,7 +81,7 @@ public:
                         const VectorDouble& dx = VectorDouble(),
                         const VectorDouble& x0 = VectorDouble(),
                         const VectorDouble& angles = VectorDouble(),
-                        const ELoadBy& order = ELoadBy::SAMPLE,
+                        const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                         const VectorDouble& tab = VectorDouble(),
                         const VectorString& names = VectorString(),
                         const VectorString& locatorNames = VectorString(),
@@ -203,6 +203,9 @@ public:
   {
     _grid.indicesToCoordinateInPlace(indice, coor, percent);
   }
+  VectorInt locateDataInGrid(const DbGrid *grid,
+                             const Db *data,
+                             const VectorInt &rankIn) const;
 
   int getMirrorIndex(int idim, int ix) const
   {

@@ -429,33 +429,6 @@ int model_add_cova(Model *model,
 
 /****************************************************************************/
 /*!
- **  Add a basic drift
- **
- ** \return  Error return code
- **
- ** \param[in]  model      Pointer to the Model structure
- ** \param[in]  type       Type of the basic drift function (EDrift)
- ** \param[in]  rank_fex   Rank of the external drift (starting from 0)
- **
- ** \remark  If the variables are NOT linked, the number of drift equations
- ** \remark  is equal to: Number of variables * Number of drift functions
- ** \remark  If the variables are linked, the number of drift equations
- ** \remark  is equal to the number of drift functions.
- **
- *****************************************************************************/
-int model_add_drift(Model *model, const EDrift &type, int rank_fex)
-{
-  ADriftElem *drift;
-  if (st_check_model(model)) return 1;
-  drift = DriftFactory::createDriftFunc(type, model->getContext());
-  drift->setRankFex(rank_fex);
-  model->addDrift(drift);
-  delete drift;
-  return 0;
-}
-
-/****************************************************************************/
-/*!
  **  For a given basic structure, get the reduction factor to convert the
  **  theoretical to practical scale
  **
@@ -1394,8 +1367,7 @@ Model* model_duplicate(const Model *model, double ball_radius, int mode)
     for (int il = 0; il < nbfl; il++)
     {
       drft = model->getDrift(il);
-      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt);
-      newdrft->setRankFex(drft->getRankFex());
+      ADriftElem *newdrft = DriftFactory::createDriftFunc(drft->getType(), ctxt, drft->getRankFex());
       drifts.addDrift(newdrft);
       delete newdrft;
       drifts.setFiltered(il, model->isDriftFiltered(il));
@@ -1890,8 +1862,6 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
 
   /* Create the output model */
 
-  double field = MAX(model1->getField(), model2->getField());
-
   VectorDouble mean(2);
   VectorDouble cova0(4);
   VectorDouble sill(4);
@@ -1903,8 +1873,7 @@ Model* model_combine(const Model *model1, const Model *model2, double r)
   cova0[3] = 1.;
 
   // Creating the context
-  CovContext ctxt = CovContext(2, model1->getDimensionNumber(),
-                               field, mean, cova0);
+  CovContext ctxt = CovContext(2, model1->getDimensionNumber(), mean, cova0);
 
   // Creating the new Model
   model = new Model(ctxt);

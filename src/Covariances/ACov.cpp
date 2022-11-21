@@ -15,7 +15,8 @@
 #include "Db/DbGrid.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
 #include <math.h>
@@ -106,7 +107,7 @@ double ACov::evalIvarIpas(int ivar,
     dirloc[0] = 1.;
   }
   VectorDouble vec(dirloc);
-  ut_vector_multiply_inplace(vec, step);
+  VH::multiplyConstant(vec, step);
   p2.move(vec);
   return eval(ivar, jvar, p1, p2, mode); // pure virtual method
 }

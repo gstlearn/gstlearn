@@ -8,6 +8,7 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
+#include <Geometry/GeometryHelper.hpp>
 #include "geoslib_f.h"
 #include "geoslib_f_private.h"
 #include "geoslib_old_f.h"
@@ -18,7 +19,6 @@
 #include "Model/Model.hpp"
 #include "Model/Option_AutoFit.hpp"
 #include "Drifts/DriftFactory.hpp"
-#include "Basic/Vector.hpp"
 #include "Space/SpaceRN.hpp"
 #include "Variogram/Vario.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
@@ -37,8 +37,6 @@
 #include "Model/ANoStat.hpp"
 #include "Model/NoStatArray.hpp"
 #include "Db/Db.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 
 Model::Model(const CovContext &ctxt)
@@ -391,10 +389,9 @@ void Model::setDrifts(const VectorString &driftSymbols)
 
   for (int i = 0; i < (int) driftSymbols.size(); i++)
   {
-    int rank = 0;
-    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank, _ctxt);
-    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt);
-    drift->setRankFex(rank);
+    int rank_fex = 0;
+    EDrift type = DriftFactory::identifyDrift(driftSymbols[i], &rank_fex, _ctxt);
+    ADriftElem *drift = DriftFactory::createDriftFunc(type, _ctxt, rank_fex);
     addDrift(drift);
   }
 }
@@ -865,7 +862,7 @@ VectorDouble Model::sample(double hmax,
   if (codir.empty())
   {
     codir.resize(ndim);
-    (void) ut_angles_to_codir(ndim, 1, VectorDouble(), codir);
+    (void) GH::rotationGetDirection(ndim, 1, VectorDouble(), codir);
   }
   int nhloc = (addZero) ? nh + 1: nh;
   hh.resize(nhloc);
@@ -881,7 +878,7 @@ VectorDouble Model::sample(double hmax,
   for (int i = 0; i < nh; i++)
     hh[ecr++] = hmax * (i+1) / nh;
 
-  model_evaluate(this, ivar, jvar, -1, 0, 0, 0, nostd, 0, ECalcMember::LHS, nhloc,
+  model_evaluate(this, ivar, jvar, -1, 0, asCov, 0, nostd, 0, ECalcMember::LHS, nhloc,
                  codir, hh.data(), gg.data());
   return gg;
 }
@@ -899,7 +896,7 @@ VectorDouble Model::sample(double hmax,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromCovIndices(Vario *vario,
-                             const std::vector<ECov> &types,
+                             const VectorECov &types,
                              const Constraints &constraints,
                              Option_VarioFit optvar,
                              Option_AutoFit mauto,
@@ -936,7 +933,7 @@ int Model::fitFromCovIndices(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fit(Vario *vario,
-               const std::vector<ECov> &types,
+               const VectorECov &types,
                const Constraints &constraints,
                Option_VarioFit optvar,
                Option_AutoFit mauto,
@@ -972,7 +969,7 @@ int Model::fit(Vario *vario,
  * @return 0 if no error, 1 otherwise
  */
 int Model::fitFromVMap(DbGrid *dbmap,
-                       const std::vector<ECov> &types,
+                       const VectorECov &types,
                        const Constraints &constraints,
                        Option_VarioFit optvar,
                        Option_AutoFit mauto,
@@ -1023,7 +1020,8 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   if (! ret) return ret;
 
   /// TODO : Force SpaceRN creation (deserialization doesn't know yet how to manage other space types)
-  _ctxt = CovContext(nvar, ndim, field);
+  _ctxt = CovContext(nvar, ndim);
+  _ctxt.setField(field);
   _clear();
   _create();
 
@@ -1085,8 +1083,10 @@ bool Model::_deserialize(std::istream& is, bool /*verbose*/)
   {
     ret = ret && _recordRead<int>(is, "Drift Function", type);
     EDrift dtype = EDrift::fromValue(type);
-    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt);
-    drift->setRankFex(0); // TODO : zero? really?
+    int rank_fex = 0;
+    if (dtype == EDrift::F)
+      ret = ret && _recordRead<int>(is, "External Drift rank", rank_fex);
+    ADriftElem *drift = DriftFactory::createDriftFunc(dtype, _ctxt, rank_fex);
     drifts.addDrift(drift);
     delete drift;
   }
@@ -1174,6 +1174,8 @@ bool Model::_serialize(std::ostream& os, bool /*verbose*/) const
   {
     const ADriftElem *drift = getDrift(ibfl);
     ret = ret && _recordWrite<int>(os,"Drift characteristics", drift->getType().getValue());
+    if (drift->getType() == EDrift::F)
+      ret = ret && _recordWrite<int>(os,"External Drift rank", drift->getRankFex());
   }
 
   /* Writing the matrix of means (if nbfl <= 0) */
@@ -1332,7 +1334,7 @@ double Model::gofToVario(const Vario* vario, bool verbose)
 
         // Read information from Experimental Variogram
 
-        VectorDouble codir = vario->getCodir(idir);
+        VectorDouble codir = vario->getCodirs(idir);
         VectorDouble sw = vario->getSwVec(idir, ivar, jvar);
         VectorDouble hh = vario->getHhVec(idir, ivar, jvar);
         VectorDouble gexp = vario->getGgVec(idir, ivar, jvar);
@@ -1454,9 +1456,9 @@ double Model::_evalDriftCoef(const Db* db,
   return drift;
 }
 
-std::vector<ECov> Model::initCovList(const VectorInt & covranks)
+VectorECov Model::initCovList(const VectorInt & covranks)
 {
-  std::vector<ECov> list;
+  VectorECov list;
 
   for (int i = 0; i < (int) covranks.size(); i++)
   {
@@ -1470,4 +1472,26 @@ std::vector<ECov> Model::initCovList(const VectorInt & covranks)
     list.push_back(ec);
   }
   return list;
+}
+
+bool Model::isValid() const
+{
+  // Covariances: there should be some defined
+  if (_covaList == nullptr)
+  {
+    messerr("Model is not valid: no covariance has been defined");
+    return false;
+  }
+  if (_covaList->getCovNumber() <= 0)
+  {
+    messerr("Model is not valid: no covariance has been defined");
+    return false;
+  }
+
+  // Drifts: there should be valid
+  if (_driftList != nullptr)
+  {
+    if (! _driftList->isValid()) return false;
+  }
+  return true;
 }

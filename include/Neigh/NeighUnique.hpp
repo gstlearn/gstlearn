@@ -24,7 +24,7 @@ class Db;
 class GSTLEARN_EXPORT NeighUnique: public ANeighParam
 {
 public:
-  NeighUnique(int ndim = 2, bool flag_xvalid = false);
+  NeighUnique(bool flag_xvalid = false, const ASpace* space = nullptr);
   NeighUnique(const NeighUnique& r);
   NeighUnique& operator=(const NeighUnique& r);
   virtual ~NeighUnique();
@@ -34,8 +34,7 @@ public:
   virtual ENeigh getType() const override { return ENeigh::UNIQUE; }
   virtual int getMaxSampleNumber(const Db* db) const override;
 
-  int reset(int ndim, bool flag_xvalid = false);
-  static NeighUnique* create(int ndim, bool flag_xvalid = false);
+  static NeighUnique* create(bool flag_xvalid = false, const ASpace* space = nullptr);
   static NeighUnique* createFromNF(const String& neutralFilename, bool verbose = true);
 
 protected:

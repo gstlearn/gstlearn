@@ -11,7 +11,6 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
 #include "Basic/AFunctional.hpp"
 
 class GSTLEARN_EXPORT FunctionalSpirale : public AFunctional

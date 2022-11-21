@@ -23,11 +23,12 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/Limits.hpp"
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/GlobalEnvironment.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
 
 #include <algorithm>
@@ -1317,7 +1318,7 @@ void Db::deleteColumnsByColIdx(const VectorInt& icols)
 {
   if (icols.empty()) return;
 
-  VectorInt v = ut_ivector_sort(icols, false);
+  VectorInt v = VH::sort(icols, false);
 
   for (unsigned int i = 0; i < v.size(); i++)
     deleteColumnByColIdx(v[i]);
@@ -1605,8 +1606,8 @@ VectorDouble Db::getExtrema(int idim, bool useSel) const
   VectorDouble ext;
   if (!isDimensionIndexValid(idim)) return ext;
   VectorDouble coor = getCoordinates(idim, useSel);
-  ext.push_back(ut_vector_min(coor));
-  ext.push_back(ut_vector_max(coor));
+  ext.push_back(VH::minimum(coor));
+  ext.push_back(VH::maximum(coor));
   return ext;
 }
 
@@ -1624,7 +1625,7 @@ VectorDouble Db::getCoorMinimum(bool useSel) const
   for (int idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getCoordinates(idim, useSel);
-    ext.push_back(ut_vector_min(coor));
+    ext.push_back(VH::minimum(coor));
   }
   return ext;
 }
@@ -1635,7 +1636,7 @@ VectorDouble Db::getCoorMaximum(bool useSel) const
   for (int idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getCoordinates(idim, useSel);
-    ext.push_back(ut_vector_max(coor));
+    ext.push_back(VH::maximum(coor));
   }
   return ext;
 }
@@ -1653,8 +1654,8 @@ double Db::getCenter(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return TEST;
   VectorDouble coor = getCoordinates(idim, useSel);
-  double mini = ut_vector_min(coor);
-  double maxi = ut_vector_max(coor);
+  double mini = VH::minimum(coor);
+  double maxi = VH::maximum(coor);
   return ((mini + maxi) / 2.);
 }
 
@@ -1662,8 +1663,8 @@ double Db::getExtension(int idim, bool useSel) const
 {
   if (!isDimensionIndexValid(idim)) return 0.;
   VectorDouble coor = getCoordinates(idim, useSel);
-  double mini = ut_vector_min(coor);
-  double maxi = ut_vector_max(coor);
+  double mini = VH::minimum(coor);
+  double maxi = VH::maximum(coor);
   return maxi - mini;
 }
 
@@ -1690,8 +1691,8 @@ void Db::getExtensionInPlace(VectorDouble &mini, VectorDouble &maxi)
   for (int idim = 0; idim < getNDim(); idim++)
   {
     VectorDouble coor = getCoordinates(idim, true);
-    double vmin = ut_vector_min(coor);
-    double vmax = ut_vector_max(coor);
+    double vmin = VH::minimum(coor);
+    double vmax = VH::maximum(coor);
     if (FFFF(mini[idim]) || vmin < mini[idim]) mini[idim] = vmin;
     if (FFFF(maxi[idim]) || vmax > maxi[idim]) maxi[idim] = vmax;
   }
@@ -1727,7 +1728,7 @@ double Db::getMinimum(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return ut_vector_min(tab);
+  return VH::minimum(tab);
 }
 
 double Db::getMaximum(const String& name, bool useSel) const
@@ -1735,7 +1736,7 @@ double Db::getMaximum(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return ut_vector_max(tab);
+  return VH::maximum(tab);
 }
 
 VectorDouble Db::getRange(const String& name, bool useSel) const
@@ -1751,7 +1752,7 @@ double Db::getMean(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return ut_vector_mean(tab);
+  return VH::mean(tab);
 }
 
 double Db::getVariance(const String& name, bool useSel) const
@@ -1759,7 +1760,7 @@ double Db::getVariance(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return ut_vector_var(tab);
+  return VH::variance(tab);
 }
 
 double Db::getStdv(const String& name, bool useSel) const
@@ -1767,7 +1768,7 @@ double Db::getStdv(const String& name, bool useSel) const
   VectorInt iuids = _ids(name, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab = getColumnByUID(iuids[0], useSel);
-  return ut_vector_stdv(tab);
+  return VH::stdv(tab);
 }
 
 double Db::getCorrelation(const String& name1, const String& name2, bool useSel) const
@@ -1779,7 +1780,7 @@ double Db::getCorrelation(const String& name1, const String& name2, bool useSel)
   iuids = _ids(name2, true);
   if (iuids.empty()) return TEST;
   VectorDouble tab2 = getColumnByUID(iuids[0], useSel);
-  return ut_vector_correlation(tab1, tab2);
+  return VH::correlation(tab1, tab2);
 }
 
 int Db::getNDim() const
@@ -3062,8 +3063,8 @@ String Db::_summaryExtensions(void) const
   for (int idim = 0; idim < ndim; idim++)
   {
     VectorDouble coor = getCoordinates(idim, true);
-    double vmin = ut_vector_min(coor);
-    double vmax = ut_vector_max(coor);
+    double vmin = VH::minimum(coor);
+    double vmax = VH::maximum(coor);
 
     sstr << "Coor #" << idim + 1;
     sstr << " - Min = " << toDouble(vmin);
@@ -4008,9 +4009,9 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 }
 
 /**
- * Return the monovariate statistics on variables given their UID
+ * Return the monovariate statistics on variables given their UID, performed per point
  * @param iuids              List of UID of the variables
- * @param opers              List of operations to be performed on the variables at each point.
+ * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso  
  * @param flagVariableWise   If False, the new variable is added to Db
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -4073,9 +4074,9 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 }
 
 /**
- * Return the monovariate statistics on variables given their names.
+ * Return the monovariate statistics on variables given their names, performed per point.
  * @param names              List of names of the variables
- * @param opers              List of operations to be performed on the variables at each point.
+ * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso            If True, perform statistics on isotopic samples only
  * @param flagVariableWise   If False, results are added to Db; otherwise they are produced in output vector
  * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
@@ -4084,7 +4085,8 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
  * @param title              If flagPrint is True, the title of the printed statistics. 
  * @param namconv            Naming Convention
- * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
+ * @return If flagPrint is False, returns a vector containing the statistics.
+ * @return If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
  * @see statisticsMulti (multivariate statistics)
@@ -4467,7 +4469,7 @@ int Db::resetSamplingDb(const Db* dbin,
   // Creating the vector of selected samples
 
   int nfrom = dbin->getSampleNumber();
-  VectorInt ranks = ut_vector_sample(nfrom, proportion, number, seed);
+  VectorInt ranks = VH::sampleRanks(nfrom, proportion, number, seed);
   _nech = static_cast<int> (ranks.size());
   if (verbose)
     message("From %d samples, the extraction concerns %d samples\n", nfrom,_nech);

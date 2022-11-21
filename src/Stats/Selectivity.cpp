@@ -10,7 +10,7 @@
 /******************************************************************************/
 #include "Enum/ESelectivity.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/Law.hpp"
@@ -44,7 +44,7 @@ Selectivity::Selectivity(int ncut)
       _rankQT(),
       _flagOnlyZDefined(false)
 {
-  ut_vector_fill(_Zcut, TEST);
+  VH::fill(_Zcut, TEST);
   _stats.setColumnNames(_getAllNames());
   _stats.fill(TEST);
 }
@@ -225,7 +225,7 @@ int Selectivity::calculateFromArray(const VectorDouble &tab,
 
   // Perform calculations
 
-  double tonref = ut_vector_cumul(wtab);
+  double tonref = VH::cumul(wtab);
   for (int icut = 0; icut < ncut; icut++)
   {
     double coupure = getZcut(icut);
@@ -654,51 +654,51 @@ String Selectivity::getVariableName(const ESelectivity& code, int icut, int mode
 
     case ESelectivity::E_Z:
       if (mode == 0)
-        return("Z-Est");
+        return("Z-estim");
       else
-        return("Z-Std");
+        return("Z-stdev");
       break;
 
     case ESelectivity::E_T:
       if (mode == 0)
-        return(encodeString("T-Est", _Zcut[icut]));
+        return(encodeString("T-estim", _Zcut[icut]));
       else
-        return(encodeString("T-Std", _Zcut[icut]));
+        return(encodeString("T-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_Q:
       if (mode == 0)
-        return(encodeString("Q-Est", _Zcut[icut]));
+        return(encodeString("Q-estim", _Zcut[icut]));
       else
-        return(encodeString("Q-Std", _Zcut[icut]));
+        return(encodeString("Q-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_B:
       if (mode == 0)
-        return(encodeString("B-Est", _Zcut[icut]));
+        return(encodeString("B-estim", _Zcut[icut]));
       else
-        return(encodeString("B-Std", _Zcut[icut]));
+        return(encodeString("B-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_M:
       if (mode == 0)
-        return(encodeString("M-Est", _Zcut[icut]));
+        return(encodeString("M-estim", _Zcut[icut]));
       else
-        return(encodeString("M-Std", _Zcut[icut]));
+        return(encodeString("M-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_PROP:
       if (mode == 0)
-        return("Proba-Est");
+        return("Proba-estim");
       else
-        return("Proba-Std");
+        return("Proba-stdev");
       break;
 
     case ESelectivity::E_QUANT:
       if (mode == 0)
-        return("Quant-Est");
+        return("Quant-estim");
       else
-        return("Quant-Std");
+        return("Quant-stdev");
       break;
   }
 
@@ -1103,12 +1103,12 @@ VectorString Selectivity::_getAllNames() const
 {
   VectorString names;
   names.push_back("Z-Cut");
-  names.push_back("T-Est");
-  names.push_back("Q-Est");
-  names.push_back("B-Est");
-  names.push_back("M-Est");
-  names.push_back("T-Std");
-  names.push_back("Q-Std");
+  names.push_back("T-estim");
+  names.push_back("Q-estim");
+  names.push_back("B-estim");
+  names.push_back("M-estim");
+  names.push_back("T-stdev");
+  names.push_back("Q-stdev");
   return names;
 }
 
@@ -1144,8 +1144,8 @@ const VectorInt Selectivity::getNumberQTStd() const
 
 void Selectivity::_defineAutomaticCutoffs(const VectorDouble& tab, double eps)
 {
-  double zmin = ut_vector_min(tab);
-  double zmax = ut_vector_max(tab) + eps;
+  double zmin = VH::minimum(tab);
+  double zmax = VH::maximum(tab) + eps;
   int ncuts = getNCuts();
 
   if (ncuts <= 1)

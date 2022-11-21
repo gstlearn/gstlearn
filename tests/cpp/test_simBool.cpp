@@ -20,7 +20,7 @@
 #include "Db/DbStringFormat.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Boolean/ShapeEllipsoid.hpp"
 #include "Boolean/ShapeParallelepiped.hpp"
 #include "Boolean/ModelBoolean.hpp"
@@ -30,15 +30,15 @@ static Db* createLocalDb(int nech, int ndim, int nvar,
                          bool flag_sel = false, double proba = 0.5)
 {
   // Coordinates
-  VectorDouble tab = ut_vector_simulate_gaussian(ndim * nech, 0., 50.);
+  VectorDouble tab = VH::simulateGaussian(ndim * nech, 0., 50.);
   // Variable
   for (int ivar=0; ivar<nvar; ivar++)
   {
     VectorDouble tabvar;
     if (flag_sel)
-      tabvar = ut_vector_simulate_bernoulli(nech, proba);
+      tabvar = VH::simulateBernoulli(nech, proba);
     else
-      tabvar = ut_vector_simulate_gaussian(nech);
+      tabvar = VH::simulateGaussian(nech);
     tab.insert(tab.end(), tabvar.begin(), tabvar.end());
   }
 

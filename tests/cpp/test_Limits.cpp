@@ -13,7 +13,6 @@
 
 #include "Enum/ECst.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/OptCst.hpp"
 #include "Basic/FunctionalSpirale.hpp"
 #include "Covariances/CovAniso.hpp"

@@ -17,7 +17,6 @@
 #include <cmath>
 #include <math.h>
 
-
 GSTLEARN_EXPORT bool   isInteger(double value, double eps = EPSILON10);
 GSTLEARN_EXPORT int    getClosestInteger(double value);
 GSTLEARN_EXPORT bool   isMultiple(int nbig, int nsmall);

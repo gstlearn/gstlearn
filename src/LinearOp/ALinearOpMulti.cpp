@@ -12,7 +12,7 @@
 #include "LinearOp/ALinearOpMulti.hpp"
 #include "LinearOp/Identity.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Timer.hpp"
 #include "Basic/OptDbg.hpp"
 
@@ -72,19 +72,19 @@ void ALinearOpMulti::_initPublic() const{
 
 /*****************************************************************************/
 /*!
- **  Evaluate the product: 'out' = Q * 'in'
+ **  Evaluate the product: 'outv' = Q * 'inv'
  **
- ** \param[in]  in     Array of input values
+ ** \param[in]  inv     Array of input values
  **
- ** \param[out] out    Array of output values
+ ** \param[out] outv    Array of output values
  **
  *****************************************************************************/
-void ALinearOpMulti::evalDirect(const VectorVectorDouble& in,
-                                VectorVectorDouble& out) const
+void ALinearOpMulti::evalDirect(const VectorVectorDouble& inv,
+                                VectorVectorDouble& outv) const
 {
   try
   {
-    _evalDirect(in,out);
+    _evalDirect(inv,outv);
   }
   catch(const char * str)
   {
@@ -95,16 +95,16 @@ void ALinearOpMulti::evalDirect(const VectorVectorDouble& in,
 
 /*****************************************************************************/
 /*!
- **  Evaluate the product: 'out' = Q^{-1} * 'in' by conjugate gradient
+ **  Evaluate the product: 'outv' = Q^{-1} * 'inv' by conjugate gradient
  **
- ** \param[in]  in     Array of input values
+ ** \param[in]  inv     Array of input values
  **
- ** \param[out] out    Array of output values. Will be used as initial value if
+ ** \param[out] outv    Array of output values. Will be used as initial value if
  **                    _userInitialValue is true.
  **
  *****************************************************************************/
-void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
-                                 VectorVectorDouble& out) const
+void ALinearOpMulti::evalInverse(const VectorVectorDouble& inv,
+                                 VectorVectorDouble& outv) const
 {
   _init();
   int n = sizes();
@@ -117,20 +117,20 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
   Timer time;
 
-  nb = innerProduct(in,in);
+  nb = innerProduct(inv,inv);
 
 
   if(_userInitialValue)
   {
 
-    evalDirect(out,_temp); //temp = Ax0 (x0 est stocké dans out)
-    diff(_temp,in,_r);    //r=b-Ax0
+    evalDirect(outv,_temp); //temp = Ax0 (x0 est stocké dans outv)
+    diff(_temp,inv,_r);    //r=b-Ax0
   }
   else
   {
-    fillVal(out,0.);
+    fillVal(outv,0.);
     fillVal(_temp,0.); // temp = Ax0=0
-    _copyVals(in,_r);   // r = b
+    _copyVals(inv,_r);   // r = b
   }
 
   message("initial crit %lg \n",innerProduct(_r,_r));
@@ -158,7 +158,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
     niter++;
     evalDirect(_p,_temp); //temp = Ap
     alpha = rsold / innerProduct(_temp,_p); // r'r/p'Ap
-    _linearComb(1.,out,alpha,_p,out);//x=x+alpha p
+    _linearComb(1.,outv,alpha,_p,outv);//x=x+alpha p
     _linearComb(1.,_r,-alpha,_temp,_r); //r=r-alpha*Ap
 
     if(_precondStatus)
@@ -175,8 +175,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
     }
 
-
-    message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
+//    message("%d iterations (max=%d)  crit %lg \n",niter,_nIterMax,crit);
     rsold = rsnew;
 
   }
@@ -193,16 +192,16 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& in,
 
 }
 
-void ALinearOpMulti::initLk(const VectorVectorDouble& in,
-                                 VectorVectorDouble& out) const
+void ALinearOpMulti::initLk(const VectorVectorDouble& inv,
+                                 VectorVectorDouble& outv) const
 {
   _init();
   int n = sizes();
   if (n <= 0) my_throw("ALinearOpMulti size not defined. Call setSize before");
 
-  fillVal(out,0.);
+  fillVal(outv,0.);
   fillVal(_temp,0.); // temp = Ax0=0
-  _copyVals(in,_p); //p=r (=z)
+  _copyVals(inv,_p); //p=r (=z)
 
   evalDirect(_p,_temp); //temp = Ap
 
@@ -300,7 +299,7 @@ double ALinearOpMulti::innerProduct(const VectorVectorDouble& x,
   double s = 0.;
 
   for (int i = 0; i<(int)x.size();i++)
-    s+= ut_vector_inner_product(x[i],y[i]);
+    s+= VH::innerProduct(x[i],y[i]);
 
   return s;
 }
@@ -308,13 +307,13 @@ double ALinearOpMulti::innerProduct(const VectorVectorDouble& x,
 
 void ALinearOpMulti::diff(const VectorVectorDouble& in1,
                            const VectorVectorDouble& in2,
-                           VectorVectorDouble& out) const
+                           VectorVectorDouble& outv) const
 {
   for(int is = 0;is<sizes();is++)
   {
     for(int i = 0;i<size(is);i++)
     {
-      out[is][i] = in2[is][i] - in1[is][i];
+      outv[is][i] = in2[is][i] - in1[is][i];
     }
   }
 }
@@ -322,92 +321,84 @@ void ALinearOpMulti::diff(const VectorVectorDouble& in1,
 
 void ALinearOpMulti::sum(const VectorVectorDouble& in1,
          const VectorVectorDouble& in2,
-         VectorVectorDouble& out) const
+         VectorVectorDouble& outv) const
 {
   for(int is = 0;is<sizes();is++)
   {
     for(int i = 0;i<size(is);i++)
     {
-      out[is][i] = in2[is][i] + in1[is][i];
+      outv[is][i] = in2[is][i] + in1[is][i];
     }
   }
 }
 /**
- * out = val1 * in1 + val2  in2
+ * outv = val1 * in1 + val2  in2
  */
 
 void ALinearOpMulti::_linearComb(double val1,
                                  const VectorVectorDouble& in1,
                                  double val2,
                                  const VectorVectorDouble& in2,
-                                 VectorVectorDouble& out) const
+                                 VectorVectorDouble& outv) const
 {
   for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
-      out[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
+      outv[is][i] = val1 * in1[is][i] + val2 * in2[is][i];
     }
   }
 }
 
 void ALinearOpMulti::prodScalar(double val1,
                                 const VectorVectorDouble& in1,
-                                VectorVectorDouble& out) const
+                                VectorVectorDouble& outv) const
 {
   for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
-      out[is][i] = val1 * in1[is][i];
+      outv[is][i] = val1 * in1[is][i];
     }
   }
 }
 
 void ALinearOpMulti::addProdScalar(double val1,
                                    const VectorVectorDouble& in1,
-                                   VectorVectorDouble& out) const
+                                   VectorVectorDouble& outv) const
 {
   for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
-      out[is][i] += val1 * in1[is][i];
+      outv[is][i] += val1 * in1[is][i];
     }
   }
 }
 
 void ALinearOpMulti::fillVal(VectorVectorDouble& vect, double val) const
 {
-  for (auto &e : vect)
-  {
-    ut_vector_fill_inplace(e, val);
-  }
+  VH::fill(vect, val);
 }
 
 double ALinearOpMulti::max(const VectorVectorDouble& vect) const
 {
-  double val = ut_vector_max(vect[0]);
-
-  for (int i = 1; i < (int)vect.size(); i++)
-  {
-    val = MAX(val,  ut_vector_max(vect[i]));
-  }
-  return val;
+  return VH::maximum(vect);
 }
+
 void ALinearOpMulti::_updated()const
 {
   _initialized=false;
 }
 
-void ALinearOpMulti::_copyVals(const VectorVectorDouble& in,
-                               VectorVectorDouble& out) const
+void ALinearOpMulti::_copyVals(const VectorVectorDouble& inv,
+                               VectorVectorDouble& outv) const
 {
   for (int is = 0; is < sizes(); is++)
   {
     for (int i = 0; i < size(is); i++)
     {
-      out[is][i] = in[is][i];
+      outv[is][i] = inv[is][i];
     }
   }
 }

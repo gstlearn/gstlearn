@@ -96,7 +96,7 @@ bool ACalcInterpolator::_check()
   {
     if (ndim > 0)
     {
-      if (ndim != _neighparam->getNDim())
+      if (ndim != (int) _neighparam->getNDim())
       {
         messerr("Inconsistent Space dimension:");
         messerr("- Current dimension = %d",ndim);
@@ -106,7 +106,7 @@ bool ACalcInterpolator::_check()
     }
     else
     {
-      ndim = _neighparam->getNDim();
+      ndim = (int) _neighparam->getNDim();
     }
   }
 
@@ -183,7 +183,7 @@ bool ACalcInterpolator::_check()
     VectorDouble db_maxi(ndim, TEST);
     if (hasDbin(false))  getDbin()->getExtensionInPlace(db_mini, db_maxi);
     if (hasDbout(false)) getDbout()->getExtensionInPlace(db_mini, db_maxi);
-    _model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    _model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
   return true;
 }

@@ -11,10 +11,11 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Db/DbGrid.hpp"
 #include "IProjMatrix.hpp"
 #include "Mesh/MeshETurbo.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
 /**
@@ -32,7 +33,7 @@ public:
   ProjConvolution& operator= (const ProjConvolution &m)= delete;
   virtual ~ProjConvolution();
 
-  int point2mesh(const VectorDouble& in, VectorDouble& out) const override;
+  int point2mesh(const VectorDouble& valonseismic, VectorDouble& valonvertex) const override;
   int mesh2point(const VectorDouble& valonvertex, VectorDouble& valonseismic) const override;
 
   int getApexNumber() const override;

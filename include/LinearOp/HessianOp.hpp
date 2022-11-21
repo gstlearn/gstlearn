@@ -13,7 +13,7 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
 #include "PrecisionOp.hpp"
 #include "ProjMatrix.hpp"
 
@@ -35,7 +35,7 @@ public:
   void setLambda(const VectorDouble& lambda) { _lambda = lambda; };
 
 protected:
-  void _evalDirect(const VectorDouble& in, VectorDouble& out) const override;
+  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private:
   bool                 _isInitialized;

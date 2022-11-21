@@ -14,7 +14,6 @@
 
 #include "Enum/ECov.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 #include "Covariances/CovContext.hpp"
 #include "Arrays/Array.hpp"
@@ -85,7 +84,7 @@ protected:
 private:
   Array _evalCovFFT(const VectorDouble& ext, int N = 128) const;
   ECov        _type;    /*! Covariance function type */
-  CovContext  _ctxt;    /*! Context (space, irfDegree, field, ...) */
+  CovContext  _ctxt;    /*! Context (space, number of variables, ...) */
   double      _param;   /*! Third parameter (TEST if not used) */
 };
 

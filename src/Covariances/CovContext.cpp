@@ -11,9 +11,10 @@
 #include "Covariances/CovContext.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Space/ASpace.hpp"
-#include "Basic/Vector.hpp"
-#include "Variogram/Vario.hpp"
 #include "Space/SpaceRN.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
+#include "Variogram/Vario.hpp"
 #include "Db/Db.hpp"
 
 /**
@@ -21,13 +22,12 @@
  *
  * @param nvar         Number of variables
  * @param space        Space definition
- * @param field        Maximum field distance (used for covariances having no sill)
  */
-CovContext::CovContext(int nvar, const ASpace *space, double field)
+CovContext::CovContext(int nvar, const ASpace *space)
 
     : ASpaceObject(space),
       _nVar(nvar),
-      _field(field),
+      _field(TEST),
       _mean(),
       _covar0()
 {
@@ -39,18 +39,16 @@ CovContext::CovContext(int nvar, const ASpace *space, double field)
  *
  * @param nvar         Number of variables
  * @param ndim         Number of dimension of the euclidean space (RN)
- * @param field        Maximum field distance (used for covariances having no sill)
  * @param mean         Vector of Means
  * @param covar0       Vector of variance-covariance
  */
 CovContext::CovContext(int nvar,
                        int ndim,
-                       double field,
                        const VectorDouble &mean,
                        const VectorDouble &covar0)
     : ASpaceObject(SpaceRN(ndim)),
       _nVar(nvar),
-      _field(field),
+      _field(TEST),
       _mean(mean),
       _covar0(covar0)
 {
@@ -60,7 +58,7 @@ CovContext::CovContext(int nvar,
 CovContext::CovContext(const Db *db, const ASpace* space)
     : ASpaceObject(space),
       _nVar(0),
-      _field(1.),
+      _field(TEST),
       _mean(),
       _covar0()
 {
@@ -68,14 +66,13 @@ CovContext::CovContext(const Db *db, const ASpace* space)
   _nVar = db->getVariableNumber();
   // As it does not make sense not to have any variable, this number is set to 1 at least
   if (_nVar <= 1) _nVar = 1;
-  _field = db->getColumnSize();
   _update();
 }
 
 CovContext::CovContext(const Vario *vario, const ASpace *space)
     : ASpaceObject(space),
       _nVar(0),
-      _field(1.),
+      _field(TEST),
       _mean(),
       _covar0()
 {
@@ -116,15 +113,16 @@ String CovContext::toString(const AStringFormat* strfmt) const
   std::stringstream sstr;
   sstr << ASpaceObject::toString(strfmt);
   sstr << "Nb Variables       = "       << _nVar << std::endl;
-  sstr << "Field Size         = "       << _field << std::endl;
-  sstr << "Mean(s)            = "       << ut_vector_string(_mean);
-  sstr << "Covariance (0)     = "       << ut_vector_string(_covar0);
+  if (! FFFF(_field))
+    sstr << "Field Size         = "       << _field << std::endl;
+  sstr << "Mean(s)            = "       << VH::toString(_mean);
+  sstr << "Covariance (0)     = "       << VH::toString(_covar0);
   return sstr.str();
 }
 
-CovContext* CovContext::create(int nvar, int ndim, double field)
+CovContext* CovContext::create(int nvar, int ndim)
 {
-  CovContext* ctxt = new CovContext(nvar, ndim, field);
+  CovContext* ctxt = new CovContext(nvar, ndim);
   return ctxt;
 }
 

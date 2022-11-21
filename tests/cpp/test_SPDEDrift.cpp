@@ -1,4 +1,3 @@
-#include "Basic/Vector.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/ASerializable.hpp"
 #include "Basic/File.hpp"
@@ -25,7 +24,6 @@ int main(int /*argc*/, char */*argv*/[])
 
   bool verbose = false;
   bool flagSPDE = true;
-  int ndim = 2;
   String filename;
 
   filename = ASerializable::getTestData("Scotland","temperatures.ascii");
@@ -58,7 +56,7 @@ int main(int /*argc*/, char */*argv*/[])
   (void) model->fit(vario,structs,constraints);
   model->display();
 
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  NeighUnique* neighU = NeighUnique::create();
   neighU->display();
 
   ASerializable::setContainerName(true);

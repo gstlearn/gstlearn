@@ -13,15 +13,16 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 
 class GSTLEARN_EXPORT ALinearOp {
 
 public:
   ALinearOp();
   virtual ~ALinearOp();
-  void evalDirect(const VectorDouble& in, VectorDouble& out) const;
-  virtual void evalInverse(const VectorDouble& in, VectorDouble& out) const;
+  void evalDirect(const VectorDouble& inv, VectorDouble& outv) const;
+  virtual void evalInverse(const VectorDouble& inv, VectorDouble& outv) const;
   virtual int getSize() const = 0;
   void setNIterMax(int nitermax) { _nIterMax = nitermax; }
   void setEps(double eps) { _eps = eps; }
@@ -29,7 +30,7 @@ public:
   void setPrecond(const ALinearOp* precond, int status);
 
 protected:
-  virtual void _evalDirect(const VectorDouble& in, VectorDouble& out) const = 0;
+  virtual void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const = 0;
 
 private:
   double _prod(const VectorDouble& x, const VectorDouble& y) const;

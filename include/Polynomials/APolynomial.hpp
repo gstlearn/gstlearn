@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "geoslib_define.h"
 #include "csparse_d.h"
 
@@ -35,24 +36,25 @@ public:
   void init(VectorDouble coeffs);
   virtual double eval(double x) const = 0;
 
-  virtual void evalOp(cs* /*Op*/,
-                      const VectorDouble& /*in*/,
-                      VectorDouble& /*out*/) const {};
-  virtual void evalOpTraining(cs* /*Op*/,
-                      const VectorDouble& /*in*/,
-                      VectorVectorDouble& /*out*/,
-                      VectorDouble& /*work*/) const {};
-  VectorDouble evalOp(cs* /*Op*/, const VectorDouble& /*in*/) const;
+  virtual void evalOp(cs* Op,
+                      const VectorDouble& inv,
+                      VectorDouble& outv) const { SYMBOL_UNSED(Op,inv,outv); };
+  virtual void evalOpTraining(cs* Op,
+                      const VectorDouble& inv,
+                      VectorVectorDouble& outv,
+                      VectorDouble& work) const { SYMBOL_UNSED(Op,inv,outv,work); };
+  VectorDouble evalOp(cs* Op, const VectorDouble& inv) const;
   VectorDouble getCoeffs() const { return _coeffs; }
-  void setCoeffs(const VectorDouble coeffs){_coeffs = coeffs;}
+  void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
 
   int getDegree() const { return static_cast<int>(_coeffs.size());}
-  virtual void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& in, VectorVectorDouble& out) const =0;
-  virtual int fit(std::function<double(double)> /*f*/,
-                  double /*from*/ = 0.,
-                  double /*to*/ = 1.,
-                  double /*tol*/ = EPSILON5)
+  virtual void evalOp(const ALinearOpMulti* Op,const VectorVectorDouble& inv, VectorVectorDouble& outv) const = 0;
+  virtual int fit(std::function<double(double)> f,
+                  double from = 0.,
+                  double to = 1.,
+                  double tol = EPSILON5)
   {
+    SYMBOL_UNSED(f,from,to,tol);
     return 1;
   }
 

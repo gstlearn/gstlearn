@@ -29,12 +29,14 @@
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Covariances/ACovAnisoList.hpp"
 #include "Polynomials/Hermite.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Estimation/KrigingSystem.hpp"
 #include "Calculators/CalcMigrate.hpp"
+#include "Space/SpaceRN.hpp"
 
 #include <math.h>
 
@@ -679,7 +681,7 @@ void KrigingSystem::_covtabModifyDGM(const ECalcMember &member,
                                      MatrixSquareGeneral& mat)
 {
   double covn = 0.;
-  double dist = ut_vector_norm(d1);
+  double dist = VH::norm(d1);
   if (member == ECalcMember::LHS)
   {
     if (iech1 >= 0 && iech1 == iech2)
@@ -1879,6 +1881,7 @@ int KrigingSystem::estimate(int iech_out)
   {
     if (_flagBayes) _model = _modelSimple;
     status = _prepar();
+    if (status) goto label_store;
     if (_flagBayes) _model = _modelInit;
   }
 
@@ -1916,6 +1919,8 @@ int KrigingSystem::estimate(int iech_out)
   /* Perform the final estimation */
 
   label_store:
+  // If status is not zero, cancel the current Neighborhood search status
+  if (status) _nbghWork.setIsChanged();
 
   // Correct the Variance in Bayesian case
 
@@ -2219,7 +2224,7 @@ int KrigingSystem::setKrigOptCalcul(const EKrigOpt& calcul,
     // Discretization is stored
 
     _ndiscs = ndiscs;
-    _ndiscNumber = ut_vector_prod(_ndiscs);
+    _ndiscNumber = VH::product(_ndiscs);
     _disc1.resize(_ndiscNumber * ndim);
     _disc2.resize(_ndiscNumber * ndim);
 
@@ -2645,12 +2650,12 @@ bool KrigingSystem::_isCorrect()
   }
   if (_neighParam != nullptr)
   {
-    if (ndim > 0 && ndim != _neighParam->getNDim())
+    if (ndim > 0 && ndim != (int)_neighParam->getNDim())
     {
       messerr("Incompatible Space Dimension of '_neighParam'");
       return false;
     }
-    ndim = _neighParam->getNDim();
+    ndim = (int)_neighParam->getNDim();
   }
 
   /****************************/
@@ -2688,6 +2693,12 @@ bool KrigingSystem::_isCorrect()
       return false;
     }
   }
+
+  /**************************************/
+  /* Checking the Validity of the Model */
+  /**************************************/
+
+  if (! _model->isValid()) return false;
 
   /******************************************/
   /* Checking the Number of External Drifts */
@@ -2759,7 +2770,7 @@ bool KrigingSystem::_isCorrect()
 
     // Merge extensions
 
-    _model->setField(ut_vector_extension_diagonal(db_mini, db_maxi));
+    _model->setField(VH::extensionDiagonal(db_mini, db_maxi));
   }
 
   /*****************************/
@@ -3231,7 +3242,8 @@ bool KrigingSystem::_prepareForImageKriging(Db* dbaux)
 
   /* Prepare the neighborhood (mimicking the Unique neighborhood) */
 
-  NeighUnique* neighU = NeighUnique::create(ndim, false);
+  SpaceRN space(ndim);
+  NeighUnique* neighU = NeighUnique::create(false, &space);
   _nbghWork.initialize(dbaux, neighU);
 
   _iechOut = dbaux->getSampleNumber() / 2;

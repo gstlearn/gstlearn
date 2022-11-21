@@ -11,7 +11,7 @@
 #include "Covariances/CovFactory.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "Covariances/CovAniso.hpp"
 #include "Covariances/CovBesselJ.hpp"
@@ -157,8 +157,9 @@ void CovFactory::displayList(const CovContext& ctxt)
  * Return the list of covariances names available for a given context
  *
  * @param ctxt  Context from which we want authorized covariances
+ * @param order Maximum order for the IRF
  */
-VectorString CovFactory::getCovList(const CovContext& ctxt)
+VectorString CovFactory::getCovList(const CovContext& ctxt, int order)
 {
   VectorString names;
   auto it = ECov::getIterator();
@@ -168,7 +169,10 @@ VectorString CovFactory::getCovList(const CovContext& ctxt)
     {
       ACovFunc* cova = createCovFunc(*it, ctxt);
       if (_isValid(cova, ctxt))
-        names.push_back(cova->getCovName());
+      {
+        if (cova->getMinOrder() <= order)
+          names.push_back(cova->getCovName());
+      }
       delete cova;
     }
     it.toNext();

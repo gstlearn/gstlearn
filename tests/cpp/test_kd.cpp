@@ -99,7 +99,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Gaussian Anamorphosis with 10 coefficients
   AnamHermite* anam = AnamHermite::create(20);
-  anam->fit(data);
+  anam->fitFromLocator(data);
   anam->display();
 
   // Selectivity
@@ -115,7 +115,7 @@ int main(int /*argc*/, char */*argv*/[])
   selectivity->eval(anam).display();
 
   // Define the variogram calculation parameters
-  VarioParam* varioparam = VarioParam::createOmniDirection(ndim, 10, 0.025);
+  VarioParam* varioparam = VarioParam::createOmniDirection(10, 0.025);
 
   // Calculate the variogram of the raw variable
   Vario* vario_raw = Vario::computeFromDb(varioparam, data);
@@ -145,7 +145,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nmini = 5;
   int nmaxi = 5;
   double radius = 1.;
-  NeighMoving* neigh = NeighMoving::create(ndim, false, nmaxi, radius, nmini);
+  NeighMoving* neigh = NeighMoving::create(false, nmaxi, radius, nmini);
   neigh->display();
 
   // ====================== Conditional Expectation =====================

@@ -198,13 +198,13 @@ int AnamDiscreteIR::fit(const VectorDouble& tab, int verbose)
 }
 
 int AnamDiscreteIR::_stats_residuals(int verbose,
-                                       int nech,
-                                       const VectorDouble& tab,
-                                       int *nsorted,
-                                       double *mean,
-                                       double *residuals,
-                                       double *T,
-                                       double *Q)
+                                     int nech,
+                                     const VectorDouble &tab,
+                                     int *nsorted,
+                                     double *mean,
+                                     double *residuals,
+                                     double *T,
+                                     double *Q)
 {
   double value, moyenne;
   int iech, icut, jcut, nactive;

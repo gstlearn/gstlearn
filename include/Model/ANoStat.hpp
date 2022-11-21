@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Model/CovParamId.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 
 #include <vector>

@@ -13,8 +13,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "LinearOp/ALinearOp.hpp"
-#include "Basic/Vector.hpp"
 
 class GSTLEARN_EXPORT Identity: public ALinearOp
 {
@@ -23,11 +23,11 @@ public:
   Identity(int n);
   virtual ~Identity();
 
-  void evalInverse(const VectorDouble& in, VectorDouble& out) const override;
+  void evalInverse(const VectorDouble& inv, VectorDouble& outv) const override;
   int getSize() const override { return _n; }
 
 protected:
-  void _evalDirect(const VectorDouble& in, VectorDouble& out) const override;
+  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
 private:
   int _n;

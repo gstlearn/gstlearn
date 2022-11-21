@@ -78,7 +78,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Determination of the experimental variogram
   VarioParam varioparamP;
   int nlag = 20;
-  std::vector<DirParam> dirparamP = DirParam::createMultiple(ndim, 2, nlag, 0.5 / nlag);
+  std::vector<DirParam> dirparamP = DirParam::createMultiple(2, nlag, 0.5 / nlag);
   varioparamP.addMultiDirs(dirparamP);
   Vario variop = Vario(&varioparamP,db);
   variop.computeByKey("vg");
@@ -87,7 +87,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Fitting the experimental variogram of Underlying GRF (with constraint that total sill is 1)
   Model model(ctxt);
-  std::vector<ECov> covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
+  VectorECov covas {ECov::BESSEL_K, ECov::EXPONENTIAL};
   model.fit(&variop,covas,false);
   model.display();
 
@@ -97,7 +97,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Determination of the experimental variogram
   VarioParam varioparamG;
-  std::vector<DirParam> dirparamG = DirParam::createMultipleFromGrid(ndim, nlag);
+  std::vector<DirParam> dirparamG = DirParam::createMultipleFromGrid(nlag);
   varioparamG.addMultiDirs(dirparamG);
   Vario variog = Vario(&varioparamG, grid);
   variog.computeByKey("vg");

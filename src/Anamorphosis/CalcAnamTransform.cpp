@@ -15,6 +15,7 @@
 #include "Db/Db.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/Table.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Anamorphosis/CalcAnamTransform.hpp"
 #include "Anamorphosis/AnamContinuous.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
@@ -150,7 +151,7 @@ bool CalcAnamTransform::_hasVariableNumber(bool equal1) const
 
 bool CalcAnamTransform::_check()
 {
-  if (! hasDb()) return false;
+  if (!  hasDb()) return false;
   if (! _hasAnam()) return false;
   if (! _hasVariableNumber()) return false;
 
@@ -418,7 +419,7 @@ bool CalcAnamTransform::_ZToYByNormalScore()
     }
 
     // Get the list of indices sorted by increasing values of data
-    VectorInt idx = ut_vector_sort_indices(data);
+    VectorInt idx = VH::sortRanks(data);
 
     // Loop on the samples
     double wlocal = 0.;
@@ -663,7 +664,7 @@ int RawToFactor(Db *db,
   CalcAnamTransform transfo(anam);
   transfo.setDb(db);
   transfo.setFlagToFactors(true);
-  VectorInt ifacs = ut_ivector_sequence(nfactor, 1);
+  VectorInt ifacs = VH::sequence(nfactor, 1);
   transfo.setIfacs(ifacs);
   transfo.setNamingConvention(namconv);
 

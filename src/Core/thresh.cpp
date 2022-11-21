@@ -11,6 +11,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 #include "Basic/OptDbg.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "LithoRule/RuleProp.hpp"
 #include "LithoRule/PropDef.hpp"
 #include "LithoRule/Rule.hpp"
@@ -210,7 +211,7 @@ static int st_proportion_changed(PropDef *propdef)
 {
   /* Compare with the memory proportion array */
 
-  int modify = !ut_vector_same(propdef->proploc, propdef->propmem);
+  int modify = ! VH::isSame(propdef->proploc, propdef->propmem);
   if (!modify) return (1);
 
   /* Print the proportions (optional) */

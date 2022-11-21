@@ -24,7 +24,9 @@ class Db;
 class GSTLEARN_EXPORT NeighImage: public ANeighParam
 {
 public:
-  NeighImage(int ndim = 2, const VectorInt& radius = VectorInt(), int skip = 0);
+  NeighImage(const VectorInt &radius = VectorInt(),
+             int skip = 0,
+             const ASpace *space = nullptr);
   NeighImage(const NeighImage& r);
   NeighImage& operator=(const NeighImage& r);
   virtual ~NeighImage();
@@ -34,8 +36,7 @@ public:
   virtual int getMaxSampleNumber(const Db* db) const override;
   virtual ENeigh getType() const override { return ENeigh::IMAGE; }
 
-  int reset(int ndim, const VectorInt& image, int skip = 0);
-  static NeighImage* create(int ndim, const VectorInt& image, int skip = 0);
+  static NeighImage* create(const VectorInt& image, int skip = 0, const ASpace* space = nullptr);
   static NeighImage* createFromNF(const String& neutralFilename, bool verbose = true);
   int getSkip() const { return _skip; }
   const VectorInt& getImageRadius() const { return _imageRadius; }

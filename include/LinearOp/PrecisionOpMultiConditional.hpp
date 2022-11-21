@@ -1,7 +1,8 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
-#include "Basic/Vector.hpp"
+
+#include "Basic/VectorNumT.hpp"
 #include "ALinearOpMulti.hpp"
 #include "PrecisionOp.hpp"
 #include "ProjMatrix.hpp"
@@ -33,7 +34,7 @@ public:
   void computeRhsInPlace(const VectorDouble& datVal,VectorVectorDouble& rhs) const;
   void simulateOnMeshing(const VectorDouble& gauss,VectorVectorDouble& result,int icov = 0) const;
   void simulateOnDataPointFromMeshings(const VectorVectorDouble& simus,VectorDouble& result) const;
-  void evalInvCov(const VectorDouble& in, VectorDouble& result) const;
+  void evalInvCov(const VectorDouble& inv, VectorDouble& result) const;
   std::pair<double,double> computeRangeEigenVal() const;
   std::pair<double,double> rangeEigenValQ() const;
   double getMaxEigenValProj() const;
@@ -43,13 +44,13 @@ public:
   double computeTotalLogDet(int nsimus = 1, int seed = 123) const;
   double computeQuadratic(const VectorDouble& x) const;
   void preparePoly(Chebychev& logPoly) const;
-  void AtA(const VectorVectorDouble& in,VectorVectorDouble& out) const;
+  void AtA(const VectorVectorDouble& inv,VectorVectorDouble& outv) const;
   VectorDouble computeCoeffs(const VectorDouble& Y, const VectorVectorDouble& X) const;
   const ProjMatrix* getProjMatrix(int i = 0) const { return (ProjMatrix*)_multiProjData[i];}
 
 protected:
-  void _evalDirect(const VectorVectorDouble& in,
-                   VectorVectorDouble& out) const override;
+  void _evalDirect(const VectorVectorDouble& inv,
+                   VectorVectorDouble& outv) const override;
   void _allocate(int i) const;
 
 private:

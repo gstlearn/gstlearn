@@ -141,7 +141,7 @@ plot.varmod <- function(vario, model=NULL, ivar=-1, jvar=-1, idir=-1,
           {
             hh = seq(0, hmax, hmax/nh)
             nhh = length(hh)
-            codir = vario$getCodir(id)
+            codir = vario$getCodirs(id)
             gg = model$sample(hmax, nhh, iv, jv, codir)
             dfg = data.frame(cbind(hh,gg))
             g <- g + geom_line(data = dfg, aes(x=hh,y=gg), color=cols[id+1], size=1, na.rm=TRUE) 

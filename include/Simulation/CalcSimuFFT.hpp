@@ -16,7 +16,7 @@
 
 #include "Simulation/ACalcSimulation.hpp"
 #include "Basic/Plane.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class SimuFFTParam;
 class DbGrid;

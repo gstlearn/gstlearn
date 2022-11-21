@@ -26,6 +26,8 @@ In this preamble, we load the **gstlearn** library, clean the workspace.
 
 ```{r loading_library, message=FALSE}
 library(gstlearn)
+library(ggplot2)
+library(ggpubr)
 rm(list=ls())
 ```
 
@@ -40,7 +42,7 @@ dat = Db_createFromNF(fileNF)
 Calculate the experimental variogram **vario2dir** (in 2 directions)
 
 ```{r Preamble,message=FALSE, fig.show='hide'}
-varioParamMulti = VarioParam_createMultiple(2, 2, 15, 15.)
+varioParamMulti = VarioParam_createMultiple(2, 15, 15.)
 vario2dir = Vario(varioParamMulti, dat)
 err = vario2dir$compute()
 ```
@@ -65,7 +67,7 @@ plot.varmod(vario2dir, fitmodOK)
 Define the Unique Neighborhood **unique.neigh**:
 
 ```{r Neighborhood}
-unique.neigh = NeighUnique(ndim = 2)
+unique.neigh = NeighUnique()
 ```
 
 Get the extension of the Data:
@@ -223,7 +225,7 @@ err = xvalid(dat,fitmodOK,unique.neigh, flag_code=FALSE,
              rank_colcok=c(), 
              namconv=NamingConvention("Xvalid", 
                                       flag_varname=TRUE, flag_qualifier=TRUE,
-                                      locatorOutType=ELoc_UNKNOWN()))
+                                      flag_locator=FALSE))
 ```
 
 ---
@@ -281,7 +283,7 @@ plot.point(dat,size_name="*esterr",padd=ax,sizmax=300,
 We design a small Moving Neighborhood **small.neigh** with only 1 sample per neighborhood.
 
 ```{r}
-small.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+small.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                  nmini=1, nmaxi=1, radius=1000000)
 ```
 
@@ -313,7 +315,7 @@ plot.point(dat,size_name="January_temp",padd=ax)
 Building a reasonable Moving Neighborhood, although with a limited extension (*radius*)
 
 ```{r Reduced_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                   nmini=1, nmaxi=10, radius=20)
 ```
 
@@ -346,7 +348,7 @@ Lots of target sites are not estimated as no sample is found within the neighbor
 Building a reasonable Moving Neighborhood correctly tuned: 10 samples (maximum) selected in a radius of 150 around the target site.
 
 ```{r Large_Moving_Neighborhood}
-moving.neigh = NeighMoving_create(ndim=2, flag_xvalid=FALSE,
+moving.neigh = NeighMoving_create(flag_xvalid=FALSE,
                                   nmini=1, nmaxi=10, radius=150)
 ```
 

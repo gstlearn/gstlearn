@@ -1,0 +1,91 @@
+
+Testing Model Fitting in 2-D
+============================
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 2
+Variance-Covariance Matrix     0.976
+
+Direction #1
+------------
+Number of lags              = 10
+Direction coefficients      =      1.000     0.000
+Direction angles (degrees)  =      0.000     0.000
+Tolerance on direction      =     90.100 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         1     4.000     0.991     0.021
+         2    12.000     2.013     0.116
+         3     5.000     2.913     0.126
+         4     9.000     4.149     0.198
+         5    12.000     5.006     0.215
+         6    18.000     6.029     0.381
+         7    17.000     6.907     0.462
+         8    26.000     8.045     0.595
+         9    29.000     8.957     0.953
+
+Model characteristics
+=====================
+Space dimension              = 2
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Linear
+- Slope        =      0.077
+
+Testing Model Fitting in 4-D
+============================
+
+Variogram characteristics
+=========================
+Number of variable(s)       = 1
+Number of direction(s)      = 1
+Space dimension             = 4
+Variance-Covariance Matrix     1.041
+
+Direction #1
+------------
+Number of lags              = 20
+Direction coefficients      =      1.000     0.000     0.000     0.000
+Direction angles (degrees)  =      0.000     0.000     0.000     0.000
+Tolerance on direction      =     90.100 (degrees)
+Calculation lag             =      1.000
+Tolerance on distance       =     50.000 (Percent of the lag value)
+
+For variable 1
+      Rank    Npairs  Distance     Value
+         9     2.000     8.824     3.196
+        11     1.000    10.864     1.191
+        13     2.000    12.733     0.913
+        14     1.000    13.993     3.640
+        15     7.000    14.995     0.737
+        16     2.000    16.090     0.052
+        17     3.000    17.013     1.019
+        18     4.000    18.065     1.240
+        19     3.000    19.263     0.809
+
+Model characteristics
+=====================
+Space dimension              = 4
+Number of variable(s)        = 1
+Number of basic structure(s) = 1
+Number of drift function(s)  = 0
+Number of drift equation(s)  = 0
+
+Covariance Part
+---------------
+Gaussian
+- Sill         =      1.282
+- Range        =      2.408
+- Theo. Range  =      1.391
+Total Sill     =      1.282

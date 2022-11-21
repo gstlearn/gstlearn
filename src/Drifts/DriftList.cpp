@@ -84,7 +84,7 @@ double DriftList::eval(const Db* /*db*/, int /*iech1*/) const
   return drift;
 }
 
-void DriftList::addDriftList(const DriftList* drifts)
+void DriftList::setDriftList(const DriftList* drifts)
 {
   int ndrift = drifts->getDriftNumber();
   _flagLinked = drifts->isFlagLinked();
@@ -172,6 +172,46 @@ int DriftList::getDriftEquationNumber() const
   int nvar = getNVariables();
   int ndriftEquationNumber = (_flagLinked) ? ndrift : ndrift * nvar;
   return ndriftEquationNumber;
+}
+
+/**
+ * Check that the set of drift functions is valid
+ * @return
+ */
+bool DriftList::isValid() const
+{
+  int ndrift = getDriftNumber();
+
+  // Check that the same drift function has not been called twice
+  for (int il=0; il<ndrift; il++)
+  {
+    const EDrift typei = getType(il);
+    int ranki = getRankFex(il);
+
+    for (int jl=0; jl<il; jl++)
+    {
+      const EDrift typej = getType(jl);
+      int rankj = getRankFex(jl);
+
+      if (typei == EDrift::F)
+      {
+        if (typei.getValue() == typej.getValue() && ranki == rankj)
+        {
+          messerr("Set of drift functions is invalid: %d and %d are similar",il+1,jl+1);
+          return false;
+        }
+      }
+      else
+      {
+        if (typei.getValue() == typej.getValue())
+        {
+          messerr("Set of drift functions is invalid: %d and %d are similar",il+1, jl+1);
+          return false;
+        }
+      }
+    }
+  }
+  return true;
 }
 
 int DriftList::getNVariables() const
@@ -400,8 +440,7 @@ void DriftList::setDriftIRF(int order, int nfex, const CovContext& ctxt)
     // Adding the external drift(s)
     for (int ifex = 0; ifex < nfex; ifex++)
     {
-      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt);
-      drift->setRankFex(ifex);
+      ADriftElem* drift = DriftFactory::createDriftFunc(EDrift::F, ctxt, ifex);
       addDrift(drift);
     }
   }

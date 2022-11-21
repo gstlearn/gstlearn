@@ -202,7 +202,7 @@ def varioElem(vario, ivar=0, jvar=0, idir=0, color0='black',
     if label is None:
         label = "vario"
     if flagLabelDir:
-        label = "vario dir={}".format(np.round(vario.getCodir(idir),3))
+        label = "vario dir={}".format(np.round(vario.getCodirs(idir),3))
     
     # Plotting the experimental variogram
     gg = vario.getGgVec(idir,ivar,jvar)
@@ -246,7 +246,7 @@ def varioDir(vario, ivar=0, jvar=0,
              show_pairs=False, cmap=None, flagLegend=False, title=None, 
              xlabel=None, ylabel=None, label=None, ax=None, figsize=None, 
              end_plot=False, **plot_args):
-    """Plot a single directional experimental variogram (all avalaible directions, for fixed variable(s)).
+    """Plot a single directional experimental variogram (all available directions, for fixed variable(s)).
     
     Calls the function varioElem for each direction, and labels are automatically set with direction vectors.
     
@@ -309,7 +309,7 @@ def varioDir(vario, ivar=0, jvar=0,
 
 def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
            linestyle='solid', linestylem="dashed", color0='black', linestyle0="dotted",
-           nh = 100, hmax = None, gmax = None, show_pairs=False,
+           nh = 100, hmax = None, gmax = None, show_pairs=False, asCov=False,
            cmap=None, flagLegend=False, title=None, axs=None, figsize=None, end_plot=False, 
            **plot_args):
     """Plot experimental variogram(s) and model (can be multidirectional and multivariable or selected ones).
@@ -393,11 +393,11 @@ def varmod(vario, mymodel=None, ivar=-1, jvar=-1, idir=-1,
 
                 # Plotting the Model (optional)
                 if mymodel is not None:
-                    codir = vario.getCodir(idirUtil)
+                    codir = vario.getCodirs(idirUtil)
                     model(mymodel, ivar=iv, jvar=jv, codir=codir, 
                           color=cols(idirUtil), linestyle=linestylem, 
                           color0=color0, linestyle0=linestyle0, ax=ax,
-                          hmax=hmax, gmax=None, nh=nh,
+                          hmax=hmax, gmax=None, nh=nh, asCov=asCov,
                           flagLabelDir=flagLabelDir, flagLegend=flagLegend)
 
             ax.autoscale(True)
@@ -507,8 +507,7 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
         hmax = 1
             
     hh = np.linspace(0, hmax, nh+1)
-    gg = model.sample(hmax, nh, ivar, jvar, codir, 
-                      asCov=asCov, addZero=True)
+    gg = model.sample(hmax, nh, ivar, jvar, codir, asCov=asCov, addZero=True)
     
     if ax is None:
         fig, ax = newFigure(figsize, None, None)
@@ -525,11 +524,9 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
     ax.plot(hh[istart:], gg[istart:], label=label, **plot_args)
     
     if ivar != jvar and flagEnv:
-        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, 
-                           asCov = asCov, addZero=True)
+        ggp = model.sample(hmax, nh, ivar, jvar, codir, 1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggp[istart:], color = color0, linestyle = linestyle0, label="plus")
-        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, 
-                           asCov = asCov, addZero=True)
+        ggm = model.sample(hmax, nh, ivar, jvar, codir,-1, asCov=asCov, addZero=True)
         ax.plot(hh[istart:], ggm[istart:], color = color0, linestyle = linestyle0, label="minus")
     
     drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, flagLegend=flagLegend)
@@ -541,9 +538,10 @@ def model(model, ivar=0, jvar=0, codir=None, color0='black', linestyle0='dashed'
 
 def point(db, 
           color_name=None, size_name=None, elev1D_name=None, label_name=None, usesel=True, 
-          color='r', size=20, sizmin=10, sizmax=200, 
+          color='r', size=20, sizmin=10, sizmax=200, edgecolors=None,
           xlim=None, ylim=None, directColor=False, flagAbsSize=False,
           cmap=None, flagColorBar=True, flagSizeLegend=True, aspect=None,
+          posX=0, posY=1, xlabel=None, ylabel=None,
           title=None, ax=None, figsize=None, end_plot=False, **scatter_args):
     '''Function for plotting a point data base, with optional color and size variables
     
@@ -565,6 +563,8 @@ def point(db,
     flagColorBar: Flag for representing the Color Bar (not represented if color_name=None)
     flagSizeLegend: Flag for representing the Legend for marker size (not represented if size_name=None)
     aspect: aspect ratio of the axes scaling, i.e. y/x-scale. 
+    posX: rank of the first coordinate
+    posY: rank of the second coordinate
     title: Title given to the plot
     ax: Reference for the plot within the figure
     figsize: (if ax is None) Sizes (width, height) of figure (in inches)
@@ -573,13 +573,15 @@ def point(db,
     **scatter_args : arguments passed to matplotllib.pyplot.scatter
     '''
     
+    edgecolors = scatter_args.setdefault('edgecolors', edgecolors)
+    
     if ax is None:
         fig, ax = newFigure(figsize, xlim, ylim)
 
     # Extracting coordinates
-    tabx = db.getCoordinates(0,usesel)
+    tabx = db.getCoordinates(posX,usesel)
     if db.getNDim() > 1:
-        taby = db.getCoordinates(1,usesel)
+        taby = db.getCoordinates(posY,usesel)
     else:
         taby = db.getColumn(elev1D_name, usesel)
     if len(tabx) <= 0 or len(taby) <= 0:
@@ -616,7 +618,7 @@ def point(db,
         for i in range(len(labval)):
             ax.text(tabx[i], taby[i], round(labval[i],2))
             
-    drawDecor(ax, title=title, aspect=aspect)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, aspect=aspect)
         
     if flagColorBar and (color_name is not None):
         addColorbar(im, ax)
@@ -942,7 +944,28 @@ def hist(db, name, xlabel=None, ylabel=None, title = None, ax=None,
     
     return ax
 
-def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curve',
+def sortedcurve(tabx, taby, color='black', flagLegend=False,
+                label='curve', xlabel=None, ylabel=None,
+                title=None, ax=None, figsize=None, end_plot=False, 
+                **plot_args):
+    '''
+    Function for plotting a set of points after they have been sorted in increasing X
+    '''
+        # Account for possible 'nan'  values
+    mask = np.logical_and(np.isfinite(tabx), np.isfinite(taby))
+    stabx = tabx[mask]
+    staby = taby[mask]
+    
+    # Indices of the sorted elements of stabx
+    indices = np.argsort(stabx)
+    ax = curve(stabx[indices], staby[indices], color=color, 
+          flagLegend=flagLegend, label=label, xlabel=xlabel, ylabel=ylabel,
+          title=title, ax=ax, figsize=figsize, end_plot=end_plot)
+    
+    return ax
+    
+def curve(data1, data2=None, icas=1, color='black',flagLegend=False, 
+          label='curve', xlabel=None, ylabel=None, 
           title=None, ax=None, figsize = None, end_plot=False, **plot_args):
     '''
     Function for plotting the curve of an array (argument 'data1')
@@ -967,9 +990,12 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curv
     if filetype == "tuple":
         tabx = data1[0]
         taby = data1[1]
+    elif filetype == "ndarray" and len(data1) == 2:
+        tabx = data1[0]
+        taby = data1[1]
     else:
         nbpoint = len(data1)
-        if len(data2) != 0:
+        if data2 is not None:
             if len(data2) != nbpoint:
                 print("Arrays 'data1' and 'data2' should have same dimensions")
                 return None
@@ -983,10 +1009,11 @@ def curve(data1, data2=None, icas=1, color='black',flagLegend=False, label='curv
             else:
                 tabx = regular
                 taby = data1
-            
+    
     ax.plot(tabx, taby, **plot_args)
     
-    drawDecor(ax, title=title, flagLegend=flagLegend)
+    drawDecor(ax, xlabel=xlabel, ylabel=ylabel, title=title, 
+              flagLegend=flagLegend)
     
     if end_plot:
         plt.show()
@@ -1095,15 +1122,16 @@ def sample(sample, xlim=None, ylim=None, aspect=None,
 
     return ax
     
-def rule(rule, proportions=[], 
-         title=None, ax=None, figsize=None, end_plot=False):
+def rule(rule, proportions=[],cmap=None, 
+         title=None, xlim=[-5,+5], ylim=[-5,+5], ax=None, figsize=None, end_plot=False):
     
     if ax is None:
-        fig, ax = newFigure(figsize, [-10.,10.], [-10.,10.])
+        fig, ax = newFigure(figsize, xlim=xlim, ylim=ylim)
         
     nfac = rule.getFaciesNumber()
     rule.setProportions(proportions)
-    cols = get_cmap(nfac)
+    
+    cols = get_cmap(nfac, cmap)
 
     for ifac in range(nfac):
         bds = rule.getThresh(ifac+1)
@@ -1258,11 +1286,16 @@ def correlation(db, namex, namey, db2=None, bins=50, xlim=None, ylim=None, usese
     return ax
 
 def anam(anam, xlim=None, ylim=None, 
-         xlabel=None, ylabel=None, title = None, ax=None, figsize=None, end_plot=False):
+         color='blue', linestyle='-', flagLegend=False,
+         xlabel=None, ylabel=None, title = None, ax=None, 
+         figsize=None, end_plot=False):
     
     res = anam.sample()
     ax = XY(res.getY(), res.getZ(),
-            xlim=res.getAylim(), ylim=res.getAzlim(),label='Anamorphosis',title=title)
+            xlim=res.getAylim(), ylim=res.getAzlim(),
+            flagLegend=flagLegend, color=color, linestyle=linestyle,
+            label='Anamorphosis', title=title,
+            ax=ax, figsize=figsize)
     
     if end_plot:
         plt.show()

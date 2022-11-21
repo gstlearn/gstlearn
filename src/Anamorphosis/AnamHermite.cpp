@@ -134,6 +134,7 @@ double AnamHermite::RawToTransformValue(double z) const
   /* Initializations */
 
   if (getNbPoly() < 1) return(TEST);
+  if (FFFF(z)) return TEST;
 
   /* Check the bounds */
 
@@ -241,6 +242,7 @@ double AnamHermite::TransformToRawValue(double y) const
 {
   double z;
   if (getNbPoly() < 1) return(TEST);
+  if (FFFF(y)) return TEST;
 
   /* Check the bounds */
 
@@ -303,7 +305,7 @@ void AnamHermite::calculateMeanAndVariance()
   _variance = computeVariance(1.);
 }
 
-int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
+int AnamHermite::fitFromArray(const VectorDouble& tab, const VectorDouble& wt)
 {
   int     icl,ih,ncl;
   double  Gcy1,Gcy2,Gy1,Gy2;
@@ -359,7 +361,7 @@ int AnamHermite::fit(const VectorDouble& tab, const VectorDouble& wt)
   return 0;
 }
 
-int AnamHermite::fit(Db *db, const ELoc& locatorType)
+int AnamHermite::fitFromLocator(Db *db, const ELoc& locatorType)
 {
   int number = db->getLocatorNumber(locatorType);
   if (number != 1)
@@ -373,7 +375,7 @@ int AnamHermite::fit(Db *db, const ELoc& locatorType)
   if (db->hasWeight())
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
-  return fit(tab, wt);
+  return fitFromArray(tab, wt);
 }
 
 int AnamHermite::fit(Db *db, const String& name)
@@ -383,7 +385,7 @@ int AnamHermite::fit(Db *db, const String& name)
   if (db->hasWeight())
     wt = db->getColumnByLocator(ELoc::W,0,true);
 
-  return fit(tab, wt);
+  return fitFromArray(tab, wt);
 }
 
 double AnamHermite::getPsiHn(int i) const

@@ -1,4 +1,4 @@
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
 #include "Basic/FunctionalSpirale.hpp"
@@ -66,11 +66,11 @@ int main(int /*argc*/, char */*argv*/[])
   // Creating the 2-D Data Db with a Normal Variable
   auto ndata = 100;
   Db* dat = Db::createFromBox(ndata, {0.,0.}, {100.,100.}, 3243);
-  VectorDouble Z = ut_vector_simulate_gaussian(ndata);
+  VectorDouble Z = VH::simulateGaussian(ndata);
   dat->addColumns(Z, "Z",ELoc::Z);
 
   // Creating the Neighborhood (Unique)
-  NeighUnique* neighU = NeighUnique::create(2,false);
+  NeighUnique* neighU = NeighUnique::create();
 
   // Testing Kriging
   kriging(dat,workingDbc,&model,neighU);

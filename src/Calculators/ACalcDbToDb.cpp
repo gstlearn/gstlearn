@@ -10,9 +10,9 @@
 /******************************************************************************/
 #include "Calculators/ACalcDbToDb.hpp"
 #include "Calculators/CalcMigrate.hpp"
-
 #include "Db/Db.hpp"
 #include "Db/DbGrid.hpp"
+#include "Basic/VectorHelper.hpp"
 
 ACalcDbToDb::ACalcDbToDb(bool mustShareSameSpaceDimension)
     : ACalculator(),
@@ -226,7 +226,7 @@ int ACalcDbToDb::_addVariableDb(int whichDb,
   int iuid = db->addColumnsByConstant(number, valinit, String(), locatorType,
                                       locatorIndex);
   if (iuid < 0) return -1;
-  VectorInt iuids = ut_ivector_sequence(number, iuid);
+  VectorInt iuids = VH::sequence(number, iuid);
   _storeInVariableList(whichDb, status, iuids);
   return iuid;
 }

@@ -11,8 +11,10 @@
 /******************************************************************************/
 #include "LinearOp/ProjConvolution.hpp"
 #include "Basic/AStringable.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Mesh/MeshETurbo.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+
 #include "csparse_f.h"
 
 ProjConvolution::ProjConvolution(const VectorDouble &convolution,
@@ -332,11 +334,11 @@ DbGrid* ProjConvolution::getResolutionGrid() const
 int ProjConvolution::getApexNumber() const
 {
   Grid grid = _getGridCharacteristicsRR();
-  return ut_vector_prod(grid.getNXs());
+  return VH::product(grid.getNXs());
 }
 
 int ProjConvolution::getPointNumber() const
 {
   VectorInt nxs = _gridSeismic->getNXs();
-  return ut_vector_prod(nxs);
+  return VH::product(nxs);
 }

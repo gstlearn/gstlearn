@@ -13,7 +13,8 @@
 #include "Geometry/Rotation.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
 
@@ -68,7 +69,7 @@ int Rotation::setMatrixDirect(const MatrixSquareGeneral& rotmat)
     VectorDouble local = rotmat.getValues();
     if (! is_matrix_rotation(_nDim, local.data(), 1)) return 1;
     _rotMat.setValues(local);
-    ut_angles_from_rotation_matrix(local.data(), _nDim, _angles.data());
+    GH::rotationGetAngles(local, _angles);
     _directToInverse();
     _checkRot();
   }
@@ -102,7 +103,7 @@ int Rotation::setMatrixDirectOldStyle(const double* rotmat)
   {
     if (! is_matrix_rotation(_nDim, rotmat, 1)) return 1;
     _rotMat.setValues(rotmat);
-    ut_angles_from_rotation_matrix(rotmat, _nDim, _angles.data());
+    GH::rotationGetAngles(_nDim, rotmat, _angles.data());
     _directToInverse();
     _checkRot();
   }
@@ -123,7 +124,7 @@ int Rotation::setAngles(const VectorDouble& angles)
     if (_nDim == 2) _angles[1] = 0.;
 
     VectorDouble local = VectorDouble(_nDim * _nDim);
-    ut_rotation_matrix(_nDim, _angles.data(), local.data());
+    GH::rotationInit(_nDim, _angles.data(), local.data());
     _rotMat.setValues(local);
     _directToInverse();
     _checkRot();
@@ -134,7 +135,7 @@ int Rotation::setAngles(const VectorDouble& angles)
 void Rotation::setIdentity()
 {
   for (int idim = 0; idim < (int) _nDim; idim++)
-    ut_vector_fill(_angles,0.);
+    VH::fill(_angles,0.);
   _rotMat.setIdentity();
   _rotInv.setIdentity();
   _checkRot();
@@ -158,20 +159,20 @@ String Rotation::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-void Rotation::rotateDirect(const VectorDouble& in, VectorDouble& out) const
+void Rotation::rotateDirect(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (!_flagRot)
-    out = in;
+    outv = inv;
   else
-  _rotMat.prodVector(in, out);
+   _rotMat.prodVector(inv, outv);
 }
 
-void Rotation::rotateInverse(const VectorDouble& in, VectorDouble& out) const
+void Rotation::rotateInverse(const VectorDouble& inv, VectorDouble& outv) const
 {
   if (!_flagRot)
-    out = in;
+    outv = inv;
   else
-    _rotInv.prodVector(in, out);
+    _rotInv.prodVector(inv, outv);
 }
 
 void Rotation::_recopy(const Rotation &r)
@@ -233,7 +234,7 @@ VectorDouble Rotation::setDirection(int ndim,
                                     double radius) const
 {
   VectorDouble codir(ndim);
-  (void) ut_angles_to_codir(ndim,1,angles,codir);
+  (void) GH::rotationGetDirection(ndim,1,angles,codir);
   if (radius != 1.)
     for (int idim = 0; idim < ndim; idim++) codir[idim] *= radius;
   return codir;

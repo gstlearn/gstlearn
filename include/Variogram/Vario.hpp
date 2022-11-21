@@ -54,7 +54,7 @@ public:
   static Vario* createFromNF(const String& neutralFilename, bool verbose = true);
   static Vario* computeFromDb(const VarioParam* varioparam,
                               Db* db,
-                              const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+                              const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                               bool flag_gen = false,
                               bool flag_sample = false,
                               bool verr_mode = false,
@@ -193,13 +193,13 @@ public:
                         Model *model = nullptr,
                         bool verbose = false,
                         int nfacmax = -1);
-  int compute(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+  int compute(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
               bool flag_gen = false,
               bool flag_sample = false,
               bool verr_mode = false,
               Model *model = nullptr,
               bool verbose = false);
-  int computeIndic(const ECalcVario& calcul = ECalcVario::VARIOGRAM,
+  int computeIndic(const ECalcVario& calcul = ECalcVario::fromKey("VARIOGRAM"),
                    bool flag_gen = false,
                    bool flag_sample = false,
                    bool verr_mode = false,
@@ -222,15 +222,15 @@ public:
   double getDates(int idate, int icas) const { return _varioparam.getDate(idate, icas); }
   int getDateNumber() const { return _varioparam.getDateNumber(); }
   double getScale() const { return _varioparam.getScale(); }
-  int getDimensionNumber() const { return getDirParam(0).getDimensionNumber(); }
+  int getDimensionNumber() const { return getDirParam(0).getNDim(); }
 
   void setScale(double scale) { _varioparam.setScale(scale); }
   void addDirs(const DirParam& dirparam) { _varioparam.addDir(dirparam); }
 
   int getLagNumber(int idir) const { return getDirParam(idir).getLagNumber(); }
   double getDPas(int idir) const { return getDirParam(idir).getDPas(); }
-  int getDimensionNumber(int idir) const { return getDirParam(idir).getDimensionNumber(); }
-  const VectorDouble& getCodir(int idir) const { return getDirParam(idir).getCodir(); }
+  int getDimensionNumber(int idir) const { return getDirParam(idir).getNDim(); }
+  const VectorDouble& getCodirs(int idir) const { return getDirParam(idir).getCodirs(); }
   double getCodir(int idir, int idim) const { return getDirParam(idir).getCodir(idim); }
   double getMaximumDistance(int idir) const { return getDirParam(idir).getMaximumDistance(); }
   int getIdate(int idir) const { return getDirParam(idir).getIdate(); }

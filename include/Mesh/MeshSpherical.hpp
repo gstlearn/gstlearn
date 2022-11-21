@@ -23,7 +23,8 @@
 class GSTLEARN_EXPORT MeshSpherical : public AMesh {
 
 public:
-	MeshSpherical();
+	MeshSpherical(const MatrixRectangular& apices = MatrixRectangular(),
+	              const MatrixInt& meshes = MatrixInt());
   MeshSpherical(const MeshSpherical &m);
   MeshSpherical& operator= (const MeshSpherical &m);
 	virtual ~MeshSpherical();
@@ -42,8 +43,10 @@ public:
   void    getEmbeddedCoorPerMesh(int imesh, int ic, VectorDouble& coords) const override;
   void    getEmbeddedCoorPerApex(int iapex, VectorDouble& coords) const override;
 
-  static MeshSpherical* createFromNF(const String& neutralFilename,
+  static MeshSpherical* createFromNF(const String &neutralFilename,
                                      bool verbose = true);
+  static MeshSpherical* create(const MatrixRectangular &apices = MatrixRectangular(),
+                               const MatrixInt &meshes = MatrixInt());
 
   void    getDuplicates(Db *dbin, Db *dbout,
                         int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
@@ -51,7 +54,7 @@ public:
   int     getVariety() const { return 1; }
 
   VectorVectorInt getMeshes() const {return _meshes.getMatrix();}
-  int     reset(Db* dbin,Db *dbout,const String& triswitch, int verbose);
+  int     resetFromDb(Db* dbin,Db *dbout,const String& triswitch, int verbose);
 
 protected:
   /// Interface for ASerializable

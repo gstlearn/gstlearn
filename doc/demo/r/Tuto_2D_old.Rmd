@@ -1,0 +1,518 @@
+---
+title: "Tutorial 2D"
+author: "D. Renard"
+date: "25 juin 2022"
+output:
+  pdf_document: default
+  html_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+rm(list=ls())
+library(gstlearn)
+library(ggplot2)
+library(ggpubr)
+```
+
+Global variables
+
+```{r}
+verbose = TRUE
+graphics = TRUE
+OptCst_define(ECst_NTCOL(),6)
+```
+
+# Reading data
+
+The data are stored in a CSV format in the file called Pollution.dat
+
+**
+At this stage:
+- it is not possible to pass the list of variable names *c("X","Y")*.
+- to pass the FLAGS for *DbStringFormat* (they are not an ENUM)
+**
+
+```{r}
+dataDir = "../../data/Pollution"
+filepath = paste(dataDir,"Pollution.dat",sep="/")
+mydb = Db_createFromCSV(filepath,CSVformat())
+err = mydb$setLocator("X",ELoc_X(),0)
+err = mydb$setLocator("Y",ELoc_X(),1)
+err = mydb$setLocator("Zn",ELoc_Z())
+if (verbose)
+{
+  dbfmt = DbStringFormat()
+  dbfmt$setFlags(TRUE, TRUE, TRUE)
+  mydb$display(dbfmt)
+}
+```
+
+Accessing to the variable names
+
+```{r}
+cat("List of all variable names =",mydb$getAllNames())
+```
+
+Extracting the vector containing the Zn variable in order to perform a selection
+
+```{r}
+tabZn = mydb$getColumn("Zn")
+selZn = as.numeric(tabZn < 20)
+mydb$addSelection(selZn,"sel")
+mydb$setLocator('Pb',ELoc_Z())
+if (verbose)
+    mydb$display()
+```
+
+Display my Data (with samples represented by color and size)
+
+```{r}
+if (graphics)
+    plot.point(mydb,color_name="Pb",title="Data Set")
+```
+
+# Variograms
+
+We first define the geometry of the variogram calculations
+
+```{r}
+myVarioParamOmni = VarioParam()
+mydir = DirParam(10,1.)
+myVarioParamOmni$addDir(mydir)
+```
+
+We use the variogram definition in order to calculate the variogram cloud.
+
+```{r}
+dbcloud = db_variogram_cloud(mydb, myVarioParamOmni)
+```
+
+We recall that the Variogram cloud is calculated by filling an underlying grid where each cell is painted according to the number of pairs at the given distance and given variability. Representing the variogram cloud.
+
+```{r}
+if (graphics)
+    plot.grid(dbcloud,"Cloud*",title="Variogram Cloud")
+```
+
+Calculating the experimental omni-directional variogram
+
+```{r}
+myVarioOmni = Vario(myVarioParamOmni,mydb)
+err = myVarioOmni$compute(ECalcVario_VARIOGRAM())
+if (verbose)
+    myVarioOmni$display()
+```
+
+The variogram is represented graphically for a quick check
+
+```{r}
+if (graphics)
+    plot.varmod(myVarioOmni,
+                title="Omni-directional Variogram for Pb")
+```
+
+Calculate a variogram in several directions
+
+```{r}
+myvarioParam = VarioParam()
+mydirs = DirParam_createMultiple(4, dpas=1., npas=10)
+myvarioParam$addMultiDirs(mydirs)
+myvario = Vario(myvarioParam,mydb)
+myvario$compute(ECalcVario_VARIOGRAM())
+if (verbose)
+    myvario$display()
+```
+
+```{r}
+if (graphics)
+    plot.varmod(myvario,title="Multi-Directional Variogram of Pb")
+```
+
+Calculating the Variogram Map
+
+```{r}
+myvmap = db_vmap_compute(mydb,ECalcVario_VARIOGRAM(),c(20,20))
+if (verbose)
+    myvmap$display()
+```
+
+```{r}
+if (graphics)
+    plot.grid(myvmap,"*Var",title="Variogram Map")
+```
+
+# Model
+
+Fitting a Model. We call the Automatic Fitting procedure providing the list of covariance functions to be tested.
+
+```{r}
+mymodel = Model_createFromDb(mydb)
+err = mymodel$fit(myvario,ECov_fromValues(c(1,2)))
+```
+
+Visualizing the resulting model, overlaid on the experimental variogram
+
+```{r}
+if (graphics)
+    plot.varmod(myvario,mymodel,title="Model for Pb")
+```
+
+## Model with equality constraints
+
+We can impose some constraints on the parameters during the fit. For instance here, we impose an equality constraint on the range (range = 1).
+
+```{r}
+myModelConstrained = Model_createFromDb(mydb)
+constr = Constraints()
+paramid = CovParamId(0,0,EConsElem_RANGE(),0,0)
+constr$addItem(ConsItem(paramid,EConsType_EQUAL(),1.))
+err = myModelConstrained$fit(myVarioOmni,ECov_fromValues(c(1,2)),constr)
+myModelConstrained
+```
+
+We can impose inequality constraints by using EConsType.LOWER or EConsType.UPPER.
+
+## Adding a drift
+
+```{r}
+mymodel$addDrift(Drift1(mymodel$getContext()))
+if (verbose)
+    mymodel$display()
+```
+
+# Defining the Neighborhood
+
+We initiate a Neigbourhood (Moving with a small number of samples for Demonstration)
+
+```{r}
+myneigh = NeighMoving_create(flag_xvalid=FALSE,nmaxi=6,radius=10)
+if (verbose)
+    myneigh$display()
+```
+
+## Checking the Moving Neighborhood
+
+We must first create a Grid which covers the area of interest
+
+```{r}
+mygrid = DbGrid_createCoveringDb(mydb,c(80,72),c(0.5,0.5),
+                                 c(107.,481.),c(2,2))
+if (verbose)
+    mygrid$display()
+```
+
+We can now test the neighborhood characteristics for each node of the previously defined grid.
+
+```{r}
+err = test_neigh(mydb,mygrid,mymodel,myneigh)
+if (verbose)
+    mygrid$display()
+```
+
+We can visualize some of the newly created variables, such as:
+
+- the number of points per neighborhood
+
+```{r}
+if (graphics)
+    plot.grid(mygrid,"Neigh*Number",
+              title="Number of Samples per Neighborhood")
+```
+
+- the one giving the maximum distance per neighborhood
+
+```{r}
+if (graphics)
+    plot.grid(mygrid,"Neigh*MaxDist",
+              title="Maximum Distance per Neighborhood")
+```
+
+# Cross-validation
+
+We can now process the cross-validation step
+
+```{r}
+err = xvalid(mydb,mymodel,myneigh)
+if (verbose)
+    mydb$display()
+```
+
+```{r}
+if (graphics)
+    plot.hist(mydb,"Xvalid.Pb.stderr")
+```
+
+# Estimating by Kriging
+
+We now perform the Estimation by Ordinary Kriging. 
+The Neighborhood is changed into a Unique Neighborhood.
+
+```{r}
+mydb$setLocator("Pb",ELoc_Z())
+myneigh = NeighUnique_create()
+err = kriging(mydb,mygrid,mymodel,myneigh)
+if (verbose)
+    mygrid$display()
+```
+
+Visualizing the results
+
+```{r}
+if (graphics)
+    ax = plot.grid(mygrid,"Kriging.Pb.estim")
+    plot.point(mydb,"Pb",title="Estimate of Pb",padd=ax)
+```
+
+```{r}
+if (graphics)
+    ax = plot.grid(mygrid,"Kriging.Pb.stdev")
+    plot.point(mydb,"Pb",title="St. Deviation of Pb",padd=ax)
+```
+
+# Simulations
+
+We must first transform the Data into Gaussian
+
+```{r}
+myanamPb = AnamHermite(30)
+myanamPb$fit(mydb)
+if (verbose)
+    myanamPb
+```
+
+We can produce the Gaussian Anamorphosis graphically within its definition domain.
+
+```{r, eval=FALSE}
+if (graphics)
+    plot.anam(myanamPb)
+```
+
+The next step consists in translating the target variable ('Pb') into its Gaussian transform
+
+```{r}
+mydb$setLocator("Pb",ELoc_Z())
+err = RawToGaussianByLocator(mydb, myanamPb)
+if (verbose)
+    mydb$display()
+```
+
+We quickly calculate experimental (omni-directional) variograms using the already defined directions.
+
+```{r}
+myvarioParam = VarioParam()
+mydir = DirParam(10,1.)
+myvarioParam$addDir(mydir)
+myVario = Vario(myvarioParam,mydb)
+err = myvario$compute(ECalcVario_VARIOGRAM())
+```
+
+We fit the model by automatic fit (with the constraints that the total sill be equal to 1).
+
+```{r}
+mymodelG = Model_createFromDb(mydb)
+err = mymodelG$fit(myvario,ECov_fromValues(c(1)))
+if (graphics)
+    plot.varmod(myvario,mymodelG,title="Model for Gaussian Pb")
+```
+
+We perform a set of 10 conditional simulations using the Turning Bands Method.
+
+```{r}
+err = simtub(mydb,mygrid,mymodel,myneigh,10)
+if (verbose)
+    mygrid$display()
+```
+
+Some statistics on the Conditional simulations in Gaussian scale
+
+** Still impossible due to use of VectorString **
+
+```{r}
+if (verbose)
+{
+  err = mygrid$statisticsByLocator(ELoc_Z(),
+                                   EStatOption_fromValues(c(4,5,1,3)),
+                                   TRUE, TRUE, TRUE)
+}
+```
+
+We visualize a conditional simulation in Gaussian scale
+
+```{r}
+if (graphics)
+{
+    ax = plot.grid(mygrid,"Simu.Y.Pb.1")
+    plot.point(mydb,"Pb",title="One Simulation of Pb in Gaussian Scale",
+             padd=ax)
+}
+```
+
+We turn the Gaussian conditional simulations into Raw scale (using the Anamorphosis back transform) and get rid of the Gaussian conditional simulations.
+
+```{r}
+GaussianToRaw(mygrid,myanamPb,"Simu.Y.*")
+mygrid$deleteColumn("Simu.Y.*")
+if (verbose)
+    mygrid$display()
+```
+
+We calculate some statistics on the Conditional Simulations in Raw scale.
+
+```{r}
+if (verbose)
+{
+  names = VectorString()
+  names$push_back("Z.Simu.*")
+  err = mygrid$statisticsByLocator(ELoc_Z(), 
+                                   EStatOption_fromValues(c(4,5,1,3)),
+                                   TRUE,TRUE,TRUE)
+}
+```
+
+We visualize a Conditional Simulation in Raw Scale
+
+```{r}
+if (graphics)
+{
+  ax = plot.grid(mygrid,"Z.Simu.Y.Pb.1")
+  plot.point(mydb,"Pb",title="One simulation of Pb in Raw Scale", 
+             padd=ax)
+}
+```
+
+Let us now average the conditional simulations in order to have a comparison with the estimation by kriging.
+
+```{r}
+err = mygrid$statisticsByLocator(ELoc_Z(),EStatOption_fromValues(1),
+                                 TRUE,FALSE,FALSE)
+if (verbose)
+    mygrid$display()
+```
+
+Displaying the average of the Conditional Simulations
+
+```{r}
+if (graphics)
+{
+  ax = plot.grid(mygrid,"Stats*MEAN")
+  plot.point(mydb,"Pb",title="Mean of Pb simulations",padd=ax)
+}
+```
+
+# Multivariate case
+
+The Gaussian transform of the Pb variable has already been calculated. It suffices to perform the Gaussian transform of the Zn variable.
+
+```{r}
+mydb$setLocator("Zn",ELoc_Z())
+myanamZn = AnamHermite(30)
+myanamZn$fit(mydb)
+if (verbose)
+    myanamZn
+```
+
+```{r}
+if (graphics)
+{
+  plot.anam(myanamZn,title="Gaussian Anamorphosis for Zn")
+}
+```
+
+We convert the raw data into its Gaussian equivalent
+
+```{r}
+mydb$setLocator("Zn",ELoc_Z())
+err = RawToGaussianByLocator(mydb, myanamZn)
+if (verbose)
+    mydb$display()
+```
+
+We now perform the multivariate variogram caculation
+
+```{r}
+mydb$setLocator("Y.Pb",ELoc_Z(),0)
+mydb$setLocator("Y.Zn",ELoc_Z(),1)
+myvario = Vario(myvarioParam,mydb)
+err = myvario$compute(ECalcVario_VARIOGRAM())
+mymodelM = Model_createFromDb(mydb)
+err = mymodelM$fit(myvario,ECov_fromValues(c(1)))
+if (graphics)
+    plot.varmod(myvario,mymodelM,title="Multivariate Model")
+```
+
+We perform 10 bivariate conditional simulations (deleting the previous monovariate simulation outcomes first for better legibility).
+
+```{r}
+mygrid$deleteColumn("Z.Simu*")
+err = simtub(mydb,mygrid,mymodelM,myneigh,10)
+if (verbose)
+    mygrid$display()
+```
+
+We back-transform each set of simulation outcomes using its own Gaussian Anamorphosis function. Finally we delete the Gaussian variables and ask for the statistics on the simulated variables in the Raw Scale.
+
+```{r}
+err = GaussianToRaw(mygrid,myanamZn,"Simu.Y.Zn*")
+err = GaussianToRaw(mygrid,myanamPb,"Simu.Y.Pb*")
+mygrid$deleteColumn("Simu.Y*")
+if (verbose)
+    err = mygrid$statisticsByLocator(ELoc_Z(),
+                      EStatOption_fromValues(c(4,5,1,3)), 
+                      TRUE, TRUE, TRUE)
+```
+
+# Categorical Variable¶
+
+We compare the initial variable 'Pb' with a set of disjoint intervals. The 'Pb' values varying from 3 to 12.7, we consider three classes:
+
+- values below 4
+- values between 4 and 6
+- values above 6
+
+We first build the indicators for each class.
+
+```{r}
+limits = Limits(c(NA, 4., 6., NA))
+if (verbose)
+    limits$display()
+```
+
+We apply the set of limits previously defined in order to transform the input variable into Indicators of the different classes.
+
+```{r}
+err = limits$toIndicator(mydb,"Pb")
+if (verbose)
+    mydb$display()
+```
+
+We calculate the variogram of the Indicators for future use
+
+```{r}
+myvarioindParam = VarioParam()
+myvarioindParam$addDir(mydir)
+myvarioInd = Vario(myvarioindParam,mydb)
+err = myvarioInd$compute(ECalcVario_VARIOGRAM())
+if (verbose)
+    myvarioInd$display()
+```
+
+```{r}
+if (graphics)
+    plot.varmod(myvarioInd)
+```
+
+Then we build a categorical variable which gives the index of the class to which each sample belongs
+
+```{r}
+err = limits$toCategory(mydb,"Pb")
+if (verbose)
+    dbfmt = DbStringFormat()
+    dbfmt$setFlags(FALSE, FALSE, FALSE, TRUE)
+    dbfmt$setNames("Category*")
+    dbfmt$setMode(2)
+    mydb$display(dbfmt)
+```
+

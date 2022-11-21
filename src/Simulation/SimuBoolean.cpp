@@ -16,6 +16,7 @@
 #include "Simulation/BooleanObject.hpp"
 #include "Simulation/SimuBooleanParam.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/VectorHelper.hpp"
 
 #include <math.h>
 
@@ -394,7 +395,7 @@ int SimuBoolean::_getAverageCount(const DbGrid* dbout,
    else
    {
      VectorDouble vec = dbout->getColumnByLocator(ELoc::P, 0, true);
-     theta = ut_vector_mean(vec);
+     theta = VH::mean(vec);
    }
 
    VectorDouble field = dbout->getExtends();

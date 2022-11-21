@@ -27,7 +27,17 @@ class Faults;
 class GSTLEARN_EXPORT NeighMoving: public ANeighParam
 {
 public:
-  NeighMoving(int ndim = 2, bool flag_xvalid = false);
+  NeighMoving(bool flag_xvalid = false,
+              int nmaxi = 1000,
+              double radius = TEST,
+              int nmini = 1,
+              int nsect = 1,
+              int nsmax = ITEST,
+              VectorDouble coeffs = VectorDouble(),
+              VectorDouble angles = VectorDouble(),
+              double distcont = TEST,
+              const Faults *faults = nullptr,
+              const ASpace* space = nullptr);
   NeighMoving(const NeighMoving& r);
   NeighMoving& operator=(const NeighMoving& r);
   virtual ~NeighMoving();
@@ -42,20 +52,7 @@ public:
     return (! FFFF(_distCont) && _distCont < 1.);
   }
 
-  int reset(int ndim,
-            bool flag_xvalid,
-            int nmaxi,
-            double radius,
-            int nmini = 1,
-            int nsect = 1,
-            int nsmax = ITEST,
-            VectorDouble coeffs = VectorDouble(),
-            VectorDouble angles = VectorDouble(),
-            double distcont = TEST,
-            const Faults* faults = nullptr);
-
-  static NeighMoving* create(int ndim,
-                             bool flag_xvalid = false,
+  static NeighMoving* create(bool flag_xvalid = false,
                              int nmaxi = 1000,
                              double radius = TEST,
                              int nmini = 1,
@@ -64,7 +61,8 @@ public:
                              VectorDouble coeffs = VectorDouble(),
                              VectorDouble angles = VectorDouble(),
                              double distcont = TEST,
-                             const Faults* faults = nullptr);
+                             const Faults* faults = nullptr,
+                             const ASpace* space = nullptr);
   void addFaults(const Faults* faults) { _faults = faults; }
 
   static NeighMoving* createFromNF(const String& neutralFilename, bool verbose = true);

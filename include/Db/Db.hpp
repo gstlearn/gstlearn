@@ -57,7 +57,7 @@ public:
   static Db* createFromNF(const String& neutralFilename,
                            bool verbose = true);
   int resetFromSamples(int nech,
-                       const ELoadBy& order = ELoadBy::SAMPLE,
+                       const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                        const VectorDouble& tab = VectorDouble(),
                        const VectorString& names = VectorString(),
                        const VectorString& locatorNames = VectorString(),
@@ -85,7 +85,7 @@ public:
 
   static Db* create();
   static Db* createFromSamples(int nech,
-                               const ELoadBy& order = ELoadBy::SAMPLE,
+                               const ELoadBy& order = ELoadBy::fromKey("SAMPLE"),
                                const VectorDouble& tab = VectorDouble(),
                                const VectorString& names = VectorString(),
                                const VectorString& locatorNames = VectorString(),
@@ -161,32 +161,32 @@ public:
 
   void clearLocators(const ELoc& locatorType);
   void setLocatorByUID(int iuid,
-                       const ELoc& locatorType = ELoc::UNKNOWN,
+                       const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                        int locatorIndex = 0,
                        bool cleanSameLocator = false);
   void setLocatorByColIdx(int icol,
-                          const ELoc& locatorType = ELoc::UNKNOWN,
+                          const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                           int locatorIndex = 0,
                           bool cleanSameLocator = false);
   void setLocator(const String& names,
-                  const ELoc& locatorType = ELoc::UNKNOWN,
+                  const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                   int locatorIndex = 0,
                   bool cleanSameLocator = false);
   void setLocators(const VectorString& names,
-                    const ELoc& locatorType = ELoc::UNKNOWN,
+                    const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                     int locatorIndex = 0,
                     bool cleanSameLocator = false);
   void setLocatorsByUID(int number,
                         int iuid,
-                        const ELoc& locatorType = ELoc::UNKNOWN,
+                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                         int locatorIndex = 0,
                         bool cleanSameLocator = false);
   void setLocatorsByUID(const VectorInt& iuids,
-                        const ELoc& locatorType = ELoc::UNKNOWN,
+                        const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                         int locatorIndex = 0,
                         bool cleanSameLocator = false);
   void setLocatorsByColIdx(const VectorInt& icols,
-                           const ELoc& locatorType = ELoc::UNKNOWN,
+                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            bool cleanSameLocator = false);
   void addColumnsByVVD(const VectorVectorDouble tab,
@@ -198,7 +198,7 @@ public:
                        int nvar);
   int addColumns(const VectorDouble& tab,
                  const String& radix = "New",
-                 const ELoc& locatorType = ELoc::UNKNOWN,
+                 const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                  int locatorIndex = 0,
                  bool useSel = false,
                  double valinit = 0.,
@@ -206,7 +206,7 @@ public:
   int addColumnsByConstant(int nadd,
                            double valinit = 0.,
                            const String& radix = "New",
-                           const ELoc& locatorType = ELoc::UNKNOWN,
+                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                            int locatorIndex = 0,
                            int nechInit = 0);
   int addSelection(const VectorDouble& tab = VectorDouble(),
@@ -235,7 +235,7 @@ public:
 
   void setColumn(const VectorDouble &tab,
                  const String &name,
-                 const ELoc& locatorType = ELoc::UNKNOWN,
+                 const ELoc& locatorType = ELoc::fromKey("UNKNOWN"),
                  int locatorIndex = 0,
                  bool useSel = false);
   void setColumnByUIDOldStyle(const double* tab, int iuid, bool useSel = false);
@@ -302,7 +302,7 @@ public:
                        ELoc* ret_locatorType,
                        int* ret_locatorIndex) const;
   VectorString getLocators(bool anyLocator = true,
-                           const ELoc& locatorType = ELoc::UNKNOWN) const;
+                           const ELoc& locatorType = ELoc::fromKey("UNKNOWN")) const;
   int getLocatorNumber(const ELoc& locatorType) const;
   bool isUIDDefined(int iuid) const;
 
@@ -576,7 +576,7 @@ public:
 
   // Statistics
   VectorDouble statistics(const VectorString& names,
-                          const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                          const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                           bool flagIso = true,
                           bool flagVariableWise = true,
                           bool flagPrint = true,
@@ -586,7 +586,7 @@ public:
                           const String& title = "",
                           const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble statisticsByLocator(const ELoc& locatorType,
-                                   const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                   const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                    bool flagIso = true,
                                    bool flagVariableWise = true,
                                    bool flagPrint = true,
@@ -596,7 +596,7 @@ public:
                                    const String& title = "",
                                    const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble statisticsByUID(const VectorInt& iuids,
-                               const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                               const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                bool flagIso = true,
                                bool flagVariableWise = true,
                                bool flagPrint = true,

@@ -41,7 +41,7 @@
   #include "Basic/VectorT.hpp"
   #include "Basic/VectorNumT.hpp"
   #include "Basic/ICloneable.hpp"
-  #include "Basic/Vector.hpp"
+  #include "Basic/VectorHelper.hpp"
   #include "Basic/AFunction.hpp"
   #include "Basic/ArgumentTest.hpp"
   #include "Basic/AStringable.hpp"
@@ -69,7 +69,7 @@
   #include "Basic/PolyLine2D.hpp"
   #include "Basic/Law.hpp"
   
-  #include "Geometry/Geometry.hpp"
+  #include "Geometry/GeometryHelper.hpp"
   #include "Geometry/Rotation.hpp"
   
   #include "Arrays/AArray.hpp"
@@ -328,13 +328,12 @@
 %template(DoNotUseVVectorDoubleStd) std::vector< std::vector< double > >;
 %template(DoNotUseVVectorFloatStd)  std::vector< std::vector< float > >;
 
-%template(VectorEnumCovs)        std::vector< ECov >;
-%template(VectorEnumStatOpt)     std::vector< EStatOption >;
-%template(VectorEnumSelectivity) std::vector< ESelectivity >;
-
-%template(VectorDir)             std::vector< DirParam >;
-%template(VectorPolySet)         std::vector< PolySet >;
-%template(VectorIntervals)       std::vector< Interval >; 
+%template(VectorECov)         std::vector< ECov >;
+%template(VectorEStatOption)  std::vector< EStatOption >;
+%template(VectorESelectivity) std::vector< ESelectivity >;
+%template(VectorDirParam)     std::vector< DirParam >;
+%template(VectorPolySet)      std::vector< PolySet >;
+%template(VectorInterval)     std::vector< Interval >; 
 
 ////////////////////////////////////////////////
 // Conversion Target language => C++

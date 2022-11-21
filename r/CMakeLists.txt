@@ -13,9 +13,12 @@ set(R_PACKAGE_NAME ${PROJECT_NAME})
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 include(root/FindR.cmake)
 
-# Look for SWIG 4
+# Look for SWIG 4.2.0 [customized] TODO : WIP
+#find_package(SWIG 4.2.0 REQUIRED)
+# Look for SWIG 4.0.2
 find_package(SWIG 4.0 REQUIRED)
-# TODO : If SWIG not found, fetch it from the web?
+
+
 include(${SWIG_USE_FILE})
 
 ######################################  

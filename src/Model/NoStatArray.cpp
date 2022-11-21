@@ -11,7 +11,7 @@
 #include "Model/NoStatArray.hpp"
 #include "Basic/AException.hpp"
 #include "Matrix/MatrixRectangular.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/Tensor.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/String.hpp"
@@ -403,13 +403,13 @@ int NoStatArray::_informField(int ipar,
                              coor[2], tab.data())) return 1;
   }
 
-  int ndef = ut_vector_count_undefined(tab);
+  int ndef = VH::countUndefined(tab);
   if (ndef > 0)
   {
 
     // Calculate local statistics
 
-    double mean = ut_vector_mean(tab);
+    double mean = VH::mean(tab);
     if (FFFF(mean))
     {
       messageFlush(getItems(ipar).toString());
@@ -437,7 +437,7 @@ int NoStatArray::_informField(int ipar,
     (void) gslSPrintf(str,
                       "Statistics for Non-Stationary Parameter #%d on Mesh",
                       ipar + 1);
-    ut_vector_display_stats(str,tab);
+    VH::displayStats(str,tab);
   }
 
   return 0;

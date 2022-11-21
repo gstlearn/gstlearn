@@ -23,7 +23,7 @@ public:
   SPDE(Model *model,
        const DbGrid* field,
        const Db* dat = nullptr,
-       const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND);
+       const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"));
   SPDE(const SPDE& r) = delete;
   SPDE& operator=(const SPDE& r) = delete;
   virtual ~SPDE();
@@ -31,7 +31,7 @@ public:
   void init(Model* model,
             const DbGrid* field,
             const Db* dat = nullptr,
-            const ESPDECalcMode &calc = ESPDECalcMode::SIMUCOND,
+            const ESPDECalcMode &calc = ESPDECalcMode::fromKey("SIMUCOND"),
             const AMesh* mesh = nullptr);
   void compute(int nbsimus = 1, int seed = 131323); // TODO What this seed ?
   void computeLk() const;

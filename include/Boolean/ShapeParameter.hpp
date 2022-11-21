@@ -14,7 +14,6 @@
 
 #include "Enum/ETLaw.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Basic/AStringable.hpp"
 
 // TODO Will be replaced by future class"Law" or "Distribution" which does not
@@ -22,7 +21,7 @@
 class GSTLEARN_EXPORT ShapeParameter: public AStringable
 {
 public:
-  ShapeParameter(ETLaw law = ETLaw::CONSTANT, double value = 0.);
+  ShapeParameter(ETLaw law = ETLaw::fromKey("CONSTANT"), double value = 0.);
   ShapeParameter(const ShapeParameter &r);
   ShapeParameter& operator=(const ShapeParameter &r);
   virtual ~ShapeParameter();

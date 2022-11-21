@@ -14,7 +14,7 @@
 
 #include "Enum/EStatOption.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 
 typedef struct
@@ -29,7 +29,8 @@ typedef struct
 
 class Db;
 
-GSTLEARN_EXPORT VectorString statsNames(const std::vector<EStatOption>& opers);
+GSTLEARN_EXPORT VectorString statOptionToName(const std::vector<EStatOption>& opers);
+GSTLEARN_EXPORT std::vector<EStatOption> KeysToStatOptions(const VectorString& opers);
 
 GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            const VectorInt &iatts,
@@ -38,42 +39,61 @@ GSTLEARN_EXPORT void dbStatisticsVariables(Db *db,
                                            double proba = TEST,
                                            double vmin = TEST,
                                            double vmax = TEST);
-
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorInt &iatts,
-                                              const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                              const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                               bool flagIso = true,
                                               double proba = TEST,
                                               double vmin = TEST,
                                               double vmax = TEST);
 GSTLEARN_EXPORT VectorDouble dbStatisticsMono(Db *db,
                                               const VectorString& names,
-                                              const std::vector<EStatOption>& opers = {EStatOption::MEAN},
+                                              const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                               bool flagIso = true,
                                               double proba = TEST,
                                               double vmin = TEST,
                                               double vmax = TEST);
-
 GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
                                                const VectorInt &iatts,
                                                bool flagIso = true);
+GSTLEARN_EXPORT VectorDouble dbStatisticsMulti(Db *db,
+                                               const VectorString& names,
+                                               bool flagIso = true);
+GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
+                                       const VectorInt &iatts = VectorInt(),
+                                       const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+                                       bool flagIso = false,
+                                       bool flagCorrel = false,
+                                       const String &title = String(),
+                                       const String &radix = String());
+GSTLEARN_EXPORT void dbStatisticsPrint(const Db *db,
+                                       const VectorString &names,
+                                       const std::vector<EStatOption> &opers = EStatOption::fromKeys({"MEAN"}),
+                                       bool flagIso = false,
+                                       bool flagCorrel = false,
+                                       const String &title = String(),
+                                       const String &radix = String());
 GSTLEARN_EXPORT VectorDouble dbStatisticsFacies(Db *db);
 GSTLEARN_EXPORT double dbStatisticsIndicator(Db *db);
 
 GSTLEARN_EXPORT String statisticsMonoPrint(const VectorDouble &tab,
-                                           const std::vector<EStatOption>& opers = {EStatOption::MEAN},
-                                           const VectorString &varnames = VectorString(),
+                                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
+                                           const VectorString& names = VectorString(),
                                            const String &title = "");
 GSTLEARN_EXPORT String statisticsMultiPrint(const VectorDouble &cov,
-                                            const VectorString &varnames = VectorString(),
+                                            const VectorString& names = VectorString(),
                                             const String &title = "");
-
-GSTLEARN_EXPORT bool regressionCheck(Db *db1,
-                                     int icol0,
-                                     const VectorInt &icols,
-                                     int mode,
-                                     Db *db2,
-                                     const Model* model = nullptr);
+GSTLEARN_EXPORT int statisticsProportion(DbGrid *dbin,
+                                         DbGrid *dbout,
+                                         int pos,
+                                         int nfacies,
+                                         int radius);
+GSTLEARN_EXPORT int statisticsTransition(DbGrid *dbin,
+                                         DbGrid *dbout,
+                                         int pos,
+                                         int nfacies,
+                                         int radius,
+                                         int orient);
 GSTLEARN_EXPORT ResRegr regressionByUID(Db *db1,
                                         int icol0,
                                         const VectorInt &icols = VectorInt(),
@@ -90,14 +110,11 @@ GSTLEARN_EXPORT ResRegr regression(Db *db1,
                                    Db *db2 = nullptr,
                                    const Model *model = nullptr,
                                    bool verbose = false);
-GSTLEARN_EXPORT bool regressionLoad(Db *db1,
-                                    Db *db2,
-                                    int iech,
-                                    int icol0,
-                                    const VectorInt &icols,
-                                    int mode,
-                                    int flagCste,
-                                    const Model* model,
-                                    double *value,
-                                    VectorDouble &x);
-GSTLEARN_EXPORT void regrprint(const ResRegr& regr);
+GSTLEARN_EXPORT int regressionApply(Db *db1,
+                                    int iptr0,
+                                    const String &name0,
+                                    const VectorString &names,
+                                    int mode = 0,
+                                    bool flagCste = false,
+                                    Db *db2 = nullptr,
+                                    const Model *model = nullptr);

@@ -1,27 +1,30 @@
-/*
- * GlobalEnvironment.cpp
- *
- *  Created on: 22 juil. 2021
- *      Author: drenard
- */
+/******************************************************************************/
+/* COPYRIGHT ARMINES, ALL RIGHTS RESERVED                                     */
+/*                                                                            */
+/* THE CONTENT OF THIS WORK CONTAINS CONFIDENTIAL AND PROPRIETARY             */
+/* INFORMATION OF ARMINES. ANY DUPLICATION, MODIFICATION,                     */
+/* DISTRIBUTION, OR DISCLOSURE IN ANY FORM, IN WHOLE, OR IN PART, IS STRICTLY */
+/* PROHIBITED WITHOUT THE PRIOR EXPRESS WRITTEN PERMISSION OF ARMINES         */
+/*                                                                            */
+/* TAG_SOURCE_CG                                                              */
+/******************************************************************************/
 #include "geoslib_f.h"
 
 #include "Enum/ERotation.hpp"
 
-#include "Geometry/Geometry.hpp"
 #include "Basic/Utilities.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Space/ASpaceObject.hpp"
 #include "Space/SpaceSN.hpp"
+#include "Geometry/GeometryHelper.hpp"
 
 #include <math.h>
 
-#define ROT(i,j)     (rot[(i) * ndim + (j)])
-
-static void _decodeConvRot(const ERotation &convrot,
-                           int *firstaxis,
-                           int *parity,
-                           int *repetition,
-                           int *frame)
+void GeometryHelper::_decodeConvRot(const ERotation &convrot,
+                                    int *firstaxis,
+                                    int *parity,
+                                    int *repetition,
+                                    int *frame)
 {
   VectorInt ret(4);
 
@@ -66,7 +69,7 @@ static void _decodeConvRot(const ERotation &convrot,
  ** \param[out]  sina  sine function
  **
  *****************************************************************************/
-void ut_rotation_sincos(double angle, double *cosa, double *sina)
+void GeometryHelper::rotationGetSinCos(double angle, double *cosa, double *sina)
 {
   double value;
 
@@ -105,6 +108,24 @@ void ut_rotation_sincos(double angle, double *cosa, double *sina)
 
 /****************************************************************************/
 /*!
+ **  Initialize a rotation matrix
+ **
+ ** \param[in]  ndim      Space dimension
+ **
+ ** \param[out] rot       Rotation matrix
+ **
+ *****************************************************************************/
+void GeometryHelper::rotationIdentity(int ndim, double *rot)
+{
+  int i, j, ecr;
+
+  for (i = ecr = 0; i < ndim; i++)
+    for (j = 0; j < ndim; j++, ecr++)
+      rot[ecr] = (i == j);
+}
+
+/****************************************************************************/
+/*!
  **  Calculates the 2-D rotation matrix
  **
  ** \param[in]  angle Rotation angle (in degrees)
@@ -112,11 +133,11 @@ void ut_rotation_sincos(double angle, double *cosa, double *sina)
  ** \param[out]  rot   Rotation matrix (Dimension = 4)
  **
  *****************************************************************************/
-void ut_rotation_matrix_2D(double angle, double *rot)
+void GeometryHelper::rotationInit(double angle, double *rot)
 {
   double ca, sa;
 
-  ut_rotation_sincos(angle, &ca, &sa);
+  GH::rotationGetSinCos(angle, &ca, &sa);
 
   /* Define the 2-D rotation matrix */
 
@@ -139,15 +160,18 @@ void ut_rotation_matrix_2D(double angle, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix_3D(double alpha, double beta, double gamma, double *rot)
+void GeometryHelper::rotationInit(double alpha,
+                                  double beta,
+                                  double gamma,
+                                  double *rot)
 {
   double ca[3], sa[3];
 
   /* Initializations */
 
-  ut_rotation_sincos(alpha, &ca[0], &sa[0]);
-  ut_rotation_sincos(beta, &ca[1], &sa[1]);
-  ut_rotation_sincos(gamma, &ca[2], &sa[2]);
+  GH::rotationGetSinCos(alpha, &ca[0], &sa[0]);
+  GH::rotationGetSinCos(beta, &ca[1], &sa[1]);
+  GH::rotationGetSinCos(gamma, &ca[2], &sa[2]);
 
   /* Define the 3-D rotation matrix */
 
@@ -174,14 +198,14 @@ void ut_rotation_matrix_3D(double alpha, double beta, double gamma, double *rot)
  ** \param[out] rot   direct rotation matrix (Dimension = 9)
  **
  *****************************************************************************/
-void ut_rotation_matrix(int ndim, const double *angles, double *rot)
+void GeometryHelper::rotationInit(int ndim, const double *angles, double *rot)
 {
   if (ndim == 2)
-    ut_rotation_matrix_2D(angles[0], rot);
+    GH::rotationInit(angles[0], rot);
   else if (ndim == 3)
-    ut_rotation_matrix_3D(angles[0], angles[1], angles[2], rot);
+    GH::rotationInit(angles[0], angles[1], angles[2], rot);
   else
-    ut_rotation_init(ndim, rot);
+    GH::rotationIdentity(ndim, rot);
 }
 
 /*****************************************************************************/
@@ -193,17 +217,17 @@ void ut_rotation_matrix(int ndim, const double *angles, double *rot)
  ** \param[in]  angles Array of angles
  **
  *****************************************************************************/
-VectorDouble ut_rotation_matrix_VD(int ndim, const VectorDouble &angles)
+VectorDouble GeometryHelper::rotationInit(int ndim, const VectorDouble &angles)
 {
   VectorDouble rot;
 
   rot.resize(ndim * ndim);
   if (ndim == 2)
-    ut_rotation_matrix_2D(angles[0], rot.data());
+    GH::rotationInit(angles[0], rot.data());
   else if (ndim == 3)
-    ut_rotation_matrix_3D(angles[0], angles[1], angles[2], rot.data());
+    GH::rotationInit(angles[0], angles[1], angles[2], rot.data());
   else
-    ut_rotation_init(ndim, rot.data());
+    GH::rotationIdentity(ndim, rot.data());
 
   return rot;
 }
@@ -218,11 +242,9 @@ VectorDouble ut_rotation_matrix_VD(int ndim, const VectorDouble &angles)
  ** \param[out] rotout Output rotation matrix (already allocated)
  **
  *****************************************************************************/
-void ut_rotation_copy(int ndim, const double *rotin, double *rotout)
+void GeometryHelper::rotationCopy(int ndim, const double *rotin, double *rotout)
 {
-  int i;
-
-  for (i = 0; i < ndim * ndim; i++)
+  for (int i = 0; i < ndim * ndim; i++)
     rotout[i] = rotin[i];
 }
 
@@ -230,19 +252,18 @@ void ut_rotation_copy(int ndim, const double *rotin, double *rotout)
 /*!
  **  Merge the extensions of the boxes (parallel to main axes)
  **
- ** \param[in]  ndim     Space dimension
  ** \param[in]  mini1    Input array containing the minimum along each axis
  ** \param[in]  maxi1    Input array containing the maximum along each axis
  ** \param[in]  mini2    Output array containing the minimum along each axis
  ** \param[in]  maxi2    Output array containing the maximum along each axis
  **
  *****************************************************************************/
-void merge_boxes(int ndim,
-                 VectorDouble& mini1,
-                 VectorDouble& maxi1,
-                 VectorDouble& mini2,
-                 VectorDouble& maxi2)
+void GeometryHelper::mergeBoxes(VectorDouble &mini1,
+                                VectorDouble &maxi1,
+                                VectorDouble &mini2,
+                                VectorDouble &maxi2)
 {
+  int ndim = (int) mini1.size();
   for (int idim = 0; idim < ndim; idim++)
   {
     double mini = 1.e30;
@@ -259,21 +280,19 @@ void merge_boxes(int ndim,
 /*!
  **  Calculates the rotation angles from the rotation matrix
  **
- ** \param[in]  rot   Rotation matrix (Dimension = 9)
  ** \param[in]  ndim  Space dimension
+ ** \param[in]  rot   Rotation matrix (Dimension = 9)
  **
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
+int GeometryHelper::rotationGetAngles(int ndim, const double *rot, double *angles)
 {
-  double s0, c0, s1, c1, s2, c2;
-  int i, nval;
+  int nval;
 
   /* Initializations */
 
-  for (i = 0; i < ndim; i++)
-    angles[i] = 0.;
+  for (int i = 0; i < ndim; i++) angles[i] = 0.;
   if (rot == nullptr) return (0);
 
   /* Dispatch */
@@ -290,8 +309,8 @@ int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
   else if (ndim == 3)
   {
     nval = 3;
-    s1 = -rot[2];
-    c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
+    double s1 = -rot[2];
+    double c1 = sqrt(rot[0] * rot[0] + rot[1] * rot[1]);
     if (ABS(c1) < EPSILON10)
     {
       if (s1 > 0.)
@@ -309,10 +328,10 @@ int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
     }
     else
     {
-      c0 = rot[0] / c1;
-      s0 = rot[1] / c1;
-      s2 = rot[5] / c1;
-      c2 = rot[8] / c1;
+      double c0 = rot[0] / c1;
+      double s0 = rot[1] / c1;
+      double s2 = rot[5] / c1;
+      double c2 = rot[8] / c1;
       angles[0] = atan2(s0, c0);
       angles[1] = atan2(s1, c1);
       angles[2] = atan2(s2, c2);
@@ -325,8 +344,7 @@ int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
 
   /* Convert into degrees */
 
-  for (i = 0; i < nval; i++)
-    angles[i] = ut_rad2deg(angles[i]);
+  for (int i = 0; i < nval; i++) angles[i] = ut_rad2deg(angles[i]);
 
   return (nval);
 }
@@ -335,23 +353,21 @@ int ut_angles_from_rotation_matrix(const double *rot, int ndim, double *angles)
 /*!
  **  Calculates the rotation angle from the direction coefficient
  **
- ** \param[in]  ndim   Space dimension
  ** \param[in]  codir  Direction vector (Dimension = ndim)
  **
  ** \param[out]  angles Rotation angles (Dimension = ndim)
  **
  *****************************************************************************/
-void ut_angles_from_codir(int ndim,
-                          const VectorDouble &codir,
-                          VectorDouble &angles)
+void GeometryHelper::rotationGetAngles(const VectorDouble &codir,
+                                       VectorDouble &angles)
 {
-  double norme;
-  int i, nval;
+  int nval;
+  int ndim = (int) codir.size();
+  angles.resize(ndim);
 
   /* Initializations */
 
-  for (i = 0; i < ndim; i++)
-    angles[i] = 0.;
+  for (int i = 0; i < ndim; i++) angles[i] = 0.;
 
   /* Dispatch */
 
@@ -367,7 +383,7 @@ void ut_angles_from_codir(int ndim,
   }
   else if (ndim == 3)
   {
-    norme = codir[0] * codir[0] + codir[1] * codir[1];
+    double norme = codir[0] * codir[0] + codir[1] * codir[1];
     if (norme > 0.)
     {
       norme = sqrt(norme);
@@ -383,15 +399,22 @@ void ut_angles_from_codir(int ndim,
 
   /* Convert into degrees */
 
-  for (i = 0; i < nval; i++)
-    angles[i] = ut_rad2deg(angles[i]);
+  for (int i = 0; i < nval; i++) angles[i] = ut_rad2deg(angles[i]);
 
   return;
 }
 
+VectorDouble GeometryHelper::rotationGetAngles(const VectorDouble& codir)
+{
+  int ndim = (int) codir.size();
+  VectorDouble angles(ndim);
+  GH::rotationGetAngles(codir, angles);
+  return angles;
+}
+
 /****************************************************************************/
 /*!
- **   Convert angles to rotation matrices
+ **   Convert angles to a set of Directions
  **
  ** \param[in]  ndim     Number of space dimensions
  ** \param[in]  ndir     Number of directions
@@ -404,16 +427,15 @@ void ut_angles_from_codir(int ndim,
  ** \remarks - if ndim < ndim: return 'ndir' directions regular in the 2-D
  **
  *****************************************************************************/
-void ut_angles_to_codir(int ndim,
-                        int ndir,
-                        const VectorDouble &angles,
-                        VectorDouble &codir)
+void GeometryHelper::rotationGetDirection(int ndim,
+                                          int ndir,
+                                          const VectorDouble &angles,
+                                          VectorDouble &codir)
 {
   if (ndim <= 1) return;
 
   codir.resize(ndim * ndir);
-  for (int i = 0; i < ndim * ndir; i++)
-    codir[i] = 0.;
+  for (int i = 0; i < ndim * ndir; i++) codir[i] = 0.;
 
   if (angles.size() <= 0)
   {
@@ -422,8 +444,7 @@ void ut_angles_to_codir(int ndim,
       int ecr = 0;
       for (int idir = 0; idir < ndir; idir++)
         for (int idim = 0; idim < ndim; idim++)
-          codir[ecr++] = (idir == idim) ? 1. :
-                                          0.;
+          codir[ecr++] = (idir == idim) ? 1. : 0.;
     }
     else
     {
@@ -455,29 +476,29 @@ void ut_angles_to_codir(int ndim,
 /*!
  **  Starting from a rotation matrix, check it is different from the Identity
  **
- ** \return  1 if a rotation is defined; 0 otherwise
+ ** \return  False if a rotation is defined; True if it is an Identity
  **
- ** \param[in]  rot      Rotation matrix
  ** \param[in]  ndim     Space dimension
+ ** \param[in]  rot      Rotation matrix
+ ** \param[in]  eps      Tolerance
  **
  *****************************************************************************/
-int ut_rotation_check(double *rot, int ndim)
+bool GeometryHelper::rotationIsIdentity(int ndim, double *rot, double eps)
 {
-  int i, j;
-
-  for (i = 0; i < ndim; i++)
-    for (j = 0; j < ndim; j++)
+  for (int i = 0; i < ndim; i++)
+    for (int j = 0; j < ndim; j++)
     {
+      double rotval = rot[(i) * ndim + (j)];
       if (i == j)
       {
-        if (ABS(ROT(i,j) - 1.) > EPSILON10) return (1);
+        if (ABS(rotval - 1.) > eps) return false;
       }
       else
       {
-        if (ABS(ROT(i,j)) > EPSILON10) return (1);
+        if (ABS(rotval) > eps) return false;
       }
     }
-  return (0);
+  return true;
 }
 
 /****************************************************************************/
@@ -496,22 +517,20 @@ int ut_rotation_check(double *rot, int ndim)
  **                     =0 if it is set to one of the segment vertices
  **
  *****************************************************************************/
-double distance_point_to_segment(double x0,
-                                 double y0,
-                                 double x1,
-                                 double y1,
-                                 double x2,
-                                 double y2,
-                                 double *xd,
-                                 double *yd,
-                                 int *nint)
+double GeometryHelper::distancePointToSegment(double x0,
+                                              double y0,
+                                              double x1,
+                                              double y1,
+                                              double x2,
+                                              double y2,
+                                              double *xd,
+                                              double *yd,
+                                              int *nint)
 {
-  double dx, dy, dxp, dyp, ratio, dist, signe;
+  double dx = x2 - x1;
+  double dy = y2 - y1;
 
-  dx = x2 - x1;
-  dy = y2 - y1;
-
-  ratio = (dx * (x0 - x1) + dy * (y0 - y1)) / (dx * dx + dy * dy);
+  double ratio = (dx * (x0 - x1) + dy * (y0 - y1)) / (dx * dx + dy * dy);
 
   if (ratio < 0)
   {
@@ -532,10 +551,10 @@ double distance_point_to_segment(double x0,
     *nint = 1;
   }
 
-  dxp = x0 - (*xd);
-  dyp = y0 - (*yd);
-  dist = sqrt(dxp * dxp + dyp * dyp);
-  signe = (dy * (x0 - x1) - dx * (y0 - y1) > 0.) ? 1 : -1;
+  double dxp = x0 - (*xd);
+  double dyp = y0 - (*yd);
+  double dist = sqrt(dxp * dxp + dyp * dyp);
+  double signe = (dy * (x0 - x1) - dx * (y0 - y1) > 0.) ? 1 : -1;
 
   return (dist * signe);
 }
@@ -553,20 +572,18 @@ double distance_point_to_segment(double x0,
  ** \param[in]  radius Radius of the sphere
  **
  *****************************************************************************/
-double ut_geodetic_angular_distance(double long1,
-                                    double lat1,
-                                    double long2,
-                                    double lat2,
-                                    double radius)
+double GeometryHelper::geodeticAngularDistance(double long1,
+                                               double lat1,
+                                               double long2,
+                                               double lat2,
+                                               double radius)
 {
-  double rlon1, rlat1, rlon2, rlat2, dlong, angdst;
-
-  rlon1 = ut_deg2rad(long1);
-  rlat1 = ut_deg2rad(lat1);
-  rlon2 = ut_deg2rad(long2);
-  rlat2 = ut_deg2rad(lat2);
-  dlong = rlon2 - rlon1;
-  angdst = acos(sin(rlat1) * sin(rlat2) + cos(rlat1) * cos(rlat2) * cos(dlong));
+  double rlon1 = ut_deg2rad(long1);
+  double rlat1 = ut_deg2rad(lat1);
+  double rlon2 = ut_deg2rad(long2);
+  double rlat2 = ut_deg2rad(lat2);
+  double dlong = rlon2 - rlon1;
+  double angdst = acos(sin(rlat1) * sin(rlat2) + cos(rlat1) * cos(rlat2) * cos(dlong));
   return (radius * angdst);
 }
 
@@ -588,10 +605,8 @@ static double st_convert_geodetic_angle(double /*sina*/,
                                         double sinc,
                                         double cosc)
 {
-  double prod, cosA;
-
-  prod = sinb * sinc;
-  cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
+  double prod = sinb * sinc;
+  double cosA = (prod == 0.) ? 0. : (cosa - cosb * cosc) / prod;
   if (cosA < -1) cosA = -1.;
   if (cosA > +1) cosA = +1.;
   return (acos(cosA));
@@ -616,31 +631,29 @@ static double st_convert_geodetic_angle(double /*sina*/,
  ** \param[out] C      Angle (P1,P3,P2)
  **
  *****************************************************************************/
-void ut_geodetic_angles(double long1,
-                        double lat1,
-                        double long2,
-                        double lat2,
-                        double long3,
-                        double lat3,
-                        double *a,
-                        double *b,
-                        double *c,
-                        double *A,
-                        double *B,
-                        double *C)
+void GeometryHelper::geodeticAngles(double long1,
+                                    double lat1,
+                                    double long2,
+                                    double lat2,
+                                    double long3,
+                                    double lat3,
+                                    double *a,
+                                    double *b,
+                                    double *c,
+                                    double *A,
+                                    double *B,
+                                    double *C)
 {
-  double cosa, cosb, cosc, sina, sinb, sinc;
+  *a = GH::geodeticAngularDistance(long2, lat2, long3, lat3);
+  *b = GH::geodeticAngularDistance(long1, lat1, long3, lat3);
+  *c = GH::geodeticAngularDistance(long1, lat1, long2, lat2);
 
-  *a = ut_geodetic_angular_distance(long2, lat2, long3, lat3);
-  *b = ut_geodetic_angular_distance(long1, lat1, long3, lat3);
-  *c = ut_geodetic_angular_distance(long1, lat1, long2, lat2);
-
-  cosa = cos(*a);
-  cosb = cos(*b);
-  cosc = cos(*c);
-  sina = sin(*a);
-  sinb = sin(*b);
-  sinc = sin(*c);
+  double cosa = cos(*a);
+  double cosb = cos(*b);
+  double cosc = cos(*c);
+  double sina = sin(*a);
+  double sinb = sin(*b);
+  double sinc = sin(*c);
 
   *A = st_convert_geodetic_angle(sina, cosa, sinb, cosb, sinc, cosc);
   *B = st_convert_geodetic_angle(sinb, cosb, sinc, cosc, sina, cosa);
@@ -663,19 +676,17 @@ void ut_geodetic_angles(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-double ut_geodetic_triangle_perimeter(double long1,
-                                      double lat1,
-                                      double long2,
-                                      double lat2,
-                                      double long3,
-                                      double lat3)
+double GeometryHelper::geodeticTrianglePerimeter(double long1,
+                                                 double lat1,
+                                                 double long2,
+                                                 double lat2,
+                                                 double long3,
+                                                 double lat3)
 {
-  double a, b, c, ga, gb, gc, perimeter;
-
-  ut_geodetic_angles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &ga,
+  double a, b, c, ga, gb, gc;
+  GH::geodeticAngles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &ga,
                      &gb, &gc);
-  perimeter = a + b + c;
-  return (perimeter);
+  return (a + b + c);
 }
 
 /****************************************************************************/
@@ -692,99 +703,93 @@ double ut_geodetic_triangle_perimeter(double long1,
  ** \param[in]  lat3   Latitude of the third point (in degrees)
  **
  *****************************************************************************/
-double ut_geodetic_triangle_surface(double long1,
-                                    double lat1,
-                                    double long2,
-                                    double lat2,
-                                    double long3,
-                                    double lat3)
+double GeometryHelper::geodeticTriangleSurface(double long1,
+                                               double lat1,
+                                               double long2,
+                                               double lat2,
+                                               double long3,
+                                               double lat3)
 {
-  double a, b, c, A, B, C, surface;
+  double a, b, c, A, B, C;
 
-  ut_geodetic_angles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B,
-                     &C);
-  surface = (A + B + C - GV_PI);
-  return (surface);
+  GH::geodeticAngles(long1, lat1, long2, lat2, long3, lat3, &a, &b, &c, &A, &B, &C);
+  return (A + B + C - GV_PI);
 }
 
 /****************************************************************************/
 /*!
  **  Is a point inside a spherical triangle
  **
- ** \return 1 if the point belongs to the spherical triangle; 0 otherwise
+ ** \return True if the point belongs to the spherical triangle; False otherwise
  **
  ** \param[in]  coor    Coordinates of the target point (long,lat)
  ** \param[in]  ptsa    Coordinates of the first point of the triangle
  ** \param[in]  ptsb    Coordinates of the second point of the triangle
  ** \param[in]  ptsc    Coordinates of the third point of the triangle
+ ** \param[in]  eps     Tolerance
  **
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-int ut_is_in_spherical_triangle_optimized(const double *coor,
-                                       double *ptsa,
-                                       double *ptsb,
-                                       double *ptsc,
-                                       double *wgts)
+bool GeometryHelper::isInSphericalTriangleOptimized(const double *coor,
+                                                    double *ptsa,
+                                                    double *ptsb,
+                                                    double *ptsc,
+                                                    double *wgts,
+                                                    double eps)
 {
-  double total, s[3], stot, eps;
-  double A, B, C, AB, AC, BA, BC, CA, CB, OA, OB, OC;
-  double dab, dbc, dac, d0a, d0b, d0c;
-  double sinab, cosab, sinbc, cosbc, sinac, cosac;
-  double sin0a, cos0a, cos0b, sin0b, cos0c, sin0c;
+  double s[3];
+  double total = 0.;
 
-  eps = 1.e-6;
-  total = 0.;
+  double dab = GH::geodeticAngularDistance(ptsa[0], ptsa[1], ptsb[0], ptsb[1]);
+  double dbc = GH::geodeticAngularDistance(ptsb[0], ptsb[1], ptsc[0], ptsc[1]);
+  double dac = GH::geodeticAngularDistance(ptsa[0], ptsa[1], ptsc[0], ptsc[1]);
+  double d0a = GH::geodeticAngularDistance(coor[0], coor[1], ptsa[0], ptsa[1]);
+  double d0b = GH::geodeticAngularDistance(coor[0], coor[1], ptsb[0], ptsb[1]);
+  double d0c = GH::geodeticAngularDistance(coor[0], coor[1], ptsc[0], ptsc[1]);
 
-  dab = ut_geodetic_angular_distance(ptsa[0], ptsa[1], ptsb[0], ptsb[1]);
-  dbc = ut_geodetic_angular_distance(ptsb[0], ptsb[1], ptsc[0], ptsc[1]);
-  dac = ut_geodetic_angular_distance(ptsa[0], ptsa[1], ptsc[0], ptsc[1]);
-  d0a = ut_geodetic_angular_distance(coor[0], coor[1], ptsa[0], ptsa[1]);
-  d0b = ut_geodetic_angular_distance(coor[0], coor[1], ptsb[0], ptsb[1]);
-  d0c = ut_geodetic_angular_distance(coor[0], coor[1], ptsc[0], ptsc[1]);
+  double sinab = sin(dab);
+  double cosab = cos(dab);
+  double sinbc = sin(dbc);
+  double cosbc = cos(dbc);
+  double sinac = sin(dac);
+  double cosac = cos(dac);
+  double sin0a = sin(d0a);
+  double cos0a = cos(d0a);
+  double sin0b = sin(d0b);
+  double cos0b = cos(d0b);
+  double sin0c = sin(d0c);
+  double cos0c = cos(d0c);
 
-  sinab = sin(dab);
-  cosab = cos(dab);
-  sinbc = sin(dbc);
-  cosbc = cos(dbc);
-  sinac = sin(dac);
-  cosac = cos(dac);
-  sin0a = sin(d0a);
-  cos0a = cos(d0a);
-  sin0b = sin(d0b);
-  cos0b = cos(d0b);
-  sin0c = sin(d0c);
-  cos0c = cos(d0c);
+  double A = st_convert_geodetic_angle(sinbc, cosbc, sinac, cosac, sinab, cosab);
+  double B = st_convert_geodetic_angle(sinac, cosac, sinab, cosab, sinbc, cosbc);
+  double C = st_convert_geodetic_angle(sinab, cosab, sinbc, cosbc, sinac, cosac);
+  double stot = (A + B + C - GV_PI);
 
-  A = st_convert_geodetic_angle(sinbc, cosbc, sinac, cosac, sinab, cosab);
-  B = st_convert_geodetic_angle(sinac, cosac, sinab, cosab, sinbc, cosbc);
-  C = st_convert_geodetic_angle(sinab, cosab, sinbc, cosbc, sinac, cosac);
-  stot = (A + B + C - GV_PI);
-
-  OA = st_convert_geodetic_angle(sinbc, cosbc, sin0c, cos0c, sin0b, cos0b);
-  BA = st_convert_geodetic_angle(sin0c, cos0c, sin0b, cos0b, sinbc, cosbc);
-  CA = st_convert_geodetic_angle(sin0b, cos0b, sinbc, cosbc, sin0c, cos0c);
+  double OA = st_convert_geodetic_angle(sinbc, cosbc, sin0c, cos0c, sin0b, cos0b);
+  double BA = st_convert_geodetic_angle(sin0c, cos0c, sin0b, cos0b, sinbc, cosbc);
+  double CA = st_convert_geodetic_angle(sin0b, cos0b, sinbc, cosbc, sin0c, cos0c);
   s[0] = (OA + BA + CA - GV_PI);
   total += s[0];
-  if (total > stot + eps) return (0);
+  if (total > stot + eps) return false;
 
-  AB = st_convert_geodetic_angle(sin0c, cos0c, sinac, cosac, sin0a, cos0a);
-  OB = st_convert_geodetic_angle(sinac, cosac, sin0a, cos0a, sin0c, cos0c);
-  CB = st_convert_geodetic_angle(sin0a, cos0a, sin0c, cos0c, sinac, cosac);
+  double AB = st_convert_geodetic_angle(sin0c, cos0c, sinac, cosac, sin0a, cos0a);
+  double OB = st_convert_geodetic_angle(sinac, cosac, sin0a, cos0a, sin0c, cos0c);
+  double CB = st_convert_geodetic_angle(sin0a, cos0a, sin0c, cos0c, sinac, cosac);
   s[1] = (AB + OB + CB - GV_PI);
   total += s[1];
-  if (total > stot + eps) return (0);
+  if (total > stot + eps) return false;
 
-  AC = st_convert_geodetic_angle(sin0b, cos0b, sin0a, cos0a, sinab, cosab);
-  BC = st_convert_geodetic_angle(sin0a, cos0a, sinab, cosab, sin0b, cos0b);
-  OC = st_convert_geodetic_angle(sinab, cosab, sin0b, cos0b, sin0a, cos0a);
+  double AC = st_convert_geodetic_angle(sin0b, cos0b, sin0a, cos0a, sinab, cosab);
+  double BC = st_convert_geodetic_angle(sin0a, cos0a, sinab, cosab, sin0b, cos0b);
+  double OC = st_convert_geodetic_angle(sinab, cosab, sin0b, cos0b, sin0a, cos0a);
   s[2] = (AC + BC + OC - GV_PI);
   total += s[2];
-  if (ABS(total - stot) > eps) return (0);
+  if (ABS(total - stot) > eps) return false;
 
   for (int i = 0; i < 3; i++)
     wgts[i] = s[i] / total;
-  return (1);
+  return true;
 }
 
 /****************************************************************************/
@@ -801,33 +806,29 @@ int ut_is_in_spherical_triangle_optimized(const double *coor,
  ** \param[out]   xint,yint  Coordinates of the intersection
  **
  *****************************************************************************/
-int ut_segment_intersect(double xd1,
-                         double yd1,
-                         double xe1,
-                         double ye1,
-                         double xd2,
-                         double yd2,
-                         double xe2,
-                         double ye2,
-                         double *xint,
-                         double *yint)
+int GeometryHelper::segmentIntersect(double xd1,
+                                     double yd1,
+                                     double xe1,
+                                     double ye1,
+                                     double xd2,
+                                     double yd2,
+                                     double xe2,
+                                     double ye2,
+                                     double *xint,
+                                     double *yint)
 {
-  double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
-
-  /* Preliminary check */
-
-  b1 = ye1 - yd1;
-  b2 = ye2 - yd2;
+  double b1 = ye1 - yd1;
+  double b2 = ye2 - yd2;
 
   /* Case of two horizontal segments */
 
   if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
   {
     if (ABS(ye1 - ye2) > EPSILON10) return (1);
-    x1m = MIN(xd1, xe1);
-    x1M = MAX(xd1, xe1);
-    x2m = MIN(xd2, xe2);
-    x2M = MAX(xd2, xe2);
+    double x1m = MIN(xd1, xe1);
+    double x1M = MAX(xd1, xe1);
+    double x2m = MIN(xd2, xe2);
+    double x2M = MAX(xd2, xe2);
     if (x1m > x2M || x2m > x1M) return (1);
     (*xint) = MAX(x1m, x2m);
     (*yint) = ye1;
@@ -838,8 +839,8 @@ int ut_segment_intersect(double xd1,
 
   if (ABS(b1) < EPSILON10)
   {
-    y = ye1;
-    x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
+    double y = ye1;
+    double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
     if ((x - xd1) * (x - xe1) > 0) return (1);
     if ((y - yd1) * (y - ye1) > 0) return (1);
     if ((x - xd2) * (x - xe2) > 0) return (1);
@@ -853,8 +854,8 @@ int ut_segment_intersect(double xd1,
 
   if (ABS(b2) < EPSILON10)
   {
-    y = ye2;
-    x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+    double y = ye2;
+    double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
     if ((x - xd1) * (x - xe1) > 0) return (1);
     if ((y - yd1) * (y - ye1) > 0) return (1);
     if ((x - xd2) * (x - xe2) > 0) return (1);
@@ -866,24 +867,24 @@ int ut_segment_intersect(double xd1,
 
   /* This operation is safe as end-point ordinates cannot be equal */
 
-  a1 = (xe1 - xd1) / b1;
-  a2 = (xe2 - xd2) / b2;
+  double a1 = (xe1 - xd1) / b1;
+  double a2 = (xe2 - xd2) / b2;
 
   /* Skip the case of parallel fractures */
 
   if (ABS(a1 - a2) < EPSILON10) return (1);
-  y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
+  double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
 
   /* Discard intersection if located outside the segment */
 
   if (ABS(b1) > 0)
   {
-    testval = (y - yd1) * (y - ye1);
+    double testval = (y - yd1) * (y - ye1);
     if (testval > 0) return (1);
   }
   if (ABS(b2) > 0)
   {
-    testval = (y - yd2) * (y - ye2);
+    double testval = (y - yd2) * (y - ye2);
     if (testval > 0) return (1);
   }
 
@@ -906,31 +907,27 @@ int ut_segment_intersect(double xd1,
  ** \param[in]  xe2,ye2     Ending point for the second segment
  **
  *****************************************************************************/
-bool ut_is_segment_intersect(double xd1,
-                             double yd1,
-                             double xe1,
-                             double ye1,
-                             double xd2,
-                             double yd2,
-                             double xe2,
-                             double ye2)
+bool GeometryHelper::isSegmentIntersect(double xd1,
+                                        double yd1,
+                                        double xe1,
+                                        double ye1,
+                                        double xd2,
+                                        double yd2,
+                                        double xe2,
+                                        double ye2)
 {
-  double a1, a2, b1, b2, x, y, x1m, x1M, x2m, x2M, testval;
-
-  /* Preliminary check */
-
-  b1 = ye1 - yd1;
-  b2 = ye2 - yd2;
+  double b1 = ye1 - yd1;
+  double b2 = ye2 - yd2;
 
   /* Case of two horizontal segments */
 
   if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
   {
     if (ABS(ye1 - ye2) > EPSILON10) return false;
-    x1m = MIN(xd1, xe1);
-    x1M = MAX(xd1, xe1);
-    x2m = MIN(xd2, xe2);
-    x2M = MAX(xd2, xe2);
+    double x1m = MIN(xd1, xe1);
+    double x1M = MAX(xd1, xe1);
+    double x2m = MIN(xd2, xe2);
+    double x2M = MAX(xd2, xe2);
     if (x1m > x2M || x2m > x1M) return false;
     return true;
   }
@@ -939,8 +936,8 @@ bool ut_is_segment_intersect(double xd1,
 
   if (ABS(b1) < EPSILON10)
   {
-    y = ye1;
-    x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
+    double y = ye1;
+    double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
     if ((x - xd1) * (x - xe1) > 0) return false;
     if ((y - yd1) * (y - ye1) > 0) return false;
     if ((x - xd2) * (x - xe2) > 0) return false;
@@ -952,8 +949,8 @@ bool ut_is_segment_intersect(double xd1,
 
   if (ABS(b2) < EPSILON10)
   {
-    y = ye2;
-    x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+    double y = ye2;
+    double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
     if ((x - xd1) * (x - xe1) > 0) return false;
     if ((y - yd1) * (y - ye1) > 0) return false;
     if ((x - xd2) * (x - xe2) > 0) return false;
@@ -963,27 +960,26 @@ bool ut_is_segment_intersect(double xd1,
 
   /* This operation is safe as end-point ordinates cannot be equal */
 
-  a1 = (xe1 - xd1) / b1;
-  a2 = (xe2 - xd2) / b2;
+  double a1 = (xe1 - xd1) / b1;
+  double a2 = (xe2 - xd2) / b2;
 
   /* Skip the case of parallel segments */
 
   if (ABS(a1 - a2) < EPSILON10) return false;
-  y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
+  double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
 
   /* Discard intersection if located outside the segment */
 
   if (ABS(b1) > 0)
   {
-    testval = (y - yd1) * (y - ye1);
+    double testval = (y - yd1) * (y - ye1);
     if (testval > 0) return false;
   }
   if (ABS(b2) > 0)
   {
-    testval = (y - yd2) * (y - ye2);
+    double testval = (y - yd2) * (y - ye2);
     if (testval > 0) return false;
   }
-
   return true;
 }
 
@@ -998,36 +994,37 @@ bool ut_is_segment_intersect(double xd1,
  ** \param[in]  pts1    Coordinates of the first point of the triangle
  ** \param[in]  pts2    Coordinates of the second point of the triangle
  ** \param[in]  pts3    Coordinates of the third point of the triangle
+ ** \param[in]  eps     Tolerance
  **
  ** \param[out] wgts    Array of weights
  **
  *****************************************************************************/
-int ut_is_in_spherical_triangle(double *coor,
-                             double surface,
-                             double *pts1,
-                             double *pts2,
-                             double *pts3,
-                             double *wgts)
+bool GeometryHelper::isInSphericalTriangle(double *coor,
+                                           double surface,
+                                           double *pts1,
+                                           double *pts2,
+                                           double *pts3,
+                                           double *wgts,
+                                           double eps)
 {
-  double total, s[3], eps;
+  double s[3];
 
-  eps = 1.e-6;
-  total = 0.;
-  s[0] = ut_geodetic_triangle_surface(coor[0], coor[1], pts2[0], pts2[1],
-                                      pts3[0], pts3[1]);
+  double total = 0.;
+  s[0] = GH::geodeticTriangleSurface(coor[0], coor[1], pts2[0], pts2[1],
+                                     pts3[0], pts3[1]);
   total += s[0];
-  if (total > surface + eps) return (0);
-  s[1] = ut_geodetic_triangle_surface(pts1[0], pts1[1], coor[0], coor[1],
-                                      pts3[0], pts3[1]);
+  if (total > surface + eps) return false;
+  s[1] = GH::geodeticTriangleSurface(pts1[0], pts1[1], coor[0], coor[1],
+                                     pts3[0], pts3[1]);
   total += s[1];
-  if (total > surface + eps) return (0);
-  s[2] = ut_geodetic_triangle_surface(pts1[0], pts1[1], pts2[0], pts2[1],
-                                      coor[0], coor[1]);
+  if (total > surface + eps) return false;
+  s[2] = GH::geodeticTriangleSurface(pts1[0], pts1[1], pts2[0], pts2[1],
+                                     coor[0], coor[1]);
   total += s[2];
-  if (ABS(total - surface) > eps) return (0);
+  if (ABS(total - surface) > eps) return false;
   for (int i = 0; i < 3; i++)
     wgts[i] = s[i] / total;
-  return (1);
+  return true;
 }
 
 /****************************************************************************/
@@ -1039,11 +1036,14 @@ int ut_is_in_spherical_triangle(double *coor,
  ** \param[in,out] codir  Direction to be rotated
  **
  *****************************************************************************/
-void ut_rotation_direction(double ct, double st, double *a, double *codir)
+void GeometryHelper::rotationGetDirection(double ct,
+                                          double st,
+                                          double *a,
+                                          double *codir)
 {
-  double rd, b[3], c[3], p[3];
+  double b[3], c[3], p[3];
 
-  rd = 0.;
+  double rd = 0.;
   for (int k = 0; k < 3; k++)
     rd += codir[k] * a[k];
   for (int k = 0; k < 3; k++)
@@ -1075,10 +1075,10 @@ void ut_rotation_direction(double ct, double st, double *a, double *codir)
  * @param radius_arg    Radius (if note defined, taken from variety definition)
  * @return
  */
-VectorVectorDouble ut_convert_longlat(const VectorDouble& longitude,
-                                        const VectorDouble& latitude,
-                                        double dilate,
-                                        double radius_arg)
+VectorVectorDouble GeometryHelper::convertLongLat(const VectorDouble &longitude,
+                                                  const VectorDouble &latitude,
+                                                  double dilate,
+                                                  double radius_arg)
 {
   double radius = radius_arg;
   if (FFFF(radius))
@@ -1135,12 +1135,12 @@ VectorVectorDouble ut_convert_longlat(const VectorDouble& longitude,
  ** \param[out] rlat  Latitude (in degrees)
  **
  *****************************************************************************/
-void ut_convert_cart2sph(double x,
-                           double y,
-                           double z,
-                           double *rlong,
-                           double *rlat,
-                           double radius_arg)
+void GeometryHelper::convertCart2Sph(double x,
+                                     double y,
+                                     double z,
+                                     double *rlong,
+                                     double *rlat,
+                                     double radius_arg)
 {
   double radius = radius_arg;
   if (FFFF(radius))
@@ -1183,13 +1183,12 @@ void ut_convert_cart2sph(double x,
  ** \param[out] z     Third cartesian coordinate
  **
  *****************************************************************************/
-void ut_convert_sph2cart(double rlong,
-                           double rlat,
-                           double *x,
-                           double *y,
-                           double *z,
-                           double radius_arg)
-// TODO A mettre dans SpaceSN
+void GeometryHelper::convertSph2Cart(double rlong,
+                                     double rlat,
+                                     double *x,
+                                     double *y,
+                                     double *z,
+                                     double radius_arg)
 {
   double radius = radius_arg;
   if (FFFF(radius))
@@ -1232,7 +1231,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   vort[0] = dzoverdx;
   vort[1] = dzoverdy;
   vort[2] = -1.;
-  double norme = ut_vector_norm(vort);
+  double norme = VH::norm(vort);
   for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
 
   // Cross product
@@ -1242,8 +1241,8 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(ut_vector_inner_product(axis, axis));
-  double dot = ut_vector_inner_product(vert, vort);
+  double normcross = sqrt(VH::innerProduct(axis, axis));
+  double dot = VH::innerProduct(vert, vort);
 
   // Rotation angle
   double angle = atan2(normcross, dot);
@@ -1256,7 +1255,7 @@ double util_rotation_gradXYToAngle(double dzoverdx, double dzoverdy)
  * @param dzoverdx Partial derivative along X
  * @param dzoverdy Partial derivative along Y
  */
-MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
+MatrixSquareGeneral GeometryHelper::gradXYToRotmat(double dzoverdx, double dzoverdy)
 {
   int ndim = 3;
   VectorDouble axis(ndim,0.);
@@ -1270,7 +1269,7 @@ MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
   vort[0] = dzoverdx;
   vort[1] = dzoverdy;
   vort[2] = -1.;
-  double norme = ut_vector_norm(vort);
+  double norme = VH::norm(vort);
   for (int idim = 0; idim < ndim; idim++) vort[idim] /= norme;
 
   // Cross product
@@ -1279,8 +1278,8 @@ MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
   axis[2] = 0.;
 
   // Norm of the cross product and dot product between ref and vort
-  double normcross = sqrt(ut_vector_inner_product(axis, axis));
-  double dot = ut_vector_inner_product(vert, vort);
+  double normcross = sqrt(VH::innerProduct(axis, axis));
+  double dot = VH::innerProduct(vert, vort);
 
   // Rotation axis (normalized
   for (int idim = 0; idim < ndim; idim++) axis[idim] /= normcross;
@@ -1313,9 +1312,9 @@ MatrixSquareGeneral ut_gradXYToRotmat(double dzoverdx, double dzoverdy)
  * @remark The code is coming from the following reference (BSD license)
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
-VectorDouble ut_rotmatToEuler(const MatrixSquareGeneral &M,
-                                const ERotation &convrot,
-                                double eps)
+VectorDouble GeometryHelper::rotationToEuler(const MatrixSquareGeneral &M,
+                                             const ERotation &convrot,
+                                             double eps)
 {
   int firstaxis, parity, repetition, frame;
   _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
@@ -1386,9 +1385,8 @@ VectorDouble ut_rotmatToEuler(const MatrixSquareGeneral &M,
  * @remark The code is coming from the following reference (BSD license)
  * @remark https://github.com/matthew-brett/transforms3d/blob/master/transforms3d/euler.py
  */
-
-MatrixSquareGeneral ut_EulerToRotmat(const VectorDouble &angles,
-                                       const ERotation& convrot)
+MatrixSquareGeneral GeometryHelper::EulerToRotation(const VectorDouble &angles,
+                                                    const ERotation &convrot)
 {
   int firstaxis, parity, repetition, frame;
   _decodeConvRot(convrot, &firstaxis, &parity, &repetition, &frame);
@@ -1454,4 +1452,3 @@ MatrixSquareGeneral ut_EulerToRotmat(const VectorDouble &angles,
   }
   return M;
 }
-

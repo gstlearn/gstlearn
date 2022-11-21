@@ -14,7 +14,6 @@
 
 #include "Enum/ETShape.hpp"
 
-#include "Basic/Vector.hpp"
 #include "Boolean/AShape.hpp"
 #include "Boolean/ShapeParameter.hpp"
 

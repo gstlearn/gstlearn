@@ -89,9 +89,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   VectorDouble rotmat(ndim * ndim);
   if (ndim == 2)
-    ut_rotation_matrix_2D(angle[0],rotmat.data());
+    GH::rotationInit(angle[0],rotmat.data());
   else if (ndim == 3)
-    ut_rotation_matrix_3D(angle[0],angle[1],angle[2],rotmat.data());
+    GH::rotationInit(angle[0],angle[1],angle[2],rotmat.data());
 
   /* Model definition */
 

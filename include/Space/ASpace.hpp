@@ -15,7 +15,7 @@
 #include "Enum/ESpaceType.hpp"
 
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 
 class SpacePoint;

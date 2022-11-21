@@ -79,11 +79,11 @@ void MatrixSquareDiagonal::_setValue(int irank, double value)
   _diagMatrix[irank] = value;
 }
 
-void MatrixSquareDiagonal::_prodVector(const double *in, double *out) const
+void MatrixSquareDiagonal::_prodVector(const double *inv, double *outv) const
 {
   int nrow = getNRows();
   for (int irow=0; irow<nrow; irow++)
-    out[irow] = in[irow] * _diagMatrix[irow];
+    outv[irow] = inv[irow] * _diagMatrix[irow];
 }
 
 void MatrixSquareDiagonal::transposeInPlace()

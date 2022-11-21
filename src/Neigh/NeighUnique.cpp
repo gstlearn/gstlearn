@@ -13,11 +13,10 @@
 #include "Neigh/NeighUnique.hpp"
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
-#include "Basic/Vector.hpp"
 #include "Db/Db.hpp"
 
-NeighUnique::NeighUnique(int ndim, bool flag_xvalid)
-    : ANeighParam(ndim, flag_xvalid)
+NeighUnique::NeighUnique(bool flag_xvalid, const ASpace* space)
+    : ANeighParam(flag_xvalid, space)
 {
 }
 
@@ -37,17 +36,6 @@ NeighUnique& NeighUnique::operator=(const NeighUnique& r)
 
 NeighUnique::~NeighUnique()
 {
-}
-
-/**
- * Constructor of a Unique NeighUniqueborhood
- */
-int NeighUnique::reset(int ndim, bool flag_xvalid)
-{
-  setNDim(ndim);
-  setFlagXvalid(flag_xvalid);
-
-  return 0;
 }
 
 String NeighUnique::toString(const AStringFormat* strfmt) const
@@ -74,16 +62,9 @@ bool NeighUnique::_serialize(std::ostream& os, bool verbose) const
   return ret;
 }
 
-NeighUnique* NeighUnique::create(int ndim, bool flag_xvalid)
+NeighUnique* NeighUnique::create(bool flag_xvalid, const ASpace* space)
 {
-  NeighUnique* neighU = new NeighUnique;
-  if (neighU->reset(ndim, flag_xvalid))
-  {
-    messerr("Problem when creating Unique NeighUniqueborhood");
-    delete neighU;
-    neighU = nullptr;
-  }
-  return neighU;
+  return new NeighUnique(flag_xvalid, space);
 }
 
 /**

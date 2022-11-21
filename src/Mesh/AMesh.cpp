@@ -14,7 +14,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixInt.hpp"
 #include "Db/Db.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Basic/AStringable.hpp"
 #include "Space/SpacePoint.hpp"
 
@@ -52,7 +52,7 @@ AMesh::~AMesh()
 
 }
 
-int AMesh::setExtend(const VectorDouble extendmin,
+int AMesh::_setExtend(const VectorDouble extendmin,
                      const VectorDouble extendmax)
 {
   _extendMin = extendmin;
@@ -424,7 +424,7 @@ VectorDouble AMesh::getApexCoordinates(int iapex) const
 VectorDouble AMesh::getDistances(int iapex0, const VectorInt& japices)
 {
   VectorInt jlocal = japices;
-  if (jlocal.empty()) jlocal = ut_ivector_sequence(getNApices());
+  if (jlocal.empty()) jlocal = VH::sequence(getNApices());
   int number = (int) jlocal.size();
   VectorDouble vec(number,0.);
 
@@ -528,7 +528,7 @@ void AMesh::dumpNeighborhood(std::vector<VectorInt>& Vmesh)
   int nrow = (int) Vmesh.size();
   for (int irow = 0; irow < nrow; irow++)
   {
-    ut_ivector_display(String(), Vmesh[irow]);
+    VH::display(String(), Vmesh[irow]);
   }
 }
 

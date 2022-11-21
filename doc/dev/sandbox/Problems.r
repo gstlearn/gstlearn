@@ -17,7 +17,7 @@ dat
 # dat[1,2]
 # dat[]
 
-varioParamOmni = VarioParam_createOmniDirection(2, 5, 1)
+varioParamOmni = VarioParam_createOmniDirection(5, 1)
 varioexp = Vario(varioParamOmni, dat)
 err = varioexp$compute()
 

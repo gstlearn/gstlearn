@@ -3,7 +3,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "csparse_d.h"
 
 GSTLEARN_EXPORT cs     *cs_add (const cs *A, const cs *B, double alpha, double beta) ;

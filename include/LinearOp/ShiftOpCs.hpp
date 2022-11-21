@@ -21,7 +21,7 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/VectorT.hpp"
 #include "Model/ANoStat.hpp"
 
@@ -55,7 +55,7 @@ public:
   ShiftOpCs& operator=(const ShiftOpCs &shift);
   virtual ~ShiftOpCs();
 
-  void _evalDirect(const VectorDouble& in, VectorDouble& out) const override;
+  void _evalDirect(const VectorDouble& inv, VectorDouble& outv) const override;
 
   int initFromOldMesh(SPDE_Mesh* s_mesh,
                       Model* model,
@@ -84,14 +84,14 @@ public:
   int getSize() const override { return _napices; }
   int getNDim() const { return _ndim; }
   int getNModelGradParam() const { return _nModelGradParam; }
-  void prodTildeC(const VectorDouble& in,
-                  VectorDouble& out,
+  void prodTildeC(const VectorDouble& x,
+                  VectorDouble& y,
                   const EPowerPT& power) const;
-  void prodLambda(const VectorDouble& in,
-                  VectorDouble& out,
+  void prodLambda(const VectorDouble& x,
+                  VectorDouble& y,
                   const EPowerPT& power) const;
-  void prodLambdaOnSqrtTildeC(const VectorDouble& out,
-                              VectorDouble& in,
+  void prodLambdaOnSqrtTildeC(const VectorDouble& inv,
+                              VectorDouble& outv,
                               double puis = 2) const;
   double getMaxEigenValue() const;
   int getVariety()const {return _variety;}

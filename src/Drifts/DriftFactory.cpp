@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/Utilities.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/String.hpp"
 #include "Drifts/DriftFactory.hpp"
@@ -33,12 +33,13 @@
 
 #include <iostream>
 
-ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt)
+ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& ctxt, int rank_fex)
 {
+  ADriftElem* drift;
+
   switch(type.toEnum())
   {
     case EDrift::E_UC:  return new Drift1(ctxt);
-    case EDrift::E_F:   return new DriftF(ctxt);
     case EDrift::E_X:   return new DriftX(ctxt);
     case EDrift::E_X2:  return new DriftX2(ctxt);
     case EDrift::E_X2Y: return new DriftX2Y(ctxt);
@@ -53,6 +54,11 @@ ADriftElem* DriftFactory::createDriftFunc(const EDrift& type, const CovContext& 
     case EDrift::E_Z:   return new DriftZ(ctxt);
     case EDrift::E_Z2:  return new DriftZ2(ctxt);
     case EDrift::E_Z3:  return new DriftZ3(ctxt);
+    case EDrift::E_F:
+      drift = new DriftF(ctxt);
+      drift->setRankFex(rank_fex);
+      return drift;
+
     default: break;
   }
   my_throw ("Drift function not yet implemented!");
@@ -109,7 +115,7 @@ void DriftFactory::displayList(const CovContext& ctxt)
  * Return the EDrift object from the given drift symbol.
  * The symbol must correspond to one of the getDriftSymbol().
  * If the symbol doesn't exists, this method returns EDrift::UNKNOWN
- * and display available drifts functions for the given context.
+ * and displays available drifts functions for the given context.
  *
  * @param symbol  Symbol of the required drift function
  * @param rank    Rank of the drift for the given symbol

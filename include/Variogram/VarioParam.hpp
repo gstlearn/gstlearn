@@ -11,9 +11,10 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Variogram/DirParam.hpp"
 #include "Faults/Faults.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/ICloneable.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
@@ -45,8 +46,7 @@ public:
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
   /// Shortcuts
-  static VarioParam* createOmniDirection(int ndim = 2,
-                                         int npas = 10,
+  static VarioParam* createOmniDirection(int npas = 10,
                                          double dpas = 1.,
                                          double toldis = 0.5,
                                          int opt_code = 0,
@@ -56,17 +56,26 @@ public:
                                          double tolcode = 0.,
                                          const VectorDouble& breaks = VectorDouble(),
                                          double scale = 0.,
-                                         const VectorDouble& dates = VectorDouble());
-  static VarioParam* createMultiple(int ndim,
-                                    int ndir,
+                                         const VectorDouble& dates = VectorDouble(),
+                                         const ASpace* space = nullptr);
+  static VarioParam* createMultiple(int ndir,
                                     int npas = 10,
                                     double dpas = 1.,
                                     double toldis = 0.5,
                                     double scale = 0.,
-                                    const VectorDouble& dates = VectorDouble());
-  static VarioParam* createMultipleFromGrid(int ndim, int npas,
+                                    const VectorDouble& dates = VectorDouble(),
+                                    const ASpace* space = nullptr);
+  static VarioParam* createMultipleFromGrid(int npas,
                                             double scale = 0.,
-                                            const VectorDouble& dates = VectorDouble());
+                                            const VectorDouble& dates = VectorDouble(),
+                                            const ASpace* space = nullptr);
+  static VarioParam* createFromSpaceDimension(int npas = 10,
+                                              double dpas = 1.,
+                                              double toldis = 0.5,
+                                              double tolang = 45.,
+                                              double scale = 0.,
+                                              const VectorDouble &dates = VectorDouble(),
+                                              const ASpace *space = nullptr);
 
   void addDir(const DirParam& dirparam);
   void addMultiDirs(const std::vector<DirParam>& dirparams);
@@ -79,7 +88,7 @@ public:
   const VectorDouble& getDates() const { return _dates; }
   double getDate(int idate, int icas) const;
   int getLagNumber(int idir) const;
-  VectorDouble getCodir(int idir = 0) const;
+  VectorDouble getCodirs(int idir = 0) const;
   const std::vector<DirParam>& getDirParams() const { return _dirparams; }
   const DirParam& getDirParam(int idir) const { return _dirparams[idir]; }
   int getDimensionNumber() const;

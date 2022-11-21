@@ -15,11 +15,10 @@
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/WarningMacro.hpp"
-#include "Geometry/Geometry.hpp"
-
 #include <math.h>
 #include <boost/math/special_functions/legendre.hpp>
 #include <boost/math/special_functions/spherical_harmonic.hpp>
+#include <Geometry/GeometryHelper.hpp>
 
 
 DISABLE_WARNING_PUSH
@@ -2635,7 +2634,7 @@ void ut_vandercorput(int n,
   {
     st_init_rotation(&ct, &st, a);
     for (i = 0; i < ntri; i++)
-      ut_rotation_direction(ct, st, a, &coord[3 * i]);
+      GH::rotationGetDirection(ct, st, a, &coord[3 * i]);
   }
 
   /* Shuffle the samples in order to avoid three first colinear samples */
@@ -2820,7 +2819,7 @@ int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **coor_arg)
   {
     st_init_rotation(&ct, &st, a);
     for (int i = 0; i < ntri; i++)
-      ut_rotation_direction(ct, st, a, &coord[3 * i]);
+      GH::rotationGetDirection(ct, st, a, &coord[3 * i]);
   }
 
   /* Shuffle the samples in order to avoid three first colinear samples */

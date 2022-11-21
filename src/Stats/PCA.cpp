@@ -12,8 +12,10 @@
 #include "geoslib_old_f.h"
 #include "geoslib_f_private.h"
 
+#include "Basic/VectorHelper.hpp"
 #include "Stats/PCA.hpp"
 #include "Stats/PCAStringFormat.hpp"
+#include "Stats/Classical.hpp"
 #include "Db/Db.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 
@@ -225,7 +227,7 @@ int PCA::dbZ2F(Db* db,
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++)
       cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Factors","Factor");
+    dbStatisticsPrint(db, cols, {}, 1, 1, "Statistics on Factors","Factor");
   }
 
   /* Set the error return code */
@@ -271,7 +273,7 @@ int PCA::dbF2Z(Db* db,
   {
     VectorInt cols(nvar);
     for (int ivar = 0; ivar < nvar; ivar++) cols[ivar] = iptr + ivar;
-    db_stats_print(db, cols, VectorString(), 1, 1, "Statistics on Variables", "Variable");
+    dbStatisticsPrint(db, cols, {}, 1, 1, "Statistics on Variables", "Variable");
   }
 
   /* Set the error return code */
@@ -734,7 +736,7 @@ int PCA::_covarianceh(Db *db,
                           (int) dirparam.getTolCode())) continue;
       if (variogram_reject_pair(db, iech, jech, dist, psmin,
                                 dirparam.getBench(), dirparam.getCylRad(),
-                                dirparam.getCodir(), &ps)) continue;
+                                dirparam.getCodirs(), &ps)) continue;
 
       /* Update the variance-covariance matrix at distance h */
 
@@ -806,7 +808,7 @@ VectorDouble PCA::mafOfIndex() const
   // Calculate the probability of each interval
   VectorDouble w = _mean;
   int ncut = (int) _mean.size();
-  w.push_back(1 - ut_vector_cumul(_mean));
+  w.push_back(1 - VH::cumul(_mean));
   int nclass = (int) w.size();
 
   // Normalize the indicator of intervals
@@ -824,7 +826,7 @@ VectorDouble PCA::mafOfIndex() const
   VectorDouble local(nclass * ncut);
   matrix_product(nclass, ncut, ncut, i_norm_val.getValues().data(), _Z2F.data(), local.data());
 
-  VectorDouble maf_index = ut_vector_concatenate(ut_vector_double(nclass, 1.), local);
+  VectorDouble maf_index = VH::concatenate(VH::initVDouble(nclass, 1.), local);
 
   return maf_index;
 }

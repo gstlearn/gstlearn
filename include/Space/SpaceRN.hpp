@@ -11,8 +11,9 @@
 #pragma once
 
 #include "gstlearn_export.hpp"
+
 #include "Space/ASpace.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 
 class SpacePoint;
 class Tensor;
@@ -29,6 +30,8 @@ public:
   IMPLEMENT_CLONING(SpaceRN)
 
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
+
+  static SpaceRN* create(unsigned int ndim);
 
   /// Return the concrete space type
   ESpaceType getType() const override { return ESpaceType::SPACE_RN; }

@@ -25,8 +25,8 @@ int main(int /*argc*/, char */*argv*/[])
 {
   int nrow, ncol, *rank_rows, *rank_cols;
   double *urow,*ucol,*work,*work2;
-  cs *Atriplet,*Wtriplet;
-  cs *A,*At,*Bl,*Bu,*B,*Diag,*Mwork,*W;
+  cs *Atriplet,*Wtriplet,*Dtriplet;
+  cs *A,*At,*Bl,*Bu,*B,*Diag,*Mwork,*W,*D;
   static int flag_leak = 1;
 
   // Standard output redirection to file
@@ -35,8 +35,8 @@ int main(int /*argc*/, char */*argv*/[])
   StdoutRedirect sr(sfn.str());
 
   // Initializations
-  Atriplet = Wtriplet = nullptr;
-  A = At = Bl = Bu = B = W = Diag = Mwork = nullptr;
+  Atriplet = Wtriplet = Dtriplet = nullptr;
+  A = At = Bl = Bu = B = W = D = Diag = Mwork = nullptr;
   urow = ucol = work = work2 = nullptr;
   memory_leak_set(flag_leak);
   
@@ -74,7 +74,7 @@ int main(int /*argc*/, char */*argv*/[])
       cs_entry(Atriplet, irow, icol, law_gaussian());
   A = cs_triplet(Atriplet);
 
-  // Print the matrix using Davies printout
+  // Print the matrix using Tim Davies printout
   message("Printing A using Tim Davies' primitive\n");
   cs_print(A, 0);
 
@@ -89,6 +89,17 @@ int main(int /*argc*/, char */*argv*/[])
   At = cs_transpose(A,1);
   cs_print_nice("cs_transpose:",At,-1,-1);
   
+  // Filling a Sparse matrix with several values for the same cell
+  Dtriplet = cs_spfree(Dtriplet);
+  Dtriplet = cs_spalloc(0, 0, 1, 1, 1);
+  cs_entry(Dtriplet, 2, 1, 1.);
+  cs_entry(Dtriplet, 1, 3, 2.);
+  cs_entry(Dtriplet, 2, 1, 3.);
+  cs_entry(Dtriplet, 1, 1, 4.);
+  cs_entry(Dtriplet, 1, 3, 5.);
+  D = cs_triplet(Dtriplet);
+  cs_print_nice("Filled matrix with several values per cell",D, -1,-1);
+
   // Create a symmetric square matrix
   mestitle(2,"Creating a Symmetric Matrix: B = A %*% t(A)");
   B = cs_multiply(A,At);
@@ -179,7 +190,7 @@ int main(int /*argc*/, char */*argv*/[])
   print_matrix("Should be:",0,1,nrow,1,NULL,urow);
 
   // Testing extraction
-  mestitle(2,"Testing Extration from A (by ranges)");
+  mestitle(2,"Testing Extraction from A (by ranges)");
   cs_print_nice("Initial Matrix",A,-1,-1);
   Mwork = cs_extract_submatrix(A,1,2,2,3);
   cs_print_nice("Extracted rows[from 2 length 2] and lines[from 3 length 3]",
@@ -187,7 +198,7 @@ int main(int /*argc*/, char */*argv*/[])
   Mwork = cs_spfree(Mwork);
 
   // Testing extraction
-  mestitle(2,"Testing Extration from A (by indices)");
+  mestitle(2,"Testing Extraction from A (by indices)");
   cs_print_nice("Initial Matrix",A,-1,-1);
   Mwork = cs_extract_submatrix_by_ranks(A,rank_rows,rank_cols);
   print_imatrix("Row Selection:",0,1,nrow,1,NULL,rank_rows);
@@ -202,9 +213,11 @@ int main(int /*argc*/, char */*argv*/[])
   Bu        = cs_spfree(Bu);
   B         = cs_spfree(B);
   W         = cs_spfree(W);
+  D         = cs_spfree(D);
   Diag      = cs_spfree(Diag);
   Mwork     = cs_spfree(Mwork);
   Atriplet  = cs_spfree(Atriplet);
+  Dtriplet  = cs_spfree(Dtriplet);
   Wtriplet  = cs_spfree(Wtriplet);
   urow      = (double *) mem_free((char *) urow);
   ucol      = (double *) mem_free((char *) ucol);

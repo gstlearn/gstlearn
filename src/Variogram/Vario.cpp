@@ -8,7 +8,6 @@
 /*                                                                            */
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
-
 #include "geoslib_old_f.h"
 #include "geoslib_define.h"
 #include "geoslib_f_private.h"
@@ -24,11 +23,12 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/AException.hpp"
 #include "Basic/AStringable.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
 #include "Anamorphosis/AAnam.hpp"
 #include "Anamorphosis/AnamHermite.hpp"
 #include "Space/SpacePoint.hpp"
+#include "Space/SpaceRN.hpp"
 
 /**
  * Build a Vario object by calculating the experimental variogram
@@ -271,7 +271,7 @@ void Vario::reduce(const VectorInt& varcols,
 
   // Checking arguments
   if (varcols.empty())
-    selvars = ut_ivector_sequence(nvar_in);
+    selvars = VH::sequence(nvar_in);
   else
   {
     selvars = varcols;
@@ -293,7 +293,7 @@ void Vario::reduce(const VectorInt& varcols,
   }
 
   if (seldirs.empty())
-    seldirs = ut_ivector_sequence(ndir_in);
+    seldirs = VH::sequence(ndir_in);
   else
   {
     seldirs = dircols;
@@ -773,7 +773,7 @@ double Vario::getHmax(int ivar, int jvar, int idir) const
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble hh = getHhVec(id, iv, jv);
-        double hhloc = ut_vector_max(hh);
+        double hhloc = VH::maximum(hh);
         if (hhloc > hmax) hmax = hhloc;
       }
   return hmax;
@@ -800,8 +800,8 @@ VectorDouble Vario::getHRange(int ivar, int jvar, int idir) const
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble hh = getHhVec(id, iv, jv);
-        double hhmin = ut_vector_min(hh);
-        double hhmax = ut_vector_max(hh);
+        double hhmin = VH::minimum(hh);
+        double hhmax = VH::maximum(hh);
         if (hhmin < vec[0]) vec[0] = hhmin;
         if (hhmax > vec[1]) vec[1] = hhmax;
       }
@@ -825,7 +825,7 @@ double Vario::getGmax(int ivar,
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble gg = getGgVec(id, iv, jv);
-        double ggloc = ut_vector_max(gg, flagAbs);
+        double ggloc = VH::maximum(gg, flagAbs);
         if (ggloc > gmax) gmax = ggloc;
         if (flagSill)
         {
@@ -854,8 +854,8 @@ VectorDouble Vario::getGRange(int ivar,
       for (int jv = jvb[0]; jv < jvb[1]; jv++)
       {
         VectorDouble gg = getGgVec(id, iv, jv);
-        double ggmin = ut_vector_min(gg);
-        double ggmax = ut_vector_max(gg);
+        double ggmin = VH::minimum(gg);
+        double ggmax = VH::maximum(gg);
         if (ggmin < vec[0]) vec[0] = ggmin;
         if (ggmax > vec[1]) vec[1] = ggmax;
         if (flagSill)
@@ -1742,9 +1742,10 @@ bool Vario::_deserialize(std::istream& is, bool /*verbose*/)
     }
     if (! ret) return ret;
 
-    DirParam dirparam = DirParam(ndim);
-    dirparam.init(ndim, npas, dpas, toldis, tolang, opt_code, 0,
-                  TEST, TEST, tolcode, VectorDouble(), codir, grincr);
+    SpaceRN space(ndim);
+    DirParam dirparam = DirParam(npas, dpas, toldis, tolang, opt_code, 0,
+                                 TEST, TEST, tolcode, VectorDouble(), codir, grincr,
+                                 &space);
     _varioparam.addDir(dirparam);
 
     /* Read the arrays of results (optional) */
@@ -1813,14 +1814,14 @@ bool Vario::_serialize(std::ostream& os, bool /*verbose*/) const
     if (! dirparam.isDefinedForGrid())
     {
       ret = ret && _recordWrite<double>(os, "Tolerance on angle", dirparam.getTolAngle());
-      for (int idim = 0; idim < dirparam.getDimensionNumber() && ret; idim++)
+      for (int idim = 0; idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite<double>(os, "", dirparam.getCodir(idim));
       ret = ret && _commentWrite(os, "Direction coefficients");
     }
 
     if (dirparam.isDefinedForGrid())
     {
-      for (int idim = 0; ret && idim < dirparam.getDimensionNumber() && ret; idim++)
+      for (int idim = 0; ret && idim < (int) dirparam.getNDim() && ret; idim++)
         ret = ret && _recordWrite(os, "", (double) dirparam.getGrincr(idim));
       ret = ret && _commentWrite(os, "Direction increments on grid");
     }

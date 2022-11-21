@@ -9,7 +9,7 @@
 /* TAG_SOURCE_CG                                                              */
 /******************************************************************************/
 #include "Basic/NamingConvention.hpp"
-#include "Basic/Vector.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/String.hpp"
 #include "Db/Db.hpp"
 
