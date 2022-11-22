@@ -96,15 +96,14 @@ Warning:
 
 ### Linux (Ubuntu):
 
-Execute the following command:
+Execute the following command (in sudo mode):
 
     sudo apt install r-base
-    sudo apt install bison pcre2-devel # For SWIG
+    sudo apt install bison pcre2-devel # For SWIG (for Ubuntu 18)
+    sudo apt install bison pcre2-dev # For SWIG (for Ubuntu 20)
 
-Compile and install SWIG 4.2.0 [customized] by executing following commands:
+In a folder of your own (not in sudo mode), compile and install SWIG 4.2.0 [customized] by executing following commands:
 
-    mkdir ~/swig_src
-    cd ~/swig_src
     git clone https://github.com/fabien-ors/swig.git
     cd swig
     cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release
