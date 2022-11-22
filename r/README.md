@@ -99,18 +99,17 @@ Warning:
 Execute the following command:
 
     sudo apt install r-base
-    sudo apt install bison pcre2-devel # For SWIG
+    sudo apt install bison pcre2-devel # For SWIG (for Ubuntu 18)
+    sudo apt install bison pcre2-dev # For SWIG (for Ubuntu 20)
 
-Compile and install SWIG 4.2.0 [customized] by executing following commands:
+In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
-    mkdir ~/swig_src
-    cd ~/swig_src
     git clone https://github.com/fabien-ors/swig.git
     cd swig
     cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release
     cd build
     make
-    make install
+    sudo make install # Override the already installed swig version (if any)
 
 Finally, install the R required packages from an R command prompt (as sudo) (if you need to plot gstlearn output):
 
@@ -152,7 +151,7 @@ First, install R and RTools with Boost and HDF5 support by following [these inst
 
 Then, install "bison" GNU tool (from the GnuWin32 tools website):
 * Download Setup program here https://gnuwin32.sourceforge.net/packages/bison.htm (see Download section)
-* Execute the program and change the installation directory to `C:\local`
+* Execute the program and change the installation directory to `C:\<rtools/install/dir>\usr`
 
 Then, from a Windows command prompt, execute following instructions:
 
@@ -166,7 +165,7 @@ TODO : Work in progress : trying to mimick file:///home/fors/Projets/swig/Doc/Ma
     cd ~/swig_src
     git clone https://github.com/fabien-ors/swig.git
     cd swig
-    cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release -DBISON_EXECUTABLE:STRING="/c/local/bin/bison.exe"
+    cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release"
     cd build
     make
     make install

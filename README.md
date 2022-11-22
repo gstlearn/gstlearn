@@ -172,6 +172,7 @@ Notes:
 
 * You must restart your computer after installing these requirements
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
+* We assume that you retain the installation folder of rtools (let's call it <rtools/install/dir>)
 
 Then, from a Windows command prompt, execute following instructions (hdf5 is optional):
 
