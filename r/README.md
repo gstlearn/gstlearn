@@ -22,7 +22,7 @@ The *gstlearn* R package is a derivative work based on the *swigex* project: [ht
 
 2. The following tools must be also available (See [required tools installation](#required-tools-installation) instructions below):
 
-    * SWIG 4.2.0 customized by Fabien Ors (https://github.com/fabien-ors/swig)
+    * SWIG 4.2.0 customized by Fabien Ors (see required tools installation)
     * R 4 or higher with ggplot2 and ggpubr packages (only for plotting)
     * RTools 4 for Windows user
 
@@ -156,14 +156,13 @@ Then, install "bison" GNU tool (from the GnuWin32 tools website):
 
 Then, from a Windows command prompt, execute following instructions:
 
-    pacman -S mingw-w64-x86_64-pcre2
+    pacman -Sy pcre2-devel
     
 Compile and install SWIG 4.2.0 [customized] by executing following commands (not tested):
 
 TODO : Work in progress : trying to mimick file:///home/fors/Projets/swig/Doc/Manual/Windows.html but with no success :-/
 
-    mkdir ~/swig_src
-    cd ~/swig_src
+    cd
     git clone https://github.com/fabien-ors/swig.git
     cd swig
     cmake -G "MSYS Makefiles" -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release"

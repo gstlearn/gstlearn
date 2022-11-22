@@ -79,7 +79,7 @@ or even faster (see [shortcut Makefile](https://github.com/gstlearn/gstlearn/blo
 
 Note:
 
-* Using MingGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
+* Using MinGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
 
 ### Microsoft Visual Studio, XCode, ...
 
@@ -111,7 +111,7 @@ Notes:
 Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
 
 ## Required tools installation
-Please note that HDF5 and Doxygen installation is optional.
+Please note that HDF5 and Doxygen installation are optional.
 
 ### Linux (Ubuntu):
 
@@ -145,15 +145,18 @@ Notes:
 Download and install the following tools:
 
 * Git client [from here](https://gitforwindows.org) (Use default options during installation)
-* CMake tool [from here](https://cmake.org/download) (Check the 'Add CMake to the Path' option during installation)
+* CMake tool [from here](https://cmake.org/download) (Check the *'Add CMake to the Path (all users)'* option during installation)
 * Doxygen 1.8.3+ (optional) [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
 
 Notes:
 
+* The *Path* environment variable (**System variables**) must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 * You must restart your computer after installing these requirements
-* The *Path* environment variable must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
 
-#### Microsoft Visual Studio
+#### Choose a compiler
+If you want top compile gstlearn in order to use through python, you must Install Microsoft Visual Studio. If yu want to use it through R, you must install Rtools.
+
+##### Microsoft Visual Studio
 
 Download and install the following tools:
 
@@ -161,11 +164,11 @@ Download and install the following tools:
 * Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory for example)
 * HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
 
-#### MingGW (RTools)
+##### MingGW (RTools)
 
 Download and install the following tools:
 
-* R 4 or higher [from here](https://cran.r-project.org)
+* R 4 or higher [from here](https://cran.r-project.org) (check the *'Add R to the PATH (all users)'* option during installation)
 * RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
   
 Notes:
@@ -174,10 +177,10 @@ Notes:
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 * We assume that you retain the installation folder of rtools (let's call it <rtools/install/dir>)
 
-Then, from a Windows command prompt, execute following instructions (hdf5 is optional):
+Then, from a MSYS2 command prompt, execute following instructions (hdf5 is optional):
 
-    pacman -S mingw-w64-x86_64-hdf5
-    pacman -S mingw-w64-x86_64-boost
+    pacman -Sy mingw-w64-x86_64-boost
+    pacman -Sy mingw-w64-x86_64-hdf5
 
 ## Development
 ### Non-regression tests
