@@ -211,8 +211,8 @@ typedef struct
 
 typedef struct
 {
-  int mesh_dbin;
-  int mesh_dbout;
+  bool mesh_dbin;
+  bool mesh_dbout;
   String triswitch;
 } SPDE_SS_Option;
 

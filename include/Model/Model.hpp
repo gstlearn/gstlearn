@@ -129,6 +129,7 @@ public:
   bool   hasAnam() const { return _covaList->hasAnam(); }
   const AAnam* getAnam() { return _covaList->getAnam(); }
   void normalize(double sill) { _covaList->normalize(sill); }
+  bool hasNugget() const { return _covaList->hasNugget(); }
 
   double eval0(int ivar,
                int jvar,

@@ -2438,8 +2438,8 @@ int simpgs_spde(Db *dbin,
     if (model_stabilize(models[igrf], 1, percent)) goto label_end;
     if (model_normalize(models[igrf], 1)) goto label_end;
   }
-  if (spde_check(dbin, dbout, model1, model2, verbose, gext, 1, 1, 1, 0, 0, 1,
-                 flag_prop)) goto label_end;
+  if (spde_check(dbin, dbout, model1, model2, verbose, gext, true, true, true,
+                 false, false, true, flag_prop)) goto label_end;
   s_option = spde_option_alloc();
   spde_option_update(s_option, triswitch);
 

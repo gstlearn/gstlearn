@@ -62,7 +62,7 @@ int main(int /*argc*/, char */*argv*/[])
   MeshEStandard mesh1 = MeshEStandard();
   (void) mesh1.resetFromDb(data,nullptr);
   mesh1.display();
-  mesh1.printMeshListByCoordinates(10);
+  mesh1.printMeshes(2,10);
 
   return (0);
 }

@@ -712,7 +712,7 @@ MeshEStandard* meshes_2D_load_vertices(triangulateio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
   amesh->reset(2, 3, t->numberofpoints, t->numberoftriangles, t->pointlist,
-               t->trianglelist);
+               t->trianglelist, false);
   return amesh;
 }
 
@@ -2428,7 +2428,7 @@ MeshEStandard* meshes_3D_load_vertices(tetgenio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
   amesh->reset(3, 4, t->numberofpoints, t->numberoftetrahedra, t->pointlist,
-               t->tetrahedronlist);
+               t->tetrahedronlist, false);
   return amesh;
 }
 
@@ -2730,7 +2730,7 @@ MeshEStandard* meshes_1D_load_vertices(segmentio *t)
 {
   MeshEStandard* amesh = new MeshEStandard();
   amesh->reset(1, 2, t->numberofpoints, t->numberofsegments, t->pointlist,
-               t->segmentlist);
+               t->segmentlist, false);
   return amesh;
 }
 

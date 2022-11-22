@@ -176,9 +176,9 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     _determineFlagNoStatByHH();
 
     // Attach the Model
-//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-//                   1, 1, 0, 0))
-//    my_throw("Problem with spde_check() method");
+//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
+//        false, false, false, true, true, false, false))
+//      my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -277,9 +277,9 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
       }
     }
 
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-                   1, 1, 0, 0))
-    my_throw("Problem with spde_check() method");
+    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
+                   false, false, false, true, true, false, false))
+      my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -331,9 +331,9 @@ int ShiftOpCs::initFromCS(const cs* S,
   {
     // Attach the Model
 
-    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(), 0, 0, 0, 1,
-                   1, 0, 0))
-    my_throw("Problem with spde_check() method");
+    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(),
+                   false, false, false, true, true, false, false))
+      my_throw("Problem with spde_check() method");
 
     // Store the TildeC & Lambda vectors
 
@@ -822,7 +822,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
   if (matu.invert())
   {
     messerr("Problem for Mesh #%d", imesh + 1);
-    amesh->printMeshes(imesh);
+    amesh->printMesh(imesh);
     return 1;
   }
 
@@ -1149,7 +1149,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if (matMtM.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMeshes(imesh);
+        amesh->printMesh(imesh);
         my_throw("Matrix inversion");
       }
       // Calculate P = (M^t %*% M)^{-1} %*% M^t
@@ -1167,7 +1167,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if(matMs.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMeshes(imesh);
+        amesh->printMesh(imesh);
         my_throw("Matrix inversion");
 
       }
@@ -1283,7 +1283,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
     if (matu.invert())
     {
       messerr("Problem for Mesh #%d", imesh + 1);
-      amesh->printMeshes(imesh);
+      amesh->printMesh(imesh);
       my_throw("Matrix inversion");
     }
 

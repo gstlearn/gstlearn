@@ -110,23 +110,23 @@ typedef struct
 
 typedef struct
 {
-  int flag_dbin; /* Presence of an input Db */
-  int flag_dbout; /* Presence of an output Db */
-  int flag_mesh_dbin; /* Input points participate to meshing */
-  int flag_mesh_dbout; /* Output points participate to meshing */
-  int flag_est; /* Perform Estimation */
-  int flag_std; /* Perform Standard deviation */
-  int flag_case; /* Perform: matrices(0), est(1) or simu(2) */
-  int flag_gibbs; /* Perform Gibbs sampling */
-  int flag_modif; /* Post-processing simulations */
-  int flag_onechol; /* Perform Simu & Kriging with same Chol */
-  int flag_filnug; /* Filtering the Nugget Effect */
-  int flag_mgrid; /* Use the Multigrid option */
-  int flag_several; /* Perform Kriging in iterative mode */
-  int simu_chol; /* Use Cholesky simulation */
-  int simu_cheb; /* Use Chebychev simulation */
-  int flag_Q; /* Build Q */
-  int flag_Qchol; /* Perform Cholesky on global Q */
+  bool flag_dbin; /* Presence of an input Db */
+  bool flag_dbout; /* Presence of an output Db */
+  bool flag_mesh_dbin; /* Input points participate to meshing */
+  bool flag_mesh_dbout; /* Output points participate to meshing */
+  bool flag_est; /* Perform Estimation */
+  bool flag_std; /* Perform Standard deviation */
+  int  flag_case; /* Perform: matrices(0), est(1) or simu(2) */
+  bool flag_gibbs; /* Perform Gibbs sampling */
+  bool flag_modif; /* Post-processing simulations */
+  bool flag_onechol; /* Perform Simu & Kriging with same Chol */
+  bool flag_filnug; /* Filtering the Nugget Effect */
+  bool flag_mgrid; /* Use the Multigrid option */
+  bool flag_several; /* Perform Kriging in iterative mode */
+  bool simu_chol; /* Use Cholesky simulation */
+  bool simu_cheb; /* Use Chebychev simulation */
+  bool flag_Q; /* Build Q */
+  bool flag_Qchol; /* Perform Cholesky on global Q */
 } SPDE_Decision;
 
 typedef struct
@@ -259,7 +259,6 @@ void spde_option_update(SPDE_Option &s_option, const String &triswitch)
 SPDE_Option spde_option_alloc(void)
 {
   SPDE_Option s_option;
-
   s_option.options = std::vector<SPDE_SS_Option>();
   return s_option;
 }
@@ -477,15 +476,8 @@ void simu_define_func_scale(void (*st_simu_scale)(Db*, int, int))
  *****************************************************************************/
 static bool st_is_model_nugget(void)
 {
-  Model *model;
-
-  model = st_get_model();
-
-  for (int is = 0; is < model->getCovaNumber(); is++)
-  {
-    if (model->getCovaType(is) == ECov::NUGGET) return true;
-  }
-  return false;
+  Model* model = st_get_model();
+  return  model->hasNugget();
 }
 
 /****************************************************************************/
@@ -3108,31 +3100,32 @@ cs* _spde_fill_S(AMesh *amesh, Model *model, double *units)
         message(")\n");
       }
       print_matrix("MATU", 0, 1, ncorner, ncorner, NULL, matu);
-      goto label_end;
     }
+    else
+    {
+      ecr = 0;
+      for (int icorn = 0; icorn < ncorner; icorn++)
+        for (int idim = 0; idim < ndim; idim++)
+          matw[ecr++] = MATU(icorn, idim);
+      matrix_transpose(ndim, ncorner, matw, matinvw);
 
-    ecr = 0;
-    for (int icorn = 0; icorn < ncorner; icorn++)
-      for (int idim = 0; idim < ndim; idim++)
-        matw[ecr++] = MATU(icorn, idim);
-    matrix_transpose(ndim, ncorner, matw, matinvw);
+      matrix_product(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
+      if (flag_nostat)
+        matrix_product(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
+      matrix_product(ncorner, ndim, ncorner, mat1, matw, mat);
 
-    matrix_product(ncorner, ndim, ndim, matinvw, Calcul.hh.data(), mat1);
-    if (flag_nostat)
-      matrix_product(ncorner, ndim, 1, matinvw, Calcul.vv.data(), matv);
-    matrix_product(ncorner, ndim, ncorner, mat1, matw, mat);
-
-    for (int j0 = 0; j0 < ncorner; j0++)
-      for (int j1 = 0; j1 < ncorner; j1++)
-      {
-        ip1 = amesh->getApex(imesh, j0);
-        ip2 = amesh->getApex(imesh, j1);
-        std::pair<int, int> key(ip1, ip2);
-        vald = units[imesh] * MAT(j0, j1);
-        if (flag_nostat) vald += matv[j1] * units[imesh];
-        ret = tab.insert(std::pair<std::pair<int, int>, double>(key, vald));
-        if (!ret.second) ret.first->second += vald;
-      }
+      for (int j0 = 0; j0 < ncorner; j0++)
+        for (int j1 = 0; j1 < ncorner; j1++)
+        {
+          ip1 = amesh->getApex(imesh, j0);
+          ip2 = amesh->getApex(imesh, j1);
+          std::pair<int, int> key(ip1, ip2);
+          vald = units[imesh] * MAT(j0, j1);
+          if (flag_nostat) vald += matv[j1] * units[imesh];
+          ret = tab.insert(std::pair<std::pair<int, int>, double>(key, vald));
+          if (!ret.second) ret.first->second += vald;
+        }
+    }
   }
 
   it = tab.begin();
@@ -5773,15 +5766,16 @@ static AMesh* st_load_all_meshes(Db *dbin,
  *****************************************************************************/
 static int st_is_external_AQ_defined(int icov0)
 {
-  return (S_EXTERNAL_MESH[icov0] != nullptr && S_EXTERNAL_Q[icov0] != nullptr
-          && S_EXTERNAL_A[icov0] != nullptr);
+  return (S_EXTERNAL_MESH[icov0] != nullptr &&
+          S_EXTERNAL_Q[icov0] != nullptr &&
+          S_EXTERNAL_A[icov0] != nullptr);
 }
 
 /****************************************************************************/
 /*!
  **  Copy the contents of the internal S_EXTERNAL_AQ into an output Matelem
  **
- **  Error retur code
+ **  Error return code
  **
  ** \param[in]  matelem  Output SPDE_Matelem structure
  ** \param[in]  icov0    Rank of the current Covariance
@@ -5812,12 +5806,11 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
     messerr("The output AMesh must already exist");
     return (1);
   }
-
   amesh = S_EXTERNAL_MESH[icov0];
 
   /* Copy the sparse matrix 'QC' */
 
-  matelem.QC = qchol_manage(1, NULL);
+  matelem.QC    = qchol_manage(1, NULL);
   matelem.QC->Q = cs_duplicate(S_EXTERNAL_Q[icov0]);
   matelem.Aproj = cs_duplicate(S_EXTERNAL_A[icov0]);
 
@@ -5869,12 +5862,6 @@ AMesh* spde_mesh_load(int verbose,
  ** \param[in]  ncorner   Number of vertices per element
  ** \param[in]  nvertex   Number of points
  ** \param[in]  nmesh     Number of meshes
- ** \param[in]  nbin      Number of vertices dedicated to the Input File
- ** \param[in]  nbout     Number of vertices dedicated to the Output File
- ** \param[in]  ndupl     Number of duplicates
- ** \param[in]  order     1: dbin then dbout; 2: dbout then dbin
- ** \param[in]  dupl_in   Array of duplicates in dbin (Dimension: ndupl)
- ** \param[in]  dupl_out  Array of duplicates in dbout (Dimension: ndupl)
  ** \param[in]  meshes    Array containing the meshes
  ** \param[in]  points    Array containing the vertex coordinates
  **
@@ -5885,22 +5872,15 @@ int spde_external_mesh_define(int mode,
                               int ncorner,
                               int nvertex,
                               int nmesh,
-                              int nbin,
-                              int nbout,
-                              int ndupl,
-                              int order,
-                              int *dupl_in,
-                              int *dupl_out,
                               int *meshes,
                               double *points)
 {
   if (mode > 0)
   {
-    S_EXTERNAL_MESH[icov0] = nullptr;
-
     MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
     if (mesh != nullptr)
       mesh->reset(ndim, ncorner, nvertex, nmesh, points, meshes);
+    S_EXTERNAL_MESH[icov0] = mesh;
   }
   else
   {
@@ -5921,12 +5901,6 @@ int spde_external_mesh_define(int mode,
  ** \param[in]  ndim      Space dimension
  ** \param[in]  nvertex   Number of points
  ** \param[in]  nmesh     Number of meshes
- ** \param[in]  nbin      Number of vertices dedicated to the Input File
- ** \param[in]  nbout     Number of vertices dedicated to the Output File
- ** \param[in]  ndupl     Number of duplicates
- ** \param[in]  order     1: dbin then dbout; 2: dbout then dbin
- ** \param[in]  dupl_in   Array of duplicates in dbin (Dimension: ndupl)
- ** \param[in]  dupl_out  Array of duplicates in dbout (Dimension: ndupl)
  ** \param[in]  A         Sparse matrix
  ** \param[in]  Q         Sparse matrix
  **
@@ -5936,12 +5910,6 @@ int spde_external_AQ_define(int mode,
                             int ndim,
                             int nvertex,
                             int nmesh,
-                            int nbin,
-                            int nbout,
-                            int ndupl,
-                            int order,
-                            int *dupl_in,
-                            int *dupl_out,
                             cs *A,
                             cs *Q)
 {
@@ -6157,10 +6125,7 @@ int spde_prepar(Db *dbin,
  ** \return  Error return code
  **
  *****************************************************************************/
-int spde_posterior(Db * /*dbin*/,
-                   Db * /*dbout*/,
-                   const VectorDouble& /*gext*/,
-                   SPDE_Option& /*s_option*/)
+int spde_posterior()
 {
   if (st_get_model()->isNoStat())
   {
@@ -6366,29 +6331,29 @@ void spde_free_all(void)
  ** \param[in]  model2        Model structure (second)
  ** \param[in]  verbose       Verbose flag
  ** \param[in]  gext          Array of domain dilation
- ** \param[in]  mesh_dbin     1 if Input points must participate to meshing
- ** \param[in]  mesh_dbout    1 if Output points must participate to meshing
- ** \param[in]  flag_advanced 1 for advanced calculus (estimation or simulation)
- **                           0 if only matrices are required
- ** \param[in]  flag_est      1 for estimation
- ** \param[in]  flag_std      1 for standard deviation
- ** \param[in]  flag_gibbs    1 for Gibbs sampler
- ** \param[in]  flag_modif    1 for post-processing simulations
+ ** \param[in]  mesh_dbin     True if Input points must participate to meshing
+ ** \param[in]  mesh_dbout    True if Output points must participate to meshing
+ ** \param[in]  flag_advanced True for advanced calculus (estimation or simulation)
+ **                           False if only matrices are required
+ ** \param[in]  flag_est      True for estimation
+ ** \param[in]  flag_std      True for standard deviation
+ ** \param[in]  flag_gibbs    True for Gibbs sampler
+ ** \param[in]  flag_modif    True for post-processing simulations
  **
  *****************************************************************************/
 int spde_check(const Db *dbin,
                const Db *dbout,
                Model *model1,
                Model *model2,
-               int verbose,
+               bool verbose,
                const VectorDouble &gext,
-               int mesh_dbin,
-               int mesh_dbout,
-               int flag_advanced,
-               int flag_est,
-               int flag_std,
-               int flag_gibbs,
-               int flag_modif)
+               bool mesh_dbin,
+               bool mesh_dbout,
+               bool flag_advanced,
+               bool flag_est,
+               bool flag_std,
+               bool flag_gibbs,
+               bool flag_modif)
 {
   Model *models[2];
   int nlevels, ncova;
@@ -6564,8 +6529,8 @@ int kriging2D_spde(Db *dbin,
 
   /* Preliminary checks */
 
-  if (spde_check(dbin, NULL, model, NULL, verbose, VectorDouble(), 1, 1, 1, 1,
-                 0, 0, 0)) goto label_end;
+  if (spde_check(dbin, NULL, model, NULL, verbose, VectorDouble(),
+                 true, true, true, true, false, false, false)) goto label_end;
   if (st_get_number_grf() != 1)
   {
     messerr("This function should be called in the case of a single Model");
@@ -6631,7 +6596,7 @@ int kriging2D_spde(Db *dbin,
 
   /* Cleaning procedure */
 
-  spde_posterior(NULL, dbin, VectorDouble(), s_option);
+  spde_posterior();
 
   /* Set the error code */
 
@@ -6697,7 +6662,7 @@ int spde_f(Db *dbin,
   error = 1;
 
   if (spde_check(dbin, dbout, model, NULL, verbose, gext, mesh_dbin, mesh_dbout,
-                 1, flag_est, flag_std, flag_gibbs, flag_modif)) return (1);
+                 true, flag_est, flag_std, flag_gibbs, flag_modif)) return (1);
   simu_define_func_transf(NULL);
   simu_define_func_update(simu_func_continuous_update);
   simu_define_func_scale(simu_func_continuous_scale);
@@ -6751,7 +6716,7 @@ int spde_f(Db *dbin,
 
   /* Garbage collector */
 
-  spde_posterior(dbin, dbout, gext, s_option);
+  spde_posterior();
 
   /* Set the error return code */
 
@@ -9447,8 +9412,8 @@ int m2d_gibbs_spde(Db *dbin,
   // Then the environment is set to the multivariate case
   if (verbose) message("\n==> Checking SPDE Environment\n");
   st_define_locators(m2denv, dbc, ndim, 1, nlayer);
-  if (spde_check(dbc, dbout, model, NULL, 0, VectorDouble(), 0, 1, 1, 0, 0, 0,
-                 0)) goto label_end;
+  if (spde_check(dbc, dbout, model, NULL, 0, VectorDouble(), false, true, true,
+                 false, false, false, false)) goto label_end;
   st_define_locators(m2denv, dbc, ndim, nlayer, nlayer);
 
   /* Define initial values at constraints and set in Db */
@@ -9693,7 +9658,7 @@ int m2d_gibbs_spde(Db *dbin,
 
   /* Set the error code */
 
-  spde_posterior(dbc, dbout, VectorDouble(), s_option);
+  spde_posterior();
   error = 0;
 
   label_end: (void) st_m2d_drift_inc_manage(m2denv, -1, nlayer, icol_pinch, dbc,

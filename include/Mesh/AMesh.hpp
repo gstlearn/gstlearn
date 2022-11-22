@@ -72,9 +72,8 @@ public:
   VectorDouble getMeshSizes() const;
 
   /*! Print the list of meshes and apices */
-  void printMeshes(int imesh0) const;
-  void printMeshListByIndices(int nline_max) const;
-  void printMeshListByCoordinates(int nline_max) const;
+  void printMesh(int imesh0) const;
+  void printMeshes(int level=0, int nline_max=-1) const;
   /*! Returns Vector of Apex coordinates for space index */
   VectorDouble getCoordinates(int idim) const;
   /*! Returns the list of indices of Meshes sharing the same Apex */
@@ -115,6 +114,8 @@ protected:
 private:
   void _recopy(const AMesh &m);
   bool _isSpaceDimensionValid(int idim) const;
+  void _printMeshListByIndices(int nline_max = -1) const;
+  void _printMeshListByCoordinates(int nline_max = -1) const;
 
 private:
   int          _nDim;

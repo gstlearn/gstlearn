@@ -125,7 +125,7 @@ VectorDouble AMesh::getMeshSizes() const
   return units;
 }
 
-void AMesh::printMeshes(int imesh0) const
+void AMesh::printMesh(int imesh0) const
 {
   mestitle(0,"Mesh Information");
   message("- Number of Meshes = %d\n",getNMeshes());
@@ -146,6 +146,21 @@ void AMesh::printMeshes(int imesh0) const
       message("\n");
     }
   }
+}
+
+void AMesh::printMeshes(int level, int nline_max) const
+{
+  mestitle(0,"Mesh Information");
+  message("- Number of Meshes = %d\n",getNMeshes());
+  message("- Number of Apices = %d\n",getNApices());
+
+  if (level == 0) return;
+
+  if (level == 1)
+    _printMeshListByIndices(nline_max);
+
+  if (level == 2)
+    _printMeshListByCoordinates(nline_max);
 }
 
 void AMesh::_recopy(const AMesh &m)
@@ -568,7 +583,7 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   return unit;
 }
 
-void AMesh::printMeshListByCoordinates(int nline_max) const
+void AMesh::_printMeshListByCoordinates(int nline_max) const
 {
   int ndim    = getNDim();
   int nmesh   = getNMeshes();
@@ -591,7 +606,7 @@ void AMesh::printMeshListByCoordinates(int nline_max) const
   }
 }
 
-void AMesh::printMeshListByIndices(int nline_max) const
+void AMesh::_printMeshListByIndices(int nline_max) const
 {
   int nmesh   = getNMeshes();
   int ncorner = getNApexPerMesh();
