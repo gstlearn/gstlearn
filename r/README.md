@@ -96,20 +96,20 @@ Warning:
 
 ### Linux (Ubuntu):
 
-Execute the following command (in sudo mode):
+Execute the following command:
 
     sudo apt install r-base
     sudo apt install bison pcre2-devel # For SWIG (for Ubuntu 18)
     sudo apt install bison pcre2-dev # For SWIG (for Ubuntu 20)
 
-In a folder of your own (not in sudo mode), compile and install SWIG 4.2.0 [customized] by executing following commands:
+In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
 
     git clone https://github.com/fabien-ors/swig.git
     cd swig
     cmake -Bbuild -DCMAKE_BUILD_TYPE:STRING=Release
     cd build
     make
-    make install
+    sudo make install # Override the already installed swig version (if any)
 
 Finally, install the R required packages from an R command prompt (as sudo) (if you need to plot gstlearn output):
 
