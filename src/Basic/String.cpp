@@ -99,9 +99,9 @@ String incrementStringVersion(const String &string,
   return ss.str();
 }
 
-String encodeString(const String& string,
-                    double value,
-                    const String& delim)
+String concatenateString(const String &string,
+                         double value,
+                         const String &delim)
 {
   std::stringstream ss;
   ss << string << delim << value;

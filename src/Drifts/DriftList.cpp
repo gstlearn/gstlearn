@@ -223,7 +223,7 @@ int DriftList::getNVariables() const
 
 bool DriftList::_isDriftIndexValid(int i) const
 {
-  if (i < 0 || i > getDriftNumber())
+  if (i < 0 || i >= getDriftNumber())
   {
     mesArg("Drift Rank",i,getDriftNumber());
     return false;
@@ -233,7 +233,7 @@ bool DriftList::_isDriftIndexValid(int i) const
 
 bool DriftList::_isDriftEquationValid(int ib) const
 {
-  if (ib < 0 || ib > getDriftEquationNumber())
+  if (ib < 0 || ib >= getDriftEquationNumber())
   {
     mesArg("Drift Equation",ib,getDriftEquationNumber());
     return false;

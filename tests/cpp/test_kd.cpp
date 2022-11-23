@@ -291,8 +291,9 @@ int main(int /*argc*/, char */*argv*/[])
 
   // ====================== Selectivity Function ==================================
 
-  FactorToSelectivity(blocs, anam, selectivity, blocs->getNames("DK_Pts*estim"),
-                      blocs->getNames("DK_Pts*stdev"),
+  FactorToSelectivity(blocs, anam, selectivity,
+                      blocs->getName("DK_Pts*estim"),
+                      blocs->getName("DK_Pts*stdev"),
                       NamingConvention("QT",false));
   blocs->display();
 

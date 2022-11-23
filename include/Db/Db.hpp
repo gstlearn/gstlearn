@@ -133,7 +133,7 @@ public:
   String getNameByColIdx(int icol) const;
   String getNameByUID(int iuid) const;
 
-  VectorString getNames(const String& name) const;
+  VectorString getName(const String& name) const;
   VectorString getNames(const VectorString& names) const;
   VectorString getNamesByLocator(const ELoc& locatorType) const;
   VectorString getNamesByColIdx(const VectorInt& icols) const;
@@ -578,8 +578,8 @@ public:
   VectorDouble statistics(const VectorString& names,
                           const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                           bool flagIso = true,
-                          bool flagVariableWise = true,
-                          bool flagPrint = true,
+                          bool flagStoreInDb = false,
+                          bool verbose = true,
                           double vmin = TEST,
                           double vmax = TEST,
                           double proba = TEST,
@@ -588,8 +588,8 @@ public:
   VectorDouble statisticsByLocator(const ELoc& locatorType,
                                    const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                    bool flagIso = true,
-                                   bool flagVariableWise = true,
-                                   bool flagPrint = true,
+                                   bool flagStoreInDb = false,
+                                   bool verbose = true,
                                    double vmin = TEST,
                                    double vmax = TEST,
                                    double proba = TEST,
@@ -598,8 +598,8 @@ public:
   VectorDouble statisticsByUID(const VectorInt& iuids,
                                const std::vector<EStatOption>& opers = EStatOption::fromKeys({"MEAN"}),
                                bool flagIso = true,
-                               bool flagVariableWise = true,
-                               bool flagPrint = true,
+                               bool flagStoreInDb = false,
+                               bool verbose = true,
                                double proba = TEST,
                                double vmin = TEST,
                                double vmax = TEST,
@@ -607,11 +607,11 @@ public:
                                const NamingConvention& namconv = NamingConvention("Stats"));
   VectorDouble statisticsMulti(const VectorString& names,
                                bool flagIso = true,
-                               bool flagPrint = false,
+                               bool verbose = false,
                                const String& title = "");
   VectorDouble statisticsMultiByUID(const VectorInt& iuids,
                                     bool flagIso = true,
-                                    bool flagPrint = false,
+                                    bool verbose = false,
                                     const String& title = "");
   bool areSame(const String& name1,
                const String& name2,

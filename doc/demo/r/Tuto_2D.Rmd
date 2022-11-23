@@ -383,8 +383,8 @@ Let us now average the conditional simulations in order to have a comparison wit
 ```{r}
 err = mygrid$statisticsByLocator(locatorType = ELoc_Z(),
                                  opers = EStatOption_fromKeys(c("MEAN")),
-                                 flagVariableWise = FALSE,
-                                 flagPrint = FALSE)
+                                 flagStoreInDb = TRUE,
+                                 verbose = FALSE)
 if (verbose)
     mygrid$display()
 ```

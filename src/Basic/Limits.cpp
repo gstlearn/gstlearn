@@ -145,6 +145,24 @@ String Limits::toString(const AStringFormat* /*strfmt*/) const
   return sstr.str();
 }
 
+/**
+ * Retrieve the set of bounds or one bound
+ * @param iclass Rank of the class
+ * @param mode   0 for both bounds; 1 for lower bound; 2 for upper bound
+ * @return The vector of bound values
+ */
+VectorDouble Limits::getBound(int iclass, int mode) const
+{
+  VectorDouble bounds;
+  if (iclass < 0 || iclass >= getLimitNumber()) return bounds;
+
+  if (mode == 0 || mode == 1)
+    bounds.push_back(_bounds[iclass].getVmin());
+  if (mode == 0 || mode == 2)
+    bounds.push_back(_bounds[iclass].getVmax());
+  return bounds;
+}
+
 VectorDouble Limits::getLowerBounds() const
 {
   int nclass = getLimitNumber();
@@ -209,12 +227,14 @@ int Limits::toCategory(Db* db,
 
 /**
  * Create indicators variables on the intervals defined by the limits for a given variable in a Db.  
- * Note:  
- * If OptionIndicator is 1, the Db-class will contain the new indicator variables.
+ * Note:
+ *
+ * - If OptionIndicator is 1, the Db-class will contain the new indicator variables.
  * There are as many new variables as they are classes.
  * Each sample of the indicator variable for class 'iclass' is set to 1 if the sample belongs to this class
  * or 0 otherwise.
- * If OptionIndicator is 0, the Db-class will contain one variable such that each sample contains
+ *
+ * - If OptionIndicator is 0, the Db-class will contain one variable such that each sample contains
  * the average of the variable calculated over the samples whose value belong to this class.
 
  * @param db                 Db containing the variable to be discretized (from which the indicators are computed)

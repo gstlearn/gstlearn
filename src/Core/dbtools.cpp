@@ -2039,7 +2039,7 @@ int _db_category(Db *db,
  ** \param[in]  iatt    Rank of the target variable
  ** \param[in]  flag_indic Type of variable(s) to be stored:
  **                     1 the indicator variable
- **                     0 the discretized mean variable per class
+ **                     0 the mean variable per class
  ** \param[in]  mini    Array containing the minima per class
  ** \param[in]  maxi    Array containing the maxima per class
  ** \param[in]  incmini Array containing the inclusive flag for minima per class
@@ -2088,12 +2088,12 @@ int _db_indicator(Db *db,
   }
   int nbelow = 0;
   int nabove = 0;
-  int mbelow = 0;
-  int mabove = 0;
+  double mbelow = 0.;
+  double mabove = 0.;
 
   /* Find extrema of all classes to sort too small or too large samples */
 
-  double zmini = 1.e30;
+  double zmini =  1.e30;
   double zmaxi = -1.e30;
   for (int iclass = 0; iclass < nclass; iclass++)
   {
@@ -2101,7 +2101,7 @@ int _db_indicator(Db *db,
     if (!FFFF(maxival[iclass])) zmaxi = MAX(zmaxi, maxival[iclass]);
   }
   if (FFFF(zmini)) zmini = -1.e30;
-  if (FFFF(zmaxi)) zmaxi = 1.e30;
+  if (FFFF(zmaxi)) zmaxi =  1.e30;
 
   /* Create the variables */
 
@@ -2164,13 +2164,13 @@ int _db_indicator(Db *db,
       {
         nbelow += 1;
         iclass = -1;
-        mbelow += (int) value;
+        mbelow += value;
       }
       else
       {
         nabove += 1;
         iclass = nclass;
-        mabove += (int) value;
+        mabove += value;
       }
     }
     else
@@ -2193,8 +2193,8 @@ int _db_indicator(Db *db,
     else
       mean[iclass] /= (double) count[iclass];
   }
-  if (nbelow > 0) mbelow = (int) (mbelow / (double) nbelow);
-  if (nabove > 0) mabove = (int) (mabove / (double) nabove);
+  if (nbelow > 0) mbelow /= (double) nbelow;
+  if (nabove > 0) mabove /= (double) nabove;
 
   /* Assign the mean variable per class */
 
