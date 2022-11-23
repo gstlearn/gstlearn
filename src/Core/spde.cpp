@@ -5783,9 +5783,6 @@ static int st_is_external_AQ_defined(int icov0)
  *****************************************************************************/
 int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
 {
-  AMesh *amesh;
-
-  amesh = matelem.amesh;
   if (S_EXTERNAL_MESH[icov0] == nullptr)
   {
     messerr("The Internal AMesh must be allocated before using it");
@@ -5801,15 +5798,13 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
     messerr("The External Q must be allocated before using it");
     return (1);
   }
-  if (amesh == nullptr)
+  if (S_EXTERNAL_MESH[icov0] == nullptr)
   {
     messerr("The output AMesh must already exist");
     return (1);
   }
-  amesh = S_EXTERNAL_MESH[icov0];
 
-  /* Copy the sparse matrix 'QC' */
-
+  matelem.amesh = S_EXTERNAL_MESH[icov0];
   matelem.QC    = qchol_manage(1, NULL);
   matelem.QC->Q = cs_duplicate(S_EXTERNAL_Q[icov0]);
   matelem.Aproj = cs_duplicate(S_EXTERNAL_A[icov0]);
@@ -5856,39 +5851,29 @@ AMesh* spde_mesh_load(int verbose,
  **  Manage the contents of the External AMesh structure used for
  **  storing external meshing information
  **
- ** \param[in]  mode      1 for storing; -1 for deallocating
  ** \param[in]  icov0     Rank of the current covariance (from 0 to 2)
  ** \param[in]  ndim      Space dimension
  ** \param[in]  ncorner   Number of vertices per element
- ** \param[in]  nvertex   Number of points
- ** \param[in]  nmesh     Number of meshes
  ** \param[in]  meshes    Array containing the meshes
  ** \param[in]  points    Array containing the vertex coordinates
  **
  *****************************************************************************/
-int spde_external_mesh_define(int mode,
-                              int icov0,
-                              int ndim,
-                              int ncorner,
-                              int nvertex,
-                              int nmesh,
-                              int *meshes,
-                              double *points)
+void spde_external_mesh_define(int icov0,
+                               int ndim,
+                               int ncorner,
+                               VectorInt& meshes,
+                               VectorDouble& points)
 {
-  if (mode > 0)
-  {
-    MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
-    if (mesh != nullptr)
-      mesh->reset(ndim, ncorner, nvertex, nmesh, points, meshes);
-    S_EXTERNAL_MESH[icov0] = mesh;
-  }
-  else
-  {
-    if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
-    S_EXTERNAL_MESH[icov0] = nullptr;
-  }
+  MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
+  if (mesh != nullptr)
+    mesh->reset(ndim, ncorner, points, meshes);
+  S_EXTERNAL_MESH[icov0] = mesh;
+}
 
-  return 0;
+void spde_external_mesh_undefine(int icov0)
+{
+  if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
+  S_EXTERNAL_MESH[icov0] = nullptr;
 }
 
 /****************************************************************************/
@@ -5905,34 +5890,20 @@ int spde_external_mesh_define(int mode,
  ** \param[in]  Q         Sparse matrix
  **
  *****************************************************************************/
-int spde_external_AQ_define(int mode,
-                            int icov0,
-                            int ndim,
-                            int nvertex,
-                            int nmesh,
-                            cs *A,
-                            cs *Q)
+int spde_external_AQ_define(int icov0, cs *A, cs *Q)
 {
-  if (mode > 0)
-  {
-    S_EXTERNAL_MESH[icov0] = nullptr;
-    if (S_EXTERNAL_MESH[icov0] == nullptr) return (1);
+  S_EXTERNAL_Q[icov0] = cs_duplicate(Q);
+  if (S_EXTERNAL_Q[icov0] == nullptr) return (1);
 
-    S_EXTERNAL_Q[icov0] = cs_duplicate(Q);
-    if (S_EXTERNAL_Q[icov0] == nullptr) return (1);
-
-    S_EXTERNAL_A[icov0] = cs_duplicate(A);
-    if (S_EXTERNAL_A[icov0] == nullptr) return (1);
-
-  }
-  else
-  {
-    S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
-    if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
-    S_EXTERNAL_MESH[icov0] = nullptr;
-  }
+  S_EXTERNAL_A[icov0] = cs_duplicate(A);
+  if (S_EXTERNAL_A[icov0] == nullptr) return (1);
 
   return 0;
+}
+
+void spde_external_AQ_undefine(int icov0)
+{
+  S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
 }
 
 /****************************************************************************/

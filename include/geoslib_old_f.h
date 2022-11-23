@@ -2034,22 +2034,15 @@ GSTLEARN_EXPORT int spde_eval(int nblin,
                               double power,
                               double *x,
                               double *y);
-GSTLEARN_EXPORT int spde_external_mesh_define(int mode,
-                                              int icov0,
-                                              int ndim,
-                                              int ncorner,
-                                              int nvertex,
-                                              int nmesh,
-                                              int *meshes,
-                                              double *points);
+GSTLEARN_EXPORT void spde_external_mesh_define(int icov0,
+                                               int ndim,
+                                               int ncorner,
+                                               VectorInt& meshes,
+                                               VectorDouble& points);
+GSTLEARN_EXPORT void spde_external_mesh_undefine(int icov0);
 GSTLEARN_EXPORT int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0);
-GSTLEARN_EXPORT int spde_external_AQ_define(int mode,
-                                            int icov0,
-                                            int ndim,
-                                            int nvertex,
-                                            int nmesh,
-                                            cs *A,
-                                            cs *Q);
+GSTLEARN_EXPORT int spde_external_AQ_define(int icov0, cs *A, cs *Q);
+GSTLEARN_EXPORT void spde_external_AQ_undefine(int icov0);
 GSTLEARN_EXPORT int kriging2D_spde(Db *dbin,
                                    Model *model,
                                    SPDE_Option &s_option,
