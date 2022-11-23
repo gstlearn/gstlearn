@@ -65,7 +65,7 @@ public:
              const VectorDouble &pcaf2z,
              const VectorDouble &stats);
 
-  int fit(const VectorDouble& tab, bool verbose = false);
+  int fitFromArray(const VectorDouble& tab, bool verbose = false);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }

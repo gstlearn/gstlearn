@@ -202,7 +202,7 @@ void AnamEmpirical::calculateMeanAndVariance()
   my_throw("This function is not available for Empirical Anamorphosis");
 }
 
-int AnamEmpirical::fit(const VectorDouble& tab)
+int AnamEmpirical::fitFromArray(const VectorDouble& tab)
 {
   int     iech,number,idisc,id,ndisc_util;
   double  value,dmean,dmean2,dmini,dmaxi,sigma,zval,total,variance;

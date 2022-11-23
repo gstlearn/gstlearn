@@ -51,18 +51,21 @@ public:
 
   int toCategory(Db* db,
                  const String& name = String(),
-                 const NamingConvention& namconv = NamingConvention("Category"));
-
+                 const NamingConvention& namconv = NamingConvention("Category")) const;
   int toIndicator(Db* db,
                   const String& name = String(),
                   int OptionIndicator = 1,
-                  const NamingConvention& namconv = NamingConvention("Indicator"));
-
-  int toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv);
+                  bool flagBelow = false,
+                  bool flagAbove = false,
+                  const NamingConvention& namconv = NamingConvention("Indicator")) const;
+  VectorDouble statistics(Db* db, const String& name, bool flagBelow, bool flagAbove);
+  int toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv) const;
   int toIndicatorByAttribute(Db* db,
                              int iatt,
                              int OptionIndicator = 1,
-                             const NamingConvention& namconv = NamingConvention("Indicator"));
+                             bool flagBelow = false,
+                             bool flagAbove = false,
+                             const NamingConvention& namconv = NamingConvention("Indicator")) const;
 
 private:
   std::vector<Interval> _bounds;

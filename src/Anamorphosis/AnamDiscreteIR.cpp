@@ -127,7 +127,7 @@ void AnamDiscreteIR::calculateMeanAndVariance()
   setVariance(var);
 }
 
-int AnamDiscreteIR::fit(const VectorDouble& tab, int verbose)
+int AnamDiscreteIR::fitFromArray(const VectorDouble& tab, int verbose)
 {
   double *residuals, *T, *Q, mean, dt, dq, tnext, qnext, tcur, tprev;
   int error, nsorted;

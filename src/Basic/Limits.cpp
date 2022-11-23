@@ -210,7 +210,7 @@ bool Limits::isInside(double value) const
 
 int Limits::toCategoryByAttribute(Db* db,
                                   int iatt,
-                                  const NamingConvention& namconv)
+                                  const NamingConvention& namconv) const
 {
   return _db_category(db, iatt, getLowerBounds(), getUpperBounds(),
                       getLowerIncluded(), getUpperIncluded(), namconv);
@@ -218,7 +218,7 @@ int Limits::toCategoryByAttribute(Db* db,
 
 int Limits::toCategory(Db* db,
                        const String& name,
-                       const NamingConvention& namconv)
+                       const NamingConvention& namconv) const
 {
   int iatt = db->getUID(name);
   if (iatt < 0) return 1;
@@ -241,6 +241,8 @@ int Limits::toCategory(Db* db,
  * @param name               Name of the variable in the Db to be discretized.
  * @param OptionIndicator    When 1, the function assignes the indicator variables.
  *							             When 0, the function assignes the average of the class.
+ * @param flagBelow          When True, consider samples below lowest bound
+ * @param flagAbove          When True, consider samples above highest bound
  * @param namconv            Naming convention
  *
  * @return
@@ -248,19 +250,33 @@ int Limits::toCategory(Db* db,
 int Limits::toIndicator(Db* db,
                         const String& name,
                         int OptionIndicator,
-                        const NamingConvention& namconv)
+                        bool flagBelow,
+                        bool flagAbove,
+                        const NamingConvention& namconv) const
 {
   int iatt = db->getUID(name);
   if (iatt < 0) return 1;
-  return toIndicatorByAttribute(db, iatt, OptionIndicator, namconv);
+  return toIndicatorByAttribute(db, iatt, OptionIndicator, flagBelow, flagAbove, namconv);
 }
 
-int Limits::toIndicatorByAttribute(Db* db,
-                        int iatt,
-                        int OptionIndicator,
-                        const NamingConvention& namconv)
+int Limits::toIndicatorByAttribute(Db *db,
+                                   int iatt,
+                                   int OptionIndicator,
+                                   bool flagBelow,
+                                   bool flagAbove,
+                                   const NamingConvention &namconv) const
 {
-  return _db_indicator(db, iatt, OptionIndicator, getLowerBounds(),
-                       getUpperBounds(), getLowerIncluded(),
-                       getUpperIncluded(), namconv);
+  return _db_indicator(db, iatt, OptionIndicator,
+                       getLowerBounds(), getUpperBounds(),
+                       getLowerIncluded(), getUpperIncluded(),
+                       flagBelow, flagAbove, namconv);
+}
+
+VectorDouble Limits::statistics(Db* db, const String& name, bool flagBelow, bool flagAbove)
+{
+  int iatt = db->getUID(name);
+  if (iatt < 0) return 1;
+  return _db_limits_statistics(db, iatt, getLowerBounds(), getUpperBounds(),
+                               getLowerIncluded(), getUpperIncluded(),
+                               flagBelow, flagBelow);
 }
