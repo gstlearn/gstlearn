@@ -92,8 +92,8 @@ void MatrixSquareGeneral::_setValue(int irank, double value)
 }
 /**
  * Right product of this by in gives out
- * @param in  Input Vector
- * @param out Output Vector
+ * @param inv  Input Vector
+ * @param outv Output Vector
  */
 void MatrixSquareGeneral::_prodVector(const double *inv, double *outv) const
 {

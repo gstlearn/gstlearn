@@ -151,7 +151,7 @@ void AnamDiscreteDD::calculateMeanAndVariance()
   setVariance(var);
 }
 
-int AnamDiscreteDD::fit(const VectorDouble& tab, bool verbose)
+int AnamDiscreteDD::fitFromArray(const VectorDouble& tab, bool verbose)
 {
   VectorDouble chi;
 

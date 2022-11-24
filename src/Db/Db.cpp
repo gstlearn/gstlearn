@@ -2958,7 +2958,7 @@ VectorString Db::getNamesByUID(const VectorInt& iuids) const
   return namelist;
 }
 
-VectorString Db::getNames(const String& name) const
+VectorString Db::getName(const String& name) const
 {
   return expandNameList(name);
 }
@@ -4013,14 +4013,15 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
  * @param iuids              List of UID of the variables
  * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso  
- * @param flagVariableWise   If False, the new variable is added to Db
- * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
+ * @param flagStoreInDb      If True, the new variable is added to Db
+ * @param verbose            If True (default), the statistics are printed
  * @param proba              For 'quant': the quantile for this probability is calculated 
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
- * @param title              If flagPrint is True, the title of the printed statistics.
+ * @param title              If verbose, the title of the printed statistics.
  * @param namconv            Naming Convention
- * @return If flagPrint is False, returns a vector containing the statistics. If there is more than one operator and more than one variable,
+ *
+ * @return Returns a vector containing the statistics. If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
  * @see statisticsMulti (multivariate statistics)
@@ -4028,8 +4029,8 @@ void Db::_defineDefaultLocatorsByNames(int shift, const VectorString& names)
 VectorDouble Db::statisticsByUID(const VectorInt& iuids,
                                  const std::vector<EStatOption>& opers,
                                  bool flagIso,
-                                 bool flagVariableWise,
-                                 bool flagPrint,
+                                 bool flagStoreInDb,
+                                 bool verbose,
                                  double proba,
                                  double vmin,
                                  double vmax,
@@ -4044,7 +4045,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
   if (noper <= 0) return stats;
 
   // Add the variables for PointWise statistics
-  if (!flagVariableWise)
+  if (flagStoreInDb)
   {
     int iuidn = addColumnsByConstant(noper);
     if (iuidn < 0) return VectorDouble();
@@ -4063,7 +4064,7 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
   {
     stats = dbStatisticsMono(this, iuids, opers, flagIso, proba, vmin, vmax);
 
-    if (flagPrint)
+    if (verbose)
     {
       VectorString varnames = getNamesByUID(iuids);
       messageFlush(statisticsMonoPrint(stats, opers, varnames, title));
@@ -4078,14 +4079,14 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
  * @param names              List of names of the variables
  * @param opers              List of operations to be performed on the variables per point.
  * @param flagIso            If True, perform statistics on isotopic samples only
- * @param flagVariableWise   If False, results are added to Db; otherwise they are produced in output vector
- * @param flagPrint          If True (default), the statistics are printed. If False, statistics are returned in a vector.
+ * @param flagStoreInDb      If True, results are added to Db
+ * @param verbose            If True (default), the statistics are printed.
  * @param proba              For 'quant': the quantile for this probability is calculated
  * @param vmin               For 'prop', 'T', 'Q', 'M', 'B': defines the lower bound of the interval to work in
  * @param vmax               For 'prop', 'T', 'Q', 'M', 'B': defines the upper bound of the interval to work in
- * @param title              If flagPrint is True, the title of the printed statistics. 
+ * @param title              If verbose, the title of the printed statistics.
  * @param namconv            Naming Convention
- * @return If flagPrint is False, returns a vector containing the statistics.
+ * @return Returns a vector containing the statistics.
  * @return If there is more than one operator and more than one variable,
  * the statistics are ordered first by variables (all the statistics of the first variable, then all the stats of the second variable...).
  * 
@@ -4094,8 +4095,8 @@ VectorDouble Db::statisticsByUID(const VectorInt& iuids,
 VectorDouble Db::statistics(const VectorString& names,
                             const std::vector<EStatOption>& opers,
                             bool flagIso,
-                            bool flagVariableWise,
-                            bool flagPrint,
+                            bool flagStoreInDb,
+                            bool verbose,
                             double proba,
                             double vmin,
                             double vmax,
@@ -4104,15 +4105,15 @@ VectorDouble Db::statistics(const VectorString& names,
 {
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
+  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
                          proba, vmin, vmax, title, namconv);
 }
 
 VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
                                      const std::vector<EStatOption>& opers,
                                      bool flagIso,
-                                     bool flagVariableWise,
-                                     bool flagPrint,
+                                     bool flagStoreInDb,
+                                     bool verbose,
                                      double proba,
                                      double vmin,
                                      double vmax,
@@ -4121,13 +4122,13 @@ VectorDouble Db::statisticsByLocator(const ELoc& locatorType,
 {
   VectorInt iuids = getUIDsByLocator(locatorType);
   if (iuids.empty()) return VectorDouble();
-  return statisticsByUID(iuids, opers, flagIso, flagVariableWise, flagPrint,
+  return statisticsByUID(iuids, opers, flagIso, flagStoreInDb, verbose,
                          proba, vmin, vmax, title, namconv);
 }
 
 VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
                                       bool flagIso,
-                                      bool flagPrint,
+                                      bool verbose,
                                       const String& title)
 {
   VectorDouble stats;
@@ -4136,7 +4137,7 @@ VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
 
   stats = dbStatisticsMulti(this, iuids, flagIso);
 
-  if (flagPrint)
+  if (verbose)
   {
     VectorString varnames = getNamesByUID(iuids);
     messageFlush(statisticsMultiPrint(stats, varnames, title));
@@ -4146,13 +4147,13 @@ VectorDouble Db::statisticsMultiByUID(const VectorInt& iuids,
 
 VectorDouble Db::statisticsMulti(const VectorString& names,
                                  bool flagIso,
-                                 bool flagPrint,
+                                 bool verbose,
                                  const String& title)
 {
   VectorInt iuids = _ids(names, false);
   if (iuids.empty()) return VectorDouble();
 
-  return statisticsMultiByUID(iuids, flagIso, flagPrint, title);
+  return statisticsMultiByUID(iuids, flagIso, verbose, title);
 }
 
 /****************************************************************************/
@@ -4198,7 +4199,7 @@ bool Db::_serialize(std::ostream& os,bool /*verbose*/) const
 {
   int ncol = getColumnNumber();
   VectorString locators = getLocators(1);
-  VectorString names = getNames("*");
+  VectorString names = getName("*");
   bool ret = true;
 
   ret = ret && _recordWrite<int>(os, "Number of variables", ncol);

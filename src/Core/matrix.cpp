@@ -2268,9 +2268,11 @@ static int st_svd(double *a2, double *s, int neq)
   for (i = 0; i < neq; i++)
   {
     for (j = 0; j < neq; j++)
+    {
       A2(neq+i,j)= 0.0;
-      A2(neq+i,i) = 1.0;
     }
+    A2(neq+i,i) = 1.0;
+  }
 
   while (RotCount != 0 && SweepCount++ <= slimit)
   {
@@ -3073,9 +3075,11 @@ static int st_copy_active(int nae,
   for (i = 0; i < nae; i++)
   {
     for (j = 0; j < neq; j++)
+    {
       TABOUT(j,number)= TABEMT(j,i);
-      number++;
     }
+    number++;
+  }
 
     /* Copy the active inequalities */
 
@@ -3083,7 +3087,9 @@ static int st_copy_active(int nae,
   {
     if (active[i] == 0) continue;
     for (j = 0; j < neq; j++)
+    {
       TABOUT(j,number)= TABIMT(j,i);
+    }
     number++;
   }
   return (number);

@@ -66,7 +66,7 @@ public:
 
   void   setNDisc(int ndisc);
   void   setTDisc(const VectorDouble& tdisc);
-  int    fit(const VectorDouble& tab);
+  int    fitFromArray(const VectorDouble& tab);
   bool   isTDiscIndexValid(int i) const;
 
 protected:

@@ -57,7 +57,7 @@ public:
              const VectorDouble &zcut,
              const VectorDouble &stats);
 
-  int fit(const VectorDouble& tab, int verbose=0);
+  int fitFromArray(const VectorDouble& tab, int verbose=0);
   double getRCoef() const { return _sCoef; }
   void   setRCoef(double rcoef) { _sCoef = rcoef; }
 

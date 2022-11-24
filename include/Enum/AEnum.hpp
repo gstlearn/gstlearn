@@ -17,6 +17,7 @@
 #include "Basic/VectorNumT.hpp"
 #include "Basic/RepeatMacro.hpp"
 #include "Basic/WarningMacro.hpp"
+#include "Basic/String.hpp"
 
 #include <iostream>
 #include <string>
@@ -240,7 +241,7 @@ const NAME& NAME::fromKey(const String& key)\
   auto it = _map.begin();\
   while (it != _map.end())\
   {\
-    if (it->second->getKey() == key)\
+    if (it->second->getKey() == toUpper(key))\
       return (*(it->second));\
     it++;\
   }\

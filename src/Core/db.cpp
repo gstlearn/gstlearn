@@ -3984,7 +3984,7 @@ VectorDouble db_get_attribute(Db *db, int iatt, bool verbose)
  ****************************************************************************/
 VectorInt db_identify_variables_by_name(Db *db, const String &pattern)
 {
-  VectorString names = db->getNames(pattern);
+  VectorString names = db->getName(pattern);
   VectorInt ranks = db->getUIDs(names);
   return ranks;
 }

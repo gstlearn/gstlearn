@@ -661,30 +661,30 @@ String Selectivity::getVariableName(const ESelectivity& code, int icut, int mode
 
     case ESelectivity::E_T:
       if (mode == 0)
-        return(encodeString("T-estim", _Zcut[icut]));
+        return(concatenateString("T-estim", _Zcut[icut]));
       else
-        return(encodeString("T-stdev", _Zcut[icut]));
+        return(concatenateString("T-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_Q:
       if (mode == 0)
-        return(encodeString("Q-estim", _Zcut[icut]));
+        return(concatenateString("Q-estim", _Zcut[icut]));
       else
-        return(encodeString("Q-stdev", _Zcut[icut]));
+        return(concatenateString("Q-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_B:
       if (mode == 0)
-        return(encodeString("B-estim", _Zcut[icut]));
+        return(concatenateString("B-estim", _Zcut[icut]));
       else
-        return(encodeString("B-stdev", _Zcut[icut]));
+        return(concatenateString("B-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_M:
       if (mode == 0)
-        return(encodeString("M-estim", _Zcut[icut]));
+        return(concatenateString("M-estim", _Zcut[icut]));
       else
-        return(encodeString("M-stdev", _Zcut[icut]));
+        return(concatenateString("M-stdev", _Zcut[icut]));
       break;
 
     case ESelectivity::E_PROP:

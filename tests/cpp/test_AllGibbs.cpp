@@ -120,7 +120,7 @@ int main(int /*argc*/, char * /*argv*/[])
   std::vector<DirParam> dirparams = DirParam::createMultipleFromGrid(nlag);
   varioparam.addMultiDirs(dirparams);
   Vario vario(&varioparam,db);
-  VectorString names = db->getNames("Gibbs*");
+  VectorString names = db->getName("Gibbs*");
   for (int isimu=0; isimu<nbsimu; isimu++)
   {
     db->clearLocators(ELoc::Z);
