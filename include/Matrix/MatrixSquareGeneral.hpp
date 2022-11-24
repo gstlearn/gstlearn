@@ -39,7 +39,7 @@ public:
   bool mustBeDiagCst() const override { return false; }
 
   /*! Check if the matrix is (non empty) square */
-  bool isSquare(bool printWhyNot = false) const override { return 1; }
+  bool isSquare(bool printWhyNot = false) const override { SYMBOL_UNUSED(printWhyNot); return 1; }
 
 protected:
 #ifndef SWIG

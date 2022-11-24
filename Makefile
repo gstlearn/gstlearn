@@ -63,8 +63,10 @@ ifeq ($(USE_HDF5), 1)
 endif
 
 ifeq ($(OS),Windows_NT)
+  # Assume MinGW (via RTools) => so MSYS Makefiles
   GENERATOR = -G"MSYS Makefiles"
 else
+  # Standard GNU UNIX Makefiles otherwise
   GENERATOR = -G"Unix Makefiles"
 endif
 
@@ -76,6 +78,7 @@ endif
 
 ifndef BUILD_DIR
   ifeq ($(OS),Windows_NT)
+    # Assume MinGW (via RTools) => so MSYS build folder
     BUILD_DIR = build_msys
   else
     BUILD_DIR = build

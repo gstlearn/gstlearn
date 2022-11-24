@@ -56,7 +56,7 @@ if (USE_HDF5)
   
   # Look for HDF5
   # https://stackoverflow.com/questions/41529774/cmakelists-txt-for-compiling-hdf5
-  find_package(HDF5 REQUIRED COMPONENTS C CXX)
+  find_package(HDF5 REQUIRED COMPONENTS CXX)
   # TODO : If HDF5 not found, fetch it from the web ?
 endif()
 

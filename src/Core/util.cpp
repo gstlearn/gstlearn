@@ -25,6 +25,7 @@
 #include "Space/ASpaceObject.hpp"
 #include "Space/ASpace.hpp"
 #include "Space/SpaceSN.hpp"
+#include <string.h>
 #include <complex>
 #include <cmath>
 #include <regex>

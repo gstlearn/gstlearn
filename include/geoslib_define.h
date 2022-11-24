@@ -34,9 +34,9 @@ typedef unsigned char UChar;
 
 
 // Macro for preventing warning : unused variable.
-// To be used like: SYMBOL_UNSED(a, b, c)
-#define SYMBOL_UNSED_(x) (void)x;
-#define SYMBOL_UNSED(...) EXPAND(REPEAT(SYMBOL_UNSED_, __VA_ARGS__))
+// To be used like: SYMBOL_UNUSED(a, b, c)
+#define SYMBOL_UNUSED_(x) (void)x;
+#define SYMBOL_UNUSED(...) EXPAND(REPEAT(SYMBOL_UNUSED_, __VA_ARGS__))
 
 
 // No need to this stuff through SWIG (using target language NAs)

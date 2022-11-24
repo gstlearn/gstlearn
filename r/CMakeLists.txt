@@ -12,6 +12,9 @@ set(R_PACKAGE_NAME ${PROJECT_NAME})
 # Look for R
 #set(CMAKE_FIND_DEBUG_MODE TRUE)
 include(root/FindR.cmake)
+if(NOT R_FOUND)
+  message(FATAL_ERROR "R not found")
+endif()
 
 # Look for SWIG 4.2.0 [customized] TODO : WIP
 #find_package(SWIG 4.2.0 REQUIRED)
@@ -174,7 +177,7 @@ foreach(MODULE ${MODULES})
   )
 endforeach()
 
-# Copy datafolder to package *destination* folder for each configuration
+# Copy data folder to package *destination* folder for each configuration
 #file(GLOB DATASETS_RDA ${CMAKE_CURRENT_SOURCE_DIR}/data/*.rda)
 #foreach(DATASET_RDA ${DATASETS_RDA})
 #  cmake_path(GET DATASET_RDA FILENAME DATASET_RDA_NAME)
