@@ -17,6 +17,7 @@
 #include "Model/Option_VarioFit.hpp"
 
 // TODO : strcasecmp macro to be kept ?
+/*
 #if defined(_WIN32) || defined(_WIN64)
 #if !defined(strcasecmp)
 #define strcasecmp _stricmp
@@ -25,6 +26,7 @@
 #define strncasecmp _strnicmp
 #endif
 #endif
+*/
 
 class Koption
 {

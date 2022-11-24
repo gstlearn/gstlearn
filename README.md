@@ -1,6 +1,6 @@
 ## Overview
 
-*gstlearn* is the new cross-platform Geostatistics C++ Library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
+*gstlearn* is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
 Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
@@ -9,39 +9,38 @@ The name 'gstlearn' stands for several purposes:
 * Geostatistical Spatio-Temporal Learning
 * Learning Geosciences & Spatio-Temporal Models
 
-*gstlearn* comes in different forms:
+*gstlearn* comes in various forms:
 
-* A C++ Library: [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
-* A Python Package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
-* A R Package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
+* A C++ library: [https://github.com/gstlearn/gstlearn](https://github.com/gstlearn/gstlearn)
+* A Python package: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
+* A R package: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 If you simply want to install the Python or R package for gstlearn you should look at the corresponding sub folders.
 
 ## References
 
-The *gstlearn* C++ Library is the direct successor of the Geoslib C/C++ Library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
+The *gstlearn* C++ library is the direct successor of the Geoslib C/C++ library which was proposed through the [RGeostats R package](http://cg.ensmp.fr/rgeostats).
 
-The *gstlearn* C++ Library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
+The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
-When using the *gstlearn* C++ Library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
+When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
 ## Requirements
 
 This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
-For compiling and installing *gstlearn* C++ Library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
+For compiling and installing *gstlearn* C++ library, the following tools must be available (See [required tools installation](#required-tools-installation) instructions below):
 
 * Git client
 * CMake tool 3.20 or higher
-* A C++ compiler:
+* A C++ compiler among:
   * Linux/MacOS:
-    * GCC compiler 5.4 or higher
+    * GCC 5.4 or higher
+    * Clang 12 or higher (not tested)
   * Windows:
-    * Microsoft Visual Studio C++ 14 or higher
-    * MinGW 7 or higher (we propose the one provided with RTools)
-  * MacOS (not tested):
-    * Clang 12 or higher
+    * Python users: Microsoft Visual Studio C++ 14 or higher
+    * R users: MinGW 7 (RTools) or higher
 * Boost header files
 * Doxygen [Optional] 1.8.3 or higher
 * HDF5 [Optional] C & C++ library and header files 1.8 or higher
@@ -59,29 +58,37 @@ Notes:
 
 * In the following, all instructions must be executed from a command prompt inside this *root* directory (thus the last command `cd gstlearn` above)
 
-## Library compilation & installation
+## C++ Library Compilation & Installation
 
-For compiling and installing the *gstlearn* C++ shared Library, execute the following instructions. Please note that you can choose another destination folder (currently named *build*).
+For compiling and installing the *gstlearn* C++ shared library, execute the following instructions. Please note that you can choose another destination folder (currently named *build*).
+
+If you only want to use Python or R packages, you should switch to corresponding README:
+* Python: [https://github.com/gstlearn/gstlearn/tree/main/python](https://github.com/gstlearn/gstlearn/tree/main/python)
+* R: [https://github.com/gstlearn/gstlearn/tree/main/r](https://github.com/gstlearn/gstlearn/tree/main/r)
 
 ### GCC, Clang, MinGW, ...
+
+...or any other single configuration compiler:
 
     cmake -Bbuild -H. -DCMAKE_BUILD_TYPE=Release
     cmake --build build --target shared
     cmake --build build --target install
 
-or for those who prefer a single command line
+or for those who prefer a single command line:
 
     mkdir -p build & cd build & cmake .. & make shared & make install
 
-or even faster (see [shortcut Makefile](https://github.com/gstlearn/gstlearn/blob/main/Makefile))
+or even faster:
 
     make
 
 Note:
 
-* Using MinGW on a Windows where Visual Studio is also installed may need to add `-G "MSYS Makefiles"` in the first command.
+* Using MinGW on a Windows where another compiler is also installed may need to add `-G "MSYS Makefiles"` in the first cmake command above.
 
-### Microsoft Visual Studio, XCode, ...
+### Microsoft Visual Studio, ...
+
+...or any other multiple configurations compiler:
 
     cmake -Bbuild -H.
     cmake --build build --target shared --config Release
@@ -89,7 +96,7 @@ Note:
 
 Note:
 
-* Using Visual Studio on a Windows where MingGW is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
+* Using Visual Studio on a Windows where another compiler is also installed may need to add `-G "Visual Studio 16 2019"` in the first command (adapt version).
   
 ### Important Notes
 
@@ -100,20 +107,21 @@ Notes:
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
 * If you want to build and install the *Debug* version, you must replace `Release` by `Debug` above
 * If you don't want HDF5 support, add `-DUSE_HDF5=OFF` to the first cmake command above. If you use the shortcut Makefile, you can use `USE_HDF5=0` after the `make` command
-* The *static* version of the library is mandatory for creating [python package](https://github.com/gstlearn/gstlearn/tree/main/python)
-* Only the *shared* library (built by default) is installed.
-* You may need to precise the location of Boost or HDF5 installation directory (which contain *include* and *lib* folders). In that case, add the following in the first command above:
+* Only the *shared* library (built by default) is installed when compiling *gstlearn* C++ library. If you want to compile the *static* version, you must replace *shared* by *static* target above.
+* You may need to precise the location of Boost, HDF5 or Doxygen installation directory. In that case, add the following variables in the first cmake command above:
     * `-DBoost_ROOT=<path/to/boost>`
     * `-DHDF5_ROOT=<path/to/hdf5>`
+    * `-DDoxygen_ROOT=<path/to/doxygen>`
 
 ## Usage
 
-Please, look at *tests* C++ code in order to learn how to use the gstlearn C++ library.
+Please, look at *tests* [C++ code](https://github.com/gstlearn/gstlearn/tree/main/tests) in order to learn how to use the *gstlearn* C++ library. You can generate the source code documentation using [Doxygen](#generate-the-documentation).
 
-## Required tools installation
-Please note that HDF5 and Doxygen installation are optional.
+## Required Tools Installation
 
-### Linux (Ubuntu):
+These tools are needed for compiling the *gstlearn* C++ library. Please note that HDF5 and Doxygen installation are optional.
+
+### Linux (Ubuntu)
 
     sudo apt install git
     sudo apt install cmake
@@ -126,7 +134,7 @@ Notes:
 * Under Linux, the GCC compiler and GNU make is already installed
 * If your Linux distribution repositories don't provide minimum required versions, please install the tools manually (see provider website)
 
-### MacOS:
+### MacOS
 
     brew install git
     brew install cmake
@@ -136,72 +144,100 @@ Notes:
 
 Notes:
 
-* This is currently not tested - above packages may not exist
+* These instructions for MacOS are currently not tested - above packages may not exist
 * Under MacOS, the GCC (or Clang) compiler and GNU make is already installed
 * If your MacOS repositories don't provide minimum required versions, please install the tools manually (see provider website)
   
-### Windows:
+### Windows - Microsoft Visual Studio
 
-Download and install the following tools:
+These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package, you should look at the next section.
 
-* Git client [from here](https://gitforwindows.org) (Use default options during installation)
-* CMake tool [from here](https://cmake.org/download) (Check the *'Add CMake to the Path (all users)'* option during installation)
-* Doxygen 1.8.3+ (optional) [from here](https://www.doxygen.nl/download.html) (Install in the directory *C:\\doxygen* for example)
+Download and install the following tools using default options during installation:
+
+* Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
+* CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
+* Microsoft Visual Studio C++ (Community) [from here](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) (*VisualStudioSetup.exe* Community)
+* Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
+* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the installer)
+* Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder)
 
 Notes:
 
-* The *Path* environment variable (**System variables**) must be updated to make *doxygen.exe* available (follow [this guide](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho) to add *C:\\doxygen\\bin* folder in the *Path* variable and restart Windows)
+* You may need to apply [this procedure](https://stackoverflow.com/a/72748816/3952924) to properly install Visual Studio C++
+* The *Path* environment variable (**System variables**) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *Doxygen* installation folder in the *Path* variable and restart Windows)
 * You must restart your computer after installing these requirements
 
-#### Choose a compiler
-If you want top compile gstlearn in order to use through python, you must Install Microsoft Visual Studio. If yu want to use it through R, you must install Rtools.
+### Windows - MinGW (via RTools):
 
-##### Microsoft Visual Studio
+These requirements are also recommended to people who wants to compile *gstlearn* R package. If you want to compile *gstlearn* Python package, you should look at the previous section. This is not the only way to install MinGW. But using RTools permits us to also handle *gstlearn* R package compilation.
 
-Download and install the following tools:
+#### Install R and RTools
 
-* Microsoft Visual Studio C++ 14+ [from here](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/)
-* Boost library [from here](https://www.boost.org/users/download) (Download and extract the zip file in *C:\\local\\* directory for example)
-* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (Download the pre-built binaries (zip), extract the zip file and execute the installer using default options)
+Download and install the following tools using default option during installation:
 
-##### MingGW (RTools)
+* R [from here](https://cran.r-project.org/bin/windows/base) (Setup program [exe] - remind the installation folder, assume it is `C:\Program Files\R\R-4.2.2`)
+* RTools [from here](https://cran.r-project.org/bin/windows/Rtools) (RTools Installer [exe] - remind the installation folder, assume it is `C:\rtools42`)
 
-Download and install the following tools:
-
-* R 4 or higher [from here](https://cran.r-project.org) (check the *'Add R to the PATH (all users)'* option during installation)
-* RTools 4 [from here](https://cran.r-project.org/bin/windows/Rtools/rtools40.html)
-  
 Notes:
 
-* You must restart your computer after installing these requirements
+* Choose the corresponding RTools version according the R version installed
+* Instructions in this section are **valid since R v4.2** (for older versions please contact us)
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
-* We assume that you retain the installation folder of rtools (let's call it <rtools/install/dir>)
+* The *Path* environment variable (**System variables**) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ex: `C:\Program Files\R\R-4.2.2\bin`)
 
-Then, from a MSYS2 command prompt, execute following instructions (hdf5 is optional):
+#### Add MSYS2 Required Packages
 
+1. Edit the `etc/pacman.conf` file in the RTools installation directory (ex: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
+
+    SigLevel = Never
+
+2. Edit the `mingw64.ini` file in the RTools installation directory (ex: `C:\rtools42`) by un-commenting the following line (remove '#' character at the beginning):
+
+    MSYS2_PATH_TYPE=inherit
+
+3. Launch *mingw64.exe* in RTools installation directory (ex: `C:\rtools42`) and pin the icon to the task bar
+
+4. From the *mingw64* shell command prompt, execute following instructions (HDF5 and Doxygen are optional):
+
+    pacman -Sy git
+    pacman -Sy mingw-w64-x86_64-cmake
+    pacman -Sy mingw-w64-x86_64-gcc
     pacman -Sy mingw-w64-x86_64-boost
     pacman -Sy mingw-w64-x86_64-hdf5
+    pacman -Sy mingw-w64-x86_64-doxygen
+    
+Note: 
+
+* Currently, HDF5 is not supported when compiling *gstlearn* C++ library using MinGW (via RTools). You can install the HDF5 package, but *gstlearn* won't link against HDF5 (GibbsMMulti::setFlagStoreInternal(false) won't be available).
 
 ## Development
-### Non-regression tests
+
+### Execute Non-regression Tests
+
+The `check.*` targets brings some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
+
+To build and launch non-regression tests, execute the following command:
+
 #### GCC, Clang, MinGW, ...
 
-To launch non-regression tests, execute the following command:
+...or any other single configuration compiler:
 
     cmake --build build --target build_tests
-    cmake --build build --target check
+    cmake --build build --target check_cpp
+    cmake --build build --target check_data
+    
+or even faster:
 
-#### Microsoft Visual Studio, XCode, ...
+    make check_cpp
+    make check_data
 
-To build and launch non-regression tests, execute the following commands:
+#### Microsoft Visual Studio, ...
+
+...or any other multiple configurations compiler:
 
     cmake --build build --target build_tests --config Release
-    cmake --build build --target check --config Release
-
-Notes:
-
-* If you want to run the *Debug* version of the tests, you must replace `Release` by `Debug` above
-* The *check* target brings some required runtime customization, so do not use the standard *ctest* command
+    cmake --build build --target check_cpp --config Release
+    cmake --build build --target check_data --config Release
   
 ### Clean
 
@@ -211,17 +247,17 @@ To clean (partially) the build, execute the following command:
 
 Notes:
 
-* If you really want to clean all files generated by CMake, you can remove *build* directory content by hand. Linux or MinGW users may use the clean_all target from the source directory.
+* If you really want to clean all files generated by CMake, you can remove *build* directory content by hand. Linux or MinGW users may use the `clean_all` target from the source directory.
 
-### Uninstall
+### Uninstall the Library
 
 To uninstall all the installed files (only the files, not the directories), execute this command:
 
     cmake --build build --target uninstall
 
-### Generate the documentation
+### Generate the Documentation
 
-The doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
+The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
     cmake --build build --target doxygen
 
