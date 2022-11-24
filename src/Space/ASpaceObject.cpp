@@ -95,6 +95,21 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& 
 }
 
 /**
+ * Modify the Space dimension of an already created item
+ * (To be used only during creation ... in particular when reading NF)
+ * @param ndim
+ */
+// TODO: this function should be removed as dangerous
+void ASpaceObject::setNDim(int ndim)
+{
+  if (_space->getType() != ESpaceType::RN)
+    my_throw("Object is not in Space RN");
+
+  delete _space;
+  _space = new SpaceRN(ndim);
+}
+
+/**
  * Factory for defining the unique default global space
  * (optional parameter can be used for sphere radius for example)
  *
@@ -161,3 +176,4 @@ bool isDefaultSpaceSphere()
 {
   return (getDefaultSpaceType() == ESpaceType::SN);
 }
+

@@ -72,6 +72,11 @@ public:
   VectorDouble getIncrement(const SpacePoint& p1, const SpacePoint& p2) const;
 
 protected:
+  /// Modify the Space dimension of an already created item
+  /// (To be used only during creation ... in particular when reading NF)
+  void setNDim(int ndim);
+
+protected:
   /// Current space context of the object
   const ASpace* _space;
 };
