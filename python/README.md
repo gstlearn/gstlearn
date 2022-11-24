@@ -52,7 +52,7 @@ Some tutorials (Jupyter Notebooks) are provided in the [demo](https://github.com
 
 Some tests (Python scripts) are available in the [tests](https://github.com/gstlearn/gstlearn/tree/main/tests/py) directory of the *gstlearn* github repository.
 
-** Known caveats **
+**Known caveats**
 
 If you experience the following error while importing *gstlearn* package under Python:
 
@@ -87,14 +87,16 @@ For building the *gstlearn* Python package, the requirements for compiling *gstl
 
 2. Then, execute the following commands:
 
-    sudo apt install python3
-    sudo apt install python3-pip
-    sudo apt install swig
-    sudo apt install jupyter
-    sudo apt install python3-numpy
-    python3 -m ensurepip --upgrade # [may be not needed]
-    python3 -m pip install pybind11 numpy matplotlib
-    python3 -m pip install pypandoc geopandas jupyter
+````
+sudo apt install python3
+sudo apt install python3-pip
+sudo apt install swig
+sudo apt install jupyter
+sudo apt install python3-numpy
+python3 -m ensurepip --upgrade # [may be not needed]
+python3 -m pip install pybind11 numpy matplotlib
+python3 -m pip install pypandoc geopandas jupyter
+````
 
 Notes:
 
@@ -107,11 +109,13 @@ Notes:
 
 2. Then, execute the following commands (Not tested):
 
-    brew install python3
-    brew install swig
-    python3 -m ensurepip --upgrade
-    python3 -m pip install pybind11 numpy matplotlib
-    python3 -m pip install pypandoc geopandas jupyter
+````
+brew install python3
+brew install swig
+python3 -m ensurepip --upgrade
+python3 -m pip install pybind11 numpy matplotlib
+python3 -m pip install pypandoc geopandas jupyter
+````
 
 Notes:
 
@@ -125,17 +129,19 @@ Notes:
 
 2. Then, download and install the following tools using default options during installation:
 
-* Python 3+ [from here](https://www.python.org/downloads) (*Windows installer* [exe] - remind the installation folder, see Notes below)
-* SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], Archive file [zip] to be extracted in a folder of your own - and remind that folder, see Notes below)
+  * Python 3+ [from here](https://www.python.org/downloads) (*Windows installer* [exe] - check 'Add python.exe to PATH' in the first panel)
+  * SWIG 4+ [from here](http://www.swig.org/download.html) (*swigwin archive* [zip], Archive file [zip] to be extracted in a folder of your own - and remind that folder)
 
 3. Finally, install additional Python modules by running following instructions in a command prompt:
 
-    python -m pip install "pybind11[global]" numpy matplotlib
-    python -m pip install pypandoc geopandas jupyter
+````
+python -m pip install "pybind11[global]" numpy matplotlib
+python -m pip install pypandoc geopandas jupyter
+````
 
 Notes:
 
-* The *Path* environment variable (**System variables**) must be updated to make *swig.exe* and *python.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *SWIG* and *Python* installation folders in the *Path* variable and restart Windows)
+* The *Path* environment variable (**System variables**) must be updated to make *swig.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *SWIG* installation folders in the *Path* variable and restart Windows)
 * The Windows C++ Compiler used must be the same that the one used for compiling Python (Visual C++). Using another compiler than Visual C++ is not supported.
   
   
@@ -143,9 +149,11 @@ Notes:
 
 1. For getting the *gstlearn* Python package sources files, just clone the github repository:
 
-    git clone https://github.com/gstlearn/gstlearn.git
-    cd gstlearn
-    
+````
+git clone https://github.com/gstlearn/gstlearn.git
+cd gstlearn
+````
+
 2. Then, these instructions will compile and install the *gstlearn* Python package in your usual Python *site-packages* directory. 
 
 #### GCC, Clang, ...

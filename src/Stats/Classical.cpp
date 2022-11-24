@@ -1369,7 +1369,7 @@ void dbStatisticsPrint(const Db *db,
   }
   if (numiso > 0 && flagCorrel)
   {
-    int ijcol = 0;
+    ijcol = 0;
     for (int icol = 0; icol < ncol; icol++)
       for (int jcol = 0; jcol < ncol; jcol++, ijcol++)
       {

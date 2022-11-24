@@ -578,6 +578,7 @@ unsigned char GridBmp::_readIn()
  ** \param[out]  a     Transparency index
  **
  *****************************************************************************/
+/* Warning because value is 8 bits, and you want to shift it up to 24 bits!
 void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
 {
   *r = static_cast<int>((value >> 24) & 0xff);
@@ -585,7 +586,7 @@ void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
   *b = static_cast<int>((value >> 8) & 0xff);
   *a = static_cast<int>((value) & 0xff);
 }
-
+*/
 /****************************************************************************/
 /*!
  **   Convert RGB into numeric

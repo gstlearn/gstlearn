@@ -2252,8 +2252,6 @@ double loggamma(double parameter)
   }
 }
 
-DISABLE_WARNING_POP
-
 /*****************************************************************************/
 /*!
  **  Returns the Associated Legendre Function

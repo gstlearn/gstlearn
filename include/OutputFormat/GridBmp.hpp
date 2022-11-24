@@ -55,7 +55,7 @@ private:
                    unsigned char *iblue);
   int _compose(int nb);
   unsigned char _readIn();
-  void _num2rgb(unsigned char value, int *r, int *g, int *b, int *a);
+  //void _num2rgb(unsigned char value, int *r, int *g, int *b, int *a);
   void _rgb2num(int red, int green, int blue, int /*a*/, unsigned char *c);
 
 private:
