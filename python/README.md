@@ -190,7 +190,7 @@ or even faster:
 
 ### Execute Non-regression Tests
 
-The `check.*` targets brings some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
+The `check.*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
 To build and launch non-regression Python tests, execute the following command:
 
