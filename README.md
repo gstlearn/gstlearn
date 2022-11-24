@@ -156,14 +156,13 @@ Download and install the following tools using default options during installati
 
 * Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
-* Microsoft Visual Studio C++ (Community) [from here](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) (*VisualStudioSetup.exe* Community)
+* Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component.)
 * Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
 * HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder)
 * Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder)
 
 Notes:
 
-* You may need to apply [this procedure](https://stackoverflow.com/a/72748816/3952924) to properly install Visual Studio C++
 * The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *Doxygen* installation folder in the *Path* variable and restart Windows)
 * You must restart your computer after installing these requirements
 
