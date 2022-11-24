@@ -150,7 +150,7 @@ Notes:
   
 ### Windows - Microsoft Visual Studio
 
-These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package, you should look at the next section.
+These requirements are also recommended to people who wants to compile *gstlearn* Python package. If you want to compile *gstlearn* R package under Windows, you should look at the next section.
 
 Download and install the following tools using default options during installation:
 
@@ -158,7 +158,7 @@ Download and install the following tools using default options during installati
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
 * Microsoft Visual Studio C++ (Community) [from here](https://visualstudio.microsoft.com/fr/vs/features/cplusplus/) (*VisualStudioSetup.exe* Community)
 * Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
-* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the installer)
+* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder)
 * Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder)
 
 Notes:
@@ -169,7 +169,7 @@ Notes:
 
 ### Windows - MinGW (via RTools):
 
-These requirements are also recommended to people who wants to compile *gstlearn* R package. If you want to compile *gstlearn* Python package, you should look at the previous section. This is not the only way to install MinGW. But using RTools permits us to also handle *gstlearn* R package compilation.
+These requirements are also recommended to people who wants to compile *gstlearn* R package. If you want to compile *gstlearn* Python package under Windows, you should look at the previous section. This is not the only way to install MinGW. But using MinGW provided with RTools permits us to also handle *gstlearn* R package compilation.
 
 #### Install R and RTools
 
@@ -183,19 +183,19 @@ Notes:
 * Choose the corresponding RTools version according the R version installed
 * Instructions in this section are **valid since R v4.2** (for older versions please contact us)
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
-* The *Path* environment variable (*System variables*) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ex: `C:\Program Files\R\R-4.2.2\bin`)
+* The *Path* environment variable (*System variables*) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ie: `C:\Program Files\R\R-4.2.2\bin`)
 
 #### Add MSYS2 Required Packages
 
-1. Edit the `etc/pacman.conf` file in the RTools installation directory (ex: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
+1. Edit the `etc/pacman.conf` file in the RTools installation directory (ie: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
 
     SigLevel = Never
 
-2. Edit the `mingw64.ini` file in the RTools installation directory (ex: `C:\rtools42`) by un-commenting the following line (remove '#' character at the beginning):
+2. Edit the `mingw64.ini` file in the RTools installation directory (ie: `C:\rtools42`) by un-commenting the following line (remove '#' character at the beginning):
 
     MSYS2_PATH_TYPE=inherit
 
-3. Launch *mingw64.exe* in RTools installation directory (ex: `C:\rtools42`) and pin the icon to the task bar
+3. Launch *mingw64.exe* in RTools installation directory (ie: `C:\rtools42`) and pin the icon to the task bar
 
 4. From the *mingw64* shell command prompt, execute following instructions (HDF5 and Doxygen are optional):
 
@@ -208,7 +208,7 @@ Notes:
     
 Note: 
 
-* Currently, HDF5 is not supported when compiling *gstlearn* C++ library using MinGW (via RTools). You can install the HDF5 package, but *gstlearn* won't link against HDF5 (GibbsMMulti::setFlagStoreInternal(false) won't be available).
+* Currently, HDF5 is not supported when compiling *gstlearn* C++ library using MinGW (via RTools). You can install the HDF5 package, but *gstlearn* won't link against HDF5 (GibbsMMulti::setFlagStoreInternal(false) feature won't be available).
 
 ## Development
 

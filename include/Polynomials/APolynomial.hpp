@@ -38,11 +38,11 @@ public:
 
   virtual void evalOp(cs* Op,
                       const VectorDouble& inv,
-                      VectorDouble& outv) const { SYMBOL_UNSED(Op,inv,outv); };
+                      VectorDouble& outv) const { SYMBOL_UNUSED(Op,inv,outv); };
   virtual void evalOpTraining(cs* Op,
                       const VectorDouble& inv,
                       VectorVectorDouble& outv,
-                      VectorDouble& work) const { SYMBOL_UNSED(Op,inv,outv,work); };
+                      VectorDouble& work) const { SYMBOL_UNUSED(Op,inv,outv,work); };
   VectorDouble evalOp(cs* Op, const VectorDouble& inv) const;
   VectorDouble getCoeffs() const { return _coeffs; }
   void setCoeffs(const VectorDouble coeffs) {_coeffs = coeffs;}
@@ -54,7 +54,7 @@ public:
                   double to = 1.,
                   double tol = EPSILON5)
   {
-    SYMBOL_UNSED(f,from,to,tol);
+    SYMBOL_UNUSED(f,from,to,tol);
     return 1;
   }
 
