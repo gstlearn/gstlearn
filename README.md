@@ -43,7 +43,7 @@ For compiling and installing *gstlearn* C++ library, the following tools must be
     * R users: MinGW 7 (RTools) or higher
 * Boost header files
 * Doxygen [Optional] 1.8.3 or higher
-* HDF5 [Optional] C & C++ library and header files 1.8 or higher
+* HDF5 [Optional] C++ library and header files 1.8 or higher
 
 See [required tools installation](#required-tools-installation) instructions below
 
@@ -156,7 +156,7 @@ Download and install the following tools using default options during installati
 
 * Git client [from here](https://gitforwindows.org) (*Setup program* [exe])
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
-* Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component.)
+* Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component)
 * Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
 * HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder)
 * Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder)
@@ -174,12 +174,12 @@ These requirements are also recommended to people who wants to compile *gstlearn
 
 Download and install the following tools using default option during installation:
 
-* R [from here](https://cran.r-project.org/bin/windows/base) (Setup program [exe] - remind the installation folder, assume it is `C:\Program Files\R\R-4.2.2`)
-* RTools [from here](https://cran.r-project.org/bin/windows/Rtools) (RTools Installer [exe] - remind the installation folder, assume it is `C:\rtools42`)
+* R [from here](https://cran.r-project.org/bin/windows/base) (*Setup program* [exe] - remind the installation folder, assume it is `C:\Program Files\R\R-4.2.2`)
+* RTools [from here](https://cran.r-project.org/bin/windows/Rtools) (RTools *Installer* [exe] - remind the installation folder, assume it is `C:\rtools42`)
 
 Notes:
 
-* Choose the corresponding RTools version according the R version installed
+* Choose the corresponding RTools version according to the R version installed
 * Instructions in this section are **valid since R v4.2** (for older versions please contact us)
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
 * The *Path* environment variable (*System variables*) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ie: `C:\Program Files\R\R-4.2.2\bin`)
@@ -188,16 +188,21 @@ Notes:
 
 1. Edit the `etc/pacman.conf` file in the RTools installation directory (ie: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
 
-    SigLevel = Never
+    
+    SigLevel=Never
+    
 
 2. Edit the `mingw64.ini` file in the RTools installation directory (ie: `C:\rtools42`) by un-commenting the following line (remove '#' character at the beginning):
 
+    
     MSYS2_PATH_TYPE=inherit
+    
 
 3. Launch *mingw64.exe* in RTools installation directory (ie: `C:\rtools42`) and pin the icon to the task bar
 
 4. From the *mingw64* shell command prompt, execute following instructions (HDF5 and Doxygen are optional):
 
+    
     pacman -Sy git
     pacman -Sy mingw-w64-x86_64-cmake
     pacman -Sy mingw-w64-x86_64-gcc
@@ -205,6 +210,7 @@ Notes:
     pacman -Sy mingw-w64-x86_64-hdf5
     pacman -Sy mingw-w64-x86_64-doxygen
     
+
 Note: 
 
 * Currently, HDF5 is not supported when compiling *gstlearn* C++ library using MinGW (via RTools). You can install the HDF5 package, but *gstlearn* won't link against HDF5 (GibbsMMulti::setFlagStoreInternal(false) feature won't be available).
@@ -215,7 +221,7 @@ Note:
 
 The `check.*` targets brings some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
-To build and launch non-regression tests, execute the following command:
+To build and launch non-regression tests, execute the following commands:
 
 #### GCC, Clang, MinGW, ...
 
@@ -246,7 +252,9 @@ To clean (partially) the build, execute the following command:
 
 Notes:
 
-* If you really want to clean all files generated by CMake, you can remove *build* directory content by hand. Linux or MinGW users may use the `clean_all` target from the source directory.
+* If you really want to clean all files generated by CMake, you can remove *build* directory content by hand. Linux, MacOS or MinGW users may use the `clean_all` target from the shortcut Makefile inside the top level directory:
+
+    make clean_all
 
 ### Uninstall the Library
 
@@ -254,11 +262,19 @@ To uninstall all the installed files (only the files, not the directories), exec
 
     cmake --build build --target uninstall
 
+or faster:
+
+    make uninstall
+
 ### Generate the Documentation
 
 The Doxygen HTML documentation is optional (not included in the installation by default). If you want to generate it, execute the command:
 
     cmake --build build --target doxygen
+
+or faster:
+
+    make doxygen
 
 The documentation is then available by opening the following HTML file with your favorite web-browser:
 

@@ -5,8 +5,8 @@
   organization = {{MINES PARIS - PSL University}},
   address = {Fontainebleau, France},
   version = {@PROJECT_VERSION@},
-year = {@gstlearn_YEAR@},
-mon = {@gstlearn_MONTH@},
+  year = {@gstlearn_YEAR@},
+  mon = {@gstlearn_MONTH@},
   howpublished = {Free download from: \url{https://github.com/gstlearn}},
 }
 
