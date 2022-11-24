@@ -188,9 +188,9 @@ Notes:
 
 1. Edit the `etc/pacman.conf` file in the RTools installation directory (ie: `C:\rtools42`) by changing the `SigLevel` variable to `Never` (otherwise, *git* cannot be installed using *pacman*):
 
-    ````
+    `
     SigLevel=Never
-    ````
+    `
 
 2. Edit the `mingw64.ini` file in the RTools installation directory (ie: `C:\rtools42`) by un-commenting the following line (remove '#' character at the beginning):
 
