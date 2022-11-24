@@ -47,12 +47,14 @@ public:
   int  updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
+  int fitFromArray(const VectorDouble &tab,
+                   const VectorDouble &wt = VectorDouble()) override;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
 
-  VectorDouble factors_exp(bool verbose);
-  VectorDouble factors_maf(bool verbose);
+  VectorDouble factors_exp(bool verbose = false);
+  VectorDouble factors_maf(bool verbose = false);
   VectorDouble factors_mod();
   VectorDouble chi2I(const VectorDouble& chi, int mode);
 
@@ -64,8 +66,6 @@ public:
              const VectorDouble &pcaz2f,
              const VectorDouble &pcaf2z,
              const VectorDouble &stats);
-
-  int fitFromArray(const VectorDouble& tab, bool verbose = false);
 
   PCA& getMAF() { return _maf; }
   double getMu() const { return _mu; }

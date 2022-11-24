@@ -406,8 +406,10 @@ double CovAniso::eval(int ivar,
 double CovAniso::evalCovOnSphere(double alpha, int degree, bool normalize) const
 {
   if (!_cova->hasCovOnSphere()) return TEST;
-  const ASpace* space = ASpaceObject::getDefaultSpace();
+  const ASpace* space = getDefaultSpace();
   const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+  if (spaceSn == nullptr)
+    my_throw("Should never happen");
   double radius = spaceSn->getRadius();
   double scale = getScale() / radius;
   double sill = getSill(0, 0);

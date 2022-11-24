@@ -588,7 +588,7 @@ static StrMod* st_model_auto_strmod_alloc(Model *model1,
  ** \param[out] npadir_ret Total number of lags for all directions
  **
  *****************************************************************************/
-static int st_get_vario_dimension(const Vario *vario,
+static int st_get_vario_dimension(Vario *vario,
                                   int *nbexp_ret,
                                   int *npadir_ret)
 
@@ -599,6 +599,34 @@ static int st_get_vario_dimension(const Vario *vario,
 
   nbexp = npadir = 0;
   nvar = vario->getVariableNumber();
+
+  // Possibly update the distance for first lag
+  // if equal to 0 but corresponds to lots of pairs attached
+  for (idir = 0; idir < vario->getDirectionNumber(); idir++)
+  {
+    for (ivar = 0; ivar < nvar; ivar++)
+      for (jvar = 0; jvar <= ivar; jvar++)
+      {
+        int iad0 = vario->getCenter(ivar, jvar, idir);
+        double sw0 = vario->getSwByIndex(idir, iad0);
+        double hh0 = vario->getHhByIndex(idir, iad0);
+        // The test on the number of pairs avoids hacking in the case
+        // of a conventional construction where the number of pairs
+        // for the first lag is arbitrarily set to 1.
+        if (hh0 == 0. && sw0 > 1.)
+        {
+          int iad = vario->getNext(idir, ivar, jvar);
+          double sw1 = vario->getSwByIndex(idir, iad);
+          double hh1 = vario->getHhByIndex(idir, iad);
+
+          hh0 = hh1 * sw0 / sw1;
+          vario->setHhByIndex(idir, iad0, hh0);
+
+          message("Warning: Dir=%d IV=%d JV=%d iad0=%d -> HH=%lf\n",
+                  idir, ivar, jvar, iad0, hh0);
+        }
+      }
+  }
 
   /* Calculate the total number of lags */
 
@@ -4587,7 +4615,7 @@ static void st_regularize_init()
  ** \param[in]  optvar_arg  Opt_Vario structure
  **
  *****************************************************************************/
-int model_auto_fit(const Vario *vario,
+int model_auto_fit(Vario *vario,
                    Model *model,
                    bool verbose,
                    const Option_AutoFit &mauto_arg,
@@ -4801,7 +4829,7 @@ int model_auto_fit(const Vario *vario,
  ** \param[in]     mauto       Option_AutoFit structure
  **
  *****************************************************************************/
-int model_fitting_sills(const Vario *vario,
+int model_fitting_sills(Vario *vario,
                         Model *model,
                         const Constraints& constraints,
                         const Option_AutoFit& mauto)
@@ -4822,8 +4850,8 @@ int model_fitting_sills(const Vario *vario,
 
   /* Reset the coregionalization matrix */
 
-  if (st_get_vario_dimension(vario, &nbexp, &npadir) || nvar <= 0 || ndir <= 0
-      || ncova <= 0)
+  if (st_get_vario_dimension(vario, &nbexp, &npadir) ||
+      nvar <= 0 || ndir <= 0 || ncova <= 0)
   {
     messerr("The automatic fitting tool does not function as :");
     messerr("- the number of variables is zero");

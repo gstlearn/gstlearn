@@ -222,6 +222,11 @@ int Vario::compute(const ECalcVario &calcul,
     messerr("The 'db' must contain at least one variable defined");
     return 1;
   }
+  if (getDirectionNumber() <= 0)
+  {
+    messerr("The 'varioParam' argument must have some Direction defined");
+    return 1;
+  }
 
   // Preparation
 
@@ -1554,9 +1559,30 @@ int Vario::getCenter(int ivar, int jvar, int idir) const
   if (! _isDirectionValid(idir)) return ITEST;
   if (! _isVariableValid(ivar))  return ITEST;
   if (! _isVariableValid(jvar))  return ITEST;
-  if (! getFlagAsym()) return ITEST;
   int i = getDirAddress(idir, ivar, jvar, 0, false, 0);
   return i;
+}
+
+int Vario::getNext(int ivar, int jvar, int idir, int shift) const
+{
+  if (!_isVariableValid(ivar))  return ITEST;
+  if (!_isVariableValid(jvar))  return ITEST;
+  if (!_isDirectionValid(idir)) return ITEST;
+  const DirParam dirparam = _varioparam.getDirParam(idir);
+
+  VectorDouble sw;
+  int npas = dirparam.getLagNumber();
+  int count;
+  if (_flagAsym) return ITEST;
+  int iad = getDirSize(idir) - 1;
+  count = 0;
+  for (int ipas = 0; ipas < npas && count < shift; ipas++)
+  {
+    iad = getDirAddress(idir, ivar, jvar, ipas, true, 0);
+    if (IFFFF(iad)) continue;
+    if (_sw[idir][iad] != 0. && _hh[idir][iad] != 0.) count++;
+  }
+  return iad;
 }
 
 int Vario::getVarAddress(int ivar, int jvar) const

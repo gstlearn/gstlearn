@@ -36,7 +36,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Defining the Space Dimension
   int ndim = 2;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   mestitle(0,"Testing Model Fitting in 2-D");
 
   // Defining a Model for simulating a data set
@@ -73,7 +73,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Defining the Space Dimension
   ndim = 4;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   mestitle(0,"Testing Model Fitting in 4-D");
 
   // Defining a Data Base

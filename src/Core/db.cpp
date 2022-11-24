@@ -1069,7 +1069,7 @@ int db_center(Db *db, double *center)
 int db_extension_diag(const Db *db, double *diag)
 {
   double *tab, *sel, vmin, vmax, diff, mean, stdv, coor[2][2];
-  int idim, nval, flag_sphere;
+  int idim, nval;
 
   /* Initializations */
 
@@ -1083,7 +1083,7 @@ int db_extension_diag(const Db *db, double *diag)
     if (sel == nullptr) return (1);
     db_selection_get(db, 0, sel);
   }
-  flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+  bool flag_sphere = getDefaultSpaceType() == ESpaceType::SN;
 
   /* Calculate the field extension */
 
@@ -3623,8 +3623,8 @@ int db_grid_patch(DbGrid *ss_grid,
   /* Check that the two grids are compatible */
 
   if (!db_grid->hasSameDimension(ss_grid)) goto label_end;
-  if (!db_grid->isSameGridMeshOldStyle(ss_grid)) goto label_end;
-  if (!db_grid->isSameGridRotationOldStyle(ss_grid)) goto label_end;
+  if (!db_grid->isSameGridMesh(*ss_grid)) goto label_end;
+  if (!db_grid->isSameGridRotation(*ss_grid)) goto label_end;
 
   /* Core allocation */
 

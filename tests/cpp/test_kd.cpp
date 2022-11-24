@@ -57,7 +57,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate initial grid
@@ -262,7 +262,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Regularization of the point model by the block support
   Vario* vario_b2_Y = Vario::createRegularizeFromModel(model, varioparam, blocs->getDXs(),
-                                                 ndisc_B, blocs->getAngles());
+                                                       ndisc_B, blocs->getAngles());
 
   // Fitting the regularized model on the point Gaussian variable
   Model* model_b2_Y = new Model(1, ndim);

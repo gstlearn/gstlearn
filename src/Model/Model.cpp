@@ -1302,9 +1302,10 @@ void Model::covMatrix(VectorDouble& covmat,
  * by the largest value (gmax) divided by 2 (highly non_stationary cases).
  * @param vario Experimental variogram
  * @param verbose Verbose flag
+
  * @return Value for the Goodness-of_fit (as percentage of the total sill)
  */
-double Model::gofToVario(const Vario* vario, bool verbose)
+double Model::gofToVario(const Vario *vario, bool verbose)
 {
   int nvar = getVariableNumber();
   int ndir = vario->getDirectionNumber();
@@ -1366,6 +1367,34 @@ double Model::gofToVario(const Vario* vario, bool verbose)
     }
   total = 100. * total / (double) (nvar * nvar);
   return total;
+}
+
+/**
+ * Printout of statement concerning the Quality of the GOF
+ * @param gof        Value of the Gof
+ * @param byValue    true: display GOF value; false: print its quality level
+ * @param thresholds Vector giving the Quality thresholds
+ */
+void Model::gofDisplay(double gof, bool byValue, const VectorDouble& thresholds)
+{
+  message("Goodness-of-fit (as a percentage of the variance)");
+  if (byValue)
+  {
+    message(" = %5.2lf\n", gof);
+    return;
+  }
+  else
+  {
+    int nclass = (int) thresholds.size();
+    for (int iclass = 0; iclass < nclass; iclass++)
+    {
+      if (gof < thresholds[iclass])
+      {
+        message(" corresponds to level #%d (1 for very good)\n", iclass+1);
+        return;
+      }
+    }
+  }
 }
 
 const EModelProperty& Model::getCovMode() const

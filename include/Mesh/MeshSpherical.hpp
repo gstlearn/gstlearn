@@ -48,8 +48,6 @@ public:
   static MeshSpherical* create(const MatrixRectangular &apices = MatrixRectangular(),
                                const MatrixInt &meshes = MatrixInt());
 
-  void    getDuplicates(Db *dbin, Db *dbout,
-                        int *nbdupl,int **dupl1,int **dupl2, int verbose=0) const;
   cs*     getMeshToDb(const Db *db, bool verbose = false) const override;
   int     getVariety() const { return 1; }
 

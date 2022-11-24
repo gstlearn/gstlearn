@@ -42,15 +42,15 @@ Data Base Grid Characteristics
 
 Data Base Contents
 ------------------
-            *.Simu.Mean
-     [  0,]      -1.000
-     [  1,]      -1.000
-     [  2,]      -1.000
-     [  3,]      -1.000
-     [  4,]      -0.761
-     [  5,]      -0.284
-     [  6,]      -0.284
-(Ncols=1,Nrows=7[from 600])
+                   Simu *.Simu.Mean
+     [  0,]      -2.276         N/A
+     [  1,]      -1.964         N/A
+     [  2,]      -1.640         N/A
+     [  3,]      -1.244         N/A
+     [  4,]      -0.643      -0.761
+     [  5,]      -0.115      -0.284
+     [  6,]      -0.212      -0.284
+(Ncols=2,Nrows=7[from 600])
 
 Data Base Grid Characteristics
 ==============================

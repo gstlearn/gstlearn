@@ -60,34 +60,6 @@ int AMesh::_setExtend(const VectorDouble extendmin,
   return(0);
 }
 
-/****************************************************************************/
-/*!
-** Returns the duplicate information (if any) 
-**
-** \param[in]  verbose         Verbose flag
-** \param[in]  dbin            Pointer to the input Db (optional)
-** \param[in]  dbout           Pointer to the output Db (optional)
-**
-** \param[out]  nbdupl  Number of duplicates
-** \param[out]  dupl1   Array giving ranks of duplicate samples in Db1
-** \param[out]  dupl2   Array giving ranks of duplicate samples in Db2
-**
-** \remarks This function only makes sens when the Meshing is built
-** \remarks based on two Dbs where samples may coincide
-**
-*****************************************************************************/
-void AMesh::getDuplicates(int   /*verbose*/,
-                          Db* /*dbin*/,
-                          Db* /*dbout*/,
-                          int  *nbdupl,
-                          int **dupl1,
-                          int **dupl2) const
-{
-  *nbdupl = 0;
-  *dupl1 = nullptr;
-  *dupl2 = nullptr;
-}
-
 String AMesh::toString(const AStringFormat* strfmt) const
 {
   std::stringstream sstr;
@@ -153,7 +125,7 @@ VectorDouble AMesh::getMeshSizes() const
   return units;
 }
 
-void AMesh::printMeshes(int imesh0) const
+void AMesh::printMesh(int imesh0) const
 {
   mestitle(0,"Mesh Information");
   message("- Number of Meshes = %d\n",getNMeshes());
@@ -176,46 +148,26 @@ void AMesh::printMeshes(int imesh0) const
   }
 }
 
+void AMesh::printMeshes(int level, int nline_max) const
+{
+  mestitle(0,"Mesh Information");
+  message("- Number of Meshes = %d\n",getNMeshes());
+  message("- Number of Apices = %d\n",getNApices());
+
+  if (level == 0) return;
+
+  if (level == 1)
+    _printMeshListByIndices(nline_max);
+
+  if (level == 2)
+    _printMeshListByCoordinates(nline_max);
+}
+
 void AMesh::_recopy(const AMesh &m)
 {
   _nDim    = m._nDim;
   _extendMin = m._extendMin;
   _extendMax = m._extendMax;
-}
-
-/**
- * Convert the Meshing (New class) into a meshing (Old class)
- * @param a_mesh Meshing characteristics (New class)
- * @return Pointer to the Meshing (Old class)
- */
-SPDE_Mesh* AMesh::_convertToOldMesh(AMesh* a_mesh) const
-{
-  SPDE_Mesh *s_mesh;
-  int number;
-
-  s_mesh = spde_mesh_manage(1, NULL);
-  if (s_mesh == nullptr) return (s_mesh);
-  s_mesh->ndim = a_mesh->getNDim();
-  s_mesh->ncorner = a_mesh->getNApexPerMesh();
-  s_mesh->nmesh = a_mesh->getNMeshes();
-  s_mesh->nvertex = a_mesh->getNApices();
-
-  // Retrieve the elements
-  MatrixRectangular points;
-  MatrixInt meshes;
-  a_mesh->getElements(points, meshes);
-
-  number = points.getNTotal();
-  VectorDouble vect = points.getValues();
-  s_mesh->points = (double *) mem_alloc(sizeof(double) * number,1);
-  for (int i=0; i<number; i++) s_mesh->points[i] = vect[i];
-
-  number = static_cast<int> (meshes.size());
-  VectorInt ivect = meshes.getValues();
-  s_mesh->meshes = (int *) mem_alloc(sizeof(int) * number,1);
-  for (int i=0; i<number; i++) s_mesh->meshes[i] = ivect[i];
-
-  return s_mesh;
 }
 
 VectorDouble AMesh::getCoordinates(int idim) const
@@ -629,5 +581,46 @@ double AMesh::_getMeshUnit(const VectorVectorDouble& corners) const
   unit = ABS(mat.determinant()) / facdim[ndim];
 
   return unit;
+}
+
+void AMesh::_printMeshListByCoordinates(int nline_max) const
+{
+  int ndim    = getNDim();
+  int nmesh   = getNMeshes();
+  int ncorner = getNApexPerMesh();
+
+  int iline = 0;
+  for (int imesh=0; imesh<nmesh; imesh++)
+  {
+    message("Mesh #%5d/%5d\n",imesh+1,nmesh);
+    for (int icorn=0; icorn<ncorner; icorn++)
+    {
+      message(" Apex %4d: ",getApex(imesh,icorn));
+      for (int idim=0; idim<ndim; idim++)
+        message(" %lf",getCoor(imesh,icorn,idim));
+      message("\n");
+    }
+
+    iline++;
+    if (nline_max > 0 && iline >= nline_max) return;
+  }
+}
+
+void AMesh::_printMeshListByIndices(int nline_max) const
+{
+  int nmesh   = getNMeshes();
+  int ncorner = getNApexPerMesh();
+
+  int iline = 0;
+  for (int imesh=0; imesh<nmesh; imesh++)
+  {
+    message("Mesh #%d/%d: ",imesh+1,nmesh);
+    for (int icorn=0; icorn<ncorner; icorn++)
+      message(" %d",getApex(imesh,icorn));
+    message("\n");
+
+    iline++;
+    if (nline_max > 0 && iline >= nline_max) return;
+  }
 }
 

@@ -403,3 +403,11 @@ void ACovAnisoList::normalize(double sill)
   }
 }
 
+bool ACovAnisoList::hasNugget() const
+{
+  for (int is = 0; is < getCovNumber(); is++)
+  {
+    if (getType(is) == ECov::NUGGET) return true;
+  }
+  return false;
+}

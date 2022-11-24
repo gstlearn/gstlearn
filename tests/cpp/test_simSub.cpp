@@ -40,7 +40,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   int seed = 3322;
   int nxcell = 100;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Generate the output grid
   VectorInt nx = {nxcell,nxcell};

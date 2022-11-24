@@ -29,7 +29,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Global parameters
   int ndim = 2;
   bool verbose = true;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Standard output redirection to file
   std::stringstream sfn;

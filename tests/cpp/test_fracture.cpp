@@ -46,7 +46,7 @@ int main(int /*argc*/, char */*argv*/[])
   int ndim = 2;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid

@@ -129,87 +129,6 @@ ShiftOpCs::~ShiftOpCs()
 
 /**
  *
- * @param s_mesh Mesh description (Old format)
- * @param model Pointer to the Model structure
- * @param dbout Pointer to Db which
- * @param flagAdvection When TRUE, S is replaced by G
- * @param verbose Verbose flag
- * @return Error return code
- */
-int ShiftOpCs::initFromOldMesh(SPDE_Mesh* s_mesh,
-                               Model* model,
-                               Db* dbout,
-                               bool flagAdvection,
-                               bool verbose)
-{
-  double* units = (double *) nullptr;
-  _setModel(model);
-
-  try
-  {
-    // Not stationarity is not coded in this deprecated code
-
-    if (model->isNoStat())
-      my_throw("Non-stationarity is not coded in this deprecated Shiftop code");
-
-    // Attach the Model
-
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-                   1, 1, 0, 0))
-    my_throw("Problem with spde_check() method");
-
-    // Converting Meshing
-
-    MeshEStandard amesh;
-    amesh.convertFromOldMesh(s_mesh, 0);
-
-    // Calculate the meshes of the vertices
-
-    units = _spde_get_mesh_dimension(&amesh);
-    if (units == (double *) nullptr)
-    my_throw("Problem with spde_get_mesh_dimension() method");
-
-    // Construct G sparse Matrix (locally stored in _S)
-
-    _S = _spde_fill_S(&amesh, model, units);
-    if (_S == nullptr) my_throw("Problem with spde_fill_S() method");
-
-    // Construct the TildeC vector
-
-    _TildeC = _spde_fill_TildeC(&amesh, units);
-    if (_TildeC.empty())
-    my_throw("Problem with spde_fill_TildeC() method");
-
-    // Construct the Lambda vector
-
-    _Lambda = _spde_fill_Lambda(model, &amesh, _TildeC);
-    if (_Lambda.empty())
-    my_throw("Problem with _spde_fill_Lambda() method");
-
-    // Construct the final Sparse matrix S
-
-    if (!flagAdvection) cs_matvecnorm_inplace(_S, _TildeC.data(), 2);
-  }
-
-  catch(const AException& e)
-  {
-    messerr("initFromOldMesh has failed: %s",e.what());
-    _reset();
-    return 1;
-  }
-  catch(const std::exception& e)
-  {
-    messerr("initFromOldMesh has failed: %s",e.what());
-    _reset();
-    return 1;
-  }
-
-  units = (double *) mem_free((char * ) units);
-  return 0;
-}
-
-/**
- *
  * @param amesh Meshing description (New format)
  * @param model Pointer to the Model structure
  * @param dbout Pointer to the Db structure
@@ -257,9 +176,9 @@ int ShiftOpCs::initFromMesh(const AMesh* amesh,
     _determineFlagNoStatByHH();
 
     // Attach the Model
-//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-//                   1, 1, 0, 0))
-//    my_throw("Problem with spde_check() method");
+//    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
+//        false, false, false, true, true, false, false))
+//      my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -358,9 +277,9 @@ int ShiftOpCs::initGradFromMesh(const AMesh* amesh,
       }
     }
 
-    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(), 0, 0, 0,
-                   1, 1, 0, 0))
-    my_throw("Problem with spde_check() method");
+    if (spde_check(NULL, dbout, model, NULL, verbose, VectorDouble(),
+                   false, false, false, true, true, false, false))
+      my_throw("Problem with spde_check() method");
 
     // Identify the covariance
     CovAniso cova = *model->getCova(icov);
@@ -412,9 +331,9 @@ int ShiftOpCs::initFromCS(const cs* S,
   {
     // Attach the Model
 
-    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(), 0, 0, 0, 1,
-                   1, 0, 0))
-    my_throw("Problem with spde_check() method");
+    if (spde_check(NULL, NULL, model, NULL, verbose, VectorDouble(),
+                   false, false, false, true, true, false, false))
+      my_throw("Problem with spde_check() method");
 
     // Store the TildeC & Lambda vectors
 
@@ -903,7 +822,7 @@ int ShiftOpCs::_preparMatrices(const AMesh *amesh,
   if (matu.invert())
   {
     messerr("Problem for Mesh #%d", imesh + 1);
-    amesh->printMeshes(imesh);
+    amesh->printMesh(imesh);
     return 1;
   }
 
@@ -1230,7 +1149,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if (matMtM.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMeshes(imesh);
+        amesh->printMesh(imesh);
         my_throw("Matrix inversion");
       }
       // Calculate P = (M^t %*% M)^{-1} %*% M^t
@@ -1248,7 +1167,7 @@ int ShiftOpCs::_buildSVariety(const AMesh *amesh, double tol)
       if(matMs.invert())
       {
         messerr("Problem for Mesh #%d", imesh + 1);
-        amesh->printMeshes(imesh);
+        amesh->printMesh(imesh);
         my_throw("Matrix inversion");
 
       }
@@ -1364,7 +1283,7 @@ int ShiftOpCs::_buildSSphere(const AMesh *amesh,
     if (matu.invert())
     {
       messerr("Problem for Mesh #%d", imesh + 1);
-      amesh->printMeshes(imesh);
+      amesh->printMesh(imesh);
       my_throw("Matrix inversion");
     }
 
@@ -1551,9 +1470,9 @@ void ShiftOpCs::_buildLambda(const AMesh *amesh)
   double r = 1.;
   if( amesh->getVariety() == 1)
   {
-    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const ASpace* space = getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    r = spaceSn->getRadius();
+    if (spaceSn != nullptr) r = spaceSn->getRadius();
   }
 
   /* Load global matrices */

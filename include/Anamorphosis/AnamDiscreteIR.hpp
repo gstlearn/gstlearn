@@ -47,6 +47,8 @@ public:
   int updatePointToBlock(double r_coef) override;
   bool allowChangeSupport() const override { return true; }
   bool isChangeSupportDefined() const override { return (_sCoef > 0.); }
+  int fitFromArray(const VectorDouble &tab,
+                   const VectorDouble &wt = VectorDouble()) override;
 
   /// AnamDiscrete Interface
   void calculateMeanAndVariance() override;
@@ -57,7 +59,6 @@ public:
              const VectorDouble &zcut,
              const VectorDouble &stats);
 
-  int fitFromArray(const VectorDouble& tab, int verbose=0);
   double getRCoef() const { return _sCoef; }
   void   setRCoef(double rcoef) { _sCoef = rcoef; }
 

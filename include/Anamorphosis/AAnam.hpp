@@ -44,10 +44,15 @@ public:
   virtual bool         hasGaussian() const { return false; }
   virtual double       RawToTransformValue(double z) const;
   virtual double       TransformToRawValue(double y) const;
+  virtual int          fitFromArray(const VectorDouble &tab,
+                                    const VectorDouble &wt = VectorDouble()) { return 0;}
 
   double invertVariance(double cvv) const;
   VectorDouble RawToTransformVec(const VectorDouble& z) const;
   VectorDouble TransformToRawVec(const VectorDouble& z) const;
+
+  int fitFromLocator(Db *db, const ELoc& locatorType = ELoc::Z);
+  int fit(Db *db, const String& name);
 
 protected:
   bool _isSampleSkipped(Db *db,

@@ -44,7 +44,7 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("PGSSPDE-");
   int error = 0;
   int ndim = 2;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(1,2,1.); // use default space
 
   // Prepare the Discrete process with Discretized Option

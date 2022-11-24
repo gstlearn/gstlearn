@@ -21,10 +21,11 @@ def getCscale():
         [0.8461538461538461, '#e75435'],
         [0.9230769230769231, '#cc2727'],
         [1.0, '#a50026']
- ]
+        ]
     return cscale
 
-def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', opacity=0.50):
+def SurfaceOnMesh(mesh, intensity=None, cscale=None, color='lightpink', 
+                  opacity=0.50):
     
     tab = np.array(mesh.getEmbeddedApexCoordinates())
     meshes = np.array(mesh.getMeshes())-1
@@ -87,7 +88,8 @@ def ScatterOnSphere(long, lat, mode='lines', color='black', width=1,
                       color=color, width=width,
                       m_symbol=m_symbol, m_color=m_color, m_line=m_line, 
                       m_size=m_size, m_width=m_width,
-                      showlegend=showlegend)
+                      showlegend=showlegend
+                      )
 
     return meshing
 
@@ -134,7 +136,7 @@ def PolygonOnSphere(poly, flagClose=False, color='black', width=1, dilate=1,
     boundaries=dict(type='scatter3d', x=xs, y=ys, z=zs, mode='lines', 
                     line=dict(color=color, width=width),
                     showlegend=showlegend
-              )
+                    )
     return boundaries
 
 def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False, 
@@ -155,7 +157,7 @@ def SliceOnDbGrid(grid, name, section=0, rank=0, usesel=False,
     values = values.reshape(shape)
     
     slice = go.Surface(x=x, y=y, z=z, surfacecolor=values,
-                    coloraxis='coloraxis', cmin = cmin, cmax = cmax)
+                       coloraxis='coloraxis', cmin = cmin, cmax = cmax)
     return slice
    
 def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, colorscale='BlueRed',
@@ -172,14 +174,14 @@ def SurfaceOnDbGrid(grid, name, usesel=False, levels=None, colorscale='BlueRed',
     z = grid.getCoordinates(2, usesel).reshape(shape)
     values = grid.getColumn( name, usesel).reshape(shape)
     
-    
     surfaces = go.Isosurface(x=x.flatten(), y=y.flatten(), z=z.flatten(), 
                              value = values.flatten(), 
                              isomin = isomin, isomax = isomax,
                              surface_count = surface_count, 
                              colorscale=colorscale,
                              showscale = showlegend, 
-                             caps = dict(x_show=False, y_show=False))
+                             caps = dict(x_show=False, y_show=False)
+                             )
     return surfaces
    
 def PointDb(db, color_name=None, size_name=None, usesel=False, 

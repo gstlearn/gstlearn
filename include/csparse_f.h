@@ -40,7 +40,7 @@ GSTLEARN_EXPORT void    cs_print_dim(const char *title,const cs *A);
 GSTLEARN_EXPORT void    cs_print_short(const char *title, const cs *L, int nmax);
 GSTLEARN_EXPORT void    cs_print_file(const char *radix, int rank, cs *A);
 GSTLEARN_EXPORT cs     *cs_compress(cs *A);
-GSTLEARN_EXPORT int    *cs_color_coding(cs *Q,int start,int *ncolor);
+GSTLEARN_EXPORT VectorInt cs_color_coding(cs *Q,int start,int *ncolor);
 GSTLEARN_EXPORT cs     *cs_invert(const cs *A, int order, double epsilon = EPSILON6);
 
 /* utilities */
@@ -112,7 +112,7 @@ GSTLEARN_EXPORT cs     *cs_extract_submatrix(cs *C,
                                              int row_from, int row_length,
                                              int col_from, int col_length);
 GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_ranks(cs *C, int *row_array, int *col_array);
-GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(cs *C,int *colors,
+GSTLEARN_EXPORT cs     *cs_extract_submatrix_by_color(cs *C, const VectorInt& colors,
                                                       int ref_color, int row_ok, int col_ok);
 GSTLEARN_EXPORT void    cs_print_range(const char *title,const cs *C);
 GSTLEARN_EXPORT cs     *cs_eye(int number,double value);

@@ -133,7 +133,7 @@ void ALinearOpMulti::evalInverse(const VectorVectorDouble& inv,
     _copyVals(inv,_r);   // r = b
   }
 
-  message("initial crit %lg \n",innerProduct(_r,_r));
+  if (OptDbg::query(EDbg::CONVERGE)) message("initial crit %lg \n",innerProduct(_r,_r));
 
   if(_precondStatus)
   {

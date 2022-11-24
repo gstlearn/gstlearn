@@ -59,6 +59,15 @@ CovParamId::~CovParamId()
 
 }
 
+CovParamId* CovParamId::create(int igrf,
+                               int icov,
+                               const EConsElem &elem,
+                               int iv1,
+                               int iv2)
+{
+  return new CovParamId(igrf, icov, elem, iv1, iv2);
+}
+
 int CovParamId::init(int igrf,
                      int icov,
                      const EConsElem& type,
@@ -72,7 +81,7 @@ int CovParamId::init(int igrf,
   _iv2   = v2;
 
   // Check to avoid rotation of a Model defined on the sphere
-  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+  bool flag_sphere = (getDefaultSpaceType() == ESpaceType::SN);
   if (flag_sphere && type == EConsElem::ANGLE)
   {
     messerr("When working on the Sphere Geometry");
