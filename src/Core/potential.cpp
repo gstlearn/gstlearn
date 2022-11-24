@@ -633,7 +633,7 @@ bool st_potenv_valid(Pot_Env* pot_env,
  ** \li                        3 : the isovalues contribution only
  ** \li                        4 : the drift contribution only
  ** \li                        5 : the external drift contribution only
- ** \param[in]      verbose    Verbosity flag
+ ** \param[in]      verbose    Verbose flag
  **
  *****************************************************************************/
 static void st_potenv_manage(Pot_Env *pot_env,

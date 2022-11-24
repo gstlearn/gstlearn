@@ -26,7 +26,7 @@ print(array2)
 # First of all, the global instruction for defining the default dimension number is called and the Help of the Db class is displayed.
 
 ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN, ndim)
+gl.defineDefaultSpace(gl.ESpaceType.RN, ndim)
 
 # Then, the Grid file is created first (defining the origin, mesh size and count). Then each variable is added one by one, giving the name. Then, the 'Z' Locator is set for the two variables. Note that locators are entered simultaneously. Otherwise, "var1" will be assigned to locator "z1". Then, when adding "var2", it will be assigned in turn to "z1", erasing the locator previously assigned to "var1".
 

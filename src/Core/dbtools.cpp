@@ -2276,6 +2276,7 @@ int _db_indicator(Db *db,
  ** \param[in]  maxi    Array containing the maxima per class
  ** \param[in]  incmini Array containing the inclusive flag for minima per class
  ** \param[in]  incmaxi Array containing the inclusive flag for maxima per class
+ ** \param[in]  optionStat 1 for Proportions; 2 for Mean
  ** \param[in]  flagBelow If True, consider the values below the lower bound
  ** \param[in]  flagAbove If True, consider the values above the upper bound
  **
@@ -2286,6 +2287,7 @@ VectorDouble _db_limits_statistics(Db *db,
                                    const VectorDouble &maxi,
                                    const VectorBool &incmini,
                                    const VectorBool &incmaxi,
+                                   int optionStat,
                                    bool flagBelow,
                                    bool flagAbove)
 {
@@ -2399,20 +2401,20 @@ VectorDouble _db_limits_statistics(Db *db,
 
   VectorDouble stats;
 
-  if (flagBelow)
-    stats.push_back((double) nbelow / (double) nactive);
-  for (int iclass = 0; iclass < nclass; iclass++)
-    stats.push_back((double) count[iclass] / (double) nactive);
-  if (flagAbove)
-    stats.push_back((double) nabove / (double) nactive);
-
-  if (flagBelow)
-    stats.push_back(mbelow);
-  for (int iclass = 0; iclass < nclass; iclass++)
-    stats.push_back(mean[iclass]);
-  if (flagAbove)
-    stats.push_back(mabove);
-
+  if (optionStat == 1)
+  {
+    if (flagBelow) stats.push_back((double) nbelow / (double) nactive);
+    for (int iclass = 0; iclass < nclass; iclass++)
+      stats.push_back((double) count[iclass] / (double) nactive);
+    if (flagAbove) stats.push_back((double) nabove / (double) nactive);
+  }
+  else
+  {
+    if (flagBelow) stats.push_back(mbelow);
+    for (int iclass = 0; iclass < nclass; iclass++)
+      stats.push_back(mean[iclass]);
+    if (flagAbove) stats.push_back(mabove);
+  }
   return stats;
 }
 

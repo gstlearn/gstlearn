@@ -14,7 +14,7 @@ import sys
 # This paragraph defines the Space Dimension for the whole notebook. It also set the name of the Container (and a Prefix) used if Objects are saved as Neutral Files.
 
 ndim = 2
-gl.ASpaceObject.defineDefaultSpace(gl.ESpaceType.SPACE_RN,ndim)
+gl.defineDefaultSpace(gl.ESpaceType.RN,ndim)
 
 gl.ASerializable.setContainerName(True)
 gl.ASerializable.setPrefixName("DbTest-");

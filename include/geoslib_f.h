@@ -149,7 +149,7 @@ GSTLEARN_EXPORT VectorDouble stats_point_to_grid(DbGrid *dbgrid,
 /* Functions for Model */
 /***********************/
 
-GSTLEARN_EXPORT int model_auto_fit(const Vario *vario,
+GSTLEARN_EXPORT int model_auto_fit(Vario *vario,
                                    Model *model,
                                    bool verbose = false,
                                    const Option_AutoFit &mauto_arg = Option_AutoFit(),

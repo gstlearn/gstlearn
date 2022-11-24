@@ -72,7 +72,7 @@ int main(int /*argc*/, char */*argv*/[])
   // Other option
   grid->setLocator("Simu", ELoc::Z);
   limits.toIndicator(grid,"Simu",0);
-  dbfmt = DbStringFormat(FLAG_ARRAY, {"Indicator.Simu.Mean"});
+  dbfmt = DbStringFormat(FLAG_ARRAY, {"Simu", "Indicator.Simu.Mean"});
   grid->display(&dbfmt);
 
   // Convert into Indicators

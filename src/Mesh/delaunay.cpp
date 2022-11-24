@@ -3746,7 +3746,7 @@ struct behavior *b;
 /*  I originally wrote this procedure to simplify debugging; it can be       */
 /*  called directly from the debugger, and presents information about an     */
 /*  oriented triangle in digestible form.  It's also used when the           */
-/*  highest level of verbosity (`-VVV') is specified.                        */
+/*  highest verbose level (`-VVV') is specified.                             */
 /*                                                                           */
 /*****************************************************************************/
 
@@ -3851,7 +3851,7 @@ struct otri *t;
 /*  I originally wrote this procedure to simplify debugging; it can be       */
 /*  called directly from the debugger, and presents information about an     */
 /*  oriented subsegment in digestible form.  It's also used when the highest */
-/*  level of verbosity (`-VVV') is specified.                                */
+/*  verbose level (`-VVV') is specified.                                     */
 /*                                                                           */
 /*****************************************************************************/
 

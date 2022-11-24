@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   CovContext ctxt(nvar,ndim);
 
   // Creating a Point Data base in the 1x1 square with 'nech' samples

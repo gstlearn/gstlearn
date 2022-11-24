@@ -1083,9 +1083,9 @@ VectorVectorDouble GeometryHelper::convertLongLat(const VectorDouble &longitude,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const ASpace* space = getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    radius = spaceSn->getRadius();
+    if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
   radius *= dilate;
 
@@ -1145,9 +1145,9 @@ void GeometryHelper::convertCart2Sph(double x,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const ASpace* space = getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    radius = spaceSn->getRadius();
+    if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
 
   double loc_long, loc_lat;
@@ -1193,9 +1193,9 @@ void GeometryHelper::convertSph2Cart(double rlong,
   double radius = radius_arg;
   if (FFFF(radius))
   {
-    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const ASpace* space = getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
-    radius = spaceSn->getRadius();
+    if (spaceSn != nullptr) radius = spaceSn->getRadius();
   }
 
   double phi, theta, sinphi, cosphi, sinthe, costhe;

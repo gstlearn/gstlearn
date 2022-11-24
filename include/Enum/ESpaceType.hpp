@@ -12,8 +12,8 @@
 
 #include "Enum/AEnum.hpp"
 
-#define ENUM_SPACETYPE ESpaceType, SPACE_RN, \
-                     SPACE_RN, 1,  "Euclidean Space", \
-                     SPACE_SN, 2,  "Geometry on Sphere"
+#define ENUM_SPACETYPE ESpaceType, RN, \
+                     RN, 1,  "Euclidean Space", \
+                     SN, 2,  "Geometry on Sphere"
 
 ENUM_DECLARE(ENUM_SPACETYPE)

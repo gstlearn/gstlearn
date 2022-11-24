@@ -9,7 +9,8 @@
 
 #include <iostream>
 
-ASpace* ASpaceObject::_defaultSpace = nullptr;
+/// Unique default global space
+static ASpace* defaultSpace = nullptr;
 
 ASpaceObject::ASpaceObject(const ASpace* space)
   : AStringable(),
@@ -65,71 +66,6 @@ String ASpaceObject::toString(const AStringFormat* /*strfmt*/) const
   return "";
 }
 
-/**
- * Factory for defining the unique default global space
- * (optional parameter can be used for sphere radius for example)
- *
- * @param type Space type (RN, SN, ...)
- * @param ndim Number of dimension
- * @param param Optional space parameter
- */
-void ASpaceObject::defineDefaultSpace(ESpaceType type,
-                                      unsigned int ndim,
-                                      double param)
-{
-  if (nullptr != _defaultSpace)
-    delete _defaultSpace;
-
-  switch (type.getValue())
-  {
-    case ESpaceType::E_SPACE_SN:
-    {
-      ndim = 2;
-      if (param <= 0.) param = EARTH_RADIUS;
-      _defaultSpace = new SpaceSN(ndim, param);
-      break;
-    }
-    case ESpaceType::E_SPACE_RN:
-    {
-      _defaultSpace = new SpaceRN(ndim);
-      break;
-    }
-    default:
-    {
-      my_throw("Unknown space type!");
-    }
-  }
-}
-
-const ASpace* ASpaceObject::cloneDefaultSpace()
-{
-  if (nullptr == _defaultSpace)
-    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-
-  return (dynamic_cast<const ASpace*>(_defaultSpace->clone()));
-}
-
-ESpaceType ASpaceObject::getDefaultSpaceType()
-{
-  if (nullptr == _defaultSpace)
-    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-  return _defaultSpace->getType();
-}
-
-int ASpaceObject::getDefaultSpaceDimension()
-{
-  if (nullptr == _defaultSpace)
-    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-  return _defaultSpace->getNDim();
-}
-
-const ASpace* ASpaceObject::getDefaultSpace()
-{
-  if (nullptr == _defaultSpace)
-    defineDefaultSpace(ESpaceType::SPACE_RN, 2);
-  return _defaultSpace;
-}
-
 VectorDouble ASpaceObject::getUnitaryVector() const
 {
   VectorDouble uni;
@@ -158,3 +94,70 @@ VectorDouble ASpaceObject::getIncrement(const SpacePoint& p1, const SpacePoint& 
   return (_space->getIncrement(p1, p2));
 }
 
+/**
+ * Factory for defining the unique default global space
+ * (optional parameter can be used for sphere radius for example)
+ *
+ * @param type Space type (RN, SN, ...)
+ * @param ndim Number of dimension
+ * @param param Optional space parameter
+ */
+void defineDefaultSpace(ESpaceType type, unsigned int ndim, double param)
+{
+  if (nullptr != defaultSpace)
+    delete defaultSpace;
+
+  switch (type.getValue())
+  {
+    case ESpaceType::E_SN:
+    {
+      ndim = 2;
+      if (param <= 0.) param = EARTH_RADIUS;
+      defaultSpace = new SpaceSN(ndim, param);
+      break;
+    }
+    case ESpaceType::E_RN:
+    {
+      defaultSpace = new SpaceRN(ndim);
+      break;
+    }
+    default:
+    {
+      my_throw("Unknown space type!");
+    }
+  }
+}
+
+const ASpace* cloneDefaultSpace()
+{
+  if (nullptr == defaultSpace)
+    defineDefaultSpace(ESpaceType::RN, 2);
+
+  return (dynamic_cast<const ASpace*>(defaultSpace->clone()));
+}
+
+ESpaceType getDefaultSpaceType()
+{
+  if (nullptr == defaultSpace)
+    defineDefaultSpace(ESpaceType::RN, 2);
+  return defaultSpace->getType();
+}
+
+int getDefaultSpaceDimension()
+{
+  if (nullptr == defaultSpace)
+    defineDefaultSpace(ESpaceType::RN, 2);
+  return defaultSpace->getNDim();
+}
+
+const ASpace* getDefaultSpace()
+{
+  if (nullptr == defaultSpace)
+    defineDefaultSpace(ESpaceType::RN, 2);
+  return defaultSpace;
+}
+
+bool isDefaultSpaceSphere()
+{
+  return (getDefaultSpaceType() == ESpaceType::SN);
+}

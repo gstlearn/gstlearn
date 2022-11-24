@@ -98,6 +98,7 @@ public:
   ////////////////////////////////////////////////
 
   void copyCovContext(const CovContext& ctxt);
+  bool hasNugget() const;
 
 protected:
   bool   _isCovarianceIndexValid(unsigned int i) const;

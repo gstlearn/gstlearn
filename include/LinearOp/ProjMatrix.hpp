@@ -19,7 +19,6 @@
 
 class AMesh;
 class Db;
-class SPDE_Mesh;
 
 class GSTLEARN_EXPORT ProjMatrix: public IProjMatrix, public AStringable
 {
@@ -36,12 +35,11 @@ public:
   static ProjMatrix* create(const Db* db, const AMesh *a_mesh, int verbose = 0);
   int resetFromDb(const Db* db, const AMesh *a_mesh, int verbose = 0);
   int resetFromPoints(int npoint, int napices, const cs *aproj);
-  int resetFromDbOldStyle(Db* db, SPDE_Mesh* s_mesh, int verbose = 0);
-  int resetFromDbByNeighOldStyle(const Db* db,
-                                 SPDE_Mesh* s_mesh,
-                                 double radius,
-                                 int flag_exact = 0,
-                                 int verbose = 0);
+  int resetFromDbByNeigh(const Db *db,
+                         AMesh *amesh,
+                         double radius,
+                         int flag_exact = 0,
+                         int verbose = 0);
   int point2mesh(const VectorDouble& inv, VectorDouble& outv) const override;
   int mesh2point(const VectorDouble& inv, VectorDouble& outv) const override;
   int getApexNumber() const override { return _nApices; }

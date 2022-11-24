@@ -169,7 +169,7 @@ VarioParam* VarioParam::createFromSpaceDimension(int npas,
                                                  const VectorDouble &dates,
                                                  const ASpace *space)
 {
-  int ndim = ASpaceObject::getDefaultSpaceDimension();
+  int ndim = getDefaultSpaceDimension();
   if (space != nullptr) ndim = space->getNDim();
 
   VarioParam* varioparam = new VarioParam(scale, dates);

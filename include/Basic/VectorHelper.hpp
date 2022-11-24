@@ -39,6 +39,7 @@ public:
 
   static void displayStats(const String &title, const VectorDouble &vect);
   static void displayRange(const String &title, const VectorDouble &vect);
+  static void displayRange(const String &title, const VectorInt &vect);
 
   static int maximum(const VectorInt &vec);
   static int minimum(const VectorInt &vec);

@@ -190,6 +190,35 @@ void VectorHelper::displayRange(const String &title, const VectorDouble &vect)
   }
 }
 
+void VectorHelper::displayRange(const String &title, const VectorInt &vect)
+{
+  int ntotal = (int) vect.size();
+  int number = 0;
+  int mini =  100000000;
+  int maxi = -100000000;
+
+  for (int i = 0; i < ntotal; i++)
+  {
+    int value = vect[i];
+    if (FFFF(value)) continue;
+    number++;
+    if (value < mini) mini = value;
+    if (value > maxi) maxi = value;
+  }
+
+  if (!title.empty()) message("%s\n", title.c_str());
+  if (number > 0)
+  {
+    message("- Number of samples = %d / %d\n", number, ntotal);
+    message("- Minimum  = %d\n", mini);
+    message("- Maximum  = %d\n", maxi);
+  }
+  else
+  {
+    message("No value defined\n");
+  }
+}
+
 double VectorHelper::maximum(const VectorDouble &vec, bool flagAbs)
 {
   if (vec.size() <= 0) return 0.;

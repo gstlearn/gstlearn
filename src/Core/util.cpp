@@ -96,12 +96,12 @@ void projec_toggle(int mode)
 
   /* Check that the current space is RN */
 
-  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+  bool flag_sphere = (getDefaultSpaceType() == ESpaceType::SN);
   if (flag_sphere && projec_actif)
   {
     messerr("Error when toggling a Projection ON");
     messerr(
-        "Definition of a Projection is incompatible with working on a Sphere");
+          "Definition of a Projection is incompatible with working on a Sphere");
   }
   else
     PROJEC.actif = projec_actif;
@@ -1193,15 +1193,16 @@ double ut_distance(int ndim, double *tab1, double *tab2)
   double distance, v1, v2, delta;
 
   distance = 0.;
-  int flag_sphere = ASpaceObject::getDefaultSpaceType() == ESpaceType::SPACE_SN;
+  bool flag_sphere = isDefaultSpaceSphere();
 
   if (flag_sphere)
   {
     /* Case of the spherical coordinates */
     /* Longitude = 1st coord; Latitude = 2nd coord (in degrees) */
 
-    const ASpace* space = ASpaceObject::getDefaultSpace();
+    const ASpace* space = getDefaultSpace();
     const SpaceSN* spaceSn = dynamic_cast<const SpaceSN*>(space);
+    if (space == nullptr) return TEST;
     double R = spaceSn->getRadius();
     distance = GH::geodeticAngularDistance(tab1[0], tab1[1], tab2[0], tab2[1], R);
   }

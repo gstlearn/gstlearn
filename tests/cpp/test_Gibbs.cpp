@@ -84,7 +84,7 @@ static int st_save(Db    *dbgrid,
 ** \param[in]  Q        Precision matrix (for all colors)
 **
 *****************************************************************************/
-static void st_print_all(int    *colors,
+static void st_print_all(const VectorInt& colors,
                          double *consmin,
                          double *consmax,
                          double *sigma,
@@ -95,7 +95,7 @@ static void st_print_all(int    *colors,
   if (consmax != (double *) NULL)
     print_matrix ("consmax",0,0,1,10,NULL,consmax);
   print_matrix ("sigma"  ,0,0,1,10,NULL,sigma);
-  print_imatrix("colors" ,0,0,1,10,NULL,colors);
+  print_imatrix("colors" ,0,0,1,10,NULL,colors.data());
   cs_print_nice("Q",Q,10,10);
 }
 
@@ -118,7 +118,7 @@ static void st_print_all(int    *colors,
 static int st_vector_compress(int     nvertex,
                               int     colref,
                               double *z,
-                              int    *colors,
+                              const VectorInt& colors,
                               int    *ind,
                               double *zred)
 {
@@ -211,7 +211,7 @@ static double st_simcond(int    iter,
 static int st_gibbs(int  niter,
                     int  ncolor,
                     int  nvertex,
-                    int *colors,
+                    const VectorInt& colors,
                     cs **Qcols,
                     double *consmin,
                     double *consmax,
@@ -255,10 +255,12 @@ static int st_gibbs(int  niter,
 int main(int /*argc*/, char */*argv*/[])
 
 {
-  DbGrid   *dbgrid;
-  Model    *model1,*model2;
-  SPDE_Option    s_option;
-  cs            *Q,**Qcols;
+  DbGrid       *dbgrid;
+  Model        *model1,*model2;
+  SPDE_Option   s_option;
+  cs           *Q,**Qcols;
+  SPDE_Matelem  Matelem;
+  VectorInt     colors;
 
   double range_spde =   30.;
   double param_spde =    1.;
@@ -275,8 +277,8 @@ int main(int /*argc*/, char */*argv*/[])
   int    flag_print =     0;
   bool   flag_save  =  true;
   const char triswitch[] = "nqQ";
-  int     verbose, seed, ndim, nvar, nvertex, ncolor;
-  int    *colors, *ind, rank;
+  int     verbose, seed, ndim, nvertex, ncolor;
+  int    *ind, rank;
   double *z, *krig, *zred, *consmin, *consmax, *sigma, diag;
   
   // Standard output redirection to file
@@ -291,7 +293,6 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid   = (DbGrid      *) NULL;
   model1   = (Model       *) NULL;
   model2   = (Model       *) NULL;
-  colors   = (int         *) NULL;
   ind      = (int         *) NULL;
   z        = (double      *) NULL;
   krig     = (double      *) NULL;
@@ -304,9 +305,8 @@ int main(int /*argc*/, char */*argv*/[])
   verbose  = ncolor = 0;
   seed     = 31415;
   ndim     = 2;
-  nvar     = 1;
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("Gibbs-");
 
@@ -322,42 +322,31 @@ int main(int /*argc*/, char */*argv*/[])
   dbgrid = DbGrid::create(nx, dx, x0, VectorDouble(), ELoadBy::COLUMN,
                           VectorDouble(), VectorString(), VectorString(), 1);
   db_extension_diag(dbgrid,&diag);
-  CovContext ctxt(nvar,ndim,diag);
     
   // Model for SPDE
 
-  model1 = new Model(ctxt);
-  CovLMC covs1(ctxt.getSpace());
-  CovAniso cova1(ECov::BESSEL_K,range_spde,param_spde,sill_spde,ctxt);
-  covs1.addCov(&cova1);
-  model1->setCovList(&covs1);
+  model1 = Model::createFromParam(ECov::BESSEL_K,range_spde,sill_spde,param_spde);
 
   // Model for constraints
 
-  model2 = new Model(ctxt);
-  CovLMC covs2(ctxt.getSpace());
-  CovAniso cova2(ECov::BESSEL_K,range_cons,param_cons,sill_cons,ctxt);
-  covs2.addCov(&cova2);
-  model2->setCovList(&covs2);
+  model2 = Model::createFromParam(ECov::BESSEL_K,range_cons,sill_cons,param_cons);
 
   // Creating the meshing for extracting Q
 
   s_option = spde_option_alloc();
   spde_option_update(s_option,triswitch);
   if (spde_check(NULL,dbgrid,model1,NULL,verbose,VectorDouble(),
-                 1,1,0,0,0,0,0)) goto label_end;
+                 true, true, false, false, false, false, false)) goto label_end;
   if (spde_prepar(NULL,dbgrid,VectorDouble(),s_option)) goto label_end;
-  {
-    SPDE_Matelem& Matelem = spde_get_current_matelem(0);
-    Q = Matelem.QC->Q;
-    if (Q == (cs *) NULL) goto label_end;
-    nvertex = Matelem.s_mesh->nvertex;
-  }
+
+  Matelem = spde_get_current_matelem(0);
+  Q = Matelem.QC->Q;
+  if (Q == (cs *) NULL) goto label_end;
+  nvertex = Matelem.amesh->getNApices();
 
   // Create the color coding 
 
   colors = cs_color_coding(Q,0,&ncolor);
-  if (colors == (int *) NULL) goto label_end;
 
   // Core allocation
   
@@ -428,7 +417,6 @@ label_end:
   delete dbgrid;
   delete model1;
   delete model2;
-  colors   = (int    *) mem_free((char *) colors);
   ind      = (int    *) mem_free((char *) ind);
   z        = (double *) mem_free((char *) z);
   krig     = (double *) mem_free((char *) krig);

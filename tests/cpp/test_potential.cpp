@@ -45,7 +45,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   // Global parameters
   int ndim = 2;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Iso-Potential file
   VectorDouble tabiso = { 7., 6., 1.,
@@ -107,7 +107,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   mestitle(0,"Working in 1-D");
   ndim = 1;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   // Iso-Potential file
   tabiso = { 30., 1.,

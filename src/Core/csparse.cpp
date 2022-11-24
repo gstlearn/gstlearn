@@ -2920,7 +2920,7 @@ cs* cs_extract_submatrix_by_ranks(cs *C, int *rank_rows, int *rank_cols)
 /* - the color of its column number is equal to 'ref-color' if 'col_ok'==TRUE*/
 /*   or different if 'col_ok'== FALSE */
 cs* cs_extract_submatrix_by_color(cs *C,
-                                  int *colors,
+                                  const VectorInt& colors,
                                   int ref_color,
                                   int row_ok,
                                   int col_ok)
@@ -5827,8 +5827,8 @@ static int st_find_color(int *Qp,
                          double *Qx,
                          int imesh,
                          int ncolor,
-                         int *colors,
-                         int *temp)
+                         VectorInt& colors,
+                         VectorInt& temp)
 {
   int i;
 
@@ -5866,39 +5866,27 @@ static int st_find_color(int *Qp,
  **
  ** \param[out] ncols    Number of colors
  **
- ** \remarks The returned array must be freed by the calling function
- **
  *****************************************************************************/
-int* cs_color_coding(cs *Q, int start, int *ncols)
+VectorInt cs_color_coding(cs *Q, int start, int *ncols)
 {
-  int *colors, *temp, error, ncolor, nmesh, next_col;
-  double *Qx;
-  int *Qp, *Qi;
-
-  /* Initializations */
-
-  error = 1;
-  ncolor = *ncols = 0;
-  colors = temp = nullptr;
-  Qp = Q->p;
-  Qi = Q->i;
-  Qx = Q->x;
-  nmesh = Q->n;
+  *ncols = 0;
+  int ncolor = 0;
+  int* Qp = Q->p;
+  int* Qi = Q->i;
+  double* Qx = Q->x;
+  int nmesh = Q->n;
 
   /* Core allocation */
 
-  colors = (int*) mem_alloc(sizeof(int) * nmesh, 0);
-  if (colors == nullptr) goto label_end;
-  temp = (int*) mem_alloc(sizeof(int) * nmesh, 0);
-  if (temp == nullptr) goto label_end;
-  for (int i = 0; i < nmesh; i++)
-    colors[i] = ITEST;
+  VectorInt colors(nmesh, 0);
+  VectorInt temp(nmesh, 0);
+  for (int i = 0; i < nmesh; i++) colors[i] = ITEST;
 
   /* Loop on the nodes of the mesh */
 
   for (int j = 0; j < nmesh; j++)
   {
-    next_col = st_find_color(Qp, Qi, Qx, j, ncolor, colors, temp);
+    int next_col = st_find_color(Qp, Qi, Qx, j, ncolor, colors, temp);
     if (next_col < 0)
     {
       ncolor++;
@@ -5918,11 +5906,7 @@ int* cs_color_coding(cs *Q, int start, int *ncols)
   /* Set the error return code */
 
   *ncols = ncolor;
-  error = 0;
-
-  label_end: temp = (int*) mem_free((char* ) temp);
-  if (error) colors = (int*) mem_free((char* ) colors);
-  return (colors);
+  return colors;
 }
 
 int cs_scale(cs *A)

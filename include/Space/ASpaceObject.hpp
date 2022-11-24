@@ -42,16 +42,6 @@ public:
   /// AStringable interface
   virtual String toString(const AStringFormat* strfmt = nullptr) const override;
 
-  /// (Re)Defining the unique default global space
-  static void defineDefaultSpace(ESpaceType type,
-                                 unsigned int ndim = 0,
-                                 double param = 0.);
-  /// Return a clone of the unique default global space
-  static const ASpace* cloneDefaultSpace();
-
-  static ESpaceType getDefaultSpaceType();
-  static int getDefaultSpaceDimension();
-  static const ASpace* getDefaultSpace();
 
 public:
   /// Accessor to the current object space context
@@ -84,8 +74,16 @@ public:
 protected:
   /// Current space context of the object
   const ASpace* _space;
-
-private:
-  /// Unique default global space
-  static ASpace* _defaultSpace;
 };
+
+/// (Re)Defining the unique default global space
+GSTLEARN_EXPORT void defineDefaultSpace(ESpaceType type,
+                                        unsigned int ndim = 2,
+                                        double param = 0.);
+/// Return a clone of the unique default global space
+GSTLEARN_EXPORT const ASpace* cloneDefaultSpace();
+
+GSTLEARN_EXPORT ESpaceType getDefaultSpaceType();
+GSTLEARN_EXPORT int getDefaultSpaceDimension();
+GSTLEARN_EXPORT const ASpace* getDefaultSpace();
+GSTLEARN_EXPORT bool isDefaultSpaceSphere();

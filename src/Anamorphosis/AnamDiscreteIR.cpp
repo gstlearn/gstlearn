@@ -127,7 +127,8 @@ void AnamDiscreteIR::calculateMeanAndVariance()
   setVariance(var);
 }
 
-int AnamDiscreteIR::fitFromArray(const VectorDouble& tab, int verbose)
+int AnamDiscreteIR::fitFromArray(const VectorDouble& tab,
+                                 const VectorDouble& /*wt*/)
 {
   double *residuals, *T, *Q, mean, dt, dq, tnext, qnext, tcur, tprev;
   int error, nsorted;
@@ -148,7 +149,7 @@ int AnamDiscreteIR::fitFromArray(const VectorDouble& tab, int verbose)
 
   /* Calculate the residuals */
 
-  if (_stats_residuals(verbose, nech, tab, &nsorted, &mean, residuals, T, Q))
+  if (_stats_residuals(false, nech, tab, &nsorted, &mean, residuals, T, Q))
     goto label_end;
 
   /* Store the the statistics */

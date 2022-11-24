@@ -79,7 +79,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nvar = 1;
   int nbsimu = 3;
   DbGrid* grid_res;
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS,{"Simu*"});
 
   // Generate the output grid

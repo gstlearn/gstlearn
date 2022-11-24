@@ -15,6 +15,7 @@
 
 #include "Enum/EKrigOpt.hpp"
 #include "Model/Option_VarioFit.hpp"
+#include "Mesh/AMesh.hpp"
 
 class Koption
 {
@@ -182,39 +183,6 @@ public:
   double *coeffs; /* Array of coefficients */
 };
 
-typedef struct
-{
-  int ndupl;
-  int *dupl_data;
-  int *dupl_dabs;
-  int *dupl_grid;
-} Vercoloc;
-
-typedef struct
-{
-  int order;
-  int nvertex;
-  int ngibbs;
-  int nb1;
-  int nb2;
-  int *vt;
-  int *r_g;
-  int *r_abs;
-} Vertype;
-
-class SPDE_Mesh
-{
-public:
-  int ndim;
-  int ncorner;
-  int nmesh;
-  int nvertex;
-  int *meshes;
-  double *points;
-  Vercoloc *vercoloc;
-  Vertype *vertype;
-};
-
 class cs_MGS;
 typedef struct
 {
@@ -228,13 +196,13 @@ typedef struct
   QSimu *qsimu;
   cs_MGS *mgs;
   Cheb_Elem *s_cheb;
-  SPDE_Mesh *s_mesh;
+  AMesh *amesh;
 } SPDE_Matelem;
 
 typedef struct
 {
-  int mesh_dbin;
-  int mesh_dbout;
+  bool mesh_dbin;
+  bool mesh_dbout;
   String triswitch;
 } SPDE_SS_Option;
 

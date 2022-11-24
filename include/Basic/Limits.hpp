@@ -58,7 +58,11 @@ public:
                   bool flagBelow = false,
                   bool flagAbove = false,
                   const NamingConvention& namconv = NamingConvention("Indicator")) const;
-  VectorDouble statistics(Db* db, const String& name, bool flagBelow, bool flagAbove);
+  VectorDouble statistics(Db *db,
+                          const String &name,
+                          int optionStat = 1,
+                          bool flagBelow = false,
+                          bool flagAbove = false);
   int toCategoryByAttribute(Db* db, int iatt, const NamingConvention& namconv) const;
   int toIndicatorByAttribute(Db* db,
                              int iatt,

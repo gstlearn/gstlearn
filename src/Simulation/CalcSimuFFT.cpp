@@ -1159,7 +1159,7 @@ VectorDouble CalcSimuFFT::changeSupport(const VectorDouble &sigma)
  ** \param[in]  param   SimuFFTParam structure
  ** \param[in]  nbsimu  Number of simulations
  ** \param[in]  seed    Value of the seed
- ** \param[in]  verbose Verbosity flag
+ ** \param[in]  verbose Verbose flag
  ** \param[in]  namconv Naming Convention
  **
  *****************************************************************************/
@@ -1193,7 +1193,7 @@ int simfft(DbGrid *db,
  ** \param[in]  param   SimuFFTParam structure
  ** \param[in]  sigma   Array of logarithmic variances
  ** \param[in]  seed    Seed for random number generator
- ** \param[in]  verbose Verbosity flag
+ ** \param[in]  verbose Verbose flag
  **
  *****************************************************************************/
 VectorDouble getChangeSupport(DbGrid *db,

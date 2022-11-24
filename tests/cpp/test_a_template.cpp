@@ -27,9 +27,13 @@
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Calculators/CalcMigrate.hpp"
 #include "Mesh/MeshETurbo.hpp"
+#include "Mesh/MeshEStandard.hpp"
+#include "Mesh/MeshSpherical.hpp"
 #include "LinearOp/ShiftOpCs.hpp"
 #include "LinearOp/PrecisionOp.hpp"
+#include "LinearOp/PrecisionOpCs.hpp"
 #include "LinearOp/ProjMatrix.hpp"
+#include "LinearOp/ShiftOpCs.hpp"
 #include "Stats/Classical.hpp"
 #include "Polygon/Polygons.hpp"
 
@@ -45,13 +49,19 @@ int main(int /*argc*/, char */*argv*/[])
   sfn << gslBaseName(__FILE__) << ".out";
   //  StdoutRedirect sr(sfn.str());
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_SN);
+  defineDefaultSpace(ESpaceType::SN, 2, EARTH_RADIUS);
   String filename;
 
-  filename = "/home/drenard/project_gstlearn/gstlearn/doc/data/Scotland/Scotland_Elevations.csv";
-  CSVformat csvfmt(true);
-  Db* db = Db::createFromCSV(filename, csvfmt);
-  db->display();
+  int nech = 40;
+  VectorDouble extendmin = {0,0};
+  VectorDouble extendmax = {150,100};
+  Db* data = Db::createFromBox(nech, extendmin, extendmax);
+  data->display();
+
+  MeshEStandard mesh1 = MeshEStandard();
+  (void) mesh1.resetFromDb(data,nullptr);
+  mesh1.display();
+  mesh1.printMeshes(2,10);
 
   return (0);
 }

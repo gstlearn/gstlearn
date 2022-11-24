@@ -80,10 +80,10 @@ public:
               bool asSymmetric = false);
 
   const ECalcVario& getCalcul() const { return _calcul; }
-  ECalcVario    getCalculType(const String& calcul_name) const;
-  bool          getFlagAsym() const { return _flagAsym; }
-  bool          drawOnlyPositiveX(int ivar, int jvar) const;
-  bool          drawOnlyPositiveY(int ivar, int jvar) const;
+  ECalcVario        getCalculType(const String& calcul_name) const;
+  bool              getFlagAsym() const { return _flagAsym; }
+  bool              drawOnlyPositiveX(int ivar, int jvar) const;
+  bool              drawOnlyPositiveY(int ivar, int jvar) const;
 
   int    getVariableNumber() const { return _nVar; }
   const  VectorDouble& getMeans() const { return _means; }
@@ -145,6 +145,7 @@ public:
   void updateGgByIndex(int idir, int i, double gg);
 
   int getCenter(int ivar = 0, int jvar = 0, int idir = 0) const;
+  int getNext(int ivar = 0, int jvar = 0, int idir = 0, int shift = 1) const;
 
   int  internalVariableResize();
   void internalDirectionResize(int ndir = 0, bool flagDirs = true);
@@ -169,11 +170,11 @@ public:
            const VectorDouble& hh);
 
   int getDirAddress(int idir,
-                     int ivar,
-                     int jvar,
-                     int ipas,
-                     bool flag_abs = false,
-                     int sens = 0) const;
+                    int ivar,
+                    int jvar,
+                    int ipas,
+                    bool flag_abs = false,
+                    int sens = 0) const;
   int getVarAddress(int ivar, int jvar) const;
   int getLagTotalNumber(int idir) const;
 

@@ -272,11 +272,22 @@ int Limits::toIndicatorByAttribute(Db *db,
                        flagBelow, flagAbove, namconv);
 }
 
-VectorDouble Limits::statistics(Db* db, const String& name, bool flagBelow, bool flagAbove)
+/**
+ * Calculate the statistics per Class
+ * @param db         Target Db
+ * @param name       Name of the Target Variable
+ * @param optionStat 1 for Mean; 2 for Proportions
+ * @param flagBelow  When TRUE, add a class for samples below lowest bound
+ * @param flagAbove  When TRUE, add a class for samples above highest bound
+ * @return
+ */
+VectorDouble Limits::statistics(Db* db, const String& name,
+                                int optionStat, bool flagBelow, bool flagAbove)
 {
   int iatt = db->getUID(name);
   if (iatt < 0) return 1;
-  return _db_limits_statistics(db, iatt, getLowerBounds(), getUpperBounds(),
+  return _db_limits_statistics(db, iatt,
+                               getLowerBounds(), getUpperBounds(),
                                getLowerIncluded(), getUpperIncluded(),
-                               flagBelow, flagBelow);
+                               optionStat, flagBelow, flagAbove);
 }

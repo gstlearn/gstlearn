@@ -66,7 +66,7 @@ int main(int /*argc*/, char */*argv*/[])
 
   /* 1.b - Setup the default space */
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   /* 1.c - Setup constants */
 

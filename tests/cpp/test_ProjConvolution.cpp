@@ -27,7 +27,7 @@ int main(int /*argc*/, char */*argv*/[])
   int seed = 10355;
   int ndim = 2;
   law_set_random_seed(seed);
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
 
   ///////////////////////
   // Creating the Db

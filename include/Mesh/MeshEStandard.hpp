@@ -52,12 +52,6 @@ public:
 
   VectorInt    getMeshList() const { return _meshes.getValues(); }
   VectorDouble getPointList(bool byCol = true) const;
-  void   getDuplicates(int verbose,
-                       Db *dbin,
-                       Db *dbout,
-                       int *nbdupl,
-                       int **dupl1,
-                       int **dupl2) const;
   int resetFromDb(Db *dbin,
                   Db *dbout = nullptr,
                   const VectorDouble& dilate = VectorDouble(),
@@ -66,13 +60,24 @@ public:
   int reset(const MatrixRectangular& apices,
             const MatrixInt& meshes,
             bool verbose = false);
-  int resetOldStyle(int ndim,
-                    int napexpermesh,
-                    const VectorDouble& apices,
-                    const VectorInt& meshes,
-                    bool verbose = false);
-  int        resetFromTurbo(const MeshETurbo& turbo, bool verbose = false);
-  int        convertFromOldMesh(SPDE_Mesh* s_mesh, int verbose);
+  int reset(int ndim,
+            int napexpermesh,
+            const VectorDouble &apices,
+            const VectorInt &meshes,
+            bool byCol = true,
+            bool verbose = false);
+  int reset(int ndim,
+            int napexpermesh,
+            int npoints,
+            int nmeshes,
+            const double *apices,
+            const int *meshes,
+            bool byCol = true,
+            bool verbose = false);
+  int resetFromTurbo(const MeshETurbo &turbo, bool verbose = false);
+
+  const MatrixRectangular& getApices() const { return _apices; }
+  const MatrixInt& getMeshes() const { return _meshes; }
 
 protected:
   /// Interface for ASerializable
@@ -122,6 +127,8 @@ private:
   void _deallocate();
   int  _recopy(const MeshEStandard &m);
   void _checkConsistency() const;
+  void _setApex(int imesh, int rank, int value);
+  void _validate();
 
 private:
   MatrixRectangular _apices; // Dimension: NRow=napices; Ncol=Ndim

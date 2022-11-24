@@ -81,7 +81,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nech = 100;
   VectorDouble coormin(ndim);
   VectorDouble coormax(ndim);
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
 
   // Generate the output grid

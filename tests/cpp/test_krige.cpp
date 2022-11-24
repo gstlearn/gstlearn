@@ -145,7 +145,7 @@ int main(int /*argc*/, char */*argv*/[])
   int nvar = 1;
   law_set_random_seed(32131);
 
-  ASpaceObject::defineDefaultSpace(ESpaceType::SPACE_RN, ndim);
+  defineDefaultSpace(ESpaceType::RN, ndim);
   DbStringFormat dbfmt(FLAG_STATS);
   DbStringFormat dbfmtXvalid(FLAG_STATS,{"Xvalid*"});
   DbStringFormat dbfmtKriging(FLAG_STATS,{"Krig*"});

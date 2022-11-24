@@ -17,6 +17,7 @@
 class Model;
 class Vario;
 class ANeighParam;
+class AMesh;
 class MeshEStandard;
 class RuleProp;
 class cs;
@@ -94,11 +95,11 @@ void _image_smoother(DbGrid *dbgrid,
 /* Prototyping the functions in spde.c */
 /***************************************/
 
-double* _spde_get_mesh_dimension(MeshEStandard *amesh);
-cs* _spde_fill_S(MeshEStandard *amesh, Model *model, double *units);
-VectorDouble _spde_fill_TildeC(MeshEStandard *amesh, double *units);
+double* _spde_get_mesh_dimension(AMesh *amesh);
+cs* _spde_fill_S(AMesh *amesh, Model *model, double *units);
+VectorDouble _spde_fill_TildeC(AMesh* amesh, double* units);
 VectorDouble _spde_fill_Lambda(Model *model,
-                               MeshEStandard *amesh,
+                               AMesh *amesh,
                                const VectorDouble &TildeC);
 cs* _spde_build_Q(cs *S, const VectorDouble &Lambda, int nblin, double *blin);
 Cheb_Elem* _spde_cheb_duplicate(Cheb_Elem *cheb_in);
@@ -158,6 +159,7 @@ VectorDouble _db_limits_statistics(Db *db,
                                    const VectorDouble &maxi,
                                    const VectorBool &incmini,
                                    const VectorBool &incmaxi,
+                                   int optionStat,
                                    bool flagBelow,
                                    bool flagAbove);
 int _migrate(Db *db1,
