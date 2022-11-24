@@ -43,6 +43,12 @@
 #include <math.h>
 #include <string.h>
 
+// https://stackoverflow.com/a/26359433/3952924
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 /*! \cond */
 #define TRACE(i,iseg)       (trace[(i) * nseg + (iseg)])
 #define LINE(nbline,i)      (line[npline * (nbline) + (i)])

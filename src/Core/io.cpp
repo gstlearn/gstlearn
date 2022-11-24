@@ -46,6 +46,12 @@ static void (*EXIT_FUNC)(void) = st_exit;
 static char LINE[LONG_SIZE], LINE_MEM[LONG_SIZE], *LCUR, *LINEB;
 static char *cur = NULL;
 
+// https://stackoverflow.com/a/26359433/3952924
+#ifdef _MSC_VER
+#define strncasecmp _strnicmp
+#define strcasecmp _stricmp
+#endif
+
 /****************************************************************************/
 /*!
  **  Exit from the gstlearn library

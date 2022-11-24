@@ -2013,9 +2013,9 @@ static void st_build_rhs(Pot_Env *pot_env,
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
  ** \param[in]  flag_grad     True if the gradients must also be calculated
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
+ ** \param[in]  dbiso         Iso-potential Db structure (not used)
+ ** \param[in]  dbgrd         Gradient Db structure (not used)
+ ** \param[in]  dbtgt         Tangent Db structure (not used)
  ** \param[in]  dbgrid        Output Db structure (for Ext Drift)
  ** \param[in]  model         Model structure
  ** \param[in]  zdual         Dual vector (Dimension: nequa)
@@ -2040,6 +2040,7 @@ static void st_calc_point(Pot_Env *pot_env,
                           int iech0,
                           VectorDouble& result)
 {
+  SYMBOL_UNUSED(dbiso, dbgrd, dbtgt);
   int nsol;
   VectorDouble coor(3,0.);
 
@@ -2237,9 +2238,9 @@ static void st_estimate_data(Pot_Env *pot_env,
  **
  ** \param[in]  pot_env       Pot_Env structure
  ** \param[in]  pot_ext       Pot_Ext structure
- ** \param[in]  dbiso         Iso-potential Db structure
- ** \param[in]  dbgrd         Gradient Db structure
- ** \param[in]  dbtgt         Tangent Db structure (optional)
+ ** \param[in]  dbiso         Iso-potential Db structure (not used)
+ ** \param[in]  dbgrd         Gradient Db structure  (not used)
+ ** \param[in]  dbtgt         Tangent Db structure  (not used)
  ** \param[in]  model         Model structure
  ** \param[in]  ic0           Rank of the isoline
  ** \param[in]  j0            Rank of the sample within this isoline
@@ -2273,6 +2274,7 @@ static void st_dist_convert(Pot_Env *pot_env,
                             double *dist_euc,
                             double *dist_geo)
 {
+  SYMBOL_UNUSED(dbiso, dbgrd, dbtgt);
   double potval, delta;
   int nsol, nequa, neqm1, icol0;
   VectorDouble result(4);
