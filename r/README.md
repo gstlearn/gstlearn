@@ -61,10 +61,10 @@ Please, look at [CHANGES file](https://github.com/gstlearn/gstlearn/blob/main/CH
 
 For building the *gstlearn* R package, the requirements for building *gstlearn C++ library* must be installed beforehand. Then, the following additional tools must be also available:
 
-    * SWIG 4.2.0 **customized by Fabien Ors** (not the official version!)
-    * R 4 or higher
-    * RTools 4 or higher (for Windows users only)
-    * *ggplot2* and *ggpubr* R packages [Optional] (only for plotting)
+* SWIG 4.2.0 **customized by Fabien Ors** (not the official version!)
+* R 4 or higher
+* RTools 4 or higher (for Windows users only)
+* *ggplot2* and *ggpubr* R packages [Optional] (only for plotting)
 
 #### Linux (Ubuntu)
 

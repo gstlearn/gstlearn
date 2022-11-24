@@ -102,6 +102,7 @@ Note:
 
 Notes:
 
+* Currently, **HDF5 is not supported** when compiling *gstlearn* C++ library **under Windows**. *gstlearn* won't link against HDF5 and GibbsMMulti::setFlagStoreInternal(false) feature won't be available.
 * The default installation directory named *gstlearn_install* is located in your *Home*. If you want to change it, you can either:
     * Define the `GSTLEARN_INSTALL_DIR` environment variable or
     * Add `-DGSTLEARN_INSTALL_DIR=<path/of/gstlearn/install/dir>` to the first cmake command above
@@ -158,12 +159,12 @@ Download and install the following tools using default options during installati
 * CMake tool [from here](https://cmake.org/download) (*Windows Installer* [msi], check the *'Add CMake to the system PATH for all users'* option during installation)
 * Microsoft Visual Studio (Community) [from here](https://visualstudio.microsoft.com/fr/thank-you-downloading-visual-studio/?sku=Community&channel=Release&version=VS2022&source=VSLandingPage&cid=2030&passive=false) (*VisualStudioSetup.exe* - only select the *Visual Studio Desktop C++* component)
 * Boost library [from here](https://www.boost.org/users/download) (*Archive file* [zip] to be extracted in a folder of your own - and remind that folder)
-* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder)
-* Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder)
+* HDF5 library (optional) [from here](https://www.hdfgroup.org/downloads/hdf5) (*Pre-built binaries* [zip] to be extracted, then, execute the *installer* [msi] - and remind the installation folder, we assume it is `C:\Program Files\HDF_Group\HDF5\1.12.2`)
+* Doxygen (optional) [from here](https://www.doxygen.nl/download.html) (*Binary distribution* [setup.exe] - remind the installation folder, we assume it is `C:\Program Files\doxygen`)
 
 Notes:
 
-* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *Doxygen* installation folder in the *Path* variable and restart Windows)
+* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder in the *Path* variable and restart Windows)
 * You must restart your computer after installing these requirements
 
 ### Windows - MinGW (via RTools):
@@ -210,10 +211,6 @@ pacman -Sy mingw-w64-x86_64-boost
 pacman -Sy mingw-w64-x86_64-hdf5
 pacman -Sy mingw-w64-x86_64-doxygen
 ````
-
-Note: 
-
-* Currently, HDF5 is not supported when compiling *gstlearn* C++ library using MinGW (via RTools). You can install the HDF5 package, but *gstlearn* won't link against HDF5 (GibbsMMulti::setFlagStoreInternal(false) feature won't be available).
 
 ## Development
 
