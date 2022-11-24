@@ -1,6 +1,6 @@
 ## Overview
 
-*gstlearn* is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
+**gstlearn** is the new cross-platform Geostatistics C++ library proposed by MINES Paris - PSL University. It offers to C++ users **all famous Geostatistical methodologies** developed and/or invented by the Geostatistic Team of the [Geosciences Research Center](https://www.geosciences.minesparis.psl.eu/).<br/>
 Copyright (c) MINES PARIS / PSL University
 
 The name 'gstlearn' stands for several purposes:
@@ -164,7 +164,7 @@ Download and install the following tools using default options during installati
 Notes:
 
 * You may need to apply [this procedure](https://stackoverflow.com/a/72748816/3952924) to properly install Visual Studio C++
-* The *Path* environment variable (**System variables**) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *Doxygen* installation folder in the *Path* variable and restart Windows)
+* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *Doxygen* installation folder in the *Path* variable and restart Windows)
 * You must restart your computer after installing these requirements
 
 ### Windows - MinGW (via RTools):
@@ -183,7 +183,7 @@ Notes:
 * Choose the corresponding RTools version according the R version installed
 * Instructions in this section are **valid since R v4.2** (for older versions please contact us)
 * RTools is not the unique way to install MinGW on Windows, but it is our preferred way as we can handle R packages compilation
-* The *Path* environment variable (**System variables**) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ex: `C:\Program Files\R\R-4.2.2\bin`)
+* The *Path* environment variable (*System variables*) must be updated to make *R.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add `bin` directory from the *R* installation folder in the *Path* variable and restart Windows, ex: `C:\Program Files\R\R-4.2.2\bin`)
 
 #### Add MSYS2 Required Packages
 
