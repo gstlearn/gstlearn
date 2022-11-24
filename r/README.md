@@ -11,6 +11,8 @@ All *gstlearn* outputs can be ploted using *plot* generic function which relies 
 
 The R *gstlearn* package is a R wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
+When using the *gstlearn* R Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
+
 This package contains a modified copy of [findR.cmake](https://github.com/root-project/root) script (see LICENSE.root in *root* folder).
 
 The *gstlearn* R package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)

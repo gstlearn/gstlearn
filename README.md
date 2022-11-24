@@ -23,7 +23,7 @@ The *gstlearn* C++ library is the direct successor of the Geoslib C/C++ library 
 
 The *gstlearn* C++ library is developed by the [Geostatistics Group](https://www.geosciences.minesparis.psl.eu/en/presentation/geostatistics) of the [Geosciences Center](https://www.geosciences.minesparis.psl.eu) ([MINES Paris](https://mines-paristech.eu/) - [PSL University](https://psl.eu/en) - France)
 
-When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib)
+When using the *gstlearn* C++ library, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 

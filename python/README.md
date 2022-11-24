@@ -10,6 +10,8 @@ If you need to plot *gstlearn* outputs, you can import *gstlearn.plot* module wh
 
 The *gstlearn* Python package is a Python wrapper of the [gstlearn C++ Library](https://github.com/gstlearn/gstlearn).
 
+When using the *gstlearn* Python Package, please use the citation from [doc/gstlearn.bib](doc/gstlearn.bib.in)
+
 This package contains a copy of [doxy2swig](https://github.com/m7thon/doxy2swig) python script (see LICENSE.doxy2swig in *doc* folder).
 
 The *gstlearn* Python package is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
