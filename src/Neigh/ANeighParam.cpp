@@ -80,12 +80,9 @@ bool ANeighParam::_deserialize(std::istream& is, bool /*verbose*/)
 
   bool ret = true;
   ret = ret && _recordRead<int>(is, "Space Dimension", ndim);
+  if (ret) setNDim(ndim);
   ret = ret && _recordRead<int>(is, "Cross-validation flag", flag_xvalid);
-  if (ret)
-  {
-    setNDim(ndim);
-    setFlagXvalid(flag_xvalid);
-  }
+  if (ret) setFlagXvalid(flag_xvalid);
   return ret;
 }
 
@@ -108,7 +105,3 @@ bool ANeighParam::_isDimensionValid(int idim) const
   return true;
 }
 
-void ANeighParam::setNDim(int ndim)
-{
-
-}

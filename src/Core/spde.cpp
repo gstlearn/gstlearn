@@ -1405,7 +1405,7 @@ static void st_convert_exponential2bessel(CovAniso *cova)
 
 /****************************************************************************/
 /*!
- **  Attach the model (used to perform the assignments for external calls)
+ **  Attach the model
  **
  ** \return Error returned code
  **
@@ -5628,32 +5628,6 @@ static AMesh* st_load_meshes_3D(int /*verbose*/,
 
 /****************************************************************************/
 /*!
- **  Save the meshing in keypair
- **
- ** \param[in]  amesh     AMesh structure
- ** \param[in]  icov0     Rank of the covariance corresponding to the Mesh
- **
- *****************************************************************************/
-static void st_save_meshing_keypair(AMesh *amesh, int icov0)
-{
-  int flag_save;
-
-  flag_save = (int) get_keypone("Meshing_External_Save", 0);
-  if (!flag_save) return;
-
-  MeshEStandard* ameshSt = dynamic_cast<MeshEStandard*>(amesh);
-  if (ameshSt == nullptr) return;
-
-  (void) gslSPrintf(NAME, "Meshing_External_Points.%d", icov0 + 1);
-  set_keypair(NAME, 1, ameshSt->getNApices(), ameshSt->getNDim(),
-              ameshSt->getPointList().data());
-  (void) gslSPrintf(NAME, "Meshing_External_Meshes.%d", icov0 + 1);
-  set_keypair_int(NAME, 1, ameshSt->getNMeshes(), ameshSt->getNApexPerMesh(),
-                  ameshSt->getMeshList().data());
-}
-
-/****************************************************************************/
-/*!
  **  Load the meshes
  **
  ** \return  Pointer to the newly created AMesh structure
@@ -5836,12 +5810,6 @@ AMesh* spde_mesh_load(int verbose,
   /* Load the meshing */
 
   AMesh* amesh = st_load_all_meshes(dbin, dbout, gext, s_option);
-
-  if (amesh != nullptr)
-  {
-    int icov0 = SPDE_CURRENT_ICOV;
-    st_save_meshing_keypair(amesh, icov0);
-  }
 
   return amesh;
 }

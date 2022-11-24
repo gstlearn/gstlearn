@@ -17,7 +17,6 @@
 #include "Basic/ICloneable.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/Tensor.hpp"
-#include "Basic/ASerializable.hpp"
 #include "Covariances/ACov.hpp"
 #include "Covariances/ACovFunc.hpp"
 #include "Covariances/CovContext.hpp"
@@ -25,7 +24,7 @@
 
 class Rotation;
 
-class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable, public ASerializable
+class GSTLEARN_EXPORT CovAniso: public ACov, public ICloneable
 {
 public:
   CovAniso(const ECov& type, const CovContext& ctxt);
@@ -199,11 +198,6 @@ public:
   int getDimensionNumber() const        { return _ctxt.getNDim(); }
 
 protected:
-  /// Interface to ASerializable
-  virtual bool _deserialize(std::istream& is, bool verbose = false) override;
-  virtual bool _serialize(std::ostream& os, bool verbose = false) const override;
-  String _getNFName() const override { return "CovAniso"; }
-
   /// Update internal parameters consistency with the context
   virtual void _updateFromContext();
   virtual void _initFromContext();
