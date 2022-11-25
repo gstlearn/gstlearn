@@ -268,6 +268,7 @@
 %include Anamorphosis/AnamEmpirical.hpp
 %include Anamorphosis/AnamDiscreteDD.hpp
 %include Anamorphosis/AnamDiscreteIR.hpp
+%include Anamorphosis/PPMT.hpp
 
 %include Gibbs/AGibbs.hpp
 %include Gibbs/GibbsMulti.hpp

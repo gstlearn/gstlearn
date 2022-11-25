@@ -572,7 +572,7 @@ void PCA::_pcaF2Z(int iptr, Db *db, const VectorBool& isoFlag)
     }
 
     // De-normalize
-    _uncenter(data2, getMean(), getSigma());
+    _uncenter(data2, getMeans(), getSigmas());
 
     // Storage
 
@@ -642,7 +642,7 @@ int PCA::maf_compute(Db *db,
 
   /* Rotate the initial data in the PCA system */
 
-  _pcaZ2F(true, iptr, db, isoFlag, getMean(), getSigma());
+  _pcaZ2F(true, iptr, db, isoFlag, getMeans(), getSigmas());
   db->setLocatorsByUID(nvar, iptr, ELoc::Z);
 
   /* Calculate the variance-covariance matrix at distance [h0-dh,h0+dh] */

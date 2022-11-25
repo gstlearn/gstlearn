@@ -33,16 +33,16 @@ public:
 
   void init(int nvar);
 
-  const VectorDouble& getEigen() const { return _eigen; }
+  const VectorDouble& getEigens() const { return _eigen; }
   double getEigen(int ivar) const { return _eigen[ivar]; }
-  const VectorDouble& getMean() const { return _mean; }
+  const VectorDouble& getMeans() const { return _mean; }
   double getMean(int ivar) const { return _mean[ivar]; }
   int getNVar() const { return _nVar; }
   const VectorDouble& getF2Z() const { return _F2Z; }
   double getF2Z(int ivar, int jvar) const { return _F2Z[_getAddress(ivar,jvar)]; }
   const VectorDouble& getZ2F() const { return _Z2F; }
   double getZ2F(int ivar, int jvar) const { return _Z2F[_getAddress(ivar, jvar)]; }
-  const VectorDouble& getSigma() const { return _sigma; }
+  const VectorDouble& getSigmas() const { return _sigma; }
   double getSigma(int ivar) const { return _sigma[ivar]; }
 
   void setPcaZ2F(const VectorDouble& pcaz2f) { _Z2F = pcaz2f; }

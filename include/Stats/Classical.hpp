@@ -14,6 +14,7 @@
 
 #include "Enum/EStatOption.hpp"
 
+#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/NamingConvention.hpp"
 

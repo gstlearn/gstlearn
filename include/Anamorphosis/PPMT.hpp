@@ -19,6 +19,8 @@
 #include "Basic/NamingConvention.hpp"
 
 class Db;
+class MatrixSquareSymmetric;
+class MatrixRectangular;
 
 class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
 {
@@ -35,6 +37,10 @@ public:
   IMPLEMENT_CLONING(PPMT)
 
   void addIteration(const AnamHermite& anam, const VectorDouble& dir);
+
+public:
+  MatrixRectangular fillLegendre(const VectorDouble& r, int n);
+  MatrixSquareSymmetric sphering(const MatrixRectangular& X);
 
 private:
   std::vector<AnamHermite> _anams;

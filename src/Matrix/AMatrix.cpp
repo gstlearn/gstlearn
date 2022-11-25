@@ -1073,8 +1073,7 @@ AMatrix* transpose(const AMatrix* mat)
   return mat->transpose();
 }
 
-AMatrix* prodMatrix(const AMatrix* mat1,
-                     const AMatrix* mat2)
+AMatrix* prodMatrix(const AMatrix *mat1, const AMatrix *mat2)
 {
   return MatrixFactory::matProduct(mat1, mat2);
 }
