@@ -710,6 +710,8 @@ static void st_qchol_print(const char *title, QChol *QC)
  *****************************************************************************/
 static cs* st_extract_Q_from_Q(cs *Q_in, int row_auth, int col_auth)
 {
+  SYMBOL_UNUSED(row_auth);
+  SYMBOL_UNUSED(col_auth);
   int *rank_rows, *rank_cols, error;
   cs *Q = nullptr;
 
@@ -807,11 +809,10 @@ static QChol* st_extract_QC_from_Q(const char *title,
  ** \param[in]  mode        Type of operation
  **                          1 : Allocation
  **                         -1 : Deallocation
- ** \param[in]  amesh       AMesh structure
  ** \param[in]  qsimu       QSimu structure
  **
  *****************************************************************************/
-static QSimu* st_qsimu_manage(int mode, AMesh *amesh, QSimu *qsimu)
+static QSimu* st_qsimu_manage(int mode, QSimu *qsimu)
 {
   int error;
 
@@ -858,7 +859,7 @@ static QSimu* st_qsimu_manage(int mode, AMesh *amesh, QSimu *qsimu)
 
   error = 0;
 
-  label_end: if (error) qsimu = st_qsimu_manage(-1, NULL, qsimu);
+  label_end: if (error) qsimu = st_qsimu_manage(-1, qsimu);
   return (qsimu);
 }
 
@@ -5054,7 +5055,7 @@ static void st_matelem_manage(int mode)
         }
         Matelem.Isill = (double*) mem_free((char* ) Matelem.Isill);
         Matelem.Csill = (double*) mem_free((char* ) Matelem.Csill);
-        Matelem.qsimu = st_qsimu_manage(-1, NULL, Matelem.qsimu);
+        Matelem.qsimu = st_qsimu_manage(-1, Matelem.qsimu);
         Matelem.mgs = st_mgs_manage(-1, Matelem.mgs);
         Matelem.s_cheb = spde_cheb_manage(-1, 0, 0, 0, NULL, NULL,
                                           Matelem.s_cheb);
@@ -5696,15 +5697,15 @@ static AMesh* st_load_all_meshes(Db *dbin,
 
       if (ndim_loc == 1)
       {
-        return meshes_turbo_1D_grid_build(VERBOSE, dbgrid);
+        return meshes_turbo_1D_grid_build(dbgrid);
       }
       else if (ndim_loc == 2)
       {
-        return meshes_turbo_2D_grid_build(VERBOSE, dbgrid);
+        return meshes_turbo_2D_grid_build(dbgrid);
       }
       else if (ndim_loc == 3)
       {
-        return meshes_turbo_3D_grid_build(VERBOSE, dbgrid);
+        return meshes_turbo_3D_grid_build(dbgrid);
       }
 
     }
@@ -5757,11 +5758,6 @@ static int st_is_external_AQ_defined(int icov0)
  *****************************************************************************/
 int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
 {
-  if (S_EXTERNAL_MESH[icov0] == nullptr)
-  {
-    messerr("The Internal AMesh must be allocated before using it");
-    return (1);
-  }
   if (S_EXTERNAL_A[icov0] == nullptr)
   {
     messerr("The External A must be allocated before using it");
@@ -5772,13 +5768,7 @@ int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
     messerr("The External Q must be allocated before using it");
     return (1);
   }
-  if (S_EXTERNAL_MESH[icov0] == nullptr)
-  {
-    messerr("The output AMesh must already exist");
-    return (1);
-  }
 
-  matelem.amesh = S_EXTERNAL_MESH[icov0];
   matelem.QC    = qchol_manage(1, NULL);
   matelem.QC->Q = cs_duplicate(S_EXTERNAL_Q[icov0]);
   matelem.Aproj = cs_duplicate(S_EXTERNAL_A[icov0]);
@@ -6028,7 +6018,7 @@ int spde_prepar(Db *dbin,
 
       /* Building simulation or Kriging environment */
 
-      Matelem.qsimu = st_qsimu_manage(1, Matelem.amesh, NULL);
+      Matelem.qsimu = st_qsimu_manage(1, NULL);
       if (Matelem.qsimu == nullptr) return 1;
 
       /* Prepare the Chebychev simulation environment */
@@ -6274,6 +6264,8 @@ void spde_free_all(void)
  ** \param[in]  flag_std      True for standard deviation
  ** \param[in]  flag_gibbs    True for Gibbs sampler
  ** \param[in]  flag_modif    True for post-processing simulations
+ **
+ ** \remarks This function initiates the Matelem structures
  **
  *****************************************************************************/
 int spde_check(const Db *dbin,

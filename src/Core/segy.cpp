@@ -1856,6 +1856,7 @@ Grid segy_summary(const char *filesegy,
  **                         -1 flattening from bottom
  **                         -2 squeeze and stretch option
  **                          2 averaging from 3-D to 2-D
+ ** \param[in]  nz_ss       Deprecated argument
  ** \param[in]  verbOption  Verbose option
  ** \param[in]  iline_min   Minimum Inline number included (if defined)
  ** \param[in]  iline_max   Maximum Inline number included (if defined)
@@ -1882,7 +1883,7 @@ int db_segy(const char *filesegy,
             const String &name_bot,
             double thickmin,
             int option,
-            int /*nz_ss*/,
+            int nz_ss,
             int verbOption,
             int iline_min,
             int iline_max,
@@ -1893,6 +1894,7 @@ int db_segy(const char *filesegy,
             double modif_scale,
             const NamingConvention& namconv)
 {
+  SYMBOL_UNUSED(nz_ss);
   double xtrace, ytrace, coor[3];
   int iline, xline, nbvalues, iatt;
   int indg[3], rank, iatt_top = 0, iatt_bot = 0, iaux_top = 0, iaux_bot = 0;

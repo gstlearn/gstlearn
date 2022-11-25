@@ -143,6 +143,7 @@ set(SRC
   Anamorphosis/AnamHermite.cpp
   Anamorphosis/AnamDiscreteIR.cpp
   Anamorphosis/AnamEmpirical.cpp
+  Anamorphosis/PPMT.cpp
   Db/Db.cpp
   Db/DbGrid.cpp
   Db/DbStringFormat.cpp

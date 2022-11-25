@@ -1560,6 +1560,7 @@ int db_simulations_to_ce(Db *db,
  ** \param[in]  flag_norm   1 if the Model must be normalized
  ** \param[in]  flag_multi_mono  1 for the Multi_mono algorithm
  ** \param[in]  flag_propagation 1 for the propagation algorithm
+ ** \param[in]  flag_sym_neigh Deprecated argument
  ** \param[in]  gibbs_optstats   0: No stats - 1: Print - 2: Save Neutral file
  ** \param[in]  percent     Amount of nugget effect added to too continuous
  **                         model (expressed in percentage of total variance)
@@ -1581,7 +1582,7 @@ int gibbs_sampler(Db *dbin,
                   bool flag_norm,
                   bool flag_multi_mono,
                   bool flag_propagation,
-                  bool /*flag_sym_neigh*/,
+                  bool flag_sym_neigh,
                   int gibbs_optstats,
                   double percent,
                   bool flag_ce,
@@ -1589,6 +1590,7 @@ int gibbs_sampler(Db *dbin,
                   bool verbose,
                   const NamingConvention &namconv)
 {
+  SYMBOL_UNUSED(flag_sym_neigh);
   int error, iptr, npgs, nvar, iptr_ce, iptr_cstd;
   PropDef *propdef;
 

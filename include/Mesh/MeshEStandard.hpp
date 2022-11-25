@@ -86,19 +86,16 @@ protected:
   String _getNFName() const override { return "MeshEStandard"; }
 
 private:
-  int _create1D(int ndim_ref,
-                int verbose,
+  int _create1D(int verbose,
                 Db *dbin,
                 Db *dbout,
                 const VectorDouble& dilate);
-  int _create2D(int ndim_ref,
-                int verbose,
+  int _create2D(int verbose,
                 Db *dbin,
                 Db *dbout,
                 const VectorDouble& dilate,
                 const char *triswitch);
-  int _create3D(int ndim_ref,
-                int verbose,
+  int _create3D(int verbose,
                 Db *dbin,
                 Db *dbout,
                 const VectorDouble& dilate,

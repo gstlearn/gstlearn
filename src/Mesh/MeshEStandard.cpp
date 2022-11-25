@@ -130,11 +130,11 @@ int MeshEStandard::resetFromDb(Db* dbin,
   // Dispatch according to Space Dimension
 
   if (ndim == 1)
-    error = _create1D(1,verbose,dbin,dbout,dilate);
+    error = _create1D(verbose,dbin,dbout,dilate);
   else if (ndim == 2)
-    error = _create2D(2,verbose,dbin,dbout,dilate,triswitch.c_str());
+    error = _create2D(verbose,dbin,dbout,dilate,triswitch.c_str());
   else if (ndim == 3)
-    error = _create3D(3,verbose,dbin,dbout,dilate,triswitch.c_str());
+    error = _create3D(verbose,dbin,dbout,dilate,triswitch.c_str());
   else
   {
     messerr("Meshing is only provided for Space Dimension 1, 2 or 3");
@@ -545,15 +545,13 @@ VectorDouble MeshEStandard::getPointList(bool byCol) const
 /*!
 ** Create the meshing in 1D
 **
-** \param[in]  ndim_ref        Space dimension
 ** \param[in]  verbose         Verbose flag
 ** \param[in]  dbin            Pointer to the input Db (optional)
 ** \param[in]  dbout           Pointer to the output Db (optional)
 ** \param[in]  dilate          Dilation of the Bounding box (optional)
 **
 *****************************************************************************/
-int MeshEStandard::_create1D(int                 ndim_ref,
-                             int                 verbose,
+int MeshEStandard::_create1D(int                 verbose,
                              Db*                 dbin,
                              Db*                 dbout,
                              const VectorDouble& dilate)
@@ -607,7 +605,6 @@ int MeshEStandard::_create1D(int                 ndim_ref,
 /*!
 ** Create the meshing in 2D
 **
-** \param[in]  ndim_ref        Space dimension
 ** \param[in]  verbose         Verbose flag
 ** \param[in]  dbin            Pointer to the input Db (optional)
 ** \param[in]  dbout           Pointer to the output Db (optional)
@@ -615,8 +612,7 @@ int MeshEStandard::_create1D(int                 ndim_ref,
 ** \param[in]  triswitch       Construction switch
 **
 *****************************************************************************/
-int MeshEStandard::_create2D(int                 ndim_ref,
-                             int                 verbose,
+int MeshEStandard::_create2D(int                 verbose,
                              Db*                 dbin,
                              Db*                 dbout,
                              const VectorDouble& dilate,
@@ -673,7 +669,6 @@ int MeshEStandard::_create2D(int                 ndim_ref,
 /*!
 ** Create the meshing in 3D
 **
-** \param[in]  ndim_ref        Space dimension
 ** \param[in]  verbose         Verbose flag
 ** \param[in]  dbin            Pointer to the input Db (optional)
 ** \param[in]  dbout           Pointer to the output Db (optional)
@@ -681,8 +676,7 @@ int MeshEStandard::_create2D(int                 ndim_ref,
 ** \param[in]  triswitch       Construction switch
 **
 *****************************************************************************/
-int MeshEStandard::_create3D(int                 ndim_ref,
-                             int                 verbose,
+int MeshEStandard::_create3D(int                 verbose,
                              Db*                 dbin,
                              Db*                 dbout,
                              const VectorDouble& dilate,

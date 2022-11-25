@@ -1005,11 +1005,10 @@ static MeshEStandard* st_ultimate_regular_grid(Db *dbgrid,
  **
  ** \return Pointer to the newly created AMesh structure
  **
- ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_2D_grid_build(int verbose, DbGrid *dbgrid)
+AMesh* meshes_turbo_2D_grid_build(DbGrid *dbgrid)
 {
   int ndim = 2;
   int ncorner = 3;
@@ -2438,11 +2437,10 @@ MeshEStandard* meshes_3D_load_vertices(tetgenio *t)
  **
  ** \return Pointer to the newly created AMesh structure
  **
- ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_3D_grid_build(int verbose, DbGrid *dbgrid)
+AMesh* meshes_turbo_3D_grid_build(DbGrid *dbgrid)
 {
   int ndim = 3;
   int ncorner = 4;
@@ -2740,11 +2738,10 @@ MeshEStandard* meshes_1D_load_vertices(segmentio *t)
  **
  ** \return The newly created AMesh structure
  **
- ** \param[in]  verbose   Verbose flag
  ** \param[in]  dbgrid    Db structure
  **
  *****************************************************************************/
-AMesh* meshes_turbo_1D_grid_build(int verbose, DbGrid *dbgrid)
+AMesh* meshes_turbo_1D_grid_build(DbGrid *dbgrid)
 {
   int ndim = 1;
   int ncorner = 2;
