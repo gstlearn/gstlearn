@@ -3,6 +3,9 @@ This file contains the logs between consecutive releases
 
 Release 0.1.34
 ==============
+- Update requirements installation procedures in READMEs
+- Refactoring of *Mesh* classes
+- API cosmetics for PCA / KDD
 
 
 Release 0.1.33
