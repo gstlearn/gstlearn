@@ -185,6 +185,7 @@ public:
   void setValues(const VectorInt& irows,
                  const VectorInt& icols,
                  const VectorDouble& values);
+  double getMeanByColumn(int icol) const;
 
 #ifndef SWIG
   /*! Get value operator override */

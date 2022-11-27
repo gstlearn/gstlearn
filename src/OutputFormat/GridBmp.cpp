@@ -566,18 +566,18 @@ unsigned char GridBmp::_readIn()
   return (c);
 }
 
-/****************************************************************************/
-/*!
- **  Convert numeric to RGB
- **
- ** \param[in]   value   Input value
- **
- ** \param[out]  r     Red index
- ** \param[out]  g     Green index
- ** \param[out]  b     Blue index
- ** \param[out]  a     Transparency index
- **
- *****************************************************************************/
+///****************************************************************************/
+///*!
+// **  Convert numeric to RGB
+// **
+// ** \param[in]   value   Input value
+// **
+// ** \param[out]  r     Red index
+// ** \param[out]  g     Green index
+// ** \param[out]  b     Blue index
+// ** \param[out]  a     Transparency index
+// **
+// *****************************************************************************/
 /* Warning because value is 8 bits, and you want to shift it up to 24 bits!
 void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
 {
@@ -594,12 +594,18 @@ void GridBmp::_num2rgb(unsigned char value, int *r, int *g, int *b, int *a)
  ** \param[in]  red     Red index
  ** \param[in]  green   Green index
  ** \param[in]  blue    Blue index
+ ** \param[in]  a       Auxiliary parameter
  **
  ** \param[out] c       Numeric value
  **
  *****************************************************************************/
-void GridBmp::_rgb2num(int red, int green, int blue, int /*a*/, unsigned char *c)
+void GridBmp::_rgb2num(int red,
+                       int green,
+                       int blue,
+                       int a,
+                       unsigned char *c)
 {
+  SYMBOL_UNUSED(a);
   double value;
 
   value = (double) (red + green + blue) / 3.;

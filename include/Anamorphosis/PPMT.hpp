@@ -13,6 +13,7 @@
 #include "gstlearn_export.hpp"
 
 #include "Anamorphosis/AnamHermite.hpp"
+#include "Matrix/MatrixSquareGeneral.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ICloneable.hpp"
@@ -21,11 +22,12 @@
 class Db;
 class MatrixSquareSymmetric;
 class MatrixRectangular;
+class AMatrix;
 
 class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
 {
 public:
-  PPMT();
+  PPMT(int nvar = 0);
   PPMT(const PPMT &m);
   PPMT& operator= (const PPMT &m);
   virtual ~PPMT();
@@ -36,13 +38,32 @@ public:
   /// ICloneable Interface
   IMPLEMENT_CLONING(PPMT)
 
-  void addIteration(const AnamHermite& anam, const VectorDouble& dir);
+  int getNiter() const { return (int) _anams.size(); }
 
 public:
-  MatrixRectangular fillLegendre(const VectorDouble& r, int n);
-  MatrixSquareSymmetric sphering(const MatrixRectangular& X);
+  MatrixRectangular fillLegendre(const VectorDouble& r, int n) const;
+  MatrixRectangular sphering(const MatrixRectangular& X);
+
+  VectorDouble generateDirection(double angle) const;
+  double getIndex(const MatrixRectangular &X,
+                  const VectorDouble &direction,
+                  int j = 2) const;
+  VectorDouble optimize(const MatrixRectangular &X,
+                        int j=2,
+                        int N=10) const;
+  MatrixRectangular rotate(const MatrixRectangular &X,
+                           double alpha,
+                           bool direct = true) const;
+  void fit(const MatrixRectangular &X,
+           int niter,
+           int j = 2,
+           int N = 10,
+           int nbpoly = 20);
+  MatrixRectangular eval(const MatrixRectangular& X);
 
 private:
+  int _nvar;
+  MatrixSquareGeneral _S;
   std::vector<AnamHermite> _anams;
   VectorVectorDouble _directions;
 };

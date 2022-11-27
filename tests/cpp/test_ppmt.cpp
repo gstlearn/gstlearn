@@ -15,9 +15,11 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
+#include "Basic/VectorNumT.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
 #include "Basic/File.hpp"
+#include "Basic/OptCst.hpp"
 #include "csparse_f.h"
 
 /****************************************************************************/
@@ -36,6 +38,7 @@ int main(int /*argc*/, char */*argv*/[])
   ASerializable::setPrefixName("PPMT-");
 
   defineDefaultSpace(ESpaceType::RN, 2);
+  OptCst::define(ECst::NTROW, 15);
   
   Db* data = Db::createFromNF("Data.ascii");
   int nech = data->getSampleNumber();
@@ -44,8 +47,8 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixRectangular X(nech, 2);
   X.setValues(XX.data(),true);
 
-  PPMT ppmt;
-  MatrixSquareSymmetric E = ppmt.sphering(X);
+  PPMT ppmt(2);
+  ppmt.fit(X, 100, 5, 10, 30);
 
   return(0);
 }

@@ -1337,3 +1337,18 @@ void AMatrix::_clear()
   _allocate();
 }
 
+double AMatrix::getMeanByColumn(int icol) const
+{
+  double cumul = 0.;
+  double count = 0.;
+  for (int irow = 0; irow < getNRows(); irow++)
+  {
+    double value = getValue(irow, icol);
+    if (FFFF(value)) continue;
+    cumul += value;
+    count += 1.;
+  }
+
+  if (count <= 0.) return TEST;
+  return cumul / count;
+}
