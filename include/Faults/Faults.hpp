@@ -12,7 +12,7 @@
 
 #include "gstlearn_export.hpp"
 
-#include "../Basic/PolyLine2D.hpp"
+#include "Basic/PolyLine2D.hpp"
 #include "Basic/AStringable.hpp"
 #include "Basic/ASerializable.hpp"
 
@@ -32,8 +32,8 @@ public:
   int getNFaults() const { return (int) _faults.size(); }
   void addFault(const PolyLine2D& fault);
 
-  std::vector<PolyLine2D> getFaults() const { return _faults; }
-  const PolyLine2D getFault(int ifault) const { return _faults[ifault]; }
+  const std::vector<PolyLine2D>& getFaults() const { return _faults; }
+  const PolyLine2D& getFault(int ifault) const { return _faults[ifault]; }
 
   bool isSplitByFault(double xt1,double yt1, double xt2, double yt2) const;
 

@@ -115,7 +115,7 @@ bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
   for (int ifault = 0; ifault < getNFaults(); ifault++)
   {
 
-    const PolyLine2D fault = getFault(ifault);
+    const PolyLine2D& fault = getFault(ifault);
 
     // Loop on the segments of the polyline
 
