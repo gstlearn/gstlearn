@@ -916,71 +916,88 @@ bool GeometryHelper::isSegmentIntersect(double xd1,
                                         double xe2,
                                         double ye2)
 {
-  double b1 = ye1 - yd1;
-  double b2 = ye2 - yd2;
+/* Check if bounding boxes overelap */
+  if (::std::max(xd2, xe2) < ::std::min(xd1, xe1)) { return false; }
+  if (::std::max(xd1, xe1) < ::std::min(xd2, xe2)) { return false; }
+  if (::std::max(yd2, ye2) < ::std::min(yd1, ye1)) { return false; }
+  if (::std::max(yd1, ye1) < ::std::min(yd2, ye2)) { return false; }
+
+  const auto b1 = ye1 - yd1;
+  const auto b2 = ye2 - yd2;
+
+  const auto b1_is_not_zero = b1 * b1 >= EPSILON20;
+  const auto b2_is_not_zero = b2 * b2 >= EPSILON20;
+
+  if (b1_is_not_zero && b2_is_not_zero)  // Check most probable case first
+  {
+
+    /* This operation is safe as end-point coordinates cannot be equal */
+
+    const auto a1 = (xe1 - xd1) / b1;
+    const auto a2 = (xe2 - xd2) / b2;
+
+    /* Skip the case of parallel segments */
+    const auto delta_a = a1 - a2;
+    if (delta_a * delta_a < EPSILON20) return false;
+
+    /* Discard intersection if located outside the segment */
+
+    const auto y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / delta_a;
+    //   if (ABS(b1) > 0)  // Sytematically true
+    //   {
+    //     double testval = (y - yd1) * (y - ye1);
+    //     if (testval > 0) return false;
+    //   }
+    if ((y - yd1) * (y - ye1) > 0) return false;
+    //   if (ABS(b2) > 0)  // Sytematically true
+    //   {
+    //     double testval = (y - yd2) * (y - ye2);
+    //     if (testval > 0) return false;
+    //   }
+    if ((y - yd2) * (y - ye2) > 0) return false;
+    return true;
+  }
 
   /* Case of two horizontal segments */
 
-  if (ABS(b1) < EPSILON10 && ABS(b2) < EPSILON10)
+  else if (!b1_is_not_zero && !b2_is_not_zero)
   {
-    if (ABS(ye1 - ye2) > EPSILON10) return false;
-    double x1m = MIN(xd1, xe1);
-    double x1M = MAX(xd1, xe1);
-    double x2m = MIN(xd2, xe2);
-    double x2M = MAX(xd2, xe2);
-    if (x1m > x2M || x2m > x1M) return false;
+    const double delta_y = ye1 - ye2;
+    if (delta_y * delta_y > EPSILON20) return false;
+    // Already checked by bounding boxes
+    // double x1m = MIN(xd1, xe1);
+    // double x1M = MAX(xd1, xe1);
+    // double x2m = MIN(xd2, xe2);
+    // double x2M = MAX(xd2, xe2);
+    // if (x1m > x2M || x2m > x1M) return false;
     return true;
   }
 
   /* Case of the horizontal first segment */
 
-  if (ABS(b1) < EPSILON10)
+  else if (b2_is_not_zero)
   {
-    double y = ye1;
-    double x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
-    if ((x - xd1) * (x - xe1) > 0) return false;
-    if ((y - yd1) * (y - ye1) > 0) return false;
-    if ((x - xd2) * (x - xe2) > 0) return false;
+    const auto y = ye1;
     if ((y - yd2) * (y - ye2) > 0) return false;
+    // if ((y - yd1) * (y - ye1) > 0) return false;  // Systematically false: y = ye1
+    const auto x = xe2 + (y - ye2) * (xe2 - xd2) / b2;
+    if ((x - xd1) * (x - xe1) > 0) return false;
+    if ((x - xd2) * (x - xe2) > 0) return false;
     return true;
   }
 
   /* Case of horizontal second segment */
 
-  if (ABS(b2) < EPSILON10)
+  else  // if (b1_is_not_zero)
   {
-    double y = ye2;
-    double x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
-    if ((x - xd1) * (x - xe1) > 0) return false;
+    const auto y = ye2;
     if ((y - yd1) * (y - ye1) > 0) return false;
+    // if ((y - yd2) * (y - ye2) > 0) return false;  // Systematically false: y = ye2
+    const auto x = xe1 + (y - ye1) * (xe1 - xd1) / b1;
+    if ((x - xd1) * (x - xe1) > 0) return false;
     if ((x - xd2) * (x - xe2) > 0) return false;
-    if ((y - yd2) * (y - ye2) > 0) return false;
     return true;
   }
-
-  /* This operation is safe as end-point ordinates cannot be equal */
-
-  double a1 = (xe1 - xd1) / b1;
-  double a2 = (xe2 - xd2) / b2;
-
-  /* Skip the case of parallel segments */
-
-  if (ABS(a1 - a2) < EPSILON10) return false;
-  double y = (xd2 - xd1 + a1 * yd1 - a2 * yd2) / (a1 - a2);
-
-  /* Discard intersection if located outside the segment */
-
-  if (ABS(b1) > 0)
-  {
-    double testval = (y - yd1) * (y - ye1);
-    if (testval > 0) return false;
-  }
-  if (ABS(b2) > 0)
-  {
-    double testval = (y - yd2) * (y - ye2);
-    if (testval > 0) return false;
-  }
-  return true;
 }
 
 /****************************************************************************/

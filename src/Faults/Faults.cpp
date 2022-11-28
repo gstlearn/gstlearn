@@ -107,26 +107,37 @@ void Faults::addFault(const PolyLine2D& fault)
   _faults.push_back(fault);
 }
 
-bool Faults::isSplitByFault(double xt1,double yt1, double xt2, double yt2) const
+bool Faults::isSplitByFault(double xt1, double yt1, double xt2, double yt2) const
 {
+  // Input segment bounding box
+  const auto xtmin = ::std::min(xt1, xt2);
+  const auto xtmax = ::std::max(xt1, xt2);
+  const auto ytmin = ::std::min(yt1, yt2);
+  const auto ytmax = ::std::max(yt1, yt2);
 
   // Loop on the Fault polylines
-
   for (int ifault = 0; ifault < getNFaults(); ifault++)
   {
-
-    const PolyLine2D& fault = getFault(ifault);
-
+    const auto& fault = getFault(ifault);
+    const auto& x = fault.getX().getVector();
+    const auto& y = fault.getY().getVector();
+    // Check if bounding boxes overelap
+    if (*::std::max_element(x.cbegin(), x.cend()) < xtmin) { continue; }
+    if (xtmax < *::std::min_element(x.cbegin(), x.cend())) { continue; }
+    if (*::std::max_element(y.cbegin(), y.cend()) < ytmin) { continue; }
+    if (ytmax < *::std::min_element(y.cbegin(), y.cend())) { continue; }
     // Loop on the segments of the polyline
-
-    for (int ip = 0; ip< fault.getNPoints() - 1; ip++)
+    auto x1 = x[0];
+    auto y1 = y[0];
+    for (int ip = 1; ip < fault.getNPoints(); ip++)
     {
-      double x1 = fault.getX(ip);
-      double y1 = fault.getY(ip);
-      double x2 = fault.getX(ip + 1);
-      double y2 = fault.getY(ip + 1);
-      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2))
+      const auto x2 = x[ip];
+      const auto y2 = y[ip];
+      if (GH::isSegmentIntersect(x1, y1, x2, y2, xt1, yt1, xt2, yt2)) {
         return true;
+      }
+      x1 = x2;
+      y1 = y2;
     }
   }
   return false;
