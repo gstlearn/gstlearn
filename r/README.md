@@ -76,8 +76,9 @@ For building the *gstlearn* R package, the requirements for building *gstlearn C
 
 ````
 sudo apt install r-base
-sudo apt install bison pcre2-devel # Ubuntu 18
-sudo apt install bison pcre2-dev # Ubuntu 20
+sudo apt install bison
+sudo apt install pcre2-devel # Ubuntu 18
+sudo apt install libpcre2-dev # Ubuntu 20
 ````
 
 4. In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
@@ -111,7 +112,8 @@ Notes:
 
 ````
 brew install r
-brew install bison pcre2-devel
+brew install bison
+brew install pcre2-devel
 ````
 
 4. In a folder of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
@@ -145,8 +147,8 @@ Notes:
 3. Then, from a MSYS2 shell command prompt, execute following instructions:
 
 ````
-pacman -Sy mingw-w64-x86_64-pcre2
 pacman -Sy bison
+pacman -Sy mingw-w64-x86_64-pcre2
 ````
     
 4. In a directory of your own, compile and install SWIG 4.2.0 [customized] by executing following commands:
