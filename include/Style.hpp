@@ -14,6 +14,14 @@
 
 #include "Basic/VectorNumT.hpp"
 
+/**
+ * The Style class is a class which contains all the recommended styles considerations.
+ *
+ * This includes the documentation. In particular, it demonstrates
+ *
+ * - the use of a Global class description
+ * - the description of each method and its arguments (placed in hpp or cpp section)
+ */
 class GSTLEARN_EXPORT Style
 {
 public:
@@ -22,7 +30,7 @@ public:
   Style& operator=(const Style& r);
   virtual ~Style();
 
-  void DocumentedFunction() const;
+  int DocumentedStandard(int myArg) const;
   int DocumentedWithFormula(int myArg) const;
   int UndocumentedArgument(int a);
 

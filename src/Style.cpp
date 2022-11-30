@@ -44,9 +44,16 @@ Style::~Style()
 {
 }
 
-void Style::DocumentedFunction() const
+/**
+ * A method with standard argument documentation
+ * @param myArg Here should be placed the description of this argument
+ * @return Description of the returned argument
+ */
+int Style::DocumentedStandard(int myArg) const
 {
   message("Documented Function\n");
+  message("Value of MyArg = %d\n",myArg);
+  return 0;
 }
 
 /**
@@ -54,7 +61,7 @@ void Style::DocumentedFunction() const
  *
  * \f$ p1=(x_1,y_1) \f$ and \f$ p2=(x_2,y_2) \f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$
  *
- * @param myArg
+ * @param myArg Here should be placed the description of this argument
  * @return
  */
 int Style::DocumentedWithFormula(int myArg) const
@@ -63,7 +70,11 @@ int Style::DocumentedWithFormula(int myArg) const
   return myArg;
 }
 
-
+/**
+ * Description of a static function
+ * @param myArgInt Integer argument
+ * @param myArgDoubleDef Double argument
+ */
 void Style::myFunction(int myArgInt, double myArgDoubleDef)
 {
   message("Input Argument (int) = %d\n", myArgInt);
@@ -72,7 +83,7 @@ void Style::myFunction(int myArgInt, double myArgDoubleDef)
 
 /**
  * Undocumented argument
- * @param a
+ * @param a Input argument not used (but documented)
  * @return Error returned code
  */
 int Style::UndocumentedArgument(int a)
