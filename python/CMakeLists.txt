@@ -51,8 +51,10 @@ add_custom_target(python_doc
   COMMENT "Generate python documentation from doxygen output"
 )
 
-# No more dependency, doxygen is optional
-add_dependencies(python_doc doxygen)
+# Doxygen is optional
+if (BUILD_DOXYGEN)
+  add_dependencies(python_doc doxygen)
+endif()
 
 ######################################
 # WRAPPER GENERATION & BUILD
