@@ -52,7 +52,7 @@ add_custom_target(python_doc
 )
 
 # No more dependency, doxygen is optional
-#add_dependencies(python_doc doxygen)
+add_dependencies(python_doc doxygen)
 
 ######################################
 # WRAPPER GENERATION & BUILD

@@ -117,6 +117,9 @@ cmake-python-r:
 cmake-doxygen:
 	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_DOXYGEN=ON
 
+cmake-python-doxygen:
+	@cmake -DCMAKE_BUILD_TYPE=$(FLAVOR) -DUSE_HDF5=$(USE_HDF5) -B$(BUILD_DIR) -H. $(GENERATOR) -DBUILD_PYTHON=ON -DBUILD_DOXYGEN=ON
+
 static: cmake
 	@cmake --build $(BUILD_DIR) --target static -- --no-print-directory $(N_PROC_OPT)
 
@@ -139,7 +142,7 @@ uninstall:
 
 .PHONY: python_doc python_build python_install python_upload
 
-python_doc: cmake-python doxygen
+python_doc: cmake-python-doxygen
 	@cmake --build $(BUILD_DIR) --target python_doc -- --no-print-directory $(N_PROC_OPT)
 
 python_build: cmake-python
