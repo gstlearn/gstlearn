@@ -216,7 +216,7 @@ pacman -Sy mingw-w64-x86_64-doxygen
 
 ### Execute Non-regression Tests
 
-The `check.*` targets brings some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
+The `check.*` targets bring some required runtime customization, so do not use the standard *ctest* command for triggering the non-regression tests.
 
 To build and launch non-regression tests, execute the following commands:
 
