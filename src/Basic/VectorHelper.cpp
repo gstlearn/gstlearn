@@ -408,6 +408,17 @@ void VectorHelper::normalize(VectorDouble &vec)
      v /= ratio;
 }
 
+void VectorHelper::normalizeFromGaussianDistribution(VectorDouble &vec,
+                                                     double mini,
+                                                     double maxi)
+{
+  for (int i = 0; i < (int) vec.size(); i++)
+  {
+    if (! FFFF(vec[i]))
+      vec[i] = mini + (maxi - mini) * law_cdf_gaussian(vec[i]);
+  }
+}
+
 /**
  * Check if the contents of a vector is constant (equal to 'refval' is defined)
  * @param vect   Input vector

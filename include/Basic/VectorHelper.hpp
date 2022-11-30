@@ -90,6 +90,9 @@ public:
   static void addConstant(VectorInt& vec, int v);
 
   static void normalize(VectorDouble& vec);
+  static void normalizeFromGaussianDistribution(VectorDouble &vec,
+                                                double mini = 0.,
+                                                double maxi = 1.);
   static VectorDouble concatenate(const VectorDouble &veca, const VectorDouble &vecb);
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);

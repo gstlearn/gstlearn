@@ -5756,7 +5756,7 @@ static int st_is_external_AQ_defined(int icov0)
  ** \param[in]  icov0    Rank of the current Covariance
  **
  *****************************************************************************/
-int spde_external_AQ_copy(SPDE_Matelem &matelem, int icov0)
+int spde_external_copy(SPDE_Matelem &matelem, int icov0)
 {
   if (S_EXTERNAL_A[icov0] == nullptr)
   {
@@ -5809,6 +5809,8 @@ AMesh* spde_mesh_load(int verbose,
  **  Manage the contents of the External AMesh structure used for
  **  storing external meshing information
  **
+ **  \return A pointer on the Mesh
+ **
  ** \param[in]  icov0     Rank of the current covariance (from 0 to 2)
  ** \param[in]  ndim      Space dimension
  ** \param[in]  ncorner   Number of vertices per element
@@ -5816,48 +5818,50 @@ AMesh* spde_mesh_load(int verbose,
  ** \param[in]  points    Array containing the vertex coordinates
  **
  *****************************************************************************/
-void spde_external_mesh_define(int icov0,
-                               int ndim,
-                               int ncorner,
-                               VectorInt& meshes,
-                               VectorDouble& points)
+MeshEStandard* spde_external_mesh_define(int icov0,
+                                         int ndim,
+                                         int ncorner,
+                                         VectorInt &meshes,
+                                         VectorDouble &points)
 {
   MeshEStandard* mesh = dynamic_cast<MeshEStandard*>(S_EXTERNAL_MESH[icov0]);
   if (mesh != nullptr)
     mesh->reset(ndim, ncorner, points, meshes);
   S_EXTERNAL_MESH[icov0] = mesh;
+  return mesh;
 }
 
-void spde_external_mesh_undefine(int icov0)
+MeshEStandard* spde_external_mesh_undefine(int icov0)
 {
   if (S_EXTERNAL_MESH[icov0] != nullptr) delete S_EXTERNAL_MESH[icov0];
   S_EXTERNAL_MESH[icov0] = nullptr;
+  return nullptr;
 }
 
-/****************************************************************************/
-/*!
- **  Manage the contents of the External Q structure used for
- **  storing external information
- **
- ** \param[in]  icov0     Rank of the current covariance (from 0 to 2)
- ** \param[in]  A         Sparse matrix
- ** \param[in]  Q         Sparse matrix
- **
- *****************************************************************************/
-int spde_external_AQ_define(int icov0, cs *A, cs *Q)
+cs* spde_external_A_define(int icov0, cs *A)
+{
+  S_EXTERNAL_A[icov0] = cs_duplicate(A);
+  return S_EXTERNAL_A[icov0];
+}
+
+cs* spde_external_A_undefine(int icov0)
+{
+  if (S_EXTERNAL_A[icov0] == nullptr) return nullptr;
+  S_EXTERNAL_A[icov0] = cs_spfree(S_EXTERNAL_A[icov0]);
+  return nullptr;
+}
+
+cs* spde_external_Q_define(int icov0, cs *Q)
 {
   S_EXTERNAL_Q[icov0] = cs_duplicate(Q);
-  if (S_EXTERNAL_Q[icov0] == nullptr) return (1);
-
-  S_EXTERNAL_A[icov0] = cs_duplicate(A);
-  if (S_EXTERNAL_A[icov0] == nullptr) return (1);
-
-  return 0;
+  return S_EXTERNAL_Q[icov0];
 }
 
-void spde_external_AQ_undefine(int icov0)
+cs* spde_external_Q_undefine(int icov0)
 {
+  if (S_EXTERNAL_Q[icov0] == nullptr) return nullptr;
   S_EXTERNAL_Q[icov0] = cs_spfree(S_EXTERNAL_Q[icov0]);
+  return nullptr;
 }
 
 /****************************************************************************/
@@ -5954,7 +5958,7 @@ int spde_prepar(Db *dbin,
 
       if (flag_AQ_defined)
       {
-        if (spde_external_AQ_copy(Matelem, icov)) return 1;
+        if (spde_external_copy(Matelem, icov)) return 1;
       }
 
       /* Prepare the array of sparse matrices (without nugget effect) */

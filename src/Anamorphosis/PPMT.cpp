@@ -13,7 +13,6 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/PPMT.hpp"
-#include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
@@ -21,19 +20,25 @@
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
 
-PPMT::PPMT(int nvar)
+PPMT::PPMT(int nbpoly, int ndir, int legendre_order)
     : AStringable(),
-      _nvar(nvar),
+      _nbpoly(nbpoly),
+      _ndir(ndir),
+      _legendreOrder(legendre_order),
       _anams(),
-      _directions()
+      _directions(),
+      _nvar(0)
 {
 }
 
 PPMT::PPMT(const PPMT &m)
     : AStringable(m),
-      _nvar(m._nvar),
+      _nbpoly(m._nbpoly),
+      _ndir(m._ndir),
+      _legendreOrder(m._legendreOrder),
       _anams(m._anams),
-      _directions(m._directions)
+      _directions(m._directions),
+      _nvar(m._nvar)
 {
 }
 
@@ -42,9 +47,12 @@ PPMT& PPMT::operator=(const PPMT &m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _nvar = m._nvar;
+    _nbpoly = m._nbpoly;
+    _ndir = m._ndir;
+    _legendreOrder = m._legendreOrder;
     _anams = m._anams;
     _directions = m._directions;
+    _nvar = m._nvar;
   }
   return *this;
 }
@@ -69,10 +77,10 @@ String PPMT::toString(const AStringFormat* strfmt) const
   return sstr.str();
 }
 
-MatrixRectangular PPMT::fillLegendre(const VectorDouble& r, int n) const
+MatrixRectangular PPMT::fillLegendre(const VectorDouble& r) const
 {
   int nrow = (int) r.size();
-  int ncol = n + 1;
+  int ncol = _legendreOrder + 1;
   MatrixRectangular lp(nrow, ncol);
 
   // Initialization
@@ -85,7 +93,7 @@ MatrixRectangular PPMT::fillLegendre(const VectorDouble& r, int n) const
 
   // Recursion
 
-  for (int j = 1; j < n; j++)
+  for (int j = 1; j < _legendreOrder; j++)
     for (int i = 0; i < nrow; i++)
     {
       lp.setValue(i, j+1,
@@ -95,21 +103,21 @@ MatrixRectangular PPMT::fillLegendre(const VectorDouble& r, int n) const
   return lp;
 }
 
-MatrixRectangular PPMT::sphering(const MatrixRectangular& X)
+AMatrix* PPMT::sphering(const AMatrix* X)
 {
-  if (X.isEmpty()) return MatrixRectangular();
-  int nech = X.getNRows();
-  int nvar = X.getNCols();
+  if (X->isEmpty()) return nullptr;
+  int nech = X->getNRows();
+  int nvar = X->getNCols();
 
-  AMatrix* TX = X.transpose();
-  AMatrix* prod = prodMatrix(TX, &X);
+  AMatrix* TX = X->transpose();
+  AMatrix* prod = prodMatrix(TX, X);
   prod->prodScalar(1. / (double) nech);
 
   VectorDouble eigen_values(nvar);
   VectorDouble eigen_vectors(nvar * nvar);
   if (matrix_eigen(prod->getValues().data(), nvar,
                    eigen_values.data(), eigen_vectors.data()))
-    return MatrixRectangular();
+    return nullptr;
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
   MatrixSquareGeneral S(nvar);
@@ -123,13 +131,10 @@ MatrixRectangular PPMT::sphering(const MatrixRectangular& X)
                  signe * S.getValue(ivar, jvar) / sqrt(eigen_values[jvar]));
     }
 
-  AMatrix* YY = prodMatrix(&X, &S);
-  MatrixRectangular Y(nech, nvar);
-  Y.setValues(YY->getValues());
+  AMatrix* Y = prodMatrix(X, &S);
 
   delete TX;
   delete prod;
-  delete YY;
 
   return Y;
 }
@@ -142,44 +147,45 @@ VectorDouble PPMT::generateDirection(double angle) const
   return direction;
 }
 
-double PPMT::getIndex(const MatrixRectangular &X,
-                      const VectorDouble &direction,
-                      int j) const
+double PPMT::getIndex(const AMatrix *X, const VectorDouble &direction) const
 {
   MatrixRectangular dirmat(_nvar, 1);
   dirmat.setValues(direction.data());
-  AMatrix* XPP = prodMatrix(&X, &dirmat);
+  AMatrix* XPP = prodMatrix(X, &dirmat);
 
   VectorDouble r = XPP->getColumn(0);
-  VH::divideConstant(r, 3.5);  // Normation empirique
+  delete XPP;
 
-  MatrixRectangular lp = fillLegendre(r, j);
+  VH::normalizeFromGaussianDistribution(r,-1.,1.);
+
+  MatrixRectangular lp = fillLegendre(r);
 
   double idx = 0.;
-  for (int l = 0; l < j; l++)
+  for (int l = 0; l < _legendreOrder; l++)
   {
     double mean = lp.getMeanByColumn(1+l);
     idx += (2*l+3)/2. * mean * mean;
   }
-  delete XPP;
   return idx;
 }
 
-VectorDouble PPMT::optimize(const MatrixRectangular &X, int j, int N) const
+VectorDouble PPMT::optimize(const AMatrix* X) const
 {
   double idx_max = -1.;
   double ang_max = -1.;
 
-  for (int i = 0; i < N; i++)
+  for (int i = 0; i < _ndir; i++)
   {
     // Draw a direction at random
 
-    double angle = (double)(i+1) * GV_PI / (double) N; // DR to fit R code
+    double angle = (double)(i+1) * GV_PI / (double) _ndir;
     VectorDouble direction = generateDirection(angle);
-    double idx = getIndex(X, direction, j);
-    if (idx < idx_max) continue;
-    idx_max = idx;
-    ang_max = angle;
+    double idx = getIndex(X, direction);
+    if (idx > idx_max)
+    {
+      idx_max = idx;
+      ang_max = angle;
+    }
   }
 
   VectorDouble result(2);
@@ -188,9 +194,7 @@ VectorDouble PPMT::optimize(const MatrixRectangular &X, int j, int N) const
   return result;
 }
 
-MatrixRectangular PPMT::rotate(const MatrixRectangular &X,
-                               double alpha,
-                               bool direct) const
+AMatrix* PPMT::rotate(const AMatrix *X, double alpha, bool direct) const
 {
   double cs = cos(alpha);
   double sn = sin(alpha);
@@ -210,56 +214,86 @@ MatrixRectangular PPMT::rotate(const MatrixRectangular &X,
     rotation.setValue(1, 1, cs);
   }
 
-  AMatrix* Xtemp = prodMatrix(&X, &rotation);
+  AMatrix* XR = prodMatrix(X, &rotation);
 
-  MatrixRectangular XP = X;
-  XP.setValues(Xtemp->getValues());
-  return XP;
+  return XR;
 }
 
-void PPMT::fit(const MatrixRectangular &X, int niter, int j, int N, int nbpoly)
+int PPMT::fit(const AMatrix* X, int niter)
 {
+  // Preliminary check
+  if (_nbpoly <= 0)
+  {
+    messerr("The number of Hermite polynomials is not defined");
+    return 1;
+  }
+  if (_ndir <= 0)
+  {
+    messerr("The number of Directions is not defined");
+    return 1;
+  }
+  if (_legendreOrder <= 2)
+  {
+    messerr("The order of Legendre Polynomials is not defined");
+    return 1;
+  }
+
+  // Cleaning
   _anams.clear();
   _directions.clear();
+  _nvar = X->getNCols();
 
-  MatrixRectangular XP = sphering(X);
-
+  // Processing
+  AMatrix* XP = sphering(X);
   for (int iter = 0; iter < niter; iter++)
   {
-    VectorDouble result = optimize(XP, j, N);
+    VectorDouble result = optimize(XP);
     message("Iteration %d: angle=%lf max=%lf\n",iter+1,result[1],result[0]);
 
     double angle = result[1];
-    MatrixRectangular XR = rotate(XP, angle, true);
+    AMatrix* XR = rotate(XP, angle, true);
+    delete XP;
 
     _directions.push_back(result);
 
-    AnamHermite anam = AnamHermite(nbpoly);
-    VectorDouble Z = XR.getColumn(0);
+    AnamHermite anam = AnamHermite(_nbpoly);
+    VectorDouble Z = XR->getColumn(0);
     anam.fitFromArray(Z);
     VectorDouble Y = anam.RawToTransformVec(Z);
-    XR.setColumn(0, Y);
-    MatrixRectangular XB = rotate(XR, angle, false);
+    XR->setColumn(0, Y);
+    AMatrix* XB = rotate(XR, angle, false);
+    delete XR;
+
     _anams.push_back(anam);
 
     XP = XB;
   }
+  return 0;
 }
 
-MatrixRectangular PPMT::eval(const MatrixRectangular& X)
+AMatrix* PPMT::RawToTransform(const AMatrix* X)
 {
-  MatrixRectangular XP = X;
-  int nech = X.getNRows();
+  if (X->getNCols() != _nvar)
+  {
+    messerr("The input array has %d columns",X->getNCols());
+    messerr("The number of variables in the PPMT is %d",_nvar);
+    messerr("This is not correct");
+    return nullptr;
+  }
   int niter = getNiter();
 
+  AMatrix* XP = dynamic_cast<AMatrix*>(X->clone());
   for (int iter = niter-1; iter >= 0; iter--)
   {
     double angle = _directions[iter][1];
-    MatrixRectangular XR = rotate(XP, angle, true);
-    VectorDouble Y = XR.getColumn(0);
+    AMatrix* XR = rotate(XP, angle, true);
+    delete XP;
+
+    VectorDouble Y = XR->getColumn(0);
     VectorDouble Z = _anams[iter].TransformToRawVec(Y);
-    XR.setColumn(0, Z);
-    MatrixRectangular XB = rotate(XR, angle, false);
+    XR->setColumn(0, Z);
+    AMatrix* XB = rotate(XR, angle, false);
+    delete XR;
 
     XP = XB;
   }
@@ -269,9 +303,7 @@ MatrixRectangular PPMT::eval(const MatrixRectangular& X)
   MatrixSquareGeneral invS = _S;
   invS.invert();
 
-  AMatrix* YY = prodMatrix(&XP, &invS);
-  MatrixRectangular Y(nech, _nvar);
-  Y.setValues(YY->getValues());
+  AMatrix* Y = prodMatrix(XP, &invS);
 
   return Y;
 }

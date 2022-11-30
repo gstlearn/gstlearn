@@ -27,7 +27,7 @@ class AMatrix;
 class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
 {
 public:
-  PPMT(int nvar = 0);
+  PPMT(int nbpoly=30, int ndir=10, int legendre_order=2);
   PPMT(const PPMT &m);
   PPMT& operator= (const PPMT &m);
   virtual ~PPMT();
@@ -41,29 +41,24 @@ public:
   int getNiter() const { return (int) _anams.size(); }
 
 public:
-  MatrixRectangular fillLegendre(const VectorDouble& r, int n) const;
-  MatrixRectangular sphering(const MatrixRectangular& X);
+  MatrixRectangular fillLegendre(const VectorDouble& r) const;
+  AMatrix* sphering(const AMatrix* X);
 
   VectorDouble generateDirection(double angle) const;
-  double getIndex(const MatrixRectangular &X,
-                  const VectorDouble &direction,
-                  int j = 2) const;
-  VectorDouble optimize(const MatrixRectangular &X,
-                        int j=2,
-                        int N=10) const;
-  MatrixRectangular rotate(const MatrixRectangular &X,
-                           double alpha,
-                           bool direct = true) const;
-  void fit(const MatrixRectangular &X,
-           int niter,
-           int j = 2,
-           int N = 10,
-           int nbpoly = 20);
-  MatrixRectangular eval(const MatrixRectangular& X);
+  double getIndex(const AMatrix *X, const VectorDouble &direction) const;
+  VectorDouble optimize(const AMatrix *X) const;
+  AMatrix* rotate(const AMatrix *X, double alpha, bool direct = true) const;
+
+  int fit(const AMatrix* X, int niter);
+  AMatrix* RawToTransform(const AMatrix* X);
 
 private:
-  int _nvar;
+  int _nbpoly;
+  int _ndir;
+  int _legendreOrder;
   MatrixSquareGeneral _S;
   std::vector<AnamHermite> _anams;
   VectorVectorDouble _directions;
+
+  int _nvar;
 };

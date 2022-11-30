@@ -29,10 +29,9 @@
 *****************************************************************************/
 int main(int /*argc*/, char */*argv*/[])
 {
-  // Standard output redirection to file
   std::stringstream sfn;
   sfn << gslBaseName(__FILE__) << ".out";
-    StdoutRedirect sr(sfn.str());
+  StdoutRedirect sr(sfn.str());
 
   ASerializable::setContainerName(true);
   ASerializable::setPrefixName("PPMT-");
@@ -47,8 +46,13 @@ int main(int /*argc*/, char */*argv*/[])
   MatrixRectangular X(nech, 2);
   X.setValues(XX.data(),true);
 
-  PPMT ppmt(2);
-  ppmt.fit(X, 100, 5, 10, 30);
+  int nbpoly = 30;
+  int legendre_order = 5;
+  int ndir = 10;
+  PPMT ppmt(nbpoly, ndir, legendre_order);
+
+  int niter = 100;
+  ppmt.fit(&X, niter);
 
   return(0);
 }

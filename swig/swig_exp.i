@@ -333,6 +333,8 @@
 
 %include Skin/Skin.hpp
 
+%include Style.hpp
+
 %include segy.h
 
 // For suppressing SWIG warning due to -keyword option (if used)

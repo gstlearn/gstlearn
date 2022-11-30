@@ -30,6 +30,7 @@
 #include "Basic/Utilities.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Stats/Classical.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 #include <algorithm>
 #include <functional>
@@ -3744,6 +3745,20 @@ VectorDouble Db::getColumns(const VectorString& names, bool useSel) const
   if (names.empty()) return VectorDouble();
   VectorInt iuids =  _ids(names, false);
   return getColumnsByUID(iuids, useSel);
+}
+
+MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
+                                         bool useSel) const
+{
+  int nvar = (int) names.size();
+  int nech = getSampleNumber(useSel);
+  MatrixRectangular mat(nech,nvar);
+  for (int ivar = 0; ivar < nvar; ivar++)
+  {
+    VectorDouble X = getColumn(names[ivar], useSel);
+    mat.setColumn(ivar, X);
+  }
+  return mat;
 }
 
 VectorDouble Db::getFFFFs(const VectorString& names, bool useSel) const

@@ -300,4 +300,5 @@ set(SRC
   Basic/AFunction.cpp
   Skin/Skin.cpp
   API/TestInheritance.cpp
+  Style.cpp
 )
