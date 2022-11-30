@@ -8,6 +8,9 @@ file(GLOB TEST_SOURCES test_*.cpp)
 #  test_Francky.cpp)
 #  test_SPDEDrift.cpp)
 
+# Remove test_ppmt (not yet functional)
+list(FILTER TEST_SOURCES EXCLUDE REGEX "test_ppmt.cpp")
+
 # Remove test_HDF5 if not supported
 if (NOT USE_HDF5)
   list(FILTER TEST_SOURCES EXCLUDE REGEX "test_HDF5.cpp")
