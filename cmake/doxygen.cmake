@@ -15,18 +15,23 @@ set(DOXYGEN_EXCLUDE ${CMAKE_SOURCE_DIR}/include/geoslib_old_f.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_f_private.h
                     ${CMAKE_SOURCE_DIR}/include/geoslib_d_private.h)
 set(DOXYGEN_VERBATIM_HEADERS NO)
+set(DOXYGEN_GENERATE_HTML YES)
 set(DOXYGEN_HTML_TIMESTAMP YES)
 set(DOXYGEN_GENERATE_XML YES) # For pygstlearn module
 set(DOXYGEN_GENERATE_TREEVIEW YES)
 set(DOXYGEN_MAX_INITIALIZER_LINES 1000) # For very long macros
 set(DOXYGEN_MACRO_EXPANSION YES)
 set(DOXYGEN_EXPAND_ONLY_PREDEF NO)
+set(DOXYGEN_EXTRACT_PRIVATE YES)
 set(DOXYGEN_QUIET YES)
 set(DOXYGEN_HAVE_DOT NO) # Put NO to reduce generation time (keep YES for UML or better graphs)
 # Uncomment if you prefer UML graphs (need DOXYGEN_HAVE_DOT YES)
 #set(DOXYGEN_HIDE_UNDOC_RELATIONS NO)
 #set(DOXYGEN_UML_LOOK YES)
 #set(DOXYGEN_TEMPLATE_RELATIONS YES)
+
+# https://stackoverflow.com/questions/25290453/how-do-i-add-a-footnote-in-doxygen
+set(DOXYGEN_ALIASES tooltip{1}=\"\\latexonly\\footnote\\{\\1\\}\\endlatexonly\\htmlonly<sup title=\'\\1\'>*</sup>\\endhtmlonly\")
 
 # Add target for generating the doxymentation
 doxygen_add_docs(doxygen

@@ -76,34 +76,6 @@ String CalcSimuEden::toString(const AStringFormat* /*strfmt*/) const
  **
  ** \return  Error return code : 1 no fluid to propagate
  **
- ** \param[in]  ind_facies    Rank of the variable containing the Facies
- ** \param[in]  ind_fluid     Rank of the variable containing the Fluid
- ** \param[in]  ind_perm      Rank of the variable containing the Permeability
- ** \param[in]  ind_poro      Rank of the variable containing the Porosity
- ** \param[in]  nfacies       number of facies (facies 0 excluded)
- ** \param[in]  nfluids       number of fluids
- ** \param[in]  niter         Number of iterations
- ** \param[in]  speeds        array containing the travel speeds
- ** \param[in]  show_fluid    1 for modifying the value of the cells to show
- ** \li                       the initial valid fluid information
- ** \li                       the cork (different from shale)
- ** \param[in]  number_max    Maximum count of cells invaded (or TEST)
- ** \param[in]  volume_max    Maximum volume invaded (or TEST)
- **
- ** \remark  Directions are ordered as follows :
- ** \remark  0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
- ** \remark  The coding of the matrix is:
- ** \remark              facies + nfacies * fluid
- ** \remark  Facies: 0 (Shale), 1 to nfacies, -1 (Cork)
- ** \remark  Fluids: 0 (undefined), 1 to nfluids, -1 (No Fluid)
- ** \remark  Fluids should be ordered by increasing weight
- ** \remark  A Permeability variable is a value (>=1) which divides
- ** \remark  the velocities. This variable is optional.
- ** \remark  A Porosity variable is a value (in [0,1]) which multiplies
- ** \remark  the volumes. This variable is optional.
- ** \remark  Volume_max represents the volumic part of the invaded area:
- ** \remark  it is always <= number of cells invaded.
- **
  *****************************************************************************/
 bool CalcSimuEden::_simulate()
 {

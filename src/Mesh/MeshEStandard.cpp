@@ -997,7 +997,6 @@ bool MeshEStandard::_serialize(std::ostream& os, bool /*verbose*/) const
 
 /**
  * Validate Meshing, in particular when transiting from Old Meshing to New one
- * @param verbose Verbose flag
  *
  * @remark For safety and considering the rank of Apices stored in 'meshes',
  * @remark the minimum value is considered
