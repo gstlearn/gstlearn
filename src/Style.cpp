@@ -70,9 +70,9 @@ Style::~Style()
 /**
  * A method with standard argument documentation
  *
- * @param myArg Here should be placed the description of this argument
+ * \param myArg Here should be placed the description of this argument
  *
- * @return Description of the returned value
+ * \return Description of the returned value
  */
 int Style::DocumentedStandard(int myArg) const
 {
@@ -86,11 +86,11 @@ int Style::DocumentedStandard(int myArg) const
  *
  * The distance between \f$ p1=(x_1,y_1) \f$ and \f$ p2=(x_2,y_2) \f$ is \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$
  *
- * @see SpaceRN::getDistance
+ * \see SpaceRN::getDistance
  *
- * @param myArg Here should be placed the description of this argument
+ * \param myArg Here should be placed the description of this argument
  *
- * @return The value of the argument + 1
+ * \return The value of the argument + 1
  */
 int Style::DocumentedWithFormula(int myArg) const
 {
@@ -101,8 +101,8 @@ int Style::DocumentedWithFormula(int myArg) const
 /**
  * Description of a static function
  *
- * @param myArgInt Integer argument
- * @param myArgDoubleDef Double argument
+ * \param myArgInt Integer argument
+ * \param myArgDoubleDef Double argument
  */
 void Style::myFunction(int myArgInt, double myArgDoubleDef)
 {
@@ -113,9 +113,9 @@ void Style::myFunction(int myArgInt, double myArgDoubleDef)
 /**
  * A function where the argument is not used (could be the case in abstract methods)
  *
- * @param a Input argument not used (but documented)
+ * \param a Input argument not used (but documented)
  *
- * @return Error returned code
+ * \return Error returned code
  */
 int Style::UnusedArgument(int a)
 {
@@ -128,9 +128,9 @@ int Style::UnusedArgument(int a)
 /**
  *  Example of a private method
  *
- *  @param arg Input integer argument
+ *  \param arg Input integer argument
  *
- *  @return The input argument incremented
+ *  \return The input argument incremented
  */
 int Style::_increment(int arg) const
 {
