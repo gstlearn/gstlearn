@@ -146,8 +146,6 @@ int Skin::gridShift(int lec, int dir)
 /*!
  **  Delete a cell from the skin
  **
- ** \return  Error returned code
- **
  ** \param[in]  rank     Rank of the cell to be deleted
  **
  ** \remark  When deleting a cell from the skin, the last cell is copied

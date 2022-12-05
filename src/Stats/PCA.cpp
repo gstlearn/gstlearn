@@ -387,8 +387,6 @@ int PCA::_normalization(const Db *db,
 /*!
  **  Internal PCA covariance calculation
  **
- ** \return The array of covariance (or NULL)
- **
  ** \param[in]  db          Db descriptor
  ** \param[in]  isoFlag     Vector of active samples
  ** \param[in]  mean        Array containing the mean
