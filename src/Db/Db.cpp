@@ -3747,6 +3747,17 @@ VectorDouble Db::getColumns(const VectorString& names, bool useSel) const
   return getColumnsByUID(iuids, useSel);
 }
 
+VectorVectorDouble Db::getColumnsAsVVD(const VectorString& names, bool useSel) const
+{
+  VectorVectorDouble vec;
+  if (names.empty()) return vec;
+  VectorInt iuids =  _ids(names, false);
+
+  for (int i = 0; i < (int) iuids.size(); i++)
+    vec.push_back(getColumnByUID(iuids[i], useSel));
+  return vec;
+}
+
 MatrixRectangular Db::getColumnsAsMatrix(const VectorString &names,
                                          bool useSel) const
 {

@@ -43,6 +43,7 @@
  */
 int main(int /*argc*/, char */*argv*/[])
 
+
 {
   // Standard output redirection to file
   std::stringstream sfn;
@@ -50,18 +51,20 @@ int main(int /*argc*/, char */*argv*/[])
   //  StdoutRedirect sr(sfn.str());
 
   defineDefaultSpace(ESpaceType::SN, 2, EARTH_RADIUS);
-  String filename;
 
-  int nech = 40;
-  VectorDouble extendmin = {0,0};
-  VectorDouble extendmax = {150,100};
-  Db* data = Db::createFromBox(nech, extendmin, extendmax);
-  data->display();
+  int nquant = 10;
+  VectorDouble probas = VH::sequence(1., nquant, 1., (double) nquant);
+  VectorDouble X = VH::simulateGaussian(1000);
+  VectorDouble q1 = VH::quantiles(X, probas);
+  VH::display("Quantiles",q1);
 
-  MeshEStandard mesh1 = MeshEStandard();
-  (void) mesh1.resetFromDb(data,nullptr);
-  mesh1.display();
-  mesh1.printMeshes(2,10);
+  VectorDouble qnorm_in = {EPSILON5, 1. - EPSILON5};
+  VectorDouble qnorm_out = VH::qnormVec(qnorm_in);
+  VH::display("qnorm",qnorm_out);
+
+  VectorDouble pnorm_in = {-100., 0., 100.};
+  VectorDouble pnorm_out = VH::pnormVec(pnorm_in);
+  VH::display("pnorm",pnorm_out);
 
   return (0);
 }

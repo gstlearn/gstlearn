@@ -12,6 +12,8 @@
 
 #include "gstlearn_export.hpp"
 
+#include "Matrix/MatrixRectangular.hpp"
+
 class Cheb_Elem;
 
 GSTLEARN_EXPORT int mvndst_infin(double low, double sup);
@@ -82,3 +84,4 @@ GSTLEARN_EXPORT int ut_icosphere(int n, int flag_rot, int *ntri_arg, double **co
 GSTLEARN_EXPORT double ut_factorial(int k);
 GSTLEARN_EXPORT void ut_log_factorial(int nbpoly, double *factor);
 
+GSTLEARN_EXPORT MatrixRectangular* vanDerCorput(int n, int nd);

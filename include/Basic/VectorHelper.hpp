@@ -59,6 +59,8 @@ public:
   static double stdv(const VectorDouble &vec);
   static double norm(const VectorDouble &vec);
   static double correlation(const VectorDouble &veca, const VectorDouble &vecb);
+  static VectorDouble quantiles(const VectorDouble& vec,
+                                const VectorDouble& probas);
 
   static bool isConstant(const VectorDouble& vect, double refval = TEST);
   static bool isConstant(const VectorInt& vect, int refval = ITEST);
@@ -68,7 +70,10 @@ public:
   static bool isSame(const VectorInt &v1, const VectorInt &v2);
 
   static VectorInt sequence(int number, int ideb = 0);
-  static VectorDouble sequence(double valFrom, double valTo, double valStep);
+  static VectorDouble sequence(double valFrom,
+                               double valTo,
+                               double valStep = 1.,
+                               double ratio = 1.);
   static void fill(VectorDouble& vec, double v, int size = 0);
   static void fill(VectorInt& vec, int v, int size = 0);
   static void fill(VectorVectorDouble &vec, double value);
@@ -93,6 +98,10 @@ public:
   static void normalizeFromGaussianDistribution(VectorDouble &vec,
                                                 double mini = 0.,
                                                 double maxi = 1.);
+  static VectorDouble normalScore(const VectorDouble& data,
+                                  const VectorDouble& wt = VectorDouble());
+  static VectorDouble qnormVec(const VectorDouble& vec);
+  static VectorDouble pnormVec(const VectorDouble& vec);
   static VectorDouble concatenate(const VectorDouble &veca, const VectorDouble &vecb);
   static VectorDouble power(const VectorDouble& vec, double power);
   static VectorDouble inverse(const VectorDouble& vec);
@@ -125,6 +134,7 @@ public:
 
   static VectorInt    sort(const VectorInt& vecin, bool ascending = true);
   static VectorDouble sort(const VectorDouble& vecin, bool ascending = true);
+  static VectorInt    orderRanks(const VectorDouble& vecin);
   static VectorInt    sortRanks(const VectorDouble& vecin);
 
   static std::pair<double,double> rangeVals(const VectorDouble& vec);

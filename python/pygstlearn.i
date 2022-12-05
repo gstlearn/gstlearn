@@ -700,6 +700,9 @@ void exit_f(void)
 %extend Rule {
   std::string __repr__() {  return $self->toString(); }
 }
+%extend PPMT {
+  std::string __repr__() {  return $self->toString(); }
+}
 
 //////////////////////////////////////////////////////////////
 //       Add target language additional features below      //

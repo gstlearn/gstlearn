@@ -15,6 +15,7 @@
 #include "Matrix/MatrixRectangular.hpp"
 #include "Matrix/MatrixSquareSymmetric.hpp"
 #include "Db/Db.hpp"
+#include "Db/DbStringFormat.hpp"
 #include "Basic/VectorNumT.hpp"
 #include "Basic/MathFunc.hpp"
 #include "Basic/Law.hpp"
@@ -40,19 +41,22 @@ int main(int /*argc*/, char */*argv*/[])
   OptCst::define(ECst::NTROW, 15);
   
   Db* data = Db::createFromNF("Data.ascii");
-  int nech = data->getSampleNumber();
 
-  VectorDouble XX = data->getColumns({"Y1","Y2"});
-  MatrixRectangular X(nech, 2);
-  X.setValues(XX.data(),true);
-
+  // Creating PPMT model
   int nbpoly = 30;
   int legendre_order = 5;
   int ndir = 10;
   PPMT ppmt(nbpoly, ndir, legendre_order);
 
+  // Fitting the PPMT model
   int niter = 100;
-  ppmt.fit(&X, niter);
+  MatrixRectangular YY = data->getColumnsAsMatrix({"Y1","Y2"});
+  if (ppmt.fit(&YY, niter)) return 1;
 
-  return(0);
+  // Applying the PPMT model to a new set of data
+  AMatrix* UU = ppmt.RawToTransform(&YY);
+  if (UU->isEmpty()) return 1;
+  (void) data->addColumns(UU->getValues(), "U");
+
+  return 0;
 }

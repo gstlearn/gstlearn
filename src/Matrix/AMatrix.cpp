@@ -1352,3 +1352,29 @@ double AMatrix::getMeanByColumn(int icol) const
   if (count <= 0.) return TEST;
   return cumul / count;
 }
+
+double AMatrix::getMinimum() const
+{
+  double minimum = 1.e30;
+  for (int i = 0; i < getNTotal(); i++)
+  {
+    double value = _getValue(i);
+    if (FFFF(value)) continue;
+    if (value < minimum) minimum = value;
+  }
+  if (minimum == 1.e30) minimum = TEST;
+  return minimum;
+}
+
+double AMatrix::getMaximum() const
+{
+  double maximum = -1.e30;
+  for (int i = 0; i < getNTotal(); i++)
+  {
+    double value = _getValue(i);
+    if (FFFF(value)) continue;
+    if (value > maximum) maximum = value;
+  }
+  if (maximum == -1.e30) maximum = TEST;
+  return maximum;
+}

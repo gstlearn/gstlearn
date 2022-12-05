@@ -43,6 +43,55 @@ MatrixRectangular::~MatrixRectangular()
   _deallocate();
 }
 
+/**
+ * Converts a VectorVectorDouble into a Matrix
+ * Note: the input argument is stored by row (if coming from [] specification)
+ * @param X Input VectorVectorDouble argument
+ * @return The returned rectangular matrix
+ *
+ * @remark: the matrix is transposed implicitly while reading
+ */
+MatrixRectangular* MatrixRectangular::createFromVVD(const VectorVectorDouble& X)
+{
+  int nrow = (int) X.size();
+  int ncol = (int) X[0].size();
+
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+  for (int irow = 0; irow < nrow; irow++)
+    for (int icol = 0; icol < ncol; icol++)
+      mat->setValue(irow, icol, X[irow][icol]);
+
+  return mat;
+}
+
+MatrixRectangular* MatrixRectangular::createFromVD(const VectorDouble &X,
+                                                   int nrow,
+                                                   int ncol,
+                                                   bool byCol)
+{
+  if (nrow * ncol != (int) X.size())
+  {
+    messerr("Inconsistency between arguments 'nrow'(%d) and 'ncol'(%d)", nrow, ncol);
+    messerr("and the dimension of the input Vector (%d)", (int) X.size());
+  }
+  MatrixRectangular* mat = new MatrixRectangular(nrow, ncol);
+
+  int lec = 0;
+  if (byCol)
+  {
+    for (int irow = 0; irow < nrow; irow++)
+      for (int icol = 0; icol < ncol; icol++)
+        mat->setValue(irow, icol, X[lec++]);
+  }
+  else
+  {
+    for (int icol = 0; icol < ncol; icol++)
+      for (int irow = 0; irow < nrow; irow++)
+        mat->setValue(irow, icol, X[lec++]);
+  }
+  return mat;
+}
+
 double MatrixRectangular::_getValue(int irow, int icol) const
 {
   _isIndexValid(irow,icol);

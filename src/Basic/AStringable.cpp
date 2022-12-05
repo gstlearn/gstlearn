@@ -252,19 +252,27 @@ String _printRowHeader(const VectorString& rownames, int iy, int rowSize = _getC
 String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
 {
   std::stringstream sstr;
-  if (ncols != ncols_util || nrows != nrows_util)
+
+  bool used = false;
+  if (ncols != ncols_util)
   {
+    used = true;
     if (ncols == ncols_util)
       sstr << "(Ncols=" << ncols;
     else
       sstr << "(Ncols=" << ncols_util << "[from " << ncols << "]";
+  }
 
+  if (nrows != nrows_util)
+  {
+    used = true;
     if (nrows == nrows_util)
       sstr << ",Nrows=" << nrows << ")";
     else
       sstr << ",Nrows=" << nrows_util << "[from " << nrows << "])";
-    sstr << std::endl;
   }
+
+  if (used) sstr << std::endl;
   return sstr.str();
 }
 
@@ -1037,14 +1045,17 @@ String toMatrix(const String& title, const cs* A, bool flagOverride)
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)
  * @param tab   Vector (real values) to be printed
+ * @param flagOverride true to override printout limitations
  * @return The string (terminated with a newline)
  */
-String toVector(const String& title, const VectorDouble& tab)
+String toVector(const String& title, const VectorDouble& tab, bool flagOverride)
 {
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncutil = static_cast<int> (tab.size());
+  int ncols = static_cast<int> (tab.size());
+  int ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
@@ -1070,6 +1081,10 @@ String toVector(const String& title, const VectorDouble& tab)
     }
     sstr << std::endl;
   }
+
+  // Print the trailer
+  sstr << _printTrailer(ncols, 0, ncutil, 0);
+
   return sstr.str();
 }
 
@@ -1077,9 +1092,10 @@ String toVector(const String& title, const VectorDouble& tab)
  * Printout a list of vectors in a formatted manner
  * @param title Title of the printout (or empty string)
  * @param tab   Vector of vectors (real values) to be printed
+ * @param flagOverride true to override printout limitations
  * @return The string (terminated with a newline)
  */
-String toVector(const String& title, const VectorVectorDouble& tab)
+String toVector(const String& title, const VectorVectorDouble& tab, bool flagOverride)
 {
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
@@ -1087,18 +1103,27 @@ String toVector(const String& title, const VectorVectorDouble& tab)
   if (! title.empty())
     sstr << title << std::endl;
 
-  for (int i = 0; i < (int) tab.size(); i++)
-    sstr << toVector(String(), tab[i]);
+  int nrows = (int) tab.size();
+  int nrutil = nrows;
+  if (_getMaxNRows() > 0 && nrutil > _getMaxNRows() && !flagOverride) nrutil = _getMaxNRows();
+
+  for (int i = 0; i < nrutil; i++)
+    sstr << toVector(String(), tab[i], flagOverride);
+
+  // Print the trailer
+  sstr << _printTrailer(0, nrows, 0, nrutil);
 
   return sstr.str();
 }
 
-String toVector(const String& title, const VectorString& tab)
+String toVector(const String& title, const VectorString& tab, bool flagOverride)
 {
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncutil = static_cast<int> (tab.size());
+  int ncols = static_cast<int> (tab.size());
+  int ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
@@ -1124,6 +1149,10 @@ String toVector(const String& title, const VectorString& tab)
     }
     sstr << std::endl;
   }
+
+  // Print the trailer
+  sstr << _printTrailer(ncols, 0, ncutil, 0);
+
   return sstr.str();
 }
 
@@ -1131,14 +1160,17 @@ String toVector(const String& title, const VectorString& tab)
  * Printout a vector in a formatted manner
  * @param title Title of the printout (or empty string)
  * @param tab   Vector (integer values) to be printed
+ * @param flagOverride true to override printout limitations
  * @return The string (terminated with a newline)
  */
-String toVector(const String& title, const VectorInt& tab)
+String toVector(const String& title, const VectorInt& tab, bool flagOverride)
 {
   std::stringstream sstr;
   if (tab.empty()) return sstr.str();
 
-  int ncutil = static_cast<int> (tab.size());
+  int ncols = static_cast<int> (tab.size());
+  int ncutil = ncols;
+  if (_getMaxNCols() > 0 && ncutil > _getMaxNCols() && !flagOverride) ncutil = _getMaxNCols();
   bool multi_row = ncutil > _getNBatch();
 
   /* Print the title (optional) */
@@ -1164,6 +1196,10 @@ String toVector(const String& title, const VectorInt& tab)
     }
     sstr << std::endl;
   }
+
+  // Print the trailer
+  sstr << _printTrailer(ncols, 0, ncutil, 0);
+
   return sstr.str();
 }
 

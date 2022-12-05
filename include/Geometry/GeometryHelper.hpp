@@ -14,6 +14,7 @@
 
 #include "gstlearn_export.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
+#include "Matrix/MatrixRectangular.hpp"
 
 class GSTLEARN_EXPORT GeometryHelper
 {
@@ -140,6 +141,8 @@ public:
                               double* z,
                               double radius_arg = 1.);
   static MatrixSquareGeneral gradXYToRotmat(double dzoverdx, double dzoverdy);
+  static MatrixRectangular* getDirectionsInR3(const MatrixRectangular* U);
+  static MatrixRectangular* getDirectionsInRn(const MatrixRectangular* U);
 
 private:
   static void _decodeConvRot(const ERotation &convrot,

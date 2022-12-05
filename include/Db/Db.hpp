@@ -520,6 +520,8 @@ public:
   VectorDouble getAllColumns(bool useSel = false) const;
   VectorDouble getColumns(const VectorString& names = VectorString(),
                           bool useSel = false) const;
+  VectorVectorDouble getColumnsAsVVD(const VectorString &names = VectorString(),
+                                     bool useSel = false) const;
   MatrixRectangular getColumnsAsMatrix(const VectorString &names,
                                        bool useSel = false) const;
   VectorDouble getFFFFs(const VectorString& names = VectorString(),

@@ -27,7 +27,7 @@ class AMatrix;
 class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
 {
 public:
-  PPMT(int nbpoly=30, int ndir=10, int legendre_order=2);
+  PPMT();
   PPMT(const PPMT &m);
   PPMT& operator= (const PPMT &m);
   virtual ~PPMT();
@@ -38,27 +38,35 @@ public:
   /// ICloneable Interface
   IMPLEMENT_CLONING(PPMT)
 
-  int getNiter() const { return (int) _anams.size(); }
+  int getNiter()    const { return _niter; }
+  double getAlpha() const { return _alpha; }
+  int getNdir()     const { return _ndir;  }
+  int getNdim()     const { return _ndim;  }
+  const String& getMethod() const { return _method; }
 
-public:
-  MatrixRectangular fillLegendre(const VectorDouble& r) const;
-  AMatrix* sphering(const AMatrix* X);
+  VectorDouble getSerieAngle() const { return _serieAngle; }
+  VectorDouble getSerieScore() const { return _serieScore; };
 
-  VectorDouble generateDirection(double angle) const;
-  double getIndex(const AMatrix *X, const VectorDouble &direction) const;
-  VectorDouble optimize(const AMatrix *X) const;
-  AMatrix* rotate(const AMatrix *X, double alpha, bool direct = true) const;
-
-  int fit(const AMatrix* X, int niter);
-  AMatrix* RawToTransform(const AMatrix* X);
+  int fit(AMatrix *X,
+          int ndir = 10,
+          int niter = 1,
+          double alpha = 2.,
+          const String &method = "vdc",
+          bool verbose = false);
 
 private:
-  int _nbpoly;
-  int _ndir;
-  int _legendreOrder;
-  MatrixSquareGeneral _S;
-  std::vector<AnamHermite> _anams;
-  VectorVectorDouble _directions;
+  MatrixRectangular _fillLegendre(const VectorDouble& r, int legendreOrder) const;
+  AMatrix* _sphering(const AMatrix* X);
+  void _iteration(AMatrix *Y, const AMatrix *dir, double alpha = 2, int iter = 0);
 
-  int _nvar;
+private:
+  int _niter;
+  int _ndir;
+  int _ndim;
+  double _alpha;
+  String _method;
+
+  mutable VectorDouble _serieAngle;
+  mutable VectorDouble _serieScore;
+  mutable VectorVectorDouble _directions;
 };

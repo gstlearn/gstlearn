@@ -186,6 +186,8 @@ public:
                  const VectorInt& icols,
                  const VectorDouble& values);
   double getMeanByColumn(int icol) const;
+  double getMinimum() const;
+  double getMaximum() const;
 
 #ifndef SWIG
   /*! Get value operator override */

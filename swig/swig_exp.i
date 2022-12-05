@@ -89,7 +89,6 @@
 %include Basic/RepeatMacro.hpp
 %include Basic/RepeatMacroSwig.hpp
 %include Basic/Table.hpp
-%include Basic/Utilities.hpp
 %include Basic/OptDbg.hpp
 %include Basic/OptCst.hpp
 %include Basic/OptCustom.hpp
@@ -99,6 +98,7 @@
 %include Basic/FFT.hpp
 %include Basic/PolyLine2D.hpp
 %include Basic/Law.hpp
+%include Basic/MathFunc.hpp
 
 %include Geometry/GeometryHelper.hpp
 %include Geometry/Rotation.hpp

@@ -19,26 +19,27 @@
 #include "Basic/AException.hpp"
 #include "Basic/VectorHelper.hpp"
 #include "Basic/Law.hpp"
+#include "Basic/MathFunc.hpp"
 
-PPMT::PPMT(int nbpoly, int ndir, int legendre_order)
+#include <math.h>
+
+PPMT::PPMT()
     : AStringable(),
-      _nbpoly(nbpoly),
-      _ndir(ndir),
-      _legendreOrder(legendre_order),
-      _anams(),
-      _directions(),
-      _nvar(0)
+      _niter(0),
+      _ndir(0),
+      _ndim(0),
+      _alpha(2.),
+      _method("vdc")
 {
 }
 
 PPMT::PPMT(const PPMT &m)
     : AStringable(m),
-      _nbpoly(m._nbpoly),
+      _niter(m._niter),
       _ndir(m._ndir),
-      _legendreOrder(m._legendreOrder),
-      _anams(m._anams),
-      _directions(m._directions),
-      _nvar(m._nvar)
+      _ndim(m._ndim),
+      _alpha(m._alpha),
+      _method(m._method)
 {
 }
 
@@ -47,12 +48,11 @@ PPMT& PPMT::operator=(const PPMT &m)
   if (this != &m)
   {
     AStringable::operator=(m);
-    _nbpoly = m._nbpoly;
+    _niter = m._niter;
     _ndir = m._ndir;
-    _legendreOrder = m._legendreOrder;
-    _anams = m._anams;
-    _directions = m._directions;
-    _nvar = m._nvar;
+    _ndim = m._ndim;
+    _alpha = m._alpha;
+    _method = m._method;
   }
   return *this;
 }
@@ -67,20 +67,23 @@ String PPMT::toString(const AStringFormat* strfmt) const
 
   std::stringstream sstr;
 
-  int niter = (int) _anams.size();
-  for (int iter = 0; iter < niter; iter++)
-  {
-    sstr << _anams[iter].toString(strfmt);
-    sstr << "Direction = " << _directions[iter] << std::endl;
-  }
+  mestitle(1, "PPMT Method");
+  if (getMethod() == "vdc")
+    sstr << "- Using Van der Corput method" << std::endl;
+  else
+    sstr << "- Using Uniform method" << std::endl;
+  sstr << "- Space dimension =" << getNdim() << std::endl;
+  sstr << "- Number of Directions =" << getNdir() << std::endl;
+  sstr << "- Number of iterations =" << getNiter() << std::endl;
+  sstr << "- Exponent value =" << getAlpha() << std::endl;
 
   return sstr.str();
 }
 
-MatrixRectangular PPMT::fillLegendre(const VectorDouble& r) const
+MatrixRectangular PPMT::_fillLegendre(const VectorDouble& r, int legendreOrder) const
 {
   int nrow = (int) r.size();
-  int ncol = _legendreOrder + 1;
+  int ncol = legendreOrder + 1;
   MatrixRectangular lp(nrow, ncol);
 
   // Initialization
@@ -93,7 +96,7 @@ MatrixRectangular PPMT::fillLegendre(const VectorDouble& r) const
 
   // Recursion
 
-  for (int j = 1; j < _legendreOrder; j++)
+  for (int j = 1; j < legendreOrder; j++)
     for (int i = 0; i < nrow; i++)
     {
       lp.setValue(i, j+1,
@@ -103,7 +106,7 @@ MatrixRectangular PPMT::fillLegendre(const VectorDouble& r) const
   return lp;
 }
 
-AMatrix* PPMT::sphering(const AMatrix* X)
+AMatrix* PPMT::_sphering(const AMatrix* X)
 {
   if (X->isEmpty()) return nullptr;
   int nech = X->getNRows();
@@ -120,8 +123,7 @@ AMatrix* PPMT::sphering(const AMatrix* X)
     return nullptr;
 
   // Invert the sign of the second Eigen vector (for compatibility with R output)
-  MatrixSquareGeneral S(nvar);
-  _S.reset(nvar,  nvar);
+  MatrixRectangular S(nvar, nvar);
   S.setValues(eigen_vectors.data(),true);
   for (int ivar = 0; ivar < nvar ; ivar++)
     for (int jvar = 0; jvar < nvar; jvar++)
@@ -139,171 +141,124 @@ AMatrix* PPMT::sphering(const AMatrix* X)
   return Y;
 }
 
-VectorDouble PPMT::generateDirection(double angle) const
+void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, double alpha, int iter)
 {
-  VectorDouble direction(_nvar);
-  direction[0] = cos(angle);
-  direction[1] = sin(angle);
-  return direction;
-}
+  int np   = Y->getNRows();   // Number of points
+  int ndim = Y->getNCols();   // Dimension of the space
+  int nd   = dir->getNRows(); // Number of directions
 
-double PPMT::getIndex(const AMatrix *X, const VectorDouble &direction) const
-{
-  MatrixRectangular dirmat(_nvar, 1);
-  dirmat.setValues(direction.data());
-  AMatrix* XPP = prodMatrix(X, &dirmat);
+  // Initialization
+  VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
+  VectorDouble N0 = VH::qnormVec(sequence);
 
-  VectorDouble r = XPP->getColumn(0);
-  delete XPP;
+  VectorDouble Y0(np, TEST);
+  VectorInt R0(np, ITEST);
+  int idmax = -1;
+  double ddmax = -1.e30;
 
-  VH::normalizeFromGaussianDistribution(r,-1.,1.);
-
-  MatrixRectangular lp = fillLegendre(r);
-
-  double idx = 0.;
-  for (int l = 0; l < _legendreOrder; l++)
+  // Loop on directions
+  VectorDouble Yi(np);
+  for (int id = 0; id < nd; id++)
   {
-    double mean = lp.getMeanByColumn(1+l);
-    idx += (2*l+3)/2. * mean * mean;
-  }
-  return idx;
-}
-
-VectorDouble PPMT::optimize(const AMatrix* X) const
-{
-  double idx_max = -1.;
-  double ang_max = -1.;
-
-  for (int i = 0; i < _ndir; i++)
-  {
-    // Draw a direction at random
-
-    double angle = (double)(i+1) * GV_PI / (double) _ndir;
-    VectorDouble direction = generateDirection(angle);
-    double idx = getIndex(X, direction);
-    if (idx > idx_max)
+    for (int ip = 0; ip < np; ip++)
     {
-      idx_max = idx;
-      ang_max = angle;
+      double value = 0.;
+      for (int idim = 0; idim < ndim; idim++)
+        value += Y->getValue(ip, idim) * dir->getValue(id, idim);
+      Yi[ip] = value;
+    }
+
+    VectorInt Ri = VH::sortRanks(Yi);
+
+    double di = 0.;
+    for (int ip = 0; ip < np; ip++)
+    {
+      double value = ABS(Yi[ip] - N0[Ri[ip]]);
+      di += pow(value, alpha);
+    }
+    di /= (double) np;
+    if (ddmax < di)
+    {
+      idmax = id;
+      ddmax = di;
+      Y0 = Yi;
+      R0 = Ri;
     }
   }
 
-  VectorDouble result(2);
-  result[0] = idx_max;
-  result[1] = ang_max;
-  return result;
+  for (int ip = 0; ip < np; ip++)
+  {
+    double value = 0.;
+    double scale = N0[R0[ip]] - Y0[ip];
+    for (int idim = 0; idim < ndim; idim++)
+    {
+      value = Y->getValue(ip, idim) + scale * dir->getValue(idmax, idim);
+      Y->setValue(ip, idim, value);
+    }
+  }
+
+  // Returning arguments
+  _serieAngle.push_back(idmax);
+  _serieScore.push_back(ddmax);
+  _directions.push_back(dir->getRow(idmax));
 }
 
-AMatrix* PPMT::rotate(const AMatrix *X, double alpha, bool direct) const
+int PPMT::fit(AMatrix *Y,
+              int ndir,
+              int niter,
+              double alpha,
+              const String &method,
+              bool verbose)
 {
-  double cs = cos(alpha);
-  double sn = sin(alpha);
-  MatrixSquareGeneral rotation = MatrixSquareGeneral(2);
-  if (direct)
+  if (Y == nullptr)
   {
-    rotation.setValue(0, 0, cs);
-    rotation.setValue(1, 0, sn);
-    rotation.setValue(0, 1, -sn);
-    rotation.setValue(1, 1, cs);
+    messerr("Argument 'Y' should be provided");
+    return 1;
+  }
+  _niter = niter;
+  _ndir  = ndir;
+  _ndim  = Y->getNCols();
+  _alpha = alpha;
+  _method = method;
+
+  // Creating the directions
+
+  MatrixRectangular* Umat;
+  if (method == "vdc")
+  {
+    Umat = vanDerCorput(ndir, _ndim);
   }
   else
   {
-    rotation.setValue(0, 0, cs);
-    rotation.setValue(1, 0, -sn);
-    rotation.setValue(0, 1, sn);
-    rotation.setValue(1, 1, cs);
+    VectorDouble X = VH::simulateUniform(ndir * _ndim);
+    Umat = MatrixRectangular::createFromVD(X, ndir, _ndim);
   }
+  MatrixRectangular* dirmat = GeometryHelper::getDirectionsInRn(Umat);
+  delete Umat;
 
-  AMatrix* XR = prodMatrix(X, &rotation);
-
-  return XR;
-}
-
-int PPMT::fit(const AMatrix* X, int niter)
-{
-  // Preliminary check
-  if (_nbpoly <= 0)
-  {
-    messerr("The number of Hermite polynomials is not defined");
-    return 1;
-  }
-  if (_ndir <= 0)
-  {
-    messerr("The number of Directions is not defined");
-    return 1;
-  }
-  if (_legendreOrder <= 2)
-  {
-    messerr("The order of Legendre Polynomials is not defined");
-    return 1;
-  }
-
-  // Cleaning
-  _anams.clear();
+  // Clearing the storage
+  _serieAngle.clear();
+  _serieScore.clear();
   _directions.clear();
-  _nvar = X->getNCols();
 
-  // Processing
-  AMatrix* XP = sphering(X);
+  // Loop on the iterations
   for (int iter = 0; iter < niter; iter++)
+    _iteration(Y, dirmat, alpha, iter);
+  delete dirmat;
+
+  // Optional printout
+  if (verbose)
   {
-    VectorDouble result = optimize(XP);
-    message("Iteration %d: angle=%lf max=%lf\n",iter+1,result[1],result[0]);
-
-    double angle = result[1];
-    AMatrix* XR = rotate(XP, angle, true);
-    delete XP;
-
-    _directions.push_back(result);
-
-    AnamHermite anam = AnamHermite(_nbpoly);
-    VectorDouble Z = XR->getColumn(0);
-    anam.fitFromArray(Z);
-    VectorDouble Y = anam.RawToTransformVec(Z);
-    XR->setColumn(0, Y);
-    AMatrix* XB = rotate(XR, angle, false);
-    delete XR;
-
-    _anams.push_back(anam);
-
-    XP = XB;
+    mestitle(1, "PPMT Method");
+    if (method == "vdc")
+      message("- Using Van der Corput method\n");
+    else
+      message("- Using Uniform method\n");
+    message("- Space dimension = %d\n",getNdim());
+    message("- Number of Directions = %d\n",getNdir());
+    message("- Number of Iterations = %d\n",getNiter());
+    message("- Exponent value = %lf\n", getAlpha());
   }
   return 0;
 }
 
-AMatrix* PPMT::RawToTransform(const AMatrix* X)
-{
-  if (X->getNCols() != _nvar)
-  {
-    messerr("The input array has %d columns",X->getNCols());
-    messerr("The number of variables in the PPMT is %d",_nvar);
-    messerr("This is not correct");
-    return nullptr;
-  }
-  int niter = getNiter();
-
-  AMatrix* XP = dynamic_cast<AMatrix*>(X->clone());
-  for (int iter = niter-1; iter >= 0; iter--)
-  {
-    double angle = _directions[iter][1];
-    AMatrix* XR = rotate(XP, angle, true);
-    delete XP;
-
-    VectorDouble Y = XR->getColumn(0);
-    VectorDouble Z = _anams[iter].TransformToRawVec(Y);
-    XR->setColumn(0, Z);
-    AMatrix* XB = rotate(XR, angle, false);
-    delete XR;
-
-    XP = XB;
-  }
-
-  // Inverse sphering
-
-  MatrixSquareGeneral invS = _S;
-  invS.invert();
-
-  AMatrix* Y = prodMatrix(XP, &invS);
-
-  return Y;
-}
