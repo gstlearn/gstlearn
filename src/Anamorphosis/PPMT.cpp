@@ -23,13 +23,12 @@
 
 #include <math.h>
 
-PPMT::PPMT()
+PPMT::PPMT(int ndir, int niter, double alpha, const String &method)
     : AStringable(),
-      _niter(0),
-      _ndir(0),
-      _ndim(0),
-      _alpha(2.),
-      _method("vdc")
+      _niter(niter),
+      _ndir(ndir),
+      _alpha(alpha),
+      _method(method)
 {
 }
 
@@ -37,7 +36,6 @@ PPMT::PPMT(const PPMT &m)
     : AStringable(m),
       _niter(m._niter),
       _ndir(m._ndir),
-      _ndim(m._ndim),
       _alpha(m._alpha),
       _method(m._method)
 {
@@ -72,7 +70,6 @@ String PPMT::toString(const AStringFormat* strfmt) const
     sstr << "- Using Van der Corput method" << std::endl;
   else
     sstr << "- Using Uniform method" << std::endl;
-  sstr << "- Space dimension =" << getNdim() << std::endl;
   sstr << "- Number of Directions =" << getNdir() << std::endl;
   sstr << "- Number of iterations =" << getNiter() << std::endl;
   sstr << "- Exponent value =" << getAlpha() << std::endl;
@@ -141,11 +138,12 @@ AMatrix* PPMT::_sphering(const AMatrix* X)
   return Y;
 }
 
-void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, double alpha, int iter)
+void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
 {
   int np   = Y->getNRows();   // Number of points
   int ndim = Y->getNCols();   // Dimension of the space
   int nd   = dir->getNRows(); // Number of directions
+  double alpha = getAlpha();
 
   // Initialization
   VectorDouble sequence = VH::sequence(1., np, 1., 1. + np);
@@ -203,28 +201,21 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, double alpha, int iter)
   _directions.push_back(dir->getRow(idmax));
 }
 
-int PPMT::fit(AMatrix *Y,
-              int ndir,
-              int niter,
-              double alpha,
-              const String &method,
-              bool verbose)
+int PPMT::fit(AMatrix *Y, bool verbose)
 {
   if (Y == nullptr)
   {
-    messerr("Argument 'Y' should be provided");
+    messerr("Input Argument 'Y' (matrix) should be provided");
     return 1;
   }
-  _niter = niter;
-  _ndir  = ndir;
   _ndim  = Y->getNCols();
-  _alpha = alpha;
-  _method = method;
+  int ndir = getNdir();
+  int niter = getNiter();
 
   // Creating the directions
 
   MatrixRectangular* Umat;
-  if (method == "vdc")
+  if (getMethod() == "vdc")
   {
     Umat = vanDerCorput(ndir, _ndim);
   }
@@ -243,14 +234,14 @@ int PPMT::fit(AMatrix *Y,
 
   // Loop on the iterations
   for (int iter = 0; iter < niter; iter++)
-    _iteration(Y, dirmat, alpha, iter);
+    _iteration(Y, dirmat, iter);
   delete dirmat;
 
   // Optional printout
   if (verbose)
   {
     mestitle(1, "PPMT Method");
-    if (method == "vdc")
+    if (getMethod() == "vdc")
       message("- Using Van der Corput method\n");
     else
       message("- Using Uniform method\n");

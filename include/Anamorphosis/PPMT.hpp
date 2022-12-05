@@ -27,7 +27,10 @@ class AMatrix;
 class GSTLEARN_EXPORT PPMT : public ICloneable, public AStringable
 {
 public:
-  PPMT();
+  PPMT(int ndir = 50,
+       int niter = 10,
+       double alpha = 2.,
+       const String &method = "vdc");
   PPMT(const PPMT &m);
   PPMT& operator= (const PPMT &m);
   virtual ~PPMT();
@@ -47,25 +50,20 @@ public:
   VectorDouble getSerieAngle() const { return _serieAngle; }
   VectorDouble getSerieScore() const { return _serieScore; };
 
-  int fit(AMatrix *X,
-          int ndir = 10,
-          int niter = 1,
-          double alpha = 2.,
-          const String &method = "vdc",
-          bool verbose = false);
+  int fit(AMatrix *X, bool verbose = false);
 
 private:
   MatrixRectangular _fillLegendre(const VectorDouble& r, int legendreOrder) const;
   AMatrix* _sphering(const AMatrix* X);
-  void _iteration(AMatrix *Y, const AMatrix *dir, double alpha = 2, int iter = 0);
+  void _iteration(AMatrix *Y, const AMatrix *dir, int iter = 0);
 
 private:
   int _niter;
   int _ndir;
-  int _ndim;
   double _alpha;
   String _method;
 
+  mutable int _ndim;
   mutable VectorDouble _serieAngle;
   mutable VectorDouble _serieScore;
   mutable VectorVectorDouble _directions;
