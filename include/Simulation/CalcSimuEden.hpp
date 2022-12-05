@@ -22,6 +22,24 @@
 class Skin;
 class MatrixRectangular;
 
+/**
+ * Multivariate multiphase propagation into a set of components
+ * constrained by initial conditions and fluid densities
+ *
+ * \remark  Directions are ordered as follows :
+ * \remark  0: +X; 1: -X; 2: +Y; 3: -Y; 4: +Z(up); 5: -Z(down)
+ * \remark  The coding of the matrix is:
+ * \remark              facies + nfacies * fluid
+ * \remark  Facies: 0 (Shale), 1 to nfacies, -1 (Cork)
+ * \remark  Fluids: 0 (undefined), 1 to nfluids, -1 (No Fluid)
+ * \remark  Fluids should be ordered by increasing weight
+ * \remark  A Permeability variable is a value (>=1) which divides
+ * \remark  the velocities. This variable is optional.
+ * \remark  A Porosity variable is a value (in [0,1]) which multiplies
+ * \remark  the volumes. This variable is optional.
+ * \remark  Volume_max represents the volumic part of the invaded area:
+ * \remark  it is always <= number of cells invaded.
+ */
 class GSTLEARN_EXPORT CalcSimuEden: public ACalcSimulation, public AStringable, public ISkinFunctions
 {
 public:
@@ -95,22 +113,25 @@ private:
 
 private:
   bool _verbose;
+  /// 1 for modifying the value of the cells to show
+  ///\li                       the initial valid fluid information
+  ///\li                       the cork (different from shale)
   bool _showFluid;
   int _iptrStatFluid;
   int _iptrStatCork;
   int _iptrFluid;
   int _iptrDate;
-  int _niter;
-  int _nfacies;
-  int _nfluids;
-  VectorInt _speeds;
-  double _numberMax;
-  double _volumeMax;
+  int _niter; /// Number of iterations
+  int _nfacies; /// number of facies (facies 0 excluded)
+  int _nfluids; /// number of fluids
+  VectorInt _speeds; /// array containing the travel speeds
+  double _numberMax; /// Maximum count of cells invaded (or TEST)
+  double _volumeMax; /// Maximum volume invaded (or TEST)
 
-  int _indFacies;
-  int _indFluid;
-  int _indPerm;
-  int _indPoro;
+  int _indFacies; /// Rank of the variable containing the Facies
+  int _indFluid; /// Rank of the variable containing the Fluid
+  int _indPerm; /// Rank of the variable containing the Permeability
+  int _indPoro; /// Rank of the variable containing the Porosity
   int _indDate;
 
   int _nxyz;
