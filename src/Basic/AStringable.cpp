@@ -253,26 +253,30 @@ String _printTrailer(int ncols, int nrows, int ncols_util, int nrows_util)
 {
   std::stringstream sstr;
 
-  bool used = false;
+  bool one_used = (ncols != ncols_util || nrows != nrows_util);
+  bool all_used = (ncols != ncols_util && nrows != nrows_util);
+
+  if (one_used) sstr << "(";
+
   if (ncols != ncols_util)
   {
-    used = true;
     if (ncols == ncols_util)
-      sstr << "(Ncols=" << ncols;
+      sstr << "Ncols=" << ncols;
     else
-      sstr << "(Ncols=" << ncols_util << "[from " << ncols << "]";
+      sstr << "Ncols=" << ncols_util << "[from " << ncols << "]";
   }
+
+  if (all_used) sstr << ",";
 
   if (nrows != nrows_util)
   {
-    used = true;
     if (nrows == nrows_util)
-      sstr << ",Nrows=" << nrows << ")";
+      sstr << "Nrows=" << nrows;
     else
-      sstr << ",Nrows=" << nrows_util << "[from " << nrows << "])";
+      sstr << "Nrows=" << nrows_util << "[from " << nrows << "]";
   }
 
-  if (used) sstr << std::endl;
+  if (one_used) sstr << ")" << std::endl;
   return sstr.str();
 }
 

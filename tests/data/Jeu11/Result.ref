@@ -68,7 +68,7 @@ Data Base Contents
      [  4,]     5.055    62.643     8.390     8.390     8.390
      [  5,]    18.088     4.048     1.335       N/A     2.000
      [  6,]    90.004    21.970     8.359     8.359     8.359
-(Ncols=5,Nrows=7[from 10])
+(Nrows=7[from 10])
 
 Data Base Grid Characteristics
 ==============================
@@ -121,4 +121,4 @@ Data Base Contents
      [  4,]       3.433       0.975
      [  5,]       3.293       0.958
      [  6,]       3.161       0.939
-(Ncols=2,Nrows=7[from 10000])
+(Nrows=7[from 10000])

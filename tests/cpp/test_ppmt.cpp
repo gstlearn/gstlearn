@@ -43,20 +43,16 @@ int main(int /*argc*/, char */*argv*/[])
   Db* data = Db::createFromNF("Data.ascii");
 
   // Creating PPMT model
-  int nbpoly = 30;
-  int legendre_order = 5;
   int ndir = 10;
-  PPMT ppmt(nbpoly, ndir, legendre_order);
+  int niter = 100;
+  PPMT ppmt(ndir, niter);
 
   // Fitting the PPMT model
-  int niter = 100;
   MatrixRectangular YY = data->getColumnsAsMatrix({"Y1","Y2"});
-  if (ppmt.fit(&YY, niter)) return 1;
+  ppmt.fit(&YY, true);
 
   // Applying the PPMT model to a new set of data
-  AMatrix* UU = ppmt.RawToTransform(&YY);
-  if (UU->isEmpty()) return 1;
-  (void) data->addColumns(UU->getValues(), "U");
+  (void) data->addColumns(YY.getValues(), "U");
 
   return 0;
 }

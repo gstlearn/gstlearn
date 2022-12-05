@@ -264,7 +264,7 @@ Line Vertex Coordinates
      [  4,]    -0.532    -0.343
      [  5,]    -0.188     0.048
      [  6,]    -1.087     1.010
-(Ncols=2,Nrows=7[from 100])
+(Nrows=7[from 100])
 Line Vertex Coordinates
                [,  0]    [,  1]
      [  0,]     1.274     0.946
@@ -274,4 +274,4 @@ Line Vertex Coordinates
      [  4,]    -0.532    -0.343
      [  5,]    -0.188     0.048
      [  6,]    -1.087     1.010
-(Ncols=2,Nrows=7[from 100])
+(Nrows=7[from 100])

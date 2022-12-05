@@ -82,19 +82,19 @@ GSTLEARN_EXPORT String toMatrixDiagCst(const String& title,
                                        bool flagOverride = false);
 GSTLEARN_EXPORT String toMatrix(const String& title,
                                 const cs* A,
-                                bool  flagOverride = false);
+                                bool  flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorDouble& tab,
-                                bool flagOverride = false);
+                                bool flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorVectorDouble& tab,
-                                bool flagOverride = false);
+                                bool flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorInt& tab,
-                                bool flagOverride = false);
+                                bool flagOverride = true);
 GSTLEARN_EXPORT String toVector(const String& title,
                                 const VectorString& tab,
-                                bool flagOverride = false);
+                                bool flagOverride = true);
 GSTLEARN_EXPORT String toStr(const String& string,
                              const EJustify& justify = EJustify::fromKey("RIGHT"));
 GSTLEARN_EXPORT String toDouble(double value,
