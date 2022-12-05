@@ -41,6 +41,17 @@ public:
   /// ICloneable Interface
   IMPLEMENT_CLONING(PPMT)
 
+  static PPMT* create(int ndir = 50,
+                      int niter = 10,
+                      double alpha = 2.,
+                      const String &method = "vdc");
+
+  int rawToGaussian(Db *db,
+                    const VectorString &names,
+                    bool useSel = false,
+                    bool verbose = false,
+                    const NamingConvention &namconv = NamingConvention("Y"));
+
   int getNiter()    const { return _niter; }
   double getAlpha() const { return _alpha; }
   int getNdir()     const { return _ndir;  }
@@ -50,7 +61,7 @@ public:
   VectorDouble getSerieAngle() const { return _serieAngle; }
   VectorDouble getSerieScore() const { return _serieScore; };
 
-  int fit(AMatrix *X, bool verbose = false);
+  void fit(AMatrix *X, bool verbose = false);
 
 private:
   MatrixRectangular _fillLegendre(const VectorDouble& r, int legendreOrder) const;
@@ -68,3 +79,4 @@ private:
   mutable VectorDouble _serieScore;
   mutable VectorVectorDouble _directions;
 };
+

@@ -13,6 +13,7 @@
 #include "geoslib_define.h"
 
 #include "Anamorphosis/PPMT.hpp"
+#include "Matrix/AMatrix.hpp"
 #include "Matrix/MatrixSquareGeneral.hpp"
 #include "Matrix/MatrixRectangular.hpp"
 #include "Db/Db.hpp"
@@ -57,6 +58,11 @@ PPMT& PPMT::operator=(const PPMT &m)
 
 PPMT::~PPMT()
 {
+}
+
+PPMT* PPMT::create(int ndir, int niter, double alpha, const String &method)
+{
+  return new PPMT(ndir, niter, alpha, method);
 }
 
 String PPMT::toString(const AStringFormat* strfmt) const
@@ -140,9 +146,9 @@ AMatrix* PPMT::_sphering(const AMatrix* X)
 
 void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
 {
-  int np   = Y->getNRows();   // Number of points
-  int ndim = Y->getNCols();   // Dimension of the space
-  int nd   = dir->getNRows(); // Number of directions
+  int np   = Y->getNRows();
+  int ndim = getNdim();
+  int nd   = getNdir();
   double alpha = getAlpha();
 
   // Initialization
@@ -151,7 +157,7 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
 
   VectorDouble Y0(np, TEST);
   VectorInt R0(np, ITEST);
-  int idmax = -1;
+  int    idmax = -1;
   double ddmax = -1.e30;
 
   // Loop on directions
@@ -167,7 +173,6 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
     }
 
     VectorInt Ri = VH::sortRanks(Yi);
-
     double di = 0.;
     for (int ip = 0; ip < np; ip++)
     {
@@ -175,6 +180,7 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
       di += pow(value, alpha);
     }
     di /= (double) np;
+
     if (ddmax < di)
     {
       idmax = id;
@@ -201,12 +207,11 @@ void PPMT::_iteration(AMatrix *Y, const AMatrix* dir, int iter)
   _directions.push_back(dir->getRow(idmax));
 }
 
-int PPMT::fit(AMatrix *Y, bool verbose)
+void PPMT::fit(AMatrix *Y, bool verbose)
 {
   if (Y == nullptr)
   {
-    messerr("Input Argument 'Y' (matrix) should be provided");
-    return 1;
+    messerr("Input Argument 'Y' (matrix) should be provided. Nothing is done");
   }
   _ndim  = Y->getNCols();
   int ndir = getNdir();
@@ -250,6 +255,32 @@ int PPMT::fit(AMatrix *Y, bool verbose)
     message("- Number of Iterations = %d\n",getNiter());
     message("- Exponent value = %lf\n", getAlpha());
   }
-  return 0;
 }
 
+int PPMT::rawToGaussian(Db *db,
+                        const VectorString &names,
+                        bool useSel,
+                        bool verbose,
+                        const NamingConvention &namconv)
+{
+  // Extract the relevant information
+
+  MatrixRectangular Y = db->getColumnsAsMatrix(names, useSel);
+  if (Y.isEmpty())
+  {
+    messerr("This method requires several variables to be defined");
+    return 1;
+  }
+
+  // Perform the PPMT procedure and transform the argument in place
+
+  fit(&Y, verbose);
+
+  // Add the newly created information in the Db
+
+  int iptr = db->addColumns(Y.getValues());
+
+  namconv.setNamesAndLocators(db, iptr, names);
+
+  return 0;
+}

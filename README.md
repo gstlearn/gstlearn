@@ -27,6 +27,9 @@ When using the *gstlearn* C++ library, please use the citation from [doc/gstlear
 
 The *gstlearn* C++ library is a derivative work based on the *swigex* project: [https://github.com/fabien-ors/swigex](https://github.com/fabien-ors/swigex)
 
+The *gstlearn* C++ library uses the following third party products:
+* ANN (LGPL): http://www.cs.umd.edu/~mount/ANN/ (TODO: to be checked)
+
 ## Requirements
 
 This library has been successfully tested with Ubuntu 16/18/20 LTS and Windows 10 (MacOS: not tested).
