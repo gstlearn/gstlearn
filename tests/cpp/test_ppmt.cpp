@@ -48,11 +48,8 @@ int main(int /*argc*/, char */*argv*/[])
   PPMT ppmt(ndir, niter);
 
   // Fitting the PPMT model
-  MatrixRectangular YY = data->getColumnsAsMatrix({"Y1","Y2"});
-  ppmt.fit(&YY, true);
-
-  // Applying the PPMT model to a new set of data
-  (void) data->addColumns(YY.getValues(), "U");
+  ppmt.rawToGaussian(data, {"Y1","Y2"}, false, true, NamingConvention("U"));
+  data->display();
 
   return 0;
 }

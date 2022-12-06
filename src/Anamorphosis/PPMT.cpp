@@ -280,7 +280,19 @@ int PPMT::rawToGaussian(Db *db,
 
   int iptr = db->addColumns(Y.getValues());
 
-  namconv.setNamesAndLocators(db, iptr, names);
+  namconv.setNamesAndLocators(names, db, iptr);
 
   return 0;
+}
+
+VectorDouble PPMT::getSerieScore(bool flagLog) const
+{
+  VectorDouble vec;
+  for (int iter = 0; iter < getNiter(); iter++)
+  {
+    double value = _serieScore[iter];
+    if (flagLog) value = log(value);
+    vec.push_back(value);
+  }
+  return vec;
 }

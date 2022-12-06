@@ -59,7 +59,7 @@ public:
   const String& getMethod() const { return _method; }
 
   VectorDouble getSerieAngle() const { return _serieAngle; }
-  VectorDouble getSerieScore() const { return _serieScore; };
+  VectorDouble getSerieScore(bool flagLog = false) const;
 
   void fit(AMatrix *X, bool verbose = false);
 
