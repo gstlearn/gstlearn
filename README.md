@@ -167,7 +167,7 @@ Download and install the following tools using default options during installati
 
 Notes:
 
-* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder in the *Path* variable and restart Windows)
+* The *Path* environment variable (*System variables*) must be updated to make *doxygen.exe* available in the batch command line (follow [this guide](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10) to add *bin* directory from the *Doxygen* installation folder (ex: `C:\Program Files\doxygen\bin`) in the *Path* System variable and restart Windows)
 * You must restart your computer after installing these requirements
 
 ### Windows - MinGW (via RTools):
